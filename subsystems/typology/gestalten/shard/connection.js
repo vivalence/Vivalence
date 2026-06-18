@@ -94,6 +94,11 @@ export const batch = (options = {}) => {
           .next()
           .then(() => {
             const results = lead.ctx.response.body;
+            if (!Array.isArray(results)) {
+              lead.ctx.response.setError();
+              for (const entry of q) entry.reject(lead.ctx.response.error);
+              return;
+            }
             for (let i = 0; i < q.length; i++) {
               const entry = q[i];
               const result = results[i];

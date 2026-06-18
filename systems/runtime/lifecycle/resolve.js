@@ -17,16 +17,16 @@ export async function attach(runtimeDie) {
   async function attachDaemons(runtimeDie) {
     for (const daemonDie of runtimeDie.good.daemons) {
       for (const mode of daemonDie.good.flatmodes()) {
-        if (!mode.implements("BUFFERED")) continue;
+        if (!mode.implements("VIEWABLE")) continue;
         runtimeDie.good.aperture //
           .branch("/attached/view")
           .branch(mode.mount.absolute)
           .use(shard.context.attach("mode", mode))
           .open("/status", () => ({ status: "success" }))
           .open("/(.*)", async (input, ctx) => {
-            if (paladin.is.dev) await ctx.mode.cake.buffer.bundle();
+            if (paladin.is.dev) await ctx.mode.cake.view.bundle();
             ctx.response.type = "application/javascript";
-            return ctx.mode.cake.buffer.serve(fromm.params(ctx.params).path).text;
+            return ctx.mode.cake.view.serve(fromm.params(ctx.params).path).text;
           });
       }
       // for (const mode of daemonDie.good.flatmodes()) {
@@ -79,6 +79,36 @@ export async function expose(runtimeDie) {
       .slurp(daemonDie.good.aperture)
       .open("/batch", shard.batch.route(daemonBranch));
   }
+}
+
+export async function metadata(runtimeDie) {
+  const root = runtimeDie.good.aperture.branch("/metadata");
+
+  root.open("/manifest", () => runtimeDie.manifest);
+  root.open("/aperture", () => shape.strip(runtimeDie.good.aperture));
+
+  root.open("/circuitry", () => ({
+    daemons: paladin.variant.daemons.map((mask) => mask.manifest ?? mask),
+    services: paladin.variant.services.map((mask) => mask.manifest ?? { module: mask.module }),
+  }));
+
+  root.open("/daemons", () =>
+    runtimeDie.good.daemons.map((daemonDie) => ({
+      slug: daemonDie.slug,
+      mount: daemonDie.good.mount.nature,
+      modes: daemonDie.good.flatmodes().length,
+      metadata: `${daemonDie.good.mount.nature}/metadata`,
+    })),
+  );
+
+  root.open("/services", () =>
+    runtimeDie.good.processes.map((processDie) => ({
+      type: processDie.type,
+      slug: processDie.slug,
+      mount: `/attached/process/${processDie.type}/${processDie.slug}`,
+      metadata: `/attached/process/${processDie.type}/${processDie.slug}/metadata`,
+    })),
+  );
 }
 
 // export async function compose(runtimeDie) {

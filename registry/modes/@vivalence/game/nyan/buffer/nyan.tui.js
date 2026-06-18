@@ -3,12 +3,13 @@ import {
   analyze,
   ascending,
   createRun,
-  finishWord,
+  defaultConfig,
   fold,
   groupBy,
   liveStats,
   note,
   press,
+  project,
   sample,
 } from "./engine.js";
 
@@ -44,15 +45,15 @@ const columns = () => {
   }
 };
 
-const renderWord = (run, wordIndex) => {
-  const target = run.words[wordIndex];
-  if (wordIndex < run.wordIndex) {
-    const tint = { g: GREEN, y: YELLOW, r: RED }[run.marks[wordIndex]];
+const renderWord = (view, wordIndex) => {
+  const target = view.words[wordIndex];
+  if (wordIndex < view.wordIndex) {
+    const tint = { g: GREEN, y: YELLOW, r: RED }[view.marks[wordIndex]];
     return { text: tint + target + RESET + " ", width: target.length + 1 };
   }
-  if (wordIndex > run.wordIndex)
+  if (wordIndex > view.wordIndex)
     return { text: DIM + target + RESET + " ", width: target.length + 1 };
-  const typed = [...run.typed]
+  const typed = [...view.typed]
     .map((character, index) => {
       const expected = target[index];
       const tint =
@@ -64,11 +65,11 @@ const renderWord = (run, wordIndex) => {
       return tint + (expected ?? character) + RESET;
     })
     .join("");
-  const rest = target.slice(run.typed.length);
+  const rest = target.slice(view.typed.length);
   const tail = rest
     ? UNDERLINE + BOLD + rest[0] + RESET + rest.slice(1) + " "
     : UNDERLINE + " " + RESET;
-  return { text: typed + tail, width: Math.max(target.length, run.typed.length) + 1 };
+  return { text: typed + tail, width: Math.max(target.length, view.typed.length) + 1 };
 };
 
 const wrapTokens = (tokens, limit) =>
@@ -84,16 +85,17 @@ const wrapTokens = (tokens, limit) =>
   );
 
 const renderPractice = (state) => {
+  const view = project(state.run.words, state.run.config, state.run.log);
   const limit = Math.min(columns() - 4, 76);
   const body = wrapTokens(
-    state.run.words.map((_, index) => renderWord(state.run, index)),
+    view.words.map((_, index) => renderWord(view, index)),
     limit,
   )
     .map((line) => "  " + line.text)
     .join("\n");
   const live =
-    state.config.live === "shown" && state.run.events.length > 1
-      ? DIM + "  " + liveStats(state.run) + RESET
+    state.config.live === "shown" && view.events.length > 1
+      ? DIM + "  " + liveStats(view) + RESET
       : "";
   return [
     DIM + "typer · practice" + RESET + live,
@@ -108,7 +110,7 @@ const FIELDS = [
   { key: "source", options: ["en", "pt", "file"] },
   { key: "path", text: true, when: (config) => config.source === "file" },
   { key: "count", step: 5, min: 5 },
-  { key: "gameplay", options: GAMEPLAYS },
+  { key: "gameplay", options: Object.keys(GAMEPLAYS) },
   { key: "forgiving", options: ["on", "off"] },
   { key: "recallMs", step: 250, min: 500 },
   { key: "live", options: ["shown", "hidden"] },
@@ -239,12 +241,12 @@ const start = (state, words) => {
 };
 
 const finish = (state) => {
-  if (state.run.typed.length) finishWord(state.run, performance.now());
-  if (!state.run.events.length) {
+  const view = project(state.run.words, state.run.config, state.run.log);
+  if (!view.events.length) {
     state.panel = "setup";
     return;
   }
-  state.analysis = analyze(state.run);
+  state.analysis = analyze(view);
   state.panel = "review";
 };
 
@@ -279,9 +281,10 @@ const practiceKey = (state, sequence) => {
   if (sequence === "\x1b") return finish(state);
   if (sequence.startsWith("\x1b")) return;
   for (const character of [...sequence]) {
-    press(state.run, character);
-    if (state.run.dead) return start(state, state.run.words);
-    if (state.run.done) return finish(state);
+    press(state.run.log, character);
+    const view = project(state.run.words, state.run.config, state.run.log);
+    if (view.dead) return start(state, state.run.words);
+    if (view.done) return finish(state);
   }
 };
 
@@ -300,16 +303,7 @@ const main = async () => {
     run: null,
     analysis: null,
     quit: false,
-    config: {
-      source: "en",
-      path: "",
-      count: 20,
-      gameplay: "PLAIN",
-      forgiving: "on",
-      recallMs: 1500,
-      live: "shown",
-      targetWpm: 40,
-    },
+    config: defaultConfig({ path: "" }),
   };
   Deno.stdin.setRaw(true);
   write("\x1b[?25l\x1b[2J");

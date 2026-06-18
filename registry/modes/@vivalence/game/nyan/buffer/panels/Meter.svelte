@@ -1,12 +1,10 @@
 <script>
   import { pulse } from "../engine.js";
 
-  const { game } = $props();
+  const { view } = $props();
 
-  const meter = $derived(
-    game.run && game.run.events.length > 1 ? pulse(game.run) : null,
-  );
-  const armed = $derived(meter != null && game.run.startedAt != null);
+  const meter = $derived(view && view.events.length > 1 ? pulse(view) : null);
+  const armed = $derived(meter != null && view.startedAt != null);
   const scale = $derived(armed ? Math.max(120, meter.fast, meter.slow) * 1.15 : 120);
 </script>
 
@@ -43,7 +41,7 @@
     opacity: 0.2;
   }
   .read {
-    font-size: 0.75rem;
+    font-size: var(--font-size-sm);
     font-variant-numeric: tabular-nums;
     color: var(--colors-theme-primary-contrast);
     height: 1rem;

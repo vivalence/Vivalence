@@ -1,4 +1,5 @@
-import { BufferView, Vector, v } from "@vivalence/typology";
+import { Vector, View, v } from "@vivalence/typology";
+import { GAMEPLAYS } from "./buffer/engine.js";
 
 const manifest = {
   type: "game",
@@ -7,25 +8,43 @@ const manifest = {
   description:
     "Standalone typing trainer. Setup, practice, review. One keystroke stream split into recall / spelling / motor. No domain, ephemeral.",
   version: "0.1.0",
-  traits: ["BUFFERED", "SELFEVIDENT", "EMITTER"],
+  traits: ["VIEWABLE", "EMITTER", "SELFEVIDENT", "TOOLED"],
 };
 
-const buffer = new BufferView(
+const view = new View(
   "buffer/Nyan.svelte",
   v.buffer({
     data: {
-      text: v.string().desc("Explicit text to type").optional(),
-      length: v.number().desc("Run length in words").optional(),
-      gameplay: v
-        .string({ default: "PLAIN" })
-        .desc("PLAIN: single pass, SUDDENDEATH: first error restarts the run"),
+      gameplay: v.enum(Object.keys(GAMEPLAYS), { default: "PLAIN" }),
+      words: v.array(v.string()).optional(),
     },
   }),
 );
 
-const emitter = new Vector().open("/exercise", async (ctx) => {
-  const { text, length, gameplay } = ctx.input;
-  return ctx.mode.buffer({ data: { text, length, gameplay } });
+const emitter = new Vector().open("/play", async (ctx) => {
+  const data = {};
+  if (ctx.input.gameplay) data.gameplay = ctx.input.gameplay;
+  if (ctx.input.words) data.words = ctx.input.words;
+  return ctx.mode.buffer({ data });
 });
 
-export { manifest, buffer, emitter };
+const tools = new Vector().open(
+  {
+    nature: "play",
+    valence:
+      "Open the Nyan typing trainer. Pass `words` to drill that list now; omit to land on the setup screen. Default to plain.",
+    input: v.object({
+      gameplay: v
+        .enum(Object.keys(GAMEPLAYS), { default: "PLAIN" })
+        .desc("PLAIN: mistakes allowed. SUDDENDEATH: one wrong key ends the run."),
+      words: v
+        .array(v.string())
+        .optional()
+        .desc("Exact words to type, in order. Omit to choose in setup. Between 20-50 words."),
+    }),
+    output: v.object({}),
+  },
+  async (ctx) => ctx.mode.emit.play(ctx.input),
+);
+
+export { manifest, view, emitter, tools };

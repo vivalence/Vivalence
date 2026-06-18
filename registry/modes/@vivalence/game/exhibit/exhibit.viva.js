@@ -1,4 +1,4 @@
-import { BufferView, Vector, v } from "@vivalence/typology";
+import { View, Vector, v } from "@vivalence/typology";
 
 const manifest = {
   type: "game",
@@ -7,10 +7,10 @@ const manifest = {
   description:
     "Present structured knowledge. Tables, patterns, contrasts. No testing — pure absorption.",
   version: "0.1.0",
-  traits: ["BUFFERED", "EMITTER"],
+  traits: ["VIEWABLE", "EMITTER"],
 };
 
-const buffer = new BufferView(
+const view = new View(
   "buffer/Exhibit.svelte",
   v.buffer({
     data: {
@@ -66,4 +66,4 @@ const dataset = {
   ],
 };
 
-export { manifest, buffer, emitter, dataset };
+export { manifest, view, emitter, dataset };

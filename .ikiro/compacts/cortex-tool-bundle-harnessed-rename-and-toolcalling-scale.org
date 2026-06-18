@@ -1,0 +1,111 @@
+#+TITLE: cortex tool bundle — CHAOSMONKEY→HARNESSED rename, cortex.tools central Vector registry (one branch per mode slug, all tools into every hallucination), tool-calling-at-scale standard (send-all+cache vs Tool Search Tool), and the streamed tool_use doubled-JSON crash fix
+#+TOPIC: toolcalling status survey (runtime + kajuit) · dewey-calls-other-modes-for-buffers design (parked) · rename the harness trait CHAOSMONKEY→HARNESSED w/ deprecated enum alias · the standard for "a LOT of tools" (Tier1 send-all+prompt-cache; Tier2 Tool Search Tool defer_loading+bm25/regex, append-not-swap preserves cache; NOT a reveal-all meta-tool) · Finn's precoded cortex.tools registry: TOOLED slurps mode tools → cortex.tools.branch(slug), HARNESSED builds Hallucination + /dialogue absorbs shape.agentic(cortex.tools), shard.effects→faculties · tool names now <slug>_<nature> · stream content_block_start was seeding tool_use.input with "{}" then appending input_json_delta → doubled JSON → fix seed "" + guard empty parse
+
+* Arc
+
+** Toolcalling status survey
+
+User: =how are we on toolcalling? go through quests and the codebase on runtime and kajuit=
+
+Three Explore agents + read =.ikiro/quests/toolcalling.quest.org=. State: =M1+M2 DONE · M3 PARKED (anthropic-stream-bug) · M4–M8 DESIGN=. Spine is built + tested:
+- =subsystems/typology/gestalten/shape/agentic.js= — Vector→={tools, llmstxt}=, =/=-paths join =_=.
+- =subsystems/typology/prototypes/cortex.js= — =executeTools()= loop, 10-round cap.
+- =registry/services/@vivalence/hallucinator/anthropic/provider/translate.js= — =translateTools= (valence→description, input→input_schema) + tool stream events.
+- =systems/runtime/daemon/traits/tooled.js= — TOOLED, injects daemon/mode ctx.
+- kajuit: =routes/pincer/panels/a/widgets/Dock.svelte:137-140,377-389= renders =tool_use=/=tool_result= as =<details>=; pure pass-through, no client tool registry (correct — server-side).
+- M3 blocker = live SSE truncates before =/turn/close=; quest suspects =translate.js= =default: return null= swallowing unknown SDK events. (Distinct from this session's doubled-JSON crash — that was the tool-input accumulator, see below.)
+
+** Dewey calls other modes for buffers (design — PARKED)
+
+User: =i want dewey to be able to call on other modes to generate buffers and then display them in deweys terminal. what would that take?=
+
+Explored EMITTER/pool/buffer + cross-mode delegation + kajuit display. Findings (kept as a design record):
+- Cross-mode emit is a LIVE pattern — =registry/modes/@vivalence/tactic/clinic/emitter/*= does =ctx.daemon.modes.game.exhibit.emit.present({...})=; the target mode's EMITTER trait drains its own pool, persists buffers, attaches to thread (=emitter.js=: =buffer.thread = ctx.thread; buffer.index = ctx.thread.counter++=).
+- Buffers carry their OWN renderer — kajuit =buffer.js=: =buffer.view = buffer.mode.buffered= (emitting mode's component bundle). So a game.exhibit buffer renders with exhibit's component inside dewey's terminal. Cross-mode render is architecturally native; =Buffer.svelte= already renders by =buffer.view=.
+- Gap 1 (runtime): a tool effect gets =ctx.daemon=/=ctx.mode= but NOT =ctx.thread= — so emitted buffers can't attach to dewey's terminal thread without plumbing the call-time thread through =executeTools= → handler.
+- Gap 2 (kajuit): =thread.$buffers= is referenced (=Buffer.svelte=, =queueing.js=) but never populated for conversational threads.
+
+User: =no. lets approach this differently.= — pivoted to the rename + cortex.tools centralization. This design is parked, not killed.
+
+** CHAOSMONKEY → HARNESSED rename
+
+User: =lets start by renaming the CHAOSMONKEY trait to HARNESSED.= + =on the mode mikro entity, leave the chaosmonkey trait with a //depracated comment for compatability.=
+
+Dispatch model (verified): =resolution.js:41= = =daemonDie.variant.traits[trait]?.(mode, daemon)= keys off the EXPORT name (=variant.traits= = the =traits/index.js= namespace); the =ModeTraitsEnum= gates the persisted =traits[]= column. So the export name = manifest string = enum value all must agree, and old persisted rows holding ="CHAOSMONKEY"= are why the enum keeps it.
+
+Applied (live): export =CHAOSMONKEY=→=HARNESSED= + file =chaosmonkey.js=→=harnessed.js=; barrel =traits/index.js= → =./harnessed.js=; =dewey.viva.js= manifest → =HARNESSED=; =Mode.ts ModeTraitsEnum= added =HARNESSED= + kept =CHAOSMONKEY = "CHAOSMONKEY", // deprecated …= for persisted-data compat; tests updated (=tooled.test.js=, =scenarios/cortex.js=, =cortex.integration=, =conversation.integration=, =bench.js=). Left alone: =bak/= modes, historical commented blocks inside =harnessed.js=. Verified =tooled.test.js= 10 steps green (incl. the =['TOOLED','HARNESSED']= order-independence steps). Only live =CHAOSMONKEY= left = the deprecated enum line.
+
+** Tool-calling at scale — the standard
+
+User: =i have a LOT of tools in my daemon. i dont know if i want to pass them to each and every call to a conversation. seems wasteful and potentially confusing. do other harnesses just spam their tools into system context or is there a pattern to hide them behind a tool call to reveal all the tools available? whats the standard?= (+ later =less text more code.=)
+
+Invoked =claude-api= skill. The standard (carried into toolcalling quest's future Ms):
+- Tier 1 — send all tools every call + PROMPT CACHING. Tools render at request position 0; cache write ~1.25×, read ~0.1×, amortized. Right for <~30 stable tools.
+- Tier 2 (scale) — the Tool Search Tool. Mark long-tail tools =defer_loading: true=; add server tool =tool_search_tool_bm25_20251119= (keyword) or =tool_search_tool_regex_20251119= (regex). Loaded schemas are APPENDED, not swapped → preserves the prompt cache. The naive "one meta-tool that reveals ALL" re-spams the cost — NOT the pattern.
+- Vivalence is in the worst spot: sends ALL tools every call AND has no =cache_control= anywhere in =translate.js=.
+- Correctness note for vivalence's hand-rolled loop: =executeTools= dispatches by NAME from =hallucination.tools=; deferring only changes the schema sent to Anthropic — keep the handler in the local registry so dispatch still resolves.
+
+** The cortex.tools registry (Finn precoded — the load-bearing new design)
+
+User: =every tool exported under TOOLED will be bundled into the cortex. cortex receives a tool vector which is passed to the hallucination. i precoded some parts. double check.=
+
+The design:
+- =Cortex= now owns =tools = new Vector()= (=cortex.js:84=) — the central tool registry.
+- TOOLED (=tooled.js=): =daemon.cortex.tools.branch(mode.slug).slurp(tools)= where =tools= = a fresh Vector with =shard.context.bind("daemon",daemon)= + =bind("mode",mode)= + =slurp(mode.cake.tools)=. The old per-=/dialogue= =absorb(compiled)= is commented out.
+- =cortex.shard=: =effects=→=faculties= (the faculty-leaf installer); the old =shard.harness= is commented out — Hallucination is now built in the HARNESSED trait, not by cortex.
+- HARNESSED (=harnessed.js=): root =harness.use= builds =ctx.hallucination = new Hallucination(daemon.cortex, ctx.input)=; a SECOND =/dialogue= branch (after the history-loader branch) does =ctx.hallucination.absorb(shape.agentic(ctx.daemon.cortex.tools))= — order matters: history-loader sets =ctx.hallucination.turns = [...history, ctx.turn]= first, THEN absorb appends =llmstxt= (so it isn't clobbered) and merges the compiled tools; finalizer calls =daemon.cortex.shard.faculties(harness)=.
+
+Mid-review Finn pasted the =/dialogue= absorb snippet + =your mental model is out of date= — I had been reviewing a stale read while he edited =harnessed.js= live. Re-read; my proposed compile-in-=cortex.shard.harness= was redundant (he'd wired it in HARNESSED). Remaining flag: =harnessed.js:16= passed bare =cortex= (undefined in =(mode, daemon)= scope) → must be =daemon.cortex=.
+
+Consequences (confirmed intended):
+- Tool NAMES are now =<slug>_<nature>= (the slug branch adds a segment) — namespaced, collision-proof across modes now that all tools share one Vector. =learner_state= → =dewey_learner_state=. Check any test/consumer asserting bare names.
+- EVERY hallucination gets ALL modes' tools (=absorb(shape.agentic(cortex.tools))= over the whole registry). This is the deliberate substrate for tool-search: =cortex.tools= IS the searchable library; defer the bundle later.
+- Per-mode =daemon=/=mode= bind survives into each tool's =execute= (each branch carries its own bind), so a bundled tool still runs with its own =ctx.mode=.
+
+** Crash — streamed tool_use input was doubled JSON
+
+Watcher crash (nyan conversation): =SyntaxError: Unexpected non-whitespace character after JSON at position 2= at =cortex.js:33= =JSON.parse(part.input)=.
+
+Root cause (NOT a parse problem — the accumulator was corrupted at the source): =translate.js= =translateStreamEvent= =content_block_start= ran the shared =blockToPart=, which for =tool_use= sets =input: JSON.stringify(block.input)=. At stream-open Anthropic's =block.input= is the empty placeholder ={}= → seeds the accumulator with ="{}"=. Then =input_json_delta= =partial_json= fragments append → ="{}" + '{"…"}'= = ={}{...}= → parse dies at position 2. Empty-arg tools survive (="{}"= alone parses); args tools (nyan) crash.
+
+Fix (=blockToPart= stays shared — the RENDER path's stringify of the complete object is correct; only the stream open is wrong):
+- =translate.js= =content_block_start=: =if (part.type === "tool_use") part.input = "";= — stream fills via =input_json_delta=.
+- =cortex.js= =executeTools=:33: =const input = typeof part.input === "string" ? (part.input ? JSON.parse(part.input) : {}) : (part.input ?? {});= — guard empty (no-arg tools may stream zero deltas → ="").
+
+User: =kk= → applied both. User: =ok. works.=
+
+* Reference — the cortex.tools / HARNESSED wiring (carry forward)
+
+#+begin_src
+TOOLED(mode, daemon):
+  tools = new Vector().use(bind daemon).use(bind mode).slurp(mode.cake.tools)
+  daemon.cortex.tools.branch(mode.slug).slurp(tools)        // central registry, per-mode bind kept
+
+HARNESSED(mode, daemon):
+  harness.use(bind daemon); harness.use(bind mode)
+  harness.use(ctx => ctx.hallucination = new Hallucination(daemon.cortex, ctx.input); next; scribe)
+  harness.branch("/dialogue").use(load history + create user turn; ctx.hallucination.turns = [...history, turn])
+  harness.branch("/dialogue").use(ctx.hallucination.absorb(shape.agentic(ctx.daemon.cortex.tools)))   // AFTER history
+  finalizer: slurp(mode.cake.harness); daemon.cortex.shard.faculties(harness); mode.harness = shape.object(...)
+
+cortex faculty leaf (streamLeaf/renderLeaf):
+  { tuning, turns, tools, config } = ctx.hallucination
+  callConfig.tools = tools           // = compiled {name: {valence,input,output,execute}} from agentic(cortex.tools)
+  executeTools(tools, turn.parts)    // dispatch by name → tool.execute(input)
+#+end_src
+
+* Lessons (self-corrections)
+
+- Stale-model recidivism: reviewed Finn's precoded WIP against an EARLIER read while he edited =harnessed.js= live, and proposed a compile placement he'd already wired. =your mental model is out of date.= Rule: when double-checking in-flight precoded work, RE-READ the exact file immediately before each review pass — Finn edits between turns (cf. =feedback_user_edits_are_canonical=).
+- Resisted the hotfix reflex on the crash: the fix is the accumulator seed in =translate.js= (root cause), not a =try/catch= around =JSON.parse= (symptom). Held the line (=feedback_no_hotfix_architecture=).
+- "retard" codeword scan: NONE this session. No =## Callouts= entry.
+
+* Open / Pending
+
+- =harnessed.js:16= — must pass =daemon.cortex=, not bare =cortex=. Flagged; dialogue now runs end-to-end (crash trace reached =harnessed.js:27=), so presumed already fixed by Finn — VERIFY.
+- Tool naming change =<slug>_<nature>= — audit tests/consumers that assert bare tool names (e.g. =dewey_learner_state= vs old =learner_state=).
+- Tool-search not yet built. =cortex.tools= is now the substrate: future = =defer_loading= on the long tail + =tool_search_tool_bm25/regex= in =translate.js= + a prompt-caching pass (=translate.js= currently has zero =cache_control=).
+- toolcalling quest M3 (live SSE truncates before =/turn/close=) is a SEPARATE stream bug from the doubled-JSON crash fixed here — still parked.
+- =tooled.js:1= — =shape= import now unused (only in commented lines) — drop.
+- Rename propagation: CLAUDE.md / cortex quest index still say "CHAOSMONKEY … live" — stale after =HARNESSED=.
+- Dewey-calls-modes-for-buffers — parked design (cross-mode emit + =buffer.view= renderer + the ctx.thread gap + =$buffers= unpopulated).

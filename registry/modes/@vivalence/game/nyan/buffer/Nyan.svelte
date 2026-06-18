@@ -1,14 +1,14 @@
 <script>
   import { Desk, ViewportLock } from "@vivalence/drapes";
   import wordsets from "../data/wordsets.json";
-  import { DIVES, ORDERS, analyze, createRun, finishWord, press, sample } from "./engine.js";
+  import { DIVES, ORDERS, analyze, createRun, defaultConfig, press, project, sample } from "./engine.js";
   import Setup from "./panels/Setup.svelte";
   import Practice from "./panels/Practice.svelte";
   import Review from "./panels/Review.svelte";
   import Meter from "./panels/Meter.svelte";
 
   const { buffer, terminal } = $props();
-  const exercise = buffer.data ?? {};
+  const { words: seedWords, ...seedConfig } = buffer.data ?? {};
 
   let game = $state({
     panel: "setup",
@@ -16,19 +16,16 @@
     unit: "pairs",
     order: "damage",
     resolution: 10,
-    config: {
-      source: exercise.text ? "custom" : "en",
-      custom: exercise.text ?? "",
-      count: exercise.length ?? 20,
-      gameplay: exercise.gameplay ?? "PLAIN",
-      forgiving: "on",
-      recallMs: 1500,
-      live: "shown",
-      targetWpm: 40,
-    },
+    config: defaultConfig(seedConfig),
     run: null,
     analysis: null,
   });
+
+  // The run is words + config + an append-only keystroke log. Everything the UI
+  // reads — cursor, marks, liveness — is projected from that log by project().
+  const view = $derived(
+    game.run ? project(game.run.words, game.run.config, game.run.log) : null,
+  );
 
   function corpus(config) {
     if (config.source === "custom") return config.custom.split(/\s+/).filter(Boolean);
@@ -45,14 +42,17 @@
   }
 
   function finish() {
-    if (game.run.typed.length) finishWord(game.run, performance.now());
-    if (!game.run.events.length) return void (game.panel = "setup");
-    game.analysis = analyze(game.run);
+    const state = project(game.run.words, game.run.config, game.run.log);
+    if (!state.events.length) return void (game.panel = "setup");
+    game.analysis = analyze(state);
     game.dive = "graph";
     game.panel = "review";
   }
 
   function onKey(event) {
+    const target = event.target;
+    if (target?.tagName === "INPUT" || target?.tagName === "TEXTAREA" || target?.isContentEditable)
+      return;
     if (game.panel === "practice") {
       let character = null;
       if (event.key === "Backspace") character = "\x7f";
@@ -64,9 +64,10 @@
         character = event.key;
       if (character == null) return;
       event.preventDefault();
-      press(game.run, character);
-      if (game.run.dead) return start(game.run.words);
-      if (game.run.done) finish();
+      press(game.run.log, character);
+      const state = project(game.run.words, game.run.config, game.run.log);
+      if (state.dead) return start(game.run.words);
+      if (state.done) finish();
     } else if (game.panel === "review") {
       if (event.key === "r") start(game.run.words);
       else if (event.key === "n") start();
@@ -82,23 +83,23 @@
     }
   }
 
-  if (exercise.text) start();
+  if (seedWords?.length) start(seedWords);
 </script>
 
 <ViewportLock />
 <svelte:window onkeydown={onKey} />
 <div class="mode">
   {#if game.panel === "practice" && game.config.live === "shown"}
-    <Meter {game} />
+    <Meter {view} />
   {/if}
   <Desk maxWidth="860px">
   {#snippet surface()}
     {#if game.panel === "setup"}
       <Setup {game} sets={wordsets.sets} />
     {:else if game.panel === "practice"}
-      <Practice {game} />
+      <Practice {view} />
     {:else if game.analysis}
-      <Review {game} />
+      <Review {game} {view} />
     {/if}
   {/snippet}
 
@@ -125,7 +126,7 @@
   }
   .hint {
     font-family: var(--font-family-code);
-    font-size: 0.75rem;
+    font-size: var(--font-size-sm);
     color: var(--colors-skeleton-1-boundary);
   }
   .btn {
@@ -136,7 +137,7 @@
     background: transparent;
     color: var(--colors-palette-gray-200);
     font-family: var(--font-family-code);
-    font-size: 0.8rem;
+    font-size: var(--font-size-sm);
     cursor: pointer;
   }
   .btn.primary {

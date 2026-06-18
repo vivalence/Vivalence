@@ -1,4 +1,4 @@
-import { Url, Mode, Path, Aperture, Vector, BufferView, v, shape, shard } from "@vivalence/typology";
+import { Url, Mode, Path, Aperture, Vector, View, v, shape, shard } from "@vivalence/typology";
 import { RequestContext } from "@mikro-orm/core";
 import {
   LiteralEntity,
@@ -11,18 +11,18 @@ import {
 import { BufferEntity, seed } from "./entities.ts";
 import { INTENTED, EMITTER } from "@vivalence/runtime/daemon/traits";
 
-// ── test-only BUFFERED ─────────────────────────────────────────────
+// ── test-only VIEWABLE ─────────────────────────────────────────────
 // No paladin, no bundler. Wires mode.buffer() as a pure entity factory.
-function BUFFERED(mode, daemon) {
+function VIEWABLE(mode, daemon) {
   mode.aperture.open("/buffered", () => ({
-    url: mode.cake.buffer.url.absolute,
-    schema: mode.cake.buffer.schema,
+    url: mode.cake.view.url.absolute,
+    schema: mode.cake.view.mask,
   }));
   mode.buffer = (desc = {}) => {
     const em = daemon.entities.em;
     const buffer = em.create(BufferEntity, {
       mode: mode.entity.id,
-      data: mode.cake.buffer.cast(desc),
+      data: mode.cake.view.cast(desc),
       index: desc.index ?? 0,
     });
     if (desc.literals) buffer.literals.add(desc.literals.map((literal) => em.getReference(LiteralEntity, literal?.id ?? literal)));
@@ -78,9 +78,9 @@ async function wireMode(viva, daemon, em) {
   mode.entity = entity;
   mode.id = entity.id;
 
-  if (viva.buffer) {
-    mode.cake.buffer = viva.buffer;
-    mode.cake.buffer.withUrl(new Url(`http://test/view/${viva.manifest.type}/${viva.manifest.slug}`));
+  if (viva.view) {
+    mode.cake.view = viva.view;
+    mode.cake.view.withUrl(new Url(`http://test/view/${viva.manifest.type}/${viva.manifest.slug}`));
   }
   if (viva.dataset) mode.cake.dataset = viva.dataset;
   if (viva.emitter) mode.cake.emitter = new Vector().slurp(viva.emitter);
@@ -88,7 +88,7 @@ async function wireMode(viva, daemon, em) {
   daemon.modes[viva.manifest.type] ??= {};
   daemon.modes[viva.manifest.type][viva.manifest.slug] = mode;
 
-  if (viva.manifest.traits.includes("BUFFERED") && viva.buffer) BUFFERED(mode, daemon);
+  if (viva.manifest.traits.includes("VIEWABLE") && viva.view) VIEWABLE(mode, daemon);
   if (viva.manifest.traits.includes("INTENTED") && viva.dataset) await INTENTED(mode, daemon);
   if (viva.manifest.traits.includes("EMITTER") && viva.emitter) await EMITTER(mode, daemon);
 

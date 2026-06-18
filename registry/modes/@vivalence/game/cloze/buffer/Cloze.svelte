@@ -192,7 +192,7 @@
   }
   .meta-lang {
     font-family: var(--font-family-code);
-    font-size: 0.65rem;
+    font-size: var(--font-size-xs);
     font-weight: 600;
     letter-spacing: 0.08em;
     text-transform: uppercase;
@@ -200,7 +200,7 @@
   }
   .meta-hint {
     font-family: var(--font-family-serif-heading);
-    font-size: 0.85rem;
+    font-size: var(--font-size-md);
     color: var(--colors-skeleton-1-boundary);
     font-style: italic;
   }
@@ -256,7 +256,7 @@
 
   .gap-gloss {
     font-family: var(--font-family-code);
-    font-size: 0.65rem;
+    font-size: var(--font-size-xs);
     color: var(--colors-skeleton-1-boundary);
   }
 
@@ -272,7 +272,7 @@
 
   .gap-yours {
     font-family: var(--font-family-code);
-    font-size: 0.6rem;
+    font-size: var(--font-size-xs);
     color: var(--colors-system-error-contrast);
     text-decoration: line-through;
     opacity: 0.7;
@@ -321,7 +321,7 @@
     text-align: center;
     padding: 1rem;
     color: var(--colors-skeleton-1-boundary);
-    font-size: 0.8rem;
+    font-size: var(--font-size-sm);
     font-family: var(--font-family-code);
   }
 
@@ -331,7 +331,7 @@
     padding: 0.75rem 0.5rem;
     border-radius: 0.625rem;
     border: none;
-    font-size: 1rem;
+    font-size: var(--font-size-base);
     font-weight: 600;
     cursor: pointer;
     font-family: var(--font-family-sans-text);

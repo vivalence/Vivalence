@@ -156,7 +156,7 @@
   }
   .meta-lang {
     font-family: var(--font-family-code);
-    font-size: 0.65rem;
+    font-size: var(--font-size-xs);
     font-weight: 600;
     letter-spacing: 0.08em;
     text-transform: uppercase;
@@ -164,7 +164,7 @@
   }
   .meta-type {
     font-family: var(--font-family-code);
-    font-size: 0.65rem;
+    font-size: var(--font-size-xs);
     font-weight: 500;
     color: var(--colors-skeleton-1-boundary);
   }
@@ -220,7 +220,7 @@
 
   .option-key {
     font-family: var(--font-family-code);
-    font-size: 0.6rem;
+    font-size: var(--font-size-xs);
     color: var(--colors-skeleton-1-boundary);
     width: 1rem;
     flex-shrink: 0;
@@ -261,7 +261,7 @@
     text-align: center;
     padding: 1rem;
     color: var(--colors-skeleton-1-boundary);
-    font-size: 0.8rem;
+    font-size: var(--font-size-sm);
     font-family: var(--font-family-code);
   }
   .btn-next {
@@ -272,7 +272,7 @@
     border: 1px solid var(--colors-skeleton-1-boundary);
     background: transparent;
     color: var(--colors-palette-gray-200);
-    font-size: 1rem;
+    font-size: var(--font-size-base);
     font-weight: 500;
     cursor: pointer;
     font-family: var(--font-family-sans-text);

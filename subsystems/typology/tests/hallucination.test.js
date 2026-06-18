@@ -101,8 +101,11 @@ function populatedCortex() {
 
 function makeHarness(cortex) {
   const harness = new Vector();
-  harness.use(cortex.shard.harness);
-  cortex.shard.effects(harness);
+  harness.use(async (ctx, next) => {
+    ctx.hallucination = new Hallucination(cortex, ctx.input);
+    await next();
+  });
+  cortex.shard.faculties(harness);
   return shape.object(harness, steer.echo);
 }
 

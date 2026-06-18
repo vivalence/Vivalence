@@ -1,3 +1,4 @@
+// ── pure math ──────────────────────────────────────────────────────────────
 const mean = (values) =>
   values.length ? values.reduce((sum, value) => sum + value, 0) / values.length : 0;
 const median = (values) =>
@@ -39,68 +40,129 @@ const sample = (pool, length) => {
   return shuffle(Array.from({ length }, (_, index) => shuffled[index % shuffled.length]));
 };
 
-const createRun = (words, config) => ({
-  words,
-  config,
-  wordIndex: 0,
-  typed: "",
-  events: [],
-  marks: [],
-  startedAt: null,
-  done: false,
-  dead: false,
-  finishedAt: 0,
+// ── modes as composable data ─────────────────────────────────────────────────
+// A gameplay is a record of constraints over the keystroke stream, ttyper-style.
+// project() consults these; behaviour lives with the mode, never in scattered
+// branches. New modes drop in here; nothing in the replay needs editing.
+//   killOnError    — a wrong keystroke ends the run
+//   requireExact   — space may only commit a word that matches the target
+//   allowBackspace — backspace is honoured
+const GAMEPLAYS = {
+  PLAIN: { killOnError: false, requireExact: false, allowBackspace: true },
+  SUDDENDEATH: { killOnError: true, requireExact: true, allowBackspace: true },
+};
+
+// Shared default config — one source for both the Svelte buffer and the TUI.
+// The mode boundary (nyan.viva.js) validates incoming overrides against the
+// typology `v` schema; the engine itself stays dependency-free and portable.
+const defaultConfig = (overrides = {}) => ({
+  source: "en",
+  count: 20,
+  gameplay: "PLAIN",
+  forgiving: "on",
+  recallMs: 1500,
+  live: "shown",
+  targetWpm: 40,
+  ...overrides,
 });
 
-const finishWord = (run, time) => {
-  const target = run.words[run.wordIndex];
-  run.marks[run.wordIndex] =
-    run.typed === target ? "g" : fold(run.typed) === fold(target) ? "y" : "r";
-  run.events.push({ time, wordIndex: run.wordIndex, kind: "commit", typed: run.typed });
-  run.typed = "";
-  run.wordIndex++;
-  if (run.wordIndex >= run.words.length) Object.assign(run, { done: true, finishedAt: time });
+// ── the only state, and the only mutation ────────────────────────────────────
+// A run is its words, its config, and an append-only log of raw keystrokes.
+// Everything else — cursor, marks, liveness — is projected from the log.
+const createRun = (words, config) => ({ words, config, log: [] });
+
+const press = (log, key, time = performance.now()) => {
+  log.push({ time, key });
+  return log;
 };
 
-const press = (run, character, time = performance.now()) => {
-  if (run.done) return;
-  const target = run.words[run.wordIndex];
-  if (character === " " || character === "\r") run.typed.length && finishWord(run, time);
-  else if (character === "\x7f") {
-    if (!run.typed.length) return;
-    run.events.push({
-      time,
-      wordIndex: run.wordIndex,
-      characterIndex: run.typed.length - 1,
-      kind: "backspace",
-    });
-    run.typed = run.typed.slice(0, -1);
-  } else if (character >= " ") {
-    run.startedAt ??= time;
-    const characterIndex = run.typed.length;
-    if (characterIndex > target.length + 3) return;
-    const expected = target[characterIndex];
-    const strict = expected === character;
-    const loose = expected != null && fold(expected) === fold(character);
-    const ok = run.config.forgiving === "on" ? loose : strict;
-    run.events.push({
-      time,
-      wordIndex: run.wordIndex,
-      characterIndex,
-      kind: "character",
-      character,
-      expected,
-      strict,
-      loose,
-      ok,
-    });
-    run.typed += character;
-    if (!ok && run.config.gameplay === "SUDDENDEATH") return Object.assign(run, { dead: true });
-    if (run.wordIndex === run.words.length - 1 && run.typed.length >= target.length)
-      finishWord(run, time);
+const matches = (typed, target, forgiving) =>
+  forgiving ? fold(typed) === fold(target) : typed === target;
+
+// ── the replay-fold ──────────────────────────────────────────────────────────
+// project replays the raw log against the words and derives the full game state.
+// `dead` and `done` are values read out of this fold, never flags mutated
+// elsewhere — so a missed check can't desync liveness from the events. The same
+// enriched event stream feeds analyze(), unifying live and post-hoc reads.
+const project = (words, config, log) => {
+  const gameplay = GAMEPLAYS[config.gameplay] ?? GAMEPLAYS.PLAIN;
+  const forgiving = config.forgiving === "on";
+  const events = [];
+  const marks = [];
+  let wordIndex = 0;
+  let typed = "";
+  let startedAt = null;
+  let finishedAt = null;
+  let dead = false;
+  let deadAt = null;
+
+  const canCommit = () => !gameplay.requireExact || matches(typed, words[wordIndex], forgiving);
+  const commit = (time) => {
+    const target = words[wordIndex];
+    marks[wordIndex] = typed === target ? "g" : fold(typed) === fold(target) ? "y" : "r";
+    events.push({ time, wordIndex, kind: "commit", typed });
+    typed = "";
+    wordIndex++;
+    if (wordIndex >= words.length) finishedAt = time;
+  };
+
+  for (const { time, key } of log) {
+    if (dead || wordIndex >= words.length) break;
+    const target = words[wordIndex];
+
+    if (key === " " || key === "\r" || key === "Enter") {
+      if (typed.length && canCommit()) commit(time);
+    } else if (key === "\x7f" || key === "Backspace") {
+      if (typed.length && gameplay.allowBackspace) {
+        events.push({ time, wordIndex, characterIndex: typed.length - 1, kind: "backspace" });
+        typed = typed.slice(0, -1);
+      }
+    } else if (key.length === 1 && key >= " ") {
+      startedAt ??= time;
+      const characterIndex = typed.length;
+      if (characterIndex > target.length + 3) continue;
+      const expected = target[characterIndex];
+      const strict = expected === key;
+      const loose = expected != null && fold(expected) === fold(key);
+      const ok = forgiving ? loose : strict;
+      events.push({
+        time,
+        wordIndex,
+        characterIndex,
+        kind: "character",
+        character: key,
+        expected,
+        strict,
+        loose,
+        ok,
+      });
+      typed += key;
+      if (!ok && gameplay.killOnError) {
+        dead = true;
+        deadAt = time;
+      } else if (wordIndex === words.length - 1 && typed.length >= target.length && canCommit()) {
+        commit(time);
+      }
+    }
   }
+
+  return {
+    words,
+    config,
+    log,
+    events,
+    marks,
+    wordIndex,
+    typed,
+    startedAt,
+    finishedAt,
+    dead,
+    deadAt,
+    done: wordIndex >= words.length,
+  };
 };
 
+// ── per-word reconstruction ──────────────────────────────────────────────────
 const buildAttempt = (target, wordIndex, events, previousTime) => {
   const strikes = events.filter((event) => event.kind !== "commit");
   if (!strikes.length) return null;
@@ -155,7 +217,8 @@ const classify = (attempt, baseline, config, previousSame) => {
     attempt.cells.some((cell) => !cell.hard && cell.adjacent) && "adjacent",
     attempt.extra > 0 && "overshoot",
   ].filter(Boolean);
-  const label = recall >= 1 ? "recall" : spelling.length ? "spelling" : motor.length ? "motor" : "clean";
+  const label =
+    recall >= 1 ? "recall" : spelling.length ? "spelling" : motor.length ? "motor" : "clean";
   return {
     label,
     recall,
@@ -248,7 +311,10 @@ const transitions = (attempts, config) => {
   const pairs = attempts
     .flatMap((attempt) => windows(attempt, 2, config))
     .filter((entry) => entry.latency != null)
-    .map((entry) => ({ kind: transitionClass(entry.unit[0], entry.unit[1]), latency: entry.latency }))
+    .map((entry) => ({
+      kind: transitionClass(entry.unit[0], entry.unit[1]),
+      latency: entry.latency,
+    }))
     .filter((entry) => entry.kind);
   return ["alt", "hand", "finger", "repeat"]
     .map((kind) => ({
@@ -268,13 +334,12 @@ const ORDERS = {
 
 const LANES = ["recall", "spelling", "motor", "clean"];
 
-const GAMEPLAYS = ["PLAIN", "SUDDENDEATH"];
-
 const DIVES = ["graph", "words", "units"];
 
-const analyze = (run) => {
-  const { words, events, config } = run;
-  const startedAt = run.startedAt ?? events[0]?.time ?? 0;
+// ── post-hoc analysis: a fold over the same projected event stream ───────────
+const analyze = (state) => {
+  const { words, events, config } = state;
+  const startedAt = state.startedAt ?? events[0]?.time ?? 0;
   const byWord = groupBy(events, (event) => event.wordIndex);
   const lastTime = (group) => group.at(-1).time;
   const attempts = words
@@ -333,7 +398,7 @@ const analyze = (run) => {
         labeled.flatMap((attempt) => attempt.intervals).filter((gap) => gap < config.recallMs),
       ),
     ),
-    span: ((run.finishedAt || events.at(-1)?.time || startedAt) - startedAt) / 1000,
+    span: ((state.finishedAt || events.at(-1)?.time || startedAt) - startedAt) / 1000,
     accents: cells.filter((cell) => cell.accentMiss).length,
     accentSlips: Object.entries(
       groupBy(
@@ -371,23 +436,24 @@ const note = (attempt) =>
         ? attempt.motor[0]
         : "";
 
-const speedline = (run, window = 10) => {
-  const strikes = run.events.filter((event) => event.kind === "character");
-  const start = run.startedAt ?? strikes[0]?.time ?? 0;
+// ── live folds over an in-progress projection ────────────────────────────────
+const speedline = (state, window = 10) => {
+  const strikes = state.events.filter((event) => event.kind === "character");
+  const start = state.startedAt ?? strikes[0]?.time ?? 0;
   const points = [];
   for (let index = window; index < strikes.length; index++) {
     const gaps = [];
     for (let cursor = index - window + 1; cursor <= index; cursor++)
       gaps.push(strikes[cursor].time - strikes[cursor - 1].time);
-    const flow = gaps.filter((gap) => gap < run.config.recallMs);
+    const flow = gaps.filter((gap) => gap < state.config.recallMs);
     if (!flow.length) continue;
     points.push({ seconds: (strikes[index].time - start) / 1000, wpm: 12000 / mean(flow) });
   }
   return points;
 };
 
-const pulse = (run, fastWindow = 3, slowWindow = 10) => {
-  const strikes = run.events.filter((event) => event.kind === "character");
+const pulse = (state, fastWindow = 3, slowWindow = 10) => {
+  const strikes = state.events.filter((event) => event.kind === "character");
   const gaps = strikes.slice(1).map((event, index) => event.time - strikes[index].time);
   const over = (window) => {
     const slice = gaps.slice(-window);
@@ -399,10 +465,10 @@ const pulse = (run, fastWindow = 3, slowWindow = 10) => {
   return { fast: over(fastWindow), slow: over(slowWindow), accuracy };
 };
 
-const liveStats = (run) => {
-  const gaps = run.events.slice(1).map((event, index) => event.time - run.events[index].time);
+const liveStats = (state) => {
+  const gaps = state.events.slice(1).map((event, index) => event.time - state.events[index].time);
   const wpm = gaps.length ? (gaps.length / (gaps.reduce((sum, gap) => sum + gap, 0) / 1000)) * 12 : 0;
-  const characters = run.events.filter((event) => event.kind === "character");
+  const characters = state.events.filter((event) => event.kind === "character");
   const accuracy = characters.length
     ? (100 * characters.filter((event) => event.ok).length) / characters.length
     : 100;
@@ -424,9 +490,12 @@ export {
   isHard,
   adjacent,
   sample,
+  GAMEPLAYS,
+  defaultConfig,
   createRun,
-  finishWord,
   press,
+  matches,
+  project,
   buildAttempt,
   classify,
   targetGap,
@@ -439,7 +508,6 @@ export {
   transitions,
   ORDERS,
   LANES,
-  GAMEPLAYS,
   DIVES,
   analyze,
   note,

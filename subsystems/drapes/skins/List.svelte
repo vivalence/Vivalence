@@ -31,7 +31,7 @@
 </div>
 
 <style>
-  .skin-list { display: flex; flex-direction: column; font-family: var(--font-family-code); font-size: 11px; }
+  .skin-list { display: flex; flex-direction: column; font-family: var(--font-family-code); font-size: var(--font-size-xs); }
   .list-item {
     display: flex; gap: 8px; align-items: center; padding: 3px 10px;
     border-radius: 2px;
@@ -39,7 +39,7 @@
   .list-item.invocable { cursor: pointer; }
   .list-item.invocable:hover { background: var(--colors-skeleton-1-surface); }
   .list-nature { color: var(--colors-skeleton-1-contrast); flex-shrink: 0; }
-  .list-prompt { color: var(--colors-skeleton-2-contrast); opacity: 0.35; font-size: 9px; }
-  .list-key { color: var(--colors-skeleton-0-primary-base); font-size: 8px; opacity: 0.4; margin-left: auto; flex-shrink: 0; }
-  .list-result { opacity: 0.4; font-size: 9px; }
+  .list-prompt { color: var(--colors-skeleton-2-contrast); opacity: 0.35; font-size: var(--font-size-2xs); }
+  .list-key { color: var(--colors-skeleton-0-primary-base); font-size: var(--font-size-2xs); opacity: 0.4; margin-left: auto; flex-shrink: 0; }
+  .list-result { opacity: 0.4; font-size: var(--font-size-2xs); }
 </style>

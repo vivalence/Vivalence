@@ -98,9 +98,9 @@ specimen.afterAll(async () => {
       specimen.expect(typeof modes[0].call).toBe("function");
     });
 
-    specimen.it("BUFFERED modes have buffer factory", () => {
+    specimen.it("VIEWABLE modes have buffer factory", () => {
       const modes = result.entities.mode.$entities.get();
-      const buffered = modes.find((mode) => mode.implements("BUFFERED"));
+      const buffered = modes.find((mode) => mode.implements("VIEWABLE"));
       specimen.expect(buffered).toBeDefined();
       specimen.expect(typeof buffered.buffer).toBe("function");
       specimen.expect(buffered.buffered).toBeDefined();

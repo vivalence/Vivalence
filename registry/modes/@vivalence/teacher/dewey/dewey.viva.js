@@ -1,12 +1,12 @@
 import { Vector, v } from "@vivalence/typology";
-import { gather } from "./dossier.js";
+import { gather } from "./gather.js";
 
 export const manifest = {
   type: "teacher",
   slug: "dewey",
   name: "Dewey",
   description: "Brazilian Portuguese conversation tutor.",
-  traits: ["EXPOSED", "SELFEVIDENT", "TOOLED", "CHAOSMONKEY", "CONVERSATIONAL"],
+  traits: ["EXPOSED", "SELFEVIDENT", "TOOLED", "HARNESSED", "CONVERSATIONAL"],
 };
 
 export const harness = new Vector();
@@ -25,18 +25,7 @@ harness.use(async (ctx, next) => {
   await next();
 });
 
-harness.branch("/dialogue").use(async (ctx, next) => {
-  const dossier = await gather(ctx);
-  ctx.hallucination.add(dossier.toPrompt());
-  await next();
-});
-
-harness.branch("/voice").use(async (ctx, next) => {
-  // DO SOME SHIT TO
-  // ctx.hallucination
-  // to customize voice generation....
-  await next();
-});
+// harness.branch("/dialogue").use(async (ctx, next) => {const report = await gather(ctx); ctx.hallucination.add(report.toPrompt()); await next();});
 
 export const tools = new Vector();
 

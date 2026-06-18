@@ -168,7 +168,9 @@
   }
 
   function advance() {
+      console.log("ADVANCE")
     if (gameplay === "TYPE" && currentIndex + 1 < literals.length) {
+      console.log("TYPE")
       currentIndex++;
       activeRecall = recallFor(currentIndex);
       typed = "";
@@ -178,6 +180,7 @@
       editingIndex = null;
       editValue = "";
     } else {
+      console.log("NOT TYPE")
       buffer.release();
     }
   }
@@ -458,7 +461,7 @@
   }
   .meta-lang {
     font-family: var(--font-family-code);
-    font-size: 0.65rem;
+    font-size: var(--font-size-xs);
     font-weight: 600;
     letter-spacing: 0.08em;
     text-transform: uppercase;
@@ -466,7 +469,7 @@
   }
   .meta-type {
     font-family: var(--font-family-code);
-    font-size: 0.65rem;
+    font-size: var(--font-size-xs);
     font-weight: 500;
     color: var(--colors-skeleton-1-boundary);
   }
@@ -500,25 +503,25 @@
   }
   .hint-label {
     font-family: var(--font-family-code);
-    font-size: 0.85rem;
+    font-size: var(--font-size-md);
     color: var(--colors-skeleton-1-boundary);
   }
   .hint-term {
     font-family: var(--font-family-serif-heading);
-    font-size: 1.05rem;
+    font-size: var(--font-size-base);
     line-height: 1.35;
     color: var(--colors-palette-gray-100);
   }
   .hint-example {
     font-family: var(--font-family-serif-heading);
-    font-size: 0.9rem;
+    font-size: var(--font-size-md);
     line-height: 1.35;
     color: var(--colors-skeleton-1-boundary);
     font-style: italic;
   }
   .no-audio {
     font-family: var(--font-family-code);
-    font-size: 0.7rem;
+    font-size: var(--font-size-sm);
     color: var(--colors-skeleton-1-boundary);
   }
 
@@ -551,7 +554,7 @@
   }
   .fb-key {
     font-family: var(--font-family-code);
-    font-size: 0.6rem;
+    font-size: var(--font-size-xs);
     color: var(--colors-skeleton-1-boundary);
   }
   .fb-glyph {
@@ -562,7 +565,7 @@
     min-height: 48px;
     border-radius: 0.5rem;
     border: 1px solid var(--colors-skeleton-1-boundary);
-    font-size: 1.25rem;
+    font-size: var(--font-size-lg);
     font-family: var(--font-family-code);
     flex-shrink: 0;
     box-sizing: border-box;
@@ -576,7 +579,7 @@
     border-color: var(--colors-system-error-contrast);
   }
   .fb-val {
-    font-size: 1.25rem;
+    font-size: var(--font-size-lg);
     font-family: var(--font-family-serif-heading);
   }
   .fb-val.ok {
@@ -587,11 +590,11 @@
   }
   .fb-val.hint {
     color: var(--colors-skeleton-1-contrast);
-    font-size: 1.5rem;
+    font-size: var(--font-size-lg);
     opacity: 1;
   }
   .fb-val.word {
-    font-size: 1.5rem;
+    font-size: var(--font-size-lg);
   }
   .hint-block {
     margin-top: 0.75rem;
@@ -599,7 +602,7 @@
 
   .example {
     font-family: var(--font-family-serif-heading);
-    font-size: 1rem;
+    font-size: var(--font-size-base);
     line-height: 1.4;
     color: var(--colors-skeleton-1-contrast);
     opacity: 0.7;
@@ -610,10 +613,10 @@
     margin: 0.05rem 0 0 0;
   }
   .example.word {
-    font-size: 1.05rem;
+    font-size: var(--font-size-base);
   }
   .example.target {
-    font-size: 1.05rem;
+    font-size: var(--font-size-base);
   }
 
   .tokens {
@@ -651,7 +654,7 @@
     padding: 0;
     color: var(--colors-palette-gray-10);
     font-family: var(--font-family-serif-heading);
-    font-size: 1rem;
+    font-size: var(--font-size-base);
     line-height: 1.2;
     text-align: center;
   }
@@ -663,7 +666,7 @@
   }
   .tok-form {
     font-family: var(--font-family-serif-heading);
-    font-size: 1rem;
+    font-size: var(--font-size-base);
     line-height: 1.2;
   }
   .tok-ok .tok-form {
@@ -674,18 +677,18 @@
   }
   .tok-gloss {
     font-family: var(--font-family-code);
-    font-size: 0.55rem;
+    font-size: var(--font-size-2xs);
     color: var(--colors-skeleton-1-boundary);
     margin-top: 0.125rem;
   }
 
   @media (max-width: 640px) {
     .feedback { gap: 0.375rem; }
-    .fb-val { font-size: 1rem; }
-    .fb-val.hint { font-size: 1.25rem; }
-    .fb-val.word { font-size: 1.25rem; }
+    .fb-val { font-size: var(--font-size-base); }
+    .fb-val.hint { font-size: var(--font-size-lg); }
+    .fb-val.word { font-size: var(--font-size-lg); }
     .tok { padding: 0.25rem 0.375rem; }
-    .tok-form { font-size: 0.85rem; }
+    .tok-form { font-size: var(--font-size-md); }
   }
 
   .pick-area {
@@ -695,7 +698,7 @@
   }
   .pick-hint {
     font-family: var(--font-family-code);
-    font-size: 0.6rem;
+    font-size: var(--font-size-xs);
     color: var(--colors-skeleton-1-boundary);
     text-transform: uppercase;
     letter-spacing: 0.08em;
@@ -731,7 +734,7 @@
 
   .option-key {
     font-family: var(--font-family-code);
-    font-size: 0.6rem;
+    font-size: var(--font-size-xs);
     color: var(--colors-skeleton-1-boundary);
     width: 1rem;
     flex-shrink: 0;
@@ -788,7 +791,7 @@
     border: 1px solid var(--colors-skeleton-1-boundary);
     background: color-mix(in srgb, var(--colors-skeleton-1-surface) 50%, var(--colors-skeleton-app-surface));
     color: var(--colors-palette-gray-10);
-    font-size: 1rem;
+    font-size: var(--font-size-base);
     font-family: var(--font-family-serif-heading);
     outline: none;
     box-sizing: border-box;
@@ -801,7 +804,7 @@
     border: none;
     background: var(--colors-theme-primary-surface);
     color: var(--colors-theme-primary-contrast);
-    font-size: 0.875rem;
+    font-size: var(--font-size-md);
     font-weight: 600;
     cursor: pointer;
     font-family: var(--font-family-sans-text);
@@ -813,7 +816,7 @@
     text-align: center;
     padding: 1rem;
     color: var(--colors-skeleton-1-boundary);
-    font-size: 0.8rem;
+    font-size: var(--font-size-sm);
     font-family: var(--font-family-code);
   }
 
@@ -823,7 +826,7 @@
     padding: 0.75rem 1rem;
     border-radius: 0.625rem;
     border: none;
-    font-size: 1rem;
+    font-size: var(--font-size-base);
     font-weight: 600;
     cursor: pointer;
     font-family: var(--font-family-sans-text);

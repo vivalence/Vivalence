@@ -1,5 +1,5 @@
 import { specimen } from "@vivalence/typology";
-import { parseBlocks, parseInline } from "../../src/routes/pincer/panels/a/markdown.js";
+import { parseBlocks, parseInline } from "../../src/app/panels/a/markdown.js";
 
 specimen.describe("markdown — parser", () => {
   specimen.it("inline: bold, italic, code, link", () => {

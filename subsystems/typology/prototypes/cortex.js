@@ -1,5 +1,5 @@
-import { array, soma } from "@vivalence/typology";
-import { Hallucination } from "./hallucination.js";
+import { array, soma, Vector } from "@vivalence/typology";
+// import { Hallucination } from "./hallucination.js";
 
 export const tiers = {
   frugal: [0.1, 0.3, 0.9, 1.0],
@@ -16,7 +16,7 @@ export function nearest(faculties, target) {
 
 const FACULTY_TYPES = ["dialogue", "speech", "verbatim"];
 
-async function executeTools(tools, parts) {
+async function executeTools(tools, parts, thread) {
   const results = [];
   for (const part of parts) {
     if (part.type !== "tool_use") continue;
@@ -30,8 +30,9 @@ async function executeTools(tools, parts) {
       });
       continue;
     }
-    const input = typeof part.input === "string" ? JSON.parse(part.input) : part.input;
-    const output = await handler(input);
+    const input =
+      typeof part.input === "string" ? (part.input ? JSON.parse(part.input) : {}) : (part.input ?? {});
+    const output = await handler(thread ? { ...input, thread } : input);
     results.push({ type: "tool_result", id: part.id, output });
   }
   return results;
@@ -39,7 +40,7 @@ async function executeTools(tools, parts) {
 
 function streamLeaf(cortex, type) {
   return async (ctx) => {
-    const { tuning, turns, tools, config } = ctx.hallucination;
+    const { tuning, turns, tools, config, thread } = ctx.hallucination;
     ctx.output = (async function* () {
       const faculty = cortex.resolve(type, { tune: tuning, via: "stream" });
       const callConfig = { ...config };
@@ -52,7 +53,7 @@ function streamLeaf(cortex, type) {
           yield packet;
         }
         if (turn.meta?.stop !== "tool_use") return;
-        const results = await executeTools(tools, turn.parts);
+        const results = await executeTools(tools, turn.parts, thread);
         yield* soma.drain({ role: "user", parts: results });
         currentTurns = [...currentTurns, turn, { role: "user", parts: results }];
       }
@@ -62,7 +63,7 @@ function streamLeaf(cortex, type) {
 
 function renderLeaf(cortex, type) {
   return async (ctx) => {
-    const { tuning, turns, tools, config } = ctx.hallucination;
+    const { tuning, turns, tools, config, thread } = ctx.hallucination;
     const faculty = cortex.resolve(type, { tune: tuning, via: "render" });
     const callConfig = { ...config };
     if (Object.keys(tools).length) callConfig.tools = tools;
@@ -73,7 +74,7 @@ function renderLeaf(cortex, type) {
         ctx.output = turn;
         return;
       }
-      const results = await executeTools(tools, turn.parts);
+      const results = await executeTools(tools, turn.parts, thread);
       currentTurns = [...currentTurns, turn, { role: "user", parts: results }];
     }
   };
@@ -81,6 +82,7 @@ function renderLeaf(cortex, type) {
 
 export class Cortex {
   table = new Map();
+  tools = new Vector();
 
   extend(faculties) {
     for (const faculty of faculties) {
@@ -104,11 +106,8 @@ export class Cortex {
   get shard() {
     const cortex = this;
     return {
-      harness: async (ctx, next) => {
-        ctx.hallucination = new Hallucination(cortex, ctx.input);
-        await next();
-      },
-      effects: (vector) => {
+      // harness: async (ctx, next) => {console.trace("DEPRACATEED"); ctx.hallucination = new Hallucination(cortex, ctx.input); await next();},
+      faculties: (vector) => {
         for (const type of FACULTY_TYPES) {
           if (!cortex.has(type)) continue;
           const branch = vector.branch(type);

@@ -45,14 +45,14 @@
 </div>
 
 <style>
-  .skin-list { font-family: var(--font-family-code); font-size: 11px; }
+  .skin-list { font-family: var(--font-family-code); font-size: var(--font-size-sm); }
   .list-row { display: flex; align-items: center; gap: 6px; padding: 3px 8px; cursor: pointer; border-radius: 2px; }
   .list-row:hover { background: var(--colors-skeleton-1-surface); }
   .list-row.group { font-weight: 600; margin-top: 4px; cursor: default; }
   .list-path { color: var(--colors-skeleton-1-contrast); }
-  .list-key { color: var(--colors-skeleton-0-primary-base); opacity: 0.6; font-size: 9px; }
+  .list-key { color: var(--colors-skeleton-0-primary-base); opacity: 0.6; font-size: var(--font-size-xs); }
   .list-sep { opacity: 0.2; }
   .list-valence { opacity: 0.4; }
-  .list-directed { color: var(--colors-skeleton-0-primary-base); opacity: 0.4; font-size: 9px; }
-  .list-result { margin-left: auto; color: var(--colors-skeleton-0-primary-base); opacity: 0.5; font-size: 9px; }
+  .list-directed { color: var(--colors-skeleton-0-primary-base); opacity: 0.4; font-size: var(--font-size-xs); }
+  .list-result { margin-left: auto; color: var(--colors-skeleton-0-primary-base); opacity: 0.5; font-size: var(--font-size-xs); }
 </style>

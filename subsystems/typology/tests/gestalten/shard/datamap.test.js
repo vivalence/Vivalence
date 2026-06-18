@@ -100,10 +100,10 @@ specimen.describe("shard.datamap.repository", () => {
     specimen.expect(first.slug).toBe("ensured")
 
     const second = await conn.call("/mode/ensure", {
-      data: { slug: "ensured", type: "test", traits: ["BUFFERED"], installed: true },
+      data: { slug: "ensured", type: "test", traits: ["VIEWABLE"], installed: true },
     })
     specimen.expect(second.id).toBe(first.id)
-    specimen.expect(second.traits).toContain("BUFFERED")
+    specimen.expect(second.traits).toContain("VIEWABLE")
   })
 
   specimen.it("populate passes through", async () => {
@@ -398,6 +398,6 @@ specimen.describe("shard.datamap.wire", () => {
 
     const modes = await modeRepo.find()
     specimen.expect(modes[0]).toBeInstanceOf(TestMode)
-    specimen.expect(modes[0].implements("BUFFERED")).toBe(true)
+    specimen.expect(modes[0].implements("VIEWABLE")).toBe(true)
   })
 })

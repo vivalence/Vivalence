@@ -112,15 +112,15 @@ export async function modes(daemonDie) {
 
       if (!mode.aperture) mode.aperture = new Aperture();
 
-      if (mode.implements("BUFFERED")) {
-        mode.cake.buffer.path.from(new Path(mode.cake.mount.dirname));
+      if (mode.implements("VIEWABLE")) {
+        mode.cake.view.path.from(new Path(mode.cake.mount.dirname));
 
         const url = daemonDie.good.attach
           .branch("/view")
           .branch(mode.mount.absolute)
-          .branch(mode.cake.buffer.path.nature);
+          .branch(mode.cake.view.path.nature);
 
-        mode.cake.buffer.withUrl(url);
+        mode.cake.view.withUrl(url);
       }
 
       if (mode.implements("FRAUGHT")) {

@@ -1,0 +1,866 @@
+#+TITLE: 46.13 kajuit — contexts
+#+AUTHOR: Vivalence
+#+OUTLINE: ~500w skeleton — fill prose under each node
+
+* the four contexts
+- Table — symbol · deck file · owns · ship-metaphor:
+  - LIGHTHOUSE · decks/lighthouse.js · auth / identity / daemons · the tower
+  - QUARTERS  · decks/quarters.js  · terminals repository · the workspace
+  - BRIDGE    · decks/bridge/      · layout / view / paneSize (localStorage) · the helm
+  - MAIN      · decks/main.js      · active terminal→thread→daemon→mode · the pivot
+- [TODO: confirm BRIDGE store inventory against decks/bridge/bridge.js before publish.]
+
+* MAIN — the pivot (deep)
+- Renamed from THREAD (ikiro stale). =new Main(quarters, lighthouse)=.
+- ONE primary store: =$terminal= (the active Terminal entity; persisted as =terminal.id= under
+  localStorage =viva.main.terminal=). =$thread= is *derived* — =activeThread($terminal)= flattens the
+  active terminal's =$thread=, re-switching when the terminal changes; emits only entity threads
+  (=thread?.id ? thread : null=). No =$active= id-store, no duplicate =$current=.
+- queue lifecycle is a subscription on =$thread=: on switch, =prev.queue.deactivate()= →
+  =next.queue.activate()=. No wrapped setter.
+- accessors: =terminal= =thread= =daemon= (thread?.daemon) =mode= (thread?.mode).
+- methods: =activate(id)= =close(id)= =set(thread)= =clear()= =hydrate()=. Creation lives on
+  =quarters.spawn(slug)= — main never creates, only selects.
+- =hydrate()=: walks terminals, merges each thread off its owning daemon into =terminal.thread=
+  (=$thread= reflects it through the flatten). Runs on =lighthouse.$daemons= change. =set/clear=
+  write the terminal; no manual thread re-sync.
+- [TODO: trace one thread switch end-to-end — UI tap → activate → $terminal → activeThread flatten → panel re-render.]
+
+* consumption pattern (the one law)
+- Components call =getContext(MAIN)= etc., then subscribe to atoms or read accessors.
+- Right: ={#if $current.thread}= / subscribe. Wrong: component resolves its own entity.
+- [TODO: right/wrong code snippet, lifted from a real panel (b/widgets/MainSection.svelte).]
+
+
+* deck surface (read/written props; $nano collapsed)
+
+Source-derived, exhaustive. =$store= collapsed to ={store,value,read,write}=.
+inspector + box are deck *modules*, not contexts; box is unmounted (commented in +layout).
+
+** lighthouse
+#+begin_src json
+{
+  "symbol": "LIGHTHOUSE",
+  "file": "decks/lighthouse.js",
+  "mounted": true,
+  "metaphor": "tower",
+  "construct": "new Lighthouse(new Connection(new Url(env.PUBLIC_VIVA_LIGHTHOUSE_REMOTE)))",
+  "demo": {
+    "status": {
+      "code": "VERIFIED"
+    },
+    "isAuthorized": true,
+    "isIdentified": true,
+    "identity": {
+      "id": "019e70d6-8c1a-7f33-bd0e-2a4f",
+      "slug": "beef"
+    },
+    "authority": {
+      "access": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9...",
+      "refresh": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9..."
+    },
+    "daemons": [
+      "brazilian"
+    ]
+  },
+  "state": {
+    "$authority": {
+      "store": "map",
+      "value": "{access,refresh}|null",
+      "read": [
+        "authority",
+        "$isAuthorized",
+        "connection.authorize",
+        "hydrate.effect"
+      ],
+      "write": [
+        "login",
+        "refresh",
+        "logout",
+        "hydrate"
+      ]
+    },
+    "$identity": {
+      "store": "map",
+      "value": "{id,slug}|null",
+      "read": [
+        "identity",
+        "$isIdentified",
+        "hydrate.effect"
+      ],
+      "write": [
+        "login",
+        "logout",
+        "hydrate"
+      ]
+    },
+    "$status": {
+      "store": "atom",
+      "value": "{code,message?,type?,canRetry?}",
+      "read": [
+        "status",
+        "json",
+        "gate(+layout)",
+        "inspector"
+      ],
+      "write": [
+        "login",
+        "verify",
+        "refresh",
+        "logout"
+      ]
+    },
+    "$daemons": {
+      "store": "atom",
+      "value": "Daemon[]",
+      "read": [
+        "inspector",
+        "main.resolve(subscribe)"
+      ],
+      "write": [
+        "populate",
+        "create.lifecycle"
+      ]
+    },
+    "$isAuthorized": {
+      "store": "computed($authority)",
+      "value": "bool",
+      "read": [
+        "gate",
+        "boot",
+        "populate-guard",
+        "inspector"
+      ],
+      "write": [
+        "derived"
+      ]
+    },
+    "$isIdentified": {
+      "store": "computed($identity)",
+      "value": "bool",
+      "read": [
+        "json",
+        "inspector"
+      ],
+      "write": [
+        "derived"
+      ]
+    }
+  },
+  "plain": {
+    "connection": {
+      "type": "Connection",
+      "shards": [
+        "track.span(lighthouse)",
+        "track.request",
+        "track.fault",
+        "connection.authorize($authority)",
+        "connection.retry(2)",
+        "connection.timeout",
+        "connection.track"
+      ]
+    },
+    "daemons": {
+      "type": "Map<slug,Daemon>",
+      "read": [
+        "toJSON",
+        "main.resolve(.get)"
+      ],
+      "write": [
+        "populate(.set)",
+        "create.lifecycle(.set)"
+      ]
+    },
+    "manifest": {
+      "type": "object",
+      "read": [
+        "daemon.boot(lighthouse.manifest.slug)"
+      ],
+      "write": [
+        "populate",
+        "create.lifecycle"
+      ]
+    },
+    "$populating": {
+      "type": "Promise|null(memo)",
+      "read": [
+        "populate-guard"
+      ],
+      "write": [
+        "populate"
+      ]
+    }
+  },
+  "accessors": [
+    "authority",
+    "identity",
+    "status",
+    "isAuthorized",
+    "isIdentified",
+    "json",
+    "toJSON"
+  ],
+  "methods": [
+    "login(u,p)",
+    "verify()",
+    "refresh()",
+    "logout()"
+  ],
+  "module": [
+    "hydrate(lh)",
+    "create=selbstbestimmt(lifecycle)",
+    "verifyAuth(lh)",
+    "boot(lh)",
+    "populate(lh)"
+  ],
+  "persist": "localStorage lighthouse:<url> -> {authority,identity}",
+  "statusCodes": [
+    "IDLE",
+    "AUTHENTICATING",
+    "AUTHENTICATED",
+    "VERIFYING",
+    "VERIFIED",
+    "REFRESHING",
+    "REFRESHED",
+    "OFFLINE",
+    "ERROR",
+    "SESSION_EXPIRED",
+    "LOGGED_OUT"
+  ],
+  "consumedBy": [
+    "+layout(gate,boot,populate)",
+    "main(subscribe $daemons)",
+    "inspector",
+    "Login skin"
+  ]
+}
+#+end_src
+
+** quarters
+#+begin_src json
+{
+  "symbol": "QUARTERS",
+  "file": "decks/quarters.js",
+  "mounted": true,
+  "metaphor": "workspace",
+  "construct": "new Quarters()  // TerminalDossier repo + selbstbestimmt integrate, then terminals.restore()",
+  "demo": {
+    "terminals": [
+      {
+        "id": "01J8X7Q2terminal",
+        "slug": "main",
+        "daemon": "brazilian",
+        "thread": "01J8X7Q2thread"
+      }
+    ]
+  },
+  "plain": {
+    "terminals": {
+      "type": "RemoteRepository<Terminal> (TerminalDossier)",
+      "ownStore": {
+        "$entities": {
+          "store": "atom",
+          "value": "Terminal[]",
+          "read": [
+            "+layout terminalCount",
+            "main.$terminal/hydrate",
+            "inspector"
+          ],
+          "write": [
+            "create",
+            "remove",
+            "update",
+            "restore",
+            "refresh"
+          ]
+        }
+      },
+      "api": [
+        "restore()",
+        "create({slug})",
+        "has(id)",
+        "all()",
+        "findOne({id})",
+        "remove(id)",
+        "update(id,patch)",
+        "refresh?()"
+      ],
+      "integrate": "shape.selbstbestimmt(vector, strategy)"
+    }
+  },
+  "accessors": [],
+  "methods": [
+    "spawn(slug) -> terminals.create({slug})"
+  ],
+  "module": [],
+  "externalWrites": [
+    "quarters.spawn->create (ui)",
+    "main.close->remove",
+    "main.set/clear->update",
+    "main.hydrate->terminal.thread="
+  ],
+  "consumedBy": [
+    "main(quarters ref)",
+    "+layout($entities)",
+    "crown/QuartersSection/inspector(spawn)",
+    "inspector"
+  ]
+}
+#+end_src
+
+** main
+#+begin_src json
+{
+  "symbol": "MAIN",
+  "file": "decks/main.js",
+  "mounted": true,
+  "metaphor": "pivot",
+  "note": "renamed from THREAD",
+  "construct": "new Main(quarters, lighthouse)",
+  "demo": {
+    "terminal": {
+      "id": "01J8X7Q2terminal",
+      "slug": "main"
+    },
+    "thread": {
+      "id": "01J8X7Q2thread",
+      "intent": "pick",
+      "counter": 3,
+      "cursor": 2
+    },
+    "daemon": "brazilian",
+    "mode": "pick"
+  },
+  "state": {
+    "$terminal": {
+      "store": "atom",
+      "value": "Terminal|null",
+      "note": "THE one primary store; persisted as terminal.id",
+      "read": [
+        "terminal",
+        "$thread(activeThread flatten)",
+        "persist(subscribe)",
+        "inspector"
+      ],
+      "write": [
+        "activate",
+        "close",
+        "restore(ctor)"
+      ]
+    },
+    "$thread": {
+      "store": "activeThread($terminal -> terminal.$thread)",
+      "value": "Thread|null",
+      "note": "derived; re-switches on terminal change; emits only entity threads (thread?.id)",
+      "read": [
+        "thread",
+        "daemon",
+        "mode",
+        "inspector",
+        "panels"
+      ],
+      "write": [
+        "derived (set/clear write terminal.thread, flatten reflects)"
+      ]
+    }
+  },
+  "plain": {
+    "quarters": {
+      "type": "Quarters ref",
+      "read": [
+        "activate/close/set/clear/hydrate"
+      ]
+    },
+    "lighthouse": {
+      "type": "Lighthouse ref",
+      "read": [
+        "hydrate(daemons.findOneLocal)"
+      ]
+    }
+  },
+  "accessors": [
+    "terminal",
+    "thread",
+    "daemon(thread?.daemon)",
+    "mode(thread?.mode)"
+  ],
+  "methods": [
+    "activate(id)",
+    "close(id)",
+    "set(thread)",
+    "clear()",
+    "hydrate()"
+  ],
+  "subscribes": [
+    "$thread->queue lifecycle (deactivate prev / activate next)",
+    "lighthouse.$daemons->hydrate"
+  ],
+  "writesExternal": [
+    "quarters.terminals.{remove,update}",
+    "terminal.thread="
+  ],
+  "persist": "localStorage viva.main.terminal -> terminal.id",
+  "consumedBy": [
+    "+layout(empty-overlay->quarters.spawn)",
+    "panels",
+    "inspector",
+    "conversational trait provide({main})"
+  ]
+}
+#+end_src
+
+** bridge
+#+begin_src json
+{
+  "symbol": "BRIDGE",
+  "file": "decks/bridge/bridge.js",
+  "mounted": true,
+  "metaphor": "helm",
+  "construct": "new Bridge()  // loadFromStorage(vivalence:bridge) -> 3 store()s + 2 atoms",
+  "demo": {
+    "layout": {
+      "pincer": {
+        "x": 420,
+        "y": 300
+      },
+      "previous": {
+        "x": 420,
+        "y": 300
+      },
+      "standard": {
+        "x": 0,
+        "y": 640
+      },
+      "orientation": 0,
+      "inspectorHeight": 0,
+      "viewport": {
+        "width": 430,
+        "height": 932
+      }
+    },
+    "view": {
+      "d": "outside",
+      "d.threads": true,
+      "d.intents": true,
+      "d.modes": true,
+      "f": "buffers",
+      "g": false,
+      "h": false,
+      "snap": true
+    },
+    "paneSize": {
+      "d": null,
+      "e": null,
+      "f": null,
+      "panes": {
+        "d": true,
+        "f": true
+      }
+    }
+  },
+  "stores": {
+    "layout": {
+      "keys": [
+        "pincer{x,y}",
+        "previous{x,y}",
+        "standard{x,y}",
+        "orientation(0|90|180|270)",
+        "inspectorHeight",
+        "viewport{w,h}",
+        "home{x,y}",
+        "start{x,y}"
+      ],
+      "each": "key=proxy getter/setter, $key=atom",
+      "serialized": [
+        "pincer",
+        "previous",
+        "standard",
+        "orientation",
+        "inspectorHeight"
+      ],
+      "write": [
+        "bootLayout",
+        "resize",
+        "panel h->inspectorHeight"
+      ]
+    },
+    "view": {
+      "keys": [
+        "d(outside|...)",
+        "d.threads(bool)",
+        "d.intents(bool)",
+        "d.modes(bool)",
+        "f(buffers|...)",
+        "g(bool)",
+        "h(bool)",
+        "snap(bool)"
+      ],
+      "serialized": [
+        "d",
+        "d.threads",
+        "d.intents",
+        "d.modes",
+        "f"
+      ],
+      "write": [
+        "toggle(key)",
+        "panel d->view.d",
+        "panel f->view.f"
+      ]
+    },
+    "paneSize": {
+      "keys": [
+        "d",
+        "e",
+        "f",
+        "panes{d,f}"
+      ],
+      "serialized": [
+        "d",
+        "e",
+        "f",
+        "panes"
+      ],
+      "write": [
+        "panel c->d/e/f/panes"
+      ]
+    }
+  },
+  "state": {
+    "$safeAreaTop": {
+      "store": "atom",
+      "value": "number",
+      "read": [
+        "safeAreaTop",
+        "viewportDimensions"
+      ],
+      "write": [
+        "bootLayout"
+      ]
+    },
+    "$viewportOffsetTop": {
+      "store": "atom",
+      "value": "number",
+      "read": [
+        "viewportOffsetTop"
+      ],
+      "write": [
+        "bootLayout",
+        "resize"
+      ]
+    }
+  },
+  "accessors": [
+    "safeAreaTop",
+    "viewportOffsetTop"
+  ],
+  "methods": [
+    "toggle(key)",
+    "save()"
+  ],
+  "module": [
+    "bootLayout(b)",
+    "resize(b)",
+    "attachViewport(b)",
+    "DEFAULT_DOCK",
+    "DEFAULT_COMPOSER"
+  ],
+  "persist": "localStorage vivalence:bridge -> {...layout, view, paneSize} (save())",
+  "consumedBy": [
+    "pincer bones/panels(geometry)",
+    "panel c/d/f/h(writes)",
+    "inspector(layout.$pincer,$orientation)"
+  ]
+}
+#+end_src
+
+** inspector
+#+begin_src json
+{
+  "symbol": null,
+  "file": "decks/inspector.js",
+  "mounted": "module, not a context (panel H)",
+  "shape": "factory, not class. inspectorAtom() -> $nodes; composeInspector() -> Vector tree",
+  "demo": {
+    "$nodes": {
+      "nature": "root",
+      "branches": [
+        "lighthouse",
+        "main",
+        "quarters",
+        "bridge",
+        "thread"
+      ]
+    }
+  },
+  "state": {
+    "$nodes": {
+      "store": "atom",
+      "value": "shape.tree(...)",
+      "read": [
+        "panel H"
+      ],
+      "write": [
+        "rebuild (on any subscribed source)"
+      ]
+    }
+  },
+  "readsOnly_subscriptions": [
+    "lighthouse.$status",
+    "lighthouse.$isAuthorized",
+    "lighthouse.$isIdentified",
+    "lighthouse.$identity",
+    "lighthouse.$daemons",
+    "main.$active",
+    "main.$terminal",
+    "main.$current",
+    "quarters.terminals.$entities",
+    "bridge.layout.$pincer",
+    "bridge.layout.$orientation"
+  ],
+  "readsDeep_compose": {
+    "lighthouse": [
+      "isAuthorized",
+      "isIdentified",
+      "status.code",
+      "identity.slug",
+      "connection.$state",
+      "$daemons",
+      "logout()"
+    ],
+    "main": [
+      "terminal.id",
+      "current.id",
+      "daemon.slug",
+      "mode.slug",
+      "spawn()",
+      "clear()",
+      "activate(id)"
+    ],
+    "quarters": [
+      "terminals.$entities[].{slug,id}"
+    ],
+    "bridge": [
+      "layout.{pincer,orientation,viewport,standard,previous}"
+    ],
+    "thread": [
+      "id",
+      "intent.slug",
+      "counter",
+      "cursor",
+      "buffers[].{view,id}"
+    ],
+    "daemon": [
+      "connection.$state",
+      "slug",
+      "manifest.traits",
+      "entities[mode,intent,thread,buffer,turn,literal].$entities"
+    ]
+  },
+  "writes": "none (read-only deck)"
+}
+#+end_src
+
+** box
+#+begin_src json
+{
+  "symbol": "BOX (commented)",
+  "file": "decks/box/box.js",
+  "mounted": false,
+  "metaphor": "audio hardware",
+  "construct": "new Box()  // drivers.audio=AudioDriver; device.microphone=Microphone(box); device.speaker=Speaker(box)",
+  "demo": {
+    "drivers": {
+      "audio": {
+        "$state": "running",
+        "context": "AudioContext(16000)"
+      }
+    },
+    "device": {
+      "microphone": {
+        "claimed": true,
+        "permission": "granted",
+        "level": 0.041,
+        "speaking": false,
+        "paused": false,
+        "error": null
+      },
+      "speaker": {
+        "claimed": true,
+        "playing": false,
+        "error": null
+      }
+    }
+  },
+  "fields": {
+    "drivers": "{audio:AudioDriver}",
+    "device": "{microphone:Microphone, speaker:Speaker}"
+  },
+  "drivers.audio": {
+    "file": "drivers/audio/audio.js",
+    "state": {
+      "$state": {
+        "store": "atom",
+        "value": "idle|running|suspended|closed",
+        "read": [
+          "mic/speaker acquire subscribe"
+        ],
+        "write": [
+          "acquire",
+          "release",
+          "context.onstatechange"
+        ]
+      }
+    },
+    "plain": {
+      "context": "AudioContext({sampleRate:16000})|null"
+    },
+    "methods": [
+      "acquire()",
+      "release()"
+    ]
+  },
+  "device.microphone": {
+    "file": "device/microphone/microphone.js",
+    "state": {
+      "$claimed": {
+        "store": "atom",
+        "value": "bool",
+        "write": [
+          "acquire",
+          "teardown"
+        ]
+      },
+      "$permission": {
+        "store": "atom",
+        "value": "prompt|granted|denied",
+        "write": [
+          "hydratePermission",
+          "acquire",
+          "teardown"
+        ]
+      },
+      "$error": {
+        "store": "atom",
+        "value": "string|null",
+        "write": [
+          "acquire",
+          "teardown"
+        ]
+      },
+      "$level": {
+        "store": "atom",
+        "value": "number(rms)",
+        "write": [
+          "pollLevel"
+        ]
+      },
+      "$speaking": {
+        "store": "atom",
+        "value": "bool",
+        "write": [
+          "updateSpeaking",
+          "teardown"
+        ]
+      },
+      "$paused": {
+        "store": "atom",
+        "value": "bool",
+        "write": [
+          "pause",
+          "resume",
+          "teardown"
+        ]
+      }
+    },
+    "plain": {
+      "in": "Pipe",
+      "box": "ref",
+      "stream": "MediaStream|null",
+      "source": "node",
+      "worklet": "AudioWorkletNode(microphone-pcm)",
+      "analyser": "AnalyserNode(fft256)",
+      "raf": "id",
+      "inflight": "Promise|null",
+      "audioUnsubscribe": "fn",
+      "riseSince": "ts",
+      "fallSince": "ts"
+    },
+    "accessors": [
+      "claimed",
+      "permission",
+      "error",
+      "level",
+      "speaking",
+      "paused"
+    ],
+    "methods": [
+      "claim()",
+      "release()",
+      "pause()",
+      "resume()"
+    ],
+    "module": [
+      "acquire",
+      "teardown",
+      "pollLevel",
+      "hydratePermission",
+      "updateSpeaking"
+    ]
+  },
+  "device.speaker": {
+    "file": "device/speaker/speaker.js",
+    "state": {
+      "$claimed": {
+        "store": "atom",
+        "value": "bool",
+        "write": [
+          "acquire",
+          "teardown"
+        ]
+      },
+      "$playing": {
+        "store": "atom",
+        "value": "bool",
+        "write": [
+          "worklet.onmessage",
+          "flush",
+          "teardown"
+        ]
+      },
+      "$error": {
+        "store": "atom",
+        "value": "string|null",
+        "write": [
+          "acquire",
+          "teardown"
+        ]
+      }
+    },
+    "plain": {
+      "out": "Queue",
+      "box": "ref",
+      "worklet": "AudioWorkletNode(speaker-pcm, jitter=1600)",
+      "drainController": "AbortController|null",
+      "inflight": "Promise|null",
+      "audioUnsubscribe": "fn"
+    },
+    "accessors": [
+      "claimed",
+      "playing",
+      "error"
+    ],
+    "methods": [
+      "claim()",
+      "release()",
+      "flush()"
+    ],
+    "module": [
+      "acquire",
+      "teardown",
+      "drainLoop"
+    ]
+  },
+  "consumedBy": "traits.thread.conversational.provide({box}) — disabled (box arg commented in +layout)"
+}
+#+end_src

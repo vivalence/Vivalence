@@ -79,10 +79,11 @@ export const tailwindClasses = {
     code: "var(--font-family-code)",
   },
   fontSize: {
+    "2xs": ["var(--font-size-2xs)", "var(--line-height-2xs)"],
     xs: ["var(--font-size-xs)", "var(--line-height-xs)"],
     sm: ["var(--font-size-sm)", "var(--line-height-sm)"],
+    md: ["var(--font-size-md)", "var(--line-height-md)"],
     base: ["var(--font-size-base)", "var(--line-height-base)"],
-    md: ["var(--font-size-base)", "var(--line-height-base)"],
     lg: ["var(--font-size-lg)", "var(--line-height-lg)"],
     xl: ["var(--font-size-xl)", "var(--line-height-xl)"],
     "2xl": ["var(--font-size-2xl)", "var(--line-height-2xl)"],

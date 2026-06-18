@@ -164,7 +164,7 @@
   }
   .meta-lang {
     font-family: var(--font-family-code);
-    font-size: 0.65rem;
+    font-size: var(--font-size-xs);
     font-weight: 600;
     letter-spacing: 0.08em;
     text-transform: uppercase;
@@ -172,13 +172,13 @@
   }
   .meta-type {
     font-family: var(--font-family-code);
-    font-size: 0.65rem;
+    font-size: var(--font-size-xs);
     font-weight: 500;
     color: var(--colors-skeleton-1-boundary);
   }
   .meta-hint {
     font-family: var(--font-family-code);
-    font-size: 0.55rem;
+    font-size: var(--font-size-2xs);
     color: var(--colors-skeleton-1-boundary);
     opacity: 0.6;
   }
@@ -206,7 +206,7 @@
 
   .example {
     font-family: var(--font-family-serif-heading);
-    font-size: 0.95rem;
+    font-size: var(--font-size-base);
     color: var(--colors-skeleton-1-boundary);
     font-style: italic;
     margin: 0 0 1.5rem 0;
@@ -225,7 +225,7 @@
     border: none;
     padding: 1rem;
     font-family: var(--font-family-code);
-    font-size: 0.7rem;
+    font-size: var(--font-size-sm);
     color: var(--colors-skeleton-1-boundary);
     cursor: pointer;
     width: 100%;
@@ -244,12 +244,12 @@
   }
   .reveal-label {
     font-family: var(--font-family-code);
-    font-size: 0.6rem;
+    font-size: var(--font-size-xs);
     color: var(--colors-skeleton-1-boundary);
   }
   .answer {
     font-family: var(--font-family-serif-heading);
-    font-size: 1.25rem;
+    font-size: var(--font-size-lg);
     color: var(--colors-theme-primary-contrast);
     margin: 0;
     line-height: 1.2;
@@ -282,7 +282,7 @@
     text-align: center;
     padding: 0.625rem;
     color: var(--colors-skeleton-1-boundary);
-    font-size: 0.75rem;
+    font-size: var(--font-size-sm);
     font-family: var(--font-family-code);
     min-height: 48px;
     display: flex;
@@ -296,7 +296,7 @@
     padding: 0.75rem 0.5rem;
     border-radius: 0.5rem;
     border: none;
-    font-size: 0.875rem;
+    font-size: var(--font-size-md);
     font-weight: 600;
     cursor: pointer;
     font-family: var(--font-family-sans-text);

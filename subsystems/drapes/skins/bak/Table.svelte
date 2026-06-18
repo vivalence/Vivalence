@@ -50,7 +50,7 @@
 </div>
 
 <style>
-  .skin-table { font-family: var(--font-family-code); font-size: 11px; }
+  .skin-table { font-family: var(--font-family-code); font-size: var(--font-size-sm); }
   table { width: 100%; border-collapse: collapse; }
   th { text-align: left; padding: 4px 8px; border-bottom: 1px solid var(--colors-skeleton-0-boundary); opacity: 0.5; }
   td { padding: 3px 8px; }
@@ -62,5 +62,5 @@
   .cell-valence { opacity: 0.5; }
   .cell-directed { color: var(--colors-skeleton-0-primary-base); opacity: 0.4; }
   .cell-schema { opacity: 0.3; }
-  .cell-result { color: var(--colors-skeleton-0-primary-base); opacity: 0.6; font-size: 9px; }
+  .cell-result { color: var(--colors-skeleton-0-primary-base); opacity: 0.6; font-size: var(--font-size-xs); }
 </style>

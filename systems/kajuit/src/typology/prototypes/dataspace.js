@@ -1,12 +1,5 @@
 import { RemoteEntityManager, Vector, shape, shard } from "@vivalence/typology";
 
-function nameFrom(schema) {
-  return (
-    schema.name ??
-    (typeof schema.kind === "function" ? schema.kind().name.toLowerCase() : "unknown")
-  );
-}
-
 function strategy(carry) {
   return async (entity, raw) => {
     const ctx = { entity, raw };
@@ -15,6 +8,7 @@ function strategy(carry) {
   };
 }
 
+// ugly retarded slop
 export class Dataspace {
   schemas = new Map();
 
@@ -23,22 +17,25 @@ export class Dataspace {
     this.em = new RemoteEntityManager(connection, {});
 
     for (const dossier of entities) {
-      const name = nameFrom(dossier);
       const repository = dossier.repository(dossier, this);
 
-      const vector = new Vector()
+      const boot = new Vector()
         .use(shard.context.attach("dossier", dossier))
         .use(shard.context.attach("repository", repository))
         .use(shard.context.attach("dataspace", this));
-      seed?.(vector);
-      for (const fn of dossier.use ?? []) vector.use(fn);
-      vector.affect(async () => {});
-      const integrate = shape.selbstbestimmt(vector, strategy);
 
-      if (repository.manage) this.em.register(name, repository, integrate);
+      if (seed) seed(boot);
+      if (dossier.boot) boot.slurp(dossier.boot);
+
+      for (const fn of dossier.use ?? []) boot.use(fn);
+      boot.affect(async () => {});
+
+      const integrate = shape.selbstbestimmt(boot, strategy);
+      if (repository.manage) this.em.register(dossier.name, repository, integrate);
       else repository.integrate = integrate;
-      this.schemas.set(name, dossier);
-      this[name] = repository;
+
+      this.schemas.set(dossier.name, dossier);
+      this[dossier.name] = repository;
     }
   }
 

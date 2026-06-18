@@ -73,7 +73,7 @@ lifecycle phases at `systems/runtime/daemon/lifecycle/`:
 
 mode traits at `systems/runtime/daemon/traits/`:
 
-- **BUFFERED** at `traits/buffered.js` — compiles Svelte views via esbuild, exposes `/view` endpoint. (Note: was previously called "VIEWABLE" — canonical name is BUFFERED.)
+- **VIEWABLE** at `traits/viewable.js` — compiles Svelte views via esbuild, exposes `/view` endpoint. (Note: renamed from BUFFERED; the old name is retained as a deprecated `ModeTraitsEnum` alias for persisted-data compatibility.)
 - **DATASET** at `traits/dataset.js` — upserts symbols and literals from `mode.cake.dataset.entities` in chunks of 100 via `orm.em.upsertMany()`
 - **INTENTED** at `traits/intented.js` — upserts IntentEntity rows from `mode.cake.dataset.intent[]`
 - **EMITTER** at `traits/emitter.js` — compiles `mode.cake.emitter` Vector with ambient inheritance, thread lookup, blacklist conversion, Yield post-processor
@@ -94,7 +94,7 @@ Compiled at `resolve.compose`: `shape.http(aperture) → handler` then `shard.co
 
 scenario tiers at `systems/runtime/tests/scenarios/`, exported via `@vivalence/runtime/scenarios`:
 
-- `mountMode(viva)` at `systems/runtime/tests/scenarios/mode.js` — lightweight; single `.viva.js` → minimal daemon; stub BUFFERED, TestLiteralRepository, real INTENTED + EMITTER
+- `mountMode(viva)` at `systems/runtime/tests/scenarios/mode.js` — lightweight; single `.viva.js` → minimal daemon; stub VIEWABLE, TestLiteralRepository, real INTENTED + EMITTER
 - `mountModes(vivas[])` at `systems/runtime/tests/scenarios/mode.js` — N modes into one shared daemon; for cross-mode composition (tactic emitters)
 - `bench({ kernel, modes, services })` at `systems/runtime/tests/scenarios/bench.js` — full daemon factory; real lifecycle except paladin (resolved manually), datamap (in-memory provider from `subsystems/typology/tests/scenarios/datamap.js`), auth (permissive default; override with `services.lighthouse`); accepts paladin specifiers OR raw imports
 

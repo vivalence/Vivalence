@@ -18,6 +18,7 @@ const config = {
     files: {
       // assets:"static", hooks, routes, serviceWorker, errorTemplate, routes.
       appTemplate: "src/client.html",
+      routes: "src/app",
     },
   },
 };

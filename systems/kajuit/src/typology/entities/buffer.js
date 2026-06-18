@@ -4,7 +4,7 @@ import { Entity } from "../prototypes/entity.js"; // RemoteEnity (name the seman
 export class Buffer extends Entity {
   view = null; // bundle
   context = null;
-  hooks = { mount: [], render: [], tick: [], release: [], destroy: [] };
+  hooks = { mount: [], render: [], release: [], destroy: [] };
 
   on = {
     mount: (callback) => {
@@ -13,10 +13,6 @@ export class Buffer extends Entity {
     },
     render: (callback) => {
       this.hooks.render.push(fn.once(callback));
-      return this;
-    },
-    tick: (callback) => {
-      this.hooks.tick.push(callback);
       return this;
     },
     release: (callback) => {
@@ -41,9 +37,6 @@ export class Buffer extends Entity {
   render(...a) {
     for (const hook of this.hooks.render) hook(this, ...a);
   }
-  tick(...a) {
-    for (const hook of this.hooks.tick) hook(this, ...a);
-  }
   release(...a) {
     for (const hook of this.hooks.release) hook(this, ...a);
   }
@@ -64,9 +57,10 @@ export const BufferDossier = {
   use: [
     async (ctx, next) => {
       await next();
-      if (ctx.entity.mode && typeof ctx.entity.mode === "object") {
-        ctx.entity.view = ctx.entity.mode.buffered ?? null;
-      }
+      const buffer = ctx.entity;
+      const modeId = buffer.mode?.id ?? buffer.mode;
+      const mode = ctx.daemon?.entities?.mode?.$entities.get().find((entry) => entry.id === modeId);
+      if (mode) buffer.mode = mode;
     },
   ],
 };

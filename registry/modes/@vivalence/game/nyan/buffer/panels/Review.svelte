@@ -4,7 +4,7 @@
 
   stage.use(stage.line, stage.scatter, stage.grid, stage.tooltip, stage.legend, stage.renderer);
 
-  const { game } = $props();
+  const { game, view } = $props();
 
   const tint = (name) =>
     getComputedStyle(document.documentElement).getPropertyValue(name).trim() || "#888";
@@ -16,7 +16,7 @@
   };
 
   const speedOptions = $derived.by(() => {
-    const line = speedline(game.run, game.resolution);
+    const line = speedline(view, game.resolution);
     const boundary = tint("--colors-skeleton-1-boundary");
     const axis = {
       type: "value",
@@ -248,7 +248,7 @@
 <style>
   .title {
     font-family: var(--font-family-code);
-    font-size: 0.8rem;
+    font-size: var(--font-size-sm);
     font-weight: 600;
     letter-spacing: 0.04em;
     color: var(--colors-palette-gray-10);
@@ -285,7 +285,7 @@
   }
   .digit .value {
     font-family: var(--font-family-code);
-    font-size: 1.5rem;
+    font-size: var(--font-size-lg);
     font-weight: 600;
     color: var(--colors-palette-gray-10);
     font-variant-numeric: tabular-nums;
@@ -295,14 +295,14 @@
   }
   .digit .label {
     font-family: var(--font-family-code);
-    font-size: 0.65rem;
+    font-size: var(--font-size-xs);
     text-transform: uppercase;
     letter-spacing: 0.08em;
     color: var(--colors-skeleton-1-boundary);
   }
   .subline {
     font-family: var(--font-family-code);
-    font-size: 0.75rem;
+    font-size: var(--font-size-sm);
     color: var(--colors-skeleton-1-boundary);
     margin-bottom: 1rem;
   }
@@ -322,7 +322,7 @@
     display: flex;
     gap: 0.9rem;
     font-family: var(--font-family-code);
-    font-size: 0.85rem;
+    font-size: var(--font-size-md);
     margin-bottom: 1.5rem;
   }
 
@@ -333,7 +333,7 @@
     align-items: center;
     gap: 0.4rem;
     font-family: var(--font-family-code);
-    font-size: 0.8rem;
+    font-size: var(--font-size-sm);
     margin-bottom: 0.75rem;
     padding-top: 0.75rem;
     border-top: 1px solid color-mix(in srgb, var(--colors-skeleton-1-boundary) 25%, transparent);
@@ -356,7 +356,7 @@
     background: transparent;
     color: var(--colors-skeleton-1-boundary);
     font-family: var(--font-family-code);
-    font-size: 0.8rem;
+    font-size: var(--font-size-sm);
     cursor: pointer;
   }
   .chip .dim {
@@ -372,7 +372,7 @@
     border: none;
     color: var(--colors-skeleton-1-boundary);
     font-family: var(--font-family-code);
-    font-size: 0.8rem;
+    font-size: var(--font-size-sm);
     cursor: pointer;
     padding: 0;
   }
@@ -388,7 +388,7 @@
 
   .wtable {
     font-family: var(--font-family-code);
-    font-size: 0.8rem;
+    font-size: var(--font-size-sm);
     max-height: 18rem;
     overflow-y: auto;
   }
@@ -407,7 +407,7 @@
 
   .utable {
     font-family: var(--font-family-code);
-    font-size: 0.8rem;
+    font-size: var(--font-size-sm);
     max-height: 18rem;
     overflow-y: auto;
     font-variant-numeric: tabular-nums;
@@ -462,11 +462,11 @@
     padding: 0.5rem 0;
     color: var(--colors-skeleton-1-boundary);
     font-family: var(--font-family-code);
-    font-size: 0.8rem;
+    font-size: var(--font-size-sm);
   }
   .hint {
     font-family: var(--font-family-code);
-    font-size: 0.75rem;
+    font-size: var(--font-size-sm);
     color: var(--colors-skeleton-1-boundary);
   }
   .thin-note {
@@ -475,7 +475,7 @@
 
   .trans {
     font-family: var(--font-family-code);
-    font-size: 0.8rem;
+    font-size: var(--font-size-sm);
     display: flex;
     flex-wrap: wrap;
     gap: 0.4rem 1.25rem;

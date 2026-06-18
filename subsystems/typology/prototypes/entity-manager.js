@@ -67,13 +67,23 @@ export class RemoteEntityManager {
   merge(name, raw, kind) {
     if (!raw?.id) return raw;
 
+    const props = this.schema[name]?.properties;
     const mapKey = this.key(name, raw.id);
     const existing = this.identities.get(mapKey);
 
     if (existing) {
       for (const field of Object.keys(raw)) {
-        const incoming = raw[field];
+        let incoming = raw[field];
         if (incoming === undefined) continue;
+        const spec = props?.[field];
+        if (spec?.target && incoming != null) {
+          if (spec.kind === "m:1") {
+            const id = typeof incoming === "object" ? incoming.id : incoming;
+            incoming = this.identity(spec.target, id) ?? (existing[field]?.id === id ? existing[field] : incoming);
+          } else if ((spec.kind === "1:m" || spec.kind === "m:n") && Array.isArray(incoming)) {
+            incoming = incoming.map((item) => this.identity(spec.target, item) ?? item);
+          }
+        }
         if (Array.isArray(incoming) && incoming.length === 0 && Array.isArray(existing[field]) && existing[field].length > 0) continue;
         existing[field] = incoming;
       }

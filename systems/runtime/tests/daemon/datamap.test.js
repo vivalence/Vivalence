@@ -55,7 +55,7 @@ specimen.describe("daemon routes", () => {
     specimen.expect(result.manifest.slug).toBe("flashcard");
   });
 
-  specimen.it("BUFFERED mode includes buffered url and schema", async () => {
+  specimen.it("VIEWABLE mode includes buffered url and schema", async () => {
     const result = await scenario.conn.call("/modes/game/findOne", {
       where: { slug: "flashcard" },
     });
@@ -70,6 +70,6 @@ specimen.describe("daemon routes", () => {
     specimen.expect(result.manifest.traits).toContain("SELFEVIDENT");
     specimen.expect(result.manifest.traits).toContain("INTENTED");
     specimen.expect(result.manifest.traits).toContain("EMITTER");
-    specimen.expect(result.manifest.traits).toContain("BUFFERED");
+    specimen.expect(result.manifest.traits).toContain("VIEWABLE");
   });
 });

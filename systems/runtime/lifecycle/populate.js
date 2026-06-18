@@ -21,11 +21,10 @@ export async function aperture(runtimeDie) {
 
 export async function daemons(runtimeDie) {
   for (const mask of paladin.variant.daemons) {
+    // console.log({ mask });
     const daemonDie = new DaemonDie({
       mask,
-      good: new Daemon({
-        manifest: mask.manifest, //
-      }),
+      good: new Daemon({ manifest: mask.manifest }),
     });
 
     daemonDie.good.mount = new Path(`/daemon/${daemonDie.slug}`);

@@ -113,7 +113,7 @@ export class Connection {
           callback(event);
         }
       } catch (error) {
-        if (error.name !== "AbortError") throw error;
+        if (error.name !== "AbortError") console.warn(`[connection] subscribe ${endpoint} failed`, error);
       }
     })();
     return () => controller.abort();

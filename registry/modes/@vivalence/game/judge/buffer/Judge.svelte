@@ -253,7 +253,7 @@
   }
   .meta-type {
     font-family: var(--font-family-code);
-    font-size: 0.65rem;
+    font-size: var(--font-size-xs);
     color: var(--colors-skeleton-1-boundary);
   }
 
@@ -311,13 +311,13 @@
     gap: 0.5rem;
   }
   .fb-icon {
-    font-size: 1.125rem;
+    font-size: var(--font-size-base);
     font-weight: 700;
     line-height: 1;
   }
   .fb-text {
     font-family: var(--font-family-code);
-    font-size: 0.75rem;
+    font-size: var(--font-size-sm);
     text-transform: uppercase;
     letter-spacing: 0.06em;
   }
@@ -332,7 +332,7 @@
   }
   .fb-answer-label {
     font-family: var(--font-family-code);
-    font-size: 0.6rem;
+    font-size: var(--font-size-xs);
     color: var(--colors-skeleton-1-boundary);
     text-transform: uppercase;
     letter-spacing: 0.08em;
@@ -349,7 +349,7 @@
     text-align: center;
     padding: 1rem;
     color: var(--colors-skeleton-1-boundary);
-    font-size: 0.8rem;
+    font-size: var(--font-size-sm);
     font-family: var(--font-family-code);
   }
 
@@ -359,7 +359,7 @@
     padding: 0.75rem 0.5rem;
     border-radius: 0.625rem;
     border: none;
-    font-size: 1rem;
+    font-size: var(--font-size-base);
     font-weight: 600;
     cursor: pointer;
     font-family: var(--font-family-sans-text);

@@ -65,10 +65,10 @@
 </div>
 
 <style>
-  .skin-form { font-family: var(--font-family-code); font-size: 11px; }
+  .skin-form { font-family: var(--font-family-code); font-size: var(--font-size-sm); }
   .effect-form { margin-bottom: 12px; padding: 10px; background: var(--colors-skeleton-1-surface); border-radius: 4px; border: 1px solid var(--colors-skeleton-0-boundary); }
   .form-label { font-weight: 600; margin-bottom: 2px; }
-  .form-valence { opacity: 0.4; margin-bottom: 6px; font-size: 10px; }
+  .form-valence { opacity: 0.4; margin-bottom: 6px; font-size: var(--font-size-sm); }
   .form-field { display: flex; align-items: center; gap: 8px; margin-bottom: 4px; }
   .form-field label { min-width: 70px; opacity: 0.6; }
   .form-field input { padding: 3px 6px; background: var(--colors-skeleton-0-surface); border: 1px solid var(--colors-skeleton-0-boundary); border-radius: 2px; color: var(--colors-skeleton-1-contrast); font-family: inherit; font-size: inherit; width: 120px; }

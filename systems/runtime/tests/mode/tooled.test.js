@@ -1,6 +1,6 @@
 import { specimen, v } from "@vivalence/typology";
 import { Vector, Mode, Aperture, Path } from "@vivalence/typology";
-import { TOOLED, CHAOSMONKEY } from "@vivalence/runtime/daemon/traits";
+import { TOOLED, HARNESSED } from "@vivalence/runtime/daemon/traits";
 import { create } from "../scenarios/cortex.js";
 
 function buildMode({ tools, harness } = {}) {
@@ -116,7 +116,7 @@ specimen.describe("TOOLED trait", () => {
   specimen.describe("trait order independence", () => {
     async function applyTraits(mode, daemon, order) {
       const finalizers = [];
-      const traitsByName = { TOOLED, CHAOSMONKEY };
+      const traitsByName = { TOOLED, HARNESSED };
       for (const name of order) {
         const result = await traitsByName[name](mode, daemon);
         if (typeof result === "function") finalizers.push(result);
@@ -124,23 +124,23 @@ specimen.describe("TOOLED trait", () => {
       for (const finalize of finalizers) await finalize();
     }
 
-    specimen.it("['TOOLED', 'CHAOSMONKEY'] produces working harness", async () => {
+    specimen.it("['TOOLED', 'HARNESSED'] produces working harness", async () => {
       const tools = new Vector();
       tools.open({ nature: "ping" }, () => "pong");
       const mode = buildMode({ tools });
 
-      await applyTraits(mode, scenario.daemon, ["TOOLED", "CHAOSMONKEY"]);
+      await applyTraits(mode, scenario.daemon, ["TOOLED", "HARNESSED"]);
 
       specimen.expect(mode.harness).toBeDefined();
       specimen.expect(typeof mode.harness.dialogue.stream).toBe("function");
     });
 
-    specimen.it("['CHAOSMONKEY', 'TOOLED'] produces working harness too", async () => {
+    specimen.it("['HARNESSED', 'TOOLED'] produces working harness too", async () => {
       const tools = new Vector();
       tools.open({ nature: "ping" }, () => "pong");
       const mode = buildMode({ tools });
 
-      await applyTraits(mode, scenario.daemon, ["CHAOSMONKEY", "TOOLED"]);
+      await applyTraits(mode, scenario.daemon, ["HARNESSED", "TOOLED"]);
 
       specimen.expect(mode.harness).toBeDefined();
       specimen.expect(typeof mode.harness.dialogue.stream).toBe("function");

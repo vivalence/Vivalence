@@ -8,11 +8,5 @@ export const TOOLED = (mode, daemon) => {
   tools.use(shard.context.bind("mode", mode));
   tools.slurp(mode.cake.tools);
 
-  const compiled = shape.agentic(tools);
-
-  mode.cake.harness ??= new Vector();
-  mode.cake.harness.branch("/dialogue").use(async (ctx, next) => {
-    ctx.hallucination.absorb(compiled);
-    await next();
-  });
+  daemon.cortex.tools.branch(mode.slug).slurp(tools);
 };

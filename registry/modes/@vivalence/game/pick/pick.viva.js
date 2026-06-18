@@ -1,4 +1,4 @@
-import { string, BufferView, Vector, v } from "@vivalence/typology";
+import { string, View, Vector, v } from "@vivalence/typology";
 
 const manifest = {
   type: "game",
@@ -7,10 +7,10 @@ const manifest = {
   description:
     "Multiple choice from distractors. One tap. Wrong pick penalizes both target and distractor.",
   version: "0.1.0",
-  traits: ["BUFFERED", "EMITTER"],
+  traits: ["VIEWABLE", "EMITTER"],
 };
 
-const buffer = new BufferView(
+const view = new View(
   "buffer/Pick.svelte",
   v.buffer({
     data: {
@@ -87,4 +87,4 @@ const dataset = {
   ],
 };
 
-export { manifest, buffer, emitter, dataset };
+export { manifest, view, emitter, dataset };

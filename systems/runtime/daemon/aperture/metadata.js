@@ -1,0 +1,49 @@
+import { shape, shard } from "@vivalence/typology";
+
+export async function metadata(die) {
+  const root = die.good.aperture.branch("/metadata");
+
+  root.open("/manifest", () => die.manifest);
+  root.open("/cargo", () => die.good.cargo);
+  root.open("/datamap", () => shard.datamap.strip(die.datamap.introspect()));
+  root.open("/aperture", () => shape.strip(die.good.aperture));
+  root.open("/modes", () =>
+    die.good.flatmodes().map((mode) => ({
+      type: mode.type,
+      slug: mode.slug,
+      name: mode.manifest.name ?? mode.slug,
+      traits: mode.traits,
+      metadata: `${die.good.mount.nature}/mode/${mode.type}/${mode.slug}/metadata`,
+    })),
+  );
+
+  for (const mode of die.good.flatmodes()) {
+    const meta = die.good.aperture.branch(mode.mount.nature).branch("/metadata");
+
+    meta.open("/manifest", () => mode.manifest);
+    meta.open("/aperture", () => shape.strip(mode.aperture));
+
+    if (mode.implements("VIEWABLE"))
+      meta.open("/view", () => ({
+        url: mode.cake.view.url.absolute,
+        schema: mode.cake.view.mask,
+      }));
+
+    if (mode.implements("EMITTER"))
+      meta.open("/emitter", () => shape.strip(mode.cake.emitter));
+
+    if (mode.implements("FRAUGHT"))
+      meta.open("/freight", () => mode.cake.freight.catalog);
+
+    if (mode.implements("HARNESSED"))
+      meta.open("/capabilities", () =>
+        ["dialogue", "object"]
+          .filter((type) => die.good.cortex?.has?.(type))
+          .map((type) => ({
+            type,
+            stream: !!die.good.cortex.resolve(type, { via: "stream" }),
+            render: !!die.good.cortex.resolve(type, { via: "render" }),
+          })),
+      );
+  }
+}

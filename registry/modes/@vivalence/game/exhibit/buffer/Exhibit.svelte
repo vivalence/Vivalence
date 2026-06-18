@@ -172,7 +172,7 @@
   }
   .meta-lang {
     font-family: var(--font-family-code);
-    font-size: 0.65rem;
+    font-size: var(--font-size-xs);
     font-weight: 600;
     letter-spacing: 0.08em;
     text-transform: uppercase;
@@ -180,7 +180,7 @@
   }
   .meta-type {
     font-family: var(--font-family-code);
-    font-size: 0.65rem;
+    font-size: var(--font-size-xs);
     font-weight: 500;
     color: var(--colors-skeleton-1-boundary);
   }
@@ -194,7 +194,7 @@
   }
   .subtitle {
     font-family: var(--font-family-code);
-    font-size: 0.7rem;
+    font-size: var(--font-size-sm);
     color: var(--colors-skeleton-1-boundary);
     margin: 0 0 1.5rem 0;
   }
@@ -219,7 +219,7 @@
   }
   .table-person {
     font-family: var(--font-family-code);
-    font-size: 0.7rem;
+    font-size: var(--font-size-sm);
     color: var(--colors-skeleton-1-boundary);
   }
   .table-form {
@@ -230,7 +230,7 @@
   }
   .table-gloss {
     font-family: var(--font-family-serif-heading);
-    font-size: 0.8rem;
+    font-size: var(--font-size-sm);
     color: var(--colors-skeleton-1-boundary);
     line-height: 1.35;
   }
@@ -256,7 +256,7 @@
   }
   .pattern-slot {
     font-family: var(--font-family-code);
-    font-size: 0.8rem;
+    font-size: var(--font-size-sm);
     color: var(--colors-theme-primary-contrast);
     padding: 0.125rem 0.5rem;
     border-radius: 0.25rem;
@@ -283,7 +283,7 @@
   }
   .example-known {
     font-family: var(--font-family-serif-heading);
-    font-size: 0.85rem;
+    font-size: var(--font-size-md);
     color: var(--colors-skeleton-1-boundary);
     margin: 0;
     font-style: italic;
@@ -312,14 +312,14 @@
   }
   .contrast-learning {
     font-family: var(--font-family-serif-heading);
-    font-size: 1rem;
+    font-size: var(--font-size-base);
     color: var(--colors-palette-gray-10);
     margin: 0 0 0.125rem 0;
     line-height: 1.3;
   }
   .contrast-known {
     font-family: var(--font-family-serif-heading);
-    font-size: 0.75rem;
+    font-size: var(--font-size-sm);
     color: var(--colors-skeleton-1-boundary);
     margin: 0;
     font-style: italic;
@@ -354,7 +354,7 @@
     text-align: center;
     padding: 1rem;
     color: var(--colors-skeleton-1-boundary);
-    font-size: 0.8rem;
+    font-size: var(--font-size-sm);
     font-family: var(--font-family-code);
   }
 
@@ -366,7 +366,7 @@
     border: 1px solid var(--colors-skeleton-1-boundary);
     background: transparent;
     color: var(--colors-palette-gray-200);
-    font-size: 1rem;
+    font-size: var(--font-size-base);
     font-weight: 500;
     cursor: pointer;
     font-family: var(--font-family-sans-text);
@@ -389,7 +389,7 @@
       padding: 0.75rem 0.875rem;
     }
     .table-person {
-      font-size: 0.6rem;
+      font-size: var(--font-size-xs);
       margin-bottom: 0.125rem;
     }
     .table-form {
@@ -398,7 +398,7 @@
       font-weight: 600;
     }
     .table-gloss {
-      font-size: 0.8rem;
+      font-size: var(--font-size-sm);
       font-family: var(--font-family-sans-text);
     }
     .contrastive {

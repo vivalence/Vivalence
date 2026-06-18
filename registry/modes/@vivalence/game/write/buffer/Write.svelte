@@ -351,7 +351,7 @@
   }
   .meta-lang {
     font-family: var(--font-family-code);
-    font-size: 0.65rem;
+    font-size: var(--font-size-xs);
     font-weight: 600;
     letter-spacing: 0.08em;
     text-transform: uppercase;
@@ -359,13 +359,13 @@
   }
   .meta-type {
     font-family: var(--font-family-code);
-    font-size: 0.65rem;
+    font-size: var(--font-size-xs);
     font-weight: 500;
     color: var(--colors-skeleton-1-boundary);
   }
   .meta-hint {
     font-family: var(--font-family-code);
-    font-size: 0.55rem;
+    font-size: var(--font-size-2xs);
     color: var(--colors-skeleton-1-boundary);
     opacity: 0.6;
   }
@@ -388,7 +388,7 @@
 
   .example {
     font-family: var(--font-family-serif-heading);
-    font-size: 0.95rem;
+    font-size: var(--font-size-base);
     color: var(--colors-skeleton-1-boundary);
     font-style: italic;
     margin: 0 0 1.5rem 0;
@@ -426,7 +426,7 @@
   }
   .fb-key {
     font-family: var(--font-family-code);
-    font-size: 0.6rem;
+    font-size: var(--font-size-xs);
     color: var(--colors-skeleton-1-boundary);
   }
   .fb-glyph {
@@ -437,7 +437,7 @@
     min-height: 48px;
     border-radius: 0.5rem;
     border: 1px solid var(--colors-skeleton-1-boundary);
-    font-size: 1.25rem;
+    font-size: var(--font-size-lg);
     font-family: var(--font-family-code);
     flex-shrink: 0;
     box-sizing: border-box;
@@ -451,7 +451,7 @@
     border-color: var(--colors-system-error-contrast);
   }
   .fb-val {
-    font-size: 1.25rem;
+    font-size: var(--font-size-lg);
     font-family: var(--font-family-serif-heading);
   }
   .fb-val.ok {
@@ -468,7 +468,7 @@
     cursor: pointer;
   }
   .fb-input {
-    font-size: 1.25rem;
+    font-size: var(--font-size-lg);
     font-family: var(--font-family-serif-heading);
     background: transparent;
     border: 0;
@@ -516,7 +516,7 @@
     padding: 0;
     color: var(--colors-palette-gray-10);
     font-family: var(--font-family-serif-heading);
-    font-size: 1rem;
+    font-size: var(--font-size-base);
     line-height: 1.2;
     text-align: center;
   }
@@ -531,7 +531,7 @@
 
   .tok-form {
     font-family: var(--font-family-serif-heading);
-    font-size: 1rem;
+    font-size: var(--font-size-base);
     line-height: 1.2;
   }
 
@@ -544,7 +544,7 @@
 
   .tok-gloss {
     font-family: var(--font-family-code);
-    font-size: 0.55rem;
+    font-size: var(--font-size-2xs);
     color: var(--colors-skeleton-1-boundary);
     margin-top: 0.125rem;
   }
@@ -581,7 +581,7 @@
     border: 1px solid var(--colors-skeleton-1-boundary);
     background: color-mix(in srgb, var(--colors-skeleton-1-surface) 50%, var(--colors-skeleton-app-surface));
     color: var(--colors-palette-gray-10);
-    font-size: 1rem;
+    font-size: var(--font-size-base);
     font-family: var(--font-family-serif-heading);
     outline: none;
     box-sizing: border-box;
@@ -594,7 +594,7 @@
     border: none;
     background: var(--colors-theme-primary-surface);
     color: var(--colors-theme-primary-contrast);
-    font-size: 0.875rem;
+    font-size: var(--font-size-md);
     font-weight: 600;
     cursor: pointer;
     font-family: var(--font-family-sans-text);
@@ -609,7 +609,7 @@
     border: 1px solid var(--colors-skeleton-1-boundary);
     background: transparent;
     color: var(--colors-palette-gray-200);
-    font-size: 0.875rem;
+    font-size: var(--font-size-md);
     font-weight: 500;
     cursor: pointer;
     font-family: var(--font-family-sans-text);
@@ -623,8 +623,8 @@
     .prompt-word { font-size: var(--font-size-lg); }
     .divider { margin: 0.75rem 0; }
     .feedback { gap: 0.375rem; }
-    .fb-val { font-size: 1rem; }
+    .fb-val { font-size: var(--font-size-base); }
     .tok { padding: 0.25rem 0.375rem; }
-    .tok-form { font-size: 0.85rem; }
+    .tok-form { font-size: var(--font-size-md); }
   }
 </style>

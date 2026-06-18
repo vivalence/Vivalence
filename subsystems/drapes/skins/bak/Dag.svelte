@@ -104,5 +104,5 @@
 </div>
 
 <style>
-  .skin-dag { font-family: var(--font-family-code); font-size: 11px; }
+  .skin-dag { font-family: var(--font-family-code); font-size: var(--font-size-sm); }
 </style>

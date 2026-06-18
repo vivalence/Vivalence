@@ -21,7 +21,7 @@ export * from "./path.js";
 export * from "./pattern.js";
 export * from "./signature.js";
 export * from "./signal.js";
-export * from "./buffer.js";
+export * from "./view.js";
 export * from "./mask.js";
 
 export * from "./span.js";

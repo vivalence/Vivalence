@@ -2,35 +2,36 @@ import { atom, deepMap } from "nanostores";
 import { Entity } from "../../prototypes/entity.js";
 
 export class Thread extends Entity {
-  user = null;
-  mode = null;
-  intent = null;
-  counter = 0;
+  // user = null;
+  $mode = atom(null);
+  // intent = null;
+  // counter = 0;
 
-  socket = null;
-  streams = null;
+  // socket = null;
+  // streams = null;
 
-  $conversation = atom(null);
-  $phase = atom("stream");
-  $traits = atom(["LABELED"]);
+  // $conversation = atom(null);
+  // $phase = atom("stream");
+  $traits = atom([]);
   $trait = deepMap({});
-  $buffer = atom(null);
-  $label = atom({});
-  $liveTranscript = atom(null);
+  // $buffer = atom(null);
+  $label = atom("");
 
-  get conversation() {
-    return this.$conversation.get();
+  get mode() {
+    return this.$mode.get();
   }
-  set conversation(value) {
-    this.$conversation.set(value);
+  set mode(value) {
+    this.$mode.set(value);
   }
 
-  get phase() {
-    return this.$phase.get();
-  }
-  set phase(value) {
-    this.$phase.set(value);
-  }
+  // get conversation() {
+  //   return this.$conversation.get();
+  // }
+  // set conversation(value) {
+  //   this.$conversation.set(value);
+  // }
+
+  // get phase() {return this.$phase.get();} set phase(value) {this.$phase.set(value);}
 
   get traits() {
     return this.$traits.get();
@@ -46,12 +47,12 @@ export class Thread extends Entity {
     this.$trait.set(value);
   }
 
-  get buffer() {
-    return this.$buffer.get();
-  }
-  set buffer(value) {
-    this.$buffer.set(value);
-  }
+  // get buffer() {
+  //   return this.$buffer.get();
+  // }
+  // set buffer(value) {
+  //   this.$buffer.set(value);
+  // }
 
   get label() {
     return this.$label.get();

@@ -1,10 +1,11 @@
 export class Hallucination {
-  constructor(cortex, { turns = [], tune = "balanced", tools = {}, config = {} } = {}) {
+  constructor(cortex, { turns = [], tune = "balanced", tools = {}, config = {}, thread = null } = {}) {
     this.cortex = cortex;
     this.turns = [...turns];
     this.tuning = tune;
     this.tools = { ...tools };
     this.config = { ...config };
+    this.thread = thread;
   }
 
   add(...args) {

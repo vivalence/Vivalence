@@ -69,7 +69,7 @@
 </div>
 
 <style>
-  .skin-card { font-family: var(--font-family-code); font-size: 11px; }
+  .skin-card { font-family: var(--font-family-code); font-size: var(--font-size-sm); }
   .card-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(160px, 1fr)); gap: 8px; }
   .card {
     padding: 10px; border: 1px solid var(--colors-skeleton-0-boundary);
@@ -79,15 +79,15 @@
   .card:hover { border-color: var(--colors-skeleton-0-primary-base); }
   .card.trajectory { border-color: var(--colors-skeleton-0-primary-base); cursor: default; }
   .card-nature { font-weight: 600; }
-  .card-key { color: var(--colors-skeleton-0-primary-base); font-size: 9px; }
-  .card-valence { opacity: 0.5; font-size: 10px; }
-  .card-directed { color: var(--colors-skeleton-0-primary-base); opacity: 0.4; font-size: 9px; }
+  .card-key { color: var(--colors-skeleton-0-primary-base); font-size: var(--font-size-xs); }
+  .card-valence { opacity: 0.5; font-size: var(--font-size-sm); }
+  .card-directed { color: var(--colors-skeleton-0-primary-base); opacity: 0.4; font-size: var(--font-size-xs); }
   .card-badges { display: flex; gap: 4px; }
-  .card-badge { font-size: 8px; padding: 1px 4px; border-radius: 2px; background: var(--colors-skeleton-0-boundary); opacity: 0.5; }
+  .card-badge { font-size: var(--font-size-2xs); padding: 1px 4px; border-radius: 2px; background: var(--colors-skeleton-0-boundary); opacity: 0.5; }
   .card-badge.out { background: var(--colors-skeleton-0-primary-base); opacity: 0.3; }
-  .card-result { font-size: 9px; color: var(--colors-skeleton-0-primary-base); opacity: 0.6; margin-top: 4px; }
+  .card-result { font-size: var(--font-size-xs); color: var(--colors-skeleton-0-primary-base); opacity: 0.6; margin-top: 4px; }
   .card-children { display: flex; gap: 4px; flex-wrap: wrap; margin-top: 4px; }
-  .card-child { font-size: 9px; padding: 2px 6px; background: var(--colors-skeleton-0-surface); border: 1px solid var(--colors-skeleton-0-boundary); border-radius: 2px; cursor: pointer; color: var(--colors-skeleton-1-contrast); font-family: inherit; }
+  .card-child { font-size: var(--font-size-xs); padding: 2px 6px; background: var(--colors-skeleton-0-surface); border: 1px solid var(--colors-skeleton-0-boundary); border-radius: 2px; cursor: pointer; color: var(--colors-skeleton-1-contrast); font-family: inherit; }
   .card-child:hover { border-color: var(--colors-skeleton-0-primary-base); }
   .child-directed { color: var(--colors-skeleton-0-primary-base); opacity: 0.5; }
   .child-result { color: var(--colors-skeleton-0-primary-base); opacity: 0.6; }

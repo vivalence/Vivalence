@@ -12,7 +12,7 @@ import {
   resolve,
   shareAfterDrag,
   defaultDock,
-} from "../../src/routes/pincer/panels/a/dock.geometry.js";
+} from "../../src/typology/stores/bridge/dock.js";
 
 specimen.describe("dock.geometry — constraint invariants", () => {
   specimen.it("clampShare bounds every input into [SHARE_MIN, SHARE_MAX]", () => {

@@ -33,12 +33,21 @@ export class Socket {
       });
     }
     ws.addEventListener("open",  () => this.$state.set(SocketStateEnum.OPEN));
-    ws.addEventListener("close", () => this.$state.set(SocketStateEnum.CLOSED));
+    ws.addEventListener("close", (e) => {
+      this.$state.set(SocketStateEnum.CLOSED);
+      this.#reject(new Error(`socket closed (${e.code}${e.reason ? ` ${e.reason}` : ""})`));
+    });
     ws.addEventListener("error", (e) => {
       this.$state.set(SocketStateEnum.ERROR);
       this.$error.set(e);
+      this.#reject(new Error("socket error"));
     });
     ws.addEventListener("message", (e) => this.#onmessage(e));
+  }
+
+  #reject(error) {
+    for (const pending of this.pending.values()) pending.reject?.(error);
+    this.pending.clear();
   }
 
   async #onmessage(event) {
@@ -77,8 +86,8 @@ export class Socket {
   async call(signal, input) {
     await this.#ready;
     const echo = crypto.randomUUID();
-    return new Promise((resolve) => {
-      this.pending.set(echo, { resolve });
+    return new Promise((resolve, reject) => {
+      this.pending.set(echo, { resolve, reject });
       this.ws.send(JSON.stringify({ signal, input, echo }));
     });
   }

@@ -134,7 +134,7 @@ export async function seed() {
   const mode = em.create(ModeEntity, {
     slug: "flashcard",
     type: "game",
-    traits: ["BUFFERED", "SELFEVIDENT", "INTENTED", "EMITTER"],
+    traits: ["VIEWABLE", "SELFEVIDENT", "INTENTED", "EMITTER"],
     installed: true,
   });
 

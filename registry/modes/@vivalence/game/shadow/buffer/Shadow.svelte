@@ -399,7 +399,7 @@
   }
   .meta-phase, .meta-type, .meta-time {
     font-family: var(--font-family-code);
-    font-size: 0.65rem;
+    font-size: var(--font-size-xs);
     font-weight: 600;
     letter-spacing: 0.08em;
     text-transform: uppercase;
@@ -410,7 +410,7 @@
   .meta-time { color: var(--colors-theme-primary-contrast); }
   .meta-hint {
     font-family: var(--font-family-code);
-    font-size: 0.55rem;
+    font-size: var(--font-size-2xs);
     color: var(--colors-skeleton-1-boundary);
     opacity: 0.6;
   }
@@ -430,7 +430,7 @@
   .prompt-word { font-size: var(--font-size-3xl); }
 
   .translation {
-    font-size: 0.95rem;
+    font-size: var(--font-size-base);
     color: var(--colors-skeleton-1-contrast);
     font-family: var(--font-family-sans-text);
     margin: 0;
@@ -454,7 +454,7 @@
   }
 
   .fb-block { display: flex; flex-direction: column; gap: 0.125rem; }
-  .fb-key { font-family: var(--font-family-code); font-size: 0.6rem; color: var(--colors-skeleton-1-boundary); }
+  .fb-key { font-family: var(--font-family-code); font-size: var(--font-size-xs); color: var(--colors-skeleton-1-boundary); }
   .fb-glyph {
     display: inline-flex;
     align-items: center;
@@ -463,14 +463,14 @@
     min-height: 48px;
     border-radius: 0.5rem;
     border: 1px solid var(--colors-skeleton-1-boundary);
-    font-size: 1.25rem;
+    font-size: var(--font-size-lg);
     font-family: var(--font-family-code);
     flex-shrink: 0;
     box-sizing: border-box;
   }
   .fb-glyph.ok { color: var(--colors-system-success-contrast); border-color: var(--colors-system-success-contrast); }
   .fb-glyph.wrong { color: var(--colors-system-error-contrast); border-color: var(--colors-system-error-contrast); }
-  .fb-val { font-size: 1.25rem; font-family: var(--font-family-serif-heading); }
+  .fb-val { font-size: var(--font-size-lg); font-family: var(--font-family-serif-heading); }
   .fb-val.ok { color: var(--colors-system-success-contrast); }
   .fb-val.wrong { color: var(--colors-system-error-contrast); }
 
@@ -504,16 +504,16 @@
     padding: 0;
     color: var(--colors-palette-gray-10);
     font-family: var(--font-family-serif-heading);
-    font-size: 1rem;
+    font-size: var(--font-size-base);
     line-height: 1.2;
     text-align: center;
   }
   .tok-ok { background: color-mix(in srgb, var(--colors-system-success-contrast) 12%, transparent); }
   .tok-miss { background: color-mix(in srgb, var(--colors-system-error-contrast) 12%, transparent); }
-  .tok-form { font-family: var(--font-family-serif-heading); font-size: 1rem; line-height: 1.2; }
+  .tok-form { font-family: var(--font-family-serif-heading); font-size: var(--font-size-base); line-height: 1.2; }
   .tok-ok .tok-form { color: var(--colors-system-success-contrast); }
   .tok-miss .tok-form { color: var(--colors-system-error-contrast); }
-  .tok-gloss { font-family: var(--font-family-code); font-size: 0.55rem; color: var(--colors-skeleton-1-boundary); margin-top: 0.125rem; }
+  .tok-gloss { font-family: var(--font-family-code); font-size: var(--font-size-2xs); color: var(--colors-skeleton-1-boundary); margin-top: 0.125rem; }
 
   .loading { display: flex; align-items: center; justify-content: center; padding-top: 2rem; }
   .dot { width: 6px; height: 6px; border-radius: 50%; background: var(--colors-skeleton-1-boundary); animation: pulse 1s ease-in-out infinite; }
@@ -528,7 +528,7 @@
     border: 1px solid var(--colors-skeleton-1-boundary);
     background: color-mix(in srgb, var(--colors-skeleton-1-surface) 50%, var(--colors-skeleton-app-surface));
     color: var(--colors-palette-gray-10);
-    font-size: 1rem;
+    font-size: var(--font-size-base);
     font-family: var(--font-family-serif-heading);
     outline: none;
     box-sizing: border-box;
@@ -540,7 +540,7 @@
     padding: 0.75rem 1.25rem;
     border-radius: 0.5rem;
     border: none;
-    font-size: 0.875rem;
+    font-size: var(--font-size-md);
     font-weight: 600;
     cursor: pointer;
     font-family: var(--font-family-sans-text);
@@ -574,8 +574,8 @@
     .prompt { font-size: var(--font-size-base); }
     .prompt-word { font-size: var(--font-size-lg); }
     .recall-prompt { font-size: var(--font-size-base); }
-    .fb-val { font-size: 1rem; }
+    .fb-val { font-size: var(--font-size-base); }
     .tok { padding: 0.25rem 0.375rem; }
-    .tok-form { font-size: 0.85rem; }
+    .tok-form { font-size: var(--font-size-md); }
   }
 </style>

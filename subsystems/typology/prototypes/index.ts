@@ -19,8 +19,8 @@ export * from "./pipe.js";
 export * from "./queue.js";
 export * as tracks from "./tracks.js";
 
-export * from "./buffer.js";
-export { BufferView as View } from "./buffer.js"; // temp
+export * from "./view.js";
+export { View } from "./view.js";
 
 export * from "./freight.js";
 // export * from "./feature.js";

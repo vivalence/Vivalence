@@ -48,7 +48,7 @@ type-specific exports (beyond manifest):
 | domain | entities, modes, traits, aperture |
 | ontology | dataset (symbol hierarchy) |
 | corpus | dataset (literals + symbol associations) |
-| game | buffer (BufferView), emitter (Vector), dataset (intent[]), optionally tools (Vector for TOOLED trait) |
+| game | buffer (View), emitter (Vector), dataset (intent[]), optionally tools (Vector for TOOLED trait) |
 | tactic | emitter (composed Vector across phases), dataset (intent[]) |
 | service | provider(config), optionally aperture |
 | datamap / hallucinator / lighthouse | provider(config) (plus aperture for ATTACHED) |

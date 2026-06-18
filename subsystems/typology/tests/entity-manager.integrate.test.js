@@ -108,13 +108,13 @@ specimen.describe("RemoteEntityManager.integrate", () => {
 
       const result = await em.integrate(
         "mode",
-        { id: "m-1", slug: "test", traits: ["BUFFERED"] },
+        { id: "m-1", slug: "test", traits: ["VIEWABLE"] },
         TestMode,
       );
 
       specimen.expect(observed.entity).toBe(result);
       specimen.expect(observed.entity).toBeInstanceOf(TestMode);
-      specimen.expect(observed.entity.implements("BUFFERED")).toBe(true);
+      specimen.expect(observed.entity.implements("VIEWABLE")).toBe(true);
       specimen.expect(observed.raw.slug).toBe("test");
     });
 
@@ -144,9 +144,9 @@ specimen.describe("RemoteEntityManager.integrate", () => {
   specimen.describe("merge semantics on re-sight", () => {
     specimen.it("does not overwrite populated arrays with empty arrays", async () => {
       const em = mount(null);
-      await em.integrate("mode", { id: "m-1", traits: ["BUFFERED", "EMITTER"] }, TestMode);
+      await em.integrate("mode", { id: "m-1", traits: ["VIEWABLE", "EMITTER"] }, TestMode);
       await em.integrate("mode", { id: "m-1", traits: [] }, TestMode);
-      specimen.expect(em.identity("mode", "m-1").traits).toEqual(["BUFFERED", "EMITTER"]);
+      specimen.expect(em.identity("mode", "m-1").traits).toEqual(["VIEWABLE", "EMITTER"]);
     });
 
     specimen.it("skips undefined fields, assigns defined ones", async () => {

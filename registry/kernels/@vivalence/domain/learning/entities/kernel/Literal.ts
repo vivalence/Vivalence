@@ -24,6 +24,15 @@ export enum LiteralTraitsEnum {
 }
 
 export class LiteralRepository extends base.repository {
+  search(query: any) {
+    const like = `%${query.search}%`;
+    return [
+      { slug: { $like: like } },
+      { trait: { TRANSLATED: { known: { $like: like } } } },
+      { trait: { TRANSLATED: { learning: { $like: like } } } },
+    ];
+  }
+
   async feed(where: any, opts?: any) {
     const { limit, blacklist, populate } = opts || {};
     const due = await this.due(where, { limit, blacklist, populate });

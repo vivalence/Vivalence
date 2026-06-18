@@ -1,9 +1,8 @@
+import { computed } from "nanostores";
 import { RemoteRepository } from "@vivalence/typology";
 import { Thread } from "./thread.js";
-import { Buffer } from "../buffer.js";
-import * as traits from "../../traits/index.js";
-import { applyTraits } from "../../traits/runner.js";
-import { wire as wireConversational } from "../../traits/thread/conversational.js";
+import * as traits from "./traits/index.js";
+import { applyTraits } from "../../gestalten/belt/index.js";
 
 export const ThreadDossier = {
   name: "thread",
@@ -15,50 +14,24 @@ export const ThreadDossier = {
   },
 
   use: [
-    applyTraits(traits.thread),
-
-    async (ctx, next) => {
-      await next();
-      if (!ctx.entity.traits.includes("LABELED"))
-        ctx.entity.traits = [...ctx.entity.traits, "LABELED"];
-    },
-
-    async (ctx, next) => {
-      ctx.entity.daemon = ctx.daemon;
-      await next();
-    },
+    applyTraits(traits),
 
     async (ctx, next) => {
       await next();
       const thread = ctx.entity;
-      const turnRepo = ctx.daemon?.entities?.turn;
-      if (!turnRepo || !thread.id) return;
-      try {
-        await turnRepo.find(
-          { thread: thread.id },
-          { orderBy: { createdAt: "ASC" } },
-        );
-      } catch (error) {
-        console.error("[ThreadDossier] turn hydration failed:", error);
-      }
-    },
+      thread.daemon = ctx.daemon;
 
-    async (ctx, next) => {
-      await next();
-      wireConversational(ctx.entity);
-    },
-
-    async (ctx, next) => {
-      await next();
-      const thread = ctx.entity;
       const modeId = thread.mode?.id ?? thread.mode;
-      const mode = thread.daemon?.entities?.mode?.$entities.get().find((m) => m.id === modeId);
-      if (!mode?.implements?.("selfevident") || !mode.buffer || thread.$buffer.get()) return;
+      thread.mode =
+        ctx.daemon.entities.mode.$entities.get().find((mode) => mode.id === modeId) ?? thread.mode;
 
-      const buffer = Buffer.from(mode.buffer(), mode.buffered);
-      buffer.context = { buffer, terminal: thread };
-      buffer.status = "ACTIVE";
-      thread.$buffer.set(buffer);
+      if (!thread.traits.includes("LABELED")) thread.traits = [...thread.traits, "LABELED"];
+      if (thread.mode?.implements?.("VIEWABLE") && !thread.traits.includes("MASKED"))
+        thread.traits = [...thread.traits, "MASKED"];
+
+      thread.$buffers = computed(ctx.daemon.entities.buffer.$entities, (buffers) =>
+        buffers.filter((buffer) => (buffer.thread?.id ?? buffer.thread) === thread.id),
+      );
     },
   ],
 };

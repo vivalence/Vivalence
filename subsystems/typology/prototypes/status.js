@@ -38,10 +38,12 @@ export class Status {
     return this.reflection;
   }
   is(code = []) {
+    const current = this.$transient.get().code;
+    if (current == null) return false;
     return cast
       .array(code)
       .map((c) => c.toUpperCase())
-      .includes(this.$transient.get().code.toUpperCase());
+      .includes(current.toUpperCase());
   }
   [Symbol.for("nodejs.util.inspect.custom")]() {
     return `Status:${this.$transient.get().code}`;

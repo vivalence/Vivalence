@@ -12,7 +12,7 @@ import {
 import { ModeEntity, UserEntity, ThreadEntity, TurnEntity } from "@vivalence/typology/entities";
 import { seed } from "./entities.ts";
 
-import { CHAOSMONKEY } from "@vivalence/runtime/daemon/traits";
+import { HARNESSED } from "@vivalence/runtime/daemon/traits";
 
 // ─── Mock faculty providers ───────────────────────────────────────────
 
@@ -137,7 +137,7 @@ export async function create() {
   const deweyEntity = em.create(ModeEntity, {
     slug: "dewey",
     type: "teacher",
-    traits: ["EXPOSED", "CHAOSMONKEY"],
+    traits: ["EXPOSED", "HARNESSED"],
     installed: true,
   });
   await em.flush();
@@ -145,7 +145,7 @@ export async function create() {
   const cortex = new Cortex().extend(makeFaculties());
 
   const dewey = new Mode({
-    manifest: { type: "teacher", slug: "dewey", traits: ["EXPOSED", "CHAOSMONKEY"] },
+    manifest: { type: "teacher", slug: "dewey", traits: ["EXPOSED", "HARNESSED"] },
   });
   dewey.aperture = new Aperture();
   dewey.mount = new Path(`/mode/${dewey.type}/${dewey.slug}`);
@@ -187,7 +187,7 @@ export async function create() {
   const subscriber = shape.subscriber(daemon.twitch);
   em.getEventManager().registerSubscriber(subscriber);
 
-  const finalizer = CHAOSMONKEY(dewey, daemon);
+  const finalizer = HARNESSED(dewey, daemon);
   if (typeof finalizer === "function") await finalizer();
 
   daemon.aperture.branch(dewey.mount.absolute).slurp(dewey.aperture);

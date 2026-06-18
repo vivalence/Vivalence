@@ -129,14 +129,12 @@ export const DataSchema = new EntitySchema({
       type: types.datetime,
       onCreate: () => new Date(),
       defaultRaw: `CURRENT_TIMESTAMP`,
-      lazy: true,
     },
     updatedAt: {
       type: types.datetime,
       onCreate: () => new Date(),
       onUpdate: () => new Date(),
       defaultRaw: `CURRENT_TIMESTAMP`,
-      lazy: true,
     },
   },
 });

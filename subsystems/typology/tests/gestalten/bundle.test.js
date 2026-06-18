@@ -1,4 +1,4 @@
-import { specimen, BufferView, Path } from "@vivalence/typology";
+import { specimen, View, Path } from "@vivalence/typology";
 import { bundle } from "@vivalence/typology";
 const { svelte } = bundle;
 import esbuild from "esbuild";
@@ -24,9 +24,9 @@ specimen.describe("bundle", { sanitizeResources: false, sanitizeOps: false }, ()
     });
   });
 
-  specimen.describe("BufferView pipeline", () => {
+  specimen.describe("View pipeline", () => {
     specimen.it("bundles and serves a .svelte entry", async () => {
-      const bv = new BufferView("test-component.svelte");
+      const bv = new View("test-component.svelte");
       bv.path.from(new Path(fixturesPath));
       bv.withBundler((entry) => svelte(entry, { prod: false }));
       await bv.bundle();
@@ -39,7 +39,7 @@ specimen.describe("bundle", { sanitizeResources: false, sanitizeOps: false }, ()
     });
 
     specimen.it("supports object constructor { mount, schema }", async () => {
-      const bv = new BufferView({ mount: "test-component.svelte", schema: {} });
+      const bv = new View({ mount: "test-component.svelte", mask: {} });
       bv.path.from(new Path(fixturesPath));
       bv.withBundler((entry) => svelte(entry, { prod: false }));
       await bv.bundle();

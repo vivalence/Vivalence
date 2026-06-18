@@ -8,15 +8,15 @@ Feature implementation. Game modes = player-facing experiences. Tactics = orches
 
 traits are the wiring contract.
 
-Every mode's `.viva.js` exports the same anatomy: `manifest` (identity + traits) + `buffer` (BufferView pointing at a Svelte file + buffer schema) + `emitter` (Vector with routes) + `dataset` (intent rows, optionally symbols/literals). Each trait declared in the manifest maps to a runtime function in `systems/runtime/daemon/traits/`. During resolve, those functions read mode artifacts and wire them into the daemon — buffer compiles + serves `/view`; emitter mounts at `/emit/{route}`; dataset upserts via DATASET; intent dataset upserts + creates `/modes/:type/:method` routing.
+Every mode's `.viva.js` exports the same anatomy: `manifest` (identity + traits) + `buffer` (View pointing at a Svelte file + buffer schema) + `emitter` (Vector with routes) + `dataset` (intent rows, optionally symbols/literals). Each trait declared in the manifest maps to a runtime function in `systems/runtime/daemon/traits/`. During resolve, those functions read mode artifacts and wire them into the daemon — buffer compiles + serves `/view`; emitter mounts at `/emit/{route}`; dataset upserts via DATASET; intent dataset upserts + creates `/modes/:type/:method` routing.
 
 mode anatomy:
 
 ```javascript
-import { BufferView, Vector, v } from "@vivalence/typology";
+import { View, Vector, v } from "@vivalence/typology";
 
 export const manifest = { type, slug, name, description, version, traits };
-export const buffer = new BufferView("buffer/Component.svelte", v.buffer({ data: { ... } }));
+export const buffer = new View("buffer/Component.svelte", v.buffer({ data: { ... } }));
 export const emitter = new Vector().open("/literal", async (ctx) => { ... });
 export const dataset = { intent: [...] };
 ```
@@ -25,7 +25,7 @@ trait → runtime wiring:
 
 | trait | runtime action | trait file |
 |-------|---------------|------------|
-| BUFFERED | esbuild-bundle Svelte view, serve /view, wire `mode.buffer()` factory. **Canonical name.** | `systems/runtime/daemon/traits/buffered.js` |
+| VIEWABLE | esbuild-bundle Svelte view, serve /view, wire `mode.buffer()` factory. **Canonical name.** | `systems/runtime/daemon/traits/viewable.js` |
 | INTENTED | upsert intents from dataset, create per-intent routing | `systems/runtime/daemon/traits/intented.js` |
 | EMITTER | mount emitter Vector at /emit, inject daemon/mode/seek/blacklist into ctx | `systems/runtime/daemon/traits/emitter.js` |
 | DATASET | upsert symbols + literals (chunks of 100) | `systems/runtime/daemon/traits/dataset.js` |
@@ -38,7 +38,7 @@ trait → runtime wiring:
 | EXPOSED | aperture-binding marker | `traits/index.js` |
 
 retired trait names:
-- **VIEWABLE** — was colloquial for BUFFERED; use BUFFERED.
+- **BUFFERED** — renamed to VIEWABLE; retained as a deprecated `ModeTraitsEnum` alias for persisted data, do not use in new manifests.
 - **LANGUAGED / AGENTIC** — never implemented. Drop from any new manifest.
 
 structure:
@@ -104,7 +104,7 @@ Two surfaces: `mode.emit = shape.object(emitter)` (local callable) and `mode.ape
 buffer schema (every game mode, via `v.buffer()`):
 
 ```javascript
-const buffer = new BufferView(
+const buffer = new View(
   "buffer/Judge.svelte",
   v.buffer({
     data: {
@@ -149,7 +149,7 @@ consumers:
 
 - runtime daemon — modes instantiated during populate; traits applied during resolve
 - tactics — orchestrate game modes via `ctx.daemon.modes.game.{slug}.emit.{route}()`
-- client — loads Svelte views via BUFFERED `/view` URL; calls `/emit` and `/review` via `daemon.call`
+- client — loads Svelte views via VIEWABLE `/view` URL; calls `/emit` and `/review` via `daemon.call`
 
 testing:
 

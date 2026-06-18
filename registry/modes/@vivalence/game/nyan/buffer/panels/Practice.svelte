@@ -1,17 +1,16 @@
 <script>
   import { characterClass } from "../engine.js";
 
-  const { game } = $props();
+  const { view } = $props();
 
   let textElement;
   let caretElement;
 
   $effect(() => {
-    const run = game.run;
-    if (!run) return;
-    const wordIndex = run.wordIndex;
-    const characterIndex = run.typed.length;
-    const length = Math.max(run.words[wordIndex]?.length ?? 0, run.typed.length);
+    if (!view) return;
+    const wordIndex = view.wordIndex;
+    const characterIndex = view.typed.length;
+    const length = Math.max(view.words[wordIndex]?.length ?? 0, view.typed.length);
     const element = document.getElementById(
       characterIndex < length ? `c-${wordIndex}-${characterIndex}` : `e-${wordIndex}`,
     );
@@ -28,24 +27,24 @@
 
 <h2 class="title">
   typer · practice
-  {#if game.run}
+  {#if view}
     <span class="dim">
-      {#if game.run.startedAt == null}<span class="accent">starts on first key</span>
-      {:else}{game.run.wordIndex}/{game.run.words.length}{/if}
+      {#if view.startedAt == null}<span class="accent">starts on first key</span>
+      {:else}{view.wordIndex}/{view.words.length}{/if}
     </span>
   {/if}
 </h2>
 <div class="words" bind:this={textElement}>
     <div class="caret" bind:this={caretElement}></div>
-    {#each game.run.words as target, wordIndex}
-      {#if wordIndex < game.run.wordIndex}
-        <span class="word done {game.run.marks[wordIndex]}">{target} </span>
-      {:else if wordIndex > game.run.wordIndex}
+    {#each view.words as target, wordIndex}
+      {#if wordIndex < view.wordIndex}
+        <span class="word done {view.marks[wordIndex]}">{target} </span>
+      {:else if wordIndex > view.wordIndex}
         <span class="word todo">{target} </span>
       {:else}
         <span class="word cur"
-          >{#each Array(Math.max(target.length, game.run.typed.length)) as _, characterIndex}{@const expected =
-              target[characterIndex]}{@const character = game.run.typed[characterIndex]}<span
+          >{#each Array(Math.max(target.length, view.typed.length)) as _, characterIndex}{@const expected =
+              target[characterIndex]}{@const character = view.typed[characterIndex]}<span
               id={`c-${wordIndex}-${characterIndex}`}
               class={character != null ? characterClass(expected, character) : "pend"}
               >{expected ?? character}</span
@@ -57,7 +56,7 @@
 <style>
   .title {
     font-family: var(--font-family-code);
-    font-size: 0.8rem;
+    font-size: var(--font-size-sm);
     font-weight: 600;
     letter-spacing: 0.04em;
     color: var(--colors-palette-gray-10);
@@ -76,7 +75,7 @@
     flex-wrap: wrap;
     gap: 0 0.6rem;
     font-family: var(--font-family-code);
-    font-size: 1.5rem;
+    font-size: var(--font-size-lg);
     line-height: 1.9;
     max-height: 24rem;
     overflow-y: auto;

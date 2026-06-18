@@ -33,7 +33,7 @@ function captureSonnet(cortex) {
 
 let scenario;
 
-specimen.describe("cortex integration — CHAOSMONKEY harness", () => {
+specimen.describe("cortex integration — HARNESSED harness", () => {
 
   specimen.beforeAll(async () => {
     scenario = await create();

@@ -73,7 +73,7 @@ async function dialogueAndCollect(ws, thread, parts, tune) {
 
 let scenario;
 
-specimen.describe("conversation integration — CONVERSATIONAL × CHAOSMONKEY", () => {
+specimen.describe("conversation integration — CONVERSATIONAL × HARNESSED", () => {
     const abort = new AbortController();
 
     specimen.beforeAll(async () => {
@@ -174,7 +174,7 @@ specimen.describe("conversation integration — CONVERSATIONAL × CHAOSMONKEY", 
       const afterSecond = await em.find("TurnEntity", { thread }, { orderBy: { createdAt: "ASC" } });
       specimen.expect(afterSecond.length).toBe(4); // user1, assistant1, user2, assistant2
 
-      // user2.parent === assistant1 proves CHAOSMONKEY loaded the first pair as history.
+      // user2.parent === assistant1 proves HARNESSED loaded the first pair as history.
       // history.at(-1) was assistant1, so user2's parent must be assistant1.
       const [, assistant1, user2] = afterSecond;
       specimen.expect(user2.parent?.id ?? user2.parent).toBe(assistant1.id);
@@ -184,7 +184,7 @@ specimen.describe("conversation integration — CONVERSATIONAL × CHAOSMONKEY", 
     });
 
     // ─── user filter isolation ───────────────────────────────────────────────
-    // Explicitly tests that CHAOSMONKEY's turn.find() respects the MikroORM
+    // Explicitly tests that HARNESSED's turn.find() respects the MikroORM
     // user filter across WS dialogue opens. Without a RequestContext wrapper per open
     // this can bleed across users — this test will catch that regression.
 
@@ -214,13 +214,13 @@ specimen.describe("conversation integration — CONVERSATIONAL × CHAOSMONKEY", 
       await sleep.ms(50);
 
       // Anchor arrives with threadB's ID while the em filter is still scoped to fixtures.user.
-      // CHAOSMONKEY's history query: turn.find({ thread: threadB })
+      // HARNESSED's history query: turn.find({ thread: threadB })
       // The user filter is: WHERE thread.user_id = fixtures.user.id
       // threadB.user = userB ≠ fixtures.user → query must return [] → no turns leaked.
       let historySeenByAnchor = null;
       const originalStream = dewey.harness.dialogue.stream.bind(dewey.harness.dialogue);
       dewey.harness.dialogue.stream = async (input) => {
-        // Intercept to inspect what turns CHAOSMONKEY loaded as history.
+        // Intercept to inspect what turns HARNESSED loaded as history.
         historySeenByAnchor = input.turns ?? null;
         return originalStream(input);
       };

@@ -1,4 +1,4 @@
-import { BufferView, Vector, v } from "@vivalence/typology";
+import { View, Vector, v } from "@vivalence/typology";
 
 const manifest = {
   type: "game",
@@ -6,17 +6,19 @@ const manifest = {
   name: "Paradigm",
   description: "Fill a conjugation table cell by cell. Type each form.",
   version: "0.2.0",
-  traits: ["BUFFERED", "EMITTER"],
+  traits: ["VIEWABLE", "EMITTER"],
 };
 
-const buffer = new BufferView(
+const view = new View(
   "Paradigm.svelte",
   v.buffer({
     data: {
       infinitive: v.string().desc("Literal ID of the infinitive"),
       firstSingular: v.string().optional(),
+      secondSingular: v.string().optional(),
       thirdSingular: v.string().optional(),
       firstPlural: v.string().optional(),
+      secondPlural: v.string().optional(),
       thirdPlural: v.string().optional(),
       tense: v.string().desc("Symbol ID of the tense"),
       mood: v.string().desc("Symbol ID of the mood"),
@@ -26,8 +28,10 @@ const buffer = new BufferView(
           v.string(),
           v.object({
             firstSingular: v.string().optional(),
+            secondSingular: v.string().optional(),
             thirdSingular: v.string().optional(),
             firstPlural: v.string().optional(),
+            secondPlural: v.string().optional(),
             thirdPlural: v.string().optional(),
           }),
         ])
@@ -120,4 +124,4 @@ const dataset = {
   ],
 };
 
-export { manifest, buffer, emitter, dataset };
+export { manifest, view, emitter, dataset };

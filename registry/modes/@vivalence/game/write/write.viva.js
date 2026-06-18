@@ -1,4 +1,4 @@
-import { cast, BufferView, Vector, v } from "@vivalence/typology";
+import { cast, View, Vector, v } from "@vivalence/typology";
 import dataset from "./dataset/index.js";
 
 const manifest = {
@@ -8,10 +8,10 @@ const manifest = {
   description:
     "Type the translation from memory. Per-token scoring for sentences. Forgiving mode normalizes diacritics.",
   version: "0.2.0",
-  traits: ["BUFFERED", "EMITTER"],
+  traits: ["VIEWABLE", "EMITTER"],
 };
 
-const buffer = new BufferView(
+const view = new View(
   "buffer/Write.svelte",
   v.buffer({
     data: {
@@ -46,4 +46,4 @@ const emitter = new Vector()
     });
   });
 
-export { manifest, buffer, emitter, dataset };
+export { manifest, view, emitter, dataset };

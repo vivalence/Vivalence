@@ -13,7 +13,7 @@ export * from "./network/Identity.ts";
 export * from "./network/Daemon.ts";
 
 export * from "./daemon/Mode.ts";
-export * from "./daemon/Intent.ts";
+export * from "./daemon/Intent.bak.ts";
 export * from "./daemon/User.ts";
 
 export * from "./userspace/Buffer.ts";
@@ -28,7 +28,7 @@ import constraint from "./kernel/Constraint.ts";
 import identity from "./network/Identity.ts";
 import daemon from "./network/Daemon.ts";
 
-import intent from "./daemon/Intent.ts";
+import intent from "./daemon/Intent.bak.ts";
 import mode from "./daemon/Mode.ts";
 import user from "./daemon/User.ts";
 
@@ -42,8 +42,8 @@ export { intent, mode, user };
 export { thread, turn, buffer };
 
 export const sets = {
-  network:   { identity, daemon },
-  daemon:    { intent, user, mode },
-  kernel:    { literal, symbol },
+  network: { identity, daemon },
+  daemon: { intent, user, mode },
+  kernel: { literal, symbol },
   userspace: { thread, turn, buffer },
 };

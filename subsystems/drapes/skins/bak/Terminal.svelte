@@ -65,7 +65,7 @@
 </div>
 
 <style>
-  .skin-terminal { font-family: var(--font-family-code); font-size: 11px; display: flex; flex-direction: column; height: 100%; }
+  .skin-terminal { font-family: var(--font-family-code); font-size: var(--font-size-sm); display: flex; flex-direction: column; height: 100%; }
   .term-output { flex: 1; overflow-y: auto; padding-bottom: 8px; }
   .term-line { padding: 1px 0; white-space: pre-wrap; }
   .term-line.input { color: var(--colors-skeleton-0-primary-base); }

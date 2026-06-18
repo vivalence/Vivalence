@@ -1,4 +1,4 @@
-import { Url, Connection, shard, Mode, Path, shape, Aperture, Vector, BufferView, v } from "@vivalence/typology";
+import { Url, Connection, shard, Mode, Path, shape, Aperture, Vector, View, v } from "@vivalence/typology";
 import { RequestContext } from "@mikro-orm/core";
 import {
   ModeEntity,
@@ -13,17 +13,17 @@ import { BufferEntity, TurnEntity, seed } from "./entities.ts";
 import * as routes from "@vivalence/runtime/daemon/aperture";
 import { INTENTED, EMITTER } from "@vivalence/runtime/daemon/traits";
 
-const BUFFERED = (mode, daemon) => {
+const VIEWABLE = (mode, daemon) => {
   mode.aperture.open("/buffered", () => ({
-    url: mode.cake.buffer.url.absolute,
-    schema: mode.cake.buffer.schema,
+    url: mode.cake.view.url.absolute,
+    schema: mode.cake.view.mask,
   }));
   mode.buffer = (desc = {}) => {
     // const em = daemon.entities.em;
     const em = daemon.entities.em;
     const buffer = em.create(BufferEntity, {
       mode: mode.entity.id,
-      data: mode.cake.buffer.cast(desc),
+      data: mode.cake.view.cast(desc),
       index: desc.index ?? 0,
     });
     if (desc.literals) buffer.literals.add(desc.literals.map((l) => em.getReference(LiteralEntity, l?.id ?? l)));
@@ -35,17 +35,17 @@ const BUFFERED = (mode, daemon) => {
 export async function create() {
   const { orm, em, fixtures } = await seed();
 
-  const modeTraits = ["BUFFERED", "SELFEVIDENT", "INTENTED", "EMITTER"];
+  const modeTraits = ["VIEWABLE", "SELFEVIDENT", "INTENTED", "EMITTER"];
   const mode = new Mode({ manifest: { type: "game", slug: "flashcard", traits: modeTraits } });
   mode.aperture = new Aperture();
   mode.mount = new Path(`/mode/${mode.type}/${mode.slug}`);
   mode.entity = fixtures.mode;
   mode.id = fixtures.mode.id;
 
-  mode.cake.buffer = new BufferView("buffer/flashcard.svelte", v.buffer({
+  mode.cake.view = new View("buffer/flashcard.svelte", v.buffer({
     data: { recall: v.string({ default: "LEARNING" }) },
   }));
-  mode.cake.buffer.withUrl(new Url(`http://test/view/${mode.type}/${mode.slug}`));
+  mode.cake.view.withUrl(new Url(`http://test/view/${mode.type}/${mode.slug}`));
 
   mode.cake.dataset = {
     intent: [
@@ -115,7 +115,7 @@ export async function create() {
     await next();
   });
 
-  await BUFFERED(mode, daemon);
+  await VIEWABLE(mode, daemon);
   await INTENTED(mode, daemon);
   await EMITTER(mode, daemon);
 

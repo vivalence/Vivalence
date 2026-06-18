@@ -97,7 +97,7 @@
 </div>
 
 <style>
-  .skin-breadcrumb { font-family: var(--font-family-code); font-size: 11px; }
+  .skin-breadcrumb { font-family: var(--font-family-code); font-size: var(--font-size-xs); }
   .crumbs { display: flex; align-items: center; gap: 4px; margin-bottom: 8px; padding: 0 4px; }
   .crumb { background: none; border: none; color: var(--colors-skeleton-0-primary-base); cursor: pointer; font-family: inherit; font-size: inherit; padding: 2px 4px; }
   .crumb:hover { text-decoration: underline; }
@@ -107,7 +107,7 @@
   .bc-item { display: table-row; cursor: pointer; }
   .bc-item:hover { background: var(--colors-skeleton-1-surface); }
   .bc-nature { display: table-cell; color: var(--colors-skeleton-1-contrast); padding: 2px 8px; white-space: nowrap; width: 1%; }
-  .bc-valence { display: table-cell; color: var(--colors-skeleton-0-primary-base); opacity: 0.6; font-size: 9px; padding: 2px 8px; }
+  .bc-valence { display: table-cell; color: var(--colors-skeleton-0-primary-base); opacity: 0.6; font-size: var(--font-size-2xs); padding: 2px 8px; }
   .bc-arrow { display: table-cell; opacity: 0.4; padding: 2px 8px; width: 1%; }
-  .bc-result { display: table-cell; opacity: 0.4; font-size: 9px; padding: 2px 8px; }
+  .bc-result { display: table-cell; opacity: 0.4; font-size: var(--font-size-2xs); padding: 2px 8px; }
 </style>

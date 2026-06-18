@@ -16,15 +16,12 @@ export async function modes(die) {
     const result = {
       manifest: mode.manifest,
     };
-    if (mode.implements("BUFFERED")) {
+    if (mode.implements("VIEWABLE")) {
       result.buffered = {
-        url: mode.cake.buffer.url.absolute,
-        schema: mode.cake.buffer.schema,
+        url: mode.cake.view.url.absolute,
+        schema: mode.cake.view.mask,
       };
     }
-    // if (mode.implements("VIEWABLE")) {
-    //   result.view = { url: mode.view.url };
-    // }
     return result;
     // return await ctx.daemon.modes[someModeManager/EntityMap/RepositorySystem][ctx.params.method](mode.type, body.where, body.options);
   });

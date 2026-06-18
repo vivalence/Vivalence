@@ -34,11 +34,11 @@
 </table>
 
 <style>
-  .skin-table { width: 100%; border-collapse: collapse; font-family: var(--font-family-code); font-size: 11px; }
+  .skin-table { width: 100%; border-collapse: collapse; font-family: var(--font-family-code); font-size: var(--font-size-xs); }
   .table-row td { padding: 2px 8px; }
   .table-row.invocable { cursor: pointer; }
   .table-row.invocable:hover { background: var(--colors-skeleton-1-surface); }
   .table-key { color: var(--colors-skeleton-2-contrast); white-space: nowrap; width: 1%; }
   .table-val { color: var(--colors-skeleton-0-primary-base); }
-  .table-result { opacity: 0.4; font-size: 9px; }
+  .table-result { opacity: 0.4; font-size: var(--font-size-2xs); }
 </style>

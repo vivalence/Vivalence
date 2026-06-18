@@ -3,12 +3,15 @@ import { shape } from "@vivalence/typology";
 export * from "./dataset.js";
 export * from "./intented.js";
 export * from "./emitter.js";
-export * from "./buffered.js";
-export * from "./chaosmonkey.js";
+export * from "./viewable.js";
+export * from "./harnessed.js";
 export * from "./conversational.js";
 export * from "./tooled.js";
 
 export const SELFEVIDENT = () => {};
+
+// marker: only STANDALONE modes can be created/rendered without an emitter (direct buffer from MASKED)
+export const STANDALONE = () => {};
 
 export const EXPOSED = (mode) => {
   if (!mode.aperture) {

@@ -243,7 +243,7 @@
   }
   .meta-lang {
     font-family: var(--font-family-code);
-    font-size: 0.65rem;
+    font-size: var(--font-size-xs);
     font-weight: 600;
     letter-spacing: 0.08em;
     text-transform: uppercase;
@@ -271,7 +271,7 @@
     background: transparent;
     color: var(--colors-skeleton-1-boundary);
     font-family: var(--font-family-serif-heading);
-    font-size: 0.75rem;
+    font-size: var(--font-size-sm);
     font-style: italic;
     cursor: pointer;
     display: flex;
@@ -288,14 +288,14 @@
   }
   .header-known {
     font-family: var(--font-family-serif-heading);
-    font-size: 0.85rem;
+    font-size: var(--font-size-md);
     color: var(--colors-skeleton-1-boundary);
     font-style: italic;
     margin: 0.25rem 0 0 0;
   }
   .tense-label {
     font-family: var(--font-family-code);
-    font-size: 0.7rem;
+    font-size: var(--font-size-sm);
     color: var(--colors-skeleton-1-boundary);
     margin: 0.375rem 0 0 0;
   }
@@ -312,7 +312,7 @@
 
   .person {
     font-family: var(--font-family-code);
-    font-size: 0.8rem;
+    font-size: var(--font-size-sm);
     font-weight: 600;
     color: var(--colors-theme-primary-contrast);
     letter-spacing: 0.04em;
@@ -320,7 +320,7 @@
 
   .prompt {
     font-family: var(--font-family-serif-heading);
-    font-size: 0.9rem;
+    font-size: var(--font-size-md);
     color: var(--colors-skeleton-1-boundary);
     font-style: italic;
     margin: 0;
@@ -337,7 +337,7 @@
     gap: 0.5rem;
   }
   .fb-icon {
-    font-size: 1.125rem;
+    font-size: var(--font-size-base);
     font-weight: 700;
     line-height: 1;
   }
@@ -377,7 +377,7 @@
   }
   .fb-answer-label {
     font-family: var(--font-family-code);
-    font-size: 0.6rem;
+    font-size: var(--font-size-xs);
     color: var(--colors-skeleton-1-boundary);
     text-transform: uppercase;
     letter-spacing: 0.08em;
@@ -397,7 +397,7 @@
     border: 1px solid var(--colors-skeleton-1-boundary);
     background: color-mix(in srgb, var(--colors-skeleton-1-surface) 50%, var(--colors-skeleton-app-surface));
     color: var(--colors-palette-gray-10);
-    font-size: 1rem;
+    font-size: var(--font-size-base);
     font-family: var(--font-family-serif-heading);
     outline: none;
     box-sizing: border-box;
@@ -412,7 +412,7 @@
     border: none;
     background: var(--colors-theme-primary-surface);
     color: var(--colors-theme-primary-contrast);
-    font-size: 0.875rem;
+    font-size: var(--font-size-md);
     font-weight: 600;
     cursor: pointer;
     font-family: var(--font-family-sans-text);
@@ -428,7 +428,7 @@
     border: 1px solid var(--colors-skeleton-1-boundary);
     background: transparent;
     color: var(--colors-palette-gray-200);
-    font-size: 1rem;
+    font-size: var(--font-size-base);
     font-weight: 500;
     cursor: pointer;
     font-family: var(--font-family-sans-text);

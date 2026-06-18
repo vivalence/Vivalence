@@ -18,9 +18,9 @@ export enum ThreadTraitsEnum {
   MASKED = "MASKED", // emitter input
   AIMED = "AIMED", // pointing at emitter
   QUEUEING = "QUEUEING", // pre-pulling buffers
-  SELFEVIDENT = "SELFEVIDENT", // access mode buffer without daemon-roundtrip.
   LABELED = "LABELED", // UI display name
-  CONVERSATIONAL = "CONVERSATIONAL", //
+  // SELFEVIDENT = "SELFEVIDENT", // access mode buffer without daemon-roundtrip.
+  // CONVERSATIONAL = "CONVERSATIONAL", //
 }
 
 export class ThreadEntity extends DataEntity {

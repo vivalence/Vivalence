@@ -35,14 +35,14 @@ import * as lifecycleResolution from "../../daemon/lifecycle/resolution.js";
 import * as lifecyclePopulation from "../../daemon/lifecycle/population.js";
 import * as apertureSetup from "../../daemon/aperture/index.js";
 
-// ── test BUFFERED ──────────────────────────────────────────────────
-// Same as real BUFFERED but skips the svelte bundler (no esbuild).
-const BENCH_BUFFERED = async (mode, daemon) => {
+// ── test VIEWABLE ──────────────────────────────────────────────────
+// Same as real VIEWABLE but skips the svelte bundler (no esbuild).
+const BENCH_VIEWABLE = async (mode, daemon) => {
   // noop bundler — bench doesn't serve compiled svelte components
-  mode.cake.buffer.withBundler(() => ({ code: "", url: "" }));
+  mode.cake.view.withBundler(() => ({ code: "", url: "" }));
   mode.aperture.open("/buffered", () => ({
-    url: mode.cake.buffer.url.absolute,
-    schema: mode.cake.buffer.schema,
+    url: mode.cake.view.url.absolute,
+    schema: mode.cake.view.mask,
   }));
 
   const ensure = (repo, ref) => helper(ref) ? ref : repo.findOne(ref?.id ?? ref);
@@ -50,7 +50,7 @@ const BENCH_BUFFERED = async (mode, daemon) => {
   mode.buffer = async (desc = {}) => {
     const buffer = daemon.entities.em.create(BufferEntity, {
       mode: mode.entity.id,
-      data: mode.cake.buffer.cast(desc),
+      data: mode.cake.view.cast(desc),
       index: desc.index ?? 0,
     });
     if (desc.literals) buffer.literals.add(await Promise.all(desc.literals.map((literal) => ensure(daemon.entities.literal, literal))));
@@ -108,7 +108,7 @@ export async function bench(spec = {}) {
     ...kernel.traits,
     ...traits,
     ...(domain?.traits || {}),
-    BUFFERED: BENCH_BUFFERED,
+    VIEWABLE: BENCH_VIEWABLE,
   };
 
   const variantModes = { ...kernel.modes, ...(domain?.modes || {}) };
@@ -166,7 +166,7 @@ export async function bench(spec = {}) {
 
   // ── services ──────────────────────────────────────────────────────
   // lighthouse → daemon.lighthouse (auth provider for shard.secure.authority)
-  // hallucinator → daemon.hallucinator (AI provider for CHAOSMONKEY trait)
+  // hallucinator → daemon.hallucinator (AI provider for HARNESSED trait)
   // consume → daemon.services[slug] (external services like NLP)
   const services = spec.services || {};
 

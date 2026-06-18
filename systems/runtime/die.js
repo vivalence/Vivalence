@@ -29,6 +29,7 @@ export class Die extends Wafer {
 
     await lifecycle.resolution.attach(this);
     await lifecycle.resolution.expose(this);
+    await lifecycle.resolution.metadata(this);
     // await lifecycle.resolution.compose(this);
   }
 

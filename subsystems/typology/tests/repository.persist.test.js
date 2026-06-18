@@ -65,7 +65,7 @@ specimen.describe("persist: basic lifecycle", () => {
   specimen.it("persist() hydrates from storage on construction", () => {
     const key = conn.branch("/mode").url.absolute
     localStorage.setItem(key, JSON.stringify([
-      { id: "cached-1", slug: "from-cache", type: "game", traits: ["BUFFERED"] },
+      { id: "cached-1", slug: "from-cache", type: "game", traits: ["VIEWABLE"] },
     ]))
 
     const repo = managed(conn, "mode")
@@ -88,7 +88,7 @@ specimen.describe("persist: prototype wrapping survives storage", () => {
 
     const key = conn.branch("/mode").url.absolute
     localStorage.setItem(key, JSON.stringify([
-      { id: "p1", slug: "flashcard", type: "game", traits: ["BUFFERED", "SELFEVIDENT"] },
+      { id: "p1", slug: "flashcard", type: "game", traits: ["VIEWABLE", "SELFEVIDENT"] },
     ]))
 
     const repo = managed(conn, "mode", Mode)
@@ -97,7 +97,7 @@ specimen.describe("persist: prototype wrapping survives storage", () => {
     const entities = repo.$entities.get()
     specimen.expect(entities.length).toBe(1)
     specimen.expect(entities[0]).toBeInstanceOf(Mode)
-    specimen.expect(entities[0].implements("BUFFERED")).toBe(true)
+    specimen.expect(entities[0].implements("VIEWABLE")).toBe(true)
     specimen.expect(entities[0].implements("NOPE")).toBe(false)
   })
 
@@ -356,7 +356,7 @@ specimen.describe("persist: encode edge cases", () => {
     const repo = managed(conn, "mode")
     repo.persist()
 
-    const mode = { id: "set-1", slug: "test", type: "game", traits: ["BUFFERED"] }
+    const mode = { id: "set-1", slug: "test", type: "game", traits: ["VIEWABLE"] }
     mode.intents = new Set(["a", "b"])
     mode.mount = { constructor: class Path {}, nature: "/mode/game/test" }
 
@@ -364,7 +364,7 @@ specimen.describe("persist: encode edge cases", () => {
     const found = parsed.find((e) => e.id === "set-1")
     specimen.expect(found.intents).toBeUndefined()
     specimen.expect(found.mount).toBeUndefined()
-    specimen.expect(found.traits).toContain("BUFFERED")
+    specimen.expect(found.traits).toContain("VIEWABLE")
   })
 
   specimen.it("encode collapses m:1 relations to {id}", () => {

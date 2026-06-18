@@ -61,7 +61,7 @@ specimen.describe("lifecycle vector", () => {
     const lifecycle = compileSchema(schema);
     const ctx = {
       daemon: { slug: "deutsch" },
-      raw: { id: "m1", type: "conversational", slug: "practice", traits: ["BUFFERED"] },
+      raw: { id: "m1", type: "conversational", slug: "practice", traits: ["VIEWABLE"] },
     };
     await lifecycle(ctx);
 

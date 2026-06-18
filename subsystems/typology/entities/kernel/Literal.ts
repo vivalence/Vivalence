@@ -16,11 +16,18 @@ export class LiteralRepository extends DataRepository {
   }
 
   find(where, opts?) {
-    return super.find(this.resolveSymbols(where), opts);
+    return super.find(this.resolveSearch(this.resolveSymbols(where)), opts);
   }
 
   findOne(where, opts?) {
     return super.findOne(this.resolveSymbols(where), opts);
+  }
+
+  resolveSearch(query) {
+    if (!query?.search || !this.search) return query;
+    const { search, ...where } = query;
+    where.$or = this.search(query);
+    return where;
   }
 
   resolveSymbols(query) {

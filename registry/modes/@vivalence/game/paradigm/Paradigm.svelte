@@ -414,7 +414,7 @@
   }
   .meta-lang {
     font-family: var(--font-family-code);
-    font-size: 0.65rem;
+    font-size: var(--font-size-xs);
     font-weight: 600;
     letter-spacing: 0.08em;
     text-transform: uppercase;
@@ -422,13 +422,13 @@
   }
   .meta-type {
     font-family: var(--font-family-code);
-    font-size: 0.65rem;
+    font-size: var(--font-size-xs);
     font-weight: 500;
     color: var(--colors-skeleton-1-boundary);
   }
   .meta-infinitive {
     font-family: var(--font-family-serif-heading);
-    font-size: 0.75rem;
+    font-size: var(--font-size-sm);
     font-style: italic;
     color: var(--colors-skeleton-2-contrast);
     margin-left: auto;
@@ -457,7 +457,7 @@
     background: transparent;
     color: var(--colors-skeleton-1-boundary);
     font-family: var(--font-family-serif-heading);
-    font-size: 0.75rem;
+    font-size: var(--font-size-sm);
     font-style: italic;
     cursor: pointer;
     display: flex;
@@ -474,7 +474,7 @@
   }
   .tense-label {
     font-family: var(--font-family-code);
-    font-size: 0.7rem;
+    font-size: var(--font-size-sm);
     color: var(--colors-skeleton-1-boundary);
     margin: 0.25rem 0 0 0;
   }
@@ -520,7 +520,7 @@
 
   .person {
     font-family: var(--font-family-code);
-    font-size: 0.7rem;
+    font-size: var(--font-size-sm);
     color: var(--colors-skeleton-1-boundary);
     white-space: nowrap;
   }
@@ -574,19 +574,19 @@
   }
   .cell-prompt {
     font-family: var(--font-family-serif-heading);
-    font-size: 0.8rem;
+    font-size: var(--font-size-sm);
     color: var(--colors-palette-gray-100);
     font-style: italic;
   }
   .cell-empty {
     font-family: var(--font-family-code);
-    font-size: 0.75rem;
+    font-size: var(--font-size-sm);
     color: var(--colors-skeleton-1-boundary);
     opacity: 0.4;
   }
   .cell-pending {
     font-family: var(--font-family-code);
-    font-size: 0.75rem;
+    font-size: var(--font-size-sm);
     color: var(--colors-skeleton-1-boundary);
   }
 
@@ -597,7 +597,7 @@
 
   .input-person {
     font-family: var(--font-family-code);
-    font-size: 0.7rem;
+    font-size: var(--font-size-sm);
     color: var(--colors-theme-primary-contrast);
     white-space: nowrap;
     flex-shrink: 0;
@@ -615,7 +615,7 @@
       var(--colors-skeleton-app-surface)
     );
     color: var(--colors-palette-gray-10);
-    font-size: 1rem;
+    font-size: var(--font-size-base);
     font-family: var(--font-family-serif-heading);
     outline: none;
     box-sizing: border-box;
@@ -631,7 +631,7 @@
     border: none;
     background: var(--colors-theme-primary-surface);
     color: var(--colors-theme-primary-contrast);
-    font-size: 0.875rem;
+    font-size: var(--font-size-md);
     font-weight: 600;
     cursor: pointer;
     font-family: var(--font-family-sans-text);
@@ -647,7 +647,7 @@
     border: 1px solid var(--colors-skeleton-1-boundary);
     background: transparent;
     color: var(--colors-palette-gray-200);
-    font-size: 1rem;
+    font-size: var(--font-size-base);
     font-weight: 500;
     cursor: pointer;
     font-family: var(--font-family-sans-text);
@@ -664,7 +664,7 @@
     text-align: center;
     padding: 1rem;
     color: var(--colors-skeleton-1-boundary);
-    font-size: 0.8rem;
+    font-size: var(--font-size-sm);
     font-family: var(--font-family-code);
   }
 
@@ -673,7 +673,7 @@
       font-size: var(--font-size-xl);
     }
     .person {
-      font-size: 0.6rem;
+      font-size: var(--font-size-xs);
     }
     .row {
       grid-template-columns: 4rem 1fr auto;

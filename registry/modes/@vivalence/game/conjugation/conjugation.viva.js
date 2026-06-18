@@ -1,4 +1,4 @@
-import { array, BufferView, Vector, v } from "@vivalence/typology";
+import { array, View, Vector, v } from "@vivalence/typology";
 
 const manifest = {
   type: "game",
@@ -7,10 +7,10 @@ const manifest = {
   name: "Conjugation",
   description: "Type the conjugated form from infinitive + person + tense.",
   version: "0.2.0",
-  traits: ["BUFFERED", "EMITTER"],
+  traits: ["VIEWABLE", "EMITTER"],
 };
 
-const buffer = new BufferView(
+const view = new View(
   "buffer/Conjugation.svelte",
   v.buffer({
     data: {
@@ -106,4 +106,4 @@ const dataset = {
   ],
 };
 
-export { manifest, buffer, emitter, dataset };
+export { manifest, view, emitter, dataset };

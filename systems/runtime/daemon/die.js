@@ -1,4 +1,4 @@
-import { is, object, Wafer, Blacklist } from "@vivalence/typology";
+import { is, object, shape, Wafer, Blacklist } from "@vivalence/typology";
 
 import * as lifecycle from "./lifecycle/index.js";
 import * as aperture from "./aperture/index.js";
@@ -45,13 +45,16 @@ export class Die extends Wafer {
     await aperture.userspace(this);
     await aperture.modes(this);
     await aperture.freight(this);
+    await aperture.metadata(this);
   }
 
   async integrate() {
     await lifecycle.integration.call(this);
     // console.log("this", this.mask, Object.keys(this));
 
-    // await lifecycle.integration.prune(this);
+    // const compiled = shape.agentic(this.good.aperture);
+    // console.log(compiled);
+    await lifecycle.integration.prune(this);
     this.status.set("alive");
   }
 

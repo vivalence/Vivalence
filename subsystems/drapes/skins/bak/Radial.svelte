@@ -99,6 +99,6 @@
 </div>
 
 <style>
-  .skin-radial { font-family: var(--font-family-code); font-size: 11px; }
-  .radial-tooltip { position: fixed; top: 12px; right: 12px; padding: 4px 8px; background: var(--colors-skeleton-1-surface); border-radius: 3px; font-size: 10px; opacity: 0.7; }
+  .skin-radial { font-family: var(--font-family-code); font-size: var(--font-size-sm); }
+  .radial-tooltip { position: fixed; top: 12px; right: 12px; padding: 4px 8px; background: var(--colors-skeleton-1-surface); border-radius: 3px; font-size: var(--font-size-sm); opacity: 0.7; }
 </style>

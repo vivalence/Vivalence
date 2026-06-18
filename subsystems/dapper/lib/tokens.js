@@ -26,8 +26,10 @@ export const font = {
     code: ["Source Code Pro", "monospace"],
   },
   size: {
+    "2xs": "0.55rem",
     xs: "0.6rem",
     sm: "0.8rem",
+    md: "0.875rem",
     base: "1rem",
     lg: "1.4rem",
     xl: "1.6rem",
@@ -41,8 +43,10 @@ export const font = {
   },
 };
 export const lineHeight = {
+  "2xs": "0.8",
   xs: "0.8",
   sm: "1.0",
+  md: "1.0",
   base: "1.0",
   lg: "1.1",
   xl: "1.1",

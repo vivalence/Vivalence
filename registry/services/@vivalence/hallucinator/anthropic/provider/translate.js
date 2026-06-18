@@ -43,7 +43,7 @@ function partToAnthropic(part) {
         type: "tool_use",
         id: part.id,
         name: part.name,
-        input: typeof part.input === "string" ? JSON.parse(part.input) : part.input,
+        input: typeof part.input === "string" ? (part.input ? JSON.parse(part.input) : {}) : (part.input ?? {}),
       };
     case "tool_result":
       return {
@@ -112,6 +112,7 @@ export function translateStreamEvent(event) {
 
     case "content_block_start": {
       const part = blockToPart(event.content_block);
+      if (part.type === "tool_use") part.input = ""; // stream fills via input_json_delta
       return { event: "/part/open", index: event.index, part };
     }
 

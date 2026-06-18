@@ -6,17 +6,23 @@ import { BufferEntity } from "../index.ts";
 import { TurnEntity } from "../index.ts";
 
 export enum ModeTraitsEnum {
-  DATASET = "DATASET",
-  EXPOSED = "EXPOSED",
-  CHAOSMONKEY = "CHAOSMONKEY",
-  TOPOGRAPHICAL = "TOPOGRAPHICAL",
-  INTENTED = "INTENTED",
-  SELFEVIDENT = "SELFEVIDENT",
-  EMITTER = "EMITTER",
+  TOPOGRAPHICAL = "TOPOGRAPHICAL", // use to target read data from storage in mode
+  TOPOLOGICAL = "TOPOLOGICAL", // use to target read data from storage in mode
+  DATASET = "DATASET", // use to control data storage in mode
+
   FRAUGHT = "FRAUGHT",
-  BUFFERED = "BUFFERED",
+  VIEWABLE = "VIEWABLE",
+  EXPOSED = "EXPOSED",
+  HARNESSED = "HARNESSED",
+  INTENTED = "INTENTED",
+  EMITTER = "EMITTER",
   CONVERSATIONAL = "CONVERSATIONAL",
   TOOLED = "TOOLED",
+  STANDALONE = "STANDALONE",
+
+  //
+  // CHAOSMONKEY = "CHAOSMONKEY", // deprecated
+  // BUFFERED = "BUFFERED", // deprecated
 }
 
 export class ModeRepository extends DataRepository {

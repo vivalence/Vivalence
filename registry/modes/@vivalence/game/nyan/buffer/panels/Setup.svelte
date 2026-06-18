@@ -3,9 +3,10 @@
 
   const { game, sets } = $props();
 
+  const gameplays = Object.keys(GAMEPLAYS);
   const nextGameplay = () => {
-    const index = GAMEPLAYS.indexOf(game.config.gameplay);
-    game.config.gameplay = GAMEPLAYS[(index + 1) % GAMEPLAYS.length];
+    const index = gameplays.indexOf(game.config.gameplay);
+    game.config.gameplay = gameplays[(index + 1) % gameplays.length];
   };
 </script>
 
@@ -61,7 +62,7 @@
 <style>
   .title {
     font-family: var(--font-family-code);
-    font-size: 0.8rem;
+    font-size: var(--font-size-sm);
     font-weight: 600;
     letter-spacing: 0.04em;
     color: var(--colors-palette-gray-10);
@@ -80,7 +81,7 @@
   }
   .key {
     font-family: var(--font-family-code);
-    font-size: 0.7rem;
+    font-size: var(--font-size-sm);
     color: var(--colors-skeleton-1-boundary);
     width: 6.5rem;
     flex-shrink: 0;
@@ -96,7 +97,7 @@
     background: color-mix(in srgb, var(--colors-skeleton-1-surface) 50%, transparent);
     color: var(--colors-palette-gray-10);
     font-family: var(--font-family-code);
-    font-size: 0.85rem;
+    font-size: var(--font-size-md);
     outline: none;
     box-sizing: border-box;
   }
@@ -107,7 +108,7 @@
     background: transparent;
     color: var(--colors-theme-primary-contrast);
     font-family: var(--font-family-code);
-    font-size: 0.85rem;
+    font-size: var(--font-size-md);
     cursor: pointer;
   }
 </style>

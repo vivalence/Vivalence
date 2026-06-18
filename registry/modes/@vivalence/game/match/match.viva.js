@@ -1,4 +1,4 @@
-import { BufferView, Vector, v } from "@vivalence/typology";
+import { View, Vector, v } from "@vivalence/typology";
 
 const manifest = {
   type: "game",
@@ -7,10 +7,10 @@ const manifest = {
   description:
     "Connect literal pairs across two columns. Batch mode. Failure is sticky per literal.",
   version: "0.1.0",
-  traits: ["BUFFERED", "EMITTER"],
+  traits: ["VIEWABLE", "EMITTER"],
 };
 
-const buffer = new BufferView(
+const view = new View(
   "buffer/Match.svelte",
   v.buffer({
     data: {
@@ -69,4 +69,4 @@ const dataset = {
   ],
 };
 
-export { manifest, buffer, emitter, dataset };
+export { manifest, view, emitter, dataset };

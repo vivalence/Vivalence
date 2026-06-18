@@ -10,6 +10,14 @@ export const once = (fn) => {
 export const every = (n, fn) => (done, total) =>
   (done % n === 0 || done === total) && fn(done, total);
 
+export const debounce = (fn, ms = 0) => {
+  let timer;
+  return function (...args) {
+    clearTimeout(timer);
+    timer = setTimeout(() => fn.apply(this, args), ms);
+  };
+};
+
 //
 export const reduce = async (r, a) => {
   return await r.reduce(
