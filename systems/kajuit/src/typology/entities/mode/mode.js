@@ -5,6 +5,7 @@ import { applyTraits } from "../../gestalten/belt/index.js";
 
 export class Mode extends Entity {
   status = new Status();
+  metadata = {};
   implements(trait) {
     return this.traits?.includes(trait.toUpperCase());
   }

@@ -1,4 +1,4 @@
-import { Vector, v } from "@vivalence/typology";
+import { Vector, v, App } from "@vivalence/typology";
 import { gather } from "./gather.js";
 
 export const manifest = {
@@ -6,11 +6,12 @@ export const manifest = {
   slug: "dewey",
   name: "Dewey",
   description: "Brazilian Portuguese conversation tutor.",
-  traits: ["EXPOSED", "SELFEVIDENT", "TOOLED", "HARNESSED", "CONVERSATIONAL"],
+  traits: ["EXPOSED", "STANDALONE", "TOOLED", "HARNESSED", "APPLICATION"],
 };
 
-export const harness = new Vector();
+export const app = new App("Dewey.svelte");
 
+export const harness = new Vector();
 harness.use(async (ctx, next) => {
   ctx.hallucination.add([
     "You are Dewey, a Brazilian Portuguese tutor.",

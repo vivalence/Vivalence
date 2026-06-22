@@ -47,7 +47,12 @@ export class RemoteRepository {
     if (stored) {
       try {
         for (const raw of JSON.parse(stored)) this.entityManager.merge(this.managedName, raw, this.kind);
-      } catch {}
+      } catch (error) {
+        // corrupt cache: discard the poisoned key so it can't re-break the next boot,
+        // then fall through to the network (find revalidates). Logged, never silent.
+        console.warn(`[repo] discarding corrupt cache @ ${this.storageKey}`, error);
+        localStorage.removeItem(this.storageKey);
+      }
     }
     if (existing.length > 0) {
       for (const raw of existing) this.entityManager.merge(this.managedName, raw, this.kind);
@@ -180,6 +185,10 @@ export class RemoteRepository {
     if (!this.storageKey) return;
     try {
       localStorage.setItem(this.storageKey, this.encode(this.$entities.get()));
-    } catch {}
+    } catch (error) {
+      // persistence is best-effort: quota/availability failures must not break the
+      // in-memory store. Logged, never silent.
+      console.warn(`[repo] persist failed @ ${this.storageKey}`, error);
+    }
   }
 }

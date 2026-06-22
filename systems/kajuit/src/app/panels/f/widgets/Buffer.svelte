@@ -46,6 +46,7 @@
     expandedBuffer = expandedBuffer === id ? null : id;
   }
   function onToggle(buffer) {
+      console.log('onToggle',{buffer})
     const active = thread?.$buffer?.get?.();
     thread?.$buffer?.set?.(active?.id === buffer.id ? null : buffer);
   }
@@ -119,7 +120,7 @@
             class:pending={!buffer.status || buffer.status === "PENDING"}
             >{buffer.status ?? "PENDING"}</span>
           <span class="buffer-type"
-            >{buffer.view?.url?.match(/\/(\w+)\/buffer\//)?.[1] ?? "—"}</span>
+            >{buffer.app?.url?.match(/\/(\w+)\/buffer\//)?.[1] ?? "—"}</span>
           <span class="buffer-slug"
             >{buffer.literals?.[0]?.slug ?? buffer.literals?.[0]?.ontology ?? ""}</span>
         </button>

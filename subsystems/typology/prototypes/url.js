@@ -1,11 +1,11 @@
 import { Signature } from "./signature.js";
-import { hash, is } from "@vivalence/typology";
+import { string, hash, is } from "@vivalence/typology";
 
 // import { join } from "@std/path"; // URLs always use posix-style paths
 
 function normalize(path) {
   // Remove redundant slashes and resolve . and ..
-  const parts = path.split("/").filter(Boolean);
+  const parts = string.split(path);
   const result = [];
 
   for (const part of parts) {
@@ -99,9 +99,9 @@ export class Url extends Signature {
   get search() {
     const entries = Object.entries(this.query ?? {});
     if (!entries.length) return "";
-    return "?" + entries
-      .map(([k, v]) => `${encodeURIComponent(k)}=${encodeURIComponent(v)}`)
-      .join("&");
+    return (
+      "?" + entries.map(([k, v]) => `${encodeURIComponent(k)}=${encodeURIComponent(v)}`).join("&")
+    );
   }
 
   get searchParams() {

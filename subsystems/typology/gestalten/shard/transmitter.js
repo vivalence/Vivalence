@@ -1,5 +1,7 @@
 import { ConnectionError } from "@vivalence/typology";
 
+// used in connections
+
 export const inline = (serve) => async (ctx) => {
   const req = new Request(ctx.request.url.absolute, {
     method: ctx.request.method,
@@ -7,9 +9,10 @@ export const inline = (serve) => async (ctx) => {
       "content-type": "application/json",
       ...Object.fromEntries(ctx.request.headers),
     },
-    body: ctx.request.method !== "GET" && ctx.request.body !== undefined
-      ? JSON.stringify(ctx.request.body)
-      : undefined,
+    body:
+      ctx.request.method !== "GET" && ctx.request.body !== undefined
+        ? JSON.stringify(ctx.request.body)
+        : undefined,
   });
 
   const res = await serve(req);
@@ -45,7 +48,10 @@ export const fetcher = async (ctx) => {
   if (request.method !== "GET" && request.body !== undefined) {
     const streaming = request.body instanceof ReadableStream;
     options.body = streaming ? request.body : JSON.stringify(request.body);
-    if (streaming) { options.duplex = "half"; options.headers["Content-Type"] = "text/event-stream"; }
+    if (streaming) {
+      options.duplex = "half";
+      options.headers["Content-Type"] = "text/event-stream";
+    }
   }
 
   try {
@@ -61,7 +67,9 @@ export const fetcher = async (ctx) => {
     if (contentType.includes("text/event-stream")) {
       response.body = res.body;
     } else {
-      response.body = contentType.includes("application/json") ? await res.json() : await res.text();
+      response.body = contentType.includes("application/json")
+        ? await res.json()
+        : await res.text();
     }
 
     if (!res.ok) {

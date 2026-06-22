@@ -1,16 +1,13 @@
-import { fromm } from "@vivalence/typology";
+import { fromm, promise } from "@vivalence/typology";
 
 export class Queue {
   buffer = [];
-  resolve = null;
   closed = false;
+  gate = promise.waiter();
 
   enqueue(value) {
     this.buffer.push(value);
-    if (this.resolve) {
-      this.resolve();
-      this.resolve = null;
-    }
+    this.gate.wake();
     return this;
   }
 
@@ -21,10 +18,7 @@ export class Queue {
 
   close() {
     this.closed = true;
-    if (this.resolve) {
-      this.resolve();
-      this.resolve = null;
-    }
+    this.gate.wake();
   }
 
   async *drain(signal) {
@@ -34,10 +28,7 @@ export class Queue {
         continue;
       }
       if (this.closed) return;
-      await new Promise((r) => {
-        this.resolve = r;
-        signal?.addEventListener("abort", () => r(), { once: true });
-      });
+      await this.gate.wait(signal);
     }
   }
 

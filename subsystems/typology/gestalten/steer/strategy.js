@@ -41,6 +41,7 @@ export const request = (carry, effect, steps, signal) => async (input) => {
 };
 
 export const guarded = (carry, effect, steps, signal) => async (input) => {
+  // for (const step of steps) step.input?.cast(ctx.input);
   for (const step of steps) {
     if (step.input) {
       step.input.cast(input);
@@ -54,6 +55,10 @@ export const guarded = (carry, effect, steps, signal) => async (input) => {
     signal,
     steps,
   });
+
   await carry(ctx, resolve(effect));
+
+  // for (const step of steps) {if (step.output) {step.output.cast(ctx.output); const errors = [...step.input.errors(ctx.output)]; if (errors.length) throw new ValidationError(errors, signal);}}
+
   return ctx.output;
 };

@@ -14,7 +14,7 @@ export function nearest(faculties, target) {
   return array.nearest(faculties, target, (faculty) => faculty.tune);
 }
 
-const FACULTY_TYPES = ["dialogue", "speech", "verbatim"];
+const FACULTY_TYPES = ["dialogue", "object", "speech", "verbatim"];
 
 async function executeTools(tools, parts, thread) {
   const results = [];
@@ -80,6 +80,40 @@ function renderLeaf(cortex, type) {
   };
 }
 
+// faculties the cortex synthesizes when no provider offers them natively.
+// object: dialogue + a terminal `respond` tool — the universal path, and the only one
+// that supports tool-calling mid-generation.
+function synthesizeObject(cortex, tune) {
+  return async (turns, config) => {
+    const tools = config?.tools ?? {};
+    const respond = { valence: "Return the final result as structured data.", input: config?.schema };
+    const dialogue = cortex.resolve("dialogue", { tune, via: "render" });
+    let currentTurns = [...turns];
+    for (let round = 0; round < 10; round++) {
+      const turn = await dialogue.via.render(currentTurns, {
+        ...config,
+        tools: { ...tools, respond },
+        tool_choice: { type: "any" },
+      });
+      const done = turn.parts.find((part) => part.type === "tool_use" && part.name === "respond");
+      if (done) {
+        const data = typeof done.input === "string" ? (done.input ? JSON.parse(done.input) : {}) : done.input;
+        return { role: "assistant", parts: [{ type: "object", data }], meta: { stop: "end_turn" } };
+      }
+      const results = await executeTools(tools, turn.parts);
+      currentTurns = [...currentTurns, turn, { role: "user", parts: results }];
+    }
+  };
+}
+
+const DERIVATIONS = {
+  object: (cortex, tune) => ({
+    type: "object",
+    channels: { in: ["text"], out: ["object"] },
+    via: { render: synthesizeObject(cortex, tune) },
+  }),
+};
+
 export class Cortex {
   table = new Map();
   tools = new Vector();
@@ -94,13 +128,23 @@ export class Cortex {
   }
 
   has(type) {
-    return this.table.has(type);
+    return this.table.has(type) || (type in DERIVATIONS && this.derivable(type));
+  }
+
+  derivable(type) {
+    return type === "object" ? !!this.resolve("dialogue", { via: "render" }) : false;
   }
 
   resolve(type, { tune, via } = {}) {
     const candidates = this.table.get(type) || [];
     const eligible = via ? candidates.filter((faculty) => faculty.via[via]) : candidates;
-    return nearest(eligible, tune ?? [0.5, 0.5, 0.5, 0.5]);
+    const native = nearest(eligible, tune ?? [0.5, 0.5, 0.5, 0.5]);
+    if (native) return native;
+
+    const derive = DERIVATIONS[type];
+    if (!derive || !this.derivable(type)) return native;
+    const derived = derive(this, tune);
+    return !via || derived.via[via] ? derived : undefined;
   }
 
   get shard() {

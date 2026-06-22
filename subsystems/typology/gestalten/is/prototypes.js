@@ -66,9 +66,16 @@ export function Aperture(thing) {
   return thing.constructor.name === "Aperture";
 }
 
-export function View(thing) {
-  return thing.constructor.name === "View";
-  // return thing instanceof View;
+export function App(thing) {
+  return thing.constructor.name === "App";
+  // return thing instanceof App;
+}
+
+// emitter output (prototypes/pool.js Yield) — shallow probe: a condition tag +
+// a buffers array. Deliberately loose: wire buffers carry partial refs that the
+// full Buffer entity schema rejects, so we don't validate them here.
+export function yieldish(thing) {
+  return is.object(thing) && is.string(thing.condition) && is.array(thing.buffers);
 }
 
 export function url(thing) {

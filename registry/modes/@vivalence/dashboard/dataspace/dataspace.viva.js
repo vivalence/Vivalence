@@ -1,4 +1,4 @@
-import { View, v } from "@vivalence/typology";
+import { App, v } from "@vivalence/typology";
 
 const manifest = {
   type: "dashboard",
@@ -6,9 +6,9 @@ const manifest = {
   name: "Dataspace",
   description: "Live dataspace viewer. Literal corpus map, memory landscape, trace timeline.",
   version: "0.1.0",
-  traits: ["VIEWABLE", "STANDALONE"],
+  traits: ["APPLICATION", "STANDALONE"],
 };
 
-const view = new View("Dashboard.svelte");
+const app = new App("Dashboard.svelte");
 
-export { manifest, view };
+export { manifest, app };

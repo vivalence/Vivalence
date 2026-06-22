@@ -1,12 +1,12 @@
-import { cast, View, Vector, v } from "@vivalence/typology";
+import { cast, App, Vector, v } from "@vivalence/typology";
 
-const manifest = {
+export const manifest = {
   type: "game",
   slug: "flashcard",
   name: "Flashcard",
   description: "Classic flashcard recall for words and sentences, both directions.",
   version: "0.1.0",
-  traits: ["VIEWABLE", "EMITTER"],
+  traits: ["APPLICATION", "EMITTER"],
 };
 
 const recallOptions = v.enum(["LEARNING", "KNOWN"]);
@@ -16,16 +16,15 @@ const recall = v
   })
   .optional();
 
-const view = new View(
+export const app = new App(
   "buffer/Flashcard.svelte",
   v.buffer({
     data: { recall },
-    // literals or literal
-    literals: v.array(v.rel(v.literal())).optional(),
+    literals: v.array(v.rel(v.literal())),
   }),
 );
 
-const emitter = new Vector()
+export const emitter = new Vector()
   .open(
     {
       nature: "/literals",
@@ -45,13 +44,14 @@ const emitter = new Vector()
     {
       nature: "/feed",
       input: v.object({
-        limit: v.integer({ minimum: 1 }).default(5),
         recall,
-        where: v.object({}, { additionalProperties: true }).optional(),
+        limit: v.integer({ minimum: 1 }).default(5),
+        where: v.object({}).optional(),
       }),
     },
     async (ctx) => {
-      const limit = ctx.input.limit ?? 5;
+      console.log("/feed", { input: ctx.input });
+      const limit = ctx.input.limit;
       const literals = await ctx.daemon.entities.literal.feed(ctx.input.where, {
         limit,
         blacklist: ctx.input.blacklist,
@@ -64,19 +64,4 @@ const emitter = new Vector()
     },
   );
 
-const dataset = {
-  intent: [
-    {
-      slug: "feed",
-      name: "Flashcard",
-      traits: ["MASKED", "AIMED", "QUEUEING"],
-      trait: {
-        MASKED: { limit: 5 },
-        AIMED: { mount: "/emit/feed" },
-        QUEUEING: { depth: 1 },
-      },
-    },
-  ],
-};
-
-export { manifest, view, emitter, dataset };
+// const dataset = {intent: [{slug: "feed", name: "Flashcard", traits: ["MASKED", "AIMED", "QUEUEING"], trait: {MASKED: { limit: 5 }, AIMED: { mount: "/emit/feed" }, QUEUEING: { depth: 1 },},},],};

@@ -65,7 +65,7 @@ specimen.describe("persist: basic lifecycle", () => {
   specimen.it("persist() hydrates from storage on construction", () => {
     const key = conn.branch("/mode").url.absolute
     localStorage.setItem(key, JSON.stringify([
-      { id: "cached-1", slug: "from-cache", type: "game", traits: ["VIEWABLE"] },
+      { id: "cached-1", slug: "from-cache", type: "game", traits: ["APPLICATION"] },
     ]))
 
     const repo = managed(conn, "mode")
@@ -88,7 +88,7 @@ specimen.describe("persist: prototype wrapping survives storage", () => {
 
     const key = conn.branch("/mode").url.absolute
     localStorage.setItem(key, JSON.stringify([
-      { id: "p1", slug: "flashcard", type: "game", traits: ["VIEWABLE", "SELFEVIDENT"] },
+      { id: "p1", slug: "flashcard", type: "game", traits: ["APPLICATION", "SELFEVIDENT"] },
     ]))
 
     const repo = managed(conn, "mode", Mode)
@@ -97,7 +97,7 @@ specimen.describe("persist: prototype wrapping survives storage", () => {
     const entities = repo.$entities.get()
     specimen.expect(entities.length).toBe(1)
     specimen.expect(entities[0]).toBeInstanceOf(Mode)
-    specimen.expect(entities[0].implements("VIEWABLE")).toBe(true)
+    specimen.expect(entities[0].implements("APPLICATION")).toBe(true)
     specimen.expect(entities[0].implements("NOPE")).toBe(false)
   })
 
@@ -356,7 +356,7 @@ specimen.describe("persist: encode edge cases", () => {
     const repo = managed(conn, "mode")
     repo.persist()
 
-    const mode = { id: "set-1", slug: "test", type: "game", traits: ["VIEWABLE"] }
+    const mode = { id: "set-1", slug: "test", type: "game", traits: ["APPLICATION"] }
     mode.intents = new Set(["a", "b"])
     mode.mount = { constructor: class Path {}, nature: "/mode/game/test" }
 
@@ -364,7 +364,7 @@ specimen.describe("persist: encode edge cases", () => {
     const found = parsed.find((e) => e.id === "set-1")
     specimen.expect(found.intents).toBeUndefined()
     specimen.expect(found.mount).toBeUndefined()
-    specimen.expect(found.traits).toContain("VIEWABLE")
+    specimen.expect(found.traits).toContain("APPLICATION")
   })
 
   specimen.it("encode collapses m:1 relations to {id}", () => {
@@ -424,6 +424,50 @@ specimen.describe("persist: encode edge cases", () => {
     specimen.expect(found.daemon).toBeUndefined()
     specimen.expect(found.connection).toBeUndefined()
     specimen.expect(found.intents).toBeUndefined()
+  })
+})
+
+specimen.describe("persist: error paths (silent-catch recovery)", () => {
+  specimen.beforeEach(() => localStorage.clear())
+
+  specimen.it("corrupt cache → discards the poisoned key, recovers, warns (not silent)", () => {
+    const key = conn.branch("/mode").url.absolute
+    localStorage.setItem(key, "{ this is not ] valid json")
+
+    const warnings = []
+    const originalWarn = console.warn
+    console.warn = (...args) => warnings.push(args)
+
+    let repo
+    try {
+      repo = managed(conn, "mode")
+      repo.persist() // must NOT throw on a corrupt cache
+    } finally {
+      console.warn = originalWarn
+    }
+
+    specimen.expect(repo.$entities.get().length).toBe(0)   // nothing hydrated from garbage
+    specimen.expect(localStorage.getItem(key)).toBe(null)  // poisoned key cleared (won't re-break next boot)
+    specimen.expect(warnings.length).toBeGreaterThan(0)    // logged, not swallowed
+  })
+
+  specimen.it("store() failure → best-effort, never throws, keeps in-memory data", async () => {
+    const repo = managed(conn, "literal")
+    repo.persist()
+
+    const warnings = []
+    const originalWarn = console.warn
+    console.warn = (...args) => warnings.push(args)
+    repo.encode = () => { throw new Error("QuotaExceededError") } // store() runs encode inside its try → forces the failure
+
+    try {
+      await repo.merge({ id: "quota-1", slug: "survives", trait: {} }) // merge → store(): must not throw
+    } finally {
+      console.warn = originalWarn
+    }
+
+    specimen.expect(repo.$entities.get().find((e) => e.id === "quota-1")).toBeDefined() // in-memory unaffected
+    specimen.expect(warnings.length).toBeGreaterThan(0)
   })
 })
 })

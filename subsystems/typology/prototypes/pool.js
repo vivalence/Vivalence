@@ -1,16 +1,41 @@
-import { Yield } from "./yield.js";
+// import { Yield } from "./yield.js";
+
+// @beef maybe inline into pool?
+export const Condition = Object.freeze({
+  NOMINAL: "NOMINAL",
+  EXHAUSTED: "EXHAUSTED",
+  ERROR: "ERROR",
+});
+
+export const Yield = Object.freeze({
+  NOMINAL: (buffers, meta) => ({ condition: Condition.NOMINAL, buffers, ...meta }),
+  EXHAUSTED: (meta) => ({ condition: Condition.EXHAUSTED, buffers: [], ...meta }),
+  ERROR: (error, meta) => ({ condition: Condition.ERROR, buffers: [], error, ...meta }),
+});
+
+// single source of truth for a value's pool-shape (patternmap form, like pattern.js's
+// probe). resolve (eager → buffers) and add (lazy → items) both dispatch on this, so
+// the shape truth-table can't drift between them.
+const SHAPES = [
+  [(item) => !item, "empty"],
+  [(item) => item instanceof Promise, "promise"],
+  [(item) => item instanceof Pool, "pool"],
+  [(item) => item?.condition === Condition.NOMINAL, "nominal"],
+  [(item) => item?.condition, "spent"], // EXHAUSTED / ERROR
+  [(item) => Array.isArray(item), "array"],
+  [() => true, "buffer"],
+];
+const classify = (item) => SHAPES.find(([test]) => test(item))[1];
 
 async function resolve(item) {
-  if (item instanceof Pool) {
-    const r = await item.drain();
-    return r.buffers ?? [];
+  switch (classify(item)) {
+    case "promise": return resolve(await item);
+    case "pool": return (await item.drain()).buffers ?? [];
+    case "nominal": return item.buffers;
+    case "array": return (await Promise.all(item.map(resolve))).flat();
+    case "buffer": return [item];
+    default: return []; // empty | spent
   }
-  if (item instanceof Promise) return resolve(await item);
-  if (!item) return [];
-  if (item?.condition === "NOMINAL") return item.buffers;
-  if (item?.condition) return [];
-  if (Array.isArray(item)) return (await Promise.all(item.map(resolve))).flat();
-  return [item];
 }
 
 export class Pool {
@@ -22,25 +47,20 @@ export class Pool {
 
   add(...args) {
     for (const arg of args) {
-      if (!arg) continue;
-      if (arg instanceof Promise) {
-        this.items.push(arg);
-        continue;
+      switch (classify(arg)) {
+        case "promise":
+        case "pool":
+        case "buffer":
+          this.items.push(arg);
+          break;
+        case "nominal":
+          this.add(...arg.buffers);
+          break;
+        case "array":
+          this.add(...arg);
+          break;
+        // empty | spent → skip
       }
-      if (arg instanceof Pool) {
-        this.items.push(arg);
-        continue;
-      }
-      if (arg?.condition === "NOMINAL") {
-        this.add(...arg.buffers);
-        continue;
-      }
-      if (arg?.condition) continue;
-      if (Array.isArray(arg)) {
-        this.add(...arg);
-        continue;
-      }
-      this.items.push(arg);
     }
     return this;
   }

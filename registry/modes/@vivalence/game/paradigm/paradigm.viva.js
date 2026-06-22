@@ -1,4 +1,4 @@
-import { View, Vector, v } from "@vivalence/typology";
+import { App, Vector, v } from "@vivalence/typology";
 
 const manifest = {
   type: "game",
@@ -6,10 +6,10 @@ const manifest = {
   name: "Paradigm",
   description: "Fill a conjugation table cell by cell. Type each form.",
   version: "0.2.0",
-  traits: ["VIEWABLE", "EMITTER"],
+  traits: ["APPLICATION", "EMITTER"],
 };
 
-const view = new View(
+const app = new App(
   "Paradigm.svelte",
   v.buffer({
     data: {
@@ -124,4 +124,4 @@ const dataset = {
   ],
 };
 
-export { manifest, view, emitter, dataset };
+export { manifest, app, emitter, dataset };

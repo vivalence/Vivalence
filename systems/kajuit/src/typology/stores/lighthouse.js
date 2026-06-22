@@ -2,7 +2,6 @@ import { map, atom, computed, effect } from "nanostores";
 import { shard } from "@vivalence/typology";
 import { Dataspace } from "../prototypes/dataspace.js";
 import { DaemonDossier } from "../entities/daemon/index.js";
-import { telemetry } from "$telemetry";
 
 const STORAGE_KEY = (url) => `lighthouse:${url}`;
 
@@ -37,7 +36,6 @@ export class Lighthouse {
 
   constructor(connection) {
     this.connection = connection
-      .use(shard.track.span("lighthouse", telemetry))
       .use(shard.track.request())
       .use(shard.track.fault())
       .use(shard.connection.authorize(this.$authority))

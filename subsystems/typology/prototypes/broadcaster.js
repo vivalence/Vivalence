@@ -1,11 +1,11 @@
-import { object } from "@vivalence/typology"
+import { object, promise, sleep } from "@vivalence/typology"
 
 export class Broadcaster {
   _subscribers = new Set()
 
   subscribe(filter = {}, options = {}) {
     const queue = []
-    let waiting = null
+    const gate = promise.waiter()
     let closed = false
     const timeout = options.timeout ?? 0
 
@@ -13,44 +13,32 @@ export class Broadcaster {
       filter,
       push(event) {
         if (closed) return
-        if (waiting) {
-          const resolve = waiting
-          waiting = null
-          resolve({ value: event, done: false })
-        } else {
-          queue.push(event)
-        }
+        queue.push(event)
+        gate.wake()
       },
       close() {
         closed = true
-        if (waiting) {
-          waiting({ value: undefined, done: true })
-          waiting = null
-        }
+        gate.wake()
       },
       [Symbol.asyncIterator]() {
         return {
-          next() {
-            if (queue.length > 0) {
-              return Promise.resolve({ value: queue.shift(), done: false })
-            }
-            if (closed) {
-              return Promise.resolve({ value: undefined, done: true })
-            }
-            return new Promise((resolve) => {
-              waiting = resolve
-              if (timeout > 0) {
-                setTimeout(() => {
-                  if (waiting === resolve) {
-                    waiting = null
-                    resolve({ value: undefined, done: true })
-                  }
-                }, timeout)
+          async next() {
+            while (true) {
+              if (queue.length > 0) return { value: queue.shift(), done: false }
+              if (closed) return { value: undefined, done: true }
+              const cutoff = timeout > 0 ? sleep.signal(timeout) : undefined
+              await gate.wait(cutoff)
+              if (cutoff?.aborted) {
+                closed = true
+                return { value: undefined, done: true }
               }
-            })
+              // woken by push (queue now has it) or close (loop re-checks); a spurious
+              // wake just re-suspends — never a premature done.
+            }
           },
           return() {
             closed = true
+            gate.wake() // unblock a suspended next() (fixes the prior hang)
             return Promise.resolve({ value: undefined, done: true })
           },
         }

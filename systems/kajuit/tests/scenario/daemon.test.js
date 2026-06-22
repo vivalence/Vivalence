@@ -26,7 +26,7 @@ specimen.describe("daemon entities", () => {
     const modes = await modeRepo.find()
     specimen.expect(modes.length).toBeGreaterThan(0)
     specimen.expect(modes[0]).toBeInstanceOf(Mode)
-    specimen.expect(modes[0].traits).toContain("VIEWABLE")
+    specimen.expect(modes[0].traits).toContain("APPLICATION")
   })
 
   specimen.it("schema strip and wire", async () => {

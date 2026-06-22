@@ -35,14 +35,14 @@ import * as lifecycleResolution from "../../daemon/lifecycle/resolution.js";
 import * as lifecyclePopulation from "../../daemon/lifecycle/population.js";
 import * as apertureSetup from "../../daemon/aperture/index.js";
 
-// ── test VIEWABLE ──────────────────────────────────────────────────
-// Same as real VIEWABLE but skips the svelte bundler (no esbuild).
-const BENCH_VIEWABLE = async (mode, daemon) => {
+// ── test APPLICATION ──────────────────────────────────────────────────
+// Same as real APPLICATION but skips the svelte bundler (no esbuild).
+const BENCH_APPLICATION = async (mode, daemon) => {
   // noop bundler — bench doesn't serve compiled svelte components
-  mode.cake.view.withBundler(() => ({ code: "", url: "" }));
+  mode.cake.app.withBundler(() => ({ code: "", url: "" }));
   mode.aperture.open("/buffered", () => ({
-    url: mode.cake.view.url.absolute,
-    schema: mode.cake.view.mask,
+    url: mode.cake.app.url.absolute,
+    schema: mode.cake.app.mask,
   }));
 
   const ensure = (repo, ref) => helper(ref) ? ref : repo.findOne(ref?.id ?? ref);
@@ -50,7 +50,7 @@ const BENCH_VIEWABLE = async (mode, daemon) => {
   mode.buffer = async (desc = {}) => {
     const buffer = daemon.entities.em.create(BufferEntity, {
       mode: mode.entity.id,
-      data: mode.cake.view.cast(desc),
+      data: mode.cake.app.cast(desc),
       index: desc.index ?? 0,
     });
     if (desc.literals) buffer.literals.add(await Promise.all(desc.literals.map((literal) => ensure(daemon.entities.literal, literal))));
@@ -108,7 +108,7 @@ export async function bench(spec = {}) {
     ...kernel.traits,
     ...traits,
     ...(domain?.traits || {}),
-    VIEWABLE: BENCH_VIEWABLE,
+    APPLICATION: BENCH_APPLICATION,
   };
 
   const variantModes = { ...kernel.modes, ...(domain?.modes || {}) };

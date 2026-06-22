@@ -1,8 +1,9 @@
 <script>
   import { getContext, tick } from "svelte";
-  // import { traits } from "@vivalence/kajuit";
+  import { ThreadTraits } from "@vivalence/kajuit";
   import { TERMINALS, BRIDGE /*, BOX */ } from "$client";
   import Markdown from "./Markdown.svelte";
+  import { turnText, turnTools, turnArtifacts } from "./turns.js";
 
   let { thread } = $props();
 
@@ -37,6 +38,11 @@
   let logEl = $state(null);
   let pinned = $state(true);
   let unread = $state(0);
+
+  let audioOn = $state(false);
+  let videoOn = $state(false);
+  const toggleAudio = () => (audioOn = !audioOn);
+  const toggleVideo = () => (videoOn = !videoOn);
 
   $effect(() => {
     if (!terminals?.$active) return;
@@ -126,26 +132,6 @@
   const isStreaming = $derived(!!streaming);
   const isThinking = $derived(pending && !streaming);
 
-  function turnText(turn) {
-    const parts = turn?.parts ?? [];
-    return parts
-      .filter((p) => p?.type === "text")
-      .map((p) => p.text)
-      .join("");
-  }
-
-  function turnTools(turn) {
-    const parts = turn?.parts ?? [];
-    return parts.filter((p) => p?.type === "tool_use" || p?.type === "tool_result");
-  }
-
-  function turnArtifacts(turn) {
-    const parts = turn?.parts ?? [];
-    return parts.filter((p) =>
-      p?.type === "image" || p?.type === "audio" || p?.type === "file" || p?.type === "artifact",
-    );
-  }
-
   function isAtBottom(el) {
     if (!el) return true;
     const slack = 24;
@@ -214,13 +200,13 @@
         createdAt: new Date().toISOString(),
       });
     }
-    // traits.thread.conversational.send(thread, parts);
+    ThreadTraits.conversational.send(thread, parts);
     pinned = true;
     scrollToBottom(true);
   }
 
   function stop() {
-    // traits.thread.conversational.abort(thread);
+    ThreadTraits.conversational.abort(thread);
   }
 
   function lastUserText() {
@@ -268,13 +254,13 @@
   function retryUser(turn) {
     const text = turnText(turn);
     if (!text) return;
-    // traits.thread.conversational.send(thread, [{ type: "text", text }]);
+    ThreadTraits.conversational.send(thread, [{ type: "text", text }]);
   }
 
   function regenerate() {
     const text = lastUserText();
     if (!text) return;
-    // traits.thread.conversational.send(thread, [{ type: "text", text }]);
+    ThreadTraits.conversational.send(thread, [{ type: "text", text }]);
   }
 
   function turnDate(turn) {
@@ -312,6 +298,11 @@
     return date.toLocaleDateString(undefined, { month: "short", day: "numeric" });
   }
 
+  function clockTime(date) {
+    if (!date) return "";
+    return `${String(date.getHours()).padStart(2, "0")}:${String(date.getMinutes()).padStart(2, "0")}`;
+  }
+
   let timeTick = $state(0);
   $effect(() => {
     const interval = setInterval(() => (timeTick += 1), 30000);
@@ -342,13 +333,26 @@
 <div class="dock">
   <header>
     <span class="pip" class:live></span>
+    <button class="collapse" onclick={() => bridge.setDockCollapsed()} title="collapse" aria-label="collapse dock">×</button>
     <span class="title">{thread?.label?.name ?? "session"}</span>
+    <span class="dock-spacer"></span>
+    <button class="call" class:on={audioOn} onclick={toggleAudio} title="audio call" aria-label="audio call">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round">
+        <path d="M16.5 21A4.5 4.5 0 0 0 21 16.5v-1.6l-4-1.4-1.6 2a11 11 0 0 1-5.9-5.9l2-1.6L10 3.5H4.5A1.5 1.5 0 0 0 3 5 16 16 0 0 0 16.5 21Z" />
+      </svg>
+    </button>
+    <button class="call" class:on={videoOn} onclick={toggleVideo} title="video call" aria-label="video call">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round">
+        <rect x="3" y="6" width="13" height="12" rx="2" />
+        <path d="M16 10.5 21 7.5v9L16 13.5Z" />
+      </svg>
+    </button>
     {#if isStreaming}
       <span class="state streaming">streaming</span>
     {:else if isThinking}
       <span class="state thinking">thinking…</span>
     {:else}
-      <span class="state">{conversationState.toLowerCase()}</span>
+      <span class="state" class:live>{live ? "live" : conversationState.toLowerCase()}</span>
     {/if}
   </header>
 
@@ -360,9 +364,14 @@
         {@const turn = item.turn}
         <div class="entry" class:user={turn.role === "user"} class:agent={turn.role === "assistant"}>
           <div class="entry-meta">
-            <span class="who">{turn.role === "user" ? "you" : (thread?.label?.name ?? "agent")}</span>
-            {#if item.date}
-              <span class="time" title={item.date.toLocaleString()}>{relativeTime(item.date)}</span>
+            {#if turn.role === "assistant"}
+              <span class="diamond">◆</span>
+              <span class="who">{thread?.label?.name ?? "agent"}</span>
+              {#if item.date}<span class="sep">·</span><span class="time" title={item.date.toLocaleString()}>{clockTime(item.date)}</span>{/if}
+              {#if item.tools.length}<span class="tool-count">· {item.tools.length} {item.tools.length === 1 ? "tool" : "tools"}</span>{/if}
+            {:else}
+              {#if item.date}<span class="time" title={item.date.toLocaleString()}>{clockTime(item.date)}</span><span class="sep">·</span>{/if}
+              <span class="who">you</span>
             {/if}
             <span class="actions">
               <button type="button" class="action" title="copy" onclick={() => copyTurn(turn)}>copy</button>
@@ -379,10 +388,11 @@
               {#each item.tools as tool, ti (ti)}
                 <details class="tool">
                   <summary>
-                    {#if tool.type === "tool_use"}<span class="tool-kind">→</span>{:else}<span class="tool-kind">←</span>{/if}
-                    <span class="tool-name">{tool.name ?? tool.id ?? "tool"}</span>
+                    <span class="tool-tri">▸</span>
+                    <span class="tool-name">{tool.name}</span>
+                    <span class="tool-status {tool.status}">{tool.status}</span>
                   </summary>
-                  <pre>{JSON.stringify(tool.input ?? tool.output ?? tool, null, 2)}</pre>
+                  <pre>{JSON.stringify(tool.body ?? {}, null, 2)}</pre>
                 </details>
               {/each}
             </div>
@@ -395,7 +405,10 @@
                 {:else if art.type === "audio" && art.url}
                   <audio class="artifact-audio" controls src={art.url}></audio>
                 {:else}
-                  <a class="artifact-link" href={art.url ?? "#"} target="_blank" rel="noreferrer noopener">{art.name ?? art.url ?? art.type}</a>
+                  <a class="artifact-card" href={art.url ?? "#"} target="_blank" rel="noreferrer noopener">
+                    <span class="artifact-glyph">◈</span>
+                    <span class="artifact-name">{art.name ?? art.url ?? art.type}</span>
+                  </a>
                 {/if}
               {/each}
             </div>
@@ -407,6 +420,7 @@
     {#if streaming}
       <div class="entry agent streaming-entry">
         <div class="entry-meta">
+          <span class="diamond">◆</span>
           <span class="who">{thread?.label?.name ?? "agent"}</span>
           <span class="time"><span class="dot"></span><span class="dot"></span><span class="dot"></span></span>
         </div>
@@ -417,6 +431,7 @@
     {:else if isThinking}
       <div class="entry agent thinking-entry">
         <div class="entry-meta">
+          <span class="diamond">◆</span>
           <span class="who">{thread?.label?.name ?? "agent"}</span>
         </div>
         <div class="text thinking-text"><span class="dot"></span><span class="dot"></span><span class="dot"></span></div>
@@ -490,13 +505,33 @@
   header {
     display: flex;
     align-items: center;
-    gap: 6px;
-    padding: 6px 9px;
+    gap: 8px;
+    padding: 8px 12px;
     border-bottom: 1px solid var(--colors-skeleton-2-boundary);
     flex-shrink: 0;
-    font-size: var(--font-size-2xs);
+    font-size: var(--font-size-xs);
     letter-spacing: 0.06em;
+  }
+  .title {
     text-transform: lowercase;
+  }
+  .collapse {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 16px;
+    height: 16px;
+    padding: 0;
+    background: transparent;
+    border: none;
+    cursor: pointer;
+    color: color-mix(in srgb, var(--colors-skeleton-2-contrast) 55%, transparent);
+    font-size: var(--font-size-sm);
+    line-height: 1;
+    transition: color 0.16s;
+  }
+  .collapse:hover {
+    color: var(--colors-skeleton-0-primary-base);
   }
   .pip {
     width: 6px;
@@ -514,10 +549,40 @@
     color: var(--colors-skeleton-2-contrast);
     opacity: 0.85;
   }
+  .dock-spacer {
+    flex: 1;
+  }
+  .call {
+    display: inline-flex;
+    align-items: center;
+    background: transparent;
+    border: none;
+    cursor: pointer;
+    padding: 3px;
+    color: color-mix(in srgb, var(--colors-skeleton-2-contrast) 55%, transparent);
+    transition: color 0.16s;
+  }
+  .call svg {
+    width: 16px;
+    height: 16px;
+    display: block;
+  }
+  .call:hover {
+    color: var(--colors-skeleton-2-contrast);
+  }
+  .call.on {
+    color: var(--colors-skeleton-0-primary-base);
+  }
   .state {
-    margin-left: auto;
     opacity: 0.4;
-    font-size: var(--font-size-2xs);
+    font-size: var(--font-size-xs);
+    text-transform: uppercase;
+    letter-spacing: 0.14em;
+    padding-left: 6px;
+  }
+  .state.live {
+    opacity: 1;
+    color: var(--colors-skeleton-0-primary-base);
   }
   .state.streaming, .state.thinking {
     opacity: 1;
@@ -532,7 +597,7 @@
     flex-direction: column;
     gap: 12px;
     min-height: 0;
-    font-size: var(--font-size-xs);
+    font-size: var(--font-size-sm);
     line-height: 1.55;
     letter-spacing: 0.01em;
   }
@@ -559,16 +624,22 @@
   .entry {
     display: flex;
     flex-direction: column;
-    gap: 3px;
+    gap: 4px;
     align-items: stretch;
     max-width: 100%;
     position: relative;
+  }
+  .entry.user {
+    align-items: flex-end;
+  }
+  .entry.agent {
+    align-items: flex-start;
   }
   .entry-meta {
     display: flex;
     align-items: baseline;
     gap: 6px;
-    font-size: var(--font-size-2xs);
+    font-size: var(--font-size-xs);
     text-transform: lowercase;
     letter-spacing: 0.12em;
   }
@@ -581,6 +652,18 @@
   }
   .time {
     opacity: 0.3;
+    font-size: var(--font-size-2xs);
+  }
+  .sep {
+    opacity: 0.25;
+  }
+  .diamond {
+    color: var(--colors-skeleton-0-primary-base);
+    font-size: var(--font-size-2xs);
+    opacity: 0.7;
+  }
+  .tool-count {
+    opacity: 0.35;
     font-size: var(--font-size-2xs);
   }
   .actions {
@@ -613,14 +696,20 @@
   .text {
     word-break: break-word;
     color: var(--colors-skeleton-2-contrast);
+    font-family: var(--font-family-sans-text);
+    line-height: 1.5;
   }
   .entry.user .text {
     color: var(--colors-skeleton-0-contrast);
-    padding-left: 8px;
-    border-left: 1px solid color-mix(in srgb, var(--colors-skeleton-0-primary-base) 35%, transparent);
+    max-width: 85%;
+    padding: 8px 12px;
+    border: 1px solid color-mix(in srgb, var(--colors-skeleton-3-boundary) 45%, transparent);
+    border-radius: 8px;
+    background: color-mix(in srgb, var(--colors-skeleton-0-contrast) 4%, transparent);
   }
   .entry.agent .text {
-    color: var(--colors-skeleton-0-primary-base);
+    color: var(--colors-skeleton-2-contrast);
+    max-width: 92%;
   }
 
   .tools {
@@ -642,19 +731,38 @@
     display: flex;
     align-items: center;
     gap: 6px;
-    font-size: var(--font-size-2xs);
+    font-size: var(--font-size-sm);
     text-transform: lowercase;
     letter-spacing: 0.08em;
   }
   .tool summary::-webkit-details-marker { display: none; }
-  .tool-kind {
-    color: var(--colors-skeleton-0-primary-base);
+  .tool-tri {
     width: 10px;
     text-align: center;
+    opacity: 0.5;
+    transition: transform 0.12s;
+  }
+  .tool[open] .tool-tri {
+    transform: rotate(90deg);
   }
   .tool-name {
     flex: 1;
-    opacity: 0.8;
+    color: var(--colors-skeleton-0-primary-base);
+    opacity: 0.9;
+  }
+  .tool-status {
+    font-size: var(--font-size-2xs);
+    letter-spacing: 0.08em;
+    opacity: 0.7;
+  }
+  .tool-status.ok {
+    color: var(--colors-skeleton-0-primary-base);
+  }
+  .tool-status.error {
+    color: var(--colors-skeleton-0-danger-base);
+  }
+  .tool-status.running {
+    color: var(--colors-skeleton-0-warning-base);
   }
   .tool pre {
     margin: 0;
@@ -683,17 +791,23 @@
     max-width: 100%;
     height: 28px;
   }
-  .artifact-link {
+  .artifact-card {
     display: inline-flex;
-    padding: 3px 7px;
-    border: 1px solid color-mix(in srgb, var(--colors-skeleton-0-boundary) 35%, transparent);
-    border-radius: 3px;
-    color: var(--colors-skeleton-0-primary-base);
+    align-items: center;
+    gap: 8px;
+    padding: 9px 11px;
+    border: 1px solid color-mix(in srgb, var(--colors-skeleton-0-primary-base) 30%, transparent);
+    border-radius: 6px;
+    background: color-mix(in srgb, var(--colors-skeleton-0-primary-base) 5%, transparent);
+    color: var(--colors-skeleton-0-contrast);
     text-decoration: none;
-    font-size: var(--font-size-2xs);
+    font-size: var(--font-size-xs);
   }
-  .artifact-link:hover {
-    border-color: var(--colors-skeleton-0-primary-base);
+  .artifact-card:hover {
+    border-color: color-mix(in srgb, var(--colors-skeleton-0-primary-base) 55%, transparent);
+  }
+  .artifact-glyph {
+    color: var(--colors-skeleton-0-primary-base);
   }
 
   .streaming-entry .time .dot,
@@ -774,7 +888,7 @@
     background: transparent;
     color: var(--colors-skeleton-0-contrast);
     font-family: var(--font-family-code);
-    font-size: var(--font-size-xs);
+    font-size: var(--font-size-sm);
     letter-spacing: 0.02em;
     transition: border-color 0.16s;
     resize: none;
@@ -798,7 +912,7 @@
     border-radius: 2px;
     color: var(--colors-skeleton-2-contrast);
     font-family: var(--font-family-code);
-    font-size: var(--font-size-xs);
+    font-size: var(--font-size-sm);
     cursor: pointer;
     opacity: 0.7;
     transition: opacity 0.16s, color 0.16s, border-color 0.16s;

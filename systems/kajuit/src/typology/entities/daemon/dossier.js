@@ -1,4 +1,4 @@
-import { Connection, Url, Path, RemoteRepository, shard } from "@vivalence/typology";
+import { object, Connection, Url, Path, RemoteRepository, shard } from "@vivalence/typology";
 import { Daemon } from "./daemon.js";
 import { Dataspace } from "../../prototypes/dataspace.js";
 import { ModeDossier } from "../mode/index.js";
@@ -68,10 +68,26 @@ export const DaemonDossier = {
           seed: seedDaemon(daemon),
         });
         await daemon.entities.init();
-        await daemon.entities.populate(["mode", "intent", "thread"]);
+        // await daemon.entities.populate(["mode", "intent", "thread"]);
 
-        await daemon.entities.buffer.find({}, { populate: ["literals", "symbols"] });
+        // await daemon.entities.thread.find({}, { populate: ["mode","buffers"] });
+        // daemon.entities.buffer.find({}, { populate: ["literals", "symbols"] });
+
+        const [modes, threads, buffers, intents] = await Promise.all([
+          daemon.entities.mode.find({}, { populate: [] }),
+          daemon.entities.thread.find({}, { populate: [] }),
+          daemon.entities.buffer.find({}, { populate: ["literals", "symbols"] }),
+          daemon.entities.intent.find({}, { populate: [] }),
+          //
+        ]);
+
+        daemon.entities.thread.subscribe();
         daemon.entities.buffer.subscribe();
+        // daemon.entities.buffer.subscribe({}, (merged, event) => console.log("[buffer SSE]", event.op, merged?.id, JSON.stringify({ merged, event }, null, 2),),);
+
+        for (const mode of modes) {
+          object.place(daemon.modes, `${mode.type}.${mode.slug}`, mode);
+        }
 
         daemon.status.set("healthy");
       } catch (error) {

@@ -87,6 +87,21 @@ export function strip(obj) {
 
 export const stripNulls = strip;
 
+// descend through an object's keys into a fresh POJO, entering object-valued keys
+// until none remain. scalars are leaves; an object already on the descent path is a
+// leaf (cycle guard) — so a circular spine (entity → em → daemon → …) terminates
+// instead of looping forever. dumb on purpose: no Date/Collection handling, and a
+// getter that throws will throw. for curated, JSON-safe captures use specimen.snapshot.
+export const descend = (value, seen = new WeakSet()) => {
+  if (value === null || typeof value !== "object") return value;
+  if (seen.has(value)) return undefined; // cycle leaf
+  seen.add(value);
+  if (is.array(value)) return value.map((item) => descend(item, seen));
+  const out = {};
+  for (const key of Object.keys(value)) out[key] = descend(value[key], seen);
+  return out;
+};
+
 export function clone(value) {
   if (value === null || value === undefined) {
     return value;

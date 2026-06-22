@@ -113,6 +113,7 @@ export class Bridge {
   };
   setDockSide = (side) => this.setDock({ side: normalizeSide(side) });
   setDockShare = (share) => this.setDock({ share: clampShare(share) });
+  setDockCollapsed = (collapsed) => this.setDock({ collapsed: collapsed ?? !this.$dock.get().collapsed });
   dragDock = (rect, deltaPx) => {
     const { side, share } = this.$dock.get();
     this.setDockShare(shareAfterDrag({ side, share, rect, deltaPx }));

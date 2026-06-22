@@ -1,0 +1,157 @@
+#+TITLE: Stall/Pool connoisseur read · 47 doc · buffer auto-focus on render
+#+AUTHOR: ikiro
+
+* arc
+Two strands, kajuit-side:
+1. Connoisseur deep read + assessment of the Pool → wire → Stall path (requested twice,
+   bookending the session). Verdict delivered in-chat; the =47.01= doc got its wire section
+   enriched (the assessment section itself was NOT folded in — only the wire bullet).
+2. The buffer-not-loading-after-reload bug → "auto-load a buffer if we render the terminal and
+   don't have one yet". One reverted attempt (wrong layer), a deep typology+panels read, 3
+   proposed approaches, then shipped Approach A in the A panel.
+
+* the connoisseur read (Pool ↔ Stall, kajuit)
+Primaries read end-to-end: =prototypes/pool.js=, =prototypes/stall.js=, kajuit
+=entities/buffer.js= / =terminal.js=, =daemon/traits/emitter.js=, =prototypes/remote-repository.js=,
+=prototypes/entity-manager.js=, =prototypes/connection.js=, =entities/thread/{thread,dossier}.js=
++ traits, =entities/mode/{mode.js, traits/application.js}=, panels =a/c/d/e/f=, =drapes/Frame.svelte=,
+=typology/logger.js=, =stores/terminals.js=, the doctrine (=.ikiro/claude.md= "the lisp
+connoisseur-ejaculator").
+
+** headline
+Ends convulse, middle is the debt sink. =Pool= and =Stall= are doctrine-grade; the
+entity-manager / repository / persistence layer BETWEEN them carries the debt (oldest layer:
+identity-map + UoW + SWR + persistence in one prototype).
+
+** what convulses
+- =Stall= (=stall.js=): five phase verbs on one =engage(phase, react)=; =release= dispatches on
+  the live =$phase= atom (multimethod-on-dynamic-var); =observe= primes itself (fire-on-subscribe);
+  =settle= advances on source-DEPARTURE not filter-exit (=:76=) — cursor never seizes off a viewed
+  buffer. The doctrine's own worked example.
+- =Pool= (=pool.js=): one =SHAPES= truth-table, =add= (lazy→items) and =drain=/=resolve=
+  (eager→buffers) dispatch the SAME =classify=; =resolve= is a catamorphism (heterogeneous tree
+  → flat buffer list).
+- =Connection.stream= (=connection.js:102=): SSE as async-gen, partial-frame carry
+  (=buffer = frames.pop()=), =finally{ reader.cancel() }= leak guard; one primitive →
+  stream/subscribe/observe.
+
+** what is limp (extract later)
+- =EM.merge= field-loop (=entity-manager.js:67=): per-field relation upgrade; the empty-array
+  guard at =:87= is a band-aid. A per-kind reconciler (data, not branches) wants out.
+- =EM.cast= bimodality (=:138=): a field is a direct assignment OR a computed getter, chosen by
+  intake shape (=:192=, =hadExplicitArray=) — two truths for one field, a model leak.
+- =persist().encode= (=remote-repository.js:27=): a hand-rolled entity→wire-JSON catamorphism
+  that should reuse =strip=/=messenger=.
+- SWR asymmetry: =find= revalidates (=:65=), =findOne= does not (=:88=). One wrapper.
+- =Frame.svelte= (=:36=) hand-rolls =import → module.default → mount=; =Bundle.load/mount=
+  already exists to absorb it (App/Bundle split shipped prior session).
+
+** latent bugs (flagged, not fixed)
+1. Emptied 1:m dropped on re-merge (=entity-manager.js:87=): server =field: []= skipped when
+   client holds children → stale. =$buffers= dodges it (it's the computed, never a stored array;
+   buffer removal rides the buffer repo's own =drop= / delete-event). Bites any explicit-array
+   1:m that can legitimately empty.
+2. Two orderings of one collection: =Stall.advance= walks source order (=stall.js:69=);
+   =f.svelte= =ordered= sorts by =index= (=:85=). "first buffer" is ambiguous until they disagree.
+
+** combinators screaming for extraction
+- =evict(buffer)= = =drop + removeOne=, hand-rolled in 3 sites (=terminal.js:40=, =f.svelte:49=, =:55=).
+- SWR wrapper over find/findOne.
+- persist-encode → reuse =strip=.
+- Frame → =Bundle.mount=.
+
+** architecture verdict
+Pool and Stall NEVER reference each other. BufferEntity + the =entity-manager.js:179= computed
+(=thread.$buffers = computed(buffer.$entities, filter by thread)=) are their ONLY contact. That
+decoupling IS the integration: write-monad and read-machine share a contract, nothing else. The
+ends are doctrine-grade because they are small and closed; the middle is limp because it is the
+patched-over union of four concerns.
+
+* the 47 doc update
+=docs/40-49_repository/47_integration/47.01_buffer-flow.org=, =* wire= section enriched with the
+concrete client path: =RemoteRepository.subscribe (:143)= → =EM.integrate (:107)= → =EM.cast (:138)=
+→ =thread.$buffers= is the lazy =computed= at =entity-manager.js:179= (a DERIVATION, not a field).
+Finn, verbatim: *"update critical parts of 47. but keep the todo mark. this is supposed to be input
+for me later."* → kept the original =[TODO: cite the exact datamap subscription that feeds
+thread.$buffers]= line VERBATIM, annotated the still-open part (the SERVER-side publisher of the
+buffer SSE stream — the daemon =/subscribe= handler — remains untraced). The assessment section
+was NOT added to the doc (interrupted); it lives only in the in-session verdict above.
+
+* the buffer-not-loading bug
+Symptom (screenshot): A panel (stage) empty, big "A", while F panel BUFFERS shows =1 · aprende=.
+After F5 the buffer exists in =thread.$buffers= but =terminal.$buffer= (active) is null → A renders
+=<Frame buffer=null>= → empty slot.
+
+Root cause found (restore clobber): on reload the =Terminal= ctor =Object.assign= sets
+=thread= / =buffer= to id-STRINGS; =terminals.rehydrate()= then does =terminal.thread = realThread=,
+and the thread setter compares =(this.$thread.get()?.id ?? null) !== (value?.id ?? null)= — current
+is the STRING (=.id= undefined → null), so the string→same-id-entity UPGRADE looks like a SWITCH →
+=$buffer.set(null)= → clobbers the persisted active buffer BEFORE =rehydrate:90= can restore it
+(=typeof terminal.buffer === "string"= now fails → restore skipped).
+
+First fix attempt (terminal.js): id-normalized setter comparison + reactive auto-focus in the ctor.
+Finn rejected the LAYER, verbatim: *"no. revert terminal. thats not where this goes. read the whole
+kajuit typology thread mode terminal buffer traits. and stall in depth. and read the app/ all c
+panels and a penal. there is a simple direct way. propose 3 approaches."* → fully reverted.
+
+* deep-read findings (kajuit structure)
+- =Thread= has NO active buffer (=thread.js:17,50= — =$buffer= commented out). Active lives ONLY on
+  =terminal.$buffer=. Thread carries =$buffers= (the EM computed) + =$mode/$traits/$trait/$label=.
+- A panel = THE stage (=a.svelte:61= =<Frame buffer={$terminal.$buffer}>=). Null → empty "A".
+- C panel = DEF row layout (=c.svelte=, holds D/E/F). F panel owns buffer verbs (=f.svelte=:
+  =createBuffer= does =terminal.buffer = buffers[0]=, =activateBuffer= toggles incl. deselect via
+  =terminal.buffer = null=).
+- THE CRUX (decides every approach): react to =$buffers= ONLY, never to =$buffer=. Anything that
+  re-focuses on active-going-null (plain =$effect= on both, or =Stall.static().settle=) FIGHTS
+  =f.svelte:45= manual deselect — re-grabs the buffer you just closed. Focus must fire on buffer-
+  ARRIVAL, not active-NULL.
+- Scope: focus EXISTING (Aprende is APPLICATION·STANDALONE, not AIMED — buffer already present).
+  Not pull/create.
+
+* the 3 approaches
+All share the same body (=if no active && buffers exist → set first=, reacting to =$buffers= only),
+differing by WHERE:
+- ① A panel — the render site. View sets =terminal.$buffer=; =$buffers=-only =$effect=. ~4 lines, no
+  typology touch, A renders it AND F highlights it (consistent). RECOMMENDED.
+- ② F panel — same body colocated with the buffer-manager (=f.svelte=). More cohesive, less literal.
+- ③ Stall pure-focus phase — new affordance in =stall.js= (focus-on-arrival, no evict, no re-grab),
+  engaged by A/F. Correct ownership but touches typology-holy Stall + needs a caller.
+Finn: *"lets start with a. good for now."*
+
+* shipped — Approach A (a.svelte)
+Added =const buffers = chain(terminals, "$active", "$thread", "$buffers")= (same path =f.svelte=
+already uses) + a =$effect=:
+#+BEGIN_SRC javascript
+$effect(() => {
+  const list = $buffers;                       // tracked → fires on buffer ARRIVAL only
+  const active = terminals.$active.get();       // .get() → untracked, no re-fire on deselect
+  if (active && !active.$buffer.get() && list?.length) active.$buffer.set(list[0]);
+});
+#+END_SRC
+Reload works: restored =$buffers= repopulates → effect fires → first focused. Browser-verify (F5)
+left to Finn. =list[0]= = source order (matches =Stall.advance=, avoids the index-order split debt).
+
+* open / follow-ups
+- The connoisseur assessment is NOT in =47.01= (only the wire bullet). Fold in later if wanted —
+  Finn explicitly wants 47 as "input for me later".
+- 2 latent bugs + 4 extractions above — unlogged elsewhere; this compact is their record.
+- Restore-clobber root cause (thread setter string→entity = false switch) is the PROPER fix for
+  reload, untaken (Finn chose view-layer auto-focus instead). If a user's active buffer was a
+  NON-first buffer, A's auto-focus picks the wrong one on reload — the setter fix would restore the
+  exact one. Parked.
+- Server-side buffer SSE publisher (daemon =/subscribe=) still untraced (the 47 =[TODO]=).
+
+* verbatim user messages (context preserved)
+- "on kajuit level, let teh conoisseur do a deep read and assessment of the stall, pool and all the
+  code in between. we added docs earlier. under 47. jdex docs/"
+- "found the 47?"
+- "ok. start with this: i want to automatically load a buffer if we render the terminal and dont
+  have one yet"
+- "propose"
+- [screenshot: empty A stage, F panel BUFFERS =1 · aprende=] "and fix the kajuit. i still dont get a
+  buffer after reload even tho there is one before reload. f5." / "1. fix."
+- "no. revert terminal. thats not where this goes. read the whole kajuit typology thread mode
+  terminal buffer traits. and stall in depth. and read the app/ all c panels and a penal. there is a
+  simple direct way. propose 3 approaches."
+- "lets start with a. good for now."
+- "update critical parts of 47. but keep the todo mark. this is supposed to be input for me later."

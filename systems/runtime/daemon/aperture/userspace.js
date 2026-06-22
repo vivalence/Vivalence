@@ -15,13 +15,21 @@ export async function userspace(daemonDie) {
     .branch("/entities/buffer")
     .use(shard.datamap.scope((ctx) => ({ thread: { user: ctx.user.id } })))
     .slurp(shard.datamap.repository(entities.buffer))
-    .slurp(shard.datamap.reactive(entities.buffer, daemonDie.good.twitch));
+    .slurp(
+      shard.datamap.reactive(entities.buffer, daemonDie.good.twitch, {
+        scope: (ctx) => ({ user: ctx.user.id }),
+      }),
+    );
 
   branch
     .branch("/entities/turn")
     .use(shard.datamap.scope((ctx) => ({ thread: { user: ctx.user.id } })))
     .slurp(shard.datamap.repository(entities.turn))
-    .slurp(shard.datamap.reactive(entities.turn, daemonDie.good.twitch));
+    .slurp(
+      shard.datamap.reactive(entities.turn, daemonDie.good.twitch, {
+        scope: (ctx) => ({ user: ctx.user.id }),
+      }),
+    );
 
   branch.open("/handshake", async (ctx) => ({ success: true, user: ctx.user }));
 }

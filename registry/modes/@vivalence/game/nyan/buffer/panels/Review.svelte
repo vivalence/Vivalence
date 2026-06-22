@@ -102,11 +102,6 @@
   const confidenceClass = (confidence) => (confidence >= 1 ? "g" : confidence >= 0.7 ? "y" : "r");
 </script>
 
-<h2 class="title">
-  typer · review
-  <span class="dim">{game.analysis.span.toFixed(1)}s · {game.analysis.attempts.length} words</span>
-</h2>
-
 <div class="glance">
   <div class="digit hero">
     <span class="value">{game.analysis.net.toFixed(1)}</span>

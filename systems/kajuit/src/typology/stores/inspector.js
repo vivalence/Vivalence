@@ -82,7 +82,7 @@ export function composeInspector(lighthouse, terminals, bridge) {
     if (thread.buffers?.length) {
       const buffersBranch = threadBranch.branch({ nature: "buffers", valence: { name: String(thread.buffers.length) } });
       for (const buffer of thread.buffers) {
-        buffersBranch.open({ nature: buffer.view ?? buffer.id, valence: { name: buffer.id } });
+        buffersBranch.open({ nature: buffer.app ?? buffer.id, valence: { name: buffer.id } });
       }
     }
   }
@@ -115,7 +115,7 @@ function composeDaemon(parent, daemon) {
         for (const entity of Array.isArray(entities) ? entities : [...(entities?.values?.() ?? [])]) {
           repoBranch.open({
             nature: entity.slug ?? entity.id,
-            valence: { name: entity.name ?? entity.type ?? entity.view ?? entity.id },
+            valence: { name: entity.name ?? entity.type ?? entity.app ?? entity.id },
           });
         }
       } else {

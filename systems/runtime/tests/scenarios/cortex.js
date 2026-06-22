@@ -1,16 +1,6 @@
-import {
-  Url,
-  Connection,
-  shard,
-  Mode,
-  Path,
-  shape,
-  Aperture,
-  Vector,
-  Cortex,
-} from "@vivalence/typology";
-import { ModeEntity, UserEntity, ThreadEntity, TurnEntity } from "@vivalence/typology/entities";
+import { shard, Mode, Path, shape, Aperture, Vector, Cortex } from "@vivalence/typology";
 import { seed } from "./entities.ts";
+import { tiers } from "./variant.js";
 
 import { HARNESSED } from "@vivalence/runtime/daemon/traits";
 
@@ -132,9 +122,9 @@ function makeFaculties() {
 // ─── Scenario ─────────────────────────────────────────────────────────
 
 export async function create() {
-  const { orm, em, fixtures } = await seed();
+  const { orm, em, datamap, entities, fixtures } = await seed();
 
-  const deweyEntity = em.create(ModeEntity, {
+  const deweyEntity = em.create(tiers.mode.entity, {
     slug: "dewey",
     type: "teacher",
     traits: ["EXPOSED", "HARNESSED"],
@@ -164,7 +154,7 @@ export async function create() {
     mount: new Path("/daemon/test-daemon"),
     aperture: new Aperture(),
     twitch: new Vector(),
-    entities: { em },
+    entities,
     modes: { teacher: { dewey } },
     cortex,
     cargo: { version: "0.0.1", test: true },
@@ -175,17 +165,7 @@ export async function create() {
   };
 
   daemon.aperture.use(shard.context.attach("daemon", daemon));
-
-  daemon.entities.mode = em.getRepository(ModeEntity);
-  daemon.entities.thread = em.getRepository(ThreadEntity);
-  daemon.entities.turn = em.getRepository(TurnEntity);
-  daemon.entities.user = em.getRepository(UserEntity);
-  daemon.entities.trace = null;
-
-  em.setFilterParams("user", { user: fixtures.user.id });
-
-  const subscriber = shape.subscriber(daemon.twitch);
-  em.getEventManager().registerSubscriber(subscriber);
+  datamap.subscribe(shape.subscriber(daemon.twitch));
 
   const finalizer = HARNESSED(dewey, daemon);
   if (typeof finalizer === "function") await finalizer();
@@ -193,7 +173,7 @@ export async function create() {
   daemon.aperture.branch(dewey.mount.absolute).slurp(dewey.aperture);
 
   const createThread = async () => {
-    const thread = em.create(ThreadEntity, {
+    const thread = em.create(tiers.thread.entity, {
       user: fixtures.user,
       mode: deweyEntity,
       trait: {},
@@ -210,6 +190,7 @@ export async function create() {
     cortex,
     orm,
     em,
+    datamap,
     fixtures: { ...fixtures, dewey: deweyEntity },
     createThread,
   };

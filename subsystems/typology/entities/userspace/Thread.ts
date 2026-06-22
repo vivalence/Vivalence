@@ -11,6 +11,11 @@ import { BufferEntity } from "../index.ts";
 import { TurnEntity } from "../index.ts";
 
 export enum ThreadPhaseEnum {
+  INERT = "inert", // app/target self-manages; deliberate-empty respected
+  MANUAL = "manual", // cursor discipline (auto-focus + advance-on-release); app drives pulls
+  CONTINUOUS = "continuous", // manual + pull to keep depth() buffers queued
+  ESCORT = "escort", // continuous that returns to the launch buffer when the queue drains
+  /** @deprecated legacy phase; retained only so pre-existing Thread rows pass the enum CHECK */
   STREAM = "stream",
 }
 
@@ -28,7 +33,7 @@ export class ThreadEntity extends DataEntity {
   user!: Rel<UserEntity>;
   mode!: Rel<ModeEntity>;
 
-  phase: ThreadPhaseEnum & Opt = ThreadPhaseEnum.STREAM;
+  phase: ThreadPhaseEnum & Opt = ThreadPhaseEnum.MANUAL;
   traits: ThreadTraitsEnum[] & Opt = [];
   trait: any & Opt = {};
 
@@ -97,7 +102,7 @@ export const ThreadSchema = new EntitySchema<ThreadEntity, DataEntity>({
 
     phase: {
       type: types.string,
-      defaultRaw: `'${ThreadPhaseEnum.STREAM}'`,
+      defaultRaw: `'${ThreadPhaseEnum.MANUAL}'`,
       enum: true,
       items: () => ThreadPhaseEnum,
     },

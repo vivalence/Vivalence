@@ -16,10 +16,10 @@ export async function modes(die) {
     const result = {
       manifest: mode.manifest,
     };
-    if (mode.implements("VIEWABLE")) {
+    if (mode.implements("APPLICATION")) {
       result.buffered = {
-        url: mode.cake.view.url.absolute,
-        schema: mode.cake.view.mask,
+        url: mode.cake.app.url.absolute,
+        schema: mode.cake.app.mask,
       };
     }
     return result;

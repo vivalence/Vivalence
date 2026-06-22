@@ -17,26 +17,26 @@ export async function attach(runtimeDie) {
   async function attachDaemons(runtimeDie) {
     for (const daemonDie of runtimeDie.good.daemons) {
       for (const mode of daemonDie.good.flatmodes()) {
-        if (!mode.implements("VIEWABLE")) continue;
+        if (!mode.implements("APPLICATION")) continue;
         runtimeDie.good.aperture //
           .branch("/attached/view")
           .branch(mode.mount.absolute)
           .use(shard.context.attach("mode", mode))
           .open("/status", () => ({ status: "success" }))
           .open("/(.*)", async (input, ctx) => {
-            if (paladin.is.dev) await ctx.mode.cake.view.bundle();
+            if (paladin.is.dev) await ctx.mode.cake.app.bundle.compile();
             ctx.response.type = "application/javascript";
-            return ctx.mode.cake.view.serve(fromm.params(ctx.params).path).text;
+            return ctx.mode.cake.app.bundle.serve(fromm.params(ctx.params).path).text;
           });
       }
       // for (const mode of daemonDie.good.flatmodes()) {
-      //   if (!mode.implements("VIEWABLE")) continue;
+      //   if (!mode.implements("APPLICATION")) continue;
       //   runtimeDie.good.aperture.branch("/attached/view").branch(mode.mount.absolute)
       //     .use(shard.context.attach("mode", mode))
       //     .open("/(.*)", async (input, ctx) => {
-      //       if (paladin.is.dev) await ctx.mode.view.bundle();
+      //       if (paladin.is.dev) await ctx.mode.app.bundle();
       //       ctx.response.type = "application/javascript";
-      //       return ctx.mode.view.serve(fromm.params(ctx.params).path).text;
+      //       return ctx.mode.app.serve(fromm.params(ctx.params).path).text;
       //     });
       // }
     }
@@ -163,10 +163,10 @@ export async function metadata(runtimeDie) {
 //         console.log({ ctx });
 //         //
 //         ctx.response.type = "application/javascript";
-//         if (paladin.is.dev) await ctx.mode.view.bundle();
+//         if (paladin.is.dev) await ctx.mode.app.bundle();
 //         const path = as.path.params(ctx.params);
 //         console.log("@daemon/resolve ATTACHED", { path, params: ctx.params });
-//         return ctx.mode.view.serve(path).text;
+//         return ctx.mode.app.serve(path).text;
 //       });
 //   }
 

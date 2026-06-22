@@ -1,0 +1,165 @@
+#+TITLE: Four runtime-interaction modes (scenario · aperture-test · run+log · kajuit+chrome) + the scenario datamap-provider collapse, aprende EXPOSED endpoints (statistics + symbol-intersection), test dedust, and the Gaia boot-inversion design
+#+TOPIC: systems/runtime (tests/scenarios, daemon/lifecycle, daemon/traits), registry/modes/@vivalence/homepage/aprende, subsystems/typology (entities, prototypes), subsystems/paladin (vip/pensieve), .ikiro/methods + .ikiro/orbs. Began by cataloguing the ways to drive the runtime, demoed each into ikiro, then loaded aprende into a scenario and grew its aperture — which forced a scenario-provisioning rewrite onto the real datamap contract, a cast/fill bug, a test dedust, and finally a connoisseur judgement of the whole boot pipeline ending in the Gaia inversion.
+
+* The four runtime-interaction modes (method: ikiro/runtime-probe)
+Finn: "there are a few ways available to you to interact with the runtime. via tests of a virtual dummy instance - scanrio. you can write tests against the runtime aperture. you can run the runtime and log code. you can run the kanuit and access chrome and console.log its output. test and confirm each approach." Then: "sttore them aka sort and demo them into ikiro. read first. youre working in parallel".
+
+All four confirmed live, sorted by isolation (cheap→heavy), each with a runnable demo + observed output. Spec written to =.ikiro/methods/runtime-probe.md=, registered in =.ikiro/claude.md ## methods= as =ikiro/runtime-probe=.
+
+** 1. scenario — in-memory dummy daemon (no server)
+=systems/runtime/tests/scenarios/daemon.js= =create()= builds a full dummy daemon: seeded entities, mounted aperture routes, inline =conn=/=authedConn= over =shard.transmitter.inline=. Deterministic, no socket. For repo / aperture-handler / entity-logic correctness.
+#+BEGIN_SRC sh
+# default test tasks carry --watch (won't exit). Run the FILE direct for one-shot:
+deno test -A --no-check systems/runtime/tests/daemon/symbols-query.test.js
+# → symbols: m:n slug query ... ok (8 steps)
+#+END_SRC
+
+** 2. aperture test — HTTP against the live runtime
+Real =Connection= over =shard.transmitter.fetcher= → live =:2501=. Logs in via lighthouse, calls =/daemon/<slug>/...= with real transport+auth. =tests/daemon/integration.test.js= runs login→pick→emit→review against the real =brazilian= daemon.
+#+BEGIN_SRC sh
+deno task runtime/run &        # boot :2501 first (mode 3)
+deno test -A --no-check --env-file=testament/.env systems/runtime/tests/daemon/integration.test.js
+# → login + pick reach the live daemon (21 steps pass)
+#+END_SRC
+
+** 3. run + log — boot the runtime, read stdout
+=deno task runtime/run= boots =:2501= (paladin.variant.mount → Die.populate → resolve/integrate/perpetuate). Any =console.log= in runtime/typology/registry lands on stdout.
+#+BEGIN_SRC sh
+deno task runtime/run
+curl -s -o /dev/null -w '%{http_code}\n' http://localhost:2501/   # 404 = ALIVE (no root route)
+# stdout: launching on http://localhost:2501/ · Status:ALIVE · $[runtime:test-runtime] Status:ALIVE
+#+END_SRC
+=/= returns 404 (no root route) — that IS alive, not down. Probe a real route for data.
+
+** 4. kajuit + chrome — full stack, browser console
+=deno task kajuit/watch= serves the SvelteKit client via vite (port from paladin client.statics.serve.port — observed =:1794=). Open in Chrome, read the console: vite HMR + nanostores logger + any app =console.log=.
+#+BEGIN_SRC sh
+deno task kajuit/watch &     # note the printed Local: URL
+# chrome tools → navigate http://127.0.0.1:<port>/ → read_console_messages
+# observed: [vite] connected · 𝖓 mount lighthouse · status store was mounted
+#+END_SRC
+Browser tooling: =mcp__claude-in-chrome__{tabs_context_mcp,navigate,read_console_messages,read_page}=. Navigate may need a second call to stick (first lands on chrome://newtab).
+
+** Gotchas (logged in the method)
+- =--watch= on test tasks never exits; invoke =deno test <file>= directly for one-shot.
+- boot order: mode 2 needs mode 3 up first.
+- =:2501 /= 404 ≠ down (no root route).
+
+* aprende into a scenario + growing its aperture
+Finn: "now. take the aprende mode, load it into a scenario, and lets start adding endpoints to its aperture. we start with loading some statistics. also scout the dashboard mode and the drapes library for uselful data visualization tools. those will be the consumers of our statistic aperture. our effect lives at /assistant/wakeup/statistics." And a standing guard: "notify me if you run into cases where you want to implement weird hacks."
+
+Riddler is the aperture template: =export const aperture = new Vector(); aperture.open({nature:"/assistant/...", input, output}, fn)=. The EXPOSED trait (=systems/runtime/daemon/traits/index.js=) builds =mode.call = shape.object(mode.aperture)=; =resolution.js:31-55= slurps =cake.aperture → mode.aperture= and branches it into the daemon at =/mode/<type>/<slug>=.
+
+Consumers scouted (the statistics aperture feeds them): =Aprende.svelte= currently fires FOUR =/userspace/entities/memory/count= calls (collapses to one endpoint); =dashboard/dataspace= (Dashboard.svelte) pulls raw memory/trace arrays and aggregates client-side. drapes viz: =stage/lib.js= = ECharts (bar/scatter/heatmap/graph), =Canvas.svelte=, =Section/Pip/Chip/Card/Desk=.
+
+Stat sources: =Memory.status= (UNTOUCHED→UNKNOWN→LEARNING→KNOWN→GRADUATED), =strength= (lazy formula), =nextAt= (due), =lastSignal=; =Trace.signal.enum= (SUCCESS/MISTAKE/MASTERY/…) + =createdAt= (streak). Both are DOMAIN-kernel entities, not in the base scenario seed.
+
+* Scenario provisioning — the collapse onto the real datamap contract
+Finn rejected one-off entities: "i prefer if you dont one off functions or entities we have already. re memory and trace. look through ways to imrpove scenario handling long term by extending its functionality in harmony with the conoisseurs judgement". He then chose (AskUserQuestion) "Extend mountMode generically" + later "Full collapse" + "Minimal" fixtures.
+
+Diagnosis: =scenarios/entities.ts seed()= hand-rolled a bespoke =schemas[]= + per-entity =em.getRepository= — a divergent reimplementation of =daemon/lifecycle/population.js:41,56=, which provisions data-driven:
+#+BEGIN_SRC javascript
+die.variant.entities = Object.values({ ...sets.daemon, ...sets.kernel, ...sets.userspace, ...defaults, ...domain.entities });
+daemon.entities = (await provider(mask, variant.entities)).entities;   // repos keyed by type
+#+END_SRC
+The type-keyed merge (domain wins) is =project_tiered_registries_slim_daemon= for entities — and it dissolves the "two Literals" worry: domain's =literal= overwrites the base key, so Memory.literal → domain Literal is self-consistent. Memory/Trace ride in via =domain.entities=; no scenario-local copies.
+
+The collapse (all landed, green):
+- =scenarios/variant.js= (NEW) — the tiered merge, mirrors population.core:41:
+#+BEGIN_SRC javascript
+import { sets } from "@vivalence/typology/entities";
+import { entities as defaults } from "../../daemon/entities.js";
+import { entities as domain } from "../../../../registry/kernels/@vivalence/domain/learning/entities/index.js";
+export const tiers = { ...sets.daemon, ...sets.kernel, ...sets.userspace, ...defaults, ...domain };
+export const variant = (extra = {}) => Object.values({ ...tiers, ...extra });
+#+END_SRC
+- =entities.ts seed()= → =provider(variant())= (typology/scenarios in-memory provider = the datamap contract: ={orm, entities, shard:{context,bind}, subscribe, introspect, disintegrate}=). Real Memory/Trace fixtures (minimal). Fixtures created via =tiers.<type>.entity= (the registered classes), not hardcoded typology classes.
+- =daemon.js= / =mode.js= / =cortex.js= → =daemon.entities = datamap.entities=; =die.datamap = datamap=; =datamap.subscribe(...)=. Deleted: =getRepository=×N, =trace=null=, hand-built RequestContext/subscribe/introspect.
+- The domain Literal repo brings the REAL =feed/novel/due/resolveSymbols= (strictly better than the old stub).
+
+** The cast→fill bug (connoisseur-grade; surfaced by the collapse, test-harness-scoped not prod)
+Full-collapse swapped the registered Literal to the real domain Literal; the =/feed= emit then threw on buffer flush: =ValidationError: Entity of type SymbolEntity expected for property LiteralEntity.symbols, Collection of type object given=. Root: the scenario stub built buffers with =mode.cake.app.cast(desc)=; the REAL APPLICATION trait uses =mode.cake.app.fill(data)=. Per =project_typology_v_api=: =cast= runs Convert, which MAULS MikroORM Collections → =Collection<SymbolEntity>= became ={}=. Prod uses =fill= and is correct; the stub diverged. Fixed both stubs =cast=→=fill= (alignment, not a hack — the guard Finn asked about).
+
+* aprende EXPOSED endpoints (registry/modes/@vivalence/homepage/aprende/aprende.viva.js)
+Added =EXPOSED= to traits; added =export const aperture=.
+
+** /assistant/wakeup/statistics — one learner snapshot (replaces Aprende's 4 calls)
+#+BEGIN_SRC javascript
+aperture.open(
+  { nature: "/assistant/wakeup/statistics", input: v.object({}), output: STATISTICS },
+  async (ctx) => {
+    const { memory, trace, literal } = ctx.daemon.entities;
+    const byKey = (repo, where) => async (keys) =>
+      Object.fromEntries(await Promise.all(keys.map(async (k) => [k, await repo.count(where(k))])));
+    const byStatus = await byKey(memory, (status) => ({ status }))(STATUS);
+    const bySignal = await byKey(trace, (e) => ({ signal: { enum: e } }))(SIGNAL);
+    const [literals, memories, traces, due] = await Promise.all([
+      literal.count({}), memory.count({}), trace.count({}), memory.count({ nextAt: { $lt: new Date() } }),
+    ]);
+    // streak: distinct trace-days, newest first, counted while contiguous
+    return { totals:{literals,memories,traces}, memory:{byStatus, seen: memories-(byStatus.UNTOUCHED??0), due}, activity:{bySignal, streak} };
+  },
+);
+#+END_SRC
+
+** /assistant/wakeup/literals — literals at the intersection of a symbol set
+Finn: "i want you to logg me the literals that are at the intersection of any set of symbols. this exists already. find it. write them to the aperture. run the test aperture via http connection to the scanrio aprende mode and log the virtual literals you got as response to me". The intersection already exists as =LiteralRepository.resolveSymbols= =$all= (AND across symbols):
+#+BEGIN_SRC javascript
+const { $all } = spec;
+if ($all?.length) where.$and = [...(where.$and||[]), ...$all.map((s) => ({ symbols: typeof s==="string"?{slug:s}:s }))];
+#+END_SRC
+Endpoint:
+#+BEGIN_SRC javascript
+aperture.open(
+  { nature: "/assistant/wakeup/literals", input: v.object({ symbols: v.array(v.string()).default([]) }), output: ... },
+  async (ctx) => {
+    const literals = await ctx.daemon.entities.literal.find({ symbols: { $all: ctx.input.symbols } }, { populate: ["symbols"] });
+    return { symbols: ctx.input.symbols, count: literals.length, literals: literals.map((l) => ({ slug:l.slug, known:..., learning:..., symbols:l.symbols.getItems().map(s=>s.slug) })) };
+  },
+);
+#+END_SRC
+Seed enriched with overlapping symbols (greeting/casual/polite) so intersection is non-trivial. Driven over the HTTP-shaped conn into the scenario aprende mode; logged response:
+#+BEGIN_SRC
+greeting          → olá(hello)[greeting,casual] · tchau(goodbye)[greeting,casual] · obrigado(thanks)[greeting,polite] · por favor(please)[greeting,polite]
+greeting ∩ casual → olá(hello) · tchau(goodbye)
+greeting ∩ polite → obrigado(thanks) · por favor(please)
+casual  ∩ polite  → ∅ (disjoint)
+#+END_SRC
+
+* Test dedust (Finn: "fix the tests. deep clean our scenario suite. dedust.")
+- =tooled.test= asserted the REMOVED design (TOOLED mounting =/dialogue= on =mode.cake.harness= + absorbing a bundle into =ctx.hallucination=). The real TOOLED now =daemon.cortex.tools.branch(slug).slurp(tools)= (cortex-object-faculty refactor). Rewrote to the real contract: tools register under =cortex.tools.<slug>=, execute receives bound =ctx.daemon=/=ctx.mode=.
+- =cortex.integration:181= — the harness now injects a =### Tools= system-turn before the personality; the test pinned =systemTurns[0]=. Made order-independent (Dewey present among system turns).
+- =cortex.js= collapsed onto =datamap.entities= + =tiers= creates (same dedust).
+- =SELFEVIDENT= drift: scenario fixtures listed a trait removed from =ModeTraitsEnum=; dropped it; updated the =datamap.test= assertion that pinned it.
+- Scenario suite: 20 files / 122 steps green.
+- LEFT (flagged, separate): =integration.test= live-:2501 emit routes 404 — game-mode emit not exposed on the live brazilian daemon (runtime variant/mask config drift, not scenario).
+
+* The whole-pipeline judgement → the Gaia inversion (DESIGN, orb opened, not yet implemented)
+Finn pushed past the scenario: "why arent we using runtime code to align scenario with daemon?" → "load the conoisseur." → "let him have another look" → "no. very ugly. tell the conoisseur to judge the whole pipeline. paladin and typology and runtime to daemons. change what must be changed for this to cause satisfying ejaculations upon conprehension" → "ghis is brilliant but massive. this is a profound and through rewrite. validate this!" → "call it not world but gaia." → "go on orb. work out the full diff and run applicative tests".
+
+Diagnosis (the disease): the daemon boot REACHES THROUGH the global =paladin= singleton instead of RECEIVING its sources. Exhaustive grep of =paladin= in =systems/runtime/daemon= (excl comments/bak/test) = EXACTLY two reach-ins:
+#+BEGIN_SRC
+population.js:22    paladin.vip.accioMap(mask)        // register resolved from the GLOBAL pensieve
+application.js:10  import paladin → scope.repo →      // the ONLY trait that fetches mid-boot
+                   bundle.svelte(...)
+#+END_SRC
+No input to substitute → every scenario hand-forges the OUTPUTS (=die.register=, the bundler) = =wireMode=/=buildDaemon=/=variant.js=. Band-aids on a missing parameter.
+
+The form (PRAISED, "brilliant"): a daemon is a pure fold over a =gaia=.
+#+BEGIN_SRC javascript
+gaia = { registry, bundler };           // registry: a Vip (resolver over a Pensieve) · bundler: svelte | identity
+const daemon = await boot(mask, good, gaia);
+// boot = accioMap(mask, gaia.registry) → derive → mount   — no globals
+#+END_SRC
+Every provider (datamap/lighthouse/hallucinator/service) ALREADY rides the registry as a cake (=register.datamap.provider=), so the registry is the universal source; the bundler is the one tool that isn't a cake. The in-memory datamap is NOT a special seam — it's a cake in the test pensieve: ={ manifest:{type:"datamap",slug:"inmemory"}, provider:(_,entities)=>scenariosProvider(entities) }=. The test registry is the REAL =Vip=+=Pensieve=+=accioMap= seeded in memory (=vip.pensieve.register(cake)= per viva). =variant.js= evaporates — =population.core='s pure =derive= produces =variant.entities= from the domain viva fed via the test mask; the FULL domain (aperture+modes+entities) runs.
+
+Validation (refutation attempts, all survived — quoted in =.ikiro/orbs/gaia.orb.org=): exactly two reach-ins; =accioMap= pure over (mask, pensieve) [accio→cast.lookup→pensieve.revelio, no IO/global]; typology paladin-free (only a comment in mask.js:1); daemon boot does not mutate paladin; providers ride the registry; in-memory datamap = a 1-line cake; runtime↔daemon boundary clean. Verdict: structurally sound, surgical (breadth across 3 subsystems, each edit small) — NOT a from-scratch rewrite.
+
+The worked diff (in the orb): typology Wafer gains =gaia=; runtime =gaia.js= produces ={registry:paladin.vip, bundler:svelteBundler(paladin)}= (the =svelte()= factory LIFTS out of the APPLICATION trait); =population.core= → =die.gaia.registry.accioMap= + sets =die.good.gaia=; =application.js= → =withBundler(daemon.gaia.bundler)= (delete inline svelte + paladin import); =lifecycle/populate.js= produces gaia once → =new DaemonDie({mask,good,gaia})=; scenarios collapse to =boot(mask, good, testGaia([viva]))= deleting wireMode/buildDaemon/variant.js.
+
+Status: orb =.ikiro/orbs/gaia.orb.org= written with validated design + full diff. Implementation STARTED then paused for this compact — NO prod edits landed (only the orb is on disk). Next: apply Phase A (prod inversion: Wafer.gaia, gaia.js, population.core, application.js, populate.js), verify prod still boots (mode 2/3), then Phase B (scenario → boot), run the applicative suite.
+
+* Process notes
+- Finn wants the connoisseur (=.ikiro/claude.md ## code=) loaded as a person convulsing over the shoulder; he rejects band-aids ("very ugly") and pushes for the structural fix that makes the whole pipeline legible.
+- "validate this!" = adversarially refute the design against the real code (quote lines) BEFORE implementing — the investigator discipline, not applause.
+- Standing guard this session: "notify me if you run into cases where you want to implement weird hacks." Honoured at the cast→fill fork (surfaced it, named the real fix).

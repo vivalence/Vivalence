@@ -13,6 +13,13 @@ export function provide({ /* box, */ terminals }) {
 async function open(thread) {
   if (thread.conversation) return;
 
+  const turnRepo = thread.daemon?.entities?.turn;
+  if (turnRepo) {
+    turnRepo
+      .find({ thread: thread.id }, { orderBy: { createdAt: "ASC" } })
+      .catch((error) => console.error("[CONVERSATIONAL] turn history load failed:", error));
+  }
+
   const connection = thread.mode?.connection;
   const authority = thread.daemon?.lighthouse?.$authority;
   if (!connection || !authority) return;
@@ -25,7 +32,6 @@ async function open(thread) {
 
   let assistantTurn = null;
   let cancelled = false;
-  const turnRepo = thread.daemon?.entities?.turn;
   const inbound = new Vector();
 
   thread._cancelStream = () => {
@@ -135,8 +141,12 @@ export function wire(thread) {
   thread.$pending ??= atom(false);
   thread.$lastError ??= atom(null);
 
+  // active thread = the active terminal's thread (terminals store exposes $active, not $thread).
+  const activeThread = () => terminalsRef?.$active?.get?.()?.thread ?? null;
+  // CONVERSATIONAL is intent (thread trait); the mode must also be capable. Effective = intent ∩ capability.
+  const capable = () => thread.mode?.implements?.("CONVERSATIONAL") ?? false;
   const live = () =>
-    thread.traits.includes("CONVERSATIONAL") && terminalsRef?.$thread?.get?.() === thread;
+    capable() && thread.traits.includes("CONVERSATIONAL") && activeThread() === thread;
 
   let attempts = 0;
   const reconcile = () => {
@@ -160,11 +170,23 @@ export function wire(thread) {
   });
 
   const untrait = thread.$traits.subscribe(reconcile);
-  const unactive = terminalsRef?.$thread?.subscribe?.(reconcile) ?? (() => {});
+  // in-place mode swap (selectMode mutates thread.mode) can drop capability → close stale connection.
+  const unmode = thread.$mode.subscribe(reconcile);
+
+  // react to terminal swaps ($active) AND thread swaps within the active terminal ($thread).
+  let unthread = null;
+  const watchActive = (terminal) => {
+    unthread?.();
+    unthread = terminal?.$thread?.subscribe?.(reconcile) ?? null;
+    reconcile();
+  };
+  const unactive = terminalsRef?.$active?.subscribe?.(watchActive) ?? (() => {});
 
   return () => {
     untrait();
+    unmode();
     unactive();
+    unthread?.();
     unconv();
     unsocket?.();
   };

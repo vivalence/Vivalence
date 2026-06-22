@@ -1,6 +1,7 @@
 export * from "@std/testing/bdd";
 export * from "@std/assert";
 export * from "@std/expect";
+export { snapshot } from "./snapshot.js";
 
 import { describe, it } from "@std/testing/bdd";
 import { expect } from "@std/expect";

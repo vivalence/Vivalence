@@ -1,3 +1,4 @@
+export * as connection from "./connection.js";
 export * from "./subscriber.js";
 export * from "./agentic.js";
 export * from "./object.js";

@@ -50,7 +50,7 @@
     inset: 0;
     display: flex;
     align-items: center;
-    padding: 0 14px;
+    padding: 0 12px;
     justify-content: flex-end;
     pointer-events: none;
     overflow: hidden;
@@ -62,7 +62,7 @@
     display: flex;
     flex-direction: row;
     align-items: center;
-    gap: 4px;
+    gap: 10px;
     width: 100%;
     height: 100%;
     overflow-x: auto;
@@ -76,7 +76,7 @@
   }
   .tab.add {
     flex: 0 0 auto;
-    height: 22px;
+    height: 24px;
     display: inline-flex;
     align-items: center;
     justify-content: center;
@@ -85,14 +85,14 @@
     border-radius: 3px;
     color: var(--colors-skeleton-1-contrast);
     font-family: var(--font-family-code);
-    font-size: var(--font-size-sm);
+    font-size: var(--font-size-md);
     font-weight: 600;
     letter-spacing: 0.04em;
     text-transform: lowercase;
     cursor: pointer;
     opacity: 0.4;
-    min-width: 22px;
-    max-width: 22px;
+    min-width: 24px;
+    max-width: 24px;
     padding: 0;
     line-height: 0;
     transition: opacity 0.16s, background 0.16s, border-color 0.16s, color 0.16s;

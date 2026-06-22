@@ -111,9 +111,9 @@ specimen.describe("RemoteEntityManager", () => {
       const modeRepo = new RemoteRepository(TestMode).connect(conn.branch("/entities/mode"));
       entityManager.register("mode", modeRepo);
 
-      const entity = entityManager.merge("mode", { id: "m-1", slug: "test", traits: ["VIEWABLE"] }, TestMode);
+      const entity = entityManager.merge("mode", { id: "m-1", slug: "test", traits: ["APPLICATION"] }, TestMode);
       specimen.expect(entity).toBeInstanceOf(TestMode);
-      specimen.expect(entity.implements("VIEWABLE")).toBe(true);
+      specimen.expect(entity.implements("APPLICATION")).toBe(true);
     });
 
     specimen.it("identity resolves string id and object reference", () => {
@@ -158,10 +158,10 @@ specimen.describe("RemoteEntityManager", () => {
       const entityManager = new RemoteEntityManager(conn, schema);
       entityManager.register("mode", new RemoteRepository(TestMode).connect(conn.branch("/entities/mode")));
 
-      entityManager.merge("mode", { id: "m-1", traits: ["VIEWABLE", "EMITTER"] }, TestMode);
+      entityManager.merge("mode", { id: "m-1", traits: ["APPLICATION", "EMITTER"] }, TestMode);
       entityManager.merge("mode", { id: "m-1", traits: [] }, TestMode);
 
-      specimen.expect(entityManager.identity("mode", "m-1").traits).toEqual(["VIEWABLE", "EMITTER"]);
+      specimen.expect(entityManager.identity("mode", "m-1").traits).toEqual(["APPLICATION", "EMITTER"]);
     });
   });
 
@@ -206,7 +206,7 @@ specimen.describe("RemoteEntityManager", () => {
       const entityManager = new RemoteEntityManager(conn, schema);
       entityManager.register("mode", new RemoteRepository(TestMode).connect(conn.branch("/entities/mode")));
 
-      const resolved = await entityManager.resolve("mode", { id: "m-new", slug: "immersion", traits: ["VIEWABLE"] });
+      const resolved = await entityManager.resolve("mode", { id: "m-new", slug: "immersion", traits: ["APPLICATION"] });
 
       specimen.expect(resolved.id).toBe("m-new");
       specimen.expect(resolved.slug).toBe("immersion");

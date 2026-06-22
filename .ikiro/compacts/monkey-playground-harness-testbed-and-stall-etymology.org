@@ -1,0 +1,150 @@
+#+TITLE: Stall etymology (keep, don't rename) · Riddler footprint sweep · M10 Hallucinating Monkey playground harness testbed
+#+AUTHOR: ikiro
+
+* arc
+Quest-writing + design session, no code shipped. Three strands:
+1. M8 paddock-rename quest written, then argued DOWN to "keep Stall" via etymology.
+2. Full Riddler footprint sweep + its emitter/app-mask surfaced.
+3. M10 grew from "reimplement riddler in playground" → a six-axis harness testbed
+   named the *Hallucinating Monkey*. Cluster slug settled: =monkey=.
+
+* Strand 1 — Stall→Paddock rename, then reversed
+
+** the ask (voice/remote-control, garbled)
+Finn: "Write A Quest m eight. Stall to pool and pool to paddock. Populate that
+quest with a, um, overview of what it would take to rename the stall to paddock
+and pool to stall."
+Decoded: two-step chain rename — =stall=(cursor)→=paddock=, =pool=(emission
+monad)→=stall=. Wrote =.ikiro/quests/m8-paddock-rename.quest.org= (DESIGN): full
+blast radius, ordering hazard (paddock FIRST frees the =stall.js= name, then pool
+reclaims it; reverse = collision), 20 =ctx.pool= emitter sites, claude.md
+exemplar-character swap as the careful part.
+
+** Finn: "Fair point. Short answer. What do you think of just naming Stall to Paddock?"
+I said yes — drop the pool half (worse name =ctx.stall=, churn for a downgrade);
+Paddock-only is the clean cut.
+
+** then etymology FLIPPED it
+Finn: "Go into etymology on the names Stall and Paddock. Consider that one of
+them has a German connotation and an Emacs connotation."
+- *Stall* — Proto-Germanic =*stallaz= "standing-place" → German =der Stall= =
+  stable/barn (the enclosure metaphor is NATIVE, not borrowed). Emacs: =Stall=man
+  (RMS, Emacs/GNU founder) — and this codebase does emacs-style buffer switching,
+  the Stall IS the buffer cursor. One word, both layers: German stable + Emacs
+  patriarch.
+- *Paddock* — OE =pearroc= → park/parc; the field BESIDE the stable. Pure
+  English, no German, no Emacs.
+- Verdict (I flipped my own prior call): KEEP Stall. Renaming Stall→Paddock walks
+  the meaning one enclosure outward and drops both connotations. Paddock is
+  adjacent; Stall is the thing.
+⇒ M8 rename now effectively PARKED/dead — the etymology is the argument against it.
+(Earlier m8 had already decided pool stays Pool — water/drain metaphor fits
+=drain=/=flatten=.)
+
+* Strand 2 — Riddler footprint sweep
+
+Finn: "Um, not sure that we want the quest yet. Let's see where we go. I want you
+to do a grab search of everything inside Ikiro and the repository and all of the
+quests and such regarding the Riddler... find all of the occurrences where we
+have talked about it."
+
+Footprint (excl node_modules/bak):
+- *Live source* =registry/modes/@vivalence/game/riddler/= — =riddler.viva.js=,
+  =persona.js=, =buffer/Riddler.svelte=. Wired into brazilian daemon =modes[]=
+  (=testament/variant/circuitry.js=).
+- *Memory* =project_riddler_mode.md= (links =project_cortex_object_faculty=,
+  =project_lazy_memory_strength=). "Live-test over real Anthropic pending."
+- *Quests* — =activation-loop.quest.org= (Riddler = milestone E, TODO 9, shipped
+  ahead of Drill); =m7-snapshot-testing= (listed in brazilian modes);
+  =m8-paddock= (incidental ctx.pool site).
+- *Zettelkasten* — =## Discovered 2026-06-27 (object faculty + riddler mode)=.
+- *Compacts (richest)* — =object-faculty-derivation-and-riddler-mode.org= (THE
+  origin: Riddler forced the cortex =object= faculty; process correction "i asked
+  for a diff not application!!!"; praise "perfect! i want this"). Plus
+  aprende/nyan compacts cite Riddler's =/assistant/resolve= as the reuse template.
+
+What Riddler IS: shipped turn-free single-riddle game mode, target-language
+riddle-master persona, buffer-level history (no turns), memory+trace-grounded
+emitter, self-deletes on resolve. Its build forced the derived =object= faculty.
+
+* Strand 2b — Riddler surface (emitters + masks)
+
+Finn: "surface for me the emitters that we have defined and the buffer mask, the
+app mask that it takes."
+
+- *app mask* (=app=, =buffer/Riddler.svelte=):
+  =v.buffer({ data:{ subject, riddle, expected, flow[], history[], solved,
+  resolved }, literals: v.array(v.rel(v.literal())) })=.
+- *emitter* — ONE nature =/riddle/cast=, input =v.object({ literals?, symbols?,
+  subject?(enum weekdays/numbers/months/family), instructions?, limit=12 })=, no
+  declared output; effect = =ctx.mode.harness.object.render(...)= then
+  =ctx.pool.add(ctx.mode.buffer({ data, literals }))=.
+- buffer cast = subset of app mask (=solved:false=, =history:[]=, no =resolved=).
+- =dataset.intent=: slug =cast=, =AIMED { mount:"/emit/riddle/cast" }=.
+- (Apertures =/assistant/{message,resolve}= + tools =/literal/{review,search}=
+  are separate Vectors.)
+
+* Strand 3 — M10 Hallucinating Monkey (playground harness testbed)
+
+** evolution of the ask
+- Finn first: "m10_harnessed-riddler.quest" (bare filename, intent unknown — I
+  asked).
+- Finn: "we will reimplement the riddler as part of the playground. we will
+  rename it tho. chaosmonkey. m10_hallucinating_chaosmonkey_playground.quest"
+- Finn (the big spec): "the idea is that we test a few ways that the harness can
+  be used inside the playground. we want conversations aka sessions, we want to
+  have in buffer/in app ephemeral conversations, we want the app/buffer to be
+  demonstrate its interaction with interet/manual stall phases, we emitters to
+  use harness, we want buffer emittion via tool use, we want general tool use.
+  this is a big task. m10 should feature all these requirements/intents about our
+  playground monkey"
+- Finn: "actually, call the cluster just monkey. chaosmonkey will be somethting
+  else." then "hallucinating monkey."
+
+** settled naming
+Cluster slug = =monkey=. =chaosmonkey= is RESERVED for something else — do not
+use. =monkey= is a MODE slug, NOT a trait; unrelated to the deprecated
+=CHAOSMONKEY= trait (=Mode.ts:25 // deprecated=; live harness wiring is
+=HARNESSED= in =systems/runtime/daemon/traits/harnessed.js=).
+
+** the six axes (each a demonstrable harness-usage slice) — grounded to real code
+1. *Sessions / persistent turns* — HARNESSED =/dialogue= branch: history load +
+   user turn + stream-aware scribe (=soma.pour= → =/turn/close= → =turn.create=).
+2. *Ephemeral in-buffer chat* — Riddler pattern: exchange on =buffer.data.history=,
+   NO =turn= entities, dies with the buffer. Contrast axis 1 (same harness,
+   persistence on vs off).
+3. *Stall phases inert/manual* — =prototypes/stall.js=: =inert= (app self-manages,
+   null active respected) + =manual= (auto-focus + advance-on-release). Buffer
+   cooperates with each; drivers set =thread.phase=, buffer calls =release()=.
+4. *Harness-driven emitter* — emit path calls =harness.object.render= before
+   =ctx.pool.add(ctx.mode.buffer(...))= (Riddler /riddle/cast).
+5. *Buffer emission via TOOL use* — model's tool call spawns a buffer into
+   =ctx.pool= (not a direct emitter pull).
+6. *General tool use* — agentic round-trip via =shape.agentic(cortex.tools)= +
+   =hallucination.absorb=, no side effects.
+
+Quest =.ikiro/quests/m10_hallucinating_monkey_playground.quest.org= (DESIGN,
+renamed from the chaosmonkey filename). Playground = type =playground=
+(=spawner=/=spawned= rig), the de-risk home isolating the live-cortex test.
+
+** open forks (Finn to decide before go)
+- structure: ONE monkey mode (axes as natures/buffer flags, lean) vs a family.
+- literal coupling: brazilian corpus (=literal.feed/find= + memory strength +
+  trace) vs tiny self-contained set vs pure-prompt — forks axis 4/5/6 tools.
+- cortex on the playground daemon (HARNESSED throws without =daemon.cortex=).
+- axis-1 transport: SSE via CONVERSATIONAL vs render-only turns.
+- stall driver: who flips =thread.phase= inert↔manual (panel control vs the app).
+
+* process notes
+- Caveman mode active full session (hook).
+- VCS untouched. Filesystem =mv= only (renamed the m10 quest file chaosmonkey→monkey).
+- A global =perl s/chaosmonkey/monkey/= clobbered the "chaosmonkey is reserved"
+  line; caught + fixed. (Blanket replace on a word that legitimately appears in
+  two senses — verify both senses after a global swap.)
+- No "retard" callouts this session.
+
+* state / next
+- M8 paddock-rename: PARKED (etymology argues keep Stall; pool stays Pool).
+- M10 monkey: DESIGN written, gated on the five forks above; nothing scaffolded.
+- Riddler: unchanged, still on brazilian, live-cortex test still pending (M10 is
+  where that test moves).

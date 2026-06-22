@@ -1,0 +1,114 @@
+* Intent
+A reusable pattern (maybe a primitive) for *reactive, middleware-composed Vector
+consumers*: build a =Signal= from live state, =invoke= it through a =Vector= whose
+=.use()= carries pre/post processing and whose =.open()= / =.affect()= hold the cases.
+The generalization the stall ALMOST became — explored deeply, then deliberately NOT
+adopted there (incidental for four flat phases). This quest gives the idea its own home
+so it can land where it actually fits: a richer reactive surface with real routing depth
+and genuine pre/post composition.
+
+This is M6 of the stall arc. It is the *road-not-taken from M1–M3, promoted to its own
+road.* DESIGN / SEED — scope is open; Finn narrows it before any build.
+
+* Status & boundary (read first)
+- *Not adopted in the stall.* M1–M3 shipped a closure-object stall (thread-owned phase,
+  4 flat phases). The Vector-combinator was the elegant alternative; the discriminator
+  (essential vs incidental complexity) rejected it FOR THAT CASE. See
+  =phase-playground.quest.org= D4 and the =## code= doctrine.
+- *The signal-=.seat= is DEAD.* Finn killed the "signal carries a context seat" idea
+  outright — "we are not going to adopt that." It is NOT part of this quest. (It survives
+  only in the session compact, as a recorded exploration, never in a quest.) Context
+  seeding stays the proven way: =.use(shard.context.bind(key, value))= (build-time) +
+  =input= (call-time). No route-time seat.
+
+* How we got here (D4 · the fingerprint)
+Mid-stall-design, Finn proposed lifting the phase machine onto a Vector, verbatim:
+  "How about we take a vector, make this combinator vector? with maybe just three
+   effects for now. Manual, inertia, and whatever. Continuous… create a signal based on
+   whatever. run it through a vector and have things like middlewares and pre and post
+   processing handled and composable."
+The connoisseur reading: this IS the system's deepest pattern (a =Vector= consumed by a
+strategy family) applied to a reactive driver. It is structurally the *twitch* and the
+*emitter*. But for the stall's four flat phases reacting to two atoms, the Vector's
+routing depth is unused — the win would have been only middleware-compose + cast, not
+worth the machinery. Finn then gated the actual build to prod primitives:
+  "solve this function using no speculative interfaces! only whats apready tested and
+   used in prod!"
+So the stall stayed a closure-object. The Vector-combinator idea is sound — it just
+needs a consumer whose shape EARNS it. That consumer is what this quest hunts.
+
+* Architecture (grounded — the real Vector API this would use)
+Everything here EXISTS and is tested. No new core.
+** The pieces
+- =Vector.open(sig, effect)= — a routed leaf (case). =Vector.affect(effect)= — the
+  null-key default/catch-all leaf (=effects.set(null, effect)=, =vector.js:51=). =.use(mw)=
+  — the carry (koa-compose onion).
+- =steer.invoke(vector, signal)(input)= — route a Signal to ONE effect, run the composed
+  carry, return =ctx.output= (=walk.js:48=, prod call-site =ghost/mod.js:108=).
+  =steer.shotgun= — the tip-fan variant (multiple effects at the leaf).
+- Context channels (proven): =input= (call-time, =guarded= casts it) · =.use(
+  shard.context.bind(k,v))= (build-time closure) — NO seat.
+** The existing reactive-Vector precedent — the TWITCH
+=gestalten/shard/datamap.js:152-185= already does this: a =twitch= Vector, leaves opened
+=twitch.open("/<entity>/<op>/after", effect)=, FIRED reactively by
+=shape.subscriber(twitch)= (=shape/subscriber.js=) — which builds =new Signal(
+`${name}/${event}`)=, =steer.shotgun='s the vector, and calls each handler with the event
+as =ctx.input=. *This is the template.* "vector affect" = recognizing this shape, naming
+it, and making it reusable where today each reactive surface hand-rolls it.
+
+* Desired End State (provisional — Finn to confirm)
+- The reactive-Vector pattern is NAMED and (if it earns it) lives as one primitive —
+  e.g. a =reactor(vector)= / =affect(vector)= factory that turns a declared Vector +
+  a live source into a subscription that builds Signals and invokes, with =.use()=
+  pre/post for free. The twitch becomes one consumer of it, not a bespoke.
+- Pre/post processing (validation, derivation, logging) is =.use()= middleware, composed
+  once, shared across cases — the payoff the stall didn't need but a rich surface does.
+- Cases are data: =.open(nature, effect)= leaves + an =.affect()= default. Adding a case
+  is a leaf, not a branch in a switch.
+
+* Candidate first consumers (where it EARNS the Vector)
+The Vector is justified by ROUTING DEPTH + shared MIDDLEWARE, not by reactivity alone.
+Look for a surface with many natures + real pre/post:
+- *The packet/event grammar* — =project_event_grammar=: packet events are already
+  Signal-shaped paths (=/turn/open= etc.) but =soma= routes them with an opaque-string
+  switch, no Signal routing. A prime candidate to become a real Vector-affect consumer.
+- *A command/REPL surface* (=terminal-first-client=) — a Vector of commands, invoked per
+  keystroke-line, middleware for parse/auth/log.
+- *A devtools / telemetry tap* — many event natures, shared enrichment middleware.
+- NOT the stall (settled: too flat).
+
+* ───────────────────────────────────────────────────────────────────────────
+* MILESTONE 6.0 · name the pattern + pick the consumer
+Before any code: with Finn, (a) confirm what "affect" denotes — the catch-all
+=Vector.affect= leaf, or the verb "a Signal affects the Vector → runs an effect", or
+the factory name; (b) pick the FIRST real consumer (the event grammar is the lead). The
+pattern only lands against a consumer whose shape earns the routing.
+
+* MILESTONE 6.1 · extract the reactive-Vector seam
+Lift the twitch's =shape.subscriber= shape into a reusable seam: =source × vector →
+subscription= that builds Signals from events and invokes (=shotgun=/=invoke=), carry
+composed. Re-express the twitch as one consumer of it (effect-over-model: prove by the
+broadcaster output, green-on-both-sides). Blast-bracket — the datamap reactivity is
+load-bearing (SSE, subscriptions).
+
+* MILESTONE 6.2 · apply to the first new consumer
+Wire the chosen surface (likely the event grammar / =soma= switch → a Vector) onto the
+seam: cases as =.open()= leaves, a =.affect()= default, pre/post as =.use()=. Prove
+behavior parity, then delete the hand-rolled switch.
+
+* Open questions (for Finn — this quest is a seed)
+- What does "affect" mean to you here — the =Vector.affect= default-leaf, the verb, or
+  the primitive's name (=affect(vector)= / =reactor(vector)=)?
+- First consumer: the event grammar (=soma= switch), a command surface, something else?
+- Is this a PRIMITIVE (a typology factory) or a PATTERN (a recipe the twitch + others
+  follow)? The connoisseur's bar: extract a primitive only when ≥2 real consumers share
+  the atom; until then it's a named pattern.
+- Confirm the boundary: signal-seat stays dead; context only via =input= + =.use(bind)=.
+
+* Notes
+- No core change risk — rides existing Vector/steer/shard. Additive.
+- VCS read-only; Finn lands commits.
+- The connoisseur frame: this is the Vector-consumer principle (=## code=) extended to a
+  reactive driver — judge each consumer WITHIN its role; don't force the stall (a flat
+  4-state machine) and a rich event router to share one shape just because both are
+  reactive. The Vector EARNS its place by routing depth + shared carry, nothing less.

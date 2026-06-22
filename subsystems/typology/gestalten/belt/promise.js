@@ -57,3 +57,43 @@ export const linear = async (thunks, { onEach } = {}) => {
   }
   return results;
 };
+
+// async-CONTROL atom (debt #2, .ikiro/CLAUDE.md ## code). Single-slot wake/suspend
+// gate: the wake-suspend dance was hand-rolled across Queue.drain / Pipe.stream /
+// soma.tee / Broadcaster. Lifted here so those channels share the atom while keeping
+// their distinct characters. No wake buffering — wake() before wait() is a no-op, so
+// every caller guards with a buffer/done check before awaiting wait(). wait(signal)
+// also resolves on abort, and immediately if the signal is already aborted.
+export const waiter = () => {
+  let resolve = null;
+  return {
+    wake() {
+      if (resolve) {
+        resolve();
+        resolve = null;
+      }
+    },
+    wait(signal) {
+      return new Promise((r) => {
+        if (signal?.aborted) return r();
+        resolve = r;
+        signal?.addEventListener(
+          "abort",
+          () => {
+            if (resolve === r) resolve = null;
+            r();
+          },
+          { once: true },
+        );
+      });
+    },
+  };
+};
+
+// PROPOSED (not wired) — a promise with its resolve/reject exposed. Lands when a
+// consumer needs it (the many `let resolve; new Promise` sites). See ## code.
+// export const deferred = () => {
+//   let resolve, reject;
+//   const promise = new Promise((res, rej) => { resolve = res; reject = rej; });
+//   return { promise, resolve, reject };
+// };

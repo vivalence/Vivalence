@@ -6,4 +6,4 @@
   const label = chain(thread, "$label");
 </script>
 
-{$label?.name ?? $label ?? thread.mode?.slug ?? thread.id?.slice(0, 8)}
+{$label?.name ??  thread.mode?.slug ?? thread.id?.slice(0, 8)}

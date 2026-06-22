@@ -200,3 +200,18 @@ specimen.describe("soma", () => {
     });
   });
 });
+
+specimen.describe("soma: pour ∘ drain round-trip (the hylomorphism)", () => {
+  specimen.it("drain(turn) folded back through pour rebuilds the turn", () => {
+    const turn = {
+      role: "assistant",
+      parts: [
+        { type: "text", text: "hello world" },
+        { type: "tool", name: "search", args: { q: "x" } },
+      ],
+      meta: { stop: "end_turn" },
+    };
+    const rebuilt = [...soma.drain(turn)].reduce(soma.pour, null);
+    specimen.expect(rebuilt).toEqual(turn);
+  });
+});

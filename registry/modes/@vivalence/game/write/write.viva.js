@@ -1,4 +1,4 @@
-import { cast, View, Vector, v } from "@vivalence/typology";
+import { cast, App, Vector, v } from "@vivalence/typology";
 import dataset from "./dataset/index.js";
 
 const manifest = {
@@ -8,10 +8,10 @@ const manifest = {
   description:
     "Type the translation from memory. Per-token scoring for sentences. Forgiving mode normalizes diacritics.",
   version: "0.2.0",
-  traits: ["VIEWABLE", "EMITTER"],
+  traits: ["APPLICATION", "EMITTER"],
 };
 
-const view = new View(
+const app = new App(
   "buffer/Write.svelte",
   v.buffer({
     data: {
@@ -46,4 +46,4 @@ const emitter = new Vector()
     });
   });
 
-export { manifest, view, emitter, dataset };
+export { manifest, app, emitter, dataset };

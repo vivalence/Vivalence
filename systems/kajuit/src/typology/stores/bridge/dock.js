@@ -3,7 +3,7 @@ export const SHARE_MIN = 0.18;
 export const SHARE_MAX = 1.0;
 export const SHARE_DEFAULT = 0.32;
 
-export const DEFAULT_DOCK = { side: "right", share: SHARE_DEFAULT };
+export const DEFAULT_DOCK = { side: "right", share: SHARE_DEFAULT, collapsed: false };
 
 export function clampShare(share) {
   if (!Number.isFinite(share)) return SHARE_DEFAULT;

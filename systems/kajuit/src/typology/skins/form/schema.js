@@ -84,9 +84,9 @@ export const maskSchema = (mode, traits, trait) => {
     const leaf = (mode?.emitter?.leaves ?? []).find((entry) => entry.nature === nature);
     return leaf?.input ?? null;
   }
-  const view = mode?.view?.schema;
-  if (!view) return null;
-  const top = propsOf(view);
+  const app = mode?.metadata?.app?.schema;
+  if (!app) return null;
+  const top = propsOf(app);
   const data = propsOf(top.data);
   const relations = Object.fromEntries(Object.entries(top).filter(([, sub]) => entityOf(sub)));
   return { type: "object", properties: { ...data, ...relations } };

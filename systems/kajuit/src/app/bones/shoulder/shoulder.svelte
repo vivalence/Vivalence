@@ -1,18 +1,14 @@
 <script>
-  // import { getContext } from "svelte";
-  // import { TERMINALS } from "$client";
-  // import Activity from "./widgets/Activity.svelte";
-  // import ConversationalWidget from "./widgets/ConversationalWidget.svelte";
+  import { getContext } from "svelte";
+  import { chain } from "@vivalence/kajuit";
+  import { TERMINALS } from "$client";
+  import Phase from "./widgets/Phase.svelte";
 
   let { rect } = $props();
 
-  // const terminals = getContext(TERMINALS);
-
-  // let currentThread = $state(terminals.active?.thread);
-
-  // terminals.$thread.subscribe((current) => {
-  //   currentThread = current;
-  // });
+  const terminals = getContext(TERMINALS);
+  const terminal = chain(terminals, "$active");
+  const thread = chain(terminals, "$active", "$thread");
 </script>
 
 <div
@@ -21,13 +17,11 @@
   style:top="{rect.top}px"
   style:width="{rect.width}px"
   style:height="{rect.height}px">
-  <!-- <div class="population"> -->
-  <!--   <Activity thread={currentThread} /> -->
-  <!--   {#if currentThread} -->
-  <!--     <span class="sep">·</span> -->
-  <!--     <ConversationalWidget thread={currentThread} /> -->
-  <!--   {/if} -->
-  <!-- </div> -->
+  {#if $thread}
+    <div class="population">
+      <Phase terminal={$terminal} />
+    </div>
+  {/if}
 </div>
 
 <style>
@@ -37,7 +31,7 @@
     border-top: 1px solid var(--colors-skeleton-1-boundary);
     border-bottom: 1px solid var(--colors-skeleton-1-boundary);
     z-index: 50;
-    overflow: hidden;
+    overflow: visible;
   }
   .population {
     position: absolute;
@@ -52,7 +46,7 @@
     text-transform: lowercase;
     color: var(--colors-skeleton-1-contrast);
     pointer-events: none;
-    overflow: hidden;
+    overflow: visible;
     container-type: inline-size;
     container-name: shoulder;
   }

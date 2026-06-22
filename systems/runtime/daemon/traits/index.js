@@ -3,7 +3,7 @@ import { shape } from "@vivalence/typology";
 export * from "./dataset.js";
 export * from "./intented.js";
 export * from "./emitter.js";
-export * from "./viewable.js";
+export * from "./application.js";
 export * from "./harnessed.js";
 export * from "./conversational.js";
 export * from "./tooled.js";

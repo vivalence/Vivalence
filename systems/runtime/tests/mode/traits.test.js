@@ -48,7 +48,7 @@ specimen.describe("mode traits", () => {
     });
   });
 
-  specimen.describe("VIEWABLE", () => {
+  specimen.describe("APPLICATION", () => {
     specimen.it("mode.buffer() returns entity with data and literals", () => {
       const result = scenario.mode.buffer({
         data: { recall: "KNOWN" },

@@ -1,0 +1,112 @@
+#+TITLE: The HOW of the session — the connoisseur throughline + the discriminator (why Vector-stall and signal-seat were rejected), the blast-bracket discipline, the multi-agent research method that produced the data-UI synthesis (Notion/Airtable/minimalism/gun.js → registry + projection + one-node + the Frame/Cell/View spine), the compact-process critique, and the naming-churn lesson
+
+#+TOPIC: Companion to =stall-thread-phase-rebuild-and-the-mode-rig.org= (the WHAT). This is the method — how the connoisseur framed the work, how the research was run, and the process lessons (including a frustration signal) that earned their keep.
+
+* The connoisseur as FRAMER (doctrine improved before any code)
+The session opened by sharpening the connoisseur doctrine itself. Finn: "read up on the
+qualities that make you a conoisseur. collect a list of 10 legendary architectures" →
+"ikiro improve conoisseur." The improvement landed in =.ikiro/CLAUDE.md ## code= as a new
+section, *### the throughline*:
+  *legendary = one structure, one law, made visible.* 9/10 of the headline canon = a FOLD
+  (build up); djb/SQLite/TeX = MINIMIZE (strip down) — same convulsion, opposite ends. The
+  discriminator polices ONE axis: *reveal-vs-hide, never dense-vs-sparse* (Whitney's K = the
+  cautionary twin — same density, conceals). =effect over model= and =the discriminator= =
+  one principle, two hats.
+This spine then governed every decision below. Finn also pruned the prose: "the conoisseur
+doest yap this much!" — terser, code-as-body.
+
+* The discriminator in action — what was REJECTED, and why
+The deepest design work was *saying no* on the rubric's authority:
+- A *Vector-based stall* (phases as leaves, signal→invoke per tick) was designed in full,
+  then REJECTED: the Vector's power is routing DEPTH; four flat phases reacting to two atoms
+  don't use it — incidental complexity. (effect-over-model: judged by what it would produce,
+  not its elegance.) Promoted to M6 =vector-affect= for a surface that earns it.
+- The *signal-=.seat=* (a route-time ambient channel on the Signal) — elegant, the third
+  context channel beside input + =.use(bind)= — but Finn killed it outright: "we are not
+  going to adopt that." Recorded as road-not-taken, never quested.
+- The gate that pinned both to reality: "solve this function using no speculative interfaces!
+  only whats apready tested and used in prod!" → the stall stayed a closure-object on prod
+  primitives (nanostores + the existing observe/settle/release).
+The throughline of the rejections: the connoisseur's job is the discriminator — *essential vs
+incidental* — and the verdict often subtracts.
+
+* The architecture verdict — the common interface was already there
+Finn: "reason through whether the architecture as it stands now is the right way… Is that the
+common interface that both the buffer apps and the c panel need?" The blast radius proved YES
+— two roles already sharing one surface (DRIVERS write phase · TARGETS call =buffer.release()=,
+13 modes). The fix was *hoisting, not rebuilding*: phase → =thread.phase=, config →
+=thread.trait=, fetch → =thread.pull= (AIMED already installs it). The blast also produced the
+8-operation user model, the JSON-level view, and the full-file proposal Finn asked for.
+
+* The blast-bracket discipline (how M1–M3 shipped green)
+Each milestone fenced: blast (map consumers) → test (baseline green) → land → test (green
+both sides) → blast (re-confirm). The =stall.test.js= was rewritten to the new contract
+(old STATIC→manual, old do-nothing MANUAL→inert); a focused =terminal.stall.test.js= proved
+the client wiring. The escort test caught a real bug — my first cut put ESCORT in the FETCH
+set; the OLD code proved escort *never pulled* (walks a pre-loaded queue, returns home), so I
+removed it. Ground-truth from the code, not from memory.
+
+* The multi-agent research method (the investigator, calibrated)
+When Finn turned to "organized sophistication" (a research agent into OSS Notion/Airtable
+competitors), the investigator method ran clean: every agent prompt shipped the connoisseur
+rubric + the Dapper/Drapes export goal INSIDE it (calibrate before the sweep); disjoint
+scopes; ground-truth gate (cite file:line from the real repos via =semble=). Five agents
+across the session: panels/traits/entities (the stall blast), then Notion-family ·
+Airtable-family · minimalism-approach · gun.js. Each returned grounded; I synthesized with
+the rubric.
+
+* The data-UI synthesis (the connoisseur's verdict)
+The headline: *the external winners ARE our patterns* —
+#+BEGIN_SRC
+  Anytype: one Object → `layout` → {Page,Set,Board}   →  Vector-consumer principle · thread→phase   (trigger 8)
+  Baserow: FieldTypeRegistry (type = a record)        →  discriminator-as-data · pattern.js · Pool.classify (trigger 11)
+  View = filter/sort/group projection over records    →  steer.fold / rollup — a view IS a fold     (trigger 2+12)
+  cell-per-type, callable + editable                  →  shape.object (node = callable ∧ namespace)
+  GUN: one soul-keyed graph, links-as-refs, no schema →  the RADICAL one-node bet (Anytype w/o layout)
+#+END_SRC
+GUN (gun.js — our doctrine's "data-model genius, near-opaque source", CONFIRMED in =src/=)
+gave the structural proof AND the trap: per-property HAM state is the merge primitive to
+steal; "no-schema is seductive but shallow — you'll encode your schema in views, not avoid
+it." → the resolved bet: *one node + field-type-as-DATA-in-the-node + view-as-projection*;
+schema explicit, not implicit (which also dodges GUN's opacity). Finn's keystone: "the Frame
+aka buffer container is also part of this semantic" → =Frame= (buffer) · =Cell= (value) ·
+=View= (records) = the SAME type-keyed renderer at three scales (=shape.object='s dispatch up
+the UI). Minimalism (agent 3, Rams/Swiss/Teenage-Engineering/Geist/Radix) = the *build
+discipline* for it: registry-as-data, composition over config, tokens, ≤6 props. All compiled
+into M9 =playground-layout=.
+
+* The compact-process critique (the connoisseur on this very routine)
+Finn asked the connoisseur to judge the 7-step compact routine. Verdict: adequate hygiene,
+but it MIS-MODELS the process — a checklist of rules, not a fold with an algebra; it judges
+*model-compliance* (followed the rules) where the connoisseur judges *effect* (does the next
+session resume?). The reframe — a compact is a *catamorphism* (=session → compact=) whose dual
+is the next session's *anamorphism* (=compact → resumed-context=); the pair must round-trip.
+A 5-phase fold: *SELECT* (the discriminator — lossless on Finn's voice, keep decisions + WHY +
+the REJECTED, drop the re-derivable, weight by praise) · *STRUCTURE* (by content-nature, not a
+fixed count) · *LINK* (wire the node into the graph) · *PERSIST* (compact = full narrative,
+memory = bootstrap pointers) · *VERIFY* (the RESUMPTION TEST — the missing gate). Hygiene
+(no-dates, slug, retard-scan) = constraints throughout, not steps. *This compact pair applies
+that fold.*
+
+* Process lessons that earned their keep
+- *The connoisseur is a FRAMER, reached at design time.* Improving the doctrine first, then
+  letting the throughline + the discriminator govern every call (including the rejections),
+  is why the session converged instead of thrashing.
+- *Ground-truth from the code, always.* The escort "never pulls" fact, the GUN HAM shape, the
+  Baserow registry — each verified in source, not relayed. The investigator's gate held.
+- *Comps/specs supersede earlier picks without ceremony; the discriminator can subtract.*
+  Reject the Vector-stall, kill the seat, when the rubric says incidental.
+- *The naming-churn lesson (a frustration signal — heed it).* M5 cycled FOUR names
+  (face-controller → glyphs → fascia → widget-glyphs) as the CONCEPT kept sharpening; the
+  playground modes/groups also churned. Finn's signals — "the conoisseur doest yap this much",
+  then at the close "no more half measures" / "ran an den speck" (get to it). *Lesson:* when a
+  name is flagged bad, resolve the CONCEPT first (widget vs philosophy vs language — Finn:
+  "glyphs is the design philosophy", "m5 WIDGETS", "glyphs being vinca ux language") BEFORE
+  binding a name and re-plumbing every cross-ref. Don't churn files per naming iteration; pin
+  the ontology, then name once. (=ontology-before-verbs= applied to names, not just verbs.)
+  No "retard" codeword fired this session — but the churn is the kind of thing it would catch.
+
+* Resumption
+The doctrine (=## code ### the throughline=), the quests (M4/M5/M6/M9), and the memories
+(=project_stall_phase_paradigm=, =project_connoisseur_doctrine_and_elegance_debts=) carry it.
+A cold session can resume from M4.0 BASELINE forward.

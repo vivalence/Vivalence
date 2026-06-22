@@ -23,10 +23,10 @@ export async function metadata(die) {
     meta.open("/manifest", () => mode.manifest);
     meta.open("/aperture", () => shape.strip(mode.aperture));
 
-    if (mode.implements("VIEWABLE"))
-      meta.open("/view", () => ({
-        url: mode.cake.view.url.absolute,
-        schema: mode.cake.view.mask,
+    if (mode.implements("APPLICATION"))
+      meta.open("/app", () => ({
+        url: mode.cake.app.url.absolute,
+        schema: mode.cake.app.mask,
       }));
 
     if (mode.implements("EMITTER"))

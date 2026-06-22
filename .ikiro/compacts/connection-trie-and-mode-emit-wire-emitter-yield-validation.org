@@ -1,0 +1,116 @@
+#+TITLE: Playground reactivity de-risking — playground daemon + card/spawner cross-mode emit, the client mode.emit surface via shard.connection.wire (strip↔wire round-trip), the EMITTER client trait's /emit buffer-parse middleware gated by is.yieldish, a Yield prototype schematic, and the big arc: rebuilding Connection.branch as a url-segment trie (overlap + path-dispatch) then cutting it to a minimal 2-arg Vector-aligned closure design
+#+TOPIC: Single long session, mostly subsystems/typology + systems/kajuit + registry/playground + testament. Began with a spoken planning dump (renames, three games Activation/Drill/Riddler, terminal rendering phases), folded into two quests, then the real work: standing up a throwaway playground to test buffer-emission reactivity, which surfaced a series of typology-primitive gaps. Finn drove with terse corrections and several name/location overrides; he edited emitter.js + connection.js mid-stream (canonical). Multiple "retard" callouts — logged separately in zettelkasten.
+
+* Planning → quests (context, not built)
+
+Morning dump covered: rename view→app / VIEWABLE→APPLICATION (Finn: "no rename. thats done." — confirmed live: =App= class, =APPLICATION= trait reading =mode.cake.app=, =export const app = new App(...)=); terminal rendering phases (static / continuous / manual) on a terminal-owned =Stall=; the three games Activation→Drill→Riddler; the activation loop (Neon typer via emitter, two entry points: games-row UI + assistant tool-call).
+
+Folded into:
+- =.ikiro/quests/activation-loop.quest.org= — the games engine + Stall phases.
+- =.ikiro/quests/playground-reactivity.quest.org= — the de-risking probe (3 milestones).
+
+Keystone identified but NOT applied: =thread.$buffers= is commented out in =systems/kajuit/src/typology/entities/thread/dossier.js= (54-56); =f.svelte= already reads it. The session diverged into the =mode.emit= path instead.
+
+* Playground daemon + two modes (cross-mode emit)
+
+Finn: build a daemon "playground" with two modes, "one mode emit buffers from another", to test (a) subscriptions and (b) buffer navigation (manual click → LLM tool-call → continuous). Later refined: spawner emits a mixed batch =[card, card, spawner]= where the trailing spawner buffer is a sentinel that re-emits the next batch → self-perpetuating chain.
+
+Files written (Finn directed location =registry/playground/[]=, bare, no =@vivalence= path segment — pensieve defaults =owner = "@vivalence"=, so module string stays =@vivalence/playground/card=; path is free):
+- =registry/playground/card/card.viva.js= + =buffer/Card.svelte= — APPLICATION render target.
+- =registry/playground/spawner/spawner.viva.js= + =buffer/Spawner.svelte= — APPLICATION + EMITTER. Emitter =/spawn= emits two card buffers via the sibling mode (=ctx.daemon.modes.playground.card=, from =population.js:144=) plus one own sentinel, all into =ctx.pool=. Exports =dataset.intent= seeding an AIMED thread.
+- =testament/variant/circuitry.js= — playground daemon appended (libsql =playground.viva.db=, no hallucinators).
+
+Cross-mode mechanic: =mode.buffer()= stamps =mode: mode.entity.id=, so emitting FOR another mode = calling that mode's =.buffer()=. Pool drains, EMITTER trait attaches each to =ctx.thread=, reindexes via =thread.counter++=, flushes (=daemon/traits/emitter.js=).
+
+* The client mode.emit surface — shard.connection.wire
+
+Server builds =mode.emit = shape.object(mode.cake.emitter)= from the Vector directly. Client only has the serialized metadata (=shape.strip(vector)= → ={leaves, branches}=, returned by =/metadata/emitter=). Need the inverse on the client.
+
+Dead-ends Finn rejected, in order:
+- a hand-rolled =build()= walker — "directionally correct" but reinvents a primitive.
+- =shape.messenger= — "messenger is for socket connections and we are not socketing this. this is not shape.messenger. also it doesnt operate on vector, but connection."
+- =aimMerged= per-call wrapper for buffer resolution — "your implementation of aimmerged is wrong. we can instead mode.connection.use() to handle this."
+
+Landed design (Finn: name =wire()=, location =shard/connection.js=):
+#+begin_src js
+export function wire(connection, stripped) {
+  const api = {};
+  for (const leaf of stripped?.leaves ?? [])
+    api[leaf.nature] = connection.aim(`/${leaf.nature}`);
+  for (const [segment, sub] of Object.entries(stripped?.branches ?? {}))
+    api[segment] = wire(connection.branch(`/${segment}`), sub);
+  return api;
+}
+#+end_src
+=wire= is the connection-flavored sibling of =shape.messenger= (both rebuild =strip= output; differ only in leaf dispatch — =connection.aim= vs =socket.push=). Reachable client-side as =shard.connection.wire= (=gestalten/shard/index.client.js= exports =connection=).
+
+EMITTER client trait (=systems/kajuit/src/typology/entities/mode/traits/emitter.js=):
+#+begin_src js
+const emit = mode.connection.branch("/emit").use(async (rqx, next) => {
+  await next();
+  const body = rqx.response?.body;
+  if (is.yieldish(body)) {
+    body.buffers = await Promise.all(body.buffers.map((pojo) => buffers.merge(pojo)));
+  }
+});
+mode.metadata.emitter = await mode.connection.call("/metadata/emitter");
+mode.emit = shape.connection.wire(emit, mode.metadata.emitter);
+#+end_src
+The =.use()= on the branched =/emit= connection is the modern replacement for the bak =intent.emit = connection.clone().use(findOneLocal-mode-rehydrate).aim(...)= pattern — buffers now resolve through =entityManager.integrate= (rehydrates =buffer.mode=/=thread= refs) instead of hand-resolving.
+
+* Yield prototype schematic + is.yieldish
+
+Question: what type is =await ctx.pool.drain()=? Answer: a =Yield= (=prototypes/pool.js= factory; =yield.js= is a stub "moved to pool"): ={ condition: "NOMINAL"|"EXHAUSTED"|"ERROR", buffers: Buffer[], error?, ...meta }=.
+
+Finn: "we need schematics for it. we need that shape documented and tested." First tried =schematics/prototypes/buffer.js= too — Finn: "MY MISTAKE! i was wrong. buffer is of course an entity. yield is the prototype!" So only:
+- =schematics/prototypes/yield.js= — =Condition= (eager) + =Yield= (LAZY: =buffers: v.array(v.buffer())= depends on =v.buffer=/=v.mode=/=v.rel= which aren't wired until =schematics/index= finishes; building eagerly crashes on module-eval order — same family as the known v init-order footgun). Wired =v.prototypes = prototypes= alongside =v.scalars/primitives/entities=.
+- =tests/schematics/yield.test.js= — 7 cases, green.
+
+Then the strict schema FAILED at the runtime seam: =v.array(v.buffer())= deep-validates each buffer against the full entity schema, but wire buffers carry partial =mode: {id}= refs → =check()= returned =false= on valid =NOMINAL= output. Finn: "just hardroll is.yield() with some dumb shallow probing." → =is/prototypes.js=:
+#+begin_src js
+export function yieldish(thing) {
+  return is.object(thing) && is.string(thing.condition) && is.array(thing.buffers);
+}
+#+end_src
+Finn: "lets use yieldish instead of yield. ie skip export { yieldish as yield };" — dropped the reserved-word alias. Open divergence flagged: the strict =Yield= schema (decorative, tested) disagrees with =is.yieldish= (runtime). One-source-of-truth (loosen schema buffers) deferred.
+
+* The big arc — Connection as a url-segment trie
+
+Finn: "when i branch the same branch twice, there is no overlap and no merging. so defining connection.branch(/emit) twice results in two independent instances which means the middlewares i set on one doesnt translate to the other." Wanted overlap "closer to what vector does. although given vector runs on signature whereas connection runs on url. what WOULD that look like?"
+
+Diagnosis: old =branch()= = =new Connection(url.branch(path), this.transport)= — fresh object, snapshot transport. No shared node, no live inheritance.
+
+** v1 spike — explicit parent + pipeline
+Trie: =carry= (per-node middleware) + =children= (segment→Connection, memoized) + =parent= field; =get pipeline= walks =this→root= reversing each carry; =request= = =middleware.compose(this.pipeline)(ctx, this.base)=. Ported =connection.test.js= with a "branch overlap" suite (6 cases). Green.
+
+** the path-dispatch bug
+Finn showed: =mode.connection.call("/emit/playground/spawn")= did NOT fire the =/emit= middleware, but =mode.emit.playground.spawn()= did. Root cause: middleware fired by DISPATCH NODE, not REQUEST PATH — a root =.call("/emit/...")= treated the endpoint as opaque URL concatenation, never walking the trie. Fix: =resolve(endpoint)= walks EXISTING children (no node creation → no leak on =/entities/<id>=), =fetch= dispatches from the resolved node. Added a regression test (multi-segment call from root hits the branched node's mw). Green.
+
+** v2 — Finn: "can you solve this using a constructor with a signature of two ie without passing parents around?"
+Dropped =parent= + =base= + =pipeline=. The parent link became the child's TRANSPORT CLOSURE:
+#+begin_src js
+constructor(url, transport = shard.transmitter.fetcher) { this.url = ...; this.transport = transport; this.carry = []; this.children = new Map(); }
+dispatch(ctx) { return middleware.compose(this.carry)(ctx, this.transport); }
+child(segment) {
+  let next = this.children.get(segment);
+  if (!next) { next = new this.constructor(this.url.branch(`/${segment}`), (ctx) => this.dispatch(ctx)); this.children.set(segment, next); }
+  return next;
+}
+branch(path) { let node = this; for (const segment of segments(path)) node = node.child(segment); return node; }
+#+end_src
+Child's =transport = (ctx) => parent.dispatch(ctx)= → dynamic, live inheritance, no field. Finn: "ok. better. lets try this."
+
+** the cut
+Finn sanity-pass prompt → "cut cut cut cut". Removed: all explanatory comments (house style = no comments), the OLD rollback block, and the =[...carry].reverse()= — that reverse only preserved legacy "last-use outermost" ordering, fighting the Vector-alignment goal. Now plain =middleware.compose(this.carry)= = Vector semantics (first-use outermost). Flipped 2 tests: "chains multiple" → =["a","b","b2","a2"]=; "response flow" → =12= ((1*2)+10). 19+1 green.
+
+Final shape: =segments= module helper + =carry= + =children= + =constructor(url, transport)= + =use= + =dispatch= + =child= + =branch= + =resolve= + =clone= + =request= (now =await this.dispatch(ctx)=) + =fetch= (resolve→node.request). Connection is now structurally a Vector — children-trie + carry + compose — keyed by url segment instead of signature; the client mirror of server-side =Aperture= (which =extends Vector=).
+
+* State / unfinished
+- Playground end-to-end loop NOT wired: =Spawner.svelte= sentinel =onMount → mode.emit.spawn → advance= still a proposal; =thread.$buffers= keystone still commented out.
+- =Yield= schema vs =is.yieldish= divergence: open. Resolve by loosening schema =buffers= to a wire shape, then one validator.
+- Double buffer-merge flagged: =/emit= response middleware merges buffers the SSE subscription also merges. Pick canonical.
+- Debug =console.log=s remain in =emitter.js= + =Spawner.svelte= (Finn's — left in place).
+
+* Praised
+- =wire= implementation ("good implementation on cast but wrong name and location").
+- the 2-arg closure connection ("ok. better").

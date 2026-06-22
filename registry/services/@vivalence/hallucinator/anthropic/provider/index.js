@@ -28,11 +28,12 @@ export default async function provider(service) {
         system,
         messages,
       };
-      if (model.thinking) {
+      if (model.thinking && !config?.tool_choice) {
         params.thinking = { type: "enabled", budget_tokens: config?.thinkingBudget ?? 16000 };
         params.max_tokens = config?.maxTokens ?? 32000;
       }
       if (config?.tools) params.tools = translateTools(config.tools);
+      if (config?.tool_choice) params.tool_choice = config.tool_choice;
 
       const response = await client.messages.create(params);
       return translateResponse(response);
@@ -47,11 +48,12 @@ export default async function provider(service) {
         system,
         messages,
       };
-      if (model.thinking) {
+      if (model.thinking && !config?.tool_choice) {
         params.thinking = { type: "enabled", budget_tokens: config?.thinkingBudget ?? 16000 };
         params.max_tokens = config?.maxTokens ?? 32000;
       }
       if (config?.tools) params.tools = translateTools(config.tools);
+      if (config?.tool_choice) params.tool_choice = config.tool_choice;
 
       const raw = await client.messages.create(params);
 

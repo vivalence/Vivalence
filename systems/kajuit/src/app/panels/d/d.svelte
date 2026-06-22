@@ -1,12 +1,21 @@
 <script>
   import { getContext } from "svelte";
   import { LIGHTHOUSE, TERMINALS } from "$client";
+  import { chain } from "@vivalence/kajuit";
+  import { belt } from "@vivalence/typology";
+  import { Section } from "@vivalence/drapes";
   import ThreadLabel from "./ThreadLabel.svelte";
 
   const lighthouse = getContext(LIGHTHOUSE);
   const terminals = getContext(TERMINALS);
 
+  const activeThread = chain(terminals, "$active", "$thread");
+
   let daemons = lighthouse.$daemons;
+
+  // Unavailable/error daemons are ignored entirely here — they 404 on /batch and would
+  // otherwise render empty with a warning dot. Health is surfaced in the crown instead.
+  const availableDaemons = $derived($daemons.filter((daemon) => daemon.status.is("healthy")));
 
   let collapsed = $state({});
   const toggle = (slug) => (collapsed[slug] = !collapsed[slug]);
@@ -15,6 +24,17 @@
 
   let threads = $state([]);
   let intents = $state([]);
+
+  const todayThreads = $derived(
+    threads.filter(({ thread }) => belt.time.bucket(thread.updatedAt) === "today"),
+  );
+  const earlierThreads = $derived(
+    threads.filter(({ thread }) => belt.time.bucket(thread.updatedAt) === "earlier"),
+  );
+
+  // Live count off the thread's $buffers computed (filters the daemon buffer repo by thread),
+  // not the populate snapshot — so a buffer created in F shows here immediately.
+  const bufferCount = (thread) => thread.$buffers?.get()?.length ?? 0;
 
   $effect(() => {
     const list = $daemons;
@@ -45,6 +65,8 @@
         teardowns.push(daemon.entities.thread.$entities.subscribe(recompute));
         const offIntent = daemon.entities.intent?.$entities.subscribe(recompute);
         if (offIntent) teardowns.push(offIntent);
+        const offBuffer = daemon.entities.buffer?.$entities.subscribe(recompute);
+        if (offBuffer) teardowns.push(offBuffer);
         await daemon.entities.thread.find({}, { populate: ["mode", "intent"] });
       }
     })();
@@ -113,12 +135,29 @@
   }
 </script>
 
+{#snippet threadRow(thread, daemon)}
+  {@const active = $activeThread?.id === thread.id}
+  <button
+    class="row thread"
+    class:on={active}
+    onclick={() => loadThread(thread)}
+    ondblclick={() => quickStart(thread)}
+    onauxclick={(event) => onThreadAux(thread, event)}
+    title="click load · dbl-click quick-start · middle-click new terminal">
+    <span class="tick" class:on={active}></span>
+    <span class="name" class:on={active}><ThreadLabel {thread} /></span>
+    <span class="tmode">{thread.mode?.slug ?? "-"}</span>
+    <span class="time">{belt.time.since(thread.updatedAt)}</span>
+    <span class="bufs" class:has={bufferCount(thread) > 0}>{bufferCount(thread)}</span>
+  </button>
+{/snippet}
+
 <div class="panel">
   <section class="daemons">
-    <header>daemons</header>
-    {#each $daemons as daemon (daemon.slug)}
-      {@const modes = (daemon.entities?.mode?.$entities.get() ?? []).filter((m) =>
-        m.implements("viewable"),
+    <Section label="daemons" count={availableDaemons.length} />
+    {#each availableDaemons as daemon (daemon.slug)}
+      {@const modes = (daemon.entities?.mode?.$entities.get() ?? []).filter(
+        (m) => m.implements("application") || m.implements("conversational"),
       )}
       {@const open = !collapsed[daemon.slug]}
       <button class="row daemon" onclick={() => toggle(daemon.slug)}>
@@ -130,7 +169,7 @@
       {#if open}
         {#each modes as mode (mode.id)}
           <button class="row mode" onclick={() => selectMode(daemon, mode)}>
-            <span class="pip {code(mode)}"></span>
+            <span class="subpip {code(mode)}"></span>
             <span class="name">{mode.slug}</span>
             <span class="type">{mode.type}</span>
           </button>
@@ -144,24 +183,23 @@
   </section>
 
   <section class="threads">
-    <header>threads</header>
-    {#each threads as { thread, daemon } (thread.id)}
-      <button
-        class="row thread"
-        onclick={() => loadThread(thread)}
-        ondblclick={() => quickStart(thread)}
-        onauxclick={(event) => onThreadAux(thread, event)}
-        title="click load · dbl-click quick-start · middle-click new terminal">
-        <span class="name"><ThreadLabel {thread} /></span>
-        <span class="type">{thread.mode?.slug ?? daemon.slug}</span>
-      </button>
-    {:else}
+    <Section label="threads" count={threads.length} />
+    {#if !threads.length}
       <div class="empty">no threads</div>
-    {/each}
+    {:else}
+      {#if todayThreads.length}
+        <div class="subgroup">today</div>
+        {#each todayThreads as item (item.thread.id)}{@render threadRow(item.thread, item.daemon)}{/each}
+      {/if}
+      {#if earlierThreads.length}
+        <div class="subgroup">earlier</div>
+        {#each earlierThreads as item (item.thread.id)}{@render threadRow(item.thread, item.daemon)}{/each}
+      {/if}
+    {/if}
   </section>
 
   <section class="intents">
-    <header>intents</header>
+    <Section label="intents" count={intents.length || null} />
     {#each intents as { intent } (intent.id)}
       <div class="row intent">
         <span class="name">{intent.name ?? intent.slug}</span>
@@ -175,6 +213,7 @@
 
 <style>
   .panel {
+    min-width: 250px;
     width: 100%;
     height: 100%;
     min-width: 160px;
@@ -182,65 +221,74 @@
     background: var(--colors-skeleton-3-surface);
     color: var(--colors-skeleton-3-contrast);
     font-family: var(--font-family-code);
-    font-size: var(--font-size-xs);
-    letter-spacing: 0.04em;
+    font-size: var(--font-size-sm);
+    letter-spacing: 0.02em;
+    padding: 14px 14px 18px;
+    box-sizing: border-box;
+
   }
   section {
-    border-bottom: 1px solid color-mix(in srgb, var(--colors-skeleton-3-boundary) 50%, transparent);
-    padding: 6px 0 8px;
+    margin-bottom: 18px;
   }
-  header {
-    font-size: var(--font-size-2xs);
-    text-transform: uppercase;
-    letter-spacing: 0.12em;
-    opacity: 0.5;
-    padding: 0 10px 6px;
+  section:last-child {
+    margin-bottom: 0;
+  }
+  section :global(.section-head) {
+    margin-bottom: 8px;
   }
   .row {
     display: flex;
     align-items: center;
-    gap: 6px;
+    gap: 7px;
     width: 100%;
-    padding: 3px 10px;
+    padding: 3px 2px;
     background: none;
     border: none;
+    border-radius: 2px;
     color: inherit;
     font: inherit;
     text-align: left;
-    line-height: 1;
+    line-height: 1.1;
   }
   button.row {
     cursor: pointer;
   }
   button.row:hover {
-    background: color-mix(in srgb, var(--colors-skeleton-3-boundary) 30%, transparent);
+    background: color-mix(in srgb, var(--colors-skeleton-3-contrast) 5%, transparent);
   }
-  .daemon {
-    text-transform: lowercase;
-    opacity: 0.85;
+  .daemon .name {
+    font-weight: 500;
   }
   .caret {
     width: 8px;
-    opacity: 0.5;
+    font-size: var(--font-size-2xs);
+    opacity: 0.45;
     flex-shrink: 0;
   }
   .mode {
-    padding-left: 30px;
-    opacity: 0.6;
+    gap: 8px;
+    padding-left: 22px;
+    opacity: 0.75;
   }
-  .thread .name,
-  .intent .name {
+  .name {
     flex: 1;
     overflow: hidden;
     text-overflow: ellipsis;
     white-space: nowrap;
   }
   .pip {
-    width: 5px;
-    height: 5px;
+    width: 6px;
+    height: 6px;
     border-radius: 50%;
     flex-shrink: 0;
     background: color-mix(in srgb, var(--colors-skeleton-3-boundary) 70%, transparent);
+  }
+  .subpip {
+    width: 4px;
+    height: 4px;
+    border-radius: 50%;
+    flex-shrink: 0;
+    background: color-mix(in srgb, var(--colors-skeleton-3-contrast) 40%, transparent);
   }
   .pip.healthy {
     background: var(--colors-skeleton-0-primary-base);
@@ -251,27 +299,77 @@
   .pip.error {
     background: var(--colors-skeleton-0-danger-base);
   }
-  .name {
-    flex: 1;
-    overflow: hidden;
-    text-overflow: ellipsis;
-    white-space: nowrap;
-  }
-  .type {
-    opacity: 0.45;
-    font-size: var(--font-size-2xs);
-    text-transform: uppercase;
-  }
   .count {
     opacity: 0.4;
+    font-size: var(--font-size-xs);
+  }
+  .type {
+    opacity: 0.4;
+    font-size: var(--font-size-xs);
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+  }
+  .subgroup {
     font-size: var(--font-size-2xs);
+    letter-spacing: 0.16em;
+    text-transform: uppercase;
+    opacity: 0.28;
+    padding: 4px 2px 3px;
+  }
+  .thread {
+    gap: 8px;
+    padding: 4px 6px 4px 4px;
+  }
+  .thread.on {
+    background: color-mix(in srgb, var(--colors-skeleton-0-primary-base) 10%, transparent);
+  }
+  .tick {
+    width: 2px;
+    height: 14px;
+    border-radius: 1px;
+    flex-shrink: 0;
+    background: transparent;
+  }
+  .tick.on {
+    background: var(--colors-skeleton-0-primary-base);
+  }
+  .thread .name.on {
+    color: var(--colors-skeleton-0-primary-base);
+  }
+  .tmode {
+    font-size: var(--font-size-2xs);
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    opacity: 0.3;
+    flex-shrink: 0;
+  }
+  .time {
+    font-size: var(--font-size-xs);
+    opacity: 0.3;
+    width: 26px;
+    text-align: right;
+    flex-shrink: 0;
+  }
+  .bufs {
+    font-size: var(--font-size-xs);
+    width: 14px;
+    text-align: right;
+    flex-shrink: 0;
+    opacity: 0.25;
+  }
+  .bufs.has {
+    color: var(--colors-skeleton-0-primary-base);
+    opacity: 0.7;
   }
   .empty {
-    padding: 4px 14px;
+    padding: 4px 2px;
     opacity: 0.3;
     text-transform: lowercase;
   }
   .empty.mode {
-    padding-left: 30px;
+    padding-left: 22px;
+  }
+  .intent .name {
+    flex: 1;
   }
 </style>

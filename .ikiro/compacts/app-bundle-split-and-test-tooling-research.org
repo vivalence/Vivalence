@@ -1,0 +1,92 @@
+#+TITLE: App/Bundle split (typology prototype + v.bundle schematic, two-faced lifecycle daemon↔client) + the bruno/pactum/TigerBeetle test-tooling research arc and the specimen-as-Vector idea
+#+TOPIC: Opened mid-gaia (the svelteBundler-reaches-into-paladin correction) — Finn killed gaia for the session, pivoted to API-client/test-tooling research (bruno internals · cata/ana · pactum · TigerBeetle DST), then a top-level "build something like bruno" design (derive don't author), the specimen-as-declared-Vector idea, a Pool↔Stall integration doc, and finally a blast-landed App/Bundle prototype split. Subsystems: subsystems/typology (prototypes/app.js, NEW prototypes/bundle.js, schematics, barrels), systems/runtime (lifecycle/resolve.js, daemon/lifecycle/population.js), docs/47_integration (NEW), .ikiro/zettelkasten.
+
+* gaia set aside (NOT abandoned — parked)
+Session opened on the unresolved gaia correction: my =systems/runtime/gaia.js= =svelteBundler(paladin)= re-created the disease — a factory taking =paladin= and reading =paladin.scope=/=paladin.is= IS a reach-in wearing a parameter. I re-proposed (gaia = {registry} only, bundler as a separate entrypoint seam). Finn: "ignore this entirely. new task." Gaia is PARKED, orb intact at =.ikiro/orbs/gaia.orb.org=; later in the session Finn reinforced "ignore gaia!" when I tried to thread =daemon.gaia.bundler= into the new Bundle. The bundler stays INJECTED (the existing =withBundler= mechanism), no gaia coupling.
+
+* bruno internals (research) — the cata/ana lang is the convulsion
+Finn: "read up on bruno." → "both in testament and as a github repo. answer me: how does bruno work internally? ... what other tools serve this purpose in js?"
+Bruno = ~16-pkg monorepo; spine = bruno-lang (.bru ⟷ JSON), bruno-filestore, bruno-js (VM sandbox), bruno-cli (runner).
+- =.bru= is JSON wearing a readable skin. =BruFile = (meta|http|body|vars|assert|script|tests|...)*= — three block kinds (dict / text / list). Parsed by an **ohm-js grammar** (=bruToJson.js=, =grammar.match(input)= → =sem(match).ast=), one semantics handler per rule. The =~= disable prefix + =@= annotations live in =pair=.
+- THE convulsion: =bruToJson= (cata) ⟷ =jsonToBru= (ana) — a clean round-trip; =.bru= is git-diffable BECAUSE the ana is the lossless inverse of the cata. Their OWN history is the parable: v1 was hand-rolled parser-combinators (=many(choice([envVarsTag, anyChar]))=), v2 threw it out for the declarative ohm grammar — the exact hand-idiom→named-structure move the elegance-debts quest walks.
+- runner: =run-single-request.js= → interpolateVars (=runtime > env > collection= layering) → prepare-request (axios config) → script sandbox → =axios()= (BUFFERS → the SSE wall: =maxContentLength -1=) → vars:post-response → tests/assert.
+- sandbox: bruno-js, two backends — NODEVM (=node:vm=) + QUICKJS (quickjs-emscripten WASM).
+Connoisseur: the lang convulses (homoiconic cata/ana). Winces: axios buffering (the SSE wall), dual v1/v2 lang. JS peers split by axis: file-DSL git-native tribe (httpyac, .http/REST Client, Hurl[rust], Stepci) vs GUI+JSON (Postman/Newman, Insomnia, Hoppscotch) vs code-first (supertest, **pactum**, frisby, playwright). Bruno's real win = flat .bru files in the repo + free CLI.
+
+* cata/ana primer (Finn: "explain cata ana elif")
+cata = fold = tear DOWN (structure → value); ana = unfold = build UP (seed → structure). The PAIR = mirror; round-trip (grow∘crush) = identity = the PROOF the two sides are true inverses (=new Signal(s).pathname === s=, =save(parse(bru)) === bru=). hylomorphism = ana then cata fused (skip the middle). Why connoisseur cares: a clean pair = two faces of ONE relationship that can't drift, not two hand-piles.
+
+* pactum @connoisseur (Finn: "tell me about pactum @conoisseur.")
+RESPECT: Spec(builder, inert data accumulated into =_request=/=_expect=) / Tosser(executor) split = declared-data → effect-consumer (your Vector→consumer shape); =then()= makes Spec a thenable so =await= IS the run-trigger (suspension-as-a-value, trigger #13); phin not axios (could stream where bruno can't).
+WINCE: OOP builder with =_underscore= privates (banned here); N near-duplicate =withX=/=expectX= methods (trigger #3 wince-twin); =$M{}=/=$S{}=/=$F{}= stringly sigil DSL resolved by string-scan (patternmap wince-twin); NO cata/ana symmetry (pure tear-down). Hickey cut: pactum is *easy* (fluent), bruno's lang is *simple* (data). **Verdict: you don't need pactum — your =Connection= (aim/stream) IS pactum's one good idea (build/run/lazy-thenable) done as a closure-object instead of a class.**
+
+* TOP-LEVEL: "build something like bruno" — derive, don't author
+Finn: "top level discussion. what do you think about the idea dear conoisseur. i want to m build something like bruno. not yet directly our own ui but eventually and starting fron ghost. i am thinking of either taking the .bru dsl and cloning some of the internals. or extending specimin with some elbow grease.. what do you think?"
+Connoisseur verdict — NEITHER as stated:
+- DON'T clone .bru: bruno's WEAKNESS is the collection is a hand-authored SECOND source of truth that DRIFTS (your =testament/_bruno/= already drifts — 5 dead .bak trees, stale assertions, GUI-only ignore, SSE wall). Cloning imports that disease into a codebase architected for the opposite.
+- The cata/ana you want ALREADY EXISTS as the Vector ecosystem. Map bruno's 3 layers onto what you have:
+  | bruno              | vivalence already has |
+  |--------------------+-----------------------|
+  | collection/.bru    | =strip(aperture)= → JSON contract (DERIVED, can't drift) / =messenger= → namespace |
+  | runner/axios       | =Connection= (=aim=/=stream= — the trie's transport dual; streams SSE) |
+  | sandbox/assert     | =specimen= + =v.matches(schema)= (typebox as oracle) |
+- The build: an API-client is a Vector-consumer. =ghost-bruno = walk(messenger(strip(remote-aperture))) + Connection + specimen=. The collection IS =strip= of the live daemon, not authored → no drift. ghost first (the =walk= interactive consumer); kajuit later renders the SAME stripped namespace as a panel. specimen's RIGHT elbow grease = bruno-parity matchers (=status=/=header=/=responseTime=) + an SSE-assert matcher (the capability bruno CAN'T match). External 3rd-party APIs (no Vector to strip) degrade to a plain =Connection= call + specimen fixture, never a DSL.
+
+* TigerBeetle DST (Finn: "read up on tigerbeetles deterministic testing technology. make this a thorough research project. standalone agent")
+Dispatched a calibrated standalone agent (12-topic brief, source-grounded via the tigerbeetle Zig repo + talks). Full report at =scratchpad/tigerbeetle-deterministic-testing.md=. Load-bearing facts: cluster = pure function of =(seed, git_commit)=, the seed IS the bug report; determinism bought architecturally (single-threaded, statically allocated, all I/O behind compile-time-injected abstractions — same prod code over io_uring OR the simulator); the VOPR (=src/vopr.zig:Simulator=) fuzzes the whole cluster on one core; one vendored float-free xoroshiro PRNG threads ALL randomness; **swarm testing** randomizes the test parameters themselves; disk-fault models map the real failure literature (=ClusterFaultAtlas= caps faults at =replication-1= so a quorum always recovers); =state_checker.zig= checksum hash-chain catches divergence; **TigerStyle** assertion-density is the oracle, ON in production; a Continuous Fuzzing Orchestrator runs ~1024 cores 24/7 → VOPR Hub auto-files seeds; descends from FoundationDB/Will-Wilson simulation testing; Antithesis adds hypervisor-level whole-system determinism + multiverse branching the forward-only VOPR lacks.
+
+* testing review + specimen read + Finn's collected ideas
+Finn: "read through compacts and quests that toich on testing from this year." → "read the specimin testing library." → "read typology ikiro. collect ideas i had about testing and specimen."
+- The method (this year's spine): =blast-bracket= (blast→test→change→test→blast; full-typology bookends; demo-driven proof; under-tested-target→guardrail-first), =effect-over-model= (correctness = OUTPUT, green-on-both-sides, never internal resemblance), invariant tests (QuickCheck lineage), scenario suite collapsed onto the real datamap provider contract.
+- specimen (=subsystems/typology/specimen/index.js=, 26 lines) = thin barrel over =@std/testing/{bdd,assert,expect}= + ONE custom matcher =matches(value, schema)= (runs =schema.errors()=) + =is.Path=. readme philosophy: "some patterns and a full toolbox, not a dictum"; test by ONTOLOGY — a type's **gestalt** (shape) + **valences** (behaviors), structured along the Wafer lifecycle.
+- Finn's collected ideas cluster into two moves: (a) test-by-ontology (gestalt/valence/lifecycle); (b) ONE harness, many implementations, schema/contract as oracle — the **memory-driver parity scenario** (one body, Bayesian/Boolean/COUNTER through the same encode/evolve/assess contract), =matches(schema)=, =schema.defaults()=. Move (b) is the seed of property-based/DST testing. Open zettel todos: test-map, parity scenario, per-trait tests, service-manifest smoke, pre-DONE verify gate. Diagnosis: inverted pyramid (typology 54 > ... > kernel 1).
+
+* specimen-as-Vector (the cata/ana over test.js idea)
+Finn: "i like the cata ana approach tho. is there maybe something we can do with our test.js files? autoparse them. build a cata ana read write. standardize specimen such that we can export them via .viva.js and build ux around them."
+Connoisseur: DON'T autoparse arbitrary =.test.js= — it's Turing-complete code, not a restricted DSL; the round-trip is LOSSY (the wince bruno's grammar avoids only because =.bru= is near-data). The realization: make the test DATA. **The describe/it tree IS a Vector trie** (describe=branch, it=leaf, path =/Die/construction/cycles=). Reframe specimen as "a Vector builder whose leaves are assertions" → a test becomes =export const specimen= (sibling of emitter/aperture/tools), and EVERY consumer applies free: =strip= (read/contract, lossless), =messenger=/=shape.object= (write/runnable namespace), =walk= (ghost UX), =traverse= (run = the execution fold), =.viva.js= export (registry-distributable). Thin =deno test= adapter (=rollup → Deno.test per leaf=) runs it under the standard tool. Existing =.test.js= stay on deno test (opt-in migration) OR specimen records its tree (cata-only, the test-map, no round-trip pretense). The cut: parsing tests = easy clone; declaring tests as a Vector = simple (the test was never not-data). DEFERRED (idea logged, not built).
+
+* Pool↔Stall integration doc (Finn dictated; I grounded + corrected "modes"→"buffers")
+Finn asked to document how Pool and Stall work together across the daemon↔client seam, then "there is a docs structure setup in repo root. wher should this snipped go. propose 5 slots" → picked "47 integration." Wrote =docs/40-49_repository/47_integration/47.01_buffer-flow.org= (NEW Johnny-Decimal bucket). Content (verified vs code): =BufferEntity= = the skeleton; **Pool** (=daemon/traits/emitter.js=, =prototypes/pool.js=) = SERVER accumulation utility (=ctx.pool.add= → =drain()= → =Yield.NOMINAL(buffers)= → thread+index → =em.flush()=; cross-mode delegates MUST feed =ctx.pool=); the dataspace/datamap is the entity-mediated wire seam; **Stall** (=kajuit/.../terminal.js=, =prototypes/stall.js=) = CLIENT phase-machine over (=thread.$buffers=, =terminal.$buffer=), =on.release= round-trips eviction back to the same table. One entity, two reactive brackets, decoupled (the entity is their only contact). One =[TODO]= flagged honestly: exact datamap subscription feeding =thread.$buffers= not located.
+
+* Vector.affect → long-term todos
+Finn: "add to long term todos: vector affect." Added to =.ikiro/zettelkasten.md ## Open follow-ups= (Architecture/elegance line): =Vector.affect= (routing-register verb =branch=/=open=/=affect=/=survey=/=rollup= — design/build the =affect= consumer), beside DaemonDie-flatten + =shape.object=-on-fold.
+
+* THE LANDING: App/Bundle split (blast-landed, green)
+Probe → decision → land. Finn: "in the application prototype, what do we call our internal statics? schama and buffer?" (Answer: =path=(mount) + =mask=(schema), no =buffer= field.) → "name them mask and mount and add a new bundle. prop. check how our bundling works?" → "i suggest we create a bundle schematic and maybe prototepe. and i want the prototype used on both mode.app.bundle(daemon) and mode.app.bundle (kajuit). feasable?!" → "asking the coisseur" → **"ignore gaia! app is not bundle. important long term distinction! blast land this."** → "do another blast test througout the client especially" → "do another blast assessment. revue".
+
+Connoisseur's two corrections that shaped it (then Finn overrode one):
+- I first argued "collapse App INTO Bundle" (App's every member is the bundled view). Finn: "app is not bundle. important long term distinction!" — App stays the APPLICATION descriptor; it HAS a Bundle. (App = identity/surface; Bundle = compile/mount mechanism.)
+- I'd flagged =mount= as colliding with a client =mount()= verb. Once =mount()= moved onto Bundle (different object), App.=mount= (the entry field) is collision-free → Finn's =mount= name stands.
+
+What shipped (blast-bracketed: baseline green → change → green → re-blast clean):
+#+BEGIN_SRC
+typology  prototypes/bundle.js  (NEW)   ONE artifact, two faces (Wafer-shaped lifecycle):
+                                          daemon: compile() / serve()   (esbuild outputs; bundler INJECTED, never imported)
+                                          kajuit: load() / mount(t,props) / unmount()   (dynamic import — client-safe)
+          prototypes/app.js              mask + mount (was `path`) + url + owns `bundle = new Bundle()`;
+                                          ctor wires `this.bundle.entry = this.mount` (shared Path); cast/fill kept;
+                                          withUrl/withBundler delegate to the bundle
+          prototypes/index.{ts,client.js} export Bundle (both barrels — client gets it via star)
+          schematics/index.js            v.bundle = () => v.object({ entry, url })   (the wire descriptor schematic)
+runtime   lifecycle/resolve.js           app.bundle() → app.bundle.compile(); app.serve() → app.bundle.serve()
+          daemon/lifecycle/population.js  app.path → app.mount  (the only 2 path-consumers)
+test      tests/gestalten/bundle.test.js  path.from→mount.from; bundle()→bundle.compile(); bundled/serve→bundle.*
+#+END_SRC
+Constraint that makes it feasible: the esbuild compiler stays INJECTED (=withBundler=), the client face uses dynamic =import(url)= — so neither face drags build deps across the seam (=project_buffer_bundle_typology_only=). It's the Pool/Stall shape (one skeleton, two utilities) but ONE prototype because it's ONE lifecycle (Wafer precedent), not two alien verb-sets.
+
+Verification (blast→test→change→test→blast):
+- typology full suite 1061 steps green (was 1056; +5 bundle) — only fail = pre-existing env-only =connection.test.js:206 whoami= external fetch.
+- runtime scenarios + aprende statistics + smoke green; live =deno eval= confirms =app.bundle instanceof Bundle= + =bundle.entry === app.mount=.
+- blast re-confirm: ZERO live refs to removed members (=path=/=bundles=/=bundler=/=bundled=/=withPath=/=flush=/=bundle()=/=serve()=) across ALL subsystems; =new App(mount,mask)= ctor unchanged → 18 mode =.viva.js= untouched (21 ctor sites total).
+- CLIENT blast: unaffected — the client never imports typology App/Bundle; it works off =mode.metadata.app= POJO ={url, schema}= (=metadata.js= unchanged) and mounts in =drapes/panels/Frame.svelte= (=import(url) → module.default(dom,props) → next.mount()=) — which is EXACTLY =Bundle.load()+mount()=. types.d.ts App/bundle/path lines are all commented-dead (nothing to fix).
+
+Flags (open, not in this pass):
+- =v.bundle= is UNUSED so far — the metadata wire is still hand-served ={url, schema}=, not yet =v.bundle=-validated / =strip(bundle)=-derived. Natural next: make the wire a =v.bundle=.
+- CLIENT mount-face wire (=Frame.svelte → bundle.mount(dom, {buffer, terminal})=) — the one live wire Finn wants; held because it's browser-verify (mode 4), not landable-green headlessly.
+- Pre-existing stale =kajuit tests/scenario/buffer.test.js= import (=../../src/entities/buffer.js= → moved to =src/typology/entities/=) — separate cleanup, untouched.
+
+* process notes
+- The whole arc was research→design→land driven by terse per-item gates; "blast land this" = the single GO, executed blast-bracketed (baseline green BEFORE touching, re-blast AFTER).
+- Connoisseur loaded as the judge throughout (bruno/pactum/Bundle); Finn overrode one connoisseur call ("app is not bundle") — the override is the canonical spec, App≠Bundle is now a stated long-term distinction.
+- "ignore gaia" stated twice — gaia parked (orb intact), bundler stays injected.
+- No "retard" callouts this session.

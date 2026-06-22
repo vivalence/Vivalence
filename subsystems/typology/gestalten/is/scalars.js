@@ -46,10 +46,11 @@ export function defined(thing) {
 }
 
 export function empty(thing) {
+  if (typeof thing === "undefined" || thing === null) return true;
   if (string(thing) || array(thing)) return thing.length === 0;
+  if (thing instanceof Map || thing instanceof Set) return thing.size === 0;
   if (object(thing)) return Object.keys(thing).length === 0;
-  console.log("is.empty(thing) wrong thing", thing, !!thing);
-  return !!thing;
+  return false;
 }
 
 export function integer(thing) {

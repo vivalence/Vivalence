@@ -1,32 +1,103 @@
-import { Vector, View, v } from "@vivalence/typology";
-import { GAMEPLAYS } from "./buffer/engine.js";
+import { Vector, App, v } from "@vivalence/typology";
+import { GAMEPLAYS, fold } from "./buffer/engine.js";
 
 const manifest = {
   type: "game",
   slug: "nyan",
   name: "Nyan",
   description:
-    "Standalone typing trainer. Setup, practice, review. One keystroke stream split into recall / spelling / motor. No domain, ephemeral.",
+    "Standalone typing trainer. Setup, practice, review. One keystroke stream split into recall / spelling / motor. Generic words, or learning-domain literals graded back to memory.",
   version: "0.1.0",
-  traits: ["VIEWABLE", "EMITTER", "SELFEVIDENT", "TOOLED"],
+  traits: ["APPLICATION", "EMITTER", "STANDALONE", "TOOLED"],
 };
 
-const view = new View(
+const app = new App(
   "buffer/Nyan.svelte",
   v.buffer({
     data: {
       gameplay: v.enum(Object.keys(GAMEPLAYS), { default: "PLAIN" }),
       words: v.array(v.string()).optional(),
+      // owners[i] = the literal id that word i belongs to; "" for untracked
+      // function words (articles, etc). parallel to words — the grade alignment.
+      owners: v.array(v.string()).optional(),
     },
+    literals: v.array(v.rel(v.literal())).optional(),
   }),
 );
 
-const emitter = new Vector().open("/play", async (ctx) => {
-  const data = {};
-  if (ctx.input.gameplay) data.gameplay = ctx.input.gameplay;
-  if (ctx.input.words) data.words = ctx.input.words;
-  return ctx.mode.buffer({ data });
-});
+const surfaceOf = (literal) => literal.trait?.TRANSLATED?.learning ?? literal.slug;
+
+// turn domain literals into a flat typeable plan: the words the engine types,
+// and a parallel owner-id per word so the buffer can grade each token back to
+// the literal it trained. ontology decides the expansion:
+//   word        → one word, owns itself
+//   conjugation → its paradigm forms (falo · fala · falamos · falam), each owns its form literal
+//   sentence    → its tokens, each aligned to a `uses` component by folded surface ("" = function word)
+async function planLiterals(ctx, literals) {
+  const words = [];
+  const owners = [];
+  for (const literal of literals) {
+    if (literal.ontology === "conjugation") {
+      const slugs = Object.values(literal.trait?.CONJUGATED?.paradigm ?? {});
+      const forms = slugs.length
+        ? await ctx.daemon.entities.literal.find({ slug: { $in: slugs } })
+        : [];
+      for (const form of forms) {
+        words.push(surfaceOf(form));
+        owners.push(form.id);
+      }
+    } else if (literal.ontology === "sentence") {
+      const uses = literal.uses?.getItems?.() ?? [];
+      for (const token of surfaceOf(literal).split(/\s+/).filter(Boolean)) {
+        const owner = uses.find((component) => fold(surfaceOf(component)) === fold(token));
+        words.push(token);
+        owners.push(owner?.id ?? "");
+      }
+    } else {
+      words.push(surfaceOf(literal));
+      owners.push(literal.id);
+    }
+  }
+  return { words, owners };
+}
+
+const emitter = new Vector()
+  // generic, domain-free: type an explicit word list (or land on setup).
+  .open("/play", async (ctx) => {
+    const data = {};
+    if (ctx.input.gameplay) data.gameplay = ctx.input.gameplay;
+    if (ctx.input.words) data.words = ctx.input.words;
+    return ctx.mode.buffer({ data });
+  })
+  // domain ingress: type learning literals; the buffer carries the owner index
+  // so finishing grades each token back to memory (see buffer/Nyan.svelte).
+  .open(
+    {
+      nature: "/literals",
+      // rels — id or entity, both fine now that v.rel passes entities through cast()
+      // without mauling Collections. we normalize to ids and refetch managed entities
+      // (fresh + `uses` populated, whether the caller sent ids or full entities).
+      input: v.object({
+        literals: v.array(v.rel(v.literal())),
+        gameplay: v.enum(Object.keys(GAMEPLAYS), { default: "PLAIN" }),
+      }),
+    },
+    async (ctx) => {
+      const ids = ctx.input.literals.map((rel) => (typeof rel === "string" ? rel : rel.id));
+      const found = await ctx.daemon.entities.literal.find(
+        { id: { $in: ids } },
+        { populate: ["uses"] },
+      );
+      const byId = new Map(found.map((literal) => [literal.id, literal]));
+      const literals = ids.map((id) => byId.get(id)).filter(Boolean); // preserve order
+      const { words, owners } = await planLiterals(ctx, literals);
+      if (!words.length) return [];
+      return ctx.mode.buffer({
+        data: { gameplay: ctx.input.gameplay, words, owners },
+        literals,
+      });
+    },
+  );
 
 const tools = new Vector().open(
   {
@@ -47,4 +118,4 @@ const tools = new Vector().open(
   async (ctx) => ctx.mode.emit.play(ctx.input),
 );
 
-export { manifest, view, emitter, tools };
+export { manifest, app, emitter, tools };

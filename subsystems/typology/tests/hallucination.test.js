@@ -283,4 +283,72 @@ specimen.describe("Hallucination", () => {
     });
   });
 
+  specimen.describe("object", () => {
+
+    specimen.it("dedicated faculty renders structured data directly", async () => {
+      const harness = makeHarness(populatedCortex());
+      const turn = await harness.object.render(input(
+        [{ role: "user", parts: [{ type: "text", text: "hello" }] }],
+        "balanced", {}, { schema: { type: "object" } },
+      ));
+
+      specimen.expect(turn.parts[0].type).toBe("object");
+      specimen.expect(turn.parts[0].data.echo).toBe("hello");
+    });
+
+    specimen.it("synthesizes from dialogue + respond tool when no object faculty", async () => {
+      const cortex = new Cortex();
+      cortex.extend([{
+        type: "dialogue", tune: [0.5, 0.5, 0.5],
+        channels: { in: ["text", "tool_result"], out: ["text", "tool_use"] },
+        via: {
+          render: async (turns) => ({
+            role: "assistant",
+            parts: [{ type: "tool_use", id: "r1", name: "respond", input: JSON.stringify({ verdict: lastUserText(turns) }) }],
+            meta: { stop: "tool_use" },
+          }),
+        },
+      }]);
+
+      specimen.expect(cortex.has("object")).toBe(true);
+      specimen.expect(cortex.table.has("object")).toBe(false);
+
+      const harness = makeHarness(cortex);
+      const turn = await harness.object.render(input(
+        [{ role: "user", parts: [{ type: "text", text: "casa" }] }],
+        "balanced", {}, { schema: { type: "object" } },
+      ));
+
+      specimen.expect(turn.parts[0].type).toBe("object");
+      specimen.expect(turn.parts[0].data.verdict).toBe("casa");
+    });
+
+    specimen.it("synthetic object runs real tools before responding", async () => {
+      const cortex = new Cortex();
+      cortex.extend([{
+        type: "dialogue", tune: [0.5, 0.5, 0.5],
+        channels: { in: ["text", "tool_result"], out: ["text", "tool_use"] },
+        via: {
+          render: async (turns) => {
+            if (!hasToolResult(turns))
+              return { role: "assistant", parts: [{ type: "tool_use", id: "t1", name: "lookup", input: JSON.stringify({ query: "casa" }) }], meta: { stop: "tool_use" } };
+            const result = turns.at(-1).parts.find((part) => part.type === "tool_result").output;
+            return { role: "assistant", parts: [{ type: "tool_use", id: "r1", name: "respond", input: JSON.stringify({ definition: result.definition }) }], meta: { stop: "tool_use" } };
+          },
+        },
+      }]);
+
+      const harness = makeHarness(cortex);
+      const turn = await harness.object.render(input(
+        [{ role: "user", parts: [{ type: "text", text: "casa" }] }],
+        "balanced",
+        { lookup: async (i) => ({ definition: `${i.query} means house` }) },
+        { schema: { type: "object" } },
+      ));
+
+      specimen.expect(turn.parts[0].type).toBe("object");
+      specimen.expect(turn.parts[0].data.definition).toBe("casa means house");
+    });
+  });
+
 });

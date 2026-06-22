@@ -1,9 +1,9 @@
-import { specimen, View, v } from "@vivalence/typology";
+import { specimen, App, v } from "@vivalence/typology";
 
-specimen.describe("View", () => {
+specimen.describe("App", () => {
   specimen.describe("cast", () => {
     specimen.it("fills defaults from TypeBox schema", () => {
-      const bv = new View("test.svelte", v.buffer({
+      const bv = new App("test.svelte", v.buffer({
         data: { recall: v.string({ default: "LEARNING" }) },
       }));
       const result = bv.cast({ data: { }, literals: [{ id: "hello" }] });
@@ -11,7 +11,7 @@ specimen.describe("View", () => {
     });
 
     specimen.it("retains provided values", () => {
-      const bv = new View("test.svelte", v.buffer({
+      const bv = new App("test.svelte", v.buffer({
         data: { recall: v.string({ default: "LEARNING" }) },
       }));
       const result = bv.cast({ data: { recall: "KNOWN" } });
@@ -19,7 +19,7 @@ specimen.describe("View", () => {
     });
 
     specimen.it("does not mutate schema on repeated calls", () => {
-      const bv = new View("test.svelte", v.buffer({
+      const bv = new App("test.svelte", v.buffer({
         data: { recall: v.string({ default: "LEARNING" }) },
       }));
       bv.cast({ data: { recall: "KNOWN" } });
@@ -28,7 +28,7 @@ specimen.describe("View", () => {
     });
 
     specimen.it("returns defaults when called without args", () => {
-      const bv = new View("test.svelte", v.buffer({
+      const bv = new App("test.svelte", v.buffer({
         data: { recall: v.string({ default: "LEARNING" }) },
       }));
       const result = bv.cast();

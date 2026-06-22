@@ -14,7 +14,11 @@ export const HARNESSED = (mode, daemon) => {
 
   harness.use(async (ctx, next) => {
     ctx.hallucination = new Hallucination(daemon.cortex, ctx.input);
+    await next();
+  });
 
+  // turn persistence is a dialogue concern — only the dialogue branch scribes turns
+  harness.branch("/dialogue").use(async (ctx, next) => {
     await next();
 
     if (ctx.output?.[Symbol.asyncIterator]) {
@@ -89,6 +93,7 @@ export const HARNESSED = (mode, daemon) => {
 
     mode.aperture.branch("/harness").slurp(harness);
 
+    // TODO capabilities should be surfaced under /metadata!
     mode.aperture.open("/capabilities", (ctx) =>
       ["dialogue", /* "speech", "verbatim", */ "object"] //
         .filter((type) => ctx.daemon.cortex.has(type))

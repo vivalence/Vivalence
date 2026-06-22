@@ -1,5 +1,5 @@
 import { atom, computed } from "nanostores";
-import { shard, Url, Request, Response } from "@vivalence/typology";
+import { string, shard, Url, Request, Response, middleware } from "@vivalence/typology";
 import { object } from "@vivalence/typology";
 import { Socket } from "./socket.js";
 
@@ -7,19 +7,36 @@ export class Connection {
   $state = atom("IDLE");
   $error = atom(null);
 
+  carry = [];
+  children = new Map();
+
   constructor(url, transport = shard.transmitter.fetcher) {
     this.url = url instanceof Url ? url : new Url(url);
     this.transport = transport;
   }
 
   use(fn) {
-    const inner = this.transport;
-    this.transport = (ctx) => fn(ctx, () => inner(ctx));
+    this.carry.push(fn);
     return this;
   }
 
+  dispatch(ctx) {
+    return middleware.compose(this.carry)(ctx, this.transport);
+  }
+
+  child(segment) {
+    let next = this.children.get(segment);
+    if (!next) {
+      next = new this.constructor(this.url.branch(`/${segment}`), (ctx) => this.dispatch(ctx));
+      this.children.set(segment, next);
+    }
+    return next;
+  }
+
   branch(path) {
-    return new this.constructor(this.url.branch(path), this.transport);
+    let node = this;
+    for (const segment of string.split(path)) node = node.child(segment);
+    return node;
   }
 
   clone() {
@@ -37,22 +54,32 @@ export class Connection {
     const ctx = {
       request,
       response: new Response(),
-      // Response,
       state: {},
     };
 
-    await this.transport(ctx);
+    await this.dispatch(ctx);
 
     return ctx.response;
   }
 
+  resolve(endpoint) {
+    let node = this;
+    for (const segment of string.split(endpoint)) {
+      const next = node.children.get(segment);
+      if (!next) break;
+      node = next;
+    }
+    return node;
+  }
+
   async fetch(endpoint, body = {}, options = {}) {
+    const node = this.resolve(endpoint);
     const request = new Request({
       url: this.url.branch(endpoint),
       body,
       ...options,
     });
-    return this.request(request);
+    return node.request(request);
   }
 
   async call(endpoint, body = {}, options = {}) {
@@ -73,28 +100,42 @@ export class Connection {
   }
 
   async *stream(endpoint, signal, options = {}) {
-    const response = await this.fetch(endpoint, {}, {
-      method: "GET",
-      headers: { accept: "text/event-stream", ...options.headers },
-      signal,
-    });
+    const response = await this.fetch(
+      endpoint,
+      {},
+      {
+        method: "GET",
+        headers: { accept: "text/event-stream", ...options.headers },
+        signal,
+      },
+    );
     if (response.error) throw response.error;
-    if (!response.body?.getReader) throw new Error(`SSE stream expected ReadableStream, got ${typeof response.body}`);
+    if (!response.body?.getReader)
+      throw new Error(`SSE stream expected ReadableStream, got ${typeof response.body}`);
     const reader = response.body.getReader();
     const decoder = new TextDecoder();
     let buffer = "";
-    while (true) {
-      const { value, done } = await reader.read();
-      if (done) break;
-      buffer += decoder.decode(value, { stream: true });
-      const frames = buffer.split("\n\n");
-      buffer = frames.pop();
-      for (const frame of frames) {
-        const line = frame.split("\n").find((l) => l.startsWith("data: "));
-        if (!line) continue;
-        const payload = line.slice(6);
-        try { yield JSON.parse(payload); } catch { yield payload; }
+    try {
+      while (true) {
+        const { value, done } = await reader.read();
+        if (done) break;
+        buffer += decoder.decode(value, { stream: true });
+        const frames = buffer.split("\n\n");
+        buffer = frames.pop();
+        for (const frame of frames) {
+          const line = frame.split("\n").find((l) => l.startsWith("data: "));
+          if (!line) continue;
+          const payload = line.slice(6);
+          try {
+            yield JSON.parse(payload);
+          } catch {
+            yield payload;
+          }
+        }
       }
+    } finally {
+      // consumer broke early (or aborted/threw): release the body so it doesn't leak
+      try { await reader.cancel(); } catch (_) {}
     }
   }
 
@@ -113,7 +154,8 @@ export class Connection {
           callback(event);
         }
       } catch (error) {
-        if (error.name !== "AbortError") console.warn(`[connection] subscribe ${endpoint} failed`, error);
+        if (error.name !== "AbortError")
+          console.warn(`[connection] subscribe ${endpoint} failed`, error);
       }
     })();
     return () => controller.abort();

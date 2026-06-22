@@ -353,6 +353,25 @@ specimen.describe("v", () => {
       specimen.expect(v.rel(v.mode()).check(42)).toBe(false);
     });
 
+    specimen.it("cast() passes an entity through a rel WITHOUT mauling its Collections", () => {
+      // a relation is identity, not value — Convert must not descend into the entity
+      // and coerce a class-instance relation field (e.g. a MikroORM Collection) into a
+      // plain object. class instances must survive by-reference, prototype intact.
+      class Collection {
+        constructor() { this.items = []; }
+        getItems() { return this.items; }
+        add(item) { this.items.push(item); }
+      }
+      const symbols = new Collection();
+      symbols.add({ id: "s1" });
+      const entity = { id: "lit-1", slug: "bom", symbols };
+      const schema = v.object({ literals: v.array(v.rel(v.literal())) });
+      const out = schema.cast({ literals: [entity] });
+      specimen.expect(out.literals[0].symbols).toBe(symbols); // same ref — not cloned, not mauled
+      specimen.expect(out.literals[0].symbols instanceof Collection).toBe(true);
+      specimen.expect(out.literals[0].id).toBe("lit-1");
+    });
+
     specimen.it("chains with .optional()", () => {
       const s = v.object({ thread: v.rel(v.thread()).optional() });
       specimen.expect(s.check({})).toBe(true);

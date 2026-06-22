@@ -1,3 +1,5 @@
+import { waiter } from "./promise.js";
+
 export function pour(turn, packet) {
   switch (packet.event) {
     case "/turn/open":
@@ -67,8 +69,8 @@ export async function bridge(stream) {
 export function tee(source) {
   const aBuffer = [];
   const bBuffer = [];
-  let aWake = null;
-  let bWake = null;
+  const aGate = waiter();
+  const bGate = waiter();
   let done = false;
 
   (async () => {
@@ -76,31 +78,28 @@ export function tee(source) {
       for await (const item of source) {
         aBuffer.push(item);
         bBuffer.push(item);
-        if (aWake) { aWake(); aWake = null; }
-        if (bWake) { bWake(); bWake = null; }
+        aGate.wake();
+        bGate.wake();
       }
     } finally {
       done = true;
-      if (aWake) aWake();
-      if (bWake) bWake();
+      aGate.wake();
+      bGate.wake();
     }
   })();
 
-  const drain = (buffer, getWake, setWake) => ({
+  const branch = (buffer, gate) => ({
     [Symbol.asyncIterator]() { return this; },
     async next() {
       while (true) {
         if (buffer.length) return { value: buffer.shift(), done: false };
         if (done) return { value: undefined, done: true };
-        await new Promise((resolve) => setWake(resolve));
+        await gate.wait();
       }
     },
   });
 
-  return [
-    drain(aBuffer, () => aWake, (resolve) => { aWake = resolve; }),
-    drain(bBuffer, () => bWake, (resolve) => { bWake = resolve; }),
-  ];
+  return [branch(aBuffer, aGate), branch(bBuffer, bGate)];
 }
 
 export async function* textFromPackets(packets) {

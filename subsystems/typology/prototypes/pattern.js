@@ -40,7 +40,12 @@ export class Pattern extends Signature {
   }
 
   apply(signal) {
-    return this.filter ? this.filter(signal, this) : null;
+    const match = this.filter ? this.filter(signal, this) : null;
+    if (match) {
+      if (this.input) match.input = this.input;
+      if (this.output) match.output = this.output;
+    }
+    return match;
   }
 }
 

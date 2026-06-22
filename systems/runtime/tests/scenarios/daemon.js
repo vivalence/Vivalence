@@ -1,51 +1,43 @@
-import { Url, Connection, shard, Mode, Path, shape, Aperture, Vector, View, v } from "@vivalence/typology";
+import { Url, Connection, shard, Mode, Path, shape, Aperture, Vector, App, v } from "@vivalence/typology";
 import { RequestContext } from "@mikro-orm/core";
-import {
-  ModeEntity,
-  IntentEntity,
-  UserEntity,
-  ThreadEntity,
-  LiteralEntity,
-  SymbolEntity,
-} from "@vivalence/typology/entities";
-import { BufferEntity, TurnEntity, seed } from "./entities.ts";
+import { seed } from "./entities.ts";
+import { tiers } from "./variant.js";
 
 import * as routes from "@vivalence/runtime/daemon/aperture";
 import { INTENTED, EMITTER } from "@vivalence/runtime/daemon/traits";
 
-const VIEWABLE = (mode, daemon) => {
+const APPLICATION = (mode, daemon) => {
   mode.aperture.open("/buffered", () => ({
-    url: mode.cake.view.url.absolute,
-    schema: mode.cake.view.mask,
+    url: mode.cake.app.url.absolute,
+    schema: mode.cake.app.mask,
   }));
   mode.buffer = (desc = {}) => {
-    // const em = daemon.entities.em;
     const em = daemon.entities.em;
-    const buffer = em.create(BufferEntity, {
+    const buffer = em.create(tiers.buffer.entity, {
       mode: mode.entity.id,
-      data: mode.cake.view.cast(desc),
+      data: mode.cake.app.fill(desc),
       index: desc.index ?? 0,
     });
-    if (desc.literals) buffer.literals.add(desc.literals.map((l) => em.getReference(LiteralEntity, l?.id ?? l)));
-    if (desc.symbols) buffer.symbols.add(desc.symbols.map((s) => em.getReference(SymbolEntity, s?.id ?? s)));
+    if (desc.literals) buffer.literals.add(desc.literals.map((l) => em.getReference(tiers.literal.entity, l?.id ?? l)));
+    if (desc.symbols) buffer.symbols.add(desc.symbols.map((s) => em.getReference(tiers.symbol.entity, s?.id ?? s)));
     return buffer;
   };
 };
 
 export async function create() {
-  const { orm, em, fixtures } = await seed();
+  const { orm, em, datamap, entities, fixtures } = await seed();
 
-  const modeTraits = ["VIEWABLE", "SELFEVIDENT", "INTENTED", "EMITTER"];
+  const modeTraits = ["APPLICATION", "INTENTED", "EMITTER"];
   const mode = new Mode({ manifest: { type: "game", slug: "flashcard", traits: modeTraits } });
   mode.aperture = new Aperture();
   mode.mount = new Path(`/mode/${mode.type}/${mode.slug}`);
   mode.entity = fixtures.mode;
   mode.id = fixtures.mode.id;
 
-  mode.cake.view = new View("buffer/flashcard.svelte", v.buffer({
+  mode.cake.app = new App("buffer/flashcard.svelte", v.buffer({
     data: { recall: v.string({ default: "LEARNING" }) },
   }));
-  mode.cake.view.withUrl(new Url(`http://test/view/${mode.type}/${mode.slug}`));
+  mode.cake.app.withUrl(new Url(`http://test/view/${mode.type}/${mode.slug}`));
 
   mode.cake.dataset = {
     intent: [
@@ -76,7 +68,7 @@ export async function create() {
     mount: new Path("/daemon/test-daemon"),
     aperture: new Aperture(),
     twitch: new Vector(),
-    entities: { em },
+    entities,
     modes: { game: { flashcard: mode } },
     cargo: { version: "0.0.1", test: true },
     services: {},
@@ -87,21 +79,7 @@ export async function create() {
 
   daemon.aperture.use(shard.context.attach("daemon", daemon));
 
-  daemon.entities.literal = em.getRepository(LiteralEntity);
-  daemon.entities.symbol = em.getRepository(SymbolEntity);
-  daemon.entities.mode = em.getRepository(ModeEntity);
-  daemon.entities.intent = em.getRepository(IntentEntity);
-  daemon.entities.thread = em.getRepository(ThreadEntity);
-  daemon.entities.user = em.getRepository(UserEntity);
-  daemon.entities.buffer = em.getRepository(BufferEntity);
-  daemon.entities.turn = em.getRepository(TurnEntity);
-  daemon.entities.trace = null;
-
-  em.setFilterParams("user", { user: fixtures.user.id });
-
-  // const sub = shape.subscriber(daemon.entities.twitch);
-  const sub = shape.subscriber(daemon.twitch);
-  em.getEventManager().registerSubscriber(sub);
+  datamap.subscribe(shape.subscriber(daemon.twitch));
 
   daemon.aperture.use(async (ctx, next) => {
     ctx.authority = {
@@ -115,7 +93,7 @@ export async function create() {
     await next();
   });
 
-  await VIEWABLE(mode, daemon);
+  await APPLICATION(mode, daemon);
   await INTENTED(mode, daemon);
   await EMITTER(mode, daemon);
 
@@ -123,17 +101,7 @@ export async function create() {
 
   const die = {
     good: daemon,
-    datamap: {
-      entities: daemon.entities,
-      context:      (fn) => RequestContext.create(orm.em, fn),
-      bind:         (name, resolve) => async (ctx, next) => {
-        RequestContext.getEntityManager()?.setFilterParams(name, resolve(ctx));
-        await next();
-      },
-      introspect:   () => orm.getMetadata(),
-      subscribe:    (sub) => orm.em.getEventManager().registerSubscriber(sub),
-      disintegrate: () => orm.close(),
-    },
+    datamap,
     status: { reflection: { code: "ALIVE" } },
     manifest: daemon.manifest,
   };

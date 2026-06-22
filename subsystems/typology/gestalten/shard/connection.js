@@ -64,9 +64,8 @@ export const batch = (options = {}) => {
     if (filter && !filter(ctx)) return next();
 
     const fullPath = ctx.request.url.pathname;
-    const path = basePath && fullPath.startsWith(basePath)
-      ? fullPath.slice(basePath.length) || "/"
-      : fullPath;
+    const path =
+      basePath && fullPath.startsWith(basePath) ? fullPath.slice(basePath.length) || "/" : fullPath;
     const body = ctx.request.body;
     const method = ctx.request.method;
 

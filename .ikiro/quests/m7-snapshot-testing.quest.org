@@ -1,0 +1,136 @@
+#+TITLE: M7 — Snapshot Testing
+#+AUTHOR: Vivalence
+#+STATUS: WIP
+#+DATE: 2026-06-30
+
+* Intent
+
+=specimen.snapshot= — a capture primitive that turns a LIVE instance (MikroORM
+entity, Mode, Domain, Wafer, Vector, paladin variant…) into a curated, JSON-safe
+POJO and writes it to disk as a =.snapshot.json= artifact. The cata
+(deconstruct) half is built; the ana (build/read-from-disk) half is deferred but
+seam-cut. A toolbox instrument first, a golden-file harness later.
+
+Session narrative + Finn's verbatim direction live in
+=.ikiro/compacts/specimen-snapshot-tool.org=. This quest is the durable design.
+
+* Vocabulary (Settled)
+
+| Term | Definition |
+|------+------------|
+| snapshot | =specimen.snapshot(subject, opts)= → ={ pojo, path }=. The capture tool (=subsystems/typology/specimen/snapshot.js=). |
+| fold | The one recursive combinator inside snapshot — depth-bounded, cycle-guarded cata over a live value (see *fold behavior* below). |
+| object.descend | belt primitive (=gestalten/belt/object.js=) — dumb cycle-guarded object→POJO mirror (WeakSet). No Date/Collection/Vector handling; a throwing getter throws. The general sibling of fold. NOT named =strip= (taken by the mutating null-stripper =stripNulls=). |
+| instance vantage | fold a live object in-process (the die, =transmitter.inline=) → =<id>-<daemon>.snapshot.json=. |
+| aperture vantage | call the daemon's /metadata aperture over a real Connection (=transmitter.fetcher= + lighthouse login) and snapshot the WIRE result → =<id>-aperture.snapshot.json=. |
+| parse | replace the serializer wholesale (identity =(x)=>x= for already-JSON data; =u=>u.json= for a Signature). |
+| pick / omit | top-level field allowlist / blocklist (duals). omit drops e.g. =Mode.cake=. |
+| locate(meta, pojo)→path | WHERE on disk. string verbatim; meta = read-safe key {type,slug,vantage}; pojo = write-only naming convenience. REQUIRED only under write. |
+| base | dir a relative locate resolves against; absolute passes through. Foreign-cwd callers (die in systems/runtime) pass an import.meta-derived base. |
+| dry | resolve { pojo, path } exactly as a real run would, touch no disk. Preview. |
+
+* Settled Architecture
+
+** snapshot — the knobs
+
+#+begin_src javascript
+snapshot(subject, { parse, locate, meta, depth, pick, omit, base, write, dry }) → { pojo, path }
+//   cata pipeline:  write ∘ locate ∘ JSON.stringify ∘ fold
+//   default parse = fold; depth default 2; write default true; dry default false;
+//   writing = write && !dry; path REQUIRED only when writing (else returned, maybe undefined).
+#+end_src
+
+** fold — behavior (per fold path; each rule earned by a live run)
+
+| input | rule |
+|-------+------|
+| null / scalar | passthrough |
+| Date | → ISO string |
+| BigInt | → string |
+| already-seen object | → CUT (WeakSet cycle guard; kills self-refs like =mode.status.subject === mode=) |
+| MikroORM Collection | → item ids (or ="[unloaded]"=) |
+| Path / routing node (=.nature= string + =.gauges= array) | → its =.nature= string (drops the trace tree) |
+| Vector (=.effects instanceof Map=) | → =shape.strip= contract ={leaves,branches}= |
+| array | → map fold |
+| object at depth floor | → =value.id ?? undefined= |
+| plain object | → recurse, shedding NOISE |
+| =Map= (native) | *GAP — folds to ={}= (Object.keys empty). See Tool evolution #2.* |
+
+NOISE shed: =$=-atoms · functions · =em= · =daemon= (keeps the entity→em→daemon→modes spine from being walked).
+
+Corollaries:
+- *already-JSON data* (wire results, =v= typebox schemas) must use identity =parse= —
+  default depth NULLS nested structure (=allOf:[null,null,null]=). The aperture vantage
+  hit this and switched to =parse:(x)=>x=. Wire data needs NO fold.
+- *Signature subjects* (=Url/Path/Signal=) collapse to a bare =.nature= via the Path rule;
+  for the full shape use =.json= (=Url= has it) or a =parse=. Good for nested routing nodes,
+  lossy for the subject itself.
+- *Domain ≠ Mode*: =flatmodes()[0]= for brazilian is a =Domain= (circular aperture) →
+  =JSON.stringify= throws; fold (cycle-guard) + =object.descend= survive.
+
+** two vantages
+
+- *instance* — =systems/runtime/daemon/die.js= =integrate()= (currently an EPHEMERAL probe,
+  =CLAUDE EPHEMERAL · DELETE= — to be lifted into =instance.snapshot.test.js= or removed).
+  Deep trio =language-learning·aprende·nyan= (depth 6, =omit:["cake"]= — cake duplicates the
+  live aperture/emitter contract), rest shallow =pick=. =base= from =import.meta.url=.
+- *aperture* — =systems/runtime/tests/aperture.snapshot.test.js= (interaction mode 2):
+  =new Connection(new Url("http://localhost:2501"), shard.transmitter.fetcher)=, lighthouse
+  login (=/attached/process/lighthouse/multiplayer/auth/login= → =Bearer authority.access=),
+  call =/daemon/<slug>/metadata/modes= + per-mode =/metadata/{manifest,aperture}=. NOTE:
+  =/metadata/*= IS auth-gated (live daemon returns Unauthorized) — login required.
+
+** file convention + homes
+
+- test = =<semantic>.snapshot.test.js=, artifact = =<dashed-semantic>.snapshot.json=
+  (everything before =.snapshot.json= is kebab, vantage is the last segment).
+- two homes: =subsystems/typology/tests/snapshots/= (the tool's own) and
+  =systems/runtime/tests/snapshots/= (daemon-die + aperture captures).
+- all =*.snapshot.json= + =**/tests/snapshots/= are *gitignored* — artifacts regenerate from
+  the tests; the tool + the =.snapshot.test.js= files stay tracked.
+
+** demos (exist, green, dry→write→read-back verified)
+
+- typology =primitives.snapshot.test.js= — 5 subjects: =v.literal()= (identity parse) ·
+  =Vector= (strip) · =Url= (=.json= parse) · =Path= · =Signal= (isPath collapse).
+- paladin =variant.snapshot.test.js= — 2 subjects: =paladin.variant= (after =mount()=, depth 6,
+  the real deployment) · =paladin.scope= (resolved dir paths).
+
+* Tool evolution (the three gaps — none built; carry at full fidelity)
+
+1. *kajuit getter/atom parse* — kajuit client state is ~90% nanostore =$=-atoms, which fold's
+   NOISE rule DROPS → a vanilla fold of =lighthouse/bridge/terminals= yields ={}=. Need a capture
+   path that reads the VANILLA GETTERS / =.get()= / =Status.reflection= instead of folding raw
+   atoms. Keep it a per-call =parse= (or a new opt like =atoms:true=) — do NOT couple generic
+   =fold= to nanostores. Blocks the whole kajuit vantage.
+2. *Map handling in fold* — a native =Map= folds to ={}=. Bites paladin =pensieve= (nested
+   =owner→type→slug→version= Map) AND typology =Request/Response= =headers= (Map). GENERIC fix,
+   not class-specific: =if (value instanceof Map) return fromEntries-then-fold=. One line; worth
+   baking into =fold= (unlike #1 and #3, which stay per-call / separate).
+3. *the ana half* — snapshot is cata only. The dual is build/read-from-disk (=snapshot.build= /
+   =specimen.restore=): =build ∘ JSON.parse ∘ readFile ∘ locate=. =locate= is already read-safe
+   (meta-keyed, not body-keyed) so it drops in unchanged. Unlocks the golden-diff assertion —
+   the thing that turns capture-toy into snapshot-TESTING.
+
+* Broad-capture plan (proposed; only the 7 demos built so far)
+
+Estimates UNVERIFIED except runtime (real, on disk). kajuit deferred (needs gap #1).
+
+| system | targets | capture | est |
+|--------+---------+---------+-----|
+| runtime | modes ×2 vantages (DONE, 23 files); + daemon-level /metadata/{datamap,cargo,aperture} | mode 2 | done + ~10K |
+| paladin | variant · pensieve(Map!) · env.vars(redact SECRET_*) · scope | headless test (=paladin.variant.mount()=) | ~18K |
+| typology | =v= entity schemas (thread·buffer·mode·literal·turn·symbol, already-JSON) · Signature samples (Url/Path/Signal) · a Vector | headless construct | ~5K |
+| kajuit | lighthouse·bridge·terminals (getter-parse) · entities via .toJSON() | browser/SvelteKit test | BLOCKED on gap #1 |
+
+* TODO
+
+- [ ] lift the instance probe out of =die.js= into =instance.snapshot.test.js= (or delete) —
+      throwaway code in two core die files right now.
+- [ ] gap #2: bake =Map= handling into =fold= (generic, one line).
+- [ ] gap #1: kajuit getter/atom =parse= path.
+- [ ] gap #3: ana half (=snapshot.build= / =specimen.restore=) → enables golden-diff assertion.
+- [ ] golden-file assertion test (runtime) that diffs live capture vs committed snapshot.
+- [ ] broad capture beyond demos (paladin pensieve/env · typology v-schema set · runtime daemon-level).
+- [ ] decide mode-entity (=mode.entity=) sibling =*.entity.snapshot.json= captures.
+- [ ] rename question: =object.descend= vs Finn's wished =object.strip= (taken by =stripNulls=).

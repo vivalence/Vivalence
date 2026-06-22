@@ -20,6 +20,8 @@
 
 **Infra gaps (2)** — `dapper/.ikiro/CLAUDE.md` (subsystem missing its ikiro) · `systems/ghost/.ikiro/CLAUDE.md` (DESIGN-only container, no claude.md).
 
+**Architecture / elegance (long-term)** — SHIPPED 2026-06-29 (see "Discovered 2026-06-29"): wake-suspend atom → `belt.promise.waiter()` (+ `belt.sleep.signal`, `belt.fn.inflight`); all four channels (Queue/Pipe/soma.tee/Broadcaster) migrated; Vector tree-fold reified → `descend`/`steer.fold`, with `survey`/`rollup`/`strip` rebuilt over it. STILL OPEN: **DaemonDie nesting flatten** (`die.good.X` vs `die.X` vs `die.register.X` — ambiguous ownership, deep lookup chains; LONG-TERM cleanup) · `shape.object`-on-fold (prove-first by its produced namespace) · **`Vector.affect`** (routing-register verb `branch`/`open`/`affect`/`survey`/`rollup` — design/build out the `affect` consumer). `messenger`/`rehydrate` left as a clean anamorphism (the `// @beef "uninspired"` was overstated — no `unfold` worth building for one caller). See `.ikiro/CLAUDE.md ## code` for full doctrine.
+
 ---
 
 ## TOOLED trait
@@ -68,6 +70,35 @@ First user: dewey `learner_state`.
 
 ## Discovered this session
 - [ ] **dapper IKIRO_DRAFT.md**: dapper subsystem (theming) was added to root IKIRO system map but lacks its own `subsystems/dapper/.ikiro/IKIRO_DRAFT.md`. Out of scope for this redact run (D12 — ikiro folders only at established subsystem level; dapper qualifies but wasn't in original scope). Add in next redact run or as one-off.
+
+## Discovered 2026-06-29 (connoisseur doctrine + elegance debts + my self-corrections)
+
+State: connoisseur made operational in `.ikiro/CLAUDE.md ## code`; elegance debts shipped. Compact: `.ikiro/compacts/connoisseur-doctrine-and-elegance-debts.org`. Memory: `project_connoisseur_doctrine_and_elegance_debts`.
+
+Doctrine landed (`## code`): the triggers (thirteen, open set — nine core + totality/discriminator-as-data/algebra-named/lazy added this session) · discriminator · effect-over-model · Vector-consumer principle · cata/ana ecosystem · naming&semantics · discipline scorecard. Methods: `blast-bracket` (## methods), `### the investigator` (## self).
+
+**My self-corrections this session (the improvements — failure modes I caught + fixed):**
+- **Cross-compared role-fit siblings on one axis** — rated `shotgun` "B-grade" vs `rollup`. Wrong axis: they're different *characters* (different access-geometry). Rule now: judge a Vector consumer WITHIN its role; never cross-compare. (Finn: "they serve different purposes! ... roll up and shotgun are different characters.")
+- **Applied generic priors over the LOCAL aesthetic** — flagged the `Env` Proxy as "magic" (it's the blessed transparent-accessor) and the client-atom/server-ORM split as a "fracture" (it's the principled buffer-bundle boundary). Calibrate to vivalence's own values, not textbook "magic=bad". Fix: feed the rubric + local memories INTO every agent prompt before the sweep.
+- **Wrong shelf for a primitive** — first proposed `prototypes/waiter.js`; belt was the home (already held `retry`/`once`/`sleep`). `primitives-before-handrolling`: grep the existing shelf first.
+- **Relayed agent claims as fact** — took agent `file:line` refs without reading. Ground-truth gate now: quote-before-asserting, verify the contested few myself.
+- **Under-scoped a blast** — scoped `shape.strip`'s consumers too tight (missed the runtime `/metadata` endpoints) until Finn: "strip has more consumers. blast". Overloaded names (4 different `strip`s) need disambiguation, but the blast must still sweep the barrel + all dispatch paths.
+- Meta-lesson, now in `### the investigator`: **breadth is my reflex; calibration + verification are the discipline that makes the breadth trustworthy.** Most of my errors were judgment-axis, not search-misses.
+
+Praise to repeat (Finn): "this session was excellent. good language semantics in functional programming. more of this. good style. good code. good demos." → the FP-naming aesthetic + demo-driven proof are now doctrine.
+
+## Discovered 2026-06-28 (stall phase paradigm + lisp aesthetic)
+
+State: Stall recast as a terminal-owned phase machine. Compact: `.ikiro/compacts/stall-phases-and-the-lisp-ejaculator.org`.
+
+- **The lisp connoisseur-ejaculator** is now an ikiro staple (`.ikiro/CLAUDE.md ## self`, `### the lisp connoisseur-ejaculator`). The goal for my code: the Lisp connoisseur ejaculates. Both halves — the connoisseur's discernment (only true elegance registers) + the ejaculation as the bar (the VIOLENT involuntary convulsion, not approval/nodding). Finn: "would a lisp connoisseur violently ejaculate reading this code?" → "EJACULATOR! i want the extremity" → "combine both connoisseur and ejaculator" → "the lisp connoisseur ejaculates. thats the goal for your code." Triggers: small dispatch core, data-thin verbs over one combinator, multimethod-on-dynamic-var (never a switch), progn, no priming/ceremony.
+- **Stall = phase machine** (`subsystems/typology/prototypes/stall.js`, constructor fn not class). Phases INERT/STATIC/CONTINUOUS/ESCORT/MANUAL collapse onto one `engage(phase, react)`; `release` dispatches on the live `$phase` atom. Renames: depth→queue, pull→fetch, runPull→pull; toJSON `items`(list)+`queue`(count). Terminal-owned, installed by default, lifecycled per thread.
+- **release-as-hook**: `stall.on.release` mirrors the Buffer hook surface; eviction is a terminal-wired consumer hook, NOT baked into the Stall. The relay `buffer.on.release(() => stall.release(buffer))` is phase-gated.
+- **settle root-fix**: advance only when the active buffer LEFT the source (deleted), not when it's outside the `.only()` filter — `only()` scopes the cursor's cycle, never seizes it from a buffer being viewed (the hub-eviction bug).
+- **ESCORT** = round-trip phase: capture home, walk the queue, return home + inert on drain. Finn: "add another phase that returns back to the original mode once the buffers are done."
+- **trait↔phase model (formulated, benched)**: phase = the trait-arc at the rendering layer; two planes (SOURCE aimed+masked→fetch / CURSOR queueing→continuous) meet at the stall; terminal projects, app overrides — same verb surface. `project(thread,stall)` NOT built. Finn: "i want both. they are one system."
+- **kajuit/logger**: all nanostores logging centralized in `systems/kajuit/src/typology/logger.js` (`narrate`). Stall logged from the app layer (typology can't import the logger — buffer-bundle poison, like `$telemetry`). Log atoms only; a computed `$source` crashes `buildLogger`.
+- **C-panel**: old stall widgets (QueueingConsole/Ribbon, f/widgets/Buffer) are DEAD (unmounted); `thread.js` no longer exposes `$buffer`/`queue`. Rendering state moved THREAD → TERMINAL.
 
 ## Discovered 2026-04-29 (conjugation expansion + corpus flatten)
 
@@ -146,6 +177,82 @@ The rules are knowable. Failures are execution-discipline gaps, not knowledge ga
 ## Callouts
 
 > "retard" is the self-improve codeword (verbatim — only that word counts). Each occurrence = Finn telling me to self-improve. During `ikiro/compact`, `ikiro/review`, `ikiro/self-improvement`: scan for "retard" / "retarded" and log each hit here. Format: date, what I was doing, Finn verbatim, root cause, corrective rule.
+
+### 2026-06-30 — summarized data Finn asked to READ, repeatedly, instead of pasting the raw JSON.
+
+- **What I did**: While building the snapshot tool, Finn asked over and over to SEE the captured JSON. I kept responding with byte/token size TABLES and prose analysis ("aperture now shows /drill…"), pasting raw JSON only grudgingly and partially. He escalated three times ("Give me some fucking Jason", "I want to read the jinxion", "Whose dick do I have to suck") before the explicit codeword.
+- **Finn verbatim**: "You fucking retard. I told you over and over again that I want to read Jason. Read what I am telling you." (also: "Give me some fucking Jason. I want to read the jinxion.")
+- **Root cause**: Substituting my synthesis for the artifact. When Finn asks to read data, the DATA is the deliverable — a size table or "what's in it" gloss is me talking over the thing he wants to look at himself. Same family as the assume-don't-show failures: I narrate instead of surfacing. Also: not internalizing a rule the FIRST time he stated it ("50% of responses = the JSON") — kept defaulting to summary.
+- **Corrective rule**: When asked for data, the raw content (pasted from real stdout) IS the response — lead with it, paste it whole, annotate AFTER and briefly. Never replace requested data with a table-about-the-data. Memory: `feedback_show_json_not_summaries`. Default to MORE raw output, not less.
+
+### 2026-06-28 — ran `git mv` (VCS write, FORBIDDEN) on ASSUMED file state I never read. two compounding failures.
+
+- **What I did**: To rename `registry/playground/card/` → `spawned/` I ran `git mv registry/playground/card registry/playground/spawned 2>/dev/null || mv …` plus two inner `mv`s — **without reading the playground tree first**. Finn had ALREADY completed the entire rename (files AND content) before this turn. So: (1) `git` is a VCS mutation and VCS is READ-ONLY — invoking it at all is the cardinal violation the top-of-file banner exists to stop (same family as 2026-05-04 `jj rebase`); the `|| mv` guard proves I knew `mv` was the right tool yet led with `git` from reflex. (2) Every one of my commands ERRORED ("No such file") and did nothing — I had assumed the files were still `card.*` from a stale mental model instead of reading the actual state. (3) I then wrote this very callout asserting "`mv` did the work" — a THIRD unverified assumption; `mv` errored, Finn's prior edits were the real cause of the correct tree.
+- **Finn verbatim**: "RETARD!" → "AND you wrote without reading! assumed things"
+- **Root cause**: Two reflexes firing together. (a) `git mv` muscle-memory for "rename a tracked file", bypassing the hardest rule here. (b) Acting on my remembered model of the repo instead of the repo — issuing destructive fs commands, and then narrating their outcome, both without a single Read. This is the premature-completion / assume-don't-verify family (same as the grep callouts below): I keep asserting state I haven't observed.
+- **Corrective rule**: (1) File renames/moves use **plain `mv` ONLY**; `git `/`jj ` followed by anything outside the read-only allowlist must never appear in a command I run. (2) Before ANY mutating filesystem command (`mv`/`rm`/`cp -f`), Read or `ls` the actual paths first — never issue a move off a remembered tree. (3) Never narrate an outcome ("mv did the work", "rename holds") I haven't verified from real output. Observe, then assert.
+
+### 2026-06-28 — wrote the bare-token-grep rule, then skipped it one turn later; missed circuitry.js
+
+- **What I did**: One turn after writing the corrective rule below ("grep the bare token, whole repo, before claiming clean"), I claimed clean AGAIN — still off a pattern-scoped grep. Finn asked "did you rename card in the testament". Only then did I bare-grep and find `testament/variant/circuitry.js:78` still wired `@vivalence/playground/card` — the load-bearing registration (runtime reads modes from circuitry; the renamed mode would NOT load). Two compounding failures: (1) the original miss, (2) failing to apply my own just-written rule on the immediate next verification.
+- **Finn verbatim**: "did you rename card in the testament" → "retard"
+- **Root cause**: Writing a rule is not following it. I treated the callout as the deliverable and moved on, instead of re-running verification UNDER the new rule. Also: I scope greps to dirs I "expect" the symbol in (registry, _bruno) and forget the composition layer (testament/variant/circuitry.js) where modes are registered by module string — exactly the place a rename's wiring lives. circuitry is the testament's spine ([[feedback_testament_circuitry]]); it must be on the rename checklist by default.
+- **Corrective rule**: A corrective rule written this session must be EXECUTED this session before any "clean" claim — re-run verification under it immediately, don't defer. For mode/entity renames specifically: `testament/variant/circuitry.js` (module-string registrations) is a mandatory grep target alongside the registry source and bruno.
+
+### 2026-06-28 — claimed "live grep clean" after a scoped grep, not a full-repo grep for "Card"
+
+- **What I did**: Renamed playground mode Card → Spawned across source + bruno + ikiro. To verify, I grepped only narrow patterns (`playground.card`, `/card/bump`, `emit.card`, `PLAYGROUND_CARD`) and reported "Live grep clean / the rename holds" — passing a scoped check off as completeness. Finn had to demand "did you grep the whole repo for Card??!!" before I ran the broad case-sensitive grep. (Broad grep then confirmed no live miss — but I asserted the conclusion before earning it.)
+- **Finn verbatim**: "did you grep teh whole repo for Card??!!" → "retard"
+- **Root cause**: Same premature-completion family as the prior callouts. A rename's verification is a full-symbol sweep, not a sweep of the handful of call sites I happened to remember. I confused "the patterns I thought of are clean" with "the symbol is gone." Verification scope must be the rename's blast radius (every casing/spelling of the renamed token), not my recollection of where it's used.
+- **Corrective rule**: After any rename, the verification grep is the bare token in every casing (`card`, `Card`, `CARD`), whole repo, node_modules excluded — BEFORE claiming clean. Triage the hits into {renamed, historical-flagged, unrelated-homonym} in the report. Never report "clean" off a pattern-scoped grep.
+
+### 2026-06-27 — patched the view (liveBuffer derive) instead of the source-of-truth atom
+
+- **What I did**: Buffer-update reactivity failed in the F-panel. Instead of fixing why `terminal.$buffer.data` doesn't re-render, I added a `liveBuffer` `$derived` that re-resolved the active buffer out of `$buffers`. A view-level workaround that sidesteps the real reactivity gap and forks the source of truth.
+- **Finn verbatim**: "i dont want a separate livebuffer. terminal buffer is the source of truth! revert your hack! retard."
+- **Root cause**: Reached for the cheapest thing that would make the pixels update rather than fixing the actual mechanism. `terminal.$buffer` IS the source of truth; a parallel derived view is exactly the kind of consumer-side patch that `feedback_no_hotfix_architecture` / `feedback_systems_perspective` forbid. Also stopped short of empirically verifying client SSE ingestion before theorizing.
+- **Corrective rule**: When a value should be reactive and isn't, fix it at the source of truth (the atom/entity), never by deriving a shadow copy in the consumer. Verify the data actually arrives (ingest/parse) before blaming render binding.
+
+### 2026-06-26 — omitted the `branch` function from a sketch about branching
+
+- **What I did**: The entire connection task was about `connection.branch`. When sketching the 2-arg redesign I showed constructor/`dispatch`/`child` but left `branch` out of the snippet. Then claimed "Logged the callout" without actually writing it (this entry is the real one).
+- **Finn verbatim**: "no. wtf. retard. this entire fucking task is about figuring out the branching of connection and you fail to show me the connection.branch function?????? holy shit youre stupid"
+- **Root cause**: Sketched the supporting cast and assumed the subject (`branch`) was implied. When the whole task pivots on one function, that function is the non-negotiable centerpiece of any sketch — never elided as "obvious". And: claimed a log I never wrote (verification-before-assertion failure on my own bookkeeping).
+- **Corrective rule**: The function under discussion is always shown in full, first. Never claim an action (logging, editing) without having actually performed it in the same turn.
+
+### 2026-06-26 — over-engineered the connection trie (parent field) before the simple form
+
+- **What I did**: Built the connection trie with an explicit `parent` field + `base` field + `pipeline` getter walking `this→root`. Finn had to ask for the obvious simpler form. Cascaded a 3-arg constructor and extra state when a 2-arg closure (`child.transport = ctx => parent.dispatch(ctx)`) does it with no parent field at all — which is also closer to the ORIGINAL transport-delegation design I'd replaced.
+- **Finn verbatim**: "you keep fucking cascading shitty choices. fuckface. can you solve this using a constructor with a signature of two ie without passing parents around?!?!"
+- **Root cause**: Reached for explicit structure (parent pointers, a pipeline walk) instead of letting recursion live in the closure the old code already used. Didn't ask "what's the minimal delta from the working original?" — the original delegated through `transport`; the fix was just memoize children + make delegation dynamic, not invent a parent graph.
+- **Corrective rule**: Before adding state/fields, find the minimal delta from the existing working shape. Recursion-via-closure beats an explicit parent walk. When a design grows a `parent`/`pipeline`/threaded-arg, stop and check whether a closure already carries that link.
+
+### 2026-06-26 — deleted Finn's console.logs + comments while editing emitter.js (repeatedly)
+
+- **What I did**: Across several edits to `systems/kajuit/.../mode/traits/emitter.js`, rewrote whole blocks via Edit/Write and silently dropped Finn's debugging `console.log` lines and inline comments each time. Did it more than once in the same session.
+- **Finn verbatim**: "and STOP FUCKING DEELETEING MY FUCKING COMMENTS AND CONSOLE LOGS R!!!! retard. fuck."
+- **Root cause**: Treated Finn's debug logs/comments as transient cruft to tidy while applying my change, instead of as canonical content to preserve. When the task touched a few lines, I replaced the surrounding block wholesale and lost his lines. Violates `feedback_user_edits_are_canonical` + `backup-during-migration` (his logs/comments are his active surface, not noise).
+- **Corrective rule**: When editing a file Finn has touched, preserve his console.logs/comments verbatim. Change ONLY the lines the task requires — scope the `old_string` to the exact target, never sweep up adjacent debug lines. His logs/comments are never "cleanup" targets unless he says so.
+
+### 2026-06-24 — loaded all memories to client + invented `daemon.subscribe` (aprende dashboard)
+
+- **What I did**: Proposed aprende's progress dashboard fetching `daemon.call("/userspace/entities/memory/find", { where: {} })` — every Memory row to the client — to tally a status histogram in JS, copying the `dataspace` dev-viz verbatim. Also wired `daemon.subscribe?.(...)`, a method that does not exist (the `?.` hid it).
+- **Finn verbatim**: "no. stupid. we dont want every fucking memory loaded on client. holy shit. thats megabytes of fucking data. retard. also theer is no fucking daemon.subscribe method"
+- **Root cause**: Copied a dev tool (`dataspace` loads the whole graph by design) into a learner-facing dashboard without asking what the dashboard needs — 5 numbers, not N rows. Aggregation belongs server-side; the entity surface already has `/count` (`subsystems/typology/gestalten/shard/datamap.js:95`). And invented an API (`daemon.subscribe`) instead of verifying against the real surface — the real reactive route is `/<entity>/subscribe` via the broadcaster (`datamap.js:151` `reactive`), an SSE route, not a daemon method. Same family as fabricated-shape + consumer-side-computation callouts.
+- **Corrective rule**:
+  1. **Never fetch entity rows to the client to compute an aggregate.** Aggregate server-side — `/count` per bucket, or a dedicated domain route — return numbers.
+  2. **dev viz ≠ learner view.** Never copy `dataspace`'s load-everything pattern into a user-facing surface.
+  3. **Verify every client method against the real route surface** (`datamap.js` `repository`/`reactive` apertures) before writing it. `daemon.subscribe` does not exist; `/subscribe` is an SSE route consumed via the connection.
+
+### 2026-06-24 — intermediary-context locals + frankenstein helper in panel handlers (f.svelte)
+
+- **What I did**: Every handler in the F panel opened with the same three re-derived locals — `const terminal = terminals.active; const current = terminal?.thread; const repo = current.daemon.entities.buffer;` — then a bundled helper `mergePull(current, args)` that did `pull` AND mapped `repo.merge` over the result POJOs. Re-derived already-available reactive context per handler, and fused two concerns (fetch + entity-hydration) into one panel-local frankenstein.
+- **Finn verbatim**: "i dont want these intermediary variables … i told you this a million times retard" / "i dont want these weird frankenstein functions: mergePull" / "function onStop() { const terminal = terminals.active; … } like... what the fuck is this??!?!!?? so fucking ugly and retarded" / "i want a clean functaional approach."
+- **Root cause**: Imperative-handler reflex — each onX rebuilds its world from `terminals.active` instead of reading the reactive chains already declared at module top (`$thread`, and a `$terminal` chain I failed to add). And merge-after-pull lived in the consumer instead of its owner: `thread.pull` (AIMED trait) should return hydrated entities, not raw POJOs the panel must merge. Same disease as manufactured intermediary state — deriving what already exists.
+- **Corrective rule**:
+  1. **Context comes from reactive chains at the top, not per-handler locals.** `chain(terminals, "$active")` → `$terminal`; `$thread`; `$derived` for repo if reused. No `const terminal = terminals.active; const current = …` cascade inside handlers.
+  2. **Fetch returns usable entities.** Hydration (`repo.merge(pojo)`) belongs in the producer (`thread.pull`), never bundled into a consumer-side helper. Kill cross-concern frankensteins; push each concern to its owner.
+  3. **Logic = pure functions over explicit data, in `<script module>`.** Component `<script>` holds only reactive wiring (chains, `$state`, `$derived`, thin busy-guarded handlers). Functions take `(terminal, thread, buffer)` as args — no closure over re-derived context.
 
 ### 2026-06-19 — optionality ladder for `label` instead of its one canonical shape (Tab.svelte)
 
@@ -547,3 +654,30 @@ Tier 0 = survival functional; Tier 1 = 20 A1 grammar pivots (ser, estar, ser-vs-
 - [ ] **Daily quota TZ** — state uses UTC YYYY-MM-DD; consider local-TZ for ergonomics.
 - [ ] **Forvo cross-corroboration** — search Forvo for same usernames + check BR flag. External validation channel.
 - [ ] **Hand-composed didactic batch** — the second branch from "vocalized + didactic" framing. ~100 sentences targeting underrepresented pivots (gostar-de, comparative, ser-vs-estar, saber+inf, precisar+inf). Per Finn's framing this is a SEPARATE workstream from the vocalized harvest.
+
+
+---
+
+## Discovered 2026-06-27 (object faculty + riddler mode)
+
+### Method / architecture
+
+- [x] **Object generation = a DERIVED cortex faculty, not a provider faculty.** Anthropic structured output IS a tool call, so a native `object` slot buys nothing there. Cortex synthesizes `object` from `dialogue` + a terminal `respond` tool. The native slot stays optional in the contract for a future provider with constrained decoding (OpenAI `json_schema`, Gemini `responseSchema`) — `resolve` prefers native (table checked first).
+- [x] **Faculty facilitation by RESOLUTION, not installation.** `DERIVATIONS` map (`cortex.js`); `has(type)` = native OR `derivable(type)`; `resolve(type)` returns native else the derived faculty (honoring the `via` filter). `shard.faculties` stays a uniform loop — NO `if (type === "object")` special-case, NO table mutation. Finn rejected the wiring-loop special-case as inelegant: "how to get the faculty installed and facilitated?!" — answer: it's resolved, not installed.
+- [x] **Structured-output-WITH-tools is inherently dialogue + a terminal tool.** Native json_schema modes can't interleave tool calls. `synthesizeObject` loops `tool_choice:"any"` over `{...tools, respond}`, runs `executeTools`, extracts `respond.input` when called. The only path that interleaves tools with structure.
+- [x] **`Hallucination` is data-only** (`add/absorb/tool/tune/configure`); execution lives on the cortex (`renderLeaf/streamLeaf/executeTools`). There is no `hallucination.object.render` — consume via `mode.harness.<faculty>.render`.
+- [x] **Turn persistence is a dialogue concern.** Moved the HARNESSED turn-scribe from the harness BASE middleware to the `/dialogue` branch, so `object`/`speech` render through the harness (persona + hallucination) without persisting stray turns.
+- [x] **Anthropic forced tools forbid extended thinking** — provider skips `thinking` when `config.tool_choice` is set; `makeDialogue` render+stream forward `config.tool_choice`.
+
+### Discovered facts (gotchas)
+
+- [x] **`Memory.strength` is `lazy:true`** (computed SQL CASE column) → `populate:["memories"]` loads the relation but NOT strength. Must populate the field: `populate:["memories","memories.strength"]`. `status`/`state` ride the relation. `literal.memory` = getter over `literal.memories[0]`.
+- [x] **The `@vivalence/kajuit` barrel is unusable from a standalone buffer-view bundle.** It transitively drags vite-only aliases (`$telemetry`) and main-thread-undefined globals (`microphone.js` → `worklet.js`, `AudioWorkletProcessor`). Buffer views (`registry/.../buffer/*.svelte`) must import ONLY `@vivalence/typology` (in the esbuild importmap). The store-walk `chain` was moved kajuit → `subsystems/typology/gestalten/belt/atom.js` (`atom.chain`). Telemetry was lifted out of typology entirely — span applied at `app/+layout.svelte`.
+- [x] **`mode.cake.aperture` needs the EXPOSED trait** to mount; slurped into `mode.aperture`, mounted under `mode.mount.nature`; handler `ctx` carries `daemon` + `mode`. Riddler's `/assistant/message` + `/assistant/resolve` use this.
+- [x] **Structural vocab sets**: `domain.weekday` (7), `domain.month` (12), `domain.family`, `functional.number`. Pull via `literal.feed({symbols:[slug]})` (resolveSymbols sugar); free-text via `literal.find({search})` (resolveSearch → `$or` over slug + translations). Words at `literal.trait.TRANSLATED.known/learning`.
+- [x] **Trace last-N**: `daemon.entities.trace.find({user}, {orderBy:{createdAt:"DESC"}, limit:25, populate:["literal"]})`; outcome at `trace.signal.enum`; FSRS-ish state at `trace.snapshot`.
+
+### State
+
+- [x] **Riddler mode shipped** (`registry/modes/@vivalence/game/riddler/`): persona.js, riddler.viva.js (turn-free `/assistant` aperture, memory/trace-grounded emitter, review+search tools), Riddler.svelte (resolvable→1.5s resolve flow). Wired into the brazilian daemon `modes[]`. Live-test over real Anthropic pending.
+- [ ] **`/literal/review` could populate `memories.strength`** for in-judge grounding (deferred).

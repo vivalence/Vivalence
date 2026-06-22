@@ -21,7 +21,8 @@ export * from "./path.js";
 export * from "./pattern.js";
 export * from "./signature.js";
 export * from "./signal.js";
-export * from "./view.js";
+export * from "./app.js";
+export * from "./bundle.js";
 export * from "./mask.js";
 
 export * from "./span.js";
@@ -31,6 +32,7 @@ export * from "./conversation.js";
 export * as tracks from "./tracks.js";
 
 export * from "./wafer.js";
+export * from "./stall.js";
 export * from "./remote-repository.js";
 export * from "./local-repository.js";
 export * from "./entity-manager.js";

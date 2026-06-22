@@ -1,0 +1,158 @@
+#+TITLE: The aprende homepage collapsed to ONE optimized read (the board) + the m4 playground modes written to disk by hand + the strength×due scatter flipped & re-zoomed
+
+#+TOPIC: A long UI/data session on the brazilian =aprende= homepage and the =playground= daemon. Two durable wins: (1) every homepage panel now derives from a SINGLE =memory.find= (the board) so they can't disagree; (2) the m4 playground's design-only modes (dealer/card/automaton/switchboard) are now real files + registered. Plus a scatter-plot deep-dive (flip axes, data-fit bounds, manual two-finger pan). Companion design lives in =m4_phase-playground.quest.org= and the aprende mode.
+
+* arc
+Started as small UI tweaks (buffer panel reorder, a streak badge), turned into the
+real work when Finn caught the homepage lying: the status BAR and the strength×due
+SCATTER showed different data. Root cause = two sources (real bar + a hardcoded DUMMY
+array). Fix = collapse to one read. Then "complete my new playground" — write the m4
+tangle-only modes to disk manually. Then a long polish loop on the scatter itself
+(conjugations missing → axis clip → flip → zoom ergonomics → trackpad pan math).
+
+* WHAT LANDED
+
+** f-panel buffer list reorder (=systems/kajuit/src/app/panels/f/f.svelte=)
+Finn: *"change the order here. active thread below list of buffers. make list of buffers
+max height and scrollable. always centered on current buffer."*
+- buffers list section moved ABOVE the active-buffer section.
+- list wrapped in =.blist= (=max-height:320px; overflow-y:auto=).
+- =$effect= scrolls the active row (=data-id={buffer.id}=) into =scrollIntoView({block:"center"})=
+  whenever =$activeBuffer= changes. (f.svelte later refactored by Finn/linter — the
+  =conversational= import became =ThreadTraits=; the blist/center edits survived.)
+
+** THE BOARD — one optimized read backs the whole homepage (the session's keystone)
+Finn: *"why is memory per status barchart and strength x due splatter showing different
+data??!! both ought be complete and originate from ONE single optimized read for
+performance"* → *"go. wire the whole board from that"*.
+
+The bug: the bar was REAL (=/assistant/wakeup/statistics= → =memory.count= byStatus), the
+scatter + ranks were a 32-row hardcoded =DUMMY= array. Different universes (bar said 0
+graduated; scatter painted graduated água). Cause: no per-literal strength/due endpoint
+existed.
+
+Fix — new aperture =/assistant/wakeup/board= in
+=registry/modes/@vivalence/homepage/aprende/aprende.viva.js=. ONE read:
+#+BEGIN_SRC javascript
+  const memories = await ctx.daemon.entities.memory.find({}, { populate: ["strength", "literal"] });
+  return memories.map((memory) => ({
+    slug, en: TRANSLATED.known, pt: TRANSLATED.learning,
+    ontology: literal.ontology || "word",
+    status: memory.status,
+    strength: memory.strength ?? 0,                                   // lazy SQL formula — MUST populate
+    nextDays: memory.nextAt ? (memory.nextAt.getTime() - now) / DAY : 0,
+    seen: memory.status !== "UNTOUCHED",
+  }));
+#+END_SRC
+Output schema =BOARD= = =v.array(v.object({slug,en,pt,ontology:v.enum,status:v.enum,strength:v.number,nextDays:v.number,seen:v.boolean}))=.
+Key facts pinned: =memory.strength= is a =lazy:true= formula column → populate it or it
+serializes out; =ontology= lives on =Literal= (string col), not Memory; =v= has
+=number/boolean/enum= (no nullable — coerce =?? 0=); user-scoping is ambient (mirror the
+statistics endpoint, =memory.find({})=).
+
+View (=view/Aprende.svelte=) rewired so EVERY panel derives from =board=:
+- =counts= ($derived reduce → bar), =scatterSeries= ($derived), =sorted/topLits/bottomLits=
+  ($derived → ranks). =DUMMY= deleted.
+- async board → the echarts instance is captured (=let chart=); a =$effect= re-=setOption=
+  on board arrival (the chart was built once, now re-feeds).
+- streak still rides =statistics= (it folds trace-DAYS, a different grain than literal rows).
+The bug-class is GONE: one array → bar/scatter/ranks cannot diverge. (feeds the
+=feedback_systems_perspective= / =project_data_ui_synthesis= line — resolve at the system,
+not per-consumer.)
+
+** Streak badge — placement churn (ended where it began, then re-homed)
+*"move teh streak up to the top. make it a badge. something to trigger dopamine"* → I built
+a flame-emoji + giant-serif badge → *"horrible design. a. its not even self consistent. b.
+it doesnt fit the overall design langauge. c. move teh badge to the right."* (the lesson:
+the serif number + emoji were TWO languages, neither his; the view's vocabulary is code
+font + uppercase tracked caps + thin borders + gold accent + small pips) → I rebuilt in
+that vocabulary → *"move it to the left. and re-use teh previous design one to one, but
+just render it at top left"* (restore the ORIGINAL serif badge verbatim, just relocate) →
+finally *"cool. move the streak back into the section with the other statistics but under
+its own chrome of 'Activity'. abover Strength × due."* Final: original badge, under an
+=Activity= =<h4>= in the scatter column, above =Strength × due=.
+
+** Streak IS real data (with a caveat Finn should know)
+*"is this streak actually tracked via real data?"* → YES. =/assistant/wakeup/statistics=
+folds distinct =trace= days, newest-first, counted while contiguous. CAVEAT (unfixed,
+Finn aware): it anchors =cursor = Date.parse(days[0])= (newest trace day), NOT today — so
+a stale last-activity still reports a non-zero streak. A true current-streak resets to 0
+unless =days[0] === today=. Offered a guard; not yet go'd.
+
+** Playground modes written to disk BY HAND (no tangle)
+Finn: *"no tangle. you do thre writing manually. go do! complete my new playground!"*
+State before: only =spawner=/=spawned= existed on disk + registered; dealer/card/automaton/
+switchboard were =:tangle=-only src blocks in =m4_phase-playground.quest.org=. Wrote all 8
+files verbatim from the quest blocks into =registry/playground/{card,dealer,automaton,
+switchboard}/= (+ their =buffer/*.svelte=). Registered in =testament/variant/circuitry.js=
+(playground daemon =modes[]=, grouped G1–G4). Added an =anthropic= hallucinator to the
+playground daemon — dealer is =HARNESSED + CONVERSATIONAL + /oracle=, which throw without
+=daemon.cortex=. Module paths resolve by registry convention (=@vivalence/playground/<slug>=),
+no import_map entry needed.
+
+*** build break — the $-prefix footgun (carry this)
+=deno task runtime/watch= failed: =The $ prefix is reserved, and cannot be used for
+variables and imports= (svelte 5). The quest blocks declared =const $phase = atom.chain(...)=.
+The on-disk =spawner= pattern (which builds) is: declare the chain with a PLAIN name
+(=const phase = atom.chain(...)=) and let the TEMPLATE auto-subscribe via =$phase=. Renamed
+in dealer/automaton/switchboard/card; in switchboard =cursorAt= the store is read in script
+so it became =active.get?.()= (not =$active.get=). Finn confirmed: *"client renders again."*
+
+** The strength×due scatter — a long polish loop
+*** conjugations were missing — NOT a wiring bug, an axis CLIP
+*"the splatter plot is not showing any conjugations. why?"* Ground-truthed the live db
+(=testament/variant/mountpoint/daemon_brazilian/test-language.viva.db=, whose 298/233/17
+byStatus exactly matched Finn's bar). 14 conjugation memories exist, all studied, all with
+=nextAt= — but all ~61–63 days OVERDUE, and the Y floor was a hardcoded =symlog(-60)=. They
+clipped off the bottom edge (so did the worst-overdue words). Fix: DATA-FIT bounds.
+*"fix bounds."* → compute bounds + margin in SYMLOG space (even visual padding at any
+magnitude), not day-space (±3 days is invisible at -61d):
+#+BEGIN_SRC javascript
+  const dueSym = board.filter(r => r.seen).map(r => symlog(r.nextDays));
+  const timeLo = Math.min(symlog(-7),  ...dueSym) - 0.3;   // MARGIN in symlog units
+  const timeHi = Math.max(symlog(20),  ...dueSym) + 0.3;
+#+END_SRC
+
+*** flip the axes
+*"flip the x and y axis. time left right, confidence top bottom. and pour some braintokens
+into how propper zoom should behave."* Swapped the value tuple to
+=[symlog(nextDays), strength]=. X = time (overdue ← =now= → ahead; the =now= markLine is now
+VERTICAL at =xAxis:0=, overdue wash fills left). Y = confidence (=type:"log"=, weak bottom /
+strong top). Reason beyond the ask: confidence-as-vertical reads "weak stuff = bottom band".
+
+*** zoom design (the braintokens)
+Two independent, differently-scaled axes (log × symlog) → NO aspect lock, zoom each axis on
+its own. =filterMode:"none"= stays (filtering would drop points AND the now-line/wash —
+fatal for this chart). Only =DataZoomComponent= is registered in =subsystems/drapes/stage/
+lib.js= (no toolbox → no box-zoom). So: =inside= zoom + =slider= rails (=brushSelect:true= →
+drag a box on the rail to frame an edge band) + =minSpan:1= (no sub-pixel) + double-click
+reset (=getZr().on("dblclick") → dispatchAction dataZoom start:0 end:100=).
+
+*** edge zoom + trackpad pan (the math fix)
+*"its really hard to zoom in on the edges."* → padded the confidence axis (=min 3e-5, max
+1.6=) so the 1e-4 weak-pile and the ≈1 strong items lift off the boundary; added the slider
+rails. Then *"two finger x-y movement isnt counted. only zoom. add that."* — first tried
+echarts =moveOnMouseWheel:true=; Finn: *"your math is off. xy are correlated in weird
+ways."* ROOT CAUSE: echarts feeds the SAME wheel delta to both inside zooms → any scroll
+moves both axes. echarts has no clean 2D wheel-pan. Fix = MANUAL native =wheel= listener on
+the container: =deltaX= pans the time window, =deltaY= the confidence window, each scaled to
+its own visible span + clamped [0,100]; pinch (=event.ctrlKey=) is left to echarts
+(=zoomOnMouseWheel:"ctrl"=). A =chart.on("datazoom")= resyncs local =zoom= state after
+pinch/slider/drag/reset so wheel-pan never jumps; listener torn down on dispose.
+
+* totems touched
+- =registry/modes/@vivalence/homepage/aprende/aprende.viva.js= — new =/assistant/wakeup/board= aperture + =BOARD= schema.
+- =registry/modes/@vivalence/homepage/aprende/view/Aprende.svelte= — DUMMY killed; all panels derive from =board=; scatter flipped + data-fit bounds + manual pan/zoom.
+- =registry/playground/{card,dealer,automaton,switchboard}/= — 8 files, hand-written from m4.
+- =testament/variant/circuitry.js= — playground daemon modes[] (G1–G4) + anthropic hallucinator.
+- =systems/kajuit/src/app/panels/f/f.svelte= — buffer-list reorder + scroll + center-on-active.
+
+* resumption / open
+- *intent.phase (M4.1) NOT wired* — automaton's =dataset.intent[].phase= is inert until
+  =Intent.ts= gains a =phase= field + =Thread.beforeCreate= copies it. Without it, opening
+  an automaton intent inherits traits but defaults =manual=. Offered; not go'd.
+- *M10 monkey* untouched (still DESIGN).
+- *streak anchor caveat* (days[0] vs today) — guard offered, not go'd.
+- *scatter jitter* — weak items clamp to =strength=1e-4=, so identical-coordinate points
+  don't separate under zoom; needs jitter (separate task, flagged to Finn).
+- live browser baseline (M4.0) still Finn-driven; no runtime up in-session for the playground.

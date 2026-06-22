@@ -1,30 +1,26 @@
 import { middleware, steer, Signal } from "@vivalence/typology";
 
-export function object(vector, execute = steer.request, signal = new Signal(), steps = []) {
-  const output = {};
-
-  for (const [pattern, descendant] of vector.trajectories) {
-    const child = signal.branch(pattern.nature);
-    output[pattern.nature] = object(
-      descendant,
-      vector.carry.length
-        ? (apply, effect, s, sig) => execute(middleware.compose([...vector.carry, apply]), effect, s, sig)
-        : execute,
-      child,
-      [...steps, pattern],
-    );
-  }
-
-  for (const [pattern, effect] of vector.effects) {
-    const key = pattern.nature;
-    const leaf = signal.branch(pattern.nature);
-    const fn = execute(middleware.compose(vector.carry), effect, [...steps, pattern], leaf);
-    if (output[key]) Object.assign(fn, output[key]);
-    output[key] = fn;
-  }
-
-  return output;
-}
+// the eager namespace builder: a Vector trie → nested callable object, where a node
+// that is BOTH a leaf and a branch becomes a callable carrying its sub-namespace.
+// A thin step over steer.fold — the carry accumulates in the frame (root outermost),
+// so the old execute-wrapping is gone. Descendants carry {key, namespace} so the
+// parent can assemble; the root (signature null) returns the bare namespace.
+export const object = (vector, execute = steer.request) =>
+  steer.fold(vector, {
+    effect: (f) => ({
+      key: f.pattern.nature,
+      fn: execute(f.carry, f.effect, f.steps, f.signal.branch(f.pattern.nature)),
+    }),
+    node: (f) => {
+      const output = {};
+      for (const child of f.trajectories) output[child.key] = child.namespace;
+      for (const { key, fn } of f.effects) {
+        if (output[key]) Object.assign(fn, output[key]);
+        output[key] = fn;
+      }
+      return f.signature ? { key: f.signature.nature, namespace: output } : output;
+    },
+  });
 
 export function proxy(vector, execute = steer.request) {
   return proxyNode(vector, execute, {}, new Signal(), []);

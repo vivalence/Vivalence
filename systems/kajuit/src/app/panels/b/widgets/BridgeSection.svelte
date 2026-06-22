@@ -61,6 +61,17 @@
       <span class="size-readout">{Math.round((dock.share ?? 0.32) * 100)}%</span>
     </span>
   </div>
+  <div class="row">
+    <span class="k">state</span>
+    <span class="sides">
+      <button
+        type="button"
+        class="side wide"
+        class:on={dock.collapsed}
+        title="toggle dock"
+        onclick={() => bridge.setDockCollapsed()}>{dock.collapsed ? "show" : "hide"}</button>
+    </span>
+  </div>
 </Section>
 
 <style>
@@ -92,6 +103,10 @@
     opacity: 1;
     color: var(--colors-skeleton-0-primary-base);
     border-color: var(--colors-skeleton-0-primary-base);
+  }
+  .side.wide {
+    width: auto;
+    padding: 0 8px;
   }
   .size-row {
     display: inline-flex;

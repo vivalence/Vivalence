@@ -1,0 +1,635 @@
+#+TITLE: M11 — Packages (the registry dissolves into a package supply)
+#+AUTHOR: Vivalence
+#+STATUS: DESIGN
+#+DATE: 2026-07-01
+
+* Intent
+
+Turn registry loading into a functional fold over a declared list of *packages*,
+and flatten the on-disk tree. Two moves, one ontology:
+
+- =a= — registry loading becomes =for (source of variant.packages) vip.mount(source)=.
+  Multiple registries, not one hardcoded quad of tier-branches.
+- =b= — drop the two intermediary layers (=<tier>/@vivalence/=). A module's
+  path stops carrying identity; the manifest already does.
+
+The unifying idea: *=registry= is not a thing, =package= is.* A package is a
+self-declaring discovery scope (=type: package=). =owner= IS the package
+identity — already the top axis of the pensieve (=owner→type→slug→version=). The
+variant *declares* which packages to supply (authored, portable); the pensieve
+is filled from them; the runtime stays package-blind (=accio= never knows a
+package exists).
+
+This quest resolves =a= + =b= for the *in-tree* case. The *out-of-tree* apparatus
+(ledger, clone/materialize, =viva install package=) is deferred — in-tree
+tautologises it (source = mount, version = working copy).
+
+* The locked design (the decision trail)
+
+** owner = package identity
+=pensieve.register= keys =owner→type→slug→version=. Reinterpret =owner= as *the
+package*, not "the org". =@vivalence= is the core package, not a namespace. Two
+packages shipping =game/flashcard= land under different owners → different
+subtrees → no collision. The package partition already exists; we only renamed
+what =owner= means. The one ripple: =owner= must be *stamped by the package at
+mount*, not defaulted to =@vivalence= in =pensieve.register=.
+
+** supply / demand — system vs variant
+- *system = supply* — materialises packages, fills the pensieve. Host-global:
+  the pensieve lives on the =paladin= singleton, and =registry()= runs at
+  runtime-boot *before* variant composition. Packages are pre-variant supply.
+- *variant = demand* — composes module *identities* (=daemon.modes =
+  [@vivalence/game/write]=), resolved from the filled pensieve. Package-blind at
+  the *runtime* level.
+
+** variant declares, ledger pins (flake.nix / flake.lock)
+"Variant or ledger?" is a false binary — they hold different objects.
+- *DECLARATION* — authored, portable, in-repo. =variant.packages=. = flake.nix inputs.
+- *LEDGER* — generated, per-machine, pins resolved rev+path. = flake.lock.
+
+The ledger is *generated* (the system dir is 100% derived, never authored) — so
+it *cannot* hold authored intent. The declaration must live in an authored file;
+the variant is the natural home (one-variant-per-host, already declares its
+world: runtime/clients/daemons/services). *Runtime* stays package-blind; the
+*variant* (the author's world-spec) is package-aware. Author ≠ runtime.
+
+** the sanity cut — in-tree needs no ledger
+For the in-tree self-package: =source = mount= (path as-is), =rev = working copy=.
+Recording that in a ledger is a no-op tautology. So: NO ledger, NO
+=materialize()=, NO =viva install=, NO system-dir redesign in this quest. Build
+them when the first *out-of-tree* package forces it.
+
+** deno static-import resolution is already solved (no S0)
+=@vivalence/*= resolves by *workspace member name* (=deno.jsonc workspace[]= →
+each member's =deno.jsonc "name"=), NOT via =import_map.json= (which holds only
+=@std=/=@cliffy=/=npm=). Name-resolution is global within a config and
+*location-independent*: a dynamically-imported out-of-tree =.viva.js= resolves
+its =@vivalence/typology= against the running process's config, by name. And
+spawns already pass =--config <root>= (=ghost/trajectories/instance/target.js:28=,
+=ghost/ghost.sh:6=). Registry modules statically import ONLY core barrels
+(=typology 161 · shared 63 · drapes 29 · paladin 17 · vector 15 · entities 12=);
+ZERO registry→registry static imports (those go through =accio=). So the
+import-map generator I first proposed is redundant with the workspace — killed.
+
+** the boot order is already correct
+=systems/runtime/run.js:6= =await paladin.variant.mount()= runs BEFORE
+=systems/runtime/die.js:17= =lifecycle.population.registry(this)=. So
+=variant.packages= is populated when the loader folds. No reorder.
+
+* The shape (from-scratch)
+
+#+begin_src text
+  variant.packages = ["registry"]            # AUTHORED. array → multiple registries (task a).
+        │
+        ▼  registry()  (runtime boot, post variant.mount)
+  vip.mount(repository.branch(source))
+        │  read package.viva.js → owner
+        │  find.viva(root) → walk
+        ▼  each module: cake.manifest.owner = <package owner>   (STAMP)
+  pensieve.register  →  owner→type→slug→version               (no @vivalence default)
+        │
+        ▼  accio("@vivalence/game/write")  ← runtime, package-blind
+#+end_src
+
+On disk, task =b= flattens =<tier>/@vivalence/= away — the manifest keeps
+identity, =find.viva= walks by content:
+
+#+begin_src text
+  registry/
+    package.viva.js                     # NEW — the self-manifest (owner=@vivalence)
+    game/write/write.viva.js            # was modes/@vivalence/game/write/…
+    ontology/word/word.viva.js          # was kernels/@vivalence/ontology/word/…
+    …
+#+end_src
+
+* Milestones (each: blast → test → land → test → blast)
+
+** MILESTONE 11.0 · BASELINE — the current loader is green
+No change. Confirm the four hardcoded branch-mounts load and =accio= resolves,
+so regressions are attributable. Record: =deno task runtime/test= green;
+=paladin/test= green; a live boot mounts kernels/modes/services/playground.
+
+** MILESTONE 11.1 · IDENTITY — package manifest + owner stamp + single-root mount
+The identity move, on the *current* (unflattened) tree. Add =package.viva.js= at
+=registry/=; =vip.mount= reads it and stamps =owner= on every walked module;
+=pensieve.register= stops defaulting =owner=.
+
+*Coupled change — do NOT split off:* the moment =mount= reads
+=root/package.viva.js=, the loader MUST mount the package ROOT (=registry/=), not
+the four tier subdirs — there is no =package.viva.js= at =registry/kernels/= etc.,
+so a 4-branch loader would throw at the new manifest read. So M11.1 also collapses
+the four branch-mounts into ONE hardcoded =registry= root mount (=find.viva= walks
+depth ∞, so one mount of =registry/= ingests exactly what the four did). Still
+hardcoded here — variant sourcing is M11.2.
+
+Behaviour unchanged (same modules, all owner =@vivalence=), proven by the NEW
+pensieve/vip units + an ingest-COUNT-unchanged assertion.
+- Tangle: =registry/package.viva.js=, =vip.js=, =pensieve.js=.
+- Edit: =runtime/lifecycle/populate.js= (4 branches → 1 hardcoded =registry= root).
+- Test: NEW =pensieve.test.js= + =vip.mount.test.js=; ingest-count unchanged; snapshot untouched.
+
+** MILESTONE 11.2 · PLURALITY — variant.packages sources the fold
+Task =a=. Add the =packages= seam to =Variant=; declare =packages: ["registry"]=
+on the test variant; change the loader from the single hardcoded root to a fold
+over =variant.packages=. "One registry" becomes "N packages". Multi-package proven
+by a second in-tree fixture package in the scenario.
+- Edit: =variant.js= (seam + class default), =test.viva.js= (declaration),
+  =runtime/lifecycle/populate.js= (hardcoded root → fold).
+- Test: =variant.snapshot= regenerate (new =packages= field); the scenario must
+  SEED a variant (or mount the root directly) so the fold has input — see Testing.
+
+** MILESTONE 11.3 · FLATTEN — mv + ref rewrites
+Task =b=. =mv= the tree to =registry/<type>/<slug>/=; rewrite the 13 deep-import
+lines; regenerate the =variant.snapshot=. Cosmetic to paladin (walks by content),
+breaking to hardcoded importers.
+- Ops: 4 tier moves; rewrite 5 test/doc files.
+- Test: =runtime/test= green post-move; a live boot still ingests every manifest.
+
+** MILESTONE 11.4 · CLEANUP + DOCS — retire the registry scope
+=scope.registry= / =VIVA_REGISTRY_MOUNT= go vestigial (the fold uses
+=scope.repository.branch(source)=). Decide retire-vs-dormant (ghost + Dockerfile
+lean on it). Sweep the =.ikiro= tier diagrams.
+- Edit: =paladin/lifecycle/populate.js:79-90=, =integrate.js:10=, ghost
+  =clone.js:75=/=doctor.js:132=, =bench.js:72-74=, =Dockerfile:59=.
+- Docs: =registry/.ikiro/claude.md= + =kernels|modes/@vivalence/.ikiro/=; also the
+  stale =kernels/@vivalence/…= tier paths in =.ikiro/= memories + prior quests
+  (grep =registry/(kernels|modes|services)/@vivalence= across =.ikiro/=).
+
+* Tangle — the files
+
+Convention: NEW files and fully-replaced small files carry =:tangle= (relative to
+=.ikiro/quests/= → =../../=). Surgical edits inside large files are =diff= hunks
+with the path in prose — apply by hand, do not tangle (tangling a partially
+reproduced large file risks dropping an untouched line).
+
+** =registry/package.viva.js= — the self-manifest (NEW · M11.1)
+The in-tree core package declares its own identity. =owner= is the package.
+=find.viva= will also walk this file and self-register it as
+=@vivalence/package/core= — harmless, and introspectable.
+
+#+BEGIN_SRC javascript :tangle ../../registry/package.viva.js :mkdirp yes
+export const manifest = {
+  owner: "@vivalence",
+  type: "package",
+  slug: "core",
+  version: "0.0.1",
+};
+#+END_SRC
+
+** =subsystems/paladin/prototypes/vip.js= — mount reads the package, stamps owner (M11.1)
+=mount(root)= now reads =root/package.viva.js= for the owner and stamps it onto
+every module it walks. The package assigns identity; module files stay
+owner-free. Everything else (=list=/=accio=/=accioMany=/=accioMap=/=toJSON=)
+unchanged.
+
+#+BEGIN_SRC javascript :tangle ../../subsystems/paladin/prototypes/vip.js :mkdirp yes
+import { is, cast, Path } from "@vivalence/typology";
+import { Pensieve } from "./pensieve.js";
+
+export class Vip {
+  constructor(paladin) {
+    this.paladin = paladin;
+    this.pensieve = new Pensieve();
+  }
+
+  async mount(root) {
+    // the package self-declares — its manifest owner stamps every module it holds.
+    const pkg = await this.paladin.read.viva(root.branch("package.viva.js"));
+    const owner = pkg.manifest.owner;
+    if (!owner) throw new Error(`[VIP] package at ${root.absolute ?? root} declares no owner`);
+
+    const paths = await this.paladin.find.viva(root);
+    for await (const path of paths) {
+      const cake = await this.paladin.read.viva(path);
+      // stamp owner on a COPY — read.viva returns the live module namespace; don't mutate the import.
+      // the package assigns identity; path does not. package owner WINS over any module-declared owner.
+      this.pensieve.register({ ...cake, manifest: { ...cake.manifest, owner }, mount: new Path(path) });
+    }
+
+    return this;
+  }
+
+  async list(query = {}) {
+    return this.pensieve.byType(query.type);
+  }
+
+  async accio(query) {
+    const lookup = cast.lookup(query);
+    const module = await this.pensieve.revelio(lookup);
+    if (module) return module;
+    throw new Error(`[VIP] Module 404: ${JSON.stringify({ lookup })}`);
+  }
+
+  async accioMany(many) {
+    return await Promise.all(many.map(async (query) => {
+      if (typeof query === "object" && query !== null && typeof query.module === "string") {
+        return { service: await this.accio(query.module), mask: query };
+      }
+      return await this.accio(query);
+    }));
+  }
+
+  async accioMap(many) {
+    const accioedModules = await Promise.all(
+      Object.entries(many).map(async ([slug, query]) => {
+        if (!query) return null;
+        if (typeof query === "string") {
+          return [slug, await this.accio(query)];
+        } else if (typeof query.module === "string") {
+          return [slug, await this.accio(query.module)];
+        } else if (is.array(query)) {
+          return [slug, await this.accioMany(query)];
+        } else if (is.object(query)) {
+          return [slug, await this.accioMap(query)];
+        }
+      }),
+    );
+    const filteredModule = Object.fromEntries(
+      accioedModules.filter((entry) => entry !== null),
+    );
+    return filteredModule;
+  }
+
+  toJSON() {
+    return { pensive: this.pensieve };
+  }
+}
+#+END_SRC
+
+** =subsystems/paladin/prototypes/pensieve.js= — drop the hardcoded owner default (M11.1)
+=owner= is set by =vip.mount= from the package. The old
+=owner ??= "@vivalence"= line goes; a missing owner is now an error (mount must
+stamp), not a silent default.
+
+#+BEGIN_SRC javascript :tangle ../../subsystems/paladin/prototypes/pensieve.js :mkdirp yes
+import * as semver from "@std/semver";
+import { Manifest } from "./manifest.js";
+
+export class Pensieve extends Map {
+  register(cake) {
+    if (!cake || !cake.manifest) console.log("no manifest", cake);
+    cake.manifest = new Manifest(cake.manifest);
+    const { owner, type, slug, version } = cake.manifest;
+    // owner is stamped by vip.mount from the package manifest — never defaulted here.
+    if (!owner) throw new Error(`[Pensieve] register: no owner (mount must stamp) — ${type}/${slug}`);
+
+    if (!this.has(owner)) this.set(owner, new Map());
+    const ownerMap = this.get(owner);
+
+    if (!ownerMap.has(type)) ownerMap.set(type, new Map());
+    const typeMap = ownerMap.get(type);
+
+    if (!typeMap.has(slug)) typeMap.set(slug, new Map());
+    const slugMap = typeMap.get(slug);
+
+    slugMap.set(version, cake);
+    return this;
+  }
+
+  async revelio({ owner, type, slug, version }) {
+    const ownerMap = this.get(owner);
+    if (!ownerMap) return null;
+
+    const typeMap = ownerMap.get(type);
+    if (!typeMap) return null;
+
+    const slugMap = typeMap.get(slug);
+    if (!slugMap) return null;
+
+    if (!version) return this.latest(slugMap);
+
+    const versions = Array.from(slugMap.keys());
+    const matchingVersion = versions.find((v) => semver.satisfies(v, version));
+    return matchingVersion ? slugMap.get(matchingVersion) : null;
+  }
+
+  latest(slugMap) {
+    const [top] = Array.from(slugMap.keys())
+      .sort((a, b) => semver.compare(semver.parse(a), semver.parse(b)))
+      .reverse();
+    return slugMap.get(top);
+  }
+
+  byType(type) {
+    const out = [];
+    for (const ownerMap of this.values())
+      for (const slugMap of ownerMap.get(type)?.values() ?? []) out.push(this.latest(slugMap));
+    return out;
+  }
+}
+#+END_SRC
+
+** =subsystems/paladin/prototypes/variant.js= — the =packages= seam (DIFF · M11.2)
+Mirror =daemons=/=services=: read =cake.packages= or =cake.circuitry.packages=,
+=hydrate=, expose =variant.packages=. No =mask()= — packages carry no mountpoint;
+they are sources (=string= or ={source, rev}=). Add the class default too.
+
+#+BEGIN_SRC diff
+  variant.services = [...(cake.services ?? []), ...(cake.circuitry?.services ?? [])].map(
+    (declaration) => mask("service")(hydrate(declaration)),
+  );
++ variant.packages = [...(cake.packages ?? []), ...(cake.circuitry?.packages ?? [])].map(hydrate);
+#+END_SRC
+
+#+BEGIN_SRC diff
+  daemons = [];
+  services = [];
++ packages = [];
+#+END_SRC
+
+Optional validation (deferred): =v.primitives.circuitry.Package= does not exist.
+MVP skips the =cast=/=collect= for packages (the =for daemon= / =for service=
+loops in =validate=). Add a =Package= schematic later if the source shape needs a
+guard.
+
+** =testament/variant/test.viva.js= — the declaration (DIFF · M11.2)
+The authored supply list. In-tree source, path-as-is.
+
+#+BEGIN_SRC diff
+export const manifest = {
+  owner: "@vivalence",
+  type: "variant",
+  slug: "test",
+  version: "0.0.1",
+};
++
++// supply — the packages this deployment materialises into the pensieve (task a).
++// authored + portable (= flake.nix inputs). in-tree: source is the mount.
++// repository-root-relative segment (branch appends; no "./").
++export const packages = ["registry"];
+#+END_SRC
+
+** =systems/runtime/lifecycle/populate.js= — collapse then fold (DIFF · M11.1 → M11.2)
+Two steps. M11.1 collapses the four tier-branches into ONE root mount — required by
+the package-manifest read (tier subdirs have no =package.viva.js=). M11.2 swaps the
+hardcoded root for a fold over =variant.packages= (already populated:
+=run.js:6 variant.mount()= precedes =die.js:17 registry()=). Sources are
+repository-root-relative segments; =branch= appends them.
+
+M11.1 — four branches → one hardcoded root:
+#+BEGIN_SRC diff
+-export async function registry(runtimeDie) {
+-  await paladin.vip.mount(paladin.scope.registry.branch("kernels"));
+-  await paladin.vip.mount(paladin.scope.registry.branch("modes"));
+-  await paladin.vip.mount(paladin.scope.registry.branch("services"));
+-  await paladin.vip.mount(paladin.scope.registry.branch("playground"));
++export async function registry(runtimeDie) {
++  await paladin.vip.mount(paladin.scope.repository.branch("registry"));
+ }
+#+END_SRC
+
+M11.2 — hardcoded root → fold over the declared packages:
+#+BEGIN_SRC diff
+-export async function registry(runtimeDie) {
+-  await paladin.vip.mount(paladin.scope.repository.branch("registry"));
++export async function registry(runtimeDie) {
++  for (const source of paladin.variant.packages) {
++    const ref = typeof source === "string" ? source : source.source;
++    await paladin.vip.mount(paladin.scope.repository.branch(ref));
++  }
+ }
+#+END_SRC
+
+** FLATTEN ops (M11.3)
+Cosmetic to paladin; the manifest keeps identity. Four moves, collapsing
+=<tier>/@vivalence/=:
+
+#+BEGIN_SRC sh
+# from repo root — mv each <tier>/@vivalence/<type>/ up to registry/<type>/.
+# ONLY kernels/modes/services carry a <tier>/@vivalence/ prefix.
+git mv registry/kernels/@vivalence/*   registry/
+git mv registry/modes/@vivalence/*     registry/
+git mv registry/services/@vivalence/*  registry/
+rmdir registry/kernels/@vivalence registry/kernels \
+      registry/modes/@vivalence   registry/modes \
+      registry/services/@vivalence registry/services
+# LEAVE ALONE:
+#   registry/playground/spawner  is ALREADY registry/<type=playground>/<slug> — do NOT move.
+#   registry/wafers/             is NOT mounted by registry() (variant-scope loaded) — untouched.
+# NB: git mv illustrative — VCS is READ-ONLY here; Finn runs the moves.
+#+END_SRC
+
+Then rewrite the 13 deep-import lines (paths lose =<tier>/@vivalence/=):
+- =systems/runtime/tests/bench/smoke.test.js=
+- =systems/runtime/tests/mode/emitters.test.js=
+- =systems/runtime/tests/mode/aprende.literals.test.js=
+- =systems/runtime/tests/mode/aprende.statistics.test.js=
+- =systems/runtime/tests/scenarios/variant.js=
+- docs: =docs/50-59_practice/…/docker-walkthrough.org=,
+  =registry/services/@vivalence/nlp/server/README.org=
+
+Rewrite rule: =registry/<tier>/@vivalence/<type>/<slug>/= → =registry/<type>/<slug>/=.
+
+* Testing assessment
+
+** In place (what already guards this area)
+- =subsystems/paladin/tests/=
+  - =boot.test.js= — =variant.mount= once-wrapped lazy; boot lifecycle.
+  - =variant.snapshot.test.js= (+ =snapshots/paladin-variant.snapshot.json=) —
+    snapshots the resolved variant shape.
+  - =system.test.js=, =spawn.test.js= — system spawn/locks (unaffected).
+- =systems/runtime/tests/=
+  - =bench/smoke.test.js=, =mode/{emitters,aprende.literals,aprende.statistics}.test.js=
+    — *deep-import registry paths* (break on flatten).
+  - =scenarios/bench.js=, =scenarios/variant.js= — scenario harness that mounts
+    registry branches / imports registry modules.
+  - daemon/runtime/integration suites — exercise =accio= indirectly (a broken
+    pensieve fails them), but none assert the pensieve/owner mechanism directly.
+- *GAP*: there is NO =pensieve.test.js= and NO =vip.test.js=. The owner axis,
+  the hardcoded default, and =mount= are entirely uncovered today. M11.1 is where
+  we pay that debt.
+
+** Changes (existing tests that must update)
+| test | why | when |
+|------+-----+------|
+| =paladin/tests/variant.snapshot.test.js= + =.snapshot.json= | new =packages= field on the resolved variant | M11.2 (regenerate) |
+| =runtime/tests/scenarios/bench.js= (=:72-74=) | 3 hardcoded branch-mounts → mount =registry= root directly OR seed =variant.packages= first (the fold reads it; no variant ⇒ folds over =[]= ⇒ ingests nothing) | M11.1 / M11.2 |
+| =runtime/tests/bench/smoke.test.js= | deep-import path rewrite | M11.3 |
+| =runtime/tests/mode/emitters.test.js= | deep-import path rewrite | M11.3 |
+| =runtime/tests/mode/aprende.literals.test.js= | deep-import path rewrite | M11.3 |
+| =runtime/tests/mode/aprende.statistics.test.js= | deep-import path rewrite | M11.3 |
+| =runtime/tests/scenarios/variant.js= | deep-import path rewrite | M11.3 |
+
+** Adds (new tests)
+Two unit files (tangled below) + two integration/regeneration asserts.
+
+*** =subsystems/paladin/tests/pensieve.test.js= (NEW · M11.1)
+Covers the owner axis directly: keys by =owner→type→slug→version=; NO silent
+=@vivalence= default (missing owner throws); two owners with the same
+=type/slug= do not collide (the packages-don't-collide invariant).
+
+#+BEGIN_SRC javascript :tangle ../../subsystems/paladin/tests/pensieve.test.js :mkdirp yes
+import { describe, it } from "@std/testing/bdd";
+import { expect } from "@std/expect";
+import { Pensieve } from "../prototypes/pensieve.js";
+
+const cake = (owner, type, slug, version = "0.0.1") => ({ manifest: { owner, type, slug, version } });
+
+describe("Pensieve", () => {
+  it("keys by manifest owner→type→slug→version", async () => {
+    const pensieve = new Pensieve();
+    pensieve.register(cake("@vivalence", "game", "write"));
+    const found = await pensieve.revelio({ owner: "@vivalence", type: "game", slug: "write" });
+    expect(found.manifest.slug).toBe("write");
+  });
+
+  it("does NOT default a missing owner — mount must stamp", () => {
+    const pensieve = new Pensieve();
+    expect(() => pensieve.register({ manifest: { type: "game", slug: "write", version: "0.0.1" } }))
+      .toThrow();
+  });
+
+  it("two packages (owners) shipping the same type/slug do not collide", async () => {
+    const pensieve = new Pensieve();
+    pensieve.register(cake("@vivalence", "game", "flashcard"));
+    pensieve.register(cake("@finn", "game", "flashcard"));
+    const mine = await pensieve.revelio({ owner: "@vivalence", type: "game", slug: "flashcard" });
+    const theirs = await pensieve.revelio({ owner: "@finn", type: "game", slug: "flashcard" });
+    expect(mine.manifest.owner).toBe("@vivalence");
+    expect(theirs.manifest.owner).toBe("@finn");
+  });
+
+  it("latest() resolves the highest semver within a slug", async () => {
+    const pensieve = new Pensieve();
+    pensieve.register(cake("@vivalence", "game", "write", "0.1.0"));
+    pensieve.register(cake("@vivalence", "game", "write", "0.2.0"));
+    const found = await pensieve.revelio({ owner: "@vivalence", type: "game", slug: "write" });
+    expect(found.manifest.version).toBe("0.2.0");
+  });
+});
+#+END_SRC
+
+*** =subsystems/paladin/tests/vip.mount.test.js= (NEW · M11.1)
+Covers =mount=: reads =package.viva.js= for the owner, stamps it onto every
+walked module (which omit owner), and registers under the package owner. Uses an
+in-memory fake paladin (=read=/=find=) so no fixtures on disk.
+
+#+BEGIN_SRC javascript :tangle ../../subsystems/paladin/tests/vip.mount.test.js :mkdirp yes
+import { describe, it } from "@std/testing/bdd";
+import { expect } from "@std/expect";
+import { Vip } from "../prototypes/vip.js";
+
+// a root Path stub: .branch(child) → { absolute } ; .absolute for the root itself
+const rootStub = (dir) => ({
+  absolute: dir,
+  branch: (child) => ({ absolute: `${dir}/${child}` }),
+});
+
+// fake paladin: package.viva.js declares the owner; modules omit owner.
+const fakePaladin = (owner, modulePaths) => ({
+  read: {
+    viva: async (path) => {
+      const p = path.absolute ?? String(path);
+      if (p.endsWith("package.viva.js")) {
+        return { manifest: { owner, type: "package", slug: "core", version: "0.0.1" } };
+      }
+      const slug = p.split("/").at(-2);
+      return { manifest: { type: "game", slug, version: "0.0.1" } }; // NO owner
+    },
+  },
+  find: {
+    viva: async () => modulePaths.map((absolute) => ({ absolute })),
+  },
+});
+
+describe("Vip.mount", () => {
+  it("stamps the package owner onto every walked module", async () => {
+    const paladin = fakePaladin("@finn", ["/pkg/game/write/write.viva.js"]);
+    const vip = new Vip(paladin);
+    await vip.mount(rootStub("/pkg"));
+
+    const mod = await vip.pensieve.revelio({ owner: "@finn", type: "game", slug: "write" });
+    expect(mod).toBeTruthy();
+    expect(mod.manifest.owner).toBe("@finn");
+  });
+
+  it("throws when the package declares no owner", async () => {
+    const paladin = fakePaladin(undefined, ["/pkg/game/write/write.viva.js"]);
+    const vip = new Vip(paladin);
+    await expect(vip.mount(rootStub("/pkg"))).rejects.toThrow();
+  });
+});
+#+END_SRC
+
+*** =variant.packages= regeneration (M11.2)
+No new file — extend =variant.snapshot.test.js= coverage by regenerating the
+snapshot after the seam lands, and eyeball that =packages: ["./registry"]=
+appears on the resolved variant. If a dedicated assert is wanted:
+=expect(paladin.variant.packages).toEqual(["./registry"])= after =variant.mount()=.
+
+*** ingest-count unchanged (M11.1)
+The strongest proof M11.1 is a pure refactor: the pensieve holds the SAME number
+of modules after "4 branches → 1 root + owner-stamp" as before. Capture the count
+against the current loader (11.0 baseline), assert equality after 11.1. Guards
+against find.viva silently missing a subtree or the single-root mount over/under-
+walking. (Count the leaf cakes: sum of =slugMap.size= across =owner→type→slug=.)
+
+*** integration — full-boot ingest (M11.2 / M11.3)
+The existing runtime boot IS the integration test: a green =runtime/test= after
+the fold proves =variant.packages → vip.mount → pensieve → accio= end to end. Add
+a focused assert if the smoke test doesn't already touch it:
+=expect(await paladin.vip.accio("@vivalence/game/flashcard")).toBeTruthy()= after
+boot — proving package-owner ingest survives the flatten.
+
+*NB — the fold has a prerequisite:* =registry()= now reads =paladin.variant.packages=,
+so any test/scenario that mounts the registry must first =variant.mount()= (or
+seed =paladin.variant.packages= directly). A scenario that today mounts branches
+without a variant will fold over =[]= and ingest nothing — see =bench.js= below.
+
+** Test ladder (per milestone)
+| milestone | green gate |
+|-----------+-----------|
+| 11.0 | =paladin/test= + =runtime/test= baseline green |
+| 11.1 | NEW =pensieve.test.js= + =vip.mount.test.js= green; existing suite unchanged |
+| 11.2 | =variant.snapshot= regenerated; scenario mounts via fold; =runtime/test= green |
+| 11.3 | deep-import rewrites done; =runtime/test= green post-=mv=; live boot ingests all |
+| 11.4 | ghost + Docker still boot; docs swept |
+
+* Blast table (the ~15 touchpoints)
+
+| # | file | change | milestone | kind |
+|---+------+--------+-----------+------|
+| ① | =subsystems/paladin/prototypes/vip.js= | mount reads package, stamps owner | 11.1 | rewrite |
+| ② | =subsystems/paladin/prototypes/pensieve.js= | drop =owner ??= "@vivalence"=; require owner | 11.1 | edit |
+| ③ | =registry/package.viva.js= | the self-manifest | 11.1 | NEW |
+| ④ | =subsystems/paladin/tests/pensieve.test.js= | owner-axis unit | 11.1 | NEW test |
+| ⑤ | =subsystems/paladin/tests/vip.mount.test.js= | mount/stamp unit | 11.1 | NEW test |
+| ⑥ | =subsystems/paladin/prototypes/variant.js= | =packages= seam + class default | 11.2 | edit |
+| ⑦ | =testament/variant/test.viva.js= | =export const packages= | 11.2 | edit |
+| ⑧ | =systems/runtime/lifecycle/populate.js= | =registry()=: 4 branches → 1 root (11.1), root → fold (11.2) | 11.1+11.2 | edit |
+| ⑨ | =paladin/tests/variant.snapshot.{test.js,json}= | regenerate (new field) | 11.2 | change test |
+| ⑩ | =registry/= tree | =mv= to =<type>/<slug>/= | 11.3 | move |
+| ⑪ | 5 deep-import files (tests + docs) | path rewrite ×13 | 11.3 | change |
+| ⑫ | =paladin/lifecycle/populate.js:79-90=, =integrate.js:10= | retire/keep =scope.registry= | 11.4 | edit |
+| ⑬ | ghost =clone.js:75=, =system/doctor.js:132= | =vip.mount(scope.registry)= → packages-aware | 11.4 | edit |
+| ⑭ | =runtime/tests/scenarios/bench.js:72-74= | branch-mounts → fold | 11.4 | change test |
+| ⑮ | =Dockerfile:59= + =.ikiro= tier diagrams | =VIVA_REGISTRY_MOUNT= + docs | 11.4 | edit/docs |
+
+* Deferred (out-of-tree — build when the first external package lands)
+- =ledger.json= (=~/.viva=) — flake.lock: pins =source→mount→rev= per machine.
+- =materialize()= — the =self | clone(jj) | link | bake= switch. In-tree = identity.
+- =viva install package <src>= — mirrors the existing =viva install variant=.
+- system-dir redesign (unify =instances= + =packages= under one ledger belt).
+- =v.primitives.circuitry.Package= schematic — guard the declaration shape.
+- convention-scan seed (=find.type($dir, "package")=) — optional discovery mode.
+- *workspace-member audit* — registry modules import some =@vivalence/*= that are
+  NOT workspace members (=vector=/=entities=/=schema=/=interface=/=surface=; e.g.
+  =subsystems/vector= is commented out of =deno.jsonc workspace[]=). In-tree these
+  resolve today (however they resolve); an OUT-OF-TREE package importing them would
+  NOT resolve by workspace name. Audit + map these before the first external package
+  — this, not an import-map generator, is the real remainder of the deno-resolution story.
+
+* Forks (call before blasting)
+1. *Flatten now or later?* ①-⑨ (identity + plurality) deliver packages + multi-registry
+   WITHOUT the =mv=. M11.3 is independent cosmetic — can be its own pass.
+2. *Retire =scope.registry= or leave dormant?* Ghost + Docker lean on it; retiring
+   widens blast into ghost (⑬). Dormant = keep the resolver, stop using it in the fold.
+3. *self-package slug* — =@vivalence/package/core= (chosen) vs =…/registry= vs
+   =…/vivalence=. Cosmetic; pins the introspection name.
+
+* Changelog
+- 2026-07-01 :: Design captured. owner=package + supply/demand + variant-declares/
+  ledger-pins locked across a design session. Sanity-cut to in-tree (no ledger).
+  deno-resolution proven a non-issue (workspace name-resolution + =--config= on
+  spawn). Boot order verified (=variant.mount= precedes =registry()=). Five
+  milestones, tangleable. Out-of-tree apparatus deferred.

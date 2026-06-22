@@ -1,4 +1,4 @@
-import { View, Vector, v } from "@vivalence/typology";
+import { App, Vector, v } from "@vivalence/typology";
 
 const manifest = {
   type: "game",
@@ -7,10 +7,10 @@ const manifest = {
   description:
     "Connect literal pairs across two columns. Batch mode. Failure is sticky per literal.",
   version: "0.1.0",
-  traits: ["VIEWABLE", "EMITTER"],
+  traits: ["APPLICATION", "EMITTER"],
 };
 
-const view = new View(
+const app = new App(
   "buffer/Match.svelte",
   v.buffer({
     data: {
@@ -69,4 +69,4 @@ const dataset = {
   ],
 };
 
-export { manifest, view, emitter, dataset };
+export { manifest, app, emitter, dataset };

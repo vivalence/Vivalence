@@ -17,7 +17,10 @@ function isLabeled(thing) {
   return is.object(thing) && is.string(thing.name);
 }
 
-export const LABELED = (thread, ctx) => {
+// LABELED is a one-shot normalization: derive a display label from the thread's own data
+// (explicit label → trait config → intent → mode). Called once at resolve by the dossier —
+// not installed, not reactive; the label is set, not watched.
+export const label = (thread) => {
   let raw = thread.label;
   if (!isLabeled(raw) && isLabeled(thread.trait.LABELED)) raw = thread.trait.LABELED;
   if (!isLabeled(raw) && thread.intent) {

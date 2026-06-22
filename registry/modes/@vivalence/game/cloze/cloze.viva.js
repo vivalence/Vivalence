@@ -1,4 +1,4 @@
-import { View, Vector, v } from "@vivalence/typology";
+import { App, Vector, v } from "@vivalence/typology";
 
 const manifest = {
   type: "game",
@@ -7,10 +7,10 @@ const manifest = {
   description:
     "Fill blanked tokens in a sentence. Typed, picked, or audio-prompted. Per-token review.",
   version: "0.1.0",
-  traits: ["VIEWABLE", "EMITTER"],
+  traits: ["APPLICATION", "EMITTER"],
 };
 
-const view = new View(
+const app = new App(
   "buffer/Cloze.svelte",
   v.buffer({
     data: {
@@ -81,4 +81,4 @@ const dataset = {
   ],
 };
 
-export { manifest, view, emitter, dataset };
+export { manifest, app, emitter, dataset };

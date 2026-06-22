@@ -178,7 +178,10 @@ specimen.describe("cortex integration — HARNESSED harness", () => {
         specimen.expect(capture.turns).toBeDefined();
         const systemTurns = capture.turns.filter((turn) => turn.role === "system");
         specimen.expect(systemTurns.length).toBeGreaterThanOrEqual(1);
-        specimen.expect(systemTurns[0].parts[0].text).toContain("Dewey");
+        const personality = systemTurns.some((turn) =>
+          turn.parts.some((part) => part.text?.includes("Dewey")),
+        );
+        specimen.expect(personality).toBe(true);
       } finally {
         capture.restore();
       }

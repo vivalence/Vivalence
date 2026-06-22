@@ -1,4 +1,4 @@
-import { specimen, View, Path } from "@vivalence/typology";
+import { specimen, App, Path } from "@vivalence/typology";
 import { bundle } from "@vivalence/typology";
 const { svelte } = bundle;
 import esbuild from "esbuild";
@@ -24,28 +24,28 @@ specimen.describe("bundle", { sanitizeResources: false, sanitizeOps: false }, ()
     });
   });
 
-  specimen.describe("View pipeline", () => {
+  specimen.describe("App pipeline", () => {
     specimen.it("bundles and serves a .svelte entry", async () => {
-      const bv = new View("test-component.svelte");
-      bv.path.from(new Path(fixturesPath));
+      const bv = new App("test-component.svelte");
+      bv.mount.from(new Path(fixturesPath));
       bv.withBundler((entry) => svelte(entry, { prod: false }));
-      await bv.bundle();
+      await bv.bundle.compile();
 
-      specimen.expect(bv.bundled).toBe(true);
-      const result = bv.serve("test-component.svelte");
+      specimen.expect(bv.bundle.bundled).toBe(true);
+      const result = bv.bundle.serve("test-component.svelte");
       specimen.expect(result.text).toContain("mount");
       specimen.expect(result.text).toContain("as default");
       specimen.expect(result.response.type).toBe("application/javascript");
     });
 
     specimen.it("supports object constructor { mount, schema }", async () => {
-      const bv = new View({ mount: "test-component.svelte", mask: {} });
-      bv.path.from(new Path(fixturesPath));
+      const bv = new App({ mount: "test-component.svelte", mask: {} });
+      bv.mount.from(new Path(fixturesPath));
       bv.withBundler((entry) => svelte(entry, { prod: false }));
-      await bv.bundle();
+      await bv.bundle.compile();
 
-      specimen.expect(bv.bundled).toBe(true);
-      specimen.expect(bv.serve("test-component.svelte").text).toContain("as default");
+      specimen.expect(bv.bundle.bundled).toBe(true);
+      specimen.expect(bv.bundle.serve("test-component.svelte").text).toContain("as default");
     });
   });
 });

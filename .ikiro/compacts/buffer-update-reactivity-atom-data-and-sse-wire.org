@@ -1,0 +1,196 @@
+#+TITLE: Buffer-update reactivity — atom-backed data, SSE wire, the source-of-truth fix
+
+The playground probe graduates from CREATE reactivity to UPDATE reactivity: a card
+buffer calls a server aperture that mutates its own =buffer.data=, and the change
+must propagate to the client (moat + F-panel) with no nav, no refetch. The whole
+arc is a debugging masterclass in *verify-before-theorize* and *fix-the-source-of-
+truth-not-the-view*.
+
+* Intent (Finn, verbatim + context)
+Opening the new nuance, after CREATE reactivity already worked on screen:
+#+BEGIN_QUOTE
+i want to test another nuance in buffer reactivity across daemon and client.
+what if the card buffer calls an aperture that updates the buffer json on the
+server? does it propagate to the client f panel active buffer json display?
+create an aperture in card and call it on card button click. that aperture should
+update buffer.data. also check if the active buffer json display in f panel is even
+setup for reactivity.
+#+END_QUOTE
+
+* The server aperture (card EMITTER as a pure update)
+A mode exposes a callable server handler via the EMITTER trait
+(=mode.aperture.branch("/emit").slurp(mode.cake.emitter)=). An *update* is just an
+emitter handler that finds the buffer, reassigns =.data=, flushes, and adds nothing
+to the pool — so it emits no new buffer. The change rides the subscription, not the
+response.
+#+BEGIN_SRC javascript
+// registry/playground/card/card.viva.js — traits: APPLICATION, EMITTER
+export const emitter = new Vector().open(
+  { nature: "/card/bump", input: v.object({ buffer: v.string() }) },
+  async (ctx) => {
+    const buffer = await ctx.daemon.entities.buffer.findOne(ctx.input.buffer);
+    buffer.data = { ...buffer.data, bumped: (buffer.data?.bumped ?? 0) + 1 }; // new ref → dirty
+    await ctx.daemon.entities.em.flush();                                     // no pool.add
+  },
+);
+// client: buffer.mode.emit.card.bump({ buffer: buffer.id })
+#+END_SRC
+KEY REALISATION: spawner's CREATE appeared live via the *emit-response merge*
+(client EMITTER trait: =body.buffers = …merge(pojo)=), NOT via SSE. The bump returns
+an empty pool → first thing that actually exercises the buffer SSE subscription.
+
+* "not working" → is it server-side?
+After a first (wrong) view-layer patch, Finn:
+#+BEGIN_QUOTE
+no. not working.
+#+END_QUOTE
+Then the right investigative push:
+#+BEGIN_QUOTE
+check if the daemon dataspace and kajuit subscription maybe only fire on create and
+delete and check if they should be firing on updates. ie check if the issue is
+serverside. read through the testing in typology and runtime for this.
+#+END_QUOTE
+(Finn: "great trajectory! keep going" during this read-up — the investigation
+methodology below is the praised, high-fidelity part.)
+
+** Server is CORRECT — proven, not asserted
+- =shape.subscriber= fires =afterCreate/afterUpdate/afterDelete= → twitch.
+- =shard.datamap.reactive= opens twitch on =["create","update","delete"]= →
+  =broadcaster.push=. Production registers it: =population.js= →
+  =daemonDie.datamap.subscribe(shape.subscriber(daemonDie.good.twitch))=.
+- The only test coverage was =datamap.integration.test.js= for =/literal= —
+  *UNSCOPED*. Buffer/turn are *user-scoped*: =reactive(buffer, { scope: user })=
+  stamps the owner from =ambient.current()?.user?.id=, else drops + warns.
+- =ambient.store= is mounted at the daemon ROOT (=resolution.js=); a mode =/emit=
+  is a deep branch. =steer/navigate.js= =traverse= accumulates =carry= from the root
+  position down, so root middleware (authorize → ambient.store) DOES run for =/emit=
+  → owner present.
+
+** New hermetic test: subsystems/typology/tests/gestalten/shard/datamap.scoped.test.js
+Reproduces the live buffer wire (attach user → ambient.store → scope → reactive
+with =scope=). Three steps, all green:
+- scoped update via =/updateOne= → event delivered
+- scoped update via *emitter-style raw mutate + flush* (= =/card/bump=) → delivered
+- no-ambient owner → DROPPED (asserted via the server's own =console.warn=, because
+  an infinite =/subscribe= reader can't be abort-unblocked in Deno)
+Gotchas solved: Buffer/Thread carry a default MikroORM filter =user= (cond
+=thread.user = args.user=) — set =em.setFilterParams("user", { user: id })= or 500.
+
+* Root cause — Finn nailed it from the SSE log
+With a diagnostic =buffer.subscribe({}, cb)= logging op/id/data, Finn saw the events
+land and diagnosed it himself:
+#+BEGIN_QUOTE
+i see propper events. so problem is that changes to buffer.data arent registered.
+buffer.data is not an atom! its static.
+…
+maybe buffer prototype/dossier treats buffer.data as buffer.$data with a getter and
+setter?!
+#+END_QUOTE
+Exactly right. =terminal.$buffer= is a nanostores atom; =merge()= mutates the held
+Buffer instance IN PLACE (=existing.data = incoming=) — the atom's value is the same
+reference, so it never fires. The data was correct on the instance; Svelte was never
+signalled. A standalone atom holding by reference *cannot* observe in-place mutation;
+the only signal that fires on update is =buffer.$entities= (refreshStore).
+
+* The fix — source of truth, not a derive
+Finn rejected the earlier view-layer hack hard:
+#+BEGIN_QUOTE
+i dont want a separate livebuffer. terminal buffer is the source of truth! revert
+your hack! retard.
+#+END_QUOTE
+(Logged in zettelkasten ## Callouts.) The correct fix makes the *entity field*
+reactive, so =terminal.$buffer.data= IS live:
+#+BEGIN_SRC javascript
+// systems/kajuit/src/typology/entities/buffer.js
+export class Buffer extends Entity {
+  $data = atom({});
+  get data() { return this.$data.get(); }          // transparent accessor (vanilla read)
+  set data(value) { this.$data.set(value ?? {}); } // write fires the atom → merge notifies
+  toJSON() { return { ...super.toJSON(), data: this.data }; } // getter isn't own-enumerable
+}
+#+END_SRC
+Now =merge='s =existing.data = incoming= hits the setter → atom fires. Consumers
+*subscribe* to the atom (never =.get()=) via the chain accessor — re-emits on BOTH
+active-switch and data-mutation:
+#+BEGIN_SRC javascript
+// Card.svelte
+const data = atom.chain(buffer, "$data");                       // → {JSON $data}
+// f.svelte
+const activeData = chain(terminals, "$active", "$buffer", "$data");
+#+END_SRC
+=belt/atom.js= =bind= recursively subscribes through each nested store, so the chain
+follows terminal→buffer→$data. This is the canonical transparent-accessor pattern,
+not a parallel source of truth.
+
+* nanostores store-type decision (Finn: "what options do we have?")
+#+BEGIN_QUOTE
+$data = atom({}); nanostores has more than atoms. what options do we have?
+… maybe $atom isnt the right nanostore here?! is there a preferable one?
+#+END_QUOTE
+Verdict: =atom= is correct. The writer (=existing.data = wholeNewObject=) replaces
+the whole blob, so:
+- =atom(v)= — whole-value =.set=; one set → one notify; fresh ref each set. ✓
+- =map(obj)= — earns its keep only if the WRITE is per-key (=setKey=); a wholesale
+  =.set= fires identically to atom. No gain here.
+- =deepMap(obj)= — only for nested granular =setPath=; data is flat. Overkill.
+- =computed= — read-only derived; data is written, not derived.
+Store type was never the bug — reading via =.get()= instead of subscribing was.
+
+* connection.js — SSE body leak fixed at source
+=conn.stream= never cancelled its response body on early =break= (no finally) →
+"fetch response body not consumed" leak for every SSE consumer. Added:
+#+BEGIN_SRC javascript
+} finally { try { await reader.cancel(); } catch (_) {} }
+#+END_SRC
+Both the new scoped suite and the existing integration suite now run leak-clean.
+
+* Bruno demo (Finn: "see the serverside in action. using the playground")
+=testament/_bruno/variants/daemons/playground/= — 6 sequenced requests, 7 tests,
+all green vs live runtime:
+#+BEGIN_EXAMPLE
+login → mode (resolve spawner entity id) → thread (mode is NOT NULL on Thread)
+      → spawn (2 cards + sentinel; card.bumped=0) → bump → buffers (card.bumped==1)
+#+END_EXAMPLE
+Notes: emit URL = =<mode mount>/emit/<nature>=; thread create REQUIRES =mode= (DB
+not-null); the live =/subscribe= is infinite so SSE assertion stays in the deno test,
+not Bruno (the finite dialogue/stream pattern doesn't transfer to an infinite feed).
+
+* Tooling — nanostores logger + a vite gotcha
+- =import_map.json=: =@nanostores/logger= via npm; the =@deno/vite-plugin= reads the
+  import map, so kajuit resolves it. Wired in =+layout.svelte= onMount, torn down in
+  cleanup, logging =lighthouse:status / terminals:active / bridge:dock=.
+- GOTCHA: adding a dep while vite runs → its on-the-fly re-optimize via the deno
+  plugin 504'd (=NS_ERROR_CORRUPTED_CONTENT=, empty MIME on =.vite/deps/…=). Fix:
+  =deno cache= the dep (lock already had it), =rm -rf systems/kajuit/.vite=, restart
+  the vite dev server so optimizeDeps rebuilds. Finn: "fixed."
+
+* ikiro methodology learnings
+- *Verify before theorize.* The "is it server-side?" question was settled by a
+  hermetic test + a live Bruno run + an in-process warn — not by reasoning alone.
+  Reasoning located the candidate (scoped-broadcast ambient owner); evidence cleared
+  the server and pointed at the client.
+- *Fix the source of truth, never derive a shadow.* The =liveBuffer= =$derived= was a
+  consumer-side patch that forked truth; the real fix made the entity field an atom so
+  =terminal.$buffer.data= itself is reactive. Reactive-field convention: =$field= atom
+  + vanilla getter; consumers subscribe via =chain=, never =.get()=.
+- *In-place identity merge has exactly one signal.* Because =em.merge= mutates in
+  place (stable identity), reference-equality atoms can't see field changes; only
+  =$entities= (refreshStore) and per-field atoms fire. Any reactive surfacing of a
+  mutated field must route through one of those.
+- *Test the scoped path, not just the easy one.* Coverage existed for unscoped
+  literals; the user-scoped (ambient-owner) broadcast — the one production actually
+  uses — was untested. The discriminating test is the one that exercises the real wire.
+
+* State / carries
+- Buffer-update reactivity: DONE end-to-end, source-of-truth driven, no derives.
+- Diagnostics stripped (dossier log, buffer.js logs, Card json pre).
+- Parked (pre-existing): the App rename's mask→input/output split (the App prototype
+  still carries a single =mask=); 2 unnamed front-end-direction trait renames; the
+  launch WBS build sequence (aprende stats aperture, Stall-always-on phases as a
+  function, the three games activation→drill→riddler, two-trigger emitter + games-row).
+
+* Praised
+- The server-side investigation read-up ("great trajectory! keep going") — the
+  subscriber → twitch → reactive → broadcaster chain trace + the carry-accumulation
+  proof via =traverse=, and the realisation that CREATE was masked by the emit-response
+  merge while UPDATE exposed the real SSE path.

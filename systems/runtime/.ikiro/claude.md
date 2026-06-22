@@ -102,6 +102,49 @@ service wiring on bench: `services.lighthouse` enables real auth chain + userspa
 
 process system. `systems/runtime/process/` (22 lines total). ATTACHED services with their own aperture, mounted at `/attached/process/{type}/{slug}`. Lighthouse multiplayer at `registry/services/@vivalence/lighthouse/multiplayer/` is the primary process — serves `/auth/*` and `/entities/{identity,daemon}/*`.
 
+## interaction modes
+
+Four confirmed ways to drive/observe the runtime, sorted by isolation (cheap → heavy). Pick the lowest one that can answer the question; re-run mode 1 before climbing.
+
+| # | mode | altitude | network | for |
+|---|------|----------|---------|-----|
+| 1 | scenario | in-memory dummy daemon | none | repo / aperture-handler / entity-logic correctness |
+| 2 | aperture test | HTTP → live `:2501` | real fetch + auth | end-to-end route + contract |
+| 3 | run + log | boot `:2501`, stdout | server | ad-hoc tracing, boot issues |
+| 4 | kajuit + chrome | full stack + browser | server + vite | client / UI / store reactivity |
+
+**1. scenario** — `tests/scenarios/{daemon,mode,cortex}.js` build a full dummy daemon (seeded entities, mounted aperture, inline `conn`/`authedConn` over `shard.transmitter.inline`). No socket, deterministic.
+
+```sh
+# default test tasks carry --watch (won't exit). Run the FILE direct for one-shot:
+deno test -A --no-check systems/runtime/tests/daemon/symbols-query.test.js
+```
+
+**2. aperture test** — real `Connection` over `shard.transmitter.fetcher` → live `:2501`; login via lighthouse, call `/daemon/<slug>/...`. `tests/daemon/integration.test.js` runs login→pick→emit→review against the real `brazilian` daemon. Needs mode 3 up first.
+
+```sh
+deno task runtime/run &
+deno test -A --no-check --env-file=testament/.env systems/runtime/tests/daemon/integration.test.js
+```
+
+**3. run + log** — `deno task runtime/run` boots `:2501`; any `console.log` in runtime/typology/registry lands on stdout.
+
+```sh
+deno task runtime/run            # or runtime/watch (reload on edit)
+curl -s -o /dev/null -w '%{http_code}\n' http://localhost:2501/   # 404 = ALIVE (no root route)
+# stdout: launching on http://localhost:2501/ · Status:ALIVE
+```
+
+**4. kajuit + chrome** — `deno task kajuit/watch` serves the SvelteKit client via vite (port from paladin `client.statics.serve.port`, observed `:1794`); open in Chrome, read the console (vite HMR + nanostores logger + app `console.log`).
+
+```sh
+deno task kajuit/watch &     # note the printed Local: URL
+# chrome tools → navigate http://127.0.0.1:<port>/ → read_console_messages
+# observed: [vite] connected · 𝖓 mount lighthouse · status store was mounted
+```
+
+gotchas: `--watch` on test tasks never exits (run the file directly for one-shot); mode 2 needs mode 3 up; `:2501 /` 404 ≠ down (no root route — probe a real route or read stdout `Status:ALIVE`); chrome `navigate` may need a second call to stick.
+
 ## context
 
 testing gaps:

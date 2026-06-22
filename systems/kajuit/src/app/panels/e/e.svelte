@@ -2,9 +2,7 @@
   import { getContext } from "svelte";
   import { chain } from "@vivalence/kajuit";
   import { TERMINALS } from "$client";
-  import TraitTagRow from "@vivalence/kajuit/skins/trait/TraitTagRow.svelte";
-  import TraitTag from "@vivalence/kajuit/skins/trait/TraitTag.svelte";
-  import TraitTagIcon from "@vivalence/kajuit/skins/trait/TraitTagIcon.svelte";
+  import { Section, Chip, Pip } from "@vivalence/drapes";
   import Labeled from "@vivalence/kajuit/skins/trait/widgets/Labeled.svelte";
   import Masked from "@vivalence/kajuit/skins/trait/widgets/Masked.svelte";
   import Aimed from "@vivalence/kajuit/skins/trait/widgets/Aimed.svelte";
@@ -24,10 +22,11 @@
     { name: "QUEUEING", label: "queueing", toggleable: true },
   ];
 
-  let open = $state(new Set(["LABELED"]));
+  let open = $state(new Set([]));
   function toggleWidget(name) {
-    open.has(name) ? open.delete(name) : open.add(name);
-    open = new Set(open);
+    open = open.has(name)
+      ? new Set([...open].filter((entry) => entry !== name))
+      : new Set([name, ...open]);
   }
 
   function active(name) {
@@ -37,7 +36,15 @@
   function available(name) {
     if (name === "AIMED") return ($mode?.emitter?.leaves?.length ?? 0) > 0;
     if (name === "QUEUEING") return $threadTraits?.includes("AIMED") ?? false;
+    if (name === "MASKED") return active("MASKED");
     return true;
+  }
+
+  function chipMark(trait) {
+    if (!trait.toggleable) return null;
+    if (active(trait.name)) return "×";
+    if (available(trait.name)) return "+";
+    return null;
   }
 
   async function toggleTrait(name) {
@@ -49,6 +56,9 @@
     await current.daemon.entities.thread.updateOne({ id: current.id }, { traits });
     current.traits = traits;
   }
+
+  // phase control + integrity moved OUT of the c-panel into the shoulder widgets (PhaseLever +
+  // Integrity) — render-phase is shoulder territory, not trait-config territory.
 
   function labelText(value) {
     return (typeof value === "object" ? value?.name : value) ?? "—";
@@ -74,86 +84,105 @@
 </script>
 
 <div class="panel">
-  <section class="info">
-    <header>active</header>
-    {#if !$thread}
-      <div class="empty">no thread</div>
-    {:else}
-      <div class="kv"><span class="k">daemon</span><span class="v">{$thread.daemon?.slug ?? "—"}</span></div>
-      <div class="kv">
-        <span class="k">mode</span>
-        <span class="v">{$mode?.name ?? $mode?.slug ?? "—"}</span>
-        <span class="type">{$mode?.type ?? ""}</span>
+  {#if !$thread}
+    <div class="active-card empty-card">
+      <span class="active-label">active</span>
+      <span class="empty">no thread</span>
+    </div>
+  {:else}
+    <div class="active-card">
+      <span class="active-label">active</span>
+      <div class="crumb">
+        <span class="daemon">{$thread.daemon?.slug ?? "—"}</span>
+        <span class="sep">/</span>
+        <span class="modename">{$mode?.name ?? $mode?.slug ?? "—"}</span>
+        {#if $mode?.type}<span class="modetype">{$mode.type}</span>{/if}
+        <!-- <span class="sep">/</span> -->
+        <!-- <span class="thlabel">{labelText($label)}</span> -->
+        <!-- <span class="spacer"></span> -->
       </div>
-      <div class="kv"><span class="k">label</span><span class="v">{labelText($label)}</span></div>
-      <div class="kv">
-        <span class="k">traits</span>
-        <span class="v">{($mode?.traits ?? []).join(" · ") || "—"}</span>
+      <div class="traits">
+        {#if ($mode?.traits ?? []).length}
+          <span class="caps">{$mode.traits.join(" · ")}</span>
+        {/if}
       </div>
-    {/if}
-  </section>
+    </div>
 
-  <section class="traits">
-    <header>traits</header>
-    <TraitTagRow>
-      {#each TRAITS as trait (trait.name)}
-        <TraitTag
-          name={trait.label}
-          active={active(trait.name)}
-          open={open.has(trait.name)}
-          disabled={!available(trait.name)}
-          onclick={() => available(trait.name) && toggleWidget(trait.name)}>
-          {#if trait.toggleable && available(trait.name)}
-            <TraitTagIcon active={active(trait.name)} onclick={() => toggleTrait(trait.name)} />
-          {/if}
-        </TraitTag>
-      {/each}
-    </TraitTagRow>
-    {#if $thread}
+    <section class="traits">
+      <Section label="traits" />
+      <div class="chips">
+        {#each TRAITS as trait (trait.name)}
+          <Chip
+            label={trait.label}
+            active={active(trait.name)}
+            mark={chipMark(trait)}
+            disabled={!available(trait.name) && !active(trait.name)}
+            onclick={() =>
+              (available(trait.name) || active(trait.name)) && toggleWidget(trait.name)}
+            onmark={() => toggleTrait(trait.name)} />
+        {/each}
+      </div>
+
       {#each [...open] as name (name)}
         {@const trait = TRAITS.find((entry) => entry.name === name)}
-        <div class="widget">
+        {@const on = active(name)}
+        <div class="widget" class:on>
           <div class="widget-head">
-            <span class="widget-name" class:active={active(name)}>{trait.label}</span>
-            {#if trait.toggleable}
-              <TraitTagIcon active={active(name)} onclick={() => toggleTrait(name)} />
+            <Pip size={6} tone={on ? "primary" : "muted"} />
+            <span class="widget-name">{trait.label}</span>
+            <span class="spacer"></span>
+            <span class="widget-state" class:on>{on ? "active" : "available"}</span>
+            {#if chipMark(trait)}
+              <span
+                class="widget-mark"
+                class:remove={chipMark(trait) === "×"}
+                onclick={() => toggleTrait(name)}>{chipMark(trait)}</span>
             {/if}
           </div>
-          {#if name === "LABELED"}
-            <Labeled thread={$thread} />
-          {:else if name === "MASKED"}
-            <Masked thread={$thread} />
-          {:else if name === "AIMED"}
-            <Aimed thread={$thread} />
-          {:else if name === "QUEUEING"}
-            <Queueing thread={$thread} />
-          {/if}
+          <div class="widget-body">
+            {#if name === "LABELED"}
+              <Labeled thread={$thread} />
+            {:else if name === "MASKED"}
+              <Masked thread={$thread} />
+            {:else if name === "AIMED"}
+              <Aimed thread={$thread} />
+            {:else if name === "QUEUEING"}
+              <Queueing thread={$thread} />
+            {/if}
+          </div>
         </div>
       {/each}
-    {/if}
-  </section>
+    </section>
 
-  <section class="intent">
-    <header>intent</header>
-    {#if !$thread}
-      <div class="empty">no thread</div>
-    {:else if $thread.intent}
-      <div class="kv">
-        <span class="k">current</span>
-        <span class="v">{$thread.intent.name ?? $thread.intent.slug}</span>
+    <div class="grow"></div>
+
+    <section class="intent">
+      <div class="intent-head">
+        <span class="active-label">intent</span>
+        <span class="spacer"></span>
       </div>
-      <button class="act" disabled={savingIntent}>update intent</button>
-    {:else}
-      <div class="empty">unsaved thread config</div>
-      <button class="act" onclick={onSaveIntent} disabled={savingIntent}>
-        {savingIntent ? "saving…" : "save as intent"}
-      </button>
-    {/if}
-  </section>
+      {#if $thread.intent}
+        <div class="intent-row">
+          <span class="thlabel">{$thread.intent.name ?? $thread.intent.slug}</span>
+          <span class="spacer"></span>
+          <button class="act" disabled={savingIntent}>update intent</button>
+        </div>
+      {:else}
+        <div class="intent-row">
+          <span class="muted">unsaved thread config</span>
+          <span class="spacer"></span>
+          <button class="act" onclick={onSaveIntent} disabled={savingIntent}>
+            {savingIntent ? "saving…" : "save as intent"}
+          </button>
+        </div>
+      {/if}
+    </section>
+  {/if}
 </div>
 
 <style>
   .panel {
+    min-width: 300px;
     width: 100%;
     height: 100%;
     overflow: auto;
@@ -162,90 +191,171 @@
     background: var(--colors-skeleton-2-surface);
     color: var(--colors-skeleton-2-contrast);
     font-family: var(--font-family-code);
+    font-size: var(--font-size-sm);
+    letter-spacing: 0.02em;
+    padding: 15px 17px 17px;
+    box-sizing: border-box;
+  }
+  .grow {
+    flex: 1;
+    min-height: 12px;
+  }
+  .active-label {
     font-size: var(--font-size-xs);
-    letter-spacing: 0.04em;
-  }
-  section {
-    border-bottom: 1px solid color-mix(in srgb, var(--colors-skeleton-3-boundary) 50%, transparent);
-    padding: 6px 10px 8px;
-  }
-  .intent {
-    margin-top: auto;
-    border-bottom: none;
-    border-top: 1px solid color-mix(in srgb, var(--colors-skeleton-3-boundary) 50%, transparent);
-    min-height: 72px;
-  }
-  header {
-    font-size: var(--font-size-2xs);
+    letter-spacing: 0.18em;
     text-transform: uppercase;
-    letter-spacing: 0.12em;
-    opacity: 0.5;
-    padding-bottom: 6px;
+    color: color-mix(in srgb, currentColor 45%, transparent);
   }
-  .empty {
-    opacity: 0.3;
-    padding: 3px 0;
+  .spacer {
+    flex: 1;
+    min-width: 14px;
   }
-  .kv {
+  .empty,
+  .muted {
+    opacity: 0.35;
+  }
+
+  .active-card {
+    border: 1px solid color-mix(in srgb, var(--colors-skeleton-3-boundary) 45%, transparent);
+    border-radius: 4px;
+    padding: 11px 15px;
+    margin-bottom: 16px;
+  }
+  .empty-card {
     display: flex;
-    gap: 8px;
-    align-items: baseline;
-    padding: 1px 0;
+    align-items: center;
+    gap: 12px;
   }
-  .k {
-    min-width: 56px;
-    opacity: 0.5;
+  .crumb {
+    display: flex;
+    align-items: center;
+    gap: 9px;
+    flex-wrap: wrap;
+    margin-top: 7px;
+    font-size: var(--font-size-md);
   }
-  .v {
+  .crumb .daemon {
+    color: var(--colors-skeleton-0-primary-base);
+    font-weight: 600;
+  }
+  .crumb .modename {
     color: var(--colors-skeleton-0-primary-base);
   }
-  .type {
-    opacity: 0.4;
-    font-size: var(--font-size-2xs);
-    text-transform: uppercase;
+  .crumb .sep {
+    opacity: 0.28;
   }
+  .crumb .thlabel {
+    color: color-mix(in srgb, currentColor 85%, transparent);
+  }
+  .modetype {
+    padding: 1px 7px;
+    border: 1px solid color-mix(in srgb, var(--colors-skeleton-3-boundary) 55%, transparent);
+    border-radius: 2px;
+    font-size: var(--font-size-2xs);
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+    opacity: 0.6;
+  }
+  .caps {
+    font-size: var(--font-size-sm);
+    letter-spacing: 0.06em;
+    color: color-mix(in srgb, var(--colors-skeleton-0-primary-base) 70%, transparent);
+    white-space: nowrap;
+  }
+
+  section :global(.section-head) {
+    margin-bottom: 11px;
+  }
+  .chips {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 7px;
+    margin-bottom: 12px;
+  }
+
   .widget {
-    margin-top: 4px;
-    border: 1px solid color-mix(in srgb, var(--colors-skeleton-3-boundary) 50%, transparent);
-    border-radius: 3px;
+    border: 1px solid color-mix(in srgb, var(--colors-skeleton-3-boundary) 40%, transparent);
+    border-radius: 4px;
+    overflow: hidden;
+    margin-bottom: 9px;
   }
   .widget-head {
     display: flex;
     align-items: center;
-    gap: 8px;
-    padding: 4px 6px 4px 8px;
-    border-bottom: 1px solid color-mix(in srgb, var(--colors-skeleton-3-boundary) 40%, transparent);
+    gap: 10px;
+    padding: 8px 13px;
+    border-bottom: 1px solid color-mix(in srgb, var(--colors-skeleton-3-boundary) 30%, transparent);
+  }
+  .widget.on .widget-head {
+    background: color-mix(in srgb, var(--colors-skeleton-0-primary-base) 7%, transparent);
+    border-bottom-color: color-mix(in srgb, var(--colors-skeleton-0-primary-base) 18%, transparent);
   }
   .widget-name {
-    flex: 1;
-    font-size: var(--font-size-2xs);
+    font-size: var(--font-size-xs);
+    letter-spacing: 0.14em;
     text-transform: uppercase;
-    letter-spacing: 0.1em;
-    color: color-mix(in srgb, currentColor 50%, transparent);
+    color: color-mix(in srgb, currentColor 55%, transparent);
   }
-  .widget-name.active {
+  .widget.on .widget-name {
+    color: var(--colors-skeleton-0-primary-base);
+  }
+  .widget-state {
+    font-size: var(--font-size-xs);
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+    opacity: 0.3;
+  }
+  .widget-state.on {
+    color: color-mix(in srgb, var(--colors-skeleton-0-primary-base) 65%, transparent);
+    opacity: 1;
+  }
+  .widget-mark {
+    cursor: pointer;
+    opacity: 0.7;
+  }
+  .widget-mark:hover {
+    opacity: 1;
+  }
+  .widget-mark.remove {
+    color: var(--colors-skeleton-0-danger-base);
+  }
+  .widget-body {
+    padding: 11px 13px;
+  }
+
+  .intent {
+    padding-top: 14px;
+    border-top: 1px solid color-mix(in srgb, var(--colors-skeleton-3-boundary) 35%, transparent);
+  }
+  .intent-head {
+    display: flex;
+    align-items: center;
+    margin-bottom: 9px;
+  }
+  .intent-row {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+  }
+  .intent-row .thlabel {
     color: var(--colors-skeleton-0-primary-base);
   }
   .act {
-    margin-top: 6px;
-    padding: 3px 11px;
+    padding: 6px 14px;
     background: transparent;
-    border: 1px solid var(--colors-skeleton-3-boundary);
-    border-radius: 2px;
-    color: inherit;
+    border: 1px solid color-mix(in srgb, var(--colors-skeleton-0-primary-base) 40%, transparent);
+    border-radius: 3px;
+    color: var(--colors-skeleton-0-primary-base);
     font: inherit;
-    font-size: var(--font-size-2xs);
-    letter-spacing: 0.06em;
+    font-size: var(--font-size-sm);
+    letter-spacing: 0.04em;
     cursor: pointer;
-    opacity: 0.6;
   }
   .act:hover:not(:disabled) {
-    opacity: 1;
-    border-color: var(--colors-skeleton-0-primary-base);
-    color: var(--colors-skeleton-0-primary-base);
+    background: color-mix(in srgb, var(--colors-skeleton-0-primary-base) 10%, transparent);
   }
   .act:disabled {
-    opacity: 0.25;
+    opacity: 0.3;
     cursor: not-allowed;
   }
 </style>

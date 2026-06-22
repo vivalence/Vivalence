@@ -7,8 +7,6 @@
   const lighthouse = getContext(LIGHTHOUSE);
 
   let lighthouseStatus = $state("ok");
-  let daemonStatus = $state("ok");
-  let daemonLatency = $state(0);
 
   lighthouse.$status.subscribe((status) => {
     if (status.code === "OFFLINE") lighthouseStatus = "down";
@@ -17,20 +15,36 @@
     else lighthouseStatus = "ok";
   });
 
-  lighthouse.$daemons.subscribe((daemons) => {
-    if (!daemons.length) { daemonStatus = "down"; return; }
-    daemonStatus = daemons.reduce((worst, daemon) => {
-      if (daemon.status?.is?.("error")) return "down";
+  // One dot per daemon (replaces the old worst-of-all aggregate). health: ok=healthy,
+  // down=error/connection-error, lag=anything else (unavailable, loading, unknown).
+  function dotsFor(daemons) {
+    return daemons.map((daemon) => {
+      const reflection = daemon.status?.reflection ?? {};
+      const code = (reflection.code ?? "").toLowerCase();
       const state = daemon.connection?.$state?.get?.() ?? "IDLE";
-      if (state === "ERROR") return "down";
-      if ((daemon.status?.is?.("unavailable") || state === "LOADING") && worst !== "down") return "lag";
-      return worst;
-    }, "ok");
-  });
+      const health = code === "error" || state === "ERROR" ? "down" : code === "healthy" ? "ok" : "lag";
+      const hint = [daemon.slug, `status · ${code || "unknown"}`];
+      if (health === "ok") {
+        const modes = daemon.entities?.mode?.$entities.get().length ?? 0;
+        const threads = daemon.entities?.thread?.$entities.get().length ?? 0;
+        hint.push(`modes · ${modes}`, `threads · ${threads}`);
+      }
+      const error = reflection.error?.message ?? reflection.error;
+      if (error) hint.push(`error · ${error}`);
+      return {
+        slug: daemon.slug,
+        glyph: daemon.slug.charAt(0).toUpperCase(),
+        health,
+        hint: hint.join("\n"),
+      };
+    });
+  }
+
+  let daemonDots = $state(dotsFor(lighthouse.$daemons.get()));
+  lighthouse.$daemons.subscribe((daemons) => (daemonDots = dotsFor(daemons)));
 
   const lighthouseTooltip = $derived(
-    `lighthouse: ${lighthouseStatus}\n` +
-    `status: ${lighthouse.status.code}`
+    `lighthouse · ${lighthouseStatus}\n` + `status · ${lighthouse.status.code}\n` + `daemons · ${daemonDots.length}`,
   );
 </script>
 
@@ -49,10 +63,12 @@
       <span class="glyph">L</span>
     </div>
     <div class="rule"></div>
-    <div class="slot" title={"daemon · " + daemonStatus}>
-      <span class="status-dot lg" data-status={daemonStatus}></span>
-      <span class="glyph">D</span>
-    </div>
+    {#each daemonDots as dot (dot.slug)}
+      <div class="slot" title={dot.hint}>
+        <span class="status-dot" data-status={dot.health}></span>
+        <span class="glyph">{dot.glyph}</span>
+      </div>
+    {/each}
   </div>
 </div>
 
@@ -118,6 +134,9 @@
     flex-direction: column;
     align-items: center;
     gap: 4px;
+    /* .bone/.population are pointer-events:none so the rail doesn't block content behind it;
+       re-enable here so the dots are hoverable and their title tooltips show. */
+    pointer-events: auto;
   }
   .glyph {
     font-size: var(--font-size-2xs);

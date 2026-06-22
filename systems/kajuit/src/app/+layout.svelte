@@ -6,10 +6,13 @@
 
   import { onMount ,setContext } from "svelte";
   import { computed } from "nanostores";
+  import { narrate } from "../typology/logger.js";
 
-  import { Connection, Url } from "@vivalence/typology";
+  import { Connection, Url, shard } from "@vivalence/typology";
+  import { telemetry } from "$telemetry";
   import { LIGHTHOUSE, TERMINALS, BRIDGE } from "$client";
   import { stores } from "@vivalence/kajuit";
+  import { ThreadTraits } from "@vivalence/kajuit";
 
   import Login from "@vivalence/kajuit/skins/lighthouse/Login.svelte";
 
@@ -19,9 +22,9 @@
 
   let terminalCount = $state(0); // refactor away
 
-  const lighthouse = new stores.lighthouse.Lighthouse(
-    new Connection(new Url(env.PUBLIC_VIVA_LIGHTHOUSE_REMOTE)),
-  );
+  const connection = new Connection(new Url(env.PUBLIC_VIVA_LIGHTHOUSE_REMOTE));
+  connection.use(shard.track.span("lighthouse", telemetry()));
+  const lighthouse = new stores.lighthouse.Lighthouse(connection);
   stores.lighthouse.hydrate(lighthouse);
   setContext(LIGHTHOUSE, lighthouse);
 
@@ -31,12 +34,18 @@
   const terminals = new stores.terminals.Terminals();
   setContext(TERMINALS, terminals);
 
+  ThreadTraits.conversational.provide({ terminals });
+
   if (typeof window !== "undefined") {
     window.__viv = { lighthouse, terminals, bridge /*, box */ };
   }
 
   onMount(() => {
     stores.lighthouse.boot(lighthouse).catch(console.error);
+
+    // dev: nanostores logging — all of it lives in typology/logger.js (app shell +
+    // dynamic terminal / stall / buffer stores).
+    const unlog = narrate({ lighthouse, terminals, bridge });
 
     const unsubscribeGate = computed(
       [lighthouse.$isAuthorized, lighthouse.$status],
@@ -62,6 +71,7 @@
     });
 
     return () => {
+      unlog();
       unsubscribeGate();
       unsubscribePopulate();
       unsubscribeTerminals();

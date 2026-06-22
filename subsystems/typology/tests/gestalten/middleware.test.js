@@ -64,3 +64,12 @@ specimen.describe("carry", () => {
     });
   });
 });
+
+specimen.describe("middleware: invariants", () => {
+  specimen.it("calling next() twice rejects", async () => {
+    let err;
+    await compose([async (ctx, next) => { await next(); await next(); }])({}, async () => {})
+      .catch((e) => { err = e; });
+    specimen.expect(err?.message).toMatch(/multiple times/);
+  });
+});

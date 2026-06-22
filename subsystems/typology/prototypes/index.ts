@@ -19,8 +19,10 @@ export * from "./pipe.js";
 export * from "./queue.js";
 export * as tracks from "./tracks.js";
 
-export * from "./view.js";
-export { View } from "./view.js";
+export * from "./app.js";
+export { App } from "./app.js";
+export * from "./bundle.js";
+export { Bundle } from "./bundle.js";
 
 export * from "./freight.js";
 // export * from "./feature.js";
@@ -49,3 +51,4 @@ export * from "./entity-manager.js";
 export * from "./broadcaster.js";
 export * from "./cortex.js";
 export * from "./hallucination.js";
+export * from "./stall.js";

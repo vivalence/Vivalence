@@ -6,35 +6,36 @@
   const label = chain(terminal, "$thread", "$label");
 </script>
 
-<button class="tab" class:active={isActive} onclick={onactivate}>
-  <span class="tab-title" dir="rtl">{$label?.name ?? $label}</span>
-  {#if isActive}
-    <button
-      class="tab-close"
-      onclick={(e) => {
-        e.stopPropagation();
-        onclose();
-      }}>×</button>
-  {/if}
-</button>
+  <!-- also render indicator of conversation and its current activity -->
+  <!-- also render indicator of stall and its current activity -->
+  <!-- render number of buffers -->
+<div class="tab" class:active={isActive} onclick={onactivate}>
+  <span class="tab-title">{$label?.name ?? " [empty] "}</span>
+  <button
+    class="tab-close"
+    onclick={(e) => {
+      e.stopPropagation();
+      onclose();
+    }}>×</button>
+</div>
 
 <style>
   .tab {
     flex: 0 0 auto;
-    max-width: 120px;
-    height: 22px;
+    max-width: 140px;
     display: inline-flex;
     align-items: center;
-    gap: 6px;
-    padding: 0 8px;
+    gap: 8px;
+    padding: 4px 11px;
     background: color-mix(in srgb, var(--colors-skeleton-0-surface) 30%, transparent);
     border: 1px solid color-mix(in srgb, var(--colors-skeleton-0-boundary) 50%, transparent);
     border-radius: 3px;
     color: var(--colors-skeleton-1-contrast);
     font-family: var(--font-family-code);
-    font-size: var(--font-size-2xs);
-    letter-spacing: 0.04em;
-    text-transform: lowercase;
+    font-size: var(--font-size-sm);
+    line-height: 1;
+    /* letter-spacing: 0.03em; */
+    /* text-transform: lowercase; */
     cursor: pointer;
     opacity: 0.6;
     transition:
@@ -95,8 +96,8 @@
     overflow: hidden;
     text-overflow: ellipsis;
     white-space: nowrap;
-    direction: rtl;
-    text-align: right;
+    /* direction: rtl; */
+    /* text-align: right; */
     flex: 1;
   }
   .tab-title::before {

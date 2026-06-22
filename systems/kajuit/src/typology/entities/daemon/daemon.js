@@ -12,6 +12,7 @@ export class Daemon extends Entity {
   lighthouse = null;
   cargo = {};
   status = new Status();
+  modes = {};
 
   getAsset(asset) {
     if (!this.cargo || !asset) return null;

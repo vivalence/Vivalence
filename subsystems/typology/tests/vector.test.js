@@ -135,3 +135,38 @@ specimen.describe("Vector", () => {
     });
   });
 });
+
+specimen.describe("Vector: slurp invariants", () => {
+  specimen.it("leaves the SOURCE vector unmutated", () => {
+    const src = new Vector().open("/a", () => 1).open("/b/c", () => 2);
+    const before = {
+      effects: src.effects.size,
+      carry: src.carry.length,
+      trajectories: src.trajectories.size,
+    };
+    new Vector().slurp(src);
+    specimen.expect(src.effects.size).toBe(before.effects);
+    specimen.expect(src.carry.length).toBe(before.carry);
+    specimen.expect(src.trajectories.size).toBe(before.trajectories);
+  });
+});
+
+specimen.describe("Vector: slurp shares, swallow owns", () => {
+  // slurp grafts the source branch by reference (a feature); swallow deep-copies it.
+  const trial = (merge) => {
+    const src = new Vector().open("/shared/a", () => "src-a");
+    const dest = new Vector();
+    dest[merge](src);
+    dest.branch("shared").open("b", () => "dest-b"); // edit DEST's branch only
+    const srcShared = [...src.trajectories.values()][0];
+    return [...srcShared.effects.keys()].some((pattern) => pattern.nature === "b"); // leaked into src?
+  };
+
+  specimen.it("slurp shares the branch — edit leaks into src (by design)", () => {
+    specimen.expect(trial("slurp")).toBe(true);
+  });
+
+  specimen.it("swallow owns the branch — src stays clean", () => {
+    specimen.expect(trial("swallow")).toBe(false);
+  });
+});

@@ -1,29 +1,16 @@
-import { MikroORM } from "@mikro-orm/core";
-import { SqliteDriver } from "@mikro-orm/sqlite";
-import { types, EntitySchema, type Opt } from "@mikro-orm/core";
+import { types, EntitySchema } from "@mikro-orm/core";
 
 import {
   LiteralEntity,
   LiteralSchema,
   LiteralRepository,
-  BufferEntity,
-  ModeEntity,
-  ModeSchema,
-  IntentSchema,
-  UserSchema,
-  ThreadSchema,
-  TurnSchema,
-  IntentEntity,
-  UserEntity,
-  ThreadEntity,
-  TurnEntity,
   SymbolEntity,
+  BufferEntity,
+  TurnEntity,
 } from "@vivalence/typology/entities";
 
-import {
-  SymbolConcrete,
-  BufferConcrete,
-} from "@vivalence/typology/scenarios";
+import { SymbolConcrete, BufferConcrete, provider } from "@vivalence/typology/scenarios";
+import { tiers, variant } from "./variant.js";
 
 export enum LiteralTraits {
   TRANSLATED = "TRANSLATED",
@@ -31,8 +18,8 @@ export enum LiteralTraits {
   VOCALIZED = "VOCALIZED",
 }
 
-// Extends base repo with a stub .feed() that the domain kernel normally provides.
-// Real .feed() does due/novel spaced-repetition split; this just returns literals.
+// Standalone concrete of the base Literal — used by symbols-query.test.js, which
+// boots its own ORM to exercise the typology LiteralRepository in isolation.
 class TestLiteralRepository extends LiteralRepository {
   async feed(where: any, opts?: any) {
     const { limit, blacklist, populate } = opts || {};
@@ -61,96 +48,108 @@ export const LiteralDomain = new EntitySchema({
   },
 });
 
-const schemas = [
-  LiteralDomain,
-  SymbolConcrete,
-  BufferConcrete,
-  ModeSchema,
-  IntentSchema,
-  UserSchema,
-  ThreadSchema,
-  TurnSchema,
-];
-
 export { SymbolConcrete as SymbolDomain, BufferConcrete as BufferDomain };
 export { LiteralEntity, SymbolEntity, BufferEntity, TurnEntity };
 
+// Provision entities the way the runtime does (daemon/lifecycle/population.js):
+// a tiered entity variant fed to the in-memory provider (the datamap contract).
+// Memory + Trace are the real domain entities, carried in by variant(); fixtures
+// are created through the registered classes (tiers.<type>.entity), never a copy.
 export async function seed() {
-  const orm = await MikroORM.init({
-    driver: SqliteDriver,
-    dbName: ":memory:",
-    entities: schemas,
-    allowGlobalContext: true,
-  });
+  const datamap = await provider(variant());
+  const { entities, orm } = datamap;
+  const em = entities.em;
 
-  await orm.schema.refreshDatabase();
-  const em = orm.em;
+  const user = em.create(tiers.user.entity, { roles: ["USER"], config: {} });
+  await em.flush();
+  em.setFilterParams("user", { user: user.id });
 
-  const user = em.create(UserEntity, { roles: ["USER"], config: {} });
+  const literal = (slug, known, learning) =>
+    em.create(tiers.literal.entity, {
+      slug,
+      traits: ["TRANSLATED"],
+      trait: { TRANSLATED: { known, learning } },
+      symbol: {},
+    });
+
+  const hello = literal("hello", "hello", "olá");
+  const goodbye = literal("goodbye", "goodbye", "tchau");
+  const thanks = literal("thanks", "thanks", "obrigado");
+  const please = literal("please", "please", "por favor");
+
+  const symbol = (slug) => em.create(tiers.symbol.entity, { slug, traits: ["ONTOLOGICAL"], trait: {} });
+  const greeting = symbol("greeting");
+  const casual = symbol("casual");
+  const polite = symbol("polite");
   await em.flush();
 
-  const hello = em.create(LiteralEntity, {
-    slug: "hello",
-    traits: ["TRANSLATED"],
-    trait: { TRANSLATED: { known: "hello", learning: "olá" } },
-    symbol: {},
-  });
-
-  const goodbye = em.create(LiteralEntity, {
-    slug: "goodbye",
-    traits: ["TRANSLATED"],
-    trait: { TRANSLATED: { known: "goodbye", learning: "tchau" } },
-    symbol: {},
-  });
-
-  const thanks = em.create(LiteralEntity, {
-    slug: "thanks",
-    traits: ["TRANSLATED"],
-    trait: { TRANSLATED: { known: "thanks", learning: "obrigado" } },
-    symbol: {},
-  });
-
-  const please = em.create(LiteralEntity, {
-    slug: "please",
-    traits: ["TRANSLATED"],
-    trait: { TRANSLATED: { known: "please", learning: "por favor" } },
-    symbol: {},
-  });
-
-  const greeting = em.create(SymbolEntity, {
-    slug: "greeting",
-    traits: ["ONTOLOGICAL"],
-    trait: {},
-  });
-
+  // overlapping symbol sets — so an intersection query is non-trivial:
+  //   greeting        → hello, goodbye, thanks, please
+  //   greeting+casual → hello, goodbye
+  //   greeting+polite → thanks, please
+  for (const word of [hello, goodbye, thanks, please]) word.symbols.add(greeting);
+  for (const word of [hello, goodbye]) word.symbols.add(casual);
+  for (const word of [thanks, please]) word.symbols.add(polite);
   await em.flush();
 
-  hello.symbols.add(greeting);
-  goodbye.symbols.add(greeting);
-  thanks.symbols.add(greeting);
-  please.symbols.add(greeting);
+  // ── minimal memory + trace — enough to prove aggregation wiring ──────
+  const now = new Date();
+  const memory = {
+    known: em.create(tiers.memory.entity, {
+      user,
+      literal: hello,
+      status: "KNOWN",
+      state: {},
+      nextAt: new Date(now.getTime() + 86_400_000), // future → not due
+      lastAt: now,
+    }),
+    learning: em.create(tiers.memory.entity, {
+      user,
+      literal: goodbye,
+      status: "LEARNING",
+      state: {},
+      nextAt: new Date(now.getTime() - 86_400_000), // past → due
+      lastAt: now,
+    }),
+  };
   await em.flush();
 
-  const mode = em.create(ModeEntity, {
+  em.create(tiers.trace.entity, {
+    user,
+    literal: hello,
+    memory: memory.known,
+    signal: { enum: "SUCCESS" },
+    status: "SUCCESS",
+    snapshot: {},
+  });
+  em.create(tiers.trace.entity, {
+    user,
+    literal: goodbye,
+    memory: memory.learning,
+    signal: { enum: "MISTAKE" },
+    status: "MISTAKE",
+    snapshot: {},
+  });
+  await em.flush();
+
+  const mode = em.create(tiers.mode.entity, {
     slug: "flashcard",
     type: "game",
-    traits: ["VIEWABLE", "SELFEVIDENT", "INTENTED", "EMITTER"],
+    traits: ["APPLICATION", "INTENTED", "EMITTER"],
     installed: true,
   });
-
   await em.flush();
 
-  const intent = em.create(IntentEntity, {
+  const intent = em.create(tiers.intent.entity, {
     slug: "survival-flashcard",
     traits: ["MASKED"],
     name: "Survival Flashcard",
     trait: { MASKED: { where: { symbols: ["greeting"] } } },
     mode,
   });
-
   await em.flush();
 
-  const thread = em.create(ThreadEntity, {
+  const thread = em.create(tiers.thread.entity, {
     user,
     mode,
     intent,
@@ -158,12 +157,13 @@ export async function seed() {
     cursor: 0,
     counter: 0,
   });
-
   await em.flush();
 
   return {
     orm,
     em,
-    fixtures: { user, hello, goodbye, thanks, please, greeting, mode, intent, thread },
+    datamap,
+    entities,
+    fixtures: { user, hello, goodbye, thanks, please, greeting, memory, mode, intent, thread },
   };
 }

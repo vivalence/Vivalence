@@ -1,0 +1,106 @@
+#+TITLE: A kajuit bug-fix loop — terminals-persistence (atom-aware) + buffer rehydrate + Frame guard, MASKED single-source-of-truth + is.empty fix, D-panel live buffer-count, daemon-health relocated crown→spine, the trailing-buffer fix Finn then disabled, and a research verdict on automatic vs manual server-sync of relation assignments
+#+TOPIC: continuation session, all in kajuit + typology prototypes. Seven reported bugs fixed in sequence + one design-research question. The through-line is buffers/threads/persistence reactivity and where daemon health belongs. Finn drove with terse bug reports and one "research first, judge if reasonable" prompt; he edited two files mid-stream (canonical).
+
+* Arc
+
+** "terminals loose their threads" on refresh
+
+Finn: =when refreshing the client, the terminals loose their threads. in kajuit.=
+
+Root cause: =stores/terminals.js= persisted to localStorage by subscribing only to =$entities= (the array). But a Terminal stores thread/buffer in inner atoms (=$thread=/=$buffer=); =terminal.thread = X= (navigation =resume()=) mutates the inner atom without changing the array reference → the persistence writer never fired → thread selection never written → on reload =rehydrate= skipped it (=typeof terminal.thread !== "string"=) → no thread. Earlier terminals only survived incidentally (creating a *later* terminal re-serialized the whole array).
+
+Fix (systemic, per [[feedback_no_hotfix_architecture]]): the persistence must observe the actual reactive state, not array identity. The constructor now watches each terminal's =$thread=/=$buffer= atoms and **re-arms** those inner subscriptions whenever =$entities= changes:
+#+begin_src js
+let innerSubscriptions = [];
+this.$entities.subscribe((entities) => {
+  innerSubscriptions.forEach((unsubscribe) => unsubscribe());
+  innerSubscriptions = entities.flatMap((terminal) => [
+    terminal.$thread.subscribe(write),
+    terminal.$buffer.subscribe(write),
+  ]);
+  write();
+});
+#+end_src
+The trap worth remembering: an =atom= holding objects that themselves hold atoms — the outer atom only fires on array-ref change; mutating an inner atom is invisible to outer subscribers.
+
+** MASKED chip "always active" + the is.empty fix + one source of truth
+
+Finn (screenshot, debug logs in =e.svelte= + =is.empty=): =for some reason the masked trait chip always shows active even tho there is no schema attached here. why??!!=
+
+Diagnosis: the chip's bright/active look = =active("MASKED")= = =$threadTraits.includes("MASKED")= — pure trait membership, schema never consulted. MASKED was in =thread.traits= because =thread/dossier.js= auto-injected it for **any** mode that =implements("VIEWABLE")=, ignoring =view.schema=. Aprende declares VIEWABLE but =view.schema= is ={}=. His =available()= schema-gate only drove =disabled=, not the active look, so it couldn't strip a trait already in the array. Root mismatch: *VIEWABLE (has a view) ≠ has a mask schema*.
+
+Also flagged: =is.empty(undefined)= returned =false= (fell through to =return !!thing=), so the schema gate flickered true during the mode-loading window.
+
+Finn: =what does fixed is.empty look like? and reduce to one source of truth. fix is.empty=
+
+Three edits:
+- =gestalten/is/scalars.js= — =empty()= now: nullish→true, string/array by length, Map/Set by size, plain object by keys, else false. Killed the debug =console.log= + the incoherent =!!thing= fallback. Footgun noted: the file declares =export function undefined(thing)=, shadowing the global =undefined= identifier inside the module, so the nullish check uses =typeof === "undefined" || === null=, not ==== undefined=. Caller scan was a strict improvement; bonus catch — =prototypes/view.js= =withBundler= did =if (is.empty(this.bundles)) bundle()= where =this.bundles= starts =undefined=, so the old code **never kicked off bundling on first attach**; now it does.
+- =thread/dossier.js= — MASKED injected only when =!is.empty(thread.mode?.view?.schema)= (fixed is.empty handles the nullish case, so no extra guard). Added =is= to the =@vivalence/typology= import.
+- =e.svelte= — stopped re-deriving from schema; =available("MASKED")= just returns =active("MASKED")= (the dossier is the single source). Dropped the now-unused =is= import, the dead =const terminal= debug chain, the =console.log=s.
+
+** "next.mount is not a function" — intermittent on reload
+
+Finn: =sometimes i get this error on page reload. not always=. Stack: =boot → verify → gate ready → Frame.activate → next.mount is not a function=.
+
+=Buffer= (=entities/buffer.js=) has =mount()/render()/release()/destroy()=; a raw id-string does not. Two compounding causes: (1) the terminals-persistence fix above now reliably wrote =buffer= as an id-string; (2) =rehydrate= restored =thread= but **never =buffer=**, and there's an async window where terminals construct from localStorage *before* rehydrate runs. So =$buffer= was a string → =Frame.activate(string)=.
+
+Fix A — =rehydrate= now resolves **both** thread and buffer to a live entity or =null= (never a dangling string), via a generalized =restore(entityName, id, options)= helper that searches daemons' repos.
+Fix B — =drapes/panels/Frame.svelte= guards the effect boundary: =if (typeof next.mount !== "function") return;= after the null check, so =live=/=teardown= never see a non-Buffer (=teardown= calls =live.release()= which would also crash on a string).
+
+** D-panel buffer count 0 while F shows 1
+
+Finn (screenshot): =notice how there is a buffer in the list section of Fpanel but the thread shows no buffers in d panel? fix this.=
+
+=d.svelte= counted =thread.buffers?.length= — the =populate:["buffers"]= **snapshot** from boot, so a buffer created later in F never appeared. Fix: =bufferCount= reads the live =thread.$buffers.get().length= (the dossier computed that filters the daemon buffer repo by thread); the effect now also subscribes to =daemon.entities.buffer.$entities= so the count recomputes on create/remove; dropped =buffers= from the populate (redundant + the stale source). Single source of truth = the live repo, same as F.
+
+** Unavailable daemons — ignore in D, dots in spine (not crown)
+
+Finn: =some of my daemons arent currently active … If a daemon isnt available/accessible, i want it ignored. remove it from consideration in d panel entirely. and in crown, render one dot per daemon. with a rich hint on hover.= (typing-practice/spanish 404 on =/batch=, render empty + orange dot in D, orange aggregate dot in spine.)
+
+First pass (followed the literal "in crown"): filtered D to =availableDaemons = $derived($daemons.filter(d => d.status.is("healthy")))=; built per-daemon dots **in the crown**; made the spine aggregate ignore =unavailable=.
+
+Finn (rage): =NO! the dot per daemon should not be in the CROWN! they should be in the spine. where there already are dots for lighthouse and one for all daemons. the one for all daemons should fuck off and instaead one per daemon goes into the SPINE!! and add a rich tooltip on hover to either of these dots in spine. remove dots from crown. AND get me back my terminals in crown!!!=
+
+(My =space-between= layout had pushed the terminal tabs off the visible crop — that was the real regression.)
+
+Corrected: reverted =crown.svelte= to terminals-only (original layout); =spine.svelte= now replaces the single worst-of-all D aggregate with **one dot per daemon** (L kept, smaller subordinate dots, glyph = slug initial, =data-status= ok/lag/down). =D= filter stayed (=availableDaemons=).
+
+** "these miss a tooltip on hover still!!!"
+
+The spine dots rendered but native =title= tooltips didn't fire — =.bone=/=.population= are =pointer-events: none= (so the rail doesn't block content behind it) and the spine never re-enabled it on the slots (crown does via =.population > *=). Fix: =.slot { pointer-events: auto }=. (This had been silently eating the **L** tooltip the whole time too.)
+
+Then Finn: =no need to show modes and threads on failed daemon.= → =dotsFor= only appends =modes · N / threads · N= when =health === "ok"=; failed daemons show =slug / status / error · …= only.
+
+** Research: automatic vs manual server-sync of relation assignments
+
+Finn pointed at =remote-repository.js=, =thread/dossier.js=, =entity-manager.js=, =Aprende.svelte= and the stubbed =// thread.$mode.subscribe()=. He wants =terminal.thread.mode = X= to auto-PATCH the server. Two approaches named: (1) **manual** — dossier wires =thread.$mode.subscribe → updateOne=; (2) **automatic** — entity-manager-level relationship wiring so every relation set triggers an update. Finn: =i would like you to research the automatic approach first. read through the testing of remote repo and entity map, study the related components, hypothesise if this is possible. judge if its reasonable.=
+
+Verdict delivered (research only, no code): **possible in theory, not reasonable here.**
+- The =RemoteEntityManager= already has the unit-of-work the automatic approach would ride: =persist(entity)= → =changes()= (diff of =toJSON= vs =snapshot=) → =flush()= (batched =/updateOne=); =Entity.toJSON= already collapses =m:1 → {id}=; =cast()= already installs =defineProperty= accessors for 1:m collections.
+- **Decisive blocker:** kajuit entities keep mutable state in **nanostores atoms**, not plain fields. =Thread.mode= is a getter/setter over =$mode= (=set mode(v){ this.$mode.set(v) }=). =Entity.toJSON= iterates own enumerable props = the =$mode= *atom* (the =mode= getter lives on the prototype, never enumerated); the atom is either skipped (non-plain) or makes =structuredClone= throw → **the EM diff never sees =mode=**. Proven by the =entity-manager.test.js= "snapshot resilience" test: non-cloneable entity → =changes()= returns =null= (graceful no-op). Thread carries =daemon=, =socket=, =conversation=, =streams=, atoms — exactly that case. So the automatic path would *silently* not fire.
+- Secondary: hydration write-back storms (=merge=/=cast= assign fields on every read → would self-trigger), relation-diffing is untested (only scalars), the unit-of-work is currently dormant in kajuit (app uses =repo.updateOne= directly), and it bolts a 2nd reactivity system on top of the atoms that already drive the UI and already fire on =thread.mode = X=.
+- Recommendation: the atom IS the signal — manual =thread.$mode.subscribe(...)= (already stubbed), or, for a generic feel without the EM, an **atom-layer** wiring that loops the schema's =m:1= relations and subscribes to each =$field= atom (skip the hydration echo by comparing incoming id to last-synced). Offered to spec either; awaiting Finn's choice.
+
+* Callouts (workflow self-improvement; no "retard" codeword this session)
+
+- **Layout change hid existing content.** Adding daemon dots to the crown, I switched =.population= to =space-between=, which pushed the terminal tabs off the visible viewport. Finn: =get me back my terminals in crown!!!=. A layout edit meant to be *additive* became a *restructure* that displaced working UI. Rule: when inserting into a populated container, prefer additive placement and verify the pre-existing content still renders where it was; don't restructure flex alignment under existing children without checking.
+- **Completing a half-built persistence path surfaced a crash before I caught the symmetric gap.** The terminals-persistence fix made =buffer= reliably persist, which exposed that =rehydrate= never restored =buffer= → =Frame= crash on a string. Lesson: when you finish a write path, immediately audit the matching read/restore path in the same change — don't let the asymmetry ship and surface as a user-visible crash.
+- **Bash grep/rg output is word-mangled in this environment.** =Frame→n=, =empty→ln=, =MASKED→n=, =requestAnimationFrame→requestAnimationn= — only on =grep=/=rg= match content; =ls= and the =Read= tool are clean. Trusted =Read= for all exact strings/edits. Carry this: never copy code to edit from Bash search output here; Read is ground truth.
+
+* Carries
+
+Files in canonical state after this session (kajuit + typology):
+- =gestalten/is/scalars.js= — =empty()= fixed (nullish→empty, Map/Set, no debug fallback). Typology-core; bonus-fixed =view.js= =withBundler= first-attach bundling.
+- =thread/dossier.js= — MASKED gated on =!is.empty(view.schema)=; =is= imported.
+- =e.svelte= — trusts the trait (=available("MASKED") = active("MASKED")=), debug removed.
+- =stores/terminals.js= — persistence watches inner =$thread=/=$buffer= atoms; =rehydrate= restores both thread and buffer (generalized =restore=).
+- =drapes/panels/Frame.svelte= — boundary guard against a non-Buffer =$buffer=.
+- =panels/d/d.svelte= — =availableDaemons= filter; live =bufferCount= via =thread.$buffers=; buffer-repo subscription; populate trimmed. **Finn kept this and tweaked =threadRow= to =thread.mode?.slug ?? "-"=.**
+- =bones/crown/crown.svelte= — reverted to terminals-only.
+- =bones/spine/spine.svelte= — per-daemon dots replace the aggregate; rich =title= tooltips (L + each daemon); =.slot { pointer-events: auto }=; modes/threads only when healthy.
+
+Open / Finn's signals:
+- **Trailing buffer.** Finn: =when i change threads, there should not be a trailing buffer rendered in a panel frame.= I fixed it in =Terminal.set thread= (clear =$buffer= on a genuine switch). **Finn then COMMENTED IT OUT** — =terminal.js= =set thread= is now a plain set, the switched-clear preserved as a comment. So the bug is currently *unaddressed by design choice*; he likely doesn't want buffer↔thread coupling living in the entity setter. Do NOT re-add at the entity layer without asking — propose a different layer (a.svelte/Frame, or terminal-swap logic) if he raises it again.
+- **Server-sync of relation assignments.** Automatic/EM approach judged unreasonable (atom-blind diff). Path forward = manual =thread.$mode.subscribe= (stub exists in dossier) or generic atom-layer wiring over schema =m:1= relations with a hydration-echo guard. Not implemented — awaiting his "go"/choice. Relevant new fact for memory: kajuit's EM unit-of-work (=persist=/=changes=/=flush=) is built + tested but **dormant**; entities are atom-backed so the EM's =toJSON=-diff cannot see their mutable state.
+
+Methodology reused/confirmed: single-source-of-truth for derived traits (dossier derives, UI trusts the trait); make-the-bug-category-impossible over per-call-site patching (terminals persistence, Frame guard, =is.empty=); Read-as-ground-truth when the shell mangles search output.

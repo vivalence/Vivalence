@@ -1,0 +1,115 @@
+#+TITLE: The Stall rebuilt to a THREAD-owned phase (M1–M3 landed green) + the quest set that demonstrates and extends it (M4 phase-playground · M5 widget-glyphs · M6 vector-affect · M9 playground-layout)
+
+#+TOPIC: The WHAT of the session — the only shipping code (the stall rebuild) plus the four quests authored on top of it. Companion: =connoisseur-process-research-and-the-data-ui-synthesis.org= (the HOW). Resumption: M4.0 BASELINE (Finn runs the app) gates the rest; the quests carry every next step.
+
+* The trigger (Finn, the scribe download — verbatim, the spec)
+The session began at "research into the way that stall rendering works", then Finn
+downloaded the whole rebuild intent as a scribe dictation:
+  "I am thinking about how to rebuild a stall… the management and confirmation structure,
+   like the assessment structure around buffer management via repository… the stall just
+   takes the reactors. the atoms."
+  "the inert phase where we just literally do nothing… manual… receive a function and some
+   configuration… a hook that returns yes or no… an event happened, should I pull now?…
+   continuous and escort, which are two ways for the stall to manage the emitters itself."
+  "escort… no more active and no more buffers in our queue… generate one call to aim using
+   mask, or if it's standalone, render an empty buffer… we pull home."
+  "who are the consumers of our stall? the apps we render in our frames or the c panel…
+   they both share the same interface."
+  "the render phase should live on the thread. as the source of truth with a reactive
+   living on stall for everybody to read."
+  "there's a nice way to isolate all of the phases to, like, serialize that function… and
+   I need you to do it."
+
+* LANDED (the only shipping code — green)
+Three milestones, each =blast → test → land → test → blast= (Finn: "do a step by step
+implementation. 3 milestones. each a blast test land test blast method… go").
+
+** The contract (=subsystems/typology/prototypes/stall.js=, rewritten)
+=Stall({ source, active, phase, pull, depth })= — a pure reactive function over a thread.
+- source = =thread.$buffers= · active = =terminal.$buffer= (the one render pointer) ·
+  phase = =thread.$phase= (READ LIVE, never written by the stall) · pull = =thread.pull=
+  (AIMED) · depth = =() => thread.trait?.QUEUEING?.depth ?? 1=.
+- 4 phases (lowercase enum): =inert= (no subscription; deliberate-null respected) · =manual=
+  (settle: auto-focus + advance-on-release; app drives) · =continuous= (manual + pull to
+  depth; release refills) · =escort= (manual; walks a PRE-LOADED queue, returns to =home= on
+  drain — NO fetch). Default =manual=.
+- ONE cursor authority: =settle()= lands the cursor when active is gone OR null — absorbed
+  the deleted a-panel auto-focus =$effect=.
+- TWO roles, one interface: DRIVERS write =thread.phase= (e/f panels · buffer-apps · M5
+  lever); TARGETS call =buffer.release()= — the SACRED contract across 13 game modes,
+  preserved exactly. AIMED installs =thread.pull=; the stall is emitter-blind.
+
+** The files (M1 typology · M2 client · M3 drivers)
+- M1: =stall.js= rewrite + =Thread.ts= =ThreadPhaseEnum= (inert/manual/continuous/escort,
+  default manual; =STREAM= kept @deprecated for legacy rows) + =stall.test.js= rewritten
+  (10 green; full typology 102 green).
+- M2: =terminal.js= builds the stall from the thread (live pull/depth thunks, blacklist
+  injected); =thread/thread.js= =$phase= atom activated (getter/setter were commented);
+  =a.svelte= auto-focus =$effect= deleted.
+- M3: =f.svelte= start/stop → =thread.phase= write + persist; =e.svelte= gained a phase
+  selector (the driver UI); Spawner/Spawned migrated; =systems/kajuit/tests/terminal.stall.test.js=
+  proves the wiring (2 green). The flaky external =whoami= integration test disabled (Finn:
+  "comment out the test that distracted you").
+
+** REJECTED (the road-not-taken — preserve so it isn't re-litigated)
+- A *Vector-based stall* (phases as leaves, invoke per tick) — elegant but INCIDENTAL for
+  four flat phases reacting to atoms (the discriminator). Lives on as M6 =vector-affect=
+  for a surface that EARNS the Vector.
+- The *signal-=.seat=* context channel (route-time ambient on the signal) — Finn killed it:
+  "Drop everything from the signal seed semantics. We are not going to adopt that." Survives
+  only here, never in a quest.
+Both gated to prod primitives by: "solve this function using no speculative interfaces! only
+whats apready tested and used in prod!"
+
+* THE QUEST SET (authored on the landed stall — all DESIGN, gated on go)
+** M4 · =phase-playground= — the demo rig + the mode adoption
+Playground rewritten FROM SCRATCH as a literate, =org-babel-tangle=-able rig (the modes are
+=#+BEGIN_SRC … :tangle …= blocks). Determined against the scribe download, split by *who
+manages the buffers* into FOUR groups:
+#+BEGIN_SRC
+  G1 Organic / self-managed     spawner + spawned     inert · manual         the APP owns progression
+  G2 Dealt / stall-managed      dealer  + card        continuous · escort    the STALL manages the emitter (AIMED, finite deck→EXHAUSTED, harness+conversation, /oracle)
+  G3 Intent-driven / self-config automaton + 4 intents all phases             open an intent → thread self-configures (intent.phase)
+  G4 Thread-driven / live-switch switchboard           all phases, hot-swapped switch phase + cursor on a live thread
+#+END_SRC
+Modes (6): spawner · spawned · dealer · card (shared) · automaton · switchboard. Naming pass
+killed the =-er/-ed= anti-pattern → a card-game register (deal=emit · play=release · hand=queue
+· fold=evict · deck-runs-out=EXHAUSTED). Milestones: *4.0 BASELINE* (Finn runs 3 click-paths
+to verify M1–M3 live — GATES the rest) · 4.1 *intent.phase* (Intent.ts gains a phase field;
+Thread.beforeCreate copies it; datasets + e-panel save declare it) · 4.2 the 4-group tangle ·
+4.3 sweep the 13 live modes · 4.4 prove the three drivers are one interface.
+
+** M5 · =widget-glyphs= — a control lever + status reporters in VINCA
+Finn: "m5 WIDGETS!!!! …the control lever and status reporter like errors and queue depth
+phase activity lock… call it widget glyphs. with glyphs being vinca ux language." So:
+*vinca* = the vivalence glyph UX language (flat I-Ching solid/broken line primitive, "the
+simple ones from the I Ching, not the hexagram"); *widget glyphs* = the first widget set.
+- CONTROL: a *lever* drives =thread.phase= (the 4th M3 driver).
+- STATUS reporters (read-only projections): errors · queue depth · phase activity · lock.
+- Prereq: the reporters need a small stall exposure — =stall.$errors= + =stall.$locked= (NEW
+  atoms; builds M4.2's "reserved faces") + derived depth/activity. Mounts in the (empty)
+  =shoulder.svelte= =.population= row. Rides the M3 driver functions; invents no control path.
+
+** M6 · =vector-affect= (SEED) — the reactive-Vector combinator promoted to its own road
+Finn: "take a vector, make this combinator vector… create a signal… run it through a vector
+and have middlewares and pre and post processing handled and composable." The =twitch=
+(=datamap.reactive= → =shape.subscriber=) is the existing template. Scope open: name "affect",
+first consumer (lead = the =soma= event-grammar switch), primitive-vs-pattern. Signal-=.seat=
+is DEAD/excluded. Earns the Vector by routing depth + shared carry, not reactivity alone.
+
+** M9 · =m9-playground-layout= (DESIGN/REF) — the data-UI primitive system
+Compiles the research (see the HOW compact). Steal = a field-type REGISTRY (Baserow) +
+view-as-PROJECTION (=steer.fold=) + ONE node primitive (Anytype/GUN) — the winners ARE our
+patterns (triggers 8/11/2/12). Keystone (Finn: "the Frame aka buffer container is also part of
+this semantic"): =Frame= · =Cell= · =View= = the SAME type-keyed renderer at three scales.
+Exports Dapper tokens + Drapes Cell/Grid/Stepper/Frame. The architectural home for the
+=dataspace= mode. Three design-possibility buckets map the 5 hub modes by layout load:
+Scandinavian minimalism (automaton, spawner) · organized sophistication (dealer, switchboard)
+· playful pragmatism (sieve) — plus *vinca/glyphs* as a fourth (archaic/iconic) design language.
+
+* Resumption (the next-session bootstrap)
+- Memory: =project_stall_phase_paradigm= (the landed contract) is current; points at M4/M5.
+- Quests carry every next step. *Start at M4.0 BASELINE* — Finn runs the app (two boots:
+  =deno task runtime/run= + =deno task kajuit/watch=) + the 3 click-paths — before any new code.
+- Then M4 build (tangle the playground), or M9 if the data-UI pulls harder. M5 widget-glyphs +
+  M6 vector-affect are additive/seed.

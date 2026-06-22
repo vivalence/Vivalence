@@ -11,39 +11,43 @@
   let live = null;
 
   function teardown() {
-    if (!live) return;
-    live.release();
-    live.destroy();
+    // if (!live) return; live.release();
+    live?.unmount();
     component?.destroy();
     live = null;
     component = null;
   }
 
-  function activate(next) {
-    next.mount();
-    next.render();
-  }
+  // function activate(next) {
+  //   next.mount();
+  //   // next.render();
+  // }
 
   $effect(() => {
     const next = $buffer;
     if (next === live) return;
     teardown();
     if (!next) return;
+    // A not-yet-resolved buffer (e.g. a persisted id-string awaiting rehydrate) has no
+    // entity methods — skip until it becomes a real Buffer, so live/teardown never see a string.
+    if (typeof next.mount !== "function") return;
 
     live = next;
-    if (next.mode?.view?.url) {
+    if (next.mode?.metadata?.app?.url) {
       (async () => {
         try {
-          const module = await import(/* @vite-ignore */ next.mode.view.url);
+          const module = await import(/* @vite-ignore */ next.mode.metadata.app.url);
           if (live !== next || !dom) return;
           component = module.default(dom, { buffer: next, terminal });
-          activate(next);
+          // activate(next);
+          next.mount();
         } catch (e) {
-          console.error(`[Frame] failed loading module: ${next.mode.view.url}`, e);
+          console.error(`[Frame] failed loading module: ${next.mode.metadata.app.url}`, e);
         }
       })();
     } else {
-      activate(next);
+      next.mount();
+      // activate(next);
     }
   });
 
@@ -51,9 +55,9 @@
 </script>
 
 {#key $bufferId}
-  {#if $buffer?.mode?.view?.Component}
-    <svelte:component this={$buffer.mode.view.Component} buffer={$buffer} {terminal} />
-  {:else if $buffer?.mode?.view?.url}
+  {#if $buffer?.mode?.metadata?.app?.Component}
+    <svelte:component this={$buffer.mode.metadata.app.Component} buffer={$buffer} {terminal} />
+  {:else if $buffer?.mode?.metadata?.app?.url}
     <div style="width: 100%;height: 100%;max-width: 100vw;" bind:this={dom}></div>
   {:else}
     <slot />

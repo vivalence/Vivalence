@@ -1,4 +1,4 @@
-import { object, array, string, View, Vector, v } from "@vivalence/typology";
+import { object, array, string, App, Vector, v } from "@vivalence/typology";
 
 const manifest = {
   type: "game",
@@ -7,10 +7,10 @@ const manifest = {
   description:
     "Audio-first recall. Pick or type the meaning/transcription. Requires VOCALIZED literal.",
   version: "0.1.0",
-  traits: ["VIEWABLE", "EMITTER"],
+  traits: ["APPLICATION", "EMITTER"],
 };
 
-const view = new View(
+const app = new App(
   "Listen.svelte",
   v.buffer({
     data: {
@@ -111,4 +111,4 @@ const dataset = {
   ],
 };
 
-export { manifest, view, emitter, dataset };
+export { manifest, app, emitter, dataset };

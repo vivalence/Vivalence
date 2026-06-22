@@ -7,6 +7,7 @@ export async function registry(runtimeDie) {
   await paladin.vip.mount(paladin.scope.registry.branch("kernels"));
   await paladin.vip.mount(paladin.scope.registry.branch("modes"));
   await paladin.vip.mount(paladin.scope.registry.branch("services"));
+  await paladin.vip.mount(paladin.scope.registry.branch("playground"));
 }
 
 export async function wiring(runtimeDie) {

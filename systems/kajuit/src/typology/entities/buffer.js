@@ -1,47 +1,62 @@
+import { atom } from "nanostores";
 import { fn, RemoteRepository } from "@vivalence/typology";
 import { Entity } from "../prototypes/entity.js"; // RemoteEnity (name the semantic space "Remote")
 
 export class Buffer extends Entity {
-  view = null; // bundle
+  $data = atom({});
+
+  get data() {
+    return this.$data.get();
+  }
+
+  set data(value) {
+    this.$data.set(value ?? {});
+  }
+
+  // base toJSON walks own enumerable props — it skips the $data atom and would
+  // drop the `data` getter; re-add the plain value so serialized buffers carry data.
+  toJSON() {
+    return { ...super.toJSON(), data: this.data };
+  }
+
+  app = null; // bundle
   context = null;
-  hooks = { mount: [], render: [], release: [], destroy: [] };
+  hooks = { mount: [], unmount: [], release: [] }; //render: [],
 
   on = {
     mount: (callback) => {
+      // buffer gets rendered
       this.hooks.mount.push(fn.once(callback));
       return this;
     },
-    render: (callback) => {
-      this.hooks.render.push(fn.once(callback));
+    unmount: (callback) => {
+      // buffer gets destroyed
+      this.hooks.unmount.push(fn.once(callback));
       return this;
     },
+    // render: (callback) => {this.hooks.render.push(fn.once(callback)); return this;},
     release: (callback) => {
+      // buffer releases itself
       this.hooks.release.push(fn.once(callback));
-      return this;
-    },
-    destroy: (callback) => {
-      this.hooks.destroy.push(fn.once(callback));
       return this;
     },
   };
 
-  static from(pojo, view) {
+  static from(pojo, app) {
     const buffer = Object.assign(new Buffer(), pojo);
-    buffer.view = view;
+    buffer.app = app;
     return buffer;
   }
 
   mount() {
     for (const hook of this.hooks.mount) hook(this);
   }
-  render(...a) {
-    for (const hook of this.hooks.render) hook(this, ...a);
+  unmount() {
+    for (const hook of this.hooks.unmount) hook(this);
   }
+  // render(...a) {for (const hook of this.hooks.render) hook(this, ...a);}
   release(...a) {
     for (const hook of this.hooks.release) hook(this, ...a);
-  }
-  destroy() {
-    for (const hook of this.hooks.destroy) hook(this);
   }
 }
 
@@ -55,12 +70,6 @@ export const BufferDossier = {
   },
 
   use: [
-    async (ctx, next) => {
-      await next();
-      const buffer = ctx.entity;
-      const modeId = buffer.mode?.id ?? buffer.mode;
-      const mode = ctx.daemon?.entities?.mode?.$entities.get().find((entry) => entry.id === modeId);
-      if (mode) buffer.mode = mode;
-    },
+    // async (ctx, next) => {await next();},
   ],
 };

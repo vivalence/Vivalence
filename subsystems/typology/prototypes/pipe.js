@@ -1,4 +1,4 @@
-import { fromm } from "@vivalence/typology";
+import { fromm, promise } from "@vivalence/typology";
 
 export class Pipe {
   listeners = new Set();
@@ -38,13 +38,10 @@ export class Pipe {
 
   async *stream(signal) {
     const buffer = [];
-    let resolve = null;
+    const gate = promise.waiter();
     const untap = this.tap((value) => {
       buffer.push(value);
-      if (resolve) {
-        resolve();
-        resolve = null;
-      }
+      gate.wake();
     });
     try {
       while (!signal?.aborted) {
@@ -52,10 +49,7 @@ export class Pipe {
           yield buffer.shift();
           continue;
         }
-        await new Promise((r) => {
-          resolve = r;
-          signal?.addEventListener("abort", () => r(), { once: true });
-        });
+        await gate.wait(signal);
       }
     } finally {
       untap();

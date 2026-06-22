@@ -1,4 +1,5 @@
 import { Aperture, Broadcaster, object } from "@vivalence/typology";
+import * as ambient from "./ambient.js";
 
 export function inject(datamap) {
   return (ctx, next) => {
@@ -148,7 +149,7 @@ export function repository(repo) {
   return aperture;
 }
 
-export function reactive(repo, twitch) {
+export function reactive(repo, twitch, { scope } = {}) {
   const aperture = new Aperture();
   const broadcaster = new Broadcaster();
   const name = repo.getEntityName().toLowerCase().replace("entity", "");
@@ -156,12 +157,25 @@ export function reactive(repo, twitch) {
   for (const op of ["create", "update", "delete"]) {
     twitch.open(`/${name}/${op}/after`, (ctx) => {
       const serialized = ctx.input.entity?.toJSON?.() ?? ctx.input.entity;
-      broadcaster.push({ op, entity: serialized }, ctx.input.entity);
+      // user-scoped entity: stamp the owner from the writer's request context so
+      // the broadcaster can match a flat { user } filter without a relation hop.
+      if (scope && serialized && typeof serialized === "object") {
+        const owner = ambient.current()?.user?.id;
+        if (owner != null) serialized.user = owner;
+        else
+          console.warn(
+            `[reactive] ${name}/${op} written without an owner — dropped from user-scoped broadcast`,
+          );
+      }
+      // match the serialized (wire) shape, not the live ORM entity — relations
+      // on the live entity are unloaded References that never === a scalar id.
+      broadcaster.push({ op, entity: serialized }, serialized);
     });
   }
 
   aperture.get("/subscribe", async (input, ctx) => {
-    const filter = { ...(input?.where || {}), ...(ctx.scope || {}) };
+    const resolved = scope ? scope(ctx) : ctx.scope || {};
+    const filter = { ...(input?.where || {}), ...resolved };
     const { iterable, unsubscribe } = broadcaster.subscribe(filter);
     ctx.request.raw?.signal?.addEventListener("abort", unsubscribe);
     ctx.response.publish(iterable);

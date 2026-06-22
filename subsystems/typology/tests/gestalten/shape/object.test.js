@@ -198,7 +198,7 @@ specimen.describe("guarded strategy", () => {
 
       const output = shape.object(vector, steer.guarded);
       let threw = false;
-      try { await output.emit.literal({ thread: 999 }); }
+      try { await output.emit.literal({ thread: { nested: 1 } }); }
       catch (e) { threw = e.code === "VALIDATION"; }
       specimen.expect(threw).toBe(true);
     });

@@ -1,4 +1,4 @@
-// constraints/predicates (...that the mode must satisfy; exmpl: has trait viewable),
+// constraints/predicates (...that the mode must satisfy; exmpl: has trait application),
 // guarantees (traits provided by domain and runtime). schema using typebox.
 
 export const traits = {

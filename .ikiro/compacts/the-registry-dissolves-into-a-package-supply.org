@@ -1,0 +1,63 @@
+#+TITLE: The registry dissolves into a package supply — owner=package identity, supply(system)/demand(variant), variant-declares/ledger-pins (flake.nix/flake.lock), the whole apparatus sanity-cut to in-tree, and the deno-resolution scare that turned out already-solved — captured to the M11 quest (=m11_packages.quest.org=) as tangleable org, plus a QA pass that caught three build-breakers before a line was written
+
+#+TOPIC: A pure DESIGN session — no code shipped, one quest authored. Finn reopened the registry loader: make it a fold over N packages, kill the =<tier>/@vivalence/= layers, and prep the package-manager ontology from the VIP quest. It became a long connoisseur dialogue that pinned the package ontology, then landed as M11. The value is the decision trail (each Finn turn sharpened it) + two methodology lessons (I strawmanned a constraint onto Finn; I over-flagged a non-problem). Resumption: M11 is DESIGN-complete + QA'd; blast when Finn says go.
+
+* The trigger (Finn — reopen the registry loader)
+Context: after establishing M10 is the last milestone (no M11 yet), Finn pulled focus to the registry tree and named two tasks. Verbatim:
+- "i want the registry loading to be a functional running over an array of strings. ie, i want a way to define registries multiple, not singular registry."
+- "i wnat to change teh shape of the registry we already have. namely i wnat to get rid of the two intermediary layers wafers/@vivalence/kernels/@vivalence/modes/@vivalence/services/@vivalence/playground/"
+- "also look at past quests about package management. i want to prep that while we work. first i need to figure out what i want specifically tho. research and propose"
+
+* The research (grounding — parallel Explore + a workflow)
+- *Registry tree*: =registry/{wafers,kernels,modes,services,playground}/@vivalence/<type>/<slug>/<slug>.viva.js=. Path is COSMETIC — =pensieve.register= keys purely off =manifest.{owner,type,slug,version}=. The tiers + =@vivalence= are filesystem-only, redundant with the manifest. Precedent: topology→corpus M2 renamed a tier and noted "Cosmetic only — paladin walks by content."
+- *Paladin load*: =subsystems/paladin/= (NOT typology). =vip.mount(root)= → =find.viva= (recursive, skips bak/archive/slp) → =read.viva= (dynamic =import()=) → =pensieve.register=. Pensieve = =class Pensieve extends Map=, nested =owner→type→slug→version=; =revelio= pure descent, =latest= semver fold.
+- *Env*: =Deno.env.toObject()= → =populate.env= (=VIVA_*=/=PUBLIC_*= → =paladin.env=, =SECRET_*= → =paladin.secret=) → =paladin.publish()= mirrors =PUBLIC_*= → =Deno.env= at variant/system mount.
+- *VIP quest* (=very-important-packagemanager=, DESIGN): a package = a jj repo of =.viva.js= source. *Not bundled* — raw source walked in place; "In production, packages are baked into the image. No jj … Same code path." =vip.mount= + pensieve stay unchanged; only what feeds them changes.
+
+* The ontology fold (each Finn turn sharpened it)
+** "how does the packeage mabager expect packages to be bundled?"
+A workflow (4 parallel readers → synthesis) proved: *not bundled at all.* Package = raw jj-repo source; identity in the manifest; version = jj state. The runtime esbuild (APPLICATION trait) bundles buffer-VIEWS per-mode — orthogonal, never a package. gaia (the only thing named "bundler") is that same view-materializer, PARKED.
+** Brew taps — "If brew taps don't know their tabs, then how are they organized? … how do they tell the system what they are?"
+Answer: a tap tells the system nothing. Identity comes from (a) user declaration (=brew tap=), (b) path convention (=homebrew-<name>= under =Library/Taps=), (c) per-formula manifest. Tap = discovery scope. Maps 1:1 onto VIP — and Finn had already said "i am not going to use directories for naming," so the path-convention leg is rejected; identity must come from manifests.
+** The two nodes (Finn's frame)
+"read the testament. there is system and variant in there. i am thinking maybe we construct the package system from two nodes. the system dir thingy meta info we have in testament/system and a dedicated module type package." + "whats the conoisseurs jusgement? … what are great package managers we can steal from??"
+Verdict: the two nodes are the *manifest/lock split* every good PM makes. =type:package= manifest (portable identity) + system ledger (per-machine materialization). Steal-list: *Cargo* (manifest/lock), *Nix flakes* (inputs pinned by revision; store/expression two-world), *pnpm* (one content-addressed store, link don't copy), *Go* (identity = source URL), *JSR/Deno* (=@scope/name= + integrity). Reject brew path-naming (Finn already did).
+** owner = package identity (Finn's keystone — praised)
+Finn: "i suspect what i called owner is about package identity. that looks clean." This is the keystone. =owner= is ALREADY the pensieve's top axis, so the package partition exists for free — two packages shipping =game/flashcard= land under different owners, no collision. =@vivalence= isn't "the org", it's the core package. The one ripple: =owner= must be *stamped by the package at mount* (=vip.mount= reads =package.viva.js=), not defaulted to =@vivalence= in =pensieve.register:12=.
+** supply / demand
+- *system = supply* — fills the pensieve (host singleton; =registry()= runs pre-variant).
+- *variant = demand* — composes module identities (=daemon.modes=), resolved from the pensieve. Package-blind at the runtime level (VIP: "runtime calls accio, doesn't know packages exist").
+** variant vs ledger — the false binary → "amen"
+Finn: "should the variant or the systems ledger hold the pacakages. both has pro and cons. what ye say conoisseur?" Verdict: false binary — they hold different objects. *Variant declares* (authored, portable = flake.nix inputs). *Ledger pins* (generated, per-machine = flake.lock). The decisive con against ledger-holds-declaration: the system dir is 100% GENERATED — a generated file cannot hold authored intent. So declaration lives in the variant; ledger records what resolved. Finn: "ok. amen." (Reconciles the earlier "system not variant" turn: *runtime* stays package-blind; the *variant* is the author's world-spec and may be package-aware. Author ≠ runtime.)
+Note Finn's own correction on placement: "the variant doesn't define the packages. i dont think. i guessed that those are defined on system level. whats your take?? open field" — which surfaced the supply/demand + generated-ledger reasoning that landed on variant-declares.
+
+* Two methodology lessons (self-improve-worthy)
+** I strawmanned a constraint onto Finn
+During the "argue against it, find weak spots" pass I built a trilemma whose third horn was "no package self-manifest" — and killed the design with it. Finn: "no package self manifest is yours. I didn't say that. That was you." I had imported brew's "taps don't know they're taps" as if it were his constraint. It wasn't — he'd proposed =type:package= (a self-manifest) two turns earlier. *Lesson: never attribute a constraint to Finn he didn't state; trace each "requirement" to a Finn quote before reasoning from it.* (Reinforces =feedback_no_fabricated_conventions=.)
+** I over-flagged a non-problem (WS4 / deno resolution)
+I raised "out-of-tree packages can't resolve their =@vivalence/*= imports" as a hard blocker and proposed an import-map generator. Grounding in the actual mechanism killed it: =@vivalence/*= resolves by *workspace member name* (=deno.jsonc workspace[]= → each member's =deno.jsonc "name"=), location-independent; and spawns already pass =--config <root>= (=ghost/target.js:28=, =ghost.sh:6=). The generator duplicated what the workspace already does. Finn's earlier hypothesis (fix the buffer importmap) had ALSO checked false the same way. *Lesson: ground the "problem" in the real resolution mechanism before proposing machinery — the fix is often already in place.* The genuine remainder is narrower: some =@vivalence/*= registry imports (=vector=/=entities=) are NOT workspace members — that, not a generator, is the real out-of-tree resolution work.
+
+* The sanity cut (Finn — "overcomplex?!")
+Finn: "overcomplex?! maybe. not sure. do a sanity pass. propose cide heavy the full solution again. concise" — and later "Does this design, this architecture require a registry variable at all?"
+Cuts that landed:
+- *No registry variable.* It dissolves entirely: the search-root list = =variant.packages[]= (authored) → =ledger.packages[*].mount= (derived). =scope.registry= / =VIVA_REGISTRY_MOUNT= / tier-branches all gone. "registry" survives only as a folder name + a nickname for the pensieve.
+- *In-tree needs no ledger.* source = mount, version = working copy → a packages-ledger is a tautology. So NO ledger, NO =materialize()=, NO =viva install=, NO system-dir redesign in the near-term quest. Build them when the first OUT-OF-TREE package forces it.
+- The whole seeding taxonomy (self/clone/link/bake × explicit/scan × install-verb) is real but deferred — only =self= (the in-tree bootstrap package) matters now.
+
+* The M11 quest (Finn — "work it out to resolution of tangleable org files with path")
+Finn: "Take this entire task and write out a quest under m eleven and work it out to resolution of tangleable org files with path." + "Don't forget a thorough assessment of testing what's already in place and what is going to change and what we are going to add."
+Wrote =.ikiro/quests/m11_packages.quest.org= — "M11 — Packages (the registry dissolves into a package supply)". Contents: the decision trail; 5 milestones (11.0 baseline · 11.1 identity: package.viva.js + owner-stamp + single-root mount · 11.2 plurality: variant.packages + fold · 11.3 flatten mv · 11.4 cleanup+docs); tangle blocks (=:tangle ../../<path>=) for =registry/package.viva.js=, full =vip.js=, full =pensieve.js=, + NEW =pensieve.test.js= & =vip.mount.test.js=; surgical edits as diff hunks; a testing assessment (in-place / changes / adds + per-milestone green ladder); a ~15-touchpoint blast table; deferred (out-of-tree) + forks + changelog.
+
+* The QA pass (Finn — "do anothe rpass. anything not integrated?! anything imrpovable?")
+Caught THREE build-breakers before any code:
+1. *Milestone sequencing coupling* — 11.1's =mount= reads =root/package.viva.js=, but the old 4-branch loader mounts =registry/kernels/= (no manifest there) → throws. The single-root collapse is COUPLED to the owner-stamp; merged into 11.1 (4 branches → 1 root), 11.2 swaps hardcoded-root → fold.
+2. *Playground already-flat* — =registry/playground/spawner= is already =<type=playground>/<slug>= (verified: manifest =type:"playground"=). The =git mv playground/*= line would have BROKEN it. Removed; playground + wafers left untouched.
+3. *bench.js folds over =[]=* — =registry()= now reads =variant.packages=; a scenario mounting registry without =variant.mount()= first ingests nothing. Flagged + guidance.
+Improvements applied: declaration =["registry"]= not =["./registry"]= (dodge =Path.branch= "./" normalization); =mount= stamps owner on a COPY (=read.viva= returns the live module namespace — don't mutate the import); an ingest-COUNT-unchanged assertion to prove 11.1 is a pure refactor; a deferred workspace-member audit (=vector=/=entities= aren't members); docs sweep extended to stale =.ikiro= tier paths. Confirmed clean: no registry module declares =owner= (only a wafer, unmounted), so the stamp is safe and package-owner wins. Boot order verified (=run.js:6 variant.mount()= precedes =die.js:17 registry()=).
+
+* Resumption
+M11 is DESIGN-complete + QA'd, internally consistent, boots green at every milestone boundary. Nothing shipped — gated on Finn's go.
+- *Blast order*: 11.1 (identity + single-root) → test → 11.2 (variant.packages fold) → test → 11.3 (flatten mv + 13 deep-import rewrites) → test → 11.4 (retire =scope.registry=, docs).
+- *Forks to call first*: flatten now-or-later (11.1+11.2 deliver packages + multi-registry WITHOUT the mv); retire vs dormant =scope.registry= (ghost + Dockerfile lean on it); self-package slug (=@vivalence/package/core= chosen).
+- *Deferred (out-of-tree)*: ledger.json, materialize(clone/link/bake), =viva install package=, system-dir unify, =v.primitives.circuitry.Package= schematic, the workspace-member audit.
+- Note: the prior stall/phase arc (M4 playground validation — G2 dealer, G4 switchboard, G3 automaton, M4.4 capstone) is still parked; M11 was a side-quest Finn front-loaded.

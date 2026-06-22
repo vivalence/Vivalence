@@ -2,25 +2,29 @@ import { Type } from "typebox";
 import { Value } from "typebox/value";
 import { Compile } from "typebox/compile";
 
+const derive = (target, patch) =>
+  Object.assign(Object.defineProperties({}, Object.getOwnPropertyDescriptors(target)), patch);
+
 function enhance(schema) {
   return new Proxy(schema, {
     get(target, prop, receiver) {
-      if (prop === "desc") return (d) => enhance({ ...target, description: d });
+      if (prop === "desc") return (d) => enhance(derive(target, { description: d }));
       if (prop === "$id") {
         if ("$id" in target) return target.$id;
-        return (name) => enhance({ ...target, $id: name });
+        return (name) => enhance(derive(target, { $id: name }));
       }
       if (prop === "optional") return () => enhance(Type.Optional(target));
       if (prop === "default") {
         if ("default" in target) return target.default;
-        return (val) => enhance({ ...target, default: val });
+        return (val) => enhance(derive(target, { default: val }));
       }
       if (prop === "check") return (value) => Value.Check(target, value);
       if (prop === "create") return () => Value.Create(target);
       if (prop === "clean") return (value) => Value.Clean(target, value);
       if (prop === "errors") return (value) => Value.Errors(target, value);
       if (prop === "compile") return () => Compile(target);
-      if (prop === "cast") return (value) => (Value.Default(target, value), value);
+      if (prop === "fill") return (value) => (Value.Default(target, value), value);
+      if (prop === "cast") return (value) => (Value.Default(target, value), Value.Convert(target, value), value);
       return Reflect.get(target, prop, receiver);
     },
   });
@@ -99,7 +103,8 @@ export const v = {
   equal:    (a, b) => Value.Equal(a, b),
   clone:    (value) => Value.Clone(value),
   check:    (schema, value) => Value.Check(schema, value),
-  cast:     (schema, value) => (Value.Default(schema, value), value),
+  fill:     (schema, value) => (Value.Default(schema, value), value),
+  cast:     (schema, value) => (Value.Default(schema, value), Value.Convert(schema, value), value),
   errors:   (schema, value) => Value.Errors(schema, value),
   create:   (schema) => Value.Create(schema),
   clean:    (schema, value) => Value.Clean(schema, value),

@@ -101,14 +101,16 @@
       {/if}
       <div class="twig" class:closed={!panes.d}>
         <button class="twig-toggle" onclick={() => togglePane("d")} aria-label="toggle d">
-          {panes.d ? "<" : ">"}
+          {panes.d ? "‹" : "›"}
         </button>
         <div
-          class="twig-handle"
+          class="twig-grip"
           class:dragging={twigDrag.which === "d"}
           aria-label="drag handle d"
           onpointerdown={(event) => onTwigPointerDown("d", event)}
-        ></div>
+        >
+          <span class="dots"><i></i><i></i><i></i></span>
+        </div>
       </div>
 
       <div class="def-slot def-e" style:flex={paneSize.e !== null ? `1 1 ${paneSize.e}px` : "2 1 0"}>
@@ -117,14 +119,16 @@
 
       <div class="twig" class:closed={!panes.f}>
         <button class="twig-toggle" onclick={() => togglePane("f")} aria-label="toggle f">
-          {panes.f ? ">" : "<"}
+          {panes.f ? "›" : "‹"}
         </button>
         <div
-          class="twig-handle"
+          class="twig-grip"
           class:dragging={twigDrag.which === "f"}
           aria-label="drag handle f"
           onpointerdown={(event) => onTwigPointerDown("f", event)}
-        ></div>
+        >
+          <span class="dots"><i></i><i></i><i></i></span>
+        </div>
       </div>
       {#if panes.f}
         <div class="def-slot def-f" style:flex={paneSize.f !== null ? `0 0 ${paneSize.f}px` : "1 1 0"}>
@@ -152,33 +156,30 @@
     flex: 1;
     min-width: 0;
     min-height: 0;
-    overflow: hidden;
+    overflow: scroll;
   }
   .twig {
-    flex: 0 0 13px;
-    min-width: 13px;
-    background: var(--colors-skeleton-1-surface);
-    border: none;
-    border-radius: 0;
+    flex: 0 0 16px;
+    min-width: 16px;
+    background: color-mix(in srgb, var(--colors-skeleton-3-boundary) 22%, var(--colors-skeleton-1-surface));
+    border-left: 1px solid color-mix(in srgb, var(--colors-skeleton-3-boundary) 45%, transparent);
+    border-right: 1px solid color-mix(in srgb, var(--colors-skeleton-3-boundary) 45%, transparent);
     display: flex;
     flex-direction: column;
     align-items: center;
-    padding: 4px 0;
+    padding: 9px 0;
     user-select: none;
     position: relative;
     z-index: 2;
-  }
-  .twig.closed {
-    background: var(--colors-skeleton-1-surface);
   }
   .twig-toggle {
     width: 100%;
     height: 16px;
     background: transparent;
     border: none;
-    color: var(--colors-skeleton-0-contrast);
+    color: color-mix(in srgb, var(--colors-skeleton-0-contrast) 62%, transparent);
     font-family: var(--font-family-code);
-    font-size: var(--font-size-xs);
+    font-size: var(--font-size-sm);
     line-height: 1;
     padding: 0;
     cursor: pointer;
@@ -190,45 +191,45 @@
     inset: -6px -12px;
   }
   .twig-toggle:hover {
-    color: var(--colors-skeleton-0-boundary);
+    color: var(--colors-skeleton-0-primary-base);
   }
-  .twig-handle {
+  .twig-grip {
     flex: 1 0 0;
     min-height: 44px;
     width: 100%;
-    margin: 0;
-    background: transparent;
-    border-radius: 0;
+    display: flex;
+    align-items: center;
+    justify-content: center;
     cursor: ew-resize;
-    align-self: stretch;
     touch-action: none;
     position: relative;
   }
-  .twig-handle::before {
+  .twig-grip::before {
     content: "";
     position: absolute;
-    inset: 0 -12px;
+    inset: 0 -10px;
   }
-  .twig-handle::after {
-    content: "";
-    position: absolute;
-    top: 50%;
-    left: 50%;
-    transform: translate(-50%, -50%);
+  .dots {
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+    padding: 8px 3px;
+    border-radius: 4px;
+    background: color-mix(in srgb, var(--colors-skeleton-0-contrast) 7%, transparent);
+  }
+  .dots i {
     width: 4px;
-    height: 24px;
-    background: var(--colors-skeleton-0-boundary);
-    border-radius: 2px;
-    opacity: 0.4;
+    height: 4px;
+    border-radius: 50%;
+    background: color-mix(in srgb, var(--colors-skeleton-0-contrast) 50%, transparent);
   }
-  .twig-handle.dragging::after {
-    opacity: 0.9;
+  .twig-grip.dragging .dots {
+    background: color-mix(in srgb, var(--colors-skeleton-0-primary-base) 18%, transparent);
+  }
+  .twig-grip.dragging .dots i {
     background: var(--colors-skeleton-0-primary-base);
   }
-  .twig-handle:active {
+  .twig-grip:active {
     cursor: grabbing;
-  }
-  .twig-handle:active::after {
-    opacity: 0.8;
   }
 </style>

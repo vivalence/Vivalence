@@ -14,6 +14,8 @@ import { LegendComponent } from "echarts/components";
 import { GridComponent } from "echarts/components";
 import { DataZoomComponent } from "echarts/components";
 import { VisualMapComponent } from "echarts/components";
+import { MarkLineComponent } from "echarts/components";
+import { MarkAreaComponent } from "echarts/components";
 
 export const stage = {
   echarts,
@@ -31,6 +33,8 @@ export const stage = {
   grid: GridComponent,
   dataZoom: DataZoomComponent,
   visualMap: VisualMapComponent,
+  markLine: MarkLineComponent,
+  markArea: MarkAreaComponent,
 
   renderer: CanvasRenderer,
 

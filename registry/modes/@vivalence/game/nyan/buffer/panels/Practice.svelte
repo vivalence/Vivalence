@@ -25,15 +25,6 @@
   });
 </script>
 
-<h2 class="title">
-  typer · practice
-  {#if view}
-    <span class="dim">
-      {#if view.startedAt == null}<span class="accent">starts on first key</span>
-      {:else}{view.wordIndex}/{view.words.length}{/if}
-    </span>
-  {/if}
-</h2>
 <div class="words" bind:this={textElement}>
     <div class="caret" bind:this={caretElement}></div>
     {#each view.words as target, wordIndex}
@@ -73,9 +64,11 @@
     position: relative;
     display: flex;
     flex-wrap: wrap;
-    gap: 0 0.6rem;
+    gap: 0 0.7rem;
+    width: 100%;
+    max-width: 720px;
     font-family: var(--font-family-code);
-    font-size: var(--font-size-lg);
+    font-size: var(--font-size-xl);
     line-height: 1.9;
     max-height: 24rem;
     overflow-y: auto;

@@ -3,10 +3,15 @@
 // import { Stall } from "../../../prototypes/stall.js";
 // import { telemetry } from "$telemetry";
 
-// QUEUEING is now a marker. The Stall is terminal-owned, created on `start`
-// in the F-panel factory: Stall(thread.$buffers, terminal.$buffer). The old
-// thread-owned Stall implementation is kept below as migration backup.
-export const QUEUEING = (thread, ctx) => {};
+// QUEUEING is a marker trait: it carries no behavior to install, only config (the queue
+// depth) its consumers read live. The Stall is terminal-owned; it reads `depth` each tick.
+
+// how many buffers the stall keeps queued. defaults to 1 when QUEUEING is absent.
+export const depth = (thread) => thread.trait?.QUEUEING?.depth ?? 1;
+
+// the composition rule: if QUEUEING is configured, its depth must be usable (≥ 1). Absent →
+// depth defaults to 1 → passes; only a misconfigured depth: 0 fails.
+export const valid = (thread) => (depth(thread) >= 1 ? null : "QUEUEING depth < 1");
 
 // export const QUEUEING = (thread, ctx) => {
 //   // if (thread.queue) thread.queue.close();

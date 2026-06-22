@@ -221,3 +221,46 @@ Stale exploration files in =runtime/tests/quests/cortex/=:
   (closures outlive ctx). CLIENT_SHAPE branches-not-flat-leaves rule.
   conversation.integration.test.js + session.test.js green. Multi-turn history
   parent-chain proof.
+- 2026-06-27: =object= faculty as a DERIVED capability (synthesized from
+  =dialogue= + a terminal =respond= tool). Turn-scribe moved from harness BASE
+  to the =/dialogue= branch. Anthropic forwards =config.tool_choice=. See the
+  Object faculty addendum below. object tests green (dedicated + synthesized +
+  synthesized-with-tool).
+
+* Object faculty — derived (addendum)
+
+=object= is NOT a provider faculty for Anthropic — structured output there IS a
+tool call, so a dedicated provider slot buys nothing. The cortex SYNTHESIZES it
+from =dialogue=; a native slot stays optional in the contract for a future
+provider with constrained decoding (OpenAI json_schema / Gemini responseSchema),
+which =resolve= would prefer (table checked first).
+
+- =DERIVATIONS= (=cortex.js=) maps a faculty type to a builder:
+  =object → synthesizeObject(cortex, tune)=.
+- =has(type)= = =table.has(type) || (type in DERIVATIONS && derivable(type))=;
+  =derivable("object")= = dialogue render resolvable.
+- =resolve(type)= returns the nearest native faculty, else
+  =DERIVATIONS[type](this, tune)=, honoring the =via= filter (object has render
+  only → =via:"stream"= yields undefined).
+- =shard.faculties= is UNCHANGED — object resolves like any type. Facilitation
+  by RESOLUTION, not table-mutation or a wiring-loop special-case. (Finn: "how
+  to get the faculty installed and facilitated?!" — it isn't installed, it's
+  resolved.)
+- =synthesizeObject= = a dialogue loop: =tool_choice:"any"= over
+  ={...tools, respond}=; =executeTools= runs the real tools; when the model calls
+  =respond=, extract its input → =parts:[{type:"object", data}], meta:{stop:"end_turn"}=.
+  The ONLY path that interleaves tool-calls with structured output.
+- =config.schema= rides the call config → the =respond= tool's =input_schema=
+  (=hallucination.test.js= contract).
+- Anthropic provider: =makeDialogue= render+stream forward =config.tool_choice=
+  and skip thinking when =tool_choice= is set (forced tools + extended thinking
+  are incompatible). No object faculty registered.
+- Consume via =mode.harness.object.render({turns, config:{schema}, tune})=. The
+  turn-scribe was moved from the harness BASE middleware to the =/dialogue=
+  branch (turns are a dialogue concern), so =object=/=speech= render through the
+  harness (persona + hallucination) WITHOUT persisting turns.
+
+Files: =subsystems/typology/prototypes/cortex.js=,
+=registry/services/@vivalence/hallucinator/anthropic/provider/index.js=,
+=systems/runtime/daemon/traits/harnessed.js=,
+=subsystems/typology/tests/hallucination.test.js=.

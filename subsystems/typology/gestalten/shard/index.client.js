@@ -5,6 +5,5 @@ export * as connection from "./connection.js";
 export * as cors from "./cors.js";
 export * as caching from "./caching.js";
 export * as serve from "./serve.js";
-export * as datamap from "./datamap.js";
 export * as batch from "./batch.js";
 export * as track from "./track.js";

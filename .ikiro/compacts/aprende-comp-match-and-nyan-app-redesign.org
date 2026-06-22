@@ -1,0 +1,47 @@
+#+TITLE: The Aprende dashboard rebuilt to match a Downloads comp (HELP DESK streak+progress+tutor, command-chip ACTIONS, segmented MEMORY blocks, 6+6 ranks) then trimmed (progress out of helpdesk, streak badge above the scatter); and the Nyan typing-trainer turned from an auto-launched game into a coherent multi-phase APP — home(settings)+practice, provenance-driven (domain/fixed/corpus), a paired plan() deriver, run-scoped owners, an ACTIONS-as-keymap table, one chrome — its home finally rebuilt to a second comp (multi-section SOURCE/SUBJECT · LENGTH · MODE · SCORING with segmented controls + sliders). Nyan stays DOMAIN-BLIND: no review, knows nothing of memory.
+
+#+TOPIC: A long visual+architecture session on =registry/modes/@vivalence/homepage/aprende/view= (Aprende.svelte, Helpdesk.svelte) and =registry/modes/@vivalence/game/nyan/buffer= (Nyan.svelte + panels/). Two Downloads comps drove it: =~/Downloads/Aprende Dashboard.html= and =~/Downloads/Nyan Typing Trainer.html= (both JS-bundled — the screenshot is the truth; mine the bundle for hexes/copy). The Aprende→Nyan resolve+refill LOOP was designed via the brainstorming skill but NOT built (parked on one placement decision). No "retard" callouts.
+
+* Aprende — match the comp, then fix, then trim
+Finn (twice, with comps): "do a deep design pass." The comp reordered Aprende: HELP DESK to the TOP (boxed streak card + a PROGRESS card: =539 seen · 16 known= + tri-bar + inline legend, then the tutor input), then ACTIONS (wide tinted tiles with =/drill= · =/coach= command-chips + arrow, Activation teal / Coach purple), then the stats (MEMORY redesigned to segmented count-blocks =262 52%= + an =untouched·0 … graduated·0→= footer; WEAKEST&STRONGEST a dense =6+6= table with =32 scored ↓= / =weakest first ↑= sub-hints). Helpdesk restyled: =TUTOR= prefix + divider + big input + a teal send button. Built it; the live render came back wrong —
+
+Finn: "way too big. bad responsiveness! weird spacing." The Coach tile overflowed off the right edge. *Root cause (a real CSS gotcha): grid/flex items default to =min-width: auto=, so a tile with =white-space:nowrap= content refuses to shrink below its content and overflows the track.* Fix: =min-width:0= on every grid child (=.tile=, =.streak-card=, =.progress-card=) + =overflow-x:hidden=; then a scale-down pass (streak 3.4→2.1rem, action name =xl→lg=, tutor input =lg→base=, blocks 64→52px, chart 520→420px). Finn: "ok. very good."
+
+Later, a direct trim (image): "remove the progress componetn entirely from helpdesk. move the streak badge into teh statistics section above strength x due." Done — help desk is now just the tutor; the gold streak is an inline badge at the top of the right (scatter) column, above =Strength × due=; the dead =seenTotal= derived + all progress CSS removed (=blockStatuses=/=pct= kept for the memory blocks).
+
+* Nyan — "a comprehensive app", not an auto-launched game
+Finn: "now lets do a pass on nyan. when calling the emitter and subsequent buffer i dont want the buffer to automatically render the game. lets maek teh nyan app a bit more interactive. more like a comprehensive app. i want to be able to run more settings over the buffer data. also if the nyan buffer is rendered from plaintext, then no new button, just repeat. if there is a list of literals attached to the buffer we can run shuffle or something. do some thinking. think about it as a product and integration manager here." Then (current-state images): "this can be improved..." (Setup pinned top-left, practice words pinned top — oceans of dead space.)
+
+Then a reframe: "actually, let the conoisseur have a holistic look. how to build an elegant app. coherent app." (See the companion compact =nyan-app-as-fold-connoisseur-doctrine.org= for that framing — it's the HOW.)
+
+Shipped (the architecture, per the connoisseur framing):
+- *No auto-render.* Dropped =if (seedWords) start()=; the buffer lands on its =home= phase. Phases reduced to just =home= + =practice=.
+- *Provenance is the app's type, derived once.* =kind = literals ? "domain" : seedWords ? "fixed" : "corpus"=. A =PROVENANCE= record per kind declares its =settings= + its replay verbs (=repeat= / =shuffle= / =new=). domain→shuffle, fixed(plaintext)→repeat-only, corpus→new — exactly Finn's ask.
+- *One =plan()= deriver.* =source × settings → {words, owners}= paired; the four verbs collapse into it (start/shuffle/repeat/new). owners shuffle/sample WITH words so the grade-to-memory alignment is structural, never a frozen const that shuffle corrupts. =game.owners= is run-scoped; =grade()= reads it.
+- *=ACTIONS= table = control bar AND keymap* (one source — killed the old =onKey=/button duplication that could drift).
+- *One chrome* — =Nyan · <phase> · <provenance label>= header; centered practice; deleted =Setup.svelte=.
+
+Then Finn: "id prefer the review and home screen to be the same screen with different state, and i want to know about the subject of the mode - ie what literals or text provided. where is the modes content coming from?!" → merged: phases collapsed to home+practice, the post-run analysis became a SECTION of =home= (shown when =game.analysis= exists), and a SUBJECT section names the content + origin (=TRANSLATED = {known:<gloss>, learning:<surface>}=; domain lists literals glyph·target·gloss, fixed shows the word list, corpus the source). Replaced =Lobby.svelte= with =Home.svelte=.
+
+* The correction that matters most: nyan is DOMAIN-BLIND
+Finn: "there is no review in nyan!! nyan knows not about the domain." Killed the planned "memory deltas in nyan results" idea outright. *Nyan's engine + buffer know only words; the ONLY domain touch is the blind =/review/literal= egress fired through =owners=. The post-run screen is typing ANALYSIS (wpm/accuracy/units), never a domain "review."* Domain feedback (fresh stats) surfaces in APRENDE after the loop, never inside nyan.
+
+* The home, rebuilt to the second comp — "multi section. nice controls. nice stats. good separation"
+Finn: "actully. i prefer this:" (=~/Downloads/Nyan Typing Trainer.html=), then "multi section. nice controls. nice stats. good separation" / "design wise." This SUPERSEDED the earlier "Cockpit (two-column)" pick from the brainstorm. =Home.svelte= rebuilt as a full-width top-aligned multi-section form:
+- *SOURCE* (corpus) — 3 segmented cards: English / Português (live word-counts) / Custom·your own, teal-fill active. For a drill it's *SUBJECT* instead (literals/text — domain-blind, just shows what it was handed).
+- *LENGTH* — =N words= right-value + chips =10·20·30·50= + a teal-fill slider; an =order= segmented for domain.
+- *MODE* — =Plain | Sudden death= segmented + live description ("Mistakes are allowed — type through them." / "One wrong key ends the run.") + =forgive accents on|off=.
+- *SCORING & FEEDBACK* — =target wpm= + =recall window= sliders with live values + =live meter shown|hidden=.
+- post-run, a *Last run* section appends the analysis (=Review.svelte=, still in its older dense table style — re-skin pending Finn's call).
+Reusable =head= / =seg= snippets + a styled range slider (=--fill= % gradient, teal track, white thumb). =centered= now practice-only.
+
+* The Aprende↔Nyan LOOP — designed, grounded, NOT built (parked)
+Finn: "add a resolve call to the nyan app. and on aprende, add a effect that loads aprende if there is no active buffer." Grounded the mechanics (see the companion compact for the trace): the riddler resolve pattern (a =/assistant/resolve= nature → =status=DONE= + =removeOne= self-delete; view calls =buffer.mode.connection.call=); =terminal.js= already has =stall.on.release → removeOne= + an auto-focus that picks =buffers[0]= when none active; *=Frame.svelte= renders ONLY when =$buffer= exists — there is no homepage fallback*; and aprende's =App= has NO buffer schema yet still needs a buffer to render (=buffer.mode.emit=). The design (flow: Aprende→Activation→nyan home→start→practice→done→nyan home+analysis→resolve→buffer closes→Aprende refills, stats fresh). Open decision Finn hasn't picked — WHERE the refill effect lives: (A) terminal-generic "homepage = terminal empty-state" in =terminal.js= [my lean]; (B) an aprende-scoped client effect; (C) =Frame= renders =thread.mode.app= when =$buffer= null (breaks =buffer.mode.emit=). Build pending that pick.
+
+* Files
+- =homepage/aprende/view/Aprende.svelte= — comp redesign; min-width:0 overflow fix + scale-down; progress removed; streak badge moved above the scatter.
+- =homepage/aprende/view/Helpdesk.svelte= — TUTOR prefix + send button, restyle.
+- =game/nyan/buffer/Nyan.svelte= — rewrite: home/practice phases, provenance, =plan()=, ACTIONS-as-keymap, run-scoped owners, chrome.
+- =game/nyan/buffer/panels/Home.svelte= — NEW, the multi-section comp home (absorbs the old Lobby + Subject + analysis-as-section).
+- =game/nyan/buffer/panels/Practice.svelte=, =Review.svelte= — titles dropped (chrome owns the header); Practice centered + larger.
+- deleted =Setup.svelte=, =Lobby.svelte=. Engine untouched (11/11 tests green).

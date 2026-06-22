@@ -36,6 +36,7 @@
     "jose": "npm:jose@6.0.11",
     "nanostores": "npm:nanostores@1.0",
     "@nanostores/persistent": "npm:@nanostores/persistent@1.0",
+    "@nanostores/logger": "npm:@nanostores/logger@1.0",
 
     "@mikro-orm/core": "npm:@mikro-orm/core@6.6.7",
     "@mikro-orm/sqlite": "npm:@mikro-orm/sqlite@6.6.7",
@@ -43,11 +44,11 @@
 
     "@libsql/client/node": "npm:@libsql/client@0.17.0/node",
 
-    "typebox": "npm:typebox@1.0",
-    "typebox/value": "npm:typebox@1.0/value",
-    "typebox/compile": "npm:typebox@1.0/compile",
-    "typebox/system": "npm:typebox@1.0/system",
-    "typebox/error": "npm:typebox@1.0/error",
+    "typebox": "npm:typebox@1.3.0",
+    "typebox/value": "npm:typebox@1.3.0/value",
+    "typebox/compile": "npm:typebox@1.3.0/compile",
+    "typebox/system": "npm:typebox@1.3.0/system",
+    "typebox/error": "npm:typebox@1.3.0/error",
 
     "@deno/vite-plugin": "npm:@deno/vite-plugin@1.0",
     "vite": "npm:vite@6.3.3",

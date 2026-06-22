@@ -1,0 +1,37 @@
+#+TITLE: The connoisseur's holistic doctrine for building an elegant, coherent APP — "the engine folds a log into a run; make the app fold phases into a screen" — provenance, phases, and keys as DATA records, one plan() deriver, one chrome, so the shell finally obeys the engine's law; plus the working-method lessons of this arc (read the substrate before designing, comps supersede earlier picks, refuse the domain-coupling the user explicitly forbids)
+
+#+TOPIC: Companion to =aprende-comp-match-and-nyan-app-redesign.org= (the WHAT). This is the HOW: the design doctrine Finn invoked the connoisseur to produce, and the process lessons that earned their keep. Throughline — when an engine is already principled (a pure catamorphism), the SHELL must be made equally principled, or the two halves obey different laws and the app feels incoherent.
+
+* The trigger: "let the conoisseur have a holistic look. how to build an elegant app. coherent app."
+Mid-implementation Finn interrupted ("execute" was already running) to demand the connoisseur frame the WHOLE app first — not just judge a diff. He repeated the pattern later: "how about investing a BIIIT of brain power into the layout and logic. comon. run a full design process/skill on this." The lesson reaffirmed from prior sessions: *the connoisseur is a problem FRAMER, reached at design time, not only a code judge over a diff.*
+
+* The doctrine — the app as a fold
+=engine.js= is principled: ONE state =({words, config, log})=, =project= a catamorphism (replay-fold) over the log, =dead=/=done= READ from the fold so they can't desync. The shell (=Nyan.svelte=) did NOT earn that: a mutable =game= bag, a magic-string =panel= switch, scattered =game.panel = "…"=, an =onKey= switch that DUPLICATED the control buttons, provenance smeared as inline =if=s, and it auto-started the game. *The engine was data-driven; the shell was branch-driven. Incoherence = the two halves obey different laws.* The fix is one move — make the app a fold the way the engine is:
+
+1. *The missing noun — =plan()=, the app-layer catamorphism.* Engine: =log → project → state=. App: =source × settings → plan → run=. The four re-run verbs (start/shuffle/repeat/new) collapse into ONE function with different settings — the same way every gameplay collapses into one =project()=. =plan()= returns =(word,owner)= pairs shuffled/sampled TOGETHER, so the grade-alignment invariant is structural, not a fragile frozen const.
+
+2. *Provenance is the app's TYPE — derived once, drives everything.* No inline =if (literals)=. A =PROVENANCE= record per kind declares its label, its =settings=, its replay verbs; the lobby AND the control bar render from it (effect-over-model — one shape, data drives it). This is the Vector-consumer law applied to UI.
+
+3. *Phases + keys as records, not switches.* =panel= magic-string → a =PHASES= record; the =onKey= switch → a keymap. ONE =ACTIONS= table feeds both the control bar and the key handler, so the button label and the key handler can't drift (the old design declared =r · same= twice — a latent desync bug-class, killed).
+
+4. *One chrome, N surfaces.* Each panel hand-rolled its own =typer · X= title. Unify: one header grammar (=Nyan · <phase> · <context>=), a centered surface, a control bar whose buttons come from the active phase's action table. Visual coherence falls out of ONE chrome instead of three.
+
+One-liner that stuck: *"the engine folds a log into a run; make the app fold phases into a screen — provenance, phases, and keys as data, one plan() deriver, one chrome — and the shell finally obeys the engine's law."*
+
+* The elegance debts the connoisseur named (the audit)
+- =panel= = magic string + scattered mutation — no phase record.
+- provenance branched at mount (=if seedWords start=) — not a derived descriptor; AND it auto-started.
+- 4 re-run verbs = 4 code paths — should be one =plan()=.
+- =onKey= duplicates the control buttons — two sources, latent desync.
+- =owners= frozen buffer-level — shuffle/subset would silently break grade alignment.
+- 3 hand-rolled chromes; the Setup screen visually incoherent with practice/review.
+
+* Process lessons that earned their keep this arc
+- *Read the substrate before designing the integration.* The Aprende↔Nyan loop ("add a resolve call … load aprende if no active buffer") could only be designed correctly by reading the real client: the riddler =/assistant/resolve= pattern, =terminal.js= (=stall.on.release → removeOne=, the auto-focus to =buffers[0]=), and the decisive fact that =Frame.svelte= renders ONLY when =$buffer= exists (no homepage fallback) while aprende's =App= has no buffer schema. Grounded > guessed — and it surfaced the one real open decision (where the refill effect lives) instead of fabricating an API.
+- *A user comp SUPERSEDES an earlier design pick — without ceremony.* In the brainstorm Finn picked "Cockpit (two-column)" for the nyan home; two turns later he pasted =~/Downloads/Nyan Typing Trainer.html= — "actully. i prefer this:" — a multi-section settings form. The comp wins; the earlier pick is dropped silently. Match the comp (segmented controls, sliders, sectioned separation), don't relitigate.
+- *Refuse the coupling the user forbids — even when you just designed it in.* I had designed "memory deltas surfaced in nyan's results." Finn: "there is no review in nyan!! nyan knows not about the domain." The whole appeal of nyan is that the engine is domain-free; the only domain touch is the BLIND =/review/literal= egress through =owners=. Domain feedback belongs in APRENDE (post-loop), never inside nyan. A correction to a boundary violation overrides a freshly-built feature.
+- *The CSS overflow gotcha worth keeping:* grid/flex children default to =min-width:auto= and will NOT shrink below =white-space:nowrap= content → they overflow the track (the "Coach tile off the right edge" bug). =min-width:0= on every grid/flex child is the fix.
+- *Brainstorming-skill adaptation:* its checklist says write the spec to =docs/superpowers/specs/= and commit. Overridden per Finn's standing rules — design docs go to =.ikiro= and VCS is read-only (Finn commits). User instructions > skill.
+
+* Rhythm
+Per-item =go=/=execute=; design directives executed surgically and re-rendered against screenshots; the connoisseur framed the app before the shell was rebuilt; the engine stayed untouched and green. Praise landed on the size-fix ("ok. very good.") and the multi-section comp home ("multi section. nice controls. nice stats. good separation"). No "retard" callouts.

@@ -8,6 +8,8 @@ export const clean = (s) =>
 
 export const fold = (s) => clean(s.normalize("NFD").replace(/[\u0300-\u036f]/g, ""));
 
+export const split = (path, splitter = "/") => String(path).split(splitter).filter(Boolean);
+
 export const separate = (s) => {
   const raw = s
     .split("/")

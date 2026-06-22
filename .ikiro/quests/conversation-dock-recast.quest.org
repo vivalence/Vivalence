@@ -1,0 +1,78 @@
+#+TITLE: Conversation + Dock re-cast (post C-panel rewrite)
+#+AUTHOR: Vivalence
+#+STATUS: PLANNING
+
+Conversation + dock worked end-to-end pre-rewrite (see [[file:longdistance.quest.org]] M2/M3,
+s49 rich chat). The C-panel rebuild ([[file:c-panel-rebuild.quest.org]]) moved buffer ownership
+thread→terminal and rebuilt panels into D/E/F + a terminal-owned factory. That rewrite
+orphaned the conversation surface. Re-cast it into the new pattern. No new visual design —
+revive Finn's already-styled Dock; relocate the engage trigger into F.
+
+* Locked ontology (from longdistance, unchanged)
+- *CONVERSATIONAL on mode* = capability. Server mounts =/conversation= WS, =mode.harness.dialogue.stream=.
+- *CONVERSATIONAL on thread* (=thread.$traits=) = engagement marker. Flipping it is the only trigger.
+- *Lifecycle owned by thread dossier subscriber* — =conversational.wire(thread)= reconciles
+  open/close against =$traits= + active-terminal. Engage adds the trait (persisted), wire opens
+  the socket, dock shows.
+- *Dock* = the chat surface (log + composer). Geometry = =bridge.dock= (side/share), default right 0.32.
+
+* What survived vs what got cut
+Live (intact):
+- ~typology/entities/thread/traits/conversational.js~ — open/close/wire/engage/release/send/abort,
+  =/dialogue/packet|close|error= handlers, =$streaming/$pending/$lastError=. BUT =provide()= /
+  =wire()= have *zero call sites*.
+- ~typology/stores/bridge/dock.js~ + ~bridge.js~ — =resolve(dock,rect)=, side/share, =dragDock=.
+  Driven by ~panels/b/widgets/BridgeSection.svelte=. Nothing *consumes* =resolve=.
+- server ~systems/runtime/daemon/traits/conversational.js~.
+
+Cut by the rewrite (dead / commented):
+- ~panels/a/widgets/Dock.svelte~ — full s49 chat UI; =send/stop/retry/regenerate= COMMENTED
+  (=// traits.thread.conversational.*=); not imported anywhere (A renders =<Frame>=).
+- ~panels/e/widgets/Conversational.svelte~ + shoulder =ConversationalWidget= — engage COMMENTED, unmounted.
+- ~thread.js~ — =$conversation= atom + =conversation= accessor COMMENTED.
+- ~thread/dossier.js~ — no conversation wire (only LABELED/MASKED auto + =$buffers=).
+- ~+page.svelte~ — no dock region.
+
+* Re-cast plan (new terminal-buffer pattern)
+
+** 1. thread.js — re-enable conversation slot
+Uncomment =$conversation = atom(null)= + =get/set conversation=. (Dock + wire subscribe =thread.$conversation=.)
+
+** 2. thread/dossier.js — own the lifecycle + turn history
+- =import * as conversational from "./traits/conversational.js"=.
+- =thread.$turns = computed(daemon.entities.turn.$entities, filter by thread, sort createdAt ASC)= (mirror =$buffers=).
+- After mode resolves: =if (thread.mode?.implements?.("CONVERSATIONAL")) conversational.wire(thread)= — once per capable thread.
+
+** 3. +layout.svelte — bootstrap provide
+After =const terminals = new stores.terminals.Terminals()=: =conversational.provide({ terminals })=
+(sets module =terminalsRef= before any thread merges). Import the trait directly (=../typology/...=).
+
+** 4. panels/a/a.svelte — host the dock (split the stage rect)
+When active thread has CONVERSATIONAL, split =rect= via =stores.bridge.resolve(bridge.dock, rect)=:
+stage =<Frame>= (flex:1) + =<Dock thread>= (=size= px on the docked side, =direction= from resolve).
+Else: stage only (current behaviour). Subscribe =bridge.$dock= + thread =$traits=. Thin draggable
+seam → =bridge.dragDock(rect, deltaPx)= (slider in BridgeSection already works too).
+
+** 5. panels/a/widgets/Dock.svelte — wire the text path
+=import * as conversational from "../../../../typology/entities/thread/traits/conversational.js"=.
+- =send()=: keep optimistic =turnRepo.merge= user turn, then =conversational.send(thread, parts)=.
+- =stop()= → =conversational.abort(thread)=; =retryUser/regenerate= → =conversational.send=.
+Leave voice/mic scaffolding commented (dormant, owned by [[file:voice.quest.org]]).
+
+** 6. panels/f/f.svelte — conversation section ABOVE factory
+New =<section class="conversation">= rendered iff =mode.implements("CONVERSATIONAL")=. Engage/release
+button ("start chatting" / "leave") → =conversational.engage/release(thread)= + engaged pill. Keep
+F's flat idiom (header + primary button). Engage → trait flip → wire opens → dock appears in A.
+
+* Non-goals
+- Voice/audio (speech/verbatim) — stays dormant ([[file:voice.quest.org]]).
+- No restyle of Dock/chat — reuse shipped s49 styling.
+- E-panel Conversational.svelte stays dead (trigger lives in F now).
+
+* Files
+- ~systems/kajuit/src/typology/entities/thread/thread.js~
+- ~systems/kajuit/src/typology/entities/thread/dossier.js~
+- ~systems/kajuit/src/app/+layout.svelte~
+- ~systems/kajuit/src/app/panels/a/a.svelte~
+- ~systems/kajuit/src/app/panels/a/widgets/Dock.svelte~
+- ~systems/kajuit/src/app/panels/f/f.svelte~

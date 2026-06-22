@@ -11,7 +11,7 @@ export enum ModeTraitsEnum {
   DATASET = "DATASET", // use to control data storage in mode
 
   FRAUGHT = "FRAUGHT",
-  VIEWABLE = "VIEWABLE",
+  APPLICATION = "APPLICATION",
   EXPOSED = "EXPOSED",
   HARNESSED = "HARNESSED",
   INTENTED = "INTENTED",
@@ -20,7 +20,8 @@ export enum ModeTraitsEnum {
   TOOLED = "TOOLED",
   STANDALONE = "STANDALONE",
 
-  //
+  // ENTRYPOINT REFERENCABLE
+
   // CHAOSMONKEY = "CHAOSMONKEY", // deprecated
   // BUFFERED = "BUFFERED", // deprecated
 }

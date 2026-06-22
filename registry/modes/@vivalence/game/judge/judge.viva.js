@@ -1,4 +1,4 @@
-import { View, Vector, array, string, v } from "@vivalence/typology";
+import { App, Vector, array, string, v } from "@vivalence/typology";
 
 const manifest = {
   type: "game",
@@ -7,7 +7,7 @@ const manifest = {
   description:
     "True/false on translation pairs. Correct or distractor pairing. Visual, audio, or audio-only gameplay. Optional speed presets.",
   version: "0.1.0",
-  traits: ["VIEWABLE", "EMITTER"],
+  traits: ["APPLICATION", "EMITTER"],
 };
 
 const dataset = {
@@ -85,7 +85,7 @@ const emitter = new Vector()
     return buffers;
   });
 
-const view = new View(
+const app = new App(
   "buffer/Judge.svelte",
   v.buffer({
     data: {
@@ -127,4 +127,4 @@ const view = new View(
   }),
 );
 
-export { manifest, view, emitter, dataset };
+export { manifest, app, emitter, dataset };

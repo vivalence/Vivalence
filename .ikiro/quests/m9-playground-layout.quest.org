@@ -1,0 +1,198 @@
+#+TITLE: M9 · Playground Layout — design possibilities + the data-UI primitive system
+
+* Intent
+Compile the research into a plan for the playground's LAYOUT and the reusable UI
+primitive system it showcases. Two threads converge here:
+1. The playground modes double as a *design showcase* — three demo cases of design
+   possibility (Scandinavian minimalism · organized sophistication · playful
+   pragmatism), each mode laid out in the style its complexity suits.
+2. The "organized sophistication" case needs a real data-UI (a Notion/Airtable-grade
+   grid). Researching the best OSS competitors surfaced ONE primitive system — a
+   field-type REGISTRY + a view-as-PROJECTION + type-keyed renderers — that we export
+   from *Dapper* (tokens) and *Drapes* (components). The keystone insight: =Frame=
+   (the buffer container), =Cell= (the value container), and =View= (the record
+   container) are the SAME type-keyed renderer at three scales.
+
+DESIGN / REFERENCE. Gated on go. This is M9 of the broader arc (M4 =phase-playground=,
+M5 =widget-glyphs=, M6 vector-affect) and the architectural home for the =dataspace= mode
+(=registry/modes/@vivalence/dashboard/dataspace=).
+
+* How we got here (the journey + fingerprint)
+After determining the playground mode set (M4: spawner/dealer/automaton/switchboard +
+card), the five HUB modes were assessed by *layout complexity* and bucketed into three
+design possibilities. Finn then kicked off three research agents — two into "organized
+sophistication" (OSS Notion + Airtable competitors, their data models read in-code) and
+one into "Scandinavian minimalism" (an approach for structuring our components). The
+connoisseur's verdict on all three: *the external winners ARE our own patterns* — so the
+steal is native, not foreign. Finn's late insight folded =Frame= (the buffer render
+container) into the same semantic.
+
+* PART A · The three design possibilities (the demo cases)
+The five hub modes, assessed by layout load (control/region count), bucketed by the
+style that load suits. Card + spawned are trivial targets, not assessed.
+
+#+BEGIN_SRC
+  mode         layout load                                          bucket
+  automaton    ▁ lowest  (pure self-describing display, 0 actions)  Scandinavian minimalism
+  spawner      ▂ low     (spawn + 2 phases + list)                  Scandinavian minimalism
+  sieve        ▄ medium  (mask toggles + feed + phase + list)       Playful pragmatism
+  switchboard  ▆ high    (feed + cycle + 4 phases + nav + trace)    Organized sophistication
+  dealer       █ highest (deal/oracle/theme/4 phases/hand/chat)     Organized sophistication
+#+END_SRC
+
+- *Scandinavian minimalism* (automaton, spawner) — low element count → restraint wins.
+  whitespace, type-led, one accent, no chrome. say the most with the least.
+- *Organized sophistication* (switchboard, dealer) — high element count → must be
+  ORGANIZED, not minimal. hierarchy, grouped controls, a dense-but-legible board.
+- *Playful pragmatism* (sieve) — the medium, hands-on one. character over calm: tactile
+  toggles, a little motion, function worn lightly.
+
+The point: ONE token system + ONE primitive set renders all three styles — the
+difference is composition + which tokens, never bespoke CSS. (Minimalism is the build
+discipline; sophistication is what it builds; see Part C.)
+
+* PART B · The data-UI research (organized sophistication), grounded
+** Notion-family (block / document model)
+#+BEGIN_SRC
+  Anytype   ★★★  ONE Object, `layout` decides the view → {Page, Set, Board}. docs & DBs are the SAME type.
+                 (anytype-ts /src/ts/interface/object.ts · /src/ts/model/blockStructure.ts)
+  AppFlowy  ★★★  block-tree {id, ty, data, parent_id, children_id[]}; grid/board/calendar = view transforms.
+                 (flowy-document/src/document_data.rs:64-82) — simpler, ship-faster.
+  AFFiNE    ★★☆  Zod block-schema w/ version/role/parent[]/children[]/toModel/transformer — 4 extension points, ceremony.
+                 (blocksuite/framework/store/src/model/block/zod.ts:53-101)
+#+END_SRC
+Winner: *Anytype's Object+Relation* — true unification (one type, layout = lens).
+AppFlowy's tree is the faster path for document-only.
+
+** Airtable-family (table / field / view model)
+#+BEGIN_SRC
+  Baserow   ★★★  FieldTypeRegistry — each type a record {prepare_value, get_cell, get_model_field, to_formula_type}.
+                 add a type = one class + register; no switch. THE north star. (fields/registries.py:2242-2260)
+  Teable    ★★☆  same intent, a switch(type) factory (21 cases). imperative; add-a-case. (field/model/factory.ts:131)
+  NocoDB    ★★☆  column-helper registry + per-view-type column-visibility ceremony (DON'T copy that). (columnHelper:85-105)
+  Grist     ★☆   static usertype→Column map, formula-first. powerful, least declarative. (usertypes.py:281)
+#+END_SRC
+All four use REAL SQL tables (a link = FK + junction), NOT EAV. The fork that matters:
+*registry-as-data (Baserow) > switch-factory (Teable) > static-map (Grist)*.
+The view is a *projection* — =filter/sort/group/columnMeta= as DATA, the view-type a thin
+fold over records (Baserow/Teable clean; NocoDB adds redundant per-type ceremony).
+
+** GUN (gun.js) — the radical graph (the most radical version of the steal)
+ONE flat graph keyed by =soul=; a node is =​{prop: val, _: {'#': soul, '>': {prop: STATE}}}=;
+a reference is =​{'#': soul}=. NO hierarchy, NO schema, NO tables, NO stored views — views are
+pure live subscriptions over the one graph. (amark/gun: src/state.js =State.ify/State.is=,
+src/valid.js =link {'#':soul}=, src/root.js =ham()=, src/chain.js.)
+- *HAM CRDT* = per-PROPERTY state (a timestamp in =_['>'][prop]=); last-write-wins by state,
+  deterministic tie-break by value-length. Merge decoupled from schema — one line decides all
+  conflicts.
+- *chain* (=.get(k).get(k).on()=) = lazy path-traversal, defer-until-listener — STRUCTURALLY
+  our Signal→Vector trie (code-as-data, lazy path-walk; src/chain.js =cat.back/next=).
+- *verdict* (doctrine confirmed in code): GENIUS data model (=soul + node + ref + per-prop
+  state= folds the whole graph) · OPAQUE execution (golfed chain/link/dedup plumbing — =at/cat/
+  sat/tmp=). The discriminator: essential density (the model) vs incidental compression (the
+  plumbing).
+- *the steal:* per-property state as the merge primitive (vs our event-log + =project()= fold —
+  ours keeps merge control, GUN locks LWW). *the trap:* no type constraints → you rebuild
+  field-types on top ANYWAY. "no-schema is seductive but shallow — you'll encode your schema in
+  views, not avoid it." → so make the schema EXPLICIT DATA inside the node (=​{_type, value, _:
+  {state}}=), which ALSO dodges GUN's opacity (keep the genius model, drop the golfed plumbing).
+
+** Minimalism (the approach for structuring components)
+Principles (sourced — Rams · Swiss/Müller-Brockmann · Teenage Engineering · Geist · Radix):
+- *less-but-better* — no chrome baked into a primitive; ≤6 props; composition handles complexity.
+- *data not config* — props = data (size/disabled/variant), styling = tokens (Dapper's job).
+- *composition over configuration* — Dialog/Stepper split into sub-components, not one 20-prop root.
+- *honesty* — state explicit (open/disabled/current); a11y = semantic HTML, not bolted on.
+- *whitespace + one accent* — calm baseline; accent only for affordance.
+The triangle: *unstyled primitive (behavior+a11y) ↔ slot/asChild (DOM choice) ↔ tokens (theme)*.
+(radix-ui/primitives slot.tsx · shadcn/ui · vercel/geist)
+
+* PART C · The connoisseur synthesis — the winners ARE our patterns
+#+BEGIN_SRC
+  external winner                                   →  our in-repo pattern (## code)
+  Anytype: one Object → `layout` → {Page,Set,Board} →  Vector-consumer principle · thread→phase→{4 phases}   (trigger 8)
+  Baserow: FieldTypeRegistry (type = a record)      →  discriminator-as-data · pattern.js · Pool.classify     (trigger 11)
+  View = filter/sort/group projection over records  →  steer.fold / rollup — a view IS a fold                (trigger 2 + 12)
+  cell-per-type, callable + editable                →  shape.object (node = callable ∧ namespace)
+#+END_SRC
+Building a Notion/Airtable in vivalence = applying triggers 2/8/11/12 to tabular data.
+The wince both threads flagged is OUR wince: a =switch(type)= smeared across grid+api+filter
+= ceremony = the opposite of registry-as-data.
+
+* PART D · The unifying spine — type-keyed renderers at three scales (the Frame insight)
+The keystone: =Frame=, =Cell=, =View= are the SAME pattern — *render a thing by its type,
+from a registry* — at three containment scales. This is =shape.object='s dispatch (a
+type → a callable component) recurring up the UI.
+#+BEGIN_SRC
+  scale       container   keys on              registry                renders
+  value       Cell        field.type           FIELDS (field-type)     a typed cell (text/number/select/link…)
+  buffer      Frame       buffer.mode.app      the mode registry       a mode's app component (Frame.svelte today)
+  collection  View        view.type            VIEWS (grid/kanban/…)   a projection over records/buffers
+#+END_SRC
+=Frame.svelte= (=subsystems/drapes/panels/Frame.svelte=) already does the buffer-scale
+case (=mode.metadata.app.Component= vs =.app.url= dynamic import). Generalize the SAME
+dispatch down to =Cell= (field-type) and across to =View= (view-type). One renderer
+algebra, three scales — the convulsion. (And a =View= of buffers = a moat that's a grid;
+a stall phase is one way to fold buffers, a =View= is another — they compose.)
+
+* PART E · The primitive system (what we export from Dapper + Drapes)
+** DAPPER (tokens) — owns ALL visual decisions
+- neutral scale (12-15 steps) + ONE accent (+ success/error semantic). no magic hex.
+- the font scale (have it: 2xs..8xl). spacing (4px base, ~12 steps). radius (4 values). shadow (2-3).
+** DATA primitives (typology-side — the model)
+- =FieldType= registry — a patternmap/record-set: =type → { schema: v.…, cell, filter, sort, format }=.
+  extend = add a row. (Baserow, in our =v= + discriminator idiom.)
+- =View= = a projection record: ={ type, filter: FilterTree, sort: [{field,dir}], group, columns:[{field,width,show}] }=.
+  consumed by a fold (=steer.fold=), one definition for every view-type.
+- =FilterTree= (AND/OR/expr predicate tree), =Node/Object= ({id,type,parent,children[],data}) for the block/tree case.
+** DRAPES components — thin renderers over registry + projection + tokens
+#+BEGIN_SRC
+  Cell(field.type)                 the atom — registry-keyed render/edit per field-type
+  Field                            form: label + Cell editor (reuse the cell)
+  Frame(buffer)                    EXISTING — the buffer-scale renderer; same dispatch as Cell (Part D)
+  Grid · Kanban · Gallery · Form   view renderers, ALL consume ONE projection (one structure, many views)
+  FilterBuilder · ViewSwitcher     construct the FilterTree / swap view.type (projection unchanged)
+  Stepper                          steps-as-data + thin subs (List · Content · Prev · Next); ≤5 root props
+  Section · Chip · Pip             EXISTING Drapes primitives — the minimalism layer
+#+END_SRC
+
+* Build sequence (DESIGN — gated on go)
+** M9.0 · the renderer spine
+Generalize =Frame='s type-keyed dispatch into a shared =render(thing, registry)= seam;
+re-express =Frame= as one consumer (effect-over-model: prove by the same buffer mounting).
+** M9.1 · the field-type registry + Cell
+=FIELDS= as a =v=-schematic + discriminator record-set; =Cell= renders/edits per type.
+Start with text/number/select/checkbox/date/link. Drapes components, Dapper-themed.
+** M9.2 · the view projection + Grid
+=View= record + =steer.fold= over records → =Grid=. filter/sort/group as data. Then a
+second view-type (Kanban) on the SAME projection to prove the fold.
+** M9.3 · the three styles, applied to the playground modes
+Style the 5 hub modes to their bucket (Part A) using only tokens + composition: minimalism
+(automaton/spawner), sophistication (dealer/switchboard — these are where the Grid/Stepper
+primitives debut), playful (sieve). The playground becomes the live design showcase.
+** M9.4 · dataspace mode on the system
+Wire =registry/modes/@vivalence/dashboard/dataspace= to the field-registry + view-projection
++ Grid. A dataspace buffer = a =View= rendered in a =Frame= — the spine, closed.
+
+* Open questions / gaps (agents flagged, unverified)
+- attachments / blob storage model (not deep-dived in any repo).
+- formula/rollup recompute strategy (dependency graph? eager vs lazy? — only saw deps tracked).
+- access control / row-level filters (Grist has them; not researched).
+- SQL-table-per-table (Baserow/Teable/NocoDB) vs our MikroORM entity model — do user "tables"
+  become real tables, or rows under a generic entity? (the EAV-vs-real-table fork, for us).
+- block-tree (Anytype/AppFlowy) vs table (Airtable) — RESOLVED by the GUN read: one node
+  primitive + links-as-refs structurally unifies tree AND table (GUN proves it at the extreme:
+  one graph, no layout). BUT no-schema is shallow (the trap) — you still need typed fields.
+  So the bet = *one node + field-type-as-DATA-in-the-node + view-as-projection*; the schema is
+  explicit data, not implicit code (dodges GUN's opacity too). Remaining: per-property-state
+  (HAM/LWW) vs our event-log + =project()= fold for merge — pick per the collab requirement.
+
+* Notes
+- Pure design/research compilation; no code landed. Additive primitives, no core risk.
+- The connoisseur frame: build the data-grid the way we build everything — one declared
+  structure (registry + projection), consumed by role-fit renderers; minimalism is the
+  discipline (registry-as-data, composition, tokens), sophistication is the result.
+- VCS read-only; Finn lands commits.
+- Sources: anytype-ts, AppFlowy, AFFiNE/blocksuite, baserow, teable, nocodb, grist-core;
+  Rams 10 principles, Müller-Brockmann, Teenage Engineering, vercel/geist, radix-ui/primitives,
+  shadcn/ui. (Full citations in the agent reports; key file:line inline above.)

@@ -1,149 +1,192 @@
+<script module>
+  import { ThreadTraits } from "@vivalence/kajuit";
+
+  const modeLabel = (buffer) => buffer.mode?.slug ?? buffer.mode?.id ?? buffer.mode ?? "—";
+
+  async function createBuffer(terminal, thread) {
+    if (thread.traits.includes("AIMED")) {
+      const buffers = await ThreadTraits.aimed.pull(thread);
+      terminal.buffer = buffers[0];
+      // for i of buffers length: buffers[i].on.release(()=>terminal.buffer=buffers[i+1])
+      return;
+    }
+    const { literal, literals, symbol, symbols, ...data } = thread.trait?.MASKED ?? {};
+
+    terminal.buffer = await thread.daemon.entities.buffer.create({
+      mode: thread.mode?.id ?? thread.mode,
+      thread: thread.id,
+      data,
+      literals: [...(literals ?? []), ...(literal ? [literal] : [])],
+      symbols: [...(symbols ?? []), ...(symbol ? [symbol] : [])],
+    });
+
+    // terminal.buffer.on.release(()=>())
+  }
+
+  // the queue is now just a phase write — the stall reads thread.pull (AIMED) + depth itself.
+  function startQueue(terminal) {
+    setThreadPhase(terminal, "continuous");
+  }
+
+  function stopQueue(terminal) {
+    setThreadPhase(terminal, "manual");
+  }
+
+  function setThreadPhase(terminal, phase) {
+    const thread = terminal?.thread;
+    if (!thread?.engage(phase)) return; // refused → $errors set; don't persist a bad phase
+    thread.daemon.entities.thread.updateOne({ id: thread.id }, { phase }); // persist
+  }
+
+  function activateBuffer(terminal, buffer) {
+    terminal.buffer = terminal.buffer?.id === buffer.id ? null : buffer;
+  }
+
+  async function deleteBuffer(terminal, thread, buffer) {
+    if (terminal.buffer?.id === buffer.id) terminal.buffer = null;
+    await thread.daemon.entities.buffer.removeOne({ id: buffer.id });
+  }
+
+  async function clearBuffers(terminal, thread) {
+    terminal.buffer = null;
+    for (const buffer of thread.$buffers.get()) thread.daemon.entities.buffer.drop(buffer.id);
+    await thread.daemon.entities.buffer.remove({ thread: thread.id });
+  }
+
+  const toggleConversation = (thread) =>
+    thread.traits.includes("CONVERSATIONAL")
+      ? ThreadTraits.conversational.release(thread)
+      : ThreadTraits.conversational.engage(thread);
+</script>
+
 <script>
   import { getContext } from "svelte";
   import { chain } from "@vivalence/kajuit";
-  import { Blacklist } from "@vivalence/typology";
-  import { Stall } from "../../../typology/prototypes/stall.js";
-  import { TERMINALS } from "$client";
+  import { Section } from "@vivalence/drapes";
+  import { TERMINALS, BRIDGE } from "$client";
 
   const terminals = getContext(TERMINALS);
+  const bridge = getContext(BRIDGE);
 
+  const terminal = chain(terminals, "$active");
   const thread = chain(terminals, "$active", "$thread");
   const mode = chain(terminals, "$active", "$thread", "$mode");
   const threadTraits = chain(terminals, "$active", "$thread", "$traits");
   const activeBuffer = chain(terminals, "$active", "$buffer");
+  const activeData = chain(terminals, "$active", "$buffer", "$data");
   const buffers = chain(terminals, "$active", "$thread", "$buffers");
 
   let busy = $state(false);
+  let chatBusy = $state(false);
+  let listEl = $state(null);
+
+  // keep the active row centered in the scrollable list
+  $effect(() => {
+    const id = $activeBuffer?.id;
+    if (!id || !listEl) return;
+    listEl.querySelector(`[data-id="${id}"]`)?.scrollIntoView({ block: "center" });
+  });
 
   const ordered = $derived([...($buffers ?? [])].sort((a, b) => (a.index ?? 0) - (b.index ?? 0)));
   const queueing = $derived($threadTraits?.includes("QUEUEING") ?? false);
   const aimed = $derived($threadTraits?.includes("AIMED") ?? false);
   const standalone = $derived($mode?.implements?.("STANDALONE") ?? false);
-
-  async function mergePull(current, args) {
-    const result = await current.pull(args);
-    return Promise.all(
-      (result.buffers ?? []).map((pojo) => current.daemon.entities.buffer.merge(pojo)),
-    );
-  }
+  const application = $derived($mode?.implements?.("APPLICATION") ?? false);
+  const conversationCapable = $derived($mode?.implements?.("CONVERSATIONAL") ?? false);
+  const engaged = $derived($threadTraits?.includes("CONVERSATIONAL") ?? false);
 
   async function onCreate() {
-    const terminal = terminals.active;
-    const current = terminal?.thread;
-    if (!current || busy) return;
+    if (!$thread || busy) return;
     busy = true;
     try {
-      if (current.traits.includes("AIMED")) {
-        const created = await mergePull(current, {});
-        if (created[0]) terminal.buffer = created[0];
-      } else if (current.mode?.implements?.("STANDALONE")) {
-        const { literal, literals, symbol, symbols, ...data } = current.trait?.MASKED ?? {};
-        const buffer = await current.daemon.entities.buffer.create({
-          mode: current.mode?.id ?? current.mode,
-          thread: current.id,
-          data,
-          literals: [...(literals ?? []), ...(literal ? [literal] : [])],
-          symbols: [...(symbols ?? []), ...(symbol ? [symbol] : [])],
-        });
-        terminal.buffer = buffer;
-      }
+      await createBuffer($terminal, $thread);
     } finally {
       busy = false;
     }
   }
 
-  function onStart() {
-    const terminal = terminals.active;
-    const current = terminal?.thread;
-    if (!current) return;
-    terminal.stall?.close?.();
-    const stall = new Stall(current.$buffers, terminal.$buffer);
-    stall.withPull(
-      async () => {
-        const merged = await mergePull(current, {
-          blacklist: new Blacklist().absorb(current.$buffers.get()),
-        });
-        return { buffers: merged, condition: merged.length ? "NOMINAL" : "EXHAUSTED" };
-      },
-      current.trait?.QUEUEING?.depth ?? 1,
-    );
-    stall.activate();
-    terminal.stall = stall;
-  }
-
-  function onStop() {
-    const terminal = terminals.active;
-    terminal?.stall?.close?.();
-    if (terminal) terminal.stall = null;
-  }
-
-  function onActivate(buffer) {
-    const terminal = terminals.active;
-    if (!terminal) return;
-    terminal.buffer = terminal.buffer?.id === buffer.id ? null : buffer;
-  }
-
-  async function onDelete(buffer) {
-    const terminal = terminals.active;
-    const repo = terminal?.thread?.daemon.entities.buffer;
-    if (!repo) return;
-    if (terminal.buffer?.id === buffer.id) terminal.buffer = null;
-    repo.drop(buffer.id);
+  async function onToggleConversation() {
+    if (!$thread || chatBusy) return;
+    chatBusy = true;
     try {
-      await repo.removeOne({ id: buffer.id });
-    } catch (error) {
-      console.error("[f] buffer delete failed", error);
+      const wasEngaged = engaged;
+      await toggleConversation($thread);
+      if (!wasEngaged) bridge.setDockCollapsed(false);
+    } finally {
+      chatBusy = false;
     }
-  }
-
-  async function onClear() {
-    const terminal = terminals.active;
-    const current = terminal?.thread;
-    if (!current) return;
-    const repo = current.daemon.entities.buffer;
-    terminal.buffer = null;
-    for (const buffer of ordered) repo.drop(buffer.id);
-    try {
-      await repo.remove({ thread: current.id });
-    } catch (error) {
-      console.error("[f] buffer clear failed", error);
-    }
-  }
-
-  function modeLabel(buffer) {
-    return buffer.mode?.slug ?? buffer.mode?.id ?? buffer.mode ?? "—";
   }
 </script>
 
 <div class="panel">
-  <section class="factory">
-    <header>factory</header>
-    {#if !$thread}
-      <div class="empty">no thread</div>
-    {:else if queueing}
-      <button class="act" onclick={onStart}>start</button>
-      <button class="act" onclick={onStop}>stop</button>
-    {:else if aimed}
-      <button class="act primary" onclick={onCreate} disabled={busy}>
-        {busy ? "…" : "create · emit"}
+  {#if conversationCapable}
+    <section>
+      <Section label="conversation" />
+      <button
+        class="act primary"
+        class:engaged
+        onclick={onToggleConversation}
+        disabled={!$thread || chatBusy}>
+        {chatBusy ? "…" : engaged ? "leave" : "start chatting"}
       </button>
-    {:else if standalone}
-      <button class="act primary" onclick={onCreate} disabled={busy}>
-        {busy ? "…" : "create buffer"}
-      </button>
-    {:else}
-      <button class="act" disabled title="this mode has no emitter — toggle AIMED to pull">
-        aim required
-      </button>
+    </section>
+  {/if}
+
+  <section>
+    {#if application || queueing}
+      <Section label="buffer" />
+      {#if !$thread}
+        <div class="empty">no thread</div>
+      {:else if queueing}
+        <div class="row-actions">
+          <button class="act" onclick={() => startQueue($terminal)}>Start</button>
+          <button class="act" onclick={() => stopQueue($terminal)}>Stop</button>
+        </div>
+      {:else if aimed}
+        <button class="act primary" onclick={onCreate} disabled={busy}
+          >{busy ? "…" : "Open"}</button>
+      {:else if standalone && application}
+        <button class="act primary" onclick={onCreate} disabled={busy}
+          >{busy ? "…" : "Open"}</button>
+      {:else}
+        <button class="act" disabled title="this mode has no emitter — toggle AIMED to pull"
+          >aim required</button>
+      {/if}
     {/if}
   </section>
 
-  <section class="active">
-    <header>active buffer</header>
-    {#if !$activeBuffer}
-      <div class="empty">none active</div>
-    {:else}
-      <div class="kv"><span class="k">mode</span><span class="v">{modeLabel($activeBuffer)}</span></div>
+  {#if ordered.length}
+    <section>
+      <Section label="buffers" count={ordered.length}>
+        {#snippet action()}
+          <button
+            class="mini"
+            onclick={() => clearBuffers($terminal, $thread)}
+            disabled={!ordered.length}>clear</button>
+        {/snippet}
+      </Section>
+      <div class="blist" bind:this={listEl}>
+        {#each ordered as buffer (buffer.id)}
+          <div class="brow" class:on={$activeBuffer?.id === buffer.id} data-id={buffer.id}>
+            <button class="cell" onclick={() => activateBuffer($terminal, buffer)}>
+              <span class="index">{buffer.index ?? 0}</span>
+              <!-- <span class="status">{buffer.status ?? "PENDING"}</span> -->
+              <span class="slug">{modeLabel(buffer)}</span>
+            </button>
+            <button class="x" onclick={() => deleteBuffer($terminal, $thread, buffer)} title="delete"
+              >✕</button>
+          </div>
+        {/each}
+      </div>
+    </section>
+  {/if}
+
+  {#if $activeBuffer}
+    <section>
+      <Section label="active buffer" />
+      <div class="kv">
+        <span class="k">mode</span><span class="v">{modeLabel($activeBuffer)}</span>
+      </div>
       <div class="kv">
         <span class="k">literals</span><span class="v">{$activeBuffer.literals?.length ?? 0}</span>
       </div>
@@ -156,34 +199,14 @@
         {/each}
       {/if}
       <div class="kv top"><span class="k">data</span></div>
-      <pre class="json">{JSON.stringify($activeBuffer.data ?? {}, null, 2)}</pre>
-    {/if}
-  </section>
-
-  <section class="list">
-    <header>
-      buffers <span class="count">{ordered.length}</span>
-      <button class="act danger" onclick={onClear} disabled={!ordered.length}>clear</button>
-    </header>
-    {#if !ordered.length}
-      <div class="empty">no buffers</div>
-    {:else}
-      {#each ordered as buffer (buffer.id)}
-        <div class="row" class:on={$activeBuffer?.id === buffer.id}>
-          <button class="cell" onclick={() => onActivate(buffer)}>
-            <span class="index">{buffer.index ?? 0}</span>
-            <span class="status">{buffer.status ?? "PENDING"}</span>
-            <span class="slug">{modeLabel(buffer)}</span>
-          </button>
-          <button class="x" onclick={() => onDelete(buffer)} title="delete">✕</button>
-        </div>
-      {/each}
-    {/if}
-  </section>
+      <pre class="json">{JSON.stringify($activeData ?? {}, null, 2)}</pre>
+    </section>
+  {/if}
 </div>
 
 <style>
   .panel {
+    min-width: 250px;
     width: 100%;
     height: 100%;
     overflow: auto;
@@ -192,71 +215,83 @@
     background: var(--colors-skeleton-3-surface);
     color: var(--colors-skeleton-3-contrast);
     font-family: var(--font-family-code);
-    font-size: var(--font-size-xs);
-    letter-spacing: 0.04em;
+    font-size: var(--font-size-sm);
+    letter-spacing: 0.02em;
+    padding: 14px 14px 18px;
+    box-sizing: border-box;
   }
   section {
-    border-bottom: 1px solid color-mix(in srgb, var(--colors-skeleton-3-boundary) 50%, transparent);
-    padding: 6px 10px 8px;
+    margin-bottom: 16px;
   }
-  header {
-    display: flex;
-    align-items: center;
-    gap: 8px;
-    font-size: var(--font-size-2xs);
-    text-transform: uppercase;
-    letter-spacing: 0.12em;
-    opacity: 0.5;
-    padding-bottom: 6px;
-  }
-  .count {
-    opacity: 0.5;
+  section :global(.section-head) {
+    margin-bottom: 10px;
   }
   .empty {
     opacity: 0.3;
-    padding: 4px 0;
+    padding: 2px 2px;
   }
-  .factory {
+  .row-actions {
     display: flex;
-    flex-direction: column;
-    gap: 6px;
-  }
-  .factory header {
-    padding-bottom: 0;
-  }
-  .factory .act {
-    align-self: flex-start;
+    gap: 7px;
   }
   .act {
-    padding: 2px 9px;
+    padding: 6px 12px;
     background: transparent;
-    border: 1px solid var(--colors-skeleton-3-boundary);
-    border-radius: 2px;
+    border: 1px solid color-mix(in srgb, var(--colors-skeleton-3-boundary) 55%, transparent);
+    border-radius: 3px;
     color: inherit;
     font: inherit;
-    font-size: var(--font-size-2xs);
-    letter-spacing: 0.06em;
+    font-size: var(--font-size-sm);
+    letter-spacing: 0.04em;
     cursor: pointer;
-    opacity: 0.6;
-  }
-  .list header .act {
-    margin-left: auto;
-  }
-  .act.primary {
-    padding: 4px 12px;
-    font-size: var(--font-size-2xs);
+    opacity: 0.7;
   }
   .act:hover:not(:disabled) {
     opacity: 1;
     border-color: var(--colors-skeleton-0-primary-base);
     color: var(--colors-skeleton-0-primary-base);
   }
-  .act.danger:hover:not(:disabled) {
+  .act:disabled {
+    opacity: 0.3;
+    cursor: not-allowed;
+  }
+  .act.primary {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 100%;
+    padding: 9px;
+    border-color: color-mix(in srgb, var(--colors-skeleton-0-primary-base) 45%, transparent);
+    color: var(--colors-skeleton-0-primary-base);
+    opacity: 1;
+  }
+  .act.primary:hover:not(:disabled) {
+    background: color-mix(in srgb, var(--colors-skeleton-0-primary-base) 9%, transparent);
+  }
+  .act.engaged {
+    border-color: var(--colors-skeleton-0-primary-base);
+  }
+  .act.engaged:hover:not(:disabled) {
     border-color: var(--colors-skeleton-0-danger-base);
     color: var(--colors-skeleton-0-danger-base);
+    background: transparent;
   }
-  .act:disabled {
-    opacity: 0.25;
+  .mini {
+    background: none;
+    border: none;
+    color: inherit;
+    font: inherit;
+    font-size: var(--font-size-2xs);
+    letter-spacing: 0.04em;
+    text-transform: uppercase;
+    opacity: 0.4;
+    cursor: pointer;
+  }
+  .mini:hover:not(:disabled) {
+    opacity: 0.8;
+  }
+  .mini:disabled {
+    opacity: 0.2;
     cursor: not-allowed;
   }
   .kv {
@@ -282,50 +317,59 @@
   .json {
     margin: 2px 0 0;
     font-size: var(--font-size-2xs);
-    opacity: 0.6;
+    opacity: 0.55;
     white-space: pre-wrap;
     word-break: break-all;
   }
-  .row {
+  .blist {
+    max-height: 320px;
+    overflow-y: auto;
+    overscroll-behavior: contain;
+  }
+  .brow {
     display: flex;
     align-items: stretch;
+    border-radius: 2px;
   }
-  .row.on {
+  .brow.on {
     background: color-mix(in srgb, var(--colors-skeleton-0-primary-base) 10%, transparent);
   }
-  .row:hover {
-    background: color-mix(in srgb, var(--colors-skeleton-3-boundary) 25%, transparent);
+  .brow:hover {
+    background: color-mix(in srgb, var(--colors-skeleton-3-contrast) 5%, transparent);
   }
   .cell {
     flex: 1;
     display: flex;
     align-items: center;
-    gap: 8px;
-    padding: 3px 0;
+    gap: 9px;
+    padding: 5px 2px;
     background: none;
     border: none;
     color: inherit;
     font: inherit;
-    font-size: var(--font-size-2xs);
     text-align: left;
     cursor: pointer;
   }
   .index {
     opacity: 0.3;
-    min-width: 12px;
-    font-size: var(--font-size-2xs);
+    width: 10px;
+    flex: none;
+    font-size: var(--font-size-xs);
+      margin-right: 6px;
   }
   .status {
-    padding: 0 4px;
-    border: 1px solid var(--colors-skeleton-3-boundary);
+    padding: 1px 7px;
+    border: 1px solid color-mix(in srgb, var(--colors-skeleton-0-warning-base) 45%, transparent);
     border-radius: 2px;
-    font-size: var(--font-size-2xs);
+    font-size: var(--font-size-xs);
+    letter-spacing: 0.1em;
     text-transform: uppercase;
-    opacity: 0.6;
+    color: var(--colors-skeleton-0-warning-base);
+    flex: none;
   }
   .slug {
-    margin-left: auto;
-    opacity: 0.5;
+    flex: 1;
+    color: color-mix(in srgb, var(--colors-skeleton-3-contrast) 85%, transparent);
   }
   .x {
     padding: 0 9px;

@@ -79,6 +79,29 @@ export class Vector {
     return this;
   }
 
+  // slurp shares a grafted branch by reference (dest.branch IS src.branch — a live
+  // link, edit-either-affects-both: structural sharing, by design). swallow is the
+  // owning variant: it deep-copies the subtree so dest carries an independent tree.
+  // Both share effect handlers + carry by ref (functions are immutable); only the
+  // mutable trajectory containers are copied.
+  swallow(vector) {
+    for (const [pattern, effect] of vector.effects) {
+      this.effects.set(pattern, effect);
+    }
+
+    for (const [pattern, trajectory] of vector.trajectories) {
+      const existing = Array.from(this.trajectories.entries())
+        .find(([i]) => i.nature === pattern.nature)?.[1];
+      const branch = existing ?? new this.constructor(this, this.signature);
+      branch.swallow(trajectory); // recurse into an OWNED branch — never share the ref
+      if (!existing) this.trajectories.set(pattern, branch);
+    }
+
+    this.carry.push(...vector.carry);
+
+    return this;
+  }
+
   // TODO move getters to @controller
   get patterns() {
     return [...this.effects.keys(), ...this.trajectories.keys()];

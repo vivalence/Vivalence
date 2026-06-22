@@ -4,35 +4,35 @@ import { Buffer } from "../../src/entities/buffer.js";
 import { Terminal } from "../../src/terminal/terminal.js";
 
 specimen.describe("Buffer.from", () => {
-  specimen.it("creates buffer instance from pojo with view", () => {
-    const view = { url: "http://test/view", schema: {} };
+  specimen.it("creates buffer instance from pojo with app", () => {
+    const app = { url: "http://test/view", schema: {} };
     const pojo = { id: "buf-1", mode: "mode-1", data: { recall: "LEARNING" }, literals: [{ id: "lit-1" }] };
 
-    const buffer = Buffer.from(pojo, view);
+    const buffer = Buffer.from(pojo, app);
 
     specimen.expect(buffer).toBeInstanceOf(Buffer);
     specimen.expect(buffer.id).toBe("buf-1");
-    specimen.expect(buffer.view).toBe(view);
+    specimen.expect(buffer.app).toBe(app);
     specimen.expect(buffer.data.recall).toBe("LEARNING");
     specimen.expect(buffer.literals[0]).toEqual({ id: "lit-1" });
   });
 
-  specimen.it("view is set directly from argument", () => {
-    const view = { url: "http://test/view/game/flashcard", schema: {} };
+  specimen.it("app is set directly from argument", () => {
+    const app = { url: "http://test/view/game/flashcard", schema: {} };
     const pojo = { id: "buf-2", data: {}, literals: [{ id: "lit-1" }] };
 
     const buffer = Buffer.from(pojo, view);
 
-    specimen.expect(buffer.view).toBe(view);
-    specimen.expect(buffer.view.url).toBe("http://test/view/game/flashcard");
+    specimen.expect(buffer.app).toBe(app);
+    specimen.expect(buffer.app.url).toBe("http://test/view/game/flashcard");
   });
 
-  specimen.it("view is null when not provided", () => {
+  specimen.it("app is null when not provided", () => {
     const pojo = { id: "buf-3", data: {} };
 
     const buffer = Buffer.from(pojo, null);
 
-    specimen.expect(buffer.view).toBe(null);
+    specimen.expect(buffer.app).toBe(null);
   });
 
   specimen.it("context is not set by Buffer.from — set by environment (mint)", () => {
@@ -49,15 +49,15 @@ specimen.describe("Buffer.from", () => {
     specimen.expect(typeof buffer.release).toBe("function");
   });
 
-  specimen.it("Buffer.from preserves data fields and view", () => {
-    const view = { url: "http://test" };
+  specimen.it("Buffer.from preserves data fields and app", () => {
+    const app = { url: "http://test" };
     const pojo = { id: "buf-6", mode: "mode-1", data: { recall: "LEARNING" }, literals: ["lit-1"], symbols: [] };
 
-    const buffer = Buffer.from(pojo, view);
+    const buffer = Buffer.from(pojo, app);
 
     specimen.expect(buffer.id).toBe("buf-6");
     specimen.expect(buffer.mode).toBe("mode-1");
-    specimen.expect(buffer.view).toBe(view);
+    specimen.expect(buffer.app).toBe(app);
     specimen.expect(buffer.data).toEqual({ recall: "LEARNING" });
     specimen.expect(buffer.literals).toEqual(["lit-1"]);
     specimen.expect(buffer.symbols).toEqual([]);
@@ -76,7 +76,7 @@ specimen.describe("buffer lifecycle", { sanitizeResources: false, sanitizeOps: f
     await scenario.orm.close();
   });
 
-  specimen.it("emit pojo consumed by Buffer.from with correct view", async () => {
+  specimen.it("emit pojo consumed by Buffer.from with correct app", async () => {
     const result = await scenario.conn.call("/mode/game/flashcard/emit/literal", {
       literal: { id: scenario.fixtures.hello.id },
       thread: scenario.fixtures.thread.id,
@@ -89,8 +89,8 @@ specimen.describe("buffer lifecycle", { sanitizeResources: false, sanitizeOps: f
     const buffer = Buffer.from(pojo, buffered);
 
     specimen.expect(buffer.id).toBeTruthy();
-    specimen.expect(buffer.view).toBe(buffered);
-    specimen.expect(buffer.view.url).toBeTruthy();
+    specimen.expect(buffer.app).toBe(buffered);
+    specimen.expect(buffer.app.url).toBeTruthy();
     specimen.expect(buffer.data.recall).toBe("LEARNING");
     specimen.expect(buffer.literals.map((l) => l.id)).toContain(scenario.fixtures.hello.id);
     specimen.expect(buffer.context).toBe(null);
@@ -112,7 +112,7 @@ specimen.describe("buffer lifecycle", { sanitizeResources: false, sanitizeOps: f
     specimen.expect(buffer.context.buffer).toBe(buffer);
   });
 
-  specimen.it("Buffer.from into stall produces active buffer with view", async () => {
+  specimen.it("Buffer.from into stall produces active buffer with app", async () => {
     const result = await scenario.conn.call("/mode/game/flashcard/emit/literal", {
       literal: { id: scenario.fixtures.hello.id },
       thread: scenario.fixtures.thread.id,
@@ -127,7 +127,7 @@ specimen.describe("buffer lifecycle", { sanitizeResources: false, sanitizeOps: f
     terminal.stall.push(buffers);
 
     specimen.expect(terminal.stall.$active.get()).toBeTruthy();
-    specimen.expect(terminal.stall.$active.get().view).toBe(buffered);
+    specimen.expect(terminal.stall.$active.get().app).toBe(buffered);
     specimen.expect(terminal.stall.$active.get().data.recall).toBe("LEARNING");
     // specimen.expect(terminal.stall.$active.get().literals).toContain(scenario.fixtures.hello.id);
     specimen.expect(terminal.stall.$active.get().literals.map((l) => l.id)).toContain(scenario.fixtures.hello.id);

@@ -1,8 +1,7 @@
-import { computed } from "nanostores";
-import { RemoteRepository } from "@vivalence/typology";
+import { RemoteRepository, is } from "@vivalence/typology";
 import { Thread } from "./thread.js";
-import * as traits from "./traits/index.js";
-import { applyTraits } from "../../gestalten/belt/index.js";
+import * as labeled from "./traits/labeled.js";
+import * as conversational from "./traits/conversational.js";
 
 export const ThreadDossier = {
   name: "thread",
@@ -14,24 +13,48 @@ export const ThreadDossier = {
   },
 
   use: [
-    applyTraits(traits),
-
+    // no run-all resolver: each trait's capability is invoked where its responsibility lives.
+    // behavior (AIMED.pull) is imported at its call-sites; markers (QUEUEING) are read live;
+    // only LABELED's one-shot normalization belongs here, called explicitly.
     async (ctx, next) => {
       await next();
       const thread = ctx.entity;
       thread.daemon = ctx.daemon;
 
-      const modeId = thread.mode?.id ?? thread.mode;
-      thread.mode =
-        ctx.daemon.entities.mode.$entities.get().find((mode) => mode.id === modeId) ?? thread.mode;
-
       if (!thread.traits.includes("LABELED")) thread.traits = [...thread.traits, "LABELED"];
-      if (thread.mode?.implements?.("VIEWABLE") && !thread.traits.includes("MASKED"))
-        thread.traits = [...thread.traits, "MASKED"];
+      labeled.label(thread); // one-shot: derive the display label from intent/mode
 
-      thread.$buffers = computed(ctx.daemon.entities.buffer.$entities, (buffers) =>
-        buffers.filter((buffer) => (buffer.thread?.id ?? buffer.thread) === thread.id),
-      );
+      thread.$mode.subscribe((mode, previous) => {
+        const shouldMask =
+          thread.mode?.implements?.("APPLICATION") && !is.empty(thread.mode?.metadata?.app?.schema);
+        const has = thread.traits.includes("MASKED");
+        if (shouldMask && !has) thread.traits = [...thread.traits, "MASKED"];
+        else if (!shouldMask && has)
+          thread.traits = thread.traits.filter((trait) => trait !== "MASKED");
+      });
+
+      thread.$mode.subscribe((mode, previous) => {
+        if (previous && mode && mode.id !== previous.id)
+          ctx.daemon.entities.thread.updateOne({ id: thread.id }, { mode: mode.id });
+      });
+
+      // conversation lifecycle is owned here (longdistance): wire every thread once.
+      // wire no-ops until CONVERSATIONAL is engaged + active, so it's safe for all modes
+      // and survives mode-swaps into a conversational mode (selectMode mutates thread.mode).
+      conversational.wire(thread);
     },
   ],
 };
+
+// thread.mode =
+//   ctx.daemon.entities.mode.$entities.get().find((mode) => mode.id === modeId) ?? thread.mode;
+
+// thread.$buffers = computed(ctx.daemon.entities.buffer.$entities, (buffers) =>
+//   buffers.filter((buffer) => (buffer.thread?.id ?? buffer.thread) === thread.id),
+// );
+
+// thread.$turns = computed(ctx.daemon.entities.turn.$entities, (turns) =>
+//   turns
+//     .filter((turn) => (turn.thread?.id ?? turn.thread) === thread.id)
+//     .sort((a, b) => new Date(a.createdAt ?? 0) - new Date(b.createdAt ?? 0)),
+// );
