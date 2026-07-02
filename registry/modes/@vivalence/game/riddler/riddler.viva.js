@@ -5,7 +5,8 @@ export const manifest = {
   type: "game",
   slug: "riddler",
   name: "Riddler",
-  description: "Single-riddle challenges in the target language — weekdays, numbers, months, family.",
+  description:
+    "Single-riddle challenges in the target language — weekdays, numbers, months, family.",
   version: "0.1.0",
   traits: ["APPLICATION", "STANDALONE", "EXPOSED", "EMITTER", "HARNESSED", "TOOLED"],
 };
@@ -142,7 +143,9 @@ export const emitter = new Vector().open(
     const keys = Object.keys(SUBJECTS);
     const subject =
       ctx.input.subject ??
-      (ctx.input.symbols || ctx.input.literals ? null : keys[Math.floor(Math.random() * keys.length)]);
+      (ctx.input.symbols || ctx.input.literals
+        ? null
+        : keys[Math.floor(Math.random() * keys.length)]);
 
     // pool — explicit literals win, else the symbol set (always with memory strength)
     let pool;
@@ -232,80 +235,4 @@ export const emitter = new Vector().open(
 );
 
 // TOOLED — review a literal by slug OR id, for grounding the verdict
-export const tools = new Vector();
-tools.open(
-  {
-    nature: "/literal/review",
-    valence:
-      "Review a literal (word) by slug or id to confirm its meaning, translation, and example before judging an answer.",
-    input: v.object({
-      slug: v.string().optional(),
-      id: v.string().optional(),
-    }),
-    output: v.object({
-      slug: v.string(),
-      known: v.string(),
-      learning: v.string(),
-      example: v.unknown().optional(),
-      symbols: v.array(v.string()),
-    }),
-  },
-  async (ctx) => {
-    const where = ctx.input.id ? { id: ctx.input.id } : { slug: ctx.input.slug };
-    const literal = await ctx.daemon.entities.literal.findOne(where, { populate: ["symbols"] });
-    if (!literal)
-      return { slug: ctx.input.slug ?? ctx.input.id ?? "", known: "", learning: "", symbols: [] };
-
-    const translated = literal.trait?.TRANSLATED ?? {};
-    return {
-      slug: literal.slug,
-      known: translated.known ?? "",
-      learning: translated.learning ?? "",
-      example: literal.trait?.EXEMPLIFIED ?? null,
-      symbols: literal.symbols.getItems().map((s) => s.slug),
-    };
-  },
-);
-
-tools.open(
-  {
-    nature: "/literal/search",
-    valence:
-      "Search for additional literals by symbol category and/or free text (the repo matches slug and translated trait). Use to widen the riddle's vocabulary or check related words while judging.",
-    input: v.object({
-      text: v.string().optional(),
-      symbols: v.array(v.string()).optional(),
-      limit: v.integer({ default: 8 }),
-    }),
-    output: v.object({
-      results: v.array(
-        v.object({ slug: v.string(), known: v.string(), learning: v.string() }),
-      ),
-    }),
-  },
-  async (ctx) => {
-    const where = {};
-    if (ctx.input.text) where.search = ctx.input.text;
-    if (ctx.input.symbols?.length) where.symbols = ctx.input.symbols;
-
-    const literals = await ctx.daemon.entities.literal.find(where, { limit: ctx.input.limit });
-    return {
-      results: literals.map((l) => ({
-        slug: l.slug,
-        known: l.trait?.TRANSLATED?.known ?? "",
-        learning: l.trait?.TRANSLATED?.learning ?? "",
-      })),
-    };
-  },
-);
-
-export const dataset = {
-  intent: [
-    {
-      slug: "cast",
-      name: "Riddler",
-      traits: ["AIMED"],
-      trait: { AIMED: { mount: "/emit/riddle/cast" } },
-    },
-  ],
-};
+// export const tools = new Vector(); tools.open({nature: "/literal/review", valence: "Review a literal (word) by slug or id to confirm its meaning, translation, and example before judging an answer.", input: v.object({slug: v.string().optional(), id: v.string().optional(),}), output: v.object({slug: v.string(), known: v.string(), learning: v.string(), example: v.unknown().optional(), symbols: v.array(v.string()),}),}, async (ctx) => {const where = ctx.input.id ? { id: ctx.input.id } : { slug: ctx.input.slug }; const literal = await ctx.daemon.entities.literal.findOne(where, { populate: ["symbols"] }); if (!literal) return { slug: ctx.input.slug ?? ctx.input.id ?? "", known: "", learning: "", symbols: [] }; const translated = literal.trait?.TRANSLATED ?? {}; return {slug: literal.slug, known: translated.known ?? "", learning: translated.learning ?? "", example: literal.trait?.EXEMPLIFIED ?? null, symbols: literal.symbols.getItems().map((s) => s.slug),};},); tools.open({nature: "/literal/search", valence: "Search for additional literals by symbol category and/or free text (the repo matches slug and translated trait). Use to widen the riddle's vocabulary or check related words while judging.", input: v.object({text: v.string().optional(), symbols: v.array(v.string()).optional(), limit: v.integer({ default: 8 }),}), output: v.object({results: v.array(v.object({ slug: v.string(), known: v.string(), learning: v.string() }),),}),}, async (ctx) => {const where = {}; if (ctx.input.text) where.search = ctx.input.text; if (ctx.input.symbols?.length) where.symbols = ctx.input.symbols; const literals = await ctx.daemon.entities.literal.find(where, { limit: ctx.input.limit }); return {results: literals.map((l) => ({slug: l.slug, known: l.trait?.TRANSLATED?.known ?? "", learning: l.trait?.TRANSLATED?.learning ?? "",})),};},); export const dataset = {intent: [{slug: "cast", name: "Riddler", traits: ["AIMED"], trait: { AIMED: { mount: "/emit/riddle/cast" } },},],};

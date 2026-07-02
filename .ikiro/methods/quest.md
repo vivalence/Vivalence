@@ -1,11 +1,11 @@
 # ikiro/quest — writing an implementation quest
 
-The persistent design surface maintained alongside Finn (`**.ikiro/<name>.quest.org`). A quest is not a plan-dump; it is the durable, resumable spec for a body of work — recoverable cold by a fresh session. Crystallized from practice; append as conventions firm up.
+The persistent design surface maintained alongside beef (`**.ikiro/<name>.quest.org`). A quest is not a plan-dump; it is the durable, resumable spec for a body of work — recoverable cold by a fresh session. Crystallized from practice; append as conventions firm up.
 
 ## Structure (an implementation quest carries)
 
 - **Intent** — what + why, the unifying idea in a few lines.
-- **The decision trail** — the locked design, each fork resolved with the reasoning that settled it (so it is not re-litigated next session). Quote Finn verbatim at the load-bearing turns (`feedback_compact_verbatim_user_voice`).
+- **The decision trail** — the locked design, each fork resolved with the reasoning that settled it (so it is not re-litigated next session). Quote beef verbatim at the load-bearing turns (`feedback_compact_verbatim_user_voice`).
 - **Milestones** — each `blast → test → land → test → blast`. A milestone must **boot green at its boundary** (see coupling rule below).
 - **Tangle blocks** — the resolution as literate code (see tangle convention).
 - **Testing assessment** — MANDATORY (see below).
@@ -16,7 +16,7 @@ The persistent design surface maintained alongside Finn (`**.ikiro/<name>.quest.
 
 ## Testing assessment — mandatory
 
-Finn's standing directive (this is not optional): *"Don't forget a thorough assessment of testing what's already in place and what is going to change and what we are going to add."* Every implementation quest carries three parts + a ladder:
+beef's standing directive (this is not optional): *"Don't forget a thorough assessment of testing what's already in place and what is going to change and what we are going to add."* Every implementation quest carries three parts + a ladder:
 
 - **In place** — what already guards the area; name the suites, and flag the COVERAGE GAP (the code paths with no test — that's where the new-test debt is).
 - **Changes** — existing tests that must update, with the reason (snapshot regen, deep-import rewrite, scenario needs a new prerequisite).
@@ -31,9 +31,24 @@ Paths relative to `.ikiro/quests/` → `../../<repo-path>`.
 - **Surgical edits in large files** → `#+BEGIN_SRC diff` hunks with the path in prose, applied by hand. Do NOT `:tangle` a partially-reproduced large file — tangling overwrites the whole file, so any untouched line you didn't reproduce is silently dropped.
 - Anchor: `m4_phase-playground` (tangled the playground modes), `m11_packages` (mixed tangle + diff).
 
+## Derive by default, lock to override (identity fields)
+
+A field that CAN be computed from where a thing lives (its mount scope, its
+directory, its parent) should be — don't require every leaf to author it.
+Keep one opt-in override path for the rare case that needs to diverge, and
+exercise that override with exactly one fixture living inside a testing
+scenario — the fixture is both the regression test and the living doc, no
+separate write-up needed. beef (verbatim): *"we dont need every mode to
+export manifest package. we can if we want to lock it. but neednt by
+defualt. one package maybe within a testing scenario to test the lock case
+and functions as a docs/demo."* Anchor: =m11_packages= — =vip.mount= derives
+=package= from the branch name; a module MAY self-declare =manifest.package=
+to lock it; =registry/simulation/scenario/lock-demo/= is the one fixture
+that does, proving + documenting the override in the same file.
+
 ## QA-before-blast (the adversarial pass)
 
-Finn invokes it explicitly (*"do another pass. anything not integrated? anything improvable?"*) and the value concentrates there — the M11 pass caught three build-breakers before a line was written. Before a quest is "ready":
+beef invokes it explicitly (*"do another pass. anything not integrated? anything improvable?"*) and the value concentrates there — the M11 pass caught three build-breakers before a line was written. Before a quest is "ready":
 
 - **Each milestone boots green at its boundary.** A change that can't land in halves (the new code path needs a coupled change to not throw) must be ABSORBED into that milestone, not split across two. (M11.1: the package-manifest read couples to collapsing the tier-branches — splitting them throws at boot.)
 - **Move/flatten ops checked against ACTUAL structure.** Verify the tree before writing `mv` lines — a dir already in target shape must be left alone (M11: `registry/playground/` was already `<type>/<slug>`; the blanket `mv` would have broken it).

@@ -85,7 +85,7 @@ Every data source above is read-only. **No mutations.** No jj graph ops.
 
 ## Invocation
 
-When Finn says `ikiro overview` / `ikiro/overview`:
+When beef says `ikiro overview` / `ikiro/overview`:
 1. Run data-source commands in parallel.
 2. Produce the report following sections 1 → 2 → 3.
 3. End with the one-sentence "biggest signal" line.

@@ -192,39 +192,9 @@ pass =--config <root>=.
    — already fixed in 11.0③'s existing diff. Nothing to retire, nothing dormant.
    KEEP =scope.registry= unchanged; no new blast-table entry.
 
-* Blast table
+** Milestones (each: blast → test → land → test → blast)
 
-| # | file | change | when | kind |
-|---+------+--------+------+------|
-| ① | =paladin/prototypes/vip.js= | mount derives =package= from scope path; optional self-declare LOCKS | 11.0③ | rewrite |
-| ② | =paladin/prototypes/pensieve.js= | axis rename; missing package throws | 11.0③ | rewrite |
-| ③ | =paladin/prototypes/manifest.js= | identifier | 11.0③ | edit |
-
-| ④ | =typology/gestalten/cast/primitives.js= | lookup returns =package= | 11.0③ | edit |
-| ⑤ | =typology/gestalten/is/primitives.js= | is.lookup checks =package= | 11.0③ | edit |
-| ⑥ | =typology/schematics/primitives/manifest.js= | field rename | 11.0③ | edit |
-
-| ⑦ | =registry/{vivalence,education,development,simulation}/package.viva.js= | the four manifests, no =package:= field (derived) | 11.0③ | NEW |
-| ⑦b | =registry/simulation/scenario/lock-demo/lock-demo.viva.js= | fixture LOCKING =package: "@vivalence"= from inside =@simulation='s mount | 11.0③ | NEW |
-| ⑧ | =registry/= tree | the split mv — INCLUDES fork 2's wafer moves (multiplayer→vivalence, localhost→simulation) + owner-field drop | 11.0③ | move |
-
-| ⑨ | =runtime/lifecycle/populate.js= | 4 tiers → 4 packages (→ fold at 11.2) | 11.0③ + 11.2 | edit |
-
-| ⑩ | ghost =clone.js:75= / =doctor.js:132= | root mount → package loop | 11.0③ | edit |
-| ⑩b | =systems/ghost/tests/wafer.test.js= | =LOCALHOST_WAFER= path (fork 2) | 11.0③ | edit |
-| ⑪ | =test.viva.js= (circuitry inlined), =multiplayer.viva.js= (circuitry inlined), =localhost.viva.js= | inline circuitry + lookup sweep IN PLACE | 11.0③ | edit |
-| ⑪b | =paladin/prototypes/variant.js= | drop =cake.circuitry?.X= merges (daemons+services) — circuitry gone, not just packages | 11.0③ | edit |
-
-| ⑫ | runtime tests ×5 + =scenarios/bench.js= | sweeps + mounts | 11.0③ | change test |
-| ⑬ | =paladin/tests/{pensieve,vip}.test.js= + =runtime/tests/registry.count.test.js= | new coverage | 11.0③ | NEW test |
-| ⑭ | =testament/variant/= → =registry/simulation/variant/= | dissolution mv + manifest claim | 11.0③ | move |
-| ⑮ | =testament/.env= · =.gitignore= · =.env.example= | scenario wiring | 11.0③ | edit/NEW |
-| ⑯ | =variant.js= seam + =test.viva.js= declaration | plurality | 11.2 | edit |
-| ⑰ | Dockerfile variant mount · docs | cleanup | 11.4 | edit/docs |
-
-* Milestones (each: blast → test → land → test → blast)
-
-** MILESTONE 11.0 · SETTLEMENT — one blast-bracket, not a step ladder
+*** MILESTONE 11.0 · SETTLEMENT — one blast-bracket, not a step ladder
 beef (verbatim, the shape correction): *"Consider this not as a atomic step by
 step microprocess, but as a blast change where we define an outside radius,
 where we run the tests to make sure that the systems are working the way
@@ -238,7 +208,7 @@ the stamp, the reference sweep, and the testament dissolution all land as ONE
 change (step ③); they are internally ordered for correctness, not separately
 gated with their own green-test checkpoint.
 
-*** ① BLAST — the outside radius
+**** ① BLAST — the outside radius
 Every consumer of the four things this bracket touches, swept this session:
 - =owner= (manifest field / pensieve axis / =cast.lookup= / =is.lookup= /
   schematics =manifest=): =vip.js=, =pensieve.js=, =manifest.js=,
@@ -279,7 +249,7 @@ Every consumer of the four things this bracket touches, swept this session:
   (the resolved-variant shape changes: =owner=→=package=, later =packages=
   field at 11.2).
 
-*** ② TEST — baseline (before touching anything)
+**** ② TEST — baseline (before touching anything)
 Confirm the radius above is GREEN before landing the change.
 #+BEGIN_SRC sh
 cd /Users/finn/vivalence/code/vivalence
@@ -299,7 +269,7 @@ console.log({ total });
 Record: suites green/red, and the printed =total= as BASELINE — paste it into
 =registry.count.test.js= before landing ③.
 
-*** ③ CHANGE — land the whole mutation
+**** ③ CHANGE — land the whole mutation
 No internal gates. Ordered because filesystem mutations compose sequentially,
 not because each step earns its own test run:
 
@@ -333,7 +303,7 @@ not because each step earns its own test run:
    derived half (=system/=, =mountpoint/=) stays under =testament/=; =.env=
    hand-edit, =.gitignore= replace, =.env.example= added (tangles below).
 
-*** ④ TEST — adjust + confirm integration tier
+**** ④ TEST — adjust + confirm integration tier
 Update the suites the change requires as part of THIS step (not a separate
 gated milestone): the 5 deep-import rewrites, =scenarios/bench.js= mounts,
 =variant.snapshot= regeneration. Add the coverage the radius flagged as
@@ -357,7 +327,7 @@ Integration-level-2 (not unit-only): a live boot resolving
 package axis holds through the daemon's real resolution path, not just
 =Pensieve= in isolation.
 
-*** ⑤ BLAST — re-confirm the radius
+**** ⑤ BLAST — re-confirm the radius
 Re-sweep step ①'s list against the landed state:
 - nothing new silently wired (grep for stray =owner:= / old =@vivalence/game/*=
   lookups — zero exceptions now, fork 2 closed the last known ones);
@@ -370,10 +340,10 @@ Re-sweep step ①'s list against the landed state:
   boot — proves the tracked variant is suffient without any of beef's local
   history.
 
-** MILESTONE 11.1 · IDENTITY — ABSORBED into 11.0 ③
+*** MILESTONE 11.1 · IDENTITY — ABSORBED into 11.0 ③
 (the stamp, the manifest read, the killed default, the collapsed tier-mounts)
 
-** MILESTONE 11.2 · PLURALITY — variant.packages sources the fold
+*** MILESTONE 11.2 · PLURALITY — variant.packages sources the fold
 Add the =packages= seam to =Variant=; declare on the simulation variant; loader
 folds. "Four hardcoded" becomes "N declared".
 - Edit: =variant.js= (seam + class default — no circuitry fallback of any
@@ -385,7 +355,7 @@ folds. "Four hardcoded" becomes "N declared".
 - Test: =variant.snapshot= regenerate (new =packages= field); scenario seeds a
   variant or mounts packages directly (fold over =[]= ingests nothing).
 
-*** source resolution — four styles, tendentially (beef)
+**** source resolution — four styles, tendentially (beef)
 "Packages are by no means defined relative to repo root... absolute paths,
 relative to CLI execution, relative to file name, etc — I want our primitive
 to tendentially support all of them." A bare string stays repo-root-relative
@@ -403,11 +373,11 @@ lives in the repo, none of this is new dependency:
 - repo-root bare segment — =scope.repository.branch(ref)=, unchanged.
 See tangle below (=resolveSource=, 11.2 tangles).
 
-** MILESTONE 11.3 · FLATTEN — ABSORBED into 11.0 11.0③
+*** MILESTONE 11.3 · FLATTEN — ABSORBED into 11.0 11.0③
 (the split IS the flatten: =registry/<package>/<type-ish>/<slug>=; dirs are
 cosmetic — =find.viva= walks by content)
 
-** MILESTONE 11.4 · CLEANUP + DOCS
+*** MILESTONE 11.4 · CLEANUP + DOCS
 =scope.registry= keeps (fork 3, resolved — see Forks). =registry/wafers/= is
 fully dissolved in 11.0③ (fork 2, resolved) — nothing left here for either.
 - Dockerfile: point =VIVA_VARIANT_MOUNT= at the now-baked
@@ -417,9 +387,9 @@ fully dissolved in 11.0③ (fork 2, resolved) — nothing left here for either.
   nlp README, =.ikiro/world/codemap/paladin.md= (deploy line), stale
   =registry/(kernels|modes|services)/@vivalence= paths across =.ikiro/=.
 
-* Testing assessment
+** Testing assessment
 
-** In place
+*** In place
 - =subsystems/paladin/tests/=: =boot.test.js=, =variant.snapshot.test.js= (+
   generated snapshot), =system.test.js=, =spawn.test.js=. The =test/vip= /
   =test/pensieve= deno tasks exist but their files sat in =tests/bak/= — 11.0③
@@ -429,7 +399,7 @@ fully dissolved in 11.0③ (fork 2, resolved) — nothing left here for either.
   suites exercise =accio= indirectly.
 - *GAP paid at 11.0③*: pensieve/vip owner-axis had ZERO direct coverage.
 
-** Changes
+*** Changes
 | test | why | when |
 |------+-----+------|
 | =scenarios/bench.js= mounts | tier-branches → package mounts | 11.0③ |
@@ -439,14 +409,14 @@ fully dissolved in 11.0③ (fork 2, resolved) — nothing left here for either.
 | =registry.count.test.js= | asserts BASELINE + 8 (4 self-manifests + variant + lock-demo + 2 wafers) | 11.0③ |
 | =systems/ghost/tests/wafer.test.js= | =LOCALHOST_WAFER= path (fork 2 move) | 11.0③ |
 
-** Adds
+*** Adds
 =pensieve.test.js= · =vip.test.js= (derive-by-default + lock-override cases) ·
 =registry.count.test.js= · =registry/simulation/scenario/lock-demo/lock-demo.viva.js=
 (fixture, doubles as docs) — all tangled above. 11.2 keeps: seeded-variant
 fold assert (=expect(paladin.variant.packages).toEqual([...])=) + post-boot
 =accio("@education/game/flashcard")= smoke.
 
-** Green ladder
+*** Green ladder
 | bracket step / milestone | gate |
 |---------------------------+------|
 | 11.0 ② (blast → test, baseline) | suites green pre-change; ingest count captured |
@@ -454,6 +424,36 @@ fold assert (=expect(paladin.variant.packages).toEqual([...])=) + post-boot
 | 11.0 ⑤ (blast, re-confirm) | radius re-swept clean — no stray old-style lookups, wafers/ holds ONLY bak/, ghost mounts hold |
 | 11.2 | snapshot regenerated; fold-sourced boot green |
 | 11.4 | ghost + Docker boot; docs swept |
+
+* Blast table
+
+| # | file | change | when | kind |
+|---+------+--------+------+------|
+| ① | =paladin/prototypes/vip.js= | mount derives =package= from scope path; optional self-declare LOCKS | 11.0③ | rewrite |
+| ② | =paladin/prototypes/pensieve.js= | axis rename; missing package throws | 11.0③ | rewrite |
+| ③ | =paladin/prototypes/manifest.js= | identifier | 11.0③ | edit |
+
+| ④ | =typology/gestalten/cast/primitives.js= | lookup returns =package= | 11.0③ | edit |
+| ⑤ | =typology/gestalten/is/primitives.js= | is.lookup checks =package= | 11.0③ | edit |
+| ⑥ | =typology/schematics/primitives/manifest.js= | field rename | 11.0③ | edit |
+
+| ⑦ | =registry/{vivalence,education,development,simulation}/package.viva.js= | the four manifests, no =package:= field (derived) | 11.0③ | NEW |
+| ⑦b | =registry/simulation/scenario/lock-demo/lock-demo.viva.js= | fixture LOCKING =package: "@vivalence"= from inside =@simulation='s mount | 11.0③ | NEW |
+| ⑧ | =registry/= tree | the split mv — INCLUDES fork 2's wafer moves (multiplayer→vivalence, localhost→simulation) + owner-field drop | 11.0③ | move |
+
+| ⑨ | =runtime/lifecycle/populate.js= | 4 tiers → 4 packages (→ fold at 11.2) | 11.0③ + 11.2 | edit |
+
+| ⑩ | ghost =clone.js:75= / =doctor.js:132= | root mount → package loop | 11.0③ | edit |
+| ⑩b | =systems/ghost/tests/wafer.test.js= | =LOCALHOST_WAFER= path (fork 2) | 11.0③ | edit |
+| ⑪ | =test.viva.js= (circuitry inlined), =multiplayer.viva.js= (circuitry inlined), =localhost.viva.js= | inline circuitry + lookup sweep IN PLACE | 11.0③ | edit |
+| ⑪b | =paladin/prototypes/variant.js= | drop =cake.circuitry?.X= merges (daemons+services) — circuitry gone, not just packages | 11.0③ | edit |
+
+| ⑫ | runtime tests ×5 + =scenarios/bench.js= | sweeps + mounts | 11.0③ | change test |
+| ⑬ | =paladin/tests/{pensieve,vip}.test.js= + =runtime/tests/registry.count.test.js= | new coverage | 11.0③ | NEW test |
+| ⑭ | =testament/variant/= → =registry/simulation/variant/= | dissolution mv + manifest claim | 11.0③ | move |
+| ⑮ | =testament/.env= · =.gitignore= · =.env.example= | scenario wiring | 11.0③ | edit/NEW |
+| ⑯ | =variant.js= seam + =test.viva.js= declaration | plurality | 11.2 | edit |
+| ⑰ | Dockerfile variant mount · docs | cleanup | 11.4 | edit/docs |
 
 * Tangle — the files
 
