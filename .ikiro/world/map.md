@@ -23,7 +23,7 @@ Lifecycle everywhere: `construct → populate → resolve → integrate → disi
 
 - **docs/** — the human-facing documentation, johnny-decimal (`40-49_repository/{42_typology…47_integration}`, `50-59_practice/52_tutorials`). NASCENT: 8 files exist (kajuit tree/lifecycle/contexts/typology, buffer-flow, getting-started, docker-walkthrough); dirs 42–45 empty. **I read docs first, contain them never.** Docs are beef's #1 simmering item — every landing should ask "does a docs file want this?" ([[documentation.quest]]).
 - **subsystem code** — the ultimate truth; pre-flight grep before asserting any surface.
-- **testament/** — the live dev variant: `variant/{test.viva.js, circuitry.js, environment/*.jsonc, mountpoint/daemon_*}`, `system/{instances.json, locks/}`, `.env`, `_bruno/` (API testbench), `temp.js` (koans).
+- **testament/** — the machine run surface: `variant/{.env, test.viva.js, education.js, playground.js, environment/*.jsonc, mountpoint/daemon_*}`, `ledger/{locks/, logs/, instances.json, registry.json}`, `_bruno/` (API testbench).
 - **private logs** — `/Users/finn/vivalence/private/logs/<date>.org`; beef's journal + session orbs. Read-only territory.
 - **memory** — `~/.claude/projects/-Users-finn-vivalence-code-vivalence/memory/`.
 - **jj** — history via `jj log/show/diff/op log/st` ONLY (read-only, always).

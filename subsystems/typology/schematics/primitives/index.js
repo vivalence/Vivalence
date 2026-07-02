@@ -1,6 +1,5 @@
 export * as auth from "./auth.js";
 export * from "./manifest.js";
-export * as circuitry from "./circuitry.js";
 export * as kernel from "./kernel.js";
 export * as variant from "./variant.js";
 

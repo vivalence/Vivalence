@@ -2,9 +2,9 @@ import { specimen } from "@vivalence/typology";
 import { bench } from "../scenarios/bench.js";
 
 // ── raw import smoke test ──────────────────────────────────────────
-import * as domain from "../../../../registry/kernels/@vivalence/domain/learning/domain.viva.js";
-import * as flashcard from "../../../../registry/modes/@vivalence/game/flashcard/flashcard.viva.js";
-import * as judge from "../../../../registry/modes/@vivalence/game/judge/judge.viva.js";
+import * as domain from "../../../../registry/education/domain/learning/domain.viva.js";
+import * as flashcard from "../../../../registry/education/game/flashcard/flashcard.viva.js";
+import * as judge from "../../../../registry/education/game/judge/judge.viva.js";
 
 specimen.describe("bench (raw imports)", { sanitizeOps: false, sanitizeResources: false }, () => {
   let scenario;
@@ -53,15 +53,15 @@ specimen.describe("bench (paladin specifiers)", { sanitizeOps: false, sanitizeRe
   specimen.beforeAll(async () => {
     scenario = await bench({
       kernel: [
-        "@vivalence/domain/language-learning",
-        "@vivalence/ontology/word",
-        "@vivalence/ontology/sentence",
+        "@education/domain/language-learning",
+        "@education/ontology/word",
+        "@education/ontology/sentence",
       ],
       modes: [
-        "@vivalence/game/flashcard",
-        "@vivalence/game/judge",
-        "@vivalence/game/pick",
-        "@vivalence/game/exhibit",
+        "@education/game/flashcard",
+        "@education/game/judge",
+        "@education/game/pick",
+        "@education/game/exhibit",
       ],
     });
   });

@@ -1,18 +1,14 @@
-// import {once, fn:{once}} from "@vivalence/belt";
-// import {once, fn:{once}} from "@vivalence/typology/belt";
 import * as semver from "@std/semver";
 import { Manifest } from "./manifest.js";
-// // vectorizable af.
 
 export class Pensieve extends Map {
   register(cake) {
-    //todo: cast module
-    // cast cake.manifest
     if (!cake || !cake.manifest) console.log("no manifest", cake);
-    if (!cake.manifest.owner) cake.manifest.owner = "@vivalence";
+    // owner is supplied by vip.mount (derived from scope, or locked) — never defaulted here.
+    if (!cake.manifest.owner)
+      throw new Error(`[Pensieve] register: no owner (mount must stamp) — undefined/${cake.manifest.type}/${cake.manifest.slug}`);
     cake.manifest = new Manifest(cake.manifest);
     const { owner, type, slug, version } = cake.manifest;
-    // console.log(cake.manifest.identifier);
 
     if (!this.has(owner)) this.set(owner, new Map());
     const ownerMap = this.get(owner);
@@ -30,15 +26,11 @@ export class Pensieve extends Map {
   async revelio({ owner, type, slug, version }) {
     const ownerMap = this.get(owner);
     if (!ownerMap) return null;
-
     const typeMap = ownerMap.get(type);
     if (!typeMap) return null;
-
     const slugMap = typeMap.get(slug);
     if (!slugMap) return null;
-
     if (!version) return this.latest(slugMap);
-
     const versions = Array.from(slugMap.keys());
     const matchingVersion = versions.find((v) => semver.satisfies(v, version));
     return matchingVersion ? slugMap.get(matchingVersion) : null;

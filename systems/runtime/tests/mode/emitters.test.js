@@ -2,15 +2,15 @@ import { specimen } from "@vivalence/typology";
 import { mountMode } from "../scenarios/mode.js";
 
 // ── tier A: TRANSLATED literals only ───────────────────────────────
-import * as flashcard from "../../../../registry/modes/@vivalence/game/flashcard/flashcard.viva.js";
-import * as exhibit from "../../../../registry/modes/@vivalence/game/exhibit/exhibit.viva.js";
-import * as shadow from "../../../../registry/modes/@vivalence/game/shadow/shadow.viva.js";
-import * as write from "../../../../registry/modes/@vivalence/game/write/write.viva.js";
-import * as match from "../../../../registry/modes/@vivalence/game/match/match.viva.js";
+import * as flashcard from "../../../../registry/education/game/flashcard/flashcard.viva.js";
+import * as exhibit from "../../../../registry/education/game/exhibit/exhibit.viva.js";
+import * as shadow from "../../../../registry/education/game/shadow/shadow.viva.js";
+import * as write from "../../../../registry/education/game/write/write.viva.js";
+import * as match from "../../../../registry/education/game/match/match.viva.js";
 
 // ── tier B: need distractor pool (≥3 literals) ────────────────────
-import * as judge from "../../../../registry/modes/@vivalence/game/judge/judge.viva.js";
-import * as pick from "../../../../registry/modes/@vivalence/game/pick/pick.viva.js";
+import * as judge from "../../../../registry/education/game/judge/judge.viva.js";
+import * as pick from "../../../../registry/education/game/pick/pick.viva.js";
 
 // ── input map ──────────────────────────────────────────────────────
 // Each mode maps route name → function(fixtures) → input object.

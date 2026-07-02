@@ -21,6 +21,7 @@ export class Paladin {
     belt.is(this);
     belt.scope(this);
     belt.publish(this);
+    belt.source(this);
     // mountables — siblings of vip, own their state, fn.once mount()
     this.system = new System(this);
     this.variant = new Variant(this);

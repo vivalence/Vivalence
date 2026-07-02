@@ -6,7 +6,7 @@ async function mkPaladin() {
   const paladin = new Paladin();
   paladin.env.set("VIVA_SYSTEM_MODE", "DEVELOPMENT");
   paladin.env.set("VIVA_SYSTEM_ROLE", "SUDO");
-  paladin.env.set("VIVA_SYSTEM_MOUNT", root);
+  paladin.env.set("VIVA_LEDGER_MOUNT", root);
   paladin.env.set("VIVA_REPOSITORY_MOUNT", root);
   await populate.scopes(paladin);
   await paladin.system.mount();
@@ -21,9 +21,9 @@ async function until(check, tries = 100) {
   return false;
 }
 
-const linger = (type) => ({
-  type,
-  slug: "spawn",
+const linger = (process) => ({
+  process,
+  instance: "spawn",
   mount: "/tmp",
   detached: false,
   env: {},
@@ -42,11 +42,11 @@ Deno.test({
     assertEquals(processes.length, 2);
     assert(processes.every((process) => process.pid > 0));
 
-    const live = await paladin.system.lock("alpha", "spawn").read();
+    const live = await paladin.system.lock("spawn", "alpha").read();
     assertEquals(live?.pid, processes[0].pid);
 
     await Promise.all(processes.map((process) => process.status));
-    const cleared = await until(async () => (await paladin.system.lock("alpha", "spawn").read()) === null);
+    const cleared = await until(async () => (await paladin.system.lock("spawn", "alpha").read()) === null);
     assert(cleared, "lock removed after exit");
   },
 });

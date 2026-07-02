@@ -37,9 +37,9 @@ export async function doctor(ctx) {
         slug: process.spec?.slug ?? null,
       })),
     },
-    locks: await collectLocks(paladin.scope.system),
+    locks: await collectLocks(paladin.scope.ledger),
     instances: await collectInstances(paladin.system.instances),
-    logs: await collectLogs(paladin.scope.system),
+    logs: await collectLogs(paladin.scope.ledger),
     variant: {
       daemons: paladin.variant?.daemons?.length ?? 0,
       services: paladin.variant?.services?.length ?? 0,
@@ -129,7 +129,7 @@ async function collectLogs(systemScope) {
 async function collectRegistry(paladin) {
   if (!paladin.scope.registry) return null;
   try {
-    await paladin.vip.mount(paladin.scope.registry);
+    await paladin.vip.supply();
     const byType = {};
     for (const [owner, ownerMap] of paladin.vip.pensieve) {
       for (const [type, typeMap] of ownerMap) {

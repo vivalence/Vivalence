@@ -1,0 +1,45 @@
+#+TITLE: M14 — testing fixtures (the @fixtures package + lock-demo residence)
+#+AUTHOR: Vivalence
+#+STATUS: DESIGN
+#+DATE: 2026-07-02
+
+* Meta
+** Intent
+
+beef (verbatim, voice): *"an m fourteen for the lock demo residence, which we
+will call m fourteen testing fixtures. And I think we are gonna create a new
+package called fixtures, which will be used throughout testing."*
+
+Two halves, one settlement:
+
+1. *The =fixtures= package* — NEW =registry/fixtures/= (derives =@fixtures=
+   from the mount dirname, M11 derive-by-default), used throughout testing.
+   Fills the hole =@simulation= left when it was cut: today's test fixtures
+   are synthetic in-memory strings (=vip.test.js= stubs still say
+   =@simulation= as fake owner names) — real on-disk fixtures would exercise
+   the REAL walk/mount/supply path.
+
+2. *lock-demo residence* — M11 fork 4, POSTPONED by beef (verbatim: *"i am
+   not sure about this specific settlement yet... mark it as forked and keep
+   the tangle clean!"*). The LOCK mechanism is proven (vip precedence,
+   in-memory in =vip.test.js=); only the REAL fixture file is parked. Its
+   natural home is now obvious: inside =@fixtures=. Open sub-question from
+   fork 4 survives: is =scenario/= the right type/dir for it?
+
+** Considerations (unresolved, for the design pass)
+
+- A walked =registry/fixtures/= changes =registry.count.test.js='s BASELINE
+  math — decide whether fixtures are part of the default supply (seeded into
+  =testament/ledger/registry.json=) or mounted only by test setups
+  (=vip.mount= on demand, ledger untouched).
+- =vip.test.js='s synthetic =@simulation= strings could migrate to
+  =@fixtures= for coherence — or stay synthetic (in-memory stubs don't need
+  a real package; the two test styles cover different layers).
+
+* Milestones
+
+** M14.0 · settle supply-membership question, create the package, re-home lock-demo — one bracket
+
+* Changelog
+- 2026-07-02 :: Quest seeded on beef's instruction — fork 4 notes carried
+  from M11, considerations listed, nothing designed.

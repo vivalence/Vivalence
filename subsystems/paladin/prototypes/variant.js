@@ -30,12 +30,8 @@ async function resolve(variant) {
   variant.manifest = cake.manifest;
   variant.runtime = hydrate(cake.runtime ?? {});
   variant.clients = hydrate(cake.clients ?? {});
-  variant.daemons = [...(cake.daemons ?? []), ...(cake.circuitry?.daemons ?? [])].map(
-    (declaration) => mask("daemon")(hydrate(declaration)),
-  );
-  variant.services = [...(cake.services ?? []), ...(cake.circuitry?.services ?? [])].map(
-    (declaration) => mask("service")(hydrate(declaration)),
-  );
+  variant.daemons = (cake.daemons ?? []).map((declaration) => mask("daemon")(hydrate(declaration)));
+  variant.services = (cake.services ?? []).map((declaration) => mask("service")(hydrate(declaration)));
 
   // variant.runtime.logs = new Pipe()
   // variant.clients.kajuit.logs = new Pipe()
@@ -57,12 +53,12 @@ function validate(variant) {
     collect(`client[${slug}]`, client, v.primitives.variant.Client);
   }
   for (const daemon of variant.daemons) {
-    v.primitives.circuitry.Daemon.cast(daemon);
-    collect(`daemon[${daemon.slug}]`, daemon, v.primitives.circuitry.Daemon);
+    v.primitives.variant.Daemon.cast(daemon);
+    collect(`daemon[${daemon.slug}]`, daemon, v.primitives.variant.Daemon);
   }
   for (const service of variant.services) {
-    v.primitives.circuitry.Service.cast(service);
-    collect(`service[${service.slug}]`, service, v.primitives.circuitry.Service);
+    v.primitives.variant.Service.cast(service);
+    collect(`service[${service.slug}]`, service, v.primitives.variant.Service);
   }
   if (errors.length) throw new Error(`[variant.mount validate]\n  ${errors.join("\n  ")}`);
 }

@@ -3,7 +3,7 @@
 // connection into the scenario aprende mode. Logs the virtual literals.
 import { specimen } from "@vivalence/typology";
 import { mountMode } from "../scenarios/mode.js";
-import * as aprende from "../../../../registry/modes/@vivalence/homepage/aprende/aprende.viva.js";
+import * as aprende from "../../../../registry/education/homepage/aprende/aprende.viva.js";
 
 const ROUTE = "/mode/homepage/aprende/assistant/wakeup/literals";
 

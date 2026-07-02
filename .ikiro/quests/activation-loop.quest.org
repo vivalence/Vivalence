@@ -70,19 +70,18 @@ buffer-rendering/management structure. The =Terminal= entity already reserves
 - *Refactor:* once phases land, collapse =Stall= from a class back to a single
   constructor function. The class has outgrown its weight.
 
-** TODO 4 · Aprende statistics aperture
-On application render, =aprende= pulls the statistics it needs and renders them.
-An aperture opening. (=registry/modes/@vivalence/homepage/aprende/aprende.viva.js=.)
+** DONE 4 · Aprende statistics aperture
+Landed — =/assistant/wakeup/{board,statistics,literals}= in
+=registry/education/homepage/aprende/aprende.viva.js=.
 
-** TODO 5 · Conversation scaffold (help-desk chat)
-Chat format: only ever the user textarea input OR the assistant response.
-Scaffold to: =HARNESSED= identity for the conversation, the aperture for the
-assistant message, and the middle code.
-- Enter in textarea → aperture =/turn= (assistant message) opening.
-- Mode is harnessed → turns + hallucinator. Feed hallucinator: past messages,
-  identity constraints, and a tool to call the activation emitter.
-- Generation is *adjacent* (resolvable / resolved adjuncts) — matters later for
-  the Riddler, not critical for Activation.
+** TODO 5 · Conversation scaffold (help-desk chat) — superseded by =m12_streaming_harness_toolcalling.quest.org=
+The =/turn= aperture named here never got built; the real path is
+=mode.harness.dialogue.render= (=HARNESSED= trait's compiled harness Vector,
+=/harness/dialogue/render=), not a bespoke =/turn= route. Full build order
+now lives in M12's MILESTONE 12.0. Answers the open question below directly:
+tools call the mode's OWN =/emit= route internally (thread-bound + flushed
+by the existing =EMITTER= trait chain before the tool call even returns) —
+no manual DB insert of client/tool-returned buffers needed.
 
 ** TODO 6 · Application-layer navigation
 Application layer ready to handle navigation between buffers / modes. Shape
@@ -132,9 +131,8 @@ resolvable/resolved landed as =buffer.data.solved/resolved= + self-deleting
 * Open questions
 - *Buffer self-delete:* a buffer =type= or a =trait= on the buffer? Is the app
   responsible for rendering/triggering the deletion? (Lean: app controls it.)
-- *Client/tool buffers into the dataspace:* must land in the DB; middleware
-  can't parse them, so manual insert. "Manage it with the phases." Reluctant but
-  accepted.
+- *Client/tool buffers into the dataspace* — RESOLVED, see TODO 5 /
+  =m12_streaming_harness_toolcalling.quest.org=. No manual insert.
 - *"Where's the view coming from"* when manually writing a mode into the
   terminal — the manual-phase rendering path is still murky.
 - *Idle stall with a face:* always-on but face set + no threshold = "metastatic"?

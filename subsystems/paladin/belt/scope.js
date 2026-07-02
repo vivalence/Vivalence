@@ -48,7 +48,6 @@ export default async function (paladin) {
 // paladin.scope = {
 //   // legacy:
 //   get circuits() {
-//     return paladin.scope.circuitry;
 //   },
 //   get tilde() {
 //     return paladin.scope.variant;
@@ -70,11 +69,9 @@ export default async function (paladin) {
 //     } else envpath = paladin.scope.system.branch("registry").absolute;
 //     return new Path(envpath);
 //   },
-//   get circuitry() {
 //     let envpath;
 //     if (Deno.env.has("VIVA_CIRCUITRY_MOUNT")) {
 //       envpath = Deno.env.get("VIVA_CIRCUITRY_MOUNT");
-//     } else envpath = paladin.scope.variant.branch("circuitry").absolute;
 //     return new Path(envpath);
 //   },
 //   get mountpoint() {

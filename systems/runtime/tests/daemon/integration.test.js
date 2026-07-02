@@ -130,6 +130,7 @@ specimen.describe("integration: full client lifecycle", { sanitizeResources: fal
 
   // ─── game mode emitters ───────────────────────────────────
 
+
   specimen.describe("game: exhibit", () => {
     it("emit/present returns Yield with layout data", async () => {
       const res = await d.emit("game/exhibit", "present", {
@@ -173,6 +174,7 @@ specimen.describe("integration: full client lifecycle", { sanitizeResources: fal
     });
   });
 
+
   specimen.describe("game: pick", () => {
     it("emit/literal returns Yield with target + distractors", async () => {
       const target = words[0];
@@ -204,6 +206,7 @@ specimen.describe("integration: full client lifecycle", { sanitizeResources: fal
     });
   });
 
+
   specimen.describe("game: match", () => {
     it("emit/batch returns Yield with batch literals", async () => {
       const batch = literals.slice(0, 4);
@@ -216,6 +219,7 @@ specimen.describe("integration: full client lifecycle", { sanitizeResources: fal
       specimen.expect(res.buffers[0].literals.length).toBe(4);
     });
   });
+
 
   specimen.describe("game: cloze", () => {
     it("emit/literal returns Yield with blank data", async () => {

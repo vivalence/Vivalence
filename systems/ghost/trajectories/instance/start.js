@@ -6,10 +6,10 @@ export async function start(ctx) {
 
   // dedup: refuse if a live lock exists; sweep stale locks
   for (const spec of chosen) {
-    if (await paladin.system.lock(spec.type, spec.slug).alive()) {
-      throw new Error(`${spec.slug}:${spec.type} already running`);
+    if (await paladin.system.lock(spec.instance, spec.process).alive()) {
+      throw new Error(`${spec.instance}:${spec.process} already running`);
     }
-    await paladin.system.lock(spec.type, spec.slug).remove();
+    await paladin.system.lock(spec.instance, spec.process).remove();
   }
 
   const processes = await Promise.all(chosen.map((spec) => paladin.system.spawn(spec)));

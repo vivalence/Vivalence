@@ -3,19 +3,19 @@ import { specs } from "./target.js";
 
 export async function stop(ctx) {
   const chosen = specs(ctx.signal.params[0]);
-  const slug = chosen[0]?.slug;
+  const instance = chosen[0]?.instance;
 
   const killed = [];
   for (const spec of chosen) {
-    const pid = await paladin.system.kill(spec.type, spec.slug);
-    if (pid !== null) killed.push({ type: spec.type, pid });
+    const pid = await paladin.system.kill(spec.instance, spec.process);
+    if (pid !== null) killed.push({ process: spec.process, pid });
   }
 
   console.log(
     killed.length
-      ? `ghost: stopped ${slug} (${killed.map((entry) => `${entry.type}=${entry.pid}`).join(", ")})`
-      : `ghost: ${slug} not running`,
+      ? `ghost: stopped ${instance} (${killed.map((entry) => `${entry.process}=${entry.pid}`).join(", ")})`
+      : `ghost: ${instance} not running`,
   );
 
-  ctx.effect = { status: killed.length ? "stopped" : "nothing-to-stop", slug, killed: killed.length };
+  ctx.effect = { status: killed.length ? "stopped" : "nothing-to-stop", instance, killed: killed.length };
 }

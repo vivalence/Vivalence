@@ -4,10 +4,7 @@ import { Die as DaemonDie, Daemon } from "@vivalence/runtime/daemon";
 import { Die as ProcessDie, Process } from "@vivalence/runtime/process";
 
 export async function registry(runtimeDie) {
-  await paladin.vip.mount(paladin.scope.registry.branch("kernels"));
-  await paladin.vip.mount(paladin.scope.registry.branch("modes"));
-  await paladin.vip.mount(paladin.scope.registry.branch("services"));
-  await paladin.vip.mount(paladin.scope.registry.branch("playground"));
+  await paladin.vip.supply();
 }
 
 export async function wiring(runtimeDie) {

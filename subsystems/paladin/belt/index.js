@@ -5,6 +5,7 @@ import state from "./state.js";
 import is from "./is.js";
 import scope from "./scope.js";
 import publish from "./publish.js";
+import source from "./source.js";
 
 export default {
   find,
@@ -14,4 +15,5 @@ export default {
   is,
   scope,
   publish,
+  source,
 };

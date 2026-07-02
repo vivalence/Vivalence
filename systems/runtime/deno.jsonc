@@ -12,9 +12,9 @@
     "./scenarios": "./tests/scenarios/index.js",
   },
   "tasks": {
-    "run": "deno run -A --env-file=../../testament/.env run.js",
-    "watch": "deno run -A --watch --env-file=../../testament/.env run.js",
-    "test": "deno test -A --no-check --watch --env-file=../../testament/.env tests/**/*.test.js",
+    "run": "deno run -A --env-file=../../testament/variant/.env run.js",
+    "watch": "deno run -A --watch --env-file=../../testament/variant/.env run.js",
+    "test": "deno test -A --no-check --watch --env-file=../../testament/variant/.env tests/**/*.test.js",
 
     "test/daemon": "deno test -A --no-check --watch tests/daemon/*.test.js",
     "test/mode": "deno test -A --no-check --watch tests/mode/*.test.js",

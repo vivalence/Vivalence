@@ -7,21 +7,55 @@ export class Vip {
     this.pensieve = new Pensieve();
   }
 
-  async mount(mount) {
-    const paths = await this.paladin.find.viva(mount);
-    for await (const path of paths) {
-      const cake = await this.paladin.read.viva(path);
-      this.pensieve.register({ ...cake, mount: new Path(path) });
+  async mount(root) {
+    // owner derives from the mount scope by default; the walk itself finds the
+    // package cake (manifest.type === "package") — no hardcoded filename, a
+    // package is identified by its manifest like every other module. Its
+    // manifest.owner, when authored, LOCKS the identity for the whole mount.
+    const home = root.absolute ?? String(root);
+    const derived = `@${home.split("/").filter(Boolean).at(-1)}`;
+
+    const paths = await this.paladin.find.viva(root);
+    const cakes = [];
+    for (const path of paths) {
+      const cake = await this.paladin.read.viva(path); // "cake" naming — fork 6, unresolved this pass, see Forks
+      cakes.push({ ...cake, mount: new Path(path) });
+    }
+
+    const declaration = cakes.find((cake) => cake.manifest?.type === "package");
+    const owner = declaration?.manifest?.owner ?? derived;
+
+    for (const cake of cakes) {
+      // stamp on a COPY — read.viva returns the live module namespace; don't mutate the import.
+      // a module inherits the mount's stamp by default; its own manifest.owner LOCKS it.
+      this.pensieve.register({
+        ...cake,
+        manifest: { ...cake.manifest, owner: cake.manifest?.owner ?? owner },
+      });
     }
 
     return this;
   }
+
+  // testament/ledger/registry.json is the record of package locations. Absent →
+  // seeded by discovery over scope.registry (self-priming, no init ceremony).
+  // Locations resolve through paladin.source — absolute, ./cwd, {file,source}, bare segment.
+  async supply() {
+    await this.paladin.system.mount(); // fn.once — self-priming, no boot-order landmine
+    const locations = await this.paladin.system.registry.read()
+      ?? await this.paladin.system.registry.seed(this.paladin.scope.registry);
+    for (const location of locations) await this.mount(this.paladin.source(location));
+    return this;
+  }
+
   async list(query = {}) {
     return this.pensieve.byType(query.type);
   }
 
   async accio(query) {
     const lookup = cast.lookup(query);
+    if (!this.pensieve.has(lookup.owner))
+      throw new Error(`[VIP] package ${lookup.owner} not supplied on this system`);
     const module = await this.pensieve.revelio(lookup);
     if (module) return module;
     throw new Error(`[VIP] Module 404: ${JSON.stringify({ lookup })}`);

@@ -87,7 +87,7 @@ export async function metadata(runtimeDie) {
   root.open("/manifest", () => runtimeDie.manifest);
   root.open("/aperture", () => shape.strip(runtimeDie.good.aperture));
 
-  root.open("/circuitry", () => ({
+  root.open("/variant", () => ({
     daemons: paladin.variant.daemons.map((mask) => mask.manifest ?? mask),
     services: paladin.variant.services.map((mask) => mask.manifest ?? { module: mask.module }),
   }));

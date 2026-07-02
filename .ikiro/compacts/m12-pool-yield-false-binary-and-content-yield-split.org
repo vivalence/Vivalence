@@ -1,0 +1,180 @@
+#+TITLE: M12 — the Pool/Yield chase, its rejection, and the content/yield split
+
+Second compact of the same M12 session (first: =m12-shared-primitive-
+toolcalling-and-turn-close-correction.org=). Picks up right after that one
+landed, with beef: /"Okay. Let's start breaking this out into actionables.
+I want to go demonstration first and develop this iteratively, and I want
+to start with our education variant with the aprende and riddler modes. The
+first instance of our harness testing procedure check will be on the
+aprende mode and We'll be the help desk text area interaction for
+aprende."/
+
+* the retard callout — hallucinated call syntax
+
+Proposed aprende tool descriptors calling =ctx.mode.emit["/drill"](...)= —
+bracket + leading slash. The SAME file I'd just read
+(=aprende.viva.js:117,170=) already showed the real form twice:
+=ctx.daemon.modes.game.nyan.emit.literals(...)=,
+=ctx.daemon.modes.game.riddler.emit.riddle.cast(...)= — dot-chain, no
+slash. Beef: /"[/drill] is bullshit retard youre hallucinating!"/ Verified
+=shape.object='s fold parses a declared =nature: "/drill"= through =Pattern=
+(splits =/=-paths) into a dot-keyed namespace — corrected to
+=ctx.mode.emit.drill(...)=. Logged in =zettelkasten.md ## Callouts=,
+=family: assume-dont-verify= — grounding was read, then not cross-checked
+against my own proposed syntax.
+
+* the object.render pivot
+
+Beef, on =Aprende.svelte:303= wiring: /"this is interesting. but i am not
+100% sure this works. lets verify this lateronce the harness works reliably
+on the server side. and i want to start not with dialogue and conversation.
+we also have a harness.object.render! i want this used first first."/
+
+Client/UI work deferred entirely. Server-only proof first, via
+=harness.object.render= (riddler's mechanism, =synthesizeObject=,
+=cortex.js:86-107=) rather than =harness.dialogue.render=. Ground-reading it
+for tool-calling (never exercised there before) found a real, previously-
+undiscovered bug: =synthesizeObject='s internal =executeTools(tools,
+turn.parts)= call passes NO third argument — =thread= never reaches a tool
+handler through the object-render path, even though =renderLeaf='s OWN
+=executeTools= call (line 77) always correctly forwarded it. Fix (still
+standing, unaffected by everything below): =renderLeaf= builds =callConfig =
+{ ...config, thread }=; =synthesizeObject= calls =executeTools(tools,
+turn.parts, config.thread)=. Verified safe against the provider —
+=anthropic/provider/index.js:23-40= explicitly allowlists which =config=
+keys it reads into the API params, never spreads wholesale.
+
+* the Pool/Yield chase
+
+Beef pushed on primitives repeatedly across several turns: /"Let's play
+around with this some more. Does it maybe make sense to model the creation
+of buffers and other artifacts... on that [faculty] level"/, then /"does it
+maybe make sense to turn yields into a generic transport container that can
+have different types? So pool can act over different structures?"/, then
+/"Let's take this yield and pool typology into our blast radius... Let's
+consider rebuilding pool and yield from scratch. Let's call pool the
+mechanism for... structuring pooling yields. Does it make sense to give
+yields a type enum?"/, then entered plan mode: /"I want you to rethink the
+pool and yield from first principles."/
+
+Ran 3 parallel Explore agents (exhaustive repo-wide census of every
+=Pool=/=Yield=/=is.yieldish= call site; the channel family =Pipe=/=Queue=/
+=Broadcaster=/=Wafer=/telemetry =Span=; the turn/packet transport +
+orphaned =Part.Any=/=Packet.Any= schematics) + a Plan agent (full
+blast-bracket implementation plan: =Pool= gains a =type= constructor param
+defaulting to =\"buffer\"=, =Yield= built through a =defineYield(type,
+payloadKey)= → registry factory, =section()=/=drain()= made type-aware).
+Spot-verified the plan's claims against the real files (=aimed.js=,
+=is/prototypes.js=, =terminal.stall.test.js=, =pool.test.js= all matched
+exactly). Wrote the plan to =/Users/finn/.claude/plans/lexical-kindling-
+nebula.md=, called =ExitPlanMode=.
+
+*Rejected.* Beef, verbatim: /"i dont undertand why we have to assert or
+constrain the pool per yield type as the pool doesnt reach into yield
+internals afaik?!"/ — right: =Pool='s =classify=/=resolve= never branches on
+type; making =Pool= carry =this.type= + a registry lookup in =drain()= was
+inventing coupling it never needed. Same message, second objection: /"maybe
+we need to have a buffer generation as some sort of special type of tool
+output and have that be entirely separate from the data space handling of
+the buffer. I think that makes sense."/ — the actual axis was never
+PAYLOAD-TYPE (buffer vs log vs artifact). It was AUDIENCE-CHANNEL (model-
+facing vs app-facing). Two different axes conflated into one "does Yield
+need a type enum" question — a false binary. Plan file left dead.
+
+* the research + the =content=/=yield= split
+
+Beef: /"Could you look into the whole term semantics and check if there's a
+neat spot to place [this]... how do other systems working with AI agents
+identify artifacts generated inside of tool calls. Is there a semantic that
+is already established, or can we start to form our own verbiage?"/
+
+Web research, two independent frameworks converge on the same split:
+- *MCP* (modelcontextprotocol.io/specification/2025-06-18/server/tools):
+  tool results carry =content= (model-facing) separately from
+  =structuredContent= (machine-facing, schema-validated) + a
+  =resource_link= type (URI pointer instead of inlining).
+- *LangChain* (=@tool(response_format="content_and_artifact")=): a tool
+  returns =(content, artifact)=; =artifact= is explicitly "not meant to be
+  sent to the model," stays attached for the app layer.
+
+Landed design: =executeTools= (=cortex.js:19=) unpacks a handler's return —
+bare value (backward compatible) or =\{content, X\}=; =content= becomes
+=tool_result.output= (unchanged wire path, =translate.js:48-53= only ever
+read =.output=, ignores unknown sibling keys, zero changes needed there);
+=X= rides as a sibling field, never serialized to the model.
+
+* buffer delivery — already solved, not what this field is for
+
+Beef: /"Then how do we handle the following case? Let's say we have a tool,
+and that tool returns a buffer or a set of buffers. Give me that flow from
+both server and client side calls to the harness step by step."/
+
+Tracing it found: a tool calling =ctx.mode.emit.drill(...)= runs the SAME
+=EMITTER= trait chain any direct action-tile emit does — pool/thread-bind/
+=em.flush()=, a real persisted row. That triggers
+=shard/datamap.js:152-182='s =twitch.open("/buffer/create/after")= →
+=Broadcaster.push=, CALLER-AGNOSTIC — the same reactive =/subscribe= SSE
+feed =thread.$buffers= already rides for the homepage Action tiles today.
+Client delivery is ALREADY solved, independent of the harness response
+entirely, usually landing before the LLM even finishes narrating.
+
+Beef, connoisseur pass: /"were sitll in design phase. ask conoisseur. what
+should i want?"/ Loaded =.ikiro/self/connoisseur.md=. Verdict: cut, don't
+add. The Pool-accumulation machinery planned inside =renderLeaf=/
+=synthesizeObject= (a =Pool= collecting drained Yields across rounds,
+attached to the final turn) has NO consumer once delivery is understood —
+ceremony with nothing reading it, a trigger-9 violation. Cut entirely. The
+sibling field's real job narrows to ONE thing: keep =content= (what the
+model reads) short instead of dumping a raw entity blob into context — not
+transport. Consequence: the earlier-planned client dialogue-stream merge
+(MILESTONE 12.2, =is.yieldish(part.output)→buffers.merge=) is now WRONG,
+not just redundant — it would race the broadcast for the same data through
+a slower path. Cut.
+
+* the field name — =.artifact= → =.yield=
+
+Beef: /"I do not understand why we are keeping the dot content, dot
+artifact, but are not using dot buffer."/ Fair — =.artifact= borrowed MCP/
+LangChain's label for the axis along with the axis itself. What concretely
+rides there is exactly a =Yield= (=Pool.drain()=/=ctx.mode.emit.X()='s
+return shape) — =.buffer=/=.buffers= undersells it (not just buffers, the
+whole condition-tagged envelope, could be =EXHAUSTED=); =.artifact= is a
+loner name, joins no in-repo register. =.yield= joins the existing =Yield=/
+=Pool=/=drain= family. Renamed. Confirmed empirically (=node= test) that
+=yield= is a strict-mode-reserved bare destructuring binding — ES modules
+are always strict, =const \{ yield \} = obj= throws =Unexpected strict mode
+reserved word=; fine as an object key or dot-access, a destructure must
+rename (=const \{ yield: emission \} = result=).
+
+* landed
+
+Quest file (=m12_streaming_harness_toolcalling.quest.org=) rewritten in
+full: Pool/Yield-untouched section (with the rejection on record), buffer-
+delivery section (the broadcast finding), the =content=/=yield= design (with
+the strict-mode note + corrected code), forks C(resolved,two-stage)/
+D(dissolved)/E(still open), MILESTONE 12.0 (object-render, server-only,
+ready to tangle) / 12.1 (dialogue-render + minimal client wiring, deferred)
+/ 12.2 (cut, noted why), full changelog trail including the rejection and
+the rename.
+
+* process notes
+
+- Zero code landed all session (this compact and the prior one both). Zero
+  VCS touched.
+- Retard-scan: one hit (=/drill= hallucination), logged same-turn, not
+  deferred to compact time — consistent with "corrective rule written this
+  session is EXECUTED this session."
+- The Pool/Yield chase is the session's real lesson, worth carrying
+  forward: a plan can be internally consistent, fully census-grounded, and
+  spot-verified against real files — and still be solving the wrong
+  problem, because the FRAMING question ("does Yield need a type enum")
+  was never interrogated for whether it was actually two questions wearing
+  one costume. The catch came from beef asking "what should I want" of the
+  connoisseur AFTER the plan was already written and reviewed, not before —
+  worth front-loading that question earlier in future primitive-redesign
+  work, before spending a full blast-bracket plan on the first framing that
+  seems to fit.
+- Contrastive record for memory: Pool/Yield type-registry REJECTED (Pool
+  gaining =this.type=, a =registry[type]= lookup in =drain()=) — the
+  =content=/=yield= split on =tool_result= ACCEPTED (Pool/Yield untouched,
+  the split lives one layer up, delivery was never the field's job).

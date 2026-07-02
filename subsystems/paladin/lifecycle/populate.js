@@ -21,10 +21,10 @@ export async function env(paladin) {
 export async function scopes(paladin) {
   paladin.scopes([
     [
-      "system",
+      "ledger",
       () => true,
       () => {
-        const explicit = paladin.env.get("VIVA_SYSTEM_MOUNT");
+        const explicit = paladin.env.get("VIVA_LEDGER_MOUNT");
         return new Path(explicit ?? join(Deno.env.get("HOME"), ".viva"));
       },
     ],

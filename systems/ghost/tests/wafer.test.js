@@ -5,7 +5,7 @@ import { fromFileUrl, dirname, resolve as resolvePath } from "@std/path"
 import { init } from "../trajectories/instance/init.js"
 
 const HERE = dirname(fromFileUrl(import.meta.url))
-const LOCALHOST_WAFER = resolvePath(HERE, "../../../registry/wafers/@vivalence/variant/localhost")
+const LOCALHOST_WAFER = resolvePath(HERE, "../../../registry/viva/variant/localhost")
 
 async function installLocalhost() {
   const dest = await Deno.makeTempDir({ prefix: "ghost-wafer-localhost-" })

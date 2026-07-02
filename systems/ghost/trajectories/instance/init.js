@@ -46,7 +46,7 @@ export async function init(ctx) {
 
   ctx.effect = await ctx.view.scroll.render({ boot, signup, teardown }, null, Init);
 
-  // register the instance with the system ledger (testament/system/instances.json)
+  // register the instance with the ledger (testament/ledger/instances.json)
   const mount = paladin.scope.variant.absolute;
   const manifest = paladin.variant.manifest;
   await paladin.system.instances.write(mount, { mount, manifest });

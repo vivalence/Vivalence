@@ -9,7 +9,6 @@ export async function statements(paladin) {
       paladin.scope.repository,
       paladin.scope.registry,
       paladin.scope.variant,
-      // paladin.scope.circuitry, // backup: pre-M1 variant quest
       paladin.scope.environment,
       ...paladin.variant.services.map((s) => s.mount),
       ...paladin.variant.daemons.map((d) => d.mount),

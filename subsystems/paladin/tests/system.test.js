@@ -8,7 +8,7 @@ async function mkPaladin() {
   const paladin = new Paladin();
   paladin.env.set("VIVA_SYSTEM_MODE", "DEVELOPMENT");
   paladin.env.set("VIVA_SYSTEM_ROLE", "SUDO");
-  paladin.env.set("VIVA_SYSTEM_MOUNT", root);
+  paladin.env.set("VIVA_LEDGER_MOUNT", root);
   paladin.env.set("VIVA_REPOSITORY_MOUNT", root);
   await populate.scopes(paladin);
   await paladin.system.mount();
@@ -20,7 +20,7 @@ describe("belt: read/state json + jsonl", () => {
   let file;
   beforeAll(async () => {
     paladin = await mkPaladin();
-    file = paladin.scope.system.branch("probe.json");
+    file = paladin.scope.ledger.branch("probe.json");
   });
 
   it("state.json writes, read.json reads back", async () => {
@@ -29,12 +29,12 @@ describe("belt: read/state json + jsonl", () => {
   });
 
   it("read.json returns fallback for missing file", async () => {
-    const missing = paladin.scope.system.branch("nope.json");
+    const missing = paladin.scope.ledger.branch("nope.json");
     expect(await paladin.read.json(missing, {})).toEqual({});
   });
 
   it("state.jsonl appends one line per call, read.jsonl returns the list", async () => {
-    const log = paladin.scope.system.branch("probe.jsonl");
+    const log = paladin.scope.ledger.branch("probe.jsonl");
     await paladin.state.jsonl(log, { event: "a" });
     await paladin.state.jsonl(log, { event: "b" });
     expect(await paladin.read.jsonl(log)).toEqual([{ event: "a" }, { event: "b" }]);
@@ -107,6 +107,27 @@ describe("System.instances", () => {
   });
 });
 
+describe("System.registry", () => {
+  let paladin;
+  beforeAll(async () => {
+    paladin = await mkPaladin();
+  });
+
+  it("seed writes absolute locations from the registry scope and read round-trips", async () => {
+    const registryRoot = await Deno.makeTempDir({ prefix: "paladin-registry-" });
+    await Deno.mkdir(`${registryRoot}/alpha`);
+    await Deno.mkdir(`${registryRoot}/beta`);
+    const seeded = await paladin.system.registry.seed({ absolute: registryRoot });
+    expect(seeded.sort()).toEqual([`${registryRoot}/alpha`, `${registryRoot}/beta`]);
+    expect((await paladin.system.registry.read()).sort()).toEqual(seeded.sort());
+  });
+
+  it("read returns null before any seed", async () => {
+    const fresh = await mkPaladin();
+    expect(await fresh.system.registry.read()).toBe(null);
+  });
+});
+
 describe("System.log", () => {
   let paladin;
   beforeAll(async () => {
@@ -116,7 +137,7 @@ describe("System.log", () => {
   it("append writes a jsonl span line readable via read.jsonl", async () => {
     await paladin.system.log("inst").append({ json: { event: "/turn/open" } });
     await paladin.system.log("inst").append({ json: { event: "/turn/close" } });
-    const spans = await paladin.read.jsonl(paladin.scope.system.branch("/logs/inst/spans.jsonl"));
+    const spans = await paladin.read.jsonl(paladin.scope.ledger.branch("/logs/inst/spans.jsonl"));
     expect(spans).toEqual([{ event: "/turn/open" }, { event: "/turn/close" }]);
   });
 
@@ -124,7 +145,7 @@ describe("System.log", () => {
     const handle = await paladin.system.log("inst").open("runtime", "out");
     await handle.write(new TextEncoder().encode("hello\n"));
     handle.close();
-    const text = await paladin.read.text(paladin.scope.system.branch("/logs/inst/runtime.out.log"));
+    const text = await paladin.read.text(paladin.scope.ledger.branch("/logs/inst/runtime.out.log"));
     expect(text).toBe("hello\n");
   });
 });

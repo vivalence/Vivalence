@@ -29,6 +29,7 @@ Paths relative to `.ikiro/quests/` → `../../<repo-path>`.
 
 - **NEW files + fully-replaced small files** → `#+BEGIN_SRC <lang> :tangle ../../<path> :mkdirp yes` with the full final content. The org IS the source of truth that regenerates the file.
 - **Surgical edits in large files** → `#+BEGIN_SRC diff` hunks with the path in prose, applied by hand. Do NOT `:tangle` a partially-reproduced large file — tangling overwrites the whole file, so any untouched line you didn't reproduce is silently dropped.
+- **Full-file tangle of an EXISTING (not new) file → show the live BEFORE too.** beef (verbatim): *"for the files in the tangle, mark where your changes start, end, and what the code looked like before."* A `:tangle` block with the complete new content doesn't tell a cold reader what actually changed. Precede it with a `#+BEGIN_SRC` (no `:tangle`) holding the live file's real current content — re-read it that turn, never reconstructed from memory — then bracket the changed region(s) inside the real tangle with `// === CHANGE START — was: <one-line summary> ===` / `// === CHANGE END ===`. Small enough that a diff IS the clearest form (e.g. a 5-line class) → skip the two-block dance, use a `#+BEGIN_SRC diff` instead and note "full tangle below is this diff applied." Anchor: `m11_packages`'s `vip.js`/`pensieve.js` (before-block + per-method CHANGE brackets — re-reading pensieve.js's live file this way caught the actual default mechanism was `cake.manifest.owner = "@vivalence"` set before wrapping, not the `??=` shape assumed earlier), `manifest.js`/`.gitignore` (small enough for the diff-first form).
 - Anchor: `m4_phase-playground` (tangled the playground modes), `m11_packages` (mixed tangle + diff).
 
 ## Derive by default, lock to override (identity fields)
@@ -43,8 +44,11 @@ export manifest package. we can if we want to lock it. but neednt by
 defualt. one package maybe within a testing scenario to test the lock case
 and functions as a docs/demo."* Anchor: =m11_packages= — =vip.mount= derives
 =package= from the branch name; a module MAY self-declare =manifest.package=
-to lock it; =registry/simulation/scenario/lock-demo/= is the one fixture
-that does, proving + documenting the override in the same file.
+to lock it. The demonstrating fixture (=lock-demo.viva.js=) itself ended up
+POSTPONED (beef wasn't confident in its settlement) — the PATTERN held, the
+specific fixture didn't; the mechanism stayed proven via an in-memory
+`vip.test.js` case instead. Don't cite the fixture as landed without
+checking the quest's current Forks section first.
 
 ## QA-before-blast (the adversarial pass)
 

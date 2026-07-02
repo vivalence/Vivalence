@@ -81,7 +81,7 @@ export default function (trajectory) {
   trajectory.open(
     {
       nature: "/system/init",
-      valence: "init $VIVA_SYSTEM_MOUNT + scaffold logs/locks + persist embedding",
+      valence: "init $VIVA_LEDGER_MOUNT + scaffold logs/locks + persist embedding",
       schema: v.object({}),
     },
     system.init,

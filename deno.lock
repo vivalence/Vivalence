@@ -35,6 +35,7 @@
     "jsr:@std/internal@^1.0.10": "1.0.12",
     "jsr:@std/internal@^1.0.12": "1.0.12",
     "jsr:@std/json@^1.0.2": "1.0.3",
+    "jsr:@std/jsonc@*": "1.0.2",
     "jsr:@std/jsonc@1.0": "1.0.2",
     "jsr:@std/media-types@1": "1.1.0",
     "jsr:@std/path@1": "1.1.4",

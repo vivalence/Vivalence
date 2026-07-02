@@ -1,8 +1,6 @@
 testament
-testament/system
-testament/variant
-./testament/variant
 **/mountpoint
+**/environment/secrets.jsonc
 
 .jj
 .git

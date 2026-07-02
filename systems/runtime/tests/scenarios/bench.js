@@ -6,8 +6,8 @@
 // Accepts raw imported modules OR paladin specifier strings.
 //
 //   await bench({
-//     kernel: ["@vivalence/domain/language-learning", "@vivalence/ontology/word"],
-//     modes:  ["@vivalence/game/flashcard", "@vivalence/game/judge"],
+//     kernel: ["@education/domain/language-learning", "@education/ontology/word"],
+//     modes:  ["@education/game/flashcard", "@education/game/judge"],
 //   })
 //
 //   await bench({
@@ -69,9 +69,7 @@ async function resolve(items) {
   for (const item of items) {
     if (typeof item === "string") {
       if (!paladinMounted) {
-        await paladin.vip.mount(paladin.scope.registry.branch("kernels"));
-        await paladin.vip.mount(paladin.scope.registry.branch("modes"));
-        await paladin.vip.mount(paladin.scope.registry.branch("services"));
+        await paladin.vip.supply();
         paladinMounted = true;
       }
       resolved.push(await paladin.vip.accio(item));

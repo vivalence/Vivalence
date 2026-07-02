@@ -7,7 +7,7 @@ const lines = (stream) =>
 export class Process {
   constructor(system, spec) {
     this.spec = spec;
-    this.lock = system.lock(spec.type, spec.slug);
+    this.lock = system.lock(spec.instance, spec.process);
     this.in = new Queue();
     this.out = new Pipe();
   }
@@ -29,8 +29,8 @@ export class Process {
 
     await this.lock.write({
       pid: this.child.pid,
-      type: this.spec.type,
-      slug: this.spec.slug,
+      instance: this.spec.instance,
+      process: this.spec.process,
       mount: this.spec.mount,
       started: new Date().toISOString(),
     });

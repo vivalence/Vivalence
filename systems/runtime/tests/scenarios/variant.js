@@ -4,7 +4,7 @@
 // Memory + Trace ride in via the domain set; no scenario-local entity copies.
 import { sets } from "@vivalence/typology/entities";
 import { entities as defaults } from "../../daemon/entities.js";
-import { entities as domain } from "../../../../registry/kernels/@vivalence/domain/learning/entities/index.js";
+import { entities as domain } from "../../../../registry/education/domain/learning/entities/index.js";
 
 export const tiers = {
   ...sets.daemon,

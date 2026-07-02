@@ -72,7 +72,7 @@ export async function clone(ctx) {
 }
 
 async function findCakes() {
-  await paladin.vip.mount(paladin.scope.registry);
+  await paladin.vip.supply();
   return await paladin.vip.list({ type: "variant" });
 }
 

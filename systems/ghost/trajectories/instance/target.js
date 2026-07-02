@@ -16,16 +16,16 @@ export function specs(param, { attachment = "inherit" } = {}) {
   if (!variant) throw new Error("instance: no variant mounted — set VIVA_VARIANT_MOUNT");
 
   const mount = variant.absolute;
-  const slug = mount.split("/").filter(Boolean).pop(); // @beef ugly and stupid
+  const instance = mount.split("/").filter(Boolean).pop(); // @beef ugly and stupid
   const config = `${paladin.scope.repository.absolute}/deno.jsonc`;
 
   const chosen = target === "all" ? Object.keys(CHILDREN) : [target];
-  return chosen.map((type) => ({
-    type,
-    slug,
+  return chosen.map((process) => ({
+    process,
+    instance,
     mount,
     attachment,
-    cmd: ["deno", "task", "--config", config, "-q", CHILDREN[type].task],
+    cmd: ["deno", "task", "--config", config, "-q", CHILDREN[process].task],
     env: { VIVA_VARIANT_MOUNT: mount },
   }));
 }

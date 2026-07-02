@@ -1,14 +1,14 @@
-import { Pipe, fn } from "@vivalence/typology";
+import { fn } from "@vivalence/typology";
 import { Lock } from "./lock.js";
-// import { Log } from "./log.js";
+import { Log } from "./log.js";
 import { Instances } from "./instances.js";
+import { Registry } from "./registry.js";
 import { Process } from "./process.js";
 
 export class System {
   constructor(paladin) {
     this.paladin = paladin;
     this.attached = new Set();
-    // this.logs = new Pipe();
     this.armed = false;
     this.mount = fn.once(this.mount.bind(this));
   }
@@ -16,31 +16,34 @@ export class System {
   async mount() {
     this.instances = new Instances(
       this.paladin,
-      this.paladin.scope.system.branch("instances.json"),
+      this.paladin.scope.ledger.branch("instances.json"),
+    );
+    this.registry = new Registry(
+      this.paladin,
+      this.paladin.scope.ledger.branch("registry.json"),
     );
     this.paladin.publish();
 
     return this;
   }
 
-  lock(type, slug) {
-    return new Lock(this.paladin, this.paladin.scope.system.branch(`/locks/${type}_${slug}.lock`));
+  lock(instance, process) {
+    return new Lock(this.paladin, this.paladin.scope.ledger.branch(`/locks/${instance}_${process}.lock`));
   }
 
-  log(type, slug) {
-    console.log("log(type, slug) LEGACY");
-    //
+  log(instance) {
+    return new Log(this.paladin, instance);
   }
 
-  async locks(type) {
-    const dir = this.paladin.scope.system.branch(`/locks`);
-    const prefix = `${type}_`;
+  async locks(instance) {
+    const dir = this.paladin.scope.ledger.branch(`/locks`);
+    const prefix = `${instance}_`;
     try {
       const out = [];
       for await (const entry of Deno.readDir(dir.absolute)) {
         if (!entry.name.startsWith(prefix) || !entry.name.endsWith(".lock")) continue;
-        const slug = entry.name.slice(prefix.length, -".lock".length);
-        out.push({ type, slug, ...(await this.lock(type, slug).read()) });
+        const process = entry.name.slice(prefix.length, -".lock".length);
+        out.push({ instance, process, ...(await this.lock(instance, process).read()) });
       }
       return out;
     } catch {
@@ -62,15 +65,15 @@ export class System {
     return await Promise.all(specs.map((spec) => this.spawn(spec)));
   }
 
-  async kill(type, slug) {
-    const lock = await this.lock(type, slug).read();
+  async kill(instance, process) {
+    const lock = await this.lock(instance, process).read();
     if (!lock) return null;
     try {
       Deno.kill(lock.pid, "SIGTERM");
     } catch {
       /* gone */
     }
-    await this.lock(type, slug).remove();
+    await this.lock(instance, process).remove();
     return lock.pid;
   }
 
