@@ -139,10 +139,10 @@ specimen.describe("integration: full client lifecycle", { sanitizeResources: fal
         literals: literals.slice(0, 3),
       });
       specimen.expect(res.condition).toBe("NOMINAL");
-      specimen.expect(res.buffers.length).toBe(1);
-      specimen.expect(res.buffers[0].data.layout).toBe("table");
-      specimen.expect(res.buffers[0].data.title).toBe("Test words");
-      specimen.expect(res.buffers[0].literals.length).toBe(3);
+      specimen.expect(res.entities.buffer.length).toBe(1);
+      specimen.expect(res.entities.buffer[0].data.layout).toBe("table");
+      specimen.expect(res.entities.buffer[0].data.title).toBe("Test words");
+      specimen.expect(res.entities.buffer[0].literals.length).toBe(3);
     });
   });
 
@@ -153,9 +153,9 @@ specimen.describe("integration: full client lifecycle", { sanitizeResources: fal
         literals: literals.slice(0, 3),
       });
       specimen.expect(res.condition).toBe("NOMINAL");
-      specimen.expect(res.buffers.length).toBe(1);
-      specimen.expect(res.buffers[0].data.recall).toBe("KNOWN");
-      specimen.expect(res.buffers[0].literals.length).toBe(3);
+      specimen.expect(res.entities.buffer.length).toBe(1);
+      specimen.expect(res.entities.buffer[0].data.recall).toBe("KNOWN");
+      specimen.expect(res.entities.buffer[0].literals.length).toBe(3);
     });
   });
 
@@ -167,10 +167,10 @@ specimen.describe("integration: full client lifecycle", { sanitizeResources: fal
         recall: "KNOWN",
       });
       specimen.expect(res.condition).toBe("NOMINAL");
-      specimen.expect(res.buffers.length).toBe(1);
-      specimen.expect(res.buffers[0].data.target).toBeTruthy();
-      specimen.expect(res.buffers[0].data.recall).toBe("KNOWN");
-      specimen.expect(res.buffers[0].literals.length).toBeGreaterThanOrEqual(1);
+      specimen.expect(res.entities.buffer.length).toBe(1);
+      specimen.expect(res.entities.buffer[0].data.target).toBeTruthy();
+      specimen.expect(res.entities.buffer[0].data.recall).toBe("KNOWN");
+      specimen.expect(res.entities.buffer[0].literals.length).toBeGreaterThanOrEqual(1);
     });
   });
 
@@ -183,8 +183,8 @@ specimen.describe("integration: full client lifecycle", { sanitizeResources: fal
         recall: "KNOWN",
       });
       specimen.expect(res.condition).toBe("NOMINAL");
-      specimen.expect(res.buffers.length).toBe(1);
-      specimen.expect(res.buffers[0].literals.length).toBeGreaterThanOrEqual(1);
+      specimen.expect(res.entities.buffer.length).toBe(1);
+      specimen.expect(res.entities.buffer[0].literals.length).toBeGreaterThanOrEqual(1);
     });
   });
 
@@ -201,8 +201,8 @@ specimen.describe("integration: full client lifecycle", { sanitizeResources: fal
         recall: "KNOWN",
       });
       specimen.expect(res.condition).toBe("NOMINAL");
-      specimen.expect(res.buffers.length).toBe(1);
-      specimen.expect(res.buffers[0].literals.length).toBeGreaterThanOrEqual(1);
+      specimen.expect(res.entities.buffer.length).toBe(1);
+      specimen.expect(res.entities.buffer[0].literals.length).toBeGreaterThanOrEqual(1);
     });
   });
 
@@ -215,8 +215,8 @@ specimen.describe("integration: full client lifecycle", { sanitizeResources: fal
         literals: batch,
       });
       specimen.expect(res.condition).toBe("NOMINAL");
-      specimen.expect(res.buffers.length).toBe(1);
-      specimen.expect(res.buffers[0].literals.length).toBe(4);
+      specimen.expect(res.entities.buffer.length).toBe(1);
+      specimen.expect(res.entities.buffer[0].literals.length).toBe(4);
     });
   });
 
@@ -234,8 +234,8 @@ specimen.describe("integration: full client lifecycle", { sanitizeResources: fal
         gameplay: "type",
       });
       specimen.expect(res.condition).toBe("NOMINAL");
-      specimen.expect(res.buffers.length).toBe(1);
-      specimen.expect(res.buffers[0].literals.length).toBeGreaterThanOrEqual(1);
+      specimen.expect(res.entities.buffer.length).toBe(1);
+      specimen.expect(res.entities.buffer[0].literals.length).toBeGreaterThanOrEqual(1);
     });
   });
 
@@ -246,9 +246,9 @@ specimen.describe("integration: full client lifecycle", { sanitizeResources: fal
         literals: literals.slice(0, 2),
       });
       specimen.expect(res.condition).toBe("NOMINAL");
-      specimen.expect(res.buffers.length).toBe(1);
-      specimen.expect(res.buffers[0].data.recall).toBe("LEARNING");
-      specimen.expect(res.buffers[0].literals.length).toBe(2);
+      specimen.expect(res.entities.buffer.length).toBe(1);
+      specimen.expect(res.entities.buffer[0].data.recall).toBe("LEARNING");
+      specimen.expect(res.entities.buffer[0].literals.length).toBe(2);
     });
   });
 
@@ -259,9 +259,9 @@ specimen.describe("integration: full client lifecycle", { sanitizeResources: fal
         literals: literals.slice(0, 2),
       });
       specimen.expect(res.condition).toBe("NOMINAL");
-      specimen.expect(res.buffers.length).toBe(1);
-      specimen.expect(res.buffers[0].data.recall).toBe("KNOWN");
-      specimen.expect(res.buffers[0].literals.length).toBe(2);
+      specimen.expect(res.entities.buffer.length).toBe(1);
+      specimen.expect(res.entities.buffer[0].data.recall).toBe("KNOWN");
+      specimen.expect(res.entities.buffer[0].literals.length).toBe(2);
     });
   });
 

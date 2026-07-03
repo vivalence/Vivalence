@@ -41,8 +41,29 @@ async function open(thread) {
     thread.$pending.set(false);
   };
 
+  const dropStaleTemp = async () => {
+    if (!turnRepo) return;
+    try {
+      await turnRepo.find({ thread: thread.id }, { orderBy: { createdAt: "ASC" } });
+      const all = turnRepo.$entities.get();
+      for (const turn of all) {
+        if (typeof turn.id !== "string" || !turn.id.startsWith("tmp-")) continue;
+        const ref = turn.thread;
+        if (ref === thread || ref?.id === thread.id || ref === thread.id) {
+          turnRepo.drop(turn.id);
+        }
+      }
+    } catch (error) {
+      console.error("[CONVERSATIONAL] turn refresh failed:", error);
+    }
+  };
+
   inbound.open("/dialogue/packet", (pctx) => {
     if (cancelled) return;
+    // the real user turn is already persisted + broadcast by history-load before the
+    // server can ever reach the render that produces this first packet — drop the
+    // optimistic tmp- turn here instead of waiting for the whole response to finish.
+    if (!assistantTurn) dropStaleTemp();
     thread.streams.dialogue?.enqueue?.(pctx.input);
     assistantTurn = soma.pour(assistantTurn, pctx.input);
 
@@ -79,20 +100,7 @@ async function open(thread) {
     cancelled = false;
     thread.$streaming.set(null);
     thread.$pending.set(false);
-    if (!turnRepo) return;
-    try {
-      await turnRepo.find({ thread: thread.id }, { orderBy: { createdAt: "ASC" } });
-      const all = turnRepo.$entities.get();
-      for (const turn of all) {
-        if (typeof turn.id !== "string" || !turn.id.startsWith("tmp-")) continue;
-        const ref = turn.thread;
-        if (ref === thread || ref?.id === thread.id || ref === thread.id) {
-          turnRepo.drop(turn.id);
-        }
-      }
-    } catch (error) {
-      console.error("[CONVERSATIONAL] turn refresh failed:", error);
-    }
+    await dropStaleTemp(); // safety net — usually already dropped on the first packet
   });
 
   inbound.open("/dialogue/error", (pctx) => {

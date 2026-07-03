@@ -76,7 +76,7 @@ for (const [slug, viva] of Object.entries(modes)) {
           await scenario.scoped(async () => {
             const result = await scenario.mode.emit[route](inputFn(scenario.fixtures));
             specimen.expect(result.condition).toBeTruthy();
-            const buffers = result.buffers ?? [];
+            const buffers = result.entities?.buffer ?? [];
             specimen.expect(buffers.length).toBeGreaterThanOrEqual(0);
             for (const buffer of buffers) {
               if (buffer) {

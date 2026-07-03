@@ -1,4 +1,4 @@
-import { RemoteRepository, Status } from "@vivalence/typology";
+import { RemoteRepository, Status, is } from "@vivalence/typology";
 import { Entity } from "../../prototypes/entity.js";
 import * as traits from "./traits/index.js";
 import { applyTraits } from "../../gestalten/belt/index.js";
@@ -33,6 +33,9 @@ export const ModeDossier = {
         ctx.entity.status.set({ code: "unavailable", error });
       }
     },
+
+    // @beef: choice pending.
+    // async (ctx, next) => {await next(); ctx.entity.connection.use(async (rqx, rext) => {await rext(); return; const body = rqx.response?.body; if (body?.entities && is.yieldish(body)) {for (const [name, pojos] of Object.entries(body.entities)) {const repository = ctx.daemon.entities[name]; if (!repository) continue; body.entities[name] = await Promise.all(pojos.map((pojo) => repository.merge(pojo)));}}});},
 
     applyTraits(traits),
 

@@ -1,0 +1,495 @@
+#+TITLE: M17 — the client ctx grammar (context is the source, props are the fallback)
+#+AUTHOR: Vivalence
+#+STATUS: DESIGN — research + eval landed; context-primary (beef) + bundle-boundary pass; canon VERIFIED (22/25); forks 4-6 need beef
+#+DATE: 2026-07-04
+
+Parent: [[file:m16_client_provisioning.quest.org][M16 client provisioning doctrine]].
+M16 declared the three KINDS (structures · effects · surfaces) and the law
+"contexts narrow down the tree, mirroring Mode→Thread→Buffer→Turn." M17 answers
+the question M16 left open — *what IS a client context, and how does it
+actually narrow* — and finds that the narrowing law needs one correction:
+**the client narrows by derivation, not by provision.**
+
+* Meta
+** Intent
+
+beef opened the session: *"we talked earlier today about rewriting the client.
+to narrow it."* Then pinned the seam, verbatim and complete:
+
+#+begin_quote
+"i think the boundry on the server are the effects, there the ctx.xyz is defined
+for example daemon and mode and thread. on the client its something else. its
+probably the props of our application modes. there we have terminal, and buffer
+already. we might want daemon and mode as separate. in that case we must note
+that terminal.mode and terminal.thread.mode are sometimes different. maybe
+terminal is the equivalent of server side ctx.
+
+furthermore, there is an architectural difference. the server has middlewares.
+the client doesnt. it has contexts aka stores. via the symbols we import from
+the client.js. maybe we ought to have a different set of stores/contexts in
+order to better facilitate our function. our scoping. our narrowing. i dont
+know."
+#+end_quote
+
+And on the symbol set: *"[the per-entity provider symbols] can be changed.
+subject to your eval."*
+
+The research directive: *"let the conoisseur research on github and other
+public repos for examples of great functional reactive frontend architectures.
+great artists steal."*
+
+The verdict (this quest's throughline): beef's three guesses are each RIGHT,
+and together they dissolve the question. (1) The mode-app props ARE the client
+ctx. (2) The terminal IS the equivalent of server ctx. (3) The server has
+middleware the client "lacks" — except the client already runs that exact
+middleware, at the dataspace, not the DOM. What's missing is not machinery.
+It's NAMES for the two context laws the client already executes.
+
+** The doctrine amendment (the decision trail)
+
+*** one grammar (=shard.context=), two time-characters
+The server composes =ctx= per request — a transient middleware onion, built and
+torn down each call. The client holds the SAME spine (daemon→thread→buffer) as
+a STANDING reactive structure. The server UNFOLDS ctx (ana, per request); the
+client HOLDS the folded ctx as a live cursor. Same grammar, opposite time.
+
+The proof the client already speaks this grammar
+(=systems/kajuit/src/typology/prototypes/dataspace.js:22=):
+#+begin_src js
+new Vector()
+  .use(shard.context.attach("dossier", dossier))
+  .use(shard.context.attach("repository", repository))
+  .use(shard.context.attach("dataspace", this));
+#+end_src
+plus =entities/daemon/dossier.js:23= — =vector.use(shard.context.bind("daemon", daemon))=.
+The client's ENTITY-resolution layer is pure server-grammar middleware. beef's
+*"the client doesnt [have middleware]"* is true only of the DOM/render layer —
+and that layer SHOULD stay middleware-free.
+
+*** the two laws, named by their server duals
+| server              | character                          | client dual        | carries                         |
+|---------------------+------------------------------------+--------------------+---------------------------------|
+| =context.attach(k,v)= | set-once on the vector, whole life | =setContext(SYM,v)=  | the DECKS — the standing world  |
+| =context.bind(k,v)=   | per-invocation resolve (AsyncLocal)| =chain(root,...path)=| the CURSOR — the moving view    |
+
+- =attach= ⟷ =setContext= : a capability provided once, stable for the scope's
+  life. On the client: =LIGHTHOUSE= (auth+daemons) · =BRIDGE= (layout) · =BOX=
+  (audio) · =TERMINALS= (the collection). The world the client may touch.
+- =bind= ⟷ =chain= : a capability re-resolved on each use — the server per call,
+  the client per cursor-move. On the client: the ACTIVE terminal→thread→buffer,
+  =chain(terminals, "$active", "$thread", "$buffers")=. You do not provide a
+  moving target down a static tree; you subscribe to it.
+
+*** the three DOM laws (M17's correction to M16's "contexts narrow")
+beef corrected the first draft (which made props primary): *"i think the props
+for buffers/apps are a fallback. the real source of all these props ought be
+contexts."* Correct — and it maps straight onto the stolen canon: =getContext=
+walks the component OWNER TREE, which IS Solid's =context= field (provide-at-
+scope, read-at-leaf). Context is the source; props are the escape hatch for
+leaves that left the tree.
+
+1. *Context is the source — within the host bundle.* =setContext= at each
+   spatial boundary that exists as a DOM subtree: =+layout= (the DECKS — the
+   world) · the active-cursor scope (=TERMINAL= — the active terminal, consumed
+   by every host-side surface: Frame, Dock, Phase, D/E/F). A host-side leaf
+   =getContext=-s what it needs; nothing re-reads =$active=.
+2. *Props are the BOUNDARY TRANSPORT — across the buffer-bundle line.* A =.url=
+   mode-app is NOT a Svelte child of Frame: =application.js:20= esbuilds it into
+   a SEPARATE bundle (own importmap {typology, schematics, shared, drapes,
+   kajuit-typology}, own Svelte runtime, typology-only — NOT =client.js=). So
+   =getContext= cannot cross that line (separate Svelte instance; two
+   =Symbol("buffer")= never match). Frame reads =getContext(TERMINAL)= + its
+   =terminal.$buffer=, then hands =({terminal, buffer})= as PROPS across to
+   =module.default(dom, {…})= (=Frame.svelte:36=). Props are the CTX HANDOFF at
+   the client's handler boundary — the dual of the server handing =ctx= to a
+   handler, and of =strip=/=messenger= across the network. The value ORIGINATES
+   in context; it rides a prop only because the app is a separate compilation.
+   (A =.Component= app, if ever host-bundled, reads context directly — latent
+   path; every live registry app is =.url=.)
+3. *Entities narrow by DERIVATION (the DATA axis, orthogonal to §1/§2).*
+   Mode→Thread→Buffer→Turn is computed filters over daemon-wide atoms, never
+   nested providers: =thread.$buffers = computed(daemon.entities.buffer.$entities, by thread.id)=
+   (=thread/dossier.js:25=). The DOM is FLAT (=+page.svelte= — panels A–H are
+   absolutely-positioned siblings; D/E/F never nest under a thread node), so no
+   NEW provider nesting can be harvested for THREAD/DAEMON/MODE/BUFFER — they
+   stay ATTRIBUTES read off =TERMINAL= (=terminal.thread=, =terminal.daemon=,
+   =terminal.$buffer=, =buffer.mode=). The derivation runs on typology atoms, so
+   it crosses the bundle line for free.
+
+So the honest grammar is THREE layers, not a narrowing tree:
+- *decks* (attach-dual, host bundle) — the world, at =+layout=.
+- *TERMINAL* (attach-dual, host bundle) — the active cursor, at its scope,
+  consumed by every host-side surface; sourced from =TERMINALS.$active= + =chain=.
+- *the bundle handoff* (props) — Frame → the isolated =.url= app; ctx sourced
+  from context, transported as props because the app is a separate compilation.
+Only ONE new symbol falls out: =TERMINAL=. =BUFFER= is dropped — its sole
+consumer is the cross-bundle app (props), and host-side it is just
+=terminal.$buffer=.
+
+*** the throughline (connoisseur)
+One structure — =shard.context=. One law made visible — *the client is the
+server's per-request ctx made standing.* =attach/bind= and =setContext/chain=
+are the same two laws in two runtimes; the client already runs both and never
+named them. This is a cata/ana recognition: the aperture unfolds ctx per
+request, the DOM holds the folded ctx as the fixpoint cursor. The quest names
+the two laws and DELETES the code that worked around not having named them —
+an addition-free resolution.
+
+** The shape (from-scratch)
+
+#+begin_example
+SERVER (transient, per request)                CLIENT (standing, reactive)
+  aperture.use(attach("daemon", d))              +layout setContext(LIGHTHOUSE|BRIDGE|BOX|TERMINALS)
+  harness.use(bind("daemon", d))          ≙        the DECKS — attach-dual, the world
+         .use(bind("mode", m))
+  emitter ctx.thread = findOne(input.thread)     chain(terminals,$active,$thread,$buffer)
+  ctx.pool = new Pool()                   ≙        the CURSOR — bind-dual, the moving view
+  ctx.turn = turn.chain(...)                       terminal = { daemon, thread, buffer, stall }
+  handler(ctx)                                     mode-app( { terminal, buffer } )   ← ctx at the leaf
+
+narrowing:  daemon → mode → thread → turn         narrowing BY DERIVATION:
+  (composition order of the onion)                  daemon.entities.buffer.$entities   (daemon-wide, 1 SSE)
+                                                      → thread.$buffers  (computed filter by thread.id)
+                                                        → terminal.$buffer  (the cursor's pick)
+                                                          → turn  (inside the buffer)
+#+end_example
+
+The bundle boundary — the client's handler line (context sourced, props transported):
+#+begin_example
+HOST BUNDLE (client.js symbols, Svelte instance #1)          ISOLATED BUFFER BUNDLE (typology-only, Svelte #2)
+  +layout   setContext(LIGHTHOUSE|BRIDGE|TERMINALS|BOX)         application.js:20  bundle.svelte(app, {imports})
+  +page     setContext(TERMINAL, terminals.$active)               ─ own importmap, own Svelte, no client.js
+    A / D / E / F / shoulder / Dock / Phase  getContext(TERMINAL) ─ getContext CANNOT reach across (Symbol≠, instance≠)
+    Frame   getContext(TERMINAL); buffer = terminal.$buffer
+            module.default(dom, { terminal, buffer })  ──props──▶  const { terminal, buffer } = props   ← ctx handoff
+                                                                    buffer.mode.call("/…")          (oracle's live pattern)
+                                                                    buffer.mode.harness.object.render(…)
+                                                                    terminal.thread / terminal.daemon / buffer.mode
+                                                                    thread.$buffers  (derivation — typology, crosses free)
+#+end_example
+Props here = the dual of the server's =handler(ctx)= and =strip/messenger= over
+the wire: ctx composed host-side (from context), handed across the compilation
+boundary. NOT a fallback — the boundary. Inside the app, read attributes off the
+two handed entities; never walk =terminal.daemon.modes[type][slug]= to re-find
+the mode the buffer already IS (=buffer.mode=, mode.js:44).
+
+** The five questions, answered
+
+1. *What is the client's ctx-equivalent?* The TERMINAL — the standing cursor
+   {daemon, thread, buffer, stall}, sourced from context host-side and handed to
+   the buffer app as a prop across the bundle line, together with its
+   =terminal.$buffer=. It is the server's per-request ctx made standing.
+2. *Deck contexts vs entity contexts — new per-entity symbols?* ONE: =TERMINAL=,
+   at the active-cursor scope, consumed by host-side surfaces (Frame/Dock/Phase/
+   D-E-F). NOT =BUFFER= (only consumer is the cross-bundle app → prop; host-side
+   it is =terminal.$buffer=), NOT THREAD/DAEMON/MODE (attributes; no subtree; a
+   =MODE= symbol re-opens the two-mode desync). beef corrected the first-draft
+   "no symbols" — context IS the source; the bundle pass then found only TERMINAL
+   earns a symbol. (Fork 1, twice-revised.)
+3. *terminal.mode vs terminal.thread.mode — is MODE derivable from THREAD?*
+   Neither derivable nor a single context. There are TWO modes: render-mode
+   =buffer.mode= (what app is on screen) and session-mode =thread.$mode= (the
+   conversation). They legitimately diverge via cross-mode emission
+   (=EMITTER.js:47= — an emitted buffer carries the emitting mode, lands in a
+   thread of another mode). Each rides its entity; NO =MODE= symbol; never a
+   free-floating =mode= prop that can desync. LIVE PROOF (found this pass):
+   =stores/inspector.js:48= reaches for a unified =terminal?.mode?.slug= — but
+   =terminal.js= has NO =.mode= getter (only thread/buffer/daemon/stall), so the
+   inspector's "active mode" row silently renders "—" forever. The first consumer
+   that wanted one terminal-mode and discovered there isn't one. (Name-the-pair,
+   not a bug to unify — the fix is to show BOTH.)
+4. *Middleware absence — compose step or provide-down?* The client HAS the
+   compose step — at the dataspace (entity resolution), the exact dual of the
+   server composing ctx at the aperture. VERIFIED: re-frame is the ONLY surveyed
+   architecture with a genuine compose step (its coeffect interceptor vector,
+   docstring: "analogous to request and response"); every other (Solid/Elm/XState)
+   is provide-down. So the client's compose lives where re-frame puts it — the
+   effect/resolution boundary (=dataspace.js= =shard.context.attach/bind=) — NOT
+   the DOM. The DOM does provide-down (decks + TERMINAL) only. =effects.mount= is
+   the teardown-owner (Solid owner-node dual), not the middleware dual.
+5. *What do mode apps receive today vs what they SHOULD?* Props
+   =({terminal, buffer})= — CORRECT and mandatory (bundle boundary). Only the
+   INTERNAL walk is wrong, and only in ONE app: aprende (=Aprende.svelte:46=)
+   walks =terminal.daemon.modes.homepage.aprende.call=. Riddler makes no call
+   (pure =buffer.data= render); ORACLE already uses =buffer.mode.call= +
+   =buffer.mode.harness.object.render= + =buffer.mode.daemon= — the reference,
+   and live proof =buffer.mode= carries full capability across the bundle line.
+   SHOULD: aprende adopts oracle's =buffer.mode.call=. Props stay; the walk dies.
+
+** The stolen canon (great artists steal — VERIFIED: 22/25 confirmed, 3 refuted)
+
+Deep-research, source-level, adversarially verified (3-vote panels). Two
+structural answers dominate, and they compose into M17's exact shape.
+
+- *SolidJS Owner node* (=solid/src/reactive/signal.ts=) — 3-0 CONFIRMED. The
+  north star: ONE node =({ owned, cleanups, owner, context })= unifies effect
+  ownership · recursive teardown · context-narrowing on the SAME tree. =createRoot=
+  is a disposable scope; =onCleanup= pushes teardown AS DATA; =cleanNode= disposes
+  children-before-self recursively (automatic, no bookkeeping); context inherits
+  parent-at-creation, provide-DOWN, no compose. Svelte's component tree IS this
+  Owner tree: =setContext=/=getContext= narrows down, =$effect= returns a
+  teardown, =onDestroy= fires recursively bottom-up. → M17's SPINE: TERMINAL at
+  =+page=, effects at their provider, teardown by the destroy cascade.
+- *re-frame coeffects* (=day8/re-frame/cofx.cljc=, =interceptor.cljc=) — 3-0
+  CONFIRMED, and the KEY steal: the ONLY surveyed architecture with a genuine
+  COMPOSE step. =inject-cofx= composes an interceptor into the event's vector;
+  its docstring calls =:coeffects=/=:effects= "analogous to request and response."
+  This is the direct dual of the server's "capabilities down a middleware vector
+  via ctx" — and the client ALREADY HAS IT, at the dataspace
+  (=dataspace.js= =shard.context.attach/bind=). So the compose step is not
+  missing; it lives at entity-resolution, exactly where re-frame puts it (the
+  effect boundary), NOT at the DOM. Effects-as-data (=do-fx= single interpreter)
+  also confirmed 3-0; steal the discipline, reject the flat global registry.
+- *Elm Cmd/Sub* (=elm/core=) — 3-0 CONFIRMED. Effects are opaque VALUES
+  (=type Cmd msg = Cmd=, no constructor); the runtime is the sole IO seam;
+  managers are a process/actor tree with effect-RETURNED teardown (the binding
+  carries its own =__kill=). "Effects always return teardown" is literal here.
+  Managers are home-keyed (provide-down), not a narrowing tree.
+- *TCA =store.scope(state:action:)=* (=pointfreeco/…/Store.swift=) — a child
+  store is a LENS-projection of the parent, not a fresh store. Our
+  =thread.$buffers = computed(daemon.buffers, by thread.id)= IS
+  =scope(buffer, by: thread.id)=. Narrowing = derivation. Confirms law 3.
+- *XState v5 invoke* (=statelyai/xstate/createActor.ts=) — 3-0 CONFIRMED, with a
+  load-bearing CAVEAT (an over-claim was REFUTED 0-3): only INVOKED/owned effects
+  auto-teardown on scope exit; SPAWNED / manually-created subscriptions need
+  EXPLICIT teardown (=stopChild=/=onDestroy=). → directly validates M17.3: the
+  conversational =wire()= teardown that =thread/dossier.js:54= DISCARDS is exactly
+  this hazard — a manual subscription with no owner. It must be mounted as an
+  owned effect or explicitly torn down.
+
+The 3 REFUTATIONS (what is NOT true): re-frame does NOT thread a bare single
+context map (it's queue/stack surgery); coeffects/effects are NOT purely plain
+data (handlers are fns); XState teardown is NOT fully manual (invoked actors DO
+auto-stop). None weaken M17.
+
+SYNTHESIS (the verified punchline): adopt the Solid/XState ownership-tree
+provide-down as the SPINE (Svelte's tree already is one), and reserve a
+re-frame-style coeffect vector for the places you want the server's compose
+symmetry — which the client already spends at the dataspace. M17 is this exact
+composition: decks + TERMINAL (Solid provide-down) · dataspace ctx-onion
+(re-frame coeffects) · props across the bundle line (the handler boundary) ·
+derivation for data narrowing (TCA scope).
+
+** Deferred (out of scope, named)
+- The M16.2/16.3/16.4 IO extractions themselves (daemon boot-in-cast, lighthouse
+  auth, conversational socket, BOX subtree) — M17 decides their SCOPE (which
+  law each effect mounts under), M16 does the moving. M17.2 and M16.3 touch the
+  same file (=conversational.js=); land them together, once.
+- A BUFFER =setContext= provider at Frame — the one genuine spatial boundary
+  (=Frame.svelte:57= =({#key $bufferId})=). Buys nothing until a mode-app subtree
+  grows deep enough that prop-drilling =buffer= hurts. Parked, fork 5.
+- BOX deck (audio) — dark today (commented in =client.js=/=+layout=). When it
+  wakes it is a DECK (attach-dual, device singletons), already correctly
+  classified; no M17 decision needed.
+
+** Forks (call before blasting)
+
+1. *ONE new entity context symbol: =TERMINAL=. — twice-revised (beef
+   context-primary, then bundle-boundary pass).* beef: *"the props for
+   buffers/apps are a fallback. the real source of all these props ought be
+   contexts."* Right — =getContext= walking the owner tree IS the stolen canon
+   (Solid =context= field). First draft said "no symbols"; beef's correction said
+   "context is the source"; the bundle pass then narrowed WHICH symbols earn
+   their keep: only =TERMINAL=. Provided at the active-cursor scope, consumed by
+   every host-side surface (Frame/Dock/Phase/D-E-F). NOT =BUFFER= — its only
+   consumer is the cross-bundle app (which gets props), and host-side it is
+   =terminal.$buffer=. NOT THREAD/DAEMON/MODE (attributes; a =MODE= symbol
+   re-opens the two-mode desync, Q3). The decks stay. The buffer apps keep props
+   BY NECESSITY (=application.js:20= bundles them isolated; =getContext= can't
+   cross) — sourced from context (Frame's =getContext(TERMINAL)=), transported as
+   props at the boundary.
+2. *The entity contexts are =TERMINAL= + =BUFFER= only, NOT also =DAEMON= +
+   =MODE= — RESOLVED (my eval; answers beef's "we might want daemon and mode as
+   separate").* Now framed as CONTEXTS (post-fork-1), the answer is the same:
+   separate =MODE=/=DAEMON= contexts reintroduce the desync beef named (a =MODE=
+   context drifts from =buffer.mode=; there are TWO modes) and duplicate
+   derivable attributes (=daemon = terminal.daemon=). The two entity contexts ARE
+   the ctx; daemon/mode are read off them. NEEDS BEEF to confirm — it is his
+   direct question ("we might want daemon and mode as separate").
+3. *The client already has middleware; =effects.mount= is not its dual —
+   RESOLVED (research).* Middleware lives at the dataspace (=dataspace.js= ctx-
+   onion). =effects.mount= is the teardown-owner. The M16 done-state's
+   =effects.mount= shape is unchanged; M17 only re-labels what it is.
+4. *Rename =terminal= → to signal "cursor / client-ctx"? — OPEN, NEEDS BEEF.*
+   beef: *"maybe terminal is the equivalent of server side ctx."* If terminal IS
+   the ctx, its name could say so (=cursor=? =station=? keep =terminal=?). The
+   ship metaphor (terminal = a screen/berth) still holds; =cursor= names the
+   moving-view role precisely; =ctx= would collide with the server word. Leaning
+   KEEP =terminal= (the object is a terminal you look through; "cursor" is its
+   ROLE, documentable without a rename) — but this is beef's naming call, same
+   "land as its own bracket" reasoning as M11 fork 6. Not blocking; the grammar
+   is right under any name.
+5. *BUFFER context — DROPPED (bundle pass).* Reversed the previous promotion.
+   The buffer's only leaf consumer is the =.url= app, which is a separate bundle
+   that cannot read =getContext= (=application.js:20=); host-side the buffer is
+   =terminal.$buffer=. A =BUFFER= symbol would have zero live consumers. Frame
+   provides nothing; it CONSUMES =TERMINAL= and transports =({terminal, buffer})=
+   across the bundle line as props. Only =TERMINAL= is a symbol (fork 1).
+6. *Does M17.0's doctrine amendment edit the M16 quest's Doctrine section in
+   place, or only add M17? — OPEN, NEEDS BEEF.* The "contexts narrow down the
+   tree" line in M16 becomes "narrow by derivation, not provision." Proposal:
+   amend M16's Doctrine law 2 with a one-line pointer to M17, keep M16's history
+   intact (no rewrite). Cheap either way.
+
+** Blast table
+
+| # | file | change | when | kind |
+|---+------+--------+------+------|
+| ① | =.ikiro/quests/m16_client_provisioning.quest.org= | amend Doctrine law "contexts narrow" → "context is the source, narrow by derivation"; pointer to M17 (fork 6) | 17.0 | edit |
+| ② | memory =project_client_provisioning_doctrine.md= + =project_context_architecture.md= | the grammar: decks=attach-dual / entity-contexts at frame scope / props=fallback / derive-don't-provide | 17.0 | edit |
+| ③ | — live probe (no code) | H2 already proven (oracle ships =buffer.mode.call=); prove H5 cross-mode divergence + H6 =.url= bundle isolation (host =getContext= unreachable inside a buffer bundle) | 17.0 | verify |
+| ④ | =systems/kajuit/src/client.js= | NEW symbol =TERMINAL= (entity context) beside the four decks. NOT =BUFFER= (fork 5) | 17.1 | edit |
+| ⑤ | =systems/kajuit/src/app/+page.svelte= | =setContext(TERMINAL, terminals.$active)= at the panel host — the common ancestor of A/D/E/F/shoulder (NOT panel A: they are siblings, a panel-A provider can't reach them). Provide the STORE, consumers subscribe | 17.1 | edit |
+| ⑤b | =subsystems/drapes/panels/Frame.svelte= | CONSUME =getContext(TERMINAL)=; buffer = =terminal.$buffer=; still hand =({terminal, buffer})= as props to the =.url= mount (the bundle handoff, unchanged) | 17.1 | edit |
+| ⑥ | =registry/education/homepage/aprende/view/Aprende.svelte:46= | =daemon.modes.homepage.aprende.call= → =buffer.mode.call= (adopt oracle's pattern). Props unchanged | 17.2 | edit |
+| ⑥b | =registry/education/game/riddler/buffer/Riddler.svelte= · =registry/playground/chaosmonkey/oracle/buffer/Oracle.svelte= | NO CHANGE — riddler makes no call; oracle already =buffer.mode.call= (the reference). Verify only | 17.2 | verify |
+| ⑦ | =systems/kajuit/src/typology/entities/thread/traits/conversational.js= | drop module =terminalsRef= + =provide()=; liveness reads =$active= from the cursor scope it's mounted under | 17.3 (with M16.3) | edit |
+| ⑦b | =systems/kajuit/src/app/+layout.svelte:42= | delete =ThreadTraits.conversational.provide({ terminals })= (the =//@beef this is shit= sibling) | 17.3 | edit |
+| ⑧ | =systems/kajuit/src/app/panels/a/widgets/Dock.svelte:8-10,47= | drop the =thread= prop; =getContext(TERMINAL)= (provided by ⑤); =terminal.thread= replaces =getContext(TERMINALS)= + =$active= re-subscribe | 17.4 | edit |
+| ⑧b | =systems/kajuit/src/app/panels/a/a.svelte:73= | drop =thread={$thread}= on =<Dock/>= — Dock reads =TERMINAL= context now | 17.4 | edit |
+| ⑨ | =systems/kajuit/src/app/bones/shoulder/widgets/Phase.svelte= | terminal-prop → =getContext(TERMINAL)= (was already terminal-aware; align to the context source) | 17.4 | edit |
+| ⑨b | =systems/kajuit/src/typology/stores/inspector.js:48= | the dead =terminal?.mode?.slug= (always "—") → show BOTH: render-mode =terminal.buffer?.mode= + session-mode =terminal.thread?.mode= (the two-mode pair made visible) | 17.4 | edit |
+| ⑩ | doctrine grep (testament or lint) | =getContext(TERMINALS)= only at panel roots (not leaves); mode apps never walk =daemon.modes=; no free-floating =mode= prop; no =terminal.mode= read (there is no such thing) | 17.5 | NEW check |
+
+** Blast radius — the complete tree
+=(E)= edited · =(V)= verify-only, no change expected · =(N)= new · unmarked =
+untouched, listed for the grammar map.
+
+*** the reference grammar (read greedily — these DEFINE the layers)
+#+begin_example
+server ctx (the dual)
+  systems/runtime/daemon/traits/harnessed.js   bind("daemon"|"mode"); ctx.turn/hallucination
+  systems/runtime/daemon/traits/emitter.js     ctx.thread=findOne(input.thread); ctx.pool
+client ctx-onion (already middleware — proof the client speaks the grammar)
+  systems/kajuit/src/typology/prototypes/dataspace.js   attach(dossier|repository|dataspace)
+  systems/kajuit/src/typology/entities/daemon/dossier.js:23   bind("daemon", daemon)
+the cursor (bind-dual — collection-level identity, sourced into TERMINAL context)
+  systems/kajuit/src/typology/entities/terminal.js       { $thread, $buffer, get daemon, stall }
+  subsystems/typology/gestalten/belt/atom.js             chain(root, ...path)
+  systems/kajuit/src/app/panels/a/a.svelte               the living exemplar (chain, then PROVIDES TERMINAL)
+the contexts (attach-dual — the source, host bundle)
+  systems/kajuit/src/client.js                           decks LIGHTHOUSE·BRIDGE·TERMINALS·BOX + NEW TERMINAL (④)
+  systems/kajuit/src/app/+layout.svelte                  deck setContext ×3 + the provide() hole (⑦b)
+  systems/kajuit/src/app/+page.svelte                    NEW setContext(TERMINAL, terminals.$active) — reaches all sibling panels (⑤)
+the bundle boundary (props = the ctx handoff, NOT a fallback)
+  systems/runtime/daemon/traits/application.js:20        bundle.svelte — isolates each .url buffer-view
+  subsystems/drapes/panels/Frame.svelte                  getContext(TERMINAL) → module.default(dom, {terminal, buffer})
+  registry/.../Oracle.svelte                             the reference leaf: buffer.mode.call / .harness / .daemon
+#+end_example
+
+*** BEFORE — the grammar holes this quest deletes
+#+begin_example
+injection-grammar #4 (module singleton)
+  +layout.svelte:42                 ThreadTraits.conversational.provide({terminals})   (X) → ⑦b
+  thread/traits/conversational.js   let terminalsRef; provide(); activeThread() via terminalsRef  (E) → ⑦
+the Demeter walk — APRENDE ONLY (riddler/oracle already clean; ⑥b assumption was fabricated)
+  aprende Aprende.svelte:46         terminal.daemon.modes.homepage.aprende.call(...)   (E) → ⑥
+  riddler Riddler.svelte            NO call — pure buffer.data render                  (V) → ⑥b
+  oracle Oracle.svelte              ALREADY buffer.mode.call — the reference            (V) → ⑥b
+the prop+context double-read
+  panels/a/widgets/Dock.svelte      let {thread}; getContext(TERMINALS); $active.subscribe  (E) → ⑧
+  panels/a/a.svelte:73              <Dock thread={$thread}/>                             (E) → ⑧b
+#+end_example
+
+*** AFTER — what's new (nothing above repeated)
+#+begin_example
+symbol + provider (host bundle only)
+  systems/kajuit/src/client.js                      (E) TERMINAL symbol (BUFFER dropped, fork 5)
+  systems/kajuit/src/app/+page.svelte               (E) setContext(TERMINAL, terminals.$active) — reaches all sibling panels
+  drapes/panels/Frame.svelte                        (E) getContext(TERMINAL); props to .url unchanged (the boundary handoff)
+doctrine
+  .ikiro/quests/m16_client_provisioning.quest.org   (E) law amended (context is the source; bundle-boundary handoff)
+  memory project_client_provisioning_doctrine.md    (E) the grammar (decks / TERMINAL / bundle handoff / derivation)
+  memory project_context_architecture.md            (E) +TERMINAL context, +bundle-boundary (ship note updated)
+  memory project_buffer_bundle_typology_only.md     (E) note: props ARE the ctx handoff across the isolation line
+enforcement
+  testament or lint grep rule                        (N) the doctrine greps (⑩)
+verify-only (reference patterns)
+  bones/shoulder/widgets/Phase.svelte                (V→E) terminal-aware; align to getContext(TERMINAL)
+  registry/.../Oracle.svelte                         (V) the canonical clean leaf — do not touch, cite
+#+end_example
+
+Count: 1 new symbol (=TERMINAL=), provided at the active-cursor stage, consumed
+by host-side surfaces. 2 grammar holes deleted (provide-singleton, double-read) +
+1 walk fixed (aprende only — riddler/oracle already clean). 1 doctrine file + 3
+memories amended. 1 new grep check. Context is the source host-side; props are
+the ctx handoff across the buffer-bundle isolation line; the entity narrowing is
+derivation on typology atoms (crosses the bundle for free).
+
+** Milestones (each: blast → test → land → test → blast)
+
+*** M17.0 · NAME THE GRAMMAR + prove the hypothesis (no product code)
+Amend the M16 doctrine (fork 6) and the memories: context-is-the-source host-side /
+decks=attach-dual at root / TERMINAL at the active-cursor scope / props=ctx-handoff
+across the buffer-bundle line / narrow-by-derivation. H2 is ALREADY PROVEN in
+tree — Oracle.svelte ships =buffer.mode.call= + =.harness.object.render= +
+=.daemon.entities.turn= across the bundle boundary. Prove the remaining two LIVE:
+- H5: emit a cross-mode buffer (helpdesk into an aprende thread); Frame renders
+  the emitted mode's app while =thread.$mode= stays the session mode. Confirms
+  render-mode and session-mode must stay separate attributes.
+- H6 (bundle isolation): confirm a =.url= app cannot read host =getContext= (own
+  Svelte instance, =Symbol= mismatch) — hence props are the mandatory handoff,
+  not a lazy fallback. (Static: =application.js:20= isolates; the app importmap
+  lacks =client.js=.)
+Gate: both hold → forks 1-2 stand, proceed. Any fails → re-open the eval.
+
+*** M17.1 · THE PROVIDER — TERMINAL symbol + setContext at the panel host
+=client.js= gains =TERMINAL= (④). =+page.svelte= does
+=setContext(TERMINAL, terminals.$active)= — the common ancestor of A/D/E/F/
+shoulder, so every sibling panel reaches it (panel A alone would not; they are
+siblings). Provide the STORE; consumers subscribe (⑤). =Frame= CONSUMES
+=getContext(TERMINAL)=, reads =terminal.$buffer=, and still hands
+=({terminal, buffer})= as props across the bundle line to the =.url= mount (⑤b —
+handoff unchanged; only its SOURCE moves from a chained prop to a context read).
+Test: every panel resolves the active terminal from context, no chain-from-root;
+buffer app still receives its props. Land: green.
+
+*** M17.2 · KILL THE DEMETER WALK — aprende adopts oracle
+ONLY aprende walks (=Aprende.svelte:46=). Replace =daemon.modes.homepage.aprende.call=
+with =buffer.mode.call= (⑥) — oracle's shipped pattern. Riddler (no call) and
+oracle (already clean) are verify-only (⑥b). Blast: grep =daemon.modes\.= across
+=registry/= for any other walker. Test: aprende board + statistics return via
+=buffer.mode.call= (browser, real daemon). Land: green both sides (same rows
+out — effect-over-model, and oracle is the standing proof).
+
+*** M17.3 · THE CURSOR EFFECT — home conversational at its scope (with M16.3)
+=conversational.js= drops =terminalsRef=/=provide()=; liveness =(trait ∩
+mode-capability ∩ activeThread===thread)= reads =$active= from the cursor scope
+the effect is mounted under, not a module global (⑦). Delete the =+layout:42=
+=provide()= (⑦b). Same file M16.3 rehomes — LAND ONCE, together. Test:
+conversational goes live only for the active thread; switching terminals
+re-targets; teardown on deactivate (no leaked socket — the M16.3 wire() teardown
+that =thread/dossier.js:54= currently discards gets an owner here).
+
+*** M17.4 · WIDGETS SOURCE FROM CONTEXT — kill the double-read
+Dock drops its =thread= prop and reads =getContext(TERMINAL)= (provided by ⑤);
+=terminal.thread= replaces the =getContext(TERMINALS)= + =$active= re-subscribe
+(⑧, ⑧b). Phase aligns to =getContext(TERMINAL)= (⑨). Blast: grep
+=getContext(TERMINALS)= — should remain only at panel roots (the legitimate deck
+read), never in a host-side leaf the cursor scope already provides =TERMINAL= to.
+Test: Dock tracks the active terminal through switches without its own collection
+read.
+
+*** M17.5 · ENFORCEMENT — the grammar with teeth
+The greps as a check (⑩): =getContext(TERMINALS)= only at panel roots; no
+=daemon.modes[…]= walk in a mode app; no free-floating =mode= prop; a buffer app
+reads capability off =buffer.mode= (not a re-navigated daemon path). Invariant
+tests: a cross-mode buffer's render-mode ≠ its thread's session-mode survives a
+round-trip; the cursor effect's teardown unsubscribes everything on terminal
+switch.
+
+** Verification
+Per milestone, live matrix (browser, real daemon):
+- M17.0: cross-mode render divergence (H5); =.url= isolation confirmed — host
+  =getContext= unreachable inside a buffer bundle (H6). H2 = oracle, already green.
+- M17.1: Frame renders from the =TERMINAL= context; a non-active frame reads ITS
+  terminal, not =$active=; buffer app still receives its props (handoff intact).
+- M17.2: aprende board + statistics return via =buffer.mode.call=; no console
+  walk-failure probes; riddler + oracle unchanged and green.
+- M17.3: conversational live iff active thread; terminal switch re-targets;
+  socket torn down on deactivate (grep the leak gone).
+- M17.4: Dock/Phase follow the active terminal with zero own collection reads.
+- M17.5: the greps clean; invariant tests green.
+Unit: existing kajuit + typology suites stay green (entity signatures unchanged —
+only host-side leaves move their SOURCE prop→context; the bundle handoff props
+are untouched). Purity grep (M16.4) unaffected.

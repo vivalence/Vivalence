@@ -1,6 +1,6 @@
 #+TITLE: Conversation + Dock re-cast (post C-panel rewrite)
 #+AUTHOR: Vivalence
-#+STATUS: PLANNING
+#+STATUS: LANDED (steps 1-6) · turn/buffer subscriptions re-wired · 1.2 (aperture-created turns) LANDED via TurnRepository, not harnessed.js de-scoping
 
 Conversation + dock worked end-to-end pre-rewrite (see [[file:longdistance.quest.org]] M2/M3,
 s49 rich chat). The C-panel rebuild ([[file:c-panel-rebuild.quest.org]]) moved buffer ownership
@@ -63,6 +63,71 @@ Leave voice/mic scaffolding commented (dormant, owned by [[file:voice.quest.org]
 New =<section class="conversation">= rendered iff =mode.implements("CONVERSATIONAL")=. Engage/release
 button ("start chatting" / "leave") → =conversational.engage/release(thread)= + engaged pill. Keep
 F's flat idiom (header + primary button). Engage → trait flip → wire opens → dock appears in A.
+
+* Landed (verified against live code, not the plan)
+
+Steps 1-6 above are all live: ~thread.js:29,51-56~ ~$conversation~ real ·
+~+layout.svelte:42~ ~ThreadTraits.conversational.provide~ wired · ~dossier.js:44~
+~conversational.wire(thread)~ called per-thread · ~panels/a/a.svelte~ hosts the
+dock via ~stores.bridge.resolve~ · ~Dock.svelte~ exceeds the original spec
+(day-grouped log, tool/artifact ~<details>~, unread-pill, optimistic send) ·
+~panels/f/f.svelte~ engage/release button.
+
+One gap survived until now: ~Dock.svelte:84-91~ read ~thread.$turns~/
+~thread.$buffers~ as guaranteed atoms, but neither was ever assigned —
+~systems/kajuit/src/typology/entities/thread/dossier.js~ had the exact fix
+already written as a dead comment. Traced into VCS (~jj show
+81c627d4ab5d~, the original "kajuit converstion refactor" commit) to check
+whether this was old, working code that got shelved — it wasn't; the old
+~ThreadDossier~ had the same half-measure (hydrate via ~.find()~, never
+assign ~$turns~). Not archaeology, just an unfinished wire. Fixed by
+uncommenting + activating both computed relations in the per-thread
+resolver, and by adding the missing global subscription
+(~systems/kajuit/src/typology/entities/daemon/dossier.js~ — ~buffer.subscribe()~
+existed, ~turn.subscribe()~ never did):
+
+#+begin_src diff
+ // thread/dossier.js
++thread.$buffers = computed(ctx.daemon.entities.buffer.$entities, (buffers) =>
++  buffers.filter((buffer) => (buffer.thread?.id ?? buffer.thread) === thread.id));
++thread.$turns = computed(ctx.daemon.entities.turn.$entities, (turns) =>
++  turns.filter((turn) => (turn.thread?.id ?? turn.thread) === thread.id)
++       .sort((a, b) => new Date(a.createdAt ?? 0) - new Date(b.createdAt ?? 0)));
+
+ // daemon/dossier.js
+-const [modes, threads, buffers, intents] = await Promise.all([...]);
++const [modes, threads, buffers, intents, turns] = await Promise.all([..., daemon.entities.turn.find({}, { populate: [] })]);
+ daemon.entities.buffer.subscribe();
++daemon.entities.turn.subscribe();
+#+end_src
+
+Same shape as ~buffer~'s already-proven pattern — no new mechanism invented.
+
+* 1.2 — aperture-created turns, same dock effect (RESOLVED, not by de-scoping)
+
+Turns created off an =EXPOSED= aperture call (=mode.harness.object.render=,
+not the =CONVERSATIONAL= WS path) land in the same =Dock= via the same
+=thread.$turns= feed — confirmed live for oracle's =/ask= and aprende's
+=/object= aperture. Client side was already surface-agnostic (once a turn
+carries =thread=, =$turns= picks it up regardless of who created it).
+
+Server side did NOT get fixed by de-scoping =harnessed.js= as originally
+planned here. Instead: =history=/=chain= landed directly on =TurnRepository=
+(~subsystems/typology/entities/userspace/Turn.ts~ —
+=turn-repository-history-chain-fold-and-the-connection-budget-recurrence.org=),
+and oracle/aprende's =/ask=/=/object= handlers call them explicitly as thin
+callers. Same outcome (persistence available on any surface) without
+touching =harnessed.js='s branch-matching at all — the doctrinally cleaner
+fix once the shape was named. =harnessed.js:21,66,83= still scribes/loads
+history ONLY on =/dialogue= for the WS-CONVERSATIONAL path specifically,
+which is correct and unchanged — that's the ONE place that mechanism
+belongs, now that every other surface calls the shared repo methods
+directly instead of needing it inherited implicitly.
+
+The tool-absorb third of the original ask ("any harness surface" for tools,
+not just turns) is UNCHANGED and still open — see
+[[file:m12_streaming_harness_toolcalling.quest.org]] fork F, tool-calling
+still explicitly parked.
 
 * Non-goals
 - Voice/audio (speech/verbatim) — stays dormant ([[file:voice.quest.org]]).

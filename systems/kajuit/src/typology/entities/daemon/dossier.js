@@ -80,16 +80,17 @@ export const DaemonDossier = {
         // await daemon.entities.thread.find({}, { populate: ["mode","buffers"] });
         // daemon.entities.buffer.find({}, { populate: ["literals", "symbols"] });
 
-        const [modes, threads, buffers, intents] = await Promise.all([
+        const [modes, threads, buffers, intents, turns] = await Promise.all([
           daemon.entities.mode.find({}, { populate: [] }),
           daemon.entities.thread.find({}, { populate: [] }),
           daemon.entities.buffer.find({}, { populate: ["literals", "symbols"] }),
           daemon.entities.intent.find({}, { populate: [] }),
-          //
+          daemon.entities.turn.find({}, { populate: [] }),
         ]);
 
         daemon.entities.thread.subscribe();
-        daemon.entities.buffer.subscribe();
+        daemon.entities.buffer.subscribe({}, (b, s) => console.log("SUBSCRIPTION BUFFER", b, s));
+        daemon.entities.turn.subscribe();
 
         for (const mode of modes) {
           object.place(daemon.modes, `${mode.type}.${mode.slug}`, mode);
@@ -97,7 +98,7 @@ export const DaemonDossier = {
 
         daemon.status.set("healthy");
         console.log(
-          `[probe] daemon ${manifest.slug} mounted — modes:${modes.length} threads:${threads.length} buffers:${buffers.length} intents:${intents.length}`,
+          `[probe] daemon ${manifest.slug} mounted — modes:${modes.length} threads:${threads.length} buffers:${buffers.length} intents:${intents.length} turns:${turns.length}`,
         );
       } catch (error) {
         if (!["CLIENT", "NETWORK", "TIMEOUT"].includes(error?.type)) {

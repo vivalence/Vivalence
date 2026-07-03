@@ -6,15 +6,17 @@
   let viaHarness = $state("");
   let pendingAperture = $state(false);
   let pendingHarness = $state(false);
+  let route = $state("aperture"); // "aperture" | "harness" — which of the two demo paths this submit takes
 
-  const { buffer } = $props();
+  const { buffer, terminal } = $props();
 
-  // interaction 1 — exposed aperture (/ask) that internally calls harness.object.render
+  // interaction 1 — exposed aperture (/ask) that internally calls harness.object.render.
+  // turn persistence for this route is registered daemon-side, inside the aperture handler.
   async function askAperture() {
     if (!prompt.trim() || pendingAperture) return;
     pendingAperture = true;
     try {
-      const result = await buffer.mode.call("/ask", { prompt });
+      const result = await buffer.mode.call("/ask", { prompt, thread: terminal.thread?.id });
       viaAperture = result?.answer ?? "";
     } catch (e) {
       console.error("askAperture", { error: e });
@@ -23,9 +25,10 @@
     }
   }
 
-  // interaction 2 — the strip-wired harness, called directly from the client
+  // interaction 2 — the strip-wired harness, called directly from the client. No aperture
+  // in between, so the app owns the round trip — turn persistence is registered here,
+  // manually, app-side.
   async function askHarness() {
-    console.log("call to: HARNESS");
     if (!prompt.trim() || pendingHarness) return;
     pendingHarness = true;
     try {
@@ -34,6 +37,29 @@
         config: { schema: v.object({ answer: v.string() }) },
       });
       viaHarness = result?.object?.answer ?? "";
+
+      const threadId = terminal.thread?.id;
+      if (threadId && result?.object) {
+        const turns = buffer.mode.daemon.entities.turn;
+        const history = await turns.find({ thread: threadId }, { orderBy: { createdAt: "ASC" } });
+        const userTurn = await turns.create({
+          role: "user",
+          parts: [{ type: "text", text: prompt }],
+          parent: history.at(-1)?.id ?? null,
+          thread: threadId,
+          mode: buffer.mode.id,
+        });
+        await turns.create({
+          role: "assistant",
+          parts: [
+            { type: "text", text: result.object?.answer ?? "" },
+            { type: "object", data: result.object },
+          ],
+          parent: userTurn.id,
+          thread: threadId,
+          mode: buffer.mode.id,
+        });
+      }
     } catch (e) {
       console.error("askHarness", { error: e });
     } finally {
@@ -46,14 +72,22 @@
   <form
     onsubmit={(event) => {
       event.preventDefault();
-      askAperture();
-      askHarness();
+      if (route === "aperture") askAperture();
+      else askHarness();
     }}>
     <input
       type="text"
       bind:value={prompt}
       placeholder="ask the oracle"
       disabled={pendingHarness || pendingAperture} />
+    <label class="choice">
+      <input type="radio" name="route" value="aperture" bind:group={route} />
+      aperture
+    </label>
+    <label class="choice">
+      <input type="radio" name="route" value="harness" bind:group={route} />
+      harness
+    </label>
     <button type="submit" disabled={pendingHarness || pendingAperture}>ask</button>
   </form>
   <div class="answer"><span class="label">via aperture:</span> {viaAperture || "…"}</div>
@@ -82,7 +116,16 @@
   }
   form {
     display: flex;
+    align-items: center;
     gap: 0.5rem;
+  }
+  .choice {
+    display: flex;
+    align-items: center;
+    gap: 0.3rem;
+    font-size: var(--font-size-xs);
+    opacity: 0.8;
+    white-space: nowrap;
   }
   input {
     flex: 1;

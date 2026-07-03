@@ -79,6 +79,17 @@ text reply even finishes.
 
 * the real design — =content=/=yield= split on =tool_result=
 
+*SUPERSEDED — the yield lexicon.* The split's AXIS (model-facing vs
+app-facing) stands, but the field spelling below is dead: tool returns
+are now lexicon-native ={message, entities, object}= and =executeTools=
+puts =message= in =output= with siblings riding the part app-side —
+LANDED in =subsystems/typology/prototypes/cortex.js= +
+=subsystems/typology/gestalten/fromm/yield.js=, along with milestone
+12.0's cortex edits (thread-forward + the split). See compact
+[[yield-lexicon-four-channels-fromm-yield-and-the-emission-respelling]].
+Remaining 12.0/12.1 work (aprende tools, server proof, askTutor) builds
+on the lexicon spelling, not =.yield=.
+
 Field named =.yield=, not =.artifact= (beef: "why keeping content/artifact
 but not using .buffer?"). =.artifact= was borrowing MCP/LangChain's label
 for the AXIS along with the axis itself — but what concretely rides here is
@@ -175,20 +186,93 @@ section above), but the retraction stays on record as the session's first
 self-correction.
 
 ** case 1 wiring gaps (concrete, unchanged by today's redesign)
-- =registry/education/homepage/aprende/aprende.viva.js:8= — manifest traits
-  missing =TOOLED=. Never wired into =daemon.cortex.tools=.
-- =aprende.viva.js:30-42= — =tools= Vector is a placeholder
-  (=nature: "", valence: ""=, handler returns =[]=), not real descriptors.
-- =Aprende.svelte:303-306= — =askTutor= stub, =console.log; return null=.
-- =systems/kajuit/src/typology/entities/mode/traits/= — no =HARNESSED=
-  trait file at all. Needed to INVOKE render/stream from the client — NOT
-  to merge buffers (that's the broadcast's job, already live).
-- =systems/runtime/daemon/aperture/metadata.js:38-47= — =/metadata/
-  capabilities= exists but isn't =shape.strip=-shaped; no =/metadata/harness=
-  route for =shape.connection.wire= to consume.
-- =systems/runtime/daemon/traits/harnessed.js:89= — =mode.cake.harness=
-  never reassigned to the full compiled Vector post-build, so there's
-  nothing for a =/metadata/harness= route to =shape.strip=.
+
+Infra gaps CLOSED since this was written — proven via a different mode
+(=chaosmonkey/oracle=, not aprende) in the interim:
+- ~systems/kajuit/src/typology/entities/mode/traits/harnessed.js~ — client
+  =HARNESSED= trait EXISTS now (strip-wire, mirrors emitter's client wiring).
+- ~systems/runtime/daemon/aperture/metadata.js~ — =/metadata/harness= route
+  landed (=shape.strip(mode.module.harness)=).
+- ~systems/runtime/daemon/traits/harnessed.js:95~ — =mode.module.harness =
+  harness= reassignment landed (rename note: =mode.cake=→=mode.module= per
+  M15).
+Both server+client mechanism LIVE-VERIFIED against the real anthropic API
+via =harness.object.render= (aperture-mediated AND client-strip-wired), see
+[[file:.ikiro/compacts/chaosmonkey-oracle-harness-lexicon-and-exposed-aperture.org]].
+MILESTONE 12.0's MECHANISM is proven. The aprende-specific integration has
+since LANDED (all three items below were stale — corrected here, see
+changelog + [[file:../compacts/aprende-tool-quartet-query-seed-and-the-cortex-return-split.org]]):
+- =registry/education/homepage/aprende/aprende.viva.js= — manifest carries
+  =TOOLED=; mode-scoped tools absorbed on the harness's own =/object= branch,
+  daemon-wide table staying a =/dialogue= concern.
+- =tools/= is the real quartet: =query= (generic literal/symbol read — bare
+  ={results}= return so rows survive =executeTools='s message/entities/object
+  split) + =activation= + =drill= + =riddle= (receipt-pattern emit delegates).
+- =Aprende.svelte= =askTutor= is real — =terminal.thread.mode.call("/assistant/message")=.
+
+** fork F — harness-root de-scope (turn half RESOLVED differently; tool half still open)
+
+~systems/runtime/daemon/traits/harnessed.js:21,66,83~ mounts turn-scribe,
+history-load, AND tool-absorb (=ctx.hallucination.absorb(shape.agentic(ctx.daemon.cortex.tools))=)
+on =harness.branch("/dialogue")= ONLY — root ~harness.use(...)~ (lines 10-18)
+is the only code that hits every faculty. An object-render call
+(oracle's =/ask= aperture) got NONE of the three: no turn persisted, no
+history loaded, no tools available.
+
+**Turn-scribe + history-load half — RESOLVED, NOT by de-scoping.** A later
+session pass (=turn-repository-history-chain-fold-and-the-connection-budget-recurrence.org=)
+built =history=/=chain=/=fold= straight onto =TurnRepository=
+(~subsystems/typology/entities/userspace/Turn.ts~). =/object= callers (oracle's
+=/ask=, aprende's =/object= middleware) now call =ctx.daemon.entities.turn.history/chain=
+explicitly, as thin callers — same effect as de-scoping =harnessed.js=
+(persistence available on any surface) without touching the shared trait file
+or its branch-matching at all. This is the doctrinally cleaner fix: one core
+(=TurnRepository=), thin callers, no implicit branch-scoping magic to reason
+about. De-scoping =harnessed.js= itself is no longer needed for this half.
+
+**Tool-absorb half — still genuinely open, still parked.** Nothing this
+session touched tool availability on =/object=. Tool-calling was explicitly
+parked ("ignore tool calling") before the turn work started and stays parked
+— "tools on any harness surface" (beef's original ask, session start) is
+unresolved, and DOES still need either de-scoping =harnessed.js='s tool-absorb
+middleware or an equivalent explicit-caller pattern, whichever this quest
+lands on when tool-calling is picked back up. No =go= yet on either.
+
+**Tool-absorb half — since RESOLVED mode-locally, mirroring the turn half's
+shape.** =aprende.viva.js= scopes its own tool branch onto =/object=
+(=harness.branch("/object").use(... absorb(shape.agentic(ctx.daemon.cortex.tools.branch(ctx.mode.slug))))=)
+— the explicit-caller pattern again, =harnessed.js= untouched. Whether other
+modes get =/object= tools by copying this line or by generalizing
+=harnessed.js= stays undecided: aprende is the only =/object= tool consumer,
+no second data point yet.
+
+Cross-referenced at [[file:conversation-dock-recast.quest.org]]'s 1.2
+(aperture-created turns needing the same dock effect as WS-streamed ones) —
+that piece is ALSO resolved by the same =turn.history=/=turn.chain= calls,
+not by de-scoping.
+
+** another occurrence — =buffer.thread= only ever set by emitter bind
+
+Live bug found this session, same family as fork F (hand-rolled turn
+persistence, no shared source of truth for "what thread is this"):
+=buffer.thread= is set in exactly one place repo-wide —
+~systems/runtime/daemon/traits/emitter.js:49~ (=buffer.thread = ctx.thread=,
+emitter-bound creation only). Oracle's own buffer is created via the
+STANDALONE direct-create path (~application.js:36~'s =mode.buffer()=
+factory), which never touches =.thread=. Both of oracle's hand-rolled
+turn-registration call sites (=/ask= aperture, =askHarness()=) gated on
+=buffer.thread?.id= — always falsy for this buffer — so turns silently,
+permanently, never persisted. No error anywhere; the render still worked,
+so it looked fine.
+
+Quick fix landed: =Oracle.svelte= now reads =terminal= from props (it was
+already there, unused) and threads =terminal.thread?.id= instead of
+=buffer.thread?.id= through both call sites — same shape as the earlier
+=askTutor= correction in aprende. Structural gap NOT fixed: a STANDALONE
+buffer still never carries =.thread= on its own entity; any future
+STANDALONE mode hand-rolling turn persistence off =buffer.thread= will hit
+the same silent no-op. Real fix (beef, tonight): fold into this quest's
+broader de-scope pass alongside fork F.
 
 * Forks
 
@@ -319,3 +403,17 @@ Fork C's second stage. Carries:
   introducing an external word. Confirmed empirically that =yield= can't be
   a bare destructuring binding in strict mode (ES modules always are) —
   needs =\{ yield: renamed \}=; fine as an object key or dot-access.
+- *2026-07-04* — aprende tool quartet COMPLETE:
+  =registry/education/homepage/aprende/tools/query.js= NEW (generic
+  literal/symbol read — =entity= × =text=/=symbols=/=ontology= × =pick=
+  match|weak|due|novel routing to =find=/=byStrength=/=due=/=novel=; bare
+  ={results}= return, deliberate: =executeTools= splits returns carrying
+  =message=/=entities=/=object= keys and only =message= reaches the model)
+  + =tools/drill.js= NEW (receipt-pattern delegate to the existing =/drill=
+  emitter); =tools/index.js= slurps query+activation+drill+riddle.
+  Smoke-verified via TOOLED-identical stub binding + =shape.agentic=
+  compile (defaults cast, pick routing, thread forwarding); live model
+  round-trip NOT exercised. Quality pass (4 parallel review agents) stopped
+  by beef mid-flight — outstanding. Stale aprende-integration status lines
+  above corrected same pass. Compact:
+  [[file:../compacts/aprende-tool-quartet-query-seed-and-the-cortex-return-split.org]].

@@ -1,24 +1,26 @@
 import { Hallucination, Vector, shape, steer, shard, soma } from "@vivalence/typology";
 
 export const HARNESSED = (mode, daemon) => {
-  if (!daemon.cortex) throw new Error("HARNESSED: daemon has no cortex");
+  if (!daemon.cortex) throw new Error("HARNESSED: daemon has no cortex"); // @beef: placeholder for a more thorough assessment.
 
-  // console.log(daemon.aperture);
-
+  // HARNESS
   const harness = new Vector();
 
   harness.use(shard.context.bind("daemon", daemon));
   harness.use(shard.context.bind("mode", mode));
-
-  // harness.use(async (ctx, next) => {await next();});
-
   harness.use(async (ctx, next) => {
     ctx.hallucination = new Hallucination(daemon.cortex, ctx.input);
+    ctx.hallucination.absorb(shape.agentic(mode.aperture.branch("/tool")));
+    // ctx.hallucination.absorb(shape.agentic(ctx.daemon.cortex.tools)); @beef original line. maybe i should make the tools a daemon level prop? /type/slug/...tools. all precomputed/wired as agentic tools.  for easy access. tools not in cortex, but on daemon level. makes sense i think. for now i just hard-wire per mode.
     await next();
   });
 
+  // DIALOGUE
+  const dialogue = harness.branch("/dialogue");
+  // dialogue.use(async (ctx, next) => {console.log("[HARNESSED]/dialogue in ", { input: ctx.input, hal: ctx.hallucination }); await next(); console.log("[HARNESSED]/dialogue out", { output: ctx.output });});
+
   // turn persistence is a dialogue concern — only the dialogue branch scribes turns
-  harness.branch("/dialogue").use(async (ctx, next) => {
+  dialogue.use(async (ctx, next) => {
     await next();
 
     if (ctx.output?.[Symbol.asyncIterator]) {
@@ -51,7 +53,7 @@ export const HARNESSED = (mode, daemon) => {
         }
       })();
     } else if (ctx.output?.role) {
-      ctx.daemon.entities.turn.create({
+      await ctx.daemon.entities.turn.chain({
         role: ctx.output.role,
         parts: ctx.output.parts,
         meta: ctx.output.meta,
@@ -59,42 +61,44 @@ export const HARNESSED = (mode, daemon) => {
         thread: ctx.input.thread,
         mode: ctx.mode.id,
       });
-      await ctx.daemon.entities.em.flush();
     }
   });
 
-  harness.branch("/dialogue").use(async (ctx, next) => {
-    const history = await ctx.daemon.entities.turn.find(
-      { thread: ctx.input.thread },
-      { orderBy: { createdAt: "ASC" } },
-    );
-    ctx.turn = ctx.daemon.entities.turn.create({
+  dialogue.use(async (ctx, next) => {
+    // @beef: trait level turn handling is under consideration. maybe move all of turn handling into shards for modes and traits to install directly.
+    const history = await ctx.daemon.entities.turn.history({ thread: ctx.input.thread });
+    ctx.turn = await ctx.daemon.entities.turn.chain({
       role: "user",
       parts: ctx.input.parts,
       parent: history.at(-1) ?? null,
       thread: ctx.input.thread,
       mode: ctx.mode.id,
     });
-    await ctx.daemon.entities.em.flush();
     ctx.hallucination.turns = [...history, ctx.turn];
     await next();
   });
 
-  harness.branch("/dialogue").use(async (ctx, next) => {
-    ctx.hallucination.absorb(shape.agentic(ctx.daemon.cortex.tools));
+  if (mode.module.harness) harness.slurp(mode.module.harness);
+
+  harness.use(async (ctx, next) => {
+    // console.log("harness.use", mode.manifest, ctx.hallucination);
     await next();
   });
 
   return () => {
-    if (mode.module.harness) harness.slurp(mode.module.harness);
     daemon.cortex.shard.faculties(harness);
 
-    mode.harness = shape.object(harness, steer.echo);
-    // the fully-composed vector (post-slurp, post-faculties) — strip-able for
-    // /metadata/harness, mirroring mode.module.emitter's role for EMITTER.
-    mode.module.harness = harness;
+    // @beef: stays.
+    // console.log(
+    //   "shape.agentic(mode.aperture.branch('/tool'))",
+    //   mode.manifest,
+    //   shape.agentic(mode.aperture.branch("/tool")),
+    // );
 
+    mode.harness = shape.object(harness, steer.echo);
     mode.aperture.branch("/harness").slurp(harness);
+
+    // mode.module.harness = harness; // @beef ! important ! module is read only! enforce on paladin level! @claude!
   };
 };
 

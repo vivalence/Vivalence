@@ -29,11 +29,11 @@ export async function metadata(die) {
         schema: mode.module.app.mask,
       }));
 
-    if (mode.implements("EMITTER"))
-      meta.open("/emitter", () => shape.strip(mode.module.emitter));
+    if (mode.implements("EMITTER")) meta.open("/emitter", () => shape.strip(mode.module.emitter));
 
-    if (mode.implements("FRAUGHT"))
-      meta.open("/freight", () => mode.module.freight.catalog);
+    // if (mode.implements("TOOLED")) meta.open("/tools", () => someMetadataStripOfModuleTools());
+
+    if (mode.implements("FRAUGHT")) meta.open("/freight", () => mode.module.freight.catalog);
 
     if (mode.implements("HARNESSED")) {
       meta.open("/capabilities", () =>

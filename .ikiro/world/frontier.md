@@ -1,5 +1,5 @@
 # frontier — the live edge
-<!-- writer: agent · derived-from: quests/ + compacts/ + private logs · verified: session c795a2f7 · limit: 90 lines -->
+<!-- writer: agent · derived-from: quests/ + compacts/ + private logs · verified: session 8327f8a6 · limit: 90 lines -->
 
 Derived: re-derivable from quests + compacts + logs. Update at every session disintegrate. State verdict from the full corpus read: **architecture coherent and contradiction-free; the debt is live-validation, not design.**
 
@@ -16,7 +16,7 @@ Derived: re-derivable from quests + compacts + logs. Update at every session dis
 
 **DESIGN gated on go**: m13 module/mode/kernel semantic alignment (seed — note: the module/kernel rename itself already landed per M15, this is the remaining semantic-alignment work) · m14 testing fixtures (@fixtures package + lock-demo, seed) · m5 widget-glyphs · m9 playground-layout · m10 monkey (still reserved, distinct from chaosmonkey) · m6 vector-affect (seed) · closed-class · exhibit-absorbs-shadow · herald · decorum M2-M5 (+ dapper-second-theme behind it) · siphon · viva-init/install · ghost-autocompleting · topology→corpus · identity-collapse (proposal) · documentation M2-M6.
 
-**DONE recent**: m11 packages LANDED (11.4 docker/docs remainder wants re-plan — fork 10 killed its written plan) · m15 cake→module rename LANDED · m12 MILESTONE 12.0 mechanism BUILT+LIVE-VERIFIED (chaosmonkey/oracle: harness=fixed lexicon not semantic, /ask=EXPOSED aperture, cortex.js .object interface, playground STANDALONE gate bugfix) · cortex · nyan engine+emitters · aprende board · riddler · flatten-corpora · survival-conjugation+paradigm-cells · spanish M1 · voice impl (verify pending) · redact S6 · sheets lib.
+**DONE recent**: aprende harness tool quartet (query/activation/drill/riddle; query = entity-query abstraction seed; bare-{results} cortex return-split rule; quality pass on query/drill OUTSTANDING — review agents stopped mid-flight; live round-trip unverified) · m11 packages LANDED (11.4 docker/docs remainder wants re-plan — fork 10 killed its written plan) · m15 cake→module rename LANDED · m12 MILESTONE 12.0 mechanism BUILT+LIVE-VERIFIED (chaosmonkey/oracle: harness=fixed lexicon not semantic, /ask=EXPOSED aperture, cortex.js .object interface, playground STANDALONE gate bugfix) · cortex · nyan engine+emitters · aprende board · riddler · flatten-corpora · survival-conjugation+paradigm-cells · spanish M1 · voice impl (verify pending) · redact S6 · sheets lib.
 
 ## simmering strands (from beef's logs — recurs, unshipped; expect these to surface)
 

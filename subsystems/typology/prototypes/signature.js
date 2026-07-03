@@ -125,6 +125,7 @@ export class Signature {
   }
 
   get tilde() {
+    // @beef todo: rename to root.
     let position = this;
     while (position.trace) position = position.trace;
     return position;

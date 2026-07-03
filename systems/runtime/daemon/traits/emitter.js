@@ -6,6 +6,7 @@ export const EMITTER = async (mode, daemon) => {
   mode.module.emitter.use(async (ctx, next) => {
     for (const step of ctx.steps ?? []) step.input?.cast(ctx.input);
     await next();
+    // console.log("[EMITTER] after()", { input: Object.keys(ctx.input), output: ctx.output });
     // console.log("VALIDATE OUTPUT");
     // for (const step of ctx.steps ?? []) step.output?.cast(ctx.output);
   });
@@ -18,8 +19,8 @@ export const EMITTER = async (mode, daemon) => {
 
     if (ctx.input.thread) {
       ctx.thread = await daemon.entities.thread.findOne(ctx.input.thread);
-    } else {
-      // throw new Error("THREAD MISSING")
+    } else if (!ctx.thread) {
+      throw new Error("[@emitter] THREAD MISSING");
     }
 
     await next();
@@ -45,7 +46,7 @@ export const EMITTER = async (mode, daemon) => {
     // console.log(result.buffers.map((b) => console.log(b.literals.map((l) => [l.id, l.slug]))));
 
     if (ctx.thread && result.condition === "NOMINAL") {
-      for (const buffer of result.buffers) {
+      for (const buffer of result.entities.buffer) {
         buffer.thread = ctx.thread;
         buffer.index = ctx.thread.counter++;
       }

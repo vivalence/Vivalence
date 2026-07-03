@@ -1,13 +1,31 @@
 import paladin from "@vivalence/paladin";
-import { wrap } from "@mikro-orm/core";
+import { wrap, EntitySchema } from "@mikro-orm/core";
 
 import { Mode, Url, Path, Aperture, Cortex, shard, v } from "@vivalence/typology";
 import { is, array, shape, steer } from "@vivalence/typology";
-import { sets } from "@vivalence/typology/entities";
+import { sets, DataRepository } from "@vivalence/typology/entities";
 
-import * as kinds from "../kinds.js";
 import * as traits from "../traits/index.js";
-import { entities as defaults } from "../entities.js";
+
+// Concrete a kernel/userspace base for a domain-less (slim) daemon. The bases
+// ship abstract so a domain can be their sole concrete subclass; with no domain
+// (e.g. the chaosmonkey variant) concretize here, keeping the base's OWN
+// repository — never flatten to DataRepository, which drops Literal/Symbol
+// query methods (search/due/byStrength/…).
+const concrete = ({ type, entity, schema, repository }) => {
+  const name = type[0].toUpperCase() + type.slice(1);
+  return {
+    type,
+    entity,
+    schema: new EntitySchema({
+      class: entity,
+      extends: schema,
+      tableName: name,
+      name,
+      repository: () => repository ?? DataRepository,
+    }),
+  };
+};
 
 export async function core(die) {
   const registry = {
@@ -25,19 +43,18 @@ export async function core(die) {
   );
 
   die.variant.traits = {
-    ...kinds.traits,
     ...traits,
     ...die.domain.traits,
   };
 
-  die.variant.kinds = { ...kinds.kinds, ...die.domain.kinds };
-
-  // tiers by type: base sets (abstract, shadowed) → daemon-default concretes → domain concretes (win)
+  // tiers by type: base sets (abstract, shadowed) → daemon concretes → domain concretes (win)
   die.variant.entities = Object.values({
     ...sets.daemon,
     ...sets.kernel,
     ...sets.userspace,
-    ...defaults,
+    buffer:  concrete(sets.userspace.buffer),
+    literal: concrete(sets.kernel.literal),
+    symbol:  concrete(sets.kernel.symbol),
     ...die.domain.entities,
   });
 }
@@ -94,14 +111,8 @@ export async function services(daemonDie) {
 
 export async function modes(daemonDie) {
   await daemonDie.datamap.shard.context(async () => {
-    const registeredModes = daemonDie.register.kernel
-      .map((register) => {
-        const kind = daemonDie.variant.kinds[register.manifest.type] ?? kinds.root;
-        return { kind, register };
-      });
-
-    for (const { register, kind } of registeredModes) {
-      const mode = new kind.prototype(register);
+    for (const register of daemonDie.register.kernel) {
+      const mode = new Mode(register);
       mode.mount = daemonDie.good.mount.clone().branch(`/mode/${mode.type}/${mode.slug}`);
       mode.url = daemonDie.good.url.branch(mode.mount.nature);
 

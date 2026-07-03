@@ -1,3 +1,4 @@
+import { computed } from "nanostores";
 import { RemoteRepository, is } from "@vivalence/typology";
 import { Thread } from "./thread.js";
 import * as labeled from "./traits/labeled.js";
@@ -20,6 +21,15 @@ export const ThreadDossier = {
       await next();
       const thread = ctx.entity;
       thread.daemon = ctx.daemon;
+
+      thread.$buffers = computed(ctx.daemon.entities.buffer.$entities, (buffers) =>
+        buffers.filter((buffer) => (buffer.thread?.id ?? buffer.thread) === thread.id),
+      );
+      thread.$turns = computed(ctx.daemon.entities.turn.$entities, (turns) =>
+        turns
+          .filter((turn) => (turn.thread?.id ?? turn.thread) === thread.id)
+          .sort((a, b) => new Date(a.createdAt ?? 0) - new Date(b.createdAt ?? 0)),
+      );
 
       if (!thread.traits.includes("LABELED")) thread.traits = [...thread.traits, "LABELED"];
       labeled.label(thread); // one-shot: derive the display label from intent/mode
@@ -45,16 +55,3 @@ export const ThreadDossier = {
     },
   ],
 };
-
-// thread.mode =
-//   ctx.daemon.entities.mode.$entities.get().find((mode) => mode.id === modeId) ?? thread.mode;
-
-// thread.$buffers = computed(ctx.daemon.entities.buffer.$entities, (buffers) =>
-//   buffers.filter((buffer) => (buffer.thread?.id ?? buffer.thread) === thread.id),
-// );
-
-// thread.$turns = computed(ctx.daemon.entities.turn.$entities, (turns) =>
-//   turns
-//     .filter((turn) => (turn.thread?.id ?? turn.thread) === thread.id)
-//     .sort((a, b) => new Date(a.createdAt ?? 0) - new Date(b.createdAt ?? 0)),
-// );

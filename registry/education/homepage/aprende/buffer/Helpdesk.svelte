@@ -1,6 +1,11 @@
 <script>
   // either/or: an assistant message OR a user input — never both.
   // click the message → it gives way to the input. submit/escape → back to the message.
+  //
+  // smart sizing: the message is measured against the available width and steps
+  // through fit tiers — base single-line → sm single-line → sm multiline → xs
+  // multiline past ~4 lines. A ResizeObserver re-fits on container resize, so the
+  // desk reacts to both the text and the layout around it.
   let {
     greeting = "Olá! What do you want to practice today?",
     placeholder = "Ask your tutor anything…",
@@ -12,6 +17,52 @@
   let message = $state(greeting);
   let pending = $state(false);
   let field = $state(null);
+
+  let body = $state(null);
+  let measurer = $state(null);
+  let sizing = $state({ size: "var(--font-size-base, 1rem)", wrap: false });
+
+  const SIZES = {
+    base: "var(--font-size-base, 1rem)",
+    small: "var(--font-size-sm, 0.875rem)",
+    tiny: "var(--font-size-xs, 0.75rem)",
+  };
+
+  function textWidth(text, size) {
+    measurer.style.fontSize = size;
+    measurer.textContent = text;
+    return measurer.offsetWidth;
+  }
+
+  function fit() {
+    if (!body || !measurer) return;
+    const available = body.clientWidth;
+    if (!available) return;
+    const text = pending ? "…" : message;
+    if (textWidth(text, SIZES.base) <= available) {
+      sizing = { size: SIZES.base, wrap: false };
+    } else if (textWidth(text, SIZES.small) <= available) {
+      sizing = { size: SIZES.small, wrap: false };
+    } else {
+      const lines = Math.ceil(textWidth(text, SIZES.small) / available);
+      sizing = { size: lines > 4 ? SIZES.tiny : SIZES.small, wrap: true };
+    }
+  }
+
+  $effect(() => {
+    void message;
+    void pending;
+    void editing;
+    fit();
+  });
+
+  $effect(() => {
+    if (!body) return;
+    const observer = new ResizeObserver(() => fit());
+    observer.observe(body);
+    document.fonts?.ready?.then(() => fit());
+    return () => observer.disconnect();
+  });
 
   function open() {
     editing = true;
@@ -45,22 +96,33 @@
   }
 </script>
 
-<div class="helpdesk">
+<div class="helpdesk" class:tall={sizing.wrap && !editing}>
   <span class="tag">Tutor</span>
   <span class="divider"></span>
+  <div class="body" bind:this={body}>
+    {#if editing}
+      <form onsubmit={submit}>
+        <input
+          bind:this={field}
+          bind:value={draft}
+          {placeholder}
+          onkeydown={keydown} />
+      </form>
+    {:else}
+      <button
+        class="message"
+        class:wrap={sizing.wrap}
+        style:font-size={sizing.size}
+        onclick={open}
+        disabled={pending}
+        aria-label="reply to your tutor">
+        {pending ? "…" : message}
+      </button>
+    {/if}
+    <span class="measurer" bind:this={measurer} aria-hidden="true"></span>
+  </div>
   {#if editing}
-    <form onsubmit={submit}>
-      <input
-        bind:this={field}
-        bind:value={draft}
-        {placeholder}
-        onkeydown={keydown} />
-    </form>
     <button class="send" onclick={submit} aria-label="send to your tutor">→</button>
-  {:else}
-    <button class="message" onclick={open} disabled={pending} aria-label="reply to your tutor">
-      {pending ? "…" : message}
-    </button>
   {/if}
 </div>
 
@@ -80,6 +142,16 @@
   .helpdesk:focus-within {
     border-color: color-mix(in srgb, #1EBCB5 70%, transparent);
   }
+  .helpdesk.tall {
+    align-items: flex-start;
+  }
+  .helpdesk.tall .tag {
+    padding-top: 0.2em;
+  }
+  .helpdesk.tall .divider {
+    align-self: stretch;
+    height: auto;
+  }
   .tag {
     flex: 0 0 auto;
     font-family: var(--font-family-code);
@@ -94,6 +166,19 @@
     width: 1px;
     height: 1.4rem;
     background: color-mix(in srgb, var(--colors-skeleton-1-boundary) 35%, transparent);
+  }
+  .body {
+    position: relative;
+    flex: 1 1 auto;
+    min-width: 0;
+    display: flex;
+  }
+  .measurer {
+    position: absolute;
+    visibility: hidden;
+    white-space: nowrap;
+    pointer-events: none;
+    font-family: var(--font-family-sans-text);
   }
   form {
     flex: 1 1 auto;
@@ -123,6 +208,15 @@
     white-space: nowrap;
     overflow: hidden;
     text-overflow: ellipsis;
+  }
+  .message.wrap {
+    white-space: normal;
+    overflow-wrap: anywhere;
+    text-wrap: pretty;
+    line-height: 1.45;
+    max-height: calc(6 * 1.45em);
+    overflow-y: auto;
+    text-overflow: unset;
   }
   .send {
     flex: 0 0 auto;

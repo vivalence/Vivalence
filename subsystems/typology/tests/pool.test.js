@@ -178,13 +178,13 @@ specimen.describe("Pool", () => {
       const pool = Pool.of(buf("a"), buf("b"));
       const result = await pool.drain();
       specimen.expect(result.condition).toBe("NOMINAL");
-      specimen.expect(result.buffers).toHaveLength(2);
+      specimen.expect(result.entities.buffer).toHaveLength(2);
     });
 
     specimen.it("returns EXHAUSTED when pool is empty", async () => {
       const result = await new Pool().drain();
       specimen.expect(result.condition).toBe("EXHAUSTED");
-      specimen.expect(result.buffers).toEqual([]);
+      specimen.expect(result.entities.buffer).toEqual([]);
     });
 
     specimen.it("returns EXHAUSTED when all items were dropped", async () => {
@@ -200,8 +200,8 @@ specimen.describe("Pool", () => {
       );
       const result = await pool.drain();
       specimen.expect(result.condition).toBe("NOMINAL");
-      specimen.expect(result.buffers).toHaveLength(2);
-      specimen.expect(result.buffers[0].id).toBe("a");
+      specimen.expect(result.entities.buffer).toHaveLength(2);
+      specimen.expect(result.entities.buffer[0].id).toBe("a");
     });
 
     specimen.it("resolves promises to yield envelopes — unwraps NOMINAL", async () => {
@@ -209,7 +209,7 @@ specimen.describe("Pool", () => {
         Promise.resolve(Yield.NOMINAL([buf("a"), buf("b")])),
       );
       const result = await pool.drain();
-      specimen.expect(result.buffers).toHaveLength(2);
+      specimen.expect(result.entities.buffer).toHaveLength(2);
     });
 
     specimen.it("resolves promises to EXHAUSTED — drops", async () => {
@@ -218,20 +218,20 @@ specimen.describe("Pool", () => {
         Promise.resolve(Yield.EXHAUSTED()),
       );
       const result = await pool.drain();
-      specimen.expect(result.buffers).toHaveLength(1);
-      specimen.expect(result.buffers[0].id).toBe("a");
+      specimen.expect(result.entities.buffer).toHaveLength(1);
+      specimen.expect(result.entities.buffer[0].id).toBe("a");
     });
 
     specimen.it("resolves promises to null — drops", async () => {
       const pool = Pool.of(buf("a"), Promise.resolve(null));
       const result = await pool.drain();
-      specimen.expect(result.buffers).toHaveLength(1);
+      specimen.expect(result.entities.buffer).toHaveLength(1);
     });
 
     specimen.it("resolves promises to arrays — flattens", async () => {
       const pool = Pool.of(Promise.resolve([buf("a"), buf("b")]));
       const result = await pool.drain();
-      specimen.expect(result.buffers).toHaveLength(2);
+      specimen.expect(result.entities.buffer).toHaveLength(2);
     });
 
     specimen.it("drains nested pools with promises", async () => {
@@ -242,8 +242,8 @@ specimen.describe("Pool", () => {
         Promise.resolve(buf("c")),
       );
       const result = await pool.drain();
-      specimen.expect(result.buffers).toHaveLength(3);
-      specimen.expect(result.buffers.map((b) => b.id)).toEqual(["a", "b", "c"]);
+      specimen.expect(result.entities.buffer).toHaveLength(3);
+      specimen.expect(result.entities.buffer.map((b) => b.id)).toEqual(["a", "b", "c"]);
     });
 
     specimen.it("drains nested pool that resolves to empty — drops", async () => {
@@ -251,7 +251,7 @@ specimen.describe("Pool", () => {
       pool.add(buf("a"));
       pool.section(Promise.resolve(null), Promise.resolve(Yield.EXHAUSTED()));
       const result = await pool.drain();
-      specimen.expect(result.buffers).toHaveLength(1);
+      specimen.expect(result.entities.buffer).toHaveLength(1);
     });
 
     specimen.it("resolves all promises in parallel", async () => {
@@ -262,10 +262,10 @@ specimen.describe("Pool", () => {
       }, ms));
       const pool = Pool.of(delayed("slow", 30), delayed("fast", 10));
       const result = await pool.drain();
-      specimen.expect(result.buffers).toHaveLength(2);
+      specimen.expect(result.entities.buffer).toHaveLength(2);
       specimen.expect(order).toEqual(["fast", "slow"]);
-      specimen.expect(result.buffers[0].id).toBe("slow");
-      specimen.expect(result.buffers[1].id).toBe("fast");
+      specimen.expect(result.entities.buffer[0].id).toBe("slow");
+      specimen.expect(result.entities.buffer[1].id).toBe("fast");
     });
   });
 
@@ -289,10 +289,10 @@ specimen.describe("Pool", () => {
       pool.section(buf("a"), buf("b"), buf("c")).apply((items) => items.reverse());
       pool.add(buf("last"));
       const result = await pool.drain();
-      specimen.expect(result.buffers[0].id).toBe("first");
-      specimen.expect(result.buffers[1].id).toBe("c");
-      specimen.expect(result.buffers[3].id).toBe("a");
-      specimen.expect(result.buffers[4].id).toBe("last");
+      specimen.expect(result.entities.buffer[0].id).toBe("first");
+      specimen.expect(result.entities.buffer[1].id).toBe("c");
+      specimen.expect(result.entities.buffer[3].id).toBe("a");
+      specimen.expect(result.entities.buffer[4].id).toBe("last");
     });
 
     specimen.it("head + section — exhibit before shuffled body", async () => {
@@ -300,7 +300,7 @@ specimen.describe("Pool", () => {
       pool.section(buf("b"), buf("c"));
       pool.head(buf("a"));
       const result = await pool.drain();
-      specimen.expect(result.buffers.map((b) => b.id)).toEqual(["a", "b", "c"]);
+      specimen.expect(result.entities.buffer.map((b) => b.id)).toEqual(["a", "b", "c"]);
     });
 
     specimen.it("section with deferred promises + apply", async () => {
@@ -312,10 +312,10 @@ specimen.describe("Pool", () => {
         Promise.resolve(Yield.NOMINAL([buf("z")])),
       ).apply((items) => items.reverse());
       const result = await pool.drain();
-      specimen.expect(result.buffers[0].id).toBe("first");
-      specimen.expect(result.buffers[1].id).toBe("z");
-      specimen.expect(result.buffers[2].id).toBe("y");
-      specimen.expect(result.buffers[3].id).toBe("x");
+      specimen.expect(result.entities.buffer[0].id).toBe("first");
+      specimen.expect(result.entities.buffer[1].id).toBe("z");
+      specimen.expect(result.entities.buffer[2].id).toBe("y");
+      specimen.expect(result.entities.buffer[3].id).toBe("x");
     });
 
     specimen.it("nested sections flatten in order", async () => {
@@ -325,7 +325,7 @@ specimen.describe("Pool", () => {
       outer.section(buf("3"));
       pool.add(buf("4"));
       const result = await pool.drain();
-      specimen.expect(result.buffers.map((b) => b.id)).toEqual(["1", "2", "3", "4"]);
+      specimen.expect(result.entities.buffer.map((b) => b.id)).toEqual(["1", "2", "3", "4"]);
     });
   });
 });

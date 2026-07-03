@@ -65,8 +65,9 @@ export class Vector {
     }
 
     for (const [pattern, trajectory] of vector.trajectories) {
-      const existing = Array.from(this.trajectories.entries())
-        .find(([i]) => i.nature === pattern.nature)?.[1];
+      const existing = Array.from(this.trajectories.entries()).find(
+        ([i]) => i.nature === pattern.nature,
+      )?.[1];
       if (existing) {
         existing.slurp(trajectory);
       } else {
@@ -84,14 +85,16 @@ export class Vector {
   // owning variant: it deep-copies the subtree so dest carries an independent tree.
   // Both share effect handlers + carry by ref (functions are immutable); only the
   // mutable trajectory containers are copied.
+  // @beef note: maybe find vector root first? aka slurp from root??? hm.
   swallow(vector) {
     for (const [pattern, effect] of vector.effects) {
       this.effects.set(pattern, effect);
     }
 
     for (const [pattern, trajectory] of vector.trajectories) {
-      const existing = Array.from(this.trajectories.entries())
-        .find(([i]) => i.nature === pattern.nature)?.[1];
+      const existing = Array.from(this.trajectories.entries()).find(
+        ([i]) => i.nature === pattern.nature,
+      )?.[1];
       const branch = existing ?? new this.constructor(this, this.signature);
       branch.swallow(trajectory); // recurse into an OWNED branch — never share the ref
       if (!existing) this.trajectories.set(pattern, branch);
@@ -108,6 +111,11 @@ export class Vector {
   }
   get descendants() {
     return [...this.trajectories.values()];
+  }
+  get root() {
+    let position = this;
+    while (position.ancestor) position = position.ancestor;
+    return position;
   }
   get heir() {
     return this.descendants[0];

@@ -30,8 +30,6 @@ import {
 import { sets, UserEntity, BufferEntity, LiteralEntity, SymbolEntity, helper } from "@vivalence/typology/entities";
 import { provider as memoryDatamap } from "@vivalence/typology/scenarios";
 import { Daemon } from "@vivalence/runtime/daemon";
-import * as kinds from "../../daemon/kinds.js";
-import { entities as defaults } from "../../daemon/entities.js";
 import * as traits from "../../daemon/traits/index.js";
 import * as lifecycleResolution from "../../daemon/lifecycle/resolution.js";
 import * as lifecyclePopulation from "../../daemon/lifecycle/population.js";
@@ -99,21 +97,19 @@ export async function bench(spec = {}) {
 
   const domain = kernel.find((module) => module.manifest?.type === "domain");
 
-  // ── variant: traits + mode kinds + entity schemas ────────────────
+  // ── variant: traits + entity schemas ─────────────────────────────
+  // bench specs always load a domain, which concretizes literal/symbol/buffer;
+  // the runtime's slim-daemon concrete defaults are shadowed here and omitted.
   const variantTraits = {
-    ...kinds.traits,
     ...traits,
     ...(domain?.traits || {}),
     APPLICATION: BENCH_APPLICATION,
   };
 
-  const variantKinds = { ...kinds.kinds, ...(domain?.kinds || {}) };
-
   const variantEntities = Object.values({
     ...sets.daemon,
     ...sets.kernel,
     ...sets.userspace,
-    ...defaults,
     ...(domain?.entities || {}),
   });
 
@@ -144,7 +140,6 @@ export async function bench(spec = {}) {
     datamap: datamapInstance,
     domain,
     variant: {
-      kinds: variantKinds,
       traits: variantTraits,
       entities: variantEntities,
       services: {},

@@ -40,7 +40,7 @@ Kernel rules, always on:
 - **code is self-documenting**: no comments, no `_var`, no shims, full true names, zero ceremony.
 - **`retard` (verbatim) = self-improve codeword** → log in `zettelkasten.md ## Callouts`.
 
-Communication contract: **code/diff IS the body; prose is annotation** (beef, permanent — and re-ordered again: *"more code heavy, functional, shorter answers"*). Short; end on substance; no trailing questions; tables for symbolic content only; structure as trees/traces; every snippet leads with its filepath; asked-for-data = paste the raw JSON; the percentage fader (`5%`…) is sticky.
+Communication contract: **code/diff IS the body; prose is annotation** (beef, permanent — and re-ordered again: *"more code heavy, functional, shorter answers"*). Short; end on substance; no trailing questions; tables for symbolic content only; structure as trees/traces; every snippet leads with its filepath, and every file reference — prose or snippet header — is container-rooted (`systems/…`, `subsystems/…`, `registry/…`): `systems/runtime/daemon/traits/harnessed.js`, never bare `harnessed.js`; asked-for-data = paste the raw JSON; the percentage fader (`5%`…) is sticky.
 
 ## world — where I am (derived; the map defers to the territory)
 

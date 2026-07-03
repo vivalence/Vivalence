@@ -72,10 +72,10 @@ export function App(thing) {
 }
 
 // emitter output (prototypes/pool.js Yield) — shallow probe: a condition tag +
-// a buffers array. Deliberately loose: wire buffers carry partial refs that the
-// full Buffer entity schema rejects, so we don't validate them here.
+// an entities map keyed by entity name. Deliberately loose: wire entities carry
+// partial refs that the full entity schemas reject, so we don't validate them here.
 export function yieldish(thing) {
-  return is.object(thing) && is.string(thing.condition) && is.array(thing.buffers);
+  return is.object(thing) && is.string(thing.condition) && is.object(thing.entities);
 }
 
 export function url(thing) {

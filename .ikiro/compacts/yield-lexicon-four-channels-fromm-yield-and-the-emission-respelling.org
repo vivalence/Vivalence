@@ -1,0 +1,203 @@
+#+TITLE: the yield lexicon — four channels, fromm.yield, and the emission respelling
+
+Session "helpdesk". Opens as a grounding pass for the aprende helpdesk +
+riddler build, pivots when beef rejects the M12 =.yield= field name, and
+lands a repo-wide staple: the yield lexicon in
+=subsystems/typology/gestalten/fromm/yield.js= plus the emission wire
+format respelled to speak it natively. Two blast-brackets, both green.
+
+* the grounding pass (helpdesk + riddler)
+
+Opening ask: /"we have now got all the primitives demonstrated that we
+need to render the @education/aprende helpdesk, as well as finally write
+the riddler. i want you to read up on the last weeks worth of quests and
+compacts that touch on either riddler or aprende. and then think about
+how we implement those two now."/
+
+Read the trail (chaosmonkey/oracle compacts, m12 quest, riddler compact,
+aprende compacts, activation-loop quest) and verified the M12 gaps
+against disk: =subsystems/typology/prototypes/cortex.js= still had the
+raw =executeTools= (no content split) and the =synthesizeObject=
+thread-drop bug; =systems/runtime/daemon/traits/harnessed.js= absorbs
+=shape.agentic(daemon.cortex.tools)= ONLY on the =/dialogue= branch (so
+object-with-tools starves); =registry/education/homepage/aprende/aprende.viva.js=
+lacks TOOLED + real tools; =askTutor= stub; riddler's tools + dataset
+dead inside a one-line comment (=riddler.viva.js:236=). Plan: cortex →
+absorb → aprende tools → server proof → askTutor → riddler restore.
+beef: /"4. server proofing is suuper valid!"/ — the server-proof gate
+(scenario asserting =daemon.entities.buffer.find({thread})=, never a
+harness-response field) is the blessed sequencing.
+
+* new standing rule — container-rooted file references
+
+beef: /"general ikiro rule from now on: when referencing files by name,
+always include either the system, subsystem, or package reference so i
+get context!! propagate this into examples."/ Landed via standalone agent
+into the kernel communication contract + rituals anti-rationalization
+list; memory =feedback_container_rooted_paths=. Never bare =harnessed.js=
+— always =systems/runtime/daemon/traits/harnessed.js=.
+
+* the design dialogue — from field name to lexicon
+
+beef kills the M12 field name: /"dont call it yield. yield is the
+transport layer. what is it we are yielding? tool result? an array of
+buffers? single buffer?"/ and proposes the mechanism himself: /"lets
+create in typology gestalten fromm a fromm yield({}) and depending on the
+yield type thats either read from input.type or sniffed via prop
+sniffing... we return a different object or set of getters... this would
+be our repo wide staple for yield transforms aka how transport layers are
+multiplexed. elegant or forced?"/
+
+Verdict: elegant — =fromm.sink=/=fromm.source= in
+=subsystems/typology/gestalten/fromm/index.js= are ALREADY prop-sniffing
+transport multiplexers returning getter objects; =fromm.yield= is the
+third instance of an existing grammar. Two conditions: sniff-never-stamp
+(producers untouched — the M12 Pool/Yield-type-enum rejection survives)
+and payloads-not-events (the =/= grammar stays the event multiplexer).
+
+First pass had per-kind getter sets. beef: /"no need to nest as deep as
+emission.js. one yield.js file is fine. take another stab at the kinds.
+loosen your conception of the current things and consider that were
+holistically co designing how emissions and turns and tool calls and such
+are working. rethink these entities. view then through one first
+pronciples lense."/
+
+** the four channels (beef: "this is brilliant. exactly what i was going for")
+
+THE LENS: nothing ever yields "a kind of thing" — every production across
+every seam yields the same four channels, sparsely filled:
+
+- =condition= — how production ended. pool.js NOMINAL/EXHAUSTED/ERROR and
+  turn =meta.stop= are the SAME channel in two costumes (the convergence
+  that validated the lens).
+- =message= — the utterance for the mind across the seam (turn text to
+  user, tool content to model).
+- =entities= — dataspace citizens brought into being; they land in the
+  datamap and broadcast, in-band copies are references.
+- =object= — schema-shaped value for the caller's code.
+
+M12's audience-channel axis completed: model/user ← message · dataspace ←
+entities · caller code ← object · control flow ← condition. Kinds
+(emission/turn/result/opaque) dissolve into channel OCCUPANCY — sparse
+fills of one fixed getter lexicon, consumer never branches on kind. Same
+shape as the oracle session's harness-is-lexicon verdict.
+
+** entities keyed by name (beef: "the entities nesting is brilliant")
+
+/"dont you think we need a type do identofy which f.e. entity type we
+have as payload?"/ → keys, not tags: =entities: { buffer: [...] }= —
+mirrors =daemon.entities.buffer= and the broadcast paths
+(=/buffer/create/after=). Key IS the type; one grammar with the dataspace
+itself; the client merge middleware generalizes to a fold over
+=Object.entries= for free.
+
+** recursion judged OUT
+
+/"what about recursive yields? at some point we will want to know what
+tool call generated which buffers?"/ First answer: yields carry child
+yields + =nature= (=/= grammar) + =id=. beef: /"or maybe recursive is
+excessive and unclean. you judge. slim the yield type back down. fe id is
+excessive."/ Judged: cut all three. The tree served a window nothing
+lives in — in-the-loop, =executeTools= holds each tool's return in the
+same iteration (correlation free); post-hoc it's a dataspace question
+only a persisted relation answers (buffer → turn, separate fork, open).
+Recursion also broke the lexicon's own virtue (flat fixed channels =
+structure the consumer never walks).
+
+** object · kind · forced perspective · the 45° rotation
+
+/"what about object instead of data?"/ → locked =object= (the faculty
+register: =FACULTY_TYPES=, =DERIVATIONS.object=, part type "object";
+=data= collided with =buffer.data=). /"and what about my type
+property?"/ → the discriminator exists as the READER's verdict (=kind=
+getter), never a field at rest. Then beef refined: /"exactly. sniffer
+determines. but the yield might help along. optionally. for clarity. or
+to force perspective."/ → declared =kind= on a payload wins row lookup;
+sniffer carries the default. /"kind is good."/
+
+/"merge the classify and probes. look at pattern type sniffing for
+inspiration. sniffing yields can now be shape rotated 45°."/ →
+=subsystems/typology/prototypes/pattern.js:52= patternmap idiom: one
+yieldmap of =[kind, sniff, fill]= triples — name + test + behavior per
+row, override and sniff share one truth-table, can't drift (the exact
+disease =pool.js='s SHAPES comment warns about). Third structural
+sibling: pattern.js patternmap · pool.js SHAPES · fromm yieldmap.
+
+Final surface, beef-confirmed verbatim ("correct"):
+=fromm.yield(thing)= → getters =kind · condition · message · entities ·
+object=.
+
+* blast 1 — fromm.yield + cortex (beef: "build the blast change. this will have quite the stray")
+
+- =subsystems/typology/gestalten/fromm/yield.js= NEW — yieldmap +
+  reader; =export { reader as yield }= (IdentifierName slot, the M12
+  strict-mode fact); barrel-live via =fromm/index.js=.
+- =subsystems/typology/prototypes/cortex.js= — =executeTools= lexicon
+  unpack (native ={message, entities, object}= → =output: message=,
+  siblings ride the part app-side; bare returns byte-identical) ·
+  =renderLeaf= =callConfig = {...config, thread}= · =synthesizeObject=
+  forwards =config.thread= — the M12 thread bug dead.
+- Tests: =tests/gestalten/fromm.test.js= NEW (kinds, forced perspective,
+  fallbacks, source-unmutated invariant) + 2 in
+  =tests/hallucination.test.js= (thread through synthesized path; lexicon
+  split at the tool_result boundary).
+- Strays judged NOT converted: kajuit merge middlewares (mutators, not
+  readers — conversion would force kind-branching), panel-a =turns.js=
+  (part-level, below the yield seam),
+  =registry/viva/hallucinator/anthropic/provider/translate.js:52=
+  confirmed reads =.output= only, dewey's tool return has no lexicon
+  keys.
+
+* blast 2 — the emission respells (beef: "what about the emitter and the whole pool and buffers setup. that ought to fit in here too." → "no phase 3. go on phase 2")
+
+The mapping: Pool = the entities-channel accumulator (sections/flatten =
+production tree, drain = the fold) · Yield factories = lexicon
+constructors in an old spelling · merge middlewares = the entities
+channel's client IO. Phase 3 (Pool bucketing by entity name) REFUSED by
+beef and by trigger-9 — no non-buffer producer exists; the keyed shape
+leaves the slot open.
+
+Landed:
+- =subsystems/typology/prototypes/pool.js= — factories now ={ kind:
+  "emission", condition, entities: { buffer } }=; =resolve=/=add= follow;
+  Pool mechanics otherwise untouched.
+- =subsystems/typology/schematics/prototypes/yield.js= — schema keyed.
+- =subsystems/typology/gestalten/is/prototypes.js= — =yieldish= sniffs
+  =condition= + =entities=.
+- =fromm/yield.js= emission row → passthrough (the adapter SHRANK — the
+  promised migration effect, first proof).
+- =systems/runtime/daemon/traits/emitter.js= — thread-bind loop reads
+  =result.entities.buffer=.
+- =systems/kajuit/src/typology/entities/mode/traits/emitter.js= +
+  =harnessed.js= — ONE keyed fold, merges every entity kind a local repo
+  exists for.
+- Test respell: =tests/pool.test.js=, =tests/schematics/yield.test.js=,
+  fromm forced-perspective fixture re-ambiguated, runtime
+  smoke/integration/traits/emitters assertions.
+
+Green: typology 6 suites / 108 steps · runtime 10 suites / 87 steps
+(smoke + integration run the full in-memory =/emit= lifecycle — wire
+shape proven server-side end to end). Final grep: zero old-spelling
+readers (leftover =.buffers= = =thread.buffers= entity relation +
+commented archaeology). =systems/kajuit/tests/scenario/buffer.test.js=
+was already broken pre-blast (stale =src/entities/buffer.js= import) —
+not touched.
+
+* Resumption
+
+- Helpdesk/riddler chain, remaining on per-item go: absorb placement in
+  =systems/runtime/daemon/traits/harnessed.js= (recommended: move to
+  harness base) · =registry/education/homepage/aprende/aprende.viva.js=
+  +TOOLED with lexicon-native tools (={message, entities: { buffer }}=)
+  · server-proof scenario (buffer.find({thread}), never a response
+  field) · =askTutor= via =mode.harness.dialogue.render= · riddler tools
+  + dataset restore from the comment blob.
+- Cortex thread-forward + lexicon split already landed (rode blast 1).
+- Open forks: daemon-wide tool table visible to the helpdesk tutor
+  (feature or leak) · helpdesk auto-focus of tool-emitted buffers ·
+  persisted buffer→turn provenance relation · turn condition
+  normalization richer than error/abort→ERROR.
+- Browser-side verification of the respelled wire rides beef's next
+  runtime restart (bundle cache).
+- M12 quest's ={content, yield}= tool-return design is SUPERSEDED by the
+  lexicon — noted in the quest.

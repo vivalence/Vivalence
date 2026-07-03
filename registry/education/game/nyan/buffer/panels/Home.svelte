@@ -39,9 +39,26 @@
   const set = (field, value) => (game.config[field] = value);
   const pctOf = (value, min, max) => (100 * (value - min)) / (max - min);
   const recallSeconds = (ms) => `${(ms / 1000).toFixed(1)}s`;
+
+  // length slider · logarithmic 1..128 — fine control down low, coarse up high. the
+  // range carries a normalized log position [0..1]; the count is the rounded 2^ mapping.
+  const COUNT_MIN = 1;
+  const COUNT_MAX = 128;
+  const LOG_MIN = Math.log2(COUNT_MIN);
+  const LOG_SPAN = Math.log2(COUNT_MAX) - LOG_MIN; // 7 octaves
+  const clampCount = (n) => Math.min(COUNT_MAX, Math.max(COUNT_MIN, n));
+  const posToCount = (pos) => clampCount(Math.round(2 ** (LOG_MIN + pos * LOG_SPAN)));
+  const countToPos = (count) => (Math.log2(clampCount(count)) - LOG_MIN) / LOG_SPAN;
 </script>
 
 <div class="home">
+  <!-- ── results · same screen, after a run (typing analysis — domain-blind) ── -->
+  {#if game.analysis}
+    <section class="block">
+      {@render head("Last run")}
+      <Review {game} {view} />
+    </section>
+  {/if}
   <!-- ── source (corpus) · subject (domain/fixed) ── -->
   <section class="block">
     {#if kind === "corpus"}
@@ -91,11 +108,12 @@
         <input
           class="slider"
           type="range"
-          min="10"
-          max="50"
-          step="5"
-          style:--fill="{pctOf(game.config.count, 10, 50)}%"
-          bind:value={game.config.count} />
+          min="0"
+          max="1"
+          step="0.001"
+          style:--fill="{100 * countToPos(game.config.count)}%"
+          value={countToPos(game.config.count)}
+          oninput={(event) => set("count", posToCount(+event.currentTarget.value))} />
       </div>
       {#if prov.settings.includes("order")}
         <div class="inline">
@@ -140,13 +158,6 @@
     </div>
   </section>
 
-  <!-- ── results · same screen, after a run (typing analysis — domain-blind) ── -->
-  {#if game.analysis}
-    <section class="block">
-      {@render head("Last run")}
-      <Review {game} {view} />
-    </section>
-  {/if}
 </div>
 
 {#snippet head(label, value)}

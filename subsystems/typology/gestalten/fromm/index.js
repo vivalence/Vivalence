@@ -1,5 +1,7 @@
 import { not, cast, is, prototypes } from "@vivalence/typology";
 
+export * from "./yield.js";
+
 export const sink = (target) => {
   return {
     get write() {

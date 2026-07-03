@@ -1,6 +1,9 @@
 #+TITLE: Toolcalling — TOOLED trait + MCP exposure + standard tool library
 #+AUTHOR: Vivalence
-#+STATUS: IMPLEMENTING (M1+M2 DONE · M3 bruno-surface-landed, anthropic-stream-bug-blocked · M4–M8 DESIGN)
+#+STATUS: M1-M3 core SUPERSEDED by [[file:m12_streaming_harness_toolcalling.quest.org]] — live mechanism is
+#+STATUS: =daemon.cortex.tools= absorbed inline in =harnessed.js=, not a per-mode =TOOLED= trait compiling
+#+STATUS: =mode.cake.tools=. Also pre-M11 registry paths, pre-M15 cake→module rename — stale throughout.
+#+STATUS: M4-M6 (MCP exposure, standard tool library) design still holds, unblocked by the M1-M3 supersession.
 #+DATE: 2026-05-06
 
 * Intent

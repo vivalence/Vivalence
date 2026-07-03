@@ -42,7 +42,7 @@ blast    re-confirm the consumer set (nothing new wired, siblings untouched)
 - "absence needs a flag" → absence IS the signal; no liveness booleans, no `||`-fallback masking upstream bugs; one value has ONE shape — trace to producer
 - "add `?.` to be safe" → zero ceremony; `thread && Stall(...)`, never `thread?.$buffers ?` ("too timid")
 - "delete this commented cruft" → **backup-during-migration**: `// …` lines + `bak/` adjacent to in-flight work are recovery surface, beef's content — never swept
-- "prose explains the patch" → diff first, one-line rationale after; every snippet leads with its filepath
+- "prose explains the patch" → diff first, one-line rationale after; every snippet leads with its filepath, container-rooted (`systems/…` / `subsystems/…` / `registry/…`) — never bare `harnessed.js`
 - "date-stamp this compact like bak/ ones" → bak/ filenames are receipts of the mistake, not precedent
 - "trailing question rounds it off" → end on substance; no unsolicited wider-scope offers
 - "asked for data → I'll summarize" → paste the raw JSON/stdout as the body

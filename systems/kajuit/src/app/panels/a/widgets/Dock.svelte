@@ -40,9 +40,7 @@
   let unread = $state(0);
 
   let audioOn = $state(false);
-  let videoOn = $state(false);
   const toggleAudio = () => (audioOn = !audioOn);
-  const toggleVideo = () => (videoOn = !videoOn);
 
   $effect(() => {
     if (!terminals?.$active) return;
@@ -332,19 +330,18 @@
 
 <div class="dock">
   <header>
+    <button class="dock-close" onclick={() => bridge.setDockCollapsed()} title="collapse" aria-label="collapse dock">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round">
+        <line x1="6" y1="6" x2="18" y2="18" />
+        <line x1="18" y1="6" x2="6" y2="18" />
+      </svg>
+    </button>
     <span class="pip" class:live></span>
-    <button class="collapse" onclick={() => bridge.setDockCollapsed()} title="collapse" aria-label="collapse dock">×</button>
     <span class="title">{thread?.label?.name ?? "session"}</span>
     <span class="dock-spacer"></span>
     <button class="call" class:on={audioOn} onclick={toggleAudio} title="audio call" aria-label="audio call">
       <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round">
         <path d="M16.5 21A4.5 4.5 0 0 0 21 16.5v-1.6l-4-1.4-1.6 2a11 11 0 0 1-5.9-5.9l2-1.6L10 3.5H4.5A1.5 1.5 0 0 0 3 5 16 16 0 0 0 16.5 21Z" />
-      </svg>
-    </button>
-    <button class="call" class:on={videoOn} onclick={toggleVideo} title="video call" aria-label="video call">
-      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round">
-        <rect x="3" y="6" width="13" height="12" rx="2" />
-        <path d="M16 10.5 21 7.5v9L16 13.5Z" />
       </svg>
     </button>
     {#if isStreaming}
@@ -515,7 +512,7 @@
   .title {
     text-transform: lowercase;
   }
-  .collapse {
+  .dock-close {
     display: inline-flex;
     align-items: center;
     justify-content: center;
@@ -525,12 +522,16 @@
     background: transparent;
     border: none;
     cursor: pointer;
-    color: color-mix(in srgb, var(--colors-skeleton-2-contrast) 55%, transparent);
-    font-size: var(--font-size-sm);
-    line-height: 1;
+    color: color-mix(in srgb, var(--colors-skeleton-2-contrast) 75%, transparent);
+    /* color: white; */
     transition: color 0.16s;
   }
-  .collapse:hover {
+  .dock-close svg {
+    width: 15px;
+    height: 15px;
+    display: block;
+  }
+  .dock-close:hover {
     color: var(--colors-skeleton-0-primary-base);
   }
   .pip {
