@@ -6,7 +6,7 @@ const log = (phase) => (done, total) => console.log(`[DATASET:install] ${phase} 
 export const DATASET = async (mode, daemon) => {
   if (mode.entity.installed) return;
 
-  const entities = mode.cake.dataset.entities;
+  const entities = mode.module.dataset.entities;
   const flush = () => daemon.entities.em.flush();
 
   const upsertAll = (type) =>
@@ -83,7 +83,7 @@ async function linkPhase(daemon, fromType, toType, items) {
 // export const DATASET = async (mode, daemon) => {
 //   if (mode.entity.installed) return;
 
-//   const entities = mode.cake.dataset.entities;
+//   const entities = mode.module.dataset.entities;
 
 //   const upsertAll = (type) =>
 //     (entities[type] || []).map((item) => {
@@ -148,7 +148,7 @@ async function linkPhase(daemon, fromType, toType, items) {
 //   if (mode.entity.installed) return;
 
 //   // works but slow.
-//   for (const symbol of mode.cake.dataset.entities.symbol || []) {
+//   for (const symbol of mode.module.dataset.entities.symbol || []) {
 //     const { literals, ...data } = symbol;
 //     const entity = await upsert(daemon, "symbol", data, "literal");
 //     // const issues = await daemon.assert.symbol(entity);
@@ -158,7 +158,7 @@ async function linkPhase(daemon, fromType, toType, items) {
 //     console.log("installed:", count++);
 //   }
 
-//   for (const literal of mode.cake.dataset.entities.literal || []) {
+//   for (const literal of mode.module.dataset.entities.literal || []) {
 //     const { symbols, ...data } = literal;
 //     const entity = await upsert(daemon, "literal", data, "symbol");
 //     // const issues = await daemon.assert.literal(entity);
@@ -170,7 +170,7 @@ async function linkPhase(daemon, fromType, toType, items) {
 
 //   // THROWS ERRORS due to duplicates (makes sense)
 //   // const CHUNK_SIZE = 10;
-//   // const symbolPromises = (mode.cake.dataset.entities.symbol || []).map((symbol) => async () => {
+//   // const symbolPromises = (mode.module.dataset.entities.symbol || []).map((symbol) => async () => {
 //   //   const { literals, ...data } = symbol;
 //   //   const entity = await upsert(daemon, "symbol", data, "literal");
 //   //   if (literals) await link(daemon, "symbol", entity.slug, "literal", literals);
@@ -179,7 +179,7 @@ async function linkPhase(daemon, fromType, toType, items) {
 
 //   // await promise.batched(symbolPromises, CHUNK_SIZE, true);
 
-//   // const literalPromises = (mode.cake.dataset.entities.literal || []).map((literal) => async () => {
+//   // const literalPromises = (mode.module.dataset.entities.literal || []).map((literal) => async () => {
 //   //   const { symbols, ...data } = literal;
 //   //   const entity = await upsert(daemon, "literal", data, "symbol");
 //   //   if (symbols) await link(daemon, "literal", entity.slug, "symbol", symbols);

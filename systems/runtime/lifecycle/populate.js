@@ -36,12 +36,12 @@ export async function daemons(runtimeDie) {
 
 export async function processes(runtimeDie) {
   for (const mask of paladin.variant.services) {
-    const cake = await paladin.vip.accio(mask.module);
-    // if cake.implements(trait) TODO
-    if (cake.manifest?.traits?.includes("ATTACHED") && cake.aperture) {
+    const module = await paladin.vip.accio(mask.module);
+    // if module.implements(trait) TODO
+    if (module.manifest?.traits?.includes("ATTACHED") && module.aperture) {
       const aperture = new Aperture();
-      const good = (await cake.aperture(aperture, mask)) || aperture;
-      const processDie = new ProcessDie({ mask, cake, good, register: cake });
+      const good = (await module.aperture(aperture, mask)) || aperture;
+      const processDie = new ProcessDie({ mask, module, good, register: module });
       runtimeDie.good.processes.push(processDie);
     }
   }

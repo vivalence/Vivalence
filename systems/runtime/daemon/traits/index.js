@@ -24,6 +24,6 @@ export const EXPOSED = (mode) => {
 };
 
 export const FRAUGHT = async (mode, daemon) => {
-  await mode.cake.freight.index();
-  mode.aperture.open("/freight", () => mode.cake.freight.catalog);
+  await mode.module.freight.index();
+  mode.aperture.open("/freight", () => mode.module.freight.catalog);
 };

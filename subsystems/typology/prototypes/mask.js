@@ -1,6 +1,6 @@
 // paladin creates mask. masks are put on dies and processed into a runtime or service.
 // mask bundles information. its typological gestalt. doesnt do anything on its own. part of a recipie.
-// {manifest, kernel,  modes, services, mount, slug, docs}
+// {manifest, kernel, services, mount, slug, docs}
 
 export class Mask {
   manifest = {};
@@ -12,7 +12,6 @@ export class Mask {
       this.lighthouse = null;
       this.datamap = null;
       this.kernel = [];
-      this.modes = [];
       this.services = [];
     } else if (mask.manifest?.type === "service") {
       this.client = null; // string:slug - runtime pointer.
@@ -28,5 +27,5 @@ export class Mask {
 }
 
 // Common properties manifest = {}; mount = null; source = null; path = null; url = null;
-// Runtime-specific properties lighthouse = null; datamap = null; kernel = []; modes = []; services = []; statics = {}; docs = {};
+// Runtime-specific properties lighthouse = null; datamap = null; kernel = []; services = []; statics = {}; docs = {};
 // Service-specific properties runtime = null; remote = null; secret = {}; module = null;

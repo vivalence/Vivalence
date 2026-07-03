@@ -7,9 +7,9 @@
 //   snapshot(subject, { parse, locate, meta, depth, pick, omit, write })
 //     parse(subject) → POJO   override the serializer. default = fold (below).
 //     pick [field…]           allowlist top-level fields (instances with machinery —
-//                             Mode.aperture/cake/connection — want this).
+//                             Mode.aperture/module/connection — want this).
 //     omit [field…]           blocklist top-level fields — pick's dual. fold everything
-//                             EXCEPT these (e.g. drop Mode.cake, which duplicates the
+//                             EXCEPT these (e.g. drop Mode.module, which duplicates the
 //                             live aperture/emitter contract). applies after pick/parse.
 //     depth                   circular-spine cut (default 2).
 //     locate(meta, pojo)→path WHERE on disk. string used verbatim. meta is the
@@ -45,8 +45,8 @@
 //
 // Two vantages, two transports (same modes, compared side by side):
 //   instance — fold a LIVE object in-process. Mode/Domain instances carry machinery
-//              (aperture/emitter Vectors, cake, Status) → use pick/omit + depth.
-//                snapshot(mode, { base, omit: ["cake"], depth: 6,
+//              (aperture/emitter Vectors, module, Status) → use pick/omit + depth.
+//                snapshot(mode, { base, omit: ["module"], depth: 6,
 //                                 locate: () => `${mode.type}-${mode.slug}-${daemon}.snapshot.json` })
 //   aperture — call the daemon's /metadata aperture over a real Connection and
 //              snapshot what the WIRE returns (already shape.strip'd, no machinery).

@@ -6,7 +6,7 @@ Derived: re-derivable from quests + compacts + logs. Update at every session dis
 ## the four gates (nearly everything open funnels through these)
 
 1. **M4.0 baseline** — beef's manual click-walk of the playground rig. Gates the whole M4→M5→M9→M10 stall/widget/monkey chain. beef-driven.
-2. **one live daemon run** — playground G2/G3/G4, nyan playroom, spanish boot, longdistance audio are all *shipped-architecture-never-run-live*.
+2. **one live daemon run** — PARTIALLY CLEARED: playground got a real live boot this session via chaosmonkey/oracle (harness.object.render proven against the real anthropic API, both aperture-mediated and client-strip-wired paths) — surfaced a real browser 6-per-host SSE connection-budget bug (fixed: standalone chaosmonkey daemon retired, modes ride playground kernel). G2/G3/G4 proper, nyan playroom, spanish boot, longdistance audio still *shipped-architecture-never-run-live*.
 3. **beef go / fork-pick** — M11 packages (DESIGN+QA'd) · closed-class (spec locked) · topology→corpus · identity-collapse · aprende↔nyan refill (3 forks).
 4. **M3 anthropic SSE stream bug** — blocks toolcalling scale (cache_control), cross-mode emit, audio verify.
 
@@ -14,9 +14,9 @@ Derived: re-derivable from quests + compacts + logs. Update at every session dis
 
 **WIP/ACTIVE**: m4 phase-playground (G1 ✓ + Phase widget ✓ shipped — quest text lags; G2/G4 engage-refresh next, M4.4 capstone) · pincer 18+ · c-panel-rebuild (metadata cutover tail) · terminal-first-client P1 · trait-reactivity (fork A/B/C open) · m7 snapshot (3 gaps) · tatoeba (first 500) · language-learning-modes tier 2 · wafer-lifecycle P5 (runtime) · variant M3+ · toolcalling M3-blocked · longdistance audio (enum ✓, variant wire + live boot next) · elegance-debts (#6 DaemonDie left).
 
-**DESIGN gated on go**: m12 streaming-harness-toolcalling (MILESTONE 12.0 object.render server-only READY TO TANGLE; content/yield split on tool_result, Pool/Yield unchanged — a type-registry redesign was chased and rejected this session) · m13 module/mode/kernel semantic alignment (seed) · m14 testing fixtures (@fixtures package + lock-demo, seed) · m15 cake-rename (seed) · m5 widget-glyphs · m9 playground-layout · m10 monkey · m6 vector-affect (seed) · closed-class · exhibit-absorbs-shadow · herald · decorum M2-M5 (+ dapper-second-theme behind it) · siphon · viva-init/install · ghost-autocompleting · topology→corpus · identity-collapse (proposal) · documentation M2-M6.
+**DESIGN gated on go**: m13 module/mode/kernel semantic alignment (seed — note: the module/kernel rename itself already landed per M15, this is the remaining semantic-alignment work) · m14 testing fixtures (@fixtures package + lock-demo, seed) · m5 widget-glyphs · m9 playground-layout · m10 monkey (still reserved, distinct from chaosmonkey) · m6 vector-affect (seed) · closed-class · exhibit-absorbs-shadow · herald · decorum M2-M5 (+ dapper-second-theme behind it) · siphon · viva-init/install · ghost-autocompleting · topology→corpus · identity-collapse (proposal) · documentation M2-M6.
 
-**DONE recent**: m11 packages LANDED (11.4 docker/docs remainder wants re-plan — fork 10 killed its written plan) · cortex · nyan engine+emitters · aprende board · riddler · flatten-corpora · survival-conjugation+paradigm-cells · spanish M1 · voice impl (verify pending) · redact S6 · sheets lib.
+**DONE recent**: m11 packages LANDED (11.4 docker/docs remainder wants re-plan — fork 10 killed its written plan) · m15 cake→module rename LANDED · m12 MILESTONE 12.0 mechanism BUILT+LIVE-VERIFIED (chaosmonkey/oracle: harness=fixed lexicon not semantic, /ask=EXPOSED aperture, cortex.js .object interface, playground STANDALONE gate bugfix) · cortex · nyan engine+emitters · aprende board · riddler · flatten-corpora · survival-conjugation+paradigm-cells · spanish M1 · voice impl (verify pending) · redact S6 · sheets lib.
 
 ## simmering strands (from beef's logs — recurs, unshipped; expect these to surface)
 

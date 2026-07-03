@@ -47,6 +47,7 @@
     ?.call("/assistant/wakeup/board", {})
     ?.then((rows) => (board = rows ?? []))
     ?.catch((error) => console.warn("[aprende] board failed", error));
+
   daemon.modes?.homepage?.aprende
     ?.call("/assistant/wakeup/statistics", {})
     ?.then((stats) => (streak = stats.activity.streak))
@@ -54,10 +55,13 @@
 
   // ── stat 1 · memory per status — counts folded from the SAME board ──────
   const counts = $derived(
-    board.reduce(
-      (tally, row) => ((tally[row.status] = (tally[row.status] || 0) + 1), tally),
-      { UNTOUCHED: 0, UNKNOWN: 0, LEARNING: 0, KNOWN: 0, GRADUATED: 0 },
-    ),
+    board.reduce((tally, row) => ((tally[row.status] = (tally[row.status] || 0) + 1), tally), {
+      UNTOUCHED: 0,
+      UNKNOWN: 0,
+      LEARNING: 0,
+      KNOWN: 0,
+      GRADUATED: 0,
+    }),
   );
   // the three working buckets fill the blocks; UNTOUCHED / GRADUATED ride the footer.
   const BLOCKS = ["UNKNOWN", "LEARNING", "KNOWN"];
@@ -86,9 +90,7 @@
   // any fixed floor (a stale conjugation 60+ days due would clip off-chart otherwise).
   // Bounds + margin live in SYMLOG space so the padding is visually even at any scale.
   const MARGIN = 0.3; // symlog units of breathing room each end
-  const dueSym = $derived(
-    board.filter((row) => row.seen).map((row) => symlog(row.nextDays)),
-  );
+  const dueSym = $derived(board.filter((row) => row.seen).map((row) => symlog(row.nextDays)));
   // the TIME axis bounds (now the X axis after the flip).
   const timeLo = $derived(Math.min(symlog(-7), ...(dueSym.length ? dueSym : [0])) - MARGIN);
   const timeHi = $derived(Math.max(symlog(20), ...(dueSym.length ? dueSym : [0])) + MARGIN);
@@ -142,43 +144,105 @@
       borderWidth: 1,
       padding: [9, 13],
       textStyle: { color: "#dfe3ea", fontSize: 13 },
-      axisPointer: { type: "cross", lineStyle: { color: MUTED, opacity: 0.45, type: "dashed" }, label: { backgroundColor: "#2a2f3a" } },
+      axisPointer: {
+        type: "cross",
+        lineStyle: { color: MUTED, opacity: 0.45, type: "dashed" },
+        label: { backgroundColor: "#2a2f3a" },
+      },
       formatter: (p) => {
         const d = p.data.meta;
-        const due = d.nextDays < 0 ? `due ${Math.round(-d.nextDays)}d ago` : `due in ${Math.round(d.nextDays)}d`;
-        const conf = d.strength >= 0.1 ? `${Math.round(d.strength * 100)}%` : `${(d.strength * 100).toFixed(1)}%`;
-        return `<b style="font-size:14px">${d.pt}</b> <span style="opacity:.55">${d.en}</span><br/>`
-          + `<span style="color:${STATUS_COLOR[d.status]}">●</span> ${d.status.toLowerCase()} · ${d.ontology} · ${conf} confident · ${due}`;
+        const due =
+          d.nextDays < 0
+            ? `due ${Math.round(-d.nextDays)}d ago`
+            : `due in ${Math.round(d.nextDays)}d`;
+        const conf =
+          d.strength >= 0.1
+            ? `${Math.round(d.strength * 100)}%`
+            : `${(d.strength * 100).toFixed(1)}%`;
+        return (
+          `<b style="font-size:14px">${d.pt}</b> <span style="opacity:.55">${d.en}</span><br/>` +
+          `<span style="color:${STATUS_COLOR[d.status]}">●</span> ${d.status.toLowerCase()} · ${d.ontology} · ${conf} confident · ${due}`
+        );
       },
     },
-    legend: { top: 4, textStyle: { color: MUTED, fontSize: 13 }, itemWidth: 16, itemHeight: 12, itemGap: 24 },
+    legend: {
+      top: 4,
+      textStyle: { color: MUTED, fontSize: 13 },
+      itemWidth: 16,
+      itemHeight: 12,
+      itemGap: 24,
+    },
     // wheel zooms BOTH axes (cursor-anchored); drag pans. filterMode:"none" rescales the
     // window WITHOUT dropping points or the now-line/overdue wash. minSpan stops sub-pixel
     // zoom-in; the inside zoom clamps pan to the data. Double-click resets (wired below).
     dataZoom: [
       // pinch ZOOMS (ctrl+wheel); drag pans. two-finger scroll-pan is handled manually
       // below (echarts moveOnMouseWheel couples both axes to one delta — wrong).
-      { type: "inside", xAxisIndex: 0, filterMode: "none", zoomOnMouseWheel: "ctrl", moveOnMouseWheel: false, moveOnMouseMove: true, minSpan: 1 },
-      { type: "inside", yAxisIndex: 0, filterMode: "none", zoomOnMouseWheel: "ctrl", moveOnMouseWheel: false, moveOnMouseMove: true, minSpan: 1 },
+      {
+        type: "inside",
+        xAxisIndex: 0,
+        filterMode: "none",
+        zoomOnMouseWheel: "ctrl",
+        moveOnMouseWheel: false,
+        moveOnMouseMove: true,
+        minSpan: 1,
+      },
+      {
+        type: "inside",
+        yAxisIndex: 0,
+        filterMode: "none",
+        zoomOnMouseWheel: "ctrl",
+        moveOnMouseWheel: false,
+        moveOnMouseMove: true,
+        minSpan: 1,
+      },
       // slider rails — grab a handle to frame an edge band precisely (brushSelect: drag a
       // box on the rail to set the window directly). This is what makes corner clusters easy.
       {
-        type: "slider", xAxisIndex: 0, filterMode: "none", bottom: 6, height: 12, minSpan: 1,
-        brushSelect: true, showDetail: false,
-        backgroundColor: "transparent", borderColor: "transparent",
+        type: "slider",
+        xAxisIndex: 0,
+        filterMode: "none",
+        bottom: 6,
+        height: 12,
+        minSpan: 1,
+        brushSelect: true,
+        showDetail: false,
+        backgroundColor: "transparent",
+        borderColor: "transparent",
         fillerColor: "rgba(120,130,150,0.14)",
-        dataBackground: { lineStyle: { color: MUTED, opacity: 0.25 }, areaStyle: { color: MUTED, opacity: 0.05 } },
-        selectedDataBackground: { lineStyle: { color: MUTED, opacity: 0.5 }, areaStyle: { color: MUTED, opacity: 0.12 } },
-        handleStyle: { color: "#2a2f3a", borderColor: MUTED }, moveHandleStyle: { color: MUTED, opacity: 0.35 },
+        dataBackground: {
+          lineStyle: { color: MUTED, opacity: 0.25 },
+          areaStyle: { color: MUTED, opacity: 0.05 },
+        },
+        selectedDataBackground: {
+          lineStyle: { color: MUTED, opacity: 0.5 },
+          areaStyle: { color: MUTED, opacity: 0.12 },
+        },
+        handleStyle: { color: "#2a2f3a", borderColor: MUTED },
+        moveHandleStyle: { color: MUTED, opacity: 0.35 },
       },
       {
-        type: "slider", yAxisIndex: 0, filterMode: "none", right: 6, width: 12, minSpan: 1,
-        brushSelect: true, showDetail: false,
-        backgroundColor: "transparent", borderColor: "transparent",
+        type: "slider",
+        yAxisIndex: 0,
+        filterMode: "none",
+        right: 6,
+        width: 12,
+        minSpan: 1,
+        brushSelect: true,
+        showDetail: false,
+        backgroundColor: "transparent",
+        borderColor: "transparent",
         fillerColor: "rgba(120,130,150,0.14)",
-        dataBackground: { lineStyle: { color: MUTED, opacity: 0.25 }, areaStyle: { color: MUTED, opacity: 0.05 } },
-        selectedDataBackground: { lineStyle: { color: MUTED, opacity: 0.5 }, areaStyle: { color: MUTED, opacity: 0.12 } },
-        handleStyle: { color: "#2a2f3a", borderColor: MUTED }, moveHandleStyle: { color: MUTED, opacity: 0.35 },
+        dataBackground: {
+          lineStyle: { color: MUTED, opacity: 0.25 },
+          areaStyle: { color: MUTED, opacity: 0.05 },
+        },
+        selectedDataBackground: {
+          lineStyle: { color: MUTED, opacity: 0.5 },
+          areaStyle: { color: MUTED, opacity: 0.12 },
+        },
+        handleStyle: { color: "#2a2f3a", borderColor: MUTED },
+        moveHandleStyle: { color: MUTED, opacity: 0.35 },
       },
     ],
     // X · time-to-review (symlog days) — overdue left of `now`, scheduled right.
@@ -242,8 +306,18 @@
       const { width, height } = container.getBoundingClientRect();
       shift(zoom.x, (event.deltaX / width) * (zoom.x.end - zoom.x.start)); // scroll right → pan right
       shift(zoom.y, (-event.deltaY / height) * (zoom.y.end - zoom.y.start)); // scroll down → reveal lower
-      chart.dispatchAction({ type: "dataZoom", xAxisIndex: 0, start: zoom.x.start, end: zoom.x.end });
-      chart.dispatchAction({ type: "dataZoom", yAxisIndex: 0, start: zoom.y.start, end: zoom.y.end });
+      chart.dispatchAction({
+        type: "dataZoom",
+        xAxisIndex: 0,
+        start: zoom.x.start,
+        end: zoom.x.end,
+      });
+      chart.dispatchAction({
+        type: "dataZoom",
+        yAxisIndex: 0,
+        start: zoom.y.start,
+        end: zoom.y.end,
+      });
     };
     container.addEventListener("wheel", onWheel, { passive: false });
 
@@ -255,7 +329,9 @@
     });
 
     // double-click resets every axis to the full data window.
-    chart.getZr().on("dblclick", () => chart?.dispatchAction({ type: "dataZoom", start: 0, end: 100 }));
+    chart
+      .getZr()
+      .on("dblclick", () => chart?.dispatchAction({ type: "dataZoom", start: 0, end: 100 }));
 
     return {
       resize: () => chart?.resize(),
@@ -276,7 +352,12 @@
   const N = $derived(sorted.length);
   const topLits = $derived(sorted.slice(0, 6).map((d, i) => ({ d, rank: i + 1 })));
   // weakest first: the tail reversed, so #N (the very weakest) leads.
-  const bottomLits = $derived(sorted.slice(-6).map((d, i) => ({ d, rank: N - 5 + i })).reverse());
+  const bottomLits = $derived(
+    sorted
+      .slice(-6)
+      .map((d, i) => ({ d, rank: N - 5 + i }))
+      .reverse(),
+  );
   const litPct = (d) => Math.round((100 * (Math.log10(Math.max(d.strength, 1e-3)) + 3)) / 3);
 
   // ── center row · actions ──────────────────────────────────────────────
@@ -294,9 +375,27 @@
     if (fresh) terminal.buffer = fresh;
   }
   const actions = [
-    { name: "Activation", cmd: "/activation", accent: TEAL, blurb: "Type your weakest words — graded to memory.", run: () => runAction("activation", { ontology: "word", count: 20 }) },
-    { name: "Drill", cmd: "/drill", accent: "#5b9bd5", blurb: "Due review — each word its own exercise, picked by how you know it.", run: () => runAction("drill", { count: 20 }) },
-    { name: "Riddler", cmd: "/riddle", accent: "#8b95d6", blurb: "Solve a riddle the tutor spins from your weakest words.", run: () => runAction("riddle", { count: 2 }) },
+    {
+      name: "Activation",
+      cmd: "/activation",
+      accent: TEAL,
+      blurb: "Type your weakest words — graded to memory.",
+      run: () => runAction("activation", { ontology: "word", count: 20 }),
+    },
+    {
+      name: "Drill",
+      cmd: "/drill",
+      accent: "#5b9bd5",
+      blurb: "Due review — each word its own exercise, picked by how you know it.",
+      run: () => runAction("drill", { count: 20 }),
+    },
+    {
+      name: "Riddler",
+      cmd: "/riddle",
+      accent: "#8b95d6",
+      blurb: "Solve a riddle the tutor spins from your weakest words.",
+      run: () => runAction("riddle", { count: 2 }),
+    },
   ];
 
   // ── help desk · tutor ── (TODO: wire to the HARNESSED /turn aperture — activation-loop quest TODO 5)
@@ -337,12 +436,16 @@
       <h4>Memory per status</h4>
       <div class="legend">
         {#each blockStatuses as status}
-          <span class="item"><i class="swatch" style:background={STATUS_COLOR[status]}></i>{status}</span>
+          <span class="item"
+            ><i class="swatch" style:background={STATUS_COLOR[status]}></i>{status}</span>
         {/each}
       </div>
       <div class="blocks">
         {#each blockStatuses as status}
-          <span class="block" style:flex="{counts[status]} 1 0" style:background="color-mix(in srgb, {STATUS_COLOR[status]} 78%, transparent)">
+          <span
+            class="block"
+            style:flex="{counts[status]} 1 0"
+            style:background="color-mix(in srgb, {STATUS_COLOR[status]} 78%, transparent)">
             <b>{counts[status]}</b>
             <em>{pct(status)}%</em>
           </span>
@@ -377,16 +480,20 @@
           <div class="lit">
             <i class="glyph" style:color={STATUS_COLOR[d.status]}>{ONTOLOGY[d.ontology].glyph}</i>
             <span class="text"><span class="pt">{d.pt}</span><span class="en">{d.en}</span></span>
-            <span class="bar-mini"><i style:width="{litPct(d)}%" style:background={STATUS_COLOR[d.status]}></i></span>
+            <span class="bar-mini"
+              ><i style:width="{litPct(d)}%" style:background={STATUS_COLOR[d.status]}></i></span>
             <span class="val">#{rank}</span>
           </div>
         {/each}
-        <div class="group-label">Least confident · due<span class="group-hint">weakest first ↑</span></div>
+        <div class="group-label">
+          Least confident · due<span class="group-hint">weakest first ↑</span>
+        </div>
         {#each bottomLits as { d, rank }}
           <div class="lit">
             <i class="glyph" style:color={STATUS_COLOR[d.status]}>{ONTOLOGY[d.ontology].glyph}</i>
             <span class="text"><span class="pt">{d.pt}</span><span class="en">{d.en}</span></span>
-            <span class="bar-mini"><i style:width="{litPct(d)}%" style:background={STATUS_COLOR[d.status]}></i></span>
+            <span class="bar-mini"
+              ><i style:width="{litPct(d)}%" style:background={STATUS_COLOR[d.status]}></i></span>
             <span class="val">#{rank}</span>
           </div>
         {/each}
@@ -428,8 +535,8 @@
     min-width: 0;
     padding: 0.7rem 1.1rem;
     border-radius: 0.75rem;
-    border: 1px solid color-mix(in srgb, #E7C271 28%, transparent);
-    background: color-mix(in srgb, #E7C271 6%, transparent);
+    border: 1px solid color-mix(in srgb, #e7c271 28%, transparent);
+    background: color-mix(in srgb, #e7c271 6%, transparent);
   }
   .streak-num {
     position: relative;
@@ -437,8 +544,8 @@
     font-size: 2.1rem;
     font-weight: 800;
     line-height: 0.85;
-    color: #E7C271;
-    text-shadow: 0 0 18px color-mix(in srgb, #E7C271 38%, transparent);
+    color: #e7c271;
+    text-shadow: 0 0 18px color-mix(in srgb, #e7c271 38%, transparent);
     padding-right: 0.35rem;
   }
   .streak-dot {
@@ -447,7 +554,7 @@
     width: 0.3rem;
     height: 0.3rem;
     border-radius: 50%;
-    background: #E7C271;
+    background: #e7c271;
   }
   .streak-text {
     display: flex;
@@ -460,7 +567,7 @@
     font-weight: 600;
     text-transform: uppercase;
     letter-spacing: 0.14em;
-    color: #E7C271;
+    color: #e7c271;
   }
   .streak-sub {
     font-family: var(--font-family-sans-text);
@@ -491,7 +598,9 @@
     margin-top: 0.6rem;
   }
   @container (max-width: 720px) {
-    .tiles { grid-template-columns: 1fr; }
+    .tiles {
+      grid-template-columns: 1fr;
+    }
   }
   .tile {
     display: flex;
@@ -505,7 +614,10 @@
     background: color-mix(in srgb, var(--accent) 7%, transparent);
     cursor: pointer;
     text-align: left;
-    transition: transform 0.12s, border-color 0.2s, background 0.2s;
+    transition:
+      transform 0.12s,
+      border-color 0.2s,
+      background 0.2s;
   }
   .tile:hover {
     transform: translateY(-2px);
@@ -560,9 +672,15 @@
     grid-template-areas: "memory scatter" "ranks scatter";
     gap: 1.5rem 2.25rem;
   }
-  .stat-memory { grid-area: memory; }
-  .stat-ranks { grid-area: ranks; }
-  .stat-scatter { grid-area: scatter; }
+  .stat-memory {
+    grid-area: memory;
+  }
+  .stat-ranks {
+    grid-area: ranks;
+  }
+  .stat-scatter {
+    grid-area: scatter;
+  }
   @container (max-width: 780px) {
     .stats-row {
       grid-template-columns: 1fr;
@@ -659,7 +777,9 @@
     color: var(--colors-skeleton-1-boundary);
     margin: 0.9rem 0 0.3rem;
   }
-  .group-label:first-child { margin-top: 0; }
+  .group-label:first-child {
+    margin-top: 0;
+  }
   .group-hint {
     font-size: var(--font-size-2xs, 0.65rem);
     color: color-mix(in srgb, var(--colors-skeleton-1-boundary) 65%, transparent);

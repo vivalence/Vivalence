@@ -1,7 +1,7 @@
 # json schema standard root.
 # everything is defined here. the entire system.
 # string path signature signal hash url
-# cakes params shards  ...
+# masks params shards  ...
 # everything.
 # 
 # using typebox, aiming for a self-coherent schema.

@@ -2,8 +2,8 @@ import { v } from "../v.js";
 import { Slug } from "../scalars/index.js";
 import { Manifest } from "./manifest.js";
 
-// rename to either mode or spec or maybe scope all of them under spec? or maybe i called it cake? some coherent name. spec makes most sense honestly.
-export const ModuleSpec = v.object(
+// mask — declaration of "turn this into an instance": module ref + config.
+export const Mask = v.object(
   {
     module: v.string(),
     statics: v.record(v.string(), v.unknown()).optional(),
@@ -17,11 +17,10 @@ export const Daemon = v.object(
     manifest: Manifest,
     statics: v.record(v.string(), v.unknown()).default({}),
     kernel: v.array(v.string()).default([]),
-    modes: v.array(v.string()).default([]),
-    consume: v.record(v.string(), ModuleSpec).default({}),
-    lighthouse: ModuleSpec,
-    datamap: ModuleSpec,
-    hallucinators: v.array(ModuleSpec).optional(),
+    consume: v.record(v.string(), Mask).default({}),
+    lighthouse: Mask,
+    datamap: Mask,
+    hallucinators: v.array(Mask).optional(),
   },
   { additionalProperties: true },
 );
@@ -32,7 +31,7 @@ export const Service = v.object(
     module: v.string(),
     statics: v.record(v.string(), v.unknown()).optional(),
     secrets: v.record(v.string(), v.unknown()).optional(),
-    datamap: ModuleSpec.optional(),
+    datamap: Mask.optional(),
   },
   { additionalProperties: true },
 );
@@ -42,7 +41,7 @@ export const Runtime = v.object(
     slug: Slug,
     traits: v.array(v.string()).optional(),
     statics: v.record(v.string(), v.unknown()).optional(),
-    datamap: ModuleSpec.optional(),
+    datamap: Mask.optional(),
   },
   { additionalProperties: true },
 );

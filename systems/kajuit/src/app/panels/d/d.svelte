@@ -67,7 +67,9 @@
         if (offIntent) teardowns.push(offIntent);
         const offBuffer = daemon.entities.buffer?.$entities.subscribe(recompute);
         if (offBuffer) teardowns.push(offBuffer);
-        await daemon.entities.thread.find({}, { populate: ["mode", "intent"] });
+        await daemon.entities.thread
+          .find({}, { populate: ["mode", "intent"] })
+          .catch((error) => console.warn(`[probe] d thread find ${daemon.slug} failed`, error));
       }
     })();
 
@@ -82,28 +84,32 @@
   }
 
   async function selectMode(daemon, mode) {
-    const terminal = terminals.active ?? terminals.create();
-    const current = terminal.thread;
-    if (current && current.daemon?.slug === daemon.slug) {
-      const previous = current.mode;
-      const label = labelName(current.label);
-      const wasDefault = label === previous?.name || label === previous?.slug;
+    try {
+      const terminal = terminals.active ?? terminals.create();
+      const current = terminal.thread;
+      if (current && current.daemon?.slug === daemon.slug) {
+        const previous = current.mode;
+        const label = labelName(current.label);
+        const wasDefault = label === previous?.name || label === previous?.slug;
 
-      await current.daemon.entities.thread.updateOne({ id: current.id }, { mode: mode.id });
-      current.mode = mode;
+        await current.daemon.entities.thread.updateOne({ id: current.id }, { mode: mode.id });
+        current.mode = mode;
 
-      if (wasDefault) {
-        const name = mode.name ?? mode.slug;
-        current.label = { ...(typeof current.label === "object" ? current.label : {}), name };
-        await current.daemon.entities.thread.updateOne(
-          { id: current.id },
-          { trait: { ...current.trait, LABELED: { ...(current.trait?.LABELED ?? {}), name } } },
-        );
+        if (wasDefault) {
+          const name = mode.name ?? mode.slug;
+          current.label = { ...(typeof current.label === "object" ? current.label : {}), name };
+          await current.daemon.entities.thread.updateOne(
+            { id: current.id },
+            { trait: { ...current.trait, LABELED: { ...(current.trait?.LABELED ?? {}), name } } },
+          );
+        }
+      } else {
+        const thread = await daemon.entities.thread.create({ mode: mode.id });
+        daemon.entities.thread.resolve?.(thread);
+        terminal.thread = thread;
       }
-    } else {
-      const thread = await daemon.entities.thread.create({ mode: mode.id });
-      daemon.entities.thread.resolve?.(thread);
-      terminal.thread = thread;
+    } catch (error) {
+      console.warn(`[probe] selectMode ${daemon.slug}/${mode.slug} failed`, error);
     }
   }
 
@@ -125,7 +131,11 @@
   }
 
   async function quickStart(thread) {
-    await spawnBuffer(loadThread(thread));
+    try {
+      await spawnBuffer(loadThread(thread));
+    } catch (error) {
+      console.warn(`[probe] quickStart failed`, error);
+    }
   }
 
   function onThreadAux(thread, event) {

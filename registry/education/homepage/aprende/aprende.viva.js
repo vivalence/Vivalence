@@ -95,7 +95,7 @@ export const emitter = new Vector()
       nature: "/activation",
       input: v.object({
         ontology: v.enum(["word", "sentence", "conjugation"], { default: "word" }),
-        pick: v.enum(["weak", "due", "novel"], { default: "weak" }),
+        pick: v.enum(["weak", "due"], { default: "weak" }),
         count: v.integer({ minimum: 5, maximum: 50 }).default(20),
         gameplay: v.string().optional(),
         thread: v.string().optional(), // binds emitted buffers to the caller's thread
@@ -107,7 +107,6 @@ export const emitter = new Vector()
       const fetch = {
         weak: (limit) => ctx.daemon.entities.literal.byStrength(where, { limit, populate }),
         due: (limit) => ctx.daemon.entities.literal.due(where, { limit, populate }),
-        novel: (limit) => ctx.daemon.entities.literal.novel(where, { limit, populate }),
       }[ctx.input.pick];
       const pool = await fetch(ctx.input.count * POOL_FACTOR);
       const literals = weightedSample(pool, ctx.input.count);
@@ -225,7 +224,10 @@ aperture.open(
     const now = Date.now();
     // one read: every memory for this user, with the literal + the lazy strength formula
     // populated so each row carries gloss + ontology + strength + due in a single pass.
-    const memories = await ctx.daemon.entities.memory.find({}, { populate: ["strength", "literal"] });
+    const memories = await ctx.daemon.entities.memory.find(
+      {},
+      { populate: ["strength", "literal"] },
+    );
     return memories.map((memory) => {
       const literal = memory.literal;
       const translated = literal?.trait?.TRANSLATED ?? {};
@@ -258,7 +260,9 @@ aperture.open(
       );
 
     const byStatus = await byKey(memory, (status) => ({ status }))(STATUS);
-    const bySignal = await byKey(trace, (enumeration) => ({ signal: { enum: enumeration } }))(SIGNAL);
+    const bySignal = await byKey(trace, (enumeration) => ({ signal: { enum: enumeration } }))(
+      SIGNAL,
+    );
 
     const [literals, memories, traces, due] = await Promise.all([
       literal.count({}),

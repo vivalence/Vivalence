@@ -1,6 +1,6 @@
 #+TITLE: M15 — the "cake" rename (global term settlement)
 #+AUTHOR: Vivalence
-#+STATUS: DESIGN
+#+STATUS: LANDED
 #+DATE: 2026-07-02
 
 * Meta
@@ -621,3 +621,20 @@ byte-identical.)
   =paladin.bake.process= call in client.viva.js is dead (no such member);
   live index =good.modes[type][slug]= already exists — ontology lands on
   existing structure. NO CODE CHANGED.
+- 2026-07-03 :: M15.0 LANDED — full bracket on beef's go (*"run the
+  runtime and client for yourself now. then run the blast testing. if
+  that checks out, run the change. run test and blast again."*). ② green
+  (typology 104 · paladin 11 · runtime 26; ghost/kajuit bitrot recorded
+  per-file, pre-existing). ③ ~50 files — blast-table additions found
+  live: testament/variant/{education,playground,chaosmonkey}.js (three
+  more declaration merges; chaosmonkey appeared mid-flight as beef's new
+  daemon) + registry development→playground rename (beef, concurrent) +
+  =registry-load.scratch.js= + two comment crumbs. ④ identical green,
+  aperture snapshot preserved (merge kept =[...kernel, ...modes]= order).
+  ⑤ zero live cake (only wafer.js backup comments, kept per
+  backup-during-migration). Forks: 1–5 per rec; 6 minimal (local rename,
+  dead bake call left — delete still beef's call). Live revalidation:
+  3 daemons boot, Aprende renders; OPEN — board shows zeros post-restart,
+  data proven intact in sqlite (577 memories), suspect stale client
+  session; network-response read pending beef's return. See compact
+  =m15-cake-rename-ontology-pinning-and-blast-landing=.

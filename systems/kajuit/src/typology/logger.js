@@ -1,3 +1,4 @@
+// @beef this is shit
 import { logger } from "@nanostores/logger";
 
 // The ONE place nanostores logging is wired for the kajuit client. Covers the app
@@ -34,8 +35,10 @@ function rearm($collection, watch) {
   };
 }
 
+// @beef questionable.
 function watchTerminal(terminal) {
   const unlog = logger({
+    [`terminal ${short(terminal.id)} · terminal`]: terminal,
     [`terminal ${short(terminal.id)} · thread`]: terminal.$thread,
     [`terminal ${short(terminal.id)} · buffer`]: terminal.$buffer,
   });
@@ -59,13 +62,19 @@ function watchTerminal(terminal) {
   };
 }
 
-export function narrate({ lighthouse, terminals, bridge }) {
+// @beef no.
+export function narrate({ lighthouse, terminals, bridge, telemetry }) {
   const destroys = [
     logger({
       "lighthouse · status": lighthouse.$status,
       "terminals · active": terminals.$active,
       "bridge · dock": bridge.$dock,
     }),
+    // faulted spans surface on the console; the pipe is the single egress for
+    // connection telemetry, this is just one more drain on it.
+    telemetry?.tap((span) => {
+      if (span.fault) console.warn(`[span] fault ${span.nature}`, span.json);
+    }) ?? (() => {}),
     rearm(terminals.$entities, watchTerminal),
     rearm(lighthouse.$daemons, (daemon) => {
       const $buffers = daemon?.entities?.buffer?.$entities;

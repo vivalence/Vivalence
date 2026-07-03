@@ -1,33 +1,22 @@
 import { Status, Path } from "@vivalence/typology";
 
 
-// all runtime instances of types from the registry
-// base for instantiations such as modes and service or process providers.
-// anything received from the registry.
-
-class Cake {
-  // type, slug, traits
-
-  constructor(cake) {
-    Object.assign(this, cake);
-    this.type = this.manifest.type;
-    this.slug = this.manifest.slug;
-    this.traits = this.manifest.traits || [];
-    this.cake = cake; // ??? maybe legacy
-  }
-
-  implements(trait) {
-    return this.traits.includes(trait.toUpperCase());
-  }
-}
-
-export class Mode extends Cake {
+// live citizen constructed from a registry module (read.viva result).
+export class Mode {
   // connection // entity: <em.Module> // url // view? // call
 
   status = new Status("<uninitialized>", this);
   aperture = null;
 
-  constructor(cake) {
-    super(cake);
+  constructor(module) {
+    Object.assign(this, module);
+    this.type = this.manifest.type;
+    this.slug = this.manifest.slug;
+    this.traits = this.manifest.traits || [];
+    this.module = module;
+  }
+
+  implements(trait) {
+    return this.traits.includes(trait.toUpperCase());
   }
 }

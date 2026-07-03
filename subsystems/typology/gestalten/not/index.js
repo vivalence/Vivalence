@@ -26,7 +26,6 @@ export const not = {
     if (is.object(params)) Object.assign(not, params);
     return new Not({ ...not, thing });
   },
-  cake: fab("cake"),
   viva: (thing) => fab("viva")(`${typeof thing}`),
   object: fab("object"),
   defined: fab("defined"),

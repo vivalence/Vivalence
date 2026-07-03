@@ -6,8 +6,9 @@ import { depth } from "./thread/traits/queueing.js";
 // The terminal is a reactive view over a thread: a render pointer ($buffer) into the
 // thread's buffers, plus a Stall that drives the cursor by the thread's phase. It owns no
 // persistence — it's a closure over two atoms, the same kind as the Stall it builds. The
-// atoms are null-or-entity for their whole life: terminals.rehydrate resolves persisted ids
-// to entities BEFORE publishing, so no consumer (the Stall) ever sees a wire-format id.
+// atoms are null-or-entity for their whole life: unresolved persisted ids live in the
+// settle effect's closure (src/app/terminals.js), never here, so no consumer (the Stall)
+// ever sees a wire-format id.
 export function Terminal({ id = null } = {}) {
   const $thread = atom(null);
   const $buffer = atom(null);
@@ -25,6 +26,9 @@ export function Terminal({ id = null } = {}) {
       // a buffer from the old thread isn't in the new source — drop it so the fresh stall
       // settles clean. a switch is a different id (null-safe on both sides).
       if (($thread.get()?.id ?? null) !== (value?.id ?? null)) $buffer.set(null);
+      console.log(
+        `[probe] terminal ${id} thread mount ${value?.id ?? "null"} (daemon ${value?.daemon?.slug ?? "-"})`,
+      );
       $thread.set(value);
     },
 
@@ -65,7 +69,9 @@ export function Terminal({ id = null } = {}) {
       });
     stall?.on.release((buffer) => {
       thread.daemon.entities.buffer.drop(buffer.id); // optimistic: source shrinks now
-      thread.daemon.entities.buffer.removeOne({ id: buffer.id }); // server sync
+      thread.daemon.entities.buffer
+        .removeOne({ id: buffer.id }) // server sync
+        .catch((error) => console.warn(`[probe] release sync failed ${buffer.id}`, error));
     });
   });
 

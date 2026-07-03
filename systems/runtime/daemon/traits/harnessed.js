@@ -86,30 +86,22 @@ export const HARNESSED = (mode, daemon) => {
   });
 
   return () => {
-    if (mode.cake.harness) harness.slurp(mode.cake.harness);
+    if (mode.module.harness) harness.slurp(mode.module.harness);
     daemon.cortex.shard.faculties(harness);
 
     mode.harness = shape.object(harness, steer.echo);
+    // the fully-composed vector (post-slurp, post-faculties) — strip-able for
+    // /metadata/harness, mirroring mode.module.emitter's role for EMITTER.
+    mode.module.harness = harness;
 
     mode.aperture.branch("/harness").slurp(harness);
-
-    // TODO capabilities should be surfaced under /metadata!
-    mode.aperture.open("/capabilities", (ctx) =>
-      ["dialogue", /* "speech", "verbatim", */ "object"] //
-        .filter((type) => ctx.daemon.cortex.has(type))
-        .map((type) => ({
-          type,
-          stream: !!ctx.daemon.cortex.resolve(type, { via: "stream" }),
-          render: !!ctx.daemon.cortex.resolve(type, { via: "render" }),
-        })),
-    );
   };
 };
 
 // export const CHAOSMONKEY = (mode, daemon) => {
 //   const harness = new Vector();
 //   // harness.use(async (ctx,next) => { ctx.hallucination = new Hallucination(...ctx); ...f(ctx.hallucination) ;await next();})
-//   if (mode.cake.harness) harness.slurp(mode.cake.harness);
+//   if (mode.module.harness) harness.slurp(mode.module.harness);
 //   // harness.use(shard.attach(daemon/mode))
 
 //   // f(.harness, daemon.cortex)
@@ -125,7 +117,7 @@ export const HARNESSED = (mode, daemon) => {
 //   // steer.request(carry, effect, steps, signal) => async (input) =>
 //   // shape.object(vector, execute = steer.request, signal = new Signal(), steps = [])
 
-//   //mode.cake.harness*default-minimal harness*daemon.cortex.faculties
+//   //mode.module.harness*default-minimal harness*daemon.cortex.faculties
 //   // ctx.hallucinate = mw ctx * mode.harness. shard.provide
 // };
 
@@ -213,7 +205,7 @@ export const HARNESSED = (mode, daemon) => {
 //     }
 //   });
 
-//   harness.slurp(mode.cake.harness);
+//   harness.slurp(mode.module.harness);
 
 //   mode.aperture.branch("/harness")
 //   .use(async (ctx, next) => {
@@ -353,7 +345,7 @@ export const HARNESSED = (mode, daemon) => {
 // OLD
 // this was done by conversational but conversational is taking on the rolle of session composer and all this is done by the chaosmonkey and cortex/harness.
 // export const CONVERSATIONAL = async (mode, daemon) => {
-//   if (!mode.cake.dialogue) return;
+//   if (!mode.module.dialogue) return;
 
 //   const dialogue = new Vector();
 
@@ -385,7 +377,7 @@ export const HARNESSED = (mode, daemon) => {
 //     ctx.hallucinate = daemon.cortex
 //       .spawn()
 //       .add(...history, ctx.turn)
-//       .tune(ctx.input.tune ?? mode.cake.tune ?? "balanced");
+//       .tune(ctx.input.tune ?? mode.module.tune ?? "balanced");
 
 //     await next();
 //   });
@@ -441,7 +433,7 @@ export const HARNESSED = (mode, daemon) => {
 //     }
 //   });
 
-//   dialogue.slurp(mode.cake.dialogue);
+//   dialogue.slurp(mode.module.dialogue);
 
 //   const branch = mode.aperture.branch("/dialogue");
 //   branch.use(async (ctx, next) => {

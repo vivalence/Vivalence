@@ -7,4 +7,4 @@ export const traits = {
 
 // domain-tier mode kinds, keyed by type.
 // empty: game/tactic/teacher/dashboard were behaviorless shells → root fallback covers them.
-export const modes = {};
+export const kinds = {};

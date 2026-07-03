@@ -72,9 +72,6 @@ export const daemons = [
       "@education/ontology/sentence",
       "@education/ontology/conjugation",
       "@education/corpus/english-to-brazilian",
-    ],
-
-    modes: [
       "@education/game/flashcard",
       "@education/game/write",
       "@education/game/shadow",

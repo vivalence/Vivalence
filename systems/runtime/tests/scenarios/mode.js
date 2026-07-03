@@ -10,14 +10,14 @@ import { INTENTED, EMITTER, EXPOSED } from "@vivalence/runtime/daemon/traits";
 // Entity classes via tiers.<type>.entity = the actually-registered classes.
 function APPLICATION(mode, daemon) {
   mode.aperture.open("/buffered", () => ({
-    url: mode.cake.app.url.absolute,
-    schema: mode.cake.app.mask,
+    url: mode.module.app.url.absolute,
+    schema: mode.module.app.mask,
   }));
   mode.buffer = (desc = {}) => {
     const em = daemon.entities.em;
     const buffer = em.create(tiers.buffer.entity, {
       mode: mode.entity.id,
-      data: mode.cake.app.fill(desc),
+      data: mode.module.app.fill(desc),
       index: desc.index ?? 0,
     });
     if (desc.literals)
@@ -82,11 +82,11 @@ async function wireMode(viva, daemon) {
   mode.id = mode.entity.id;
 
   if (viva.app) {
-    mode.cake.app = viva.app;
-    mode.cake.app.withUrl(new Url(`http://test/view/${viva.manifest.type}/${viva.manifest.slug}`));
+    mode.module.app = viva.app;
+    mode.module.app.withUrl(new Url(`http://test/view/${viva.manifest.type}/${viva.manifest.slug}`));
   }
-  if (viva.dataset) mode.cake.dataset = viva.dataset;
-  if (viva.emitter) mode.cake.emitter = new Vector().slurp(viva.emitter);
+  if (viva.dataset) mode.module.dataset = viva.dataset;
+  if (viva.emitter) mode.module.emitter = new Vector().slurp(viva.emitter);
   if (viva.aperture) mode.aperture.slurp(viva.aperture); // exported aperture endpoints
 
   daemon.modes[viva.manifest.type] ??= {};

@@ -40,7 +40,14 @@ export const DaemonDossier = {
       const daemon = ctx.entity;
       const url = new Url(daemon.url);
 
-      daemon.connection = new Connection(url)
+      daemon.connection = new Connection(
+        url,
+        shard.transmitter.retry(shard.transmitter.fetcher, { maxRetries: 2 }),
+      )
+        .use(shard.track.span((call) => call.request.url.pathname, ctx.telemetry))
+        .use(shard.track.request())
+        .use(shard.track.fault())
+        .use(shard.connection.timeout(8000))
         .use(shard.connection.authorize(ctx.lighthouse.$authority))
         .use(
           shard.connection.batch({
@@ -83,20 +90,26 @@ export const DaemonDossier = {
 
         daemon.entities.thread.subscribe();
         daemon.entities.buffer.subscribe();
-        // daemon.entities.buffer.subscribe({}, (merged, event) => console.log("[buffer SSE]", event.op, merged?.id, JSON.stringify({ merged, event }, null, 2),),);
 
         for (const mode of modes) {
           object.place(daemon.modes, `${mode.type}.${mode.slug}`, mode);
         }
 
         daemon.status.set("healthy");
+        console.log(
+          `[probe] daemon ${manifest.slug} mounted — modes:${modes.length} threads:${threads.length} buffers:${buffers.length} intents:${intents.length}`,
+        );
       } catch (error) {
         if (!["CLIENT", "NETWORK", "TIMEOUT"].includes(error?.type)) {
           daemon.status.set({ code: "error", error });
+          console.warn(`[probe] daemon ${daemon.slug ?? daemon.url} boot error (rethrown)`, error);
           throw error;
         }
         daemon.status.set({ code: "unavailable", error });
-        console.warn(`[daemon] ${daemon.slug ?? daemon.url} unreachable — booted inert`, error);
+        console.warn(
+          `[probe] daemon ${daemon.slug ?? daemon.url} unreachable (${error.type}) — booted inert, entities ${daemon.entities ? "HALF-BUILT" : "absent"}`,
+          error,
+        );
       }
     },
   ],

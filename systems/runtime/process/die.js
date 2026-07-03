@@ -5,7 +5,7 @@ export class Die extends Wafer {
     super(die);
   }
   get manifest() {
-    return this.cake.manifest;
+    return this.module.manifest;
   }
 
   async integrate() {

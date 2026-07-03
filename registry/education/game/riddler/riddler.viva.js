@@ -77,7 +77,7 @@ aperture.open(
       `Judge the challenger's answer and reply in character.`,
     ].join("\n");
 
-    const { parts } = await ctx.mode.harness.object.render({
+    const { object: verdict = {} } = await ctx.mode.harness.object.render({
       turns: [
         { role: "system", parts: [{ type: "text", text: context }] },
         { role: "user", parts: [{ type: "text", text: ctx.input.message }] },
@@ -85,7 +85,6 @@ aperture.open(
       config: { schema: v.object({ correct: v.boolean(), reply: v.string() }) },
       tune: "frugal",
     });
-    const verdict = parts.find((part) => part.type === "object")?.data ?? {};
 
     const solved = buffer.data.solved || verdict.correct;
     buffer.data = {
@@ -193,7 +192,7 @@ export const emitter = new Vector().open(
       .filter(Boolean)
       .join("\n");
 
-    const { parts } = await ctx.mode.harness.object.render({
+    const { object: cast = {} } = await ctx.mode.harness.object.render({
       turns: [
         { role: "system", parts: [{ type: "text", text: context }] },
         { role: "user", parts: [{ type: "text", text: "Compose the riddle now." }] },
@@ -214,7 +213,6 @@ export const emitter = new Vector().open(
       },
       tune: "frugal",
     });
-    const cast = parts.find((part) => part.type === "object")?.data ?? {};
 
     const chosen = pool.filter((l) => cast.literals?.includes(l.slug));
 

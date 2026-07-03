@@ -98,7 +98,7 @@ function synthesizeObject(cortex, tune) {
       const done = turn.parts.find((part) => part.type === "tool_use" && part.name === "respond");
       if (done) {
         const data = typeof done.input === "string" ? (done.input ? JSON.parse(done.input) : {}) : done.input;
-        return { role: "assistant", parts: [{ type: "object", data }], meta: { stop: "end_turn" } };
+        return { role: "assistant", parts: [{ type: "object", data }], meta: { stop: "end_turn" }, object: data };
       }
       const results = await executeTools(tools, turn.parts);
       currentTurns = [...currentTurns, turn, { role: "user", parts: results }];

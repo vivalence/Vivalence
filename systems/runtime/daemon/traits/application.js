@@ -23,12 +23,12 @@ async function svelte() {
 }
 
 export const APPLICATION = async (mode, daemon) => {
-  mode.cake.app.withBundler(await svelte());
-  // await mode.cake.app.bundling;
+  mode.module.app.withBundler(await svelte());
+  // await mode.module.app.bundling;
 
   mode.aperture.open("/buffered", () => ({
-    url: mode.cake.app.url.absolute,
-    schema: mode.cake.app.mask,
+    url: mode.module.app.url.absolute,
+    schema: mode.module.app.mask,
   }));
 
   const ensure = (repo, ref) => (helper(ref) ? ref : repo.findOne(ref?.id ?? ref));
@@ -37,7 +37,7 @@ export const APPLICATION = async (mode, daemon) => {
     // extend to rich interface. ctx.mode.buffer.emit()
     const buffer = daemon.entities.em.create(BufferEntity, {
       mode: mode.entity.id,
-      data: mode.cake.app.fill(data),
+      data: mode.module.app.fill(data),
       index: data.index ?? 0,
     });
     if (data.literals)

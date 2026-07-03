@@ -7,8 +7,8 @@ function buildMode({ tools, harness, slug = "tooled-test" } = {}) {
   const mode = new Mode({ manifest: { type: "teacher", slug, traits: [] } });
   mode.aperture = new Aperture();
   mode.mount = new Path(`/mode/teacher/${slug}`);
-  mode.cake.harness = harness ?? new Vector();
-  if (tools) mode.cake.tools = tools;
+  mode.module.harness = harness ?? new Vector();
+  if (tools) mode.module.tools = tools;
   return mode;
 }
 
@@ -28,7 +28,7 @@ specimen.describe("TOOLED trait", () => {
   // TOOLED registers the mode's tool vector under cortex.tools.<slug>, with the
   // daemon + mode bound onto ctx — cortex synthesises them into tool-calls later.
   specimen.describe("registration", () => {
-    specimen.it("no-ops silently when mode.cake.tools is missing", () => {
+    specimen.it("no-ops silently when mode.module.tools is missing", () => {
       const mode = buildMode({ slug: "no-tools" });
       TOOLED(mode, scenario.daemon);
       specimen.expect(branchNatures(scenario.daemon.cortex.tools)).not.toContain("no-tools");

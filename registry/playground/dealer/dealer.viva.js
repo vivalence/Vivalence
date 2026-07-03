@@ -58,7 +58,7 @@ export const emitter = new Vector()
       ]
         .filter(Boolean)
         .join("\n");
-      const { parts } = await ctx.mode.harness.object.render({
+      const { object } = await ctx.mode.harness.object.render({
         turns: [
           { role: "system", parts: [{ type: "text", text: context }] },
           { role: "user", parts: [{ type: "text", text: "Deal the hand." }] },
@@ -66,8 +66,7 @@ export const emitter = new Vector()
         config: { schema: v.object({ faces: v.array(v.string()) }) },
         tune: "frugal",
       });
-      const cast = parts.find((part) => part.type === "object")?.data ?? {};
-      for (const face of (cast.faces ?? []).filter((f) => DECK.includes(f)))
+      for (const face of (object?.faces ?? []).filter((f) => DECK.includes(f)))
         ctx.pool.add(card.buffer({ data: { face } }));
     },
   );

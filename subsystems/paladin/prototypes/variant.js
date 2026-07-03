@@ -14,9 +14,9 @@ async function resolve(variant) {
   if (!variant.paladin.scope.variant) throw new Error("variant.mount: no scope.variant");
   await variant.paladin.state.dir(variant.paladin.scope.variant.absolute);
 
-  const cakes = await variant.paladin.find.type(variant.paladin.scope.variant, "variant");
-  if (cakes.length !== 1)
-    throw new Error(`variant.mount: expected 1 variant cake, found ${cakes.length}`);
+  const modules = await variant.paladin.find.type(variant.paladin.scope.variant, "variant");
+  if (modules.length !== 1)
+    throw new Error(`variant.mount: expected 1 variant module, found ${modules.length}`);
 
   const mask = (kind) => (declaration) =>
     new Mask({
@@ -26,12 +26,12 @@ async function resolve(variant) {
       ),
     });
 
-  const [cake] = cakes;
-  variant.manifest = cake.manifest;
-  variant.runtime = hydrate(cake.runtime ?? {});
-  variant.clients = hydrate(cake.clients ?? {});
-  variant.daemons = (cake.daemons ?? []).map((declaration) => mask("daemon")(hydrate(declaration)));
-  variant.services = (cake.services ?? []).map((declaration) => mask("service")(hydrate(declaration)));
+  const [module] = modules;
+  variant.manifest = module.manifest;
+  variant.runtime = hydrate(module.runtime ?? {});
+  variant.clients = hydrate(module.clients ?? {});
+  variant.daemons = (module.daemons ?? []).map((declaration) => mask("daemon")(hydrate(declaration)));
+  variant.services = (module.services ?? []).map((declaration) => mask("service")(hydrate(declaration)));
 
   // variant.runtime.logs = new Pipe()
   // variant.clients.kajuit.logs = new Pipe()

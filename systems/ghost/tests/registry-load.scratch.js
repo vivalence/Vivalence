@@ -13,7 +13,7 @@ console.log("pensieve size:", paladin.vip.pensieve.size);
 const localhost = await paladin.vip.accio("@vivalence/variant/localhost");
 console.log("localhost manifest:", localhost?.manifest);
 console.log("localhost mount:", localhost?.mount?.absolute);
-console.log("has modes via daemons[0]:", localhost?.daemons?.[0]?.modes?.length);
+console.log("has kernel via daemons[0]:", localhost?.daemons?.[0]?.kernel?.length);
 
 const owners = [...paladin.vip.pensieve.keys()];
 console.log("owners:", owners);

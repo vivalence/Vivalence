@@ -25,17 +25,17 @@ export async function metadata(die) {
 
     if (mode.implements("APPLICATION"))
       meta.open("/app", () => ({
-        url: mode.cake.app.url.absolute,
-        schema: mode.cake.app.mask,
+        url: mode.module.app.url.absolute,
+        schema: mode.module.app.mask,
       }));
 
     if (mode.implements("EMITTER"))
-      meta.open("/emitter", () => shape.strip(mode.cake.emitter));
+      meta.open("/emitter", () => shape.strip(mode.module.emitter));
 
     if (mode.implements("FRAUGHT"))
-      meta.open("/freight", () => mode.cake.freight.catalog);
+      meta.open("/freight", () => mode.module.freight.catalog);
 
-    if (mode.implements("HARNESSED"))
+    if (mode.implements("HARNESSED")) {
       meta.open("/capabilities", () =>
         ["dialogue", "object"]
           .filter((type) => die.good.cortex?.has?.(type))
@@ -45,5 +45,7 @@ export async function metadata(die) {
             render: !!die.good.cortex.resolve(type, { via: "render" }),
           })),
       );
+      meta.open("/harness", () => shape.strip(mode.module.harness));
+    }
   }
 }

@@ -7,7 +7,7 @@ export const Domain = v.object(
   {
     manifest: Manifest.optional(),
     traits:   v.record(v.string(), v.unknown()).default({}),
-    modes:    v.record(v.string(), v.unknown()).default({}),
+    kinds:    v.record(v.string(), v.unknown()).default({}),
     entities: v.record(v.string(), v.unknown()).default({}),
   },
   { additionalProperties: true },

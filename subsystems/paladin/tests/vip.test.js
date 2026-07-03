@@ -5,14 +5,14 @@ import { Vip } from "../prototypes/vip.js";
 const rootStub = (dir) => ({ absolute: dir });
 
 // modules: path → module namespace (manifest and friends). The walk returns
-// every path; a module whose manifest.type is "package" IS the package cake.
+// every path; a module whose manifest.type is "package" IS the package module.
 const fakePaladin = (modules) => ({
   read: { viva: async (path) => modules[path.absolute ?? String(path)] },
   find: { viva: async () => Object.keys(modules).map((absolute) => ({ absolute })) },
 });
 
 describe("Vip.mount", () => {
-  it("derives the owner from the mount path by default — no package cake needed", async () => {
+  it("derives the owner from the mount path by default — no package module needed", async () => {
     const paladin = fakePaladin({
       "/registry/simulation/game/write/write.viva.js": { manifest: { type: "game", slug: "write", version: "0.0.1" } },
     });
@@ -24,7 +24,7 @@ describe("Vip.mount", () => {
     expect(module.manifest.owner).toBe("@simulation");
   });
 
-  it("a walked package cake (manifest.type 'package') with owner LOCKS the derived name", async () => {
+  it("a walked package module (manifest.type 'package') with owner LOCKS the derived name", async () => {
     const paladin = fakePaladin({
       "/registry/simulation/package.viva.js": { manifest: { type: "package", slug: "fixture", version: "0.0.1", owner: "@viva" } },
       "/registry/simulation/game/write/write.viva.js": { manifest: { type: "game", slug: "write", version: "0.0.1" } },
@@ -36,7 +36,7 @@ describe("Vip.mount", () => {
     expect(module.manifest.owner).toBe("@viva");
   });
 
-  it("a package cake WITHOUT owner keeps the derived stamp — presence alone locks nothing", async () => {
+  it("a package module WITHOUT owner keeps the derived stamp — presence alone locks nothing", async () => {
     const paladin = fakePaladin({
       "/registry/simulation/package.viva.js": { manifest: { type: "package", slug: "simulation", version: "0.0.1" } },
       "/registry/simulation/game/write/write.viva.js": { manifest: { type: "game", slug: "write", version: "0.0.1" } },

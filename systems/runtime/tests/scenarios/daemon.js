@@ -8,14 +8,14 @@ import { INTENTED, EMITTER } from "@vivalence/runtime/daemon/traits";
 
 const APPLICATION = (mode, daemon) => {
   mode.aperture.open("/buffered", () => ({
-    url: mode.cake.app.url.absolute,
-    schema: mode.cake.app.mask,
+    url: mode.module.app.url.absolute,
+    schema: mode.module.app.mask,
   }));
   mode.buffer = (desc = {}) => {
     const em = daemon.entities.em;
     const buffer = em.create(tiers.buffer.entity, {
       mode: mode.entity.id,
-      data: mode.cake.app.fill(desc),
+      data: mode.module.app.fill(desc),
       index: desc.index ?? 0,
     });
     if (desc.literals) buffer.literals.add(desc.literals.map((l) => em.getReference(tiers.literal.entity, l?.id ?? l)));
@@ -34,12 +34,12 @@ export async function create() {
   mode.entity = fixtures.mode;
   mode.id = fixtures.mode.id;
 
-  mode.cake.app = new App("buffer/flashcard.svelte", v.buffer({
+  mode.module.app = new App("buffer/flashcard.svelte", v.buffer({
     data: { recall: v.string({ default: "LEARNING" }) },
   }));
-  mode.cake.app.withUrl(new Url(`http://test/view/${mode.type}/${mode.slug}`));
+  mode.module.app.withUrl(new Url(`http://test/view/${mode.type}/${mode.slug}`));
 
-  mode.cake.dataset = {
+  mode.module.dataset = {
     intent: [
       {
         slug: "survival-flashcard",
@@ -50,7 +50,7 @@ export async function create() {
     ],
   };
 
-  mode.cake.emitter = new Vector().open("/literal", async (ctx) => {
+  mode.module.emitter = new Vector().open("/literal", async (ctx) => {
     const recall = ctx.input.recall;
     return ctx.mode.buffer({
       data: { recall },

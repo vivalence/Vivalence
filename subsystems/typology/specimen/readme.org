@@ -13,7 +13,7 @@ instructions, patterns and tools for testing the gestalten and valences of types
   import { is } from "@vivalence/typology";
   // depend
 
-  import { Daemon, Path, Cake, Die } from "@vivalence/typology";
+  import { Daemon, Path, Die } from "@vivalence/typology";
   import paladin from "@vivalence/paladin";
 
   let die;
@@ -24,8 +24,8 @@ instructions, patterns and tools for testing the gestalten and valences of types
         await paladin.ikiro;
         await daemon.ikiro;
 
-        const cake = paladin.daemons[0];
-        die = new Die({ cake, good: new Daemon(cake) });
+        const mask = paladin.daemons[0];
+        die = new Die({ mask, good: new Daemon(mask) });
       });
     });
     specimen.describe("population", () => {

@@ -62,8 +62,8 @@ describe("specimen.snapshot", () => {
 
   it("omit blocklists top-level fields — pick's dual", () => {
     const { pojo } = snapshot(
-      { a: 1, b: 2, cake: { huge: true } },
-      { locate: "/dev/null", write: false, omit: ["cake"] },
+      { a: 1, b: 2, module: { huge: true } },
+      { locate: "/dev/null", write: false, omit: ["module"] },
     );
     expect(pojo).toEqual({ a: 1, b: 2 });
   });

@@ -2,7 +2,7 @@
 
 // export * as topography from "./topography/index.js";
 export * from "./entities/index.js";
-export * from "./modes/index.js";
+export * from "./kinds/index.js";
 export * from "./aperture/index.js";
 
 export const manifest = {

@@ -29,8 +29,8 @@ export default function read(paladin) {
     module: async (path) => await import(resolve(path)),
 
     viva: async (path) => {
-      const cake = await import(resolve(path));
-      return cast.viva(cake);
+      const module = await import(resolve(path));
+      return cast.viva(module);
     },
   };
 

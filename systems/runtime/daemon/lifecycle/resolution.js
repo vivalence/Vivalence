@@ -1,23 +1,23 @@
 import { is, shard } from "@vivalence/typology";
 
-export async function kernel(daemonDie) {
+export async function domain(daemonDie) {
   daemonDie.good.aperture
     .use(shard.secure.authorize())
     .use(shard.ambient.store((ctx) => ({ user: ctx.user })))
     .use(daemonDie.datamap.shard.bind("user", (ctx) => ({ user: ctx.user.id })));
 
-  if (daemonDie.kernel.domain.aperture)
-    daemonDie.good.aperture.slurp(daemonDie.kernel.domain.aperture);
+  if (daemonDie.domain.aperture)
+    daemonDie.good.aperture.slurp(daemonDie.domain.aperture);
 
   // domain wires its own userspace entities (trace/memory, …); slim daemon has no domain → no-op
-  await daemonDie.kernel.domain.resolve?.(daemonDie);
+  await daemonDie.domain.resolve?.(daemonDie);
 }
 
 export async function freight(daemonDie) {
   daemonDie.good.cargo = {};
   for (const mode of daemonDie.good.flatmodes()) {
     if (!mode.implements("FRAUGHT")) continue;
-    const catalog = mode.cake.freight.catalog;
+    const catalog = mode.module.freight.catalog;
     for (const [key, value] of Object.entries(catalog)) {
       if (daemonDie.good.cargo[key]) console.warn(`[FREIGHT] slug collision: "${key}"`);
       daemonDie.good.cargo[key] = value;
@@ -34,7 +34,7 @@ export async function modes(daemonDie) {
         .open("/status", (_, ctx) => ctx.mode.status.reflection)
         .open("/manifest", (_, ctx) => ctx.mode.manifest);
 
-      if (mode.cake.aperture) mode.aperture.slurp(mode.cake.aperture);
+      if (mode.module.aperture) mode.aperture.slurp(mode.module.aperture);
 
       const finalizers = [];
       for (const trait of mode.traits) {
@@ -43,7 +43,7 @@ export async function modes(daemonDie) {
       }
       for (const finalize of finalizers) await finalize();
 
-      if (mode.cake.aperture && !mode.implements("EXPOSED")) {
+      if (mode.module.aperture && !mode.implements("EXPOSED")) {
         console.warn(`[trait] ${mode.type}/${mode.slug} exports aperture without EXPOSED`);
       }
 

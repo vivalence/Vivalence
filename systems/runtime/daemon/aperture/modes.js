@@ -18,8 +18,8 @@ export async function modes(die) {
     };
     if (mode.implements("APPLICATION")) {
       result.buffered = {
-        url: mode.cake.app.url.absolute,
-        schema: mode.cake.app.mask,
+        url: mode.module.app.url.absolute,
+        schema: mode.module.app.mask,
       };
     }
     return result;

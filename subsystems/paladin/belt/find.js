@@ -34,13 +34,13 @@ export default function find(config) {
 
   const viva = walk(/\.(viva.js|viva.ts|viva.md|viva.org)$/);
 
-  // find + read + filter by manifest type — cakes carry their source path
+  // find + read + filter by manifest type — modules carry their source path
   const type = async (path, type, depth = Infinity) => {
     const sources = await viva(path, depth);
-    const cakes = await Promise.all(
-      sources.map((source) => config.read.viva(source).then((cake) => ({ ...cake, source }))),
+    const modules = await Promise.all(
+      sources.map((source) => config.read.viva(source).then((module) => ({ ...module, source }))),
     );
-    return cakes.filter((cake) => cake.manifest?.type === type);
+    return modules.filter((module) => module.manifest?.type === type);
   };
 
   config.find = {

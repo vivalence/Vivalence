@@ -18,16 +18,6 @@ export class Daemon {
   cargo = {};
   docs = {};
 
-  kernel = {
-    orm: {},
-    em: {},
-    // taxonomist: new Classifier(),
-    // predicate: new Vector(),
-    // medic: new Remedy(),
-    // constraint: new maps.virtual.constraint.repository(),
-    // issue: new maps.virtual.issue.repository(),
-  };
-
   // schema = {
   //   primitives: {}, // {dimension signal} = f(domain*ontology)
   //   gestalten: {}, // {annotation symbol, literal, statics modes traits entities} = f(domain*ontology)

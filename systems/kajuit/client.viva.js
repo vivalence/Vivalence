@@ -26,7 +26,7 @@ export const control = new Vector()
   })
   .open("/start", async (ctx) => {
     ctx.params.cmd = "deno run -A npm:vite dev";
-    const cake = paladin.bake.process({ ...ctx.params });
+    const module = paladin.bake.process({ ...ctx.params });
     return new Process(cast.process({ ...ctx.params }));
 
     // return await ctx.tools.process.start(manifest, ctx.params);

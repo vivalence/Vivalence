@@ -1,0 +1,142 @@
+#+TITLE: m16 — the provisioning doctrine: effect carriers, one grammar two trees, canonized
+
+Companion to the forensics compact
+([[m16-terminal-loss-forensics-provisioning-dogma-and-the-six-stream-pool]]);
+this one holds the architecture strand at full fidelity — it was declared
+canonical and will steer every client session from here.
+
+* spans join the / grammar
+
+beef: /"for the span tracking, use the same / semantics we use
+everywhere."/ The colon name (=daemon:${slug}=) was my invention — killed.
+Resolution: =span(name, pipe)= accepts fn-or-value, the exact grammar its
+siblings =transition=/=subject= already had in track.js; nature =
+=call.request.url.pathname=. Spans now read as the Signal event log —
+=/daemon/brazilian/userspace/entities/thread/findOne= — same path grammar
+as packet events. Span IS Signature, so =absolute=/heritage compose for
+nested spans. Pipe injection rides the seed
+(=shard.context.attach("telemetry", …)=), never an app import in an
+entity file.
+
+* the carrier discussion (beef: "just chat")
+
+beef: /"can we rename pending to serialized? and maybe is there a
+functional pattern that allows us to bypass this variable entirely?"/
+
+Rename: yes — =serialized= names what the thing IS (wire-form reference);
+=pending= named a transient mood (awaiting, maybe forever). Ontology over
+mood; round-trip symmetry with toJSON for free.
+
+Bypass: the state is real, only its CARRIER is a choice. Deserialize is a
+partial unfold (ana that couldn't finish); the unconsumed seeds must live
+somewhere. Four carriers:
+
+1. atom union (entity | wire-ref) — dead on arrival, violates
+   null-or-entity, every consumer discriminates.
+2. structure field (=terminal.serialized=) — inspectable, toJSON total in
+   one place; cost: entity carries persistence residue.
+3. effect closure — =Map<terminal.id, {thread, buffer}>= inside the app
+   module; persist merges at write
+   (=live.thread ?? remainder.thread ?? null=). Terminal and store diff
+   ZERO. Chosen — beef's purity push answers the question: the terminal
+   never asked to know it was persisted.
+4. storage itself (read-merge-write) — rejected: two writers, ordering
+   hazards, storage becomes mid-session truth.
+
+Same algorithm in 2 and 3 — the fork is only WHOSE state it is. Fifth
+carrier noted for later: self-resolving stub entities from the
+repository — blocked today because a bare thread id can't be homed to a
+daemon while all daemons are unreachable → persisted schema v2
+={daemon, thread}= fork.
+
+THE DISSOLUTION (the insight that killed a whole mechanism): the
+quickfix freeze existed to compensate for a LOSSY fold (unresolved →
+null). Make the fold total (entity id OR serialized id) and the freeze
+machinery evaporates — persistence arms immediately and
+unconditionally, outage writes carry unresolved ids forward, creates
+persist mid-outage. Compensating machinery is a smell that the fold
+upstream is lossy.
+
+* the ask
+
+beef, verbatim and complete: /"the question is not to minimize blast,
+but to set this system up in the way it should work. and you,
+conoisseur, are great at this. i am thinking in terms of contexts. as
+the client walk up the dom tree, we compose and compose further
+contextes onto them. more, i dont know. i am not good at frontend. you
+are. what should i want long term?"/
+
+* the doctrine
+
+ONE GRAMMAR, TWO TREES. The server composes capabilities down a vector
+via ctx; the DOM composes contexts down the tree via setContext.
+=+layout.svelte= is the daemon.js of the DOM. beef already knows this
+architecture — he wrote it in typology; "frontend" is not special.
+
+Three kinds, one law each:
+- *structures* (src/typology) — pure reactive state + verbs. Never
+  import the world: no fetch, localStorage, console, AudioContext.
+- *effects* — observe structures, touch the world, ALWAYS return
+  teardown. Only home of IO. Mount at the DOM scope that provides their
+  subject's context; live exactly as long as that scope.
+- *surfaces* — render structures, call verbs; consume contexts, may
+  provide narrower ones.
+
+The tree NARROWS, mirroring entity flow Mode→Thread→Buffer→Turn:
++layout provides LIGHTHOUSE·TERMINALS·BRIDGE·BOX → panel provides
+TERMINAL → frame provides THREAD → buffer view provides BUFFER. Each
+provide is a projection of the parent's world plus local state.
+Svelte's setContext IS the mechanism; no new machinery, only the law
+about who provides and who mounts.
+
+Six laws: 1) purity boundary greppable
+(=rg "localStorage|fetch\(|console\." src/typology= → zero) · 2) one
+provider per context, effects mount at the provider · 3) entities
+receive capabilities, never construct them (seed/ctx above, context
+below) · 4) derive near the structure (Stall exemplar), sync at the
+effect (stall-release removeOne is the counter-example) · 5) one loop:
+verb → atoms → effects → world → SSE/response → repo merge → atoms →
+surface, never sideways · 6) one observability egress (the pipe),
+everything else is a drain.
+
+The teeth — the day's bug was ONE bleed three times: terminals
+rehydrate (storage+network in a store), narrate (correct layer,
+unowned), daemon BOOT-IN-CAST (dossier.js — casting a row and booting a
+connection are different lifecycles jammed together; hence half-built
+daemons, no mid-session probe, status stamped in try/catch instead of
+derived from =connection.$state=, daemon constructing its own
+connection). Fixing bleed 3 makes probe/retry/self-heal fall out as
+reactive consequences instead of features.
+
+* canonized
+
+beef: /"this is now dogma. this is canonical. this is what were going
+for."/ then /"what does this look like when done?"/
+
+Done-state (full picture in quest m16): =src/effects/= as first-class
+sibling of typology/ and app/ (placement fork open) · +layout reads as
+composition root — construct decks, provide contexts, one
+=effects.mount(subjects, list)= owning every teardown (the
+=//@beef this is shit:= narrate mount dissolves into it) · what dies:
+rehydrate/arm, boot-in-cast, half-built daemons, missing probe,
+terminal server-sync, logger-in-typology, the freeze · what the user
+sees: terminals paint instantly from storage, content resolves as
+daemons answer, mid-session daemon death self-heals, no failure mode
+can destroy a stored reference, every fault is one console line + a
+panel G row.
+
+Persisted: memory =project_client_provisioning_doctrine.md= (CANONICAL)
+· quest =m16_client_provisioning.quest.org= (doctrine · done-state ·
+M16.0 quickfix / M16.1 terminals effects / M16.2 daemon lifecycle +
+subscription ownership A+B / M16.3 observability home / M16.4 member
+scope + enforcement · forks · verification matrix).
+
+* Resumption
+
+Operational resumption lives in the forensics compact. Doctrine-side:
+M16.2 is the flagship (lifecycle + A + B, one motion, tonight); forks
+needing beef: effects/ placement · effects.mount shape · schema v2
+={daemon, thread}= · probe policy · =Transported.send= snapshot. The
+doctrine memory is the standing law for every future client session:
+ask "which kind is this — structure, effect, surface?" before writing
+anything.

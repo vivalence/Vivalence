@@ -153,9 +153,11 @@ export class Connection {
         for await (const event of this.stream(endpoint, controller.signal, options)) {
           callback(event);
         }
+        if (!controller.signal.aborted)
+          console.warn(`[probe] sse closed by server ${this.url.branch(endpoint).pathname}`);
       } catch (error) {
         if (error.name !== "AbortError")
-          console.warn(`[connection] subscribe ${endpoint} failed`, error);
+          console.warn(`[probe] sse died ${this.url.branch(endpoint).pathname}`, error);
       }
     })();
     return () => controller.abort();

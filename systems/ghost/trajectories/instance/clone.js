@@ -6,40 +6,40 @@ import { CloneConfirm, SlugPicker, TargetPicker } from "./Clone.jsx";
 // const SKIP = new Set([".logs", ".git", ".jj", "node_modules"]);
 
 export async function clone(ctx) {
-  const cakes = await findCakes();
+  const modules = await findModules();
 
   let identifier = ctx.signal.params[0];
-  let cake = identifier
-    ? cakes.find((c) => c.manifest.identifier === identifier || c.manifest.slug === identifier)
+  let module = identifier
+    ? modules.find((c) => c.manifest.identifier === identifier || c.manifest.slug === identifier)
     : null;
 
   // explicit identifier passed but no match — drop to picker
-  if (identifier && !cake) {
+  if (identifier && !module) {
     console.warn(`variant not found: ${identifier}`);
     identifier = null;
   }
 
-  if (!cake) {
+  if (!module) {
     const choice = await ctx.view.scroll.render(
-      { options: cakes.map((c) => c.manifest.identifier) },
+      { options: modules.map((c) => c.manifest.identifier) },
       null,
       SlugPicker,
     );
     if (!choice) return (ctx.effect = { aborted: true });
-    cake = cakes.find((c) => c.manifest.identifier === choice);
+    module = modules.find((c) => c.manifest.identifier === choice);
   }
 
   let target = ctx.signal.params[1];
   if (!target) {
     target = await ctx.view.scroll.render(
-      { initial: `./${cake.manifest.slug}` },
+      { initial: `./${module.manifest.slug}` },
       null,
       TargetPicker,
     );
   }
   if (!target) return (ctx.effect = { aborted: true });
 
-  const source = dirname(cake.mount.absolute);
+  const source = dirname(module.mount.absolute);
   // shell cwd — deno task rewrites PWD to repo root; INIT_CWD preserves original shell cwd
   const cwd = Deno.env.get("INIT_CWD") ?? Deno.env.get("PWD") ?? Deno.cwd();
   const absolute = resolve(cwd, target);
@@ -49,14 +49,14 @@ export async function clone(ctx) {
   //   paladin: paladin.env.vars,
   //   cwd,
   //   identifier,
-  //   cake,
+  //   module,
   //   target,
   //   source,
   //   absolute,
   // });
 
   const confirmed = await ctx.view.scroll.render(
-    { source, target: absolute, identifier: cake.manifest.identifier },
+    { source, target: absolute, identifier: module.manifest.identifier },
     null,
     CloneConfirm,
   );
@@ -65,13 +65,13 @@ export async function clone(ctx) {
   await cloneDir(source, absolute);
 
   ctx.effect = {
-    variant: cake.manifest,
+    variant: module.manifest,
     target: { relative: target, absolute },
     source,
   };
 }
 
-async function findCakes() {
+async function findModules() {
   await paladin.vip.supply();
   return await paladin.vip.list({ type: "variant" });
 }

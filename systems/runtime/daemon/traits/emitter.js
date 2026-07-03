@@ -1,16 +1,16 @@
 import { shape, shard, Blacklist, Pool } from "@vivalence/typology";
 
 export const EMITTER = async (mode, daemon) => {
-  if (!mode.cake.emitter) return;
+  if (!mode.module.emitter) return;
 
-  mode.cake.emitter.use(async (ctx, next) => {
+  mode.module.emitter.use(async (ctx, next) => {
     for (const step of ctx.steps ?? []) step.input?.cast(ctx.input);
     await next();
     // console.log("VALIDATE OUTPUT");
     // for (const step of ctx.steps ?? []) step.output?.cast(ctx.output);
   });
 
-  mode.cake.emitter.use(async (ctx, next) => {
+  mode.module.emitter.use(async (ctx, next) => {
     ctx.daemon = daemon;
     ctx.mode = mode;
 
@@ -25,12 +25,12 @@ export const EMITTER = async (mode, daemon) => {
     await next();
   });
 
-  mode.cake.emitter.use(async (ctx, next) => {
+  mode.module.emitter.use(async (ctx, next) => {
     ctx.input.blacklist = new Blacklist(ctx.input.blacklist);
     await next();
   });
 
-  mode.cake.emitter.use(async (ctx, next) => {
+  mode.module.emitter.use(async (ctx, next) => {
     ctx.pool = new Pool();
 
     // console.log("playground/spawn", ctx.input);
@@ -55,6 +55,6 @@ export const EMITTER = async (mode, daemon) => {
     ctx.output = result;
   });
 
-  mode.emit = shape.object(mode.cake.emitter);
-  mode.aperture.branch("/emit").slurp(mode.cake.emitter);
+  mode.emit = shape.object(mode.module.emitter);
+  mode.aperture.branch("/emit").slurp(mode.module.emitter);
 };

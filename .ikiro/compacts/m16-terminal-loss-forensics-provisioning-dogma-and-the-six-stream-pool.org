@@ -1,0 +1,155 @@
+#+TITLE: m16 — terminal loss forensics, the provisioning dogma, and the six-stream pool
+
+Session named "terminal loss logs" by beef. Opens on a refresh-loss
+symptom, detours through span grammar and a canonical architecture
+declaration, lands M16.0 + M16.1, and closes the day's whole mystery
+with one browser constant: six connections per host.
+
+* the symptom and the first forensics
+
+beef, verbatim: /"for some reason the client kajuit looses terminals on
+refresh. this is new. read vcs."/ and /"problem. not enough logs on teh
+client. read into the spans and drains. how do they work and what wiring
+would the client need for that to be handled elegantly? what does the
+conoisseur suggest?"/
+
+vcs: working copy carried the retry rewrite (middleware deleted,
+=shard.transmitter.retry= combinator; lighthouse rewired, daemon
+connections bare). Static forensics found TWO loss modes in
+=stores/terminals.js= rehydrate: a thrown =findOne= rejects the whole
+pass (session loss, =arm()= never runs) and an inert daemon returns
+null → =arm= → =write= serializes =thread:null= → localStorage
+overwritten (permanent loss). Fault and absence conflated. Also: daemon
+connections had zero observability — only lighthouse had a span.
+
+* spans in / grammar (landed)
+
+beef: /"1. for the span tracking, use the same / semantics we use
+everywhere. 2. do another pass on be. this looks directionally correct.
+whats teh blast radius?"/ then /"go on spans."/
+
+Landed: =span(name, pipe)= takes fn-or-value (grammar of sibling
+=transition=/=subject=); natures = request paths
+(=/daemon/brazilian/userspace/entities/thread/findOne=); daemon onion
+gets span + request + fault, pipe injected via
+=shard.context.attach("telemetry", …)= from the lighthouse seed
+(constructor gains ={ telemetry }=); narrate drains faulted spans to
+console. Wart flagged, parked: =Transported.send= holds the request by
+reference, batch mutates the lead to =/batch= post-record.
+
+* terminals: bleed call, serialized rename, carrier fork
+
+beef: /"i dont see why the terminals store and prototype must have
+access or knowledge of deaemons and lighthouse on typology level. that
+seems off. seems like bleed. i'd think that the store of all terminals
+doesnt need to reach into terminal internals. and those internals are
+managed from the appropriate context on the dom and the typology
+entities remain pure functional structures. what ye say"/
+
+Then: /"just chat. can we rename pending to serialized? and maybe is
+there a functional pattern that allows us to bypass this variable
+entirely?"/ Answer that stuck: state is real, carrier is the choice —
+four carriers (atom union · structure field · effect closure · storage
+itself); effect-closure wins (Terminal diff ZERO); the freeze tradeoff
+DISSOLVES because the fold becomes total (live id OR serialized id).
+
+* the dogma
+
+beef: /"the question is not to minimize blast, but to set this system up
+in the way it should work. and you, conoisseur, are great at this. i am
+thinking in terms of contexts. as the client walk up the dom tree, we
+compose and compose further contextes onto them. more, i dont know. i am
+not good at frontend. you are. what should i want long term?"/
+
+Delivered: one grammar two trees; +layout is the daemon.js of the DOM;
+structures (pure, no world imports) / effects (only home of IO, mount at
+their subject's context provider, always return teardown) / surfaces;
+narrowing provisioning tree mirrors Mode→Thread→Buffer→Turn; six laws.
+The same bleed three times: terminals rehydrate, narrate (beef stamped
+=//@beef this is shit:= on its mount), daemon boot-in-cast (the big one
+— why half-built daemons, no probe, stamped-not-derived status).
+
+beef: /"this is now dogma. this is canonical. this is what were going
+for."/ → memory =project_client_provisioning_doctrine.md= + quest
+=m16_client_provisioning.quest.org= (doctrine, done-state, M16.0–16.4,
+forks, verification matrix).
+
+* 16.0 baseline — quickfix, probes, cascaded temp fixes
+
+beef: /"then now the following plan: do a quickfix on the terminals such
+that i can work again. and then you work out this whole approach. in
+detail?"/ Quickfix = tri-state-ish restore + freeze-on-fault. Then:
+/"i still loose any terminals that i create."/ … /"but somehow only on
+firefox. chroem on the other hand loads past terminals fine but i can
+click on the modes. something is off."/ → /"inscpect vcs. what did we
+change that could cause this? where are loose ends or dropped logs or
+swallowed errors pepper a bunch of console.logs throughout the
+system."/ /"cascaade all the tempoorary fixes."/ /"thats all part of
+16.0 baseline"/ /"fix"/
+
+Cascaded: =[probe]= logs (grep-removable) across transmitter, batch,
+SSE subscribe (death was fully silent), dossier boot, rehydrate, writes;
+swallowed errors patched (stall-release =removeOne=, d.svelte
+selectMode/quickStart); daemon connections got the retry transport.
+=ConnectionError.isRetryable= verified sound.
+
+* the hang, timeout, and M16.1
+
+Probes caught it: =rehydrate start= then silence — a persisted thread id
+missing from local find went to network =findOne= and NOTHING came back;
+retry fired only at page unload (the abort). No timeout on the daemon
+onion → =arm()= unreachable → every created terminal died. beef:
+/"clean up the logs that clutter us. focus on this issue"/ + /"still
+not"/ → landed M16.1 (effects =src/app/terminals.js=: hydrate shells /
+persist total-fold / settle tri-state reactive; store = pure collection;
+freeze dead) + =shard.connection.timeout= SSE-exempt + =timeout(8000)=
+on the daemon onion + telemetry =$[…]= dump removed, probes
+failure-path-only. Then beef: /"ok. terminals open again."/ and /"add
+logs about daemon and terminal thread mounting"/ → daemon-mounted /
+daemons-mounted / terminal-thread-mount probes.
+
+* the reversal — no server bug, a six-stream pool
+
+beef: /"on chrome i cant click on the mode name. not a problem in
+firefox?!?!?!"/ Drove the app live in Chrome: healthy daemon answered
+EVERY suspect query shape in <100ms (populate variants, absent-id
+findOne, 6-way concurrent, /batch) — while a fresh tab's =auth/verify=
+sat pending forever next to beef's open tab. Root: 3 daemons × 2 SSE
+subscribes = exactly 6 live streams to :2501 (HTTP/1.1) = Chrome's
+per-host pool, shared across the whole profile → every later fetch
+queues forever. Boot's own finds run BEFORE subscribes open, hence the
+partial-wedge illusion. Firefox "worked" only where a stream happened
+to be dead. Every hang of the day — original findOne, thread/find,
+thread/create, cross-tab verify — one mechanism. Quest fork 6 RESOLVED
+(the esbuild/write-lock hypothesis was wrong; superseded).
+
+* resolution fork
+
+beef: /"ok. i want both a and b. but as part of the larger rewrite
+tonight. append them to the quest. and implement c now."/ → C landed
+(buffer.subscribe off) and verified live (23ms on the exact calls that
+hung). Then reversed: /"ok. actually i want that subscription. lets
+instead simplify the daemons. we have chaosmonkey in playground. its
+fine."/ → C reverted, chaosmonkey daemon retired from
+=testament/variant/test.viva.js= (bystander/oracle ride the playground
+kernel) → 2 daemons × 2 SSE = 4 streams, invariant (≤4 per client,
+per PROFILE not per tab) met before A even lands.
+
+* Resumption
+
+- beef restarts the runtime on the new variant, THEN prune the stale
+  =chaosmonkey= row from lighthouse (=/entities/daemon/removeOne=,
+  =where {slug}=) — pruning first gets re-announced by the still-running
+  process. I offered to run the prune from the browser on his word.
+- TONIGHT: M16.2 as one motion — daemon lifecycle effect (cast-pure
+  dossier, status as fold over =connection.$state=, probe/self-heal) +
+  A (multiplexed =/userspace/subscribe= per daemon) + B (lazy refcounted
+  subscribe at consumption). Spec sits in the quest's "Subscription
+  ownership" section.
+- Open forks: effects/ placement blessing · effects.mount combinator
+  shape · persisted schema v2 ={daemon, thread}= · probe policy at 16.2
+  · =Transported.send= snapshot.
+- =[probe]= logs die by M16.3/16.4 (one grep); purity grep + invariant
+  tests land at M16.4.
+- M16.1 verified working by beef's own console (both terminals persisted
+  thread+buffer ids across reloads while brazilian was unreachable).

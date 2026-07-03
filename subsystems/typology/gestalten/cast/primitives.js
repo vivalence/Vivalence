@@ -30,7 +30,7 @@ export function lookup(thing) {
   // const queryC = { module: "@vivalence/module/moduleC" };
   // const queryD = {module: { type: "module", slug: "moduleD", owner: "@vivalence" },};
   // const queryE = {module: {manifest: { type: "module", slug: "moduleE", owner: "@vivalence" },},};
-  // const queryF = Cake {} slug(runtime), service(query), runtime(owner), remote(module)
+  // const queryF = Module {} slug(runtime), service(query), runtime(owner), remote(module)
 
   if (is.string(thing)) {
     const [owner, type, ...rest] = thing.split("/");

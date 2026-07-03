@@ -34,12 +34,12 @@ export class Lighthouse {
 
   // get daemons() {return this.dataspace.daemon;}
 
-  constructor(connection) {
+  constructor(connection, { telemetry = null } = {}) {
+    this.telemetry = telemetry;
     this.connection = connection
       .use(shard.track.request())
       .use(shard.track.fault())
       .use(shard.connection.authorize(this.$authority))
-      .use(shard.connection.retry({ maxRetries: 2 }))
       .use(shard.connection.timeout())
       .use(shard.connection.track(connection));
 
@@ -204,7 +204,10 @@ export function hydrate(lighthouse) {
 }
 
 function seedLighthouse(lighthouse) {
-  return (vector) => vector.use(shard.context.attach("lighthouse", lighthouse));
+  return (vector) =>
+    vector
+      .use(shard.context.attach("lighthouse", lighthouse))
+      .use(shard.context.attach("telemetry", lighthouse.telemetry));
 }
 
 export async function verifyAuth(lighthouse) {
@@ -230,6 +233,12 @@ export async function populate(lighthouse) {
     lighthouse.manifest = await lighthouse.connection.call("/manifest");
     await lighthouse.dataspace.populate(["daemon"]);
     lighthouse.$daemons.set([...lighthouse.dataspace.daemon.$entities.get()]);
+    console.log(
+      `[probe] daemons mounted: ${lighthouse.$daemons
+        .get()
+        .map((daemon) => `${daemon.slug}:${daemon.status.reflection.code}`)
+        .join(" ")}`,
+    );
   })();
   try {
     await lighthouse.$populating;

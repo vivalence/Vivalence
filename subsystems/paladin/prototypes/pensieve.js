@@ -2,13 +2,13 @@ import * as semver from "@std/semver";
 import { Manifest } from "./manifest.js";
 
 export class Pensieve extends Map {
-  register(cake) {
-    if (!cake || !cake.manifest) console.log("no manifest", cake);
+  register(module) {
+    if (!module || !module.manifest) console.log("no manifest", module);
     // owner is supplied by vip.mount (derived from scope, or locked) — never defaulted here.
-    if (!cake.manifest.owner)
-      throw new Error(`[Pensieve] register: no owner (mount must stamp) — undefined/${cake.manifest.type}/${cake.manifest.slug}`);
-    cake.manifest = new Manifest(cake.manifest);
-    const { owner, type, slug, version } = cake.manifest;
+    if (!module.manifest.owner)
+      throw new Error(`[Pensieve] register: no owner (mount must stamp) — undefined/${module.manifest.type}/${module.manifest.slug}`);
+    module.manifest = new Manifest(module.manifest);
+    const { owner, type, slug, version } = module.manifest;
 
     if (!this.has(owner)) this.set(owner, new Map());
     const ownerMap = this.get(owner);
@@ -19,7 +19,7 @@ export class Pensieve extends Map {
     if (!typeMap.has(slug)) typeMap.set(slug, new Map());
     const slugMap = typeMap.get(slug);
 
-    slugMap.set(version, cake);
+    slugMap.set(version, module);
     return this;
   }
 

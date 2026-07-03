@@ -9,28 +9,28 @@ export class Vip {
 
   async mount(root) {
     // owner derives from the mount scope by default; the walk itself finds the
-    // package cake (manifest.type === "package") — no hardcoded filename, a
+    // package module (manifest.type === "package") — no hardcoded filename, a
     // package is identified by its manifest like every other module. Its
     // manifest.owner, when authored, LOCKS the identity for the whole mount.
     const home = root.absolute ?? String(root);
     const derived = `@${home.split("/").filter(Boolean).at(-1)}`;
 
     const paths = await this.paladin.find.viva(root);
-    const cakes = [];
+    const modules = [];
     for (const path of paths) {
-      const cake = await this.paladin.read.viva(path); // "cake" naming — fork 6, unresolved this pass, see Forks
-      cakes.push({ ...cake, mount: new Path(path) });
+      const module = await this.paladin.read.viva(path);
+      modules.push({ ...module, mount: new Path(path) });
     }
 
-    const declaration = cakes.find((cake) => cake.manifest?.type === "package");
+    const declaration = modules.find((module) => module.manifest?.type === "package");
     const owner = declaration?.manifest?.owner ?? derived;
 
-    for (const cake of cakes) {
+    for (const module of modules) {
       // stamp on a COPY — read.viva returns the live module namespace; don't mutate the import.
       // a module inherits the mount's stamp by default; its own manifest.owner LOCKS it.
       this.pensieve.register({
-        ...cake,
-        manifest: { ...cake.manifest, owner: cake.manifest?.owner ?? owner },
+        ...module,
+        manifest: { ...module.manifest, owner: module.manifest?.owner ?? owner },
       });
     }
 

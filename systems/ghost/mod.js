@@ -60,8 +60,8 @@ trajectory
   .use(async (ctx, next) => {
     // shell cwd — deno task rewrites Deno.cwd() to repo root; INIT_CWD preserves user shell cwd
     const cwd = Deno.env.get("INIT_CWD") ?? Deno.env.get("PWD") ?? Deno.cwd();
-    const cakes = await paladin.find.type(new Path(cwd), "variant", 0);
-    if (cakes.length) {
+    const modules = await paladin.find.type(new Path(cwd), "variant", 0);
+    if (modules.length) {
       paladin.scopes([["variant", () => true, () => new Path(cwd)]]);
       ctx.variant = await paladin.variant.mount();
     }

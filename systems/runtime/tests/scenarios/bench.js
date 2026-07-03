@@ -6,13 +6,15 @@
 // Accepts raw imported modules OR paladin specifier strings.
 //
 //   await bench({
-//     kernel: ["@education/domain/language-learning", "@education/ontology/word"],
-//     modes:  ["@education/game/flashcard", "@education/game/judge"],
+//     kernel: [
+//       "@education/domain/language-learning",
+//       "@education/ontology/word",
+//       "@education/game/flashcard",
+//     ],
 //   })
 //
 //   await bench({
-//     kernel: [domainModule, ontologyModule],
-//     modes:  [flashcardModule],
+//     kernel: [domainModule, ontologyModule, flashcardModule],
 //     services: {
 //       lighthouse: { authenticate: async (token) => ({ getUser: async () => user }) },
 //       hallucinator: { object: async () => ({}), action: async () => ({}) },
@@ -28,7 +30,7 @@ import {
 import { sets, UserEntity, BufferEntity, LiteralEntity, SymbolEntity, helper } from "@vivalence/typology/entities";
 import { provider as memoryDatamap } from "@vivalence/typology/scenarios";
 import { Daemon } from "@vivalence/runtime/daemon";
-import * as kernel from "../../daemon/kernel.js";
+import * as kinds from "../../daemon/kinds.js";
 import { entities as defaults } from "../../daemon/entities.js";
 import * as traits from "../../daemon/traits/index.js";
 import * as lifecycleResolution from "../../daemon/lifecycle/resolution.js";
@@ -39,10 +41,10 @@ import * as apertureSetup from "../../daemon/aperture/index.js";
 // Same as real APPLICATION but skips the svelte bundler (no esbuild).
 const BENCH_APPLICATION = async (mode, daemon) => {
   // noop bundler — bench doesn't serve compiled svelte components
-  mode.cake.app.withBundler(() => ({ code: "", url: "" }));
+  mode.module.app.withBundler(() => ({ code: "", url: "" }));
   mode.aperture.open("/buffered", () => ({
-    url: mode.cake.app.url.absolute,
-    schema: mode.cake.app.mask,
+    url: mode.module.app.url.absolute,
+    schema: mode.module.app.mask,
   }));
 
   const ensure = (repo, ref) => helper(ref) ? ref : repo.findOne(ref?.id ?? ref);
@@ -50,7 +52,7 @@ const BENCH_APPLICATION = async (mode, daemon) => {
   mode.buffer = async (desc = {}) => {
     const buffer = daemon.entities.em.create(BufferEntity, {
       mode: mode.entity.id,
-      data: mode.cake.app.cast(desc),
+      data: mode.module.app.cast(desc),
       index: desc.index ?? 0,
     });
     if (desc.literals) buffer.literals.add(await Promise.all(desc.literals.map((literal) => ensure(daemon.entities.literal, literal))));
@@ -93,23 +95,19 @@ async function resolve(items) {
 
 // ── bench ──────────────────────────────────────────────────────────
 export async function bench(spec = {}) {
-  const resolvedKernels = await resolve(spec.kernel || []);
-  const resolvedModes = await resolve(spec.modes || []);
+  const kernel = await resolve(spec.kernel || []);
 
-  // ── classify kernels ─────────────────────────────────────────────
-  const domain = resolvedKernels.find((k) => k.manifest?.type === "domain");
-  const ontologies = resolvedKernels.filter((k) => k.manifest?.type === "ontology");
-  const corpora = resolvedKernels.filter((k) => k.manifest?.type === "corpus");
+  const domain = kernel.find((module) => module.manifest?.type === "domain");
 
-  // ── variant: traits + mode prototypes + entity schemas ───────────
+  // ── variant: traits + mode kinds + entity schemas ────────────────
   const variantTraits = {
-    ...kernel.traits,
+    ...kinds.traits,
     ...traits,
     ...(domain?.traits || {}),
     APPLICATION: BENCH_APPLICATION,
   };
 
-  const variantModes = { ...kernel.modes, ...(domain?.modes || {}) };
+  const variantKinds = { ...kinds.kinds, ...(domain?.kinds || {}) };
 
   const variantEntities = Object.values({
     ...sets.daemon,
@@ -144,17 +142,15 @@ export async function bench(spec = {}) {
     good: daemon,
     mask: { manifest: daemon.manifest },
     datamap: datamapInstance,
-    kernel: { domain, corpus: corpora, ontology: ontologies },
+    domain,
     variant: {
-      kernel: {},
-      modes: variantModes,
+      kinds: variantKinds,
       traits: variantTraits,
       entities: variantEntities,
       services: {},
     },
     register: {
-      kernel: resolvedKernels,
-      modes: resolvedModes,
+      kernel,
     },
     connection: null,
     status: { reflection: { code: "ALIVE" }, set: () => {} },
@@ -218,8 +214,8 @@ export async function bench(spec = {}) {
 
   // ── DATASET trait: seed ontology/corpus entities ─────────────────
   for (const mode of daemon.flatmodes()) {
-    if (mode.implements("DATASET") && mode.cake.dataset?.entities) {
-      await seedDataset(mode.cake.dataset.entities, datamapInstance.entities);
+    if (mode.implements("DATASET") && mode.module.dataset?.entities) {
+      await seedDataset(mode.module.dataset.entities, datamapInstance.entities);
     }
   }
 

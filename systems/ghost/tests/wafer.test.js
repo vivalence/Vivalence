@@ -71,8 +71,7 @@ Deno.test("localhost wafer: resolves into runtime/clients/services/daemons", asy
   const daemon = paladin.variant.daemons[0]
   assertEquals(daemon instanceof Mask, true)
   assertEquals(daemon.slug, "brazilian")
-  assertEquals(daemon.kernel.length, 5)
-  assertEquals(daemon.modes.length, 15)
+  assertEquals(daemon.kernel.length, 20)
   assertEquals(daemon.hallucinators.length, 3)
   assertExists(daemon.lighthouse)
   assertExists(daemon.datamap)

@@ -24,9 +24,9 @@ export async function attach(runtimeDie) {
           .use(shard.context.attach("mode", mode))
           .open("/status", () => ({ status: "success" }))
           .open("/(.*)", async (input, ctx) => {
-            if (paladin.is.dev) await ctx.mode.cake.app.bundle.compile();
+            if (paladin.is.dev) await ctx.mode.module.app.bundle.compile();
             ctx.response.type = "application/javascript";
-            return ctx.mode.cake.app.bundle.serve(fromm.params(ctx.params).path).text;
+            return ctx.mode.module.app.bundle.serve(fromm.params(ctx.params).path).text;
           });
       }
       // for (const mode of daemonDie.good.flatmodes()) {
@@ -54,9 +54,9 @@ export async function attach(runtimeDie) {
         .open("/(.*)", async (input, ctx) => {
           const query = fromm.params(ctx.params).path.absolute.replace(/^\//, "");
           for (const mode of modes) {
-            const entry = mode.cake.freight.resolve(query);
+            const entry = mode.module.freight.resolve(query);
             if (!entry) continue;
-            const filePath = mode.cake.freight.path.branch("/" + entry.path).absolute;
+            const filePath = mode.module.freight.path.branch("/" + entry.path).absolute;
             ctx.response.type = entry.type;
             return await Deno.readFile(filePath);
           }

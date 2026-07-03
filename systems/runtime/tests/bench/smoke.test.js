@@ -11,8 +11,7 @@ specimen.describe("bench (raw imports)", { sanitizeOps: false, sanitizeResources
 
   specimen.beforeAll(async () => {
     scenario = await bench({
-      kernel: [domain],
-      modes: [flashcard, judge],
+      kernel: [domain, flashcard, judge],
     });
   });
 
@@ -56,8 +55,6 @@ specimen.describe("bench (paladin specifiers)", { sanitizeOps: false, sanitizeRe
         "@education/domain/language-learning",
         "@education/ontology/word",
         "@education/ontology/sentence",
-      ],
-      modes: [
         "@education/game/flashcard",
         "@education/game/judge",
         "@education/game/pick",

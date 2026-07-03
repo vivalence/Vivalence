@@ -1,6 +1,33 @@
-import { ConnectionError } from "@vivalence/typology";
+import { ConnectionError, Response } from "@vivalence/typology";
 
 // used in connections
+
+// transport combinator — wraps a transport with retry policy. Lives at the effect
+// boundary because compose's dispatch guard forbids re-entering next(); the wrapper
+// owns the inner call, so attempts loop freely without touching the onion.
+export const retry = (transport, options = {}) => {
+  const {
+    maxRetries = 3,
+    baseDelay = 1000,
+    maxDelay = 10000,
+    shouldRetry = (ctx) => ctx.response.error?.isRetryable,
+  } = options;
+  return async (ctx) => {
+    for (let attempt = 0; ; attempt++) {
+      ctx.request._attempt = attempt;
+      await transport(ctx);
+      if (!ctx.response.error || attempt >= maxRetries || !shouldRetry(ctx)) return;
+      console.log(
+        `[probe] retry ${attempt + 1}/${maxRetries} ${ctx.request.url.pathname} after ${ctx.response.error.type}`,
+      );
+      ctx.response = new Response();
+      ctx.request._controller = null;
+      await new Promise((resolve) =>
+        setTimeout(resolve, Math.min(baseDelay * 2 ** attempt + Math.random() * 500, maxDelay)),
+      );
+    }
+  };
+};
 
 export const inline = (serve) => async (ctx) => {
   const req = new Request(ctx.request.url.absolute, {
@@ -76,12 +103,10 @@ export const fetcher = async (ctx) => {
       response.setError(ConnectionError.fromStatus(res.status, response));
     }
   } catch (error) {
+    console.warn(`[probe] fetch failed ${request.url.absolute}`, error);
     response.status = 0;
     response.error = ConnectionError.fromFetch(error, request);
     response.body = { request, error };
-    // console.error(error);
-    // console.trace(error);
-    // console.log(request);
   }
 };
 // import { Response } from "@vivalence/typology";

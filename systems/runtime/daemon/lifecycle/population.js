@@ -5,7 +5,7 @@ import { Mode, Url, Path, Aperture, Cortex, shard, v } from "@vivalence/typology
 import { is, array, shape, steer } from "@vivalence/typology";
 import { sets } from "@vivalence/typology/entities";
 
-import * as kernel from "../kernel.js";
+import * as kinds from "../kinds.js";
 import * as traits from "../traits/index.js";
 import { entities as defaults } from "../entities.js";
 
@@ -15,27 +15,22 @@ export async function core(die) {
     hallucinators: die.mask.hallucinators,
     datamap: die.mask.datamap,
     kernel: die.mask.kernel,
-    modes: die.mask.modes,
     consume: die.mask.consume,
   };
 
   die.register = await paladin.vip.accioMap(registry);
 
-  die.kernel = {
-    domain: v.primitives.kernel.Domain.cast(
-      die.register.kernel.find((m) => m.manifest?.type === "domain") ?? {},
-    ),
-    corpus: die.register.kernel.filter((m) => m.manifest.type === "corpus"),
-    ontology: die.register.kernel.filter((m) => m.manifest.type === "ontology"),
-  };
+  die.domain = v.primitives.kernel.Domain.cast(
+    die.register.kernel.find((module) => module.manifest?.type === "domain") ?? {},
+  );
 
   die.variant.traits = {
-    ...kernel.traits,
+    ...kinds.traits,
     ...traits,
-    ...die.kernel.domain.traits,
+    ...die.domain.traits,
   };
 
-  die.variant.modes = { ...kernel.modes, ...die.kernel.domain.modes };
+  die.variant.kinds = { ...kinds.kinds, ...die.domain.kinds };
 
   // tiers by type: base sets (abstract, shadowed) → daemon-default concretes → domain concretes (win)
   die.variant.entities = Object.values({
@@ -43,7 +38,7 @@ export async function core(die) {
     ...sets.kernel,
     ...sets.userspace,
     ...defaults,
-    ...die.kernel.domain.entities,
+    ...die.domain.entities,
   });
 }
 
@@ -99,9 +94,9 @@ export async function services(daemonDie) {
 
 export async function modes(daemonDie) {
   await daemonDie.datamap.shard.context(async () => {
-    const registeredModes = [...daemonDie.register.kernel, ...daemonDie.register.modes]
+    const registeredModes = daemonDie.register.kernel
       .map((register) => {
-        const kind = daemonDie.variant.modes[register.manifest.type] ?? kernel.root;
+        const kind = daemonDie.variant.kinds[register.manifest.type] ?? kinds.root;
         return { kind, register };
       });
 
@@ -113,20 +108,20 @@ export async function modes(daemonDie) {
       if (!mode.aperture) mode.aperture = new Aperture();
 
       if (mode.implements("APPLICATION")) {
-        mode.cake.app.mount.from(new Path(mode.cake.mount.dirname));
+        mode.module.app.mount.from(new Path(mode.module.mount.dirname));
 
         const url = daemonDie.good.attach
           .branch("/view")
           .branch(mode.mount.absolute)
-          .branch(mode.cake.app.mount.nature);
+          .branch(mode.module.app.mount.nature);
 
-        mode.cake.app.withUrl(url);
+        mode.module.app.withUrl(url);
       }
 
       if (mode.implements("FRAUGHT")) {
-        mode.cake.freight.path.from(new Path(mode.cake.mount.dirname));
+        mode.module.freight.path.from(new Path(mode.module.mount.dirname));
         const url = daemonDie.good.attach.branch("/cargo").branch(daemonDie.good.mount.nature);
-        mode.cake.freight.withUrl(url);
+        mode.module.freight.withUrl(url);
       }
 
       mode.entity = await daemonDie.good.entities.mode //

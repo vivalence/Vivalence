@@ -3,7 +3,7 @@
 // if mode is not installed, also ensure all users have these intents.
 
 export const INTENTED = async (mode, daemon) => {
-  for (const intentPojo of mode.cake.dataset?.intent || []) {
+  for (const intentPojo of mode.module.dataset?.intent || []) {
     intentPojo.mode = mode.id;
 
     await daemon.entities.intent.ensure(intentPojo);

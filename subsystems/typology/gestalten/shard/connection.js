@@ -1,4 +1,4 @@
-import { Response, Url } from "@vivalence/typology";
+import { Url } from "@vivalence/typology";
 
 export const authorize = ($authority) => async (ctx, next) => {
   const auth = $authority.get();
@@ -11,6 +11,8 @@ export const authorize = ($authority) => async (ctx, next) => {
 export const timeout = (ms) => async (ctx, next) => {
   const duration = ms ?? ctx.request.options.timeout;
   if (!duration) return next();
+  // a stream's lifetime is not a request timeout — SSE connects exempt
+  if (ctx.request.headers.get("accept") === "text/event-stream") return next();
 
   const timer = setTimeout(() => ctx.request.abort(), duration);
 
@@ -20,40 +22,6 @@ export const timeout = (ms) => async (ctx, next) => {
     clearTimeout(timer);
   }
 };
-
-export const retry =
-  (options = {}) =>
-  async (ctx, next) => {
-    const {
-      maxRetries = 3,
-      baseDelay = 1000,
-      maxDelay = 10000,
-      shouldRetry = (ctx) => ctx.response.error?.isRetryable,
-    } = options;
-
-    for (let attempt = 0; attempt <= maxRetries; attempt++) {
-      ctx.request._attempt = attempt;
-
-      if (attempt > 0) {
-        const delay = Math.min(
-          baseDelay * Math.pow(2, attempt - 1) + Math.random() * 500,
-          maxDelay,
-        );
-        await new Promise((r) => setTimeout(r, delay));
-      }
-
-      await next();
-
-      if (!ctx.response.error || !shouldRetry(ctx)) {
-        return;
-      }
-
-      if (attempt < maxRetries) {
-        ctx.response = new Response();
-        ctx.request._controller = null;
-      }
-    }
-  };
 
 export const batch = (options = {}) => {
   const { hatch, endpoint = "/batch", filter } = options;
@@ -94,6 +62,7 @@ export const batch = (options = {}) => {
           .then(() => {
             const results = lead.ctx.response.body;
             if (!Array.isArray(results)) {
+              console.warn(`[probe] batch response not array @ ${lead.ctx.request.url.pathname}`);
               lead.ctx.response.setError();
               for (const entry of q) entry.reject(lead.ctx.response.error);
               return;
@@ -102,6 +71,7 @@ export const batch = (options = {}) => {
               const entry = q[i];
               const result = results[i];
               if (!result || result.status >= 400) {
+                console.warn(`[probe] batch entry failed ${entry.path} status ${result?.status ?? "none"}`);
                 entry.ctx.response.status = result?.status ?? 500;
                 entry.ctx.response.body = result?.body ?? null;
                 entry.ctx.response.setError();
@@ -114,6 +84,7 @@ export const batch = (options = {}) => {
             }
           })
           .catch((err) => {
+            console.warn(`[probe] batch transport failed (${q.length} entries)`, err);
             for (const entry of q) entry.reject(err);
           });
       });

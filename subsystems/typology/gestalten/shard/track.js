@@ -2,8 +2,9 @@ import { Span } from "@vivalence/typology";
 
 export function span(name, pipe) {
   return async (ctx, next) => {
+    const nature = typeof name === "function" ? name(ctx) : name;
     const parent = ctx.span;
-    ctx.span = parent ? parent.branch(name).begin() : new Span(name).to(pipe).begin();
+    ctx.span = parent ? parent.branch(nature).begin() : new Span(nature).to(pipe).begin();
     try { await next(); }
     finally { ctx.span.drain(); ctx.span = parent ?? ctx.span; }
   };

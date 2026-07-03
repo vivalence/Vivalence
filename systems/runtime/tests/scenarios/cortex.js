@@ -141,10 +141,10 @@ export async function create() {
   dewey.mount = new Path(`/mode/${dewey.type}/${dewey.slug}`);
   dewey.entity = deweyEntity;
   dewey.id = deweyEntity.id;
-  dewey.cake.tune = "balanced";
+  dewey.module.tune = "balanced";
 
-  dewey.cake.harness = new Vector();
-  dewey.cake.harness.branch("/dialogue").use(async (ctx, next) => {
+  dewey.module.harness = new Vector();
+  dewey.module.harness.branch("/dialogue").use(async (ctx, next) => {
     ctx.hallucination.add("You are Dewey, a patient language tutor.");
     await next();
   });

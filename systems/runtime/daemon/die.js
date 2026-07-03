@@ -13,13 +13,11 @@ export class Die extends Wafer {
     hallucinator: null,
     datamap: null,
     kernel: [],
-    modes: [],
     services: [],
   };
 
   variant = {
-    kernel: {},
-    modes: [],
+    kinds: {},
     traits: {},
     entities: [],
     services: {},
@@ -37,7 +35,7 @@ export class Die extends Wafer {
   }
 
   async resolve() {
-    await lifecycle.resolution.kernel(this);
+    await lifecycle.resolution.domain(this);
     await lifecycle.resolution.modes(this);
     await lifecycle.resolution.freight(this);
 
@@ -82,7 +80,7 @@ export class Die extends Wafer {
 //         dry: DRY,
 //         depth: deep ? 6 : 2,
 //         pick: deep ? undefined : SHALLOW,
-//         omit: deep ? ["cake"] : undefined, // cake duplicates the live aperture/emitter contract
+//         omit: deep ? ["module"] : undefined, // module duplicates the live aperture/emitter contract
 //         locate: () => `${mode.type}-${mode.slug}-${this.slug}.snapshot.json`,
 //       });
 //       const json = JSON.stringify(pojo);

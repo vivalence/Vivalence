@@ -27,7 +27,7 @@ export async function prune(daemonDie) {
 
     // intent dropped from a still-installed mode's config
     for (const m of modes) {
-      const slugs = new Set((m.cake.dataset?.intent ?? []).map((i) => i.slug));
+      const slugs = new Set((m.module.dataset?.intent ?? []).map((i) => i.slug));
       await removeOrphans(
         em,
         await intent.find({ mode: m.entity.id }),

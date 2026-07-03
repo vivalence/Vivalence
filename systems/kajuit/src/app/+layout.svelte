@@ -4,7 +4,7 @@
 
   import { env } from "$env/dynamic/public";
 
-  import { onMount ,setContext } from "svelte";
+  import { onMount, setContext } from "svelte";
   import { computed } from "nanostores";
   import { narrate } from "../typology/logger.js";
 
@@ -13,6 +13,7 @@
   import { LIGHTHOUSE, TERMINALS, BRIDGE } from "$client";
   import { stores } from "@vivalence/kajuit";
   import { ThreadTraits } from "@vivalence/kajuit";
+  import * as terminalEffects from "./terminals.js";
 
   import Login from "@vivalence/kajuit/skins/lighthouse/Login.svelte";
 
@@ -22,9 +23,12 @@
 
   let terminalCount = $state(0); // refactor away
 
-  const connection = new Connection(new Url(env.PUBLIC_VIVA_LIGHTHOUSE_REMOTE));
-  connection.use(shard.track.span("lighthouse", telemetry()));
-  const lighthouse = new stores.lighthouse.Lighthouse(connection);
+  const connection = new Connection(
+    new Url(env.PUBLIC_VIVA_LIGHTHOUSE_REMOTE),
+    shard.transmitter.retry(shard.transmitter.fetcher, { maxRetries: 2 }),
+  );
+  connection.use(shard.track.span((call) => call.request.url.pathname, telemetry()));
+  const lighthouse = new stores.lighthouse.Lighthouse(connection, { telemetry: telemetry() });
   stores.lighthouse.hydrate(lighthouse);
   setContext(LIGHTHOUSE, lighthouse);
 
@@ -34,6 +38,7 @@
   const terminals = new stores.terminals.Terminals();
   setContext(TERMINALS, terminals);
 
+  console.log({ terminals, lighthouse });
   ThreadTraits.conversational.provide({ terminals });
 
   if (typeof window !== "undefined") {
@@ -43,9 +48,14 @@
   onMount(() => {
     stores.lighthouse.boot(lighthouse).catch(console.error);
 
+    terminalEffects.hydrate({ terminals });
+    const unpersist = terminalEffects.persist({ terminals });
+    const unsettle = terminalEffects.settle({ terminals, lighthouse });
+
     // dev: nanostores logging — all of it lives in typology/logger.js (app shell +
     // dynamic terminal / stall / buffer stores).
-    const unlog = narrate({ lighthouse, terminals, bridge });
+    //@beef this is shit:
+    const unlog = narrate({ lighthouse, terminals, bridge, telemetry: telemetry() });
 
     const unsubscribeGate = computed(
       [lighthouse.$isAuthorized, lighthouse.$status],
@@ -59,11 +69,7 @@
     ).subscribe((value) => (gate = value));
 
     const unsubscribePopulate = lighthouse.$isAuthorized.subscribe((authorized) => {
-      if (authorized)
-        stores.lighthouse
-          .populate(lighthouse)
-          .then(() => stores.terminals.rehydrate(terminals, lighthouse))
-          .catch(console.error);
+      if (authorized) stores.lighthouse.populate(lighthouse).catch(console.error);
     });
 
     const unsubscribeTerminals = terminals.$entities.subscribe((entities) => {
@@ -72,6 +78,8 @@
 
     return () => {
       unlog();
+      unpersist();
+      unsettle();
       unsubscribeGate();
       unsubscribePopulate();
       unsubscribeTerminals();

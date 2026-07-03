@@ -1,7 +1,7 @@
-<div class="chaosmonkey">chaosmonkey</div>
+<div class="bystander">bystander — nothing happens here</div>
 
 <style>
-  .chaosmonkey {
+  .bystander {
     height: 100%;
     display: flex;
     align-items: center;
@@ -9,6 +9,7 @@
     color: var(--colors-skeleton-3-contrast);
     background: var(--colors-skeleton-3-surface);
     font-family: var(--font-family-code);
-    font-size: var(--font-size-2xl);
+    font-size: var(--font-size-sm);
+    opacity: 0.6;
   }
 </style>
