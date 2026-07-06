@@ -98,7 +98,7 @@ export async function authority(daemonDie) {
 export async function acid(daemonDie) {
   daemonDie.good.cortex = new Cortex();
   for (const { service, mask } of daemonDie.register.hallucinators ?? []) {
-    daemonDie.good.cortex.extend(await service.provider(mask));
+    daemonDie.good.cortex.register(await service.provider(mask));
   }
 }
 

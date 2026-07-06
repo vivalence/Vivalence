@@ -41,8 +41,8 @@ export async function metadata(die) {
           .filter((type) => die.good.cortex?.has?.(type))
           .map((type) => ({
             type,
-            stream: !!die.good.cortex.resolve(type, { via: "stream" }),
-            render: !!die.good.cortex.resolve(type, { via: "render" }),
+            stream: !!die.good.cortex.findOne({ type, via: "stream" }),
+            render: !!die.good.cortex.findOne({ type, via: "render" }),
           })),
       );
       meta.open("/harness", () => shape.strip(mode.module.harness));

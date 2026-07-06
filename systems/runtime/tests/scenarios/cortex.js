@@ -132,7 +132,7 @@ export async function create() {
   });
   await em.flush();
 
-  const cortex = new Cortex().extend(makeFaculties());
+  const cortex = new Cortex().register(makeFaculties());
 
   const dewey = new Mode({
     manifest: { type: "teacher", slug: "dewey", traits: ["EXPOSED", "HARNESSED"] },
@@ -145,7 +145,7 @@ export async function create() {
 
   dewey.module.harness = new Vector();
   dewey.module.harness.branch("/dialogue").use(async (ctx, next) => {
-    ctx.hallucination.add("You are Dewey, a patient language tutor.");
+    ctx.hallucination.context.system("You are Dewey, a patient language tutor.");
     await next();
   });
 

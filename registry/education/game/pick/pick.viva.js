@@ -54,7 +54,7 @@ const emitter = new Vector()
     }
     scored.sort((a, b) => b.score - a.score);
 
-    return ctx.mode.buffer({
+    return ctx.mode.app.buffer({
       data: { target: lit.id, recall },
       literals: [lit, ...scored.slice(0, 3).map((s) => s.d)],
     });
@@ -66,7 +66,7 @@ const emitter = new Vector()
       { limit, blacklist: ctx.input.blacklist },
     );
     if (literals.length < 2) return [];
-    return ctx.mode.buffer({
+    return ctx.mode.app.buffer({
       data: { recall: ctx.input.recall ?? "LEARNING" },
       literals,
     });

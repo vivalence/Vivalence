@@ -33,7 +33,7 @@ const app = new App(
 
 const emitter = new Vector()
   .open("/literal", async (ctx) => {
-    return ctx.mode.buffer({
+    return ctx.mode.app.buffer({
       data: {
         recall: ctx.input.recall ?? "LEARNING",
         gameplay: ctx.input.gameplay ?? "TYPE",
@@ -55,7 +55,7 @@ const emitter = new Vector()
     const lit = annotated[0];
     const tokens = lit.trait?.ANNOTATED?.tokens ?? [];
     const blankIndices = tokens.length ? [Math.floor(Math.random() * tokens.length)] : [0];
-    return ctx.mode.buffer({
+    return ctx.mode.app.buffer({
       data: {
         recall: ctx.input.recall ?? "LEARNING",
         gameplay: ctx.input.gameplay ?? "TYPE",

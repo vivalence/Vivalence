@@ -27,15 +27,22 @@ export function proxy(vector, execute = steer.request) {
 }
 
 function proxyEffect(execute, mw, fn, params, steps, signal) {
-  return execute(mw, (ctx) => {
-    ctx.params = { ...params, ...ctx.params };
-    return fn(ctx);
-  }, steps, signal);
+  // i thin i ought to loose the symbol and literal dsl here.
+  return execute(
+    mw,
+    (ctx) => {
+      ctx.params = { ...params, ...ctx.params };
+      return fn(ctx);
+    },
+    steps,
+    signal,
+  );
 }
 
 function proxyNode(vector, execute, params, signal, steps) {
   const next = vector.carry.length
-    ? (apply, effect, s, sig) => execute(middleware.compose([...vector.carry, apply]), effect, s, sig)
+    ? (apply, effect, s, sig) =>
+        execute(middleware.compose([...vector.carry, apply]), effect, s, sig)
     : execute;
   const mw = middleware.compose(vector.carry);
 
@@ -70,7 +77,8 @@ function proxyNode(vector, execute, params, signal, steps) {
       }
 
       for (const [pattern, fn] of vector.effects) {
-        if (pattern.type === "remainder") return proxyRemainder(execute, mw, fn, params, 0, key, [...steps, pattern], signal);
+        if (pattern.type === "remainder")
+          return proxyRemainder(execute, mw, fn, params, 0, key, [...steps, pattern], signal);
       }
     },
   });
@@ -81,7 +89,7 @@ function proxyRemainder(execute, mw, fn, params, index, key, steps, signal) {
   const invoke = proxyEffect(execute, mw, fn, merged, steps, signal.branch(key));
   return new Proxy(invoke, {
     get(target, next) {
-      if (typeof next === "symbol") return target[next];
+      if (typeof next === "symbol") return target[next]; // are symbol and literal part of the language here?
       return proxyRemainder(execute, mw, fn, merged, index + 1, next, steps, signal.branch(key));
     },
   });

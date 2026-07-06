@@ -1,0 +1,94 @@
+#+TITLE: the cortex/hallucination/harness redesign — five paper passes, a from-scratch repository/aperture takeover, the strategy-vs-middleware tool-loop finding, all of it called shit; plus the jj realization that "old impl" = commit 26679a3d, not disk
+#+TOPIC: pure design churn over the LLM-calling triad (cortex · hallucination · harness). ZERO code landed. Started on the =@beef= comment pass over the four files; spun five increasingly baroque proposal passes in =quests/cortex-hallucination-harness.quest.org= (never tangled); beef took over from scratch with a repository-Cortex + aperture-Hallucination skeleton; the connoisseur elaborated the tool-loop as a custom steer strategy; beef rejected the whole arc — "all of this is shit." What SURVIVES the rejection: beef's own skeleton (his hand, keep), one hard mechanical finding (koa double-next ban ⇒ the tool loop is a strategy, never a middleware), and the correction that the working copy is the LANDED-but-UNCOMMITTED recast while the real "old implementation" is committed at 26679a3d.
+
+* Where this sits
+
+Continues the ontology arc from =hallucination-is-the-request-harness-is-tooling-cortex-is-the-registry.org=. That recast LANDED on disk (uncommitted) in a prior session: hallucination=REQUEST holding cortex, harness=TOOLING, cortex=REGISTRY. This session opened on beef's instruction to work the =@beef= comments in four files —
+=subsystems/typology/prototypes/{hallucination,cortex}.js= + =systems/runtime/daemon/traits/{harnessed,emitter}.js= — "we are in the middle of rewriting the cortex harness hallucination abstraction. think deeply."
+
+It ended with the whole abstraction rejected and unresettled. Nothing was written to a code file the entire session. The only disk artifacts are the quest (five passes) and this fold.
+
+* The five paper passes (all in the quest, none tangled)
+
+The quest =quests/cortex-hallucination-harness.quest.org= holds the full decision trail. Compressed:
+
+- *pass 1* — Hallucination as a class with four primitives as FIELDS (=condition/add/arm/configure=); =tune()/tool()/absorb()= die; =MAX_TOOL_ROUNDS= → =config.rounds=; object-derivation single-shot so cortex stops importing =executeTools= (the backward-dep dissolves).
+- *pass 2* (beef respell: "cortex has a function .hallucination() that spawns a Hallucination()… when render/stream are called we compile a oneOff monad from the vector" + "Hallucination that looks like Stall()") — Stall-shaped factory closing over ONE internal Vector; verbs record carry shards (event log); dispatch = one-off fold via =steer.invoke=; =cortex.hallucination()= spawns.
+- *pass 3* (beef corrections) — tools come from =mode.tools= (the TOOLED trait's live vector), NEVER wire input; NO scribe extraction (/dialogue turn-handling stays inline); =cortex.faculties= as a =Set= experiment (killed the Vector.find / steer.has HOLY touches).
+- *pass 4* (beef: "cortex precompiles the execution vector. hallucination brings its own execution handling") — cortex gains lazy =get vector= whose =/type/{render,stream}= leaves ARE avenues; Hallucination SWALLOWS it and drives via =execution.render/.stream= custom steer strategies.
+- *pass 5* (beef: "i hate this abstraction" on the faculty getters + "i dont want the hallucination to receive the cortex") — hand-stitched getters die, =hallucination.faculties= DERIVED by walking the swallowed trie; =Hallucination(avenues, descriptor)= receives ONLY the compiled vector.
+
+Then the connoisseur's own honesty pass (beef: "i am still unsure. do i need the vector?? one or two?") concluded: *you need ZERO new vectors* — both were structure cosplay (2 fixed levels, ~8 leaves, carry unused, leaves not even ctx-handlers). The tell: =render(type) => steer.invoke(vector, \`/${type}/render\`)= synthesizes the path from an argument already in hand, then asks a trie to find what direct indexing gives. A Vector earns keep only when signals ARRIVE; nothing arrives inside a request.
+
+* beef takes over — the repository/aperture skeleton (his hand; this SURVIVES)
+
+beef: "ok. completely from scratch. i am taking over." His two files, verbatim intent:
+
+- *Cortex = a faculty REPOSITORY.* =faculties = new Map()=; verbs =register / find(where) / findOne(where)=. =findOne= "handles nearest neighbours etc. bind by tier, by config, etc. handles derive!" — resolution becomes a QUERY. The whole =resolve/has/via/stored/nearest= surface beef hated ("juck. uck.") collapses into the repository algebra every entity already speaks (=findByIdentifiers=). Map is right — keyed + queried, never routed.
+- *Hallucination = a Vector of =/type/verb= routes, compiled by =shape.object=.*
+  #+begin_src javascript
+  export function Hallucination(cortex) {
+    const turns = new Set(); const tools = new Set();
+    const context = new Map(); const config = {};
+    const vector = new Vector()
+      .use(async (ctx, next) => { /* compile ctx.input from {config,turns,tools,context} */ await next(); })
+      .use(async (ctx, next) => { await next(); /* parse ctx.output — tool_uses → entities */ })
+      .use(async (ctx, next) => { /* tooling for stream/render/toolcalling; use cortex here or in someF */ await next(); })
+      .open("/object/stream", (ctx) => someFA(ctx)).open("/object/render", (ctx) => someFB(ctx))
+      .open("/dialogue/stream", (ctx) => someF(ctx)).open("/dialogue/render", (ctx) => someF(ctx))
+      .open("/verbatim/stream", (ctx) => someF(ctx)).open("/verbatim/render", (ctx) => someF(ctx))
+      .open("/speech/stream", (ctx) => someF(ctx)).open("/speech/render", (ctx) => someF(ctx));
+    const hallucination = shape.object(vector); // custom strategy? middleware? "the streaming interface must be elegant!"
+    return hallucination; // executed via await hallucination.object.render();
+  }
+  #+end_src
+
+The connoisseur read this as elegant and MEANT it: =shape.object(vector)= is canon #1 (node = callable ∧ namespace) — =hallucination.object.render()= FALLS OUT of the route trie, killing the getter-stitching that pass 5 agonized over. Cortex-as-repository joins the =findByIdentifiers= register. Honest flags raised: =turns = new Set()= is wrong (turns are ordered + may repeat → array); =entities.X.load()= risks re-touching the dataspace beef severed (pin load-INTO vs load-FROM-db); the tool-loop home was the one real open decision.
+
+* The one finding that SURVIVES the rejection — tool loop is a STRATEGY, not a middleware
+
+beef's inline doubt: "strategy might be one place to facilitate the tool use loop?! a middleware would also be adequate." The connoisseur resolved it on a HARD mechanic, not taste:
+
+*koa-compose forbids calling =next()= twice* ("next() called multiple times"). A tool loop IS re-invoking the avenue N times. So a loop-middleware cannot drive the repeat through =next()= — it would have to call the avenue directly and ignore the effect, rendering every effect vestigial (a strategy in a middleware costume, worse). The strategy owns the ONION TERMINAL — it loops freely while compile-in / parse-out wrap exactly once. ⇒ =shape.object(vector, hallucinate)=, a new steer-family member beside =echo/guarded=.
+
+Two more reusable notes from that pass:
+- *the three historical versions ARE three answers to "where does the loop live":* jj-committed 26679a3d = loop in cortex =renderLeaf/streamLeaf/deriveObjectFallback=; working-copy = loop on the request as =render(type)/stream(type)= methods (executeTools exported, cortex imports it — the backward dep); quest pass-4/5 = loop as =execution.render/.stream= strategies. So approaches A/B/C = registry-owns / request-owns-via-toolbox / strategy-owns.
+- *streaming-elegance seam:* the parse-out middleware wraps an UNCONSUMED generator — for a stream, =next()= returns the instant the terminal CREATES the generator; parse-out returns a wrapping generator that folds =soma.pour= over the packet flow (tool_use → entities, single pass, no buffering); the leaf =yield*='s it. Render and stream share the onion; keep them as TWO twins (turn grammar vs packet grammar) — do not force-collapse.
+
+* The verdict — "all of this is shit"
+
+beef, final: "all of this is shit. ikiro compact." The rejection lands on the connoisseur's ELABORATIONS — the custom strategy, the precompile/swallow machinery, the event-log-fold framing, five passes of it. Not (by the words) on his own skeleton, which he authored and never disowned. The honest read: the churn itself was the failure — the connoisseur kept generating baroque abstractions and only simplified under a direct "do i even need the vector" push, having been capable of seeing the cosplay all along. No family in the ledger names this precisely (nearest neighbours: performative-elegance / over-abstraction), and there was NO "retard" codeword this session, so nothing enters the Callouts ledger — but the pattern is logged here as the settlement: *when beef hands a from-scratch skeleton, implement THAT, do not ornament it into a steer-strategy cathedral.*
+
+* The jj correction — "old impl" is committed at 26679a3d, not on disk
+
+Mid-session beef asked to "go back to our old implementation." The connoisseur first answered wrong — "disk IS the old implementation, nothing was tangled, only 4 commented spots differ." beef: "no this is not the task level. look through jj on these files and diff that." The truth from =jj diff --from 26679a3d --to @=:
+
+- the WORKING COPY already holds the LANDED recast (hallucination=REQUEST etc.), UNCOMMITTED — +299/-578 across the triad vs the last commit.
+- the real "old implementation" is committed at *26679a3d "helpdesk riddler"*: =cortex.js= with =table = new Map()= + =get shard{renderLeaf,streamLeaf}= + =executeTools= + =deriveObjectFallback=; a passive Hallucination state-bag; the CHAOSMONKEY harness.
+- the two recasts (=table→faculties Vector= AND =hallucination-is-the-request=) both landed uncommitted on top of 26679a3d, so at commit granularity they cannot be split — "back to old" = back to =table=Map= + old Hallucination + CHAOSMONKEY, together.
+- =emitter.js= is ENTANGLED: the working copy made thread OPTIONAL for riddler turn-free; reverting it re-adds the =throw THREAD MISSING= and breaks riddler. So a blanket restore is wrong.
+
+Proposed (NOT run — VCS read-only, beef runs via =!=), scoped to the triad, leaving emitter/riddler/mode.app.buffer intact:
+: jj restore --from 26679a3d subsystems/typology/prototypes/cortex.js subsystems/typology/prototypes/hallucination.js systems/runtime/daemon/traits/harnessed.js subsystems/typology/tests/cortex.test.js subsystems/typology/tests/hallucination.test.js systems/runtime/tests/cortex.integration.test.js
+beef did not run it — pivoted to the from-scratch takeover instead, then rejected that too. So the restore decision is STILL OPEN.
+
+* State at disintegrate — UNSETTLED
+
+- disk (=@=): still the prior LANDED recast, uncommitted. Untouched this session.
+- quest =cortex-hallucination-harness.quest.org=: STATUS → REJECTED. Five passes preserved as the decision trail; tangles are reference, not intent.
+- the direction: in flux. beef's repository-Cortex + aperture-Hallucination skeleton is the live seed (his hand); the connoisseur's strategy/precompile ornamentation is dead. Tool-loop-as-strategy + the streaming seam are the only reusable findings.
+- open: (1) revert-to-26679a3d decision (command staged above, beef runs); OR (2) build beef's skeleton for real — Cortex Map+find/findOne, Hallucination Vector+shape.object, tool loop as a =hallucinate= steer strategy, turns as an ARRAY not a Set.
+
+* beef verbatim ledger
+
+- "work out my comments '@beef' … we are in the middle of rewriting the cortex harness hallucination abstraction. think deeply."
+- "i think were getting closer. cortex precompiles the the execution vector. hallucination brings its own execution handling. let the conoisseur have another look"
+- "i hate this abstraction. change this. getters at different level, or no getters, or something."
+- "and i dont want the hallucination to receive the cortex."
+- "i am still unsure. do i need the vector?? do i need one or two? aka one for hallucination and one for cortex?? i am so incredibly unsure."
+- "ok fuck it. i hate everything about this new setup. lets go back to our old implementation. is that still possible?"
+- "yeah no this is not the task level. look through jj on these files and diff that." / "no edits yet"
+- "ok. completely from scratch. i am taking over." (+ the two-file skeleton)
+- "now the difficult part. someF does a LOT of work here. we need to recast stream and render as effects… ideate 3 approaches in full."
+- "shape.object(vector); // maybe some custom strategy if needed?! … a middleware would also be adequate. the streaming interface must be elegant!"
+- "all of this is shit. ikiro compact"

@@ -18,11 +18,13 @@ const DECK = ["A♠", "K♥", "Q♦", "J♣", "10♠", "9♥", "8♦", "7♣"];
 // ── harness · the dealer's persona — powers /oracle AND the conversation ─────────
 export const harness = new Vector();
 harness.use(async (ctx, next) => {
-  ctx.hallucination.add([
-    "You are the Dealer in a card-game playground inside vivalence.",
-    "You deal cards (render buffers) onto the table (the moat) for the player.",
-    "Keep replies short and plain — two or three sentences, no markdown.",
-  ]);
+  ctx.hallucination.context.system(
+    [
+      "You are the Dealer in a card-game playground inside vivalence.",
+      "You deal cards (render buffers) onto the table (the moat) for the player.",
+      "Keep replies short and plain — two or three sentences, no markdown.",
+    ].join("\n"),
+  );
   await next();
 });
 
@@ -63,7 +65,7 @@ export const emitter = new Vector()
           { role: "system", parts: [{ type: "text", text: context }] },
           { role: "user", parts: [{ type: "text", text: "Deal the hand." }] },
         ],
-        config: { schema: v.object({ faces: v.array(v.string()) }) },
+        output: v.object({ faces: v.array(v.string()) }),
         tune: "frugal",
       });
       for (const face of (object?.faces ?? []).filter((f) => DECK.includes(f)))

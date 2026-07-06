@@ -15,7 +15,7 @@ async function collectStream(stream) {
 }
 
 function captureSonnet(cortex) {
-  const faculties    = cortex.table.get("dialogue");
+  const faculties    = cortex.find({ type: "dialogue" });
   const sonnet       = faculties.find((faculty) => faculty.tune[0] === 0.4);
   const originalStream = sonnet.via.stream;
   let capturedTurns  = null;

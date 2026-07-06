@@ -1,0 +1,232 @@
+#+TITLE: Remote Entity Dataspace — recognize the fold that already exists; stop the slop cosplaying one
+#+AUTHOR: Vivalence (ikiro, autonomous design-research loop)
+#+DATE: 2026-07-05
+#+STATUS: DESIGN SETTLED w/ corrections — 5 passes incl. adversarial red-team (wf_b00eaa80-049). Architecture (builder/cast-fold/subtraction) held; PROVENANCE keystone RE-OPENED (module-global flag cracked → Shape B two-door blessed / Shape A-pinned stopgap). NO codebase changes. @beef calls: M2 shape · Move B′ contract · M5 UoW (deferred). Awaiting go.
+
+* The turn (what two assessment passes settled)
+
+The provenance sync eval (C>B>A) and the dataspace-architecture assessment (M3/M4) BOTH
+converged on one finding: *the convulsion already happened one layer below the =// ugly retarded
+slop= comment.* =RemoteEntityManager.cast()= (subsystems/typology/prototypes/entity-manager.js:138-201)
+IS the fold; the identity-map over a flat CYCLIC relation-graph IS the one structure. The
+=Dataspace= constructor is not a second locus of law — it is a builder cosplaying a catamorphism.
+
+So the honest work is *subtraction + landing one keystone*, NOT a grand redesign. Both "grand"
+forks (M3-consume-the-schema, M4-one-identity-map) are FALSE FRAMES, rejected with proof below.
+
+* The ONE structure + ONE law (recognized, already live)
+
+- *ONE STRUCTURE* — =RemoteEntityManager= identity-map over a flat relation-graph. The identity
+  map is the memo that lets a CYCLIC flat graph (thread↔buffer: Thread 1:m buffers ⇄ Buffer m:1
+  thread) be walked WITHOUT a trie. This is the true client dual of the server's *ORM
+  EntityManager* — NOT the aperture trie (that duals to =Connection= via strip↔messenger).
+- *ONE LAW* — relation topology is DERIVED from the stripped datamap inside =cast()=: m:1
+  resolution inward + 1:m =$collection= computeds outward. *Dossiers add BEHAVIOR, never TOPOLOGY.*
+  Test of the law: grep a dossier for any =$=-computed or =updateOne= keyed on a relation field
+  that appears in the datamap → violation.
+
+* The keystone (M2) — PROVENANCE  (RE-OPENED — adversarial pass cracked the flag)
+
+Name the commit/hydrate pair so the echo cannot exist. The CONCEPT is proven (scratchpad/
+provenance.js green). But the adversarial connoisseur pass (wf_b00eaa80-049) broke the *mechanism*
+I first blessed — a module-global =let QUIET= flag "robust by construction and per-EM." Both halves
+were soft (empirical, real EM):
+- *"per-EM" is FALSE* — it is a MODULE singleton shared by every daemon's EM. The async-spanning
+  variant *cross-silenced daemon-B's loud commit* (=bOk:false=). N-EM safety comes entirely from
+  SYNCHRONOUS scoping (JS single-thread can't interleave a sync set-loop), NOT per-EM-ness. The
+  "client mirror of server =ambient=" framing is a *category error*: server =ambient= is
+  AsyncLocalStorage spanning awaits BY DESIGN; client provenance is per-CALL, known synchronously
+  at each set — it belongs in the call, not a global. (I committed my own "don't manufacture a
+  symmetry" sin on the provenance axis.)
+- *"silent by construction, no guard"* holds ONLY under an unstated, load-bearing invariant:
+  =quietly= wraps EXACTLY the synchronous relation sets and NEVER an await. Proven: wrapping the
+  whole async =integrate()= ECHOES (=QUIET=0= by the time =merge():88= fires past =cast=' await at
+  :149); the naive async fix that holds =QUIET= across the await CROSS-SILENCES. Only the
+  sync-set-only scope survives. *SECOND blind spot:* =cast():172-173= =child[mappedBy] = entity=
+  is a hydration-time relation set AFTER merge, outside any quiet window — dormant only because
+  =buffer.thread= has no write-back subscribe yet.
+
+** Two shapes (choose — Shape B needs a HOLY-core touch, @beef-gated)
+
+*Shape B — TWO DOORS (connoisseur-blessed; zero hidden state, provenance structural):*
+#+begin_src js
+// on each atom-backed m:1 relation — the speak/swallow pair the design already named:
+speak(v)   => { $atom.set(v); emit updateOne }   // LOUD door; the ergonomic `set mode(v)` IS speak
+swallow(v) => { $atom.set(v); }                  // QUIET door; ALL machinery writes the raw $-atom
+#+end_src
+Every hydration site sets the atom-backed m:1 via =$=+field (cast already does this for 1:m
+computeds): =em.merge= (:88), =em.cast= (:172-173, closes the blind spot), cache-rehydrate,
+optimistic-insert → *silent BY CONSTRUCTION at EVERY site*. No ambient state to leak across EMs or
+awaits, no blind spot. Retires BOTH the id-compare guard AND the flag; the write-back emit moves
+from the dossier subscribe INTO =speak=. COST: =merge=/=cast= in typology-core (HOLY) branch to
+=$=+field for atom-backed relations — same tier as the M5 UoW deletion, @beef's call.
+
+*Shape A-pinned — the flag, hardened (shippable stopgap, zero core churn):* keep =quietly= but (1)
+wrap ONLY the synchronous set sites — =merge():88= AND =cast():172-173= — never =integrate=/=cast=-
+as-a-whole, never across an await; pin as comment + an *invariant test* (a loud UI set fired during
+a hydrate await must survive); (2) retract "per-EM" → state safety = synchronous scoping; (3)
+EM-instance field or module-global-with-invariant-pinned. Provably safe (sync-set-only green) but
+CONCEALS where Shape B reveals — land only as a stopgap.
+
+Effect (either shape): user swap → 1 write · same-id hydrate → 0 · different-id hydrate → 0 ·
+retires the =mode.id !== previous.id= guard. Write-back sub-fork stays B-gated (dossier subscribe /
+=speak=); UoW-gated is DEFERRED (see M5), not a corpse.
+
+** Provenance is a TERNARY of origins, not a binary (corrected)
+=em.merge= carries THREE origins, all sharing the QUIET (swallow) character:
+- *server-hydration* — remote-repository find/create/upsert/updateOne/subscribe; harnessed.js:12; aimed.js:13.
+- *cache-rehydration* — remote-repository persist() :49,:58 (localStorage replay).
+- *client-optimistic-insert* — =Dock.svelte:191= / =conversational.js:85= merge a =tmp-= turn (never
+  round-tripped; durability rides =conversational.send=, a SIBLING channel). Its silence is a
+  COINCIDENCE — it prevents a spurious =updateOne= to a PHANTOM =tmp-= id, not an echo of server
+  truth. The swallow-side justification is *"durability owned elsewhere (server OR sibling channel)"*,
+  not "hydration." *Dormant phantom-write bug:* =Turn.thread= has a public loud setter — a future
+  write-back subscribe on Turn (or =buffer.thread= via =cast:173=) would fire =updateOne= on a row
+  the server never saw. Shape B closes this by construction; Shape A must guard it explicitly.
+
+* Concrete moves (subtraction; each gated on @beef go)
+
+** M1 — kill the double-write  (independent, smallest)
+=d.svelte:95= explicit =updateOne({mode})= AND =d.svelte:96= =current.mode = mode= (fires
+=thread/dossier.js:46-49= subscribe → =updateOne=) both write: empirically 2 identical POST
+=/updateOne= per swap, *3* on the =wasDefault= branch (d.svelte:98-105). Drop the explicit
+=d.svelte:95= call; let the subscribe carry it. Keep =dossier.js:37-44= (MASKED trait, local, no
+server write — legitimate).
+
+** MOVE A — kill the boot-Vector cosplay  (the real M3, rescoped)
+=systems/kajuit/src/typology/prototypes/dataspace.js:3-9,22-35=. The per-dossier
+=new Vector → 3×context.attach → seed → slurp → N×use → affect(async()=>{}) → selbstbestimmt(walk)
+→ strategy= is a linear =middleware.compose= wearing a routing trie. Proven: =boot.effects.size=1,
+trajectories.size=0= ALWAYS; the =affect(async()=>{})= (dataspace.js:31) is a PLANTED fake terminal
+leaf so the walker has a tip — the structure lies about its shape; =strategy= (dataspace.js:3-9)
+discards effect/steps/signal → pure adapter (adapter = the structure is wrong, kernel rule).
+Replace with a direct =middleware.compose(dossier.use ?? [])= run by a call-site closure that
+builds ctx ={entity, raw, dossier, repository, dataspace: this, ...seedCtx}=. A probe proved a
+*byte-identical integration ledger* for thread+buffer+mode. ~18 lines → ~10. (Prove parity by
+re-running the ledger-equality probe — output-equality, not internal resemblance.)
+
+#+begin_src js
+for (const dossier of entities) {
+  const repo = buildRepo(dossier.kind, connection.branch(dossier.path));
+  em.register(dossier.name, repo, wrap(middleware.compose(dossier.use ?? []), ctx));
+  this[dossier.name] = repo;
+}
+#+end_src
+
+** MOVE B — delete the dead limbs  (bundle with A)
+Grep-confirmed zero/write-only: =dossier.boot= slurp (dataspace.js:29 — no dossier declares
+=boot:=) · =this.schemas= Map (dataspace.js:13,37 — read nowhere) · =Dataspace.fork()=
+(dataspace.js:56-58 — no consumer; leaks a bare EM, losing =this[name]=/populate/init).
+
+** MOVE B′ — resolve the =if(repository.manage)…else repository.integrate= sniff  (design call)
+*CORRECTION to the probes:* the else-arm is NOT dead — it is the =LocalRepository= path
+(local-repository.js:47), merely unreachable via the current 8 all-=RemoteRepository= dossiers.
+Trigger-5 twin: branch-on-shape, not on a named discriminator. @beef ruling: if Dataspace's
+contract is "hosts managed repos", collapse to =em.register=; if it must stay Local/Remote-
+polymorphic, read a NAMED discriminator, not =.manage= presence.
+
+** MOVE C — delete the redundant duplicate  (makes the law total)  — VERIFIED SAFE
+=thread/dossier.js:25-27= hand-authors =thread.$buffers= — a DUPLICATE of the =cast()=-derived
+schema computed (Thread 1:m buffers → entity-manager.js:179-187); since the dossier runs LATER in
+integrate it re-assigns =thread.$buffers=. Adversarial verify (scratchpad/movec.js, REAL cast):
+the dossier predicate and cast's identity-keyed computed yield *byte-identical result sets* over
+object-thread, raw-string-thread, foreign children, plus drop-reactivity — so it is REDUNDANT, not
+corrupting (earlier "weaker predicate / live defect" wording RETRACTED). Delete it → strict
+improvement (cast additionally defines the =buffers= getter the dossier never provided). Reduce
+=thread.$turns= (dossier.js:28-32) to a sorted VIEW over cast's =$turns= (the =createdAt= sort is
+the only irreducible residue). *LOAD-BEARING:* safety rests on the awaited =daemon.entities.init()=
+barrier (daemon/dossier.js:77) preceding every find/subscribe — cast needs the populated schema;
+any find hoisted before init() resurrects the empty-schema failure. Preserve the barrier.
+
+** MOVE E — collapse the intake vocabulary  (how-many-objects)
+=seed(fn)= vs =dossier.boot(vector)= vs =dossier.use(fn[])= = THREE names for "prepend
+middleware"; =seedDaemon= uses =shard.context.bind= (daemon/dossier.js:23) while =seedLighthouse=
+uses =shard.context.attach= (lighthouse.js:209) for the identical role — and in
+=gestalten/shard/context.js= =attach ≡ scope= byte-for-byte, =bind= differs only by a post-next
+teardown moot on the discard-after-compose path. One verb wanted.
+
+* REJECTED grand forks (reasoning preserved)
+
+** M3-grand "Dataspace consumes the schema TRIE / dual to messenger"  → FALSE METAPHOR
+Two different strips exist: =shape.strip= serializes a Vector ROUTING trie → recursive
+={leaves,branches}= (depth-N, self-similar; =messenger= RECURSES on =.branches=) — THIS is the
+trie hylomorphism, and it lands in the *Connection* (=repo.connect(connection.branch(path))=), not
+the Dataspace. =shard.datamap.strip= (gestalten/shard/datamap.js:225) serializes ORM metadata →
+FLAT ={name:{properties:{field:{kind,target,mappedBy}}}}= (depth-1) WITH a thread↔buffer CYCLE. A
+trie is acyclic/self-similar; a trie catamorphism cannot express the cycle. And the graph is
+ALREADY consumed by =cast()=; it isn't even present at construction (sync register/fork precede
+async =init()='s =/datamap= fetch) → structurally cannot drive repo registration. Nothing left to
+"consume." REJECT — the grand fold is a redundant second fold.
+
+** M4-grand "one identity map, daemon as scope key"  → FALSE BINARY (daemon = bounded context)
+ZERO relations cross the daemon boundary — every userspace m:1 target is a SIBLING in the same
+daemon; =daemon.entities= is a Dataspace FIELD, never a strip-emitted relation. A unified map is
+consulted across daemons EXACTLY ZERO times (0 dedup, 0 enabled queries). Naive =name:id= LEAKS
+(two daemons' =buffer:b-1= fold to one row — proven store collapse 2→1); scoped =daemon:name:id=
+merely re-derives the partition inside one map AND breaks =flush()= (posts to a single
+=this.connection=, entity-manager.js:254 — can't fan writes to N owning daemons). N-EM is the
+*connected-component decomposition the schema hands you free*; the transport boundary (own
+authorized Connection + own =/datamap=) IS the aggregate boundary. Keystone VOTES N. REJECT. If a
+truly-global entity ever appears it lands in the EXISTING lighthouse-tier EM
+(=Lighthouse.dataspace=) with relations intra-tier — the two-tier design already reserves the seat.
+
+** M-twin "fold the m:1 write-back into cast() as a domain-blind law over EVERY m:1" → REJECT
+Over-generalizes an N=1 domain (only =thread.mode= reassigns live) and COMPLECTS write-POLICY
+("reassign ⇒ POST") with schema-TOPOLOGY ("mode is m:1"). The schema says "m:1", never "auto-POST
+on reassign." Read-side topology IS schema-derived (true, cast owns it); write-back stays *gated
+behavior in the dossier*. (Standing connoisseur note: "messenger left a clean anamorphism — no
+unfold for one caller.")
+
+* M5 — the client UoW's fate  → DEFERRED-not-refuted (was wrongly "corpse")
+The client =RemoteEntityManager= (subsystems/typology, HOLY) carries a toJSON-diff unit-of-work
+(=persist/remove/flush/changes/snapshot=, entity-manager.js:215-301). Grounded:
+- ZERO live kajuit callers (only the commented =queueing.js:23=); atom-blind today
+  (=structuredClone= throws → =changes()= = null, proven iteration 1); unit-tested; typology-core.
+- *CORRECTION (adversarial pass):* it is NOT a "corpse with no consumer" — *M2 is the consumer*, and
+  it is dead ONLY for lack of the trivial projecting-toJSON. Proven (scratchpad/attack3.js):
+  =structuredClone(toJSON())= SUCCEEDS with ={id, mode: this.mode?.id}=, reviving the UoW, and then
+  *dirty-set membership IS the provenance channel* (merge-without-persist → flush → silent; setter+
+  persist → flush → emit) — no flag, no async window, the faithful client dual of the server's
+  persist/flush EM. It does NOT dominate the ship call: unsolved client flush-TRIGGER (server auto-
+  flushes at the request boundary; client has none — why eager atom-subscribe was chosen), touches
+  HOLY =Entity.toJSON=, N=1 YAGNI, and atoms stay REQUIRED for Svelte (so it's a hybrid, not a
+  cleaner rep). Verdict: *DEFERRED — revive iff a flush boundary + a 2nd live loud relation appear.*
+  Subtraction still wins the ship; but reclassify "delete the corpse" → "leave dormant, deferred."
+
+* Standing findings
+
+- *TWO different =em=s (do not conflate).* The hundreds of =em.flush()=/=em.persist()= across
+  =systems/runtime/= + =registry/= are the SERVER's MikroORM EntityManager (=ctx.daemon.entities.em=,
+  alive everywhere). The CLIENT =RemoteEntityManager= (kajuit =dataspace.js:17=) is the mirror; its
+  UoW is the dormant one. A grep that lumps them reads "the UoW is used everywhere" — false.
+- *Provenance origins are a TERNARY, not a total binary* (see M2 — CORRECTED from an earlier false
+  "every merge is hydration / no exceptions to carve"): server-hydration · cache-rehydration ·
+  client-optimistic-insert. All swallow (QUIET), but for two different reasons (server-truth vs
+  durability-owned-by-a-sibling-channel), and the optimistic-insert hides a dormant phantom-write bug.
+- *toJSON atom-pollution is INERT.* =Entity.toJSON= emits =$mode=/=$phase=/=$traits= atom objects
+  (no =mode= getter — proven iteration 1), BUT no client repo calls =persist()= (localStorage entity
+  caching inactive) and outbound wire uses explicit data payloads (=updateOne({mode: mode.id})=, not
+  =toJSON=). Feeds only the dormant snapshot path — not a live bug. (The projecting-toJSON that fixes
+  it is the same one that would revive the UoW under M5 — separable, correct, deferred.)
+
+Settled moves: M1 · Moves A/B/C/E · (M5 deferred). @beef's calls — (1) *M2 keystone shape*: Shape B
+two-door (HOLY-core touch, blessed) vs Shape A-pinned flag (stopgap); (2) Move B′ =repository.manage=
+contract (collapse-to-=em.register= vs named-discriminator); (3) M5 UoW (deferred; revive iff flush
+boundary + 2nd loud relation). *NOT "surface exhausted"* — the adversarial pass (wf_b00eaa80-049)
+just decided the async-scope invariant, the ternary origins, and the deferred-UoW; that earlier
+claim (and "per-EM," "no exceptions to carve") were falsified and are corrected above.
+
+* The two-tier design is correct (keep)
+One =Dataspace= class reused: =Lighthouse.dataspace= of =[DaemonDossier]= (lighthouse.js:46, the
+fleet) + each =Daemon.entities= of the userspace 7 (daemon/dossier.js:72). Same builder, different
+dossier lists. Move A preserves this symmetry.
+
+* Provenance / carries
+- Sims: =scratchpad/probe.js= (EM atom-blindness), =scratchpad/provenance.js= (the QUIET/LOUD split, green).
+- Eval workflows: =wf_1fb2c8ed-9cb= (sync C>B>A), =wf_f1bb0e57-343= (dataspace M3/M4 — full connoisseur
+  judgment + 5 false-frames in the run journal).
+- Server twin: =subscribe-reactivity-broadcaster-match-and-ambient-owner-stamp.org= (server solved its half
+  with =ambient= owner-stamp; M2 is the client mirror) · =kajuit-persistence-rehydrate...em-autosync-research.org=.
+- Cross-cut discovery: the server exposes TWO orthogonal structures (routing trie → Connection;
+  flat schema → cast/EM); the client already duals BOTH. Don't force the Dataspace into a Vector to
+  manufacture a third symmetry.

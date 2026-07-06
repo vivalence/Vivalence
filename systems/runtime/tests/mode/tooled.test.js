@@ -12,8 +12,6 @@ function buildMode({ tools, harness, slug = "tooled-test" } = {}) {
   return mode;
 }
 
-const branchNatures = (vector) => [...vector.trajectories.keys()].map((pattern) => pattern.nature);
-
 specimen.describe("TOOLED trait", () => {
   let scenario;
 
@@ -25,23 +23,23 @@ specimen.describe("TOOLED trait", () => {
     await scenario.orm.close();
   });
 
-  // TOOLED registers the mode's tool vector under cortex.tools.<slug>, with the
-  // daemon + mode bound onto ctx — cortex synthesises them into tool-calls later.
+  // TOOLED slurps the mode's tool vector onto its own aperture /tool branch (daemon +
+  // mode bound onto ctx); HARNESSED reads that branch per call and arms the hallucination.
   specimen.describe("registration", () => {
     specimen.it("no-ops silently when mode.module.tools is missing", () => {
       const mode = buildMode({ slug: "no-tools" });
-      TOOLED(mode, scenario.daemon);
-      specimen.expect(branchNatures(scenario.daemon.cortex.tools)).not.toContain("no-tools");
+      specimen.expect(TOOLED(mode, scenario.daemon)).toBeUndefined();
     });
 
-    specimen.it("mounts the mode's tools under cortex.tools.<slug>", () => {
+    specimen.it("mounts the mode's tools on its aperture /tool branch", () => {
       const tools = new Vector();
       tools.open({ nature: "ping" }, () => "pong");
       const mode = buildMode({ tools, slug: "pinger" });
 
       TOOLED(mode, scenario.daemon);
 
-      specimen.expect(branchNatures(scenario.daemon.cortex.tools)).toContain("pinger");
+      const call = shape.object(mode.aperture.branch("/tool"));
+      specimen.expect(typeof call.ping).toBe("function");
     });
   });
 
@@ -60,8 +58,8 @@ specimen.describe("TOOLED trait", () => {
 
       TOOLED(mode, scenario.daemon);
 
-      const call = shape.object(scenario.daemon.cortex.tools);
-      const result = await call.prober.probe({});
+      const call = shape.object(mode.aperture.branch("/tool"));
+      const result = await call.probe({});
 
       specimen.expect(result).toEqual({ ok: true });
       specimen.expect(captured.daemon).toBe(scenario.daemon);

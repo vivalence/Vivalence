@@ -153,9 +153,19 @@
       </div>
     </div>
     <div class="inline">
+      <span class="inline-key">layout</span>
+      {@render seg("layout", [{ value: "block", label: "block" }, { value: "river", label: "river" }])}
+    </div>
+    <div class="inline">
       <span class="inline-key">live meter</span>
       {@render seg("live", [{ value: "shown", label: "shown" }, { value: "hidden", label: "hidden" }])}
     </div>
+    {#if game.config.layout === "river" && prov.settings.includes("revealing")}
+      <div class="inline">
+        <span class="inline-key">reveal translation</span>
+        {@render seg("revealing", [{ value: "on", label: "on" }, { value: "off", label: "off" }])}
+      </div>
+    {/if}
   </section>
 
 </div>

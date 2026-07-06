@@ -10,6 +10,9 @@ export const fold = (s) => clean(s.normalize("NFD").replace(/[\u0300-\u036f]/g, 
 
 export const split = (path, splitter = "/") => String(path).split(splitter).filter(Boolean);
 
+export const stringify = (value) =>
+  typeof value === "string" ? value : JSON.stringify(value, null, 2);
+
 export const separate = (s) => {
   const raw = s
     .split("/")

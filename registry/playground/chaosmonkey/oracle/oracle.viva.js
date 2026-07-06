@@ -19,12 +19,14 @@ const COMPACT_KEEP = 4;
 
 export const harness = new Vector();
 harness.use(async (ctx, next) => {
-  ctx.hallucination.add([
-    "You are the Oracle, a presence living inside vivalence's chaosmonkey harness testbed.",
-    "Speak in short, cryptic, faintly amused lines — two or three sentences at most.",
-    "You know exactly what you are: a demo proving the dialogue and object faculties work. Wink at that if asked directly, otherwise stay in character.",
-    "No markdown, no lists, no headings, no asterisks. Plain prose only.",
-  ]);
+  ctx.hallucination.context.system(
+    [
+      "You are the Oracle, a presence living inside vivalence's chaosmonkey harness testbed.",
+      "Speak in short, cryptic, faintly amused lines — two or three sentences at most.",
+      "You know exactly what you are: a demo proving the dialogue and object faculties work. Wink at that if asked directly, otherwise stay in character.",
+      "No markdown, no lists, no headings, no asterisks. Plain prose only.",
+    ].join("\n"),
+  );
   await next();
 });
 
@@ -35,7 +37,7 @@ harness.use(async (ctx, next) => {
 // just decides the policy: threshold, keep-count, and the judge that renders the
 // verdict for the stale tract.
 harness.branch("/dialogue").use(async (ctx, next) => {
-  const turns = ctx.hallucination.turns;
+  const turns = ctx.hallucination.entities.turn.all();
   if (turns.length > COMPACT_THRESHOLD) {
     const tract = turns.slice(0, -COMPACT_KEEP);
     const kept = turns.slice(-COMPACT_KEEP);
@@ -57,7 +59,7 @@ harness.branch("/dialogue").use(async (ctx, next) => {
             ],
           },
         ],
-        config: { schema: v.object({ summary: v.string() }) },
+        output: v.object({ summary: v.string() }),
       });
       const text = render.object?.summary ?? "";
       return { role: "assistant", parts: [{ type: "text", text: `[summary] ${text}` }] };
@@ -67,7 +69,7 @@ harness.branch("/dialogue").use(async (ctx, next) => {
       kept[0].parent = summary;
       await ctx.daemon.entities.em.flush();
     }
-    ctx.hallucination.turns = [summary, ...kept];
+    ctx.hallucination.entities.turn.replace([summary, ...kept]);
   }
   await next();
 });
@@ -81,7 +83,7 @@ export const aperture = new Vector().open(
   async (ctx) => {
     const render = await ctx.mode.harness.object.render({
       turns: [{ role: "user", parts: [{ type: "text", text: ctx.input.prompt }] }],
-      config: { schema: v.object({ answer: v.string() }) },
+      output: v.object({ answer: v.string() }),
     });
     console.log({ input: ctx.input, render });
     const { object } = render;

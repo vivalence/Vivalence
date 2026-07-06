@@ -24,7 +24,7 @@ const app = new App(
 
 const emitter = new Vector()
   .open("/present", async (ctx) => {
-    return ctx.mode.buffer({
+    return ctx.mode.app.buffer({
       data: {
         layout: ctx.input.layout ?? "TABLE",
         title: ctx.input.title ?? "",
@@ -41,7 +41,7 @@ const emitter = new Vector()
       { limit, blacklist: ctx.input.blacklist },
     );
     if (!literals.length) return [];
-    return ctx.mode.buffer({
+    return ctx.mode.app.buffer({
       data: {
         layout: ctx.input.layout ?? "TABLE",
         title: ctx.input.title ?? "",

@@ -11,11 +11,11 @@ const APPLICATION = (mode, daemon) => {
     url: mode.module.app.url.absolute,
     schema: mode.module.app.mask,
   }));
-  mode.buffer = (desc = {}) => {
+  mode.app.buffer = (desc = {}) => {
     const em = daemon.entities.em;
     const buffer = em.create(tiers.buffer.entity, {
       mode: mode.entity.id,
-      data: mode.module.app.fill(desc),
+      data: mode.app.fill(desc),
       index: desc.index ?? 0,
     });
     if (desc.literals) buffer.literals.add(desc.literals.map((l) => em.getReference(tiers.literal.entity, l?.id ?? l)));
@@ -34,10 +34,10 @@ export async function create() {
   mode.entity = fixtures.mode;
   mode.id = fixtures.mode.id;
 
-  mode.module.app = new App("buffer/flashcard.svelte", v.buffer({
+  mode.app = mode.module.app = new App("buffer/flashcard.svelte", v.buffer({
     data: { recall: v.string({ default: "LEARNING" }) },
-  }));
-  mode.module.app.withUrl(new Url(`http://test/view/${mode.type}/${mode.slug}`));
+  })); // mirror real Mode: mode.app === mode.module.app
+  mode.app.withUrl(new Url(`http://test/view/${mode.type}/${mode.slug}`));
 
   mode.module.dataset = {
     intent: [
@@ -52,7 +52,7 @@ export async function create() {
 
   mode.module.emitter = new Vector().open("/literal", async (ctx) => {
     const recall = ctx.input.recall;
-    return ctx.mode.buffer({
+    return ctx.mode.app.buffer({
       data: { recall },
       literals: [ctx.input.literal],
     });

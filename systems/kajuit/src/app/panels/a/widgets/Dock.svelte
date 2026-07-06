@@ -1,6 +1,6 @@
 <script>
   import { getContext, tick } from "svelte";
-  import { ThreadTraits } from "@vivalence/kajuit";
+  import { ThreadTraits, chain } from "@vivalence/kajuit";
   import { TERMINALS, BRIDGE /*, BOX */ } from "$client";
   import Markdown from "./Markdown.svelte";
   import { turnText, turnTools, turnArtifacts } from "./turns.js";
@@ -22,16 +22,26 @@
   // microphone.$speaking.subscribe((v) => (micSpeaking = v));
   // speaker.$playing.subscribe((v) => (spkPlaying = v));
 
-  let conversationState = $state("—");
-  let conversation = $state(null);
-  let turns = $state([]);
-  let streaming = $state(null);
-  let pending = $state(false);
-  let lastError = $state(null);
-  // let liveTranscript = $state(null);
+  // reactive reads via chain from the STABLE terminals root (the panel-root idiom, a.svelte:14-17):
+  // survives thread switches and rebinds inner subscriptions itself, so no hand-driven teardown.
+  const conversationStore = chain(terminals, "$active", "$thread", "$conversation");
+  const stateStore = chain(terminals, "$active", "$thread", "$conversation", "$state");
+  const turnsStore = chain(terminals, "$active", "$thread", "$turns");
+  const streamingStore = chain(terminals, "$active", "$thread", "$streaming");
+  const pendingStore = chain(terminals, "$active", "$thread", "$pending");
+  const lastErrorStore = chain(terminals, "$active", "$thread", "$lastError");
+  const terminalStore = chain(terminals, "$active");
+  const composerStore = bridge.$composer;
 
-  let terminal = $state(null);
-  let composer = $state({ enterSends: true, density: "comfortable" });
+  let conversation = $derived($conversationStore ?? null);
+  let conversationState = $derived($stateStore ?? "—");
+  let turns = $derived($turnsStore ?? []);
+  let streaming = $derived($streamingStore ?? null);
+  let pending = $derived(!!$pendingStore);
+  let lastError = $derived($lastErrorStore ?? null);
+  let terminal = $derived($terminalStore ?? null);
+  let composer = $derived($composerStore ?? { enterSends: true, density: "comfortable" });
+  // let liveTranscript = $state(null);
 
   let draft = $state("");
   let textareaEl = $state(null);
@@ -42,6 +52,7 @@
   let audioOn = $state(false);
   const toggleAudio = () => (audioOn = !audioOn);
 
+  /* superseded by the chain(...) reads above — the hand-rolled subscribe/teardown mirrors:
   $effect(() => {
     if (!terminals?.$active) return;
     const sub = terminals.$active.subscribe((next) => {
@@ -114,6 +125,7 @@
     lastError = thread.$lastError.get() ?? null;
     return thread.$lastError.subscribe((value) => (lastError = value ?? null));
   });
+  */
 
   /*
   $effect(() => {

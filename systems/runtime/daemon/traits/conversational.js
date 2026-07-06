@@ -36,7 +36,8 @@ export const CONVERSATIONAL = (mode, daemon) => {
     })();
 
     const speechPath = (async () => {
-      const speech = daemon.cortex.resolve("speech", {
+      const speech = daemon.cortex.findOne({
+        type: "speech",
         tune: ctx.input.tune ?? "eager",
         via: "stream",
       });
@@ -89,7 +90,7 @@ export const CONVERSATIONAL = (mode, daemon) => {
 /*
 function spinVerbatim(daemon, state, mode) {
   const audio = new Queue();
-  const asr = daemon.cortex.resolve("verbatim", { tune: "eager", via: "stream" });
+  const asr = daemon.cortex.findOne({ type: "verbatim", tune: "eager", via: "stream" });
   if (!asr) return { audio, asr: null };
 
   (async () => {

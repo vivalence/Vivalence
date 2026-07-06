@@ -29,7 +29,7 @@ const app = new App(
 
 const emitter = new Vector()
   .open("/batch", async (ctx) => {
-    return ctx.mode.buffer({
+    return ctx.mode.app.buffer({
       data: {
         recall: ctx.input.recall ?? "LEARNING",
         gameplay: ctx.input.gameplay ?? "TRANSLATE",
@@ -45,7 +45,7 @@ const emitter = new Vector()
       { limit, blacklist: ctx.input.blacklist },
     );
     if (literals.length < 2) return [];
-    return ctx.mode.buffer({
+    return ctx.mode.app.buffer({
       data: {
         recall: ctx.input.recall ?? "LEARNING",
         gameplay: ctx.input.gameplay ?? "TRANSLATE",

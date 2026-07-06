@@ -77,7 +77,7 @@ const emitter = new Vector()
     if (tense) data.tense = tense.id;
     if (mood) data.mood = mood.id;
 
-    return ctx.mode.buffer({
+    return ctx.mode.app.buffer({
       data,
       literals: [conjugation, ...literals],
       symbols: [lemma, tense, mood].filter(Boolean),

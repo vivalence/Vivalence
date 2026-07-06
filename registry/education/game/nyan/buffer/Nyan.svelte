@@ -1,10 +1,12 @@
 <script>
   import { Desk, ViewportLock } from "@vivalence/drapes";
   import wordsets from "../data/wordsets.json";
-  import { DIVES, ORDERS, analyze, createRun, defaultConfig, press, project } from "./engine.js";
+  import { DIVES, ORDERS, analyze, clean, createRun, defaultConfig, press, project } from "./engine.js";
   import Home from "./panels/Home.svelte";
   import Practice from "./panels/Practice.svelte";
   import Meter from "./panels/Meter.svelte";
+  import Chrome from "./panels/Chrome.svelte";
+  import Controls from "./panels/Controls.svelte";
 
   const { buffer, terminal } = $props();
   const { words: seedWords, owners: seedOwners, ...seedConfig } = buffer.data ?? {};
@@ -29,7 +31,7 @@
   const PROVENANCE = {
     domain: {
       label: () => `${literals.length} literals → ${seedWords.length} words`,
-      settings: ["count", "order", "gameplay", "forgiving"],
+      settings: ["count", "order", "gameplay", "forgiving", "revealing"],
       replays: ["repeat", "shuffle"],
     },
     fixed: {
@@ -107,6 +109,19 @@
   // reads is projected from that log by project().
   const view = $derived(
     game.run ? project(game.run.words, game.run.config, game.run.log) : null,
+  );
+
+  // ── revealing · word → translation, aligned to the run through owners ─────────
+  // owners[i] is the literal id for word i; the gloss is that literal's known surface.
+  // null when revealing is off — Practice then renders plain, reserving no gloss width.
+  const literalsById = new Map((literals ?? []).map((literal) => [literal.id, literal]));
+  const glosses = $derived(
+    game.config.revealing === "on" && game.config.layout === "river"
+      ? (game.owners?.map((id) => {
+          const known = literalsById.get(id)?.trait?.TRANSLATED?.known;
+          return known ? clean(known) : "";
+        }) ?? [])
+      : null,
   );
 
   const contextLine = $derived(
@@ -209,15 +224,10 @@
   <Desk maxWidth="860px" class="nyan-desk">
     {#snippet surface()}
       <div class="app">
-        <header class="chrome">
-          <span class="brand">Nyan</span>
-          <span class="sep">·</span>
-          <span class="phase">{game.phase}</span>
-          {#if contextLine}<span class="ctx">{contextLine}</span>{/if}
-        </header>
+        <Chrome phase={game.phase} context={contextLine} />
         <div class="panel" class:center={centered}>
           {#if game.phase === "practice"}
-            <Practice {view} />
+            <Practice {view} {glosses} layout={game.config.layout} />
           {:else}
             <Home {game} {prov} {view} {literals} words={seedWords} {kind} sets={wordsets.sets} />
           {/if}
@@ -226,17 +236,7 @@
     {/snippet}
 
     {#snippet controls()}
-      {#if game.phase === "practice"}
-        <span class="hint">space = next word · esc = end</span>
-      {:else}
-        {#each PHASES[game.phase].controls() as name}
-          {@const action = ACTIONS[name]}
-          <button class="btn" class:primary={name === "start"} onclick={action.run}>
-            <span class="k">{action.hint}</span>
-            {action.label}
-          </button>
-        {/each}
-      {/if}
+      <Controls phase={game.phase} controls={PHASES[game.phase].controls()} actions={ACTIONS} />
     {/snippet}
   </Desk>
 </div>
@@ -260,28 +260,6 @@
     gap: 1.5rem;
     min-height: 0;
   }
-  .chrome {
-    display: flex;
-    align-items: baseline;
-    gap: 0.6rem;
-    font-family: var(--font-family-code);
-    font-size: var(--font-size-sm);
-  }
-  .brand {
-    font-weight: 700;
-    letter-spacing: 0.04em;
-    color: var(--colors-theme-primary-contrast);
-  }
-  .sep {
-    color: var(--colors-skeleton-1-boundary);
-  }
-  .phase {
-    color: var(--colors-palette-gray-10);
-  }
-  .ctx {
-    margin-left: auto;
-    color: var(--colors-skeleton-1-boundary);
-  }
   .panel {
     flex: 1;
     min-height: 0;
@@ -291,41 +269,5 @@
     flex-direction: column;
     align-items: center;
     justify-content: center;
-  }
-  .hint {
-    font-family: var(--font-family-code);
-    font-size: var(--font-size-sm);
-    color: var(--colors-skeleton-1-boundary);
-  }
-  .btn {
-    display: inline-flex;
-    align-items: center;
-    gap: 0.45rem;
-    min-height: 40px;
-    padding: 0.5rem 0.9rem;
-    border-radius: 0.375rem;
-    border: 1px solid var(--colors-skeleton-1-boundary);
-    background: transparent;
-    color: var(--colors-palette-gray-200);
-    font-family: var(--font-family-code);
-    font-size: var(--font-size-sm);
-    cursor: pointer;
-  }
-  .btn .k {
-    padding: 0.05rem 0.35rem;
-    border-radius: 0.25rem;
-    background: color-mix(in srgb, var(--colors-skeleton-1-boundary) 25%, transparent);
-    color: var(--colors-skeleton-1-boundary);
-    font-size: var(--font-size-xs);
-  }
-  .btn.primary {
-    border: none;
-    background: var(--colors-theme-primary-surface);
-    color: var(--colors-theme-primary-contrast);
-    font-weight: 600;
-  }
-  .btn.primary .k {
-    background: color-mix(in srgb, var(--colors-theme-primary-contrast) 22%, transparent);
-    color: var(--colors-theme-primary-contrast);
   }
 </style>

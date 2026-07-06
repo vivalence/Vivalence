@@ -16,6 +16,16 @@ const app = new App(
   v.buffer({
     data: {
       gameplay: v.enum(Object.keys(GAMEPLAYS), { default: "PLAIN" }),
+      revealing: v
+        .enum(["on", "off"], { default: "off" })
+        .desc(
+          "Reveal each word's translation once it's committed — the typed word is replaced inline by its gloss. Domain buffers only.",
+        ),
+      layout: v
+        .enum(["block", "river"], { default: "block" })
+        .desc(
+          "Typing layout. block: words wrap in a paragraph. river: the current word is pinned at center while past and upcoming words flow right-to-left beneath it.",
+        ),
       words: v.array(v.string()).optional(),
       // owners[i] = the literal id that word i belongs to; "" for untracked
       // function words (articles, etc). parallel to words — the grade alignment.
@@ -67,7 +77,7 @@ const emitter = new Vector()
     const data = {};
     if (ctx.input.gameplay) data.gameplay = ctx.input.gameplay;
     if (ctx.input.words) data.words = ctx.input.words;
-    return ctx.mode.buffer({ data });
+    return ctx.mode.app.buffer({ data });
   })
   // domain ingress: type learning literals; the buffer carries the owner index
   // so finishing grades each token back to memory (see buffer/Nyan.svelte).
@@ -92,7 +102,7 @@ const emitter = new Vector()
       const literals = ids.map((id) => byId.get(id)).filter(Boolean); // preserve order
       const { words, owners } = await planLiterals(ctx, literals);
       if (!words.length) return [];
-      return ctx.mode.buffer({
+      return ctx.mode.app.buffer({
         data: { gameplay: ctx.input.gameplay, words, owners },
         literals,
       });

@@ -1,5 +1,5 @@
 #+TITLE: Cortex — table(Map) → faculties(Vector) recast
-#+STATUS: PLANNED — planning go given; implementation gated per-milestone
+#+STATUS: LANDED — M1 core + cortex.tools removal + M3 tests + M4 verify green (63 steps), 4-dimension adversarial review clean. M2 (name faculties /type/slug) PARKED — needs go to touch the 3 providers.
 #+AUTHOR: ikiro (scribe), grounded by a 3-agent blast map
 #+SEED: beef — "i like table as vector. this has a blast." + cortex.js:23 "@beef maybe recasting table as a vector and using steering and shapes for interfaces might be the solution"
 
@@ -16,9 +16,9 @@ walking. The =resolve/via/extend= API beef hates ("this must change", "juck. uck
 
 ONE structure (=Vector=), ONE law (descend + =nearest=), consumer family made visible.
 
-Scope guard: =cortex.tools= STAYS this pass (beef: "no tools on cortex level. we may do
-that in the future" — deferred, not now). This quest is faculties-only. The recast makes
-the eventual tools deletion trivial but does not do it.
+Scope guard: =cortex.tools= REMOVED this pass (beef: "clear out cortex tools. go." — the
+deferred removal was pulled forward alongside the recast). =tooled.js= keeps the live
+=mode.aperture.branch("/tool")= mount; only the dead global-registry slurp went.
 
 * Why — the connoisseur read
 
@@ -242,8 +242,7 @@ export const tiers = {
 };
 
 export class Cortex {
-  faculties = new Vector(); // /type/slug trie — was `table = new Map()`
-  tools = new Vector(); // beef: stays for now; removal deferred
+  faculties = new Vector();
 
   extend(supplied) {
     for (const faculty of supplied) {
@@ -426,4 +425,14 @@ export function nearest(faculties, target) {
 - (planning) 3-agent blast map: supply shape (7 faculties), 7 prod call sites / 3 files
   (=.table= test-only), 26-item behavioral contract. Design pinned: =/type/slug= faculty
   trie, =stored()= revelio descent, =FACULTY_TYPES= dies, =cortex.tools= deferred. Full
-  recast cortex.js tangled below. Awaiting M0 blessing before M1 tangle.
+  recast cortex.js tangled below.
+- (landed) M1 core recast + =cortex.tools= removal (beef pulled it forward from "future")
+  + =tooled.js= dead slurp removed (aperture mount kept). M3 tests recast to behavior
+  (=.table.get→.stored=, =.table.has("object")=false→.stored("object")=[]=; tooled.test.js
+  cortex.tools assertions → =shape.object(mode.aperture.branch("/tool"))=). M4 verify:
+  =cortex.test.js + hallucination.test.js= (32 steps) and =tooled.test.js + cortex.integration.test.js=
+  (31 steps) all green; zero live =cortex.tools=/=.table=/=FACULTY_TYPES= refs remain.
+  4-dimension adversarial review (resolve/nearest/stored · shard/derivation · blast · encoding),
+  each finding gated by ≥2 skeptics: zero confirmed defects. Faculties keyed =nature: slug ?? type=
+  — pre-naming all share =nature=type= as distinct effect entries; M2 (/type/slug legibility)
+  parked pending a go to touch anthropic/elevenlabs/deepgram providers.

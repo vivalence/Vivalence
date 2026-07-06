@@ -1,6 +1,6 @@
 #+TITLE: M17 — the client ctx grammar (context is the source, props are the fallback)
 #+AUTHOR: Vivalence
-#+STATUS: DESIGN — research + eval landed; context-primary (beef) + bundle-boundary pass; canon VERIFIED (22/25); forks 4-6 need beef
+#+STATUS: DESIGN — research + eval landed; context-primary (beef) + bundle-boundary pass; canon VERIFIED (22/25); forks 4-6 need beef; M17.6 AMENDED (session): 3-symbol override + LIGHTHOUSE/DAEMONS/DAEMON split — iterating "until perfection"
 #+DATE: 2026-07-04
 
 Parent: [[file:m16_client_provisioning.quest.org][M16 client provisioning doctrine]].
@@ -493,3 +493,157 @@ Per milestone, live matrix (browser, real daemon):
 Unit: existing kajuit + typology suites stay green (entity signatures unchanged —
 only host-side leaves move their SOURCE prop→context; the bundle handoff props
 are untouched). Purity grep (M16.4) unaffected.
+
+* M17.6 — AMENDMENT (session): 3-symbol override + LIGHTHOUSE/DAEMONS/DAEMON split
+:PROPERTIES:
+:STATUS: DESIGN — iteration 1 of a local "until perfection" loop; gap backlog below
+:END:
+
+Provenance: beef, this session. Two decisions overrule earlier forks; one new
+split added. Body above kept intact (fork-6 discipline). This section is what the
+iteration loop refines.
+
+** Decision 1 — the cursor family is THREE symbols (reverses forks 1 + 5)
+beef chose "three symbols" over M17's one-symbol resolution. TERMINAL, THREAD,
+BUFFER are each a Svelte context, all provided at =+layout= via =chain=:
+#+begin_src svelte
+setContext(TERMINAL, chain(terminals, "$active"));
+setContext(THREAD,   chain(terminals, "$active", "$thread"));
+setContext(BUFFER,   chain(terminals, "$active", "$buffer"));
+#+end_src
+Host-side surfaces =getContext= these instead of chain-from-root. Props STILL
+cross the =.url= buffer-bundle line (=Frame= → =module.default(dom,{terminal,
+buffer})=): =getContext= cannot reach a separate Svelte instance
+(=application.js=). So terminal and buffer are BOTH context (host-side) AND props
+(bundle boundary) — beef: "we can have them as both context and props." List-item
+widgets (=crown/widgets/Tab=, =d/ThreadLabel=, =b/widgets/TerminalRow=) keep the
+entity PROP — identity selector for a NON-active entity; context only yields the
+active cursor.
+
+** Decision 2 — split LIGHTHOUSE(auth) / DAEMONS(fleet) / DAEMON(cursor)
+beef: "split the lighthouse context from the dataspace context ... a dedicated
+daemons/daemon pair of dataspace holders and surface contexts. cleaner." Adds a
+DAEMON cursor symbol (reverses fork 2 FOR DAEMON ONLY; MODE still earns no symbol —
+the two-mode render/session desync, Q3, stands).
+
+#+begin_example
+DECKS (attach-dual, +layout)
+  LIGHTHOUSE   auth/identity ONLY — harbor authority ($authority/$identity/$status/…)
+  DAEMONS  NEW the fleet: OUTER daemon-list Dataspace + $fleet snapshot + manifest
+  BRIDGE       layout (unchanged)
+  TERMINALS    terminal collection $entities/$active (unchanged) — root of all cursors
+  BOX          audio (dormant)
+CURSORS (chain, +layout)
+  TERMINAL  chain(terminals,"$active")
+  THREAD    chain(terminals,"$active","$thread")
+  BUFFER    chain(terminals,"$active","$buffer")
+  DAEMON    chain(terminals,"$active","$thread", t => t?.daemon)          ← NEW
+#+end_example
+
+** Load-bearing facts (verified against source)
+- *DAEMON MUST hop through $thread.* =terminal.js:42= exposes daemon as a GETTER
+  only (=get daemon(){return $thread.get()?.daemon}=); there is NO =$daemon= atom.
+  =chain(terminals,"$active","$daemon")= would read =terminal["$daemon"]=undefined=
+  and emit null forever (=chain.js:21=). The trailing FUNCTION hop reads the plain
+  non-reactive =thread.daemon= (stamped once, =thread/dossier.js:23=). The =$active=
+  + =$thread= atom hops cover every way the active daemon can change; DAEMON=null
+  when the active terminal has no thread.
+- *DAEMON is NOT the active member of DAEMONS.* There is no =$active= daemon
+  pointer; the active daemon is whichever daemon OWNS the active thread. So DAEMON
+  is a CROSS-FAMILY projection (terminal→thread→daemon), NOT
+  =chain(daemons,"$active")=. The TERMINALS/TERMINAL mirror holds for the
+  COLLECTION (DAEMONS ≈ TERMINALS) but NOT for the member. (Honest correction to
+  beef's "daemons/daemon pair" framing — the pair is collection+cursor, not
+  collection+active-member.)
+- *Two-layer dataspace.* DAEMONS owns the OUTER fleet-list
+  =Dataspace{entities:[DaemonDossier]}= (one 'daemon' repo, =lighthouse.js:46= →
+  moves verbatim, owner lighthouse→daemons). Each Daemon still owns its INNER
+  7-dossier Dataspace (=daemon/dossier.js:72=, unchanged). DAEMON points at ONE
+  inner dataspace via =thread.daemon= — NOT =DAEMONS[active]=.
+- *Cross-half seam (auth still reaches the fleet).* daemon boot keeps
+  =daemon.lighthouse = ctx.lighthouse= = the AUTH store (=dossier.js:59=); ONLY
+  =dossier.js:70= repoints =ctx.lighthouse.manifest.slug → ctx.daemons.manifest.slug=.
+  =conversational.js:24= (=thread.daemon.lighthouse.$authority=) then needs ZERO
+  change. =seedDaemons= attaches BOTH auth-lighthouse (for =$authority=) AND daemons
+  (for manifest) into the outer ctx-onion. authorize is keyed to the =$authority=
+  ATOM (not the connection object) — DAEMONS only needs the =$authority= handle;
+  reusing =lighthouse.connection= is still cleaner (one authorized transport).
+- *auth→fleet ordering* preserved: =daemons.populate()= stays gated behind
+  =lighthouse.$isAuthorized=.
+- *$fleet (was $daemons) is a ONE-TIME snapshot* (=lighthouse.js:235= sets once,
+  short-circuits :230, never rebinds to =dataspace.daemon.$entities=). The move
+  preserves this staleness exactly; M16.2 rearm (or surfacing the live repo) makes
+  it self-healing.
+
+** Migration (M17-tagged; M16.2 = deferred convergence)
+#+begin_example
+systems/kajuit/src/client.js               retag LIGHTHOUSE comment auth-only; +DAEMONS +DAEMON (+ the 3 cursors)
+  typology/stores/lighthouse.js            STRIP fleet half (Dataspace/DaemonDossier imports, $daemons, manifest,
+                                             dead getter, this.dataspace, seedLighthouse, toJSON daemons, populate);
+                                             boot()→verifyAuth only; keep whole auth surface + connection
+  typology/stores/daemons.js  (NEW)        Daemons(lighthouse,{telemetry}): outer Dataspace{[DaemonDossier]} +
+                                             $fleet + manifest + populate() (lifted verbatim) + seedDaemons
+  typology/entities/daemon/dossier.js      ONLY :70 ctx.lighthouse.manifest.slug → ctx.daemons.manifest.slug;
+                                             :51 $authority + :59 daemon.lighthouse UNTOUCHED; boot stays in CAST
+  app/+layout.svelte                       construct daemons AFTER lighthouse (reuse connection); setContext(DAEMONS);
+                                             cursor family via chain (incl. DAEMON); repoint populate trigger; settle/
+                                             narrate/__viv add daemons
+  app/panels/d/d.svelte · d/navigation.js  getContext(LIGHTHOUSE)→DAEMONS; $daemons→$fleet (pure fleet)
+  panels/b/.../LighthouseSection · bones/spine/spine   MIXED: keep LIGHTHOUSE(auth) + add DAEMONS(fleet)
+  typology/stores/inspector.js · panels/h/h.svelte     inspectorAtom(+daemons param); fleet subscribe→$fleet
+  app/terminals.js                         settle({terminals,daemons}); $daemons→$fleet; header comment
+  typology/logger.js                       narrate(+daemons); rearm over $fleet buffer repos
+  typology/entities/thread/traits/conversational.js    VERIFY-ONLY (daemon.lighthouse back-ref survives)
+  e.svelte · f.svelte · Phase.svelte · form skins      OPTIONAL: adopt getContext(DAEMON) (non-blocking; attr path works)
+  effects/daemons.js  (NEW, @M16.2)        DEFERRED convergence: lifecycle mounts at DAEMONS scope, reuses authorized
+                                             connection, status=FOLD over connection.$state, makes $fleet LIVE
+#+end_example
+
+** Open gaps — the iteration backlog (adversarial critique)
+*HIGH*
+1. =boot()= recovery loses fleet populate. =+layout= boot() at onMount/onReconnect/
+   onLogin/onRetry today re-triggers =populate=. Shrinking boot()→verifyAuth and
+   keeping the fleet trigger ONLY as the =$isAuthorized.subscribe= (:71-73) means a
+   populate that FAILED once (boot network blip) can never retry without a
+   logout/login cycle (nanostores fires on CHANGE; an already-true =$isAuthorized=
+   won't re-fire). Wire =daemons.populate= into onReconnect/onRetry explicitly.
+2. =populate()= retry OWNER unspecified post-split. Short-circuits on non-empty
+   =$fleet=, nulls =$populating= in finally; on FAILURE no in-band retry. Pin the
+   trigger NOW (not M16.2) or first-boot-offline = permanently empty fleet.
+*MEDIUM*
+3. Stale Daemon ref if M16.2 self-heal ever REPLACES a Daemon instance in =$fleet= —
+   =thread.daemon= is stamped once, non-reactive. Invariant: recovery MUST mutate
+   the Daemon in place (never replace), or re-stamp =thread.daemon=.
+4. Correct three raw synth claims (verify pass refuted them): (a) =dossier.js:70=
+   throws a LOUD TypeError (=null.slug=, caught → =daemon.status={code:'error'}=),
+   NOT a silent bad link; (b) authorize is via the =$authority= ATOM, not the
+   connection — "a second minted connection boots unauthenticated" is FALSE; (c)
+   mixed-consumer set corrected — =terminals.js= settle = DAEMONS only, =h.svelte= =
+   NEITHER (forwards lighthouse into =inspectorAtom=). Genuinely-both: LighthouseSection,
+   spine, inspector.
+5. Form skins (=skins/form/picker.js= / =EntityField= / =EntitySetField=) may sit
+   BELOW the =.url= bundle line → cannot =getContext(DAEMON)=; keep the daemon PROP.
+   Verify which side each sits on before "optional DAEMON adoption."
+6. Render-daemon vs session-daemon: DAEMON==thread.daemon assumes the active
+   buffer's daemon == the thread's daemon. Cross-mode/emitted buffers (emitter-via-
+   pool) may originate on ANOTHER daemon → wrong daemon for that buffer's entity
+   CRUD (=terminal.js:71=). Needs an explicit invariant/guard, or proof it can't happen.
+*LOW*
+7. =lighthouse.toJSON().daemons= consumers unaudited (narrate / =__viv= / telemetry).
+8. 'daemons' is a NEW ctx key — =seedDaemons= attach + =dossier.js:70= read are ATOMIC.
+9. client.js symbol table hygiene: retag LIGHTHOUSE comment; don't collide the BOX slot.
+10. Store-strip + every consumer rename land as ONE atomic change set (partial =
+    runtime TypeError on first =.get/.subscribe=).
+
+** Iteration log
+- *pass 1* — 22-agent workflow (ground → 3-angle design panel → judge → synth →
+  adversarial verify → completeness critic; ~1.09M tokens). Winner SYMMETRY-FIRST
+  (9/10). Grafted: two-layer dataspace ontology, mandatory auth DI, M16.2
+  convergence target. Verified: DAEMON-via-$thread-hop, cross-half seam, two-layer
+  dataspace, auth→fleet ordering, $fleet staleness. Corrected in-pass: the three
+  refuted claims (gap 4) and the mirror framing (DAEMON = cross-family projection,
+  not active-member). Surfaced 10 gaps (above).
+- *next pass* — resolve HIGH 1+2 (populate retry owner) INTO the migration; decide
+  the $fleet snapshot-vs-live fork; verify form-skin bundle side (gap 5); pin the
+  render/session-daemon invariant (gap 6). Converge-stop when 2 consecutive passes
+  add no new HIGH/MEDIUM gap.

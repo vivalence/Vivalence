@@ -1,0 +1,63 @@
+#+TITLE: The buffer factory moves onto the App export (=mode.buffer=→=mode.app.buffer=, daemon trait + every emitter caller + scenarios) · buffer(descr) input renamed to a DESCRIPTOR mirroring the BufferEntity shape ={literals,symbols,index,data:{app}}= · the ad-hoc =ensure= replaced by =DataRepository.findByIdentifiers= · riddler's =Riddler.svelte= gutted to a bare turn-free jester wired to the mode aperture =/assistant/message=
+#+TOPIC: =App= is the mode's application descriptor (view mount + =v.buffer= mask + Bundle); =mode.app === mode.module.app= (Mode ctor =Object.assign(this, module)= spread — not created explicitly) · the buffer FACTORY belongs to the App now, not bare mode · factory input is the whole buffer descriptor (every caller already nests app data under =data:=) · =findByIdentifiers= (=entities/base/DataEntity.ts=) is the canonical batch ref→entity resolver, replaces consumer-side =ensure= · riddler is trashable → turn-free (=buffer.data.history= IS the memory); persistence is the buffer, NOT turns/scribe; =/assistant/message= judge + =/assistant/resolve= self-delete · Riddler.svelte kept only the jester bust + stage CSS + a dev resolve button
+
+* Arc
+
+** mode.buffer → mode.app.buffer
+
+User: =i want to change where mode.buffer() is defined on the daemon side and propagate that out to the mode emitters. we newly have the App export with its associated schematics and such. i want mode.buffer to move to mode.app.buffer() work this out. no quest needed. blast radius. run all the required tests already.=
+
+=mode.app= is NOT created anywhere explicitly — that's why Finn later asked =i cant find where in the daemon we create mode.app=. The =Mode= constructor (=subsystems/typology/prototypes/mode.js=) does =Object.assign(this, module)= over the registry viva module (which exports =app=), so =mode.app === mode.module.app === viva.app= — one App instance, two names. =population.js= builds =new Mode(register)= with the full viva, so both resolve in real runtime; scenarios build =new Mode({manifest})= (manifest only) then set only =mode.module.app=, so my scenario edits had to also set =mode.app=.
+
+Landed: daemon trait =systems/runtime/daemon/traits/application.js= — =mode.buffer= → =mode.app.buffer= (body uses =mode.app.fill(descr)=); ~22 caller sites across 13 registry =*.viva.js= — =ctx.mode.buffer(= → =ctx.mode.app.buffer(=; scenarios =tests/scenarios/{mode,daemon,bench}.js= (factory def + wired =mode.app = mode.module.app = viva.app=); =tests/mode/traits.test.js=. Client trait (=kajuit .../mode/traits/application.js=) LEFT ALONE — zero live callers + no client App instance (client has =mode.metadata.app=, a POJO from =/metadata/app=, not the class). Verified green: traits.test APPLICATION + the with-thread EMITTER buffer tests. The EMITTER =THREAD MISSING= failures were PRE-EXISTING (=daemon/traits/emitter.js= threw when no thread), unrelated to the rename — fixed later in the ontology pass (thread optional).
+
+** buffer(descr) mirrors the buffer shape
+
+User: =i think we should mirror the buffer shape for the buffer(input). aka {literals, symbols,...,data:{all further app specific data})=
+
+The factory param was named =data= but is really the whole buffer DESCRIPTOR: every one of the ~22 callers already passes ={data:{...app-specific}, literals?, symbols?}= (=App.fill(descr)= fills only =descr.data= against the =v.buffer= mask, so flat app fields would be silently dropped). So the fix was an honesty rename =data=→=descr= (scenarios already used =desc=; only the real trait + =bench.js= lied). No caller edits needed.
+
+** ensure → DataRepository.findByIdentifiers
+
+Finn did the rename himself. User: =ive done it. blast change and read my resolve comment.= The =@cluade= comment on the factory: =this functino is already defined in typology/entities/repository=. The ad-hoc =const ensure = (repo, ref) => helper(ref) ? ref : repo.findOne(ref?.id ?? ref)= duplicates =DataRepository.findByIdentifiers(refs)= (=subsystems/typology/entities/base/DataEntity.ts=) — a batch resolver that folds N single-ref lookups into one =\{ id: \{$in\} \}= / =\{ slug: \{$in\} \}= query; managed entities round-trip via the IdentityMap; =Collection.add= is order-free so DB-order is fine. Replaced =ensure= in =application.js= + =bench.js= (the two carrying the twin) + dropped the =helper= import. =mode.js=/=daemon.js= scenarios KEPT =em.getReference= (sync, no =ensure=, and switching to async =findByIdentifiers= broke the isolated direct-call unit tests that don't =await=; scoped strictly to Finn's comment). Verified green across 10 scenario-dependent suites.
+
+Later (during the ontology thread) User asked the connoisseur =is the execute tools handling not maybe better scoped into the hallucination?= — that =executeTools= move is the ONTOLOGY topic ([[hallucination-is-the-request-harness-is-tooling-cortex-is-the-registry]]), not this one.
+
+** riddler read → gut Riddler.svelte (turn-free, wired to /assistant/message)
+
+Read all of =registry/education/game/riddler/**=. User: =all the current code in riddler.viva is considered trashable. we will to use some of it tho. so i keep it as comments.= Canonical direction lives in the =aperture.js= + =emitter.js= stubs: =/assistant/message= (turn-free judge, writes =buffer.data.history=) + =/riddle/fromSymbol= (pull literals from a symbol intersection → render → cast a buffer to =ctx.pool=).
+
+Two answered design Qs from the stubs:
+- =ctx.mode.harness.object.render()= vs =ctx.hallucinate.object.render()= → =ctx.mode.harness.object.render(...)=. =ctx.hallucinate= is a typo for =ctx.hallucination= (the real central request — see the ontology compact + callout).
+- snapshot via =paladin.scribe.snapshot()= / =paladin.scribe.log()=? → NO such API. "Scribe" = turn persistence, lives ONLY on the harness =/dialogue= branch. For turn-free riddler, persistence = =buffer.data.history= (the buffer JSON column IS the store). =specimen.snapshot= (=subsystems/typology/specimen/snapshot.js=) is a dev/test JSON-dump instrument (dev-gate + =base= from =import.meta=), NOT runtime persistence. OTel = observability, separate axis.
+
+User: =gut this file such that only the bare minimum runs. minimum is the jester persona, the layout and coloring and sytling, and some temporary developer tools like a resolve button. then i want the input to be wired to the mode aperture /assistant/message and some logs around the call.=
+
+Landed: =registry/education/game/riddler/buffer/Riddler.svelte= gutted to the jester bust (hat/face/eyes/mouth/collar + a one-state-machine =face= $derived) + stage CSS + a dev =resolve= button; input → =buffer.mode.connection.call("/assistant/message", {buffer: buffer.id, message})= with =[riddler]= logs before/after (+ =/assistant/resolve= on the dev button → =terminal.buffer = null=). Dropped: confetti, curtain drop, meta panel, resolving/gone states, the taunt/hint machinery, and the broken =phase=/=line=/=metaOpen=/=exitTimer= refs (live functions referenced commented-out declarations → ReferenceError as-was).
+
+* Reference — the buffer factory (LANDED; carry forward)
+
+#+begin_src
+systems/runtime/daemon/traits/application.js  (APPLICATION):
+  mode.app.buffer = async (descr = {}) => {
+    // v.schematics(descr)                         // @beef WIP: validate the descriptor
+    const buffer = em.create(BufferEntity, {
+      // @beef thread!                             // @beef WIP: factory should carry thread
+      mode: mode.entity.id,
+      data: mode.app.fill(descr),                  // fills descr.data against the v.buffer mask
+      index: descr.index ?? 0,
+    });
+    if (descr.literals) buffer.literals.add(await daemon.entities.literal.findByIdentifiers(descr.literals));
+    if (descr.symbols)  buffer.symbols.add(await daemon.entities.symbol.findByIdentifiers(descr.symbols));
+    return buffer;
+  };
+
+descriptor shape (mirrors BufferEntity):  { literals?, symbols?, index?, data: { ...app-specific } }
+caller:  ctx.mode.app.buffer({ data: { riddle, answer, history: [] }, literals })
+#+end_src
+
+* Open / Pending
+
+- =application.js= carries two fresh =@beef= WIP notes on the factory (Finn just added): =v.schematics(descr)= (validate the descriptor before create) and =@beef thread!= on the =em.create= (the factory should thread-bind the buffer — currently thread-binding happens later in the EMITTER drain via =ctx.thread=, per the ontology pass; the note suggests folding thread into the factory). Undetermined — Finn's design call.
+- riddler =app= schema must declare ={ riddle, answer, history }= (the =/riddle/fromSymbol= emitter and =/assistant/message= use =answer=; the trashable original declared =riddle/answer/history= but read =expected= in dead code). Part of the riddler.viva rewrite.
+- Riddler.svelte reads =buffer.data.riddle= defensively (=?? "(sem enigma…)"=) since a buffer only exists post-emit; fine for the dev path.

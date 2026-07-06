@@ -71,7 +71,7 @@ const emitter = new Vector()
       literals = [lit, ...scored.slice(0, 3).map((s) => s.d)];
     }
 
-    return ctx.mode.buffer({
+    return ctx.mode.app.buffer({
       data: {
         target: lit.id,
         recall: ctx.input.recall ?? "LEARNING",
@@ -87,7 +87,7 @@ const emitter = new Vector()
       object.merge({ traits: ["VOCALIZED"] }, ctx.input.where),
       { limit, blacklist: ctx.input.blacklist },
     );
-    return ctx.mode.buffer({
+    return ctx.mode.app.buffer({
       data: {
         recall: ctx.input.recall ?? "KNOWN",
         gameplay: "TYPE",

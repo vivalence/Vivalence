@@ -49,8 +49,8 @@ specimen.describe("mode traits", () => {
   });
 
   specimen.describe("APPLICATION", () => {
-    specimen.it("mode.buffer() returns entity with data and literals", () => {
-      const result = scenario.mode.buffer({
+    specimen.it("mode.app.buffer() returns entity with data and literals", () => {
+      const result = scenario.mode.app.buffer({
         data: { recall: "KNOWN" },
         literals: [scenario.fixtures.hello.id],
       });
@@ -59,8 +59,8 @@ specimen.describe("mode traits", () => {
       specimen.expect(result.literals.getItems()).toHaveLength(1);
     });
 
-    specimen.it("mode.buffer() fills defaults from schema", () => {
-      const result = scenario.mode.buffer({
+    specimen.it("mode.app.buffer() fills defaults from schema", () => {
+      const result = scenario.mode.app.buffer({
         literals: [scenario.fixtures.hello.id],
       });
       specimen.expect(result.data.recall).toBe("LEARNING");

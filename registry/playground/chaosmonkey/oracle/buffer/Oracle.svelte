@@ -34,7 +34,7 @@
     try {
       const result = await buffer.mode.harness.object.render({
         turns: [{ role: "user", parts: [{ type: "text", text: prompt }] }],
-        config: { schema: v.object({ answer: v.string() }) },
+        output: v.object({ answer: v.string() }),
       });
       viaHarness = result?.object?.answer ?? "";
 

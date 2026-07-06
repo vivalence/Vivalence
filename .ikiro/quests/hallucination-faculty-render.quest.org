@@ -1,0 +1,481 @@
+#+TITLE: Hallucination owns faculty render · harness/emitter as live-vector middleware
+#+STATUS: SUPERSEDED BY DISK — the aligned code LANDED (ultracode workflow, verified green; see compact [[hallucination-is-the-request-harness-is-tooling-cortex-is-the-registry]]). These tangle blocks are the EARLIER DRAFT (thread still present, executeTools on cortex) — DO NOT tangle; it would REVERT the landed code. Final sync pending the object-synthesis fork (A/B/C). Kept for the record per beef "lets keep it as is for now".
+#+AUTHOR: ikiro (scribe), grounded in the harness/hallucination/cortex read
+#+SEED: beef — "hallucination operates on faculty level. harness operates on hallucination level. nice." · "is the execute tools handling not maybe better scoped into the hallucination?" · "keep the habit of scoping the mode module vectors inside their mode vector counterparts"
+
+* Intent — desired end state in plain language
+
+Three nouns, one verb. =cortex= is the ENGINE (faculties + derivations; =cortex.via= is the
+raw call). =hallucination= is the REQUEST — a faculty-agnostic accumulator (turns + tools +
+tune + config + thread) that now OWNS the render/stream tool-loop AND tool dispatch, so
+=hallucination.object.render()= / =hallucination.dialogue.stream()= are the faculty-level API.
+=harness= drops to pure middleware over a hallucination: dress it (persona, tools) + post-process
+(scribe turns, opt-in on the /dialogue branch), never manual turn plumbing.
+
+Decisions folded in:
+- =executeTools= moves OUT of cortex INTO =hallucination.js= (exported free fn). Its inputs are
+  hallucination state (this.tools, this.thread) + the loop is hallucination's. cortex's object
+  derivation imports the one implementation — one-way =cortex → hallucination=, no cycle.
+- =cortex.shard.faculties= leaves become thin: =ctx.output = await ctx.hallucination.render(type)=.
+  =renderLeaf= / =streamLeaf= deleted; =soma= import dropped from cortex.
+- EMITTER trait now wraps =mode.module.emitter= in a LIVE =emitter= Vector (middleware on the live
+  one, =slurp= the module in) — matching HARNESSED's habit. Never =.use()= the read-only module.
+- EMITTER thread is OPTIONAL — turn-free / STANDALONE modes (riddler) emit without one; the drain
+  only binds+indexes when a thread is present. The =THREAD MISSING= throw is gone.
+- riddler emitter =/riddle/fromSymbol= composes via =ctx.mode.harness.object.render= (persona auto
+  -injects through the harness facade) and casts one buffer per riddle into =ctx.pool=.
+
+* Tangleables
+
+** subsystems/typology/prototypes/hallucination.js
+
+#+begin_src javascript :tangle ../../subsystems/typology/prototypes/hallucination.js :mkdirp no
+import { soma, is } from "@vivalence/typology";
+
+// The request: a faculty-agnostic accumulator of turns + tools + tuning + config, bound to a
+// cortex. Fluent to build (add/tool/absorb/tune/configure), renderable at faculty level
+// (hallucination.object.render() / hallucination.dialogue.stream()). The tool-loop AND tool
+// dispatch live HERE — cortex only supplies raw faculties (cortex.via); the harness wraps this
+// with mode dressing (persona, tools, optional scribe).
+export class Hallucination {
+  constructor(cortex, { turns = [], tune = "balanced", tools = {}, config = {} } = {}) {
+    this.cortex = cortex;
+    this.turns = [...turns];
+    this.tuning = tune;
+    this.tools = { ...tools };
+    this.config = { ...config };
+  }
+
+  add(...args) {
+    for (const arg of args) {
+      if (!arg) continue;
+      if (typeof arg === "string") { this.turns.push({ role: "system", parts: [{ type: "text", text: arg }] }); continue; }
+      if (Array.isArray(arg)) { this.add(...arg); continue; }
+      if (arg.role) { this.turns.push(arg); continue; }
+    }
+    return this;
+  }
+
+  tool(name, spec) { this.tools[name] = typeof spec === "function" ? { execute: spec } : spec; return this; }
+  absorb({ llmstxt, tools } = {}) { if (llmstxt) this.add(llmstxt); if (tools) Object.assign(this.tools, tools); return this; }
+  tune(tier) { this.tuning = tier; return this; }
+  configure(patch) { Object.assign(this.config, patch); return this; }
+
+  // ── faculty-level rendering ──
+  // hallucination.object.render() · hallucination.dialogue.render()/.stream() · .speech.render()
+  get dialogue() { return this.faculty("dialogue"); }
+  get object() { return this.faculty("object"); }
+  get speech() { return this.faculty("speech"); }
+  get verbatim() { return this.faculty("verbatim"); }
+
+  faculty(type) {
+    return { render: () => this.render(type), stream: () => this.stream(type) };
+  }
+
+  async render(type = "dialogue") {
+    const render = this.cortex.via(type, "render", this.tuning);
+    const callConfig = { ...this.config, thread: this.thread };
+    if (Object.keys(this.tools).length) callConfig.tools = this.tools;
+
+    let turns = [...this.turns];
+    for (let round = 0; round < 10; round++) {
+      const turn = await render(turns, callConfig);
+      if (turn.meta?.stop !== "tool_use") return turn;
+      const results = await executeTools(this.tools, turn.parts, this.thread);
+      turns = [...turns, turn, { role: "user", parts: results }];
+    }
+  }
+
+  async *stream(type = "dialogue") {
+    const stream = this.cortex.via(type, "stream", this.tuning);
+    const callConfig = { ...this.config };
+    if (Object.keys(this.tools).length) callConfig.tools = this.tools;
+
+    let turns = [...this.turns];
+    for (let round = 0; round < 10; round++) {
+      let turn = null;
+      for await (const packet of await stream(turns, callConfig)) {
+        turn = soma.pour(turn, packet);
+        yield packet;
+      }
+      if (turn.meta?.stop !== "tool_use") return;
+      const results = await executeTools(this.tools, turn.parts, this.thread);
+      yield* soma.drain({ role: "user", parts: results });
+      turns = [...turns, turn, { role: "user", parts: results }];
+    }
+  }
+}
+
+// tool dispatch — run tool_use parts against the tool map, thread-scoped. Exported so the cortex
+// object-derivation (deriveObjectFallback) shares one implementation.
+export async function executeTools(tools, parts, thread) {
+  const results = [];
+  for (const part of parts) {
+    if (part.type !== "tool_use") continue;
+    const tool = tools[part.name];
+    const handler = typeof tool === "function" ? tool : tool?.execute;
+    if (!handler) {
+      results.push({
+        // @beef we ought to provide more information as feedback and most definitely log or record this event. @claude
+        type: "tool_result",
+        id: part.id,
+        output: { error: `unknown tool: ${part.name}` },
+      });
+      console.log("@cortex: unknown tool called", { results });
+      continue;
+    }
+    const input =
+      typeof part.input === "string" ? (part.input ? JSON.parse(part.input) : {}) : (part.input ?? {});
+    const returned = await handler(thread ? { ...input, thread } : input);
+    const native =
+      is.object(returned) &&
+      ("message" in returned || "entities" in returned || "object" in returned);
+    const { message, entities, object } = native ? returned : { message: returned };
+    results.push({ type: "tool_result", id: part.id, output: message, entities, object });
+  }
+  return results;
+}
+#+end_src
+
+** subsystems/typology/prototypes/cortex.js
+
+#+begin_src javascript :tangle ../../subsystems/typology/prototypes/cortex.js :mkdirp no
+import { array, Vector } from "@vivalence/typology";
+import { executeTools } from "./hallucination.js";
+
+const DERIVATIONS = {
+  object: (cortex, tune) => ({
+    type: "object",
+    channels: { in: ["text"], out: ["object"] },
+    via: { render: deriveObjectFallback(cortex, tune) },
+  }),
+};
+
+export const tiers = {
+  frugal: [0.1, 0.3, 0.9, 1.0],
+  balanced: [0.4, 0.6, 0.6, 0.6],
+  capable: [0.6, 0.8, 0.4, 0.4],
+  unleashed: [0.9, 1.0, 0.2, 0.2],
+  eager: [0.3, 0.5, 0.5, 0.1],
+};
+
+export class Cortex {
+  faculties = new Vector();
+
+  extend(supplied) {
+    for (const faculty of supplied) {
+      if (faculty.tune.length === 3) faculty.tune = [...faculty.tune, 0.5];
+      this.faculties.branch(faculty.type).open({ nature: faculty.slug ?? faculty.type }, faculty);
+    }
+    return this;
+  }
+
+  stored(type) {
+    const branch = [...this.faculties.trajectories.entries()] // @beef stupid.
+      .find(([pattern]) => pattern.nature === type)?.[1];
+    return branch ? [...branch.effects.values()] : [];
+  }
+
+  has(type) {
+    return this.stored(type).length > 0 || (type in DERIVATIONS && this.derivable(type));
+  }
+
+  derivable(type) {
+    return type === "object" ? !!this.resolve("dialogue", { via: "render" }) : false;
+  }
+
+  resolve(type, { tune, via } = {}) {
+    const eligible = this.stored(type).filter((faculty) => !via || faculty.via[via]);
+    const native = nearest(eligible, tune ?? [0.5, 0.5, 0.5, 0.5]);
+    if (native) return native;
+
+    const derive = DERIVATIONS[type];
+    if (!derive || !this.derivable(type)) return native;
+    const derived = derive(this, tune);
+    return !via || derived.via[via] ? derived : undefined;
+  }
+
+  via(type, name, tune) {
+    return this.resolve(type, { tune, via: name })?.via[name];
+  }
+
+  get shard() {
+    const cortex = this;
+    return {
+      // harness: async (ctx, next) => {console.trace("DEPRACATEED"); ctx.hallucination = new Hallucination(cortex, ctx.input); await next();},
+      faculties: (vector) => {
+        const types = new Set([
+          ...[...cortex.faculties.trajectories.keys()].map((pattern) => pattern.nature),
+          ...Object.keys(DERIVATIONS),
+        ]);
+
+        for (const type of types) {
+          if (!cortex.has(type)) continue;
+          const branch = vector.branch(type);
+
+          if (cortex.resolve(type, { via: "stream" }))
+            branch.open("stream", async (ctx) => { ctx.output = ctx.hallucination.stream(type); });
+
+          if (cortex.resolve(type, { via: "render" }))
+            branch.open("render", async (ctx) => { ctx.output = await ctx.hallucination.render(type); });
+        }
+      },
+    };
+  }
+}
+
+function deriveObjectFallback(cortex, tune) {
+  return async (turns, config) => {
+    const tools = config?.tools ?? {};
+    const respond = { valence: "Return the final result as structured data.", input: config?.schema };
+    const render = cortex.via("dialogue", "render", tune);
+    let currentTurns = [...turns];
+    for (let round = 0; round < 10; round++) {
+      const turn = await render(currentTurns, {
+        ...config,
+        tools: { ...tools, respond },
+        tool_choice: { type: "any" },
+      });
+      const done = turn.parts.find((part) => part.type === "tool_use" && part.name === "respond");
+      if (done) {
+        const data =
+          typeof done.input === "string" ? (done.input ? JSON.parse(done.input) : {}) : done.input;
+        return { role: "assistant", parts: [{ type: "object", data }], meta: { stop: "end_turn" }, object: data };
+      }
+      const results = await executeTools(tools, turn.parts, config.thread);
+      currentTurns = [...currentTurns, turn, { role: "user", parts: results }];
+    }
+  };
+}
+
+export function nearest(faculties, target) {
+  if (typeof target === "string") target = tiers[target] ?? [0.5, 0.5, 0.5, 0.5];
+  return array.nearest(faculties, target, (faculty) => faculty.tune);
+}
+#+end_src
+
+** systems/runtime/daemon/traits/emitter.js
+
+#+begin_src javascript :tangle ../../systems/runtime/daemon/traits/emitter.js :mkdirp no
+import { shape, Blacklist, Pool, Vector } from "@vivalence/typology";
+
+export const EMITTER = async (mode, daemon) => {
+  if (!mode.module.emitter) return;
+
+  // live counterpart: middleware on the trait-owned Vector, the read-only module declaration
+  // slurped in. Never .use() on mode.module.emitter directly.
+  const emitter = new Vector();
+
+  emitter.use(async (ctx, next) => {
+    for (const step of ctx.steps ?? []) step.input?.cast(ctx.input);
+    await next();
+  });
+
+  emitter.use(async (ctx, next) => {
+    ctx.daemon = daemon;
+    ctx.mode = mode;
+
+    if (!ctx.input) console.log("INPUT MISSING?!", { ctx });
+
+    // thread OPTIONAL — turn-free / STANDALONE modes (riddler) emit without one; buffers stay
+    // thread-null. Present (or forwarded via delegation) → the drain binds + indexes them.
+    if (ctx.input.thread) ctx.thread = await daemon.entities.thread.findOne(ctx.input.thread);
+
+    await next();
+  });
+
+  emitter.use(async (ctx, next) => {
+    ctx.input.blacklist = new Blacklist(ctx.input.blacklist);
+    await next();
+  });
+
+  emitter.use(async (ctx, next) => {
+    ctx.pool = new Pool();
+
+    await next();
+
+    if (ctx.output != null) ctx.pool.add(ctx.output);
+
+    const result = await ctx.pool.drain();
+
+    if (ctx.thread && result.condition === "NOMINAL") {
+      for (const buffer of result.entities.buffer) {
+        buffer.thread = ctx.thread;
+        buffer.index = ctx.thread.counter++;
+      }
+    }
+
+    await daemon.entities.em.flush();
+    ctx.output = result;
+  });
+
+  emitter.slurp(mode.module.emitter);
+
+  mode.emit = shape.object(emitter);
+  mode.aperture.branch("/emit").slurp(emitter);
+};
+#+end_src
+
+** systems/runtime/daemon/traits/harnessed.js
+
+#+begin_src javascript :tangle ../../systems/runtime/daemon/traits/harnessed.js :mkdirp no
+import { Hallucination, Vector, shape, steer, shard, soma } from "@vivalence/typology";
+
+export const HARNESSED = (mode, daemon) => {
+  if (!daemon.cortex) throw new Error("HARNESSED: daemon has no cortex");
+
+  // live counterpart: the trait-owned harness Vector; mode.module.harness (persona etc.) is
+  // slurped in. The faculty leaves (mounted in the finalizer) delegate render/stream to the
+  // per-call ctx.hallucination.
+  const harness = new Vector();
+
+  harness.use(shard.context.bind("daemon", daemon));
+  harness.use(shard.context.bind("mode", mode));
+  harness.use(async (ctx, next) => {
+    ctx.hallucination = new Hallucination(daemon.cortex, ctx.input);
+    ctx.hallucination.absorb(shape.agentic(mode.aperture.branch("/tool")));
+    await next();
+  });
+
+  // DIALOGUE — the turn-bearing faculty: loads thread history into the hallucination and scribes
+  // the render back as turns (tool calls + emitted results ride as refs). object / speech /
+  // verbatim renders never pass through here, so they stay turn-free (riddler is buffer-native).
+  const dialogue = harness.branch("/dialogue");
+
+  dialogue.use(async (ctx, next) => {
+    await next();
+
+    if (ctx.output?.[Symbol.asyncIterator]) {
+      const source = ctx.output;
+      let turn = null;
+      let parent = ctx.turn;
+      const created = [];
+      ctx.output = (async function* () {
+        try {
+          for await (const packet of source) {
+            turn = soma.pour(turn, packet);
+            if (packet.event === "/turn/close") {
+              parent = ctx.daemon.entities.turn.create({
+                role: turn.role,
+                parts: turn.parts,
+                meta: turn.meta,
+                parent,
+                thread: ctx.input.thread,
+                mode: ctx.mode.id,
+              });
+              created.push(parent);
+              turn = null;
+            }
+            yield packet;
+          }
+          await ctx.daemon.entities.em.flush();
+        } catch (error) {
+          for (const entity of created) ctx.daemon.entities.em.remove(entity);
+          throw error;
+        }
+      })();
+    } else if (ctx.output?.role) {
+      await ctx.daemon.entities.turn.chain({
+        role: ctx.output.role,
+        parts: ctx.output.parts,
+        meta: ctx.output.meta,
+        parent: ctx.turn,
+        thread: ctx.input.thread,
+        mode: ctx.mode.id,
+      });
+    }
+  });
+
+  dialogue.use(async (ctx, next) => {
+    const history = await ctx.daemon.entities.turn.history({ thread: ctx.input.thread });
+    ctx.turn = await ctx.daemon.entities.turn.chain({
+      role: "user",
+      parts: ctx.input.parts,
+      parent: history.at(-1) ?? null,
+      thread: ctx.input.thread,
+      mode: ctx.mode.id,
+    });
+    ctx.hallucination.turns = [...history, ctx.turn];
+    await next();
+  });
+
+  if (mode.module.harness) harness.slurp(mode.module.harness);
+
+  return () => {
+    daemon.cortex.shard.faculties(harness);
+    mode.harness = shape.object(harness, steer.echo);
+    mode.aperture.branch("/harness").slurp(harness);
+  };
+};
+#+end_src
+
+** registry/education/game/riddler/emitter.js
+
+#+begin_src javascript :tangle ../../registry/education/game/riddler/emitter.js :mkdirp no
+import { Vector, v } from "@vivalence/typology";
+
+// One riddle from a symbol set (or explicit literals): resolve the pool with memory strength,
+// let the persona-dressed cortex compose it in a single object render, cast one buffer. Turn-free
+// — buffer.data.history is the whole memory. Persona rides in via the harness facade
+// (ctx.mode.harness.object.render), which builds + drains the hallucination.
+const RIDDLE = v.object({
+  riddle: v.string(),
+  expected: v.string(),
+  literals: v.array(v.string()),
+});
+
+export const emitter = new Vector().open(
+  {
+    nature: "/riddle/fromSymbol",
+    input: v.object({
+      symbols: v.array(v.string()).optional(),
+      literals: v.array(v.string()).optional(),
+      limit: v.integer({ default: 12 }),
+    }),
+  },
+  async (ctx) => {
+    const pool = ctx.input.literals?.length
+      ? await ctx.daemon.entities.literal.find(
+          { id: { $in: ctx.input.literals } },
+          { populate: ["memories", "memories.strength"] },
+        )
+      : await ctx.daemon.entities.literal.feed(
+          { symbols: ctx.input.symbols ?? [] },
+          { limit: ctx.input.limit, populate: ["memories", "memories.strength"] },
+        );
+    if (!pool.length) return;
+
+    const vocabulary = pool
+      .map((literal) =>
+        `${literal.slug}: ${literal.trait?.TRANSLATED?.learning} (${literal.trait?.TRANSLATED?.known}) — ${literal.memory?.strength ?? "new"}/${literal.memory?.status ?? "UNTOUCHED"}`,
+      )
+      .join("; ");
+
+    const { object } = await ctx.mode.harness.object.render({
+      turns: [
+        { role: "system", parts: [{ type: "text", text: `Compose ONE riddle from a subset of this vocabulary (favor weaker / less-recently-seen items):\n${vocabulary}\nReturn the riddle, its single expected answer, and the slugs it leans on.` }] },
+        { role: "user", parts: [{ type: "text", text: "Compose the riddle now." }] },
+      ],
+      config: { schema: RIDDLE },
+      tune: "frugal",
+    });
+    if (!object) return;
+
+    const chosen = pool.filter((literal) => object.literals?.includes(literal.slug));
+    ctx.pool.add(
+      ctx.mode.app.buffer({
+        data: { riddle: object.riddle, expected: object.expected, history: [] },
+        literals: chosen.length ? chosen : pool,
+      }),
+    );
+  },
+);
+#+end_src
+
+* Verify (post-tangle)
+
+- =deno task --cwd subsystems/typology test= — hallucination.test.js drives =harness.<faculty>.render/stream=
+  through =cortex.shard.faculties=; cortex.test.js covers extend/stored/resolve/has/nearest.
+- =systems/runtime= mode + daemon suites for the EMITTER live-vector + thread-optional change.
+- OPEN: riddler =app= schema must declare ={ riddle, expected, history }= (today riddle/answer/history)
+  or =app.fill= drops =expected=. Not in this quest's files — flag for the riddler.viva rewrite.

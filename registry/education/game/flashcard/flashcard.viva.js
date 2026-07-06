@@ -34,7 +34,7 @@ export const emitter = new Vector()
       }),
     },
     async (ctx) => {
-      return ctx.mode.buffer({
+      return ctx.mode.app.buffer({
         data: { recall: ctx.input.recall },
         literals: ctx.input.literals,
       });
@@ -57,7 +57,7 @@ export const emitter = new Vector()
         blacklist: ctx.input.blacklist,
       });
       if (!literals.length) return [];
-      return ctx.mode.buffer({
+      return ctx.mode.app.buffer({
         data: { recall: ctx.input.recall },
         literals,
       });

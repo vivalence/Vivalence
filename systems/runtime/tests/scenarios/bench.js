@@ -27,7 +27,7 @@ import {
   Url, Connection, Mode, Path, Aperture, Vector,
   shard, shape, is, array,
 } from "@vivalence/typology";
-import { sets, UserEntity, BufferEntity, LiteralEntity, SymbolEntity, helper } from "@vivalence/typology/entities";
+import { sets, UserEntity, BufferEntity, LiteralEntity, SymbolEntity } from "@vivalence/typology/entities";
 import { provider as memoryDatamap } from "@vivalence/typology/scenarios";
 import { Daemon } from "@vivalence/runtime/daemon";
 import * as traits from "../../daemon/traits/index.js";
@@ -45,16 +45,14 @@ const BENCH_APPLICATION = async (mode, daemon) => {
     schema: mode.module.app.mask,
   }));
 
-  const ensure = (repo, ref) => helper(ref) ? ref : repo.findOne(ref?.id ?? ref);
-
-  mode.buffer = async (desc = {}) => {
+  mode.app.buffer = async (desc = {}) => {
     const buffer = daemon.entities.em.create(BufferEntity, {
       mode: mode.entity.id,
-      data: mode.module.app.cast(desc),
+      data: mode.app.cast(desc),
       index: desc.index ?? 0,
     });
-    if (desc.literals) buffer.literals.add(await Promise.all(desc.literals.map((literal) => ensure(daemon.entities.literal, literal))));
-    if (desc.symbols) buffer.symbols.add(await Promise.all(desc.symbols.map((symbol) => ensure(daemon.entities.symbol, symbol))));
+    if (desc.literals) buffer.literals.add(await daemon.entities.literal.findByIdentifiers(desc.literals));
+    if (desc.symbols) buffer.symbols.add(await daemon.entities.symbol.findByIdentifiers(desc.symbols));
     return buffer;
   };
 };

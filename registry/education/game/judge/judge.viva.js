@@ -52,7 +52,7 @@ const emitter = new Vector()
     const distractor = scored[0]?.d ?? null;
     const useDistractor = distractor && Math.random() > 0.5;
 
-    return ctx.mode.buffer({
+    return ctx.mode.app.buffer({
       data: {
         recall,
         gameplay: ctx.input.gameplay ?? "visual",

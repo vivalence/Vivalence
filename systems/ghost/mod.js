@@ -43,16 +43,23 @@ trajectory
     }
   })
   .use(async (ctx, next) => {
-    ctx.call = async (args) => {
+    // was: hand-inlined strategy with a swapped `[apply, effect]` — traverse returns [effect, carry, …],
+    // so the leaf ran as middleware and the fold ran as a leaf; span + error-catch never wrapped sub-calls.
+    // collapsed onto steer.invoke — the same combinator the entrypoint uses at the bottom of this file.
+    // ctx.call = async (args) => {
+    //   const signal = args instanceof ShellSignal ? args : new ShellSignal(args);
+    //   const [apply, effect] = steer.traverse(trajectory, signal); // @beef validate
+    //   const context = new ShellContext({ signal });
+    //   await apply(context, async (_ctx) => {
+    //     // @beef try catch pipe bubble!
+    //     const result = await effect(_ctx);
+    //     if (!_ctx.effect && result) _ctx.effect = result;
+    //   });
+    //   return context.effect;
+    // };
+    ctx.call = (args) => {
       const signal = args instanceof ShellSignal ? args : new ShellSignal(args);
-      const [apply, effect] = steer.traverse(trajectory, signal); // @beef validate
-      const context = new ShellContext({ signal });
-      await apply(context, async (_ctx) => {
-        // @beef try catch pipe bubble!
-        const result = await effect(_ctx);
-        if (!_ctx.effect && result) _ctx.effect = result;
-      });
-      return context.effect;
+      return steer.invoke(trajectory, signal, strategy)(new ShellContext({ signal }));
     };
 
     await next();

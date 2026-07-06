@@ -23,13 +23,11 @@ export const message = new Vector().open(
           parts: [{ type: "text", text: ctx.input.prompt }],
         },
       ],
-      config: {
-        schema: v.object({
-          answer: v
-            .string()
-            .desc("answer is rendered as a speech-bubble on a tutor persona. 10-100 characters."),
-        }),
-      },
+      output: v.object({
+        answer: v
+          .string()
+          .desc("answer is rendered as a speech-bubble on a tutor persona. 10-100 characters."),
+      }),
       thread: ctx.input.thread,
     });
     //

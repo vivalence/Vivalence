@@ -16,3 +16,5 @@ export const attach = (key, value) => async (ctx, next) => {
   ctx[key] = null;
   delete ctx[key];
 };
+
+// export const fold = (vector, apply) => {vector.use(async (ctx, next) => (apply(ctx), next())); return vector;};

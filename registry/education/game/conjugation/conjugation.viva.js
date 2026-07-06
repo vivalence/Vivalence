@@ -47,7 +47,7 @@ const emitter = new Vector()
       lemma = symbols.find((s) => s.slug.startsWith("word.lemma."));
     }
 
-    return ctx.mode.buffer({
+    return ctx.mode.app.buffer({
       data: {
         target: target.id,
         infinitive: infinitive?.id,

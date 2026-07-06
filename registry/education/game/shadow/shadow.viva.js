@@ -32,7 +32,7 @@ const app = new App(
 const emitter = new Vector()
   .open("/literals", async (ctx) => {
     const recall = ctx.input.recall;
-    return ctx.mode.buffer({
+    return ctx.mode.app.buffer({
       data: { recall, speed: ctx.input.speed ?? null },
       literals: ctx.input.literals ?? cast.array(ctx.input.literal),
     });
@@ -44,7 +44,7 @@ const emitter = new Vector()
       { limit, blacklist: ctx.input.blacklist },
     );
     if (!literals.length) return [];
-    return ctx.mode.buffer({
+    return ctx.mode.app.buffer({
       data: {
         recall: ctx.input.recall,
         speed: ctx.input.speed ?? null,

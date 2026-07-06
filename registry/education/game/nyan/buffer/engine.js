@@ -13,6 +13,14 @@ const groupBy = (items, selector) =>
   items.reduce((groups, item) => ((groups[selector(item)] ??= []).push(item), groups), {});
 const fold = (text) => text.normalize("NFD").replace(/\p{M}/gu, "");
 const isHard = (character) => fold(character) !== character;
+// same normalize belt the other modes run on surfaces — lowercase, strip punctuation, collapse.
+const clean = (text) =>
+  text
+    .toLowerCase()
+    .replace(/[?.!,;:'"'´`~\-—]/g, "")
+    .replace(/\//g, " ")
+    .replace(/\s+/g, " ")
+    .trim();
 
 const KEYBOARD_ROWS = ["qwertyuiop", "asdfghjkl", "zxcvbnm"];
 const ADJACENCY = Object.fromEntries(
@@ -63,6 +71,7 @@ const defaultConfig = (overrides = {}) => ({
   recallMs: 1500,
   live: "shown",
   targetWpm: 40,
+  layout: "block",
   ...overrides,
 });
 
@@ -487,6 +496,7 @@ export {
   ascending,
   groupBy,
   fold,
+  clean,
   isHard,
   adjacent,
   sample,

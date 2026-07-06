@@ -1,5 +1,4 @@
 import { join } from "@std/path";
-import { helper } from "@vivalence/typology/entities";
 import { bundle } from "@vivalence/typology";
 import { BufferEntity, LiteralEntity, SymbolEntity } from "@vivalence/typology/entities";
 
@@ -31,23 +30,18 @@ export const APPLICATION = async (mode, daemon) => {
     schema: mode.module.app.mask,
   }));
 
-  const ensure = (repo, ref) => (helper(ref) ? ref : repo.findOne(ref?.id ?? ref));
-
-  mode.buffer = async (data = {}) => {
-    // extend to rich interface. ctx.mode.buffer.emit()
+  mode.app.buffer = async (descr = {}) => {
+    // v.schematics(descr)
     const buffer = daemon.entities.em.create(BufferEntity, {
+      // @beef thread!
       mode: mode.entity.id,
-      data: mode.module.app.fill(data),
-      index: data.index ?? 0,
+      data: mode.app.fill(descr),
+      index: descr.index ?? 0,
     });
-    if (data.literals)
-      buffer.literals.add(
-        await Promise.all(data.literals.map((l) => ensure(daemon.entities.literal, l))),
-      );
-    if (data.symbols)
-      buffer.symbols.add(
-        await Promise.all(data.symbols.map((s) => ensure(daemon.entities.symbol, s))),
-      );
+    if (descr.literals)
+      buffer.literals.add(await daemon.entities.literal.findByIdentifiers(descr.literals));
+    if (descr.symbols)
+      buffer.symbols.add(await daemon.entities.symbol.findByIdentifiers(descr.symbols));
     return buffer;
   };
 };

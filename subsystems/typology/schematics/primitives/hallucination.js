@@ -1,4 +1,4 @@
-import { v } from "@vivalence/typology";
+import { v } from "../v.js";
 
 export const Channel = v.union([
   v.const("text"),
@@ -54,20 +54,24 @@ Part.Document = v.object({
 Part.Object = v.object({
   type: v.const("object"),
   data: v.record(v.string(), v.unknown()),
-  schema: v.string().optional(),
+  schema: v.unknown().optional(),
 });
 
 Part.ToolUse = v.object({
   type: v.const("tool_use"),
   id: v.string(),
   name: v.string(),
-  input: v.string(),
+  input: v.union([v.string(), v.record(v.string(), v.unknown())]),
 });
 
+// tools may speak the yield lexicon: output (the message) rides back to the
+// model, entities/object stay app-side on the part.
 Part.ToolResult = v.object({
   type: v.const("tool_result"),
   id: v.string(),
-  output: v.string(),
+  output: v.unknown(),
+  entities: v.record(v.string(), v.unknown()).optional(),
+  object: v.unknown().optional(),
 });
 
 Part.Thinking = v.object({
@@ -87,29 +91,76 @@ Part.Any = v.union([
   Part.Thinking,
 ]);
 
-export const Tune = v.array(v.number({ minimum: 0, maximum: 1 }), { minItems: 3, maxItems: 3 });
+export const Role = v.union([v.const("system"), v.const("user"), v.const("assistant")]);
 
-export const Tier = v.union([
-  v.const("frugal"),
-  v.const("balanced"),
-  v.const("capable"),
-  v.const("unleashed"),
-]);
+export const Turn = v.object({
+  role: Role,
+  parts: v.array(Part.Any),
+  meta: v.record(v.string(), v.unknown()).optional(),
+});
+
+// ── tune · a faculty's position in capability space ───────────────────────
+// A faculty's `tune` is a point in a 4-axis space; a request's tune — or a
+// named Tier — is a point of DESIRE in the same space. The cortex resolves by
+// nearest neighbour (equal-weighted squared-Euclidean, `belt.array.nearest`):
+// the faculty whose profile sits closest to the desire wins. Every axis is
+// [0, 1], where 1 = maximal that virtue. The two CAPABILITY axes trade against
+// the two ECONOMY axes — no faculty maxes all four.
+//
+//   0  intelligence  raw problem-solving capability   (haiku 0.1 → opus 0.9)
+//   1  reasoning      deliberation depth / thinking    (sonnet 0.7, opus 1.0)
+//   2  speed          inverse latency; 1 = fastest     (opus 0.3, haiku 1.0)
+//   3  thrift         cost economy;    1 = cheapest     (unleashed 0.2, frugal 1.0)
+//
+// Providers may ship only the first three (intelligence, reasoning, speed);
+// the cortex pads `thrift` to 0.5 on register. Because nearest() loops over the
+// DESIRE's length, a 3-axis query ignores thrift entirely. The axis names
+// describe the dialogue case; for speech/verbatim faculties the same vector is
+// an opaque positioning key that just distinguishes variants by proximity.
+export const axes = ["intelligence", "reasoning", "speed", "thrift"];
+
+export const Tune = v
+  .array(v.number({ minimum: 0, maximum: 1 }), { minItems: 3, maxItems: 4 })
+  .desc(
+    "Capability vector [intelligence, reasoning, speed, thrift] — each 0-1, 1 = maximal. Providers may omit thrift (cortex pads 0.5).",
+  );
+
+// named points in tune-space (the `tiers` table on the cortex realizes them).
+export const Tier = v
+  .union([
+    v.const("frugal"),
+    v.const("balanced"),
+    v.const("capable"),
+    v.const("unleashed"),
+    v.const("eager"),
+  ])
+  .desc(
+    "A named desire in tune-space: frugal=cheap+fast, balanced=even trade, capable=strong+moderate cost, unleashed=max capability cost-no-object, eager=engagement-first.",
+  );
 
 export const Channels = v.object({
   in: v.array(Channel),
   out: v.array(Channel),
 });
 
-export const Spec = v.object({
-  tune: Tune,
-  context: v.integer(),
+export const Tool = v.object({
+  valence: v.string().optional(),
+  input: v.unknown().optional(),
+  execute: v.unknown().optional(),
 });
 
+// the register-time guard checks only what the cortex resolves on — type, tune,
+// and a delivery record. `channels` is descriptive metadata the cortex never
+// reads, so it's validated loosely (any array); Channels above stays the strict
+// documented vocabulary for consumers that DO care about the encoding.
 export const Faculty = v.object({
-  type: FacultyType,
-  channels: Channels,
-  spec: Spec,
+  type: v.string(),
+  tune: Tune,
+  context: v.integer().optional(),
+  channels: v.object(
+    { in: v.array(v.unknown()), out: v.array(v.unknown()) },
+    { additionalProperties: true },
+  ).optional(),
   via: v.record(v.string(), v.unknown()),
 });
 

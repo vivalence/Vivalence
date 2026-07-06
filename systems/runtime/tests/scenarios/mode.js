@@ -13,11 +13,11 @@ function APPLICATION(mode, daemon) {
     url: mode.module.app.url.absolute,
     schema: mode.module.app.mask,
   }));
-  mode.buffer = (desc = {}) => {
+  mode.app.buffer = (desc = {}) => {
     const em = daemon.entities.em;
     const buffer = em.create(tiers.buffer.entity, {
       mode: mode.entity.id,
-      data: mode.module.app.fill(desc),
+      data: mode.app.fill(desc),
       index: desc.index ?? 0,
     });
     if (desc.literals)
@@ -82,8 +82,8 @@ async function wireMode(viva, daemon) {
   mode.id = mode.entity.id;
 
   if (viva.app) {
-    mode.module.app = viva.app;
-    mode.module.app.withUrl(new Url(`http://test/view/${viva.manifest.type}/${viva.manifest.slug}`));
+    mode.app = mode.module.app = viva.app; // mirror real Mode: Object.assign makes mode.app === mode.module.app
+    mode.app.withUrl(new Url(`http://test/view/${viva.manifest.type}/${viva.manifest.slug}`));
   }
   if (viva.dataset) mode.module.dataset = viva.dataset;
   if (viva.emitter) mode.module.emitter = new Vector().slurp(viva.emitter);
