@@ -56,6 +56,27 @@ function partToAnthropic(part) {
   }
 }
 
+// --- outbound: a Request → Anthropic messages.create params ---
+
+export function buildParams(model, request, stream = false) {
+  const { system, messages } = translateTurns(request.turns);
+  const settings = request.settings ?? {};
+  const params = {
+    model: model.id,
+    system,
+    messages,
+    max_tokens: settings.maxTokens ?? 8192,
+  };
+  if (stream) params.stream = true;
+  if (model.thinking && !settings.tool_choice) {
+    params.thinking = { type: "enabled", budget_tokens: settings.thinkingBudget ?? 16000 };
+    params.max_tokens = settings.maxTokens ?? 32000;
+  }
+  if (request.tools) params.tools = translateTools(request.tools);
+  if (settings.tool_choice) params.tool_choice = settings.tool_choice;
+  return params;
+}
+
 // --- outbound: tools → Anthropic tool definitions ---
 
 export function translateTools(tools) {

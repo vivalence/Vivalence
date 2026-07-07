@@ -1,7 +1,7 @@
 import { steer } from "@vivalence/typology";
 
 export function tree(vector, execute) {
-  const root = steer.survey(vector, (node) => {
+  const root = steer.trie.survey(vector, (node) => {
     if (node.effects !== undefined) {
       return {
         nature: node.signature.nature,

@@ -1,0 +1,40 @@
+#+TITLE: typology grows a v.slug scalar builder, the object faculty fills its output, and the system-hoist lands at its owning boundary — the library-level thread the riddler pass forced
+#+TOPIC: The riddler flatten ([[riddler-flattens-to-the-turn-standard-object-faculty-fills-output-and-the-system-hoist-lands-in-the-hallucination-per-connoisseur]]) drove three HOLY typology changes that outlive the game and deserve their own fold. (1) =v.slug()= — scalars become BUILDERS, minted by a tiny factory =scalar(base, fixed, desc)=; only slug exposed. (2) The object faculty now FILLS its parsed tool-call output through =config.output= (=v.fill= in =dressAsObject=), so structured-output callers stop hand-defaulting. (3) The system-extraction invariant moved OUT of the Anthropic provider and INTO =hallucination.context.compile= — beef's *"is that the right level tho??!! shouldnt it be hallucination? what does @conoisseur say?"* forced the connoisseur verdict: an invariant belongs at its owning boundary, never re-derived in N adapters. All three landed green (typology 147+61 steps).
+
+* v.slug — the factory iteration
+beef: *"read the schematics library in full including its testing. i suspect i want an itteration on the factory here. v.scalars.Slug."* Read the whole library first. The asymmetry: PRIMITIVES are builder functions (=v.string(opts)=), SCALARS are pre-built constants (=v.scalars.Slug=, a =v.string({pattern}).desc(...)= value) — and =v.slug()= plainly THREW (=v.slug is not a function=; the riddler's =v.array(v.slug())= was a real import-breaking bug, not a style nit). The insight: a scalar IS a primitive with locked constraints, so it should be a builder too. One mini-factory captures it:
+#+begin_src js
+const scalar = (base, fixed, description) => (opts) => base({ ...fixed, ...opts }).desc(description);
+export const slug = scalar(v.string, { pattern: "^[a-z0-9]+(?:-[a-z0-9]+)*$" }, "URL-compliant identifier");
+export const Slug = slug();
+#+end_src
+beef: *"go on v.slug(). ignore timestamp jwt and the rest."* — so ONLY slug got a builder; the other scalars stay constants. =v.slug = scalars.slug= in =schematics/index.js= (parity with =v.string=; =v.slug({minLength:3})= merges opts). The CONSTANTS (=Slug=, =ID=, =Timestamp=…) are untouched — their only consumers are typology's own manifest/variant/auth, and =v.scalars.*= has ZERO external callers (grepped). Test in =v.test.js=: builder validates + merges opts, constant still a usable schema. Standing scent: a fresh =@beef= at =schematics/index.js:17= — "a lot of the below should be living on v.primitives" (the entityFactory bindings) — parked.
+
+* the object faculty fills its output
+Three riddler =@beef= notes were one bug. =dressAsObject= (=cortex.js=) — the derived object faculty that injects a =respond= tool and seals a tool-call into a =.object= turn — returned the RAW =JSON.parse= as =.object=. No schema pass → =config.output= defaults never applied → callers wrote =reply.taunt ?? ""= just to survive. beef: *"const data = config.output ? fill(config.output, parsed) : parsed; go. v.fill or such."* Landed verbatim:
+#+begin_src js
+const parsed = typeof done.input === "string" ? (done.input ? JSON.parse(done.input) : {}) : done.input;
+const data = config.output ? v.fill(config.output, parsed) : parsed;
+#+end_src
+=fill= = Default-only (the two-verbs law: =cast= for request input, =fill= for entity/output data; Convert would maul MikroORM Collections). Proven: =ASSISTANT_RENDER_OUTPUT.fill({message})= → =taunt:"" hint:"" resolvable:false resolved:false=. Every =?? ""= / =={}= fallback across the aperture died.
+
+* the connoisseur moment — an invariant at its owning boundary
+The riddler flatten needed =role:"system"= turns extracted from a standard transcript. I found =translateTurns= (the Anthropic provider) ALREADY hoists them into the API =system= param, and proposed leaning on it — no holy edit, minimal delta. beef refused the shortcut: *"is that the right level tho??!! shouldnt it be hallucination? what does @conoisseur say?"* Read the doctrine; it agreed, and he was right. The mis-file: a SEMANTIC invariant dressed as a TRANSLATION detail.
+- *Trigger #3 — one core, thin cases.* Hoisting in the provider means every adapter (anthropic, a future openai, gemini) re-derives the same partition — the N-near-duplicate-methods wince.
+- *Trigger #2 — fold over a sequence.* The compile middleware IS the fold that assembles the transcript; system-extraction is part of that fold, not a downstream bolt-on.
+- *The load-bearing one.* beef's =:27= word was *"rigorous enough to guarantee internal determinism to benefit caching."* A guarantee enforced only in the Anthropic adapter holds only for Anthropic — that is not a guarantee, it is a coincidence. The request promises it → the request's compile enforces it.
+So =context.compile(transcript)= now absorbs every =role:"system"= turn into ONE canonical, first, stable system block; the middleware appends only non-system turns. The provider keeps only what is genuinely provider-specific — a system block → top-level =system= param vs a system message. This is also the mechanism that lets a mode append ONLY turns and never touch =context.system/extend= — the real answer to the riddler's =:32=.
+#+begin_src js
+compile: (transcript = []) => {
+  const hoisted = transcript.filter((t) => t.role === "system").map((t) => t.parts.map((p) => p.text).join("\n"));
+  if (!context.size && !hoisted.length) return [];
+  const sections = [];
+  if (context.has("system")) sections.push(string.stringify(context.get("system")));
+  sections.push(...hoisted);
+  for (const [key, value] of context) { if (key === "system") continue; sections.push(`${key}:\n${string.stringify(value)}`); }
+  return [{ role: "system", parts: [{ type: "text", text: sections.join("\n\n") }] }];
+},
+#+end_src
+
+* Why this is its own fold
+Three library-level moves, reusable past the riddler and each HOLY-go'd: a builder pattern any future scalar can follow; a structured-output contract every =cortex.hallucination({output})= caller now inherits (no more hand-defaulting); a placement principle — *the invariant lives where it is promised, not where it is convenient to observe* — that generalizes to every "should this live in the adapter or the core?" call. The scribe files touched: =scalars/index.js=, =schematics/index.js=, =prototypes/cortex.js=, =prototypes/hallucination.js=, =tests/v.test.js=. Memory settled in [[project_typology_v_api]] (v.slug) + [[project_hallucination_harness_cortex_ontology]] (fill + hoist). The riddler application layer is the sibling fold.

@@ -1,14 +1,98 @@
-export const aperture = new Vector().use().open("assitant/message", () => {
-  // write buffer.data.history
-  // write tools to hallucination
-  // write context persona identity role to context
-  // define the input and output schema
-  // input { message, history:[{}] }
-  // output { message: Text, hint?:Text, taunt?:Text isSolved?:Bool, resolve?:Bool }
-  // run the hallucination
-  // write buffer.data.history
-  // LATER: try to communicate with client by updating/writing the buffer and have buffer.$data on the client side.
-  // if resolved: run mode.call ? mode.connection.call?
-  // maybe run an evaluation step per ??
-  // return output
-});
+import { Vector } from "@vivalence/typology";
+import * as hal from "./hal/index.js";
+import { ASSISTANT_MESSAGE_INPUT, ASSISTANT_EVALUATE_INPUT } from "./types.js";
+
+export const aperture = new Vector().open(
+  {
+    nature: "/assistant/message",
+    input: ASSISTANT_MESSAGE_INPUT,
+  },
+  async (ctx) => {
+    console.log("assistant/message {input}", { input: ctx.input });
+    const buffer = await ctx.daemon.entities.buffer.findOne(ctx.input.buffer, {
+      populate: ["literals"],
+    });
+    console.log("assistant/message {buffer}", { buffer });
+
+    buffer.data.history = [
+      ...buffer.data.history,
+      { role: "user", parts: [{ type: "text", text: ctx.input.message }] },
+    ];
+
+    const { object } = await ctx.daemon.cortex
+      .hallucination({ tune: "eager" })
+      .output.object(hal.assistant.output)
+      .entities.turn.append(buffer.data.history)
+      .object.render();
+
+    buffer.data.history = [
+      ...buffer.data.history,
+      { role: "assistant", parts: [{ type: "text", text: object.message }] },
+    ];
+
+    if (object.resolved && buffer.status !== "DONE") {
+      buffer.status = "DONE";
+      // ctx.mode.call("/assistant/evaluate", { buffer }); // @beef todo
+    }
+
+    await ctx.daemon.entities.em.flush();
+
+    return {
+      message: object.message,
+      taunt: object.taunt,
+      hint: object.hint,
+      resolvable: object.resolvable,
+      resolved: object.resolved,
+    };
+  },
+  // )
+  // .open(
+  //   {
+  //     nature: "/assistant/evaluate",
+  //     input: ASSISTANT_EVALUATE_INPUT,
+  //   },
+  //   async (ctx) => {
+  //     console.log("assistant/evaluate {input}", { input: ctx.input });
+  //     const buffer = ctx.input.buffer;
+  //     // const buffer = await ctx.daemon.entities.buffer.findOne(ctx.input.buffer?.id ?? ctx.input.buffer, {populate: ["literals"],},);
+  //     console.log("assistant/evaluate {buffer}", { buffer });
+
+  //     const language = ctx.daemon.statics.language;
+  //     const literals = buffer.literals?.getItems?.() ?? buffer.literals ?? [];
+  //     const dialogue = buffer.data.history.filter((turn) => turn.role !== "system");
+
+  //     const { object } = await ctx.daemon.cortex
+  //       .hallucination({ tune: "balanced" })
+  //       .context.extend("dialogue", buffer.data.history)
+  //       .output.object(hal.evaluation.output)
+  //       .entities.turn.append(
+  //         {
+  //           role: "system",
+  //           parts: [
+  //             {
+  //               type: "text",
+  //               text: hal.evaluation.judge(language, {
+  //                 riddle: buffer.data.riddle,
+  //                 answer: buffer.data.answer,
+  //                 literals,
+  //               }),
+  //             },
+  //           ],
+  //         },
+  //         dialogue,
+  //       )
+  //       .object.render();
+
+  //     const bySlug = new Map(literals.map((literal) => [literal.slug, literal.id]));
+  //     await Promise.all(
+  //       (object.grades ?? [])
+  //         .map((grade) => ({ id: bySlug.get(grade.slug), signal: grade.grade }))
+  //         .filter((entry) => entry.id)
+  //         .map((entry) =>
+  //           ctx.daemon.call("/review/literal", { literal: entry.id, signal: entry.signal }),
+  //         ),
+  //     );
+
+  //     return { resolved: true };
+  //   },
+);

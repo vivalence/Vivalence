@@ -1,13 +1,13 @@
 import { is, fromm, Context, ValidationError } from "@vivalence/typology";
 
-export function dispatch(effect, context) {
+export function fire(effect, context) {
   if (effect.length === 0) return effect();
   if (effect.length === 1) return effect(context);
   return effect(context.input, context);
 }
 
 export const resolve = (effect) => async (context) => {
-  const result = await dispatch(effect, context);
+  const result = await fire(effect, context);
   if (!context.output && !is.undefined(result)) context.output = result;
   return context.output;
 };

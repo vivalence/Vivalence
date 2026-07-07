@@ -24,7 +24,7 @@ export async function init(ctx) {
   let held = [];
 
   const boot = async () => {
-    held = await paladin.system.boot(specs(ctx.signal.params[0], { attachment: "piped" }));
+    held = await paladin.ledger.boot(specs(ctx.signal.params[0], { attachment: "piped" }));
     for (const process of held) {
       const branch = ctx.span?.branch(`init/${process.spec.type}`).begin();
       branch?.track.subject().target("process", process.pid);
@@ -49,5 +49,5 @@ export async function init(ctx) {
   // register the instance with the ledger (testament/ledger/instances.json)
   const mount = paladin.scope.variant.absolute;
   const manifest = paladin.variant.manifest;
-  await paladin.system.instances.write(mount, { mount, manifest });
+  await paladin.ledger.instances.write(mount, { mount, manifest });
 }

@@ -1,7 +1,7 @@
 import { steer } from "@vivalence/typology";
 
 export function agentic(vector, separator = "_") {
-  const entries = steer.rollup(vector, steer.guarded);
+  const entries = steer.trie.rollup(vector, steer.strategy.guarded);
 
   const tools = {};
   const lines = ["### Tools"];

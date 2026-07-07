@@ -44,6 +44,7 @@ export class Die extends Wafer {
     await aperture.modes(this);
     await aperture.freight(this);
     await aperture.metadata(this);
+    await aperture.cortex(this);
   }
 
   async integrate() {

@@ -1,7 +1,7 @@
-import { array, cast } from "@vivalence/typology";
-import { v } from "../schematics/v.js";
-import { Faculty, Tier, Tune } from "../schematics/primitives/hallucination.js";
+import { cast, recipe } from "@vivalence/typology";
 import { Hallucination } from "./hallucination.js";
+import { v } from "../schematics/v.js";
+import { Faculty, Tier, Tune } from "../schematics/primitives/hallucination.js"; //@beef bad. should be just v.
 
 // named desires in tune-space — see schematics/primitives/hallucination `axes`.
 //                [intelligence, reasoning, speed, thrift]  (each 0-1, 1 = max)
@@ -14,8 +14,7 @@ export const tiers = {
 };
 
 export function nearest(faculties, target) {
-  if (typeof target === "string") target = tiers[target] ?? [0.5, 0.5, 0.5, 0.5];
-  return array.nearest(faculties, target, (faculty) => faculty.tune);
+  return recipe.nearest(faculties, target, { tiers });
 }
 
 const WHERE = v.object({
@@ -78,20 +77,22 @@ export function dressAsObject(dialogue) {
     type: "object",
     channels: { in: dialogue.channels?.in ?? ["text"], out: ["object"] },
     via: {
-      render: async (turns, config = {}) => {
+      render: async (request = {}) => {
+        const schema = request.output?.object;
         const respond = {
           valence: "Return the final result as structured data.",
-          input: config.output,
+          input: schema,
         };
-        const turn = await dialogue.via.render(turns, {
-          ...config,
-          tools: { ...config.tools, respond },
-          tool_choice: { type: "any" },
+        const turn = await dialogue.via.render({
+          ...request,
+          tools: { ...request.tools, respond },
+          settings: { ...request.settings, tool_choice: { type: "any" } },
         });
         const done = turn.parts.find((part) => part.type === "tool_use" && part.name === "respond");
         if (!done) return turn;
-        const data =
+        const parsed =
           typeof done.input === "string" ? (done.input ? JSON.parse(done.input) : {}) : done.input;
+        const data = schema ? v.fill(schema, parsed) : parsed;
         return {
           role: "assistant",
           parts: [{ type: "object", data }],

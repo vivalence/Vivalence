@@ -99,16 +99,12 @@ export class Connection {
     };
   }
 
-  async *stream(endpoint, signal, options = {}) {
-    const response = await this.fetch(
-      endpoint,
-      {},
-      {
-        method: "GET",
-        headers: { accept: "text/event-stream", ...options.headers },
-        signal,
-      },
-    );
+  async *stream(endpoint, signal, { method = "GET", body, headers } = {}) {
+    const response = await this.fetch(endpoint, body ?? {}, {
+      method,
+      headers: { accept: "text/event-stream", ...headers },
+      signal,
+    });
     if (response.error) throw response.error;
     if (!response.body?.getReader)
       throw new Error(`SSE stream expected ReadableStream, got ${typeof response.body}`);
@@ -135,7 +131,9 @@ export class Connection {
       }
     } finally {
       // consumer broke early (or aborted/threw): release the body so it doesn't leak
-      try { await reader.cancel(); } catch (_) {}
+      try {
+        await reader.cancel();
+      } catch (_) {}
     }
   }
 

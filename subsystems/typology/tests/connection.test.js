@@ -271,6 +271,24 @@ specimen.describe("subscribe + publish + websocket", () => {
         })();
       }
 
+      if (url.pathname === "/relay") {
+        return (async () => {
+          const payload = await req.json().catch(() => ({}));
+          const items = payload.items ?? [];
+          const body = new ReadableStream({
+            start(controller) {
+              const encoder = new TextEncoder();
+              for (const item of items)
+                controller.enqueue(encoder.encode(`data: ${JSON.stringify(item)}\n\n`));
+              controller.close();
+            },
+          });
+          return new globalThis.Response(body, {
+            headers: { "content-type": "text/event-stream", "cache-control": "no-cache" },
+          });
+        })();
+      }
+
       if (url.pathname === "/ws") {
         const { socket, response } = Deno.upgradeWebSocket(req);
         socket.onmessage = (e) => socket.send(`echo:${e.data}`);
@@ -294,6 +312,27 @@ specimen.describe("subscribe + publish + websocket", () => {
       for await (const event of conn.stream("/events", controller.signal)) {
         events.push(event);
       }
+      specimen.expect(events).toEqual([{ seq: 1 }, { seq: 2 }, "fin"]);
+    });
+  });
+
+  specimen.describe("stream() with POST body", () => {
+    specimen.it("posts a body and consumes the SSE response", async () => {
+      const conn = new Connection(new Url(`http://localhost:${PORT}`));
+      const events = [];
+      for await (const event of conn.stream("/relay", undefined, {
+        method: "POST",
+        body: { items: [{ n: 1 }, { n: 2 }, "done"] },
+      })) {
+        events.push(event);
+      }
+      specimen.expect(events).toEqual([{ n: 1 }, { n: 2 }, "done"]);
+    });
+
+    specimen.it("defaults to GET with empty body (backward-compat)", async () => {
+      const conn = new Connection(new Url(`http://localhost:${PORT}`));
+      const events = [];
+      for await (const event of conn.stream("/events", undefined)) events.push(event);
       specimen.expect(events).toEqual([{ seq: 1 }, { seq: 2 }, "fin"]);
     });
   });

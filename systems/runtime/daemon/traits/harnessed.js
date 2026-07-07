@@ -15,13 +15,13 @@ export const HARNESSED = (mode, daemon) => {
     const hallucination = daemon.cortex.hallucination({
       ...config,
       ...(tune && { tune }),
-      ...(output && { output }),
     });
+    if (output) hallucination.output.object(output);
     if (system) hallucination.context.system(system);
     if (tools) hallucination.entities.tool.add(tools);
-    if (turns) hallucination.entities.turn.chain(turns);
+    if (turns) hallucination.entities.turn.append(turns);
     else if (prompt)
-      hallucination.entities.turn.chain({ role: "user", parts: [{ type: "text", text: prompt }] });
+      hallucination.entities.turn.append({ role: "user", parts: [{ type: "text", text: prompt }] });
 
     ctx.hallucination = hallucination;
     ctx.input = input;
@@ -97,6 +97,6 @@ export const HARNESSED = (mode, daemon) => {
 
   return () => {
     mode.aperture.branch("/harness").slurp(harness);
-    mode.harness = shape.object(harness, steer.echo);
+    mode.harness = shape.object(harness, steer.strategy.echo);
   };
 };

@@ -19,9 +19,9 @@ function captureSonnet(cortex) {
   const sonnet       = faculties.find((faculty) => faculty.tune[0] === 0.4);
   const originalStream = sonnet.via.stream;
   let capturedTurns  = null;
-  sonnet.via.stream  = async (turns, config) => {
-    capturedTurns = turns;
-    return originalStream(turns, config);
+  sonnet.via.stream  = async (request) => {
+    capturedTurns = request.turns;
+    return originalStream(request);
   };
   return {
     get turns() { return capturedTurns; },

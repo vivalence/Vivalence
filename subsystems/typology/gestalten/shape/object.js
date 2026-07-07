@@ -2,11 +2,11 @@ import { middleware, steer, Signal } from "@vivalence/typology";
 
 // the eager namespace builder: a Vector trie → nested callable object, where a node
 // that is BOTH a leaf and a branch becomes a callable carrying its sub-namespace.
-// A thin step over steer.fold — the carry accumulates in the frame (root outermost),
+// A thin step over steer.trie.fold — the carry accumulates in the frame (root outermost),
 // so the old execute-wrapping is gone. Descendants carry {key, namespace} so the
 // parent can assemble; the root (signature null) returns the bare namespace.
-export const object = (vector, execute = steer.request) =>
-  steer.fold(vector, {
+export const object = (vector, execute = steer.strategy.request) =>
+  steer.trie.fold(vector, {
     effect: (f) => ({
       key: f.pattern.nature,
       fn: execute(f.carry, f.effect, f.steps, f.signal.branch(f.pattern.nature)),
@@ -22,7 +22,7 @@ export const object = (vector, execute = steer.request) =>
     },
   });
 
-export function proxy(vector, execute = steer.request) {
+export function proxy(vector, execute = steer.strategy.request) {
   return proxyNode(vector, execute, {}, new Signal(), []);
 }
 

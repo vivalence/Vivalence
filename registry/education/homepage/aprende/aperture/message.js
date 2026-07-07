@@ -1,4 +1,5 @@
 import { Vector, v } from "@vivalence/typology";
+import * as hal from "../hal/index.js";
 
 export const message = new Vector().open(
   {
@@ -23,11 +24,7 @@ export const message = new Vector().open(
           parts: [{ type: "text", text: ctx.input.prompt }],
         },
       ],
-      output: v.object({
-        answer: v
-          .string()
-          .desc("answer is rendered as a speech-bubble on a tutor persona. 10-100 characters."),
-      }),
+      output: hal.assistant.output,
       thread: ctx.input.thread,
     });
     //

@@ -27,7 +27,6 @@ export const EMITTER = async (mode, ctx) => {
   // });
 
   mode.metadata.emitter = await mode.connection.call("/metadata/emitter");
-
   mode.emit = shape.connection.wire(emit, mode.metadata.emitter);
 };
 

@@ -1,13 +1,13 @@
 import { specimen } from "@vivalence/typology";
-import { Paladin, System, Variant, Vip } from "@vivalence/paladin/typology";
+import { Paladin, Ledger, Variant, Vip } from "@vivalence/paladin/typology";
 import paladin from "@vivalence/paladin";
 
 const { describe, it, expect } = specimen;
 
 describe("paladin boot: constructed mountables, no ikiro", () => {
-  it("constructor wires system/variant/vip as siblings", () => {
+  it("constructor wires ledger/variant/vip as siblings", () => {
     const fresh = new Paladin();
-    expect(fresh.system).toBeInstanceOf(System);
+    expect(fresh.ledger).toBeInstanceOf(Ledger);
     expect(fresh.variant).toBeInstanceOf(Variant);
     expect(fresh.vip).toBeInstanceOf(Vip);
   });

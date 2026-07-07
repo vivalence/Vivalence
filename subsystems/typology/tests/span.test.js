@@ -1,6 +1,6 @@
 import { specimen, Span, Pipe, tracks } from "@vivalence/typology";
 
-const { Timed, Transported, Transitioned, Subjected, Faulted } = tracks;
+const { Timed, Transported, Transitioned, Subjected, Faulted, Objected } = tracks;
 
 // Span = a trace trie (Signature: nature + parent/child gauges) carrying a Timed
 // clock plus four lazy "tracks": Transported (wire), Transitioned (state machine),
@@ -14,7 +14,7 @@ specimen.describe("Span: basics", () => {
     specimen.expect(root.complete).toBe(false);
 
     const auth = root.branch("auth").begin();
-    specimen.expect(auth.absolute).toEqual(["request", "auth"]);
+    specimen.expect(auth.absolute).toEqual("/request/auth");
     auth.seal();
 
     // a child draining is a no-op; only the root reaches the pipe
@@ -95,7 +95,14 @@ specimen.describe("Span: tracks", () => {
     const span = new Span("pull").begin();
     span.track.fault().raise("no buffers returned", "EXHAUSTED");
     specimen.expect(span.fault).toBeInstanceOf(Faulted);
-    specimen.expect(span.fault.json).toEqual({ message: "no buffers returned", code: "EXHAUSTED" });
+    specimen.expect(span.fault.json).toEqual({ span: "/pull", message: "no buffers returned", code: "EXHAUSTED" });
+  });
+
+  specimen.it("Objected: set records a payload and an optional schema", () => {
+    const span = new Span("render").begin();
+    span.track.object({ answer: "42" }, "string");
+    specimen.expect(span.object).toBeInstanceOf(Objected);
+    specimen.expect(span.object.json).toEqual({ payload: { answer: "42" }, schema: "string" });
   });
 });
 
@@ -127,5 +134,59 @@ specimen.describe("Span: drainage manifold", () => {
     specimen.expect(file).toEqual(console_);
     specimen.expect(root.complete).toBe(true);
     specimen.expect(root.gauges.length).toBe(5);
+  });
+});
+
+specimen.describe("Span: reactive emit", () => {
+  specimen.it("branch inherits the root pipe down the whole tree", () => {
+    const pipe = new Pipe();
+    const root = new Span().to(pipe);
+    const child = root.branch("x");
+    const grandchild = child.branch("y");
+    specimen.expect(child.pipe).toBe(pipe);
+    specimen.expect(grandchild.pipe).toBe(pipe);
+  });
+
+  specimen.it("track.object emits the record locally; foldp accumulates, absolute annotates", () => {
+    const pipe = new Pipe();
+    const root = new Span().to(pipe);
+    const log = pipe.reactive([], (list, record) => [...list, record]);
+
+    root.branch("a/one").track.object({ n: 1 });
+    root.branch("a/two").track.object({ n: 2 }, "schema");
+
+    const records = log.get();
+    specimen.expect(records.map((record) => record.absolute)).toEqual(["/a/one", "/a/two"]);
+    specimen.expect(records[0].object).toEqual({ payload: { n: 1 }, schema: null });
+    specimen.expect(records[1].object).toEqual({ payload: { n: 2 }, schema: "schema" });
+  });
+
+  specimen.it("fault.raise emits too; a span with no pipe is inert", () => {
+    const pipe = new Pipe();
+    const root = new Span().to(pipe);
+    const latest = pipe.reactive();
+    root.branch("pull").track.fault().raise("empty", "EXHAUSTED");
+    specimen.expect(latest.get().fault).toEqual({ span: "/pull", message: "empty", code: "EXHAUSTED" });
+
+    const orphan = new Span();
+    orphan.branch("b").track.object({ n: 3 });
+    specimen.expect(orphan.gauges[0].object.payload).toEqual({ n: 3 });
+  });
+
+  specimen.it("log sniffs the prop name as nature; an Error value routes to the fault rail", () => {
+    const pipe = new Pipe();
+    const root = new Span().to(pipe);
+    const log = pipe.reactive([], (list, record) => [...list, record]);
+
+    const input = { user: "hi" };
+    root.log({ input });
+    root.log("/explicit", { n: 1 });
+    root.log({ render: new Error("boom") });
+
+    const records = log.get();
+    specimen.expect(records.map((record) => record.absolute)).toEqual(["/input", "/explicit", "/render"]);
+    specimen.expect(records[0].object.payload).toEqual({ user: "hi" });
+    specimen.expect(records[1].object.payload).toEqual({ n: 1 });
+    specimen.expect(records[2].fault.message).toBe("boom");
   });
 });

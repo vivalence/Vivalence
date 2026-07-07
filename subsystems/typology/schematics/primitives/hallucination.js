@@ -149,6 +149,28 @@ export const Tool = v.object({
   execute: v.unknown().optional(),
 });
 
+export const Settings = v.object(
+  {
+    maxTokens: v.integer().optional(),
+    thinking: v.boolean().optional(),
+    thinkingBudget: v.integer().optional(),
+    temperature: v.number().optional(),
+    tool_choice: v.record(v.string(), v.unknown()).optional(),
+  },
+  { additionalProperties: true },
+);
+
+export const Output = v.object({
+  object: v.object({}, { additionalProperties: true }).optional(),
+});
+
+export const Request = v.object({
+  turns: v.array(Turn),
+  tools: v.record(v.string(), Tool).optional(),
+  settings: Settings.optional(),
+  output: Output.optional(),
+});
+
 // the register-time guard checks only what the cortex resolves on — type, tune,
 // and a delivery record. `channels` is descriptive metadata the cortex never
 // reads, so it's validated loosely (any array); Channels above stays the strict

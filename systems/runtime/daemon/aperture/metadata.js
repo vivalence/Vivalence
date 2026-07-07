@@ -7,6 +7,8 @@ export async function metadata(die) {
   root.open("/cargo", () => die.good.cargo);
   root.open("/datamap", () => shard.datamap.strip(die.datamap.introspect()));
   root.open("/aperture", () => shape.strip(die.good.aperture));
+
+  root.open("/cortex", () => (die.good.cortex ? shape.cortex.strip(die.good.cortex) : []));
   root.open("/modes", () =>
     die.good.flatmodes().map((mode) => ({
       type: mode.type,
@@ -36,15 +38,6 @@ export async function metadata(die) {
     if (mode.implements("FRAUGHT")) meta.open("/freight", () => mode.module.freight.catalog);
 
     if (mode.implements("HARNESSED")) {
-      meta.open("/capabilities", () =>
-        ["dialogue", "object"]
-          .filter((type) => die.good.cortex?.has?.(type))
-          .map((type) => ({
-            type,
-            stream: !!die.good.cortex.findOne({ type, via: "stream" }),
-            render: !!die.good.cortex.findOne({ type, via: "render" }),
-          })),
-      );
       meta.open("/harness", () => shape.strip(mode.module.harness));
     }
   }

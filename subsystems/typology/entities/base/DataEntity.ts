@@ -15,6 +15,10 @@ export class DataRepository extends EntityRepository {
     return x;
   }
 
+  reference(ref) {
+    return is.id(ref) ? { id: ref } : { slug: ref };
+  }
+
   // async findByTrait(trait) {return this.find({ traits: { $in: [trait] } });}
 
   async ensure(query) {

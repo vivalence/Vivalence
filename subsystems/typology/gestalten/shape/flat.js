@@ -2,7 +2,7 @@ import { steer } from "@vivalence/typology";
 
 export function flat(vector, execute) {
   const result = [];
-  steer.survey(vector, (node) => {
+  steer.trie.survey(vector, (node) => {
     if (node.effect !== undefined) {
       result.push({
         nature: node.signature.nature,

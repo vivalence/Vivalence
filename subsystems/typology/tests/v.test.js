@@ -379,6 +379,26 @@ specimen.describe("v", () => {
     });
   });
 
+  specimen.describe("v.slug()", () => {
+    specimen.it("validates a slug, rejects caps and spaces", () => {
+      specimen.expect(v.slug().check("bom-dia")).toBe(true);
+      specimen.expect(v.slug().check("Bom Dia")).toBe(false);
+    });
+
+    specimen.it("is a builder — merges caller opts", () => {
+      specimen.expect(v.slug({ minLength: 3 }).check("ab")).toBe(false);
+      specimen.expect(v.slug({ minLength: 3 }).check("abc")).toBe(true);
+    });
+
+    specimen.it("carries its canonical description", () => {
+      specimen.expect(v.slug().description).toBe("URL-compliant identifier");
+    });
+
+    specimen.it("v.scalars.Slug constant is still a usable schema", () => {
+      specimen.expect(v.array(v.scalars.Slug).check(["bom", "dia"])).toBe(true);
+    });
+  });
+
   specimen.describe("v.buffer()", () => {
     specimen.it("produces valid Buffer schema", () => {
       const schema = v.buffer({

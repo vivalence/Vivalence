@@ -132,5 +132,39 @@ Estimates UNVERIFIED except runtime (real, on disk). kajuit deferred (needs gap 
 - [ ] gap #3: ana half (=snapshot.build= / =specimen.restore=) → enables golden-diff assertion.
 - [ ] golden-file assertion test (runtime) that diffs live capture vs committed snapshot.
 - [ ] broad capture beyond demos (paladin pensieve/env · typology v-schema set · runtime daemon-level).
-- [ ] decide mode-entity (=mode.entity=) sibling =*.entity.snapshot.json= captures.
+- [X] decide mode-entity captures — BUILT =mode-entity.snapshot.test.js= (=v.mode()= typebox
+      Intersect, identity parse). Instance sibling = =mode-instance.snapshot.test.js= (fold +
+      =omit:["module"]= + depth).
 - [ ] rename question: =object.descend= vs Finn's wished =object.strip= (taken by =stripNulls=).
+
+* Session addendum — the per-primitive demo family + two runtime vantages
+See compact [[snapshot-demo-disaggregates-into-a-per-primitive-family-and-two-runtime-vantages-land-stripwire-drift-and-the-tracked-span]].
+
+The old aggregate =primitives.snapshot.test.js= disaggregated into a per-primitive family (one
+=<name>.snapshot.test.js= each, bare =-demo= dropped from every json). LANDED, all green:
+- typology (11): path · signal · url · vector · aperture · connection · cortex · request ·
+  mode-entity · mode-instance · span.
+- runtime (2, NO live daemon): =stripwire.contract.test.js= · =span-tracked.snapshot.test.js=.
+
+*Two findings:*
+1. fold's shared-ref guard bites Mode: =mode.traits= IS =mode.manifest.traits= (one array ref) →
+   =seen= WeakSet cuts the second → top-level =traits= drops, =manifest.traits= survives. The
+   capture is correct; an equality assert was wrong. Locked =expect(pojo.traits).toBeUndefined()=.
+2. wire↔instance apertures DRIFT (2/10 modes carry a wire-only =/tool= branch — TOOLED mounts at
+   INTEGRATION, after the instance fold). A golden =instance===wire= assert would be FALSELY RED →
+   =stripwire.contract= asserts both are well-formed =={leaves,branches}== contracts and REPORTS
+   the drift, never asserts equality. (This is the shape golden-diff on the aperture vantage takes.)
+
+*Parse-override doctrine* (holds until gap #2 lands): fold collapses routing Signatures (Path/Signal
+→ bare nature via =isPath=) and native Maps (Cortex.faculties · Connection.children · Request.headers
+→ ={}=). All handled per-call via =parse=, never by touching generic =fold=. gap #2 (=Map= in fold)
+would remove the Map half; the Signature-=.json= half stays per-call by design.
+
+*Real span spine (#8):* =shard.track.span(name,pipe)= builds a timed span tree during a
+=middleware.compose= dispatch (the =systems/ghost/mod.js= mechanism), root drains to a =Pipe=,
+captured in-process with real =performance.now= timing (collapsed to ={measured}= for a stable
+file). The static =span= demo's timing is now null-slimmed / one explicit ={begun:0,sealed:5}=.
+
+Still open (proposed, unbuilt): live-wire runtime captures needing =:2501= — daemon-boot ·
+cortex-live · stall-phase · registry-catalog · hallucination-request-on-wire · conversation-handshake
+· sse-round-trace (the LIVE span with real server-timing; #8 covers the trace vantage in-process).

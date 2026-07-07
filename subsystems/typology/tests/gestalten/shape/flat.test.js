@@ -35,7 +35,7 @@ specimen.describe("shape.flat", () => {
 
   specimen.it("leaves carry invoke with strategy", async () => {
     const { vector } = house()
-    const result = shape.flat(vector, steer.request)
+    const result = shape.flat(vector, steer.strategy.request)
     const purr = result.find((n) => n.nature === "purr")
     specimen.expect(typeof purr.invoke).toBe("function")
     const output = await purr.invoke({ volume: 5 })
@@ -52,7 +52,7 @@ specimen.describe("shape.flat", () => {
       .use(async (_, next) => { trace.push("branch"); await next() })
       .open("call", () => { trace.push("leaf"); return "done" })
 
-    const result = shape.flat(vector, steer.request)
+    const result = shape.flat(vector, steer.strategy.request)
     specimen.expect(result.length).toBe(1)
     specimen.expect(result[0].nature).toBe("call")
     await result[0].invoke()

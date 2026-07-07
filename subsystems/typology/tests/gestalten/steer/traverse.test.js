@@ -1,7 +1,7 @@
 import { specimen, Signal, fromm, steer } from "@vivalence/typology";
 import { Vector } from "@vivalence/typology";
 
-const { traverse } = steer;
+const { traverse } = steer.dispatch;
 
 specimen.describe("traverse", () => {
   specimen.it("finds effect", () => {

@@ -1,0 +1,49 @@
+#+TITLE: the Anthropic provider gets its first test — a pure buildParams seam makes an API-calling provider verifiable offline, and the whole hallucination suite is validated representative
+#+TOPIC: The provider Request-contract landing ([[the-provider-request-contract-lands-tools-and-output-leave-config-for-a-named-request-both-sides-speak]]) touched the Anthropic provider, which had NO test at all — only the speech providers (elevenlabs/deepgram) did, and =translate.js= had zero coverage anywhere. beef: *"validate all testing is running and representative"* then *"close gap 1 thoroughly."* The close is a reusable pattern for any API-calling provider: extract the pure request→params seam (=buildParams=), test the pure translation functions directly, and construct the provider with a fake key to assert faculty shapes without a network call — render/stream collapse to trivial glue over tested units.
+
+* the validation regime
+Ran the suite whole, categorised by what each layer can prove OFFLINE:
+- typology — 104 files / 1116 steps, 0 failed (=bak/= excluded: pre-existing missing-module breakage in backup dirs; live =cortex.hallucinators= excluded: hits real APIs).
+- runtime LLM-path — =cortex.integration= · =hallucination-triad.doc= (both acts) · =mode/tooled= · =conversation.integration= · =sse.integration= = 6 files / 43 steps, 0 failed.
+- REPRESENTATIVE, not vacuous — each mock asserts on the NEW contract: =cortex.test= checks =tools.respond= defined AND =settings.tool_choice==={type:"any"}=; the facade test proves =output.object(X)= round-trips to =turn.object.echo===X=; =cortex.integration= captures =request.turns= and asserts length + role filtering; the doc triad derives an object off =.output.object()=. The tests EXERCISE the contract, they don't pass by ignoring it.
+The invariant that matters: a green run only counts if the assertions touch the changed surface. Passing mocks that ignore their input are theatre.
+
+* the gap the validation surfaced
+The Anthropic provider — =registry/viva/hallucinator/anthropic/provider/{index,translate}.js= — had NO test file. The =render/stream(request)= rewrite + all of =translate.js= (the turn/part/tool/response/stream-event translation) were covered only by module-load + the MOCK faculties standing in for the real provider in the triad. The speech providers (=elevenlabs/deepgram=) each had a =tests/provider.test.js=; the one dialogue provider — the busiest, the one I'd just changed — had none. A blind spot hiding in plain sight: "the tests are green" was true and misleading.
+
+* the close — a pure seam, then thorough coverage
+The obstacle: =render/stream= call =client.messages.create()= (network), and =client= is closed over inside =provider()= — unreachable to stub. So the request→params logic couldn't be exercised without a live key. The fix names that logic and lifts it OUT of the closure:
+#+begin_src js
+// translate.js — pure, no SDK, no client
+export function buildParams(model, request, stream = false) {
+  const { system, messages } = translateTurns(request.turns);
+  const settings = request.settings ?? {};
+  const params = { model: model.id, system, messages, max_tokens: settings.maxTokens ?? 8192 };
+  if (stream) params.stream = true;
+  if (model.thinking && !settings.tool_choice) {
+    params.thinking = { type: "enabled", budget_tokens: settings.thinkingBudget ?? 16000 };
+    params.max_tokens = settings.maxTokens ?? 32000;
+  }
+  if (request.tools) params.tools = translateTools(request.tools);
+  if (settings.tool_choice) params.tool_choice = settings.tool_choice;
+  return params;
+}
+#+end_src
+This ALSO DRYs a real duplication — =render= and =stream= had built near-identical param blocks; now both are one line: =create(buildParams(model, request))= / =create(buildParams(model, request, true))=. A testability seam that pays a legibility dividend.
+Then =anthropic/tests/provider.test.js= — 30 steps, entirely offline:
+- =translateTurns= — system hoist into =system[]=, MULTIPLE system turns anywhere, user-first messages, =tool_use=/=tool_result=, stringified-input parsing, image + thinking parts.
+- =translateTools= — spec → ={name, description, input_schema}=, function-spec fallback, defaults.
+- =translateResponse= — Turn + meta; =tool_use= (input stringified) + thinking blocks.
+- =translateStreamEvent= — all six events + =message_stop=/=ping= → null.
+- =buildParams= — every branch: defaults · =maxTokens= override · =stream:true= · the thinking gate (enabled without tool_choice → +32000 max_tokens; SUPPRESSED when tool_choice set; never on non-thinking models) · =tools= translation · absence.
+- =provider(service)= — three dialogue faculties offline (=provider({secrets:{key:"fake-key"}})= constructs the SDK client WITHOUT a network call — the elevenlabs/deepgram tests already prove this pattern), only the thinking model exposes thinking channels.
+
+* the reusable pattern (any API-calling provider)
+1. Extract the pure input→request-params function OUT of the client closure — it becomes directly testable and usually DRYs a render/stream duplication.
+2. Test the pure translation functions (both directions) against literal fixtures — that's the bulk of a provider's logic and its real risk surface.
+3. Construct the provider with a fake key to assert the faculty SHAPES (type/tune/channels/via) — construction touches no network; the call does.
+4. render/stream themselves become trivial glue (=translate(await create(buildParams(...)))=) over already-tested units — no SDK mock, no fragile fetch stub needed.
+Result: the Anthropic provider went from the ONLY untested hallucinator to the most thoroughly covered; the =Request= contract is now exercised end-to-end schema → compile → dressAsObject → provider param assembly.
+
+* what stays live-only (honest)
+The actual =client.messages.create()= round-trip — the wire call itself — is not offline-verifiable and remains beef's to drive with a real key. Everything up to the params handed to the SDK, and everything from the SDK's response shape onward, is now pinned by the offline test.

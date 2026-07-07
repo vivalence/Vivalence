@@ -63,7 +63,7 @@ export class Socket {
     if (!frame.signal) return;
 
     const signal = new Signal(frame.signal);
-    const [effect, carry, steps] = steer.traverse(this.vector, signal);
+    const [effect, carry, steps] = steer.dispatch.traverse(this.vector, signal);
     if (!effect) return;
 
     const ctx = {
@@ -72,7 +72,7 @@ export class Socket {
       input: frame.input,
       output: undefined,
     };
-    const output = await steer.direct(carry, effect)(ctx);
+    const output = await steer.strategy.direct(carry, effect)(ctx);
 
     if (frame.echo) {
       this.ws.send(JSON.stringify({ echo: frame.echo, output: output ?? null }));

@@ -2,7 +2,7 @@ import { specimen, steer } from "@vivalence/typology";
 import { Signal } from "@vivalence/typology";
 import { Vector } from "@vivalence/typology";
 
-const { walk } = steer;
+const { walk } = steer.dispatch;
 
 const signals = (...paths) => {
   let i = 0;

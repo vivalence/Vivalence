@@ -1,6 +1,6 @@
 #+TITLE: Riddler — the standalone LLM riddle game (emitter + aperture compile their own context)
 #+AUTHOR: Vivalence
-#+STATUS: DESIGN — beef's inline comments worked through (fixes applied + @claude responses); reply/evaluation split + two-pool split + history-replay landed in the reference code; v.rel id+slug proposed; trailing forks parked
+#+STATUS: BUILT (module-verified; live provider run pending) — FLATTENED to the turn standard (history=v.array(v.primitives.hallucination.Turn), no challenger/riddler lingo); persona=3 call-site bundles (generation/reply/evaluation, split examples); per-literal grades; object faculty FILLS output (v.fill in cortex) + system-hoist landed in hallucination.context.compile (connoisseur: invariant at owning boundary); v.slug scalar builder added; typology 147+61 steps green; v.rel id+slug still parked
 #+DATE: 2026-07-06
 
 Parent: [[file:align-hallucination-quest.quest.org][the hallucination/cortex/harness/emitter alignment]] (the "harness
@@ -470,9 +470,26 @@ Test impact: =v.rel= has no direct unit test today (only entity-hydration tests 
 - hallucination interface: one-call =render({ turns, tune, output, tools })= replacing =.add().tune().configure()=.
 - evaluation trigger: the exact async mechanism (detached task vs queue) + the SRS grade-write path.
 
+* Landed (this pass — the harness-free merger)
+- [X] reply/evaluation split + two-pool + history-replay — approved.
+- [X] harness DROPPED — riddler spawns =ctx.daemon.cortex.hallucination()= directly, history managed inline (beef: *"harnessed means harnessed. hallucination is the root request"*). NOT a boundary violation — =cortex.hallucination()= is the sanctioned root-request spawn, distinct from the raw =cortex.resolve/via= the boundary rule guards.
+- [X] typology (HOLY, go'd): =turn.chain→append= (callers + tests + doc synced) · =schema.input/output= facade over =configure= · CONFIG =input/output= typed as v-schema (open object, not unknown). Tests green (26 steps).
+- [X] tune verified against =schematics/primitives/hallucination.js= — Tier = frugal·balanced·capable·unleashed·eager; riddler uses =capable= (gen/grade) + =eager= (reply).
+- [X] landed 5 files (=registry/education/game/riddler/=; tools dropped). Module graph loads; exports emitter/aperture/app/manifest.
+
+* Landed (turn-standard flatten pass)
+- [X] =v.slug()= — scalar BUILDER via =scalar(base, fixed, desc)= factory (=schematics/scalars/index.js= + =v.slug= in =index.js=); only slug exposed (beef: *"ignore timestamp jwt and the rest"*); constants untouched; test in =v.test.js=. Fixes the =v.array(v.slug())= import-throw.
+- [X] KEYSTONE: object faculty fills output — =dressAsObject= (=cortex.js=) now =config.output ? v.fill(config.output, parsed) : parsed=; defaults apply, shape asserts; every =?? ""= / =={}= fallback dead.
+- [X] system-hoist at the HALLUCINATION, not the provider (beef: *"is that the right level tho??!! shouldnt it be hallucination? what does @conoisseur say?"*). =context.compile(transcript)= absorbs every =role:"system"= turn into one canonical/first/stable system block; mode appends ONLY turns. Connoisseur: invariant at owning boundary (trigger #3/#2), not re-derived per provider.
+- [X] persona DEEP PASS → 3 call-site bundles (=generation·reply·evaluation=, each =system+output=), =EXAMPLES= split into GENERATION/EVALUATION, ZERO authored comments (beef: *"dont write comment blocks into my repository!!! retard"* — logged =comment-litter=).
+- [X] TURN-STANDARD FLATTEN: history=v.array(Turn); riddle is a =data= field; history=[system-seed,user,assistant] (user-first for Anthropic); per-literal grades =[{slug,grade}]= → =/review/literal= per literal.
+- [X] client contract reconcile: =verdict.message / verdict.resolved= (aperture's real output).
+
 * Frontier
-- [ ] beef reviews the reply/evaluation split + two-pool + history-replay decisions.
-- [ ] resolve the parked forks (or defer explicitly).
-- [ ] `go` → land the six files on disk (=registry/education/game/riddler/=).
-- [ ] W2 level-reactive examples from harvested sample data.
-- [ ] client: =buffer/Riddler.svelte= binds =buffer.$data.history= (turn-shaped) — separate pass.
+- [ ] LIVE: emitter render + aperture reply/grade against a real provider (beef drives — not offline-verifiable).
+- [ ] the async-eval trigger mechanism (=ctx.mode.call= fire-and-forget today vs a queue) end to end with real MASTERY/NEUTRAL writes.
+- [ ] =/assistant/resolve= — dropped from the aperture; client dev button 404s until restored (beef's call).
+- [X] =emitter:23= random status-sample — LANDED as =LiteralRepository.sample(where,{status,limit})= (=RANDOM()= + =memory.status $in=); emitter level feed uses it (=status:["LEARNING","KNOWN","UNKNOWN"]=). libsql =RANDOM()= DB-verifiable only live.
+- [X] provider Request contract — riddler emitter/aperture now spawn via =.output.object(schema)= facade (the named =Request= recast; [[provider-request-contract]].quest).
+- [ ] =v.rel= id+slug typology diff (HOLY — its own go).
+- [ ] client: =buffer/Riddler.svelte= binds =buffer.$data.history= (turn-shaped) as a full transcript — separate pass; minimal today.

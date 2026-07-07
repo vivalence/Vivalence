@@ -98,3 +98,22 @@ specimen.describe("Pipe: telemetry fanout", () => {
     specimen.expect(seen).toEqual(["a", "b", "c"]); // async observer saw all
   });
 });
+
+specimen.describe("Pipe: reactive (scan/hold)", () => {
+  specimen.it("default step holds the latest value; a fold step accumulates history", () => {
+    const pipe = new Pipe();
+    const latest = pipe.reactive();
+    const history = pipe.reactive([], (list, value) => [...list, value]);
+
+    const seen = [];
+    latest.subscribe((value) => seen.push(value));
+
+    pipe.send("a");
+    pipe.send("b");
+    pipe.send("c");
+
+    specimen.expect(latest.get()).toBe("c");
+    specimen.expect(history.get()).toEqual(["a", "b", "c"]);
+    specimen.expect(seen).toEqual([null, "a", "b", "c"]);
+  });
+});

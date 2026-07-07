@@ -1,11 +1,14 @@
 import { Vector, is, object, shape, soma, steer, string } from "@vivalence/typology";
 import { v } from "../schematics/v.js";
-import { Tier, Tune } from "../schematics/primitives/hallucination.js";
+import { Tier, Tune, Settings, Output } from "../schematics/primitives/hallucination.js";
+
+// @beef missing: logging/telemetry infra.
 
 const CONFIG = v.object({
   rounds: v.integer({ minimum: 1, default: 10 }),
   tune: v.union([Tier, Tune]).optional(),
-  output: v.unknown().optional(),
+  settings: Settings.optional(),
+  output: Output.optional(),
 });
 
 export function Hallucination(cortex, configuration) {
@@ -22,18 +25,24 @@ export function Hallucination(cortex, configuration) {
   };
 
   const rendering = (type) => async (ctx) => {
-    ctx.output = await render(resolve(type, "render"), ctx.input.turns, ctx.input.config, tools);
+    ctx.output = await render(resolve(type, "render"), ctx.input, config.rounds, tools);
   };
 
   const streaming = (type) => (ctx) => {
-    ctx.output = stream(resolve(type, "stream"), ctx.input.turns, ctx.input.config, tools);
+    ctx.output = stream(resolve(type, "stream"), ctx.input, config.rounds, tools);
   };
 
   const vector = new Vector()
     .use(async (ctx, next) => {
+      const transcript = hallucination.entities.turn.compile();
       ctx.input = {
-        turns: [...hallucination.context.compile(), ...hallucination.entities.turn.compile()],
-        config: { ...config, ...hallucination.entities.tool.compile() },
+        turns: [
+          ...hallucination.context.compile(transcript),
+          ...transcript.filter((turn) => turn.role !== "system"),
+        ],
+        ...hallucination.entities.tool.compile(),
+        ...(config.settings && { settings: config.settings }),
+        ...(config.output && { output: config.output }),
       };
       await next();
     })
@@ -51,7 +60,7 @@ export function Hallucination(cortex, configuration) {
     .open("/verbatim/render", rendering("verbatim"))
     .open("/verbatim/stream", streaming("verbatim"));
 
-  const hallucination = shape.object(vector, steer.echo);
+  const hallucination = shape.object(vector, steer.strategy.echo);
 
   hallucination.configure = (patch = {}) => {
     v.cast(CONFIG, object.assign(config, patch));
@@ -70,10 +79,14 @@ export function Hallucination(cortex, configuration) {
       for (const [key, value] of Object.entries(entries)) context.set(key, value);
       return hallucination;
     },
-    compile: () => {
-      if (!context.size) return [];
+    compile: (transcript = []) => {
+      const hoisted = transcript
+        .filter((turn) => turn.role === "system")
+        .map((turn) => turn.parts.map((part) => part.text).join("\n"));
+      if (!context.size && !hoisted.length) return [];
       const sections = [];
       if (context.has("system")) sections.push(string.stringify(context.get("system")));
+      sections.push(...hoisted);
       for (const [key, value] of context) {
         if (key === "system") continue;
         sections.push(`${key}:\n${string.stringify(value)}`);
@@ -84,7 +97,7 @@ export function Hallucination(cortex, configuration) {
 
   hallucination.entities = {
     turn: {
-      chain: (...supplied) => {
+      append: (...supplied) => {
         turns.push(...supplied.flat(Infinity).filter((turn) => turn?.role));
         return hallucination;
       },
@@ -95,7 +108,6 @@ export function Hallucination(cortex, configuration) {
         return hallucination;
       },
       compile: () => [...turns],
-      // append: (turns = []) => cast.array(turns).map
     },
     tool: {
       add: (name, spec) => {
@@ -109,26 +121,42 @@ export function Hallucination(cortex, configuration) {
     },
   };
 
+  hallucination.output = {
+    object: (schema) => hallucination.configure({ output: { object: schema } }),
+  };
+
+  Object.defineProperty(hallucination, "json", {
+    enumerable: true,
+    get: () => ({
+      tune: config.tune,
+      settings: config.settings,
+      output: config.output,
+      context: Object.fromEntries(context),
+      tools: Object.keys(tools),
+      turns,
+    }),
+  });
+
   if (configuration) hallucination.configure(configuration);
   return hallucination;
 }
 
-async function render(faculty, turns, config, tools) {
-  let transcript = turns;
-  for (let round = 0; round < config.rounds; round++) {
-    const turn = await faculty.via.render(transcript, config);
+async function render(faculty, request, rounds, tools) {
+  let turns = request.turns;
+  for (let round = 0; round < rounds; round++) {
+    const turn = await faculty.via.render({ ...request, turns });
     if (turn?.meta?.stop !== "tool_use") return turn;
     const results = await execute(tools, turn.parts);
-    transcript = [...transcript, turn, { role: "user", parts: results }];
+    turns = [...turns, turn, { role: "user", parts: results }];
   }
-  throw new Error(`[hallucination] '${faculty.type}' tool loop exceeded ${config.rounds} rounds`);
+  throw new Error(`[hallucination] '${faculty.type}' tool loop exceeded ${rounds} rounds`);
 }
 
-async function* stream(faculty, turns, config, tools) {
-  let transcript = turns;
-  for (let round = 0; round < config.rounds; round++) {
+async function* stream(faculty, request, rounds, tools) {
+  let turns = request.turns;
+  for (let round = 0; round < rounds; round++) {
     let turn = null;
-    for await (const packet of await faculty.via.stream(transcript, config)) {
+    for await (const packet of await faculty.via.stream({ ...request, turns })) {
       turn = soma.pour(turn, packet);
       yield packet;
     }
@@ -136,9 +164,9 @@ async function* stream(faculty, turns, config, tools) {
     const results = await execute(tools, turn.parts);
     const resultTurn = { role: "user", parts: results };
     yield* soma.drain(resultTurn);
-    transcript = [...transcript, turn, resultTurn];
+    turns = [...turns, turn, resultTurn];
   }
-  throw new Error(`[hallucination] '${faculty.type}' tool loop exceeded ${config.rounds} rounds`);
+  throw new Error(`[hallucination] '${faculty.type}' tool loop exceeded ${rounds} rounds`);
 }
 
 async function execute(tools, parts) {

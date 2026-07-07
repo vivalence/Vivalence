@@ -2,6 +2,7 @@ export class Timed {
   span = null;
   begun = null;
   sealed = null;
+
   constructor(options, span) {
     if (options) Object.assign(this, options);
     this.span = span;
@@ -104,8 +105,27 @@ export class Faulted {
   raise(message, code) {
     this.message = message;
     this.code = code ?? null;
+    this.span?.emit?.();
   }
   get json() {
-    return { message: this.message, code: this.code };
+    return { span: this.span.absolute, message: this.message, code: this.code };
+  }
+}
+
+export class Objected {
+  span = null;
+  payload = null;
+  schema = null;
+  constructor(options, span) {
+    if (options) Object.assign(this, options);
+    this.span = span;
+  }
+  set(payload) {
+    this.payload = payload;
+    this.span?.emit?.();
+    return this;
+  }
+  get json() {
+    return { payload: this.payload ?? null, schema: this.schema ?? null };
   }
 }

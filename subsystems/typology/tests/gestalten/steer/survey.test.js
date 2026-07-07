@@ -1,7 +1,7 @@
 import { specimen, steer, is } from "@vivalence/typology";
 import { house } from "../../scenarios/cats/index.js";
 
-const { survey } = steer;
+const { survey } = steer.trie;
 
 specimen.describe("survey", () => {
   specimen.describe("default identity visitor", () => {

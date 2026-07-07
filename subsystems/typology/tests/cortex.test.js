@@ -178,9 +178,9 @@ specimen.describe("Cortex", () => {
         type: "dialogue", tune: [0.5, 0.5, 0.5],
         channels: { in: ["text"], out: ["text", "tool_use"] },
         via: {
-          render: async (turns, config) => {
-            specimen.expect(config.tools.respond).toBeDefined();
-            specimen.expect(config.tool_choice).toEqual({ type: "any" });
+          render: async ({ tools, settings }) => {
+            specimen.expect(tools.respond).toBeDefined();
+            specimen.expect(settings.tool_choice).toEqual({ type: "any" });
             return {
               role: "assistant",
               parts: [{ type: "tool_use", id: "r1", name: "respond", input: JSON.stringify({ verdict: "ok" }) }],

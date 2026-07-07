@@ -12,7 +12,7 @@ async function installLocalhost() {
   const trajectory = new Vector()
   const instance = trajectory.branch("/instance")
   init(instance)
-  const result = await steer.invoke(trajectory, new Signal("/instance/init"), steer.direct)({
+  const result = await steer.dispatch.invoke(trajectory, new Signal("/instance/init"), steer.strategy.direct)({
     argv: [LOCALHOST_WAFER, dest],
     flags: {},
     body: {},

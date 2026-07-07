@@ -1,7 +1,7 @@
 import { specimen, steer, v } from "@vivalence/typology";
 import { Vector } from "@vivalence/typology";
 
-const { rollup } = steer;
+const { rollup } = steer.trie;
 
 specimen.describe("rollup", () => {
   specimen.describe("collection", () => {
@@ -147,7 +147,7 @@ specimen.describe("rollup", () => {
         (ctx) => ctx.input.limit,
       );
 
-      const [entry] = rollup(vector, steer.guarded);
+      const [entry] = rollup(vector, steer.strategy.guarded);
       specimen.expect(await entry.fn({ limit: 5 })).toBe(5);
     });
 
@@ -158,7 +158,7 @@ specimen.describe("rollup", () => {
         (ctx) => ctx.input.limit,
       );
 
-      const [entry] = rollup(vector, steer.guarded);
+      const [entry] = rollup(vector, steer.strategy.guarded);
       let threw = false;
       try { await entry.fn({ limit: "abc" }); }
       catch (e) { threw = e.code === "VALIDATION"; }
@@ -172,7 +172,7 @@ specimen.describe("rollup", () => {
         (ctx) => ctx.input.limit,
       );
 
-      const [entry] = rollup(vector, steer.guarded);
+      const [entry] = rollup(vector, steer.strategy.guarded);
       specimen.expect(await entry.fn({})).toBe(10);
     });
   });

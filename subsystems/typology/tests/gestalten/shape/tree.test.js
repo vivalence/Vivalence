@@ -48,7 +48,7 @@ specimen.describe("shape.tree", () => {
   specimen.describe("live output (with strategy)", () => {
     specimen.it("leaves carry invoke function", async () => {
       const { vector } = house()
-      const result = shape.tree(vector, steer.request)
+      const result = shape.tree(vector, steer.strategy.request)
       const purr = result.find((n) => n.nature === "purr")
       specimen.expect(typeof purr.invoke).toBe("function")
       const output = await purr.invoke({ volume: 5 })
@@ -57,7 +57,7 @@ specimen.describe("shape.tree", () => {
 
     specimen.it("branch leaves carry invoke", async () => {
       const { vector } = house()
-      const result = shape.tree(vector, steer.request)
+      const result = shape.tree(vector, steer.strategy.request)
       const hunt = result.find((n) => n.nature === "hunt")
       const stalk = hunt.children.find((n) => n.nature === "stalk")
       specimen.expect(typeof stalk.invoke).toBe("function")
@@ -67,7 +67,7 @@ specimen.describe("shape.tree", () => {
 
     specimen.it("trajectories have no invoke", () => {
       const { vector } = house()
-      const result = shape.tree(vector, steer.request)
+      const result = shape.tree(vector, steer.strategy.request)
       const hunt = result.find((n) => n.nature === "hunt")
       specimen.expect(hunt.invoke).toBe(undefined)
     })
@@ -75,7 +75,7 @@ specimen.describe("shape.tree", () => {
     specimen.it("source vector is not mutated", () => {
       const { vector } = house()
       const before = JSON.stringify(shape.tree(vector))
-      shape.tree(vector, steer.request)
+      shape.tree(vector, steer.strategy.request)
       const after = JSON.stringify(shape.tree(vector))
       specimen.expect(after).toBe(before)
     })
@@ -92,7 +92,7 @@ specimen.describe("shape.tree", () => {
         .use(async (_, next) => { trace.push("branch"); await next() })
         .open("call", () => { trace.push("leaf"); return "done" })
 
-      const result = shape.tree(vector, steer.request)
+      const result = shape.tree(vector, steer.strategy.request)
       const api = result.find((n) => n.nature === "api")
       const call = api.children.find((n) => n.nature === "call")
       await call.invoke()
@@ -106,7 +106,7 @@ specimen.describe("shape.tree", () => {
         (ctx) => ctx.input.limit,
       )
 
-      const result = shape.tree(vector, steer.guarded)
+      const result = shape.tree(vector, steer.strategy.guarded)
       specimen.expect(await result[0].invoke({ limit: 5 })).toBe(5)
 
       let threw = false

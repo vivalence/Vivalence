@@ -112,3 +112,108 @@ behavior parity, then delete the hand-rolled switch.
   reactive driver — judge each consumer WITHIN its role; don't force the stall (a flat
   4-state machine) and a rich event router to share one shape just because both are
   reactive. The Vector EARNS its place by routing depth + shared carry, nothing less.
+
+* ═══════════════════════════════════════════════════════════════════════════
+* SETTLEMENT — the shape rotation + the steer regroup (DECIDED · build-gated)
+This SUPERSEDES the M6 seed's central open question ("what does =affect= mean?").
+ANSWER: =affect(fn)= = set THIS node's SINGULAR terminal effect. The Vector rotates
+its internal shape — the effects-Map collapses into one =effect= per node; routing
+depth lives entirely in =trajectories=; a leaf is a trajectory node with =.effect= set.
+The seed's reactive-Vector framing (twitch/subscriber) stays valid as a CONSUMER; this
+settlement is the CORE shape it consumes. Analysis: 23-agent fan-out (functional steer
+audit + full rotation blast diff), verified against the live code.
+
+** Vector shape rotation (the core)
+: CURRENT  class Vector { effects: Map<Pattern,Effect>; trajectories: Map<Pattern,Vector>; carry:[] }
+: NEW      class Vector { effect;                        trajectories: Map<Pattern,Vector>; carry:[] }
+- leaf = a trajectory node with =.effect= set + no children; a node MAY be BOTH leaf and branch.
+- =affect(fn)= ⇒ =this.effect = fn= (terminate-here; NOT the old null-key catch-all).
+- =open(sig,fn)= ⇒ =this.branch(sig).affect(fn)= — call-signature UNCHANGED, so every
+  registry/system call-site is untouched; the rotation is INTERNAL to typology.
+- leaf metadata (=input/output/valence/schema=) migrates from the fin effect-key pattern
+  onto the tip TRAJECTORY key — =branch()= must STAMP even when it FINDS an existing key.
+- the leaf/branch DUALITY dissolves: =feed='s heir-vs-effect pick and =object='s
+  =Object.assign(fn,namespace)= reunification become intrinsic per-node.
+- NEW capability (the ask): middleware on singular-effect vectors — a leaf IS a full
+  Vector with its own =carry=.
+- wire: =shape.strip= keeps the =\{leaves,branches\}= shape byte-identical (leaves keyed by
+  segment nature); strip + connection.wire + messenger deploy ATOMICALLY.
+
+** LOCKED — steer barrel regroup (4 namespaces = 4 files, 1:1, zero collisions)
+: // subsystems/typology/gestalten/steer/index.js
+: export * as match    from "./match.js";     // feed · greedy · scope
+: export * as trie     from "./tree.js";      // fold · survey · rollup · descend      (tree → trie)
+: export * as dispatch from "./walk.js";      // traverse · invoke · shotgun · walk     (the routers)
+: export * as strategy from "./strategy.js";  // fire · resolve · direct · bare · echo · request · guarded
+- rename fn =dispatch(effect,ctx)= → =fire(e,c)=. Kills the 3-way clash: belt's private
+  onion =dispatch= (=belt/middleware.js:7=) / the new =steer.dispatch= router namespace /
+  the arity-fire atom. =steer.strategy.fire(e,c)= fires · =steer.dispatch.invoke(v,sig)= routes.
+- mirrors the live precedent in the sibling barrel (=shape.connection.*=, =shape.cortex.*=).
+- boundary audit (read belt + fromm): NOTHING moves to =belt=. The generic layer is
+  ALREADY split — =belt.middleware.\{compose,chain,forward\}= (the onion primitives steer
+  applies) + =fromm.\{match,signal,params\}= (derive a plain value FROM a vector artifact).
+  Every steer export is vector-applicative (takes a Vector) or vector-semantic
+  (effect/ctx/middleware/signal/steps) per the rule. The real seam to watch is
+  fromm↔steer, not belt↔steer.
+
+** Rotation blast (dependency order · one atomic commit · partial = red build)
+- =subsystems/typology/prototypes/vector.js= — CORE: =effect= field; =open=→=branch.affect=;
+  =affect= guard; =branch= stamp-on-find (exclude structural =[nature,type,filter,trace,gauges]=,
+  copy valence keys — VERIFIED: hash/heir/fin are prototype getters, not own-enumerable);
+  =slurp/swallow= copy singular =.effect=; =patterns= = trajectory keys; =survey= = =\{effect,trajectories\}=.
+- =subsystems/typology/prototypes/aperture.js= — =_route=: methods() dispatcher becomes the
+  tip trajectory =.effect=; existing-method merge on the tip node.
+- =subsystems/typology/gestalten/steer/tree.js= (→trie) — =fold=: own singular effect as leaf,
+  keyed by the node's own signature. DROP the double-branch =f.signal.branch(f.pattern.nature)=
+  in =survey/rollup= (and =shape/object.js:12=) — descent already branched; keeping it corrupts
+  =ctx.signal= to =root/a/b/b=.
+- =subsystems/typology/gestalten/steer/match.js= — =scope/greedy= iterate trajectories ONLY;
+  each match = =[match, trajectory, trajectory.effect]=; =feed= = =signal.heir ? matches[0] :
+  find-has-effect=.
+- =subsystems/typology/gestalten/steer/walk.js= (→dispatch) — NO CHANGE (routes via the triple;
+  line 37's both-node descent goes live). Verify by its round-trip tests, don't edit.
+- =subsystems/typology/gestalten/shape/object.js= — node-step: own =f.effect= ⊕ children
+  namespace (=Object.assign=); =proxyNode= reads =child.effect=/=child.carry=.
+- =subsystems/typology/gestalten/shape/strip.js= — leaves gathered off effect-bearing CHILD
+  trajectories; =\{leaves,branches\}= wire shape unchanged.
+- =subsystems/typology/gestalten/shape/tree.js= — a both-node sets BOTH =children= + =invoke=;
+  order flips leaves-first → creation order.
+- =subsystems/typology/gestalten/shape/selbstbestimmt.js= — =node.effects.values()= →
+  =if (node.effect) return [node.effect, [...node.carry]]= (own-effect precedence kept).
+- =subsystems/typology/gestalten/shape/connection.js= — =wire=: branches first, then each leaf
+  caller absorbs its same-name namespace (both-node parity with =object=).
+- =subsystems/typology/gestalten/shape/messenger.js= — NO CHANGE (rides frozen open/branch/slurp
+  + the unchanged wire shape).
+- =subsystems/typology/gestalten/is/prototypes.js= — =vector()= guard: =is.defined(thing.effects)=
+  → =\"effect\" in thing= (singular effect is =undefined= on branch/root; truthy-test rejects valid).
+- =subsystems/typology/specimen/snapshot.js:76= — isVector: =value?.effects instanceof Map= →
+  =value?.trajectories instanceof Map=.
+- =systems/ghost/belt/shape.js= — cliffy compile: collapse the two loops; =descendant.effect= =
+  leaf command (action + schema), else walking-autocomplete; metadata off the trajectory key.
+- TESTS — rewrite =tests/vector.test.js= (7 assertions → singular =.effect=; both-node case),
+  =tests/gestalten/shape/selbstbestimmt.test.js=, =tests/gestalten/steer/\{survey,match\}.test.js=,
+  =tests/gestalten/shape/tree.test.js= (creation order). NEW coverage: both-leaf-branch same
+  segment (aperture/object/proxy/wire/ghost) + stamp-on-find regression. Keep slurp/swallow
+  source-unmutated invariants. Re-baseline ~20 aperture snapshot goldens (deeper tip nesting).
+
+** Execution order
+- *Phase A — steer regroup* (rename only, NO behavior): nest the barrel + =dispatch→fire= +
+  the ~30 live =steer.<fn>= call-sites + test destructures. Full suite green BEFORE touching Vector.
+- *Phase B — rotation on the new names*: land the atomic core, then rewrite tests + re-baseline goldens.
+- *Intersection* (edited in BOTH): =shape/\{object,strip,tree\}.js= — do the Phase-A rename first
+  so the Phase-B body already references the nested names. Steer-family BODIES import by =./x.js=
+  (bare names) → Phase A never edits them. =agentic/mcp/http/flat= = rename-only (ride rollup/
+  traverse/survey; stamped tip pattern carries valence/input/output).
+
+** Confirms / gaps (settle before Phase B)
+1. =affect= guard makes a re-=open()= of an existing path a SILENT no-op (the old heir-path
+   silently OVERWROTE). OK unless a builder relies on open-to-override — then drop the guard.
+2. resolution-order flips to CREATION order (=selbstbestimmt=, =shape/tree=, =survey=) — fixtures
+   re-baseline (cats =[purr,nap,hunt]→[hunt,purr,nap]=). Cosmetic.
+3. =slurp= shares structure + =stamp()= mutates a shared trajectory KEY in place → metadata can
+   leak into the source tree (same caveat =slurp= already carries; =swallow= owns, unaffected).
+4. walk/shotgun do NOT fold tip-node leaf =carry= — no live call-site hits it (=open()= returns
+   =this=, not the tip). Pin as a documented decision, not a silent surprise.
+
+** Boundary (unchanged)
+- VCS read-only; Finn lands commits. Typology is HOLY.

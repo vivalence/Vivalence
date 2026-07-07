@@ -1,0 +1,64 @@
+#+TITLE: The riddler's empty pool traced to one crippled helper in =resolveSymbols=, and the fix that earned its keep was NOT the belt/orm + fold/folds cathedral I built but a single =reference= primitive on =DataRepository= — the session where the connoisseur's MINIMIZED axis (subtraction) beat his FOLD axis, and "what it must, not what it can" retired an odd catch-all
+
+#+TOPIC: A bug fold plus a method fold. WHAT: =LiteralRepository.resolveSymbols= silently returned =[]= for an operator-bearing symbol selector; root was that "a reference to an entity" (id-or-slug) is not a named concept, re-implemented inconsistently across =findByIdentifiers= (complete) and =resolveSymbols= (crippled). HOW: I over-reached toward a full where-sugar-lowering framework; Finn cut it three times to a one-line primitive. The throughline — the defect was one helper handling one of the shapes it accepts; the cure is to NAME the one duplicated concept and stop, not to generalize the whole query layer.
+
+* The bug
+Riddler =/riddle/fromSymbols= (=registry/education/game/riddler/emitter.js=) returned =pool: []=. Live input:
+: symbols: [ { "$in": [ "domain.weekday" ] } ]
+An ARRAY wrapping an operator object. =subsystems/typology/entities/kernel/Literal.ts= =resolveSymbols= treats a bare array as =$all= and maps each element through a helper that only wrapped STRINGS:
+#+begin_src js
+const slug = (s) => (typeof s === "string" ? { slug: s } : s);
+#+end_src
+The operator object is not a string → passed through verbatim → ={ symbols: { $in: ["domain.weekday"] } }=. On the m:n relation MikroORM reads =$in= as PRIMARY-KEY id; slug strings ≠ ids → zero matches → empty pool. Finn's opening intuition was exact — pasting the emitter + console he said: *"i think that one might have issues."* It was the very top-level-=$in= branch I'd flagged as untested.
+
+* Root — the accepted shape is wider than the handled shape
+The schema permits what the code chokes on: =v.rel = union([ID, object])= (=subsystems/typology/schematics/index.js=) admits =string · {id} · {slug} · {$in:[…]}=; =slug()= handled =string= only. The deeper root: *"a reference to an entity" (name it by slug, or by id) is not a named concept.* It was re-implemented at every where-building site, inconsistently:
+- =DataRepository.findByIdentifiers= (=base/DataEntity.ts=) — =is.id= split → =$or= — the COMPLETE version.
+- =resolveSymbols='s =slug()= — strings→slug only — a CRIPPLED copy: id-blind, operator-blind.
+Two copies of "what is a reference," one right, one wrong.
+
+* The cathedral, and the cut
+I proposed the whole connoisseur build: a =belt/orm= module (selector→where algebra), a =fold(where)= / =folds= resolver-table on =DataRepository= folding the =resolveTraits=/=resolveSearch=/=resolveSymbols= family under one law, an =is.operator= predicate, discriminator-as-data quantifier tables. Finn had even settled two names by AskUserQuestion (=belt/orm= over =relation=/=dataspace= — the last collides with the Dataspace slop; =fold/folds= over =where=/=query=). Then he stopped it:
+
+*"i feel like were overengineering this. lets step back for a moment. whats the original issue?"*
+
+The whole framework evaporated. Along the way he had also pinned the desired SEMANTICS that the cathedral obscured: *"i dont want to be explicit about this being a slug in absolutely most cases. either slug or id should work!"* and named the module smell himself: *"belt/relation is a weird hybrid of mikroorm and our schematics. maybe we name it belt/dataspace or belt/orm ?!"*
+
+Sequence of the cut:
+1. *One-liner first* — *"ok. place that line. we get it to work first."* — =slug()= wraps objects too. Bug closed, verified. Praise: *"ok very good."*
+2. *Then the root* — *"at its root whats the issue with repo?"* → the un-named "reference" concept, two inconsistent copies.
+3. *Home the primitive* — *"where should that refernce function live? belt/orm?"* → NO: reviving the killed module for one pure line IS the overengineering. It lives on =DataRepository=, beside its sibling =findByIdentifiers=, inherited by =LiteralRepository= — repository domain knowledge (how MY entities are named), not a generic belt util.
+4. *Kill the alias* — *"is.operator we decided against"* — the predicate was cathedral; gone.
+5. *What it must, not what it can* — on my total-by-guessing =reference= (=return { slug: ref }= catch-all): *"this line looks odd?! does reference do what it can or what it must?"* The catch-all swallowed anything non-string and PRETENDED it was slug-scoped — overreach. Removed (it was redundant with the ternary else anyway).
+
+* What landed
+=subsystems/typology/entities/base/DataEntity.ts= — the one primitive, beside =findByIdentifiers=:
+#+begin_src js
+reference(ref) {
+  return is.id(ref) ? { id: ref } : { slug: ref };
+}
+#+end_src
+=subsystems/typology/entities/kernel/Literal.ts= — =resolveSymbols='s =$all= defers to it; the local =slug= ternary DELETED:
+#+begin_src js
+if ($all?.length)
+  where.$and = [...(where.$and || []), ...$all.map((s) => ({ symbols: this.reference(s) }))];
+#+end_src
+=reference= does what it MUST — route by identity: id-shaped → ={id}=, else ={slug}=. It does not interpret operators; MikroORM's ={ slug: <expr> }= takes a scalar OR an ={$in}= on its own, so the riddler's operator lands correctly without =reference= pretending. Verified (=systems/runtime/tests/daemon/symbols-query.test.js= 8/8; scratch proof of the three shapes):
+: [{$in:['domain.weekday']}] → {$and:[{symbols:{slug:{$in:["domain.weekday"]}}}]}   riddler works
+: ['greeting']               → {$and:[{symbols:{slug:"greeting"}}]}
+: ['<uuid>']                 → {$and:[{symbols:{id:"<uuid>"}}]}                       id-in-$all fixed for free
+=findByIdentifiers= was deliberately NOT converged onto =reference=: it is the BATCHED set version (={id:{$in:[…]}}= grouping); forcing it through the scalar primitive would either regress that batching into =$or=-of-singletons or drag back the grouping logic just cut. =reference= is the scalar primitive; =findByIdentifiers= is its batched sibling.
+
+* MikroORM coherence read
+Finn's close: *"is this true mikroorm coherence?"* Verified against the resolved version — MikroORM =6.6.7=, native operators =$and $or $in $nin $none $contains $overlap= (no =$some/$every/$all=). Verdict: what we EMIT is idiomatic — ={slug}=/={id}= relation matches, ={slug:{$in}}= for has-any, =$and=-of-implicit-EXISTS for has-all (the only way; no native has-all), and =$none= is literally MikroORM's own collection operator. We compile to native, we don't fight it. Two layers are OURS, not the ORM's: (1) =reference='s id-or-slug detection — MikroORM has no smart scalar (a bare scalar on a relation is ALWAYS the PK); (2) =$all=/=$in= are a vivalence alias dialect lowered to native. "Output coherent, vocabulary a dialect by design."
+
+* Open strands (survive to resumption — genuinely underdetermined)
+- *No regression test pins the fix.* =symbols-query.test.js= (self-labeled "temporary test") covers bare-array/=$none=/scalar-id, but NOT: array-wrapped operator =[{$in}]= (the riddler shape), top-level ={$in}= (line-46 branch), id-in-=$all=. The fix is proven only by scratch repro. Adding these is the top actionable item — held out of the compact turn as build scope, not dangling-cleanup.
+- *=is.id= is a shape-guess.* =reference= routes by =is.id= = 32/36 hex chars. A slug shaped like a uuid misroutes to ={id}=. The one latent fragility flagged as a real (not philosophical) risk; hardening (key off the PK column type) vs accepting the heuristic is Finn's call.
+- *Double-nest edge.* =reference({slug:"x"})= → =is.id= false → ={slug:{slug:"x"}}=. A written clause inside an =$all= array double-nests. Zero live consumers today; latent, untouched per minimalism.
+- *Undocumented.* The symbols selector sugar has no formal doc (=docs/40-49_repository/42_typology/= would be the home) and no codemap entry — only the =aprende/tools/query.js= valence string and the temporary test.
+
+* Method lesson — the MINIMIZED axis, and what-it-must
+The connoisseur has two convulsions: FOLDED (one structure torn by one law) and MINIMIZED (the same essence by subtraction — djb, SQLite, TeX). I reached for the fold cathedral (=belt/orm= + =folds= table) when the defect was one crippled helper. Finn's "overengineering" cut was the MINIMIZED move: the only thing genuinely duplicated — scalar reference resolution — gets named ONCE and lifted; the operator/quantifier logic that the cathedral over-generalized was legitimately =resolveSymbols=-local and stayed put. And "does it do what it can or what it must?" is the totality discriminator in one question: a primitive total over ITS domain (scalar refs), refusing to paper over inputs outside it, beats a catch-all that silently absorbs everything. Root-before-fix, then name-one-concept-and-stop.
+
+(Session's other landmark, distinct topic: the paladin =System= prototype renamed to =Ledger= — type, =paladin.system→paladin.ledger= accessor, =prototypes/system/→ledger/= dir; ghost =/system/*= command namespace left intact; paladin boot/ledger/spawn tests green.)

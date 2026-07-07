@@ -1,5 +1,5 @@
 import { Vector } from "./vector.js";
-import { dispatch } from "../gestalten/steer/strategy.js";
+import { fire } from "../gestalten/steer/strategy.js";
 
 export class Aperture extends Vector {
   get(sig, handler)    { return this._route("GET", sig, handler); }
@@ -37,7 +37,7 @@ export class Aperture extends Vector {
 
 export function method(m, handler) {
   return (ctx) =>
-    ctx.request.method === m ? dispatch(handler, ctx) : undefined;
+    ctx.request.method === m ? fire(handler, ctx) : undefined;
 }
 
 export function methods(map) {
@@ -45,7 +45,7 @@ export function methods(map) {
   const fn = (ctx) => {
     const handler = m[ctx.request.method] || m["*"];
     if (!handler) { ctx.response.status = 405; return null; }
-    return dispatch(handler, ctx);
+    return fire(handler, ctx);
   };
   fn.methods = m;
   return fn;

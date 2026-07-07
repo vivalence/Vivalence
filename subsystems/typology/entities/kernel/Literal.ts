@@ -39,10 +39,9 @@ export class LiteralRepository extends DataRepository {
       return { ...where, symbols: spec };
 
     const { $all, $in, $none } = spec;
-    const slug = (s) => (typeof s === "string" ? { slug: s } : s);
 
     if ($all?.length)
-      where.$and = [...(where.$and || []), ...$all.map((s) => ({ symbols: slug(s) }))];
+      where.$and = [...(where.$and || []), ...$all.map((s) => ({ symbols: this.reference(s) }))];
     if ($in?.length) where.symbols = { slug: { $in } };
     if ($none?.length)
       where.symbols = { ...(where.symbols || {}), $none: { slug: { $in: $none } } };

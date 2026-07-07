@@ -9,7 +9,7 @@ async function mkPaladin() {
   paladin.env.set("VIVA_LEDGER_MOUNT", root);
   paladin.env.set("VIVA_REPOSITORY_MOUNT", root);
   await populate.scopes(paladin);
-  await paladin.system.mount();
+  await paladin.ledger.mount();
   return paladin;
 }
 
@@ -32,21 +32,21 @@ const linger = (process) => ({
 
 // attached spawn arms OS signal handlers (production teardown) — sanitizers off for that.
 Deno.test({
-  name: "system.boot: spawn a set, lock written then removed on exit",
+  name: "ledger.boot: spawn a set, lock written then removed on exit",
   sanitizeOps: false,
   sanitizeResources: false,
   async fn() {
     const paladin = await mkPaladin();
 
-    const processes = await paladin.system.boot([linger("alpha"), linger("beta")]);
+    const processes = await paladin.ledger.boot([linger("alpha"), linger("beta")]);
     assertEquals(processes.length, 2);
     assert(processes.every((process) => process.pid > 0));
 
-    const live = await paladin.system.lock("spawn", "alpha").read();
+    const live = await paladin.ledger.lock("spawn", "alpha").read();
     assertEquals(live?.pid, processes[0].pid);
 
     await Promise.all(processes.map((process) => process.status));
-    const cleared = await until(async () => (await paladin.system.lock("spawn", "alpha").read()) === null);
+    const cleared = await until(async () => (await paladin.ledger.lock("spawn", "alpha").read()) === null);
     assert(cleared, "lock removed after exit");
   },
 });

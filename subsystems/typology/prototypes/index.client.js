@@ -28,6 +28,8 @@ export * from "./mask.js";
 export * from "./span.js";
 export * from "./pipe.js";
 export * from "./queue.js";
+export * from "./hallucination.js";
+export * from "./cortex.js";
 export * from "./conversation.js";
 export * as tracks from "./tracks.js";
 

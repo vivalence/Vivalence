@@ -8,9 +8,7 @@
   let entry = $state("");
   let thinking = $state(false);
   let phase = $state("idle"); // idle | wrong | solved
-  let line = $state(
-    buffer.data?.history?.at(-1)?.reply ?? "Aproxima-te… tenho um enigma só para ti!",
-  );
+  let line = $state("Aproxima-te… tenho um enigma só para ti!");
 
   const riddle = buffer.data?.riddle ?? "(sem enigma — emita um /riddle primeiro)";
 
@@ -24,8 +22,8 @@
         message,
       });
       console.log("[riddler] /assistant/message ←", verdict);
-      line = verdict.reply || line;
-      phase = verdict.correct || verdict.resolvable ? "solved" : "wrong";
+      line = verdict.message || line;
+      phase = verdict.resolved || verdict.resolvable ? "solved" : "wrong";
     } catch (error) {
       console.error("[riddler] /assistant/message ✗", error);
       line = "O Charlatão tropeça nas próprias palavras… tenta de novo.";

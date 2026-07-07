@@ -4,7 +4,7 @@ import { Vector, shape, steer } from "@vivalence/typology";
 export function inspectorAtom(lighthouse, terminals, bridge) {
   const $nodes = atom(null);
   const rebuild = () => {
-    $nodes.set(shape.tree(composeInspector(lighthouse, terminals, bridge), steer.direct));
+    $nodes.set(shape.tree(composeInspector(lighthouse, terminals, bridge), steer.strategy.direct));
   };
 
   for (const source of [

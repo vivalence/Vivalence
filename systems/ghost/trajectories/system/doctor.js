@@ -13,7 +13,7 @@ const SCOPES = [
 const FLAGS = ["sudo", "dev", "prod", "runtime", "client", "deployed", "citizen", "veryimportant"];
 
 export async function doctor(ctx) {
-  await paladin.system.mount();
+  await paladin.ledger.mount();
 
   const report = {
     identity: {
@@ -30,15 +30,15 @@ export async function doctor(ctx) {
     environment: Object.entries(paladin.env.vars).map(([key, value]) => ({ key, value })),
     secrets: Object.keys(paladin.secret?.vars ?? {}).length,
     processes: {
-      armed: paladin.system.armed,
-      attached: [...paladin.system.attached].map((process) => ({
+      armed: paladin.ledger.armed,
+      attached: [...paladin.ledger.attached].map((process) => ({
         pid: process.pid,
         type: process.spec?.type ?? null,
         slug: process.spec?.slug ?? null,
       })),
     },
     locks: await collectLocks(paladin.scope.ledger),
-    instances: await collectInstances(paladin.system.instances),
+    instances: await collectInstances(paladin.ledger.instances),
     logs: await collectLogs(paladin.scope.ledger),
     variant: {
       daemons: paladin.variant?.daemons?.length ?? 0,

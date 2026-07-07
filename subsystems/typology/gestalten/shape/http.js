@@ -10,7 +10,7 @@ export function http(vector) {
 
     try {
       const signal = new Signal(new URL(req.url).pathname);
-      const [effect, carry, steps] = steer.traverse(vector, signal);
+      const [effect, carry, steps] = steer.dispatch.traverse(vector, signal);
       if (!effect) return respond(ctx, 404);
 
       ctx.params = fromm.match(steps).parameters;
@@ -18,7 +18,7 @@ export function http(vector) {
       ctx.steps = steps;
 
       await carry(ctx, async (c) => {
-        const result = await steer.dispatch(effect, c);
+        const result = await steer.strategy.fire(effect, c);
         if (result !== undefined) c.output = result;
       });
     } catch (e) {

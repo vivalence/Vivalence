@@ -18,7 +18,7 @@ const trajectory = new Vector();
 trajectory
   .use(async (ctx, next) => {
     // const pipe = new Pipe()
-    // pipe.tap(span=> paladin.system.pipe[...probably paladin.system.log()])
+    // pipe.tap(span=> paladin.ledger.pipe[...probably paladin.ledger.log()])
 
     ctx.span = new Span("ghost");
     // ctx.span.to(paladin.variant.logs);
@@ -34,7 +34,7 @@ trajectory
     }
   })
 
-  // .use(async (ctx, next) => {ctx.span = new Span("ghost.invoke").to(paladin.system.pipe).begin(); ctx.span.track.subject({ schema: "signal", id: ctx.signal.absolute.join(" ") }); await next(); if (ctx.error) ctx.span.track.fault().raise(ctx.error.message, ctx.error.code); ctx.span.drain();})
+  // .use(async (ctx, next) => {ctx.span = new Span("ghost.invoke").to(paladin.ledger.pipe).begin(); ctx.span.track.subject({ schema: "signal", id: ctx.signal.absolute.join(" ") }); await next(); if (ctx.error) ctx.span.track.fault().raise(ctx.error.message, ctx.error.code); ctx.span.drain();})
   .use(async (ctx, next) => {
     try {
       await next();
@@ -45,10 +45,10 @@ trajectory
   .use(async (ctx, next) => {
     // was: hand-inlined strategy with a swapped `[apply, effect]` — traverse returns [effect, carry, …],
     // so the leaf ran as middleware and the fold ran as a leaf; span + error-catch never wrapped sub-calls.
-    // collapsed onto steer.invoke — the same combinator the entrypoint uses at the bottom of this file.
+    // collapsed onto steer.dispatch.invoke — the same combinator the entrypoint uses at the bottom of this file.
     // ctx.call = async (args) => {
     //   const signal = args instanceof ShellSignal ? args : new ShellSignal(args);
-    //   const [apply, effect] = steer.traverse(trajectory, signal); // @beef validate
+    //   const [apply, effect] = steer.dispatch.traverse(trajectory, signal); // @beef validate
     //   const context = new ShellContext({ signal });
     //   await apply(context, async (_ctx) => {
     //     // @beef try catch pipe bubble!
@@ -59,7 +59,7 @@ trajectory
     // };
     ctx.call = (args) => {
       const signal = args instanceof ShellSignal ? args : new ShellSignal(args);
-      return steer.invoke(trajectory, signal, strategy)(new ShellContext({ signal }));
+      return steer.dispatch.invoke(trajectory, signal, strategy)(new ShellContext({ signal }));
     };
 
     await next();
@@ -109,10 +109,10 @@ if (!Deno.args.length) Deno.exit(0);
 const signal = new ShellSignal(Deno.args);
 const context = new ShellContext({ signal });
 
-await paladin.system.mount();
+await paladin.ledger.mount();
 
 try {
-  await steer.invoke(trajectory, signal, strategy)(context);
+  await steer.dispatch.invoke(trajectory, signal, strategy)(context);
   if (context.error) console.error(context.error);
 } catch (error) {
   if (error.code === "NOT_FOUND") {

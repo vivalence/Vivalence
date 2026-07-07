@@ -1,22 +1,17 @@
 import { Vector } from "@vivalence/typology";
 
+import * as hal from "./hal/index.js";
 import { gather } from "./gather.js";
 
 export const harness = new Vector() //
   .use(async (ctx, next) => {
     ctx.hallucination.context.system(
-      `You live inside vivalence, a language-learning system. The learner is talking to you through a small chat box on screen. Your answers will be served inside a speech bubble, featuring a visual personification of you. stay in character.
-You are the helpdesk bot on a homepage.
-you have one goal which is to cease existing as soon as possible.
-the user will either tell you directly what they want to do
-or you are expected to ask them for what they want to do and how much time they have.
-
-tools will be served to you.
-you can create experiences and load data.
-
-The language being learned is: ${ctx.daemon.statics?.language?.learning}
-The language the user is familiar with is: ${ctx.daemon.statics?.language?.known}
- `,
+      [
+        hal.assistant.identity,
+        hal.assistant.mission,
+        hal.assistant.capabilities,
+        hal.assistant.language(ctx.daemon.statics?.language),
+      ].join("\n\n"),
     );
     await next();
     // console.log("HARNESS after()", ctx.input, ctx.output);

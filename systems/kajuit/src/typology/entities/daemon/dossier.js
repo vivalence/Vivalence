@@ -1,4 +1,4 @@
-import { object, Connection, Url, Path, RemoteRepository, shard } from "@vivalence/typology";
+import { object, Connection, Cortex, Url, Path, RemoteRepository, shape, shard } from "@vivalence/typology";
 import { Daemon } from "./daemon.js";
 import { Dataspace } from "../../prototypes/dataspace.js";
 import { ModeDossier } from "../mode/index.js";
@@ -57,12 +57,13 @@ export const DaemonDossier = {
         );
 
       daemon.lighthouse = ctx.lighthouse;
-      daemon.call = daemon.connection.call.bind(daemon.connection);
+      daemon.call = daemon.connection.call.bind(daemon.connection); // @beef legacy
 
       try {
-        const [manifest, cargo] = await Promise.all([
+        const [manifest, cargo, cortex] = await Promise.all([
           daemon.connection.call("/metadata/manifest"),
           daemon.connection.call("/metadata/cargo"),
+          daemon.connection.call("/metadata/cortex"),
         ]);
         daemon.manifest = manifest;
         daemon.mount = new Path(`/daemon/${manifest.slug}`);
@@ -70,8 +71,8 @@ export const DaemonDossier = {
         daemon.link = new Path(`/${ctx.lighthouse.manifest.slug}/${manifest.slug}`).rebase("/viva");
 
         daemon.entities = new Dataspace({
-          entities,
           connection: daemon.connection,
+          entities,
           seed: seedDaemon(daemon),
         });
         await daemon.entities.init();
@@ -91,6 +92,10 @@ export const DaemonDossier = {
         daemon.entities.thread.subscribe();
         daemon.entities.buffer.subscribe({}, (b, s) => console.log("SUBSCRIPTION BUFFER", b, s));
         daemon.entities.turn.subscribe();
+
+        daemon.cortex = new Cortex().register(
+          shape.cortex.wire(daemon.connection.branch("/cortex"), cortex),
+        );
 
         for (const mode of modes) {
           object.place(daemon.modes, `${mode.type}.${mode.slug}`, mode);

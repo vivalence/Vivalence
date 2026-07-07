@@ -1,0 +1,185 @@
+#+TITLE: The provider Request contract — name the shape both the hallucination and its providers speak
+#+STATUS: LANDED (holistic — config IS the contract shape, compile spreads with NO re-wrap; the spec's `{output:{object:config.output}}` re-wrap below was beef's "we dont have to shuffle shit around" correction). 3 holy files + provider + callers + ~6 tests green; Anthropic provider got its first test (buildParams seam, 30 steps). Full fold: [[the-provider-request-contract-lands-tools-and-output-leave-config-for-a-named-request-both-sides-speak]]
+#+TOPIC: Today the hallucination hands each faculty `(turns, config)` where `config` is a grab-bag: tools smuggled in beside `rounds`/`tune`/`output`. beef: *"contract. contract both sides. …why are the tools inside config?!"* The recast: a named `Request = { turns, tools?, settings?, output?:{object:schema} }` that the hallucination PRODUCES and every dialogue/object provider CONSUMES. Tools and the structured-output schema become first-class; `config` dissolves from the wire. `input` is dropped (Vector-descriptor vocabulary with no referent on a composed hallucination). Speech/verbatim faculties (textChunks/audioSource) are NOT turns-based — out of scope.
+
+* The shape (settled across the rotation)
+=Request = { turns, tools?, settings?, output?: { object: <schema> } }=
+- =turns=      — the conversation (dialogue/object only).
+- =tools=      — capabilities offered (record name→spec); definitions for the provider, bodies for the loop.
+- =settings=   — model-behaviour config: maxTokens · thinking · thinkingBudget · temperature · tool_choice (the last set INTERNALLY by dressAsObject to force respond).
+- =output=     — return-shaping, keyed by semantic. =output.object= is ALWAYS a v-schema (the structured target). Absent → plain dialogue.
+Four orthogonal, stable members. Nothing heterogeneous, nothing dead, extends by adding a key (=output.speech=) not a member.
+Hallucination-INTERNAL, never on the wire: =rounds= (tool-loop budget) · =tune= (already resolved to THIS faculty at findOne).
+
+* v-schematics (add to subsystems/typology/schematics/primitives/hallucination.js — Turn/Tool already exist)
+#+begin_src js
+export const Settings = v.object(
+  {
+    maxTokens: v.integer().optional(),
+    thinking: v.boolean().optional(),
+    thinkingBudget: v.integer().optional(),
+    temperature: v.number().optional(),
+    tool_choice: v.record(v.string(), v.unknown()).optional(),
+  },
+  { additionalProperties: true },
+);
+
+export const Output = v.object({
+  object: v.object({}, { additionalProperties: true }).optional(),
+});
+
+export const Request = v.object({
+  turns: v.array(Turn),
+  tools: v.record(v.string(), Tool).optional(),
+  settings: Settings.optional(),
+  output: Output.optional(),
+});
+#+end_src
+
+* Core functions (the recast, in full)
+** hallucination.js — CONFIG loses input; compile emits a Request
+#+begin_src js
+const CONFIG = v.object({
+  rounds: v.integer({ minimum: 1, default: 10 }),
+  tune: v.union([Tier, Tune]).optional(),
+  output: v.object({}, { additionalProperties: true }).optional(),
+  settings: Settings.optional(),
+});
+#+end_src
+#+begin_src js
+const rendering = (type) => async (ctx) => {
+  ctx.output = await render(resolve(type, "render"), ctx.input, config.rounds, tools);
+};
+const streaming = (type) => (ctx) => {
+  ctx.output = stream(resolve(type, "stream"), ctx.input, config.rounds, tools);
+};
+
+const vector = new Vector()
+  .use(async (ctx, next) => {
+    const transcript = hallucination.entities.turn.compile();
+    ctx.input = {
+      turns: [
+        ...hallucination.context.compile(transcript),
+        ...transcript.filter((turn) => turn.role !== "system"),
+      ],
+      ...hallucination.entities.tool.compile(),
+      ...(config.settings && { settings: config.settings }),
+      ...(config.output && { output: { object: config.output } }),
+    };
+    await next();
+  })
+  .use(async (ctx, next) => {
+    await next();
+    const data = ctx.output?.parts?.find((part) => part.type === "object")?.data;
+    if (data !== undefined && ctx.output.object === undefined) ctx.output.object = data;
+  })
+  .open("/dialogue/render", rendering("dialogue"))
+  .open("/dialogue/stream", streaming("dialogue"))
+  .open("/object/render", rendering("object"))
+  .open("/object/stream", streaming("object"))
+  .open("/speech/render", rendering("speech"))
+  .open("/speech/stream", streaming("speech"))
+  .open("/verbatim/render", rendering("verbatim"))
+  .open("/verbatim/stream", streaming("verbatim"));
+#+end_src
+#+begin_src js
+async function render(faculty, request, rounds, tools) {
+  let turns = request.turns;
+  for (let round = 0; round < rounds; round++) {
+    const turn = await faculty.via.render({ ...request, turns });
+    if (turn?.meta?.stop !== "tool_use") return turn;
+    const results = await execute(tools, turn.parts);
+    turns = [...turns, turn, { role: "user", parts: results }];
+  }
+  throw new Error(`[hallucination] '${faculty.type}' tool loop exceeded ${rounds} rounds`);
+}
+
+async function* stream(faculty, request, rounds, tools) {
+  let turns = request.turns;
+  for (let round = 0; round < rounds; round++) {
+    let turn = null;
+    for await (const packet of await faculty.via.stream({ ...request, turns })) {
+      turn = soma.pour(turn, packet);
+      yield packet;
+    }
+    if (!turn || turn.meta?.stop !== "tool_use") return;
+    const results = await execute(tools, turn.parts);
+    const resultTurn = { role: "user", parts: results };
+    yield* soma.drain(resultTurn);
+    turns = [...turns, turn, resultTurn];
+  }
+  throw new Error(`[hallucination] '${faculty.type}' tool loop exceeded ${rounds} rounds`);
+}
+#+end_src
+The producer facade: =hallucination.schema.output(X)= → =hallucination.output.object(X)= (sets config.output); the dead =.schema.input= half is removed. Spawn sugar =hallucination({ output: X })= is preserved (compile places it at request.output.object).
+
+** cortex.js — dressAsObject reads request.output.object, forces respond via settings.tool_choice
+#+begin_src js
+export function dressAsObject(dialogue) {
+  return {
+    ...dialogue,
+    type: "object",
+    channels: { in: dialogue.channels?.in ?? ["text"], out: ["object"] },
+    via: {
+      render: async (request) => {
+        const schema = request.output?.object;
+        const respond = { valence: "Return the final result as structured data.", input: schema };
+        const turn = await dialogue.via.render({
+          ...request,
+          tools: { ...request.tools, respond },
+          settings: { ...request.settings, tool_choice: { type: "any" } },
+        });
+        const done = turn.parts.find((part) => part.type === "tool_use" && part.name === "respond");
+        if (!done) return turn;
+        const parsed =
+          typeof done.input === "string" ? (done.input ? JSON.parse(done.input) : {}) : done.input;
+        const data = schema ? v.fill(schema, parsed) : parsed;
+        return { role: "assistant", parts: [{ type: "object", data }], meta: { stop: "end_turn" }, object: data };
+      },
+    },
+  };
+}
+#+end_src
+
+** anthropic/provider/index.js — one Request arg; translate.js unchanged
+#+begin_src js
+const render = async (request) => {
+  const { system, messages } = translateTurns(request.turns);
+  const settings = request.settings ?? {};
+  const params = { model: model.id, system, messages, max_tokens: settings.maxTokens ?? 8192 };
+  if (model.thinking && !settings.tool_choice) {
+    params.thinking = { type: "enabled", budget_tokens: settings.thinkingBudget ?? 16000 };
+    params.max_tokens = settings.maxTokens ?? 32000;
+  }
+  if (request.tools) params.tools = translateTools(request.tools);
+  if (settings.tool_choice) params.tool_choice = settings.tool_choice;
+  return translateResponse(await client.messages.create(params));
+};
+// stream(): identical destructure of request; params.stream = true.
+#+end_src
+
+* Blast radius
+** HOLY typology (3 files)
+- =schematics/primitives/hallucination.js= — ADD Settings · Output · Request (Turn/Tool exist).
+- =prototypes/hallucination.js= — CONFIG drops =input=; compile emits Request; render/stream take =(faculty, request, rounds, tools)= and call =via.render({ ...request, turns })=; facade =.schema.{input,output}= → =.output.object= (+ keep =({output})= sugar).
+- =prototypes/cortex.js= — dressAsObject reads =request.output.object=, adds respond to =request.tools=, sets =settings.tool_choice=. (=v.fill= already landed.)
+** provider (1 file; translate.js untouched)
+- =registry/viva/hallucinator/anthropic/provider/index.js= — render/stream take one =request=; read =request.turns/tools/settings.{maxTokens,thinkingBudget,tool_choice}=. =translate.js= unchanged (still =translateTurns(turns)=/=translateTools(toolsMap)=, now fed =request.turns=/=request.tools=).
+** callers — NO change (spawn sugar preserved)
+- riddler =emitter.js:37= · =aperture.js:28,72= — =hallucination({ tune, output })= keeps working (sugar → request.output.object).
+- =systems/runtime/daemon/traits/harnessed.js:15= — =hallucination({ ...config, output })= keeps working.
+** tests to update (~5)
+- =subsystems/typology/tests/hallucination.test.js= — mock faculties read =config.tools=/=config.output= → =request.tools=/=request.output.object=; facade test =.schema.output/.input= (:436-437) → =.output.object= (drop input).
+- =subsystems/typology/tests/cortex.test.js:182-183= — =config.tools.respond=/=config.tool_choice= → =request.tools.respond=/=request.settings.tool_choice=.
+- =systems/runtime/tests/scenarios/cortex.js:87,94= — =config.tools= → =request.tools=.
+- =systems/runtime/tests/hallucination-triad.doc.test.js:31,34= + its tangled =docs/…/47.02_hallucination-triad.org= — =config.tools= → =request.tools=.
+** OUT OF SCOPE (flagged)
+- speech/verbatim providers =elevenlabs/deepgram= take =(textChunks|audioSource, config)= — NOT turns-based; the Request is a dialogue/object contract. Their =config= (voice/format) is untouched; a future =settings= unification is a separate move.
+- =input= half of the CONFIG/schema facade — DELETED (zero consumers; Vector-descriptor vocabulary with no referent on a composed hallucination).
+
+* Sequence (on go)
+1. schematics: add Settings/Output/Request; assert Request.check on a couple example instances.
+2. hallucination.js: CONFIG + compile + render/stream + facade. Update hallucination.test.js. Green.
+3. cortex.js: dressAsObject. Update cortex.test.js. Green.
+4. anthropic provider: render/stream one-arg. Green (provider tests hit live API — module-verify offline).
+5. riddler + harnessed: verify unchanged (spawn sugar) — smoke.

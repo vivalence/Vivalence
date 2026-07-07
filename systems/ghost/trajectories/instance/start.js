@@ -6,13 +6,13 @@ export async function start(ctx) {
 
   // dedup: refuse if a live lock exists; sweep stale locks
   for (const spec of chosen) {
-    if (await paladin.system.lock(spec.instance, spec.process).alive()) {
+    if (await paladin.ledger.lock(spec.instance, spec.process).alive()) {
       throw new Error(`${spec.instance}:${spec.process} already running`);
     }
-    await paladin.system.lock(spec.instance, spec.process).remove();
+    await paladin.ledger.lock(spec.instance, spec.process).remove();
   }
 
-  const processes = await Promise.all(chosen.map((spec) => paladin.system.spawn(spec)));
+  const processes = await Promise.all(chosen.map((spec) => paladin.ledger.spawn(spec)));
   const slug = processes[0]?.spec.slug;
 
   console.log(

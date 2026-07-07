@@ -2,7 +2,7 @@ import paladin from "@vivalence/paladin";
 import { specs } from "./target.js";
 
 export async function run(ctx) {
-  const processes = await paladin.system.boot(specs(ctx.signal.params[0]));
+  const processes = await paladin.ledger.boot(specs(ctx.signal.params[0]));
 
   for (const process of processes) {
     const branch = ctx.span?.branch(`run/${process.spec.type}`).begin();

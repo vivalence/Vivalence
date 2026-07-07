@@ -1,7 +1,7 @@
 import { specimen, Signal, Context, Url, Connection, sleep, fromm, shard, NotFound, shape, steer, Vector, Aperture } from "@vivalence/typology";
 
 const { http } = shape;
-const { traverse } = steer;
+const { traverse } = steer.dispatch;
 
 const { serve } = shard;
 
@@ -135,7 +135,7 @@ specimen.describe("http shape", () => {
             params: fromm.match(steps).parameters,
           });
           await carry(inner, async (c) => {
-            const result = await steer.dispatch(effect, c);
+            const result = await steer.strategy.fire(effect, c);
             if (result !== undefined) c.output = result;
           });
           return inner.output;

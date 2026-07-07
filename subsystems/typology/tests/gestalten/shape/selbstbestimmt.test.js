@@ -31,7 +31,7 @@ specimen.describe("shape.selbstbestimmt", () => {
         .use(async (ctx, next) => { ctx.enriched = true; await next(); })
         .affect((ctx) => ({ value: ctx.input * 2, enriched: ctx.enriched }));
 
-      const run = shape.selbstbestimmt(sub, steer.direct);
+      const run = shape.selbstbestimmt(sub, steer.strategy.direct);
 
       const context = { input: 21, output: undefined };
       const output = await run(context);

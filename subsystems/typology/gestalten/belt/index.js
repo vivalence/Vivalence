@@ -13,5 +13,6 @@ export * as crypto from "./crypto.js";
 export * as middleware from "./middleware.js";
 export * as soma from "./soma.js";
 export * as atom from "./atom.js";
+export * as recipe from "./recipe.js";
 
 export * as strings from "./string.js"; // depracated

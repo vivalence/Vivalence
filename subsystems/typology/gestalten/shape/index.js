@@ -1,4 +1,5 @@
 export * as connection from "./connection.js";
+export * as cortex from "./cortex.js";
 export * from "./subscriber.js";
 export * from "./agentic.js";
 export * from "./object.js";

@@ -1,6 +1,6 @@
 import { middleware, steer } from "@vivalence/typology";
 
-export function selbstbestimmt(vector, strategy = steer.bare) {
+export function selbstbestimmt(vector, strategy = steer.strategy.bare) {
   const walk = (node) => {
     for (const effect of node.effects.values()) return [effect, [...node.carry]];
     for (const trajectory of node.trajectories.values()) {

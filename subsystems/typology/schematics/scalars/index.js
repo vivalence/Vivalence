@@ -2,7 +2,8 @@ import { v } from "../v.js";
 
 export const ID = v.string({ minLength: 1 }).desc("Unique identifier (UUID)");
 
-export const Slug = v.string({ pattern: "^[a-z0-9]+(?:-[a-z0-9]+)*$" }).desc("URL-compliant identifier");
+export const slug = (opts) => v.string({ pattern: "^[a-z0-9]+(?:-[a-z0-9]+)*$", ...opts }).desc("URL-compliant identifier");
+export const Slug = slug();
 
 export const JWTToken = v.string({ pattern: "^[A-Za-z0-9-_]+\\.[A-Za-z0-9-_]+\\.[A-Za-z0-9-_]*$" }).desc("JWT token string");
 

@@ -81,17 +81,17 @@ function makeFaculties() {
         out: ["text", "thinking", "tool_use"],
       },
       via: {
-        render: async (turns, config) => {
+        render: async ({ turns, tools }) => {
           const text = lastUserText(turns);
-          if (config?.tools && !hasToolResult(turns)) {
-            return toolUseTurn("t1", Object.keys(config.tools)[0], { query: text });
+          if (tools && !hasToolResult(turns)) {
+            return toolUseTurn("t1", Object.keys(tools)[0], { query: text });
           }
           return textTurn(`[opus] ${text}`);
         },
-        stream: async (turns, config) => {
+        stream: async ({ turns, tools }) => {
           const text = lastUserText(turns);
-          if (config?.tools && !hasToolResult(turns)) {
-            return toolUseStream("t1", Object.keys(config.tools)[0], { query: text })();
+          if (tools && !hasToolResult(turns)) {
+            return toolUseStream("t1", Object.keys(tools)[0], { query: text })();
           }
           return textStream(`[opus] ${text}`)();
         },
@@ -103,8 +103,8 @@ function makeFaculties() {
       context: 200000,
       channels: { in: ["text", "image", "tool_result"], out: ["text", "tool_use"] },
       via: {
-        render: async (turns) => textTurn(`[sonnet] ${lastUserText(turns)}`),
-        stream: async (turns) => textStream(`[sonnet] ${lastUserText(turns)}`)(),
+        render: async ({ turns }) => textTurn(`[sonnet] ${lastUserText(turns)}`),
+        stream: async ({ turns }) => textStream(`[sonnet] ${lastUserText(turns)}`)(),
       },
     },
     {
@@ -113,7 +113,7 @@ function makeFaculties() {
       context: 200000,
       channels: { in: ["text", "tool_result"], out: ["text"] },
       via: {
-        render: async (turns) => textTurn(`[haiku] ${lastUserText(turns)}`),
+        render: async ({ turns }) => textTurn(`[haiku] ${lastUserText(turns)}`),
       },
     },
   ];

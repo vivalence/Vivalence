@@ -44,7 +44,7 @@ export const ModeDossier = {
       ctx.entity.daemon = ctx.daemon;
       ctx.entity.mount = ctx.daemon.mount.branch(`/mode/${ctx.entity.type}/${ctx.entity.slug}`);
       ctx.entity.connection = ctx.daemon.connection.branch(ctx.entity.mount.nature);
-      ctx.entity.call = ctx.entity.connection.call.bind(ctx.entity.connection);
+      ctx.entity.call = ctx.entity.connection.call.bind(ctx.entity.connection); // @beef legacy. to be repurposed for full aperture stripwire.
       ctx.entity.link = ctx.daemon.link.branch(`/${ctx.entity.type}/${ctx.entity.slug}`);
     },
   ],

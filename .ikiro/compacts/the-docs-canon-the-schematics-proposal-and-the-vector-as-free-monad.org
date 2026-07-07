@@ -1,0 +1,87 @@
+#+TITLE: The triad/stripwire/dispatch-spine canonized into docs/ as tangle-runnable references · the schematics.js optimization worked out as a PROPOSAL (orb, not a quest) · the Vector glossed as a "declaratively dispatched monadic constructor" (free monad: constructor·combinator·interpreter) · =configuration= folded into the spawn seam as an eager configure. Sibling compact [[the-cortex-stripwire-lands-as-shape-cortex-strip-wire]] holds the shape.cortex BUILD that these docs describe.
+#+TOPIC: a DOCUMENTATION + PROPOSAL arc — =docs/40-49_repository/= gains three references (47.02 hallucination-triad TANGLEABLE, 47.03 stripwire, 42.01 the-dispatch-spine) with runnable tangle tests living in the RUNTIME workspace (docs/ is excluded from the deno workspace) · Task B = a schematics.js optimization PROPOSAL worked out as =.ikiro/orbs/schematics.orb.org= (14 items, 4 tiers, HOLY-gated) atop a new codemap shard, tier-3 DECIDED by beef · the Vector = "declaratively dispatched monadic constructor" = a free monad (constructor names the noun · combinators .use/.open/.branch/.slurp name the methods · interpreters shape.*/steer name the folds) · =configuration= applied as an eager =configure()= in the spawn seam · input/output naming doctrine pinned (config + signatures only, NEVER vector ctx, knowingly overloaded)
+
+* Arc
+
+** =configuration= into the spawn seam (go)
+
+beef pasted the skeleton — =export function Hallucination(cortex, configuration) { ... const config = v.create(CONFIG); // @beef from configuration= and =export class Cortex { ... hallucination(config = {}) { return Hallucination(this, config); } ... corrent?= → =go=. Landed: =configuration= applied as an EAGER =configure()= at the END of construction (=if (configuration) hallucination.configure(configuration); return hallucination=) — ONE validated cast+check path, no duplicate seeding. =cortex.hallucination(config)= is THE spawn seam (harness + callers spawn through it, never =new Hallucination= bare).
+
+** the audit question
+
+beef: =are the docs and all of ikiro and codemap and our examples for hallucinate and harness correctly annotated and documented?= — triggered the whole docs sweep.
+
+** Task A — canonize into docs/, with TANGLEABLE tests
+
+beef: =task a go. patch codemap. add and memory. sweep the rest of the docs and tests into place. the hallucination and cortex have landed. figure out a file in repo/docs where some of the canonical stuff goes? plus examples and some dummy tangleable scneario test highlighting how the system works. these tangleable tests in docs are running in tree and thus capable of importing scenarios from both typology and runtime! they serve as a guide to the code and didactic tool.=
+
+Landed:
+- =docs/40-49_repository/47_integration/47.02_hallucination-triad.org= — the canonical triad reference; org =#+PROPERTY: header-args:javascript :tangle ../../../systems/runtime/tests/hallucination-triad.doc.test.js=. Act I typology-only (=tutor()= faculty literal, =cortex.hallucination(config)=, =context.system()=, =turn.append=, =dialogue.render()=, tool loop, =object.render()= derivation), Act II runtime (=create()= scenario → =dewey.harness.dialogue.stream=).
+- KEYSTONE PLACEMENT: =docs/= is EXCLUDED from the deno workspace (=deno.jsonc "exclude": ["./testament","./docs"]=), so a test authored IN docs/ never runs. The =.org= TANGLES DOWN into the runtime workspace (=systems/runtime/tests/hallucination-triad.doc.test.js=) where it runs green AND can import scenarios from both typology and runtime. The doc is the SOURCE, the tangle is the runnable — "a guide to the code and didactic tool."
+- Johnny-Decimal shape: =40-49_repository= = reference (=.org=), =50-59_practice= = tutorials (=.md=); =47_integration= = the cross-container-seam category; =42_typology= / =44_runtime= reserved.
+
+** Task B — the schematics.js PROPOSAL (not a quest, not implementation)
+
+beef: =and then work out a plan to update the schematics.js in typology - with heavy emphasis on the primitives and under consideration of a sample of grepped v.usage() - by starting with a dedicated codemap/typology/schematics file in ikiro. use that as basis for an optimization sweep on the schematics. but i dont want any implementation. i want a proposal. not a quest. work it out and then we chat. go into ultracode for this.= + =also read past quests and compacts to identify valuable snippets and insights and intents.=
+
+Landed (proposal artifacts only — ZERO code):
+- =.ikiro/world/codemap/typology/schematics.md= — the codemap shard (v.js three parts: enhance Proxy / entityFactory / ~30 builders; the two verbs cast=Default+Convert-INPUT-only vs fill=Default-only; v.rel identity-opacity; NO-zodisms; the layers; known duplication).
+- =.ikiro/orbs/schematics.orb.org= — the proposal: 14 items, 4 tiers, ALL HOLY-gated (per-item go). Tier 0 (v.rel id+slug, enum unification), Tier 1 (v.assert, v.bag, v.open), Tier 2 (mediaPart, Provisionable, descriptor fragments, manifest metadata, auth Login≡Signup), Tier 3.
+- The duplication targets mined: =cast→errors→throw= verbatim ×3 · =v.record(v.string(),v.unknown())= ×26 (no =v.bag=) · Part.Image/Audio/Video/Document byte-identical ×4 · closed vocabs hand-roll =union([const…])= while =v.enum= exists · =additionalProperties:true= copy-passed · manifest metadata quartet re-inlined · auth Login≡Signup.
+
+Tier-3 DECIDED by beef (AskUserQuestion answers, verbatim):
+- conversation.js (3.1): =adopt. integrate. is there really a need for dedicated terminology? might this be just inlined or is this actually used and needs to be attached to v.primitive.avenue()??= → adopt; the orphan =conversation.js Channel= becomes =v.primitives.avenue= (rename Channel→Avenue to end the name-collision with hallucination's Channel).
+- v.rel decorative arg (3.2): =if there is no use, remove it. we call input schema input and output schema output. important rule tho: thats only on config and function signatures, not on vector contexts. we now overload the input/output terminology. knowingly.= → remove the decorative =v.rel(schema)= arg + the input/output naming doctrine (memory below).
+- cast/fill guard (3.4): =is this reasonable machinery to have? its internal, we can adjust and evolve. its our imperative to evolve.= → build the thin internal cast/fill guard; internal machinery is ours to evolve.
+
+** Task C — the stripwire doc
+
+beef: =i also want you to document the stripwire pattern that runtime and client are developing. where the trait builds a vector which gets attached to the aperture, rendered onto the daemon entity as object, documented in metadata, and then stripwired by the client into a connection branch which also gets compiled onto the client dataspace entity. thus allowing all of mode.connection.call('/emit/xyz') mode.emit.xyz mode.app.buffer mode.harness.abc daemon.connection.call('/mode/type/slug/emit/abc') and daemon.c.call(/cortex/hallucination... and daemon.cortex.hallucination on both kajuit and runtime!! implementation is sloppy yet tho. either emit or harness implements it. read also within the registry/playgound for usage demos.=
+
+Landed: =docs/40-49_repository/47_integration/47.03_stripwire.org= — the compiler family (object/strip/connection.wire/messenger), daemon side, client side, the symmetry table, surfaces catalog WITH registry demo citations, and an HONEST "current state" with 7 sloppiness flags (cortex stripwire UNBUILT = the name origin =daemon/aperture/cortex.js= TODO; =/metadata/harness= strips the wrong Vector; APPLICATION not stripwired; TOOLED half-wired; EMITTER/HARNESSED finalizer divergence; strip input/output ignored; EMITTER mid-refactor). [Gap #1 was BUILT the next session — see sibling compact.]
+
+** the Vector gloss (keystone terminology)
+
+beef: =and explain the vector in the docs and your internals as "Declaratively dispatched monadic constructor"= then =or ... monadic combinator?!=
+
+Resolved as THREE LAYERS (both words are right, at different layers) — the Vector is a FREE MONAD in effect:
+- CONSTRUCTOR names the NOUN — the =Vector= itself, an inert composable context-threading DESCRIPTION of dispatch (an AST).
+- COMBINATORS name the METHODS — =.use(mw)= / =.open(sig,fn)= / =.branch(sig)= / =.slurp(other)=, each =Vector → Vector=.
+- INTERPRETERS name the FOLDS — =shape.*= (object/strip/http/connection.wire) and =steer= strategies fold the AST into something runnable.
+Build-then-interpret; one structure, many folds = the free-monad shape. The Vector does NOTHING until an interpreter folds it — that deferral is the whole point. Rippled into codemap =typology.md= (the Vector entry) and =42.01=.
+
+** continue top level → 42.01 the dispatch spine
+
+beef: =continue top level= → =docs/40-49_repository/42_typology/42.01_the-dispatch-spine.org=, the top-level typology reference the seam docs (47.02/47.03) defer UP to. Covers Signature (Pattern/Path/Url) → Vector (the free-monad gloss) → interpreters (shape.*/steer, one Vector many folds) → Aperture (a Vector fold = the HTTP server) ⟷ Connection (the transport DUAL: serves-a-trie vs calls-a-trie). "The law" block: declare once (Vector combinators) · interpret many (shape.object local · strip→wire remote · shape.http serve) · dual (Aperture ⟷ Connection). [TODO] siblings stubbed: 42.02 entities, 42.03 channels, 42.04 schematics. The two seam docs' forward-refs de-"future"d to point UP at 42.01.
+
+* Memory landed
+
+- [[feedback_input_output_naming]]: schema I/O named =input=/=output= ONLY on config objects + function signatures, NEVER on vector contexts (=ctx.input=/=ctx.output= keep their runtime-payload meaning). The word is KNOWINGLY overloaded — request-I/O-schema (=config.output=) vs middleware-step-payload (=ctx.output=). Do NOT try to unify/rename to disambiguate. Governs the =v.rel= decorative-arg removal + the =config.schema→config.output= rename.
+
+* Reference — the docs tree now (carry forward)
+
+#+begin_src
+docs/40-49_repository/
+  42_typology/42.01_the-dispatch-spine.org        top-level ref: Signature · Vector(free-monad) · shape/steer · Aperture⟷Connection
+    [TODO] 42.02 entities · 42.03 channels · 42.04 schematics
+  47_integration/                                  the cross-container SEAM category
+    47.02_hallucination-triad.org                  TANGLES → systems/runtime/tests/hallucination-triad.doc.test.js (Act I typology · Act II runtime)
+    47.03_stripwire.org                            compiler family + honest gap inventory (gap #1 built next session)
+  rule: docs/ EXCLUDED from deno workspace → tangle tests live in the runtime workspace, import scenarios from BOTH containers
+.ikiro/
+  world/codemap/typology/schematics.md             the schematics codemap shard (Task B basis)
+  orbs/schematics.orb.org                          the PROPOSAL: 14 items · 4 tiers · HOLY-gated · tier-3 decided
+#+end_src
+
+* Lessons (self-corrections)
+
+- PROPOSE stayed PROPOSE: Task B was =i dont want any implementation. i want a proposal. not a quest= — even under =ultracode= the workflow produced the orb + codemap shard as artifacts, ZERO schematics code touched. The ultracode opt-in scales THOROUGHNESS (mining past quests/compacts for the duplication targets), not license to implement.
+- Tangle-placement grounded on the real mechanism: probed that =docs/= is excluded from the deno workspace BEFORE authoring the runnable test, so the =.org= tangles DOWN into the runtime workspace rather than sitting dead in docs/.
+- Terminology pinned once, plumbed once: the Vector gloss resolved to the three-layer constructor/combinator/interpreter frame (not an either/or) and rippled to every surface (docs 42.01/47.03, codemap typology.md, internals) in one pass.
+
+* Open / Pending
+
+- The schematics orb is ALL HOLY-gated, awaiting per-item =go= — NOTHING implemented. Nearest zero-risk: Tier 0 (v.rel id+slug, enum unification) + Tier 1 (v.assert, v.bag). Tier-3 DECIDED (3.1 avenue adopt, 3.2 v.rel arg removal + naming doctrine, 3.4 cast/fill guard) but still un-built. beef: =work it out and then we chat.=
+- 42.01 [TODO] siblings are STUBS (42.02 entities, 42.03 channels, 42.04 schematics) — offered, not started.
+- 47.03's honest gap inventory is now partly stale: gap #1 (cortex stripwire) BUILT in the sibling compact; the doc's "current state" wants a refresh (offered to beef, pending go).
+- The =Request= provider contract landed AFTER these docs (=via.render(request)=), so the 47.02 tangle src blocks + 42.01 examples that show =via.render(turns, config)= are one contract-version behind on disk — reconcile when the docs get their next go.

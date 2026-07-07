@@ -12,7 +12,7 @@ Deno.test("init: GATHER collects admin + config, ACT boots and sets effect", asy
   paladin.vip.list = async () => [{ manifest: { slug: "alpha" } }];
 
   let booted = null;
-  paladin.system.boot = async (specs) => {
+  paladin.ledger.boot = async (specs) => {
     booted = specs;
     return specs.map((spec) => ({
       spec,

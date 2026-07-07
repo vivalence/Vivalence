@@ -50,6 +50,8 @@ export const inline = (serve) => async (ctx) => {
   const contentType = res.headers.get("content-type") || "";
   if (contentType.includes("application/json")) {
     ctx.response.body = await res.json().catch(() => null);
+  } else if (contentType.includes("event-stream")) {
+    ctx.response.body = res.body;
   } else if (contentType.startsWith("text/") || contentType.includes("/javascript")) {
     ctx.response.body = await res.text();
   } else if (res.body) {

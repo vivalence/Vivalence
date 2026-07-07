@@ -6,7 +6,7 @@ import { Mode } from "../../src/entities/mode.js"
 import { Intent } from "../../src/entities/intent.js"
 import { daemon as daemonWafer } from "../../src/daemon/daemon.wafer.js"
 
-const castDaemon = steer.invoke(daemonWafer, "/construct/populate/resolve/full",
+const castDaemon = steer.dispatch.invoke(daemonWafer, "/construct/populate/resolve/full",
   (carry, effect) => async (die) => {
     await carry(die, async () => { die.output = await effect(die) })
     return die.output

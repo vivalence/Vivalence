@@ -1,152 +1,260 @@
 <script>
-  import { v } from "@vivalence/typology";
+  import { v, Span, Pipe } from "@vivalence/typology";
+  import { Helpdesk } from "@vivalence/drapes";
+  import { atom } from "nanostores";
+  import Trace from "./Trace.svelte";
 
-  let prompt = $state("");
-  let viaAperture = $state("");
-  let viaHarness = $state("");
-  let pendingAperture = $state(false);
-  let pendingHarness = $state(false);
-  let route = $state("aperture"); // "aperture" | "harness" — which of the two demo paths this submit takes
+  const { terminal, buffer } = $props();
 
-  const { buffer, terminal } = $props();
+  const SYSTEM =
+    "You are the Oracle, a presence living inside vivalence's chaosmonkey testbed. Answer in one or two cryptic, faintly amused lines. Plain prose, no markdown, no lists.";
 
-  // interaction 1 — exposed aperture (/ask) that internally calls harness.object.render.
-  // turn persistence for this route is registered daemon-side, inside the aperture handler.
-  async function askAperture() {
-    if (!prompt.trim() || pendingAperture) return;
-    pendingAperture = true;
+  const user = atom("");
+  const assistant = atom("you've sought out the oracle; brave of you.");
+
+  const clientPipe = new Pipe();
+  const clientLogs = new Span().to(clientPipe);
+  const clientLog = clientPipe.reactive([], (list, record) => [...list, record]);
+
+  const serverPipe = new Pipe();
+  const serverLogs = new Span().to(serverPipe);
+  const serverLog = serverPipe.reactive([], (list, record) => [...list, record]);
+
+  clientLogs.log({ props: { terminal: terminal?.id, buffer: buffer?.id, mode: buffer?.mode?.slug } });
+
+  let busy = $state(false);
+
+  async function askCortexObject() {
+    const prompt = user.get()?.trim();
+    if (!prompt || busy) return;
+    busy = true;
+    const call = clientLogs.branch("/cortex/object");
+    call.log({ prompt });
     try {
-      const result = await buffer.mode.call("/ask", { prompt, thread: terminal.thread?.id });
-      viaAperture = result?.answer ?? "";
-    } catch (e) {
-      console.error("askAperture", { error: e });
+      const hallucination = buffer.mode.daemon.cortex
+        .hallucination({ tune: "eager" })
+        .context.system(SYSTEM)
+        .entities.turn.append({ role: "user", parts: [{ type: "text", text: prompt }] })
+        .output.object(v.object({ answer: v.string().desc("the oracle's reply") }));
+      call.log({ request: hallucination.configuration });
+      const render = await hallucination.object.render();
+      call.log({ render });
+      assistant.set(render.object?.answer ?? "");
+    } catch (error) {
+      call.log(error);
+      assistant.set(`… the oracle falters: ${error.message}`);
     } finally {
-      pendingAperture = false;
+      busy = false;
     }
   }
 
-  // interaction 2 — the strip-wired harness, called directly from the client. No aperture
-  // in between, so the app owns the round trip — turn persistence is registered here,
-  // manually, app-side.
-  async function askHarness() {
-    if (!prompt.trim() || pendingHarness) return;
-    pendingHarness = true;
+  async function askHarnessObject() {
+    const prompt = user.get()?.trim();
+    if (!prompt || busy) return;
+    busy = true;
+    const call = clientLogs.branch("/harness/object");
+    call.log({ prompt });
     try {
-      const result = await buffer.mode.harness.object.render({
+      const render = await buffer.mode.harness.object.render({
         turns: [{ role: "user", parts: [{ type: "text", text: prompt }] }],
         output: v.object({ answer: v.string() }),
       });
-      viaHarness = result?.object?.answer ?? "";
-
-      const threadId = terminal.thread?.id;
-      if (threadId && result?.object) {
-        const turns = buffer.mode.daemon.entities.turn;
-        const history = await turns.find({ thread: threadId }, { orderBy: { createdAt: "ASC" } });
-        const userTurn = await turns.create({
-          role: "user",
-          parts: [{ type: "text", text: prompt }],
-          parent: history.at(-1)?.id ?? null,
-          thread: threadId,
-          mode: buffer.mode.id,
-        });
-        await turns.create({
-          role: "assistant",
-          parts: [
-            { type: "text", text: result.object?.answer ?? "" },
-            { type: "object", data: result.object },
-          ],
-          parent: userTurn.id,
-          thread: threadId,
-          mode: buffer.mode.id,
-        });
-      }
-    } catch (e) {
-      console.error("askHarness", { error: e });
+      call.log({ render });
+      assistant.set(render?.object?.answer ?? "");
+    } catch (error) {
+      call.log(error);
+      assistant.set(`… ${error.message}`);
     } finally {
-      pendingHarness = false;
+      busy = false;
+    }
+  }
+
+  async function askCortexStream() {
+    const prompt = user.get()?.trim();
+    if (!prompt || busy) return;
+    busy = true;
+    const call = clientLogs.branch("/cortex/dialogue");
+    call.log({ prompt });
+    assistant.set("");
+    try {
+      const stream = await buffer.mode.daemon.cortex
+        .hallucination({ tune: "eager" })
+        .context.system(SYSTEM)
+        .entities.turn.append({ role: "user", parts: [{ type: "text", text: prompt }] })
+        .dialogue.stream();
+      call.log({ open: { tune: "eager" } });
+      let text = "";
+      let tokens = 0;
+      for await (const packet of stream) {
+        if (packet.event === "/part/delta" && packet.delta?.text) {
+          text += packet.delta.text;
+          assistant.set(text);
+          tokens += 1;
+        } else {
+          serverLogs.log(packet.event, packet);
+        }
+      }
+      call.log({ close: { tokens } });
+    } catch (error) {
+      call.log(error);
+      assistant.set(`… ${error.message}`);
+    } finally {
+      busy = false;
     }
   }
 </script>
 
 <div class="oracle">
-  <form
-    onsubmit={(event) => {
-      event.preventDefault();
-      if (route === "aperture") askAperture();
-      else askHarness();
-    }}>
-    <input
-      type="text"
-      bind:value={prompt}
-      placeholder="ask the oracle"
-      disabled={pendingHarness || pendingAperture} />
-    <label class="choice">
-      <input type="radio" name="route" value="aperture" bind:group={route} />
-      aperture
-    </label>
-    <label class="choice">
-      <input type="radio" name="route" value="harness" bind:group={route} />
-      harness
-    </label>
-    <button type="submit" disabled={pendingHarness || pendingAperture}>ask</button>
-  </form>
-  <div class="answer"><span class="label">via aperture:</span> {viaAperture || "…"}</div>
-  <div class="answer"><span class="label">via harness:</span> {viaHarness || "…"}</div>
+  <header class="bar">
+    <span class="title">oracle</span>
+    <span class="sub">chaosmonkey · client AI × span logs</span>
+  </header>
+
+  <div class="controls">
+    <div class="group">
+      <span class="group-label">client</span>
+      <button class="btn" onclick={askCortexObject} disabled={busy}>cortex · object</button>
+      <button class="btn" onclick={askHarnessObject} disabled={busy}>harness · object</button>
+      <button class="btn" onclick={askCortexStream} disabled={busy}>cortex · stream</button>
+    </div>
+    <div class="group muted">
+      <span class="group-label">runtime</span>
+      <button class="btn" disabled>aperture · render</button>
+      <button class="btn" disabled>emitter · render</button>
+    </div>
+  </div>
+
+  <Helpdesk {user} {assistant} disabled={busy} onsubmit={askCortexObject} />
+
+  <div class="logs">
+    <section class="col">
+      <div class="col-head"><span>client log</span><span class="count">{$clientLog.length}</span></div>
+      <div class="col-body">
+        {#each $clientLog as record, index (index)}
+          <Trace {record} />
+        {:else}
+          <div class="empty">— nothing yet —</div>
+        {/each}
+      </div>
+    </section>
+    <section class="col">
+      <div class="col-head"><span>server log</span><span class="count">{$serverLog.length}</span></div>
+      <div class="col-body">
+        {#each $serverLog as record, index (index)}
+          <Trace {record} />
+        {:else}
+          <div class="empty">— streamed spans land here —</div>
+        {/each}
+      </div>
+    </section>
+  </div>
 </div>
 
 <style>
   .oracle {
-    height: 100%;
     display: flex;
     flex-direction: column;
-    justify-content: center;
-    gap: 0.8rem;
-    padding: 1rem;
+    gap: 14px;
+    height: 100%;
+    padding: 18px;
     background: var(--colors-skeleton-3-surface);
     color: var(--colors-skeleton-3-contrast);
     font-family: var(--font-family-code);
+    overflow: hidden;
   }
-  .answer {
-    font-size: var(--font-size-sm);
-    min-height: 1.4em;
-  }
-  .label {
-    opacity: 0.6;
-    margin-right: 0.4em;
-  }
-  form {
+  .bar {
     display: flex;
-    align-items: center;
-    gap: 0.5rem;
+    align-items: baseline;
+    gap: 12px;
   }
-  .choice {
-    display: flex;
-    align-items: center;
-    gap: 0.3rem;
+  .title {
+    font-size: var(--font-size-lg);
+    letter-spacing: 0.06em;
+  }
+  .sub {
     font-size: var(--font-size-xs);
-    opacity: 0.8;
-    white-space: nowrap;
+    opacity: 0.45;
   }
-  input {
-    flex: 1;
-    font: inherit;
-    padding: 0.4rem 0.6rem;
-    background: transparent;
-    border: 1px solid var(--colors-skeleton-0-primary-base);
-    border-radius: 0.3rem;
-    color: inherit;
+  .controls {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: 20px;
   }
-  button {
-    padding: 0.4rem 1.1rem;
+  .group {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+  }
+  .group.muted {
+    opacity: 0.5;
+  }
+  .group-label {
+    font-size: var(--font-size-2xs);
+    letter-spacing: 0.18em;
+    text-transform: uppercase;
+    opacity: 0.45;
+  }
+  .btn {
+    padding: 6px 14px;
     font: inherit;
     font-size: var(--font-size-xs);
     color: var(--colors-skeleton-0-primary-base);
     background: transparent;
-    border: 1px solid var(--colors-skeleton-0-primary-base);
-    border-radius: 0.3rem;
+    border: 1px solid color-mix(in srgb, var(--colors-skeleton-0-primary-base) 40%, transparent);
+    border-radius: 5px;
     cursor: pointer;
+    white-space: nowrap;
+    transition: background 0.12s;
   }
-  button:hover {
-    background: color-mix(in srgb, var(--colors-skeleton-0-primary-base) 12%, transparent);
+  .btn:not(:disabled):hover {
+    background: color-mix(in srgb, var(--colors-skeleton-0-primary-base) 14%, transparent);
+  }
+  .btn:disabled {
+    opacity: 0.4;
+    cursor: not-allowed;
+    color: inherit;
+    border-color: color-mix(in srgb, currentColor 20%, transparent);
+  }
+  .logs {
+    display: flex;
+    gap: 14px;
+    flex: 1;
+    min-height: 0;
+  }
+  .col {
+    display: flex;
+    flex-direction: column;
+    flex: 1;
+    min-width: 0;
+    border: 1px solid color-mix(in srgb, var(--colors-skeleton-3-boundary) 28%, transparent);
+    border-radius: 8px;
+    background: color-mix(in srgb, var(--colors-skeleton-3-contrast) 3%, transparent);
+    overflow: hidden;
+  }
+  .col-head {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 8px 12px;
+    font-size: var(--font-size-2xs);
+    letter-spacing: 0.16em;
+    text-transform: uppercase;
+    opacity: 0.55;
+    border-bottom: 1px solid color-mix(in srgb, var(--colors-skeleton-3-boundary) 22%, transparent);
+  }
+  .count {
+    opacity: 0.7;
+    letter-spacing: 0;
+  }
+  .col-body {
+    flex: 1;
+    overflow-y: auto;
+    padding: 6px 0;
+  }
+  .empty {
+    padding: 16px 12px;
+    font-size: var(--font-size-xs);
+    opacity: 0.35;
   }
 </style>

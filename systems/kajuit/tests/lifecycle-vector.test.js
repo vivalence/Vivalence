@@ -15,7 +15,7 @@ function compileSchema(schema) {
         Object.assign(ctx.entity, ctx.raw);
       }),
   );
-  return shape.selbstbestimmt(vector, steer.direct);
+  return shape.selbstbestimmt(vector, steer.strategy.direct);
 }
 
 function mockConnection(responses = {}) {

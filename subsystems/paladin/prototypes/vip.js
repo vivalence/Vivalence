@@ -41,9 +41,9 @@ export class Vip {
   // seeded by discovery over scope.registry (self-priming, no init ceremony).
   // Locations resolve through paladin.source — absolute, ./cwd, {file,source}, bare segment.
   async supply() {
-    await this.paladin.system.mount(); // fn.once — self-priming, no boot-order landmine
-    const locations = await this.paladin.system.registry.read()
-      ?? await this.paladin.system.registry.seed(this.paladin.scope.registry);
+    await this.paladin.ledger.mount(); // fn.once — self-priming, no boot-order landmine
+    const locations = await this.paladin.ledger.registry.read()
+      ?? await this.paladin.ledger.registry.seed(this.paladin.scope.registry);
     for (const location of locations) await this.mount(this.paladin.source(location));
     return this;
   }

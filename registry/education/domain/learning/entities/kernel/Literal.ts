@@ -1,4 +1,11 @@
-import { types, Collection, EntitySchema, EventSubscriber, ChangeSetType } from "@mikro-orm/core";
+import {
+  types,
+  Collection,
+  EntitySchema,
+  EventSubscriber,
+  ChangeSetType,
+  raw,
+} from "@mikro-orm/core";
 import {
   EntityRepositoryType,
   type Opt,
@@ -91,6 +98,22 @@ export class LiteralRepository extends base.repository {
       ),
       {
         populate: populate ? [...populate, "memories"] : ["memories"],
+        limit,
+      },
+    );
+  }
+
+  async sample(where: any, opts?: any) {
+    const { status, limit, blacklist, populate } = opts || {};
+    return this.find(
+      object.merge(
+        status ? { memories: { status: { $in: status } } } : { memories: {} },
+        { id: { $nin: blacklist?.literals || [] } },
+        where,
+      ),
+      {
+        populate: populate ? [...populate, "memories"] : ["memories"],
+        orderBy: { [raw("random()")]: "asc" },
         limit,
       },
     );

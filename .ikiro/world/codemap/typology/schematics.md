@@ -1,0 +1,27 @@
+---
+paths: ["subsystems/typology/schematics/**"]
+---
+<!-- writer: agent · derived-from: schematics/** corpus read + v-usage scout (276×v.string…) + 21-item history harvest · verified: session a3259f02 · limit: 55 lines -->
+# codemap: typology/schematics — the typebox wrapper + primitives (HOLY — ask before touching)
+
+`v` is the SOLE schematics interface: a fluent Proxy over typebox@1.3 with identical JSON-Schema output, better ergonomics. Founding law (`quests/typology_v-schema-builder`): *same engine, same output, nicer surface*. Every optimization is measured against that — never new output, never a new engine.
+
+## v.js — three parts (`subsystems/typology/schematics/v.js`)
+- **`enhance(schema)` Proxy** — lends chainable methods to any typebox schema WITHOUT mutating it. Derived schemas via `derive(target, patch) = Object.assign(defineProperties({}, getOwnPropertyDescriptors(target)), patch)`. **FOOTGUN (never refactor to spread):** typebox tags schemas with a non-enumerable `~kind`; `{...schema}` drops it → `Value.Convert` silently no-ops. Trapped: `desc/descr` · `optional` · `default` · `$id` · runtime ops `check/create/clean/errors/compile/fill/cast`. Everything else falls through `Reflect.get`.
+- **`entityFactory(descriptor, base)`** — builds MikroORM-shaped entity schemas. Descriptor = `{$id, own (eager fields), relations (thunks), narrowable}`. Relations are THUNKS because descriptors import `v` before the entity factories are wired (called at factory-invocation time). A module-level `resolving` Set breaks cycles (Literal↔Symbol): while a `$id` resolves, relations collapse to base-only. `narrowable` fields get wrapped in `Type.Object` when a spec narrows them.
+- **~30 `v.*` builders/operators** — builders (`string/number/integer/boolean/object/array/union/intersect/const/enum/record/any/unknown/null/$ref`) return `enhance(Type.*)`; operators (`diff/patch/equal/clone/check/fill/cast/errors/create/clean/compile`) return plain typebox `Value.*` results.
+
+## the two load-bearing verbs (the axis any change must preserve)
+- **`cast` = Default + Convert** — untrusted scalar INPUT only (request bodies): coerces `'3'→3`. **`fill` = Default only** — entity/buffer/output/view data. Both mutate IN PLACE (no Clone → not `Value.Parse`). Rule: cast=request input, fill=entity data. Convert only shallow-clones PLAIN objects (class instances + their reference survive — probed, not assumed); the danger is descending into a relation body and mauling a Collection → guarded by `v.rel` structural opacity.
+- **`v.rel(schema) = union([scalars.ID, open-object])`** — a relation is referenced by IDENTITY, not embedded by value; the `schema` arg is now DECORATIVE (constructed then discarded — 25 sites pay that cost). Origin: beef *"we absolutely want to send literals and other entities through v."*
+- **NO zod-isms (deliberate absence, Finn caught fabricated `.passthrough` ×20):** no `.min/.max` (constraints go in the options object), no `.strict/.strip/.transform/.refine/.parse/.safeParse/.partial/.nullable`. `.optional()` exists; passthrough = `additionalProperties:true`; nullable = `union([schema, null])`. Names pinned vs vocabularies: `v.const` (JSON-Schema keyword) not literal; `v.rel` (MikroORM `Rel<T>`) not ref.
+
+## index.js (side-effecting) + the layers
+`schematics/index.js` augments `v` post-import: attaches `v.scalars / v.primitives / v.entities / v.prototypes` + `v.rel / v.bundle` + 8 entityFactory bindings (`v.literal/symbol/buffer/mode/intent/thread/user`).
+- **scalars/** — `ID · Slug · JWTToken · Timestamp · Username · Password` (the only pattern-constrained strings).
+- **primitives/** — `hallucination.js` (Part.*, Role, Turn, axes, Tune, Tier, Faculty, Packet.* · **`Request = {turns, tools?, settings?, output?:{object}}`** — the named provider contract both hallucination + dialogue/object providers speak; `Settings` = model knobs incl. `tool_choice`; `Output.object` = the structured-return schema) · `variant.js` (Mask/Daemon/Service/Runtime/Client/Variant) · `auth.js` · `manifest.js` · `kernel.js` (Domain) · `conversation.js` (**ORPHAN** — not in the barrel; its `Channel` name-collides with hallucination's).
+- **entities/** — `DataEntitySchema` + `{Buffer,Literal,Symbol,Mode,Intent,Thread,Turn,User}Descriptor`.
+- **prototypes/** — `Yield` (memoized thunk, survives `v.buffer()` eval-order) · `Condition` (the ONE consistent `v.enum`) · `StatusCode/Status/ErrorResponse`.
+
+## known duplication (the proposal's targets — pointers, not verdicts)
+`cast→errors→throw` boilerplate verbatim ×3 (cortex `where`/`register`, hallucination `configure`) · `v.record(v.string(),v.unknown())` ×26 (no `v.bag`) · Part.Image/Audio/Video/Document byte-identical ×4 · closed vocabs hand-roll `union([const…])` while `v.enum` exists (Role/Tier/StatusCode/Channel×2/FacultyType/Verb) · `additionalProperties:true` copy-passed per entity (no open-object builder) · manifest metadata quartet re-inlined in Mode/Intent · auth Login≡Signup. See the schematics optimization proposal.

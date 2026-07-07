@@ -27,11 +27,13 @@ export const EMITTER = async (mode, daemon) => {
     // emitter requires thread.
     if (ctx.input.thread) ctx.thread = await daemon.entities.thread.findOne(ctx.input.thread);
 
+    ctx.input.blacklist = new Blacklist(ctx.input.blacklist);
+    // ctx.hallucination
+
     await next();
   });
 
   emitter.use(async (ctx, next) => {
-    ctx.input.blacklist = new Blacklist(ctx.input.blacklist);
     await next();
   });
 

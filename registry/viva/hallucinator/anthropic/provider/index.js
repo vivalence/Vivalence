@@ -3,7 +3,7 @@
 // Exposes dialogue faculties at three tune points + object faculty.
 
 import Anthropic from "@anthropic-ai/sdk";
-import { translateTurns, translateTools, translateResponse, translateStreamEvent } from "./translate.js";
+import { buildParams, translateResponse, translateStreamEvent } from "./translate.js";
 
 const models = {
   opus: { id: "claude-opus-4-6", tune: [0.9, 1.0, 0.3], context: 1000000, thinking: true },
@@ -20,43 +20,11 @@ export default async function provider(service) {
   const client = new Anthropic({ apiKey: service.secrets.key });
 
   function makeDialogue(model) {
-    const render = async (turns, config) => {
-      const { system, messages } = translateTurns(turns);
-      const params = {
-        model: model.id,
-        max_tokens: config?.maxTokens ?? 8192,
-        system,
-        messages,
-      };
-      if (model.thinking && !config?.tool_choice) {
-        params.thinking = { type: "enabled", budget_tokens: config?.thinkingBudget ?? 16000 };
-        params.max_tokens = config?.maxTokens ?? 32000;
-      }
-      if (config?.tools) params.tools = translateTools(config.tools);
-      if (config?.tool_choice) params.tool_choice = config.tool_choice;
+    const render = async (request) =>
+      translateResponse(await client.messages.create(buildParams(model, request)));
 
-      const response = await client.messages.create(params);
-      return translateResponse(response);
-    };
-
-    const stream = async (turns, config) => {
-      const { system, messages } = translateTurns(turns);
-      const params = {
-        model: model.id,
-        max_tokens: config?.maxTokens ?? 8192,
-        stream: true,
-        system,
-        messages,
-      };
-      if (model.thinking && !config?.tool_choice) {
-        params.thinking = { type: "enabled", budget_tokens: config?.thinkingBudget ?? 16000 };
-        params.max_tokens = config?.maxTokens ?? 32000;
-      }
-      if (config?.tools) params.tools = translateTools(config.tools);
-      if (config?.tool_choice) params.tool_choice = config.tool_choice;
-
-      const raw = await client.messages.create(params);
-
+    const stream = async (request) => {
+      const raw = await client.messages.create(buildParams(model, request, true));
       return (async function* () {
         for await (const event of raw) {
           const packet = translateStreamEvent(event);

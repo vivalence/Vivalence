@@ -13,7 +13,7 @@ export function route(aperture) {
         const signal = new Signal(call.path);
         let effect, carry, steps;
         try {
-          [effect, carry, steps] = steer.traverse(aperture, signal);
+          [effect, carry, steps] = steer.dispatch.traverse(aperture, signal);
         } catch (e) {
           if (e instanceof NotFound || e.code === "NOT_FOUND") {
             return { path: call.path, status: 404, body: null };
@@ -37,7 +37,7 @@ export function route(aperture) {
 
         try {
           await carry(inner, async (c) => {
-            const result = await steer.dispatch(effect, c);
+            const result = await steer.strategy.fire(effect, c);
             if (result !== undefined) c.output = result;
           });
         } catch (e) {

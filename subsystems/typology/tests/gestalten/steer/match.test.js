@@ -2,7 +2,7 @@ import { specimen, steer } from "@vivalence/typology";
 import { Signal } from "@vivalence/typology";
 import { Vector } from "@vivalence/typology";
 
-const { scope, greedy, feed } = steer;
+const { scope, greedy, feed } = steer.match;
 
 specimen.describe("match", () => {
   specimen.describe("scope", () => {

@@ -1,4 +1,5 @@
 import { fromm, promise } from "@vivalence/typology";
+import { atom } from "nanostores";
 
 export class Pipe {
   listeners = new Set();
@@ -10,6 +11,12 @@ export class Pipe {
   tap(listener) {
     this.listeners.add(listener);
     return () => this.listeners.delete(listener);
+  }
+
+  reactive(seed = null, step = (_, value) => value) {
+    const store = atom(seed);
+    this.tap((value) => store.set(step(store.get(), value)));
+    return store;
   }
 
   to(...sinks) {

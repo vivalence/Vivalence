@@ -7,7 +7,7 @@ export function subscriber(vector) {
     if (!name) return
 
     const signal = new Signal(`${name}/${event}`)
-    const handlers = steer.shotgun(vector, signal)
+    const handlers = steer.dispatch.shotgun(vector, signal)
     for (const handler of handlers) {
       await handler(args)
     }

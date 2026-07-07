@@ -7,7 +7,7 @@ export async function stop(ctx) {
 
   const killed = [];
   for (const spec of chosen) {
-    const pid = await paladin.system.kill(spec.instance, spec.process);
+    const pid = await paladin.ledger.kill(spec.instance, spec.process);
     if (pid !== null) killed.push({ process: spec.process, pid });
   }
 

@@ -71,9 +71,9 @@ export async function compose(lighthouse, terminals) {
   }
 
   return {
-    threads: shape.flat(threadsVector, steer.direct),
-    intents: shape.flat(intentsVector, steer.direct),
-    modes: shape.flat(modesVector, steer.direct),
+    threads: shape.flat(threadsVector, steer.strategy.direct),
+    intents: shape.flat(intentsVector, steer.strategy.direct),
+    modes: shape.flat(modesVector, steer.strategy.direct),
   };
 }
 

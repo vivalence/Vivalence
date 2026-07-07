@@ -4,7 +4,7 @@ function respond(id, result) { return { jsonrpc: "2.0", id, result } }
 function fail(id, code, text) { return { jsonrpc: "2.0", id, error: { code, message: text } } }
 
 export function mcp(vector, info = {}) {
-  const entries = steer.rollup(vector, steer.guarded)
+  const entries = steer.trie.rollup(vector, steer.strategy.guarded)
 
   const tools = entries.map(({ pattern, steps }) => ({
     name: steps.map((s) => s.nature).join("_"),

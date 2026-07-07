@@ -157,7 +157,7 @@ specimen.describe("guarded strategy", () => {
         (ctx) => ctx.input.limit,
       );
 
-      const output = shape.object(vector, steer.guarded);
+      const output = shape.object(vector, steer.strategy.guarded);
       specimen.expect(await output.feed({ limit: 5 })).toBe(5);
     });
 
@@ -168,7 +168,7 @@ specimen.describe("guarded strategy", () => {
         (ctx) => ctx.input.limit,
       );
 
-      const output = shape.object(vector, steer.guarded);
+      const output = shape.object(vector, steer.strategy.guarded);
       let threw = false;
       try { await output.feed({ limit: "abc" }); }
       catch (e) { threw = e.code === "VALIDATION"; }
@@ -186,7 +186,7 @@ specimen.describe("guarded strategy", () => {
           (ctx) => ctx.input.literal,
         );
 
-      const output = shape.object(vector, steer.guarded);
+      const output = shape.object(vector, steer.strategy.guarded);
       specimen.expect(await output.emit.literal({ thread: "t1", literal: "hello" })).toBe("hello");
     });
 
@@ -196,7 +196,7 @@ specimen.describe("guarded strategy", () => {
         .branch({ nature: "/emit", input: v.object({ thread: v.string() }) })
         .open("/literal", (ctx) => ctx.input);
 
-      const output = shape.object(vector, steer.guarded);
+      const output = shape.object(vector, steer.strategy.guarded);
       let threw = false;
       try { await output.emit.literal({ thread: { nested: 1 } }); }
       catch (e) { threw = e.code === "VALIDATION"; }
@@ -212,7 +212,7 @@ specimen.describe("guarded strategy", () => {
         (ctx) => ctx.input.limit,
       );
 
-      const output = shape.object(vector, steer.guarded);
+      const output = shape.object(vector, steer.strategy.guarded);
       specimen.expect(await output.feed({})).toBe(10);
     });
   });
@@ -225,7 +225,7 @@ specimen.describe("guarded strategy", () => {
         (ctx) => "ok",
       );
 
-      const output = shape.object(vector, steer.direct);
+      const output = shape.object(vector, steer.strategy.direct);
       specimen.expect(await output.feed({ limit: "not a number" })).toBe("ok");
     });
   });
