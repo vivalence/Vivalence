@@ -4,9 +4,12 @@ export const manifest = {
   type: "chaosmonkey",
   slug: "vision",
   name: "Vision",
-  description: "Baseline — no harness, no emitter. Contrast case for the oracle demo.",
+  description: "Emitted by the oracle — a sassy one-line vision of what you asked, with a return.",
   version: "0.1.0",
   traits: ["APPLICATION", "STANDALONE"],
 };
 
-export const app = new App("Vision.svelte", v.buffer({ data: {} }));
+export const app = new App(
+  "Vision.svelte",
+  v.buffer({ data: { prompt: v.string().default(""), vision: v.string().default(""), mood: v.string().default("") } }),
+);

@@ -8,9 +8,9 @@ specimen.describe("shape.tree", () => {
       const { vector } = house()
       const result = shape.tree(vector)
       specimen.expect(result.length).toBe(3)
-      specimen.expect(result[0].nature).toBe("purr")
-      specimen.expect(result[1].nature).toBe("nap")
-      specimen.expect(result[2].nature).toBe("hunt")
+      specimen.expect(result[0].nature).toBe("hunt")
+      specimen.expect(result[1].nature).toBe("purr")
+      specimen.expect(result[2].nature).toBe("nap")
     })
 
     specimen.it("branches nest as children", () => {
@@ -35,13 +35,13 @@ specimen.describe("shape.tree", () => {
     specimen.it("leaves have no invoke", () => {
       const { vector } = house()
       const result = shape.tree(vector)
-      specimen.expect(result[0].invoke).toBe(undefined)
+      specimen.expect(result.find((n) => n.nature === "purr").invoke).toBe(undefined)
     })
 
     specimen.it("leaves have no children", () => {
       const { vector } = house()
       const result = shape.tree(vector)
-      specimen.expect(result[0].children).toBe(undefined)
+      specimen.expect(result.find((n) => n.nature === "purr").children).toBe(undefined)
     })
   })
 

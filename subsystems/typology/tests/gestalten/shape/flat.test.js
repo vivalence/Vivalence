@@ -7,13 +7,13 @@ specimen.describe("shape.flat", () => {
     const { vector } = house()
     const result = shape.flat(vector)
     specimen.expect(result.length).toBe(5)
-    specimen.expect(result.map((n) => n.nature)).toEqual(["purr", "nap", "stalk", "pounce", "retreat"])
+    specimen.expect(result.map((n) => n.nature)).toEqual(["stalk", "pounce", "retreat", "purr", "nap"])
   })
 
   specimen.it("each node has nature, signature, no path", () => {
     const { vector } = house()
     const result = shape.flat(vector)
-    const purr = result[0]
+    const purr = result.find((n) => n.nature === "purr")
     specimen.expect(purr.nature).toBe("purr")
     specimen.expect(purr.signature).toBeTruthy()
     specimen.expect(purr.path).toBe(undefined)

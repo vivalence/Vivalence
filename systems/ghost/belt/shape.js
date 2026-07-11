@@ -14,21 +14,19 @@ function walk(trajectory, command, run, naturePath) {
   for (const [pattern, descendant] of trajectory.trajectories) {
     const sub = new cliffy.Command();
     if (pattern.valence) sub.description(pattern.valence);
-    walk(descendant, sub, run, [...naturePath, pattern.nature]);
-    attachWalkingAutocomplete(sub, naturePath.concat(pattern.nature), run);
-    command.command(pattern.nature, sub);
-  }
-  for (const [pattern, _effect] of trajectory.effects) {
-    const leaf = new cliffy.Command();
-    if (pattern.valence) leaf.description(pattern.valence);
-    const argNames = applySchema(leaf, pattern.schema);
     const fullPath = [...naturePath, pattern.nature];
-    leaf.action(async (options, ...positionals) => {
-      const args = {};
-      argNames.forEach((name, index) => (args[name] = positionals[index]));
-      await run({ path: fullPath, args, options });
-    });
-    command.command(pattern.nature, leaf);
+    walk(descendant, sub, run, fullPath);
+    if (descendant.effect) {
+      const argNames = applySchema(sub, pattern.schema);
+      sub.action(async (options, ...positionals) => {
+        const args = {};
+        argNames.forEach((name, index) => (args[name] = positionals[index]));
+        await run({ path: fullPath, args, options });
+      });
+    } else {
+      attachWalkingAutocomplete(sub, fullPath, run);
+    }
+    command.command(pattern.nature, sub);
   }
 }
 

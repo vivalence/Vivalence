@@ -1,96 +1,78 @@
 import { middleware, steer, Signal } from "@vivalence/typology";
 
-// the eager namespace builder: a Vector trie → nested callable object, where a node
-// that is BOTH a leaf and a branch becomes a callable carrying its sub-namespace.
-// A thin step over steer.trie.fold — the carry accumulates in the frame (root outermost),
-// so the old execute-wrapping is gone. Descendants carry {key, namespace} so the
-// parent can assemble; the root (signature null) returns the bare namespace.
+const route = (steps) => new Signal(steps.map((s) => s.nature).join("/"));
+
 export const object = (vector, execute = steer.strategy.request) =>
   steer.trie.fold(vector, {
-    effect: (f) => ({
-      key: f.pattern.nature,
-      fn: execute(f.carry, f.effect, f.steps, f.signal.branch(f.pattern.nature)),
-    }),
     node: (f) => {
-      const output = {};
-      for (const child of f.trajectories) output[child.key] = child.namespace;
-      for (const { key, fn } of f.effects) {
-        if (output[key]) Object.assign(fn, output[key]);
-        output[key] = fn;
-      }
-      return f.signature ? { key: f.signature.nature, namespace: output } : output;
+      const namespace = {};
+      for (const child of f.trajectories) namespace[child.key] = child.namespace;
+      const compiled = f.effect !== undefined ? execute(f.carry, f.effect, f.steps, route(f.steps)) : undefined;
+      const value = compiled !== undefined ? Object.assign(compiled, namespace) : namespace;
+      return f.signature ? { key: f.signature.nature, namespace: value } : value;
     },
   });
 
 export function proxy(vector, execute = steer.strategy.request) {
-  return proxyNode(vector, execute, {}, new Signal(), []);
+  return proxyNode(vector, execute, {}, new Signal(), [], []);
 }
 
-function proxyEffect(execute, mw, fn, params, steps, signal) {
-  // i thin i ought to loose the symbol and literal dsl here.
-  return execute(
-    mw,
-    (ctx) => {
-      ctx.params = { ...params, ...ctx.params };
-      return fn(ctx);
-    },
-    steps,
-    signal,
-  );
-}
+const wrap = (fn, params) => (ctx) => {
+  ctx.params = { ...params, ...ctx.params };
+  return fn(ctx);
+};
 
-function proxyNode(vector, execute, params, signal, steps) {
-  const next = vector.carry.length
-    ? (apply, effect, s, sig) =>
-        execute(middleware.compose([...vector.carry, apply]), effect, s, sig)
-    : execute;
-  const mw = middleware.compose(vector.carry);
+const matchChild = (vector, key, params) => {
+  let param, wild, rem;
+  for (const [pattern, child] of vector.trajectories) {
+    if (pattern.type === "literal" && pattern.nature === key) return { pattern, child, params };
+    if (pattern.type === "parameter" && !param)
+      param = { pattern, child, params: { ...params, [pattern.nature.slice(1)]: key } };
+    if (pattern.type === "wildcard" && !wild) wild = { pattern, child, params };
+    if (pattern.type === "remainder" && !rem) rem = { pattern, child, params };
+  }
+  return param ?? wild ?? rem;
+};
+
+function proxyNode(vector, execute, params, signal, steps, carry) {
+  const here = [...carry, ...vector.carry];
 
   return new Proxy(Object.create(null), {
     get(_, key) {
       if (typeof key === "symbol") return undefined;
 
-      for (const [pattern, fn] of vector.effects) {
-        if (pattern.type === "literal" && pattern.nature === key)
-          return proxyEffect(execute, mw, fn, params, [...steps, pattern], signal.branch(key));
+      const m = matchChild(vector, key, params);
+      if (!m) return undefined;
+
+      const { pattern, child, params: merged } = m;
+      const childSteps = [...steps, pattern];
+      const childSignal = signal.branch(key);
+      const childCarry = [...here, ...child.carry];
+
+      if (pattern.type === "remainder" && child.effect != null)
+        return proxyRemainder(execute, childCarry, child.effect, merged, 0, key, childSteps, signal);
+
+      const sub = child.trajectories.size
+        ? proxyNode(child, execute, merged, childSignal, childSteps, here)
+        : undefined;
+
+      if (child.effect != null) {
+        const callable = execute(middleware.compose(childCarry), wrap(child.effect, merged), childSteps, childSignal);
+        return sub ? Object.assign(callable, sub) : callable;
       }
 
-      for (const [pattern, descendant] of vector.trajectories) {
-        if (pattern.type === "literal" && pattern.nature === key)
-          return proxyNode(descendant, next, params, signal.branch(key), [...steps, pattern]);
-      }
-
-      for (const [pattern, fn] of vector.effects) {
-        if (pattern.type === "parameter" || pattern.type === "wildcard") {
-          const merged =
-            pattern.type === "parameter" ? { ...params, [pattern.nature.slice(1)]: key } : params;
-          return proxyEffect(execute, mw, fn, merged, [...steps, pattern], signal.branch(key));
-        }
-      }
-
-      for (const [pattern, descendant] of vector.trajectories) {
-        if (pattern.type === "parameter" || pattern.type === "wildcard") {
-          const merged =
-            pattern.type === "parameter" ? { ...params, [pattern.nature.slice(1)]: key } : params;
-          return proxyNode(descendant, next, merged, signal.branch(key), [...steps, pattern]);
-        }
-      }
-
-      for (const [pattern, fn] of vector.effects) {
-        if (pattern.type === "remainder")
-          return proxyRemainder(execute, mw, fn, params, 0, key, [...steps, pattern], signal);
-      }
+      return sub;
     },
   });
 }
 
-function proxyRemainder(execute, mw, fn, params, index, key, steps, signal) {
+function proxyRemainder(execute, carry, fn, params, index, key, steps, signal) {
   const merged = { ...params, [index]: key };
-  const invoke = proxyEffect(execute, mw, fn, merged, steps, signal.branch(key));
+  const invoke = execute(middleware.compose(carry), wrap(fn, merged), steps, signal.branch(key));
   return new Proxy(invoke, {
     get(target, next) {
-      if (typeof next === "symbol") return target[next]; // are symbol and literal part of the language here?
-      return proxyRemainder(execute, mw, fn, merged, index + 1, next, steps, signal.branch(key));
+      if (typeof next === "symbol") return target[next];
+      return proxyRemainder(execute, carry, fn, merged, index + 1, next, steps, signal.branch(key));
     },
   });
 }

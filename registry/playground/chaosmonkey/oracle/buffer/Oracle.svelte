@@ -1,5 +1,5 @@
 <script>
-  import { v, Span, Pipe } from "@vivalence/typology";
+  import { v, Span, trace } from "@vivalence/typology";
   import { Helpdesk } from "@vivalence/drapes";
   import { atom } from "nanostores";
   import Trace from "./Trace.svelte";
@@ -12,15 +12,18 @@
   const user = atom("");
   const assistant = atom("you've sought out the oracle; brave of you.");
 
-  const clientPipe = new Pipe();
-  const clientLogs = new Span().to(clientPipe);
-  const clientLog = clientPipe.reactive([], (list, record) => [...list, record]);
+  const client = new Span("oracle");
+  const $client = trace.live(client);
+  let clientStory = $state($client.get());
+  $client.subscribe((story) => (clientStory = story));
 
-  const serverPipe = new Pipe();
-  const serverLogs = new Span().to(serverPipe);
-  const serverLog = serverPipe.reactive([], (list, record) => [...list, record]);
+  let serverStory = $state(trace.chronicle.seed());
+  const serverStep = (record) => (serverStory = trace.chronicle.step(serverStory, record));
 
-  clientLogs.log({ props: { terminal: terminal?.id, buffer: buffer?.id, mode: buffer?.mode?.slug } });
+  const stream = new Span("stream");
+  stream.pipe.tap(serverStep);
+
+  client.branch("props").note({ terminal: terminal.id, buffer: buffer.id, mode: buffer.mode.slug });
 
   let busy = $state(false);
 
@@ -28,20 +31,20 @@
     const prompt = user.get()?.trim();
     if (!prompt || busy) return;
     busy = true;
-    const call = clientLogs.branch("/cortex/object");
-    call.log({ prompt });
+    const call = client.branch("/cortex/object");
+    call.note({ prompt });
     try {
       const hallucination = buffer.mode.daemon.cortex
         .hallucination({ tune: "eager" })
         .context.system(SYSTEM)
         .entities.turn.append({ role: "user", parts: [{ type: "text", text: prompt }] })
         .output.object(v.object({ answer: v.string().desc("the oracle's reply") }));
-      call.log({ request: hallucination.configuration });
+      call.note({ request: hallucination.configuration });
       const render = await hallucination.object.render();
-      call.log({ render });
+      call.note({ render });
       assistant.set(render.object?.answer ?? "");
     } catch (error) {
-      call.log(error);
+      call.fault(error);
       assistant.set(`… the oracle falters: ${error.message}`);
     } finally {
       busy = false;
@@ -52,17 +55,17 @@
     const prompt = user.get()?.trim();
     if (!prompt || busy) return;
     busy = true;
-    const call = clientLogs.branch("/harness/object");
-    call.log({ prompt });
+    const call = client.branch("/harness/object");
+    call.note({ prompt });
     try {
       const render = await buffer.mode.harness.object.render({
         turns: [{ role: "user", parts: [{ type: "text", text: prompt }] }],
         output: v.object({ answer: v.string() }),
       });
-      call.log({ render });
+      call.note({ render });
       assistant.set(render?.object?.answer ?? "");
     } catch (error) {
-      call.log(error);
+      call.fault(error);
       assistant.set(`… ${error.message}`);
     } finally {
       busy = false;
@@ -73,30 +76,69 @@
     const prompt = user.get()?.trim();
     if (!prompt || busy) return;
     busy = true;
-    const call = clientLogs.branch("/cortex/dialogue");
-    call.log({ prompt });
+    const call = client.branch("/cortex/dialogue");
+    call.note({ prompt });
     assistant.set("");
     try {
-      const stream = await buffer.mode.daemon.cortex
+      const source = await buffer.mode.daemon.cortex
         .hallucination({ tune: "eager" })
         .context.system(SYSTEM)
         .entities.turn.append({ role: "user", parts: [{ type: "text", text: prompt }] })
         .dialogue.stream();
-      call.log({ open: { tune: "eager" } });
+      call.note({ open: { tune: "eager" } });
       let text = "";
       let tokens = 0;
-      for await (const packet of stream) {
+      for await (const packet of source) {
         if (packet.event === "/part/delta" && packet.delta?.text) {
           text += packet.delta.text;
           assistant.set(text);
           tokens += 1;
         } else {
-          serverLogs.log(packet.event, packet);
+          stream.branch(packet.event).note(packet);
         }
       }
-      call.log({ close: { tokens } });
+      call.note({ close: { tokens } });
     } catch (error) {
-      call.log(error);
+      call.fault(error);
+      assistant.set(`… ${error.message}`);
+    } finally {
+      busy = false;
+    }
+  }
+
+  async function askApertureRender() {
+    const prompt = user.get()?.trim();
+    if (!prompt || busy) return;
+    busy = true;
+    const call = client.branch("/aperture/render");
+    call.note({ prompt });
+    try {
+      const result = await buffer.mode.call("/ask", { prompt });
+      call.note({ answer: result.answer });
+      assistant.set(result.answer ?? "");
+      if (result.trace) for (const record of result.trace) serverStep(record);
+    } catch (error) {
+      call.fault(error);
+      assistant.set(`… ${error.message}`);
+    } finally {
+      busy = false;
+    }
+  }
+
+  async function askEmitterVision() {
+    const prompt = user.get()?.trim();
+    if (!prompt || busy) return;
+    busy = true;
+    const call = client.branch("/emitter/vision");
+    call.note({ prompt });
+    try {
+      const result = await buffer.mode.emit.vision({ prompt, thread: terminal.thread.id });
+      call.note({ emitted: result });
+      const visions = (terminal.thread.$buffers.get() ?? []).filter((b) => b.mode?.slug === "vision");
+      const fresh = visions.at(-1);
+      if (fresh) terminal.buffer = fresh;
+    } catch (error) {
+      call.fault(error);
       assistant.set(`… ${error.message}`);
     } finally {
       busy = false;
@@ -107,7 +149,7 @@
 <div class="oracle">
   <header class="bar">
     <span class="title">oracle</span>
-    <span class="sub">chaosmonkey · client AI × span logs</span>
+    <span class="sub">chaosmonkey · client AI × span traces</span>
   </header>
 
   <div class="controls">
@@ -117,10 +159,10 @@
       <button class="btn" onclick={askHarnessObject} disabled={busy}>harness · object</button>
       <button class="btn" onclick={askCortexStream} disabled={busy}>cortex · stream</button>
     </div>
-    <div class="group muted">
+    <div class="group">
       <span class="group-label">runtime</span>
-      <button class="btn" disabled>aperture · render</button>
-      <button class="btn" disabled>emitter · render</button>
+      <button class="btn" onclick={askApertureRender} disabled={busy}>aperture · render</button>
+      <button class="btn" onclick={askEmitterVision} disabled={busy}>emitter · render</button>
     </div>
   </div>
 
@@ -128,20 +170,20 @@
 
   <div class="logs">
     <section class="col">
-      <div class="col-head"><span>client log</span><span class="count">{$clientLog.length}</span></div>
+      <div class="col-head"><span>client trace</span><span class="count">{clientStory.roots.length}</span></div>
       <div class="col-body">
-        {#each $clientLog as record, index (index)}
-          <Trace {record} />
+        {#each clientStory.roots as node (node.id)}
+          <Trace {node} />
         {:else}
           <div class="empty">— nothing yet —</div>
         {/each}
       </div>
     </section>
     <section class="col">
-      <div class="col-head"><span>server log</span><span class="count">{$serverLog.length}</span></div>
+      <div class="col-head"><span>server trace</span><span class="count">{serverStory.roots.length}</span></div>
       <div class="col-body">
-        {#each $serverLog as record, index (index)}
-          <Trace {record} />
+        {#each serverStory.roots as node (node.id)}
+          <Trace {node} />
         {:else}
           <div class="empty">— streamed spans land here —</div>
         {/each}

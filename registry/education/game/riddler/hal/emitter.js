@@ -5,7 +5,6 @@ const RIDDLER_RENDER_OUTPUT = v.object({
     v.object({
       riddle: v.string().desc("The riddle prompt — one sentence, LEARNING language."),
       answer: v.string().desc("The single expected answer, LEARNING language."),
-      // hint: v.string().desc("One conspiratorial nudge toward the answer, never revealing it."), //@beef no hint on initial generation!
       literals: v.array(v.slug()).desc("The slugs of the vocabulary this riddle depends on."),
     }),
   ),
@@ -38,7 +37,7 @@ Vanity is your craft — you hold yourself the sharpest mind in the room and bui
 
   subject: (
     pool,
-  ) => `Build each riddle from a SUBSET of these words — favour the weak and the unseen (slug · learning (known) · strength · status):
+  ) => `Build each riddle from a SUBSET of these words (slug · learning (known) · strength · status):
 ${pool
   .map(
     (literal) =>

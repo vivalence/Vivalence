@@ -23,14 +23,14 @@ trajectory
     ctx.span = new Span("ghost");
     // ctx.span.to(paladin.variant.logs);
 
-    ctx.span.begin();
-    ctx.span.track.subject({ schema: "signal", id: ctx.signal.absolute.join(" ") });
+    ctx.span.open();
+    ctx.span.mark("subject", { schema: "signal", id: ctx.signal.absolute.join(" ") });
 
     try {
       await next();
     } finally {
-      if (ctx.error) ctx.span.track.fault().raise(ctx.error.message, ctx.error.code);
-      ctx.span.drain();
+      if (ctx.error) ctx.span.fault(ctx.error);
+      ctx.span.close();
     }
   })
 

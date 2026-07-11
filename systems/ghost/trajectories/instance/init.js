@@ -26,11 +26,11 @@ export async function init(ctx) {
   const boot = async () => {
     held = await paladin.ledger.boot(specs(ctx.signal.params[0], { attachment: "piped" }));
     for (const process of held) {
-      const branch = ctx.span?.branch(`init/${process.spec.type}`).begin();
-      branch?.track.subject().target("process", process.pid);
+      const branch = ctx.span?.branch(`init/${process.spec.type}`).open();
+      branch?.mark("subject", { schema: "process", id: process.pid });
       process.status.then((exit) => {
-        if (!exit.success) branch?.track.fault().raise(`exit ${exit.code}`, "EXIT");
-        branch?.seal();
+        if (!exit.success) branch?.fault({ message: `exit ${exit.code}`, code: "EXIT" });
+        branch?.close();
       });
     }
     return held;

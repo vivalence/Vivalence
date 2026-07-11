@@ -1,42 +1,26 @@
 import { atom } from "nanostores";
-import { Pipe } from "@vivalence/typology";
+import { Pipe, trace } from "@vivalence/typology";
 
-export const $telemetry = atom([]);
+export const $span = atom(null);
+
+export const $telemetry = atom(trace.chronicle.seed());
+
+const trim = (story) => {
+  while (story.roots.length > 200) {
+    const stale = story.roots.shift();
+    const drop = (node) => {
+      story.nodes.delete(node.id);
+      node.children.forEach(drop);
+    };
+    drop(stale);
+  }
+  return story;
+};
 
 let pipe;
 export const telemetry = () => {
   if (pipe) return pipe;
   pipe = new Pipe();
-  pipe.tap((span) => $telemetry.set([...$telemetry.get(), span].slice(-200)));
+  pipe.tap((record) => $telemetry.set(trim(trace.chronicle.step($telemetry.get(), record))));
   return pipe;
 };
-
-// [telemetry]
-// Object { span: {…} }
-// ​
-// span: Object { gauges: [], nature: "lighthouse", _hash: "59ff7063", … }
-// ​​
-// _hash: "59ff7063"
-// ​​
-// fault: null
-// ​​
-// gauges: Array []
-// ​​
-// nature: "lighthouse"
-// ​​
-// pipe: Object { listeners: Set(2) }
-// ​​
-// subject: null
-// ​​
-// timing: Object { span: {…}, begun: 4959, sealed: 6456 }
-// ​​
-// track: Object { transport: transport(options), transition: transition(options), subject: subject(options), … }
-// ​​
-// transition: null
-// ​​
-// transport: Object { span: {…}, request: {…}, response: {…} }
-// ​​
-// <prototype>: Object { … }
-// ​
-// <prototype>: Object { … }
-// telemetry.js:12:30

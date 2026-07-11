@@ -95,7 +95,10 @@ async function wireMode(viva, daemon) {
   const traits = viva.manifest.traits;
   if (traits.includes("APPLICATION") && viva.app) APPLICATION(mode, daemon);
   if (traits.includes("INTENTED") && viva.dataset) await INTENTED(mode, daemon);
-  if (traits.includes("EMITTER") && viva.emitter) await EMITTER(mode, daemon);
+  if (traits.includes("EMITTER") && viva.emitter) {
+    const commit = await EMITTER(mode, daemon);
+    if (commit) await commit();
+  }
   if (traits.includes("EXPOSED")) {
     const finalize = EXPOSED(mode);
     if (finalize) await finalize();

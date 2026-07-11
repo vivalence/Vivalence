@@ -49,7 +49,6 @@ export function vector(thing) {
   return (
     signature(thing) &&
     is.object(thing) &&
-    is.defined(thing.effects) &&
     is.defined(thing.trajectories) &&
     is.defined(thing.carry) &&
     is.fn(thing.use) &&

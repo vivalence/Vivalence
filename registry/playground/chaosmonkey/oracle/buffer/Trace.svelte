@@ -1,13 +1,20 @@
 <script>
-  let { record, open = $bindable(false) } = $props();
+  import { trace } from "@vivalence/typology";
+  import Trace from "./Trace.svelte";
 
-  const ms = (timing) =>
-    timing?.begun != null && timing?.sealed != null ? `${(timing.sealed - timing.begun).toFixed(0)}ms` : null;
+  let { node, open = $bindable(false) } = $props();
 
-  const leaf = $derived(record.absolute.split("/").filter(Boolean).pop() ?? "/");
-  const trail = $derived(record.absolute.slice(0, Math.max(0, record.absolute.length - leaf.length)));
-  const body = $derived(record.object?.payload ?? record.transport ?? null);
-  const expandable = $derived(body != null);
+  const ms = (value) => (value != null ? `${value.toFixed(0)}ms` : null);
+
+  const leaf = $derived(node.path.split("/").filter(Boolean).pop() ?? "/");
+  const trail = $derived(node.path.slice(0, Math.max(0, node.path.length - leaf.length)));
+  const subject = $derived(node.entries.find((entry) => entry.verb === "subject")?.data);
+  const wire = $derived(
+    node.entries.find((entry) => entry.verb === "response")?.data ??
+      node.entries.find((entry) => entry.verb === "request")?.data,
+  );
+  const notes = $derived(node.entries.filter((entry) => entry.verb === "note"));
+  const expandable = $derived(notes.length > 0);
 
   function safe(value) {
     const seen = new WeakSet();
@@ -26,22 +33,28 @@
   }
 </script>
 
-<div class="trace" class:fault={record.fault}>
+<div class="trace" class:fault={node.fault}>
   <button class="head" class:open onclick={() => (open = !open)} disabled={!expandable}>
     <span class="tick">{expandable ? (open ? "▾" : "▸") : "·"}</span>
     <span class="path"><span class="trail">{trail}</span><span class="leaf">{leaf}</span></span>
-    {#if record.transition}<span class="badge">{record.transition.from} → {record.transition.to}</span>{/if}
-    {#if record.transport?.response?.status}<span class="badge">{record.transport.response.status}</span>{/if}
-    {#if record.subject}<span class="badge">{record.subject.schema}{record.subject.id ? ":" + record.subject.id : ""}</span>{/if}
-    {#if ms(record.timing)}<span class="dur">{ms(record.timing)}</span>{/if}
+    {#if subject}<span class="badge">{subject.schema}{subject.id ? ":" + subject.id : ""}</span>{/if}
+    {#if wire?.status}<span class="badge">{wire.status}</span>{/if}
+    {#if ms(trace.duration(node))}<span class="dur">{ms(trace.duration(node))}</span>{/if}
   </button>
-  {#if record.fault}
-    <div class="fault-msg" title={record.fault.message}>
-      {record.fault.code ? record.fault.code + " · " : ""}{record.fault.message}
+  {#if node.fault}
+    <div class="fault-msg" title={node.fault.message}>
+      {node.fault.code ? node.fault.code + " · " : ""}{node.fault.message}
     </div>
   {/if}
   {#if open && expandable}
-    <pre class="body">{safe(body)}</pre>
+    <pre class="body">{safe(notes.length === 1 ? notes[0].data : notes.map((entry) => entry.data))}</pre>
+  {/if}
+  {#if node.children.length}
+    <div class="children">
+      {#each node.children as child (child.id)}
+        <Trace node={child} />
+      {/each}
+    </div>
   {/if}
 </div>
 
@@ -124,5 +137,9 @@
     line-height: 1.5;
     white-space: pre-wrap;
     overflow-x: auto;
+  }
+  .children {
+    margin-left: 14px;
+    border-left: 1px solid color-mix(in srgb, currentColor 12%, transparent);
   }
 </style>

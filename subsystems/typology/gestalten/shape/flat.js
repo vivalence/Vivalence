@@ -5,7 +5,7 @@ export function flat(vector, execute) {
   steer.trie.survey(vector, (node) => {
     if (node.effect !== undefined) {
       result.push({
-        nature: node.signature.nature,
+        nature: node.signature?.nature,
         signature: node.signature,
         invoke: node.invoke,
       });

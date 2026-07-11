@@ -3,10 +3,9 @@ import { specimen, Pipe } from "@vivalence/typology";
 // Pipe = a synchronous fanout bus with an async-iterable bridge. send(v) fires
 // every tap inline; observe()/stream() exposes the same feed as an async iterator
 // that taps lazily and buffers between pulls. Real sinks:
-//   src/telemetry.js              — tap → circular buffer of the last N spans
+//   src/telemetry.js              — tap → live chronicle fold of trace records
 //   decks/box/device/microphone   — in = new Pipe(); in.send(event.data)
-//   paladin system.js             — pipe.tap((span) => log.append(span))
-//   Span.drain                    — emits the trace tree via pipe.send(root)
+//   Span.mark                     — every mark flows as a flat record via pipe.send
 
 // ── 1. BASICS — synchronous fanout ───────────────────────────────────────────
 specimen.describe("Pipe: basics", () => {

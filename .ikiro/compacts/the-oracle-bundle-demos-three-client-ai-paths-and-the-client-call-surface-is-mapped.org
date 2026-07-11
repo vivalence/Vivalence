@@ -1,0 +1,92 @@
+#+TITLE: The oracle bundle demos three client ways to use AI — the client call surface is mapped (harness is on =buffer.mode=, the cortex chain was reversed, the harness =dialogue.stream= is BUFFERED so streaming goes through cortex) — and the live run settles ugly→=Trace= feeds, a =serverLogs= column, and a single ephemeral Helpdesk. Consumes the span/pipe reactive spine landed in its sibling compact.
+#+TOPIC: playground/chaosmonkey/oracle = the client demonstration of hallucinator+harness utilization · three demos through =buffer.mode= (NOT =terminal.mode=, which is undefined): cortex·object = =buffer.mode.daemon.cortex.hallucination().context.system().entities.turn.append().output.object().object.render()= · harness·object = =buffer.mode.harness.object.render({turns,output})= · cortex·stream = =…hallucination().dialogue.stream()= (SSE soma packets — because the STRIPWIRED harness =dialogue.stream= maps stream→=connection.call= = buffered, no tokens) · the sketch's chain was wrong: =.output.object(schema)= not =.object.output=, =.context.system(text)= not =.context.extend(string)= (extend iterates a string's chars), and a user TURN must be appended · Anthropic rejects a non-object output schema (=input_schema.type: should be 'object'= → =v.object=, never bare =v.string=) · logging is thorough via =span.log= over two feeds (clientLogs = what the client does · serverLogs = the server's streamed soma events) · Helpdesk = single ephemeral slot (assistant bubble XOR user field) · CORS on the daemon blocks SSE (env)
+
+* Arc
+
+** the deliverable
+
+User (on =Oracle.svelte=): =@beef this is what we're building. the primary deliverable. its a mode featuring demos of hallucinator and harness utilization stripwired and serverside. oracle also features a dedicated logging utility architecture including reactive display of logs as they come in.= The client demos three ways to use AI (=kajuit/mode/app=): =terminal.daemon.cortex.hallucination().object.render()= · =terminal.mode.harness.object.render()= · =terminal.mode.harness.dialogue.stream()=. A later runtime pair (aperture/emitter for vision mode) is reserved. The reactive logging half is the sibling compact [[the-span-pipe-reactive-logging-spine-lands-and-the-oracle-bundle-demos-three-client-ai-paths]]; THIS compact is the client-AI + UI half.
+
+** the client call surface — mapped against the real code (Explore agent)
+
+An Explore agent traced all three paths through =subsystems/typology/prototypes/{cortex,hallucination,mode}.js=, =gestalten/shape/{cortex,connection}.js=, =systems/kajuit/…/entities/{terminal,daemon,mode}.js=, =systems/runtime/daemon/traits/harnessed.js=. Findings (the corrections mattered — the sketch would have thrown):
+
+- =terminal.mode= DOESN'T EXIST. =Terminal()= exposes =id·$thread·$buffer·thread·buffer·daemon·stall=. The harness lives on =buffer.mode=. beef: =sorry. its either buffer.mode or terminal.thread.mode! use buffer.mode!!= (=buffer.mode.daemon.cortex === terminal.daemon.cortex= — same daemon; cortex reachable either way, harness ONLY via =buffer.mode=).
+- cortex chain REVERSED: it is =hallucination.output.object(schema)= (=.object= is the execution branch ={render,stream}=, it has no =.output=); =.context.system(text)= for the system prompt (=.context.extend= expects an OBJECT — =Object.entries("User Message: …")= iterates the string's characters into context keys); and =.render()= sends only a system turn unless you =.entities.turn.append({role:"user",parts:[{type:"text",text}]})=.
+- render paths THROW (=connection.call= throws =response.error= annotated with the pathname on non-OK) → wrap in =try/catch=, log the caught error onto a fault branch.
+- =buffer.mode.harness.dialogue.stream= is BUFFERED client-side: =shape.connection.wire= maps EVERY leaf (render AND stream) to =connection.aim=→=connection.call= (a single =accept: application/json= POST). The strip carries no via-distinction. So the harness "stream" does one buffered round, no tokens. The REAL client token stream is the cortex sibling: =hallucination.dialogue.stream()= = an async generator over =connection.observe("/cortex/stream")= (genuine SSE; =shape.http= auto-frames a bare async-gen as SSE). Yields soma packets: =/turn/open=·=/part/open=·=/part/delta {delta:{text}}=·=/part/close=·=/turn/close=.
+
+** the bundle build
+
+Built =Oracle.svelte= = 3 client buttons + a disabled runtime pair (aperture/emitter, next step) + Helpdesk + two log columns. Each demo groups its steps under a call-branch (=const call = clientLogs.branch("/cortex/object"); call.log({prompt}); … call.log({render})=) so the tree reads per-operation. Inline =Trace.svelte= renders a record; =Helpdesk= to drapes.
+
+** live run — beef drove it against a real playground daemon
+
+- =very ugly!= — the right column was a raw =clientLogs.json= =<pre>= dump. Killed it; both columns became clean =Trace= feeds (dimmed path-trail + bright leaf, badges, inline red fault, expand→JSON), empty-states, softer panels.
+- =and the span tree is wrong. that side i want tthe serverLogs!= — right column = a SECOND feed =serverLogs=, fed from the stream's soma packets (=serverLogs.log(packet.event, packet)= for the structural events; =/part/delta= accumulates into =assistant=).
+- The 500 = my bug: =… the oracle falters: Server error: 500 — 400 {"type":"error","error":{"type":"invalid_request_error","message":"tools.0.custom.input_schema.type: Input should be 'object'"}} @ /daemon/playground/cortex/render=. The =object= faculty compiles the output schema into a TOOL whose =input_schema= = that schema; Anthropic requires =type: object=. =.output.object(v.string())= → =type: string= → rejected. Fix: =v.object({answer: v.string()})= (the harness demo already used object shape). Console also showed =Cross-Origin Request Blocked= on =/cortex/{render,stream}= + =/…/subscribe= → daemon CORS allowlist gap (ENV, not code); the render POST still returned (hence the visible 500), SSE stays blocked → =cortex·stream= can't run until the origin is allowed.
+- =the helpdesk isnt as i describe. helpdesk is always either user message or assistant message. not both. ephemeral= — rewrote Helpdesk (below).
+
+* The landing (carry forward)
+
+** the three client calls (exact, corrected)
+
+#+begin_src javascript
+// registry/playground/chaosmonkey/oracle/buffer/Oracle.svelte  — all on buffer.mode
+// 1 · cortex · object
+const h = buffer.mode.daemon.cortex
+  .hallucination({ tune: "eager" })
+  .context.system(SYSTEM)                                                  // NOT .context.extend(string)
+  .entities.turn.append({ role: "user", parts: [{ type: "text", text: prompt }] })  // a user TURN is required
+  .output.object(v.object({ answer: v.string().desc("the oracle's reply") }));       // .output.object, object schema
+const render = await h.object.render();                                   // Promise (echo strategy); throws on non-OK
+assistant.set(render.object?.answer ?? "");
+
+// 2 · harness · object  (stripwired: buffer.mode.harness.object.render ≡ connection.call("/harness/object/render", …))
+const render = await buffer.mode.harness.object.render({
+  turns: [{ role: "user", parts: [{ type: "text", text: prompt }] }],
+  output: v.object({ answer: v.string() }),
+});
+assistant.set(render?.object?.answer ?? "");
+
+// 3 · cortex · stream  (real SSE — the harness dialogue.stream is BUFFERED, so stream via cortex)
+const stream = await buffer.mode.daemon.cortex
+  .hallucination({ tune: "eager" }).context.system(SYSTEM)
+  .entities.turn.append({ role: "user", parts: [{ type: "text", text: prompt }] })
+  .dialogue.stream();
+for await (const packet of stream) {
+  if (packet.event === "/part/delta" && packet.delta?.text) { text += packet.delta.text; assistant.set(text); }
+  else serverLogs.log(packet.event, packet);           // structural server events → the right column
+}
+#+end_src
+
+Thorough logging shape: each handler = =const call = clientLogs.branch("/<demo>"); call.log({prompt}); try { … call.log({request}); … call.log({render}); } catch (error) { call.log(error); }=. =span.log= sniffs the prop key as the child nature (SUPERSEDED-PENDING — see the spine compact; beef rejected keys-as-natures, redesign queued).
+
+** Trace + Helpdesk
+
+#+begin_src
+registry/playground/chaosmonkey/oracle/buffer/Trace.svelte  — inline log line (NOT drapes Paragraph — beef: "keep a inline paragraph or we rename that entity")
+  head: tick · dimmed absolute-trail + bright leaf · badges (transport.status / transition / subject / duration)
+  fault: inline red message (code · message, truncated, title=full)   body(expand): safe()-stringified object.payload | transport
+subsystems/drapes/display/Helpdesk.svelte (+ barrel)         — SINGLE EPHEMERAL SLOT (beef's sketch: !user && !focus → assistant, else → user)
+  showUser = engaged || $user.length ;  idle → <button class=assistant> bubble (click to type) ;  engaging → auto-focused <textarea>
+  submit(): onsubmit?.(text) → user.set("") → engaged=false  (flips back to the assistant bubble, now the reply) ;  Enter submits · Esc cancels ;  bubble tails flip side
+#+end_src
+
+Bundle imports =@vivalence/typology= (=v·Span·Pipe=) + =@vivalence/drapes= (=Helpdesk=) + =nanostores= (=atom=) + local =./Trace.svelte=. Subscribes to =pipe.reactive([],append)= via a bare =$clientLog= / =$serverLog= (nanostores atom = Svelte-subscribable; no =atom.chain=). All three =.svelte= compile clean under svelte 5.39.6 runes (offline compiler check).
+
+* Lessons (self-corrections)
+
+- Verify the client handle before writing calls: the sketch's =terminal.mode= / =terminal.daemon.cortex= were aspirational — the real map is =buffer.mode= (harness) and =buffer.mode.daemon.cortex= (cortex). The Explore-agent trace caught three throwing errors in the sketch chain before they ran.
+- "It's called =stream=" ≠ "it streams." The stripwire flattens render/stream to the same buffered =connection.call=; genuine SSE is a different avenue (=connection.observe= / cortex =dialogue.stream=). Read the wire, not the method name.
+- A structured-output schema is compiled to a provider TOOL; Anthropic's =input_schema.type= must be =object=. Bare scalar schemas (=v.string=) are illegal there — always wrap (=v.object({answer})=).
+- Kept the log renderer INLINE + renamed (=Trace=) rather than clobbering drapes' semantic =Paragraph= — beef flagged the collision; the app-space log line is not the same entity as a text paragraph.
+
+* Open / Pending
+
+- **CORS (env, not code):** daemon =localhost:2501= blocks the app origin on =/cortex/{render,stream}= + =/…/subscribe=. =cortex·object= / =harness·object= should return with the schema fix; =cortex·stream= (SSE) stays blocked until the daemon allowlists the origin.
+- **serverLogs only fills from =cortex·stream=** (soma packets). Object demos don't stream → right column stays empty-state. Real server-side span streaming (daemon instruments + pushes its own spans) is the aperture/emitter step.
+- **runtime column** (=aperture · render= / =emitter · render=) = disabled placeholders — the NEXT step (vision mode: =sassy information display + a resolve button=): =aperture.mode.harness.dialogue.render()= via =terminal.mode.connection.call('/harness/dialogue/render',…)= and =emitter.daemon.cortex.hallucination().object.render()= via =terminal.daemon.connection.call('/cortex/render',…)=.
+- **=span.log= keys-as-natures** is live but SUPERSEDED-PENDING the connoisseur redesign (see the spine compact) — beef: =why should render be interpreted as nature??!!=.
+- **Latent, not mine:** oracle server =harness.js= =/dialogue= middleware references =COMPACT_THRESHOLD=/=COMPACT_KEEP= (they live in =oracle.viva.js=, not imported) — only fires if =/dialogue= runs; doesn't block =/object= + cortex demos.
+- **Helpdesk moved to drapes** (=subsystems/drapes/display/Helpdesk.svelte=) per beef's earlier instruction — flagged as movable back to bundle-local if beef prefers.

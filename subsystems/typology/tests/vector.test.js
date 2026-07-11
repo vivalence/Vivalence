@@ -3,9 +3,9 @@ import { Vector } from "@vivalence/typology";
 
 specimen.describe("Vector", () => {
   specimen.describe("construction", () => {
-    specimen.it("creates with empty effects and trajectories", () => {
+    specimen.it("creates with empty effect and trajectories", () => {
       const vector = new Vector();
-      specimen.expect(vector.effects.size).toBe(0);
+      specimen.expect(vector.effect).toBe(null);
       specimen.expect(vector.trajectories.size).toBe(0);
       specimen.expect(vector.carry).toEqual([]);
     });
@@ -37,23 +37,32 @@ specimen.describe("Vector", () => {
   });
 
   specimen.describe("open", () => {
-    specimen.it("registers effect", () => {
+    specimen.it("registers effect on a leaf trajectory", () => {
       const vector = new Vector();
       const f = () => {};
       vector.open("greet", f);
-      specimen.expect(vector.effects.size).toBe(1);
+      specimen.expect(vector.trajectories.size).toBe(1);
+      specimen.expect(vector.branch("greet").effect).toBe(f);
     });
 
     specimen.it("decomposes multi-segment path", () => {
       const vector = new Vector();
       const f = () => {};
       vector.open("/users/:id", f);
-      specimen.expect(vector.effects.size).toBe(0);
       specimen.expect(vector.trajectories.size).toBe(1);
-      const branch = vector.branch("users");
-      const effectPattern = Array.from(branch.effects.keys())[0];
-      specimen.expect(effectPattern.nature).toBe(":id");
-      specimen.expect(branch.effects.get(effectPattern)).toBe(f);
+      const users = vector.branch("users");
+      specimen.expect(users.trajectories.size).toBe(1);
+      const id = [...users.trajectories.keys()][0];
+      specimen.expect(id.nature).toBe(":id");
+      specimen.expect(users.branch(":id").effect).toBe(f);
+    });
+
+    specimen.it("overwrites on re-open (last-wins)", () => {
+      const vector = new Vector();
+      const a = () => "a";
+      const b = () => "b";
+      vector.open("x", a).open("x", b);
+      specimen.expect(vector.branch("x").effect).toBe(b);
     });
   });
 
@@ -63,22 +72,19 @@ specimen.describe("Vector", () => {
       const input = v.object({ limit: v.integer(), where: v.any() });
       const f = () => {};
       vector.open({ nature: "/feed", input, valence: "fetch items" }, f);
-
-      const branch = vector.branch("feed");
-      specimen.expect(branch).toBeDefined();
+      specimen.expect(vector.branch("feed")).toBeDefined();
     });
 
-    specimen.it("input lands on the leaf pattern", () => {
+    specimen.it("input lands on the leaf trajectory key", () => {
       const vector = new Vector();
       const input = v.object({ recall: v.string(), gameplay: v.string() });
       const f = () => {};
       vector.open({ nature: "/emit/literal", input }, f);
-
       const emit = vector.branch("emit");
-      const pattern = Array.from(emit.effects.keys())[0];
+      const pattern = [...emit.trajectories.keys()][0];
       specimen.expect(pattern.nature).toBe("literal");
       specimen.expect(pattern.input).toBe(input);
-      specimen.expect(emit.effects.get(pattern)).toBe(f);
+      specimen.expect(emit.branch("literal").effect).toBe(f);
     });
 
     specimen.it("registers effect with function descriptor", () => {
@@ -86,9 +92,7 @@ specimen.describe("Vector", () => {
       const input = v.object({ limit: v.integer() });
       const f = () => {};
       vector.open((s) => ({ nature: "/feed", input }), f);
-
-      const branch = vector.branch("feed");
-      specimen.expect(branch).toBeDefined();
+      specimen.expect(vector.branch("feed")).toBeDefined();
     });
   });
 
@@ -112,12 +116,11 @@ specimen.describe("Vector", () => {
   });
 
   specimen.describe("affect", () => {
-    specimen.it("registers a null-keyed effect", () => {
+    specimen.it("sets the node's singular effect", () => {
       const vector = new Vector();
       const f = (ctx) => ctx.input;
       vector.affect(f);
-      specimen.expect(vector.effects.size).toBe(1);
-      specimen.expect(vector.effects.get(null)).toBe(f);
+      specimen.expect(vector.effect).toBe(f);
     });
 
     specimen.it("is chainable", () => {
@@ -125,13 +128,13 @@ specimen.describe("Vector", () => {
       specimen.expect(vector.affect(() => {})).toBe(vector);
     });
 
-    specimen.it("sits alongside keyed effects without collision", () => {
+    specimen.it("a node is both leaf and branch", () => {
       const vector = new Vector();
       const named = () => "named";
       const anon = () => "anon";
       vector.open("ping", named).affect(anon);
-      specimen.expect(vector.effects.size).toBe(2);
-      specimen.expect(vector.effects.get(null)).toBe(anon);
+      specimen.expect(vector.effect).toBe(anon);
+      specimen.expect(vector.branch("ping").effect).toBe(named);
     });
   });
 });
@@ -140,26 +143,25 @@ specimen.describe("Vector: slurp invariants", () => {
   specimen.it("leaves the SOURCE vector unmutated", () => {
     const src = new Vector().open("/a", () => 1).open("/b/c", () => 2);
     const before = {
-      effects: src.effects.size,
+      effect: src.effect,
       carry: src.carry.length,
       trajectories: src.trajectories.size,
     };
     new Vector().slurp(src);
-    specimen.expect(src.effects.size).toBe(before.effects);
+    specimen.expect(src.effect).toBe(before.effect);
     specimen.expect(src.carry.length).toBe(before.carry);
     specimen.expect(src.trajectories.size).toBe(before.trajectories);
   });
 });
 
 specimen.describe("Vector: slurp shares, swallow owns", () => {
-  // slurp grafts the source branch by reference (a feature); swallow deep-copies it.
   const trial = (merge) => {
     const src = new Vector().open("/shared/a", () => "src-a");
     const dest = new Vector();
     dest[merge](src);
-    dest.branch("shared").open("b", () => "dest-b"); // edit DEST's branch only
+    dest.branch("shared").open("b", () => "dest-b");
     const srcShared = [...src.trajectories.values()][0];
-    return [...srcShared.effects.keys()].some((pattern) => pattern.nature === "b"); // leaked into src?
+    return [...srcShared.trajectories.keys()].some((pattern) => pattern.nature === "b");
   };
 
   specimen.it("slurp shares the branch — edit leaks into src (by design)", () => {

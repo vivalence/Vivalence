@@ -31,6 +31,7 @@ specimen.beforeAll(async () => {
   em.setFilterParams("user", { user: fixtures.user.id })
 
   const twitch = new Vector()
+  const twitchNoambient = new Vector()
   const aperture = new Aperture()
 
   // faithful to production: attach user -> ambient.store (stamps owner) -> scope -> repo + reactive(scope)
@@ -55,10 +56,10 @@ specimen.beforeAll(async () => {
     .use(shard.context.attach("user", fixtures.user))
     .use(shard.datamap.scope((ctx) => ({ thread: { user: ctx.user.id } })))
     .slurp(shard.datamap.repository(repos.buffer))
-    .slurp(shard.datamap.reactive(repos.buffer, twitch, { scope: (ctx) => ({ user: ctx.user.id }) }))
+    .slurp(shard.datamap.reactive(repos.buffer, twitchNoambient, { scope: (ctx) => ({ user: ctx.user.id }) }))
 
-  const sub = shape.subscriber(twitch)
-  scenario.em.getEventManager().registerSubscriber(sub)
+  scenario.em.getEventManager().registerSubscriber(shape.subscriber(twitch))
+  scenario.em.getEventManager().registerSubscriber(shape.subscriber(twitchNoambient))
 
   const handler = shape.http(aperture)
   const abort = new AbortController()

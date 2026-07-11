@@ -17,7 +17,6 @@ export * from "./signal.js";
 export * from "./span.js";
 export * from "./pipe.js";
 export * from "./queue.js";
-export * as tracks from "./tracks.js";
 
 export * from "./app.js";
 export { App } from "./app.js";

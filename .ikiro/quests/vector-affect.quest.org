@@ -215,5 +215,49 @@ audit + full rotation blast diff), verified against the live code.
 4. walk/shotgun do NOT fold tip-node leaf =carry= — no live call-site hits it (=open()= returns
    =this=, not the tip). Pin as a documented decision, not a silent surprise.
 
+** Adversarial pass — refinements (grounded re-scan; S1 is load-bearing)
+- *S1 — open OVERWRITES, does NOT route through guarded affect.* =open(sig,fn)= ⇒
+  =this.branch(sig).effect = fn= (direct set). Routing through =affect= would inherit its
+  guard → a re-=open()= of an existing path becomes a SILENT no-op (old Map semantics were
+  last-wins overwrite). =affect= keeps its guard for the standalone catch-all only; aperture
+  =_route= likewise sets =tip.effect= directly. WITHOUT this, a mode/emitter/cortex
+  re-registering a path silently keeps the stale handler.
+- *S2 — stamp is generic + mutates shared keys.* copy ALL own-enumerable non-structural keys
+  (not a fixed input/output list — leaves carry =keyed.command= etc); stamp on branch-FIND.
+  Mutates the key in place → with slurp's structural sharing metadata leaks into source
+  (swallow is clean). Verified: hash/heir/fin are prototype getters, safe to leave.
+- *S4 — trailing-segment match tightens.* =/users/:id/extra= no longer loose-matches
+  =/users/:id= (old feed length-1 shortcut returned the leaf ignoring the tail); now descends
+  → NotFound. Bug-fix, but add a routing precedence test (=/users/me= vs =/users/:id=) since
+  literal-vs-param order now rides ONE merged trajectories map (was: branches-before-leaves).
+- *S5 — signal double-branch is silent.* survey/rollup + =object.js:12= must DROP the trailing
+  =f.signal.branch(f.pattern.nature)= (descent already branched) — else =ctx.signal=/=request.url=
+  become =root/a/b/b= while params still resolve. Add a test asserting =ctx.signal= == request path.
+- Grounded de-risk: =.effects= consumers COMPLETE in the blast list (zero surprise in
+  registry/systems); =shape.proxy= + =walk()= interactive descent are TEST-ONLY (no prod
+  consumer); prod routing = invoke/traverse/shotgun, and =walk.js:37= (the both-node descent)
+  is already written — traverse/invoke/shotgun need ZERO edits.
+
+** LANDED — Phase B (the rotation) is green
+- Full typology suite: *117 passed / 0 failed* — exact pre-rotation baseline. Source: `prototypes/{vector,aperture}.js`,
+  `steer/{tree,match}.js`, `shape/{object,strip,tree,flat,selbstbestimmt,connection}.js`, `is/prototypes.js`,
+  `specimen/snapshot.js`, `ghost/belt/shape.js`. Tests rewritten: `vector.test`, `steer/{survey,match}.test`,
+  `shape/{tree,flat,selbstbestimmt}.test` (orders re-baselined to CREATION order — cats top-level = `[hunt,purr,nap]`,
+  flat DFS = `[stalk,pounce,retreat,purr,nap]`).
+- =walk.js= + =shape/messenger.js= never edited — confirmed no-change. =batch.integration= + =datamap.scoped= green.
+
+** The twitch dup-path casualty (found by beef) + resolution
+- shotgun's EXACT-duplicate-path fan (open the same path N× → all N fire) was an ARTIFACT of the old effects-Map
+  keyed by pattern OBJECT (reference), not a feature. Rotation's singular effect makes re-open LAST-WINS → only 1 fires.
+- Only bite: =datamap.scoped= registered `/buffer/*/after` TWICE on ONE shared twitch (scoped + noambient control,
+  each its own broadcaster) → the first broadcaster's handler was overwritten → its /subscribe hung.
+- Production (=userspace.js=) opens each path ONCE per twitch → unaffected. Sibling-pattern fan (literal/:param/*)
+  still works — distinct nodes.
+- FIX (under our choices, single-effect stays): the test now uses TWO twitches (one per branch) — correct isolation,
+  matches prod (one reactive per twitch-path).
+- DEFERRED (backhand): aggregation is an EFFECT concern, not a Vector one. A `fanout(handlers)` combinator (one effect
+  that calls all, `.add()` to grow — same shape as aperture's `methods()` dispatcher) restores multi-subscriber without
+  touching Vector's single-effect invariant. Likely home: a dedicated Twitch Vector (like Aperture) with fanout built in.
+
 ** Boundary (unchanged)
 - VCS read-only; Finn lands commits. Typology is HOLY.

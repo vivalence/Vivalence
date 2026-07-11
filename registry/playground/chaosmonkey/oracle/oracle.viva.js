@@ -9,7 +9,7 @@ export const manifest = {
   name: "Oracle",
   description: "Aperture calls harness.object.render — the chaosmonkey demo case.",
   version: "0.1.0",
-  traits: ["APPLICATION", "STANDALONE", "HARNESSED", "EXPOSED", "CONVERSATIONAL"],
+  traits: ["APPLICATION", "STANDALONE", "HARNESSED", "EXPOSED", "EMITTER", "CONVERSATIONAL"],
 };
 
 // the hub is a control surface — its buffer carries nothing. Turn persistence

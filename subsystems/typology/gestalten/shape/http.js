@@ -1,4 +1,4 @@
-import { Signal, Context, fromm, steer, NotFound } from "@vivalence/typology";
+import { Signal, Context, fromm, steer, trace, NotFound } from "@vivalence/typology";
 
 export function http(vector) {
   return async (req) => {
@@ -54,14 +54,9 @@ function respond(ctx, status) {
   const type = ctx.response.type || "application/json";
   const headers = Object.fromEntries(ctx.response.headers);
   headers["content-type"] = type;
-  if (ctx.span?.complete) {
-    const flatten = (node) => {
-      const result = [];
-      if (node.duration != null) result.push(`${node.nature};dur=${node.duration.toFixed(1)}`);
-      for (const gauge of node.gauges ?? []) result.push(...flatten(gauge));
-      return result;
-    };
-    headers["server-timing"] = flatten(ctx.span).join(", ");
+  if (ctx.span) {
+    const header = trace.timing(trace.chronicle(ctx.span.records));
+    if (header) headers["server-timing"] = header;
   }
 
   if (body instanceof Uint8Array || body instanceof ReadableStream) {

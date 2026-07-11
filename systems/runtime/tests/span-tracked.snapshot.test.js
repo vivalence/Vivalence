@@ -1,50 +1,47 @@
-// span (tracked) · the live span spine — shard.track builds a real timed trace during a
-// middleware dispatch (the mechanism systems/ghost mounts on ctx.span), drained to a Pipe.
-import { specimen, Pipe, middleware, shard } from "@vivalence/typology";
+import { specimen, Pipe, middleware, shard, trace } from "@vivalence/typology";
 
-const { track } = shard;
-const { describe, it, expect, snapshot } = specimen;
 const base = new URL("./snapshots", import.meta.url).pathname;
 const DRY = false;
 
 const stable = (node) => {
-  const { timing, children, ...rest } = node;
-  const out = { ...rest };
-  if (timing) out.timing = { measured: timing.begun != null && timing.sealed != null };
-  if (children) out.children = children.map(stable);
+  const out = { path: node.path, nature: node.nature };
+  if (node.timing) out.timing = { measured: node.timing.begun != null && node.timing.sealed != null };
+  if (node.entries.length) out.entries = node.entries.map((entry) => ({ verb: entry.verb, data: entry.data }));
+  if (node.children.length) out.children = node.children.map(stable);
   return out;
 };
 
-describe("span snapshot: the tracked spine (shard.track)", () => {
-  it("captures a live timed span tree", async () => {
-    const spans = [];
+specimen.describe("trace: the tracked spine (shard.track)", () => {
+  specimen.it("a middleware dispatch writes a chronicle", async () => {
+    const records = [];
     const pipe = new Pipe();
-    pipe.tap((span) => spans.push(span));
+    pipe.tap((record) => records.push(record));
 
     const chain = middleware.compose([
-      track.span("render", pipe),
-      track.subject("dialogue", "turn-1"),
-      track.span("provider"),
-      track.span("translate"),
+      shard.track.span("render", pipe),
+      shard.track.subject("dialogue", "turn-1"),
+      shard.track.span("provider"),
+      shard.track.span("translate"),
     ]);
 
     await chain({}, async () => {});
 
-    const root = spans[0];
-    expect(typeof root.timing.begun).toBe("number");
-    expect(typeof root.timing.sealed).toBe("number");
+    const story = trace.chronicle(records);
+    const root = story.roots[0];
+    specimen.expect(trace.duration(root)).not.toBe(null);
+    specimen.expect(root.entries[0].verb).toBe("subject");
+    specimen.expect(root.entries[0].data).toEqual({ schema: "dialogue", id: "turn-1" });
+    specimen.expect(root.children[0].nature).toBe("provider");
+    specimen.expect(root.children[0].children[0].nature).toBe("translate");
 
-    const { pojo, path } = snapshot(root, {
+    const capture = specimen.snapshot(story.roots, {
       base,
       dry: DRY,
       locate: "span-tracked.snapshot.json",
-      parse: (s) => stable(s.json),
+      parse: (roots) => roots.map(stable),
     });
-    console.log(`\n===BEGIN span-tracked → ${path}===\n${JSON.stringify(pojo, null, 2)}\n===END===\n`);
-    expect(pojo.nature).toBe("render");
-    expect(pojo.subject).toEqual({ schema: "dialogue", id: "turn-1" });
-    expect(pojo.timing).toEqual({ measured: true });
-    expect(pojo.children[0].nature).toBe("provider");
-    expect(pojo.children[0].children[0].nature).toBe("translate");
+    console.log(`\n===BEGIN span-tracked → ${capture.path}===\n${JSON.stringify(capture.pojo, null, 2)}\n===END===\n`);
+    specimen.expect(capture.pojo[0].timing).toEqual({ measured: true });
+    specimen.expect(capture.pojo[0].children[0].children[0].timing).toEqual({ measured: true });
   });
 });

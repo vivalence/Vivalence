@@ -9,26 +9,15 @@ export class Aperture extends Vector {
   delete(sig, handler) { return this._route("DELETE", sig, handler); }
 
   _route(method, sig, handler) {
-    const pattern = new this.signature(sig);
+    const tip = this.branch(sig);
 
-    if (pattern.heir) {
-      const fin = pattern.fin.pop();
-      return this.branch(pattern)._route(method, fin.nature, handler);
-    }
-
-    const existing = Array.from(this.effects.entries())
-      .find(([p]) => p.hash === pattern.hash);
-
-    if (existing && existing[1].methods) {
-      existing[1].methods[method] = handler;
+    if (tip.effect && tip.effect.methods) {
+      tip.effect.methods[method] = handler;
     } else {
       const dispatcher = methods();
-      if (existing) {
-        dispatcher.methods["*"] = existing[1];
-        this.effects.delete(existing[0]);
-      }
+      if (tip.effect) dispatcher.methods["*"] = tip.effect;
       dispatcher.methods[method] = handler;
-      this.effects.set(pattern, dispatcher);
+      tip.effect = dispatcher;
     }
 
     return this;

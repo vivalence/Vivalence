@@ -1,24 +1,32 @@
 <script>
   import { getContext } from "svelte";
   import { BRIDGE } from "$client";
-  import { $telemetry as telemetryStore } from "$telemetry";
+  import { $telemetry as telemetryStore, $span as spanStore } from "$telemetry";
+  import { trace } from "@vivalence/typology";
 
   const bridge = getContext(BRIDGE);
 
   let show = $state(bridge.view.g);
   bridge.view.$g.subscribe(v => show = v);
 
-  let spans = $state([]);
-  telemetryStore.subscribe(v => spans = v);
+  let story = $state(telemetryStore.get());
+  telemetryStore.subscribe(value => story = value);
 
-  let selected = $state(null);
+  let selected = $state(spanStore.get());
+  spanStore.subscribe(node => selected = node);
 
-  let faults = $derived(spans.filter(s => s.fault));
-  let slow = $derived(spans.filter(s => s.duration > 500 && !s.fault));
-  let recent = $derived(spans.filter(s => !s.fault && !(s.duration > 500)));
+  const faulted = (node) => !!node.fault || node.children.some(faulted);
 
-  function select(span) { selected = span; }
-  function back() { selected = null; }
+  let faults = $derived(story.roots.filter(faulted));
+  let slow = $derived(story.roots.filter((root) => !faulted(root) && trace.duration(root) > 500));
+  let recent = $derived(story.roots.filter((root) => !faulted(root) && !(trace.duration(root) > 500)));
+
+  const wire = (node) =>
+    node.entries.find((entry) => entry.verb === "response")?.data ??
+    node.entries.find((entry) => entry.verb === "request")?.data;
+
+  function select(node) { spanStore.set(node); }
+  function back() { spanStore.set(null); }
 
   function durationClass(duration) {
     if (duration == null) return "";
@@ -43,8 +51,8 @@
       <div class="modeline">
         <button class="btn back" onclick={back}>&larr;</button>
         <span class="seg hi">{selected.nature}</span>
-        {#if selected.duration != null}
-          <span class="seg {durationClass(selected.duration)}">{selected.duration.toFixed(0)}ms</span>
+        {#if trace.duration(selected) != null}
+          <span class="seg {durationClass(trace.duration(selected))}">{trace.duration(selected).toFixed(0)}ms</span>
         {/if}
         <span class="spacer"></span>
         <span class="span-ago">{timeAgo(selected.timing?.begun)}</span>
@@ -52,76 +60,28 @@
       </div>
 
       <div class="detail">
-        {#if selected.timing}
+        {#if trace.duration(selected) != null}
           <div class="track-section">
             <div class="track-label">timing</div>
             <div class="track-fields">
-              {#if selected.duration != null}
-                <div class="field-row">
-                  <span class="field-key">duration</span>
-                  <span class="field-value {durationClass(selected.duration)}">{selected.duration.toFixed(1)}ms</span>
-                </div>
-              {/if}
-            </div>
-          </div>
-        {/if}
-
-        {#if selected.request}
-          <div class="track-section">
-            <div class="track-label">request</div>
-            <div class="track-fields">
-              {#if selected.request.method}
-                <div class="field-row">
-                  <span class="field-key">method</span>
-                  <span class="field-value">{selected.request.method}</span>
-                </div>
-              {/if}
-              {#if selected.request.path}
-                <div class="field-row">
-                  <span class="field-key">path</span>
-                  <span class="field-value mono">{selected.request.path}</span>
-                </div>
-              {/if}
-              {#if selected.request.status}
-                <div class="field-row">
-                  <span class="field-key">status</span>
-                  <span class="field-value" class:error={selected.request.status >= 400}>{selected.request.status}</span>
-                </div>
-              {/if}
-            </div>
-          </div>
-        {/if}
-
-        {#if selected.transition}
-          <div class="track-section">
-            <div class="track-label">transition</div>
-            <div class="track-fields">
               <div class="field-row">
-                <span class="field-key">from</span>
-                <span class="field-value">{selected.transition.from ?? "—"}</span>
-              </div>
-              <div class="field-row">
-                <span class="field-key">to</span>
-                <span class="field-value">{selected.transition.to ?? "—"}</span>
+                <span class="field-key">duration</span>
+                <span class="field-value {durationClass(trace.duration(selected))}">{trace.duration(selected).toFixed(1)}ms</span>
               </div>
             </div>
           </div>
         {/if}
 
-        {#if selected.subject}
+        {#if selected.entries.length}
           <div class="track-section">
-            <div class="track-label">subject</div>
+            <div class="track-label">entries</div>
             <div class="track-fields">
-              <div class="field-row">
-                <span class="field-key">schema</span>
-                <span class="field-value">{selected.subject.schema}</span>
-              </div>
-              {#if selected.subject.id}
+              {#each selected.entries as entry, index (index)}
                 <div class="field-row">
-                  <span class="field-key">id</span>
-                  <span class="field-value mono">{selected.subject.id}</span>
+                  <span class="field-key">{entry.verb}</span>
+                  <span class="field-value mono">{JSON.stringify(entry.data)}</span>
                 </div>
-              {/if}
+              {/each}
             </div>
           </div>
         {/if}
@@ -146,28 +106,28 @@
           </div>
         {/if}
 
-        {#if selected.gauges?.length}
+        {#if selected.children.length}
           <div class="track-section">
-            <div class="track-label">children ({selected.gauges.length})</div>
+            <div class="track-label">children ({selected.children.length})</div>
             <div class="children-list">
-              {#each selected.gauges as child, index}
-                <button class="child-detail" class:has-fault={child.fault} onclick={() => select(child)}>
+              {#each selected.children as child, index (child.id)}
+                <button class="child-detail" class:has-fault={faulted(child)} onclick={() => select(child)}>
                   <span class="child-index">{index}</span>
                   <span class="child-nature">{child.nature}</span>
-                  {#if child.duration != null}
-                    <span class="span-duration {durationClass(child.duration)}">{child.duration.toFixed(0)}ms</span>
+                  {#if trace.duration(child) != null}
+                    <span class="span-duration {durationClass(trace.duration(child))}">{trace.duration(child).toFixed(0)}ms</span>
                   {/if}
-                  {#if child.request?.path}
-                    <span class="span-path">{child.request.path}</span>
+                  {#if wire(child)?.path}
+                    <span class="span-path">{wire(child).path}</span>
                   {/if}
-                  {#if child.request?.status}
-                    <span class="span-pill" class:error={child.request.status >= 400}>{child.request.status}</span>
+                  {#if wire(child)?.status}
+                    <span class="span-pill" class:error={wire(child).status >= 400}>{wire(child).status}</span>
                   {/if}
                   {#if child.fault}
                     <span class="span-pill fault">{child.fault.code ?? child.fault.message}</span>
                   {/if}
-                  {#if child.gauges?.length}
-                    <span class="span-expand">{child.gauges.length}</span>
+                  {#if child.children.length}
+                    <span class="span-expand">{child.children.length}</span>
                   {/if}
                 </button>
               {/each}
@@ -177,21 +137,21 @@
           <div class="track-section">
             <div class="track-label">waterfall</div>
             <div class="waterfall">
-              {#each selected.gauges as child}
+              {#each selected.children as child (child.id)}
                 {@const parentBegun = selected.timing?.begun ?? 0}
-                {@const parentDuration = selected.duration ?? 1}
+                {@const parentDuration = trace.duration(selected) ?? 1}
                 {@const offsetPercent = parentDuration > 0 ? ((child.timing?.begun ?? parentBegun) - parentBegun) / parentDuration * 100 : 0}
-                {@const widthPercent = parentDuration > 0 ? (child.duration ?? 0) / parentDuration * 100 : 0}
+                {@const widthPercent = parentDuration > 0 ? (trace.duration(child) ?? 0) / parentDuration * 100 : 0}
                 <div class="waterfall-row">
                   <span class="waterfall-label">{child.nature}</span>
                   <div class="waterfall-track">
                     <div
-                      class="waterfall-bar {durationClass(child.duration)}"
+                      class="waterfall-bar {durationClass(trace.duration(child))}"
                       style:left="{Math.max(0, offsetPercent)}%"
                       style:width="{Math.max(1, Math.min(100 - offsetPercent, widthPercent))}%"
                     ></div>
                   </div>
-                  <span class="waterfall-ms">{child.duration?.toFixed(0) ?? "—"}ms</span>
+                  <span class="waterfall-ms">{trace.duration(child)?.toFixed(0) ?? "—"}ms</span>
                 </div>
               {/each}
             </div>
@@ -208,62 +168,62 @@
         {#if faults.length}
           <span class="seg fault-count">{faults.length}</span>
         {/if}
-        <span class="seg count">{spans.length}</span>
+        <span class="seg count">{story.roots.length}</span>
         <button class="btn close" onclick={() => bridge.toggle("g")}>x</button>
       </div>
 
       <div class="stream">
         {#if faults.length}
           <div class="section-header fault-header">faults</div>
-          {#each [...faults].reverse() as span (span.hash ?? span.timing?.begun + "-" + span.nature)}
-            {@render spanRow(span)}
+          {#each [...faults].reverse() as node (node.id)}
+            {@render spanRow(node)}
           {/each}
         {/if}
 
         {#if slow.length}
           <div class="section-header slow-header">slow</div>
-          {#each [...slow].reverse() as span (span.hash ?? span.timing?.begun + "-" + span.nature)}
-            {@render spanRow(span)}
+          {#each [...slow].reverse() as node (node.id)}
+            {@render spanRow(node)}
           {/each}
         {/if}
 
         {#if recent.length}
           <div class="section-header">recent</div>
-          {#each [...recent].reverse() as span (span.hash ?? span.timing?.begun + "-" + span.nature)}
-            {@render spanRow(span)}
+          {#each [...recent].reverse() as node (node.id)}
+            {@render spanRow(node)}
           {/each}
         {/if}
 
-        {#if spans.length === 0}
-          <div class="empty">no spans</div>
+        {#if story.roots.length === 0}
+          <div class="empty">no traces</div>
         {/if}
       </div>
     {/if}
   </div>
 {/if}
 
-{#snippet spanRow(span)}
-  <button class="span-row" class:has-fault={span.fault} onclick={() => select(span)}>
-    <span class="span-bar {durationClass(span.duration)}" style:width="{Math.min(100, (span.duration ?? 0) / 10)}%"></span>
+{#snippet spanRow(node)}
+  <button class="span-row" class:has-fault={faulted(node)} onclick={() => select(node)}>
+    <span class="span-bar {durationClass(trace.duration(node))}" style:width="{Math.min(100, (trace.duration(node) ?? 0) / 10)}%"></span>
     <span class="span-content">
-      <span class="span-nature">{span.nature}</span>
-      {#if span.request?.path}
-        <span class="span-path">{span.request.path}</span>
+      <span class="span-nature">{node.nature}</span>
+      {#if wire(node)?.path}
+        <span class="span-path">{wire(node).path}</span>
       {/if}
       <span class="span-meta">
-        {#if span.duration != null}
-          <span class="span-duration {durationClass(span.duration)}">{span.duration.toFixed(0)}ms</span>
+        {#if trace.duration(node) != null}
+          <span class="span-duration {durationClass(trace.duration(node))}">{trace.duration(node).toFixed(0)}ms</span>
         {/if}
-        {#if span.request?.status}
-          <span class="span-pill" class:error={span.request.status >= 400}>{span.request.status}</span>
+        {#if wire(node)?.status}
+          <span class="span-pill" class:error={wire(node).status >= 400}>{wire(node).status}</span>
         {/if}
-        {#if span.fault}
-          <span class="span-pill fault">{span.fault.code ?? span.fault.message}</span>
+        {#if node.fault}
+          <span class="span-pill fault">{node.fault.code ?? node.fault.message}</span>
         {/if}
-        {#if span.gauges?.length}
-          <span class="span-expand">{span.gauges.length}</span>
+        {#if node.children.length}
+          <span class="span-expand">{node.children.length}</span>
         {/if}
-        <span class="span-ago">{timeAgo(span.hash ?? span.timing?.begun + "-" + span.nature)}</span>
+        <span class="span-ago">{timeAgo(node.timing?.begun)}</span>
       </span>
     </span>
   </button>
@@ -367,7 +327,6 @@
   }
   .span-pill.error { border-color: var(--colors-skeleton-0-danger-base); color: var(--colors-skeleton-0-danger-base); }
   .span-pill.fault { border-color: var(--colors-skeleton-0-danger-base); color: var(--colors-skeleton-0-danger-base); }
-  .span-pill.subject { border-color: color-mix(in srgb, var(--colors-skeleton-0-info-base) 40%, transparent); color: var(--colors-skeleton-0-info-base); }
 
   .span-expand { color: var(--colors-skeleton-2-contrast); opacity: 0.4; font-size: var(--font-size-2xs); }
   .span-ago { color: var(--colors-skeleton-2-contrast); opacity: 0.25; font-size: var(--font-size-2xs); white-space: nowrap; }
@@ -395,7 +354,10 @@
     min-width: 50px; flex-shrink: 0;
   }
   .field-value { color: var(--colors-skeleton-1-contrast); }
-  .field-value.mono { font-family: var(--font-family-code); }
+  .field-value.mono {
+    font-family: var(--font-family-code);
+    overflow-wrap: anywhere;
+  }
   .field-value.error { color: var(--colors-skeleton-0-danger-base); }
   .field-value.warm { color: var(--colors-skeleton-0-warning-base); }
   .field-value.slow { color: var(--colors-skeleton-0-warning-base); font-weight: 600; }

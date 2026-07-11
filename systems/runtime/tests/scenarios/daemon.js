@@ -95,7 +95,8 @@ export async function create() {
 
   await APPLICATION(mode, daemon);
   await INTENTED(mode, daemon);
-  await EMITTER(mode, daemon);
+  const commit = await EMITTER(mode, daemon);
+  if (commit) await commit();
 
   daemon.aperture.branch(mode.mount.absolute).slurp(mode.aperture);
 

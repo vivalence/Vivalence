@@ -126,13 +126,13 @@ specimen.describe("shape.selbstbestimmt", () => {
         .affect((ctx) => ctx.input);
 
       const beforeCarryLen = vector.carry.length;
-      const beforeEffectKeys = [...vector.effects.keys()];
+      const beforeEffect = vector.effect;
       const beforeTrajectoryKeys = [...vector.trajectories.keys()];
 
       shape.selbstbestimmt(vector);
 
       specimen.expect(vector.carry.length).toBe(beforeCarryLen);
-      specimen.expect([...vector.effects.keys()]).toEqual(beforeEffectKeys);
+      specimen.expect(vector.effect).toBe(beforeEffect);
       specimen.expect([...vector.trajectories.keys()]).toEqual(beforeTrajectoryKeys);
     });
   });

@@ -72,8 +72,8 @@ export function narrate({ lighthouse, terminals, bridge, telemetry }) {
     }),
     // faulted spans surface on the console; the pipe is the single egress for
     // connection telemetry, this is just one more drain on it.
-    telemetry?.tap((span) => {
-      if (span.fault) console.warn(`[span] fault ${span.nature}`, span.json);
+    telemetry?.tap((record) => {
+      if (record.verb === "fault") console.warn(`[trace] fault ${record.path}`, record.data);
     }) ?? (() => {}),
     rearm(terminals.$entities, watchTerminal),
     rearm(lighthouse.$daemons, (daemon) => {
