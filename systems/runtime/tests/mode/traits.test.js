@@ -217,8 +217,8 @@ specimen.describe("mode traits", () => {
         emptyMode.entity = scenario.fixtures.mode;
         emptyMode.id = scenario.fixtures.mode.id;
         emptyMode.module.emitter = new Vector().open("/nothing", async () => []);
-        const { EMITTER: E } = await import("@vivalence/runtime/daemon/traits");
-        await E(emptyMode, scenario.daemon);
+        const traits = await import("@vivalence/runtime/daemon/traits");
+        await traits.stagger(emptyMode, scenario.daemon, traits);
         const result = await emptyMode.emit.nothing({});
         specimen.expect(result.condition).toBe("EXHAUSTED");
         specimen.expect(result.entities.buffer).toEqual([]);

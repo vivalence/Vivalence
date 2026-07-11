@@ -43,7 +43,7 @@ Interpreting a Vector = folding its trie (=steer.fold=, a catamorphism) into som
 
 - *=shape.*= — Vector → a value* (=gestalten/shape/=):
   - =shape.object(vector, execute)= → a nested CALLABLE namespace; =x.a.b()= falls out of the trie, dispatched in-process (=execute= = =steer.request= full ctx, or =steer.echo= bare ctx).
-  - =shape.strip(vector)= → inert ={leaves, branches}= JSON — the wire contract served at =/metadata/*=.
+  - =shape.strip(vector)= → inert ={effect?, branches}= JSON — the wire contract served at =/metadata/*= (node-centric, the cata of the Vector's own ={effect, trajectories}=).
   - =shape.connection.wire(conn, stripped)= → a nested callable whose leaves are =conn.aim("/nature")= — REMOTE dispatch. =object= (local) and =wire(strip(…))= (remote) are duals: same surface, different backing (the stripwire, =47.03=).
   - =shape.http(aperture)= → a =(Request) → Response= handler (the HTTP boundary).
   - others: =messenger= (socket push), =proxy= (lazy parametric =object=), =agentic= (=/= natures → tool names), =mcp=.

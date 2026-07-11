@@ -25,10 +25,10 @@ specimen.describe("Url", () => {
       specimen.expect(child.href).toBe("https://api.io/v1/users/123");
     });
 
-    specimen.it("inherits origin through tilde", () => {
+    specimen.it("inherits origin through root", () => {
       const root = new Url("https://deep.io");
       const leaf = root.branch("/a").branch("/b").branch("/c");
-      specimen.expect(leaf.tilde.origin).toBe("https://deep.io");
+      specimen.expect(leaf.root.origin).toBe("https://deep.io");
       specimen.expect(leaf.href).toBe("https://deep.io/a/b/c");
     });
 

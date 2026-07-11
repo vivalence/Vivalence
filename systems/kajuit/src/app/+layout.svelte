@@ -6,13 +6,11 @@
 
   import { onMount, setContext } from "svelte";
   import { computed } from "nanostores";
-  import { narrate } from "../typology/logger.js";
 
   import { Connection, Url, shard } from "@vivalence/typology";
   import { telemetry } from "$telemetry";
   import { LIGHTHOUSE, TERMINALS, BRIDGE } from "$client";
   import { stores } from "@vivalence/kajuit";
-  import { ThreadTraits } from "@vivalence/kajuit";
   import * as terminalEffects from "./terminals.js";
 
   import Login from "@vivalence/kajuit/skins/lighthouse/Login.svelte";
@@ -39,7 +37,6 @@
   setContext(TERMINALS, terminals);
 
   console.log({ terminals, lighthouse });
-  ThreadTraits.conversational.provide({ terminals });
 
   if (typeof window !== "undefined") {
     window.__viv = { lighthouse, terminals, bridge /*, box */ };
@@ -51,11 +48,6 @@
     terminalEffects.hydrate({ terminals });
     const unpersist = terminalEffects.persist({ terminals });
     const unsettle = terminalEffects.settle({ terminals, lighthouse });
-
-    // dev: nanostores logging — all of it lives in typology/logger.js (app shell +
-    // dynamic terminal / stall / buffer stores).
-    //@beef this is shit:
-    const unlog = narrate({ lighthouse, terminals, bridge, telemetry: telemetry() });
 
     const unsubscribeGate = computed(
       [lighthouse.$isAuthorized, lighthouse.$status],
@@ -77,7 +69,6 @@
     });
 
     return () => {
-      unlog();
       unpersist();
       unsettle();
       unsubscribeGate();

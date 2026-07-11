@@ -1,11 +1,46 @@
-export function wire(connection, stripped) {
+export function wire(connection, node) {
   const api = {};
-  for (const [segment, sub] of Object.entries(stripped?.branches ?? {}))
-    api[segment] = wire(connection.branch(`/${segment}`), sub);
-  for (const leaf of stripped?.leaves ?? []) {
-    const caller = connection.aim(`/${leaf.nature}`);
-    if (api[leaf.nature]) Object.assign(caller, api[leaf.nature]);
-    api[leaf.nature] = caller;
+  let parameter;
+
+  for (const [segment, child] of Object.entries(node?.branches ?? {})) {
+    if (segment.startsWith(":")) { parameter = child; continue; }
+    if (segment === "*" || segment === "(.*)") {
+      console.warn(`[shape.connection.wire] pattern branch "${segment}" not compiled`);
+      continue;
+    }
+    api[segment] = wire(connection.branch(`/${segment}`), child);
   }
-  return api;
+
+  let result = node?.effect ? Object.assign(aim(connection, node.effect), api) : api;
+
+  if (parameter)
+    result = new Proxy(result, {
+      get(target, key) {
+        if (typeof key === "symbol" || key === "then" || key in target) return target[key];
+        return wire(connection.branch(`/${key}`), parameter);
+      },
+    });
+
+  return result;
+}
+
+function aim(connection, effect) {
+  if (effect.methods && effect.methods.length > 1)
+    throw new Error(
+      `shape.connection.wire: method-ambiguous (${effect.methods.join(", ")}) — no transparent projection`,
+    );
+
+  const method = effect.methods?.[0];
+
+  if (effect.yields !== undefined)
+    return (input = {}, options = {}) =>
+      connection.stream("", options.signal, {
+        method: method ?? "POST",
+        body: input,
+        headers: options.headers,
+      });
+
+  return method
+    ? connection.aim("", {}, { method })
+    : connection.aim("");
 }

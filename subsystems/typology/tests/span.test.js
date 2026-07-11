@@ -1,4 +1,5 @@
 import { specimen, Span, Pipe } from "@vivalence/typology";
+// @beef IMPORTANT TODO: test shards.track and belt.trace
 
 specimen.describe("Span: the cursor", () => {
   specimen.it("born wired — no pipe ceremony, the first mark already flows", () => {

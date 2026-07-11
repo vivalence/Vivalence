@@ -39,9 +39,11 @@ specimen.describe("traverse", () => {
     specimen.expect(trace).toEqual(["root", "branch", "terminal", "branch'", "root'"]);
   });
 
-  specimen.it("throws on no match", () => {
+  specimen.it("returns null effect on no match", () => {
     const vector = new Vector();
-    specimen.expect(() => traverse(vector, new Signal("/nope"))).toThrow();
+    const [effect, , steps] = traverse(vector, new Signal("/nope"));
+    specimen.expect(effect).toBe(null);
+    specimen.expect(steps).toEqual([]);
   });
 
   specimen.it("remainder consumes all segments and captures params", () => {

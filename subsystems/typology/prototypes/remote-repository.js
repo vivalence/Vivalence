@@ -142,7 +142,13 @@ export class RemoteRepository {
 
   subscribe(where = {}, callback) {
     const repo = this;
-    const options = { headers: { "x-filter": JSON.stringify(where) } };
+    const options = {
+      headers: { "x-filter": JSON.stringify(where) },
+      body: { where },
+      resumed: () => {
+        repo.find(where).catch((error) => console.warn(`[probe] resync failed`, error));
+      },
+    };
 
     const handle = async (event) => {
       if (event.op === "delete") {

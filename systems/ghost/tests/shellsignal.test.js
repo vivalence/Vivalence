@@ -1,6 +1,6 @@
 import { assert, assertEquals } from "@std/assert";
 import { is } from "@vivalence/typology";
-import { ShellSignal } from "../typology/prototypes/shellsignal.js";
+import { ShellSignal } from "../prototypes/shellsignal.js";
 
 Deno.test("ShellSignal: coerces argv array into signature", () => {
   const signal = new ShellSignal(["instance/clone", "@from", "./to", "--flag"]);

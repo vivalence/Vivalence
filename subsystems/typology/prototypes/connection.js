@@ -1,5 +1,5 @@
-import { atom, computed } from "nanostores";
-import { string, shard, Url, Request, Response, middleware } from "@vivalence/typology";
+import { atom, computed, onMount } from "nanostores";
+import { string, shard, Url, Request, Response, middleware, promise } from "@vivalence/typology";
 import { object } from "@vivalence/typology";
 import { Socket } from "./socket.js";
 
@@ -99,15 +99,22 @@ export class Connection {
     };
   }
 
-  async *stream(endpoint, signal, { method = "GET", body, headers } = {}) {
+  async *stream(endpoint, signal, { method = "GET", body, headers, opened } = {}) {
     const response = await this.fetch(endpoint, body ?? {}, {
       method,
       headers: { accept: "text/event-stream", ...headers },
       signal,
     });
     if (response.error) throw response.error;
+    if (response.body?.[Symbol.asyncIterator] && !response.body.getReader) {
+      if ("onArrival" in response.body) response.body.onArrival = opened ?? null;
+      else opened?.();
+      yield* response.body;
+      return;
+    }
     if (!response.body?.getReader)
       throw new Error(`SSE stream expected ReadableStream, got ${typeof response.body}`);
+    opened?.();
     const reader = response.body.getReader();
     const decoder = new TextDecoder();
     let buffer = "";
@@ -145,20 +152,40 @@ export class Connection {
   }
 
   subscribe(endpoint, callback, options = {}) {
+    const { backoff = 1000, resumed, ...streaming } = options;
     const controller = new AbortController();
     (async () => {
-      try {
-        for await (const event of this.stream(endpoint, controller.signal, options)) {
-          callback(event);
+      for (let attempt = 0, round = 0; !controller.signal.aborted; attempt++, round++) {
+        const heal = round;
+        try {
+          for await (const event of this.stream(endpoint, controller.signal, {
+            ...streaming,
+            opened: () => {
+              if (heal > 0) resumed?.();
+            },
+          })) {
+            attempt = 0;
+            callback(event);
+          }
+          if (controller.signal.aborted) return;
+          console.warn(`[probe] sse closed by server ${this.url.branch(endpoint).pathname} — resubscribing`);
+        } catch (error) {
+          if (controller.signal.aborted || error.name === "AbortError") return;
+          console.warn(`[probe] sse died ${this.url.branch(endpoint).pathname} — resubscribing`, error);
         }
-        if (!controller.signal.aborted)
-          console.warn(`[probe] sse closed by server ${this.url.branch(endpoint).pathname}`);
-      } catch (error) {
-        if (error.name !== "AbortError")
-          console.warn(`[probe] sse died ${this.url.branch(endpoint).pathname}`, error);
+        const gate = promise.waiter();
+        const timer = setTimeout(gate.wake, Math.min(backoff * 2 ** attempt, 30000));
+        await gate.wait(controller.signal);
+        clearTimeout(timer);
       }
     })();
     return () => controller.abort();
+  }
+
+  nanoatom(endpoint, initial = null) {
+    const $store = atom(initial);
+    onMount($store, () => this.subscribe(`${endpoint}/subscribe`, (value) => $store.set(value)));
+    return $store;
   }
 
   async publish(endpoint, source, options = {}) {

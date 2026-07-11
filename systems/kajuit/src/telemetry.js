@@ -3,8 +3,9 @@ import { Pipe, trace } from "@vivalence/typology";
 
 export const $span = atom(null);
 
-export const $telemetry = atom(trace.chronicle.seed());
+export const $telemetry = atom({ nodes: new Map(), roots: [] });
 
+// @beef feels like a belt utility. maybe abstracted into array or specifi to pipes or spans?!
 const trim = (story) => {
   while (story.roots.length > 200) {
     const stale = story.roots.shift();

@@ -109,7 +109,7 @@
   }
 
   if (!literals.length) {
-    terminal.daemon
+    terminal.daemon.connection
       .call("/pick/literal/feed", { limit: 4 })
       .then((lits) => {
         literals = lits ?? [];
@@ -138,7 +138,7 @@
     const result = evaluateTyped();
     const signal = result === "correct" ? "SUCCESS" : "MISTAKE";
 
-    terminal.daemon.call("/review/literal", {
+    terminal.daemon.connection.call("/review/literal", {
       signal,
       scope: { literal: target.id },
     });
@@ -152,13 +152,13 @@
     const isCorrect =
       lit === target || lit?.id === target?.id || answerText(lit) === answerText(target);
 
-    terminal.daemon.call("/review/literal", {
+    terminal.daemon.connection.call("/review/literal", {
       signal: isCorrect ? "SUCCESS" : "MISTAKE",
       scope: { literal: target.id },
     });
 
     if (!isCorrect) {
-      terminal.daemon.call("/review/literal", {
+      terminal.daemon.connection.call("/review/literal", {
         signal: "MISTAKE",
         scope: { literal: lit.id },
       });

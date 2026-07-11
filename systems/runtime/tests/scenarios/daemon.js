@@ -4,9 +4,10 @@ import { seed } from "./entities.ts";
 import { tiers } from "./variant.js";
 
 import * as routes from "@vivalence/runtime/daemon/aperture";
-import { INTENTED, EMITTER } from "@vivalence/runtime/daemon/traits";
+import { INTENTED, EMITTER, stagger } from "@vivalence/runtime/daemon/traits";
 
 const APPLICATION = (mode, daemon) => {
+  if (!mode.module.app) return;
   mode.aperture.open("/buffered", () => ({
     url: mode.module.app.url.absolute,
     schema: mode.module.app.mask,
@@ -77,7 +78,7 @@ export async function create() {
     },
   };
 
-  daemon.aperture.use(shard.context.attach("daemon", daemon));
+  daemon.aperture.use(shard.context.bind("daemon", daemon));
 
   datamap.subscribe(shape.subscriber(daemon.twitch));
 
@@ -93,10 +94,7 @@ export async function create() {
     await next();
   });
 
-  await APPLICATION(mode, daemon);
-  await INTENTED(mode, daemon);
-  const commit = await EMITTER(mode, daemon);
-  if (commit) await commit();
+  await stagger(mode, daemon, { APPLICATION, INTENTED, EMITTER });
 
   daemon.aperture.branch(mode.mount.absolute).slurp(mode.aperture);
 

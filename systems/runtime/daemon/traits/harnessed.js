@@ -1,4 +1,9 @@
-import { Vector, shape, steer, shard, soma } from "@vivalence/typology";
+import { Vector, shape, steer, shard, soma, v } from "@vivalence/typology";
+
+const { Packet } = v.primitives.hallucination;
+
+//@beef i think it might make sense to isolate some of the middlewares into
+// ... shards.hal.["xyz"]() which would become our source of truth for cohesion in turn, hallucination etc implementation. nifty.
 
 export const HARNESSED = (mode, daemon) => {
   if (!daemon.cortex) throw new Error("HARNESSED: daemon has no cortex");
@@ -9,7 +14,7 @@ export const HARNESSED = (mode, daemon) => {
   harness.use(shard.context.bind("mode", mode));
 
   harness.use(async (ctx, next) => {
-    const input = typeof ctx.input === "string" ? { prompt: ctx.input } : (ctx.input ?? {});
+    const input = typeof ctx.input === "string" ? { prompt: ctx.input } : (ctx.input ?? {}); // @beef holy shit stop rewriting input for your neurosis.
     const { system, prompt, turns, output, tune, tools, config } = input;
 
     const hallucination = daemon.cortex.hallucination({
@@ -21,6 +26,7 @@ export const HARNESSED = (mode, daemon) => {
     if (tools) hallucination.entities.tool.add(tools);
     if (turns) hallucination.entities.turn.append(turns);
     else if (prompt)
+      //@beef i dont think we watn manual prompt here?! do we? maybe input prompt is parsed later up the tree?! also to guarantee order. hmmm
       hallucination.entities.turn.append({ role: "user", parts: [{ type: "text", text: prompt }] });
 
     ctx.hallucination = hallucination;
@@ -31,6 +37,20 @@ export const HARNESSED = (mode, daemon) => {
   // DIALOGUE
   harness
     .branch("/dialogue")
+    // .use(shard.hal.voice()) @@beef not yet
+    .use(async (ctx, next) => {
+      const history = await ctx.daemon.entities.turn.history({ thread: ctx.input.thread });
+      ctx.turn = await ctx.daemon.entities.turn.chain({
+        id: ctx.input.id, // optional — client-minted for identity reconciliation; repo mints if absent
+        role: "user",
+        parts: ctx.input.parts,
+        parent: history.at(-1) ?? null,
+        thread: ctx.input.thread,
+        mode: ctx.mode.id,
+      });
+      ctx.hallucination.entities.turn.replace([...history, ctx.turn]);
+      await next();
+    })
     .use(async (ctx, next) => {
       await next();
 
@@ -64,6 +84,7 @@ export const HARNESSED = (mode, daemon) => {
           }
         })();
       } else if (ctx.output?.role) {
+        //@beef is.turn()
         await ctx.daemon.entities.turn.chain({
           role: ctx.output.role,
           parts: ctx.output.parts,
@@ -73,25 +94,13 @@ export const HARNESSED = (mode, daemon) => {
           mode: ctx.mode.id,
         });
       }
-    })
-    .use(async (ctx, next) => {
-      const history = await ctx.daemon.entities.turn.history({ thread: ctx.input.thread });
-      ctx.turn = await ctx.daemon.entities.turn.chain({
-        role: "user",
-        parts: ctx.input.parts,
-        parent: history.at(-1) ?? null,
-        thread: ctx.input.thread,
-        mode: ctx.mode.id,
-      });
-      ctx.hallucination.entities.turn.replace([...history, ctx.turn]);
-      await next();
     });
 
   for (const type of ["dialogue", "object", "speech", "verbatim"])
     harness
       .branch(type)
       .open("render", (ctx) => ctx.hallucination[type].render())
-      .open("stream", (ctx) => ctx.hallucination[type].stream());
+      .open({ nature: "stream", yields: Packet.Any }, (ctx) => ctx.hallucination[type].stream());
 
   if (mode.module.harness) harness.slurp(mode.module.harness);
 

@@ -1,0 +1,89 @@
+#+TITLE: Reconnecting kajuit to the daemon surfaced three bugs at once — a doubled =/daemon/:slug= prefix that hung the oracle handshake, a =publish()= that pre-wrapped SSE before the transport was chosen (the "continuous ticking"), and a blind stale-daemon barrage. Fixing the third grew into =nano=: a reactive store over the wire, the transport-dual of a nanostore. =shard.nano.atom= serves a store, =connection.nanoatom= mirrors it to a fresh atom, =shard.nano.transient= ingests it into an existing one.
+#+TOPIC: continues the multiplex-rebuild compacts (=tunnel= dead, one =Socket= per daemon, =/multiplex= scoped inside =/daemon/:slug=, socket-mount ⊥ request-signal). This session: bring kajuit live against the ONE running daemon (playground; brazilian/chaosmonkey are STALE lighthouse-DB records), and the reactive-status design that fell out of it. The CONNECT fix landed SERVER-side (the multiplex routes FULL-path signals through a runtime aperture; the client =daemon.connection= base stays the full =daemon.url= = =…/daemon/playground=, dossier UNCHANGED — my earlier base→origin proposal was mooted). Three bugs off that reconnect, then =nano=.
+
+* Arc (methodical, in order)
+
+** turn 1 — "i want to connect with kajuit to the daemon again"
+Console: =ws://localhost:2501/multiplex → 404 (NS_ERROR_WEBSOCKET_CONNECTION_REFUSED)= and every =/daemon/brazilian/metadata/*= retrying after NETWORK; UI shows =daemons · 0=. Read =serve.js= (=multiplex(vector)=), =aperture/multiplex.js= (=die.good.aperture.open("/multiplex", serve.multiplex(die.good.aperture))= — mounted on the DAEMON-local aperture, slurped to =/daemon/:slug/multiplex= by =expose()=), =socket.js= (frame protocol, =#answer= dispatches each frame's signal through the daemon-local aperture → signals are daemon-local =/metadata/manifest=, NOT prefixed). Diagnosis: server up (answers 404), but no =/multiplex= at origin root; the client dialed the wrong endpoint AND sent full-path signals a daemon-local aperture can't route.
+
+** turn 1b — the environment (dueling daemons)
+Probed: =lsof :2501= showed a =deno --watch run.js=; then it DIED (port refused, process gone). I launched a runtime in background → =AddrInUse (os error 48)= = a DUELING daemon: beef had brought his OWN up (his pasted curl carried a freshly-minted token). Killed mine (=TaskStop=) to stop the restart-loop. Lasting note: env instability (stale/dueling daemons) recurs; verify =:2501= ownership before starting anything, and =:2501 /= 404 ≠ down.
+
+** turn 2 — "ah. our current daemon is playground!"
+=test.viva.js:9= mounts ONLY =[playground]= (education/brazilian commented at :8, chaosmonkey retired at :5). The brazilian/chaosmonkey retries were STALE lighthouse-DB records, not client cache: =POST /attached/process/lighthouse/multiplayer/entities/daemon/find= returns all three with full =http://localhost:2501/daemon/:slug= urls; only playground resolves. beef's curl (=/daemon/playground/entities/mode/find {slug:spawner}=) returned the mode → the daemon-scoped HTTP route works. ws probe =/daemon/playground/multiplex= → 401 (route EXISTS, wants =?token=) — so the SERVER side is correct and reachable.
+
+** turn 3 — "go on dossier … i suspect we dont need a recast"
+Ground truth: =daemon.url = "http://localhost:2501/daemon/playground"= — FULL (origin + scope). =Url.branch= = =join(nature, signature)= (=url.js:65=) = pure concat + slash-collapse, NO dedup. A base→origin recast would have been the clean split, BUT the CONNECT fix had already landed server-side (beef; the console flipped to clean =[multiplex] no route for /daemon/brazilian/…= — the one multiplex now routes FULL-path signals through a runtime aperture). So =daemon.connection= base stays the full =daemon.url=; my dossier base→origin/mount diff was superseded. This full-base is the SEED of the handshake bug below.
+
+** turn 4 — "kajuit connects again. very good. but now we have a continuous ticking that looks very expensive"
+The SSE resubscribe storm. Read end-to-end: =connection.stream= (=connection.js:102=, =accept:text/event-stream=) → over multiplex the transport sets =response.body = follow(...)= (async gen) → =connection.subscribe= (=:154=) loops =for await (event of stream)= and on normal completion logs =[probe] sse closed by server … resubscribing= (=:171=) and re-loops (~1s backoff; =attempt=0= resets on any event). Server side: =datamap.reactive= =/subscribe= (=datamap.js:196=) does =ctx.response.publish(iterable)=; =Response.publish= (=response.js:26=) sets =type="text/event-stream"= AND wraps into a ReadableStream of =data: …\n\n= bytes. Socket =#answer= (=socket.js:184=) streams a body ONLY when =typeof body.getReader !== "function"= — a ReadableStream HAS =getReader= → drops to the else → =#send({output: body ?? null})= (the stream JSON-serializes to ={}=) + =#send({close})= → client resubscribes → re-emits every buffer. The passing =multiplex.test.js /feed= streams fine because it returns a RAW async generator (no =getReader=). DEMONSTRATED deterministically (scratch script): =publish()= body has =asyncIterable:true getReader:true socket-streams-it:false= and the client receives ={}= while the stream's first frame held ="data: {op:update,…}"=; the raw async-gen has =getReader:false socket-streams-it:true=.
+
+** turn 4b — beef editing socket.js; server log
+Watcher restart on =socket.js= (beef driving the transport). Server log confirmed the connect fix (=[multiplex] no route for /daemon/brazilian/…= — full-path routing, stale daemons cleanly no-route) plus an unguarded =TypeError: Invalid Header: 'upgrade' header must contain 'websocket'= at =serve.js:35= (a non-ws GET hitting =/multiplex= — my curl probes; low-priority hardening).
+
+** turn 5 — "read daemon status first as a ping" (stale daemons)
+beef: =i suspect this is the client side caching of daemons running a multiplexed connection. we might want to read daemon status first as a ping.= Split the two storms explicitly: (1) the CONTINUOUS ticking = the LIVE playground SSE storm (publish/socket); (2) BOOT NOISE = the STALE brazilian/chaosmonkey daemons the client builds a =Daemon= per and barrages with 4 metadata calls each → =no route=. =/daemon/:slug/status= is opened by =expose()= (=resolve.js:77=) ONLY for RESOLVED daemons → a guaranteed liveness probe.
+
+** turn 6 — "and oracle mode still: Oracle — awaiting handshake"
+The conversation is a DIRECT raw ws (=connection.socket("/conversation", inbound, {token})=, token in query) off =thread.mode.connection=; =Conversation.open()= awaits =socket.call("/handshake/open")=. Route =…/mode/chaosmonkey/oracle/conversation= = 401 (EXISTS). But =mode.js:46= built =mode.connection = daemon.connection.branch(mode.mount.nature)= where =mode.mount= = =daemon.mount.branch("/mode/…")= = the ABSOLUTE =/daemon/playground/mode/chaosmonkey/oracle=. Branched onto the already-=/daemon/playground= base → =join= DOUBLES → =/daemon/playground/daemon/playground/mode/…= (probed 404, correct path 200/401). So the ws dialed a dead path → =/handshake/open= never replied → "awaiting handshake" forever. Every OTHER consumer branches =daemon.connection= by a RELATIVE segment; mode.js was the one stacking an absolute → also silently doubled =mode.call=/=/harness=/=/emit=.
+
+** turn 7 — "land 3"
+=mode.js:46= → =daemon.connection.branch(`/mode/${ctx.entity.type}/${ctx.entity.slug}`)= (relative). Handshake + mode.call/harness/emit restored.
+
+** turn 8 — "explain and demo both"
+Built two live demos: (#1) the deterministic =publish()=-vs-raw-gen branch selection above; (#2) stale daemons — =entities/daemon/find= returns 3 records (2 dead); =/daemon/<slug>/status= = playground 200 / brazilian 404 / chaosmonkey 404; the current barrage = 4×404 per dead daemon; the ping-gate collapses it to 1.
+
+** turn 9 — "b clean. go" + "status. we dont want a blind call here … design that"
+Landed SSE fix (option B): =datamap.js:201= =ctx.response.publish(iterable)= → =ctx.response.body = iterable= (body stays the raw async-iterable → socket streams objects, =http.js:41= auto-frames SSE for HTTP, no double-encode). =Broadcaster.subscribe= returns a plain async-iterable (no =getReader=). multiplex 23/23. Landed the ping-gate as a STORE not a blind call: =daemon.status.set(await daemon.connection.call("/status"))= — =Status= (=daemon.js:11=) is atom-backed (=$transient=), already reactive, already read by the UI (=lighthouse.js= → =daemon.status.reflection.code=).
+
+** turns 10–13 — NANO: pinning + naming/placement iteration
+beef: =shard status is too specific and flat. can we abstract this into a general reactive? maybe proxy/shimmy something over nanostore on the consumer side too???= Pinned the concept: a store whose source of truth is REMOTE = the transport-dual of a nanostore (the reactive analog of =object=⟷=connection.wire=). Read the nanostores docs — the consumer IS the canonical LAZY-store pattern (=atom= + =onMount(store, () => { subscribe; return cleanup })=); factories are lowercase-noun. Iteration, verbatim:
+- =lets be explicit on the shard. setup a nano.js in shard and export atom.=
+- =i dont like the reactive function on the connection. lets put that into belt. maybe as the producer side of nano.=
+- =not yet happy with the atom.live. itterate the signature twice over.=
+- =shard nano atom looks good.=
+- =what would belt.atom.live look like as shard nano transient?=
+- =rework the transient shard to ingest all of this. no manual subscribe. transient passed at branch.=
+- =plan b would be a typology/prototype. aka the producer. but pending.=
+- =all of these are really just different ways to jiggle the same basic dynamic. implement one or two of the simplest archetypal solutions as shard nano.=
+- =implement as connection.nanoatom()=
+- =no what??? wtf. give me clean pseudocode. full function definition. some demonstrative application of the funct= (I'd buried a variant survey in Svelte components; he wanted def + demo, nothing else.)
+
+** turn 14 — implement
+=shard.nano.atom= (serve, approved) + =shard.nano.transient= (ingest, reworked to =transient(connection, store)=) + =connection.nanoatom(endpoint)= (fresh lazy atom, the variant-2 archetype moved back onto Connection but RENAMED — the name =reactive= was the objection, not the location). Wired status both sides. Hit + fixed a =.get=-vs-POST snapshot bug (below). Live-verified.
+
+** turn 15 — "ikiro compact" (+ effort max / methodical / whole session)
+This file.
+
+* The nano design space (the survey, methodical)
+All six are the SAME dynamic — a remote store mirrored locally — varying on home / source-arg / output / lifecycle:
+1. =mirror(connection, endpoint)= — standalone; primes via =call(endpoint)= + subscribes; new atom; =onMount= lazy. → name+signature wrong.
+2. =connection.reactive(endpoint)= — Connection method; new atom; lazy. → "don't want it on the connection" (the NAME; location returns later as =nanoatom=).
+3. =belt.atom.live(open)= — open-fn thunk; new atom; lazy. → thunk + trailing =.subscribe= ugly.
+4. =shard.nano.transient(connection, endpoint)= — explicit endpoint; new atom; lazy.
+5. =shard.nano.transient(connection)= — connection pre-branched; new atom; lazy; still needs a manual =.subscribe= to fold.
+6. =shard.nano.transient(connection, store)= — connection pre-branched; INGESTS a sink; EAGER; returns unsubscribe. ← the "ingest all, no manual subscribe, transient passed at branch" rework.
+The two real forks: NEW-ATOM (1–5, lazy =onMount=) vs INGEST-SINK (6, eager). 6 dropped =onMount=/nanostores because the sink (=daemon.status=) is always observed. LANDED = the two simplest archetypes, one per home: =connection.nanoatom= (new atom, lazy) + =shard.nano.transient= (ingest, eager); producer both sides = =shard.nano.atom=.
+
+* The landing (files / APIs)
+- *=shard/nano.js=* (new): =atom(store)= → =Aperture{/, /subscribe}=: =store.listen → broadcaster.push=; =/= = snapshot (=store.get()=); =/subscribe= body = =(async function*(){ yield store.get(); yield* iterable; })()= (current-then-live). BOTH routes are =aperture.open(…)= — NOT =.get= — because =connection.call= defaults to POST (like the metadata routes); a =.get("/")= snapshot returned =null= to the POST ping until switched to =.open= (see Lessons). · =transient(connection, store)= = =connection.subscribe("/subscribe", (value) => store.set(value))= — eager, ingests into an already-observed sink, returns the unsubscribe. Imports ONLY ={ Aperture, Broadcaster }= (no nanostores — the sink is pre-made). Exported =shard.nano= in BOTH =shard/index.js= and =index.client.js= (isomorphic — Aperture/Broadcaster are client-safe).
+- *=connection.nanoatom(endpoint, initial=null)=* (=prototypes/connection.js=, added the =onMount= import): =atom(initial)= + =onMount($store, () => this.subscribe(`${endpoint}/subscribe`, set))= → a real lazy nanostore atom (opens the wire on first listener, tears down on last). Sits beside =.socket=/=.subscribe=/=.stream=.
+- *status wired* — server =lifecycle/resolve.js= =expose()=: =daemonBranch.branch("/status").slurp(shard.nano.atom(daemonDie.status.$transient))= (replaced the flat =.open("/status", () => reflection)=; now serves =/status= snapshot + =/status/subscribe=). Client =dossier.js=: =daemon.status.set(await daemon.connection.call("/status"))= (ping-gate: throws CLIENT-404 on a dead daemon → existing catch boots inert; 1 call replaces the 4-call barrage) then =shard.nano.transient(daemon.connection.branch("/status"), daemon.status)= (keeps it live). =daemonDie.status.set(alive/degraded/stopped)= now fans out; existing UI readers upgrade to live with ZERO change.
+- *SSE storm* — =datamap.js:201= =ctx.response.body = iterable=.
+- *oracle handshake* — =mode.js:46= relative branch.
+- *live proof* — =POST /daemon/playground/status= → ={code:"ALIVE"}= · =GET /daemon/playground/status/subscribe= streams current-then-live · multiplex 23/23 · standalone test confirmed =nano.atom= =/= resolves BOTH standalone AND slurped-under-=/status= (slurp does NOT drop the root effect — the null was purely POST-vs-=.get=).
+
+* Lessons
+- *Branch a scoped connection by RELATIVE segments only.* =daemon.connection='s base already carries =/daemon/:slug=; =Url.branch= = =join= = pure concat (no dedup), so branching by an ABSOLUTE path that re-includes the scope DOUBLES it. mode.js was the lone offender; everything else was already relative.
+- *=publish()= pre-wraps too early.* A response body should stay SEMANTIC (the async-iterable) through the transport-agnostic layer; each transport renders it (socket = raw object frames, HTTP = SSE via =http.js:41=). Wrapping into a ReadableStream at the handler binds it to one transport and breaks the other.
+- *=.open= vs =.get=; =connection.call= defaults to POST.* A snapshot/read route that must answer the default =call= has to be method-agnostic (=.open=) or the caller passes =method:"GET"=. A =.get("/")= silently returns =null= to a POST — the null "snapshot" that briefly fooled me.
+- *The consumer is just the nanostores lazy-store pattern.* =atom= + =onMount= IS the shim — no Proxy, no wrapper object; =onMount= gives ref-counted wire lifecycle for free. Don't Proxy a nanostore (=computed=/batching expect real stores).
+- *nano = the transport-dual of a nanostore.* Same relationship =connection.wire= has to =object=. Pin the dual, then the API falls out: serve one side, mirror/ingest the other. The six "variants" were all one dynamic — resist proliferating; land the two simplest archetypes.
+- *Split storms before fixing.* The "expensive ticking" was TWO independent problems (live-daemon publish storm + stale-daemon boot barrage); one fix each. Naming them apart stopped a hotfix cascade.
+
+* Open / Pending
+- *plan B — producer as a typology prototype* (=Nano=/prototype), beef: =pending=. =shard.nano.atom= stays the function form; graduates when it earns it.
+- *=transient= teardown* — returns the unsubscribe but the call site doesn't capture it into =daemon.release= (currently =multiplex.close=); the SSE frame aborts when the multiplex socket closes, so teardown-adjacent, not explicit. Loose thread.
+- *stale lighthouse DB records* — brazilian/chaosmonkey still advertised (=ensure= on announce never prunes); the ping-gate makes the client resilient, but the registry should stop listing dead daemons. beef's call — brazilian is only commented out in the variant, not gone.
+- *=serve.js:35= unguarded upgrade* — a non-ws GET on a =/multiplex= route throws =TypeError: Invalid Header=; harden.
+- *=datamap.reactive= convergence* — the collection reactive (twitch → change-events → fold-into-repo) now shares the exact spine (=Broadcaster → /subscribe → body=iterable=) with =shard.nano.atom=; could converge, left parallel.

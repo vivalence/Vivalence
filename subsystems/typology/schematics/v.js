@@ -20,6 +20,8 @@ function enhance(schema) {
         return (val) => enhance(derive(target, { default: val }));
       }
       if (prop === "check") return (value) => Value.Check(target, value);
+      if (prop === "decode") return (value) => Value.Decode(target, value);
+      if (prop === "encode") return (value) => Value.Encode(target, value);
       if (prop === "create") return () => Value.Create(target);
       if (prop === "clean") return (value) => Value.Clean(target, value);
       if (prop === "errors") return (value) => Value.Errors(target, value);
@@ -114,6 +116,8 @@ export const v = {
   equal: (a, b) => Value.Equal(a, b),
   clone: (value) => Value.Clone(value),
   check: (schema, value) => Value.Check(schema, value),
+  decode: (schema, value) => Value.Decode(schema, value),
+  encode: (schema, value) => Value.Encode(schema, value),
   fill: (schema, value) => (Value.Default(schema, value), value),
   cast: (schema, value) => (Value.Default(schema, value), Value.Convert(schema, value), value),
   errors: (schema, value) => Value.Errors(schema, value),

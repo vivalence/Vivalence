@@ -11,7 +11,7 @@
 
   // ── help desk · tutor ──
   async function askTutor(text) {
-    const result = await buffer.mode.call("/assistant/message", {
+    const result = await buffer.mode.connection.call("/assistant/message", {
       prompt: text,
       thread: terminal.thread.id,
     });
@@ -31,12 +31,12 @@
   let board = $state([]);
   let streak = $state(0);
 
-  buffer.mode
+  buffer.mode.connection
     .call("/assistant/wakeup/board", {})
     .then((rows) => (board = rows ?? []))
     .catch((error) => console.warn("[aprende] board failed", error));
 
-  buffer.mode
+  buffer.mode.connection
     .call("/assistant/wakeup/statistics", {})
     .then((stats) => (streak = stats.activity.streak))
     .catch((error) => console.warn("[aprende] statistics failed", error));

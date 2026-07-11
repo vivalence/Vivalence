@@ -41,6 +41,46 @@
 
 > "retard" is the self-improve codeword (verbatim — only that word counts). Each occurrence = beef telling me to self-improve. During `ikiro/compact`, `ikiro/review`, `ikiro/self-improvement`: scan for "retard" / "retarded" and log each hit here. Format: date, what I was doing, beef verbatim, root cause, corrective rule, `family:` tag (→ Scoreboard). APPEND-ONLY — never edit, soften, or close an entry; closure only via flywheel extinction or beef.
 
+### 2026-07-11 — bare filename in a findings report; beef had to ask where the file lives
+
+- **What I did**: Reported the Phase-1 side-find as "Dashboard.svelte `daemon.subscribe?.(...)`" — bare basename, no container-rooted path. Beef had to ask registry-or-systems. The full path (`registry/education/dashboard/dataspace/Dashboard.svelte`) was in my own inventory grep output the same turn; I dropped it composing the final message.
+- **Finn verbatim**: "dashboard svelte is fucking where??!! told you retard, give me files, give me path!! registry?system??"
+- **Root cause**: Recurrence of the 2026-05-06 coordinates rule ("caveman never drops file coordinates") on a new axis: the rule was encoded for CODE SNIPPETS and I applied it only there — findings/side-finds in summary prose got compressed without coordinates. Same failure shape: treating the path as reconstructable context instead of as the address of the fact.
+- **Corrective rule**: Every file mention in ANY output — findings, side-finds, summaries, prose — is container-rooted (`registry/…`, `systems/…`, `subsystems/…`, `.ikiro/…`). A bare basename never appears in a final message. Memory `feedback_container_rooted_paths` marked VIOLATED and broadened from "file refs" to explicitly cover report prose.
+- family: yap-wrong-artifact (recurrence of 2026-05-06 snippet-without-filepath)
+
+### 2026-07-13 — buried a silent failure in a parenthetical instead of flagging it as the defect
+
+- **What I did**: The reactive drops a user-scoped broadcast with `console.warn(...dropped...)` when it can't resolve an owner — a SILENT data-loss fail. I noted it as "(Issue 1 — no error — because the drop is a console.warn, not a throw)" — a throwaway aside — and spent the whole reply on the owner-resolution architecture. Beef: silent fails are first-class defects, always. The warn-and-continue is itself a bug regardless of the owner cause.
+- **Finn verbatim**: "issue 1 very important! i hate silent fails! retard"
+- **Root cause**: I triaged the two issues by MY sense of interest (the juicy architecture) instead of by beef's standing values. A `console.warn` that drops data is never a footnote — it's a defect that must scream. I know beef hates silent fails; I still down-ranked it to a parenthetical.
+- **Corrective rule**: Any silent failure (warn/log/swallow + continue on a path that loses data or diverges from intent) is reported as a TOP finding with a loud-fix proposal, never an aside. Default posture: writes/side-effects that can't complete their contract THROW; degrade silently only where beef explicitly opted in. When two issues surface, rank by beef's values (loudness, correctness) not by which is more interesting to solve.
+- family: values-misranked (buried a known-hated smell)
+
+### 2026-07-13 — proposed adding `carry` but never showed its consumer
+
+- **What I did**: Root-caused the streaming-persistence bug to a missing `datamap.shard.carry`, proposed implementing it, but only ASSERTED "inject uses it" — never showed the actual consumer lines. Beef had to ask "show me where carry is used." The two use sites (`datamap.js:11` guard + `:17` capture, wired into the stream re-wrap at `:21-22`) were one grep away and are what prove the fix is complete + sole-consumer.
+- **Finn verbatim**: "also show me where carry is used retard"
+- **Root cause**: When proposing a fix that adds a method/field, I described the mechanism abstractly instead of grounding it in the CALLER code. Same family as asserting-without-showing: a fix that adds an API is only credible when you show every consumer that will invoke it (proves it's wired, proves completeness, proves no other caller needs a matching change).
+- **Corrective rule**: Any proposed fix that ADDS a symbol (method/field/export) must show — grepped, with line numbers — every site that consumes it, in the same message as the proposal. "X uses it" is not evidence; the consumer code is.
+- family: assert-without-showing (recurrence-adjacent to declared-clean-without-right-suite)
+
+### 2026-07-12 — reached for `node --check` to verify syntax in a Deno-only repo
+
+- **What I did**: After writing the M18 serverside, I ran `node --check` on typology/runtime files to "verify syntax." Node choked (`Cannot use import statement outside a module` — ESM without `.mjs`), producing noise. The repo is Deno end-to-end (`deno.jsonc` tasks, `deno check`, specimen). Node is never a runtime here.
+- **Finn verbatim**: "node??!! when do we use node??!!"
+- **Root cause**: Reached for the generic-JS reflex (`node --check`) instead of the repo's real toolchain. Same failure family as declaring-clean-without-running-the-right-suite: I verified with a tool that isn't part of this system, so the "verification" was meaningless. Should have gone straight to `deno check` / `deno task <cwd>/test`.
+- **Corrective rule**: NEVER invoke `node`/`npm`/`npx` in vivalence. Syntax/type = `deno check <file>`; behavior = `deno task typology/test` etc. The toolchain is Deno; verification uses the system's own tools or it isn't verification.
+- family: wrong-tool-verification (recurrence-adjacent to 2026-07-12 declared-clean-without-right-suite)
+
+### 2026-07-12 — declared the node-centric rotation "complete" while a failing test + stale docs + a world-file survived
+
+- **What I did**: After migrating the strip/wire rotation, I reported "typology 126/0, runtime 30/3, nothing outstanding" and named only the runtime snapshot corpus as a live-daemon follow-up. Beef didn't accept it — made me disprove my own claim. The adversarial sweep found survivors I'd missed: a FAILING kajuit test (`oracle-conversation.test.js`, old `CLIENT_SHAPE`), the canonical docs (47.03/42.01), a **world-file** (`codemap/typology.md`), and live quest guidance. Two root faults: (1) my consumer-grep had `grep -iv "leaves:"` — it FILTERED OUT the exact hand-built-shape construction pattern the survivors used; (2) I never ran the kajuit test suite — "all clean" meant typology+runtime only.
+- **Finn verbatim**: "find old occurrnces. disprove your completeness claim"
+- **Root cause**: assume-don't-verify recurrence (same family as the prior arc's unverified-attribution callout) — a completeness claim asserted from a SCOPED search + PARTIAL suite, presented as exhaustive. The grep's own exclusion filter was the blind spot: I narrowed the search to reduce noise and narrowed away the answer. And "clean" was scoped to the suites I chose to run, not the suites that exist.
+- **Corrective rule**: A "complete / nothing outstanding" claim after a cross-cutting contract change requires (a) a grep whose EXCLUSIONS are audited — never `-v` the very pattern a survivor would use (construction `x:`, readers `.x`); (b) running EVERY test suite that could consume the changed surface, not just the home package (this change touched typology → run typology AND runtime AND kajuit); (c) a categorized final sweep that lists what's left and WHY each is acceptable (historical / conceptual / fixed), so "clean" is a demonstrated partition, not an assertion. Disprove your own completeness before claiming it.
+- family: assume-dont-verify (recurrence; scoped-search-as-exhaustive)
+
 ### 2026-07-11 — changed the core Vector prototype, ran only its own suite, and hand-waved every downstream failure as "probably pre-existing"
 
 - **What I did**: Landed the singular-`effect` rotation on `prototypes/vector.js` (the most core type in the system), ran the typology suite (117/0), and reported the rotation "safe." When told to run more, the runtime suite showed 21/10; instead of testing WHY, I wrote a long "evidence points hard at pre-existing refactor breakage, not the rotation… but I don't have a clean baseline, so I won't claim it green" — attributing 10 failures to beef's in-flight refactor by REASONING, with no baseline, no repro, no proof.

@@ -8,12 +8,7 @@ export class Vip {
   }
 
   async mount(root) {
-    // owner derives from the mount scope by default; the walk itself finds the
-    // package module (manifest.type === "package") — no hardcoded filename, a
-    // package is identified by its manifest like every other module. Its
-    // manifest.owner, when authored, LOCKS the identity for the whole mount.
     const home = root.absolute ?? String(root);
-    const derived = `@${home.split("/").filter(Boolean).at(-1)}`;
 
     const paths = await this.paladin.find.viva(root);
     const modules = [];
@@ -23,7 +18,9 @@ export class Vip {
     }
 
     const declaration = modules.find((module) => module.manifest?.type === "package");
-    const owner = declaration?.manifest?.owner ?? derived;
+    const owner = declaration?.manifest?.owner;
+    if (modules.length && !owner)
+      throw new Error(`[VIP] mount ${home}: package declares no owner — author manifest.owner (e.g. "@viva")`);
 
     for (const module of modules) {
       // stamp on a COPY — read.viva returns the live module namespace; don't mutate the import.

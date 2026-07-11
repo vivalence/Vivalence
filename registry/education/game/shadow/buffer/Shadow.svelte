@@ -152,7 +152,7 @@
   }
 
   function review(result) {
-    terminal.daemon.call("/review/literal", {
+    terminal.daemon.connection.call("/review/literal", {
       signal: result.signal,
       scope: { literal: literal.id },
     });
@@ -160,7 +160,7 @@
     if (result.tokens) {
       for (const tok of result.tokens) {
         if (!tok.literal) continue;
-        terminal.daemon.call("/review/literal", {
+        terminal.daemon.connection.call("/review/literal", {
           signal: tok.signal,
           scope: { literal: tok.literal },
         });
@@ -195,7 +195,7 @@
   if (literal) {
     begin(literal);
   } else {
-    terminal.daemon.call("/pick/literal/feed", { limit: 3 }).then((lits) => {
+    terminal.daemon.connection.call("/pick/literal/feed", { limit: 3 }).then((lits) => {
       if (lits?.length) {
         for (const l of lits) queue.push(l);
         begin(queue[0]);

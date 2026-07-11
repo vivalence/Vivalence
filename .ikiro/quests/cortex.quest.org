@@ -150,8 +150,9 @@ ctx.daemon. Use daemon/mode from the trait's closure inside generator bodies.
 8. Stream is fundamental delivery; render derivable via =soma.bridge=.
 9. Vector.slurp deep-merges trajectories by nature. shape.http auto-publishes
    async generators as SSE.
-10. CLIENT_SHAPE must use branches (=branches.dialogue.leaves=[{nature:"packet"}, {nature:"voyage"}]=),
-    never flat leaves with slashes (causes =//dialogue/packet= double slash).
+10. CLIENT_SHAPE is node-centric =({effect?, branches})=: nest each route
+    (=branches.dialogue.branches.packet = {effect:{}, branches:{}}=), never flat
+    slash-natured leaves (would cause =//dialogue/packet= double slash).
 
 * Open Questions
 

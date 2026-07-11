@@ -164,7 +164,7 @@ export async function create() {
     },
   };
 
-  daemon.aperture.use(shard.context.attach("daemon", daemon));
+  daemon.aperture.use(shard.context.bind("daemon", daemon));
   datamap.subscribe(shape.subscriber(daemon.twitch));
 
   const finalizer = HARNESSED(dewey, daemon);

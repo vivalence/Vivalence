@@ -43,7 +43,7 @@ specimen.describe("Signature", () => {
       signature = new Pattern("users");
       const child = signature.branch("child");
       const grandchild = child.branch("grandchild");
-      specimen.expect(grandchild.tilde).toBe(signature);
+      specimen.expect(grandchild.root).toBe(signature);
       specimen.expect(signature.fin).toBe(grandchild);
     });
   });

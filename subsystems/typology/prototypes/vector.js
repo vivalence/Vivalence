@@ -3,6 +3,8 @@ import { Pattern, Signature } from "@vivalence/typology";
 export class Vector {
   constructor(ancestor, signature = Pattern) {
     this.effect = null;
+    // @beef maybe trajectory to trie
+    // this.trie = new Map();
     this.trajectories = new Map();
     this.carry = [];
     if (ancestor) this.ancestor = ancestor;
@@ -21,6 +23,8 @@ export class Vector {
 
   branch(signature) {
     const pattern = new this.signature(signature);
+
+    if (pattern.nature == null && !pattern.heir) return this;
 
     const existing = Array.from(this.trajectories.entries()).find(
       ([i]) => i.nature === pattern.nature || i.hash === pattern.hash,

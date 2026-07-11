@@ -188,7 +188,7 @@
     cells[slot.key] = { input: input.trim(), signal, committed: true, corrected: false };
 
     if (feedbackMode === "REALTIME") {
-      terminal.daemon.call("/review/literal", {
+      terminal.daemon.connection.call("/review/literal", {
         signal,
         scope: { literal: slot.literal.id },
       });
@@ -219,7 +219,7 @@
     const total = activeSlots.length;
     const mistakes = activeSlots.filter((s) => cells[s.key].signal === "MISTAKE").length;
     const signal = mistakes === 0 ? "SUCCESS" : mistakes === total ? "FAILURE" : "MISTAKE";
-    terminal.daemon.call("/review/literal", {
+    terminal.daemon.connection.call("/review/literal", {
       signal,
       scope: { literal: conjugation.id },
     });
@@ -233,7 +233,7 @@
       const cell = cells[slot.key];
       if (!cell.committed) continue;
       const signal = allWrong ? "FAILURE" : cell.signal;
-      terminal.daemon.call("/review/literal", {
+      terminal.daemon.connection.call("/review/literal", {
         signal,
         scope: { literal: slot.literal.id },
       });

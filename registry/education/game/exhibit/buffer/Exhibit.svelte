@@ -13,7 +13,7 @@
   let loading = $state(!literals.length);
 
   if (!literals.length) {
-    terminal.daemon.call("/pick/literal/feed", { limit: 6 }).then((lits) => {
+    terminal.daemon.connection.call("/pick/literal/feed", { limit: 6 }).then((lits) => {
       literals = lits ?? [];
       loading = false;
     });

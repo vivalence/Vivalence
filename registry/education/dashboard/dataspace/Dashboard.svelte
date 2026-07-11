@@ -37,15 +37,15 @@
   };
 
   // two relations = the graph. symbol.literals → symbol_literals, literal.uses → literal_uses.
-  daemon.call("/entities/symbol/find", { where: {}, options: { populate: ["literals"] } })
+  daemon.connection.call("/entities/symbol/find", { where: {}, options: { populate: ["literals"] } })
     .then((result) => (symbols = result));
-  daemon.call("/entities/literal/find", { where: {}, options: { populate: ["uses"] } })
+  daemon.connection.call("/entities/literal/find", { where: {}, options: { populate: ["uses"] } })
     .then((result) => (literals = result));
 
   // userspace overlay: memory colors literal nodes, traces feed the timeline.
-  daemon.call("/userspace/entities/memory/find", { where: {} })
+  daemon.connection.call("/userspace/entities/memory/find", { where: {} })
     .then((result) => (memories = result));
-  daemon.call("/userspace/entities/trace/find", { where: {} })
+  daemon.connection.call("/userspace/entities/trace/find", { where: {} })
     .then((result) => (traces = result));
 
   daemon.subscribe?.("/userspace/entities/trace/subscribe", (event) => {

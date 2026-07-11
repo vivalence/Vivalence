@@ -33,6 +33,11 @@ export async function launch(runtimeDie) {
 
   console.log(`launching on ${url.absolute}`);
 
+  runtimeDie.good.aperture.open(
+    "/multiplex",
+    shard.serve.multiplex(runtimeDie.good.aperture),
+  );
+
   runtimeDie.good.server = Deno.serve(
     {
       port: Number(url.port),

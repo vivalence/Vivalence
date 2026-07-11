@@ -1,7 +1,8 @@
 <script>
   import { getContext, tick } from "svelte";
-  import { ThreadTraits, chain } from "@vivalence/kajuit";
-  import { TERMINALS, BRIDGE /*, BOX */ } from "$client";
+  import { chain } from "@vivalence/kajuit";
+  import { soma } from "@vivalence/typology";
+  import { TERMINALS, BRIDGE } from "$client";
   import Markdown from "./Markdown.svelte";
   import { turnText, turnTools, turnArtifacts } from "./turns.js";
 
@@ -9,39 +10,24 @@
 
   const terminals = getContext(TERMINALS);
   const bridge = getContext(BRIDGE);
-  // const box = getContext(BOX);
-  // const microphone = box.device.microphone;
-  // const speaker = box.device.speaker;
 
-  // let micClaimed = $state(microphone.claimed);
-  // let micPaused = $state(microphone.paused);
-  // let micSpeaking = $state(microphone.speaking);
-  // let spkPlaying = $state(speaker.playing);
-  // microphone.$claimed.subscribe((v) => (micClaimed = v));
-  // microphone.$paused.subscribe((v) => (micPaused = v));
-  // microphone.$speaking.subscribe((v) => (micSpeaking = v));
-  // speaker.$playing.subscribe((v) => (spkPlaying = v));
-
-  // reactive reads via chain from the STABLE terminals root (the panel-root idiom, a.svelte:14-17):
-  // survives thread switches and rebinds inner subscriptions itself, so no hand-driven teardown.
-  const conversationStore = chain(terminals, "$active", "$thread", "$conversation");
-  const stateStore = chain(terminals, "$active", "$thread", "$conversation", "$state");
+  // reactive reads via chain from the STABLE terminals root (survives thread switches).
   const turnsStore = chain(terminals, "$active", "$thread", "$turns");
-  const streamingStore = chain(terminals, "$active", "$thread", "$streaming");
-  const pendingStore = chain(terminals, "$active", "$thread", "$pending");
-  const lastErrorStore = chain(terminals, "$active", "$thread", "$lastError");
-  const terminalStore = chain(terminals, "$active");
+  const modeStore = chain(terminals, "$active", "$thread", "$mode");
   const composerStore = bridge.$composer;
 
-  let conversation = $derived($conversationStore ?? null);
-  let conversationState = $derived($stateStore ?? "—");
   let turns = $derived($turnsStore ?? []);
-  let streaming = $derived($streamingStore ?? null);
-  let pending = $derived(!!$pendingStore);
-  let lastError = $derived($lastErrorStore ?? null);
-  let terminal = $derived($terminalStore ?? null);
+  let harnessed = $derived($modeStore?.implements?.("HARNESSED") ?? false);
   let composer = $derived($composerStore ?? { enterSends: true, density: "comfortable" });
-  // let liveTranscript = $state(null);
+
+  // in-flight = pure view state. history is thread.$turns (the repo). the user turn is minted
+  // here with a client id and persisted under it → the repo delivers the SAME id → echo drops
+  // on identity, no content-match. `live` = the running fold (soma.scan), null when idle.
+  let live = $state(null);
+  let echo = $state(null);
+  let sending = $state(false);
+  let error = $state(null);
+  let inflight = null; // stop() only; NOT aborted on unmount — the fold finishes + persists
 
   let draft = $state("");
   let textareaEl = $state(null);
@@ -49,175 +35,39 @@
   let pinned = $state(true);
   let unread = $state(0);
 
-  let audioOn = $state(false);
-  const toggleAudio = () => (audioOn = !audioOn);
+  const isStreaming = $derived(!!live);
+  const isThinking = $derived(sending && !live);
+  const showEcho = $derived(!!echo && !turns.some((t) => t.id === echo.id));
 
-  /* superseded by the chain(...) reads above — the hand-rolled subscribe/teardown mirrors:
-  $effect(() => {
-    if (!terminals?.$active) return;
-    const sub = terminals.$active.subscribe((next) => {
-      terminal = next;
-    });
-    composer = bridge.composer;
-    const composerSub = bridge.$composer.subscribe((value) => {
-      composer = value ?? composer;
-    });
-    return () => {
-      sub();
-      composerSub();
-    };
-  });
-
-  $effect(() => {
-    if (!thread?.$conversation) {
-      conversation = null;
-      return;
-    }
-    conversation = thread.conversation;
-    return thread.$conversation.subscribe((value) => (conversation = value));
-  });
-
-  let stateTeardown = null;
-  $effect(() => {
-    stateTeardown?.();
-    stateTeardown = null;
-    if (!conversation?.$state) {
-      conversationState = "—";
-      return;
-    }
-    conversationState = conversation.$state.get() ?? "—";
-    stateTeardown = conversation.$state.subscribe((value) => (conversationState = value ?? "—"));
-    return () => stateTeardown?.();
-  });
-
-  $effect(() => {
-    if (!thread?.$turns) {
-      turns = [];
-      return;
-    }
-    turns = thread.$turns.get() ?? [];
-    return thread.$turns.subscribe((value) => (turns = value ?? []));
-  });
-
-  $effect(() => {
-    if (!thread?.$streaming) {
-      streaming = null;
-      return;
-    }
-    streaming = thread.$streaming.get() ?? null;
-    return thread.$streaming.subscribe((value) => (streaming = value ?? null));
-  });
-
-  $effect(() => {
-    if (!thread?.$pending) {
-      pending = false;
-      return;
-    }
-    pending = thread.$pending.get() ?? false;
-    return thread.$pending.subscribe((value) => (pending = !!value));
-  });
-
-  $effect(() => {
-    if (!thread?.$lastError) {
-      lastError = null;
-      return;
-    }
-    lastError = thread.$lastError.get() ?? null;
-    return thread.$lastError.subscribe((value) => (lastError = value ?? null));
-  });
-  */
-
-  /*
-  $effect(() => {
-    if (!thread?.$liveTranscript) {
-      liveTranscript = null;
-      return;
-    }
-    liveTranscript = thread.$liveTranscript.get() ?? null;
-    return thread.$liveTranscript.subscribe((value) => (liveTranscript = value ?? null));
-  });
-  */
-
-  const live = $derived(conversationState === "LIVE");
-  const isStreaming = $derived(!!streaming);
-  const isThinking = $derived(pending && !streaming);
-
-  function isAtBottom(el) {
-    if (!el) return true;
-    const slack = 24;
-    return el.scrollTop + el.clientHeight >= el.scrollHeight - slack;
-  }
-
-  function onScroll() {
-    if (!logEl) return;
-    pinned = isAtBottom(logEl);
-    if (pinned) unread = 0;
-  }
-
-  async function scrollToBottom(force = false) {
-    if (!logEl) return;
-    if (!pinned && !force) return;
-    await tick();
-    logEl.scrollTop = logEl.scrollHeight;
-  }
-
-  let lastTurnCount = 0;
-  $effect(() => {
-    const len = turns.length + (streaming ? 1 : 0);
-    if (len > lastTurnCount) {
-      if (pinned) scrollToBottom();
-      else unread += len - lastTurnCount;
-      lastTurnCount = len;
-    } else {
-      lastTurnCount = len;
-    }
-  });
-
-  let autoGrowEl = null;
-  function autoGrow(el) {
-    if (!el) return;
-    el.style.height = "auto";
-    const max = 6 * 16;
-    el.style.height = Math.min(el.scrollHeight, max) + "px";
-  }
-
-  $effect(() => {
-    if (textareaEl) {
-      autoGrowEl = textareaEl;
-      autoGrow(textareaEl);
-    }
-  });
-
-  $effect(() => {
-    void draft;
-    if (autoGrowEl) autoGrow(autoGrowEl);
-  });
-
-  function send() {
-    if (!draft.trim() || !live) return;
-    const message = draft.trim();
-    const parts = [{ type: "text", text: message }];
+  async function send() {
+    if (!draft.trim() || !harnessed || sending) return;
+    const parts = [{ type: "text", text: draft.trim() }];
     draft = "";
-
-    const turnRepo = thread?.daemon?.entities?.turn;
-    if (turnRepo) {
-      turnRepo.merge({
-        id: `tmp-user-${Date.now()}`,
-        role: "user",
-        parts,
-        meta: null,
-        thread: thread.id,
-        createdAt: new Date().toISOString(),
-      });
-    }
-    ThreadTraits.conversational.send(thread, parts);
+    error = null;
+    const id = crypto.randomUUID();
+    echo = { id, role: "user", parts, createdAt: new Date().toISOString() };
+    sending = true;
     pinned = true;
     scrollToBottom(true);
+
+    inflight = new AbortController();
+    try {
+      for await (const turn of soma.scan(
+        thread.mode.harness.dialogue.stream({ thread: thread.id, id, parts }, { signal: inflight.signal }),
+      )) {
+        live = { ...turn }; // new ref per packet → Svelte reacts (shallow copy at the view)
+      }
+    } catch (err) {
+      if (err.name !== "AbortError") error = err.message;
+    } finally {
+      live = null;
+      echo = null;
+      sending = false;
+      inflight = null;
+    }
   }
 
-  function stop() {
-    ThreadTraits.conversational.abort(thread);
-  }
+  const stop = () => inflight?.abort();
 
   function lastUserText() {
     for (let i = turns.length - 1; i >= 0; i -= 1) {
@@ -250,7 +100,7 @@
     } else if (event.key === "ArrowUp" && draft === "") {
       event.preventDefault();
       recallLastUser();
-    } else if (event.key === "Escape" && (isStreaming || pending)) {
+    } else if (event.key === "Escape" && (isStreaming || sending)) {
       event.preventDefault();
       stop();
     }
@@ -264,14 +114,58 @@
   function retryUser(turn) {
     const text = turnText(turn);
     if (!text) return;
-    ThreadTraits.conversational.send(thread, [{ type: "text", text }]);
+    draft = text;
+    send();
   }
 
-  function regenerate() {
-    const text = lastUserText();
-    if (!text) return;
-    ThreadTraits.conversational.send(thread, [{ type: "text", text }]);
+  function isAtBottom(el) {
+    if (!el) return true;
+    const slack = 24;
+    return el.scrollTop + el.clientHeight >= el.scrollHeight - slack;
   }
+
+  function onScroll() {
+    if (!logEl) return;
+    pinned = isAtBottom(logEl);
+    if (pinned) unread = 0;
+  }
+
+  async function scrollToBottom(force = false) {
+    if (!logEl) return;
+    if (!pinned && !force) return;
+    await tick();
+    logEl.scrollTop = logEl.scrollHeight;
+  }
+
+  let lastCount = 0;
+  $effect(() => {
+    const len = turns.length + (showEcho ? 1 : 0) + (live ? 1 : 0);
+    if (len > lastCount) {
+      if (pinned) scrollToBottom();
+      else unread += len - lastCount;
+    }
+    lastCount = len;
+  });
+
+  let autoGrowEl = null;
+  function autoGrow(el) {
+    if (!el) return;
+    el.style.height = "auto";
+    const max = 6 * 16;
+    el.style.height = Math.min(el.scrollHeight, max) + "px";
+  }
+
+  $effect(() => {
+    if (textareaEl) {
+      autoGrowEl = textareaEl;
+      autoGrow(textareaEl);
+    }
+  });
+
+  $effect(() => {
+    void draft;
+    if (autoGrowEl) autoGrow(autoGrowEl);
+  });
 
   function turnDate(turn) {
     const value = turn?.createdAt ? new Date(turn.createdAt) : null;
@@ -294,36 +188,16 @@
     return date.toLocaleDateString(undefined, { weekday: "short", month: "short", day: "numeric" });
   }
 
-  function relativeTime(date) {
-    if (!date) return "";
-    const seconds = Math.floor((Date.now() - date.getTime()) / 1000);
-    if (seconds < 30) return "now";
-    if (seconds < 60) return `${seconds}s`;
-    const minutes = Math.floor(seconds / 60);
-    if (minutes < 60) return `${minutes}m`;
-    const hours = Math.floor(minutes / 60);
-    if (hours < 24) return `${hours}h`;
-    const days = Math.floor(hours / 24);
-    if (days < 7) return `${days}d`;
-    return date.toLocaleDateString(undefined, { month: "short", day: "numeric" });
-  }
-
   function clockTime(date) {
     if (!date) return "";
     return `${String(date.getHours()).padStart(2, "0")}:${String(date.getMinutes()).padStart(2, "0")}`;
   }
 
-  let timeTick = $state(0);
-  $effect(() => {
-    const interval = setInterval(() => (timeTick += 1), 30000);
-    return () => clearInterval(interval);
-  });
-
   const enrichedTurns = $derived(() => {
-    void timeTick;
+    const source = showEcho ? [...turns, echo] : turns;
     const items = [];
     let prevDay = null;
-    for (const turn of turns) {
+    for (const turn of source) {
       const text = turnText(turn);
       const tools = turnTools(turn);
       const artifacts = turnArtifacts(turn);
@@ -348,20 +222,15 @@
         <line x1="18" y1="6" x2="6" y2="18" />
       </svg>
     </button>
-    <span class="pip" class:live></span>
+    <span class="pip" class:live={harnessed}></span>
     <span class="title">{thread?.label?.name ?? "session"}</span>
     <span class="dock-spacer"></span>
-    <button class="call" class:on={audioOn} onclick={toggleAudio} title="audio call" aria-label="audio call">
-      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round">
-        <path d="M16.5 21A4.5 4.5 0 0 0 21 16.5v-1.6l-4-1.4-1.6 2a11 11 0 0 1-5.9-5.9l2-1.6L10 3.5H4.5A1.5 1.5 0 0 0 3 5 16 16 0 0 0 16.5 21Z" />
-      </svg>
-    </button>
     {#if isStreaming}
       <span class="state streaming">streaming</span>
     {:else if isThinking}
       <span class="state thinking">thinking…</span>
     {:else}
-      <span class="state" class:live>{live ? "live" : conversationState.toLowerCase()}</span>
+      <span class="state">idle</span>
     {/if}
   </header>
 
@@ -426,15 +295,16 @@
       {/if}
     {/each}
 
-    {#if streaming}
+    {#if live}
+      {@const liveText = turnText(live)}
       <div class="entry agent streaming-entry">
         <div class="entry-meta">
           <span class="diamond">◆</span>
           <span class="who">{thread?.label?.name ?? "agent"}</span>
           <span class="time"><span class="dot"></span><span class="dot"></span><span class="dot"></span></span>
         </div>
-        {#if streaming.text}
-          <div class="text"><Markdown text={streaming.text} /></div>
+        {#if liveText}
+          <div class="text"><Markdown text={liveText} /></div>
         {/if}
       </div>
     {:else if isThinking}
@@ -447,8 +317,8 @@
       </div>
     {/if}
 
-    {#if !turns.length && !streaming && !isThinking}
-      <div class="placeholder">{live ? "begin" : "awaiting handshake"}</div>
+    {#if !turns.length && !live && !isThinking}
+      <div class="placeholder">{harnessed ? "begin" : "no harness"}</div>
     {/if}
   </div>
 
@@ -458,15 +328,8 @@
     </button>
   {/if}
 
-  <!--
-  {#if liveTranscript}
-    <div class="live-transcript">{liveTranscript}</div>
-  {/if}
-  -->
-
-
-  {#if lastError}
-    <div class="error-bar" title={lastError}>error: {lastError}</div>
+  {#if error}
+    <div class="error-bar" title={error}>error: {error}</div>
   {/if}
 
   <div class="composer">
@@ -475,26 +338,14 @@
       class="input"
       bind:value={draft}
       onkeydown={onKey}
-      placeholder={live ? (composer?.enterSends ? "message… (shift+enter for newline)" : "message… (enter for newline, shift+enter sends)") : "—"}
-      disabled={!live}
+      placeholder={harnessed ? (composer?.enterSends ? "message… (shift+enter for newline)" : "message… (enter for newline, shift+enter sends)") : "—"}
+      disabled={!harnessed}
       rows="1"></textarea>
-    <!--
-    {#if micClaimed}
-      <button
-        class="send mic"
-        class:on={micSpeaking && !micPaused}
-        class:muted={micPaused}
-        onclick={() => (micPaused ? microphone.resume() : microphone.pause())}
-        title={micPaused ? "unmute" : "mute"}>
-        {micPaused ? "○" : "●"}
-      </button>
-    {/if}
-    -->
 
-    {#if isStreaming || pending}
+    {#if isStreaming || sending}
       <button class="send stop" onclick={stop} title="stop (esc)">■</button>
     {:else}
-      <button class="send" onclick={send} disabled={!live || !draft.trim()} title="send (enter)">↵</button>
+      <button class="send" onclick={send} disabled={!harnessed || !draft.trim()} title="send (enter)">↵</button>
     {/if}
   </div>
 </div>
@@ -535,7 +386,6 @@
     border: none;
     cursor: pointer;
     color: color-mix(in srgb, var(--colors-skeleton-2-contrast) 75%, transparent);
-    /* color: white; */
     transition: color 0.16s;
   }
   .dock-close svg {
@@ -565,37 +415,12 @@
   .dock-spacer {
     flex: 1;
   }
-  .call {
-    display: inline-flex;
-    align-items: center;
-    background: transparent;
-    border: none;
-    cursor: pointer;
-    padding: 3px;
-    color: color-mix(in srgb, var(--colors-skeleton-2-contrast) 55%, transparent);
-    transition: color 0.16s;
-  }
-  .call svg {
-    width: 16px;
-    height: 16px;
-    display: block;
-  }
-  .call:hover {
-    color: var(--colors-skeleton-2-contrast);
-  }
-  .call.on {
-    color: var(--colors-skeleton-0-primary-base);
-  }
   .state {
     opacity: 0.4;
     font-size: var(--font-size-xs);
     text-transform: uppercase;
     letter-spacing: 0.14em;
     padding-left: 6px;
-  }
-  .state.live {
-    opacity: 1;
-    color: var(--colors-skeleton-0-primary-base);
   }
   .state.streaming, .state.thinking {
     opacity: 1;
@@ -876,14 +701,6 @@
     text-transform: lowercase;
     letter-spacing: 0.06em;
   }
-  .live-transcript {
-    padding: 4px 14px;
-    border-top: 1px dashed color-mix(in srgb, var(--colors-skeleton-0-primary-base) 40%, transparent);
-    font-size: var(--font-size-xs);
-    color: color-mix(in srgb, var(--colors-skeleton-0-primary-base) 70%, var(--colors-skeleton-0-contrast));
-    font-style: italic;
-    opacity: 0.85;
-  }
 
   .composer {
     display: flex;
@@ -947,13 +764,5 @@
   }
   .send.stop:hover {
     background: color-mix(in srgb, var(--colors-skeleton-0-danger-base) 18%, transparent);
-  }
-  .send.mic.on {
-    border-color: var(--colors-skeleton-0-primary-base);
-    color: var(--colors-skeleton-0-primary-base);
-    opacity: 1;
-  }
-  .send.mic.muted {
-    opacity: 0.4;
   }
 </style>

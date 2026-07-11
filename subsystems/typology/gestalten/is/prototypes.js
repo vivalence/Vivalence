@@ -18,18 +18,12 @@ export function Pattern(thing) {
   return thing instanceof prototypes.Pattern;
 }
 
-export const Action = (thing) =>
-  thing?.constructor?.name === "Action" || thing instanceof Action;
+export const Action = (thing) => thing?.constructor?.name === "Action" || thing instanceof Action;
 
 export const action = Action;
 
 export function pattern(thing) {
-  return (
-    is.defined(thing) &&
-    !is.array(thing) &&
-    is.fn(thing.filter) &&
-    is.defined(thing.nature)
-  );
+  return is.defined(thing) && !is.array(thing) && is.fn(thing.filter) && is.defined(thing.nature);
 }
 
 export function Signal(thing) {
@@ -70,11 +64,14 @@ export function App(thing) {
   // return thing instanceof App;
 }
 
-// emitter output (prototypes/pool.js Yield) — shallow probe: a condition tag +
-// an entities map keyed by entity name. Deliberately loose: wire entities carry
-// partial refs that the full entity schemas reject, so we don't validate them here.
 export function yieldish(thing) {
+  // @beef. technically wrong-ish and incomplete.
   return is.object(thing) && is.string(thing.condition) && is.object(thing.entities);
+}
+
+export function buffers(thing) {
+  const buffer = (item) => item?.constructor?.name === "BufferEntity";
+  return buffer(thing) || (is.array(thing) && thing.every(buffer));
 }
 
 export function url(thing) {

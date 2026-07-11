@@ -39,7 +39,7 @@
   }
 
   if (!literals.length) {
-    terminal.daemon.call("/pick/literal/feed", { limit: 4 }).then((lits) => {
+    terminal.daemon.connection.call("/pick/literal/feed", { limit: 4 }).then((lits) => {
       literals = lits ?? [];
       shuffled = shuffle(literals);
       loading = false;
@@ -54,13 +54,13 @@
 
     const isCorrect = lit === target || lit?.id === target?.id;
 
-    terminal.daemon.call("/review/literal", {
+    terminal.daemon.connection.call("/review/literal", {
       signal: isCorrect ? "SUCCESS" : "MISTAKE",
       scope: { literal: target.id },
     });
 
     if (!isCorrect) {
-      terminal.daemon.call("/review/literal", {
+      terminal.daemon.connection.call("/review/literal", {
         signal: "MISTAKE",
         scope: { literal: lit.id },
       });

@@ -1,0 +1,76 @@
+#+TITLE: The oracle dock stuck on "awaiting handshake" debugged to a CLIENT-locus (server+authorize+token proven good by a raw-WS probe), then four rejected folds to ride the conversation over the ONE multiplex socket — nest · dedicated-session-primitive · slurp-with-prefix · socket-recursion — collapse, when beef reframes, into the realization that the =Conversation= prototype is vestigial: a dialogue is just a streaming request over the multiplex connection. Compiled to M18.
+#+TOPIC: continues the multiplex spine (=project_multiplex_transport=; one =Socket=/origin, PACKET/FRAME grammar). The oracle conversation was the ONE consumer still opening a dedicated 2nd WebSocket (=connection.socket("/conversation")=, token in query) — the last thing outside the multiplex. This session: debug why its handshake hangs, then decide how it joins the multiplex. It does NOT join — it dissolves. No code landed (typology core = holy; diff pending go); the deliverable is the M18 insight + quest + the memory/frontier updates.
+
+* Arc (methodical, in order)
+
+** turn 1 — "hadnshake still waiting. conversation not working?? debug step by step. code analysis, hypothesis, testing, curl, chrome."
+Two console failure classes: =NetworkError= on HTTP fetch =/attached/process/lighthouse/multiplayer/{auth/verify,manifest}=, and =404= via multiplex socket on =/daemon/{brazilian,chaosmonkey}/status= (those daemons inert — expected). Oracle mounted HEALTHY in playground. Invoked =systematic-debugging=.
+
+Code trace: client =conversational.js:122= =thread.socket = connection.socket("/conversation", inbound, {token})= → =Connection.socket()= (=connection.js:211=) = =new Socket(new WebSocket(...))= — a DEDICATED raw WS, NOT the multiplex; token as =?token= query. =Conversation.open()= awaits =socket.call("/handshake/open", {shape})=. Server mount = =daemon/traits/conversational.js:81= =serve.websocket=; oracle IS =CONVERSATIONAL= (=oracle.viva.js:13=).
+
+** turn 1b — curl + Url probe (the red herring falls)
+- =curl -H "Origin: localhost:1794" …/multiplayer/manifest= → 200 + correct CORS (=access-control-allow-origin: http://localhost:1794=). Server FINE; the browser NetworkError is transient (retry succeeds; daemons still mount). RED HERRING.
+- WS-upgrade curl: =/multiplex= → 101; =…/oracle/conversation= (no token) → 401 (clean reject — the earlier "connection reset" was curl mid-upgrade getting a non-101).
+- =Url= composition (deno): token SURVIVES → =ws://…/conversation?token=ABC=; =Url.searchParams.get("token")= works; =ctx.request.url= coerced to =Url= (=request.js:5=). So the query-token path is structurally sound.
+
+** turn 2 — "uhh interesting. read up on authority/authorize. and …/shard/secure.js" + "also read where those systems are used on the runtime side"
+=authorize= (=secure.js:10=) reads header OR =?token=; rejects 401 (no token) / 401 (bad) / 500 (user lookup) — only =next()= on success. Runtime chain (=resolution.js=): daemon aperture =.use(authorize).use(ambient.store user).use(datamap.bind user)=; mode =branch(mount.nature).use(authorize)=. The multiplex works because =Socket.#answer= injects the token as a HEADER (=token ?? this.bearer=); the conversation used the QUERY path.
+
+** turn 3 — chrome, the decisive probe (real token)
+Loaded the app tab, pulled =authority.access= from =localStorage[lighthouse:…]= (valid, not expired, id =019d23f1…=). Raw =new WebSocket("ws://…/oracle/conversation?token=<real>")= → **101 upgrade AND the server ANSWERED =/handshake/open=** with the outbound shape =\{dialogue:\{open,abort\},handshake:\{open\}\}=. So server + authorize + token are ALL good; the handshake completes when driven raw. **The fault is CLIENT-side** in the =Socket=/=Conversation.open()= path (exact client stall unpinned — in-page =import("@vivalence/typology")= to replicate failed; Vite dep graph unreachable by ad-hoc dynamic import).
+
+** turn 4 — "ok. mark this investigation process and result in your internal ikiro db."
+Wrote memory =project_conversation_handshake_client_locus= (server-good/client-locus, transport map, the dead query-token surface). Index + frontier updated. (Also here: two mid-turn steers — "i probably would prefer the websockets to be nested aka only one at a time" and "if dedicated prototypes are necessity for this, then read cortex, hallucination, provider for functional compoissition guidance".)
+
+** turn 5 — "2. we integrate with multiplex. what does that look like? … i dont like the idea of having the mode level feature know about the underlyin gimplementaiton specifics. … whats the right architecture … overall correct simplest seam?"
+The constraint pins the seam: =Connection.socket()= ALREADY hides transport (mode-feature just asks for a duplex bound to a signal+vector). First sketch: a conversation = a Socket tunneled through a multiplex frame (Socket-in-Socket via a link abstraction). Presented layered (=Socket= session core · =multiplex= session() · =serve.multiplex= acceptor · =Connection.socket()= delegate). beef had not yet ruled on it.
+
+** turn 6 — "i dont like the idea of a dedicated session primitive. not at all. we should be able to fold those correctly such that there is only minimal code change needed. remeber that were working on the whole system in cohesion. check where the prototypes under consideration are in use. youll find you can work on the system as a whole quite trivially!"
+Usage map: =connection.socket()= = 1 real caller · =serve.websocket= = 1 real mount · =new Socket= = 4 sites. Second sketch (NO new type): reuse the pooled multiplex =Socket=, slurp the conversation =inbound= into =socket.vector=, push/call for outbound, full-path signal scoping. The one wrinkle = the mount-path prefix threading.
+
+** turn 7 — "socket on multiplex. socket recursion. similar to hallucionation/provider proxy recursion aka /cortex binding" + serverside logs
+The running client (a since-reverted local stab) was emitting =\{session: uuid, open: \{signal, token\}\}= and the server =Packet.check= REJECTED it (=[multiplex] rejected malformed packet=) — no session variant. beef named the mechanism: socket recursion, a child Socket bound onto the parent via a =\{session, packet\}= envelope, the shape of cortex/hallucination proxy-binding. Third sketch built to a full diff: =Packet= session variants · =Socket.sessions= + =session()= + =#sessionLink= (WebSocket-mimic, buffers until listener) + =#tunnel=/=#accept= (routes the open-signal through the aperture, authorizes via =token ?? bearer=, reuses the EXISTING =serve.websocket= handler via =fn.attend=). Key elegance: the child Socket's OWN vector = the conversation → bare signals stay scoped for free; =Conversation=/=messenger=/mode-feature untouched.
+
+** turn 7b — "did you read this: …/daemon/traits/conversational.js??"
+Re-read: the =serve.websocket= handler (=(ws,ctx)=>new Socket(ws,v)+state+Conversation=) is ALREADY the acceptor; =serve.websocket= exposes =fn.attend=+=fn.websocket=. Recursion reuses it → server file UNCHANGED, no =serve.session=. Tightened the diff.
+
+** turn 8 — "2. find it. propose the diff"
+"Find the client =\{session,open\}= emitter." Exhaustive grep: NOT in any tracked file (=randomUUID= lives only in =socket.js=, which sends =frame= not =session=). Conclusion: a since-reverted local client edit; its shape matches the design. Proposed the full diff (authoring the emitter too): =Packet= += 3 session variants · =socket.js= recursion (~40 lines) · =connection.socket()= delegate (now async) · =transmitter.js= expose =establish= · =conversational.js= =await=. Server + =Conversation= + =messenger= unchanged. (=git status= attempted in the grep → blocked by the VCS-read-only hook; re-ran without it.)
+
+** turn 9 — "no. still not. hmmm. is the socket prototype used during multiplexing?"
+The pin that broke the whole branch. Yes — =transmitter.js:30= =new Socket(open(address), vector)= (client, 1/origin); =serve.multiplex= =new Socket(ws, aperture)= (server). One =Socket= already stands up per side; its client =vector= is =new Vector()= — EMPTY, the unused seam. A child Socket is redundant. Answered: the conversation should BIND onto the existing multiplex Socket (inbound → =socket.vector=, outbound → =socket.push=/=call=), same as cortex binds over the connection — no nesting, no session envelope; the =\{session,open\}= packets were the wrong branch. Asked whether that's the seam.
+
+** turn 10 — the reframe that dissolves it
+beef: =lets rethink this from the perspective of building a conversational experience that crosses text, speech and further faculties. we have the conversational trait which proxies through the harness into hallucination. thats good. very composable. we have this conversation prototype. i dont know what its purpose is supposed to be, now that harness and hallucination are the way they are. we can subscribe to sets of entities on repository. we send requests via connection and can stream adn render anything. what do we need conversation for anymore on the client??=
+
+Answer: **nothing.** =Conversation= gave (1) a persistent bidirectional socket, (2) a shape handshake, (3) messenger sugar. Each is subsumed: (1) a turn is request→stream — only continuous mic wants true duplex, and that's ONE =stream:true= multiplex frame; (2) pointless — channels are STATIC (dialogue/speech/verbatim), not negotiated, and harness+hallucination own the turn protocol; (3) =connection.observe/publish= + =soma.pour=. History = =turn.subscribe= (reactive entities). Render = harness→hallucination. So a dialogue turn = a streaming request over the multiplex connection, same as cortex/entities. This DISSOLVES the whole socket-recursion question AND the original bug (no dedicated WS, no query token).
+
+** turn 11 — "ok. compile this insight into a milestone. what number are we at?"
+M17 is latest → this is **M18**. Wrote =quests/m18_conversation_dissolves.quest.org= (intent + the rejected-branch arc + the subsumption table + the minimal diff + forks). Updated memory =project_conversation_handshake_client_locus= (resolution: DELETE, not nest) + frontier WIP line.
+
+** turn 12 — "ikiro compact" (effort auto / methodical / whole session)
+This file.
+
+* The M18 design (pending go — NO code landed)
+- *client* =thread/traits/conversational.js=: =send(parts)= = =for await (packet of connection.observe("/conversation/dialogue", {method:"POST", body:{thread,parts,tune}})) { assistantTurn = soma.pour(...); $streaming.set(...) }= ; history = =turnRepo.subscribe({thread})= ; abort = the observe's AbortController. Gone: =Conversation=, =thread.socket=, =/handshake/open=, =messenger=, =inbound=, the =connection.socket()= call site.
+- *server* =daemon/traits/conversational.js=: =mode.aperture.branch("/conversation").open("dialogue", async function* (ctx) { yield* mode.harness.dialogue.stream({parts,thread,tune}) })=. Gone: =serve.websocket= + per-WS =new Socket=+=new Conversation=. The multiplex =#answer= already frames an async-generator back as a stream; =connection.observe= already consumes it. Auth rides the multiplex bearer (header path).
+- *delete*: =prototypes/conversation.js= (=Conversation=) from the client path · =Connection.socket()= dedicated-WS branch (grep: no other live consumer) · the =\{session,open\}= stab + any =Packet= session variants (REVERT the socket-recursion work, don't extend it).
+- *untouched*: =mode.harness.dialogue= → hallucination · =soma.pour= + turn ontology + =TurnRepository= · =Socket=/=Packet=/=serve.multiplex=/multiplex transport.
+
+* Lessons
+- *Chrome + a real token beats a week of inference.* The raw =new WebSocket= probe (server answers the handshake) collapsed the search space from "server or authorize or token or client" to "client only" in one call. curl proved the multiplayer NetworkError a red herring; the deno =Url= probe cleared the query-token suspicion. Instrument the boundary, don't theorize across it.
+- *The bug was never worth fixing — the prototype was worth deleting.* Four escalating folds (nest → session → slurp → recursion) all tried to PRESERVE =Conversation=. Each passed the "does it work" bar and failed beef's nose. The question that dissolved it wasn't "how do we transport it" but "why does it exist." When the fold keeps getting rejected, question the thing being folded.
+- *"is X used during Y?" is a scoping scalpel.* One Socratic question (is Socket used during multiplexing?) killed the entire recursion branch by exposing that the abstraction already existed, empty and unused.
+- *Handshake/negotiation is dead weight when the protocol is static.* =Conversation='s shape-exchange negotiated what each side can receive — but the channels never vary. Negotiation earns its keep only under genuine variance; here it was ceremony.
+- *Composability check: does the new thing subsume an old one?* harness→hallucination + connection-streaming + reactive entities didn't just enable the dialogue — they made =Conversation= redundant. New spine landing = audit what it obsoletes.
+
+* Open / pending (beef gates)
+1. *The M18 diff itself* — pending go (typology-core-adjacent: deletes a prototype).
+2. *Fork — speech-out*: interleave speech packets on the same turn stream (demux by =packet.channel=) vs a parallel =observe= per channel. (lean: same stream.)
+3. *Fork — continuous mic (verbatim/barge-in)*: the ONLY faculty wanting a persistent client→server channel; = one =stream:true= multiplex frame (=publish= up + response stream down), still not =Conversation=. Build now (shape the seam) or defer.
+4. *Fork*: does anything besides dialogue still want =Connection.socket()=? If not, delete it.
+5. *Housekeeping*: a hook flags =MEMORY.md= at 19.6KB nearing the 24.4KB read cap — a compaction pass owed (not this session's ask).
+6. The exact client stall of the ORIGINAL dedicated-WS handshake was never pinned — moot once =Conversation= is deleted, but recorded as unresolved.
+
+* Provenance
+Memory =project_conversation_handshake_client_locus= (debug + resolution) · =project_multiplex_transport= (the spine) · =project_hallucination_harness_cortex_ontology= (the composable trait→harness→hallucination path beef praised). Quest =m18_conversation_dissolves=. Prior conversation surface: =conversation-dock-recast.quest.org=.

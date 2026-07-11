@@ -34,7 +34,7 @@
   }
 
   function available(name) {
-    if (name === "AIMED") return ($mode?.emitter?.leaves?.length ?? 0) > 0;
+    if (name === "AIMED") return Object.keys($mode?.emitter?.branches ?? {}).length > 0;
     if (name === "QUEUEING") return $threadTraits?.includes("AIMED") ?? false;
     if (name === "MASKED") return active("MASKED");
     return true;

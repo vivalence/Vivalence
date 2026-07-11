@@ -18,11 +18,11 @@ export class Span extends Signature {
   }
 
   get records() {
-    return this.tilde.journal;
+    return this.root.journal;
   }
 
   get pipe() {
-    return this.tilde.channel;
+    return this.root.channel;
   }
 
   get absolute() {

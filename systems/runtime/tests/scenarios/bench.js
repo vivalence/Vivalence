@@ -187,7 +187,7 @@ export async function bench(spec = {}) {
 
   // ── resolve (trait application + aperture wiring) ────────────────
   if (domain?.aperture) {
-    domain.aperture.use(shard.context.attach("daemon", daemon));
+    domain.aperture.use(shard.context.bind("daemon", daemon));
     daemon.aperture.slurp(domain.aperture);
   }
 
@@ -203,7 +203,6 @@ export async function bench(spec = {}) {
   const handler = shape.http(daemon.aperture);
   const connection = new Connection(new Url("http://bench"), shard.transmitter.inline(handler));
   daemon.connection = connection;
-  daemon.call = connection.call.bind(connection);
 
   // ── DATASET trait: seed ontology/corpus entities ─────────────────
   for (const mode of daemon.flatmodes()) {

@@ -1,14 +1,17 @@
 <script>
   import { getContext } from "svelte";
   import { chain } from "@vivalence/kajuit";
-  import { TERMINALS } from "$client";
+  import { TERMINALS, BRIDGE } from "$client";
   import Phase from "./widgets/Phase.svelte";
+  import Dock from "./widgets/Dock.svelte";
 
   let { rect } = $props();
 
   const terminals = getContext(TERMINALS);
+  const bridge = getContext(BRIDGE);
   const terminal = chain(terminals, "$active");
   const thread = chain(terminals, "$active", "$thread");
+  const mode = chain(terminals, "$active", "$thread", "$mode");
 </script>
 
 <div
@@ -20,6 +23,7 @@
   {#if $thread}
     <div class="population">
       <Phase terminal={$terminal} />
+      {#if $mode?.implements?.("HARNESSED")}<Dock {bridge} />{/if}
     </div>
   {/if}
 </div>

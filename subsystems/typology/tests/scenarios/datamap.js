@@ -60,6 +60,10 @@ export async function provider(variant) {
     entities,
     shard: {
       context: (fn) => RequestContext.create(orm.em, fn),
+      carry: () => {
+        const current = RequestContext.currentRequestContext()
+        return current ? (task) => RequestContext.storage.run(current, task) : (task) => task()
+      },
       bind: (name, resolve) => async (ctx, next) => {
         RequestContext.getEntityManager()?.setFilterParams(name, resolve(ctx))
         await next()

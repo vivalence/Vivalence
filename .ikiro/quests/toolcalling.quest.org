@@ -80,7 +80,7 @@ Branch nesting joins via =_= per shape.Agentic / shape.mcp convention:
 shape.http(v)            → request handler                  function → callable
 shape.mcp(v, info)       → {handle, tools[], handlers}      function → data + callable
 shape.object(v, exec)    → nested method bag                 function → method bag
-shape.strip(v)           → {leaves, branches}               function → data
+shape.strip(v)           → {effect?, branches}              function → data
 shape.tree(v, exec)      → array of {nature, signature, …}  function → data
 shape.flat(v, exec)      → array of {nature, signature, …}  function → data
 shape.messenger(s,{sock})→ method bag of socket-pushers     function → method bag

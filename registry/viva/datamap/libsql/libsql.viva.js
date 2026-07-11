@@ -53,6 +53,14 @@ async function provider(datamap, variant) {
         RequestContext.getEntityManager()?.setFilterParams(name, resolve(ctx));
         await next();
       },
+      // @beef hacky deep wire — carry the LIVE request context into a lazy streaming body
+      // (datamap.inject re-wraps the response so each pull runs `within`). re-ENTER the same fork
+      // via storage.run — never RequestContext.create, which forks a fresh identity map and would
+      // strand the parent turn.
+      carry: () => {
+        const context = RequestContext.currentRequestContext();
+        return (fn) => (context ? RequestContext.storage.run(context, fn) : fn());
+      },
     },
     subscribe: (sub) => orm.em.getEventManager().registerSubscriber(sub),
     introspect: () => orm.getMetadata(),

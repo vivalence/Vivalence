@@ -1,0 +1,99 @@
+#+TITLE: The conversation was dead because =retry()= dropped =transport.socket= — every tunnel websocket fell back to a broken direct =new WebSocket=; forwarding the surface makes the dock handshake ride the tunnel channel, and a =dock/handshake= span proves it reaches LIVE. Staged baseline→intermediary→goal for =askHarnessDialogueStream=; telemetry TDZ + daemon-instability sideshows; connoisseur names the wince (a combinator amputating a two-faced value).
+#+TOPIC: conversation/dock = client harness dialogue streaming through the CONVERSATIONAL websocket · the ROOT BUG: =shard.transmitter.retry(transport)= returned a BARE async fn and lost =transport.socket= (the Duct channel opener) → =connection.socket("/conversation")= fell to its direct-=new WebSocket= fallback (unwrapped, unauth'd) → handshake never reached a live handler → dock "awaiting handshake" FOREVER · FIX = forward the surface (=if (transport.socket) wrapped.socket = transport.socket=) · WHY one line worked: =Duct= is an anamorphism of a WebSocket (=extends EventTarget=, =arrive→open=, =receive→message=) so =Socket= is transport-blind · the tunnel = ONE ws, TWO multiplexers (echo-keyed HTTP/SSE via =answer=, channel-keyed websockets via =admit=) · PROOF the handshake completes = a =Span("dock/handshake")= piped to =telemetry()= showing =note{state:"LIVE"}= · beef: =use spans for logging= (retire the =[probe] console.warn= register) · staged: baseline (harness testing green) → intermediary (oracle conversational w/ dock handshake) → goal (=askHarnessDialogueStream= streams in dock) → extra (=dialogue·mirror= reactive renders latest assistant turn inline) · live VISUAL confirm is ENV-gated (daemon unstable), not code-gated
+
+* Arc
+
+** the ask, staged
+beef: =this i want the clientside harness to stream dialogue. important! the harness dialogue should create turns and use thread.turns etc.= · =the harness might be out of date. we changed the roles of harness and hallucination recently=. Then the frame: =first baseline, then intermediary, then goal. baseline: check that harness testing is working. intermediary: the oracle mode should be conversational wie dock. aka handshake and all that! goal: client side harness dialogue streaming that shows up in dock through the magic of reactivity! extra: give me a button in oracle that wires a reaction to changes in thread turns and renders the most recent/the one that just arrived. aka i chat in docks, and the oracle mode renders the dialogue turn by assistant inline!= · =setup a todo of 4 and do 1.=
+
+Correction to the premise up front: the harness was NOT API-out-of-date. Audited — =hallucination.entities.turn.{append,all,replace,compile}=, =context.system=, =/dialogue/stream= leaf, and =Turn.ts= repo =history/chain/create/fold= all intact. =harnessed.js= =/dialogue= already loads history, chains the user turn, =replace([...history,user])=, streams, creates a turn per =/turn/close=. Correct on paper, only UNTESTED.
+
+** stage 1 — the red guardrail caught a real oracle bug
+Baseline: =conversation.integration.test.js= (dewey, over a real ws) GREEN 5/5 — handshake · packet stream · user+assistant persistence · multi-turn history + parent linkage · user-filter isolation. So the MECHANISM works; it just wasn't bound to the real oracle. Wrote =systems/kajuit/tests/oracle-dialogue.test.js= (=mountMode(oracle,{cortex})=, call =mode.harness.dialogue.stream= directly inside =scoped=, mock faculty = =soma.drain= of an assistant turn). RED, exactly as predicted: =ReferenceError: COMPACT_THRESHOLD is not defined= at =registry/playground/chaosmonkey/oracle/harness.js:24= — the =/dialogue= compaction middleware references consts that live in =oracle.viva.js=, never imported. beef fixed it → GREEN.
+
+** stage 2 — server green, then the live wall
+=systems/kajuit/tests/oracle-conversation.test.js= (=mountMode(oracle)= + manual =CONVERSATIONAL(mode,daemon)= + =Deno.serve(http(mode.aperture))= + real ws) GREEN 3/3: implements CONVERSATIONAL · handshake returns server shape · dialogue open→stream→close, turns persist. beef edited the test's =CLIENT_SHAPE= to =effect=/=branches= (the Vector rotation; =leaves= dissolved) — kept, canonical.
+
+Then Chrome, and the dock sat at =awaiting handshake=. A long env sideshow before the real bug: telemetry TDZ, daemon crash-loops, lighthouse, IPv6.
+
+** the sideshows (env, not the dock)
+- *telemetry TDZ* — =systems/kajuit/src/telemetry.js= ran =belt.trace.chronicle.seed()= at MODULE-EVAL. Under Vite HMR re-eval the barrel export is intermittently =undefined= (=belt=, then even flat =trace=) → =Cannot read 'chronicle' of undefined= → whole app "Internal Error". beef: =import { Pipe, trace } from "@vivalence/typology"; this works. investigate why and continue.= WHY: =export * as belt= builds a namespace OBJECT read =undefined= mid-cycle; the flat =export *= binding is a live getter that survives — but the real disease is ANY eval-time barrel access. FIX: seed with the plain literal =atom({ nodes: new Map(), roots: [] })= (what =chronicle.seed()= returns); =trace.chronicle.step= stays lazy. App renders.
+- *daemon churn* — =deno run -A --watch … run.js= AddrInUse crash-loop (old child holds =[::1]:2501=, new child can't bind); a stray claude-spawned bare =deno task run= squatting the port without the lighthouse; the daemon binds *IPv6-only* (=[::1]:2501=) — IPv4 =127.0.0.1:2501= dead. curl =http://localhost:2501/tunnel= → =101 Switching Protocols= while the browser flapped =tunnel refused=. Repeated reloads + a stray-daemon killed → single daemon → =/tunnel= reachable.
+
+** the root cause — a two-faced value, amputated
+=Connection.socket()= (=prototypes/connection.js:193=):
+#+begin_src javascript
+socket(endpoint, vector, query = {}) {
+  const base = this.url.branch(endpoint).with(query);
+  if (this.transport.socket) return new Socket(this.transport.socket(`${base.pathname}${base.search}`), vector);
+  const ws = base.scheme(base.secure ? "wss" : "ws");
+  return new Socket(new WebSocket(ws.absolute), vector);   // ← DIRECT fallback, unwrapped, unauth'd
+}
+#+end_src
+The daemon connection's transport = =retry(tunnel(url))= (=daemon/dossier.js:54=). =transmitter.tunnel= DOES expose =transport.socket= (opens a Duct channel over the tunnel ws), but =retry= returned a *bare async fn* and dropped it. So =transport.socket= was =undefined= → the direct fallback → a =new WebSocket= to a path the tunnel-only/auth daemon never upgrades → handshake into the void → =awaiting handshake= forever. Confirmed live via a =WebSocket.prototype.send= hook: pre-fix the client sent a RAW =/handshake/open= (direct ws); post-fix it sent =channel-wrapped= frames.
+
+** the fix (typology; beef kept it)
+=subsystems/typology/gestalten/shard/transmitter.js= — =retry= now preserves the surface:
+#+begin_src javascript
+const wrapped = async (ctx) => { …retry loop… };
+if (transport.socket) wrapped.socket = transport.socket;   // forward the channel opener
+return wrapped;
+#+end_src
+
+** proof the server was never the problem
+Raw channel probe from the page (valid token pulled from =localStorage["lighthouse:[object Object]"].authority.access=), opened =/daemon/playground/mode/chaosmonkey/oracle/conversation?token=…= over the tunnel ws + sent a handshake:
+#+begin_src
+{channel, ready:true}
+{channel, message:{echo, output:{shape:{branches:{dialogue,handshake}}}}}   ← the handshake reply
+#+end_src
+admit + auth (query token via =secure.authorize= reading =url.searchParams=) + Socket + Conversation + reply — all sound. The token rides the CHANNEL path query because browsers can't set ws headers.
+
+** the span cracked the last mile
+beef: =use spans for logging.= Instrumented the client CONVERSATIONAL trait open() with a =new Span("dock/handshake").to(telemetry())= (renders in the g/h trace panels). It printed:
+#+begin_src
+/dock/handshake  open · note{thread} · note{state:"LIVE"} · close
+#+end_src
+=Conversation.open()= DOES resolve to LIVE. The retry fix bridged it; earlier =awaiting handshake= was the pre-fix / daemon-churn state. Where =WebSocket.send= hooks and =JSON.parse= wraps were archaeology, ONE span read the truth off the screen — the connoisseur's whole point.
+
+** connoisseur review (beef: =let the connoisseur review the system and our approach=)
+- ✓ =Duct= (=prototypes/duct.js=) — the keystone. =extends EventTarget=; =arrive()→"open"=, =receive()→"message"=, =send=. An *anamorphism of a WebSocket* → =Socket= (=ws.addEventListener/.send=) never learns it wraps a channel not a socket. Same law as =shape.object= (node doesn't know how it's arrived at). This is WHY the fix was one line.
+- ✗ wince 1 — =retry= dropped the surface. A transport is *callable ∧ namespace* (=transport(ctx)= AND =.socket=); a combinator that treats a two-faced value as one-faced. The one-property forward is effect-correct but names one property, not the LAW — the legendary form passes the whole surface through.
+- ✗ wince 2 — =serve.js= =admit= sends ={channel, ready:true}= even when =carry= short-circuits (a 401 → =effect.attend= never runs) → client handshakes into a dead channel. reveal-vs-hide: the failure is INVISIBLE; only a =console.warn("[probe] …")= the client never sees.
+- ✗ wince 3 — us: console/=JSON.parse= hooks over the trace spine we built. The transport =[probe] console.warn= register should be fault SPANS.
+
+** stages 3 + 4 — the deliverables (code)
+=registry/playground/chaosmonkey/oracle/buffer/Oracle.svelte= (buffer bundle = typology-only; reaches the conversation through the =terminal= PROP, no kajuit import):
+- *Stage 3* =askHarnessDialogueStream()= → =terminal.thread.conversation.send.dialogue.open({ thread: terminal.thread.id, parts })= (guards =!send?.dialogue?.open= → "dock not live"); wired to a =harness · dialogue= button; streams in the dock via the dock's own reactivity.
+- *Stage 4* =dialogue · mirror= toggle + =$effect= subscribing =terminal.thread.$streaming= (live tokens) then =$turns= (settled assistant turn) → =assistant.set(text)= inline; spans =/dialogue/mirror=.
+
+* The landing (carry forward)
+
+** the tunnel, in one breath
+ONE client ws (=carrier= keyed by address, shared across everything) multiplexes TWO schemes in =transmitter.receive=: =frame.channel !== undefined= → the =live.channels= Duct (websockets, =admit=); else =frame.echo= → =live.pending= flight (HTTP + SSE, =answer=). Server side =serve.tunnel(handler, vector)=: =admit= traverses the vector for the channel path, requires =effect.websocket && effect.attend= (both set by =shard.serve.websocket(handler)= = =Deno.upgradeWebSocket= on direct, =attend(duct)= on tunnel), runs =carry= (which includes =secure.authorize=), calls =effect.attend(duct)=. =/tunnel= mounts at =lifecycle/integrate.js:37=, BEFORE =Deno.serve=.
+
+** the client conversation path
+=connection.socket(endpoint, vector, {token})= → =transport.socket(path)= (Duct over tunnel) if present else direct ws. =new Socket(duct, connectionVector)= — =Socket= fast-paths when =ws.readyState===1= (the duct =arrive()=s before =attend= runs, so Socket is ready immediately; the order works BY the readyState check, borderline-fragile). =Conversation.open()= (client role) → =socket.call("/handshake/open", {shape: strip(inbound)})=, awaits =({echo,output})=, sets =this.send = messenger(reply.shape)= and =$state → LIVE=. Server role Conversation ADDS =inbound.open("/handshake/open", …)= that replies with =strip(inbound)=. =thread.conversation= is a getter/setter over =thread.$conversation= (=thread.js:51–55=) so the dock's =chain($active,$thread,$conversation,$state)= tracks it.
+
+** spans-for-logging (the deliverable seed)
+Client CONVERSATIONAL trait handshake → =Span("dock/handshake").to(telemetry())= → =$telemetry= → g/h panels. Oracle buffer already logs =client=/=stream= spans via =trace.live=/=trace.chronicle=; added =/harness/dialogue= + =/dialogue/mirror=. The connoisseur prescription (NOT yet done): replace the transport =[probe] console.warn/log= register with fault spans; a per-carrier root span, channel = branch.
+
+* Lessons
+- *A combinator must preserve the surface of what it wraps.* =retry= wrapped the CALL and amputated =.socket=. Verify the problem against the real mechanism: the bug wasn't in conversation/handshake/auth at all — all proven sound — it was one lost property three layers up in the transport.
+- *One span beats a page of console hooks.* =WebSocket.send= patches, =JSON.parse= wraps, raw probe sockets all "worked" but the =dock/handshake= span said =LIVE= in one line. Eat the trace dogfood.
+- *Never touch a barrel export at module-eval time.* =belt.trace.chronicle.seed()= at import is TDZ-fragile under HMR; seed with a literal, keep the barrel access lazy.
+- *Read the wire, not the transport name.* A "stream" that flattens to buffered =connection.call=; a "tunnel" that's IPv6-only while curl says 101 and the browser says refused. curl ≠ browser (CORS, IPv4/IPv6).
+- *The env is not the code.* Half the session was daemon churn (AddrInUse loops, dueling daemons, a stray squatter, IPv6 bind). The fix + tests were green long before the live app could show it.
+
+* Open / Pending
+- *Live VISUAL confirm* of Stage 3/4 (type-in-dock → stream → =dialogue·mirror= echoes inline) — ENV-gated. Needs a stable daemon (=deno task runtime/watch=, lighthouse attached); the session's ended showing =no daemons=. Handshake-reaches-LIVE is span-proven; the full flow is code-complete + compiles + server tests green.
+- *Connoisseur's two grafts NOT applied* (only the one-property =retry.socket= forward landed): (a) generalize =retry= to pass the whole transport surface; (b) =admit= gate =ready= on =attend= actually running + send a refusal frame (not a silent farewell). Both are correctness, both reveal-vs-hide.
+- *Transport still logs via =[probe] console.warn=* — the spans-for-logging conversion of the tunnel/serve path is prescribed, not built.
+- *=Socket=-over-=Duct= order* (=duct.arrive()= before =attend=) works only by =Socket='s =readyState===1= fast-path — borderline; a cleaner design arrives after attend.
+
+* SUPERSEDED — the connection was rebuilt on multiplex (PER DAEMON)
+The =tunnel= is DEAD (zero refs). The transport layer was rebuilt on =shard.transmitter.multiplex= — ONE =Socket= *per daemon* (beef: "multiplex is per daemon not per runtime"), every request rides a FRAME over that shared ws, token in the ws-URL query; =retry= wraps it and the connection carry is now span-instrumented (=shard.track.span → ctx.telemetry= + the =Socket= self-spans via =trace.open=/=span.note=). Consequences:
+- the ROOT CAUSE above (=retry= dropping =transport.socket=) is HISTORICAL — that bug lived on the tunnel-channel path; the fix was correct, then the whole layer was replaced. The vestigial =retry.socket= forward has been removed (retry is clean again).
+- conversation now rides =Connection.socket()= (direct raw ws, token in query) / multiplex frames, NOT a tunnel channel. Everything ABOVE the transport (harness dialogue stream, Oracle Stages 3/4, oracle-dialogue/oracle-conversation tests, the telemetry fix) is transport-blind and survives unchanged — it binds =mode.harness.dialogue.stream=, =Connection.socket=, the =Conversation= object, the thread's reactive stores.
+- server: =daemon/die.js= resolve → =aperture.multiplex(die)= → =die.good.aperture.open("/multiplex", shard.serve.multiplex(die.good.aperture))=. Client: =dossier.js= =new Connection(url, retry(multiplex({authority})))= + carry =span/request/fault/timeout(8000)=.
+- spans-for-logging is now BUILT INTO the connection+socket layer — the connoisseur's transport-logging prescription landed there independently; the =dock/handshake= span is complementary.
+- THE CONTRACT (beef): =/multiplex= is ALWAYS scoped inside =/daemon/:slug= (server mounts it on the daemon aperture, so live path = =/daemon/:slug/multiplex=). The client is currently INCOHERENT with this: =multiplex= keys + dials by =request.url.origin= (its own header comment still says "One WebSocket per origin") → it hits origin-root =ws://host:2501/multiplex=, which 404s → all daemons boot inert (=multiplex closed http://localhost:2501=). FIX = the client multiplex must dial the daemon-scoped base (=origin + /daemon/:slug + /multiplex=) and key the pool per daemon, NOT per origin. Encode it as a both-sides test (client dials the scoped path ⟷ server serves it there).

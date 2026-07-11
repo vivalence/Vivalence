@@ -21,7 +21,7 @@ export async function attach(runtimeDie) {
         runtimeDie.good.aperture //
           .branch("/attached/view")
           .branch(mode.mount.absolute)
-          .use(shard.context.attach("mode", mode))
+          .use(shard.context.bind("mode", mode))
           .open("/status", () => ({ status: "success" }))
           .open("/(.*)", async (input, ctx) => {
             if (paladin.is.dev) await ctx.mode.module.app.bundle.compile();
@@ -50,7 +50,7 @@ export async function attach(runtimeDie) {
       runtimeDie.good.aperture
         .branch("/attached/cargo")
         .branch(daemonDie.good.mount.nature)
-        .use(shard.context.attach("daemon", daemonDie.good))
+        .use(shard.context.bind("daemon", daemonDie.good))
         .open("/(.*)", async (input, ctx) => {
           const query = fromm.params(ctx.params).path.absolute.replace(/^\//, "");
           for (const mode of modes) {
@@ -73,8 +73,8 @@ export async function attach(runtimeDie) {
 export async function expose(runtimeDie) {
   for (const daemonDie of runtimeDie.good.daemons) {
     const daemonBranch = runtimeDie.good.aperture.branch(daemonDie.good.mount.nature);
+    daemonBranch.branch("/status").slurp(shard.nano.atom(daemonDie.status.$transient));
     daemonBranch
-      .open("/status", () => daemonDie.status.reflection)
       .open("/manifest", () => daemonDie.manifest)
       .slurp(daemonDie.good.aperture)
       .open("/batch", shard.batch.route(daemonBranch));

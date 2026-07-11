@@ -30,7 +30,7 @@ describe("snapshot demo: mode-instance", () => {
     expect(pojo.slug).toBe("nyan");
     expect(pojo.manifest.traits).toEqual(["APPLICATION"]);
     expect(pojo.traits).toBeUndefined();
-    expect(pojo.aperture.leaves[0].nature).toBe("board");
+    expect(pojo.aperture.branches.board.effect).toBeTruthy();
     expect(pojo.module).toBeUndefined();
   });
 });

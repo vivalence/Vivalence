@@ -77,7 +77,7 @@ const isVector = (value) => value?.trajectories instanceof Map; // routing Vecto
 
 // the one combinator — a depth-bounded, cycle-guarded cata over an arbitrary live value.
 //   Date → ISO · BigInt → string · Collection → item ids · Path → its nature string ·
-//   Vector → its stripped contract (shape.strip: {leaves, branches}) · already-seen → cut
+//   Vector → its stripped contract (shape.strip: {effect?, branches}) · already-seen → cut
 //   (kills self-references like status.subject === mode) · plain object → recurse, shed noise.
 function fold(value, depth, seen = new WeakSet()) {
   if (value == null) return value;

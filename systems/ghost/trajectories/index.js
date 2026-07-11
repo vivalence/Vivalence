@@ -1,6 +1,8 @@
 import { v } from "@vivalence/typology";
 import * as instance from "./instance/index.js";
+import * as ledger from "./ledger/index.js";
 import * as system from "./system/index.js";
+import * as variant from "./variant/index.js";
 // import * as sheets from "./sheets/index.js";
 
 export default function (trajectory) {
@@ -67,6 +69,51 @@ export default function (trajectory) {
       }),
     },
     instance.stop,
+  );
+
+  trajectory.open(
+    {
+      nature: "/ledger/install",
+      valence: "scaffold the ledger (locks/logs) + seed registry.json from the standard packages",
+      schema: v.object({}),
+    },
+    ledger.install,
+  );
+
+  trajectory.open(
+    {
+      nature: "/variant/clone",
+      valence: "clone a variant (by @owner/type/slug identifier or path) into a target dir",
+      schema: v.object({
+        source: v.string().desc("@owner/type/slug identifier or ../path").optional(),
+        target: v.string().desc("destination dir (defaults to testament/variant)").optional(),
+      }),
+    },
+    variant.clone,
+  );
+
+  trajectory.open(
+    {
+      nature: "/variant/lighthouse/auth/signup",
+      valence: "sign up a user against the variant's lighthouse",
+      schema: v.object({
+        username: v.string().optional(),
+        password: v.string().optional(),
+      }),
+    },
+    variant.lighthouse.auth.signup,
+  );
+
+  trajectory.open(
+    {
+      nature: "/variant/lighthouse/auth/login",
+      valence: "log in against the variant's lighthouse",
+      schema: v.object({
+        username: v.string().optional(),
+        password: v.string().optional(),
+      }),
+    },
+    variant.lighthouse.auth.login,
   );
 
   trajectory.open(

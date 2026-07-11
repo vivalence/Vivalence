@@ -149,7 +149,7 @@ teardown moot on the discard-after-compose path. One verb wanted.
 
 ** M3-grand "Dataspace consumes the schema TRIE / dual to messenger"  → FALSE METAPHOR
 Two different strips exist: =shape.strip= serializes a Vector ROUTING trie → recursive
-={leaves,branches}= (depth-N, self-similar; =messenger= RECURSES on =.branches=) — THIS is the
+={effect?,branches}= (depth-N, self-similar; =messenger= RECURSES on =.branches=) — THIS is the
 trie hylomorphism, and it lands in the *Connection* (=repo.connect(connection.branch(path))=), not
 the Dataspace. =shard.datamap.strip= (gestalten/shard/datamap.js:225) serializes ORM metadata →
 FLAT ={name:{properties:{field:{kind,target,mappedBy}}}}= (depth-1) WITH a thread↔buffer CYCLE. A

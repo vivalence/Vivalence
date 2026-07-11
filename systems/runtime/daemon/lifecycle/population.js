@@ -90,7 +90,6 @@ export async function authority(daemonDie) {
           context.request.headers.set("authorization", ctx.request.headers.get("authorization"));
           await next();
         });
-      ctx.daemon.call = ctx.daemon.connection.call.bind(ctx.daemon.connection);
       await next();
     });
 }

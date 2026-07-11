@@ -25,7 +25,7 @@ const thread = (buffers, { phase = "manual", depth = 1 } = {}) => {
       entities: {
         buffer: {
           drop: (id) => dropped.push(id),
-          removeOne: () => {},
+          removeOne: () => Promise.resolve(),
           merge: (pojo) => {
             const b = buf(pojo.id);
             $buffers.set([...$buffers.get(), b]);

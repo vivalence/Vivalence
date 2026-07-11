@@ -22,7 +22,7 @@
   const isListenMode = $derived(gameplay === "LISTEN");
 
   if (!literal) {
-    terminal.daemon.call("/pick/literal/feed", { limit: 1, where: { traits: { $contains: "ANNOTATED" } } }).then(([lit]) => {
+    terminal.daemon.connection.call("/pick/literal/feed", { limit: 1, where: { traits: { $contains: "ANNOTATED" } } }).then(([lit]) => {
       literal = lit ?? null;
       if (literal && !blankIndices.size) blankIndices.add(0);
       loading = false;
@@ -44,7 +44,7 @@
       if (!token) continue;
       const correct = evaluate(i);
       const literalRef = token.literal ?? literal.id;
-      terminal.daemon.call("/review/literal", {
+      terminal.daemon.connection.call("/review/literal", {
         signal: correct ? "SUCCESS" : "MISTAKE",
         scope: { literal: typeof literalRef === "object" ? literalRef.id ?? literalRef : literalRef },
       });

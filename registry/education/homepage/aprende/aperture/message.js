@@ -1,10 +1,11 @@
 import { Vector, v } from "@vivalence/typology";
 import * as hal from "../hal/index.js";
+import { TUTOR_MESSAGE_INPUT } from "../types.js";
 
 export const message = new Vector().open(
   {
     nature: "/assistant/message",
-    input: v.object({ prompt: v.string(), thread: v.string().optional() }),
+    input: TUTOR_MESSAGE_INPUT,
     output: v.object({ answer: v.string() }),
   },
   async (ctx) => {
@@ -24,7 +25,7 @@ export const message = new Vector().open(
           parts: [{ type: "text", text: ctx.input.prompt }],
         },
       ],
-      output: hal.assistant.output,
+      output: hal.tutor.output,
       thread: ctx.input.thread,
     });
     //

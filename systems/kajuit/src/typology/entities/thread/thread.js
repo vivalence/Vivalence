@@ -23,10 +23,6 @@ export class Thread extends Entity {
   // intent = null;
   // counter = 0;
 
-  // socket = null;
-  // streams = null;
-
-  $conversation = atom(null);
   $phase = atom("manual"); // render phase — the terminal's stall mirrors this (ThreadPhaseEnum)
   $traits = atom([]);
   $trait = deepMap({});
@@ -48,12 +44,6 @@ export class Thread extends Entity {
     this.$mode.set(value);
   }
 
-  get conversation() {
-    return this.$conversation.get();
-  }
-  set conversation(value) {
-    this.$conversation.set(value);
-  }
 
   get phase() {
     return this.$phase.get();

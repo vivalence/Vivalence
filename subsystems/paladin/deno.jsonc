@@ -6,9 +6,7 @@
   },
   "version": "0.0.1",
   "tasks": {
-    "test": "deno test -A --watch tests/**/*.test.js",
-    "test/tools": "deno test -A --no-check --watch tests/tools.test.js",
-    "test/paladin": "deno test -A --no-check --watch tests/paladin.test.js",
+    "test": "deno test -A --no-check --watch --env-file=../../testament/variant/.env tests/**/*.test.js",
     "test/vip": "deno test -A --no-check --watch tests/vip.test.js",
     "test/pensieve": "deno test -A --no-check --watch tests/pensieve.test.js",
   },

@@ -5,18 +5,16 @@ export function messenger(stripped, { socket }) {
   return object(rehydrate(stripped, socket));
 }
 
-// @beef suboptimal, uninspired
-function rehydrate(stripped, socket, prefix = "") {
+function rehydrate(node, socket, prefix = "") {
   const vector = new Vector();
-  for (const leaf of stripped.leaves ?? []) {
-    const signal = joinSignal(prefix, leaf.nature);
-    vector.open(leaf.nature, async (ctx) => {
+  if (node?.effect) {
+    const signal = prefix || "/";
+    vector.affect(async (ctx) => {
       socket.push(signal, ctx.input);
     });
   }
-  for (const [segment, sub] of Object.entries(stripped.branches ?? {})) {
-    const branchSignal = joinSignal(prefix, segment);
-    vector.branch(segment).slurp(rehydrate(sub, socket, branchSignal));
+  for (const [segment, child] of Object.entries(node?.branches ?? {})) {
+    vector.branch(segment).slurp(rehydrate(child, socket, joinSignal(prefix, segment)));
   }
   return vector;
 }

@@ -7,3 +7,4 @@ export * as caching from "./caching.js";
 export * as serve from "./serve.js";
 export * as batch from "./batch.js";
 export * as track from "./track.js";
+export * as nano from "./nano.js";

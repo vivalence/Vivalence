@@ -81,8 +81,7 @@ export const fields = (schema) => {
 export const maskSchema = (mode, traits, trait) => {
   if (traits?.includes("AIMED") && trait?.AIMED?.mount) {
     const nature = trait.AIMED.mount.replace(/^\/emit\//, "").replace(/^\//, "");
-    const leaf = (mode?.emitter?.leaves ?? []).find((entry) => entry.nature === nature);
-    return leaf?.input ?? null;
+    return mode?.emitter?.branches?.[nature]?.effect?.input ?? null;
   }
   const app = mode?.metadata?.app?.schema;
   if (!app) return null;

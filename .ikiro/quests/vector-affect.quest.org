@@ -138,6 +138,8 @@ audit + full rotation blast diff), verified against the live code.
   Vector with its own =carry=.
 - wire: =shape.strip= keeps the =\{leaves,branches\}= shape byte-identical (leaves keyed by
   segment nature); strip + connection.wire + messenger deploy ATOMICALLY.
+  (SUPERSEDED later this-arc: the contract rotated node-centric to =\{effect?,branches\}= — the
+  faithful cata of the Vector; =leaves= dissolved, root effect now strips + wires. See 47.03.)
 
 ** LOCKED — steer barrel regroup (4 namespaces = 4 files, 1:1, zero collisions)
 : // subsystems/typology/gestalten/steer/index.js

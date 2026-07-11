@@ -8,7 +8,7 @@ export class Daemon {
   attach = null; // Url(runtime.latch)
   url = null; // Url() system level integration.
   aperture = new Aperture() //
-    .use(shard.context.attach("daemon", this));
+    .use(shard.context.bind("daemon", this));
   connection = null;
   call = null;
   authority = null; // lighthouse client

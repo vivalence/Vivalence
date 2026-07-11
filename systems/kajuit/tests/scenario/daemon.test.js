@@ -1,7 +1,7 @@
 import { specimen, shard, RemoteRepository, RemoteEntityManager } from "@vivalence/typology"
 import { daemon } from "@vivalence/runtime/scenarios"
-import { Mode } from "../../src/entities/mode.js"
-import { Intent } from "../../src/entities/intent.js"
+import { Mode } from "../../src/typology/entities/mode/mode.js"
+import { Intent } from "../../src/typology/entities/intent.js"
 
 let scenario
 

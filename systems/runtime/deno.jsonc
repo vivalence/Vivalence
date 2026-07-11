@@ -15,6 +15,7 @@
     "run": "deno run -A --env-file=../../testament/variant/.env run.js",
     "watch": "deno run -A --watch --env-file=../../testament/variant/.env run.js",
     "test": "deno test -A --no-check --watch --env-file=../../testament/variant/.env tests/**/*.test.js",
+    "test/snapshots": "SNAPSHOT_HOT=1 deno test -A --no-check --env-file=../../testament/variant/.env tests/**/*.snapshot.test.js",
 
     "test/daemon": "deno test -A --no-check --watch tests/daemon/*.test.js",
     "test/mode": "deno test -A --no-check --watch tests/mode/*.test.js",

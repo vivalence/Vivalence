@@ -28,23 +28,22 @@ All four are =steer.fold= catamorphisms over the same Vector trie; they differ o
 
 #+BEGIN_SRC
   object(vector, execute)   Vector → nested CALLABLE (local, in-process dispatch)
-  strip(vector)             Vector → { leaves, branches } JSON  (inert wire contract)
+  strip(vector)             Vector → { effect?, branches } JSON  (inert wire contract)
   connection.wire(conn, s)  contract + Connection → nested CALLABLE (remote dispatch)
   messenger(s, {socket})    contract + socket → nested CALLABLE (one-way push; conversation)
 
   DUAL:  object (local)  ⟷  wire(strip(…)) (remote)   — same surface, different backend
 #+END_SRC
 
-- =strip= (=shape/strip.js:19=): folds to ={ leaves: [{nature, input?, output?}], branches: { <segment>: {…} } }=. The leaf carries =input/output= schemas but =wire= reads only =nature= (no client-side validation today).
-- =object= (=shape/object.js:8=): leaves become bound handlers via =execute=; a node that is BOTH leaf and branch becomes a callable carrying its sub-namespace (=Object.assign=). Default =execute = steer.request= (full HTTP =Context=); =steer.echo= gives a bare ctx. Eager — literal natures only; parametric routes need the lazy =shape.proxy= (=object.js:25=).
-- =connection.wire= (=shape/connection.js:4=): each leaf → =connection.aim("/nature")=; each branch → =wire(connection.branch("/segment"), sub)=. The whole body:
+- =strip= (=shape/strip.js=): the faithful cata of the Vector's own ={ effect, trajectories }=. Each node folds to ={ effect?, branches: { <segment>: {…} } }= — the node's OWN effect (metadata =input/output/yields/methods=, ={}= when the edge carries none) rides =effect=; a leaf is just a branch whose node has an effect and no sub-branches. There is no separate =leaves= array. =wire= reads =effect.methods/yields= (method-aware, streaming) but not =input/output= (no client-side validation today).
+- =object= (=shape/object.js=): a node's =effect= becomes a bound handler via =execute=; a node that is BOTH effect and branch becomes a callable carrying its sub-namespace (=Object.assign=). Default =execute = steer.request= (full HTTP =Context=); =steer.echo= gives a bare ctx. Eager — literal natures only; parametric routes need the lazy =shape.proxy=.
+- =connection.wire= (=shape/connection.js=) is the transport-dual of =object=: at each node the connection is already branched to it, so =node.effect → connection.aim("")= (self), =branches → wire(connection.branch("/segment"), child)=, unified via =Object.assign= (callable-AND-namespace). The root effect is addressed by ="/"= (see =branch("/") ≡ affect=). The whole body:
 #+BEGIN_SRC javascript :tangle no
-export function wire(connection, stripped) {
+export function wire(connection, node) {
   const api = {};
-  for (const leaf of stripped?.leaves ?? []) api[leaf.nature] = connection.aim(`/${leaf.nature}`);
-  for (const [segment, sub] of Object.entries(stripped?.branches ?? {}))
-    api[segment] = wire(connection.branch(`/${segment}`), sub);
-  return api;
+  for (const [segment, child] of Object.entries(node?.branches ?? {}))
+    api[segment] = wire(connection.branch(`/${segment}`), child);
+  return node?.effect ? Object.assign(aim(connection, node.effect), api) : api;
 }
 #+END_SRC
 - =messenger= (=shape/messenger.js:4=): the socket sibling of =wire=, used by the conversation channel; rebuilds a fresh Vector then =object()=s it (self-flagged =// @beef suboptimal, uninspired=).

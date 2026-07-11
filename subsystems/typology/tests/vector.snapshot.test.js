@@ -7,7 +7,7 @@ const base = new URL("./snapshots", import.meta.url).pathname;
 const DRY = false;
 
 describe("snapshot demo: vector", () => {
-  // vector — Vector → shape.strip contract {leaves,branches}
+  // vector — Vector → shape.strip contract {effect?,branches}
   it("captures vector", () => {
     const vector = new Vector();
     vector.open({ nature: "/drill", input: v.object({ count: v.integer({ minimum: 1 }) }) }, async () => {});
@@ -19,10 +19,8 @@ describe("snapshot demo: vector", () => {
       locate: "vector.snapshot.json",
     });
     console.log(`\n===BEGIN vector → ${path}===\n${JSON.stringify(pojo, null, 2)}\n===END===\n`);
-    expect(pojo.branches).toEqual({});
-    expect(pojo.leaves).toHaveLength(2);
-    expect(pojo.leaves[0].nature).toBe("drill");
-    expect(pojo.leaves[0].input.properties.count.minimum).toBe(1);
-    expect(pojo.leaves[1].nature).toBe("coach");
+    expect(Object.keys(pojo.branches)).toEqual(["drill", "coach"]);
+    expect(pojo.branches.drill.effect.input.properties.count.minimum).toBe(1);
+    expect(pojo.branches.coach.effect).toEqual({});
   });
 });

@@ -103,7 +103,7 @@
   const answerLabel = $derived(activeRecall === "KNOWN" ? "English" : "Português");
 
   if (!literal) {
-    terminal.daemon.call("/pick/literal/feed", { limit: 3 }).then((lits) => {
+    terminal.daemon.connection.call("/pick/literal/feed", { limit: 3 }).then((lits) => {
       if (lits?.length) {
         for (const l of lits) queue.push(l);
         literal = queue[0];
@@ -155,7 +155,7 @@
     return { signal, tokens: results };
   }
   function review(result) {
-    terminal.daemon.call("/review/literal", {
+    terminal.daemon.connection.call("/review/literal", {
       signal: result.signal,
       scope: { literal: literal.id },
     });
@@ -163,7 +163,7 @@
     if (result.tokens) {
       for (const tok of result.tokens) {
         if (!tok.literal) continue;
-        terminal.daemon.call("/review/literal", {
+        terminal.daemon.connection.call("/review/literal", {
           signal: tok.signal,
           scope: { literal: tok.literal },
         });

@@ -4,11 +4,12 @@ import {
 } from "@vivalence/typology"
 import { datamap } from "@vivalence/typology/scenarios"
 import { BufferEntity, ThreadEntity } from "@vivalence/typology/entities"
+import { RequestContext } from "@mikro-orm/core"
 
-// Reproduces the LIVE buffer wire: a user-scoped entity whose broadcast owner is
-// stamped from ambient context (resolution.js:6 mounts ambient.store at the daemon
-// root; userspace.js mounts reactive(buffer, { scope: user })). The literal tests
-// cover only UNSCOPED broadcast — this exercises the scoped path that buffer/turn
+// Reproduces the LIVE buffer wire: a user-scoped entity whose broadcast owner is read off the
+// ORM request context (the `user` filter param that also scopes find; resolution.js binds it
+// per-request, `carry` re-enters it for a lazy stream). No ambient, no denormalized column. The
+// literal tests cover only UNSCOPED broadcast — this exercises the scoped path that buffer/turn
 // actually use, over create + updateOne + emitter-style raw-mutate+flush.
 
 const PORT = 9889
@@ -25,20 +26,20 @@ specimen.beforeAll(async () => {
   })
   await em.flush()
 
-  // Buffer/Thread carry a default MikroORM filter `user` (cond: thread.user = args.user).
-  // Production satisfies it per-request via resolution.js:7 datamap.shard.bind("user", …).
-  // Single global em here → set the param once so repo.find/updateOne don't 500.
+  // Buffer carries a default MikroORM filter `user` (cond: thread.user = args.user).
+  // Production satisfies it per-request via resolution.js datamap.shard.bind("user", …).
+  // Single global em here → set the param once so repo.find/updateOne don't 500 AND so the
+  // reactive can read the owner back off the ORM context on broadcast.
   em.setFilterParams("user", { user: fixtures.user.id })
 
   const twitch = new Vector()
-  const twitchNoambient = new Vector()
   const aperture = new Aperture()
 
-  // faithful to production: attach user -> ambient.store (stamps owner) -> scope -> repo + reactive(scope)
+  // no ambient — the reactive reads the owner off the ORM context (the `user` filter param).
+  // attach user -> scope (for repo find) -> repo + reactive(scope for subscribe).
   aperture
     .branch("/buffer")
     .use(shard.context.attach("user", fixtures.user))
-    .use(shard.ambient.store((ctx) => ({ user: ctx.user })))
     .use(shard.datamap.scope((ctx) => ({ thread: { user: ctx.user.id } })))
     .slurp(shard.datamap.repository(repos.buffer))
     .slurp(shard.datamap.reactive(repos.buffer, twitch, { scope: (ctx) => ({ user: ctx.user.id }) }))
@@ -50,16 +51,7 @@ specimen.beforeAll(async () => {
       return target
     })
 
-  // control: identical EXCEPT no ambient.store -> owner never stamped -> must be dropped
-  aperture
-    .branch("/buffer-noambient")
-    .use(shard.context.attach("user", fixtures.user))
-    .use(shard.datamap.scope((ctx) => ({ thread: { user: ctx.user.id } })))
-    .slurp(shard.datamap.repository(repos.buffer))
-    .slurp(shard.datamap.reactive(repos.buffer, twitchNoambient, { scope: (ctx) => ({ user: ctx.user.id }) }))
-
   scenario.em.getEventManager().registerSubscriber(shape.subscriber(twitch))
-  scenario.em.getEventManager().registerSubscriber(shape.subscriber(twitchNoambient))
 
   const handler = shape.http(aperture)
   const abort = new AbortController()
@@ -115,21 +107,27 @@ specimen.describe("shard.datamap.reactive — scoped broadcast", () => {
     controller.abort()
   })
 
-  specimen.it("scoped broadcast is DROPPED when no ambient owner is present", async () => {
-    // The reactive twitch handler runs in-process on flush; with no ambient owner it
-    // warns + skips the push. Assert via that warn (an infinite /subscribe reader can't
-    // be unblocked by abort in this Deno, so we don't open one here).
-    const warnings = []
-    const original = console.warn
-    console.warn = (...args) => warnings.push(args.join(" "))
-    try {
-      await conn.call("/buffer-noambient/updateOne", {
-        where: { id: buffer.id }, data: { data: { label: "probe", bumped: 99 } },
-      })
-      await sleep.ms(50)
-    } finally {
-      console.warn = original
-    }
-    specimen.expect(warnings.some((w) => w.includes("without an owner"))).toBe(true)
+  specimen.it("reactive THROWS when the ORM context carries no owner — never silently drops", async () => {
+    // The owner rides the `user` filter param on the request context. A write whose context has
+    // no owner (it escaped the request scope without `carry`) must fail loud, never drop. Fire the
+    // twitch inside a FRESH context that never bound `user` — the reactive can't resolve the owner.
+    const twitchBare = new Vector()
+    shard.datamap.reactive(scenario.repos.buffer, twitchBare, { scope: (ctx) => ({ user: ctx.user.id }) })
+    const subscriber = shape.subscriber(twitchBare)
+
+    let threw = null
+    await RequestContext.create(scenario.orm.em, async () => {
+      RequestContext.getEntityManager().setFilterParams("user", undefined) // owner absent on this context
+      try {
+        await subscriber.afterCreate({
+          entity: { toJSON: () => ({ id: "bare", data: {} }) },
+          meta: { className: "BufferEntity" },
+        })
+      } catch (error) {
+        threw = error
+      }
+    })
+    specimen.expect(threw).not.toBe(null)
+    specimen.expect(String(threw?.message)).toContain("carries no owner")
   })
 })

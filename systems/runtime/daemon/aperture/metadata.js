@@ -38,7 +38,7 @@ export async function metadata(die) {
     if (mode.implements("FRAUGHT")) meta.open("/freight", () => mode.module.freight.catalog);
 
     if (mode.implements("HARNESSED")) {
-      meta.open("/harness", () => shape.strip(mode.module.harness));
+      meta.open("/harness", () => shape.strip(mode.aperture.branch("/harness")));
     }
   }
 }

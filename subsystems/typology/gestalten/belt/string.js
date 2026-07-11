@@ -49,6 +49,7 @@ export function capitalize(string) {
   return string.charAt(0).toUpperCase() + string.slice(1);
 }
 
+//@beef TODO move all below into recipe.js incl references!
 export function levenshtein(a, b) {
   const m = a.length,
     n = b.length;

@@ -7,10 +7,10 @@ export const harness = new Vector() //
   .use(async (ctx, next) => {
     ctx.hallucination.context.system(
       [
-        hal.assistant.identity,
-        hal.assistant.mission,
-        hal.assistant.capabilities,
-        hal.assistant.language(ctx.daemon.statics?.language),
+        hal.tutor.identity,
+        hal.tutor.mission,
+        hal.tutor.capabilities,
+        hal.tutor.language(ctx.daemon.statics?.language),
       ].join("\n\n"),
     );
     await next();

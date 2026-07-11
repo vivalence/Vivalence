@@ -10,3 +10,5 @@ export * as ambient from "./ambient.js";
 export * as receiver from "./receiver.js";
 export * as batch from "./batch.js";
 export * as track from "./track.js";
+export * as nano from "./nano.js";
+export * as hal from "./hal.js";

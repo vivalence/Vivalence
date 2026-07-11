@@ -1,4 +1,13 @@
-import { object, Connection, Cortex, Url, Path, RemoteRepository, shape, shard } from "@vivalence/typology";
+import {
+  object,
+  Connection,
+  Cortex,
+  Url,
+  Path,
+  RemoteRepository,
+  shape,
+  shard,
+} from "@vivalence/typology";
 import { Daemon } from "./daemon.js";
 import { Dataspace } from "../../prototypes/dataspace.js";
 import { ModeDossier } from "../mode/index.js";
@@ -40,35 +49,30 @@ export const DaemonDossier = {
       const daemon = ctx.entity;
       const url = new Url(daemon.url);
 
-      daemon.connection = new Connection(
-        url,
-        shard.transmitter.retry(shard.transmitter.fetcher, { maxRetries: 2 }),
-      )
+      const multiplex = shard.transmitter.multiplex({ authority: ctx.lighthouse.$authority });
+      daemon.connection = new Connection(url, shard.transmitter.retry(multiplex, { maxRetries: 2 }))
         .use(shard.track.span((call) => call.request.url.pathname, ctx.telemetry))
         .use(shard.track.request())
         .use(shard.track.fault())
-        .use(shard.connection.timeout(8000))
-        .use(shard.connection.authorize(ctx.lighthouse.$authority))
-        .use(
-          shard.connection.batch({
-            hatch: url,
-            filter: (call) => call.request.headers.get("accept") !== "text/event-stream",
-          }),
-        );
+        .use(shard.connection.timeout(8000));
 
       daemon.lighthouse = ctx.lighthouse;
-      daemon.call = daemon.connection.call.bind(daemon.connection); // @beef legacy
+      daemon.release = multiplex.close;
 
       try {
-        const [manifest, cargo, cortex] = await Promise.all([
+        daemon.status.set(await daemon.connection.call("/status"));
+        shard.nano.transient(daemon.connection.branch("/status"), daemon.status);
+        const [manifest, cargo, cortex, aperture] = await Promise.all([
           daemon.connection.call("/metadata/manifest"),
           daemon.connection.call("/metadata/cargo"),
           daemon.connection.call("/metadata/cortex"),
+          daemon.connection.call("/metadata/aperture"),
         ]);
         daemon.manifest = manifest;
         daemon.mount = new Path(`/daemon/${manifest.slug}`);
         daemon.cargo = cargo;
         daemon.link = new Path(`/${ctx.lighthouse.manifest.slug}/${manifest.slug}`).rebase("/viva");
+        daemon.call = shape.connection.wire(daemon.connection, aperture);
 
         daemon.entities = new Dataspace({
           connection: daemon.connection,
@@ -90,7 +94,9 @@ export const DaemonDossier = {
         ]);
 
         daemon.entities.thread.subscribe();
-        daemon.entities.buffer.subscribe({}, (b, s) => console.log("SUBSCRIPTION BUFFER", b, s));
+        daemon.entities.buffer.subscribe({}, (b, s) =>
+          console.log("DAEMON BUFFER SUBSCRIPTION: ", b, s),
+        );
         daemon.entities.turn.subscribe();
 
         daemon.cortex = new Cortex().register(

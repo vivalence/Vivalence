@@ -1,0 +1,117 @@
+#+title: the dataspace dashboard gains an entity-viewer intent, stage two lands three-vantage corpus snapshots that prove the daemon↔wire↔client round-trip, and the snapshot suite is reined from 22k lines
+#+filetags: :dataspace-dashboard:snapshots:entities:remote-repository:reining:
+
+* the arc
+
+beef pointed at =registry/education/dashboard/dataspace= (a =dashboard= type mode, APPLICATION+STANDALONE, rendering Dashboard.svelte over drapes Canvas+stage echarts) and opened a NEW intent:
+
+#+begin_quote
+we have a new intent for this dashboard. before we go into tables and such, i want to get a list of our entities going. some table style overview of the entities in the learning domain! from modes, threads, buffers to memories and traces with all the literals and symbols in between.
+#+end_quote
+#+begin_quote
+i am thinking in terms of ux some rich airtable table excel dataviewer
+#+end_quote
+#+begin_quote
+search / tags / the whole shebang
+#+end_quote
+
+Then the grounding directive:
+#+begin_quote
+it makes sense for you get a thorough understanding of the shapes of our entities across the wire as well as the search interfaces that client side repo provides.
+#+end_quote
+
+And the build plan:
+#+begin_quote
+we will want to build this mode in 3 stages. first you work out the interfaces. then you implementn the dataloading part and do a lot of tests and console logging and snapshotting to get the data out. snapshots in runtime/tests/snapshots. extend them! add more! snapshot what you need thats also available on runtime level (not trace or memory). thrid: with the jsons of everything and mastery over search, design the coolest data dashboard
+#+end_quote
+
+A premature interface proposal earned the correction:
+#+begin_quote
+youve not read the system thoroughly enough!
+#+end_quote
+→ four parallel Explore agents (client dataspace/EntityManager · metadata strip-wire mounting · existing data-ui/table components · daemon entity-aperture + snapshot infra) corrected the hand-wave.
+
+Then the refocus onto stage 2 concretely:
+#+begin_quote
+ok smaller steps. refocus. just looking at runtime testing snapshots. i want snapshots of the literals and symbols of our education domain. a representative sample of 25 and 15 respectively. across ontology adn other criteria. from two angles. from the perspective of a mode through the daemon.entities.[] interfaces. from the perspective of aperture calls from the outside to /entities/[]/find xyz.
+#+end_quote
+#+begin_quote
+break the test up into a dedicated set of tests. write them. run them dry. tell me how to run them dry and hot
+#+end_quote
+
+Iterative reining of the payload:
+#+begin_quote
+way too much recursion in the relations! mountains of data transported!
+#+end_quote
+#+begin_quote
+const OPTIONS = { fields: [...,"symbols.slug"] }; and data!!
+#+end_quote
+#+begin_quote
+still 3000 lines. too much. try to press this into 500 lines at same formatting!
+#+end_quote
+#+begin_quote
+fewer / not less
+#+end_quote
+
+The third vantage:
+#+begin_quote
+very good. now write the remote-repository entity manager perspective on these snapshot tests.
+#+end_quote
+#+begin_quote
+run both hot.
+#+end_quote
+
+Then the meta-integration + the whole-repo rein:
+#+begin_quote
+integrate the snapshots into ikiro! including codemaps and code references. also, the snapshots in total run over 3000 lines with some snapshots providing disproportionately. reign those in! 1500 lines top across all the repo!
+#+end_quote
+
+* the entity catalog (learning daemon)
+
+Shared repository =/entities/*= (NOT user-scoped): =mode= · =symbol= · =literal=.
+Userspace =/userspace/entities/*= (user-filtered): =thread= · =intent= · =buffer= · =turn= · =memory= · =trace=. Identity: =user=.
+The spine beef named: =mode→thread→buffer→turn= (session) and =literal↔symbol→memory→trace= (learning); Buffer is the join (carries =literals=/=symbols= m:n).
+
+At pure runtime level: =literal·symbol·mode·intent= carry data; =buffer·thread·turn·memory·trace= are empty (need a user). beef: snapshot what's available "(not trace or memory)".
+
+* the three vantages — the load-bearing LAW
+
+Every entity read reachable three ways, and they are **byte-identical**:
+- =mode= — =daemon.entities.<x>.find().toJSON()= (server MikroORM repo; what a mode sees via =ctx.daemon.entities=).
+- =aperture= — =conn.call("/entities/<x>/find")= (raw wire POJO across =shape.http= + =shard.transmitter.inline=).
+- =remote= — client =RemoteRepository.find= → =cast= through =RemoteEntityManager= (identity-mapped kind-instances; the shape the viewer binds to).
+
+Because they're identical, ONE canonical file per entity (=entity-literal.snapshot.json=, =entity-symbol.snapshot.json=) written by the mode vantage; aperture + remote steps =expect(...).toEqual(canonical)=. The equality IS the proof of daemon↔wire↔client round-trip fidelity. (Earlier they were three separate byte-identical files = triplication bloat, collapsed.)
+
+* the harness
+
+=systems/runtime/tests/corpus/harness.js= opens the REAL brazilian DB (=testament/variant/mountpoint/daemon_brazilian/test-language.viva.db=) READ-ONLY via =MikroORM= + the scenario =variant()= schema set — **no =refreshDatabase=, never flush** → safe concurrent reads alongside the live =:2501= daemon (sqlite WAL). One ORM backs all three vantages. Curated deterministic slug lists (10 literals·8 symbols across ontology×POS×trait-family — no =RANDOM()=, snapshots must be stable), reordered to curated order, timestamps stripped. Minimal =LiteralKind=/=SymbolKind= (never name a class =Symbol= — shadows the global).
+
+**Lean at the QUERY, not the snapshot:** =options.fields:["slug","traits","trait","symbol","ontology","rank"]= drops the redundant =symbols[]= relation — the denormalized =symbol{}= JSON already carries the ontology. beef's "and data!!" = keep =trait{}= (the learning payload) + =symbol{}= (denormalized ontology); "fewer not less" = fewer rows, full data per row.
+
+* the tasks
+
+=deno task runtime/test/snapshots= + =deno task typology/test/snapshots= (root delegates → =test/snapshots= in each container's deno.jsonc: =SNAPSHOT_HOT=1 deno test … tests/**/*.snapshot.test.js=, no =--watch=). Default runs DRY (=SNAPSHOT_HOT= unset → asserts+logs, no write); regeneration explicit. Snapshots gitignored (=*.snapshot.json= + =**/tests/snapshots/=); tests + tool tracked.
+
+* the reining — 22263 → 2773 lines
+
+Measured (not assumed): the repo carried **22263 snapshot lines / 57 files**, not the guessed 3000. Bloat sources, all eliminated:
+- =oracle-ask.snapshot.json= **13843→38** — was dumping every trace entry's full =data= recursively; the assertions read the live =story= (not the snapshot), so the projection safely drops =data=, keeps =verb=.
+- aperture metadata trees (=homepage-aprende= 1729→92, =teacher-dewey= 1328→59, all =game-*=) — =aperture.snapshot.test.js= projected the full =/metadata/aperture= =\{effect,branches\}= tree with nested I/O schemas; a =routes()= flatten → path+method+io-type list.
+- corpus triplication 1659→553 (three vantages → one canonical + cross-assert).
+- stale =*-brazilian=/=*-playground= instance family (1186 lines, 12 files) DELETED — the =die.js= generator block that wrote them is commented out; no active writer.
+
+Residual 2773 = the legit maintained suite (=mode-entity= 579 = full =v.mode()= schema, our =entity-literal= 474, =paladin-variant= 294, =modes-aperture= 239, + small typology refs). Hitting the literal 1500 target would trim GENUINE reference dumps (the Mode schema, the curated corpus data, the variant) — a diagnostic-value tradeoff, left as beef's call.
+
+* artifacts
+
+- =systems/runtime/tests/corpus/{harness.js,literal.snapshot.test.js,symbol.snapshot.test.js}= (NEW).
+- =systems/runtime/tests/snapshots/entity-{literal,symbol}.snapshot.json= (the canonical two).
+- =systems/runtime/tests/aperture.snapshot.test.js= (=routes()= projection).
+- =systems/kajuit/tests/oracle.snapshot.test.js= (=stable()= drops entry data).
+- =systems/runtime/deno.jsonc= + =subsystems/typology/deno.jsonc= + root =deno.jsonc= (=test/snapshots= tasks).
+- memory [[project_corpus_snapshot_regime]] · codemap =world/codemap/runtime.md= (corpus-snapshots + snapshot-hygiene bullets).
+
+* the dashboard remains stage 1/3
+
+Stage 2 (dataloading + snapshots) landed. Stage 1 interfaces (the =Dataspace= generic reader, column model = =strip()= relations + authored scalar catalog, two-tier search = server =where= only [client =object.match= has no operators], universal tag-filter via =DataRepository.resolveTraits=) were worked out but NOT built. Stage 3 (the Airtable/Excel dataviewer over the JSONs + mastery over search) is the open frontier — reuses the =m9-playground-layout= Cell/View spec (only =Frame= exists today). See [[project_shape_cortex_stripwire]] for the strip/wire dual, [[project_m11_package_ontology]] for the package layout.

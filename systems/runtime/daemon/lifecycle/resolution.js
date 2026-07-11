@@ -1,9 +1,9 @@
-import { is, shard } from "@vivalence/typology";
+import { shard } from "@vivalence/typology";
+import { stagger } from "../traits/index.js";
 
 export async function domain(daemonDie) {
   daemonDie.good.aperture
     .use(shard.secure.authorize())
-    .use(shard.ambient.store((ctx) => ({ user: ctx.user })))
     .use(daemonDie.datamap.shard.bind("user", (ctx) => ({ user: ctx.user.id })));
 
   if (daemonDie.domain.aperture)
@@ -29,19 +29,14 @@ export async function modes(daemonDie) {
   await daemonDie.datamap.shard.context(async () => {
     for (const mode of daemonDie.good.flatmodes()) {
       mode.aperture
-        .use(shard.context.attach("daemon", daemonDie.good))
-        .use(shard.context.attach("mode", mode))
+        .use(shard.context.bind("daemon", daemonDie.good))
+        .use(shard.context.bind("mode", mode))
         .open("/status", (_, ctx) => ctx.mode.status.reflection)
         .open("/manifest", (_, ctx) => ctx.mode.manifest);
 
       if (mode.module.aperture) mode.aperture.slurp(mode.module.aperture);
 
-      const finalizers = [];
-      for (const trait of mode.traits) {
-        const result = await daemonDie.variant.traits[trait]?.(mode, daemonDie.good);
-        if (is.fn(result)) finalizers.push(result);
-      }
-      for (const finalize of finalizers) await finalize();
+      await stagger(mode, daemonDie.good, daemonDie.variant.traits);
 
       if (mode.module.aperture && !mode.implements("EXPOSED")) {
         console.warn(`[trait] ${mode.type}/${mode.slug} exports aperture without EXPOSED`);

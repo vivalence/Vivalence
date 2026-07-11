@@ -1,3 +1,5 @@
+import { Socket } from "@vivalence/typology";
+
 const MIME = {
   html: "text/html", css: "text/css", js: "application/javascript", mjs: "application/javascript",
   json: "application/json", png: "image/png", jpg: "image/jpeg", jpeg: "image/jpeg",
@@ -36,5 +38,19 @@ export function websocket(handler) {
   };
   Object.defineProperty(fn, "length", { value: 1 });
   fn.websocket = true;
+  fn.attend = handler;
+  return fn;
+}
+
+export function multiplex(vector) {
+  const sockets = new Set();
+  const fn = websocket((ws, ctx) => {
+    const socket = new Socket(ws, vector, {
+      bearer: ctx?.request?.url?.searchParams?.get("token") ?? null,
+    });
+    sockets.add(socket);
+    ws.addEventListener("close", () => sockets.delete(socket));
+  });
+  fn.sockets = sockets;
   return fn;
 }

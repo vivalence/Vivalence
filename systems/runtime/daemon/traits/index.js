@@ -1,11 +1,19 @@
-import { shape } from "@vivalence/typology";
+import { is, shape } from "@vivalence/typology";
+
+export async function stagger(mode, daemon, traits) {
+  const finalizers = [];
+  for (const trait of mode.traits) {
+    const result = await traits[trait]?.(mode, daemon);
+    if (is.fn(result)) finalizers.push(result);
+  }
+  for (const finalize of finalizers) await finalize();
+}
 
 export * from "./dataset.js";
 export * from "./intented.js";
 export * from "./emitter.js";
 export * from "./application.js";
 export * from "./harnessed.js";
-export * from "./conversational.js";
 export * from "./tooled.js";
 
 export const SELFEVIDENT = () => {};
@@ -19,7 +27,7 @@ export const EXPOSED = (mode) => {
     return;
   }
   return () => {
-    mode.call = shape.object(mode.aperture);
+    mode.call = shape.proxy(mode.aperture);
   };
 };
 

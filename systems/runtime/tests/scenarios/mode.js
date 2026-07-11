@@ -2,13 +2,14 @@ import { Url, Connection, Mode, Path, Aperture, Vector, shape, shard } from "@vi
 import { RequestContext } from "@mikro-orm/core";
 import { seed } from "./entities.ts";
 import { tiers } from "./variant.js";
-import { INTENTED, EMITTER, EXPOSED } from "@vivalence/runtime/daemon/traits";
+import { INTENTED, EMITTER, EXPOSED, HARNESSED, stagger } from "@vivalence/runtime/daemon/traits";
 
 // ── test-only APPLICATION ─────────────────────────────────────────────
 // No paladin, no bundler. Mirrors the real trait's buffer factory: fill()
 // (Default-only) — never cast(), whose Convert pass mauls MikroORM Collections.
 // Entity classes via tiers.<type>.entity = the actually-registered classes.
 function APPLICATION(mode, daemon) {
+  if (!mode.module.app) return;
   mode.aperture.open("/buffered", () => ({
     url: mode.module.app.url.absolute,
     schema: mode.module.app.mask,
@@ -49,7 +50,7 @@ function buildDaemon(datamap, fixtures) {
 
   datamap.subscribe(shape.subscriber(daemon.twitch));
 
-  daemon.aperture.use(shard.context.attach("daemon", daemon));
+  daemon.aperture.use(shard.context.bind("daemon", daemon));
   daemon.aperture.use(async (ctx, next) => {
     ctx.authority = {
       authenticate: async (token) => {
@@ -68,6 +69,7 @@ async function wireMode(viva, daemon) {
   const em = daemon.entities.em;
   const mode = new Mode({ manifest: viva.manifest });
   mode.aperture = new Aperture();
+  mode.aperture.use(shard.context.bind("mode", mode));
   mode.mount = new Path(`/mode/${viva.manifest.type}/${viva.manifest.slug}`);
 
   mode.entity =
@@ -87,22 +89,13 @@ async function wireMode(viva, daemon) {
   }
   if (viva.dataset) mode.module.dataset = viva.dataset;
   if (viva.emitter) mode.module.emitter = new Vector().slurp(viva.emitter);
+  if (viva.harness) mode.module.harness = viva.harness;
   if (viva.aperture) mode.aperture.slurp(viva.aperture); // exported aperture endpoints
 
   daemon.modes[viva.manifest.type] ??= {};
   daemon.modes[viva.manifest.type][viva.manifest.slug] = mode;
 
-  const traits = viva.manifest.traits;
-  if (traits.includes("APPLICATION") && viva.app) APPLICATION(mode, daemon);
-  if (traits.includes("INTENTED") && viva.dataset) await INTENTED(mode, daemon);
-  if (traits.includes("EMITTER") && viva.emitter) {
-    const commit = await EMITTER(mode, daemon);
-    if (commit) await commit();
-  }
-  if (traits.includes("EXPOSED")) {
-    const finalize = EXPOSED(mode);
-    if (finalize) await finalize();
-  }
+  await stagger(mode, daemon, { APPLICATION, INTENTED, EMITTER, EXPOSED, ...(daemon.cortex && { HARNESSED }) });
 
   daemon.aperture.branch(mode.mount.absolute).slurp(mode.aperture); // → conn-reachable
 
@@ -111,9 +104,10 @@ async function wireMode(viva, daemon) {
 
 // ── public API ─────────────────────────────────────────────────────
 
-export async function mountMode(viva) {
+export async function mountMode(viva, options = {}) {
   const { orm, em, datamap, fixtures } = await seed();
   const daemon = buildDaemon(datamap, fixtures);
+  if (options.cortex) daemon.cortex = options.cortex;
   const mode = await wireMode(viva, daemon);
 
   const handler = shape.http(daemon.aperture);

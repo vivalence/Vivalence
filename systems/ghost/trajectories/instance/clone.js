@@ -76,7 +76,7 @@ async function findModules() {
   return await paladin.vip.list({ type: "variant" });
 }
 
-async function cloneDir(source, target) {
+export async function cloneDir(source, target) {
   await Deno.mkdir(target, { recursive: true });
   for await (const entry of Deno.readDir(source)) {
     // if (SKIP.has(entry.name)) continue;

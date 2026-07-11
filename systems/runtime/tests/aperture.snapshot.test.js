@@ -20,6 +20,23 @@ const alive = async () => {
   try { await fetch(BASE); return true; } catch { return false; }
 };
 
+const routes = (node, prefix = "") => {
+  const out = [];
+  if (node?.effect) {
+    const leaf = { path: prefix || "/" };
+    const effect = node.effect;
+    if (effect.methods) leaf.methods = effect.methods;
+    if (effect.input !== undefined) leaf.input = effect.input?.type ?? true;
+    if (effect.output !== undefined) leaf.output = effect.output?.type ?? true;
+    if (effect.yields !== undefined) leaf.yields = effect.yields?.type ?? true;
+    out.push(leaf);
+  }
+  for (const [segment, child] of Object.entries(node?.branches ?? {})) {
+    out.push(...routes(child, `${prefix}/${segment}`));
+  }
+  return out;
+};
+
 describe("aperture snapshot: /metadata (consumer vantage)", { sanitizeResources: false, sanitizeOps: false }, () => {
   let skip = false;
   const conn = new Connection(new Url(BASE), shard.transmitter.fetcher);
@@ -55,7 +72,7 @@ describe("aperture snapshot: /metadata (consumer vantage)", { sanitizeResources:
       const stem = `/daemon/${DAEMON}/mode/${mode.type}/${mode.slug}/metadata`;
       const manifest = await conn.call(`${stem}/manifest`, {});
       const aperture = await conn.call(`${stem}/aperture`, {});
-      const pojo = { manifest, aperture };
+      const pojo = { manifest, routes: routes(aperture) };
       const { path } = snapshot(pojo, { base, dry: DRY, parse: (x) => x, locate: `${mode.type}-${mode.slug}-aperture.snapshot.json` });
       const bytes = JSON.stringify(pojo).length;
       console.log(`[aperture ${DRY ? "DRY" : "WRITE"}] ${mode.type}/${mode.slug} → ${path} · ${bytes} bytes · ~${Math.ceil(bytes / 4)} tokens`);

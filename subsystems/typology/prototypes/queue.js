@@ -1,18 +1,18 @@
 import { fromm, promise } from "@vivalence/typology";
 
 export class Queue {
-  buffer = [];
+  backlog = [];
   closed = false;
   gate = promise.waiter();
 
   enqueue(value) {
-    this.buffer.push(value);
+    this.backlog.push(value);
     this.gate.wake();
     return this;
   }
 
   flush() {
-    this.buffer.length = 0;
+    this.backlog.length = 0;
     return this;
   }
 
@@ -23,8 +23,8 @@ export class Queue {
 
   async *drain(signal) {
     while (!signal?.aborted) {
-      if (this.buffer.length) {
-        yield this.buffer.shift();
+      if (this.backlog.length) {
+        yield this.backlog.shift();
         continue;
       }
       if (this.closed) return;
@@ -33,7 +33,7 @@ export class Queue {
   }
 
   get depth() {
-    return this.buffer.length;
+    return this.backlog.length;
   }
 
   to(...sinks) {

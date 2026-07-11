@@ -1,10 +1,29 @@
 import { Aperture, Broadcaster, object } from "@vivalence/typology";
-import * as ambient from "./ambient.js";
 
 export function inject(datamap) {
   return (ctx, next) => {
     ctx.entities = datamap.entities;
-    return datamap.shard.context(next);
+    return datamap.shard.context(async () => {
+      await next();
+      const body = ctx.response.body;
+      if (
+        !datamap.shard.carry ||
+        !body?.[Symbol.asyncIterator] ||
+        typeof body === "string" ||
+        typeof body.getReader === "function"
+      )
+        return;
+      const within = datamap.shard.carry();
+      const iterator = body[Symbol.asyncIterator]();
+      ctx.response.body = {
+        [Symbol.asyncIterator]() {
+          return {
+            next: () => within(() => iterator.next()),
+            return: (value) => within(() => iterator.return?.(value) ?? { value, done: true }),
+          };
+        },
+      };
+    });
   };
 }
 
@@ -157,15 +176,17 @@ export function reactive(repo, twitch, { scope } = {}) {
   for (const op of ["create", "update", "delete"]) {
     twitch.open(`/${name}/${op}/after`, (ctx) => {
       const serialized = ctx.input.entity?.toJSON?.() ?? ctx.input.entity;
-      // user-scoped entity: stamp the owner from the writer's request context so
-      // the broadcaster can match a flat { user } filter without a relation hop.
+      // user-scoped entity: the owner rides the ORM request context (the `user` filter param that
+      // scopes find; resolution.js binds it per-request). `carry` re-enters that same context for a
+      // lazy stream, so this resolves in ANY write context. null = the write escaped its context →
+      // fail loud, never drop.
       if (scope && serialized && typeof serialized === "object") {
-        const owner = ambient.current()?.user?.id;
-        if (owner != null) serialized.user = owner;
-        else
-          console.warn(
-            `[reactive] ${name}/${op} written without an owner — dropped from user-scoped broadcast`,
+        const owner = repo.getEntityManager().getFilterParams("user")?.user ?? null;
+        if (owner == null)
+          throw new Error(
+            `[reactive] ${name}/${op} is user-scoped but the ORM context carries no owner — the write escaped its request context (a lazy stream must \`carry\` it); a user-scoped write must never drop silently.`,
           );
+        serialized.user = owner; // stamp the flat id so the broadcaster matches a { user } filter
       }
       // match the serialized (wire) shape, not the live ORM entity — relations
       // on the live entity are unloaded References that never === a scalar id.
@@ -178,7 +199,7 @@ export function reactive(repo, twitch, { scope } = {}) {
     const filter = { ...(input?.where || {}), ...resolved };
     const { iterable, unsubscribe } = broadcaster.subscribe(filter);
     ctx.request.raw?.signal?.addEventListener("abort", unsubscribe);
-    ctx.response.publish(iterable);
+    ctx.response.body = iterable;
   });
 
   return aperture;

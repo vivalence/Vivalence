@@ -39,7 +39,7 @@ specimen.describe("lighthouse datamap (scenario)", () => {
     });
 
     specimen.it("update daemon", async () => {
-      const result = await scenario.conn.call("/entities/daemon/update", {
+      const result = await scenario.conn.call("/entities/daemon/updateOne", {
         where: { slug: "test-language-2" },
         data: { url: "http://localhost:5175/daemon/test-language-2" },
       });
@@ -47,7 +47,7 @@ specimen.describe("lighthouse datamap (scenario)", () => {
     });
 
     specimen.it("remove daemon", async () => {
-      const result = await scenario.conn.call("/entities/daemon/remove", {
+      const result = await scenario.conn.call("/entities/daemon/removeOne", {
         where: { slug: "test-language-2" },
       });
       specimen.expect(result.ok).toBe(true);
@@ -78,7 +78,7 @@ specimen.describe("lighthouse datamap (scenario)", () => {
     });
 
     specimen.it("ensure cleanup", async () => {
-      await scenario.conn.call("/entities/daemon/remove", {
+      await scenario.conn.call("/entities/daemon/removeOne", {
         where: { slug: "new-daemon" },
       });
       const result = await scenario.conn.call("/entities/daemon/findOne", {
@@ -106,12 +106,11 @@ specimen.describe("lighthouse datamap (scenario)", () => {
       specimen.expect(result.authentication.provider).toBe("password");
     });
 
-    specimen.it("update nonexistent returns 404", async () => {
-      const response = await scenario.conn.fetch("/entities/identity/update", {
+    specimen.it("findOne nonexistent identity returns null", async () => {
+      const result = await scenario.conn.call("/entities/identity/findOne", {
         where: { slug: "ghost" },
-        data: {},
       });
-      specimen.expect(response.status).toBe(404);
+      specimen.expect(result).toBe(null);
     });
   });
 });

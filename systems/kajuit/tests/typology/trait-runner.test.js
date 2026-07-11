@@ -1,7 +1,7 @@
 import { expect } from "jsr:@std/expect";
 import { describe, it } from "jsr:@std/testing/bdd";
 
-import { applyTraits } from "../../src/typology/traits/runner.js";
+import { applyTraits } from "../../src/typology/gestalten/belt/runner.js";
 
 describe({
   name: "applyTraits middleware factory",

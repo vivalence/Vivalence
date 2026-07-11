@@ -37,7 +37,7 @@ Thread is *message-level* (per anchor input), not connection-level. Route carrie
 ** Architecture rules (load-bearing)
 - *Per-connection vector*: =new Vector().slurp(conversation)= per WS upgrade. Shared vector accumulates moin handlers across N connections — fatal at N>1.
 - *Closure rule*: =shard.context.attach= nulls =ctx[key]= after =next()=. Lazy generators (CHAOSMONKEY scribe) capture =daemon= / =mode= from trait closure, not =ctx=.
-- *CLIENT_SHAPE branches*: flat leaves cause double-slash via messenger's =joinSignal=. Use ={ branches: { dialogue: { leaves: [...] } } }=.
+- *CLIENT_SHAPE branches*: node-centric ={effect?, branches}=; flat slash-natured routes cause double-slash via messenger's =joinSignal=. Use ={ branches: { dialogue: { branches: { packet: { effect: {}, branches: {} } } } } }=.
 - *Per-message RequestContext*: conversation middleware wraps every WS dispatch in =daemon.datamap.shard.context= + =shard.bind("user")=. =socket.state.user= captured at connect.
 - *Codec*: ulaw_8000 end-to-end (matches shuo, Deepgram, ElevenLabs). BELL transcodes from MediaRecorder opus at send boundary.
 - *Audio cells = Pipe + Queue*: no Feed/Sink classes. Pipe is mic feed (fan-out producer); Queue is speaker sink (single-consumer drain). Wiring is four one-liners in TerminalDossier middleware.

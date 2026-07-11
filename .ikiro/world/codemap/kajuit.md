@@ -1,7 +1,7 @@
 ---
 paths: ["systems/kajuit/**", "subsystems/dapper/**", "subsystems/drapes/**"]
 ---
-<!-- writer: agent · derived-from: systems/kajuit + subsystems/{dapper,drapes} + corpus read · verified: session c795a2f7 · limit: 35 lines -->
+<!-- writer: agent · derived-from: systems/kajuit + subsystems/{dapper,drapes} + corpus read · verified: session testing-purge · limit: 35 lines -->
 # codemap: kajuit — surface (SvelteKit SPA, thin client) + dapper/drapes
 
 ⚠ beef-observed weak flank: *"claude codes like SHIIITTT on the client"* — slow down here, read tokens, no one-off hacks. See [[identity]].
@@ -12,3 +12,4 @@ paths: ["systems/kajuit/**", "subsystems/dapper/**", "subsystems/drapes/**"]
 - **barrel rule**: consumers import `@vivalence/kajuit` only; entity files must NOT import the barrel (TDZ cycles).
 - **style gotchas**: scoped `> *` doesn't cross child component roots (the pointer-events trap) · Svelte 5 `$state` doesn't deep-track class instances → atom-backed `$field` + chain-subscribe · never name props state/derived/effect.
 - **dapper/drapes**: dapper = build-time tokens/themes/zones (skeleton/theme/system triples; `data-zone`); drapes = components consuming CSS vars only (never dapper JS); font scale 2xs..8xl = single typography source; drapes `<Icon carbon=…>` app-layer ONLY (crashes in buffer bundles — inline SVG there).
+- **tests/**: `oracle.snapshot.test.js` = wire-trace snapshot exemplar (scenario `mountMode({cortex})` → `/mode/…/ask` over inline transmitter → `trace.chronicle` → `specimen.snapshot` into `tests/snapshots/`; see `docs/…/47.04`). `/ask` requires `thread` (turn-scribe persists). Suite green post deep-clean: scenario/daemon tests migrated to `src/typology/entities/*` paths; old-contract Dataspace/daemon.wafer/oracle-conversation tests purged (superseded by `lifecycle-vector` + dead CONVERSATIONAL trait).

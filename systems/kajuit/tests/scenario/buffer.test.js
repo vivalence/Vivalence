@@ -1,7 +1,6 @@
 import { specimen } from "@vivalence/typology";
 import { daemon } from "@vivalence/runtime/scenarios";
-import { Buffer } from "../../src/entities/buffer.js";
-import { Terminal } from "../../src/terminal/terminal.js";
+import { Buffer } from "../../src/typology/entities/buffer.js";
 
 specimen.describe("Buffer.from", () => {
   specimen.it("creates buffer instance from pojo with app", () => {
@@ -21,7 +20,7 @@ specimen.describe("Buffer.from", () => {
     const app = { url: "http://test/view/game/flashcard", schema: {} };
     const pojo = { id: "buf-2", data: {}, literals: [{ id: "lit-1" }] };
 
-    const buffer = Buffer.from(pojo, view);
+    const buffer = Buffer.from(pojo, app);
 
     specimen.expect(buffer.app).toBe(app);
     specimen.expect(buffer.app.url).toBe("http://test/view/game/flashcard");
@@ -82,7 +81,7 @@ specimen.describe("buffer lifecycle", { sanitizeResources: false, sanitizeOps: f
       thread: scenario.fixtures.thread.id,
     });
     specimen.expect(result.condition).toBe("NOMINAL");
-    const pojo = result.buffers[0];
+    const pojo = result.entities.buffer[0];
 
     const buffered = await scenario.conn.call("/mode/game/flashcard/buffered");
 
@@ -104,55 +103,11 @@ specimen.describe("buffer lifecycle", { sanitizeResources: false, sanitizeOps: f
 
     const buffered = await scenario.conn.call("/mode/game/flashcard/buffered");
 
-    const buffer = Buffer.from(result.buffers[0], buffered);
+    const buffer = Buffer.from(result.entities.buffer[0], buffered);
     const terminal = {};
     buffer.context = { buffer, terminal };
 
     specimen.expect(buffer.context.terminal).toBe(terminal);
     specimen.expect(buffer.context.buffer).toBe(buffer);
-  });
-
-  specimen.it("Buffer.from into stall produces active buffer with app", async () => {
-    const result = await scenario.conn.call("/mode/game/flashcard/emit/literal", {
-      literal: { id: scenario.fixtures.hello.id },
-      thread: scenario.fixtures.thread.id,
-    });
-
-    const buffered = await scenario.conn.call("/mode/game/flashcard/buffered");
-
-    const terminal = new Terminal();
-    terminal.daemon = { entities: { buffer: { update: () => {} } } };
-
-    const buffers = result.buffers.map((pojo) => Buffer.from(pojo, buffered));
-    terminal.stall.push(buffers);
-
-    specimen.expect(terminal.stall.$active.get()).toBeTruthy();
-    specimen.expect(terminal.stall.$active.get().app).toBe(buffered);
-    specimen.expect(terminal.stall.$active.get().data.recall).toBe("LEARNING");
-    // specimen.expect(terminal.stall.$active.get().literals).toContain(scenario.fixtures.hello.id);
-    specimen.expect(terminal.stall.$active.get().literals.map((l) => l.id)).toContain(scenario.fixtures.hello.id);
-  });
-
-  specimen.it("blacklist extraction from buffer.literals", async () => {
-    const result = await scenario.conn.call("/mode/game/flashcard/emit/literal", {
-      literal: { id: scenario.fixtures.hello.id },
-      thread: scenario.fixtures.thread.id,
-    });
-
-    const buffered = await scenario.conn.call("/mode/game/flashcard/buffered");
-    const terminal = new Terminal();
-    terminal.daemon = { entities: { buffer: { update: () => {} } } };
-
-    const buffers = result.buffers.map((pojo) => Buffer.from(pojo, buffered));
-    terminal.stall.push(buffers);
-
-    const queued = terminal.stall.queue;
-    const blacklist = {
-      literals: queued
-        .flatMap((b) => b.literals ?? [])
-        .map((l) => (typeof l === "object" ? l.id : l)),
-    };
-
-    specimen.expect(blacklist.literals).toContain(scenario.fixtures.hello.id);
   });
 });

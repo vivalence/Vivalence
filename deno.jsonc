@@ -31,9 +31,11 @@
 
     "paladin/test": "deno task --cwd ./subsystems/paladin test",
     "typology/test": "deno task --cwd ./subsystems/typology test",
+    "typology/test/snapshots": "deno task --cwd ./subsystems/typology test/snapshots",
     "kajuit/test": "deno task --cwd ./systems/kajuit test",
     "ghost/test": "deno task --cwd ./systems/ghost test",
     "runtime/test": "deno task --cwd ./systems/runtime test",
+    "runtime/test/snapshots": "deno task --cwd ./systems/runtime test/snapshots",
 
     "runtime/run": "deno task --cwd ./systems/runtime run",
     "runtime/watch": "deno task --cwd ./systems/runtime watch",
@@ -41,6 +43,7 @@
     "ghost/run": "deno run -A --env-file=./testament/variant/.env ./systems/ghost/mod.js",
     "ghost/watch": "deno run -A --watch --env-file=./testament/variant/.env ./systems/ghost/mod.js",
 
+    "kajuit/run": "deno task --cwd ./systems/kajuit run",
     "kajuit/watch": "deno task --cwd ./systems/kajuit watch",
     "kajuit/bundle": "deno task --cwd ./systems/kajuit bundle",
 

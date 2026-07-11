@@ -52,11 +52,6 @@
     for (const buffer of thread.$buffers.get()) thread.daemon.entities.buffer.drop(buffer.id);
     await thread.daemon.entities.buffer.remove({ thread: thread.id });
   }
-
-  const toggleConversation = (thread) =>
-    thread.traits.includes("CONVERSATIONAL")
-      ? ThreadTraits.conversational.release(thread)
-      : ThreadTraits.conversational.engage(thread);
 </script>
 
 <script>
@@ -77,8 +72,10 @@
   const buffers = chain(terminals, "$active", "$thread", "$buffers");
 
   let busy = $state(false);
-  let chatBusy = $state(false);
   let listEl = $state(null);
+
+  let dockCollapsed = $state(bridge.dock.collapsed);
+  bridge.$dock.subscribe((d) => (dockCollapsed = d.collapsed));
 
   // keep the active row centered in the scrollable list
   $effect(() => {
@@ -92,8 +89,7 @@
   const aimed = $derived($threadTraits?.includes("AIMED") ?? false);
   const standalone = $derived($mode?.implements?.("STANDALONE") ?? false);
   const application = $derived($mode?.implements?.("APPLICATION") ?? false);
-  const conversationCapable = $derived($mode?.implements?.("CONVERSATIONAL") ?? false);
-  const engaged = $derived($threadTraits?.includes("CONVERSATIONAL") ?? false);
+  const harnessed = $derived($mode?.implements?.("HARNESSED") ?? false);
 
   async function onCreate() {
     if (!$thread || busy) return;
@@ -105,29 +101,18 @@
     }
   }
 
-  async function onToggleConversation() {
-    if (!$thread || chatBusy) return;
-    chatBusy = true;
-    try {
-      const wasEngaged = engaged;
-      await toggleConversation($thread);
-      if (!wasEngaged) bridge.setDockCollapsed(false);
-    } finally {
-      chatBusy = false;
-    }
-  }
 </script>
 
 <div class="panel">
-  {#if conversationCapable}
+  {#if harnessed}
     <section>
-      <Section label="conversation" />
+      <Section label="chat" />
       <button
         class="act primary"
-        class:engaged
-        onclick={onToggleConversation}
-        disabled={!$thread || chatBusy}>
-        {chatBusy ? "…" : engaged ? "leave" : "start chatting"}
+        class:engaged={!dockCollapsed}
+        onclick={() => bridge.setDockCollapsed(!dockCollapsed)}
+        disabled={!$thread}>
+        {dockCollapsed ? "start chatting" : "hide chat"}
       </button>
     </section>
   {/if}

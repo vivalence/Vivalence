@@ -88,10 +88,10 @@ specimen.describe("Path", () => {
     });
 
     specimen.describe("navigation", () => {
-      specimen.it("finds tilde (root)", () => {
+      specimen.it("finds root", () => {
         const root = new Path("/root");
         const leaf = root.branch("/a").branch("/b");
-        specimen.expect(leaf.tilde).toBe(root);
+        specimen.expect(leaf.root).toBe(root);
       });
 
       specimen.it("finds heir (first child)", () => {

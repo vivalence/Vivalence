@@ -1,5 +1,5 @@
 import { Vector, v } from "@vivalence/typology";
-import { STATUS } from "./vocabulary.js";
+import { STATUS } from "../types.js";
 
 // the board — ONE optimized read backing the whole homepage dashboard. Every panel
 // (status bar, strength×due scatter, weakest/strongest ranks) derives from this single

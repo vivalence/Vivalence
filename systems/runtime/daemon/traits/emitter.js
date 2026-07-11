@@ -1,4 +1,4 @@
-import { shape, Blacklist, Pool, Vector } from "@vivalence/typology";
+import { shape, Blacklist, is, Pool, Vector } from "@vivalence/typology";
 
 export const EMITTER = async (mode, daemon) => {
   if (!mode.module.emitter) return;
@@ -40,18 +40,20 @@ export const EMITTER = async (mode, daemon) => {
   emitter.use(async (ctx, next) => {
     ctx.pool = new Pool();
 
-    // console.log("playground/spawn", ctx.input);
-
     await next();
 
-    if (ctx.output != null) ctx.pool.add(ctx.output);
+    if (is.promise(ctx.output)) ctx.output = await ctx.output;
+
+    let output;
+    if (is.yieldish(ctx.output) || is.buffers(ctx.output)) ctx.pool.add(ctx.output);
+    else if (!is.nill(ctx.output)) output = ctx.output;
 
     const result = await ctx.pool.drain();
-    // console.log("EMITTER {result}", { result });
+    if (output !== undefined) result.output = output;
 
+    // console.log("EMITTER {result}", { result });
     // console.log(result.buffers.map((b) => console.log(b.literals.map((l) => [l.id, l.slug]))));
 
-    // buffers bind + index onto the thread only when a thread is present.
     if (ctx.thread && result.condition === "NOMINAL") {
       for (const buffer of result.entities.buffer) {
         buffer.thread = ctx.thread;
@@ -60,6 +62,7 @@ export const EMITTER = async (mode, daemon) => {
     }
 
     await daemon.entities.em.flush();
+
     ctx.output = result;
   });
 

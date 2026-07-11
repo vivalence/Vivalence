@@ -18,7 +18,7 @@
     };
   });
 
-  let mounts = $derived((mode?.emitter?.leaves ?? []).map((leaf) => `/emit/${leaf.nature}`));
+  let mounts = $derived(Object.keys(mode?.emitter?.branches ?? {}).map((nature) => `/emit/${nature}`));
   let active = $derived(traits.includes("AIMED"));
 
   async function pick(mount) {

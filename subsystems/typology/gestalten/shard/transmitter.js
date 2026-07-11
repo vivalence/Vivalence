@@ -1,6 +1,165 @@
-import { ConnectionError, Response } from "@vivalence/typology";
+import { atom } from "nanostores";
+import { ConnectionError, Response, Socket, Url, Vector } from "@vivalence/typology";
 
 // used in connections
+
+// multiplex — base transport. One WebSocket per origin, lazily established and
+// reused; every exchange rides a frame over that shared socket. Class-free: the
+// keeper is closed-over state. Compose under retry() exactly like fetcher.
+export function multiplex({ authority, mount = "/multiplex", vector, connect } = {}) {
+  // span = new Span('multiplex')
+  const open = connect ?? ((address) => new WebSocket(address));
+  const pools = new Map(); // origin → { socket, opening, $state }
+
+  const keeper = (origin) => {
+    let keep = pools.get(origin);
+    if (!keep) pools.set(origin, (keep = { socket: null, opening: null, $state: atom("IDLE") }));
+    return keep;
+  };
+
+  async function establish(origin) {
+    const keep = keeper(origin);
+    if (keep.socket && keep.socket.ws.readyState === 1) return keep.socket;
+    if (!keep.opening) {
+      keep.$state.set("CONNECTING");
+      keep.opening = new Promise((resolve, reject) => {
+        const token = authority?.get()?.access;
+        const base = new Url(origin).branch(mount);
+        const armed = token ? base.with({ token }) : base;
+        const address = armed.scheme(armed.secure ? "wss" : "ws").absolute;
+        const socket = new Socket(open(address), vector ?? new Vector());
+        //@beef  vector = new Vector(().use(this.span.trace *shard).slurp(vector)
+        socket.ws.addEventListener(
+          "open",
+          () => {
+            keep.socket = socket;
+            keep.opening = null;
+            keep.$state.set("CONNECTED");
+            resolve(socket);
+          },
+          { once: true },
+        );
+        socket.ws.addEventListener(
+          "error",
+          () => {
+            keep.opening = null;
+            keep.$state.set("ERROR");
+            reject(ConnectionError.network(`multiplex refused ${origin}`));
+          },
+          { once: true },
+        );
+        socket.ws.addEventListener("close", () => {
+          if (keep.socket === socket) keep.socket = null;
+          keep.opening = null;
+          keep.$state.set("CLOSED");
+          reject(ConnectionError.network(`multiplex closed ${origin}`));
+        });
+      });
+    }
+    return keep.opening;
+  }
+
+  const transport = async (ctx) => {
+    const { request, response } = ctx;
+    try {
+      const socket = await establish(request.url.origin);
+      const streaming = request.body instanceof ReadableStream;
+
+      const frame = await socket.open(request.url, {
+        query: request.url.search || undefined,
+        input: streaming ? undefined : request.body,
+        verb: request.method,
+        token: authority?.get()?.access,
+        stream: streaming || undefined,
+      });
+
+      const abort = () => socket.shut(frame);
+      request.signal.addEventListener("abort", abort, { once: true });
+      if (streaming) socket.feed(frame, request.body);
+
+      if (request.headers.get("accept") === "text/event-stream") {
+        response.status = 200;
+        response.body = follow(socket, frame, request, abort);
+        return;
+      }
+
+      try {
+        for await (const output of socket.flow(frame)) {
+          response.status = 200;
+          response.body = output;
+          return;
+        }
+        if (request.signal.aborted) {
+          response.status = 0;
+          response.error = ConnectionError.timeout("Request aborted", { request });
+          response.body = { request };
+          return;
+        }
+        response.status = 200;
+        response.body = null;
+      } finally {
+        request.signal.removeEventListener("abort", abort);
+        socket.forget(frame);
+      }
+    } catch (error) {
+      if (request.signal.aborted) {
+        response.status = 0;
+        response.error = ConnectionError.timeout("Request aborted", { request });
+      } else {
+        response.status = error?.status ?? 0;
+        response.error =
+          error instanceof ConnectionError
+            ? error
+            : ConnectionError.network(`multiplex failed ${request.url.absolute}`, {
+                request,
+                error,
+              });
+      }
+      response.body = { request, error };
+    }
+  };
+
+  transport.close = () => {
+    for (const keep of pools.values()) keep.socket?.close();
+    pools.clear();
+  };
+  transport.$state = (origin) => keeper(origin).$state;
+  return transport;
+}
+
+function follow(socket, frame, request, abort) {
+  let settled = false;
+  const conclude = () => {
+    if (settled) return;
+    settled = true;
+    request.signal.removeEventListener("abort", abort);
+    socket.forget(frame);
+  };
+
+  const body = (async function* () {
+    let confirmed = false;
+    try {
+      for await (const output of socket.flow(frame, {
+        arrived: () => {
+          confirmed = true;
+          body.onArrival?.();
+        },
+      })) {
+        if (!confirmed) {
+          confirmed = true;
+          body.onArrival?.();
+        }
+        yield output;
+      }
+    } finally {
+      if (!frame.closed) socket.shut(frame);
+      conclude();
+    }
+  })();
+
+  body.onArrival = null;
+  return body;
+}
 
 // transport combinator — wraps a transport with retry policy. Lives at the effect
 // boundary because compose's dispatch guard forbids re-entering next(); the wrapper
@@ -12,7 +171,7 @@ export const retry = (transport, options = {}) => {
     maxDelay = 10000,
     shouldRetry = (ctx) => ctx.response.error?.isRetryable,
   } = options;
-  return async (ctx) => {
+  const wrapped = async (ctx) => {
     for (let attempt = 0; ; attempt++) {
       ctx.request._attempt = attempt;
       await transport(ctx);
@@ -27,6 +186,7 @@ export const retry = (transport, options = {}) => {
       );
     }
   };
+  return wrapped;
 };
 
 export const inline = (serve) => async (ctx) => {

@@ -85,7 +85,7 @@
     result = { correct, timeout: isTimeout };
 
     setTimeout(() => {
-      terminal.daemon.call("/review/literal", {
+      terminal.daemon.connection.call("/review/literal", {
         signal: correct ? "SUCCESS" : "MISTAKE",
         scope: { literal: target.id },
       });

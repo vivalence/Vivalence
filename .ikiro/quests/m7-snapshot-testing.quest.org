@@ -50,7 +50,7 @@ snapshot(subject, { parse, locate, meta, depth, pick, omit, base, write, dry }) 
 | already-seen object | → CUT (WeakSet cycle guard; kills self-refs like =mode.status.subject === mode=) |
 | MikroORM Collection | → item ids (or ="[unloaded]"=) |
 | Path / routing node (=.nature= string + =.gauges= array) | → its =.nature= string (drops the trace tree) |
-| Vector (=.effects instanceof Map=) | → =shape.strip= contract ={leaves,branches}= |
+| Vector (=.effect= + =.trajectories=) | → =shape.strip= contract ={effect?,branches}= |
 | array | → map fold |
 | object at depth floor | → =value.id ?? undefined= |
 | plain object | → recurse, shedding NOISE |
@@ -152,7 +152,7 @@ The old aggregate =primitives.snapshot.test.js= disaggregated into a per-primiti
    capture is correct; an equality assert was wrong. Locked =expect(pojo.traits).toBeUndefined()=.
 2. wire↔instance apertures DRIFT (2/10 modes carry a wire-only =/tool= branch — TOOLED mounts at
    INTEGRATION, after the instance fold). A golden =instance===wire= assert would be FALSELY RED →
-   =stripwire.contract= asserts both are well-formed =={leaves,branches}== contracts and REPORTS
+   =stripwire.contract= asserts both are well-formed =={effect?,branches}== contracts and REPORTS
    the drift, never asserts equality. (This is the shape golden-diff on the aperture vantage takes.)
 
 *Parse-override doctrine* (holds until gap #2 lands): fold collapses routing Signatures (Path/Signal

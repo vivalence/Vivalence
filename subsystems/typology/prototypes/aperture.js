@@ -32,10 +32,17 @@ export function method(m, handler) {
 export function methods(map) {
   const m = map || {};
   const fn = (ctx) => {
-    const handler = m[ctx.request.method] || m["*"];
+    const handler = m[ctx.request.method] || m["*"] || wildcard(m, ctx);
     if (!handler) { ctx.response.status = 405; return null; }
     return fire(handler, ctx);
   };
   fn.methods = m;
   return fn;
 }
+
+const wildcard = (m, ctx) => {
+  if (ctx.request.method !== "*") return undefined;
+  const handlers = Object.values(m);
+  if (handlers.length === 1) return handlers[0];
+  throw new Error(`methods: leaf is method-ambiguous (${Object.keys(m).join(", ")}) — asked without a method`);
+};

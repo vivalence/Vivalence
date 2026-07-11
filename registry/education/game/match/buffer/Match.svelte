@@ -55,7 +55,7 @@
   }
 
   if (!literals.length) {
-    terminal.daemon.call("/pick/literal/feed", { limit: 4 }).then((lits) => {
+    terminal.daemon.connection.call("/pick/literal/feed", { limit: 4 }).then((lits) => {
       literals = lits ?? [];
       init(literals);
       loading = false;
@@ -112,7 +112,7 @@
     if (connections.length !== literals.length) return;
 
     for (const lit of literals) {
-      terminal.daemon.call("/review/literal", {
+      terminal.daemon.connection.call("/review/literal", {
         signal: errored.has(lit.id) ? "MISTAKE" : "SUCCESS",
         scope: { literal: lit.id },
       });

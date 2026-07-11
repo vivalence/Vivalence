@@ -18,6 +18,6 @@ export const pull = async (thread, args = {}) => {
 export const valid = (thread) =>
   !thread.trait?.AIMED?.mount
     ? "AIMED has no mount"
-    : !thread.mode?.emitter?.leaves?.length
+    : !Object.keys(thread.mode?.emitter?.branches ?? {}).length
       ? "AIMED mount resolves to no emitter"
       : null;

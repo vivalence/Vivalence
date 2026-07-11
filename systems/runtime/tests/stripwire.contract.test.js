@@ -1,5 +1,5 @@
 // stripwire · the aperture contract across vantages — reads the committed snapshot corpus
-// (no live daemon): proves {leaves, branches} holds on both wire + instance, reports drift.
+// (no live daemon): proves {effect?, branches} holds on both wire + instance, reports drift.
 import { specimen } from "@vivalence/typology";
 
 const { describe, it, expect } = specimen;
@@ -8,16 +8,21 @@ const read = (name) => JSON.parse(Deno.readTextFileSync(`${dir}/${name}`));
 
 const isContract = (node) =>
   !!node &&
-  Array.isArray(node.leaves) &&
-  node.leaves.every((leaf) => typeof leaf.nature === "string") &&
+  (node.effect === undefined || (typeof node.effect === "object" && node.effect !== null)) &&
   !!node.branches &&
   typeof node.branches === "object" &&
   Object.values(node.branches).every(isContract);
 
 describe("stripwire: aperture contract across vantages", () => {
   const files = [...Deno.readDirSync(dir)].map((entry) => entry.name);
+  // MODE wire apertures only. `entity-*-aperture.snapshot.json` is a different sense of "aperture":
+  // the HTTP find VANTAGE of an entity repo (corpus/{literal,symbol}.snapshot.test.js), whose payload
+  // is a find-result array, not a { manifest, aperture } wire contract. Same suffix, different register.
   const wire = files.filter(
-    (name) => name.endsWith("-aperture.snapshot.json") && name !== "modes-aperture.snapshot.json",
+    (name) =>
+      name.endsWith("-aperture.snapshot.json") &&
+      name !== "modes-aperture.snapshot.json" &&
+      !name.startsWith("entity-"),
   );
   const pairs = wire
     .map((name) => {
@@ -50,12 +55,11 @@ describe("stripwire: aperture contract across vantages", () => {
       const instanceBranches = Object.keys(instanceAperture.branches);
       const onlyWire = wireBranches.filter((branch) => !instanceBranches.includes(branch));
       const onlyInstance = instanceBranches.filter((branch) => !wireBranches.includes(branch));
-      const leafDelta = wireAperture.leaves.length - instanceAperture.leaves.length;
-      const match = !onlyWire.length && !onlyInstance.length && leafDelta === 0;
+      const match = !onlyWire.length && !onlyInstance.length;
       if (!match) drifted++;
       console.log(
-        `[stripwire] ${stem} · leaves wire ${wireAperture.leaves.length}/instance ${instanceAperture.leaves.length}` +
-          (match ? " · MATCH" : ` · +wire[${onlyWire}] +instance[${onlyInstance}] Δleaves ${leafDelta}`),
+        `[stripwire] ${stem} · branches wire ${wireBranches.length}/instance ${instanceBranches.length}` +
+          (match ? " · MATCH" : ` · +wire[${onlyWire}] +instance[${onlyInstance}]`),
       );
     }
     console.log(`[stripwire] ${drifted}/${pairs.length} modes drift between vantages`);

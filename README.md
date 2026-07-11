@@ -1,3 +1,112 @@
+You don't install applications — you install **modes** into daemons. A mode is four files: what it is (`manifest`), how it thinks (`harness`), what it exposes (`aperture`), what it shows (`app`). Traits are the only wiring — declare them and the runtime does the rest.
+
+Here is a whole mode. It talks to an LLM.
+
+`mode.viva.js` 
+
+```js
+import { App, v } from "@vivalence/typology";
+
+export { harness } from "./harness.js";
+export { aperture } from "./aperture.js";
+
+export const manifest = {
+  type: "demo",
+  slug: "demo",
+  traits: ["APPLICATION", "HARNESSED", "EXPOSED", "STANDALONE"],
+};
+
+export const app = new App("buffer/App.svelte", v.buffer({ data: {} }));
+```
+
+`harness.js` 
+
+```js
+import { Vector } from "@vivalence/typology";
+
+export const harness = new Vector().use(async (ctx, next) => {
+  ctx.hallucination.context.system("You are a demo. Demonstrate yourself.");
+  await next();
+});
+```
+
+`aperture.js` 
+
+```js
+import { Vector, v } from "@vivalence/typology";
+
+export const aperture = new Vector().open("/hello/world", async (ctx) => {
+  const { object } = await ctx.mode.harness.object.render({
+    turns: [{ role: "user", parts: [{ type: "text", text: "Say hello." }] }],
+    output: v.object({ greeting: v.string() }),
+  });
+  return { greeting: object.greeting };
+});
+```
+
+Note `ctx.mode.harness.object.render`.
+
+`buffer/App.svelte` 
+
+```svelte
+<script>
+  let { terminal, buffer } = $props();
+  let greeting = $state("");
+  const modes = terminal.daemon.entities.mode.$entities.get();
+
+  async function demonstrate() {
+    const result = await buffer.mode.connection.call("/hello/world")
+    greeting = result.greeting;
+  }
+</script>
+
+<h1>hello world</h1>
+<button onclick={demonstrate}>demonstrate</button>
+<p>{greeting}</p>
+
+<ul>
+  {#each modes as mode}
+    <li>{mode.type}/{mode.slug}</li>
+  {/each}
+</ul>
+```
+
+
+# :TODO:DESLOP: Getting started 
+
+You need [Deno](https://deno.com) 2.7+. Everything else the repo carries.
+
+```sh
+# 1 — deno
+curl -fsSL https://deno.land/install.sh | sh      # or: brew install deno
+deno --version
+
+# 2 — repo + dependencies
+git clone https://github.com/vivalence/vivalence.git
+cd vivalence
+deno task dependencies
+
+# 3 — scaffold this machine's run surface (the ledger) + mount the standard packages
+deno task ghost/run /ledger/install ./testament/ledger
+
+# 4 — clone the localhost variant into place
+deno task ghost/run /variant/clone @viva/variant/localhost ./testament/variant
+
+# 5 — fill in your env
+cd testament/variant && cp .env.example .env
+$EDITOR .env            # set VIVA_*_MOUNT to your repo path + the five SECRET_* keys
+cd ../..
+
+# 6 — boot (two terminals, from the repo root)
+deno task runtime/run
+deno task kajuit/run
+
+# 7 — create the first user (lighthouse gates login; no signup UI yet)
+deno task ghost/run /variant/lighthouse/auth/signup you changeme
+```
+
+The runtime comes up on `:2501`, the kajuit web client on `:1794`. Once step 7 creates a user, open http://localhost:1794 and log in with those credentials.
+
 # WIP
 the sections must answer:
 I. what is vivalence/how does it work/what makes it different.

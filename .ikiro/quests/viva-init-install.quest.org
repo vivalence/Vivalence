@@ -1,0 +1,149 @@
+#+TITLE: viva-init-install — turnkey dev-boot from a fresh clone
+#+STATUS: PARTIALLY LANDED — trajectories + owner-law + lighthouse-consumer built; signup/login live-verified; localhost promoted. Pending: docker fresh-env run (daemon down); space-form ergonomic; quest-vs-code reconcile of dest-override
+#+CREATED: 2026-07-13
+#+AUTHOR: finn + beef
+
+* arc
+
+A fresh clone cannot boot. =testament/= is gitignored wholesale (=.gitignore:1=); the only
+committed bootstrap artifact is repo-root =.env.example=. So a new developer has no ledger, no
+variant manifest, no =environment/= jsoncs — nothing to run.
+
+Close the gap with two ghost trajectories + a self-contained =localhost= registry variant.
+=ledger install= scaffolds the per-machine run surface and mounts the standard packages;
+=variant clone <source> <target>= resolves a variant (by identifier OR filepath) and
+recursive-copies it into place. The =localhost= variant carries its own =.env.example= so it is
+turnkey — clone it, fill five secrets, boot.
+
+This is the frontier's =viva-init/install= thread.
+
+* the gap (fresh clone)
+
+#+begin_src text
+have:     .env.example                              (repo root — copy → testament/variant/.env, fill secrets)
+MISSING:  testament/ledger/{locks,logs,registry.json,instances.json}
+MISSING:  testament/variant/localhost.viva.js        the manifest (daemons:[education,playground])
+MISSING:  testament/variant/{education,playground}.js
+MISSING:  testament/variant/environment/{variant,services}.jsonc
+MISSING:  testament/variant/mountpoint/              (auto-created on migrate — fine)
+#+end_src
+
+The env split that makes the promotion clean:
+
+#+begin_src text
+.env                     machine-specific   mode·role·mounts·SECRET_*         gitignored ← .env.example
+environment/*.jsonc      variant config     serves·PUBLIC_ remotes·nlp ports  committed → cloned
+#+end_src
+
+* deliverables
+
+| # | artifact | from | note |
+|---|----------|------|------|
+| 1 | =ledger/install= trajectory | =system/init.js= | + seed registry.json/instances.json; -path arg; completes system/→ledger/ rename |
+| 2 | =variant/clone= trajectory | =instance/clone.js= | + @identifier ¦ filepath source resolution |
+| 3 | register both | =trajectories/index.js= | +2 =.open= blocks; system/ group → ledger/ |
+| 4 | promote =localhost= variant | =testament/variant/= | overwrite bare 1-file dir → self-contained 6-file dir |
+
+* command specs
+
+** ledger install [dest]
+
+Takes ONLY a destination path (default =testament/ledger=). Every ledger install features the
+standard packages in =/repo/registry=.
+
+#+begin_src text
+scaffold   dest/{locks,logs}                        (mkdir -p; from system/init)
+seed       dest/instances.json = {}
+seed       dest/registry.json  = [ /repo/registry/* ]   the standard packages, always
+→ the ledger now KNOWS the registry; vip.supply() resolves variants from registry.json
+#+end_src
+
+** variant clone <source> <target>
+
+=<source>= is a known format — a filepath OR a pensieve identifier. =<target>= is the destination
+dir (default =testament/variant=). Recursive dir-copy from the resolved mount; overwrites what is
+there.
+
+#+begin_src text
+source.startsWith("@")  → paladin.vip.accio(source)   → module.mount    identifier
+else                    → paladin.source(source)      → Path            filepath: ../ · ./ · /abs · bare-segment
+cloneDir(mount, resolve(INIT_CWD, target))            recursive copy      (clone.js already has cloneDir)
+#+end_src
+
+Ordering: =ledger install= must run first — =variant clone <identifier>= resolves =<source>=
+against the ledger's mounted packages (=vip.supply()= reads =registry.json=).
+
+* resolution primitives (pensieve / paladin — never hand-roll)
+
+The identifier is =@owner/type/slug[@version]=. Parse lives in =cast.lookup= (typology
+=gestalten/cast/primitives.js:24=, =is.string= branch):
+
+#+begin_src js
+const [owner, type, ...rest] = thing.split("/");
+const [slug, version] = rest[0].split("@");
+return { owner, type, slug, version };
+// "@viva/variant/localhost"  → { owner:"@viva", type:"variant", slug:"localhost" }
+#+end_src
+
+- =Manifest.identifier= (=paladin/prototypes/manifest.js=) = =`${owner}/${type}/${slug}`=.
+- =Pensieve= (=pensieve.js=) = nested Map owner→type→slug→version; =revelio= pure descent, =latest= semver fold.
+- =Vip.accio(query)= (=vip.js:55=) = =cast.lookup(query)= → =pensieve.revelio= → module (carries =.mount= Path). Two-throw: "not supplied" ≠ "Module 404".
+- =Vip.supply()= (=vip.js:43=) = =ledger.mount()= (fn.once) → =ledger.registry.read() ?? seed(scope.registry)= → =mount= per location.
+- =paladin.source(location)= = 4 styles: absolute · ./cwd · {file,source} · bare-repo-segment. THE filepath resolver.
+- owner DERIVES from mount dirname (=@${last-segment}=); an authored =package.viva.js manifest.owner= LOCKS it.
+
+* localhost promotion
+
+=registry/viva/variant/localhost/= — identifier =@viva/variant/localhost= (owner =@viva= from the
+=registry/viva= mount). Today: one bare file (=localhost.viva.js=, single =brazilian= daemon,
+=daemons:[brazilian]= inline kernel, no =environment/=). OVERWRITE with the working dev variant
+(=testament/variant/=), promoted and self-contained:
+
+#+begin_src text
+registry/viva/variant/localhost/
+├── localhost.viva.js      ← testament/variant/test.viva.js   (slug "test" → "localhost")
+│                            daemons:[education, playground] · runtime · clients{ghost,kajuit} · services[multiplayer,nlp-stanza]
+├── education.js           ← verbatim   (brazilian daemon: full education kernel — flashcard…nyan, aprende, dewey, dataspace)
+├── playground.js          ← verbatim   (playground daemon: spawner/spawned/dealer/card/automaton/switchboard/vision/oracle)
+├── .env.example           ← NEW, variant-scoped   (mounts + blank SECRET_*; travels WITH the variant)
+└── environment/
+    ├── variant.jsonc      ← verbatim   (VIVA_*_SERVE + PUBLIC_*_REMOTE, localhost URLs)
+    └── services.jsonc     ← verbatim   (SERVICE_NLP_* ports)
+#+end_src
+
+NOT promoted (regenerated per-clone, never committed): =.env= (← =.env.example= + fill secrets) ·
+=mountpoint/= (auto on migrate).
+
+* fresh-dev flow (the payoff)
+
+#+begin_src sh
+deno task dependencies                                                  # deno install --allow-scripts=npm:sqlite3,npm:svelte-preprocess
+deno task ghost/run /ledger install                                    # → testament/ledger + standard packages mounted
+deno task ghost/run /variant clone @viva/variant/localhost testament   # OR: /variant clone ../some/path testament
+cd testament/variant && cp .env.example .env && $EDITOR .env           # fill 5 SECRET_* keys (anthropic·elevenlabs·deepgram·nlp·jwt)
+deno task ghost/run /instance/run                                      # :2501 runtime · :1794 kajuit (vite)
+#+end_src
+
+* open threads
+
+- =runtime= block reconcile — working =test.viva.js= has =runtime.slug:"test-runtime"=, no traits;
+  bare =localhost.viva.js= has =runtime.slug:"runtime", traits:["EMBEDDED"]=. Base on the working
+  one; keep =slug:"runtime"=; EMBEDDED carry-or-drop UNDECIDED.
+- =.env.example= mounts — the committed variant-scoped example must use =<repo>=-placeholder
+  mounts, NEVER absolute machine paths, NEVER real secrets.
+- =ledger install= — does it also pin =paladin.scope.ledger= + persist embedding like =system/init=,
+  or is that a separate =system= concern now? (system/init already does env-file/shell-config
+  writing; ledger install may keep only the scaffold half.)
+- verb coherence — =ledger install= + =variant clone= + existing =instance/clone= + =deno task install=.
+  =clone= for variants (dir-copy), =install= for the ledger (scaffold). Pinned.
+
+* grounding
+
+- =systems/ghost/trajectories/system/init.js= — scaffold pattern (pins scope.ledger, mkdir logs/locks)
+- =systems/ghost/trajectories/instance/clone.js= — cloneDir + source/target + INIT_CWD resolution
+- =systems/ghost/trajectories/index.js= — =.open({nature,valence,schema}, handler)= registration
+- =subsystems/paladin/prototypes/{pensieve,vip,manifest}.js= — the resolution seam
+- =subsystems/typology/gestalten/cast/primitives.js:24= — =lookup= identifier parse
+- =testament/variant/= — the working dev variant (promotion source)
+- =.env.example= (repo root) — the env template shape
+- [[project_paladin_env_publish]] · [[project_m11_package_ontology]] · codemap =ghost.md= / =paladin.md= / =registry.md=

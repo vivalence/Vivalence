@@ -1,4 +1,4 @@
-import { middleware, steer, Signal } from "@vivalence/typology";
+import { steer, Signal } from "@vivalence/typology";
 
 const route = (steps) => new Signal(steps.map((s) => s.nature).join("/"));
 
@@ -14,65 +14,22 @@ export const object = (vector, execute = steer.strategy.request) =>
   });
 
 export function proxy(vector, execute = steer.strategy.request) {
-  return proxyNode(vector, execute, {}, new Signal(), [], []);
+  return chart(vector, execute, vector, []);
 }
 
-const wrap = (fn, params) => (ctx) => {
-  ctx.params = { ...params, ...ctx.params };
-  return fn(ctx);
-};
-
-const matchChild = (vector, key, params) => {
-  let param, wild, rem;
-  for (const [pattern, child] of vector.trajectories) {
-    if (pattern.type === "literal" && pattern.nature === key) return { pattern, child, params };
-    if (pattern.type === "parameter" && !param)
-      param = { pattern, child, params: { ...params, [pattern.nature.slice(1)]: key } };
-    if (pattern.type === "wildcard" && !wild) wild = { pattern, child, params };
-    if (pattern.type === "remainder" && !rem) rem = { pattern, child, params };
-  }
-  return param ?? wild ?? rem;
-};
-
-function proxyNode(vector, execute, params, signal, steps, carry) {
-  const here = [...carry, ...vector.carry];
-
-  return new Proxy(Object.create(null), {
+const chart = (root, execute, position, segments) =>
+  new Proxy(function () {}, {
     get(_, key) {
       if (typeof key === "symbol") return undefined;
-
-      const m = matchChild(vector, key, params);
-      if (!m) return undefined;
-
-      const { pattern, child, params: merged } = m;
-      const childSteps = [...steps, pattern];
-      const childSignal = signal.branch(key);
-      const childCarry = [...here, ...child.carry];
-
-      if (pattern.type === "remainder" && child.effect != null)
-        return proxyRemainder(execute, childCarry, child.effect, merged, 0, key, childSteps, signal);
-
-      const sub = child.trajectories.size
-        ? proxyNode(child, execute, merged, childSignal, childSteps, here)
-        : undefined;
-
-      if (child.effect != null) {
-        const callable = execute(middleware.compose(childCarry), wrap(child.effect, merged), childSteps, childSignal);
-        return sub ? Object.assign(callable, sub) : callable;
-      }
-
-      return sub;
+      const [step] = new Signal(key).array;
+      if (!step) return undefined;
+      const matches = steer.match.scope(position, step);
+      if (!matches.length) return undefined;
+      const [match, trajectory] = steer.match.feed(matches, step);
+      const next = match.type === "remainder" ? position : trajectory;
+      return chart(root, execute, next, [...segments, key]);
+    },
+    apply(_, __, args) {
+      return steer.dispatch.invoke(root, segments.join("/"), execute)(...args);
     },
   });
-}
-
-function proxyRemainder(execute, carry, fn, params, index, key, steps, signal) {
-  const merged = { ...params, [index]: key };
-  const invoke = execute(middleware.compose(carry), wrap(fn, merged), steps, signal.branch(key));
-  return new Proxy(invoke, {
-    get(target, next) {
-      if (typeof next === "symbol") return target[next];
-      return proxyRemainder(execute, carry, fn, merged, index + 1, next, steps, signal.branch(key));
-    },
-  });
-}

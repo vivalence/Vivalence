@@ -1,0 +1,67 @@
+#+TITLE: The =carry= bridge felt "herrendously hacky" — but the hack was never =carry=; the user-scoped broadcast read its owner from a SEPARATE, un-carried ambient ALS while the user already rode the ORM request context that =carry= re-enters. A sprawling intrinsic-owner detour (denormalize a =user= column onto Turn/Buffer + stamp every write site + migrate + seed scenarios) reverts under "no userless threads" + "too sprawling", collapsing to a THREE-LINE reactive read of =getFilterParams("user")= off the carried context. Ambient deleted; the stripwire aperture-name collision fixed as fallout.
+#+TOPIC: continues M18 (=Conversation= dissolved → a dialogue is a streaming request over the multiplex) and the =span reactive spine=. The harness dialogue now streams AND persists turns over the wire via =datamap.inject= + =shard.carry= (a lazy response body re-enters the ORM =RequestContext= per pull). This session: the assistant turn STREAMED but VANISHED on close — =[reactive] turn/create written without an owner — dropped from user-scoped broadcast=. Root the drop, decide the owner-routing architecture, land it minimal.
+
+* Arc (methodical, in order)
+
+** turn 1 — "this feels herrendously hacky. is there some architectural assumption somewhere we're not grogging? or where we maybe just need a clever await?"
+The =carry= re-entry (re-open the ORM context per stream =next()=) read as a patch. Traced the real assumption: MikroORM =RequestContext= is scoped to the SYNCHRONOUS handler lifetime — the shape assumes "the response is fully produced inside the context scope." True for buffered JSON; FALSE for a stream, whose body is a suspension the transport drains AFTER the middleware unwinds. So the context closes; the generator's =em.create= runs in the gap. No "clever await" dissolves it: the producer (generator) and consumer (transport) live in different async executions; a generator resumed from another context does not inherit its ALS. =inject='s re-wrap IS the correct bridge — it was just left half-built (=inject= referenced =datamap.shard.carry= that libsql never implemented). Not a hack; a designed mechanism with a hole.
+
+** turn 2 — "or maybe just change attach to bind somewhere"
+beef's instinct mapped EXACTLY: =RequestContext.create= (=ALS.run=, scoped, closes) vs =RequestContext.enter= (=ALS.enterWith=, persists) = the =attach= vs =bind= lever. But =enter= is MikroORM's documented footgun — =enterWith= never cleans up, so on the ONE multiplex socket handling many frames it can bleed one request's context into another's =setFilterParams= (cross-tenant). =carry= (run + re-enter, per-stream scoped) is leak-proof by construction. Chose =carry=. Landed it on the libsql shard, marked =// @beef hacky deep wire=, + a regression (=datamap.inject.test=: without carry the stream sees =[null,null,null]=, with it =[true,true,true]=).
+
+** turn 3 — the live daemon: streams, then the turn disappears. "issue 1 very important! i hate silent fails! retard" + "why do we need to resolve the correct original context anyways? ... how do we stop it and make this whole class of problems never exist in the first place???"
+Two ambient ALS layers are scoped to the handler: the ORM =RequestContext= (=carry= re-enters it) AND =shard.ambient= (the user, set at =resolution.js:7=, read by the reactive as =ambient.current()=). =carry= only covered the ORM one. So the turn PERSISTED but the broadcast couldn't stamp its owner → dropped → never reached =$turns= → vanished on =/turn/close=. And the drop was a =console.warn=, not a throw — a SILENT data loss. **retard callout** (logged): I had buried "issue 1 — no error, it's a warn not a throw" in a PARENTHETICAL and spent the reply on the juicy architecture; beef's most-hated smell reported as a footnote. Made the reactive THROW (loud tripwire; =emit= doesn't catch → propagates through =afterCreate= → flush → the harness generator rolls back + re-throws → =#answer= error frame). The throw immediately exposed the class was BROAD: =emit=-created buffers (pool drain) AND harness turns (lazy stream) both write ownerless in detached contexts — the silent drop was masking widespread live-update loss.
+
+** turn 4 — "propos the full diff of the solution." (#1 intrinsic owner) → "kk"
+Investigated: Thread has =user= directly; Buffer/Turn reach it only via =thread= (a relation hop), so they serialize NO =user= — the whole reason the reactive reached into ambient to inject one. Proposed #1: give Turn/Buffer a direct =user= column (mirror Thread), stamp it at every write site, read =serialized.user= in the reactive, migrate + backfill. beef: "kk" → applied it: =user!= on Turn.ts/Buffer.ts + direct filter, stamps in harnessed.js (×3) + oracle aperture (×2) + emitter.js, schematics descriptors, a scenario =seedUser=.
+
+** turn 5 — the sprawl collapses under two beef lines
+Tests broke wide (non-null =user= on every emit/turn path; local scenario dispatch has no =ctx.user=). beef: "there is also no case where thread isnt given. i am very very unhappy with this solution still. lets take a moment and think about the shard datamap context solution again. ... thread has user. buffer and turn have thread. can we solve this with clever context? what if we change the order at which we attach multiplex and the context binding shards and such? clever vector nesting. these changes are too sprawlling for me." — and earlier, decisively: "no userless threads!"
+
+The reframe: the user ALREADY rides the ORM context — =resolution.js:8= binds it via =datamap.shard.bind("user", …)= → =em.setFilterParams("user", {user:id})= (the SAME param that scopes find). =carry= ALREADY re-enters that exact context for the lazy stream. The broadcast broke for ONE reason: it read a SEPARATE, un-carried ambient ALS. Point the reactive at the context we already carry, and the whole problem is a one-line read. beef's "clever context / change the order / nest the vectors" instinct was already satisfied by =inject=+=carry= — the bug was only WHERE the owner was read.
+
+** turn 6 — "veryfy both and revert the sprawl" + "and 3 line solution go"
+Probe (real MikroORM): set =setFilterParams= inside a =context(...)=, capture =carry=, tear down, re-enter → =inside=USER-123 · outside=null · carried=USER-123=. =getFilterParams= survives =carry= because =RequestContext.storage.run(capturedContext)= re-enters the same fork the param was set on. Then reverted EVERY sprawl file (Turn.ts, Buffer.ts, schematics, harnessed.js ×3, oracle ×2, emitter.js, scenarios/mode.js) and landed the real change:
+
+#+BEGIN_SRC js
+// datamap.js reactive — owner off the carried ORM context, not a separate ambient ALS
+const owner = repo.getEntityManager().getFilterParams("user")?.user ?? null;
+if (owner == null) throw new Error(`[reactive] ${name}/${op} is user-scoped but the ORM context carries no owner …`);
+serialized.user = owner; // flat id for the { user } subscription filter
+#+END_SRC
+
+Deleted =shard.ambient.store= from =resolution.js= (no functional caller remains; the shard module stays dormant). Kept =carry= (still needed for the em access it was built for). Fixed test collateral: =datamap.scoped= throw test fires =afterCreate= inside a fresh =RequestContext= with =user= cleared (the fork inherits the param otherwise); the "intrinsic" fixture reverts. Cleared PRE-EXISTING breakage surfaced by running suites — deleted the orphan =thread.conversational.test.js= (M18-deleted trait), fixed 3 stale =chaosmonkey/oracle= → =modes/chaosmonkey/oracle= imports (M11 reorg). Green: typology 127/0 · kajuit 17/0 · runtime 33/1.
+
+** turn 7 — "The one flag: stripwire.contract … take a look."
+=isContract= asserts pure ={effect?, branches}= recursively on every =*-aperture.snapshot.json=. A snapshot walker pinned it: =entity-literal= / =entity-symbol= "aperture" snapshots are ARRAYS of 10 literals — the HTTP FIND VANTAGE written by =corpus/{literal,symbol}.snapshot.test.js=, where "aperture" means the endpoint vantage, NOT a wire aperture. A NAMING COLLISION: two meanings of "aperture" sharing one filename suffix; =stripwire= globbed both and choked on =.aperture === undefined=. One-line filter (=!name.startsWith("entity-")=) + a comment naming the collision. All three stripwire assertions pass → runtime 34/0.
+
+** turn 7b — beef pastes live daemon logs
+=DAEMON BUFFER SUBSCRIPTION op:create= reaching the client — the broadcast routes through the carried ORM context, no ambient. Two unrelated errors flagged, neither from this work: =unlog is not defined= (NOT in =kajuit/src= — HMR teardown of a stale module / in-flight edit; a hard reload clears it) and =ctx.daemon.modes.game.riddler.emit.riddle.cast is not a function= (the parked aprende→riddler loop: aprende calls =emit.riddle.cast= but riddler's leaf is =emit.riddle.fromSymbols= with a different input shape — DESIGNED-NOT-BUILT).
+
+** turn 8 — "ikiro compact"
+This file. Memory =project_reactive_owner_orm_context= saved so ambient never creeps back.
+
+* The landed change (the whole thing)
+- =datamap.js= reactive: owner = =repo.getEntityManager().getFilterParams("user")?.user=; null → THROW (loud tripwire, never drop a user-scoped write). Ambient import removed.
+- =resolution.js=: =shard.ambient.store= deleted (the =user= filter-param bind stays — it is now the SOLE owner source; the reactive reads what the bind writes).
+- =libsql.viva.js= =shard.carry= (=// @beef hacky deep wire=) UNCHANGED — re-enters the =RequestContext= per lazy-stream pull; carries the =user= filter param for free.
+- =stripwire.contract.test.js=: =wire= filter excludes =entity-*= (find vantages ≠ mode wire apertures).
+- Reverted whole: the intrinsic-owner sprawl (no =user= column, no stamps, no migration, no scenario =seedUser=). Cleaned: orphan M18 test deleted, 3 stale M11 oracle imports fixed.
+
+* Lessons
+- *The thing that FEELS hacky is not always the thing that IS hacky.* =carry= felt like the patch; the real defect was the broadcast reading its owner from a DIFFERENT, un-carried ALS than the one =carry= keeps alive. The half-built =carry= (a dangling reference to an unimplemented =shard.carry=) is what made a correct bridge read as a hack — completing a designed mechanism ≠ adding one.
+- *A silent failure is a first-class defect, never a footnote.* =console.warn + drop= on a user-scoped write is exactly the smell beef hates most, and I ranked it below the interesting architecture. Rule (logged): any warn/log/swallow-and-continue on a data-losing path is reported as a TOP finding with a loud-fix; writes that can't complete their contract THROW.
+- *When a fix sprawls, the axis is wrong.* Denormalizing an owner column touched schemas, migrations, every write site, and every scenario — for a fact (=thread.user=) the entity already reaches. "too sprawling" was the signal to stop denormalizing DATA and start reading the CONTEXT that was already threaded (and already carried).
+- *The user was already on the context we carry.* =bind("user")= writes the filter param that scopes find; =carry= re-enters it. The owner routing and the read routing are the SAME context — reading them from two different places (filter-param for find, ambient for broadcast) was the whole bug. One source, one carry.
+- *Verify the mechanism before reverting toward it.* The =inside/outside/carried= probe (=USER-123/null/USER-123=) proved =getFilterParams= survives =carry= BEFORE tearing out the sprawl — so the revert was a walk toward a proven target, not a leap.
+- *"aperture" earned two meanings; the glob paid for it.* stripwire assumed every =*-aperture.snapshot.json= was a wire aperture; the corpus find-vantage snapshots squatted the suffix. Name-by-role means a register (a filename suffix) has ONE meaning — the collision, not my change, was the failure.
+
+* Open / pending (beef gates)
+1. *Live end-to-end* — the daemon reload should stream AND persist AND broadcast the assistant turn to =$turns=; buffer broadcasts already confirmed live, dialogue-turn broadcast owed a look in-app.
+2. *aprende → riddler =emit.riddle.cast== — real cross-mode wiring mismatch (wrong path =emit.riddle.cast= vs =emit.riddle.fromSymbols=; mismatched input shape). Its own quest (the parked aprende-refill loop, =project_nyan_aprende_loop_design=). Offered; not taken this session.
+3. *=unlog== — not in committed source; verify it's pure HMR/in-flight noise and not a since-reverted edit worth re-landing.
+4. *=shard/ambient.js== is now dormant (no functional caller). Delete the module + barrel export, or leave as a general utility? (left in place this session.)
+5. *=enterWith= as a future simplification* — if the multiplex ever guarantees a fresh async root per frame, =RequestContext.enter= would retire =carry='s per-pull re-entry. Not now (bleed risk unproven-safe).
+
+* Provenance
+Memory =project_reactive_owner_orm_context= (NEW — owner via getFilterParams off the carried context, ambient dead) · =project_multiplex_transport= (one Socket/origin; why =enterWith= risks bleed) · =project_span_reactive_spine= + =project_snapshot_test_family= (the reactive/broadcast + snapshot families) · =project_hallucination_harness_cortex_ontology= (the harness→hallucination dialogue stream this rides). Continues M18 (=m18_conversation_dissolves=). Zettelkasten ## Callouts += the buried-silent-fail retard.

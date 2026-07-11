@@ -360,6 +360,7 @@ specimen.describe("subscribe + publish + websocket", () => {
       });
       specimen.expect(typeof unsubscribe).toBe("function");
       await sleep.ms(200);
+      unsubscribe();
       specimen.expect(events).toEqual([{ seq: 1 }, { seq: 2 }, "fin"]);
     });
   });

@@ -11,7 +11,7 @@
   "tasks": {
     "run": "deno run -A --env-file=../../testament/variant/.env mod.js",
     "watch": "deno run -A --watch --env-file=../../testament/variant/.env mod.js",
-    "test": "deno test -A --no-check --watch tests/**/*.test.js",
+    "test": "deno test -A --no-check --watch --env-file=../../testament/variant/.env tests/**/*.test.js",
     "test/shellsignal": "deno test -A --no-check --watch tests/shellsignal.test.js",
   },
 }

@@ -30,6 +30,7 @@ async function resolve(variant) {
   variant.manifest = module.manifest;
   variant.runtime = hydrate(module.runtime ?? {});
   variant.clients = hydrate(module.clients ?? {});
+  variant.lighthouse = hydrate(module.lighthouse ?? {});
   variant.daemons = (module.daemons ?? []).map((declaration) => mask("daemon")(hydrate(declaration)));
   variant.services = (module.services ?? []).map((declaration) => mask("service")(hydrate(declaration)));
 
@@ -85,6 +86,7 @@ export class Variant {
   manifest = {};
   runtime = {};
   clients = {};
+  lighthouse = {};
   daemons = [];
   services = [];
 

@@ -31,7 +31,7 @@ export const echo = (carry, effect, steps, signal) => async (input) => {
 
 export const request = (carry, effect, steps, signal) => async (input) => {
   const ctx = new Context({
-    request: { body: input, url: signal },
+    request: { body: input, url: signal, method: "*" },
     params: fromm.match(steps).parameters,
     signal,
     steps,
@@ -50,7 +50,7 @@ export const guarded = (carry, effect, steps, signal) => async (input) => {
     }
   }
   const ctx = new Context({
-    request: { body: input, url: signal },
+    request: { body: input, url: signal, method: "*" },
     params: fromm.match(steps).parameters,
     signal,
     steps,

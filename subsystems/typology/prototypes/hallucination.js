@@ -1,6 +1,6 @@
 import { Vector, is, object, shape, soma, steer, string } from "@vivalence/typology";
 import { v } from "../schematics/v.js";
-import { Tier, Tune, Settings, Output } from "../schematics/primitives/hallucination.js";
+import { Tier, Tune, Settings, Output, Packet } from "../schematics/primitives/hallucination.js";
 
 // @beef missing: logging/telemetry infra.
 
@@ -51,14 +51,14 @@ export function Hallucination(cortex, configuration) {
       const data = ctx.output?.parts?.find((part) => part.type === "object")?.data;
       if (data !== undefined && ctx.output.object === undefined) ctx.output.object = data;
     })
+    .open({ nature: "/dialogue/stream", yields: Packet.Any }, streaming("dialogue"))
+    .open({ nature: "/object/stream", yields: Packet.Any }, streaming("object"))
+    .open({ nature: "/speech/stream", yields: Packet.Any }, streaming("speech"))
+    .open({ nature: "/verbatim/stream", yields: Packet.Any }, streaming("verbatim"))
     .open("/dialogue/render", rendering("dialogue"))
-    .open("/dialogue/stream", streaming("dialogue"))
     .open("/object/render", rendering("object"))
-    .open("/object/stream", streaming("object"))
     .open("/speech/render", rendering("speech"))
-    .open("/speech/stream", streaming("speech"))
-    .open("/verbatim/render", rendering("verbatim"))
-    .open("/verbatim/stream", streaming("verbatim"));
+    .open("/verbatim/render", rendering("verbatim"));
 
   const hallucination = shape.object(vector, steer.strategy.echo);
 

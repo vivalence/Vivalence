@@ -39,7 +39,7 @@
   const answerLabel = $derived(activeRecall === "KNOWN" ? "English" : "Português");
 
   if (!literal) {
-    terminal.daemon.call("/pick/literal/feed", { limit: 3 }).then((lits) => {
+    terminal.daemon.connection.call("/pick/literal/feed", { limit: 3 }).then((lits) => {
       if (lits?.length) {
         for (const l of lits) queue.push(l);
         literal = queue[0];
@@ -54,7 +54,7 @@
 
   function review(literal, signal) {
     const scope = { literal: literal.id };
-    terminal.daemon.call("/review/literal", { signal, scope });
+    terminal.daemon.connection.call("/review/literal", { signal, scope });
   }
 
   async function rate(signal) {

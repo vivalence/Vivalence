@@ -92,7 +92,7 @@ Migrated to =/metadata/*= (daemon/mode scope, which the new surface covers):
 * Trait model & the E trait bar
 
 LABELED+MASKED auto-added in =thread/dossier.js= when mode is VIEWABLE.
-AIMED available iff =mode.emitter.leaves.length > 0=; QUEUEING available iff AIMED active.
+AIMED available iff =Object.keys(mode.emitter.branches).length > 0=; QUEUEING available iff AIMED active.
 Toggle via =TraitTagIcon= (=+= / =×=) → =thread.updateOne({traits})=. Deactivating AIMED also strips QUEUEING.
 
 Each tag's *body* toggles its widget open (a *Set* — multiple widgets stack, not either/or).
@@ -102,7 +102,7 @@ Every widget carries a *head* (trait name + hint) so it self-identifies.
 |-------+--------+--------|
 | LABELED | label input (debounced 5s) | =trait.LABELED.name= + =$label= |
 | MASKED | =FormFromSchema= (schema-driven) | =trait.MASKED= |
-| AIMED | emitter-mount picker (from =mode.emitter.leaves=) | =trait.AIMED.mount= |
+| AIMED | emitter-mount picker (from =mode.emitter.branches=) | =trait.AIMED.mount= |
 | QUEUEING | depth slider | =trait.QUEUEING.depth= |
 
 ** Masked — the two complexities (both solved & verified)

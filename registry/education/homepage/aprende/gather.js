@@ -3,10 +3,10 @@
 // extra round trips. Cached per user with a short TTL + inflight dedupe: the report
 // is advisory context, not live state. (shard.caching.catchAndRelease exists but
 // caches ctx.effect — the Vector contract — so the memo lives here, function-level.)
+import { STATUS } from "./types.js";
+
 const TTL = 60_000;
 const memos = new Map(); // user id → { at, promise }
-
-const STATUS = ["UNTOUCHED", "UNKNOWN", "LEARNING", "KNOWN", "GRADUATED"];
 
 async function compose(ctx) {
   const now = Date.now();

@@ -7,7 +7,7 @@ const base = new URL("./snapshots", import.meta.url).pathname;
 const DRY = false;
 
 describe("snapshot demo: aperture", () => {
-  // aperture — Vector subclass → shape.strip contract {leaves, branches}; branch nests the trie
+  // aperture — Vector subclass → shape.strip contract {effect?, branches}; branch nests the trie
   it("captures aperture", () => {
     const app = new Aperture();
     app.get("board", () => ({}));
@@ -21,7 +21,7 @@ describe("snapshot demo: aperture", () => {
       locate: "aperture.snapshot.json",
     });
     console.log(`\n===BEGIN aperture → ${path}===\n${JSON.stringify(pojo, null, 2)}\n===END===\n`);
-    expect(pojo.leaves[0].nature).toBe("board");
-    expect(pojo.branches.api.leaves[0].nature).toBe("items");
+    expect(pojo.branches.board.effect.methods).toEqual(["GET", "POST"]);
+    expect(pojo.branches.api.branches.items.effect.methods).toEqual(["GET"]);
   });
 });

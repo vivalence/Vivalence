@@ -1,24 +1,20 @@
 import { steer, Vector } from "@vivalence/typology";
 
-const leafFrom = (pattern) => {
-  const leaf = { nature: pattern.nature };
-  if (pattern.input !== undefined) leaf.input = pattern.input;
-  if (pattern.output !== undefined) leaf.output = pattern.output;
-  return leaf;
+const edgeMeta = (pattern, effect) => {
+  const meta = {};
+  if (pattern?.input !== undefined) meta.input = pattern.input;
+  if (pattern?.output !== undefined) meta.output = pattern.output;
+  if (pattern?.yields !== undefined) meta.yields = pattern.yields;
+  if (effect?.methods) meta.methods = Object.keys(effect.methods);
+  return meta;
 };
 
-export const strip = (vector = new Vector(), pluck = leafFrom) =>
+export const strip = (vector = new Vector(), pluck = edgeMeta) =>
   steer.trie.fold(vector, {
     node: (f) => {
-      const leaves = f.trajectories.filter((c) => c.leaf !== undefined).map((c) => c.leaf);
-      const branches = Object.fromEntries(
-        f.trajectories.filter((c) => c.stripped !== undefined).map((c) => [c.nature, c.stripped]));
-      const stripped = { leaves, branches };
-      if (!f.signature) return stripped;
-      return {
-        nature: f.signature.nature,
-        leaf: f.effect !== undefined ? pluck(f.signature) : undefined,
-        stripped: f.trajectories.length ? stripped : undefined,
-      };
+      const branches = Object.fromEntries(f.trajectories.map((c) => [c.key, c.node]));
+      const node = { branches };
+      if (f.effect !== undefined) node.effect = pluck(f.signature, f.effect);
+      return f.signature ? { key: f.signature.nature, node } : node;
     },
   });

@@ -1,5 +1,5 @@
 import { Vector, v } from "@vivalence/typology";
-import { STATUS, SIGNAL } from "./vocabulary.js";
+import { STATUS, SIGNAL } from "../types.js";
 
 const tally = (keys) => v.object(Object.fromEntries(keys.map((key) => [key, v.integer()])));
 

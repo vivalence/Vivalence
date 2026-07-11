@@ -277,7 +277,7 @@ script:pre-request {
     const packets = [];
     ws.onopen = () => {
       const echo = crypto.randomUUID();
-      ws.send(JSON.stringify({ signal: "/herald/moin", input: { shape: { leaves: [], branches: {} } }, echo }));
+      ws.send(JSON.stringify({ signal: "/herald/moin", input: { shape: { branches: {} } }, echo }));
     };
     ws.onmessage = (event) => {
       const frame = JSON.parse(event.data);
@@ -434,7 +434,7 @@ specimen.describe("TerminalDossier — session lifecycle", () => {
       connection: {
         socket: () => ({
           $state: { get: () => "OPEN", subscribe: () => () => {} },
-          call: async () => ({ shape: { leaves: [], branches: {} } }),
+          call: async () => ({ shape: { branches: {} } }),
           push: () => {},
           close: () => {},
           state: {},

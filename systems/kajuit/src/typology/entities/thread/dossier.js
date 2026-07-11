@@ -2,7 +2,6 @@ import { computed } from "nanostores";
 import { RemoteRepository, is } from "@vivalence/typology";
 import { Thread } from "./thread.js";
 import * as labeled from "./traits/labeled.js";
-import * as conversational from "./traits/conversational.js";
 
 export const ThreadDossier = {
   name: "thread",
@@ -47,11 +46,6 @@ export const ThreadDossier = {
         if (previous && mode && mode.id !== previous.id)
           ctx.daemon.entities.thread.updateOne({ id: thread.id }, { mode: mode.id });
       });
-
-      // conversation lifecycle is owned here (longdistance): wire every thread once.
-      // wire no-ops until CONVERSATIONAL is engaged + active, so it's safe for all modes
-      // and survives mode-swaps into a conversational mode (selectMode mutates thread.mode).
-      conversational.wire(thread);
     },
   ],
 };

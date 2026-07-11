@@ -85,7 +85,7 @@
     for (const attempt of analysis.attempts) {
       const literal = game.owners[attempt.wordIndex];
       if (!literal) continue; // "" = untracked function word
-      terminal.daemon.call("/review/literal", { literal, signal: SIGNAL(attempt.label) });
+      terminal.daemon.connection.call("/review/literal", { literal, signal: SIGNAL(attempt.label) });
     }
   }
 
