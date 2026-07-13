@@ -56,12 +56,11 @@
 
 <script>
   import { getContext } from "svelte";
-  import { chain } from "@vivalence/kajuit";
+  import { chain, stores } from "@vivalence/kajuit";
   import { Section } from "@vivalence/drapes";
-  import { TERMINALS, BRIDGE } from "$client";
+  import { TERMINALS } from "$client";
 
   const terminals = getContext(TERMINALS);
-  const bridge = getContext(BRIDGE);
 
   const terminal = chain(terminals, "$active");
   const thread = chain(terminals, "$active", "$thread");
@@ -74,8 +73,7 @@
   let busy = $state(false);
   let listEl = $state(null);
 
-  let dockCollapsed = $state(bridge.dock.collapsed);
-  bridge.$dock.subscribe((d) => (dockCollapsed = d.collapsed));
+  const dock = chain(terminals, "$active", "$dock");
 
   // keep the active row centered in the scrollable list
   $effect(() => {
@@ -109,10 +107,10 @@
       <Section label="chat" />
       <button
         class="act primary"
-        class:engaged={!dockCollapsed}
-        onclick={() => bridge.setDockCollapsed(!dockCollapsed)}
+        class:engaged={!$dock?.collapsed}
+        onclick={() => stores.bridge.setDockCollapsed(terminals.active?.$dock)}
         disabled={!$thread}>
-        {dockCollapsed ? "start chatting" : "hide chat"}
+        {$dock?.collapsed ? "start chatting" : "hide chat"}
       </button>
     </section>
   {/if}

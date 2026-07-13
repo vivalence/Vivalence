@@ -6,8 +6,6 @@ import {
   readSafeArea,
   viewportDimensions,
 } from "./geometry.js";
-import { DEFAULT_DOCK, normalizeSide, clampShare, shareAfterDrag } from "./dock.js";
-
 const STORAGE_KEY = "vivalence:bridge";
 
 export const DEFAULT_COMPOSER = {
@@ -93,8 +91,6 @@ export class Bridge {
     this.$composer = atom(
       saved?.composer ? { ...DEFAULT_COMPOSER, ...saved.composer } : { ...DEFAULT_COMPOSER },
     );
-
-    this.$dock = atom(saved?.dock ? { ...DEFAULT_DOCK, ...saved.dock } : { ...DEFAULT_DOCK });
   }
 
   get safeAreaTop() { return this.$safeAreaTop.get(); }
@@ -106,26 +102,13 @@ export class Bridge {
     this.save();
   }
 
-  get dock() { return this.$dock.get(); }
-  setDock = (patch) => {
-    this.$dock.set({ ...this.$dock.get(), ...patch });
-    this.save();
-  };
-  setDockSide = (side) => this.setDock({ side: normalizeSide(side) });
-  setDockShare = (share) => this.setDock({ share: clampShare(share) });
-  setDockCollapsed = (collapsed) => this.setDock({ collapsed: collapsed ?? !this.$dock.get().collapsed });
-  dragDock = (rect, deltaPx) => {
-    const { side, share } = this.$dock.get();
-    this.setDockShare(shareAfterDrag({ side, share, rect, deltaPx }));
-  };
-
   toggle = (key) => {
     this.view["$" + key].set(!this.view["$" + key].get());
   };
 
   save = () => {
     try {
-      const data = { ...this.layout.toJSON(), view: this.view.toJSON(), paneSize: this.paneSize.toJSON(), composer: this.composer, dock: this.dock };
+      const data = { ...this.layout.toJSON(), view: this.view.toJSON(), paneSize: this.paneSize.toJSON(), composer: this.composer };
       localStorage.setItem(STORAGE_KEY, JSON.stringify(data));
     } catch (_) {}
   };

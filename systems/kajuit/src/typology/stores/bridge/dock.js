@@ -50,3 +50,25 @@ export function shareAfterDrag({ side, share, rect, deltaPx }) {
 export function defaultDock() {
   return { ...DEFAULT_DOCK };
 }
+
+export function setDockSide($dock, side) {
+  if (!$dock) return;
+  $dock.set({ ...$dock.get(), side: normalizeSide(side) });
+}
+
+export function setDockShare($dock, share) {
+  if (!$dock) return;
+  $dock.set({ ...$dock.get(), share: clampShare(share) });
+}
+
+export function setDockCollapsed($dock, collapsed) {
+  if (!$dock) return;
+  const current = $dock.get();
+  $dock.set({ ...current, collapsed: collapsed ?? !current.collapsed });
+}
+
+export function dragDock($dock, rect, deltaPx) {
+  if (!$dock) return;
+  const { side, share } = $dock.get();
+  setDockShare($dock, shareAfterDrag({ side, share, rect, deltaPx }));
+}

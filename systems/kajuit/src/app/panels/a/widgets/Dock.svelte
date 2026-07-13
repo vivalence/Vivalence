@@ -1,6 +1,6 @@
 <script>
   import { getContext, tick } from "svelte";
-  import { chain } from "@vivalence/kajuit";
+  import { chain, stores } from "@vivalence/kajuit";
   import { soma } from "@vivalence/typology";
   import { TERMINALS, BRIDGE } from "$client";
   import Markdown from "./Markdown.svelte";
@@ -216,7 +216,7 @@
 
 <div class="dock">
   <header>
-    <button class="dock-close" onclick={() => bridge.setDockCollapsed()} title="collapse" aria-label="collapse dock">
+    <button class="dock-close" onclick={() => stores.bridge.setDockCollapsed(terminals.active?.$dock)} title="collapse" aria-label="collapse dock">
       <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round">
         <line x1="6" y1="6" x2="18" y2="18" />
         <line x1="18" y1="6" x2="6" y2="18" />

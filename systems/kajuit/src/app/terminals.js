@@ -25,7 +25,7 @@ export function hydrate({ terminals }) {
   const shells = persisted.map((data) => {
     if (data.thread || data.buffer)
       serialized.set(data.id, { thread: data.thread ?? null, buffer: data.buffer ?? null });
-    return Terminal({ id: data.id });
+    return Terminal({ id: data.id, dock: data.dock });
   });
   terminals.$entities.set(shells);
   terminals.$active.set(
@@ -46,6 +46,7 @@ export function persist({ terminals }) {
           id: live.id,
           thread: live.thread ?? remainder.thread ?? null,
           buffer: live.buffer ?? remainder.buffer ?? null,
+          dock: live.dock,
         };
       }),
     );
@@ -58,6 +59,7 @@ export function persist({ terminals }) {
     inner = entities.flatMap((terminal) => [
       terminal.$thread.subscribe(write),
       terminal.$buffer.subscribe(write),
+      terminal.$dock.subscribe(write),
     ]);
     write();
   });

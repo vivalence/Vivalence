@@ -1,6 +1,6 @@
 <script>
   import { getContext } from "svelte";
-  import { TERMINALS, BRIDGE } from "$client";
+  import { TERMINALS } from "$client";
   import { chain, stores } from "@vivalence/kajuit";
   import { Frame } from "@vivalence/drapes";
   import Dock from "./widgets/Dock.svelte";
@@ -8,23 +8,15 @@
   let { rect } = $props();
 
   const terminals = getContext(TERMINALS);
-  const bridge = getContext(BRIDGE);
 
   const terminal = terminals.$active;
   const thread = chain(terminals, "$active", "$thread");
-  const threadTraits = chain(terminals, "$active", "$thread", "$traits");
   const mode = chain(terminals, "$active", "$thread", "$mode");
-  const buffers = chain(terminals, "$active", "$thread", "$buffers");
+  const dock = chain(terminals, "$active", "$dock");
 
-  let dock = $state(bridge.dock);
-  bridge.$dock.subscribe((value) => (dock = value));
-
-  const engaged = $derived(
-    ($threadTraits?.includes("CONVERSATIONAL") ?? false) &&
-      ($mode?.implements?.("CONVERSATIONAL") ?? false),
-  );
+  const dockable = $derived($mode?.implements?.("HARNESSED") ?? false);
   const geom = $derived(
-    engaged && rect.width > 0 && rect.height > 0 ? stores.bridge.resolve(dock, rect) : null,
+    dockable && rect.width > 0 && rect.height > 0 ? stores.bridge.resolve($dock, rect) : null,
   );
 
   // Auto-focus is now the stall's `settle` (one cursor authority). A non-inert phase lands
@@ -40,7 +32,7 @@
     if (!last || !geom) return;
     const deltaPx = geom.vertical ? event.clientX - last.x : event.clientY - last.y;
     last = { x: event.clientX, y: event.clientY };
-    bridge.dragDock(rect, deltaPx);
+    stores.bridge.dragDock(terminals.active?.$dock, rect, deltaPx);
   }
   function onSeamUp(event) {
     if (!last) return;
@@ -48,7 +40,6 @@
       event.currentTarget.releasePointerCapture(event.pointerId);
     } catch (_) {}
     last = null;
-    bridge.save?.();
   }
 </script>
 
@@ -70,7 +61,7 @@
       {/if}
     </div>
 
-    {#if geom && $thread && !dock.collapsed}
+    {#if geom && $thread && !$dock?.collapsed}
       <div
         class="seam"
         class:vertical={geom.vertical}

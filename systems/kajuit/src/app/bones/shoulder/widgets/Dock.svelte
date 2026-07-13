@@ -1,18 +1,19 @@
 <script>
+  import { getContext } from "svelte";
+  import { chain, stores } from "@vivalence/kajuit";
+  import { TERMINALS } from "$client";
   import { Icon } from "@vivalence/drapes";
 
-  let { bridge } = $props();
-
-  let collapsed = $state(bridge.dock.collapsed);
-  bridge.$dock.subscribe((d) => (collapsed = d.collapsed));
+  const terminals = getContext(TERMINALS);
+  const dock = chain(terminals, "$active", "$dock");
 </script>
 
 <button
   class="dock"
-  class:on={!collapsed}
-  title={collapsed ? "open chat" : "hide chat"}
-  onclick={() => bridge.setDockCollapsed(!collapsed)}>
-  <Icon carbon="Chat" size="sm" variant={collapsed ? "ui" : "primary"} />
+  class:on={!$dock?.collapsed}
+  title={$dock?.collapsed ? "open chat" : "hide chat"}
+  onclick={() => stores.bridge.setDockCollapsed(terminals.active?.$dock)}>
+  <Icon carbon="Chat" size="sm" variant={$dock?.collapsed ? "ui" : "primary"} />
   <span class="lbl">chat</span>
 </button>
 

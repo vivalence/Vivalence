@@ -2,6 +2,7 @@ import { atom } from "nanostores";
 import { Stall, Blacklist } from "@vivalence/typology";
 import { pull } from "./thread/traits/aimed.js";
 import { depth } from "./thread/traits/queueing.js";
+import { defaultDock } from "../stores/bridge/dock.js";
 
 // The terminal is a reactive view over a thread: a render pointer ($buffer) into the
 // thread's buffers, plus a Stall that drives the cursor by the thread's phase. It owns no
@@ -9,15 +10,17 @@ import { depth } from "./thread/traits/queueing.js";
 // atoms are null-or-entity for their whole life: unresolved persisted ids live in the
 // settle effect's closure (src/app/terminals.js), never here, so no consumer (the Stall)
 // ever sees a wire-format id.
-export function Terminal({ id = null } = {}) {
+export function Terminal({ id = null, dock } = {}) {
   const $thread = atom(null);
   const $buffer = atom(null);
+  const $dock = atom(dock ?? defaultDock());
   let stall = null;
 
   const terminal = {
     id,
     $thread,
     $buffer,
+    $dock,
 
     get thread() {
       return $thread.get();
@@ -39,6 +42,10 @@ export function Terminal({ id = null } = {}) {
       $buffer.set(value);
     },
 
+    get dock() {
+      return $dock.get();
+    },
+
     get daemon() {
       return $thread.get()?.daemon;
     },
@@ -50,6 +57,7 @@ export function Terminal({ id = null } = {}) {
       id,
       thread: $thread.get()?.id ?? null,
       buffer: $buffer.get()?.id ?? null,
+      dock: $dock.get(),
     }),
   };
 

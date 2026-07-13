@@ -4,9 +4,14 @@ import * as hal from "./hal/index.js";
 const CANDIDATE_POOL_MULTIPLIER = 3;
 
 const EMITTER_RIDDLE_INPUT = v.object({
+  literals: v
+    .array(v.rel(v.literal()))
+    .optional()
+    .desc("Explicit vocabulary the riddles draw on (slug|id|entity)."),
   symbols: v
     .array(v.rel(v.symbol()))
-    .desc("Structural subjects the riddles are built on (weekday/month/… — slug|id|entity)."),
+    .optional()
+    .desc("Structural subjects the pool is drawn from (weekday/month/… — slug|id|entity)."),
   instructions: v.string({
     default: "",
     description: "Optional freeform steering, appended verbatim.",
@@ -32,15 +37,12 @@ export const emitter = new Vector().open(
     const count = ctx.input.numberOfRiddles;
     console.log("emitter/riddle/fromSymbols {input}", { input: ctx.input, count, language });
 
-    // const pool = await ctx.daemon.entities.literal.feed(
-    const pool = await ctx.daemon.entities.literal.find(
-      // { ontology: "word", symbols: ctx.input.symbols },
-      { symbols: ctx.input.symbols },
-      {
-        // limit: count * CANDIDATE_POOL_MULTIPLIER,
-        // populate: ["memories", "memories.strength", "symbols"],
-      },
-    );
+    const scope = [];
+    if (ctx.input.literals?.length) scope.push({ id: { $in: ctx.input.literals } });
+    if (ctx.input.symbols?.length) scope.push({ symbols: { $in: ctx.input.symbols } });
+    const pool = scope.length
+      ? await ctx.daemon.entities.literal.find(scope.length === 1 ? scope[0] : { $or: scope }, {})
+      : [];
     console.log("emitter/riddle/fromSymbols {pool}", { pool });
     if (!pool.length) return;
 
@@ -103,7 +105,7 @@ export const emitter = new Vector().open(
               },
             ],
           },
-          symbols: ctx.input.symbols,
+          symbols: ctx.input.symbols ?? [],
           literals,
         }),
       );

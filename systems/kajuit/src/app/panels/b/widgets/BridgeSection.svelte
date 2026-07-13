@@ -1,12 +1,15 @@
 <script>
   import { getContext } from "svelte";
-  import { BRIDGE } from "$client";
+  import { BRIDGE, TERMINALS } from "$client";
+  import { chain, stores } from "@vivalence/kajuit";
   import Section from "./Section.svelte";
 
   const SIDES = ["top", "right", "bottom", "left"];
   const SIDE_LABELS = { top: "↥", right: "↦", bottom: "↧", left: "↤" };
 
   const bridge = getContext(BRIDGE);
+  const terminals = getContext(TERMINALS);
+  const dock = chain(terminals, "$active", "$dock");
 
   let pincer = $state(bridge.layout.pincer);
   let orientation = $state(bridge.layout.orientation);
@@ -14,7 +17,6 @@
   let g = $state(bridge.view.g);
   let h = $state(bridge.view.h);
   let snap = $state(bridge.view.snap);
-  let dock = $state(bridge.dock);
 
   bridge.layout.$pincer.subscribe((v) => (pincer = v));
   bridge.layout.$orientation.subscribe((v) => (orientation = v));
@@ -22,7 +24,6 @@
   bridge.view.$g.subscribe((v) => (g = v));
   bridge.view.$h.subscribe((v) => (h = v));
   bridge.view.$snap.subscribe((v) => (snap = v));
-  bridge.$dock.subscribe((v) => (dock = v));
 </script>
 
 <Section name="bridge" meta={`${orientation}°`}>
@@ -34,44 +35,46 @@
     <button class="act" class:on={snap} onclick={() => bridge.toggle("snap")}>snap</button>
   </div>
 
-  <div class="row">
-    <span class="k">dock</span>
-    <span class="sides">
-      {#each SIDES as s (s)}
+  {#if $dock}
+    <div class="row">
+      <span class="k">dock</span>
+      <span class="sides">
+        {#each SIDES as s (s)}
+          <button
+            type="button"
+            class="side"
+            class:on={s === $dock.side}
+            title="dock {s}"
+            onclick={() => stores.bridge.setDockSide(terminals.active?.$dock, s)}>{SIDE_LABELS[s]}</button>
+        {/each}
+      </span>
+    </div>
+    <div class="row">
+      <span class="k">size</span>
+      <span class="size-row">
+        <input
+          class="slider"
+          type="range"
+          min="0.18"
+          max="1.0"
+          step="0.01"
+          value={$dock.share ?? 0.32}
+          oninput={(e) => stores.bridge.setDockShare(terminals.active?.$dock, Number(e.currentTarget.value))} />
+        <span class="size-readout">{Math.round(($dock.share ?? 0.32) * 100)}%</span>
+      </span>
+    </div>
+    <div class="row">
+      <span class="k">state</span>
+      <span class="sides">
         <button
           type="button"
-          class="side"
-          class:on={s === dock.side}
-          title="dock {s}"
-          onclick={() => bridge.setDockSide(s)}>{SIDE_LABELS[s]}</button>
-      {/each}
-    </span>
-  </div>
-  <div class="row">
-    <span class="k">size</span>
-    <span class="size-row">
-      <input
-        class="slider"
-        type="range"
-        min="0.18"
-        max="1.0"
-        step="0.01"
-        value={dock.share ?? 0.32}
-        oninput={(e) => bridge.setDockShare(Number(e.currentTarget.value))} />
-      <span class="size-readout">{Math.round((dock.share ?? 0.32) * 100)}%</span>
-    </span>
-  </div>
-  <div class="row">
-    <span class="k">state</span>
-    <span class="sides">
-      <button
-        type="button"
-        class="side wide"
-        class:on={dock.collapsed}
-        title="toggle dock"
-        onclick={() => bridge.setDockCollapsed()}>{dock.collapsed ? "show" : "hide"}</button>
-    </span>
-  </div>
+          class="side wide"
+          class:on={$dock.collapsed}
+          title="toggle dock"
+          onclick={() => stores.bridge.setDockCollapsed(terminals.active?.$dock)}>{$dock.collapsed ? "show" : "hide"}</button>
+      </span>
+    </div>
+  {/if}
 </Section>
 
 <style>
