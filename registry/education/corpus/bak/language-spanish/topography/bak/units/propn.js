@@ -1,1 +1,0 @@
-export default [{"slug":"di:fem-di-sing-propn","data":{"known":"I gave","example":{},"learning":"di"},"annotation":{"pos":"propn","lemma":"di","gender":"fem","number":"sing"}}];

@@ -1,0 +1,2502 @@
+[
+  {
+    "slug": "de.adposition",
+    "form": "de",
+    "en": "of / from"
+  },
+  {
+    "slug": "la.determiner",
+    "form": "la",
+    "en": "the (fem.)"
+  },
+  {
+    "slug": "que.subordinating-conjunction",
+    "form": "que",
+    "en": "that"
+  },
+  {
+    "slug": "en.adposition",
+    "form": "en",
+    "en": "in / on"
+  },
+  {
+    "slug": "el.determiner",
+    "form": "el",
+    "en": "the (masc.)"
+  },
+  {
+    "slug": "y.coordinating-conjunction",
+    "form": "y",
+    "en": "and"
+  },
+  {
+    "slug": "a.adposition",
+    "form": "a",
+    "en": "to"
+  },
+  {
+    "slug": "los.determiner",
+    "form": "los",
+    "en": "the (masc. pl.)"
+  },
+  {
+    "slug": "no.adverb",
+    "form": "no",
+    "en": "no / not"
+  },
+  {
+    "slug": "un.determiner",
+    "form": "un",
+    "en": "a / an (masc.)"
+  },
+  {
+    "slug": "por.adposition",
+    "form": "por",
+    "en": "for / by / through"
+  },
+  {
+    "slug": "ser.verb.indicative.present.third.singular",
+    "form": "es",
+    "en": "he/she is"
+  },
+  {
+    "slug": "del.contraction",
+    "form": "del",
+    "en": "of the (masc.)"
+  },
+  {
+    "slug": "las.determiner",
+    "form": "las",
+    "en": "the (fem. pl.)"
+  },
+  {
+    "slug": "con.adposition",
+    "form": "con",
+    "en": "with"
+  },
+  {
+    "slug": "una.determiner",
+    "form": "una",
+    "en": "a / an (fem.)"
+  },
+  {
+    "slug": "para.adposition",
+    "form": "para",
+    "en": "for / in order to"
+  },
+  {
+    "slug": "lo.pronoun",
+    "form": "lo",
+    "en": "him / it"
+  },
+  {
+    "slug": "su.pronoun",
+    "form": "su",
+    "en": "his / her / your (formal)"
+  },
+  {
+    "slug": "al.contraction",
+    "form": "al",
+    "en": "to the (masc.)"
+  },
+  {
+    "slug": "comer.verb.indicative.present.first.singular",
+    "form": "como",
+    "en": "I eat"
+  },
+  {
+    "slug": "me.pronoun",
+    "form": "me",
+    "en": "me"
+  },
+  {
+    "slug": "más.adverb",
+    "form": "más",
+    "en": "more"
+  },
+  {
+    "slug": "si.subordinating-conjunction",
+    "form": "si",
+    "en": "if"
+  },
+  {
+    "slug": "pero.coordinating-conjunction",
+    "form": "pero",
+    "en": "but"
+  },
+  {
+    "slug": "te.pronoun",
+    "form": "te",
+    "en": "you"
+  },
+  {
+    "slug": "o.coordinating-conjunction",
+    "form": "o",
+    "en": "or"
+  },
+  {
+    "slug": "mi.pronoun",
+    "form": "mi",
+    "en": "my"
+  },
+  {
+    "slug": "le.pronoun",
+    "form": "le",
+    "en": "to him / to her"
+  },
+  {
+    "slug": "este.pronoun",
+    "form": "este",
+    "en": "this (masc.)"
+  },
+  {
+    "slug": "esta.pronoun",
+    "form": "esta",
+    "en": "this (fem.)"
+  },
+  {
+    "slug": "ya.adverb",
+    "form": "ya",
+    "en": "already"
+  },
+  {
+    "slug": "yo.pronoun",
+    "form": "yo",
+    "en": "I"
+  },
+  {
+    "slug": "ser.verb.infinitive",
+    "form": "ser",
+    "en": "to be (essence)"
+  },
+  {
+    "slug": "ser.verb.indicative.present.third.plural",
+    "form": "son",
+    "en": "they are"
+  },
+  {
+    "slug": "sin.adposition",
+    "form": "sin",
+    "en": "without"
+  },
+  {
+    "slug": "tu.pronoun",
+    "form": "tu",
+    "en": "your"
+  },
+  {
+    "slug": "estar.verb.indicative.present.third.singular",
+    "form": "está",
+    "en": "he/she is"
+  },
+  {
+    "slug": "ser.verb.indicative.past.third.singular",
+    "form": "fue",
+    "en": "he/she was"
+  },
+  {
+    "slug": "muy.adverb",
+    "form": "muy",
+    "en": "very"
+  },
+  {
+    "slug": "sobre.adposition",
+    "form": "sobre",
+    "en": "on / about"
+  },
+  {
+    "slug": "también.adverb",
+    "form": "también",
+    "en": "also / too"
+  },
+  {
+    "slug": "eso.pronoun",
+    "form": "eso",
+    "en": "that"
+  },
+  {
+    "slug": "tener.verb.indicative.present.third.singular",
+    "form": "tiene",
+    "en": "he/she has"
+  },
+  {
+    "slug": "nos.pronoun",
+    "form": "nos",
+    "en": "us"
+  },
+  {
+    "slug": "porque.subordinating-conjunction",
+    "form": "porque",
+    "en": "because"
+  },
+  {
+    "slug": "qué.pronoun",
+    "form": "qué",
+    "en": "what"
+  },
+  {
+    "slug": "dos.numeral",
+    "form": "dos",
+    "en": "two"
+  },
+  {
+    "slug": "entre.adposition",
+    "form": "entre",
+    "en": "between"
+  },
+  {
+    "slug": "bien.adverb",
+    "form": "bien",
+    "en": "well"
+  },
+  {
+    "slug": "poder.verb.indicative.present.third.singular",
+    "form": "puede",
+    "en": "he/she can"
+  },
+  {
+    "slug": "desde.adposition",
+    "form": "desde",
+    "en": "from / since"
+  },
+  {
+    "slug": "hasta.adposition",
+    "form": "hasta",
+    "en": "until / up to"
+  },
+  {
+    "slug": "hacer.verb.infinitive",
+    "form": "hacer",
+    "en": "to do / make"
+  },
+  {
+    "slug": "ahora.adverb",
+    "form": "ahora",
+    "en": "now"
+  },
+  {
+    "slug": "esto.pronoun",
+    "form": "esto",
+    "en": "this"
+  },
+  {
+    "slug": "ser.verb.indicative.imperfect.first.singular",
+    "form": "era",
+    "en": "I used to be"
+  },
+  {
+    "slug": "vez.noun",
+    "form": "vez",
+    "en": "time / occasion"
+  },
+  {
+    "slug": "hacer.verb.indicative.present.third.singular",
+    "form": "hace",
+    "en": "he/she does"
+  },
+  {
+    "slug": "nada.pronoun",
+    "form": "nada",
+    "en": "nothing"
+  },
+  {
+    "slug": "solo.adverb",
+    "form": "solo",
+    "en": "only"
+  },
+  {
+    "slug": "algo.pronoun",
+    "form": "algo",
+    "en": "something"
+  },
+  {
+    "slug": "tiempo.noun",
+    "form": "tiempo",
+    "en": "time / weather"
+  },
+  {
+    "slug": "día.noun",
+    "form": "día",
+    "en": "day"
+  },
+  {
+    "slug": "uno.numeral",
+    "form": "uno",
+    "en": "one"
+  },
+  {
+    "slug": "mejor.adjective",
+    "form": "mejor",
+    "en": "better"
+  },
+  {
+    "slug": "mucho.adverb",
+    "form": "mucho",
+    "en": "a lot"
+  },
+  {
+    "slug": "tan.adverb",
+    "form": "tan",
+    "en": "so"
+  },
+  {
+    "slug": "ver.verb.infinitive",
+    "form": "ver",
+    "en": "to see"
+  },
+  {
+    "slug": "mismo.adjective.masculine.singular",
+    "form": "mismo",
+    "en": "same"
+  },
+  {
+    "slug": "siempre.adverb",
+    "form": "siempre",
+    "en": "always"
+  },
+  {
+    "slug": "ese.pronoun",
+    "form": "ese",
+    "en": "that (masc.)"
+  },
+  {
+    "slug": "tener.verb.indicative.present.first.singular",
+    "form": "tengo",
+    "en": "I have"
+  },
+  {
+    "slug": "después.adverb",
+    "form": "después",
+    "en": "after / afterwards"
+  },
+  {
+    "slug": "gente.noun",
+    "form": "gente",
+    "en": "people"
+  },
+  {
+    "slug": "estar.verb.indicative.present.third.plural",
+    "form": "están",
+    "en": "they are"
+  },
+  {
+    "slug": "esa.pronoun",
+    "form": "esa",
+    "en": "that (fem.)"
+  },
+  {
+    "slug": "estar.verb.participle.past",
+    "form": "estado",
+    "en": "been"
+  },
+  {
+    "slug": "estar.verb.indicative.present.first.singular",
+    "form": "estoy",
+    "en": "I am"
+  },
+  {
+    "slug": "ir.verb.indicative.present.third.singular",
+    "form": "va",
+    "en": "he/she goes"
+  },
+  {
+    "slug": "año.noun",
+    "form": "año",
+    "en": "year"
+  },
+  {
+    "slug": "les.pronoun",
+    "form": "les",
+    "en": "to them"
+  },
+  {
+    "slug": "gracias.interjection",
+    "form": "gracias",
+    "en": "thank you"
+  },
+  {
+    "slug": "nunca.adverb",
+    "form": "nunca",
+    "en": "never"
+  },
+  {
+    "slug": "menos.adverb",
+    "form": "menos",
+    "en": "less"
+  },
+  {
+    "slug": "poco.adverb",
+    "form": "poco",
+    "en": "little"
+  },
+  {
+    "slug": "antes.adverb",
+    "form": "antes",
+    "en": "before"
+  },
+  {
+    "slug": "ser.verb.subjunctive.present.first.singular",
+    "form": "sea",
+    "en": "(that) I be"
+  },
+  {
+    "slug": "trabajo.noun",
+    "form": "trabajo",
+    "en": "work / job"
+  },
+  {
+    "slug": "tener.verb.infinitive",
+    "form": "tener",
+    "en": "to have"
+  },
+  {
+    "slug": "durante.adposition",
+    "form": "durante",
+    "en": "during"
+  },
+  {
+    "slug": "lugar.noun",
+    "form": "lugar",
+    "en": "place"
+  },
+  {
+    "slug": "ellos.pronoun",
+    "form": "ellos",
+    "en": "they (masc.)"
+  },
+  {
+    "slug": "cómo.adverb",
+    "form": "cómo",
+    "en": "how"
+  },
+  {
+    "slug": "querer.verb.indicative.present.first.singular",
+    "form": "quiero",
+    "en": "I want"
+  },
+  {
+    "slug": "hacer.verb.participle.past",
+    "form": "hecho",
+    "en": "done / made"
+  },
+  {
+    "slug": "creer.verb.indicative.present.first.singular",
+    "form": "creo",
+    "en": "I believe"
+  },
+  {
+    "slug": "contra.adposition",
+    "form": "contra",
+    "en": "against"
+  },
+  {
+    "slug": "cuenta.noun",
+    "form": "cuenta",
+    "en": "bill / check"
+  },
+  {
+    "slug": "ser.verb.indicative.present.first.singular",
+    "form": "soy",
+    "en": "I am"
+  },
+  {
+    "slug": "decir.verb.infinitive",
+    "form": "decir",
+    "en": "to say"
+  },
+  {
+    "slug": "nuevo.adjective.masculine.singular",
+    "form": "nuevo",
+    "en": "new"
+  },
+  {
+    "slug": "casa.noun",
+    "form": "casa",
+    "en": "house"
+  },
+  {
+    "slug": "ser.verb.participle.past",
+    "form": "sido",
+    "en": "been"
+  },
+  {
+    "slug": "él.pronoun",
+    "form": "él",
+    "en": "he"
+  },
+  {
+    "slug": "sí.adverb",
+    "form": "sí",
+    "en": "yes"
+  },
+  {
+    "slug": "aquí.adverb",
+    "form": "aquí",
+    "en": "here"
+  },
+  {
+    "slug": "ella.pronoun",
+    "form": "ella",
+    "en": "she"
+  },
+  {
+    "slug": "hoy.adverb",
+    "form": "hoy",
+    "en": "today"
+  },
+  {
+    "slug": "estar.verb.infinitive",
+    "form": "estar",
+    "en": "to be (state)"
+  },
+  {
+    "slug": "tener.verb.indicative.present.third.plural",
+    "form": "tienen",
+    "en": "they have"
+  },
+  {
+    "slug": "estar.verb.indicative.imperfect.first.singular",
+    "form": "estaba",
+    "en": "I was"
+  },
+  {
+    "slug": "alguien.pronoun",
+    "form": "alguien",
+    "en": "someone"
+  },
+  {
+    "slug": "decir.verb.indicative.present.third.singular",
+    "form": "dice",
+    "en": "he/she says"
+  },
+  {
+    "slug": "tres.numeral",
+    "form": "tres",
+    "en": "three"
+  },
+  {
+    "slug": "ir.verb.indicative.present.first.singular",
+    "form": "voy",
+    "en": "I go"
+  },
+  {
+    "slug": "momento.noun",
+    "form": "momento",
+    "en": "moment"
+  },
+  {
+    "slug": "bueno.adjective.masculine.singular",
+    "form": "bueno",
+    "en": "good"
+  },
+  {
+    "slug": "ciudad.noun",
+    "form": "ciudad",
+    "en": "city"
+  },
+  {
+    "slug": "nuestro.pronoun",
+    "form": "nuestro",
+    "en": "our (masc.)"
+  },
+  {
+    "slug": "nuestra.pronoun",
+    "form": "nuestra",
+    "en": "our (fem.)"
+  },
+  {
+    "slug": "poder.verb.infinitive",
+    "form": "poder",
+    "en": "to be able / can"
+  },
+  {
+    "slug": "poder.verb.indicative.present.third.plural",
+    "form": "pueden",
+    "en": "they can"
+  },
+  {
+    "slug": "nuevo.adjective.feminine.singular",
+    "form": "nueva",
+    "en": "new (fem.)"
+  },
+  {
+    "slug": "nadie.pronoun",
+    "form": "nadie",
+    "en": "nobody"
+  },
+  {
+    "slug": "ir.verb.infinitive",
+    "form": "ir",
+    "en": "to go"
+  },
+  {
+    "slug": "mayor.adjective",
+    "form": "mayor",
+    "en": "older / bigger"
+  },
+  {
+    "slug": "según.adposition",
+    "form": "según",
+    "en": "according to"
+  },
+  {
+    "slug": "mal.adverb",
+    "form": "mal",
+    "en": "badly"
+  },
+  {
+    "slug": "unos.determiner",
+    "form": "unos",
+    "en": "some (masc.)"
+  },
+  {
+    "slug": "nombre.noun",
+    "form": "nombre",
+    "en": "name"
+  },
+  {
+    "slug": "ser.verb.indicative.past.third.plural",
+    "form": "fueron",
+    "en": "they were"
+  },
+  {
+    "slug": "bajo.adjective.masculine.singular",
+    "form": "bajo",
+    "en": "short / low"
+  },
+  {
+    "slug": "hacia.adposition",
+    "form": "hacia",
+    "en": "toward"
+  },
+  {
+    "slug": "fuera.adverb",
+    "form": "fuera",
+    "en": "outside"
+  },
+  {
+    "slug": "hombre.noun",
+    "form": "hombre",
+    "en": "man"
+  },
+  {
+    "slug": "poder.verb.indicative.present.first.singular",
+    "form": "puedo",
+    "en": "I can"
+  },
+  {
+    "slug": "dar.verb.indicative.present.third.singular",
+    "form": "da",
+    "en": "he/she gives"
+  },
+  {
+    "slug": "bueno.adjective.feminine.singular",
+    "form": "buena",
+    "en": "good (fem.)"
+  },
+  {
+    "slug": "mujer.noun",
+    "form": "mujer",
+    "en": "woman"
+  },
+  {
+    "slug": "persona.noun",
+    "form": "persona",
+    "en": "person"
+  },
+  {
+    "slug": "ser.verb.indicative.future.third.singular",
+    "form": "será",
+    "en": "he/she will be"
+  },
+  {
+    "slug": "casi.adverb",
+    "form": "casi",
+    "en": "almost"
+  },
+  {
+    "slug": "noche.noun",
+    "form": "noche",
+    "en": "night"
+  },
+  {
+    "slug": "nosotros.pronoun",
+    "form": "nosotros",
+    "en": "we (masc.)"
+  },
+  {
+    "slug": "tener.verb.indicative.present.first.plural",
+    "form": "tenemos",
+    "en": "we have"
+  },
+  {
+    "slug": "querer.verb.indicative.present.third.singular",
+    "form": "quiere",
+    "en": "he/she wants"
+  },
+  {
+    "slug": "hacer.verb.indicative.past.third.singular",
+    "form": "hizo",
+    "en": "he/she did"
+  },
+  {
+    "slug": "ser.verb.indicative.present.second.singular",
+    "form": "eres",
+    "en": "you are"
+  },
+  {
+    "slug": "dentro.adverb",
+    "form": "dentro",
+    "en": "inside"
+  },
+  {
+    "slug": "estar.verb.indicative.present.first.plural",
+    "form": "estamos",
+    "en": "we are"
+  },
+  {
+    "slug": "poder.verb.indicative.present.first.plural",
+    "form": "podemos",
+    "en": "we can"
+  },
+  {
+    "slug": "mismo.adjective.feminine.singular",
+    "form": "misma",
+    "en": "same"
+  },
+  {
+    "slug": "tener.verb.indicative.imperfect.first.singular",
+    "form": "tenía",
+    "en": "I used to have"
+  },
+  {
+    "slug": "problema.noun",
+    "form": "problema",
+    "en": "problem"
+  },
+  {
+    "slug": "agua.noun",
+    "form": "agua",
+    "en": "water"
+  },
+  {
+    "slug": "ir.verb.indicative.present.first.plural",
+    "form": "vamos",
+    "en": "we go"
+  },
+  {
+    "slug": "ir.verb.indicative.present.third.plural",
+    "form": "van",
+    "en": "they go"
+  },
+  {
+    "slug": "saber.verb.infinitive",
+    "form": "saber",
+    "en": "to know"
+  },
+  {
+    "slug": "saber.verb.indicative.present.first.singular",
+    "form": "sé",
+    "en": "I know"
+  },
+  {
+    "slug": "importante.adjective",
+    "form": "importante",
+    "en": "important"
+  },
+  {
+    "slug": "ante.adposition",
+    "form": "ante",
+    "en": "before / in front of"
+  },
+  {
+    "slug": "mañana.adverb",
+    "form": "mañana",
+    "en": "tomorrow"
+  },
+  {
+    "slug": "semana.noun",
+    "form": "semana",
+    "en": "week"
+  },
+  {
+    "slug": "tener.verb.indicative.present.second.singular",
+    "form": "tienes",
+    "en": "you have"
+  },
+  {
+    "slug": "dar.verb.infinitive",
+    "form": "dar",
+    "en": "to give"
+  },
+  {
+    "slug": "pasar.verb.indicative.present.third.singular",
+    "form": "pasa",
+    "en": "he/she spends"
+  },
+  {
+    "slug": "gustar.verb.indicative.present.third.singular",
+    "form": "gusta",
+    "en": "he/she pleases"
+  },
+  {
+    "slug": "claro.adjective.masculine.singular",
+    "form": "claro",
+    "en": "clear / light"
+  },
+  {
+    "slug": "dinero.noun",
+    "form": "dinero",
+    "en": "money"
+  },
+  {
+    "slug": "número.noun",
+    "form": "número",
+    "en": "number"
+  },
+  {
+    "slug": "madre.noun",
+    "form": "madre",
+    "en": "mother"
+  },
+  {
+    "slug": "hora.noun",
+    "form": "hora",
+    "en": "hour / time"
+  },
+  {
+    "slug": "señor.noun",
+    "form": "señor",
+    "en": "sir / gentleman"
+  },
+  {
+    "slug": "ser.verb.gerund",
+    "form": "siendo",
+    "en": "being"
+  },
+  {
+    "slug": "hablar.verb.infinitive",
+    "form": "hablar",
+    "en": "to speak"
+  },
+  {
+    "slug": "poder.verb.indicative.present.second.singular",
+    "form": "puedes",
+    "en": "you can"
+  },
+  {
+    "slug": "hacer.verb.gerund",
+    "form": "haciendo",
+    "en": "doing"
+  },
+  {
+    "slug": "tras.adposition",
+    "form": "tras",
+    "en": "after / behind"
+  },
+  {
+    "slug": "tarde.noun",
+    "form": "tarde",
+    "en": "afternoon"
+  },
+  {
+    "slug": "idea.noun",
+    "form": "idea",
+    "en": "idea"
+  },
+  {
+    "slug": "tú.pronoun",
+    "form": "tú",
+    "en": "you (informal)"
+  },
+  {
+    "slug": "poder.verb.conditional.first.singular",
+    "form": "podría",
+    "en": "I could"
+  },
+  {
+    "slug": "amor.noun",
+    "form": "amor",
+    "en": "love"
+  },
+  {
+    "slug": "ir.verb.indicative.present.second.singular",
+    "form": "vas",
+    "en": "you go"
+  },
+  {
+    "slug": "ser.verb.indicative.imperfect.third.plural",
+    "form": "eran",
+    "en": "they used to be"
+  },
+  {
+    "slug": "hijo.noun",
+    "form": "hijo",
+    "en": "son"
+  },
+  {
+    "slug": "cuatro.numeral",
+    "form": "cuatro",
+    "en": "four"
+  },
+  {
+    "slug": "ser.verb.conditional.first.singular",
+    "form": "sería",
+    "en": "I would be"
+  },
+  {
+    "slug": "posible.adjective",
+    "form": "posible",
+    "en": "possible"
+  },
+  {
+    "slug": "mano.noun",
+    "form": "mano",
+    "en": "hand"
+  },
+  {
+    "slug": "juego.noun",
+    "form": "juego",
+    "en": "game"
+  },
+  {
+    "slug": "ser.verb.indicative.present.first.plural",
+    "form": "somos",
+    "en": "we are"
+  },
+  {
+    "slug": "hacer.verb.indicative.present.third.plural",
+    "form": "hacen",
+    "en": "they do"
+  },
+  {
+    "slug": "llegar.verb.infinitive",
+    "form": "llegar",
+    "en": "to arrive"
+  },
+  {
+    "slug": "usar.verb.indicative.present.first.singular",
+    "form": "uso",
+    "en": "I use"
+  },
+  {
+    "slug": "pasar.verb.indicative.present.first.singular",
+    "form": "paso",
+    "en": "I spend"
+  },
+  {
+    "slug": "grande.adjective",
+    "form": "grande",
+    "en": "big / large"
+  },
+  {
+    "slug": "todavía.adverb",
+    "form": "todavía",
+    "en": "still / yet"
+  },
+  {
+    "slug": "cerca.adverb",
+    "form": "cerca",
+    "en": "near"
+  },
+  {
+    "slug": "quién.pronoun",
+    "form": "quién",
+    "en": "who"
+  },
+  {
+    "slug": "saber.verb.indicative.present.third.singular",
+    "form": "sabe",
+    "en": "he/she knows"
+  },
+  {
+    "slug": "padre.noun",
+    "form": "padre",
+    "en": "father"
+  },
+  {
+    "slug": "amigo.noun",
+    "form": "amigo",
+    "en": "friend"
+  },
+  {
+    "slug": "salir.verb.infinitive",
+    "form": "salir",
+    "en": "to leave"
+  },
+  {
+    "slug": "unas.determiner",
+    "form": "unas",
+    "en": "some (fem.)"
+  },
+  {
+    "slug": "cabeza.noun",
+    "form": "cabeza",
+    "en": "head"
+  },
+  {
+    "slug": "foto.noun",
+    "form": "foto",
+    "en": "photo"
+  },
+  {
+    "slug": "pasar.verb.infinitive",
+    "form": "pasar",
+    "en": "to spend"
+  },
+  {
+    "slug": "ayuda.noun",
+    "form": "ayuda",
+    "en": "help"
+  },
+  {
+    "slug": "libro.noun",
+    "form": "libro",
+    "en": "book"
+  },
+  {
+    "slug": "ver.verb.indicative.present.first.singular",
+    "form": "veo",
+    "en": "I see"
+  },
+  {
+    "slug": "mes.noun",
+    "form": "mes",
+    "en": "month"
+  },
+  {
+    "slug": "cinco.numeral",
+    "form": "cinco",
+    "en": "five"
+  },
+  {
+    "slug": "usted.pronoun",
+    "form": "usted",
+    "en": "you (formal)"
+  },
+  {
+    "slug": "estar.verb.indicative.present.second.singular",
+    "form": "estás",
+    "en": "you are"
+  },
+  {
+    "slug": "largo.adjective.masculine.singular",
+    "form": "largo",
+    "en": "long"
+  },
+  {
+    "slug": "querer.verb.indicative.present.second.singular",
+    "form": "quieres",
+    "en": "you want"
+  },
+  {
+    "slug": "alto.adjective.masculine.singular",
+    "form": "alto",
+    "en": "tall / high"
+  },
+  {
+    "slug": "español.noun",
+    "form": "español",
+    "en": "Spanish (language)"
+  },
+  {
+    "slug": "decir.verb.indicative.present.third.plural",
+    "form": "dicen",
+    "en": "they say"
+  },
+  {
+    "slug": "venir.verb.indicative.present.third.singular",
+    "form": "viene",
+    "en": "he/she comes"
+  },
+  {
+    "slug": "hola.interjection",
+    "form": "hola",
+    "en": "hello"
+  },
+  {
+    "slug": "policía.noun",
+    "form": "policía",
+    "en": "policeman"
+  },
+  {
+    "slug": "tener.verb.indicative.past.third.singular",
+    "form": "tuvo",
+    "en": "he/she had"
+  },
+  {
+    "slug": "decir.verb.indicative.present.first.singular",
+    "form": "digo",
+    "en": "I say"
+  },
+  {
+    "slug": "caro.adjective.feminine.singular",
+    "form": "cara",
+    "en": "expensive (fem.)"
+  },
+  {
+    "slug": "calle.noun",
+    "form": "calle",
+    "en": "street"
+  },
+  {
+    "slug": "os.pronoun",
+    "form": "os",
+    "en": "you all"
+  },
+  {
+    "slug": "pensar.verb.infinitive",
+    "form": "pensar",
+    "en": "to think"
+  },
+  {
+    "slug": "allí.adverb",
+    "form": "allí",
+    "en": "there"
+  },
+  {
+    "slug": "escuela.noun",
+    "form": "escuela",
+    "en": "school"
+  },
+  {
+    "slug": "julio.noun",
+    "form": "julio",
+    "en": "July"
+  },
+  {
+    "slug": "querer.verb.indicative.present.third.plural",
+    "form": "quieren",
+    "en": "they want"
+  },
+  {
+    "slug": "vivir.verb.infinitive",
+    "form": "vivir",
+    "en": "to live"
+  },
+  {
+    "slug": "poder.verb.subjunctive.present.first.singular",
+    "form": "pueda",
+    "en": "(that) I can"
+  },
+  {
+    "slug": "ir.verb.imperative.second.singular",
+    "form": "ve",
+    "en": "go!"
+  },
+  {
+    "slug": "libre.adjective",
+    "form": "libre",
+    "en": "free"
+  },
+  {
+    "slug": "suerte.noun",
+    "form": "suerte",
+    "en": "luck"
+  },
+  {
+    "slug": "saber.verb.indicative.present.second.singular",
+    "form": "sabes",
+    "en": "you know"
+  },
+  {
+    "slug": "fácil.adjective",
+    "form": "fácil",
+    "en": "easy"
+  },
+  {
+    "slug": "difícil.adjective",
+    "form": "difícil",
+    "en": "difficult / hard"
+  },
+  {
+    "slug": "fuerte.adjective",
+    "form": "fuerte",
+    "en": "strong"
+  },
+  {
+    "slug": "bastante.adverb",
+    "form": "bastante",
+    "en": "quite / enough"
+  },
+  {
+    "slug": "miedo.noun",
+    "form": "miedo",
+    "en": "fear"
+  },
+  {
+    "slug": "música.noun",
+    "form": "música",
+    "en": "music"
+  },
+  {
+    "slug": "pregunta.noun",
+    "form": "pregunta",
+    "en": "question"
+  },
+  {
+    "slug": "hablar.verb.indicative.present.third.singular",
+    "form": "habla",
+    "en": "he/she speaks"
+  },
+  {
+    "slug": "estar.verb.indicative.imperfect.third.plural",
+    "form": "estaban",
+    "en": "they were"
+  },
+  {
+    "slug": "poner.verb.infinitive",
+    "form": "poner",
+    "en": "to put"
+  },
+  {
+    "slug": "demasiado.adverb",
+    "form": "demasiado",
+    "en": "too much"
+  },
+  {
+    "slug": "mayo.noun",
+    "form": "mayo",
+    "en": "May"
+  },
+  {
+    "slug": "ir.verb.indicative.imperfect.first.singular",
+    "form": "iba",
+    "en": "I used to go"
+  },
+  {
+    "slug": "esperar.verb.indicative.present.first.singular",
+    "form": "espero",
+    "en": "I wait"
+  },
+  {
+    "slug": "peor.adjective",
+    "form": "peor",
+    "en": "worse"
+  },
+  {
+    "slug": "marzo.noun",
+    "form": "marzo",
+    "en": "March"
+  },
+  {
+    "slug": "trabajar.verb.infinitive",
+    "form": "trabajar",
+    "en": "to work"
+  },
+  {
+    "slug": "encontrar.verb.infinitive",
+    "form": "encontrar",
+    "en": "to find"
+  },
+  {
+    "slug": "tampoco.adverb",
+    "form": "tampoco",
+    "en": "neither"
+  },
+  {
+    "slug": "corazón.noun",
+    "form": "corazón",
+    "en": "heart"
+  },
+  {
+    "slug": "octubre.noun",
+    "form": "octubre",
+    "en": "October"
+  },
+  {
+    "slug": "diciembre.noun",
+    "form": "diciembre",
+    "en": "December"
+  },
+  {
+    "slug": "encontrar.verb.indicative.present.third.singular",
+    "form": "encuentra",
+    "en": "he/she finds"
+  },
+  {
+    "slug": "volver.verb.infinitive",
+    "form": "volver",
+    "en": "to return"
+  },
+  {
+    "slug": "palabra.noun",
+    "form": "palabra",
+    "en": "word"
+  },
+  {
+    "slug": "tener.verb.participle.past",
+    "form": "tenido",
+    "en": "had"
+  },
+  {
+    "slug": "ser.verb.subjunctive.present.third.plural",
+    "form": "sean",
+    "en": "(that) they be"
+  },
+  {
+    "slug": "estudiar.verb.indicative.present.first.singular",
+    "form": "estudio",
+    "en": "I study"
+  },
+  {
+    "slug": "mirar.verb.indicative.present.third.singular",
+    "form": "mira",
+    "en": "he/she looks at"
+  },
+  {
+    "slug": "joven.adjective",
+    "form": "joven",
+    "en": "young"
+  },
+  {
+    "slug": "abril.noun",
+    "form": "abril",
+    "en": "April"
+  },
+  {
+    "slug": "junio.noun",
+    "form": "junio",
+    "en": "June"
+  },
+  {
+    "slug": "película.noun",
+    "form": "película",
+    "en": "film"
+  },
+  {
+    "slug": "llevar.verb.indicative.present.third.singular",
+    "form": "lleva",
+    "en": "he/she carries"
+  },
+  {
+    "slug": "dónde.adverb",
+    "form": "dónde",
+    "en": "where"
+  },
+  {
+    "slug": "mercado.noun",
+    "form": "mercado",
+    "en": "market"
+  },
+  {
+    "slug": "noviembre.noun",
+    "form": "noviembre",
+    "en": "November"
+  },
+  {
+    "slug": "papel.noun",
+    "form": "papel",
+    "en": "paper"
+  },
+  {
+    "slug": "seis.numeral",
+    "form": "seis",
+    "en": "six"
+  },
+  {
+    "slug": "dar.verb.indicative.present.third.plural",
+    "form": "dan",
+    "en": "they give"
+  },
+  {
+    "slug": "comida.noun",
+    "form": "comida",
+    "en": "food"
+  },
+  {
+    "slug": "enero.noun",
+    "form": "enero",
+    "en": "January"
+  },
+  {
+    "slug": "agosto.noun",
+    "form": "agosto",
+    "en": "August"
+  },
+  {
+    "slug": "jefe.noun",
+    "form": "jefe",
+    "en": "boss"
+  },
+  {
+    "slug": "ellas.pronoun",
+    "form": "ellas",
+    "en": "they (fem.)"
+  },
+  {
+    "slug": "ustedes.pronoun",
+    "form": "ustedes",
+    "en": "you all (formal)"
+  },
+  {
+    "slug": "leer.verb.infinitive",
+    "form": "leer",
+    "en": "to read"
+  },
+  {
+    "slug": "llamar.verb.indicative.present.third.singular",
+    "form": "llama",
+    "en": "he/she calls"
+  },
+  {
+    "slug": "llevar.verb.infinitive",
+    "form": "llevar",
+    "en": "to carry"
+  },
+  {
+    "slug": "vale.interjection",
+    "form": "vale",
+    "en": "okay / all right"
+  },
+  {
+    "slug": "febrero.noun",
+    "form": "febrero",
+    "en": "February"
+  },
+  {
+    "slug": "hablar.verb.gerund",
+    "form": "hablando",
+    "en": "speaking"
+  },
+  {
+    "slug": "necesitar.verb.indicative.present.third.singular",
+    "form": "necesita",
+    "en": "he/she needs"
+  },
+  {
+    "slug": "tener.verb.subjunctive.present.first.singular",
+    "form": "tenga",
+    "en": "(that) I have"
+  },
+  {
+    "slug": "hacer.verb.subjunctive.present.first.singular",
+    "form": "haga",
+    "en": "(that) I do"
+  },
+  {
+    "slug": "plaza.noun",
+    "form": "plaza",
+    "en": "square"
+  },
+  {
+    "slug": "septiembre.noun",
+    "form": "septiembre",
+    "en": "September"
+  },
+  {
+    "slug": "necesitar.verb.indicative.present.first.singular",
+    "form": "necesito",
+    "en": "I need"
+  },
+  {
+    "slug": "vivir.verb.indicative.present.first.singular",
+    "form": "vivo",
+    "en": "I live"
+  },
+  {
+    "slug": "estar.verb.indicative.past.third.singular",
+    "form": "estuvo",
+    "en": "he/she was"
+  },
+  {
+    "slug": "conocer.verb.infinitive",
+    "form": "conocer",
+    "en": "to know"
+  },
+  {
+    "slug": "usar.verb.infinitive",
+    "form": "usar",
+    "en": "to use"
+  },
+  {
+    "slug": "pronto.adverb",
+    "form": "pronto",
+    "en": "soon"
+  },
+  {
+    "slug": "iglesia.noun",
+    "form": "iglesia",
+    "en": "church"
+  },
+  {
+    "slug": "alto.adjective.feminine.singular",
+    "form": "alta",
+    "en": "tall / high (fem.)"
+  },
+  {
+    "slug": "hermano.noun",
+    "form": "hermano",
+    "en": "brother"
+  },
+  {
+    "slug": "mar.noun",
+    "form": "mar",
+    "en": "sea"
+  },
+  {
+    "slug": "viaje.noun",
+    "form": "viaje",
+    "en": "trip"
+  },
+  {
+    "slug": "negro.adjective.masculine.singular",
+    "form": "negro",
+    "en": "black"
+  },
+  {
+    "slug": "encima.adverb",
+    "form": "encima",
+    "en": "on top"
+  },
+  {
+    "slug": "niño.noun",
+    "form": "niño",
+    "en": "child / boy"
+  },
+  {
+    "slug": "río.noun",
+    "form": "río",
+    "en": "river"
+  },
+  {
+    "slug": "pequeño.adjective.masculine.singular",
+    "form": "pequeño",
+    "en": "small"
+  },
+  {
+    "slug": "blanco.adjective.masculine.singular",
+    "form": "blanco",
+    "en": "white"
+  },
+  {
+    "slug": "ayer.adverb",
+    "form": "ayer",
+    "en": "yesterday"
+  },
+  {
+    "slug": "sol.noun",
+    "form": "sol",
+    "en": "sun"
+  },
+  {
+    "slug": "saber.verb.indicative.present.third.plural",
+    "form": "saben",
+    "en": "they know"
+  },
+  {
+    "slug": "comer.verb.infinitive",
+    "form": "comer",
+    "en": "to eat"
+  },
+  {
+    "slug": "ir.verb.subjunctive.present.first.singular",
+    "form": "vaya",
+    "en": "(that) I go"
+  },
+  {
+    "slug": "poder.verb.indicative.imperfect.first.singular",
+    "form": "podía",
+    "en": "I could"
+  },
+  {
+    "slug": "ver.verb.indicative.present.third.plural",
+    "form": "ven",
+    "en": "they see"
+  },
+  {
+    "slug": "buscar.verb.infinitive",
+    "form": "buscar",
+    "en": "to look for"
+  },
+  {
+    "slug": "malo.adjective.feminine.singular",
+    "form": "mala",
+    "en": "bad (fem.)"
+  },
+  {
+    "slug": "bajo.adjective.feminine.singular",
+    "form": "baja",
+    "en": "short / low (fem.)"
+  },
+  {
+    "slug": "lejos.adverb",
+    "form": "lejos",
+    "en": "far"
+  },
+  {
+    "slug": "puerta.noun",
+    "form": "puerta",
+    "en": "door"
+  },
+  {
+    "slug": "entrar.verb.infinitive",
+    "form": "entrar",
+    "en": "to enter"
+  },
+  {
+    "slug": "menor.adjective",
+    "form": "menor",
+    "en": "younger / smaller"
+  },
+  {
+    "slug": "hija.noun",
+    "form": "hija",
+    "en": "daughter"
+  },
+  {
+    "slug": "hacer.verb.indicative.present.first.singular",
+    "form": "hago",
+    "en": "I do"
+  },
+  {
+    "slug": "querer.verb.indicative.imperfect.first.singular",
+    "form": "quería",
+    "en": "I wanted"
+  },
+  {
+    "slug": "llegar.verb.indicative.present.third.singular",
+    "form": "llega",
+    "en": "he/she arrives"
+  },
+  {
+    "slug": "ayudar.verb.infinitive",
+    "form": "ayudar",
+    "en": "to help"
+  },
+  {
+    "slug": "juntos.adverb",
+    "form": "juntos",
+    "en": "together"
+  },
+  {
+    "slug": "esperar.verb.indicative.present.third.singular",
+    "form": "espera",
+    "en": "he/she waits"
+  },
+  {
+    "slug": "buscar.verb.indicative.present.third.singular",
+    "form": "busca",
+    "en": "he/she looks for"
+  },
+  {
+    "slug": "serio.adjective.masculine.singular",
+    "form": "serio",
+    "en": "serious"
+  },
+  {
+    "slug": "banco.noun",
+    "form": "banco",
+    "en": "bank"
+  },
+  {
+    "slug": "oficina.noun",
+    "form": "oficina",
+    "en": "office"
+  },
+  {
+    "slug": "diez.numeral",
+    "form": "diez",
+    "en": "ten"
+  },
+  {
+    "slug": "querer.verb.indicative.present.first.plural",
+    "form": "queremos",
+    "en": "we want"
+  },
+  {
+    "slug": "malo.adjective.masculine.singular",
+    "form": "malo",
+    "en": "bad"
+  },
+  {
+    "slug": "pequeño.adjective.feminine.singular",
+    "form": "pequeña",
+    "en": "small (fem.)"
+  },
+  {
+    "slug": "viejo.adjective.masculine.singular",
+    "form": "viejo",
+    "en": "old"
+  },
+  {
+    "slug": "diferente.adjective",
+    "form": "diferente",
+    "en": "different"
+  },
+  {
+    "slug": "boca.noun",
+    "form": "boca",
+    "en": "mouth"
+  },
+  {
+    "slug": "hacer.verb.indicative.present.second.singular",
+    "form": "haces",
+    "en": "you do"
+  },
+  {
+    "slug": "hacer.verb.indicative.past.third.plural",
+    "form": "hicieron",
+    "en": "they did"
+  },
+  {
+    "slug": "comprar.verb.infinitive",
+    "form": "comprar",
+    "en": "to buy"
+  },
+  {
+    "slug": "salir.verb.indicative.present.third.singular",
+    "form": "sale",
+    "en": "he/she leaves"
+  },
+  {
+    "slug": "esperar.verb.infinitive",
+    "form": "esperar",
+    "en": "to wait"
+  },
+  {
+    "slug": "domingo.noun",
+    "form": "domingo",
+    "en": "Sunday"
+  },
+  {
+    "slug": "vivir.verb.indicative.present.third.singular",
+    "form": "vive",
+    "en": "he/she lives"
+  },
+  {
+    "slug": "ser.verb.indicative.past.first.singular",
+    "form": "fui",
+    "en": "I was"
+  },
+  {
+    "slug": "estar.verb.subjunctive.present.first.singular",
+    "form": "esté",
+    "en": "(that) I be"
+  },
+  {
+    "slug": "poner.verb.indicative.present.third.singular",
+    "form": "pone",
+    "en": "he/she puts"
+  },
+  {
+    "slug": "creer.verb.indicative.present.third.singular",
+    "form": "cree",
+    "en": "he/she believes"
+  },
+  {
+    "slug": "empezar.verb.infinitive",
+    "form": "empezar",
+    "en": "to begin"
+  },
+  {
+    "slug": "creer.verb.infinitive",
+    "form": "creer",
+    "en": "to believe"
+  },
+  {
+    "slug": "rápido.adjective.masculine.singular",
+    "form": "rápido",
+    "en": "fast"
+  },
+  {
+    "slug": "carta.noun",
+    "form": "carta",
+    "en": "letter"
+  },
+  {
+    "slug": "fiesta.noun",
+    "form": "fiesta",
+    "en": "party"
+  },
+  {
+    "slug": "poder.verb.indicative.past.third.singular",
+    "form": "pudo",
+    "en": "he/she could"
+  },
+  {
+    "slug": "pagar.verb.infinitive",
+    "form": "pagar",
+    "en": "to pay"
+  },
+  {
+    "slug": "encontrar.verb.indicative.present.first.singular",
+    "form": "encuentro",
+    "en": "I find"
+  },
+  {
+    "slug": "siete.numeral",
+    "form": "siete",
+    "en": "seven"
+  },
+  {
+    "slug": "saber.verb.indicative.present.first.plural",
+    "form": "sabemos",
+    "en": "we know"
+  },
+  {
+    "slug": "gustar.verb.indicative.present.first.singular",
+    "form": "gusto",
+    "en": "I please"
+  },
+  {
+    "slug": "quizás.adverb",
+    "form": "quizás",
+    "en": "maybe"
+  },
+  {
+    "slug": "ropa.noun",
+    "form": "ropa",
+    "en": "clothes / clothing"
+  },
+  {
+    "slug": "profesor.noun",
+    "form": "profesor",
+    "en": "teacher"
+  },
+  {
+    "slug": "tener.verb.indicative.imperfect.third.plural",
+    "form": "tenían",
+    "en": "they used to have"
+  },
+  {
+    "slug": "ser.verb.indicative.future.third.plural",
+    "form": "serán",
+    "en": "they will be"
+  },
+  {
+    "slug": "pensar.verb.indicative.present.first.singular",
+    "form": "pienso",
+    "en": "I think"
+  },
+  {
+    "slug": "rico.adjective.masculine.singular",
+    "form": "rico",
+    "en": "rich / tasty"
+  },
+  {
+    "slug": "vino.noun",
+    "form": "vino",
+    "en": "wine"
+  },
+  {
+    "slug": "cielo.noun",
+    "form": "cielo",
+    "en": "sky"
+  },
+  {
+    "slug": "cine.noun",
+    "form": "cine",
+    "en": "cinema"
+  },
+  {
+    "slug": "hacer.verb.indicative.past.first.singular",
+    "form": "hice",
+    "en": "I made"
+  },
+  {
+    "slug": "escribir.verb.infinitive",
+    "form": "escribir",
+    "en": "to write"
+  },
+  {
+    "slug": "interesante.adjective",
+    "form": "interesante",
+    "en": "interesting"
+  },
+  {
+    "slug": "volver.verb.indicative.present.third.singular",
+    "form": "vuelve",
+    "en": "he/she returns"
+  },
+  {
+    "slug": "pie.noun",
+    "form": "pie",
+    "en": "foot"
+  },
+  {
+    "slug": "hospital.noun",
+    "form": "hospital",
+    "en": "hospital"
+  },
+  {
+    "slug": "poder.verb.subjunctive.present.third.plural",
+    "form": "puedan",
+    "en": "(that) they can"
+  },
+  {
+    "slug": "conocer.verb.indicative.present.third.singular",
+    "form": "conoce",
+    "en": "he/she knows"
+  },
+  {
+    "slug": "ocho.numeral",
+    "form": "ocho",
+    "en": "eight"
+  },
+  {
+    "slug": "tener.verb.indicative.past.first.singular",
+    "form": "tuve",
+    "en": "I had"
+  },
+  {
+    "slug": "ver.verb.indicative.present.second.singular",
+    "form": "ves",
+    "en": "you see"
+  },
+  {
+    "slug": "mesa.noun",
+    "form": "mesa",
+    "en": "table"
+  },
+  {
+    "slug": "teléfono.noun",
+    "form": "teléfono",
+    "en": "telephone"
+  },
+  {
+    "slug": "señora.noun",
+    "form": "señora",
+    "en": "lady / madam"
+  },
+  {
+    "slug": "sueño.noun",
+    "form": "sueño",
+    "en": "sleep / dream"
+  },
+  {
+    "slug": "pagar.verb.indicative.present.first.singular",
+    "form": "pago",
+    "en": "I pay"
+  },
+  {
+    "slug": "pensar.verb.indicative.present.third.singular",
+    "form": "piensa",
+    "en": "he/she thinks"
+  },
+  {
+    "slug": "usar.verb.indicative.present.third.singular",
+    "form": "usa",
+    "en": "he/she uses"
+  },
+  {
+    "slug": "detrás.adverb",
+    "form": "detrás",
+    "en": "behind"
+  },
+  {
+    "slug": "encontrar.verb.indicative.present.third.plural",
+    "form": "encuentran",
+    "en": "they find"
+  },
+  {
+    "slug": "perro.noun",
+    "form": "perro",
+    "en": "dog"
+  },
+  {
+    "slug": "viernes.noun",
+    "form": "viernes",
+    "en": "Friday"
+  },
+  {
+    "slug": "hambre.noun",
+    "form": "hambre",
+    "en": "hunger"
+  },
+  {
+    "slug": "querer.verb.subjunctive.present.first.singular",
+    "form": "quiera",
+    "en": "(that) I want"
+  },
+  {
+    "slug": "cama.noun",
+    "form": "cama",
+    "en": "bed"
+  },
+  {
+    "slug": "viejo.adjective.feminine.singular",
+    "form": "vieja",
+    "en": "old (fem.)"
+  },
+  {
+    "slug": "médico.noun",
+    "form": "médico",
+    "en": "doctor"
+  },
+  {
+    "slug": "tener.verb.gerund",
+    "form": "teniendo",
+    "en": "having"
+  },
+  {
+    "slug": "saber.verb.indicative.imperfect.first.singular",
+    "form": "sabía",
+    "en": "I knew"
+  },
+  {
+    "slug": "hacer.verb.indicative.imperfect.first.singular",
+    "form": "hacía",
+    "en": "I used to do"
+  },
+  {
+    "slug": "tener.verb.indicative.future.third.singular",
+    "form": "tendrá",
+    "en": "he/she will have"
+  },
+  {
+    "slug": "verde.adjective",
+    "form": "verde",
+    "en": "green"
+  },
+  {
+    "slug": "largo.adjective.feminine.singular",
+    "form": "larga",
+    "en": "long (fem.)"
+  },
+  {
+    "slug": "aquel.pronoun",
+    "form": "aquel",
+    "en": "that over there (masc.)"
+  },
+  {
+    "slug": "conocer.verb.indicative.present.first.singular",
+    "form": "conozco",
+    "en": "I know"
+  },
+  {
+    "slug": "hermana.noun",
+    "form": "hermana",
+    "en": "sister"
+  },
+  {
+    "slug": "ir.verb.participle.past",
+    "form": "ido",
+    "en": "gone"
+  },
+  {
+    "slug": "poder.verb.indicative.future.third.singular",
+    "form": "podrá",
+    "en": "he/she will be able"
+  },
+  {
+    "slug": "tener.verb.subjunctive.present.third.plural",
+    "form": "tengan",
+    "en": "(that) they have"
+  },
+  {
+    "slug": "triste.adjective",
+    "form": "triste",
+    "en": "sad"
+  },
+  {
+    "slug": "parque.noun",
+    "form": "parque",
+    "en": "park"
+  },
+  {
+    "slug": "poder.verb.conditional.third.plural",
+    "form": "podrían",
+    "en": "they could"
+  },
+  {
+    "slug": "llamar.verb.infinitive",
+    "form": "llamar",
+    "en": "to call"
+  },
+  {
+    "slug": "creer.verb.indicative.present.third.plural",
+    "form": "creen",
+    "en": "they believe"
+  },
+  {
+    "slug": "rojo.adjective.masculine.singular",
+    "form": "rojo",
+    "en": "red"
+  },
+  {
+    "slug": "ver.verb.indicative.present.first.plural",
+    "form": "vemos",
+    "en": "we see"
+  },
+  {
+    "slug": "venir.verb.indicative.present.third.plural",
+    "form": "vienen",
+    "en": "they come"
+  },
+  {
+    "slug": "azul.adjective",
+    "form": "azul",
+    "en": "blue"
+  },
+  {
+    "slug": "carne.noun",
+    "form": "carne",
+    "en": "meat"
+  },
+  {
+    "slug": "estudiar.verb.infinitive",
+    "form": "estudiar",
+    "en": "to study"
+  },
+  {
+    "slug": "decir.verb.indicative.present.second.singular",
+    "form": "dices",
+    "en": "you say"
+  },
+  {
+    "slug": "lleno.adjective.masculine.singular",
+    "form": "lleno",
+    "en": "full"
+  },
+  {
+    "slug": "pan.noun",
+    "form": "pan",
+    "en": "bread"
+  },
+  {
+    "slug": "pelo.noun",
+    "form": "pelo",
+    "en": "hair"
+  },
+  {
+    "slug": "hacer.verb.indicative.present.first.plural",
+    "form": "hacemos",
+    "en": "we do"
+  },
+  {
+    "slug": "venir.verb.infinitive",
+    "form": "venir",
+    "en": "to come"
+  },
+  {
+    "slug": "duro.adjective.masculine.singular",
+    "form": "duro",
+    "en": "hard"
+  },
+  {
+    "slug": "perdón.interjection",
+    "form": "perdón",
+    "en": "sorry / excuse me"
+  },
+  {
+    "slug": "café.noun",
+    "form": "café",
+    "en": "coffee"
+  },
+  {
+    "slug": "estación.noun",
+    "form": "estación",
+    "en": "station"
+  },
+  {
+    "slug": "lunes.noun",
+    "form": "lunes",
+    "en": "Monday"
+  },
+  {
+    "slug": "baño.noun",
+    "form": "baño",
+    "en": "bathroom"
+  },
+  {
+    "slug": "hotel.noun",
+    "form": "hotel",
+    "en": "hotel"
+  },
+  {
+    "slug": "necesitar.verb.indicative.present.first.plural",
+    "form": "necesitamos",
+    "en": "we need"
+  },
+  {
+    "slug": "necesitar.verb.indicative.present.third.plural",
+    "form": "necesitan",
+    "en": "they need"
+  },
+  {
+    "slug": "comprar.verb.indicative.present.third.singular",
+    "form": "compra",
+    "en": "he/she buys"
+  },
+  {
+    "slug": "blanco.adjective.feminine.singular",
+    "form": "blanca",
+    "en": "white (fem.)"
+  },
+  {
+    "slug": "abierto.adjective.masculine.singular",
+    "form": "abierto",
+    "en": "open"
+  },
+  {
+    "slug": "ojo.noun",
+    "form": "ojo",
+    "en": "eye"
+  },
+  {
+    "slug": "piso.noun",
+    "form": "piso",
+    "en": "apartment / floor"
+  },
+  {
+    "slug": "sábado.noun",
+    "form": "sábado",
+    "en": "Saturday"
+  },
+  {
+    "slug": "tener.verb.indicative.past.third.plural",
+    "form": "tuvieron",
+    "en": "they had"
+  },
+  {
+    "slug": "estar.verb.indicative.future.third.singular",
+    "form": "estará",
+    "en": "he/she will be"
+  },
+  {
+    "slug": "hacer.verb.indicative.future.third.singular",
+    "form": "hará",
+    "en": "he/she will make"
+  },
+  {
+    "slug": "hacer.verb.subjunctive.present.third.plural",
+    "form": "hagan",
+    "en": "(that) they do"
+  },
+  {
+    "slug": "debajo.adverb",
+    "form": "debajo",
+    "en": "underneath"
+  },
+  {
+    "slug": "querer.verb.participle.past",
+    "form": "querido",
+    "en": "wanted"
+  },
+  {
+    "slug": "estar.verb.conditional.first.singular",
+    "form": "estaría",
+    "en": "I would be"
+  },
+  {
+    "slug": "estar.verb.subjunctive.present.third.plural",
+    "form": "estén",
+    "en": "(that) they be"
+  },
+  {
+    "slug": "querer.verb.subjunctive.present.second.singular",
+    "form": "quieras",
+    "en": "(that) you want"
+  },
+  {
+    "slug": "trabajar.verb.indicative.present.third.singular",
+    "form": "trabaja",
+    "en": "he/she works"
+  },
+  {
+    "slug": "leer.verb.indicative.present.third.singular",
+    "form": "lee",
+    "en": "he/she reads"
+  },
+  {
+    "slug": "creer.verb.indicative.present.second.singular",
+    "form": "crees",
+    "en": "you believe"
+  },
+  {
+    "slug": "empezar.verb.indicative.present.third.singular",
+    "form": "empieza",
+    "en": "he/she begins"
+  },
+  {
+    "slug": "abogado.noun",
+    "form": "abogado",
+    "en": "lawyer"
+  },
+  {
+    "slug": "nueve.numeral",
+    "form": "nueve",
+    "en": "nine"
+  },
+  {
+    "slug": "necesitar.verb.indicative.present.second.singular",
+    "form": "necesitas",
+    "en": "you need"
+  },
+  {
+    "slug": "abrir.verb.infinitive",
+    "form": "abrir",
+    "en": "to open"
+  },
+  {
+    "slug": "dar.verb.indicative.present.second.singular",
+    "form": "das",
+    "en": "you give"
+  },
+  {
+    "slug": "entrar.verb.indicative.present.third.singular",
+    "form": "entra",
+    "en": "he/she enters"
+  },
+  {
+    "slug": "rico.adjective.feminine.singular",
+    "form": "rica",
+    "en": "rich / tasty"
+  },
+  {
+    "slug": "calor.noun",
+    "form": "calor",
+    "en": "heat"
+  },
+  {
+    "slug": "secretario.noun",
+    "form": "secretario",
+    "en": "secretary"
+  },
+  {
+    "slug": "poder.verb.participle.past",
+    "form": "podido",
+    "en": "been able"
+  },
+  {
+    "slug": "llevar.verb.indicative.present.third.plural",
+    "form": "llevan",
+    "en": "they carry"
+  },
+  {
+    "slug": "delante.adverb",
+    "form": "delante",
+    "en": "in front"
+  },
+  {
+    "slug": "aeropuerto.noun",
+    "form": "aeropuerto",
+    "en": "airport"
+  },
+  {
+    "slug": "querer.verb.infinitive",
+    "form": "querer",
+    "en": "to want"
+  },
+  {
+    "slug": "gustar.verb.indicative.present.third.plural",
+    "form": "gustan",
+    "en": "they please"
+  },
+  {
+    "slug": "corto.adjective.masculine.singular",
+    "form": "corto",
+    "en": "short"
+  },
+  {
+    "slug": "claro.adjective.feminine.singular",
+    "form": "clara",
+    "en": "clear / light"
+  },
+  {
+    "slug": "leche.noun",
+    "form": "leche",
+    "en": "milk"
+  },
+  {
+    "slug": "tienda.noun",
+    "form": "tienda",
+    "en": "shop"
+  },
+  {
+    "slug": "coche.noun",
+    "form": "coche",
+    "en": "car"
+  },
+  {
+    "slug": "cuánto.pronoun",
+    "form": "cuánto",
+    "en": "how much"
+  },
+  {
+    "slug": "hablar.verb.indicative.present.third.plural",
+    "form": "hablan",
+    "en": "they speak"
+  },
+  {
+    "slug": "vivir.verb.subjunctive.present.first.singular",
+    "form": "viva",
+    "en": "(that) I live"
+  },
+  {
+    "slug": "tener.verb.subjunctive.present.second.singular",
+    "form": "tengas",
+    "en": "(that) you have"
+  },
+  {
+    "slug": "dar.verb.indicative.present.first.singular",
+    "form": "doy",
+    "en": "I give"
+  },
+  {
+    "slug": "mirar.verb.infinitive",
+    "form": "mirar",
+    "en": "to look at"
+  },
+  {
+    "slug": "cuándo.adverb",
+    "form": "cuándo",
+    "en": "when"
+  },
+  {
+    "slug": "tener.verb.conditional.first.singular",
+    "form": "tendría",
+    "en": "I would have"
+  },
+  {
+    "slug": "lleno.adjective.feminine.singular",
+    "form": "llena",
+    "en": "full"
+  },
+  {
+    "slug": "serio.adjective.feminine.singular",
+    "form": "seria",
+    "en": "serious"
+  },
+  {
+    "slug": "playa.noun",
+    "form": "playa",
+    "en": "beach"
+  },
+  {
+    "slug": "artista.noun",
+    "form": "artista",
+    "en": "artist"
+  },
+  {
+    "slug": "hablar.verb.indicative.present.first.singular",
+    "form": "hablo",
+    "en": "I speak"
+  },
+  {
+    "slug": "vivir.verb.indicative.present.third.plural",
+    "form": "viven",
+    "en": "they live"
+  },
+  {
+    "slug": "llevar.verb.indicative.present.first.singular",
+    "form": "llevo",
+    "en": "I carry"
+  },
+  {
+    "slug": "negro.adjective.feminine.singular",
+    "form": "negra",
+    "en": "black (fem.)"
+  },
+  {
+    "slug": "tren.noun",
+    "form": "tren",
+    "en": "train"
+  },
+  {
+    "slug": "jueves.noun",
+    "form": "jueves",
+    "en": "Thursday"
+  }
+]

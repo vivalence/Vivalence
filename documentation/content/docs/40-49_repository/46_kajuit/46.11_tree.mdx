@@ -1,0 +1,34 @@
+---
+title: Tree
+jdex: "46.11"
+---
+
+# 46.11 · Tree
+
+## purpose
+- Ground-truth file layout of `systems/kajuit/`. The territory, not the map.
+- Regenerable from disk; every other 46.x doc cites this, never re-tallies.
+- Boundary: metrics (line counts, sizing, coverage) roll up to `40.30_structure`; this file is **structure + role**, not numbers.
+- [TODO prose: one paragraph — "what you are looking at and how to read it".]
+
+## the tree
+- Annotated `find` over `src/` (94 code files — 37 svelte, 57 js). Dirs annotated, leaf files grouped.
+- `src/client.js` — 4 context symbols (LIGHTHOUSE QUARTERS BRIDGE MAIN; BOX commented)
+- `src/telemetry.js` — Pipe + $telemetry atom (200 cap) → panel G
+- `src/routes/+layout.svelte` — the mount (→ [[46.12_lifecycle]])
+- `src/routes/pincer/{bones,panels}` — bones: crown pincer shoulder spine; panels a–h
+- `src/typology/decks/` — lighthouse quarters bridge/ main inspector box/ (→ [[46.13_contexts]])
+- `src/typology/entities/` — terminal mode intent buffer turn literal thread/
+- `src/typology/prototypes/` — daemon dataspace entity stall todo/
+- `src/typology/traits/{mode,thread}/` — thread: labeled masked aimed queueing selfevident conversational
+- [TODO: paste the full annotated #+begin_src tree block here.]
+
+## entry points
+- `+layout.svelte` — everything starts here; walk continues in [[46.12_lifecycle]].
+- `typology/mod.js` — the `@vivalence/kajuit` barrel; all consumers import through it.
+- `client.js` — the four context symbols, one line each.
+- [TODO: barrel rule note — entities/ MUST NOT import the barrel (Rollup TDZ); use relative paths.]
+
+## panels (a–h)
+- Quick lookup table: a buffer+Dock · b controls · c D|E|F split · d nav+thread · e trait editors+Json · f buffer DAG · g telemetry · h inspector drawer.
+- [TODO: confirm each against `routes/pincer/panels/<x>/<x>.svelte` before publishing.]

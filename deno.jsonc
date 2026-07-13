@@ -5,7 +5,7 @@
   "compilerOptions": {
     "jsx": "react",
     "jsxFactory": "React.createElement",
-    "jsxFragmentFactory": "React.Fragment"
+    "jsxFragmentFactory": "React.Fragment",
   },
   "workspace": [
     "./systems/runtime",
@@ -18,49 +18,54 @@
     "./subsystems/dapper",
     "./subsystems/drapes",
     "./subsystems/sheets",
+    "./documentation",
   ],
   "tasks": {
     "tree": "tree -I 'node_modules|static' --prune",
-
     "gource": "gource --output-custom-log /tmp/vivalence.gource.log . && awk -F'|' '$4 ~ /\\.(svelte|tsx|ts|jsx|js|cjs|mjs|sql|prisma|css|pcss|postcss)$/' /tmp/vivalence.gource.log > /tmp/vivalence.loadbearing.log && awk -F'|' 'BEGIN{OFS=\"|\"} {if ($2 ~ /^(crackedbeefcake|finn|Finn Luca Frotscher|LazerJesus)$/) $2=\"beef\"; print}' /tmp/vivalence.loadbearing.log > /tmp/vivalence.normalized.log && gource /tmp/vivalence.normalized.log -1920x1080 -s 0.0490 --auto-skip-seconds 0.1 --stop-at-end --key --title @vivalence --hide mouse,progress,filenames --file-idle-time 0 --max-files 0 --bloom-multiplier 0.5 --font-size 22 --dir-font-size 12 --dir-name-depth 4 --dir-name-position 1.0 --user-scale 2.5 --colour-images --disable-auto-rotate --elasticity 0.03 --user-friction 1.0 --padding 1.4 --user-filter '^Ivan Matcuka$' --font-file /System/Library/Fonts/SFNSMono.ttf --date-format '%Y.%m.%d [%a]' --output-ppm-stream - --output-framerate 60 | ffmpeg -y -r 60 -f image2pipe -vcodec ppm -i - -vcodec libx264 -preset medium -pix_fmt yuv420p -crf 23 -threads 0 -bf 0 gource.mp4",
 
     // "viva/install": "deno install --global --config ./deno.jsonc -f -A -n viva ./systems/shell/mod.js",
     "dependencies": "deno install --allow-scripts=npm:sqlite3,npm:svelte-preprocess",
-    "viva/install": "sh systems/ghost/install.sh \"$(pwd)\"",
-    "install": "deno task dependencies && deno task viva/install",
+    "install": "deno task dependencies && deno task ghost/install",
 
     "paladin/test": "deno task --cwd ./subsystems/paladin test",
     "typology/test": "deno task --cwd ./subsystems/typology test",
     "typology/test/snapshots": "deno task --cwd ./subsystems/typology test/snapshots",
-    "kajuit/test": "deno task --cwd ./systems/kajuit test",
-    "ghost/test": "deno task --cwd ./systems/ghost test",
     "runtime/test": "deno task --cwd ./systems/runtime test",
     "runtime/test/snapshots": "deno task --cwd ./systems/runtime test/snapshots",
+    "kajuit/test": "deno task --cwd ./systems/kajuit test",
+    "ghost/test": "deno task --cwd ./systems/ghost test",
 
     "runtime/run": "deno task --cwd ./systems/runtime run",
     "runtime/watch": "deno task --cwd ./systems/runtime watch",
 
     "ghost/run": "deno run -A --env-file=./testament/variant/.env ./systems/ghost/mod.js",
     "ghost/watch": "deno run -A --watch --env-file=./testament/variant/.env ./systems/ghost/mod.js",
+    "ghost/install": "sh systems/ghost/install.sh \"$(pwd)\"",
 
     "kajuit/run": "deno task --cwd ./systems/kajuit run",
     "kajuit/watch": "deno task --cwd ./systems/kajuit watch",
     "kajuit/bundle": "deno task --cwd ./systems/kajuit bundle",
 
+    "documentation/bundle": "deno task --cwd ./documentation bundle",
+
     "vivalence/build": "docker build -f ./Dockerfile -t vivalence/viva:alpine .",
     "runtime/build": "docker build -f ./systems/runtime/Dockerfile -t vivalence/runtime:alpine .",
     "kajuit/build": "docker build -f ./systems/kajuit/Dockerfile -t vivalence/kajuit:alpine .",
-    "build": "DOCKER_BUILDKIT=1 deno task vivalence/build && deno task runtime/build && deno task kajuit/build",
+    "documentation/build": "docker build -f ./documentation/Dockerfile -t vivalence/documentation:alpine .",
+    "build": "DOCKER_BUILDKIT=1 deno task vivalence/build && deno task runtime/build && deno task kajuit/build && deno task documentation/build",
 
     "vivalence/tag": "docker tag vivalence/viva:alpine registry.vivalence.org/vivalence/viva:alpine",
     "runtime/tag": "docker tag vivalence/runtime:alpine registry.vivalence.org/vivalence/runtime:alpine",
     "kajuit/tag": "docker tag vivalence/kajuit:alpine registry.vivalence.org/vivalence/kajuit:alpine",
-    "tag": "deno task vivalence/tag && deno task runtime/tag && deno task kajuit/tag",
+    "documentation/tag": "docker tag vivalence/documentation:alpine registry.vivalence.org/vivalence/documentation:alpine",
+    "tag": "deno task vivalence/tag && deno task runtime/tag && deno task kajuit/tag && deno task documentation/tag",
 
     "vivalence/push": "docker push registry.vivalence.org/vivalence/viva:alpine",
     "runtime/push": "docker push registry.vivalence.org/vivalence/runtime:alpine",
     "kajuit/push": "docker push registry.vivalence.org/vivalence/kajuit:alpine",
-    "push": "deno task vivalence/push && deno task runtime/push && deno task kajuit/push",
+    "documentation/push": "docker push registry.vivalence.org/vivalence/documentation:alpine",
+    "push": "deno task vivalence/push && deno task runtime/push && deno task kajuit/push && deno task documentation/push",
 
     "publish": "deno task build && deno task tag && deno task push",
   },

@@ -1,0 +1,62 @@
+---
+title: Wire Trace Snapshot
+jdex: "47.04"
+---
+
+# 47.04 · Wire Trace Snapshot
+
+*a scenario-mounted daemon runs a real mode aperture in-process, its span tree crosses the wire as flat records, the CALLING container folds them with trace.chronicle and freezes the tree with specimen.snapshot into its own tests/snapshots*
+
+## purpose
+
+Any container can regression-pin the traced behavior of a mode that lives in ANOTHER container — no `:2501`, no paladin, no browser. The whole loop is four seams that already existed; this doc names their composition:
+
+1. **scenario mount ramp** — `mountMode(viva, { cortex })` (`systems/runtime/tests/scenarios/mode.js`) wires a real `.viva.js` module into an in-memory daemon behind `shard.transmitter.inline` (a `Connection` with no socket). Passing `cortex` opts the mode into `HARNESSED` — the trait joins the stagger map only when a cortex is present, so cortex-less scenarios never trip its guard.
+2. **mock faculty** — a Faculty is a dumb provider literal `{type, tune, channels, via:{render}}` (the pattern from [[47.02_hallucination-triad]]). For object synthesis the mock answers the injected respond-tool with a deterministic payload, so the rendered object — and therefore every record — is snapshot-stable.
+3. **records cross the wire** — the aperture returns `{ …, trace: span.records }`: flat facts `{span, trace, path, verb, at, data?}`. Nothing tree-shaped crosses; the fold happens at the reader.
+4. **chronicle + snapshot** — the test folds with `trace.chronicle(result.trace)`, normalizes with a `stable()` pass, and lands the tree via `specimen.snapshot` with an `import.meta`-derived `base` — so the artifact lives beside the test that made it: `<container>/tests/snapshots/`.
+
+## the recipe (mirrors the live exemplar)
+
+`systems/kajuit/tests/oracle.snapshot.test.js` against `registry/playground/chaosmonkey/oracle`:
+
+```javascript
+import { specimen, trace, Cortex } from "@vivalence/typology";
+import { mountMode } from "@vivalence/runtime/scenarios";
+import * as oracle from "../../../registry/playground/chaosmonkey/oracle/oracle.viva.js";
+
+const base = new URL("./snapshots", import.meta.url).pathname;
+
+scenario = await mountMode(oracle, { cortex: new Cortex().register([seer()]) });
+
+const result = await scenario.conn.call("/mode/chaosmonkey/oracle/ask", { prompt: "what am i" });
+const story = trace.chronicle(result.trace);
+
+specimen.snapshot(story.roots, {
+  base,
+  dry: DRY,
+  locate: "oracle-ask.snapshot.json",
+  parse: (roots) => roots.map(stable),
+});
+```
+
+## the stable() pass — what must not reach disk
+
+Two fields in a record are nondeterministic and must be normalized before the snapshot, exactly as `systems/runtime/tests/span-tracked.snapshot.test.js` does:
+
+- `at` / node `timing` — `performance.now()` clocks. Collapse to `{ measured: true/false }`.
+- span `id` / `trace` parent pointers — `Span.tally` is process-global, so ids shift with suite composition. Drop them; `path`/`nature`/`entries`/`children` carry the identity that matters.
+
+What SURVIVES: the tree shape, every `note` entry's data (deterministic because the faculty is mocked), fault payloads. That is the behavioral contract being pinned.
+
+## why this composes for free
+
+- the wire contract is flat records, not a rendered tree — so the reader (a test, a panel, a jsonl ledger) picks its own fold. `chronicle ∘ wire ≡ chronicle ∘ journal`.
+- `shard.transmitter.inline` makes the Connection a function call — the full HTTP shape (cast, dispatch, context attach) runs without a port, so the test exercises the same path kajuit's live client does.
+- `specimen.snapshot`'s `base` is caller-owned — the artifact lands in whichever container asked, not where the mode lives. Kajuit pins daemon behavior in `systems/kajuit/tests/snapshots/`.
+
+## current state
+
+- exemplar green: `deno test -A --no-check tests/oracle.snapshot.test.js` (kajuit), artifact `tests/snapshots/oracle-ask.snapshot.json`.
+- `mountMode` mirrors `daemon/lifecycle/resolution.js` mode-context attach; `viva.harness` is wired when exported.
+- workflow: `dry: true` first to preview path + pojo, then flip to land the file (`specimen/snapshot.js` header).

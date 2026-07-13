@@ -8,14 +8,13 @@ const manifest = {
   name: "libsql",
 };
 
-async function provider(datamap, variant) {
+async function provider(datamap, variant, subscribers) {
   const mikroconfig = defineConfig({
     dbName: datamap.mount.branch(datamap.statics.db.file).absolute,
     entities: variant.map((v) => v.schema).filter(Boolean),
-    subscribers: variant
-      .map((v) => v.subscriber)
+    subscribers: (subscribers ?? variant.map((v) => v.subscriber))
       .filter(Boolean)
-      .map((S) => new S()),
+      .map((Subscriber) => new Subscriber()),
     extensions: [Migrator],
     migrations: {
       tableName: "_mikro_migrations",

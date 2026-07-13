@@ -1,0 +1,15 @@
+---
+const { names } = Astro.props
+---
+<div class="tabs" data-tabs>
+  <div class="tab-bar">
+    {names.map((name, index) => (
+      <button type="button" class:list={["tab", { active: index === 0 }]} data-tab={name}>{name}</button>
+    ))}
+  </div>
+  {names.map((name, index) => (
+    <div class:list={["tab-panel", { active: index === 0 }]} data-panel={name}>
+      <slot name={name} />
+    </div>
+  ))}
+</div>

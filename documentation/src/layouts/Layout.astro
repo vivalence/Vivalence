@@ -1,0 +1,317 @@
+---
+import { statSync } from "node:fs"
+import { resolve } from "node:path"
+import process from "node:process"
+import { getCollection } from "astro:content"
+import { buildTree, flatten, breadcrumb } from "../lib/tree.js"
+
+const collection = await getCollection("docs")
+const pages = collection.map((entry) => ({
+  slug: entry.id,
+  jdex: entry.data.jdex,
+  title: entry.data.title,
+  body: entry.body ?? "",
+  file: entry.filePath ?? null,
+}))
+
+const tree = buildTree(pages)
+const ordered = flatten(pages)
+const here = Astro.url.pathname.replace(/\/$/, "") || "/"
+const current = ordered.find((page) => `/${page.slug}` === here)
+const position = current ? ordered.indexOf(current) : -1
+const previous = position > 0 ? ordered[position - 1] : null
+const next = position >= 0 && position < ordered.length - 1 ? ordered[position + 1] : null
+
+const { frontmatter, headings } = Astro.props
+const heading = frontmatter?.title ?? Astro.props.title
+const crumbs = current ? [...breadcrumb(current.jdex), current.title] : []
+const toc = (headings ?? []).filter((entry) => entry.depth === 2 || entry.depth === 3)
+
+const titleOf = Object.fromEntries(pages.map((page) => [page.slug, page.title]))
+const edges = []
+for (const page of pages) {
+  const pattern = /\[\[([^\]]+)\]\]/g
+  let match
+  while ((match = pattern.exec(page.body))) edges.push({ from: page.slug, to: match[1] })
+}
+const outgoing = current
+  ? [...new Set(edges.filter((edge) => edge.from === current.slug).map((edge) => edge.to))].filter((target) => titleOf[target])
+  : []
+const incoming = current
+  ? [...new Set(edges.filter((edge) => edge.to === current.slug).map((edge) => edge.from))].filter((source) => titleOf[source])
+  : []
+
+let updated = null
+if (current?.file) {
+  try {
+    updated = statSync(resolve(process.cwd(), current.file)).mtime.toISOString().slice(0, 10)
+  } catch {
+    updated = null
+  }
+}
+---
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>{heading} · vivalence docs</title>
+    <link rel="icon" href="/vivalence-viket-logo-plasma.png" />
+    <script is:inline>
+      const storedTheme = localStorage.getItem("theme")
+      if (storedTheme) document.documentElement.setAttribute("data-theme", storedTheme)
+    </script>
+    <link href="/pagefind/pagefind-ui.css" rel="stylesheet" />
+    <script src="/pagefind/pagefind-ui.js" is:inline></script>
+    <style is:global>
+      :root {
+        --ink: #1b1b2b; --bg: #fbfbfd; --panel: #f4f4f8; --accent: #5b4bd6;
+        --muted: #6a6a80; --line: #e7e7f0; --code: #f0f0f6; --active: #ece9ff;
+        --pagefind-ui-scale: 0.72; --pagefind-ui-primary: var(--accent); --pagefind-ui-text: var(--ink);
+        --pagefind-ui-background: var(--bg); --pagefind-ui-border: var(--line); --pagefind-ui-font: inherit;
+        --pagefind-ui-border-radius: 8px; --pagefind-ui-border-width: 1px;
+      }
+      :root[data-theme="dark"] {
+        --ink: #e9e9f2; --bg: #101019; --panel: #161624; --accent: #a99bff;
+        --muted: #8a8aa2; --line: #262638; --code: #1a1a2b; --active: #211d3a;
+      }
+      @media (prefers-color-scheme: dark) {
+        :root:not([data-theme]) {
+          --ink: #e9e9f2; --bg: #101019; --panel: #161624; --accent: #a99bff;
+          --muted: #8a8aa2; --line: #262638; --code: #1a1a2b; --active: #211d3a;
+        }
+      }
+      * { box-sizing: border-box; }
+      body { margin: 0; font: 16px/1.65 -apple-system, system-ui, sans-serif; color: var(--ink); background: var(--bg); }
+      a { color: inherit; text-decoration: none; }
+      #nav-toggle { display: none; }
+
+      .layout { display: grid; grid-template-columns: 250px minmax(0, 1fr) 180px; max-width: 1200px; margin: 0 auto; gap: 0; }
+
+      .sidebar { position: sticky; top: 0; align-self: start; height: 100vh; overflow-y: auto; padding: 1.75rem 1.25rem; border-right: 1px solid var(--line); background: var(--panel); }
+      .brand-row { display: flex; align-items: center; justify-content: space-between; margin-bottom: 0.5rem; }
+      .brand { display: flex; align-items: center; gap: 0.55rem; font-weight: 700; letter-spacing: -0.01em; }
+      .brand img { border-radius: 6px; display: block; box-shadow: 0 1px 4px rgba(0, 0, 0, 0.15); }
+      .theme-toggle { flex: none; width: 30px; height: 30px; background: none; border: 1px solid var(--line); border-radius: 7px; color: var(--muted); font-size: 0.95rem; line-height: 1; cursor: pointer; }
+      .theme-toggle:hover { color: var(--ink); border-color: var(--accent); }
+      .jdex-link { display: block; font-size: 0.8rem; color: var(--muted); margin-bottom: 1.5rem; }
+      .jdex-link:hover { color: var(--accent); }
+      .search { margin-bottom: 1.5rem; }
+      .area { margin-bottom: 1.4rem; }
+      .area-label { display: block; font-size: 0.7rem; font-weight: 700; letter-spacing: 0.08em; text-transform: uppercase; color: var(--muted); margin-bottom: 0.5rem; }
+      .sidebar ul { list-style: none; margin: 0 0 0.6rem; padding: 0; }
+      .sidebar li { margin: 0.1rem 0; }
+      .entry { display: block; padding: 0.28rem 0.5rem; border-radius: 6px; font-size: 0.88rem; color: var(--muted); }
+      .entry:hover { color: var(--ink); background: color-mix(in srgb, var(--accent) 8%, transparent); }
+      .entry.active { color: var(--ink); background: var(--active); font-weight: 600; }
+      .entry .num { color: var(--accent); font: 0.78rem ui-monospace, monospace; margin-right: 0.35rem; }
+
+      .content { min-width: 0; padding: 2.5rem 2.5rem 6rem; }
+      .hamburger { display: none; }
+      .crumbs { font: 0.78rem ui-monospace, monospace; color: var(--muted); margin-bottom: 1.5rem; }
+      .updated { float: right; color: var(--muted); }
+      .anchor { opacity: 0; margin-left: 0.4rem; color: var(--muted); font-weight: 400; text-decoration: none; }
+      h2:hover .anchor, h3:hover .anchor, h4:hover .anchor { opacity: 1; }
+      .connections { margin-top: 3rem; padding: 1.1rem 1.25rem; background: var(--panel); border: 1px solid var(--line); border-radius: 10px; }
+      .conn-label { display: block; font-size: 0.68rem; font-weight: 700; letter-spacing: 0.08em; text-transform: uppercase; color: var(--muted); margin-bottom: 0.75rem; }
+      .conn-group { margin-bottom: 0.6rem; }
+      .conn-group > span { font: 0.78rem ui-monospace, monospace; color: var(--muted); }
+      .connections ul { list-style: none; margin: 0.4rem 0 0; padding: 0; display: flex; flex-wrap: wrap; gap: 0.5rem; }
+      .connections li a { font-size: 0.85rem; color: var(--accent); background: color-mix(in srgb, var(--accent) 12%, transparent); padding: 0.2rem 0.6rem; border-radius: 6px; }
+      .connections li a:hover { text-decoration: underline; }
+      article { min-width: 0; }
+      h1 { font-size: 2rem; line-height: 1.15; letter-spacing: -0.02em; margin-top: 0; }
+      h2 { margin-top: 2.5rem; padding-top: 0.5rem; border-top: 1px solid var(--line); }
+      h1, h2, h3, h4 { scroll-margin-top: 1rem; }
+      code { font: 0.85em ui-monospace, "SF Mono", monospace; background: var(--code); padding: 0.15em 0.4em; border-radius: 5px; }
+      pre { position: relative; background: var(--code); padding: 1rem 1.1rem; border-radius: 10px; overflow-x: auto; border: 1px solid var(--line); }
+      pre code { background: none; padding: 0; }
+      pre .copy { position: absolute; top: 0.5rem; right: 0.5rem; font: 0.72rem ui-monospace, monospace; color: var(--muted); background: var(--bg); border: 1px solid var(--line); border-radius: 5px; padding: 0.15rem 0.5rem; cursor: pointer; opacity: 0; transition: opacity 0.12s; }
+      pre:hover .copy { opacity: 1; }
+      .tangled { font: 0.78rem ui-monospace, monospace; color: var(--accent); margin-top: -0.7rem; opacity: 0.9; }
+      .code-filename { font: 0.75rem ui-monospace, monospace; color: var(--muted); background: var(--panel); border: 1px solid var(--line); border-bottom: none; border-radius: 8px 8px 0 0; padding: 0.4rem 0.9rem; margin: 0 0 -0.7rem; }
+      .astro-code .line.highlighted { display: inline-block; width: 100%; background: color-mix(in srgb, var(--accent) 16%, transparent); }
+      .admonition { margin: 1.5rem 0; padding: 0.9rem 1.1rem; border-radius: 10px; border: 1px solid var(--line); border-left: 3px solid var(--accent); background: var(--panel); }
+      .admonition-label { margin: 0 0 0.4rem; font: 0.72rem ui-monospace, monospace; text-transform: uppercase; letter-spacing: 0.05em; color: var(--accent); }
+      .admonition > :last-child { margin-bottom: 0; }
+      .admonition.warning { border-left-color: #d99a00; } .admonition.warning .admonition-label { color: #d99a00; }
+      .admonition.danger { border-left-color: #d9484b; } .admonition.danger .admonition-label { color: #d9484b; }
+      .admonition.tip { border-left-color: #2faa6a; } .admonition.tip .admonition-label { color: #2faa6a; }
+      .tabs { margin: 1.5rem 0; }
+      .tab-bar { display: flex; gap: 0.25rem; border-bottom: 1px solid var(--line); }
+      .tab { font: 0.8rem ui-monospace, monospace; color: var(--muted); background: none; border: none; border-bottom: 2px solid transparent; margin-bottom: -1px; padding: 0.4rem 0.75rem; cursor: pointer; }
+      .tab.active { color: var(--ink); border-bottom-color: var(--accent); }
+      .tab-panel { display: none; }
+      .tab-panel.active { display: block; }
+      .tab-panel pre { border-top-left-radius: 0; }
+      .capture, .trace { margin: 1.5rem 0; border: 1px solid var(--line); border-radius: 10px; overflow: hidden; font: 0.85rem ui-monospace, monospace; }
+      .capture-head { display: flex; justify-content: space-between; gap: 1rem; padding: 0.5rem 0.9rem; background: var(--panel); border-bottom: 1px solid var(--line); color: var(--muted); font-size: 0.76rem; }
+      .capture-channel { color: var(--accent); white-space: nowrap; }
+      .log-line { margin: 0.5rem 0.9rem; padding: 0.4rem 0.6rem; background: var(--code); border-radius: 6px; white-space: pre-wrap; word-break: break-all; font-size: 0.8rem; }
+      .log-line.err { color: #d9484b; }
+      .trace-row { display: flex; gap: 0.6rem; align-items: baseline; padding: 0.3rem 0.9rem; border-bottom: 1px solid var(--line); }
+      .trace-row:last-child { border-bottom: none; }
+      .verb { font-size: 0.7rem; text-transform: uppercase; letter-spacing: 0.05em; min-width: 3rem; color: var(--muted); }
+      .verb.open { color: var(--accent); } .verb.note { color: #2faa6a; } .verb.close { color: var(--muted); } .verb.fault { color: #d9484b; }
+      .trace-data { background: var(--code); padding: 0.1rem 0.4rem; border-radius: 5px; }
+      .editor { margin: 1.5rem 0; border: 1px solid var(--line); border-radius: 10px; overflow: hidden; }
+      .editor-bar { display: flex; justify-content: space-between; align-items: center; padding: 0.4rem 0.8rem; background: var(--panel); border-bottom: 1px solid var(--line); font: 0.7rem ui-monospace, monospace; }
+      .editor-mode { color: var(--accent); font-weight: 700; letter-spacing: 0.08em; }
+      .editor-hint { color: var(--muted); }
+      .cm-editor { max-height: 420px; }
+      .cm-editor .cm-scroller { overflow: auto; }
+      table { border-collapse: collapse; width: 100%; font-size: 0.9rem; }
+      th, td { border: 1px solid var(--line); padding: 0.4rem 0.6rem; text-align: left; }
+      blockquote { margin: 1rem 0; padding: 0.4rem 1rem; border-left: 3px solid var(--accent); color: var(--muted); }
+
+      .pager { display: flex; justify-content: space-between; gap: 1rem; margin-top: 4rem; padding-top: 1.5rem; border-top: 1px solid var(--line); font-size: 0.9rem; }
+      .pager a { color: var(--accent); }
+      .pager a:hover { text-decoration: underline; }
+      .pager .next { margin-left: auto; text-align: right; }
+
+      .toc { position: sticky; top: 0; align-self: start; height: 100vh; overflow-y: auto; padding: 2.5rem 1rem; font-size: 0.82rem; }
+      .toc-label { display: block; font-size: 0.68rem; font-weight: 700; letter-spacing: 0.08em; text-transform: uppercase; color: var(--muted); margin-bottom: 0.75rem; }
+      .toc ul { list-style: none; margin: 0; padding: 0; }
+      .toc li { margin: 0.35rem 0; }
+      .toc li.d3 { padding-left: 0.85rem; }
+      .toc a { color: var(--muted); }
+      .toc a:hover { color: var(--accent); }
+
+      @media (max-width: 1000px) {
+        .layout { grid-template-columns: 1fr; }
+        .toc { display: none; }
+        .sidebar { position: fixed; top: 0; left: 0; width: 250px; z-index: 20; transform: translateX(-100%); transition: transform 0.2s; }
+        #nav-toggle:checked ~ .layout .sidebar { transform: translateX(0); }
+        .hamburger { display: inline-block; font-size: 1.4rem; cursor: pointer; margin-bottom: 1rem; color: var(--muted); }
+        .content { padding: 1.5rem 1.25rem 4rem; }
+      }
+    </style>
+  </head>
+  <body>
+    <input type="checkbox" id="nav-toggle" />
+    <div class="layout">
+      <aside class="sidebar">
+        <div class="brand-row">
+          <a class="brand" href="/">
+            <img src="/vivalence-viket-logo-plasma.png" alt="" width="26" height="26" />
+            <span>vivalence docs</span>
+          </a>
+          <button type="button" class="theme-toggle" aria-label="toggle dark or light theme" data-theme-toggle></button>
+        </div>
+        <a class="jdex-link" href="/jdex">▤ jdex index</a>
+        <div id="search" class="search"></div>
+        <nav>
+          {Object.entries(tree).map(([area, categories]) => (
+            <div class="area">
+              <span class="area-label">{area}</span>
+              {Object.entries(categories).map(([category, items]) => (
+                <ul>
+                  {items.map((item) => (
+                    <li>
+                      <a href={`/${item.slug}`} class:list={["entry", { active: `/${item.slug}` === here }]}>
+                        <span class="num">{item.jdex}</span>{item.title}
+                      </a>
+                    </li>
+                  ))}
+                </ul>
+              ))}
+            </div>
+          ))}
+        </nav>
+      </aside>
+
+      <main class="content">
+        <label for="nav-toggle" class="hamburger">☰</label>
+        {crumbs.length > 0 && (
+          <nav class="crumbs">
+            {updated && <span class="updated">updated {updated}</span>}
+            {crumbs.map((crumb, index) => <span>{index === 0 ? "" : index === crumbs.length - 1 ? " · " : " › "}{crumb}</span>)}
+          </nav>
+        )}
+        <article data-pagefind-body><slot /></article>
+        {current && (outgoing.length > 0 || incoming.length > 0) && (
+          <section class="connections">
+            <span class="conn-label">connections</span>
+            {outgoing.length > 0 && (
+              <div class="conn-group">
+                <span>→ links to</span>
+                <ul>{outgoing.map((target) => <li><a href={`/${target}`}>{titleOf[target]}</a></li>)}</ul>
+              </div>
+            )}
+            {incoming.length > 0 && (
+              <div class="conn-group">
+                <span>← linked from</span>
+                <ul>{incoming.map((source) => <li><a href={`/${source}`}>{titleOf[source]}</a></li>)}</ul>
+              </div>
+            )}
+          </section>
+        )}
+        <footer class="pager">
+          {previous ? <a class="prev" href={`/${previous.slug}`}>← {previous.jdex} {previous.title}</a> : <span />}
+          {next ? <a class="next" href={`/${next.slug}`}>{next.jdex} {next.title} →</a> : <span />}
+        </footer>
+      </main>
+
+      {toc.length > 0 && (
+        <aside class="toc">
+          <span class="toc-label">on this page</span>
+          <ul>
+            {toc.map((entry) => (
+              <li class:list={[`d${entry.depth}`]}><a href={`#${entry.slug}`}>{entry.text}</a></li>
+            ))}
+          </ul>
+        </aside>
+      )}
+    </div>
+
+    <script is:inline>
+      const themeRoot = document.documentElement
+      const themeToggle = document.querySelector("[data-theme-toggle]")
+      const isDark = () =>
+        (themeRoot.getAttribute("data-theme") ||
+          (window.matchMedia("(prefers-color-scheme: dark)").matches ? "dark" : "light")) === "dark"
+      const paintToggle = () => (themeToggle.textContent = isDark() ? "☀" : "☾")
+      paintToggle()
+      themeToggle.addEventListener("click", () => {
+        const nextTheme = isDark() ? "light" : "dark"
+        themeRoot.setAttribute("data-theme", nextTheme)
+        localStorage.setItem("theme", nextTheme)
+        paintToggle()
+      })
+
+      if (window.PagefindUI) new window.PagefindUI({ element: "#search", showSubResults: true, showImages: false, resetStyles: false })
+      document.addEventListener("keydown", (event) => {
+        if ((event.metaKey || event.ctrlKey) && event.key === "k") {
+          event.preventDefault()
+          document.querySelector("#search input")?.focus()
+        }
+      })
+      for (const heading of document.querySelectorAll("article h2[id], article h3[id], article h4[id]")) {
+        const anchor = document.createElement("a")
+        anchor.className = "anchor"
+        anchor.href = "#" + heading.id
+        anchor.textContent = "#"
+        heading.appendChild(anchor)
+      }
+      for (const group of document.querySelectorAll("[data-tabs]")) {
+        for (const button of group.querySelectorAll("[data-tab]")) {
+          button.addEventListener("click", () => {
+            const name = button.dataset.tab
+            for (const tab of group.querySelectorAll("[data-tab]")) tab.classList.toggle("active", tab === button)
+            for (const panel of group.querySelectorAll("[data-panel]")) panel.classList.toggle("active", panel.dataset.panel === name)
+          })
+        }
+      }
+      for (const pre of document.querySelectorAll("pre")) {
+        const button = document.createElement("button")
+        button.className = "copy"
+        button.textContent = "copy"
+        button.addEventListener("click", async () => {
+          await navigator.clipboard.writeText(pre.querySelector("code")?.innerText ?? pre.innerText)
+          button.textContent = "copied"
+          setTimeout(() => (button.textContent = "copy"), 1200)
+        })
+        pre.appendChild(button)
+      }
+    </script>
+  </body>
+</html>

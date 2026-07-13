@@ -6,6 +6,7 @@ const config = {
   compilerOptions: {
     dev: true,
     hydratable: true,
+    warningFilter: (warning) => warning.code !== "css_unused_selector",
   },
   preprocess: [vitePreprocess()],
   kit: {

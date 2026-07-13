@@ -22,8 +22,9 @@ export enum ModeTraitsEnum {
 
   // ENTRYPOINT REFERENCABLE
 
-  // CHAOSMONKEY = "CHAOSMONKEY", // deprecated
-  // BUFFERED = "BUFFERED", // deprecated
+  CHAOSMONKEY = "CHAOSMONKEY", // deprecated
+  BUFFERED = "BUFFERED", // deprecated
+  SELFEVIDENT = "SELFEVIDENT", // depracated
 }
 
 export class ModeRepository extends DataRepository {

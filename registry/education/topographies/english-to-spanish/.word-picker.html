@@ -1,0 +1,156 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>word-picker</title>
+<style>
+  :root { --bg:#0e1116; --panel:#161b22; --line:#232a34; --fg:#e6edf3; --dim:#8b949e; --accent:#4cc38a; --accent2:#3b82f6; --warn:#e3b341; }
+  * { box-sizing:border-box; }
+  body { margin:0; font:14px/1.5 ui-monospace,SFMono-Regular,Menlo,monospace; background:var(--bg); color:var(--fg); display:flex; height:100vh; overflow:hidden; }
+  #side { width:280px; border-right:1px solid var(--line); display:flex; flex-direction:column; }
+  #prog { padding:14px 16px; border-bottom:1px solid var(--line); }
+  #bar { height:6px; background:var(--line); border-radius:3px; overflow:hidden; margin-top:8px; }
+  #bar > i { display:block; height:100%; background:var(--accent); width:0; transition:width .2s; }
+  #list { overflow-y:auto; flex:1; }
+  .w { padding:6px 16px; cursor:pointer; display:flex; justify-content:space-between; gap:8px; border-left:3px solid transparent; }
+  .w:hover { background:#1b222c; }
+  .w.cur { background:#1b222c; border-left-color:var(--accent2); }
+  .w .f { color:var(--fg); }
+  .w.done .f { color:var(--dim); }
+  .w .t { color:var(--dim); font-size:12px; }
+  .w .t.ok { color:var(--accent); } .w .t.sk { color:var(--warn); }
+  #main { flex:1; display:flex; flex-direction:column; align-items:center; justify-content:center; padding:24px; gap:20px; }
+  #form { font-size:52px; font-weight:700; letter-spacing:.5px; }
+  #gloss { color:var(--dim); font-size:18px; margin-top:-8px; }
+  #cands { display:flex; flex-direction:column; gap:10px; width:min(560px,90%); }
+  .c { display:flex; align-items:center; gap:12px; padding:12px 16px; background:var(--panel); border:1px solid var(--line); border-radius:10px; cursor:pointer; }
+  .c.playing { border-color:var(--accent2); }
+  .c.picked { border-color:var(--accent); background:#12241b; }
+  .c .n { width:22px; height:22px; border-radius:6px; background:var(--line); color:var(--fg); display:grid; place-items:center; font-size:12px; flex:none; }
+  .c .sp { flex:1; }
+  .c .sp small { color:var(--dim); }
+  .c .pick { border:1px solid var(--line); background:transparent; color:var(--dim); padding:4px 10px; border-radius:6px; cursor:pointer; }
+  .c.picked .pick { color:var(--accent); border-color:var(--accent); }
+  #keys { position:fixed; bottom:0; left:280px; right:0; padding:8px 16px; border-top:1px solid var(--line); background:var(--panel); color:var(--dim); font-size:12px; display:flex; gap:18px; flex-wrap:wrap; }
+  kbd { background:var(--line); border-radius:4px; padding:1px 6px; color:var(--fg); }
+  #done { text-align:center; }
+  #done h2 { color:var(--accent); }
+</style>
+</head>
+<body>
+  <div id="side">
+    <div id="prog"><span id="ptxt">…</span><div id="bar"><i></i></div></div>
+    <div id="list"></div>
+  </div>
+  <div id="main"></div>
+  <div id="keys">
+    <span><kbd>h</kbd>/<kbd>l</kbd> candidates</span><span><kbd>j</kbd>/<kbd>k</kbd> words</span>
+    <span><kbd>space</kbd> select</span><span><kbd>↵</kbd> select + next</span>
+    <span><kbd>r</kbd> replay</span><span><kbd>x</kbd> skip</span><span><kbd>u</kbd> unpick</span>
+  </div>
+  <audio id="au"></audio>
+<script>
+let S = null, cur = 0, lastPlayed = 0;
+const au = document.getElementById("au");
+const $ = (s) => document.querySelector(s);
+
+async function load() {
+  S = await (await fetch("/api/state")).json();
+  if (!S.words.length) { $("#main").innerHTML = "<p>No candidates found. Run the harvester first.</p>"; return; }
+  cur = S.words.findIndex((w) => !w.picked && !w.skipped);
+  if (cur < 0) cur = 0;
+  render();
+}
+
+function render() {
+  const w = S.words[cur];
+  $("#ptxt").textContent = `${S.done} / ${S.total} done`;
+  $("#bar>i").style.width = (100 * S.done / S.total) + "%";
+  // sidebar
+  $("#list").innerHTML = S.words.map((x, i) => {
+    const tag = x.picked ? `<span class="t ok">✓ ${x.picked}</span>` : x.skipped ? `<span class="t sk">skip</span>` : `<span class="t">${x.candidates.length}</span>`;
+    return `<div class="w ${i===cur?'cur':''} ${x.picked||x.skipped?'done':''}" data-i="${i}"><span class="f">${x.form}</span>${tag}</div>`;
+  }).join("");
+  document.querySelectorAll(".w").forEach((el) => el.onclick = () => { cur = +el.dataset.i; lastPlayed = 0; render(); autoplay(); });
+  const curEl = document.querySelector(".w.cur"); if (curEl) curEl.scrollIntoView({ block: "nearest" });
+  // main
+  $("#main").innerHTML = `
+    <div id="form">${w.form}</div>
+    <div id="gloss">${w.gloss || ""}</div>
+    <div id="cands">${w.candidates.map((sp, i) => `
+      <div class="c ${w.picked===sp?'picked':''}" data-i="${i}">
+        <span class="n">${i+1}</span>
+        <span class="sp">${sp.replace(/wiktionary.*/,'Wiktionary')}<br><small>candidate ${i+1} of ${w.candidates.length}</small></span>
+        <button class="pick">${w.picked===sp?'picked':'pick'}</button>
+      </div>`).join("")}</div>`;
+  document.querySelectorAll(".c").forEach((el) => {
+    const i = +el.dataset.i;
+    el.onclick = (e) => { if (!e.target.classList.contains("pick")) play(i); };
+    el.querySelector(".pick").onclick = (e) => { e.stopPropagation(); pick(i); };
+  });
+  highlightPlaying();
+}
+
+function autoplay() { if (S.words[cur].candidates.length) play(0); }
+function play(i) {
+  const w = S.words[cur]; if (i >= w.candidates.length) return;
+  lastPlayed = i;
+  au.src = `/audio/${encodeURIComponent(w.form)}/${encodeURIComponent(w.candidates[i])}.mp3`;
+  au.play().catch(() => {});
+  highlightPlaying();
+}
+function highlightPlaying() {
+  document.querySelectorAll(".c").forEach((el) => el.classList.toggle("playing", +el.dataset.i === lastPlayed));
+}
+
+async function pick(i, adv = true) {
+  const w = S.words[cur];
+  const speaker = w.candidates[i];
+  await fetch("/api/pick", { method: "POST", headers: { "content-type": "application/json" }, body: JSON.stringify({ form: w.form, speaker }) });
+  w.picked = speaker; w.skipped = false;
+  recount();
+  if (adv) advance(); else render();
+}
+async function skip() {
+  const w = S.words[cur];
+  await fetch("/api/skip", { method: "POST", headers: { "content-type": "application/json" }, body: JSON.stringify({ form: w.form }) });
+  w.skipped = true; w.picked = null;
+  recount(); advance();
+}
+async function unpick() {
+  const w = S.words[cur];
+  await fetch("/api/unpick", { method: "POST", headers: { "content-type": "application/json" }, body: JSON.stringify({ form: w.form }) });
+  w.picked = null; recount(); render();
+}
+function recount() { S.done = S.words.filter((x) => x.picked || x.skipped).length; }
+function advance() {
+  let n = S.words.findIndex((x, i) => i > cur && !x.picked && !x.skipped);
+  if (n < 0) n = S.words.findIndex((x) => !x.picked && !x.skipped);
+  if (n < 0) return finish();
+  cur = n; lastPlayed = 0; render(); autoplay();
+}
+function finish() {
+  $("#main").innerHTML = `<div id="done"><h2>✓ all ${S.total} handled</h2><p>${S.done} picked → <code>.harvest/word-audio-picks.json</code></p><p style="color:var(--dim)">Press <kbd>j</kbd>/<kbd>k</kbd> to review any word.</p></div>`;
+  render.done = true;
+}
+
+function gotoWord(n) { cur = Math.max(0, Math.min(n, S.words.length - 1)); lastPlayed = 0; render(); autoplay(); }
+document.addEventListener("keydown", (e) => {
+  if (!S) return;
+  const w = S.words[cur]; const last = w.candidates.length - 1;
+  if (e.key >= "1" && e.key <= "9") { play(+e.key - 1); e.preventDefault(); }
+  else if (e.key === "l" || e.key === "ArrowRight") { play(Math.min(lastPlayed + 1, last)); }
+  else if (e.key === "h" || e.key === "ArrowLeft") { play(Math.max(lastPlayed - 1, 0)); }
+  else if (e.key === "j" || e.key === "ArrowDown") { gotoWord(cur + 1); }
+  else if (e.key === "k" || e.key === "ArrowUp") { gotoWord(cur - 1); }
+  else if (e.key === " ") { e.preventDefault(); pick(lastPlayed, false); }
+  else if (e.key === "Enter") { pick(lastPlayed, true); }
+  else if (e.key === "r") { play(lastPlayed); }
+  else if (e.key === "x") { skip(); }
+  else if (e.key === "u") { unpick(); }
+});
+load();
+</script>
+</body>
+</html>

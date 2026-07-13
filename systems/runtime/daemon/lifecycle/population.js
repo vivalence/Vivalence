@@ -7,26 +7,6 @@ import { sets, DataRepository } from "@vivalence/typology/entities";
 
 import * as traits from "../traits/index.js";
 
-// Concrete a kernel/userspace base for a domain-less (slim) daemon. The bases
-// ship abstract so a domain can be their sole concrete subclass; with no domain
-// (e.g. the chaosmonkey variant) concretize here, keeping the base's OWN
-// repository — never flatten to DataRepository, which drops Literal/Symbol
-// query methods (search/due/byStrength/…).
-const concrete = ({ type, entity, schema, repository }) => {
-  const name = type[0].toUpperCase() + type.slice(1);
-  return {
-    type,
-    entity,
-    schema: new EntitySchema({
-      class: entity,
-      extends: schema,
-      tableName: name,
-      name,
-      repository: () => repository ?? DataRepository,
-    }),
-  };
-};
-
 export async function core(die) {
   const registry = {
     lighthouse: die.mask.lighthouse,
@@ -47,16 +27,39 @@ export async function core(die) {
     ...die.domain.traits,
   };
 
-  // tiers by type: base sets (abstract, shadowed) → daemon concretes → domain concretes (win)
-  die.variant.entities = Object.values({
-    ...sets.daemon,
-    ...sets.kernel,
-    ...sets.userspace,
-    buffer:  concrete(sets.userspace.buffer),
-    literal: concrete(sets.kernel.literal),
-    symbol:  concrete(sets.kernel.symbol),
-    ...die.domain.entities,
-  });
+  // @beef hacky micro/abstract entity handling
+  const collate = (tiers) => {
+    const slots = {};
+    for (const tier of tiers)
+      for (const descriptor of Object.values(tier)) {
+        const slot = (slots[descriptor.type] ??= { type: descriptor.type, subscribers: new Set() });
+        slot.entity = descriptor.entity ?? slot.entity;
+        slot.schema = descriptor.schema ?? slot.schema;
+        slot.repository = descriptor.repository ?? slot.repository;
+        if (descriptor.subscriber) slot.subscribers.add(descriptor.subscriber);
+      }
+    return Object.values(slots);
+  };
+
+  const seal = (slot) =>
+    !slot.schema.meta.abstract
+      ? slot
+      : {
+          ...slot,
+          schema: new EntitySchema({
+            class: slot.entity,
+            extends: slot.schema,
+            name: slot.schema.meta.className,
+            tableName: slot.schema.meta.className,
+            repository: () => slot.repository ?? DataRepository,
+          }),
+        };
+
+  const variant = collate([sets.daemon, sets.kernel, sets.userspace, die.domain.entities]) //
+    .map(seal);
+
+  die.variant.subscribers = [...new Set(variant.flatMap((slot) => [...slot.subscribers]))];
+  die.variant.entities = variant.map(({ subscribers, ...entity }) => entity);
 }
 
 export function wiring(daemonDie) {
@@ -68,6 +71,7 @@ export async function datamap(daemonDie) {
   daemonDie.datamap = await daemonDie.register.datamap.provider(
     daemonDie.mask.datamap,
     daemonDie.variant.entities,
+    daemonDie.variant.subscribers,
   );
 
   daemonDie.good.entities = daemonDie.datamap.entities;

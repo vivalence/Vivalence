@@ -1,7 +1,7 @@
 import { v } from "../v.js";
 import { Manifest } from "./manifest.js";
 
-// Export contract for a kernel module (domain/ontology/corpus).
+// Export contract for a kernel module (domain/topology/topography).
 // additionalProperties keeps the live `aperture` member untouched by cast.
 export const Domain = v.object(
   {

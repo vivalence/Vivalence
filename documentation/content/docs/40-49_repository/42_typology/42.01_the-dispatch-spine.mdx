@@ -1,0 +1,87 @@
+---
+title: The Dispatch Spine
+jdex: "42.01"
+---
+
+# 42.01 · The Dispatch Spine
+
+*the core of the library — one inert dispatch structure (Vector) declared with combinators and folded by many interpreters; the HTTP server and the client are two folds of the same thing*
+
+## purpose
+
+`subsystems/typology` IS the vocabulary — power is emergent from composing small prototypes, not from big classes. This doc is the **dispatch spine**: how a Signal reaches a handler, and why the same declaration serves as an HTTP server (`Aperture`), an in-process object (`shape.object`), and a remote client (`shape.strip` + `shape.connection.wire`).
+
+Boundary: this is the PROTOTYPE spine only. The schema layer (`v`, primitives, entities) has its own map — `world/codemap/typology/schematics`. The entity flow (Mode→Intent→Thread→Buffer→Turn) and the channel family (Pipe/Queue/Pool) are [TODO] siblings under `42_typology`. The LLM triad and the stripwire that build ON this spine live at [[47.02_hallucination-triad]] / [[47.03_stripwire]].
+
+## Signature — the path grammar
+
+Everything routes on a `Signature` (`prototypes/signature.js`). Three heirs coerce a raw string into a normalized path:
+- `Pattern` — splits on `/` into segments (routes, event grammars like `/turn/open`).
+- `Path` — normalizes a filesystem path.
+- `Url` — carries an origin.
+
+A `Signal` is a Signature being dispatched. Segments may be literal, `:param`, wildcard, or remainder — the trie matches literal → parameter → wildcard → remainder.
+
+## Vector — the declaratively dispatched monadic constructor
+
+A `Vector` (`prototypes/vector.js`) is a **declaratively dispatched monadic constructor** — a **free monad** in effect. Its methods are the monadic COMBINATORS (each `Vector → Vector`):
+
+- `.use(mw)` — append koa-style middleware `(ctx, next)`; `next()` threads one `ctx` through the onion.
+- `.open(sig, fn)` — declare a terminal EFFECT (handler) at a signature path.
+- `.branch(sig)` — a sub-trie under a segment.
+- `.slurp(other)` — compose another Vector in, SHARING its middleware. `.swallow` — compose OWNing (isolate).
+
+The Vector these build is **inert**: a composable, context-threading DESCRIPTION of dispatch. It does nothing until an INTERPRETER folds it. That deferral is the whole point — one structure, many interpreters.
+
+```javascript
+const vector = new Vector()
+  .use(auth)                     // combinator: Vector → Vector
+  .open("/dialogue/render", fn)  // declare an effect at a path
+  .branch("/emit").slurp(child); // sub-trie, sharing middleware
+// vector runs NOTHING yet — it is a description awaiting an interpreter.
+```
+
+## the interpreters — one Vector, many folds
+
+Interpreting a Vector = folding its trie (`steer.fold`, a catamorphism) into something runnable. Two families:
+
+- **`shape.*` — Vector → a value** (`gestalten/shape/`):
+  - `shape.object(vector, execute)` → a nested CALLABLE namespace; `x.a.b()` falls out of the trie, dispatched in-process (`execute` = `steer.request` full ctx, or `steer.echo` bare ctx).
+  - `shape.strip(vector)` → inert `{effect?, branches}` JSON — the wire contract served at `/metadata/*` (node-centric, the cata of the Vector's own `{effect, trajectories}`).
+  - `shape.connection.wire(conn, stripped)` → a nested callable whose leaves are `conn.aim("/nature")` — REMOTE dispatch. `object` (local) and `wire(strip(…))` (remote) are duals: same surface, different backing (the stripwire, [[47.03_stripwire]]).
+  - `shape.http(aperture)` → a `(Request) → Response` handler (the HTTP boundary).
+  - others: `messenger` (socket push), `proxy` (lazy parametric `object`), `agentic` (`/` natures → tool names), `mcp`.
+- **`steer.*` — run a Signal THROUGH a Vector** (`gestalten/steer/`): `steer.invoke` (dispatch one signal), `steer.request` / `steer.echo` / `steer.bare` (leaf strategies), + `fold`/`descend`/`rollup`/`survey`/`traverse`.
+
+The payoff: a trait declares ONE Vector; the daemon folds it with `shape.object` (local call) AND serves `shape.strip` at `/metadata`; the client folds that strip with `shape.connection.wire` (remote call). Same declaration, three faces. See [[47.03_stripwire]].
+
+## Aperture — the HTTP server (a Vector fold)
+
+An `Aperture` (`prototypes/aperture.js`) = a `Vector` plus a method-keyed leaf fold. `aperture.open("/thing", { get, post })` registers method handlers; `shape.http(aperture)` turns the whole trie into a `Deno.serve` handler. So the HTTP server is just a Vector interpreted for the HTTP boundary — routing, middleware, and dispatch are the Vector's, not a separate framework.
+
+## Connection — the transport dual (call the server)
+
+A `Connection` (`prototypes/connection.js`) is the **dual** of an Aperture: where the Aperture SERVES a trie, the Connection CALLS one. Surface: `.branch(sig)` (mirror an aperture branch), `.aim("/x")` (a bound caller `(body, opts) => call("/x", …)`), `.call(sig, body)` (dispatch through the transport middleware → `fetch`), `.stream` (SSE async-iterator). A Connection NEVER raw-fetches — the transport chain carries auth.
+
+Because a Connection's branches mirror an Aperture's segment-for-segment, a client Connection re-inflated from a server's `shape.strip` contract hits the exact endpoints the Aperture mounted. That mirror IS what makes `mode.emit.xyz()` identical on daemon (local) and client (remote).
+
+## the law
+
+```
+  declare once:   Vector  (combinators: use / open / branch / slurp)      — inert
+  interpret many: shape.object (local call) · shape.strip → wire (remote) · shape.http (serve) · steer.invoke (dispatch)
+  dual:           Aperture (serve a trie)   ⟷   Connection (call a trie)   — bridged by shape.http + strip/wire
+```
+
+## [TODO] siblings under 42_typology (stubs to fill)
+
+- `42.02 entities` — Mode → Intent → Thread → Buffer → Turn; the trait grammar; MikroORM seams.
+- `42.03 channels` — Pipe / Queue / Broadcaster / Pool (shared `waiter` atom); Stall (thread-owned `$phase`).
+- `42.04 schematics` — prose companion to `world/codemap/typology/schematics` (the `v` wrapper + primitives).
+
+## see also
+
+- `world/codemap/typology` — the 15-line prototype inventory (this doc's source)
+- [[47.02_hallucination-triad]] — the LLM request built on the Vector spine
+- [[47.03_stripwire]] — one trait Vector, callable on both sides of the wire
+- `subsystems/typology/gestalten/{shape,steer}/` — the interpreters

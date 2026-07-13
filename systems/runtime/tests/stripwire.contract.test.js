@@ -16,7 +16,7 @@ const isContract = (node) =>
 describe("stripwire: aperture contract across vantages", () => {
   const files = [...Deno.readDirSync(dir)].map((entry) => entry.name);
   // MODE wire apertures only. `entity-*-aperture.snapshot.json` is a different sense of "aperture":
-  // the HTTP find VANTAGE of an entity repo (corpus/{literal,symbol}.snapshot.test.js), whose payload
+  // the HTTP find VANTAGE of an entity repo (topography/{literal,symbol}.snapshot.test.js), whose payload
   // is a find-result array, not a { manifest, aperture } wire contract. Same suffix, different register.
   const wire = files.filter(
     (name) =>

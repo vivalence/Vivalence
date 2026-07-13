@@ -1,6 +1,6 @@
 #+TITLE: Conversation + Dock re-cast (post C-panel rewrite)
 #+AUTHOR: Vivalence
-#+STATUS: LANDED (steps 1-6) · turn/buffer subscriptions re-wired · 1.2 (aperture-created turns) LANDED via TurnRepository, not harnessed.js de-scoping
+#+STATUS: LANDED (steps 1-6) · turn/buffer subscriptions re-wired · 1.2 (aperture-created turns) LANDED via TurnRepository, not harnessed.js de-scoping · dock RELOCATED per-terminal + visibility gate rotated CONVERSATIONAL→HARNESSED (see § dock relocated)
 
 Conversation + dock worked end-to-end pre-rewrite (see [[file:longdistance.quest.org]] M2/M3,
 s49 rich chat). The C-panel rebuild ([[file:c-panel-rebuild.quest.org]]) moved buffer ownership
@@ -128,6 +128,20 @@ The tool-absorb third of the original ask ("any harness surface" for tools,
 not just turns) is UNCHANGED and still open — see
 [[file:m12_streaming_harness_toolcalling.quest.org]] fork F, tool-calling
 still explicitly parked.
+
+* dock relocated per-terminal + HARNESSED authority (SUPERSEDES the CONVERSATIONAL-visibility ontology above)
+
+Two bugs surfaced when beef went to toggle the "start chatting" button in F with multiple terminals in mind ("i can get shwon the button but cant toggle it" · "each terminal has its own dock! they are per terminal structures" · "i will want multipile terminals open. with multiple separate docks"):
+
+- *Authority split* — F (=panels/f/f.svelte:107=) gated the button on =HARNESSED=; A (=panels/a/a.svelte:73=) gated the dock PANE on =engaged= = =thread.$traits ⊇ CONVERSATIONAL=. The engage trigger moved to F per step 6, but the auto-engage widgets are =.bak=; nothing flips CONVERSATIONAL on the thread in the normal path, so the pane never showed. The button flipped a flag the pane ignored.
+- *Singleton geometry* — =stores/bridge/bridge.js= held one =this.$dock= atom for all terminals; "multiple terminals with separate docks" was impossible.
+
+Fix (beef pinned "HARNESSED", "per terminal"):
+- Geometry ={side,share,collapsed}= moved =bridge.$dock= (singleton) → =terminal.$dock= (=typology/entities/terminal.js=, beside =$buffer=). PLAIN DATA, not an entity ref → persists via =app/terminals.js= (=toJSON.dock= + subscribe + hydrate =Terminal({id,dock})=), OUT of the settle =ABSENT/UNREACHABLE= tri-state; dies with the terminal (orphan-GC category impossible).
+- Visibility rotated CONVERSATIONAL-engagement → =mode.implements("HARNESSED")=, unified across F/A/shoulder/=panels/b/widgets/BridgeSection.svelte=. Aligns with [[file:m18_conversation_dissolves.quest.org]] (the CONVERSATIONAL WS engagement gate is dissolving; a dialogue turn is a streaming request; any harnessed mode chats).
+- Mutators = free fns over =$dock= in =stores/bridge/dock.js= (=setDockSide/Share/Collapsed/dragDock=, null-guarded); pure geometry unchanged; Bridge keeps only global layout (pincer/viewport/composer).
+
+So line 17's "=Dock= geometry = =bridge.dock=" and the Locked-ontology "flipping CONVERSATIONAL is the only trigger" are SUPERSEDED for VISIBILITY. Turn history / content path (steps 1-5, =thread.$turns=, =<Dock thread>=) unchanged. Green: dock.geometry (12) + terminal.stall (3); =deno task bundle= EXIT 0 ✓1748. See compact [[file:../compacts/the-start-chatting-button-flipped-a-flag-the-dock-pane-ignored-the-button-gated-on-harnessed-the-pane-on-conversational-and-the-cure-is-one-authority-plus-a-per-terminal-dock.org]] + memory [[project_dock_per_terminal]].
 
 * Non-goals
 - Voice/audio (speech/verbatim) — stays dormant ([[file:voice.quest.org]]).

@@ -72,7 +72,7 @@ Note `ctx.mode.harness.object.render`.
 ```
 
 
-# :TODO:DESLOP: Getting started 
+# :TODO:SLOP: Getting started 
 
 You need [Deno](https://deno.com) 2.7+. Everything else the repo carries.
 

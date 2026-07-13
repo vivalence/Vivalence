@@ -1,0 +1,193 @@
+---
+title: Stripwire
+jdex: "47.03"
+---
+import Source from "../../../../src/components/Source.astro"
+import Example from "../../../../src/components/Example.astro"
+import Trace from "../../../../src/components/Trace.astro"
+import Tabs from "../../../../src/components/Tabs.astro"
+import Editor from "../../../../src/components/Editor.astro"
+
+# 47.03 · Stripwire
+
+*How a mode trait's Vector becomes the SAME callable surface on the daemon (in-process) and on the kajuit client (remote) — strip serializes the shape, wire re-inflates it against a Connection.*
+
+## purpose
+
+A mode trait declares ONE `Vector`. A `Vector` is a *declaratively dispatched monadic constructor* — a free monad in effect. Its methods `.open(sig, fn)` / `.use(mw)` / `.branch` / `.slurp` are the monadic COMBINATORS (each `Vector → Vector`): they DECLARE effects + middleware against signature paths (dispatch = matching a Signal path through the trie). The Vector they build is INERT — a composable ctx-threading description (`use` chains middleware around the terminal effect, `next()` threads one `ctx`) that does NOTHING until an INTERPRETER folds it (a `shape.*` compiler or a `steer` strategy). *Constructor* names the noun, *combinator* names the methods, *interpreter* names `shape.*`/`steer`. That inertness — one structure, many interpreters — is exactly why the same Vector can be folded two ways.
+
+The trait's Vector (`mode.module.emitter`, `mode.module.harness`) is folded TWO ways so the same call spelling works in two places:
+
+- on the *daemon* — `shape.object(vector)` folds it into an in-process callable whose leaves are real handlers. `mode.emit.xyz(body)` runs locally.
+- on the *client* (kajuit) — the daemon serializes the trie's SHAPE via `shape.strip` and serves it at `/metadata/*`; the client fetches that and `shape.connection.wire` re-inflates it against a `Connection`, so `mode.emit.xyz(body)` becomes an HTTP POST to the mounted endpoint.
+
+*strip (serialize the shape) + wire (re-inflate against a Connection) = the "stripwire."* Same name-trie, different leaf backing. The name is beef's, from the seam that first wanted it — `systems/runtime/daemon/aperture/cortex.js`:
+
+```javascript
+// @beef
+// expose cortex.hallucinate.[faculty][via](xyz)!
+// strip wire into kajuit daemon who branches and aims deamon connection.
+```
+
+This doc is the *seam + the compiler family*. The traits themselves (`EMITTER`, `HARNESSED`, `APPLICATION`, `TOOLED`) belong to `44_runtime`; the request internals belong to [[47.02_hallucination-triad]]. Here: how a trait's Vector crosses the wire and stays callable.
+
+## strip, live
+
+This page is also **one runnable example**. The block below is the verbatim source of `content/docs/suites/examples/47.03-connection.example.js` — build a two-branch `Vector` with the public `open` combinator, fold it with `shape.strip`, assert the wire. Tangle it, run it against `@vivalence/typology`, and you get the captured output that follows — 1:1.
+
+<Source name="47.03-connection" />
+
+Captured at build by `deno task capture` running that exact file — no hand-authored output, no drift:
+
+<Example name="47.03-connection" />
+
+The root effect survives the strip (`affect` → `{}` edge-metadata; "no path is a path", so `branch("/")` ≡ `affect`); `echo` and `ping` round-trip as `{ branches: {}, effect: {} }`. The three assertions run in the same pass that logs the wire, so a **green build is the passing test**.
+
+The minimal strip, tangled to disk at build (`content/.tangled/`) so the fence is its own source of truth:
+
+```js tangle=.tangled/stripwire-echo.js
+import { Vector, shape } from "@vivalence/typology"
+
+export const wire = shape.strip(new Vector().affect((context) => context))
+```
+
+## the compiler family (`subsystems/typology/gestalten/shape/`)
+
+All four are `steer.fold` catamorphisms over the same Vector trie; they differ only in codomain:
+
+```
+  object(vector, execute)   Vector → nested CALLABLE (local, in-process dispatch)
+  strip(vector)             Vector → { effect?, branches } JSON  (inert wire contract)
+  connection.wire(conn, s)  contract + Connection → nested CALLABLE (remote dispatch)
+  messenger(s, {socket})    contract + socket → nested CALLABLE (one-way push; conversation)
+
+  DUAL:  object (local)  ⟷  wire(strip(…)) (remote)   — same surface, different backend
+```
+
+- `strip` (`shape/strip.js`): the faithful cata of the Vector's own `{ effect, trajectories }`. Each node folds to `{ effect?, branches: { <segment>: {…} } }` — the node's OWN effect (metadata `input/output/yields/methods`, `{}` when the edge carries none) rides `effect`; a leaf is just a branch whose node has an effect and no sub-branches. There is no separate `leaves` array. `wire` reads `effect.methods/yields` (method-aware, streaming) but not `input/output` (no client-side validation today).
+- `object` (`shape/object.js`): a node's `effect` becomes a bound handler via `execute`; a node that is BOTH effect and branch becomes a callable carrying its sub-namespace (`Object.assign`). Default `execute = steer.request` (full HTTP `Context`); `steer.echo` gives a bare ctx. Eager — literal natures only; parametric routes need the lazy `shape.proxy`.
+- `connection.wire` (`shape/connection.js`) is the transport-dual of `object`: at each node the connection is already branched to it, so `node.effect → connection.aim("")` (self), `branches → wire(connection.branch("/segment"), child)`, unified via `Object.assign` (callable-AND-namespace). The root effect is addressed by `"/"` (see `branch("/") ≡ affect`). The whole body:
+
+```javascript
+export function wire(connection, node) {
+  const api = {};
+  for (const [segment, child] of Object.entries(node?.branches ?? {}))
+    api[segment] = wire(connection.branch(`/${segment}`), child);
+  return node?.effect ? Object.assign(aim(connection, node.effect), api) : api;
+}
+```
+
+- `messenger` (`shape/messenger.js:4`): the socket sibling of `wire`, used by the conversation channel; rebuilds a fresh Vector then `object()`s it (self-flagged `// @beef suboptimal, uninspired`).
+- `selbstbestimmt` (`shape/selbstbestimmt.js:3`): NOT part of this family — fires only a Vector's first reachable effect; the client dataspace uses it as the per-entity `integrate` strategy.
+
+## the daemon side — build → aperture → object → metadata
+
+`EMITTER` is the clean exemplar (`systems/runtime/daemon/traits/emitter.js:64-69`):
+
+```javascript
+emitter.slurp(mode.module.emitter);               // pull the declared leaves onto the owned Vector
+return () => {
+  mode.aperture.branch("/emit").slurp(emitter);   // (a) HTTP/connection surface
+  mode.emit = shape.object(emitter);              // (b) in-process callable on the entity
+};
+```
+
+Two mounts of one Vector: (a) the aperture branch = the endpoints the client's POST will hit; (b) `mode.emit` = the local callable. The daemon aperture is itself a `Connection` (`shape.http` over the aperture, `lifecycle/integration.js:3-5`), and each mode's aperture is slurped onto the daemon at its mount (`lifecycle/resolution.js:52-55`) — so `daemon.connection.call('/mode/<type>/<slug>/emit/abc')` reaches the SAME leaf as `mode.emit.abc`, just through the HTTP `Context` entry instead of the object namespace.
+
+`HARNESSED` mirrors it (`harnessed.js:98-101`) but folds with `steer.echo` and injects the faculty leaves in the trait itself:
+
+```javascript
+mode.aperture.branch("/harness").slurp(harness);
+mode.harness = shape.object(harness, steer.echo);
+// leaves injected in-trait (harnessed.js:90-94):
+//   harness.branch(type).open("render", ctx => ctx.hallucination[type].render()).open("stream", …)
+```
+
+The shape is documented at `/metadata` (`daemon/aperture/metadata.js`): per mode, `/emitter` = `shape.strip(mode.module.emitter)`, `/harness` = `shape.strip(mode.module.harness)`, `/app` = `{url, schema}`. This is the contract the client fetches.
+
+## the client side — metadata → wire → connection → dataspace entity
+
+Client trait, `systems/kajuit/src/typology/entities/mode/traits/emitter.js:29-31`:
+
+```javascript
+const emit = mode.connection.branch("/emit");
+mode.metadata.emitter = await mode.connection.call("/metadata/emitter");   // fetch the strip
+mode.emit = shape.connection.wire(emit, mode.metadata.emitter);            // re-inflate remotely
+```
+
+`mode.connection` is a `Connection` branch off the daemon connection at the mode's mount (`kajuit/…/mode/mode.js:45-47`), so its branch structure mirrors the daemon aperture segment-for-segment — that is what makes the mirroring exact. `HARNESSED` is the same, plus a response middleware that re-hydrates yielded entity POJOs into local repositories.
+
+The trait runs when the client *dataspace* materializes a mode: `kajuit/…/prototypes/dataspace.js` builds one boot Vector per entity, `shape.selbstbestimmt(boot, strategy)` becomes the entity's `integrate`, and `applyTraits(ctx.entity.traits)` (`belt/runner.js`) runs `EMITTER/HARNESSED/APPLICATION` as each mode POJO is merged from the daemon. So the callables land on the specific client-side `Mode` instance in the remote-entity dataspace.
+
+## the symmetry — same spelling, two backings
+
+| spelling | daemon backing | kajuit backing |
+| --- | --- | --- |
+| `mode.emit.xyz(b)` | `shape.object(emitter)` → in-proc handler | `wire` → `emit.aim("/xyz")` → POST `/emit/xyz` |
+| `mode.harness.object.render(i)` | `shape.object(harness, steer.echo)` leaf | `wire` → `harness.branch("/object").aim("/render")` |
+| `mode.connection.call("/emit/xyz")` | daemon aperture leaf (`shape.http`) | same HTTP call, explicit path |
+| `mode.app.buffer(d)` | closure builds BufferEntity (`application.js:33`) | hand-rolled `mode.buffer(d)` factory (NOT stripwired) |
+
+The same strip captured as a span journal (`Span.open/note/close`) instead of flat stdout, rendered as a depth-nested trace — see [[47.04_wire-trace-snapshot]] for the full record→chronicle fold:
+
+<Trace name="47.03-trace" />
+
+The same Vector, called from either side of the wire:
+
+<Tabs names={["local", "remote"]}>
+<Fragment slot="local">
+```js
+shape.object(vector)
+```
+</Fragment>
+<Fragment slot="remote">
+```js
+shape.connection.wire(conn, shape.strip(vector))
+```
+</Fragment>
+</Tabs>
+
+## surfaces catalog (with the didactic demo, where one exists)
+
+- `mode.emit.<verb>` — RICH demos. `registry/education/tactic/clinic/emitter/degrees.js:18,28,45,51` (cross-mode `game.exhibit.emit.present(…)`).
+- `mode.harness.object.render` — demos: `registry/playground/dealer/dealer.viva.js:63` (`output` schema, `tune:"frugal"`); `registry/education/homepage/aprende/aperture/message.js:19`.
+- `mode.app.buffer` — RICH: `registry/education/game/write/write.viva.js:31`; `…/riddler/emitter.js:58` (buffer fed to `ctx.pool`).
+- `ctx.hallucination.*` (the live request the harness injected) — `registry/playground/chaosmonkey/oracle/oracle.viva.js:22,40,72`. Modes NEVER spawn; they receive `ctx.hallucination`.
+- `cortex.hallucination(config)` (the spawn seam) — NO registry demo; framework-only at `systems/runtime/daemon/traits/harnessed.js:15`. See [[47.02_hallucination-triad]].
+- `mode.harness.dialogue.*` — NO registry demo (tests only, `tests/cortex.integration.test.js:56`); modes drive dialogue via the `/dialogue` channel + scribe, not a direct call (`oracle.viva.js:46-48` documents why: `/object` has no scribe/history coupling).
+
+## current state — HONEST (the pattern is developing, the implementation is partial)
+
+What is BUILT and symmetric: `EMITTER` and `HARNESSED` — daemon `shape.object` ⟷ client `shape.connection.wire` over `/metadata/{emitter,harness}`. That round trip works both ways.
+
+Known gaps / sloppiness (do not trust these as finished):
+
+1. *The cortex stripwire — the seam the NAME comes from — is UNBUILT.* `daemon/aperture/cortex.js` is the 3-line TODO above; it is not exported from `aperture/index.js` and no `/cortex` route is mounted. `daemon.cortex.hallucination(config)` exists purely typology-side (`cortex.js:37`, returns a `shape.object`-compiled `Hallucination`) and is reached ONLY inside `HARNESSED` middleware. On the client there is no `.cortex`, no `daemon.c.call('/cortex/hallucination')`; a client "hallucination" is reached indirectly as `mode.harness.object.render(…)` and returns the RESULT, never a Hallucination instance/proxy. Building it = strip the cortex's faculty/via matrix, wire it onto the client daemon connection.
+2. *`/metadata/harness` documents the WRONG Vector.* It strips `mode.module.harness` (the raw slurp source), but the callable leaves (`dialogue/object/speech/verbatim` × `render/stream`) are injected in the trait — so the contract the client fetches OMITS the very leaves it calls. `wire` works anyway because the client mode.connection already mirrors the mounted aperture; the strip is effectively decorative here. `EMITTER` dodges this by accident (its leaves live in `mode.module.emitter`; its added logic is `.use()` middleware, invisible to `strip`).
+3. *`APPLICATION` is not stripwired at all.* No Vector, no `shape.*`; daemon `mode.app.buffer` is a direct closure, client `mode.buffer` a hand-rolled factory from `/metadata/app.schema`. `mode.app.buffer` is really `mode.buffer`.
+4. *`TOOLED` is half-wired.* `/tool` aperture branch is slurped (`tooled.js:11`) but the entity callable is commented out (`tooled.js:13` `// mode.tool = shape.object(tools)`) and `/metadata/tools` is commented out (`metadata.js:34`). Connection surface, no object surface, no contract.
+5. *`EMITTER` vs `HARNESSED` finalizers are copy-pasted with a silent strategy divergence* (`steer.request` vs `steer.echo`), no shared helper. beef: *"either emit or harness implements it."* The stripwire wants ONE trait-finalizer helper both call.
+6. *Client `EMITTER` trait is heavily commented-out*; the yield-entity re-hydration `HARNESSED` applies is DISABLED for emit (`mode.js` `// @beef: choice pending`). And `strip`'s `input/output` schemas cross the wire but `wire` ignores them (no client validation). Naming drift: code says `shape.connection.wire`, the TODO says "stripwire", `dataspace.js` self-labels `// ugly retarded slop`.
+7. `EMITTER` is mid-refactor on disk (`#emitter.js#` autosave + lock present).
+
+## edit it
+
+CodeMirror 6 with Vim keybindings (display-only; inline execution is shelved):
+
+<Editor code={`import { Vector, shape } from "@vivalence/typology"
+
+const vector = new Vector()
+vector.open("/echo", (context) => context)
+const stripped = shape.strip(vector)
+console.log("stripped →", JSON.stringify(stripped))`} />
+
+## see also
+
+- `subsystems/typology/gestalten/shape/{strip,object,connection,messenger}.js` — the compiler family
+- `systems/runtime/daemon/traits/{emitter,harnessed,application,tooled}.js` — daemon finalizers
+- `systems/kajuit/src/typology/entities/mode/traits/{emitter,harnessed,application}.js` — client re-inflation
+- `systems/runtime/daemon/aperture/{metadata,cortex}.js` — the contract + the unbuilt cortex seam
+- [[42.01_the-dispatch-spine]] — Vector, the shape/steer interpreters, the Aperture↔Connection dual this rides on
+- [[47.02_hallucination-triad]] — the request the harness surface carries
+- [[47.04_wire-trace-snapshot]] — capturing a full request as a trace
+- memory `project_remote_entity_dataspace_spine` · `project_context_architecture`

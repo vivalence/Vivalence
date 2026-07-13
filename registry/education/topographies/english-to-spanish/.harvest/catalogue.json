@@ -1,0 +1,4706 @@
+{
+  "words": [
+    {
+      "slug": "de.adposition",
+      "form": "de",
+      "en": "of / from",
+      "rank": 15,
+      "pos": "adposition",
+      "done": false
+    },
+    {
+      "slug": "la.determiner",
+      "form": "la",
+      "en": "the (fem.)",
+      "rank": 28,
+      "pos": "determiner",
+      "done": false
+    },
+    {
+      "slug": "que.subordinating-conjunction",
+      "form": "que",
+      "en": "that",
+      "rank": 30,
+      "pos": "subordinating-conjunction",
+      "done": true
+    },
+    {
+      "slug": "en.adposition",
+      "form": "en",
+      "en": "in / on",
+      "rank": 35,
+      "pos": "adposition",
+      "done": true
+    },
+    {
+      "slug": "el.determiner",
+      "form": "el",
+      "en": "the (masc.)",
+      "rank": 35,
+      "pos": "determiner",
+      "done": false
+    },
+    {
+      "slug": "y.coordinating-conjunction",
+      "form": "y",
+      "en": "and",
+      "rank": 36,
+      "pos": "coordinating-conjunction",
+      "done": true
+    },
+    {
+      "slug": "a.adposition",
+      "form": "a",
+      "en": "to",
+      "rank": 44,
+      "pos": "adposition",
+      "done": false
+    },
+    {
+      "slug": "los.determiner",
+      "form": "los",
+      "en": "the (masc. pl.)",
+      "rank": 66,
+      "pos": "determiner",
+      "done": true
+    },
+    {
+      "slug": "no.adverb",
+      "form": "no",
+      "en": "no / not",
+      "rank": 69,
+      "pos": "adverb",
+      "done": false
+    },
+    {
+      "slug": "un.determiner",
+      "form": "un",
+      "en": "a / an (masc.)",
+      "rank": 85,
+      "pos": "determiner",
+      "done": true
+    },
+    {
+      "slug": "por.adposition",
+      "form": "por",
+      "en": "for / by / through",
+      "rank": 91,
+      "pos": "adposition",
+      "done": true
+    },
+    {
+      "slug": "ser.verb.indicative.present.third.singular",
+      "form": "es",
+      "en": "he/she is",
+      "rank": 95,
+      "pos": "verb",
+      "done": true
+    },
+    {
+      "slug": "del.contraction",
+      "form": "del",
+      "en": "of the (masc.)",
+      "rank": 98,
+      "pos": "adposition",
+      "done": false
+    },
+    {
+      "slug": "las.determiner",
+      "form": "las",
+      "en": "the (fem. pl.)",
+      "rank": 102,
+      "pos": "determiner",
+      "done": true
+    },
+    {
+      "slug": "con.adposition",
+      "form": "con",
+      "en": "with",
+      "rank": 107,
+      "pos": "adposition",
+      "done": true
+    },
+    {
+      "slug": "una.determiner",
+      "form": "una",
+      "en": "a / an (fem.)",
+      "rank": 112,
+      "pos": "determiner",
+      "done": true
+    },
+    {
+      "slug": "para.adposition",
+      "form": "para",
+      "en": "for / in order to",
+      "rank": 120,
+      "pos": "adposition",
+      "done": true
+    },
+    {
+      "slug": "lo.pronoun",
+      "form": "lo",
+      "en": "him / it",
+      "rank": 129,
+      "pos": "pronoun",
+      "done": false
+    },
+    {
+      "slug": "su.pronoun",
+      "form": "su",
+      "en": "his / her / your (formal)",
+      "rank": 166,
+      "pos": "pronoun",
+      "done": true
+    },
+    {
+      "slug": "al.contraction",
+      "form": "al",
+      "en": "to the (masc.)",
+      "rank": 182,
+      "pos": "adposition",
+      "done": false
+    },
+    {
+      "slug": "comer.verb.indicative.present.first.singular",
+      "form": "como",
+      "en": "I eat",
+      "rank": 186,
+      "pos": "verb",
+      "done": false
+    },
+    {
+      "slug": "me.pronoun",
+      "form": "me",
+      "en": "me",
+      "rank": 200,
+      "pos": "pronoun",
+      "done": true
+    },
+    {
+      "slug": "más.adverb",
+      "form": "más",
+      "en": "more",
+      "rank": 234,
+      "pos": "adverb",
+      "done": true
+    },
+    {
+      "slug": "si.subordinating-conjunction",
+      "form": "si",
+      "en": "if",
+      "rank": 257,
+      "pos": "subordinating-conjunction",
+      "done": false
+    },
+    {
+      "slug": "pero.coordinating-conjunction",
+      "form": "pero",
+      "en": "but",
+      "rank": 269,
+      "pos": "coordinating-conjunction",
+      "done": true
+    },
+    {
+      "slug": "te.pronoun",
+      "form": "te",
+      "en": "you",
+      "rank": 302,
+      "pos": "pronoun",
+      "done": true
+    },
+    {
+      "slug": "o.coordinating-conjunction",
+      "form": "o",
+      "en": "or",
+      "rank": 309,
+      "pos": "coordinating-conjunction",
+      "done": true
+    },
+    {
+      "slug": "mi.pronoun",
+      "form": "mi",
+      "en": "my",
+      "rank": 372,
+      "pos": "pronoun",
+      "done": true
+    },
+    {
+      "slug": "le.pronoun",
+      "form": "le",
+      "en": "to him / to her",
+      "rank": 398,
+      "pos": "pronoun",
+      "done": false
+    },
+    {
+      "slug": "este.pronoun",
+      "form": "este",
+      "en": "this (masc.)",
+      "rank": 427,
+      "pos": "pronoun",
+      "done": false
+    },
+    {
+      "slug": "esta.pronoun",
+      "form": "esta",
+      "en": "this (fem.)",
+      "rank": 437,
+      "pos": "pronoun",
+      "done": false
+    },
+    {
+      "slug": "ya.adverb",
+      "form": "ya",
+      "en": "already",
+      "rank": 468,
+      "pos": "adverb",
+      "done": true
+    },
+    {
+      "slug": "yo.pronoun",
+      "form": "yo",
+      "en": "I",
+      "rank": 513,
+      "pos": "pronoun",
+      "done": true
+    },
+    {
+      "slug": "ser.verb.infinitive",
+      "form": "ser",
+      "en": "to be (essence)",
+      "rank": 537,
+      "pos": "verb",
+      "done": false
+    },
+    {
+      "slug": "ser.verb.indicative.present.third.plural",
+      "form": "son",
+      "en": "they are",
+      "rank": 550,
+      "pos": "verb",
+      "done": true
+    },
+    {
+      "slug": "sin.adposition",
+      "form": "sin",
+      "en": "without",
+      "rank": 575,
+      "pos": "adposition",
+      "done": true
+    },
+    {
+      "slug": "tu.pronoun",
+      "form": "tu",
+      "en": "your",
+      "rank": 603,
+      "pos": "pronoun",
+      "done": false
+    },
+    {
+      "slug": "estar.verb.indicative.present.third.singular",
+      "form": "está",
+      "en": "he/she is",
+      "rank": 603,
+      "pos": "verb",
+      "done": true
+    },
+    {
+      "slug": "ser.verb.indicative.past.third.singular",
+      "form": "fue",
+      "en": "he/she was",
+      "rank": 603,
+      "pos": "verb",
+      "done": false
+    },
+    {
+      "slug": "muy.adverb",
+      "form": "muy",
+      "en": "very",
+      "rank": 617,
+      "pos": "adverb",
+      "done": true
+    },
+    {
+      "slug": "sobre.adposition",
+      "form": "sobre",
+      "en": "on / about",
+      "rank": 646,
+      "pos": "adposition",
+      "done": false
+    },
+    {
+      "slug": "también.adverb",
+      "form": "también",
+      "en": "also / too",
+      "rank": 646,
+      "pos": "adverb",
+      "done": true
+    },
+    {
+      "slug": "eso.pronoun",
+      "form": "eso",
+      "en": "that",
+      "rank": 708,
+      "pos": "pronoun",
+      "done": false
+    },
+    {
+      "slug": "tener.verb.indicative.present.third.singular",
+      "form": "tiene",
+      "en": "he/she has",
+      "rank": 708,
+      "pos": "verb",
+      "done": true
+    },
+    {
+      "slug": "nos.pronoun",
+      "form": "nos",
+      "en": "us",
+      "rank": 724,
+      "pos": "pronoun",
+      "done": false
+    },
+    {
+      "slug": "porque.subordinating-conjunction",
+      "form": "porque",
+      "en": "because",
+      "rank": 724,
+      "pos": "subordinating-conjunction",
+      "done": true
+    },
+    {
+      "slug": "qué.pronoun",
+      "form": "qué",
+      "en": "what",
+      "rank": 741,
+      "pos": "pronoun",
+      "done": false
+    },
+    {
+      "slug": "dos.numeral",
+      "form": "dos",
+      "en": "two",
+      "rank": 759,
+      "pos": "numeral",
+      "done": true
+    },
+    {
+      "slug": "entre.adposition",
+      "form": "entre",
+      "en": "between",
+      "rank": 776,
+      "pos": "adposition",
+      "done": false
+    },
+    {
+      "slug": "bien.adverb",
+      "form": "bien",
+      "en": "well",
+      "rank": 776,
+      "pos": "adverb",
+      "done": true
+    },
+    {
+      "slug": "poder.verb.indicative.present.third.singular",
+      "form": "puede",
+      "en": "he/she can",
+      "rank": 776,
+      "pos": "verb",
+      "done": false
+    },
+    {
+      "slug": "desde.adposition",
+      "form": "desde",
+      "en": "from / since",
+      "rank": 794,
+      "pos": "adposition",
+      "done": false
+    },
+    {
+      "slug": "hasta.adposition",
+      "form": "hasta",
+      "en": "until / up to",
+      "rank": 813,
+      "pos": "adposition",
+      "done": true
+    },
+    {
+      "slug": "hacer.verb.infinitive",
+      "form": "hacer",
+      "en": "to do / make",
+      "rank": 851,
+      "pos": "verb",
+      "done": true
+    },
+    {
+      "slug": "ahora.adverb",
+      "form": "ahora",
+      "en": "now",
+      "rank": 891,
+      "pos": "adverb",
+      "done": false
+    },
+    {
+      "slug": "esto.pronoun",
+      "form": "esto",
+      "en": "this",
+      "rank": 891,
+      "pos": "pronoun",
+      "done": false
+    },
+    {
+      "slug": "ser.verb.indicative.imperfect.first.singular",
+      "form": "era",
+      "en": "I used to be",
+      "rank": 891,
+      "pos": "verb",
+      "done": false
+    },
+    {
+      "slug": "vez.noun",
+      "form": "vez",
+      "en": "time / occasion",
+      "rank": 912,
+      "pos": "noun",
+      "done": false
+    },
+    {
+      "slug": "hacer.verb.indicative.present.third.singular",
+      "form": "hace",
+      "en": "he/she does",
+      "rank": 933,
+      "pos": "verb",
+      "done": false
+    },
+    {
+      "slug": "nada.pronoun",
+      "form": "nada",
+      "en": "nothing",
+      "rank": 955,
+      "pos": "pronoun",
+      "done": false
+    },
+    {
+      "slug": "solo.adverb",
+      "form": "solo",
+      "en": "only",
+      "rank": 1000,
+      "pos": "adverb",
+      "done": false
+    },
+    {
+      "slug": "algo.pronoun",
+      "form": "algo",
+      "en": "something",
+      "rank": 1023,
+      "pos": "pronoun",
+      "done": false
+    },
+    {
+      "slug": "tiempo.noun",
+      "form": "tiempo",
+      "en": "time / weather",
+      "rank": 1072,
+      "pos": "noun",
+      "done": false
+    },
+    {
+      "slug": "día.noun",
+      "form": "día",
+      "en": "day",
+      "rank": 1096,
+      "pos": "noun",
+      "done": true
+    },
+    {
+      "slug": "uno.numeral",
+      "form": "uno",
+      "en": "one",
+      "rank": 1096,
+      "pos": "numeral",
+      "done": true
+    },
+    {
+      "slug": "mejor.adjective",
+      "form": "mejor",
+      "en": "better",
+      "rank": 1122,
+      "pos": "adjective",
+      "done": false
+    },
+    {
+      "slug": "mucho.adverb",
+      "form": "mucho",
+      "en": "a lot",
+      "rank": 1122,
+      "pos": "adverb",
+      "done": false
+    },
+    {
+      "slug": "tan.adverb",
+      "form": "tan",
+      "en": "so",
+      "rank": 1122,
+      "pos": "adverb",
+      "done": false
+    },
+    {
+      "slug": "ver.verb.infinitive",
+      "form": "ver",
+      "en": "to see",
+      "rank": 1122,
+      "pos": "verb",
+      "done": false
+    },
+    {
+      "slug": "mismo.adjective.masculine.singular",
+      "form": "mismo",
+      "en": "same",
+      "rank": 1175,
+      "pos": "adjective",
+      "done": false
+    },
+    {
+      "slug": "siempre.adverb",
+      "form": "siempre",
+      "en": "always",
+      "rank": 1175,
+      "pos": "adverb",
+      "done": false
+    },
+    {
+      "slug": "ese.pronoun",
+      "form": "ese",
+      "en": "that (masc.)",
+      "rank": 1175,
+      "pos": "pronoun",
+      "done": false
+    },
+    {
+      "slug": "tener.verb.indicative.present.first.singular",
+      "form": "tengo",
+      "en": "I have",
+      "rank": 1230,
+      "pos": "verb",
+      "done": false
+    },
+    {
+      "slug": "después.adverb",
+      "form": "después",
+      "en": "after / afterwards",
+      "rank": 1259,
+      "pos": "adverb",
+      "done": false
+    },
+    {
+      "slug": "gente.noun",
+      "form": "gente",
+      "en": "people",
+      "rank": 1259,
+      "pos": "noun",
+      "done": false
+    },
+    {
+      "slug": "estar.verb.indicative.present.third.plural",
+      "form": "están",
+      "en": "they are",
+      "rank": 1259,
+      "pos": "verb",
+      "done": true
+    },
+    {
+      "slug": "esa.pronoun",
+      "form": "esa",
+      "en": "that (fem.)",
+      "rank": 1288,
+      "pos": "pronoun",
+      "done": false
+    },
+    {
+      "slug": "estar.verb.participle.past",
+      "form": "estado",
+      "en": "been",
+      "rank": 1288,
+      "pos": "verb",
+      "done": false
+    },
+    {
+      "slug": "estar.verb.indicative.present.first.singular",
+      "form": "estoy",
+      "en": "I am",
+      "rank": 1288,
+      "pos": "verb",
+      "done": true
+    },
+    {
+      "slug": "ir.verb.indicative.present.third.singular",
+      "form": "va",
+      "en": "he/she goes",
+      "rank": 1288,
+      "pos": "verb",
+      "done": true
+    },
+    {
+      "slug": "año.noun",
+      "form": "año",
+      "en": "year",
+      "rank": 1318,
+      "pos": "noun",
+      "done": false
+    },
+    {
+      "slug": "les.pronoun",
+      "form": "les",
+      "en": "to them",
+      "rank": 1318,
+      "pos": "pronoun",
+      "done": false
+    },
+    {
+      "slug": "gracias.interjection",
+      "form": "gracias",
+      "en": "thank you",
+      "rank": 1380,
+      "pos": "interjection",
+      "done": true
+    },
+    {
+      "slug": "nunca.adverb",
+      "form": "nunca",
+      "en": "never",
+      "rank": 1445,
+      "pos": "adverb",
+      "done": false
+    },
+    {
+      "slug": "menos.adverb",
+      "form": "menos",
+      "en": "less",
+      "rank": 1445,
+      "pos": "adverb",
+      "done": false
+    },
+    {
+      "slug": "poco.adverb",
+      "form": "poco",
+      "en": "little",
+      "rank": 1514,
+      "pos": "adverb",
+      "done": false
+    },
+    {
+      "slug": "antes.adverb",
+      "form": "antes",
+      "en": "before",
+      "rank": 1514,
+      "pos": "adverb",
+      "done": false
+    },
+    {
+      "slug": "ser.verb.subjunctive.present.first.singular",
+      "form": "sea",
+      "en": "(that) I be",
+      "rank": 1514,
+      "pos": "verb",
+      "done": false
+    },
+    {
+      "slug": "trabajo.noun",
+      "form": "trabajo",
+      "en": "work / job",
+      "rank": 1549,
+      "pos": "noun",
+      "done": false
+    },
+    {
+      "slug": "tener.verb.infinitive",
+      "form": "tener",
+      "en": "to have",
+      "rank": 1549,
+      "pos": "verb",
+      "done": false
+    },
+    {
+      "slug": "durante.adposition",
+      "form": "durante",
+      "en": "during",
+      "rank": 1585,
+      "pos": "adposition",
+      "done": false
+    },
+    {
+      "slug": "lugar.noun",
+      "form": "lugar",
+      "en": "place",
+      "rank": 1585,
+      "pos": "noun",
+      "done": false
+    },
+    {
+      "slug": "ellos.pronoun",
+      "form": "ellos",
+      "en": "they (masc.)",
+      "rank": 1585,
+      "pos": "pronoun",
+      "done": false
+    },
+    {
+      "slug": "cómo.adverb",
+      "form": "cómo",
+      "en": "how",
+      "rank": 1622,
+      "pos": "adverb",
+      "done": false
+    },
+    {
+      "slug": "querer.verb.indicative.present.first.singular",
+      "form": "quiero",
+      "en": "I want",
+      "rank": 1622,
+      "pos": "verb",
+      "done": false
+    },
+    {
+      "slug": "hacer.verb.participle.past",
+      "form": "hecho",
+      "en": "done / made",
+      "rank": 1622,
+      "pos": "verb",
+      "done": false
+    },
+    {
+      "slug": "creer.verb.indicative.present.first.singular",
+      "form": "creo",
+      "en": "I believe",
+      "rank": 1622,
+      "pos": "verb",
+      "done": false
+    },
+    {
+      "slug": "contra.adposition",
+      "form": "contra",
+      "en": "against",
+      "rank": 1660,
+      "pos": "adposition",
+      "done": false
+    },
+    {
+      "slug": "cuenta.noun",
+      "form": "cuenta",
+      "en": "bill / check",
+      "rank": 1660,
+      "pos": "noun",
+      "done": false
+    },
+    {
+      "slug": "ser.verb.indicative.present.first.singular",
+      "form": "soy",
+      "en": "I am",
+      "rank": 1660,
+      "pos": "verb",
+      "done": true
+    },
+    {
+      "slug": "decir.verb.infinitive",
+      "form": "decir",
+      "en": "to say",
+      "rank": 1660,
+      "pos": "verb",
+      "done": false
+    },
+    {
+      "slug": "nuevo.adjective.masculine.singular",
+      "form": "nuevo",
+      "en": "new",
+      "rank": 1698,
+      "pos": "adjective",
+      "done": true
+    },
+    {
+      "slug": "casa.noun",
+      "form": "casa",
+      "en": "house",
+      "rank": 1698,
+      "pos": "noun",
+      "done": true
+    },
+    {
+      "slug": "ser.verb.participle.past",
+      "form": "sido",
+      "en": "been",
+      "rank": 1698,
+      "pos": "verb",
+      "done": false
+    },
+    {
+      "slug": "él.pronoun",
+      "form": "él",
+      "en": "he",
+      "rank": 1738,
+      "pos": "pronoun",
+      "done": false
+    },
+    {
+      "slug": "sí.adverb",
+      "form": "sí",
+      "en": "yes",
+      "rank": 1778,
+      "pos": "adverb",
+      "done": true
+    },
+    {
+      "slug": "aquí.adverb",
+      "form": "aquí",
+      "en": "here",
+      "rank": 1778,
+      "pos": "adverb",
+      "done": true
+    },
+    {
+      "slug": "ella.pronoun",
+      "form": "ella",
+      "en": "she",
+      "rank": 1778,
+      "pos": "pronoun",
+      "done": true
+    },
+    {
+      "slug": "hoy.adverb",
+      "form": "hoy",
+      "en": "today",
+      "rank": 1820,
+      "pos": "adverb",
+      "done": true
+    },
+    {
+      "slug": "estar.verb.infinitive",
+      "form": "estar",
+      "en": "to be (state)",
+      "rank": 1820,
+      "pos": "verb",
+      "done": false
+    },
+    {
+      "slug": "tener.verb.indicative.present.third.plural",
+      "form": "tienen",
+      "en": "they have",
+      "rank": 1820,
+      "pos": "verb",
+      "done": true
+    },
+    {
+      "slug": "estar.verb.indicative.imperfect.first.singular",
+      "form": "estaba",
+      "en": "I was",
+      "rank": 1820,
+      "pos": "verb",
+      "done": false
+    },
+    {
+      "slug": "alguien.pronoun",
+      "form": "alguien",
+      "en": "someone",
+      "rank": 1862,
+      "pos": "pronoun",
+      "done": false
+    },
+    {
+      "slug": "decir.verb.indicative.present.third.singular",
+      "form": "dice",
+      "en": "he/she says",
+      "rank": 1862,
+      "pos": "verb",
+      "done": false
+    },
+    {
+      "slug": "tres.numeral",
+      "form": "tres",
+      "en": "three",
+      "rank": 1905,
+      "pos": "numeral",
+      "done": true
+    },
+    {
+      "slug": "ir.verb.indicative.present.first.singular",
+      "form": "voy",
+      "en": "I go",
+      "rank": 1905,
+      "pos": "verb",
+      "done": true
+    },
+    {
+      "slug": "momento.noun",
+      "form": "momento",
+      "en": "moment",
+      "rank": 1950,
+      "pos": "noun",
+      "done": false
+    },
+    {
+      "slug": "bueno.adjective.masculine.singular",
+      "form": "bueno",
+      "en": "good",
+      "rank": 1995,
+      "pos": "adjective",
+      "done": true
+    },
+    {
+      "slug": "ciudad.noun",
+      "form": "ciudad",
+      "en": "city",
+      "rank": 1995,
+      "pos": "noun",
+      "done": false
+    },
+    {
+      "slug": "nuestro.pronoun",
+      "form": "nuestro",
+      "en": "our (masc.)",
+      "rank": 1995,
+      "pos": "pronoun",
+      "done": false
+    },
+    {
+      "slug": "nuestra.pronoun",
+      "form": "nuestra",
+      "en": "our (fem.)",
+      "rank": 2089,
+      "pos": "pronoun",
+      "done": false
+    },
+    {
+      "slug": "poder.verb.infinitive",
+      "form": "poder",
+      "en": "to be able / can",
+      "rank": 2089,
+      "pos": "verb",
+      "done": true
+    },
+    {
+      "slug": "poder.verb.indicative.present.third.plural",
+      "form": "pueden",
+      "en": "they can",
+      "rank": 2089,
+      "pos": "verb",
+      "done": false
+    },
+    {
+      "slug": "nuevo.adjective.feminine.singular",
+      "form": "nueva",
+      "en": "new (fem.)",
+      "rank": 2138,
+      "pos": "adjective",
+      "done": false
+    },
+    {
+      "slug": "nadie.pronoun",
+      "form": "nadie",
+      "en": "nobody",
+      "rank": 2138,
+      "pos": "pronoun",
+      "done": false
+    },
+    {
+      "slug": "ir.verb.infinitive",
+      "form": "ir",
+      "en": "to go",
+      "rank": 2239,
+      "pos": "verb",
+      "done": false
+    },
+    {
+      "slug": "mayor.adjective",
+      "form": "mayor",
+      "en": "older / bigger",
+      "rank": 2291,
+      "pos": "adjective",
+      "done": false
+    },
+    {
+      "slug": "según.adposition",
+      "form": "según",
+      "en": "according to",
+      "rank": 2399,
+      "pos": "adposition",
+      "done": false
+    },
+    {
+      "slug": "mal.adverb",
+      "form": "mal",
+      "en": "badly",
+      "rank": 2399,
+      "pos": "adverb",
+      "done": false
+    },
+    {
+      "slug": "unos.determiner",
+      "form": "unos",
+      "en": "some (masc.)",
+      "rank": 2455,
+      "pos": "determiner",
+      "done": false
+    },
+    {
+      "slug": "nombre.noun",
+      "form": "nombre",
+      "en": "name",
+      "rank": 2455,
+      "pos": "noun",
+      "done": false
+    },
+    {
+      "slug": "ser.verb.indicative.past.third.plural",
+      "form": "fueron",
+      "en": "they were",
+      "rank": 2455,
+      "pos": "verb",
+      "done": false
+    },
+    {
+      "slug": "bajo.adjective.masculine.singular",
+      "form": "bajo",
+      "en": "short / low",
+      "rank": 2570,
+      "pos": "adjective",
+      "done": false
+    },
+    {
+      "slug": "hacia.adposition",
+      "form": "hacia",
+      "en": "toward",
+      "rank": 2570,
+      "pos": "adposition",
+      "done": false
+    },
+    {
+      "slug": "fuera.adverb",
+      "form": "fuera",
+      "en": "outside",
+      "rank": 2570,
+      "pos": "adverb",
+      "done": false
+    },
+    {
+      "slug": "hombre.noun",
+      "form": "hombre",
+      "en": "man",
+      "rank": 2630,
+      "pos": "noun",
+      "done": true
+    },
+    {
+      "slug": "poder.verb.indicative.present.first.singular",
+      "form": "puedo",
+      "en": "I can",
+      "rank": 2630,
+      "pos": "verb",
+      "done": false
+    },
+    {
+      "slug": "dar.verb.indicative.present.third.singular",
+      "form": "da",
+      "en": "he/she gives",
+      "rank": 2630,
+      "pos": "verb",
+      "done": false
+    },
+    {
+      "slug": "bueno.adjective.feminine.singular",
+      "form": "buena",
+      "en": "good (fem.)",
+      "rank": 2692,
+      "pos": "adjective",
+      "done": false
+    },
+    {
+      "slug": "mujer.noun",
+      "form": "mujer",
+      "en": "woman",
+      "rank": 2692,
+      "pos": "noun",
+      "done": true
+    },
+    {
+      "slug": "persona.noun",
+      "form": "persona",
+      "en": "person",
+      "rank": 2754,
+      "pos": "noun",
+      "done": false
+    },
+    {
+      "slug": "ser.verb.indicative.future.third.singular",
+      "form": "será",
+      "en": "he/she will be",
+      "rank": 2754,
+      "pos": "verb",
+      "done": false
+    },
+    {
+      "slug": "casi.adverb",
+      "form": "casi",
+      "en": "almost",
+      "rank": 2818,
+      "pos": "adverb",
+      "done": false
+    },
+    {
+      "slug": "noche.noun",
+      "form": "noche",
+      "en": "night",
+      "rank": 2818,
+      "pos": "noun",
+      "done": false
+    },
+    {
+      "slug": "nosotros.pronoun",
+      "form": "nosotros",
+      "en": "we (masc.)",
+      "rank": 2818,
+      "pos": "pronoun",
+      "done": true
+    },
+    {
+      "slug": "tener.verb.indicative.present.first.plural",
+      "form": "tenemos",
+      "en": "we have",
+      "rank": 2818,
+      "pos": "verb",
+      "done": false
+    },
+    {
+      "slug": "querer.verb.indicative.present.third.singular",
+      "form": "quiere",
+      "en": "he/she wants",
+      "rank": 2818,
+      "pos": "verb",
+      "done": false
+    },
+    {
+      "slug": "hacer.verb.indicative.past.third.singular",
+      "form": "hizo",
+      "en": "he/she did",
+      "rank": 2818,
+      "pos": "verb",
+      "done": false
+    },
+    {
+      "slug": "ser.verb.indicative.present.second.singular",
+      "form": "eres",
+      "en": "you are",
+      "rank": 2884,
+      "pos": "verb",
+      "done": true
+    },
+    {
+      "slug": "dentro.adverb",
+      "form": "dentro",
+      "en": "inside",
+      "rank": 2951,
+      "pos": "adverb",
+      "done": false
+    },
+    {
+      "slug": "estar.verb.indicative.present.first.plural",
+      "form": "estamos",
+      "en": "we are",
+      "rank": 2951,
+      "pos": "verb",
+      "done": true
+    },
+    {
+      "slug": "poder.verb.indicative.present.first.plural",
+      "form": "podemos",
+      "en": "we can",
+      "rank": 3020,
+      "pos": "verb",
+      "done": false
+    },
+    {
+      "slug": "mismo.adjective.feminine.singular",
+      "form": "misma",
+      "en": "same",
+      "rank": 3090,
+      "pos": "adjective",
+      "done": false
+    },
+    {
+      "slug": "tener.verb.indicative.imperfect.first.singular",
+      "form": "tenía",
+      "en": "I used to have",
+      "rank": 3090,
+      "pos": "verb",
+      "done": false
+    },
+    {
+      "slug": "problema.noun",
+      "form": "problema",
+      "en": "problem",
+      "rank": 3162,
+      "pos": "noun",
+      "done": true
+    },
+    {
+      "slug": "agua.noun",
+      "form": "agua",
+      "en": "water",
+      "rank": 3236,
+      "pos": "noun",
+      "done": false
+    },
+    {
+      "slug": "ir.verb.indicative.present.first.plural",
+      "form": "vamos",
+      "en": "we go",
+      "rank": 3236,
+      "pos": "verb",
+      "done": true
+    },
+    {
+      "slug": "ir.verb.indicative.present.third.plural",
+      "form": "van",
+      "en": "they go",
+      "rank": 3236,
+      "pos": "verb",
+      "done": true
+    },
+    {
+      "slug": "saber.verb.infinitive",
+      "form": "saber",
+      "en": "to know",
+      "rank": 3236,
+      "pos": "verb",
+      "done": false
+    },
+    {
+      "slug": "saber.verb.indicative.present.first.singular",
+      "form": "sé",
+      "en": "I know",
+      "rank": 3236,
+      "pos": "verb",
+      "done": false
+    },
+    {
+      "slug": "importante.adjective",
+      "form": "importante",
+      "en": "important",
+      "rank": 3311,
+      "pos": "adjective",
+      "done": true
+    },
+    {
+      "slug": "ante.adposition",
+      "form": "ante",
+      "en": "before / in front of",
+      "rank": 3311,
+      "pos": "adposition",
+      "done": false
+    },
+    {
+      "slug": "mañana.adverb",
+      "form": "mañana",
+      "en": "tomorrow",
+      "rank": 3311,
+      "pos": "adverb",
+      "done": true
+    },
+    {
+      "slug": "semana.noun",
+      "form": "semana",
+      "en": "week",
+      "rank": 3311,
+      "pos": "noun",
+      "done": false
+    },
+    {
+      "slug": "tener.verb.indicative.present.second.singular",
+      "form": "tienes",
+      "en": "you have",
+      "rank": 3311,
+      "pos": "verb",
+      "done": false
+    },
+    {
+      "slug": "dar.verb.infinitive",
+      "form": "dar",
+      "en": "to give",
+      "rank": 3311,
+      "pos": "verb",
+      "done": false
+    },
+    {
+      "slug": "pasar.verb.indicative.present.third.singular",
+      "form": "pasa",
+      "en": "he/she spends",
+      "rank": 3311,
+      "pos": "verb",
+      "done": false
+    },
+    {
+      "slug": "gustar.verb.indicative.present.third.singular",
+      "form": "gusta",
+      "en": "he/she pleases",
+      "rank": 3311,
+      "pos": "verb",
+      "done": false
+    },
+    {
+      "slug": "claro.adjective.masculine.singular",
+      "form": "claro",
+      "en": "clear / light",
+      "rank": 3388,
+      "pos": "adjective",
+      "done": false
+    },
+    {
+      "slug": "dinero.noun",
+      "form": "dinero",
+      "en": "money",
+      "rank": 3388,
+      "pos": "noun",
+      "done": true
+    },
+    {
+      "slug": "número.noun",
+      "form": "número",
+      "en": "number",
+      "rank": 3467,
+      "pos": "noun",
+      "done": false
+    },
+    {
+      "slug": "madre.noun",
+      "form": "madre",
+      "en": "mother",
+      "rank": 3548,
+      "pos": "noun",
+      "done": false
+    },
+    {
+      "slug": "hora.noun",
+      "form": "hora",
+      "en": "hour / time",
+      "rank": 3548,
+      "pos": "noun",
+      "done": false
+    },
+    {
+      "slug": "señor.noun",
+      "form": "señor",
+      "en": "sir / gentleman",
+      "rank": 3548,
+      "pos": "noun",
+      "done": false
+    },
+    {
+      "slug": "ser.verb.gerund",
+      "form": "siendo",
+      "en": "being",
+      "rank": 3548,
+      "pos": "verb",
+      "done": false
+    },
+    {
+      "slug": "hablar.verb.infinitive",
+      "form": "hablar",
+      "en": "to speak",
+      "rank": 3548,
+      "pos": "verb",
+      "done": true
+    },
+    {
+      "slug": "poder.verb.indicative.present.second.singular",
+      "form": "puedes",
+      "en": "you can",
+      "rank": 3631,
+      "pos": "verb",
+      "done": false
+    },
+    {
+      "slug": "hacer.verb.gerund",
+      "form": "haciendo",
+      "en": "doing",
+      "rank": 3631,
+      "pos": "verb",
+      "done": false
+    },
+    {
+      "slug": "tras.adposition",
+      "form": "tras",
+      "en": "after / behind",
+      "rank": 3715,
+      "pos": "adposition",
+      "done": false
+    },
+    {
+      "slug": "tarde.noun",
+      "form": "tarde",
+      "en": "afternoon",
+      "rank": 3715,
+      "pos": "noun",
+      "done": false
+    },
+    {
+      "slug": "idea.noun",
+      "form": "idea",
+      "en": "idea",
+      "rank": 3715,
+      "pos": "noun",
+      "done": false
+    },
+    {
+      "slug": "tú.pronoun",
+      "form": "tú",
+      "en": "you (informal)",
+      "rank": 3715,
+      "pos": "pronoun",
+      "done": true
+    },
+    {
+      "slug": "poder.verb.conditional.first.singular",
+      "form": "podría",
+      "en": "I could",
+      "rank": 3802,
+      "pos": "verb",
+      "done": false
+    },
+    {
+      "slug": "amor.noun",
+      "form": "amor",
+      "en": "love",
+      "rank": 3890,
+      "pos": "noun",
+      "done": false
+    },
+    {
+      "slug": "ir.verb.indicative.present.second.singular",
+      "form": "vas",
+      "en": "you go",
+      "rank": 3890,
+      "pos": "verb",
+      "done": true
+    },
+    {
+      "slug": "ser.verb.indicative.imperfect.third.plural",
+      "form": "eran",
+      "en": "they used to be",
+      "rank": 3890,
+      "pos": "verb",
+      "done": false
+    },
+    {
+      "slug": "hijo.noun",
+      "form": "hijo",
+      "en": "son",
+      "rank": 3981,
+      "pos": "noun",
+      "done": false
+    },
+    {
+      "slug": "cuatro.numeral",
+      "form": "cuatro",
+      "en": "four",
+      "rank": 3981,
+      "pos": "numeral",
+      "done": true
+    },
+    {
+      "slug": "ser.verb.conditional.first.singular",
+      "form": "sería",
+      "en": "I would be",
+      "rank": 4074,
+      "pos": "verb",
+      "done": false
+    },
+    {
+      "slug": "posible.adjective",
+      "form": "posible",
+      "en": "possible",
+      "rank": 4169,
+      "pos": "adjective",
+      "done": false
+    },
+    {
+      "slug": "mano.noun",
+      "form": "mano",
+      "en": "hand",
+      "rank": 4169,
+      "pos": "noun",
+      "done": false
+    },
+    {
+      "slug": "juego.noun",
+      "form": "juego",
+      "en": "game",
+      "rank": 4169,
+      "pos": "noun",
+      "done": false
+    },
+    {
+      "slug": "ser.verb.indicative.present.first.plural",
+      "form": "somos",
+      "en": "we are",
+      "rank": 4169,
+      "pos": "verb",
+      "done": true
+    },
+    {
+      "slug": "hacer.verb.indicative.present.third.plural",
+      "form": "hacen",
+      "en": "they do",
+      "rank": 4169,
+      "pos": "verb",
+      "done": false
+    },
+    {
+      "slug": "llegar.verb.infinitive",
+      "form": "llegar",
+      "en": "to arrive",
+      "rank": 4169,
+      "pos": "verb",
+      "done": false
+    },
+    {
+      "slug": "usar.verb.indicative.present.first.singular",
+      "form": "uso",
+      "en": "I use",
+      "rank": 4169,
+      "pos": "verb",
+      "done": false
+    },
+    {
+      "slug": "pasar.verb.indicative.present.first.singular",
+      "form": "paso",
+      "en": "I spend",
+      "rank": 4169,
+      "pos": "verb",
+      "done": false
+    },
+    {
+      "slug": "grande.adjective",
+      "form": "grande",
+      "en": "big / large",
+      "rank": 4266,
+      "pos": "adjective",
+      "done": true
+    },
+    {
+      "slug": "todavía.adverb",
+      "form": "todavía",
+      "en": "still / yet",
+      "rank": 4266,
+      "pos": "adverb",
+      "done": false
+    },
+    {
+      "slug": "cerca.adverb",
+      "form": "cerca",
+      "en": "near",
+      "rank": 4266,
+      "pos": "adverb",
+      "done": false
+    },
+    {
+      "slug": "quién.pronoun",
+      "form": "quién",
+      "en": "who",
+      "rank": 4266,
+      "pos": "pronoun",
+      "done": false
+    },
+    {
+      "slug": "saber.verb.indicative.present.third.singular",
+      "form": "sabe",
+      "en": "he/she knows",
+      "rank": 4266,
+      "pos": "verb",
+      "done": false
+    },
+    {
+      "slug": "padre.noun",
+      "form": "padre",
+      "en": "father",
+      "rank": 4365,
+      "pos": "noun",
+      "done": false
+    },
+    {
+      "slug": "amigo.noun",
+      "form": "amigo",
+      "en": "friend",
+      "rank": 4365,
+      "pos": "noun",
+      "done": false
+    },
+    {
+      "slug": "salir.verb.infinitive",
+      "form": "salir",
+      "en": "to leave",
+      "rank": 4365,
+      "pos": "verb",
+      "done": false
+    },
+    {
+      "slug": "unas.determiner",
+      "form": "unas",
+      "en": "some (fem.)",
+      "rank": 4467,
+      "pos": "determiner",
+      "done": false
+    },
+    {
+      "slug": "cabeza.noun",
+      "form": "cabeza",
+      "en": "head",
+      "rank": 4571,
+      "pos": "noun",
+      "done": false
+    },
+    {
+      "slug": "foto.noun",
+      "form": "foto",
+      "en": "photo",
+      "rank": 4571,
+      "pos": "noun",
+      "done": false
+    },
+    {
+      "slug": "pasar.verb.infinitive",
+      "form": "pasar",
+      "en": "to spend",
+      "rank": 4571,
+      "pos": "verb",
+      "done": false
+    },
+    {
+      "slug": "ayuda.noun",
+      "form": "ayuda",
+      "en": "help",
+      "rank": 4677,
+      "pos": "noun",
+      "done": false
+    },
+    {
+      "slug": "libro.noun",
+      "form": "libro",
+      "en": "book",
+      "rank": 4677,
+      "pos": "noun",
+      "done": false
+    },
+    {
+      "slug": "ver.verb.indicative.present.first.singular",
+      "form": "veo",
+      "en": "I see",
+      "rank": 4677,
+      "pos": "verb",
+      "done": false
+    },
+    {
+      "slug": "mes.noun",
+      "form": "mes",
+      "en": "month",
+      "rank": 4898,
+      "pos": "noun",
+      "done": false
+    },
+    {
+      "slug": "cinco.numeral",
+      "form": "cinco",
+      "en": "five",
+      "rank": 4898,
+      "pos": "numeral",
+      "done": true
+    },
+    {
+      "slug": "usted.pronoun",
+      "form": "usted",
+      "en": "you (formal)",
+      "rank": 4898,
+      "pos": "pronoun",
+      "done": true
+    },
+    {
+      "slug": "estar.verb.indicative.present.second.singular",
+      "form": "estás",
+      "en": "you are",
+      "rank": 4898,
+      "pos": "verb",
+      "done": true
+    },
+    {
+      "slug": "largo.adjective.masculine.singular",
+      "form": "largo",
+      "en": "long",
+      "rank": 5012,
+      "pos": "adjective",
+      "done": false
+    },
+    {
+      "slug": "querer.verb.indicative.present.second.singular",
+      "form": "quieres",
+      "en": "you want",
+      "rank": 5012,
+      "pos": "verb",
+      "done": false
+    },
+    {
+      "slug": "alto.adjective.masculine.singular",
+      "form": "alto",
+      "en": "tall / high",
+      "rank": 5129,
+      "pos": "adjective",
+      "done": false
+    },
+    {
+      "slug": "español.noun",
+      "form": "español",
+      "en": "Spanish (language)",
+      "rank": 5129,
+      "pos": "noun",
+      "done": false
+    },
+    {
+      "slug": "decir.verb.indicative.present.third.plural",
+      "form": "dicen",
+      "en": "they say",
+      "rank": 5129,
+      "pos": "verb",
+      "done": false
+    },
+    {
+      "slug": "venir.verb.indicative.present.third.singular",
+      "form": "viene",
+      "en": "he/she comes",
+      "rank": 5129,
+      "pos": "verb",
+      "done": false
+    },
+    {
+      "slug": "hola.interjection",
+      "form": "hola",
+      "en": "hello",
+      "rank": 5248,
+      "pos": "interjection",
+      "done": true
+    },
+    {
+      "slug": "policía.noun",
+      "form": "policía",
+      "en": "policeman",
+      "rank": 5248,
+      "pos": "noun",
+      "done": false
+    },
+    {
+      "slug": "tener.verb.indicative.past.third.singular",
+      "form": "tuvo",
+      "en": "he/she had",
+      "rank": 5248,
+      "pos": "verb",
+      "done": false
+    },
+    {
+      "slug": "decir.verb.indicative.present.first.singular",
+      "form": "digo",
+      "en": "I say",
+      "rank": 5248,
+      "pos": "verb",
+      "done": false
+    },
+    {
+      "slug": "caro.adjective.feminine.singular",
+      "form": "cara",
+      "en": "expensive (fem.)",
+      "rank": 5370,
+      "pos": "adjective",
+      "done": false
+    },
+    {
+      "slug": "calle.noun",
+      "form": "calle",
+      "en": "street",
+      "rank": 5370,
+      "pos": "noun",
+      "done": false
+    },
+    {
+      "slug": "os.pronoun",
+      "form": "os",
+      "en": "you all",
+      "rank": 5370,
+      "pos": "pronoun",
+      "done": false
+    },
+    {
+      "slug": "pensar.verb.infinitive",
+      "form": "pensar",
+      "en": "to think",
+      "rank": 5370,
+      "pos": "verb",
+      "done": false
+    },
+    {
+      "slug": "allí.adverb",
+      "form": "allí",
+      "en": "there",
+      "rank": 5495,
+      "pos": "adverb",
+      "done": false
+    },
+    {
+      "slug": "escuela.noun",
+      "form": "escuela",
+      "en": "school",
+      "rank": 5495,
+      "pos": "noun",
+      "done": false
+    },
+    {
+      "slug": "julio.noun",
+      "form": "julio",
+      "en": "July",
+      "rank": 5495,
+      "pos": "noun",
+      "done": true
+    },
+    {
+      "slug": "querer.verb.indicative.present.third.plural",
+      "form": "quieren",
+      "en": "they want",
+      "rank": 5495,
+      "pos": "verb",
+      "done": false
+    },
+    {
+      "slug": "vivir.verb.infinitive",
+      "form": "vivir",
+      "en": "to live",
+      "rank": 5495,
+      "pos": "verb",
+      "done": false
+    },
+    {
+      "slug": "poder.verb.subjunctive.present.first.singular",
+      "form": "pueda",
+      "en": "(that) I can",
+      "rank": 5495,
+      "pos": "verb",
+      "done": false
+    },
+    {
+      "slug": "ir.verb.imperative.second.singular",
+      "form": "ve",
+      "en": "go!",
+      "rank": 5495,
+      "pos": "verb",
+      "done": false
+    },
+    {
+      "slug": "libre.adjective",
+      "form": "libre",
+      "en": "free",
+      "rank": 5623,
+      "pos": "adjective",
+      "done": false
+    },
+    {
+      "slug": "suerte.noun",
+      "form": "suerte",
+      "en": "luck",
+      "rank": 5623,
+      "pos": "noun",
+      "done": false
+    },
+    {
+      "slug": "saber.verb.indicative.present.second.singular",
+      "form": "sabes",
+      "en": "you know",
+      "rank": 5623,
+      "pos": "verb",
+      "done": false
+    },
+    {
+      "slug": "fácil.adjective",
+      "form": "fácil",
+      "en": "easy",
+      "rank": 5754,
+      "pos": "adjective",
+      "done": false
+    },
+    {
+      "slug": "difícil.adjective",
+      "form": "difícil",
+      "en": "difficult / hard",
+      "rank": 5754,
+      "pos": "adjective",
+      "done": false
+    },
+    {
+      "slug": "fuerte.adjective",
+      "form": "fuerte",
+      "en": "strong",
+      "rank": 5754,
+      "pos": "adjective",
+      "done": false
+    },
+    {
+      "slug": "bastante.adverb",
+      "form": "bastante",
+      "en": "quite / enough",
+      "rank": 5754,
+      "pos": "adverb",
+      "done": false
+    },
+    {
+      "slug": "miedo.noun",
+      "form": "miedo",
+      "en": "fear",
+      "rank": 5754,
+      "pos": "noun",
+      "done": false
+    },
+    {
+      "slug": "música.noun",
+      "form": "música",
+      "en": "music",
+      "rank": 5754,
+      "pos": "noun",
+      "done": false
+    },
+    {
+      "slug": "pregunta.noun",
+      "form": "pregunta",
+      "en": "question",
+      "rank": 5754,
+      "pos": "noun",
+      "done": false
+    },
+    {
+      "slug": "hablar.verb.indicative.present.third.singular",
+      "form": "habla",
+      "en": "he/she speaks",
+      "rank": 5754,
+      "pos": "verb",
+      "done": false
+    },
+    {
+      "slug": "estar.verb.indicative.imperfect.third.plural",
+      "form": "estaban",
+      "en": "they were",
+      "rank": 5754,
+      "pos": "verb",
+      "done": false
+    },
+    {
+      "slug": "poner.verb.infinitive",
+      "form": "poner",
+      "en": "to put",
+      "rank": 5754,
+      "pos": "verb",
+      "done": false
+    },
+    {
+      "slug": "demasiado.adverb",
+      "form": "demasiado",
+      "en": "too much",
+      "rank": 5888,
+      "pos": "adverb",
+      "done": false
+    },
+    {
+      "slug": "mayo.noun",
+      "form": "mayo",
+      "en": "May",
+      "rank": 5888,
+      "pos": "noun",
+      "done": true
+    },
+    {
+      "slug": "ir.verb.indicative.imperfect.first.singular",
+      "form": "iba",
+      "en": "I used to go",
+      "rank": 5888,
+      "pos": "verb",
+      "done": false
+    },
+    {
+      "slug": "esperar.verb.indicative.present.first.singular",
+      "form": "espero",
+      "en": "I wait",
+      "rank": 5888,
+      "pos": "verb",
+      "done": false
+    },
+    {
+      "slug": "peor.adjective",
+      "form": "peor",
+      "en": "worse",
+      "rank": 6026,
+      "pos": "adjective",
+      "done": false
+    },
+    {
+      "slug": "marzo.noun",
+      "form": "marzo",
+      "en": "March",
+      "rank": 6026,
+      "pos": "noun",
+      "done": true
+    },
+    {
+      "slug": "trabajar.verb.infinitive",
+      "form": "trabajar",
+      "en": "to work",
+      "rank": 6026,
+      "pos": "verb",
+      "done": false
+    },
+    {
+      "slug": "encontrar.verb.infinitive",
+      "form": "encontrar",
+      "en": "to find",
+      "rank": 6026,
+      "pos": "verb",
+      "done": false
+    },
+    {
+      "slug": "tampoco.adverb",
+      "form": "tampoco",
+      "en": "neither",
+      "rank": 6166,
+      "pos": "adverb",
+      "done": false
+    },
+    {
+      "slug": "corazón.noun",
+      "form": "corazón",
+      "en": "heart",
+      "rank": 6310,
+      "pos": "noun",
+      "done": false
+    },
+    {
+      "slug": "octubre.noun",
+      "form": "octubre",
+      "en": "October",
+      "rank": 6310,
+      "pos": "noun",
+      "done": true
+    },
+    {
+      "slug": "diciembre.noun",
+      "form": "diciembre",
+      "en": "December",
+      "rank": 6310,
+      "pos": "noun",
+      "done": true
+    },
+    {
+      "slug": "encontrar.verb.indicative.present.third.singular",
+      "form": "encuentra",
+      "en": "he/she finds",
+      "rank": 6310,
+      "pos": "verb",
+      "done": false
+    },
+    {
+      "slug": "volver.verb.infinitive",
+      "form": "volver",
+      "en": "to return",
+      "rank": 6310,
+      "pos": "verb",
+      "done": false
+    },
+    {
+      "slug": "palabra.noun",
+      "form": "palabra",
+      "en": "word",
+      "rank": 6457,
+      "pos": "noun",
+      "done": false
+    },
+    {
+      "slug": "tener.verb.participle.past",
+      "form": "tenido",
+      "en": "had",
+      "rank": 6457,
+      "pos": "verb",
+      "done": false
+    },
+    {
+      "slug": "ser.verb.subjunctive.present.third.plural",
+      "form": "sean",
+      "en": "(that) they be",
+      "rank": 6457,
+      "pos": "verb",
+      "done": false
+    },
+    {
+      "slug": "estudiar.verb.indicative.present.first.singular",
+      "form": "estudio",
+      "en": "I study",
+      "rank": 6457,
+      "pos": "verb",
+      "done": false
+    },
+    {
+      "slug": "mirar.verb.indicative.present.third.singular",
+      "form": "mira",
+      "en": "he/she looks at",
+      "rank": 6457,
+      "pos": "verb",
+      "done": false
+    },
+    {
+      "slug": "joven.adjective",
+      "form": "joven",
+      "en": "young",
+      "rank": 6607,
+      "pos": "adjective",
+      "done": false
+    },
+    {
+      "slug": "abril.noun",
+      "form": "abril",
+      "en": "April",
+      "rank": 6607,
+      "pos": "noun",
+      "done": false
+    },
+    {
+      "slug": "junio.noun",
+      "form": "junio",
+      "en": "June",
+      "rank": 6761,
+      "pos": "noun",
+      "done": true
+    },
+    {
+      "slug": "película.noun",
+      "form": "película",
+      "en": "film",
+      "rank": 6761,
+      "pos": "noun",
+      "done": false
+    },
+    {
+      "slug": "llevar.verb.indicative.present.third.singular",
+      "form": "lleva",
+      "en": "he/she carries",
+      "rank": 6761,
+      "pos": "verb",
+      "done": false
+    },
+    {
+      "slug": "dónde.adverb",
+      "form": "dónde",
+      "en": "where",
+      "rank": 6918,
+      "pos": "adverb",
+      "done": false
+    },
+    {
+      "slug": "mercado.noun",
+      "form": "mercado",
+      "en": "market",
+      "rank": 6918,
+      "pos": "noun",
+      "done": false
+    },
+    {
+      "slug": "noviembre.noun",
+      "form": "noviembre",
+      "en": "November",
+      "rank": 6918,
+      "pos": "noun",
+      "done": true
+    },
+    {
+      "slug": "papel.noun",
+      "form": "papel",
+      "en": "paper",
+      "rank": 6918,
+      "pos": "noun",
+      "done": false
+    },
+    {
+      "slug": "seis.numeral",
+      "form": "seis",
+      "en": "six",
+      "rank": 6918,
+      "pos": "numeral",
+      "done": true
+    },
+    {
+      "slug": "dar.verb.indicative.present.third.plural",
+      "form": "dan",
+      "en": "they give",
+      "rank": 6918,
+      "pos": "verb",
+      "done": false
+    },
+    {
+      "slug": "comida.noun",
+      "form": "comida",
+      "en": "food",
+      "rank": 7079,
+      "pos": "noun",
+      "done": true
+    },
+    {
+      "slug": "enero.noun",
+      "form": "enero",
+      "en": "January",
+      "rank": 7079,
+      "pos": "noun",
+      "done": true
+    },
+    {
+      "slug": "agosto.noun",
+      "form": "agosto",
+      "en": "August",
+      "rank": 7079,
+      "pos": "noun",
+      "done": false
+    },
+    {
+      "slug": "jefe.noun",
+      "form": "jefe",
+      "en": "boss",
+      "rank": 7079,
+      "pos": "noun",
+      "done": false
+    },
+    {
+      "slug": "ellas.pronoun",
+      "form": "ellas",
+      "en": "they (fem.)",
+      "rank": 7079,
+      "pos": "pronoun",
+      "done": false
+    },
+    {
+      "slug": "ustedes.pronoun",
+      "form": "ustedes",
+      "en": "you all (formal)",
+      "rank": 7079,
+      "pos": "pronoun",
+      "done": false
+    },
+    {
+      "slug": "leer.verb.infinitive",
+      "form": "leer",
+      "en": "to read",
+      "rank": 7079,
+      "pos": "verb",
+      "done": false
+    },
+    {
+      "slug": "llamar.verb.indicative.present.third.singular",
+      "form": "llama",
+      "en": "he/she calls",
+      "rank": 7079,
+      "pos": "verb",
+      "done": false
+    },
+    {
+      "slug": "llevar.verb.infinitive",
+      "form": "llevar",
+      "en": "to carry",
+      "rank": 7079,
+      "pos": "verb",
+      "done": false
+    },
+    {
+      "slug": "vale.interjection",
+      "form": "vale",
+      "en": "okay / all right",
+      "rank": 7244,
+      "pos": "interjection",
+      "done": true
+    },
+    {
+      "slug": "febrero.noun",
+      "form": "febrero",
+      "en": "February",
+      "rank": 7244,
+      "pos": "noun",
+      "done": true
+    },
+    {
+      "slug": "hablar.verb.gerund",
+      "form": "hablando",
+      "en": "speaking",
+      "rank": 7244,
+      "pos": "verb",
+      "done": false
+    },
+    {
+      "slug": "necesitar.verb.indicative.present.third.singular",
+      "form": "necesita",
+      "en": "he/she needs",
+      "rank": 7244,
+      "pos": "verb",
+      "done": false
+    },
+    {
+      "slug": "tener.verb.subjunctive.present.first.singular",
+      "form": "tenga",
+      "en": "(that) I have",
+      "rank": 7244,
+      "pos": "verb",
+      "done": false
+    },
+    {
+      "slug": "hacer.verb.subjunctive.present.first.singular",
+      "form": "haga",
+      "en": "(that) I do",
+      "rank": 7244,
+      "pos": "verb",
+      "done": false
+    },
+    {
+      "slug": "plaza.noun",
+      "form": "plaza",
+      "en": "square",
+      "rank": 7413,
+      "pos": "noun",
+      "done": false
+    },
+    {
+      "slug": "septiembre.noun",
+      "form": "septiembre",
+      "en": "September",
+      "rank": 7413,
+      "pos": "noun",
+      "done": true
+    },
+    {
+      "slug": "necesitar.verb.indicative.present.first.singular",
+      "form": "necesito",
+      "en": "I need",
+      "rank": 7413,
+      "pos": "verb",
+      "done": false
+    },
+    {
+      "slug": "vivir.verb.indicative.present.first.singular",
+      "form": "vivo",
+      "en": "I live",
+      "rank": 7413,
+      "pos": "verb",
+      "done": false
+    },
+    {
+      "slug": "estar.verb.indicative.past.third.singular",
+      "form": "estuvo",
+      "en": "he/she was",
+      "rank": 7413,
+      "pos": "verb",
+      "done": false
+    },
+    {
+      "slug": "conocer.verb.infinitive",
+      "form": "conocer",
+      "en": "to know",
+      "rank": 7413,
+      "pos": "verb",
+      "done": false
+    },
+    {
+      "slug": "usar.verb.infinitive",
+      "form": "usar",
+      "en": "to use",
+      "rank": 7413,
+      "pos": "verb",
+      "done": false
+    },
+    {
+      "slug": "pronto.adverb",
+      "form": "pronto",
+      "en": "soon",
+      "rank": 7586,
+      "pos": "adverb",
+      "done": false
+    },
+    {
+      "slug": "iglesia.noun",
+      "form": "iglesia",
+      "en": "church",
+      "rank": 7586,
+      "pos": "noun",
+      "done": false
+    },
+    {
+      "slug": "alto.adjective.feminine.singular",
+      "form": "alta",
+      "en": "tall / high (fem.)",
+      "rank": 7762,
+      "pos": "adjective",
+      "done": false
+    },
+    {
+      "slug": "hermano.noun",
+      "form": "hermano",
+      "en": "brother",
+      "rank": 7762,
+      "pos": "noun",
+      "done": false
+    },
+    {
+      "slug": "mar.noun",
+      "form": "mar",
+      "en": "sea",
+      "rank": 7762,
+      "pos": "noun",
+      "done": false
+    },
+    {
+      "slug": "viaje.noun",
+      "form": "viaje",
+      "en": "trip",
+      "rank": 7762,
+      "pos": "noun",
+      "done": false
+    },
+    {
+      "slug": "negro.adjective.masculine.singular",
+      "form": "negro",
+      "en": "black",
+      "rank": 7943,
+      "pos": "adjective",
+      "done": false
+    },
+    {
+      "slug": "encima.adverb",
+      "form": "encima",
+      "en": "on top",
+      "rank": 7943,
+      "pos": "adverb",
+      "done": false
+    },
+    {
+      "slug": "niño.noun",
+      "form": "niño",
+      "en": "child / boy",
+      "rank": 7943,
+      "pos": "noun",
+      "done": false
+    },
+    {
+      "slug": "río.noun",
+      "form": "río",
+      "en": "river",
+      "rank": 7943,
+      "pos": "noun",
+      "done": false
+    },
+    {
+      "slug": "pequeño.adjective.masculine.singular",
+      "form": "pequeño",
+      "en": "small",
+      "rank": 8128,
+      "pos": "adjective",
+      "done": true
+    },
+    {
+      "slug": "blanco.adjective.masculine.singular",
+      "form": "blanco",
+      "en": "white",
+      "rank": 8128,
+      "pos": "adjective",
+      "done": false
+    },
+    {
+      "slug": "ayer.adverb",
+      "form": "ayer",
+      "en": "yesterday",
+      "rank": 8128,
+      "pos": "adverb",
+      "done": false
+    },
+    {
+      "slug": "sol.noun",
+      "form": "sol",
+      "en": "sun",
+      "rank": 8128,
+      "pos": "noun",
+      "done": false
+    },
+    {
+      "slug": "saber.verb.indicative.present.third.plural",
+      "form": "saben",
+      "en": "they know",
+      "rank": 8128,
+      "pos": "verb",
+      "done": false
+    },
+    {
+      "slug": "comer.verb.infinitive",
+      "form": "comer",
+      "en": "to eat",
+      "rank": 8128,
+      "pos": "verb",
+      "done": true
+    },
+    {
+      "slug": "ir.verb.subjunctive.present.first.singular",
+      "form": "vaya",
+      "en": "(that) I go",
+      "rank": 8128,
+      "pos": "verb",
+      "done": false
+    },
+    {
+      "slug": "poder.verb.indicative.imperfect.first.singular",
+      "form": "podía",
+      "en": "I could",
+      "rank": 8318,
+      "pos": "verb",
+      "done": false
+    },
+    {
+      "slug": "ver.verb.indicative.present.third.plural",
+      "form": "ven",
+      "en": "they see",
+      "rank": 8318,
+      "pos": "verb",
+      "done": false
+    },
+    {
+      "slug": "buscar.verb.infinitive",
+      "form": "buscar",
+      "en": "to look for",
+      "rank": 8318,
+      "pos": "verb",
+      "done": false
+    },
+    {
+      "slug": "malo.adjective.feminine.singular",
+      "form": "mala",
+      "en": "bad (fem.)",
+      "rank": 8511,
+      "pos": "adjective",
+      "done": false
+    },
+    {
+      "slug": "bajo.adjective.feminine.singular",
+      "form": "baja",
+      "en": "short / low (fem.)",
+      "rank": 8511,
+      "pos": "adjective",
+      "done": false
+    },
+    {
+      "slug": "lejos.adverb",
+      "form": "lejos",
+      "en": "far",
+      "rank": 8511,
+      "pos": "adverb",
+      "done": false
+    },
+    {
+      "slug": "puerta.noun",
+      "form": "puerta",
+      "en": "door",
+      "rank": 8511,
+      "pos": "noun",
+      "done": false
+    },
+    {
+      "slug": "entrar.verb.infinitive",
+      "form": "entrar",
+      "en": "to enter",
+      "rank": 8511,
+      "pos": "verb",
+      "done": false
+    },
+    {
+      "slug": "menor.adjective",
+      "form": "menor",
+      "en": "younger / smaller",
+      "rank": 8710,
+      "pos": "adjective",
+      "done": false
+    },
+    {
+      "slug": "hija.noun",
+      "form": "hija",
+      "en": "daughter",
+      "rank": 8710,
+      "pos": "noun",
+      "done": false
+    },
+    {
+      "slug": "hacer.verb.indicative.present.first.singular",
+      "form": "hago",
+      "en": "I do",
+      "rank": 8710,
+      "pos": "verb",
+      "done": false
+    },
+    {
+      "slug": "querer.verb.indicative.imperfect.first.singular",
+      "form": "quería",
+      "en": "I wanted",
+      "rank": 8710,
+      "pos": "verb",
+      "done": false
+    },
+    {
+      "slug": "llegar.verb.indicative.present.third.singular",
+      "form": "llega",
+      "en": "he/she arrives",
+      "rank": 8710,
+      "pos": "verb",
+      "done": false
+    },
+    {
+      "slug": "ayudar.verb.infinitive",
+      "form": "ayudar",
+      "en": "to help",
+      "rank": 8710,
+      "pos": "verb",
+      "done": false
+    },
+    {
+      "slug": "juntos.adverb",
+      "form": "juntos",
+      "en": "together",
+      "rank": 8913,
+      "pos": "adverb",
+      "done": false
+    },
+    {
+      "slug": "esperar.verb.indicative.present.third.singular",
+      "form": "espera",
+      "en": "he/she waits",
+      "rank": 8913,
+      "pos": "verb",
+      "done": false
+    },
+    {
+      "slug": "buscar.verb.indicative.present.third.singular",
+      "form": "busca",
+      "en": "he/she looks for",
+      "rank": 8913,
+      "pos": "verb",
+      "done": false
+    },
+    {
+      "slug": "serio.adjective.masculine.singular",
+      "form": "serio",
+      "en": "serious",
+      "rank": 9120,
+      "pos": "adjective",
+      "done": false
+    },
+    {
+      "slug": "banco.noun",
+      "form": "banco",
+      "en": "bank",
+      "rank": 9120,
+      "pos": "noun",
+      "done": false
+    },
+    {
+      "slug": "oficina.noun",
+      "form": "oficina",
+      "en": "office",
+      "rank": 9120,
+      "pos": "noun",
+      "done": false
+    },
+    {
+      "slug": "diez.numeral",
+      "form": "diez",
+      "en": "ten",
+      "rank": 9120,
+      "pos": "numeral",
+      "done": true
+    },
+    {
+      "slug": "querer.verb.indicative.present.first.plural",
+      "form": "queremos",
+      "en": "we want",
+      "rank": 9120,
+      "pos": "verb",
+      "done": false
+    },
+    {
+      "slug": "malo.adjective.masculine.singular",
+      "form": "malo",
+      "en": "bad",
+      "rank": 9333,
+      "pos": "adjective",
+      "done": false
+    },
+    {
+      "slug": "pequeño.adjective.feminine.singular",
+      "form": "pequeña",
+      "en": "small (fem.)",
+      "rank": 9333,
+      "pos": "adjective",
+      "done": false
+    },
+    {
+      "slug": "viejo.adjective.masculine.singular",
+      "form": "viejo",
+      "en": "old",
+      "rank": 9333,
+      "pos": "adjective",
+      "done": false
+    },
+    {
+      "slug": "diferente.adjective",
+      "form": "diferente",
+      "en": "different",
+      "rank": 9333,
+      "pos": "adjective",
+      "done": false
+    },
+    {
+      "slug": "boca.noun",
+      "form": "boca",
+      "en": "mouth",
+      "rank": 9333,
+      "pos": "noun",
+      "done": false
+    },
+    {
+      "slug": "hacer.verb.indicative.present.second.singular",
+      "form": "haces",
+      "en": "you do",
+      "rank": 9333,
+      "pos": "verb",
+      "done": false
+    },
+    {
+      "slug": "hacer.verb.indicative.past.third.plural",
+      "form": "hicieron",
+      "en": "they did",
+      "rank": 9333,
+      "pos": "verb",
+      "done": false
+    },
+    {
+      "slug": "comprar.verb.infinitive",
+      "form": "comprar",
+      "en": "to buy",
+      "rank": 9333,
+      "pos": "verb",
+      "done": false
+    },
+    {
+      "slug": "salir.verb.indicative.present.third.singular",
+      "form": "sale",
+      "en": "he/she leaves",
+      "rank": 9333,
+      "pos": "verb",
+      "done": false
+    },
+    {
+      "slug": "esperar.verb.infinitive",
+      "form": "esperar",
+      "en": "to wait",
+      "rank": 9333,
+      "pos": "verb",
+      "done": false
+    },
+    {
+      "slug": "domingo.noun",
+      "form": "domingo",
+      "en": "Sunday",
+      "rank": 9550,
+      "pos": "noun",
+      "done": true
+    },
+    {
+      "slug": "vivir.verb.indicative.present.third.singular",
+      "form": "vive",
+      "en": "he/she lives",
+      "rank": 9550,
+      "pos": "verb",
+      "done": false
+    },
+    {
+      "slug": "ser.verb.indicative.past.first.singular",
+      "form": "fui",
+      "en": "I was",
+      "rank": 9550,
+      "pos": "verb",
+      "done": false
+    },
+    {
+      "slug": "estar.verb.subjunctive.present.first.singular",
+      "form": "esté",
+      "en": "(that) I be",
+      "rank": 9550,
+      "pos": "verb",
+      "done": false
+    },
+    {
+      "slug": "poner.verb.indicative.present.third.singular",
+      "form": "pone",
+      "en": "he/she puts",
+      "rank": 9550,
+      "pos": "verb",
+      "done": false
+    },
+    {
+      "slug": "creer.verb.indicative.present.third.singular",
+      "form": "cree",
+      "en": "he/she believes",
+      "rank": 9550,
+      "pos": "verb",
+      "done": false
+    },
+    {
+      "slug": "empezar.verb.infinitive",
+      "form": "empezar",
+      "en": "to begin",
+      "rank": 9550,
+      "pos": "verb",
+      "done": false
+    },
+    {
+      "slug": "creer.verb.infinitive",
+      "form": "creer",
+      "en": "to believe",
+      "rank": 9772,
+      "pos": "verb",
+      "done": false
+    },
+    {
+      "slug": "rápido.adjective.masculine.singular",
+      "form": "rápido",
+      "en": "fast",
+      "rank": 10000,
+      "pos": "adjective",
+      "done": false
+    },
+    {
+      "slug": "carta.noun",
+      "form": "carta",
+      "en": "letter",
+      "rank": 10000,
+      "pos": "noun",
+      "done": false
+    },
+    {
+      "slug": "fiesta.noun",
+      "form": "fiesta",
+      "en": "party",
+      "rank": 10233,
+      "pos": "noun",
+      "done": false
+    },
+    {
+      "slug": "poder.verb.indicative.past.third.singular",
+      "form": "pudo",
+      "en": "he/she could",
+      "rank": 10233,
+      "pos": "verb",
+      "done": false
+    },
+    {
+      "slug": "pagar.verb.infinitive",
+      "form": "pagar",
+      "en": "to pay",
+      "rank": 10233,
+      "pos": "verb",
+      "done": false
+    },
+    {
+      "slug": "encontrar.verb.indicative.present.first.singular",
+      "form": "encuentro",
+      "en": "I find",
+      "rank": 10233,
+      "pos": "verb",
+      "done": false
+    },
+    {
+      "slug": "siete.numeral",
+      "form": "siete",
+      "en": "seven",
+      "rank": 10471,
+      "pos": "numeral",
+      "done": true
+    },
+    {
+      "slug": "saber.verb.indicative.present.first.plural",
+      "form": "sabemos",
+      "en": "we know",
+      "rank": 10471,
+      "pos": "verb",
+      "done": false
+    },
+    {
+      "slug": "gustar.verb.indicative.present.first.singular",
+      "form": "gusto",
+      "en": "I please",
+      "rank": 10471,
+      "pos": "verb",
+      "done": false
+    },
+    {
+      "slug": "quizás.adverb",
+      "form": "quizás",
+      "en": "maybe",
+      "rank": 10715,
+      "pos": "adverb",
+      "done": false
+    },
+    {
+      "slug": "ropa.noun",
+      "form": "ropa",
+      "en": "clothes / clothing",
+      "rank": 10715,
+      "pos": "noun",
+      "done": false
+    },
+    {
+      "slug": "profesor.noun",
+      "form": "profesor",
+      "en": "teacher",
+      "rank": 10715,
+      "pos": "noun",
+      "done": false
+    },
+    {
+      "slug": "tener.verb.indicative.imperfect.third.plural",
+      "form": "tenían",
+      "en": "they used to have",
+      "rank": 10715,
+      "pos": "verb",
+      "done": false
+    },
+    {
+      "slug": "ser.verb.indicative.future.third.plural",
+      "form": "serán",
+      "en": "they will be",
+      "rank": 10715,
+      "pos": "verb",
+      "done": false
+    },
+    {
+      "slug": "pensar.verb.indicative.present.first.singular",
+      "form": "pienso",
+      "en": "I think",
+      "rank": 10715,
+      "pos": "verb",
+      "done": false
+    },
+    {
+      "slug": "rico.adjective.masculine.singular",
+      "form": "rico",
+      "en": "rich / tasty",
+      "rank": 10965,
+      "pos": "adjective",
+      "done": false
+    },
+    {
+      "slug": "vino.noun",
+      "form": "vino",
+      "en": "wine",
+      "rank": 10965,
+      "pos": "noun",
+      "done": false
+    },
+    {
+      "slug": "cielo.noun",
+      "form": "cielo",
+      "en": "sky",
+      "rank": 10965,
+      "pos": "noun",
+      "done": false
+    },
+    {
+      "slug": "cine.noun",
+      "form": "cine",
+      "en": "cinema",
+      "rank": 10965,
+      "pos": "noun",
+      "done": false
+    },
+    {
+      "slug": "hacer.verb.indicative.past.first.singular",
+      "form": "hice",
+      "en": "I made",
+      "rank": 10965,
+      "pos": "verb",
+      "done": false
+    },
+    {
+      "slug": "escribir.verb.infinitive",
+      "form": "escribir",
+      "en": "to write",
+      "rank": 10965,
+      "pos": "verb",
+      "done": false
+    },
+    {
+      "slug": "interesante.adjective",
+      "form": "interesante",
+      "en": "interesting",
+      "rank": 11220,
+      "pos": "adjective",
+      "done": false
+    },
+    {
+      "slug": "volver.verb.indicative.present.third.singular",
+      "form": "vuelve",
+      "en": "he/she returns",
+      "rank": 11220,
+      "pos": "verb",
+      "done": false
+    },
+    {
+      "slug": "pie.noun",
+      "form": "pie",
+      "en": "foot",
+      "rank": 11482,
+      "pos": "noun",
+      "done": false
+    },
+    {
+      "slug": "hospital.noun",
+      "form": "hospital",
+      "en": "hospital",
+      "rank": 11482,
+      "pos": "noun",
+      "done": false
+    },
+    {
+      "slug": "poder.verb.subjunctive.present.third.plural",
+      "form": "puedan",
+      "en": "(that) they can",
+      "rank": 11482,
+      "pos": "verb",
+      "done": false
+    },
+    {
+      "slug": "conocer.verb.indicative.present.third.singular",
+      "form": "conoce",
+      "en": "he/she knows",
+      "rank": 11482,
+      "pos": "verb",
+      "done": false
+    },
+    {
+      "slug": "ocho.numeral",
+      "form": "ocho",
+      "en": "eight",
+      "rank": 11749,
+      "pos": "numeral",
+      "done": true
+    },
+    {
+      "slug": "tener.verb.indicative.past.first.singular",
+      "form": "tuve",
+      "en": "I had",
+      "rank": 11749,
+      "pos": "verb",
+      "done": false
+    },
+    {
+      "slug": "ver.verb.indicative.present.second.singular",
+      "form": "ves",
+      "en": "you see",
+      "rank": 11749,
+      "pos": "verb",
+      "done": false
+    },
+    {
+      "slug": "mesa.noun",
+      "form": "mesa",
+      "en": "table",
+      "rank": 12023,
+      "pos": "noun",
+      "done": false
+    },
+    {
+      "slug": "teléfono.noun",
+      "form": "teléfono",
+      "en": "telephone",
+      "rank": 12023,
+      "pos": "noun",
+      "done": false
+    },
+    {
+      "slug": "señora.noun",
+      "form": "señora",
+      "en": "lady / madam",
+      "rank": 12023,
+      "pos": "noun",
+      "done": false
+    },
+    {
+      "slug": "sueño.noun",
+      "form": "sueño",
+      "en": "sleep / dream",
+      "rank": 12023,
+      "pos": "noun",
+      "done": false
+    },
+    {
+      "slug": "pagar.verb.indicative.present.first.singular",
+      "form": "pago",
+      "en": "I pay",
+      "rank": 12023,
+      "pos": "verb",
+      "done": false
+    },
+    {
+      "slug": "pensar.verb.indicative.present.third.singular",
+      "form": "piensa",
+      "en": "he/she thinks",
+      "rank": 12023,
+      "pos": "verb",
+      "done": false
+    },
+    {
+      "slug": "usar.verb.indicative.present.third.singular",
+      "form": "usa",
+      "en": "he/she uses",
+      "rank": 12023,
+      "pos": "verb",
+      "done": false
+    },
+    {
+      "slug": "detrás.adverb",
+      "form": "detrás",
+      "en": "behind",
+      "rank": 12303,
+      "pos": "adverb",
+      "done": false
+    },
+    {
+      "slug": "encontrar.verb.indicative.present.third.plural",
+      "form": "encuentran",
+      "en": "they find",
+      "rank": 12303,
+      "pos": "verb",
+      "done": false
+    },
+    {
+      "slug": "perro.noun",
+      "form": "perro",
+      "en": "dog",
+      "rank": 12589,
+      "pos": "noun",
+      "done": false
+    },
+    {
+      "slug": "viernes.noun",
+      "form": "viernes",
+      "en": "Friday",
+      "rank": 12589,
+      "pos": "noun",
+      "done": true
+    },
+    {
+      "slug": "hambre.noun",
+      "form": "hambre",
+      "en": "hunger",
+      "rank": 12589,
+      "pos": "noun",
+      "done": false
+    },
+    {
+      "slug": "querer.verb.subjunctive.present.first.singular",
+      "form": "quiera",
+      "en": "(that) I want",
+      "rank": 12589,
+      "pos": "verb",
+      "done": false
+    },
+    {
+      "slug": "cama.noun",
+      "form": "cama",
+      "en": "bed",
+      "rank": 12882,
+      "pos": "noun",
+      "done": false
+    },
+    {
+      "slug": "viejo.adjective.feminine.singular",
+      "form": "vieja",
+      "en": "old (fem.)",
+      "rank": 13183,
+      "pos": "adjective",
+      "done": false
+    },
+    {
+      "slug": "médico.noun",
+      "form": "médico",
+      "en": "doctor",
+      "rank": 13183,
+      "pos": "noun",
+      "done": true
+    },
+    {
+      "slug": "tener.verb.gerund",
+      "form": "teniendo",
+      "en": "having",
+      "rank": 13183,
+      "pos": "verb",
+      "done": false
+    },
+    {
+      "slug": "saber.verb.indicative.imperfect.first.singular",
+      "form": "sabía",
+      "en": "I knew",
+      "rank": 13183,
+      "pos": "verb",
+      "done": false
+    },
+    {
+      "slug": "hacer.verb.indicative.imperfect.first.singular",
+      "form": "hacía",
+      "en": "I used to do",
+      "rank": 13183,
+      "pos": "verb",
+      "done": false
+    },
+    {
+      "slug": "tener.verb.indicative.future.third.singular",
+      "form": "tendrá",
+      "en": "he/she will have",
+      "rank": 13183,
+      "pos": "verb",
+      "done": false
+    },
+    {
+      "slug": "verde.adjective",
+      "form": "verde",
+      "en": "green",
+      "rank": 13490,
+      "pos": "adjective",
+      "done": false
+    },
+    {
+      "slug": "largo.adjective.feminine.singular",
+      "form": "larga",
+      "en": "long (fem.)",
+      "rank": 13490,
+      "pos": "adjective",
+      "done": false
+    },
+    {
+      "slug": "aquel.pronoun",
+      "form": "aquel",
+      "en": "that over there (masc.)",
+      "rank": 13490,
+      "pos": "pronoun",
+      "done": false
+    },
+    {
+      "slug": "conocer.verb.indicative.present.first.singular",
+      "form": "conozco",
+      "en": "I know",
+      "rank": 13490,
+      "pos": "verb",
+      "done": false
+    },
+    {
+      "slug": "hermana.noun",
+      "form": "hermana",
+      "en": "sister",
+      "rank": 13804,
+      "pos": "noun",
+      "done": false
+    },
+    {
+      "slug": "ir.verb.participle.past",
+      "form": "ido",
+      "en": "gone",
+      "rank": 13804,
+      "pos": "verb",
+      "done": false
+    },
+    {
+      "slug": "poder.verb.indicative.future.third.singular",
+      "form": "podrá",
+      "en": "he/she will be able",
+      "rank": 13804,
+      "pos": "verb",
+      "done": false
+    },
+    {
+      "slug": "tener.verb.subjunctive.present.third.plural",
+      "form": "tengan",
+      "en": "(that) they have",
+      "rank": 13804,
+      "pos": "verb",
+      "done": false
+    },
+    {
+      "slug": "triste.adjective",
+      "form": "triste",
+      "en": "sad",
+      "rank": 14125,
+      "pos": "adjective",
+      "done": false
+    },
+    {
+      "slug": "parque.noun",
+      "form": "parque",
+      "en": "park",
+      "rank": 14125,
+      "pos": "noun",
+      "done": false
+    },
+    {
+      "slug": "poder.verb.conditional.third.plural",
+      "form": "podrían",
+      "en": "they could",
+      "rank": 14125,
+      "pos": "verb",
+      "done": false
+    },
+    {
+      "slug": "llamar.verb.infinitive",
+      "form": "llamar",
+      "en": "to call",
+      "rank": 14125,
+      "pos": "verb",
+      "done": false
+    },
+    {
+      "slug": "creer.verb.indicative.present.third.plural",
+      "form": "creen",
+      "en": "they believe",
+      "rank": 14125,
+      "pos": "verb",
+      "done": false
+    },
+    {
+      "slug": "rojo.adjective.masculine.singular",
+      "form": "rojo",
+      "en": "red",
+      "rank": 14454,
+      "pos": "adjective",
+      "done": false
+    },
+    {
+      "slug": "ver.verb.indicative.present.first.plural",
+      "form": "vemos",
+      "en": "we see",
+      "rank": 14454,
+      "pos": "verb",
+      "done": false
+    },
+    {
+      "slug": "venir.verb.indicative.present.third.plural",
+      "form": "vienen",
+      "en": "they come",
+      "rank": 14454,
+      "pos": "verb",
+      "done": false
+    },
+    {
+      "slug": "azul.adjective",
+      "form": "azul",
+      "en": "blue",
+      "rank": 14791,
+      "pos": "adjective",
+      "done": false
+    },
+    {
+      "slug": "carne.noun",
+      "form": "carne",
+      "en": "meat",
+      "rank": 14791,
+      "pos": "noun",
+      "done": false
+    },
+    {
+      "slug": "estudiar.verb.infinitive",
+      "form": "estudiar",
+      "en": "to study",
+      "rank": 14791,
+      "pos": "verb",
+      "done": false
+    },
+    {
+      "slug": "decir.verb.indicative.present.second.singular",
+      "form": "dices",
+      "en": "you say",
+      "rank": 14791,
+      "pos": "verb",
+      "done": false
+    },
+    {
+      "slug": "lleno.adjective.masculine.singular",
+      "form": "lleno",
+      "en": "full",
+      "rank": 15136,
+      "pos": "adjective",
+      "done": false
+    },
+    {
+      "slug": "pan.noun",
+      "form": "pan",
+      "en": "bread",
+      "rank": 15136,
+      "pos": "noun",
+      "done": false
+    },
+    {
+      "slug": "pelo.noun",
+      "form": "pelo",
+      "en": "hair",
+      "rank": 15136,
+      "pos": "noun",
+      "done": false
+    },
+    {
+      "slug": "hacer.verb.indicative.present.first.plural",
+      "form": "hacemos",
+      "en": "we do",
+      "rank": 15136,
+      "pos": "verb",
+      "done": false
+    },
+    {
+      "slug": "venir.verb.infinitive",
+      "form": "venir",
+      "en": "to come",
+      "rank": 15136,
+      "pos": "verb",
+      "done": false
+    },
+    {
+      "slug": "duro.adjective.masculine.singular",
+      "form": "duro",
+      "en": "hard",
+      "rank": 15488,
+      "pos": "adjective",
+      "done": false
+    },
+    {
+      "slug": "perdón.interjection",
+      "form": "perdón",
+      "en": "sorry / excuse me",
+      "rank": 15488,
+      "pos": "interjection",
+      "done": true
+    },
+    {
+      "slug": "café.noun",
+      "form": "café",
+      "en": "coffee",
+      "rank": 15488,
+      "pos": "noun",
+      "done": true
+    },
+    {
+      "slug": "estación.noun",
+      "form": "estación",
+      "en": "station",
+      "rank": 15488,
+      "pos": "noun",
+      "done": false
+    },
+    {
+      "slug": "lunes.noun",
+      "form": "lunes",
+      "en": "Monday",
+      "rank": 15488,
+      "pos": "noun",
+      "done": true
+    },
+    {
+      "slug": "baño.noun",
+      "form": "baño",
+      "en": "bathroom",
+      "rank": 15849,
+      "pos": "noun",
+      "done": true
+    },
+    {
+      "slug": "hotel.noun",
+      "form": "hotel",
+      "en": "hotel",
+      "rank": 15849,
+      "pos": "noun",
+      "done": false
+    },
+    {
+      "slug": "necesitar.verb.indicative.present.first.plural",
+      "form": "necesitamos",
+      "en": "we need",
+      "rank": 15849,
+      "pos": "verb",
+      "done": false
+    },
+    {
+      "slug": "necesitar.verb.indicative.present.third.plural",
+      "form": "necesitan",
+      "en": "they need",
+      "rank": 15849,
+      "pos": "verb",
+      "done": false
+    },
+    {
+      "slug": "comprar.verb.indicative.present.third.singular",
+      "form": "compra",
+      "en": "he/she buys",
+      "rank": 15849,
+      "pos": "verb",
+      "done": false
+    },
+    {
+      "slug": "blanco.adjective.feminine.singular",
+      "form": "blanca",
+      "en": "white (fem.)",
+      "rank": 16218,
+      "pos": "adjective",
+      "done": false
+    },
+    {
+      "slug": "abierto.adjective.masculine.singular",
+      "form": "abierto",
+      "en": "open",
+      "rank": 16218,
+      "pos": "adjective",
+      "done": false
+    },
+    {
+      "slug": "ojo.noun",
+      "form": "ojo",
+      "en": "eye",
+      "rank": 16218,
+      "pos": "noun",
+      "done": false
+    },
+    {
+      "slug": "piso.noun",
+      "form": "piso",
+      "en": "apartment / floor",
+      "rank": 16218,
+      "pos": "noun",
+      "done": false
+    },
+    {
+      "slug": "sábado.noun",
+      "form": "sábado",
+      "en": "Saturday",
+      "rank": 16218,
+      "pos": "noun",
+      "done": true
+    },
+    {
+      "slug": "tener.verb.indicative.past.third.plural",
+      "form": "tuvieron",
+      "en": "they had",
+      "rank": 16218,
+      "pos": "verb",
+      "done": false
+    },
+    {
+      "slug": "estar.verb.indicative.future.third.singular",
+      "form": "estará",
+      "en": "he/she will be",
+      "rank": 16218,
+      "pos": "verb",
+      "done": false
+    },
+    {
+      "slug": "hacer.verb.indicative.future.third.singular",
+      "form": "hará",
+      "en": "he/she will make",
+      "rank": 16218,
+      "pos": "verb",
+      "done": false
+    },
+    {
+      "slug": "hacer.verb.subjunctive.present.third.plural",
+      "form": "hagan",
+      "en": "(that) they do",
+      "rank": 16218,
+      "pos": "verb",
+      "done": false
+    },
+    {
+      "slug": "debajo.adverb",
+      "form": "debajo",
+      "en": "underneath",
+      "rank": 16596,
+      "pos": "adverb",
+      "done": false
+    },
+    {
+      "slug": "querer.verb.participle.past",
+      "form": "querido",
+      "en": "wanted",
+      "rank": 16596,
+      "pos": "verb",
+      "done": false
+    },
+    {
+      "slug": "estar.verb.conditional.first.singular",
+      "form": "estaría",
+      "en": "I would be",
+      "rank": 16596,
+      "pos": "verb",
+      "done": false
+    },
+    {
+      "slug": "estar.verb.subjunctive.present.third.plural",
+      "form": "estén",
+      "en": "(that) they be",
+      "rank": 16596,
+      "pos": "verb",
+      "done": false
+    },
+    {
+      "slug": "querer.verb.subjunctive.present.second.singular",
+      "form": "quieras",
+      "en": "(that) you want",
+      "rank": 16596,
+      "pos": "verb",
+      "done": false
+    },
+    {
+      "slug": "trabajar.verb.indicative.present.third.singular",
+      "form": "trabaja",
+      "en": "he/she works",
+      "rank": 16596,
+      "pos": "verb",
+      "done": false
+    },
+    {
+      "slug": "leer.verb.indicative.present.third.singular",
+      "form": "lee",
+      "en": "he/she reads",
+      "rank": 16596,
+      "pos": "verb",
+      "done": false
+    },
+    {
+      "slug": "creer.verb.indicative.present.second.singular",
+      "form": "crees",
+      "en": "you believe",
+      "rank": 16596,
+      "pos": "verb",
+      "done": false
+    },
+    {
+      "slug": "empezar.verb.indicative.present.third.singular",
+      "form": "empieza",
+      "en": "he/she begins",
+      "rank": 16596,
+      "pos": "verb",
+      "done": false
+    },
+    {
+      "slug": "abogado.noun",
+      "form": "abogado",
+      "en": "lawyer",
+      "rank": 16982,
+      "pos": "noun",
+      "done": false
+    },
+    {
+      "slug": "nueve.numeral",
+      "form": "nueve",
+      "en": "nine",
+      "rank": 16982,
+      "pos": "numeral",
+      "done": true
+    },
+    {
+      "slug": "necesitar.verb.indicative.present.second.singular",
+      "form": "necesitas",
+      "en": "you need",
+      "rank": 16982,
+      "pos": "verb",
+      "done": false
+    },
+    {
+      "slug": "abrir.verb.infinitive",
+      "form": "abrir",
+      "en": "to open",
+      "rank": 16982,
+      "pos": "verb",
+      "done": false
+    },
+    {
+      "slug": "dar.verb.indicative.present.second.singular",
+      "form": "das",
+      "en": "you give",
+      "rank": 16982,
+      "pos": "verb",
+      "done": false
+    },
+    {
+      "slug": "entrar.verb.indicative.present.third.singular",
+      "form": "entra",
+      "en": "he/she enters",
+      "rank": 16982,
+      "pos": "verb",
+      "done": false
+    },
+    {
+      "slug": "rico.adjective.feminine.singular",
+      "form": "rica",
+      "en": "rich / tasty",
+      "rank": 17378,
+      "pos": "adjective",
+      "done": false
+    },
+    {
+      "slug": "calor.noun",
+      "form": "calor",
+      "en": "heat",
+      "rank": 17378,
+      "pos": "noun",
+      "done": false
+    },
+    {
+      "slug": "secretario.noun",
+      "form": "secretario",
+      "en": "secretary",
+      "rank": 17378,
+      "pos": "noun",
+      "done": false
+    },
+    {
+      "slug": "poder.verb.participle.past",
+      "form": "podido",
+      "en": "been able",
+      "rank": 17378,
+      "pos": "verb",
+      "done": false
+    },
+    {
+      "slug": "llevar.verb.indicative.present.third.plural",
+      "form": "llevan",
+      "en": "they carry",
+      "rank": 17378,
+      "pos": "verb",
+      "done": false
+    },
+    {
+      "slug": "delante.adverb",
+      "form": "delante",
+      "en": "in front",
+      "rank": 17783,
+      "pos": "adverb",
+      "done": false
+    },
+    {
+      "slug": "aeropuerto.noun",
+      "form": "aeropuerto",
+      "en": "airport",
+      "rank": 17783,
+      "pos": "noun",
+      "done": false
+    },
+    {
+      "slug": "querer.verb.infinitive",
+      "form": "querer",
+      "en": "to want",
+      "rank": 17783,
+      "pos": "verb",
+      "done": true
+    },
+    {
+      "slug": "gustar.verb.indicative.present.third.plural",
+      "form": "gustan",
+      "en": "they please",
+      "rank": 17783,
+      "pos": "verb",
+      "done": false
+    },
+    {
+      "slug": "corto.adjective.masculine.singular",
+      "form": "corto",
+      "en": "short",
+      "rank": 18197,
+      "pos": "adjective",
+      "done": false
+    },
+    {
+      "slug": "claro.adjective.feminine.singular",
+      "form": "clara",
+      "en": "clear / light",
+      "rank": 18197,
+      "pos": "adjective",
+      "done": false
+    },
+    {
+      "slug": "leche.noun",
+      "form": "leche",
+      "en": "milk",
+      "rank": 18197,
+      "pos": "noun",
+      "done": false
+    },
+    {
+      "slug": "tienda.noun",
+      "form": "tienda",
+      "en": "shop",
+      "rank": 18197,
+      "pos": "noun",
+      "done": false
+    },
+    {
+      "slug": "coche.noun",
+      "form": "coche",
+      "en": "car",
+      "rank": 18197,
+      "pos": "noun",
+      "done": false
+    },
+    {
+      "slug": "cuánto.pronoun",
+      "form": "cuánto",
+      "en": "how much",
+      "rank": 18197,
+      "pos": "pronoun",
+      "done": false
+    },
+    {
+      "slug": "hablar.verb.indicative.present.third.plural",
+      "form": "hablan",
+      "en": "they speak",
+      "rank": 18197,
+      "pos": "verb",
+      "done": false
+    },
+    {
+      "slug": "vivir.verb.subjunctive.present.first.singular",
+      "form": "viva",
+      "en": "(that) I live",
+      "rank": 18197,
+      "pos": "verb",
+      "done": false
+    },
+    {
+      "slug": "tener.verb.subjunctive.present.second.singular",
+      "form": "tengas",
+      "en": "(that) you have",
+      "rank": 18197,
+      "pos": "verb",
+      "done": false
+    },
+    {
+      "slug": "dar.verb.indicative.present.first.singular",
+      "form": "doy",
+      "en": "I give",
+      "rank": 18197,
+      "pos": "verb",
+      "done": false
+    },
+    {
+      "slug": "mirar.verb.infinitive",
+      "form": "mirar",
+      "en": "to look at",
+      "rank": 18197,
+      "pos": "verb",
+      "done": false
+    },
+    {
+      "slug": "cuándo.adverb",
+      "form": "cuándo",
+      "en": "when",
+      "rank": 18621,
+      "pos": "adverb",
+      "done": false
+    },
+    {
+      "slug": "tener.verb.conditional.first.singular",
+      "form": "tendría",
+      "en": "I would have",
+      "rank": 18621,
+      "pos": "verb",
+      "done": false
+    },
+    {
+      "slug": "lleno.adjective.feminine.singular",
+      "form": "llena",
+      "en": "full",
+      "rank": 19055,
+      "pos": "adjective",
+      "done": false
+    },
+    {
+      "slug": "serio.adjective.feminine.singular",
+      "form": "seria",
+      "en": "serious",
+      "rank": 19055,
+      "pos": "adjective",
+      "done": false
+    },
+    {
+      "slug": "playa.noun",
+      "form": "playa",
+      "en": "beach",
+      "rank": 19055,
+      "pos": "noun",
+      "done": false
+    },
+    {
+      "slug": "artista.noun",
+      "form": "artista",
+      "en": "artist",
+      "rank": 19055,
+      "pos": "noun",
+      "done": false
+    },
+    {
+      "slug": "hablar.verb.indicative.present.first.singular",
+      "form": "hablo",
+      "en": "I speak",
+      "rank": 19055,
+      "pos": "verb",
+      "done": false
+    },
+    {
+      "slug": "vivir.verb.indicative.present.third.plural",
+      "form": "viven",
+      "en": "they live",
+      "rank": 19055,
+      "pos": "verb",
+      "done": false
+    },
+    {
+      "slug": "llevar.verb.indicative.present.first.singular",
+      "form": "llevo",
+      "en": "I carry",
+      "rank": 19055,
+      "pos": "verb",
+      "done": false
+    },
+    {
+      "slug": "negro.adjective.feminine.singular",
+      "form": "negra",
+      "en": "black (fem.)",
+      "rank": 19498,
+      "pos": "adjective",
+      "done": false
+    },
+    {
+      "slug": "tren.noun",
+      "form": "tren",
+      "en": "train",
+      "rank": 19498,
+      "pos": "noun",
+      "done": false
+    },
+    {
+      "slug": "jueves.noun",
+      "form": "jueves",
+      "en": "Thursday",
+      "rank": 19498,
+      "pos": "noun",
+      "done": true
+    }
+  ],
+  "sentences": [
+    {
+      "slug": "hola-como-estas",
+      "text": "¡Hola! ¿Cómo estás?",
+      "en": "Hi, how are you?",
+      "rank": 1,
+      "done": true
+    },
+    {
+      "slug": "yo-soy-estudiante",
+      "text": "Soy estudiante.",
+      "en": "I am a student",
+      "rank": 2,
+      "done": true
+    },
+    {
+      "slug": "no-hablo-espanol",
+      "text": "No hablo español.",
+      "en": "I do not speak Spanish",
+      "rank": 3,
+      "done": true
+    },
+    {
+      "slug": "donde-esta-el-bano",
+      "text": "¿Dónde está el baño?",
+      "en": "Where is the bathroom?",
+      "rank": 4,
+      "done": true
+    },
+    {
+      "slug": "estoy-bien-gracias",
+      "text": "Estoy bien.",
+      "en": "I am well.",
+      "rank": 5,
+      "done": true
+    },
+    {
+      "slug": "tengo-un-problema",
+      "text": "Tengo un problema.",
+      "en": "I have a problem",
+      "rank": 6,
+      "done": true
+    },
+    {
+      "slug": "no-tengo-dinero",
+      "text": "No tengo dinero.",
+      "en": "I don't have money",
+      "rank": 7,
+      "done": true
+    },
+    {
+      "slug": "necesito-un-medico",
+      "text": "Necesitan un médico.",
+      "en": "They need a doctor.",
+      "rank": 8,
+      "done": true
+    },
+    {
+      "slug": "quiero-un-cafe",
+      "text": "Quiero café.",
+      "en": "I want coffee.",
+      "rank": 9,
+      "done": true
+    },
+    {
+      "slug": "donde-esta-la-estacion",
+      "text": "¿Dónde está la estación de tren?",
+      "en": "Where is the train station?",
+      "rank": 10,
+      "done": true
+    },
+    {
+      "slug": "el-cafe-esta-caliente",
+      "text": "El café está caliente.",
+      "en": "The coffee is hot",
+      "rank": 11,
+      "done": true
+    },
+    {
+      "slug": "mi-padre-es-medico",
+      "text": "Mi padre es médico.",
+      "en": "My father is a doctor",
+      "rank": 12,
+      "done": true
+    },
+    {
+      "slug": "vamos-a-casa",
+      "text": "Nos vamos a casa.",
+      "en": "We are going home.",
+      "rank": 13,
+      "done": true
+    },
+    {
+      "slug": "el-coche-es-rojo",
+      "text": "El coche es azul.",
+      "en": "The car is blue.",
+      "rank": 14,
+      "done": true
+    },
+    {
+      "slug": "hoy-como-en-casa",
+      "text": "Yo como en casa.",
+      "en": "I eat at home.",
+      "rank": 15,
+      "done": true
+    },
+    {
+      "slug": "la-comida-esta-muy-buena",
+      "text": "La comida está buena.",
+      "en": "The food is good.",
+      "rank": 16,
+      "done": true
+    },
+    {
+      "slug": "no-puedo-comer-pan",
+      "text": "No puedo comer pan",
+      "en": "I cannot eat bread",
+      "rank": 17,
+      "done": false
+    },
+    {
+      "slug": "mi-madre-hace-la-comida",
+      "text": "Ayudo a mi madre a hacer la comida.",
+      "en": "I help my mother make the food.",
+      "rank": 18,
+      "done": true
+    },
+    {
+      "slug": "vivo-en-un-piso-pequeno",
+      "text": "Vivo en un piso pequeño",
+      "en": "I live in a small flat",
+      "rank": 19,
+      "done": false
+    },
+    {
+      "slug": "voy-al-mercado",
+      "text": "Voy al supermercado a comprar huevos.",
+      "en": "I'm going to the supermarket to buy eggs.",
+      "rank": 20,
+      "done": true
+    },
+    {
+      "slug": "quiero-la-cuenta",
+      "text": "La cuenta, por favor.",
+      "en": "The bill, please.",
+      "rank": 21,
+      "done": true
+    },
+    {
+      "slug": "el-hotel-esta-aqui",
+      "text": "El hotel está ahí.",
+      "en": "The hotel is there.",
+      "rank": 22,
+      "done": true
+    },
+    {
+      "slug": "la-habitacion-es-pequena",
+      "text": "La habitación es bastante pequeña.",
+      "en": "The room is quite small.",
+      "rank": 23,
+      "done": true
+    },
+    {
+      "slug": "no-tengo-movil",
+      "text": "Ya no tengo móvil.",
+      "en": "I no longer have a mobile.",
+      "rank": 24,
+      "done": true
+    },
+    {
+      "slug": "donde-esta-el-telefono",
+      "text": "¿Dónde está el teléfono más cercano?",
+      "en": "Where is the nearest telephone?",
+      "rank": 25,
+      "done": true
+    },
+    {
+      "slug": "vamos-a-la-playa",
+      "text": "Vamos a la playa",
+      "en": "We go to the beach",
+      "rank": 26,
+      "done": false
+    },
+    {
+      "slug": "el-restaurante-esta-cerca",
+      "text": "El restaurante está cerca",
+      "en": "The restaurant is near",
+      "rank": 27,
+      "done": false
+    },
+    {
+      "slug": "el-bano-esta-lejos",
+      "text": "El baño está lejos",
+      "en": "The bathroom is far",
+      "rank": 28,
+      "done": false
+    },
+    {
+      "slug": "tengo-un-billete",
+      "text": "Tengo un billete",
+      "en": "I have a ticket",
+      "rank": 29,
+      "done": false
+    },
+    {
+      "slug": "voy-al-aeropuerto",
+      "text": "Voy al aeropuerto",
+      "en": "I go to the airport",
+      "rank": 30,
+      "done": false
+    },
+    {
+      "slug": "la-tarde-es-larga",
+      "text": "La tarde es larga",
+      "en": "The afternoon is long",
+      "rank": 31,
+      "done": false
+    },
+    {
+      "slug": "quiero-una-manzana",
+      "text": "Quiero una manzana",
+      "en": "I want an apple",
+      "rank": 32,
+      "done": false
+    },
+    {
+      "slug": "el-pescado-esta-rico",
+      "text": "El pescado está rico",
+      "en": "The fish is tasty",
+      "rank": 33,
+      "done": false
+    },
+    {
+      "slug": "no-como-carne",
+      "text": "No como carne",
+      "en": "I don't eat meat",
+      "rank": 34,
+      "done": false
+    },
+    {
+      "slug": "comes-pan",
+      "text": "¿Comes pan?",
+      "en": "Do you eat bread?",
+      "rank": 35,
+      "done": false
+    },
+    {
+      "slug": "hablas-espanol",
+      "text": "¿Hablas español?",
+      "en": "Do you speak Spanish?",
+      "rank": 36,
+      "done": false
+    },
+    {
+      "slug": "no-se",
+      "text": "No sé",
+      "en": "I don't know",
+      "rank": 37,
+      "done": false
+    },
+    {
+      "slug": "no-comprendo",
+      "text": "No comprendo",
+      "en": "I don't understand",
+      "rank": 38,
+      "done": false
+    },
+    {
+      "slug": "hace-sol",
+      "text": "Hace sol",
+      "en": "It is sunny",
+      "rank": 39,
+      "done": false
+    },
+    {
+      "slug": "la-ropa-esta-limpia",
+      "text": "La ropa está limpia",
+      "en": "The clothes are clean",
+      "rank": 40,
+      "done": false
+    },
+    {
+      "slug": "comemos-en-casa",
+      "text": "Comemos en casa",
+      "en": "We eat at home",
+      "rank": 41,
+      "done": false
+    },
+    {
+      "slug": "tienes-un-coche",
+      "text": "¿Tienes un coche?",
+      "en": "Do you have a car?",
+      "rank": 42,
+      "done": false
+    },
+    {
+      "slug": "quiero-sopa",
+      "text": "Quiero sopa",
+      "en": "I want soup",
+      "rank": 43,
+      "done": false
+    },
+    {
+      "slug": "comi-pan",
+      "text": "Comí pan",
+      "en": "I ate bread",
+      "rank": 44,
+      "done": false
+    },
+    {
+      "slug": "fui-al-mercado",
+      "text": "Fui al mercado",
+      "en": "I went to the market",
+      "rank": 45,
+      "done": false
+    },
+    {
+      "slug": "ayer-hable-espanol",
+      "text": "Ayer hablé español",
+      "en": "Yesterday I spoke Spanish",
+      "rank": 46,
+      "done": false
+    },
+    {
+      "slug": "tuve-un-problema",
+      "text": "Tuve un problema",
+      "en": "I had a problem",
+      "rank": 47,
+      "done": false
+    },
+    {
+      "slug": "estuve-en-casa",
+      "text": "Estuve en casa",
+      "en": "I was at home",
+      "rank": 48,
+      "done": false
+    },
+    {
+      "slug": "no-comi-carne",
+      "text": "No comí carne",
+      "en": "I didn't eat meat",
+      "rank": 49,
+      "done": false
+    },
+    {
+      "slug": "fuimos-a-la-playa",
+      "text": "Fuimos a la playa",
+      "en": "We went to the beach",
+      "rank": 50,
+      "done": false
+    },
+    {
+      "slug": "que-quieres",
+      "text": "¿Qué quieres?",
+      "en": "What do you want?",
+      "rank": 51,
+      "done": false
+    },
+    {
+      "slug": "quien-es",
+      "text": "¿Quién es?",
+      "en": "Who is it?",
+      "rank": 52,
+      "done": false
+    },
+    {
+      "slug": "cuando-comemos",
+      "text": "¿Cuándo comemos?",
+      "en": "When do we eat?",
+      "rank": 53,
+      "done": false
+    },
+    {
+      "slug": "cuanto-es",
+      "text": "¿Cuánto es?",
+      "en": "How much is it?",
+      "rank": 54,
+      "done": false
+    },
+    {
+      "slug": "que-haces",
+      "text": "¿Qué haces?",
+      "en": "What are you doing?",
+      "rank": 55,
+      "done": false
+    },
+    {
+      "slug": "manana-hablare-espanol",
+      "text": "Mañana hablaré español",
+      "en": "Tomorrow I will speak Spanish",
+      "rank": 56,
+      "done": false
+    },
+    {
+      "slug": "ire-al-medico",
+      "text": "Iré al médico",
+      "en": "I will go to the doctor",
+      "rank": 57,
+      "done": false
+    },
+    {
+      "slug": "manana-comere-en-casa",
+      "text": "Mañana comeré en casa",
+      "en": "Tomorrow I will eat at home",
+      "rank": 58,
+      "done": false
+    },
+    {
+      "slug": "tendre-tiempo",
+      "text": "Tendré tiempo",
+      "en": "I will have time",
+      "rank": 59,
+      "done": false
+    },
+    {
+      "slug": "sera-facil",
+      "text": "Será fácil",
+      "en": "It will be easy",
+      "rank": 60,
+      "done": false
+    },
+    {
+      "slug": "no-podre-ir",
+      "text": "No podré ir",
+      "en": "I won't be able to go",
+      "rank": 61,
+      "done": false
+    },
+    {
+      "slug": "estare-en-el-hotel",
+      "text": "Estaré en el hotel",
+      "en": "I will be at the hotel",
+      "rank": 62,
+      "done": false
+    },
+    {
+      "slug": "hare-la-comida",
+      "text": "Haré la comida",
+      "en": "I will make the food",
+      "rank": 63,
+      "done": false
+    },
+    {
+      "slug": "comia-pan",
+      "text": "Comía pan",
+      "en": "I used to eat bread",
+      "rank": 64,
+      "done": false
+    },
+    {
+      "slug": "tenia-un-gato",
+      "text": "Tenía un gato",
+      "en": "I had a cat",
+      "rank": 65,
+      "done": false
+    },
+    {
+      "slug": "el-banco-esta-cerca",
+      "text": "El banco está cerca",
+      "en": "The bank is near",
+      "rank": 66,
+      "done": false
+    },
+    {
+      "slug": "el-parque-es-grande",
+      "text": "El parque es grande",
+      "en": "The park is big",
+      "rank": 67,
+      "done": false
+    },
+    {
+      "slug": "querria-un-cafe",
+      "text": "Querría un café",
+      "en": "I would like a coffee",
+      "rank": 68,
+      "done": false
+    },
+    {
+      "slug": "podria-comer",
+      "text": "Podría comer",
+      "en": "I could eat",
+      "rank": 69,
+      "done": false
+    },
+    {
+      "slug": "viviria-aqui",
+      "text": "Viviría aquí",
+      "en": "I would live here",
+      "rank": 70,
+      "done": false
+    },
+    {
+      "slug": "seria-facil",
+      "text": "Sería fácil",
+      "en": "It would be easy",
+      "rank": 71,
+      "done": false
+    },
+    {
+      "slug": "comeria-pan",
+      "text": "Comería pan",
+      "en": "I would eat bread",
+      "rank": 72,
+      "done": false
+    },
+    {
+      "slug": "abre-la-puerta",
+      "text": "Abre la puerta",
+      "en": "Open the door",
+      "rank": 73,
+      "done": false
+    },
+    {
+      "slug": "come-la-fruta",
+      "text": "Come la fruta",
+      "en": "Eat the fruit",
+      "rank": 74,
+      "done": false
+    },
+    {
+      "slug": "habla-espanol",
+      "text": "Habla español",
+      "en": "Speak Spanish",
+      "rank": 75,
+      "done": false
+    },
+    {
+      "slug": "ve-a-casa",
+      "text": "Ve a casa",
+      "en": "Go home",
+      "rank": 76,
+      "done": false
+    },
+    {
+      "slug": "haz-la-comida",
+      "text": "Haz la comida",
+      "en": "Make the food",
+      "rank": 77,
+      "done": false
+    },
+    {
+      "slug": "hoy-es-lunes",
+      "text": "Hoy es lunes",
+      "en": "Today is Monday",
+      "rank": 78,
+      "done": false
+    },
+    {
+      "slug": "el-libro-es-nuevo",
+      "text": "El libro es nuevo",
+      "en": "The book is new",
+      "rank": 79,
+      "done": false
+    },
+    {
+      "slug": "quiero-que-hables",
+      "text": "Quiero que hables",
+      "en": "I want you to speak",
+      "rank": 80,
+      "done": false
+    },
+    {
+      "slug": "es-importante-que-coma",
+      "text": "Es importante que coma",
+      "en": "It is important that I eat",
+      "rank": 81,
+      "done": false
+    },
+    {
+      "slug": "quiero-que-comas",
+      "text": "Quiero que comas",
+      "en": "I want you to eat",
+      "rank": 82,
+      "done": false
+    },
+    {
+      "slug": "es-importante-que-sea-fuerte",
+      "text": "Es importante que sea fuerte",
+      "en": "It is important that I be strong",
+      "rank": 83,
+      "done": false
+    },
+    {
+      "slug": "quiero-que-vivas-aqui",
+      "text": "Quiero que vivas aquí",
+      "en": "I want you to live here",
+      "rank": 84,
+      "done": false
+    },
+    {
+      "slug": "es-importante-que-tengas-dinero",
+      "text": "Es importante que tengas dinero",
+      "en": "It is important that you have money",
+      "rank": 85,
+      "done": false
+    },
+    {
+      "slug": "quiero-que-hagas-la-comida",
+      "text": "Quiero que hagas la comida",
+      "en": "I want you to make the food",
+      "rank": 86,
+      "done": false
+    },
+    {
+      "slug": "es-importante-que-sepas-espanol",
+      "text": "Es importante que sepas español",
+      "en": "It is important that you know Spanish",
+      "rank": 87,
+      "done": false
+    },
+    {
+      "slug": "necesito-ayuda",
+      "text": "Necesito ayuda",
+      "en": "I need help",
+      "rank": 88,
+      "done": false
+    },
+    {
+      "slug": "el-gato-es-pequeno",
+      "text": "El gato es pequeño",
+      "en": "The cat is small",
+      "rank": 89,
+      "done": false
+    },
+    {
+      "slug": "no-tengo-tiempo",
+      "text": "No tengo tiempo",
+      "en": "I don't have time",
+      "rank": 90,
+      "done": false
+    },
+    {
+      "slug": "el-medico-es-bueno",
+      "text": "El médico es bueno",
+      "en": "The doctor is good",
+      "rank": 91,
+      "done": false
+    },
+    {
+      "slug": "estudio-espanol",
+      "text": "Estudio español",
+      "en": "I study Spanish",
+      "rank": 92,
+      "done": false
+    },
+    {
+      "slug": "compro-pan",
+      "text": "Compro pan",
+      "en": "I buy bread",
+      "rank": 93,
+      "done": false
+    },
+    {
+      "slug": "bebo-agua",
+      "text": "Bebo agua",
+      "en": "I drink water",
+      "rank": 94,
+      "done": false
+    },
+    {
+      "slug": "trabajo-mucho",
+      "text": "Trabajo mucho",
+      "en": "I work a lot",
+      "rank": 95,
+      "done": false
+    },
+    {
+      "slug": "no-bebo-vino",
+      "text": "No bebo vino",
+      "en": "I don't drink wine",
+      "rank": 96,
+      "done": false
+    },
+    {
+      "slug": "compramos-fruta",
+      "text": "Compramos fruta",
+      "en": "We buy fruit",
+      "rank": 97,
+      "done": false
+    },
+    {
+      "slug": "estudias-espanol",
+      "text": "¿Estudias español?",
+      "en": "Do you study Spanish?",
+      "rank": 98,
+      "done": false
+    },
+    {
+      "slug": "quiero-trabajar",
+      "text": "Quiero trabajar",
+      "en": "I want to work",
+      "rank": 99,
+      "done": false
+    },
+    {
+      "slug": "leo-un-libro",
+      "text": "Leo un libro",
+      "en": "I read a book",
+      "rank": 100,
+      "done": false
+    }
+  ]
+}

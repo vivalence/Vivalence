@@ -1,0 +1,114 @@
+#+title: the dataspace dashboard becomes a read-only entity dataviewer — stage three recasts the table from an HTML table to a CSS grid so headers finally align, a bundle-safe drapes Json renderer realizes the M9 Cell(value-type) scale, pagination plus virtualization tame the DOM, and the cast client entity must be walked getter-aware because its store-backed fields hide behind non-enumerable getters
+#+filetags: :dataspace-dashboard:dataviewer:drapes-json:css-grid:virtualization:pagination:cast-entity-walk:echarts-tree:
+
+* the arc — stage 3 opens
+
+Predecessor: [[the-dataspace-dashboard-gains-an-entity-viewer-intent-and-stage-two-lands-three-vantage-corpus-snapshots-proving-the-daemon-wire-client-round-trip-then-the-snapshot-suite-is-reined-from-22k-lines]]. Stage 2 (dataloading + three-vantage snapshots) had landed; stage 3 (the "coolest data dashboard over the JSONs") was the open frontier. beef pointed at the mode and opened it:
+
+#+begin_quote
+take this mode and make a read dataviewer out of it. use the testing snapshots. comment out the graphical stuff and replace it with ui of tables and lists. use dcase: i want to view what data is in my daemon. all data. literals, modes, traces. this is domain specific to education. digg deep. read the snapshots. read the api. use the terminal.daemon.entities. read drapes and dapper. read ikiro and the conoisseur. read other modes. this is a learning app and i want to knwo what data is in my daemon to be learned.
+#+end_quote
+
+Five parallel Explore agents (dataspace mode+snapshots · =terminal.daemon.entities= API · drapes/dapper · ikiro/connoisseur · other modes) grounded it. Then three forks answered by beef:
+- memory/trace exposure → *"Skip memory/trace for now"* (they're not on the client Dataspace; =/userspace/entities/*= mounts only =thread·buffer·turn=).
+- the ECharts graph → *"Move ECharts → Dashboard.graph.bak.svelte"* (inert sibling; walker skips non-=.viva.js=; nothing imports it).
+- the snapshots → *"read them. extend them when something is missing."*
+
+* the recast — one descriptor, one renderer
+
+=registry/education/modes/home/dataspace/Dashboard.svelte= rewritten (458-line ECharts → the viewer); =Dashboard.graph.bak.svelte= holds the old echarts verbatim. Manifest/=app= untouched.
+
+Code-as-data: a single =ENTITIES= descriptor (per entity: =columns= [label + =get= accessor + =width= + optional =pill=], =options.orderBy=, =populate=) folded by ONE grid renderer + ONE type-dispatched value cell. =column=/=chip=/=relation= are the three column constructors; =field("trait.TRANSLATED.known")= is a dotted-path accessor factory. Reads are =terminal.daemon.entities[key].findAndCount(...)= — the client =Dataspace= of =RemoteRepository= instances (chain: =terminal → thread → thread.daemon → daemon.entities=). Seven wired entities: =literal·symbol·mode·intent·thread·buffer·turn=. Relations resolve to a slug/identify ref, not a raw UUID.
+
+* the Cell renderer — M9's value scale, realized in drapes
+
+beef wanted the detail JSON to be a REAL tool:
+#+begin_quote
+and i want some nice UX that renders JSON objects. rich structured rendering. not some dillo shit. orient on drapes/ threejs and the other data rendering. i want a REAL tool. implement in two steps. first you research and propose tooling ... the e panel trait widgets have some json rendering tooling! f.e. we could also build a vector stripwire that writes a dedicated vector renderer. all kinds of possibilities. and then second step is we implement. or you.
+#+end_quote
+
+Three research agents surfaced: the orphaned =systems/kajuit/src/app/panels/e/widgets/Json.svelte= (recursive type-dispatch, typed coloring, dependency-free, zero live callers — free to adopt); the =Vector→shape.tree→skins= renderer already shipping in the H-panel inspector (the "vector stripwire" idea — but "stripwire" is the *transport* dual, ceremony for a local viewer, and =Vector= keys are path-shaped so raw JSON keys mangle); and that **three.js is ABSENT** (deferred quest + the engine-agnostic =Canvas= seam only). Fork → *"A — build drapes Cell/Json"* + *"Inline-map to skeleton vars"* + *"Add echarts treemap/sunburst toggle."*
+
+Landed =subsystems/drapes/display/Json.svelte= (barrel-exported): self-recursive, type-colored (string=moss, number=aqua, bool=amber, null/date=muted), per-node collapse (each recursion owns its own =expanded= → no shared-map dupe-key bug that =skins/Tree= has), breadth-cap + "N more", per-node copy, depth cap. Dependency-free + CSS-var-only → survives the APPLICATION esbuild bundle (drapes resolves via the mode importmap; =@vivalence/kajuit= and =<Icon carbon>= do NOT — inline only). This IS the missing **Cell(value-type)** scale of the =m9-playground-layout= Frame/Cell/View "one renderer, three scales" spine (only =Frame= existed) — same dispatch algebra as =Asset=(mime)/=Frame=(mode), keyed on =typeof value=.
+
+* the alignment law — HTML table dies, CSS grid rules
+
+beef, three times: *"align table headers"* → *"a: the table headers are not inline with te cells"* → *"and the table headers are STILL not in line with their columns."*
+
+The failed ladder: (1) identical box-model on =th=/=td=; (2) =table-layout: fixed= + =<colgroup>= explicit widths. **Both failed** — =table-layout: fixed= with =width: max-content= is non-deterministic in this engine; header and body row-groups sized independently. THE FIX: drop =<table>= entirely. A **CSS grid** where =.grid-head= and every =.grid-row= render =grid-template-columns: {template}= from the SAME derived string — columns physically cannot drift. =.grid-cell { min-width: 0 }= is what re-enables ellipsis in a grid item (the grid analog of the table's overflow trap). LAW: *for a data grid, share one =grid-template-columns= across header and rows; never trust =<table>= column-sync.*
+
+Related: *"b: stop the traits from line breaking. no line breaks within cells. increase width in case"* → per-column widths + =.pills { flex-wrap: nowrap }= + cell ellipsis.
+
+* the detail viewer — named fields, toggle in, toggle out
+
+#+begin_quote
+c: make the json viewer a toggle within a named field.
+#+end_quote
+Detail "fields" view = the row's top-level fields as named rows; scalars inline; each object/array field a =▸= toggle that reveals =<Json>= for just that field. Then:
+#+begin_quote
+the json viewer is only toggle on. not toggle off.
+#+end_quote
+=openFields= was a mutated plain object; Svelte-5 tracked the add but the close read stale → switched to a **reassigned =Set=** (=toggleField= builds a fresh Set each click). Then:
+#+begin_quote
+toggle off should also happen when i click the currently active row
+#+end_quote
+=select(row)= now clears =selected= when =selected?.id === row.id=.
+
+* performance — pagination + virtualization
+
+#+begin_quote
+the dataviewer is sooo html expensive that my layout engine is suffereing. what can be done about this?
+#+end_quote
+2086 literals × 7 cols × pills ≈ 30k nodes, all laid out at once. First pass = pure CSS: =content-visibility: auto= on rows + =contain: layout paint= on the scroll box (sandbox the reflow from the pincer) + =min-width: 0= on the flex chain (a fixed-width grid otherwise stretches the panel). Then beef:
+#+begin_quote
+how heavy is virtualization to implement?
+#+end_quote
+#+begin_quote
+also implement pages aka limit and offset or whatever its called. give me controls over this. implement both.
+#+end_quote
+Both landed. **Pagination**: server =findAndCount({}, {orderBy, populate, limit, offset})= → =[rows, total]=; toolbar controls (page-size =100·250·500·1000=, prev/next, =offset+1–end / total=). **Virtualization**: fixed 28px rows, overscan 8, window =shown= by =scrollTop=/=clientHeight=, top+bottom spacer divs hold scroll height → DOM stays ~40 rows. =content-visibility= dropped (redundant once windowed). Two axes: pagination caps the wire payload + node *build*; virtualization caps rendered *DOM* to a constant.
+
+* sort — server orderBy via chevron headers
+
+#+begin_quote
+make the tables sort by chevron control within in the header.
+#+end_quote
+Because pagination is server-side, sort must be too (else you sort 250 of 2086). Each **scalar-DB-field** header (=SORTABLE= set: =slug·rank·ontology·type·installed·status·index·phase·counter·cursor·role=) is clickable with a =▾= chevron; click toggles =asc⇄desc= (flip + highlight), sets =orderBy=, resets to page 1. Computed/relation/array columns (=known·traits·symbol·mode·label=) get no chevron — can't =orderBy= a JSON-path or a relation cleanly.
+
+* the graph — quantity viz fails, structure viz wins
+
+The treemap/sunburst toggle (beef's earlier pick) rendered on real data:
+#+begin_quote
+BOTH views extremely ugly and unledgible.
+#+end_quote
+Diagnosis: treemap/sunburst encode *quantity* (area/angle); JSON leaves are all size-1 → uniform crammed tiles + overlapping radial labels. Replaced both with the one echarts viz that fits pure structure — a node-link **=tree=** (dendrogram): horizontal labels, collapsible, pan/zoom. Registered =TreeChart= in =subsystems/drapes/stage/lib.js= (the "escape hatch grows by demand"). Detail toggle is now **FIELDS · GRAPH**. LAW: *treemap/sunburst = quantitative hierarchy; a tree = structure; an entity is structure.* Praised:
+#+begin_quote
+graph cool. give it more features.
+#+end_quote
+→ type-colored nodes (matches the text palette), layout toggle =LR= / =radial=, expand-all.
+
+* the data-quality law — walk cast entities getter-aware, NOT via toJSON
+
+The buffer/thread detail dumped live-object cruft (functions, nanostores, the daemon back-ref graph =cargo{186}=): *"there is a whole bunch of prototype specific data displayed here. no like."* / *"same issue everywhere else."* First fix used the entity's =toJSON()= — beef rejected the coupling:
+#+begin_quote
+the toJSONS are shit tho. very incomplete. using toJSON forces us to update and extend the toJSONs which will cause issues with caching and storage and linking i think?
+#+end_quote
+(Correct — =toJSON= drives =RemoteRepository.store()= localStorage + the identity map + relation linking; extending it for display would bloat persistence.) → a **viewer-side =plain()= sanitizer**, zero toJSON dependency. But it came out slim:
+#+begin_quote
+the data displayed in the json viewer is super poor and slim. console log the outptu and cmopare to diff and improve. thorough! ultra
+#+end_quote
+
+A ground-truth agent traced the client cast entity. THE LAW: a cast client entity is =Object.assign(new Kind(), resolvedRaw)= — **no =$raw=, no proxy**. Scalar/blob fields ride =Object.assign= as own-enumerable, BUT store-backed fields are diverted by SETTERS into =$=-atoms and exposed only through **non-enumerable getters**: =Buffer.data= (the whole payload!), =Thread.{mode,phase,traits,trait,label}=, and 1:m accessors like =literal.memories= (a =defineProperty= own accessor, also non-enum). =Object.keys= / =for...in= / =toJSON= (which iterates =Object.entries=) are ALL blind to them. To walk a cast entity completely: =getOwnPropertyDescriptors= on the instance (own enum + non-enum accessors) + every prototype getter up to (excluding) =Object.prototype=, and INVOKE them (skip =$=-keys, functions, nanostores). The client em.schema (the stripped datamap) lists ONLY relations — scalars/embeddeds are excluded, so relation-vs-data detection is by =constructor !== Object && "id" in value= heuristic, not schema.
+
+=plain()= fixes, all three from the diff: (1) =readableKeys= now walks all own descriptors + proto getters (recovers the store-backed fields); (2) depth cap =6→24= (deep blobs like =buffer.data.history= were truncated); (3) the =seen= WeakSet made ancestor-path-scoped (=delete= after recursing) — a global set false-flagged sibling-shared objects as =[circular]= and dropped them. Relations still collapse to ={id, slug}= (deliberate — else the daemon graph explodes). A =console.log("[dataspace] …", {entity, ownKeys, readable, plain})= on select remains for beef's confirmation (removable).
+
+* artifacts
+
+- =registry/education/modes/home/dataspace/Dashboard.svelte= (REWRITTEN — grid viewer, ENTITIES descriptor, pagination, virtualization, sort, plain() sanitizer, fields/graph detail).
+- =registry/education/modes/home/dataspace/Dashboard.graph.bak.svelte= (the old ECharts view, inert).
+- =subsystems/drapes/display/Json.svelte= (NEW — the recursive Cell-scale renderer) + =subsystems/drapes/display/index.js= (barrel export).
+- =subsystems/drapes/stage/lib.js= (=TreeChart= registered).
+
+* frontier
+
+Stage 3 largely landed: the airtable-style dataviewer runs live against the spanish daemon — sortable/paginated/virtualized entity tables + a rich per-field JSON tree + an echarts node-link graph. Open threads: memory/trace still not client-reachable (deferred — would need =/userspace/entities/{memory,trace}= aperture mounts + client dossiers); server-side search across pages (client filter is per-page only); the =console.log= to remove; and whether =plain()='s getter-aware walk deserves promotion to a shared kajuit util (the g-panel/e-panel have the same =JSON.stringify= pain). The =drapes/display/Json.svelte= Cell renderer is now the reusable seed for the rest of the M9 Frame/Cell/View spine. See [[project_data_ui_synthesis]], [[project_documentation_site]] for the drapes/dapper split, [[project_reactive_owner_orm_context]] for the cast/RemoteEntityManager spine.

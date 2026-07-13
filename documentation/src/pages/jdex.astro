@@ -1,0 +1,34 @@
+---
+import { getCollection } from "astro:content"
+import Layout from "../layouts/Layout.astro"
+
+const collection = await getCollection("docs")
+const entries = collection
+  .map((entry) => ({ slug: entry.id, jdex: entry.data.jdex, title: entry.data.title }))
+  .filter((entry) => entry.jdex)
+  .sort((left, right) => left.jdex.localeCompare(right.jdex))
+
+const areas = {}
+for (const entry of entries) {
+  const category = Number(entry.jdex.split(".")[0])
+  const area = `${Math.floor(category / 10) * 10}–${Math.floor(category / 10) * 10 + 9}`
+  areas[area] ??= {}
+  areas[area][category] ??= []
+  areas[area][category].push(entry)
+}
+---
+<Layout title="jdex">
+  <h1>jdex</h1>
+  {Object.entries(areas).map(([area, categories]) => (
+    <section>
+      <h2>{area}</h2>
+      {Object.entries(categories).map(([category, items]) => (
+        <ul>
+          {items.map((item) => (
+            <li><a href={`/${item.slug}`}>{item.jdex} · {item.title}</a></li>
+          ))}
+        </ul>
+      ))}
+    </section>
+  ))}
+</Layout>

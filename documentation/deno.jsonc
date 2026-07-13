@@ -1,0 +1,11 @@
+{
+  "tasks": {
+    "capture": "deno run -A content/docs/capture.js",
+    "dev": "deno task capture && deno run -A npm:astro dev",
+    "build": "deno run -A npm:astro build",
+    "search": "deno run -A npm:pagefind --site dist",
+    "bundle": "deno task capture && deno run -A npm:astro build && deno run -A npm:pagefind --site dist",
+    "preview": "deno run -A npm:astro preview",
+    "test": "deno test -A --no-check content/docs/**/*.doc.test.js"
+  }
+}

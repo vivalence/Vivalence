@@ -1,6 +1,7 @@
 FROM vivalence/viva:alpine
 
 WORKDIR /viva/repository
+COPY registry/ ./registry/
 
 ENV VIVA_SYSTEM_MODE="RUNTIME"
 

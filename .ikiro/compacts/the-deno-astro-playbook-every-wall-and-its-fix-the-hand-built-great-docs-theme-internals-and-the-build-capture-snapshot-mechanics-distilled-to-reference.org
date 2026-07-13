@@ -1,0 +1,91 @@
+#+title: the deno×astro playbook — every wall and its fix, the hand-built great-docs theme internals, and the build-capture snapshot mechanics distilled to reference
+#+filetags: :documentation:deno-astro:playbook:reference:great-docs-theme:capture-snapshot:
+
+* why this fold
+
+Companion to the narrative fold [[the-documentation-site-is-born-astro-7-runs-on-deno-past-the-vite-plugin-virtual-module-wall-a-hand-built-great-docs-theme-lands-and-a-build-capture-inline-snapshot-regime-renders-tangle-1-to-1-examples]]. That one is the story; this one is the **durable engineering** — the reproducible recipe, the exhaustive wall-catalog with root causes, the theme's internal mechanisms, the capture mechanics. Written so future-me sets up Deno+Astro (or any deno+vite thing) without re-bleeding on every gotcha. beef: =this was a big foundational and important session.=
+
+* the working recipe (Astro 7 on Deno, minimal)
+
+=documentation/= is a **deno workspace member** (listed in root =deno.jsonc "workspace"= array — without it: =Config file must be a member of the workspace=). Its own =deno.jsonc= holds ONLY tasks (no =name= → avoids the =exports= warning; no =imports= → see LAW below).
+
+Tasks (=documentation/deno.jsonc=): =dev/build/preview= = =deno run -A npm:astro@7 {dev,build,preview}=; =capture= = =deno run -A content/docs/suites/capture.js=; =search= = =deno run -A npm:pagefind --site dist=; =bundle= = =capture && astro build && pagefind=; =test= = =deno test -A --no-check content/docs/suites/**/*.doc.test.js=.
+
+npm deps (ROOT =import_map.json=, all =npm:=): =astro@7= + =astro/= · =@astrojs/mdx= · =@astrojs/markdown-remark= · =unist-util-visit@5= · =remark-directive@3= · =@shikijs/transformers= · =codemirror@6= + =@codemirror/{state,view,lang-javascript}= · =@replit/codemirror-vim=. (=@deno/vite-plugin= reverted to =@1.0= — docs don't use it; kajuit does on vite 6.)
+
+=astro.config.mjs= (no =srcDir= override — standard =src/=): =integrations:[mdx()]=; =markdown.remarkPlugins:[remarkDirective, remarkAdmonition, remarkWikilink, remarkCodetitle, [remarkTangle,{root:import.meta.dirname}]]=; =markdown.shikiConfig.transformers:[transformerMetaHighlight()]=. Content collection defined in =src/content.config.ts= (glob loader, =base:"./content/docs"=) even though the data sits OUTSIDE =src/=.
+
+* the wall catalog — symptom → root cause → fix
+
+1. **=package.json= reflex.** Spec'd one to declare Astro deps. Deno repo has ZERO authored package.json. → deps in =import_map.json=. (The RETARD; =family: npm-reflex-in-deno-repo=.)
+2. **member =deno.jsonc "imports"= silently ignored** (=Warning "imports" … ignored when "importMap" is specified in the root config=). → ALL deps in ROOT =import_map.json=. A member map is dead when the root pins =importMap=.
+3. **=solid-js/web= won't resolve on Astro 7.** =@deno/vite-plugin@1.0.6= peers vite ≤7; Astro 7 ships vite 8. → bump to =@2.0.2= (peers vite 8) — but that only unmasked #4.
+4. **=Unsupported scheme "virtual"= (=virtual:astro:server-island-manifest=).** =@deno/vite-plugin@2='s deno loader intercepts Astro's internal =virtual:= modules; its scheme allowlist is blob/data/file/http/https/jsr/npm. SvelteKit uses few virtual modules (kajuit works); Astro is saturated with them. **→ DROP =@deno/vite-plugin= entirely.** The plugin existed only to resolve typology's =jsr:@std/path= when bundling typology client-side; kill client-bundling of typology and the plugin is unneeded. *This is the load-bearing decision of the whole session.*
+5. **transitive npm dep not top-level-symlinked** (=Rolldown failed to resolve "solid-js/web"=; =solid-js= only under =.deno/solid-js@x/node_modules/=, no top-level =node_modules/solid-js= for vite's resolver). → declare it a DIRECT dep so deno hoists a top-level symlink. (CM6's =@codemirror/*= did NOT need this — pnpm-nested resolution from =codemirror='s own node_modules sufficed; only optimizeDeps-forced subpaths like =solid-js/web= break.)
+6. **=@astrojs/solid-js/server.js= "not a dependency and not in import map"** in the generated =dist/.prerender= entry. Deno's strict-npm gate on generated files: prefix map =npm:@astrojs/solid-js@7/= + =server.js= URL-parse-fails; an EXACT map =("@astrojs/solid-js/server.js":"npm:@astrojs/solid-js@7/server.js")= resolves. But then =zod/v4= appeared (#7) → whack-a-mole → **DROP Solid** (beef: =not structural=).
+7. **=zod/v4= "not a dependency"** — astro's OWN internal dep in a prerender chunk. → exact map =("zod/v4":"npm:zod/v4")=. (Astro-internal subpaths in generated chunks each need an exact entry; =ssr.noExternal:true= to inline is the alternative, heavier.)
+8. **wikilinks render literal (=[[x]]=) in dev after edits.** =astro dev= DAEMONIZES; =pkill -f "astro dev"= misses the daemon → it serves a stale markdown-transform cache. → =deno run -A npm:astro dev stop=, then =pkill -f astro=, then fresh start. (Build always correct; only the dev daemon caches.)
+9. **routes 404, wikilinks dead: =/4201_…= not =/42.01_…=.** The content glob loader's default =generateId= slugifies and STRIPS the dot. → =generateId:({entry})=>entry.replace(/\.mdx$/,"")= preserves the jdex dot.
+10. **=specimen.snapshot= throws on write** — it does NOT mkdir its =base=. → =mkdirSync(SNAPSHOTS,{recursive:true})= before the loop. (Also: its =dry= flag is PREVIEW, not assert — the corpus tests assert separately via =expect().toEqual=.)
+11. **=statSync= via =import.meta.url= fails in astro's SSR bundle** (bundled chunk path ≠ =file://=). → resolve from =process.cwd()= (which is =documentation/= under the task) instead: =resolve(process.cwd(),"content/docs",slug+".mdx")=.
+
+* deno-native laws (pin these)
+
+- **npm deps ONLY in root =import_map.json=** as =npm:pkg@ver=; member =deno.jsonc "imports"= is ignored under a root =importMap=.
+- **typology never bundles into the browser** — it pulls =jsr:@std/path= (url.js/path.js) which only deno resolves; run it in deno (cli test, or the build-time capture), never in a client bundle. This dissolves the entire =@deno/vite-plugin=-vs-Astro conflict.
+- **never =@deno/vite-plugin= with a virtual-module-heavy framework** (Astro). Fine with SvelteKit (kajuit).
+- import reach for doc-tests: =@vivalence/typology= FULL (86 exports); =@vivalence/runtime= barrel (=mod.js=, 5 exports); **runtime scenarios do NOT import** — they reach =registry/…/entities/index.js= paths that resolve only from the runtime workspace root, not the docs root. Scenario-backed tests must RUN from =systems/runtime=, not import into the docs.
+
+* the great-docs theme internals (=src/layouts/Layout.astro= + =src/lib/tree.js=)
+
+Data: =await getCollection("docs")= → =pages[{slug:entry.id, jdex, title, body:entry.body}]=. =tree.js= folds =buildTree(pages)= (area =NN–NN= → category → entries), =flatten= (jdex-sorted), =breadcrumb(jdex)=. =current= = match =Astro.url.pathname= against =/${slug}=. =frontmatter= + =headings= arrive as props from =src/pages/[...slug].astro= (=render(entry)=).
+
+- **sidebar**: the tree, =entry.active= when =/${slug}===here=.
+- **TOC**: =headings= filtered depth 2-3, sticky right rail.
+- **breadcrumb**: =[...breadcrumb(jdex), title]=; render separators = =·= before the title, =›= between path segments.
+- **prev/next**: neighbors in =flatten(pages)=.
+- **backlinks (connections)**: edges from =entry.body= regex =/\[\[([^\]]+)\]\]/g=; =incoming=/=outgoing= filtered to =titleOf=. (= the local-graph Tier-3 feature, data-only.)
+- **last-updated**: file mtime via =statSync(cwd/content/docs/slug.mdx)=.
+- **dark/light**: =:root= light + =:root[data-theme="dark"]= + =@media prefers-dark :root:not([data-theme])= (system default when unset). Toggle = a =<head>= inline script applies =localStorage.theme= pre-render (anti-flash); a button flips =data-theme= + persists; glyph ☀/☾.
+- **search**: Pagefind — =deno task search= runs the =@pagefind/darwin-arm64= native binary over =dist/= post-build; =<article data-pagefind-body>= scopes the index; =/pagefind/pagefind-ui.js= mounts =PagefindUI= into =#search=; cmd-k focuses =#search input=. Works in =preview= (built), not =dev=.
+- **code-copy · heading-anchors · code-tabs**: vanilla =<script is:inline>= — no framework island.
+- **remark plugins** (=src/plugins/=, all =unist-util-visit=): =remark-wikilink= (=[[slug]]=→=/slug=), =remark-tangle= (=```lang tangle=path= writes the fence to disk + a "⟿ tangled" badge), =remark-admonition= (=remark-directive= containers =:::note/tip/warning/danger= → styled =<aside>=), =remark-codetitle= (=```lang title=""= → filename bar). Line-highlight = =@shikijs/transformers= =transformerMetaHighlight= (=```lang {3}=).
+- **CM6 editor** (=src/components/Editor.astro=): a bundled =<script>= (Astro hoists+dedupes) mounts =EditorView= with =[vim(), basicSetup, javascript(), theme]= over each =[data-editor]= host (initial doc in a hidden =<textarea>=). Pure npm → bundles clean, no jsr, no island. **Display-only** — execution shelved.
+
+* the build-capture snapshot mechanics
+
+=content/docs/suites/capture.js=: =readdirSync("examples")= → per =*.example.js=: dynamic-import, wrap =console.log= into a =logs[]= sink, =await example.run()= → **if the return is an Array it's the SPAN channel (=records=), else STDOUT (=logs=)** → =specimen.snapshot({name,channel,logs,records,error}, {base:SNAPSHOTS, dry:false, parse:v=>v, locate:`${name}.json`})=. =SNAPSHOTS= = =new URL("../../../snapshots", import.meta.url).pathname=.
+
+Render components (=src/components/=, all glob the top-level =snapshots/= = =../../snapshots/*.json=):
+- =Example.astro= — stdout: =data.logs= as =<pre class="log-line">=.
+- =Trace.astro= — span: walk =data.records=, track depth by =open=(+1 after)/=close=(−1 before), render =verb= badge + =data= per row.
+- =Source.astro= — =import.meta.glob(examples/*.example.js, {query:"?raw"})= → astro =<Code lang="js">=.
+
+**Span API** (=@vivalence/typology=, =prototypes/span.js=): =new Span()=; =.open()= / =.note(data)= / =.close()= / =.fault(error)= → each pushes a flat =record {span,trace,path,verb,at,data?}= to =.records=; =belt.chronicle(records)= folds to a =\{nodes,roots\}= tree (the canonical fold, used by the wire-trace snapshot 47.04). Trace.astro nests by open/close depth in-component to stay typology-free; swap to chronicle-at-capture for branched traces.
+
+**Tangle-1:1 guarantee (structural):** one example file is the single source — =<Source>= displays it via =?raw= (exact bytes), =<Example>= displays the capture of running it. Tangle the shown code → same output. =47.03_stripwire.mdx= is the exemplar: Vector (root =affect= + =/echo= + =/ping=) → =shape.strip= → wire JSON → 3 assertions, one logged pass, green-build-IS-the-test.
+
+* the structure (all under =documentation/=)
+
+#+begin_src
+content/docs/*.mdx                       jdex docs (a content collection, top-level, NOT under src/)
+content/docs/suites/                     INLINE with the content
+  capture.js
+  examples/47.03-connection.example.js
+  stripwire.{suite,doc.test}.js          the cli assertion mirror
+src/content.config.ts                    glob loader base ./content/docs · generateId keeps the dot
+src/pages/  [...slug].astro (render collection) · jdex.astro · index.mdx (page, has a layout: frontmatter)
+src/components/  Source · Example · Trace · Editor · Tabs .astro
+src/layouts/Layout.astro · src/lib/tree.js · src/plugins/remark-*.js
+snapshots/*.json                         capture output (derived; regenerated each dev/bundle)
+public/vivalence-viket-logo-plasma.png   the kajuit favicon (viket double-chevron 《)
+#+end_src
+
+* what stayed unbuilt / shelved (so the next session doesn't re-derive)
+
+- **run-inline execution** — two designs, both SHELVED: (a) socket to a =docs-runner= deno process (fresh =deno run= subprocess per request = light-VM on the on-disk repo, streamed logs; local-only security boundary); (b) pre-bundle typology via =deno bundle= → a Web Worker. Static build-capture is the shipped path.
+- the CM6 editor is display-only (no execution wired).
+- **milestone doc CONTENT** (the README beef keeps asking for, M2-M6) is STILL unwritten — this session built the VEHICLE, not the pages. That is the open frontier.
+- =snapshots/= gitignore-vs-commit unresolved (derived; =deno task capture= reseeds a fresh clone).
+
+See memory [[project_documentation_site]].

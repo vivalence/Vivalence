@@ -53,8 +53,8 @@ specimen.describe("bench (paladin specifiers)", { sanitizeOps: false, sanitizeRe
     scenario = await bench({
       kernel: [
         "@education/domain/language-learning",
-        "@education/ontology/word",
-        "@education/ontology/sentence",
+        "@education/topology/word",
+        "@education/topology/sentence",
         "@education/game/flashcard",
         "@education/game/judge",
         "@education/game/pick",

@@ -1,0 +1,40 @@
+---
+title: Lifecycle
+jdex: "46.12"
+---
+
+# 46.12 · Lifecycle
+
+## phase 1 — construct (synchronous, top-level)
+- Runs at module init, before onMount. Order matters — Main depends on quarters+lighthouse.
+- `new Lighthouse(new Connection(new Url(env.PUBLIC_VIVA_LIGHTHOUSE_REMOTE)))` → connection URL comes from env (PUBLIC_), never hardcoded.
+- `lighthouseDeck.hydrate(lighthouse)` — restore $authority/$identity from localStorage key `lighthouse:<url>`; effect re-persists on change.
+- `setContext(LIGHTHOUSE)` → `new Quarters()` (terminals repo `restore()`) → `setContext(QUARTERS)`
+- `new Bridge()` → `setContext(BRIDGE)` → `new Main(quarters, lighthouse)` → `setContext(MAIN)`
+- `traits.thread.conversational.provide({ main })` — box arg commented (audio unwired).
+- `window.__viv = { lighthouse, quarters, bridge, main }` — debug handle.
+- [TODO: note BOX block is commented; flag as the audio gate.]
+
+## phase 2 — onMount (populate + gate)
+- `lighthouseDeck.boot(lighthouse)` → `verifyAuth` → (if authorized) `populate`.
+  - populate: `connection.call("/manifest")`; `call("/entities/daemon/find")`; bootDaemon each → `lighthouse.daemons` map; `$daemons.set([...])`. Memoized via `$populating`.
+- gate = `computed([$isAuthorized, $status])` → subscribe sets `gate`.
+- second subscribe: on `$isAuthorized` true → populate (covers post-login).
+- `terminalCount` from `quarters.terminals.$entities`.
+- cleanup: returns unsubscribe trio.
+- [TODO: sequence diagram or indented trace of boot→verify→populate.]
+
+## gate states + status codes
+- gate values: `offline | error | auth | verifying | ready`.
+- status codes (lighthouse.$status): IDLE · AUTHENTICATING · AUTHENTICATED · VERIFYING · VERIFIED · REFRESHING · REFRESHED · OFFLINE · ERROR · SESSION_EXPIRED · LOGGED_OUT.
+- mapping rule: OFFLINE→offline; ERROR/SESSION_EXPIRED→error; !authorized→auth; AUTHENTICATING/VERIFYING/REFRESHING→verifying; else→ready.
+- [TODO: table gate ← status code.]
+
+## render branches
+- `ready` → render `children()` + empty-overlay (`main.spawn()`) when terminalCount 0.
+- `auth` → `<Login>` skin.
+- `error` / `offline` → gate message + retry/reconnect (re-boot).
+- fallback → raw gate string ("boot").
+
+## variant-missing defence
+- [TODO: 05.25 — paladin boots variant-less; only ghost runs without variant. kajuit reads PUBLIC_VIVA_LIGHTHOUSE_REMOTE; when runtime/variant absent the gate lands in offline/error. Document the failure surface here, honestly.]

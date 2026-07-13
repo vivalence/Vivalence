@@ -1,0 +1,212 @@
+---
+title: Hallucination Triad
+jdex: "47.02"
+---
+
+# 47.02 · Hallucination Triad
+
+*how one LLM call is built — a faculty repository (typology) spawns a request that a runtime trait dresses with tools and persistence; the seam between them is the whole subject*
+
+## purpose
+
+The LLM-calling path is THREE things that must not be confused:
+
+- **cortex** — a faculty REPOSITORY. Holds providers keyed by `type`; answers "which provider best fits this desire?". Lives in `subsystems/typology/prototypes/cortex.js`.
+- **hallucination** — the REQUEST. A closure that accumulates a conversation, tools, and config, then dispatches one call. Spawned BY cortex. Lives in `subsystems/typology/prototypes/hallucination.js`.
+- **harnessed** — the TOOLING. A runtime trait that conditions a fresh request from daemon input, scribes turns, and loads thread history. Lives in `systems/runtime/daemon/traits/harnessed.js`.
+
+This doc is the **SEAM + lifecycle**, not the internals. Cortex's `nearest` faculty-matching, the `dressAsObject` grammar adapter, the tune-axis math — those are cortex internals for a future `42_typology` faculty doc; the `shape.object` trie that carries the request is the dispatch spine, [[42.01_the-dispatch-spine]]. Here: how the three compose into one call, told as a runnable test.
+
+The code blocks below TANGLE to `systems/runtime/tests/hallucination-triad.doc.test.js` and run green in-tree. They import real scenarios from BOTH typology (`@vivalence/typology`) and runtime (`./scenarios/cortex.js`) — the test lives under the runtime workspace because Act II pulls `@vivalence/runtime` transitively, and `docs/` is excluded from the deno workspace. Edit either side; keep them in sync.
+
+## the spawn seam
+
+Cortex is the request's birthplace. There is no `new Hallucination(...)` in callers — you go through the repository:
+
+```javascript
+// cortex.js
+hallucination(config = {}) { return Hallucination(this, config); }
+
+// hallucination.js
+export function Hallucination(cortex, configuration) {
+  const config = v.create(CONFIG);
+  // ... build the request ...
+  if (configuration) hallucination.configure(configuration); // eager configure — ONE validated path
+  return hallucination;
+}
+```
+
+`cortex.hallucination(config)` constructs AND seeds in one call: the `configuration` argument is applied as an eager `configure()`, so seeding reuses the exact cast+check path a later `.configure()` would — no second validation branch.
+
+## the provider contract
+
+A Faculty is dumb, stateless, single-shot: `render(request) → Turn` and/or `stream(request) → AsyncGen<Packet>`. The `request` is the NAMED provider contract both sides speak — `Request = { turns, tools?, settings?, output?:{ object } }` (`schematics/primitives/hallucination.js`). `turns` the conversation · `tools` a record of definitions · `settings` model knobs (maxTokens · thinking · `tool_choice`) · `output.object` the structured-return schema (always a v-schema; absent → plain dialogue). Nothing stateful, no loop, no config grab-bag. The literal below is the entire contract — the anthropic provider ships this same shape.
+
+```javascript
+// TANGLED from docs/40-49_repository/47_integration/47.02_hallucination-triad.org
+// Didactic, runnable guide to the cortex → hallucination → harnessed triad.
+// Edit the .org, re-tangle; or edit here and keep the .org src blocks in sync.
+// Run: deno task --cwd systems/runtime test  (this file lives under the runtime workspace
+// because Act II imports @vivalence/runtime transitively; docs/ is excluded from the workspace).
+
+import { specimen, soma, Cortex } from "@vivalence/typology";
+import { create } from "./scenarios/cortex.js";
+
+// A Faculty is a dumb, stateless, single-shot provider: {type, tune, channels, via:{render,stream}}.
+// render(request) → one Turn. stream(request) → AsyncGen<Packet>. Nothing else.
+// request = { turns, tools?, settings?, output?:{object} } — the whole provider contract.
+function tutor() {
+  const lastUser = (turns) => {
+    for (let i = turns.length - 1; i >= 0; i--) {
+      const text = turns[i].role === "user" && turns[i].parts?.find((p) => p.type === "text")?.text;
+      if (text) return text;
+    }
+    return "";
+  };
+  const answered = (turns) => turns.at(-1)?.parts?.some((p) => p.type === "tool_result");
+  return {
+    type: "dialogue",
+    tune: [0.9, 1.0, 0.3], // [intelligence, reasoning, speed] — register pads thrift → 0.5
+    channels: { in: ["text", "tool_result"], out: ["text", "tool_use"] },
+    via: {
+      render: async ({ turns, tools }) => {
+        // A tool is on the table and we have not answered its result yet → call it.
+        // (This one branch drives BOTH the plain tool loop AND object synthesis: for object
+        //  requests cortex injects a `respond` tool, so request.tools carries it here.)
+        if (tools && !answered(turns)) {
+          return {
+            role: "assistant",
+            parts: [{ type: "tool_use", id: "call-1", name: Object.keys(tools)[0], input: JSON.stringify({ query: lastUser(turns) }) }],
+            meta: { stop: "tool_use" },
+          };
+        }
+        return { role: "assistant", parts: [{ type: "text", text: `answer: ${lastUser(turns)}` }], meta: { stop: "end_turn" } };
+      },
+    },
+  };
+}
+```
+
+## the request in isolation (typology only)
+
+Register providers into a cortex, spawn a request, condition it fluently, dispatch. Three faces: a plain call, a tool loop, and a derived object — all off the SAME provider.
+
+- `cortex.hallucination(config)` — the spawn seam; `tune` seeds via eager configure.
+- `request.context.system(...)` / `request.entities.turn.append(...)` / `request.entities.tool.add(...)` — accumulate.
+- `request.dialogue.render()` — a leaf on the `shape.object` trie (`/dialogue/render`). The tool loop runs HERE, at the leaf, exactly once.
+- `request.object.render()` — no `object` faculty registered; cortex DERIVES one from the dialogue donor via `dressAsObject`, injecting a `respond` tool and sealing the call into an object turn.
+
+```javascript
+
+specimen.describe("47.02 hallucination triad — the request in isolation (typology only)", () => {
+  // Cortex is a faculty repository. Register providers, then SPAWN a request through it.
+  const cortex = () => new Cortex().register([tutor()]);
+
+  specimen.it("cortex.hallucination(config) is the spawn seam — construct + seed in one call", async () => {
+    const request = cortex().hallucination({ tune: "unleashed" }); // eager configure(); no `new`
+    request.context.system("You are a patient tutor.").entities.turn.append({ role: "user", parts: [{ type: "text", text: "olá" }] });
+
+    const turn = await request.dialogue.render(); // shape.object trie: /dialogue/render leaf
+    specimen.expect(turn.parts[0].text).toBe("answer: olá");
+  });
+
+  specimen.it("a tool loop runs at the leaf, once — tool_use → execute → tool_result → final turn", async () => {
+    const request = cortex().hallucination();
+    request.entities.tool.add("lookup", async ({ query }) => ({ found: query.toUpperCase() }));
+    request.entities.turn.append({ role: "user", parts: [{ type: "text", text: "brasil" }] });
+
+    const turn = await request.dialogue.render(); // round 1 calls lookup, round 2 answers
+    specimen.expect(turn.meta.stop).toBe("end_turn");
+    specimen.expect(turn.parts[0].text).toBe("answer: brasil");
+  });
+
+  specimen.it("object is DERIVED from dialogue — dressAsObject dresses the same provider", async () => {
+    // No `object` faculty registered; findOne derives one from the dialogue donor.
+    const request = cortex().hallucination().output.object({ type: "object" });
+    request.entities.turn.append({ role: "user", parts: [{ type: "text", text: "hi" }] });
+
+    const turn = await request.object.render(); // respond-tool injected, call sealed into an object turn
+    specimen.expect(turn.object).toEqual({ query: "hi" });
+  });
+});
+```
+
+## the tooling seam end to end (runtime)
+
+`HARNESSED` is the same triad, persistence-wired. Its root middleware spawns `daemon.cortex.hallucination({ ...config, ...(tune && {tune}), ...(output && {output}) })` — construct + seed in one factory call — then layers `system`, `tools`, `turns` through the request's OWN interfaces. Its `/dialogue` branch scribes assistant turns and loads thread history. The faculty terminals forward via return (`steer.echo` assigns `ctx.output`). The scenario `create()` boots a `dewey` teacher mode with a cortex of opus/sonnet/haiku dialogue faculties; `dewey.harness.dialogue.stream(input)` drives the whole path.
+
+```javascript
+
+specimen.describe("47.02 hallucination triad — the tooling seam end to end (runtime)", () => {
+  // Harnessed conditions a fresh request from ctx.input via daemon.cortex.hallucination({...}),
+  // scribes assistant turns, and loads thread history. Same triad, now persistence-wired.
+  let scenario;
+  specimen.beforeAll(async () => (scenario = await create()));
+  specimen.afterAll(async () => await scenario.orm.close());
+
+  const collect = async (stream) => {
+    let turn = null;
+    for await (const packet of stream) turn = soma.pour(turn, packet);
+    return turn;
+  };
+
+  specimen.it("dewey.harness.dialogue.stream persists user + assistant turns", async () => {
+    const thread = await scenario.createThread();
+    const stream = await scenario.dewey.harness.dialogue.stream({
+      parts: [{ type: "text", text: "hello dewey" }],
+      thread,
+      tune: "balanced", // picks the sonnet faculty via nearest()
+    });
+    const turn = await collect(stream);
+    specimen.expect(turn.parts[0].text).toContain("hello dewey");
+  });
+});
+```
+
+## the two grammars, one law
+
+Both faces speak the same content in two shapes:
+
+```
+  Turn   = { role, parts[], meta:{ stop } }          // the whole, at rest
+  Packet = /turn/open · /part/open · /part/delta ·   // the whole, in motion
+           /part/close · /turn/close
+
+  Turn ≡ fold(soma.pour, packets)                    // render and stream are twins
+```
+
+`render` = parse ∘ loop ∘ compile. `stream` = the same unfold inside a generator; packets pass unbuffered while `soma.pour` shadow-accumulates so the tool loop can re-enter. The twins are never collapsed.
+
+## tune axes
+
+`tune` is a point in 4-axis capability space, `[intelligence, reasoning, speed, thrift]`, each `[0,1]`, 1 = maximal. Two CAPABILITY axes trade two ECONOMY axes — nothing maxes all four. Named desires (`tiers`): `frugal · balanced · capable · unleashed · eager`. Providers may ship 3 (cortex pads `thrift` → 0.5); `nearest` is equal-weighted squared-Euclidean, looping `target.length` so a 3-axis desire ignores axis 4. Canon: `subsystems/typology/schematics/primitives/hallucination.js` (`axes` export + `.desc()` on `Tune`/`Tier`).
+
+## why it is shaped this way
+
+The load-bearing decisions, each with the finding that forced it:
+
+- **the placement test.** The hallucination adds NOTHING automatically — it only compiles the primitives it was handed. Everything automatic (persona, tools, thread/history, scribe, normalization) lives on the harness. Rule: *if a behavior happens without the caller asking, it belongs on the harness.* (`hallucination-is-the-request…:54`)
+- **the request is dataspace-blind.** beef: *"i dont think the hallucination should know about thread?! if its the Request, it shouldnt know about our dataspace. harness might/ought to know about thread."* Maps to `hallucination : Request` and `harness : Connection` — a Request is a pure self-executing value that never imports Connection; a Connection decorates + dispatches Requests. Import direction is one-way: harness → hallucination, never reverse.
+- **the tool loop lives at the leaf, once — never a middleware.** koa-compose forbids calling `next()` twice. A tool loop re-invokes the provider N times, so a loop-middleware would have to call the provider directly and ignore the onion effect — a strategy in a middleware costume. The leaf owns the onion TERMINAL: it loops freely while compile-in / parse-out wrap exactly once. (`redesign-churn…:50`)
+- **a Vector earns its keep only when signals ARRIVE — never inside a request.** The rejected redesign precompiled a Vector per request and synthesized `/${type}/render` from an argument already in hand — structure cosplay. Nothing arrives inside a request; direct dispatch beats a trie. (`redesign-churn…:21`)
+- **cortex is a Map repository; resolution is a QUERY.** `findOne(where)` owns nearest-neighbour + derive. The hated `resolve/has/via/stored` surface collapses into the same repository algebra every entity already speaks. *Keyed + queried, never routed.* (`redesign-churn…:27`)
+- **object is DERIVED, not a provider slot.** On Anthropic, structured output IS a tool call — a dedicated provider slot buys nothing. `dressAsObject(dialogue)` reads `request.output.object` (the target schema), injects a `respond` tool (`input = request.output.object`) + `settings.tool_choice:any` going down, then `v.fill`s the sealed `respond` call through the schema into an object turn (`stop:"end_turn"`) coming up so the GENERIC loop terminates; real `tool_use` passes through untouched. `tool_choice` is dressAsObject's private business — never a caller-facing contract member. Loop exists once (hallucination), derive exists once (cortex.findOne). Facilitation by RESOLUTION, not installation. (`triad-built…:33`)
+- **render = parse ∘ loop ∘ compile.** `compile` folds closure state → a `Request` (context + system-role turns hoist into ONE canonical leading system turn; `tools` first-class from the tool entities; `settings`/`output` spread from config UNCHANGED — config IS the contract shape, no re-wrap). `loop` is the only recursion, an unfold until `stop ≠ tool_use`, bounded by `rounds` (hallucination-INTERNAL, never on the wire — nor is `tune`, resolved to the faculty at findOne). `parse` enriches (object part → `turn.object`).
+- **the faculty guard is loose on purpose.** It validates only `type/tune/via`; `channels` is descriptive metadata cortex never reads. (A voice stub's object-encoded channels was resolved by relaxing the guard, not policing the encoding.)
+
+## not yet built (intents, parked on beef's go)
+
+- **one-call render.** beef: *"i dont like this .add().tune().configure() interface."* Intent: `render({ turns, tune, output, tools })` replacing the fluent builder — a hallucination-prototype change. (`riddler.quest…:470`)
+- **promote render/stream/execute into belt** as `soma.render / soma.stream / soma.execute` — they sit file-level in `hallucination.js` as belt candidates.
+- **the provider contract — LANDED.** The old `(turns, config)` with tools smuggled into a `config` grab-bag was recast into a named `Request = { turns, tools?, settings?, output?:{ object } }` both the hallucination and every dialogue/object provider speak (beef: *"contract. contract both sides. …why are the tools inside config?!"*). `config` now IS the contract shape (no compile re-wrap); `tools`/`output` are first-class; `input` was deleted (Vector-descriptor vocabulary, no referent on a composed request). Speech/verbatim faculties (textChunks/audioSource) stay out of scope — not turns-based.
+- **toolcalling at scale.** Today every hallucination gets ALL modes' tools (`cortex.tools` = one Vector, `<slug>_<nature>` namespacing) and `translate.js` carries no `cache_control`. Standard next step: prompt-caching pass (tools at position 0) + `defer_loading:true` on long-tail tools + the server `tool_search_tool_bm25` — loaded schemas APPEND (preserve the cache), never swap. (`cortex-tool-bundle…:42`)
+- **parked consumer forks:** ctx auto-transport (inject `ctx.buffer`/`ctx.thread` into every aperture/emitter/tool ctx), addressable system-prompt overwrite (`/path/overwrite`), client-authoritative history, async evaluation mechanism (detached task vs queue + SRS grade-write). (`riddler.quest…:466`)
+
+## see also
+
+- `subsystems/typology/prototypes/cortex.js` · `hallucination.js` — the request machinery (internals; future `42_typology` doc)
+- `systems/runtime/daemon/traits/harnessed.js` — the tooling trait
+- `systems/runtime/tests/scenarios/cortex.js` — the `create()` scenario Act II imports
+- [[42.01_the-dispatch-spine]] — the Vector/shape spine the request rides
+- [[47.01_buffer-flow]] — sibling seam doc (Pool + EMITTER)
+- memory `project_hallucination_harness_cortex_ontology` — the ontology in one page

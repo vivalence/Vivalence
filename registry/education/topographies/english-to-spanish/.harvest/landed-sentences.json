@@ -1,0 +1,122 @@
+{
+  "hola-como-estas": {
+    "audio_id": 39150,
+    "author": "arh",
+    "text": "¡Hola! ¿Cómo estás?"
+  },
+  "yo-soy-estudiante": {
+    "audio_id": 435976,
+    "author": "arh",
+    "text": "Soy estudiante."
+  },
+  "no-hablo-espanol": {
+    "audio_id": 636595,
+    "author": "arh",
+    "text": "No hablo español."
+  },
+  "donde-esta-el-bano": {
+    "audio_id": 449800,
+    "author": "arh",
+    "text": "¿Dónde está el baño?"
+  },
+  "estoy-bien-gracias": {
+    "audio_id": 35146,
+    "author": "arh",
+    "text": "Estoy bien."
+  },
+  "tengo-un-problema": {
+    "audio_id": 442646,
+    "author": "arh",
+    "text": "Tengo un problema."
+  },
+  "no-tengo-dinero": {
+    "audio_id": 441490,
+    "author": "arh",
+    "text": "No tengo dinero."
+  },
+  "necesito-un-medico": {
+    "audio_id": 195629,
+    "author": "arh",
+    "text": "Necesitan un médico."
+  },
+  "quiero-un-cafe": {
+    "audio_id": 440397,
+    "author": "arh",
+    "text": "Quiero café."
+  },
+  "donde-esta-la-estacion": {
+    "audio_id": 568185,
+    "author": "arh",
+    "text": "¿Dónde está la estación de tren?"
+  },
+  "el-cafe-esta-caliente": {
+    "audio_id": 800450,
+    "author": "ignacio",
+    "text": "El café está caliente."
+  },
+  "mi-padre-es-medico": {
+    "audio_id": 36321,
+    "author": "marcelostockle",
+    "text": "Mi padre es médico."
+  },
+  "vamos-a-casa": {
+    "audio_id": 525020,
+    "author": "arh",
+    "text": "Nos vamos a casa."
+  },
+  "el-coche-es-rojo": {
+    "audio_id": 703768,
+    "author": "arh",
+    "text": "El coche es azul."
+  },
+  "hoy-como-en-casa": {
+    "audio_id": 721804,
+    "author": "arh",
+    "text": "Yo como en casa."
+  },
+  "la-comida-esta-muy-buena": {
+    "audio_id": 443789,
+    "author": "arh",
+    "text": "La comida está buena."
+  },
+  "mi-madre-hace-la-comida": {
+    "audio_id": 692286,
+    "author": "arh",
+    "text": "Ayudo a mi madre a hacer la comida."
+  },
+  "vivo-en-un-piso-pequeno": {
+    "audio_id": 929177,
+    "author": "arh",
+    "text": "¿No te agobia vivir en un piso tan pequeño y sin pasillo?"
+  },
+  "voy-al-mercado": {
+    "audio_id": 458758,
+    "author": "arh",
+    "text": "Voy al supermercado a comprar huevos."
+  },
+  "quiero-la-cuenta": {
+    "audio_id": 1522,
+    "author": "marcelostockle",
+    "text": "La cuenta, por favor."
+  },
+  "el-hotel-esta-aqui": {
+    "audio_id": 111910,
+    "author": "arh",
+    "text": "El hotel está ahí."
+  },
+  "la-habitacion-es-pequena": {
+    "audio_id": 858006,
+    "author": "arh",
+    "text": "La habitación es bastante pequeña."
+  },
+  "no-tengo-movil": {
+    "audio_id": 534850,
+    "author": "arh",
+    "text": "Ya no tengo móvil."
+  },
+  "donde-esta-el-telefono": {
+    "audio_id": 354625,
+    "author": "arh",
+    "text": "¿Dónde está el teléfono más cercano?"
+  }
+}

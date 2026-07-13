@@ -14,8 +14,9 @@ services:
     environment:
       - VIVA_SYSTEM_MODE=PRODUCTION
       - VIVA_SYSTEM_ROLE=RUNTIME
-      - VIVA_VARIANT_MOUNT=/viva/repository/registry/wafers/@vivalence/variant/multiplayer
+      - VIVA_LEDGER_MOUNT=/viva/ledger
       - VIVA_MOUNTPOINT_MOUNT=/viva/mountpoint
+      - VIVA_VARIANT_MOUNT=/viva/repository/registry/viva/variant/multiplayer/
       - VIVA_RUNTIME_SERVE=http://0.0.0.0:2501
       - VIVA_LIGHTHOUSE_SERVE=http://0.0.0.0:2501/attached/process/lighthouse/multiplayer
       # - PUBLIC_VIVA_RUNTIME_REMOTE=https://runtime.s4y.vivalence.com
@@ -59,6 +60,13 @@ services:
     environment:
       - PUBLIC_VIVA_LIGHTHOUSE_REMOTE=https://runtime.s4y.vivalence.com/attached/process/lighthouse/multiplayer
       - PUBLIC_VIVA_CLIENT_KAJUIT_REMOTE=https://vivalence.com
+
+  documentation:
+    image: vivalence/documentation:alpine
+    container_name: documentation
+    restart: unless-stopped
+    ports:
+      - "2020:2020"
 # services:
 #   kajuit:
 #     image: 'registry.vivalence.org/beef/viva/vivalence/kajuit:alpine'

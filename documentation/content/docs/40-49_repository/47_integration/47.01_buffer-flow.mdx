@@ -1,0 +1,108 @@
+---
+title: Buffer Flow
+jdex: "47.01"
+---
+
+# 47.01 · Buffer Flow
+
+*how a Buffer travels the daemon↔client seam; two utilities on one entity*
+
+## purpose
+- The Buffer's journey from a mode's emitter (server) to the terminal's reactive
+  manager (client). Cross-container by nature — lives in neither `44_runtime` nor
+  `46_kajuit` alone, so it lives here.
+- One question answered: what is the relationship between `Pool` (server) and `Stall`
+  (client), and why are they two utilities over the SAME entity.
+- Boundary: the Pool prototype's internals belong to `42_typology`; the Stall phase
+  machine likewise; this doc is the SEAM, not the primitives.
+
+## the skeleton — BufferEntity
+- `Buffer` (BufferEntity) is the shared spine: server-persisted, client-reactive.
+- `Pool` FILLS the buffer set on emit; `Stall` MANAGES it on the terminal. Same table,
+  opposite ends. Pool is the write side; Stall is the read + lifecycle side (and writes
+  back on eviction).
+
+## server — Pool (the accumulation utility)
+Anchor: `systems/runtime/daemon/traits/emitter.js`, `subsystems/typology/prototypes/pool.js`.
+
+- The EMITTER trait wraps the mode's emitter Vector. Its last middleware brackets the
+  emission:
+  ```javascript
+  ctx.pool = new Pool();
+  await next();                               // mode effects create buffers via ctx.mode.buffer(data)
+  if (ctx.output != null) ctx.pool.add(ctx.output);
+  const result = await ctx.pool.drain();      // → Yield.NOMINAL(buffers) | EXHAUSTED
+  if (ctx.thread && result.condition === "NOMINAL")
+    for (const buffer of result.buffers) {
+      buffer.thread = ctx.thread;
+      buffer.index  = ctx.thread.counter++;
+    }
+  await daemon.entities.em.flush();           // persist BufferEntity rows
+  ctx.output = result;
+  ```
+- `Pool` = async emission monad: `add` (lazy → `items`) and `drain` (eager → `buffers`)
+  both dispatch ONE `classify` patternmap (empty/promise/pool/nominal/spent/array/buffer),
+  so the shape truth-table can't drift between the two paths. `resolve` flattens
+  promises/pools/arrays down to a flat buffer list.
+- Role: gather heterogeneous emitted things (a buffer, a promise of buffers, a delegated
+  sub-pool, a NOMINAL yield) into one flat list, then drain + persist.
+- INVARIANT: cross-mode emit delegates MUST feed `ctx.pool` (a bare `await` drops the
+  buffers). See `feedback_emitter_delegation_via_pool`.
+
+## wire — the dataspace seam
+- The Pool itself does NOT cross the wire. Its DRAINED buffers do, as entities.
+- `em.flush()` persists the BufferEntity rows; the client subscribes to the buffer entity's
+  SSE stream; rows materialize into the thread's reactive `$buffers` collection.
+- Concrete client path:
+  - `RemoteRepository.subscribe` (`prototypes/remote-repository.js:143`) opens the SSE
+    stream (one `Connection.stream` async-gen, `connection.js:102`); each event routes
+    `delete → drop`, else `→ merge`.
+  - `merge → EM.integrate` (`entity-manager.js:107`, install-once gate) `→ EM.cast`
+    (`:138`): resolve relation refs, then mint the reactive relation.
+  - `thread.$buffers` is NOT a stored array — it is `computed(buffer.$entities, filter by thread)`,
+    built lazily in `cast` at `entity-manager.js:179`. A new buffer row landing in
+    the buffer store re-fires the computed; `$buffers` updates with NO explicit write to the
+    thread. The relation is a DERIVATION, not a field.
+- So the hand-off is entity-mediated, not object-mediated: server drains a Pool into rows,
+  client re-inflates rows into a reactive set.
+- [TODO: cite the exact datamap subscription that feeds `thread.$buffers`.]
+  (Open part: the `:179` computed is the client mechanism; the SERVER-side publisher of the
+  buffer SSE stream — the daemon `/subscribe` handler — is still untraced.)
+
+## client — Stall (the management utility)
+Anchor: `systems/kajuit/src/typology/entities/terminal.js`, `subsystems/typology/prototypes/stall.js`.
+
+- On thread switch the terminal (re)builds a Stall over (source, active):
+  ```javascript
+  this.$thread.subscribe((thread) => {
+    this.stall?.close();
+    this.stall = thread && Stall(thread.$buffers, this.$buffer);   // (source, active)
+    this.stall?.on.release((buffer) => {
+      thread.daemon.entities.buffer.drop(buffer.id);               // optimistic: source shrinks now
+      thread.daemon.entities.buffer.removeOne({ id: buffer.id });  // server sync — writes BACK to the table
+    });
+  });
+  ```
+- `Stall` = reactive PHASE machine over (source = `thread.$buffers`, active =
+  `terminal.$buffer`). Phases INERT/STATIC/CONTINUOUS/ESCORT/MANUAL collapse onto one
+  `engage`; `release` dispatches on the live `$phase` atom (multimethod-on-dynamic-var).
+- Role: navigate the reactive collection + drive the active cursor + evict. Eviction
+  round-trips through the same datamap (`buffer.drop` optimistic, `buffer.removeOne`
+  server sync) — back to the same BufferEntity table the Pool filled.
+
+## the symmetry
+```
+Buffer (BufferEntity)  = the skeleton — one entity, server-persisted ↔ client-reactive
+Pool   = SERVER utility — accumulate emitted → drain → flush          (write side)
+Stall  = CLIENT utility — manage reactive set → phase/cursor/evict     (read + lifecycle, writes back)
+```
+- One entity, two reactive brackets, opposite ends of the daemon↔client seam.
+- Pool and Stall never reference each other; the BufferEntity + the datamap subscription
+  are their only contact. That decoupling IS the integration: each utility serves its own
+  side, the entity is the contract.
+
+## see also
+- `42_typology` — Pool and Stall prototype internals (the monad; the phase machine).
+- `44_runtime` — the EMITTER trait + the daemon emit lifecycle.
+- `46_kajuit` — the terminal, the dataspace/datamap client, `$buffers` reactivity.
+- memory: `project_stall_phase_paradigm`, `feedback_emitter_delegation_via_pool`.

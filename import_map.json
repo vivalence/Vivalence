@@ -52,6 +52,20 @@
 
     "@deno/vite-plugin": "npm:@deno/vite-plugin@1.0",
     "vite": "npm:vite@6.3.3",
+
+    "astro": "npm:astro@7",
+    "astro/": "npm:astro@7/",
+    "@astrojs/mdx": "npm:@astrojs/mdx",
+    "@astrojs/markdown-remark": "npm:@astrojs/markdown-remark",
+    "unist-util-visit": "npm:unist-util-visit@5",
+    "remark-directive": "npm:remark-directive@3",
+    "@shikijs/transformers": "npm:@shikijs/transformers",
+    "codemirror": "npm:codemirror@6",
+    "@codemirror/state": "npm:@codemirror/state@6",
+    "@codemirror/view": "npm:@codemirror/view@6",
+    "@codemirror/lang-javascript": "npm:@codemirror/lang-javascript@6",
+    "@replit/codemirror-vim": "npm:@replit/codemirror-vim",
+
     "svelte": "npm:svelte@5.39.6",
     "svelte/internal/": "npm:svelte@5.39.6/internal/",
     "svelte/internal/client": "npm:svelte@5.39.6/internal/client",
@@ -107,6 +121,7 @@
     "eslint-config-prettier": "npm:eslint-config-prettier@^9.1.0",
 
     "zod": "npm:zod",
+    "zod/v4": "npm:zod/v4",
     "ajv": "npm:ajv@8.17.1",
     "ajv-formats": "npm:ajv-formats@3.0.1",
     "ajv-errors": "npm:ajv-errors@3.0.0",

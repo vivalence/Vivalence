@@ -1,0 +1,59 @@
+---
+title: Typology
+jdex: "46.14"
+---
+
+# 46.14 · Typology
+
+## the scene
+- `src/typology/` is kajuit's own mirror of the `subsystems/typology` grammar, client-side.
+- It is the layer that makes **DOM consumes the dataspace** true: it constructs, populates and
+  resolves entities so components only ever subscribe.
+- 30-pattern concretized: **dossier (declarative descriptor) + selbstbestimmt vector (functional
+  dispatch) → emergent hydration**. Same trait-arc grammar, applied to entity ingress.
+- [TODO prose: 2 sentences — decks ([[46.13_contexts]]) sit on top of this; this is the machinery beneath.]
+
+## the barrel — mod.js
+- `@vivalence/kajuit` → `typology/mod.js`. Five re-exports: gestalten · prototypes · decks ·
+  entities · `traits` (namespace).
+- barrel rule: consumers import through the barrel; `entities/` files MUST NOT import it
+  (Rollup TDZ cycles) — they use relative paths to `prototypes/` instead.
+- [TODO: note the one-constructor-many-shapes image — everything descends from typology root.]
+
+## prototypes — the base classes
+- `prototypes/index.js` exports `daemon` namespace + `Entity`.
+- `Entity` (entity.js): NO `Object.assign` in ctor (field initializers run after super and would
+  clobber); EM's `merge()` assigns post-construction. `toJSON` walks `schema.properties`, collapses
+  relations (m:1 → `{id}`, 1:m/m:n → `[{id}]`), drops functions / Set / Map / non-plain objects.
+- `Dataspace` (dataspace.js): the dossier compiler. `RemoteEntityManager(connection)`; per dossier →
+  `repository(dossier, this)` → Vector attaching `dossier/repository/dataspace` → `shape.selbstbestimmt`
+  integrate. `repo.manage` ? `em.register(name, repo, integrate)` : `repo.integrate = integrate`.
+  `this[name] = repository`. `init()` fetches `/datamap` → `em.schema`; `populate(names)`; `fork()`.
+- `Daemon` (daemon.js): `boot` selbstbestimmt lifecycle — affect builds Daemon, populates Dataspace
+  (mode, intent), fetches `/manifest` + `/cargo`, sets `mount` + `link` Paths, binds `call`. `getAsset`
+  resolves cargo by path/slug.
+- [TODO: indented trace of Daemon.boot middleware order.]
+
+## entities + the dossier pattern
+- `entities/index.js` — seven entity/dossier pairs: Terminal · Mode · Intent · Thread · Buffer ·
+  Turn · Literal.
+- dossier shape: `{ name, kind:()=>Class, repository(schema,dataspace), use:[...middleware] }`.
+- canonical walk = `ThreadDossier` (entities/thread/dossier.js):
+  - repository = `RemoteRepository(Thread)` connected to branch `/userspace/entities/thread`.
+  - `use[]` chain: `applyTraits(traits.thread)` → force LABELED → attach `daemon` → hydrate turns
+    (`turnRepo.find({thread})`) → `wireConversational` → materialize selfevident buffer.
+- hydration law: NO special-cased hydration outside dossier middleware. New entity type =
+  class + dossier + add to the `entities` array (`prototypes/daemon.js`).
+- [TODO: right/wrong — never hydrate in a component; the dossier delivers resolved.]
+
+## gestalten + traits (pointers)
+- `gestalten/belt/` — kajuit-side composition primitive (narrow). [TODO: one line on what belt does here.]
+- `traits/thread/*` — the emergent surface; full treatment → 46.15 traits [planned].
+
+## drift / churn
+- `typology-rotation` folds `prototypes/` → `decks/`; `thread-store.js` + `persistence.js` already gone.
+- Paths here are the most volatile in kajuit. Regenerate against disk before publishing.
+
+## deeper
+- 30/dossier · 30/trait-arc · `subsystems/typology/.ikiro` (the vocabulary) · `typology/mod.js`
+- reads next → 46.15 traits.

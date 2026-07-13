@@ -30,10 +30,10 @@ export class Pensieve extends Map {
     if (!typeMap) return null;
     const slugMap = typeMap.get(slug);
     if (!slugMap) return null;
-    if (!version) return this.latest(slugMap);
+    if (!version) return own(this.latest(slugMap));
     const versions = Array.from(slugMap.keys());
     const matchingVersion = versions.find((v) => semver.satisfies(v, version));
-    return matchingVersion ? slugMap.get(matchingVersion) : null;
+    return matchingVersion ? own(slugMap.get(matchingVersion)) : null;
   }
 
   latest(slugMap) {
@@ -49,4 +49,32 @@ export class Pensieve extends Map {
       for (const slugMap of ownerMap.get(type)?.values() ?? []) out.push(this.latest(slugMap));
     return out;
   }
+}
+
+function own(value, seen = new WeakMap()) {
+  if (value === null || typeof value !== "object") return value;
+  if ("~kind" in value) return value;
+  if (seen.has(value)) return seen.get(value);
+  if (value instanceof Map) {
+    const copy = new Map();
+    seen.set(value, copy);
+    for (const [key, entry] of value) copy.set(key, own(entry, seen));
+    return copy;
+  }
+  if (value instanceof Set) {
+    const copy = new Set();
+    seen.set(value, copy);
+    for (const entry of value) copy.add(own(entry, seen));
+    return copy;
+  }
+  if (Array.isArray(value)) {
+    const copy = [];
+    seen.set(value, copy);
+    for (const entry of value) copy.push(own(entry, seen));
+    return copy;
+  }
+  const copy = Object.create(Object.getPrototypeOf(value));
+  seen.set(value, copy);
+  for (const key of Reflect.ownKeys(value)) copy[key] = own(value[key], seen);
+  return copy;
 }

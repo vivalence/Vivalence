@@ -7,10 +7,10 @@ export const education = {
   statics: { language: { known: "english", learning: "brazilian" } },
   kernel: [
     "@education/domain/language-learning",
-    "@education/ontology/word",
-    "@education/ontology/sentence",
-    "@education/ontology/conjugation",
-    "@education/corpus/english-to-brazilian",
+    "@education/topology/word",
+    "@education/topology/sentence",
+    "@education/topology/conjugation",
+    "@education/topography/english-to-brazilian",
     "@education/game/flashcard",
     "@education/game/riddler",
     // aprende /drill branches each due literal to one of these by ontology × state:

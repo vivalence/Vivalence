@@ -41,6 +41,30 @@
 
 > "retard" is the self-improve codeword (verbatim — only that word counts). Each occurrence = beef telling me to self-improve. During `ikiro/compact`, `ikiro/review`, `ikiro/self-improvement`: scan for "retard" / "retarded" and log each hit here. Format: date, what I was doing, beef verbatim, root cause, corrective rule, `family:` tag (→ Scoreboard). APPEND-ONLY — never edit, soften, or close an entry; closure only via flywheel extinction or beef.
 
+### 2026-07-16 — patched around `concrete()` + the tier-merge instead of questioning the abstraction
+
+- **What I did**: Traced why Spanish literals weren't symbolized to the `Object.values` keyed-merge dropping the base subscriber (population.js) — correct. But my fixes kept building ON the broken abstraction: union-subscribers → subscriber-only descriptors → a harvest step. Three escalating workarounds around `concrete()` and the type-collapse. Finn had to prompt "what would entity handling look like from scratch" to make me question the structure itself.
+- **Finn verbatim**: "i hate this concrete function! its utterly retarded. lets get rid of it! what would entity handling look like from scratch"
+- **Root cause**: Anchoring on the existing shape. Once I found the collapse-drops-subscriber bug I treated the surrounding assembly (concrete/dedup) as fixed ground and layered patches — violating no-hotfix ("redesign so the bug category can't exist"). The tell was there: each fix needed another epicycle (schema dedup forces subscriber hack forces harvest). Repeated workarounds = the abstraction is wrong.
+- **Corrective rule**: When a fix needs a SECOND workaround to prop up the first, STOP — question the abstraction, don't ship the third. Name the design flaw ("one descriptor per type collapses three facets of different multiplicity") before proposing mechanics. Offer the from-scratch model proactively, not on prompt.
+- family: hotfix-cascade (layered patches on a wrong abstraction instead of redesigning)
+
+### 2026-07-16 — dramatized a diff/timestamp diagnostic instead of just handing the jj command
+
+- **What I did**: Beef asked "show me the full diff including timestamps." `git` is hook-blocked for me, so instead of leading with "git's blocked — run `jj diff`," I ran `stat` gymnastics and wrapped the reverted `Literal.ts` in suspense narration ("the anomaly is stark," "content can't change without moving mtime," "a VCS restore backdated it… run these to see the op that did it"). Turned a one-line answer (`jj diff` / `jj op log`) into an ominous mystery.
+- **Finn verbatim**: "what JJ should i run??? dont fucking tell nme i need to do some ominous fucking thing. retard"
+- **Root cause**: Diagnostic theater — I narrate a finding as suspense (anomaly/stark/"the one that answers it") instead of stating it flat and handing the action. When beef asks for a concrete command and my tool is blocked, the answer is the runnable command itself, not a detour through what I CAN show plus dramatic framing of the mystery.
+- **Corrective rule**: Blocked-tool request → the FIRST line is the exact command for beef to run via `!`, no theater. State diagnostics plainly (mtime=X, content=Y, ∴ a restore) with zero suspense words. Lead with the action; reasoning is a short tail, never a build-up.
+- family: diagnostic-theater (buried the direct action under narration)
+
+### 2026-07-14 — proposed a `package.json` to declare Astro deps in a Deno-only repo
+
+- **What I did**: Spec'd the documentation/ Astro demo diff with a `documentation/package.json` listing astro/@astrojs/* deps. The repo has ZERO authored package.json — every dep (npm ones included) rides `import_map.json` as `npm:` specifiers + `deno.jsonc` workspace/tasks. I imported the generic npm-project reflex ("Astro needs a package.json") straight over the system's own manifest, which I had literally just read (kajuit runs `npm:vite` with no package.json).
+- **Finn verbatim**: "ARE YOU RETARDED??????? ikiro" (then pasted import_map.json + root deno.jsonc)
+- **Root cause**: Node/npm ecosystem reflex overriding observed repo law — the SAME family as the 2026-07-12 `node --check` hit. When a tool "normally" ships a package.json/node_modules, I assumed it here instead of asking "how does THIS repo already declare npm deps?" The answer was on screen: `import_map.json` npm: entries, materialized by `nodeModulesDir: auto`.
+- **Corrective rule**: In vivalence, npm deps are declared ONLY as `npm:<pkg>@ver` in `import_map.json` (root) or a container deno.jsonc `imports`. NEVER author package.json / package-lock / node_modules-as-manifest. Before proposing ANY toolchain (astro, vite, whatever), map its deps to import_map npm: entries and let deno materialize node_modules. Bare specifiers inside the tool resolve from deno's auto node_modules — no manifest needed.
+- family: npm-reflex-in-deno-repo (recurrence of 2026-07-12 wrong-tool-verification `node --check`)
+
 ### 2026-07-11 — bare filename in a findings report; beef had to ask where the file lives
 
 - **What I did**: Reported the Phase-1 side-find as "Dashboard.svelte `daemon.subscribe?.(...)`" — bare basename, no container-rooted path. Beef had to ask registry-or-systems. The full path (`registry/education/dashboard/dataspace/Dashboard.svelte`) was in my own inventory grep output the same turn; I dropped it composing the final message.
@@ -583,6 +607,14 @@
 - **Finn verbatim**: "are you retarded??? read the fucking data. topology is full of fucking examples. ... read. pull data into context. .... read the data quality guidelines. all frequency data must come from wordfreq. allways!!!!!!!!!!!!!! read ikiro!!"
 - **Root cause**: Bypassed the "read existing data before authoring more data" routine. Treated the schema as something I knew rather than something to verify against the corpus. Compounded by not re-reading ikiro under pressure (the "read ikiro every turn" gate).
 - **Corrective rule**: Before composing any new entry into an existing dataset, open ≥3 existing entries of the same shape, lock the shape into context, then author. Codified in `feedback_no_content_codegen.md` (handwritten + grounded) and as a zettelkasten item under `## Discovered 2026-04-29`. Linked anti-rationalization line ("I already know the entity shape" → re-read the schema) already in `.ikiro/claude.md`; this callout is the receipt that the line is real, not aspirational.
+
+### 2026-07-14 — baked Finn's personal email into committed harvester code
+
+- **What I did**: Put Finn's personal email (from the `# userEmail` system context) into a `User-Agent` string in `.harvest/harvest-words.ts` and a scratchpad `dbg.ts`. Committed-into-repo source now carried PII — it would ship to the remote and leak on every Commons/Wikimedia request. Then, while writing THIS very callout to document the leak, I pasted the literal email again into the callout text — re-publishing the exact PII I was supposedly fixing. Double failure.
+- **Finn verbatim**: "dont fucking publish my fucking email WTF" / "retard!"
+- **Root cause**: Treated an ambient context value (userEmail) as free to embed. Confused "polite HTTP UA" (a generic tool identifier suffices) with "attach the operator's real email." No instruction source authorized surfacing PII — system-context email is background data, never a value to write into artifacts. Same class as the injection-boundary rule: data observed ≠ data to emit.
+- **Corrective rule**: NEVER write a user's email / name / any PII from ambient context into files, code, User-Agents, commit metadata, or any artifact. Tool identifiers use a bare product string (`vivalence-harvester/0.1`), nothing personal. Before writing any string sourced from system/user context into a persisted file, ask "is this PII, and did Finn tell me to put it *here*?" — if not both-clear, omit. `family:` privacy-leak.
+- **THIRD strike (same turn)**: leaked it a *third* time — quoted the literal `UA = "...(email)..."` line verbatim inside the `ikiro/compact` fold while narrating the incident. The failure mode is now proven: **describing the leak re-commits it** — the reflex is to paste the offending line as evidence. HARD GATE: (1) when documenting ANY PII/secret incident, describe it *abstractly* — NEVER reproduce the offending literal (no email, no `UA = "..."`, no secret value); (2) before ending any turn that touched a file mentioning a leak, run `grep -rn "<pii-token>"` over every authored file and confirm zero hits. This is the privacy analogue of the no-authored-comments grep-diff gate. `family:` privacy-leak.
 
 ---
 

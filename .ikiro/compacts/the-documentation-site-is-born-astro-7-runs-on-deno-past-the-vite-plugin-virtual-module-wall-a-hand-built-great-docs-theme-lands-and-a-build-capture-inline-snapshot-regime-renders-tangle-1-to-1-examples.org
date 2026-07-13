@@ -1,0 +1,171 @@
+#+title: the documentation site is born — Astro 7 runs on Deno past the vite-plugin virtual-module wall, a hand-built great-docs theme lands, and a build-capture-inline snapshot regime renders tangle-1:1 examples
+#+filetags: :documentation:astro:deno:great-docs-theme:capture-snapshot:codemirror:content-collection:
+
+* the arc
+
+beef opened by surveying the doc milestones (=documentation.quest.org= M1-M6 hybrid C4+Divio; =documentation.org= the newer Johnny-Decimal meta) — designed, only M1 nominally done, the front-door README his #1 recurring unmet want. Then a hard pivot: he thought we'd discussed Astro; we hadn't ("must have been lost"). The real ask:
+
+#+begin_quote
+how do i set up astro in /docs -> /documentation reasonably integrated with deno, running off of mdx files?
+#+end_quote
+
+Secondary goals, verbatim:
+#+begin_quote
+- i would LOVE to be able to :tangle like i do in org mode
+- id love to setup and run tests inside the mdx thats running in-tree aka imports typology and scenarios etc. either on cli or client.
+- i want to pattern the docs as a jdex. deeply nested.
+- i want to have some sort of [[wikilink]] semanticss throughout!
+- i would prefer to use solid or svelte
+#+end_quote
+
+Later amended: =i want to use solid in unified.= And after an ecosystem assessment (Astro **7.0.9**; default markdown processor is now **Sätteri**, a Rust compiler; unified/remark is opt-in) he chose solid + unified and asked for the demo. Mid-session he steered relentlessly through the build — theme, features, structure — every message a new cut.
+
+* the RETARD — package.json in a Deno repo
+
+Proposing the diff, I spec'd a =documentation/package.json= to declare Astro deps.
+#+begin_quote
+ARE YOU RETARDED??????? ikiro
+#+end_quote
+(he pasted =import_map.json= + root =deno.jsonc=.) The repo has ZERO authored package.json — every npm dep rides =import_map.json= as =npm:= specifiers. Logged to zettelkasten =family: npm-reflex-in-deno-repo= (recurrence of the =node --check= hit). **LAW (re-pinned): npm deps live ONLY as =npm:pkg@ver= in root =import_map.json=; never author package.json.** Corollary discovered later: a workspace-member =deno.jsonc "imports"= field is **IGNORED** when the root config sets =importMap= — all docs deps must go in the root map.
+
+* the deno×astro walls — and what fell
+
+**G1 PASSED decisively:** =deno run -A npm:astro@7= boots the full native stack under Deno 2.7.5 — =vite@8.1.0=, =@rolldown/binding=, =@bruits/satteri= (Rust), =lightningcss=, =sharp= all materialized. Astro-7-on-Deno is real.
+
+**G2 was the wall.** =@deno/vite-plugin= (needed for typology's =jsr:@std/path=) does NOT survive Astro's virtual modules:
+- =@1.0.6= peers vite ≤7 → fails =solid-js/web= on vite 8.
+- =@2.0.2= supports vite 8 but its deno loader rejects Astro's =virtual:astro:server-island-manifest= (=Unsupported scheme "virtual"=). SvelteKit dodges this (few virtual modules); Astro is virtual-module-heavy. **The Deno↔Vite bridge does not cleanly support Astro.**
+
+The escape: the wall exists ONLY because bundling typology client-side. beef's spec allowed tests "either on cli or client" — so I offered the fork via AskUserQuestion; he chose **Astro 7, cli-only tests**. Then Solid itself kept fighting (=@astrojs/solid-js/server.js= tripped deno's strict-npm-subpath gate in the generated prerender entry):
+#+begin_quote
+maybe no solid. its N extra complication
+not structural dependency
+#+end_quote
+Dropped Solid entirely → =@deno/vite-plugin= dropped entirely (typology never bundles client-side now) → pure Astro+mdx built clean. The last gremlin: =zod/v4= (astro-internal subpath) needed one exact =import_map= entry (deno strict-resolves generated prerender chunks). Green. =the docs run + open= in his Chrome.
+
+* smoothing, then the theme
+
+#+begin_quote
+smooth it out. make choices that breed simplicity
+#+end_quote
+→ dropped Starlight (its content-collections + per-subpath deno whack-a-mole not worth it), vanilla layout, wikilink + tangle + jdex + cli-test. Then:
+#+begin_quote
+the docs are too simple. no menu or anything.
+is this where themes play a role or do we build our own?
+#+end_quote
+Recommended **build our own** — the menu IS the jdex tree already computed; Pagefind (the search Starlight is prized for) is a standalone drop-in, not theme-locked. Then:
+#+begin_quote
+ok what makes great docs ? what do i need for great docs from my theme?
+#+end_quote
+→ the tier list (substance = Divio quadrants + runnable examples he already nails; chrome = 6 Tier-1 features). Then =implement great docs theme v1. import / implement some of the docs= and =work through the full tier list=.
+
+Built the whole chrome, hand-rolled in one =Layout.astro= + =lib/tree.js=:
+- **Tier 1:** sidebar (jdex tree, here-highlight) · Pagefind search (native binary RUNS on deno; =data-pagefind-body= scopes to article) · per-page TOC · breadcrumb + you-are-here · prev/next · mobile hamburger.
+- **Tier 2:** code-copy · filename bar (=```lang title=""=) · line-highlight (=@shikijs/transformers=, =```lang {3}=) · wikilinks + **backlinks** (connections panel, edges from =entry.body=) · dark/light · heading anchors · last-updated (file mtime).
+- **Tier 3:** cmd-k (focuses search) · local graph (connections) · admonitions (=remark-directive= → =:::note/tip/warning/danger=) · code tabs (framework-free =Tabs.astro=).
+
+6 real docs imported org→mdx by 3 parallel agents (MDX-safety law: raw =<= / ={= in prose MUST be backticked or JSX/expression parsing breaks the build). Docs became a =content= collection; the flat-vs-src decision flipped twice (see structure below).
+
+* dark/light + the logo
+
+#+begin_quote
+I want ... dark and a light mode ... use the Vivalence logo. Import that from either kajuiit, dapper, or Drapes.
+#+end_quote
+The mark is the **viket double-chevron =《=** (white on teal plasma) = =systems/kajuit/static/favicon.png=. Explicit toggle (☀/☾, localStorage, anti-flash =<head>= script, =:root[data-theme]= overrides + =prefers-color-scheme :not([data-theme])= default). Logo in sidebar brand + favicon.
+#+begin_quote
+rename logo to "vivalence viket logo plasma"
+#+end_quote
+→ =public/vivalence-viket-logo-plasma.png=. Two more polish cuts: =include the page title in the breadcrumbs= (=[...breadcrumb(jdex), title]=) and =replace the icon before the page title with a dot instead of a chevron= (the last breadcrumb separator = =·=, path segments keep =›=).
+
+* the inline-testing question, answered empirically
+
+#+begin_quote
+give me an update on the inline testing capabilities and if we can import anything from runtime and typology in the tests.
+#+end_quote
+Ran a probe (then deleted it):
+- =@vivalence/typology= — FULL, 86 exports (Vector, shape, cortex, specimen…). This is what the doc-tests use.
+- =@vivalence/runtime= — barrel imports clean, 5 exports (=mod.js= re-exports).
+- runtime **scenarios** — do NOT import (=mode.js= reaches =registry/education/domain/learning/entities/index.js=, a path the m11 migration moved; the docs resolution root ≠ the runtime workspace root). **Scenario-backed doc tests need to run FROM the runtime workspace, not imported into the docs.**
+
+* the editor, and the run-inline design dance
+
+#+begin_quote
+What would be the best way for us to implement a code editor in line ... implements Vim, maybe ... built in Rust or ... web assembly ... future proof ... edit tests and run inline.
+#+end_quote
+Recommended **CodeMirror 6 + @replit/codemirror-vim** (honest take: no production-grade embeddable Rust/WASM editor beats CM6; the Rust pull belongs in the RUNTIME, not the editor).
+#+begin_quote
+@replit/codemirror-vim go. worker later
+#+end_quote
+→ built the CM6+Vim editor (pure npm, bundles clean, no jsr — a plain =<script>= mounts it, no framework island). VIM badge, block cursor, line numbers, themed to CSS vars.
+
+Then the run-inline architecture, which beef drove end-to-end:
+#+begin_quote
+i dont want to bundle. what about a astro side connection (maybe socket) to a light vm or the actual on disk repo?
+#+end_quote
+I designed it (static docs ⟶ WS ⟶ a =docs-runner= deno process, cwd=repo, spawns a fresh =deno run= subprocess per request = the "light VM" on "the actual on-disk repo", streams logs back; flagged the local-only security boundary). He shelved it:
+#+begin_quote
+ok no too much effort. docs remain static for now. shelve that design tho.
+instead lets redesign from the other end. maybe we run the code on build and capture the output then? + inlining. either via stdout plain or event patterned into spans for big examples?!
+#+end_quote
+
+* the build-capture-inline snapshot regime — the keystone
+
+This is the design that landed. **Run the example at BUILD, capture its output, inline it.** Two channels, auto-detected by =run()='s return:
+- **stdout** — =console.log= captured → =<Example>= renders flat log lines.
+- **span** — the example marks into a real typology =Span= (=.open/.note/.close/.fault= → flat =records [{span,trace,path,verb,at,data?}]=; =belt.chronicle= is the canonical fold) → =<Trace>= renders a depth-nested tree. Dogfoods the runtime's own primitive: docs about spans render AS spans.
+
+#+begin_quote
+"capture": "deno run -A suites/capture.js", // snapshot!
+#+end_quote
+→ capture writes via **=specimen.snapshot(subject, { base, dry, parse, locate })=** (the corpus regime's tool, =@vivalence/typology/specimen=), not raw =writeFileSync=. Gotcha: =specimen.snapshot= does NOT mkdir the base dir (mkdir first), and =dry= is PREVIEW not assert. The snapshot is a committed, diffable artifact — output drift shows in git.
+
+#+begin_quote
+the whole thing is supposed to run inside /documentation/* right?
+#+end_quote
+Yes — everything under =documentation/=; only import-resolution crosses out (typology via the workspace).
+
+* the restructure — flat → standard Astro src/ + content collection
+
+The flat =srcDir:'.'= (his original "no src dir" want) reversed:
+#+begin_quote
+aka documentation/content
+also, restructure the directory - re-implement src/
+clean old and generated stuff.
+#+end_quote
+And then:
+#+begin_quote
+move suites into src/content/docs and move src/content/docs to content/docs.
+#+end_quote
+Final shape (all in =documentation/=):
+#+begin_src
+content/docs/*.mdx                     the jdex docs (a content collection)
+content/docs/suites/                   examples + capture.js + *.doc.test.js — INLINE in the content
+  examples/47.03-connection.example.js
+src/content.config.ts                  loader base ./content/docs
+src/{components,layouts,lib,pages,plugins}
+  pages/[...slug].astro                renders the collection ; jdex.astro ; index.mdx
+snapshots/*.json                       capture output (derived, regenerated each build)
+public/vivalence-viket-logo-plasma.png
+#+end_src
+**Gotcha that bit (routes 404'd):** the glob loader's default =generateId= STRIPS the dot — =42.01_…= became =4201_…=, dead-routing every wikilink. Fix: =generateId: ({ entry }) => entry.replace(/\.mdx$/, "")= preserves =42.01=. Suites named jdex-inline (=47.03-*=) so they thread the numbering (his =keep the suites inline in the jdex=).
+
+* the tangle-1:1 stripwire page — the capstone
+
+#+begin_quote
+write up in stripwire a complete docs page highlighting a full vector connection stripwire json tests example. use the display of code and the rendering of output in a way as to create one coherent integrated demonstration that i could tangle and get 1:1 same result.
+#+end_quote
+Built =content/docs/47.03_stripwire.mdx= as ONE runnable example with a **structural 1:1 guarantee** — single source of truth:
+#+begin_src
+content/docs/suites/examples/47.03-connection.example.js
+  ├── displayed by  <Source name>   (astro <Code> over ?raw → exact bytes, highlighted)
+  └── run by         capture.js → snapshots/47.03-connection.json → <Example name>
+#+end_src
+The shown code IS the run file → tangling it reproduces the shown output (=wire → {"branches":{"echo":…,"ping":…},"effect":{}}=, =routes → ["echo","ping"]=, =tests → 3 assertions passed=), no re-authoring, no drift. The example is a full arc: build a Vector (root =affect= + =/echo= + =/ping=) → =shape.strip= to the wire JSON → 3 assertions, all in one logged pass so a green build IS the passing test.
+
+* state at fold
+
+Green: build 9 pages · capture via =specimen.snapshot= · =deno task test= (cli) · Pagefind indexes on deno · every tier feature live · 47.03 = 200, Source+Example 1:1. Live on =:4322=. **Nothing committed (VCS read-only).**
+
+Open / deferred: run-inline (both the socket-to-repo VM and the pre-bundle-typology worker are SHELVED — static build-capture is the shipped path) · the CM6 editor is display-only (no execution) · the milestone docs (README, M2-M6) still unwritten — this session built the *vehicle*, not the milestone content · =snapshots/= gitignore-or-commit is beef's call (derived, regenerates via =deno task capture=).
+
+See memory [[project_documentation_site]]. Related: [[project_corpus_snapshot_regime]] (the =specimen.snapshot= regime this reuses), [[project_shape_cortex_stripwire]] (the strip/wire dual 47.03 demonstrates), [[project_m11_package_ontology]] (the workspace the scenario-import can't cross).

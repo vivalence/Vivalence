@@ -1,0 +1,62 @@
+#+TITLE: The "start chatting" button flipped a flag the dock pane ignored — the button (panel F) gated on HARNESSED, the pane (panel A) gated on CONVERSATIONAL-engagement — two authorities for one toggle. The cure unifies on HARNESSED and moves the singleton bridge.$dock onto the terminal, per-terminal, the thing that already crosses.
+#+TOPIC: kajuit client. beef: the dock is a per-terminal structure and the toggle was double-gated. Session = diagnose the authority split, relocate dock singleton→terminal, collapse the visibility gate to HARNESSED. Rhymes with [[the-continuation-problem-ambient-state-dies-at-every-async-boundary-and-the-cure-is-never-carry-harder-but-put-the-fact-on-the-one-thing-that-already-crosses]] (two channels for one fact).
+#+AUTHOR: finn + ikiro (connoisseur)
+
+* the ask (verbatim beef)
+"read up on the wiring of the start chatting and hide chat button in f. for some reason i can get shwon the button but cant toggle it. i think something is wrong with the binding of the variable of dock. each terminal has its own dock! they are per terminal structures depending on the terminal mode and thread."
+then: "i will want multipile terminals open. with multiple separate docks"
+the forks: "HARNESSED." · "think again about the design" · "per terminal"
+
+* the two bugs (one toggle, two wrong places)
+
+** 1 — the authority split (why the button "can't toggle")
+=panels/f/f.svelte:107= gates the "start chatting"/"hide chat" button on =harnessed= (=mode.implements("HARNESSED")=). Click → =setDockCollapsed= flips =collapsed= → the button LABEL flips (F subscribes). But the dock PANE lives in =panels/a/a.svelte:73= and gated rendering on =engaged= = =thread.$traits ⊇ CONVERSATIONAL && mode.implements("CONVERSATIONAL")=. CONVERSATIONAL lands on a thread ONLY via panel-E engage — and the auto-engage widgets are =.bak=/dead — so in the normal path never. F flipped a flag A ignored: the button toggled its own text, the chat never opened. Two gates for one toggle — the "two channels for one fact" bug ([[the-continuation-problem-ambient-state-dies-at-every-async-boundary-and-the-cure-is-never-carry-harder-but-put-the-fact-on-the-one-thing-that-already-crosses]]: "two contexts for one fact is one context and one bug").
+
+** 2 — the singleton dock (why "separate docks" was impossible)
+=stores/bridge/bridge.js= held ONE =this.$dock= atom, constructed once in =+layout.svelte:33= (=new Bridge()=), shared by every panel via =setContext(BRIDGE)=. =terminals.create()= spawns N terminals; all read/write the ONE dock. One global side/share/collapsed. Multiple terminals = one dock between them.
+
+* the design (beef pinned each fork)
+Three layers, one authority:
+#+begin_src text
+dockable   DERIVED   active thread.mode.implements("HARNESSED")   ONE gate; F, A, shoulder, B all read it
+geometry   STORED    terminal.$dock {side, share, collapsed}      per terminal, dies with it
+content    BOUND     <Dock thread={$thread}/>                     follows the thread
+#+end_src
+Home = the Terminal entity (=typology/entities/terminal.js=), beside =$buffer=. Reasoning that changed on "think again":
+- =$buffer= is ALREADY the terminal's view-state (a render pointer), not an entity the terminal IS. Dock geometry is the same category — sits beside it.
+- Dock is PLAIN DATA, not an entity ref → rides =terminal.toJSON()= raw, hydrates direct, and NEVER enters the settle tri-state (=ABSENT/UNREACHABLE= in =app/terminals.js= is for async-resolved refs only).
+- Living on the terminal means it DIES WITH the terminal → the orphaned-dock / split-brain category can't exist. The rejected alternative — a =bridge.$docks= map keyed by terminal id — reintroduces GC + a cross-blob id join, the exact bug class =app/terminals.js='s total-fold persist was built to forbid.
+Bridge keeps only genuinely-global layout (pincer/viewport/composer). Pure geometry (=resolve=/=shareAfterDrag=/=clampShare=/=normalizeSide=) stays in =stores/bridge/dock.js=; mutators become free fns over a =$dock= atom (=state is data, lifecycle is functions over data= — free fns, not methods; [[feedback_functional_lifecycle]]).
+
+* what landed
+#+begin_src text
+entity   typology/entities/terminal.js       + $dock atom + get dock() + toJSON.dock  (seeded defaultDock)
+store    stores/bridge/dock.js               + setDockSide/Share/Collapsed/dragDock($dock, …)  null-guarded free fns
+store    stores/bridge/bridge.js             − $dock, all setDock*, dragDock, − dock from save()
+persist  app/terminals.js                    write live.dock · hydrate Terminal({id,dock}) · subscribe $dock
+gate     panels/a/a.svelte                   engaged/CONVERSATIONAL/threadTraits/buffers DELETED → dockable = mode HARNESSED
+consumers → active terminal $dock (chain), mutate via stores.bridge.*:
+         panels/f/f.svelte (start/hide) · panels/a/widgets/Dock.svelte (close) · panels/b/widgets/BridgeSection.svelte · bones/shoulder/widgets/Dock.svelte
+#+end_src
+
+* the authority rotation fits M18
+Choosing HARNESSED over CONVERSATIONAL-engagement is not a local hack — it aligns with M18 ([[m18_conversation_dissolves.quest]]): the CONVERSATIONAL WS engagement gate is dissolving (a dialogue turn is now a streaming request; any harnessed mode can chat). Dock-on-HARNESSED is the same trajectory. The [[conversation-dock-recast.quest]]'s "dock shows on CONVERSATIONAL engage" ontology is SUPERSEDED for VISIBILITY; its geometry line ("=bridge.dock= side/share default right 0.32") is now =terminal.$dock=.
+
+* verified
+#+begin_src text
+tests   dock.geometry (12 steps) + terminal.stall (3) — green (Terminal constructs with $dock; import resolves, no cycle)
+build   deno task bundle — EXIT 0, ✓ 1748 modules, site wrote  (only pre-existing drapes a11y warns: Card tabIndex, Table <tr>)
+grep    zero orphaned bridge.$dock / engaged / dockCollapsed refs across src
+#+end_src
+
+* notes / open
+- stale =localStorage["vivalence:bridge"]= may still hold a =dock= key — harmless, bridge no longer reads it.
+- existing persisted terminals had no dock → first load defaults each to ={right, 0.32, open}=.
+- nothing committed (VCS read-only).
+- per-thread geometry (each thread remembers its own dock) was offered and declined; "per terminal" is a Map-by-thread-id away if it ever returns.
+
+* the connoisseur reading
+The toggle "couldn't toggle" because the flag and its reader lived under different laws — the fix was not "make the flag work" but "make one authority." Same shape as the singleton: state that should be many-per-terminal lived one-per-app. Both bugs are "the fact is in the wrong place / split across two." Put the geometry on the terminal (the thing that already crosses thread-switches and persistence), gate on the one capability that means "can chat" (HARNESSED), and the two-channel drift can't recur.
+
+* provenance
+quest [[conversation-dock-recast.quest]] (superseded visibility ontology) · [[m18_conversation_dissolves.quest]] (the HARNESSED trajectory) · memory [[project_dock_per_terminal]] · [[project_context_architecture]] (BRIDGE vs QUARTERS decks) · rhymes with [[the-continuation-problem-ambient-state-dies-at-every-async-boundary-and-the-cure-is-never-carry-harder-but-put-the-fact-on-the-one-thing-that-already-crosses]].

@@ -8,6 +8,7 @@ import { LineChart } from "echarts/charts";
 import { BarChart } from "echarts/charts";
 import { TreemapChart } from "echarts/charts";
 import { SunburstChart } from "echarts/charts";
+import { TreeChart } from "echarts/charts";
 
 import { TooltipComponent } from "echarts/components";
 import { LegendComponent } from "echarts/components";
@@ -27,6 +28,7 @@ export const stage = {
   bar: BarChart,
   treemap: TreemapChart,
   sunburst: SunburstChart,
+  tree: TreeChart,
 
   tooltip: TooltipComponent,
   legend: LegendComponent,
