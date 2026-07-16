@@ -9,3 +9,5 @@ export const tiers = {
   ...sets.userspace,
   ...domain,
 };
+
+export const variant = (extra = {}) => Object.values({ ...tiers, ...extra });

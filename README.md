@@ -1,3 +1,36 @@
+<!-- <p align="center"><em></em></p> -->
+
+<p align="center">
+  <a href="#documentation">Documentation</a> ·
+  <a href="#installation">Install</a> ·
+  <a href="#funding">Funding</a> ·
+  <a href="#noticeboard">Notices</a> ·
+  <a href="https://www.youtube.com/watch?v=4Ia6MDbNJWI">Teaser</a> ·
+  <a href="LICENSE.md">Licence</a>
+  &nbsp;|&nbsp;
+  <!-- <a href="https://docs.vivalence.com">Docs</a> · -->
+  <!-- <a href="https://github.com/vivalence/vivalence">GitHub</a> · -->
+  <!-- <a href="https://discord.gg/uvPVkYAN">Discord</a> -->
+</p>
+
+<p align="center">
+  <!-- <video src="https://github.com/vivalence/vivalence/raw/trunk/systems/kajuit/static/videos/vid-viket-seldoncrisis-1280x256p-16fps.mp4" width="100%" autoplay loop muted playsinline></video> -->
+  <video src="https://github.com/user-attachments/assets/2504a7e9-372a-4c8e-a3e5-1ee62f1be601" width="100%" autoplay loop muted playsinline></video>
+
+</p>
+
+# Security Notice
+Vivalence is in early alpha and 
+
+# What is vivalence and what is it for? 
+
+
+# Documentation
+Full docs under construction: [https://docs.vivalence.com]
+
+## Guides
+
+### Modal Applications
 You don't install applications — you install **modes** into daemons. A mode is four files: what it is (`manifest`), how it thinks (`harness`), what it exposes (`aperture`), what it shows (`app`). Traits are the only wiring — declare them and the runtime does the rest.
 
 Here is a whole mode. It talks to an LLM.
@@ -72,7 +105,8 @@ Note `ctx.mode.harness.object.render`.
 ```
 
 
-# :TODO:SLOP: Getting started 
+### Packages
+## Installation 
 
 You need [Deno](https://deno.com) 2.7+. Everything else the repo carries.
 
@@ -107,13 +141,20 @@ deno task ghost/run /variant/lighthouse/auth/signup you changeme
 
 The runtime comes up on `:2501`, the kajuit web client on `:1794`. Once step 7 creates a user, open http://localhost:1794 and log in with those credentials.
 
-# WIP
+# Funding
+# License
+# Noticeboard
+## Teaser
+## Business Model
+## .org & .com
+# BAK
+## WIP
 the sections must answer:
 I. what is vivalence/how does it work/what makes it different.
 2. how do i set this up/run it/build for it.
 3. whats the architecture in detail.
 
-# VivalenceOS
+## VivalenceOS
 Using maps, sets, and trees to control things that are and do. Less is more. JSON is god.
 
 what is it? why is it different.

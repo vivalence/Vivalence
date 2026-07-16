@@ -1,0 +1,159 @@
+{
+  "literals": [
+    {
+      "slug": "goodbye",
+      "traits": [
+        "TRANSLATED"
+      ],
+      "trait": {
+        "TRANSLATED": {
+          "known": "goodbye",
+          "learning": "tchau"
+        }
+      },
+      "symbol": {},
+      "ontology": "",
+      "symbols": [
+        "casual",
+        "greeting"
+      ]
+    },
+    {
+      "slug": "hello",
+      "traits": [
+        "TRANSLATED"
+      ],
+      "trait": {
+        "TRANSLATED": {
+          "known": "hello",
+          "learning": "olá"
+        }
+      },
+      "symbol": {},
+      "ontology": "",
+      "symbols": [
+        "casual",
+        "greeting"
+      ]
+    },
+    {
+      "slug": "please",
+      "traits": [
+        "TRANSLATED"
+      ],
+      "trait": {
+        "TRANSLATED": {
+          "known": "please",
+          "learning": "por favor"
+        }
+      },
+      "symbol": {},
+      "ontology": "",
+      "symbols": [
+        "greeting",
+        "polite"
+      ]
+    },
+    {
+      "slug": "thanks",
+      "traits": [
+        "TRANSLATED"
+      ],
+      "trait": {
+        "TRANSLATED": {
+          "known": "thanks",
+          "learning": "obrigado"
+        }
+      },
+      "symbol": {},
+      "ontology": "",
+      "symbols": [
+        "greeting",
+        "polite"
+      ]
+    }
+  ],
+  "symbols": [
+    {
+      "slug": "casual",
+      "traits": [
+        "ONTOLOGICAL"
+      ],
+      "trait": {}
+    },
+    {
+      "slug": "greeting",
+      "traits": [
+        "ONTOLOGICAL"
+      ],
+      "trait": {}
+    },
+    {
+      "slug": "polite",
+      "traits": [
+        "ONTOLOGICAL"
+      ],
+      "trait": {}
+    }
+  ],
+  "memories": [
+    {
+      "status": "KNOWN",
+      "literal": "hello"
+    },
+    {
+      "status": "LEARNING",
+      "literal": "goodbye"
+    }
+  ],
+  "traces": [
+    {
+      "status": "MISTAKE",
+      "signal": {
+        "enum": "MISTAKE"
+      },
+      "literal": "goodbye"
+    },
+    {
+      "status": "SUCCESS",
+      "signal": {
+        "enum": "SUCCESS"
+      },
+      "literal": "hello"
+    }
+  ],
+  "modes": [
+    {
+      "slug": "flashcard",
+      "type": "game",
+      "traits": [
+        "APPLICATION",
+        "INTENTED",
+        "EMITTER"
+      ]
+    }
+  ],
+  "intents": [
+    {
+      "slug": "survival-flashcard",
+      "traits": [
+        "MASKED"
+      ],
+      "trait": {
+        "MASKED": {
+          "where": {
+            "symbols": [
+              "greeting"
+            ]
+          }
+        }
+      }
+    }
+  ],
+  "threads": [
+    {
+      "cursor": 0,
+      "counter": 0
+    }
+  ]
+}

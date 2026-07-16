@@ -3,7 +3,7 @@
 // aggregated from the seeded memory/trace fixtures.
 import { specimen } from "@vivalence/typology";
 import { mountMode } from "../scenarios/mode.js";
-import * as aprende from "../../../../registry/education/homepage/aprende/aprende.viva.js";
+import * as aprende from "../../../../registry/education/modes/home/aprende/aprende.viva.js";
 
 const ROUTE = "/mode/homepage/aprende/assistant/wakeup/statistics";
 

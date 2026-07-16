@@ -2,7 +2,7 @@ import { MikroORM } from "@mikro-orm/core";
 import { SqliteDriver } from "@mikro-orm/sqlite";
 import { Url, Connection, shard, shape, Aperture, Vector, specimen, RemoteRepository, RemoteEntityManager } from "@vivalence/typology";
 import * as routes from "@vivalence/runtime/daemon/aperture";
-import { variant } from "../scenarios/variant.js";
+import { variant } from "../scenarios/fixtures.js";
 
 class LiteralKind {}
 class SymbolKind {}

@@ -1,7 +1,6 @@
 import { Url, Connection, Mode, Path, Aperture, Vector, shape, shard } from "@vivalence/typology";
 import { RequestContext } from "@mikro-orm/core";
-import { seed } from "./entities.ts";
-import { tiers } from "./variant.js";
+import { seed, tiers } from "./fixtures.js";
 import { INTENTED, EMITTER, EXPOSED, HARNESSED, stagger } from "@vivalence/runtime/daemon/traits";
 
 // ── test-only APPLICATION ─────────────────────────────────────────────

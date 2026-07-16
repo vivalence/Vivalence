@@ -2,9 +2,9 @@ import { specimen } from "@vivalence/typology";
 import { bench } from "../scenarios/bench.js";
 
 // ── raw import smoke test ──────────────────────────────────────────
-import * as domain from "../../../../registry/education/domain/learning/domain.viva.js";
-import * as flashcard from "../../../../registry/education/game/flashcard/flashcard.viva.js";
-import * as judge from "../../../../registry/education/game/judge/judge.viva.js";
+import * as domain from "../../../../registry/education/domain/domain.viva.js";
+import * as flashcard from "../../../../registry/education/modes/games/flashcard/flashcard.viva.js";
+import * as judge from "../../../../registry/education/modes/games/judge/judge.viva.js";
 
 specimen.describe("bench (raw imports)", { sanitizeOps: false, sanitizeResources: false }, () => {
   let scenario;

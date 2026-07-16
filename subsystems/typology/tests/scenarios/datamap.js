@@ -35,15 +35,12 @@ export { SymbolConcrete, BufferConcrete }
 // Same contract as @vivalence/datamap/libsql provider() but sqlite :memory:.
 // Takes the variant array ({ type, schema, entity, repository, subscriber }[])
 // and returns the provider interface the runtime expects.
-export async function provider(variant) {
+export async function provider(variant, subscribers = variant.map((v) => v.subscriber)) {
   const orm = await MikroORM.init({
     driver: SqliteDriver,
     dbName: ":memory:",
     entities: variant.map((v) => v.schema).filter(Boolean),
-    subscribers: variant
-      .map((v) => v.subscriber)
-      .filter(Boolean)
-      .map((Subscriber) => new Subscriber()),
+    subscribers: subscribers.filter(Boolean).map((Subscriber) => new Subscriber()),
     allowGlobalContext: true,
   })
 

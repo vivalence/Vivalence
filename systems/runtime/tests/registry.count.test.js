@@ -16,7 +16,7 @@ const count = (pensieve) => {
 describe("registry ingest", () => {
   it("four-package mount ingests baseline + 4 self-manifests + 2 wafers (variant lives in testament now)", async () => {
     await registry();
-    expect(count(paladin.vip.pensieve)).toBe(BASELINE + 7); // net +1: chaosmonkey flat mode removed, bystander+oracle added
+    expect(count(paladin.vip.pensieve)).toBe(BASELINE + 8); // +2 @fixtures (package + language-learning fixture)
   });
 
   // lock-demo fixture assertion POSTPONED with the fixture itself — fork 4.

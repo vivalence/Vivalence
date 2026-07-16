@@ -9,7 +9,7 @@ import {
   LiteralEntity,
   SymbolEntity,
 } from "@vivalence/typology/entities";
-import { LiteralDomain, SymbolDomain } from "../scenarios/entities.ts";
+import { LiteralDomain, SymbolDomain } from "../scenarios/fixtures.js";
 
 specimen.describe("symbols: m:n slug query", () => {
   let orm, em, repo;

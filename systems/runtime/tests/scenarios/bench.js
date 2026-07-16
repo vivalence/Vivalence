@@ -29,6 +29,7 @@ import {
 } from "@vivalence/typology";
 import { sets, UserEntity, BufferEntity, LiteralEntity, SymbolEntity } from "@vivalence/typology/entities";
 import { provider as memoryDatamap } from "@vivalence/typology/scenarios";
+import { assemble } from "./fixtures.js";
 import { Daemon } from "@vivalence/runtime/daemon";
 import * as traits from "../../daemon/traits/index.js";
 import * as lifecycleResolution from "../../daemon/lifecycle/resolution.js";
@@ -95,24 +96,20 @@ export async function bench(spec = {}) {
 
   const domain = kernel.find((module) => module.manifest?.type === "domain");
 
-  // ── variant: traits + entity schemas ─────────────────────────────
-  // bench specs always load a domain, which concretizes literal/symbol/buffer;
-  // the runtime's slim-daemon concrete defaults are shadowed here and omitted.
   const variantTraits = {
     ...traits,
     ...(domain?.traits || {}),
     APPLICATION: BENCH_APPLICATION,
   };
 
-  const variantEntities = Object.values({
-    ...sets.daemon,
-    ...sets.kernel,
-    ...sets.userspace,
-    ...(domain?.entities || {}),
-  });
+  const { entities: variantEntities, subscribers: variantSubscribers } = assemble([
+    sets.daemon,
+    sets.kernel,
+    sets.userspace,
+    domain?.entities || {},
+  ]);
 
-  // ── boot datamap ─────────────────────────────────────────────────
-  const datamapInstance = await memoryDatamap(variantEntities);
+  const datamapInstance = await memoryDatamap(variantEntities, variantSubscribers);
 
   // ── assemble daemon ──────────────────────────────────────────────
   const daemon = new Daemon({
@@ -140,6 +137,7 @@ export async function bench(spec = {}) {
     variant: {
       traits: variantTraits,
       entities: variantEntities,
+      subscribers: variantSubscribers,
       services: {},
     },
     register: {

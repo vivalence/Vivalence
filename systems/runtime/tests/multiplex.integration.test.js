@@ -1,6 +1,6 @@
 import { specimen, sleep, shape, shard, Url, Connection } from "@vivalence/typology";
 import { create } from "./scenarios/cortex.js";
-import { tiers } from "./scenarios/variant.js";
+import { tiers } from "./scenarios/fixtures.js";
 
 function launch(aperture, port = 0) {
   const gate = shard.serve.multiplex(aperture);
