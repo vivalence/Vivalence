@@ -32,6 +32,7 @@ export function Hallucination(cortex, configuration) {
     ctx.output = stream(resolve(type, "stream"), ctx.input, config.rounds, tools);
   };
 
+  // rename to execution? hallucinator? hal?
   const vector = new Vector()
     .use(async (ctx, next) => {
       const transcript = hallucination.entities.turn.compile();

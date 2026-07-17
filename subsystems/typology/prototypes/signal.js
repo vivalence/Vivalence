@@ -77,6 +77,14 @@ export class Signal extends Signature {
   get pathname() {
     return "/" + this.absolute.join("/");
   }
+
+  get json() {
+    return {
+      signal: this.pathname,
+      parts: this.absolute,
+      flags: (this.fin ?? this).flags ?? {},
+    };
+  }
 }
 
 function tokenize(input) {

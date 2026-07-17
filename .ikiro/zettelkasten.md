@@ -8,22 +8,32 @@
 
 | family | occurrences | rule | rung | status |
 |---|---|---|---|---|
-| assume-dont-verify | ~14 | pre-flight 1/2/3/5 | mechanical (grep) | FAILED — recurred 07-02/07-05/07-06 past mechanical rung; escalation queued |
-| yap-wrong-artifact | ~11 | comms contract, code-heavy floor | prose | watching |
-| consumer-side-patch | ~7 | source of truth, never shadow | prose | watching |
-| imperative-js-reflex | ~7 | pre-flight 1 (primitives) | prose | watching |
-| invented-state-optionality | ~5 | absence IS the signal | prose | watching |
-| rule-not-self-applied | 3 | rule written = executed same turn (rituals); compact settles rule-decided loose ends | prose | FAILED — recurred 06-28/07-02×2 after rule landed; escalation queued |
-| compact-date-discipline | 3 | scribe date-scan | mechanical (grep 2026-) | PROVEN — quiet ≥5 compacts since 05-18; this session's scan ran clean |
-| vcs-write-reflex | 2 | root banner | HOOK (vcs-guard.sh, LIVE) | watching |
-| deleted-beef-content | 2 | backup-during-migration | prose | watching |
-| manifest-extension | 2 | kernel HARD STOP | prose | watching |
-| premature-completion | 2 | gates: again/own; propose→per-item-go covers ORCHESTRATED work (subagent Write = my Write) | prose | watching |
-| over-abstraction | 2 | connoisseur minimal-delta (proposed family — connection-trie, nyan comment-essays) | prose | proposed, beef to confirm |
-| comment-litter | 2 | kernel "code self-documenting / no comments / zero ceremony" | prose (in kernel) | FAILED — recurred 07-07 past standing kernel law; splits comment-essays out of over-abstraction (2026-06-16); escalation queued |
-| status-quo-defense | 1 | engage a redesign beef leans toward; contract = bilateral; grab-bag options obj = missing contract, split don't excuse | prose | proposed, beef to confirm |
-| scope-inflation | 1 | narrowest reading adjacent to task; container-boundary = hard stop (proposed family — assume-dont-verify on the scope axis) | prose | proposed, beef to confirm |
-| strawman-constraint | 1 | trace to beef-quote | prose | watching |
+| assume-dont-verify | ~16 | pre-flight 1/2/3/5 + completeness-claim gate (07-12: audited exclusions · every consumer suite · categorized sweep) | mechanical (grep) | FAILED — recurred 07-11 (attribution axis) + 07-12 (scoped-search) past mechanical rung; checklist escalation PROPOSED this flywheel |
+| yap-wrong-artifact | ~12 | comms contract, code-heavy floor; container-rooted paths in ALL prose (07-11) | prose | watching |
+| consumer-side-patch | ~7 | source of truth, never shadow | prose | PROVEN — quiet ≥5 compacts since 06-27 |
+| imperative-js-reflex | ~7 | pre-flight 1 (primitives) | prose | PROVEN — quiet ≥5 compacts since 06-24 |
+| invented-state-optionality | ~6 | absence IS the signal | prose | FAILED — recurred 07-21 (fabricated `?? repository.branch("/mountpoint")` fallback in generative-views store; anchor-audit find, no codeword); rule landed pre-06 → RULE FAILURE logged; scope-read fallback gate PROPOSED this flywheel |
+| comment-litter | 4 | kernel no-comments; strike-3 grep-diff gate; strike-4 gate-must-EXECUTE | mechanical (grep gate) | FAILED ×2 past mechanical rung — HOOK rung PROPOSED this flywheel |
+| rule-not-self-applied | 3 | rule written = executed same turn (rituals); compact settles rule-decided loose ends | prose | FAILED — recurred 06-28/07-02×2 after rule landed; settlement-checklist escalation PROPOSED this flywheel |
+| privacy-leak | 3 | PII never persisted; leaks described abstractly, never re-quoted; grep gate before turn end | mechanical (grep) | PROVEN — single arc, quiet ≥5 compacts (BACKFILLED — was missing from this table) |
+| premature-completion | 3 | gates: again/own; propose→per-item-go covers ORCHESTRATED work (subagent Write = my Write) | prose | watching |
+| compact-date-discipline | 3 | scribe date-scan | mechanical (grep 2026-) | PROVEN — quiet ≥5 compacts since 05-18 |
+| vcs-write-reflex | 2 | root banner | HOOK (vcs-guard.sh, LIVE) | PROVEN — quiet ≥5 compacts since 06-28 at hook rung |
+| deleted-beef-content | 2 | backup-during-migration | prose | PROVEN — quiet ≥5 compacts since 06-26 |
+| manifest-extension | 2 | kernel HARD STOP | prose | PROVEN — quiet ≥5 compacts |
+| over-abstraction | 2 | connoisseur minimal-delta (connection-trie, nyan comment-essays) | prose | proposed, beef to confirm |
+| wrong-tool-verification | 1 | Deno-only toolchain; verification uses the system's own tools | prose | watching (kin: npm-reflex-in-deno-repo — merge candidate, beef's call) |
+| npm-reflex-in-deno-repo | 1 | npm deps ONLY via import_map `npm:` entries; never author package.json | prose | watching (kin: wrong-tool-verification) |
+| assert-without-showing | 1 | a fix that ADDS a symbol shows every consumer, grepped with line numbers | prose | watching |
+| values-misranked | 1 | silent fails = TOP finding; rank findings by beef's values, not interest | prose | watching |
+| diagnostic-theater | 1 | blocked tool → FIRST line is the runnable command; diagnostics stated flat | prose | watching |
+| hotfix-cascade | 1 | a second workaround propping the first = question the abstraction (kin feedback_no_hotfix) | prose | watching |
+| premature-convergence | 1 | design mode: no countdown framing; end on the sharpest open tension | prose | watching |
+| namespace-destructuring | 1 | never destructure namespaces; dot-notation is provenance (kin no-abbreviations) | prose | watching |
+| status-quo-defense | 1 | engage a redesign beef leans toward; contract = bilateral; grab-bag options obj = missing contract | prose | proposed, beef to confirm |
+| scope-inflation | 1 | narrowest reading adjacent to task; container-boundary = hard stop | prose | proposed, beef to confirm |
+| strawman-constraint | 1 | trace to beef-quote | prose | PROVEN — quiet ≥5 compacts |
+| coined-register | 1 | never mint a naming register; extend an existing family or plain technical (feedback_no_coined_registers; "station/wells" 07-21, no codeword) | prose | proposed this flywheel, beef to confirm |
 
 ## Open
 
@@ -40,6 +50,22 @@
 ## Callouts
 
 > "retard" is the self-improve codeword (verbatim — only that word counts). Each occurrence = beef telling me to self-improve. During `ikiro/compact`, `ikiro/review`, `ikiro/self-improvement`: scan for "retard" / "retarded" and log each hit here. Format: date, what I was doing, beef verbatim, root cause, corrective rule, `family:` tag (→ Scoreboard). APPEND-ONLY — never edit, soften, or close an entry; closure only via flywheel extinction or beef.
+
+### 2026-07-21 — RULE FAILURE (flywheel anchor-audit, no codeword): fabricated a fallback path in the generative-views store design
+
+- **What I did**: Wrote `paladin.scope.mountpoint ?? paladin.scope.repository.branch("/mountpoint")` into the views.patch.org store seam — the fallback invents a directory that exists nowhere in the doctrine. The citizen-gated scope proxy returning `undefined` IS the signal; the real per-daemon state dir (`mask.mount` = `scope.mountpoint.branch("/daemon_<slug>")`, `subsystems/paladin/prototypes/variant.js:24`) was one grep away.
+- **Finn verbatim**: "check testament mountmount and mode mountpooint in paladin" (correction without codeword — logged via the flywheel anchor re-audit: the listed thought "absence needs a flag" passed unstopped).
+- **Root cause**: Designed a default for an environment I hadn't grounded; the `??`-fallback masked the unread mask-mount doctrine. Recurrence of invented-state-optionality AFTER its rule landed ("absence IS the signal", pre-06) — a rule failure, not a fresh lesson.
+- **Corrective rung (proposed)**: pre-flight addition — any `??`/`||` fallback on a `paladin.scope.*` / env read requires a grep proving the fallback path exists in `testament/` or the paladin scope declarations; no proof → THROW instead of defaulting.
+- family: invented-state-optionality (RULE FAILURE — links "absence IS the signal" anchor; escalation queued)
+
+### 2026-07-21 — declared "one decision left" mid-design of the hallucination tool pipeline
+
+- **What I did**: While co-designing the tools-as-Vector rotation (hallucination/provider/cortex ownership), ended a turn with "One decision left: `name` vs `signal` on Part.ToolUse" + "then `go`" — converging the whole design onto a single fake gate while beef was still rotating the ontology (next message immediately reopened loop ownership, provider contracts, snapshotting).
+- **Finn verbatim**: "not fucking one decision left. were clearly designing. retard."
+- **Root cause**: Premature convergence reflex — treating a design conversation as a checklist to close so I can ask for `go`. The drive to end on an action item overrode the actual mode: exploration. Design isn't done when MY open-questions list is empty; it's done when beef stops rotating.
+- **Corrective rule**: In design mode, NEVER emit "one decision left" / "only X remains" / countdown framing. End design turns with the sharpest open tension or the next probe, not a convergence claim. `go`-gating language only after beef signals convergence (asks for the diff, says build, or pins the last piece himself).
+- family: premature-convergence (design-mode misread as execution-checklist)
 
 ### 2026-07-16 — patched around `concrete()` + the tier-merge instead of questioning the abstraction
 

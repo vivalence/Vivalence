@@ -3,6 +3,15 @@ import { object, is, hash } from "@vivalence/typology";
 import { Signature } from "./signature.js";
 
 export class Pattern extends Signature {
+  get json() {
+    const chain = this.array;
+    return {
+      pattern: "/" + chain.map((node) => node.nature).join("/"),
+      parts: chain.map((node) => node.nature),
+      types: chain.map((node) => node.type),
+    };
+  }
+
   static coercions = [
     [
       (s) => is.object(s) && is.string(s.nature) && !is.fn(s.filter),

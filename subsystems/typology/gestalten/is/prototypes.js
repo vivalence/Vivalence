@@ -39,6 +39,11 @@ export function Path(thing) {
 }
 export const path = Path; // ! true; but complicated
 
+export function FilePath(thing) {
+  return thing instanceof prototypes.FilePath;
+}
+export const filepath = FilePath;
+
 export function vector(thing) {
   return (
     signature(thing) &&

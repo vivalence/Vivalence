@@ -8,6 +8,15 @@
   let { rect } = $props();
 
   const terminals = getContext(TERMINALS);
+  // @beef i suspect the client should have more of a say about the sourcing of view.
+  // i would like to determine the boundry of view to be here. frame renders view and termina+buffer.
+  // view is resolved inside the app.
+  // frame is a renderer over view{kind hash mount bundle}
+  // terminal is passed through. terminal transports buffer, mode, thread, etc. singular input.
+  // i also suspect that there is malaligned polymorphism on buffer.view and mode.pro.view and mode.app.view. i smell the risk of an asymmetry across the same semantics on client and server.
+  // maybe the clear boundry is buffer.view as finished bundle
+  // and app.view and pro.view as app.buffer and procedural.buffer
+  // hmm containers as servers.
 
   const terminal = terminals.$active;
   const thread = chain(terminals, "$active", "$thread");
@@ -15,12 +24,7 @@
   const dock = chain(terminals, "$active", "$dock");
 
   const dockable = $derived($mode?.implements?.("HARNESSED") ?? false);
-  const geom = $derived(
-    dockable && rect.width > 0 && rect.height > 0 ? stores.bridge.resolve($dock, rect) : null,
-  );
-
-  // Auto-focus is now the stall's `settle` (one cursor authority). A non-inert phase lands
-  // the cursor on a present buffer when active is null/gone; INERT respects a deliberate empty.
+  const geom = $derived(dockable && rect.width > 0 && rect.height > 0 ? stores.bridge.resolve($dock, rect) : null,);
 
   let last = null;
   function onSeamDown(event) {
@@ -53,7 +57,7 @@
     style:flex-direction={geom?.direction ?? "row"}>
     <div class="stage">
       {#if $terminal}
-        <Frame buffer={$terminal.$buffer} terminal={$terminal}>
+        <Frame  terminal={$terminal}>
           <span class="label">A</span>
         </Frame>
       {:else}

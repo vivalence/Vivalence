@@ -1,9 +1,6 @@
 import { Path } from "@vivalence/typology";
 import { Bundle } from "./bundle.js";
 
-// A mode's application descriptor: its view (mount), its buffer schema (mask), and the
-// compiled artifact it owns (bundle). App is NOT a Bundle — App is the application; the
-// Bundle is the compile/mount mechanism App carries. Long-term distinction.
 export class App {
   mask = {};
   mount = null; // Path — the view entry ("buffer/Flashcard.svelte")

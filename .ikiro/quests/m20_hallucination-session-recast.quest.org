@@ -1,0 +1,108 @@
+#+title: m20 — hallucination session recast
+#+subtitle: thin boundary — provider translates ONE request, system folds everything that spans requests
+
+* law
+
+One law places every responsibility: *a provider translates ONE request; the system folds everything that spans requests.* Loop, retry, transcript, persistence, cache marks, session vocabulary, span records → system (=shard.hallucinate= + =soma.transcript=). Block dialect, cache_control placement, wire parse, fault normalization → provider (=translate.js=, pure).
+
+Two objects, never again complected: the *session grammar* (Packet stream + =/tool/call= =/tool/yield= =/turn/full= =/session/close=, folded by =soma.transcript=) and the *dialect* (per-request translation).
+
+* decided
+
+- =meta.state= (not =condition= — collides with the yield lexicon's NOMINAL/ERROR channel). =State = complete·tools·length·abort·error·filter=. Vendor =stop_reason= quarantined under =meta.provider.*=.
+- =hallucination.tools= = bare Vector, PUBLIC. No add/use interface — native grammar only (=open/branch/slurp/use=). Compile = internal rollup fold at request build.
+- =mode.tools= = native mode tool vector; traits populate it (TOOLED copies =module.tools= in). NO tools on aperture — aperture is public exposure. Only consumers were TOOLED + aprende harness; both move.
+- =Part.Alien {type, dialect, block}= — REAL: =redacted_thinking= exists today and must replay verbatim; server-tool blocks are the same class. Current default flattens to model-visible JSON text.
+- =Tool.side= CUT. =Part.ToolUse.input= always object; parse-once at =soma.pour /part/close=.
+- tool names: =pathOf/nameOf/signalOf= separator law lives once in =shard/hallucinate.js=.
+- *retry law*: retry ONLY before the first packet flows — a mid-stream fault is never re-billed; gated on =fault.retryable= + backoff, every fault/retry span-marked. Cost ceilings: =rounds= caps the loop, backoff caps attempts, usage marked per round.
+- deferred: =via.agent= · speech providers onto Packet grammar at duplex-voice time · =capabilities.structured= gate with second provider.
+
+* span contract
+
+Root = the hallucination: closure mints =new Span("/hallucination")=, exposed as =hallucination.span= — THE tap point; outer roots (harness scribe, kajuit =$telemetry=, tests) attach via =span.to(sink)= or read =span.records=. Branch topology is CONTRACTUAL — stable paths, snapshot-able:
+
+#+begin_example
+/hallucination                         open · close
+/hallucination/<type>/<avenue>         session: note{faculty, tune} · round{n, state, usage} · retry{n, delay} · fault · close{state, rounds}
+/hallucination/<type>/<avenue>/<tool>  dispatch: open{input} · close{state} · fault
+#+end_example
+
+=policy.span= carries the leaf branch into =session()=; =trace.chronicle(span.records)= is a pinned snapshot artifact (deterministic minus =at=, stripped in projection) — the testing hook.
+
+* yield contract
+
+*The session yield IS =soma.transcript='s final state* — one stream, one fold, the yield is its fixpoint. No second fold, no harness-side pool.
+
+#+begin_src json
+{
+  "state": "complete",
+  "rounds": 2,
+  "turns": ["...every sealed turn, tool rounds included..."],
+  "message": "last assistant text",
+  "entities": { "buffer": ["..."], "memory": ["..."] },
+  "object": { "the last object produced": "respond data or object part" },
+  "meta": { "usage": {}, "provider": {} }
+}
+#+end_src
+
+- =entities= merge at =/tool/yield=: per key concat (key IS the entity type, lexicon law). Buffers ride =entities.buffer= — an entity name, not a special channel.
+- =message=/=object= set at each assistant =/turn/close= — last wins (later rounds refine).
+- model-visible vs app-side split unchanged: =tool_result.output= to the model, =entities/object= stay on the yield.
+- =fromm.yield= gains a *session row* (sniff: =thing.state && is.array(thing.turns)=) — the session yield speaks the same four-channel lexicon natively.
+- =render()= returns the YIELD (not a bare turn); =stream()= yields session records, callers fold via =soma.transcript=. Riddler/oracle destructure ={object}= — unchanged spelling, new backing.
+
+* gate zero — DONE
+
+14 contract snapshots pinned + dry-verified: =subsystems/typology/tests/hallucination.snapshot.test.js= (8) · =registry/viva/hallucinator/anthropic/tests/translate.snapshot.test.js= (4) · =systems/runtime/tests/cortex-contract.snapshot.test.js= (2). Every blast re-pins deliberately; snapshot diff IS the review artifact.
+
+* blast 1 — GRAMMAR (vocabulary + schema + dialect; zero structural moves)
+
+Files:
+- =subsystems/typology/schematics/primitives/hallucination.js= — =State= export · =Part.ToolUse.input= object-only · =Part.Thinking.signature= · =Part.Alien= (+ =Part.Any=)
+- =registry/viva/hallucinator/anthropic/provider/translate.js= — =STATES= map → =meta.state= · =meta.provider= quarantine · alien both directions · no stringify/parse on tool_use input
+- =subsystems/typology/gestalten/belt/soma.js= — =/part/close= parses accumulated tool_use string input, once
+- =subsystems/typology/gestalten/fromm/yield.js= — turn row reads =meta.state= · =utterance= row above =opaque=
+- =subsystems/typology/prototypes/hallucination.js= — loop condition → casts-parts check (interim, dies blast 2)
+- =subsystems/typology/prototypes/cortex.js= — dressAsObject: parse dies, mints =meta.state=
+- =systems/runtime/tests/cortex.stripwire.test.js:85= — re-pin
+
+Tests, RED first: adjust 3 snapshot suites → land → =SNAPSHOT_HOT=1= re-pin → dry green. NEW units: soma close-parse · alien round-trip · yield utterance. Grep gate: zero =meta.stop= reads outside =meta.provider=. Full: typology · runtime · providers offline.
+
+* blast 2 — SESSION (the structure)
+
+Files:
+- =subsystems/typology/gestalten/shard/hallucinate.js= NEW — =pathOf/nameOf/signalOf= · =state(turn)= · =deliver= (the retry law) · =dispatch= (Signal + steer.invoke + guarded, unknown-tool → error result, per-tool span branch) · =session= generator (the ONE loop, both avenues via =pump=, span marks round/state/usage) · =render= = transcript cata returning the session YIELD
+- =subsystems/typology/gestalten/belt/soma.js= — =transcript= fold (turns + yield channels) · =/turn/full= pour case
+- =subsystems/typology/schematics/primitives/hallucination.js= — =Packet.{ToolCall,ToolYield,TurnFull,SessionClose}= + =Packet.Session= · =Tool= loses =execute= · =Request.cache.marks=
+- =subsystems/typology/gestalten/fromm/yield.js= — session row
+- =subsystems/typology/prototypes/hallucination.js= — =hallucination.tools= bare Vector · =hallucination.span= root · compile = internal rollup fold (+cache marks) · leaves → =shard.hallucinate= with =policy.span= branch · free fns DIE · =backoff= config
+- =systems/runtime/daemon/traits/tooled.js= — =mode.tools= native vector; aperture =/tool= mount DIES
+- =systems/runtime/daemon/traits/harnessed.js= — persistence = =soma.transcript= fold for streams + =output.turns= for renders (lying-transcript hole closes) · yields =Packet.Session= · =input.tools= POJO grafts via =tools.open= loop · owns the thread graft (=tools.use= middleware, blast 2 writes =toolContext.input.thread= for registry compat)
+- =registry/education/modes/home/aprende/harness.js= — minimal: =ctx.hallucination.tools.slurp(ctx.mode.tools)=
+- =registry/viva/hallucinator/anthropic/provider/{translate,index}.js= — =fault()= + wrap render/stream · =buildParams= cache-mark placement
+- DELETE =subsystems/typology/gestalten/shape/agentic.js= · barrels: =shard= +hallucinate, =shape= −agentic
+
+Tests, RED first:
+1. NEW =subsystems/typology/tests/hallucinate.test.js= — state() · deliver (retry pre-flow only, mid-stream rethrow, backoff exhaustion, span fault/retry marks) · dispatch (guarded cast, unknown tool, parallel) · session (multi-round, =/session/close= exactly once, length exhaustion) · render (yield shape, throws on non-complete)
+2. NEW transcript invariant test — fold never mutates source records; entities concat; message/object last-wins
+3. span chronicle snapshot: scripted session incl. injected fault → =trace.chronicle= pinned (=at= stripped)
+4. HARNESSED scenario regression: render transcript ≡ stream transcript in the DB
+5. rewrite =systems/runtime/tests/mode/tooled.test.js= to =mode.tools= · re-pin 3 snapshot suites + oracle wire-trace
+6. grep gates: =shape.agentic= · =entities.tool= · aperture =/tool= — zero refs
+
+* blast 3 — USAGE (registry + kajuit + live)
+
+Files:
+- =registry/education/modes/home/aprende/= — tool bodies read =ctx.thread= (kills the compat write) · emitter delegation audit against the session grammar
+- =registry/education/modes/games/riddler/= — cortex-direct paths on the yield return ={object}= verified (expected no-op)
+- =systems/kajuit/= — oracle wire-trace re-pin · =$telemetry= subscribes hallucinate span records (the transparency surface)
+- =docs/…/47.02= re-tangle + =systems/runtime/tests/hallucination-triad.doc.test.js= re-pin · ghost oracle triple re-verified
+
+Tests + live: full 8 suites · runtime boot :2501 · aprende quartet live round-trip · oracle =mode.call.ask= · spanish boot · one live session chronicle shows rounds/usage/tools end to end · grep gates =input.thread= splice + =meta.stop= repo-wide.
+
+* open
+
+- object-render persistence residue: dressAsObject faculty is render-only via, internal rounds fold invisibly — revisit at structured-native gate
+- =Request.tools= record ordering pinned by byte-snapshot; array only if a dialect needs duplicate names
+- daemon scribe.root tap (frontier open tail) — chains onto =hallucination.span= when it lands

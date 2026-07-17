@@ -4,15 +4,10 @@ import { pull } from "./thread/traits/aimed.js";
 import { depth } from "./thread/traits/queueing.js";
 import { defaultDock } from "../stores/bridge/dock.js";
 
-// The terminal is a reactive view over a thread: a render pointer ($buffer) into the
-// thread's buffers, plus a Stall that drives the cursor by the thread's phase. It owns no
-// persistence — it's a closure over two atoms, the same kind as the Stall it builds. The
-// atoms are null-or-entity for their whole life: unresolved persisted ids live in the
-// settle effect's closure (src/app/terminals.js), never here, so no consumer (the Stall)
-// ever sees a wire-format id.
 export function Terminal({ id = null, dock } = {}) {
   const $thread = atom(null);
   const $buffer = atom(null);
+  // const $view = atom(null;) //@beef!
   const $dock = atom(dock ?? defaultDock());
   let stall = null;
 
@@ -26,8 +21,6 @@ export function Terminal({ id = null, dock } = {}) {
       return $thread.get();
     },
     set thread(value) {
-      // a buffer from the old thread isn't in the new source — drop it so the fresh stall
-      // settles clean. a switch is a different id (null-safe on both sides).
       if (($thread.get()?.id ?? null) !== (value?.id ?? null)) $buffer.set(null);
       console.log(
         `[probe] terminal ${id} thread mount ${value?.id ?? "null"} (daemon ${value?.daemon?.slug ?? "-"})`,

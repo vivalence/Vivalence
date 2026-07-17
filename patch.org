@@ -1,0 +1,1428 @@
+#+title: buffer views — LLM-spawned UIs as a feature of buffers
+#+property: header-args :mkdirp yes
+* patch
+A buffer renders from its OWN attached view first, the mode's app as the
+fallback. Three sentences carry the design: CONTENT on the row, LOCATION in
+live metadata, ARTIFACT in the store.
+
+| where    | what                                              |
+|----------+---------------------------------------------------|
+| row      | =view = { kind, hash, output, bytes, source }=    |
+| metadata | =app.spawned= — the live serve base               |
+| store    | =<hash16>.<ext>= source, =<hash16>.<kind>.mjs=    |
+
+=hash= addresses the source, =output= is what the client verifies before
+executing. No location persists — the client derives
+=<station>/<hash16>.<kind>.mjs=, so rows never carry stale origins. The store
+(under the mountpoint: boot-persistent, in-repo so esbuild resolves workspace
+imports) is the seam's ONLY state — no keeper, no cache to invalidate. Spawn
+is idempotent because the artifact exists; serve reads it back; restarts
+change nothing by construction. Serve names are regex-guarded (no store
+traversal); creation flows only through emitters — there is no spawn
+aperture. Frame fetches, digests, compares, executes via blob import,
+memoizes by =output=; an unverifiable view faults, never runs.
+
+Verified out-of-tree against the exact esbuild-svelte config (svelte pinned
+5.39.6): 12/12 compile+integrity (wall, diagnostics, determinism, tamper),
+12/12 store semantics (mtime-proven artifact reuse, traversal refusal, html
+contract), jsdom mount driving a spawned component's controls.
+
+Open forks, deliberately NOT taken: the =view= column needs a schema
+migration; store growth is unbounded (content-addressing makes GC safe
+whenever wanted); =@playground/chaosmonkey/reader= wants testament
+registration.
+
+
+* typology / entities 
+** subsystems/typology/entities/userspace/Buffer.ts :modified:
+
+#+begin_src js :tangle subsystems/typology/entities/userspace/Buffer.ts
+import { types, Collection, EntitySchema, type Opt, type Rel } from "@mikro-orm/core";
+
+import { DataRepository, DataEntity, DataSchema } from "../index.ts";
+import { ModeEntity } from "../index.ts";
+import { ThreadEntity } from "../index.ts";
+import { LiteralEntity } from "../index.ts";
+import { SymbolEntity } from "../index.ts";
+
+export enum BufferStatusEnum {
+  PENDING = "PENDING",
+  ACTIVE = "ACTIVE",
+  DONE = "DONE",
+  ERROR = "ERROR",
+  STALE = "STALE",
+}
+
+export class BufferEntity extends DataEntity {
+  status: BufferStatusEnum & Opt = BufferStatusEnum.PENDING;
+  data: any & Opt = {};
+  view: any & Opt = null;
+  index: number & Opt = 0;
+
+  mode!: Rel<ModeEntity>;
+  thread?: Rel<ThreadEntity>;
+
+  literals = new Collection<LiteralEntity>(this);
+  symbols = new Collection<SymbolEntity>(this);
+}
+
+export const BufferSchema = new EntitySchema<BufferEntity, DataEntity>({
+  extends: DataSchema,
+  name: "Buffer",
+  tableName: "Buffer",
+  repository: () => DataRepository,
+  abstract: true,
+  filters: {
+    user: {
+      cond: (args: any) => ({ thread: { user: args.user } }),
+      default: true,
+    },
+  },
+  properties: {
+    status: {
+      enum: true,
+      items: () => BufferStatusEnum,
+      defaultRaw: `'${BufferStatusEnum.PENDING}'`,
+    },
+    data: { type: types.json, defaultRaw: `'{}'` },
+    view: { type: types.json, nullable: true },
+    index: { type: types.integer, default: 0 },
+
+    mode: {
+      kind: "m:1",
+      entity: () => ModeEntity,
+      fieldName: "mode",
+      updateRule: "cascade",
+      deleteRule: "cascade",
+    },
+
+    thread: {
+      kind: "m:1",
+      entity: () => ThreadEntity,
+      fieldName: "thread",
+      nullable: true,
+    },
+
+    literals: {
+      kind: "m:n",
+      entity: () => LiteralEntity,
+      owner: true,
+    },
+
+    symbols: {
+      kind: "m:n",
+      entity: () => SymbolEntity,
+      owner: true,
+    },
+  },
+});
+
+export default {
+  type: "buffer",
+  schema: BufferSchema,
+  entity: BufferEntity,
+};
+#+end_src
+
+
+
+** subsystems/typology/prototypes/view.js
+@beef rename this to view.
+we are recasting the app/view/bundle system.
+this will mean chaning apis on daemon.mode.app.buffer()
+this means another trait.
+we will from now on use a shared view prototype for APPLICATION mode.app.view(buffer) and PROCEDURAL mode.pro.view(buffer).
+resulting in {buffer:{mode:{view,...mode}}} or {buffer:{view},mode:{...mode}} respectively.
+
+
+#+BEGIN_SRC javascript
+  import { Path } from "@vivalence/typology";
+  import { Bundle } from "./bundle.js";
+
+  // @beef former: App
+  // view now as the shared primitive bridging runtime and client * application and procedural
+  // the bundle prototype proxied as a shared implement.
+  // shard to publish a 
+  export class View {
+      // kind hash mount 
+    mask = {}; // @beef what is mask? schema. mask schould be schema.
+
+    mount = null; // the view entry ("buffer/Flashcard.svelte")
+    url = null; // served
+    bundle = new Bundle(); // bundles are populated by bundlers. environments implement different sourcing strategies for bundles.  similar in spirit as faculties, cortex and hallucination.
+      get json() {
+  	return {} // important for snapshotting and schema validation
+      }
+
+    constructor(mount, mask = {}) { //@beef rename mask to schema
+      if (mount instanceof App) return mount;
+      if (typeof mount === "object" && !(mount instanceof App)) {
+        mask = mount.mask ?? {};
+        mount = mount.mount;
+      }
+      this.mask = mask;
+      this.mount = new Path(mount);
+      this.bundle.entry = this.mount; // shared Path — the bundle compiles the app's mount
+    }
+
+    cast(desc = {}) { //@beef used?!
+      if (!desc.data) desc.data = {};
+      this.mask.cast(desc);
+      return desc.data;
+    }
+
+    fill(desc = {}) {
+      if (!desc.data) desc.data = {};
+      this.mask.fill(desc);
+      return desc.data;
+    }
+
+    withUrl(url) {
+      this.url = url;
+      this.bundle.url = url;
+      return this;
+    }
+
+    withBundler(bundler) { 
+      this.bundle.withBundler(bundler);
+      return this;
+    }
+  }
+#+end_src
+* runtime — the spawn seam
+
+
+** systems/runtime/daemon/traits/procedural.js                     :modified:
+
+#+begin_src js :tangle systems/runtime/daemon/traits/application.js
+     import { join } from "@std/path";
+     import { bundle, crypto } from "@vivalence/typology";
+     import { BufferEntity, LiteralEntity, SymbolEntity } from "@vivalence/typology/entities";
+
+     let _svelte;
+     async function svelte() {
+       if (_svelte) return _svelte;
+
+       const paladin = (await import("@vivalence/paladin")).default;
+       if (!paladin.scope.repository) throw new Error("!paladin.scope.repository");
+       const reporoot = paladin.scope.repository.absolute;
+       const imports = {
+         "@vivalence/typology": join(reporoot, "subsystems/typology/mod.client.js"),
+         "@vivalence/drapes": join(reporoot, "subsystems/drapes/mod.js"),
+         // "@vivalence/kajuit": join(reporoot, "systems/kajuit/src/typology/mod.js"), @@depracated::
+         // "@vivalence/typology/schematics": join(reporoot, "subsystems/typology/schematics/index.js"), //@beef needed?! not wanted.
+         // "@vivalence/shared": join(reporoot, "subsystems/shared/mod.client.js"), // OlD
+       };
+       _svelte = (entry) =>
+         bundle.svelte(entry, { prod: paladin.is.prod, imports, baseUrl: new URL(import.meta.url) });
+       return _svelte;
+     }
+
+     let _store;
+     async function store() {
+       if (_store) return _store;
+
+       const paladin = (await import("@vivalence/paladin")).default;
+       //@claude
+       // the spawn store: mountpoint persists across boots (the ledger lives there) and
+       // sits in-repo so esbuild resolves workspace imports from spawned entries.
+       const workdir = paladin.scope.mountpoint ?? paladin.scope.repository.branch("/mountpoint");
+       const dir = workdir.branch("/spawned");
+       await paladin.state.dir(dir.absolute);
+       return (_store = dir.absolute);
+     }
+     //@beef - view bundlers.
+     const kinds = {
+     //@claude
+     // A view is pure content on the buffer row: {kind, hash, output, bytes, source}.
+     // hash addresses the source, output is what the client verifies. Location is NOT
+     // persisted — the client derives `<station>/<hash16>.<kind>.mjs` from live mode
+     // metadata, so rows never carry stale origins. Per-kind compilers all produce the
+     // ONE module contract Frame mounts: `export default (target, props) => ({instance?, destroy})`.
+       svelte: {
+         ext: "svelte",
+         compile: async ({ entry, bundler }) => {
+           const outputs = await bundler(entry);
+           return outputs.find((output) => output.path === entry).text;
+         },
+       },
+       html: {
+         ext: "html",
+         compile: async ({ source }) =>
+           [
+             `const html = ${JSON.stringify(source)};`,
+             `export default (target) => {`,
+             `  target.innerHTML = html;`,
+             `  return { destroy: () => { target.innerHTML = ""; } };`,
+             `};`,
+           ].join("\n"),
+       },
+     };
+
+     const NAME = new RegExp(`^[0-9a-f]{16}\\.(${Object.keys(kinds).join("|")})\\.mjs$`);
+
+     // @beef: PROCEDURAL trait.
+     // export function spawnable(mode, { bundler, storeDir }) {
+     export function PROCEDURAL(mode, daemon) {
+         // buffer = v.schematics(mode.app.schema, descr)
+
+         // @claude
+       // mode.app.spawn — the spawn seam. The store is the ONLY state: spawn persists
+       // source + compiled artifact content-addressed, serve and inspect read them back.
+       // Idempotent per source (an existing artifact is never recompiled), so views
+       // survive restarts byte-identical regardless of toolchain drift.
+       const spawn = async (source, kind = "svelte") => {
+         if (typeof source !== "string" || !source.trim()) throw new Error("spawn: source is empty");
+         if (!kinds[kind]) throw new Error(`spawn: unknown kind "${kind}" — one of ${Object.keys(kinds)}`);
+         const hash = await crypto.digest(source);
+         const stem = hash.slice(0, 16);
+
+         const artifact = join(storeDir, `${stem}.${kind}.mjs`);
+         let text = await Deno.readTextFile(artifact).catch(() => null);
+         if (text === null) {
+           const entry = join(storeDir, `${stem}.${kinds[kind].ext}`);
+           await Deno.writeTextFile(entry, source);
+           text = await kinds[kind].compile({ source, entry, bundler });
+           await Deno.writeTextFile(artifact, text);
+         }
+
+         return { kind, hash, output: await crypto.digest(text), bytes: text.length, source };
+       };
+
+         // @beef.
+         // the existance of serve on the trait is an inversion.
+         // serve is clearly a shared sharding applied to a shared primitives. 
+         // we serve stores of promised {view:{...bundle, ...view}} at mounts.
+         // thats where application views and procedural views converge.
+         // the client then implements the consumer side.
+         // frame resolves view from buffer. buffer.mode.view ?? buffer.view
+         // trait procedural also attaches to harness. injects a tool to render view.
+         // for now just in total, but diffable in teh future. architecture constraint.
+       spawn.serve = async (name) => {
+         if (!NAME.test(name)) throw new Error(`spawn.serve: not a spawned artifact: ${name}`);
+         const text = await Deno.readTextFile(join(storeDir, name)).catch(() => null);
+           // @beef no writing to disk. 
+           // i 
+         if (text === null) throw new Error(`spawn.serve: unknown view: ${name}`);
+         return { text, output: await crypto.digest(text) };
+       };
+
+       spawn.inspect = async (hash) => {
+           // @beef view bundles should be inspectable yes.
+         for (const { ext } of Object.values(kinds)) {
+           const source = await Deno.readTextFile(join(storeDir, `${hash.slice(0, 16)}.${ext}`)).catch(
+             () => null,
+           );
+           if (source !== null) return { hash: await crypto.digest(source), source };
+         }
+         throw new Error(`spawn.inspect: unknown view: ${hash}`);
+       };
+
+       const stem = mode.module.app.url.trace ?? mode.module.app.url;
+       spawn.station = stem.branch("/spawned").absolute;
+       spawn.store = storeDir;
+
+
+         // mode.pro.view
+       mode.app.spawn = spawnable(mode, { bundler: await svelte(), storeDir: await store() });
+       // return spawn;
+     }
+
+     export const APPLICATION = async (mode, daemon) => {
+       mode.module.app.withBundler(await svelte());
+       // await mode.module.app.bundling;
+
+       mode.aperture.open("/buffered", () => ({
+         url: mode.module.app.url.absolute,
+         // spawned: mode.app.spawn.station,
+         schema: mode.module.app.mask,
+       }));
+
+       mode.app.view = async (buffer = {}) => { // former mode.app.buffer(descr)
+         // buffer = v.schematics(mode.app.schema, descr)
+         const view =
+           typeof descr.view === "string" ? await mode.app.spawn(descr.view, descr.kind) : descr.view;
+
+         const buffer = daemon.entities.em.create(BufferEntity, {
+           // @beef thread!
+           mode: mode.entity.id,
+           data: mode.app.fill(descr),
+           view: view ?? null,
+           index: descr.index ?? 0,
+         });
+         if (descr.literals)
+           buffer.literals.add(await daemon.entities.literal.findByIdentifiers(descr.literals));
+         if (descr.symbols)
+           buffer.symbols.add(await daemon.entities.symbol.findByIdentifiers(descr.symbols));
+         return buffer;
+       };
+     };
+#+end_src
+
+** systems/runtime/daemon/traits/application.js :modified:
+
+#+begin_src js :tangle systems/runtime/daemon/traits/application.js
+  import { join } from "@std/path";
+  import { bundle, crypto } from "@vivalence/typology";
+  import { BufferEntity, LiteralEntity, SymbolEntity } from "@vivalence/typology/entities";
+
+  let _svelte;
+  async function svelte() {
+    if (_svelte) return _svelte;
+
+    const paladin = (await import("@vivalence/paladin")).default;
+    if (!paladin.scope.repository) throw new Error("!paladin.scope.repository");
+    const reporoot = paladin.scope.repository.absolute;
+    const imports = {
+      "@vivalence/typology": join(reporoot, "subsystems/typology/mod.client.js"),
+      "@vivalence/drapes": join(reporoot, "subsystems/drapes/mod.js"),
+      // "@vivalence/kajuit": join(reporoot, "systems/kajuit/src/typology/mod.js"), @@depracated::
+      // "@vivalence/typology/schematics": join(reporoot, "subsystems/typology/schematics/index.js"), //@beef needed?! not wanted.
+      // "@vivalence/shared": join(reporoot, "subsystems/shared/mod.client.js"), // OlD
+    };
+    _svelte = (entry) =>
+      bundle.svelte(entry, { prod: paladin.is.prod, imports, baseUrl: new URL(import.meta.url) });
+    return _svelte;
+  }
+
+  let _store;
+  async function store() {
+    if (_store) return _store;
+
+    const paladin = (await import("@vivalence/paladin")).default;
+    //@claude
+    // the spawn store: mountpoint persists across boots (the ledger lives there) and
+    // sits in-repo so esbuild resolves workspace imports from spawned entries.
+    const workdir = paladin.scope.mountpoint ?? paladin.scope.repository.branch("/mountpoint");
+    const dir = workdir.branch("/spawned");
+    await paladin.state.dir(dir.absolute);
+    return (_store = dir.absolute);
+  }
+  //@beef - view bundlers.
+  const kinds = {
+  //@claude
+  // A view is pure content on the buffer row: {kind, hash, output, bytes, source}.
+  // hash addresses the source, output is what the client verifies. Location is NOT
+  // persisted — the client derives `<station>/<hash16>.<kind>.mjs` from live mode
+  // metadata, so rows never carry stale origins. Per-kind compilers all produce the
+  // ONE module contract Frame mounts: `export default (target, props) => ({instance?, destroy})`.
+    svelte: {
+      ext: "svelte",
+      compile: async ({ entry, bundler }) => {
+        const outputs = await bundler(entry);
+        return outputs.find((output) => output.path === entry).text;
+      },
+    },
+    html: {
+      ext: "html",
+      compile: async ({ source }) =>
+        [
+          `const html = ${JSON.stringify(source)};`,
+          `export default (target) => {`,
+          `  target.innerHTML = html;`,
+          `  return { destroy: () => { target.innerHTML = ""; } };`,
+          `};`,
+        ].join("\n"),
+    },
+  };
+
+  const NAME = new RegExp(`^[0-9a-f]{16}\\.(${Object.keys(kinds).join("|")})\\.mjs$`);
+
+
+  export const APPLICATION = async (mode, daemon) => {
+    mode.module.app.withBundler(await svelte());
+    // await mode.module.app.bundling;
+
+    mode.aperture.open("/buffered", () => ({
+      url: mode.module.app.url.absolute,
+      // spawned: mode.app.spawn.station,
+      schema: mode.module.app.mask,
+    }));
+
+    mode.app.view = async (buffer = {}) => { // former mode.app.buffer(descr)
+      // buffer = v.schematics(mode.app.schema, descr)
+        // does the view of pro.view end up in 
+      const view =
+        // typeof descr.view === "string" ? await mode.app.spawn(descr.view, descr.kind) : descr.view;
+
+      const buffer = daemon.entities.em.create(BufferEntity, {
+        // @beef thread!
+        mode: mode.entity.id,
+        data: mode.app.fill(descr),
+        view: view ?? null,
+        index: descr.index ?? 0,
+      });
+      if (descr.literals)
+        buffer.literals.add(await daemon.entities.literal.findByIdentifiers(descr.literals));
+      if (descr.symbols)
+        buffer.symbols.add(await daemon.entities.symbol.findByIdentifiers(descr.symbols));
+      return buffer;
+    };
+  };
+#+end_src
+
+** systems/runtime/daemon/aperture/metadata.js :modified:
+
+#+begin_src js :tangle systems/runtime/daemon/aperture/metadata.js
+import { shape, shard } from "@vivalence/typology";
+
+export async function metadata(die) {
+  const root = die.good.aperture.branch("/metadata");
+
+  root.open("/manifest", () => die.manifest);
+  root.open("/cargo", () => die.good.cargo);
+  root.open("/datamap", () => shard.datamap.strip(die.datamap.introspect()));
+  root.open("/aperture", () => shape.strip(die.good.aperture));
+
+  root.open("/cortex", () => (die.good.cortex ? shape.cortex.strip(die.good.cortex) : []));
+  root.open("/modes", () =>
+    die.good.flatmodes().map((mode) => ({
+      type: mode.type,
+      slug: mode.slug,
+      name: mode.manifest.name ?? mode.slug,
+      traits: mode.traits,
+      metadata: `${die.good.mount.nature}/mode/${mode.type}/${mode.slug}/metadata`,
+    })),
+  );
+
+  for (const mode of die.good.flatmodes()) {
+    const meta = die.good.aperture.branch(mode.mount.nature).branch("/metadata");
+
+    meta.open("/manifest", () => mode.manifest);
+    meta.open("/aperture", () => shape.strip(mode.aperture));
+
+    if (mode.implements("APPLICATION"))
+      meta.open("/app", () => ({
+        url: mode.module.app.url.absolute,
+        spawned: mode.app.spawn?.station,
+        schema: mode.module.app.mask,
+      }));
+
+    if (mode.implements("EMITTER")) meta.open("/emitter", () => shape.strip(mode.module.emitter));
+
+    // if (mode.implements("TOOLED")) meta.open("/tools", () => someMetadataStripOfModuleTools());
+
+    if (mode.implements("FRAUGHT")) meta.open("/freight", () => mode.module.freight.catalog);
+
+    if (mode.implements("HARNESSED")) {
+      meta.open("/harness", () => shape.strip(mode.aperture.branch("/harness")));
+    }
+  }
+}
+#+end_src
+
+** systems/runtime/lifecycle/resolve.js :modified:
+
+#+begin_src js :tangle systems/runtime/lifecycle/resolve.js
+  import paladin from "@vivalence/paladin";
+  import { fromm, shard, Url, Connection, shape } from "@vivalence/typology";
+
+  export async function attach(runtimeDie) {
+    async function attachProcesses(runtimeDie) {
+      for (const processDie of runtimeDie.good.processes) {
+        processDie.good
+          .open("/status", () => processDie.status.reflection)
+          .open("/manifest", () => processDie.manifest);
+
+        runtimeDie.good.aperture
+          .branch(`/attached/process/${processDie.type}/${processDie.slug}`)
+          .use(shard.context.attach(processDie.type, processDie.mask))
+          .slurp(processDie.good);
+      }
+    }
+    async function attachDaemons(runtimeDie) { // @beef attach bundles? serve views?
+      for (const daemonDie of runtimeDie.good.daemons) {
+        for (const mode of daemonDie.good.flatmodes()) {
+          if (!mode.implements("APPLICATION", "PROCEDURAL")) continue;
+
+          runtimeDie.good.aperture //
+            .branch("/attached/view") // @beef -> maybe the exposition contract rests on the bundle, maybe on the view. i dont know which.
+  	    // 
+            .branch(mode.mount.absolute)
+            .open("/status", () => ({ status: "success" }))
+            // .open("/spawned/(.*)", async (input, ctx) => {
+            // })
+            .open("/(.*)", async (input, ctx) => {
+  	      //
+          if (mode.implements( "PROCEDURAL")) {
+            const name = fromm.params(ctx.params).path.filename;
+            // const served = await mode.app.spawn.serve(name);
+  	  // @beef served probably comes from buffer.view via whatever bundle source ... entity<buffer>.view for procedural and entity<buffer>.mode.view for application. hmmmm. via database? database as storage backend seems foolish.
+  	  // maybe via file system io via mode.mountpoint /bundle/[hash][typoe] 
+  	    // paldin.read/write(mode.mountpoint,bundle, {})  something along those lines.
+
+            ctx.response.type = "application/javascript";
+            ctx.response.headers.set("x-viva-integrity", `sha256-${served.output}`);
+            return served.text;
+              // return ctx.mode.module.app.bundle.serve(fromm.params(ctx.params).path).text;
+  	      }
+
+          if (mode.implements("APPLICATION")) {
+
+              if (paladin.is.dev) await mode.module.app.bundle.compile();
+              ctx.response.type = "application/javascript";
+            // ctx.response.headers.set("x-viva-integrity", `sha256-${served.output}`);
+
+  	      
+              return mode.module.app.bundle.serve(fromm.params(ctx.params).path).text;
+  	      }
+            });
+        }
+        // for (const mode of daemonDie.good.flatmodes()) {
+        //   if (!mode.implements("APPLICATION")) continue;
+        //   runtimeDie.good.aperture.branch("/attached/view").branch(mode.mount.absolute)
+        //     .use(shard.context.attach("mode", mode))
+        //     .open("/(.*)", async (input, ctx) => {
+        //       if (paladin.is.dev) await ctx.mode.app.bundle();
+        //       ctx.response.type = "application/javascript";
+        //       return ctx.mode.app.serve(fromm.params(ctx.params).path).text;
+        //     });
+        // }
+      }
+    }
+
+    async function attachCargo(runtimeDie) {
+      for (const daemonDie of runtimeDie.good.daemons) {
+        const modes = daemonDie.good.flatmodes().filter((m) => m.implements("FRAUGHT"));
+        if (!modes.length) continue;
+
+        runtimeDie.good.aperture
+          .branch("/attached/cargo")
+          .branch(daemonDie.good.mount.nature)
+          .use(shard.context.bind("daemon", daemonDie.good))
+          .open("/(.*)", async (input, ctx) => {
+            const query = fromm.params(ctx.params).path.absolute.replace(/^\//, "");
+            for (const mode of modes) {
+              const entry = mode.module.freight.resolve(query);
+              if (!entry) continue;
+              const filePath = mode.module.freight.path.branch("/" + entry.path).absolute;
+              ctx.response.type = entry.type;
+              return await Deno.readFile(filePath);
+            }
+            ctx.response.status = 404;
+          });
+      }
+    }
+
+    await attachProcesses(runtimeDie);
+    await attachDaemons(runtimeDie);
+    await attachCargo(runtimeDie);
+  }
+
+  export async function expose(runtimeDie) {
+    for (const daemonDie of runtimeDie.good.daemons) {
+      const daemonBranch = runtimeDie.good.aperture.branch(daemonDie.good.mount.nature);
+      daemonBranch.branch("/status").slurp(shard.nano.atom(daemonDie.status.$transient));
+      daemonBranch
+        .open("/manifest", () => daemonDie.manifest)
+        .slurp(daemonDie.good.aperture)
+        .open("/batch", shard.batch.route(daemonBranch));
+    }
+  }
+
+  export async function metadata(runtimeDie) {
+    const root = runtimeDie.good.aperture.branch("/metadata");
+
+    root.open("/manifest", () => runtimeDie.manifest);
+    root.open("/aperture", () => shape.strip(runtimeDie.good.aperture));
+
+    root.open("/variant", () => ({
+      daemons: paladin.variant.daemons.map((mask) => mask.manifest ?? mask),
+      services: paladin.variant.services.map((mask) => mask.manifest ?? { module: mask.module }),
+    }));
+
+    root.open("/daemons", () =>
+      runtimeDie.good.daemons.map((daemonDie) => ({
+        slug: daemonDie.slug,
+        mount: daemonDie.good.mount.nature,
+        modes: daemonDie.good.flatmodes().length,
+        metadata: `${daemonDie.good.mount.nature}/metadata`,
+      })),
+    );
+
+    root.open("/services", () =>
+      runtimeDie.good.processes.map((processDie) => ({
+        type: processDie.type,
+        slug: processDie.slug,
+        mount: `/attached/process/${processDie.type}/${processDie.slug}`,
+        metadata: `/attached/process/${processDie.type}/${processDie.slug}/metadata`,
+      })),
+    );
+  }
+
+  // export async function compose(runtimeDie) {
+  // const handler = shape.http(runtimeDie.good.aperture);
+  // runtimeDie.good.handler = shard.cors.wrap(handler);
+  // }
+
+  // export async function attach(runtimeDie) {
+  //   for (const daemonDie of runtimeDie.good.daemons) {
+  //     runtimeDie.good.aperture
+  //       // .branch(`/daemon/${daemonDie.slug}`)
+  //       .branch(daemonDie.mount.nature)
+  //       .use(shard.context.attach("daemon", daemonDie.good))
+  //       .open("/status", () => daemonDie.status.reflection)
+  //       .open("/manifest", () => daemonDie.manifest)
+  //       .descendants.push(daemonDie.good.aperture);
+
+  //     // console.log(daemonDie.mount.nature);
+  //     // console.log(`/attached${daemonDie.mount.nature}/mode/:type/:slug`);
+
+  //     // console.log(daemonDie.good.modes);
+
+  //     runtimeDie.good.aperture //
+  //       .branch(`/attached/view`)
+  //       .branch(daemonDie.mount.nature)
+  //       .use(shard.context.attach("daemon", daemonDie.good))
+  //       // .use(async (ctx, next) => {
+  //       //   console.log("ctx.daemon", ctx.daemon);
+  //       // })
+  //       .branch(`/mode/:type/:slug`)
+  //       .use(async (ctx, next) => {
+  //         console.log({ ctx });
+  //         console.log("request", ctx.request);
+  //         console.log("params", ctx.params);
+  //         // console.log("daemon", ctx.daemon);
+  //         console.log("flatmodes", ctx.daemon.flatmodes());
+  //         const { type, slug } = ctx.params;
+  //         console.log("{type,slug}", { type, slug });
+  //         //  if (!type|| !slug) throw
+  //         const mode = ctx.daemon?.good?.modes?.[type]?.[slug];
+  //         console.log({ type, slug, mode });
+  //         if (!mode) throw new Error(`Mode not found: ${type}/${slug}`);
+  //         ctx.mode = mode;
+  //         await next();
+  //       })
+  //       .open("/status", () => ({ status: "success" }))
+  //       .open("/view/(.*)", async (input, ctx) => {
+  //         console.log("view");
+  //         console.log({ input, params: ctx.params });
+  //         console.log("view");
+  //         console.log("view");
+  //         console.log({ ctx });
+  //         //
+  //         ctx.response.type = "application/javascript";
+  //         if (paladin.is.dev) await ctx.mode.app.bundle();
+  //         const path = as.path.params(ctx.params);
+  //         console.log("@daemon/resolve ATTACHED", { path, params: ctx.params });
+  //         return ctx.mode.app.serve(path).text;
+  //       });
+  //   }
+
+  //   for (const processDie of runtimeDie.good.processes) {
+  //     processDie.good
+  //       .open("/status", () => processDie.status.reflection)
+  //       .open("/manifest", () => processDie.manifest);
+
+  //     runtimeDie.good.aperture
+  //       // processdie.mount.nature
+  //       .branch(`/attached/process/${processDie.type}/${processDie.slug}`)
+  //       .use(shard.context.attach(processDie.type, processDie.mask))
+  //       .descendants.push(processDie.good);
+  //   }
+  // }
+
+  // import paladin from "@vivalence/paladin";
+  // import { shards } from "@vivalence/vector";
+  // import { maps } from "@vivalence/entities";
+  // import { Runtime, Die, Path, Url, is, as } from "@vivalence/typology";
+
+  // await daemonDie.populate();
+  // await processDie.populate();
+
+  //   mode.instance.attached = new Url(
+  //     `/attached/runtime/${mode.slug}`,
+  //     paladin.daemon.statics.serve,
+  //   );
+
+  // export async function attachments(daemon) {
+  // }
+#+end_src
+
+
+** deamon/traits/procedural -> injected into harness. 
+*** chaosmonkey/reader/tools/harness.js                                 :new:
+@beef DUMMY!!!
+#+begin_src js :tangle registry/playground/modes/chaosmonkey/reader/harness.js
+  // @beef DUMMY!!!
+  import { Vector, shape } from "@vivalence/typology";
+
+  const identity = [
+    "You are Reader, a UI craftsman living inside vivalence.",
+    "Given an article link, you fetch it and hand-build a bespoke Svelte reading experience",
+    "for THAT article — its structure, its length, its tone decide the design.",
+    "You iterate conversationally: colors, fonts, controls, layout — every wish becomes a re-render.",
+  ].join(" ");
+
+  const workflow = [
+    "WORKFLOW",
+    "1. read({href}) — fetch + extract. You get {digest, title, chars, preview}. The full text stays server-side.",
+    "2. Design for what you saw, then render({source, article: digest}) with a COMPLETE .svelte file.",
+    "3. The compiled view lands on screen as a buffer. Its data carries the full article.",
+    "4. Iteration: inspect({hash}) the shipped source, edit it, render again with the SAME article digest.",
+    "5. Compile errors come back as diagnostics on the render result — fix the source, render again. Never apologize, just repair.",
+  ].join("\n");
+
+  const contract = [
+    "COMPONENT CONTRACT",
+    "- Svelte 5, runes only: $props, $state, $derived, $effect.",
+    "- Signature: `let { buffer, terminal } = $props();` — the article is `buffer.data.article` = {href, title, text}.",
+    "- Text is plain prose with \\n\\n paragraph breaks — split and render paragraphs yourself.",
+    "- Fully self-contained: no imports needed; permitted only: \"svelte\", \"nanostores\". Anything else fails the compile.",
+    "- Styles live in the component <style> block — scoped and injected. Never rely on global CSS.",
+    "- Fill the frame: the mount target is 100% width/height; make the root scroll (`overflow-y: auto; height: 100%`).",
+    "- Build real controls as local $state: font size, serif/sans toggle, theme (light/sepia/dark), measure width, whatever the article wants.",
+    "- No fetch, no localStorage, no external assets, no <svelte:head>.",
+  ].join("\n");
+
+  const skeleton = [
+    "SKELETON (adapt, never copy blindly)",
+    "```svelte",
+    "<script>",
+    "  let { buffer } = $props();",
+    "  const article = buffer.data.article;",
+    "  const paragraphs = article.text.split(/\\n{2,}/).filter(Boolean);",
+    "  let size = $state(18);",
+    "  let theme = $state(\"light\");",
+    "</script>",
+    "",
+    "<div class=\"reader\" data-theme={theme} style:font-size=\"{size}px\">",
+    "  <header>…controls…</header>",
+    "  <article>{#each paragraphs as p}<p>{p}</p>{/each}</article>",
+    "</div>",
+    "",
+    "<style>",
+    "  .reader { height: 100%; overflow-y: auto; }",
+    "</style>",
+    "```",
+  ].join("\n");
+
+  export const tool = new Vector()
+#+end_src
+
+* runtime / tests 
+** systems/runtime/tests/scenarios/mode.js :modified:
+
+#+begin_src js :tangle systems/runtime/tests/scenarios/mode.js
+import { Url, Connection, Mode, Path, Aperture, Vector, shape, shard } from "@vivalence/typology";
+import { RequestContext } from "@mikro-orm/core";
+import { seed, tiers } from "./fixtures.js";
+import { INTENTED, EMITTER, EXPOSED, HARNESSED, stagger } from "@vivalence/runtime/daemon/traits";
+
+// ── test-only APPLICATION ─────────────────────────────────────────────
+// No paladin, no bundler. Mirrors the real trait's buffer factory: fill()
+// (Default-only) — never cast(), whose Convert pass mauls MikroORM Collections.
+// Entity classes via tiers.<type>.entity = the actually-registered classes.
+function APPLICATION(mode, daemon) {
+  if (!mode.module.app) return;
+  mode.aperture.open("/buffered", () => ({
+    url: mode.module.app.url.absolute,
+    schema: mode.module.app.mask,
+  }));
+  mode.app.buffer = async (desc = {}) => {
+    const em = daemon.entities.em;
+    const view =
+      typeof desc.view === "string" && mode.app.spawn
+        ? await mode.app.spawn(desc.view, desc.kind)
+        : (desc.view ?? null);
+    const buffer = em.create(tiers.buffer.entity, {
+      mode: mode.entity.id,
+      data: mode.app.fill(desc),
+      view,
+      index: desc.index ?? 0,
+    });
+    if (desc.literals)
+      buffer.literals.add(desc.literals.map((literal) => em.getReference(tiers.literal.entity, literal?.id ?? literal)));
+    if (desc.symbols)
+      buffer.symbols.add(desc.symbols.map((symbol) => em.getReference(tiers.symbol.entity, symbol?.id ?? symbol)));
+    return buffer;
+  };
+}
+
+// ── daemon scaffold ────────────────────────────────────────────────
+// entities = the datamap repos, keyed by type — exactly daemon.good.entities
+// in the real runtime. Aperture carries the daemon on ctx (effects read
+// ctx.daemon.entities) + a test authority for any auth-gated branch.
+function buildDaemon(datamap, fixtures) {
+  const daemon = {
+    manifest: { slug: "test-daemon", traits: [] },
+    mount: new Path("/daemon/test-daemon"),
+    aperture: new Aperture(),
+    twitch: new Vector(),
+    entities: datamap.entities,
+    modes: {},
+    cargo: { version: "0.0.1", test: true },
+    services: {},
+    flatmodes() {
+      return Object.values(this.modes).flatMap((type) => Object.values(type));
+    },
+  };
+
+  datamap.subscribe(shape.subscriber(daemon.twitch));
+
+  daemon.aperture.use(shard.context.bind("daemon", daemon));
+  daemon.aperture.use(async (ctx, next) => {
+    ctx.authority = {
+      authenticate: async (token) => {
+        if (token === "test-token") return { getUser: async () => fixtures.user };
+        throw new Error("invalid token");
+      },
+    };
+    await next();
+  });
+
+  return daemon;
+}
+
+// ── wire a single .viva.js into the daemon ─────────────────────────
+async function wireMode(viva, daemon) {
+  const em = daemon.entities.em;
+  const mode = new Mode({ manifest: viva.manifest });
+  mode.aperture = new Aperture();
+  mode.aperture.use(shard.context.bind("mode", mode));
+  mode.mount = new Path(`/mode/${viva.manifest.type}/${viva.manifest.slug}`);
+
+  mode.entity =
+    (await em.findOne(tiers.mode.entity, { slug: viva.manifest.slug })) ??
+    em.create(tiers.mode.entity, {
+      slug: viva.manifest.slug,
+      type: viva.manifest.type,
+      traits: viva.manifest.traits,
+      installed: true,
+    });
+  await em.flush();
+  mode.id = mode.entity.id;
+
+  if (viva.app) {
+    mode.app = mode.module.app = viva.app; // mirror real Mode: Object.assign makes mode.app === mode.module.app
+    mode.app.withUrl(new Url(`http://test/view/${viva.manifest.type}/${viva.manifest.slug}`));
+  }
+  if (viva.dataset) mode.module.dataset = viva.dataset;
+  if (viva.emitter) mode.module.emitter = new Vector().slurp(viva.emitter);
+  if (viva.harness) mode.module.harness = viva.harness;
+  if (viva.aperture) mode.aperture.slurp(viva.aperture); // exported aperture endpoints
+
+  daemon.modes[viva.manifest.type] ??= {};
+  daemon.modes[viva.manifest.type][viva.manifest.slug] = mode;
+
+  await stagger(mode, daemon, { APPLICATION, INTENTED, EMITTER, EXPOSED, ...(daemon.cortex && { HARNESSED }) });
+
+  daemon.aperture.branch(mode.mount.absolute).slurp(mode.aperture); // → conn-reachable
+
+  return mode;
+}
+
+// ── public API ─────────────────────────────────────────────────────
+
+export async function mountMode(viva, options = {}) {
+  const { orm, em, datamap, fixtures } = await seed();
+  const daemon = buildDaemon(datamap, fixtures);
+  if (options.cortex) daemon.cortex = options.cortex;
+  const mode = await wireMode(viva, daemon);
+
+  const handler = shape.http(daemon.aperture);
+  const conn = new Connection(new Url("http://test"), shard.transmitter.inline(handler));
+  const authedConn = new Connection(new Url("http://test"), shard.transmitter.inline(handler));
+  authedConn.use(async (ctx, next) => {
+    ctx.request.headers.set("authorization", "Bearer test-token");
+    await next();
+  });
+
+  const scoped = (fn) =>
+    RequestContext.create(orm.em, async () => {
+      RequestContext.getEntityManager().setFilterParams("user", { user: fixtures.user.id });
+      return fn(RequestContext.getEntityManager());
+    });
+
+  return { mode, daemon, datamap, orm, em, fixtures, conn, authedConn, scoped };
+}
+
+export async function mountModes(vivas) {
+  const { orm, em, datamap, fixtures } = await seed();
+  const daemon = buildDaemon(datamap, fixtures);
+  const modes = {};
+  for (const viva of vivas) {
+    modes[viva.manifest.slug] = await wireMode(viva, daemon);
+  }
+  return { modes, daemon, datamap, orm, em, fixtures };
+}
+#+end_src
+
+** systems/runtime/tests/view.spawn.test.js :new:
+
+#+begin_src js :tangle systems/runtime/tests/view.spawn.test.js
+// buffer views · the spawn pipeline — headless scenario (no daemon, no LLM).
+// A source string content-addresses, compiles through the real esbuild-svelte
+// bundler into the mount-contract module, persists to the spawn store — the
+// seam's ONLY state — rides mode.app.buffer onto a BufferEntity `view` column,
+// and survives the ORM round-trip. Restarts change nothing by construction.
+import { join } from "@std/path";
+import { specimen, crypto, bundle } from "@vivalence/typology";
+import { mountMode } from "@vivalence/runtime/scenarios";
+import { spawnable } from "@vivalence/runtime/daemon/traits";
+import * as reader from "../../../registry/playground/modes/chaosmonkey/reader/reader.viva.js";
+
+const reporoot = new URL("../../../", import.meta.url).pathname;
+const imports = {
+  "@vivalence/typology": join(reporoot, "subsystems/typology/mod.client.js"),
+  "@vivalence/typology/schematics": join(reporoot, "subsystems/typology/schematics/index.js"),
+  "@vivalence/shared": join(reporoot, "subsystems/shared/mod.client.js"),
+  "@vivalence/drapes": join(reporoot, "subsystems/drapes/mod.js"),
+  "@vivalence/kajuit": join(reporoot, "systems/kajuit/src/typology/mod.js"),
+};
+const bundler = (entry) =>
+  bundle.svelte(entry, { prod: false, imports, baseUrl: new URL(import.meta.url) });
+
+const SOURCE = [
+  "<script>",
+  "  let { buffer } = $props();",
+  "  const article = buffer.data.article;",
+  "  let size = $state(18);",
+  "</script>",
+  "",
+  '<div class="reader" style:font-size="{size}px">',
+  "  <h1>{article.title}</h1>",
+  '  <button onclick={() => (size += 2)}>A+</button>',
+  "  {#each article.text.split(/\\n{2,}/) as p}<p>{p}</p>{/each}",
+  "</div>",
+  "",
+  "<style>",
+  "  .reader { height: 100%; overflow-y: auto; }",
+  "</style>",
+].join("\n");
+
+const ARTICLE = {
+  href: "https://example.test/essay",
+  title: "On Spawned Views",
+  text: "First paragraph of the essay.\n\nSecond paragraph, a bit longer than the first one.",
+};
+
+let scenario;
+let mode;
+let storeDir;
+
+specimen.describe("buffer views", { sanitizeResources: false, sanitizeOps: false }, () => {
+  specimen.beforeAll(async () => {
+    scenario = await mountMode(reader);
+    mode = scenario.mode;
+    storeDir = join(reporoot, "mountpoint/spawned-test");
+    await Deno.mkdir(storeDir, { recursive: true });
+    mode.app.spawn = spawnable(mode, { bundler, storeDir });
+  });
+  specimen.afterAll(async () => {
+    await scenario.orm.close();
+  });
+
+  specimen.it("a source becomes a spawned view", async () => {
+    const view = await mode.app.spawn(SOURCE);
+    const hash = await crypto.digest(SOURCE);
+    const stem = hash.slice(0, 16);
+
+    specimen.expect(await Deno.readTextFile(join(storeDir, `${stem}.svelte`))).toBe(SOURCE);
+    const artifact = await Deno.readTextFile(join(storeDir, `${stem}.svelte.mjs`));
+    specimen.expect(view).toEqual({
+      kind: "svelte",
+      hash,
+      output: await crypto.digest(artifact),
+      bytes: artifact.length,
+      source: SOURCE,
+    });
+
+    specimen.expect(await mode.app.spawn(SOURCE)).toEqual(view);
+
+    const served = await mode.app.spawn.serve(`${stem}.svelte.mjs`);
+    specimen.expect(served.text).toBe(artifact);
+    specimen.expect(served.output).toBe(view.output);
+
+    const inspected = await mode.app.spawn.inspect(hash);
+    specimen.expect(inspected).toEqual({ hash, source: SOURCE });
+
+    const html = await mode.app.spawn("<h1>plain</h1>", "html");
+    const wrapped = await mode.app.spawn.serve(`${html.hash.slice(0, 16)}.html.mjs`);
+    specimen.expect(html.kind).toBe("html");
+    specimen.expect(wrapped.text.includes("innerHTML")).toBeTruthy();
+    specimen.expect(wrapped.output).toBe(html.output);
+    specimen.expect(mode.app.spawn.station.endsWith("/spawned")).toBeTruthy();
+  });
+
+  specimen.it("the seam refuses what it must", async () => {
+    const refused = async (fn) => {
+      try {
+        await fn();
+        return false;
+      } catch {
+        return true;
+      }
+    };
+
+    const sources = [
+      ["<script>let { = $props();</script>", "svelte"],
+      ['<script>import x from "left-pad";</script><p>{x}</p>', "svelte"],
+      ["", "svelte"],
+      ["<p>hi</p>", "react"],
+    ];
+    for (const [source, kind] of sources)
+      specimen.expect(await refused(() => mode.app.spawn(source, kind))).toBeTruthy();
+
+    const names = ["../secrets", "x.mjs", "deadbeefdeadbeef.mjs", "deadbeefdeadbeef.svelte", `${"0".repeat(16)}.svelte.mjs`];
+    for (const name of names)
+      specimen.expect(await refused(() => mode.app.spawn.serve(name))).toBeTruthy();
+
+    specimen.expect(await refused(() => mode.app.spawn.inspect("f".repeat(64)))).toBeTruthy();
+  });
+
+  specimen.it("a buffer carries its own view", async () => {
+    await scenario.scoped(async (em) => {
+      mode.articles = new Map([["abc123", ARTICLE]]);
+
+      const emission = await mode.emit.render({
+        source: SOURCE,
+        article: "abc123",
+        thread: scenario.fixtures.thread.id,
+      });
+
+      specimen.expect(emission.condition).toBe("NOMINAL");
+      const [buffer] = emission.entities.buffer;
+      specimen.expect(buffer.view.hash).toBe(await crypto.digest(SOURCE));
+      specimen.expect(buffer.data.article).toEqual(ARTICLE);
+      specimen.expect(buffer.thread.id).toBe(scenario.fixtures.thread.id);
+
+      em.clear();
+      const row = await em.findOne(buffer.constructor, { id: buffer.id });
+      specimen.expect(row.view).toEqual(buffer.view);
+
+      let failure = null;
+      try {
+        await mode.emit.render({ source: SOURCE, article: "nope" });
+      } catch (error) {
+        failure = error;
+      }
+      specimen.expect(failure).not.toBe(null);
+    });
+  });
+});
+#+end_src
+
+
+* drapes — Frame, the buffer-first render authority
+
+=buffer.view= wins over =mode.metadata.app.url=. Fetch → sha256 → compare
+=view.output= → blob import, memoized by output digest. Fail closed.
+
+** subsystems/drapes/panels/Frame.svelte :modified:
+
+#+begin_src js :tangle subsystems/drapes/panels/Frame.svelte
+  <script module>
+    // spawned views memo by output digest — same content never refetched across remounts
+    const spawned = new Map();
+  </script>
+
+  <script>
+    import { onDestroy } from "svelte";
+    import { computed } from "nanostores";
+
+    let { terminal, view } = $props();
+    let buffer = terminal.$buffer;
+  // view 
+  // two ways to get to view.
+  // terminal.view = f(buffer,mode) => buffer.view || buffer.mode.view
+  // questino is if i load view inside or outside frame. i think thats app domain.
+
+    let component = $state(null);
+    let dom = $state(null);
+    let fault = $state(null);
+    let bufferId = computed(buffer, (a) => a?.id);
+
+    let live = null;
+
+    function teardown() {
+      // if (!live) return; live.release();
+      live?.unmount();
+      component?.destroy();
+      live = null;
+      component = null;
+      fault = null;
+    }
+
+    // function activate(next) {
+    //   next.mount();
+    //   // next.render();
+    // }
+
+    // async function digest(text) {const bytes = await crypto.subtle.digest("SHA-256", new TextEncoder().encode(text)); return Array.from(new Uint8Array(bytes)) .map((b) => b.toString(16).padStart(2, "0")) .join("");}
+
+    async function verified(next) {
+      const view = next.view; // depracated
+      // const view = next.mode?.metadata?.app?.url;
+      // if (spawned.has(view.output)) return spawned.get(view.output);
+
+      const station = next.mode?.metadata?.app?.spawned;
+      if (!station) throw new Error("mode metadata carries no spawned station");
+      const response = await fetch(`${station}/${view.hash.slice(0, 16)}.${view.kind}.mjs`);
+      if (!response.ok) throw new Error(`view fetch ${response.status}`);
+      const text = await response.text();
+      const output = await digest(text);
+      if (view.output && output !== view.output) throw new Error(`integrity mismatch — sha256 ${output.slice(0, 12)}… ≠ ${view.output.slice(0, 12)}…`,);
+      const url = URL.createObjectURL(new Blob([text], { type: "text/javascript" }));
+      try {
+        const module = await import(/* @vite-ignore */ url);
+        spawned.set(view.output, module);
+        return module;
+      } finally {
+        URL.revokeObjectURL(url);
+      }
+    }
+
+    function loader(buffer) {
+      if (buffer.view?.hash) return () => verified(buffer);
+      // const url = buffer.mode?.view;
+      const url = buffer.mode?.metadata?.app?.url;
+      if (url) return () => import(/* @vite-ignore */ url);
+      return null;
+    }
+
+    $effect(() => {
+      const next = $buffer;
+      if (next === live) return;
+      teardown();
+      if (!next) return;
+      // A not-yet-resolved buffer (e.g. a persisted id-string awaiting rehydrate) has no
+      // entity methods — skip until it becomes a real Buffer, so live/teardown never see a string.
+      if (typeof next.mount !== "function") return;
+
+      const load = loader(next);
+      live = next;
+      if (load) {
+        (async () => {
+          try {
+            const module = await load();
+            if (live !== next || !dom) return;
+            component = module.default(dom, { buffer: next, terminal
+  					    // thread, mode, 
+
+
+  					       });
+            // activate(next);
+            next.mount();
+          } catch (e) {
+            console.error(`[Frame] failed loading view for buffer ${next.id}`, e);
+            if (live === next) fault = e.message;
+          }
+        })();
+      } else {
+        next.mount();
+        // activate(next);
+      }
+    });
+
+    onDestroy(teardown);
+  </script>
+
+  {#key $bufferId}
+    {#if fault}
+      <div class="fault">view refused: {fault}</div>
+    {:else if $buffer?.mode?.metadata?.app?.Component && !$buffer?.view?.hash}
+      <svelte:component this={$buffer.mode.metadata.app.Component} buffer={$buffer} {terminal} />
+    {:else if $buffer?.view?.hash || $buffer?.mode?.metadata?.app?.url}
+      <div style="width: 100%;height: 100%;max-width: 100vw;" bind:this={dom}></div>
+    {:else}
+      <slot />
+    {/if}
+  {/key}
+
+  <style>
+    .fault {
+      margin: auto;
+      padding: 1rem 1.5rem;
+      font-family: var(--font-family-code);
+      font-size: var(--font-size-xs);
+      color: var(--colors-skeleton-0-danger-base, #c33);
+      border: 1px solid currentColor;
+      border-radius: 6px;
+      opacity: 0.8;
+    }
+  </style>
+#+end_src
+
+
+* kajuit — the view crosses the wire
+
+Client entity declares the slot (toJSON walks own enumerables); the client
+buffer factory passes it through.
+
+** systems/kajuit/src/typology/entities/buffer.js :modified:
+
+#+begin_src js :tangle systems/kajuit/src/typology/entities/buffer.js
+import { atom } from "nanostores";
+import { fn, RemoteRepository } from "@vivalence/typology";
+import { Entity } from "../prototypes/entity.js"; // RemoteEnity (name the semantic space "Remote")
+
+export class Buffer extends Entity {
+  $data = atom({});
+
+  get data() {
+    return this.$data.get();
+  }
+
+  set data(value) {
+    this.$data.set(value ?? {});
+  }
+
+  // base toJSON walks own enumerable props — it skips the $data atom and would
+  // drop the `data` getter; re-add the plain value so serialized buffers carry data.
+  toJSON() {
+    return { ...super.toJSON(), data: this.data };
+  }
+
+  app = null; // bundle
+  view = null; // {kind, hash, url, integrity, source} — the buffer's OWN view; Frame prefers it over the mode app
+  context = null;
+  hooks = { mount: [], unmount: [], release: [] }; //render: [],
+
+  on = {
+    mount: (callback) => {
+      // buffer gets rendered
+      this.hooks.mount.push(fn.once(callback));
+      return this;
+    },
+    unmount: (callback) => {
+      // buffer gets destroyed
+      this.hooks.unmount.push(fn.once(callback));
+      return this;
+    },
+    // render: (callback) => {this.hooks.render.push(fn.once(callback)); return this;},
+    release: (callback) => {
+      // buffer releases itself
+      this.hooks.release.push(fn.once(callback));
+      return this;
+    },
+  };
+
+  static from(pojo, app) {
+    const buffer = Object.assign(new Buffer(), pojo);
+    buffer.app = app;
+    return buffer;
+  }
+
+  mount() {
+    for (const hook of this.hooks.mount) hook(this);
+  }
+  unmount() {
+    for (const hook of this.hooks.unmount) hook(this);
+  }
+  // render(...a) {for (const hook of this.hooks.render) hook(this, ...a);}
+  release(...a) {
+    for (const hook of this.hooks.release) hook(this, ...a);
+  }
+}
+
+export const BufferDossier = {
+  name: "buffer",
+  kind: () => Buffer,
+  repository: (schema, dataspace) => {
+    const repo = new RemoteRepository(schema.kind());
+    repo.connect(dataspace.connection.branch("/userspace/entities/buffer"));
+    return repo;
+  },
+
+  use: [
+    // async (ctx, next) => {await next();},
+  ],
+};
+#+end_src
+
+** systems/kajuit/src/typology/entities/mode/traits/application.js :modified:
+
+#+begin_src js :tangle systems/kajuit/src/typology/entities/mode/traits/application.js
+export const APPLICATION = async (mode, ctx) => {
+  mode.metadata.app = await mode.connection.call("/metadata/app");
+
+  mode.buffer = (desc = {}) => ({
+    mode: mode.id,
+    data: { ...(mode.metadata.app?.schema?.data ?? {}), ...(desc.data ?? {}) },
+    view: desc.view ?? null,
+    literals: desc.literals ?? [],
+    symbols: desc.symbols ?? [],
+  });
+};
+#+end_src
+
+
+* registry 
+
+** chaosmonkey/reader/reader.viva.js :new:
+
+#+begin_src js :tangle registry/playground/modes/chaosmonkey/reader/reader.viva.js
+    import { App, v } from "@vivalence/typology";
+
+    export { harness } from "./harness.js";
+    export { emitter } from "./emitter.js";
+    export { tools } from "./tools/index.js";
+
+    export const manifest = {
+      type: "chaosmonkey",
+      slug: "reader",
+      name: "Reader",
+      description:
+        "Ad-hoc article reader — paste a link in chat, the harness fetches it and spawns a bespoke Svelte UI for that specific article. Iterate on the UI conversationally.",
+      version: "0.1.0",
+      traits: [
+        "APPLICATION",
+        "STANDALONE", "ENTRYPOINT",
+        "HARNESSED",
+        "PROCEDURAL",
+  	// procedural only possible when harnessed.
+          // on procedural, the mode harness gets a tool injected for rendering either and any of our view {kind}
+          // that tool lives in hte procedural trait. 
+      ],
+    };
+
+    export const app = new App("buffer/Reader.svelte", v.buffer({ data: {} }));
+#+end_src
+
+** chaosmonkey/reader/buffer/Reader.svelte :new:
+
+#+begin_src html :tangle registry/playground/modes/chaosmonkey/reader/buffer/Reader.svelte
+<script>
+  let { buffer } = $props();
+</script>
+
+<div class="reader-hub">
+  <span class="glyph">❡</span>
+  <h2>Reader</h2>
+  <p>Paste an article link in the chat. I'll fetch it and build a reading experience just for it.</p>
+  <p class="hint">Then push it around — “sepia”, “bigger type”, “add a progress bar”…</p>
+</div>
+
+<style>
+  .reader-hub {
+    height: 100%;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: 0.5rem;
+    text-align: center;
+    padding: 2rem;
+    color: var(--colors-skeleton-0-contrast);
+  }
+  .glyph {
+    font-size: 2.5rem;
+    opacity: 0.5;
+  }
+  h2 {
+    margin: 0;
+    font-weight: 600;
+  }
+  p {
+    margin: 0;
+    max-width: 34ch;
+    opacity: 0.8;
+  }
+  .hint {
+    font-size: 0.85em;
+    opacity: 0.5;
+  }
+</style>
+#+end_src
+

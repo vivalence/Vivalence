@@ -11,10 +11,10 @@ async function svelte() {
   const reporoot = paladin.scope.repository.absolute;
   const imports = {
     "@vivalence/typology": join(reporoot, "subsystems/typology/mod.client.js"),
-    "@vivalence/typology/schematics": join(reporoot, "subsystems/typology/schematics/index.js"),
-    "@vivalence/shared": join(reporoot, "subsystems/shared/mod.client.js"),
     "@vivalence/drapes": join(reporoot, "subsystems/drapes/mod.js"),
-    "@vivalence/kajuit": join(reporoot, "systems/kajuit/src/typology/mod.js"),
+    // "@vivalence/typology/schematics": join(reporoot, "subsystems/typology/schematics/index.js"),
+    // "@vivalence/shared": join(reporoot, "subsystems/shared/mod.client.js"),
+    // "@vivalence/kajuit": join(reporoot, "systems/kajuit/src/typology/mod.js"),
   };
   _svelte = (entry) =>
     bundle.svelte(entry, { prod: paladin.is.prod, imports, baseUrl: new URL(import.meta.url) });

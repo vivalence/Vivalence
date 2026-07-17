@@ -17,10 +17,13 @@ describe("snapshot demo: path", () => {
     });
     console.log(`\n===BEGIN path → ${path}===\n${JSON.stringify(pojo, null, 2)}\n===END===\n`);
     expect(pojo).toEqual({
-      nature: "/mode/game/nyan",
-      absolute: "/mode/game/nyan",
-      filename: null,
-      dirname: "/mode/game",
+      path: "/mode/game/nyan",
+      root: "/",
+      dir: "/mode/game",
+      base: "nyan",
+      name: "nyan",
+      ext: "",
+      parts: ["mode", "game", "nyan"],
     });
   });
 });

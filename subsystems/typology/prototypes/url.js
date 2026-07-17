@@ -114,8 +114,12 @@ export class Url extends Signature {
 
   get json() {
     return {
-      ...super.json,
-      origin: this.origin,
+      url: this.absolute,
+      origin: this.origin ?? null,
+      scheme: this.protocol,
+      path: this.nature,
+      query: this.query ?? {},
+      parts: this.nature.split("/").filter(Boolean),
     };
   }
 

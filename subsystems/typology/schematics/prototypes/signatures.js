@@ -3,6 +3,7 @@ import { enhance } from "../v.js";
 import { Signature as SignatureProto } from "../../prototypes/signature.js";
 import { Signal as SignalProto } from "../../prototypes/signal.js";
 import { Path as PathProto } from "../../prototypes/path.js";
+import { FilePath as FilePathProto } from "../../prototypes/filepath.js";
 import { Url as UrlProto } from "../../prototypes/url.js";
 import { Action as ActionProto } from "../../prototypes/action.js";
 import { Pattern as PatternProto } from "../../prototypes/pattern.js";
@@ -27,6 +28,7 @@ const codec =
 export const Signature = codec(SignatureProto, { encode: (s) => "/" + s.absolute.join("/") });
 export const Signal = codec(SignalProto);
 export const Path = codec(PathProto);
+export const FilePath = codec(FilePathProto, { pattern: "^.+$", encode: (s) => s.absolute });
 export const Url = codec(UrlProto, { pattern: "^.+$", encode: (s) => s.absolute });
 export const Action = codec(ActionProto, { encode: (s) => "/" + s.absolute.join("/") });
 export const Pattern = codec(PatternProto, { pattern: "^.+$", encode: (s) => "/" + s.absolute.join("/") });

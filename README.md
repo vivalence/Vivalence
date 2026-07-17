@@ -1,32 +1,41 @@
-<!-- <p align="center"><em></em></p> -->
-
 <p align="center">
-  <a href="#documentation">Documentation</a> ·
+  <a href="#documentation">Docs</a> ·
   <a href="#installation">Install</a> ·
   <a href="#funding">Funding</a> ·
   <a href="#noticeboard">Notices</a> ·
-  <a href="https://www.youtube.com/watch?v=4Ia6MDbNJWI">Teaser</a> ·
   <a href="LICENSE.md">Licence</a>
-  &nbsp;|&nbsp;
-  <!-- <a href="https://docs.vivalence.com">Docs</a> · -->
-  <!-- <a href="https://github.com/vivalence/vivalence">GitHub</a> · -->
-  <!-- <a href="https://discord.gg/uvPVkYAN">Discord</a> -->
 </p>
 
 <p align="center">
-  <!-- <video src="https://github.com/vivalence/vivalence/raw/trunk/systems/kajuit/static/videos/vid-viket-seldoncrisis-1280x256p-16fps.mp4" width="100%" autoplay loop muted playsinline></video> -->
-  <video src="https://github.com/user-attachments/assets/2504a7e9-372a-4c8e-a3e5-1ee62f1be601" width="100%" autoplay loop muted playsinline></video>
-
+  <img src="systems/kajuit/static/videos/vid-viket-seldoncrisis-800x160p-12fps.gif" alt="VivalenceOS" width="100%" />
 </p>
+- signup email list 🔥🔬🪎
 
-# Security Notice
-Vivalence is in early alpha and 
+# home
+**about**
 
-# What is vivalence and what is it for? 
+- procedurally generated and agentic apps - hallucination harness for various ai faculties and modalities. 
+- runtimes and dataspaces composed from plugable trait-based modal mini-apps running in persistant and isolated daemons.
+- coherent architecture and elegantly constructed from functional algebraic types - very hackable.
+- runs across network topographies - from localhost singleplayer to dockerized multiplayer. 
+- internal - daemon level - symbolic dataentity system (optional).
+- early alpha. probably a year ahead of stability and another decade ahead of maturity. see funding; more funding -> faster better. 
+
+- Security Notice:* Vivalence is in early alpha and only just transitioning to build-in-public. It is considered insecure on a network level and should live - for now - inside a moat :river::castle:.
+
+
+
+**What is vivalence and what is it for?**
+
+Vivalence was originally intended as "the education system I would have wanted". 
+What came out could be used for much much more. What came out when solving for education is a very flexible, very capable, proceduarlly generated, and distributed. For more about the spiritual ancestory read "blog".
+
+Vivalence is meant to be yours. I neither can, nor want to be responsible for you and your actions. The software is provided as is - fuck around and find out. The types and interfaces are stabilized and settling, the architecture is - I suspect - extremely scalable. For contribution and future development see "Development". AI slop is only accepted for, and in fact intended for the registry. See "Package Management".
 
 
 # Documentation
 Full docs under construction: [https://docs.vivalence.com]
+<!-- Start with two guides. one for modes - traits, apps, apertures. and a second guide on the data architecture from system level via userspace to ontological entities. -->
 
 ## Guides
 
@@ -141,12 +150,30 @@ deno task ghost/run /variant/lighthouse/auth/signup you changeme
 
 The runtime comes up on `:2501`, the kajuit web client on `:1794`. Once step 7 creates a user, open http://localhost:1794 and log in with those credentials.
 
-# Funding
+
+
+# Pricing (B2B) 
+Vivalence is free for private use. Institutional use requires a license. Flat license fee at €11/$13/¥2,000/90元/£10 per person per month. SaaS, PaaS, and consulting services will follow in time. 
+# Funding (P2P) 
+I **also** accept private financial contributions - into one of two buckets. either gas money or break money. Gas money goes into the company and funds further development. break money is for me to take a breather. after ~3 years of development, i can use some breaks money.
+https://www.paypal.com/de/home
+https://www.patreon.com/create
+https://auth.lemonsqueezy.com/login
+
+
 # License
+
+
+
 # Noticeboard
+
 ## Teaser
+<a href="https://www.youtube.com/watch?v=4Ia6MDbNJWI">Teaser</a>
+
 ## Business Model
 ## .org & .com
+
+
 # BAK
 ## WIP
 the sections must answer:

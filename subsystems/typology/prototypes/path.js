@@ -23,7 +23,7 @@ export class Path extends Signature {
   ];
 
   get json() {
-    return { ...super.json, filename: this.filename, dirname: this.dirname };
+    return parse(this.absolute, "/", this.dirname);
   }
   // static coercions = [[is.string, (s) => ({ nature: normalize(s) })]];
 
@@ -60,3 +60,11 @@ export class Path extends Signature {
     return this.nature;
   }
 }
+
+export const parse = (path, root, dir) => {
+  const parts = path === "." ? [] : path.split("/").filter((part) => part && part !== ".");
+  const base = parts.at(-1) ?? "";
+  const dot = base.lastIndexOf(".");
+  const ext = dot > 0 ? base.slice(dot) : "";
+  return { path, root, dir, base, name: ext ? base.slice(0, dot) : base, ext, parts };
+};

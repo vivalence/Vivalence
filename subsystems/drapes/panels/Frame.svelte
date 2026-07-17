@@ -2,8 +2,9 @@
   import { onDestroy } from "svelte";
   import { computed } from "nanostores";
 
-  let { buffer, terminal } = $props();
+  let { terminal } = $props();
 
+  let buffer = terminal.$buffer;
   let component = $state(null);
   let dom = $state(null);
   let bufferId = computed(buffer, (a) => a?.id);

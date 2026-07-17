@@ -18,6 +18,7 @@ export * from "./broadcaster.js";
 export * from "./blacklist.js";
 export * from "./url.js";
 export * from "./path.js";
+export * from "./filepath.js";
 export * from "./pattern.js";
 export * from "./signature.js";
 export * from "./signal.js";

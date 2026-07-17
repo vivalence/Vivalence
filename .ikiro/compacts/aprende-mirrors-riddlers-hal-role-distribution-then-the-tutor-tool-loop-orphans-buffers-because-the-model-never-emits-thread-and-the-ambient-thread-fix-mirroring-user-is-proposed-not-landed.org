@@ -1,0 +1,176 @@
+* the arc
+
+Opened on a live 500 — the aprende riddle emitter 500ing on
+=ctx.daemon.modes.game.riddler.emit.riddle.cast is not a function=. Beef reframed it
+immediately as a bigger want, and the session walked four connected repairs on the
+aprende mode: (1) re-wire aprende's =hal/= to mirror riddler's role-per-job layout,
+(2) kill the riddle =.cast= break + reshape the riddler contract to steer by
+literals/symbols/instruction, (3) wire the tutor's tools into the harness so it can
+emit buffers at all, (4) chase why the tool ran but no buffer appeared — the
+buffer-orphan bug — patched with a thread-injection hack. Ends on a design pivot: carry
+=thread= ambiently like =user=, which would delete the hack. That last fix is PROPOSED,
+not landed.
+
+* the asks, verbatim
+
+- *"i think our work on both riddler and hallucination warrant an update on the aprende
+  mode."* (opening, off the pasted 500)
+- *"i want riddles per literals, per symbols, per instruction. for our aprende tool we
+  use some default set of symbols. inline. quick hack."*
+- *"actually. before we go into that. i think we need to re-wire the aprende mode. read
+  the riddler mode and how it co-locates types with identity per role and how riddler
+  export/import patters hal. there is a nice role distribution for the harness per
+  specific job. aprende needs that too."* → *"you pattern aprende"*
+- *"the tutor rn refuses to generate buffers. aprende mode. are the tools wired?"*
+- *"not on shape object. just add it on root. only activation for now."*
+- *"conversational trait is dead afaik"* / *"all consumed by the harness"*
+- *"no buffers are genrrrated!!"* / *"doesnt work"*
+- *"were transporting user passively without any explicit input param. can we do the
+  same for thread? read secure.js"*
+
+* the mechanics that shaped every fix
+
+**=shape.object= leaves are callable directly — there is no =.cast=.**
+=shape.object(vector)= (~subsystems/typology/gestalten/shape/object.js~) compiles each
+effect node into a bare callable merged with its child namespace. So =emit.riddle= where
+the nature is =/riddle/fromSymbols= is a plain namespace node — =.cast= is =undefined=.
+The old =.cast= was never a method; it was the old nature segment =/riddle/cast=,
+renamed to =/riddle/fromSymbols= in the riddler rebuild. Aprende was calling the dead
+spelling.
+
+**riddler's role distribution (the pattern beef wants everywhere HARNESSED).**
+~registry/education/game/riddler/~: =types.js= holds the NON-prompt schemas (=GRADES=
+enum, =RIDDLER_BUFFER_HISTORY=, the aperture =*_INPUT= objects). =hal/index.js= is a
+=export * from= barrel over one file PER JOB — =emitter.js= / =assistant.js= /
+=evaluation.js= — each exporting =const <role> = { output, identity, ...fragments }=:
+the render OUTPUT schema colocated with that job's OWN identity (author-voice vs
+speaker-voice vs silent-judge) and its prompt fragments. Consumers
+=import * as hal= then =hal.<role>.output= / =hal.<role>.identity(language)=. Riddler is
+harness-free — each job assembles its own system+user turns at the call site.
+
+**HARNESSED only absorbs =ctx.input.tools=.** ~systems/runtime/daemon/traits/harnessed.js~
+first middleware destructures =input.tools= and, if present,
+=hallucination.entities.tool.add(tools)=. Nothing else feeds tools. The CONVERSATIONAL
+trait is dead (beef) — no separate ws tool path — so the ONLY tutor surface is
+=harness.object.render= via ~registry/education/homepage/aprende/aperture/message.js~,
+which passed no =tools=. Toolless render ⇒ "refuses to generate buffers."
+
+**=cortex.tools= is never populated — the bound tools live on the aperture.** =TOOLED=
+(~systems/runtime/daemon/traits/tooled.js~) binds daemon+mode ctx onto its OWN copy and
+mounts it at =mode.aperture.branch("/tool")=; =mode.tool = shape.object= stays commented.
+Only providers register on =cortex=. So the correct tool source for the harness is
+=shape.agentic(mode.aperture.branch("/tool"))= (context-bound), NOT raw
+=mode.module.tools= (unbound) and NOT =cortex.tools.branch(slug)= (empty — the stale
+spelling in the commented aprende block).
+
+**The tool loop passes ONLY the model's args — no thread.** =execute= in the
+Hallucination render/stream loop (~subsystems/typology/prototypes/hallucination.js:172~)
+calls =handler(input)= with the model-supplied tool input alone. =tools/activation.js=
+forwards =ctx.input.thread= to its emitter, but the model never emits a =thread=, so it
+arrives =undefined=. The activation → =nyan.emit.literals({thread:undefined})= buffer is
+persisted, but the =EMITTER= trait's bind is gated
+(~systems/runtime/daemon/traits/emitter.js:57~ =if (ctx.thread …)=), so the buffer stays
+thread-less ⇒ never renders in the terminal. "result ok" + no buffer = orphan, not
+absence. (=tool.add= accepts a batch object: =is.object(name) ? Object.entries(name)=.)
+
+**symbol filter matches by slug.** The live pattern (aprende
+=aperture/literals.js=) is ={ symbols: { $all: slugs } }= — Symbol is slug-keyed, so
+slug strings pass straight through =v.rel(v.symbol())='s cast. Union-of-symbols needs
+=$in= (OR), not =$all= (AND — weekday∧month = empty).
+
+* landed
+
+**Riddle contract + the =.cast= break.**
+- ~registry/education/game/riddler/emitter.js~ — input gains =literals=
+  (=v.rel(v.literal())=, optional); =symbols= made optional. Pool is the UNION:
+  push ={ id: { $in: literals } }= and/or ={ symbols: { $in: symbols } }=, then
+  =find(scope.length===1 ? scope[0] : { $or: scope })=. Emitted buffer defaults
+  =symbols: ctx.input.symbols ?? []= for the literals-only steer. Nature stays
+  =/riddle/fromSymbols= (not renamed).
+- ~registry/education/homepage/aprende/emitter/riddle.js~ — =.cast= → =.fromSymbols=;
+  forwards ={ literals, symbols, instructions, numberOfRiddles: count, levelPoolSize:
+  limit }=. Dropped the =byStrength= fallback + =subject=. (Beef had gutted this file to
+  a commented stub mid-session; rewrote the working version — user edits are canonical,
+  but this one was WIP scaffolding.)
+- ~registry/education/homepage/aprende/tools/riddle.js~ — inlined
+  =DEFAULT_SYMBOLS = ["domain.weekday", "domain.month"]= (beef's "quick hack"); dropped
+  the =subject= enum; unsteered call now uses the defaults.
+
+**Aprende hal role distribution (mirrors riddler).**
+- ~registry/education/homepage/aprende/types.js~ NEW — =STATUS= / =SIGNAL= enums (folded
+  in from the deleted =aperture/vocabulary.js= + killed gather.js's inline dup) +
+  =TUTOR_MESSAGE_INPUT=.
+- ~registry/education/homepage/aprende/hal/tutor.js~ — renamed from =hal/assistant.js=;
+  =const tutor = { output: TUTOR_RENDER_OUTPUT, identity, mission, capabilities,
+  language }=. Barrel =hal/index.js= = =export * from "./tutor.js"=.
+- repointed: =harness.js= (=hal.tutor.*=), =aperture/message.js= (=hal.tutor.output= +
+  =TUTOR_MESSAGE_INPUT=), =aperture/{statistics,board}.js= (=../types.js=), =gather.js=
+  (import =STATUS=). =buffer/palette.js='s STATUS left alone — bundle boundary.
+- Aprende runs ONE render job (tutor); riddler runs three. Same law, fewer roles.
+
+**Tutor tool-wiring** (~registry/education/homepage/aprende/harness.js~) — a ROOT
+=.use= (beef: "not on shape object. just add it on root"), after the system-context
+middleware:
+#+begin_src js
+.use(async (ctx, next) => {
+  const { tools } = shape.agentic(ctx.mode.aperture.branch("/tool"));
+  const thread = ctx.input.thread;
+  for (const tool of Object.values(tools)) {
+    const execute = tool.execute;
+    tool.execute = (input) => execute({ ...input, thread });   // the orphan-fix hack
+  }
+  ctx.hallucination.entities.tool.add(tools);
+  await next();
+}).root;
+#+end_src
+=tools/index.js= unchanged — =slurp(activation)= only. Removed the dead
+=.branch("object")= no-op. Client already sends =thread: terminal.thread.id= (Aprende.svelte
+=askTutor=), so the injected thread is real.
+
+* verification — structural only, NOT a live model turn
+
+Deno =eval= smoke (bare specifiers resolve because entrypoint sits in the workspace):
+all rewired modules import; =hal.tutor= carries the role object; =emit.riddle.fromSymbols=
+is a function while =emit.riddle.cast= is =undefined=; =shape.agentic(/tool)= yields the
+=activation= tool with a callable execute + input schema; the injection puts
+=thread: "THREAD-123"= into the tool input; =v.rel= passes symbol slugs unchanged;
+=domain.weekday=/=domain.month= exist in the brazilian corpus. Beef's screenshot proved
+the tool LOOP fires end-to-end ("activation running" → "result ok" → "You're live!") —
+but that same turn is where the orphan bug surfaced. NOT proven: a buffer actually
+landing on screen post-hack; the riddler LLM round-trip (never run since the input
+reshape).
+
+* the pivot — ambient thread, mirroring user (PROPOSED, not landed)
+
+=user= rides passively: =shard.secure.authorize()= (~subsystems/typology/gestalten/shard/secure.js~)
+reads the token from header/=?token== and sets =ctx.user= — no caller passes it;
+=transmitter.js:26= pulls the token from the =authority= store and stamps the frame;
+resolution.js then =datamap.shard.bind("user", ctx => ({ user: ctx.user.id }))=. Beef
+wants =thread= on the same rail. Asymmetry: token is daemon-global (one store), =thread=
+is per-TERMINAL. Sketch:
+- CLIENT — terminal owns a thread-scoped connection; a =.use()= stamps
+  =ctx.request.headers.set("x-thread", terminal.thread.id)= (transmitter already
+  forwards =request.headers=). Callers stop passing =thread=.
+- SERVER — new =shard.secure.thread()= symmetric to =authorize=: read the =x-thread=
+  header → =ctx.thread = await daemon.entities.thread.findOne(id)=. Mount after
+  =authorize= in resolution.js's modes loop + userspace.js.
+- =EMITTER= trait — read ambient =ctx.thread=, keep =ctx.input.thread= as fallback
+  during migration.
+Then these DISSOLVE: the harness injection hack, =thread: terminal.thread.id= in
+Aprende.svelte, every =thread: v.string().optional()= on emitter/tool inputs. Agreed
+build order (awaiting go): server side first (=secure.thread= + mounts + EMITTER read),
+then flip the client connection, then rip the =thread= input params.
+
+* open
+
+- **ambient thread** — the real fix, proposed + build-ordered, needs go. It deletes the
+  injection hack shipped this session.
+- **live end-to-end** — drive a real tutor turn and confirm (a) the activation buffer
+  actually lands on screen post-hack, (b) "/riddle" casts through the reshaped
+  =fromSymbols= without 500.
+- **riddler emitter** — the literals∪symbols pool + level-sample hallucination has never
+  run end-to-end since the input reshape.
+- **=entities/mode/subscribe= 404** — server logs "no route"; the client hammers it, yet
+  NO live kajuit code subscribes =mode= (only thread/buffer/turn, dossier.js:96/100).
+  Read as a zombie EventSource from an HMR'd older build; hard-refresh should clear.
+  Parked — not code this session.
