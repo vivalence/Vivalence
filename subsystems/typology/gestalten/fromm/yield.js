@@ -24,10 +24,20 @@ const yieldmap = [
     }),
   ],
   [
+    "session",
+    (thing) => is.string(thing?.state) && is.array(thing?.turns),
+    (thing) => ({
+      condition: thing.state === "complete" ? "NOMINAL" : "ERROR",
+      message: thing.message,
+      entities: thing.entities,
+      object: thing.object,
+    }),
+  ],
+  [
     "turn",
     (thing) => is.string(thing?.role) && is.array(thing?.parts),
     (thing) => ({
-      condition: ["error", "abort"].includes(thing.meta?.stop) ? "ERROR" : "NOMINAL",
+      condition: ["error", "abort", "filter"].includes(thing.meta?.state) ? "ERROR" : "NOMINAL",
       message: text(thing.parts),
       entities: {},
       object: thing.object ?? thing.parts.find((part) => part.type === "object")?.data ?? null,
@@ -39,6 +49,28 @@ const yieldmap = [
     (thing) => ({
       condition: thing.output?.error ? "ERROR" : "NOMINAL",
       message: thing.output ?? null,
+      entities: thing.entities ?? {},
+      object: thing.object ?? null,
+    }),
+  ],
+  [
+    "utterance",
+    (thing) => is.string(thing),
+    (thing) => ({
+      condition: "NOMINAL",
+      message: thing,
+      entities: {},
+      object: null,
+    }),
+  ],
+  [
+    "spoken",
+    (thing) =>
+      is.object(thing) &&
+      ("condition" in thing || "message" in thing || "entities" in thing || "object" in thing),
+    (thing) => ({
+      condition: thing.condition ?? "NOMINAL",
+      message: thing.message ?? null,
       entities: thing.entities ?? {},
       object: thing.object ?? null,
     }),

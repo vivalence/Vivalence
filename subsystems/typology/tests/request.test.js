@@ -1,49 +1,38 @@
 import { specimen, Request, Url } from "@vivalence/typology";
 
 specimen.describe("Request", () => {
-  specimen.describe("construction", () => {
-    specimen.it("from object", () => {
-      const req = new Request({
-        url: "http://api.io/users",
-        method: "POST",
-        body: { name: "test" },
-      });
-
-      specimen.expect(req.url).toBeInstanceOf(Url);
-      specimen.expect(req.method).toBe("POST");
-      specimen.expect(req.body).toEqual({ name: "test" });
+  specimen.it("a request assembles from an object", () => {
+    const request = new Request({
+      url: "http://api.io/users",
+      method: "POST",
+      body: { name: "test" },
+    });
+    specimen.expect(request.url).toBeInstanceOf(Url);
+    specimen.expect(request.method).toBe("POST");
+    specimen.expect(request.body).toEqual({ name: "test" });
+    specimen.expect(request.json).toEqual({
+      url: "http://api.io/users",
+      method: "POST",
+      headers: {},
+      body: { name: "test" },
+      options: { timeout: 30000, retries: 0, credentials: "include" },
     });
 
-    specimen.it("defaults method to POST", () => {
-      const req = new Request({ url: "http://test.io/endpoint" });
-      specimen.expect(req.method).toBe("POST");
-    });
-
-    specimen.it("accepts Url instance", () => {
-      const url = new Url("http://test.io/path");
-      const req = new Request({ url });
-      specimen.expect(req.url.absolute).toBe("http://test.io/path");
-    });
+    specimen.expect(new Request({ url: "http://test.io/endpoint" }).method).toBe("POST");
+    specimen.expect(new Request({ url: new Url("http://test.io/path") }).url.absolute).toBe("http://test.io/path");
   });
 
-  specimen.describe("stream()", () => {
-    specimen.it("returns raw body from native request", () => {
-      const body = new ReadableStream();
-      const raw = new globalThis.Request("http://x", { method: "POST", body, duplex: "half" });
-      const req = new Request({ url: "http://x", raw });
-      specimen.expect(req.stream()).toBeInstanceOf(ReadableStream);
-    });
-
-    specimen.it("returns null without raw request", () => {
-      const req = new Request({ url: "http://x" });
-      specimen.expect(req.stream()).toBe(null);
-    });
+  specimen.it("a body streams from the raw request", () => {
+    const body = new ReadableStream();
+    const raw = new globalThis.Request("http://x", { method: "POST", body, duplex: "half" });
+    specimen.expect(new Request({ url: "http://x", raw }).stream()).toBeInstanceOf(ReadableStream);
+    specimen.expect(new Request({ url: "http://x" }).stream()).toBe(null);
   });
 
-  specimen.describe("subscribe()", () => {
-    function sseBody(...items) {
+  specimen.it("a subscription parses frames off the wire", async () => {
+    const subscribed = async (...items) => {
       const encoder = new TextEncoder();
-      return new ReadableStream({
+      const body = new ReadableStream({
         start(controller) {
           for (const item of items) {
             const payload = typeof item === "string" ? item : JSON.stringify(item);
@@ -52,68 +41,34 @@ specimen.describe("Request", () => {
           controller.close();
         },
       });
-    }
-
-    function requestWithSSEBody(...items) {
-      const body = sseBody(...items);
       const raw = new globalThis.Request("http://x", {
         method: "POST",
         body,
         duplex: "half",
         headers: { "content-type": "text/event-stream" },
       });
-      return new Request({ url: "http://x", raw });
-    }
-
-    specimen.it("parses SSE frames into objects", async () => {
-      const req = requestWithSSEBody({ seq: 1 }, { seq: 2 });
+      const request = new Request({ url: "http://x", raw });
       const events = [];
-      for await (const event of req.subscribe()) {
-        events.push(event);
-      }
-      specimen.expect(events).toEqual([{ seq: 1 }, { seq: 2 }]);
-    });
+      for await (const event of request.subscribe()) events.push(event);
+      return events;
+    };
 
-    specimen.it("yields strings for non-JSON payloads", async () => {
-      const req = requestWithSSEBody("hello", "world");
-      const events = [];
-      for await (const event of req.subscribe()) {
-        events.push(event);
-      }
-      specimen.expect(events).toEqual(["hello", "world"]);
-    });
+    specimen.expect(await subscribed({ seq: 1 }, { seq: 2 })).toEqual([{ seq: 1 }, { seq: 2 }]);
+    specimen.expect(await subscribed("hello", "world")).toEqual(["hello", "world"]);
+    specimen.expect(await subscribed({ a: 1 }, "fin")).toEqual([{ a: 1 }, "fin"]);
 
-    specimen.it("handles mixed JSON and string payloads", async () => {
-      const req = requestWithSSEBody({ a: 1 }, "fin");
-      const events = [];
-      for await (const event of req.subscribe()) {
-        events.push(event);
-      }
-      specimen.expect(events).toEqual([{ a: 1 }, "fin"]);
-    });
-
-    specimen.it("yields nothing without raw body", async () => {
-      const req = new Request({ url: "http://x" });
-      const events = [];
-      for await (const event of req.subscribe()) {
-        events.push(event);
-      }
-      specimen.expect(events).toEqual([]);
-    });
+    const bodiless = new Request({ url: "http://x" });
+    const silence = [];
+    for await (const event of bodiless.subscribe()) silence.push(event);
+    specimen.expect(silence).toEqual([]);
   });
 
-  specimen.describe("signal", () => {
-    specimen.it("creates AbortSignal lazily", () => {
-      const req = new Request({ url: "http://x" });
-      specimen.expect(req.signal).toBeInstanceOf(AbortSignal);
-    });
-
-    specimen.it("abort cancels signal", () => {
-      const req = new Request({ url: "http://x" });
-      const signal = req.signal;
-      specimen.expect(signal.aborted).toBe(false);
-      req.abort();
-      specimen.expect(signal.aborted).toBe(true);
-    });
+  specimen.it("a signal aborts on demand", () => {
+    const request = new Request({ url: "http://x" });
+    const signal = request.signal;
+    specimen.expect(signal).toBeInstanceOf(AbortSignal);
+    specimen.expect(signal.aborted).toBe(false);
+    request.abort();
+    specimen.expect(signal.aborted).toBe(true);
   });
 });

@@ -55,14 +55,6 @@ specimen.describe("daemon routes", () => {
     specimen.expect(result.manifest.slug).toBe("flashcard");
   });
 
-  specimen.it("APPLICATION mode includes buffered url and schema", async () => {
-    const result = await scenario.conn.call("/modes/game/findOne", {
-      where: { slug: "flashcard" },
-    });
-    specimen.expect(result.buffered.url).toBeTruthy();
-    specimen.expect(result.buffered.schema.allOf).toBeTruthy();
-  });
-
   specimen.it("mode has traits", async () => {
     const result = await scenario.conn.call("/modes/game/findOne", {
       where: { slug: "flashcard" },

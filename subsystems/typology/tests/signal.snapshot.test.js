@@ -13,12 +13,12 @@ describe("snapshot demo: signal", () => {
       base,
       dry: DRY,
       locate: "signal.snapshot.json",
-      parse: (s) => ({ ...s.json, flags: s.fin?.flags ?? null }),
+      parse: (s) => s.json,
     });
     console.log(`\n===BEGIN signal → ${path}===\n${JSON.stringify(pojo, null, 2)}\n===END===\n`);
     expect(pojo).toEqual({
-      nature: "play",
-      absolute: ["play", "cat", "dog"],
+      signal: "/play/cat/dog",
+      parts: ["play", "cat", "dog"],
       flags: { gameplay: "PLAIN" },
     });
   });

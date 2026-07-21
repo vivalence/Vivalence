@@ -1,109 +1,85 @@
 import { specimen, promise, sleep } from "@vivalence/typology";
 
-// waiter() = the single-slot wake/suspend gate (belt async-control atom). The
-// invariant net before any channel (Queue/Pipe/soma.tee/Broadcaster) leans on it.
-// No wake buffering: wake() with no pending wait() is a silent no-op — callers
-// guard with a buffer/done check first. wait(signal) resolves on wake OR abort.
-
-const { waiter } = promise;
-
-// settle the microtask queue so a pending .then() flag is observable
-const tick = () => Promise.resolve();
-
-specimen.describe("waiter: suspend / wake", () => {
-  specimen.it("wait() before wake() — suspends, then resolves on wake()", async () => {
-    const gate = waiter();
+specimen.describe("waiter", () => {
+  specimen.it("a wait suspends until its wake and an early wake is lost", async () => {
+    const gate = promise.waiter();
     let resolved = false;
     const pending = gate.wait().then(() => { resolved = true; });
-    await tick();
-    specimen.expect(resolved).toBe(false); // suspended
+    await Promise.resolve();
+    specimen.expect(resolved).toBe(false);
     gate.wake();
     await pending;
     specimen.expect(resolved).toBe(true);
+
+    const unbuffered = promise.waiter();
+    unbuffered.wake();
+    let woken = false;
+    const suspended = unbuffered.wait().then(() => { woken = true; });
+    await Promise.resolve();
+    specimen.expect(woken).toBe(false);
+    unbuffered.wake();
+    await suspended;
+    specimen.expect(woken).toBe(true);
   });
 
-  specimen.it("wake() before wait() — lost (no buffering); next wait() still suspends", async () => {
-    const gate = waiter();
-    gate.wake(); // no waiter → dropped
-    let resolved = false;
-    const pending = gate.wait().then(() => { resolved = true; });
-    await tick();
-    specimen.expect(resolved).toBe(false); // the earlier wake did NOT carry over
-    gate.wake();
-    await pending;
-    specimen.expect(resolved).toBe(true);
-  });
-});
-
-specimen.describe("waiter: abort", () => {
-  specimen.it("abort mid-wait — resolves", async () => {
-    const gate = waiter();
+  specimen.it("an abort releases the gate even when already fired", async () => {
+    const gate = promise.waiter();
     const controller = new AbortController();
     let resolved = false;
     const pending = gate.wait(controller.signal).then(() => { resolved = true; });
-    await tick();
+    await Promise.resolve();
     specimen.expect(resolved).toBe(false);
     controller.abort();
     await pending;
     specimen.expect(resolved).toBe(true);
+
+    const lateGate = promise.waiter();
+    const aborted = new AbortController();
+    aborted.abort();
+    let immediate = false;
+    await lateGate.wait(aborted.signal).then(() => { immediate = true; });
+    specimen.expect(immediate).toBe(true);
   });
 
-  specimen.it("already-aborted signal — resolves immediately (no hang)", async () => {
-    const gate = waiter();
-    const controller = new AbortController();
-    controller.abort();
+  specimen.it("a timeout signal fires the wait after its delay", async () => {
+    const gate = promise.waiter();
     let resolved = false;
-    await gate.wait(controller.signal).then(() => { resolved = true; });
+    gate.wait(sleep.signal(5)).then(() => { resolved = true; });
+    await Promise.resolve();
+    specimen.expect(resolved).toBe(false);
+    await sleep.ms(20);
     specimen.expect(resolved).toBe(true);
   });
 
-  specimen.it("sleep.signal(ms) — fires the wait after the timeout", async () => {
-    const gate = waiter();
-    let resolved = false;
-    gate.wait(sleep.signal(5)).then(() => { resolved = true; });
-    await tick();
-    specimen.expect(resolved).toBe(false); // not yet
-    await sleep.ms(20);
-    specimen.expect(resolved).toBe(true); // timeout aborted the wait
-  });
-});
+  specimen.it("wakes and aborts race without a double fire", async () => {
+    const idle = promise.waiter();
+    idle.wake();
+    idle.wake();
 
-specimen.describe("waiter: idempotence / races", () => {
-  specimen.it("double wake() with no waiter — no throw", () => {
-    const gate = waiter();
-    gate.wake();
-    gate.wake();
-  });
+    const staleGate = promise.waiter();
+    let staleCount = 0;
+    const stalePending = staleGate.wait().then(() => { staleCount++; });
+    staleGate.wake();
+    await stalePending;
+    staleGate.wake();
+    await Promise.resolve();
+    specimen.expect(staleCount).toBe(1);
 
-  specimen.it("stale wake() after a wait resolved — silent no-op, never re-fires", async () => {
-    const gate = waiter();
-    let count = 0;
-    const pending = gate.wait().then(() => { count++; });
-    gate.wake();
-    await pending;
-    gate.wake(); // resolve is null now — must not throw or double-fire
-    await tick();
-    specimen.expect(count).toBe(1);
-  });
-
-  specimen.it("wake() and abort() racing — exactly one resolution, no throw", async () => {
-    const gate = waiter();
+    const racingGate = promise.waiter();
     const controller = new AbortController();
-    let count = 0;
-    const pending = gate.wait(controller.signal).then(() => { count++; });
+    let raceCount = 0;
+    const racePending = racingGate.wait(controller.signal).then(() => { raceCount++; });
     controller.abort();
-    gate.wake(); // concurrent with the abort
-    await pending;
-    await tick();
-    specimen.expect(count).toBe(1); // settled once
-  });
+    racingGate.wake();
+    await racePending;
+    await Promise.resolve();
+    specimen.expect(raceCount).toBe(1);
 
-  specimen.it("carries no value — the gate transports nothing, only timing", async () => {
-    const gate = waiter();
-    const woken = await new Promise((r) => {
-      gate.wait().then(() => r("via-wake"));
-      gate.wake();
+    const valueless = promise.waiter();
+    const outcome = await new Promise((resolve) => {
+      valueless.wait().then(() => resolve("via-wake"));
+      valueless.wake();
     });
-    specimen.expect(woken).toBe("via-wake"); // wait() resolves to undefined; value is the caller's
+    specimen.expect(outcome).toBe("via-wake");
   });
 });

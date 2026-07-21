@@ -1,565 +1,244 @@
 import { specimen, v } from "@vivalence/typology";
 
 specimen.describe("v", () => {
-  specimen.describe("primitives", () => {
-    specimen.it("v.string()", () => {
-      specimen.expect(v.string().check("hello")).toBe(true);
-      specimen.expect(v.string().check(42)).toBe(false);
-    });
+  specimen.it("a schema judges every shape", () => {
+    specimen.expect(v.string().check("hello")).toBe(true);
+    specimen.expect(v.string().check(42)).toBe(false);
+    specimen.expect(v.number().check(3.14)).toBe(true);
+    specimen.expect(v.number().check("nope")).toBe(false);
+    specimen.expect(v.boolean().check(true)).toBe(true);
+    specimen.expect(v.boolean().check("true")).toBe(false);
+    specimen.expect(v.integer().check(5)).toBe(true);
+    specimen.expect(v.integer().check(3.14)).toBe(false);
+    specimen.expect(v.const("FAST").check("FAST")).toBe(true);
+    specimen.expect(v.const("FAST").check("SLOW")).toBe(false);
+    specimen.expect(v.null().check(null)).toBe(true);
+    specimen.expect(v.null().check("nope")).toBe(false);
+    specimen.expect(v.any().check("anything")).toBe(true);
+    specimen.expect(v.any().check(42)).toBe(true);
+    specimen.expect(v.unknown().check("anything")).toBe(true);
 
-    specimen.it("v.number()", () => {
-      specimen.expect(v.number().check(3.14)).toBe(true);
-      specimen.expect(v.number().check("nope")).toBe(false);
-    });
+    specimen.expect(v.object({ name: v.string() }).check({ name: "hi" })).toBe(true);
+    specimen.expect(v.object({ name: v.string() }).check({ name: 42 })).toBe(false);
+    specimen.expect(v.array(v.string()).check(["a", "b"])).toBe(true);
+    specimen.expect(v.array(v.string()).check([1, 2])).toBe(false);
+    specimen.expect(v.array(v.object({ id: v.string() })).check([{ id: "1" }, { id: "2" }])).toBe(true);
 
-    specimen.it("v.boolean()", () => {
-      specimen.expect(v.boolean().check(true)).toBe(true);
-      specimen.expect(v.boolean().check("true")).toBe(false);
-    });
+    const either = v.union([v.string(), v.number()]);
+    specimen.expect(either.check("hi")).toBe(true);
+    specimen.expect(either.check(42)).toBe(true);
+    specimen.expect(either.check(true)).toBe(false);
 
-    specimen.it("v.integer()", () => {
-      specimen.expect(v.integer().check(5)).toBe(true);
-      specimen.expect(v.integer().check(3.14)).toBe(false);
-    });
+    const both = v.intersect([v.object({ a: v.string() }), v.object({ b: v.number() })]);
+    specimen.expect(both.check({ a: "x", b: 1 })).toBe(true);
+    specimen.expect(both.check({ a: "x" })).toBe(false);
 
-    specimen.it("v.const()", () => {
-      specimen.expect(v.const("FAST").check("FAST")).toBe(true);
-      specimen.expect(v.const("FAST").check("SLOW")).toBe(false);
-    });
-
-    specimen.it("v.object()", () => {
-      const s = v.object({ name: v.string() });
-      specimen.expect(s.check({ name: "hi" })).toBe(true);
-      specimen.expect(s.check({ name: 42 })).toBe(false);
-    });
-
-    specimen.it("v.array()", () => {
-      specimen.expect(v.array(v.string()).check(["a", "b"])).toBe(true);
-      specimen.expect(v.array(v.string()).check([1, 2])).toBe(false);
-    });
-
-    specimen.it("v.union()", () => {
-      const s = v.union([v.string(), v.number()]);
-      specimen.expect(s.check("hi")).toBe(true);
-      specimen.expect(s.check(42)).toBe(true);
-      specimen.expect(s.check(true)).toBe(false);
-    });
-
-    specimen.it("v.intersect()", () => {
-      const s = v.intersect([
-        v.object({ a: v.string() }),
-        v.object({ b: v.number() }),
-      ]);
-      specimen.expect(s.check({ a: "x", b: 1 })).toBe(true);
-      specimen.expect(s.check({ a: "x" })).toBe(false);
-    });
-
-    specimen.it("v.record()", () => {
-      const s = v.record(v.string(), v.number());
-      specimen.expect(s.check({ x: 1, y: 2 })).toBe(true);
-      specimen.expect(s.check({ x: "nope" })).toBe(false);
-    });
-
-    specimen.it("v.any()", () => {
-      specimen.expect(v.any().check("anything")).toBe(true);
-      specimen.expect(v.any().check(42)).toBe(true);
-    });
-
-    specimen.it("v.unknown()", () => {
-      specimen.expect(v.unknown().check("anything")).toBe(true);
-    });
-
-    specimen.it("v.null()", () => {
-      specimen.expect(v.null().check(null)).toBe(true);
-      specimen.expect(v.null().check("nope")).toBe(false);
-    });
+    const mapped = v.record(v.string(), v.number());
+    specimen.expect(mapped.check({ x: 1, y: 2 })).toBe(true);
+    specimen.expect(mapped.check({ x: "nope" })).toBe(false);
   });
 
-  specimen.describe("constraints via constructor opts", () => {
-    specimen.it("string minLength", () => {
-      const s = v.string({ minLength: 1 });
-      specimen.expect(s.check("a")).toBe(true);
-      specimen.expect(s.check("")).toBe(false);
-    });
+  specimen.it("constraints ride the constructor", () => {
+    specimen.expect(v.string({ minLength: 1 }).check("a")).toBe(true);
+    specimen.expect(v.string({ minLength: 1 }).check("")).toBe(false);
+    specimen.expect(v.string({ pattern: "^[a-z]+$" }).check("abc")).toBe(true);
+    specimen.expect(v.string({ pattern: "^[a-z]+$" }).check("ABC")).toBe(false);
+    specimen.expect(v.string({ format: "date-time" }).check("2026-03-25T00:00:00Z")).toBe(true);
 
-    specimen.it("string pattern", () => {
-      const s = v.string({ pattern: "^[a-z]+$" });
-      specimen.expect(s.check("abc")).toBe(true);
-      specimen.expect(s.check("ABC")).toBe(false);
-    });
+    const bounded = v.number({ minimum: 0, maximum: 100 });
+    specimen.expect(bounded.check(50)).toBe(true);
+    specimen.expect(bounded.check(-1)).toBe(false);
+    specimen.expect(bounded.check(101)).toBe(false);
+    specimen.expect(v.integer({ multipleOf: 3 }).check(9)).toBe(true);
+    specimen.expect(v.integer({ multipleOf: 3 }).check(10)).toBe(false);
 
-    specimen.it("string format", () => {
-      const s = v.string({ format: "date-time" });
-      specimen.expect(s.check("2026-03-25T00:00:00Z")).toBe(true);
-    });
+    const sized = v.array(v.string(), { minItems: 1, maxItems: 3 });
+    specimen.expect(sized.check(["a"])).toBe(true);
+    specimen.expect(sized.check([])).toBe(false);
+    specimen.expect(sized.check(["a", "b", "c", "d"])).toBe(false);
 
-    specimen.it("number minimum/maximum", () => {
-      const s = v.number({ minimum: 0, maximum: 100 });
-      specimen.expect(s.check(50)).toBe(true);
-      specimen.expect(s.check(-1)).toBe(false);
-      specimen.expect(s.check(101)).toBe(false);
-    });
+    const strict = v.object({ name: v.string() }, { additionalProperties: false });
+    specimen.expect(strict.check({ name: "hi" })).toBe(true);
+    specimen.expect(strict.check({ name: "hi", extra: true })).toBe(false);
 
-    specimen.it("integer multipleOf", () => {
-      const s = v.integer({ multipleOf: 3 });
-      specimen.expect(s.check(9)).toBe(true);
-      specimen.expect(s.check(10)).toBe(false);
-    });
+    const composed = v.string({ minLength: 1 }).default("hello").desc("A name");
+    specimen.expect(composed.check("a")).toBe(true);
+    specimen.expect(composed.check("")).toBe(false);
+    specimen.expect(composed.default).toBe("hello");
+    specimen.expect(composed.description).toBe("A name");
 
-    specimen.it("array minItems/maxItems", () => {
-      const s = v.array(v.string(), { minItems: 1, maxItems: 3 });
-      specimen.expect(s.check(["a"])).toBe(true);
-      specimen.expect(s.check([])).toBe(false);
-      specimen.expect(s.check(["a", "b", "c", "d"])).toBe(false);
+    const mixed = v.object({
+      name: v.string({ minLength: 1 }),
+      age: v.number().desc("years"),
+      tags: v.array(v.string()),
     });
-
-    specimen.it("object additionalProperties", () => {
-      const strict = v.object({ name: v.string() }, { additionalProperties: false });
-      specimen.expect(strict.check({ name: "hi" })).toBe(true);
-      specimen.expect(strict.check({ name: "hi", extra: true })).toBe(false);
-    });
-
-    specimen.it("constraints + chain methods compose", () => {
-      const s = v.string({ minLength: 1 }).default("hello").desc("A name");
-      specimen.expect(s.check("a")).toBe(true);
-      specimen.expect(s.check("")).toBe(false);
-      specimen.expect(s.default).toBe("hello");
-      specimen.expect(s.description).toBe("A name");
-    });
+    specimen.expect(mixed.check({ name: "finn", age: 30, tags: ["a"] })).toBe(true);
+    specimen.expect(mixed.check({ name: "", age: 30, tags: ["a"] })).toBe(false);
   });
 
-  specimen.describe(".desc()", () => {
-    specimen.it("sets description", () => {
-      specimen.expect(v.string().desc("A name").description).toBe("A name");
-    });
+  specimen.it("a chain decorates without mutating", () => {
+    const bare = v.string();
+    const tagged = bare.desc("tagged");
+    specimen.expect(bare.description).toBe(undefined);
+    specimen.expect(tagged.description).toBe("tagged");
 
-    specimen.it("does not mutate original", () => {
-      const a = v.string();
-      const b = a.desc("tagged");
-      specimen.expect(a.description).toBe(undefined);
-      specimen.expect(b.description).toBe("tagged");
-    });
+    specimen.expect(v.string().default("LEARNING").default).toBe("LEARNING");
+    specimen.expect(typeof v.number().default(0).default).toBe("number");
+
+    specimen.expect(v.string().default("X").desc("label").default).toBe("X");
+    specimen.expect(v.string().desc("label").default("X").description).toBe("label");
+
+    const optional = v.object({ name: v.string().optional() });
+    specimen.expect(optional.check({})).toBe(true);
+    specimen.expect(optional.check({ name: "hello" })).toBe(true);
+    specimen.expect(v.object({ name: v.string() }).check({})).toBe(false);
+
+    const full = v.object({ count: v.number().default(0).desc("count").optional() });
+    specimen.expect(full.check({})).toBe(true);
+    specimen.expect(full.check({ count: 42 })).toBe(true);
+    specimen.expect(full.cast({}).count).toBe(0);
+
+    const named = v.object({ name: v.string() }).$id("Person");
+    specimen.expect(named.$id).toBe("Person");
+    specimen.expect(v.object({ lead: v.$ref(named) }).check({ lead: { name: "finn" } })).toBe(true);
+
+    const point = v.object({ x: v.number() }).$id("Point").desc("A 1D point");
+    specimen.expect(point.$id).toBe("Point");
+    specimen.expect(point.description).toBe("A 1D point");
   });
 
-  specimen.describe(".default()", () => {
-    specimen.it("sets default value", () => {
-      specimen.expect(v.string().default("LEARNING").default).toBe("LEARNING");
-    });
+  specimen.it("cast fills, create births, clean strips", () => {
+    const recall = v.object({ recall: v.string().default("LEARNING") });
+    specimen.expect(recall.cast({}).recall).toBe("LEARNING");
+    specimen.expect(recall.cast({ recall: "KNOWN" }).recall).toBe("KNOWN");
 
-    specimen.it("reading .default after setting returns value not setter", () => {
-      const s = v.number().default(0);
-      specimen.expect(s.default).toBe(0);
-      specimen.expect(typeof s.default).toBe("number");
-    });
+    const input = {};
+    specimen.expect(v.object({ x: v.number().default(0) }).cast(input)).toBe(input);
+
+    const born = v.object({ name: v.string().default("unnamed"), count: v.integer().default(0) }).create();
+    specimen.expect(born.name).toBe("unnamed");
+    specimen.expect(born.count).toBe(0);
+
+    const cleaned = v.object({ name: v.string() }).clean({ name: "hi", extra: true, junk: 42 });
+    specimen.expect(cleaned.name).toBe("hi");
+    specimen.expect(cleaned.extra).toBe(undefined);
+    specimen.expect(cleaned.junk).toBe(undefined);
+
+    const suspect = v.object({ name: v.string(), age: v.number() });
+    specimen.expect([...suspect.errors({ name: 42, age: "wrong" })].length > 0).toBe(true);
+    specimen.expect([...v.string().errors("hello")].length).toBe(0);
+
+    const compiled = v.object({ name: v.string() }).compile();
+    specimen.expect(compiled.Check({ name: "hi" })).toBe(true);
+    specimen.expect(compiled.Check({ name: 42 })).toBe(false);
   });
 
-  specimen.describe(".optional()", () => {
-    specimen.it("marks property optional in object", () => {
-      const s = v.object({ name: v.string().optional() });
-      specimen.expect(s.check({})).toBe(true);
-      specimen.expect(s.check({ name: "hello" })).toBe(true);
-    });
+  specimen.it("a schema survives the wire", () => {
+    const dressed = v.string().default("X").desc("label");
 
-    specimen.it("required property rejects omission", () => {
-      specimen.expect(v.object({ name: v.string() }).check({})).toBe(false);
-    });
+    const spread = { ...dressed };
+    specimen.expect(spread.default).toBe("X");
+    specimen.expect(spread.description).toBe("label");
+    specimen.expect(spread.desc).toBe(undefined);
+    specimen.expect(spread.optional).toBe(undefined);
+    specimen.expect(spread.check).toBe(undefined);
+    specimen.expect(spread.create).toBe(undefined);
+
+    const serialized = JSON.parse(JSON.stringify(dressed));
+    specimen.expect(serialized.desc).toBe(undefined);
+    specimen.expect(serialized.check).toBe(undefined);
+    specimen.expect(serialized.defaults).toBe(undefined);
   });
 
-  specimen.describe(".cast()", () => {
-    specimen.it("applies defaults and returns value", () => {
-      const s = v.object({ recall: v.string().default("LEARNING") });
-      const value = s.cast({});
-      specimen.expect(value.recall).toBe("LEARNING");
-    });
+  specimen.it("values compare, clone, diff and patch", () => {
+    specimen.expect(v.equal({ a: 1 }, { a: 1 })).toBe(true);
+    specimen.expect(v.equal({ a: 1 }, { a: 2 })).toBe(false);
 
-    specimen.it("retains provided values", () => {
-      const s = v.object({ recall: v.string().default("LEARNING") });
-      const value = s.cast({ recall: "KNOWN" });
-      specimen.expect(value.recall).toBe("KNOWN");
-    });
+    const original = { a: { b: 1 } };
+    const cloned = v.clone(original);
+    specimen.expect(v.equal(original, cloned)).toBe(true);
+    specimen.expect(original).not.toBe(cloned);
+    specimen.expect(original.a).not.toBe(cloned.a);
 
-    specimen.it("returns the same object (mutates in place)", () => {
-      const s = v.object({ x: v.number().default(0) });
-      const input = {};
-      const output = s.cast(input);
-      specimen.expect(input).toBe(output);
-    });
+    const before = { name: "old", count: 1 };
+    const after = { name: "new", count: 1 };
+    const patched = v.patch(v.clone(before), v.diff(before, after));
+    specimen.expect(v.equal(patched, after)).toBe(true);
   });
 
-  specimen.describe(".check()", () => {
-    specimen.it("validates values", () => {
-      const s = v.string();
-      specimen.expect(s.check("hello")).toBe(true);
-      specimen.expect(s.check(42)).toBe(false);
-    });
+  specimen.it("a relation is identity, not value", () => {
+    specimen.expect(v.rel(v.mode()).check("mode-123")).toBe(true);
+    specimen.expect(v.rel(v.mode()).check({ slug: "flashcard", type: "game" })).toBe(true);
+    specimen.expect(v.rel(v.mode()).check(42)).toBe(false);
+
+    const chained = v.object({ thread: v.rel(v.thread()).optional() });
+    specimen.expect(chained.check({})).toBe(true);
+    specimen.expect(chained.check({ thread: "thread-1" })).toBe(true);
+
+    class Collection {
+      constructor() { this.items = []; }
+      getItems() { return this.items; }
+      add(item) { this.items.push(item); }
+    }
+    const symbols = new Collection();
+    symbols.add({ id: "s1" });
+    const entity = { id: "lit-1", slug: "bom", symbols };
+    const out = v.object({ literals: v.array(v.rel(v.literal())) }).cast({ literals: [entity] });
+    specimen.expect(out.literals[0].symbols).toBe(symbols);
+    specimen.expect(out.literals[0].symbols instanceof Collection).toBe(true);
+    specimen.expect(out.literals[0].id).toBe("lit-1");
   });
 
-  specimen.describe(".create()", () => {
-    specimen.it("instantiates from defaults", () => {
-      const s = v.object({
-        name: v.string().default("unnamed"),
-        count: v.integer().default(0),
-      });
-      const value = s.create();
-      specimen.expect(value.name).toBe("unnamed");
-      specimen.expect(value.count).toBe(0);
-    });
+  specimen.it("a slug is a scalar builder", () => {
+    specimen.expect(v.slug().check("bom-dia")).toBe(true);
+    specimen.expect(v.slug().check("Bom Dia")).toBe(false);
+    specimen.expect(v.slug({ minLength: 3 }).check("ab")).toBe(false);
+    specimen.expect(v.slug({ minLength: 3 }).check("abc")).toBe(true);
+    specimen.expect(v.slug().description).toBe("URL-compliant identifier");
+    specimen.expect(v.array(v.scalars.Slug).check(["bom", "dia"])).toBe(true);
   });
 
-  specimen.describe(".clean()", () => {
-    specimen.it("strips unknown properties", () => {
-      const s = v.object({ name: v.string() });
-      const value = s.clean({ name: "hi", extra: true, junk: 42 });
-      specimen.expect(value.name).toBe("hi");
-      specimen.expect(value.extra).toBe(undefined);
-      specimen.expect(value.junk).toBe(undefined);
+  specimen.it("a buffer schema casts its data", () => {
+    const schema = v.buffer({
+      data: { recall: v.string().default("LEARNING").desc("direction") },
+      literals: v.array(v.literal()).desc("targets"),
     });
+    specimen.expect(schema.check({ mode: "m", data: { recall: "KNOWN" }, literals: [{ slug: "olá" }] })).toBe(true);
+
+    const filled = v.buffer({
+      data: { recall: v.string().default("LEARNING"), gameplay: v.string().default("visual") },
+    }).cast({ mode: "m", data: {} });
+    specimen.expect(filled.data.recall).toBe("LEARNING");
+    specimen.expect(filled.data.gameplay).toBe("visual");
+
+    specimen.expect(v.buffer({ data: { recall: v.string().default("LEARNING") } }).cast({ data: {} }).data.recall).toBe("LEARNING");
   });
 
-  specimen.describe(".errors()", () => {
-    specimen.it("returns error iterator for invalid value", () => {
-      const s = v.object({ name: v.string(), age: v.number() });
-      const errs = [...s.errors({ name: 42, age: "wrong" })];
-      specimen.expect(errs.length > 0).toBe(true);
-    });
+  specimen.it("an entity schema narrows per trait", () => {
+    specimen.expect(v.literal().check({ trait: { TRANSLATED: { learning: "olá", known: "hello" } } })).toBe(true);
+    specimen.expect(v.literal().check({ trait: {}, symbols: [{ slug: "word.noun" }, { slug: "word.verb" }] })).toBe(true);
 
-    specimen.it("returns empty for valid value", () => {
-      const s = v.string();
-      const errs = [...s.errors("hello")];
-      specimen.expect(errs.length).toBe(0);
+    const translated = v.literal({
+      trait: { TRANSLATED: v.object({ learning: v.string(), known: v.string() }) },
     });
-  });
+    specimen.expect(translated.check({ trait: { TRANSLATED: { learning: "olá", known: "hello" } } })).toBe(true);
+    specimen.expect(translated.check({ trait: { TRANSLATED: { learning: 42, known: "hello" } } })).toBe(false);
 
-  specimen.describe(".compile()", () => {
-    specimen.it("returns optimized validator", () => {
-      const s = v.object({ name: v.string() });
-      const compiled = s.compile();
-      specimen.expect(compiled.Check({ name: "hi" })).toBe(true);
-      specimen.expect(compiled.Check({ name: 42 })).toBe(false);
-    });
-  });
+    specimen.expect(v.symbol().check({ trait: { STRUCTURAL: { pos: "noun" } } })).toBe(true);
+    specimen.expect(v.symbol({ trait: { STRUCTURAL: v.object({ pos: v.string() }) } })
+      .check({ slug: "word.noun", trait: { STRUCTURAL: { pos: "noun" } } })).toBe(true);
 
-  specimen.describe("chaining", () => {
-    specimen.it(".default().desc() chains", () => {
-      const s = v.string().default("X").desc("label");
-      specimen.expect(s.default).toBe("X");
-      specimen.expect(s.description).toBe("label");
-    });
+    specimen.expect(v.mode().check({ slug: "flashcard", type: "game" })).toBe(true);
+    specimen.expect(v.mode({ intents: v.array(v.intent()) })
+      .check({ intents: [{ slug: "learn" }, { slug: "review" }] })).toBe(true);
 
-    specimen.it(".desc().default() order independent", () => {
-      const s = v.string().desc("label").default("X");
-      specimen.expect(s.default).toBe("X");
-      specimen.expect(s.description).toBe("label");
-    });
+    specimen.expect(v.intent().check({ trait: {}, mode: "mode-id" })).toBe(true);
+    specimen.expect(v.intent({ trait: { MASKED: v.object({ limit: v.number() }) } })
+      .check({ trait: { MASKED: { limit: 4 } }, mode: "mode-id" })).toBe(true);
 
-    specimen.it("full chain in object context", () => {
-      const schema = v.object({
-        count: v.number().default(0).desc("count").optional(),
-      });
-      specimen.expect(schema.check({})).toBe(true);
-      specimen.expect(schema.check({ count: 42 })).toBe(true);
-      specimen.expect(schema.cast({}).count).toBe(0);
-    });
-  });
-
-  specimen.describe("interop", () => {
-    specimen.it("mixed primitive props", () => {
-      const s = v.object({
-        name: v.string({ minLength: 1 }),
-        age: v.number().desc("years"),
-        tags: v.array(v.string()),
-      });
-      specimen.expect(s.check({ name: "finn", age: 30, tags: ["a"] })).toBe(true);
-      specimen.expect(s.check({ name: "", age: 30, tags: ["a"] })).toBe(false);
-    });
-
-    specimen.it("v.array(v.object()) nesting", () => {
-      const s = v.array(v.object({ id: v.string() }));
-      specimen.expect(s.check([{ id: "1" }, { id: "2" }])).toBe(true);
-    });
-
-    specimen.it("spread produces clean schema", () => {
-      const s = v.string().default("X").desc("label");
-      const plain = { ...s };
-      specimen.expect(plain.default).toBe("X");
-      specimen.expect(plain.description).toBe("label");
-      specimen.expect(plain.desc).toBe(undefined);
-      specimen.expect(plain.optional).toBe(undefined);
-      specimen.expect(plain.check).toBe(undefined);
-      specimen.expect(plain.create).toBe(undefined);
-    });
-
-    specimen.it("JSON.stringify omits proxy methods", () => {
-      const s = v.string().default("X").desc("label");
-      const json = JSON.parse(JSON.stringify(s));
-      specimen.expect(json.desc).toBe(undefined);
-      specimen.expect(json.check).toBe(undefined);
-      specimen.expect(json.defaults).toBe(undefined);
-    });
-  });
-
-  specimen.describe("static value operations", () => {
-    specimen.it("v.equal()", () => {
-      specimen.expect(v.equal({ a: 1 }, { a: 1 })).toBe(true);
-      specimen.expect(v.equal({ a: 1 }, { a: 2 })).toBe(false);
-    });
-
-    specimen.it("v.clone()", () => {
-      const original = { a: { b: 1 } };
-      const cloned = v.clone(original);
-      specimen.expect(v.equal(original, cloned)).toBe(true);
-      specimen.expect(original).not.toBe(cloned);
-      specimen.expect(original.a).not.toBe(cloned.a);
-    });
-
-    specimen.it("v.diff() + v.patch()", () => {
-      const a = { name: "old", count: 1 };
-      const b = { name: "new", count: 1 };
-      const edits = v.diff(a, b);
-      const patched = v.patch(v.clone(a), edits);
-      specimen.expect(v.equal(patched, b)).toBe(true);
-    });
-  });
-
-  specimen.describe("$id and $ref", () => {
-    specimen.it(".$id() sets schema $id", () => {
-      const s = v.object({ name: v.string() }).$id("Person");
-      specimen.expect(s.$id).toBe("Person");
-    });
-
-    specimen.it("v.$ref() references a named schema", () => {
-      const Person = v.object({ name: v.string() }).$id("Person");
-      const Team = v.object({ lead: v.$ref(Person) });
-      specimen.expect(Team.check({ lead: { name: "finn" } })).toBe(true);
-    });
-
-    specimen.it(".$id() composes with other chains", () => {
-      const s = v.object({ x: v.number() }).$id("Point").desc("A 1D point");
-      specimen.expect(s.$id).toBe("Point");
-      specimen.expect(s.description).toBe("A 1D point");
-    });
-  });
-
-  specimen.describe("v.rel()", () => {
-    specimen.it("accepts ID string", () => {
-      specimen.expect(v.rel(v.mode()).check("mode-123")).toBe(true);
-    });
-
-    specimen.it("accepts populated entity", () => {
-      specimen.expect(v.rel(v.mode()).check({ slug: "flashcard", type: "game" })).toBe(true);
-    });
-
-    specimen.it("rejects non-rel values", () => {
-      specimen.expect(v.rel(v.mode()).check(42)).toBe(false);
-    });
-
-    specimen.it("cast() passes an entity through a rel WITHOUT mauling its Collections", () => {
-      // a relation is identity, not value — Convert must not descend into the entity
-      // and coerce a class-instance relation field (e.g. a MikroORM Collection) into a
-      // plain object. class instances must survive by-reference, prototype intact.
-      class Collection {
-        constructor() { this.items = []; }
-        getItems() { return this.items; }
-        add(item) { this.items.push(item); }
-      }
-      const symbols = new Collection();
-      symbols.add({ id: "s1" });
-      const entity = { id: "lit-1", slug: "bom", symbols };
-      const schema = v.object({ literals: v.array(v.rel(v.literal())) });
-      const out = schema.cast({ literals: [entity] });
-      specimen.expect(out.literals[0].symbols).toBe(symbols); // same ref — not cloned, not mauled
-      specimen.expect(out.literals[0].symbols instanceof Collection).toBe(true);
-      specimen.expect(out.literals[0].id).toBe("lit-1");
-    });
-
-    specimen.it("chains with .optional()", () => {
-      const s = v.object({ thread: v.rel(v.thread()).optional() });
-      specimen.expect(s.check({})).toBe(true);
-      specimen.expect(s.check({ thread: "thread-1" })).toBe(true);
-    });
-  });
-
-  specimen.describe("v.slug()", () => {
-    specimen.it("validates a slug, rejects caps and spaces", () => {
-      specimen.expect(v.slug().check("bom-dia")).toBe(true);
-      specimen.expect(v.slug().check("Bom Dia")).toBe(false);
-    });
-
-    specimen.it("is a builder — merges caller opts", () => {
-      specimen.expect(v.slug({ minLength: 3 }).check("ab")).toBe(false);
-      specimen.expect(v.slug({ minLength: 3 }).check("abc")).toBe(true);
-    });
-
-    specimen.it("carries its canonical description", () => {
-      specimen.expect(v.slug().description).toBe("URL-compliant identifier");
-    });
-
-    specimen.it("v.scalars.Slug constant is still a usable schema", () => {
-      specimen.expect(v.array(v.scalars.Slug).check(["bom", "dia"])).toBe(true);
-    });
-  });
-
-  specimen.describe("v.buffer()", () => {
-    specimen.it("produces valid Buffer schema", () => {
-      const schema = v.buffer({
-        data: {
-          recall: v.string().default("LEARNING").desc("direction"),
-        },
-        literals: v.array(v.literal()).desc("targets"),
-      });
-      specimen.expect(schema.check({
-        mode: "m",
-        data: { recall: "KNOWN" },
-        literals: [{ slug: "olá" }],
-      })).toBe(true);
-    });
-
-    specimen.it(".cast() works on buffer schema", () => {
-      const schema = v.buffer({
-        data: {
-          recall: v.string().default("LEARNING"),
-          gameplay: v.string().default("visual"),
-        },
-      });
-      const value = schema.cast({ mode: "m", data: {} });
-      specimen.expect(value.data.recall).toBe("LEARNING");
-      specimen.expect(value.data.gameplay).toBe("visual");
-    });
-
-    specimen.it("narrowing overrides data fields", () => {
-      const schema = v.buffer({
-        data: { recall: v.string().default("LEARNING") },
-      });
-      const value = schema.cast({ data: {} });
-      specimen.expect(value.data.recall).toBe("LEARNING");
-    });
-  });
-
-  specimen.describe("v.literal()", () => {
-    specimen.it("base schema validates a literal", () => {
-      specimen.expect(v.literal().check({
-        trait: { TRANSLATED: { learning: "olá", known: "hello" } },
-      })).toBe(true);
-    });
-
-    specimen.it("narrowed schema validates trait shape", () => {
-      const schema = v.literal({
-        trait: {
-          TRANSLATED: v.object({ learning: v.string(), known: v.string() }),
-        },
-      });
-      specimen.expect(schema.check({
-        trait: { TRANSLATED: { learning: "olá", known: "hello" } },
-      })).toBe(true);
-    });
-
-    specimen.it("narrowed schema rejects wrong trait shape", () => {
-      const schema = v.literal({
-        trait: {
-          TRANSLATED: v.object({ learning: v.string(), known: v.string() }),
-        },
-      });
-      specimen.expect(schema.check({
-        trait: { TRANSLATED: { learning: 42, known: "hello" } },
-      })).toBe(false);
-    });
-
-    specimen.it("accepts symbols as refs", () => {
-      specimen.expect(v.literal().check({
-        trait: {},
-        symbols: [{ slug: "word.noun" }, { slug: "word.verb" }],
-      })).toBe(true);
-    });
-  });
-
-  specimen.describe("v.symbol()", () => {
-    specimen.it("base schema validates a symbol", () => {
-      specimen.expect(v.symbol().check({
-        trait: { STRUCTURAL: { pos: "noun" } },
-      })).toBe(true);
-    });
-
-    specimen.it("narrowed schema validates trait shape", () => {
-      const schema = v.symbol({
-        trait: {
-          STRUCTURAL: v.object({ pos: v.string() }),
-        },
-      });
-      specimen.expect(schema.check({
-        slug: "word.noun",
-        trait: { STRUCTURAL: { pos: "noun" } },
-      })).toBe(true);
-    });
-  });
-
-  specimen.describe("v.mode()", () => {
-    specimen.it("base schema validates a mode", () => {
-      specimen.expect(v.mode().check({
-        slug: "flashcard",
-        type: "game",
-      })).toBe(true);
-    });
-
-    specimen.it("narrowed schema accepts intents", () => {
-      const schema = v.mode({
-        intents: v.array(v.intent()),
-      });
-      specimen.expect(schema.check({
-        intents: [{ slug: "learn" }, { slug: "review" }],
-      })).toBe(true);
-    });
-  });
-
-  specimen.describe("v.intent()", () => {
-    specimen.it("base schema validates an intent", () => {
-      specimen.expect(v.intent().check({
-        trait: {},
-        mode: "mode-id",
-      })).toBe(true);
-    });
-
-    specimen.it("narrowed schema validates trait shape", () => {
-      const schema = v.intent({
-        trait: {
-          MASKED: v.object({ limit: v.number() }),
-        },
-      });
-      specimen.expect(schema.check({
-        trait: { MASKED: { limit: 4 } },
-        mode: "mode-id",
-      })).toBe(true);
-    });
-  });
-
-  specimen.describe("v.thread()", () => {
-    specimen.it("base schema validates a thread", () => {
-      specimen.expect(v.thread().check({
-        user: "user-id",
-        mode: "mode-id",
-        trait: {},
-      })).toBe(true);
-    });
-
-    specimen.it("narrowed schema validates trait shape", () => {
-      const schema = v.thread({
-        trait: {
-          progress: v.object({ level: v.integer() }),
-        },
-      });
-      specimen.expect(schema.check({
-        user: "u",
-        mode: "m",
-        trait: { progress: { level: 3 } },
-      })).toBe(true);
-    });
-
-    specimen.it("accepts optional intent ref", () => {
-      specimen.expect(v.thread().check({
-        user: "u",
-        mode: "m",
-        trait: {},
-        intent: "intent-id",
-      })).toBe(true);
-    });
+    specimen.expect(v.thread().check({ user: "user-id", mode: "mode-id", trait: {} })).toBe(true);
+    specimen.expect(v.thread().check({ user: "u", mode: "m", trait: {}, intent: "intent-id" })).toBe(true);
+    specimen.expect(v.thread({ trait: { progress: v.object({ level: v.integer() }) } })
+      .check({ user: "u", mode: "m", trait: { progress: { level: 3 } } })).toBe(true);
   });
 });

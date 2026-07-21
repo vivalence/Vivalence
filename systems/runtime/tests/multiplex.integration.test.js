@@ -45,13 +45,13 @@ specimen.describe("multiplex integration — dewey harness over one socket", () 
 
   specimen.it("unary render crosses the multiplex and persists turns", async () => {
     const thread = await scenario.createThread();
-    const turn = await connection.call("/harness/dialogue/render", {
+    const folded = await connection.call("/harness/dialogue/render", {
       thread: thread.id,
       parts: [{ type: "text", text: "render ping" }],
     });
 
-    specimen.expect(turn.role).toBe("assistant");
-    specimen.expect(turn.parts[0].text).toContain("render ping");
+    specimen.expect(folded.state).toBe("complete");
+    specimen.expect(folded.message).toContain("render ping");
   });
 
   specimen.it("dialogue streams through one frame with full turn grammar", async () => {
@@ -112,7 +112,7 @@ specimen.describe("multiplex integration — dewey harness over one socket", () 
       thread: thread.id,
       parts: [{ type: "text", text: "before restart" }],
     });
-    specimen.expect(first.role).toBe("assistant");
+    specimen.expect(first.state).toBe("complete");
 
     for (const socket of world.gate.sockets) socket.close();
     world.abort.abort();
@@ -126,7 +126,7 @@ specimen.describe("multiplex integration — dewey harness over one socket", () 
     world = launch(scenario.dewey.aperture, world.port);
 
     const second = await pending;
-    specimen.expect(second.role).toBe("assistant");
-    specimen.expect(second.parts[0].text).toContain("after restart");
+    specimen.expect(second.state).toBe("complete");
+    specimen.expect(second.message).toContain("after restart");
   });
 });

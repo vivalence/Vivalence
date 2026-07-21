@@ -1,7 +1,7 @@
 <p align="center">
   <a href="#documentation">Docs</a> ·
   <a href="#installation">Install</a> ·
-  <a href="#funding">Funding</a> ·
+  <a href="#Funding (P2P)">Funding</a> ·
   <a href="#noticeboard">Notices</a> ·
   <a href="LICENSE.md">Licence</a>
 </p>
@@ -9,35 +9,67 @@
 <p align="center">
   <img src="systems/kajuit/static/videos/vid-viket-seldoncrisis-800x160p-12fps.gif" alt="VivalenceOS" width="100%" />
 </p>
-- signup email list 🔥🔬🪎
 
-# home
-**about**
+# ~ home
 
-- procedurally generated and agentic apps - hallucination harness for various ai faculties and modalities. 
-- runtimes and dataspaces composed from plugable trait-based modal mini-apps running in persistant and isolated daemons.
-- coherent architecture and elegantly constructed from functional algebraic types - very hackable.
-- runs across network topographies - from localhost singleplayer to dockerized multiplayer. 
-- internal - daemon level - symbolic dataentity system (optional).
-- early alpha. probably a year ahead of stability and another decade ahead of maturity. see funding; more funding -> faster better. 
+Vivalence is like if wechat, emacs, and hal9000 had a baby and that baby is open-source, self-hostable, deeply hackable, ai-harnessed as a first principle, and setup for both single- and multiplayer. 
 
-- Security Notice:* Vivalence is in early alpha and only just transitioning to build-in-public. It is considered insecure on a network level and should live - for now - inside a moat :river::castle:.
-
-
+- *Security Notice:* Vivalence is in early alpha and only just transitioning to build-in-public. It is considered insecure on a network level and should live - for now - inside a moat :river::castle:. 
+- *Development Notice* Vivalence is only just transitioning to build-in-public and is to be considered both *early* and *alpha*. dont expect things to be be working or documented. This release is for the curious. Its probably another year to stability and a decade to maturity. see <a href="#Funding (P2P)">#funding</a>; more funding -> more faster better. 
+- *Development Notice* docs are low priority right now. this release is for the curious. use llms. move and break things.
+- *Community Notice* signup email list 🔥🔬🪎
 
 **What is vivalence and what is it for?**
+- procedurally generated and agentic apps - hallucination harness for various ai faculties and modalities. 
+- daemons and dataspaces composed from trait-based modes "plugable mini-apps" running in persisted and isolated runtimes.
+- internal - daemon level - symbolic dataentity system (optional).
+- flexibly runs across arbitrarily complex network topographies - from localhost singleplayer to dockerized multiplayer. 
+- first class package management with :TODO: agentic CRUD over registry filesystem.
+- coherent architecture and constructed from functional algebraic types - simple, elegant, and very hackable. 
+- free for private use and available under a flat programatic <a href="#Pricing (B2B)">license</a> for institutional use.
+- build literally any app or system for browser or :TODO: shell.
+- :WIP: The first killer app is a language learning system.
 
-Vivalence was originally intended as "the education system I would have wanted". 
-What came out could be used for much much more. What came out when solving for education is a very flexible, very capable, proceduarlly generated, and distributed. For more about the spiritual ancestory read "blog".
+**How did vivalence come about and where is it at?**
+vivalence was started when gpt3.5 came out to build the perfect operating system for “the yound ladys illustrated primer” and it turned out it had to be very good at everything else in order to become that. it would be powering isaac asimov's foundation. For more about the spiritual ancestory read "blog".
 
-Vivalence is meant to be yours. I neither can, nor want to be responsible for you and your actions. The software is provided as is - fuck around and find out. The types and interfaces are stabilized and settling, the architecture is - I suspect - extremely scalable. For contribution and future development see "Development". AI slop is only accepted for, and in fact intended for the registry. See "Package Management".
+Vivalence is meant to be yours. I neither can nor want to be responsible for you and your actions. The software is provided as is - fuck around and find out. 
+<a href="david deutsch - on optimism.">o/acc.</a>
 
+the architecture is - I suspect - extremely scalable and i would LOVE to have some input and feedback on this.
+
+For contribution and future development see "Development". AI slop is only accepted in - and in fact intended for - the registry. 
+
+The cat is out of the bag.
 
 # Documentation
 Full docs under construction: [https://docs.vivalence.com]
-<!-- Start with two guides. one for modes - traits, apps, apertures. and a second guide on the data architecture from system level via userspace to ontological entities. -->
+Start with two guides.
+one for modes - traits, apps, apertures.
+and a second guide on the data architecture from system level via userspace to ontological entities.
 
-## Guides
+<!-- STATUS The types and interfaces are stabilized and settling.  -->
+## ARCHITECTURE Guides
+
+### modes
+the way modes implement functionaly is by implementing traits. 
+
+the entire system works basically as a backend for mode traits.
+if you want to bring data into the system - add a mode with a dataset trait. if you want to implement a chat interaction - implement a conversational trait. want to host an API - implement the exposed trait. etc.
+
+every mode has a type and a set of traits. the types are mostly a organizational, interpretability, and security constraint. all actual functionality is a function of traits.
+
+modes serve different roles within the system according to their type. for example, the core of each daemon - called `kernel` - is made up of 3 mode types: domain, ontology, corpus. 
+
+- the `domain` modes implement: a. additional db-persisted entity types, b. the core business logic .
+- the `ontology` modes provide the dimenions that literals and symbols can inhabit. 
+ each of word,sentence,conjugation represesents an ontology.
+
+- the `corpus` modes bring the data in the form literals and symbols, as well as 
+
+### symbols & literals
+
+
 
 ### Modal Applications
 You don't install applications — you install **modes** into daemons. A mode is four files: what it is (`manifest`), how it thinks (`harness`), what it exposes (`aperture`), what it shows (`app`). Traits are the only wiring — declare them and the runtime does the rest.
@@ -115,7 +147,8 @@ Note `ctx.mode.harness.object.render`.
 
 
 ### Packages
-## Installation 
+
+# Installation 
 
 You need [Deno](https://deno.com) 2.7+. Everything else the repo carries.
 
@@ -172,98 +205,6 @@ https://auth.lemonsqueezy.com/login
 
 ## Business Model
 ## .org & .com
-
-
-# BAK
-## WIP
-the sections must answer:
-I. what is vivalence/how does it work/what makes it different.
-2. how do i set this up/run it/build for it.
-3. whats the architecture in detail.
-
-## VivalenceOS
-Using maps, sets, and trees to control things that are and do. Less is more. JSON is god.
-
-what is it? why is it different.
-
-## CONCEPT
-vivalence is a operation system and application platform. 
-you dont install applications - you install modes into daemons. 
-
-### primitives:
-a `daemon` is the equivalent of an application - each daemon is selfcontained, persistant, with its own types, entities, and businesslogic.
-
-`modes` populate the application space and are bundled into persistant adressable daemons. modes bring functionality and data to daemons.
-
-the dataspace is inhabited primarily by entities call `literals` and `symbols`, as well as arbitrary secondary entities. 
-`literals` are concrete singleton data entities - like specific words, messages, people, etc.
-`symbols` annotate and organize literals and give them meaning.
-
-the abstraction into modes, literals, and symbols allows us to transport our dataspace not only between daemons, but across modes and effectively across business logic. or, from a different pov, it allows us to transport our businesslogic across dataspaces. its very powerful.
-
-### functionality:
-
-`traits` are used throughout the system to express the primitives. modes, symbols, and literals have their own trait-spaces. any traitspace is populated by traits defined by vivalence, and by the specific domain. 
-
-
-## ARCHITECTURE 
-
-### modes
-the way modes implement functionaly is by implementing traits. 
-
-the entire system works basically as a backend for mode traits.
-if you want to bring data into the system - add a mode with a dataset trait. if you want to implement a chat interaction - implement a conversational trait. want to host an API - implement the exposed trait. etc.
-
-every mode has a type and a set of traits. the types are mostly a organizational, interpretability, and security constraint. all actual functionality is a function of traits.
-
-modes serve different roles within the system according to their type. for example, the core of each daemon - called `kernel` - is made up of 3 mode types: domain, ontology, corpus. 
-
-- the `domain` modes implement: a. additional db-persisted entity types, b. the core business logic .
-- the `ontology` modes provide the dimenions that literals and symbols can inhabit. 
- each of word,sentence,conjugation represesents an ontology.
-
-- the `corpus` modes bring the data in the form literals and symbols, as well as 
-
-### symbols & literals
-
-
-## EXAMPLE
-
-f.e. if we are building a language learning app: 
-
-modes:xxx -games,tactics.xxx`
-mode traits:zzz
-
-literals: a literal might be a word - "hablar", a sentence - "quiero hablar contigo", a conjugation table - "hablo, hablas, habla, hablamos, xxx". if we were to build an email client, our literals would probably be "message" and "person". 
-literal traits: a literal in our word ontology might implement the traits EXEMPLIFIED, TRANSLATED, VOCALIZED. 
-
-symbols annotate literals. symbols organize literals and give them meaning.
-an ontological symbol `part-of-speech.verb` on a literal `hablar` tells the system its dealing with a verb. a structural symbol such as `proficiency.a1.` tells our language learning system to practice this early. 
-the literal `hablar` might have a douzen ontological symbols, plus any arbitrary amount of additional symbols. 
-
-
-
-
-
-## IMPLEMENTATION
-the entire system is constructed from an extremely limited set of primitives and largely self-contained. 
-
-2.1 the system is derived from a library of prototypes, schematics, and routines - `@typology`.
-
-2.2 there is a `@runtime` which runs multiple daemons. 
-
-2.3 there is a rudimentary `web client` and an idea for a `shell client`. the kajuit client can be installed as an ios webapp through safari. 
-
-2.4 there is a registry and an idea for a package manager.
-
-
-
-## ORGANIZATION 
-the system is entirely open source and free for private use. for commercial use i intent to implemnt flat, cheap, api-driven licensing. cost is going to be ~10$/month/soul. i call my business strategy `ubuiquity and a thin slice`. 
-my intent for building vivalence was twofold. a. its the os i would have wanted. b. its intended as the os that will outlive all of us. its designed to be cultural inheritance. 
-
-
-
 
 
 

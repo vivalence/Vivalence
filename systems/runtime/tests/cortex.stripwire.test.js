@@ -46,26 +46,26 @@ specimen.describe("cortex stripwire — remote Cortex over a Connection", () => 
     specimen.it("unleashed resolves opus through the wire", async () => {
       const hallucination = remote.hallucination({ tune: "unleashed" });
       hallucination.entities.turn.append({ role: "user", parts: [{ type: "text", text: "casa" }] });
-      const turn = await hallucination.dialogue.render();
-      specimen.expect(turn.parts[0].text).toMatch(/\[opus\]/);
-      specimen.expect(turn.parts[0].text).toContain("casa");
+      const folded = await hallucination.dialogue.render();
+      specimen.expect(folded.message).toMatch(/\[opus\]/);
+      specimen.expect(folded.message).toContain("casa");
     });
 
     specimen.it("balanced resolves sonnet (exact tune re-resolved daemon-side)", async () => {
       const hallucination = remote.hallucination({ tune: "balanced" });
       hallucination.entities.turn.append({ role: "user", parts: [{ type: "text", text: "hola" }] });
-      const turn = await hallucination.dialogue.render();
-      specimen.expect(turn.parts[0].text).toMatch(/\[sonnet\]/);
+      const folded = await hallucination.dialogue.render();
+      specimen.expect(folded.message).toMatch(/\[sonnet\]/);
     });
   });
 
   specimen.describe("stream", () => {
-    specimen.it("packets flow open → delta → close over SSE", async () => {
+    specimen.it("packets flow open → close, session sealed over SSE", async () => {
       const hallucination = remote.hallucination({ tune: "unleashed" });
       hallucination.entities.turn.append({ role: "user", parts: [{ type: "text", text: "flow" }] });
       const { packets, turn } = await collect(await hallucination.dialogue.stream());
       specimen.expect(packets[0].event).toBe("/turn/open");
-      specimen.expect(packets.at(-1).event).toBe("/turn/close");
+      specimen.expect(packets.at(-1).event).toBe("/session/close");
       specimen.expect(turn.parts[0].text).toContain("[opus] flow");
     });
   });
@@ -75,14 +75,14 @@ specimen.describe("cortex stripwire — remote Cortex over a Connection", () => 
       let ran = false;
       const hallucination = remote.hallucination({ tune: "unleashed" });
       hallucination.entities.turn.append({ role: "user", parts: [{ type: "text", text: "what is casa" }] });
-      hallucination.entities.tool.add("lookup", async (input) => {
+      hallucination.tools.open({ nature: "lookup" }, async (ctx) => {
         ran = true;
-        return { message: `${input.query} means house` };
+        return { message: `${ctx.input.query} means house` };
       });
-      const turn = await hallucination.dialogue.render();
+      const folded = await hallucination.dialogue.render();
       specimen.expect(ran).toBe(true);
-      specimen.expect(turn.parts[0].text).toContain("[opus]");
-      specimen.expect(turn.meta.stop).toBe("end_turn");
+      specimen.expect(folded.message).toContain("[opus]");
+      specimen.expect(folded.state).toBe("complete");
     });
   });
 
@@ -91,8 +91,8 @@ specimen.describe("cortex stripwire — remote Cortex over a Connection", () => 
       const hallucination = remote.hallucination({ tune: "unleashed" });
       hallucination.output.object(v.object({ query: v.string() }));
       hallucination.entities.turn.append({ role: "user", parts: [{ type: "text", text: "casa" }] });
-      const turn = await hallucination.object.render();
-      specimen.expect(turn.object).toEqual({ query: "casa" });
+      const folded = await hallucination.object.render();
+      specimen.expect(folded.object).toEqual({ query: "casa" });
     });
   });
 });

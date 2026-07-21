@@ -22,8 +22,18 @@ export function translateTurns(turns) {
   return { system, messages };
 }
 
+const STATES = {
+  end_turn: "complete",
+  stop_sequence: "complete",
+  tool_use: "tools",
+  max_tokens: "length",
+  refusal: "filter",
+};
+
 function partToAnthropic(part) {
   switch (part.type) {
+    case "alien":
+      return part.block;
     case "text":
       return { type: "text", text: part.text };
     case "thinking":
@@ -42,8 +52,8 @@ function partToAnthropic(part) {
       return {
         type: "tool_use",
         id: part.id,
-        name: part.name,
-        input: typeof part.input === "string" ? (part.input ? JSON.parse(part.input) : {}) : (part.input ?? {}),
+        name: part.name, //@beef move away from name on contract side. signature.
+        input: part.input ?? {},
       };
     case "tool_result":
       return {
@@ -58,39 +68,57 @@ function partToAnthropic(part) {
 
 // --- outbound: a Request → Anthropic messages.create params ---
 
+export const RESPOND = {
+  name: "respond",
+  description: "Return the final result as structured data.",
+};
+
 export function buildParams(model, request, stream = false) {
   const { system, messages } = translateTurns(request.turns);
   const settings = request.settings ?? {};
+  const marks = new Set(request.cache?.marks ?? []);
+  const structured = request.output?.object;
+  const tool_choice = structured ? { type: "any" } : settings.tool_choice;
   const params = {
     model: model.id,
     system,
     messages,
     max_tokens: settings.maxTokens ?? 8192,
   };
+  if (marks.has("context") && system.length) system.at(-1).cache_control = { type: "ephemeral" };
   if (stream) params.stream = true;
-  if (model.thinking && !settings.tool_choice) {
+  if (model.thinking && !tool_choice) {
     params.thinking = { type: "enabled", budget_tokens: settings.thinkingBudget ?? 16000 };
     params.max_tokens = settings.maxTokens ?? 32000;
   }
-  if (request.tools) params.tools = translateTools(request.tools);
-  if (settings.tool_choice) params.tool_choice = settings.tool_choice;
+  if (request.tools?.length) {
+    params.tools = translateTools(request.tools);
+    if (marks.has("tools")) params.tools.at(-1).cache_control = { type: "ephemeral" };
+  }
+  if (structured)
+    params.tools = [
+      ...(params.tools ?? []),
+      { name: RESPOND.name, description: RESPOND.description, input_schema: structured },
+    ];
+  if (tool_choice) params.tool_choice = tool_choice;
   return params;
 }
 
 // --- outbound: tools → Anthropic tool definitions ---
 
 export function translateTools(tools) {
-  return Object.entries(tools).map(([name, spec]) => {
-    if (typeof spec === "function") {
-      return { name, description: "", input_schema: { type: "object" } };
-    }
-    return {
-      name,
-      description: spec.valence ?? "",
-      input_schema: spec.input ?? { type: "object" },
-    };
-  });
+  return tools.map((declaration) => ({
+    name: declaration.name,
+    description: declaration.valence ?? "",
+    input_schema: declaration.input ?? { type: "object" },
+  }));
 }
+
+export const fault = (error) => ({
+  kind: error.status === 529 ? "overloaded" : error.status === 429 ? "throttled" : "request",
+  retryable: [408, 429, 500, 529].includes(error.status),
+  provider: { status: error.status, message: error.message },
+});
 
 // --- inbound: Anthropic response → turn ---
 
@@ -99,9 +127,9 @@ export function translateResponse(response) {
     role: response.role,
     parts: response.content.map(blockToPart),
     meta: {
+      state: STATES[response.stop_reason] ?? "error",
       usage: response.usage,
-      stop: response.stop_reason,
-      model: response.model,
+      provider: { stop_reason: response.stop_reason, model: response.model },
     },
   };
 }
@@ -117,10 +145,10 @@ function blockToPart(block) {
         type: "tool_use",
         id: block.id,
         name: block.name,
-        input: JSON.stringify(block.input),
+        input: block.input ?? {},
       };
     default:
-      return { type: "text", text: JSON.stringify(block) };
+      return { type: "alien", dialect: "anthropic", block };
   }
 }
 
@@ -153,8 +181,9 @@ export function translateStreamEvent(event) {
       return {
         event: "/turn/close",
         meta: {
-          stop: event.delta.stop_reason,
+          state: STATES[event.delta.stop_reason] ?? "error",
           usage: event.usage,
+          provider: { stop_reason: event.delta.stop_reason },
         },
       };
 

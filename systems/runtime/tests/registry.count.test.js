@@ -3,7 +3,7 @@ import { expect } from "@std/expect";
 import paladin from "@vivalence/paladin";
 import { registry } from "../lifecycle/populate.js";
 
-const BASELINE = 38; // ② capture, this session — 4-branch mount, pensieve leaf count
+const BASELINE = 39; // ② capture — 4-branch mount, pensieve leaf count (+ @playground/chaosmonkey/reader)
 
 const count = (pensieve) => {
   let total = 0;

@@ -1,4 +1,4 @@
-import { is, shape } from "@vivalence/typology";
+import { Freight, is, shape } from "@vivalence/typology";
 
 export async function stagger(mode, daemon, traits) {
   const finalizers = [];
@@ -6,15 +6,17 @@ export async function stagger(mode, daemon, traits) {
     const result = await traits[trait]?.(mode, daemon);
     if (is.fn(result)) finalizers.push(result);
   }
-  for (const finalize of finalizers) await finalize();
+  return finalizers;
 }
 
 export * from "./dataset.js";
 export * from "./intented.js";
 export * from "./emitter.js";
 export * from "./application.js";
+export * from "./generative.js";
 export * from "./harnessed.js";
 export * from "./tooled.js";
+export * from "./agentic.js";
 
 export const SELFEVIDENT = () => {};
 
@@ -32,6 +34,8 @@ export const EXPOSED = (mode) => {
 };
 
 export const FRAUGHT = async (mode, daemon) => {
-  await mode.module.freight.index();
-  mode.aperture.open("/freight", () => mode.module.freight.catalog);
+  mode.freight = new Freight(mode.module.mount.dirname + mode.module.freight.path.nature);
+  mode.freight.withUrl(daemon.attach.branch("/cargo").branch(daemon.mount.nature));
+  await mode.freight.index();
+  mode.aperture.open("/freight", () => mode.freight.catalog);
 };

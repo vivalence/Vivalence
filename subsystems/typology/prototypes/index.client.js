@@ -22,8 +22,10 @@ export * from "./filepath.js";
 export * from "./pattern.js";
 export * from "./signature.js";
 export * from "./signal.js";
+export * from "./toolcall.js";
 export * from "./app.js";
 export * from "./bundle.js";
+export * from "./view.js";
 export * from "./mask.js";
 
 export * from "./span.js";

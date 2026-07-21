@@ -1,91 +1,63 @@
-import { specimen, steer } from "@vivalence/typology";
-import { Signal } from "@vivalence/typology";
-import { Vector } from "@vivalence/typology";
-
-const { scope, greedy, feed } = steer.match;
+import { specimen, steer, Signal, Vector } from "@vivalence/typology";
 
 specimen.describe("match", () => {
-  specimen.describe("scope", () => {
-    specimen.it("finds a branch match with no effect", () => {
-      const vector = new Vector();
-      vector.branch("users");
-      const matches = scope(vector, new Signal("users"));
-      specimen.expect(matches.length).toBe(1);
-      specimen.expect(matches[0][1]).toBeTruthy();
-      specimen.expect(matches[0][2]).toBe(null);
-    });
+  specimen.it("a scope gathers branches, leaves and both-nodes", () => {
+    const branched = new Vector();
+    branched.branch("users");
+    const branchMatches = steer.match.scope(branched, new Signal("users"));
+    specimen.expect(branchMatches.length).toBe(1);
+    specimen.expect(branchMatches[0][1]).toBeTruthy();
+    specimen.expect(branchMatches[0][2]).toBe(null);
 
-    specimen.it("finds a leaf match carrying its effect", () => {
-      const vector = new Vector();
-      vector.open("greet", () => "hi");
-      const matches = scope(vector, new Signal("greet"));
-      specimen.expect(matches.length).toBe(1);
-      specimen.expect(matches[0][1]).toBeTruthy();
-      specimen.expect(matches[0][2]).toBeTruthy();
-    });
+    const leafed = new Vector();
+    leafed.open("greet", () => "hi");
+    const leafMatches = steer.match.scope(leafed, new Signal("greet"));
+    specimen.expect(leafMatches.length).toBe(1);
+    specimen.expect(leafMatches[0][1]).toBeTruthy();
+    specimen.expect(leafMatches[0][2]).toBeTruthy();
 
-    specimen.it("a both-node yields one match with node and effect", () => {
-      const vector = new Vector();
-      vector.branch("api");
-      vector.open("api", () => "direct");
-      const matches = scope(vector, new Signal("api"));
-      specimen.expect(matches.length).toBe(1);
-      specimen.expect(matches[0][1]).toBeTruthy();
-      specimen.expect(matches[0][2]).toBeTruthy();
-    });
+    const doubled = new Vector();
+    doubled.branch("api");
+    doubled.open("api", () => "direct");
+    const bothMatches = steer.match.scope(doubled, new Signal("api"));
+    specimen.expect(bothMatches.length).toBe(1);
+    specimen.expect(bothMatches[0][1]).toBeTruthy();
+    specimen.expect(bothMatches[0][2]).toBeTruthy();
 
-    specimen.it("returns empty on no match", () => {
-      const vector = new Vector();
-      vector.open("greet", () => "hi");
-      specimen.expect(scope(vector, new Signal("nope")).length).toBe(0);
-    });
+    specimen.expect(steer.match.scope(leafed, new Signal("nope")).length).toBe(0);
   });
 
-  specimen.describe("greedy", () => {
-    specimen.it("returns the first match", () => {
-      const vector = new Vector();
-      vector.open("a", () => "first");
-      specimen.expect(greedy(vector, new Signal("a")).length).toBe(1);
-    });
+  specimen.it("a greedy match takes the first and carries the effect", () => {
+    const single = new Vector();
+    single.open("a", () => "first");
+    specimen.expect(steer.match.greedy(single, new Signal("a")).length).toBe(1);
 
-    specimen.it("carries the node and its effect", () => {
-      const vector = new Vector();
-      vector.open("x", () => "effect");
-      const [[, trajectory, effect]] = greedy(vector, new Signal("x"));
-      specimen.expect(trajectory).toBeTruthy();
-      specimen.expect(effect).toBeTruthy();
-    });
+    const carrying = new Vector();
+    carrying.open("x", () => "effect");
+    const [[, trajectory, effect]] = steer.match.greedy(carrying, new Signal("x"));
+    specimen.expect(trajectory).toBeTruthy();
+    specimen.expect(effect).toBeTruthy();
 
-    specimen.it("returns empty on no match", () => {
-      specimen.expect(greedy(new Vector(), new Signal("nope")).length).toBe(0);
-    });
+    specimen.expect(steer.match.greedy(new Vector(), new Signal("nope")).length).toBe(0);
   });
 
-  specimen.describe("feed", () => {
-    specimen.it("returns single match", () => {
-      const triple = [{ nature: "x" }, null, () => {}];
-      const [match] = feed([triple], new Signal("x"));
-      specimen.expect(match.nature).toBe("x");
-    });
+  specimen.it("a feed settles competing matches", () => {
+    const triple = [{ nature: "x" }, null, () => {}];
+    const [single] = steer.match.feed([triple], new Signal("x"));
+    specimen.expect(single.nature).toBe("x");
 
-    specimen.it("throws on empty matches", () => {
-      specimen.expect(() => feed([], new Signal("x"))).toThrow();
-    });
+    specimen.expect(() => steer.match.feed([], new Signal("x"))).toThrow();
 
-    specimen.it("prefers the first match when signal has heir", () => {
-      const signal = new Signal("users/123");
-      const traj = [signal, { trajectoryMarker: true }, null];
-      const eff = [signal, null, () => {}];
-      const [, trajectory] = feed([traj, eff], signal);
-      specimen.expect(trajectory.trajectoryMarker).toBe(true);
-    });
+    const heired = new Signal("users/123");
+    const trajectoryCandidate = [heired, { trajectoryMarker: true }, null];
+    const effectCandidate = [heired, null, () => {}];
+    const [, trajectory] = steer.match.feed([trajectoryCandidate, effectCandidate], heired);
+    specimen.expect(trajectory.trajectoryMarker).toBe(true);
 
-    specimen.it("prefers a match with an effect when signal exhausted", () => {
-      const signal = new Signal("users");
-      const traj = [signal, { trajectoryMarker: true }, null];
-      const eff = [signal, null, () => "result"];
-      const [, , effect] = feed([traj, eff], signal);
-      specimen.expect(effect).toBeTruthy();
-    });
+    const exhausted = new Signal("users");
+    const exhaustedTrajectory = [exhausted, { trajectoryMarker: true }, null];
+    const exhaustedEffect = [exhausted, null, () => "result"];
+    const [, , effect] = steer.match.feed([exhaustedTrajectory, exhaustedEffect], exhausted);
+    specimen.expect(effect).toBeTruthy();
   });
 });

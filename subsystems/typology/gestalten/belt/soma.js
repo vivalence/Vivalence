@@ -15,13 +15,70 @@ export function pour(turn, packet) {
       }
       break;
     }
-    case "/part/close":
+    case "/part/close": {
+      const part = turn.parts[packet.index];
+      if (part?.type === "tool_use" && typeof part.input === "string")
+        part.input = part.input ? JSON.parse(part.input) : {};
       break;
+    }
     case "/turn/close":
       turn.meta = packet.meta;
       break;
+    case "/turn/full":
+      return packet.turn;
   }
   return turn;
+}
+
+export function transcript(state, record) {
+  const current = state ?? {
+    open: null,
+    state: null,
+    rounds: 0,
+
+    turns: [],
+    message: null,
+    entities: {},
+    // @beef output.object? and output.message (maybe rename output.text for coherence?) and output.turns? wouold be nice to isolate the payload/yield early.
+    object: null,
+    meta: undefined,
+  };
+  switch (record.event) {
+    case "/turn/open":
+      return { ...current, open: pour(null, record) };
+    case "/turn/close": {
+      const sealed = pour(current.open, record);
+      const next = { ...current, turns: [...current.turns, sealed], open: null };
+      if (sealed.role === "assistant") {
+        const text = sealed.parts
+          .filter((part) => part.type === "text")
+          .map((part) => part.text)
+          .join(" ");
+        const data = sealed.object ?? sealed.parts.find((part) => part.type === "object")?.data;
+        if (text) next.message = text;
+        if (data !== undefined) next.object = data;
+      }
+      return next;
+    }
+    case "/turn/full":
+      return { ...current, turns: [...current.turns, record.turn] };
+    case "/tool/yield": {
+      const entities = { ...current.entities };
+      for (const [key, value] of Object.entries(record.result.entities ?? {}))
+        entities[key] = [...(entities[key] ?? []), ...(Array.isArray(value) ? value : [value])];
+      return {
+        ...current,
+        entities,
+        ...(record.result.object != null && { object: record.result.object }),
+      };
+    }
+    case "/session/close":
+      return { ...current, state: record.state, rounds: record.rounds, meta: record.meta };
+    case "/tool/call":
+      return current;
+    default:
+      return { ...current, open: pour(current.open, record) };
+  }
 }
 
 export function* drain(turn) {

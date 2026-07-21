@@ -27,8 +27,9 @@ export async function metadata(die) {
 
     if (mode.implements("APPLICATION"))
       meta.open("/app", () => ({
-        url: mode.module.app.url.absolute,
-        schema: mode.module.app.mask,
+        url: die.good.attach.branch("/bundle").branch(mode.mount.absolute).absolute,
+        view: mode.app.view.json,
+        schema: mode.app.schema ?? null,
       }));
 
     if (mode.implements("EMITTER")) meta.open("/emitter", () => shape.strip(mode.module.emitter));

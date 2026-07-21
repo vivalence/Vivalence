@@ -12,7 +12,7 @@ export const flashcard = new Vector().open(
     const emission = await ctx.mode.emit.deck({
       count: ctx.input.count,
       games: ["flashcard"],
-      thread: ctx.input.thread,
+      thread: ctx.thread,
     });
     return {
       message: emission.entities.buffer.length

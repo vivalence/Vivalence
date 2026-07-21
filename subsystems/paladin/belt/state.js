@@ -7,6 +7,11 @@ export default function state(paladin) {
 
   paladin.state = {
     dir: (path) => fs.ensureDir(resolve(path)),
+    text: async (path, text) => {
+      const file = resolve(path);
+      await parent(file);
+      await Deno.writeTextFile(file, text);
+    },
     json: async (path, data) => {
       const file = resolve(path);
       await parent(file);

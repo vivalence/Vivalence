@@ -35,7 +35,7 @@ export const ThreadDossier = {
 
       thread.$mode.subscribe((mode, previous) => {
         const shouldMask =
-          thread.mode?.implements?.("APPLICATION") && !is.empty(thread.mode?.metadata?.app?.schema);
+          thread.mode?.implements?.("APPLICATION") && !is.empty(thread.mode?.app?.schema);
         const has = thread.traits.includes("MASKED");
         if (shouldMask && !has) thread.traits = [...thread.traits, "MASKED"];
         else if (!shouldMask && has)

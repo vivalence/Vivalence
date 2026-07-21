@@ -69,6 +69,10 @@ export function App(thing) {
   // return thing instanceof App;
 }
 
+export function View(thing) {
+  return thing?.constructor?.name === "View";
+}
+
 export function yieldish(thing) {
   // @beef. technically wrong-ish and incomplete.
   return is.object(thing) && is.string(thing.condition) && is.object(thing.entities);

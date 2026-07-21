@@ -1,238 +1,141 @@
 import {
   specimen, Aperture, Connection, Url,
-  shard, shape, RemoteEntityManager,
-} from "@vivalence/typology"
-import { datamap } from "@vivalence/typology/scenarios"
-import { RemoteRepository } from "@vivalence/typology/prototypes"
+  shard, shape, RemoteEntityManager, RemoteRepository,
+} from "@vivalence/typology";
+import { datamap } from "@vivalence/typology/scenarios";
 
-let scenario, conn, schema, entityManager
+let scenario, connection, schema;
 
 specimen.beforeAll(async () => {
-  scenario = await datamap.seed()
-  const { repos } = scenario
+  scenario = await datamap.seed();
 
-  const aperture = new Aperture()
-  aperture.branch("/literal").slurp(shard.datamap.repository(repos.literal))
-  aperture.branch("/symbol").slurp(shard.datamap.repository(repos.symbol))
-  aperture.branch("/mode").slurp(shard.datamap.repository(repos.mode))
-  aperture.branch("/intent").slurp(shard.datamap.repository(repos.intent))
+  const aperture = new Aperture();
+  aperture.branch("/literal").slurp(shard.datamap.repository(scenario.repos.literal));
+  aperture.branch("/symbol").slurp(shard.datamap.repository(scenario.repos.symbol));
+  aperture.branch("/mode").slurp(shard.datamap.repository(scenario.repos.mode));
+  aperture.branch("/intent").slurp(shard.datamap.repository(scenario.repos.intent));
 
-  conn = new Connection(
+  connection = new Connection(
     new Url("http://test"),
     shard.transmitter.inline(shape.http(aperture)),
-  )
+  );
 
-  schema = shard.datamap.strip(scenario.orm.getMetadata())
-})
+  schema = shard.datamap.strip(scenario.orm.getMetadata());
+});
 
 specimen.afterAll(async () => {
-  await scenario.orm.close()
-})
-
-// Helper: create a fresh EM with repos registered
-function createEntityManager(repoConfigs) {
-  const entityManager = new RemoteEntityManager(conn, schema)
-  for (const [name, kind, endpoint, integrate] of repoConfigs) {
-    const repository = new RemoteRepository(kind).connect(conn.branch(endpoint))
-    entityManager.register(name, repository, integrate ?? null)
-  }
-  return entityManager
-}
+  await scenario.orm.close();
+});
 
 specimen.describe("RemoteRepository", () => {
-  specimen.describe("CRUD", () => {
-    let entityManager, remote
+  specimen.it("a repository speaks crud over the wire", async () => {
+    const entityManager = new RemoteEntityManager(connection, schema);
+    const literals = entityManager.register("literal", new RemoteRepository().connect(connection.branch("/literal")));
+    const modes = entityManager.register("mode", new RemoteRepository().connect(connection.branch("/mode")));
 
-    specimen.beforeAll(() => {
-      entityManager = createEntityManager([
-        ["literal", null, "/literal"],
-        ["mode", null, "/mode"],
-      ])
-      remote = entityManager.repo("literal")
-    })
+    const results = await literals.find({ slug: "hello" });
+    specimen.expect(results[0].slug).toBe("hello");
+    specimen.expect(literals.$entities.get().length).toBeGreaterThan(0);
 
-    specimen.it("find populates store", async () => {
-      const results = await remote.find({ slug: "hello" })
-      specimen.expect(results[0].slug).toBe("hello")
-      specimen.expect(remote.$entities.get().length).toBeGreaterThan(0)
-    })
+    const local = await literals.findOne({ slug: "hello" });
+    specimen.expect(local.slug).toBe("hello");
 
-    specimen.it("findOne local-first", async () => {
-      const local = await remote.findOne({ slug: "hello" })
-      specimen.expect(local.slug).toBe("hello")
-    })
+    const freshManager = new RemoteEntityManager(connection, schema);
+    const freshLiterals = freshManager.register("literal", new RemoteRepository().connect(connection.branch("/literal")));
+    const fetched = await freshLiterals.findOne({ slug: "hello" });
+    specimen.expect(fetched.slug).toBe("hello");
 
-    specimen.it("findOne falls back to server", async () => {
-      const freshEntityManager = createEntityManager([["literal", null, "/literal"]])
-      const fresh = freshEntityManager.repo("literal")
-      const result = await fresh.findOne({ slug: "hello" })
-      specimen.expect(result.slug).toBe("hello")
-    })
+    specimen.expect(await literals.findOne({ slug: "doesnt-exist-at-all" })).toBeNull();
 
-    specimen.it("findOne returns null for missing", async () => {
-      const result = await remote.findOne({ slug: "doesnt-exist-at-all" })
-      specimen.expect(result).toBeNull()
-    })
+    const [entities, count] = await literals.findAndCount({});
+    specimen.expect(count).toBeGreaterThan(0);
+    specimen.expect(entities.length).toBe(count);
 
-    specimen.it("findAndCount returns tuple", async () => {
-      const [entities, count] = await remote.findAndCount({})
-      specimen.expect(count).toBeGreaterThan(0)
-      specimen.expect(entities.length).toBe(count)
-    })
+    const counted = await literals.count({});
+    specimen.expect(typeof counted).toBe("number");
+    specimen.expect(counted).toBeGreaterThan(0);
 
-    specimen.it("count returns number", async () => {
-      const count = await remote.count({})
-      specimen.expect(typeof count).toBe("number")
-      specimen.expect(count).toBeGreaterThan(0)
-    })
+    const created = await literals.create({ slug: "repo-create", trait: {} });
+    specimen.expect(literals.$entities.get()).toContain(created);
 
-    specimen.it("create stores in $entities", async () => {
-      const entity = await remote.create({ slug: "repo-create", trait: {} })
-      specimen.expect(remote.$entities.get()).toContain(entity)
-    })
+    const ensured = await modes.ensure({ slug: "repo-ensure", type: "test", traits: [], installed: false });
+    specimen.expect(ensured.slug).toBe("repo-ensure");
+    specimen.expect(modes.$entities.get()).toContain(ensured);
 
-    specimen.it("ensure stores", async () => {
-      const modeRepo = entityManager.repo("mode")
-      const entity = await modeRepo.ensure({ slug: "repo-ensure", type: "test", traits: [], installed: false })
-      specimen.expect(entity.slug).toBe("repo-ensure")
-      specimen.expect(modeRepo.$entities.get()).toContain(entity)
-    })
+    const mutable = await literals.create({ slug: "repo-mut", trait: {} });
+    const updated = await literals.updateOne({ id: mutable.id }, { trait: { X: 1 } });
+    specimen.expect(updated).toBe(mutable);
+    specimen.expect(updated.trait.X).toBe(1);
 
-    specimen.it("updateOne preserves identity", async () => {
-      const entity = await remote.create({ slug: "repo-mut", trait: {} })
-      const updated = await remote.updateOne({ id: entity.id }, { trait: { X: 1 } })
-      specimen.expect(updated).toBe(entity)
-      specimen.expect(updated.trait.X).toBe(1)
-    })
+    const doomed = await literals.create({ slug: "repo-rm", trait: {} });
+    const before = literals.$entities.get().length;
+    await literals.removeOne({ id: doomed.id });
+    specimen.expect(literals.$entities.get().length).toBe(before - 1);
+  });
 
-    specimen.it("remove drops from store", async () => {
-      const entity = await remote.create({ slug: "repo-rm", trait: {} })
-      const before = remote.$entities.get().length
-      await remote.removeOne({ id: entity.id })
-      specimen.expect(remote.$entities.get().length).toBe(before - 1)
-    })
-  })
+  specimen.it("a prototype wraps what crosses the wire", async () => {
+    class Literal { constructor(data) { Object.assign(this, data); } }
+    const entityManager = new RemoteEntityManager(connection, schema);
+    const typed = entityManager.register("literal", new RemoteRepository(Literal).connect(connection.branch("/literal")));
 
-  specimen.describe("prototype wrapping", () => {
-    specimen.it("wraps find results in prototype", async () => {
-      class Literal { constructor(d) { Object.assign(this, d) } }
-      const entityManager = createEntityManager([])
-      const typed = new RemoteRepository(Literal).connect(conn.branch("/literal"))
-      entityManager.register("literal", typed)
-      const results = await typed.find({ slug: "hello" })
-      specimen.expect(results[0]).toBeInstanceOf(Literal)
-    })
+    const results = await typed.find({ slug: "hello" });
+    specimen.expect(results[0]).toBeInstanceOf(Literal);
 
-    specimen.it("wraps create result in prototype", async () => {
-      class Literal { constructor(d) { Object.assign(this, d) } }
-      const entityManager = createEntityManager([])
-      const typed = new RemoteRepository(Literal).connect(conn.branch("/literal"))
-      entityManager.register("literal", typed)
-      const entity = await typed.create({ slug: "proto-create", trait: {} })
-      specimen.expect(entity).toBeInstanceOf(Literal)
-    })
-  })
+    const created = await typed.create({ slug: "proto-create", trait: {} });
+    specimen.expect(created).toBeInstanceOf(Literal);
+  });
 
-  specimen.describe("store identity", () => {
-    specimen.it("merge upserts by id", async () => {
-      const entityManager = createEntityManager([["test", null, "/literal"]])
-      const remote = entityManager.repo("test")
-      const a = await remote.merge({ id: "1", slug: "a" })
-      const b = await remote.merge({ id: "1", slug: "b" })
-      specimen.expect(a).toBe(b)
-      specimen.expect(a.slug).toBe("b")
-      specimen.expect(remote.$entities.get().length).toBe(1)
-    })
+  specimen.it("a store keeps one identity per id", async () => {
+    const entityManager = new RemoteEntityManager(connection, schema);
+    const store = entityManager.register("test", new RemoteRepository().connect(connection.branch("/literal")));
 
-    specimen.it("merge appends new entities", async () => {
-      const entityManager = createEntityManager([["test", null, "/literal"]])
-      const remote = entityManager.repo("test")
-      await remote.merge({ id: "1", slug: "a" })
-      await remote.merge({ id: "2", slug: "b" })
-      specimen.expect(remote.$entities.get().length).toBe(2)
-    })
+    const first = await store.merge({ id: "1", slug: "a", enriched: "yes" });
+    const second = await store.merge({ id: "1", slug: "b" });
+    specimen.expect(first).toBe(second);
+    specimen.expect(first.slug).toBe("b");
+    specimen.expect(first.enriched).toBe("yes");
+    specimen.expect(store.$entities.get().length).toBe(1);
 
-    specimen.it("merge returns null for null input", async () => {
-      const entityManager = createEntityManager([["test", null, "/literal"]])
-      const remote = entityManager.repo("test")
-      specimen.expect(await remote.merge(null)).toBeNull()
-    })
+    await store.merge({ id: "2", slug: "b" });
+    specimen.expect(store.$entities.get().length).toBe(2);
 
-    specimen.it("drop removes by id", async () => {
-      const entityManager = createEntityManager([["test", null, "/literal"]])
-      const remote = entityManager.repo("test")
-      await remote.merge({ id: "1", slug: "a" })
-      await remote.merge({ id: "2", slug: "b" })
-      remote.drop("1")
-      specimen.expect(remote.$entities.get().length).toBe(1)
-      specimen.expect(remote.$entities.get()[0].id).toBe("2")
-    })
+    specimen.expect(await store.merge(null)).toBeNull();
 
-    specimen.it("upsert does not overwrite existing values with undefined", async () => {
-      const entityManager = createEntityManager([["test", null, "/literal"]])
-      const remote = entityManager.repo("test")
-      const a = await remote.merge({ id: "1", slug: "a", enriched: "yes" })
-      await remote.merge({ id: "1", slug: "b" })
-      specimen.expect(a.slug).toBe("b")
-      specimen.expect(a.enriched).toBe("yes")
-    })
+    store.drop("1");
+    specimen.expect(store.$entities.get().length).toBe(1);
+    specimen.expect(store.$entities.get()[0].id).toBe("2");
 
-    specimen.it("integrate fires on first-sight entity with (entity, raw)", async () => {
-      const seen = []
-      const entityManager = createEntityManager([["test", null, "/literal", async (entity, raw) => seen.push({ entity, raw })]])
-      const remote = entityManager.repo("test")
-      const a = await remote.merge({ id: "1", slug: "a" })
-      specimen.expect(seen.length).toBe(1)
-      specimen.expect(seen[0].entity).toBe(a)
-      specimen.expect(seen[0].raw.slug).toBe("a")
-    })
+    const seen = [];
+    const observing = new RemoteEntityManager(connection, schema);
+    const observed = observing.register(
+      "test",
+      new RemoteRepository().connect(connection.branch("/literal")),
+      async (entity, raw) => seen.push({ entity, raw }),
+    );
+    const merged = await observed.merge({ id: "1", slug: "a" });
+    specimen.expect(seen.length).toBe(1);
+    specimen.expect(seen[0].entity).toBe(merged);
+    specimen.expect(seen[0].raw.slug).toBe("a");
+    await observed.merge({ id: "1", slug: "b" });
+    await observed.merge({ id: "1", slug: "c" });
+    specimen.expect(seen.length).toBe(1);
+  });
 
-    specimen.it("integrate does not re-fire on re-merge of existing id", async () => {
-      let count = 0
-      const entityManager = createEntityManager([["test", null, "/literal", async () => { count++ }]])
-      const remote = entityManager.repo("test")
-      await remote.merge({ id: "1", slug: "a" })
-      await remote.merge({ id: "1", slug: "b" })
-      await remote.merge({ id: "1", slug: "c" })
-      specimen.expect(count).toBe(1)
-    })
-  })
+  specimen.it("a cast hydrates relations through the manager", async () => {
+    const entityManager = new RemoteEntityManager(connection, schema);
+    const modes = entityManager.register("mode", new RemoteRepository().connect(connection.branch("/mode")));
+    const intents = entityManager.register("intent", new RemoteRepository().connect(connection.branch("/intent")));
 
-  specimen.describe("hydration", () => {
-    specimen.it("hydrates m:1 relations via EM", async () => {
-      const entityManager = new RemoteEntityManager(conn, schema)
-      const modes = new RemoteRepository().connect(conn.branch("/mode"))
-      const intents = new RemoteRepository().connect(conn.branch("/intent"))
-      entityManager.register("mode", modes)
-      entityManager.register("intent", intents)
+    const mode = await modes.merge({ id: "m1", slug: "flashcard" });
+    const intent = await intents.cast({ id: "i1", slug: "greet", mode: { id: "m1", slug: "flashcard" } });
+    specimen.expect(intent.mode).toBe(mode);
 
-      const mode = await modes.merge({ id: "m1", slug: "flashcard" })
-      const intent = await intents.cast({ id: "i1", slug: "greet", mode: { id: "m1", slug: "flashcard" } })
+    const child = await intents.merge({ id: "i-child", slug: "a" });
+    const parent = await modes.cast({ id: "m2", intents: [{ id: "i-child", slug: "a" }, { id: "i2", slug: "b" }] });
+    specimen.expect(parent.intents[0]).toBe(child);
+    specimen.expect(parent.intents[1].id).toBe("i2");
 
-      specimen.expect(intent.mode).toBe(mode)
-    })
-
-    specimen.it("hydrates 1:m relations via EM", async () => {
-      const entityManager = new RemoteEntityManager(conn, schema)
-      const modes = new RemoteRepository().connect(conn.branch("/mode"))
-      const intents = new RemoteRepository().connect(conn.branch("/intent"))
-      entityManager.register("mode", modes)
-      entityManager.register("intent", intents)
-
-      const i1 = await intents.merge({ id: "i1", slug: "a" })
-      const mode = await modes.cast({ id: "m1", intents: [{ id: "i1", slug: "a" }, { id: "i2", slug: "b" }] })
-
-      specimen.expect(mode.intents[0]).toBe(i1)
-      specimen.expect(mode.intents[1].id).toBe("i2")
-    })
-
-    specimen.it("skips null relation values", async () => {
-      const entityManager = new RemoteEntityManager(conn, schema)
-      const modes = new RemoteRepository().connect(conn.branch("/mode"))
-      entityManager.register("mode", modes)
-
-      const entity = await modes.cast({ id: "1", mode: null })
-      specimen.expect(entity.mode).toBeNull()
-    })
-  })
-})
+    const nullish = await modes.cast({ id: "1", mode: null });
+    specimen.expect(nullish.mode).toBeNull();
+  });
+});

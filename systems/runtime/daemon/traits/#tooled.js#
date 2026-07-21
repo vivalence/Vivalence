@@ -1,0 +1,7 @@
+import { Vector, shard } from "@vivalence/typology";
+
+export const TOOLED = (mode, daemon) => {
+  mode.tools.use(shard.context.bind("daemon", daemon));
+  mode.tools.use(shard.context.bind("mode", mode));
+  if (mode.module.tools) mode.tools.slurp(mode.module.tools);
+};

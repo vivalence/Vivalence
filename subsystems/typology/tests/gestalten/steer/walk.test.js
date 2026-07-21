@@ -1,44 +1,35 @@
-import { specimen, steer } from "@vivalence/typology";
-import { Signal } from "@vivalence/typology";
-import { Vector } from "@vivalence/typology";
-
-const { walk } = steer.dispatch;
+import { specimen, steer, Signal, Vector } from "@vivalence/typology";
 
 const signals = (...paths) => {
-  let i = 0;
-  return () => Promise.resolve(i < paths.length ? new Signal(paths[i++]) : []);
+  let cursor = 0;
+  return () => Promise.resolve(cursor < paths.length ? new Signal(paths[cursor++]) : []);
 };
 
 specimen.describe("walk", () => {
-  specimen.it("finds effect in single step", async () => {
-    const vector = new Vector();
-    const f = () => "found";
-    vector.open("/users/:id", f);
+  specimen.it("a walk steps signal by signal to its effect", async () => {
+    const parameterized = new Vector();
+    const identify = () => "found";
+    parameterized.open("/users/:id", identify);
+    const [identityEffect, , identitySteps] = await steer.dispatch.walk(parameterized, signals("/users/123"));
+    specimen.expect(identityEffect).toBe(identify);
+    specimen.expect(identitySteps.length).toBe(2);
 
-    const [effect, , steps] = await walk(vector, signals("/users/123"));
-    specimen.expect(effect).toBe(f);
-    specimen.expect(steps.length).toBe(2);
+    const flat = new Vector();
+    const grounded = () => "flat";
+    flat.open("test", grounded);
+    const [flatEffect] = await steer.dispatch.walk(flat, signals("test"));
+    specimen.expect(flatEffect).toBe(grounded);
   });
 
-  specimen.it("finds effect with no heir", async () => {
-    const vector = new Vector();
-    const f = () => "flat";
-    vector.open("test", f);
-
-    const [effect] = await walk(vector, signals("test"));
-    specimen.expect(effect).toBe(f);
-  });
-
-  specimen.it("carries middleware from traversal", async () => {
+  specimen.it("a carry rides along the walk", async () => {
     const trace = [];
     const vector = new Vector();
-
     vector
-      .use(async (_, next) => { trace.push("mw"); await next(); })
+      .use(async (ctx, next) => { trace.push("mw"); await next(); })
       .branch("api")
       .open("test", () => "result");
 
-    const [, carry] = await walk(vector, signals("/api/test"));
+    const [, carry] = await steer.dispatch.walk(vector, signals("/api/test"));
     await carry({}, async () => trace.push("terminal"));
     specimen.expect(trace).toEqual(["mw", "terminal"]);
   });

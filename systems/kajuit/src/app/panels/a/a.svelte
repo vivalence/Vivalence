@@ -8,20 +8,21 @@
   let { rect } = $props();
 
   const terminals = getContext(TERMINALS);
-  // @beef i suspect the client should have more of a say about the sourcing of view.
-  // i would like to determine the boundry of view to be here. frame renders view and termina+buffer.
-  // view is resolved inside the app.
-  // frame is a renderer over view{kind hash mount bundle}
-  // terminal is passed through. terminal transports buffer, mode, thread, etc. singular input.
-  // i also suspect that there is malaligned polymorphism on buffer.view and mode.pro.view and mode.app.view. i smell the risk of an asymmetry across the same semantics on client and server.
-  // maybe the clear boundry is buffer.view as finished bundle
-  // and app.view and pro.view as app.buffer and procedural.buffer
-  // hmm containers as servers.
 
   const terminal = terminals.$active;
   const thread = chain(terminals, "$active", "$thread");
+  const buffer = chain(terminals, "$active", "$buffer");
   const mode = chain(terminals, "$active", "$thread", "$mode");
   const dock = chain(terminals, "$active", "$dock");
+
+  const view = $derived.by(() => {
+    const active = $buffer;
+    if (!active) return null;
+    const base = active.mode?.app?.url ?? null;
+    if (active.view) return base ? active.view.withUrl(base) : active.view;
+    if (!active.mode?.app?.view) throw new Error("[a] buffer & mode missing view");
+    return active.mode.app.view;
+  });
 
   const dockable = $derived($mode?.implements?.("HARNESSED") ?? false);
   const geom = $derived(dockable && rect.width > 0 && rect.height > 0 ? stores.bridge.resolve($dock, rect) : null,);
@@ -57,7 +58,7 @@
     style:flex-direction={geom?.direction ?? "row"}>
     <div class="stage">
       {#if $terminal}
-        <Frame  terminal={$terminal}>
+        <Frame terminal={$terminal} {view}>
           <span class="label">A</span>
         </Frame>
       {:else}

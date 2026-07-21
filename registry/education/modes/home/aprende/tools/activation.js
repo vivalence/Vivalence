@@ -10,7 +10,7 @@ export const activation = new Vector().open(
     }),
   },
   async (ctx) => {
-    const emission = await ctx.mode.emit.activation({ ...ctx.input, thread: ctx.input.thread });
+    const emission = await ctx.mode.emit.activation({ ...ctx.input, thread: ctx.thread });
     return {
       message: emission.entities.buffer.length
         ? `Session started — ${emission.entities.buffer.length === 1 ? "one exercise" : `${emission.entities.buffer.length} exercises`} on screen.`

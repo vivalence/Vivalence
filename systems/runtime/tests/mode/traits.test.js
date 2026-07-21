@@ -66,11 +66,6 @@ specimen.describe("mode traits", () => {
       specimen.expect(result.data.recall).toBe("LEARNING");
     });
 
-    specimen.it("/buffered endpoint serves url and schema", async () => {
-      const result = await scenario.conn.call("/mode/game/flashcard/buffered");
-      specimen.expect(result.url).toBeTruthy();
-      specimen.expect(result.schema).toBeTruthy();
-    });
   });
 
   specimen.describe("EXPOSED", () => {
@@ -87,12 +82,6 @@ specimen.describe("mode traits", () => {
       });
       specimen.expect(result.condition).toBe("NOMINAL");
       specimen.expect(result.entities.buffer[0].data.recall).toBe("LEARNING");
-    });
-
-    specimen.it("mode.call.buffered returns url and schema", async () => {
-      const result = await scenario.mode.call.buffered();
-      specimen.expect(result.url).toBeTruthy();
-      specimen.expect(result.schema).toBeTruthy();
     });
 
     specimen.it("arity 2 handlers work through object compilation", async () => {
@@ -218,7 +207,7 @@ specimen.describe("mode traits", () => {
         emptyMode.id = scenario.fixtures.mode.id;
         emptyMode.module.emitter = new Vector().open("/nothing", async () => []);
         const traits = await import("@vivalence/runtime/daemon/traits");
-        await traits.stagger(emptyMode, scenario.daemon, traits);
+        for (const finalize of await traits.stagger(emptyMode, scenario.daemon, traits)) await finalize();
         const result = await emptyMode.emit.nothing({});
         specimen.expect(result.condition).toBe("EXHAUSTED");
         specimen.expect(result.entities.buffer).toEqual([]);

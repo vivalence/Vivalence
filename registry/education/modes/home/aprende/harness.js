@@ -1,4 +1,4 @@
-import { Vector, shape } from "@vivalence/typology";
+import { Vector } from "@vivalence/typology";
 
 import * as hal from "./hal/index.js";
 import { gather } from "./gather.js";
@@ -17,13 +17,7 @@ export const harness = new Vector() //
     // console.log("HARNESS after()", ctx.input, ctx.output);
   })
   .use(async (ctx, next) => {
-    const { tools } = shape.agentic(ctx.mode.aperture.branch("/tool"));
-    const thread = ctx.input.thread;
-    for (const tool of Object.values(tools)) {
-      const execute = tool.execute;
-      tool.execute = (input) => execute({ ...input, thread });
-    }
-    ctx.hallucination.entities.tool.add(tools);
+    if (ctx.mode.tools) ctx.hallucination.tools.slurp(ctx.mode.tools);
     await next();
   }).root;
 

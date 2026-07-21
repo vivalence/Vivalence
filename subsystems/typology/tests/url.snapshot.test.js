@@ -20,9 +20,12 @@ describe("snapshot demo: url", () => {
     );
     console.log(`\n===BEGIN url → ${path}===\n${JSON.stringify(pojo, null, 2)}\n===END===\n`);
     expect(pojo).toEqual({
-      nature: "/daemon/brazilian/metadata/modes",
-      absolute: "http://localhost:2501/daemon/brazilian/metadata/modes?depth=3",
+      url: "http://localhost:2501/daemon/brazilian/metadata/modes?depth=3",
       origin: "http://localhost:2501",
+      scheme: "http",
+      path: "/daemon/brazilian/metadata/modes",
+      query: { depth: "3" },
+      parts: ["daemon", "brazilian", "metadata", "modes"],
     });
   });
 });

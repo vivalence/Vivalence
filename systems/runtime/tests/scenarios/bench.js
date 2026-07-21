@@ -39,17 +39,11 @@ import * as apertureSetup from "../../daemon/aperture/index.js";
 // ── test APPLICATION ──────────────────────────────────────────────────
 // Same as real APPLICATION but skips the svelte bundler (no esbuild).
 const BENCH_APPLICATION = async (mode, daemon) => {
-  // noop bundler — bench doesn't serve compiled svelte components
-  mode.module.app.withBundler(() => ({ code: "", url: "" }));
-  mode.aperture.open("/buffered", () => ({
-    url: mode.module.app.url.absolute,
-    schema: mode.module.app.mask,
-  }));
-
   mode.app.buffer = async (desc = {}) => {
     const buffer = daemon.entities.em.create(BufferEntity, {
       mode: mode.entity.id,
-      data: mode.app.cast(desc),
+      data: mode.app.fill(desc),
+      view: null,
       index: desc.index ?? 0,
     });
     if (desc.literals) buffer.literals.add(await daemon.entities.literal.findByIdentifiers(desc.literals));

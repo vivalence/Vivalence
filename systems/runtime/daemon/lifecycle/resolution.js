@@ -27,6 +27,7 @@ export async function freight(daemonDie) {
 
 export async function modes(daemonDie) {
   await daemonDie.datamap.shard.context(async () => {
+    const finalizers = [];
     for (const mode of daemonDie.good.flatmodes()) {
       mode.aperture
         .use(shard.context.bind("daemon", daemonDie.good))
@@ -36,14 +37,18 @@ export async function modes(daemonDie) {
 
       if (mode.module.aperture) mode.aperture.slurp(mode.module.aperture);
 
-      await stagger(mode, daemonDie.good, daemonDie.variant.traits);
+      finalizers.push(...(await stagger(mode, daemonDie.good, daemonDie.variant.traits)));
 
       if (mode.module.aperture && !mode.implements("EXPOSED")) {
         console.warn(`[trait] ${mode.type}/${mode.slug} exports aperture without EXPOSED`);
       }
 
       await daemonDie.good.entities.mode.nativeUpdate({ id: mode.entity.id }, { installed: true });
+    }
 
+    await Promise.all(finalizers.map((finalize) => finalize()));
+
+    for (const mode of daemonDie.good.flatmodes()) {
       daemonDie.good.aperture
         .branch(mode.mount.nature)
         .use(shard.secure.authorize())

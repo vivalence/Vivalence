@@ -3,12 +3,12 @@ import { specimen, Cortex } from "@vivalence/typology";
 function makeService(slug, faculties) {
   return {
     manifest: { owner: "@vivalence", type: "hallucinator", slug },
-    provider: async (mask) => faculties.map((f) => ({ ...f, secret: mask.secrets[slug] })),
+    provider: async (mask) => faculties.map((faculty) => ({ ...faculty, secret: mask.secrets[slug] })),
   };
 }
 
-specimen.describe("cortex hallucinators array → unified registration", () => {
-  specimen.it("loops { service, mask } and registers each provider's faculties", async () => {
+specimen.describe("Cortex hallucinators", () => {
+  specimen.it("a hallucinator roster registers into one cortex", async () => {
     const services = [
       {
         service: makeService("anthropic", [
@@ -48,7 +48,7 @@ specimen.describe("cortex hallucinators array → unified registration", () => {
     specimen.expect(verbatim.secret).toBe("key-d");
   });
 
-  specimen.it("empty hallucinators array → cortex has no faculties", async () => {
+  specimen.it("an empty roster leaves the cortex barren", async () => {
     const cortex = new Cortex();
     for (const { service, mask } of []) {
       cortex.register(await service.provider(mask));
@@ -57,7 +57,7 @@ specimen.describe("cortex hallucinators array → unified registration", () => {
     specimen.expect(cortex.find({ type: "dialogue" })).toHaveLength(0);
   });
 
-  specimen.it("multiple services emitting same faculty type all land in cortex", async () => {
+  specimen.it("rival providers of one type share the cortex", async () => {
     const services = [
       {
         service: makeService("anthropic", [

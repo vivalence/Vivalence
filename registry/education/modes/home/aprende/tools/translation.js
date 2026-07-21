@@ -12,7 +12,7 @@ export const translation = new Vector().open(
     const emission = await ctx.mode.emit.deck({
       count: ctx.input.count,
       games: ["write"],
-      thread: ctx.input.thread,
+      thread: ctx.thread,
     });
     return {
       message: emission.entities.buffer.length

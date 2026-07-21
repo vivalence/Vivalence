@@ -9,15 +9,12 @@ import { INTENTED, EMITTER, EXPOSED, HARNESSED, stagger } from "@vivalence/runti
 // Entity classes via tiers.<type>.entity = the actually-registered classes.
 function APPLICATION(mode, daemon) {
   if (!mode.module.app) return;
-  mode.aperture.open("/buffered", () => ({
-    url: mode.module.app.url.absolute,
-    schema: mode.module.app.mask,
-  }));
   mode.app.buffer = (desc = {}) => {
     const em = daemon.entities.em;
     const buffer = em.create(tiers.buffer.entity, {
       mode: mode.entity.id,
       data: mode.app.fill(desc),
+      view: null,
       index: desc.index ?? 0,
     });
     if (desc.literals)
@@ -84,7 +81,6 @@ async function wireMode(viva, daemon) {
 
   if (viva.app) {
     mode.app = mode.module.app = viva.app; // mirror real Mode: Object.assign makes mode.app === mode.module.app
-    mode.app.withUrl(new Url(`http://test/view/${viva.manifest.type}/${viva.manifest.slug}`));
   }
   if (viva.dataset) mode.module.dataset = viva.dataset;
   if (viva.emitter) mode.module.emitter = new Vector().slurp(viva.emitter);
@@ -94,7 +90,8 @@ async function wireMode(viva, daemon) {
   daemon.modes[viva.manifest.type] ??= {};
   daemon.modes[viva.manifest.type][viva.manifest.slug] = mode;
 
-  await stagger(mode, daemon, { APPLICATION, INTENTED, EMITTER, EXPOSED, ...(daemon.cortex && { HARNESSED }) });
+  const finalizers = await stagger(mode, daemon, { APPLICATION, INTENTED, EMITTER, EXPOSED, ...(daemon.cortex && { HARNESSED }) });
+  for (const finalize of finalizers) await finalize();
 
   daemon.aperture.branch(mode.mount.absolute).slurp(mode.aperture); // → conn-reachable
 

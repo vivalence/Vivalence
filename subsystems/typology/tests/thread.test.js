@@ -2,7 +2,7 @@ import { specimen } from "@vivalence/typology";
 import { IntentEntity, ThreadEntity } from "@vivalence/typology/entities";
 import { seed } from "./scenarios/datamap.js";
 
-specimen.describe("Thread beforeCreate hook", () => {
+specimen.describe("Thread", () => {
   let orm;
   let em;
   let fixtures;
@@ -15,7 +15,7 @@ specimen.describe("Thread beforeCreate hook", () => {
     await orm.close();
   });
 
-  specimen.it("copies intent.traits into thread.traits when intent is present", async () => {
+  specimen.it("an intent template stamps a newborn thread", async () => {
     const intent = em.create(IntentEntity, {
       slug: "template-copy-traits",
       name: "Template Copy",
@@ -29,21 +29,33 @@ specimen.describe("Thread beforeCreate hook", () => {
     });
     await em.flush();
 
-    const thread = em.create(ThreadEntity, {
+    const stamped = em.create(ThreadEntity, {
       user: fixtures.user,
       mode: fixtures.mode,
       intent,
     });
     await em.flush();
 
-    specimen.expect(thread.traits).toEqual(["MASKED", "AIMED", "QUEUEING"]);
-    specimen.expect(thread.trait.AIMED.mount).toBe("/emit/feed");
-    specimen.expect(thread.trait.QUEUEING.depth).toBe(1);
-    specimen.expect(thread.trait.MASKED.limit).toBe(4);
+    specimen.expect(stamped.traits).toEqual(["MASKED", "AIMED", "QUEUEING"]);
+    specimen.expect(stamped.trait.AIMED.mount).toBe("/emit/feed");
+    specimen.expect(stamped.trait.QUEUEING.depth).toBe(1);
+    specimen.expect(stamped.trait.MASKED.limit).toBe(4);
+
+    const orphan = em.create(ThreadEntity, {
+      user: fixtures.user,
+      mode: fixtures.mode,
+      traits: ["SELFEVIDENT"],
+      trait: { SELFEVIDENT: { static: true } },
+    });
+    await em.flush();
+
+    specimen.expect(orphan.traits).toEqual(["SELFEVIDENT"]);
+    specimen.expect(orphan.trait.SELFEVIDENT.static).toBe(true);
+    specimen.expect(orphan.intent).toBeFalsy();
   });
 
-  specimen.it("deep-merges intent.trait with thread.trait, thread wins per nested key", async () => {
-    const intent = em.create(IntentEntity, {
+  specimen.it("a thread wins the deep merge and the template survives", async () => {
+    const merging = em.create(IntentEntity, {
       slug: "template-deep-merge",
       name: "Template Override",
       traits: ["MASKED", "AIMED", "QUEUEING"],
@@ -56,36 +68,20 @@ specimen.describe("Thread beforeCreate hook", () => {
     });
     await em.flush();
 
-    const thread = em.create(ThreadEntity, {
+    const overriding = em.create(ThreadEntity, {
       user: fixtures.user,
       mode: fixtures.mode,
-      intent,
+      intent: merging,
       trait: { MASKED: { limit: 10 } },
     });
     await em.flush();
 
-    specimen.expect(thread.traits).toEqual(["MASKED", "AIMED", "QUEUEING"]);
-    specimen.expect(thread.trait.AIMED.mount).toBe("/emit/feed");
-    specimen.expect(thread.trait.QUEUEING.depth).toBe(1);
-    specimen.expect(thread.trait.MASKED.limit).toBe(10);
-  });
+    specimen.expect(overriding.traits).toEqual(["MASKED", "AIMED", "QUEUEING"]);
+    specimen.expect(overriding.trait.AIMED.mount).toBe("/emit/feed");
+    specimen.expect(overriding.trait.QUEUEING.depth).toBe(1);
+    specimen.expect(overriding.trait.MASKED.limit).toBe(10);
 
-  specimen.it("is a no-op when intent is absent", async () => {
-    const thread = em.create(ThreadEntity, {
-      user: fixtures.user,
-      mode: fixtures.mode,
-      traits: ["SELFEVIDENT"],
-      trait: { SELFEVIDENT: { static: true } },
-    });
-    await em.flush();
-
-    specimen.expect(thread.traits).toEqual(["SELFEVIDENT"]);
-    specimen.expect(thread.trait.SELFEVIDENT.static).toBe(true);
-    specimen.expect(thread.intent).toBeFalsy();
-  });
-
-  specimen.it("intent template is not mutated by thread creation", async () => {
-    const intent = em.create(IntentEntity, {
+    const immutable = em.create(IntentEntity, {
       slug: "template-immutable",
       name: "Template Immutable",
       traits: ["MASKED", "AIMED", "QUEUEING"],
@@ -98,15 +94,15 @@ specimen.describe("Thread beforeCreate hook", () => {
     });
     await em.flush();
 
-    const thread = em.create(ThreadEntity, {
+    const diverging = em.create(ThreadEntity, {
       user: fixtures.user,
       mode: fixtures.mode,
-      intent,
+      intent: immutable,
       trait: { MASKED: { limit: 99 } },
     });
     await em.flush();
 
-    specimen.expect(intent.trait.MASKED.limit).toBe(4);
-    specimen.expect(thread.trait.MASKED.limit).toBe(99);
+    specimen.expect(immutable.trait.MASKED.limit).toBe(4);
+    specimen.expect(diverging.trait.MASKED.limit).toBe(99);
   });
 });

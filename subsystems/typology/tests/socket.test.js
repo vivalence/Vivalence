@@ -1,49 +1,57 @@
 import { specimen, sleep, Vector, Aperture, Socket, shard, shape } from "@vivalence/typology";
 
-const { http } = shape;
-
 specimen.describe("Socket", () => {
   const PORT = 9883;
   const abort = new AbortController();
   const logged = [];
-  let serverSocket = null;
 
   const serverApp = new Vector();
-  serverApp.open("echo",   (ctx) => ({ echo: ctx.input }));
-  serverApp.open("log",    (ctx) => { logged.push(ctx.input); });
+  serverApp.open("echo", (ctx) => ({ echo: ctx.input }));
+  serverApp.open("log", (ctx) => {
+    logged.push(ctx.input);
+  });
   serverApp.open("pingme", (ctx) => {
     ctx.socket.push("pushed", { msg: "hi" });
     return { ok: true };
   });
-  serverApp.open("set", (ctx) => { ctx.socket.state.x = ctx.input.x; return { ok: true }; });
+  serverApp.open("set", (ctx) => {
+    ctx.socket.state.x = ctx.input.x;
+    return { ok: true };
+  });
   serverApp.open("get", (ctx) => ({ x: ctx.socket.state.x }));
 
   const mount = new Aperture();
-  mount.get("connect", shard.serve.websocket((ws) => {
-    serverSocket = new Socket(ws, serverApp);
-  }));
+  mount.get("connect", shard.serve.websocket((websocket) => new Socket(websocket, serverApp)));
 
   specimen.beforeAll(async () => {
-    Deno.serve({ port: PORT, signal: abort.signal, onListen() {} }, http(mount));
+    Deno.serve({ port: PORT, signal: abort.signal, onListen() {} }, shape.http(mount));
     await sleep.ms(100);
   });
   specimen.afterAll(() => abort.abort());
 
-  specimen.it("call() awaits a correlated reply", async () => {
-    const ws = new WebSocket(`ws://localhost:${PORT}/connect`);
-    await new Promise((r) => { ws.onopen = r; });
-    const socket = new Socket(ws, new Vector());
+  specimen.it("a call awaits its correlated reply and state survives the frames", async () => {
+    const websocket = new WebSocket(`ws://localhost:${PORT}/connect`);
+    await new Promise((resolve) => {
+      websocket.onopen = resolve;
+    });
+    const socket = new Socket(websocket, new Vector());
     await sleep.ms(20);
 
     const reply = await socket.call("echo", { text: "hello" });
     specimen.expect(reply).toEqual({ echo: { text: "hello" } });
+
+    await socket.call("set", { x: 42 });
+    const answered = await socket.call("get", {});
+    specimen.expect(answered).toEqual({ x: 42 });
     socket.close();
   });
 
-  specimen.it("push() sends a frame without awaiting a reply", async () => {
-    const ws = new WebSocket(`ws://localhost:${PORT}/connect`);
-    await new Promise((r) => { ws.onopen = r; });
-    const socket = new Socket(ws, new Vector());
+  specimen.it("a push crosses without awaiting a reply", async () => {
+    const websocket = new WebSocket(`ws://localhost:${PORT}/connect`);
+    await new Promise((resolve) => {
+      websocket.onopen = resolve;
+    });
+    const socket = new Socket(websocket, new Vector());
     await sleep.ms(20);
 
     socket.push("log", { msg: "tick" });
@@ -52,32 +60,24 @@ specimen.describe("Socket", () => {
     socket.close();
   });
 
-  specimen.it("server-initiated push dispatches through client vector", async () => {
+  specimen.it("a server push lands in the client vector", async () => {
     const received = [];
     const clientApp = new Vector();
-    clientApp.open("pushed", (ctx) => { received.push(ctx.input); });
+    clientApp.open("pushed", (ctx) => {
+      received.push(ctx.input);
+    });
 
-    const ws = new WebSocket(`ws://localhost:${PORT}/connect`);
-    await new Promise((r) => { ws.onopen = r; });
-    const socket = new Socket(ws, clientApp);
+    const websocket = new WebSocket(`ws://localhost:${PORT}/connect`);
+    await new Promise((resolve) => {
+      websocket.onopen = resolve;
+    });
+    const socket = new Socket(websocket, clientApp);
     await sleep.ms(20);
 
     await socket.call("pingme", {});
     await sleep.ms(50);
 
     specimen.expect(received).toContainEqual({ msg: "hi" });
-    socket.close();
-  });
-
-  specimen.it("ctx.socket.state persists across frames on same connection", async () => {
-    const ws = new WebSocket(`ws://localhost:${PORT}/connect`);
-    await new Promise((r) => { ws.onopen = r; });
-    const socket = new Socket(ws, new Vector());
-    await sleep.ms(20);
-
-    await socket.call("set", { x: 42 });
-    const got = await socket.call("get", {});
-    specimen.expect(got).toEqual({ x: 42 });
     socket.close();
   });
 });

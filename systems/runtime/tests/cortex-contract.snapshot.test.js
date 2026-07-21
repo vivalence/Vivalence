@@ -31,16 +31,16 @@ function contractFaculty() {
                 type: "tool_use",
                 id: "call-1",
                 name: "lookup",
-                input: JSON.stringify({ query: "casa" }),
+                input: { query: "casa" },
               },
             ],
-            meta: { stop: "tool_use" },
+            meta: { state: "tools" },
           };
         }
         return {
           role: "assistant",
           parts: [{ type: "text", text: "casa means house" }],
-          meta: { stop: "end_turn" },
+          meta: { state: "complete" },
         };
       },
     },
@@ -82,14 +82,14 @@ specimen.describe("cortex contract snapshot — what actually crosses the daemon
       output: { object: v.object({ verdict: v.string() }) },
     });
     hallucination.context.system("You are the wire contract pin.");
-    hallucination.entities.tool.add("lookup", async (input) => ({
-      message: `${input.query} means house`,
-    }));
-    hallucination.entities.tool.add("grade", {
-      valence: "grades an answer",
-      input: v.object({ score: v.number() }),
-      execute: async () => ({ message: "graded" }),
-    });
+    hallucination.tools.open(
+      { nature: "lookup" },
+      async (ctx) => ({ message: `${ctx.input.query} means house` }),
+    );
+    hallucination.tools.open(
+      { nature: "grade", valence: "grades an answer", input: v.object({ score: v.number() }) },
+      async () => ({ message: "graded" }),
+    );
     hallucination.entities.turn.append({ role: "user", parts: [{ type: "text", text: "casa" }] });
     sealed = await hallucination.dialogue.render();
   });
@@ -101,9 +101,9 @@ specimen.describe("cortex contract snapshot — what actually crosses the daemon
   specimen.it("the /cortex/render rounds: tools cross stripped of execute, settings + output ride", () => {
     const rounds = exchanges.filter((exchange) => exchange.pathname === "/cortex/render");
     specimen.expect(rounds).toHaveLength(2);
-    specimen.expect(rounds[0].body.request.tools.lookup).toEqual({});
-    specimen.expect(rounds[0].body.request.tools.grade.execute).toBe(undefined);
-    specimen.expect(sealed.parts[0].text).toBe("casa means house");
+    specimen.expect(rounds[0].body.request.tools.find((tool) => tool.name === "lookup")).toEqual({ name: "lookup" });
+    specimen.expect(rounds[0].body.request.tools.find((tool) => tool.name === "grade").execute).toBe(undefined);
+    specimen.expect(sealed.message).toBe("casa means house");
     pin(rounds, "cortex-contract-render.snapshot.json");
   });
 });

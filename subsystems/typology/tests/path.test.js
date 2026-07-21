@@ -11,7 +11,8 @@ specimen.describe("Path", () => {
 
     const layered = new Path([{ nature: "/a" }, { nature: "/b" }, { nature: "/c" }]);
     specimen.expect(layered.nature).toBe("/a");
-    specimen.expect(layered.absolute).toBe("/a/b/c");
+    specimen.expect(layered.absolute).toBe("/a");
+    specimen.expect(layered.fin.absolute).toBe("/a/b/c");
     specimen.expect(layered.depth).toBe(2);
 
     const path = new Path("/users/profile");
@@ -49,5 +50,37 @@ specimen.describe("Path", () => {
       ext: ".js",
       parts: ["mode", "game", "nyan.viva.js"],
     });
+  });
+});
+
+specimen.describe("Path.absolute is heritage-only — a filesystem path is root→self", () => {
+  specimen.it("branching a child never grows the parent (the daemon-mount crash)", () => {
+    const mount = new Path("/testament/variant/mountpoint").branch("/daemon_spanish");
+    const db = mount.branch("/test-language-spanish.viva.db");
+
+    specimen.expect(db.absolute).toBe("/testament/variant/mountpoint/daemon_spanish/test-language-spanish.viva.db");
+    specimen.expect(mount.absolute).toBe("/testament/variant/mountpoint/daemon_spanish");
+
+    const store = `${mount.absolute}/homepage/aprende/bundle`;
+    specimen.expect(store.includes(".viva.db")).toBe(false);
+  });
+
+  specimen.it("a reused parent serves many branches; every read stays true", () => {
+    const mount = new Path("/daemon_spanish");
+    const db = mount.branch("/spanish.viva.db");
+    const migrations = mount.branch("/migrations");
+
+    specimen.expect(db.absolute).toBe("/daemon_spanish/spanish.viva.db");
+    specimen.expect(migrations.absolute).toBe("/daemon_spanish/migrations");
+    specimen.expect(mount.absolute).toBe("/daemon_spanish");
+    specimen.expect(mount.heir).toBe(db);
+  });
+
+  specimen.it("re-wrapping a branched path drops its trace — compose strings across ctors", () => {
+    const rebased = new Path("/abs/dir").branch("/freight/audio");
+    specimen.expect(rebased.absolute).toBe("/abs/dir/freight/audio");
+
+    specimen.expect(new Path(rebased).absolute).toBe("/freight/audio");
+    specimen.expect(new Path("/abs/dir" + "/freight/audio").absolute).toBe("/abs/dir/freight/audio");
   });
 });

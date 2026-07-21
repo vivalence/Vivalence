@@ -490,6 +490,6 @@ Test impact: =v.rel= has no direct unit test today (only entity-hydration tests 
 - [ ] the async-eval trigger mechanism (=ctx.mode.call= fire-and-forget today vs a queue) end to end with real MASTERY/NEUTRAL writes.
 - [ ] =/assistant/resolve= — dropped from the aperture; client dev button 404s until restored (beef's call).
 - [X] =emitter:23= random status-sample — LANDED as =LiteralRepository.sample(where,{status,limit})= (=RANDOM()= + =memory.status $in=); emitter level feed uses it (=status:["LEARNING","KNOWN","UNKNOWN"]=). libsql =RANDOM()= DB-verifiable only live.
-- [X] provider Request contract — riddler emitter/aperture now spawn via =.output.object(schema)= facade (the named =Request= recast; [[provider-request-contract]].quest).
+- [X] provider Request contract — riddler emitter/aperture now spawn via =.output.object(schema)= facade (the named =Request= recast; compact [[the-provider-request-contract-lands-tools-and-output-leave-config-for-a-named-request-both-sides-speak]]).
 - [ ] =v.rel= id+slug typology diff (HOLY — its own go).
 - [ ] client: =buffer/Riddler.svelte= binds =buffer.$data.history= (turn-shaped) as a full transcript — separate pass; minimal today.

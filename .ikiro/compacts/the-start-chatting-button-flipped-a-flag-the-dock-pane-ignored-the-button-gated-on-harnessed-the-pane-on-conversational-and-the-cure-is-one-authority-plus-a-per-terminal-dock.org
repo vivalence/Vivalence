@@ -40,7 +40,7 @@ consumers → active terminal $dock (chain), mutate via stores.bridge.*:
 #+end_src
 
 * the authority rotation fits M18
-Choosing HARNESSED over CONVERSATIONAL-engagement is not a local hack — it aligns with M18 ([[m18_conversation_dissolves.quest]]): the CONVERSATIONAL WS engagement gate is dissolving (a dialogue turn is now a streaming request; any harnessed mode can chat). Dock-on-HARNESSED is the same trajectory. The [[conversation-dock-recast.quest]]'s "dock shows on CONVERSATIONAL engage" ontology is SUPERSEDED for VISIBILITY; its geometry line ("=bridge.dock= side/share default right 0.32") is now =terminal.$dock=.
+Choosing HARNESSED over CONVERSATIONAL-engagement is not a local hack — it aligns with M18 ([[m18_conversation_dissolves.quest]]): the CONVERSATIONAL WS engagement gate is dissolving (a dialogue turn is now a streaming request; any harnessed mode can chat). Dock-on-HARNESSED is the same trajectory. The conversation-dock-recast quest's "dock shows on CONVERSATIONAL engage" ontology is SUPERSEDED for VISIBILITY; its geometry line ("=bridge.dock= side/share default right 0.32") is now =terminal.$dock=.
 
 * verified
 #+begin_src text
@@ -59,4 +59,4 @@ grep    zero orphaned bridge.$dock / engaged / dockCollapsed refs across src
 The toggle "couldn't toggle" because the flag and its reader lived under different laws — the fix was not "make the flag work" but "make one authority." Same shape as the singleton: state that should be many-per-terminal lived one-per-app. Both bugs are "the fact is in the wrong place / split across two." Put the geometry on the terminal (the thing that already crosses thread-switches and persistence), gate on the one capability that means "can chat" (HARNESSED), and the two-channel drift can't recur.
 
 * provenance
-quest [[conversation-dock-recast.quest]] (superseded visibility ontology) · [[m18_conversation_dissolves.quest]] (the HARNESSED trajectory) · memory [[project_dock_per_terminal]] · [[project_context_architecture]] (BRIDGE vs QUARTERS decks) · rhymes with [[the-continuation-problem-ambient-state-dies-at-every-async-boundary-and-the-cure-is-never-carry-harder-but-put-the-fact-on-the-one-thing-that-already-crosses]].
+the folded conversation-dock-recast quest (superseded visibility ontology) · [[m18_conversation_dissolves.quest]] (the HARNESSED trajectory) · memory [[project_dock_per_terminal]] · [[project_context_architecture]] (BRIDGE vs QUARTERS decks) · rhymes with [[the-continuation-problem-ambient-state-dies-at-every-async-boundary-and-the-cure-is-never-carry-harder-but-put-the-fact-on-the-one-thing-that-already-crosses]].

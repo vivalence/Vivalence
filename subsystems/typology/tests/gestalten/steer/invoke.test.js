@@ -1,30 +1,26 @@
-import { specimen, steer } from "@vivalence/typology";
-import { Vector } from "@vivalence/typology";
-
-const { invoke } = steer.dispatch;
+import { specimen, steer, Vector } from "@vivalence/typology";
 
 specimen.describe("invoke", () => {
-  specimen.it("invokes matched effect", async () => {
-    const vector = new Vector();
-    vector.open("greet", () => "hello");
+  specimen.it("a signal invokes its matched effect", async () => {
+    const greeter = new Vector();
+    greeter.open("greet", () => "hello");
+    specimen.expect(await steer.dispatch.invoke(greeter, "greet")()).toBe("hello");
 
-    const result = await invoke(vector, "greet")();
-    specimen.expect(result).toBe("hello");
+    const echoer = new Vector();
+    echoer.open("echo", (ctx) => ctx.input);
+    specimen.expect(await steer.dispatch.invoke(echoer, "echo")("ping")).toBe("ping");
+
+    const parameterized = new Vector();
+    parameterized.open("/users/:id", (ctx) => ctx.params.id);
+    specimen.expect(await steer.dispatch.invoke(parameterized, "/users/42")()).toBe("42");
+
+    specimen.expect(() => steer.dispatch.invoke(new Vector(), "nope")).toThrow();
   });
 
-  specimen.it("passes input to effect", async () => {
-    const vector = new Vector();
-    vector.open("echo", (ctx) => ctx.input);
-
-    const result = await invoke(vector, "echo")("ping");
-    specimen.expect(result).toBe("ping");
-  });
-
-  specimen.it("runs middleware before effect", async () => {
+  specimen.it("a middleware runs before the effect", async () => {
     const trace = [];
     const vector = new Vector();
-
-    vector.use(async (_, next) => {
+    vector.use(async (ctx, next) => {
       trace.push("mw");
       await next();
     });
@@ -32,37 +28,21 @@ specimen.describe("invoke", () => {
       trace.push("effect");
       return "done";
     });
-
-    await invoke(vector, "action")();
+    await steer.dispatch.invoke(vector, "action")();
     specimen.expect(trace).toEqual(["mw", "effect"]);
   });
 
-  specimen.it("extracts params from signal", async () => {
-    const vector = new Vector();
-    vector.open("/users/:id", (ctx) => ctx.params.id);
-
-    const result = await invoke(vector, "/users/42")();
-    specimen.expect(result).toBe("42");
-  });
-
-  specimen.it("throws on no match", () => {
-    const vector = new Vector();
-    specimen.expect(() => invoke(vector, "nope")).toThrow();
-  });
-
-  specimen.it("custom strategy", async () => {
+  specimen.it("a custom strategy shapes the call", async () => {
     const vector = new Vector();
     vector.open("ping", () => "pong");
-
     const custom = (carry, effect, steps, signal) => async () => {
       const ctx = { custom: true };
-      await carry(ctx, async (c) => {
-        c.output = await effect(c);
+      await carry(ctx, async (carried) => {
+        carried.output = await effect(carried);
       });
       return { value: ctx.output, custom: ctx.custom };
     };
-
-    const result = await invoke(vector, "ping", custom)();
+    const result = await steer.dispatch.invoke(vector, "ping", custom)();
     specimen.expect(result.value).toBe("pong");
     specimen.expect(result.custom).toBe(true);
   });

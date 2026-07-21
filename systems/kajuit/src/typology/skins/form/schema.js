@@ -83,7 +83,7 @@ export const maskSchema = (mode, traits, trait) => {
     const nature = trait.AIMED.mount.replace(/^\/emit\//, "").replace(/^\//, "");
     return mode?.emitter?.branches?.[nature]?.effect?.input ?? null;
   }
-  const app = mode?.metadata?.app?.schema;
+  const app = mode?.app?.schema;
   if (!app) return null;
   const top = propsOf(app);
   const data = propsOf(top.data);

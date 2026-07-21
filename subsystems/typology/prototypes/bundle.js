@@ -1,62 +1,54 @@
-import { is } from "@vivalence/typology";
+import { digest } from "../gestalten/belt/crypto.js";
 
-// The compiled-view lifecycle, shared across the daemon↔client seam. ONE artifact, two
-// faces driven by different runtimes (the Wafer shape): the daemon COMPILES + SERVES the
-// entry; the client LOADS + MOUNTS the served module. The heavy esbuild compiler is never
-// imported here — it arrives as an injected `bundler` (server) — so this prototype stays
-// client-safe (the kajuit face is a dynamic import + a svelte mount, zero build deps).
+const verified = new Map();
+
 export class Bundle {
-  entry = null; // Path — the .svelte source the bundler compiles
-  url = null; // Url — where the compiled module is served
-  outputs = []; // esbuild outputFiles — server, runtime-only
-  bundler = null; // injected compiler — server
-  module = null; // loaded ES module — client
-  instance = null; // mounted svelte instance — client
+  url = null;
+  entries = [];
 
-  // ── daemon face ──
-  withBundler(bundler) {
-    this.bundler = bundler;
-    if (is.empty(this.outputs)) this.bundling = this.compile();
+  constructor(record = {}) {
+    if (record instanceof Bundle) return record;
+    if (Array.isArray(record)) record = { entries: record };
+    this.entries = record.entries ?? [];
+    this.url = record.url ?? null;
+  }
+
+  entry(mount) {
+    return this.entries.find((candidate) => candidate.mount === mount);
+  }
+
+  withUrl(url) {
+    this.url = url;
     return this;
   }
 
-  async compile() {
-    if (!this.bundler) throw new Error("bundle missing bundler");
-    this.outputs = await this.bundler(this.entry.absolute);
-    return this;
+  async load(mount) {
+    const entry = this.entry(mount) ?? this.entries[0];
+    if (!entry) throw new Error("bundle has no entries");
+    if (entry.integrity && verified.has(entry.integrity)) return verified.get(entry.integrity);
+    const response = await fetch(this.url + entry.mount);
+    if (!response.ok) throw new Error(`bundle fetch ${response.status}`);
+    const text = await response.text();
+    if (entry.integrity) {
+      const digested = await digest(text);
+      if (digested !== entry.integrity)
+        throw new Error(`integrity sha256 ${digested.slice(0, 12)} is not ${entry.integrity.slice(0, 12)}`);
+    }
+    const url = URL.createObjectURL(new Blob([text], { type: "text/javascript" }));
+    try {
+      const module = await import(/* @vite-ignore */ url);
+      if (entry.integrity) verified.set(entry.integrity, module);
+      return module;
+    } finally {
+      URL.revokeObjectURL(url);
+    }
   }
 
-  serve(branch) {
-    const path = this.entry.trace.branch(branch);
-    const output = this.outputs.find((output) => output.path === path.absolute);
-    return {
-      text: output.text,
-      response: { type: "application/javascript", body: output.text },
-    };
+  get json() {
+    return { entries: this.entries };
   }
 
-  get bundled() {
-    return !!this.outputs[0];
-  }
-
-  flush() {
-    this.outputs = [];
-    return this;
-  }
-
-  // ── kajuit face ──
-  async load() {
-    this.module ??= await import(this.url.absolute);
-    return this.module.default; // (target, props) => { instance, destroy }
-  }
-
-  async mount(target, props) {
-    this.instance = (await this.load())(target, props);
-    return this.instance;
-  }
-
-  unmount() {
-    this.instance?.destroy();
-    this.instance = null;
+  toJSON() {
+    return this.json;
   }
 }

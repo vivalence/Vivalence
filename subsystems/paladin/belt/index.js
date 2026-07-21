@@ -6,6 +6,7 @@ import is from "./is.js";
 import scope from "./scope.js";
 import publish from "./publish.js";
 import source from "./source.js";
+import bundler from "./bundler.js";
 
 export default {
   find,
@@ -16,4 +17,5 @@ export default {
   scope,
   publish,
   source,
+  bundler,
 };

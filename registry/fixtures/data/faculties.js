@@ -8,16 +8,16 @@ export function textStream(text, role = "assistant") {
     yield { event: "/part/close", index: 0 };
     yield {
       event: "/turn/close",
-      meta: { usage: { input: 10, output: text.length }, stop: "end_turn" },
+      meta: { usage: { input: 10, output: text.length }, state: "complete" },
     };
   };
 }
 
-export function textTurn(text, stop = "end_turn") {
+export function textTurn(text, state = "complete") {
   return {
     role: "assistant",
     parts: [{ type: "text", text }],
-    meta: { usage: { input: 10, output: text.length }, stop },
+    meta: { usage: { input: 10, output: text.length }, state },
   };
 }
 
@@ -26,9 +26,9 @@ export function toolUseTurn(id, name, input) {
     role: "assistant",
     parts: [
       { type: "text", text: `thinking about ${name}...` },
-      { type: "tool_use", id, name, input: JSON.stringify(input) },
+      { type: "tool_use", id, name, input },
     ],
-    meta: { usage: { input: 10, output: 20 }, stop: "tool_use" },
+    meta: { usage: { input: 10, output: 20 }, state: "tools" },
   };
 }
 
@@ -45,7 +45,7 @@ export function toolUseStream(id, name, input) {
     yield { event: "/part/open", index: 1, part: { type: "tool_use", id: "", name: "", input: "" } };
     yield { event: "/part/delta", index: 1, delta: { id, name, input: inputString } };
     yield { event: "/part/close", index: 1 };
-    yield { event: "/turn/close", meta: { usage: { input: 10, output: 20 }, stop: "tool_use" } };
+    yield { event: "/turn/close", meta: { usage: { input: 10, output: 20 }, state: "tools" } };
   };
 }
 
@@ -73,17 +73,22 @@ export function faculties() {
         out: ["text", "thinking", "tool_use"],
       },
       via: {
-        render: async ({ turns, tools }) => {
+        render: async (request) => {
+          const { turns, tools, output } = request;
           const text = lastUserText(turns);
+          if (output?.object) {
+            const data = { query: text };
+            return { role: "assistant", parts: [{ type: "object", data }], meta: { state: "complete" }, object: data };
+          }
           if (tools && !hasToolResult(turns)) {
-            return toolUseTurn("t1", Object.keys(tools)[0], { query: text });
+            return toolUseTurn("t1", tools[0].name, { query: text });
           }
           return textTurn(`[opus] ${text}`);
         },
         stream: async ({ turns, tools }) => {
           const text = lastUserText(turns);
           if (tools && !hasToolResult(turns)) {
-            return toolUseStream("t1", Object.keys(tools)[0], { query: text })();
+            return toolUseStream("t1", tools[0].name, { query: text })();
           }
           return textStream(`[opus] ${text}`)();
         },

@@ -20,7 +20,7 @@ export const riddle = new Vector().open(
   },
   async (ctx) => {
     const symbols = ctx.input.symbols?.length ? ctx.input.symbols : DEFAULT_SYMBOLS;
-    const emission = await ctx.mode.emit.riddle({ ...ctx.input, symbols, thread: ctx.input.thread });
+    const emission = await ctx.mode.emit.riddle({ ...ctx.input, symbols, thread: ctx.thread });
     const buffers = emission.entities.buffer;
     return {
       message: buffers.length

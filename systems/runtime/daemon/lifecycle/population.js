@@ -1,7 +1,7 @@
 import paladin from "@vivalence/paladin";
 import { wrap, EntitySchema } from "@mikro-orm/core";
 
-import { Mode, Url, Path, Aperture, Cortex, shard, v } from "@vivalence/typology";
+import { Mode, Url, Path, Aperture, Cortex, Vector, shard, v } from "@vivalence/typology";
 import { is, array, shape, steer } from "@vivalence/typology";
 import { sets, DataRepository } from "@vivalence/typology/entities";
 
@@ -65,6 +65,7 @@ export async function core(die) {
 export function wiring(daemonDie) {
   daemonDie.good.statics = daemonDie.mask.statics;
   daemonDie.good.docs = daemonDie.mask.docs;
+  daemonDie.good.mountpoint = daemonDie.mask.mount;
 }
 
 export async function datamap(daemonDie) {
@@ -121,22 +122,9 @@ export async function modes(daemonDie) {
 
       if (!mode.aperture) mode.aperture = new Aperture();
 
-      if (mode.implements("APPLICATION")) {
-        mode.module.app.mount.from(new Path(mode.module.mount.dirname));
-
-        const url = daemonDie.good.attach
-          .branch("/view")
-          .branch(mode.mount.absolute)
-          .branch(mode.module.app.mount.nature);
-
-        mode.module.app.withUrl(url);
-      }
-
-      if (mode.implements("FRAUGHT")) {
-        mode.module.freight.path.from(new Path(mode.module.mount.dirname));
-        const url = daemonDie.good.attach.branch("/cargo").branch(daemonDie.good.mount.nature);
-        mode.module.freight.withUrl(url);
-      }
+      mode.tools = new Vector();
+      mode.tools.use(shard.context.bind("daemon", daemonDie.good));
+      mode.tools.use(shard.context.bind("mode", mode));
 
       mode.entity = await daemonDie.good.entities.mode //
         .ensure(mode.manifest);

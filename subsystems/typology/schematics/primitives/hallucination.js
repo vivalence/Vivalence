@@ -61,7 +61,7 @@ Part.ToolUse = v.object({
   type: v.const("tool_use"),
   id: v.string(),
   name: v.string(),
-  input: v.union([v.string(), v.record(v.string(), v.unknown())]),
+  input: v.record(v.string(), v.unknown()),
 });
 
 // tools may speak the yield lexicon: output (the message) rides back to the
@@ -77,6 +77,13 @@ Part.ToolResult = v.object({
 Part.Thinking = v.object({
   type: v.const("thinking"),
   text: v.string(),
+  signature: v.string().optional(),
+});
+
+Part.Alien = v.object({
+  type: v.const("alien"),
+  dialect: v.string(),
+  block: v.unknown(),
 });
 
 Part.Any = v.union([
@@ -89,9 +96,19 @@ Part.Any = v.union([
   Part.ToolUse,
   Part.ToolResult,
   Part.Thinking,
+  Part.Alien,
 ]);
 
 export const Role = v.union([v.const("system"), v.const("user"), v.const("assistant")]);
+
+export const State = v.union([
+  v.const("complete"),
+  v.const("tools"),
+  v.const("length"),
+  v.const("abort"),
+  v.const("error"),
+  v.const("filter"),
+]);
 
 export const Turn = v.object({
   role: Role,
@@ -144,9 +161,9 @@ export const Channels = v.object({
 });
 
 export const Tool = v.object({
+  name: v.string(),
   valence: v.string().optional(),
   input: v.unknown().optional(),
-  execute: v.unknown().optional(),
 });
 
 export const Settings = v.object(
@@ -166,9 +183,10 @@ export const Output = v.object({
 
 export const Request = v.object({
   turns: v.array(Turn),
-  tools: v.record(v.string(), Tool).optional(),
+  tools: v.array(Tool).optional(),
   settings: Settings.optional(),
   output: Output.optional(),
+  cache: v.object({ marks: v.array(v.string()) }).optional(),
 });
 
 // the register-time guard checks only what the cortex resolves on — type, tune,
@@ -179,10 +197,9 @@ export const Faculty = v.object({
   type: v.string(),
   tune: Tune,
   context: v.integer().optional(),
-  channels: v.object(
-    { in: v.array(v.unknown()), out: v.array(v.unknown()) },
-    { additionalProperties: true },
-  ).optional(),
+  channels: v
+    .object({ in: v.array(v.unknown()), out: v.array(v.unknown()) }, { additionalProperties: true })
+    .optional(),
   via: v.record(v.string(), v.unknown()),
 });
 
@@ -221,4 +238,46 @@ Packet.Any = v.union([
   Packet.PartDelta,
   Packet.PartClose,
   Packet.TurnClose,
+]);
+
+Packet.ToolCall = v.object({
+  event: v.const("/tool/call"),
+  id: v.string(),
+  name: v.string(), // @beef name? tool name? signature! rename to toolcall.signature or toolcall.nature
+  input: v.record(v.string(), v.unknown()),
+});
+
+Packet.ToolYield = v.object({
+  event: v.const("/tool/yield"),
+  id: v.string(),
+  result: v.object({
+    condition: v.string(),
+    message: v.unknown(),
+    entities: v.record(v.string(), v.unknown()),
+    object: v.unknown(),
+  }),
+});
+
+Packet.TurnFull = v.object({
+  event: v.const("/turn/full"),
+  turn: Turn,
+});
+
+Packet.SessionClose = v.object({
+  event: v.const("/session/close"),
+  state: State,
+  rounds: v.integer(),
+  meta: v.record(v.string(), v.unknown()).optional(),
+});
+
+Packet.Session = v.union([
+  Packet.TurnOpen,
+  Packet.PartOpen,
+  Packet.PartDelta,
+  Packet.PartClose,
+  Packet.TurnClose,
+  Packet.ToolCall,
+  Packet.ToolYield,
+  Packet.TurnFull,
+  Packet.SessionClose,
 ]);

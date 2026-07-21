@@ -3,7 +3,20 @@
 // Exposes dialogue faculties at three tune points + object faculty.
 
 import Anthropic from "@anthropic-ai/sdk";
-import { buildParams, translateResponse, translateStreamEvent } from "./translate.js";
+import { v } from "@vivalence/typology";
+import { buildParams, translateResponse, translateStreamEvent, fault, RESPOND } from "./translate.js";
+
+function extractObject(turn, schema) {
+  const done = turn.parts.find((part) => part.type === "tool_use" && part.name === RESPOND.name);
+  if (!done) return turn;
+  const data = schema ? v.fill(schema, done.input) : done.input;
+  return {
+    role: "assistant",
+    parts: [{ type: "object", data }],
+    meta: { ...turn.meta, state: "complete" },
+    object: data,
+  };
+}
 
 const models = {
   opus: { id: "claude-opus-4-6", tune: [0.9, 1.0, 0.3], context: 1000000, thinking: true },
@@ -20,11 +33,22 @@ export default async function provider(service) {
   const client = new Anthropic({ apiKey: service.secrets.key });
 
   function makeDialogue(model) {
-    const render = async (request) =>
-      translateResponse(await client.messages.create(buildParams(model, request)));
+    const render = async (request) => {
+      try {
+        const turn = translateResponse(await client.messages.create(buildParams(model, request)));
+        return request.output?.object ? extractObject(turn, request.output.object) : turn;
+      } catch (error) {
+        throw fault(error);
+      }
+    };
 
     const stream = async (request) => {
-      const raw = await client.messages.create(buildParams(model, request, true));
+      let raw;
+      try {
+        raw = await client.messages.create(buildParams(model, request, true));
+      } catch (error) {
+        throw fault(error);
+      }
       return (async function* () {
         for await (const event of raw) {
           const packet = translateStreamEvent(event);

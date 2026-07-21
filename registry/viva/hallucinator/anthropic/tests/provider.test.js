@@ -43,9 +43,9 @@ specimen.describe("anthropic provider", () => {
       specimen.expect(messages[1].content[0]).toEqual({ type: "tool_result", tool_use_id: "t1", content: JSON.stringify({ r: 2 }) });
     });
 
-    specimen.it("parses a stringified tool_use input", () => {
+    specimen.it("passes tool_use input verbatim — parse-once lives at soma /part/close", () => {
       const { messages } = translateTurns([
-        { role: "assistant", parts: [{ type: "tool_use", id: "t1", name: "look", input: JSON.stringify({ q: 1 }) }] },
+        { role: "assistant", parts: [{ type: "tool_use", id: "t1", name: "look", input: { q: 1 } }] },
       ]);
       specimen.expect(messages[0].content[0].input).toEqual({ q: 1 });
     });
@@ -66,18 +66,13 @@ specimen.describe("anthropic provider", () => {
   });
 
   specimen.describe("translateTools", () => {
-    specimen.it("maps a spec to {name, description, input_schema}", () => {
-      const out = translateTools({ look: { valence: "look up", input: { type: "object" } } });
+    specimen.it("maps a declaration list to {name, description, input_schema}", () => {
+      const out = translateTools([{ name: "look", valence: "look up", input: { type: "object" } }]);
       specimen.expect(out).toEqual([{ name: "look", description: "look up", input_schema: { type: "object" } }]);
     });
 
-    specimen.it("a function spec falls back to empty description + object schema", () => {
-      const out = translateTools({ run: () => {} });
-      specimen.expect(out[0]).toEqual({ name: "run", description: "", input_schema: { type: "object" } });
-    });
-
     specimen.it("missing valence/input default", () => {
-      specimen.expect(translateTools({ x: {} })[0]).toEqual({ name: "x", description: "", input_schema: { type: "object" } });
+      specimen.expect(translateTools([{ name: "x" }])[0]).toEqual({ name: "x", description: "", input_schema: { type: "object" } });
     });
   });
 
@@ -92,10 +87,10 @@ specimen.describe("anthropic provider", () => {
       });
       specimen.expect(turn.role).toBe("assistant");
       specimen.expect(turn.parts).toEqual([{ type: "text", text: "hello" }]);
-      specimen.expect(turn.meta).toEqual({ usage: { input_tokens: 1 }, stop: "end_turn", model: "claude-opus-4-6" });
+      specimen.expect(turn.meta).toEqual({ state: "complete", usage: { input_tokens: 1 }, provider: { stop_reason: "end_turn", model: "claude-opus-4-6" } });
     });
 
-    specimen.it("maps tool_use (input stringified) + thinking blocks", () => {
+    specimen.it("maps tool_use (input verbatim) + thinking blocks", () => {
       const turn = translateResponse({
         role: "assistant",
         content: [
@@ -106,7 +101,7 @@ specimen.describe("anthropic provider", () => {
         stop_reason: "tool_use",
         model: "m",
       });
-      specimen.expect(turn.parts[0]).toEqual({ type: "tool_use", id: "t1", name: "look", input: JSON.stringify({ q: 1 }) });
+      specimen.expect(turn.parts[0]).toEqual({ type: "tool_use", id: "t1", name: "look", input: { q: 1 } });
       specimen.expect(turn.parts[1]).toEqual({ type: "thinking", text: "hmm", signature: "s" });
     });
   });
@@ -133,7 +128,7 @@ specimen.describe("anthropic provider", () => {
     specimen.it("content_block_stop → /part/close; message_delta → /turn/close; message_stop + ping → null", () => {
       specimen.expect(translateStreamEvent({ type: "content_block_stop", index: 0 })).toEqual({ event: "/part/close", index: 0 });
       specimen.expect(translateStreamEvent({ type: "message_delta", delta: { stop_reason: "end_turn" }, usage: { output_tokens: 3 } }))
-        .toEqual({ event: "/turn/close", meta: { stop: "end_turn", usage: { output_tokens: 3 } } });
+        .toEqual({ event: "/turn/close", meta: { state: "complete", usage: { output_tokens: 3 }, provider: { stop_reason: "end_turn" } } });
       specimen.expect(translateStreamEvent({ type: "message_stop" })).toBe(null);
       specimen.expect(translateStreamEvent({ type: "ping" })).toBe(null);
     });
@@ -182,7 +177,7 @@ specimen.describe("anthropic provider", () => {
     });
 
     specimen.it("request.tools → translated params.tools", () => {
-      const params = buildParams(haiku, { ...request(), tools: { look: { valence: "v", input: { type: "object" } } } });
+      const params = buildParams(haiku, { ...request(), tools: [{ name: "look", valence: "v", input: { type: "object" } }] });
       specimen.expect(params.tools).toEqual([{ name: "look", description: "v", input_schema: { type: "object" } }]);
     });
 
@@ -190,6 +185,19 @@ specimen.describe("anthropic provider", () => {
       const params = buildParams(haiku, request());
       specimen.expect(params.tools).toBe(undefined);
       specimen.expect(params.tool_choice).toBe(undefined);
+    });
+
+    specimen.it("request.output.object appends a respond tool + forces tool_choice:any", () => {
+      const schema = { type: "object", properties: { verdict: { type: "string" } } };
+      const params = buildParams(haiku, { ...request(), output: { object: schema } });
+      specimen.expect(params.tools.at(-1)).toEqual({ name: "respond", description: "Return the final result as structured data.", input_schema: schema });
+      specimen.expect(params.tool_choice).toEqual({ type: "any" });
+    });
+
+    specimen.it("output.object appends respond after the mode's real tools", () => {
+      const schema = { type: "object" };
+      const params = buildParams(haiku, { ...request(), tools: [{ name: "look" }], output: { object: schema } });
+      specimen.expect(params.tools.map((tool) => tool.name)).toEqual(["look", "respond"]);
     });
   });
 

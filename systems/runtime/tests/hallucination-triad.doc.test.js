@@ -24,18 +24,22 @@ function tutor() {
     tune: [0.9, 1.0, 0.3], // [intelligence, reasoning, speed] — register pads thrift → 0.5
     channels: { in: ["text", "tool_result"], out: ["text", "tool_use"] },
     via: {
-      render: async ({ turns, tools }) => {
-        // A tool is on the table and we have not answered its result yet → call it.
-        // (This one branch drives BOTH the plain tool loop AND object synthesis: for object
-        //  requests cortex injects a `respond` tool, so request.tools carries it here.)
-        if (tools && !answered(turns)) {
+      render: async (request) => {
+        const { turns, tools, output } = request;
+        // A structured output was asked for → the provider returns an object turn.
+        if (output?.object) {
+          const data = { query: lastUser(turns) };
+          return { role: "assistant", parts: [{ type: "object", data }], meta: { state: "complete" }, object: data };
+        }
+        // A real tool is on the table and unanswered → call it, then the loop feeds the result back.
+        if (tools?.length && !answered(turns)) {
           return {
             role: "assistant",
-            parts: [{ type: "tool_use", id: "call-1", name: Object.keys(tools)[0], input: JSON.stringify({ query: lastUser(turns) }) }],
-            meta: { stop: "tool_use" },
+            parts: [{ type: "tool_use", id: "call-1", name: tools[0].name, input: { query: lastUser(turns) } }],
+            meta: { state: "tools" },
           };
         }
-        return { role: "assistant", parts: [{ type: "text", text: `answer: ${lastUser(turns)}` }], meta: { stop: "end_turn" } };
+        return { role: "assistant", parts: [{ type: "text", text: `answer: ${lastUser(turns)}` }], meta: { state: "complete" } };
       },
     },
   };
@@ -49,27 +53,27 @@ specimen.describe("47.02 hallucination triad — the request in isolation (typol
     const request = cortex().hallucination({ tune: "unleashed" }); // eager configure(); no `new`
     request.context.system("You are a patient tutor.").entities.turn.append({ role: "user", parts: [{ type: "text", text: "olá" }] });
 
-    const turn = await request.dialogue.render(); // shape.object trie: /dialogue/render leaf
-    specimen.expect(turn.parts[0].text).toBe("answer: olá");
+    const folded = await request.dialogue.render(); // shape.object trie: /dialogue/render leaf
+    specimen.expect(folded.message).toBe("answer: olá");
   });
 
   specimen.it("a tool loop runs at the leaf, once — tool_use → execute → tool_result → final turn", async () => {
     const request = cortex().hallucination();
-    request.entities.tool.add("lookup", async ({ query }) => ({ found: query.toUpperCase() }));
+    request.tools.open({ nature: "lookup" }, async (ctx) => ({ found: ctx.input.query.toUpperCase() }));
     request.entities.turn.append({ role: "user", parts: [{ type: "text", text: "brasil" }] });
 
-    const turn = await request.dialogue.render(); // round 1 calls lookup, round 2 answers
-    specimen.expect(turn.meta.stop).toBe("end_turn");
-    specimen.expect(turn.parts[0].text).toBe("answer: brasil");
+    const folded = await request.dialogue.render(); // round 1 calls lookup, round 2 answers
+    specimen.expect(folded.state).toBe("complete");
+    specimen.expect(folded.message).toBe("answer: brasil");
   });
 
-  specimen.it("object is DERIVED from dialogue — dressAsObject dresses the same provider", async () => {
-    // No `object` faculty registered; findOne derives one from the dialogue donor.
+  specimen.it("object is DERIVED from dialogue — the derivation resolves the same provider, output-aware", async () => {
+    // No `object` faculty registered; findOne derives one by pointing at the dialogue donor.
     const request = cortex().hallucination().output.object({ type: "object" });
     request.entities.turn.append({ role: "user", parts: [{ type: "text", text: "hi" }] });
 
-    const turn = await request.object.render(); // respond-tool injected, call sealed into an object turn
-    specimen.expect(turn.object).toEqual({ query: "hi" });
+    const folded = await request.object.render(); // provider honors request.output → object turn
+    specimen.expect(folded.object).toEqual({ query: "hi" });
   });
 });
 

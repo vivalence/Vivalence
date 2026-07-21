@@ -22,25 +22,16 @@ const seer = () => ({
   context: 200000,
   channels: { in: ["text", "tool_result"], out: ["text", "tool_use"] },
   via: {
-    render: async ({ turns, tools }) => {
-      if (tools && !answered(turns)) {
-        return {
-          role: "assistant",
-          parts: [
-            {
-              type: "tool_use",
-              id: "call-1",
-              name: Object.keys(tools)[0],
-              input: JSON.stringify({ answer: `the mist parts: ${lastUserText(turns)}` }),
-            },
-          ],
-          meta: { stop: "tool_use" },
-        };
+    render: async (request) => {
+      const { turns, output } = request;
+      if (output?.object) {
+        const data = { answer: `the mist parts: ${lastUserText(turns)}` };
+        return { role: "assistant", parts: [{ type: "object", data }], meta: { state: "complete" }, object: data };
       }
       return {
         role: "assistant",
         parts: [{ type: "text", text: lastUserText(turns) }],
-        meta: { stop: "end_turn" },
+        meta: { state: "complete" },
       };
     },
   },

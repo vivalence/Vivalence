@@ -42,7 +42,7 @@ Deno.test("fromm.yield", async (t) => {
     const turn = {
       role: "assistant",
       parts: [{ type: "object", data: { answer: 7 } }],
-      meta: { stop: "abort" },
+      meta: { state: "abort" },
     };
     const read = fromm.yield(turn);
     specimen.expect(read.condition).toBe("ERROR");
@@ -67,6 +67,15 @@ Deno.test("fromm.yield", async (t) => {
   await t.step("result — error output is ERROR", () => {
     const read = fromm.yield({ type: "tool_result", id: "t2", output: { error: "unknown tool: x" } });
     specimen.expect(read.condition).toBe("ERROR");
+  });
+
+  await t.step("utterance — a bare string rides the message channel, model-visible", () => {
+    const read = fromm.yield("casa means house");
+    specimen.expect(read.kind).toBe("utterance");
+    specimen.expect(read.condition).toBe("NOMINAL");
+    specimen.expect(read.message).toBe("casa means house");
+    specimen.expect(read.object).toBe(null);
+    specimen.expect(read.entities).toEqual({});
   });
 
   await t.step("opaque — anything else lands in object", () => {

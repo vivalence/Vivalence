@@ -17,6 +17,7 @@ export enum BufferStatusEnum {
 export class BufferEntity extends DataEntity {
   status: BufferStatusEnum & Opt = BufferStatusEnum.PENDING;
   data: any & Opt = {};
+  view: any & Opt = null;
   index: number & Opt = 0;
 
   mode!: Rel<ModeEntity>;
@@ -45,6 +46,7 @@ export const BufferSchema = new EntitySchema<BufferEntity, DataEntity>({
       defaultRaw: `'${BufferStatusEnum.PENDING}'`,
     },
     data: { type: types.json, defaultRaw: `'{}'` },
+    view: { type: types.json, nullable: true },
     index: { type: types.integer, default: 0 },
 
     mode: {

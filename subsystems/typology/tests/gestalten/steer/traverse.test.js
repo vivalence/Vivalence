@@ -1,98 +1,74 @@
-import { specimen, Signal, fromm, steer } from "@vivalence/typology";
-import { Vector } from "@vivalence/typology";
-
-const { traverse } = steer.dispatch;
+import { specimen, Signal, fromm, steer, Vector } from "@vivalence/typology";
 
 specimen.describe("traverse", () => {
-  specimen.it("finds effect", () => {
-    const vector = new Vector();
-    const f = () => "test";
-    vector.open("/users/:id", f);
+  specimen.it("a signal traverses to its effect or comes back empty", () => {
+    const parameterized = new Vector();
+    const identify = () => "test";
+    parameterized.open("/users/:id", identify);
+    const [identityEffect, , identitySteps] = steer.dispatch.traverse(parameterized, new Signal("/users/123"));
+    specimen.expect(identityEffect).toBe(identify);
+    specimen.expect(identitySteps.length).toBe(2);
 
-    const [effect, , steps] = traverse(vector, new Signal("/users/123"));
-    specimen.expect(effect).toBe(f);
-    specimen.expect(steps.length).toBe(2);
+    const nested = new Vector();
+    const profile = () => "profile";
+    nested.branch("/api").branch("/users").open("/:id/profile", profile);
+    const [profileEffect, , profileSteps] = steer.dispatch.traverse(nested, new Signal("/api/users/123/profile"));
+    specimen.expect(profileEffect).toBe(profile);
+    specimen.expect(profileSteps.length).toBe(4);
+
+    const [missingEffect, , missingSteps] = steer.dispatch.traverse(new Vector(), new Signal("/nope"));
+    specimen.expect(missingEffect).toBe(null);
+    specimen.expect(missingSteps).toEqual([]);
+
+    const branchOnly = new Vector();
+    branchOnly.branch("api");
+    const [branchEffect] = steer.dispatch.traverse(branchOnly, new Signal("api"));
+    specimen.expect(branchEffect).toBe(null);
   });
 
-  specimen.it("walks nested descendants", () => {
-    const vector = new Vector();
-    const f = () => "profile";
-    vector.branch("/api").branch("/users").open("/:id/profile", f);
-
-    const [effect, , steps] = traverse(vector, new Signal("/api/users/123/profile"));
-    specimen.expect(effect).toBe(f);
-    specimen.expect(steps.length).toBe(4);
-  });
-
-  specimen.it("accumulates carry", async () => {
+  specimen.it("a carry accumulates middleware down the path", async () => {
     const trace = [];
     const vector = new Vector();
-
     vector
-      .use(async (_, next) => { trace.push("root"); await next(); trace.push("root'"); })
+      .use(async (ctx, next) => { trace.push("root"); await next(); trace.push("root'"); })
       .branch("/api")
-      .use(async (_, next) => { trace.push("branch"); await next(); trace.push("branch'"); })
+      .use(async (ctx, next) => { trace.push("branch"); await next(); trace.push("branch'"); })
       .open("/test", () => "result");
 
-    const [effect, carry] = traverse(vector, new Signal("/api/test"));
+    const [effect, carry] = steer.dispatch.traverse(vector, new Signal("/api/test"));
     await carry({}, async () => trace.push("terminal"));
     specimen.expect(trace).toEqual(["root", "branch", "terminal", "branch'", "root'"]);
   });
 
-  specimen.it("returns null effect on no match", () => {
-    const vector = new Vector();
-    const [effect, , steps] = traverse(vector, new Signal("/nope"));
-    specimen.expect(effect).toBe(null);
-    specimen.expect(steps).toEqual([]);
-  });
+  specimen.it("a remainder swallows the tail and keeps its params", () => {
+    const catchAll = new Vector();
+    const caught = () => "caught";
+    catchAll.open("(.*)", caught);
+    const [allEffect, , allSteps] = steer.dispatch.traverse(catchAll, new Signal("/any/deep/path"));
+    specimen.expect(allEffect).toBe(caught);
+    specimen.expect(allSteps.length).toBe(3);
+    const allParams = fromm.match(allSteps).parameters;
+    specimen.expect(allParams[0]).toBe("any");
+    specimen.expect(allParams[1]).toBe("deep");
+    specimen.expect(allParams[2]).toBe("path");
 
-  specimen.it("remainder consumes all segments and captures params", () => {
-    const vector = new Vector();
-    const f = () => "caught";
-    vector.open("(.*)", f);
+    const branched = new Vector();
+    const trailing = () => "caught";
+    branched.branch("api").open("(.*)", trailing);
+    const [trailingEffect, , trailingSteps] = steer.dispatch.traverse(branched, new Signal("/api/anything/here"));
+    specimen.expect(trailingEffect).toBe(trailing);
+    const trailingParams = fromm.match(trailingSteps).parameters;
+    specimen.expect(trailingParams[0]).toBe("anything");
+    specimen.expect(trailingParams[1]).toBe("here");
 
-    const [effect, , steps] = traverse(vector, new Signal("/any/deep/path"));
-    specimen.expect(effect).toBe(f);
-    specimen.expect(steps.length).toBe(3);
-
-    const params = fromm.match(steps).parameters;
-    specimen.expect(params[0]).toBe("any");
-    specimen.expect(params[1]).toBe("deep");
-    specimen.expect(params[2]).toBe("path");
-  });
-
-  specimen.it("remainder after literal branch captures remaining", () => {
-    const vector = new Vector();
-    const f = () => "caught";
-    vector.branch("api").open("(.*)", f);
-
-    const [effect, , steps] = traverse(vector, new Signal("/api/anything/here"));
-    specimen.expect(effect).toBe(f);
-
-    const params = fromm.match(steps).parameters;
-    specimen.expect(params[0]).toBe("anything");
-    specimen.expect(params[1]).toBe("here");
-  });
-
-  specimen.it("remainder + named params coexist", () => {
-    const vector = new Vector();
-    const f = () => "caught";
-    vector.branch(":tenant").open("(.*)", f);
-
-    const [effect, , steps] = traverse(vector, new Signal("/acme/any/path"));
-    specimen.expect(effect).toBe(f);
-
-    const params = fromm.match(steps).parameters;
-    specimen.expect(params.tenant).toBe("acme");
-    specimen.expect(params[0]).toBe("any");
-    specimen.expect(params[1]).toBe("path");
-  });
-
-  specimen.it("returns null effect when only trajectory matched", () => {
-    const vector = new Vector();
-    vector.branch("api");
-
-    const [effect] = traverse(vector, new Signal("api"));
-    specimen.expect(effect).toBe(null);
+    const tenanted = new Vector();
+    const scoped = () => "caught";
+    tenanted.branch(":tenant").open("(.*)", scoped);
+    const [scopedEffect, , scopedSteps] = steer.dispatch.traverse(tenanted, new Signal("/acme/any/path"));
+    specimen.expect(scopedEffect).toBe(scoped);
+    const scopedParams = fromm.match(scopedSteps).parameters;
+    specimen.expect(scopedParams.tenant).toBe("acme");
+    specimen.expect(scopedParams[0]).toBe("any");
+    specimen.expect(scopedParams[1]).toBe("path");
   });
 });

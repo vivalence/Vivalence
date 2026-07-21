@@ -2,6 +2,7 @@ import { v } from "../v.js";
 import { Timestamp } from "../scalars/index.js";
 
 export { Yield, Condition } from "./yield.js";
+export { Bundle, View } from "./view.js";
 
 export const StatusCode = v.union([
   v.const("IDLE"),

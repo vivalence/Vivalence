@@ -75,9 +75,9 @@ specimen.describe("cortex integration — HARNESSED harness", () => {
       const { packets, turn } = await collectStream(stream);
 
       specimen.expect(packets[0].event).toBe("/turn/open");
-      specimen.expect(packets.at(-1).event).toBe("/turn/close");
+      specimen.expect(packets.at(-1).event).toBe("/session/close");
       specimen.expect(turn.role).toBe("assistant");
-      specimen.expect(turn.meta.stop).toBe("end_turn");
+      specimen.expect(turn.meta.state).toBe("complete");
     });
 
     specimen.it("part deltas accumulate to correct text", async () => {
@@ -235,7 +235,7 @@ specimen.describe("cortex integration — HARNESSED harness", () => {
 
   specimen.describe("tool loop", () => {
 
-    specimen.it("tool_use → tool_result → final turn: 3 turn cycles in stream", async () => {
+    specimen.it("tool_use → tool_result → final turn: two provider rounds + a folded tool turn", async () => {
       const { dewey, createThread } = scenario;
       const thread = await createThread();
 
@@ -243,14 +243,17 @@ specimen.describe("cortex integration — HARNESSED harness", () => {
         parts:   [{ type: "text", text: "what is casa" }],
         thread,
         tune:    "unleashed",
-        tools:   { lookup: { execute: async (input) => ({ definition: `${input.query} means house` }) } },
+        tools:   { lookup: { execute: async (ctx) => ({ definition: `${ctx.input.query} means house` }) } },
       });
       const { packets } = await collectStream(stream);
 
-      const opens  = packets.filter((packet) => packet.event === "/turn/open");
-      const closes = packets.filter((packet) => packet.event === "/turn/close");
-      specimen.expect(opens.length).toBe(3);
-      specimen.expect(closes.length).toBe(3);
+      const opens     = packets.filter((packet) => packet.event === "/turn/open");
+      const closes    = packets.filter((packet) => packet.event === "/turn/close");
+      const toolFulls = packets.filter((packet) => packet.event === "/turn/full");
+      specimen.expect(opens.length).toBe(2);
+      specimen.expect(closes.length).toBe(2);
+      specimen.expect(toolFulls.length).toBe(1);
+      specimen.expect(packets.at(-1).event).toBe("/session/close");
     });
 
     specimen.it("final turn of tool loop has correct content", async () => {
@@ -261,7 +264,7 @@ specimen.describe("cortex integration — HARNESSED harness", () => {
         parts:   [{ type: "text", text: "what is casa" }],
         thread,
         tune:    "unleashed",
-        tools:   { lookup: { execute: async (input) => ({ definition: `${input.query} means house` }) } },
+        tools:   { lookup: { execute: async (ctx) => ({ definition: `${ctx.input.query} means house` }) } },
       });
       let turn = null;
       for await (const packet of stream) {
@@ -270,7 +273,7 @@ specimen.describe("cortex integration — HARNESSED harness", () => {
       }
 
       specimen.expect(turn.parts[0].text).toContain("casa");
-      specimen.expect(turn.meta.stop).toBe("end_turn");
+      specimen.expect(turn.meta.state).toBe("complete");
     });
 
     specimen.it("all tool loop turns persisted: user + tool_use + tool_result + final", async () => {
@@ -281,7 +284,7 @@ specimen.describe("cortex integration — HARNESSED harness", () => {
         parts:   [{ type: "text", text: "what is casa" }],
         thread,
         tune:    "unleashed",
-        tools:   { lookup: { execute: async (input) => ({ definition: `${input.query} means house` }) } },
+        tools:   { lookup: { execute: async (ctx) => ({ definition: `${ctx.input.query} means house` }) } },
       });
       await collectStream(stream);
 
@@ -308,7 +311,7 @@ specimen.describe("cortex integration — HARNESSED harness", () => {
       specimen.expect(assistantTurn).toBeDefined();
       specimen.expect(assistantTurn.parts).toBeInstanceOf(Array);
       specimen.expect(assistantTurn.parts[0].type).toBe("text");
-      specimen.expect(assistantTurn.meta.stop).toBe("end_turn");
+      specimen.expect(assistantTurn.meta.state).toBe("complete");
       specimen.expect(assistantTurn.meta.usage).toBeDefined();
     });
 

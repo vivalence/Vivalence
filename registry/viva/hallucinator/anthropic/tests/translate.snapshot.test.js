@@ -46,10 +46,12 @@ specimen.describe("anthropic translate snapshot — pure outbound/inbound pins, 
         }),
         toolCarrying: buildParams(haiku, {
           ...conversation,
-          tools: {
-            bare: async () => "bare ran",
-            dressed: { valence: "looks up a word", input: LookupInputSchema },
-          },
+          tools: [{ name: "bare" }, { name: "dressed", valence: "looks up a word", input: LookupInputSchema }],
+        }),
+        structuredOutput: buildParams(haiku, {
+          ...conversation,
+          tools: [{ name: "lookup" }],
+          output: { object: LookupInputSchema },
         }),
         streaming: buildParams(haiku, conversation, true),
         explicitMaxTokensUnderThinking: buildParams(opus, {
@@ -61,13 +63,9 @@ specimen.describe("anthropic translate snapshot — pure outbound/inbound pins, 
     );
   });
 
-  specimen.it("translateTools: raw function, dressed spec, hollow spec", () => {
+  specimen.it("translateTools: dressed spec, hollow spec", () => {
     pin(
-      translateTools({
-        bare: async () => "bare ran",
-        dressed: { valence: "looks up a word", input: LookupInputSchema },
-        hollow: {},
-      }),
+      translateTools([{ name: "dressed", valence: "looks up a word", input: LookupInputSchema }, { name: "hollow" }]),
       "translate-tools.snapshot.json",
     );
   });
@@ -88,6 +86,24 @@ specimen.describe("anthropic translate snapshot — pure outbound/inbound pins, 
       }),
       "translate-response.snapshot.json",
     );
+  });
+
+  specimen.it("alien blocks round-trip verbatim: unknown inbound block → alien part → original block outbound", () => {
+    const inbound = translateResponse({
+      role: "assistant",
+      model: "claude-opus-4-6",
+      stop_reason: "end_turn",
+      usage: {},
+      content: [{ type: "redacted_thinking", data: "opaque-bytes" }],
+    });
+    specimen.expect(inbound.parts[0]).toEqual({
+      type: "alien",
+      dialect: "anthropic",
+      block: { type: "redacted_thinking", data: "opaque-bytes" },
+    });
+
+    const outbound = buildParams(haiku, { turns: [{ role: "assistant", parts: inbound.parts }] });
+    specimen.expect(outbound.messages[0].content[0]).toEqual({ type: "redacted_thinking", data: "opaque-bytes" });
   });
 
   specimen.it("translateStreamEvent over a full event sequence, nulls where events drop", () => {

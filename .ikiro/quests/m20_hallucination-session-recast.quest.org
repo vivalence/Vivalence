@@ -56,7 +56,9 @@ Root = the hallucination: closure mints =new Span("/hallucination")=, exposed as
 
 14 contract snapshots pinned + dry-verified: =subsystems/typology/tests/hallucination.snapshot.test.js= (8) · =registry/viva/hallucinator/anthropic/tests/translate.snapshot.test.js= (4) · =systems/runtime/tests/cortex-contract.snapshot.test.js= (2). Every blast re-pins deliberately; snapshot diff IS the review artifact.
 
-* blast 1 — GRAMMAR (vocabulary + schema + dialect; zero structural moves)
+* blast 1 — GRAMMAR (vocabulary + schema + dialect; zero structural moves) — DONE
+
+Landed + re-pinned. Green: typology 122 (2 pre-existing url/signal codec-churn demos) · runtime 33 (3 pre-existing: 2 live-:2501 integration files, 1 stripwire.contract corpus-reining orphan — =*-brazilian= instance snapshots deleted, pairs=0) · anthropic offline 2/2. Grep gate clean: zero =meta.stop= in system code. One old-law test rewritten (=provider.test.js= "parses a stringified tool_use input" → verbatim-pass pin).
 
 Files:
 - =subsystems/typology/schematics/primitives/hallucination.js= — =State= export · =Part.ToolUse.input= object-only · =Part.Thinking.signature= · =Part.Alien= (+ =Part.Any=)
@@ -69,7 +71,26 @@ Files:
 
 Tests, RED first: adjust 3 snapshot suites → land → =SNAPSHOT_HOT=1= re-pin → dry green. NEW units: soma close-parse · alien round-trip · yield utterance. Grep gate: zero =meta.stop= reads outside =meta.provider=. Full: typology · runtime · providers offline.
 
-* blast 2 — SESSION (the structure)
+* blast 2 — SESSION (the structure) — DONE
+
+Landed + green. typology 97 (1 pre-existing =shape.tree= fixture/pre-session-test mismatch) · runtime 33 (same 3 pre-existing live-:2501/orphan as blast 1) · anthropic 2. New =tests/gestalten/hallucinate.test.js= (22 steps) + soma transcript tests; re-pinned hallucination + cortex-contract snapshots; rewrote hallucination/tooled tests + rotated cortex.integration/sse/multiplex/stripwire/triad to the session grammar; deleted =shape/agentic.js= + agentic test.
+
+Emergent during build (flag):
+- =fromm.yield= gained a *spoken* row (object carrying condition/message/entities/object passes through) — the OLD =execute()= native-sniff lifted into the lexicon where it belongs. Bare-string still =utterance=. No further cut: that sniff had exactly ONE home (deleted execute), spoken is now its sole home.
+- render() returns the session YIELD (=folded.message/state/object/turns=), not a turn — text readers move to =.message=, ={object}= destructurers unchanged.
+
+*CONVERGENCE (beef: "one tool call environment, one toolcall signature, singular context"):*
+- ONE tool signature: =(context) => yield=. =context.input= = model args (guarded-cast), =context.{daemon,mode,thread,span}= = ambient closure bound by traits. NO =(input)=/=(input,ctx)= fork, NO wrap. The ambivalence was a TEST-ISM — POJO =input.tools= is passed only in tests; every real mode uses =mode.tools= Vectors with =(ctx)=. HARNESSED grafts POJO executes verbatim; thread bound ambient via =shard.context.bind("thread", …)= → tools read =ctx.thread=. aprende 5 tools rotated =ctx.input.thread=→=ctx.thread=.
+- LAW made visible (sse.integration): executable tools CANNOT cross the JSON wire — =JSON.stringify= drops the closure → leaf opens effect-less → rollup skips it → no declaration → single round. Client-side tool loops belong on the stripwire path. Test rewritten to assert the boundary.
+
+*ToolCall = dedicated Signature, Signal sibling (beef: "toolcall as dedicated signature! a signal sibling"):*
+- =subsystems/typology/prototypes/toolcall.js= — =ToolCall extends Signature=, splits on =_= (Signal splits on =/=); =.name= (wire, join =_=) + =.signal= (a real =Signal=, the =/=-path for =steer.dispatch=). Barrelled in =prototypes/index.ts=. Test =tests/toolcall.test.js= (5 steps).
+- The wire↔signal codec now lives in ToolCall (was free-fn string ops); =shard.hallucinate.{pathOf,signalOf,nameOf}= are thin delegates; dispatch = =new ToolCall(call.name).signal=.
+- Deferred: a =v.prototypes.ToolCall()= codec (like Signal's) — not consumed by any schema (name crosses as plain string in Part.ToolUse), YAGNI.
+
+Original plan follows:
+
+* blast 2 — SESSION (the structure) — plan
 
 Files:
 - =subsystems/typology/gestalten/shard/hallucinate.js= NEW — =pathOf/nameOf/signalOf= · =state(turn)= · =deliver= (the retry law) · =dispatch= (Signal + steer.invoke + guarded, unknown-tool → error result, per-tool span branch) · =session= generator (the ONE loop, both avenues via =pump=, span marks round/state/usage) · =render= = transcript cata returning the session YIELD
@@ -91,7 +112,24 @@ Tests, RED first:
 5. rewrite =systems/runtime/tests/mode/tooled.test.js= to =mode.tools= · re-pin 3 snapshot suites + oracle wire-trace
 6. grep gates: =shape.agentic= · =entities.tool= · aperture =/tool= — zero refs
 
-* blast 3 — USAGE (registry + kajuit + live)
+* blast 2.5 — TOOLS-AS-LIST + OUTPUT-TO-PROVIDER (fork A) — DONE
+
+beef "go on both". Landed + green: typology 101/0 · runtime 33 (3 pre-existing) · kajuit 17/0 · anthropic 2/0.
+
+- *tools = list*: =Request.tools = v.array(Tool)=, =Tool= gains =name=. Reasons: cache-order stability (byte-stable declaration order), provider maps to array anyway, symmetry with turns[]/parts[], name-is-data. =declarations()= → =[{name, valence?, input?}]=; =translateTools(array)=. =hallucination.json.tools= now the full declarations (input/valence reach it — beef flag fixed).
+- *fork A — output owned by the provider*: =dressDialogueAsObject= DELETED from cortex; =DERIVATIONS.object= = thin alias returning the dialogue donor (render-only). The respond-trick moved INTO =anthropic/provider=: =buildParams= appends a =respond= tool + =tool_choice:any= off =request.output.object= (cache_control marks the last REAL tool, respond appended after); =index.js extractObject= folds the respond tool_use → object part. Real-tool rounds still loop system-side; provider owns only the final structured round. The =request.tools= splice is GONE (cache-stable). object.stream stays unsupported (render-only derivation). Deferred: =capabilities.structured:"native"= to skip the trick.
+- *rounds regression fixed*: =CONFIG.rounds= default was hand-edited to =1= (closed every tool loop after round 1, broke aprende in prod) → restored to =10=. FLAGGED to beef.
+- *pathOf KILLED* (beef "i dont like this pathOf function. its hacky"): tools open by NATURAL nature (={nature:"lookup"}=), the =ToolCall= codec stays INTERNAL — dispatch (=new ToolCall(call.name).signal=), declarations (=nameOf=), HARNESSED wire-name graft (=new ToolCall(name).signal.pathname=). =pathOf= export deleted. Single-segment natural-nature ≡ the old =/name= path (same trie node); the =_= codec only matters at the wire boundary.
+- test restructure: object-derivation SYSTEM tests use mock faculties that return an object turn on =request.output.object= (a provider WITH structured output); the respond-TRICK is tested in anthropic provider tests. Scenario fixtures faculty (=registry/fixtures/data/faculties.js=) + oracle/triad mocks gained the output-aware branch.
+
+* blast 3 — USAGE — kajuit GREEN, live PENDING
+
+Kajuit done: =oracle.snapshot= mock rotated to object-input + =meta.state=, span tree re-pinned with =/hallucination/*= branches; full kajuit 17/0. riddler/oracle ={object}= destructure unchanged (yield carries =object=). aprende tools unbroken — read =ctx.input.thread= (HARNESSED sets it) + slurp =ctx.mode.tools=.
+STILL PENDING (needs running services or a focused session): aprende tool bodies =ctx.input.thread=→=ctx.thread= (cosmetic, kills compat write) · docs 47.02 re-tangle · live gates (boot :2501 · aprende quartet · oracle mode.call.ask · spanish boot · one live span chronicle). Also flag: kajuit oracle-dialogue mock still emits =meta.stop= (green, tolerated; rotate for purity).
+
+Original blast-3 plan follows:
+
+* blast 3 — USAGE (registry + kajuit + live) — plan
 
 Files:
 - =registry/education/modes/home/aprende/= — tool bodies read =ctx.thread= (kills the compat write) · emitter delegation audit against the session grammar

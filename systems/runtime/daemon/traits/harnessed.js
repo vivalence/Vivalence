@@ -1,4 +1,4 @@
-import { Vector, shape, steer, shard, soma, v } from "@vivalence/typology";
+import { Vector, ToolCall, shape, steer, shard, soma, v } from "@vivalence/typology";
 
 const { Packet } = v.primitives.hallucination;
 
@@ -23,7 +23,13 @@ export const HARNESSED = (mode, daemon) => {
     });
     if (output) hallucination.output.object(output);
     if (system) hallucination.context.system(system);
-    if (tools) hallucination.entities.tool.add(tools);
+    if (tools)
+      for (const [name, supplied] of Object.entries(tools)) {
+        const { execute, ...edge } =
+          typeof supplied === "function" ? { execute: supplied } : supplied;
+        hallucination.tools.open({ nature: new ToolCall(name).signal.pathname, ...edge }, execute);
+      }
+    if (input.thread) hallucination.tools.use(shard.context.bind("thread", input.thread));
     if (turns) hallucination.entities.turn.append(turns);
     else if (prompt)
       //@beef i dont think we watn manual prompt here?! do we? maybe input prompt is parsed later up the tree?! also to guarantee order. hmmm
@@ -56,26 +62,27 @@ export const HARNESSED = (mode, daemon) => {
 
       if (ctx.output?.[Symbol.asyncIterator]) {
         const source = ctx.output;
-        let turn = null;
+        let folded = null;
         let parent = ctx.turn;
+        let persisted = 0;
         const created = [];
         ctx.output = (async function* () {
           try {
-            for await (const packet of source) {
-              turn = soma.pour(turn, packet);
-              if (packet.event === "/turn/close") {
+            for await (const record of source) {
+              folded = soma.transcript(folded, record);
+              while (persisted < folded.turns.length) {
+                const sealed = folded.turns[persisted++];
                 parent = ctx.daemon.entities.turn.create({
-                  role: turn.role,
-                  parts: turn.parts,
-                  meta: turn.meta,
+                  role: sealed.role,
+                  parts: sealed.parts,
+                  meta: sealed.meta,
                   parent,
                   thread: ctx.input.thread,
                   mode: ctx.mode.id,
                 });
                 created.push(parent);
-                turn = null;
               }
-              yield packet;
+              yield record;
             }
             await ctx.daemon.entities.em.flush();
           } catch (error) {
@@ -83,16 +90,17 @@ export const HARNESSED = (mode, daemon) => {
             throw error;
           }
         })();
-      } else if (ctx.output?.role) {
-        //@beef is.turn()
-        await ctx.daemon.entities.turn.chain({
-          role: ctx.output.role,
-          parts: ctx.output.parts,
-          meta: ctx.output.meta,
-          parent: ctx.turn,
-          thread: ctx.input.thread,
-          mode: ctx.mode.id,
-        });
+      } else if (ctx.output?.turns) {
+        let parent = ctx.turn;
+        for (const sealed of ctx.output.turns)
+          parent = await ctx.daemon.entities.turn.chain({
+            role: sealed.role,
+            parts: sealed.parts,
+            meta: sealed.meta,
+            parent,
+            thread: ctx.input.thread,
+            mode: ctx.mode.id,
+          });
       }
     });
 
@@ -100,12 +108,14 @@ export const HARNESSED = (mode, daemon) => {
     harness
       .branch(type)
       .open("render", (ctx) => ctx.hallucination[type].render())
-      .open({ nature: "stream", yields: Packet.Any }, (ctx) => ctx.hallucination[type].stream());
+      .open({ nature: "stream", yields: Packet.Session }, (ctx) =>
+        ctx.hallucination[type].stream(),
+      );
 
   if (mode.module.harness) harness.slurp(mode.module.harness);
 
   return () => {
-    mode.aperture.branch("/harness").slurp(harness);
     mode.harness = shape.object(harness, steer.strategy.echo);
+    mode.aperture.branch("/harness").slurp(harness);
   };
 };

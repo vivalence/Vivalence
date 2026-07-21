@@ -17,7 +17,7 @@ export const drill = new Vector().open(
     }),
   },
   async (ctx) => {
-    const emission = await ctx.mode.emit.drill({ ...ctx.input, thread: ctx.input.thread });
+    const emission = await ctx.mode.emit.drill({ ...ctx.input, thread: ctx.thread });
     const buffers = emission.entities.buffer;
     return {
       message: buffers.length

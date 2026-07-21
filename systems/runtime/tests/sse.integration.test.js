@@ -78,10 +78,10 @@ specimen.describe("SSE wire — http(dewey.aperture) → /harness/dialogue/strea
     specimen.expect(opens.length).toBe(1);
     specimen.expect(closes.length).toBe(1);
     specimen.expect(deltas.length).toBeGreaterThan(0);
-    specimen.expect(closes[0].meta.stop).toBe("end_turn");
+    specimen.expect(closes[0].meta.state).toBe("complete");
   });
 
-  specimen.it("tool loop SSE: 3 /turn/open + 3 /turn/close, tool_use part, tool_result part, stop reasons", async () => {
+  specimen.it("executable tools do not cross the JSON wire — single round, no tool call", async () => {
     const thread = await scenario.createThread();
     const response = await fetch(`http://localhost:${PORT}/harness/dialogue/stream`, {
       method: "POST",
@@ -90,7 +90,7 @@ specimen.describe("SSE wire — http(dewey.aperture) → /harness/dialogue/strea
         thread: thread.id,
         parts: [{ type: "text", text: "lookup test" }],
         tune: "unleashed",
-        tools: { lookup: { execute: async (input) => ({ definition: `${input.query} means house` }) } },
+        tools: { lookup: { execute: async (ctx) => ({ definition: `${ctx.input.query} means house` }) } },
       }),
     });
 
@@ -100,16 +100,10 @@ specimen.describe("SSE wire — http(dewey.aperture) → /harness/dialogue/strea
     const opens  = frames.filter((f) => f.event === "/turn/open");
     const closes = frames.filter((f) => f.event === "/turn/close");
 
-    specimen.expect(opens.length).toBe(3);
-    specimen.expect(closes.length).toBe(3);
-    specimen.expect(closes[0].meta.stop).toBe("tool_use");
-    specimen.expect(closes[closes.length - 1].meta.stop).toBe("end_turn");
-
-    const partOpens = frames.filter((f) => f.event === "/part/open");
-    specimen.expect(partOpens.some((f) => f.part?.type === "tool_use")).toBe(true);
-
-    const toolResultDrains = frames.filter((f) => f.event === "/part/open" && f.part?.type === "tool_result");
-    const anyToolResultMention = text.includes('"type":"tool_result"');
-    specimen.expect(anyToolResultMention).toBe(true);
+    specimen.expect(opens.length).toBe(1);
+    specimen.expect(closes.length).toBe(1);
+    specimen.expect(closes[0].meta.state).toBe("complete");
+    specimen.expect(frames.at(-1).event).toBe("/session/close");
+    specimen.expect(text.includes('"type":"tool_use"')).toBe(false);
   });
 });

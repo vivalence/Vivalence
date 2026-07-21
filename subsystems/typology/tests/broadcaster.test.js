@@ -1,104 +1,67 @@
-import { specimen, Broadcaster } from "@vivalence/typology"
+import { specimen, Broadcaster } from "@vivalence/typology";
 
 specimen.describe("Broadcaster", () => {
-  specimen.it("push reaches subscriber", async () => {
-    const broadcaster = new Broadcaster()
-    const { iterable, unsubscribe } = broadcaster.subscribe()
-    broadcaster.push({ op: "create", entity: { id: "1", slug: "test" } }, { id: "1", slug: "test" })
+  specimen.it("a push reaches every subscriber and queues until pulled", async () => {
+    const broadcaster = new Broadcaster();
+    const first = broadcaster.subscribe();
+    const second = broadcaster.subscribe();
+    broadcaster.push({ op: "create", entity: { id: "1", slug: "test" } }, { id: "1", slug: "test" });
 
-    const result = await iterable[Symbol.asyncIterator]().next()
-    specimen.expect(result.value.op).toBe("create")
-    specimen.expect(result.value.entity.slug).toBe("test")
-    unsubscribe()
-  })
+    const firstResult = await first.iterable[Symbol.asyncIterator]().next();
+    const secondResult = await second.iterable[Symbol.asyncIterator]().next();
+    specimen.expect(firstResult.value.op).toBe("create");
+    specimen.expect(firstResult.value.entity.slug).toBe("test");
+    specimen.expect(secondResult.value.op).toBe("create");
+    first.unsubscribe();
+    second.unsubscribe();
 
-  specimen.it("filter matches", async () => {
-    const broadcaster = new Broadcaster()
-    const { iterable, unsubscribe } = broadcaster.subscribe({ slug: "hello" })
+    const queued = new Broadcaster();
+    const subscription = queued.subscribe();
+    queued.push({ op: "create", entity: { id: "1" } }, { id: "1" });
+    queued.push({ op: "update", entity: { id: "2" } }, { id: "2" });
+    const iterator = subscription.iterable[Symbol.asyncIterator]();
+    const head = await iterator.next();
+    const tail = await iterator.next();
+    specimen.expect(head.value.entity.id).toBe("1");
+    specimen.expect(tail.value.entity.id).toBe("2");
+    subscription.unsubscribe();
+  });
 
-    broadcaster.push({ op: "update", entity: { id: "1", slug: "other" } }, { id: "1", slug: "other" })
-    broadcaster.push({ op: "update", entity: { id: "2", slug: "hello" } }, { id: "2", slug: "hello" })
+  specimen.it("a filter narrows the feed and an empty filter matches everything", async () => {
+    const broadcaster = new Broadcaster();
+    const filtered = broadcaster.subscribe({ slug: "hello" });
+    broadcaster.push({ op: "update", entity: { id: "1", slug: "other" } }, { id: "1", slug: "other" });
+    broadcaster.push({ op: "update", entity: { id: "2", slug: "hello" } }, { id: "2", slug: "hello" });
+    const match = await filtered.iterable[Symbol.asyncIterator]().next();
+    specimen.expect(match.value.entity.slug).toBe("hello");
+    filtered.unsubscribe();
 
-    const result = await iterable[Symbol.asyncIterator]().next()
-    specimen.expect(result.value.entity.slug).toBe("hello")
-    unsubscribe()
-  })
+    const open = new Broadcaster();
+    const everything = open.subscribe();
+    open.push({ op: "create", entity: { id: "1" } }, { id: "1" });
+    const anything = await everything.iterable[Symbol.asyncIterator]().next();
+    specimen.expect(anything.value.op).toBe("create");
+    everything.unsubscribe();
+  });
 
-  specimen.it("empty filter matches everything", async () => {
-    const broadcaster = new Broadcaster()
-    const { iterable, unsubscribe } = broadcaster.subscribe()
-    broadcaster.push({ op: "create", entity: { id: "1" } }, { id: "1" })
+  specimen.it("an unsubscribe or a timeout ends the feed", async () => {
+    const broadcaster = new Broadcaster();
+    const { iterable, unsubscribe } = broadcaster.subscribe();
+    specimen.expect(broadcaster._subscribers.size).toBe(1);
+    unsubscribe();
+    specimen.expect(broadcaster._subscribers.size).toBe(0);
 
-    const result = await iterable[Symbol.asyncIterator]().next()
-    specimen.expect(result.value.op).toBe("create")
-    unsubscribe()
-  })
+    const ended = await iterable[Symbol.asyncIterator]().next();
+    specimen.expect(ended.done).toBe(true);
 
-  specimen.it("unsubscribe stops iteration", async () => {
-    const broadcaster = new Broadcaster()
-    const { iterable, unsubscribe } = broadcaster.subscribe()
+    broadcaster.push({ op: "create", entity: { id: "1" } }, { id: "1" });
+    const afterPush = await iterable[Symbol.asyncIterator]().next();
+    specimen.expect(afterPush.done).toBe(true);
 
-    unsubscribe()
-
-    const result = await iterable[Symbol.asyncIterator]().next()
-    specimen.expect(result.done).toBe(true)
-  })
-
-  specimen.it("multiple subscribers", async () => {
-    const broadcaster = new Broadcaster()
-    const a = broadcaster.subscribe()
-    const b = broadcaster.subscribe()
-
-    broadcaster.push({ op: "create", entity: { id: "1" } }, { id: "1" })
-
-    const ra = await a.iterable[Symbol.asyncIterator]().next()
-    const rb = await b.iterable[Symbol.asyncIterator]().next()
-    specimen.expect(ra.value.op).toBe("create")
-    specimen.expect(rb.value.op).toBe("create")
-
-    a.unsubscribe()
-    b.unsubscribe()
-  })
-
-  specimen.it("push to closed subscription is no-op", async () => {
-    const broadcaster = new Broadcaster()
-    const { iterable, unsubscribe } = broadcaster.subscribe()
-    unsubscribe()
-
-    broadcaster.push({ op: "create", entity: { id: "1" } }, { id: "1" })
-    const result = await iterable[Symbol.asyncIterator]().next()
-    specimen.expect(result.done).toBe(true)
-  })
-
-  specimen.it("timeout ends iteration", async () => {
-    const broadcaster = new Broadcaster()
-    const { iterable, unsubscribe } = broadcaster.subscribe({}, { timeout: 50 })
-
-    const result = await iterable[Symbol.asyncIterator]().next()
-    specimen.expect(result.done).toBe(true)
-    unsubscribe()
-  })
-
-  specimen.it("queues events before consumption", async () => {
-    const broadcaster = new Broadcaster()
-    const { iterable, unsubscribe } = broadcaster.subscribe()
-
-    broadcaster.push({ op: "create", entity: { id: "1" } }, { id: "1" })
-    broadcaster.push({ op: "update", entity: { id: "2" } }, { id: "2" })
-
-    const iter = iterable[Symbol.asyncIterator]()
-    const first = await iter.next()
-    const second = await iter.next()
-    specimen.expect(first.value.entity.id).toBe("1")
-    specimen.expect(second.value.entity.id).toBe("2")
-    unsubscribe()
-  })
-
-  specimen.it("unsubscribe removes from _subscribers set", () => {
-    const broadcaster = new Broadcaster()
-    const { unsubscribe } = broadcaster.subscribe()
-    specimen.expect(broadcaster._subscribers.size).toBe(1)
-    unsubscribe()
-    specimen.expect(broadcaster._subscribers.size).toBe(0)
-  })
-})
+    const timed = new Broadcaster();
+    const subscription = timed.subscribe({}, { timeout: 50 });
+    const expired = await subscription.iterable[Symbol.asyncIterator]().next();
+    specimen.expect(expired.done).toBe(true);
+    subscription.unsubscribe();
+  });
+});

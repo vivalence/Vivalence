@@ -28,7 +28,9 @@ export class Path extends Signature {
   // static coercions = [[is.string, (s) => ({ nature: normalize(s) })]];
 
   get absolute() {
-    return this.array.map((s) => s.nature).join("") || "/";
+    let nature = "";
+    for (let position = this; position; position = position.trace) nature = position.nature + nature;
+    return nature || "/";
   }
   get filename() {
     const abs = this.absolute;

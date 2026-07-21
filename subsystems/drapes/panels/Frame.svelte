@@ -2,65 +2,85 @@
   import { onDestroy } from "svelte";
   import { computed } from "nanostores";
 
-  let { terminal } = $props();
+  let { terminal, view = null } = $props();
 
   let buffer = terminal.$buffer;
+  let bufferId = computed(buffer, (active) => active?.id);
   let component = $state(null);
   let dom = $state(null);
-  let bufferId = computed(buffer, (a) => a?.id);
-
+  let fault = $state(null);
   let live = null;
+  let shown = null;
+
+  function identity(record) {
+    if (!record) return null;
+    return record.hash ?? record.bundle.url + record.mount.nature;
+  }
 
   function teardown() {
-    // if (!live) return; live.release();
     live?.unmount();
     component?.destroy();
     live = null;
+    shown = null;
     component = null;
+    fault = null;
   }
-
-  // function activate(next) {
-  //   next.mount();
-  //   // next.render();
-  // }
 
   $effect(() => {
     const next = $buffer;
-    if (next === live) return;
+    const key = identity(view);
+    if (next === live && key === shown) return;
     teardown();
     if (!next) return;
     // A not-yet-resolved buffer (e.g. a persisted id-string awaiting rehydrate) has no
     // entity methods — skip until it becomes a real Buffer, so live/teardown never see a string.
     if (typeof next.mount !== "function") return;
-
     live = next;
-    if (next.mode?.metadata?.app?.url) {
-      (async () => {
-        try {
-          const module = await import(/* @vite-ignore */ next.mode.metadata.app.url);
-          if (live !== next || !dom) return;
-          component = module.default(dom, { buffer: next, terminal });
-          // activate(next);
-          next.mount();
-        } catch (e) {
-          console.error(`[Frame] failed loading module: ${next.mode.metadata.app.url}`, e);
-        }
-      })();
-    } else {
+    shown = key;
+    if (!view) {
       next.mount();
-      // activate(next);
+      return;
     }
+    (async () => {
+      try {
+        const module = await view.load();
+        if (live !== next || shown !== key || !dom) return;
+        component = module.default(dom, { buffer: next, terminal });
+        next.mount();
+      } catch (error) {
+        console.error(`[Frame] view refused for buffer ${next.id}`, error);
+        if (live === next) fault = error.message;
+      }
+    })();
   });
 
   onDestroy(teardown);
 </script>
 
 {#key $bufferId}
-  {#if $buffer?.mode?.metadata?.app?.Component}
-    <svelte:component this={$buffer.mode.metadata.app.Component} buffer={$buffer} {terminal} />
-  {:else if $buffer?.mode?.metadata?.app?.url}
-    <div style="width: 100%;height: 100%;max-width: 100vw;" bind:this={dom}></div>
+  {#if fault}
+    <div class="fault">view refused: {fault}</div>
+  {:else if view}
+    <div class="stage" bind:this={dom}></div>
   {:else}
     <slot />
   {/if}
 {/key}
+
+<style>
+  .stage {
+    width: 100%;
+    height: 100%;
+    max-width: 100vw;
+  }
+  .fault {
+    margin: auto;
+    padding: 1rem 1.5rem;
+    font-family: var(--font-family-code);
+    font-size: var(--font-size-xs);
+    color: var(--colors-skeleton-0-danger-base, #c33);
+    border: 1px solid currentColor;
+    border-radius: 6px;
+    opacity: 0.8;
+  }
+</style>

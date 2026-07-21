@@ -1,5 +1,5 @@
 # frontier — the live edge
-<!-- writer: agent · derived-from: quests/ + compacts/ + private logs · verified: session 8327f8a6 · limit: 90 lines -->
+<!-- writer: agent · derived-from: quests/ + compacts/ + private logs · verified: overnight selfclean pass (quests 72→51, trails folded to compacts) · limit: 90 lines -->
 
 Derived: re-derivable from quests + compacts + logs. Update at every session disintegrate. State verdict from the full corpus read: **architecture coherent and contradiction-free; the debt is live-validation, not design.**
 
@@ -33,4 +33,8 @@ Derived: re-derivable from quests + compacts + logs. Update at every session dis
 
 ## standing beef-orders in force
 
-percentage fader sticky · code-heavy answers permanent · caveman active · VCS read-only forever · manifest immutable · quests for plans · no unsolicited expansion.
+percentage fader sticky · code-heavy answers permanent · caveman active · VCS read-only forever · manifest immutable · quests for plans · no unsolicited expansion · **`.ikiro/` autonomous — no gate** (beef: *"all inside ikiro is yours"*; self-mod transparent + git-reversible).
+
+## overnight housekeeping (selfclean pass)
+
+Quests pruned 72→51 — 18 landed/superseded dropped (aperture-calling · multiplex · vector-affect · cortex triad · flatten-corpora · m15 · topology-to-corpus · very-important-packagemanager · …) + `kajuit_typology-rotation` extracted to a compact. KEPT as distinct (not dupes): `viva-init` ≠ `viva-install` ≠ `viva-init-install`; the 7 verify-saved live quests (m11 · m18 · redact · riddler · voice · viva-init/install). Flywheel: `yap-wrong-artifact` + `premature-completion` → PROVEN; `comment-litter`/`invented-state-optionality`/`rule-not-self-applied` escalated; `hooks/comment-guard.sh` written (unwired). Kernel git/jj banner reconciled to the hook. Research → `quests/ikiro-modernization.quest.org` (skills-lever landed one exemplar; persona→subagent + `.claude/rules` forks await beef). Full trail: `overnight.md`.

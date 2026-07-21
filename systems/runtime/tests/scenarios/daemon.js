@@ -7,15 +7,12 @@ import { INTENTED, EMITTER, stagger } from "@vivalence/runtime/daemon/traits";
 
 const APPLICATION = (mode, daemon) => {
   if (!mode.module.app) return;
-  mode.aperture.open("/buffered", () => ({
-    url: mode.module.app.url.absolute,
-    schema: mode.module.app.mask,
-  }));
   mode.app.buffer = (desc = {}) => {
     const em = daemon.entities.em;
     const buffer = em.create(tiers.buffer.entity, {
       mode: mode.entity.id,
       data: mode.app.fill(desc),
+      view: null,
       index: desc.index ?? 0,
     });
     if (desc.literals) buffer.literals.add(desc.literals.map((l) => em.getReference(tiers.literal.entity, l?.id ?? l)));
@@ -37,7 +34,6 @@ export async function create() {
   mode.app = mode.module.app = new App("buffer/flashcard.svelte", v.buffer({
     data: { recall: v.string({ default: "LEARNING" }) },
   })); // mirror real Mode: mode.app === mode.module.app
-  mode.app.withUrl(new Url(`http://test/view/${mode.type}/${mode.slug}`));
 
   mode.module.dataset = {
     intent: [
@@ -93,7 +89,7 @@ export async function create() {
     await next();
   });
 
-  await stagger(mode, daemon, { APPLICATION, INTENTED, EMITTER });
+  for (const finalize of await stagger(mode, daemon, { APPLICATION, INTENTED, EMITTER })) await finalize();
 
   daemon.aperture.branch(mode.mount.absolute).slurp(mode.aperture);
 

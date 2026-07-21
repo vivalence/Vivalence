@@ -1,0 +1,61 @@
+#+TITLE: the kajuit typology-rotation trades an aggressive ~50-file split for a pragmatic milestone plan under ONE law — "no forced separation" — where beef kills every micro-file (strategy/store/Stall lifts, per-substage files, die.js, defaults.js, single-export barrels, Entity-as-dir) and =boot= becomes a function OF lifecycle; the CONVERSATIONAL pivot lands (INSITU→CONVERSATIONAL, $dock/$audio/engage/release leave Terminal for traits), rich chat ships, and M1–M10 land pragmatically with M5/M7 SKIPPED because splitting 65–86 LOC single-concern files IS the forced separation the law forbids.
+
+#+TOPIC: extraction-fold of the retired =kajuit_typology-rotation.quest.org= — its decision-trail + verbatim @beef annotation table lived ONLY in the quest file (no compact captured it), so this preserves them before the plan is pruned. The rotation is LANDED (M1–M10). Structural doctrine cross-links memory =[[project_typology_barrel_convention]]= (no single-export barrel), =[[feedback_trait_colocation]]= (trait behavior in trait module), =[[project_context_architecture]]= (the client contexts), =[[project_dock_per_terminal]]= (the $dock relocation's later resolution).
+
+* Arc
+
+** the aggressive draft, then beef's pass
+The original =systems/kajuit/src/typology/= restructure draft proposed ~50 new files across =subsystems/typology/= and kajuit — separate files for =strategy=, =store=, =StallStatusEnum=, a =Stall= relocation, =prototypes/{entity,dataspace,daemon}/= dirs each holding ONE file, =decks/{lighthouse,quarters,bridge,thread}/= each with a =lifecycle/= subdir of one-helper-per-file, =entities/{terminal,thread,buffer}/= with =defaults.js= splits, an =entities/foundation/trait-runner.js=. beef annotated it line-by-line and killed most of it. The through-line of every kill is ONE law: **no forced separation** — a split earns its directory only by SUBSTANTIVE separation of concern, never by mechanical decomposition.
+
+** the distilled rules (authoritative — the durable payload)
+1. **Don't lift to =subsystems/typology=** without a real second consumer: =strategy=, =store=, =Stall= stay kajuit-local (the lift was theoretical).
+2. **Lifecycle stages = 4 max**: construct / populate / resolve / integrate. Per-substage files (=connection.js=, =hydrate.js=, =restore.js=) are forbidden.
+3. **No =die.js= hybrid**: lifecycle stages compose directly; =boot()= is a function OVER lifecycle, not its own file.
+4. **No single-export =index.js= barrels**: if an =index.js= is exactly =export { X } from "./x.js"=, delete it, import the file directly (= [[project_typology_barrel_convention]]=).
+5. **No directory-per-trivial-POJO**: a 4-key =defaults.js=, a two-call =restore.js= — inline them.
+6. **Splits welcome for SUBSTANTIVE separation**: bridge geometry vs gesture; terminal class vs dossier; queueing trait+pull+telemetry+persist. Excess was the objection, not splits per se.
+7. **Trait behavior lives in the trait module**, not on the entity class: =$dock= / =$audio= / =engage()= / =release()= are trait concerns (= [[feedback_trait_colocation]]=).
+8. **Trait running is middleware**, not an inline =for= loop in each dossier.
+
+* Verbatim @beef trail (preserved — the reasoning behind the rules)
+
+| site | beef | verdict |
+|------|------|---------|
+| =gestalten/shape/strategy.js= lift | "No. lol." | KILL — inline strategy stays at =dataspace.js= / =quarters.js= |
+| =gestalten/belt/store.js= lift | "maybe... needs thought" → "keep within kajuit too. not system level" | KILL — =store= stays inline at =decks/bridge.js= |
+| =prototypes/stall/= lift | "stall is only used by client rn so lets keep it there" | KILL — Stall stays kajuit-local |
+| =prototypes/stall/status.js= | "really more a schematic than a prototype" | if extracted, =StallStatusEnum= → kajuit schematics, not prototypes |
+| Stall =suspended=/=activated= flags | "no business existing... handled by status or implicit/emergent" + 2× "Why?" | DO — drop both; status enum drives gating |
+| =prototypes/entity/{entity,index}.js= | "doesnt need to be its own directory?!??!! forced & unessecary" + "@stupid" | KILL — =Entity= stays flat |
+| =prototypes/daemon/boot.js= | "IF we apply lifecycles anyways, then boot absolutely ought to be implemented as a F of lifecycle" | =boot= composes lifecycle stages, not its own file |
+| =decks/lighthouse/lifecycle/connection.js= | "unnessecary & forced separation again" | KILL — inline at consumer |
+| =decks/lighthouse/lifecycle/hydrate.js= | "lifecycle stages are 4. not each lifecycle gets its own file" | lifecycle stages = 4 max |
+| =decks/lighthouse/die.js= | "weird hybrid of lifecycles and whatever this is. not clean" | KILL =die.js= across all decks |
+| =decks/quarters/lifecycle/restore.js= | "same lifecycle implementation dirty issue" | KILL — inline restore |
+| =entities/foundation/trait-runner.js= =runTraits= | "can we implement this function as a middleware?" | DO — the trait runner middleware |
+| =entities/terminal/defaults.js= | "unnessecary & forced separation again" | KILL — inline =DEFAULT_DOCK=, migrate to traits |
+| =Terminal.$dock= | "shouldn't hardcode session implementation details... belongs into traits. dirty as FUCK" | RELOCATE (later fully resolved per-terminal — =[[project_dock_per_terminal]]=) |
+| =Terminal.$audio= | "doesnt belong here AT ALL!!" | DONE — left Terminal at the CONVERSATIONAL pivot |
+| =Terminal.engage(thread)= | "NO!!! traits!!!!" | DONE — moved to traits |
+| =Terminal.release()= | "???NOOOOOOOOOOOOOOOOOOOOOOOO" | DONE — moved to traits |
+| =TerminalDossier.use= empty middleware | "what." | DONE |
+| =Object.values(traits.terminal)= spread | "what? where ?? do we do this??!!!!!!!!! bad." | DONE |
+| Mode dossier =runTraits= call | "would be nicer as a middleware" | DO — the middleware |
+| =moin= / =voyage= naming | "moin is HORRIBLE lingo" / "voyage. weird naming. should be technical!" | DONE — vocab now =/dialogue/{open,abort,packet,close}= |
+| =traits/terminal/insitu.js= | "nice shape. but this is off..." | DONE — INSITU→CONVERSATIONAL |
+
+* What landed
+
+- **CONVERSATIONAL pivot**: INSITU dropped from the voice path; a CONVERSATIONAL trait owns engagement; =engage(thread)=/=release(thread)= flip the trait via a =wire(thread)= subscriber on =thread.$traits=; dock gated on =thread.traits.includes("CONVERSATIONAL")=; signal vocab locked to =dialogue.{open,abort,packet,close}= (server-confirmed, NOT anchor/voyage/moin). Terminal slimmed — dropped =$audio=/=engage()=/=release()=/plain conversation-socket-streams fields. Verified end-to-end: engage → handshake LIVE → dock → message → runtime → cortex → anthropic.
+- **rich chat**: token streaming, mid-stream cancel, multi-line composer (Enter/Shift+Enter), full markdown render, smart auto-scroll, day dividers + relative timestamps, per-turn copy/retry, ↑-recall, thinking indicator, dormant tool_use/tool_result + inline-artifact rendering. New =Markdown.svelte= + a minimal =markdown.js= parser.
+- **M1 top-deck consolidation** (grew scope: Top absorbs active terminal + daemon/mode getters chained through current thread; DAEMON/MODE/THREAD legacy symbols → TOP). **M2 stall flag cleanup** (=suspended=/=activated= booleans dropped; status enum + =teardowns.length= emergent idempotency; the =$source= subscriber gated on =status===IDLE= kills the suspend/resume merge race). **M3 trait-runner middleware** (=traits/runner.js= =applyTraits(namespace)= replaces inline dossier loops). **M4 bridge split** (=decks/bridge.js= ~640 LOC → =bridge/{bridge,geometry,gesture,index}.js=). **M6 partial** (only =entities/thread/= warranted class+dossier split; Terminal 72 LOC + Buffer 75 LOC stayed flat — also fixed a barrel-cycle: thread imports =Entity= via direct relative path, not =@vivalence/kajuit=). **M8 partial** (=DEFAULT_DOCK=/=DEFAULT_COMPOSER= relocated to the bridge deck per "belongs into the BRIDGE deck"; the per-terminal atoms stayed on Terminal to preserve isolation — full relocation deferred as a product-boundary call, later resolved by =[[project_dock_per_terminal]]=). **M9** stale-ref sweep clean + 83 steps green. **M10 pincer/tbone disaggregation** (each panel/bone → =name/name.svelte=, renderable sub-components under =widgets/=, utility =.js= at panel root).
+
+* SKIPPED — because skipping IS the law
+- **M5 daemon split**: =prototypes/daemon.js= is 86 LOC, single concern; =boot= already =shape.selbstbestimmt(lifecycle, ...)= = a function over lifecycle (satisfies "boot = F of lifecycle"). No structural gain without violating "no forced separation". Left flat.
+- **M7 queueing split**: =traits/thread/queueing.js= is 65 LOC, one trait body reading top-to-bottom; splitting it into 10–15 LOC files IS the forced separation. Left flat.
+
+The skips are the connoisseur point of the whole pass: **the plan proposed the split, the law rejected it at execution time** — decomposition serves separation of concern, never file-count aesthetics.
+
+* State at fold
+- Rotation LANDED; the retired quest is pruned (this compact is its trail). Tests delivered: =top=, =trait-runner= (new) + =stall= 3-RED→green; 83 steps green across =top/trait-runner/stall/dock.geometry/markdown/thread.conversational=; M10 verified via chrome smoke.
+- The 8 distilled rules are live kajuit doctrine; most also live durably in memory (barrel convention, trait colocation). "No forced separation" + "boot = F of lifecycle" + "lifecycle = 4 stages" are the reusable laws for any future kajuit/typology restructure.

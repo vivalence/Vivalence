@@ -96,234 +96,197 @@ function stubPair() {
   return { west, east };
 }
 
-function exercises(scenario) {
-  specimen.it("unary POST crosses the multiplex", async () => {
-    const result = await scenario().connection.call("/echo", { hello: "mux" });
-    specimen.expect(result.echoed).toEqual({ hello: "mux" });
-  });
+async function traverse(connection, heard) {
+  const echoed = await connection.call("/echo", { hello: "mux" });
+  specimen.expect(echoed.echoed).toEqual({ hello: "mux" });
 
-  specimen.it("unary GET crosses the multiplex", async () => {
-    const result = await scenario().connection.call("/ping", {}, { method: "GET" });
-    specimen.expect(result).toEqual({ pong: true });
-  });
+  const pinged = await connection.call("/ping", {}, { method: "GET" });
+  specimen.expect(pinged).toEqual({ pong: true });
 
-  specimen.it("GET carries input over frames", async () => {
-    const result = await scenario().connection.call("/mirror", { deep: true }, { method: "GET" });
-    specimen.expect(result.mirrored).toEqual({ deep: true });
-  });
+  const mirrored = await connection.call("/mirror", { deep: true }, { method: "GET" });
+  specimen.expect(mirrored.mirrored).toEqual({ deep: true });
 
-  specimen.it("per-open token crosses as the authorization header", async () => {
-    const result = await scenario().connection.call("/whoami", {}, { method: "GET" });
-    specimen.expect(result.bearer).toBe("Bearer sesame");
-  });
+  const identified = await connection.call("/whoami", {}, { method: "GET" });
+  specimen.expect(identified.bearer).toBe("Bearer sesame");
 
-  specimen.it("stream flows through one frame", async () => {
-    const events = [];
-    for await (const event of scenario().connection.stream("/feed")) events.push(event);
-    specimen.expect(events).toEqual([{ beat: 1 }, { beat: 2 }, { beat: 3 }]);
-  });
+  const events = [];
+  for await (const event of connection.stream("/feed")) events.push(event);
+  specimen.expect(events).toEqual([{ beat: 1 }, { beat: 2 }, { beat: 3 }]);
 
-  specimen.it("stream and unary interleave on one socket", async () => {
-    const drained = (async () => {
-      const seen = [];
-      for await (const event of scenario().connection.stream("/feed")) seen.push(event);
-      return seen;
-    })();
+  const drained = (async () => {
+    const seen = [];
+    for await (const event of connection.stream("/feed")) seen.push(event);
+    return seen;
+  })();
+  await sleep.ms(60);
+  const during = await connection.call("/echo", { probe: true });
+  specimen.expect(during.echoed).toEqual({ probe: true });
+  const interleaved = await drained;
+  specimen.expect(interleaved.length).toBe(3);
 
-    await sleep.ms(60);
-    const during = await scenario().connection.call("/echo", { probe: true });
-    specimen.expect(during.echoed).toEqual({ probe: true });
+  async function* source() {
+    yield { up: 1 };
+    yield { up: 2 };
+  }
+  const published = await connection.publish("/ingest", source());
+  specimen.expect(published.received).toEqual([{ up: 1 }, { up: 2 }]);
 
-    const seen = await drained;
-    specimen.expect(seen.length).toBe(3);
-  });
+  const answered = await connection.call("/marco", {});
+  specimen.expect(answered).toEqual({ ok: true });
+  await sleep.ms(50);
+  specimen.expect(heard.at(-1)).toEqual({ pong: true });
+}
 
-  specimen.it("upstream publish crosses the multiplex", async () => {
-    async function* source() {
-      yield { up: 1 };
-      yield { up: 2 };
-    }
-    const result = await scenario().connection.publish("/ingest", source());
-    specimen.expect(result.received).toEqual([{ up: 1 }, { up: 2 }]);
-  });
-
-  specimen.it("server push reaches the inbound vector", async () => {
-    const answer = await scenario().connection.call("/marco", {});
-    specimen.expect(answer).toEqual({ ok: true });
+async function until(predicate, limit = 5000) {
+  const start = Date.now();
+  while (!predicate()) {
+    if (Date.now() - start > limit) throw new Error("condition timeout");
     await sleep.ms(50);
-    specimen.expect(scenario().heard.at(-1)).toEqual({ pong: true });
-  });
+  }
 }
 
 specimen.describe("multiplex", () => {
-  specimen.describe("networked", () => {
-    let world;
-    let scenario;
-
-    specimen.beforeAll(async () => {
-      world = boot();
-      await sleep.ms(50);
-      const { heard, vector } = inbound();
-      const transport = shard.transmitter.multiplex({
-        authority: { get: () => ({ access: "sesame" }) },
-        vector,
-      });
-      scenario = { connection: new Connection(world.url, transport), transport, heard };
+  specimen.it("a connection crosses the live wire", async () => {
+    const world = boot();
+    await sleep.ms(50);
+    const { heard, vector } = inbound();
+    const transport = shard.transmitter.multiplex({
+      authority: { get: () => ({ access: "sesame" }) },
+      vector,
     });
+    const connection = new Connection(world.url, transport);
 
-    specimen.afterAll(async () => {
-      scenario.transport.close();
-      await sleep.ms(300);
-      world.abort.abort();
-      await sleep.ms(20);
-    });
+    await traverse(connection, heard);
 
-    exercises(() => scenario);
-
-    specimen.it("timeout shard aborts a slow unary", async () => {
-      const guarded = new Connection(world.url, scenario.transport).use(
-        shard.connection.timeout(80),
-      );
-      let fallen = null;
-      try {
-        await guarded.call("/slow", {}, { method: "GET" });
-      } catch (error) {
-        fallen = error;
-      }
-      specimen.expect(fallen?.type).toBe("TIMEOUT");
-      await sleep.ms(250);
-    });
-  });
-
-  specimen.describe("stubbed", () => {
-    let scenario;
-
-    specimen.beforeAll(() => {
-      const { gate } = build();
-      const { heard, vector } = inbound();
-      const transport = shard.transmitter.multiplex({
-        authority: { get: () => ({ access: "sesame" }) },
-        vector,
-        connect: () => {
-          const { west, east } = stubPair();
-          gate.attend(east);
-          return west;
-        },
-      });
-      scenario = { connection: new Connection(new Url("http://stub-mux"), transport), transport, heard };
-    });
-
-    specimen.afterAll(async () => {
-      scenario.transport.close();
-      await sleep.ms(300);
-    });
-
-    exercises(() => scenario);
-  });
-
-  specimen.describe("reconnect", () => {
-    async function until(predicate, limit = 5000) {
-      const start = Date.now();
-      while (!predicate()) {
-        if (Date.now() - start > limit) throw new Error("condition timeout");
-        await sleep.ms(50);
-      }
+    const guarded = new Connection(world.url, transport).use(shard.connection.timeout(80));
+    let fallen = null;
+    try {
+      await guarded.call("/slow", {}, { method: "GET" });
+    } catch (error) {
+      fallen = error;
     }
+    specimen.expect(fallen?.type).toBe("TIMEOUT");
+    await sleep.ms(250);
 
-    specimen.it("drop fails in-flight retryable, next call re-establishes", async () => {
-      const world = boot();
-      await sleep.ms(50);
-      const transport = shard.transmitter.multiplex({ authority: { get: () => ({ access: "sesame" }) } });
-      const connection = new Connection(world.url, transport);
+    transport.close();
+    await sleep.ms(300);
+    world.abort.abort();
+    await sleep.ms(20);
+  });
 
-      const first = await connection.call("/echo", { round: 1 });
-      specimen.expect(first.echoed).toEqual({ round: 1 });
+  specimen.it("a stubbed pair carries the same traffic", async () => {
+    const { gate } = build();
+    const { heard, vector } = inbound();
+    const transport = shard.transmitter.multiplex({
+      authority: { get: () => ({ access: "sesame" }) },
+      vector,
+      connect: () => {
+        const { west, east } = stubPair();
+        gate.attend(east);
+        return west;
+      },
+    });
+    const connection = new Connection(new Url("http://stub-mux"), transport);
 
-      const streaming = (async () => {
-        try {
-          const seen = [];
-          for await (const event of connection.stream("/feed")) seen.push(event);
-          return null;
-        } catch (error) {
-          return error;
-        }
-      })();
+    await traverse(connection, heard);
 
-      await sleep.ms(60);
-      for (const socket of world.gate.sockets) socket.close();
+    transport.close();
+    await sleep.ms(300);
+  });
 
-      const fallen = await streaming;
-      specimen.expect(fallen?.type).toBe("NETWORK");
-      specimen.expect(fallen?.isRetryable).toBe(true);
+  specimen.it("a drop fails the in-flight stream and the next call heals", async () => {
+    const world = boot();
+    await sleep.ms(50);
+    const transport = shard.transmitter.multiplex({ authority: { get: () => ({ access: "sesame" }) } });
+    const connection = new Connection(world.url, transport);
 
-      await sleep.ms(50);
-      const second = await connection.call("/echo", { round: 2 });
-      specimen.expect(second.echoed).toEqual({ round: 2 });
+    const first = await connection.call("/echo", { round: 1 });
+    specimen.expect(first.echoed).toEqual({ round: 1 });
 
-      transport.close();
-      await sleep.ms(300);
-      world.abort.abort();
-      await sleep.ms(20);
+    const streaming = (async () => {
+      try {
+        const seen = [];
+        for await (const event of connection.stream("/feed")) seen.push(event);
+        return null;
+      } catch (error) {
+        return error;
+      }
+    })();
+
+    await sleep.ms(60);
+    for (const socket of world.gate.sockets) socket.close();
+
+    const fallen = await streaming;
+    specimen.expect(fallen?.type).toBe("NETWORK");
+    specimen.expect(fallen?.isRetryable).toBe(true);
+
+    await sleep.ms(50);
+    const second = await connection.call("/echo", { round: 2 });
+    specimen.expect(second.echoed).toEqual({ round: 2 });
+
+    transport.close();
+    await sleep.ms(300);
+    world.abort.abort();
+    await sleep.ms(20);
+  });
+
+  specimen.it("a retry shard re-sends across a server restart", async () => {
+    let world = boot();
+    await sleep.ms(50);
+    const transport = shard.transmitter.multiplex({ authority: { get: () => ({ access: "sesame" }) } });
+    const connection = new Connection(
+      world.url,
+      shard.transmitter.retry(transport, { maxRetries: 3, baseDelay: 300 }),
+    );
+
+    const first = await connection.call("/echo", { round: 1 });
+    specimen.expect(first.echoed).toEqual({ round: 1 });
+
+    for (const socket of world.gate.sockets) socket.close();
+    world.abort.abort();
+    await sleep.ms(50);
+
+    const pending = connection.call("/echo", { round: 2 });
+    await sleep.ms(50);
+    world = boot(world.port);
+
+    const second = await pending;
+    specimen.expect(second.echoed).toEqual({ round: 2 });
+
+    transport.close();
+    await sleep.ms(300);
+    world.abort.abort();
+    await sleep.ms(20);
+  });
+
+  specimen.it("a subscription resubscribes across drops and fires resumed", async () => {
+    const world = boot();
+    await sleep.ms(50);
+    const transport = shard.transmitter.multiplex({ authority: { get: () => ({ access: "sesame" }) } });
+    const connection = new Connection(world.url, transport);
+
+    const seen = [];
+    let healed = 0;
+    const unsubscribe = connection.subscribe("/feed", (event) => seen.push(event), {
+      backoff: 50,
+      resumed: () => healed++,
     });
 
-    specimen.it("retry shard re-sends across a server restart", async () => {
-      let world = boot();
-      await sleep.ms(50);
-      const transport = shard.transmitter.multiplex({ authority: { get: () => ({ access: "sesame" }) } });
-      const connection = new Connection(
-        world.url,
-        shard.transmitter.retry(transport, { maxRetries: 3, baseDelay: 300 }),
-      );
+    await until(() => seen.length >= 6);
 
-      const first = await connection.call("/echo", { round: 1 });
-      specimen.expect(first.echoed).toEqual({ round: 1 });
+    for (const socket of world.gate.sockets) socket.close();
+    await until(() => seen.length >= 9);
+    specimen.expect(healed).toBeGreaterThan(0);
 
-      for (const socket of world.gate.sockets) socket.close();
-      world.abort.abort();
-      await sleep.ms(50);
+    unsubscribe();
+    await sleep.ms(400);
+    const frozen = seen.length;
+    await sleep.ms(300);
+    specimen.expect(seen.length).toBe(frozen);
 
-      const pending = connection.call("/echo", { round: 2 });
-      await sleep.ms(50);
-      world = boot(world.port);
-
-      const second = await pending;
-      specimen.expect(second.echoed).toEqual({ round: 2 });
-
-      transport.close();
-      await sleep.ms(300);
-      world.abort.abort();
-      await sleep.ms(20);
-    });
-
-    specimen.it("subscribe resubscribes across drops and fires resumed", async () => {
-      const world = boot();
-      await sleep.ms(50);
-      const transport = shard.transmitter.multiplex({ authority: { get: () => ({ access: "sesame" }) } });
-      const connection = new Connection(world.url, transport);
-
-      const seen = [];
-      let healed = 0;
-      const unsubscribe = connection.subscribe("/feed", (event) => seen.push(event), {
-        backoff: 50,
-        resumed: () => healed++,
-      });
-
-      await until(() => seen.length >= 6);
-
-      for (const socket of world.gate.sockets) socket.close();
-      await until(() => seen.length >= 9);
-      specimen.expect(healed).toBeGreaterThan(0);
-
-      unsubscribe();
-      await sleep.ms(400);
-      const frozen = seen.length;
-      await sleep.ms(300);
-      specimen.expect(seen.length).toBe(frozen);
-
-      transport.close();
-      await sleep.ms(300);
-      world.abort.abort();
-      await sleep.ms(20);
-    });
+    transport.close();
+    await sleep.ms(300);
+    world.abort.abort();
+    await sleep.ms(20);
   });
 });

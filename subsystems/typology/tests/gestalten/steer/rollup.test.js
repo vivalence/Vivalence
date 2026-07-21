@@ -1,179 +1,118 @@
-import { specimen, steer, v } from "@vivalence/typology";
-import { Vector } from "@vivalence/typology";
-
-const { rollup } = steer.trie;
+import { specimen, steer, v, Vector } from "@vivalence/typology";
 
 specimen.describe("rollup", () => {
-  specimen.describe("collection", () => {
-    specimen.it("collects flat effects", () => {
-      const vector = new Vector();
-      vector.open("ping", () => "pong");
-      vector.open("status", () => "ok");
+  specimen.it("a trie rolls up flat, branched and deep", () => {
+    const flat = new Vector();
+    flat.open("ping", () => "pong");
+    flat.open("status", () => "ok");
+    const flatEntries = steer.trie.rollup(flat);
+    specimen.expect(flatEntries.length).toBe(2);
+    specimen.expect(flatEntries[0].pattern.nature).toBe("ping");
+    specimen.expect(flatEntries[1].pattern.nature).toBe("status");
 
-      const entries = rollup(vector);
-      specimen.expect(entries.length).toBe(2);
-      specimen.expect(entries[0].pattern.nature).toBe("ping");
-      specimen.expect(entries[1].pattern.nature).toBe("status");
-    });
+    const branched = new Vector();
+    branched.branch("find").open("literal", () => []);
+    branched.branch("find").open("symbol", () => []);
+    branched.branch("pick").open("feed", () => []);
+    const branchedEntries = steer.trie.rollup(branched);
+    specimen.expect(branchedEntries.length).toBe(3);
+    const names = branchedEntries.map((entry) => entry.steps.map((step) => step.nature).join("_"));
+    specimen.expect(names).toContain("find_literal");
+    specimen.expect(names).toContain("find_symbol");
+    specimen.expect(names).toContain("pick_feed");
 
-    specimen.it("collects branched effects", () => {
-      const vector = new Vector();
-      vector.branch("find").open("literal", () => []);
-      vector.branch("find").open("symbol", () => []);
-      vector.branch("pick").open("feed", () => []);
+    const deep = new Vector();
+    deep.branch("a").branch("b").open("c", () => "deep");
+    const deepEntries = steer.trie.rollup(deep);
+    specimen.expect(deepEntries.length).toBe(1);
+    specimen.expect(deepEntries[0].steps.map((step) => step.nature)).toEqual(["a", "b", "c"]);
 
-      const entries = rollup(vector);
-      specimen.expect(entries.length).toBe(3);
-
-      const names = entries.map((e) => e.steps.map((s) => s.nature).join("_"));
-      specimen.expect(names).toContain("find_literal");
-      specimen.expect(names).toContain("find_symbol");
-      specimen.expect(names).toContain("pick_feed");
-    });
-
-    specimen.it("collects deeply nested effects", () => {
-      const vector = new Vector();
-      vector.branch("a").branch("b").open("c", () => "deep");
-
-      const entries = rollup(vector);
-      specimen.expect(entries.length).toBe(1);
-      specimen.expect(entries[0].steps.map((s) => s.nature)).toEqual(["a", "b", "c"]);
-    });
-
-    specimen.it("empty vector returns empty", () => {
-      const entries = rollup(new Vector());
-      specimen.expect(entries).toEqual([]);
-    });
+    specimen.expect(steer.trie.rollup(new Vector())).toEqual([]);
   });
 
-  specimen.describe("callables", () => {
-    specimen.it("entries are callable via fn", async () => {
-      const vector = new Vector();
-      vector.open("greet", () => "hello");
+  specimen.it("an entry is callable at every arity", async () => {
+    const greeter = new Vector();
+    greeter.open("greet", () => "hello");
+    const [greeting] = steer.trie.rollup(greeter);
+    specimen.expect(await greeting.fn()).toBe("hello");
 
-      const [entry] = rollup(vector);
-      specimen.expect(await entry.fn()).toBe("hello");
-    });
+    const echoer = new Vector();
+    echoer.open("echo", (ctx) => ctx.input);
+    const [echoing] = steer.trie.rollup(echoer);
+    specimen.expect(await echoing.fn("ping")).toBe("ping");
 
-    specimen.it("fn receives input", async () => {
-      const vector = new Vector();
-      vector.open("echo", (ctx) => ctx.input);
-
-      const [entry] = rollup(vector);
-      specimen.expect(await entry.fn("ping")).toBe("ping");
-    });
-
-    specimen.it("fn receives arity-2 input", async () => {
-      const vector = new Vector();
-      vector.open("add", (input, ctx) => input.a + input.b);
-
-      const [entry] = rollup(vector);
-      specimen.expect(await entry.fn({ a: 2, b: 3 })).toBe(5);
-    });
+    const adder = new Vector();
+    adder.open("add", (input, ctx) => input.a + input.b);
+    const [adding] = steer.trie.rollup(adder);
+    specimen.expect(await adding.fn({ a: 2, b: 3 })).toBe(5);
   });
 
-  specimen.describe("middleware", () => {
-    specimen.it("root middleware runs", async () => {
-      const trace = [];
-      const vector = new Vector();
+  specimen.it("middleware accumulates down the branch into the effect", async () => {
+    const rooted = [];
+    const rootVector = new Vector();
+    rootVector.use(async (ctx, next) => { rooted.push("root"); await next(); });
+    rootVector.open("action", () => { rooted.push("effect"); return "done"; });
+    const [rootEntry] = steer.trie.rollup(rootVector);
+    await rootEntry.fn();
+    specimen.expect(rooted).toEqual(["root", "effect"]);
 
-      vector.use(async (_, next) => { trace.push("root"); await next(); });
-      vector.open("action", () => { trace.push("effect"); return "done"; });
+    const layered = [];
+    const layeredVector = new Vector();
+    layeredVector.use(async (ctx, next) => { layered.push("root"); await next(); });
+    layeredVector
+      .branch("api")
+      .use(async (ctx, next) => { layered.push("branch"); await next(); })
+      .open("call", () => { layered.push("leaf"); });
+    const [layeredEntry] = steer.trie.rollup(layeredVector);
+    await layeredEntry.fn();
+    specimen.expect(layered).toEqual(["root", "branch", "leaf"]);
 
-      const [entry] = rollup(vector);
-      await entry.fn();
-      specimen.expect(trace).toEqual(["root", "effect"]);
-    });
-
-    specimen.it("branch middleware accumulates", async () => {
-      const trace = [];
-      const vector = new Vector();
-
-      vector.use(async (_, next) => { trace.push("root"); await next(); });
-      vector
-        .branch("api")
-        .use(async (_, next) => { trace.push("branch"); await next(); })
-        .open("call", () => { trace.push("leaf"); });
-
-      const [entry] = rollup(vector);
-      await entry.fn();
-      specimen.expect(trace).toEqual(["root", "branch", "leaf"]);
-    });
-
-    specimen.it("context flows through middleware to effect", async () => {
-      const vector = new Vector();
-
-      vector.use(async (ctx, next) => { ctx.enriched = true; await next(); });
-      vector.branch("api").open("check", (ctx) => ctx.enriched);
-
-      const [entry] = rollup(vector);
-      specimen.expect(await entry.fn()).toBe(true);
-    });
+    const enriching = new Vector();
+    enriching.use(async (ctx, next) => { ctx.enriched = true; await next(); });
+    enriching.branch("api").open("check", (ctx) => ctx.enriched);
+    const [enrichedEntry] = steer.trie.rollup(enriching);
+    specimen.expect(await enrichedEntry.fn()).toBe(true);
   });
 
-  specimen.describe("pattern metadata", () => {
-    specimen.it("carries input schema from descriptor", () => {
-      const vector = new Vector();
-      const schema = v.object({ limit: v.integer() });
-      vector.open({ nature: "feed", input: schema }, () => []);
+  specimen.it("metadata rides the pattern edge", () => {
+    const withInput = new Vector();
+    const schema = v.object({ limit: v.integer() });
+    withInput.open({ nature: "feed", input: schema }, () => []);
+    const [inputEntry] = steer.trie.rollup(withInput);
+    specimen.expect(inputEntry.pattern.input).toBe(schema);
 
-      const [entry] = rollup(vector);
-      specimen.expect(entry.pattern.input).toBe(schema);
-    });
+    const withValence = new Vector();
+    withValence.open({ nature: "feed", valence: "fetch items" }, () => []);
+    const [valenceEntry] = steer.trie.rollup(withValence);
+    specimen.expect(valenceEntry.pattern.valence).toBe("fetch items");
 
-    specimen.it("carries valence from descriptor", () => {
-      const vector = new Vector();
-      vector.open({ nature: "feed", valence: "fetch items" }, () => []);
-
-      const [entry] = rollup(vector);
-      specimen.expect(entry.pattern.valence).toBe("fetch items");
-    });
-
-    specimen.it("carries output schema from descriptor", () => {
-      const vector = new Vector();
-      const output = v.array(v.string());
-      vector.open({ nature: "feed", output }, () => []);
-
-      const [entry] = rollup(vector);
-      specimen.expect(entry.pattern.output).toBe(output);
-    });
+    const withOutput = new Vector();
+    const output = v.array(v.string());
+    withOutput.open({ nature: "feed", output }, () => []);
+    const [outputEntry] = steer.trie.rollup(withOutput);
+    specimen.expect(outputEntry.pattern.output).toBe(output);
   });
 
-  specimen.describe("guarded strategy", () => {
-    specimen.it("validates input", async () => {
-      const vector = new Vector();
-      vector.open(
-        { nature: "feed", input: v.object({ limit: v.integer() }) },
-        (ctx) => ctx.input.limit,
-      );
+  specimen.it("a guarded strategy validates, rejects and defaults", async () => {
+    const guarded = new Vector();
+    guarded.open(
+      { nature: "feed", input: v.object({ limit: v.integer() }) },
+      (ctx) => ctx.input.limit,
+    );
+    const [guardedEntry] = steer.trie.rollup(guarded, steer.strategy.guarded);
+    specimen.expect(await guardedEntry.fn({ limit: 5 })).toBe(5);
 
-      const [entry] = rollup(vector, steer.strategy.guarded);
-      specimen.expect(await entry.fn({ limit: 5 })).toBe(5);
-    });
+    let threw = false;
+    try { await guardedEntry.fn({ limit: "abc" }); }
+    catch (error) { threw = error.code === "VALIDATION"; }
+    specimen.expect(threw).toBe(true);
 
-    specimen.it("rejects invalid input", async () => {
-      const vector = new Vector();
-      vector.open(
-        { nature: "feed", input: v.object({ limit: v.integer() }) },
-        (ctx) => ctx.input.limit,
-      );
-
-      const [entry] = rollup(vector, steer.strategy.guarded);
-      let threw = false;
-      try { await entry.fn({ limit: "abc" }); }
-      catch (e) { threw = e.code === "VALIDATION"; }
-      specimen.expect(threw).toBe(true);
-    });
-
-    specimen.it("applies defaults", async () => {
-      const vector = new Vector();
-      vector.open(
-        { nature: "feed", input: v.object({ limit: v.integer().default(10) }) },
-        (ctx) => ctx.input.limit,
-      );
-
-      const [entry] = rollup(vector, steer.strategy.guarded);
-      specimen.expect(await entry.fn({})).toBe(10);
-    });
+    const defaulted = new Vector();
+    defaulted.open(
+      { nature: "feed", input: v.object({ limit: v.integer().default(10) }) },
+      (ctx) => ctx.input.limit,
+    );
+    const [defaultedEntry] = steer.trie.rollup(defaulted, steer.strategy.guarded);
+    specimen.expect(await defaultedEntry.fn({})).toBe(10);
   });
 });

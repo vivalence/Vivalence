@@ -1,129 +1,88 @@
 import { specimen, shape, Aperture } from "@vivalence/typology";
 
-const { http } = shape;
-
 specimen.describe("Aperture", () => {
-  specimen.describe("method dispatch", () => {
-    const app = new Aperture();
-    app.get("x", () => "got");
-    app.post("x", (input, ctx) => ({ received: input }));
+  specimen.it("a request finds its method handler", async () => {
+    const application = new Aperture();
+    application.get("x", () => "got");
+    application.post("x", (input, context) => ({ received: input }));
+    const handler = shape.http(application);
 
-    const handler = http(app);
+    const gotten = await handler(new Request("http://localhost/x"));
+    specimen.expect(await gotten.json()).toBe("got");
 
-    specimen.it("GET dispatches to .get() handler", async () => {
-      const res = await handler(new Request("http://localhost/x"));
-      // specimen.expect(await res.text()).toBe("got");
-      specimen.expect(await res.json()).toBe("got");
-    });
+    const posted = await handler(new Request("http://localhost/x", {
+      method: "POST",
+      headers: { "content-type": "application/json" },
+      body: JSON.stringify("payload"),
+    }));
+    specimen.expect((await posted.json()).received).toBe("payload");
 
-    specimen.it("POST dispatches to .post() handler", async () => {
-      const res = await handler(new Request("http://localhost/x", {
-        method: "POST",
-        headers: { "content-type": "application/json" },
-        body: JSON.stringify("payload"),
-      }));
-      const body = await res.json();
-      specimen.expect(body.received).toBe("payload");
-    });
+    const readOnly = new Aperture();
+    readOnly.get("only-get", () => "ok");
+    const readOnlyHandler = shape.http(readOnly);
+    const refusedPost = await readOnlyHandler(new Request("http://localhost/only-get", { method: "POST" }));
+    specimen.expect(refusedPost.status).toBe(405);
 
-    specimen.it("POST to GET-only route returns 405", async () => {
-      const app2 = new Aperture();
-      app2.get("only-get", () => "ok");
-      const h = http(app2);
-      const res = await h(new Request("http://localhost/only-get", { method: "POST" }));
-      specimen.expect(res.status).toBe(405);
-    });
-
-    specimen.it("GET to POST-only route returns 405", async () => {
-      const app2 = new Aperture();
-      app2.post("only-post", () => "ok");
-      const h = http(app2);
-      const res = await h(new Request("http://localhost/only-post"));
-      specimen.expect(res.status).toBe(405);
-    });
+    const writeOnly = new Aperture();
+    writeOnly.post("only-post", () => "ok");
+    const writeOnlyHandler = shape.http(writeOnly);
+    const refusedGet = await writeOnlyHandler(new Request("http://localhost/only-post"));
+    specimen.expect(refusedGet.status).toBe(405);
   });
 
-  specimen.describe("open + method on same path", () => {
-    const app = new Aperture();
-    app.open("dual", () => "fallback");
-    app.get("dual", () => "explicit-get");
+  specimen.it("an open route catches what the methods leave", async () => {
+    const application = new Aperture();
+    application.open("dual", () => "fallback");
+    application.get("dual", () => "explicit-get");
+    const handler = shape.http(application);
 
-    const handler = http(app);
-
-    specimen.it("GET dispatches to explicit handler", async () => {
-      const res = await handler(new Request("http://localhost/dual"));
-      // specimen.expect(await res.text()).toBe("explicit-get");
-      specimen.expect(await res.json()).toBe("explicit-get");
-    });
-
-    specimen.it("POST falls back to open handler via wildcard", async () => {
-      const res = await handler(new Request("http://localhost/dual", { method: "POST" }));
-      // specimen.expect(await res.text()).toBe("fallback");
-      specimen.expect(await res.json()).toBe("fallback");
-    });
+    const explicit = await handler(new Request("http://localhost/dual"));
+    specimen.expect(await explicit.json()).toBe("explicit-get");
+    const fallback = await handler(new Request("http://localhost/dual", { method: "POST" }));
+    specimen.expect(await fallback.json()).toBe("fallback");
   });
 
-  specimen.describe("branching with methods", () => {
-    const app = new Aperture();
-    const api = app.branch("api");
+  specimen.it("a branch carries its own methods", async () => {
+    const application = new Aperture();
+    const api = application.branch("api");
     api.get("items", () => [1, 2, 3]);
-    api.post("items", (input, ctx) => ({ created: input }));
+    api.post("items", (input, context) => ({ created: input }));
+    const handler = shape.http(application);
 
-    const handler = http(app);
+    const listed = await handler(new Request("http://localhost/api/items"));
+    specimen.expect(await listed.json()).toEqual([1, 2, 3]);
 
-    specimen.it("GET through branch", async () => {
-      const res = await handler(new Request("http://localhost/api/items"));
-      specimen.expect(await res.json()).toEqual([1, 2, 3]);
-    });
-
-    specimen.it("POST through branch", async () => {
-      const res = await handler(new Request("http://localhost/api/items", {
-        method: "POST",
-        headers: { "content-type": "application/json" },
-        body: JSON.stringify({ name: "new" }),
-      }));
-      const body = await res.json();
-      specimen.expect(body.created.name).toBe("new");
-    });
+    const created = await handler(new Request("http://localhost/api/items", {
+      method: "POST",
+      headers: { "content-type": "application/json" },
+      body: JSON.stringify({ name: "new" }),
+    }));
+    specimen.expect((await created.json()).created.name).toBe("new");
   });
 
-  specimen.describe("middleware with method dispatch", () => {
-    const app = new Aperture();
-    app.use(async (ctx, next) => {
-      ctx.state = ctx.state || {};
-      ctx.state.mw = true;
+  specimen.it("middleware and parameters reach the handler", async () => {
+    const guarded = new Aperture();
+    guarded.use(async (context, next) => {
+      context.state = context.state || {};
+      context.state.mw = true;
       await next();
     });
-    app.get("guarded", (ctx) => ({ mw: ctx.state.mw }));
+    guarded.get("guarded", (context) => ({ mw: context.state.mw }));
+    const guardedHandler = shape.http(guarded);
+    const witnessed = await guardedHandler(new Request("http://localhost/guarded"));
+    specimen.expect((await witnessed.json()).mw).toBe(true);
 
-    const handler = http(app);
+    const users = new Aperture();
+    users.get("users/:id", (context) => ({ id: context.params.id, method: "GET" }));
+    users.put("users/:id", (context) => ({ id: context.params.id, method: "PUT" }));
+    const usersHandler = shape.http(users);
 
-    specimen.it("middleware runs before method handler", async () => {
-      const res = await handler(new Request("http://localhost/guarded"));
-      const body = await res.json();
-      specimen.expect(body.mw).toBe(true);
-    });
-  });
+    const fetched = await (await usersHandler(new Request("http://localhost/users/42"))).json();
+    specimen.expect(fetched.id).toBe("42");
+    specimen.expect(fetched.method).toBe("GET");
 
-  specimen.describe("params with methods", () => {
-    const app = new Aperture();
-    app.get("users/:id", (ctx) => ({ id: ctx.params.id, method: "GET" }));
-    app.put("users/:id", (ctx) => ({ id: ctx.params.id, method: "PUT" }));
-
-    const handler = http(app);
-
-    specimen.it("GET with params", async () => {
-      const res = await handler(new Request("http://localhost/users/42"));
-      const body = await res.json();
-      specimen.expect(body.id).toBe("42");
-      specimen.expect(body.method).toBe("GET");
-    });
-
-    specimen.it("PUT with params", async () => {
-      const res = await handler(new Request("http://localhost/users/42", { method: "PUT" }));
-      const body = await res.json();
-      specimen.expect(body.id).toBe("42");
-      specimen.expect(body.method).toBe("PUT");
-    });
+    const replaced = await (await usersHandler(new Request("http://localhost/users/42", { method: "PUT" }))).json();
+    specimen.expect(replaced.id).toBe("42");
+    specimen.expect(replaced.method).toBe("PUT");
   });
 });

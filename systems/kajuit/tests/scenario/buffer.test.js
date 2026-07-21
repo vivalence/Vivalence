@@ -1,66 +1,51 @@
-import { specimen } from "@vivalence/typology";
+import { specimen, View } from "@vivalence/typology";
 import { daemon } from "@vivalence/runtime/scenarios";
 import { Buffer } from "../../src/typology/entities/buffer.js";
 
-specimen.describe("Buffer.from", () => {
-  specimen.it("creates buffer instance from pojo with app", () => {
-    const app = { url: "http://test/view", schema: {} };
+specimen.describe("Buffer", () => {
+  specimen.it("hydrates from a pojo; data rides the atom accessor", () => {
     const pojo = { id: "buf-1", mode: "mode-1", data: { recall: "LEARNING" }, literals: [{ id: "lit-1" }] };
 
-    const buffer = Buffer.from(pojo, app);
+    const buffer = Object.assign(new Buffer(), pojo);
 
     specimen.expect(buffer).toBeInstanceOf(Buffer);
     specimen.expect(buffer.id).toBe("buf-1");
-    specimen.expect(buffer.app).toBe(app);
     specimen.expect(buffer.data.recall).toBe("LEARNING");
     specimen.expect(buffer.literals[0]).toEqual({ id: "lit-1" });
   });
 
-  specimen.it("app is set directly from argument", () => {
-    const app = { url: "http://test/view/game/flashcard", schema: {} };
-    const pojo = { id: "buf-2", data: {}, literals: [{ id: "lit-1" }] };
+  specimen.it("a view record casts to a View instance on assignment", () => {
+    const record = {
+      kind: "svelte",
+      hash: "deadbeef",
+      mount: "/deadbeef.svelte.mjs",
+      bundle: { entries: [{ type: "js", mount: "/deadbeef.svelte.mjs", integrity: "sha", bytes: 9 }] },
+    };
+    const buffer = Object.assign(new Buffer(), { id: "buf-2", data: {}, view: record });
 
-    const buffer = Buffer.from(pojo, app);
+    specimen.expect(buffer.view).toBeInstanceOf(View);
+    specimen.expect(buffer.view.hash).toBe("deadbeef");
+    specimen.expect(buffer.view.bundle.entries[0].bytes).toBe(9);
 
-    specimen.expect(buffer.app).toBe(app);
-    specimen.expect(buffer.app.url).toBe("http://test/view/game/flashcard");
+    const plain = Object.assign(new Buffer(), { id: "buf-3", data: {} });
+    specimen.expect(plain.view).toBe(null);
   });
 
-  specimen.it("app is null when not provided", () => {
-    const pojo = { id: "buf-3", data: {} };
+  specimen.it("toJSON carries data + view past the accessor skip", () => {
+    const record = { kind: "svelte", mount: "/x.svelte.mjs", bundle: { entries: [{ type: "js", mount: "/x.svelte.mjs", bytes: 1 }] } };
+    const buffer = Object.assign(new Buffer(), { id: "buf-4", data: { recall: "KNOWN" }, view: record });
 
-    const buffer = Buffer.from(pojo, null);
-
-    specimen.expect(buffer.app).toBe(null);
+    const json = JSON.parse(JSON.stringify(buffer));
+    specimen.expect(json.data.recall).toBe("KNOWN");
+    specimen.expect(json.view.mount).toBe("/x.svelte.mjs");
+    specimen.expect(json.$view).toBe(undefined);
+    specimen.expect(json.$data).toBe(undefined);
   });
 
-  specimen.it("context is not set by Buffer.from — set by environment (mint)", () => {
-    const pojo = { id: "buf-4", data: { recall: "KNOWN" }, literals: [{ id: "lit-1" }] };
-    const buffer = Buffer.from(pojo, null);
-
+  specimen.it("context is environment-set; release is a method", () => {
+    const buffer = Object.assign(new Buffer(), { id: "buf-5", data: {} });
     specimen.expect(buffer.context).toBe(null);
-  });
-
-  specimen.it("release is a class method, not a data property", () => {
-    const pojo = { id: "buf-5", data: {} };
-    const buffer = Buffer.from(pojo, null);
-
     specimen.expect(typeof buffer.release).toBe("function");
-  });
-
-  specimen.it("Buffer.from preserves data fields and app", () => {
-    const app = { url: "http://test" };
-    const pojo = { id: "buf-6", mode: "mode-1", data: { recall: "LEARNING" }, literals: ["lit-1"], symbols: [] };
-
-    const buffer = Buffer.from(pojo, app);
-
-    specimen.expect(buffer.id).toBe("buf-6");
-    specimen.expect(buffer.mode).toBe("mode-1");
-    specimen.expect(buffer.app).toBe(app);
-    specimen.expect(buffer.data).toEqual({ recall: "LEARNING" });
-    specimen.expect(buffer.literals).toEqual(["lit-1"]);
-    specimen.expect(buffer.symbols).toEqual([]);
-    specimen.expect(buffer.context).toBe(null);
   });
 });
 
@@ -75,7 +60,7 @@ specimen.describe("buffer lifecycle", { sanitizeResources: false, sanitizeOps: f
     await scenario.orm.close();
   });
 
-  specimen.it("emit pojo consumed by Buffer.from with correct app", async () => {
+  specimen.it("an emitted pojo hydrates a client Buffer (view null on app rows)", async () => {
     const result = await scenario.conn.call("/mode/game/flashcard/emit/literal", {
       literal: { id: scenario.fixtures.hello.id },
       thread: scenario.fixtures.thread.id,
@@ -83,15 +68,12 @@ specimen.describe("buffer lifecycle", { sanitizeResources: false, sanitizeOps: f
     specimen.expect(result.condition).toBe("NOMINAL");
     const pojo = result.entities.buffer[0];
 
-    const buffered = await scenario.conn.call("/mode/game/flashcard/buffered");
-
-    const buffer = Buffer.from(pojo, buffered);
+    const buffer = Object.assign(new Buffer(), pojo);
 
     specimen.expect(buffer.id).toBeTruthy();
-    specimen.expect(buffer.app).toBe(buffered);
-    specimen.expect(buffer.app.url).toBeTruthy();
+    specimen.expect(buffer.view).toBe(null);
     specimen.expect(buffer.data.recall).toBe("LEARNING");
-    specimen.expect(buffer.literals.map((l) => l.id)).toContain(scenario.fixtures.hello.id);
+    specimen.expect(buffer.literals.map((literal) => literal.id)).toContain(scenario.fixtures.hello.id);
     specimen.expect(buffer.context).toBe(null);
   });
 
@@ -101,9 +83,7 @@ specimen.describe("buffer lifecycle", { sanitizeResources: false, sanitizeOps: f
       thread: scenario.fixtures.thread.id,
     });
 
-    const buffered = await scenario.conn.call("/mode/game/flashcard/buffered");
-
-    const buffer = Buffer.from(result.entities.buffer[0], buffered);
+    const buffer = Object.assign(new Buffer(), result.entities.buffer[0]);
     const terminal = {};
     buffer.context = { buffer, terminal };
 

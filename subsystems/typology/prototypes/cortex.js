@@ -66,43 +66,9 @@ export class Cortex {
 const DERIVATIONS = {
   object: (cortex, query) => {
     if (query.via && query.via !== "render") return undefined;
-    const dialogue = cortex.findOne({ type: "dialogue", tune: query.tune, via: "render" });
-    return dialogue && dressAsObject(dialogue);
+    return cortex.findOne({ type: "dialogue", tune: query.tune, via: "render" });
   },
 };
-
-export function dressAsObject(dialogue) {
-  return {
-    ...dialogue,
-    type: "object",
-    channels: { in: dialogue.channels?.in ?? ["text"], out: ["object"] },
-    via: {
-      render: async (request = {}) => {
-        const schema = request.output?.object;
-        const respond = {
-          valence: "Return the final result as structured data.",
-          input: schema,
-        };
-        const turn = await dialogue.via.render({
-          ...request,
-          tools: { ...request.tools, respond },
-          settings: { ...request.settings, tool_choice: { type: "any" } },
-        });
-        const done = turn.parts.find((part) => part.type === "tool_use" && part.name === "respond");
-        if (!done) return turn;
-        const parsed =
-          typeof done.input === "string" ? (done.input ? JSON.parse(done.input) : {}) : done.input;
-        const data = schema ? v.fill(schema, parsed) : parsed;
-        return {
-          role: "assistant",
-          parts: [{ type: "object", data }],
-          meta: { stop: "end_turn" },
-          object: data,
-        };
-      },
-    },
-  };
-}
 
 // ── beef's original sketch — the seed  ──────────────
 // import { cast, array, Vector } from "@vivalence/typology";
