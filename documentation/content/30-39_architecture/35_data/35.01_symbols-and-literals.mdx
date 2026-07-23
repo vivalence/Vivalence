@@ -1,0 +1,76 @@
+---
+title: Symbols & Literals
+jdex: "35.01"
+---
+
+# 35.01 · Symbols & Literals
+
+*the Ontology — an (optional) symbolic entity system that powers the daemons and their modes: from mode traits down to ontological entities, and how the payloads flow between them.*
+
+## primitives
+
+A `daemon` is the equivalent of an application - self-contained, persistent, with its own types, entities, and business logic. [[33.01_daemon]].
+
+`modes` populate the application space and are bundled into persistent, addressable daemons. Modes bring functionality and data to daemons - how, exactly, is [[34.01_modes-and-traits]].
+
+The dataspace is inhabited primarily by entities called `literals` and `symbols`, as well as arbitrary secondary entities.
+
+- `literals` are concrete singleton data entities - specific words, messages, people. `{ slug, traits, trait, symbols, ontology }`, plus `uses`/`in` self-relations.
+- `symbols` annotate and organize literals and give them meaning. `{ slug, traits, trait, literals }` - an m:n relation to literals.
+
+The abstraction into modes, literals, and symbols lets a dataspace travel - not only between daemons, but across modes and effectively across business logic. Or, from the other side: it lets business logic travel across dataspaces.
+
+## trait-spaces, everywhere
+
+Traits are the system-wide pattern, not a mode-only idea. Each entity tier has its own trait-space, and every trait comes with a payload slot (the `trait`/`data` json keyed by trait name):
+
+- **symbol traits** (kernel): `ONTOLOGICAL` - a subject-matter attribute; `STRUCTURAL` - organizes literals into sets or categories; `LABELED` - carries name and description; `TOPOGRAPHICAL` - marks the ontology a literal belongs to.
+- **literal traits**: the kernel leaves the enum open - the *domain* populates it. The language-learning domain defines `TRANSLATED, EXEMPLIFIED, RANKED, ANNOTATED, VOCALIZED, CONJUGATED`, with payloads like `trait.TRANSLATED.known / .learning` - which the domain's repository searches inside.
+- **intent traits** (userspace): `LABELED, MASKED, AIMED, QUEUEING` - e.g. `trait: { AIMED: { mount: "/emit/deal" }, QUEUEING: { depth: 3 } }`.
+- **thread traits**: inherited from the opening intent - `MASKED` (emitter input), `AIMED` (pointing at an emitter), `QUEUEING` (pre-pulling buffers), `LABELED` - alongside a phase: `inert · manual · continuous · escort`.
+
+Any trait-space is populated by traits defined by vivalence, and by the specific domain.
+
+## the intent→thread→pull loop
+
+The `AIMED / MASKED / QUEUEING` traits are where the entity model turns into live behaviour, and it's entirely declarative. An `INTENTED` mode ships intents; opening one creates a `Thread`, and a `beforeCreate` hook copies the intent's traits and payload onto the thread (`thread.traits = [...intent.traits]`). The client then reads those traits directly:
+
+- `AIMED { mount }` - the emitter leaf the thread pulls from (`/emit/deal`). The client's form skin even builds the input form from the emitter's `MASKED` input schema at that mount.
+- `MASKED` - marks that the thread carries emitter input (the mask).
+- `QUEUEING { depth }` - how many buffers to keep pre-pulled ahead of the cursor.
+- `phase` - `inert` (target self-manages), `manual` (cursor discipline, app drives pulls), `continuous` (keep `depth` buffers queued), `escort` (continuous, returning to the launch buffer when the queue drains).
+
+Client-side, a `terminal` owns a `Stall` that watches `{ phase, pull: AIMED.pull, depth: QUEUEING.depth }` live and drives the cursor. The thread owns the configuration; the stall reacts. So "deal cards continuously, three ahead" is four fields on an intent - no controller code. Each of these traits also has its own client widget (`Aimed.svelte`, `Queueing.svelte`, `Masked.svelte`) that edits the payload live. [[36.01_clients]].
+
+## how the payloads flow
+
+**In - `DATASET`.** Topography modes carry the data as declarative arrays of symbols and literals - slugs, traits, per-trait payloads, and cross-references by slug. Install is a batched upsert (symbols, then literals) followed by m:n linking in both directions. A real symbol from the `word` topology:
+
+```js
+{
+  slug: "word.part-of-speech.adjective",
+  traits: ["ONTOLOGICAL", "LABELED"],
+  data: {
+    ONTOLOGICAL: {},
+    LABELED: { name: "Adjective", description: "A word that modifies a noun or pronoun." },
+  },
+}
+```
+
+**Dimensions - topology modes.** `word`, `sentence`, `conjugation` each span a dimension. A `TOPOGRAPHICAL` symbol marks which ontology a literal belongs to; `ONTOLOGICAL` symbols place it within the dimension.
+
+**Queries - symbol algebra.** The literal repository resolves symbol constraints directly: `{ symbols: { $all: […], $in: […], $none: […] } }` - business logic selects literals by their symbolic position, not by table joins it has to know about.
+
+**Out - `APPLICATION` and `EMITTER`.** Buffers are the payload vehicle to the client: a buffer carries `data` (shaped by the app's `v.buffer` mask) plus `literals` and `symbols` collections. `mode.app.buffer({ data, literals, symbols })` attaches entities by identifier; emitter effects pour buffers into `ctx.pool`, and the drained pool's buffers are threaded in order (`buffer.index = thread.counter++`). The client then renders the mode's App with the buffer's entities as props - [[47.01_buffer-flow]].
+
+**Reasoned over - `HARNESSED`.** The harness renders structured objects against the same entities (`output: v.object(…)`), and `/dialogue` chains persisted turns per thread and mode - [[47.02_hallucination-triad]].
+
+## example: a language learning daemon
+
+Literals: a literal might be a word - "hablar", a sentence - "quiero hablar contigo", a conjugation table - "hablo, hablas, habla, hablamos, …". If we were building an email client instead, our literals would probably be `message` and `person`.
+
+Literal traits: "hablar" in the word ontology might implement `TRANSLATED` (payload: known/learning forms), `EXEMPLIFIED`, `VOCALIZED`.
+
+Symbols annotate literals. The ontological symbol `word.part-of-speech.verb` on the literal `hablar` tells the system it's dealing with a verb. A structural symbol such as `proficiency.a1` tells the language learning system to practice this early. The literal `hablar` might carry a dozen ontological symbols, plus any arbitrary amount of additional symbols.
+
+A game mode then asks the domain for literals `{ symbols: { $all: ["word.part-of-speech.verb", "proficiency.a1"] } }`, pours them into buffers, and the thread deals them to the player.

@@ -1,0 +1,131 @@
+---
+title: A Whole Mode
+jdex: "34.03"
+---
+
+# 34.03 · A Whole Mode
+
+*two worked examples — the smallest useful mode, then one where every capability is a trait. the traits used here are catalogued in [[34.02_trait-catalog]].*
+
+## hello, mode
+
+A dummy mode. It talks to an LLM, exposes one endpoint, and renders a Svelte view in ~50 lines.
+
+`registry/dummy/mode.viva.js` — what it is:
+
+```js
+import { App, Vector, v } from "@vivalence/typology";
+
+export const manifest = {
+  type: "demo",
+  slug: "dummy",
+  traits: ["APPLICATION", "HARNESSED", "EXPOSED", "STANDALONE"],
+};
+
+export const app = new App("App.svelte", v.buffer({ data: {} }));
+
+export const harness = new Vector().use(async (ctx, next) => {
+  ctx.hallucination.context.system("You are a demo. Demonstrate yourself.");
+  await next();
+});
+
+export const aperture = new Vector().open("/hello/world", async (ctx) => {
+  const { object } = await ctx.mode.harness.object.render({
+    turns: [{ role: "user", parts: [{ type: "text", text: "Say hello." }] }],
+    output: v.object({ greeting: v.string() }),
+  });
+  return { greeting: object.greeting };
+});
+```
+
+`registry/dummy/App.svelte` — what it looks like:
+
+```svelte
+<script>
+  let { terminal, daemon, mode, thread, buffer } = $props();
+
+  let greeting = $state("");
+
+  const modes = terminal.daemon.entities.mode.$entities.get();
+
+  async function demonstrate() {
+    const result = await buffer.mode.connection.call("/hello/world");
+    greeting = result.greeting;
+  }
+</script>
+
+<h1>hello world</h1>
+<button onclick={demonstrate}>demonstrate</button>
+<p>{greeting}</p>
+<ul>
+  {#each modes as mode}
+    <li>{mode.type}/{mode.slug}</li>
+  {/each}
+</ul>
+```
+
+Read the shape of it:
+
+- `harness` is how the mode uses AI; `HARNESSED` makes it callable on the mode — `ctx.mode.harness.object.render` is structured cognition with no model named.
+- `aperture` is the mode's API; `EXPOSED` makes it a first-class call surface, which is how the view reaches it: `buffer.mode.connection.call("/hello/world")` — the same declaration, called remotely ([[47.03_stripwire]]).
+- `APPLICATION` + `STANDALONE` — the Svelte view renders off a buffer that needs no emission.
+
+## the dealer — every capability is a trait
+
+`dealer.viva.js` from the playground:
+
+```js
+import { App, Vector, v } from "@vivalence/typology";
+
+export const manifest = {
+  type: "playground",
+  slug: "dealer",
+  traits: ["APPLICATION", "STANDALONE", "EMITTER", "HARNESSED", "CONVERSATIONAL"],
+};
+
+export const app = new App("buffer/Dealer.svelte", v.buffer({ data: {} }));
+
+export const harness = new Vector().use(async (ctx, next) => {
+  ctx.hallucination.context.system("You are the Dealer in a card-game playground.");
+  await next();
+});
+
+export const emitter = new Vector()
+  .open(
+    { nature: "/deal", input: v.object({ count: v.integer({ minimum: 1 }).default(2) }) },
+    async (ctx) => {
+      const card = ctx.daemon.modes.playground.card;   // pours ANOTHER mode's buffers
+      const start = ctx.thread?.counter ?? 0;
+      for (const face of DECK.slice(start, start + ctx.input.count))
+        ctx.pool.add(card.buffer({ data: { face } }));  // deck runs out → EXHAUSTED → stop
+    },
+  )
+  .open({ nature: "/oracle", input: v.object({ count: v.integer().default(3) }) }, async (ctx) => {
+    const card = ctx.daemon.modes.playground.card;
+    const { object } = await ctx.mode.harness.object.render({   // HARNESSED cognition
+      turns: [{ role: "user", parts: [{ type: "text", text: "Deal a themed hand." }] }],
+      output: v.object({ faces: v.array(v.string()) }),
+    });
+    for (const face of object.faces) ctx.pool.add(card.buffer({ data: { face } }));
+  });
+
+export const dataset = {
+  intent: [
+    {
+      slug: "table",
+      traits: ["MASKED", "AIMED", "QUEUEING"],
+      trait: { AIMED: { mount: "/emit/deal" }, MASKED: {}, QUEUEING: { depth: 3 } },
+      phase: "continuous",
+    },
+  ],
+};
+```
+
+Read the shape of it:
+
+- `HARNESSED` gives the dealer a persona and `ctx.mode.harness.object.render` — structured cognition, no model named.
+- `EMITTER` pours `card` buffers into the pool: deterministic off the deck, or agentic via the harness. It deals *another mode's* buffers — cross-mode composition for free.
+- `STANDALONE` lets the hub buffer exist without an emission.
+- The intent's own traits — `AIMED` at `/emit/deal`, `QUEUEING` depth 3, `phase: continuous` — make the client pull three cards ahead, continuously, with no imperative code anywhere.
+
+The harness triad is [[47.02_hallucination-triad]]; the Buffer's crossing to the client is [[47.01_buffer-flow]]; the intent→thread→pull loop is [[35.01_symbols-and-literals]].

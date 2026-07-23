@@ -5,353 +5,95 @@ jdex: "52.01"
 
 # 52.01 · Getting Started
 
-Bare machine to running language-learning instance in 5 minutes. Every command shown
-with the output you should see. Sharp edges flagged inline; ledger at the bottom.
+Bare machine to a running instance — the same seven steps as the repo README, plus the model behind them and the sharp edges the README doesn't carry.
 
 ## 0. The model (read once)
 
-Three nouns. Internalize these and the rest is obvious.
+Three nouns.
 
-| noun | what it is | where it lives |
-| --- | --- | --- |
-| `registry` | catalog of installable modules — variants, daemons, modes… | `<repo>/registry/` |
-| `system` | per-machine coordinator. ledger of instances, locks, logs. | `$VIVA_SYSTEM_MOUNT` (`~/.viva`) |
-| `instance` | a cloned variant materialised on disk + its running children | anywhere on disk you cloned to |
+- **`registry`** — the catalog of installable packages: variants, domains, topologies, topographies, modes, services. Lives at `<repo>/registry/`. The identifier grammar is `@owner/type/slug` — `@viva/variant/localhost` resolves to `registry/viva/variant/localhost/`.
+- **`ledger`** — this machine's run surface: locks, logs, the seeded registry index. Scaffolded to `<repo>/testament/ledger`.
+- **`variant`** — a recipe: which daemons, which services, which lighthouse. Cloning materialises the registry recipe at `<repo>/testament/variant`, and that copy — manifest, `environment/`, `mountpoint/` (daemon + service state, dbs) — is yours to edit and run.
 
-A **variant** (e.g. `@vivalence/variant/localhost`) is the recipe in the registry.
-`instance/clone` copies it to a dir on disk; `instance/init` wakes it up
-(boots runtime + kajuit, signs you up); `instance/run` keeps it running in
-foreground; `system` tracks every instance you've ever booted.
+## 1. Install
 
-## 1. Prerequisites
-
-- `deno` v2.7+ — `deno --version`
-- POSIX shell (zsh / bash)
-- macOS or Linux. (Detached background processes have a known macOS gotcha — see §Sharp edges.)
-
-## 2. Repo
+You need [Deno](https://deno.com) 2.7+. Everything else the repo carries.
 
 ```sh
+# 1 — deno
+curl -fsSL https://deno.land/install.sh | sh      # or: brew install deno
+deno --version
+
+# 2 — repo + dependencies
 git clone https://github.com/vivalence/vivalence.git
-cd vivalence/code/vivalence
+cd vivalence
 deno task dependencies
+
+# 3 — scaffold this machine's run surface (the ledger) + mount the standard packages
+deno task ghost/run /ledger/install ./testament/ledger
+
+# 4 — clone the localhost variant into place
+deno task ghost/run /variant/clone @viva/variant/localhost ./testament/variant
+
+# 5 — fill in your env
+cd testament/variant && cp .env.example .env
+$EDITOR .env            # set VIVA_*_MOUNT to your repo path + the five SECRET_* keys
+cd ../..
+
+# 6 — boot (two terminals, from the repo root)
+deno task runtime/run
+deno task kajuit/run
+
+# 7 — create the first user (lighthouse gates login; no signup UI yet)
+deno task ghost/run /variant/lighthouse/auth/signup you changeme
 ```
 
-Root holds `deno.jsonc` (workspace), `systems/`, `subsystems/`, `registry/`.
+The runtime comes up on `:2501`, the kajuit web client on `:1794`. Once step 7 creates a user, open http://localhost:1794 and log in with those credentials.
 
-## 3. Environment
+## 2. The env, spelled out
 
-Edit `testament/.env` at repo root. Used by everything that runs through
-`deno task`:
+`ghost`, `runtime/run`, and `kajuit/run` all read `testament/variant/.env` (the `--env-file` in their deno tasks). The template:
+
+- `VIVA_SYSTEM_MODE` / `VIVA_SYSTEM_ROLE` — `DEVELOPMENT` / `SUDO` on a dev machine.
+- `VIVA_REPOSITORY_MOUNT` · `VIVA_LEDGER_MOUNT` · `VIVA_VARIANT_MOUNT` · `VIVA_MOUNTPOINT_MOUNT` — absolute, per-machine; replace `<repo>` with your repo path.
+- `SECRET_VIVA_JWT` — any non-empty value in dev; the lighthouse refuses to sign tokens without it.
+- `SECRET_VIVA_ANTHROPIC_API_KEY` / `_ELEVENLABS_API_KEY` / `_DEEPGRAM_API_KEY` / `_SERVICE_NLP_KEY` — the hallucinator and nlp providers. Missing keys throw at use-time, not boot-time.
+
+`SECRET_*` is paladin-sandboxed: never logged, never published to the SPA. `PUBLIC_*` is the opposite — mirrored to the client. The full prefix grammar is in [[52.02_docker-walkthrough]].
+
+## 3. Inspect
 
 ```sh
-VIVA_SYSTEM_MODE=DEVELOPMENT
-VIVA_SYSTEM_ROLE=SUDO
-
-# usually inferred — set only if defaults don't fit:
-# VIVA_REPOSITORY_MOUNT=/abs/path/to/code/vivalence
-# VIVA_SYSTEM_MOUNT=~/.viva
-# VIVA_REGISTRY_MOUNT=$VIVA_REPOSITORY_MOUNT/registry
+deno task ghost/run /system/doctor           # scopes, processes, locks, registry
+deno task ghost/run /system/doctor --json    # dump the effect as JSON (pipe-friendly)
+deno task ghost/run /system/doctor --buffer  # alt-screen TUI (enter to exit)
 ```
 
-`VIVA_VARIANT_MOUNT` is **not** set by hand — ghost detects a variant by
-scanning your shell cwd for a `.viva.js` marker on every invocation.
+The flags work on every ghost trajectory. The registered trajectories live in `systems/ghost/trajectories/index.js` — each with pattern, valence, and input schema; there is no user-facing listing yet.
 
-## 4. Two ways to invoke
+## 4. Day two
 
-Two equivalent entry points. Both run `systems/ghost/mod.js` with the same args.
+Boot is just the two run tasks again — the variant, its env, and its mountpoint (dbs, migrations) persist in `testament/variant/`. Any number of users via the signup trajectory; any number of browser sessions via login.
 
-### A. Dev — `deno task ghost/run` (recommended while iterating)
-
-No install. Runs straight from the repo.
-
-```sh
-deno task ghost/run /system/doctor
-```
-
-Works from any directory — `deno task` walks up to find the repo's
-`deno.jsonc`. Your shell cwd is preserved in `INIT_CWD`; ghost reads that
-(not `Deno.cwd()`) for any user-relative path.
-
-### B. Installed — `viva` (after `deno task install`)
-
-```sh
-deno task install   # ? DOES IT ?? writes ~/.config/viva/env + symlinks ~/.deno/bin/viva
-viva system/init
-```
-
-The `viva` wrapper sources `~/.config/viva/env` then execs deno with the
-right config. `viva` with no args exits silently (no usage banner).
-Ensure `~/.deno/bin` is on `PATH`.
-
-**Note**: `viva` global does NOT source `testament/.env`. If your shell rc has
-no `VIVA_*` exports, only what `~/.config/viva/env` holds (and what
-`ghost/install.sh` wrote there) is in scope.
-
-For the rest of this guide we use `deno task ghost/run`.
-
-## 5. Inspect what you've got
-
-Before doing anything, look around.
-
-```sh
-deno task ghost/run /system/doctor
-```
-
-Expect a multi-section report card:
-
-```text
-viva doctor
-
-identity
-role: SUDO  mode: DEVELOPMENT
-flags: sudo dev citizen veryimportant
-
-scopes
-✓ system           /Users/you/.viva
-✓ repository       /Users/you/.../vivalence
-✓ registry         /Users/you/.../vivalence/registry
-✗ variant          —                              ← expected when not in a variant dir or missing $VIVA_VARIANT_MOUNT
-…
-
-registry (32 modes  13 types)
-variant:1  circuit:3  corpus:2  ontology:3  domain:1  …
-
-environment (5 vars)
-…
-```
-
-### Useful flags (work on every command)
-
-| flag | does |
-| --- | --- |
-| `--json` | dump the effect (handler result) as JSON to stdout |
-| `--buffer` | render in an alt-screen Chrome (press `enter` to exit) |
-
-```sh
-deno task ghost/run /system/doctor --json    # pipe-friendly
-deno task ghost/run /system/doctor --buffer  # full-screen TUI
-```
-
-## 6. Initialise the system (one-time)
-
-```sh
-deno task ghost/run /system/init
-```
-
-Three-phase wizard:
-1. **how** — embedding method: `.config` (writes `~/.config/viva/env`) /
-   `manual` (prints `export VIVA_SYSTEM_MOUNT=...` for your shell rc) / `abort`
-2. **where** — path for `$VIVA_SYSTEM_MOUNT` (default `~/.viva`)
-3. **manual** — only on manual choice: shows the export line, `enter` to confirm
-
-What it does after the wizard:
-- pins `paladin.scope.system` to the chosen dir
-- scaffolds `<system>/logs/` + `<system>/locks/`
-- probes that `repository` and `registry` scopes resolve (`integrity check stub`)
-
-You can re-run it any time — it's idempotent.
-
-## 7. Clone a variant
-
-Materialize a variant from the registry onto your disk.
-
-```sh
-cd ~/projects                                                # or wherever
-deno task ghost/run /instance/clone                          # interactive
-# OR
-deno task ghost/run /instance/clone localhost ./brazilian    # explicit
-```
-
-Three-step wizard (if interactive):
-1. **variant?** — pick from the registry's `type:"variant"` entries
-2. **path?** — where to put it (default `./<slug>`)
-3. **proceed?** — preview of source/target, `yes` to copy / `no` to abort
-
-What it copies: the variant's directory tree from the registry — manifest
-(`*.viva.js`), `environment/`, `mountpoint/`. Skips `.logs/`, `.git/`,
-`.jj/`, `node_modules/` (configurable in `clone.js`).
-
-Effect:
-
-```jsonc
-{
-  "variant": { "owner": "@vivalence", "type": "variant", "slug": "localhost", "version": "0.0.1" },
-  "source": "/.../registry/wafers/@vivalence/variant/localhost",
-  "target": { "relative": "./brazilian", "absolute": "/Users/you/projects/brazilian" }
-}
-```
-
-## 8. Wake the instance
-
-cd into the cloned dir — ghost detects the variant marker there.
-
-```sh
-cd ./brazilian
-deno task ghost/run /instance/init
-```
-
-Interactive 4-phase wizard:
-
-| phase | what |
-| --- | --- |
-| boot | spawns runtime + kajuit (piped); awaits `Status:ALIVE` beacon |
-| create | admin form (`username` / `password` or `skip`) |
-| install | `POST /auth/signup` against the lighthouse |
-| ready | per-process status + admin echo; `enter` → teardown + exit |
-
-What you see (the Chrome wraps it):
-
-```text
-╭───────────────────────────────────────────╮
-│ ✦ V I V A  L E N C E              ready   │
-│ language learning OS                      │
-│                                           │
-│ ╭─────────────────────────────────────╮   │
-│ │ variant up                          │   │
-│ │ admin beef  ·  •••••••••••••••      │   │
-│ │ next steps                          │   │
-│ │   1. enter to stop + exit           │   │
-│ ╰─────────────────────────────────────╯   │
-│                                           │
-│ ● auth/signup  SUCCESS  019e70d6-…        │
-│ ● runtime  exited (code 0)                │
-│ ● kajuit   exited (code 0)                │
-│                                           │
-│ enter → stop + exit                       │
-╰───────────────────────────────────────────╯
-```
-
-After exit, the instance is registered with `$VIVA_SYSTEM_MOUNT/instances.json`.
-
-The kajuit web UI was live on `http://localhost:1794/` during `ready`.
-Bookmark for next boot.
-
-## 9. Day-two lifecycle
-
-From inside the variant dir:
-
-```sh
-deno task ghost/run /instance/run        # foreground attached (Ctrl-C stops both)
-deno task ghost/run /instance/run runtime  # only the runtime child
-```
-
-That's the workhorse. Logs stream to your terminal.
-
-For just the runtime or just kajuit, pass `runtime` or `kajuit` as the target.
-
-## 10. Inspect a running instance
-
-```sh
-deno task ghost/run /instance/doctor    # prints paladin.variant
-```
-
-Currently this is a seed — dumps the resolved variant object (daemons, services,
-clients, runtime). Future: per-instance locks + processes + log files.
-
-For the wider view:
-
-```sh
-deno task ghost/run /system/doctor      # all scopes, all variants, all locks
-deno task ghost/run /system/doctor --json | jq '.processes'
-deno task ghost/run /system/doctor --buffer
-```
-
-## 11. Files on disk
-
-After everything above:
-
-```text
-$VIVA_SYSTEM_MOUNT/                         # ~/.viva by default
-├── instances.json                          # slug → { mount, createdAt, updatedAt, … }
-├── locks/                                  # <type>_<slug>.lock — flat
-│   ├── runtime_brazilian.lock
-│   └── kajuit_brazilian.lock
-└── logs/
-    └── client_ghost/spans.jsonl            # per-trajectory traces
-
-~/projects/brazilian/                       # the cloned variant
-├── localhost.viva.js                       # the manifest
-├── environment/                            # env files (secrets, services)
-└── mountpoint/                             # daemon + service state, dbs
-    ├── daemon_brazilian/
-    │   ├── localhost.viva.db
-    │   └── migrations/
-    └── service_multiplayer/
-        ├── lighthouse.viva.db
-        └── migrations/
-```
+An older `/instance/*` trajectory family (clone into arbitrary dirs, wizard init, foreground run) is still registered, but the testament flow above is the paved road.
 
 ## Sharp edges
 
-### `/instance/start` + `/instance/stop` — partially broken
-
-`/instance/start` prints `ghost: started temp (runtime=PID kajuit=PID)` and
-writes lock files, but the children die within milliseconds. Use `/instance/run`
-or `/instance/init` for now. See `.ikiro/known-issues.org`
-`detached-process-die-on-parent-exit`.
-
 ### `deno task` rewrites `Deno.cwd()`
 
-`deno task` chdirs to the repo root before running the task. Your actual shell
-cwd is in `Deno.env.get("INIT_CWD")`. Handlers that resolve user-relative paths
-(`instance/clone` etc.) already use the right fallback chain
-(`INIT_CWD ?? PWD ?? Deno.cwd()`). If you write a new handler that takes a
-relative path, do the same.
+`deno task` chdirs to the repo root before running the task. Your actual shell cwd is in `Deno.env.get("INIT_CWD")`; ghost reads that for user-relative paths. If you write a new handler that takes a relative path, use the `INIT_CWD ?? PWD ?? Deno.cwd()` fallback chain.
 
-### `viva` global ≠ `testament/.env`
+### `/instance/start` + `/instance/stop` — broken
 
-The installed `viva` wrapper only sources `~/.config/viva/env`. If you change
-`testament/.env`, either also update `~/.config/viva/env` or use
-`deno task ghost/run` (which reads `testament/.env` directly).
+Detached children die on parent exit (macOS gotcha). Use the foreground run tasks. See `.ikiro/known-issues.org` `detached-process-die-on-parent-exit`.
 
-### Slug = last segment of variant dir
+### `/auth/signup` is open
 
-`instance/target.js` derives the slug from
-`basename(VIVA_VARIANT_MOUNT)`. Two cloned variants with the same dir name will
-collide on locks. Marked `@beef ugly and stupid` in the source — to be replaced
-with manifest lookup.
-
-### `paladin.scope overwrite` warning
-
-Fires every invocation. Cosmetic — ghost intentionally re-registers
-`scope.variant` from the detected cwd. Will be silenced when paladin learns
-about idempotent overwrites.
-
-### `viva` with no args = silent exit
-
-No usage banner. List commands by reading `systems/ghost/trajectories/index.js`
-or running `deno task ghost/run /system/doctor` (the trajectory registry isn't
-yet user-facing).
-
-## Cheat sheet
-
-```sh
-# inspect
-viva /system/doctor                       # all scopes + registry overview
-viva /system/doctor --json | jq           # machine-readable
-viva /system/doctor --buffer              # fullscreen
-
-# bootstrap
-viva /system/init                         # one-time, idempotent
-
-# clone + init
-cd ~/projects && viva /instance/clone localhost ./brazilian
-cd ./brazilian && viva /instance/init
-
-# run (from variant dir)
-viva /instance/run                        # foreground; preferred today
-viva /instance/run runtime                # just the runtime
-# viva /instance/start                    # BROKEN — see known-issues
-# viva /instance/stop                     # BROKEN — see known-issues
-viva /instance/doctor                     # variant dump
-```
-
-(Substitute `deno task ghost/run` for `viva` if you skipped `deno task install`.)
+The lighthouse signup endpoint accepts any request — no admin gate, no invite token, no rate limit. Fine for a dev box on localhost; on anything reachable, firewall it. (The README's security notice means it: run inside a moat.)
 
 ## Further reading
 
+- [[52.02_docker-walkthrough]] — the same envelope, containerised
 - `.ikiro/known-issues.org` — every active gotcha + workaround
 - `systems/ghost/trajectories/index.js` — every registered trajectory (pattern + valence + input schema)
-- `systems/ghost/README.org` — ghost architecture
 - `subsystems/paladin/.ikiro/claude.md` — paladin mental model (scopes, vip, system)

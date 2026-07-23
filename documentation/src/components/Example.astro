@@ -1,11 +1,18 @@
 ---
 const { name } = Astro.props
-const all = import.meta.glob("../../content/docs/**/*.snapshot.json", { eager: true })
+const all = import.meta.glob("../../content/**/*.snapshot.json", { eager: true })
 const byName = Object.fromEntries(Object.entries(all).map(([path, module]) => [path.split("/").pop(), module]))
 const data = byName[`${name}.snapshot.json`]?.default ?? { name, logs: [], error: null }
 ---
-<div class="capture">
-  <div class="capture-head"><span>{data.name}</span><span class="capture-channel">stdout</span></div>
-  {data.logs.map((line) => <pre class="log-line">{line}</pre>)}
-  {data.error && <pre class="log-line err">{data.error}</pre>}
+<div class="panel">
+  <div class="panel-head">
+    <span class="pname">{data.name}</span>
+    <span class="channel stdout"><span class="live"></span> stdout</span>
+  </div>
+  <div class="body">
+    {data.logs.map((line, index) => (
+      <div class="log-line"><span class="gut">{index + 1}</span><span>{line}</span></div>
+    ))}
+    {data.error && <div class="log-line err"><span class="gut">!</span><span>{data.error}</span></div>}
+  </div>
 </div>

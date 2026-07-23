@@ -1,23 +1,44 @@
 ---
 const { name } = Astro.props
-const all = import.meta.glob("../../content/docs/**/*.snapshot.json", { eager: true })
+const all = import.meta.glob("../../content/**/*.snapshot.json", { eager: true })
 const byName = Object.fromEntries(Object.entries(all).map(([path, module]) => [path.split("/").pop(), module]))
 const data = byName[`${name}.snapshot.json`]?.default ?? { name, records: [] }
 const records = data.records ?? []
 let depth = 0
+const openedAt = []
 const rows = records.map((record) => {
-  if (record.verb === "close") depth = Math.max(0, depth - 1)
-  const row = { verb: record.verb, data: record.data, depth }
-  if (record.verb === "open") depth += 1
+  let duration = null
+  if (record.verb === "close") {
+    depth = Math.max(0, depth - 1)
+    const opened = openedAt.pop()
+    if (opened != null && record.at != null) duration = `${(record.at - opened).toFixed(1)}ms`
+  }
+  const row = { verb: record.verb, path: record.path, data: record.data, depth, duration }
+  if (record.verb === "open") {
+    openedAt.push(record.at ?? null)
+    depth += 1
+  }
   return row
 })
 ---
-<div class="trace">
-  <div class="capture-head"><span>{data.name}</span><span class="capture-channel">span · {records.length} records</span></div>
-  {rows.map((row) => (
-    <div class="trace-row" style={`padding-left: ${0.9 + row.depth * 1.1}rem`}>
-      <span class:list={["verb", row.verb]}>{row.verb}</span>
-      {row.data && <code class="trace-data">{JSON.stringify(row.data)}</code>}
-    </div>
-  ))}
+<div class="panel">
+  <div class="panel-head">
+    <span class="pname">{data.name} — span</span>
+    <span class="channel span"><span class="live"></span> span · {records.length} records</span>
+  </div>
+  <div class="body">
+    {rows.map((row) => (
+      <div class="trace-row" style={`padding-left: calc(0.9rem + ${row.depth * 1.6}ch)`}>
+        <span class="depth">
+          {Array.from({ length: row.depth }).map(() => <span class="guide"></span>)}
+          <span class:list={["verb", row.verb]}>{row.verb}</span>
+        </span>
+        <span class="tbody">
+          <span class="tname">{row.path}</span>
+          {row.data && <span class="tdata"> {JSON.stringify(row.data)}</span>}
+        </span>
+        {row.duration && <span class="tms">{row.duration}</span>}
+      </div>
+    ))}
+  </div>
 </div>

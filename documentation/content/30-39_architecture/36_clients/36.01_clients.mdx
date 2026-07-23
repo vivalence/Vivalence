@@ -1,0 +1,26 @@
+---
+title: Clients — kajuit
+jdex: "36.01"
+---
+
+# 36.01 · Clients — kajuit
+
+*the DOM is a consumer of the dataspace. the client renders buffers; the daemon owns truth.*
+
+`systems/kajuit` is the Svelte web client (`:1794`). It doesn't hold application logic — it subscribes to a daemon's dataspace and paints it. A native/terminal client is planned; both would be folds of the same seam.
+
+## what it renders
+
+The client lists the daemon's modes that implement `APPLICATION` or `CONVERSATIONAL`, and renders each mode's `App` — its Svelte view — fed a **buffer** whose `data` is shaped by the app's mask and whose `literals` / `symbols` come attached. Buffers are the unit crossing the daemon↔client seam: [[47.01_buffer-flow]].
+
+## the terminal & the stall
+
+A **terminal** owns a thread's buffers and a **Stall** that drives the cursor by the thread's phase. It owns no logic of its own — it reacts to trait state read live off the thread:
+
+- `phase` — `inert · manual · continuous · escort`.
+- `AIMED.mount` — the emitter leaf to pull from; the input form is even built from that emitter's `MASKED` schema.
+- `QUEUEING.depth` — how many buffers to keep pre-pulled.
+
+So "deal three cards ahead, continuously" is configuration on an intent, not controller code. Each trait has a live editor widget (`Aimed`, `Queueing`, `Masked`). The intent→thread→pull loop is [[35.01_symbols-and-literals]]; the modes that emit into it are [[34.01_modes-and-traits]].
+
+Read next: [[31.01_system-map]] · [[47.01_buffer-flow]].

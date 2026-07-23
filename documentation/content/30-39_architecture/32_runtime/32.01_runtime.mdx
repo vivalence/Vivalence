@@ -1,0 +1,34 @@
+---
+title: The Runtime
+jdex: "32.01"
+---
+
+# 32.01 · The Runtime
+
+*a Deno host that boots a variant into live daemons through a lifecycle cascade. declaration before wiring, at every level.*
+
+`systems/runtime` is the process that turns registry recipes into running daemons. It comes up on `:2501`; the kajuit client talks to it. Operator actions run through `ghost` (`deno task ghost/run …`).
+
+## boot is a cascade
+
+A daemon is not constructed in one shot — it's staggered through ordered stages so each has what the next needs. Population builds the substrate; resolution wires behaviour onto it:
+
+```
+population:  core ─▶ datamap ─▶ authority ─▶ acid(cortex) ─▶ services
+resolution:  domain ─▶ freight ─▶ modes(stagger)
+```
+
+- **core** — resolve the register (kernel, lighthouse, hallucinators, datamap), collate entity schemas from `domain / topology / topography`.
+- **datamap** — provision persistence (MikroORM), subscribe the change feed, inject it into the aperture.
+- **authority** — mount the lighthouse; bind auth onto every request.
+- **acid** — build the `Cortex` and register each `hallucinator` service's faculties.
+- **services** — bring up consumed services.
+- **domain** → **freight** → **modes** — slurp the domain aperture, index static cargo, then **stagger** every mode: walk its traits and install each trait's primitive onto the mode's aperture, then graft the aperture under `/mode/:type/:slug`.
+
+`stagger` is the heart of it and is documented from the mode side in [[34.01_modes-and-traits]]. The same Vector folds that make this work — one declaration serving as local call, HTTP route, and remote client — are [[42.01_the-dispatch-spine]].
+
+## variants & instances
+
+A **variant** is the recipe (which daemons, services, lighthouse); an **instance** is a variant materialised on disk plus its running children; the **system** ledger tracks every instance you've booted. The step-by-step is [[52.01_getting-started]].
+
+Read next: [[33.01_daemon]] · [[31.01_system-map]].

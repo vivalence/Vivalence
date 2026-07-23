@@ -1,11 +1,11 @@
 # rituals — the execution disciplines
-<!-- writer: agent (human-gated) · limit: 140 lines -->
+<!-- writer: agent (autonomous, transparent — beef: "all inside ikiro is yours") · limit: 140 lines -->
 
 The zettelkasten verdict: *"The rules are knowable. Failures are execution-discipline gaps, not knowledge gaps."* These are the gaps, closed as runnable rituals. Rigid — do not adapt away the discipline.
 
 ## pre-flight (before any non-trivial edit / proposal / cross-component dispatch)
 
-1. **grep the surface** — `grep -rn "export " <subsystem>/<dir>/` for the noun you're about to write. A primitive that already does it wins: `paladin.find.viva` · `paladin.read.viva` · `paladin.vip.accio*` · `cast.lookup` · `steer.rollup` · `steer.fold` · `shape.object` — never `Deno.readDir` / hand-rolled walkers / nested-loop lookups. *Imperative-JS reflex is the dominant recidivism family.*
+1. **grep the surface** — `grep -rn "export " <subsystem>/<dir>/` for the noun you're about to write. A primitive that already does it wins: `paladin.find.viva` · `paladin.read.viva` · `paladin.vip.accio*` · `cast.lookup` · `steer.trie.rollup` · `steer.trie.fold` · `shape.object` — never `Deno.readDir` / hand-rolled walkers / nested-loop lookups. *Imperative-JS reflex is the dominant recidivism family.*
 2. **open the memory body** — MEMORY.md description ≠ rule; only the file body is authoritative.
 3. **verify imports exist** — never write `import { x } from "@vivalence/…"` unconfirmed. Never fabricate an API (`v` is typebox-wrapped: no `.passthrough/.strict/.transform/.refine/.partial/.nullable`).
 4. **ontology before verbs** — contested term? stop coding, survey repo-wide usage, lock identity first. beef: *"stop fucking coding. start designing."*
@@ -46,6 +46,16 @@ blast    re-confirm the consumer set (nothing new wired, siblings untouched)
 - "date-stamp this compact like bak/ ones" → bak/ filenames are receipts of the mistake, not precedent
 - "trailing question rounds it off" → end on substance; no unsolicited wider-scope offers
 - "asked for data → I'll summarize" → paste the raw JSON/stdout as the body
+- "the list looks done, so the work is done" → an open-ended **DURATION** order is satisfied by ELAPSED TIME, never by a task-list. Duration ÷ interval = the iteration count. Queue empty ≠ finished: pull the backstop or spawn a finder to refill. Stop only at the horizon or beef's word. beef: *"i told you to work through the night retard. night is how many hours? whats /20 mins of that/?? thats the loop count"* `family: premature-completion`
+- "that failure was probably already there" → prove it or own it: a baseline run or an isolated repro **per failure**; a change to a core/shared prototype runs EVERY consumer suite before the word "safe" is typed `family: assume-dont-verify`
+- "explain the diagnosis first" → take the direct action; narration is not diagnosis `family: diagnostic-theater`
+- "mention the smell further down" → a smell beef is known to hate leads the response, never buried under what's working `family: values-misranked`
+- "it's clean, I checked" → show the command AND its output; an assertion without the paste is not a verification `family: assert-without-showing`
+- "the design is settled, start executing" → a design-mode ask is not an execution checklist; converge when beef converges, not before `family: premature-convergence`
+- "YAGNI — the current contract is fine" → beef pointing at an interface IS a design lean; engage the redesign, never argue him out of it `family: status-quo-defense`
+- "while I'm here, sweep the neighbours" → pin scope with beef first; the narrowest reading adjacent to the live task wins, and crossing a container boundary needs per-target `go` `family: scope-inflation`
+- "this pattern deserves an evocative name" → never mint a naming register; extend the existing family or use plain technical words `family: coined-register`
+- "destructure the barrel for brevity" → call through the namespace (`trace.chronicle`, never `const { chronicle } = trace`); destructuring is for DATA a function returns, never for where functions live `family: namespace-destructuring`
 
 ## live-validation (kajuit in Chrome)
 
@@ -76,9 +86,9 @@ Never subscribe→mirror→teardown triads; `$`-prefix or one shared bridge (`at
 A dedicated pass, never inline in task work. Trigger: **≥5 unprocessed callouts** since the last run, or beef's call ("another", "selfimprove", "go meta").
 
 1. **scoreboard** — fold the ledger: occurrences per family per compact; recompute `zettelkasten.md ## Scoreboard` WHOLE (derived — [[ontology]] law 1: recompute, never hand-edit). Raw counts only, no invented scores.
-2. **extinction check** — family quiet ≥5 compacts after its rule landed → mark PROVEN. Family recurred after promotion → the prose rule FAILED → draft the next rung (mechanical check or hook; `../hooks/vcs-guard.sh` is the template). Propose to beef.
-3. **promotion batch** — families at 2–3 occurrences → one proposed self/ diff each, PR-style. beef merges or rejects; a rejection is data — log it.
-4. **prune pass** — a rule unexercised across ≥10 compacts → propose eviction (whole item, quotes intact). Prune on counters + beef only, never on my own "still useful" feeling.
+2. **extinction check** — family quiet ≥5 compacts after its rule landed → mark PROVEN. Family recurred after promotion → the prose rule FAILED → land the next rung (mechanical check, then hook; `../hooks/vcs-guard.sh` + `comment-guard.sh` are the templates). Wiring a hook into `.claude/settings.json` is beef's — the script is mine.
+3. **promotion batch** — families at 2–3 occurrences → land one self/ diff each directly, hunk-visible in the worklog trail, verbatim quotes intact (per the promotion pipeline above: autonomous · curated · transparent · git-reversible). A beef reversal is data — log it.
+4. **prune pass** — a rule unexercised across ≥10 compacts → evict the whole item, quotes intact. Prune on counters, never on my own "still useful" feeling. Eviction of a rule beef authored verbatim is staged for him, not taken.
 5. **anchor re-audit** — replay the anti-rationalization list against the last 3 compacts; a listed thought appearing unstopped = drift → callout.
 
 ## methods index

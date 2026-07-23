@@ -22,9 +22,9 @@ Everything routes on a `Signature` (`prototypes/signature.js`). Three heirs coer
 
 A `Signal` is a Signature being dispatched. Segments may be literal, `:param`, wildcard, or remainder — the trie matches literal → parameter → wildcard → remainder.
 
-## Vector — the declaratively dispatched monadic constructor
+## Vector — the declaratively dispatched monadic composer
 
-A `Vector` (`prototypes/vector.js`) is a **declaratively dispatched monadic constructor** — a **free monad** in effect. Its methods are the monadic COMBINATORS (each `Vector → Vector`):
+A `Vector` (`prototypes/vector.js`) is a **declaratively dispatched monadic composer** — a **free monad** in effect. Its methods are the monadic COMBINATORS (each `Vector → Vector`):
 
 - `.use(mw)` — append koa-style middleware `(ctx, next)`; `next()` threads one `ctx` through the onion.
 - `.open(sig, fn)` — declare a terminal EFFECT (handler) at a signature path.
@@ -43,15 +43,15 @@ const vector = new Vector()
 
 ## the interpreters — one Vector, many folds
 
-Interpreting a Vector = folding its trie (`steer.fold`, a catamorphism) into something runnable. Two families:
+Interpreting a Vector = folding its trie (`steer.fold`, a catamorphism) into something runnable. The typology ships a built-in library of them, in two families — the compilers and the controllers:
 
-- **`shape.*` — Vector → a value** (`gestalten/shape/`):
+- **`shape.*` — the compilers: Vector → a value** (`gestalten/shape/`):
   - `shape.object(vector, execute)` → a nested CALLABLE namespace; `x.a.b()` falls out of the trie, dispatched in-process (`execute` = `steer.request` full ctx, or `steer.echo` bare ctx).
   - `shape.strip(vector)` → inert `{effect?, branches}` JSON — the wire contract served at `/metadata/*` (node-centric, the cata of the Vector's own `{effect, trajectories}`).
   - `shape.connection.wire(conn, stripped)` → a nested callable whose leaves are `conn.aim("/nature")` — REMOTE dispatch. `object` (local) and `wire(strip(…))` (remote) are duals: same surface, different backing (the stripwire, [[47.03_stripwire]]).
   - `shape.http(aperture)` → a `(Request) → Response` handler (the HTTP boundary).
   - others: `messenger` (socket push), `proxy` (lazy parametric `object`), `agentic` (`/` natures → tool names), `mcp`.
-- **`steer.*` — run a Signal THROUGH a Vector** (`gestalten/steer/`): `steer.invoke` (dispatch one signal), `steer.request` / `steer.echo` / `steer.bare` (leaf strategies), + `fold`/`descend`/`rollup`/`survey`/`traverse`.
+- **`steer.*` — the controllers: run a Signal THROUGH a Vector** (`gestalten/steer/`): `steer.invoke` (dispatch one signal), `steer.request` / `steer.echo` / `steer.bare` (leaf strategies), + `fold`/`descend`/`rollup`/`survey`/`traverse`.
 
 The payoff: a trait declares ONE Vector; the daemon folds it with `shape.object` (local call) AND serves `shape.strip` at `/metadata`; the client folds that strip with `shape.connection.wire` (remote call). Same declaration, three faces. See [[47.03_stripwire]].
 

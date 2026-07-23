@@ -1,0 +1,40 @@
+---
+title: The Daemon
+jdex: "33.01"
+---
+
+# 33.01 · The Daemon
+
+*a daemon is a void knowledge and execution space — the equivalent of an application: self-contained, persistent, with its own types, entities, business logic, and dataspace. modes carry the payloads that give it shape, behavior, face, and identity; the kernel gives it a spine.*
+
+## the kernel
+
+Every daemon's core is a `kernel` composed of three mode *types*:
+
+- **`domain`** — extends the db-persisted entity types and carries the core business logic, including the domain's own trait-spaces. The language-learning domain, for instance, gives literals the traits `TRANSLATED, EXEMPLIFIED, RANKED, ANNOTATED, VOCALIZED, CONJUGATED` and adds userspace entities (memory, trace).
+- **`topology`** — spans the dimensions literals and symbols inhabit: `word`, `sentence`, `conjugation` are each a topology.
+- **`topography`** — brings the actual data as literals and symbols, via the `DATASET` trait (and static cargo via `FRAUGHT`).
+
+Ordinary modes (games, tactics, dashboards, playground) install on top. What a mode *is* and how its traits wire in: [[34.01_modes-and-traits]].
+
+## the dataspace
+
+Persisted per-daemon (the datamap), inhabited by:
+
+- **literals & symbols** — the kernel entities; concrete data and the annotations that organize it. [[35.01_symbols-and-literals]].
+- **userspace** — `Thread`, `Buffer`, `Turn`, `Intent`: the live per-user state. Buffers are the render unit; threads sequence them; turns are conversation; intents seed threads and carry the `AIMED / MASKED / QUEUEING` configuration that drives the client's pull loop.
+
+The abstraction into modes, literals, and symbols is what lets a dataspace travel between daemons and across business logic.
+
+## lifecycle
+
+A daemon boots as a cascade of stages, not a constructor — persistence and identity before cognition, cognition before modes, declaration before wiring:
+
+```
+core ─▶ datamap ─▶ authority ─▶ acid(cortex) ─▶ services   (population)
+      ─▶ domain ─▶ freight ─▶ modes(stagger)               (resolution)
+```
+
+`stagger` is the step that walks each mode's traits and installs their primitives — see [[34.01_modes-and-traits]]. The runtime that drives this cascade is [[32.01_runtime]].
+
+Read next: [[34.01_modes-and-traits]] · [[35.01_symbols-and-literals]] · [[36.01_clients]].

@@ -1,11 +1,15 @@
 {
   "tasks": {
-    "capture": "deno run -A content/docs/capture.js",
-    "dev": "deno task capture && deno run -A npm:astro dev",
+    "capture": "deno run -A src/tangle.js",
+    "run": "deno task capture && deno run -A npm:astro dev",
+    "watch": "deno task capture && deno run -A npm:astro dev",
+    "stop": "deno run -A npm:astro dev stop",
+    "status": "deno run -A npm:astro dev status",
     "build": "deno run -A npm:astro build",
     "search": "deno run -A npm:pagefind --site dist",
+    "index": "deno task build && deno task search && rm -rf public/pagefind && cp -R dist/pagefind public/pagefind",
     "bundle": "deno task capture && deno run -A npm:astro build && deno run -A npm:pagefind --site dist",
     "preview": "deno run -A npm:astro preview",
-    "test": "deno test -A --no-check content/docs/**/*.doc.test.js"
+    "test": "deno test -A --no-check content/**/*.doc.test.js"
   }
 }

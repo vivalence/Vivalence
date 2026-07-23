@@ -50,6 +50,29 @@ The selfclean audit already ran this: a Workflow fanned finders → adversarial 
 
 `.ikiro/skills/blast-bracket/SKILL.md` — the blast·test·change·test·blast discipline as an invocable skill with a checklist, pointing back to `rituals.md` as canon. One skill, proves progressive-disclosure works in this repo without gutting rituals. If it feels right, #1 extends to pre-flight + live-validation next.
 
+* SKILL.md frontmatter — CONFIRMED vs STALE (source: =code.claude.com/docs/en/skills.md=, fetched)
+
+The staging spec's line-fixes were written from memory. Verified against the live doc:
+
+** Confirmed
+- =when_to_use= is a REAL field (Claude Code extension over the Agent Skills standard). Appended to =description= in the skill listing. The description/when_to_use split is legitimate.
+- =disable-model-invocation: true= exists, and does MORE than the spec knew: it also blocks the skill being preloaded into subagents, and (v2.1.196+) blocks it firing when a *scheduled task* names it as the prompt. → live-validation=true is safe (user-triggered); **flywheel MUST stay false** or a cron/loop prompt saying "selfimprove" can never auto-load it.
+- Progressive disclosure = supporting files beside SKILL.md (=reference.md=, =examples.md=, =scripts/=), referenced from the body so Claude knows when to load them. The three planned sidecars are the right shape.
+- Discovery is =.claude/skills/<dir>/SKILL.md= only. =.ikiro/skills= stays unreachable until symlinked. (=--add-dir= also loads a dir's =.claude/skills=, but not =.ikiro/skills= — the symlink is still the fix.)
+
+** Stale / wrong in the staging spec
+- **The char cap.** Spec said trim descriptions to ~150 chars. The real constraint: combined =description= + =when_to_use= truncated at **1,536 characters** in the listing. No 150-char rule exists. All four current descriptions (≈300–420 chars) are already inside the cap — the pre-flight "342→~150" fix is *invented*, drop it. Conciseness still earns its keep (listing = always-on context), but it is a style call, not a limit.
+- **=name:= does nothing for invocation** in a personal/project skill — it is a display label; the command comes from the DIRECTORY name. Renaming =name:= to reshape a command is a no-op.
+
+** New levers the spec never knew (docs list them; none were in the survey)
+- =paths= — glob-gated auto-activation (=systems/kajuit/**= → live-validation; =**/*.js= → a connoisseur runner). This overlaps fork 2 (=.claude/rules= path-scoping) and may partly *replace* it: skills already do path-scoped lazy load.
+- =disallowed-tools= — docs cite the exact case "autonomous skills that should never call certain tools, such as AskUserQuestion for a background loop". Direct fit for a future =overnight-loop= runner.
+- =context: fork= + =agent= + =background= — a skill can RUN AS a subagent. This is fork 1 (personas→subagents) available *without* authoring =.claude/agents/*.md=: a persona skill with =context: fork= is spawnable from inside =.ikiro/=. Re-price that fork before beef spends a decision on it.
+- =model= / =effort= per skill · =user-invocable: false= · =argument-hint= / =arguments= · =hooks= scoped to a skill's lifecycle.
+
+** The body-writing law (changes how all four runners should read)
+An invoked SKILL.md enters the conversation ONCE and stays for the session; Claude does not re-read it on later turns. So: write standing instructions, not one-time steps, and every line is a recurring token cost. The runners' step-by-step framing is fine, but any "do this now" that must fire again on a later turn has to be phrased as a standing rule.
+
 * Forks (beef)
 
 1. **Personas as subagents?** Sketch — `.claude/agents/investigator.md`: `description: sweeps (calibrate→finder→refuter→critic); tools: [Read, Grep, Glob, Bash]; model: sonnet`. Spawn it for adversarial passes instead of inline role-play. Yes / no / just-investigator-first?
@@ -67,4 +90,5 @@ Mostly docs/identity — no runtime suite. The one executable artifact is `hooks
 * Changelog
 
 - Research digested; verdicts assigned; exemplar queued. Autonomous per `feedback_ikiro_autonomous_no_gate`; structural forks held for beef.
+- Frontmatter VERIFIED against the live doc (§ CONFIRMED vs STALE). Killed the invented 150-char rule; found =paths=, =disallowed-tools=, =context: fork= — the last one re-prices fork 1. The four staged SKILL fixes now have a grounded spec.
 - A second, DEEPER research pass (SKILL.md line-fixes + 5 ready-to-stage persona→subagent drafts) landed after hours → deposited in =ikiro-modernization.staging.md=. Next attempt: apply the SKILL fixes (mine), walk the persona drafts with beef (his fork). Update stale model IDs before wiring.

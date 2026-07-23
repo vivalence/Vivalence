@@ -47,6 +47,9 @@
     "kajuit/watch": "deno task --cwd ./systems/kajuit watch",
     "kajuit/bundle": "deno task --cwd ./systems/kajuit bundle",
 
+    "documentation/run": "deno task --cwd ./documentation run",
+    "documentation/watch": "deno task --cwd ./documentation watch",
+    "documentation/stop": "deno task --cwd ./documentation stop",
     "documentation/bundle": "deno task --cwd ./documentation bundle",
 
     "vivalence/build": "docker build -f ./Dockerfile -t vivalence/viva:alpine .",

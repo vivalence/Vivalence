@@ -7,6 +7,8 @@ jdex: "52.02"
 
 ## What you will do
 
+Vivalence runs anywhere, across complex network topologies — from localhost singleplayer to distributed dockerized multiplayer. This walkthrough is the dockerized end, driven by hand.
+
 Drive the system manually from inside a single `vivalence/viva:alpine` container.
 Start with bare `bash`. Add one environment variable at a time, watching what
 each unlocks, until the runtime + lighthouse + kajuit stack is alive and you can
@@ -105,11 +107,11 @@ Every later step adds one missing piece.
 ## 4. Mount a variant
 
 The repo ships a `multiplayer` variant at
-`registry/wafers/@vivalence/variant/multiplayer/`. Mount it via env:
+`registry/viva/variant/multiplayer/`. Mount it via env:
 
 ```sh
 docker run --rm -it \
-  -e VIVA_VARIANT_MOUNT=/viva/repository/registry/wafers/@vivalence/variant/multiplayer \
+  -e VIVA_VARIANT_MOUNT=/viva/repository/registry/viva/variant/multiplayer \
   vivalence/viva:alpine bash
 
 viva system/doctor
@@ -222,7 +224,7 @@ Exit. Restart with the full envelope:
 docker run --rm -it \
   -v ./mountpoint/:/viva/mountpoint \
   -p 2501:2501 -p 1794:1794 \
-  -e VIVA_VARIANT_MOUNT=/viva/repository/registry/wafers/@vivalence/variant/multiplayer \
+  -e VIVA_VARIANT_MOUNT=/viva/repository/registry/viva/variant/multiplayer \
   -e VIVA_MOUNTPOINT_MOUNT=/viva/mountpoint \
   -e VIVA_SYSTEM_MODE=RUNTIME \
   -e VIVA_RUNTIME_SERVE=http://0.0.0.0:2501 \
@@ -291,9 +293,9 @@ scopes
 ✓ system         /root/.viva
 ✓ repository     /viva/repository
 ✓ registry       /viva/repository/registry
-✓ variant        /viva/repository/registry/wafers/@vivalence/variant/multiplayer
+✓ variant        /viva/repository/registry/viva/variant/multiplayer
   ✓ mountpoint     /viva/mountpoint
-  ✓ environment    /viva/repository/registry/wafers/@vivalence/variant/multiplayer/environment
+  ✓ environment    /viva/repository/registry/viva/variant/multiplayer/environment
 
 variant (daemons:0  services:0  runtime:no)
 clients: —
@@ -304,7 +306,7 @@ registry (30 modes  12 types)
 
 environment (11 vars)
   VIVA_SYSTEM_MODE                 RUNTIME
-  VIVA_VARIANT_MOUNT               /viva/repository/registry/wafers/@vivalence/variant/multiplayer
+  VIVA_VARIANT_MOUNT               /viva/repository/registry/viva/variant/multiplayer
   VIVA_MOUNTPOINT_MOUNT            /viva/mountpoint
   VIVA_REPOSITORY_MOUNT            /viva/repository
   VIVA_REGISTRY_MOUNT              /viva/repository/registry
@@ -328,9 +330,9 @@ manifest reference. The next step proves it mounts.
 
 ```text
 run runtime=96 kajuit=97
-Task run    deno run -A --env-file=../../testament/.env run.js
-Task watch  VIVA_SYSTEM_ROLE=CLIENT deno run -A --env-file=../../testament/.env npm:vite dev
-Warning  The `--env-file` flag was used, but '../../testament/.env' was not found.
+Task run    deno run -A --env-file=../../testament/variant/.env run.js
+Task watch  VIVA_SYSTEM_ROLE=CLIENT deno run -A --env-file=../../testament/variant/.env npm:vite dev
+Warning  The `--env-file` flag was used, but '../../testament/variant/.env' was not found.
 …
 [migrator] Processing 'Migration<timestamp>'
 [migrator] Applied 'Migration<timestamp>'
@@ -347,7 +349,7 @@ Status:ALIVE
 What happened, in order:
 
 - **Fork**: runtime pid 96, kajuit pid 97. Each inherits the full env.
-- **env-file warning**: runtime + kajuit hardcode `--env-file=../../testament/.env`
+- **env-file warning**: runtime + kajuit hardcode `--env-file=../../testament/variant/.env`
   in their deno tasks. Inside the container that path doesn't exist —
   cosmetic, not a failure. The env is already exported in our shell.
 - **Migrations**: libSQL migrator runs once per db file, applies the schema.
@@ -537,7 +539,7 @@ sandboxed from kajuit entirely.
 
 ### The compose form
 
-`registry/wafers/@vivalence/variant/multiplayer/docker-compose.yml`:
+`registry/viva/variant/multiplayer/docker-compose.yml`:
 
 ```yaml
 volumes:
@@ -550,7 +552,8 @@ services:
     environment:
       - VIVA_SYSTEM_MODE=PRODUCTION
       - VIVA_SYSTEM_ROLE=RUNTIME
-      - VIVA_VARIANT_MOUNT=/viva/repository/registry/wafers/@vivalence/variant/multiplayer
+      - VIVA_LEDGER_MOUNT=/viva/ledger
+      - VIVA_VARIANT_MOUNT=/viva/repository/registry/viva/variant/multiplayer
       - VIVA_MOUNTPOINT_MOUNT=/viva/mountpoint
       - VIVA_RUNTIME_SERVE=http://0.0.0.0:2501
       - VIVA_LIGHTHOUSE_SERVE=http://0.0.0.0:2501/attached/process/lighthouse/multiplayer
@@ -585,7 +588,7 @@ What compose **does** override:
 ### Run it
 
 ```sh
-cd registry/wafers/@vivalence/variant/multiplayer
+cd registry/viva/variant/multiplayer
 docker compose up        # both, foreground
 docker compose up -d     # detached
 docker compose logs -f runtime
@@ -606,7 +609,7 @@ Coolify reads a `docker-compose.yml` from a git repo. Point Coolify at the
 variant dir:
 
 - **Repo**: your variant fork (or the monorepo, with compose path
-  `registry/wafers/…/multiplayer/docker-compose.yml`).
+  `registry/viva/variant/multiplayer/docker-compose.yml`).
 - **Build pack**: docker compose.
 - **Env vars**: paste the `environment:` block, swap localhost for your domain.
 - **Volumes**: Coolify manages the named `mountpoint` volume.
@@ -661,7 +664,7 @@ viva system/doctor
 docker run --rm -it \
   -v vivalence-mountpoint:/viva/mountpoint \
   -p 2501:2501 -p 1794:1794 \
-  -e VIVA_VARIANT_MOUNT=/viva/repository/registry/wafers/@vivalence/variant/multiplayer \
+  -e VIVA_VARIANT_MOUNT=/viva/repository/registry/viva/variant/multiplayer \
   -e VIVA_MOUNTPOINT_MOUNT=/viva/mountpoint \
   -e VIVA_SYSTEM_MODE=RUNTIME \
   -e VIVA_RUNTIME_SERVE=http://0.0.0.0:2501 \
@@ -674,7 +677,7 @@ docker run --rm -it \
   vivalence/viva:alpine viva instance/run
 
 # full stack via compose
-cd registry/wafers/@vivalence/variant/multiplayer
+cd registry/viva/variant/multiplayer
 docker compose up
 
 # publish
@@ -687,5 +690,5 @@ deno task publish
 - `Dockerfile` — base image
 - `systems/runtime/Dockerfile` — runtime image (inherits base)
 - `systems/kajuit/Dockerfile` — multistage build → nginx
-- `registry/wafers/@vivalence/variant/multiplayer/docker-compose.yml` — full compose
+- `registry/viva/variant/multiplayer/docker-compose.yml` — full compose
 - `.ikiro/known-issues.org` — sharp edges

@@ -10,7 +10,12 @@ export function remarkWikilink() {
       let match
       while ((match = pattern.exec(node.value))) {
         if (match.index > cursor) segments.push({ type: "text", value: node.value.slice(cursor, match.index) })
-        segments.push({ type: "link", url: `/${match[1]}`, children: [{ type: "text", value: match[1] }] })
+        segments.push({
+          type: "link",
+          url: `/${match[1]}`,
+          data: { hProperties: { className: "wiki" } },
+          children: [{ type: "text", value: match[1] }],
+        })
         cursor = match.index + match[0].length
       }
       if (!segments.length) return

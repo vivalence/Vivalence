@@ -1,114 +1,115 @@
 <p align="center">
   <a href="#documentation">Docs</a> ·
   <a href="#installation">Install</a> ·
-  <a href="#Funding (P2P)">Funding</a> ·
+  <a href="#funding-p2p">Funding</a> ·
   <a href="#noticeboard">Notices</a> ·
-  <a href="LICENSE.md">Licence</a>
+  <a target="_blank" href="https://discord.gg/QyS9Xt9ht8">Discord</a>
 </p>
 
 <p align="center">
   <img src="systems/kajuit/static/videos/vid-viket-seldoncrisis-800x160p-12fps.gif" alt="VivalenceOS" width="100%" />
 </p>
 
-# ~ home
+<p align="center">
+  <a href="LICENSE.md"><img src="https://img.shields.io/badge/license-fair--source-2ea44f?style=flat-square" alt="License: Fair Source" /></a>
+  <img src="https://img.shields.io/badge/status-early%20alpha-orange?style=flat-square" alt="Status: early alpha" />
+  <img src="https://img.shields.io/badge/deno-2.7+-000000?style=flat-square&logo=deno" alt="Deno 2.7+" />
+  <img src="https://img.shields.io/badge/svelte-5-FF3E00?style=flat-square&logo=svelte" alt="Svelte 5" />
+  <img src="https://img.shields.io/badge/mikroorm-6.6-663399?style=flat-square" alt="MikroORM 6.6" />
+  <a target="_blank" href="https://ko-fi.com/crackedbeefcake"><img src="https://img.shields.io/badge/ko--fi-support-FF5E5B?style=flat-square&logo=ko-fi&logoColor=white" alt="Ko-fi" /></a>
+  <!-- <img src="https://img.shields.io/badge/typology-vivalence-1793D1?style=flat-square" alt="Vivalence Typology" /> -->
+</p>
 
-Vivalence is like if wechat, emacs, and hal9000 had a baby and that baby is open-source, self-hostable, deeply hackable, ai-harnessed as a first principle, and setup for both single- and multiplayer. 
+# ~ $home
 
-- *Security Notice:* Vivalence is in early alpha and only just transitioning to build-in-public. It is considered insecure on a network level and should live - for now - inside a moat :river::castle:. 
-- *Development Notice* Vivalence is only just transitioning to build-in-public and is to be considered both *early* and *alpha*. dont expect things to be be working or documented. This release is for the curious. Its probably another year to stability and a decade to maturity. see <a href="#Funding (P2P)">#funding</a>; more funding -> more faster better. 
-- *Development Notice* docs are low priority right now. this release is for the curious. use llms. move and break things.
-- *Community Notice* signup email list 🔥🔬🪎
+Vivalence is like if WeChat, Emacs, and Hal9000 had a baby that's fair-source, deeply hackable, AI-harnessed as a first principle, and deployable in both single- and multiplayer.
 
-**What is vivalence and what is it for?**
-- procedurally generated and agentic apps - hallucination harness for various ai faculties and modalities. 
-- daemons and dataspaces composed from trait-based modes "plugable mini-apps" running in persisted and isolated runtimes.
-- internal - daemon level - symbolic dataentity system (optional).
-- flexibly runs across arbitrarily complex network topographies - from localhost singleplayer to dockerized multiplayer. 
-- first class package management with :TODO: agentic CRUD over registry filesystem.
-- coherent architecture and constructed from functional algebraic types - simple, elegant, and very hackable. 
-- free for private use and available under a flat programatic <a href="#Pricing (B2B)">license</a> for institutional use.
-- build literally any app or system for browser or :TODO: shell.
-- :WIP: The first killer app is a language learning system.
+## What is Vivalence and what is it for?
 
-**How did vivalence come about and where is it at?**
-vivalence was started when gpt3.5 came out to build the perfect operating system for “the yound ladys illustrated primer” and it turned out it had to be very good at everything else in order to become that. it would be powering isaac asimov's foundation. For more about the spiritual ancestory read "blog".
+🧠 **Procedurally generated, agentic apps**, a hallucination harness for the common AI faculties and modalities.
 
-Vivalence is meant to be yours. I neither can nor want to be responsible for you and your actions. The software is provided as is - fuck around and find out. 
-<a href="david deutsch - on optimism.">o/acc.</a>
+👾 **Daemons and dataspaces** composed from trait-based modes ("pluggable mini-apps") that run in persisted, isolated runtimes.
 
-the architecture is - I suspect - extremely scalable and i would LOVE to have some input and feedback on this.
+🏛️ **A coherent architecture** built from functional algebraic types. Simple, powerful, very hackable.
 
-For contribution and future development see "Development". AI slop is only accepted in - and in fact intended for - the registry. 
+🪢 **The Ontology**, an (optional) symbolic entity system, powers the daemons and their modes.
 
-The cat is out of the bag.
+🌐 **Runs anywhere**, across complex network topologies, from localhost singleplayer to distributed dockerized multiplayer.
+
+🧩 **Bring your own {Service}**: AI providers, database solutions, authentication and user management, or attach any other service or API.
+
+📦 **First-class package management**, with agentic CRUD over the registry filesystem. `:TODO:`
+
+🤝 **Free for private use**, and available under a <a href="#pricing-b2b">flat license fee</a> for institutional and commercial use.
+
+🎓 **The first killer app is a language learning system.** `:WIP:`
+
+<!-- ## How did Vivalence come about and where is it at? -->
+
+<!-- **Vivalence was started when GPT-3.5 came out**, to build the perfect operating system for "The Young Lady's Illustrated Primer" — and it turned out it had to be very good at everything else in order to become that. It is the kind of system that would power Isaac Asimov's Foundation. For more about the spiritual ancestry read <a target="_blank" href="https://crackedbeefcake.com/on/eva">on/eva</a>. -->
+
+
+## Noticeboard
+
+- *Security Notice:* Vivalence is in early alpha and only just transitioning to build-in-public. It is considered insecure on a network level and should - for now - live inside a moat 🌊🏰.
+- *Development Notice:* Vivalence is only just transitioning to build-in-public and is to be considered both *early* and *alpha*. Don't expect things to be working or documented. This release is for the curious. It's probably another year to stability and a decade to maturity and invisible effortlessness.
+- *Funding Notice:* See <a href="#funding-p2p">#funding</a>; more funding -> more faster better.
+- *Development Notice:* Docs are low priority right now. This release is for the curious. Use llms. Move and break things.
+- *Community Notice:* <a target="_blank" href="https://discord.gg/QyS9Xt9ht8">Discord</a>.
+- *Community Notice:* Email list 🔎 🗺️ 💎
+- *Brand Notice:* <a target="_blank" href="https://www.youtube.com/watch?v=4Ia6MDbNJWI">Teaser</a>
+- *Organizational Notice:* Vivalence splits in two. .org & .com. The .com is the engine, the .org is the estate. Commerce funds the commons.
+- *License Notice:* The license aims to balance individual freedom of use and safety in contribution with the economic sustainability of the project — unrestricted private use, licensed institutional use. Fair Source.
+- *Community Notice:* This is an ecosystem play. I intend to pay successful contributors permanently — core, registry, the dependencies this stands on, the infrastructure it runs on. More adoption -> more money for the ecosystem.
+- *Contribution Notice:* AI slop is only accepted in — and in fact intended for — the registry. Contributions to the core get stickler-meeseeks'd line by line. Yappers, sloppers, and boneheads get blocked. Less is more.
+- *Contribution Notice:* The architecture is — I suspect — extremely scalable and flexible in its application. I would LOVE to have some input and feedback on this.
+- *Personal Notice:* Vivalence is meant to be yours. I neither can nor want to be responsible for you and your actions. The software is provided as is — fuck around and find out.
+
+🐆 The cat is out of the bag. <a target="_blank" href="https://www.youtube.com/watch?v=lX-K63pVPTM">o/acc.</a>
 
 # Documentation
-Full docs under construction: [https://docs.vivalence.com]
-Start with two guides.
-one for modes - traits, apps, apertures.
-and a second guide on the data architecture from system level via userspace to ontological entities.
 
-<!-- STATUS The types and interfaces are stabilized and settling.  -->
-## ARCHITECTURE Guides
+The architecture in four sentences:
 
-### modes
-the way modes implement functionaly is by implementing traits. 
+You install "Modes" into "Daemons". Daemons are void knowledge and execution spaces, and Modes carry payloads that give your Daemons shape, behavior, face, and identity.
 
-the entire system works basically as a backend for mode traits.
-if you want to bring data into the system - add a mode with a dataset trait. if you want to implement a chat interaction - implement a conversational trait. want to host an API - implement the exposed trait. etc.
+Modes can be, do, or look like anything that's programmatically possible.
 
-every mode has a type and a set of traits. the types are mostly a organizational, interpretability, and security constraint. all actual functionality is a function of traits.
+The payloads are implemented in a Mode's traits, and so far there are about a dozen traits, covering everything from APIs and harness functionality to data transport and UI rendering.
 
-modes serve different roles within the system according to their type. for example, the core of each daemon - called `kernel` - is made up of 3 mode types: domain, ontology, corpus. 
+Full docs are under construction at `./documentation` and <a target="_blank" href="https://docs.vivalence.org">docs.vivalence.org</a> and currently consist entirely of slop.
 
-- the `domain` modes implement: a. additional db-persisted entity types, b. the core business logic .
-- the `ontology` modes provide the dimenions that literals and symbols can inhabit. 
- each of word,sentence,conjugation represesents an ontology.
+For now you have to find all the nitty-gritty details in the codebase.
+How Vectors are declaratively dispatched monadic composers, and how the typology features a built-in library of compilers and controllers to work with them.
+Or how Daemons and Modes use Vectors to run anything from APIs to CRUD, cron, and co.
+Not to mention the internal ontological entity backend, or the symbolic and literal type system, or any of the other nerdy goodies.
 
-- the `corpus` modes bring the data in the form literals and symbols, as well as 
+## Hello, Mode!
 
-### symbols & literals
+Here is a little dummy Mode. It talks to an LLM, exposes one endpoint, and renders a Svelte view in ~50 lines.
 
-
-
-### Modal Applications
-You don't install applications — you install **modes** into daemons. A mode is four files: what it is (`manifest`), how it thinks (`harness`), what it exposes (`aperture`), what it shows (`app`). Traits are the only wiring — declare them and the runtime does the rest.
-
-Here is a whole mode. It talks to an LLM.
-
-`mode.viva.js` 
-
+`registry/dummy/mode.viva.js` — what it is:
 ```js
-import { App, v } from "@vivalence/typology";
+// `typology` — 
+import { App, Vector, v } from "@vivalence/typology";
 
-export { harness } from "./harness.js";
-export { aperture } from "./aperture.js";
-
+// `manifest` — 
 export const manifest = {
   type: "demo",
-  slug: "demo",
+  slug: "dummy",
   traits: ["APPLICATION", "HARNESSED", "EXPOSED", "STANDALONE"],
 };
 
-export const app = new App("buffer/App.svelte", v.buffer({ data: {} }));
-```
+// `app` — 
+export const app = new App("App.svelte", v.buffer({ data: {} }));
 
-`harness.js` 
-
-```js
-import { Vector } from "@vivalence/typology";
-
+// `harness` — how the mode uses AI:
 export const harness = new Vector().use(async (ctx, next) => {
   ctx.hallucination.context.system("You are a demo. Demonstrate yourself.");
   await next();
 });
-```
 
-`aperture.js` 
-
-```js
-import { Vector, v } from "@vivalence/typology";
-
+// `aperture` — the mode's API. Note `ctx.mode.harness.object.render` — the harness is callable on the mode:
 export const aperture = new Vector().open("/hello/world", async (ctx) => {
   const { object } = await ctx.mode.harness.object.render({
     turns: [{ role: "user", parts: [{ type: "text", text: "Say hello." }] }],
@@ -118,18 +119,17 @@ export const aperture = new Vector().open("/hello/world", async (ctx) => {
 });
 ```
 
-Note `ctx.mode.harness.object.render`.
-
-`buffer/App.svelte` 
-
+`registry/dummy/App.svelte` — what it is:
 ```svelte
 <script>
-  let { terminal, buffer } = $props();
+  let { terminal, daemon, mode, thread, buffer } = $props();
+
   let greeting = $state("");
-  const modes = terminal.daemon.entities.mode.$entities.get();
+
+  const modes = terminal.daemon.entities.mode.$entities.get(); 
 
   async function demonstrate() {
-    const result = await buffer.mode.connection.call("/hello/world")
+    const result = await buffer.mode.connection.call("/hello/world");
     greeting = result.greeting;
   }
 </script>
@@ -137,7 +137,6 @@ Note `ctx.mode.harness.object.render`.
 <h1>hello world</h1>
 <button onclick={demonstrate}>demonstrate</button>
 <p>{greeting}</p>
-
 <ul>
   {#each modes as mode}
     <li>{mode.type}/{mode.slug}</li>
@@ -145,12 +144,9 @@ Note `ctx.mode.harness.object.render`.
 </ul>
 ```
 
+## Installation
 
-### Packages
-
-# Installation 
-
-You need [Deno](https://deno.com) 2.7+. Everything else the repo carries.
+You need <a target="_blank" href="https://deno.com">Deno</a> 2.7+. Everything else the repo carries.
 
 ```sh
 # 1 — deno
@@ -183,28 +179,16 @@ deno task ghost/run /variant/lighthouse/auth/signup you changeme
 
 The runtime comes up on `:2501`, the kajuit web client on `:1794`. Once step 7 creates a user, open http://localhost:1794 and log in with those credentials.
 
+# Pricing (B2B)
 
+Vivalence is free for private use. Institutional use requires a license — a flat fee of ~€12/$13/£10/¥2,000/90元 per person per month, with a 10/12 discount on yearly. SaaS, PaaS, and consulting services will follow in time.
 
-# Pricing (B2B) 
-Vivalence is free for private use. Institutional use requires a license. Flat license fee at €11/$13/¥2,000/90元/£10 per person per month. SaaS, PaaS, and consulting services will follow in time. 
-# Funding (P2P) 
-I **also** accept private financial contributions - into one of two buckets. either gas money or break money. Gas money goes into the company and funds further development. break money is for me to take a breather. after ~3 years of development, i can use some breaks money.
-https://www.paypal.com/de/home
-https://www.patreon.com/create
-https://auth.lemonsqueezy.com/login
+Licenses are issued programmatically — <a target="_blank" href="https://vivalence.lemonsqueezy.com/checkout/buy/1716f8a4-2def-4373-b46a-d5447a7e3232">get one here →</a>.
 
+# Funding (P2P)
 
-# License
+I **also** accept private financial contributions, in one of two buckets: gas money and break money. Monthly patreonage is gas money — it funds further development. One-off tips are break money — for me to take a breather. After ~3 years of solo development, I could use some break money.
 
+<a target="_blank" href="https://ko-fi.com/crackedbeefcake"><img src="https://ko-fi.com/img/githubbutton_sm.svg" alt="Support me on Ko-fi" /></a>
 
-
-# Noticeboard
-
-## Teaser
-<a href="https://www.youtube.com/watch?v=4Ia6MDbNJWI">Teaser</a>
-
-## Business Model
-## .org & .com
-
-
-
+For one-off gas funding there will be an Open-Collective and a Kickstarter in due course.

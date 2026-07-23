@@ -1,0 +1,13 @@
+the seven primitives — check here BEFORE writing any walk, lookup, or fold
+(every path verified against the tree; re-verify if a grep here comes back empty)
+
+paladin.find.viva      subsystems/paladin/belt/find.js      discovering .viva modules under a root — never Deno.readDir, never a hand-rolled walker
+paladin.read.viva      subsystems/paladin/belt/read.js      loading one .viva module (js/org/svelte) — returns the LIVE namespace, stamp on a copy
+paladin.vip.accio      subsystems/paladin/prototypes/vip.js:52   resolving one module query to a service; accioMany:61 for a list, accioMap:70 for a keyed map
+cast.lookup            subsystems/typology/gestalten/cast/primitives.js:24   normalizing a thing (remote/module/manifest) to its lookup identity — never hand-destructure the shape
+steer.trie.rollup      subsystems/typology/gestalten/steer/trie.js:42   flattening a vector to {pattern, steps} entries — the tool/mcp/hallucination shape
+steer.trie.fold        subsystems/typology/gestalten/steer/trie.js:9     carry-folding a vector tree; dispatch.js reuses its descend step
+shape.object           subsystems/typology/gestalten/shape/object.js:5   projecting a vector into a callable object, execute defaults to steer.strategy.request
+
+canon drift found while verifying this list: rituals.md said steer.rollup and steer.fold.
+both live under the TRIE family now (steer.trie.*). the bare names resolve to nothing.

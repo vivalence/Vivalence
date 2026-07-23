@@ -1,0 +1,50 @@
+#+TITLE: the tangle driver comes back from jj and the JD patch lands; the styling fight escalates into a whole-site design brief; the designer returns a dc.html mock — "a ui not an app" — which gets bundle-decoded, fetched canonically over the claude_design MCP, and ported 1:1 into the Astro site; then the brand pass (viket plasma, K2D wordmark, Poppins/Inter/Source Code Pro) and a two-axis pixel pass on the navtree.
+#+TOPIC: on disk: =documentation/src= fully re-skinned (Layout.astro rewritten; rehype-codeblock + rehype-article NEW; components → panel family; jdex/index pages rebuilt, index.mdx dead) · =public/fonts/{K2D,Inter,Poppins,SourceCodePro}= self-hosted · 27 pages green · pagefind index refreshed.
+
+* Arc
+
+** the recovered ground (pre-compact half)
+"resetore the recently lost tangling functionality in /documentation" — the capture driver was recovered from jj deletion history (=jj log= + =jj diff -r <rev> --git=; the vcs-guard blocked =jj file show= and filtered revsets) into =src/tangle.js=, walk-root repointed to =content/=. The pasted Johnny-Decimal patch ("work this into the docs") landed as 21 files against a flattened =content/=; content.config base fixed; one 4-deep import overshoot fixed. "why dossn tdocumentation have a run/watch command? fix" → run/watch/stop/status tasks, root deno.jsonc delegations; astro 7 dev is a background daemon — "i cant stop the documentation watch process with ctrl-c in terminal. not good" → =astro dev stop=. "gimme back my search" → Pagefind only indexes built site; =index= task builds + copies =dist/pagefind= → =public/pagefind= (gitignored).
+Styling complaints ("the layout on the side is working horribly… too slim… foldability is missing", "this is still entirely off on 34 modes") ended in "write up a briefing for a design agent. be thorough. include much detail!" then "not onlly sidebar. the whole docs." → =design-brief-docs.md=, whole-site, surfaces A–O + options + acceptance criteria.
+
+** the designer comes back
+Beef drops =~/Downloads/Vivalence Docs - standalone.html= — "transition the documentation." / "be smart and deliberate and complete". The file is a self-extracting bundle (manifest of gzip+base64 assets + template + unpacker); a Deno script decoded it: template.html = the whole design as one dc.html doc (design-canvas format: =<x-dc>= + helmet CSS + sc-for/sc-if template + DCLogic component with mock state). "note that the designer came back with a ui not an app" — treat as visual spec ONLY; mock filler (fake GitHub/Discord links, "v0.7.2 · MIT", its own trimmed AREAS array, invented headings) is not content.
+Then "Use the claude_design MCP … Implement: Vivalence Docs.dc.html" — DesignSync tool: list_files on the design project (nav variants "Group Options / The Dial / The Ledger" live there too), get_file of the canonical dc.html; diff vs the decoded bundle = serialization noise only (onClick vs sc-camel attr, thumbnail template). The extracted spec stood.
+
+** the port
+The mock's system, transplanted onto real data:
+- Token system verbatim: =--step-*= type scale, =--s1..s8= spacing, =--r1..r3=, light/dark palettes (=--bg/--sidebar/--panel/--surface/--panel-2/--ink/--muted/--faint/--line*/--accent*/--code-*/--active= + semantic info/warn/danger/ok), on =:root= + =[data-theme]= + prefers-dark fallback.
+- =Layout.astro= rewritten whole: 320/1fr/250 grid, collapsible sidebar (« reopen », localStorage), mobile bar + scrim, brand row, Pagefind restyled into the mock's search field (⌘K kbd overlay), Index+collapse-all row, navtree as area-cards → groups → entries on a fold/num/title grid, crumbs with › separators, connections as numbered chips (→ links to / ← linked from), pager cards, TOC rail with IntersectionObserver scroll-spy + progress bar.
+- Two NEW rehype plugins: =rehype-codeblock= (wraps fences into =.codeblock= with head — dot · fname · lang · Copy — and moves the tangle badge inside as accent footer with parsed path) and =rehype-article= (splits =NN.NN= off the h1 into =.h1num=, converts the first em-only paragraph after h1 into =.lede=). Trap found: *user rehype runs BEFORE Astro's shiki pass* — match the raw =pre>code.language-*= fence, not =.astro-code=.
+- Shiki → dual themes github-light/github-dark, =defaultColor: false=, CSS flips =--shiki-light/--shiki-dark=. Mock's hand-rolled token palette not replicated (real highlighting wins).
+- Components → panel family: Source (fname · SOURCE badge · Copy), Example (STDOUT badge with pulse dot, gutter-numbered log lines), Trace (SPAN badge, verb chips open/note/close/fault, depth guides, close rows show computed duration from record =at= deltas), Editor (playground head, VIM bar). Wikilinks get =.wiki= chips with =[[ ]]= pseudo-content.
+- jdex page = the mock's full map (hero, legend, 13rem key column, planned/reserved rows); index.mdx → index.astro home (eyebrow, hero, totems Less-is-More/Code-is-Data/Schema-is-God, pillars, start-here, living-examples card).
+- Verification loop: headless Chrome (=--headless=new --screenshot=) follows OS scheme → dark shots; light via =playwright screenshot --channel=chrome --color-scheme=light= (no browser download, uses system Chrome). Full-page + imagescript crops. claude-in-chrome extension still never connects.
+- Foot-gun logged: shell cwd resets between Bash calls — one build ran at repo root ("0 page(s) built") and a preview served the wrong dir → phantom 404.
+
+** brand pass
+"ok. lets use the vivalence logo - the viket. and use the vivalence fonts too! especially for the … header here. viva lence has a dedicated font somewhere for this" — the dedicated font traced through kajuit → =@vivalence/dapper/font.css= → =dapper/primitives/tokens.js=: =family.brand: ["K2D", "sans"]=, sans-heading Poppins, sans-text Inter, code Source Code Pro. Copied lean weight sets from =kajuit/static/fonts= into =documentation/public/fonts= (Inter + SCP as variable ttfs), self-hosted @font-face, swap. Wordmark → K2D; headings → Poppins; body → Inter; ALL mono → Source Code Pro. Logo: existing =vivalence-viket-logo-plasma.png= replaces the mock's gradient square (sidebar + mobile). "remove the date" … "evyerhwher" — updated-stat logic, crumbs span, CSS all deleted. "this VIVALENCE in brand font should be all uppercase. careful with line breaks tho!" — uppercase on the =b= only, =white-space: nowrap= on the wordmark, mobile bar same markup.
+
+** pixel pass
+"i want this to be better aligned. theere is too much indentation on the navtree" then "stillll. i watn PIXEL PERFECTION!!" (that screenshot never arrived — image-cache held the macOS PNG file icon, a paste failure mode worth knowing) then "there is also too much heigth between index+collapse row and teh ledger". Own audit at 3x zoom crops found the real offsets: entry numbers +8px vs area numbers (area-body s2 + entry s2 double padding), group rail 8px left of its caret, open-card content shifted 1px by the appearing border.
+The fix is geometric, not cosmetic: =--gutter-fold= 1.25rem→0.9rem; summary side-padding s3→s2; *padding split so the sum is constant across nesting* (body s1 + row s1 = summary s2 → every number at the same x; every caret/rail/tick at fold-center on one axis); =.area= carries a permanent 1px transparent border so open/closed geometry is identical; Index ▤ gets fold-column width + nav-tools 1px pad to sit on the caret axis; nav-tools margin-bottom fully absorbs the flex gap (~27px → ~20px visual). Side effect: titles gained width, "Architecture Doc Decisions" fits one line.
+
+* Lessons
+
+- *A design mock is a UI, not an app* — port the geometry and tokens verbatim, re-source every datum from the real system, and prune the mock's filler (links, versions, invented content) instead of copying it.
+- *dc.html bundles decode mechanically* — =script[type="__bundler/manifest"]= entries are gzip+base64; a ten-line Deno script beats reading 127k tokens of escaped payload.
+- *Astro plugin order*: user rehype runs before the built-in shiki highlight — target raw fences (=code.language-*=), never =.astro-code=, and guard against re-wrap.
+- *Pixel perfection is an axis discipline* — decide the shared verticals (fold-center, number-column start), then make every nesting level's padding sum to the same constant; a permanent transparent border kills state-dependent 1px shifts.
+- *Audit with 3x zoom crops, not full-page squints* — the 8px double-padding and the rail/caret miss were invisible at 1x; imagescript crop is deterministic where sips cropOffset isn't.
+- *Light-theme screenshots on a dark Mac*: =playwright screenshot --channel=chrome --color-scheme=light= — system Chrome, no download; bare headless Chrome inherits the OS scheme.
+- *Bash cwd resets every call here* — builds and servers must re-cd explicitly or they run at repo root and lie ("0 page(s) built" then a 404 that looks like a regression).
+- *Paste can lose the image* — an image-cache entry that renders as the macOS PNG icon means the screenshot never arrived; say so and re-request instead of guessing the complaint.
+
+* Open / pending (beef gates)
+
+1. Sidebar side-links block (GitHub · Discord · Changelog · Status) omitted — needs real URLs.
+2. Fonts ship as ttf (~2.9MB total) — woff2 conversion pass would cut ~60%.
+3. "▶ ran this" seam between Source/Example panels unbuilt (no adjacency in real content); living-rail label likewise.
+4. =design-brief-docs.md= is now historical — delete or keep as record.
+5. Search dev-index refresh stays manual: =deno task index= after content changes.
+6. Editor mode bar is static "— NORMAL —"; live vim-mode readout would need CM state hookup.

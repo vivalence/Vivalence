@@ -1,26 +1,29 @@
 ---
 name: live-validation
-description: Use when validating kajuit (the client) in Chrome — checking whether a UI change is wired, debugging a hung thread/create, or verifying a buffer-view change took effect. The rules that separate real bugs from tooling artifacts (bundle caching, HMR scope, coordinate-click misses). Triggers like "is it wired?", "check it in the browser", "the dock isn't showing", "thread/create hangs".
+description: Validate a kajuit change in Chrome without mistaking a tooling artifact — stale mode bundle, HMR scope, a missed coordinate-click — for a real bug. Run the sequence first; the rules explain why each step is there.
+when_to_use: "is it wired?" · "check it in the browser" · "the dock isn't showing" · "thread/create hangs" · after any buffer-view or client change that needs eyes on the DOM.
+paths: systems/kajuit/**
 ---
 
 # live-validation
 
-Invocable runner for validating kajuit in the browser. Canon: `.ikiro/self/rituals.md ## live-validation`. The recurring trap is mistaking a tooling artifact (stale bundle, HMR scope, a missed coordinate-click) for a real bug — these rules cut that.
+Canon: `.ikiro/self/rituals.md ## live-validation`. Standing rules for the whole browser task, not a one-time walkthrough.
 
-## The rules
+## Sequence — "did my change land?"
 
-1. **"is it wired?" → JS DOM assertion**, never coordinate-clicks. Use `javascript_tool`: `document.querySelector(...).click()` then assert on the resulting DOM. STOP coordinate-clicking after 2–3 misses — it fakes failures.
-2. **`thread/create` hangs (network `pending`) ⇒ a buffer-bundle esbuild error**, NOT a network problem. Read the **runtime log**, not the browser console.
-3. **`deno task runtime/run` caches mode bundles** — a buffer-view change needs a runtime **RESTART**. HMR covers only the app layer; a view change with no restart shows stale.
-4. **Batch edits → ONE reload → test.** Rapid edit→HMR→click cycles fabricate bugs; slow down, one clean reload.
-5. **Scoped `> *` styles don't cross a child component's root** — the pointer-events trap. A style that "isn't applying" across a component boundary is this, not a specificity bug.
+1. **Buffer-VIEW change? Restart the runtime.** `deno task runtime/run` caches mode bundles; HMR covers the app layer only. No restart ⇒ you are looking at stale output.
+2. **Reload ONCE.** Batch the edits first. Rapid edit→HMR→click cycles fabricate bugs.
+3. **Assert on the DOM, not a screenshot** — via `javascript_tool`:
+   ```js
+   document.querySelector('[data-testid="dock"]').click();
+   console.log(document.querySelector(".thread-view")?.textContent);
+   ```
+   Then read it back with `read_console_messages`. STOP coordinate-clicking after 2–3 misses — misses read as failures.
+4. **Still wrong? Read the runtime log before touching code.** esbuild errors surface there and stay silent in the browser console.
 
-## Sequence for "did my change land?"
+## The rules behind the sequence
 
-1. Was it a buffer-VIEW change? → restart the runtime (bundles cache), don't trust HMR.
-2. Reload ONCE.
-3. Assert via `querySelector` + DOM check, not a screenshot.
-4. Still wrong? → read the runtime log before touching the code again (esbuild errors surface there, silent in the console).
-
----
-_Wiring: `.ikiro/skills/` is auto-discovered only once symlinked — `ln -s ../.ikiro/skills .claude/skills`._
+- **`thread/create` hanging with the request `pending` ⇒ a buffer-bundle esbuild error**, not a network fault. Runtime log, not console.
+- **HMR scope**: app layer hot-reloads; mode bundles and buffer views do not. A view change with no restart shows the old bundle.
+- **Scoped `> *` styles do not cross a child component's root** — the pointer-events trap. A style that "isn't applying" across a component boundary is this, not specificity.
+- **Never trigger `alert`/`confirm`** — a modal dialog blocks every subsequent extension command and the session goes dead until beef dismisses it by hand.

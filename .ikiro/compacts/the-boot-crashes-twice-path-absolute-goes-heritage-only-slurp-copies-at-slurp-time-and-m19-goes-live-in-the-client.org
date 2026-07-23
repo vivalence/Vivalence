@@ -1,0 +1,32 @@
+#+TITLE: m19 live-validation — boot crashes twice, each crash names a typology law; the finalizer parallelization ships a slurp-timing regression only the live client could see; m19 goes live. beef: "cool. works"
+#+TOPIC: on disk: =path.js= heritage-only absolute + =tests/path.absolute.test.js= contract net · string-composed FRAUGHT/APPLICATION seams · =stagger= returns finalizers, =resolution.js= wires → finalizes → slurps · probe evidence (bundle 200 + =x-viva-integrity=, traversal 404, view automigration, per-mode stores). Suites: typology 109/0 · paladin 12/0 · kajuit 17/0 · runtime 20/1 (brazilian-pinned, env drift).
+
+* Arc
+
+** crash one — "run the runtime." → ENOTDIR =readdir '/freight/audio'=
+=new Freight(new Path(dirname).branch(nature))= — a branched Path handed to a ctor; ctors re-wrap and DROP THE TRACE. My own recorded law, violated. Eval: rebased =/abs/dir/freight/audio= → re-wrapped =/freight/audio= → string-composed correct. Fix: =new Freight(dirname + nature)= (single-segment survives re-wrap).
+
+** crash two — "something is wrong with path absolute." (beef, verbatim)
+=mkdir '…/daemon_spanish/test-language-spanish.viva.db/…/bundle'= — the mountpoint's absolute ended in the DB FILE. =Signature.absolute= = heritage PLUS the =finn()= heir chain; =libsql.viva.js= branches the db off the shared =mask.mount= → the db becomes the mount's heir → interior reads poisoned. Signal semantics leaking into fs Paths — a directory's path never contains its children. Fix: =Path.absolute= → pure trace-walk root→self; =Signature.absolute= untouched.
+
+** "this might break a thing or two throughout the ssystem." / "be extra testy" (beef, verbatim; also: "work through test scenarios on this. work this into testing for demp purposes in teh future")
+=tests/path.absolute.test.js= computes BOTH derivations explicitly (chain heir-walk vs heritage) — implementation-independent: AGREEMENT set = every live LEAF pattern (scope.branch, libsql db+migrations, cargo repeat-serves, =clone().branch=, toPrimitive) invariant under the flip; DIVERGENCE set = only branched PARENTS, chain gives the poisoned value (the crash, pinned); SCOPE-PROOF = Signature keeps heir-walk (=["/turn","/open"]= from root), Url self-owned, re-wrap trap pinned. One path.test.js pin flipped (array-ctor root reads "/a"; =fin.absolute= carries the chain). Post-flip sweep: typology 109/0 — zero consumers moved.
+
+** the regression — slurp copies at slurp time
+beef: "do." (parallelize) + "you do that?!?!?" (probe it myself). =stagger= returns finalizers; resolution ran them AFTER the mode loop — but EMITTER/HARNESSED mount =/emit=+=/harness= IN finalizers, and =daemonBranch.slurp(mode.aperture)= copies trajectory entries AT SLURP TIME → late branches invisible → client 404s on aprende's launchers. Scenario suites blind (they hand-wire finalize-then-slurp). Fix: wire+collect → =Promise.all(finalizers)= → THEN slurp. Live proof on beef's watcher: =/emit/deck|nyan|riddle= + =/metadata/harness= 404 → 401. Probe before that: headless boot ALIVE, view automigration, per-mode stores both daemons, bundle GET 200 + =x-viva-integrity= + traversal/bad-name 404. Client: aprende RENDERS through the full bundle path, =$view= cast riding the subscription. beef: "cool. works".
+
+* Lessons
+
+- *Two path laws, test-pinned:* ctor re-wrap drops the trace (compose strings across ctor boundaries) · =Path.absolute= heritage-only (branching never grows a parent; Signature keeps heir-walk).
+- *slurp copies trajectory entries at slurp time* — finalizer-mounted branches must precede every consumer slurp. Load-bearing for harness convergence.
+- *Reordering a lifecycle = audit everything downstream of the old order.* Green suites + safe finalizers; the casualty was the slurp that used to run after them. Only live validation could see it.
+- *"be extra testy" = implementation-independent double derivation* — compute both semantics in the test; agreement/divergence sets turn a core flip into a bounded proof.
+- *Probe your own patch live* — the client round caught in minutes what four green suites couldn't.
+
+* Open / pending (beef gates)
+
+1. Reader kernel registration → TRUE step 6: dock chat → =view_render= mid-stream → iterate (everything beneath is aprende-proven).
+2. aprende quartet TOOLED revival check (dock chat).
+3. Pre-existing reds: stripwire (stale snapshots, no =-brazilian= captures) · brazilian-pinned live tests vs spanish+playground variant — wants a SNAPSHOT_HOT session.
+4. AGENTIC cross-mode timing (same copy-at-slurp law; slug-only harvest aligned to beef's WIP test) — parked.
+5. Client console noise untouched: vite import-map warning · %sveltekit.body% advice · stale shells probing brazilian/chaosmonkey.

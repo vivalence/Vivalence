@@ -1,12 +1,17 @@
 ---
 const { code = "" } = Astro.props
 ---
-<div class="editor" data-editor>
-  <div class="editor-bar">
-    <span class="editor-mode">VIM</span>
-    <span class="editor-hint">codemirror 6 · esc for normal mode</span>
+<div class="panel editor" data-editor>
+  <div class="panel-head">
+    <span class="pname">playground</span>
+    <span class="channel source">editor</span>
   </div>
   <textarea data-editor-source hidden set:text={code}></textarea>
+  <div class="editor-bar">
+    <span class="vim">VIM</span>
+    <span>codemirror 6 · esc for normal mode</span>
+    <span class="mode">— NORMAL —</span>
+  </div>
 </div>
 
 <script>
@@ -16,9 +21,9 @@ const { code = "" } = Astro.props
   import { vim } from "@replit/codemirror-vim"
 
   const theme = EditorView.theme({
-    "&": { backgroundColor: "var(--code)", color: "var(--ink)", fontSize: "0.85rem" },
-    ".cm-content": { fontFamily: "ui-monospace, 'SF Mono', monospace", padding: "0.6rem 0" },
-    ".cm-gutters": { backgroundColor: "transparent", border: "none", color: "var(--muted)" },
+    "&": { backgroundColor: "var(--code-bg)", color: "var(--ink)", fontSize: "0.855rem" },
+    ".cm-content": { fontFamily: "var(--mono)", padding: "0.6rem 0" },
+    ".cm-gutters": { backgroundColor: "transparent", border: "none", color: "var(--faint)" },
     ".cm-activeLineGutter": { backgroundColor: "transparent" },
     ".cm-activeLine": { backgroundColor: "color-mix(in srgb, var(--accent) 7%, transparent)" },
     "&.cm-focused": { outline: "none" },
@@ -30,10 +35,11 @@ const { code = "" } = Astro.props
     const source = host.querySelector("[data-editor-source]")
     if (!source) continue
     const doc = source.value
+    const bar = host.querySelector(".editor-bar")
     source.remove()
-    new EditorView({
+    const view = new EditorView({
       state: EditorState.create({ doc, extensions: [vim(), basicSetup, javascript(), theme] }),
-      parent: host,
     })
+    host.insertBefore(view.dom, bar)
   }
 </script>

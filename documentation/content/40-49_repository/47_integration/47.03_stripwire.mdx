@@ -2,11 +2,11 @@
 title: Stripwire
 jdex: "47.03"
 ---
-import Source from "../../../../src/components/Source.astro"
-import Example from "../../../../src/components/Example.astro"
-import Trace from "../../../../src/components/Trace.astro"
-import Tabs from "../../../../src/components/Tabs.astro"
-import Editor from "../../../../src/components/Editor.astro"
+import Source from "../../../src/components/Source.astro"
+import Example from "../../../src/components/Example.astro"
+import Trace from "../../../src/components/Trace.astro"
+import Tabs from "../../../src/components/Tabs.astro"
+import Editor from "../../../src/components/Editor.astro"
 
 # 47.03 · Stripwire
 
@@ -14,7 +14,7 @@ import Editor from "../../../../src/components/Editor.astro"
 
 ## purpose
 
-A mode trait declares ONE `Vector`. A `Vector` is a *declaratively dispatched monadic constructor* — a free monad in effect. Its methods `.open(sig, fn)` / `.use(mw)` / `.branch` / `.slurp` are the monadic COMBINATORS (each `Vector → Vector`): they DECLARE effects + middleware against signature paths (dispatch = matching a Signal path through the trie). The Vector they build is INERT — a composable ctx-threading description (`use` chains middleware around the terminal effect, `next()` threads one `ctx`) that does NOTHING until an INTERPRETER folds it (a `shape.*` compiler or a `steer` strategy). *Constructor* names the noun, *combinator* names the methods, *interpreter* names `shape.*`/`steer`. That inertness — one structure, many interpreters — is exactly why the same Vector can be folded two ways.
+A mode trait declares ONE `Vector`. A `Vector` is a *declaratively dispatched monadic composer* — a free monad in effect. Its methods `.open(sig, fn)` / `.use(mw)` / `.branch` / `.slurp` are the monadic COMBINATORS (each `Vector → Vector`): they DECLARE effects + middleware against signature paths (dispatch = matching a Signal path through the trie). The Vector they build is INERT — a composable ctx-threading description (`use` chains middleware around the terminal effect, `next()` threads one `ctx`) that does NOTHING until an INTERPRETER folds it (a `shape.*` compiler or a `steer` controller). *Composer* names the noun, *combinator* names the methods, *interpreter* names `shape.*`/`steer`. That inertness — one structure, many interpreters — is exactly why the same Vector can be folded two ways.
 
 The trait's Vector (`mode.module.emitter`, `mode.module.harness`) is folded TWO ways so the same call spelling works in two places:
 

@@ -1,0 +1,56 @@
+---
+title: Trait Catalog
+jdex: "34.02"
+---
+
+# 34.02 · Trait Catalog
+
+*every mode trait by its nature: what kind of capability it is, and the primitive it binds. the contract and the Vector folds are [[34.01_modes-and-traits]].*
+
+The complete working set across the registry is ten. Each is a different *kind* of capability.
+
+## APPLICATION — the mode has a face
+
+Exports an `App` (a Svelte view mount + a `v.buffer` payload mask + a bundle). The installer bundles the view, opens `/buffered` (the client fetches the bundle URL + mask there), and grants `mode.app.buffer({ data, literals, symbols })` — which mints a `Buffer` entity, fills `data` through the mask, and attaches literals/symbols by identifier. Buffers are the unit the client renders; the client lists exactly the modes that implement `APPLICATION` (or `CONVERSATIONAL`). [[36.01_clients]].
+
+## HARNESSED — the mode can think
+
+Exports a `harness` Vector. The installer binds it to the daemon's `Cortex` and, per call, builds a `Hallucination`: it compiles system context + turns + tools into one request and exposes four *avenues* — `dialogue · object · speech · verbatim` — each in `render` and `stream`. The cortex resolves each avenue to a *faculty* by nearest-neighbour in a four-axis **tune-space** `[intelligence, reasoning, speed, thrift]` (named tiers: `frugal, balanced, capable, unleashed, eager`). Missing faculties are *derived* — ask for structured `object` with only a chat model present and the cortex dresses `dialogue` as `object` by forcing a `respond` tool. Tool calls loop up to `rounds` (default 10). The `/dialogue` branch additionally chains and persists `Turn`s per thread (streaming included). Hard dependency: a daemon with no cortex (no `MONK` hallucinator service) throws on install. An LLM-agnostic cognition socket, not a hardcoded model. [[47.02_hallucination-triad]].
+
+## EMITTER — the mode produces buffers
+
+Exports an `emitter` Vector. The installer wraps every effect with input-casting, thread resolution, a `Blacklist`, and a fresh `Pool`. An effect doesn't return buffers — it *pours* them into `ctx.pool` (routinely other modes' buffers: `ctx.daemon.modes.playground.card.buffer(...)`), and the drained pool yields a condition: `NOMINAL` (buffers), `EXHAUSTED` (empty), or `ERROR`. Empty-means-exhausted is load-bearing: a continuous thread deals until the emitter runs dry, then stops itself with no sentinel. `NOMINAL` buffers are threaded in order (`buffer.index = thread.counter++`). The `Pool` is a lazy tree of buffers/promises/sub-pools, so an effect can compose sub-emissions without awaiting them.
+
+## EXPOSED — the mode is callable
+
+Exports (or is given) an `aperture`; the installer sets `mode.call = shape.proxy(aperture)`. The same declaration also serves over HTTP and as a strip/wire client — EXPOSED is what turns "has routes" into "is a first-class call surface." The runtime warns if a module ships an aperture *without* EXPOSED (dead routes).
+
+## TOOLED — the mode lends tools to cognition
+
+Exports a `tools` Vector, context-bound and mounted at `/tool`; these are the callable tools a `HARNESSED` hallucination can invoke in its round loop.
+
+## DATASET — the mode brings data
+
+Exports a declarative `dataset` (not a Vector): arrays of symbols and literals with slugs, per-trait payloads, and cross-references by slug. Install is a batched upsert (symbols, then literals) followed by m:n linking both directions. Idempotent — skips if `installed`. The entity model it populates is [[35.01_symbols-and-literals]].
+
+## INTENTED — the mode seeds intents
+
+Ensures `Intent` entities from `dataset.intent`. Intents matter because a `Thread` inherits its opening intent's traits — so an INTENTED mode ships the `AIMED / MASKED / QUEUEING` configuration that later drives the client's pull loop with zero imperative wiring. The loop itself is in [[35.01_symbols-and-literals]].
+
+## FRAUGHT — the mode carries cargo
+
+Exports a `Freight`; the installer indexes a static asset directory into a MIME catalog and serves it at `/freight` (and daemon-wide `/cargo`, with slug-collision warnings). Topographies use it to ship audio alongside their literals.
+
+## CONVERSATIONAL — marker
+
+No primitive; it tells the client to surface the mode as a chat over the `HARNESSED` `/dialogue` avenue. (The thread/entity trait of the same name and its widgets are currently parked in `.bak` — this is a mode-listing affordance today.)
+
+## STANDALONE — marker
+
+The mode's buffers may be created and rendered directly, without going through an emitter — needed by hub/persona modes whose buffer carries no payload.
+
+## deprecated & niche
+
+`TOPOGRAPHICAL` / `TOPOLOGICAL` target reads against stored data; `BUFFERED`, `SELFEVIDENT`, `CHAOSMONKEY` are deprecated. Note the pitch's "`buffered → renders views`" is really `APPLICATION`; `BUFFERED` the trait is dead.
+
+Read next: [[34.03_a-whole-mode]] · [[34.01_modes-and-traits]].

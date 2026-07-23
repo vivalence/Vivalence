@@ -1,34 +1,64 @@
 ---
 import { getCollection } from "astro:content"
 import Layout from "../layouts/Layout.astro"
+import { AREAS, CATEGORIES, areaKey, areaNote, decadeOf, categoryName, isReserved } from "../lib/jdex.js"
 
 const collection = await getCollection("docs")
-const entries = collection
+const live = collection
   .map((entry) => ({ slug: entry.id, jdex: entry.data.jdex, title: entry.data.title }))
   .filter((entry) => entry.jdex)
-  .sort((left, right) => left.jdex.localeCompare(right.jdex))
 
-const areas = {}
-for (const entry of entries) {
+const itemsByCategory = {}
+for (const entry of live) {
   const category = Number(entry.jdex.split(".")[0])
-  const area = `${Math.floor(category / 10) * 10}–${Math.floor(category / 10) * 10 + 9}`
-  areas[area] ??= {}
-  areas[area][category] ??= []
-  areas[area][category].push(entry)
+  ;(itemsByCategory[category] ??= []).push(entry)
 }
+for (const list of Object.values(itemsByCategory)) list.sort((a, b) => a.jdex.localeCompare(b.jdex))
+
+const decades = Object.keys(AREAS).map(Number).sort((a, b) => a - b)
+const categoriesIn = (decade) =>
+  Object.keys(CATEGORIES).map(Number).filter((c) => decadeOf(c) === decade).sort((a, b) => a - b)
 ---
-<Layout title="jdex">
-  <h1>jdex</h1>
-  {Object.entries(areas).map(([area, categories]) => (
-    <section>
-      <h2>{area}</h2>
-      {Object.entries(categories).map(([category, items]) => (
-        <ul>
-          {items.map((item) => (
-            <li><a href={`/${item.slug}`}>{item.jdex} · {item.title}</a></li>
-          ))}
-        </ul>
+<Layout title="JDex" variant="jdex">
+  <div class="jdex">
+    <div class="jdex-hero">
+      <h1>jdex — the index of everything</h1>
+      <p>
+        The complete Johnny-Decimal map. Every area, every category, every item — including what is
+        declared but not yet written. The numbering is the identity.
+      </p>
+      <div class="jdex-legend">
+        <span><i style="background:var(--accent)"></i> live page</span>
+        <span><i style="background:var(--faint)"></i> planned</span>
+        <span><i style="border:1px dashed var(--faint);background:transparent"></i> reserved area</span>
+      </div>
+    </div>
+    <div class="jdex-list">
+      {decades.map((decade) => (
+        <div class:list={["jdex-area", { reserved: isReserved(decade) }]}>
+          <div class="ja-head">
+            <div class="ja-key">{areaKey(decade)}</div>
+            <div class="ja-name">{AREAS[decade].title.toLowerCase()}</div>
+            <div class="ja-note">{isReserved(decade) ? "reserved." : areaNote(decade)}</div>
+          </div>
+          {!isReserved(decade) && (
+            <div class="ja-cats">
+              {categoriesIn(decade).map((category) => (
+                <div class="ja-cat">
+                  <div class="jc-head"><span>{category}</span><span>{categoryName(category)}</span></div>
+                  {(itemsByCategory[category] ?? []).length ? (
+                    itemsByCategory[category].map((item) => (
+                      <a class="jd-item" href={`/${item.slug}`}><span class="jn">{item.jdex}</span><span class="jt">{item.title}</span></a>
+                    ))
+                  ) : (
+                    <div class="jd-item planned"><span class="jn">{category}.—</span><span class="jt">planned</span></div>
+                  )}
+                </div>
+              ))}
+            </div>
+          )}
+        </div>
       ))}
-    </section>
-  ))}
+    </div>
+  </div>
 </Layout>

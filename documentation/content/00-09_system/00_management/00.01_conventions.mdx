@@ -1,0 +1,38 @@
+---
+title: How We Number
+jdex: "00.01"
+summary: The Johnny-Decimal discipline these docs follow.
+---
+
+# 00.01 · How We Number
+
+*these docs are Johnny-Decimal. the point isn't the folders — it's that every thing has exactly one number, and you resolve by number, not by path.*
+
+## the three levels, and no more
+
+- **Area** — a decade, `10–19`. A broad domain. Ten at most (`00–09` … `90–99`).
+- **Category** — a number in that area, `34`. One specific topic. Ten per area; `x0` is always *management* (the meta for that area).
+- **Item** — a decimal, `34.01`. One page. Up to 99 per category.
+
+Nothing nests deeper than area → category → item. A file lives at `AREA_name/CATEGORY_name/AREA.ITEM_name.mdx`, e.g. `30-39_architecture/34_modes/34.01_modes-and-traits.mdx`. There are no sub-sub-folders; the decimal is the leaf.
+
+## the rules that matter
+
+- **One number, one home.** A topic gets a single number and keeps it. If you're tempted to file something in two places, the structure is wrong, not the thing.
+- **Numbers are stable.** The slug is the filename, so the wikilink and the URL are the number. Renaming a *title* is free; changing a *number* breaks links — don't.
+- **The index is the source of truth.** [`src/lib/jdex.js`](/jdex) declares every area and category, including ones with no page yet (shown as *planned*). The tree and breadcrumbs read from it.
+- **`x0` is management.** Each area's `x0` category holds its own jdex/inbox/decisions.
+
+## authoring a page
+
+Front-matter is two required fields and one optional:
+
+```yaml
+---
+title: Modes & Traits — Overview
+jdex: "34.01"
+summary: optional one-liner
+---
+```
+
+Pick the category from [the jdex](/jdex); take the next free item number; name the file `NN.NN_kebab-title.mdx`. Cross-reference by number with `[[34.02_trait-catalog]]`.

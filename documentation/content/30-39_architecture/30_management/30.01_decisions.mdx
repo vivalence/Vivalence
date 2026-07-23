@@ -1,0 +1,23 @@
+---
+title: Architecture Doc Decisions
+jdex: "30.01"
+summary: Open decisions and known drift in the architecture docs.
+---
+
+# 30.01 · Architecture Doc Decisions
+
+*a running log for the 30–39 area — resolved calls and open questions. keep it honest.*
+
+## resolved
+
+- **Category layout.** `31 map · 32 runtime · 33 daemon · 34 modes · 35 data · 36 clients`, with `37 registry` and `38 services` reserved. `30` is management.
+- **Modes is a category, not a page.** `34` holds `34.01` overview, `34.02` trait-catalog, `34.03` a-whole-mode — each independently addressable.
+- **Source of truth is the code.** Trait names, lifecycle stages, and the tune-space are taken from `subsystems/typology` and `systems/runtime`, not from older prose.
+- **Kernel vocabulary.** `domain · topology · topography`, matching registry and code. `ontology · corpus` retired as kernel-type names; "the Ontology" survives only as the name of the symbolic entity system ([[35.01_symbols-and-literals]]).
+- **Pricing / license phrasing.** Flat per person per month at ~€12/$13/£10/¥2,000/90元 with a 10/12 discount on yearly; logarithmic-per-active-users is dead. [[13.01_license]] states it; README agrees.
+- **Register.** The README's formulations are canon: daemons are *void knowledge and execution spaces*, modes *carry payloads* and *can be, do, or look like anything that's programmatically possible*, Vectors are *declaratively dispatched monadic composers* with a built-in library of *compilers* (`shape.*`) and *controllers* (`steer.*`).
+
+## open — needs an author's call
+
+- **Stale tour paths.** The `48_tour` stops point at `registry/kernels/@vivalence/corpus/…`, `wafers`, `domain/learning` — none of which exist after the rename to `registry/education/…`, `variant`, `domain/language-learning`. The tour 404s until repointed.
+- **CONVERSATIONAL.** Documented as a client mode-listing marker; the thread-level trait and its widgets are parked in `.bak`. Confirm intent before promoting it in the data docs.

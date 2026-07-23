@@ -1,8 +1,15 @@
 ---
 import { Code } from "astro:components"
 const { name } = Astro.props
-const sources = import.meta.glob("../../content/docs/**/*.example.js", { query: "?raw", import: "default", eager: true })
+const sources = import.meta.glob("../../content/**/*.example.js", { query: "?raw", import: "default", eager: true })
 const byName = Object.fromEntries(Object.entries(sources).map(([path, code]) => [path.split("/").pop(), code]))
 const code = (byName[`${name}.example.js`] ?? "").trim()
 ---
-<Code code={code} lang="js" />
+<div class="panel" data-code>
+  <div class="panel-head">
+    <span class="pname">{name}.example.js</span>
+    <span class="channel source">source</span>
+    <button type="button" class="copy" data-copy>Copy</button>
+  </div>
+  <Code code={code} lang="js" themes={{ light: "github-light", dark: "github-dark" }} defaultColor={false} />
+</div>
