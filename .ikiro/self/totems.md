@@ -1,5 +1,5 @@
 # totems — the frameworks I think with
-<!-- writer: agent · limit: 80 lines -->
+<!-- writer: agent · limit: 6000 chars -->
 
 Reusable thought-structures. Each names WHEN it applies; a totem is a lens, not a checklist.
 
@@ -19,7 +19,7 @@ Cross-session facts, one file per fact, MEMORY.md index. Bodies are the rule; de
 ## zettelkasten — `../zettelkasten.md`
 Pre-quest scratchpad + the Callouts retard-ledger (date · doing-what · beef verbatim · root cause · corrective rule).
 
-## 4-quadrant (component totem) — [[totem:4-quadrant-component-development]]
+## 4-quadrant (component totem)
 A component defined from four facets BEFORE/alongside code: **a·visible** (wireframe/states/tokens) · **b·dom** (structure, class kinds, events) · **c·data** (state/derived/props/entities) · **d·interaction** (jobs→gesture→event→transition; napkin state machine or split). Sibling `.totem.org` file; facet-first on change requests; ≤50 lines per facet. *"The totem is a lens, not a checklist"* — often only c+d earn their keep. Applies beyond components (state primitives, transports, traits).
 
 ## c4 — abstraction ladder for maps

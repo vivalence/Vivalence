@@ -46,6 +46,7 @@ COPY deno.jsonc import_map.json ./
 COPY systems/ ./systems/
 COPY subsystems/ ./subsystems/
 COPY registry/ ./registry/
+COPY documentation/deno.jsonc ./documentation/deno.jsonc
 
 RUN deno install --allow-scripts=npm:sqlite3,npm:svelte-preprocess
 

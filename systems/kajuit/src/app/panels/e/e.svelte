@@ -3,10 +3,10 @@
   import { chain } from "@vivalence/kajuit";
   import { TERMINALS } from "$client";
   import { Section, Chip, Pip } from "@vivalence/drapes";
-  import Labeled from "@vivalence/kajuit/skins/trait/widgets/Labeled.svelte";
-  import Masked from "@vivalence/kajuit/skins/trait/widgets/Masked.svelte";
-  import Aimed from "@vivalence/kajuit/skins/trait/widgets/Aimed.svelte";
-  import Queueing from "@vivalence/kajuit/skins/trait/widgets/Queueing.svelte";
+  import Labeled from "./widgets/Labeled.svelte";
+  import Masked from "./widgets/Masked.svelte";
+  import Aimed from "./widgets/Aimed.svelte";
+  import Queueing from "./widgets/Queueing.svelte";
 
   const terminals = getContext(TERMINALS);
 
@@ -34,7 +34,7 @@
   }
 
   function available(name) {
-    if (name === "AIMED") return Object.keys($mode?.emitter?.branches ?? {}).length > 0;
+    if (name === "AIMED") return Object.keys($mode?.metadata?.emitter?.branches ?? {}).length > 0;
     if (name === "QUEUEING") return $threadTraits?.includes("AIMED") ?? false;
     if (name === "MASKED") return active("MASKED");
     return true;

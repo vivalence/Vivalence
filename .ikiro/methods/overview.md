@@ -16,7 +16,7 @@ Sessions resume cold. Without a snapshot, every resumption costs a re-walk of `.
 
 **Traits + ledger profiles** — registry from root claude.md `## traits`. Note any new entries since last overview.
 
-**Totems** — files under `.ikiro/totems/`.
+**Totems** — [[totems]] in `self/`; the `totems/` directory was cut (its one 4-quadrant file folded away).
 
 **Skills** — files / dirs under `.ikiro/skills/`. Flag any that aren't wired (symlink missing in `.claude/skills/`).
 

@@ -96,8 +96,9 @@ export function Hallucination(cortex, configuration) {
   };
 
   hallucination.context = {
-    system: (text) => {
-      context.set("system", text);
+    system: (...supplied) => {
+      const sections = supplied.flat(Infinity).filter(Boolean).map(string.stringify);
+      context.set("system", sections.join("\n\n"));
       return hallucination;
     },
     extend: (entries = {}) => {

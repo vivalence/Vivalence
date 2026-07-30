@@ -1,10 +1,10 @@
 ---
 paths: ["subsystems/typology/schematics/**"]
 ---
-<!-- writer: agent · derived-from: schematics/** corpus read + v-usage scout (276×v.string…) + 21-item history harvest · verified: session a3259f02 · limit: 55 lines -->
+<!-- writer: agent · derived-from: schematics/** corpus read + v-usage scout (276×v.string…) + 21-item history harvest · verified: 20%-cut loop, re-stamp pass (founding-law quest ref de-dangled) · limit: 55 lines -->
 # codemap: typology/schematics — the typebox wrapper + primitives (HOLY — ask before touching)
 
-`v` is the SOLE schematics interface: a fluent Proxy over typebox@1.3 with identical JSON-Schema output, better ergonomics. Founding law (`quests/typology_v-schema-builder`): *same engine, same output, nicer surface*. Every optimization is measured against that — never new output, never a new engine.
+`v` is the SOLE schematics interface: a fluent Proxy over typebox@1.3 with identical JSON-Schema output, better ergonomics. Founding law — *same engine, same output, nicer surface* (from the `typology_v-schema-builder` quest, cut in the 20% pass; the law outlived its quest and is restated here in full so nothing depends on the dead file). Every optimization is measured against that — never new output, never a new engine.
 
 ## v.js — three parts (`subsystems/typology/schematics/v.js`)
 - **`enhance(schema)` Proxy** — lends chainable methods to any typebox schema WITHOUT mutating it. Derived schemas via `derive(target, patch) = Object.assign(defineProperties({}, getOwnPropertyDescriptors(target)), patch)`. **FOOTGUN (never refactor to spread):** typebox tags schemas with a non-enumerable `~kind`; `{...schema}` drops it → `Value.Convert` silently no-ops. Trapped: `desc/descr` · `optional` · `default` · `$id` · runtime ops `check/create/clean/errors/compile/fill/cast`. Everything else falls through `Reflect.get`.

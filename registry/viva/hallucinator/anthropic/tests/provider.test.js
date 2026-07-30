@@ -8,7 +8,7 @@ import {
   translateStreamEvent,
 } from "../provider/translate.js";
 
-const opus = { id: "claude-opus-4-6", tune: [0.9, 1.0, 0.3], thinking: true };
+const opus = { id: "claude-opus-5", tune: [0.9, 1.0, 0.3], thinking: true };
 const haiku = { id: "claude-haiku-4-5", tune: [0.1, 0.3, 1.0], thinking: false };
 
 specimen.describe("anthropic provider", () => {
@@ -160,16 +160,26 @@ specimen.describe("anthropic provider", () => {
       specimen.expect(buildParams(haiku, request(), true).stream).toBe(true);
     });
 
-    specimen.it("a thinking model without tool_choice enables thinking + bumps max_tokens to 32000", () => {
+    specimen.it("a thinking model runs adaptive + bumps max_tokens under the SDK's non-stream ceiling", () => {
       const params = buildParams(opus, request());
-      specimen.expect(params.thinking).toEqual({ type: "enabled", budget_tokens: 16000 });
-      specimen.expect(params.max_tokens).toBe(32000);
+      specimen.expect(params.thinking).toEqual({ type: "adaptive", display: "summarized" });
+      specimen.expect(params.max_tokens).toBe(16000);
+      specimen.expect(params.output_config).toBe(undefined);
     });
 
-    specimen.it("thinking is suppressed when tool_choice is set (forced tools)", () => {
+    specimen.it("a streaming thinking model gets the full output budget", () => {
+      specimen.expect(buildParams(opus, request(), true).max_tokens).toBe(64000);
+    });
+
+    specimen.it("thinking survives a forced tool_choice", () => {
       const params = buildParams(opus, { ...request(), settings: { tool_choice: { type: "any" } } });
-      specimen.expect(params.thinking).toBe(undefined);
+      specimen.expect(params.thinking).toEqual({ type: "adaptive", display: "summarized" });
       specimen.expect(params.tool_choice).toEqual({ type: "any" });
+    });
+
+    specimen.it("settings.effort rides output_config", () => {
+      const params = buildParams(opus, { ...request(), settings: { effort: "xhigh" } });
+      specimen.expect(params.output_config).toEqual({ effort: "xhigh" });
     });
 
     specimen.it("a non-thinking model never adds thinking", () => {
@@ -213,10 +223,10 @@ specimen.describe("anthropic provider", () => {
       }
     });
 
-    specimen.it("only the thinking model exposes thinking channels", async () => {
+    specimen.it("only the thinking models expose thinking channels", async () => {
       const faculties = await provider({ secrets: { key: "fake-key" } });
       const thinking = faculties.filter((faculty) => faculty.channels.out.includes("thinking"));
-      specimen.expect(thinking).toHaveLength(1);
+      specimen.expect(thinking).toHaveLength(2);
     });
   });
 });

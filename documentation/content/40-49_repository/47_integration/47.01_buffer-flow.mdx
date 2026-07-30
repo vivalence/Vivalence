@@ -33,13 +33,15 @@ Anchor: `systems/runtime/daemon/traits/emitter.js`, `subsystems/typology/prototy
   if (ctx.output != null) ctx.pool.add(ctx.output);
   const result = await ctx.pool.drain();      // → Yield.NOMINAL(buffers) | EXHAUSTED
   if (ctx.thread && result.condition === "NOMINAL")
-    for (const buffer of result.buffers) {
+    for (const buffer of result.entities.buffer) {
       buffer.thread = ctx.thread;
       buffer.index  = ctx.thread.counter++;
     }
   await daemon.entities.em.flush();           // persist BufferEntity rows
   ctx.output = result;
   ```
+- The emission a caller receives is `{kind: "emission", condition, entities: {buffer: [...]}}` —
+  there is **no top-level `buffers`** key. Client pulls read `emission.entities.buffer`.
 - `Pool` = async emission monad: `add` (lazy → `items`) and `drain` (eager → `buffers`)
   both dispatch ONE `classify` patternmap (empty/promise/pool/nominal/spent/array/buffer),
   so the shape truth-table can't drift between the two paths. `resolve` flattens

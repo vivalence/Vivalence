@@ -106,7 +106,7 @@ Every widget carries a *head* (trait name + hint) so it self-identifies.
 | QUEUEING | depth slider | =trait.QUEUEING.depth= |
 
 ** Masked — the two complexities (both solved & verified)
-1. *reactive schema switch* — =maskSchema(mode, traits, trait)= in =skins/form/schema.js=: aimed → emitter leaf =input= at =AIMED.mount=; else → view mask's =data=. Picking the aimed mount live-switches the form (view =recall= → emitter =limit/recall/where=).
+1. *reactive schema switch* — =maskSchema(mode, traits, trait)= in =app/panels/e/widgets/form/schema.js=: aimed → emitter leaf =input= at =AIMED.mount=; else → view mask's =data=. Picking the aimed mount live-switches the form (view =recall= → emitter =limit/recall/where=).
 2. *reactive form from schema* — =FormFromSchema.svelte= + =fields()= (handles intersect/allOf, =anyOf=→enum, integer/number/boolean/string; digs =properties.data= for the view mask).
 
 * Factory matrix — F §1

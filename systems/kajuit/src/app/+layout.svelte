@@ -13,7 +13,7 @@
   import { stores } from "@vivalence/kajuit";
   import * as terminalEffects from "./terminals.js";
 
-  import Login from "@vivalence/kajuit/skins/lighthouse/Login.svelte";
+  import Login from "./widgets/Login.svelte";
 
   let { children } = $props();
 
@@ -40,6 +40,12 @@
 
   if (typeof window !== "undefined") {
     window.__viv = { lighthouse, terminals, bridge /*, box */ };
+    const chased = Connection.prototype.subscribe;
+    Connection.prototype.subscribe = function (endpoint, callback, options) {
+      const pathname = this.url.branch(endpoint).pathname;
+      if (pathname.includes("/entities/mode/")) console.warn("[chase] mode subscriber", pathname, new Error().stack);
+      return chased.call(this, endpoint, callback, options);
+    };
   }
 
   onMount(() => {

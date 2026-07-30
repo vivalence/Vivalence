@@ -55,6 +55,55 @@ export const services = [
 
 export const daemons = [
   {
+    manifest: { type: "daemon", slug: "italian", version: "0.0.1" },
+    docs: { name: "", valence: "", icon: { emoji: "" } },
+    statics: { language: { known: "english", learning: "italian" } },
+    kernel: [
+      "@education/domain/language-learning",
+      "@education/topology/word",
+      "@education/topology/sentence",
+      "@education/topology/conjugation",
+      "@education/topography/english-to-italian",
+
+      "@education/homepage/aprende",
+      "@education/dashboard/dataspace",
+
+      "@education/tactic/impara",
+
+      "@education/game/flashcard",
+      "@education/game/write",
+      "@education/game/nyan",
+      "@education/game/riddler",
+      "@education/game/exhibit",
+      "@education/game/judge",
+      "@education/game/listen",
+      "@education/game/match",
+      "@education/game/pick",
+      "@education/game/shadow",
+      "@education/game/paradigm",
+      "@education/game/conjugation",
+    ],
+    lighthouse: {
+      module: "@viva/lighthouse/multiplayer",
+      statics: {
+        remote: () => new Url(paladin.env.get("PUBLIC_VIVA_LIGHTHOUSE_REMOTE")),
+      },
+    },
+    datamap: {
+      module: "@viva/datamap/libsql",
+      statics: { db: { file: `test-language-italian.viva.db` } },
+    },
+    hallucinators: [
+      {
+        module: "@viva/hallucinator/anthropic",
+        statics: {},
+        secrets: {
+          key: () => paladin.secret.get("SECRET_VIVA_ANTHROPIC_API_KEY"),
+        },
+      },
+    ],
+  },
+  {
     manifest: { type: "daemon", slug: "spanish", version: "0.0.1" },
     docs: { name: "", valence: "", icon: { emoji: "" } },
     statics: { language: { known: "english", learning: "spanish" } },
@@ -84,12 +133,13 @@ export const daemons = [
       "@education/game/pick",
       "@education/game/cloze",
       "@education/game/exhibit",
-
       // "@education/teacher/dewey",
     ],
     lighthouse: {
       module: "@viva/lighthouse/multiplayer",
-      statics: { remote: () => new Url(paladin.env.get("PUBLIC_VIVA_LIGHTHOUSE_REMOTE")) },
+      statics: {
+        remote: () => new Url(paladin.env.get("PUBLIC_VIVA_LIGHTHOUSE_REMOTE")),
+      },
     },
     datamap: {
       module: "@viva/datamap/libsql",
@@ -99,17 +149,23 @@ export const daemons = [
       {
         module: "@viva/hallucinator/anthropic",
         statics: {},
-        secrets: { key: () => paladin.secret.get("SECRET_VIVA_ANTHROPIC_API_KEY") },
+        secrets: {
+          key: () => paladin.secret.get("SECRET_VIVA_ANTHROPIC_API_KEY"),
+        },
       },
       {
         module: "@viva/hallucinator/elevenlabs",
         statics: {},
-        secrets: { key: () => paladin.secret.get("SECRET_VIVA_ELEVENLABS_API_KEY") },
+        secrets: {
+          key: () => paladin.secret.get("SECRET_VIVA_ELEVENLABS_API_KEY"),
+        },
       },
       {
         module: "@viva/hallucinator/deepgram",
         statics: {},
-        secrets: { key: () => paladin.secret.get("SECRET_VIVA_DEEPGRAM_API_KEY") },
+        secrets: {
+          key: () => paladin.secret.get("SECRET_VIVA_DEEPGRAM_API_KEY"),
+        },
       },
     ],
     // consume: {nlp: {module: "@viva/service/nlp-stanza", secrets: { key: () => paladin.secret.get("SECRET_VIVA_SERVICE_NLP_KEY") }, statics: {remote: () => new Url(paladin.env.get("SERVICE_NLP_REMOTE")), language: "es", processors: "tokenize,mwt,pos,lemma,depparse",},},},
@@ -149,7 +205,6 @@ export const daemons = [
       "@education/tactic/clinic",
 
       "@education/dashboard/dataspace",
-
       // "@education/teacher/dewey",
     ],
 
@@ -171,7 +226,9 @@ export const daemons = [
       {
         module: "@viva/hallucinator/anthropic",
         statics: {},
-        secrets: { key: () => paladin.secret.get("SECRET_VIVA_ANTHROPIC_API_KEY") },
+        secrets: {
+          key: () => paladin.secret.get("SECRET_VIVA_ANTHROPIC_API_KEY"),
+        },
       },
       // {module: "@viva/hallucinator/elevenlabs", statics: {}, secrets: { key: () => paladin.secret.get("SECRET_VIVA_ELEVENLABS_API_KEY") },}, {module: "@viva/hallucinator/deepgram", statics: {}, secrets: { key: () => paladin.secret.get("SECRET_VIVA_DEEPGRAM_API_KEY") },},
     ],

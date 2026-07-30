@@ -5,7 +5,7 @@
     "watch": "deno task capture && deno run -A npm:astro dev",
     "stop": "deno run -A npm:astro dev stop",
     "status": "deno run -A npm:astro dev status",
-    "build": "deno run -A npm:astro build",
+    "build": "deno task capture && deno run -A npm:astro build",
     "search": "deno run -A npm:pagefind --site dist",
     "index": "deno task build && deno task search && rm -rf public/pagefind && cp -R dist/pagefind public/pagefind",
     "bundle": "deno task capture && deno run -A npm:astro build && deno run -A npm:pagefind --site dist",

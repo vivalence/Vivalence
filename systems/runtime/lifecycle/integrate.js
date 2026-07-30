@@ -54,19 +54,26 @@ export async function launch(runtimeDie) {
 }
 
 export async function announce(die) {
+  const remote = paladin.variant.lighthouse?.statics?.remote;
+  if (!remote) return;
+
+  const connection = new Connection(remote);
+  const origin = paladin.variant.runtime?.statics?.serve?.origin;
+  const slugs = die.good.daemons.map((daemonDie) => daemonDie.slug);
+
   for (const daemonDie of die.good.daemons) {
-    // console.log(daemonDie.mask);
-    const connection = new Connection(daemonDie.mask.lighthouse.statics.remote).use(
-      async (ctx, next) => {
-        // console.log("request", ctx);
-        await next();
-        // console.log("response", ctx);
-      },
-    );
     await connection.call("/entities/daemon/ensure", {
       data: { slug: daemonDie.slug, url: daemonDie.good.url.absolute },
     });
   }
+
+  if (!origin) return;
+
+  const evicted = await connection.call("/entities/daemon/remove", {
+    where: { url: { $like: `${origin}%` }, slug: { $nin: slugs } },
+  });
+
+  if (evicted?.count) console.log(`[announce] pruned ${evicted.count} stale daemons`, evicted.ids);
 }
 // import paladin from "@vivalence/paladin";
 // import { context, mw } from "@vivalence/vector/aperture";

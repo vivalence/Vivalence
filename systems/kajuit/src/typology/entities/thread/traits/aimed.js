@@ -6,10 +6,11 @@ import { object } from "@vivalence/typology";
 
 // fetch buffers from the AIMED mount. pure over (thread, args); reads the live mount + mask.
 export const pull = async (thread, args = {}) => {
-  const { buffers = [] } = await thread.mode.connection.call(
+  const emission = await thread.mode.connection.call(
     thread.trait.AIMED.mount,
     object.merge({ thread: thread.id }, thread.trait.MASKED ?? {}, args),
   );
+  const buffers = emission?.entities?.buffer ?? [];
   return Promise.all(buffers.map((pojo) => thread.daemon.entities.buffer.merge(pojo)));
 };
 

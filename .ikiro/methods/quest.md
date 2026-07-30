@@ -22,6 +22,8 @@ beef's standing directive (this is not optional): *"Don't forget a thorough asse
 - **Changes** — existing tests that must update, with the reason (snapshot regen, deep-import rewrite, scenario needs a new prerequisite).
 - **Adds** — new tests, tangled if concrete.
 - **Per-milestone green ladder** — a table: `milestone → the green gate that proves it`. No milestone lands without its gate.
+- **Pre-DONE gate (test parity)** — a milestone flips to DONE only with (a) the **named test file** that guards it, and (b) the suite's **pasted output**, not a claim about it. "Suite green" without the counts is an assertion, and an assertion is not a verification (`family: assert-without-showing`); "probably pre-existing" about a failure is a causation claim needing a baseline or an isolated repro (`family: assume-dont-verify`). A milestone with no test file names its COVERAGE GAP explicitly instead of quietly claiming parity.
+- **Coverage delta in the changelog** — each milestone entry records what its suites covered before → after. Without it, "tests green" tracks the tests that existed, not the surface that shipped.
 
 ## Tangle convention (tangleable to resolution)
 
@@ -29,8 +31,7 @@ Paths relative to `.ikiro/quests/` → `../../<repo-path>`.
 
 - **NEW files + fully-replaced small files** → `#+BEGIN_SRC <lang> :tangle ../../<path> :mkdirp yes` with the full final content. The org IS the source of truth that regenerates the file.
 - **Surgical edits in large files** → `#+BEGIN_SRC diff` hunks with the path in prose, applied by hand. Do NOT `:tangle` a partially-reproduced large file — tangling overwrites the whole file, so any untouched line you didn't reproduce is silently dropped.
-- **Full-file tangle of an EXISTING (not new) file → show the live BEFORE too.** beef (verbatim): *"for the files in the tangle, mark where your changes start, end, and what the code looked like before."* A `:tangle` block with the complete new content doesn't tell a cold reader what actually changed. Precede it with a `#+BEGIN_SRC` (no `:tangle`) holding the live file's real current content — re-read it that turn, never reconstructed from memory — then bracket the changed region(s) inside the real tangle with `// === CHANGE START — was: <one-line summary> ===` / `// === CHANGE END ===`. Small enough that a diff IS the clearest form (e.g. a 5-line class) → skip the two-block dance, use a `#+BEGIN_SRC diff` instead and note "full tangle below is this diff applied." Anchor: `m11_packages`'s `vip.js`/`pensieve.js` (before-block + per-method CHANGE brackets — re-reading pensieve.js's live file this way caught the actual default mechanism was `cake.manifest.owner = "@vivalence"` set before wrapping, not the `??=` shape assumed earlier), `manifest.js`/`.gitignore` (small enough for the diff-first form).
-- Anchor: `m4_phase-playground` (tangled the playground modes), `m11_packages` (mixed tangle + diff).
+- **Full-file tangle of an EXISTING (not new) file → show the live BEFORE too.** beef (verbatim): *"for the files in the tangle, mark where your changes start, end, and what the code looked like before."* A `:tangle` block with the complete new content doesn't tell a cold reader what actually changed. Precede it with a `#+BEGIN_SRC` (no `:tangle`) holding the live file's real current content — re-read it that turn, never reconstructed from memory — then bracket the changed region(s) inside the real tangle with `// === CHANGE START — was: <one-line summary> ===` / `// === CHANGE END ===`. Small enough that a diff IS the clearest form (e.g. a 5-line class) → skip the two-block dance, use a `#+BEGIN_SRC diff` instead and note "full tangle below is this diff applied." Anchor (quest since cut): `m11_packages`'s `vip.js`/`pensieve.js` (before-block + per-method CHANGE brackets — re-reading pensieve.js's live file this way caught the actual default mechanism was `cake.manifest.owner = "@vivalence"` set before wrapping, not the `??=` shape assumed earlier), `manifest.js`/`.gitignore` (small enough for the diff-first form).
 
 ## Derive by default, lock to override (identity fields)
 
@@ -42,7 +43,7 @@ scenario — the fixture is both the regression test and the living doc, no
 separate write-up needed. beef (verbatim): *"we dont need every mode to
 export manifest package. we can if we want to lock it. but neednt by
 defualt. one package maybe within a testing scenario to test the lock case
-and functions as a docs/demo."* Anchor: =m11_packages= — =vip.mount= derives
+and functions as a docs/demo."* Anchor (quest since cut): =m11_packages= — =vip.mount= derives
 =package= from the branch name; a module MAY self-declare =manifest.package=
 to lock it. The demonstrating fixture (=lock-demo.viva.js=) itself ended up
 POSTPONED (beef wasn't confident in its settlement) — the PATTERN held, the

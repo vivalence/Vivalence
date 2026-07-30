@@ -1,6 +1,7 @@
 ---
 name: pull-prod-mountpoint
-description: Use when the user wants to snapshot the prod runtime's mountpoint (daemon DB + service state) and run it locally against their testament. Triggers like "pull prod state", "snapshot the prod daemon", "run prod data locally", "grab the prod sqlite".
+description: Snapshot the prod runtime's mountpoint (daemon SQLite + service state) out of its docker named volume and swap it into the local testament without trampling existing snapshots — ~24 shell ops with three foot-guns beef has already hit.
+when_to_use: "pull prod state" · "snapshot the prod daemon" · "run prod data locally" · "grab the prod sqlite" · debugging a prod-only bug against local code.
 ---
 
 # Pull Prod Mountpoint → Local Testament

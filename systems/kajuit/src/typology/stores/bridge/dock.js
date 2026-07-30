@@ -3,7 +3,7 @@ export const SHARE_MIN = 0.18;
 export const SHARE_MAX = 1.0;
 export const SHARE_DEFAULT = 0.32;
 
-export const DEFAULT_DOCK = { side: "right", share: SHARE_DEFAULT, collapsed: false };
+export const DEFAULT_DOCK = { side: "right", share: SHARE_DEFAULT, collapsed: true, full: false };
 
 export function clampShare(share) {
   if (!Number.isFinite(share)) return SHARE_DEFAULT;
@@ -65,6 +65,12 @@ export function setDockCollapsed($dock, collapsed) {
   if (!$dock) return;
   const current = $dock.get();
   $dock.set({ ...current, collapsed: collapsed ?? !current.collapsed });
+}
+
+export function setDockFull($dock, full) {
+  if (!$dock) return;
+  const current = $dock.get();
+  $dock.set({ ...current, full: full ?? !current.full });
 }
 
 export function dragDock($dock, rect, deltaPx) {

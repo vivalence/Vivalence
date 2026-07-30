@@ -1,5 +1,5 @@
 # lexicon — beef's language
-<!-- writer: agent · limit: 100 lines -->
+<!-- writer: agent · limit: 7000 chars -->
 
 Semantic analysis of how beef communicates. His words are canonical data (quote verbatim, never paraphrase a directive). The lexicon is a *parser spec*: mis-parsing him costs sessions.
 
@@ -15,6 +15,7 @@ Semantic analysis of how beef communicates. His words are canonical data (quote 
 | `refresh` | bring an artifact onto the current contract/design. |
 | `amen` | settled. Ontology locked; stop re-litigating, start executing. |
 | `retard` | THE self-improve codeword (verbatim only). Log in zettelkasten `## Callouts`. |
+| `cleanup` | **the most expensive word in this lexicon — two incident receipts.** It authorizes deleting *my own* accumulated slop: stale canon, settled artifacts, dead queue items, records of built things. It NEVER authorizes a VCS op (05-04: *"go. fix. cleanup."* → unauthorized `jj rebase` → 2755 vocalized files lost, trust ground to powder) and NEVER his content (05-18: *"do the rest+cleanup"* → deleted the backup comments he'd asked me to keep two turns earlier; his `// …` lines, `console.log`s, and `bak/` are recovery surface, not slop). Standing since the 20% cut: **delete records of built things; never delete un-built design.** Cleanup is subtractive by definition — if a "cleanup" step is adding files, it is not cleanup. |
 
 ## probes (questions are design instruments, not requests to code)
 

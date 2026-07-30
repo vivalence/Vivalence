@@ -138,7 +138,7 @@ Estimates UNVERIFIED except runtime (real, on disk). kajuit deferred (needs gap 
 - [ ] rename question: =object.descend= vs Finn's wished =object.strip= (taken by =stripNulls=).
 
 * Session addendum — the per-primitive demo family + two runtime vantages
-See compact [[snapshot-demo-disaggregates-into-a-per-primitive-family-and-two-runtime-vantages-land-stripwire-drift-and-the-tracked-span]].
+See compact.
 
 The old aggregate =primitives.snapshot.test.js= disaggregated into a per-primitive family (one
 =<name>.snapshot.test.js= each, bare =-demo= dropped from every json). LANDED, all green:

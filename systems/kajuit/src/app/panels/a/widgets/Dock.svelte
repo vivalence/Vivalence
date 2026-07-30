@@ -14,10 +14,12 @@
   // reactive reads via chain from the STABLE terminals root (survives thread switches).
   const turnsStore = chain(terminals, "$active", "$thread", "$turns");
   const modeStore = chain(terminals, "$active", "$thread", "$mode");
+  const dockStore = chain(terminals, "$active", "$dock");
   const composerStore = bridge.$composer;
 
   let turns = $derived($turnsStore ?? []);
   let harnessed = $derived($modeStore?.implements?.("HARNESSED") ?? false);
+  let full = $derived($dockStore?.full ?? false);
   let composer = $derived($composerStore ?? { enterSends: true, density: "comfortable" });
 
   // in-flight = pure view state. history is thread.$turns (the repo). the user turn is minted
@@ -222,6 +224,17 @@
         <line x1="18" y1="6" x2="6" y2="18" />
       </svg>
     </button>
+    <button class="dock-full" onclick={() => stores.bridge.setDockFull(terminals.active?.$dock)} title={full ? "restore" : "full screen"} aria-label={full ? "restore dock" : "expand dock to full panel"}>
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+        {#if full}
+          <path d="M10 4v6H4" />
+          <path d="M14 20v-6h6" />
+        {:else}
+          <path d="M4 10V4h6" />
+          <path d="M20 14v6h-6" />
+        {/if}
+      </svg>
+    </button>
     <span class="pip" class:live={harnessed}></span>
     <span class="title">{thread?.label?.name ?? "session"}</span>
     <span class="dock-spacer"></span>
@@ -375,7 +388,8 @@
   .title {
     text-transform: lowercase;
   }
-  .dock-close {
+  .dock-close,
+  .dock-full {
     display: inline-flex;
     align-items: center;
     justify-content: center;
@@ -393,7 +407,13 @@
     height: 15px;
     display: block;
   }
-  .dock-close:hover {
+  .dock-full svg {
+    width: 13px;
+    height: 13px;
+    display: block;
+  }
+  .dock-close:hover,
+  .dock-full:hover {
     color: var(--colors-skeleton-0-primary-base);
   }
   .pip {

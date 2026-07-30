@@ -146,6 +146,7 @@ export const Tune = v
 export const Tier = v
   .union([
     v.const("frugal"),
+    v.const("fast"),
     v.const("balanced"),
     v.const("capable"),
     v.const("unleashed"),

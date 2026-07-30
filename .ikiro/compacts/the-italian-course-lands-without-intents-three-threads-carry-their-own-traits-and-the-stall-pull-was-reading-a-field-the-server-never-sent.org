@@ -1,0 +1,188 @@
+#+title: the italian course lands without intents — three threads carry their own traits, and the stall pull was reading a field the server never sent
+#+filetags: :italian:impara:tactic:intent:thread:stall:aimed:emission-contract:multiplayer:live-validation:
+
+* the commission
+
+beef, opening:
+
+#+begin_quote
+i want to start learning italian.
+currently there is only the aprende mode, which is not setup well.
+
+what do i need for my first week of italian.
+4 hours / day.
+say i want 3 buckets. vocabulary, grammar, sentences.
+#+end_quote
+
+then, naming the deliverable:
+
+#+begin_quote
+whats aprende in italian. build that.
+#+end_quote
+
+=impara=. I began cloning aprende — and was stopped:
+
+#+begin_quote
+study the architecture of the system, not the aprende mode. aprende is a shit tech demo
+#+end_quote
+
+#+begin_quote
+study
+#+end_quote
+
+* the correction that set the whole session
+
+I came back with three intents, three planner routes, and a **7-day ramp** — day 1–3 =proficiency.survival=, day 4–7 =cefr.a1=, plus a "recognition-first vs production-first" fork offered as beef's call. He killed it:
+
+#+begin_quote
+dont actually write into these stupid day 1 day 3 recognition production buckets its stupid cmon?!?!? those are heuristics not guides for experience
+#+end_quote
+
+Correct, and the deeper point: the day-ramp *overrides the engine that makes the thing adaptive*. =LiteralRepository.feed= is already due-first-then-novel-by-=rank ASC=; ebisu already paces; game choice is already a per-item function of =memory.is.{virgin,failed,weak,strong}=. A cold-start learner is all-virgin, so recognition leads **on its own** and drifts to production as strengths rise. The fork I offered was fake — the system resolves it.
+
+Second push, after I proposed a per-language tactic:
+
+#+begin_quote
+think again. is this the best you can do?
+#+end_quote
+
+That one landed three separate corrections (below). The lesson: when beef asks "is this the best you can do", the answer is usually that I have not opened the actual running system.
+
+* the architecture (what the study found)
+
+#+begin_example
+Mode ──INTENTED──▶ Intent ──beforeCreate──▶ Thread ──Stall──▶ Buffer
+       dataset.intent[]     copies traits    phase: inert|manual|
+                            merges trait     continuous|escort
+#+end_example
+
+- =Intent= (=subsystems/typology/entities/userspace/Intent.ts=) is persisted per =(user, slug, mode)=. =traits/intented.js= ensures one row per =mode.dataset.intent=.
+- =Thread.beforeCreate= copies =intent.traits= + merges =intent.trait= — and **returns early when =thread.intent= is null**, leaving whatever traits you passed untouched. *That early return is the whole reason the intent-free build is possible.*
+- Three traits are the entire contract: =MASKED= (emitter input) · =AIMED= (mount) · =QUEUEING= (depth). Set =phase: "continuous"= and the Stall feeds itself forever.
+- **A course is not a mode. It is a set of thread configs.** aprende is a tech demo because it hand-rolls =fire(route,input) → mode.emit[route]()= in =Actions.svelte=, reimplementing in UI the pull the Stall does for free.
+
+* the live database was the thing I had not opened
+
+#+begin_example
+literals 6386 · symbols 2553 · modes 11 · users 1
+memories 6 (all UNKNOWN)
+threads  3  →  intent=NULL · traits=[] · phase=manual   (all three)
+intents  0
+#+end_example
+
+Zero intents. The spine had never run on italian. Root cause is in the trait's own TODO — =INTENTED= sets =intentPojo.mode= but **never a user**, while =IntentRepository.unique()= keys on ={slug, mode, user}= and =Intent.user= is required. Nothing lands.
+
+beef:
+
+#+begin_quote
+intents are out of order.
+can we do it without for now/
+#+end_quote
+
+#+begin_quote
+ok. build my italian course without usage of intent
+#+end_quote
+
+* corpus facts (measured, not assumed)
+
+#+begin_example
+5020 word · 1015 sentence · 351 conjugation
+TRANSLATED 6035 · EXEMPLIFIED 5020 · RANKED 5859 · VOCALIZED 1098 · CONJUGATED 351
+ANNOTATED  0/1015 sentences  → cloze is DEAD on italian
+rank        word 0..999999 (24 bad) · conjugation 1..351 clean · sentence 1..510 curated, tail 999999
+#+end_example
+
+I first claimed **2119 inflected forms poison the vocabulary feed**. Wrong, and corrected: only **45** have rank 0/null; the other 2074 interleave at true frequency and *belong* there — è(11), sono(21), ha(24), ho(38) are exactly what a beginner should meet. The fix was not a corpus restructure but one predicate: =rank: {$gt: 0}= rides through =constrain='s ={symbols, ...rest}= destructure untouched.
+
+Audio was dropped from scope mid-session:
+
+#+begin_quote
+ignore vocalizations. thats happening in the background
+#+end_quote
+
+* what landed
+
+=registry/education/modes/tactics/impara/= — =type:"tactic"=, no =dataset.intent= anywhere.
+
+#+begin_example
+course.js               3 bucket configs (traits + trait inline — the intent's job, as data)
+emitter/vocabolario.js  exhibit(new) · judge SLOW/FAST · listen · pick · write · match(6)
+emitter/grammatica.js   exhibit(new verbs) · paradigm per conjugation · conjugation on failed
+emitter/frasi.js        shadow(virgin) · listen(VOCALIZED) · write
+aperture/index.js       /course/open — mints the 3 threads, idempotent by AIMED.mount
+buffer/Impara.svelte    3 bucket cards → click enters that thread
+#+end_example
+
+Buckets are ontology + intrinsic ordering, no calendar:
+
+#+begin_src js
+MASKED: { where: { symbols: ["word"], rank: { $gt: 0 } }, limit: 12 }
+AIMED:  { mount: "/emit/vocabolario" }
+QUEUEING: { depth: 3 }
+phase: "continuous"
+#+end_src
+
+=testament/variant/education.js= — italian kernel gained impara + 8 games. =registry/viva/variant/multiplayer/multiplayer.viva.js= — italian daemon added beside spanish + brazilian (=kernel=20=, anthropic-only after =cut=).
+
+* the bug chrome found
+
+beef:
+
+#+begin_quote
+you have chrome to test
+#+end_quote
+
+=aimed.pull= destructured a field the server does not send:
+
+#+begin_src js
+const { buffers = [] } = await thread.mode.connection.call(...)   // → undefined → []
+// server returns { kind:"emission", condition, entities:{ buffer:[…] } }
+#+end_src
+
+Measured on a real thread: =.buffers= → **0**, =.entities.buffer= → **14**. Every AIMED thread's stall pulled nothing, on every daemon. **That is the mechanism aprende works around.** Blast-bracketed (3 consumers: =terminal.js= stall, =f.svelte=, =Phase.svelte=), baseline 2/2 → fix → 2/2 → suite 17/0.
+
+The test mock returned ={buffers:[…]}= — it *encoded the drift* rather than the server's shape. Corrected the mock, per tests-comply-with-system. =documentation/…/47.01_buffer-flow.mdx= documents =result.buffers= and is the likely source of the drift; left alone.
+
+**My own probe read the same wrong field** and reported "every game emitter returns zero", sending me to debug a working path. Callout logged.
+
+* the view, and why the mode was invisible
+
+#+begin_quote
+how the fuck did you open the mode??!!
+#+end_quote
+
+#+begin_quote
+mode is not showing up for me
+#+end_quote
+
+I had opened it from the JS console, never the UI. The mode was correctly excluded: =d.svelte:169= filters =implements("application") || implements("conversational")=, and a tactic has no =app=. Worse, =selectMode= → =thread.create({mode})= mints a **bare traitless thread** — listing it would have been a trap.
+
+#+begin_quote
+i need a way to access them features.. add a view on top
+#+end_quote
+
+=App("buffer/Impara.svelte")= + =APPLICATION, STANDALONE=. First open 404'd to =/daemon/italian/mode/game/paradigm/course/open= — =buffer.mode= was the right entity but =.connection= resolved to the *previously-active mode's branch*. Calling at Svelte script top level races the connection tree settling. Hardened: resolve the mode from the daemon registry by id, call in =onMount=, retry ×2. Reproduced the failing sequence after; clean.
+
+**aprende has the identical top-level-call shape** (=/assistant/wakeup/board=) — same latent race, untouched.
+
+* doctrine extracted
+
+- **the intent is a template, not a requirement** — =Thread.traits/trait= are columns; =beforeCreate= only fills them when an intent is attached. Any thread can carry its own config.
+- **heuristics are not guides for experience** — if the system computes pacing (ebisu) and ordering (rank), a hand-authored ramp is a downgrade wearing a curriculum costume.
+- **a per-language planner is adapter code** — the reason five-fold-session does not fit italian is its hardcoded 21-symbol =themes= array (6/20 present in italian; clinic 5/10). Derive themes from =symbol.find()= and one tactic serves every corpus. NOT built — see resumption.
+- **open the running system before theorising** — the decisive facts this session (0 intents, the emission contract, the wrong-mode connection) were all invisible from source reading and obvious from one DB query and one browser call.
+
+* state at close
+
+Green: kajuit 17 passed / 80 steps / 0 failed · stall 2/2 · impara fmt+lint clean.
+
+Live-verified in chrome, all three buckets: Vocabolario 14 buffers (exhibit "Nuove parole" → judge =e= SLOW) · Grammatica 4 (exhibit "Verbi nuovi" → paradigm 0/6 "I am") · Frasi 6 (shadow "Perché lo chiedi?" + 2 listen). Card click enters the bucket; thread click resumes it.
+
+* resumption
+
+1. **hardcoded language labels** — =Paradigm.svelte:13= =SLOTS= are portuguese pronouns (=eu/tu·você/ele·ela/nós/vós/eles·elas=) and five views hardcode the string ="Português"= (=Write:102=, =Cloze:98=, =Match:130=, =Pick=, =Conjugation=). Visible in the italian course: the shadow answer placeholder reads =Português…=, the match header reads =ENGLISH → PORTUGUÊS=. The daemon knows (=statics.language.learning=) but =daemon.statics= does not reach the client — plumbing across 6 files. beef's call, un-go'd.
+2. **INTENTED never sets a user** — 0 intent rows on every daemon; the =save as intent= button will hit the same wall.
+3. **tactic themes hardcoded** — derive from =symbol.find()=; unblocks italian AND spanish (whose kernel has every tactic commented out for this reason).
+4. **cloze unmountable on italian** until sentences get ANNOTATED.
+5. **=selectMode= mutates the current thread's mode** when already on that daemon rather than opening a new one (=d.svelte:86=) — why the fresh-tab step is required.
+6. **spanish still declares elevenlabs + deepgram** on multiplayer; italian and brazilian are anthropic-only. Left as-is.

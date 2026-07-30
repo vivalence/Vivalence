@@ -25,6 +25,7 @@
   });
 
   const dockable = $derived($mode?.implements?.("HARNESSED") ?? false);
+  const full = $derived($dock?.full ?? false);
   const geom = $derived(dockable && rect.width > 0 && rect.height > 0 ? stores.bridge.resolve($dock, rect) : null,);
 
   let last = null;
@@ -67,18 +68,21 @@
     </div>
 
     {#if geom && $thread && !$dock?.collapsed}
-      <div
-        class="seam"
-        class:vertical={geom.vertical}
-        onpointerdown={onSeamDown}
-        onpointermove={onSeamMove}
-        onpointerup={onSeamUp}
-        onpointercancel={onSeamUp}>
-      </div>
+      {#if !full}
+        <div
+          class="seam"
+          class:vertical={geom.vertical}
+          onpointerdown={onSeamDown}
+          onpointermove={onSeamMove}
+          onpointerup={onSeamUp}
+          onpointercancel={onSeamUp}>
+        </div>
+      {/if}
       <div
         class="dock-slot"
-        style:width={geom.vertical ? `${geom.size}px` : "100%"}
-        style:height={geom.vertical ? "100%" : `${geom.size}px`}>
+        class:full
+        style:width={full || !geom.vertical ? "100%" : `${geom.size}px`}
+        style:height={full || geom.vertical ? "100%" : `${geom.size}px`}>
         <Dock thread={$thread} />
       </div>
     {/if}
@@ -124,6 +128,11 @@
     min-width: 0;
     min-height: 0;
     overflow: hidden;
+  }
+  .dock-slot.full {
+    position: absolute;
+    inset: 0;
+    z-index: 2;
   }
   .label {
     margin: auto;

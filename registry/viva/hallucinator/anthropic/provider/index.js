@@ -19,10 +19,10 @@ function extractObject(turn, schema) {
 }
 
 const models = {
-  opus: { id: "claude-opus-4-6", tune: [0.9, 1.0, 0.3], context: 1000000, thinking: true },
-  sonnet: { id: "claude-sonnet-4-6", tune: [0.5, 0.7, 0.7], context: 1000000, thinking: false },
+  opus: { id: "claude-opus-5", tune: [0.9, 1.0, 0.3], context: 1000000, thinking: true },
+  sonnet: { id: "claude-sonnet-5", tune: [0.5, 0.7, 0.7], context: 1000000, thinking: true },
   haiku: {
-    id: "claude-haiku-4-5-20251001",
+    id: "claude-haiku-4-5",
     tune: [0.1, 0.3, 1.0],
     context: 200000,
     thinking: false,

@@ -18,7 +18,7 @@ function pin(subject, file) {
   return pojo;
 }
 
-const opus = { id: "claude-opus-4-6", tune: [0.9, 1.0, 0.3], thinking: true };
+const opus = { id: "claude-opus-5", tune: [0.9, 1.0, 0.3], thinking: true };
 const haiku = { id: "claude-haiku-4-5", tune: [0.1, 0.3, 1.0], thinking: false };
 
 const LookupInputSchema = {
@@ -40,9 +40,13 @@ specimen.describe("anthropic translate snapshot — pure outbound/inbound pins, 
       {
         plain: buildParams(haiku, conversation),
         thinkingDefaults: buildParams(opus, conversation),
-        thinkingSuppressedByToolChoice: buildParams(opus, {
+        thinkingUnderToolChoice: buildParams(opus, {
           ...conversation,
           settings: { tool_choice: { type: "any" } },
+        }),
+        thinkingUnderEffort: buildParams(opus, {
+          ...conversation,
+          settings: { effort: "xhigh" },
         }),
         toolCarrying: buildParams(haiku, {
           ...conversation,

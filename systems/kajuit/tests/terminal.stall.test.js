@@ -66,7 +66,11 @@ Deno.test("continuous: the stall pulls via AIMED to keep depth filled", async ()
     connection: {
       call: async () => {
         pulls++;
-        return { buffers: [{ id: "p" + pulls }] };
+        return {
+          kind: "emission",
+          condition: "NOMINAL",
+          entities: { buffer: [{ id: "p" + pulls }] },
+        };
       },
     },
   };

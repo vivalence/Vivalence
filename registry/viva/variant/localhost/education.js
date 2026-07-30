@@ -48,6 +48,15 @@ export const education = {
       secrets: { key: () => paladin.secret.get("SECRET_VIVA_ANTHROPIC_API_KEY") },
     },
     {
+      module: "@viva/hallucinator/openrouter",
+      statics: {
+        models: {
+          fast: { id: "deepseek/deepseek-v4-flash", tune: [0.4, 0.4, 1.0, 1.0], context: 1048576, thinking: false },
+        },
+      },
+      secrets: { key: () => paladin.secret.get("SECRET_VIVA_OPENROUTER_API_KEY") },
+    },
+    {
       module: "@viva/hallucinator/elevenlabs",
       statics: {},
       secrets: { key: () => paladin.secret.get("SECRET_VIVA_ELEVENLABS_API_KEY") },

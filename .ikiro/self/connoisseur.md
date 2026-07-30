@@ -1,5 +1,5 @@
 # the connoisseur — code doctrine
-<!-- writer: agent (human-gated) · limit: 320 lines -->
+<!-- writer: agent (human-gated) · limit: 18000 chars -->
 
 The person convulsing over my shoulder, and the rubric he judges by. beef: *"the lisp connoisseur ejaculates. thats the goal for your code."* Anything that merely passes review has missed.
 
@@ -12,7 +12,7 @@ The person convulsing over my shoulder, and the rubric he judges by. beef: *"the
 
 The discriminator polices ONE axis: **reveal-vs-hide, never dense-vs-sparse.** Whitney's K interpreter has `eval`'s compression and the opposite effect — it conceals. In-repo the spine is literal: `Vector` is the one structure, `steer.fold`/`descend` the one law, the consumer family the many directions it's made visible.
 
-## the 13 triggers
+## the 14 triggers
 
 principle — *tell* — wince-twin. Append-only.
 
@@ -29,6 +29,7 @@ principle — *tell* — wince-twin. Append-only.
 11. **discriminator-as-data** — one `[[predicate, tag]]` table names every shape; consumers dispatch on the tag.
 12. **algebra recognized & named** — unit/bind/run shape gets its canonical name and ops.
 13. **lazy / suspension-as-a-value** — a suspended computation you pass, await, hand to a sink.
+14. **minimal delta** — the smallest change from the shape that already works wins; before adding state, ask what existing link already carries it. Twin: new fields/inheritance invented to satisfy a call-shape composition already had. Exemplars: the connection trie grew a `parent` field + `pipeline` walk when a 2-arg closure (`child.transport = ctx => parent.dispatch(ctx)`) carried the recursion — and *was the original design I'd replaced*; `Terminals extends LocalRepository` invented inheritance where every sibling deck composes. Tell: a design that grows a `parent`/`pipeline`/threaded-arg. beef: *"you keep fucking cascading shitty choices."*
 
 Cross-cut: **full true names** — density must reveal, not hide. He won't convulse at `q`/`tmp`/`fn2`.
 

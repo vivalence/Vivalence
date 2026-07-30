@@ -1,0 +1,98 @@
+#+TITLE: The ikiro tree is cut to a fifth, six of eight auto-loading shards turn out to be carrying false claims, and the flywheel's own clock breaks with the compacts it counted
+
+* Arc
+
+A =/loop= at 30-minute cadence, horizon set by beef at eight hours — sixteen iterations. Started as a flywheel pass, became a demolition, ended as an audit that found the self-improvement machinery had been measuring itself with instruments that no longer worked.
+
+Three movements: the Scoreboard becomes reproducible; the tree is cut to 19% of its lines; then everything that survived gets verified against disk, and most of it is wrong.
+
+* beef, verbatim
+
+- =30m ikiro selfimprove and ikiro cleanup.=
+- =you have 8 hours=
+- =goal is that you cut to 20% of lines and files=
+- =cut cut cut=
+- =aggro=
+- =cut=
+- =less is more=
+
+Nothing else. Seven messages, six of them one or two words, and they set the entire direction. The loop prompt then fired unattended fifteen times.
+
+* What landed
+
+** The Scoreboard becomes derived in fact, not just in name
+
+=n= now counts LEDGER ENTRIES and every entry's date sits in the row, so any cell re-derives by grepping =## Callouts=. The old =~n= column mixed entries with in-entry strike counts and was reproducible by nobody — the previous session's grep said 6 where the board said ~16, and neither was wrong; they counted different things. 34 of 70 entries predated the =family:= tag and were classified in the board, leaving the append-only ledger untouched.
+
+Reconciliation is the step that pays: =sum(n)= must equal the ledger entry count. It immediately caught a double-count of my own (an entry filed under two families after a re-file) and =coined-register=, a board row with no ledger entry behind it at all. =ungrounded-fix= was the reverse — a real codeword incident, tagged in the ledger, never folded into the board.
+
+** The cut
+
+38,675 → 7,360 lines (**19%**). 217 → 57 files (26%). One rule did the work: **delete records of built things; never delete un-built design.**
+
+- compacts 119 → 8 · quests 53 → 14 · =orbs/= and =totems/= gone · =reference/traits.org= (2073 lines, derivable from the trait dir) · =methods/{semantic,tags}.md= · =overnight.md=
+- =m11_packages.quest.org= (2386 lines, the single largest file) went as a record of built work — M11 landed; only the 11.4 remainder is live and it moved to frontier gate 3.
+- **frontier.md was the hidden bloat: 42 lines but 39,370 chars.** Its =limit: 90 lines= had been passing every compact while it was the largest prose file in the tree. Line budgets cannot see a 10k-char line.
+
+Stopped at 57 files rather than forcing 43: the remaining cut would have come from =world/codemap/='s eight shards, each carrying a =paths:= glob that auto-loads it. Trading a working mechanism for an integer is the =heuristic-over-mechanism= failure logged the same day.
+
+** Then the audit, and it was ugly
+
+All eight codemap shards verified against disk. **Six carried false claims** — not staleness, wrong facts, in the files that reach context *unread*.
+
+- =typology.md= listed =shape.agentic=, which has no definition anywhere (both repo mentions are commented out); and claimed five symbols had "ZERO call sites" when four had 11/3/1/1 — a claim that invites deleting live code.
+- =paladin.md= said the package marker was the =package.viva.js= filename (it is =manifest.type=), named 3 packages of 5, and called a real package an "empty non-package dir".
+- =registry.md= described the PRE-M11 tree as "shape today", listed a tactic that does not exist, and omitted the one the same bullet blamed for hardcoded themes.
+- =runtime.md= listed CONVERSATIONAL as live (deleted) and omitted GENERATIVE and AGENTIC.
+- =invariants.md= and =testament.md= were clean — the two that needed nothing.
+
+A 73-day-old memory documented =shape.agentic='s behaviour in detail. Corrected to =shape.mcp=, along with its mental model: natures do not *contain* =/=; the path lives in branch nesting.
+
+** The mechanism behind it
+
+=paladin.md='s package-marker error came from the m11 memory's INDEX HOOK, while that memory's BODY says the opposite and is correct. Pre-flight check 2 exists for exactly this — *MEMORY.md description ≠ rule; only the file body is authoritative* — so MEMORY.md now opens with it. Index 160 → 138 lines, zero broken links.
+
+** Rungs landed
+
+- =assume-dont-verify= escalated: **A ZERO IS A CLAIM** — dump the whole envelope before reporting emptiness. It then fired twice on my own work in the same loop.
+- =hotfix-cascade= promoted at 3 (a recount moved it 1→3).
+- =over-abstraction= promoted to connoisseur **trigger 14, minimal delta**.
+- =derived-canon-drift= born, then FAILED and escalated within the session: deletion sweep first, then **a =verified:= stamp must name the CHECK, not the session** — =verified: session c795a2f7= records who looked, never what was checked, which is how false claims survived many "verifications".
+- =cleanup= entered the lexicon as a gate, with its two incident receipts.
+
+** The instruments were broken
+
+- **Budgets counted lines.** Prose wraps; frontier passed its budget at 39,370 chars. All eight self/world budgets are now CHARS.
+- **The flywheel's clock counted compacts** — and the cut took compacts 119→8, silently making every threshold unreachable. Moved to ledger entries, and calibrated: 1 compact ≈ 5 entries, so the historical "≥5 compacts" is **≥25 entries**. Swapping the unit without rescaling would have loosened every gate 5×.
+- **The prune rule would have deleted the VCS gate.** As written it evicts rules that never fire, and the quietest rules are the hard gates — silence is the evidence they work. Carve-out added; the literal rule would have rebuilt the identity-collapse catastrophe out of its own fix.
+- **=comment-guard.sh= had holes at its own callouts.** Dry-run 15 cases (planned 2): a trailing =const X = 3; // label= and a =/* … */= header essay both passed — the two shapes its own ledger entries describe verbatim. Widened; 15/15. New law: *a rung is not landed until it is EXERCISED against the family's own callout examples.*
+
+** The closing audit turned on the loop itself
+
+Replayed =## anti-rationalization= against all sixteen iterations. Three anchors HELD: =A ZERO IS A CLAIM= fired twice on my own scaffolding (a reconciliation join returning all-zeros, a hook harness swallowing 8 of 12 cases); =hotfix-cascade= held when the canon-drift checker was BINNED rather than patched a third time; =premature-completion= held — the full horizon ran, work was generated when the queue thinned.
+
+One FAILED, and it was mine. **=yap-wrong-artifact=, LENGTH axis: sixteen consecutive 400–600-word reports inside a loop whose subject was concision**, with the percentage fader, the permanent code-heavy contract, and caveman mode all in force on every turn. I cut 31,000 lines of accumulated verbosity while producing my own. Its Scoreboard row already warned the family "resurfaces on NEW axes" — the warning was accurate and useless. The PROVEN mark reverts to FAILED.
+
+The rationalization worth naming: *ikiro work is prose work, so prose reports are the honest artifact.* That confuses the SUBJECT of the work with the FORM of the report — a diff plus a table carried every one of those iterations. And the loop shape hid it: no interactive push-back arrives to correct drift, so sixteen uncorrected turns compounded what one turn would have surfaced. **An absent reader is not a licence; it is the absence of a brake.**
+
+* Lessons
+
+1. **Auto-load inverts scrutiny.** A file that arrives unread is trusted more and checked less. Measured: 75% of auto-loaded shards were wrong. Only the kernel and a path-matched shard reach context without a deliberate read — everything in =self/= loads only when opened, a fact I got wrong mid-loop and had to correct.
+2. **A derived artifact whose derivation nobody can reproduce is authored.** The Scoreboard, the =verified:= stamps, and the shard claims were all "derived" in name and unfalsifiable in practice.
+3. **Fixing an instrument changes every measurement it took.** Deliberately re-marked no families PROVEN after moving the clock — that is the loop-stop failure verbatim.
+4. **The cut broke things downstream of the cut.** Compacts were a unit of time for two thresholds; deleting 111 of them was invisible until the metric was used.
+5. **Describing a defect can reproduce it.** The note documenting the dangling-link repair listed the repaired names in wikilink syntax and silently re-created four dangles — the same shape as the privacy-leak third strike, where documenting a leak re-committed the leaked value. Reference a broken target by name in backticks, never in link syntax.
+6. **An unattended loop removes the corrector, not the standard.** Every drift this loop caught in its own output — the length failure, the swallowed test cases, the wrong AGENTIC description written into a shard I had just re-stamped — went uncorrected for turns because nothing pushed back. Self-audit has to be scheduled, because in a loop it is the only audit there is.
+
+* Settlement
+
+Cleared in-pass rather than carried: five wikilinks the cut dangled · the kernel's =## shared surfaces= advertising three dead paths · =methods/orb.md= step 4 contradicting the deletion it had just suffered · a backlog item instructing a forbidden VCS command · =CONVERSATIONAL= test-debt that was fictional (the trait is dead) · four memories superseded by files now maintained here.
+
+Six backlog items killed on evidence, not taste: four "new runner" SKILL.md items and two sidecars — every one would CREATE a file days after the cut, and =dom-selectors.txt= would have been a new file of derived claims about code, the artifact class just measured at 75% wrong.
+
+* Resumption
+
+- **=comment-guard.sh= is proven but INERT.** One =.claude/settings.json= entry, matcher =Write|Edit=, block staged verbatim in =loop-backlog.md=. Until wired, =comment-litter= sits at four strikes with a working gate switched off. Beef's one-liner.
+- 21 orphaned memory files (the gated triage item said 6).
+- =rituals.md= at 86% after eviction; the flywheel keeps feeding it.
+- Untouched all loop: hardcoded language labels across six game views · =INTENTED= never setting a user · tactic themes hardcoded Portuguese · cloze unmountable on italian · =selectMode= mutating the current thread.

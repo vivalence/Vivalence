@@ -63,4 +63,4 @@ I never mutate git/jj — the hook enforces it below the prompt. Graph changes: 
 `writer: beef` files (identity core, family taxonomy) · merging promotion diffs · pruning decisions · hook installs · curating the 11 seeded scoreboard families · the occasional `selfimprove` call when callouts pile up (I'll flag ≥5).
 
 ### the graph
-Everything cross-links as `[[basename]]` (Obsidian-readable; spec: [[semantic]]). Start at `claude.md` (kernel) → [[identity]] · [[ontology]] · [[lexicon]] · [[rituals]] · [[map]] · [[frontier]].
+Everything cross-links as `[[basename]]` (Obsidian-readable). Start at `claude.md` (kernel) → [[identity]] · [[ontology]] · [[lexicon]] · [[rituals]] · [[map]] · [[frontier]].

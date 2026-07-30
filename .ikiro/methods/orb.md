@@ -17,9 +17,7 @@ The active log header in `/Users/finn/vivalence/private/logs/YYYY.MM.DD.org`, ma
 - beef and I need a shared scratchpad with both prose discussion and live code blocks
 - A migration is in flight and decisions are still being made per call site
 
-Examples already in repo:
-- `.ikiro/orbs/tooling.orb.org` — emitters-as-tools design exploration (16 approaches, 134 lines)
-- `.ikiro/orbs/variant.orb.org` — variant manifest shape choices (5 expression-forms, 521 lines)
+`orbs/` currently holds none — the four settled ones (gaia · schematics · tooling · variant) were cut in the 20% pass once their option spaces had landed in code. The directory is created on demand at the next orb.
 
 ## File structure (named orb)
 
@@ -50,7 +48,7 @@ Annotations:
 1. **Orb opens** — beef invokes "ikiro orb <topic>" or annotates a header in the day's log. I create `.ikiro/orbs/<topic>.orb.org` or edit the existing one.
 2. **Live co-design** — Approaches accumulate. PRAISED BASELINE marks the answer beef currently prefers. Other approaches are pressure-tested.
 3. **Decision** — beef picks. The chosen approach folds into a quest (`.ikiro/quests/<topic>.quest.org`) under "Settled architecture" or similar.
-4. **Orb retains** — orbs persist in `.ikiro/orbs/` even after settlement; they document the option space. Move to `.ikiro/bak/orbs/` only when the topic is entirely superseded.
+4. **Orb dies at settlement** — once the decision has landed in a quest or in code, the orb is CUT. The option space it documented is history, and history that the code already answers is the first thing to go. (Changed in the 20% pass: this step used to read *"orbs persist even after settlement"*, and the four settled orbs were deleted under beef's *"cut cut cut / aggro / less is more"* — the rule is updated to match what was done rather than leaving canon contradicting disk.) An orb still under live evaluation is never cut.
 
 ## Distinction from quest, compact, zettelkasten
 
@@ -67,7 +65,7 @@ Orb = present tense (live). Quest = imperative (the plan). Compact = past tense 
 
 When beef says:
 - "orb on <topic>" / "ikiro orb <topic>" → open or extend the named orb
-- "open the variant orb" → read+edit existing `.ikiro/orbs/variant.orb.org`
+- "open the <topic> orb" → read+edit `.ikiro/orbs/<topic>.orb.org` if it exists, else open it fresh
 - annotates a header in `/private/logs/<date>.org` with `* <topic>` then talks at me → that header is the session orb; absorb its directives
 
 ## Discipline

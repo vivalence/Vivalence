@@ -83,13 +83,13 @@ export function buildParams(model, request, stream = false) {
     model: model.id,
     system,
     messages,
-    max_tokens: settings.maxTokens ?? 8192,
+    max_tokens: settings.maxTokens ?? (model.thinking ? (stream ? 64000 : 16000) : 8192),
   };
   if (marks.has("context") && system.length) system.at(-1).cache_control = { type: "ephemeral" };
   if (stream) params.stream = true;
-  if (model.thinking && !tool_choice) {
-    params.thinking = { type: "enabled", budget_tokens: settings.thinkingBudget ?? 16000 };
-    params.max_tokens = settings.maxTokens ?? 32000;
+  if (model.thinking) {
+    params.thinking = { type: "adaptive", display: "summarized" };
+    if (settings.effort) params.output_config = { effort: settings.effort };
   }
   if (request.tools?.length) {
     params.tools = translateTools(request.tools);

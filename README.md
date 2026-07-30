@@ -28,9 +28,9 @@ Vivalence is like if WeChat, Emacs, and Hal9000 had a baby that's fair-source, d
 
 🧠 **Procedurally generated, agentic apps**, a hallucination harness for the common AI faculties and modalities.
 
-👾 **Daemons and dataspaces** composed from trait-based modes ("pluggable mini-apps") that run in persisted, isolated runtimes.
+👾 **Daemons and dataspaces** composed from trait-based modes ("pluggable mini-apps").
 
-🏛️ **A coherent architecture** built from functional algebraic types. Simple, powerful, very hackable.
+🏛️ **Coherent architecture** built from functional algebraic types. Simple, powerful, very hackable.
 
 🪢 **The Ontology**, an (optional) symbolic entity system, powers the daemons and their modes.
 

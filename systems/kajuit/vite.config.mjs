@@ -70,7 +70,6 @@ export default defineConfig(async ({ command }) => ({
       // STABLE
       $telemetry: join(__dirname, "./src/telemetry.js"),
       $client: join(__dirname, "./src/client.js"),
-      "@vivalence/kajuit/skins": join(__dirname, "./src/typology/skins"),
       "@vivalence/kajuit": join(__dirname, "./src/typology/mod.js"),
 
       // "@vivalence/shared": join(__ss, "./shared/mod.client.js"),

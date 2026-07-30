@@ -5,9 +5,17 @@ jdex: "34.02"
 
 # 34.02 · Trait Catalog
 
-*every mode trait by its nature: what kind of capability it is, and the primitive it binds. the contract and the Vector folds are [[34.01_modes-and-traits]].*
+*every mode trait, and the primitive it binds. the contract and the Vector folds are [[34.01_modes-and-traits]]; what KIND of thing each trait is — and the other four trait-spaces — is [[35.01_symbols-and-literals]].*
 
-The complete working set across the registry is ten. Each is a different *kind* of capability.
+Thirteen mode traits are live. Declaration counts across the registry, `/bak/` excluded:
+
+```
+APPLICATION 39 · EMITTER 28 · STANDALONE 13 · EXPOSED 10 · DATASET 9
+TOOLED 8 · HARNESSED 7 · AGENTIC 4 · CONVERSATIONAL 4 · FRAUGHT 4
+INTENTED 3 · GENERATIVE 2 · SELFEVIDENT 2
+```
+
+They fall into four natures — **endowments** grant a power and mount machinery; **provisions** deliver content once and then have no runtime surface; **flags** carry no payload and exist to be read by someone else; and one **role**-style marker. The full eight-nature taxonomy across every entity tier is in [[35.01_symbols-and-literals]].
 
 ## APPLICATION — the mode has a face
 
@@ -27,7 +35,25 @@ Exports (or is given) an `aperture`; the installer sets `mode.call = shape.proxy
 
 ## TOOLED — the mode lends tools to cognition
 
-Exports a `tools` Vector, context-bound and mounted at `/tool`; these are the callable tools a `HARNESSED` hallucination can invoke in its round loop.
+Exports a `tools` Vector. Every mode is *given* a `mode.tools` Vector at population, already carrying `context.bind` shards for `daemon` and `mode` (`lifecycle/population.js:125`); `TOOLED` simply slurps the module's declaration into it. These are the callable tools a `HARNESSED` hallucination can invoke in its round loop.
+
+No wire contract today: `/metadata/tools` is still commented out (`metadata.js:37`), so tools reach cognition in-process only.
+
+## AGENTIC — the mode borrows every other mode's tools
+
+No payload. At install it walks the daemon and grafts each *other* `TOOLED` mode's tools under that mode's slug:
+
+```js
+daemon.flatmodes()
+  .filter((source) => source !== mode && source.implements("TOOLED"))
+  .forEach((source) => mode.tools.branch(source.slug).slurp(source.tools));
+```
+
+This is trait-as-service-discovery: the hub never names its collaborators, it asks the daemon who implements `TOOLED`. `shape.agentic` is the matching fold — it compiles `/` natures into `_` tool names.
+
+## GENERATIVE — the mode makes its own views
+
+Slurps a `generator` Vector into `mode.tools`, or installs a `/view` fallback branch when the module ships none (`generative.js:31`). Pairs with `APPLICATION`: the view is produced rather than authored.
 
 ## DATASET — the mode brings data
 
@@ -51,6 +77,20 @@ The mode's buffers may be created and rendered directly, without going through a
 
 ## deprecated & niche
 
-`TOPOGRAPHICAL` / `TOPOLOGICAL` target reads against stored data; `BUFFERED`, `SELFEVIDENT`, `CHAOSMONKEY` are deprecated. Note the pitch's "`buffered → renders views`" is really `APPLICATION`; `BUFFERED` the trait is dead.
+Still present in `ModeTraitsEnum` (`entities/daemon/Mode.ts`), marked deprecated in-source: `CHAOSMONKEY`, `BUFFERED`, `SELFEVIDENT`. `TOPOGRAPHICAL` / `TOPOLOGICAL` target reads against stored data and are unused by any live manifest. Note the pitch's "`buffered → renders views`" is really `APPLICATION`; `BUFFERED` the trait is dead.
 
-Read next: [[34.03_a-whole-mode]] · [[34.01_modes-and-traits]].
+## the complexes
+
+Traits co-occur in stable bundles that name kinds of mode better than `manifest.type` does:
+
+```
+11×  APPLICATION EMITTER                the GAME       face + dealt into, never standalone
+ 3×  APPLICATION STANDALONE             the DASHBOARD  face, no emission
+ 3×  APPLICATION EMITTER STANDALONE     the HUB        deals AND stands alone
+ 2×  EMITTER INTENTED                   the TACTIC     headless; deals other modes' buffers
+ 4×  DATASET FRAUGHT                    the CORPUS     data + audio cargo
+```
+
+Games are the only face-bearing modes that are **not** `STANDALONE` — a game cannot exist unless something deals it. The implication laws behind these bundles are in [[35.01_symbols-and-literals]].
+
+Read next: [[34.03_a-whole-mode]] · [[34.01_modes-and-traits]] · [[35.01_symbols-and-literals]].

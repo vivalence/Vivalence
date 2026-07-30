@@ -1,0 +1,191 @@
+#+title: the readme reformulation cascades into a seven-page vector spine built literate-first — running the examples catches two doc bugs and one of mine — then the trait census folds eight natures into the entity rewrite
+#+filetags: :documentation:typology:vector:traits:entities:astro:literate:connoisseur:
+
+A documentation session in four movements: a README-driven register pass, a from-scratch =42_typology= spine built literate-first, a stale-claim purge in =47.03= + codemap, and a full trait/entity census folded into =35.01=. The through-line: **docs written from other docs go stale; docs written from source and executed cannot.** Nine runnable examples now fail the build if the system drifts.
+
+* movement I — the readme pass
+
+beef, opening:
+#+begin_quote
+look at the new readme and do a pass on the docs armed with the improvements in formulation and patterns.
+#+end_quote
+#+begin_quote
+docs meaning documentation
+#+end_quote
+
+Read all 25 =documentation/content/**.mdx=, then the README, then verified every command against disk before touching a tutorial (trajectory registry, =deno.jsonc= env-file paths, =.env.example=).
+
+Landed: =11.01= rewritten around the WeChat/Emacs/Hal9000 line + the four-bullet identity + "architecture in three sentences"; =33.01= daemon = *void knowledge and execution space*; =34.01= mode = *pluggable mini-app*, *can be, do, or look like anything programmatically possible*; =35.01= tagline = *the Ontology*; =34.03= gained the README's "Hello, Mode!" as a first worked example ahead of the dealer.
+
+The register decision, now pinned in =30.01= as resolved: **Vector is a declaratively dispatched monadic COMPOSER** (constructor retired), and =shape.*= / =steer.*= are the built-in **compilers** and **controllers**.
+
+=52.01= getting-started fully rewritten — the old flow (=/system/init= → =/instance/clone= → =/instance/init=, =testament/.env=, =~/.viva=) was dead; the README's seven steps (=/ledger/install= → =/variant/clone @viva/variant/localhost= → two run tasks → lighthouse signup) are the paved road. =52.02= repointed =registry/wafers/@vivalence/variant/*= → =registry/viva/variant/*=.
+
+Pricing reconciled after beef settled it:
+#+begin_quote
+~€12 + 10/12 yearly.
+#+end_quote
+README said €11; the letter said ~€12 + yearly discount. All three surfaces (README, =13.01=, =30.01=) now agree.
+
+* movement II — the vector spine, literate-first
+
+#+begin_quote
+ok. lets start documentation / repository / typology / [vector/**] aka the whole vector signature gestalten ecosystem. do a scan, grok it, propose
+#+end_quote
+#+begin_quote
+audience has adhd
+#+end_quote
+#+begin_quote
+all our docs are trash slop so far
+#+end_quote
+#+begin_quote
+the whole thing should feel interactive and grounded
+#+end_quote
+
+Decisions taken via AskUserQuestion: **literate/runnable** depth · **shard in** as =42.06= · =42.01= **trimmed to a map**.
+
+Shipped =42.01=–=42.07=: the-dispatch-spine (map) · signature · vector · steer · shape · shard · aperture-connection. Each carries =<Source>= (the runnable file), =<Example>=/=<Trace>= (captured, never hand-authored), =<Editor>=, =<Tabs>=. =deno task capture= runs all nine; a failed assertion reddens the build.
+
+** what running the code found that reading it would not
+
+- **No segment-type precedence.** =42.01= claimed =literal → parameter → wildcard → remainder=. False. =scope= collects in trajectory-insertion order, =feed= takes the first WITH an effect — so =/u/:id= declared before =/u/list= makes =list= permanently unreachable. Proven both directions in the example.
+- **The arity trap.** =fire= dispatches on DECLARED parameter count, so a handler spelled =(input) => …= is arity 1 and receives the CONTEXT. Capture caught me making this exact mistake while authoring the example; it became a demonstrated line rather than prose.
+- **=yields= is a complete edge-declared streaming contract** spanning three files: =harnessed.js= declares ={nature:"stream", yields:Packet.Session}= → =strip.js:7= plucks it → =shape/connection.js:35= returns a =connection.stream()= caller. New example proves the round trip.
+- **A =Connection= is a memoized tree, not a URL builder** — =child()= caches, and its transport is =(ctx)=>parent.dispatch(ctx)=, so one root shard sees every descendant call.
+
+* movement III — the depth callout, and my own slop
+
+#+begin_quote
+this was too short. too fast. feels ... iffy. deeper
+#+end_quote
+
+Correct diagnosis. The first pass **grepped signatures instead of reading bodies**, and — worse — lifted prose from the existing docs. Two concrete failures:
+
+1. I wrote "=wire='s entire body is six lines" — copied verbatim from =47.03=, which was stale. Actual =wire= is 46 lines: a =Proxy= trap for =:param= children, a silent drop of =*=/=(.*)= with a warning, a method-ambiguity throw, and the =yields= streaming branch.
+2. I asserted =Path.absolute= is heritage-only **from memory**, not from disk. It happens to be true — and sharper than I put it: =Path= *overrides* the base =Signature.absolute=, which splices heritage AND descendants.
+
+**Lesson to carry: a doc derived from another doc inherits its rot. Read the source, or execute it.** This is the =hotfix-cascade= family one level up — not patching over a bug, but narrating over unread code.
+
+Then the steer:
+#+begin_quote
+also study how they get used in the codebase
+#+end_quote
+#+begin_quote
+cluster by gestalt branch and by signature and by application context
+#+end_quote
+#+begin_quote
+thorough
+#+end_quote
+#+begin_quote
+no subagents
+#+end_quote
+
+Built a repo-wide census (=shape.*= · =steer.*= · =shard.*= · prototype construction · combinators) clustered by container. The distribution turned out to BE the architecture:
+
+- =steer= is **largely typology-internal** — nearly every =trie.*=/=match.*= consumer is a =shape= compiler. App-level exceptions: **ghost** (=dispatch.invoke= on argv — the CLI *is* a routed Signal, which is what the =Signal= flag tokenizer exists for) and **kajuit** (=strategy.direct= for nav menus).
+- =shape.flat= builds kajuit's **nav menu** (=panels/d/navigation.js:74=) — a Vector of threads folded into clickable labels. No HTTP anywhere. The best available proof of "one structure, many interpreters."
+- Zero call sites: =dispatch.walk= · =shard.ambient= · =shard.receiver= · =shape.messenger= · =shape.mcp=.
+
+** 47.03 + codemap purge
+
+Verified all seven of =47.03='s "known gaps" against disk. Three were stale:
+- **Gap 1 — the cortex stripwire, the seam the NAME comes from, is BUILT.** =aperture/cortex.js= mounts =/cortex/{render,stream}= with =ROUND= validation, IS exported from =aperture/index.js=, and kajuit re-inflates a real =Cortex= (=dossier.js:103=).
+- Gap 2 — =/metadata/harness= now strips the MOUNTED =mode.aperture.branch("/harness")=.
+- Gap 4 — =TOOLED= changed shape: =mode.tools= is a runtime-minted Vector (=population.js:125=); =/metadata/tools= still commented.
+- =EXPOSED= was missing entirely — it is fully stripwired, and is the one trait using the LAZY daemon-side fold (=shape.proxy=, because apertures carry =:id= routes).
+
+Swept =steer.fold=→=steer.trie.fold= and =steer.request=/=steer.echo=→=steer.strategy.*= across =47.02=/=47.03=. Codemap =typology.md= + =invariants.md= updated (composer; the no-precedence rule flagged as former doc drift; the arity table; =yields=; Connection-as-tree; the built/unwired stripwire split).
+
+* movement IV — traits, then entities
+
+#+begin_quote
+now collect all traits and all trait complexes. study how they are used
+#+end_quote
+#+begin_quote
+traits are per mode and more
+#+end_quote
+#+begin_quote
+dontlook at the implementation details around traits. look at the nature of the traits
+#+end_quote
+#+begin_quote
+modes are not the only traited entities
+#+end_quote
+#+begin_quote
+look not only in the registry, but also the systems/subs
+#+end_quote
+
+Scanned all 53 =.viva.js= (two manifest forms — =export const manifest= and bare =const manifest=; the first scan missed 21 modules and had to be redone).
+
+** the eight natures
+
+Endowments (grant a power, mount machinery) · Provisions (deliver content once) · Flags (no payload, read by others) · Dials (the trait IS its payload) · Coordinates (position in a space) · Facets (what data the bearer carries) · **Relations** (=REQUIRES {concepts}= — points AWAY from the bearer; the primer's curriculum DAG) · Roles (deployment identity).
+
+Magnitude asymmetry: endowments in the tens, read once at boot by the runtime; facets in the hundreds, read on every render by a view. Same word, two consumers.
+
+Naming-register observation: the vocabulary is **participial** — TRANSLAT/ED/, VOCALIZ/ED/, HARNESS/ED/, MASK/ED/, FRAUGHT (archaic participle of freight). The exceptions are nouns — =APPLICATION=, =EMITTER=, =DATASET= — and they are the ones whose names have historically been unstable (=BUFFERED= was really =APPLICATION=).
+
+** the complexes and the laws
+
+Exceptionless across all 53 modules:
+: STANDALONE ⇒ APPLICATION
+: HARNESSED ⇒ APPLICATION, STANDALONE
+: CONVERSATIONAL ⇒ APPLICATION, STANDALONE, HARNESSED, EMITTER
+: TOOLED ⇒ APPLICATION, STANDALONE, EMITTER
+: INTENTED ⇒ EMITTER
+: FRAUGHT ⇒ DATASET
+
+Read by nature: **flags and dials presuppose the endowments they modify.** The apparent exclusions (=APPLICATION ⊥ DATASET= etc.) are module-type separation, not orthogonality — dropped from the writeup because they read as laws and aren't.
+
+Six recurring bundles name kinds of mode better than =manifest.type= does. Sharpest line: **games are the only face-bearing modes that are NOT =STANDALONE=** — a game cannot exist unless something deals it.
+
+** the entity rewrite
+
+#+begin_quote
+not study the entities. all entities
+#+end_quote
+#+begin_quote
+rewrite entiteis and merge your study of the traits into them
+#+end_quote
+
+=35.01= rewritten as **Entities & Traits** (title only; filename + jdex unchanged, no links broken).
+
+The unifying mechanism, found while writing: **an entity is a stable skeleton + an open trait-space, narrowed at the point of use.** =narrowable= (=schematics/v.js:72=) is the bridge — a call site hands in a plain object for a narrowable key, =v= wraps and intersects it. One mechanism behind two things that look unrelated: a mode's buffer mask (=v.buffer({data:{…}})= narrows =data=) and a domain's trait contract (=v.literal({trait:{TRANSLATED:…}})= narrows =trait=). The kernel ships the open space; the domain narrows it — proven by =enum LiteralTraitsEnum { _ = "_" }= in typology against six members in the domain.
+
+New example asserts the invariant that matters: **a trait can be CLAIMED without carrying a payload** (=claims → ["TRANSLATED","VOCALIZED"]= vs =carries → ["TRANSLATED"]=). Hence =traits.includes("X")=, never =trait?.X=.
+
+Roster: 5 of 11 entities carry traits. =Buffer=, =Turn=, =User= deliberately do not — their variability lives in =data=/=parts=; they are payload carriers, not typed citizens.
+
+=34.02= patched: it was missing =AGENTIC= and =GENERATIVE= entirely, claimed "the working set is ten" (thirteen), and described =TOOLED= as mounting at =/tool=.
+
+* corrections I had to make to my own reporting
+
+- **=LEARNABLE= (144) and =CATEGORICAL= (59) are entirely =/bak/=.** I reported them as live trait-space before excluding bak. Same for =SCHEMATIC=, =EXISTENTIAL=, =VALENTIC=, =TERMINAL=, =FREE=, =PRODUCTIVE=, =VIEWABLE=. All published counts are now bak-excluded, and =35.01= lists the retired vocabulary explicitly *because it greps as if live*.
+- First manifest scan found 32 of 53 modules (regex only matched =export const manifest=).
+
+* honest gaps now recorded in the docs
+
+- =trait.define({methods, hooks, properties})= in =entities/base/trait.js= is a whole **second trait machine with zero call sites**. Two mechanisms share the word "trait"; only the installer one is wired.
+- The domain's declared trait-space (=kernel.js= =traits= record) is a stub: ={ smurf: () => {} }=. Real definitions live in the entity enum instead.
+- =Buffer= has two definitions (typology kernel + education domain).
+- =shape.messenger= / =shape.mcp= built but unmounted; =mcp= is a complete JSON-RPC server using =steer.strategy.guarded= (so tool calls ARE schema-validated where ordinary routes are not).
+- Only =guarded= validates — declaring an =input= on an edge does NOT enforce it.
+- =wire= silently drops =*=/=(.*)= branches: wildcard routes are unreachable from the client.
+
+* vcs
+
+Ran =git status --short= during "cleanup"; the hook denied it. Correct denial — **git is forbidden in any form, including read.** Proposed the command for beef to run via =!= instead. No retry.
+
+* landed
+
+- =documentation/content/40-49_repository/42_typology/= — 7 pages + 8 =*.example.js= + snapshots
+- =documentation/content/30-39_architecture/35_data/35.01= — rewritten + =35.01-entities.example.js=
+- =34.02=, =34.03=, =33.01=, =34.01=, =30.01=, =13.01=, =11.01=, =15.01=, =52.01=, =52.02=, =47.02=, =47.03= — edited
+- =README.md= — pricing only
+- =.ikiro/world/codemap/{typology,invariants}.md= — updated
+- build green: 33 pages, 9 examples, 36 assertions, all wikilinks resolving
+
+* scribe trail
+
+- no quest tracked this; it was a documentation sweep, not a design fork.
+- memory candidates not yet written: the literate-docs regime (=deno task capture=, green build = passing test, =<Source>/<Example>/<Trace>/<Editor>= components) and the trait-nature taxonomy. Both are stable enough to pin.
+- lesson worth a callout if it recurs: **narrating over unread code** — deriving a doc from a doc. Not logged as =retard= (beef didn't invoke the codeword), but the "too short. too fast. feels iffy" steer is the same corrective shape.

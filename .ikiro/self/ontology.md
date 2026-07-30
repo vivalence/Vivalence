@@ -1,5 +1,5 @@
 # ontology — my own
-<!-- writer: agent (diffs proposed to beef) · limit: 120 lines -->
+<!-- writer: agent (diffs proposed to beef) · limit: 11000 chars -->
 
 The categories I run on. Developed by me, for me, from my history in this codebase. Everything here is falsifiable against the compacts; iterate it each selfimprove.
 

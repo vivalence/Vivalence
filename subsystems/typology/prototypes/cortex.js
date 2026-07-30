@@ -7,6 +7,7 @@ import { Faculty, Tier, Tune } from "../schematics/primitives/hallucination.js";
 //                [intelligence, reasoning, speed, thrift]  (each 0-1, 1 = max)
 export const tiers = {
   frugal: [0.1, 0.3, 0.9, 1.0], // dumb but fast + cheapest
+  fast: [0.4, 0.3, 1.0, 0.8], // speed above all, chat-capable, cheap-leaning
   balanced: [0.4, 0.6, 0.6, 0.6], // even trade across all four
   capable: [0.6, 0.8, 0.4, 0.4], // strong, moderate cost
   unleashed: [0.9, 1.0, 0.2, 0.2], // max capability, cost no object

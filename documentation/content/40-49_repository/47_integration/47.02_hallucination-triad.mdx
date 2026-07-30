@@ -133,7 +133,7 @@ specimen.describe("47.02 hallucination triad — the request in isolation (typol
 
 ## the tooling seam end to end (runtime)
 
-`HARNESSED` is the same triad, persistence-wired. Its root middleware spawns `daemon.cortex.hallucination({ ...config, ...(tune && {tune}), ...(output && {output}) })` — construct + seed in one factory call — then layers `system`, `tools`, `turns` through the request's OWN interfaces. Its `/dialogue` branch scribes assistant turns and loads thread history. The faculty terminals forward via return (`steer.echo` assigns `ctx.output`). The scenario `create()` boots a `dewey` teacher mode with a cortex of opus/sonnet/haiku dialogue faculties; `dewey.harness.dialogue.stream(input)` drives the whole path.
+`HARNESSED` is the same triad, persistence-wired. Its root middleware spawns `daemon.cortex.hallucination({ ...config, ...(tune && {tune}), ...(output && {output}) })` — construct + seed in one factory call — then layers `system`, `tools`, `turns` through the request's OWN interfaces. Its `/dialogue` branch scribes assistant turns and loads thread history. The faculty terminals forward via return (`steer.strategy.echo` assigns `ctx.output`). The scenario `create()` boots a `dewey` teacher mode with a cortex of opus/sonnet/haiku dialogue faculties; `dewey.harness.dialogue.stream(input)` drives the whole path.
 
 ```javascript
 

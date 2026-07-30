@@ -15,7 +15,14 @@ case "$path" in
 esac
 
 content=$(jq -r '.tool_input.new_string // .tool_input.content // empty' <<<"$input")
-hits=$(grep -nE '^[[:space:]]*//' <<<"$content" | grep -vE '@beef|TODO|eslint|prettier|@ts-|https?:' || true)
+
+# Three litter shapes, all named in the family's own callouts:
+#   ^//        line comment          (07-08 stripwire, 07-11 vector-rotation)
+#   code; //   trailing label        (07-07 riddler: "no const X = 3 // label")
+#   /* ... */  block/header essay    (06-16 nyan: "four multi-line block-comment essays")
+# `[^:]//` skips scheme-relative URLs; the line-level filter below catches the rest.
+hits=$(grep -nE '^[[:space:]]*(//|/\*)|[^:]//|[[:space:]]/\*' <<<"$content" \
+       | grep -vE '@beef|TODO|eslint|prettier|@ts-|https?:' || true)
 
 if [ -n "$hits" ]; then
   jq -n --arg r "comment-litter gate (kernel no-comments law): authored // lines in product source.
