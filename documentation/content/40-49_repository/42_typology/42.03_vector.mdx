@@ -1,0 +1,140 @@
+---
+title: Vector — the composer
+jdex: "42.03"
+summary: The inert dispatch tree, its combinators, and the four laws that govern it.
+---
+import Source from "../../../src/components/Source.astro"
+import Example from "../../../src/components/Example.astro"
+import Editor from "../../../src/components/Editor.astro"
+import Tabs from "../../../src/components/Tabs.astro"
+
+# 42.03 · Vector — the composer
+
+*a declaratively dispatched monadic composer — a free monad in effect. 117 lines. it computes nothing; it describes dispatch, and an interpreter folds it into something that runs.*
+
+`subsystems/typology/prototypes/vector.js`. Three fields carry everything:
+
+```
+effect          the handler at THIS node          (one, or null)
+trajectories    Map<Pattern, Vector>              the children, keyed by edge
+carry           middleware[]                      the koa onion at this depth
+```
+
+## the combinators
+
+Each returns a `Vector`, so they chain. They **declare**; nothing executes.
+
+```js
+.use(middleware)      // append to the onion — (ctx, next)
+.branch(signature)    // descend/create a sub-trie, return it
+.open(sig, effect)    // branch(sig).effect = effect, return THIS
+.affect(effect)       // set THIS node's own effect
+.slurp(vector)        // graft another vector in, SHARING its middleware
+.swallow(vector)      // graft it in, OWNING (isolating) it
+```
+
+`branch` is idempotent — asking for the same segment twice returns the same trajectory, which is why `.open("/a/b")` and `.open("/a/c")` share the `a` node.
+
+## the four laws
+
+**1 · One effect per node. A node may be both leaf and branch.**
+There is no `leaves` array and no effects map. A "leaf" is simply a trajectory node whose `.effect` is set. The same node can carry an effect *and* children — `shape.object` folds that into a callable that also has properties.
+
+**2 · No path is a path.**
+`branch("/")` and `branch("")` return the node itself, so `open("/", fn)` is exactly `affect(fn)`. The empty signal addresses a node's *own* effect. This is what lets a stripped Vector's root cross the wire and stay callable ([[47.03_stripwire]]).
+
+**3 · Metadata rides the edge, never the node.**
+`input`, `output`, `valence`, `yields` live on the **Pattern** — the `Map` key — not on the Vector it points at. The reason is structural: one vector can be arrived at through many patterns, so per-route schema cannot live on the destination.
+
+<Tabs names={["right", "wrong"]}>
+<Fragment slot="right">
+```js
+vector.open(
+  { nature: "/deal", input: v.object({ count: v.integer() }), valence: "deal cards" },
+  effect,
+)
+// the descriptor dresses the EDGE
+```
+</Fragment>
+<Fragment slot="wrong">
+```js
+const node = vector.branch("/deal")
+node.input = schema
+// wrong — the node is shared; the schema
+// would leak to every other route reaching it
+```
+</Fragment>
+</Tabs>
+
+**4 · `slurp` shares, `swallow` owns.**
+`slurp` grafts the donor's *actual* trajectory objects in — the two vectors then share nodes, and a later mutation on one is visible in the other. `swallow` recurses and rebuilds, so the result is isolated. Both concatenate the donor's `carry`.
+
+The repo uses `slurp` 56 times and `swallow` 4. That ratio is the trait pattern, stated in-source at `runtime/daemon/traits/emitter.js:6`:
+
+> *trait habit: middleware rides a live Vector we own; the read-only module declaration is slurped in — never `.use()` directly on `mode.module.emitter`.*
+
+A registry module exports an **inert** Vector. The runtime never mutates it — it builds its own, `.use()`s its discipline onto that, and slurps the module's leaves in. The module's declaration stays clean, so it can also be stripped for the wire contract without the runtime's middleware leaking into it.
+
+## it runs
+
+Every law above is asserted in this file. Executed at build by `deno task capture`; the output below is captured verbatim, so a green build is the passing test.
+
+<Source name="42.03-vector" />
+
+<Example name="42.03-vector" />
+
+Note `slurp → sameNode:true` against `swallow → sameNode:false` — that is law 4, observed rather than asserted in prose.
+
+## inert until folded
+
+The Vector runs nothing. `shape.*` compiles it into a value; `steer.*` runs a Signal through it. That deferral — one structure, many interpreters — is the free-monad shape and the reason the same declaration serves as a local call, an HTTP route, and a remote client.
+
+```
+declare once:   Vector                                       — inert
+interpret many: shape.object · shape.strip · shape.http …    — 42.05
+dispatch:       steer.dispatch.invoke · steer.trie.fold …    — 42.04
+```
+
+## the same structure, four jobs
+
+Not a claim — four call sites, doing genuinely different things with one prototype:
+
+```
+an HTTP router      systems/runtime/daemon/daemon.js:29        aperture, folded by shape.http
+a CLI               systems/ghost/mod.js:60                    argv → Signal → invoke
+an LLM tool bundle  subsystems/typology/prototypes/hallucination.js:35
+                                                               rollup → tool definitions
+a UI menu           systems/kajuit/src/app/panels/d/navigation.js:74
+                                                               flat → clickable list
+```
+
+The nav menu is the one that settles it: no request, no signal, no network — a Vector of threads folded into a list of labels and click handlers. Nothing about `Vector` is HTTP-shaped; HTTP is one fold of it.
+
+## where it is built
+
+76 `new Vector()` sites. The distribution says who composes:
+
+```
+runtime    the traits — each installer builds a live Vector and slurps the module's in
+typology   hallucination (tool trie), transmitter (socket vector), strip's empty default
+registry   mode modules — inert declarations, exported for the runtime to slurp
+```
+
+## try it
+
+<Editor code={`import { Vector, shape } from "@vivalence/typology"
+
+const vector = new Vector()
+  .affect(() => "ROOT")
+  .open("/child", () => "CHILD")
+
+console.log("root is a path:", vector.branch("/") === vector)
+console.log("strip:", JSON.stringify(shape.strip(vector)))`} />
+
+## see also
+
+- `subsystems/typology/prototypes/vector.js` · `aperture.js`
+- `tests/vector.test.js` · `tests/root-effect.test.js` · `tests/vector.snapshot.json`
+- [[42.02_signature]] — the grammar it branches on
+- [[42.04_steer]] · [[42.05_shape]] — the interpreters
+- [[42.07_aperture-connection]] — the Vector heir that serves HTTP

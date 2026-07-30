@@ -1,0 +1,144 @@
+---
+title: steer — the controllers
+jdex: "42.04"
+summary: Two geometries, four namespaces, the arity trap, and why application code barely touches it.
+---
+import Source from "../../../src/components/Source.astro"
+import Example from "../../../src/components/Example.astro"
+import Editor from "../../../src/components/Editor.astro"
+import Tabs from "../../../src/components/Tabs.astro"
+
+# 42.04 · steer — the controllers
+
+*run something THROUGH a Vector. four namespaces, four files, ~250 lines: `match` · `trie` · `dispatch` · `strategy`.*
+
+```
+steer.match       scope · greedy · feed              which children match this segment
+steer.trie        fold · survey · rollup · descend   walk the WHOLE vector
+steer.dispatch    traverse · invoke · shotgun · walk walk ONE path through it
+steer.strategy    fire · resolve · direct · bare ·   how a leaf actually gets called
+                  echo · request · guarded
+```
+
+## steer is mostly internal — and that is the point
+
+A repo-wide sweep of call sites outside tests:
+
+```
+steer.trie.fold        typology 2     (shape.object, shape.strip)
+steer.trie.survey      typology 2     (shape.flat, shape.tree)
+steer.trie.rollup      typology 2     (shape.mcp, hallucination)
+steer.match.*          typology 2     (shape.proxy)
+steer.strategy.request typology 2     (shape.object default)
+steer.dispatch.traverse typology 4 · ghost 1
+steer.dispatch.invoke   typology 2 · ghost 3
+steer.strategy.direct   kajuit 4      (nav menu, inspector)
+steer.strategy.echo     runtime 1     (HARNESSED)
+steer.dispatch.walk     — no call sites
+```
+
+Almost every `steer` consumer is a `shape` compiler. Application code does not fold tries; it asks for a compiled surface and calls that. The two exceptions are the interesting ones:
+
+- **ghost** is the only application-level dispatcher. It parses argv into a `ShellSignal` and invokes it against a trajectory Vector (`systems/ghost/mod.js:60`) — the CLI *is* a routed Signal.
+- **kajuit** uses `steer.strategy.direct` to build UI menus out of a Vector (`panels/d/navigation.js:74`), where the context already exists and there is no request to construct.
+
+`steer.dispatch.walk` — the interactive wizard-style walker that prompts for the next segment — has no call sites at all. It is the ghost TUI's unbuilt half.
+
+## two geometries — do not cross-compare
+
+`dispatch.js:6` carries the warning in-source: the path family and the tree family *mirror their own geometry* and must not be refactored toward each other.
+
+<Tabs names={["path — dispatch.js", "tree — trie.js"]}>
+<Fragment slot="path — dispatch.js">
+```
+consumes:   a Signal
+walks:      one route, segment by segment
+terminates: EARLY, on the first match
+binds:      params, wildcards, remainders
+used by:    every live request
+```
+</Fragment>
+<Fragment slot="tree — trie.js">
+```
+consumes:   nothing but the Vector
+walks:      every node, exhaustively
+terminates: when the tree is exhausted
+binds:      nothing
+used by:    every shape.* compiler
+```
+</Fragment>
+</Tabs>
+
+They share exactly one step — `descend`, which folds the middleware carry down a level. Everything else differs because the questions differ: *"where does this signal land?"* versus *"what is the shape of this whole thing?"*
+
+`traverse` returns a quad — `[effect, carry, steps, node]` — and `invoke` is just `traverse` plus an executor. Returning the node as well as the effect is what lets a caller keep descending: ghost re-enters `traverse` from where the last one stopped.
+
+## the arity trap
+
+`steer.strategy.fire` (`strategy.js:3`) is the atom every executor bottoms out in. It dispatches on the handler's **declared parameter count**:
+
+```
+() => …             arity 0  →  effect()
+(ctx) => …          arity 1  →  effect(context)
+(input, ctx) => …   arity 2  →  effect(context.input, context)
+```
+
+The trap: arity counts *declared* parameters, not intent. A handler spelled `(input) => …` has arity 1, so it receives the **context** — an object with `.input` on it, not the input itself. Name it `(ctx)` or declare both. The captured output below demonstrates this rather than asserting it in prose.
+
+## no type precedence — declaration order wins
+
+`scope` (`match.js:18`) collects matching children in **trajectory-insertion order**; `feed` (`match.js:3`) takes the first one carrying an effect. There is no literal-beats-parameter rule anywhere in the codebase.
+
+Consequence: a parameter declared before a literal **shadows it permanently**.
+
+```js
+new Vector().open("/u/:id", …).open("/u/list", …)   // "/u/list" → :id — list unreachable
+new Vector().open("/u/list", …).open("/u/:id", …)   // "/u/list" → list — correct
+```
+
+Declare literals first. One subtlety in `feed`: when the signal still has an heir (more segments to consume) it takes `matches[0]` outright, without preferring an effect-bearing branch — mid-path, structure wins; at the tip, effects win.
+
+## the executors
+
+Seven, differing only in the context they build:
+
+```
+fire       the arity atom — no context construction
+resolve    fire + assign the result to ctx.output if unset
+direct     carry + resolve against a context you already hold      kajuit menus
+bare       builds { input, output, steps }                         selbstbestimmt
+echo       builds { input, output, signal, steps, params, state }  HARNESSED
+request    builds a full Context (request/response/params)         the default
+guarded    request + casts and VALIDATES input against edge schema shape.mcp
+```
+
+Only `guarded` validates. Ordinary routes do not check their `input` schema on the way in — the EMITTER trait does it by hand in its own middleware (`emitter.js:12`), and `shape.mcp` gets it for free by choosing `guarded`. That asymmetry is deliberate but easy to trip over: declaring an `input` on an edge does not, by itself, enforce it.
+
+`echo` exists so cognition leaves don't carry an HTTP shell — `HARNESSED` folds with it (`harnessed.js:118`) while `EMITTER` folds with the default `request` (`emitter.js:73`). Same trait shape, different executor, and the divergence is silent.
+
+## it runs
+
+<Source name="42.04-steer" />
+
+<Example name="42.04-steer" />
+
+Read `shadowed → PARAM` next to `reachable → LITERAL`: same two routes, opposite declaration order, different resolution.
+
+## try it
+
+<Editor code={`import { Vector, steer } from "@vivalence/typology"
+
+const shadowed = new Vector()
+  .open("/u/:id", () => "PARAM")
+  .open("/u/list", () => "LITERAL")
+
+console.log(await steer.dispatch.invoke(shadowed, "/u/list")({}))
+// → PARAM. swap the two .open lines and it becomes LITERAL.`} />
+
+## see also
+
+- `subsystems/typology/gestalten/steer/{match,trie,dispatch,strategy}.js`
+- `tests/gestalten/steer/{match,traverse,invoke,rollup,survey,walk,fire}.test.js`
+- `systems/ghost/mod.js:60` — the CLI as a routed Signal
+- [[42.03_vector]] — the structure being walked
+- [[42.05_shape]] — the compilers built on `trie.fold`

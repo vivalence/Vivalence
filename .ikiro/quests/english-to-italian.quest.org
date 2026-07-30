@@ -1,0 +1,776 @@
+#+TITLE: ikiro/english-to-italian — Italian corpus (third language pair)
+#+METHOD: ikiro/quest
+#+DATE: 2026-07-29
+#+STATUS: SEALED — overnight /loop complete (58 cycles); all count targets hit, 5-lens QA clean; word-audio harvest continues throttle-bound; daemon wiring + picks @beef
+
+* Intent
+
+Third language-pair corpus: =english-to-italian=, mirroring =english-to-spanish= structure
+and the canonical bar in =.ikiro/reference/corpus-quality-criteria.md=. Standard Italian.
+Built in ONE overnight autonomous /loop (~120 × 15min cycles).
+
+Target: *5000 word literals / 2000 word vocalizations / 1000 sentences / 500 sentence
+vocalizations.*
+
+* Research findings (2026-07-29, verified live)
+
+- *Tatoeba Italian audio*: 1,591 sentences with audio, ALL from contributor =NM1= —
+  native (user_languages level 5), license *CC BY 4.0* (better than the BR CC-BY-NC),
+  median 4 words, max 8. Didactic-perfect length. ONE voice only (vs BR's 12).
+  Download URL: =tatoeba.org/audio/download/<audio_id>= (per [[reference_tatoeba_csv]]).
+- *Lingua Libre Italian*: pattern =LL-Q652 (ita)-<speaker>-<word>.wav= on Commons.
+  Category =Lingua Libre pronunciation-ita= = 12,235 files; =Italian pronunciation=
+  (Wiktionary =It-<word>.ogg=) = 1,209. Probe over 11 frequency-spread words: 8/11 ≥1
+  speaker; gaps = conjugated forms + function words (same family as Spanish word-gaps).
+  Commons throttles hard (429) — the Spanish harvester's backoff handles it.
+- *THE COVERAGE WALL (Spanish precedent, from the vocalization compact)*: Spanish LL =
+  19,063 files, top-124 words ~88% covered, but past ~rank 150 collapse (~21% lemma /
+  ~8% conjugated, 1-in-8 deep-rank yield) → ceiling ~190 of 500 targets. Italian has
+  FEWER LL files. *2000 word vocalizations is NOT assessable from the armchair* — P0
+  runs a stratified sample (100 forms across rank bands of the frozen target list),
+  extrapolates the reachable number, and reports it in the Ledger before the big pull.
+  Beef's standing call on shortfall: "ship what exists, flag the rest".
+- *wordfreq('it')* available for RANKED per surface form.
+- *Games already 6-cell*: Spanish M1 widened =paradigm.viva.js= + =Paradigm.svelte= to
+  6 slots. Italian (io/tu/lui-lei/noi/voi/loro) rides free. Person labels still
+  hardcoded PT ([[project_language_label_hardcoded]]) — cosmetic, out of scope.
+
+* Locked decisions (@beef, 2026-07-29)
+
+| # | fork | beef's call | cascade |
+|---|------|-------------|---------|
+| 1 | "5000 words" semantics | 5000 word LITERALS (surface forms incl. conjugated) | Spanish-M1-style counting; scale table below holds |
+| 2 | word-audio coverage | "ship what exists, but fan out. really pull. there is 2000. i am sure." | 2000 = FIRM target; exhaustive index-first fan-out (below); outer-band word selection may consult the audio index; still no TTS |
+| 3 | word-audio picking | "Harvest only, I pick" | loop downloads ALL candidates to =.harvest/candidates/=, promotes NOTHING; beef runs the picker (h/l · j/k · space · enter) after; compile step post-pick injects VOCALIZED |
+| 4 | sentence voice | Accept NM1 single voice | 500 sentence mp3s placed + VOCALIZED overnight (sentences auto-place, no picking — Spanish precedent) |
+| 5 | daemon wiring | (default law) leave for beef | variant/testament code stays gated; loop touches ONLY the topography + this quest |
+
+* Architecture
+
+Mirror =registry/education/topographies/english-to-spanish/= exactly:
+
+#+begin_example
+registry/education/topographies/english-to-italian/
+  italian.viva.js                 manifest {type: topography, traits: [DATASET, FRAUGHT]} + Freight
+  dataset/
+    index.js  schema.json
+    symbols/structural.js         proficiency bands + functional + domain
+    literals/words/<pos>.js       14 PoS files (verb, noun, adjective, …)
+    literals/conjugation.js       paradigm bundles
+    literals/sentences.js
+  freight/audio/{words,sentences}/
+  .harvest/                       targets, forms, state, staged batches, harvesters
+#+end_example
+
+Shared kernels free: =@education/topology/{word,sentence,conjugation}= (symbols are
+language-agnostic — verified for Spanish, holds for Italian) + =@education/domain/…= +
+all game modes.
+
+* Italian adaptations vs the criteria doc
+
+- *6-cell paradigm*: firstSingular (io), secondSingular (tu), thirdSingular (lui/lei/Lei),
+  firstPlural (noi), secondPlural (voi), thirdPlural (loro). Same slot names as Castilian.
+- *Passato prossimo is COMPOUND* (avere/essere + participio). Divergence from the Spanish
+  simple-preterite mirror. Design: deep paradigms carry =pastParticiple= as a nonfinite
+  (like gerund) + tense tables for presente, imperfetto, futuro, condizionale, congiuntivo
+  presente, imperativo (tu). Passato prossimo taught at SENTENCE level (participle +
+  auxiliary visible in examples), not as a 6-cell pivot table — no syncretic fake rows.
+- *-isc- subclass*: third conjugation splits (dormire vs finire/capire). Regularity symbol
+  distinguishes; paradigm exemplars include one of each.
+- *Deep verb set (16)*: essere, avere, andare, fare, stare, dare, dire, potere, volere,
+  dovere, sapere, venire + regulars parlare (-are), credere (-ere), dormire (-ire),
+  finire (-isc-). Pattern-recognition before irregulars, per BR paradigm design.
+- *No variant symbol*: no brazilianism/castilianism analogue — standard Italian, no
+  dialect fork. Regional vocab (if any) deferred.
+- *Diacritic suffix convention*: à→a-gv, è→e-gv, é→e-ac, ì→i-gv, ò→o-gv, ù→u-gv
+  (existing -gv/-ac codes cover all Italian diacritics).
+- *auxiliary symbol* (new, small): essere-vs-avere aux choice on verb lemmas — drives
+  future passato-prossimo teaching; authored per lemma, validated in QA.
+
+* Scale breakdown (fork 1 = literals)
+
+| slice | n |
+|-------|---|
+| verb: 16 deep lemmas × ~26 forms (nonfinites incl. participio + 6 tables) | ~420 |
+| verb: ~110 present-only lemmas × 8 (6 cells + infinitive + participio) | ~880 |
+| nouns (A1→B1, ~18 domains) | ~1500 |
+| adjectives | ~600 |
+| adverbs | ~300 |
+| pronouns + determiners + adpositions + conjunctions + particles + contractions (preposizioni articolate: al, del, nel, sul…) | ~280 |
+| numerals | ~60 |
+| interjections + fixed phrases | ~60 |
+| sentences | 1000 |
+| *word-literal total* | *~4100 + expansion buffer → 5000* |
+
+Conjugation bundles: 16 deep + ~110 present-only ≈ 126 entries in conjugation.js.
+
+* Vocalization strategy
+
+*Words (2000 FIRM, harvest-only) — INDEX-FIRST fan-out, not per-word search.* The Spanish
+per-word =srsearch= grind doesn't scale to 5000 targets and under-reports. Instead:
+1. Dump full Commons category listings ONCE via =categorymembers= pagination (~30 calls
+   total): =Lingua Libre pronunciation-ita= (12,235 files) + =Italian pronunciation=
+   (1,209) → =.harvest/audio-index.json= mapping normalized form → [file titles].
+2. Fan out further schemes into the same index: =It-<word>.oga= variants, capitalization
+   variants, any =(ita)-= pattern outside the LL category (one =srsearch= sweep for
+   stragglers), other Commons Italian-pronunciation categories discovered from sample
+   files' category lists.
+3. Match the frozen 5000-form target list against the index LOCALLY (diacritic-exact
+   first, then documented normalization fallbacks). Exact coverage number lands in the
+   Ledger within the first hours.
+4. If matches < 2000: the open-class expansion bands (B1 buffer nouns/adjectives/adverbs)
+   PREFER index-covered words at equal frequency tier — closing the gap by word choice,
+   never by TTS. Closed-class + high-frequency core stays frequency-driven regardless.
+5. Download ALL matched candidates → ffmpeg normalize → =.harvest/candidates/<form>/<speaker>.mp3=
+   (throttled, backoff, state.json resume). NO promotion, NO VOCALIZED — beef picks
+   (fork 3), then a =compile-picks= step promotes =word-audio-picks.json= →
+   =freight/audio/words/<slug>.mp3= + surgical VOCALIZED insertion.
+Unreachable forms → =word-gaps.json= (flag, don't block).
+
+*Sentences (500 of 1000)*: the 500 vocalized sentences ARE NM1 audio sentences — literal
+text aligned to audio verbatim (never out-of-step audio-literal). Selection from the 1591
+pool: 100% ANNOTATED-token coverage against the frozen word list, round-robin over grammar
+pivots (didactic spread), length spread 2–8 words. Download via
+=tatoeba.org/audio/download/<audio_id>=, ffmpeg 2-pass loudnorm, 2s spacing.
+The other 500 sentences: authored/curated didactic sentences (Tatoeba ita text pool as
+reference), same token-coverage law, no VOCALIZED.
+
+* Laws inherited from the Spanish build (compact: "the spanish corpus learns to speak")
+
+- *Inversion doctrine*: vocalized sentence literals realign =learning= text to the audio
+  verbatim — audio↔learning coherence is the HARD gate; =known= retranslate + ANNOTATED
+  re-annotation are deferrable debt, displayed text must match the recording.
+- *Surgical VOCALIZED insertion*: word files carry =RANKED= floats (=309.0=) that a
+  parse→stringify round-trip flattens — NEVER reserialize a whole authored data file to
+  add one trait; brace-match and insert the VOCALIZED object only. (Authoring fresh files
+  tonight: serialize once at creation, then only surgical edits after.)
+- *PII law*: NO email/name/any ambient-context PII in any file, script, or User-Agent —
+  bare product string =vivalence-harvester/0.1= only.
+- *Attribution sibling export*: =attribution= const beside the manifest (never a manifest
+  field) — Tatoeba NM1 CC-BY-4.0 + Lingua Libre/Commons CC, "not owned, sourced
+  agentically". NOTE: beef commented the attribution export out in =spanish.viva.js= —
+  his edit is canonical; mirror the CURRENT spanish.viva.js shape (commented block).
+- *Candidates live in =.harvest/=, not =freight/=* — freight holds final assets only
+  (FRAUGHT serves the whole cargo dir).
+- *Assess before pull*: stratified-sample coverage measurement BEFORE any bulk download.
+- *Fresh installs recompute everything*: the entity-variant per-facet fold
+  ([[project_entity_variant_assembly]]) is landed — a third corpus installs with symbols
+  derived correctly; no special handling.
+
+* Loop protocol (per 15-min cycle)
+
+1. Read this quest's =* Ledger= → resume cursor.
+2. Execute the next unit (one batch / one phase step). Background harvest jobs keep
+   running across cycles; check-don't-block.
+3. QA within the cycle: staged → mechanical audit → integrate. Never unreviewed writes
+   into =dataset/=.
+4. Update =* Ledger= (cycle #, done, next, blockers). Idempotent — any cycle can die
+   mid-flight and the next one recovers from staged files + state.json.
+5. Converge-stop: targets hit + QA clean + 2 consecutive no-progress cycles → write
+   final report, stop re-arming.
+
+HARD RULES all night: VCS untouched (read-only law). Only
+=registry/education/topographies/english-to-italian/**= + =.ikiro/**= + scratchpad are
+writable. No daemon/variant/mode code. No TTS. No manifest fields beyond the mirror.
+
+* Phases
+
+** P0 scaffold (c1–2)
+- [ ] dirs + italian.viva.js + schema.json + dataset/index.js (mirror Spanish)
+- [ ] symbols/structural.js — proficiency (survival/a1/a2/b1 + high-frequency), functional, domain
+- [ ] copy =.tatoeba-harvest= CSVs to scratchpad; freeze NM1 pool =(sid, audio_id, text)=
+- [ ] wordfreq('it') top-N + closed-class curation → =.harvest/targets.json= (frozen 5000)
+- [ ] build =.harvest/audio-index.json= — full category dumps + straggler sweep (strategy §above)
+- [ ] adapt harvesters: =harvest-words.ts= → index-driven downloader (no per-word search); =harvest-sentences.ts= (NM1 manifest-driven)
+- [ ] *coverage report*: frozen 5000 list × audio-index → exact reachable count per rank
+      band → Ledger; if <2000, activate index-preferring selection for expansion bands
+** P1 closed-class + verb spine (c3–15)
+- [ ] closed-class PoS files hand-authored (pronouns, determiners, adpositions, preposizioni articolate, conjunctions, numerals, interjections)
+- [ ] 16 deep paradigms (serialization codegen for tables, content hand-verified) + conjugation.js
+- [ ] present-only verb breadth ~110 lemmas
+** P2 open-class breadth (c15–45)
+- [ ] nouns/adjectives/adverbs in ~150-literal staged batches: 3 parallel author agents → QA agent → wordfreq RANKED → integrate (the Spanish M1 flow)
+** P3 sentences (c45–60)
+- [ ] select 500 NM1 sentences (coverage law) → sentences.js aligned-to-audio + ANNOTATED
+- [ ] author/curate 500 more didactic sentences, token-coverage enforced
+** P4 audio (c30–90, background-parallel with P2/P3)
+- [ ] launch index-driven word-candidate download over ALL index-matched forms (long-running bg job, state.json resume) — candidates only, no promotion
+- [ ] sentence audio download 500 + loudnorm → =freight/audio/sentences/= + VOCALIZED (auto-place)
+- [ ] =word-gaps.json= for unmatched forms; candidate manifest =word-candidates.json= for the picker
+** P5 QA + seal (c90–120)
+- [ ] mechanical audit: full criteria checklist over all entities (dup slugs, token refs, paradigm refs, RANKED nonzero, VOCALIZED path exists, example-contains-form)
+- [ ] adversarial Italian linguistic audit — parallel critique agents (gender, aux choice, congiuntivo triggers, false-friend glosses, article forms lo/gli)
+- [ ] Deno load verify + integrity counts; attribution note (NM1 CC-BY-4.0, LL/Commons CC)
+- [ ] final report in Ledger; STOP
+
+* Quality gates (criteria doc applies verbatim)
+
+learning lowercase · conjugated forms not infinitive · known English no diacritics ·
+EXEMPLIFIED form-in-example + gender agreement + unique examples · RANKED per surface
+form never per-lemma · symbols complete per ontology · no syncretic collapse · orphan-form
+prohibition · audio matches learning form exactly · mp3 in own freight.
+
+* Ledger
+
+** c1 — P0 scaffold (DONE)
+- topography scaffolded: =italian.viva.js= (attribution mirrors spanish commented shape) +
+  =dataset/{schema.json,index.js}= + =symbols/structural.js= (50 symbols — castilianism
+  dropped, Italian exemplars) + 13 empty PoS files + empty sentences/conjugation +
+  =freight/audio/{words,sentences}/=
+- Deno load VERIFIED: 50 symbols, 0 literals, clean
+- NM1 pool frozen: =.harvest/nm1-pool.json= — 1591 sentences {sid, audio, text, license}
+- audio-index dump LAUNCHED (background): =.harvest/build-audio-index.py= →
+  =audio-index.json= + =audio-index.log= (both Commons categories, paginated)
+- wordfreq('it') verified working
+** c2 — audio index + closed-class core (DONE)
+- *audio-index COMPLETE: 13,444 files → 10,748 distinct forms* (=.harvest/audio-index.json=).
+  2000 vocalizations CONFIRMED reachable (beef was right). Closed-class probe: 26/28
+  covered incl. function words (missing only del, sul — check normalization variants).
+- 52 literals authored + integrated: determiner(9) contraction(30 preposizioni articolate)
+  coordinating-conjunction(4) subordinating-conjunction(3) interjection(6)
+- =.harvest/rank.py= built (wordfreq('it') RANKED injector, criteria read/write helpers,
+  top-200k rank, 3-sigfig fpm) — run after EVERY literal add; 0 zero-freq flags
+- Deno verify: 52 literals, 0 dupes, loads green
+- Deliberate exclusion: elided forms (l', un', dell', …) NOT literals — apostrophe slugs;
+  visible in noun examples instead
+** c3 — pronouns + adpositions (DONE)
+- 58 literals authored + ranked + integrated: pronoun(40 — subject/clitic/possessive/
+  demonstrative/interrogative/indefinite) adposition(18 — mirror of Spanish inventory)
+- Verify: 110 literals total, 0 dupes, form-in-example law 110/110
+- *ADJUSTMENT (flagged)*: pre-frozen 5000-form =targets.json= dropped. Wordfreq has no
+  PoS axis, and with 10,748 indexed audio forms the coverage fear that motivated
+  freezing is dead. New flow: authoring batches pick vocabulary per band×domain
+  (index-preferred in expansion bands); audio-harvest targets = GENERATED from the
+  dataset after each batch (all authored forms). Simpler, no drift between list and data.
+** c4 — adverbs + numerals (DONE)
+- 67 literals authored + ranked + integrated: adverb(42 — negation/deixis/time/degree/
+  space families incl. non-vs-no split) numeral(25 — zero–venti + tens + cento)
+- Verify: 177 literals, 0 slug dupes, 0 example dupes
+- Closed-class layer now COMPLETE except particle (deliberately thin — Italian has no
+  Spanish-style particle inventory; leave empty like Spanish did)
+** c5 — verb spine: essere + avere (DONE)
+- =.harvest/build-verbs.py= — verb serialization generator (hand-composed data tables →
+  entities; idempotent by lemma/bundle-slug; the template for all deep verbs). Italian
+  deep verb = 34 forms: 3 nonfinites + 5 tenses × 6 cells + tu-imperative (NO simple
+  preterite — passato prossimo at sentence level per design)
+- essere + avere: 68 form literals + 10 CONJUGATED bundles, all hand-composed knowns +
+  unique examples per criteria conventions
+- *FLAGGED (@beef)*: =word.suffix.{are,ere,ire}= absent from topology/word (only
+  ar/er/ir) — shipped TOPOGRAPHY-LOCAL in =dataset/symbols/ontological.js= (mirrors
+  topology ONTOLOGICAL+LABELED shape). Topology canonicalization = gated, your call.
+- Verify: 255 literals, 0 dupes (slug+example), 0 unresolved paradigm refs, 53 symbols
+** c6 — verb spine: 4 regulars (DONE)
+- parlare(-are) credere(-ere) dormire(-ire) finire(-isc-) via generator: +136 form
+  literals + 20 bundles. Pattern-recognition set complete before irregulars (BR design).
+- rank.py LAW UPDATE: zero-wordfreq forms DROP the RANKED trait entirely (never write
+  zipf 0) — 5 rare plural conditionals/subjunctives unranked, corpus zero-freq-RANKED = 0
+- Bundle rank collision fixed: fresh bundle ranks offset by existing count
+- Verify: 411 literals, 0 dupes, 30 bundles, 0 rank dupes, 0 unresolved refs
+** c7 — verb spine: andare fare stare (DONE)
+- Loop retimed by beef: 15m → 5m cadence (job 04fff23e)
+- 3 irregulars via generator: +102 form literals + 15 bundles
+- Verify: 528 literals, 0 dupes, 45 bundles, 0 unresolved refs
+** c9 — P4 word-audio harvest LAUNCHED (background)
+- =.harvest/harvest-words.py= built: index-driven (NO per-word search) — dataset forms ×
+  audio-index → resolve imageinfo URLs (batch 40) → download → ffmpeg loudnorm →
+  =candidates/<form>/<speaker>.mp3=, ≤4/form, 1.2s throttle, atomic state resume
+  (=harvest-words-state.json=), =word-gaps.json= regenerated each run
+- First wave: 440 dataset forms, 180 index-matched (gap = conjugated verb forms, the
+  expected family). Reruns pick up new batches automatically — GENERATED-from-dataset law
+- CANDIDATES ONLY, no promotion (beef picks — fork 3)
+
+** c10 — P3 prep: NM1 translations + coverage selector (DONE)
+- nm1-pool.json: English translations attached to ALL 1591 sentences (ita-eng links ×
+  eng_sentences, shortest translation wins)
+- =.harvest/select-sentences.py=: tokenize + elision expansion (l'/dell'/po'…) +
+  proper-noun allowlist → coverage vs dataset forms → =sentence-coverage.json=.
+  Current: 60 fully selectable, 1354 within ≤2 missing tokens (missing = exactly the
+  incoming batches: puoi/posso/piace verb forms, casa/libro nouns). Rerun after every
+  integration.
+- *GAP FOUND*: stressed object pronouns (me, te) not in pronoun set — add in pronoun
+  fill batch. Also piacere (piace) missing from verb plan — add to present-only wave,
+  HIGH priority (Tatoeba frequency).
+
+** c63 — QUALITY PASS 2 SEALED
+- Fix-applier: 84 applied · 28 skipped with reasons (21 = proposal would break
+  form-in-example law → current text stands, residue logged in
+  =qa2-apply-report.md=; 8 diagnosis-only; 2 self-cancelling — reasoned judgment,
+  not failures)
+- The 5 regressions MY hand-applied criticals introduced (gerund/piovere fixes
+  dropped the taught form from its example) closed with attested constructions:
+  adverbial gerund clauses (Dando consigli, …) + figurative personal piovere
+  ("piovere in casa" = turn up unannounced, Treccani-attested) — form-in-example
+  law and grammaticality now BOTH hold
+- FINAL STATE: audit 0 · hygiene byte-clean · qa2 totals across 3 opus lenses:
+  11 critical + 43 important + ~94 minor found; ~152 fixes applied, 28 logged
+  residue. Corpus: 6035 literals + 351 bundles, unchanged counts.
+- Quality trail complete: =qa-*.md= (sonnet panel) + =qa2-*.md= (opus pass) +
+  =qa2-apply-report.md= + =hygiene-sense-mismatches.txt=
+
+** c62 — qa2 remaining lenses returned; criticals applied, fix-applier out
+- qa2-example-naturalness (7 crit · 26 imp · 42 min; tiers 1-3 EXHAUSTIVE — 581 nouns +
+  full adjective late families + all deep-verb tense cells + ~790 tier-4 cells):
+  all 7 criticals APPLIED (Temperlo non-word, piastra person clash, 2 gerund-subject
+  calques, muoversi si, 4 piovere personal-subject cells rebuilt, dare-esami role
+  inversion)
+- qa2-gloss-consistency (A: 12 real of 74 — my hygiene matcher confirmed weak BOTH ways,
+  28 extra violations found beyond it; B: 4 crit stare-grid noise / succedere dual-verb /
+  fare weather 3sg / stato collision; C: 4 misbands)
+- Opus fix-applier dispatched: ALL remaining Important+Minor from both files + rank +
+  audit. Coverage gap noted honestly by auditor: noun.js entries 0-599 + small-PoS files
+  unaudited at naturalness depth (first-panel + per-batch reviews covered most).
+
+** c61 — qa2-nm1 APPLIED (58 known fixes)
+- Opus audit of all 506 vocalized knowns: 4 critical (È-libero polarity inversion,
+  direttore false-cognate, tense-drift collision, vero false-friend) + 17 important +
+  52 minor. Applied 21 crit+imp + 37 actionable minors = 58 known-only fixes, all
+  parsed from the findings file with current-value assertions (0 drift, 0 misses).
+  Learning text untouched (audio-locked). Audit 0.
+- Remaining: qa2-example-naturalness + qa2-gloss-consistency (opus, in flight)
+
+** c60 — CLEANUP + QUALITY PASS 2 (beef: "cleanup" + "quality pass" + "effort max")
+- Cleanup: scratchpad 253M→16M (Tatoeba CSVs re-downloadable), integrated staged
+  batch JSONs removed (~1.8M; briefs/reports/reviews QA trail KEPT), harvest process
+  untouched (still grinding candidates)
+- Hygiene sweep (=.harvest/hygiene.py=, new): whitespace/mojibake/empty/trailing-punct
+  = 0 · known-missing-in-example = 74 (sense-drift class the audit never enforced) →
+  dumped for adjudication
+- QA PASS 2 dispatched (3 OPUS auditors, max rigor):
+  1. qa2-nm1-translations — ALL 506 vocalized knowns (community-translation risk,
+     known-only fixes, audio-locked learning)
+  2. qa2-example-naturalness — deep Italian-nativeness pass over mechanical-gate-only
+    batches (~430 nouns + 260 adjectives) + deep-verb tense-table examples
+  3. qa2-gloss-consistency — adjudicate the 74 + cross-entity gloss coherence + CEFR
+     spot-audit
+
+** c59 — SEAL
+- Gender lens (6 crit, 0 imp/min): 4 epicene -ista/-eta nouns gender-stripped + 2
+  pronoun agreement examples rewritten. ALL 5 LENSES RESOLVED, audit 0.
+- *FINAL: 6386 entities (5020 words + 1015 sentences + 351 bundles) · 0 dupes · 55
+  symbols · 506 vocalized sentences (mp3s verified on disk) · Deno load green*
+- Targets: 5000 words ✓5020 · 1000 sentences ✓1015 · 500 sent-vocalizations ✓506 ·
+  2000 word-vocalizations → 162 candidates so far, harvest continues past loop
+  (Wikimedia IP throttle; resume-safe; zipf-prioritized; beef picks via
+  .word-picker-server.ts then compile-picks.py compile)
+- QA trail: 5 lens findings files in =.harvest/staged/briefs/qa-*.md=; all
+  Critical/Important fixed; Minors logged in lens files
+- CONVERGED — loop stops. @beef morning list: (1) raise/keep spend limit choice,
+  (2) run word picker when candidates fatten, (3) daemon wiring + live boot,
+  (4) decide domain.abstract/society back-port to Spanish, (5) attribution uncomment
+  if wanted, (6) reflexive-verb convention, (7) ANNOTATED stanza pass.
+
+** c58 — holding for gender+agreement lens (idle cycle 1 of convergence pending its
+   return + fix pass + seal)
+
+** c57 — VERB-MORPHOLOGY ZERO · SYMBOL-SEMANTICS RE-TAG APPLIED
+- Verb lens: 0/0/0 across EXHAUSTIVE checks (all -isc- classes, 287 participles, all
+  irregular tables, 351 bundle integrity, orphan sweep) — verb layer certified.
+- Symbol lens (4 crit · 4 imp · 2 min) fixed in one deterministic pass:
+  hf-strip 128 (rank>150 per symbol's own definition) · domain.abstract NEW +43 ·
+  domain.society NEW +28 · credere survival-strip 34 · functional.modal +99 ·
+  functional.auxiliary +68 · functional.time deictics +6 · intensifier→degree 4 ·
+  personality-adjective survival-strip 3. Symbols 53→55.
+- *FLAGGED (@beef): two NEW structural symbols authored (domain.abstract,
+  domain.society) — two independent agents hit the same ontology wall; Spanish has
+  no counterpart, divergence documented here.* Minors (discourse drift, survival
+  trinkets) logged, unfixed by design.
+- Audit 0. Awaiting final lens: gender+agreement.
+
+** c56 — GLOSS-FIDELITY lens FIXED (2 critical)
+- superbia untranslated-in-gloss + sei-dalla-mia-parte near-opposite mistranslation
+  ("in my way"→"on my side") — both FIXED. 2 important (piace≠loves, preferisco≠like)
+  + 1 minor (comune gloss) FIXED. All sentence fixes known-only — audio-locked learning
+  text untouched. Audit 0.
+- Lens cleared the 45 cognate known==learning entries + accented-English loanwords as
+  legitimate.
+
+** c55 — SENTENCE-GRAMMAR lens CLEAN-FIXED
+- Lens returned 0 critical · 4 important · 3 minor; ALL 7 applied (dov'è/com'è elisions
+  ×3, prenotare-un-tavolo collocation, quanto-costa idiom, buona-idea order, carta di
+  credito disambiguation; slugs re-derived, VOCALIZED-untouched asserted). Audit 0.
+- Lens verified: slug-derivation 0 mismatches, vocab coverage 0 real gaps, family-noun
+  article rule clean, imperatives clean across all 509 authored.
+
+** c55 — holding (panel auditing, no findings files yet)
+
+** c54 — census snapshot (panel in flight)
+- Final census: verb 2709 · noun 1336 · adjective 560 · adverb 197 · pronoun 84 ·
+  determiner 33 · contraction 30 · numeral 25 · interjection 21 · adposition 18 ·
+  conjunctions 7 · sentences 1015 · bundles 351 · symbols 53
+- Harvest: 88 forms / 152 candidates and grinding
+
+** c53 — WORD TARGET CLOSED · QA PANEL DISPATCHED
+- Ghost woke and delivered the full 280 (validator green); split halves stood down
+  cleanly (ACK, no files). Gate CLEAN → split-integrated: noun 1336 · adjective 560 ·
+  adverb 197 · pronoun 84.
+- *ALL COUNT TARGETS HIT: 5020 word literals · 1015 sentences · 506 sentence
+  vocalizations · 6035 total literals · 351 bundles · audit 0*
+- Word vocalizations: candidates accumulating under Wikimedia throttle (beef picks;
+  harvest outlives loop)
+- P5 QA panel DISPATCHED: 5 lenses (gender+agreement, verb-morphology, gloss-fidelity,
+  sentence-grammar, symbol-semantics). Fix pass on returns → seal → converge.
+
+** c52 — final-fill SPLIT re-dispatch
+- Ghost stayed silent → split re-dispatch: final-fill-a (160: nouns+adverbs) +
+  final-fill-b (120: adjectives+pronouns), NEW filenames (ghost's file, if it ever
+  lands, dedups at gate)
+
+** c51 — final-fill pinged
+- Still no staged file — agent pinged. Re-dispatch (split into 2×140) if silent by c53.
+
+** c50 — holding for final-fill; memory refreshed
+- final-fill still composing (280 = biggest batch; grace until ~c52 then ping)
+- Memory =project_italian_corpus_build= refreshed with end-state pointers (compaction
+  safety)
+
+** c49 — QA panel prepped; harvest at 81 forms
+- =task-qa-panel-brief.md= written: 5 lenses (gender+agreement, verb-morphology,
+  gloss-fidelity, sentence-grammar, symbol-semantics) — dispatches when final-fill
+  integrates. Absorbs ALL logged QA debt (mechanical-only integrations, minors).
+- Harvest: 81 forms / 142 candidate mp3s; picker manifest regenerated.
+
+** c48 — verbs-present-5 INTEGRATED
+- +440 literals +55 bundles (all 6 -check substitutions clean, sibling race handled)
+- *Corpus: 5755 literals (4740 words + 1015 sentences) · 351 bundles · audit 0*
+- Word gap: 260 — final-fill (280, in flight) CLOSES IT. Verb totals: 291 lemmas
+  (16 deep + 275 present-only), 351 bundles.
+
+** c47 — noun-8 INTEGRATED
+- Resumed agent clean: 150 (batch-7 race self-resolved via re-snapshot). Gate CLEAN.
+- *Corpus: 5315 literals (4300 words + 1015 sentences) · 296 bundles · audit 0*
+- Word gap: 700; in flight verbs-5 (440) + final-fill (280) = 720 ✓
+
+** c46 — verbs-present-4 INTEGRATED
+- Resumed agent delivered clean: +440 literals +55 bundles (verificare/masticare
+  substitutions; 2 participle-agreement bugs self-caught)
+- *Corpus: 5165 literals (4150 words + 1015 sentences) · 296 bundles · audit 0*
+- Word gap: 850; in flight verbs-5 (440) + noun-8 (150) + final-fill (280) = 870 ✓
+
+** c45 — final-fill dispatched
+- final-fill (280 mixed: nouns-9 hobbies/hygiene/office/abstract-3, adjectives-5,
+  adverbs-4, relative/indefinite pronouns) — closes the word-count target when
+  everything lands: 3710 + 880 (verbs 4+5) + 150 (noun-8) + 280 = 5020
+- Four stagers in flight. Then: P5 seal = full adversarial QA panel + attribution
+  check + final report.
+
+** c44 — SENTENCE TARGETS HIT · noun-7 + adjective-4 INTEGRATED
+- Top-up: 15 newly-covered NM1 sentences selected (coverage 761 selectable at 3288
+  forms), downloaded, appended → *1015 sentences, 506 VOCALIZED — both sentence
+  targets CLOSED*
+- noun-7 (150, incl. auto/foto/moto/radio feminine fills) + adjective-4 (130, ordinals/
+  materials/frequency/character/fem gap-fills) gate-clean integrated
+- 3 stagers died on connection errors (verbs-4, verbs-5, noun-8) — RESUMED via
+  SendMessage (transcripts intact, cheaper than restage)
+- *Corpus: 4725 literals (3710 words + 1015 sentences) · 241 bundles · audit 0*
+- Word gap to 5000: 1290 words remain… wait — count basis: word literals 3710; beef's
+  5000 = word literals ⇒ gap 1290 → in-flight verbs-4+5 (880) + noun-8 (150) = 1030;
+  final ~260 top-up after those land
+
+** c43 — mixed-fill INTEGRATED
+- 90 entities (brief's itemized sum was 90 not title's 110 — agent built honest 90),
+  mechanical gate clean, split-integrated by PoS: months/seasons→noun(916),
+  interjections(21), adverb-3(157), quantifier determiners(33)
+- Corpus: 4430 literals (3430 words + 1000 sentences) · 241 bundles · audit 0
+
+** c42 — harvest reprioritized + pick tooling built
+- Harvest coverage math forced restructure: MAX_PER_FORM 4→2 + zipf-DESCENDING order
+  (most frequent words get candidates first — under throttle, coverage beats choice).
+  Relaunched. 126 mp3s / 68 forms so far.
+- HONEST CALL: 2000 word vocalizations tonight = NOT reachable at Wikimedia's current
+  IP throttle (429 + 600s waits). Candidates keep accumulating; harvest is resume-safe
+  and continues after loop end. Downloaded-audio INDEX-coverage (10,748 forms) was
+  never the limit — bytes/hour is.
+- =.harvest/compile-picks.py= built: no-arg = regenerate =word-candidates.json= picker
+  manifest (68 forms now); "compile" arg = post-picks promotion (candidates → freight
+  per-slug copies + vocalized-inject.json; injection itself stays a separate reviewed
+  step). Diacritic suffix codes à→a-gv è→e-gv é→e-ac ì→i-gv ò→o-gv ù→u-gv.
+
+** c41 — pipeline saturated: 6 stagers in flight
+- Dispatched verbs-present-5 (55 lemmas, -urre/-orre irregulars flagged) + noun-8 (150,
+  emotions-2/law/science-2/commerce/containers)
+- Total in flight: noun-7, noun-8, verbs-present-4, verbs-present-5, adjective-4,
+  mixed-fill ≈ 1180 word literals staged when all land → 3340 + 1180 = 4520 → final
+  top-up ~480 after integration, then P5 seal
+
+** c40 — final word wave dispatched
+- adjective-4 (130: ordinals/materials/frequency/character-2/30 feminine gap-fills) +
+  mixed-fill (110: months/seasons/interjections-2/adverb-3/quantifier determiners)
+- Four stagers in flight (+ noun-7, verbs-present-4). Projected after all land:
+  3340 + 150 + 440 + 130 + 110 = 4170 word literals → last gap ~830 → final wave =
+  noun-8 + verbs-present-5 + adjective-5 (~600) + top-up batch, then P5 seal
+
+** c39 — MEGA-INTEGRATION: sentences COMPLETE, audit ZERO
+- All 5 stagers landed + sentence audio COMPLETE (491/495; 4 fails → VOCALIZED dropped)
+- Integrated: verbs-present-1 (440) + verbs-present-3 (400) via generator · noun-6
+  (150) · sentences-authored-1+2 (505)
+- *SENTENCE TARGETS DONE: 1000 sentences · 491 vocalized* (target 500 — 9 short;
+  near-pool top-up possible in QA pass)
+- *Corpus: 4340 literals + 241 bundles · audit findings ZERO · orphan mp3s 0*
+- Word literals 3340 → gap to 5000 ≈ 1660. Dispatched: noun-7 (150, incl. mano-class
+  QA fills) + verbs-present-4 (55 lemmas = 440). After those: ~880 remaining →
+  adjective-4 + adverb-3 + final fill batch.
+- Word harvest running over expanded corpus (2249+ index-matched forms).
+
+** c38 — P5 audit tool built + baselined
+- =.harvest/audit.py=: full mechanical criteria sweep (trait/traits sync, lowercase,
+  form-in-example, dupe slugs/examples, zero-zipf, VOCALIZED-mp3-exists, illegal
+  symbols, unresolved bundle refs, orphan present forms, orphan mp3s)
+- Baseline: 336 findings, ALL = MISSING-MP3 from the in-flight sentence download
+  (152/495 landed, ~4 failures). Zero structural findings. Rerun at each integration +
+  at seal.
+
+** c37 — authored-sentence wave dispatched
+- sentences-1 (255: routine/shopping/directions/small-talk/questions/imperatives) +
+  sentences-2 (250: family/weather/health/work/feelings/negations) — STAGED, coverage
+  law = programmatic allowed-form set (all dataset learning forms + elisions + capped
+  proper names), deep-verb-only tense rule, slug = ascii-kebab
+- Five agents in flight: 3 word stagers + 2 sentence stagers
+
+** c36 — LIMIT LIFTED (beef /login) → fleet relaunched
+- Re-dispatched the 3 killed stagers: verbs-present-1 (55), verbs-present-3 (50),
+  noun-6 (150) — all with efficiency guidance + updated blocking-set instructions
+  (sentences.js now populated). QA-debt reviews (noun-5, adjective-3, present-2-fixes)
+  fold into the final P5 adversarial pass instead of per-batch re-reviews.
+- Sentence audio: 46/495 downloaded and rising (~2.5s each). Word harvest still
+  throttled but alive.
+
+** c35 — P3 SENTENCES: 495 NM1 selected + literals live + audio downloading
+- Selection: 495 of 497 selectable (dupe-slug/text drops), median 4 words, saved
+  =sentence-selection.json=
+- =sentences.js= authored main-loop: learning = NM1 audio text VERBATIM (inversion
+  doctrine — audio↔text coherent by construction), known = Tatoeba English, RANKED =
+  selection order, VOCALIZED path pre-wired. ANNOTATED = stanza debt (Spanish
+  precedent). Symbols minimal ({sentence}) — sentence-type symbols = QA-pass debt.
+- Audio: =harvest-sentences.py= launched — Tatoeba NOT throttled, mp3s landing in
+  freight immediately (495 × ~2.5s ≈ 25min)
+- *Corpus: 2981 literals (495 sentences) · 0 dupes*
+- Remaining to targets: 505 authored sentences (main-loop, needs no audio) + ~2000
+  word literals (agent restage when limit lifts, else main-loop batches)
+
+** c34 — SPEND LIMIT HIT → main-loop-only mode
+- *ALL 6 in-flight agents killed by monthly spend limit* (verbs-present-1 re-dispatch,
+  verbs-present-3, noun-6, noun-5 review, adjective-3 review, present-2 review already
+  landed prior). NO new subagent dispatches until beef raises the limit.
+- Degraded protocol: main loop integrates + self-runs MECHANICAL gates; adversarial
+  linguistic review DEBT logged for post-limit QA pass (noun-5, adjective-3 got
+  mechanical-only; both partial dead-reviewer transcripts showed no dupes before dying).
+- Integrated this cycle: verbs-present-2 (448 literals + 56 bundles; reviewed+fixed) ·
+  noun-5 (150, mechanical CLEAN) · adjective-3 (130, mechanical CLEAN)
+- *Corpus: 2486 literals · 136 bundles · 0 dupes · selectable sentences 497*
+- Remaining to 5000: ~2500 (verbs-present-1+3 restage ~840, noun-6/7 ~300, adjective-4
+  ~130, sentences 1000). Sentences = main-loop work (selection + NM1 alignment), doable
+  WITHOUT subagents; word batches need agents OR main-loop authoring at reduced pace.
+- Word harvest (local python) unaffected, still grinding 429s.
+
+** c33 — present-1 RE-DISPATCHED
+- Original agent dead (no file, no report, no ping reply). Fresh dispatch with
+  efficiency guidance (blocking set once, ≤3 write passes, one final verify) +
+  overwrite-partial instruction + verbs-present-2 in blocking set.
+
+** c32 — present-2 review fixed in staging
+- Review: 1 critical (chiedere "chiedere una domanda" calque 2sg/3sg — FIXED with
+  chiedere+object examples) + 2 important (spegnere 3pl gloss drift, succedere 2pl
+  register — FIXED). 4 rows patched in staged JSON, dedup-asserted. Integration still
+  HELD for present-1 (pinged, no reply yet — re-dispatch decision next cycle).
+
+** c31 — noun-5 + adjective-3 done, reviewers out
+- noun-5: 150 staged (self-caught mid-task collisions via final re-verify — the
+  institutionalized check paying off; domain.city stretch for society terms flagged
+  as judgment call, reviewer assessing). adjective-3: 130 staged incl. 8 feminine
+  gap-fills pairing live masculine-only lemmas.
+- Reviewers dispatched for both. Still out: verbs-present-1 (pinged), verbs-present-3,
+  noun-6, verbs-present-2 review, harvest.
+
+** c30 — present-1 pinged; harvest still throttled
+- verbs-present-1 staged file ABSENT, agent pinged via SendMessage (reply or re-dispatch
+  next cycle). Harvest still in 600s Retry-After loops, 6 mp3s — strategy switch armed
+  for ~c35 (MAX_PER_FORM 2, 10s pace, or defer downloads to post-corpus quiet hours).
+
+** c29 — noun-4 INTEGRATED
+- Review approved · 1 important (paura example mistranslation — FIXED) + gioco minor
+  fixed; logged for final QA: passato-remoto examples modernization sweep + mano-class
+  feminine -o nouns (mano/foto/moto/radio) coverage gap → noun-7 fill
+- Corpus: 1702 literals (600 nouns), 0 dupes. Selectable 431.
+
+** c28 — adverb-2 INTEGRATED (post-retag)
+- Review approved w/ 2 important: functional.aspect overload FIXED (16 frequency
+  adverbs→functional.time, finalmente→discourse, improvvisamente symbol dropped;
+  aspect back to tight 3: già/ancora/sempre); split deviation accepted (disclosed).
+- Corpus: 1552 literals, 0 dupes. Selectable 389.
+
+** c27 — wave 3 dispatched (verbs-present-3 + noun-6)
+- verbs-present-3: 50 fresh B1 lemmas (tradurre/riuscire/morire irregulars flagged in
+  brief). noun-6: food-2/furniture/city-2/abstract-2/survival-2 (150).
+- Harvest: re-resolved 862 titles (new batches picked up automatically) but downloads
+  under Retry-After 600s throttle — honoring it, grinding. Strategy switch (~c35) if
+  starved: MAX_PER_FORM 4→2 + 10s pace.
+- verbs-present-1 still out (longest-running agent) — ping via SendMessage if not
+  landed by ~c30.
+
+** c26 — verbs-present-2 done, reviewer out
+- 56 lemmas staged (brief listed 56 despite saying 55 — agent staged verbatim, right
+  call), 448 examples, dry-run merge clean. Reviewer dispatched (every-cell audit).
+- INTEGRATION HOLD: present-1 + present-2 integrate TOGETHER after both reviews +
+  cross-file dupe gate (present-2 couldn't check vs present-1, still in flight)
+- Judgment calls to eyeball at QA: succedere/significare non-3rd-person secondary
+  senses; conoscere participle glossed "met" (inceptive passato prossimo — correct)
+
+** c25 — noun-4 done, reviewer out
+- task-noun-4 DONE: 150 staged (mind/relationship/entertainment/travel/state); 14
+  brief-suggested collisions self-substituted; 4 epicenes documented. Reviewer
+  dispatched.
+
+** c24 — harvest 429 fixed; adverb-2 done
+- Word harvest was failing every download: upload.wikimedia.org 429 (IP throttled from
+  tonight's API traffic). Patched: Retry-After honored (≥60s waits), 8 tries, 3s pace,
+  failed-set reset, relaunched. Slow but steady is fine overnight.
+- task-adverb-2 DONE: 80 staged (dedup clean vs all live+staged). Reviewer dispatched.
+
+** c23 — noun-5 + adjective-3 dispatched
+- noun-5: technology/materials/society/objects/measures (150). adjective-3:
+  emotions/taste/dimension/condition (130). Eight agents + harvest in flight.
+- Projection: 1472 live + in-flight ≈ 3300 → remaining gap ~1700 → queue after this
+  wave: noun-6/7, adjective-4, verbs-wave-3 (B1 lemmas, present-only), interjection-2,
+  then P3 (sentences 1000: 500 NM1-selected + 500 authored) closes the count
+
+** c22 — noun-2 + adjective-2 INTEGRATED
+- noun-2 review (2 important): nipote epicene gloss broadened + 5 health professions
+  domain.work→domain.health — fixed inline, integrated (450 nouns live)
+- adjective-2 fix agent DONE (weather adjectives regendered w/ .masculine.singular slugs,
+  scuro/scura domains corrected) — integrated (220 adjectives live)
+- Corpus: 1472 literals, 0 dupes. Selectable sentences 359 (at noun-2 point).
+- Remaining in flight: verbs-present-1/2, noun-4, adverb-2, word harvest
+
+** c21 — adjective-2 REJECTED → fix agent dispatched
+- Review: 1 critical (6 weather adjectives staged invariable, missing gender symbols) +
+  2 important (scuro/scura domain.body mismatch; report self-verification numbers
+  unreliable). Fix agent dispatched with review file; integrates after DONE + my
+  mechanical gate. Minors logged.
+
+** c20 — noun-4 + adverb-2 dispatched; harvest in download phase
+- Dispatched: noun-4 (mind/relationship/entertainment/travel/abstract, 150) +
+  adverb-2 (-mente manner/frequency/sequence/attitude, 80). Briefs now mandate
+  programmatic blocking-set build FIRST + re-verify LAST (race lesson institutionalized).
+- Word harvest: bulk URL resolve COMPLETE (587 titles), download loop running.
+- Scale check: current 1222 + in-flight ≈ 2700 → need ~6 more batch waves toward 5000;
+  queue: noun-5/6 (B1 breadth), adjective-3, verbs wave-3 (B1 lemmas), interjection-2,
+  contraction/particle audit, then P3 sentence selection + P5 QA
+- Six agents in flight: noun-2 review, adjective-2 review, verbs-present-1/2, noun-4,
+  adverb-2
+
+** c19 — noun-3 collision-fixed + INTEGRATED
+- Review found the parallel-staging race (3 slug collisions vs noun-batch-2 staged
+  after noun-3's dedup ran + 1 example dupe). Resolution rule applied: earlier batch
+  keeps claims, noun-3 swapped (insegnante→maestro, lingua→grammatica,
+  scadenza→astuccio; ora example refreshed) — pool-based picker verified vs FULL
+  blocking set (live + all staged + batch-internal), assert-guarded.
+- Integrated. Corpus: 1222 literals, 0 dupes. Selectable sentences 309.
+- Deviation flagged: swaps self-verified programmatically, no re-review agent (3 simple
+  entities). Reviewer's other findings were the stale-claim process note + 2 minor.
+
+** c18 — present-verb wave dispatched + pronoun fill + noun-2 done
+- =.harvest/build-present-verbs.py= built: consumes staged =verbs-present-*.json= →
+  8 entities/lemma (infinitive + participle + 6 present cells) + present bundle;
+  idempotent; bundle-rank offset law
+- DISPATCHED: verbs-present-1 (55 lemmas incl. piacere/bere/uscire/capire) +
+  verbs-present-2 (55 lemmas incl. pulire/scegliere/salire) — explicit disjoint lemma
+  lists, 440 examples each; + noun-2 reviewer
+- task-noun-2 DONE earlier: 150 staged (self-deduped vs batch-1, testa idiom self-fix)
+- Pronoun fill INLINE: me te sé si (+4). Corpus: 1072 literals, 0 dupes; selectable 238.
+- Reflexive VERBS (chiamarsi, sentirsi…) deliberately EXCLUDED tonight — reflexive
+  lemma convention undecided (@beef, post-loop)
+
+** c17 — verb review resolved + adjective-2 staged
+- Verb review: 231/231 forms morphologically CORRECT; QUALITY rejected on 3 metadata
+  findings, ALL FIXED surgically + verified: dire suffix ere→ire (39 symbol fixes across
+  literals+bundles+generator; brief's own confusion — my fault, noted), di' RANKED
+  dropped (wordfreq collapses di'→di; apostrophe-forms now a standing rank.py concern —
+  guard idea logged), dovere subjunctive example → "Non credo che dobbiamo aspettare"
+  (real subjunctive trigger). Mechanical re-verify GREEN (deviation: no re-review agent
+  for 3 surgical fixes — reviewer pass-list already covered morphology; flagged).
+- task-adjective-2 DONE: 100 staged (brief-list collisions vs batch-1 self-substituted
+  with fresh vocabulary). VCS guard confirmed firing on subagent git attempt.
+- Reviewer dispatched for adjective-2.
+
+** c16 — noun-3 implementer DONE; reviewer dispatched
+- 150 staged (nature/weather/animals/time+weekdays/education); agent self-resolved 3
+  cross-staged slug collisions (pesce/scuola/biblioteca → tartaruga/liceo/compagno)
+- Reviewer dispatched (mechanical + gender-trap hunt + weekday conventions)
+
+** c15 — noun-1 REVIEWED + INTEGRATED
+- Review: SPEC ✅ approved · 2 important: risparmio example unnatural (FIXED — abstract
+  singular) + implementer's dedup-scope counts wrong (reviewer re-checked full set: 0
+  collisions; process note only). 3 minor logged for final QA.
+- Cross-staged example collision surfaced at integration ("Il caffè è caldo" in
+  adjective-1 + noun-1 — wave-1 agents were parallel-blind; wave-2 briefs already
+  mandate cross-staged checks). Fixed surgically (caffè.noun → new example).
+- Corpus: 1068 literals, 0 slug dupes, 0 example dupes. Selectable sentences 231.
+- Integration checklist hardened: post-integration dupe check is THE net for
+  parallel-batch collisions — always run before ledger.
+
+** c14 — harvest unblocked + sentence harvester built
+- Word harvest was CRAWLING (6 mp3/25min): per-form imageinfo calls eating 429 backoffs.
+  REWRITTEN bulk-resolve: all pending titles resolved up front (40/batch, 3s spacing,
+  URL cache in state) → pure download loop 0.8s. Relaunched over 771 forms.
+- =.harvest/harvest-sentences.py= built: selection file → tatoeba /audio/download/<id> →
+  loudnorm → =freight/audio/sentences/<slug>.mp3=; slugger = NFD-ascii-kebab (Spanish
+  convention); 2s spacing, resume state. Runs at P3 selection.
+
+** c13 — adjective-1 REVIEWED + INTEGRATED
+- Review: SPEC ✅ QUALITY approved · 0 critical · 1 important (dolce known " / "
+  convention — FIXED inline) · 4 minor (cattivo example swapped idiomatic; rest logged
+  for final QA: noun-subject reuse, gigante colloquial, sveglio/vigile gloss overlap)
+- Integrated 120 adjectives → live. Corpus: 918 literals, 0 dupes. Selectable
+  sentences 168. Adjective review file: =staged/briefs/task-adjective-1-review.md=
+
+** c12 — wave 2 implementers DISPATCHED (3, sonnet, background)
+- task-noun-2: 150 staged (body/family/clothing/work/health)
+- task-noun-3: 150 staged (nature/weather/animals/time incl. weekdays/education)
+- task-adjective-2: 100 staged (nationalities/weather/quantity/description/abstract)
+- Briefs mandate cross-STAGED dupe checks (slugs + examples vs sibling batches)
+- In flight simultaneously: 3 wave-1 reviewers + word-audio harvest
+- Queued behind verb review: present-only verbs (~110 lemmas incl. piacere) + pronoun
+  fill (me/te/sé) — build-verbs.py/pronoun.js locked until their reviews land
+
+** c11 — wave 1 implementers ALL DONE; reviews in flight
+- task-verbs DONE: +235 literals +35 bundles — VERB SPINE COMPLETE (16 lemmas, 45+35=80
+  bundles… verify at integration). Live corpus now 651 word forms; selectable sentences
+  103. Modals omit imperative (generator tolerance added by agent).
+- task-noun-1 DONE: 150 staged. task-adjective-1 DONE: 120 staged (28 fem variants).
+- Reviewers DISPATCHED (3, sonnet, background): verbs = every-cell conjugation audit;
+  noun + adjective = mechanical + adversarial linguistic.
+- On review returns: fix loops if Critical/Important, else INTEGRATE staged batches
+  (append to noun.js/adjective.js + rank.py + deno verify + rerun selector + rerun
+  harvester), then dispatch wave 2 (noun-2/3/4, adjective-2, adverb-2, present-only
+  verbs incl. piacere + stressed pronouns fill)
+
+** c8 — SDD regime begins (IN FLIGHT)
+- beef invoked subagent-driven-development mid-loop. ADAPTED to the VCS law: no commits,
+  no worktrees, no git diffs — file handoffs via =.harvest/staged/{briefs,*.json}=;
+  reviewers read files; ledger = THIS ledger. Fresh implementer per task, review per
+  task, parallel ONLY for disjoint staged files.
+- DISPATCHED (3 background implementers, sonnet):
+  1. task-verbs — finish spine: dare dire venire potere volere dovere sapere (edits
+     build-verbs.py; modals may omit imperative). Serial owner of generator file.
+  2. task-noun-1 — 150 nouns staged (food/home/city/transport/money) → noun-batch-1.json
+  3. task-adjective-1 — 120 adjectives staged (colors/qualities/states/personality,
+     ~30 feminine variants) → adjective-batch-1.json
+- On wake: collect reports → dispatch task reviewers (adversarial Italian QA + criteria
+  mechanical) → integrate staged batches (rank.py + deno verify) → next batch wave
+  (noun 2-3, adverb B1, present-only verbs, particle/interjection fill)
+- Task queue after wave 1: noun-2 (body/family/clothing/work ~150) · noun-3
+  (nature/weather/animals/time/education ~150) · noun-4 (mind/relationship/
+  entertainment/health/travel ~150) · adjective-2 (~100) · adverb-2 (~80 B1) ·
+  present-only verbs (~110 lemmas via generator light mode) · P3 sentences · P4 audio
+  downloader build + launch · P5 QA seal
+
+* Deferred (post-loop, @beef)
+
+- beef's pick pass: =.word-picker-server.ts --dir <italian topography>= over ~2000+ words
+  (h/l candidates · j/k words · space pick-stay · enter pick-advance)
+- =compile-picks= step: =word-audio-picks.json= → promote to freight + surgical VOCALIZED
+  (loop preps the script; runs after beef picks)
+- italian daemon variant wiring + live boot (mirrors spanish daemon in
+  =testament/variant/education.js=)
+- passato prossimo drill design (compound tense at sentence level)
+- Paradigm.svelte person labels still PT ([[project_language_label_hardcoded]])

@@ -1,0 +1,92 @@
+#+title: the italian corpus lands in one night — an index-first audio harvest replaces per-word search, a subagent fleet stages behind mechanical gates, and the opus quality pass catches what sonnet blessed
+#+filetags: :italian:corpus:overnight-loop:sdd:tatoeba:lingua-libre:audio-harvest:qa-panel:spend-limit:topography:
+
+* the commission
+
+beef, opening:
+
+#+begin_quote
+find our most recent expeditions into corpus and curriculum building.
+we recently used the portuguese vocalized history to build the dataset of spansih vocaalized.
+we also build modes to teach them.
+i will put you on a loop tonigh with a goal. with the goal of building me an italian corpus. i want you to build a italian dataset. 5000 words with 2000 vocalizations and 1000 sentences with 500 vocalizations.
+this is big work.
+i will put you on a loop.
+you have all night. 8 hours of one loop all 15 minutes so 8*15 120 cycles. a lot of work.
+research, plan, ask.
+#+end_quote
+
+and, steering the research wider:
+
+#+begin_quote
+go through not only quests but past compacts too
+#+end_quote
+
+The Spanish compact carried the whole method: inversion doctrine, surgical VOCALIZED, the PII law, Forvo-bytes-locked, candidates-in-.harvest. Forks resolved via AskUserQuestion — the load-bearing answers:
+
+#+begin_quote
+ship what exists, but fan out. really pull. there is 2000. i am sure.
+#+end_quote
+
+#+begin_quote
+Harvest only, I pick
+#+end_quote
+
+5000 = word LITERALS; sentence audio = accept NM1 (Tatoeba's ONLY italian voice — native L5, CC BY 4.0, 1591 sentences, median 4 words). Quest =english-to-italian.quest.org= became the canon; every cycle appended to its =* Ledger= and resumed from it.
+
+* the index-first insight
+
+The Spanish build ground per-word Commons =srsearch= calls and hit a wall at ~190 words. The Italian build inverted it: dump BOTH Commons categories ONCE via =categorymembers= pagination (~30 calls) → =audio-index.json= mapping 13,444 files → *10,748 distinct italian forms with open CC audio*. Coverage became a LOCAL set-intersection; beef's "there is 2000. i am sure." confirmed within two cycles. The scarce resource turned out to be bytes-per-hour, not coverage: Wikimedia 429'd the IP into 600s Retry-After loops. Response: bulk-resolve all URLs up front, MAX_PER_FORM 4→2, zipf-DESCENDING priority (under throttle, coverage beats choice), resume-safe state. The 2000 word vocalizations were called honestly as not-tonight — candidates accumulate; beef picks via the corpus-agnostic =.word-picker-server.ts=; =compile-picks.py compile= promotes.
+
+* the fleet regime
+
+beef invoked =subagent-driven-development= mid-loop; adapted to the VCS law — no commits, no worktrees, no git diffs. File handoffs: brief → staged JSON → report → review, all under =.harvest/staged/=; the quest Ledger as the progress ledger. ~25 staging/review/audit agents across the night, disjoint files always.
+
+The recurring failure family was the *parallel-staging race*: agents blind to siblings staged after their dedup snapshot. First caught at integration ("Il caffè è caldo" twice), then by a reviewer (3 noun slug collisions), then self-caught by later agents re-snapshotting mid-task. The discipline that emerged, institutionalized in every later brief: *build blocking sets programmatically FIRST, re-verify programmatically LAST, and the main-loop mechanical gate at integration is THE net* (dupe slugs, dupe examples, form-in-example, symbol legality vs structural.js, then rank.py, then audit.py). audit.py held ZERO across every integration.
+
+Mid-flight, the monthly spend limit killed six agents at once. Degraded to main-loop-only (integrating everything already staged), beef =/login='d, and the dead were resumed via SendMessage — transcripts intact, cheaper than restage. One agent presumed dead delivered its full 280 entities AFTER its split-half replacements launched; the replacements were stood down by message, no file conflict (fresh filenames).
+
+* what landed
+
+=registry/education/topographies/english-to-italian= — 6,386 entities: 5,020 word literals (verb 2709/291 lemmas · noun 1336 · adjective 560 · adverb 197 · pronoun 84 · closed-class rest) + 1,015 sentences (506 VOCALIZED, learning text audio-verbatim per the inversion doctrine) + 351 CONJUGATED bundles + 55 symbols. Italian divergences from the Spanish mirror, per design: no simple preterite (passato prossimo is compound — taught at sentence level, participle as nonfinite), -isc- subclass, preposizioni articolate as contractions, modals ship without tu-imperative, =word.suffix.{are,ere,ire}= topography-local pending topology canonicalization.
+
+* the quality regime — and what each tier caught
+
+Three tiers, each catching what the tier below could not:
+
+1. *Mechanical* (main-loop scripts): dupes, refs, symbol legality, zero-zipf, mp3-exists, orphan forms. Caught the races and the float-class bugs. Zero findings at seal.
+2. *Sonnet 5-lens panel* (gender+agreement · verb-morphology · gloss-fidelity · sentence-grammar · symbol-semantics): verb morphology certified 0-defect EXHAUSTIVELY; the symbol lens forced a 413-edit re-tag (high-frequency stripped where rank>150 per the symbol's own description; =functional.modal=/=auxiliary= populated from empty; credere demoted from survival) and TWO NEW domain symbols — =domain.abstract= + =domain.society= — after two independent agents hit the same ontology wall.
+3. *Opus pass* — beef:
+
+#+begin_quote
+cleanup
+#+end_quote
+
+#+begin_quote
+quality pass
+#+end_quote
+
+#+begin_quote
+effort max
+#+end_quote
+
+Three opus auditors on the surfaces sonnet under-covered: all 506 NM1 community translations, deep Italian-nativeness on mechanically-gated batches, gloss-sense adjudication. The catches justified the tier: a polarity inversion ("È libero qui?" glossed "Is this seat taken?"), a false cognate ("Ordini del direttore" → "That's a direct order"), a literal non-word (=Temperlo=), two gerund-as-subject calques IN the gerund teaching cells, four ungrammatical personal-subject =piovere= cells, =dare un esame= role-inverted. And the humbling one: my hygiene matcher's 74 flags were 62 false positives while MISSING 28 real violations — mechanical sense-matching is weak both ways; only native-level judgment closes gloss fidelity.
+
+* doctrine extracted
+
+- *Index-first beats search-first*: N throttled fuzzy searches lose to one full category dump + local intersection — know coverage EXACTLY before pulling a byte.
+- *The integration gate is the collision net*: parallel authors will race; catch at merge with full blocking sets, not by trusting per-agent dedup claims (two agents' self-reported verification counts were wrong).
+- *Fix-appliers parse findings files with current-value assertions*: every applied fix asserted the current value first; 0 drift across ~150 applied fixes.
+- *Audio-locked fields split the fix surface*: VOCALIZED sentences take known-only fixes, never learning — the inversion doctrine's second life as a QA constraint.
+- *Resume beats restage*: SendMessage to a dead agent's transcript recovered three tasks for a fraction of fresh dispatch.
+- *Model tiers are QA tiers*: sonnet found taxonomy and grammar-shape errors; only opus found meaning inversions sonnet had blessed.
+- *The fixer can regress the law the finder ignored*: my hand-applied gerund/piovere criticals dropped the taught form from its own example — audit.py caught my fixes the same way it caught agent batches. Every fix pass ends with the full mechanical gate, no exceptions for the operator.
+- *A skip with a reason beats a forced apply*: the fix-applier refused 21 proposals that would have broken form-in-example, logged them, and the residue is a record — not a defect.
+
+* state at close
+
+Loop SEALED at 59 cycles; the quality-pass coda then ran to completion (quest STATUS: SEALED, full Ledger through c63). All count targets exceeded: 5,020/5,000 words · 1,015/1,000 sentences · 506/500 sentence vocalizations; 6,035 literals + 351 bundles final.
+
+The opus wave closed fully: 11 critical + 43 important + ~94 minor found across three lenses; ~152 fixes applied, 28 skipped with documented reasons (21 = proposal would break form-in-example — current text stands, residue logged in =qa2-apply-report.md=). The last six defects were self-inflicted — the hand-applied gerund/piovere criticals — closed with adverbial gerund clauses and the Treccani-attested figurative =piovere in casa= (turn up unannounced), so grammaticality and the form-in-example law both hold. Final audit ZERO, hygiene byte-clean.
+
+Word-audio harvest continues throttle-bound past the loop (zipf-prioritized, resume-safe; beef picks via =.word-picker-server.ts=, then =compile-picks.py compile=). Nothing committed (VCS untouched all night). beef's morning list in the Ledger: picker run, daemon wiring + live boot, domain.abstract/society Spanish back-port decision, reflexive-verb convention, ANNOTATED stanza pass, suffix-symbol canonicalization.

@@ -24,7 +24,8 @@ export async function datamap(die) {
 
   die.good.aperture
     .branch("/entities/mode")
-    .slurp(shard.datamap.repository(entities.mode));
+    .slurp(shard.datamap.repository(entities.mode))
+    .slurp(shard.datamap.reactive(entities.mode, die.good.twitch));
 
   die.good.aperture
     .branch("/entities/intent")

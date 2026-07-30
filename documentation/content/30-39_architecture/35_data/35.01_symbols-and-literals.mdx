@@ -1,50 +1,210 @@
 ---
-title: Symbols & Literals
+title: Entities & Traits
 jdex: "35.01"
+summary: Every entity in the dataspace, the trait-space each one carries, and how traits are read.
 ---
+import Source from "../../../src/components/Source.astro"
+import Example from "../../../src/components/Example.astro"
+import Editor from "../../../src/components/Editor.astro"
+import Tabs from "../../../src/components/Tabs.astro"
 
-# 35.01 · Symbols & Literals
+# 35.01 · Entities & Traits
 
-*the Ontology — an (optional) symbolic entity system that powers the daemons and their modes: from mode traits down to ontological entities, and how the payloads flow between them.*
+*the Ontology — an (optional) symbolic entity system that powers the daemons and their modes. every entity is a stable skeleton plus an open trait-space; traits are what make one entity differ from another without changing its shape.*
 
-## primitives
+## the one shape
 
-A `daemon` is the equivalent of an application - self-contained, persistent, with its own types, entities, and business logic. [[33.01_daemon]].
+An entity is two things bolted together, and the split is the whole design:
 
-`modes` populate the application space and are bundled into persistent, addressable daemons. Modes bring functionality and data to daemons - how, exactly, is [[34.01_modes-and-traits]].
+```
+skeleton     fixed by the descriptor — slug, relations, counters
+trait-space  traits: string[]   the CLAIMS  — what this thing is
+             trait:   record    the PAYLOAD — what that claim carries
+```
 
-The dataspace is inhabited primarily by entities called `literals` and `symbols`, as well as arbitrary secondary entities.
+The skeleton never changes. The trait-space is where a domain, a mode, or a user adds meaning — without a migration, without a subclass, without touching the schema. `Literal` has four own fields and carries 236 `TRANSLATED` payloads across the registry; the entity never learned what a translation is.
 
-- `literals` are concrete singleton data entities - specific words, messages, people. `{ slug, traits, trait, symbols, ontology }`, plus `uses`/`in` self-relations.
-- `symbols` annotate and organize literals and give them meaning. `{ slug, traits, trait, literals }` - an m:n relation to literals.
+**Claim and payload are independent.** A trait can be claimed with no payload — that is legal and load-bearing. So the check is always `entity.traits.includes("X")`, never `entity.trait?.X`, because a present-but-empty trait is a real state.
 
-The abstraction into modes, literals, and symbols lets a dataspace travel - not only between daemons, but across modes and effectively across business logic. Or, from the other side: it lets business logic travel across dataspaces.
+## the roster
 
-## trait-spaces, everywhere
+Every entity, by tier. `◆` = carries a trait-space.
 
-Traits are the system-wide pattern, not a mode-only idea. Each entity tier has its own trait-space, and every trait comes with a payload slot (the `trait`/`data` json keyed by trait name):
+```
+base
+  DataEntity        id · createdAt · updatedAt        MikroORM-persisted root
+  VirtualEntity     slug                              in-memory, non-persisted
 
-- **symbol traits** (kernel): `ONTOLOGICAL` - a subject-matter attribute; `STRUCTURAL` - organizes literals into sets or categories; `LABELED` - carries name and description; `TOPOGRAPHICAL` - marks the ontology a literal belongs to.
-- **literal traits**: the kernel leaves the enum open - the *domain* populates it. The language-learning domain defines `TRANSLATED, EXEMPLIFIED, RANKED, ANNOTATED, VOCALIZED, CONJUGATED`, with payloads like `trait.TRANSLATED.known / .learning` - which the domain's repository searches inside.
-- **intent traits** (userspace): `LABELED, MASKED, AIMED, QUEUEING` - e.g. `trait: { AIMED: { mount: "/emit/deal" }, QUEUEING: { depth: 3 } }`.
-- **thread traits**: inherited from the opening intent - `MASKED` (emitter input), `AIMED` (pointing at an emitter), `QUEUEING` (pre-pulling buffers), `LABELED` - alongside a phase: `inert · manual · continuous · escort`.
+kernel — the shared, ownerless data
+  ◆ Symbol          slug · traits · trait · literals      annotates and organizes
+  ◆ Literal         slug · traits · trait · symbol · symbols   the concrete thing
+    Constraint      (kernel, largely parked)
+    Issue           (kernel, largely parked)
 
-Any trait-space is populated by traits defined by vivalence, and by the specific domain.
+daemon — the installed citizens
+  ◆ Mode            slug · type · name · version · installed · traits
+                    → intents, buffers
+    User            the daemon-side account
 
-## the intent→thread→pull loop
+userspace — live per-user state
+  ◆ Intent          slug · type · name · traits · trait → mode
+  ◆ Thread          traits · trait · cursor · counter → user, mode, intent, buffers
+    Buffer          index · data → mode, thread, literals, symbols
+    Turn            role · parts · meta → parent, children, thread, mode
 
-The `AIMED / MASKED / QUEUEING` traits are where the entity model turns into live behaviour, and it's entirely declarative. An `INTENTED` mode ships intents; opening one creates a `Thread`, and a `beforeCreate` hook copies the intent's traits and payload onto the thread (`thread.traits = [...intent.traits]`). The client then reads those traits directly:
+network — the addressing tier
+    Daemon          a daemon as an addressable peer
+    Identity        who you are across daemons
+```
 
-- `AIMED { mount }` - the emitter leaf the thread pulls from (`/emit/deal`). The client's form skin even builds the input form from the emitter's `MASKED` input schema at that mount.
-- `MASKED` - marks that the thread carries emitter input (the mask).
-- `QUEUEING { depth }` - how many buffers to keep pre-pulled ahead of the cursor.
-- `phase` - `inert` (target self-manages), `manual` (cursor discipline, app drives pulls), `continuous` (keep `depth` buffers queued), `escort` (continuous, returning to the launch buffer when the queue drains).
+Five entities carry traits. **`Buffer`, `Turn`, and `User` deliberately do not** — a buffer's variability lives in `data` (narrowed by its mode's mask) and a turn's in `parts`. They are payload carriers, not typed citizens.
 
-Client-side, a `terminal` owns a `Stall` that watches `{ phase, pull: AIMED.pull, depth: QUEUEING.depth }` live and drives the cursor. The thread owns the configuration; the stall reacts. So "deal cards continuously, three ahead" is four fields on an intent - no controller code. Each of these traits also has its own client widget (`Aimed.svelte`, `Queueing.svelte`, `Masked.svelte`) that edits the payload live. [[36.01_clients]].
+## narrowing — the bridge
 
-## how the payloads flow
+The trait record is `v.record(v.string(), v.unknown())`: open, accepts anything. It becomes typed at the **point of use**, through `narrowable`.
 
-**In - `DATASET`.** Topography modes carry the data as declarative arrays of symbols and literals - slugs, traits, per-trait payloads, and cross-references by slug. Install is a batched upsert (symbols, then literals) followed by m:n linking in both directions. A real symbol from the `word` topology:
+Every traited descriptor declares which key may be narrowed (`schematics/entities/*.js`):
+
+```
+Mode      narrowable: ["traits"]      narrow the CLAIMS
+Literal   narrowable: ["trait", "symbol"]
+Symbol    narrowable: ["trait"]       narrow the PAYLOAD
+Intent    narrowable: ["trait"]
+Thread    narrowable: ["trait"]
+Buffer    narrowable: ["data"]        same mechanism, different key
+```
+
+When a call site passes a plain object for a narrowable key, `v` wraps it in a `Type.Object` and intersects it onto the entity (`schematics/v.js:72`). That single mechanism is behind two things that look unrelated:
+
+<Tabs names={["a mode's buffer mask", "a domain's trait contract"]}>
+<Fragment slot="a mode's buffer mask">
+```js
+export const app = new App("buffer/Pick.svelte",
+  v.buffer({ data: { recall: v.string({ default: "LEARNING" }) } }),
+)
+// narrows `data` — the APPLICATION payload contract
+```
+</Fragment>
+<Fragment slot="a domain's trait contract">
+```js
+v.literal({
+  trait: { TRANSLATED: v.object({ known: v.string(), learning: v.string() }) },
+})
+// narrows `trait` — what TRANSLATED means here
+```
+</Fragment>
+</Tabs>
+
+So: **the kernel ships the open space; the domain and the mode narrow it.** The clearest proof is the literal trait enum — typology declares it empty on purpose, and the language-learning domain fills it:
+
+```
+subsystems/typology/entities/kernel/Literal.ts     enum LiteralTraitsEnum { _ = "_" }
+registry/education/domain/entities/kernel/Literal.ts
+                                                   TRANSLATED · EXEMPLIFIED · RANKED
+                                                   ANNOTATED · VOCALIZED · CONJUGATED
+```
+
+## it runs
+
+Open shape, narrowed shape, the buffer mask, and the claim/payload split — asserted.
+
+<Source name="35.01-entities" />
+
+<Example name="35.01-entities" />
+
+`claims → ["TRANSLATED","VOCALIZED"]` against `carries → ["TRANSLATED"]` is the invariant: `VOCALIZED` is true of that literal and has no payload.
+
+## the eight natures
+
+"Trait" names eight different kinds of thing. Counts are live declarations, `/bak/` excluded.
+
+**Endowments** — grant a power; mount machinery that persists for the daemon's life.
+`APPLICATION` 39 · `EMITTER` 28 · `EXPOSED` 10 · `TOOLED` 8 · `HARNESSED` 7 · `AGENTIC` 4 · `GENERATIVE` 2
+
+**Provisions** — deliver content once, idempotently, then have no runtime surface.
+`DATASET` 9 · `FRAUGHT` 4 · `INTENTED` 3
+
+**Flags** — no payload, no installer. Exist purely to be read by someone else.
+`STANDALONE` 13 · `CONVERSATIONAL` 4 · `SELFEVIDENT` 2
+
+**Dials** — the trait *is* its payload; tunes behaviour rather than adding it.
+`MASKED` 40 · `AIMED` 38 · `QUEUEING` 38
+
+**Coordinates** — say where a thing sits in a space. Mean something; do nothing.
+`ONTOLOGICAL` 173 · `STRUCTURAL` 22 · `TOPOGRAPHICAL` 3
+
+**Facets** — declare what data the bearer carries, in `trait.X`.
+`VOCALIZED` 238 · `TRANSLATED` 236 · `ANNOTATED` 232 · `RANKED` 232 · `CONJUGATED`
+
+**Relations** — point *away* from the bearer, at other entities by slug.
+`REQUIRES { concepts: [...] }` 15 — the primer's curriculum prerequisite DAG
+
+**Roles** — what a module *is* in a deployment.
+`MONK` 3 · `IDENTITY` · `ATTACHED` · `SERVICE` · `DATAMAP` · `SYSTEMMAP` · `SERVER` · `DOCKER` · `COMPOSE` · `EMBEDDED` · `ACTIVE`
+
+`LABELED` 209 is the one that spans tiers — a coordinate on symbols, a dial on intents and threads.
+
+Note the magnitudes. Endowments are counted in tens and read once at boot by the runtime; facets are counted in hundreds and read on every render by a view. The same word covers infrastructure and presentation.
+
+## how a trait is read
+
+Five shapes, and each drives a different kind of decision:
+
+```
+mode.implements("HARNESSED")       predicate — uppercases internally, so the
+                                   client may write implements("application")
+entity.traits.includes("AIMED")    raw claim check — what widgets use
+entity.trait.TRANSLATED.learning   payload read — the trait IS the data
+where: { traits: ["VOCALIZED"] }   repository query — trait as index
+{ symbols: { $all: [...] } }       symbol algebra — coordinates as index
+```
+
+What those reads actually decide, with the call site:
+
+- **install gate** — whether a boot step runs at all. `resolution.js:19`
+- **contract publication** — which `/metadata` endpoints exist. `APPLICATION`→`/app`, `EMITTER`→`/emitter`, `HARNESSED`→`/harness`, `FRAUGHT`→`/freight`. `metadata.js:28`
+- **peer discovery** — `AGENTIC` finds collaborators *by trait*: `flatmodes().filter(m => m.implements("TOOLED"))`, then grafts each one's tools under its slug. `agentic.js:4`
+- **client surfacing** — what a user can see: modes implementing `APPLICATION` or `CONVERSATIONAL`. `panels/d/d.svelte:170`
+- **reactive binding** — `$derived(traits.includes("AIMED"))` drives widget visibility, and the widget writes the payload back. `Aimed.svelte:22`
+- **self-repair** — the client *adds* a missing trait: `if (!thread.traits.includes("LABELED")) thread.traits = [...thread.traits, "LABELED"]`. Traits are mutable at runtime, not frozen at declaration. `thread/dossier.js:33`
+- **content selection** — `reviewed.filter(s => s.traits?.includes("VOCALIZED"))`; only sentences with audio can be a listening exercise. `tactics/survival/emitter/exercise.js:43`
+- **form generation** — `AIMED.mount` builds the input form from the emitter's schema at that mount. `skins/form/schema.js:82`
+- **lint** — an aperture without `EXPOSED` warns about dead routes. The trait's *absence* is the diagnostic. `resolution.js:42`
+- **DAG traversal** — `REQUIRES.concepts` resolves prerequisite literals by slug.
+
+## the complexes
+
+Traits co-occur in stable bundles, and the bundles name *kinds of mode* better than `manifest.type` does:
+
+```
+11×  APPLICATION EMITTER                the GAME       face + dealt into, never standalone
+ 5×  DATASET                            the DIMENSION  topologies
+ 4×  DATASET FRAUGHT                    the CORPUS     topographies — data + audio cargo
+ 3×  APPLICATION STANDALONE             the DASHBOARD  face, no emission
+ 3×  APPLICATION EMITTER STANDALONE     the HUB        deals AND stands alone
+ 2×  EMITTER INTENTED                   the TACTIC     headless; deals other modes' buffers
+```
+
+The sharpest line in that table: **games are the only face-bearing modes that are not `STANDALONE`.** A game cannot exist unless something deals it. One missing flag is the entire difference between a game and a dashboard.
+
+These implications hold across all 53 modules without exception:
+
+```
+STANDALONE      ⇒ APPLICATION
+HARNESSED       ⇒ APPLICATION, STANDALONE
+CONVERSATIONAL  ⇒ APPLICATION, STANDALONE, HARNESSED, EMITTER
+TOOLED          ⇒ APPLICATION, STANDALONE, EMITTER
+INTENTED        ⇒ EMITTER
+FRAUGHT         ⇒ DATASET
+```
+
+Read by nature they say one thing: **flags and dials presuppose the endowments they modify.** `STANDALONE` is a permission about rendering, meaningless without `APPLICATION`. `FRAUGHT` is cargo for a dataset. `CONVERSATIONAL` marks a chat surface over `HARNESSED`'s dialogue avenue.
+
+## symbols and literals, concretely
+
+A `Literal` is the concrete thing — the word *hablar*, the sentence *quiero hablar contigo*, a conjugation table. Building an email client instead, the literals would be `message` and `person`.
+
+A `Symbol` annotates and organizes them, m:n. The ontological symbol `word.part-of-speech.verb` on `hablar` tells the system it is a verb; the structural symbol `proficiency.a1` tells the learning system to teach it early. A literal may carry a dozen.
 
 ```js
 {
@@ -57,20 +217,49 @@ Client-side, a `terminal` owns a `Stall` that watches `{ phase, pull: AIMED.pull
 }
 ```
 
-**Dimensions - topology modes.** `word`, `sentence`, `conjugation` each span a dimension. A `TOPOGRAPHICAL` symbol marks which ontology a literal belongs to; `ONTOLOGICAL` symbols place it within the dimension.
+Business logic then selects by *symbolic position* rather than by joins it has to know about:
 
-**Queries - symbol algebra.** The literal repository resolves symbol constraints directly: `{ symbols: { $all: […], $in: […], $none: […] } }` - business logic selects literals by their symbolic position, not by table joins it has to know about.
+```js
+{ symbols: { $all: ["word.part-of-speech.verb", "proficiency.a1"] } }
+```
 
-**Out - `APPLICATION` and `EMITTER`.** Buffers are the payload vehicle to the client: a buffer carries `data` (shaped by the app's `v.buffer` mask) plus `literals` and `symbols` collections. `mode.app.buffer({ data, literals, symbols })` attaches entities by identifier; emitter effects pour buffers into `ctx.pool`, and the drained pool's buffers are threaded in order (`buffer.index = thread.counter++`). The client then renders the mode's App with the buffer's entities as props - [[47.01_buffer-flow]].
+That indirection is what lets a dataspace travel — between daemons, across modes, and effectively across business logic.
 
-**Reasoned over - `HARNESSED`.** The harness renders structured objects against the same entities (`output: v.object(…)`), and `/dialogue` chains persisted turns per thread and mode - [[47.02_hallucination-triad]].
+## the intent → thread → pull loop
 
-## example: a language learning daemon
+Where the entity model turns into live behaviour, entirely declaratively. An `INTENTED` mode ships intents; opening one creates a `Thread`, and a `beforeCreate` hook copies the intent's traits and payload onto it. The client then reads those traits directly:
 
-Literals: a literal might be a word - "hablar", a sentence - "quiero hablar contigo", a conjugation table - "hablo, hablas, habla, hablamos, …". If we were building an email client instead, our literals would probably be `message` and `person`.
+- `AIMED { mount }` — the emitter leaf the thread pulls from.
+- `MASKED` — the thread carries emitter input.
+- `QUEUEING { depth }` — how many buffers to keep pre-pulled.
+- `phase` — `inert · manual · continuous · escort`.
 
-Literal traits: "hablar" in the word ontology might implement `TRANSLATED` (payload: known/learning forms), `EXEMPLIFIED`, `VOCALIZED`.
+A `terminal` owns a `Stall` that watches those live and drives the cursor. So "deal cards continuously, three ahead" is four fields on an intent — no controller code. [[36.01_clients]]
 
-Symbols annotate literals. The ontological symbol `word.part-of-speech.verb` on the literal `hablar` tells the system it's dealing with a verb. A structural symbol such as `proficiency.a1` tells the language learning system to practice this early. The literal `hablar` might carry a dozen ontological symbols, plus any arbitrary amount of additional symbols.
+## current state — honest
 
-A game mode then asks the domain for literals `{ symbols: { $all: ["word.part-of-speech.verb", "proficiency.a1"] } }`, pours them into buffers, and the thread deals them to the player.
+- **`Buffer` has two definitions.** `subsystems/typology/entities/userspace/Buffer.ts` and `registry/education/domain/entities/userspace/Buffer.ts`. The domain extends the kernel's; the split is deliberate but undocumented here.
+- **A second trait machine exists and is unused.** `entities/base/trait.js` exports `trait.define({ methods, hooks, properties })` — mixing methods into entity prototypes and composing MikroORM subscribers. It has **zero call sites**. Two mechanisms share the word "trait"; only the installer one is wired.
+- **The domain's declared trait-space is a stub.** `kernel.js` gives a domain module `traits: v.record(...)` to declare what its traits *mean*, but `registry/education/domain/kinds/index.js` currently exports `{ smurf: () => {} }`. The real definitions live in the entity enum instead.
+- **`Constraint` and `Issue`** are kernel entities that are largely parked.
+- Retired vocabulary, still greppable in `/bak/` and easily mistaken for live: `LEARNABLE`, `CATEGORICAL`, `SCHEMATIC`, `RELATIONAL`, `EXISTENTIAL`, `VALENTIC`, `TERMINAL`, `FREE`, `PRODUCTIVE`, `VIEWABLE`. Deprecated but still in the live `ModeTraitsEnum`: `CHAOSMONKEY`, `BUFFERED`, `SELFEVIDENT`, `TOPOLOGICAL`.
+
+## try it
+
+<Editor code={`import { v } from "@vivalence/typology"
+
+const narrowed = v.literal({
+  trait: { TRANSLATED: v.object({ known: v.string(), learning: v.string() }) },
+})
+
+const bad = { slug: "x", traits: ["TRANSLATED"], trait: { TRANSLATED: { known: 42 } } }
+console.log([...v.errors(narrowed, bad)].map((e) => e.message))`} />
+
+## see also
+
+- `subsystems/typology/entities/` — the entity classes · `schematics/entities/` — the descriptors
+- `subsystems/typology/schematics/v.js:72` — `narrowable`, the bridge
+- `registry/education/domain/entities/` — how a domain extends the kernel
+- [[34.02_trait-catalog]] — every mode trait, by what it installs
+- [[34.01_modes-and-traits]] — the installer contract
+- [[36.01_clients]] — the terminal, the stall, the trait widgets
