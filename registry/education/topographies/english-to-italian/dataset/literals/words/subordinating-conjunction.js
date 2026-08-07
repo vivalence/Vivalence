@@ -9,7 +9,7 @@ export default [
     ],
     "trait": {
       "TRANSLATED": {
-        "known": "that",
+        "known": "that / what",
         "learning": "che"
       },
       "EXEMPLIFIED": {
@@ -61,7 +61,7 @@ export default [
     ],
     "trait": {
       "TRANSLATED": {
-        "known": "because",
+        "known": "why / because",
         "learning": "perché"
       },
       "EXEMPLIFIED": {

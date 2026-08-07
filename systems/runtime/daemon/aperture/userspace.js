@@ -6,6 +6,11 @@ export async function userspace(daemonDie) {
   branch.use(shard.secure.authorize());
 
   branch
+    .branch("/entities/intent")
+    .slurp(shard.datamap.repository(entities.intent))
+    .slurp(shard.datamap.reactive(entities.intent, daemonDie.good.twitch));
+
+  branch
     .branch("/entities/thread")
     .use(shard.datamap.scope((ctx) => ({ user: ctx.user.id })))
     .slurp(shard.datamap.repository(entities.thread))

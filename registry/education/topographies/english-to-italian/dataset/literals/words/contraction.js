@@ -93,6 +93,9 @@ export default [
         "slug": "proficiency.cefr.a1"
       },
       {
+        "slug": "proficiency.survival"
+      },
+      {
         "slug": "functional.grammar"
       }
     ]
@@ -191,6 +194,9 @@ export default [
         "slug": "proficiency.cefr.a1"
       },
       {
+        "slug": "proficiency.survival"
+      },
+      {
         "slug": "proficiency.high-frequency"
       },
       {
@@ -237,6 +243,9 @@ export default [
         "slug": "proficiency.cefr.a1"
       },
       {
+        "slug": "proficiency.survival"
+      },
+      {
         "slug": "functional.grammar"
       }
     ]
@@ -278,6 +287,9 @@ export default [
       },
       {
         "slug": "proficiency.cefr.a1"
+      },
+      {
+        "slug": "proficiency.survival"
       },
       {
         "slug": "proficiency.high-frequency"
@@ -381,6 +393,9 @@ export default [
         "slug": "proficiency.cefr.a1"
       },
       {
+        "slug": "proficiency.survival"
+      },
+      {
         "slug": "functional.grammar"
       }
     ]
@@ -479,6 +494,9 @@ export default [
         "slug": "proficiency.cefr.a1"
       },
       {
+        "slug": "proficiency.survival"
+      },
+      {
         "slug": "proficiency.high-frequency"
       },
       {
@@ -525,6 +543,9 @@ export default [
         "slug": "proficiency.cefr.a1"
       },
       {
+        "slug": "proficiency.survival"
+      },
+      {
         "slug": "functional.grammar"
       }
     ]
@@ -566,6 +587,9 @@ export default [
       },
       {
         "slug": "proficiency.cefr.a1"
+      },
+      {
+        "slug": "proficiency.survival"
       },
       {
         "slug": "proficiency.high-frequency"
@@ -663,6 +687,9 @@ export default [
         "slug": "proficiency.cefr.a2"
       },
       {
+        "slug": "proficiency.survival"
+      },
+      {
         "slug": "functional.grammar"
       }
     ]
@@ -704,6 +731,9 @@ export default [
       },
       {
         "slug": "proficiency.cefr.a1"
+      },
+      {
+        "slug": "proficiency.survival"
       },
       {
         "slug": "proficiency.high-frequency"
@@ -758,6 +788,9 @@ export default [
         "slug": "proficiency.cefr.a2"
       },
       {
+        "slug": "proficiency.survival"
+      },
+      {
         "slug": "functional.grammar"
       }
     ]
@@ -799,6 +832,9 @@ export default [
       },
       {
         "slug": "proficiency.cefr.a2"
+      },
+      {
+        "slug": "proficiency.survival"
       },
       {
         "slug": "functional.grammar"
@@ -945,6 +981,9 @@ export default [
         "slug": "proficiency.cefr.a2"
       },
       {
+        "slug": "proficiency.survival"
+      },
+      {
         "slug": "functional.grammar"
       }
     ]
@@ -1043,6 +1082,9 @@ export default [
         "slug": "proficiency.cefr.a2"
       },
       {
+        "slug": "proficiency.survival"
+      },
+      {
         "slug": "functional.grammar"
       }
     ]
@@ -1084,6 +1126,9 @@ export default [
       },
       {
         "slug": "proficiency.cefr.a1"
+      },
+      {
+        "slug": "proficiency.survival"
       },
       {
         "slug": "functional.grammar"
@@ -1133,6 +1178,9 @@ export default [
       },
       {
         "slug": "proficiency.cefr.a2"
+      },
+      {
+        "slug": "proficiency.survival"
       },
       {
         "slug": "functional.grammar"
@@ -1227,6 +1275,9 @@ export default [
         "slug": "proficiency.cefr.a2"
       },
       {
+        "slug": "proficiency.survival"
+      },
+      {
         "slug": "functional.grammar"
       }
     ]
@@ -1268,6 +1319,9 @@ export default [
       },
       {
         "slug": "proficiency.cefr.a1"
+      },
+      {
+        "slug": "proficiency.survival"
       },
       {
         "slug": "proficiency.high-frequency"
@@ -1316,6 +1370,9 @@ export default [
         "slug": "proficiency.cefr.a2"
       },
       {
+        "slug": "proficiency.survival"
+      },
+      {
         "slug": "functional.grammar"
       }
     ]
@@ -1359,6 +1416,9 @@ export default [
         "slug": "proficiency.cefr.a2"
       },
       {
+        "slug": "proficiency.survival"
+      },
+      {
         "slug": "functional.grammar"
       }
     ]
@@ -1400,6 +1460,9 @@ export default [
       },
       {
         "slug": "proficiency.cefr.a2"
+      },
+      {
+        "slug": "proficiency.survival"
       },
       {
         "slug": "functional.grammar"

@@ -1,8 +1,23 @@
 <script>
-  let { label, count = null, rule = true, action } = $props();
+  let { label, count = null, rule = true, action, open = null, ontoggle = null } = $props();
+
+  function onkeydown(event) {
+    if (event.key === "Enter" || event.key === " ") {
+      event.preventDefault();
+      ontoggle?.();
+    }
+  }
 </script>
 
-<div class="section-head" class:ruled={rule}>
+<div
+  class="section-head"
+  class:ruled={rule}
+  class:toggleable={!!ontoggle}
+  role={ontoggle ? "button" : undefined}
+  tabindex={ontoggle ? 0 : undefined}
+  onclick={ontoggle}
+  {onkeydown}>
+  {#if ontoggle}<span class="section-caret">{open === false ? "▸" : "▾"}</span>{/if}
   <span class="section-label">{label}</span>
   {#if rule}<span class="section-rule"></span>{/if}
   {#if count != null}<span class="section-count">{count}</span>{/if}
@@ -34,5 +49,13 @@
   .section-action {
     display: inline-flex;
     align-items: center;
+  }
+  .section-head.toggleable {
+    cursor: pointer;
+    user-select: none;
+  }
+  .section-caret {
+    font-size: var(--font-size-xs);
+    color: color-mix(in srgb, var(--colors-skeleton-3-contrast) 55%, transparent);
   }
 </style>

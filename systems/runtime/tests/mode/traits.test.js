@@ -41,7 +41,7 @@ specimen.describe("mode traits", () => {
     });
 
     specimen.it("intent queryable via datamap", async () => {
-      const result = await scenario.conn.call("/entities/intent/findOne", {
+      const result = await scenario.authedConn.call("/userspace/entities/intent/findOne", {
         where: { slug: "survival-flashcard" },
       });
       specimen.expect(result.slug).toBe("survival-flashcard");

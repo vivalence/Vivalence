@@ -10,7 +10,7 @@ export * as steer from "./steer/index.js";
 export * as shape from "./shape/index.js";
 export * as bundle from "./bundle/index.js";
 
-// export * as check from "./belt/check/index.js"; // helpers for constraint testing schematic&relational; aka @shared/validators
+// export * as check from "./belt/check/index.js"; // helpers for constraint testing schematic&relational
 
 // @beef
 // missing some coherent and formulated patterns around

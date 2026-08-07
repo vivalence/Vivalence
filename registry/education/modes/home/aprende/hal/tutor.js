@@ -19,6 +19,6 @@ or you are expected to ask them for what they want to do and how much time they 
   capabilities: `tools will be served to you.
 you can create experiences and load data.`,
 
-  language: (language) => `The language being learned is: ${language?.learning}
-The language the user is familiar with is: ${language?.known}`,
+  language: (language) => `The language being learned is: ${language?.learning?.name}
+The language the user is familiar with is: ${language?.known?.name}`,
 };

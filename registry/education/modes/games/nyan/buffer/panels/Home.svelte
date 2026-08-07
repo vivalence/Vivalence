@@ -225,7 +225,7 @@
     font-family: var(--font-family-code);
     font-size: var(--font-size-md, 0.875rem);
     font-weight: 700;
-    color: var(--colors-palette-gray-10);
+    color: var(--colors-skeleton-1-contrast);
     white-space: nowrap;
   }
   .head-value::after {
@@ -259,7 +259,7 @@
     font-family: var(--font-family-sans-text);
     font-size: var(--font-size-md, 0.875rem);
     font-weight: 700;
-    color: var(--colors-palette-gray-10);
+    color: var(--colors-skeleton-1-contrast);
   }
   .card.on .card-label {
     color: #0F1C35;
@@ -279,7 +279,7 @@
     border-radius: 0.5rem;
     border: 1px solid var(--colors-skeleton-1-boundary);
     background: color-mix(in srgb, var(--colors-skeleton-1-surface) 50%, transparent);
-    color: var(--colors-palette-gray-10);
+    color: var(--colors-skeleton-1-contrast);
     font-family: var(--font-family-code);
     font-size: var(--font-size-md);
     outline: none;
@@ -327,7 +327,7 @@
     font-family: var(--font-family-sans-text);
     font-size: var(--font-size-md, 0.875rem);
     font-weight: 600;
-    color: var(--colors-palette-gray-10);
+    color: var(--colors-skeleton-1-contrast);
   }
   .en {
     font-family: var(--font-family-code);
@@ -339,7 +339,7 @@
     font-family: var(--font-family-code);
     font-size: var(--font-size-md);
     line-height: 1.7;
-    color: var(--colors-palette-gray-10);
+    color: var(--colors-skeleton-1-contrast);
     max-height: 11rem;
     overflow-y: auto;
   }
@@ -441,7 +441,7 @@
     font-family: var(--font-family-code);
     font-size: var(--font-size-md);
     font-variant-numeric: tabular-nums;
-    color: var(--colors-palette-gray-10);
+    color: var(--colors-skeleton-1-contrast);
   }
 
   /* slider */

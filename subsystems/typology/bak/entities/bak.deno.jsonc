@@ -1,9 +1,0 @@
-{
-  "name": "@vivalence/entities",
-  "version": "0.0.1",
-  "exports": {
-    ".": "./mod.js",
-    // "./sets": "./sets.js",
-    // "./traits": "./traits.js",
-  },
-}

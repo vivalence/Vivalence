@@ -48,7 +48,14 @@
 
   onMount(() => {
     stores.bridge.bootLayout(bridge);
-    return stores.bridge.attachViewport(bridge);
+    const unsubscribeTheme = bridge.view.$theme.subscribe(
+      (theme) => (document.documentElement.dataset.theme = theme),
+    );
+    const detachViewport = stores.bridge.attachViewport(bridge);
+    return () => {
+      unsubscribeTheme();
+      detachViewport();
+    };
   });
 </script>
 

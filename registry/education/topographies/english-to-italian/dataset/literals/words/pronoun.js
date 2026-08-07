@@ -1375,6 +1375,9 @@ export default [
         "slug": "proficiency.cefr.a1"
       },
       {
+        "slug": "proficiency.survival"
+      },
+      {
         "slug": "functional.pronoun"
       }
     ]
@@ -1428,6 +1431,9 @@ export default [
       },
       {
         "slug": "proficiency.cefr.a1"
+      },
+      {
+        "slug": "proficiency.survival"
       },
       {
         "slug": "functional.pronoun"
@@ -1485,6 +1491,9 @@ export default [
         "slug": "proficiency.cefr.a2"
       },
       {
+        "slug": "proficiency.survival"
+      },
+      {
         "slug": "functional.pronoun"
       }
     ]
@@ -1538,6 +1547,9 @@ export default [
       },
       {
         "slug": "proficiency.cefr.a2"
+      },
+      {
+        "slug": "proficiency.survival"
       },
       {
         "slug": "functional.pronoun"
@@ -2066,6 +2078,9 @@ export default [
         "slug": "proficiency.cefr.a1"
       },
       {
+        "slug": "proficiency.survival"
+      },
+      {
         "slug": "functional.negation"
       }
     ]
@@ -2159,6 +2174,9 @@ export default [
       },
       {
         "slug": "proficiency.cefr.a1"
+      },
+      {
+        "slug": "proficiency.survival"
       },
       {
         "slug": "functional.pronoun"
@@ -2755,6 +2773,9 @@ export default [
         "slug": "proficiency.cefr.a2"
       },
       {
+        "slug": "proficiency.survival"
+      },
+      {
         "slug": "functional.pronoun"
       }
     ]
@@ -2799,6 +2820,9 @@ export default [
       },
       {
         "slug": "proficiency.cefr.a2"
+      },
+      {
+        "slug": "proficiency.survival"
       },
       {
         "slug": "functional.pronoun"
@@ -2853,6 +2877,9 @@ export default [
         "slug": "proficiency.cefr.a2"
       },
       {
+        "slug": "proficiency.survival"
+      },
+      {
         "slug": "functional.pronoun"
       }
     ]
@@ -2897,6 +2924,9 @@ export default [
       },
       {
         "slug": "proficiency.cefr.a2"
+      },
+      {
+        "slug": "proficiency.survival"
       },
       {
         "slug": "functional.pronoun"
@@ -2949,6 +2979,9 @@ export default [
       },
       {
         "slug": "proficiency.cefr.a2"
+      },
+      {
+        "slug": "proficiency.survival"
       },
       {
         "slug": "functional.pronoun"
@@ -3552,6 +3585,9 @@ export default [
         "slug": "proficiency.cefr.a2"
       },
       {
+        "slug": "proficiency.survival"
+      },
+      {
         "slug": "functional.pronoun"
       }
     ]
@@ -3604,6 +3640,9 @@ export default [
         "slug": "proficiency.cefr.a2"
       },
       {
+        "slug": "proficiency.survival"
+      },
+      {
         "slug": "functional.pronoun"
       }
     ]
@@ -3650,6 +3689,9 @@ export default [
         "slug": "proficiency.cefr.a2"
       },
       {
+        "slug": "proficiency.survival"
+      },
+      {
         "slug": "functional.pronoun"
       }
     ]
@@ -3694,6 +3736,9 @@ export default [
       },
       {
         "slug": "proficiency.cefr.a2"
+      },
+      {
+        "slug": "proficiency.survival"
       },
       {
         "slug": "functional.pronoun"
@@ -4168,6 +4213,9 @@ export default [
         "slug": "proficiency.cefr.a1"
       },
       {
+        "slug": "proficiency.survival"
+      },
+      {
         "slug": "functional.pronoun"
       }
     ]
@@ -4212,6 +4260,9 @@ export default [
       },
       {
         "slug": "proficiency.cefr.a1"
+      },
+      {
+        "slug": "proficiency.survival"
       },
       {
         "slug": "functional.pronoun"
@@ -4310,6 +4361,199 @@ export default [
       },
       {
         "slug": "proficiency.cefr.b1"
+      },
+      {
+        "slug": "functional.pronoun"
+      }
+    ]
+  },
+  {
+    "slug": "quali.pronoun",
+    "traits": [
+      "TRANSLATED",
+      "EXEMPLIFIED",
+      "RANKED"
+    ],
+    "trait": {
+      "TRANSLATED": {
+        "known": "which (pl.)",
+        "learning": "quali"
+      },
+      "EXEMPLIFIED": {
+        "known": "Which ones are your bags?",
+        "learning": "Quali sono i tuoi bagagli?"
+      },
+      "RANKED": {
+        "rank": 230,
+        "zipf": 5.61,
+        "fpm": 407.0
+      }
+    },
+    "symbols": [
+      {
+        "slug": "word"
+      },
+      {
+        "slug": "word.lemma.quale"
+      },
+      {
+        "slug": "word.part-of-speech.pronoun"
+      },
+      {
+        "slug": "word.number.plural"
+      },
+      {
+        "slug": "proficiency.cefr.a1"
+      },
+      {
+        "slug": "proficiency.survival"
+      },
+      {
+        "slug": "functional.pronoun"
+      }
+    ]
+  },
+  {
+    "slug": "quanti.pronoun",
+    "traits": [
+      "TRANSLATED",
+      "EXEMPLIFIED",
+      "RANKED"
+    ],
+    "trait": {
+      "TRANSLATED": {
+        "known": "how many (masc.)",
+        "learning": "quanti"
+      },
+      "EXEMPLIFIED": {
+        "known": "How many days are you staying in Italy?",
+        "learning": "Quanti giorni resti in Italia?"
+      },
+      "RANKED": {
+        "rank": 786,
+        "zipf": 5.09,
+        "fpm": 123.0
+      }
+    },
+    "symbols": [
+      {
+        "slug": "word"
+      },
+      {
+        "slug": "word.lemma.quanto"
+      },
+      {
+        "slug": "word.part-of-speech.pronoun"
+      },
+      {
+        "slug": "word.number.plural"
+      },
+      {
+        "slug": "word.gender.masculine"
+      },
+      {
+        "slug": "proficiency.cefr.a1"
+      },
+      {
+        "slug": "proficiency.survival"
+      },
+      {
+        "slug": "functional.pronoun"
+      }
+    ]
+  },
+  {
+    "slug": "quante.pronoun",
+    "traits": [
+      "TRANSLATED",
+      "EXEMPLIFIED",
+      "RANKED"
+    ],
+    "trait": {
+      "TRANSLATED": {
+        "known": "how many (fem.)",
+        "learning": "quante"
+      },
+      "EXEMPLIFIED": {
+        "known": "How many nights do you want to stay?",
+        "learning": "Quante notti vuole restare?"
+      },
+      "RANKED": {
+        "rank": 1489,
+        "zipf": 4.81,
+        "fpm": 64.6
+      }
+    },
+    "symbols": [
+      {
+        "slug": "word"
+      },
+      {
+        "slug": "word.lemma.quanto"
+      },
+      {
+        "slug": "word.part-of-speech.pronoun"
+      },
+      {
+        "slug": "word.number.plural"
+      },
+      {
+        "slug": "word.gender.feminine"
+      },
+      {
+        "slug": "proficiency.cefr.a1"
+      },
+      {
+        "slug": "proficiency.survival"
+      },
+      {
+        "slug": "functional.pronoun"
+      }
+    ]
+  },
+  {
+    "slug": "tutta.pronoun",
+    "traits": [
+      "TRANSLATED",
+      "EXEMPLIFIED",
+      "RANKED"
+    ],
+    "trait": {
+      "TRANSLATED": {
+        "known": "all (fem.)",
+        "learning": "tutta"
+      },
+      "EXEMPLIFIED": {
+        "known": "I traveled all night",
+        "learning": "Ho viaggiato tutta la notte"
+      },
+      "RANKED": {
+        "rank": 224,
+        "zipf": 5.62,
+        "fpm": 417.0
+      }
+    },
+    "symbols": [
+      {
+        "slug": "word"
+      },
+      {
+        "slug": "word.lemma.tutta"
+      },
+      {
+        "slug": "word.part-of-speech.pronoun"
+      },
+      {
+        "slug": "word.number.singular"
+      },
+      {
+        "slug": "word.gender.feminine"
+      },
+      {
+        "slug": "proficiency.cefr.a1"
+      },
+      {
+        "slug": "proficiency.survival"
       },
       {
         "slug": "functional.pronoun"

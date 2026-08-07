@@ -138,7 +138,6 @@ export class Url extends Signature {
 }
 // import { Signature } from "./signature.js";
 // import { is } from "@vivalence/typology";
-// import { hash } from "@vivalence/shared";
 
 // export class Url extends Signature {
 //   ought(thing) {
@@ -183,7 +182,6 @@ export class Url extends Signature {
 
 // // import { Signature } from "./signature.js";
 // // import { is } from "@vivalence/typology";
-// // import { hash } from "@vivalence/shared";
 
 // // export class Url extends Signature {
 // //   origin = null;
@@ -279,7 +277,6 @@ export class Url extends Signature {
 
 // import { Signature } from "./signature.js";
 // import { is } from "@vivalence/typology";
-// import { hash } from "@vivalence/shared";
 
 // export class Url extends Signature {
 //   static coercions = [

@@ -36,14 +36,13 @@
   const terminals = new stores.terminals.Terminals();
   setContext(TERMINALS, terminals);
 
-  console.log({ terminals, lighthouse });
-
-  if (typeof window !== "undefined") {
+  if (typeof window !== "undefined") { // @beef Temporary devtools hack.
     window.__viv = { lighthouse, terminals, bridge /*, box */ };
     const chased = Connection.prototype.subscribe;
     Connection.prototype.subscribe = function (endpoint, callback, options) {
       const pathname = this.url.branch(endpoint).pathname;
-      if (pathname.includes("/entities/mode/")) console.warn("[chase] mode subscriber", pathname, new Error().stack);
+      if (pathname.includes("/entities/mode/"))
+        console.warn("[chase] mode subscriber", pathname, new Error().stack);
       return chased.call(this, endpoint, callback, options);
     };
   }
@@ -52,6 +51,7 @@
     stores.lighthouse.boot(lighthouse).catch(console.error);
 
     terminalEffects.hydrate({ terminals });
+
     const unpersist = terminalEffects.persist({ terminals });
     const unsettle = terminalEffects.settle({ terminals, lighthouse });
 

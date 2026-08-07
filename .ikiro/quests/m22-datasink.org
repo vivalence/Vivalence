@@ -1,0 +1,2047 @@
+#+TITLE: M22 — datasink: the katabolic counterpart to DATASET (daemon entities drain back into registry modules)
+#+AUTHOR: Vivalence
+#+METHOD: ikiro/quest
+#+STATUS: OPEN — M22.0–M22.5 WRITTEN (patch in hand, unapplied on this tree); M22.6 live boot PENDING
+#+DATE: 2026-08-11
+
+* Meta
+** Intent
+
+=DATASET= is anabolic: registry files → daemon entities, once, at install.
+This quest builds the katabolic path: daemon entities → registry files,
+ongoing.
+
+Enrichment that happens INSIDE the daemon — harvested candidates, agentic
+annotation, minted lemma symbols, rank corrections — currently dies in the
+sqlite file. Draining it back makes the registry the durable, versioned,
+travelling home of the data, and the daemon merely working memory.
+
+Not sync. Two one-way operations at different times:
+
+| operation | truth    | shape                          |
+|-----------+----------+--------------------------------|
+| install   | registry | idempotent upsert              |
+| drain     | daemon   | wholesale scoped projection    |
+
+No reconciliation, ever.
+
+** The shape in one screen
+
+#+begin_example
+  registry files ──DATASET(install)──▶ daemon entities
+                                            │
+                                            │ writes (harvest, agentic, mint)
+                                            ▼
+                                       twitch /{type}/{op}/after
+                                            │ debounce 1500ms
+                                            ▼
+  registry files ◀──DATASINK(drain)─── project.row → match → shape → write
+#+end_example
+
+** The decision trail (locked, @beef)
+
+| decision      | choice                                           | cascade                                                    |
+|---------------+--------------------------------------------------+------------------------------------------------------------|
+| traits        | two — =DATASET= in, =DATASINK= out               | direction is composition; manifest stays capability truth  |
+| prototypes    | two — =Dataset=, =Datasink=; Datasync parked     | symmetric with FRAUGHT←freight, APPLICATION←app            |
+| tuple         | =(selector, projection?, target)=                | arity-detected; 2-tuple = default lean projection          |
+| dispatch      | shotgun — every matching sink receives           | partition emerges from disjoint filters; overlap = feature |
+| dirty         | entity-type granularity, wholesale rewrite       | partition-migration staleness impossible; file = fn(DB)    |
+| filters       | query-object data, ONE compiler two sites        | =belt.object.where=; MikroORM operators one-to-one or not at all |
+| strings       | targets stay STRINGS in the carrier; trait lifts | codec + walk are =paladin.read= / =paladin.find=, already extension-sniffing |
+| entity types  | arbitrary, schema-driven from datamap introspect | symbol/literal no longer hardcoded; userspace BANNED       |
+| no aperture   | =mode.drain= plain callable + debounced twitch   | remote drainage is one EXPOSED line if a mode wants it     |
+| homes         | typology CARRIES, paladin does OS, trait WIRES   | =Bundle=←=paladin.bundler=←=APPLICATION= is the precedent; modules import only =@vivalence/typology= |
+| twitch path   | =/{phase}/{entity}/{op}= — phase FIRST           | lane middleware attaches at =twitch.branch("/after")=; shotgun never collects a LEAF's carry |
+| twitch lanes  | ONE =emit=; deferral is MIDDLEWARE, not a lane   | =shard.datamap.detached= captures =shard.carry= and defers =next()=; live args, no snapshot |
+| shaping       | =project= namespace (rejected: mold, contour)    | π honest; lives in =prototypes/datasink.js= — it IS the sink algebra |
+| language bleed| NOT trait machinery — data convention            | one language per daemon structural; else discriminator sym |
+
+*** The vocabulary this mints — and the four it does NOT
+
+@beef, on the first draft's =gestalten/flow/=: /"i dont like the new /flow
+directory at all. complete no. some of this might be belt if we can
+sufficiently abstract and reuse it. reuse target might be the paladin. the
+paladin has both read and write functionality. ... for sure not a new flow
+dir."/ Then, on where the carriers live: /"whats more common for us is that
+the typology provides the container and the daemon uses paladin for the
+wiring. i would prefere that for now."/
+
+Both land. =flow/= dies whole. Measured, it was four unrelated things in a
+bag, each with an existing home:
+
+| flow module                  | already exists as                                                   | what was actually new |
+|------------------------------+---------------------------------------------------------------------+-----------------------|
+| =selector.js=                | =belt.object.match= (=gestalten/belt/object.js:55=)                 | the operators         |
+| =project.js= =pick/omit/pipe=| =belt.object.pick/omit= — already dotted-path aware                 | nothing               |
+| =project.js= =row/refs/lean= | —                                                                   | the sink's row algebra|
+| =reader.js=                  | =paladin.source= + =paladin.read.file= + =paladin.find.walk/read=   | =.default= codec, =index.js= skip |
+| =writer.canonical=           | —                                                                   | deterministic order   |
+| =writer.scribe=              | =paladin.state.text/json=                                           | atomic + write-if-changed |
+| =writer.facet=               | —                                                                   | sink partition policy |
+
+=paladin.read.file= (=subsystems/paladin/belt/read.js:37=) already dispatches
+a codec by extension, and =paladin.find= (=belt/find.js:11=) already skips
+=bak=/=archive=/=slp= — which =reader.dir= did not. The first draft's walker
+was a worse copy of a live primitive.
+
+**The seam, stated once**: a carrier holds DECLARATIONS, never loaders.
+Nothing under =prototypes/= touches =Deno.*=. This is the =Bundle= shape —
+=prototypes/bundle.js= is pure (hash, entries, fetch-by-integrity),
+=paladin/belt/bundler.js= does the filesystem, =traits/application.js= wires
+them, and a module imports =Bundle= without ever seeing paladin.
+
+So the vocabulary is:
+
+- =Dataset= — carrier ={ schema, intent, ...sources-per-type }= where a source
+  is a mount-relative STRING, a directory STRING, or an inline row array.
+  Legacy ={ schema, entities }= lifts free (every existing module UNCHANGED).
+- =Datasink= — carrier of per-type tuple lists, normalized to
+  ={ type, where, match, shape, target }=. Owns =canonical(rows) => string=
+  and =strata(rows, target) => Map<path, rows>= — both pure. Neither writes.
+- =reader= / =writer= — the nouns SURVIVE, the directory does not. @beef:
+  /"i actually like the name reader and writer. they are nicely explicit and
+  obvious."/ They are now pure DESCRIPTOR factories, exported beside the
+  carrier each one feeds: =reader= from =prototypes/dataset.js=, =writer=
+  from =prototypes/datasink.js=. =reader.dir(t)= => ={ walk: t }=,
+  =reader.json(t)= => ={ read: t, codec: "json" }=, =writer.json(t)= =>
+  ={ write: t, codec: "json" }=, =writer.facet(prefix, into, {rest})= =>
+  ={ facet: prefix, into, rest }=. A bare string lifts to the extension's
+  descriptor, so declarations stay terse. Nothing here opens a file — the
+  trait hands the descriptor to =paladin.find= / =paladin.state=. The
+  explicitness @beef wanted is at the declaration face, which is the only
+  place it was ever doing work.
+- =project= — the row algebra, exported from =prototypes/datasink.js=:
+  =row/refs/lean/detail/slug/drop=, plus =pick/omit/pipe= as thin CURRIED
+  adapters over =belt.object= (=omit = (...keys) => (row) =>
+  object.omit(row, keys)=). Curry at the declaration face, no second
+  implementation.
+- =belt.object.where(query)= — compiles a MikroORM query object to a row
+  predicate; =null= on an operator it cannot compile → conservative
+  dirty-all, DB stays authoritative. =object.match(obj, query)= becomes
+  =where(query)?.(obj)= — ONE compiler, and the five live =object.match=
+  call sites gain operators.
+- =belt.object.ordered(value)= — recursive key sort. General, sibling to
+  =clone=/=descend=.
+- =paladin.state.scribe(path, text)= — atomic tmp+rename, write-if-changed,
+  returns whether it wrote.
+- =paladin.find.data(dir)= — the codec walk, =index.js= skipped.
+
+Nothing is added to =gestalten/index.js=, =index.client.js=, or =fromm=. On
+that last one @beef was right and it is structural: /"SMELL!!! big smell. not
+good."/ — every =fromm= member is =fromm.X(thing) => { get view() }=, a lazy
+coercion view; =selector(where) => fn= has a different shape, and the
+re-export crossed a directory barrel. It is belt.
+
+*** Why the lemma sink exists
+
+Measured on italian: **2381** distinct =word.lemma.*= symbols referenced by
+the literals and declared in NO symbols file. They exist only because
+=linkPhase='s create-if-missing-ref mints them at install. Language-specific
+symbols with no home — the topography now claims them.
+
+#+begin_example
+  grep -lE 'word\.lemma\.' dataset/symbols/*.js   →  (no matches)
+  distinct word.lemma.* referenced by literals    →  2381
+#+end_example
+
+Both =index.js= aggregators die with this — =reader.dir= replaces them (the
+walk skips =index.js=).
+
+** Testing assessment
+
+*** In place
+
+- =tests/gestalten/shard/datamap*.test.js= — the datamap/reactive suites that
+  guard the surface M22.2 touches. =datamap.integration.test.js= is also the
+  FORM these new tests copy: real ORM, real Aperture, real socket, then flows.
+- broadcaster + vector suites — cover the =Vector= that twitch is.
+- =tests/scenarios/= — =datamap.seed()= (a real in-memory ORM with seeded
+  fixtures) and =datamap.provider()= (the runtime's provider contract over
+  sqlite =:memory:=) already exist. The new work reuses both rather than
+  building a parallel apparatus.
+- COVERAGE GAP, now CLOSED rather than deferred: the =DATASET= trait's install
+  path had no test, and the first draft of this quest wrote that off as
+  needing "a fixture daemon" that does not exist. It does exist —
+  =datamap.provider= IS the fixture daemon. The gap was a missing scenario,
+  not a missing capability, and M22.3 now carries the test.
+
+*** Changes
+
+None. The patch is purely additive to the test tree — no existing test file
+updates, because =Dataset='s legacy =entities= lift keeps every current module
+and every current fixture on the old contract.
+
+*** Adds
+
+Rewritten to SCENARIO shape. The first draft of these tests was unit-per-method
+— a =describe= per exported function, a =row= literal declared inline, one
+assertion per combinator. That is not what =specimen= is for. Specimen tests
+build a real scenario in =beforeAll= and then walk real flows through it in
+depth (see =tests/gestalten/shard/datamap.integration.test.js=: a real
+in-memory ORM, a real =Aperture=, a real HTTP server, then CRUD and SSE driven
+end to end over an actual socket).
+
+So: ONE new scenario, five test files that drive it. Each lands in the
+CONTAINER that owns the code it exercises — which is the whole point of
+killing =flow/=: the round trip is no longer one directory's business, so it
+cannot be one directory's test.
+
+| test file                                                | milestone | the scenario it walks                                   |
+|----------------------------------------------------------+-----------+---------------------------------------------------------|
+| =subsystems/typology/tests/gestalten/belt/where.test.js= | M22.0     | the operator table + the fixture rows it must partition  |
+| =subsystems/paladin/tests/corpus.test.js=                | M22.0     | real corpus dir → =find.data= → =read.file= → =state.canonical= → read back |
+| =subsystems/typology/tests/datasink.test.js=             | M22.1     | same corpus, entered through the declaration face        |
+| =subsystems/typology/tests/gestalten/shape/subscriber.test.js= | M22.2 | =datamap.seed()= — real flushes, both lanes              |
+| =systems/runtime/tests/dataset.install.test.js=          | M22.3     | fixture topography installed into a real daemon          |
+
+Layout follows what is already there: prototype suites sit FLAT under
+=tests/= (=freight.test.js=, =stall.test.js=), gestalten suites under
+=tests/gestalten/<family>/=, paladin suites flat under its own =tests/=.
+
+M22.4's drain has no separate file: it is the same scenario as M22.3 run one
+step further, and it lands with M22.6's live materialization rather than
+duplicating the apparatus. That is a named gap, not an oversight — see the
+green ladder.
+
+**** the scenario — =tests/scenarios/topography.js=
+
+A real topography written to a real temp directory, shaped like italian's:
+two symbol files (STRUCTURAL and ONTOLOGICAL), a =words/= directory with an
+=index.js= that must be SKIPPED, a sentences file, and literals referencing
+lemma symbols that are declared NOWHERE — so the mint-by-reference path is
+exercised rather than described.
+
+#+BEGIN_SRC javascript :tangle ../../subsystems/typology/tests/scenarios/topography.js :mkdirp yes
+import { Dataset, Datasink, project, writer } from "@vivalence/typology";
+
+export const structural = [
+  {
+    slug: "proficiency.cefr.a1",
+    traits: ["STRUCTURAL", "LABELED"],
+    trait: { STRUCTURAL: {}, LABELED: { name: "CEFR > A1" } },
+  },
+  {
+    slug: "proficiency.survival",
+    traits: ["STRUCTURAL", "LABELED"],
+    trait: { STRUCTURAL: {}, LABELED: { name: "Survival" } },
+  },
+];
+
+export const ontological = [
+  {
+    slug: "word.suffix.are",
+    traits: ["ONTOLOGICAL", "LABELED"],
+    trait: { ONTOLOGICAL: {}, LABELED: { name: "-are" } },
+  },
+];
+
+export const nouns = [
+  {
+    slug: "casa.noun",
+    traits: ["TRANSLATED", "RANKED"],
+    trait: { TRANSLATED: { known: "house", learning: "casa" }, RANKED: { rank: 2 } },
+    symbols: [
+      { slug: "word" },
+      { slug: "word.part-of-speech.noun" },
+      { slug: "word.lemma.casa" },
+      { slug: "proficiency.cefr.a1" },
+    ],
+  },
+  {
+    slug: "del.contraction",
+    traits: ["TRANSLATED", "RANKED"],
+    trait: { TRANSLATED: { known: "of the", learning: "del" }, RANKED: { rank: 3 } },
+    symbols: [
+      { slug: "word" },
+      { slug: "word.part-of-speech.adposition" },
+      { slug: "word.part-of-speech.determiner" },
+      { slug: "word.lemma.del" },
+    ],
+  },
+];
+
+export const verbs = [
+  {
+    slug: "parlare.verb",
+    traits: ["TRANSLATED", "RANKED"],
+    trait: { TRANSLATED: { known: "to speak", learning: "parlare" }, RANKED: { rank: 1 } },
+    symbols: [
+      { slug: "word" },
+      { slug: "word.part-of-speech.verb" },
+      { slug: "word.lemma.parlare" },
+      { slug: "word.suffix.are" },
+      { slug: "proficiency.survival" },
+    ],
+  },
+];
+
+export const sentences = [
+  {
+    slug: "la-casa-e-grande",
+    traits: ["TRANSLATED"],
+    trait: { TRANSLATED: { known: "The house is big", learning: "La casa è grande" } },
+    symbols: [{ slug: "sentence" }, { slug: "word.lemma.casa" }],
+  },
+];
+
+const dump = (rows) => `export default ${JSON.stringify(rows, null, 2)};\n`;
+
+export async function corpus() {
+  const dirname = await Deno.makeTempDir();
+  const write = async (target, rows) => {
+    await Deno.mkdir(`${dirname}/${target.split("/").slice(0, -1).join("/")}`, { recursive: true });
+    await Deno.writeTextFile(`${dirname}/${target}`, dump(rows));
+  };
+
+  await write("dataset/symbols/structural.js", structural);
+  await write("dataset/symbols/ontological.js", ontological);
+  await write("dataset/literals/sentences.js", sentences);
+  await write("dataset/literals/words/noun.js", nouns);
+  await write("dataset/literals/words/verb.js", verbs);
+  await Deno.writeTextFile(
+    `${dirname}/dataset/literals/words/index.js`,
+    `import noun from "./noun.js";\nimport verb from "./verb.js";\nexport default [...noun, ...verb];\n`,
+  );
+
+  return { dirname };
+}
+
+export const dataset = () =>
+  new Dataset({
+    schema: {},
+    symbol: ["dataset/symbols/structural.js", "dataset/symbols/ontological.js"],
+    literal: ["dataset/literals/sentences.js", "dataset/literals/words"],
+  });
+
+export const datasink = () =>
+  new Datasink({
+    symbol: [
+      [{ slug: { $like: "word.lemma.%" } },
+        project.refs("literals", [[true, project.slug]]),
+        "dataset/symbols/lemmas.json"],
+      [{ traits: ["STRUCTURAL"] }, project.omit("literals"), "dataset/symbols/structural.json"],
+      [{ traits: ["ONTOLOGICAL"] }, project.omit("literals"), "dataset/symbols/ontological.json"],
+    ],
+    literal: [
+      ["sentence", "dataset/literals/sentences.json"],
+      ["word",
+        writer.facet("word.part-of-speech", (pos) => `dataset/literals/words/${pos}.json`, {
+          rest: "dataset/literals/words/rest.json",
+        })],
+    ],
+  });
+#+END_SRC
+
+Every target above is a mount-relative STRING, or a descriptor over strings.
+The fixture never writes; =corpus()= lays down the source tree, and the
+milestone tests hand the sink's output to =paladin.state= themselves. A
+scenario that could write on its own would mean the carrier does IO, which is
+the thing this layout forbids.
+
+It has to be registered to be importable — =tests/scenarios/index.js=:
+
+#+BEGIN_SRC diff
+ export * as cats from "./cats/index.js";
+ export * as datamap from "./datamap.js";
++export * as topography from "./topography.js";
+ export { SymbolConcrete, BufferConcrete, provider } from "./datamap.js";
+#+END_SRC
+
+*** Per-milestone green ladder
+
+| milestone | green gate                                                              |
+|-----------+-------------------------------------------------------------------------|
+| M22.0     | =belt/where.test.js= — every operator matches its MikroORM meaning, unsupported → =null=; =paladin/corpus.test.js= — corpus round-trips, second write is a no-op; AND the five =object.match= call sites' suites green (local-repo, remote-repo, broadcaster) |
+| M22.1     | =datasink.test.js= — legacy lift works, facet partitions, and NOTHING is unclaimed |
+| M22.2     | =shape/subscriber.test.js= — real flushes, deferred lane, reentrant read succeeds, filter params survive; AND shard/broadcaster/vector failure set IDENTICAL before/after |
+| M22.3     | =dataset.install.test.js= — lemma symbols minted, both link directions, userspace throws |
+| M22.4     | NO OWN TEST — see below                                                 |
+| M22.5     | italian boots and =paladin.find.data= pulls 5092 word literals without double-count (=index.js= skipped) |
+| M22.6     | second drain reports =written: 0= (the fixpoint)                        |
+| M22.7     | =freight.test.js= green with =index()= gone — the seam rule proved on a second prototype |
+
+M22.4 is the one milestone landing without its own green gate. The drain body
+is exercised indirectly — its selector, projection and writer are M22.0's, its
+carrier is M22.1's, its detached-scope query is M22.2's, and the database it
+reads is M22.3's — but the assembled =drain()= (dirty-set bookkeeping, the
+=armed= gate, debounce, single-flight, the orphan census) has no test until
+M22.6 runs it live. Stated rather than glossed: that is the thinnest point in
+this quest, and if a fifth test file gets written it goes there.
+
+Expected M22.6 report on italian, so a deviation is legible rather than
+alarming:
+
+#+begin_example
+  symbols in DB after install    52 structural + 3 ontological
+                               + 155 topology-owned (word 111, sentence 44)
+                               + 2381 minted lemma            = 2591
+  claimed by italian's sinks     52 + 3 + 2381                = 2436
+  orphans.symbol                 155  ← the topology packages' own symbols
+  orphans.literal                0    ← the three sinks are total and disjoint
+#+end_example
+
+=orphans.symbol: 155= is CORRECT, not a miss: those symbols belong to
+=topologies/{word,sentence}=, which own their own datasets and will own their
+own sinks. A topography must not claim another package's rows.
+
+*** Verification to date
+
+Environment caveat, stated plainly: the repo's Deno was ABSENT on the machine
+that ran this; 2.9.5 was installed from GitHub releases, and JSR is OFF the
+network allowlist → =@std/*= and =@cross/runtime= unreachable. Everything below
+ran under a SHIM HARNESS (local implementations of path/assert/bdd/expect/fs/
+streams + cross-runtime, overlay import map). The shims are scaffolding and
+are NOT part of the patch.
+
+- NEW: 22/22 green — but those were the UNIT tests, and they no longer exist.
+  They covered the selector compile table, the project combinators, canonical
+  determinism, scribe, facet, both carriers, and subscriber semantics against
+  fabricated =args=. The scenario suites that replaced them have NEVER RUN:
+  they are authored, not verified. Treat the 22/22 as evidence about the
+  MODULES (the algebra is right) and as no evidence at all about the four new
+  test files, three of which touch a real ORM the unit tests never did.
+- REGRESSION: shard/broadcaster/vector suites — identical failure set before
+  and after the diff (40, all environmental: sqlite native bindings
+  unbuildable there — node-gyp headers off allowlist, no Deno-ABI prebuilds).
+  Zero regressions attributable to the diff.
+- SMOKE (real data): full barrel + traits graph loads; the then-exemplar
+  (**brazilian**) pulled 51 symbols + 2216 literals through =reader.dir=
+  (index.js skipped, no double-count); the word sink matched 1838 literals;
+  the facet write produced =words/adjective.json= from an adjective-first
+  slice; =reader.lift= round-trip reloaded 60/60.
+
+STATE ON THIS TREE — three things a resuming session must not skip:
+
+1. **The patch is UNAPPLIED.** =subsystems/typology/gestalten/flow/= and
+   =systems/runtime/daemon/traits/datasink.js= do not exist here.
+2. **The test suites are AUTHORED, NOT RUN.** The scenario rewrite replaced
+   every unit file; nothing in the current test tangles has executed. The
+   first tangle will find syntax and import errors the old numbers cannot
+   speak to.
+3. **The smoke above ran against BRAZILIAN, not italian.** The first consumer
+   moved after that run. Italian's numbers in M22.5 come from reading the
+   files on disk, NOT from a drain — nothing has executed against italian.
+   Re-running the ladder against italian under the repo's real Deno is the
+   first act of resumption, and the brazilian smoke does not transfer: the
+   third symbol sink, the contraction dual-facet, and the empty rest bucket
+   are all italian-only shapes that brazilian never exercised.
+
+** Deferred
+
+| item                                                | trigger that reopens it                            |
+|-----------------------------------------------------+----------------------------------------------------|
+| =Datasync= (station-derived source/sink pairs)      | parked by decision — derivation-only, when wanted  |
+| a =drain()= scenario of its own (M22.4's missing gate) | the assembled drain — dirty set, =armed=, debounce, single-flight, orphan census — is untested until M22.6 runs it live |
+| entity =ontology= layer, INTENTED, ONTOLOGICAL/TOPOGRAPHICAL symbol traits | untouched here, by design   |
+| brazilian + spanish topography migration            | mechanical mirrors of the italian exemplar, after M22.6 proves the fixpoint. Brazilian is the simpler shape (no =ontological.js= → two symbol sinks, not three) |
+| topology-package sinks (=topologies/{word,sentence}=) | the 155 orphans M22.6 will report are theirs to claim |
+| contraction dual-facet decision                     | M22.5 dissolves =contraction.js= into =adposition.json=; decide whether contraction earns its own pos facet — DATA question, not a writer change |
+| proficiency extraction (=@education/topology/proficiency=) | 50/51 structural symbols duplicated brazilian↔spanish; data-side quest, UNBLOCKED by sink ownership |
+
+** Forks
+
+None open on the design — the decision table is locked. Two reading notes a
+resuming session should confirm rather than assume:
+
+1. the overlap lint keys on =JSON.stringify(sink.where ?? true)=, so two
+   fn-selector sinks on the same type both key as =true= and warn against each
+   other. Cosmetic (a warn, not a throw), but it will fire on the first module
+   that declares two function selectors.
+2. =mode.drain()= with an EMPTY dirty set drains ALL types
+   (=input.all || !dirty.size=). Manual call = full drain, twitch path stays
+   incremental. Reads deliberate; confirm it is.
+
+** What the first drain will look like (expectations, so they aren't read as bugs)
+
+- ONE large cosmetic diff on first canonicalization — slug-sort replacing the
+  current rank-ish authoring order.
+- =.js= sources are boot-time reads and the dynamic import CACHES them; that
+  is another nudge toward json targets after M22.6 step 4.
+- Cross-refs project to slug (+traits/payload). Enrichment attached to a ref
+  from the far side does NOT survive the round trip — enriched refs must live
+  on their owning side. This is a data-authoring constraint, not a bug.
+- A nonzero orphan count on a partial topography is expected, not alarming;
+  it becomes a real signal only once the sinks claim to be total. On italian
+  the expected figure is =155= and it has a name (the topology packages).
+- =contraction.js= and =particle.js= will NOT reappear as files. Both are
+  correct outcomes, both will look like data loss in the diff, and neither is.
+- =rest.json= will not be created on italian. The bucket is declared for
+  safety, not because anything needs it.
+
+** Changelog
+
+- *session — design + patch authored.* Full diff written and verified under a
+  shim harness (repo Deno absent, JSR off-allowlist): 22/22 new tests green,
+  shard/broadcaster/vector regression set identical before/after (40, all
+  environmental), full-graph smoke against real brazilian data. Coverage delta:
+  flow gestalten 0 → 4 suites; subscriber 0 → 1 suite; DATASET/DATASINK trait
+  bodies 0 → 0 (gap named, deferred to a fixture daemon).
+- *session — quest restructured to the standard milestone format.* Content
+  unchanged; the inline patch decomposed into M22.0–M22.6 with tangle blocks
+  (new files) and diff hunks (surgical edits), testing assessment, green
+  ladder, blast table. Recorded that the patch is UNAPPLIED on this tree.
+- *session — FIRST CONSUMER moved brazilian → italian (@beef).* M22.5
+  rewritten against italian's real on-disk shape, every figure measured this
+  turn rather than carried over: 52 structural + 3 ontological declared, 2381
+  undeclared lemma symbols (vs brazilian's 839), 5092 word + 1088 sentence +
+  355 conjugation literals. Three consequences the brazilian shape did not
+  have, now recorded: a THIRD symbol sink for the =ONTOLOGICAL= verb-suffix
+  symbols (brazilian has no =ontological.js=; without it those three rows
+  orphan), =contraction.js= dissolving into =adposition.json= via the
+  multi-facet warn, and =rest.json= never being created. M22.6 retargeted to
+  =daemon_italian= with the expected orphan census (=155=, the topology
+  packages') stated up front. Verification section now flags that the existing
+  smoke ran against brazilian and does NOT transfer.
+  - *near-miss worth keeping*: =dataset/literals/conjugation.js= uses
+    unquoted JS keys while its siblings use JSON-quoted ones. A
+    `'"slug": "conjugation"'` grep returned =0=, which reads exactly like
+    "conjugation literals carry no root symbol → the sink matches nothing".
+    Reading the raw file showed all 355 carry it. A zero from one grep is a
+    claim about the PATTERN before it is a claim about the data
+    (`family: assume-dont-verify`).
+- *session — tests rewritten from unit shape to SCENARIO shape (@beef).*
+  beef, verbatim: *"this is not the right format for the tests. specimen
+  testing is scenario testing. create declare fewer scenarios and test those
+  in depth"*. The first draft was a =describe= per exported function with
+  inline row literals — six files' worth of assertions that never touched a
+  real corpus or a real ORM. Replaced by ONE fixture scenario
+  (=tests/scenarios/topography.js=, a real topography on a real temp dir,
+  shaped like italian's: two symbol files, a =words/= tree with an =index.js=
+  that must be skipped, and literals referencing lemma symbols declared
+  nowhere) and four suites that drive it, each living inside its milestone
+  rather than in a testing appendix. Reused =datamap.seed()= /
+  =datamap.provider()= rather than building a second apparatus.
+  - The rewrite CLOSED a gap the previous draft had deferred: the =DATASET=
+    install path was written off as needing "a fixture daemon that does not
+    exist" — =datamap.provider= already is one. M22.3 now installs the fixture
+    topography into a real in-memory daemon and asserts the minted lemma
+    symbols, both link directions, and the userspace throw.
+  - Coverage delta: unit files 4 → 0; scenario suites 0 → 4; DATASET install
+    0 → 1 suite; assembled =drain()= 0 → 0 (M22.4 named as the one milestone
+    landing without its own gate, rather than left implicit).
+  - The old "22/22 green" belongs to tests that no longer exist. The
+    verification section now says so, and marks the new suites AUTHORED, NOT
+    RUN — no number in this quest describes them.
+* Blast table
+
+| file                                                          | change                                        | milestone | kind    |
+|---------------------------------------------------------------+-----------------------------------------------+-----------+---------|
+| =subsystems/typology/gestalten/flow/selector.js=              | NEW — query-object → row predicate            | M22.0     | new     |
+| =subsystems/typology/gestalten/flow/project.js=               | NEW — row shaping combinators                 | M22.0     | new     |
+| =subsystems/typology/gestalten/flow/reader.js=                | NEW — source lifting + codecs                 | M22.0     | new     |
+| =subsystems/typology/gestalten/flow/writer.js=                | NEW — canonical/scribe/facet                  | M22.0     | new     |
+| =subsystems/typology/gestalten/index.js=                      | +3 namespace exports                          | M22.0     | barrel  |
+| =subsystems/typology/gestalten/index.client.js=               | +project (client-safe only)                   | M22.0     | barrel  |
+| =subsystems/typology/gestalten/fromm/index.js=                | +selector re-export                           | M22.0     | barrel  |
+| =subsystems/typology/prototypes/dataset.js=                   | NEW — carrier, legacy lift                    | M22.1     | new     |
+| =subsystems/typology/prototypes/datasink.js=                  | NEW — carrier, tuple normalize                | M22.1     | new     |
+| =subsystems/typology/prototypes/index.ts=                     | +2 exports                                    | M22.1     | barrel  |
+| =subsystems/typology/gestalten/shape/subscriber.js=           | REBUILT — two lanes, FIFO pump                | M22.2     | rewrite |
+| =subsystems/typology/gestalten/shard/datamap.js=              | +detached middleware; reactive owner source   | M22.2     | surgical|
+| =systems/runtime/daemon/lifecycle/population.js=              | +twitch.use(detached)                         | M22.2     | 1 line  |
+| =systems/runtime/daemon/traits/dataset.js=                    | REWRITTEN — carrier-lifted, schema-driven     | M22.3     | rewrite |
+| =systems/runtime/daemon/traits/datasink.js=                   | NEW — the drain trait                         | M22.4     | new     |
+| =systems/runtime/daemon/traits/index.js=                      | +export                                       | M22.4     | barrel  |
+| =systems/runtime/daemon/lifecycle/resolution.js=              | +EXPOSED-pattern warn, +overlap lint          | M22.4     | surgical|
+| =registry/…/english-to-italian/italian.viva.js=               | CUTOVER — 0.2.0, dataset+datasink exports, 3 symbol sinks | M22.5 | rewrite |
+| =registry/…/english-to-italian/dataset/index.js=              | DEAD — reader.dir replaces the aggregator     | M22.5     | delete  |
+| =registry/…/english-to-italian/dataset/literals/words/index.js= | DEAD — same                                 | M22.5     | delete  |
+| =subsystems/typology/tests/scenarios/topography.js=           | NEW — the fixture corpus every suite drives   | M22.0     | scenario|
+| =subsystems/typology/tests/scenarios/index.js=                | +topography export                            | M22.0     | barrel  |
+| =subsystems/typology/tests/gestalten/flow/flow.test.js=       | NEW — read→select→project→write→read          | M22.0     | test    |
+| =subsystems/typology/tests/gestalten/flow/carriers.test.js=   | NEW — the declaration face                    | M22.1     | test    |
+| =subsystems/typology/tests/gestalten/shape/subscriber.test.js=| NEW — real flushes, both lanes                | M22.2     | test    |
+| =systems/runtime/tests/dataset.install.test.js=               | NEW — install into a real daemon (was the gap)| M22.3     | test    |
+
+Radius note: =shape/subscriber.js= and =shard/datamap.js= are runtime-wide
+symbols → M22.2 takes full-suite bookends, with the environmental baseline
+recorded so the end-diff is honest.
+
+* Milestones
+
+Each boots green at its boundary. M22.0–M22.1 are purely additive (nothing
+imports them yet); M22.2 is the one that cannot land in halves.
+
+| milestone | title                                       | state    |
+|-----------+---------------------------------------------+----------|
+| M22.0     | flow gestalten — selector/project/reader/writer | WRITTEN |
+| M22.1     | carriers — Dataset + Datasink prototypes    | WRITTEN  |
+| M22.2     | twitch two-lane rebuild (COUPLED)           | WRITTEN  |
+| M22.3     | DATASET rewritten schema-driven             | WRITTEN  |
+| M22.4     | DATASINK trait + resolution lint            | WRITTEN  |
+| M22.5     | brazilian exemplar cutover                  | WRITTEN  |
+| M22.6     | live boot + first materialization           | PENDING  |
+
+** M22.0 — flow gestalten
+
+# @beef i dont like the new /flow directory at all. complete no. some of this might be belt if we can sufficiently abstract and reuse it. reuse target might be the paladin. the paladin has both read and write functionality. there is cata/ana here for different codecs too. but i am not sure they overlap sufficiently to share abstractions. thats your perview. maybe some of this belongs into the prototypes of either datasink or dataset. for sure not a new flow dir. 
+NEW =subsystems/typology/gestalten/flow/=. Four free-factory modules, no
+consumers yet. Boundary is green trivially: nothing imports them until M22.1.
+
+*** selector.js
+
+String/array sugar → ={symbols: [...]}=; symbol algebra =$all/$in/$none=;
+traits ⊇; =slug $like/$nlike= (SQL =%= → regex); scalar =$eq/$ne/$in/$nin=;
+=$and/$or=; fn pass-through with =(row, ctx)= signature. Unsupported operator
+→ =null= (the caller then treats everything as dirty).
+
+#+BEGIN_SRC javascript :tangle ../../subsystems/typology/gestalten/flow/selector.js :mkdirp yes
+import { is } from "@vivalence/typology";
+
+const like = (pattern) => {
+  const source = String(pattern)
+    .split("%")
+    .map((part) => part.replace(/[.*+?^${}()|[\]\\]/g, "\\$&"))
+    .join(".*");
+  const rx = new RegExp(`^${source}$`);
+  return (value) => is.string(value) && rx.test(value);
+};
+
+const slugs = (refs) =>
+  [refs ?? []].flat().map((ref) => (is.string(ref) ? ref : ref?.slug)).filter(Boolean);
+
+const scalar = (expected) => {
+  if (!is.object(expected)) return (value) => value === expected;
+  const tests = [];
+  for (const [op, arg] of Object.entries(expected)) {
+    switch (op) { //@beef is this the mikroorm set? one to one?
+      case "$eq": tests.push((value) => value === arg); break;
+      case "$ne": tests.push((value) => value !== arg); break;
+      case "$in": tests.push((value) => arg.includes(value)); break;
+      case "$nin": tests.push((value) => !arg.includes(value)); break;
+      case "$like": tests.push(like(arg)); break;
+      case "$nlike": { const test = like(arg); tests.push((value) => !test(value)); break; }
+      default: return null;
+    }
+  }
+  return (value) => tests.every((test) => test(value));
+};
+
+const refset = (expected) => {
+  const spec = is.array(expected) || is.string(expected) ? { $all: [expected].flat() } : expected;
+  const tests = [];
+  for (const [op, arg] of Object.entries(spec)) {
+    const wanted = slugs(arg);
+    switch (op) {
+      case "$all": tests.push((present) => wanted.every((slug) => present.has(slug))); break;
+      case "$in": tests.push((present) => wanted.some((slug) => present.has(slug))); break;
+      case "$none": tests.push((present) => !wanted.some((slug) => present.has(slug))); break;
+      default: return null;
+    }
+  }
+  return (row, key) => {
+    const present = new Set(slugs(row?.[key]));
+    return tests.every((test) => test(present));
+  };
+};
+
+export function selector(where) {
+  if (where == null || where === true) return () => true;
+  if (is.fn(where)) return where;
+  if (is.string(where)) return selector({ symbols: [where] });
+  if (is.array(where)) return selector({ symbols: where });
+  if (!is.object(where)) return null;
+
+  const tests = [];
+  for (const [key, value] of Object.entries(where)) {
+    if (key === "$and" || key === "$or") {
+      const parts = value.map(selector);
+      if (parts.some((part) => part == null)) return null;
+      const fold = key === "$and" ? "every" : "some";
+      tests.push((row, ctx) => parts[fold]((part) => part(row, ctx)));
+    } else if (key === "symbols" || key === "literals") {
+      const test = refset(value);
+      if (test == null) return null;
+      tests.push((row) => test(row, key));
+    } else if (key === "traits") {
+      const wanted = [value].flat();
+      tests.push((row) => wanted.every((name) => (row?.traits ?? []).includes(name)));
+    } else {
+      const test = scalar(value);
+      if (test == null) return null;
+      tests.push((row) => test(row?.[key]));
+    }
+  }
+  return (row, ctx) => tests.every((test) => test(row, ctx));
+}
+#+END_SRC
+
+*** project.js
+
+=row(rels)= strips id/timestamps/user and normalizes refs to sorted
+={slug, traits?, trait?, data?}=. =lean(rels)= collapses refs to bare slugs.
+=refs(relation, policies)= recurses the sink algebra onto refs — first match
+per ref, =null= drops, unmatched pass unchanged.
+
+#+BEGIN_SRC javascript :tangle ../../subsystems/typology/gestalten/flow/project.js :mkdirp yes
+import { is, object } from "@vivalence/typology";
+import { selector } from "./selector.js";
+
+const SYSTEM = ["id", "createdAt", "updatedAt", "installed", "user"]; //@beef not sure i like this here. feels like thats system level interfering on module level. might be ok since its marked as such. the user key is for sure wrong. any userspace entity stored via this maybe deserves its own inline handler.
+
+const bySlug = (a, b) => {
+  const as = String(a?.slug ?? "");
+  const bs = String(b?.slug ?? "");
+  return as < bs ? -1 : as > bs ? 1 : 0;
+};
+
+const ref = (item) => {
+  if (is.string(item)) return { slug: item };
+  if (!is.object(item) || !item.slug) return null;
+  const out = { slug: item.slug };
+  if (item.traits?.length) out.traits = [...item.traits];
+  if (item.trait && Object.keys(item.trait).length) out.trait = item.trait;
+  if (item.data && Object.keys(item.data).length) out.data = item.data;
+  return out;
+};
+
+export const row = (rels = []) => (entity) => {
+  const raw = entity?.toJSON?.() ?? entity ?? {};
+  const out = object.omit(raw, SYSTEM);
+  for (const rel of rels) {
+    const items = [raw[rel] ?? []].flat();
+    out[rel] = items.map(ref).filter(Boolean).sort(bySlug);
+  }
+  return out;
+};
+
+export const lean = (rels = []) => (r) => {
+  const out = { ...r };
+  for (const rel of rels)
+    if (is.array(out[rel])) out[rel] = out[rel].map((item) => ({ slug: item.slug }));
+  return out;
+};
+
+export const pick = (...keys) => (r) => object.pick(r, keys);
+
+export const omit = (...keys) => (r) => object.omit(r, keys);
+
+export const traits = (...names) => (r) => ({
+  ...r,
+  traits: (r.traits ?? []).filter((name) => names.includes(name)),
+  ...(r.trait ? { trait: object.pick(r.trait, names) } : {}),
+  ...(r.data ? { data: object.pick(r.data, names) } : {}),
+});
+
+export const slug = (item) => ({ slug: item.slug });
+
+export const detail = (...names) => (item) => ({
+  slug: item.slug,
+  ...(names.length
+    ? { trait: object.pick(item.trait ?? item.data ?? {}, names) }
+    : { ...(item.traits ? { traits: item.traits } : {}), ...(item.trait ? { trait: item.trait } : {}), ...(item.data ? { data: item.data } : {}) }),
+});
+
+export const refs = (relation, policies = []) => {
+  const compiled = policies.map(([where, shape]) => [selector(where), shape]);
+  return (r) => ({
+    ...r,
+    [relation]: (r[relation] ?? [])
+      .flatMap((item) => {
+        const policy = compiled.find(([match]) => match?.(item) ?? true);
+        if (!policy) return [item];
+        const shaped = policy[1](item);
+        return shaped == null ? [] : [shaped];
+      })
+      .sort(bySlug),
+  });
+};
+
+export const drop = () => null;
+
+export const pipe = (...shapes) => (r) =>
+  shapes.reduce((acc, shape) => (acc == null ? acc : shape(acc)), r);
+#+END_SRC
+
+*** reader.js
+
+=at(mount, target)= resolves; codecs json (parse) / js (dynamic import
+default); =json/js/fn/concat/map/dir/sniff=; =lift= dispatches
+fn | string→sniff | array→concat.
+
+#+BEGIN_SRC javascript :tangle ../../subsystems/typology/gestalten/flow/reader.js :mkdirp yes
+import { is } from "@vivalence/typology";
+
+export const at = (mount, target) => {
+  if (String(target).startsWith("/")) return String(target);
+  const base = is.string(mount) ? mount : mount?.dirname ?? "";
+  return base ? `${base}/${target}` : String(target);
+};
+
+export const CODECS = {
+  json: { load: async (path) => JSON.parse(await Deno.readTextFile(path)) },
+  js: { load: async (path) => (await import(`file://${path}`)).default },
+};
+
+const ext = (path) => String(path).split(".").pop().toLowerCase();
+
+export const json = (target) => (mount) => CODECS.json.load(at(mount, target));
+
+export const js = (target) => (mount) => CODECS.js.load(at(mount, target));
+
+export const fn = (load) => load;
+
+export const concat = (...loaders) => async (mount) => {
+  const loaded = [];
+  for (const load of loaders) loaded.push(await load(mount));
+  return loaded.flat();
+};
+
+export const map = (shape, load) => async (mount) =>
+  (await load(mount)).map(shape).filter((r) => r != null);
+
+const walk = async (base, found = []) => {
+  const entries = [];
+  for await (const entry of Deno.readDir(base)) entries.push(entry);
+  for (const entry of entries.sort((a, b) => (a.name < b.name ? -1 : 1))) {
+    const path = `${base}/${entry.name}`;
+    if (entry.isDirectory) await walk(path, found);
+    else if (entry.isFile && entry.name !== "index.js" && CODECS[ext(entry.name)]) found.push(path);
+  }
+  return found;
+};
+
+export const dir = (target) => async (mount) => {
+  const files = await walk(at(mount, target));
+  const loaded = [];
+  for (const path of files) loaded.push(await CODECS[ext(path)].load(path));
+  return loaded.flat();
+};
+
+export const sniff = (target) => async (mount) => {
+  const path = at(mount, target);
+  const stat = await Deno.stat(path);
+  if (stat.isDirectory) return dir(target)(mount);
+  const codec = CODECS[ext(path)];
+  if (!codec) throw new Error(`[reader] no codec for "${path}"`);
+  return codec.load(path);
+};
+
+export const lift = (declared) => {
+  if (is.fn(declared)) return declared;
+  if (is.string(declared)) return sniff(declared);
+  if (is.array(declared)) return concat(...declared.map(lift));
+  throw new Error(`[reader] cannot lift source ${JSON.stringify(declared)}`);
+};
+#+END_SRC
+
+*** writer.js
+
+=canonical= + =scribe= are the determinism pair; =facet= is the
+13-words-files case as a combinator.
+
+#+BEGIN_SRC javascript :tangle ../../subsystems/typology/gestalten/flow/writer.js :mkdirp yes
+import { is } from "@vivalence/typology";
+import { at } from "./reader.js";
+
+const bySlug = (a, b) => {
+  const as = String(a?.slug ?? "");
+  const bs = String(b?.slug ?? "");
+  return as < bs ? -1 : as > bs ? 1 : 0;
+};
+
+const order = (value) => {
+  if (is.array(value)) return value.map(order);
+  if (is.object(value))
+    return Object.fromEntries(
+      Object.keys(value)
+        .sort()
+        .map((key) => [key, order(value[key])]),
+    );
+  return value;
+};
+
+export const canonical = (rows) =>
+  JSON.stringify([...rows].sort(bySlug).map(order), null, 2) + "\n";
+
+const dirname = (path) => path.split("/").slice(0, -1).join("/") || ".";
+
+export async function scribe(path, text) {
+  await Deno.mkdir(dirname(path), { recursive: true }).catch(() => {});
+  const existing = await Deno.readTextFile(path).catch(() => null);
+  if (existing === text) return false;
+  const tmp = `${path}.tmp`;
+  await Deno.writeTextFile(tmp, text);
+  await Deno.rename(tmp, path);
+  return true;
+}
+
+export const CODECS = {
+  json: { dump: (rows, path) => scribe(path, canonical(rows)) },
+  js: { dump: (rows, path) => scribe(path, `export default ${canonical(rows).trimEnd()};\n`) },
+};
+
+const ext = (path) => String(path).split(".").pop().toLowerCase();
+
+export const json = (target) => (rows, mount) => CODECS.json.dump(rows, at(mount, target));
+
+export const js = (target) => (rows, mount) => CODECS.js.dump(rows, at(mount, target));
+
+export const fn = (write) => write;
+
+export const tee = (...writers) => async (rows, mount) => {
+  const results = [];
+  for (const write of writers.map(lift)) results.push(await write(rows, mount));
+  return results.some((wrote) => wrote !== false);
+};
+
+const facetOf = (r, prefix) => {
+  const head = `${prefix}.`;
+  return (r.symbols ?? [])
+    .map((item) => (is.string(item) ? item : item?.slug))
+    .filter((s) => s?.startsWith(head))
+    .map((s) => s.slice(head.length))
+    .sort();
+};
+
+export const facet = (prefix, into, { rest = null } = {}) => async (rows, mount) => {
+  const strata = new Map();
+  let restless = 0;
+  for (const r of rows) {
+    const facets = facetOf(r, prefix);
+    if (facets.length > 1) console.warn(`[writer.facet] ${r.slug} carries ${facets.length} "${prefix}" facets`);
+    const key = facets[0] ?? null;
+    if (key == null && rest == null) { restless++; continue; }
+    const bucket = key == null ? "" : key;
+    (strata.get(bucket) ?? strata.set(bucket, []).get(bucket)).push(r);
+  }
+  if (restless) console.warn(`[writer.facet] ${restless} rows without "${prefix}" facet skipped`);
+  let wrote = false;
+  for (const [key, slice] of [...strata.entries()].sort()) {
+    const write = lift(key === "" ? rest : into(key));
+    wrote = ((await write(slice, mount)) !== false) || wrote;
+  }
+  return wrote;
+};
+
+export const lift = (declared) => {
+  if (is.fn(declared)) return declared;
+  if (is.string(declared)) {
+    const codec = CODECS[ext(declared)] ?? CODECS.json;
+    return (rows, mount) => codec.dump(rows, at(mount, declared));
+  }
+  throw new Error(`[writer] cannot lift writer ${JSON.stringify(declared)}`);
+};
+#+END_SRC
+
+*** barrels
+
+=subsystems/typology/gestalten/index.js=:
+
+#+BEGIN_SRC diff
+ export * as bundle from "./bundle/index.js";
++export * as reader from "./flow/reader.js";
++export * as writer from "./flow/writer.js";
++export * as project from "./flow/project.js";
+#+END_SRC
+
+=subsystems/typology/gestalten/index.client.js= — client gets =project= only
+(no Deno IO reaches the browser):
+
+#+BEGIN_SRC diff
+ export * as shape from "./shape/index.js";
++export * as project from "./flow/project.js";
+#+END_SRC
+
+=subsystems/typology/gestalten/fromm/index.js= — the selector is a =fromm=
+citizen (it compiles a query object, same family as =slugmap=):
+
+ // @beef SMELL!!! big smell. not good.
+#+BEGIN_SRC diff
+ };
++
++export { selector } from "../flow/selector.js";
+#+END_SRC
+
+*** the green gate — =tests/gestalten/flow/flow.test.js=
+
+ONE scenario, walked in depth: a real corpus on a real temp directory goes
+=reader.dir= → =selector= → =project= → =writer.facet= → =reader= again. The
+four modules are only interesting composed — a selector that compiles
+correctly but selects the wrong rows off a real =reader.dir= walk is a green
+unit test and a broken drain.
+
+#+BEGIN_SRC javascript :tangle ../../subsystems/typology/tests/gestalten/flow/flow.test.js :mkdirp yes
+  import { specimen, reader, writer, project, fromm } from "@vivalence/typology";
+  import { topography } from "@vivalence/typology/scenarios";
+
+  let corpus, symbols, literals;
+
+  specimen.beforeAll(async () => {
+    corpus = await topography.corpus();
+    symbols = await reader.lift([
+      "dataset/symbols/structural.js",
+      "dataset/symbols/ontological.js",
+    ])(corpus);
+    literals = await reader.lift([
+      "dataset/literals/sentences.js",
+      "dataset/literals/words",
+    ])(corpus);
+  });
+
+  specimen.describe("the corpus a topography actually presents", () => {
+    specimen.it("reader.dir walks the words tree and skips index.js", () => {
+      const slugs = literals.map((row) => row.slug).sort();
+      specimen.expect(slugs).toEqual(["casa.noun", "del.contraction", "la-casa-e-grande", "parlare.verb"]);
+    });
+
+    specimen.it("declares three symbols while the literals reference three more that do not exist", () => {
+      //@beef why does this matter??!!
+      specimen.expect(symbols.map((row) => row.slug).sort())
+        .toEqual(["proficiency.cefr.a1", "proficiency.survival", "word.suffix.are"]);
+
+      const declared = new Set(symbols.map((row) => row.slug));
+      const referenced = new Set(literals.flatMap((row) => row.symbols.map((ref) => ref.slug)));
+      const undeclared = [...referenced].filter((slug) => !declared.has(slug)).sort();
+      specimen.expect(undeclared).toContain("word.lemma.casa");
+      specimen.expect(undeclared).toContain("word.lemma.parlare");
+      specimen.expect(undeclared).toContain("word");
+    });
+  });
+
+  specimen.describe("selecting the partitions a sink declares", () => {
+    specimen.it("splits the corpus the way the italian exemplar does, with no row in two literal sinks", () => {
+      const words = literals.filter(fromm.selector("word")); //@beef maybe fromm is the wrong vehicle here? belt/filters might be adequate.
+      const sentences = literals.filter(fromm.selector("sentence"));
+      specimen.expect(words.map((row) => row.slug).sort()).toEqual(["casa.noun", "del.contraction", "parlare.verb"]);
+      specimen.expect(sentences.map((row) => row.slug)).toEqual(["la-casa-e-grande"]);
+      specimen.expect(words.filter((row) => sentences.includes(row))).toEqual([]);
+    });
+
+    specimen.it("separates STRUCTURAL from ONTOLOGICAL so neither orphans", () => {
+      const structural = symbols.filter(fromm.selector({ traits: ["STRUCTURAL"] }));
+      const ontological = symbols.filter(fromm.selector({ traits: ["ONTOLOGICAL"] }));
+      specimen.expect(structural.length).toBe(2);
+      specimen.expect(ontological.length).toBe(1);
+      specimen.expect(structural.length + ontological.length).toBe(symbols.length);
+    });
+
+    specimen.it("degrades to null on an operator it cannot compile, so the caller stays conservative", () => {
+      specimen.expect(fromm.selector({ slug: { $re: ".*" } })).toBe(null);
+      specimen.expect(fromm.selector({ $and: [{ slug: { $re: "." } }] })).toBe(null);
+    });
+  });
+
+  specimen.describe("projecting rows for a file rather than a database", () => {
+    specimen.it("strips system keys and sorts refs so the output is positional-order-free", () => {
+      const shaped = literals.map(project.row(["symbols"]));
+      const casa = shaped.find((row) => row.slug === "casa.noun");
+      specimen.expect(casa.id).toBe(undefined);
+      specimen.expect(casa.createdAt).toBe(undefined);
+      specimen.expect(casa.symbols.map((ref) => ref.slug))
+        .toEqual(["proficiency.cefr.a1", "word", "word.lemma.casa", "word.part-of-speech.noun"]);
+    });
+
+    specimen.it("recurses the sink algebra onto refs — lemma refs kept as slugs, root symbol dropped", () => {
+      const shape = project.refs("symbols", [
+        [{ slug: { $like: "word.lemma.%" } }, project.slug],
+        [{ slug: "word" }, project.drop],
+      ]);
+      const casa = shape(project.row(["symbols"])(literals.find((row) => row.slug === "casa.noun")));
+      specimen.expect(casa.symbols.map((ref) => ref.slug))
+        .toEqual(["proficiency.cefr.a1", "word.lemma.casa", "word.part-of-speech.noun"]);
+      specimen.expect(casa.symbols.find((ref) => ref.slug === "word.lemma.casa")).toEqual({ slug: "word.lemma.casa" });
+    });
+  });
+
+  specimen.describe("writing files that are a pure function of the rows", () => {
+    specimen.it("emits the same bytes regardless of the order the rows arrived in", () => {
+      const shaped = literals.map(project.row(["symbols"]));
+      specimen.expect(writer.canonical(shaped)).toBe(writer.canonical([...shaped].reverse()));
+    });
+
+    specimen.it("partitions words by facet, sends the dual-facet row to its first facet, and leaves rest empty", async () => {
+      const words = literals.filter(fromm.selector("word")).map(project.row(["symbols"]));
+      await writer.facet("word.part-of-speech", (pos) => `out/${pos}.json`, { rest: "out/rest.json" })(words, corpus);
+
+      specimen.expect((await reader.lift("out/noun.json")(corpus)).map((row) => row.slug)).toEqual(["casa.noun"]);
+      specimen.expect((await reader.lift("out/verb.json")(corpus)).map((row) => row.slug)).toEqual(["parlare.verb"]);
+      specimen.expect((await reader.lift("out/adposition.json")(corpus)).map((row) => row.slug)).toEqual(["del.contraction"]);
+      await specimen.expect(reader.lift("out/determiner.json")(corpus)).rejects.toThrow();
+      await specimen.expect(reader.lift("out/rest.json")(corpus)).rejects.toThrow();
+    });
+
+    specimen.it("reaches a fixpoint — a second write of unchanged rows touches nothing", async () => {
+      const shaped = symbols.map(project.row([]));
+      const write = writer.lift("out/symbols.json");
+      specimen.expect(await write(shaped, corpus)).toBe(true);
+      specimen.expect(await write(shaped, corpus)).toBe(false);
+      specimen.expect(await write([...shaped].reverse(), corpus)).toBe(false);
+    });
+
+    specimen.it("round-trips through the reader it will be re-installed by", async () => {
+      const shaped = literals.map(project.row(["symbols"])).map(project.lean(["symbols"]));
+      await writer.lift("out/literals.json")(shaped, corpus);
+      const reloaded = await reader.lift("out/literals.json")(corpus);
+      specimen.expect(reloaded.length).toBe(literals.length);
+      specimen.expect(reloaded.map((row) => row.slug)).toEqual(shaped.map((row) => row.slug).sort());
+    });
+  });
+#+END_SRC
+
+The fixpoint case and the =rest.json=-never-created case are the two that
+matter most: the first is M22.6's gate in miniature, the second is the
+italian-specific shape M22.5 predicts.
+
+** M22.1 — the carriers
+
+NEW prototypes. Both constructor-idempotent (=new Dataset(dataset) === dataset=)
+so a trait can lift whatever a module exported without caring whether it
+already went through the constructor.
+
+#+BEGIN_SRC javascript :tangle ../../subsystems/typology/prototypes/dataset.js :mkdirp yes
+import * as reader from "../gestalten/flow/reader.js";
+
+export class Dataset {
+  schema = null;
+  intent = [];
+  sources = {};
+
+  constructor(input = {}) {
+    if (input instanceof Dataset) return input;
+    const { schema = null, intent = [], entities = {}, ...declared } = input ?? {};
+    this.schema = schema;
+    this.intent = intent;
+    for (const [type, sources] of Object.entries(declared))
+      this.sources[type] = [sources].flat().map(reader.lift);
+    for (const [type, rows] of Object.entries(entities))
+      (this.sources[type] ??= []).push(() => rows);
+  }
+
+  get types() {
+    return Object.keys(this.sources);
+  }
+
+  async rows(type, mount) {
+    const loaded = [];
+    for (const load of this.sources[type] ?? []) loaded.push(await load(mount));
+    return loaded.flat();
+  }
+}
+#+END_SRC
+
+The =entities= branch is the legacy lift: every module still exporting
+={ schema, entities }= keeps working with zero edits.
+
+#+BEGIN_SRC javascript :tangle ../../subsystems/typology/prototypes/datasink.js :mkdirp yes
+import { is } from "@vivalence/typology";
+import { selector } from "../gestalten/flow/selector.js";
+import * as writer from "../gestalten/flow/writer.js";
+
+export class Datasink {
+  sinks = [];
+
+  constructor(input = {}) {
+    if (input instanceof Datasink) return input;
+    for (const [type, tuples] of Object.entries(input ?? {}))
+      for (const tuple of tuples) {
+        const [where, second, third] = tuple;
+        const [shape, write] = third === undefined ? [null, second] : [second, third];
+        this.sinks.push({
+          type,
+          where: is.fn(where) || where === true || where == null ? null : where,
+          match: selector(where),
+          shape,
+          write: writer.lift(write),
+        });
+      }
+  }
+
+  get types() {
+    return [...new Set(this.sinks.map((sink) => sink.type))];
+  }
+
+  of(type) {
+    return this.sinks.filter((sink) => sink.type === type);
+  }
+
+  concerns(type, row, ctx) {
+    return this.of(type).filter((sink) => sink.match?.(row, ctx) ?? true);
+  }
+}
+#+END_SRC
+
+=where= is retained as DATA (not just the compiled =match=) because the drain
+hands it to the repository — the DB is authoritative at drain time, the
+compiled predicate only classifies in memory. A fn-selector has no DB form,
+so its =where= is =null= → unconstrained query + in-memory filter.
+
+=subsystems/typology/prototypes/index.ts=:
+
+#+BEGIN_SRC diff
+ export * from "./freight.js";
++export * from "./dataset.js";
++export * from "./datasink.js";
+ // export * from "./feature.js";
+#+END_SRC
+
+*** the green gate — =tests/gestalten/flow/carriers.test.js=
+
+Same corpus, one scenario, driven through the DECLARATION face. The carriers
+are what a module author actually writes, so the test is written the way a
+module author writes: declare a real =Dataset= and a real =Datasink= over the
+real fixture, then ask them what they resolve to.
+
+#+BEGIN_SRC javascript :tangle ../../subsystems/typology/tests/gestalten/flow/carriers.test.js :mkdirp yes
+import { specimen, Dataset, Datasink, project } from "@vivalence/typology";
+import { topography } from "@vivalence/typology/scenarios";
+
+let corpus, dataset, datasink;
+
+specimen.beforeAll(async () => {
+  corpus = await topography.corpus();
+  dataset = topography.dataset();
+  datasink = topography.datasink();
+});
+
+specimen.describe("Dataset — what a module declares as its sources", () => {
+  specimen.it("resolves declaration order into types and pulls each type's real rows", async () => {
+    specimen.expect(dataset.types).toEqual(["symbol", "literal"]);
+    const symbols = await dataset.rows("symbol", corpus);
+    const literals = await dataset.rows("literal", corpus);
+    specimen.expect(symbols.map((row) => row.slug).sort())
+      .toEqual(["proficiency.cefr.a1", "proficiency.survival", "word.suffix.are"]);
+    specimen.expect(literals.length).toBe(4);
+  });
+
+  specimen.it("lifts a legacy { schema, entities } module without the module changing a line", async () => {
+    const legacy = new Dataset({ schema: {}, entities: { symbol: [{ slug: "inline" }] } });
+    specimen.expect(legacy.types).toEqual(["symbol"]);
+    specimen.expect(await legacy.rows("symbol", corpus)).toEqual([{ slug: "inline" }]);
+  });
+
+  specimen.it("mixes string, directory, array and function sources in one declaration", async () => {
+    const mixed = new Dataset({
+      schema: {},
+      literal: ["dataset/literals/words", () => [{ slug: "synthetic" }]],
+    });
+    const rows = await mixed.rows("literal", corpus);
+    specimen.expect(rows.map((row) => row.slug)).toContain("synthetic");
+    specimen.expect(rows.map((row) => row.slug)).toContain("casa.noun");
+  });
+
+  specimen.it("is idempotent, so a trait may lift whatever the module exported", () => {
+    specimen.expect(new Dataset(dataset)).toBe(dataset);
+  });
+});
+
+specimen.describe("Datasink — what a module declares as its drains", () => {
+  specimen.it("normalizes every tuple to the same five fields regardless of arity", () => {
+    for (const sink of datasink.sinks)
+      specimen.expect(Object.keys(sink).sort()).toEqual(["match", "shape", "type", "where", "write"]);
+  });
+
+  specimen.it("arity-detects the optional projection", () => {
+    const terse = new Datasink({ symbol: [["word", "out.json"]] });
+    specimen.expect(terse.sinks[0].shape).toBe(null);
+    specimen.expect(datasink.of("symbol")[0].shape).not.toBe(null);
+  });
+
+  specimen.it("keeps where as DATA for the DB but nulls it for a function selector", () => {
+    specimen.expect(datasink.of("symbol")[0].where).toEqual({ slug: { $like: "word.lemma.%" } });
+    const dynamic = new Datasink({ symbol: [[(row, ctx) => ctx.language === "it", "out.json"]] });
+    specimen.expect(dynamic.sinks[0].where).toBe(null);
+    specimen.expect(dynamic.sinks[0].match({ slug: "x" }, { language: "it" })).toBe(true);
+  });
+
+  specimen.it("classifies a row to every sink that claims it — shotgun, not first-match", async () => {
+    const rows = (await dataset.rows("symbol", corpus)).map(project.row([]));
+    const structural = rows.find((row) => row.slug === "proficiency.cefr.a1");
+    const suffix = rows.find((row) => row.slug === "word.suffix.are");
+    const lemma = { slug: "word.lemma.casa", traits: [] };
+
+    specimen.expect(datasink.concerns("symbol", structural, {}).map((sink) => sink.write.name ?? "fn").length).toBe(1);
+    specimen.expect(datasink.concerns("symbol", suffix, {}).length).toBe(1);
+    specimen.expect(datasink.concerns("symbol", lemma, {}).length).toBe(1);
+  });
+
+  specimen.it("leaves nothing unclaimed — every declared symbol reaches exactly one sink", async () => {
+    const rows = (await dataset.rows("symbol", corpus)).map(project.row([]));
+    const unclaimed = rows.filter((row) => datasink.concerns("symbol", row, {}).length === 0);
+    specimen.expect(unclaimed).toEqual([]);
+  });
+});
+#+END_SRC
+
+The last case is the one that would have caught italian's missing third sink:
+drop the =ONTOLOGICAL= tuple from the scenario's =datasink()= and
+=word.suffix.are= shows up in =unclaimed=.
+
+** M22.2 — twitch two-lane rebuild (COUPLED — cannot split)
+
+The three edits here land together or the daemon throws: the =detached=
+middleware exists to serve an after-lane that only exists after the
+subscriber rebuild, and =reactive='s owner read moves to the emission
+snapshot that the rebuild introduces.
+
+*** the problem
+
+One =emit= served both lanes. =before/*= handlers need the LIVE args (INTENTED
+mutates =args.entity= trait copies in place). =after/*= handlers want to
+QUERY and WRITE — which, inside the originating em's flush, is reentrancy.
+And by the time a detached handler runs, the ORM filter context is gone, so
+=reactive= threw its loud "the write escaped its request context".
+
+*** the resolution
+
+=subsystems/typology/gestalten/shape/subscriber.js= — before-lane inline,
+after-lane snapshot + FIFO microtask pump, per-handler try/catch so a
+throwing handler never poisons the queue or the originating flush:
+
+#+BEGIN_SRC diff
+  -  async function emit(event, args) {
+  -    const name = args.meta?.className?.toLowerCase()?.replace("entity", "")
+  +  const queue = []
+  +  let pumping = false
+  +
+  +  const named = (args) =>
+  +    args.meta?.className?.toLowerCase()?.replace("entity", "")
+         ?? args.entity?.constructor?.name?.toLowerCase()?.replace("entity", "")
+  -    if (!name) return
+
+  -    const signal = new Signal(`${name}/${event}`)
+  -    const handlers = steer.dispatch.shotgun(vector, signal)
+  -    for (const handler of handlers) {
+  -      await handler(args)
+  +  const snapshot = (args) => {
+  +    const entity = args.entity?.toJSON?.() ?? args.entity
+  +    let user = null
+  +    try { user = args.em?.getFilterParams?.("user")?.user ?? null } catch { user = null }
+  +    return { entity, meta: args.meta, params: { user } }
+  +  }
+  +
+  +  const pump = async () => {
+  +    if (pumping) return
+  +    pumping = true
+  +    while (queue.length) {
+  +      const { signal, event } = queue.shift()
+  +      for (const handler of steer.dispatch.shotgun(vector, signal)) {
+  +        try { await handler(event) } catch (error) {
+  +          console.error("[twitch]", signal.pathname ?? String(signal), error)
+  +        }
+  +      }
+       }
+  +    pumping = false
+  +  }
+  +
+  +  async function inline(name, phase, args) {
+  +    const signal = new Signal(`${name}/${phase}`)
+  +    for (const handler of steer.dispatch.shotgun(vector, signal)) await handler(args)
+  +  }
+  +
+  +  function detach(name, phase, args) {
+  +    queue.push({ signal: new Signal(`${name}/${phase}`), event: snapshot(args) })
+  +    queueMicrotask(pump)
+     }
+
+     return {
+       getSubscribedEntities() { return [] },
+  -    async afterCreate(args) { await emit("create/after", args) },
+  -    async afterUpdate(args) { await emit("update/after", args) },
+  -    async afterDelete(args) { await emit("delete/after", args) },
+  -    async beforeCreate(args) { await emit("create/before", args) },
+  -    async beforeUpdate(args) { await emit("update/before", args) },
+  -    async beforeDelete(args) { await emit("delete/before", args) },
+  //@beef not sure i like this. but you tell me. might this not be handled by middlewares? if not, ces't la vie.
+  +    async beforeCreate(args) { const name = named(args); if (name) await inline(name, "create/before", args) },
+  +    async beforeUpdate(args) { const name = named(args); if (name) await inline(name, "update/before", args) },
+  +    async beforeDelete(args) { const name = named(args); if (name) await inline(name, "delete/before", args) },
+  +    async afterCreate(args) { const name = named(args); if (name) detach(name, "create/after", args) },
+  +    async afterUpdate(args) { const name = named(args); if (name) detach(name, "update/after", args) },
+  +    async afterDelete(args) { const name = named(args); if (name) detach(name, "delete/after", args) },
+     }
+#+END_SRC
+
+The snapshot is =toJSON=, never a live ORM ref — a detached handler must not
+be able to reach back into an entity whose em has moved on.
+
+=subsystems/typology/gestalten/shard/datamap.js= — the =detached= middleware
+forks the ORM scope for =/after= signals ONLY (the before-lane must stay in
+the originating em):
+
+#+BEGIN_SRC diff
++export function detached(datamap) {
++  return async (ctx, next) => {
++    const nature = ctx?.signal?.pathname ?? String(ctx?.signal ?? "");
++    if (nature.endsWith("/after")) return datamap.shard.scope(() => next()); //@beef no. no sniffing endswith/after thats a recipe for disaster and uuuuuuuugly. i hate it. we handle this on vector.branch level. shard this on the right level instead of filtering inside. 
++    return next();
++  };
++}
++
+ export function strip(metadata) {
+#+END_SRC
+
+…and =reactive='s owner read: the loud-throw STAYS, but the stamp moves to
+emission, where the context still exists. (See
+[[project_reactive_owner_orm_context]] — the owner is carried, not ambient.)
+
+#+BEGIN_SRC diff
+       if (scope && serialized && typeof serialized === "object") {
+-        const owner = repo.getEntityManager().getFilterParams("user")?.user ?? null;
++        const owner = ctx.input?.params?.user ?? repo.getEntityManager().getFilterParams("user")?.user ?? null; // @beef i am not sure we need this?!?! for sure i dont want to sniff the input. we either have one mechanism or we dont. this maybe if else two lane is ugly. datasink doesnt write userspace entities and if it does, then it will be up to ... probably the twitch to provide the context filters.
+         if (owner == null)
+           throw new Error(
+#+END_SRC
+
+=systems/runtime/daemon/lifecycle/population.js= — middleware before subscribe:
+
+#+BEGIN_SRC diff
+   daemonDie.good.datamap = daemonDie.datamap;
+
++  daemonDie.good.twitch.use(shard.datamap.detached(daemonDie.datamap));
+   daemonDie.datamap.subscribe(shape.subscriber(daemonDie.good.twitch));
+#+END_SRC
+
+*** the green gate — =tests/gestalten/shape/subscriber.test.js=
+
+Driven by a REAL ORM, not hand-built =args=. The whole point of the rebuild is
+what happens inside a live MikroORM flush — reentrancy, a dead filter context,
+a snapshot that must not be a live entity ref. Fabricated =args= with a
+=toJSON= stub cannot fail in any of those ways, so it cannot guard against
+them. =datamap.seed()= already exists and gives a real em; the scenario reuses
+it exactly as =shard/datamap.integration.test.js= does.
+
+#+BEGIN_SRC javascript :tangle ../../subsystems/typology/tests/gestalten/shape/subscriber.test.js :mkdirp yes
+import { specimen, sleep, Vector, shard, shape } from "@vivalence/typology";
+import { datamap } from "@vivalence/typology/scenarios";
+import { LiteralEntity } from "@vivalence/typology/entities";
+
+let scenario, twitch, seen;
+
+specimen.beforeAll(async () => {
+  scenario = await datamap.seed();
+  twitch = new Vector();
+  twitch.use(shard.datamap.detached(scenario));
+  scenario.em.getEventManager().registerSubscriber(shape.subscriber(twitch));
+});
+
+specimen.afterAll(async () => await scenario.orm.close());
+
+specimen.beforeEach(() => (seen = []));
+
+specimen.describe("the before lane — inline, against the live entity", () => {
+  specimen.it("mutates the entity being flushed, which is what INTENTED relies on", async () => {
+    twitch.open("/literal/create/before", (ctx) => {
+      seen.push(ctx.input.entity.slug);
+      ctx.input.entity.trait = { STAMPED: true };
+    });
+
+    const literal = scenario.em.create(LiteralEntity, { slug: "before-lane", trait: {}, symbol: {} });
+    await scenario.em.flush();
+
+    specimen.expect(seen).toEqual(["before-lane"]);
+    specimen.expect(literal.trait.STAMPED).toBe(true);
+  });
+});
+
+specimen.describe("the after lane — detached, against a snapshot", () => {
+  specimen.it("does not run inside the flush that triggered it", async () => {
+    twitch.open("/literal/update/after", (ctx) => seen.push(ctx.input.entity.slug));
+
+    const literal = scenario.em.create(LiteralEntity, { slug: "after-lane", trait: {}, symbol: {} });
+    await scenario.em.flush();
+
+    literal.trait = { TOUCHED: true };
+    await scenario.em.flush();
+    specimen.expect(seen).toEqual([]);
+
+    await sleep.ms(10);
+    specimen.expect(seen).toEqual(["after-lane"]);
+  });
+
+  specimen.it("hands the handler a plain snapshot it cannot write back through", async () => {
+    const captured = [];
+    twitch.open("/literal/create/after", (ctx) => captured.push(ctx.input));
+
+    scenario.em.create(LiteralEntity, { slug: "snapshot-only", trait: { A: 1 }, symbol: {} });
+    await scenario.em.flush();
+    await sleep.ms(10);
+
+    const event = captured.find((each) => each.entity.slug === "snapshot-only");
+    specimen.expect(event.entity.trait).toEqual({ A: 1 });
+    specimen.expect(event.entity instanceof LiteralEntity).toBe(false);
+    specimen.expect(event.entity.assign).toBe(undefined);
+  });
+
+  specimen.it("carries the filter params forward, so a scoped write can still name its owner", async () => {
+    const captured = [];
+    twitch.open("/literal/create/after", (ctx) => captured.push(ctx.input));
+
+    scenario.em.create(LiteralEntity, { slug: "owned", trait: {}, symbol: {} });
+    await scenario.em.flush();
+    await sleep.ms(10);
+
+    const event = captured.find((each) => each.entity.slug === "owned");
+    specimen.expect(event.params.user).toBe(scenario.fixtures.user.id);
+  });
+
+  specimen.it("queries in a forked scope, so a drain handler may read the database it was woken by", async () => {
+    const counted = [];
+    twitch.open("/literal/create/after", async () => {
+      counted.push(await scenario.repos.literal.count({}));
+    });
+
+    scenario.em.create(LiteralEntity, { slug: "reentrant-read", trait: {}, symbol: {} });
+    await scenario.em.flush();
+    await sleep.ms(20);
+
+    specimen.expect(counted.length).toBe(1);
+    specimen.expect(counted[0]).toBeGreaterThan(0);
+  });
+});
+
+specimen.describe("the pump — one queue, poison-resistant", () => {
+  specimen.it("keeps ordering and survives a handler that throws mid-queue", async () => {
+    twitch.open("/literal/create/after", (ctx) => {
+      if (ctx.input.entity.slug === "boom") throw new Error("boom");
+      seen.push(ctx.input.entity.slug);
+    });
+
+    for (const slug of ["one", "boom", "two"])
+      scenario.em.create(LiteralEntity, { slug, trait: {}, symbol: {} });
+    await scenario.em.flush();
+    await sleep.ms(20);
+
+    specimen.expect(seen).toEqual(["one", "two"]);
+  });
+});
+#+END_SRC
+
+The reentrant-read case is the one that justifies =detached= existing at all:
+remove the middleware and a handler that queries during an after-lane event
+either throws or reads a stale identity map. It is also the exact shape
+=DATASINK='s drain takes, so M22.4 inherits its proof from here.
+
+** M22.3 — DATASET rewritten schema-driven
+
+=systems/runtime/daemon/traits/dataset.js=. Carrier-lifted; entity types come
+from declaration order, relation props from
+=shard.datamap.strip(daemon.datamap.introspect())=. =symbol=/=literal= are no
+longer hardcoded anywhere. Mint-by-reference is PRESERVED — it is load-bearing
+(the 839 lemma symbols exist only because of it). Batched upsert semantics
+unchanged (CHUNK 100, retry, flush-per-chunk).
+
+The commented-out prior iterations at the file's tail are beef's recovery
+surface — the patch leaves them untouched (`backup-during-migration`).
+#+BEGIN_SRC diff
+-import { is, object, promise, fn } from "@vivalence/typology";
++import { object, promise, fn, shard, Dataset } from "@vivalence/typology";
+
+ const CHUNK = 100;
++const USERSPACE = new Set(["thread", "buffer", "turn", "user"]); // @beef invert this. rather test for DATASPACE entities. positives not negatives. well. actually we only want literal and symbol for now. 
+ const log = (phase) => (done, total) => console.log(`[DATASET:install] ${phase} ${done}/${total}`);
+
+ export const DATASET = async (mode, daemon) => {
+   if (mode.entity.installed) return;
+
+-  const entities = mode.module.dataset.entities;
++  const dataset = new Dataset(mode.module.dataset ?? {});
++  const meta = shard.datamap.strip(daemon.datamap.introspect());
++  const mount = mode.module.mount;
+   const flush = () => daemon.entities.em.flush();
++  const staged = {};
+
+-  const upsertAll = (type) =>
+-    (entities[type] || []).map((item) => {
+-      const { literals, symbols, ...data } = item;
+-      return promise.retry(async () => upsert(daemon, type, data));
++  for (const type of dataset.types) {
++    guard(mode, meta, type);
++    if (!daemon.entities[type]) {
++      console.warn(`[DATASET] ${mode.type}/${mode.slug} declares unknown entity "${type}"`);
++      continue;
++    }
++    const relations = Object.keys(meta[type]?.properties ?? {});
++    staged[type] = await dataset.rows(type, mount);
++    const upserts = staged[type].map((row) =>
++      promise.retry(() => upsert(daemon, type, object.omit(row, relations))),
++    );
++    await promise.batched(upserts, CHUNK, {
++      afterChunk: flush,
++      onChunk: fn.every(5, log(`upsert:${type}`)),
+     });
++  }
+
+-  await promise.batched(upsertAll("symbol"), CHUNK, {
+-    afterChunk: flush,
+-    onChunk: fn.every(5, log("upsert:symbol")),
+-  });
+-  await promise.batched(upsertAll("literal"), CHUNK, {
+-    afterChunk: flush,
+-    onChunk: fn.every(5, log("upsert:literal")),
+-  });
+-
+-  await linkPhase(daemon, "symbol", "literal", entities.symbol || []);
+-  await linkPhase(daemon, "literal", "symbol", entities.literal || []);
++  for (const type of dataset.types)
++    for (const [prop, relation] of Object.entries(meta[type]?.properties ?? {}))
++      await linkPhase(daemon, meta, type, prop, relation, staged[type] ?? []);
+ };
+
++function guard(mode, meta, type) {
++  const scoped = Object.values(meta[type]?.properties ?? {}).some((relation) => relation.target === "user");
++  if (USERSPACE.has(type) || scoped)
++    throw new Error(`[DATASET] ${mode.type}/${mode.slug} declares userspace entity "${type}"`);
++}
++
+ async function upsert(daemon, type, data) {
+#+END_SRC
+
+=linkPhase= generalizes from the hardcoded =(symbol, literal)= pair to
+=(type, prop, relation.target)=, with inverse-populate when derivable:
+
+#+BEGIN_SRC diff
+-async function linkPhase(daemon, fromType, toType, items) {
+-  const refs = items.filter((item) => item[toType + "s"]?.length);
++async function linkPhase(daemon, meta, fromType, prop, relation, rows) {
++  const toType = relation.target;
++  if (!toType || !daemon.entities[toType]) return;
++
++  const refs = rows.filter((row) => row[prop]?.length);
+   if (!refs.length) return;
+
+-  const fromSlugs = refs.map((r) => r.slug);
+-  const toSlugs = [...new Set(refs.flatMap((r) => r[toType + "s"].map((x) => x.slug)))];
++  const fromSlugs = refs.map((row) => row.slug);
++  const toSlugs = [...new Set(refs.flatMap((row) => row[prop].map((ref) => ref.slug)))];
++  const inverse = Object.entries(meta[toType]?.properties ?? {}) //
++    .find(([, back]) => back.target === fromType)?.[0];
+
+   const froms = await daemon.entities[fromType].find(
+     { slug: { $in: fromSlugs } },
+-    { populate: [toType + "s"] },
++    { populate: [prop] },
+   );
+   const tos = await daemon.entities[toType].find(
+     { slug: { $in: toSlugs } },
+-    { populate: [fromType + "s"] },
++    inverse ? { populate: [inverse] } : {},
+   );
+
+-  const fromMap = new Map(froms.map((e) => [e.slug, e]));
+-  const toMap = new Map(tos.map((e) => [e.slug, e]));
++  const fromMap = new Map(froms.map((entity) => [entity.slug, entity]));
++  const toMap = new Map(tos.map((entity) => [entity.slug, entity]));
+
+-  for (const item of refs) {
+-    const from = fromMap.get(item.slug);
++  for (const row of refs) {
++    const from = fromMap.get(row.slug);
+     if (!from) continue;
+
+-    for (const ref of item[toType + "s"]) {
++    for (const ref of row[prop]) {
+       let to = toMap.get(ref.slug);
+       if (to) {
+         to.assign(object.patch(to, ref));
+@@
+-      from[toType + "s"].add(to);
++      from[prop].add(to);
+     }
+
+     from.assign({ updatedAt: new Date() });
+   }
+
+-  console.log(`[DATASET:install] link:${fromType} ${refs.length} entities linked`);
++  console.log(`[DATASET:install] link:${fromType}.${prop} ${refs.length} entities linked`);
+   await daemon.entities.em.flush();
+ }
+#+END_SRC
+
+*** the green gate — =systems/runtime/tests/dataset.install.test.js=
+
+This is the test that did not exist. The old assessment named the =DATASET=
+install path as a permanent COVERAGE GAP and deferred it to "a fixture daemon"
+— but the fixture daemon is =datamap.provider=, which already ships, and the
+fixture topography is the M22.0 scenario. The gap was a missing scenario, not
+a missing capability.
+
+One scenario: install the real fixture topography into a real in-memory
+daemon, then interrogate the database.
+
+#+BEGIN_SRC javascript :tangle ../../systems/runtime/tests/dataset.install.test.js :mkdirp yes
+import { specimen, Vector } from "@vivalence/typology";
+import { datamap, topography } from "@vivalence/typology/scenarios";
+import { DATASET } from "../daemon/traits/index.js";
+
+let scenario, daemon, mode;
+
+specimen.beforeAll(async () => {
+  scenario = await datamap.seed();
+  daemon = {
+    entities: scenario.repos,
+    datamap: { introspect: () => scenario.orm.getMetadata() },
+    twitch: new Vector(),
+  };
+  daemon.entities.em = scenario.em;
+
+  const corpus = await topography.corpus();
+  mode = {
+    type: "topography",
+    slug: "fixture",
+    entity: { installed: false },
+    module: { mount: corpus, dataset: topography.dataset() },
+  };
+
+  await DATASET(mode, daemon);
+});
+
+specimen.afterAll(async () => await scenario.orm.close());
+
+specimen.describe("what install put in the database", () => {
+  specimen.it("upserts every declared row of every declared type", async () => {
+    const symbols = await scenario.repos.symbol.find({ slug: { $like: "proficiency.%" } });
+    specimen.expect(symbols.map((row) => row.slug).sort())
+      .toEqual(["proficiency.cefr.a1", "proficiency.survival"]);
+
+    const literals = await scenario.repos.literal.find({ slug: { $like: "%.noun" } });
+    specimen.expect(literals.map((row) => row.slug)).toEqual(["casa.noun"]);
+  });
+
+  specimen.it("mints symbols that were referenced but never declared — the lemma path", async () => {
+    const lemmas = await scenario.repos.symbol.find({ slug: { $like: "word.lemma.%" } });
+    specimen.expect(lemmas.map((row) => row.slug).sort())
+      .toEqual(["word.lemma.casa", "word.lemma.del", "word.lemma.parlare"]);
+  });
+
+  specimen.it("links both directions of the relation, not just the declared side", async () => {
+    const casa = await scenario.repos.literal.findOne({ slug: "casa.noun" }, { populate: ["symbols"] });
+    specimen.expect(casa.symbols.getItems().map((ref) => ref.slug).sort())
+      .toEqual(["proficiency.cefr.a1", "word", "word.lemma.casa", "word.part-of-speech.noun"]);
+
+    const lemma = await scenario.repos.symbol.findOne({ slug: "word.lemma.casa" }, { populate: ["literals"] });
+    specimen.expect(lemma.literals.getItems().map((ref) => ref.slug).sort())
+      .toEqual(["casa.noun", "la-casa-e-grande"]);
+  });
+
+  specimen.it("does not persist relation props as scalar columns", async () => {
+    const casa = await scenario.repos.literal.findOne({ slug: "casa.noun" });
+    specimen.expect(casa.toJSON().symbols).not.toEqual([{ slug: "word" }]);
+  });
+});
+
+specimen.describe("what install refuses", () => {
+  specimen.it("is inert on an already-installed mode", async () => {
+    const before = await scenario.repos.symbol.count({});
+    await DATASET({ ...mode, entity: { installed: true } }, daemon);
+    specimen.expect(await scenario.repos.symbol.count({})).toBe(before);
+  });
+
+  specimen.it("throws rather than draining userspace into a registry file", async () => {
+    const userspace = {
+      ...mode,
+      entity: { installed: false },
+      module: { ...mode.module, dataset: topography.dataset() },
+    };
+    userspace.module.dataset.sources.thread = [() => [{ slug: "leak" }]];
+    await specimen.expect(DATASET(userspace, daemon)).rejects.toThrow(/userspace/);
+  });
+});
+#+END_SRC
+
+Install is now guarded, so M22.4's drain has a database it can be tested
+against rather than a hand-built mock — and M22.6's live run stops being the
+first time the katabolic loop closes.
+
+** M22.4 — the DATASINK trait
+
+NEW =systems/runtime/daemon/traits/datasink.js=. Reads:
+
+1. lift the carrier, hang it on the mode (=mode.datasink=) for the
+   resolution-time overlap lint;
+2. userspace guard — deny-list plus the user-relation heuristic read off
+   stripped metadata (a type with a relation targeting =user= is by
+   definition not registry data);
+3. one type-level =dirty= set, wholesale rewrite per type;
+4. twitch opens =/{type}/{op}/after= per declared type, gated on =armed= —
+   which the FINALIZER sets, so the install storm's own twitches never mark
+   dirty;
+5. =fn.debounce(1500)= settle, single-flight =mode.drain= (shared in-flight,
+   cleared on settle).
+
+The drain itself is one pipeline per sink:
+
+#+begin_example
+  repo.constrain?.(where)          DB-side, authoritative
+    → find(populate: relations)
+    → project.row                  strip system keys, normalize refs
+    → match(row, {daemon, mode})   memory-side classify
+    → claimed.add(slug)            for the orphan census
+    → shape ?? lean                the declared projection, or the default
+    → drop nulls
+    → write(rows, mount)
+#+end_example
+
+#+BEGIN_SRC javascript :tangle ../../systems/runtime/daemon/traits/datasink.js :mkdirp yes
+import { fn, shard, project, Datasink } from "@vivalence/typology";
+
+const USERSPACE = new Set(["thread", "buffer", "turn", "user"]);
+const DEBOUNCE = 1500;
+
+export const DATASINK = (mode, daemon) => {
+  const datasink = new Datasink(mode.module.datasink ?? {});
+  mode.datasink = datasink;
+
+  const meta = shard.datamap.strip(daemon.datamap.introspect());
+  for (const type of datasink.types) {
+    const scoped = Object.values(meta[type]?.properties ?? {}).some((relation) => relation.target === "user");
+    if (USERSPACE.has(type) || scoped)
+      throw new Error(`[DATASINK] ${mode.type}/${mode.slug} declares userspace entity "${type}"`);
+    if (!daemon.entities[type])
+      console.warn(`[DATASINK] ${mode.type}/${mode.slug} declares unknown entity "${type}"`);
+  }
+
+  const dirty = new Set();
+  let armed = false;
+  let flight = null;
+
+  const drain = async (input = {}) => {
+    const types = input.all || !dirty.size ? datasink.types : [...dirty];
+    const report = { drained: [], written: 0, orphans: {} };
+
+    for (const type of types) {
+      dirty.delete(type);
+      const repo = daemon.entities[type];
+      if (!repo) continue;
+
+      const relations = Object.keys(meta[type]?.properties ?? {});
+      const claimed = new Set();
+
+      for (const sink of datasink.of(type)) {
+        const where = repo.constrain ? repo.constrain(sink.where ?? {}) : (sink.where ?? {});
+        const found = await repo.find(where, { populate: relations });
+        const matched = found
+          .map(project.row(relations))
+          .filter((row) => sink.match?.(row, { daemon, mode }) ?? true);
+        for (const row of matched) claimed.add(row.slug);
+        const shaped = matched
+          .map(sink.shape ?? project.lean(relations))
+          .filter((row) => row != null);
+        const wrote = await sink.write(shaped, mode.module.mount);
+        if (wrote !== false) report.written++;
+      }
+
+      const total = await repo.count({});
+      report.orphans[type] = Math.max(0, total - claimed.size);
+      report.drained.push(type);
+    }
+
+    return report;
+  };
+
+  const once = (input) => (flight ??= drain(input).finally(() => (flight = null)));
+  const settle = fn.debounce(() => once({}), DEBOUNCE);
+
+  mode.drain = once;
+
+  for (const type of datasink.types)
+    for (const op of ["create", "update", "delete"])
+      daemon.twitch.open(`/${type}/${op}/after`, () => {
+        if (!armed) return;
+        dirty.add(type);
+        settle();
+      });
+
+  return () => {
+    armed = true;
+  };
+};
+#+END_SRC
+
+The orphan census (=count({})= minus claimed slugs, per type) is the sink
+coverage measure: rows in the DB that no declared sink claims will be LOST on
+the next install cycle. It rides in the drain report rather than warning,
+because on a partial topography a nonzero orphan count is expected.
+
+=systems/runtime/daemon/traits/index.js=:
+
+#+BEGIN_SRC diff
+ export * from "./dataset.js";
++export * from "./datasink.js";
+ export * from "./intented.js";
+#+END_SRC
+
+=systems/runtime/daemon/lifecycle/resolution.js= — the EXPOSED-pattern warn
+plus a post-finalizer overlap lint (identical =(type, where)= across two
+modes is almost always a copy-paste, not intent):
+
+#+BEGIN_SRC diff
+       if (mode.module.aperture && !mode.implements("EXPOSED")) {
+         console.warn(`[trait] ${mode.type}/${mode.slug} exports aperture without EXPOSED`);
+       }
++      if (mode.module.datasink && !mode.implements("DATASINK")) {
++        console.warn(`[trait] ${mode.type}/${mode.slug} exports datasink without DATASINK`);
++      }
+
+       await daemonDie.good.entities.mode.nativeUpdate({ id: mode.entity.id }, { installed: true });
+     }
+
+     await Promise.all(finalizers.map((finalize) => finalize()));
+
++    const claims = new Map();//@beef why do we need this? and why does this reside outside the trait?!?!
++    for (const mode of daemonDie.good.flatmodes())
++      for (const sink of mode.datasink?.sinks ?? []) {
++        const key = `${sink.type}::${JSON.stringify(sink.where ?? true)}`;
++        const prior = claims.get(key);
++        if (prior && prior !== mode)
++          console.warn(`[DATASINK] overlapping sink ${key} in ${prior.type}/${prior.slug} and ${mode.type}/${mode.slug}`);
++        claims.set(key, mode);
++      }
++
+     for (const mode of daemonDie.good.flatmodes()) {
+#+END_SRC
+
+** M22.5 — the italian exemplar (FIRST CONSUMER)
+
+=registry/education/topographies/english-to-italian/italian.viva.js=.
+
+Italian is the first consumer because it is the corpus with the most
+enrichment that currently has nowhere to land: 2381 undeclared lemma symbols
+(brazilian has 839), a sealed 6535-literal body, and an active =.harvest/=
+pipeline whose output is exactly the "dies in the sqlite file" problem this
+quest exists for.
+
+*** what is actually on disk
+
+Measured, not assumed:
+
+| declared                                   | count | note                             |
+|--------------------------------------------+-------+----------------------------------|
+| =dataset/symbols/structural.js=            |    52 | trait =STRUCTURAL=               |
+| =dataset/symbols/ontological.js=           |     3 | =word.suffix.{are,ere,ire}=, traits =ONTOLOGICAL= + =LABELED= |
+| =dataset/literals/words/*.js=              |  5092 | 13 files; =particle.js= is =export default []= |
+| =dataset/literals/sentences.js=            |  1088 |                                  |
+| =dataset/literals/conjugation.js=          |   355 | unquoted JS keys, not JSON       |
+
+| minted at install (declared NOWHERE)       | count |
+|--------------------------------------------+-------|
+| =word.lemma.*=                             |  2381 |
+
+Root ontology symbols are disjoint and total — every word literal carries
+=word=, every sentence =sentence=, every conjugation =conjugation=, and no
+literal carries two of them. The three literal sinks therefore partition
+cleanly with no shotgun overlap.
+
+Italian differs from brazilian in one structural way: it declares an
+=ontological.js= (the three verb-suffix symbols) that brazilian has no
+counterpart for. Those carry =ONTOLOGICAL=, not =STRUCTURAL=, so the
+brazilian two-sink symbol shape would leave them unclaimed. Italian needs a
+THIRD symbol sink.
+
+*** the cutover
+
+#+BEGIN_SRC diff
+-import { Freight } from "@vivalence/typology";
+-import dataset from "./dataset/index.js";
++import { Dataset, Datasink, Freight, project, writer } from "@vivalence/typology";
++import schema from "./dataset/schema.json" with { type: "json" };
+
+-const manifest = {
++export const manifest = {
+   type: "topography",
+   slug: "english-to-italian",
+   name: "Italian Vocabulary",
+-  version: "0.1.0",
+-  traits: ["DATASET", "FRAUGHT"],
++  version: "0.2.0",
++  traits: ["DATASET", "DATASINK", "FRAUGHT"],
+ };
+
+-const freight = new Freight("freight/audio");
++export const freight = new Freight("freight/audio");
+
+ // const attribution = {
+ //   audio: "Not owned by the project author — sourced agentically from third-party recordings.",
+ //   sentences: "Tatoeba, native-speaker recordings by NM1 (CC BY 4.0)",
+ //   words: "Lingua Libre / Wikimedia Commons + Wiktionary pronunciations (CC)",
+ // };
+
+-export { manifest, freight, dataset };
++export const dataset = new Dataset({
++  schema,
++  symbol: ["dataset/symbols/structural.js", "dataset/symbols/ontological.js"],
++  literal: [
++    "dataset/literals/conjugation.js",
++    "dataset/literals/sentences.js",
++    "dataset/literals/words",
++  ],
++});
++
++export const datasink = new Datasink({
++  symbol: [
++    [{ slug: { $like: "word.lemma.%" } },
++      project.refs("literals", [[true, project.slug]]),
++      "dataset/symbols/lemmas.json"],
++    [{ traits: ["STRUCTURAL"] },
++      project.omit("literals"),
++      "dataset/symbols/structural.json"],
++    [{ traits: ["ONTOLOGICAL"] },
++      project.omit("literals"),
++      "dataset/symbols/ontological.json"],
++  ],
++  literal: [
++    ["conjugation", "dataset/literals/conjugation.json"],
++    ["sentence", "dataset/literals/sentences.json"],
++    ["word",
++      writer.facet("word.part-of-speech", (pos) => `dataset/literals/words/${pos}.json`, {
++        rest: "dataset/literals/words/rest.json",
++      })],
++  ],
++});
+#+END_SRC
+
+The =attribution= block stays commented exactly as it is —
+`backup-during-migration`, it is beef's content and not this quest's to sweep.
+
+*** reading the sinks
+
+- **lemma** — keeps its literal refs as bare slugs. The lemma's enrichment
+  lives on the LITERAL side, so the ref only needs identity. 2381 symbols
+  that have never had a file.
+- **structural** — omits literals entirely. Structural symbols are the
+  vocabulary, not the corpus; carrying 6535 back-refs would make the file a
+  second copy of the corpus.
+- **ontological** — same shape, different trait. Three rows, but they are the
+  difference between a clean orphan census and a permanently-confusing one.
+- **word** — partitions by =word.part-of-speech.*= facet.
+
+*** what the word facet will actually do (italian-specific)
+
+Not a clean 13-in-13-out. Measured: 5092 word literals carry 5122
+=word.part-of-speech.*= refs.
+
+| file                    | on disk now | after drain                                    |
+|-------------------------+-------------+------------------------------------------------|
+| 11 pos files            | 11 files    | 11 files, same names                           |
+| =contraction.js=        | 30 literals | **GONE** — contractions carry BOTH =adposition= and =determiner=; =facet= warns ×30 and files them under the first sorted facet, so they land in =adposition.json= |
+| =particle.js=           | 0 literals  | **GONE** — empty source, nothing to write      |
+| =rest.json=             | —           | **never created** — every word literal has ≥1 pos facet, so the rest bucket stays empty |
+
+The 30-literal contraction move is the exact multi-facet warn the writer was
+built to make loud. It is a DATA question, not a code one: either contraction
+becomes its own =word.part-of-speech.contraction= facet, or contractions are
+genuinely adposition+determiner portmanteaus and the file was a convenience
+that the facet algebra correctly dissolves. Do not "fix" it in the writer.
+
+** M22.6 — live boot + first materialization (PENDING)
+
+Needs a real runtime; not doable in the harness this was written under.
+Italian is the target — it already has a full end-to-end live run behind it
+(mode mount → =/course/open= → thread traits → Stall pull → buffers → advance
+across all three impara buckets), which is why it is the safest first drain:
+the boot path is proven, so anything that breaks is the sink.
+
+1. boot =daemon_italian= live, confirm the graph resolves with =DATASINK=
+   armed and no twitch storm during install;
+2. call =mode.drain({all: true})= once — this IS the js→json materialization;
+   read the report (=written=, =orphans=);
+3. inspect the emitted =dataset/**.json= — expect ONE large cosmetic diff
+   (slug-sort replacing the current rank-ish authoring order);
+4. repoint the =dataset= sources from the =.js= files to the emitted =.json=;
+5. re-boot, drain again, confirm =written: 0= (the fixpoint — a second drain
+   over unchanged state must write nothing, because =scribe= is
+   write-if-changed and =canonical= is deterministic).
+
+Step 5 is the real gate: it proves file = fn(DB) end to end.
+

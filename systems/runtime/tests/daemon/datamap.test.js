@@ -13,7 +13,7 @@ specimen.describe("daemon routes", () => {
   });
 
   specimen.it("intent has mode relation", async () => {
-    const result = await scenario.conn.call("/entities/intent/findOne", {
+    const result = await scenario.authedConn.call("/userspace/entities/intent/findOne", {
       where: { slug: "survival-flashcard" },
     });
     specimen.expect(result.mode).toBeTruthy();
@@ -35,7 +35,7 @@ specimen.describe("daemon routes", () => {
     const mode = entityManager.register("mode", new RemoteRepository());
     mode.connect(scenario.conn.branch("/entities/mode"));
     const intent = entityManager.register("intent", new RemoteRepository());
-    intent.connect(scenario.conn.branch("/entities/intent"));
+    intent.connect(scenario.authedConn.branch("/userspace/entities/intent"));
     const thread = entityManager.register("thread", new RemoteRepository());
     thread.connect(scenario.authedConn.branch("/userspace/entities/thread"));
     shard.datamap.wire({ mode, intent, thread }, schema);

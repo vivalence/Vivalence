@@ -37,7 +37,6 @@ async function serverConfig() {
         "./src/**/*",
         "../../registry/**/*.{html,svelte,js,css}",
         "../../subsystems/typology/**/*",
-        "../../subsystems/shared/**/*",
         "../../subsystems/dapper/**/*",
         "../../subsystems/drapes/**/*",
       ],
@@ -72,7 +71,6 @@ export default defineConfig(async ({ command }) => ({
       $client: join(__dirname, "./src/client.js"),
       "@vivalence/kajuit": join(__dirname, "./src/typology/mod.js"),
 
-      // "@vivalence/shared": join(__ss, "./shared/mod.client.js"),
       "@vivalence/typology": join(__ss, "./typology/mod.client.js"),
       "@vivalence/typology/schematics": join(__ss, "./typology/schematics/index.js"),
 

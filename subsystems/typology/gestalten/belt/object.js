@@ -7,6 +7,7 @@ export const place = (obj, path, val) => {
     .slice(0, -1)
     .reduce((cur, k) => ((cur[k] = is.object(cur[k]) ? cur[k] : {}), cur[k]), obj);
   if (keys.length) target[keys.at(-1)] = leaf;
+  else if (leaf) obj[leaf] = true;
   return obj;
 };
 

@@ -1,5 +1,5 @@
 <script>
-  import { getContext, tick } from "svelte";
+  import { getContext } from "svelte";
   import { chain, stores } from "@vivalence/kajuit";
   import { soma } from "@vivalence/typology";
   import { TERMINALS, BRIDGE } from "$client";
@@ -20,7 +20,6 @@
   let turns = $derived($turnsStore ?? []);
   let harnessed = $derived($modeStore?.implements?.("HARNESSED") ?? false);
   let full = $derived($dockStore?.full ?? false);
-  let composer = $derived($composerStore ?? { enterSends: true, density: "comfortable" });
 
   // in-flight = pure view state. history is thread.$turns (the repo). the user turn is minted
   // here with a client id and persisted under it → the repo delivers the SAME id → echo drops
@@ -33,9 +32,14 @@
 
   let draft = $state("");
   let textareaEl = $state(null);
+  let dockHeight = $state(0);
   let logEl = $state(null);
   let pinned = $state(true);
   let unread = $state(0);
+
+  const coarsePointer = typeof matchMedia === "function" && matchMedia("(pointer: coarse)").matches;
+  const enterSends = $derived(!coarsePointer && ($composerStore?.enterSends ?? true));
+  const hint = $derived(coarsePointer ? "message…" : enterSends ? "message… (shift+enter for newline)" : "message… (enter for newline, shift+enter sends)");
 
   const isStreaming = $derived(!!live);
   const isThinking = $derived(sending && !live);
@@ -50,7 +54,8 @@
     echo = { id, role: "user", parts, createdAt: new Date().toISOString() };
     sending = true;
     pinned = true;
-    scrollToBottom(true);
+    pinBottom();
+    textareaEl?.focus();
 
     inflight = new AbortController();
     try {
@@ -58,6 +63,7 @@
         thread.mode.harness.dialogue.stream({ thread: thread.id, id, parts }, { signal: inflight.signal }),
       )) {
         live = { ...turn }; // new ref per packet → Svelte reacts (shallow copy at the view)
+        pinBottom();
       }
     } catch (err) {
       if (err.name !== "AbortError") error = err.message;
@@ -91,7 +97,6 @@
   }
 
   function onKey(event) {
-    const enterSends = composer?.enterSends ?? true;
     if (event.key === "Enter") {
       const wantsSend = enterSends ? !event.shiftKey : event.shiftKey;
       if (wantsSend) {
@@ -126,47 +131,42 @@
     return el.scrollTop + el.clientHeight >= el.scrollHeight - slack;
   }
 
+  let lastScrollTop = 0;
   function onScroll() {
     if (!logEl) return;
-    pinned = isAtBottom(logEl);
-    if (pinned) unread = 0;
+    const top = logEl.scrollTop;
+    if (isAtBottom(logEl)) {
+      pinned = true;
+      unread = 0;
+    } else if (top < lastScrollTop) {
+      pinned = false;
+    }
+    lastScrollTop = top;
   }
 
-  async function scrollToBottom(force = false) {
-    if (!logEl) return;
-    if (!pinned && !force) return;
-    await tick();
-    logEl.scrollTop = logEl.scrollHeight;
+  let pinQueued = false;
+  function pinBottom() {
+    if (pinQueued) return;
+    pinQueued = true;
+    requestAnimationFrame(() => {
+      pinQueued = false;
+      if (pinned && logEl) logEl.scrollTop = logEl.scrollHeight;
+    });
   }
 
   let lastCount = 0;
   $effect(() => {
-    const len = turns.length + (showEcho ? 1 : 0) + (live ? 1 : 0);
-    if (len > lastCount) {
-      if (pinned) scrollToBottom();
-      else unread += len - lastCount;
-    }
+    const len = enrichedTurns.filter((item) => item.kind === "turn").length + (isStreaming ? 1 : 0);
+    if (pinned) pinBottom();
+    else if (len > lastCount) unread += len - lastCount;
     lastCount = len;
   });
 
-  let autoGrowEl = null;
-  function autoGrow(el) {
-    if (!el) return;
-    el.style.height = "auto";
-    const max = 6 * 16;
-    el.style.height = Math.min(el.scrollHeight, max) + "px";
-  }
-
   $effect(() => {
-    if (textareaEl) {
-      autoGrowEl = textareaEl;
-      autoGrow(textareaEl);
-    }
-  });
-
-  $effect(() => {
-    void draft;
-    if (autoGrowEl) autoGrow(autoGrowEl);
+    if (!logEl) return;
+    const observer = new ResizeObserver(pinBottom);
+    observer.observe(logEl);
+    return () => observer.disconnect();
   });
 
   function turnDate(turn) {
@@ -195,7 +195,7 @@
     return `${String(date.getHours()).padStart(2, "0")}:${String(date.getMinutes()).padStart(2, "0")}`;
   }
 
-  const enrichedTurns = $derived(() => {
+  const enrichedTurns = $derived.by(() => {
     const source = showEcho ? [...turns, echo] : turns;
     const items = [];
     let prevDay = null;
@@ -216,7 +216,7 @@
   });
 </script>
 
-<div class="dock">
+<div class="dock" bind:clientHeight={dockHeight}>
   <header>
     <button class="dock-close" onclick={() => stores.bridge.setDockCollapsed(terminals.active?.$dock)} title="collapse" aria-label="collapse dock">
       <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round">
@@ -248,7 +248,7 @@
   </header>
 
   <div class="log" bind:this={logEl} onscroll={onScroll}>
-    {#each enrichedTurns() as item (item.id ?? item.turn?.id ?? Math.random())}
+    {#each enrichedTurns as item, index (item.id ?? item.turn?.id ?? index)}
       {#if item.kind === "divider"}
         <div class="day-divider"><span>{item.label}</span></div>
       {:else}
@@ -333,32 +333,43 @@
     {#if !turns.length && !live && !isThinking}
       <div class="placeholder">{harnessed ? "begin" : "no harness"}</div>
     {/if}
-  </div>
 
-  {#if !pinned && unread > 0}
-    <button type="button" class="new-pill" onclick={() => { pinned = true; scrollToBottom(true); unread = 0; }}>
-      ↓ {unread} new
-    </button>
-  {/if}
+    <div class="anchor"></div>
+  </div>
 
   {#if error}
     <div class="error-bar" title={error}>error: {error}</div>
   {/if}
 
   <div class="composer">
+    {#if !pinned}
+      <button type="button" class="new-pill" class:quiet={unread === 0} onpointerdown={(event) => event.preventDefault()} onclick={() => { pinned = true; pinBottom(); unread = 0; }} aria-label="scroll to bottom">
+        ↓{#if unread > 0}&nbsp;{unread} new{/if}
+      </button>
+    {/if}
     <textarea
       bind:this={textareaEl}
       class="input"
       bind:value={draft}
       onkeydown={onKey}
-      placeholder={harnessed ? (composer?.enterSends ? "message… (shift+enter for newline)" : "message… (enter for newline, shift+enter sends)") : "—"}
+      placeholder={harnessed ? hint : "—"}
       disabled={!harnessed}
-      rows="1"></textarea>
+      rows="1"
+      style:max-height="{Math.max(112, Math.round(dockHeight * 0.6))}px"></textarea>
 
     {#if isStreaming || sending}
-      <button class="send stop" onclick={stop} title="stop (esc)">■</button>
+      <button class="send stop" onclick={stop} onpointerdown={(event) => event.preventDefault()} title={coarsePointer ? "stop" : "stop (esc)"} aria-label="stop">
+        <svg viewBox="0 0 24 24">
+          <rect x="7" y="7" width="10" height="10" rx="1" fill="currentColor" />
+        </svg>
+      </button>
     {:else}
-      <button class="send" onclick={send} disabled={!harnessed || !draft.trim()} title="send (enter)">↵</button>
+      <button class="send" onclick={send} onpointerdown={(event) => event.preventDefault()} disabled={!harnessed || !draft.trim()} title={coarsePointer ? "send" : "send (enter)"} aria-label="send">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+          <polyline points="9 10 4 15 9 20" />
+          <path d="M20 4v7a4 4 0 0 1-4 4H4" />
+        </svg>
+      </button>
     {/if}
   </div>
 </div>
@@ -387,6 +398,8 @@
   }
   .title {
     text-transform: lowercase;
+    color: var(--colors-skeleton-2-contrast);
+    opacity: 0.85;
   }
   .dock-close,
   .dock-full {
@@ -428,10 +441,6 @@
     background: var(--colors-skeleton-0-primary-base);
     box-shadow: 0 0 4px var(--colors-skeleton-0-primary-base);
   }
-  .title {
-    color: var(--colors-skeleton-2-contrast);
-    opacity: 0.85;
-  }
   .dock-spacer {
     flex: 1;
   }
@@ -458,6 +467,15 @@
     font-size: var(--font-size-sm);
     line-height: 1.55;
     letter-spacing: 0.01em;
+  }
+  .log > :not(.anchor) {
+    overflow-anchor: none;
+  }
+  .anchor {
+    overflow-anchor: auto;
+    height: 1px;
+    flex-shrink: 0;
+    margin-top: -12px;
   }
   .day-divider {
     display: flex;
@@ -697,9 +715,10 @@
 
   .new-pill {
     position: absolute;
-    bottom: 64px;
+    bottom: calc(100% + 10px);
     left: 50%;
-    transform: translateX(-50%);
+    transform: translateX(-50%) scale(1.15);
+    transform-origin: bottom center;
     background: var(--colors-skeleton-0-primary-base);
     color: var(--colors-skeleton-0-surface);
     border: none;
@@ -710,6 +729,12 @@
     cursor: pointer;
     box-shadow: 0 1px 6px color-mix(in srgb, var(--colors-skeleton-0-primary-base) 50%, transparent);
     z-index: 5;
+  }
+  .new-pill.quiet {
+    background: color-mix(in srgb, var(--colors-skeleton-2-surface) 85%, var(--colors-skeleton-0-primary-base));
+    color: var(--colors-skeleton-0-primary-base);
+    border: 1px solid color-mix(in srgb, var(--colors-skeleton-0-primary-base) 40%, transparent);
+    box-shadow: 0 1px 6px color-mix(in srgb, var(--colors-skeleton-0-surface) 60%, transparent);
   }
 
   .error-bar {
@@ -723,8 +748,9 @@
   }
 
   .composer {
+    position: relative;
     display: flex;
-    gap: 5px;
+    gap: 6px;
     padding: 6px 7px;
     border-top: 1px solid var(--colors-skeleton-2-boundary);
     flex-shrink: 0;
@@ -732,7 +758,7 @@
   }
   .input {
     flex: 1;
-    padding: 5px 8px;
+    padding: 5px 9px;
     border: 1px solid var(--colors-skeleton-2-boundary);
     border-radius: 2px;
     background: transparent;
@@ -742,9 +768,10 @@
     letter-spacing: 0.02em;
     transition: border-color 0.16s;
     resize: none;
-    min-height: 24px;
-    max-height: 96px;
-    line-height: 1.4;
+    min-height: 32px;
+    max-height: 112px;
+    field-sizing: content;
+    line-height: 20px;
     overflow-y: auto;
   }
   .input:focus {
@@ -755,32 +782,39 @@
     opacity: 0.3;
   }
   .send {
-    padding: 0 10px;
-    height: 24px;
-    background: transparent;
-    border: 1px solid var(--colors-skeleton-2-boundary);
+    width: 32px;
+    height: 32px;
+    padding: 0;
+    display: grid;
+    place-items: center;
+    background: color-mix(in srgb, var(--colors-skeleton-0-primary-base) 8%, transparent);
+    border: 1px solid color-mix(in srgb, var(--colors-skeleton-0-primary-base) 45%, transparent);
     border-radius: 2px;
-    color: var(--colors-skeleton-2-contrast);
-    font-family: var(--font-family-code);
-    font-size: var(--font-size-sm);
+    color: var(--colors-skeleton-0-primary-base);
     cursor: pointer;
-    opacity: 0.7;
-    transition: opacity 0.16s, color 0.16s, border-color 0.16s;
+    transition: background 0.16s, color 0.16s, border-color 0.16s;
     flex-shrink: 0;
   }
-  .send:not(:disabled):hover {
+  .send svg {
+    width: 15px;
+    height: 15px;
+    display: block;
+  }
+  .send:not(.stop):not(:disabled):hover {
+    background: color-mix(in srgb, var(--colors-skeleton-0-primary-base) 16%, transparent);
     border-color: var(--colors-skeleton-0-primary-base);
-    color: var(--colors-skeleton-0-primary-base);
-    opacity: 1;
   }
   .send:disabled {
-    opacity: 0.25;
+    background: transparent;
+    border-color: var(--colors-skeleton-2-boundary);
+    color: var(--colors-skeleton-2-contrast);
+    opacity: 0.3;
     cursor: not-allowed;
   }
   .send.stop {
+    background: transparent;
     border-color: var(--colors-skeleton-0-danger-base);
     color: var(--colors-skeleton-0-danger-base);
-    opacity: 1;
   }
   .send.stop:hover {
     background: color-mix(in srgb, var(--colors-skeleton-0-danger-base) 18%, transparent);

@@ -24,7 +24,7 @@ export const APPLICATION = async (mode, daemon) => {
   };
 
   return async () => {
-    const store = `${daemon.mountpoint.absolute}/${mode.type}/${mode.slug}`;
+    const store = `${daemon.mountpoint.absolute}/bundles/${mode.type}/${mode.slug}`;
     mode.app.view = await paladin.bundler(store).bundle({ kind: "svelte", entry: entry.absolute });
   };
 };

@@ -9,8 +9,15 @@
 
   let pincer = $state(bridge.layout.pincer);
   let viewportOffsetTop = $state(bridge.viewportOffsetTop);
+  let theme = $state(bridge.view.theme);
   bridge.layout.$pincer.subscribe((v) => (pincer = v));
   bridge.$viewportOffsetTop.subscribe((v) => (viewportOffsetTop = v));
+  bridge.view.$theme.subscribe((v) => (theme = v));
+
+  const PICTOGRAMS = {
+    nordic: "/images/pictogram_viket/pic-vinca-viket_white.svg",
+    paper:  "/images/pictogram_viket/pic-vinca-viket_black.png",
+  };
 
   const gesture = new stores.bridge.Gesture(bridge);
   let dragging = $state(gesture.dragging);
@@ -53,7 +60,7 @@
   onpointercancel={gesture.up}>
   <img
     class="viket-pictogram"
-    src="/images/pictogram_viket/pic-vinca-viket_white.svg"
+    src={PICTOGRAMS[theme] ?? PICTOGRAMS.nordic}
     alt="viket"
     draggable="false" />
 </div>
@@ -100,7 +107,7 @@
     transform: translate(-50%, -50%);
     background: var(--colors-skeleton-0-surface);
     color: var(--colors-skeleton-0-contrast);
-    border: 2px solid var(--colors-skeleton-0-primary-base);
+    border: 2px solid var(--brand-outline);
     border-radius: 0;
     display: grid;
     place-items: center;
@@ -109,9 +116,9 @@
     user-select: none;
     z-index: 100;
     box-shadow:
-      inset 0 0 12px rgba(30, 188, 181, 0.2),
+      inset 0 0 12px color-mix(in srgb, var(--colors-skeleton-0-primary-base) 20%, transparent),
       0 0 0 1px var(--colors-skeleton-0-surface),
-      0 6px 22px rgba(0, 0, 0, 0.65);
+      0 6px 22px var(--shadow-strong);
     transition:
       background 0.12s,
       box-shadow 0.12s,
@@ -123,7 +130,7 @@
   .viket.dragging {
     cursor: grabbing;
     background: var(--colors-skeleton-2-surface);
-    box-shadow: 0 12px 32px rgba(0, 0, 0, 0.7);
+    box-shadow: 0 12px 32px var(--shadow-strong);
   }
   .viket.longpress {
     background: var(--colors-skeleton-0-accent-base);
@@ -139,7 +146,7 @@
   @keyframes viket-sticky-pulse {
     0%,
     100% {
-      box-shadow: 0 4px 16px rgba(0, 0, 0, 0.5);
+      box-shadow: 0 4px 16px var(--shadow-soft);
     }
     50% {
       box-shadow: 0 4px 24px var(--colors-skeleton-0-accent-base);
@@ -172,10 +179,8 @@
     transition:
       transform 0.18s ease-out,
       filter 0.18s ease-out;
-    /* tint the white svg toward primary aqua so it reads as the brand keystone.
-       drop-shadow gives the cathode glow. */
-    filter: brightness(0) saturate(100%) invert(72%) sepia(45%) saturate(1156%) hue-rotate(133deg)
-      brightness(94%) contrast(89%) drop-shadow(0 0 4px var(--colors-skeleton-0-primary-base));
+    /* per-theme pictogram file; --filter-brand carries tint and glow */
+    filter: var(--filter-brand);
   }
   /* drag closes the eye; release re-opens it */
   .viket.dragging .viket-pictogram {
@@ -222,7 +227,7 @@
       var(--colors-skeleton-0-danger-base)
     );
     opacity: 0.55;
-    box-shadow: 0 0 48px rgba(0, 0, 0, 0.7);
+    box-shadow: 0 0 48px var(--shadow-strong);
   }
   .radial.sticky .radial-ring {
     opacity: 0.7;
@@ -256,7 +261,7 @@
   .radial.sticky .radial-target {
     pointer-events: auto;
     cursor: pointer;
-    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.4);
+    box-shadow: 0 4px 12px var(--shadow-soft);
   }
   .radial.sticky .radial-target:hover {
     background: var(--colors-skeleton-2-surface);

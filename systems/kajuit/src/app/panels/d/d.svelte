@@ -17,20 +17,16 @@
   // otherwise render empty with a warning dot. Health is surfaced in the crown instead.
   const availableDaemons = $derived($daemons.filter((daemon) => daemon.status.is("healthy")));
 
-  let collapsed = $state({});
-  const toggle = (slug) => (collapsed[slug] = !collapsed[slug]);
+  let expanded = $state({});
+  const toggle = (slug) => (expanded[slug] = !expanded[slug]);
+
+  let sections = $state({ daemons: true, threads: true, intents: true });
+  const toggleSection = (name) => (sections[name] = !sections[name]);
 
   const code = (entity) => entity.status?.reflection?.code?.toLowerCase() ?? "";
 
   let threads = $state([]);
   let intents = $state([]);
-
-  const todayThreads = $derived(
-    threads.filter(({ thread }) => belt.time.bucket(thread.updatedAt) === "today"),
-  );
-  const earlierThreads = $derived(
-    threads.filter(({ thread }) => belt.time.bucket(thread.updatedAt) === "earlier"),
-  );
 
   // Live count off the thread's $buffers computed (filters the daemon buffer repo by thread),
   // not the populate snapshot — so a buffer created in F shows here immediately.
@@ -113,6 +109,20 @@
     }
   }
 
+  async function activateIntent(daemon, intent) {
+    try {
+      const terminal = terminals.active ?? terminals.create();
+      const thread = await daemon.entities.thread.create({
+        mode: intent.mode?.id ?? intent.mode,
+        intent: intent.id,
+      });
+      daemon.entities.thread.resolve?.(thread);
+      terminal.thread = thread;
+    } catch (error) {
+      console.warn(`[probe] activateIntent ${daemon.slug}/${intent.slug} failed`, error);
+    }
+  }
+
   async function spawnBuffer(terminal) {
     const current = terminal?.thread;
     if (!current) return;
@@ -164,60 +174,85 @@
 
 <div class="panel">
   <section class="daemons">
-    <Section label="daemons" count={availableDaemons.length} />
-    {#each availableDaemons as daemon (daemon.slug)}
-      {@const modes = (daemon.entities?.mode?.$entities.get() ?? []).filter(
-        (m) => m.implements("application") || m.implements("conversational"),
-      )}
-      {@const open = !collapsed[daemon.slug]}
-      <button class="row daemon" onclick={() => toggle(daemon.slug)}>
-        <span class="caret">{open ? "▾" : "▸"}</span>
-        <span class="pip {code(daemon)}"></span>
-        <span class="name">{daemon.slug}</span>
-        <span class="count">{modes.length}</span>
-      </button>
-      {#if open}
-        {#each modes as mode (mode.id)}
-          <button class="row mode" onclick={() => selectMode(daemon, mode)}>
-            <span class="subpip {code(mode)}"></span>
-            <span class="name">{mode.slug}</span>
-            <span class="type">{mode.type}</span>
-          </button>
-        {:else}
-          <div class="row empty mode">no modes</div>
-        {/each}
-      {/if}
-    {:else}
-      <div class="empty">no daemons</div>
-    {/each}
+    <Section
+      label="daemons"
+      count={availableDaemons.length}
+      open={sections.daemons}
+      ontoggle={() => toggleSection("daemons")} />
+    {#if sections.daemons}
+      {#each availableDaemons as daemon (daemon.slug)}
+        {@const modes = (daemon.entities?.mode?.$entities.get() ?? []).filter(
+          (m) => m.implements("application") || m.implements("conversational"),
+        )}
+        {@const open = !!expanded[daemon.slug]}
+        <button class="row daemon" onclick={() => toggle(daemon.slug)}>
+          <span class="caret">{open ? "▾" : "▸"}</span>
+          <span class="pip {code(daemon)}"></span>
+          <span class="name">{daemon.slug}</span>
+          <span class="count">{modes.length}</span>
+        </button>
+        {#if open}
+          {#each modes as mode (mode.id)}
+            <button class="row mode" onclick={() => selectMode(daemon, mode)}>
+              <span class="subpip {code(mode)}"></span>
+              <span class="name">{mode.slug}</span>
+              <span class="type">{mode.type}</span>
+            </button>
+          {:else}
+            <div class="row empty mode">no modes</div>
+          {/each}
+        {/if}
+      {:else}
+        <div class="empty">no daemons</div>
+      {/each}
+    {/if}
   </section>
 
   <section class="threads">
-    <Section label="threads" count={threads.length} />
-    {#if !threads.length}
-      <div class="empty">no threads</div>
-    {:else}
-      {#if todayThreads.length}
-        <div class="subgroup">today</div>
-        {#each todayThreads as item (item.thread.id)}{@render threadRow(item.thread, item.daemon)}{/each}
-      {/if}
-      {#if earlierThreads.length}
-        <div class="subgroup">earlier</div>
-        {#each earlierThreads as item (item.thread.id)}{@render threadRow(item.thread, item.daemon)}{/each}
+    <Section
+      label="threads"
+      count={threads.length}
+      open={sections.threads}
+      ontoggle={() => toggleSection("threads")} />
+    {#if sections.threads}
+      {#if !threads.length}
+        <div class="empty">no threads</div>
+      {:else}
+        {#each availableDaemons as daemon (daemon.slug)}
+          {@const daemonThreads = threads.filter((item) => item.daemon.slug === daemon.slug)}
+          {#if daemonThreads.length}
+            <div class="subgroup">{daemon.slug}</div>
+            {#each daemonThreads as item (item.thread.id)}{@render threadRow(item.thread, item.daemon)}{/each}
+          {/if}
+        {/each}
       {/if}
     {/if}
   </section>
 
   <section class="intents">
-    <Section label="intents" count={intents.length || null} />
-    {#each intents as { intent } (intent.id)}
-      <div class="row intent">
-        <span class="name">{intent.name ?? intent.slug}</span>
-        <span class="type">{intent.mode?.slug ?? ""}</span>
-      </div>
-    {:else}
-      <div class="empty">no intents</div>
-    {/each}
+    <Section
+      label="intents"
+      count={intents.length || null}
+      open={sections.intents}
+      ontoggle={() => toggleSection("intents")} />
+    {#if sections.intents}
+      {#if !intents.length}
+        <div class="empty">no intents</div>
+      {:else}
+        {#each availableDaemons as daemon (daemon.slug)}
+          {@const daemonIntents = intents.filter((item) => item.daemon.slug === daemon.slug)}
+          {#if daemonIntents.length}
+            <div class="subgroup">{daemon.slug}</div>
+            {#each daemonIntents as { intent } (intent.id)}
+              <button class="row intent" onclick={() => activateIntent(daemon, intent)}>
+                <span class="name">{intent.name ?? intent.slug}</span>
+                <span class="type">{intent.mode?.slug ?? ""}</span>
+              </button>
+            {/each}
+          {/if}
+        {/each}
+      {/if}
+    {/if}
   </section>
 </div>
 

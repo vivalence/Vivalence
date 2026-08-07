@@ -4,7 +4,7 @@ import { BufferEntity } from "@vivalence/typology/entities";
 
 export const GENERATIVE = async (mode, daemon) => {
   if (!daemon.mountpoint) throw new Error("GENERATIVE: daemon carries no mountpoint");
-  const bundler = paladin.bundler(`${daemon.mountpoint.absolute}/${mode.type}/${mode.slug}`);
+  const bundler = paladin.bundler(`${daemon.mountpoint.absolute}/bundles/${mode.type}/${mode.slug}`);
 
   mode.gen = {
     bundle: bundler.bundle,

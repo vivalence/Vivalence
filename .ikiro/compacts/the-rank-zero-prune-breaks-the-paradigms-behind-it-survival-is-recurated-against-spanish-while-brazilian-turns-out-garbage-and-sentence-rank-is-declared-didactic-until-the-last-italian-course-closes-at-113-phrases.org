@@ -1,0 +1,129 @@
+#+title: the rank-zero prune breaks the paradigms behind it, survival is recurated against spanish while brazilian turns out garbage, and sentence rank is declared didactic — until the last italian course closes at 113 phrases
+#+filetags: :italian:topography:ranked:survival:wordfreq:sentences:didactic-rank:curation:qa:
+
+* the commission
+
+beef, opening, in four quick strokes:
+
+#+begin_quote
+we work on the italian topography now
+#+end_quote
+
+#+begin_quote
+specially the literal trait of vocabulary frequency aka how often a word appears
+#+end_quote
+
+#+begin_quote
+and the symbol of survival
+#+end_quote
+
+#+begin_quote
+inspect the frequency data
+#+end_quote
+
+#+begin_quote
+i want you to run word2freq or what its called
+#+end_quote
+
+#+begin_quote
+the python package for lemma frequency
+#+end_quote
+
+The package is =wordfreq=. Two nouns own the session: =trait.RANKED= ={rank, zipf, fpm}= on word literals, and the =proficiency.survival= symbol ("Bare minimum to operate in Italy on day one").
+
+* form, not lemma — and it is reproducible
+
+Comparing stored zipf against =zipf_frequency(lemma, "it")= gave 48% exact / mean drift −0.379. Comparing against =zipf_frequency(surface_form, "it")=: **4998/4998 exact**. The corpus RANKED is form-frequency, minted from this exact package, fully reproducible. beef pinned it:
+
+#+begin_quote
+its correct that the frequency rank is from the form not the lemma
+#+end_quote
+
+Also verified later, when new words needed authentic ranks: =rank= is the form's position in =top_n_list("it", N)= — pane → 1963 reproduces the stored value. Minting method recovered, not guessed.
+
+A first tooling lesson en route: importing =words/*.js= naively double-counts because =index.js= is a barrel re-exporting everything — 10040 "words" were 2×5020.
+
+* the prune that broke the paradigms behind it
+
+The top-200-by-rank table beef asked for (=gimme a table of lemma form translation by rank of the first 200=) exposed 23 entries at rank 0 — wordfreq-unknown-to-the-list forms like /crederemmo/, /dormivate/, /pattinano/. Under =rank ASC= they sort **first**.
+
+#+begin_quote
+ok. problem: a rank 0 fucks with all my algorithms.
+i sort by frequency. so now i am learning a bunch of never ever applicative verbs.
+prune that.
+#+end_quote
+
+I deleted the 23 — then the integrity check found **all 23 referenced by conjugation.js paradigm slots**. A pure delete breaks the Paradigm game's bundles. The corpus already carried the answer: 22 forms (/succedo/, /pioviamo/, /di'/) exist with **no RANKED trait at all** — paradigm-complete, invisible to frequency sort. The 23 were the same class wearing a buggy =rank: 0=.
+
+Recovery had its own lesson: VCS is read-only (the hook blocked even =git show=), Time Machine's snapshot predated the corpus — but =testament/variant/mountpoint/daemon_italian/*.viva.db= held all 6386 entities. The entries were rebuilt from the DB rows (trait JSON authoritative, symbols cloned from paradigm siblings with person/number swapped), RANKED stripped. End state: 45 no-RANKED forms under one convention, zero rank-0, 351 bundles resolving.
+
+* survival, recurated — take your time, this is important
+
+#+begin_quote
+and do a pass on the survival vocabulary. look at spanish and portuguese for comparison. also reason about this. what should be actually survivavl. whats in that shouldnt. whats out that should.
+update that data.
+#+end_quote
+
+#+begin_quote
+take your time. this is important
+#+end_quote
+
+Three-corpus comparison: spanish = coherent classroom-A1 (413 lemmas). **brazilian = 629 lemmas of auto-tag drift** — /unicórnio/, /astronauta/, /prostituta/, /subestimar/ marked "survival". Do not copy brazilian survival; it is not curation.
+
+The pin: survival = day-one transactional production, not classroom units, not raw frequency. Then two edit rounds bracketed by QA agents (integrity + pedagogy). The pedagogy agent's best catch was the **two-speed verb regime**: 15 core verbs carried survival on all ~34 forms — subjunctive imperfect of /essere/ as "day one" — while newer verbs used an 8-form template. Trimmed the core 15 to the template (+ /vorrei/, /potrei/), −385 entries. Also out: postal cluster, toiletries, produce singles, six of eight colors, classroom descriptors, frequency adverbs. In: 22 transactional verbs, the complete articulated-preposition grid (30/30), teens numerals, closed-family stragglers (nostro/vostro, questi/queste/quelli/quelle, piena/vuota).
+
+One self-inflicted wound in this stretch: a regex whose keep-predicate doubled as a want-predicate tagged **every** present-indicative bundle in the file (249 of them). Caught by the count check, reverted same turn. The bundle law that survived: survival verb ⟺ its present.indicative bundle tagged, nothing else.
+
+* more verbs, because italian is regular
+
+#+begin_quote
+all right. pad, complete and lcean up where needed. make sure all the questoin words, this there that etc, are present, i think we need a slightly idfferent approach to verbs and conjugations as italian is more regular and we could use more as they are easier to learn.
+#+end_quote
+
+27 more verbs at the 8-form template (vedere, tornare, portare, mettere, scendere, piacere, …), question-word grid confirmed complete, demonstratives padded, gloss fixes (/vita/ was glossed "waist"; /perché/ lacked "why"; /che/ lacked "what"). Survival: 886 entries / 379 lemmas.
+
+* sentences liberated — rank as declaration
+
+The ontological move of the session, beef's:
+
+#+begin_quote
+and now do the same thorough pass over sentences and phrases! sentences and phrases are somewhat sub-par i feel like. in respect with ranked trait and survival. rank meanas different forsentences. on words rank is frequency derived. on sentences we really dont have that which liberates us. we can declare rank to serve didactic needs.
+#+end_quote
+
+Sentence rank has no empirical referent, so it is **free** — a declared didactic order, not a measurement. Found: 1015 sentences, rank 1–510 = arbitrary vocalization order, 505 unranked, zero survival tags, and — answering =are theer survival phrases missing?= — 18 of 38 day-one scenarios absent. "per favore" appeared in **zero** sentences. The near-misses were Tatoeba noise ("Conto su Tom" matching /conto/).
+
+The scheme: band 1 = hand-ordered survival tier; band 2 = everything else by lexical accessibility (=min zipf= over =wordfreq.tokenize= tokens, easiest first, deterministic). 31 phrases hand-authored in formal Lei register. A language-QA agent then caught a slug/text mismatch, a missing "(informal)" tag on the pre-existing /Parli inglese?/ twin, two stilted glosses, and a tu/Lei register clash inside the emergency block — all fixed, except the vocalized /porta di imbarco/ text, untouchable under the audio-verbatim law.
+
+* finish it in style
+
+#+begin_quote
+do the early phrases cover everything one might need for early common interactions?
+#+end_quote
+
+No — greetings had no sentences at all, and a word-gap list blocked directions (/sinistra/, /destra/ absent from the corpus entirely), sparkling water, allergies, sixty-through-ninety. Then the full mandate:
+
+#+begin_quote
+complete it.
+were buildign the last italian language course. finish it in style
+#+end_quote
+
+72 word literals hand-authored (favore, scusi, sinistra/destra, fame/sete, soldi, uscita/entrata, andata/ritorno, emergenza, biglietteria, tabaccheria, gelato, wifi, uomo/donna, signore/signora, telefono, nome/cognome/indirizzo, sessanta–novanta, mille, frizzante, allergico/a, incluso/a, quali/quanti/quante, tutta, là/qua + spingere/tirare/funzionare/bastare ×8 forms), every one RANKED via the verified minting method. 42 sentences. Band 1 rebuilt to **113**, opening =Buongiorno, come sta?= and closing on the informal coda.
+
+The one authoring failure: I assumed /consigliare/ was absent instead of grepping — it existed, and the verify pass caught 8 duplicate slugs. Dups dropped, existing entries tagged. =grep before propose= applies to dataset availability exactly as it does to APIs. (/ciao-come-stai/ collided too — but that one an assert caught before any write, and the existing vocalized sentence was reused.)
+
+Final QA (background agent, full sweep): three real fixes — /quanti/, /quante/ regrouped under =word.lemma.quanto= to match the /quale/ precedent; =settant'anni= elision; /mille/'s example demonstrating the idiom instead of the numeral — plus /Che ore sono?/ moved beside the opening-hours cluster. Everything else CLEAN, including /spinto/ and every hand-written conjugation.
+
+* settlement — measured end state
+
+#+begin_example
+words      5092  (5020 + 72)   survival 984 entries / 425 lemmas   45 no-RANKED   0 dup slugs
+verbs      73 survival lemmas, 1:1 with tagged present.indicative bundles
+bundles    355  (351 + 4)      0 broken paradigm refs
+sentences  1088 (1015 + 42+31) ranks 1..1088 contiguous didactic   band 1 = 1..113 survival
+#+end_example
+
+Open: new content (72 words, 73 sentences) has no audio — word-picker/harvest later. Sentence ANNOTATED still 0/1088 (cloze stays dead). Daemon DB is stale against the dataset; re-populate before testing. beef, closing:
+
+#+begin_quote
+where we at? close to ready?!?!!? wanna test
+#+end_quote

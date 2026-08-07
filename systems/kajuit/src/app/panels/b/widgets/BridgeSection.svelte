@@ -6,6 +6,7 @@
 
   const SIDES = ["top", "right", "bottom", "left"];
   const SIDE_LABELS = { top: "↥", right: "↦", bottom: "↧", left: "↤" };
+  const THEMES = ["nordic", "paper"];
 
   const bridge = getContext(BRIDGE);
   const terminals = getContext(TERMINALS);
@@ -17,6 +18,7 @@
   let g = $state(bridge.view.g);
   let h = $state(bridge.view.h);
   let snap = $state(bridge.view.snap);
+  let theme = $state(bridge.view.theme);
 
   bridge.layout.$pincer.subscribe((v) => (pincer = v));
   bridge.layout.$orientation.subscribe((v) => (orientation = v));
@@ -24,6 +26,7 @@
   bridge.view.$g.subscribe((v) => (g = v));
   bridge.view.$h.subscribe((v) => (h = v));
   bridge.view.$snap.subscribe((v) => (snap = v));
+  bridge.view.$theme.subscribe((v) => (theme = v));
 </script>
 
 <Section name="bridge" meta={`${orientation}°`}>
@@ -33,6 +36,17 @@
     <button class="act" class:on={g} onclick={() => bridge.toggle("g")}>g</button>
     <button class="act" class:on={h} onclick={() => bridge.toggle("h")}>h</button>
     <button class="act" class:on={snap} onclick={() => bridge.toggle("snap")}>snap</button>
+  </div>
+  <div class="row">
+    <span class="k">theme</span>
+    <select
+      class="theme-select"
+      value={theme}
+      onchange={(e) => bridge.setTheme(e.currentTarget.value)}>
+      {#each THEMES as name (name)}
+        <option value={name}>{name}</option>
+      {/each}
+    </select>
   </div>
 
   {#if $dock}
@@ -72,6 +86,12 @@
           class:on={$dock.collapsed}
           title="toggle dock"
           onclick={() => stores.bridge.setDockCollapsed(terminals.active?.$dock)}>{$dock.collapsed ? "show" : "hide"}</button>
+        <button
+          type="button"
+          class="side wide"
+          class:on={$dock.full}
+          title="toggle fullscreen"
+          onclick={() => stores.bridge.setDockFull(terminals.active?.$dock)}>full</button>
       </span>
     </div>
   {/if}
@@ -110,6 +130,28 @@
   .side.wide {
     width: auto;
     padding: 0 8px;
+  }
+  .theme-select {
+    -webkit-appearance: none;
+    appearance: none;
+    height: 18px;
+    padding: 0 8px;
+    background: transparent;
+    border: 1px solid color-mix(in srgb, var(--colors-skeleton-0-boundary) 60%, transparent);
+    border-radius: 2px;
+    color: var(--colors-skeleton-2-contrast);
+    font-family: var(--font-family-code);
+    font-size: var(--font-size-xs);
+    line-height: 1;
+    cursor: pointer;
+  }
+  .theme-select:hover {
+    color: var(--colors-skeleton-0-primary-base);
+    border-color: var(--colors-skeleton-0-primary-base);
+  }
+  .theme-select option {
+    background: var(--colors-skeleton-1-surface);
+    color: var(--colors-skeleton-1-contrast);
   }
   .size-row {
     display: inline-flex;

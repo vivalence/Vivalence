@@ -15,7 +15,6 @@
     // "./systems/test/tbone",
     "./subsystems/typology",
     "./subsystems/paladin",
-    "./subsystems/shared",
     "./subsystems/dapper",
     "./subsystems/drapes",
     "./subsystems/sheets",

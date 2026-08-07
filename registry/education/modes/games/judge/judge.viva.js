@@ -10,6 +10,8 @@ const manifest = {
   traits: ["APPLICATION", "EMITTER"],
 };
 
+const ontology = ["word", "sentence"];
+
 const dataset = {
   intent: [
     {
@@ -66,7 +68,7 @@ const emitter = new Vector()
   .open("/feed", async (ctx) => {
     const limit = ctx.input.limit ?? 4;
     const literals = await ctx.daemon.entities.literal.feed(
-      undefined,
+      { ontology: { $in: ontology } },
       { limit, blacklist: ctx.input.blacklist },
     );
     if (!literals.length) return [];

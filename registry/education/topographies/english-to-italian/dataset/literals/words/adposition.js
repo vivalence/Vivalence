@@ -549,6 +549,9 @@ export default [
         "slug": "proficiency.cefr.a1"
       },
       {
+        "slug": "proficiency.survival"
+      },
+      {
         "slug": "domain.space"
       },
       {
@@ -596,6 +599,9 @@ export default [
       },
       {
         "slug": "proficiency.cefr.a1"
+      },
+      {
+        "slug": "proficiency.survival"
       },
       {
         "slug": "domain.space"

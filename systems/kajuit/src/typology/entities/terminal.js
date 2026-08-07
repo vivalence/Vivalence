@@ -22,9 +22,7 @@ export function Terminal({ id = null, dock } = {}) {
     },
     set thread(value) {
       if (($thread.get()?.id ?? null) !== (value?.id ?? null)) $buffer.set(null);
-      console.log(
-        `[probe] terminal ${id} thread mount ${value?.id ?? "null"} (daemon ${value?.daemon?.slug ?? "-"})`,
-      );
+      // console.log(`[probe] terminal ${id} thread mount ${value?.id ?? "null"} (daemon ${value?.daemon?.slug ?? "-"})`,);
       $thread.set(value);
     },
 

@@ -1,0 +1,168 @@
+#+title: a buffer that looked stuck was a conjugation with no translation — and the symbol fold had been eating every root ontology slug
+#+filetags: :stall:buffer:frame:emitter:ontology:literal:belt:guard:probe:systematic-debugging:
+
+* the report
+
+beef, opening — a lifecycle bug, named at four candidate layers:
+
+#+begin_quote
+for some reason, in kajuit, when i finish one game, for example shadow or write, and hit next/done, then the buffer doesnt properly dismount and doesnt get replaced with a new buffer. only the buffer gets whiped of content and stagnates.
+investigate.
+frame, a panel, stall, buffer.
+somewhere here.
+identify the mechanisms and flows. digg through the jj history of changes. why might htis happen.
+#+end_quote
+
+Mid-turn, the method was set for me:
+
+#+begin_quote
+find the key locations and place console.logs there. ill run the loop and paste
+#+end_quote
+
+Then the detail that reframed everything — and which I did not weight heavily enough at first:
+
+#+begin_quote
+this happens in write and shadow.
+both tell me they have 3 literals loaded. but only the first is displayed
+#+end_quote
+
+* the flow, mapped before touching anything
+
+The release path across five files, established by reading before instrumenting:
+
+1. game =next()= on the last literal → =buffer.release()= — the entity fires =hooks.release=, each =fn.once=-wrapped
+2. the Stall wired that hook per-buffer in =observe().step()=, but only for buffers in =stall.items()= = =thread.$buffers= filtered
+3. =stall.release()= → phase =inert= early-returns; else =advance()= → the terminal hook drops the buffer from the repo + server =removeOne= → =refill()= (pull only under =continuous=)
+4. =thread.$buffers= = a =computed= over =daemon.entities.buffer.$entities= filtered by =buffer.thread= — the drop shrinks it → =settle()= re-lands the cursor
+5. =Frame.svelte= — ={#key $bufferId}= + an =$effect= that tears down and re-mounts on =terminal.$buffer= change
+
+Probes went into all five layers plus =aimed.pull=. Four suspects were named and ranked in advance, each with the log line that would discriminate it: advance-lands-on-itself (depth 1 → =list[at+1] ?? list[0]= = the same buffer → same ref → no atom event), buffer-never-thread-bound (=releaseHooks= would read 1), phase (=inert=/=manual= never refills), and queue-source confusion.
+
+* what the logs actually said
+
+None of the four. beef pasted the run; the release machinery had never executed:
+
+#+begin_example
+[probe:stall] phase { phase: "continuous" }
+[probe:stall] wire  { buffer: "019fe826-…", hooks: 0 }
+[probe:stall] pull? { locked: false, hasPull: true, items: 1, depth: 1 }
+[probe:frame] mounted { buffer: "019fe826-…", key: "b8cb8866…" }
+[probe:write] init  { queueLength: 3, literalIds: (3) […] }
+[probe:write] next  { currentIndex: 0, queueLength: 3, willRelease: false,
+                      nextLiteral: "019fb4b9-1c86-…" }
+#+end_example
+
+=willRelease: false=. The buffer was healthy, thread-bound, wired, mounted; the stall was correctly gated. The game had advanced *in-game* to literal 2 and rendered nothing. The bug was never in the lifecycle at all — it was one layer lower, and beef pointed there:
+
+#+begin_quote
+also digg into the write buffer internals.
+#+end_quote
+
+His buffer inspector, pasted alongside: ~ciao-come-stai~ · ~essere.present.indicative~ · ~buongiorno-come-sta~.
+
+* root cause
+
+Literal 2 is a conjugation: =traits: ["RANKED","CONJUGATED"]= — *no TRANSLATED*. Write and Shadow derive prompt, answer, and both labels from =literal.trait.TRANSLATED.known/learning=; all =undefined= → blank surface. Read as "buffer wiped, stagnant". =evaluate()= would have thrown on submit.
+
+Why it was served: the game intents carry =MASKED: { batch: 3 }= with *no where*, so =ctx.input.where= arrived =undefined= and =LiteralRepository.feed= ran unconstrained. =feed= → =due= then =novel=; =novel= orders by =rank ASC=. Ranks are per-ontology sequences — rank 1 is simultaneously ~di.adposition~, ~essere.present.indicative~, and a sentence — so 710 untranslated conjugation literals sit at the head of every unconstrained novel query and interleave into every translate-game queue.
+
+beef, on hearing it:
+
+#+begin_quote
+ok so teh issue is that the games cant handle the ontology typpe conjugation.
+hmm.
+makes sense.
+ok so what i wan tyou to do is guard thoroughly against this. on buffer and emitter level.
+#+end_quote
+
+and, sharpening the shape of the guard:
+
+#+begin_quote
+i think the games should explicitly include / filter conjugations they can take/not on emitter and buffer level
+#+end_quote
+
+* the retraction
+
+I first wrote the guard as a junction-table filter (~symbols: { slug: { $in: … } }~) on the theory that the =ontology= *column* was empty — I had grepped the italian topography dataset for =TOPOGRAPHICAL=, found none, and concluded the subscriber's =ontology()= derivation never fired. I flagged it as a separate latent bug.
+
+beef, with a screenshot of the column, fully populated:
+
+#+begin_quote
+i dont understand. whats hte issue?
+#+end_quote
+
+It was populated. The TOPOGRAPHICAL root symbols live in the *topology* packages (=topologies/word/dataset/symbols/ontological.js=, same for =sentence=), not in the topography dataset I searched. My "column is empty" was an absence inferred from one grep in one directory — the exact shape [[rituals]] already names: *a zero is a claim*. I retracted in the same turn and re-derived; conjugation, paradigm, and every distractor pool filtering on ~{ ontology: … }~ had been working the whole time.
+
+beef, on the amendment I offered, plus a standing correction on how to write it:
+
+#+begin_quote
+the typology/belt has tools for object handling. use them
+#+end_quote
+
+So all nine emitters became =object.merge(ctx.input.where, { ontology: { $in: ontology } })= — belt merge, undefined sources skipped, guard-last wins.
+
+* the audio layer
+
+#+begin_quote
+add another protection layer. the listen game hsould guard against literals that dont have audio!
+#+end_quote
+
+Listen's guard has to be gameplay-aware: under =TYPE= every literal gets played, so every literal needs TRANSLATED *and* a resolving asset; under =PICK= only the target is played and the distractors are text options — filtering those would gut the choice list. Both ingress paths (=buffer.literals= and the =/pick/literal/feed= self-fetch) are filtered.
+
+* the symbol fold
+
+Then beef, reading the same rows again:
+
+#+begin_quote
+why do the conjugations have the word symbol???
+[…]
+thats wrong.
+they should be conjugation/conjugated...
+
+so.
+apply topylogy/belt.
+fix audio.
+identify conjugation/word symbol
+#+end_quote
+
+Two stacked causes, and only one is a bug:
+
+- *authored*: conjugation literals deliberately reference the shared =word.*= facet vocabulary — ~word.lemma.essere~, ~word.tense.present~, ~word.mood.indicative~ — the same facets the 4177 verb word-forms use. Real data, shared vocabulary.
+- *the fold ate the roots*: =LiteralSubscriber.symbol()= folds each slug through =object.set= → =place()= (=belt/object.js=), which pops the LAST segment as the value: ~word.tense.present~ → ={word:{tense:"present"}}=. A *single-segment* slug (~conjugation~, ~word~, ~sentence~) pops to a leaf with no path left, hits =if (keys.length)= false, and is *written nowhere*. Every root ontology symbol had been silently vanishing from every literal's symbol JSON since the fold was written.
+
+Downstream: =isWord = literal?.symbol?.word= — the discriminator six game views use — is truthy for conjugations (the =word.*= facets survive the fold; the root =word= never did). It was reading a subtree, not an ontology.
+
+beef scoped the fix and deferred the semantics:
+
+#+begin_quote
+so. the word. prefixes on the grammar symbols are mabye wrong but we wount fix that today.
+scoping tense and person into word.* is wrong semantically. those arent just properties of words.
+
+for now:
+this:
+fold fix: place() writes single-segment slugs as root keys (symbol.conjugation = true) —
+and
+- views: isWord → literal.ontology === "word" — ontology column is the truth; recommend this regardless
+go
+#+end_quote
+
+* what landed
+
+- *=belt/object.js= =place()=* — one branch: =else if (leaf) obj[leaf] = true=. Single-segment slugs now land as root flags. Blast-bracketed: three consumers (=Literal.ts= subscriber, =daemon/dossier.js= =place(daemon.modes, …)=, one commented line in =mode/traits/emitter.js=), belt+stall suites green before and after.
+- *=tests/gestalten/belt/object.test.js=* — new, the invariant this file never had: multi-segment fold · root flag · explicit value · root-flag-beside-sibling-facets · facet-subtree-overwrites-root. Five steps.
+- *emitter guard, 9 games* — each viva.js declares its own ontology and merges it in at =/feed=: write · shadow · flashcard · match · pick · exhibit · judge · listen take ~["word","sentence"]~; cloze takes ~["sentence"]~. conjugation and paradigm were already explicit and were not touched.
+- *buffer guard, 4 views* — Write · Shadow · Flashcard filter both ingress paths on =trait.TRANSLATED=; Listen adds the gameplay-aware audio predicate. Rejects log =[<game>] dropped unplayable literals= with the slugs.
+- *=isWord= swap, 6 views* — Write · Shadow · Flashcard · Judge · Pick · Listen now read =ontology === "word"=.
+- *probes stripped* — all 22 =[probe:*]= lines removed from the five instrumented files; the pre-existing =Stall on release= log restored verbatim as beef wrote it. Guard =console.warn=​s stay: those are permanent telemetry, not scaffolding.
+
+Verified: typology belt+stall+buffer 8 passed / 24 steps · kajuit 17 passed / 80 steps · =deno check= clean on all nine edited emitters (the 89 errors are pre-existing mikro-orm typings, unchanged by this work).
+
+* two guards, deliberately
+
+beef asked for both levels and both earn their keep on different failure modes. The emitter guard is the query contract — it stops wrong literals from ever being emitted, and it repairs threads that already exist because it lives in the mode, not in a seeded intent row. The buffer guard is the render contract — it survives hand-emitted buffers, =/literals= direct calls, the views' own =/pick/literal/feed= self-fetch, and any future feed path nobody has written yet. Neither subsumes the other; a mode declaring what it can *play* is a different statement from a mode declaring what it can *fetch*.
+
+* open
+
+- *=word.*= facet namespace is semantically wrong* — beef: /"scoping tense and person into word.* is wrong semantically. those arent just properties of words."/ Tense, mood, person, and regularity are properties of a conjugation, not of a word. Deferred explicitly (/"we wount fix that today"/). Re-namespacing touches ~694 conjugation entries and breaks the shared vocabulary with verb word-forms, so it wants a design pass, not an edit.
+- *existing rows keep the stale symbol JSON* — =symbol= recomputes only on literal create/update, so rows seeded before the fold fix still lack their root key. Harmless now that no view reads =symbol= for ontology; it self-heals on the next seed.
+- *=survival= and =clinic= tactics are still Portuguese-shaped* — unchanged by this session, noted because the ontology work sat next to it: =survival/emitter/buildup.js= hardcodes a 21-entry theme array of which 6 exist in italian.

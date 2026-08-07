@@ -61,14 +61,15 @@ export const DaemonDossier = {
 
       try {
         daemon.status.set(await daemon.connection.call("/status"));
-        shard.nano.transient(daemon.connection.branch("/status"), daemon.status);
-        const [manifest, cargo, cortex, aperture] = await Promise.all([
+        const [manifest, cargo, cortex, aperture, statics] = await Promise.all([
           daemon.connection.call("/metadata/manifest"),
           daemon.connection.call("/metadata/cargo"),
           daemon.connection.call("/metadata/cortex"),
           daemon.connection.call("/metadata/aperture"),
+          daemon.connection.call("/metadata/statics"),
         ]);
         daemon.manifest = manifest;
+        daemon.statics = statics;
         daemon.mount = new Path(`/daemon/${manifest.slug}`);
         daemon.cargo = cargo;
         daemon.link = new Path(`/${ctx.lighthouse.manifest.slug}/${manifest.slug}`).rebase("/viva");
@@ -85,14 +86,17 @@ export const DaemonDossier = {
         // await daemon.entities.thread.find({}, { populate: ["mode","buffers"] });
         // daemon.entities.buffer.find({}, { populate: ["literals", "symbols"] });
 
-        const [modes, threads, buffers, intents, turns] = await Promise.all([
-          daemon.entities.mode.find({}, { populate: [] }),
+        const modes = await daemon.entities.mode.find({}, { populate: [] });
+        const [threads, intents] = await Promise.all([
           daemon.entities.thread.find({}, { populate: [] }),
-          daemon.entities.buffer.find({}, { populate: ["literals", "symbols"] }),
           daemon.entities.intent.find({}, { populate: [] }),
+        ]);
+        const [buffers, turns] = await Promise.all([
+          daemon.entities.buffer.find({}, { populate: ["literals", "symbols"] }),
           daemon.entities.turn.find({}, { populate: [] }),
         ]);
 
+        daemon.entities.intent.subscribe();
         daemon.entities.thread.subscribe();
         daemon.entities.buffer.subscribe({}, (b, s) =>
           console.log("DAEMON BUFFER SUBSCRIPTION: ", b, s),
@@ -108,6 +112,11 @@ export const DaemonDossier = {
         }
 
         daemon.status.set("healthy");
+        daemon.connection
+          .branch("/status")
+          .subscribe("/subscribe", (reflection) =>
+            daemon.status.set(reflection?.code === "ALIVE" ? "healthy" : "unavailable"),
+          );
         console.log(
           `[probe] daemon ${manifest.slug} mounted — modes:${modes.length} threads:${threads.length} buffers:${buffers.length} intents:${intents.length} turns:${turns.length}`,
         );

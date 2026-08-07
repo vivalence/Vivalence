@@ -11,6 +11,7 @@
   const data = buffer.data ?? {};
   const gameplay = data.gameplay ?? "PICK";
   const forgiving = data.forgiving ?? true;
+  const language = terminal.daemon.statics?.language ?? {};
 
   function recallFor(i) {
     const r = data.recall;
@@ -19,7 +20,15 @@
     return r;
   }
 
-  let literals = $state(buffer.literals ?? []);
+  const audible = (entry) => Boolean(terminal.daemon.getAsset(entry?.trait?.VOCALIZED?.asset));
+  const playable = (entry) =>
+    Boolean(entry?.trait?.TRANSLATED) &&
+    (gameplay === "PICK" && entry.id !== data.target ? true : audible(entry));
+  const rejected = (buffer.literals ?? []).filter((entry) => !playable(entry));
+  if (rejected.length)
+    console.warn("[listen] dropped unplayable literals", rejected.map((entry) => entry.slug ?? entry.id));
+
+  let literals = $state((buffer.literals ?? []).filter(playable));
   let loading = $state(!literals.length);
   let currentIndex = $state(0);
   let activeRecall = $state(recallFor(0));
@@ -77,7 +86,7 @@
       ? literals.find((l) => l.id === data.target)
       : literals[currentIndex] ?? literals[0],
   );
-  const isWord = $derived(target?.symbol?.word);
+  const isWord = $derived(target?.ontology === "word");
   const asset = $derived(terminal.daemon.getAsset(target?.trait?.VOCALIZED?.asset));
   const total = $derived(gameplay === "TYPE" ? literals.length : 1);
   const position = $derived(currentIndex + 1);
@@ -88,7 +97,7 @@
         ? target.trait?.TRANSLATED?.known
         : target.trait?.TRANSLATED?.learning),
   );
-  const answerLabel = $derived(activeRecall === "KNOWN" ? "English" : "Português");
+  const answerLabel = $derived(activeRecall === "KNOWN" ? language.known?.name : language.learning?.name);
   const hint = $derived(
     target &&
       (activeRecall === "KNOWN"
@@ -110,9 +119,11 @@
 
   if (!literals.length) {
     terminal.daemon.connection
-      .call("/pick/literal/feed", { limit: 4 })
+      .call("/pick/literal/feed", { limit: 12 })
       .then((lits) => {
-        literals = lits ?? [];
+        literals = (lits ?? [])
+          .filter((l) => Boolean(l?.trait?.TRANSLATED) && audible(l))
+          .slice(0, 4);
         shuffled = array.shuffle(literals);
         loading = false;
       })
@@ -471,7 +482,7 @@
     font-family: var(--font-family-code);
     font-size: var(--font-size-xs);
     font-weight: 500;
-    color: var(--colors-skeleton-1-boundary);
+    color: var(--text-support);
   }
 
   .audio-block {
@@ -492,37 +503,36 @@
     padding: 0.625rem 0.875rem;
     margin-bottom: 1.5rem;
     cursor: pointer;
-    opacity: 0.6;
-    transition: opacity 0.15s;
+    transition: border-color 0.15s;
     text-align: left;
     color: inherit;
     font-family: inherit;
   }
   .hint-toggle:hover {
-    opacity: 1;
+    border-color: var(--text-support);
   }
   .hint-label {
     font-family: var(--font-family-code);
     font-size: var(--font-size-md);
-    color: var(--colors-skeleton-1-boundary);
+    color: var(--text-support);
   }
   .hint-term {
     font-family: var(--font-family-serif-heading);
     font-size: var(--font-size-base);
     line-height: 1.35;
-    color: var(--colors-palette-gray-100);
+    color: var(--text-primary);
   }
   .hint-example {
     font-family: var(--font-family-serif-heading);
     font-size: var(--font-size-md);
     line-height: 1.35;
-    color: var(--colors-skeleton-1-boundary);
+    color: var(--text-support);
     font-style: italic;
   }
   .no-audio {
     font-family: var(--font-family-code);
     font-size: var(--font-size-sm);
-    color: var(--colors-skeleton-1-boundary);
+    color: var(--text-support);
   }
 
   .divider {
@@ -555,7 +565,7 @@
   .fb-key {
     font-family: var(--font-family-code);
     font-size: var(--font-size-xs);
-    color: var(--colors-skeleton-1-boundary);
+    color: var(--text-support);
   }
   .fb-glyph {
     display: inline-flex;
@@ -589,9 +599,8 @@
     color: var(--colors-system-error-contrast);
   }
   .fb-val.hint {
-    color: var(--colors-skeleton-1-contrast);
+    color: var(--text-primary);
     font-size: var(--font-size-lg);
-    opacity: 1;
   }
   .fb-val.word {
     font-size: var(--font-size-lg);
@@ -604,8 +613,7 @@
     font-family: var(--font-family-serif-heading);
     font-size: var(--font-size-base);
     line-height: 1.4;
-    color: var(--colors-skeleton-1-contrast);
-    opacity: 0.7;
+    color: var(--text-support);
     font-style: italic;
     margin: 0;
   }
@@ -652,7 +660,7 @@
     border: 0;
     outline: none;
     padding: 0;
-    color: var(--colors-palette-gray-10);
+    color: var(--text-primary);
     font-family: var(--font-family-serif-heading);
     font-size: var(--font-size-base);
     line-height: 1.2;
@@ -678,7 +686,7 @@
   .tok-gloss {
     font-family: var(--font-family-code);
     font-size: var(--font-size-2xs);
-    color: var(--colors-skeleton-1-boundary);
+    color: var(--text-support);
     margin-top: 0.125rem;
   }
 
@@ -699,7 +707,7 @@
   .pick-hint {
     font-family: var(--font-family-code);
     font-size: var(--font-size-xs);
-    color: var(--colors-skeleton-1-boundary);
+    color: var(--text-support);
     text-transform: uppercase;
     letter-spacing: 0.08em;
     margin: 0;
@@ -723,19 +731,19 @@
       var(--colors-skeleton-1-surface) 70%,
       var(--colors-skeleton-2-surface)
     );
-    color: var(--colors-palette-gray-100);
+    color: var(--text-primary);
     cursor: pointer;
     text-align: left;
     transition: all 0.12s;
   }
   .option:hover:not(:disabled) {
-    border-color: var(--colors-skeleton-1-contrast);
+    border-color: var(--text-support);
   }
 
   .option-key {
     font-family: var(--font-family-code);
     font-size: var(--font-size-xs);
-    color: var(--colors-skeleton-1-boundary);
+    color: var(--text-support);
     width: 1rem;
     flex-shrink: 0;
   }
@@ -789,14 +797,14 @@
     padding: 0.75rem 1rem;
     border-radius: 0.5rem;
     border: 1px solid var(--colors-skeleton-1-boundary);
-    background: color-mix(in srgb, var(--colors-skeleton-1-surface) 50%, var(--colors-skeleton-app-surface));
-    color: var(--colors-palette-gray-10);
+    background: color-mix(in srgb, var(--colors-skeleton-1-surface) 50%, var(--colors-skeleton-0-surface));
+    color: var(--text-primary);
     font-size: var(--font-size-base);
     font-family: var(--font-family-serif-heading);
     outline: none;
     box-sizing: border-box;
   }
-  .field::placeholder { color: var(--colors-skeleton-1-boundary); }
+  .field::placeholder { color: var(--text-support); }
   .btn-check {
     min-height: 48px;
     padding: 0.75rem 1.25rem;
@@ -815,7 +823,7 @@
     display: block;
     text-align: center;
     padding: 1rem;
-    color: var(--colors-skeleton-1-boundary);
+    color: var(--text-support);
     font-size: var(--font-size-sm);
     font-family: var(--font-family-code);
   }
@@ -834,7 +842,7 @@
   .btn-next {
     background: transparent;
     border: 1px solid var(--colors-skeleton-1-boundary);
-    color: var(--colors-palette-gray-200);
+    color: var(--text-body);
     font-weight: 500;
   }
 

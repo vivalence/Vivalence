@@ -20,7 +20,7 @@ export async function attach(runtimeDie) {
       for (const mode of daemonDie.good.flatmodes()) {
         if (!mode.implements("APPLICATION") && !mode.implements("GENERATIVE")) continue;
         const bundler = paladin.bundler(
-          `${daemonDie.good.mountpoint.absolute}/${mode.type}/${mode.slug}`,
+          `${daemonDie.good.mountpoint.absolute}/bundles/${mode.type}/${mode.slug}`,
         );
 
         runtimeDie.good.aperture

@@ -3,8 +3,6 @@ import { DataRepository, DataEntity, DataSchema } from "../index.ts";
 import { UserEntity } from "../index.ts";
 import { ModeEntity } from "../index.ts";
 
-// TODO activate
-
 export enum IntentTraitsEnum {
   LABELED = "LABELED",
   MASKED = "MASKED",
@@ -19,10 +17,12 @@ export class IntentRepository extends DataRepository {
 }
 
 export class IntentEntity extends DataEntity {
-  // user
   user!: Rel<UserEntity>;
   mode!: Rel<ModeEntity>;
   slug: string & Opt = "";
+
+  name?: string;
+  description?: string;
 
   traits: IntentTraitsEnum[] & Opt = [];
   trait: any & Opt = {};
@@ -36,8 +36,16 @@ export const IntentSchema = new EntitySchema({
   tableName: "Intent",
   repository: () => IntentRepository,
   uniques: [{ properties: ["user", "slug", "mode"] }],
+  filters: {
+    user: {
+      cond: (args: any) => ({ user: args.user }),
+      default: true,
+    },
+  },
   properties: {
     slug: { type: types.string },
+    name: { type: types.string, nullable: true },
+    description: { type: types.string, nullable: true },
     user: {
       kind: "m:1",
       entity: () => UserEntity,

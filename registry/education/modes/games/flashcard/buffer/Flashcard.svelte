@@ -4,7 +4,12 @@
   const { terminal, buffer } = $props();
 
   const data = buffer.data ?? {};
-  const queue = buffer.literals ?? [];
+  const playable = (entry) => Boolean(entry?.trait?.TRANSLATED);
+  const rejected = (buffer.literals ?? []).filter((entry) => !playable(entry));
+  if (rejected.length)
+    console.warn("[flashcard] dropped unplayable literals", rejected.map((entry) => entry.slug ?? entry.id));
+  const queue = (buffer.literals ?? []).filter(playable);
+  const language = terminal.daemon.statics?.language ?? {};
 
   function recallFor(i) {
     const r = data.recall;
@@ -22,7 +27,7 @@
   const total = $derived(queue.length);
   const position = $derived(currentIndex + 1);
 
-  const isWord = $derived(literal?.symbol?.word);
+  const isWord = $derived(literal?.ontology === "word");
   const known = $derived(literal?.trait?.TRANSLATED?.known);
   const learning = $derived(literal?.trait?.TRANSLATED?.learning);
   const example = $derived(literal?.trait?.EXEMPLIFIED);
@@ -35,14 +40,14 @@
   const answerEx = $derived(
     example && (activeRecall === "KNOWN" ? example.known : example.learning),
   );
-  const promptLabel = $derived(activeRecall === "KNOWN" ? "Português" : "English");
-  const answerLabel = $derived(activeRecall === "KNOWN" ? "English" : "Português");
+  const promptLabel = $derived(activeRecall === "KNOWN" ? language.learning?.name : language.known?.name);
+  const answerLabel = $derived(activeRecall === "KNOWN" ? language.known?.name : language.learning?.name);
 
   if (!literal) {
     terminal.daemon.connection.call("/pick/literal/feed", { limit: 3 }).then((lits) => {
       if (lits?.length) {
-        for (const l of lits) queue.push(l);
-        literal = queue[0];
+        for (const l of lits.filter(playable)) queue.push(l);
+        literal = queue[0] ?? null;
       }
       loading = false;
     });
@@ -196,7 +201,7 @@
   .prompt {
     font-family: var(--font-family-serif-heading);
     font-size: var(--font-size-2xl);
-    color: var(--colors-palette-gray-10);
+    color: var(--colors-skeleton-1-contrast);
     line-height: 1.2;
     margin: 0 0 0.5rem 0;
   }

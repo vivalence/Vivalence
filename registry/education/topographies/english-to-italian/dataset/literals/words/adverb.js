@@ -913,9 +913,6 @@ export default [
         "slug": "proficiency.cefr.a1"
       },
       {
-        "slug": "proficiency.survival"
-      },
-      {
         "slug": "functional.negation"
       }
     ]
@@ -1063,9 +1060,6 @@ export default [
         "slug": "proficiency.cefr.a1"
       },
       {
-        "slug": "proficiency.survival"
-      },
-      {
         "slug": "functional.aspect"
       }
     ]
@@ -1110,9 +1104,6 @@ export default [
       },
       {
         "slug": "proficiency.cefr.a1"
-      },
-      {
-        "slug": "proficiency.survival"
       },
       {
         "slug": "proficiency.high-frequency"
@@ -1893,6 +1884,9 @@ export default [
         "slug": "proficiency.cefr.a1"
       },
       {
+        "slug": "proficiency.survival"
+      },
+      {
         "slug": "domain.space"
       }
     ]
@@ -1937,6 +1931,9 @@ export default [
       },
       {
         "slug": "proficiency.cefr.a1"
+      },
+      {
+        "slug": "proficiency.survival"
       },
       {
         "slug": "domain.space"
@@ -3243,9 +3240,6 @@ export default [
       },
       {
         "slug": "proficiency.cefr.a1"
-      },
-      {
-        "slug": "proficiency.survival"
       },
       {
         "slug": "functional.time"
@@ -4879,6 +4873,9 @@ export default [
         "slug": "proficiency.cefr.a2"
       },
       {
+        "slug": "proficiency.survival"
+      },
+      {
         "slug": "functional.discourse"
       }
     ]
@@ -5459,6 +5456,9 @@ export default [
         "slug": "proficiency.cefr.a2"
       },
       {
+        "slug": "proficiency.survival"
+      },
+      {
         "slug": "domain.space"
       }
     ]
@@ -5503,6 +5503,9 @@ export default [
       },
       {
         "slug": "proficiency.cefr.a2"
+      },
+      {
+        "slug": "proficiency.survival"
       },
       {
         "slug": "domain.space"
@@ -8500,6 +8503,92 @@ export default [
       },
       {
         "slug": "functional.degree"
+      }
+    ]
+  },
+  {
+    "slug": "là.adverb",
+    "traits": [
+      "TRANSLATED",
+      "EXEMPLIFIED",
+      "RANKED"
+    ],
+    "trait": {
+      "TRANSLATED": {
+        "known": "over there",
+        "learning": "là"
+      },
+      "EXEMPLIFIED": {
+        "known": "The hotel is over there, past the bridge",
+        "learning": "L'albergo è là, dopo il ponte"
+      },
+      "RANKED": {
+        "rank": 896,
+        "zipf": 5.03,
+        "fpm": 107.0
+      }
+    },
+    "symbols": [
+      {
+        "slug": "word"
+      },
+      {
+        "slug": "word.lemma.là"
+      },
+      {
+        "slug": "word.part-of-speech.adverb"
+      },
+      {
+        "slug": "proficiency.cefr.a1"
+      },
+      {
+        "slug": "proficiency.survival"
+      },
+      {
+        "slug": "domain.space"
+      }
+    ]
+  },
+  {
+    "slug": "qua.adverb",
+    "traits": [
+      "TRANSLATED",
+      "EXEMPLIFIED",
+      "RANKED"
+    ],
+    "trait": {
+      "TRANSLATED": {
+        "known": "over here",
+        "learning": "qua"
+      },
+      "EXEMPLIFIED": {
+        "known": "Come over here, please",
+        "learning": "Venga qua, per favore"
+      },
+      "RANKED": {
+        "rank": 739,
+        "zipf": 5.11,
+        "fpm": 129.0
+      }
+    },
+    "symbols": [
+      {
+        "slug": "word"
+      },
+      {
+        "slug": "word.lemma.qua"
+      },
+      {
+        "slug": "word.part-of-speech.adverb"
+      },
+      {
+        "slug": "proficiency.cefr.a1"
+      },
+      {
+        "slug": "proficiency.survival"
+      },
+      {
+        "slug": "domain.space"
       }
     ]
   }

@@ -17,7 +17,7 @@ export async function freight(daemonDie) {
   daemonDie.good.cargo = {};
   for (const mode of daemonDie.good.flatmodes()) {
     if (!mode.implements("FRAUGHT")) continue;
-    const catalog = mode.module.freight.catalog;
+    const catalog = mode.freight.catalog;
     for (const [key, value] of Object.entries(catalog)) {
       if (daemonDie.good.cargo[key]) console.warn(`[FREIGHT] slug collision: "${key}"`);
       daemonDie.good.cargo[key] = value;

@@ -1048,5 +1048,51 @@ export default [
         "slug": "domain.social"
       }
     ]
+  },
+  {
+    "slug": "scusi.interjection",
+    "traits": [
+      "TRANSLATED",
+      "EXEMPLIFIED",
+      "RANKED"
+    ],
+    "trait": {
+      "TRANSLATED": {
+        "known": "excuse me (formal)",
+        "learning": "scusi"
+      },
+      "EXEMPLIFIED": {
+        "known": "Excuse me, where is the station?",
+        "learning": "Scusi, dov'è la stazione?"
+      },
+      "RANKED": {
+        "rank": 8080,
+        "zipf": 3.97,
+        "fpm": 9.33
+      }
+    },
+    "symbols": [
+      {
+        "slug": "word"
+      },
+      {
+        "slug": "word.lemma.scusi"
+      },
+      {
+        "slug": "word.part-of-speech.interjection"
+      },
+      {
+        "slug": "proficiency.cefr.a1"
+      },
+      {
+        "slug": "proficiency.survival"
+      },
+      {
+        "slug": "functional.politeness"
+      },
+      {
+        "slug": "domain.social"
+      }
+    ]
   }
 ]

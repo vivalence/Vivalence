@@ -121,7 +121,6 @@ export async function announce(die) {
 // }
 
 // // import config from "@vivalence/paladin";
-// // import { secure, is } from "@vivalence/shared";
 // // import { context, mw as mwa } from "@vivalence/vector/aperture";
 // // import { compiler, controller } from "@vivalence/vector";
 // // import { Application } from "oak";

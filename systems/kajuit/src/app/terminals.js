@@ -1,11 +1,5 @@
 import { Terminal } from "../typology/entities/terminal.js";
 
-// Effects over the terminals structure, mounted from +layout — the scope that provides
-// both TERMINALS and LIGHTHOUSE. Structure and entity stay pure; storage and network
-// live here. Unresolved persisted references ride the `serialized` remainder in this
-// module's closure — never on the terminal, never in an atom, so serialization is
-// total (live entity id OR serialized id) and a write can never destroy a reference.
-
 const STORAGE_KEY = "viva.terminals";
 const ACTIVE_KEY = "viva.terminals.active";
 
@@ -14,7 +8,6 @@ const UNREACHABLE = Symbol("unreachable");
 
 const serialized = new Map();
 
-// storage → shells, published immediately; terminals paint before any daemon answers.
 export function hydrate({ terminals }) {
   let persisted = [];
   try {
@@ -31,11 +24,9 @@ export function hydrate({ terminals }) {
   terminals.$active.set(
     shells.find((shell) => shell.id === localStorage.getItem(ACTIVE_KEY)) ?? null,
   );
-  console.log(`[probe] terminals hydrate — ${shells.length} shells, ${serialized.size} unresolved`);
+  // console.log(`[probe] terminals hydrate — ${shells.length} shells, ${serialized.size} unresolved`);
 }
 
-// structure → storage, armed immediately and unconditionally — the fold is total,
-// so outage writes carry unresolved ids forward instead of nulling them.
 export function persist({ terminals }) {
   const write = () => {
     const json = JSON.stringify(
@@ -50,7 +41,7 @@ export function persist({ terminals }) {
         };
       }),
     );
-    console.log(`[probe] terminals write`, json);
+    // console.log(`[probe] terminals write`, json);
     localStorage.setItem(STORAGE_KEY, json);
   };
   let inner = [];
@@ -64,9 +55,7 @@ export function persist({ terminals }) {
     write();
   });
   const offActive = terminals.$active.subscribe((terminal) =>
-    terminal
-      ? localStorage.setItem(ACTIVE_KEY, terminal.id)
-      : localStorage.removeItem(ACTIVE_KEY),
+    terminal ? localStorage.setItem(ACTIVE_KEY, terminal.id) : localStorage.removeItem(ACTIVE_KEY),
   );
   return () => {
     offEntities();
@@ -75,9 +64,6 @@ export function persist({ terminals }) {
   };
 }
 
-// serialized ids → live entities, reactive over daemon availability. Tri-state:
-// entity (assign + clear), ABSENT (a reachable daemon answered null everywhere —
-// true deletion, clear), UNREACHABLE (any fault — keep, retry on next status flip).
 export function settle({ terminals, lighthouse }) {
   const restore = async (entityName, id, options) => {
     let reachable = false;
@@ -106,31 +92,25 @@ export function settle({ terminals, lighthouse }) {
       if (!remainder) continue;
       if (remainder.thread) {
         if (terminal.thread) {
-          remainder.thread = null; // atom occupied: navigation won, late resolve yields
+          remainder.thread = null;
         } else {
           const outcome = await restore("thread", remainder.thread, {
             populate: ["mode", "intent"],
           });
           if (outcome !== UNREACHABLE) {
-            console.log(
-              `[probe] settle thread ${terminal.id} ${outcome === ABSENT ? "absent — dropped" : "resolved"}`,
-            );
+            // console.log(`[probe] settle thread ${terminal.id} ${outcome === ABSENT ? "absent — dropped" : "resolved"}`,);
             if (outcome !== ABSENT) terminal.thread = outcome;
             remainder.thread = null;
           }
         }
       }
-      // the thread setter clears $buffer on a switch — resolve the buffer only
-      // once the thread reference is settled, never before.
       if (!remainder.thread && remainder.buffer) {
         if (terminal.buffer) {
           remainder.buffer = null;
         } else {
           const outcome = await restore("buffer", remainder.buffer);
           if (outcome !== UNREACHABLE) {
-            console.log(
-              `[probe] settle buffer ${terminal.id} ${outcome === ABSENT ? "absent — dropped" : "resolved"}`,
-            );
+            // console.log(`[probe] settle buffer ${terminal.id} ${outcome === ABSENT ? "absent — dropped" : "resolved"}`,);
             if (outcome !== ABSENT) terminal.buffer = outcome;
             remainder.buffer = null;
           }
@@ -140,7 +120,6 @@ export function settle({ terminals, lighthouse }) {
     }
   };
 
-  // one pass in flight; a status flip mid-pass queues exactly one follow-up.
   let inflight = null;
   let queued = false;
   const attempt = () => {

@@ -242,7 +242,7 @@
     flex-direction: column;
     border: 1px solid var(--colors-skeleton-0-boundary);
     border-radius: 12px;
-    box-shadow: 0 12px 40px rgba(0, 0, 0, 0.6);
+    box-shadow: 0 12px 40px var(--shadow-strong);
     overflow: hidden;
   }
   .modeline {

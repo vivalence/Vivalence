@@ -1,4 +1,4 @@
-import { cast, App, Vector, v } from "@vivalence/typology";
+import { cast, object, App, Vector, v } from "@vivalence/typology";
 
 export const manifest = {
   type: "game",
@@ -6,8 +6,10 @@ export const manifest = {
   name: "Flashcard",
   description: "Classic flashcard recall for words and sentences, both directions.",
   version: "0.1.0",
-  traits: ["APPLICATION", "EMITTER"],
+  traits: ["APPLICATION", "EMITTER", "INTENTED"],
 };
+
+const ontology = ["word", "sentence"];
 
 const recallOptions = v.enum(["LEARNING", "KNOWN"]);
 const recall = v
@@ -50,12 +52,14 @@ export const emitter = new Vector()
       }),
     },
     async (ctx) => {
-      console.log("/feed", { input: ctx.input });
       const limit = ctx.input.limit;
-      const literals = await ctx.daemon.entities.literal.feed(ctx.input.where, {
-        limit,
-        blacklist: ctx.input.blacklist,
-      });
+      const literals = await ctx.daemon.entities.literal.feed(
+        object.merge(ctx.input.where, { ontology: { $in: ontology } }),
+        {
+          limit,
+          blacklist: ctx.input.blacklist,
+        },
+      );
       if (!literals.length) return [];
       return ctx.mode.app.buffer({
         data: { recall: ctx.input.recall },
@@ -64,4 +68,13 @@ export const emitter = new Vector()
     },
   );
 
-// const dataset = {intent: [{slug: "feed", name: "Flashcard", traits: ["MASKED", "AIMED", "QUEUEING"], trait: {MASKED: { limit: 5 }, AIMED: { mount: "/emit/feed" }, QUEUEING: { depth: 1 },},},],};
+const dataset = {
+  intent: [
+    {
+      slug: "feed",
+      name: "Flashcard",
+      traits: ["MASKED", "AIMED", "QUEUEING"],
+      trait: { MASKED: { limit: 5 }, AIMED: { mount: "/emit/feed" }, QUEUEING: { depth: 1 } },
+    },
+  ],
+};

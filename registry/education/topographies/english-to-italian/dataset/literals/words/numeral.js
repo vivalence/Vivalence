@@ -41,6 +41,9 @@ export default [
         "slug": "proficiency.cefr.a1"
       },
       {
+        "slug": "proficiency.survival"
+      },
+      {
         "slug": "functional.number"
       }
     ]
@@ -580,6 +583,9 @@ export default [
         "slug": "proficiency.cefr.a1"
       },
       {
+        "slug": "proficiency.survival"
+      },
+      {
         "slug": "functional.number"
       }
     ]
@@ -624,6 +630,9 @@ export default [
       },
       {
         "slug": "proficiency.cefr.a1"
+      },
+      {
+        "slug": "proficiency.survival"
       },
       {
         "slug": "functional.number"
@@ -672,6 +681,9 @@ export default [
         "slug": "proficiency.cefr.a1"
       },
       {
+        "slug": "proficiency.survival"
+      },
+      {
         "slug": "functional.number"
       }
     ]
@@ -716,6 +728,9 @@ export default [
       },
       {
         "slug": "proficiency.cefr.a1"
+      },
+      {
+        "slug": "proficiency.survival"
       },
       {
         "slug": "functional.number"
@@ -764,6 +779,9 @@ export default [
         "slug": "proficiency.cefr.a1"
       },
       {
+        "slug": "proficiency.survival"
+      },
+      {
         "slug": "functional.number"
       }
     ]
@@ -808,6 +826,9 @@ export default [
       },
       {
         "slug": "proficiency.cefr.a1"
+      },
+      {
+        "slug": "proficiency.survival"
       },
       {
         "slug": "functional.number"
@@ -856,6 +877,9 @@ export default [
         "slug": "proficiency.cefr.a1"
       },
       {
+        "slug": "proficiency.survival"
+      },
+      {
         "slug": "functional.number"
       }
     ]
@@ -902,6 +926,9 @@ export default [
         "slug": "proficiency.cefr.a1"
       },
       {
+        "slug": "proficiency.survival"
+      },
+      {
         "slug": "functional.number"
       }
     ]
@@ -946,6 +973,9 @@ export default [
       },
       {
         "slug": "proficiency.cefr.a1"
+      },
+      {
+        "slug": "proficiency.survival"
       },
       {
         "slug": "functional.number"
@@ -1043,6 +1073,9 @@ export default [
         "slug": "proficiency.cefr.a1"
       },
       {
+        "slug": "proficiency.survival"
+      },
+      {
         "slug": "functional.number"
       }
     ]
@@ -1087,6 +1120,9 @@ export default [
       },
       {
         "slug": "proficiency.cefr.a1"
+      },
+      {
+        "slug": "proficiency.survival"
       },
       {
         "slug": "functional.number"
@@ -1135,6 +1171,9 @@ export default [
         "slug": "proficiency.cefr.a1"
       },
       {
+        "slug": "proficiency.survival"
+      },
+      {
         "slug": "functional.number"
       }
     ]
@@ -1173,6 +1212,221 @@ export default [
       },
       {
         "slug": "word.lemma.cento"
+      },
+      {
+        "slug": "word.part-of-speech.numeral"
+      },
+      {
+        "slug": "proficiency.cefr.a1"
+      },
+      {
+        "slug": "proficiency.survival"
+      },
+      {
+        "slug": "functional.number"
+      }
+    ]
+  },
+  {
+    "slug": "sessanta.numeral",
+    "traits": [
+      "TRANSLATED",
+      "EXEMPLIFIED",
+      "RANKED"
+    ],
+    "trait": {
+      "TRANSLATED": {
+        "known": "sixty",
+        "learning": "sessanta"
+      },
+      "EXEMPLIFIED": {
+        "known": "The room costs sixty euros",
+        "learning": "La camera costa sessanta euro"
+      },
+      "RANKED": {
+        "rank": 6959,
+        "zipf": 4.05,
+        "fpm": 11.2
+      }
+    },
+    "symbols": [
+      {
+        "slug": "word"
+      },
+      {
+        "slug": "word.lemma.sessanta"
+      },
+      {
+        "slug": "word.part-of-speech.numeral"
+      },
+      {
+        "slug": "proficiency.cefr.a1"
+      },
+      {
+        "slug": "proficiency.survival"
+      },
+      {
+        "slug": "functional.number"
+      }
+    ]
+  },
+  {
+    "slug": "settanta.numeral",
+    "traits": [
+      "TRANSLATED",
+      "EXEMPLIFIED",
+      "RANKED"
+    ],
+    "trait": {
+      "TRANSLATED": {
+        "known": "seventy",
+        "learning": "settanta"
+      },
+      "EXEMPLIFIED": {
+        "known": "My grandmother is seventy years old",
+        "learning": "Mia nonna ha settant'anni"
+      },
+      "RANKED": {
+        "rank": 8538,
+        "zipf": 3.94,
+        "fpm": 8.71
+      }
+    },
+    "symbols": [
+      {
+        "slug": "word"
+      },
+      {
+        "slug": "word.lemma.settanta"
+      },
+      {
+        "slug": "word.part-of-speech.numeral"
+      },
+      {
+        "slug": "proficiency.cefr.a1"
+      },
+      {
+        "slug": "proficiency.survival"
+      },
+      {
+        "slug": "functional.number"
+      }
+    ]
+  },
+  {
+    "slug": "ottanta.numeral",
+    "traits": [
+      "TRANSLATED",
+      "EXEMPLIFIED",
+      "RANKED"
+    ],
+    "trait": {
+      "TRANSLATED": {
+        "known": "eighty",
+        "learning": "ottanta"
+      },
+      "EXEMPLIFIED": {
+        "known": "The bill comes to eighty euros",
+        "learning": "Il conto è di ottanta euro"
+      },
+      "RANKED": {
+        "rank": 8206,
+        "zipf": 3.96,
+        "fpm": 9.12
+      }
+    },
+    "symbols": [
+      {
+        "slug": "word"
+      },
+      {
+        "slug": "word.lemma.ottanta"
+      },
+      {
+        "slug": "word.part-of-speech.numeral"
+      },
+      {
+        "slug": "proficiency.cefr.a1"
+      },
+      {
+        "slug": "proficiency.survival"
+      },
+      {
+        "slug": "functional.number"
+      }
+    ]
+  },
+  {
+    "slug": "novanta.numeral",
+    "traits": [
+      "TRANSLATED",
+      "EXEMPLIFIED",
+      "RANKED"
+    ],
+    "trait": {
+      "TRANSLATED": {
+        "known": "ninety",
+        "learning": "novanta"
+      },
+      "EXEMPLIFIED": {
+        "known": "The taxi costs ninety euros",
+        "learning": "Il taxi costa novanta euro"
+      },
+      "RANKED": {
+        "rank": 8202,
+        "zipf": 3.96,
+        "fpm": 9.12
+      }
+    },
+    "symbols": [
+      {
+        "slug": "word"
+      },
+      {
+        "slug": "word.lemma.novanta"
+      },
+      {
+        "slug": "word.part-of-speech.numeral"
+      },
+      {
+        "slug": "proficiency.cefr.a1"
+      },
+      {
+        "slug": "proficiency.survival"
+      },
+      {
+        "slug": "functional.number"
+      }
+    ]
+  },
+  {
+    "slug": "mille.numeral",
+    "traits": [
+      "TRANSLATED",
+      "EXEMPLIFIED",
+      "RANKED"
+    ],
+    "trait": {
+      "TRANSLATED": {
+        "known": "one thousand",
+        "learning": "mille"
+      },
+      "EXEMPLIFIED": {
+        "known": "The flight costs a thousand euros",
+        "learning": "Il volo costa mille euro"
+      },
+      "RANKED": {
+        "rank": 980,
+        "zipf": 4.99,
+        "fpm": 97.7
+      }
+    },
+    "symbols": [
+      {
+        "slug": "word"
+      },
+      {
+        "slug": "word.lemma.mille"
       },
       {
         "slug": "word.part-of-speech.numeral"

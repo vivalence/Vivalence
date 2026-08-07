@@ -90,6 +90,7 @@ export async function seed() {
 
   const user = em.create(UserEntity, { roles: ["USER"], config: {} })
   await em.flush()
+  em.setFilterParams("user", { user: user.id })
 
   const symbol = em.create(SymbolEntity, { slug: "greeting", trait: {} })
   const hello = em.create(LiteralEntity, { slug: "hello", trait: {}, symbol: {} })

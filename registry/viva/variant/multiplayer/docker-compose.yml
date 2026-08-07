@@ -47,7 +47,7 @@ services:
   #       - 'PUBLIC_VIVA_RUNTIME_REMOTE=https://runtime.s4y.vivalence.com'
   #       - 'PUBLIC_VIVA_LIGHTHOUSE_REMOTE=http://localhost:2501/attached/process/lighthouse/multiplayer'
   #       - SECRET_VIVA_JWT=TOTALLYSECUREKEYnot
-  #       - SECRET_VIVA_ANTHROPIC_API_KEY=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
+  #       - SECRET_VIVA_ANTHROPIC_API_KEY=KEY
   #     volumes:
   #       - 'mountpoint:/viva/mountpoint'
 

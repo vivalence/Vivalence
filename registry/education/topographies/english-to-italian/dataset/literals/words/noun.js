@@ -212,6 +212,9 @@ export default [
         "slug": "proficiency.cefr.a1"
       },
       {
+        "slug": "proficiency.survival"
+      },
+      {
         "slug": "domain.food"
       }
     ]
@@ -264,6 +267,9 @@ export default [
         "slug": "proficiency.cefr.a1"
       },
       {
+        "slug": "proficiency.survival"
+      },
+      {
         "slug": "domain.food"
       }
     ]
@@ -308,6 +314,9 @@ export default [
       },
       {
         "slug": "proficiency.cefr.a1"
+      },
+      {
+        "slug": "proficiency.survival"
       },
       {
         "slug": "domain.food"
@@ -362,6 +371,9 @@ export default [
         "slug": "proficiency.cefr.a1"
       },
       {
+        "slug": "proficiency.survival"
+      },
+      {
         "slug": "domain.food"
       }
     ]
@@ -414,6 +426,9 @@ export default [
         "slug": "proficiency.cefr.a1"
       },
       {
+        "slug": "proficiency.survival"
+      },
+      {
         "slug": "domain.food"
       }
     ]
@@ -464,6 +479,9 @@ export default [
       },
       {
         "slug": "proficiency.cefr.a1"
+      },
+      {
+        "slug": "proficiency.survival"
       },
       {
         "slug": "domain.food"
@@ -622,6 +640,9 @@ export default [
         "slug": "proficiency.cefr.a1"
       },
       {
+        "slug": "proficiency.survival"
+      },
+      {
         "slug": "domain.food"
       }
     ]
@@ -672,6 +693,9 @@ export default [
       },
       {
         "slug": "proficiency.cefr.a1"
+      },
+      {
+        "slug": "proficiency.survival"
       },
       {
         "slug": "domain.food"
@@ -1292,6 +1316,9 @@ export default [
         "slug": "proficiency.cefr.a1"
       },
       {
+        "slug": "proficiency.survival"
+      },
+      {
         "slug": "domain.food"
       }
     ]
@@ -1344,6 +1371,9 @@ export default [
         "slug": "proficiency.cefr.a1"
       },
       {
+        "slug": "proficiency.survival"
+      },
+      {
         "slug": "domain.food"
       }
     ]
@@ -1394,6 +1424,9 @@ export default [
       },
       {
         "slug": "proficiency.cefr.a1"
+      },
+      {
+        "slug": "proficiency.survival"
       },
       {
         "slug": "domain.food"
@@ -1659,6 +1692,9 @@ export default [
         "slug": "proficiency.cefr.a2"
       },
       {
+        "slug": "proficiency.survival"
+      },
+      {
         "slug": "domain.food"
       }
     ]
@@ -1709,6 +1745,9 @@ export default [
       },
       {
         "slug": "proficiency.cefr.a2"
+      },
+      {
+        "slug": "proficiency.survival"
       },
       {
         "slug": "domain.food"
@@ -1815,6 +1854,9 @@ export default [
         "slug": "proficiency.cefr.a1"
       },
       {
+        "slug": "proficiency.survival"
+      },
+      {
         "slug": "domain.food"
       }
     ]
@@ -1865,6 +1907,9 @@ export default [
       },
       {
         "slug": "proficiency.cefr.a1"
+      },
+      {
+        "slug": "proficiency.survival"
       },
       {
         "slug": "domain.food"
@@ -2075,6 +2120,9 @@ export default [
         "slug": "proficiency.cefr.a1"
       },
       {
+        "slug": "proficiency.survival"
+      },
+      {
         "slug": "domain.food"
       }
     ]
@@ -2232,6 +2280,9 @@ export default [
       },
       {
         "slug": "proficiency.cefr.a1"
+      },
+      {
+        "slug": "proficiency.survival"
       },
       {
         "slug": "domain.home"
@@ -2393,6 +2444,9 @@ export default [
         "slug": "proficiency.cefr.a1"
       },
       {
+        "slug": "proficiency.survival"
+      },
+      {
         "slug": "domain.home"
       }
     ]
@@ -2495,6 +2549,9 @@ export default [
       },
       {
         "slug": "proficiency.cefr.a1"
+      },
+      {
+        "slug": "proficiency.survival"
       },
       {
         "slug": "domain.home"
@@ -4207,6 +4264,9 @@ export default [
         "slug": "proficiency.cefr.a1"
       },
       {
+        "slug": "proficiency.survival"
+      },
+      {
         "slug": "domain.city"
       }
     ]
@@ -4782,6 +4842,9 @@ export default [
         "slug": "proficiency.cefr.a1"
       },
       {
+        "slug": "proficiency.survival"
+      },
+      {
         "slug": "domain.city"
       }
     ]
@@ -4884,6 +4947,9 @@ export default [
       },
       {
         "slug": "proficiency.cefr.a2"
+      },
+      {
+        "slug": "proficiency.survival"
       },
       {
         "slug": "domain.city"
@@ -5620,6 +5686,9 @@ export default [
         "slug": "proficiency.cefr.a1"
       },
       {
+        "slug": "proficiency.survival"
+      },
+      {
         "slug": "domain.transport"
       }
     ]
@@ -5829,6 +5898,9 @@ export default [
       },
       {
         "slug": "proficiency.cefr.a1"
+      },
+      {
+        "slug": "proficiency.survival"
       },
       {
         "slug": "domain.transport"
@@ -6284,6 +6356,9 @@ export default [
         "slug": "proficiency.cefr.a1"
       },
       {
+        "slug": "proficiency.survival"
+      },
+      {
         "slug": "domain.transport"
       }
     ]
@@ -6336,6 +6411,9 @@ export default [
         "slug": "proficiency.cefr.a2"
       },
       {
+        "slug": "proficiency.survival"
+      },
+      {
         "slug": "domain.transport"
       }
     ]
@@ -6380,6 +6458,9 @@ export default [
       },
       {
         "slug": "proficiency.cefr.a2"
+      },
+      {
+        "slug": "proficiency.survival"
       },
       {
         "slug": "domain.transport"
@@ -6789,6 +6870,9 @@ export default [
         "slug": "proficiency.cefr.a1"
       },
       {
+        "slug": "proficiency.survival"
+      },
+      {
         "slug": "domain.money"
       }
     ]
@@ -6980,6 +7064,9 @@ export default [
       },
       {
         "slug": "proficiency.cefr.a2"
+      },
+      {
+        "slug": "proficiency.survival"
       },
       {
         "slug": "domain.money"
@@ -12015,6 +12102,9 @@ export default [
         "slug": "proficiency.cefr.a1"
       },
       {
+        "slug": "proficiency.survival"
+      },
+      {
         "slug": "domain.time"
       }
     ]
@@ -12067,6 +12157,9 @@ export default [
         "slug": "proficiency.cefr.a1"
       },
       {
+        "slug": "proficiency.survival"
+      },
+      {
         "slug": "domain.time"
       }
     ]
@@ -12117,6 +12210,9 @@ export default [
       },
       {
         "slug": "proficiency.cefr.a1"
+      },
+      {
+        "slug": "proficiency.survival"
       },
       {
         "slug": "domain.time"
@@ -12275,6 +12371,9 @@ export default [
         "slug": "proficiency.cefr.a1"
       },
       {
+        "slug": "proficiency.survival"
+      },
+      {
         "slug": "domain.time"
       }
     ]
@@ -12325,6 +12424,9 @@ export default [
       },
       {
         "slug": "proficiency.cefr.a1"
+      },
+      {
+        "slug": "proficiency.survival"
       },
       {
         "slug": "domain.time"
@@ -12379,6 +12481,9 @@ export default [
         "slug": "proficiency.cefr.a1"
       },
       {
+        "slug": "proficiency.survival"
+      },
+      {
         "slug": "domain.time"
       }
     ]
@@ -12429,6 +12534,9 @@ export default [
       },
       {
         "slug": "proficiency.cefr.a1"
+      },
+      {
+        "slug": "proficiency.survival"
       },
       {
         "slug": "domain.time"
@@ -20442,6 +20550,9 @@ export default [
         "slug": "proficiency.cefr.a2"
       },
       {
+        "slug": "proficiency.survival"
+      },
+      {
         "slug": "domain.work"
       }
     ]
@@ -22182,6 +22293,9 @@ export default [
       },
       {
         "slug": "proficiency.cefr.a2"
+      },
+      {
+        "slug": "proficiency.survival"
       },
       {
         "slug": "domain.health"
@@ -27458,6 +27572,9 @@ export default [
         "slug": "proficiency.cefr.a1"
       },
       {
+        "slug": "proficiency.survival"
+      },
+      {
         "slug": "domain.travel"
       }
     ]
@@ -28377,6 +28494,9 @@ export default [
       },
       {
         "slug": "proficiency.cefr.a1"
+      },
+      {
+        "slug": "proficiency.survival"
       },
       {
         "slug": "domain.travel"
@@ -31421,6 +31541,9 @@ export default [
       },
       {
         "slug": "proficiency.cefr.a1"
+      },
+      {
+        "slug": "proficiency.survival"
       },
       {
         "slug": "domain.work"
@@ -34682,6 +34805,9 @@ export default [
         "slug": "proficiency.cefr.a2"
       },
       {
+        "slug": "proficiency.survival"
+      },
+      {
         "slug": "domain.city"
       }
     ]
@@ -36960,6 +37086,9 @@ export default [
         "slug": "proficiency.cefr.a1"
       },
       {
+        "slug": "proficiency.survival"
+      },
+      {
         "slug": "domain.shape"
       }
     ]
@@ -38102,9 +38231,6 @@ export default [
         "slug": "proficiency.cefr.a1"
       },
       {
-        "slug": "proficiency.survival"
-      },
-      {
         "slug": "domain.food"
       }
     ]
@@ -38155,9 +38281,6 @@ export default [
       },
       {
         "slug": "proficiency.cefr.a1"
-      },
-      {
-        "slug": "proficiency.survival"
       },
       {
         "slug": "domain.food"
@@ -38212,9 +38335,6 @@ export default [
         "slug": "proficiency.cefr.a1"
       },
       {
-        "slug": "proficiency.survival"
-      },
-      {
         "slug": "domain.food"
       }
     ]
@@ -38265,9 +38385,6 @@ export default [
       },
       {
         "slug": "proficiency.cefr.a1"
-      },
-      {
-        "slug": "proficiency.survival"
       },
       {
         "slug": "domain.food"
@@ -38322,9 +38439,6 @@ export default [
         "slug": "proficiency.cefr.a1"
       },
       {
-        "slug": "proficiency.survival"
-      },
-      {
         "slug": "domain.food"
       }
     ]
@@ -38375,9 +38489,6 @@ export default [
       },
       {
         "slug": "proficiency.cefr.a1"
-      },
-      {
-        "slug": "proficiency.survival"
       },
       {
         "slug": "domain.food"
@@ -41796,6 +41907,9 @@ export default [
         "slug": "proficiency.cefr.a2"
       },
       {
+        "slug": "proficiency.survival"
+      },
+      {
         "slug": "domain.city"
       }
     ]
@@ -42902,6 +43016,9 @@ export default [
         "slug": "proficiency.cefr.a2"
       },
       {
+        "slug": "proficiency.survival"
+      },
+      {
         "slug": "domain.state"
       }
     ]
@@ -43160,6 +43277,9 @@ export default [
       },
       {
         "slug": "proficiency.cefr.a2"
+      },
+      {
+        "slug": "proficiency.survival"
       },
       {
         "slug": "domain.abstract"
@@ -44417,9 +44537,6 @@ export default [
         "slug": "proficiency.cefr.a2"
       },
       {
-        "slug": "proficiency.survival"
-      },
-      {
         "slug": "domain.money"
       }
     ]
@@ -44472,9 +44589,6 @@ export default [
         "slug": "proficiency.cefr.a2"
       },
       {
-        "slug": "proficiency.survival"
-      },
-      {
         "slug": "domain.home"
       }
     ]
@@ -44519,9 +44633,6 @@ export default [
       },
       {
         "slug": "proficiency.cefr.a2"
-      },
-      {
-        "slug": "proficiency.survival"
       },
       {
         "slug": "domain.home"
@@ -44625,9 +44736,6 @@ export default [
         "slug": "proficiency.cefr.a2"
       },
       {
-        "slug": "proficiency.survival"
-      },
-      {
         "slug": "domain.social"
       }
     ]
@@ -44678,9 +44786,6 @@ export default [
       },
       {
         "slug": "proficiency.cefr.a2"
-      },
-      {
-        "slug": "proficiency.survival"
       },
       {
         "slug": "domain.social"
@@ -44778,9 +44883,6 @@ export default [
         "slug": "proficiency.cefr.a2"
       },
       {
-        "slug": "proficiency.survival"
-      },
-      {
         "slug": "domain.home"
       }
     ]
@@ -44825,9 +44927,6 @@ export default [
       },
       {
         "slug": "proficiency.cefr.a2"
-      },
-      {
-        "slug": "proficiency.survival"
       },
       {
         "slug": "domain.food"
@@ -44882,9 +44981,6 @@ export default [
         "slug": "proficiency.cefr.a2"
       },
       {
-        "slug": "proficiency.survival"
-      },
-      {
         "slug": "domain.home"
       }
     ]
@@ -44937,9 +45033,6 @@ export default [
         "slug": "proficiency.cefr.a2"
       },
       {
-        "slug": "proficiency.survival"
-      },
-      {
         "slug": "domain.health"
       }
     ]
@@ -44986,9 +45079,6 @@ export default [
         "slug": "proficiency.cefr.a2"
       },
       {
-        "slug": "proficiency.survival"
-      },
-      {
         "slug": "domain.health"
       }
     ]
@@ -45033,9 +45123,6 @@ export default [
       },
       {
         "slug": "proficiency.cefr.a2"
-      },
-      {
-        "slug": "proficiency.survival"
       },
       {
         "slug": "domain.health"
@@ -45133,9 +45220,6 @@ export default [
         "slug": "proficiency.cefr.b1"
       },
       {
-        "slug": "proficiency.survival"
-      },
-      {
         "slug": "domain.home"
       }
     ]
@@ -45180,9 +45264,6 @@ export default [
       },
       {
         "slug": "proficiency.cefr.b1"
-      },
-      {
-        "slug": "proficiency.survival"
       },
       {
         "slug": "domain.home"
@@ -45231,9 +45312,6 @@ export default [
         "slug": "proficiency.cefr.b1"
       },
       {
-        "slug": "proficiency.survival"
-      },
-      {
         "slug": "domain.work"
       }
     ]
@@ -45278,9 +45356,6 @@ export default [
       },
       {
         "slug": "proficiency.cefr.b1"
-      },
-      {
-        "slug": "proficiency.survival"
       },
       {
         "slug": "domain.money"
@@ -45329,9 +45404,6 @@ export default [
         "slug": "proficiency.cefr.b1"
       },
       {
-        "slug": "proficiency.survival"
-      },
-      {
         "slug": "domain.home"
       }
     ]
@@ -45378,9 +45450,6 @@ export default [
         "slug": "proficiency.cefr.b1"
       },
       {
-        "slug": "proficiency.survival"
-      },
-      {
         "slug": "domain.home"
       }
     ]
@@ -45425,9 +45494,6 @@ export default [
       },
       {
         "slug": "proficiency.cefr.b1"
-      },
-      {
-        "slug": "proficiency.survival"
       },
       {
         "slug": "domain.home"
@@ -45482,9 +45548,6 @@ export default [
         "slug": "proficiency.cefr.b1"
       },
       {
-        "slug": "proficiency.survival"
-      },
-      {
         "slug": "domain.health"
       }
     ]
@@ -45531,9 +45594,6 @@ export default [
         "slug": "proficiency.cefr.b1"
       },
       {
-        "slug": "proficiency.survival"
-      },
-      {
         "slug": "domain.home"
       }
     ]
@@ -45578,9 +45638,6 @@ export default [
       },
       {
         "slug": "proficiency.cefr.b1"
-      },
-      {
-        "slug": "proficiency.survival"
       },
       {
         "slug": "domain.money"
@@ -51673,7 +51730,7 @@ export default [
     ],
     "trait": {
       "TRANSLATED": {
-        "known": "waist",
+        "known": "life / waist",
         "learning": "vita"
       },
       "EXEMPLIFIED": {
@@ -59093,6 +59150,9 @@ export default [
         "slug": "proficiency.cefr.a2"
       },
       {
+        "slug": "proficiency.survival"
+      },
+      {
         "slug": "domain.money"
       }
     ]
@@ -62609,9 +62669,6 @@ export default [
         "slug": "proficiency.cefr.a2"
       },
       {
-        "slug": "proficiency.survival"
-      },
-      {
         "slug": "domain.health"
       }
     ]
@@ -62656,9 +62713,6 @@ export default [
       },
       {
         "slug": "proficiency.cefr.a2"
-      },
-      {
-        "slug": "proficiency.survival"
       },
       {
         "slug": "domain.health"
@@ -63079,9 +63133,6 @@ export default [
       },
       {
         "slug": "proficiency.cefr.a2"
-      },
-      {
-        "slug": "proficiency.survival"
       },
       {
         "slug": "domain.health"
@@ -63590,9 +63641,6 @@ export default [
         "slug": "proficiency.cefr.a2"
       },
       {
-        "slug": "proficiency.survival"
-      },
-      {
         "slug": "domain.health"
       }
     ]
@@ -63873,9 +63921,6 @@ export default [
       },
       {
         "slug": "proficiency.cefr.a2"
-      },
-      {
-        "slug": "proficiency.survival"
       },
       {
         "slug": "domain.health"
@@ -66579,6 +66624,1133 @@ export default [
       },
       {
         "slug": "domain.mind"
+      }
+    ]
+  },
+  {
+    "slug": "favore.noun",
+    "traits": [
+      "TRANSLATED",
+      "EXEMPLIFIED",
+      "RANKED"
+    ],
+    "trait": {
+      "TRANSLATED": {
+        "known": "favor",
+        "learning": "favore"
+      },
+      "EXEMPLIFIED": {
+        "known": "Will you do me a favor?",
+        "learning": "Mi fai un favore?"
+      },
+      "RANKED": {
+        "rank": 456,
+        "zipf": 5.3,
+        "fpm": 200.0
+      }
+    },
+    "symbols": [
+      {
+        "slug": "word"
+      },
+      {
+        "slug": "word.lemma.favore"
+      },
+      {
+        "slug": "word.part-of-speech.noun"
+      },
+      {
+        "slug": "word.gender.masculine"
+      },
+      {
+        "slug": "word.number.singular"
+      },
+      {
+        "slug": "proficiency.cefr.a1"
+      },
+      {
+        "slug": "proficiency.survival"
+      },
+      {
+        "slug": "domain.abstract"
+      }
+    ]
+  },
+  {
+    "slug": "sinistra.noun",
+    "traits": [
+      "TRANSLATED",
+      "EXEMPLIFIED",
+      "RANKED"
+    ],
+    "trait": {
+      "TRANSLATED": {
+        "known": "left",
+        "learning": "sinistra"
+      },
+      "EXEMPLIFIED": {
+        "known": "The bathroom is on the left",
+        "learning": "Il bagno è a sinistra"
+      },
+      "RANKED": {
+        "rank": 648,
+        "zipf": 5.17,
+        "fpm": 148.0
+      }
+    },
+    "symbols": [
+      {
+        "slug": "word"
+      },
+      {
+        "slug": "word.lemma.sinistra"
+      },
+      {
+        "slug": "word.part-of-speech.noun"
+      },
+      {
+        "slug": "word.gender.feminine"
+      },
+      {
+        "slug": "word.number.singular"
+      },
+      {
+        "slug": "proficiency.cefr.a1"
+      },
+      {
+        "slug": "proficiency.survival"
+      },
+      {
+        "slug": "domain.space"
+      }
+    ]
+  },
+  {
+    "slug": "destra.noun",
+    "traits": [
+      "TRANSLATED",
+      "EXEMPLIFIED",
+      "RANKED"
+    ],
+    "trait": {
+      "TRANSLATED": {
+        "known": "right",
+        "learning": "destra"
+      },
+      "EXEMPLIFIED": {
+        "known": "The pharmacy is on the right",
+        "learning": "La farmacia è a destra"
+      },
+      "RANKED": {
+        "rank": 750,
+        "zipf": 5.1,
+        "fpm": 126.0
+      }
+    },
+    "symbols": [
+      {
+        "slug": "word"
+      },
+      {
+        "slug": "word.lemma.destra"
+      },
+      {
+        "slug": "word.part-of-speech.noun"
+      },
+      {
+        "slug": "word.gender.feminine"
+      },
+      {
+        "slug": "word.number.singular"
+      },
+      {
+        "slug": "proficiency.cefr.a1"
+      },
+      {
+        "slug": "proficiency.survival"
+      },
+      {
+        "slug": "domain.space"
+      }
+    ]
+  },
+  {
+    "slug": "fame.noun",
+    "traits": [
+      "TRANSLATED",
+      "EXEMPLIFIED",
+      "RANKED"
+    ],
+    "trait": {
+      "TRANSLATED": {
+        "known": "hunger",
+        "learning": "fame"
+      },
+      "EXEMPLIFIED": {
+        "known": "I am hungry after the trip",
+        "learning": "Ho fame dopo il viaggio"
+      },
+      "RANKED": {
+        "rank": 1344,
+        "zipf": 4.85,
+        "fpm": 70.8
+      }
+    },
+    "symbols": [
+      {
+        "slug": "word"
+      },
+      {
+        "slug": "word.lemma.fame"
+      },
+      {
+        "slug": "word.part-of-speech.noun"
+      },
+      {
+        "slug": "word.gender.feminine"
+      },
+      {
+        "slug": "word.number.singular"
+      },
+      {
+        "slug": "proficiency.cefr.a1"
+      },
+      {
+        "slug": "proficiency.survival"
+      },
+      {
+        "slug": "domain.body"
+      }
+    ]
+  },
+  {
+    "slug": "sete.noun",
+    "traits": [
+      "TRANSLATED",
+      "EXEMPLIFIED",
+      "RANKED"
+    ],
+    "trait": {
+      "TRANSLATED": {
+        "known": "thirst",
+        "learning": "sete"
+      },
+      "EXEMPLIFIED": {
+        "known": "I am thirsty, I would like some water",
+        "learning": "Ho sete, vorrei dell'acqua"
+      },
+      "RANKED": {
+        "rank": 6574,
+        "zipf": 4.08,
+        "fpm": 12.0
+      }
+    },
+    "symbols": [
+      {
+        "slug": "word"
+      },
+      {
+        "slug": "word.lemma.sete"
+      },
+      {
+        "slug": "word.part-of-speech.noun"
+      },
+      {
+        "slug": "word.gender.feminine"
+      },
+      {
+        "slug": "word.number.singular"
+      },
+      {
+        "slug": "proficiency.cefr.a1"
+      },
+      {
+        "slug": "proficiency.survival"
+      },
+      {
+        "slug": "domain.body"
+      }
+    ]
+  },
+  {
+    "slug": "soldi.noun",
+    "traits": [
+      "TRANSLATED",
+      "EXEMPLIFIED",
+      "RANKED"
+    ],
+    "trait": {
+      "TRANSLATED": {
+        "known": "money",
+        "learning": "soldi"
+      },
+      "EXEMPLIFIED": {
+        "known": "I do not have enough money",
+        "learning": "Non ho abbastanza soldi"
+      },
+      "RANKED": {
+        "rank": 399,
+        "zipf": 5.36,
+        "fpm": 229.0
+      }
+    },
+    "symbols": [
+      {
+        "slug": "word"
+      },
+      {
+        "slug": "word.lemma.soldi"
+      },
+      {
+        "slug": "word.part-of-speech.noun"
+      },
+      {
+        "slug": "word.gender.masculine"
+      },
+      {
+        "slug": "word.number.plural"
+      },
+      {
+        "slug": "proficiency.cefr.a1"
+      },
+      {
+        "slug": "proficiency.survival"
+      },
+      {
+        "slug": "domain.money"
+      }
+    ]
+  },
+  {
+    "slug": "uscita.noun",
+    "traits": [
+      "TRANSLATED",
+      "EXEMPLIFIED",
+      "RANKED"
+    ],
+    "trait": {
+      "TRANSLATED": {
+        "known": "exit",
+        "learning": "uscita"
+      },
+      "EXEMPLIFIED": {
+        "known": "The exit is at the end on the right",
+        "learning": "L'uscita è in fondo a destra"
+      },
+      "RANKED": {
+        "rank": 1101,
+        "zipf": 4.95,
+        "fpm": 89.1
+      }
+    },
+    "symbols": [
+      {
+        "slug": "word"
+      },
+      {
+        "slug": "word.lemma.uscita"
+      },
+      {
+        "slug": "word.part-of-speech.noun"
+      },
+      {
+        "slug": "word.gender.feminine"
+      },
+      {
+        "slug": "word.number.singular"
+      },
+      {
+        "slug": "proficiency.cefr.a1"
+      },
+      {
+        "slug": "proficiency.survival"
+      },
+      {
+        "slug": "domain.city"
+      }
+    ]
+  },
+  {
+    "slug": "entrata.noun",
+    "traits": [
+      "TRANSLATED",
+      "EXEMPLIFIED",
+      "RANKED"
+    ],
+    "trait": {
+      "TRANSLATED": {
+        "known": "entrance",
+        "learning": "entrata"
+      },
+      "EXEMPLIFIED": {
+        "known": "The museum entrance is free",
+        "learning": "L'entrata del museo è gratuita"
+      },
+      "RANKED": {
+        "rank": 2094,
+        "zipf": 4.65,
+        "fpm": 44.7
+      }
+    },
+    "symbols": [
+      {
+        "slug": "word"
+      },
+      {
+        "slug": "word.lemma.entrata"
+      },
+      {
+        "slug": "word.part-of-speech.noun"
+      },
+      {
+        "slug": "word.gender.feminine"
+      },
+      {
+        "slug": "word.number.singular"
+      },
+      {
+        "slug": "proficiency.cefr.a1"
+      },
+      {
+        "slug": "proficiency.survival"
+      },
+      {
+        "slug": "domain.city"
+      }
+    ]
+  },
+  {
+    "slug": "andata.noun",
+    "traits": [
+      "TRANSLATED",
+      "EXEMPLIFIED",
+      "RANKED"
+    ],
+    "trait": {
+      "TRANSLATED": {
+        "known": "outbound trip",
+        "learning": "andata"
+      },
+      "EXEMPLIFIED": {
+        "known": "A one-way ticket, please",
+        "learning": "Un biglietto di sola andata, per favore"
+      },
+      "RANKED": {
+        "rank": 993,
+        "zipf": 4.98,
+        "fpm": 95.5
+      }
+    },
+    "symbols": [
+      {
+        "slug": "word"
+      },
+      {
+        "slug": "word.lemma.andata"
+      },
+      {
+        "slug": "word.part-of-speech.noun"
+      },
+      {
+        "slug": "word.gender.feminine"
+      },
+      {
+        "slug": "word.number.singular"
+      },
+      {
+        "slug": "proficiency.cefr.a1"
+      },
+      {
+        "slug": "proficiency.survival"
+      },
+      {
+        "slug": "domain.travel"
+      }
+    ]
+  },
+  {
+    "slug": "ritorno.noun",
+    "traits": [
+      "TRANSLATED",
+      "EXEMPLIFIED",
+      "RANKED"
+    ],
+    "trait": {
+      "TRANSLATED": {
+        "known": "return",
+        "learning": "ritorno"
+      },
+      "EXEMPLIFIED": {
+        "known": "The return is at six",
+        "learning": "Il ritorno è alle sei"
+      },
+      "RANKED": {
+        "rank": 959,
+        "zipf": 5.0,
+        "fpm": 100.0
+      }
+    },
+    "symbols": [
+      {
+        "slug": "word"
+      },
+      {
+        "slug": "word.lemma.ritorno"
+      },
+      {
+        "slug": "word.part-of-speech.noun"
+      },
+      {
+        "slug": "word.gender.masculine"
+      },
+      {
+        "slug": "word.number.singular"
+      },
+      {
+        "slug": "proficiency.cefr.a1"
+      },
+      {
+        "slug": "proficiency.survival"
+      },
+      {
+        "slug": "domain.travel"
+      }
+    ]
+  },
+  {
+    "slug": "emergenza.noun",
+    "traits": [
+      "TRANSLATED",
+      "EXEMPLIFIED",
+      "RANKED"
+    ],
+    "trait": {
+      "TRANSLATED": {
+        "known": "emergency",
+        "learning": "emergenza"
+      },
+      "EXEMPLIFIED": {
+        "known": "It is an emergency, call a doctor!",
+        "learning": "È un'emergenza, chiami un medico!"
+      },
+      "RANKED": {
+        "rank": 2045,
+        "zipf": 4.66,
+        "fpm": 45.7
+      }
+    },
+    "symbols": [
+      {
+        "slug": "word"
+      },
+      {
+        "slug": "word.lemma.emergenza"
+      },
+      {
+        "slug": "word.part-of-speech.noun"
+      },
+      {
+        "slug": "word.gender.feminine"
+      },
+      {
+        "slug": "word.number.singular"
+      },
+      {
+        "slug": "proficiency.cefr.a1"
+      },
+      {
+        "slug": "proficiency.survival"
+      },
+      {
+        "slug": "domain.health"
+      }
+    ]
+  },
+  {
+    "slug": "biglietteria.noun",
+    "traits": [
+      "TRANSLATED",
+      "EXEMPLIFIED",
+      "RANKED"
+    ],
+    "trait": {
+      "TRANSLATED": {
+        "known": "ticket office",
+        "learning": "biglietteria"
+      },
+      "EXEMPLIFIED": {
+        "known": "The ticket office opens at eight",
+        "learning": "La biglietteria apre alle otto"
+      },
+      "RANKED": {
+        "rank": 22870,
+        "zipf": 3.32,
+        "fpm": 2.09
+      }
+    },
+    "symbols": [
+      {
+        "slug": "word"
+      },
+      {
+        "slug": "word.lemma.biglietteria"
+      },
+      {
+        "slug": "word.part-of-speech.noun"
+      },
+      {
+        "slug": "word.gender.feminine"
+      },
+      {
+        "slug": "word.number.singular"
+      },
+      {
+        "slug": "proficiency.cefr.a1"
+      },
+      {
+        "slug": "proficiency.survival"
+      },
+      {
+        "slug": "domain.transport"
+      }
+    ]
+  },
+  {
+    "slug": "tabaccheria.noun",
+    "traits": [
+      "TRANSLATED",
+      "EXEMPLIFIED",
+      "RANKED"
+    ],
+    "trait": {
+      "TRANSLATED": {
+        "known": "tobacco shop",
+        "learning": "tabaccheria"
+      },
+      "EXEMPLIFIED": {
+        "known": "I buy the tickets at the tobacco shop",
+        "learning": "Compro i biglietti in tabaccheria"
+      },
+      "RANKED": {
+        "rank": 45443,
+        "zipf": 2.83,
+        "fpm": 0.676
+      }
+    },
+    "symbols": [
+      {
+        "slug": "word"
+      },
+      {
+        "slug": "word.lemma.tabaccheria"
+      },
+      {
+        "slug": "word.part-of-speech.noun"
+      },
+      {
+        "slug": "word.gender.feminine"
+      },
+      {
+        "slug": "word.number.singular"
+      },
+      {
+        "slug": "proficiency.cefr.a1"
+      },
+      {
+        "slug": "proficiency.survival"
+      },
+      {
+        "slug": "domain.city"
+      }
+    ]
+  },
+  {
+    "slug": "gelato.noun",
+    "traits": [
+      "TRANSLATED",
+      "EXEMPLIFIED",
+      "RANKED"
+    ],
+    "trait": {
+      "TRANSLATED": {
+        "known": "ice cream",
+        "learning": "gelato"
+      },
+      "EXEMPLIFIED": {
+        "known": "I would like a lemon ice cream",
+        "learning": "Vorrei un gelato al limone"
+      },
+      "RANKED": {
+        "rank": 5038,
+        "zipf": 4.22,
+        "fpm": 16.6
+      }
+    },
+    "symbols": [
+      {
+        "slug": "word"
+      },
+      {
+        "slug": "word.lemma.gelato"
+      },
+      {
+        "slug": "word.part-of-speech.noun"
+      },
+      {
+        "slug": "word.gender.masculine"
+      },
+      {
+        "slug": "word.number.singular"
+      },
+      {
+        "slug": "proficiency.cefr.a1"
+      },
+      {
+        "slug": "proficiency.survival"
+      },
+      {
+        "slug": "domain.food"
+      }
+    ]
+  },
+  {
+    "slug": "wifi.noun",
+    "traits": [
+      "TRANSLATED",
+      "EXEMPLIFIED",
+      "RANKED"
+    ],
+    "trait": {
+      "TRANSLATED": {
+        "known": "wifi",
+        "learning": "wifi"
+      },
+      "EXEMPLIFIED": {
+        "known": "The wifi does not work in the room",
+        "learning": "Il wifi non funziona in camera"
+      },
+      "RANKED": {
+        "rank": 6463,
+        "zipf": 4.09,
+        "fpm": 12.3
+      }
+    },
+    "symbols": [
+      {
+        "slug": "word"
+      },
+      {
+        "slug": "word.lemma.wifi"
+      },
+      {
+        "slug": "word.part-of-speech.noun"
+      },
+      {
+        "slug": "word.gender.masculine"
+      },
+      {
+        "slug": "word.number.singular"
+      },
+      {
+        "slug": "proficiency.cefr.a1"
+      },
+      {
+        "slug": "proficiency.survival"
+      },
+      {
+        "slug": "domain.travel"
+      }
+    ]
+  },
+  {
+    "slug": "uomo.noun",
+    "traits": [
+      "TRANSLATED",
+      "EXEMPLIFIED",
+      "RANKED"
+    ],
+    "trait": {
+      "TRANSLATED": {
+        "known": "man",
+        "learning": "uomo"
+      },
+      "EXEMPLIFIED": {
+        "known": "That man is very kind",
+        "learning": "Quell'uomo è molto gentile"
+      },
+      "RANKED": {
+        "rank": 258,
+        "zipf": 5.56,
+        "fpm": 363.0
+      }
+    },
+    "symbols": [
+      {
+        "slug": "word"
+      },
+      {
+        "slug": "word.lemma.uomo"
+      },
+      {
+        "slug": "word.part-of-speech.noun"
+      },
+      {
+        "slug": "word.gender.masculine"
+      },
+      {
+        "slug": "word.number.singular"
+      },
+      {
+        "slug": "proficiency.cefr.a1"
+      },
+      {
+        "slug": "proficiency.survival"
+      },
+      {
+        "slug": "domain.society"
+      }
+    ]
+  },
+  {
+    "slug": "donna.noun",
+    "traits": [
+      "TRANSLATED",
+      "EXEMPLIFIED",
+      "RANKED"
+    ],
+    "trait": {
+      "TRANSLATED": {
+        "known": "woman",
+        "learning": "donna"
+      },
+      "EXEMPLIFIED": {
+        "known": "A woman helped me",
+        "learning": "Una donna mi ha aiutato"
+      },
+      "RANKED": {
+        "rank": 290,
+        "zipf": 5.5,
+        "fpm": 316.0
+      }
+    },
+    "symbols": [
+      {
+        "slug": "word"
+      },
+      {
+        "slug": "word.lemma.donna"
+      },
+      {
+        "slug": "word.part-of-speech.noun"
+      },
+      {
+        "slug": "word.gender.feminine"
+      },
+      {
+        "slug": "word.number.singular"
+      },
+      {
+        "slug": "proficiency.cefr.a1"
+      },
+      {
+        "slug": "proficiency.survival"
+      },
+      {
+        "slug": "domain.society"
+      }
+    ]
+  },
+  {
+    "slug": "signore.noun",
+    "traits": [
+      "TRANSLATED",
+      "EXEMPLIFIED",
+      "RANKED"
+    ],
+    "trait": {
+      "TRANSLATED": {
+        "known": "gentleman / sir",
+        "learning": "signore"
+      },
+      "EXEMPLIFIED": {
+        "known": "Good morning, sir!",
+        "learning": "Buongiorno, signore!"
+      },
+      "RANKED": {
+        "rank": 937,
+        "zipf": 5.01,
+        "fpm": 102.0
+      }
+    },
+    "symbols": [
+      {
+        "slug": "word"
+      },
+      {
+        "slug": "word.lemma.signore"
+      },
+      {
+        "slug": "word.part-of-speech.noun"
+      },
+      {
+        "slug": "word.gender.masculine"
+      },
+      {
+        "slug": "word.number.singular"
+      },
+      {
+        "slug": "proficiency.cefr.a1"
+      },
+      {
+        "slug": "proficiency.survival"
+      },
+      {
+        "slug": "domain.society"
+      }
+    ]
+  },
+  {
+    "slug": "signora.noun",
+    "traits": [
+      "TRANSLATED",
+      "EXEMPLIFIED",
+      "RANKED"
+    ],
+    "trait": {
+      "TRANSLATED": {
+        "known": "lady / madam",
+        "learning": "signora"
+      },
+      "EXEMPLIFIED": {
+        "known": "Is the lady Italian?",
+        "learning": "La signora è italiana?"
+      },
+      "RANKED": {
+        "rank": 1493,
+        "zipf": 4.81,
+        "fpm": 64.6
+      }
+    },
+    "symbols": [
+      {
+        "slug": "word"
+      },
+      {
+        "slug": "word.lemma.signora"
+      },
+      {
+        "slug": "word.part-of-speech.noun"
+      },
+      {
+        "slug": "word.gender.feminine"
+      },
+      {
+        "slug": "word.number.singular"
+      },
+      {
+        "slug": "proficiency.cefr.a1"
+      },
+      {
+        "slug": "proficiency.survival"
+      },
+      {
+        "slug": "domain.society"
+      }
+    ]
+  },
+  {
+    "slug": "telefono.noun",
+    "traits": [
+      "TRANSLATED",
+      "EXEMPLIFIED",
+      "RANKED"
+    ],
+    "trait": {
+      "TRANSLATED": {
+        "known": "telephone",
+        "learning": "telefono"
+      },
+      "EXEMPLIFIED": {
+        "known": "Can I use the phone?",
+        "learning": "Posso usare il telefono?"
+      },
+      "RANKED": {
+        "rank": 881,
+        "zipf": 5.04,
+        "fpm": 110.0
+      }
+    },
+    "symbols": [
+      {
+        "slug": "word"
+      },
+      {
+        "slug": "word.lemma.telefono"
+      },
+      {
+        "slug": "word.part-of-speech.noun"
+      },
+      {
+        "slug": "word.gender.masculine"
+      },
+      {
+        "slug": "word.number.singular"
+      },
+      {
+        "slug": "proficiency.cefr.a1"
+      },
+      {
+        "slug": "proficiency.survival"
+      },
+      {
+        "slug": "domain.home"
+      }
+    ]
+  },
+  {
+    "slug": "nome.noun",
+    "traits": [
+      "TRANSLATED",
+      "EXEMPLIFIED",
+      "RANKED"
+    ],
+    "trait": {
+      "TRANSLATED": {
+        "known": "name",
+        "learning": "nome"
+      },
+      "EXEMPLIFIED": {
+        "known": "My name is on the reservation",
+        "learning": "Il mio nome è sulla prenotazione"
+      },
+      "RANKED": {
+        "rank": 213,
+        "zipf": 5.63,
+        "fpm": 427.0
+      }
+    },
+    "symbols": [
+      {
+        "slug": "word"
+      },
+      {
+        "slug": "word.lemma.nome"
+      },
+      {
+        "slug": "word.part-of-speech.noun"
+      },
+      {
+        "slug": "word.gender.masculine"
+      },
+      {
+        "slug": "word.number.singular"
+      },
+      {
+        "slug": "proficiency.cefr.a1"
+      },
+      {
+        "slug": "proficiency.survival"
+      },
+      {
+        "slug": "domain.abstract"
+      }
+    ]
+  },
+  {
+    "slug": "cognome.noun",
+    "traits": [
+      "TRANSLATED",
+      "EXEMPLIFIED",
+      "RANKED"
+    ],
+    "trait": {
+      "TRANSLATED": {
+        "known": "surname",
+        "learning": "cognome"
+      },
+      "EXEMPLIFIED": {
+        "known": "Write your surname here",
+        "learning": "Scriva qui il suo cognome"
+      },
+      "RANKED": {
+        "rank": 3371,
+        "zipf": 4.42,
+        "fpm": 26.3
+      }
+    },
+    "symbols": [
+      {
+        "slug": "word"
+      },
+      {
+        "slug": "word.lemma.cognome"
+      },
+      {
+        "slug": "word.part-of-speech.noun"
+      },
+      {
+        "slug": "word.gender.masculine"
+      },
+      {
+        "slug": "word.number.singular"
+      },
+      {
+        "slug": "proficiency.cefr.a1"
+      },
+      {
+        "slug": "proficiency.survival"
+      },
+      {
+        "slug": "domain.abstract"
+      }
+    ]
+  },
+  {
+    "slug": "indirizzo.noun",
+    "traits": [
+      "TRANSLATED",
+      "EXEMPLIFIED",
+      "RANKED"
+    ],
+    "trait": {
+      "TRANSLATED": {
+        "known": "address",
+        "learning": "indirizzo"
+      },
+      "EXEMPLIFIED": {
+        "known": "What is the address of the hotel?",
+        "learning": "Qual è l'indirizzo dell'albergo?"
+      },
+      "RANKED": {
+        "rank": 2373,
+        "zipf": 4.59,
+        "fpm": 38.9
+      }
+    },
+    "symbols": [
+      {
+        "slug": "word"
+      },
+      {
+        "slug": "word.lemma.indirizzo"
+      },
+      {
+        "slug": "word.part-of-speech.noun"
+      },
+      {
+        "slug": "word.gender.masculine"
+      },
+      {
+        "slug": "word.number.singular"
+      },
+      {
+        "slug": "proficiency.cefr.a1"
+      },
+      {
+        "slug": "proficiency.survival"
+      },
+      {
+        "slug": "domain.city"
       }
     ]
   }

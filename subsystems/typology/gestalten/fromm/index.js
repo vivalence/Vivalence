@@ -70,11 +70,11 @@ export const signal = (signal) => {
 export const params = (params) => {
   return {
     get path() {
-      const path = new prototypes.Path();
-      while (params[path.depth]) {
-        path.yeet(params[path.depth]);
-      }
-      return path.heir.pop();
+      const segments = [];
+      while (params[segments.length] !== undefined) segments.push(params[segments.length]);
+      if (!segments.length) return new prototypes.Path("/");
+      const path = new prototypes.Path(segments);
+      return path.fin ?? path;
     },
   };
 };

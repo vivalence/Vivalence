@@ -1,4 +1,35 @@
-import { specimen, fromm, Yield } from "@vivalence/typology";
+import { specimen, fromm, is, Yield } from "@vivalence/typology";
+
+specimen.describe("fromm.params", () => {
+  specimen.it("a remainder reassembles into the whole tail", () => {
+    specimen.expect(fromm.params({ 0: "words", 1: "a.adposition.mp3" }).path.absolute) //
+      .toBe("/words/a.adposition.mp3");
+    specimen.expect(fromm.params({ 0: "index.js" }).path.absolute).toBe("/index.js");
+    specimen.expect(fromm.params({ 0: "a", 1: "b", 2: "c", 3: "d.txt" }).path.absolute) //
+      .toBe("/a/b/c/d.txt");
+    specimen.expect(fromm.params({}).path.absolute).toBe("/");
+  });
+
+  specimen.it("named captures ride alongside without joining the tail", () => {
+    specimen.expect(fromm.params({ type: "game", 0: "words", 1: "e.mp3" }).path.absolute) //
+      .toBe("/words/e.mp3");
+  });
+
+  specimen.it("the tail is a Path, traced to its root", () => {
+    const path = fromm.params({ 0: "words", 1: "e.mp3" }).path;
+    specimen.expect(is.path(path)).toBeTruthy();
+    specimen.expect(path.nature).toBe("/e.mp3");
+    specimen.expect(path.root.absolute).toBe("/words");
+  });
+
+  specimen.it("reading never mutates the source", () => {
+    const params = { 0: "words", 1: "a.adposition.mp3" };
+    const snapshot = JSON.stringify(params);
+    const read = fromm.params(params);
+    specimen.expect(read.path.absolute).toBe(read.path.absolute);
+    specimen.expect(JSON.stringify(params)).toBe(snapshot);
+  });
+});
 
 Deno.test("fromm.yield", async (t) => {
   await t.step("emission — sniffed from condition + buffers", () => {
