@@ -16,7 +16,7 @@
   const field = recall === "LEARNING" ? "known" : "learning";
   const sourceField = recall === "LEARNING" ? "learning" : "known";
 
-  const isWord = target?.symbol?.word;
+  const isWord = target?.ontology === "word";
   const asset =
     (gameplay === "audio" || gameplay === "audio-only")
       ? terminal.daemon.getAsset(target?.trait?.VOCALIZED?.asset)
@@ -266,7 +266,7 @@
   .source {
     font-family: var(--font-family-serif-heading);
     font-size: var(--font-size-2xl);
-    color: var(--colors-palette-gray-10);
+    color: var(--colors-skeleton-1-contrast);
     line-height: 1.2;
     margin: 0;
     flex: 1;

@@ -223,7 +223,7 @@ const tint = {
 };
 
 // ============================================================================
-// roots — 10 named color spaces, 12 stops each.
+// roots — 12 named color spaces, 12 stops each.
 // stops: 50, 100, 200, 300, 400, 500, 600, 700, 800, 850, 900, 950
 //
 // Source for the flat scoped skeletons. Skeletons pull anchors from these
@@ -365,6 +365,37 @@ const roots = {
     850: "#14161A",
     900: "#0B0D10",
     950: "#050608",
+  },
+  // paper theme surfaces — leuchtturm ivory
+  paper: {
+    50:  "#FBFAF2",
+    100: "#F5F3E8",
+    150: "#F0EDDE",
+    200: "#E9E5D3",
+    300: "#DAD4C0",
+    400: "#C1B9A0",
+    500: "#A0967C",
+    600: "#7C725B",
+    700: "#5A5240",
+    800: "#3D372A",
+    850: "#2C271D",
+    900: "#1C1913",
+    950: "#100E0A",
+  },
+  // paper theme contrast — kaweco royal blue
+  ink: {
+    50:  "#EDEFFB",
+    100: "#D9DEF6",
+    200: "#B4BCEC",
+    300: "#8B97DE",
+    400: "#5D70C6",
+    500: "#3D4FB2",
+    600: "#2C3A94",
+    700: "#222C74",
+    800: "#171F54",
+    850: "#121840",
+    900: "#0B0F2D",
+    950: "#06081E",
   },
   // accent — softened pop
   pink: {

@@ -14,19 +14,22 @@
   const buffer = chain(terminals, "$active", "$buffer");
   const mode = chain(terminals, "$active", "$thread", "$mode");
   const dock = chain(terminals, "$active", "$dock");
+  const app = chain(terminals, "$active", "$buffer", "mode", "$app");
+  const modeStatus = chain(terminals, "$active", "$buffer", "mode", "status", "$transient");
 
   const view = $derived.by(() => {
     const active = $buffer;
     if (!active) return null;
-    const base = active.mode?.app?.url ?? null;
+    const base = $app?.url ?? null;
     if (active.view) return base ? active.view.withUrl(base) : active.view;
-    if (!active.mode?.app?.view) throw new Error("[a] buffer & mode missing view");
-    return active.mode.app.view;
+    return $app?.view ?? null;
   });
 
   const dockable = $derived($mode?.implements?.("HARNESSED") ?? false);
   const full = $derived($dock?.full ?? false);
-  const geom = $derived(dockable && rect.width > 0 && rect.height > 0 ? stores.bridge.resolve($dock, rect) : null,);
+  const geom = $derived(
+    dockable && rect.width > 0 && rect.height > 0 ? stores.bridge.resolve($dock, rect) : null,
+  );
 
   let last = null;
   function onSeamDown(event) {
@@ -60,7 +63,17 @@
     <div class="stage">
       {#if $terminal}
         <Frame terminal={$terminal} {view}>
-          <span class="label">A</span>
+          {#if $buffer && !view}
+            <div class="await">
+              <span class="await-head">buffer has no view</span>
+              <span class="await-line">mode {$buffer.mode?.slug ?? "—"} · app {$app ? "present" : "pending"}</span>
+              {#if $modeStatus?.code && $modeStatus.code !== "HEALTHY"}
+                <span class="await-line bad">mode {$modeStatus.code.toLowerCase()}{$modeStatus.error ? ` · ${$modeStatus.error.message ?? $modeStatus.error}` : ""}</span>
+              {/if}
+            </div>
+          {:else}
+            <span class="label">A</span>
+          {/if}
         </Frame>
       {:else}
         <span class="label">A</span>
@@ -110,7 +123,9 @@
     opacity: 0.4;
     cursor: ns-resize;
     touch-action: none;
-    transition: opacity 0.12s, background 0.12s;
+    transition:
+      opacity 0.12s,
+      background 0.12s;
   }
   .seam.vertical {
     width: 4px;
@@ -140,5 +155,28 @@
     font-weight: 900;
     opacity: 0.35;
     user-select: none;
+  }
+  .await {
+    margin: auto;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 6px;
+    font-family: var(--font-family-code);
+    font-size: var(--font-size-xs);
+    letter-spacing: 0.06em;
+    user-select: none;
+  }
+  .await-head {
+    text-transform: uppercase;
+    letter-spacing: 0.16em;
+    color: color-mix(in srgb, var(--colors-skeleton-0-contrast) 55%, transparent);
+  }
+  .await-line {
+    font-size: var(--font-size-2xs);
+    color: color-mix(in srgb, var(--colors-skeleton-0-contrast) 40%, transparent);
+  }
+  .await-line.bad {
+    color: var(--colors-skeleton-0-danger-base);
   }
 </style>

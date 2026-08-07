@@ -8,6 +8,7 @@
 
   const data = buffer.data ?? {};
   const gameplay = data.gameplay ?? "TYPE";
+  const language = terminal.daemon.statics?.language ?? {};
   const blankIndices = new Set(data.blankIndices ?? []);
   const forgiving = data.forgiving ?? true;
 
@@ -95,7 +96,7 @@
     {#if literal}
       {#if !isListenMode}
         <div class="meta">
-          <span class="meta-lang">Português</span>
+          <span class="meta-lang">{language.learning?.name}</span>
           {#if known}
             <span class="meta-hint">{known}</span>
           {/if}
@@ -224,7 +225,7 @@
     font-family: var(--font-family-serif-heading);
     font-size: var(--font-size-xl);
     line-height: 1.5;
-    color: var(--colors-palette-gray-10);
+    color: var(--colors-skeleton-1-contrast);
   }
   .tok-hidden {
     color: var(--colors-skeleton-1-boundary);
@@ -244,7 +245,7 @@
     font-family: var(--font-family-serif-heading);
     font-size: var(--font-size-xl);
     line-height: 1.5;
-    color: var(--colors-palette-gray-10);
+    color: var(--colors-skeleton-1-contrast);
     background: none;
     border: none;
     outline: none;

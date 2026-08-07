@@ -63,7 +63,7 @@
   }
   /* reveal — the committed word replaced by its gloss, faded in in place (river only) */
   .word.reveal {
-    color: var(--colors-palette-gray-10);
+    color: var(--colors-skeleton-1-contrast);
     animation: reveal 0.25s ease both;
   }
   @keyframes reveal {

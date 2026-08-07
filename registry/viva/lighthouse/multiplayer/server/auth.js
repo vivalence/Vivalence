@@ -1,6 +1,5 @@
 // import { wrap } from "@mikro-orm/core";
 import { wrap } from "@vivalence/typology/entities";
-// import hash from "@vivalence/shared/hash";
 import * as argon2 from "argon2";
 import createJWT from "./lib/jwt.js";
 
@@ -199,7 +198,6 @@ async function refresh(input, ctx) {
   return respond.success({ access: newAccessToken });
 }
 // import { wrap } from "@mikro-orm/core";
-// import hash from "@vivalence/shared/hash";
 // import createJWT from "./lib/jwt.js";
 
 // export async function inject(service) {

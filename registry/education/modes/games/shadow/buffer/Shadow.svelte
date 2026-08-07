@@ -8,7 +8,12 @@
 
   const data = buffer.data ?? {};
   const speed = data.speed ?? {};
-  const queue = buffer.literals ?? [];
+  const playable = (entry) => Boolean(entry?.trait?.TRANSLATED);
+  const rejected = (buffer.literals ?? []).filter((entry) => !playable(entry));
+  if (rejected.length)
+    console.warn("[shadow] dropped unplayable literals", rejected.map((entry) => entry.slug ?? entry.id));
+  const queue = (buffer.literals ?? []).filter(playable);
+  const language = terminal.daemon.statics?.language ?? {};
 
   function recallFor(i) {
     const r = data.recall;
@@ -74,14 +79,14 @@
   const total = $derived(queue.length);
   const position = $derived(currentIndex + 1);
 
-  const isWord = $derived(literal?.symbol?.word);
+  const isWord = $derived(literal?.ontology === "word");
   const asset = $derived(terminal.daemon.getAsset(literal?.trait?.VOCALIZED?.asset));
   const known = $derived(literal?.trait?.TRANSLATED?.known);
   const learning = $derived(literal?.trait?.TRANSLATED?.learning);
   const prompt = $derived(activeRecall === "KNOWN" ? learning : known);
   const answer = $derived(activeRecall === "KNOWN" ? known : learning);
-  const promptLabel = $derived(activeRecall === "KNOWN" ? "Português" : "English");
-  const answerLabel = $derived(activeRecall === "KNOWN" ? "English" : "Português");
+  const promptLabel = $derived(activeRecall === "KNOWN" ? language.learning?.name : language.known?.name);
+  const answerLabel = $derived(activeRecall === "KNOWN" ? language.known?.name : language.learning?.name);
 
   const SPEED_PRESETS = {
     FAST: { base: 1200, multiplier: 80 },
@@ -196,12 +201,9 @@
     begin(literal);
   } else {
     terminal.daemon.connection.call("/pick/literal/feed", { limit: 3 }).then((lits) => {
-      if (lits?.length) {
-        for (const l of lits) queue.push(l);
-        begin(queue[0]);
-      } else {
-        loading = false;
-      }
+      if (lits?.length) for (const l of lits.filter(playable)) queue.push(l);
+      if (queue.length) begin(queue[0]);
+      else loading = false;
     });
   }
 
@@ -406,13 +408,12 @@
   }
   .meta-phase-show { color: var(--colors-theme-accent-contrast); }
   .meta-phase-recall { color: var(--colors-theme-primary-contrast); }
-  .meta-type { color: var(--colors-skeleton-1-boundary); font-weight: 500; }
+  .meta-type { color: var(--text-support); font-weight: 500; }
   .meta-time { color: var(--colors-theme-primary-contrast); }
   .meta-hint {
     font-family: var(--font-family-code);
     font-size: var(--font-size-2xs);
-    color: var(--colors-skeleton-1-boundary);
-    opacity: 0.6;
+    color: var(--text-support);
   }
   .audio-block {
     margin-left: auto;
@@ -423,7 +424,7 @@
   .prompt {
     font-family: var(--font-family-serif-heading);
     font-size: var(--font-size-2xl);
-    color: var(--colors-palette-gray-10);
+    color: var(--text-primary);
     line-height: 1.2;
     margin: 0 0 0.5rem 0;
   }
@@ -431,14 +432,14 @@
 
   .translation {
     font-size: var(--font-size-base);
-    color: var(--colors-skeleton-1-contrast);
+    color: var(--text-body);
     font-family: var(--font-family-sans-text);
     margin: 0;
   }
   .recall-prompt {
     font-family: var(--font-family-serif-heading);
     font-size: var(--font-size-lg);
-    color: var(--colors-palette-gray-10);
+    color: var(--text-primary);
     margin-bottom: 1.25rem;
   }
 
@@ -454,7 +455,7 @@
   }
 
   .fb-block { display: flex; flex-direction: column; gap: 0.125rem; }
-  .fb-key { font-family: var(--font-family-code); font-size: var(--font-size-xs); color: var(--colors-skeleton-1-boundary); }
+  .fb-key { font-family: var(--font-family-code); font-size: var(--font-size-xs); color: var(--text-support); }
   .fb-glyph {
     display: inline-flex;
     align-items: center;
@@ -502,7 +503,7 @@
     border: 0;
     outline: none;
     padding: 0;
-    color: var(--colors-palette-gray-10);
+    color: var(--text-primary);
     font-family: var(--font-family-serif-heading);
     font-size: var(--font-size-base);
     line-height: 1.2;
@@ -513,7 +514,7 @@
   .tok-form { font-family: var(--font-family-serif-heading); font-size: var(--font-size-base); line-height: 1.2; }
   .tok-ok .tok-form { color: var(--colors-system-success-contrast); }
   .tok-miss .tok-form { color: var(--colors-system-error-contrast); }
-  .tok-gloss { font-family: var(--font-family-code); font-size: var(--font-size-2xs); color: var(--colors-skeleton-1-boundary); margin-top: 0.125rem; }
+  .tok-gloss { font-family: var(--font-family-code); font-size: var(--font-size-2xs); color: var(--text-support); margin-top: 0.125rem; }
 
   .loading { display: flex; align-items: center; justify-content: center; padding-top: 2rem; }
   .dot { width: 6px; height: 6px; border-radius: 50%; background: var(--colors-skeleton-1-boundary); animation: pulse 1s ease-in-out infinite; }
@@ -526,14 +527,14 @@
     padding: 0.75rem 1rem;
     border-radius: 0.5rem;
     border: 1px solid var(--colors-skeleton-1-boundary);
-    background: color-mix(in srgb, var(--colors-skeleton-1-surface) 50%, var(--colors-skeleton-app-surface));
-    color: var(--colors-palette-gray-10);
+    background: color-mix(in srgb, var(--colors-skeleton-1-surface) 50%, var(--colors-skeleton-0-surface));
+    color: var(--text-primary);
     font-size: var(--font-size-base);
     font-family: var(--font-family-serif-heading);
     outline: none;
     box-sizing: border-box;
   }
-  .field::placeholder { color: var(--colors-skeleton-1-boundary); }
+  .field::placeholder { color: var(--text-support); }
 
   .btn {
     min-height: 48px;
@@ -566,7 +567,7 @@
     flex: 1;
     border: 1px solid var(--colors-skeleton-1-boundary);
     background: transparent;
-    color: var(--colors-skeleton-1-boundary);
+    color: var(--text-support);
     font-weight: 500;
   }
 

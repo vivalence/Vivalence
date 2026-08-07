@@ -28,9 +28,9 @@ specimen.describe("batch: daemon lifecycle", () => {
   });
 
   specimen.it("batch [mode/find, intent/find] returns both", async () => {
-    const results = await scenario.conn.call("/batch", [
+    const results = await scenario.authedConn.call("/batch", [
       { path: "/entities/mode/find", body: { where: {} } },
-      { path: "/entities/intent/find", body: { where: {} } },
+      { path: "/userspace/entities/intent/find", body: { where: {} } },
     ]);
     specimen.expect(results).toHaveLength(2);
     specimen.expect(results[0].status).toBe(200);

@@ -1,12 +1,29 @@
-// todo
-// setup a twitch that ensures each intent for all users.
-// if mode is not installed, also ensure all users have these intents.
+import { is } from "@vivalence/typology";
+import { IntentEntity } from "@vivalence/typology/entities";
+
+const ensure = async (em, mode, user) => {
+  em.setFilterParams("user", { user: user.id });
+  for (const intentPojo of mode.module.dataset.intent) {
+    await em.getRepository(IntentEntity).ensure({ ...intentPojo, mode: mode.id, user: user.id });
+  }
+  await em.flush();
+};
 
 export const INTENTED = async (mode, daemon) => {
-  for (const intentPojo of mode.module.dataset?.intent || []) {
-    intentPojo.mode = mode.id;
+  if (!is.array(mode.module.dataset?.intent)) return;
 
-    await daemon.entities.intent.ensure(intentPojo);
-  }
-  await daemon.entities.em.flush();
+  daemon.twitch.open("/user/create/after", async (ctx) => {
+    const em = ctx.input.em.fork();
+    for (const peer of daemon.flatmodes()) {
+      if (!peer.implements("INTENTED")) continue;
+      if (!is.array(peer.module.dataset?.intent)) continue;
+      await ensure(em, peer, ctx.input.entity);
+    }
+  });
+
+  return async () => {
+    for (const user of await daemon.entities.user.findAll()) {
+      await ensure(daemon.entities.em, mode, user);
+    }
+  };
 };

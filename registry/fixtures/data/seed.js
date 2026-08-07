@@ -89,6 +89,7 @@ export async function seed() {
     name: "Survival Flashcard",
     trait: { MASKED: { where: { symbols: ["greeting"] } } },
     mode,
+    user,
   });
   await em.flush();
 

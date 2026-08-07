@@ -105,9 +105,6 @@ export default [
         "slug": "proficiency.cefr.a1"
       },
       {
-        "slug": "proficiency.survival"
-      },
-      {
         "slug": "functional.auxiliary"
       }
     ]
@@ -683,9 +680,6 @@ export default [
         "slug": "proficiency.cefr.a1"
       },
       {
-        "slug": "proficiency.survival"
-      },
-      {
         "slug": "functional.auxiliary"
       }
     ]
@@ -748,9 +742,6 @@ export default [
       },
       {
         "slug": "proficiency.cefr.a1"
-      },
-      {
-        "slug": "proficiency.survival"
       },
       {
         "slug": "functional.auxiliary"
@@ -823,9 +814,6 @@ export default [
         "slug": "proficiency.cefr.a1"
       },
       {
-        "slug": "proficiency.survival"
-      },
-      {
         "slug": "functional.auxiliary"
       }
     ]
@@ -888,9 +876,6 @@ export default [
       },
       {
         "slug": "proficiency.cefr.a1"
-      },
-      {
-        "slug": "proficiency.survival"
       },
       {
         "slug": "functional.auxiliary"
@@ -957,9 +942,6 @@ export default [
         "slug": "proficiency.cefr.a1"
       },
       {
-        "slug": "proficiency.survival"
-      },
-      {
         "slug": "functional.auxiliary"
       }
     ]
@@ -1022,9 +1004,6 @@ export default [
       },
       {
         "slug": "proficiency.cefr.a1"
-      },
-      {
-        "slug": "proficiency.survival"
       },
       {
         "slug": "functional.auxiliary"
@@ -1091,9 +1070,6 @@ export default [
         "slug": "proficiency.cefr.a1"
       },
       {
-        "slug": "proficiency.survival"
-      },
-      {
         "slug": "functional.auxiliary"
       }
     ]
@@ -1156,9 +1132,6 @@ export default [
       },
       {
         "slug": "proficiency.cefr.a1"
-      },
-      {
-        "slug": "proficiency.survival"
       },
       {
         "slug": "functional.auxiliary"
@@ -1225,9 +1198,6 @@ export default [
         "slug": "proficiency.cefr.a1"
       },
       {
-        "slug": "proficiency.survival"
-      },
-      {
         "slug": "functional.auxiliary"
       }
     ]
@@ -1290,9 +1260,6 @@ export default [
       },
       {
         "slug": "proficiency.cefr.a1"
-      },
-      {
-        "slug": "proficiency.survival"
       },
       {
         "slug": "functional.auxiliary"
@@ -1359,9 +1326,6 @@ export default [
         "slug": "proficiency.cefr.a1"
       },
       {
-        "slug": "proficiency.survival"
-      },
-      {
         "slug": "functional.auxiliary"
       }
     ]
@@ -1424,9 +1388,6 @@ export default [
       },
       {
         "slug": "proficiency.cefr.a1"
-      },
-      {
-        "slug": "proficiency.survival"
       },
       {
         "slug": "functional.auxiliary"
@@ -1496,9 +1457,6 @@ export default [
         "slug": "proficiency.cefr.a1"
       },
       {
-        "slug": "proficiency.survival"
-      },
-      {
         "slug": "functional.auxiliary"
       }
     ]
@@ -1564,9 +1522,6 @@ export default [
       },
       {
         "slug": "proficiency.cefr.a1"
-      },
-      {
-        "slug": "proficiency.survival"
       },
       {
         "slug": "functional.auxiliary"
@@ -1636,9 +1591,6 @@ export default [
         "slug": "proficiency.cefr.a1"
       },
       {
-        "slug": "proficiency.survival"
-      },
-      {
         "slug": "functional.auxiliary"
       }
     ]
@@ -1704,9 +1656,6 @@ export default [
       },
       {
         "slug": "proficiency.cefr.a1"
-      },
-      {
-        "slug": "proficiency.survival"
       },
       {
         "slug": "functional.auxiliary"
@@ -1776,9 +1725,6 @@ export default [
         "slug": "proficiency.cefr.a1"
       },
       {
-        "slug": "proficiency.survival"
-      },
-      {
         "slug": "functional.auxiliary"
       }
     ]
@@ -1846,9 +1792,6 @@ export default [
         "slug": "proficiency.cefr.a1"
       },
       {
-        "slug": "proficiency.survival"
-      },
-      {
         "slug": "functional.auxiliary"
       }
     ]
@@ -1911,9 +1854,6 @@ export default [
       },
       {
         "slug": "proficiency.cefr.a1"
-      },
-      {
-        "slug": "proficiency.survival"
       },
       {
         "slug": "functional.auxiliary"
@@ -1980,9 +1920,6 @@ export default [
         "slug": "proficiency.cefr.a1"
       },
       {
-        "slug": "proficiency.survival"
-      },
-      {
         "slug": "functional.auxiliary"
       }
     ]
@@ -2045,9 +1982,6 @@ export default [
       },
       {
         "slug": "proficiency.cefr.a1"
-      },
-      {
-        "slug": "proficiency.survival"
       },
       {
         "slug": "functional.auxiliary"
@@ -2120,9 +2054,6 @@ export default [
         "slug": "proficiency.cefr.a1"
       },
       {
-        "slug": "proficiency.survival"
-      },
-      {
         "slug": "functional.auxiliary"
       }
     ]
@@ -2185,9 +2116,6 @@ export default [
       },
       {
         "slug": "proficiency.cefr.a1"
-      },
-      {
-        "slug": "proficiency.survival"
       },
       {
         "slug": "functional.auxiliary"
@@ -2254,9 +2182,6 @@ export default [
         "slug": "proficiency.cefr.a1"
       },
       {
-        "slug": "proficiency.survival"
-      },
-      {
         "slug": "functional.auxiliary"
       }
     ]
@@ -2313,9 +2238,6 @@ export default [
       },
       {
         "slug": "proficiency.cefr.a1"
-      },
-      {
-        "slug": "proficiency.survival"
       },
       {
         "slug": "functional.auxiliary"
@@ -2423,9 +2345,6 @@ export default [
       },
       {
         "slug": "proficiency.cefr.a1"
-      },
-      {
-        "slug": "proficiency.survival"
       },
       {
         "slug": "functional.auxiliary"
@@ -2997,9 +2916,6 @@ export default [
         "slug": "proficiency.cefr.a1"
       },
       {
-        "slug": "proficiency.survival"
-      },
-      {
         "slug": "functional.auxiliary"
       }
     ]
@@ -3062,9 +2978,6 @@ export default [
       },
       {
         "slug": "proficiency.cefr.a1"
-      },
-      {
-        "slug": "proficiency.survival"
       },
       {
         "slug": "functional.auxiliary"
@@ -3137,9 +3050,6 @@ export default [
         "slug": "proficiency.cefr.a1"
       },
       {
-        "slug": "proficiency.survival"
-      },
-      {
         "slug": "functional.auxiliary"
       }
     ]
@@ -3202,9 +3112,6 @@ export default [
       },
       {
         "slug": "proficiency.cefr.a1"
-      },
-      {
-        "slug": "proficiency.survival"
       },
       {
         "slug": "functional.auxiliary"
@@ -3271,9 +3178,6 @@ export default [
         "slug": "proficiency.cefr.a1"
       },
       {
-        "slug": "proficiency.survival"
-      },
-      {
         "slug": "functional.auxiliary"
       }
     ]
@@ -3336,9 +3240,6 @@ export default [
       },
       {
         "slug": "proficiency.cefr.a1"
-      },
-      {
-        "slug": "proficiency.survival"
       },
       {
         "slug": "functional.auxiliary"
@@ -3405,9 +3306,6 @@ export default [
         "slug": "proficiency.cefr.a1"
       },
       {
-        "slug": "proficiency.survival"
-      },
-      {
         "slug": "functional.auxiliary"
       }
     ]
@@ -3470,9 +3368,6 @@ export default [
       },
       {
         "slug": "proficiency.cefr.a1"
-      },
-      {
-        "slug": "proficiency.survival"
       },
       {
         "slug": "functional.auxiliary"
@@ -3539,9 +3434,6 @@ export default [
         "slug": "proficiency.cefr.a1"
       },
       {
-        "slug": "proficiency.survival"
-      },
-      {
         "slug": "functional.auxiliary"
       }
     ]
@@ -3604,9 +3496,6 @@ export default [
       },
       {
         "slug": "proficiency.cefr.a1"
-      },
-      {
-        "slug": "proficiency.survival"
       },
       {
         "slug": "functional.auxiliary"
@@ -3673,9 +3562,6 @@ export default [
         "slug": "proficiency.cefr.a1"
       },
       {
-        "slug": "proficiency.survival"
-      },
-      {
         "slug": "functional.auxiliary"
       }
     ]
@@ -3740,9 +3626,6 @@ export default [
         "slug": "proficiency.cefr.a1"
       },
       {
-        "slug": "proficiency.survival"
-      },
-      {
         "slug": "functional.auxiliary"
       }
     ]
@@ -3802,9 +3685,6 @@ export default [
       },
       {
         "slug": "proficiency.cefr.a1"
-      },
-      {
-        "slug": "proficiency.survival"
       },
       {
         "slug": "functional.auxiliary"
@@ -3868,9 +3748,6 @@ export default [
         "slug": "proficiency.cefr.a1"
       },
       {
-        "slug": "proficiency.survival"
-      },
-      {
         "slug": "functional.auxiliary"
       }
     ]
@@ -3930,9 +3807,6 @@ export default [
       },
       {
         "slug": "proficiency.cefr.a1"
-      },
-      {
-        "slug": "proficiency.survival"
       },
       {
         "slug": "functional.auxiliary"
@@ -3996,9 +3870,6 @@ export default [
         "slug": "proficiency.cefr.a1"
       },
       {
-        "slug": "proficiency.survival"
-      },
-      {
         "slug": "functional.auxiliary"
       }
     ]
@@ -4060,9 +3931,6 @@ export default [
         "slug": "proficiency.cefr.a1"
       },
       {
-        "slug": "proficiency.survival"
-      },
-      {
         "slug": "functional.auxiliary"
       }
     ]
@@ -4122,9 +3990,6 @@ export default [
       },
       {
         "slug": "proficiency.cefr.a1"
-      },
-      {
-        "slug": "proficiency.survival"
       },
       {
         "slug": "functional.auxiliary"
@@ -4191,9 +4056,6 @@ export default [
         "slug": "proficiency.cefr.a1"
       },
       {
-        "slug": "proficiency.survival"
-      },
-      {
         "slug": "functional.auxiliary"
       }
     ]
@@ -4258,9 +4120,6 @@ export default [
         "slug": "proficiency.cefr.a1"
       },
       {
-        "slug": "proficiency.survival"
-      },
-      {
         "slug": "functional.auxiliary"
       }
     ]
@@ -4323,9 +4182,6 @@ export default [
       },
       {
         "slug": "proficiency.cefr.a1"
-      },
-      {
-        "slug": "proficiency.survival"
       },
       {
         "slug": "functional.auxiliary"
@@ -4398,9 +4254,6 @@ export default [
         "slug": "proficiency.cefr.a1"
       },
       {
-        "slug": "proficiency.survival"
-      },
-      {
         "slug": "functional.auxiliary"
       }
     ]
@@ -4463,9 +4316,6 @@ export default [
       },
       {
         "slug": "proficiency.cefr.a1"
-      },
-      {
-        "slug": "proficiency.survival"
       },
       {
         "slug": "functional.auxiliary"
@@ -4532,9 +4382,6 @@ export default [
         "slug": "proficiency.cefr.a1"
       },
       {
-        "slug": "proficiency.survival"
-      },
-      {
         "slug": "functional.auxiliary"
       }
     ]
@@ -4591,9 +4438,6 @@ export default [
       },
       {
         "slug": "proficiency.cefr.a1"
-      },
-      {
-        "slug": "proficiency.survival"
       },
       {
         "slug": "functional.auxiliary"
@@ -4698,9 +4542,6 @@ export default [
       },
       {
         "slug": "proficiency.cefr.a1"
-      },
-      {
-        "slug": "proficiency.survival"
       }
     ]
   },
@@ -5195,9 +5036,6 @@ export default [
       },
       {
         "slug": "proficiency.cefr.a1"
-      },
-      {
-        "slug": "proficiency.survival"
       }
     ]
   },
@@ -5259,9 +5097,6 @@ export default [
       },
       {
         "slug": "proficiency.cefr.a1"
-      },
-      {
-        "slug": "proficiency.survival"
       }
     ]
   },
@@ -5323,9 +5158,6 @@ export default [
       },
       {
         "slug": "proficiency.cefr.a1"
-      },
-      {
-        "slug": "proficiency.survival"
       }
     ]
   },
@@ -5387,9 +5219,6 @@ export default [
       },
       {
         "slug": "proficiency.cefr.a1"
-      },
-      {
-        "slug": "proficiency.survival"
       }
     ]
   },
@@ -5451,9 +5280,6 @@ export default [
       },
       {
         "slug": "proficiency.cefr.a1"
-      },
-      {
-        "slug": "proficiency.survival"
       }
     ]
   },
@@ -5515,9 +5341,6 @@ export default [
       },
       {
         "slug": "proficiency.cefr.a1"
-      },
-      {
-        "slug": "proficiency.survival"
       }
     ]
   },
@@ -5579,9 +5402,6 @@ export default [
       },
       {
         "slug": "proficiency.cefr.a1"
-      },
-      {
-        "slug": "proficiency.survival"
       }
     ]
   },
@@ -5643,9 +5463,6 @@ export default [
       },
       {
         "slug": "proficiency.cefr.a1"
-      },
-      {
-        "slug": "proficiency.survival"
       }
     ]
   },
@@ -5707,9 +5524,6 @@ export default [
       },
       {
         "slug": "proficiency.cefr.a1"
-      },
-      {
-        "slug": "proficiency.survival"
       }
     ]
   },
@@ -5771,9 +5585,6 @@ export default [
       },
       {
         "slug": "proficiency.cefr.a1"
-      },
-      {
-        "slug": "proficiency.survival"
       }
     ]
   },
@@ -5835,9 +5646,6 @@ export default [
       },
       {
         "slug": "proficiency.cefr.a1"
-      },
-      {
-        "slug": "proficiency.survival"
       }
     ]
   },
@@ -5899,9 +5707,6 @@ export default [
       },
       {
         "slug": "proficiency.cefr.a1"
-      },
-      {
-        "slug": "proficiency.survival"
       }
     ]
   },
@@ -5960,9 +5765,6 @@ export default [
       },
       {
         "slug": "proficiency.cefr.a1"
-      },
-      {
-        "slug": "proficiency.survival"
       }
     ]
   },
@@ -6021,9 +5823,6 @@ export default [
       },
       {
         "slug": "proficiency.cefr.a1"
-      },
-      {
-        "slug": "proficiency.survival"
       }
     ]
   },
@@ -6082,9 +5881,6 @@ export default [
       },
       {
         "slug": "proficiency.cefr.a1"
-      },
-      {
-        "slug": "proficiency.survival"
       }
     ]
   },
@@ -6143,9 +5939,6 @@ export default [
       },
       {
         "slug": "proficiency.cefr.a1"
-      },
-      {
-        "slug": "proficiency.survival"
       }
     ]
   },
@@ -6204,9 +5997,6 @@ export default [
       },
       {
         "slug": "proficiency.cefr.a1"
-      },
-      {
-        "slug": "proficiency.survival"
       }
     ]
   },
@@ -6265,9 +6055,6 @@ export default [
       },
       {
         "slug": "proficiency.cefr.a1"
-      },
-      {
-        "slug": "proficiency.survival"
       }
     ]
   },
@@ -6329,9 +6116,6 @@ export default [
       },
       {
         "slug": "proficiency.cefr.a1"
-      },
-      {
-        "slug": "proficiency.survival"
       }
     ]
   },
@@ -6393,9 +6177,6 @@ export default [
       },
       {
         "slug": "proficiency.cefr.a1"
-      },
-      {
-        "slug": "proficiency.survival"
       }
     ]
   },
@@ -6457,9 +6238,6 @@ export default [
       },
       {
         "slug": "proficiency.cefr.a1"
-      },
-      {
-        "slug": "proficiency.survival"
       }
     ]
   },
@@ -6521,9 +6299,6 @@ export default [
       },
       {
         "slug": "proficiency.cefr.a1"
-      },
-      {
-        "slug": "proficiency.survival"
       }
     ]
   },
@@ -6585,9 +6360,6 @@ export default [
       },
       {
         "slug": "proficiency.cefr.a1"
-      },
-      {
-        "slug": "proficiency.survival"
       }
     ]
   },
@@ -6649,9 +6421,6 @@ export default [
       },
       {
         "slug": "proficiency.cefr.a1"
-      },
-      {
-        "slug": "proficiency.survival"
       }
     ]
   },
@@ -6707,9 +6476,6 @@ export default [
       },
       {
         "slug": "proficiency.cefr.a1"
-      },
-      {
-        "slug": "proficiency.survival"
       }
     ]
   },
@@ -8133,8 +7899,7 @@ export default [
     "slug": "credere.verb.conditional.first.plural",
     "traits": [
       "TRANSLATED",
-      "EXEMPLIFIED",
-      "RANKED"
+      "EXEMPLIFIED"
     ],
     "trait": {
       "TRANSLATED": {
@@ -8144,11 +7909,6 @@ export default [
       "EXEMPLIFIED": {
         "known": "We would not believe it possible",
         "learning": "Non lo crederemmo possibile"
-      },
-      "RANKED": {
-        "rank": 0,
-        "zipf": 1.3,
-        "fpm": 0.02
       }
     },
     "symbols": [
@@ -8822,9 +8582,6 @@ export default [
       },
       {
         "slug": "proficiency.cefr.a1"
-      },
-      {
-        "slug": "proficiency.survival"
       }
     ]
   },
@@ -9319,9 +9076,6 @@ export default [
       },
       {
         "slug": "proficiency.cefr.a1"
-      },
-      {
-        "slug": "proficiency.survival"
       }
     ]
   },
@@ -9383,9 +9137,6 @@ export default [
       },
       {
         "slug": "proficiency.cefr.a1"
-      },
-      {
-        "slug": "proficiency.survival"
       }
     ]
   },
@@ -9447,9 +9198,6 @@ export default [
       },
       {
         "slug": "proficiency.cefr.a1"
-      },
-      {
-        "slug": "proficiency.survival"
       }
     ]
   },
@@ -9511,9 +9259,6 @@ export default [
       },
       {
         "slug": "proficiency.cefr.a1"
-      },
-      {
-        "slug": "proficiency.survival"
       }
     ]
   },
@@ -9521,8 +9266,7 @@ export default [
     "slug": "dormire.verb.indicative.imperfect.second.plural",
     "traits": [
       "TRANSLATED",
-      "EXEMPLIFIED",
-      "RANKED"
+      "EXEMPLIFIED"
     ],
     "trait": {
       "TRANSLATED": {
@@ -9532,11 +9276,6 @@ export default [
       "EXEMPLIFIED": {
         "known": "Were you all still sleeping at noon?",
         "learning": "Dormivate ancora a mezzogiorno?"
-      },
-      "RANKED": {
-        "rank": 0,
-        "zipf": 1.29,
-        "fpm": 0.0195
       }
     },
     "symbols": [
@@ -9575,9 +9314,6 @@ export default [
       },
       {
         "slug": "proficiency.cefr.a1"
-      },
-      {
-        "slug": "proficiency.survival"
       }
     ]
   },
@@ -9639,9 +9375,6 @@ export default [
       },
       {
         "slug": "proficiency.cefr.a1"
-      },
-      {
-        "slug": "proficiency.survival"
       }
     ]
   },
@@ -9703,9 +9436,6 @@ export default [
       },
       {
         "slug": "proficiency.cefr.a1"
-      },
-      {
-        "slug": "proficiency.survival"
       }
     ]
   },
@@ -9767,9 +9497,6 @@ export default [
       },
       {
         "slug": "proficiency.cefr.a1"
-      },
-      {
-        "slug": "proficiency.survival"
       }
     ]
   },
@@ -9831,9 +9558,6 @@ export default [
       },
       {
         "slug": "proficiency.cefr.a1"
-      },
-      {
-        "slug": "proficiency.survival"
       }
     ]
   },
@@ -9895,9 +9619,6 @@ export default [
       },
       {
         "slug": "proficiency.cefr.a1"
-      },
-      {
-        "slug": "proficiency.survival"
       }
     ]
   },
@@ -9959,9 +9680,6 @@ export default [
       },
       {
         "slug": "proficiency.cefr.a1"
-      },
-      {
-        "slug": "proficiency.survival"
       }
     ]
   },
@@ -10023,9 +9741,6 @@ export default [
       },
       {
         "slug": "proficiency.cefr.a1"
-      },
-      {
-        "slug": "proficiency.survival"
       }
     ]
   },
@@ -10084,9 +9799,6 @@ export default [
       },
       {
         "slug": "proficiency.cefr.a1"
-      },
-      {
-        "slug": "proficiency.survival"
       }
     ]
   },
@@ -10145,9 +9857,6 @@ export default [
       },
       {
         "slug": "proficiency.cefr.a1"
-      },
-      {
-        "slug": "proficiency.survival"
       }
     ]
   },
@@ -10206,9 +9915,6 @@ export default [
       },
       {
         "slug": "proficiency.cefr.a1"
-      },
-      {
-        "slug": "proficiency.survival"
       }
     ]
   },
@@ -10261,9 +9967,6 @@ export default [
       },
       {
         "slug": "proficiency.cefr.a1"
-      },
-      {
-        "slug": "proficiency.survival"
       }
     ]
   },
@@ -10316,9 +10019,6 @@ export default [
       },
       {
         "slug": "proficiency.cefr.a1"
-      },
-      {
-        "slug": "proficiency.survival"
       }
     ]
   },
@@ -10371,9 +10071,6 @@ export default [
       },
       {
         "slug": "proficiency.cefr.a1"
-      },
-      {
-        "slug": "proficiency.survival"
       }
     ]
   },
@@ -10435,9 +10132,6 @@ export default [
       },
       {
         "slug": "proficiency.cefr.a1"
-      },
-      {
-        "slug": "proficiency.survival"
       }
     ]
   },
@@ -10499,9 +10193,6 @@ export default [
       },
       {
         "slug": "proficiency.cefr.a1"
-      },
-      {
-        "slug": "proficiency.survival"
       }
     ]
   },
@@ -10563,9 +10254,6 @@ export default [
       },
       {
         "slug": "proficiency.cefr.a1"
-      },
-      {
-        "slug": "proficiency.survival"
       }
     ]
   },
@@ -10627,9 +10315,6 @@ export default [
       },
       {
         "slug": "proficiency.cefr.a1"
-      },
-      {
-        "slug": "proficiency.survival"
       }
     ]
   },
@@ -10685,9 +10370,6 @@ export default [
       },
       {
         "slug": "proficiency.cefr.a1"
-      },
-      {
-        "slug": "proficiency.survival"
       }
     ]
   },
@@ -10749,9 +10431,6 @@ export default [
       },
       {
         "slug": "proficiency.cefr.a1"
-      },
-      {
-        "slug": "proficiency.survival"
       }
     ]
   },
@@ -10807,9 +10486,6 @@ export default [
       },
       {
         "slug": "proficiency.cefr.a1"
-      },
-      {
-        "slug": "proficiency.survival"
       }
     ]
   },
@@ -10911,9 +10587,6 @@ export default [
       },
       {
         "slug": "proficiency.cefr.a1"
-      },
-      {
-        "slug": "proficiency.survival"
       }
     ]
   },
@@ -11408,9 +11081,6 @@ export default [
       },
       {
         "slug": "proficiency.cefr.a1"
-      },
-      {
-        "slug": "proficiency.survival"
       }
     ]
   },
@@ -11472,9 +11142,6 @@ export default [
       },
       {
         "slug": "proficiency.cefr.a1"
-      },
-      {
-        "slug": "proficiency.survival"
       }
     ]
   },
@@ -11536,9 +11203,6 @@ export default [
       },
       {
         "slug": "proficiency.cefr.a1"
-      },
-      {
-        "slug": "proficiency.survival"
       }
     ]
   },
@@ -11600,9 +11264,6 @@ export default [
       },
       {
         "slug": "proficiency.cefr.a1"
-      },
-      {
-        "slug": "proficiency.survival"
       }
     ]
   },
@@ -11658,9 +11319,6 @@ export default [
       },
       {
         "slug": "proficiency.cefr.a1"
-      },
-      {
-        "slug": "proficiency.survival"
       }
     ]
   },
@@ -11722,9 +11380,6 @@ export default [
       },
       {
         "slug": "proficiency.cefr.a1"
-      },
-      {
-        "slug": "proficiency.survival"
       }
     ]
   },
@@ -11786,9 +11441,6 @@ export default [
       },
       {
         "slug": "proficiency.cefr.a1"
-      },
-      {
-        "slug": "proficiency.survival"
       }
     ]
   },
@@ -11850,9 +11502,6 @@ export default [
       },
       {
         "slug": "proficiency.cefr.a1"
-      },
-      {
-        "slug": "proficiency.survival"
       }
     ]
   },
@@ -11914,9 +11563,6 @@ export default [
       },
       {
         "slug": "proficiency.cefr.a1"
-      },
-      {
-        "slug": "proficiency.survival"
       }
     ]
   },
@@ -11978,9 +11624,6 @@ export default [
       },
       {
         "slug": "proficiency.cefr.a1"
-      },
-      {
-        "slug": "proficiency.survival"
       }
     ]
   },
@@ -12042,9 +11685,6 @@ export default [
       },
       {
         "slug": "proficiency.cefr.a1"
-      },
-      {
-        "slug": "proficiency.survival"
       }
     ]
   },
@@ -12106,9 +11746,6 @@ export default [
       },
       {
         "slug": "proficiency.cefr.a1"
-      },
-      {
-        "slug": "proficiency.survival"
       }
     ]
   },
@@ -12167,9 +11804,6 @@ export default [
       },
       {
         "slug": "proficiency.cefr.a1"
-      },
-      {
-        "slug": "proficiency.survival"
       }
     ]
   },
@@ -12228,9 +11862,6 @@ export default [
       },
       {
         "slug": "proficiency.cefr.a1"
-      },
-      {
-        "slug": "proficiency.survival"
       }
     ]
   },
@@ -12289,9 +11920,6 @@ export default [
       },
       {
         "slug": "proficiency.cefr.a1"
-      },
-      {
-        "slug": "proficiency.survival"
       }
     ]
   },
@@ -12350,9 +11978,6 @@ export default [
       },
       {
         "slug": "proficiency.cefr.a1"
-      },
-      {
-        "slug": "proficiency.survival"
       }
     ]
   },
@@ -12360,8 +11985,7 @@ export default [
     "slug": "finire.verb.conditional.second.plural",
     "traits": [
       "TRANSLATED",
-      "EXEMPLIFIED",
-      "RANKED"
+      "EXEMPLIFIED"
     ],
     "trait": {
       "TRANSLATED": {
@@ -12371,11 +11995,6 @@ export default [
       "EXEMPLIFIED": {
         "known": "Would you all finish by Friday?",
         "learning": "Finireste entro venerdì?"
-      },
-      "RANKED": {
-        "rank": 0,
-        "zipf": 1.05,
-        "fpm": 0.0112
       }
     },
     "symbols": [
@@ -12411,9 +12030,6 @@ export default [
       },
       {
         "slug": "proficiency.cefr.a1"
-      },
-      {
-        "slug": "proficiency.survival"
       }
     ]
   },
@@ -12472,9 +12088,6 @@ export default [
       },
       {
         "slug": "proficiency.cefr.a1"
-      },
-      {
-        "slug": "proficiency.survival"
       }
     ]
   },
@@ -12536,9 +12149,6 @@ export default [
       },
       {
         "slug": "proficiency.cefr.a1"
-      },
-      {
-        "slug": "proficiency.survival"
       }
     ]
   },
@@ -12600,9 +12210,6 @@ export default [
       },
       {
         "slug": "proficiency.cefr.a1"
-      },
-      {
-        "slug": "proficiency.survival"
       }
     ]
   },
@@ -12664,9 +12271,6 @@ export default [
       },
       {
         "slug": "proficiency.cefr.a1"
-      },
-      {
-        "slug": "proficiency.survival"
       }
     ]
   },
@@ -12728,9 +12332,6 @@ export default [
       },
       {
         "slug": "proficiency.cefr.a1"
-      },
-      {
-        "slug": "proficiency.survival"
       }
     ]
   },
@@ -12792,9 +12393,6 @@ export default [
       },
       {
         "slug": "proficiency.cefr.a1"
-      },
-      {
-        "slug": "proficiency.survival"
       }
     ]
   },
@@ -12856,9 +12454,6 @@ export default [
       },
       {
         "slug": "proficiency.cefr.a1"
-      },
-      {
-        "slug": "proficiency.survival"
       }
     ]
   },
@@ -12914,9 +12509,6 @@ export default [
       },
       {
         "slug": "proficiency.cefr.a1"
-      },
-      {
-        "slug": "proficiency.survival"
       }
     ]
   },
@@ -13018,9 +12610,6 @@ export default [
       },
       {
         "slug": "proficiency.cefr.a1"
-      },
-      {
-        "slug": "proficiency.survival"
       }
     ]
   },
@@ -13521,9 +13110,6 @@ export default [
       },
       {
         "slug": "proficiency.cefr.a1"
-      },
-      {
-        "slug": "proficiency.survival"
       }
     ]
   },
@@ -13585,9 +13171,6 @@ export default [
       },
       {
         "slug": "proficiency.cefr.a1"
-      },
-      {
-        "slug": "proficiency.survival"
       }
     ]
   },
@@ -13649,9 +13232,6 @@ export default [
       },
       {
         "slug": "proficiency.cefr.a1"
-      },
-      {
-        "slug": "proficiency.survival"
       }
     ]
   },
@@ -13713,9 +13293,6 @@ export default [
       },
       {
         "slug": "proficiency.cefr.a1"
-      },
-      {
-        "slug": "proficiency.survival"
       }
     ]
   },
@@ -13777,9 +13354,6 @@ export default [
       },
       {
         "slug": "proficiency.cefr.a1"
-      },
-      {
-        "slug": "proficiency.survival"
       }
     ]
   },
@@ -13841,9 +13415,6 @@ export default [
       },
       {
         "slug": "proficiency.cefr.a1"
-      },
-      {
-        "slug": "proficiency.survival"
       }
     ]
   },
@@ -13905,9 +13476,6 @@ export default [
       },
       {
         "slug": "proficiency.cefr.a1"
-      },
-      {
-        "slug": "proficiency.survival"
       }
     ]
   },
@@ -13969,9 +13537,6 @@ export default [
       },
       {
         "slug": "proficiency.cefr.a1"
-      },
-      {
-        "slug": "proficiency.survival"
       }
     ]
   },
@@ -14033,9 +13598,6 @@ export default [
       },
       {
         "slug": "proficiency.cefr.a1"
-      },
-      {
-        "slug": "proficiency.survival"
       }
     ]
   },
@@ -14097,9 +13659,6 @@ export default [
       },
       {
         "slug": "proficiency.cefr.a1"
-      },
-      {
-        "slug": "proficiency.survival"
       }
     ]
   },
@@ -14161,9 +13720,6 @@ export default [
       },
       {
         "slug": "proficiency.cefr.a1"
-      },
-      {
-        "slug": "proficiency.survival"
       }
     ]
   },
@@ -14225,9 +13781,6 @@ export default [
       },
       {
         "slug": "proficiency.cefr.a1"
-      },
-      {
-        "slug": "proficiency.survival"
       }
     ]
   },
@@ -14286,9 +13839,6 @@ export default [
       },
       {
         "slug": "proficiency.cefr.a1"
-      },
-      {
-        "slug": "proficiency.survival"
       }
     ]
   },
@@ -14347,9 +13897,6 @@ export default [
       },
       {
         "slug": "proficiency.cefr.a1"
-      },
-      {
-        "slug": "proficiency.survival"
       }
     ]
   },
@@ -14408,9 +13955,6 @@ export default [
       },
       {
         "slug": "proficiency.cefr.a1"
-      },
-      {
-        "slug": "proficiency.survival"
       }
     ]
   },
@@ -14469,9 +14013,6 @@ export default [
       },
       {
         "slug": "proficiency.cefr.a1"
-      },
-      {
-        "slug": "proficiency.survival"
       }
     ]
   },
@@ -14530,9 +14071,6 @@ export default [
       },
       {
         "slug": "proficiency.cefr.a1"
-      },
-      {
-        "slug": "proficiency.survival"
       }
     ]
   },
@@ -14591,9 +14129,6 @@ export default [
       },
       {
         "slug": "proficiency.cefr.a1"
-      },
-      {
-        "slug": "proficiency.survival"
       }
     ]
   },
@@ -14655,9 +14190,6 @@ export default [
       },
       {
         "slug": "proficiency.cefr.a1"
-      },
-      {
-        "slug": "proficiency.survival"
       }
     ]
   },
@@ -14719,9 +14251,6 @@ export default [
       },
       {
         "slug": "proficiency.cefr.a1"
-      },
-      {
-        "slug": "proficiency.survival"
       }
     ]
   },
@@ -14783,9 +14312,6 @@ export default [
       },
       {
         "slug": "proficiency.cefr.a1"
-      },
-      {
-        "slug": "proficiency.survival"
       }
     ]
   },
@@ -14847,9 +14373,6 @@ export default [
       },
       {
         "slug": "proficiency.cefr.a1"
-      },
-      {
-        "slug": "proficiency.survival"
       }
     ]
   },
@@ -14911,9 +14434,6 @@ export default [
       },
       {
         "slug": "proficiency.cefr.a1"
-      },
-      {
-        "slug": "proficiency.survival"
       }
     ]
   },
@@ -14975,9 +14495,6 @@ export default [
       },
       {
         "slug": "proficiency.cefr.a1"
-      },
-      {
-        "slug": "proficiency.survival"
       }
     ]
   },
@@ -15033,9 +14550,6 @@ export default [
       },
       {
         "slug": "proficiency.cefr.a1"
-      },
-      {
-        "slug": "proficiency.survival"
       }
     ]
   },
@@ -15140,9 +14654,6 @@ export default [
       },
       {
         "slug": "proficiency.cefr.a1"
-      },
-      {
-        "slug": "proficiency.survival"
       }
     ]
   },
@@ -15652,9 +15163,6 @@ export default [
       },
       {
         "slug": "proficiency.cefr.a1"
-      },
-      {
-        "slug": "proficiency.survival"
       }
     ]
   },
@@ -15716,9 +15224,6 @@ export default [
       },
       {
         "slug": "proficiency.cefr.a1"
-      },
-      {
-        "slug": "proficiency.survival"
       }
     ]
   },
@@ -15780,9 +15285,6 @@ export default [
       },
       {
         "slug": "proficiency.cefr.a1"
-      },
-      {
-        "slug": "proficiency.survival"
       }
     ]
   },
@@ -15844,9 +15346,6 @@ export default [
       },
       {
         "slug": "proficiency.cefr.a1"
-      },
-      {
-        "slug": "proficiency.survival"
       }
     ]
   },
@@ -15908,9 +15407,6 @@ export default [
       },
       {
         "slug": "proficiency.cefr.a1"
-      },
-      {
-        "slug": "proficiency.survival"
       }
     ]
   },
@@ -15972,9 +15468,6 @@ export default [
       },
       {
         "slug": "proficiency.cefr.a1"
-      },
-      {
-        "slug": "proficiency.survival"
       }
     ]
   },
@@ -16036,9 +15529,6 @@ export default [
       },
       {
         "slug": "proficiency.cefr.a1"
-      },
-      {
-        "slug": "proficiency.survival"
       }
     ]
   },
@@ -16100,9 +15590,6 @@ export default [
       },
       {
         "slug": "proficiency.cefr.a1"
-      },
-      {
-        "slug": "proficiency.survival"
       }
     ]
   },
@@ -16164,9 +15651,6 @@ export default [
       },
       {
         "slug": "proficiency.cefr.a1"
-      },
-      {
-        "slug": "proficiency.survival"
       }
     ]
   },
@@ -16228,9 +15712,6 @@ export default [
       },
       {
         "slug": "proficiency.cefr.a1"
-      },
-      {
-        "slug": "proficiency.survival"
       }
     ]
   },
@@ -16292,9 +15773,6 @@ export default [
       },
       {
         "slug": "proficiency.cefr.a1"
-      },
-      {
-        "slug": "proficiency.survival"
       }
     ]
   },
@@ -16356,9 +15834,6 @@ export default [
       },
       {
         "slug": "proficiency.cefr.a1"
-      },
-      {
-        "slug": "proficiency.survival"
       }
     ]
   },
@@ -16417,9 +15892,6 @@ export default [
       },
       {
         "slug": "proficiency.cefr.a1"
-      },
-      {
-        "slug": "proficiency.survival"
       }
     ]
   },
@@ -16478,9 +15950,6 @@ export default [
       },
       {
         "slug": "proficiency.cefr.a1"
-      },
-      {
-        "slug": "proficiency.survival"
       }
     ]
   },
@@ -16539,9 +16008,6 @@ export default [
       },
       {
         "slug": "proficiency.cefr.a1"
-      },
-      {
-        "slug": "proficiency.survival"
       }
     ]
   },
@@ -16600,9 +16066,6 @@ export default [
       },
       {
         "slug": "proficiency.cefr.a1"
-      },
-      {
-        "slug": "proficiency.survival"
       }
     ]
   },
@@ -16661,9 +16124,6 @@ export default [
       },
       {
         "slug": "proficiency.cefr.a1"
-      },
-      {
-        "slug": "proficiency.survival"
       }
     ]
   },
@@ -16722,9 +16182,6 @@ export default [
       },
       {
         "slug": "proficiency.cefr.a1"
-      },
-      {
-        "slug": "proficiency.survival"
       }
     ]
   },
@@ -16792,9 +16249,6 @@ export default [
       },
       {
         "slug": "proficiency.cefr.a1"
-      },
-      {
-        "slug": "proficiency.survival"
       }
     ]
   },
@@ -16862,9 +16316,6 @@ export default [
       },
       {
         "slug": "proficiency.cefr.a1"
-      },
-      {
-        "slug": "proficiency.survival"
       }
     ]
   },
@@ -16932,9 +16383,6 @@ export default [
       },
       {
         "slug": "proficiency.cefr.a1"
-      },
-      {
-        "slug": "proficiency.survival"
       }
     ]
   },
@@ -16996,9 +16444,6 @@ export default [
       },
       {
         "slug": "proficiency.cefr.a1"
-      },
-      {
-        "slug": "proficiency.survival"
       }
     ]
   },
@@ -17060,9 +16505,6 @@ export default [
       },
       {
         "slug": "proficiency.cefr.a1"
-      },
-      {
-        "slug": "proficiency.survival"
       }
     ]
   },
@@ -17124,9 +16566,6 @@ export default [
       },
       {
         "slug": "proficiency.cefr.a1"
-      },
-      {
-        "slug": "proficiency.survival"
       }
     ]
   },
@@ -17182,9 +16621,6 @@ export default [
       },
       {
         "slug": "proficiency.cefr.a1"
-      },
-      {
-        "slug": "proficiency.survival"
       }
     ]
   },
@@ -17286,9 +16722,6 @@ export default [
       },
       {
         "slug": "proficiency.cefr.a1"
-      },
-      {
-        "slug": "proficiency.survival"
       }
     ]
   },
@@ -17792,9 +17225,6 @@ export default [
       },
       {
         "slug": "proficiency.cefr.a1"
-      },
-      {
-        "slug": "proficiency.survival"
       }
     ]
   },
@@ -17856,9 +17286,6 @@ export default [
       },
       {
         "slug": "proficiency.cefr.a1"
-      },
-      {
-        "slug": "proficiency.survival"
       }
     ]
   },
@@ -17920,9 +17347,6 @@ export default [
       },
       {
         "slug": "proficiency.cefr.a1"
-      },
-      {
-        "slug": "proficiency.survival"
       }
     ]
   },
@@ -17984,9 +17408,6 @@ export default [
       },
       {
         "slug": "proficiency.cefr.a1"
-      },
-      {
-        "slug": "proficiency.survival"
       }
     ]
   },
@@ -18048,9 +17469,6 @@ export default [
       },
       {
         "slug": "proficiency.cefr.a1"
-      },
-      {
-        "slug": "proficiency.survival"
       }
     ]
   },
@@ -18112,9 +17530,6 @@ export default [
       },
       {
         "slug": "proficiency.cefr.a1"
-      },
-      {
-        "slug": "proficiency.survival"
       }
     ]
   },
@@ -18176,9 +17591,6 @@ export default [
       },
       {
         "slug": "proficiency.cefr.a1"
-      },
-      {
-        "slug": "proficiency.survival"
       }
     ]
   },
@@ -18240,9 +17652,6 @@ export default [
       },
       {
         "slug": "proficiency.cefr.a1"
-      },
-      {
-        "slug": "proficiency.survival"
       }
     ]
   },
@@ -18304,9 +17713,6 @@ export default [
       },
       {
         "slug": "proficiency.cefr.a1"
-      },
-      {
-        "slug": "proficiency.survival"
       }
     ]
   },
@@ -18368,9 +17774,6 @@ export default [
       },
       {
         "slug": "proficiency.cefr.a1"
-      },
-      {
-        "slug": "proficiency.survival"
       }
     ]
   },
@@ -18432,9 +17835,6 @@ export default [
       },
       {
         "slug": "proficiency.cefr.a1"
-      },
-      {
-        "slug": "proficiency.survival"
       }
     ]
   },
@@ -18496,9 +17896,6 @@ export default [
       },
       {
         "slug": "proficiency.cefr.a1"
-      },
-      {
-        "slug": "proficiency.survival"
       }
     ]
   },
@@ -18557,9 +17954,6 @@ export default [
       },
       {
         "slug": "proficiency.cefr.a1"
-      },
-      {
-        "slug": "proficiency.survival"
       }
     ]
   },
@@ -18618,9 +18012,6 @@ export default [
       },
       {
         "slug": "proficiency.cefr.a1"
-      },
-      {
-        "slug": "proficiency.survival"
       }
     ]
   },
@@ -18679,9 +18070,6 @@ export default [
       },
       {
         "slug": "proficiency.cefr.a1"
-      },
-      {
-        "slug": "proficiency.survival"
       }
     ]
   },
@@ -18740,9 +18128,6 @@ export default [
       },
       {
         "slug": "proficiency.cefr.a1"
-      },
-      {
-        "slug": "proficiency.survival"
       }
     ]
   },
@@ -18801,9 +18186,6 @@ export default [
       },
       {
         "slug": "proficiency.cefr.a1"
-      },
-      {
-        "slug": "proficiency.survival"
       }
     ]
   },
@@ -18862,9 +18244,6 @@ export default [
       },
       {
         "slug": "proficiency.cefr.a1"
-      },
-      {
-        "slug": "proficiency.survival"
       }
     ]
   },
@@ -18926,9 +18305,6 @@ export default [
       },
       {
         "slug": "proficiency.cefr.a1"
-      },
-      {
-        "slug": "proficiency.survival"
       }
     ]
   },
@@ -18990,9 +18366,6 @@ export default [
       },
       {
         "slug": "proficiency.cefr.a1"
-      },
-      {
-        "slug": "proficiency.survival"
       }
     ]
   },
@@ -19054,9 +18427,6 @@ export default [
       },
       {
         "slug": "proficiency.cefr.a1"
-      },
-      {
-        "slug": "proficiency.survival"
       }
     ]
   },
@@ -19118,9 +18488,6 @@ export default [
       },
       {
         "slug": "proficiency.cefr.a1"
-      },
-      {
-        "slug": "proficiency.survival"
       }
     ]
   },
@@ -19182,9 +18549,6 @@ export default [
       },
       {
         "slug": "proficiency.cefr.a1"
-      },
-      {
-        "slug": "proficiency.survival"
       }
     ]
   },
@@ -19246,9 +18610,6 @@ export default [
       },
       {
         "slug": "proficiency.cefr.a1"
-      },
-      {
-        "slug": "proficiency.survival"
       }
     ]
   },
@@ -19304,9 +18665,6 @@ export default [
       },
       {
         "slug": "proficiency.cefr.a1"
-      },
-      {
-        "slug": "proficiency.survival"
       }
     ]
   },
@@ -19408,9 +18766,6 @@ export default [
       },
       {
         "slug": "proficiency.cefr.a1"
-      },
-      {
-        "slug": "proficiency.survival"
       }
     ]
   },
@@ -19950,9 +19305,6 @@ export default [
       },
       {
         "slug": "proficiency.cefr.a1"
-      },
-      {
-        "slug": "proficiency.survival"
       }
     ]
   },
@@ -20014,9 +19366,6 @@ export default [
       },
       {
         "slug": "proficiency.cefr.a1"
-      },
-      {
-        "slug": "proficiency.survival"
       }
     ]
   },
@@ -20078,9 +19427,6 @@ export default [
       },
       {
         "slug": "proficiency.cefr.a1"
-      },
-      {
-        "slug": "proficiency.survival"
       }
     ]
   },
@@ -20142,9 +19488,6 @@ export default [
       },
       {
         "slug": "proficiency.cefr.a1"
-      },
-      {
-        "slug": "proficiency.survival"
       }
     ]
   },
@@ -20206,9 +19549,6 @@ export default [
       },
       {
         "slug": "proficiency.cefr.a1"
-      },
-      {
-        "slug": "proficiency.survival"
       }
     ]
   },
@@ -20270,9 +19610,6 @@ export default [
       },
       {
         "slug": "proficiency.cefr.a1"
-      },
-      {
-        "slug": "proficiency.survival"
       }
     ]
   },
@@ -20340,9 +19677,6 @@ export default [
       },
       {
         "slug": "proficiency.cefr.a1"
-      },
-      {
-        "slug": "proficiency.survival"
       }
     ]
   },
@@ -20404,9 +19738,6 @@ export default [
       },
       {
         "slug": "proficiency.cefr.a1"
-      },
-      {
-        "slug": "proficiency.survival"
       }
     ]
   },
@@ -20468,9 +19799,6 @@ export default [
       },
       {
         "slug": "proficiency.cefr.a1"
-      },
-      {
-        "slug": "proficiency.survival"
       }
     ]
   },
@@ -20532,9 +19860,6 @@ export default [
       },
       {
         "slug": "proficiency.cefr.a1"
-      },
-      {
-        "slug": "proficiency.survival"
       }
     ]
   },
@@ -20596,9 +19921,6 @@ export default [
       },
       {
         "slug": "proficiency.cefr.a1"
-      },
-      {
-        "slug": "proficiency.survival"
       }
     ]
   },
@@ -20660,9 +19982,6 @@ export default [
       },
       {
         "slug": "proficiency.cefr.a1"
-      },
-      {
-        "slug": "proficiency.survival"
       }
     ]
   },
@@ -20721,9 +20040,6 @@ export default [
       },
       {
         "slug": "proficiency.cefr.a1"
-      },
-      {
-        "slug": "proficiency.survival"
       }
     ]
   },
@@ -20782,9 +20098,6 @@ export default [
       },
       {
         "slug": "proficiency.cefr.a1"
-      },
-      {
-        "slug": "proficiency.survival"
       }
     ]
   },
@@ -20843,9 +20156,6 @@ export default [
       },
       {
         "slug": "proficiency.cefr.a1"
-      },
-      {
-        "slug": "proficiency.survival"
       }
     ]
   },
@@ -20904,9 +20214,6 @@ export default [
       },
       {
         "slug": "proficiency.cefr.a1"
-      },
-      {
-        "slug": "proficiency.survival"
       }
     ]
   },
@@ -20965,9 +20272,6 @@ export default [
       },
       {
         "slug": "proficiency.cefr.a1"
-      },
-      {
-        "slug": "proficiency.survival"
       }
     ]
   },
@@ -21026,9 +20330,6 @@ export default [
       },
       {
         "slug": "proficiency.cefr.a1"
-      },
-      {
-        "slug": "proficiency.survival"
       }
     ]
   },
@@ -21096,9 +20397,6 @@ export default [
       },
       {
         "slug": "proficiency.cefr.a1"
-      },
-      {
-        "slug": "proficiency.survival"
       }
     ]
   },
@@ -21166,9 +20464,6 @@ export default [
       },
       {
         "slug": "proficiency.cefr.a1"
-      },
-      {
-        "slug": "proficiency.survival"
       }
     ]
   },
@@ -21236,9 +20531,6 @@ export default [
       },
       {
         "slug": "proficiency.cefr.a1"
-      },
-      {
-        "slug": "proficiency.survival"
       }
     ]
   },
@@ -21306,9 +20598,6 @@ export default [
       },
       {
         "slug": "proficiency.cefr.a1"
-      },
-      {
-        "slug": "proficiency.survival"
       }
     ]
   },
@@ -21370,9 +20659,6 @@ export default [
       },
       {
         "slug": "proficiency.cefr.a1"
-      },
-      {
-        "slug": "proficiency.survival"
       }
     ]
   },
@@ -21434,9 +20720,6 @@ export default [
       },
       {
         "slug": "proficiency.cefr.a1"
-      },
-      {
-        "slug": "proficiency.survival"
       }
     ]
   },
@@ -21498,9 +20781,6 @@ export default [
       },
       {
         "slug": "proficiency.cefr.a1"
-      },
-      {
-        "slug": "proficiency.survival"
       }
     ]
   },
@@ -21605,9 +20885,6 @@ export default [
       },
       {
         "slug": "proficiency.cefr.a1"
-      },
-      {
-        "slug": "proficiency.survival"
       }
     ]
   },
@@ -22108,9 +21385,6 @@ export default [
       },
       {
         "slug": "proficiency.cefr.a1"
-      },
-      {
-        "slug": "proficiency.survival"
       }
     ]
   },
@@ -22172,9 +21446,6 @@ export default [
       },
       {
         "slug": "proficiency.cefr.a1"
-      },
-      {
-        "slug": "proficiency.survival"
       }
     ]
   },
@@ -22236,9 +21507,6 @@ export default [
       },
       {
         "slug": "proficiency.cefr.a1"
-      },
-      {
-        "slug": "proficiency.survival"
       }
     ]
   },
@@ -22300,9 +21568,6 @@ export default [
       },
       {
         "slug": "proficiency.cefr.a1"
-      },
-      {
-        "slug": "proficiency.survival"
       }
     ]
   },
@@ -22364,9 +21629,6 @@ export default [
       },
       {
         "slug": "proficiency.cefr.a1"
-      },
-      {
-        "slug": "proficiency.survival"
       }
     ]
   },
@@ -22428,9 +21690,6 @@ export default [
       },
       {
         "slug": "proficiency.cefr.a1"
-      },
-      {
-        "slug": "proficiency.survival"
       }
     ]
   },
@@ -22492,9 +21751,6 @@ export default [
       },
       {
         "slug": "proficiency.cefr.a1"
-      },
-      {
-        "slug": "proficiency.survival"
       }
     ]
   },
@@ -22556,9 +21812,6 @@ export default [
       },
       {
         "slug": "proficiency.cefr.a1"
-      },
-      {
-        "slug": "proficiency.survival"
       }
     ]
   },
@@ -22620,9 +21873,6 @@ export default [
       },
       {
         "slug": "proficiency.cefr.a1"
-      },
-      {
-        "slug": "proficiency.survival"
       }
     ]
   },
@@ -22684,9 +21934,6 @@ export default [
       },
       {
         "slug": "proficiency.cefr.a1"
-      },
-      {
-        "slug": "proficiency.survival"
       }
     ]
   },
@@ -22748,9 +21995,6 @@ export default [
       },
       {
         "slug": "proficiency.cefr.a1"
-      },
-      {
-        "slug": "proficiency.survival"
       }
     ]
   },
@@ -22812,9 +22056,6 @@ export default [
       },
       {
         "slug": "proficiency.cefr.a1"
-      },
-      {
-        "slug": "proficiency.survival"
       }
     ]
   },
@@ -22873,9 +22114,6 @@ export default [
       },
       {
         "slug": "proficiency.cefr.a1"
-      },
-      {
-        "slug": "proficiency.survival"
       }
     ]
   },
@@ -22934,9 +22172,6 @@ export default [
       },
       {
         "slug": "proficiency.cefr.a1"
-      },
-      {
-        "slug": "proficiency.survival"
       }
     ]
   },
@@ -22995,9 +22230,6 @@ export default [
       },
       {
         "slug": "proficiency.cefr.a1"
-      },
-      {
-        "slug": "proficiency.survival"
       }
     ]
   },
@@ -23056,9 +22288,6 @@ export default [
       },
       {
         "slug": "proficiency.cefr.a1"
-      },
-      {
-        "slug": "proficiency.survival"
       }
     ]
   },
@@ -23117,9 +22346,6 @@ export default [
       },
       {
         "slug": "proficiency.cefr.a1"
-      },
-      {
-        "slug": "proficiency.survival"
       }
     ]
   },
@@ -23178,9 +22404,6 @@ export default [
       },
       {
         "slug": "proficiency.cefr.a1"
-      },
-      {
-        "slug": "proficiency.survival"
       }
     ]
   },
@@ -23242,9 +22465,6 @@ export default [
       },
       {
         "slug": "proficiency.cefr.a1"
-      },
-      {
-        "slug": "proficiency.survival"
       }
     ]
   },
@@ -23306,9 +22526,6 @@ export default [
       },
       {
         "slug": "proficiency.cefr.a1"
-      },
-      {
-        "slug": "proficiency.survival"
       }
     ]
   },
@@ -23370,9 +22587,6 @@ export default [
       },
       {
         "slug": "proficiency.cefr.a1"
-      },
-      {
-        "slug": "proficiency.survival"
       }
     ]
   },
@@ -23434,9 +22648,6 @@ export default [
       },
       {
         "slug": "proficiency.cefr.a1"
-      },
-      {
-        "slug": "proficiency.survival"
       }
     ]
   },
@@ -23498,9 +22709,6 @@ export default [
       },
       {
         "slug": "proficiency.cefr.a1"
-      },
-      {
-        "slug": "proficiency.survival"
       }
     ]
   },
@@ -23562,9 +22770,6 @@ export default [
       },
       {
         "slug": "proficiency.cefr.a1"
-      },
-      {
-        "slug": "proficiency.survival"
       }
     ]
   },
@@ -23614,9 +22819,6 @@ export default [
       },
       {
         "slug": "proficiency.cefr.a1"
-      },
-      {
-        "slug": "proficiency.survival"
       }
     ]
   },
@@ -23718,9 +22920,6 @@ export default [
       },
       {
         "slug": "proficiency.cefr.a1"
-      },
-      {
-        "slug": "proficiency.survival"
       }
     ]
   },
@@ -24215,9 +23414,6 @@ export default [
       },
       {
         "slug": "proficiency.cefr.a1"
-      },
-      {
-        "slug": "proficiency.survival"
       }
     ]
   },
@@ -24279,9 +23475,6 @@ export default [
       },
       {
         "slug": "proficiency.cefr.a1"
-      },
-      {
-        "slug": "proficiency.survival"
       }
     ]
   },
@@ -24343,9 +23536,6 @@ export default [
       },
       {
         "slug": "proficiency.cefr.a1"
-      },
-      {
-        "slug": "proficiency.survival"
       }
     ]
   },
@@ -24407,9 +23597,6 @@ export default [
       },
       {
         "slug": "proficiency.cefr.a1"
-      },
-      {
-        "slug": "proficiency.survival"
       }
     ]
   },
@@ -24417,8 +23604,7 @@ export default [
     "slug": "venire.verb.indicative.imperfect.second.plural",
     "traits": [
       "TRANSLATED",
-      "EXEMPLIFIED",
-      "RANKED"
+      "EXEMPLIFIED"
     ],
     "trait": {
       "TRANSLATED": {
@@ -24428,11 +23614,6 @@ export default [
       "EXEMPLIFIED": {
         "known": "Did you all use to come by car?",
         "learning": "Venivate in macchina?"
-      },
-      "RANKED": {
-        "rank": 0,
-        "zipf": 1.4,
-        "fpm": 0.0251
       }
     },
     "symbols": [
@@ -24471,9 +23652,6 @@ export default [
       },
       {
         "slug": "proficiency.cefr.a1"
-      },
-      {
-        "slug": "proficiency.survival"
       }
     ]
   },
@@ -24535,9 +23713,6 @@ export default [
       },
       {
         "slug": "proficiency.cefr.a1"
-      },
-      {
-        "slug": "proficiency.survival"
       }
     ]
   },
@@ -24599,9 +23774,6 @@ export default [
       },
       {
         "slug": "proficiency.cefr.a1"
-      },
-      {
-        "slug": "proficiency.survival"
       }
     ]
   },
@@ -24663,9 +23835,6 @@ export default [
       },
       {
         "slug": "proficiency.cefr.a1"
-      },
-      {
-        "slug": "proficiency.survival"
       }
     ]
   },
@@ -24727,9 +23896,6 @@ export default [
       },
       {
         "slug": "proficiency.cefr.a1"
-      },
-      {
-        "slug": "proficiency.survival"
       }
     ]
   },
@@ -24791,9 +23957,6 @@ export default [
       },
       {
         "slug": "proficiency.cefr.a1"
-      },
-      {
-        "slug": "proficiency.survival"
       }
     ]
   },
@@ -24855,9 +24018,6 @@ export default [
       },
       {
         "slug": "proficiency.cefr.a1"
-      },
-      {
-        "slug": "proficiency.survival"
       }
     ]
   },
@@ -24919,9 +24079,6 @@ export default [
       },
       {
         "slug": "proficiency.cefr.a1"
-      },
-      {
-        "slug": "proficiency.survival"
       }
     ]
   },
@@ -24980,9 +24137,6 @@ export default [
       },
       {
         "slug": "proficiency.cefr.a1"
-      },
-      {
-        "slug": "proficiency.survival"
       }
     ]
   },
@@ -25041,9 +24195,6 @@ export default [
       },
       {
         "slug": "proficiency.cefr.a1"
-      },
-      {
-        "slug": "proficiency.survival"
       }
     ]
   },
@@ -25102,9 +24253,6 @@ export default [
       },
       {
         "slug": "proficiency.cefr.a1"
-      },
-      {
-        "slug": "proficiency.survival"
       }
     ]
   },
@@ -25163,9 +24311,6 @@ export default [
       },
       {
         "slug": "proficiency.cefr.a1"
-      },
-      {
-        "slug": "proficiency.survival"
       }
     ]
   },
@@ -25224,9 +24369,6 @@ export default [
       },
       {
         "slug": "proficiency.cefr.a1"
-      },
-      {
-        "slug": "proficiency.survival"
       }
     ]
   },
@@ -25285,9 +24427,6 @@ export default [
       },
       {
         "slug": "proficiency.cefr.a1"
-      },
-      {
-        "slug": "proficiency.survival"
       }
     ]
   },
@@ -25349,9 +24488,6 @@ export default [
       },
       {
         "slug": "proficiency.cefr.a1"
-      },
-      {
-        "slug": "proficiency.survival"
       }
     ]
   },
@@ -25413,9 +24549,6 @@ export default [
       },
       {
         "slug": "proficiency.cefr.a1"
-      },
-      {
-        "slug": "proficiency.survival"
       }
     ]
   },
@@ -25477,9 +24610,6 @@ export default [
       },
       {
         "slug": "proficiency.cefr.a1"
-      },
-      {
-        "slug": "proficiency.survival"
       }
     ]
   },
@@ -25541,9 +24671,6 @@ export default [
       },
       {
         "slug": "proficiency.cefr.a1"
-      },
-      {
-        "slug": "proficiency.survival"
       }
     ]
   },
@@ -25605,9 +24732,6 @@ export default [
       },
       {
         "slug": "proficiency.cefr.a1"
-      },
-      {
-        "slug": "proficiency.survival"
       }
     ]
   },
@@ -25669,9 +24793,6 @@ export default [
       },
       {
         "slug": "proficiency.cefr.a1"
-      },
-      {
-        "slug": "proficiency.survival"
       }
     ]
   },
@@ -25727,9 +24848,6 @@ export default [
       },
       {
         "slug": "proficiency.cefr.a1"
-      },
-      {
-        "slug": "proficiency.survival"
       }
     ]
   },
@@ -25834,9 +24952,6 @@ export default [
       },
       {
         "slug": "proficiency.cefr.a1"
-      },
-      {
-        "slug": "proficiency.survival"
       },
       {
         "slug": "functional.modal"
@@ -26360,9 +25475,6 @@ export default [
         "slug": "proficiency.cefr.a1"
       },
       {
-        "slug": "proficiency.survival"
-      },
-      {
         "slug": "functional.modal"
       }
     ]
@@ -26425,9 +25537,6 @@ export default [
       },
       {
         "slug": "proficiency.cefr.a1"
-      },
-      {
-        "slug": "proficiency.survival"
       },
       {
         "slug": "functional.modal"
@@ -26494,9 +25603,6 @@ export default [
         "slug": "proficiency.cefr.a1"
       },
       {
-        "slug": "proficiency.survival"
-      },
-      {
         "slug": "functional.modal"
       }
     ]
@@ -26559,9 +25665,6 @@ export default [
       },
       {
         "slug": "proficiency.cefr.a1"
-      },
-      {
-        "slug": "proficiency.survival"
       },
       {
         "slug": "functional.modal"
@@ -26628,9 +25731,6 @@ export default [
         "slug": "proficiency.cefr.a1"
       },
       {
-        "slug": "proficiency.survival"
-      },
-      {
         "slug": "functional.modal"
       }
     ]
@@ -26693,9 +25793,6 @@ export default [
       },
       {
         "slug": "proficiency.cefr.a1"
-      },
-      {
-        "slug": "proficiency.survival"
       },
       {
         "slug": "functional.modal"
@@ -26762,9 +25859,6 @@ export default [
         "slug": "proficiency.cefr.a1"
       },
       {
-        "slug": "proficiency.survival"
-      },
-      {
         "slug": "functional.modal"
       }
     ]
@@ -26827,9 +25921,6 @@ export default [
       },
       {
         "slug": "proficiency.cefr.a1"
-      },
-      {
-        "slug": "proficiency.survival"
       },
       {
         "slug": "functional.modal"
@@ -26896,9 +25987,6 @@ export default [
         "slug": "proficiency.cefr.a1"
       },
       {
-        "slug": "proficiency.survival"
-      },
-      {
         "slug": "functional.modal"
       }
     ]
@@ -26961,9 +26049,6 @@ export default [
       },
       {
         "slug": "proficiency.cefr.a1"
-      },
-      {
-        "slug": "proficiency.survival"
       },
       {
         "slug": "functional.modal"
@@ -27030,9 +26115,6 @@ export default [
         "slug": "proficiency.cefr.a1"
       },
       {
-        "slug": "proficiency.survival"
-      },
-      {
         "slug": "functional.modal"
       }
     ]
@@ -27095,9 +26177,6 @@ export default [
       },
       {
         "slug": "proficiency.cefr.a1"
-      },
-      {
-        "slug": "proficiency.survival"
       },
       {
         "slug": "functional.modal"
@@ -27225,9 +26304,6 @@ export default [
         "slug": "proficiency.cefr.a1"
       },
       {
-        "slug": "proficiency.survival"
-      },
-      {
         "slug": "functional.modal"
       }
     ]
@@ -27287,9 +26363,6 @@ export default [
       },
       {
         "slug": "proficiency.cefr.a1"
-      },
-      {
-        "slug": "proficiency.survival"
       },
       {
         "slug": "functional.modal"
@@ -27353,9 +26426,6 @@ export default [
         "slug": "proficiency.cefr.a1"
       },
       {
-        "slug": "proficiency.survival"
-      },
-      {
         "slug": "functional.modal"
       }
     ]
@@ -27417,9 +26487,6 @@ export default [
         "slug": "proficiency.cefr.a1"
       },
       {
-        "slug": "proficiency.survival"
-      },
-      {
         "slug": "functional.modal"
       }
     ]
@@ -27479,9 +26546,6 @@ export default [
       },
       {
         "slug": "proficiency.cefr.a1"
-      },
-      {
-        "slug": "proficiency.survival"
       },
       {
         "slug": "functional.modal"
@@ -27548,9 +26612,6 @@ export default [
         "slug": "proficiency.cefr.a1"
       },
       {
-        "slug": "proficiency.survival"
-      },
-      {
         "slug": "functional.modal"
       }
     ]
@@ -27613,9 +26674,6 @@ export default [
       },
       {
         "slug": "proficiency.cefr.a1"
-      },
-      {
-        "slug": "proficiency.survival"
       },
       {
         "slug": "functional.modal"
@@ -27682,9 +26740,6 @@ export default [
         "slug": "proficiency.cefr.a1"
       },
       {
-        "slug": "proficiency.survival"
-      },
-      {
         "slug": "functional.modal"
       }
     ]
@@ -27747,9 +26802,6 @@ export default [
       },
       {
         "slug": "proficiency.cefr.a1"
-      },
-      {
-        "slug": "proficiency.survival"
       },
       {
         "slug": "functional.modal"
@@ -27816,9 +26868,6 @@ export default [
         "slug": "proficiency.cefr.a1"
       },
       {
-        "slug": "proficiency.survival"
-      },
-      {
         "slug": "functional.modal"
       }
     ]
@@ -27881,9 +26930,6 @@ export default [
       },
       {
         "slug": "proficiency.cefr.a1"
-      },
-      {
-        "slug": "proficiency.survival"
       },
       {
         "slug": "functional.modal"
@@ -27991,9 +27037,6 @@ export default [
       },
       {
         "slug": "proficiency.cefr.a1"
-      },
-      {
-        "slug": "proficiency.survival"
       },
       {
         "slug": "functional.modal"
@@ -28556,9 +27599,6 @@ export default [
         "slug": "proficiency.cefr.a1"
       },
       {
-        "slug": "proficiency.survival"
-      },
-      {
         "slug": "functional.modal"
       }
     ]
@@ -28621,9 +27661,6 @@ export default [
       },
       {
         "slug": "proficiency.cefr.a1"
-      },
-      {
-        "slug": "proficiency.survival"
       },
       {
         "slug": "functional.modal"
@@ -28690,9 +27727,6 @@ export default [
         "slug": "proficiency.cefr.a1"
       },
       {
-        "slug": "proficiency.survival"
-      },
-      {
         "slug": "functional.modal"
       }
     ]
@@ -28755,9 +27789,6 @@ export default [
       },
       {
         "slug": "proficiency.cefr.a1"
-      },
-      {
-        "slug": "proficiency.survival"
       },
       {
         "slug": "functional.modal"
@@ -28824,9 +27855,6 @@ export default [
         "slug": "proficiency.cefr.a1"
       },
       {
-        "slug": "proficiency.survival"
-      },
-      {
         "slug": "functional.modal"
       }
     ]
@@ -28889,9 +27917,6 @@ export default [
       },
       {
         "slug": "proficiency.cefr.a1"
-      },
-      {
-        "slug": "proficiency.survival"
       },
       {
         "slug": "functional.modal"
@@ -28964,9 +27989,6 @@ export default [
         "slug": "proficiency.cefr.a1"
       },
       {
-        "slug": "proficiency.survival"
-      },
-      {
         "slug": "functional.modal"
       }
     ]
@@ -29029,9 +28051,6 @@ export default [
       },
       {
         "slug": "proficiency.cefr.a1"
-      },
-      {
-        "slug": "proficiency.survival"
       },
       {
         "slug": "functional.modal"
@@ -29098,9 +28117,6 @@ export default [
         "slug": "proficiency.cefr.a1"
       },
       {
-        "slug": "proficiency.survival"
-      },
-      {
         "slug": "functional.modal"
       }
     ]
@@ -29163,9 +28179,6 @@ export default [
       },
       {
         "slug": "proficiency.cefr.a1"
-      },
-      {
-        "slug": "proficiency.survival"
       },
       {
         "slug": "functional.modal"
@@ -29232,9 +28245,6 @@ export default [
         "slug": "proficiency.cefr.a1"
       },
       {
-        "slug": "proficiency.survival"
-      },
-      {
         "slug": "functional.modal"
       }
     ]
@@ -29297,9 +28307,6 @@ export default [
       },
       {
         "slug": "proficiency.cefr.a1"
-      },
-      {
-        "slug": "proficiency.survival"
       },
       {
         "slug": "functional.modal"
@@ -29427,9 +28434,6 @@ export default [
         "slug": "proficiency.cefr.a1"
       },
       {
-        "slug": "proficiency.survival"
-      },
-      {
         "slug": "functional.modal"
       }
     ]
@@ -29489,9 +28493,6 @@ export default [
       },
       {
         "slug": "proficiency.cefr.a1"
-      },
-      {
-        "slug": "proficiency.survival"
       },
       {
         "slug": "functional.modal"
@@ -29555,9 +28556,6 @@ export default [
         "slug": "proficiency.cefr.a1"
       },
       {
-        "slug": "proficiency.survival"
-      },
-      {
         "slug": "functional.modal"
       }
     ]
@@ -29619,9 +28617,6 @@ export default [
         "slug": "proficiency.cefr.a1"
       },
       {
-        "slug": "proficiency.survival"
-      },
-      {
         "slug": "functional.modal"
       }
     ]
@@ -29681,9 +28676,6 @@ export default [
       },
       {
         "slug": "proficiency.cefr.a1"
-      },
-      {
-        "slug": "proficiency.survival"
       },
       {
         "slug": "functional.modal"
@@ -29756,9 +28748,6 @@ export default [
         "slug": "proficiency.cefr.a1"
       },
       {
-        "slug": "proficiency.survival"
-      },
-      {
         "slug": "functional.modal"
       }
     ]
@@ -29827,9 +28816,6 @@ export default [
       },
       {
         "slug": "proficiency.cefr.a1"
-      },
-      {
-        "slug": "proficiency.survival"
       },
       {
         "slug": "functional.modal"
@@ -29902,9 +28888,6 @@ export default [
         "slug": "proficiency.cefr.a1"
       },
       {
-        "slug": "proficiency.survival"
-      },
-      {
         "slug": "functional.modal"
       }
     ]
@@ -29975,9 +28958,6 @@ export default [
         "slug": "proficiency.cefr.a1"
       },
       {
-        "slug": "proficiency.survival"
-      },
-      {
         "slug": "functional.modal"
       }
     ]
@@ -30042,9 +29022,6 @@ export default [
         "slug": "proficiency.cefr.a1"
       },
       {
-        "slug": "proficiency.survival"
-      },
-      {
         "slug": "functional.modal"
       }
     ]
@@ -30107,9 +29084,6 @@ export default [
       },
       {
         "slug": "proficiency.cefr.a1"
-      },
-      {
-        "slug": "proficiency.survival"
       },
       {
         "slug": "functional.modal"
@@ -30217,9 +29191,6 @@ export default [
       },
       {
         "slug": "proficiency.cefr.a1"
-      },
-      {
-        "slug": "proficiency.survival"
       },
       {
         "slug": "functional.modal"
@@ -30740,9 +29711,6 @@ export default [
         "slug": "proficiency.cefr.a1"
       },
       {
-        "slug": "proficiency.survival"
-      },
-      {
         "slug": "functional.modal"
       }
     ]
@@ -30805,9 +29773,6 @@ export default [
       },
       {
         "slug": "proficiency.cefr.a1"
-      },
-      {
-        "slug": "proficiency.survival"
       },
       {
         "slug": "functional.modal"
@@ -30874,9 +29839,6 @@ export default [
         "slug": "proficiency.cefr.a1"
       },
       {
-        "slug": "proficiency.survival"
-      },
-      {
         "slug": "functional.modal"
       }
     ]
@@ -30939,9 +29901,6 @@ export default [
       },
       {
         "slug": "proficiency.cefr.a1"
-      },
-      {
-        "slug": "proficiency.survival"
       },
       {
         "slug": "functional.modal"
@@ -31008,9 +29967,6 @@ export default [
         "slug": "proficiency.cefr.a1"
       },
       {
-        "slug": "proficiency.survival"
-      },
-      {
         "slug": "functional.modal"
       }
     ]
@@ -31075,9 +30031,6 @@ export default [
         "slug": "proficiency.cefr.a1"
       },
       {
-        "slug": "proficiency.survival"
-      },
-      {
         "slug": "functional.modal"
       }
     ]
@@ -31140,9 +30093,6 @@ export default [
       },
       {
         "slug": "proficiency.cefr.a1"
-      },
-      {
-        "slug": "proficiency.survival"
       },
       {
         "slug": "functional.modal"
@@ -31215,9 +30165,6 @@ export default [
         "slug": "proficiency.cefr.a1"
       },
       {
-        "slug": "proficiency.survival"
-      },
-      {
         "slug": "functional.modal"
       }
     ]
@@ -31280,9 +30227,6 @@ export default [
       },
       {
         "slug": "proficiency.cefr.a1"
-      },
-      {
-        "slug": "proficiency.survival"
       },
       {
         "slug": "functional.modal"
@@ -31349,9 +30293,6 @@ export default [
         "slug": "proficiency.cefr.a1"
       },
       {
-        "slug": "proficiency.survival"
-      },
-      {
         "slug": "functional.modal"
       }
     ]
@@ -31414,9 +30355,6 @@ export default [
       },
       {
         "slug": "proficiency.cefr.a1"
-      },
-      {
-        "slug": "proficiency.survival"
       },
       {
         "slug": "functional.modal"
@@ -31483,9 +30421,6 @@ export default [
         "slug": "proficiency.cefr.a1"
       },
       {
-        "slug": "proficiency.survival"
-      },
-      {
         "slug": "functional.modal"
       }
     ]
@@ -31545,9 +30480,6 @@ export default [
       },
       {
         "slug": "proficiency.cefr.a1"
-      },
-      {
-        "slug": "proficiency.survival"
       },
       {
         "slug": "functional.modal"
@@ -31611,9 +30543,6 @@ export default [
         "slug": "proficiency.cefr.a1"
       },
       {
-        "slug": "proficiency.survival"
-      },
-      {
         "slug": "functional.modal"
       }
     ]
@@ -31673,9 +30602,6 @@ export default [
       },
       {
         "slug": "proficiency.cefr.a1"
-      },
-      {
-        "slug": "proficiency.survival"
       },
       {
         "slug": "functional.modal"
@@ -31739,9 +30665,6 @@ export default [
         "slug": "proficiency.cefr.a1"
       },
       {
-        "slug": "proficiency.survival"
-      },
-      {
         "slug": "functional.modal"
       }
     ]
@@ -31803,9 +30726,6 @@ export default [
         "slug": "proficiency.cefr.a1"
       },
       {
-        "slug": "proficiency.survival"
-      },
-      {
         "slug": "functional.modal"
       }
     ]
@@ -31865,9 +30785,6 @@ export default [
       },
       {
         "slug": "proficiency.cefr.a1"
-      },
-      {
-        "slug": "proficiency.survival"
       },
       {
         "slug": "functional.modal"
@@ -31934,9 +30851,6 @@ export default [
         "slug": "proficiency.cefr.a1"
       },
       {
-        "slug": "proficiency.survival"
-      },
-      {
         "slug": "functional.modal"
       }
     ]
@@ -31999,9 +30913,6 @@ export default [
       },
       {
         "slug": "proficiency.cefr.a1"
-      },
-      {
-        "slug": "proficiency.survival"
       },
       {
         "slug": "functional.modal"
@@ -32068,9 +30979,6 @@ export default [
         "slug": "proficiency.cefr.a1"
       },
       {
-        "slug": "proficiency.survival"
-      },
-      {
         "slug": "functional.modal"
       }
     ]
@@ -32133,9 +31041,6 @@ export default [
       },
       {
         "slug": "proficiency.cefr.a1"
-      },
-      {
-        "slug": "proficiency.survival"
       },
       {
         "slug": "functional.modal"
@@ -32202,9 +31107,6 @@ export default [
         "slug": "proficiency.cefr.a1"
       },
       {
-        "slug": "proficiency.survival"
-      },
-      {
         "slug": "functional.modal"
       }
     ]
@@ -32267,9 +31169,6 @@ export default [
       },
       {
         "slug": "proficiency.cefr.a1"
-      },
-      {
-        "slug": "proficiency.survival"
       },
       {
         "slug": "functional.modal"
@@ -32374,9 +31273,6 @@ export default [
       },
       {
         "slug": "proficiency.cefr.a1"
-      },
-      {
-        "slug": "proficiency.survival"
       }
     ]
   },
@@ -32889,9 +31785,6 @@ export default [
       },
       {
         "slug": "proficiency.cefr.a1"
-      },
-      {
-        "slug": "proficiency.survival"
       }
     ]
   },
@@ -32953,9 +31846,6 @@ export default [
       },
       {
         "slug": "proficiency.cefr.a1"
-      },
-      {
-        "slug": "proficiency.survival"
       }
     ]
   },
@@ -33017,9 +31907,6 @@ export default [
       },
       {
         "slug": "proficiency.cefr.a1"
-      },
-      {
-        "slug": "proficiency.survival"
       }
     ]
   },
@@ -33081,9 +31968,6 @@ export default [
       },
       {
         "slug": "proficiency.cefr.a1"
-      },
-      {
-        "slug": "proficiency.survival"
       }
     ]
   },
@@ -33145,9 +32029,6 @@ export default [
       },
       {
         "slug": "proficiency.cefr.a1"
-      },
-      {
-        "slug": "proficiency.survival"
       }
     ]
   },
@@ -33209,9 +32090,6 @@ export default [
       },
       {
         "slug": "proficiency.cefr.a1"
-      },
-      {
-        "slug": "proficiency.survival"
       }
     ]
   },
@@ -33273,9 +32151,6 @@ export default [
       },
       {
         "slug": "proficiency.cefr.a1"
-      },
-      {
-        "slug": "proficiency.survival"
       }
     ]
   },
@@ -33337,9 +32212,6 @@ export default [
       },
       {
         "slug": "proficiency.cefr.a1"
-      },
-      {
-        "slug": "proficiency.survival"
       }
     ]
   },
@@ -33401,9 +32273,6 @@ export default [
       },
       {
         "slug": "proficiency.cefr.a1"
-      },
-      {
-        "slug": "proficiency.survival"
       }
     ]
   },
@@ -33465,9 +32334,6 @@ export default [
       },
       {
         "slug": "proficiency.cefr.a1"
-      },
-      {
-        "slug": "proficiency.survival"
       }
     ]
   },
@@ -33529,9 +32395,6 @@ export default [
       },
       {
         "slug": "proficiency.cefr.a1"
-      },
-      {
-        "slug": "proficiency.survival"
       }
     ]
   },
@@ -33593,9 +32456,6 @@ export default [
       },
       {
         "slug": "proficiency.cefr.a1"
-      },
-      {
-        "slug": "proficiency.survival"
       }
     ]
   },
@@ -33654,9 +32514,6 @@ export default [
       },
       {
         "slug": "proficiency.cefr.a1"
-      },
-      {
-        "slug": "proficiency.survival"
       }
     ]
   },
@@ -33715,9 +32572,6 @@ export default [
       },
       {
         "slug": "proficiency.cefr.a1"
-      },
-      {
-        "slug": "proficiency.survival"
       }
     ]
   },
@@ -33776,9 +32630,6 @@ export default [
       },
       {
         "slug": "proficiency.cefr.a1"
-      },
-      {
-        "slug": "proficiency.survival"
       }
     ]
   },
@@ -33837,9 +32688,6 @@ export default [
       },
       {
         "slug": "proficiency.cefr.a1"
-      },
-      {
-        "slug": "proficiency.survival"
       }
     ]
   },
@@ -33898,9 +32746,6 @@ export default [
       },
       {
         "slug": "proficiency.cefr.a1"
-      },
-      {
-        "slug": "proficiency.survival"
       }
     ]
   },
@@ -33959,9 +32804,6 @@ export default [
       },
       {
         "slug": "proficiency.cefr.a1"
-      },
-      {
-        "slug": "proficiency.survival"
       }
     ]
   },
@@ -34023,9 +32865,6 @@ export default [
       },
       {
         "slug": "proficiency.cefr.a1"
-      },
-      {
-        "slug": "proficiency.survival"
       }
     ]
   },
@@ -34087,9 +32926,6 @@ export default [
       },
       {
         "slug": "proficiency.cefr.a1"
-      },
-      {
-        "slug": "proficiency.survival"
       }
     ]
   },
@@ -34151,9 +32987,6 @@ export default [
       },
       {
         "slug": "proficiency.cefr.a1"
-      },
-      {
-        "slug": "proficiency.survival"
       }
     ]
   },
@@ -34215,9 +33048,6 @@ export default [
       },
       {
         "slug": "proficiency.cefr.a1"
-      },
-      {
-        "slug": "proficiency.survival"
       }
     ]
   },
@@ -34279,9 +33109,6 @@ export default [
       },
       {
         "slug": "proficiency.cefr.a1"
-      },
-      {
-        "slug": "proficiency.survival"
       }
     ]
   },
@@ -34343,9 +33170,6 @@ export default [
       },
       {
         "slug": "proficiency.cefr.a1"
-      },
-      {
-        "slug": "proficiency.survival"
       }
     ]
   },
@@ -34401,9 +33225,6 @@ export default [
       },
       {
         "slug": "proficiency.cefr.a1"
-      },
-      {
-        "slug": "proficiency.survival"
       }
     ]
   },
@@ -41910,6 +40731,9 @@ export default [
       },
       {
         "slug": "proficiency.cefr.a1"
+      },
+      {
+        "slug": "proficiency.survival"
       }
     ]
   },
@@ -41956,6 +40780,9 @@ export default [
       },
       {
         "slug": "proficiency.cefr.a1"
+      },
+      {
+        "slug": "proficiency.survival"
       }
     ]
   },
@@ -42017,6 +40844,9 @@ export default [
       },
       {
         "slug": "proficiency.cefr.a1"
+      },
+      {
+        "slug": "proficiency.survival"
       }
     ]
   },
@@ -42078,6 +40908,9 @@ export default [
       },
       {
         "slug": "proficiency.cefr.a1"
+      },
+      {
+        "slug": "proficiency.survival"
       }
     ]
   },
@@ -42139,6 +40972,9 @@ export default [
       },
       {
         "slug": "proficiency.cefr.a1"
+      },
+      {
+        "slug": "proficiency.survival"
       }
     ]
   },
@@ -42200,6 +41036,9 @@ export default [
       },
       {
         "slug": "proficiency.cefr.a1"
+      },
+      {
+        "slug": "proficiency.survival"
       }
     ]
   },
@@ -42261,6 +41100,9 @@ export default [
       },
       {
         "slug": "proficiency.cefr.a1"
+      },
+      {
+        "slug": "proficiency.survival"
       }
     ]
   },
@@ -42322,6 +41164,9 @@ export default [
       },
       {
         "slug": "proficiency.cefr.a1"
+      },
+      {
+        "slug": "proficiency.survival"
       }
     ]
   },
@@ -42838,6 +41683,9 @@ export default [
       },
       {
         "slug": "proficiency.cefr.a2"
+      },
+      {
+        "slug": "proficiency.survival"
       }
     ]
   },
@@ -42884,6 +41732,9 @@ export default [
       },
       {
         "slug": "proficiency.cefr.a2"
+      },
+      {
+        "slug": "proficiency.survival"
       }
     ]
   },
@@ -42945,6 +41796,9 @@ export default [
       },
       {
         "slug": "proficiency.cefr.a2"
+      },
+      {
+        "slug": "proficiency.survival"
       }
     ]
   },
@@ -43006,6 +41860,9 @@ export default [
       },
       {
         "slug": "proficiency.cefr.a2"
+      },
+      {
+        "slug": "proficiency.survival"
       }
     ]
   },
@@ -43067,6 +41924,9 @@ export default [
       },
       {
         "slug": "proficiency.cefr.a2"
+      },
+      {
+        "slug": "proficiency.survival"
       }
     ]
   },
@@ -43128,6 +41988,9 @@ export default [
       },
       {
         "slug": "proficiency.cefr.a2"
+      },
+      {
+        "slug": "proficiency.survival"
       }
     ]
   },
@@ -43189,6 +42052,9 @@ export default [
       },
       {
         "slug": "proficiency.cefr.a2"
+      },
+      {
+        "slug": "proficiency.survival"
       }
     ]
   },
@@ -43250,6 +42116,9 @@ export default [
       },
       {
         "slug": "proficiency.cefr.a2"
+      },
+      {
+        "slug": "proficiency.survival"
       }
     ]
   },
@@ -43302,6 +42171,9 @@ export default [
       },
       {
         "slug": "proficiency.cefr.a2"
+      },
+      {
+        "slug": "proficiency.survival"
       }
     ]
   },
@@ -43348,6 +42220,9 @@ export default [
       },
       {
         "slug": "proficiency.cefr.a2"
+      },
+      {
+        "slug": "proficiency.survival"
       }
     ]
   },
@@ -43409,6 +42284,9 @@ export default [
       },
       {
         "slug": "proficiency.cefr.a2"
+      },
+      {
+        "slug": "proficiency.survival"
       }
     ]
   },
@@ -43470,6 +42348,9 @@ export default [
       },
       {
         "slug": "proficiency.cefr.a2"
+      },
+      {
+        "slug": "proficiency.survival"
       }
     ]
   },
@@ -43537,6 +42418,9 @@ export default [
       },
       {
         "slug": "proficiency.cefr.a2"
+      },
+      {
+        "slug": "proficiency.survival"
       }
     ]
   },
@@ -43598,6 +42482,9 @@ export default [
       },
       {
         "slug": "proficiency.cefr.a2"
+      },
+      {
+        "slug": "proficiency.survival"
       }
     ]
   },
@@ -43659,6 +42546,9 @@ export default [
       },
       {
         "slug": "proficiency.cefr.a2"
+      },
+      {
+        "slug": "proficiency.survival"
       }
     ]
   },
@@ -43720,6 +42610,9 @@ export default [
       },
       {
         "slug": "proficiency.cefr.a2"
+      },
+      {
+        "slug": "proficiency.survival"
       }
     ]
   },
@@ -44706,6 +43599,9 @@ export default [
       },
       {
         "slug": "proficiency.cefr.a1"
+      },
+      {
+        "slug": "proficiency.survival"
       }
     ]
   },
@@ -44752,6 +43648,9 @@ export default [
       },
       {
         "slug": "proficiency.cefr.a1"
+      },
+      {
+        "slug": "proficiency.survival"
       }
     ]
   },
@@ -44813,6 +43712,9 @@ export default [
       },
       {
         "slug": "proficiency.cefr.a1"
+      },
+      {
+        "slug": "proficiency.survival"
       }
     ]
   },
@@ -44874,6 +43776,9 @@ export default [
       },
       {
         "slug": "proficiency.cefr.a1"
+      },
+      {
+        "slug": "proficiency.survival"
       }
     ]
   },
@@ -44935,6 +43840,9 @@ export default [
       },
       {
         "slug": "proficiency.cefr.a1"
+      },
+      {
+        "slug": "proficiency.survival"
       }
     ]
   },
@@ -44996,6 +43904,9 @@ export default [
       },
       {
         "slug": "proficiency.cefr.a1"
+      },
+      {
+        "slug": "proficiency.survival"
       }
     ]
   },
@@ -45057,6 +43968,9 @@ export default [
       },
       {
         "slug": "proficiency.cefr.a1"
+      },
+      {
+        "slug": "proficiency.survival"
       }
     ]
   },
@@ -45118,6 +44032,9 @@ export default [
       },
       {
         "slug": "proficiency.cefr.a1"
+      },
+      {
+        "slug": "proficiency.survival"
       }
     ]
   },
@@ -45634,6 +44551,9 @@ export default [
       },
       {
         "slug": "proficiency.cefr.a1"
+      },
+      {
+        "slug": "proficiency.survival"
       }
     ]
   },
@@ -45680,6 +44600,9 @@ export default [
       },
       {
         "slug": "proficiency.cefr.a1"
+      },
+      {
+        "slug": "proficiency.survival"
       }
     ]
   },
@@ -45741,6 +44664,9 @@ export default [
       },
       {
         "slug": "proficiency.cefr.a1"
+      },
+      {
+        "slug": "proficiency.survival"
       }
     ]
   },
@@ -45802,6 +44728,9 @@ export default [
       },
       {
         "slug": "proficiency.cefr.a1"
+      },
+      {
+        "slug": "proficiency.survival"
       }
     ]
   },
@@ -45869,6 +44798,9 @@ export default [
       },
       {
         "slug": "proficiency.cefr.a1"
+      },
+      {
+        "slug": "proficiency.survival"
       }
     ]
   },
@@ -45930,6 +44862,9 @@ export default [
       },
       {
         "slug": "proficiency.cefr.a1"
+      },
+      {
+        "slug": "proficiency.survival"
       }
     ]
   },
@@ -45991,6 +44926,9 @@ export default [
       },
       {
         "slug": "proficiency.cefr.a1"
+      },
+      {
+        "slug": "proficiency.survival"
       }
     ]
   },
@@ -46052,6 +44990,9 @@ export default [
       },
       {
         "slug": "proficiency.cefr.a1"
+      },
+      {
+        "slug": "proficiency.survival"
       }
     ]
   },
@@ -46104,6 +45045,9 @@ export default [
       },
       {
         "slug": "proficiency.cefr.a2"
+      },
+      {
+        "slug": "proficiency.survival"
       }
     ]
   },
@@ -46150,6 +45094,9 @@ export default [
       },
       {
         "slug": "proficiency.cefr.a2"
+      },
+      {
+        "slug": "proficiency.survival"
       }
     ]
   },
@@ -46211,6 +45158,9 @@ export default [
       },
       {
         "slug": "proficiency.cefr.a2"
+      },
+      {
+        "slug": "proficiency.survival"
       }
     ]
   },
@@ -46272,6 +45222,9 @@ export default [
       },
       {
         "slug": "proficiency.cefr.a2"
+      },
+      {
+        "slug": "proficiency.survival"
       }
     ]
   },
@@ -46339,6 +45292,9 @@ export default [
       },
       {
         "slug": "proficiency.cefr.a2"
+      },
+      {
+        "slug": "proficiency.survival"
       }
     ]
   },
@@ -46400,6 +45356,9 @@ export default [
       },
       {
         "slug": "proficiency.cefr.a2"
+      },
+      {
+        "slug": "proficiency.survival"
       }
     ]
   },
@@ -46461,6 +45420,9 @@ export default [
       },
       {
         "slug": "proficiency.cefr.a2"
+      },
+      {
+        "slug": "proficiency.survival"
       }
     ]
   },
@@ -46522,6 +45484,9 @@ export default [
       },
       {
         "slug": "proficiency.cefr.a2"
+      },
+      {
+        "slug": "proficiency.survival"
       }
     ]
   },
@@ -46574,6 +45539,9 @@ export default [
       },
       {
         "slug": "proficiency.cefr.a2"
+      },
+      {
+        "slug": "proficiency.survival"
       }
     ]
   },
@@ -46620,6 +45588,9 @@ export default [
       },
       {
         "slug": "proficiency.cefr.a2"
+      },
+      {
+        "slug": "proficiency.survival"
       }
     ]
   },
@@ -46681,6 +45652,9 @@ export default [
       },
       {
         "slug": "proficiency.cefr.a2"
+      },
+      {
+        "slug": "proficiency.survival"
       }
     ]
   },
@@ -46742,6 +45716,9 @@ export default [
       },
       {
         "slug": "proficiency.cefr.a2"
+      },
+      {
+        "slug": "proficiency.survival"
       }
     ]
   },
@@ -46803,6 +45780,9 @@ export default [
       },
       {
         "slug": "proficiency.cefr.a2"
+      },
+      {
+        "slug": "proficiency.survival"
       }
     ]
   },
@@ -46864,6 +45844,9 @@ export default [
       },
       {
         "slug": "proficiency.cefr.a2"
+      },
+      {
+        "slug": "proficiency.survival"
       }
     ]
   },
@@ -46925,6 +45908,9 @@ export default [
       },
       {
         "slug": "proficiency.cefr.a2"
+      },
+      {
+        "slug": "proficiency.survival"
       }
     ]
   },
@@ -46986,6 +45972,9 @@ export default [
       },
       {
         "slug": "proficiency.cefr.a2"
+      },
+      {
+        "slug": "proficiency.survival"
       }
     ]
   },
@@ -49352,6 +48341,9 @@ export default [
       },
       {
         "slug": "proficiency.cefr.a1"
+      },
+      {
+        "slug": "proficiency.survival"
       }
     ]
   },
@@ -49398,6 +48390,9 @@ export default [
       },
       {
         "slug": "proficiency.cefr.a1"
+      },
+      {
+        "slug": "proficiency.survival"
       }
     ]
   },
@@ -49459,6 +48454,9 @@ export default [
       },
       {
         "slug": "proficiency.cefr.a1"
+      },
+      {
+        "slug": "proficiency.survival"
       }
     ]
   },
@@ -49520,6 +48518,9 @@ export default [
       },
       {
         "slug": "proficiency.cefr.a1"
+      },
+      {
+        "slug": "proficiency.survival"
       }
     ]
   },
@@ -49581,6 +48582,9 @@ export default [
       },
       {
         "slug": "proficiency.cefr.a1"
+      },
+      {
+        "slug": "proficiency.survival"
       }
     ]
   },
@@ -49642,6 +48646,9 @@ export default [
       },
       {
         "slug": "proficiency.cefr.a1"
+      },
+      {
+        "slug": "proficiency.survival"
       }
     ]
   },
@@ -49703,6 +48710,9 @@ export default [
       },
       {
         "slug": "proficiency.cefr.a1"
+      },
+      {
+        "slug": "proficiency.survival"
       }
     ]
   },
@@ -49764,6 +48774,9 @@ export default [
       },
       {
         "slug": "proficiency.cefr.a1"
+      },
+      {
+        "slug": "proficiency.survival"
       }
     ]
   },
@@ -50292,6 +49305,9 @@ export default [
       },
       {
         "slug": "proficiency.cefr.a2"
+      },
+      {
+        "slug": "proficiency.survival"
       }
     ]
   },
@@ -50338,6 +49354,9 @@ export default [
       },
       {
         "slug": "proficiency.cefr.a2"
+      },
+      {
+        "slug": "proficiency.survival"
       }
     ]
   },
@@ -50399,6 +49418,9 @@ export default [
       },
       {
         "slug": "proficiency.cefr.a2"
+      },
+      {
+        "slug": "proficiency.survival"
       }
     ]
   },
@@ -50460,6 +49482,9 @@ export default [
       },
       {
         "slug": "proficiency.cefr.a2"
+      },
+      {
+        "slug": "proficiency.survival"
       }
     ]
   },
@@ -50521,6 +49546,9 @@ export default [
       },
       {
         "slug": "proficiency.cefr.a2"
+      },
+      {
+        "slug": "proficiency.survival"
       }
     ]
   },
@@ -50582,6 +49610,9 @@ export default [
       },
       {
         "slug": "proficiency.cefr.a2"
+      },
+      {
+        "slug": "proficiency.survival"
       }
     ]
   },
@@ -50643,6 +49674,9 @@ export default [
       },
       {
         "slug": "proficiency.cefr.a2"
+      },
+      {
+        "slug": "proficiency.survival"
       }
     ]
   },
@@ -50704,6 +49738,9 @@ export default [
       },
       {
         "slug": "proficiency.cefr.a2"
+      },
+      {
+        "slug": "proficiency.survival"
       }
     ]
   },
@@ -51202,6 +50239,9 @@ export default [
       },
       {
         "slug": "proficiency.cefr.a2"
+      },
+      {
+        "slug": "proficiency.survival"
       }
     ]
   },
@@ -51254,6 +50294,9 @@ export default [
       },
       {
         "slug": "proficiency.cefr.a2"
+      },
+      {
+        "slug": "proficiency.survival"
       }
     ]
   },
@@ -51315,6 +50358,9 @@ export default [
       },
       {
         "slug": "proficiency.cefr.a2"
+      },
+      {
+        "slug": "proficiency.survival"
       }
     ]
   },
@@ -51376,6 +50422,9 @@ export default [
       },
       {
         "slug": "proficiency.cefr.a2"
+      },
+      {
+        "slug": "proficiency.survival"
       }
     ]
   },
@@ -51437,6 +50486,9 @@ export default [
       },
       {
         "slug": "proficiency.cefr.a2"
+      },
+      {
+        "slug": "proficiency.survival"
       }
     ]
   },
@@ -51444,8 +50496,7 @@ export default [
     "slug": "significare.verb.indicative.present.first.plural",
     "traits": [
       "TRANSLATED",
-      "EXEMPLIFIED",
-      "RANKED"
+      "EXEMPLIFIED"
     ],
     "trait": {
       "TRANSLATED": {
@@ -51455,11 +50506,6 @@ export default [
       "EXEMPLIFIED": {
         "known": "We mean little to them",
         "learning": "Significhiamo poco per loro"
-      },
-      "RANKED": {
-        "rank": 0,
-        "zipf": 1.36,
-        "fpm": 0.0229
       }
     },
     "symbols": [
@@ -51498,6 +50544,9 @@ export default [
       },
       {
         "slug": "proficiency.cefr.a2"
+      },
+      {
+        "slug": "proficiency.survival"
       }
     ]
   },
@@ -51559,6 +50608,9 @@ export default [
       },
       {
         "slug": "proficiency.cefr.a2"
+      },
+      {
+        "slug": "proficiency.survival"
       }
     ]
   },
@@ -51620,6 +50672,9 @@ export default [
       },
       {
         "slug": "proficiency.cefr.a2"
+      },
+      {
+        "slug": "proficiency.survival"
       }
     ]
   },
@@ -52372,8 +51427,7 @@ export default [
     "slug": "pesare.verb.indicative.present.first.plural",
     "traits": [
       "TRANSLATED",
-      "EXEMPLIFIED",
-      "RANKED"
+      "EXEMPLIFIED"
     ],
     "trait": {
       "TRANSLATED": {
@@ -52383,11 +51437,6 @@ export default [
       "EXEMPLIFIED": {
         "known": "We weigh the ingredients precisely",
         "learning": "Pesiamo gli ingredienti con precisione"
-      },
-      "RANKED": {
-        "rank": 0,
-        "zipf": 1.37,
-        "fpm": 0.0234
       }
     },
     "symbols": [
@@ -58668,6 +57717,9 @@ export default [
       },
       {
         "slug": "proficiency.cefr.a2"
+      },
+      {
+        "slug": "proficiency.survival"
       }
     ]
   },
@@ -58714,6 +57766,9 @@ export default [
       },
       {
         "slug": "proficiency.cefr.a2"
+      },
+      {
+        "slug": "proficiency.survival"
       }
     ]
   },
@@ -58775,6 +57830,9 @@ export default [
       },
       {
         "slug": "proficiency.cefr.a2"
+      },
+      {
+        "slug": "proficiency.survival"
       }
     ]
   },
@@ -58836,6 +57894,9 @@ export default [
       },
       {
         "slug": "proficiency.cefr.a2"
+      },
+      {
+        "slug": "proficiency.survival"
       }
     ]
   },
@@ -58903,6 +57964,9 @@ export default [
       },
       {
         "slug": "proficiency.cefr.a2"
+      },
+      {
+        "slug": "proficiency.survival"
       }
     ]
   },
@@ -58964,6 +58028,9 @@ export default [
       },
       {
         "slug": "proficiency.cefr.a2"
+      },
+      {
+        "slug": "proficiency.survival"
       }
     ]
   },
@@ -59025,6 +58092,9 @@ export default [
       },
       {
         "slug": "proficiency.cefr.a2"
+      },
+      {
+        "slug": "proficiency.survival"
       }
     ]
   },
@@ -59086,6 +58156,9 @@ export default [
       },
       {
         "slug": "proficiency.cefr.a2"
+      },
+      {
+        "slug": "proficiency.survival"
       }
     ]
   },
@@ -59138,6 +58211,9 @@ export default [
       },
       {
         "slug": "proficiency.cefr.a2"
+      },
+      {
+        "slug": "proficiency.survival"
       }
     ]
   },
@@ -59184,6 +58260,9 @@ export default [
       },
       {
         "slug": "proficiency.cefr.a2"
+      },
+      {
+        "slug": "proficiency.survival"
       }
     ]
   },
@@ -59245,6 +58324,9 @@ export default [
       },
       {
         "slug": "proficiency.cefr.a2"
+      },
+      {
+        "slug": "proficiency.survival"
       }
     ]
   },
@@ -59306,6 +58388,9 @@ export default [
       },
       {
         "slug": "proficiency.cefr.a2"
+      },
+      {
+        "slug": "proficiency.survival"
       }
     ]
   },
@@ -59367,6 +58452,9 @@ export default [
       },
       {
         "slug": "proficiency.cefr.a2"
+      },
+      {
+        "slug": "proficiency.survival"
       }
     ]
   },
@@ -59428,6 +58516,9 @@ export default [
       },
       {
         "slug": "proficiency.cefr.a2"
+      },
+      {
+        "slug": "proficiency.survival"
       }
     ]
   },
@@ -59489,6 +58580,9 @@ export default [
       },
       {
         "slug": "proficiency.cefr.a2"
+      },
+      {
+        "slug": "proficiency.survival"
       }
     ]
   },
@@ -59550,6 +58644,9 @@ export default [
       },
       {
         "slug": "proficiency.cefr.a2"
+      },
+      {
+        "slug": "proficiency.survival"
       }
     ]
   },
@@ -59602,6 +58699,9 @@ export default [
       },
       {
         "slug": "proficiency.cefr.a2"
+      },
+      {
+        "slug": "proficiency.survival"
       }
     ]
   },
@@ -59648,6 +58748,9 @@ export default [
       },
       {
         "slug": "proficiency.cefr.a2"
+      },
+      {
+        "slug": "proficiency.survival"
       }
     ]
   },
@@ -59709,6 +58812,9 @@ export default [
       },
       {
         "slug": "proficiency.cefr.a2"
+      },
+      {
+        "slug": "proficiency.survival"
       }
     ]
   },
@@ -59770,6 +58876,9 @@ export default [
       },
       {
         "slug": "proficiency.cefr.a2"
+      },
+      {
+        "slug": "proficiency.survival"
       }
     ]
   },
@@ -59831,6 +58940,9 @@ export default [
       },
       {
         "slug": "proficiency.cefr.a2"
+      },
+      {
+        "slug": "proficiency.survival"
       }
     ]
   },
@@ -59892,6 +59004,9 @@ export default [
       },
       {
         "slug": "proficiency.cefr.a2"
+      },
+      {
+        "slug": "proficiency.survival"
       }
     ]
   },
@@ -59953,6 +59068,9 @@ export default [
       },
       {
         "slug": "proficiency.cefr.a2"
+      },
+      {
+        "slug": "proficiency.survival"
       }
     ]
   },
@@ -60014,6 +59132,9 @@ export default [
       },
       {
         "slug": "proficiency.cefr.a2"
+      },
+      {
+        "slug": "proficiency.survival"
       }
     ]
   },
@@ -60536,6 +59657,9 @@ export default [
       },
       {
         "slug": "proficiency.cefr.a1"
+      },
+      {
+        "slug": "proficiency.survival"
       }
     ]
   },
@@ -60582,6 +59706,9 @@ export default [
       },
       {
         "slug": "proficiency.cefr.a1"
+      },
+      {
+        "slug": "proficiency.survival"
       }
     ]
   },
@@ -60643,6 +59770,9 @@ export default [
       },
       {
         "slug": "proficiency.cefr.a1"
+      },
+      {
+        "slug": "proficiency.survival"
       }
     ]
   },
@@ -60704,6 +59834,9 @@ export default [
       },
       {
         "slug": "proficiency.cefr.a1"
+      },
+      {
+        "slug": "proficiency.survival"
       }
     ]
   },
@@ -60765,6 +59898,9 @@ export default [
       },
       {
         "slug": "proficiency.cefr.a1"
+      },
+      {
+        "slug": "proficiency.survival"
       }
     ]
   },
@@ -60826,6 +59962,9 @@ export default [
       },
       {
         "slug": "proficiency.cefr.a1"
+      },
+      {
+        "slug": "proficiency.survival"
       }
     ]
   },
@@ -60887,6 +60026,9 @@ export default [
       },
       {
         "slug": "proficiency.cefr.a1"
+      },
+      {
+        "slug": "proficiency.survival"
       }
     ]
   },
@@ -60948,6 +60090,9 @@ export default [
       },
       {
         "slug": "proficiency.cefr.a1"
+      },
+      {
+        "slug": "proficiency.survival"
       }
     ]
   },
@@ -61000,6 +60145,9 @@ export default [
       },
       {
         "slug": "proficiency.cefr.a1"
+      },
+      {
+        "slug": "proficiency.survival"
       }
     ]
   },
@@ -61046,6 +60194,9 @@ export default [
       },
       {
         "slug": "proficiency.cefr.a1"
+      },
+      {
+        "slug": "proficiency.survival"
       }
     ]
   },
@@ -61107,6 +60258,9 @@ export default [
       },
       {
         "slug": "proficiency.cefr.a1"
+      },
+      {
+        "slug": "proficiency.survival"
       }
     ]
   },
@@ -61168,6 +60322,9 @@ export default [
       },
       {
         "slug": "proficiency.cefr.a1"
+      },
+      {
+        "slug": "proficiency.survival"
       }
     ]
   },
@@ -61229,6 +60386,9 @@ export default [
       },
       {
         "slug": "proficiency.cefr.a1"
+      },
+      {
+        "slug": "proficiency.survival"
       }
     ]
   },
@@ -61290,6 +60450,9 @@ export default [
       },
       {
         "slug": "proficiency.cefr.a1"
+      },
+      {
+        "slug": "proficiency.survival"
       }
     ]
   },
@@ -61351,6 +60514,9 @@ export default [
       },
       {
         "slug": "proficiency.cefr.a1"
+      },
+      {
+        "slug": "proficiency.survival"
       }
     ]
   },
@@ -61412,6 +60578,9 @@ export default [
       },
       {
         "slug": "proficiency.cefr.a1"
+      },
+      {
+        "slug": "proficiency.survival"
       }
     ]
   },
@@ -61464,6 +60633,9 @@ export default [
       },
       {
         "slug": "proficiency.cefr.a1"
+      },
+      {
+        "slug": "proficiency.survival"
       }
     ]
   },
@@ -61516,6 +60688,9 @@ export default [
       },
       {
         "slug": "proficiency.cefr.a1"
+      },
+      {
+        "slug": "proficiency.survival"
       }
     ]
   },
@@ -61577,6 +60752,9 @@ export default [
       },
       {
         "slug": "proficiency.cefr.a1"
+      },
+      {
+        "slug": "proficiency.survival"
       }
     ]
   },
@@ -61638,6 +60816,9 @@ export default [
       },
       {
         "slug": "proficiency.cefr.a1"
+      },
+      {
+        "slug": "proficiency.survival"
       }
     ]
   },
@@ -61699,6 +60880,9 @@ export default [
       },
       {
         "slug": "proficiency.cefr.a1"
+      },
+      {
+        "slug": "proficiency.survival"
       }
     ]
   },
@@ -61760,6 +60944,9 @@ export default [
       },
       {
         "slug": "proficiency.cefr.a1"
+      },
+      {
+        "slug": "proficiency.survival"
       }
     ]
   },
@@ -61821,6 +61008,9 @@ export default [
       },
       {
         "slug": "proficiency.cefr.a1"
+      },
+      {
+        "slug": "proficiency.survival"
       }
     ]
   },
@@ -61882,6 +61072,9 @@ export default [
       },
       {
         "slug": "proficiency.cefr.a1"
+      },
+      {
+        "slug": "proficiency.survival"
       }
     ]
   },
@@ -61934,6 +61127,9 @@ export default [
       },
       {
         "slug": "proficiency.cefr.a1"
+      },
+      {
+        "slug": "proficiency.survival"
       }
     ]
   },
@@ -61980,6 +61176,9 @@ export default [
       },
       {
         "slug": "proficiency.cefr.a1"
+      },
+      {
+        "slug": "proficiency.survival"
       }
     ]
   },
@@ -62041,6 +61240,9 @@ export default [
       },
       {
         "slug": "proficiency.cefr.a1"
+      },
+      {
+        "slug": "proficiency.survival"
       }
     ]
   },
@@ -62102,6 +61304,9 @@ export default [
       },
       {
         "slug": "proficiency.cefr.a1"
+      },
+      {
+        "slug": "proficiency.survival"
       }
     ]
   },
@@ -62163,6 +61368,9 @@ export default [
       },
       {
         "slug": "proficiency.cefr.a1"
+      },
+      {
+        "slug": "proficiency.survival"
       }
     ]
   },
@@ -62224,6 +61432,9 @@ export default [
       },
       {
         "slug": "proficiency.cefr.a1"
+      },
+      {
+        "slug": "proficiency.survival"
       }
     ]
   },
@@ -62285,6 +61496,9 @@ export default [
       },
       {
         "slug": "proficiency.cefr.a1"
+      },
+      {
+        "slug": "proficiency.survival"
       }
     ]
   },
@@ -62346,6 +61560,9 @@ export default [
       },
       {
         "slug": "proficiency.cefr.a1"
+      },
+      {
+        "slug": "proficiency.survival"
       }
     ]
   },
@@ -62398,6 +61615,9 @@ export default [
       },
       {
         "slug": "proficiency.cefr.a1"
+      },
+      {
+        "slug": "proficiency.survival"
       }
     ]
   },
@@ -62444,6 +61664,9 @@ export default [
       },
       {
         "slug": "proficiency.cefr.a1"
+      },
+      {
+        "slug": "proficiency.survival"
       }
     ]
   },
@@ -62505,6 +61728,9 @@ export default [
       },
       {
         "slug": "proficiency.cefr.a1"
+      },
+      {
+        "slug": "proficiency.survival"
       }
     ]
   },
@@ -62566,6 +61792,9 @@ export default [
       },
       {
         "slug": "proficiency.cefr.a1"
+      },
+      {
+        "slug": "proficiency.survival"
       }
     ]
   },
@@ -62627,6 +61856,9 @@ export default [
       },
       {
         "slug": "proficiency.cefr.a1"
+      },
+      {
+        "slug": "proficiency.survival"
       }
     ]
   },
@@ -62688,6 +61920,9 @@ export default [
       },
       {
         "slug": "proficiency.cefr.a1"
+      },
+      {
+        "slug": "proficiency.survival"
       }
     ]
   },
@@ -62749,6 +61984,9 @@ export default [
       },
       {
         "slug": "proficiency.cefr.a1"
+      },
+      {
+        "slug": "proficiency.survival"
       }
     ]
   },
@@ -62810,6 +62048,9 @@ export default [
       },
       {
         "slug": "proficiency.cefr.a1"
+      },
+      {
+        "slug": "proficiency.survival"
       }
     ]
   },
@@ -62862,6 +62103,9 @@ export default [
       },
       {
         "slug": "proficiency.cefr.a1"
+      },
+      {
+        "slug": "proficiency.survival"
       }
     ]
   },
@@ -62908,6 +62152,9 @@ export default [
       },
       {
         "slug": "proficiency.cefr.a1"
+      },
+      {
+        "slug": "proficiency.survival"
       }
     ]
   },
@@ -62969,6 +62216,9 @@ export default [
       },
       {
         "slug": "proficiency.cefr.a1"
+      },
+      {
+        "slug": "proficiency.survival"
       }
     ]
   },
@@ -63030,6 +62280,9 @@ export default [
       },
       {
         "slug": "proficiency.cefr.a1"
+      },
+      {
+        "slug": "proficiency.survival"
       }
     ]
   },
@@ -63091,6 +62344,9 @@ export default [
       },
       {
         "slug": "proficiency.cefr.a1"
+      },
+      {
+        "slug": "proficiency.survival"
       }
     ]
   },
@@ -63152,6 +62408,9 @@ export default [
       },
       {
         "slug": "proficiency.cefr.a1"
+      },
+      {
+        "slug": "proficiency.survival"
       }
     ]
   },
@@ -63213,6 +62472,9 @@ export default [
       },
       {
         "slug": "proficiency.cefr.a1"
+      },
+      {
+        "slug": "proficiency.survival"
       }
     ]
   },
@@ -63274,6 +62536,9 @@ export default [
       },
       {
         "slug": "proficiency.cefr.a1"
+      },
+      {
+        "slug": "proficiency.survival"
       }
     ]
   },
@@ -63326,6 +62591,9 @@ export default [
       },
       {
         "slug": "proficiency.cefr.a1"
+      },
+      {
+        "slug": "proficiency.survival"
       }
     ]
   },
@@ -63372,6 +62640,9 @@ export default [
       },
       {
         "slug": "proficiency.cefr.a1"
+      },
+      {
+        "slug": "proficiency.survival"
       }
     ]
   },
@@ -63433,6 +62704,9 @@ export default [
       },
       {
         "slug": "proficiency.cefr.a1"
+      },
+      {
+        "slug": "proficiency.survival"
       }
     ]
   },
@@ -63494,6 +62768,9 @@ export default [
       },
       {
         "slug": "proficiency.cefr.a1"
+      },
+      {
+        "slug": "proficiency.survival"
       }
     ]
   },
@@ -63555,6 +62832,9 @@ export default [
       },
       {
         "slug": "proficiency.cefr.a1"
+      },
+      {
+        "slug": "proficiency.survival"
       }
     ]
   },
@@ -63616,6 +62896,9 @@ export default [
       },
       {
         "slug": "proficiency.cefr.a1"
+      },
+      {
+        "slug": "proficiency.survival"
       }
     ]
   },
@@ -63677,6 +62960,9 @@ export default [
       },
       {
         "slug": "proficiency.cefr.a1"
+      },
+      {
+        "slug": "proficiency.survival"
       }
     ]
   },
@@ -63738,6 +63024,9 @@ export default [
       },
       {
         "slug": "proficiency.cefr.a1"
+      },
+      {
+        "slug": "proficiency.survival"
       }
     ]
   },
@@ -63790,6 +63079,9 @@ export default [
       },
       {
         "slug": "proficiency.cefr.a1"
+      },
+      {
+        "slug": "proficiency.survival"
       }
     ]
   },
@@ -63842,6 +63134,9 @@ export default [
       },
       {
         "slug": "proficiency.cefr.a1"
+      },
+      {
+        "slug": "proficiency.survival"
       }
     ]
   },
@@ -63903,6 +63198,9 @@ export default [
       },
       {
         "slug": "proficiency.cefr.a1"
+      },
+      {
+        "slug": "proficiency.survival"
       }
     ]
   },
@@ -63964,6 +63262,9 @@ export default [
       },
       {
         "slug": "proficiency.cefr.a1"
+      },
+      {
+        "slug": "proficiency.survival"
       }
     ]
   },
@@ -64031,6 +63332,9 @@ export default [
       },
       {
         "slug": "proficiency.cefr.a1"
+      },
+      {
+        "slug": "proficiency.survival"
       }
     ]
   },
@@ -64092,6 +63396,9 @@ export default [
       },
       {
         "slug": "proficiency.cefr.a1"
+      },
+      {
+        "slug": "proficiency.survival"
       }
     ]
   },
@@ -64153,6 +63460,9 @@ export default [
       },
       {
         "slug": "proficiency.cefr.a1"
+      },
+      {
+        "slug": "proficiency.survival"
       }
     ]
   },
@@ -64214,6 +63524,9 @@ export default [
       },
       {
         "slug": "proficiency.cefr.a1"
+      },
+      {
+        "slug": "proficiency.survival"
       }
     ]
   },
@@ -64266,6 +63579,9 @@ export default [
       },
       {
         "slug": "proficiency.cefr.a1"
+      },
+      {
+        "slug": "proficiency.survival"
       }
     ]
   },
@@ -64318,6 +63634,9 @@ export default [
       },
       {
         "slug": "proficiency.cefr.a1"
+      },
+      {
+        "slug": "proficiency.survival"
       }
     ]
   },
@@ -64379,6 +63698,9 @@ export default [
       },
       {
         "slug": "proficiency.cefr.a1"
+      },
+      {
+        "slug": "proficiency.survival"
       }
     ]
   },
@@ -64440,6 +63762,9 @@ export default [
       },
       {
         "slug": "proficiency.cefr.a1"
+      },
+      {
+        "slug": "proficiency.survival"
       }
     ]
   },
@@ -64501,6 +63826,9 @@ export default [
       },
       {
         "slug": "proficiency.cefr.a1"
+      },
+      {
+        "slug": "proficiency.survival"
       }
     ]
   },
@@ -64562,6 +63890,9 @@ export default [
       },
       {
         "slug": "proficiency.cefr.a1"
+      },
+      {
+        "slug": "proficiency.survival"
       }
     ]
   },
@@ -64623,6 +63954,9 @@ export default [
       },
       {
         "slug": "proficiency.cefr.a1"
+      },
+      {
+        "slug": "proficiency.survival"
       }
     ]
   },
@@ -64684,6 +64018,9 @@ export default [
       },
       {
         "slug": "proficiency.cefr.a1"
+      },
+      {
+        "slug": "proficiency.survival"
       }
     ]
   },
@@ -64736,6 +64073,9 @@ export default [
       },
       {
         "slug": "proficiency.cefr.a1"
+      },
+      {
+        "slug": "proficiency.survival"
       }
     ]
   },
@@ -64788,6 +64128,9 @@ export default [
       },
       {
         "slug": "proficiency.cefr.a1"
+      },
+      {
+        "slug": "proficiency.survival"
       }
     ]
   },
@@ -64849,6 +64192,9 @@ export default [
       },
       {
         "slug": "proficiency.cefr.a1"
+      },
+      {
+        "slug": "proficiency.survival"
       }
     ]
   },
@@ -64910,6 +64256,9 @@ export default [
       },
       {
         "slug": "proficiency.cefr.a1"
+      },
+      {
+        "slug": "proficiency.survival"
       }
     ]
   },
@@ -64971,6 +64320,9 @@ export default [
       },
       {
         "slug": "proficiency.cefr.a1"
+      },
+      {
+        "slug": "proficiency.survival"
       }
     ]
   },
@@ -65032,6 +64384,9 @@ export default [
       },
       {
         "slug": "proficiency.cefr.a1"
+      },
+      {
+        "slug": "proficiency.survival"
       }
     ]
   },
@@ -65093,6 +64448,9 @@ export default [
       },
       {
         "slug": "proficiency.cefr.a1"
+      },
+      {
+        "slug": "proficiency.survival"
       }
     ]
   },
@@ -65154,6 +64512,9 @@ export default [
       },
       {
         "slug": "proficiency.cefr.a1"
+      },
+      {
+        "slug": "proficiency.survival"
       }
     ]
   },
@@ -65206,6 +64567,9 @@ export default [
       },
       {
         "slug": "proficiency.cefr.a1"
+      },
+      {
+        "slug": "proficiency.survival"
       }
     ]
   },
@@ -65258,6 +64622,9 @@ export default [
       },
       {
         "slug": "proficiency.cefr.a1"
+      },
+      {
+        "slug": "proficiency.survival"
       }
     ]
   },
@@ -65319,6 +64686,9 @@ export default [
       },
       {
         "slug": "proficiency.cefr.a1"
+      },
+      {
+        "slug": "proficiency.survival"
       }
     ]
   },
@@ -65380,6 +64750,9 @@ export default [
       },
       {
         "slug": "proficiency.cefr.a1"
+      },
+      {
+        "slug": "proficiency.survival"
       }
     ]
   },
@@ -65441,6 +64814,9 @@ export default [
       },
       {
         "slug": "proficiency.cefr.a1"
+      },
+      {
+        "slug": "proficiency.survival"
       }
     ]
   },
@@ -65502,6 +64878,9 @@ export default [
       },
       {
         "slug": "proficiency.cefr.a1"
+      },
+      {
+        "slug": "proficiency.survival"
       }
     ]
   },
@@ -65563,6 +64942,9 @@ export default [
       },
       {
         "slug": "proficiency.cefr.a1"
+      },
+      {
+        "slug": "proficiency.survival"
       }
     ]
   },
@@ -65624,6 +65006,9 @@ export default [
       },
       {
         "slug": "proficiency.cefr.a1"
+      },
+      {
+        "slug": "proficiency.survival"
       }
     ]
   },
@@ -65676,6 +65061,9 @@ export default [
       },
       {
         "slug": "proficiency.cefr.a1"
+      },
+      {
+        "slug": "proficiency.survival"
       }
     ]
   },
@@ -65722,6 +65110,9 @@ export default [
       },
       {
         "slug": "proficiency.cefr.a1"
+      },
+      {
+        "slug": "proficiency.survival"
       }
     ]
   },
@@ -65789,6 +65180,9 @@ export default [
       },
       {
         "slug": "proficiency.cefr.a1"
+      },
+      {
+        "slug": "proficiency.survival"
       }
     ]
   },
@@ -65850,6 +65244,9 @@ export default [
       },
       {
         "slug": "proficiency.cefr.a1"
+      },
+      {
+        "slug": "proficiency.survival"
       }
     ]
   },
@@ -65911,6 +65308,9 @@ export default [
       },
       {
         "slug": "proficiency.cefr.a1"
+      },
+      {
+        "slug": "proficiency.survival"
       }
     ]
   },
@@ -65972,6 +65372,9 @@ export default [
       },
       {
         "slug": "proficiency.cefr.a1"
+      },
+      {
+        "slug": "proficiency.survival"
       }
     ]
   },
@@ -66033,6 +65436,9 @@ export default [
       },
       {
         "slug": "proficiency.cefr.a1"
+      },
+      {
+        "slug": "proficiency.survival"
       }
     ]
   },
@@ -66094,6 +65500,9 @@ export default [
       },
       {
         "slug": "proficiency.cefr.a1"
+      },
+      {
+        "slug": "proficiency.survival"
       }
     ]
   },
@@ -66146,6 +65555,9 @@ export default [
       },
       {
         "slug": "proficiency.cefr.a1"
+      },
+      {
+        "slug": "proficiency.survival"
       }
     ]
   },
@@ -66192,6 +65604,9 @@ export default [
       },
       {
         "slug": "proficiency.cefr.a1"
+      },
+      {
+        "slug": "proficiency.survival"
       }
     ]
   },
@@ -66259,6 +65674,9 @@ export default [
       },
       {
         "slug": "proficiency.cefr.a1"
+      },
+      {
+        "slug": "proficiency.survival"
       }
     ]
   },
@@ -66320,6 +65738,9 @@ export default [
       },
       {
         "slug": "proficiency.cefr.a1"
+      },
+      {
+        "slug": "proficiency.survival"
       }
     ]
   },
@@ -66381,6 +65802,9 @@ export default [
       },
       {
         "slug": "proficiency.cefr.a1"
+      },
+      {
+        "slug": "proficiency.survival"
       }
     ]
   },
@@ -66442,6 +65866,9 @@ export default [
       },
       {
         "slug": "proficiency.cefr.a1"
+      },
+      {
+        "slug": "proficiency.survival"
       }
     ]
   },
@@ -66503,6 +65930,9 @@ export default [
       },
       {
         "slug": "proficiency.cefr.a1"
+      },
+      {
+        "slug": "proficiency.survival"
       }
     ]
   },
@@ -66564,6 +65994,9 @@ export default [
       },
       {
         "slug": "proficiency.cefr.a1"
+      },
+      {
+        "slug": "proficiency.survival"
       }
     ]
   },
@@ -66616,6 +66049,9 @@ export default [
       },
       {
         "slug": "proficiency.cefr.a1"
+      },
+      {
+        "slug": "proficiency.survival"
       }
     ]
   },
@@ -66668,6 +66104,9 @@ export default [
       },
       {
         "slug": "proficiency.cefr.a1"
+      },
+      {
+        "slug": "proficiency.survival"
       }
     ]
   },
@@ -66735,6 +66174,9 @@ export default [
       },
       {
         "slug": "proficiency.cefr.a1"
+      },
+      {
+        "slug": "proficiency.survival"
       }
     ]
   },
@@ -66796,6 +66238,9 @@ export default [
       },
       {
         "slug": "proficiency.cefr.a1"
+      },
+      {
+        "slug": "proficiency.survival"
       }
     ]
   },
@@ -66863,6 +66308,9 @@ export default [
       },
       {
         "slug": "proficiency.cefr.a1"
+      },
+      {
+        "slug": "proficiency.survival"
       }
     ]
   },
@@ -66924,6 +66372,9 @@ export default [
       },
       {
         "slug": "proficiency.cefr.a1"
+      },
+      {
+        "slug": "proficiency.survival"
       }
     ]
   },
@@ -66985,6 +66436,9 @@ export default [
       },
       {
         "slug": "proficiency.cefr.a1"
+      },
+      {
+        "slug": "proficiency.survival"
       }
     ]
   },
@@ -67046,6 +66500,9 @@ export default [
       },
       {
         "slug": "proficiency.cefr.a1"
+      },
+      {
+        "slug": "proficiency.survival"
       }
     ]
   },
@@ -67098,6 +66555,9 @@ export default [
       },
       {
         "slug": "proficiency.cefr.a1"
+      },
+      {
+        "slug": "proficiency.survival"
       }
     ]
   },
@@ -67144,6 +66604,9 @@ export default [
       },
       {
         "slug": "proficiency.cefr.a1"
+      },
+      {
+        "slug": "proficiency.survival"
       }
     ]
   },
@@ -67205,6 +66668,9 @@ export default [
       },
       {
         "slug": "proficiency.cefr.a1"
+      },
+      {
+        "slug": "proficiency.survival"
       }
     ]
   },
@@ -67266,6 +66732,9 @@ export default [
       },
       {
         "slug": "proficiency.cefr.a1"
+      },
+      {
+        "slug": "proficiency.survival"
       }
     ]
   },
@@ -67327,6 +66796,9 @@ export default [
       },
       {
         "slug": "proficiency.cefr.a1"
+      },
+      {
+        "slug": "proficiency.survival"
       }
     ]
   },
@@ -67388,6 +66860,9 @@ export default [
       },
       {
         "slug": "proficiency.cefr.a1"
+      },
+      {
+        "slug": "proficiency.survival"
       }
     ]
   },
@@ -67449,6 +66924,9 @@ export default [
       },
       {
         "slug": "proficiency.cefr.a1"
+      },
+      {
+        "slug": "proficiency.survival"
       }
     ]
   },
@@ -67510,6 +66988,9 @@ export default [
       },
       {
         "slug": "proficiency.cefr.a1"
+      },
+      {
+        "slug": "proficiency.survival"
       }
     ]
   },
@@ -67562,6 +67043,9 @@ export default [
       },
       {
         "slug": "proficiency.cefr.a1"
+      },
+      {
+        "slug": "proficiency.survival"
       }
     ]
   },
@@ -67608,6 +67092,9 @@ export default [
       },
       {
         "slug": "proficiency.cefr.a1"
+      },
+      {
+        "slug": "proficiency.survival"
       }
     ]
   },
@@ -67675,6 +67162,9 @@ export default [
       },
       {
         "slug": "proficiency.cefr.a1"
+      },
+      {
+        "slug": "proficiency.survival"
       }
     ]
   },
@@ -67736,6 +67226,9 @@ export default [
       },
       {
         "slug": "proficiency.cefr.a1"
+      },
+      {
+        "slug": "proficiency.survival"
       }
     ]
   },
@@ -67797,6 +67290,9 @@ export default [
       },
       {
         "slug": "proficiency.cefr.a1"
+      },
+      {
+        "slug": "proficiency.survival"
       }
     ]
   },
@@ -67858,6 +67354,9 @@ export default [
       },
       {
         "slug": "proficiency.cefr.a1"
+      },
+      {
+        "slug": "proficiency.survival"
       }
     ]
   },
@@ -67919,6 +67418,9 @@ export default [
       },
       {
         "slug": "proficiency.cefr.a1"
+      },
+      {
+        "slug": "proficiency.survival"
       }
     ]
   },
@@ -67980,6 +67482,9 @@ export default [
       },
       {
         "slug": "proficiency.cefr.a1"
+      },
+      {
+        "slug": "proficiency.survival"
       }
     ]
   },
@@ -68032,6 +67537,9 @@ export default [
       },
       {
         "slug": "proficiency.cefr.a2"
+      },
+      {
+        "slug": "proficiency.survival"
       }
     ]
   },
@@ -68078,6 +67586,9 @@ export default [
       },
       {
         "slug": "proficiency.cefr.a2"
+      },
+      {
+        "slug": "proficiency.survival"
       }
     ]
   },
@@ -68139,6 +67650,9 @@ export default [
       },
       {
         "slug": "proficiency.cefr.a2"
+      },
+      {
+        "slug": "proficiency.survival"
       }
     ]
   },
@@ -68200,6 +67714,9 @@ export default [
       },
       {
         "slug": "proficiency.cefr.a2"
+      },
+      {
+        "slug": "proficiency.survival"
       }
     ]
   },
@@ -68261,6 +67778,9 @@ export default [
       },
       {
         "slug": "proficiency.cefr.a2"
+      },
+      {
+        "slug": "proficiency.survival"
       }
     ]
   },
@@ -68322,6 +67842,9 @@ export default [
       },
       {
         "slug": "proficiency.cefr.a2"
+      },
+      {
+        "slug": "proficiency.survival"
       }
     ]
   },
@@ -68383,6 +67906,9 @@ export default [
       },
       {
         "slug": "proficiency.cefr.a2"
+      },
+      {
+        "slug": "proficiency.survival"
       }
     ]
   },
@@ -68444,6 +67970,9 @@ export default [
       },
       {
         "slug": "proficiency.cefr.a2"
+      },
+      {
+        "slug": "proficiency.survival"
       }
     ]
   },
@@ -68496,6 +68025,9 @@ export default [
       },
       {
         "slug": "proficiency.cefr.a1"
+      },
+      {
+        "slug": "proficiency.survival"
       }
     ]
   },
@@ -68542,6 +68074,9 @@ export default [
       },
       {
         "slug": "proficiency.cefr.a1"
+      },
+      {
+        "slug": "proficiency.survival"
       }
     ]
   },
@@ -68609,6 +68144,9 @@ export default [
       },
       {
         "slug": "proficiency.cefr.a1"
+      },
+      {
+        "slug": "proficiency.survival"
       }
     ]
   },
@@ -68670,6 +68208,9 @@ export default [
       },
       {
         "slug": "proficiency.cefr.a1"
+      },
+      {
+        "slug": "proficiency.survival"
       }
     ]
   },
@@ -68737,6 +68278,9 @@ export default [
       },
       {
         "slug": "proficiency.cefr.a1"
+      },
+      {
+        "slug": "proficiency.survival"
       }
     ]
   },
@@ -68798,6 +68342,9 @@ export default [
       },
       {
         "slug": "proficiency.cefr.a1"
+      },
+      {
+        "slug": "proficiency.survival"
       }
     ]
   },
@@ -68859,6 +68406,9 @@ export default [
       },
       {
         "slug": "proficiency.cefr.a1"
+      },
+      {
+        "slug": "proficiency.survival"
       }
     ]
   },
@@ -68920,6 +68470,9 @@ export default [
       },
       {
         "slug": "proficiency.cefr.a1"
+      },
+      {
+        "slug": "proficiency.survival"
       }
     ]
   },
@@ -68972,6 +68525,9 @@ export default [
       },
       {
         "slug": "proficiency.cefr.a1"
+      },
+      {
+        "slug": "proficiency.survival"
       }
     ]
   },
@@ -69018,6 +68574,9 @@ export default [
       },
       {
         "slug": "proficiency.cefr.a1"
+      },
+      {
+        "slug": "proficiency.survival"
       }
     ]
   },
@@ -69079,6 +68638,9 @@ export default [
       },
       {
         "slug": "proficiency.cefr.a1"
+      },
+      {
+        "slug": "proficiency.survival"
       }
     ]
   },
@@ -69140,6 +68702,9 @@ export default [
       },
       {
         "slug": "proficiency.cefr.a1"
+      },
+      {
+        "slug": "proficiency.survival"
       }
     ]
   },
@@ -69201,6 +68766,9 @@ export default [
       },
       {
         "slug": "proficiency.cefr.a1"
+      },
+      {
+        "slug": "proficiency.survival"
       }
     ]
   },
@@ -69262,6 +68830,9 @@ export default [
       },
       {
         "slug": "proficiency.cefr.a1"
+      },
+      {
+        "slug": "proficiency.survival"
       }
     ]
   },
@@ -69323,6 +68894,9 @@ export default [
       },
       {
         "slug": "proficiency.cefr.a1"
+      },
+      {
+        "slug": "proficiency.survival"
       }
     ]
   },
@@ -69384,6 +68958,9 @@ export default [
       },
       {
         "slug": "proficiency.cefr.a1"
+      },
+      {
+        "slug": "proficiency.survival"
       }
     ]
   },
@@ -69436,6 +69013,9 @@ export default [
       },
       {
         "slug": "proficiency.cefr.a2"
+      },
+      {
+        "slug": "proficiency.survival"
       }
     ]
   },
@@ -69482,6 +69062,9 @@ export default [
       },
       {
         "slug": "proficiency.cefr.a2"
+      },
+      {
+        "slug": "proficiency.survival"
       }
     ]
   },
@@ -69543,6 +69126,9 @@ export default [
       },
       {
         "slug": "proficiency.cefr.a2"
+      },
+      {
+        "slug": "proficiency.survival"
       }
     ]
   },
@@ -69604,6 +69190,9 @@ export default [
       },
       {
         "slug": "proficiency.cefr.a2"
+      },
+      {
+        "slug": "proficiency.survival"
       }
     ]
   },
@@ -69665,6 +69254,9 @@ export default [
       },
       {
         "slug": "proficiency.cefr.a2"
+      },
+      {
+        "slug": "proficiency.survival"
       }
     ]
   },
@@ -69726,6 +69318,9 @@ export default [
       },
       {
         "slug": "proficiency.cefr.a2"
+      },
+      {
+        "slug": "proficiency.survival"
       }
     ]
   },
@@ -69787,6 +69382,9 @@ export default [
       },
       {
         "slug": "proficiency.cefr.a2"
+      },
+      {
+        "slug": "proficiency.survival"
       }
     ]
   },
@@ -69854,6 +69452,9 @@ export default [
       },
       {
         "slug": "proficiency.cefr.a2"
+      },
+      {
+        "slug": "proficiency.survival"
       }
     ]
   },
@@ -69906,6 +69507,9 @@ export default [
       },
       {
         "slug": "proficiency.cefr.a2"
+      },
+      {
+        "slug": "proficiency.survival"
       }
     ]
   },
@@ -69952,6 +69556,9 @@ export default [
       },
       {
         "slug": "proficiency.cefr.a2"
+      },
+      {
+        "slug": "proficiency.survival"
       }
     ]
   },
@@ -70013,6 +69620,9 @@ export default [
       },
       {
         "slug": "proficiency.cefr.a2"
+      },
+      {
+        "slug": "proficiency.survival"
       }
     ]
   },
@@ -70074,6 +69684,9 @@ export default [
       },
       {
         "slug": "proficiency.cefr.a2"
+      },
+      {
+        "slug": "proficiency.survival"
       }
     ]
   },
@@ -70141,6 +69754,9 @@ export default [
       },
       {
         "slug": "proficiency.cefr.a2"
+      },
+      {
+        "slug": "proficiency.survival"
       }
     ]
   },
@@ -70148,8 +69764,7 @@ export default [
     "slug": "costare.verb.indicative.present.first.plural",
     "traits": [
       "TRANSLATED",
-      "EXEMPLIFIED",
-      "RANKED"
+      "EXEMPLIFIED"
     ],
     "trait": {
       "TRANSLATED": {
@@ -70159,11 +69774,6 @@ export default [
       "EXEMPLIFIED": {
         "known": "As freelancers, we cost less than an agency",
         "learning": "Come freelance, costiamo meno di un'agenzia"
-      },
-      "RANKED": {
-        "rank": 0,
-        "zipf": 1.02,
-        "fpm": 0.0105
       }
     },
     "symbols": [
@@ -70202,6 +69812,9 @@ export default [
       },
       {
         "slug": "proficiency.cefr.a2"
+      },
+      {
+        "slug": "proficiency.survival"
       }
     ]
   },
@@ -70263,6 +69876,9 @@ export default [
       },
       {
         "slug": "proficiency.cefr.a2"
+      },
+      {
+        "slug": "proficiency.survival"
       }
     ]
   },
@@ -70324,6 +69940,9 @@ export default [
       },
       {
         "slug": "proficiency.cefr.a2"
+      },
+      {
+        "slug": "proficiency.survival"
       }
     ]
   },
@@ -70376,6 +69995,9 @@ export default [
       },
       {
         "slug": "proficiency.cefr.a1"
+      },
+      {
+        "slug": "proficiency.survival"
       }
     ]
   },
@@ -70422,6 +70044,9 @@ export default [
       },
       {
         "slug": "proficiency.cefr.a1"
+      },
+      {
+        "slug": "proficiency.survival"
       }
     ]
   },
@@ -70483,6 +70108,9 @@ export default [
       },
       {
         "slug": "proficiency.cefr.a1"
+      },
+      {
+        "slug": "proficiency.survival"
       }
     ]
   },
@@ -70544,6 +70172,9 @@ export default [
       },
       {
         "slug": "proficiency.cefr.a1"
+      },
+      {
+        "slug": "proficiency.survival"
       }
     ]
   },
@@ -70605,6 +70236,9 @@ export default [
       },
       {
         "slug": "proficiency.cefr.a1"
+      },
+      {
+        "slug": "proficiency.survival"
       }
     ]
   },
@@ -70666,6 +70300,9 @@ export default [
       },
       {
         "slug": "proficiency.cefr.a1"
+      },
+      {
+        "slug": "proficiency.survival"
       }
     ]
   },
@@ -70727,6 +70364,9 @@ export default [
       },
       {
         "slug": "proficiency.cefr.a1"
+      },
+      {
+        "slug": "proficiency.survival"
       }
     ]
   },
@@ -70788,6 +70428,9 @@ export default [
       },
       {
         "slug": "proficiency.cefr.a1"
+      },
+      {
+        "slug": "proficiency.survival"
       }
     ]
   },
@@ -70840,6 +70483,9 @@ export default [
       },
       {
         "slug": "proficiency.cefr.a1"
+      },
+      {
+        "slug": "proficiency.survival"
       }
     ]
   },
@@ -70892,6 +70538,9 @@ export default [
       },
       {
         "slug": "proficiency.cefr.a1"
+      },
+      {
+        "slug": "proficiency.survival"
       }
     ]
   },
@@ -70953,6 +70602,9 @@ export default [
       },
       {
         "slug": "proficiency.cefr.a1"
+      },
+      {
+        "slug": "proficiency.survival"
       }
     ]
   },
@@ -71014,6 +70666,9 @@ export default [
       },
       {
         "slug": "proficiency.cefr.a1"
+      },
+      {
+        "slug": "proficiency.survival"
       }
     ]
   },
@@ -71081,6 +70736,9 @@ export default [
       },
       {
         "slug": "proficiency.cefr.a1"
+      },
+      {
+        "slug": "proficiency.survival"
       }
     ]
   },
@@ -71142,6 +70800,9 @@ export default [
       },
       {
         "slug": "proficiency.cefr.a1"
+      },
+      {
+        "slug": "proficiency.survival"
       }
     ]
   },
@@ -71203,6 +70864,9 @@ export default [
       },
       {
         "slug": "proficiency.cefr.a1"
+      },
+      {
+        "slug": "proficiency.survival"
       }
     ]
   },
@@ -71264,6 +70928,9 @@ export default [
       },
       {
         "slug": "proficiency.cefr.a1"
+      },
+      {
+        "slug": "proficiency.survival"
       }
     ]
   },
@@ -71316,6 +70983,9 @@ export default [
       },
       {
         "slug": "proficiency.cefr.a2"
+      },
+      {
+        "slug": "proficiency.survival"
       }
     ]
   },
@@ -71362,6 +71032,9 @@ export default [
       },
       {
         "slug": "proficiency.cefr.a2"
+      },
+      {
+        "slug": "proficiency.survival"
       }
     ]
   },
@@ -71423,6 +71096,9 @@ export default [
       },
       {
         "slug": "proficiency.cefr.a2"
+      },
+      {
+        "slug": "proficiency.survival"
       }
     ]
   },
@@ -71484,6 +71160,9 @@ export default [
       },
       {
         "slug": "proficiency.cefr.a2"
+      },
+      {
+        "slug": "proficiency.survival"
       }
     ]
   },
@@ -71545,6 +71224,9 @@ export default [
       },
       {
         "slug": "proficiency.cefr.a2"
+      },
+      {
+        "slug": "proficiency.survival"
       }
     ]
   },
@@ -71606,6 +71288,9 @@ export default [
       },
       {
         "slug": "proficiency.cefr.a2"
+      },
+      {
+        "slug": "proficiency.survival"
       }
     ]
   },
@@ -71667,6 +71352,9 @@ export default [
       },
       {
         "slug": "proficiency.cefr.a2"
+      },
+      {
+        "slug": "proficiency.survival"
       }
     ]
   },
@@ -71728,6 +71416,9 @@ export default [
       },
       {
         "slug": "proficiency.cefr.a2"
+      },
+      {
+        "slug": "proficiency.survival"
       }
     ]
   },
@@ -71780,6 +71471,9 @@ export default [
       },
       {
         "slug": "proficiency.cefr.a1"
+      },
+      {
+        "slug": "proficiency.survival"
       }
     ]
   },
@@ -71826,6 +71520,9 @@ export default [
       },
       {
         "slug": "proficiency.cefr.a1"
+      },
+      {
+        "slug": "proficiency.survival"
       }
     ]
   },
@@ -71887,6 +71584,9 @@ export default [
       },
       {
         "slug": "proficiency.cefr.a1"
+      },
+      {
+        "slug": "proficiency.survival"
       }
     ]
   },
@@ -71948,6 +71648,9 @@ export default [
       },
       {
         "slug": "proficiency.cefr.a1"
+      },
+      {
+        "slug": "proficiency.survival"
       }
     ]
   },
@@ -72009,6 +71712,9 @@ export default [
       },
       {
         "slug": "proficiency.cefr.a1"
+      },
+      {
+        "slug": "proficiency.survival"
       }
     ]
   },
@@ -72070,6 +71776,9 @@ export default [
       },
       {
         "slug": "proficiency.cefr.a1"
+      },
+      {
+        "slug": "proficiency.survival"
       }
     ]
   },
@@ -72131,6 +71840,9 @@ export default [
       },
       {
         "slug": "proficiency.cefr.a1"
+      },
+      {
+        "slug": "proficiency.survival"
       }
     ]
   },
@@ -72192,6 +71904,9 @@ export default [
       },
       {
         "slug": "proficiency.cefr.a1"
+      },
+      {
+        "slug": "proficiency.survival"
       }
     ]
   },
@@ -72708,6 +72423,9 @@ export default [
       },
       {
         "slug": "proficiency.cefr.a1"
+      },
+      {
+        "slug": "proficiency.survival"
       }
     ]
   },
@@ -72754,6 +72472,9 @@ export default [
       },
       {
         "slug": "proficiency.cefr.a1"
+      },
+      {
+        "slug": "proficiency.survival"
       }
     ]
   },
@@ -72815,6 +72536,9 @@ export default [
       },
       {
         "slug": "proficiency.cefr.a1"
+      },
+      {
+        "slug": "proficiency.survival"
       }
     ]
   },
@@ -72876,6 +72600,9 @@ export default [
       },
       {
         "slug": "proficiency.cefr.a1"
+      },
+      {
+        "slug": "proficiency.survival"
       }
     ]
   },
@@ -72937,6 +72664,9 @@ export default [
       },
       {
         "slug": "proficiency.cefr.a1"
+      },
+      {
+        "slug": "proficiency.survival"
       }
     ]
   },
@@ -72998,6 +72728,9 @@ export default [
       },
       {
         "slug": "proficiency.cefr.a1"
+      },
+      {
+        "slug": "proficiency.survival"
       }
     ]
   },
@@ -73059,6 +72792,9 @@ export default [
       },
       {
         "slug": "proficiency.cefr.a1"
+      },
+      {
+        "slug": "proficiency.survival"
       }
     ]
   },
@@ -73120,6 +72856,9 @@ export default [
       },
       {
         "slug": "proficiency.cefr.a1"
+      },
+      {
+        "slug": "proficiency.survival"
       }
     ]
   },
@@ -73642,6 +73381,9 @@ export default [
       },
       {
         "slug": "proficiency.cefr.a1"
+      },
+      {
+        "slug": "proficiency.survival"
       }
     ]
   },
@@ -73688,6 +73430,9 @@ export default [
       },
       {
         "slug": "proficiency.cefr.a1"
+      },
+      {
+        "slug": "proficiency.survival"
       }
     ]
   },
@@ -73755,6 +73500,9 @@ export default [
       },
       {
         "slug": "proficiency.cefr.a1"
+      },
+      {
+        "slug": "proficiency.survival"
       }
     ]
   },
@@ -73816,6 +73564,9 @@ export default [
       },
       {
         "slug": "proficiency.cefr.a1"
+      },
+      {
+        "slug": "proficiency.survival"
       }
     ]
   },
@@ -73877,6 +73628,9 @@ export default [
       },
       {
         "slug": "proficiency.cefr.a1"
+      },
+      {
+        "slug": "proficiency.survival"
       }
     ]
   },
@@ -73938,6 +73692,9 @@ export default [
       },
       {
         "slug": "proficiency.cefr.a1"
+      },
+      {
+        "slug": "proficiency.survival"
       }
     ]
   },
@@ -73999,6 +73756,9 @@ export default [
       },
       {
         "slug": "proficiency.cefr.a1"
+      },
+      {
+        "slug": "proficiency.survival"
       }
     ]
   },
@@ -74060,6 +73820,9 @@ export default [
       },
       {
         "slug": "proficiency.cefr.a1"
+      },
+      {
+        "slug": "proficiency.survival"
       }
     ]
   },
@@ -74112,6 +73875,9 @@ export default [
       },
       {
         "slug": "proficiency.cefr.a1"
+      },
+      {
+        "slug": "proficiency.survival"
       }
     ]
   },
@@ -74158,6 +73924,9 @@ export default [
       },
       {
         "slug": "proficiency.cefr.a1"
+      },
+      {
+        "slug": "proficiency.survival"
       }
     ]
   },
@@ -74225,6 +73994,9 @@ export default [
       },
       {
         "slug": "proficiency.cefr.a1"
+      },
+      {
+        "slug": "proficiency.survival"
       }
     ]
   },
@@ -74286,6 +74058,9 @@ export default [
       },
       {
         "slug": "proficiency.cefr.a1"
+      },
+      {
+        "slug": "proficiency.survival"
       }
     ]
   },
@@ -74347,6 +74122,9 @@ export default [
       },
       {
         "slug": "proficiency.cefr.a1"
+      },
+      {
+        "slug": "proficiency.survival"
       }
     ]
   },
@@ -74408,6 +74186,9 @@ export default [
       },
       {
         "slug": "proficiency.cefr.a1"
+      },
+      {
+        "slug": "proficiency.survival"
       }
     ]
   },
@@ -74469,6 +74250,9 @@ export default [
       },
       {
         "slug": "proficiency.cefr.a1"
+      },
+      {
+        "slug": "proficiency.survival"
       }
     ]
   },
@@ -74530,6 +74314,9 @@ export default [
       },
       {
         "slug": "proficiency.cefr.a1"
+      },
+      {
+        "slug": "proficiency.survival"
       }
     ]
   },
@@ -77420,6 +77207,9 @@ export default [
       },
       {
         "slug": "proficiency.cefr.a2"
+      },
+      {
+        "slug": "proficiency.survival"
       }
     ]
   },
@@ -77466,6 +77256,9 @@ export default [
       },
       {
         "slug": "proficiency.cefr.a2"
+      },
+      {
+        "slug": "proficiency.survival"
       }
     ]
   },
@@ -77527,6 +77320,9 @@ export default [
       },
       {
         "slug": "proficiency.cefr.a2"
+      },
+      {
+        "slug": "proficiency.survival"
       }
     ]
   },
@@ -77588,6 +77384,9 @@ export default [
       },
       {
         "slug": "proficiency.cefr.a2"
+      },
+      {
+        "slug": "proficiency.survival"
       }
     ]
   },
@@ -77649,6 +77448,9 @@ export default [
       },
       {
         "slug": "proficiency.cefr.a2"
+      },
+      {
+        "slug": "proficiency.survival"
       }
     ]
   },
@@ -77710,6 +77512,9 @@ export default [
       },
       {
         "slug": "proficiency.cefr.a2"
+      },
+      {
+        "slug": "proficiency.survival"
       }
     ]
   },
@@ -77771,6 +77576,9 @@ export default [
       },
       {
         "slug": "proficiency.cefr.a2"
+      },
+      {
+        "slug": "proficiency.survival"
       }
     ]
   },
@@ -77832,6 +77640,9 @@ export default [
       },
       {
         "slug": "proficiency.cefr.a2"
+      },
+      {
+        "slug": "proficiency.survival"
       }
     ]
   },
@@ -78824,6 +78635,9 @@ export default [
       },
       {
         "slug": "proficiency.cefr.a2"
+      },
+      {
+        "slug": "proficiency.survival"
       }
     ]
   },
@@ -78870,6 +78684,9 @@ export default [
       },
       {
         "slug": "proficiency.cefr.a2"
+      },
+      {
+        "slug": "proficiency.survival"
       }
     ]
   },
@@ -78937,6 +78754,9 @@ export default [
       },
       {
         "slug": "proficiency.cefr.a2"
+      },
+      {
+        "slug": "proficiency.survival"
       }
     ]
   },
@@ -78998,6 +78818,9 @@ export default [
       },
       {
         "slug": "proficiency.cefr.a2"
+      },
+      {
+        "slug": "proficiency.survival"
       }
     ]
   },
@@ -79059,6 +78882,9 @@ export default [
       },
       {
         "slug": "proficiency.cefr.a2"
+      },
+      {
+        "slug": "proficiency.survival"
       }
     ]
   },
@@ -79120,6 +78946,9 @@ export default [
       },
       {
         "slug": "proficiency.cefr.a2"
+      },
+      {
+        "slug": "proficiency.survival"
       }
     ]
   },
@@ -79181,6 +79010,9 @@ export default [
       },
       {
         "slug": "proficiency.cefr.a2"
+      },
+      {
+        "slug": "proficiency.survival"
       }
     ]
   },
@@ -79242,6 +79074,9 @@ export default [
       },
       {
         "slug": "proficiency.cefr.a2"
+      },
+      {
+        "slug": "proficiency.survival"
       }
     ]
   },
@@ -79758,6 +79593,9 @@ export default [
       },
       {
         "slug": "proficiency.cefr.a1"
+      },
+      {
+        "slug": "proficiency.survival"
       }
     ]
   },
@@ -79804,6 +79642,9 @@ export default [
       },
       {
         "slug": "proficiency.cefr.a1"
+      },
+      {
+        "slug": "proficiency.survival"
       }
     ]
   },
@@ -79871,6 +79712,9 @@ export default [
       },
       {
         "slug": "proficiency.cefr.a1"
+      },
+      {
+        "slug": "proficiency.survival"
       }
     ]
   },
@@ -79932,6 +79776,9 @@ export default [
       },
       {
         "slug": "proficiency.cefr.a1"
+      },
+      {
+        "slug": "proficiency.survival"
       }
     ]
   },
@@ -79993,6 +79840,9 @@ export default [
       },
       {
         "slug": "proficiency.cefr.a1"
+      },
+      {
+        "slug": "proficiency.survival"
       }
     ]
   },
@@ -80054,6 +79904,9 @@ export default [
       },
       {
         "slug": "proficiency.cefr.a1"
+      },
+      {
+        "slug": "proficiency.survival"
       }
     ]
   },
@@ -80115,6 +79968,9 @@ export default [
       },
       {
         "slug": "proficiency.cefr.a1"
+      },
+      {
+        "slug": "proficiency.survival"
       }
     ]
   },
@@ -80176,6 +80032,9 @@ export default [
       },
       {
         "slug": "proficiency.cefr.a1"
+      },
+      {
+        "slug": "proficiency.survival"
       }
     ]
   },
@@ -80698,6 +80557,9 @@ export default [
       },
       {
         "slug": "proficiency.cefr.a1"
+      },
+      {
+        "slug": "proficiency.survival"
       }
     ]
   },
@@ -80744,6 +80606,9 @@ export default [
       },
       {
         "slug": "proficiency.cefr.a1"
+      },
+      {
+        "slug": "proficiency.survival"
       }
     ]
   },
@@ -80811,6 +80676,9 @@ export default [
       },
       {
         "slug": "proficiency.cefr.a1"
+      },
+      {
+        "slug": "proficiency.survival"
       }
     ]
   },
@@ -80872,6 +80740,9 @@ export default [
       },
       {
         "slug": "proficiency.cefr.a1"
+      },
+      {
+        "slug": "proficiency.survival"
       }
     ]
   },
@@ -80933,6 +80804,9 @@ export default [
       },
       {
         "slug": "proficiency.cefr.a1"
+      },
+      {
+        "slug": "proficiency.survival"
       }
     ]
   },
@@ -80994,6 +80868,9 @@ export default [
       },
       {
         "slug": "proficiency.cefr.a1"
+      },
+      {
+        "slug": "proficiency.survival"
       }
     ]
   },
@@ -81055,6 +80932,9 @@ export default [
       },
       {
         "slug": "proficiency.cefr.a1"
+      },
+      {
+        "slug": "proficiency.survival"
       }
     ]
   },
@@ -81116,6 +80996,9 @@ export default [
       },
       {
         "slug": "proficiency.cefr.a1"
+      },
+      {
+        "slug": "proficiency.survival"
       }
     ]
   },
@@ -83500,6 +83383,9 @@ export default [
       },
       {
         "slug": "proficiency.cefr.a2"
+      },
+      {
+        "slug": "proficiency.survival"
       }
     ]
   },
@@ -83546,6 +83432,9 @@ export default [
       },
       {
         "slug": "proficiency.cefr.a2"
+      },
+      {
+        "slug": "proficiency.survival"
       }
     ]
   },
@@ -83607,6 +83496,9 @@ export default [
       },
       {
         "slug": "proficiency.cefr.a2"
+      },
+      {
+        "slug": "proficiency.survival"
       }
     ]
   },
@@ -83668,6 +83560,9 @@ export default [
       },
       {
         "slug": "proficiency.cefr.a2"
+      },
+      {
+        "slug": "proficiency.survival"
       }
     ]
   },
@@ -83729,6 +83624,9 @@ export default [
       },
       {
         "slug": "proficiency.cefr.a2"
+      },
+      {
+        "slug": "proficiency.survival"
       }
     ]
   },
@@ -83790,6 +83688,9 @@ export default [
       },
       {
         "slug": "proficiency.cefr.a2"
+      },
+      {
+        "slug": "proficiency.survival"
       }
     ]
   },
@@ -83851,6 +83752,9 @@ export default [
       },
       {
         "slug": "proficiency.cefr.a2"
+      },
+      {
+        "slug": "proficiency.survival"
       }
     ]
   },
@@ -83912,6 +83816,9 @@ export default [
       },
       {
         "slug": "proficiency.cefr.a2"
+      },
+      {
+        "slug": "proficiency.survival"
       }
     ]
   },
@@ -83958,6 +83865,9 @@ export default [
       },
       {
         "slug": "proficiency.cefr.a2"
+      },
+      {
+        "slug": "proficiency.survival"
       }
     ]
   },
@@ -84004,6 +83914,9 @@ export default [
       },
       {
         "slug": "proficiency.cefr.a2"
+      },
+      {
+        "slug": "proficiency.survival"
       }
     ]
   },
@@ -84065,6 +83978,9 @@ export default [
       },
       {
         "slug": "proficiency.cefr.a2"
+      },
+      {
+        "slug": "proficiency.survival"
       }
     ]
   },
@@ -84126,6 +84042,9 @@ export default [
       },
       {
         "slug": "proficiency.cefr.a2"
+      },
+      {
+        "slug": "proficiency.survival"
       }
     ]
   },
@@ -84187,6 +84106,9 @@ export default [
       },
       {
         "slug": "proficiency.cefr.a2"
+      },
+      {
+        "slug": "proficiency.survival"
       }
     ]
   },
@@ -84248,6 +84170,9 @@ export default [
       },
       {
         "slug": "proficiency.cefr.a2"
+      },
+      {
+        "slug": "proficiency.survival"
       }
     ]
   },
@@ -84309,6 +84234,9 @@ export default [
       },
       {
         "slug": "proficiency.cefr.a2"
+      },
+      {
+        "slug": "proficiency.survival"
       }
     ]
   },
@@ -84370,6 +84298,9 @@ export default [
       },
       {
         "slug": "proficiency.cefr.a2"
+      },
+      {
+        "slug": "proficiency.survival"
       }
     ]
   },
@@ -84886,6 +84817,9 @@ export default [
       },
       {
         "slug": "proficiency.cefr.a1"
+      },
+      {
+        "slug": "proficiency.survival"
       }
     ]
   },
@@ -84932,6 +84866,9 @@ export default [
       },
       {
         "slug": "proficiency.cefr.a1"
+      },
+      {
+        "slug": "proficiency.survival"
       }
     ]
   },
@@ -84993,6 +84930,9 @@ export default [
       },
       {
         "slug": "proficiency.cefr.a1"
+      },
+      {
+        "slug": "proficiency.survival"
       }
     ]
   },
@@ -85054,6 +84994,9 @@ export default [
       },
       {
         "slug": "proficiency.cefr.a1"
+      },
+      {
+        "slug": "proficiency.survival"
       }
     ]
   },
@@ -85115,6 +85058,9 @@ export default [
       },
       {
         "slug": "proficiency.cefr.a1"
+      },
+      {
+        "slug": "proficiency.survival"
       }
     ]
   },
@@ -85176,6 +85122,9 @@ export default [
       },
       {
         "slug": "proficiency.cefr.a1"
+      },
+      {
+        "slug": "proficiency.survival"
       }
     ]
   },
@@ -85237,6 +85186,9 @@ export default [
       },
       {
         "slug": "proficiency.cefr.a1"
+      },
+      {
+        "slug": "proficiency.survival"
       }
     ]
   },
@@ -85298,6 +85250,9 @@ export default [
       },
       {
         "slug": "proficiency.cefr.a1"
+      },
+      {
+        "slug": "proficiency.survival"
       }
     ]
   },
@@ -85350,6 +85305,9 @@ export default [
       },
       {
         "slug": "proficiency.cefr.a2"
+      },
+      {
+        "slug": "proficiency.survival"
       }
     ]
   },
@@ -85396,6 +85354,9 @@ export default [
       },
       {
         "slug": "proficiency.cefr.a2"
+      },
+      {
+        "slug": "proficiency.survival"
       }
     ]
   },
@@ -85457,6 +85418,9 @@ export default [
       },
       {
         "slug": "proficiency.cefr.a2"
+      },
+      {
+        "slug": "proficiency.survival"
       }
     ]
   },
@@ -85518,6 +85482,9 @@ export default [
       },
       {
         "slug": "proficiency.cefr.a2"
+      },
+      {
+        "slug": "proficiency.survival"
       }
     ]
   },
@@ -85585,6 +85552,9 @@ export default [
       },
       {
         "slug": "proficiency.cefr.a2"
+      },
+      {
+        "slug": "proficiency.survival"
       }
     ]
   },
@@ -85646,6 +85616,9 @@ export default [
       },
       {
         "slug": "proficiency.cefr.a2"
+      },
+      {
+        "slug": "proficiency.survival"
       }
     ]
   },
@@ -85707,6 +85680,9 @@ export default [
       },
       {
         "slug": "proficiency.cefr.a2"
+      },
+      {
+        "slug": "proficiency.survival"
       }
     ]
   },
@@ -85768,6 +85744,9 @@ export default [
       },
       {
         "slug": "proficiency.cefr.a2"
+      },
+      {
+        "slug": "proficiency.survival"
       }
     ]
   },
@@ -85820,6 +85799,9 @@ export default [
       },
       {
         "slug": "proficiency.cefr.a2"
+      },
+      {
+        "slug": "proficiency.survival"
       }
     ]
   },
@@ -85866,6 +85848,9 @@ export default [
       },
       {
         "slug": "proficiency.cefr.a2"
+      },
+      {
+        "slug": "proficiency.survival"
       }
     ]
   },
@@ -85933,6 +85918,9 @@ export default [
       },
       {
         "slug": "proficiency.cefr.a2"
+      },
+      {
+        "slug": "proficiency.survival"
       }
     ]
   },
@@ -85994,6 +85982,9 @@ export default [
       },
       {
         "slug": "proficiency.cefr.a2"
+      },
+      {
+        "slug": "proficiency.survival"
       }
     ]
   },
@@ -86055,6 +86046,9 @@ export default [
       },
       {
         "slug": "proficiency.cefr.a2"
+      },
+      {
+        "slug": "proficiency.survival"
       }
     ]
   },
@@ -86116,6 +86110,9 @@ export default [
       },
       {
         "slug": "proficiency.cefr.a2"
+      },
+      {
+        "slug": "proficiency.survival"
       }
     ]
   },
@@ -86177,6 +86174,9 @@ export default [
       },
       {
         "slug": "proficiency.cefr.a2"
+      },
+      {
+        "slug": "proficiency.survival"
       }
     ]
   },
@@ -86238,6 +86238,9 @@ export default [
       },
       {
         "slug": "proficiency.cefr.a2"
+      },
+      {
+        "slug": "proficiency.survival"
       }
     ]
   },
@@ -91001,8 +91004,7 @@ export default [
     "slug": "diminuire.verb.indicative.present.first.singular",
     "traits": [
       "TRANSLATED",
-      "EXEMPLIFIED",
-      "RANKED"
+      "EXEMPLIFIED"
     ],
     "trait": {
       "TRANSLATED": {
@@ -91012,11 +91014,6 @@ export default [
       "EXEMPLIFIED": {
         "known": "I decrease my portions to lose weight",
         "learning": "Diminuisco le mie porzioni per dimagrire"
-      },
-      "RANKED": {
-        "rank": 0,
-        "zipf": 1.25,
-        "fpm": 0.0178
       }
     },
     "symbols": [
@@ -91184,8 +91181,7 @@ export default [
     "slug": "diminuire.verb.indicative.present.first.plural",
     "traits": [
       "TRANSLATED",
-      "EXEMPLIFIED",
-      "RANKED"
+      "EXEMPLIFIED"
     ],
     "trait": {
       "TRANSLATED": {
@@ -91195,11 +91191,6 @@ export default [
       "EXEMPLIFIED": {
         "known": "We decrease the working hours in August",
         "learning": "Diminuiamo l'orario di lavoro ad agosto"
-      },
-      "RANKED": {
-        "rank": 0,
-        "zipf": 1.41,
-        "fpm": 0.0257
       }
     },
     "symbols": [
@@ -98217,8 +98208,7 @@ export default [
     "slug": "dimagrire.verb.indicative.present.second.plural",
     "traits": [
       "TRANSLATED",
-      "EXEMPLIFIED",
-      "RANKED"
+      "EXEMPLIFIED"
     ],
     "trait": {
       "TRANSLATED": {
@@ -98228,11 +98218,6 @@ export default [
       "EXEMPLIFIED": {
         "known": "You all lose weight quickly with this trainer",
         "learning": "Dimagrite in fretta con questo allenatore"
-      },
-      "RANKED": {
-        "rank": 0,
-        "zipf": 1.38,
-        "fpm": 0.024
       }
     },
     "symbols": [
@@ -98620,8 +98605,7 @@ export default [
     "slug": "ingrassare.verb.indicative.present.first.plural",
     "traits": [
       "TRANSLATED",
-      "EXEMPLIFIED",
-      "RANKED"
+      "EXEMPLIFIED"
     ],
     "trait": {
       "TRANSLATED": {
@@ -98631,11 +98615,6 @@ export default [
       "EXEMPLIFIED": {
         "known": "We gain weight during the winter holidays",
         "learning": "Ingrassiamo durante le vacanze invernali"
-      },
-      "RANKED": {
-        "rank": 0,
-        "zipf": 1.09,
-        "fpm": 0.0123
       }
     },
     "symbols": [
@@ -99312,6 +99291,9 @@ export default [
       },
       {
         "slug": "proficiency.cefr.a2"
+      },
+      {
+        "slug": "proficiency.survival"
       }
     ]
   },
@@ -99364,6 +99346,9 @@ export default [
       },
       {
         "slug": "proficiency.cefr.a2"
+      },
+      {
+        "slug": "proficiency.survival"
       }
     ]
   },
@@ -99425,6 +99410,9 @@ export default [
       },
       {
         "slug": "proficiency.cefr.a2"
+      },
+      {
+        "slug": "proficiency.survival"
       }
     ]
   },
@@ -99486,6 +99474,9 @@ export default [
       },
       {
         "slug": "proficiency.cefr.a2"
+      },
+      {
+        "slug": "proficiency.survival"
       }
     ]
   },
@@ -99547,6 +99538,9 @@ export default [
       },
       {
         "slug": "proficiency.cefr.a2"
+      },
+      {
+        "slug": "proficiency.survival"
       }
     ]
   },
@@ -99608,6 +99602,9 @@ export default [
       },
       {
         "slug": "proficiency.cefr.a2"
+      },
+      {
+        "slug": "proficiency.survival"
       }
     ]
   },
@@ -99669,6 +99666,9 @@ export default [
       },
       {
         "slug": "proficiency.cefr.a2"
+      },
+      {
+        "slug": "proficiency.survival"
       }
     ]
   },
@@ -99730,6 +99730,9 @@ export default [
       },
       {
         "slug": "proficiency.cefr.a2"
+      },
+      {
+        "slug": "proficiency.survival"
       }
     ]
   },
@@ -107218,6 +107221,9 @@ export default [
       },
       {
         "slug": "proficiency.cefr.b1"
+      },
+      {
+        "slug": "proficiency.survival"
       }
     ]
   },
@@ -107264,6 +107270,9 @@ export default [
       },
       {
         "slug": "proficiency.cefr.b1"
+      },
+      {
+        "slug": "proficiency.survival"
       }
     ]
   },
@@ -107331,6 +107340,9 @@ export default [
       },
       {
         "slug": "proficiency.cefr.b1"
+      },
+      {
+        "slug": "proficiency.survival"
       }
     ]
   },
@@ -107392,6 +107404,9 @@ export default [
       },
       {
         "slug": "proficiency.cefr.b1"
+      },
+      {
+        "slug": "proficiency.survival"
       }
     ]
   },
@@ -107453,6 +107468,9 @@ export default [
       },
       {
         "slug": "proficiency.cefr.b1"
+      },
+      {
+        "slug": "proficiency.survival"
       }
     ]
   },
@@ -107514,6 +107532,9 @@ export default [
       },
       {
         "slug": "proficiency.cefr.b1"
+      },
+      {
+        "slug": "proficiency.survival"
       }
     ]
   },
@@ -107575,6 +107596,9 @@ export default [
       },
       {
         "slug": "proficiency.cefr.b1"
+      },
+      {
+        "slug": "proficiency.survival"
       }
     ]
   },
@@ -107636,6 +107660,9 @@ export default [
       },
       {
         "slug": "proficiency.cefr.b1"
+      },
+      {
+        "slug": "proficiency.survival"
       }
     ]
   },
@@ -108254,8 +108281,7 @@ export default [
     "slug": "proibire.verb.indicative.present.second.singular",
     "traits": [
       "TRANSLATED",
-      "EXEMPLIFIED",
-      "RANKED"
+      "EXEMPLIFIED"
     ],
     "trait": {
       "TRANSLATED": {
@@ -108265,11 +108291,6 @@ export default [
       "EXEMPLIFIED": {
         "known": "Why do you forbid your daughter from going out?",
         "learning": "Perché proibisci a tua figlia di uscire?"
-      },
-      "RANKED": {
-        "rank": 0,
-        "zipf": 1.27,
-        "fpm": 0.0186
       }
     },
     "symbols": [
@@ -111154,8 +111175,7 @@ export default [
     "slug": "annullare.verb.indicative.present.first.plural",
     "traits": [
       "TRANSLATED",
-      "EXEMPLIFIED",
-      "RANKED"
+      "EXEMPLIFIED"
     ],
     "trait": {
       "TRANSLATED": {
@@ -111165,11 +111185,6 @@ export default [
       "EXEMPLIFIED": {
         "known": "We cancel the meeting due to the strike",
         "learning": "Annulliamo la riunione a causa dello sciopero"
-      },
-      "RANKED": {
-        "rank": 0,
-        "zipf": 1.4,
-        "fpm": 0.0251
       }
     },
     "symbols": [
@@ -121790,8 +121805,7 @@ export default [
     "slug": "crollare.verb.indicative.present.first.plural",
     "traits": [
       "TRANSLATED",
-      "EXEMPLIFIED",
-      "RANKED"
+      "EXEMPLIFIED"
     ],
     "trait": {
       "TRANSLATED": {
@@ -121801,11 +121815,6 @@ export default [
       "EXEMPLIFIED": {
         "known": "We collapse with laughter at his jokes",
         "learning": "Crolliamo dalle risate alle sue battute"
-      },
-      "RANKED": {
-        "rank": 0,
-        "zipf": 1.44,
-        "fpm": 0.0275
       }
     },
     "symbols": [
@@ -126640,6 +126649,9 @@ export default [
       },
       {
         "slug": "proficiency.cefr.a2"
+      },
+      {
+        "slug": "proficiency.survival"
       }
     ]
   },
@@ -126686,6 +126698,9 @@ export default [
       },
       {
         "slug": "proficiency.cefr.a2"
+      },
+      {
+        "slug": "proficiency.survival"
       }
     ]
   },
@@ -126747,6 +126762,9 @@ export default [
       },
       {
         "slug": "proficiency.cefr.a2"
+      },
+      {
+        "slug": "proficiency.survival"
       }
     ]
   },
@@ -126808,6 +126826,9 @@ export default [
       },
       {
         "slug": "proficiency.cefr.a2"
+      },
+      {
+        "slug": "proficiency.survival"
       }
     ]
   },
@@ -126869,6 +126890,9 @@ export default [
       },
       {
         "slug": "proficiency.cefr.a2"
+      },
+      {
+        "slug": "proficiency.survival"
       }
     ]
   },
@@ -126930,6 +126954,9 @@ export default [
       },
       {
         "slug": "proficiency.cefr.a2"
+      },
+      {
+        "slug": "proficiency.survival"
       }
     ]
   },
@@ -126991,6 +127018,9 @@ export default [
       },
       {
         "slug": "proficiency.cefr.a2"
+      },
+      {
+        "slug": "proficiency.survival"
       }
     ]
   },
@@ -127052,6 +127082,9 @@ export default [
       },
       {
         "slug": "proficiency.cefr.a2"
+      },
+      {
+        "slug": "proficiency.survival"
       }
     ]
   },
@@ -130816,6 +130849,9 @@ export default [
       },
       {
         "slug": "proficiency.cefr.a2"
+      },
+      {
+        "slug": "proficiency.survival"
       }
     ]
   },
@@ -130862,6 +130898,9 @@ export default [
       },
       {
         "slug": "proficiency.cefr.a2"
+      },
+      {
+        "slug": "proficiency.survival"
       }
     ]
   },
@@ -130923,6 +130962,9 @@ export default [
       },
       {
         "slug": "proficiency.cefr.a2"
+      },
+      {
+        "slug": "proficiency.survival"
       }
     ]
   },
@@ -130984,6 +131026,9 @@ export default [
       },
       {
         "slug": "proficiency.cefr.a2"
+      },
+      {
+        "slug": "proficiency.survival"
       }
     ]
   },
@@ -131045,6 +131090,9 @@ export default [
       },
       {
         "slug": "proficiency.cefr.a2"
+      },
+      {
+        "slug": "proficiency.survival"
       }
     ]
   },
@@ -131106,6 +131154,9 @@ export default [
       },
       {
         "slug": "proficiency.cefr.a2"
+      },
+      {
+        "slug": "proficiency.survival"
       }
     ]
   },
@@ -131167,6 +131218,9 @@ export default [
       },
       {
         "slug": "proficiency.cefr.a2"
+      },
+      {
+        "slug": "proficiency.survival"
       }
     ]
   },
@@ -131228,6 +131282,9 @@ export default [
       },
       {
         "slug": "proficiency.cefr.a2"
+      },
+      {
+        "slug": "proficiency.survival"
       }
     ]
   },
@@ -134294,8 +134351,7 @@ export default [
     "slug": "masticare.verb.indicative.present.first.plural",
     "traits": [
       "TRANSLATED",
-      "EXEMPLIFIED",
-      "RANKED"
+      "EXEMPLIFIED"
     ],
     "trait": {
       "TRANSLATED": {
@@ -134305,11 +134361,6 @@ export default [
       "EXEMPLIFIED": {
         "known": "We chew our food carefully at the table",
         "learning": "Mastichiamo bene il cibo a tavola"
-      },
-      "RANKED": {
-        "rank": 0,
-        "zipf": 1.06,
-        "fpm": 0.0115
       }
     },
     "symbols": [
@@ -139942,8 +139993,7 @@ export default [
     "slug": "pattinare.verb.indicative.present.third.plural",
     "traits": [
       "TRANSLATED",
-      "EXEMPLIFIED",
-      "RANKED"
+      "EXEMPLIFIED"
     ],
     "trait": {
       "TRANSLATED": {
@@ -139953,11 +140003,6 @@ export default [
       "EXEMPLIFIED": {
         "known": "The champions skate flawlessly during the competition",
         "learning": "I campioni pattinano senza errori durante la gara"
-      },
-      "RANKED": {
-        "rank": 0,
-        "zipf": 1.26,
-        "fpm": 0.0182
       }
     },
     "symbols": [
@@ -140278,8 +140323,7 @@ export default [
     "slug": "rallentare.verb.indicative.present.first.plural",
     "traits": [
       "TRANSLATED",
-      "EXEMPLIFIED",
-      "RANKED"
+      "EXEMPLIFIED"
     ],
     "trait": {
       "TRANSLATED": {
@@ -140289,11 +140333,6 @@ export default [
       "EXEMPLIFIED": {
         "known": "We slow down the pace during the last kilometer",
         "learning": "Rallentiamo il ritmo nell'ultimo chilometro"
-      },
-      "RANKED": {
-        "rank": 0,
-        "zipf": 1.19,
-        "fpm": 0.0155
       }
     },
     "symbols": [
@@ -142000,8 +142039,7 @@ export default [
     "slug": "piovere.verb.indicative.present.second.singular",
     "traits": [
       "TRANSLATED",
-      "EXEMPLIFIED",
-      "RANKED"
+      "EXEMPLIFIED"
     ],
     "trait": {
       "TRANSLATED": {
@@ -142011,11 +142049,6 @@ export default [
       "EXEMPLIFIED": {
         "known": "You always turn up here at dinnertime",
         "learning": "Piovi sempre qui all'ora di cena"
-      },
-      "RANKED": {
-        "rank": 0,
-        "zipf": 1.45,
-        "fpm": 0.0282
       }
     },
     "symbols": [
@@ -143850,8 +143883,7 @@ export default [
     "slug": "prescrivere.verb.indicative.present.second.singular",
     "traits": [
       "TRANSLATED",
-      "EXEMPLIFIED",
-      "RANKED"
+      "EXEMPLIFIED"
     ],
     "trait": {
       "TRANSLATED": {
@@ -143861,11 +143893,6 @@ export default [
       "EXEMPLIFIED": {
         "known": "What treatment do you prescribe for this pain?",
         "learning": "Quale terapia prescrivi per questo dolore?"
-      },
-      "RANKED": {
-        "rank": 0,
-        "zipf": 1.43,
-        "fpm": 0.0269
       }
     },
     "symbols": [
@@ -143972,8 +143999,7 @@ export default [
     "slug": "prescrivere.verb.indicative.present.first.plural",
     "traits": [
       "TRANSLATED",
-      "EXEMPLIFIED",
-      "RANKED"
+      "EXEMPLIFIED"
     ],
     "trait": {
       "TRANSLATED": {
@@ -143983,11 +144009,6 @@ export default [
       "EXEMPLIFIED": {
         "known": "We prescribe a strict diet for these patients",
         "learning": "Prescriviamo una dieta rigorosa per questi pazienti"
-      },
-      "RANKED": {
-        "rank": 0,
-        "zipf": 1.25,
-        "fpm": 0.0178
       }
     },
     "symbols": [
@@ -151403,8 +151424,7 @@ export default [
     "slug": "regnare.verb.indicative.present.second.plural",
     "traits": [
       "TRANSLATED",
-      "EXEMPLIFIED",
-      "RANKED"
+      "EXEMPLIFIED"
     ],
     "trait": {
       "TRANSLATED": {
@@ -151414,11 +151434,6 @@ export default [
       "EXEMPLIFIED": {
         "known": "How do you all reign over such a vast empire?",
         "learning": "Come regnate su un impero così vasto?"
-      },
-      "RANKED": {
-        "rank": 0,
-        "zipf": 1.32,
-        "fpm": 0.0209
       }
     },
     "symbols": [
@@ -159767,8 +159782,7 @@ export default [
     "slug": "scomparire.verb.indicative.present.second.plural",
     "traits": [
       "TRANSLATED",
-      "EXEMPLIFIED",
-      "RANKED"
+      "EXEMPLIFIED"
     ],
     "trait": {
       "TRANSLATED": {
@@ -159778,11 +159792,6 @@ export default [
       "EXEMPLIFIED": {
         "known": "Why do you all disappear right after dinner?",
         "learning": "Perché scomparite subito dopo cena?"
-      },
-      "RANKED": {
-        "rank": 0,
-        "zipf": 1.26,
-        "fpm": 0.0182
       }
     },
     "symbols": [
@@ -160219,8 +160228,7 @@ export default [
     "slug": "sconfiggere.verb.indicative.present.second.plural",
     "traits": [
       "TRANSLATED",
-      "EXEMPLIFIED",
-      "RANKED"
+      "EXEMPLIFIED"
     ],
     "trait": {
       "TRANSLATED": {
@@ -160230,11 +160238,6 @@ export default [
       "EXEMPLIFIED": {
         "known": "How do you all defeat such strong competition?",
         "learning": "Come sconfiggete una concorrenza così forte?"
-      },
-      "RANKED": {
-        "rank": 0,
-        "zipf": 1.19,
-        "fpm": 0.0155
       }
     },
     "symbols": [
@@ -160334,6 +160337,1934 @@ export default [
       },
       {
         "slug": "proficiency.cefr.b1"
+      }
+    ]
+  },
+  {
+    "slug": "spingere.verb.infinitive",
+    "traits": [
+      "TRANSLATED",
+      "EXEMPLIFIED",
+      "RANKED"
+    ],
+    "trait": {
+      "TRANSLATED": {
+        "known": "to push",
+        "learning": "spingere"
+      },
+      "EXEMPLIFIED": {
+        "known": "You have to push the door",
+        "learning": "Devi spingere la porta"
+      },
+      "RANKED": {
+        "rank": 6204,
+        "zipf": 4.11,
+        "fpm": 12.9
+      }
+    },
+    "symbols": [
+      {
+        "slug": "word"
+      },
+      {
+        "slug": "word.lemma.spingere"
+      },
+      {
+        "slug": "word.part-of-speech.verb"
+      },
+      {
+        "slug": "word.suffix.ere"
+      },
+      {
+        "slug": "word.regularity.irregular"
+      },
+      {
+        "slug": "word.verb-form.infinitive"
+      },
+      {
+        "slug": "proficiency.cefr.a1"
+      },
+      {
+        "slug": "proficiency.survival"
+      }
+    ]
+  },
+  {
+    "slug": "spingere.verb.participle.past",
+    "traits": [
+      "TRANSLATED",
+      "EXEMPLIFIED",
+      "RANKED"
+    ],
+    "trait": {
+      "TRANSLATED": {
+        "known": "pushed",
+        "learning": "spinto"
+      },
+      "EXEMPLIFIED": {
+        "known": "I pushed the wrong door",
+        "learning": "Ho spinto la porta sbagliata"
+      },
+      "RANKED": {
+        "rank": 4442,
+        "zipf": 4.29,
+        "fpm": 19.5
+      }
+    },
+    "symbols": [
+      {
+        "slug": "word"
+      },
+      {
+        "slug": "word.lemma.spingere"
+      },
+      {
+        "slug": "word.part-of-speech.verb"
+      },
+      {
+        "slug": "word.suffix.ere"
+      },
+      {
+        "slug": "word.regularity.irregular"
+      },
+      {
+        "slug": "word.verb-form.participle"
+      },
+      {
+        "slug": "proficiency.cefr.a1"
+      },
+      {
+        "slug": "proficiency.survival"
+      }
+    ]
+  },
+  {
+    "slug": "spingere.verb.indicative.present.first.singular",
+    "traits": [
+      "TRANSLATED",
+      "EXEMPLIFIED",
+      "RANKED"
+    ],
+    "trait": {
+      "TRANSLATED": {
+        "known": "I push",
+        "learning": "spingo"
+      },
+      "EXEMPLIFIED": {
+        "known": "I push the cart at the supermarket",
+        "learning": "Spingo il carrello al supermercato"
+      },
+      "RANKED": {
+        "rank": 47119,
+        "zipf": 2.8,
+        "fpm": 0.631
+      }
+    },
+    "symbols": [
+      {
+        "slug": "word"
+      },
+      {
+        "slug": "word.lemma.spingere"
+      },
+      {
+        "slug": "word.part-of-speech.verb"
+      },
+      {
+        "slug": "word.suffix.ere"
+      },
+      {
+        "slug": "word.regularity.irregular"
+      },
+      {
+        "slug": "word.verb-form.finite"
+      },
+      {
+        "slug": "word.mood.indicative"
+      },
+      {
+        "slug": "word.tense.present"
+      },
+      {
+        "slug": "word.person.first"
+      },
+      {
+        "slug": "word.number.singular"
+      },
+      {
+        "slug": "word.voice.active"
+      },
+      {
+        "slug": "proficiency.cefr.a1"
+      },
+      {
+        "slug": "proficiency.survival"
+      }
+    ]
+  },
+  {
+    "slug": "spingere.verb.indicative.present.second.singular",
+    "traits": [
+      "TRANSLATED",
+      "EXEMPLIFIED",
+      "RANKED"
+    ],
+    "trait": {
+      "TRANSLATED": {
+        "known": "you push",
+        "learning": "spingi"
+      },
+      "EXEMPLIFIED": {
+        "known": "Why do you push the closed door?",
+        "learning": "Perché spingi la porta chiusa?"
+      },
+      "RANKED": {
+        "rank": 39558,
+        "zipf": 2.94,
+        "fpm": 0.871
+      }
+    },
+    "symbols": [
+      {
+        "slug": "word"
+      },
+      {
+        "slug": "word.lemma.spingere"
+      },
+      {
+        "slug": "word.part-of-speech.verb"
+      },
+      {
+        "slug": "word.suffix.ere"
+      },
+      {
+        "slug": "word.regularity.irregular"
+      },
+      {
+        "slug": "word.verb-form.finite"
+      },
+      {
+        "slug": "word.mood.indicative"
+      },
+      {
+        "slug": "word.tense.present"
+      },
+      {
+        "slug": "word.person.second"
+      },
+      {
+        "slug": "word.number.singular"
+      },
+      {
+        "slug": "word.voice.active"
+      },
+      {
+        "slug": "proficiency.cefr.a1"
+      },
+      {
+        "slug": "proficiency.survival"
+      }
+    ]
+  },
+  {
+    "slug": "spingere.verb.indicative.present.third.singular",
+    "traits": [
+      "TRANSLATED",
+      "EXEMPLIFIED",
+      "RANKED"
+    ],
+    "trait": {
+      "TRANSLATED": {
+        "known": "he/she pushes",
+        "learning": "spinge"
+      },
+      "EXEMPLIFIED": {
+        "known": "He pushes the suitcase toward the exit",
+        "learning": "Lui spinge la valigia verso l'uscita"
+      },
+      "RANKED": {
+        "rank": 5469,
+        "zipf": 4.18,
+        "fpm": 15.1
+      }
+    },
+    "symbols": [
+      {
+        "slug": "word"
+      },
+      {
+        "slug": "word.lemma.spingere"
+      },
+      {
+        "slug": "word.part-of-speech.verb"
+      },
+      {
+        "slug": "word.suffix.ere"
+      },
+      {
+        "slug": "word.regularity.irregular"
+      },
+      {
+        "slug": "word.verb-form.finite"
+      },
+      {
+        "slug": "word.mood.indicative"
+      },
+      {
+        "slug": "word.tense.present"
+      },
+      {
+        "slug": "word.person.third"
+      },
+      {
+        "slug": "word.number.singular"
+      },
+      {
+        "slug": "word.voice.active"
+      },
+      {
+        "slug": "proficiency.cefr.a1"
+      },
+      {
+        "slug": "proficiency.survival"
+      }
+    ]
+  },
+  {
+    "slug": "spingere.verb.indicative.present.first.plural",
+    "traits": [
+      "TRANSLATED",
+      "EXEMPLIFIED",
+      "RANKED"
+    ],
+    "trait": {
+      "TRANSLATED": {
+        "known": "we push",
+        "learning": "spingiamo"
+      },
+      "EXEMPLIFIED": {
+        "known": "We push the car together",
+        "learning": "Spingiamo insieme la macchina"
+      },
+      "RANKED": {
+        "rank": 95175,
+        "zipf": 2.19,
+        "fpm": 0.155
+      }
+    },
+    "symbols": [
+      {
+        "slug": "word"
+      },
+      {
+        "slug": "word.lemma.spingere"
+      },
+      {
+        "slug": "word.part-of-speech.verb"
+      },
+      {
+        "slug": "word.suffix.ere"
+      },
+      {
+        "slug": "word.regularity.irregular"
+      },
+      {
+        "slug": "word.verb-form.finite"
+      },
+      {
+        "slug": "word.mood.indicative"
+      },
+      {
+        "slug": "word.tense.present"
+      },
+      {
+        "slug": "word.person.first"
+      },
+      {
+        "slug": "word.number.plural"
+      },
+      {
+        "slug": "word.voice.active"
+      },
+      {
+        "slug": "proficiency.cefr.a1"
+      },
+      {
+        "slug": "proficiency.survival"
+      }
+    ]
+  },
+  {
+    "slug": "spingere.verb.indicative.present.second.plural",
+    "traits": [
+      "TRANSLATED",
+      "EXEMPLIFIED",
+      "RANKED"
+    ],
+    "trait": {
+      "TRANSLATED": {
+        "known": "you all push",
+        "learning": "spingete"
+      },
+      "EXEMPLIFIED": {
+        "known": "You all push the door gently",
+        "learning": "Spingete piano la porta"
+      },
+      "RANKED": {
+        "rank": 94064,
+        "zipf": 2.2,
+        "fpm": 0.158
+      }
+    },
+    "symbols": [
+      {
+        "slug": "word"
+      },
+      {
+        "slug": "word.lemma.spingere"
+      },
+      {
+        "slug": "word.part-of-speech.verb"
+      },
+      {
+        "slug": "word.suffix.ere"
+      },
+      {
+        "slug": "word.regularity.irregular"
+      },
+      {
+        "slug": "word.verb-form.finite"
+      },
+      {
+        "slug": "word.mood.indicative"
+      },
+      {
+        "slug": "word.tense.present"
+      },
+      {
+        "slug": "word.person.second"
+      },
+      {
+        "slug": "word.number.plural"
+      },
+      {
+        "slug": "word.voice.active"
+      },
+      {
+        "slug": "proficiency.cefr.a1"
+      },
+      {
+        "slug": "proficiency.survival"
+      }
+    ]
+  },
+  {
+    "slug": "spingere.verb.indicative.present.third.plural",
+    "traits": [
+      "TRANSLATED",
+      "EXEMPLIFIED",
+      "RANKED"
+    ],
+    "trait": {
+      "TRANSLATED": {
+        "known": "they push",
+        "learning": "spingono"
+      },
+      "EXEMPLIFIED": {
+        "known": "They push the full cart",
+        "learning": "Spingono il carrello pieno"
+      },
+      "RANKED": {
+        "rank": 12558,
+        "zipf": 3.71,
+        "fpm": 5.13
+      }
+    },
+    "symbols": [
+      {
+        "slug": "word"
+      },
+      {
+        "slug": "word.lemma.spingere"
+      },
+      {
+        "slug": "word.part-of-speech.verb"
+      },
+      {
+        "slug": "word.suffix.ere"
+      },
+      {
+        "slug": "word.regularity.irregular"
+      },
+      {
+        "slug": "word.verb-form.finite"
+      },
+      {
+        "slug": "word.mood.indicative"
+      },
+      {
+        "slug": "word.tense.present"
+      },
+      {
+        "slug": "word.person.third"
+      },
+      {
+        "slug": "word.number.plural"
+      },
+      {
+        "slug": "word.voice.active"
+      },
+      {
+        "slug": "proficiency.cefr.a1"
+      },
+      {
+        "slug": "proficiency.survival"
+      }
+    ]
+  },
+  {
+    "slug": "tirare.verb.infinitive",
+    "traits": [
+      "TRANSLATED",
+      "EXEMPLIFIED",
+      "RANKED"
+    ],
+    "trait": {
+      "TRANSLATED": {
+        "known": "to pull",
+        "learning": "tirare"
+      },
+      "EXEMPLIFIED": {
+        "known": "You have to pull the door",
+        "learning": "Devi tirare la porta"
+      },
+      "RANKED": {
+        "rank": 4129,
+        "zipf": 4.33,
+        "fpm": 21.4
+      }
+    },
+    "symbols": [
+      {
+        "slug": "word"
+      },
+      {
+        "slug": "word.lemma.tirare"
+      },
+      {
+        "slug": "word.part-of-speech.verb"
+      },
+      {
+        "slug": "word.suffix.are"
+      },
+      {
+        "slug": "word.regularity.regular"
+      },
+      {
+        "slug": "word.verb-form.infinitive"
+      },
+      {
+        "slug": "proficiency.cefr.a1"
+      },
+      {
+        "slug": "proficiency.survival"
+      }
+    ]
+  },
+  {
+    "slug": "tirare.verb.participle.past",
+    "traits": [
+      "TRANSLATED",
+      "EXEMPLIFIED",
+      "RANKED"
+    ],
+    "trait": {
+      "TRANSLATED": {
+        "known": "pulled",
+        "learning": "tirato"
+      },
+      "EXEMPLIFIED": {
+        "known": "I pulled the handle",
+        "learning": "Ho tirato la maniglia"
+      },
+      "RANKED": {
+        "rank": 4640,
+        "zipf": 4.27,
+        "fpm": 18.6
+      }
+    },
+    "symbols": [
+      {
+        "slug": "word"
+      },
+      {
+        "slug": "word.lemma.tirare"
+      },
+      {
+        "slug": "word.part-of-speech.verb"
+      },
+      {
+        "slug": "word.suffix.are"
+      },
+      {
+        "slug": "word.regularity.regular"
+      },
+      {
+        "slug": "word.verb-form.participle"
+      },
+      {
+        "slug": "proficiency.cefr.a1"
+      },
+      {
+        "slug": "proficiency.survival"
+      }
+    ]
+  },
+  {
+    "slug": "tirare.verb.indicative.present.first.singular",
+    "traits": [
+      "TRANSLATED",
+      "EXEMPLIFIED",
+      "RANKED"
+    ],
+    "trait": {
+      "TRANSLATED": {
+        "known": "I pull",
+        "learning": "tiro"
+      },
+      "EXEMPLIFIED": {
+        "known": "I pull the door toward me",
+        "learning": "Tiro la porta verso di me"
+      },
+      "RANKED": {
+        "rank": 2655,
+        "zipf": 4.54,
+        "fpm": 34.7
+      }
+    },
+    "symbols": [
+      {
+        "slug": "word"
+      },
+      {
+        "slug": "word.lemma.tirare"
+      },
+      {
+        "slug": "word.part-of-speech.verb"
+      },
+      {
+        "slug": "word.suffix.are"
+      },
+      {
+        "slug": "word.regularity.regular"
+      },
+      {
+        "slug": "word.verb-form.finite"
+      },
+      {
+        "slug": "word.mood.indicative"
+      },
+      {
+        "slug": "word.tense.present"
+      },
+      {
+        "slug": "word.person.first"
+      },
+      {
+        "slug": "word.number.singular"
+      },
+      {
+        "slug": "word.voice.active"
+      },
+      {
+        "slug": "proficiency.cefr.a1"
+      },
+      {
+        "slug": "proficiency.survival"
+      }
+    ]
+  },
+  {
+    "slug": "tirare.verb.indicative.present.second.singular",
+    "traits": [
+      "TRANSLATED",
+      "EXEMPLIFIED",
+      "RANKED"
+    ],
+    "trait": {
+      "TRANSLATED": {
+        "known": "you pull",
+        "learning": "tiri"
+      },
+      "EXEMPLIFIED": {
+        "known": "Why do you pull the door?",
+        "learning": "Perché tiri la porta?"
+      },
+      "RANKED": {
+        "rank": 6969,
+        "zipf": 4.05,
+        "fpm": 11.2
+      }
+    },
+    "symbols": [
+      {
+        "slug": "word"
+      },
+      {
+        "slug": "word.lemma.tirare"
+      },
+      {
+        "slug": "word.part-of-speech.verb"
+      },
+      {
+        "slug": "word.suffix.are"
+      },
+      {
+        "slug": "word.regularity.regular"
+      },
+      {
+        "slug": "word.verb-form.finite"
+      },
+      {
+        "slug": "word.mood.indicative"
+      },
+      {
+        "slug": "word.tense.present"
+      },
+      {
+        "slug": "word.person.second"
+      },
+      {
+        "slug": "word.number.singular"
+      },
+      {
+        "slug": "word.voice.active"
+      },
+      {
+        "slug": "proficiency.cefr.a1"
+      },
+      {
+        "slug": "proficiency.survival"
+      }
+    ]
+  },
+  {
+    "slug": "tirare.verb.indicative.present.third.singular",
+    "traits": [
+      "TRANSLATED",
+      "EXEMPLIFIED",
+      "RANKED"
+    ],
+    "trait": {
+      "TRANSLATED": {
+        "known": "he/she pulls",
+        "learning": "tira"
+      },
+      "EXEMPLIFIED": {
+        "known": "She pulls the heavy suitcase",
+        "learning": "Lei tira la valigia pesante"
+      },
+      "RANKED": {
+        "rank": 3859,
+        "zipf": 4.36,
+        "fpm": 22.9
+      }
+    },
+    "symbols": [
+      {
+        "slug": "word"
+      },
+      {
+        "slug": "word.lemma.tirare"
+      },
+      {
+        "slug": "word.part-of-speech.verb"
+      },
+      {
+        "slug": "word.suffix.are"
+      },
+      {
+        "slug": "word.regularity.regular"
+      },
+      {
+        "slug": "word.verb-form.finite"
+      },
+      {
+        "slug": "word.mood.indicative"
+      },
+      {
+        "slug": "word.tense.present"
+      },
+      {
+        "slug": "word.person.third"
+      },
+      {
+        "slug": "word.number.singular"
+      },
+      {
+        "slug": "word.voice.active"
+      },
+      {
+        "slug": "proficiency.cefr.a1"
+      },
+      {
+        "slug": "proficiency.survival"
+      }
+    ]
+  },
+  {
+    "slug": "tirare.verb.indicative.present.first.plural",
+    "traits": [
+      "TRANSLATED",
+      "EXEMPLIFIED",
+      "RANKED"
+    ],
+    "trait": {
+      "TRANSLATED": {
+        "known": "we pull",
+        "learning": "tiriamo"
+      },
+      "EXEMPLIFIED": {
+        "known": "We pull the door together",
+        "learning": "Tiriamo la porta insieme"
+      },
+      "RANKED": {
+        "rank": 26472,
+        "zipf": 3.23,
+        "fpm": 1.7
+      }
+    },
+    "symbols": [
+      {
+        "slug": "word"
+      },
+      {
+        "slug": "word.lemma.tirare"
+      },
+      {
+        "slug": "word.part-of-speech.verb"
+      },
+      {
+        "slug": "word.suffix.are"
+      },
+      {
+        "slug": "word.regularity.regular"
+      },
+      {
+        "slug": "word.verb-form.finite"
+      },
+      {
+        "slug": "word.mood.indicative"
+      },
+      {
+        "slug": "word.tense.present"
+      },
+      {
+        "slug": "word.person.first"
+      },
+      {
+        "slug": "word.number.plural"
+      },
+      {
+        "slug": "word.voice.active"
+      },
+      {
+        "slug": "proficiency.cefr.a1"
+      },
+      {
+        "slug": "proficiency.survival"
+      }
+    ]
+  },
+  {
+    "slug": "tirare.verb.indicative.present.second.plural",
+    "traits": [
+      "TRANSLATED",
+      "EXEMPLIFIED",
+      "RANKED"
+    ],
+    "trait": {
+      "TRANSLATED": {
+        "known": "you all pull",
+        "learning": "tirate"
+      },
+      "EXEMPLIFIED": {
+        "known": "You all pull the door, don't push",
+        "learning": "Tirate la porta, non spingete"
+      },
+      "RANKED": {
+        "rank": 13918,
+        "zipf": 3.65,
+        "fpm": 4.47
+      }
+    },
+    "symbols": [
+      {
+        "slug": "word"
+      },
+      {
+        "slug": "word.lemma.tirare"
+      },
+      {
+        "slug": "word.part-of-speech.verb"
+      },
+      {
+        "slug": "word.suffix.are"
+      },
+      {
+        "slug": "word.regularity.regular"
+      },
+      {
+        "slug": "word.verb-form.finite"
+      },
+      {
+        "slug": "word.mood.indicative"
+      },
+      {
+        "slug": "word.tense.present"
+      },
+      {
+        "slug": "word.person.second"
+      },
+      {
+        "slug": "word.number.plural"
+      },
+      {
+        "slug": "word.voice.active"
+      },
+      {
+        "slug": "proficiency.cefr.a1"
+      },
+      {
+        "slug": "proficiency.survival"
+      }
+    ]
+  },
+  {
+    "slug": "tirare.verb.indicative.present.third.plural",
+    "traits": [
+      "TRANSLATED",
+      "EXEMPLIFIED",
+      "RANKED"
+    ],
+    "trait": {
+      "TRANSLATED": {
+        "known": "they pull",
+        "learning": "tirano"
+      },
+      "EXEMPLIFIED": {
+        "known": "They pull the suitcases in the station",
+        "learning": "Tirano le valigie in stazione"
+      },
+      "RANKED": {
+        "rank": 11417,
+        "zipf": 3.77,
+        "fpm": 5.89
+      }
+    },
+    "symbols": [
+      {
+        "slug": "word"
+      },
+      {
+        "slug": "word.lemma.tirare"
+      },
+      {
+        "slug": "word.part-of-speech.verb"
+      },
+      {
+        "slug": "word.suffix.are"
+      },
+      {
+        "slug": "word.regularity.regular"
+      },
+      {
+        "slug": "word.verb-form.finite"
+      },
+      {
+        "slug": "word.mood.indicative"
+      },
+      {
+        "slug": "word.tense.present"
+      },
+      {
+        "slug": "word.person.third"
+      },
+      {
+        "slug": "word.number.plural"
+      },
+      {
+        "slug": "word.voice.active"
+      },
+      {
+        "slug": "proficiency.cefr.a1"
+      },
+      {
+        "slug": "proficiency.survival"
+      }
+    ]
+  },
+  {
+    "slug": "funzionare.verb.infinitive",
+    "traits": [
+      "TRANSLATED",
+      "EXEMPLIFIED",
+      "RANKED"
+    ],
+    "trait": {
+      "TRANSLATED": {
+        "known": "to work (function)",
+        "learning": "funzionare"
+      },
+      "EXEMPLIFIED": {
+        "known": "The elevator won't work",
+        "learning": "L'ascensore non vuole funzionare"
+      },
+      "RANKED": {
+        "rank": 3816,
+        "zipf": 4.36,
+        "fpm": 22.9
+      }
+    },
+    "symbols": [
+      {
+        "slug": "word"
+      },
+      {
+        "slug": "word.lemma.funzionare"
+      },
+      {
+        "slug": "word.part-of-speech.verb"
+      },
+      {
+        "slug": "word.suffix.are"
+      },
+      {
+        "slug": "word.regularity.regular"
+      },
+      {
+        "slug": "word.verb-form.infinitive"
+      },
+      {
+        "slug": "proficiency.cefr.a1"
+      },
+      {
+        "slug": "proficiency.survival"
+      }
+    ]
+  },
+  {
+    "slug": "funzionare.verb.participle.past",
+    "traits": [
+      "TRANSLATED",
+      "EXEMPLIFIED",
+      "RANKED"
+    ],
+    "trait": {
+      "TRANSLATED": {
+        "known": "worked (functioned)",
+        "learning": "funzionato"
+      },
+      "EXEMPLIFIED": {
+        "known": "The phone didn't work yesterday",
+        "learning": "Il telefono non ha funzionato ieri"
+      },
+      "RANKED": {
+        "rank": 6386,
+        "zipf": 4.09,
+        "fpm": 12.3
+      }
+    },
+    "symbols": [
+      {
+        "slug": "word"
+      },
+      {
+        "slug": "word.lemma.funzionare"
+      },
+      {
+        "slug": "word.part-of-speech.verb"
+      },
+      {
+        "slug": "word.suffix.are"
+      },
+      {
+        "slug": "word.regularity.regular"
+      },
+      {
+        "slug": "word.verb-form.participle"
+      },
+      {
+        "slug": "proficiency.cefr.a1"
+      },
+      {
+        "slug": "proficiency.survival"
+      }
+    ]
+  },
+  {
+    "slug": "funzionare.verb.indicative.present.first.singular",
+    "traits": [
+      "TRANSLATED",
+      "EXEMPLIFIED",
+      "RANKED"
+    ],
+    "trait": {
+      "TRANSLATED": {
+        "known": "I function",
+        "learning": "funziono"
+      },
+      "EXEMPLIFIED": {
+        "known": "Without coffee I don't function",
+        "learning": "Senza caffè non funziono"
+      },
+      "RANKED": {
+        "rank": 87542,
+        "zipf": 2.26,
+        "fpm": 0.182
+      }
+    },
+    "symbols": [
+      {
+        "slug": "word"
+      },
+      {
+        "slug": "word.lemma.funzionare"
+      },
+      {
+        "slug": "word.part-of-speech.verb"
+      },
+      {
+        "slug": "word.suffix.are"
+      },
+      {
+        "slug": "word.regularity.regular"
+      },
+      {
+        "slug": "word.verb-form.finite"
+      },
+      {
+        "slug": "word.mood.indicative"
+      },
+      {
+        "slug": "word.tense.present"
+      },
+      {
+        "slug": "word.person.first"
+      },
+      {
+        "slug": "word.number.singular"
+      },
+      {
+        "slug": "word.voice.active"
+      },
+      {
+        "slug": "proficiency.cefr.a1"
+      },
+      {
+        "slug": "proficiency.survival"
+      }
+    ]
+  },
+  {
+    "slug": "funzionare.verb.indicative.present.second.singular",
+    "traits": [
+      "TRANSLATED",
+      "EXEMPLIFIED",
+      "RANKED"
+    ],
+    "trait": {
+      "TRANSLATED": {
+        "known": "you function",
+        "learning": "funzioni"
+      },
+      "EXEMPLIFIED": {
+        "known": "You're not functioning well today",
+        "learning": "Oggi non funzioni bene"
+      },
+      "RANKED": {
+        "rank": 1647,
+        "zipf": 4.76,
+        "fpm": 57.5
+      }
+    },
+    "symbols": [
+      {
+        "slug": "word"
+      },
+      {
+        "slug": "word.lemma.funzionare"
+      },
+      {
+        "slug": "word.part-of-speech.verb"
+      },
+      {
+        "slug": "word.suffix.are"
+      },
+      {
+        "slug": "word.regularity.regular"
+      },
+      {
+        "slug": "word.verb-form.finite"
+      },
+      {
+        "slug": "word.mood.indicative"
+      },
+      {
+        "slug": "word.tense.present"
+      },
+      {
+        "slug": "word.person.second"
+      },
+      {
+        "slug": "word.number.singular"
+      },
+      {
+        "slug": "word.voice.active"
+      },
+      {
+        "slug": "proficiency.cefr.a1"
+      },
+      {
+        "slug": "proficiency.survival"
+      }
+    ]
+  },
+  {
+    "slug": "funzionare.verb.indicative.present.third.singular",
+    "traits": [
+      "TRANSLATED",
+      "EXEMPLIFIED",
+      "RANKED"
+    ],
+    "trait": {
+      "TRANSLATED": {
+        "known": "it works",
+        "learning": "funziona"
+      },
+      "EXEMPLIFIED": {
+        "known": "The ATM doesn't work",
+        "learning": "Il bancomat non funziona"
+      },
+      "RANKED": {
+        "rank": 1240,
+        "zipf": 4.89,
+        "fpm": 77.6
+      }
+    },
+    "symbols": [
+      {
+        "slug": "word"
+      },
+      {
+        "slug": "word.lemma.funzionare"
+      },
+      {
+        "slug": "word.part-of-speech.verb"
+      },
+      {
+        "slug": "word.suffix.are"
+      },
+      {
+        "slug": "word.regularity.regular"
+      },
+      {
+        "slug": "word.verb-form.finite"
+      },
+      {
+        "slug": "word.mood.indicative"
+      },
+      {
+        "slug": "word.tense.present"
+      },
+      {
+        "slug": "word.person.third"
+      },
+      {
+        "slug": "word.number.singular"
+      },
+      {
+        "slug": "word.voice.active"
+      },
+      {
+        "slug": "proficiency.cefr.a1"
+      },
+      {
+        "slug": "proficiency.survival"
+      }
+    ]
+  },
+  {
+    "slug": "funzionare.verb.indicative.present.first.plural",
+    "traits": [
+      "TRANSLATED",
+      "EXEMPLIFIED",
+      "RANKED"
+    ],
+    "trait": {
+      "TRANSLATED": {
+        "known": "we function",
+        "learning": "funzioniamo"
+      },
+      "EXEMPLIFIED": {
+        "known": "We function well together",
+        "learning": "Funzioniamo bene insieme"
+      },
+      "RANKED": {
+        "rank": 133545,
+        "zipf": 1.87,
+        "fpm": 0.0741
+      }
+    },
+    "symbols": [
+      {
+        "slug": "word"
+      },
+      {
+        "slug": "word.lemma.funzionare"
+      },
+      {
+        "slug": "word.part-of-speech.verb"
+      },
+      {
+        "slug": "word.suffix.are"
+      },
+      {
+        "slug": "word.regularity.regular"
+      },
+      {
+        "slug": "word.verb-form.finite"
+      },
+      {
+        "slug": "word.mood.indicative"
+      },
+      {
+        "slug": "word.tense.present"
+      },
+      {
+        "slug": "word.person.first"
+      },
+      {
+        "slug": "word.number.plural"
+      },
+      {
+        "slug": "word.voice.active"
+      },
+      {
+        "slug": "proficiency.cefr.a1"
+      },
+      {
+        "slug": "proficiency.survival"
+      }
+    ]
+  },
+  {
+    "slug": "funzionare.verb.indicative.present.second.plural",
+    "traits": [
+      "TRANSLATED",
+      "EXEMPLIFIED",
+      "RANKED"
+    ],
+    "trait": {
+      "TRANSLATED": {
+        "known": "you all function",
+        "learning": "funzionate"
+      },
+      "EXEMPLIFIED": {
+        "known": "Without a break you all don't function well",
+        "learning": "Senza pausa non funzionate bene"
+      },
+      "RANKED": {
+        "rank": 209727,
+        "zipf": 1.43,
+        "fpm": 0.0269
+      }
+    },
+    "symbols": [
+      {
+        "slug": "word"
+      },
+      {
+        "slug": "word.lemma.funzionare"
+      },
+      {
+        "slug": "word.part-of-speech.verb"
+      },
+      {
+        "slug": "word.suffix.are"
+      },
+      {
+        "slug": "word.regularity.regular"
+      },
+      {
+        "slug": "word.verb-form.finite"
+      },
+      {
+        "slug": "word.mood.indicative"
+      },
+      {
+        "slug": "word.tense.present"
+      },
+      {
+        "slug": "word.person.second"
+      },
+      {
+        "slug": "word.number.plural"
+      },
+      {
+        "slug": "word.voice.active"
+      },
+      {
+        "slug": "proficiency.cefr.a1"
+      },
+      {
+        "slug": "proficiency.survival"
+      }
+    ]
+  },
+  {
+    "slug": "funzionare.verb.indicative.present.third.plural",
+    "traits": [
+      "TRANSLATED",
+      "EXEMPLIFIED",
+      "RANKED"
+    ],
+    "trait": {
+      "TRANSLATED": {
+        "known": "they work",
+        "learning": "funzionano"
+      },
+      "EXEMPLIFIED": {
+        "known": "The room keys don't work",
+        "learning": "Le chiavi della camera non funzionano"
+      },
+      "RANKED": {
+        "rank": 5838,
+        "zipf": 4.14,
+        "fpm": 13.8
+      }
+    },
+    "symbols": [
+      {
+        "slug": "word"
+      },
+      {
+        "slug": "word.lemma.funzionare"
+      },
+      {
+        "slug": "word.part-of-speech.verb"
+      },
+      {
+        "slug": "word.suffix.are"
+      },
+      {
+        "slug": "word.regularity.regular"
+      },
+      {
+        "slug": "word.verb-form.finite"
+      },
+      {
+        "slug": "word.mood.indicative"
+      },
+      {
+        "slug": "word.tense.present"
+      },
+      {
+        "slug": "word.person.third"
+      },
+      {
+        "slug": "word.number.plural"
+      },
+      {
+        "slug": "word.voice.active"
+      },
+      {
+        "slug": "proficiency.cefr.a1"
+      },
+      {
+        "slug": "proficiency.survival"
+      }
+    ]
+  },
+  {
+    "slug": "bastare.verb.infinitive",
+    "traits": [
+      "TRANSLATED",
+      "EXEMPLIFIED",
+      "RANKED"
+    ],
+    "trait": {
+      "TRANSLATED": {
+        "known": "to be enough",
+        "learning": "bastare"
+      },
+      "EXEMPLIFIED": {
+        "known": "Ten euros should be enough",
+        "learning": "Dieci euro dovrebbero bastare"
+      },
+      "RANKED": {
+        "rank": 9836,
+        "zipf": 3.85,
+        "fpm": 7.08
+      }
+    },
+    "symbols": [
+      {
+        "slug": "word"
+      },
+      {
+        "slug": "word.lemma.bastare"
+      },
+      {
+        "slug": "word.part-of-speech.verb"
+      },
+      {
+        "slug": "word.suffix.are"
+      },
+      {
+        "slug": "word.regularity.regular"
+      },
+      {
+        "slug": "word.verb-form.infinitive"
+      },
+      {
+        "slug": "proficiency.cefr.a1"
+      },
+      {
+        "slug": "proficiency.survival"
+      }
+    ]
+  },
+  {
+    "slug": "bastare.verb.participle.past",
+    "traits": [
+      "TRANSLATED",
+      "EXEMPLIFIED",
+      "RANKED"
+    ],
+    "trait": {
+      "TRANSLATED": {
+        "known": "been enough",
+        "learning": "bastato"
+      },
+      "EXEMPLIFIED": {
+        "known": "One coffee was enough",
+        "learning": "Un caffè è bastato"
+      },
+      "RANKED": {
+        "rank": 10718,
+        "zipf": 3.8,
+        "fpm": 6.31
+      }
+    },
+    "symbols": [
+      {
+        "slug": "word"
+      },
+      {
+        "slug": "word.lemma.bastare"
+      },
+      {
+        "slug": "word.part-of-speech.verb"
+      },
+      {
+        "slug": "word.suffix.are"
+      },
+      {
+        "slug": "word.regularity.regular"
+      },
+      {
+        "slug": "word.verb-form.participle"
+      },
+      {
+        "slug": "proficiency.cefr.a1"
+      },
+      {
+        "slug": "proficiency.survival"
+      }
+    ]
+  },
+  {
+    "slug": "bastare.verb.indicative.present.first.singular",
+    "traits": [
+      "TRANSLATED",
+      "EXEMPLIFIED",
+      "RANKED"
+    ],
+    "trait": {
+      "TRANSLATED": {
+        "known": "I am enough",
+        "learning": "basto"
+      },
+      "EXEMPLIFIED": {
+        "known": "I alone am enough for this job",
+        "learning": "Basto io per questo lavoro"
+      },
+      "RANKED": {
+        "rank": 58662,
+        "zipf": 2.61,
+        "fpm": 0.407
+      }
+    },
+    "symbols": [
+      {
+        "slug": "word"
+      },
+      {
+        "slug": "word.lemma.bastare"
+      },
+      {
+        "slug": "word.part-of-speech.verb"
+      },
+      {
+        "slug": "word.suffix.are"
+      },
+      {
+        "slug": "word.regularity.regular"
+      },
+      {
+        "slug": "word.verb-form.finite"
+      },
+      {
+        "slug": "word.mood.indicative"
+      },
+      {
+        "slug": "word.tense.present"
+      },
+      {
+        "slug": "word.person.first"
+      },
+      {
+        "slug": "word.number.singular"
+      },
+      {
+        "slug": "word.voice.active"
+      },
+      {
+        "slug": "proficiency.cefr.a1"
+      },
+      {
+        "slug": "proficiency.survival"
+      }
+    ]
+  },
+  {
+    "slug": "bastare.verb.indicative.present.second.singular",
+    "traits": [
+      "TRANSLATED",
+      "EXEMPLIFIED",
+      "RANKED"
+    ],
+    "trait": {
+      "TRANSLATED": {
+        "known": "you are enough",
+        "learning": "basti"
+      },
+      "EXEMPLIFIED": {
+        "known": "You are enough just as you are",
+        "learning": "Tu basti così come sei"
+      },
+      "RANKED": {
+        "rank": 6853,
+        "zipf": 4.05,
+        "fpm": 11.2
+      }
+    },
+    "symbols": [
+      {
+        "slug": "word"
+      },
+      {
+        "slug": "word.lemma.bastare"
+      },
+      {
+        "slug": "word.part-of-speech.verb"
+      },
+      {
+        "slug": "word.suffix.are"
+      },
+      {
+        "slug": "word.regularity.regular"
+      },
+      {
+        "slug": "word.verb-form.finite"
+      },
+      {
+        "slug": "word.mood.indicative"
+      },
+      {
+        "slug": "word.tense.present"
+      },
+      {
+        "slug": "word.person.second"
+      },
+      {
+        "slug": "word.number.singular"
+      },
+      {
+        "slug": "word.voice.active"
+      },
+      {
+        "slug": "proficiency.cefr.a1"
+      },
+      {
+        "slug": "proficiency.survival"
+      }
+    ]
+  },
+  {
+    "slug": "bastare.verb.indicative.present.third.singular",
+    "traits": [
+      "TRANSLATED",
+      "EXEMPLIFIED",
+      "RANKED"
+    ],
+    "trait": {
+      "TRANSLATED": {
+        "known": "it is enough",
+        "learning": "basta"
+      },
+      "EXEMPLIFIED": {
+        "known": "That's enough, thank you",
+        "learning": "Basta così, grazie"
+      },
+      "RANKED": {
+        "rank": 336,
+        "zipf": 5.43,
+        "fpm": 269.0
+      }
+    },
+    "symbols": [
+      {
+        "slug": "word"
+      },
+      {
+        "slug": "word.lemma.bastare"
+      },
+      {
+        "slug": "word.part-of-speech.verb"
+      },
+      {
+        "slug": "word.suffix.are"
+      },
+      {
+        "slug": "word.regularity.regular"
+      },
+      {
+        "slug": "word.verb-form.finite"
+      },
+      {
+        "slug": "word.mood.indicative"
+      },
+      {
+        "slug": "word.tense.present"
+      },
+      {
+        "slug": "word.person.third"
+      },
+      {
+        "slug": "word.number.singular"
+      },
+      {
+        "slug": "word.voice.active"
+      },
+      {
+        "slug": "proficiency.cefr.a1"
+      },
+      {
+        "slug": "proficiency.survival"
+      }
+    ]
+  },
+  {
+    "slug": "bastare.verb.indicative.present.first.plural",
+    "traits": [
+      "TRANSLATED",
+      "EXEMPLIFIED",
+      "RANKED"
+    ],
+    "trait": {
+      "TRANSLATED": {
+        "known": "we are enough",
+        "learning": "bastiamo"
+      },
+      "EXEMPLIFIED": {
+        "known": "The two of us are enough",
+        "learning": "Bastiamo noi due"
+      },
+      "RANKED": {
+        "rank": 149302,
+        "zipf": 1.76,
+        "fpm": 0.0575
+      }
+    },
+    "symbols": [
+      {
+        "slug": "word"
+      },
+      {
+        "slug": "word.lemma.bastare"
+      },
+      {
+        "slug": "word.part-of-speech.verb"
+      },
+      {
+        "slug": "word.suffix.are"
+      },
+      {
+        "slug": "word.regularity.regular"
+      },
+      {
+        "slug": "word.verb-form.finite"
+      },
+      {
+        "slug": "word.mood.indicative"
+      },
+      {
+        "slug": "word.tense.present"
+      },
+      {
+        "slug": "word.person.first"
+      },
+      {
+        "slug": "word.number.plural"
+      },
+      {
+        "slug": "word.voice.active"
+      },
+      {
+        "slug": "proficiency.cefr.a1"
+      },
+      {
+        "slug": "proficiency.survival"
+      }
+    ]
+  },
+  {
+    "slug": "bastare.verb.indicative.present.second.plural",
+    "traits": [
+      "TRANSLATED",
+      "EXEMPLIFIED",
+      "RANKED"
+    ],
+    "trait": {
+      "TRANSLATED": {
+        "known": "you all are enough",
+        "learning": "bastate"
+      },
+      "EXEMPLIFIED": {
+        "known": "You all are enough for this task",
+        "learning": "Voi bastate per questo compito"
+      },
+      "RANKED": {
+        "rank": 43909,
+        "zipf": 2.85,
+        "fpm": 0.708
+      }
+    },
+    "symbols": [
+      {
+        "slug": "word"
+      },
+      {
+        "slug": "word.lemma.bastare"
+      },
+      {
+        "slug": "word.part-of-speech.verb"
+      },
+      {
+        "slug": "word.suffix.are"
+      },
+      {
+        "slug": "word.regularity.regular"
+      },
+      {
+        "slug": "word.verb-form.finite"
+      },
+      {
+        "slug": "word.mood.indicative"
+      },
+      {
+        "slug": "word.tense.present"
+      },
+      {
+        "slug": "word.person.second"
+      },
+      {
+        "slug": "word.number.plural"
+      },
+      {
+        "slug": "word.voice.active"
+      },
+      {
+        "slug": "proficiency.cefr.a1"
+      },
+      {
+        "slug": "proficiency.survival"
+      }
+    ]
+  },
+  {
+    "slug": "bastare.verb.indicative.present.third.plural",
+    "traits": [
+      "TRANSLATED",
+      "EXEMPLIFIED",
+      "RANKED"
+    ],
+    "trait": {
+      "TRANSLATED": {
+        "known": "they are enough",
+        "learning": "bastano"
+      },
+      "EXEMPLIFIED": {
+        "known": "Two tickets are enough",
+        "learning": "Bastano due biglietti"
+      },
+      "RANKED": {
+        "rank": 5923,
+        "zipf": 4.13,
+        "fpm": 13.5
+      }
+    },
+    "symbols": [
+      {
+        "slug": "word"
+      },
+      {
+        "slug": "word.lemma.bastare"
+      },
+      {
+        "slug": "word.part-of-speech.verb"
+      },
+      {
+        "slug": "word.suffix.are"
+      },
+      {
+        "slug": "word.regularity.regular"
+      },
+      {
+        "slug": "word.verb-form.finite"
+      },
+      {
+        "slug": "word.mood.indicative"
+      },
+      {
+        "slug": "word.tense.present"
+      },
+      {
+        "slug": "word.person.third"
+      },
+      {
+        "slug": "word.number.plural"
+      },
+      {
+        "slug": "word.voice.active"
+      },
+      {
+        "slug": "proficiency.cefr.a1"
+      },
+      {
+        "slug": "proficiency.survival"
       }
     ]
   }

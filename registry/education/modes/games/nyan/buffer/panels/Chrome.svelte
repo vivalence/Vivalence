@@ -27,7 +27,7 @@
     color: var(--colors-skeleton-1-boundary);
   }
   .phase {
-    color: var(--colors-palette-gray-10);
+    color: var(--colors-skeleton-1-contrast);
   }
   .ctx {
     margin-left: auto;

@@ -224,7 +224,6 @@ export class Connection {
 }
 // import { atom, computed } from "nanostores";
 // import { shards } from "@vivalence/typology";
-// import { object } from "@vivalence/shared";
 // import { Url, Status, Request, Response } from "@vivalence/typology";
 
 // export class Connection {

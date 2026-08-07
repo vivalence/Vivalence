@@ -30,7 +30,7 @@ export async function prune(daemonDie) {
       const slugs = new Set((m.module.dataset?.intent ?? []).map((i) => i.slug));
       await removeOrphans(
         em,
-        await intent.find({ mode: m.entity.id }),
+        await intent.find({ mode: m.entity.id }, { filters: false }),
         slugs,
         (i) => i.slug,
         "intent",

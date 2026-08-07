@@ -1,5 +1,4 @@
 import * as argon2 from "argon2";
-// import hash from "@vivalence/shared/hash";
 
 export function inject() {
   return async (ctx, next) => {

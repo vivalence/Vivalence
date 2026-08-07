@@ -151,9 +151,6 @@ export default [
         "slug": "proficiency.cefr.a1"
       },
       {
-        "slug": "proficiency.survival"
-      },
-      {
         "slug": "domain.color"
       }
     ]
@@ -198,9 +195,6 @@ export default [
       },
       {
         "slug": "proficiency.cefr.a1"
-      },
-      {
-        "slug": "proficiency.survival"
       },
       {
         "slug": "domain.color"
@@ -359,9 +353,6 @@ export default [
         "slug": "proficiency.cefr.a1"
       },
       {
-        "slug": "proficiency.survival"
-      },
-      {
         "slug": "domain.color"
       }
     ]
@@ -406,9 +397,6 @@ export default [
       },
       {
         "slug": "proficiency.cefr.a1"
-      },
-      {
-        "slug": "proficiency.survival"
       },
       {
         "slug": "domain.color"
@@ -463,9 +451,6 @@ export default [
         "slug": "proficiency.cefr.a1"
       },
       {
-        "slug": "proficiency.survival"
-      },
-      {
         "slug": "domain.color"
       }
     ]
@@ -510,9 +495,6 @@ export default [
       },
       {
         "slug": "proficiency.cefr.a1"
-      },
-      {
-        "slug": "proficiency.survival"
       },
       {
         "slug": "domain.color"
@@ -564,9 +546,6 @@ export default [
         "slug": "proficiency.cefr.a1"
       },
       {
-        "slug": "proficiency.survival"
-      },
-      {
         "slug": "domain.color"
       }
     ]
@@ -616,9 +595,6 @@ export default [
         "slug": "proficiency.cefr.a1"
       },
       {
-        "slug": "proficiency.survival"
-      },
-      {
         "slug": "domain.color"
       }
     ]
@@ -666,9 +642,6 @@ export default [
       },
       {
         "slug": "proficiency.cefr.a1"
-      },
-      {
-        "slug": "proficiency.survival"
       },
       {
         "slug": "domain.color"
@@ -1506,9 +1479,6 @@ export default [
         "slug": "proficiency.cefr.a1"
       },
       {
-        "slug": "proficiency.survival"
-      },
-      {
         "slug": "domain.shape"
       }
     ]
@@ -1553,9 +1523,6 @@ export default [
       },
       {
         "slug": "proficiency.cefr.a1"
-      },
-      {
-        "slug": "proficiency.survival"
       },
       {
         "slug": "domain.shape"
@@ -1662,9 +1629,6 @@ export default [
         "slug": "proficiency.cefr.a1"
       },
       {
-        "slug": "proficiency.survival"
-      },
-      {
         "slug": "domain.shape"
       }
     ]
@@ -1715,9 +1679,6 @@ export default [
       },
       {
         "slug": "proficiency.cefr.a1"
-      },
-      {
-        "slug": "proficiency.survival"
       },
       {
         "slug": "domain.shape"
@@ -1971,9 +1932,6 @@ export default [
         "slug": "proficiency.cefr.a1"
       },
       {
-        "slug": "proficiency.survival"
-      },
-      {
         "slug": "domain.shape"
       }
     ]
@@ -2168,9 +2126,6 @@ export default [
       },
       {
         "slug": "proficiency.cefr.a1"
-      },
-      {
-        "slug": "proficiency.survival"
       },
       {
         "slug": "domain.shape"
@@ -2926,9 +2881,6 @@ export default [
         "slug": "proficiency.cefr.a1"
       },
       {
-        "slug": "proficiency.survival"
-      },
-      {
         "slug": "domain.state"
       }
     ]
@@ -3122,9 +3074,6 @@ export default [
         "slug": "proficiency.cefr.a1"
       },
       {
-        "slug": "proficiency.survival"
-      },
-      {
         "slug": "domain.state"
       }
     ]
@@ -3172,9 +3121,6 @@ export default [
       },
       {
         "slug": "proficiency.cefr.a1"
-      },
-      {
-        "slug": "proficiency.survival"
       },
       {
         "slug": "domain.state"
@@ -3413,9 +3359,6 @@ export default [
         "slug": "proficiency.cefr.a1"
       },
       {
-        "slug": "proficiency.survival"
-      },
-      {
         "slug": "domain.mind"
       }
     ]
@@ -3460,9 +3403,6 @@ export default [
       },
       {
         "slug": "proficiency.cefr.a1"
-      },
-      {
-        "slug": "proficiency.survival"
       },
       {
         "slug": "domain.mind"
@@ -4765,6 +4705,9 @@ export default [
       },
       {
         "slug": "proficiency.cefr.a2"
+      },
+      {
+        "slug": "proficiency.survival"
       }
     ]
   },
@@ -4808,6 +4751,9 @@ export default [
       },
       {
         "slug": "proficiency.cefr.a2"
+      },
+      {
+        "slug": "proficiency.survival"
       }
     ]
   },
@@ -4851,6 +4797,9 @@ export default [
       },
       {
         "slug": "proficiency.cefr.a2"
+      },
+      {
+        "slug": "proficiency.survival"
       }
     ]
   },
@@ -4894,6 +4843,9 @@ export default [
       },
       {
         "slug": "proficiency.cefr.a2"
+      },
+      {
+        "slug": "proficiency.survival"
       }
     ]
   },
@@ -5087,6 +5039,9 @@ export default [
       },
       {
         "slug": "proficiency.cefr.a2"
+      },
+      {
+        "slug": "proficiency.survival"
       }
     ]
   },
@@ -5617,9 +5572,6 @@ export default [
       },
       {
         "slug": "proficiency.cefr.a1"
-      },
-      {
-        "slug": "proficiency.survival"
       }
     ]
   },
@@ -5666,9 +5618,6 @@ export default [
       },
       {
         "slug": "proficiency.cefr.a1"
-      },
-      {
-        "slug": "proficiency.survival"
       }
     ]
   },
@@ -5984,10 +5933,10 @@ export default [
         "slug": "proficiency.cefr.a2"
       },
       {
-        "slug": "domain.social"
+        "slug": "proficiency.survival"
       },
       {
-        "slug": "proficiency.survival"
+        "slug": "domain.social"
       }
     ]
   },
@@ -6039,10 +5988,10 @@ export default [
         "slug": "proficiency.cefr.a2"
       },
       {
-        "slug": "domain.social"
+        "slug": "proficiency.survival"
       },
       {
-        "slug": "proficiency.survival"
+        "slug": "domain.social"
       }
     ]
   },
@@ -6343,9 +6292,6 @@ export default [
       },
       {
         "slug": "domain.social"
-      },
-      {
-        "slug": "proficiency.survival"
       }
     ]
   },
@@ -6685,10 +6631,10 @@ export default [
         "slug": "proficiency.cefr.a2"
       },
       {
-        "slug": "domain.social"
+        "slug": "proficiency.survival"
       },
       {
-        "slug": "proficiency.survival"
+        "slug": "domain.social"
       }
     ]
   },
@@ -7210,9 +7156,6 @@ export default [
       },
       {
         "slug": "domain.weather"
-      },
-      {
-        "slug": "proficiency.survival"
       }
     ]
   },
@@ -7596,6 +7539,9 @@ export default [
       },
       {
         "slug": "proficiency.cefr.a2"
+      },
+      {
+        "slug": "proficiency.survival"
       }
     ]
   },
@@ -7691,6 +7637,9 @@ export default [
       },
       {
         "slug": "proficiency.cefr.a2"
+      },
+      {
+        "slug": "proficiency.survival"
       }
     ]
   },
@@ -8742,6 +8691,9 @@ export default [
         "slug": "proficiency.cefr.a2"
       },
       {
+        "slug": "proficiency.survival"
+      },
+      {
         "slug": "domain.home"
       }
     ]
@@ -8786,6 +8738,9 @@ export default [
       },
       {
         "slug": "proficiency.cefr.a2"
+      },
+      {
+        "slug": "proficiency.survival"
       },
       {
         "slug": "domain.home"
@@ -8840,6 +8795,9 @@ export default [
         "slug": "proficiency.cefr.a2"
       },
       {
+        "slug": "proficiency.survival"
+      },
+      {
         "slug": "domain.home"
       }
     ]
@@ -8884,6 +8842,9 @@ export default [
       },
       {
         "slug": "proficiency.cefr.a2"
+      },
+      {
+        "slug": "proficiency.survival"
       },
       {
         "slug": "domain.home"
@@ -13025,6 +12986,9 @@ export default [
         "slug": "proficiency.cefr.a2"
       },
       {
+        "slug": "proficiency.survival"
+      },
+      {
         "slug": "domain.food"
       }
     ]
@@ -16825,6 +16789,9 @@ export default [
         "slug": "proficiency.cefr.a1"
       },
       {
+        "slug": "proficiency.survival"
+      },
+      {
         "slug": "functional.number"
       }
     ]
@@ -16875,6 +16842,9 @@ export default [
       },
       {
         "slug": "proficiency.cefr.a1"
+      },
+      {
+        "slug": "proficiency.survival"
       },
       {
         "slug": "functional.number"
@@ -18501,6 +18471,9 @@ export default [
         "slug": "proficiency.cefr.a2"
       },
       {
+        "slug": "proficiency.survival"
+      },
+      {
         "slug": "domain.shape"
       }
     ]
@@ -19019,6 +18992,9 @@ export default [
         "slug": "proficiency.cefr.a2"
       },
       {
+        "slug": "proficiency.survival"
+      },
+      {
         "slug": "domain.time"
       }
     ]
@@ -19063,6 +19039,9 @@ export default [
       },
       {
         "slug": "proficiency.cefr.a2"
+      },
+      {
+        "slug": "proficiency.survival"
       },
       {
         "slug": "domain.time"
@@ -19497,6 +19476,9 @@ export default [
         "slug": "proficiency.cefr.a2"
       },
       {
+        "slug": "proficiency.survival"
+      },
+      {
         "slug": "domain.time"
       }
     ]
@@ -19541,6 +19523,9 @@ export default [
       },
       {
         "slug": "proficiency.cefr.a2"
+      },
+      {
+        "slug": "proficiency.survival"
       },
       {
         "slug": "domain.time"
@@ -21576,9 +21561,6 @@ export default [
         "slug": "proficiency.cefr.a1"
       },
       {
-        "slug": "proficiency.survival"
-      },
-      {
         "slug": "domain.shape"
       }
     ]
@@ -21712,6 +21694,9 @@ export default [
       },
       {
         "slug": "proficiency.cefr.a2"
+      },
+      {
+        "slug": "proficiency.survival"
       }
     ]
   },
@@ -21893,9 +21878,6 @@ export default [
       },
       {
         "slug": "domain.social"
-      },
-      {
-        "slug": "proficiency.survival"
       }
     ]
   },
@@ -22393,9 +22375,6 @@ export default [
       },
       {
         "slug": "proficiency.cefr.a1"
-      },
-      {
-        "slug": "proficiency.survival"
       },
       {
         "slug": "domain.shape"
@@ -22904,6 +22883,9 @@ export default [
         "slug": "proficiency.cefr.a2"
       },
       {
+        "slug": "proficiency.survival"
+      },
+      {
         "slug": "domain.money"
       }
     ]
@@ -22948,6 +22930,9 @@ export default [
       },
       {
         "slug": "proficiency.cefr.a2"
+      },
+      {
+        "slug": "proficiency.survival"
       },
       {
         "slug": "domain.money"
@@ -23732,6 +23717,9 @@ export default [
         "slug": "proficiency.cefr.a2"
       },
       {
+        "slug": "proficiency.survival"
+      },
+      {
         "slug": "domain.space"
       }
     ]
@@ -23776,6 +23764,9 @@ export default [
       },
       {
         "slug": "proficiency.cefr.a2"
+      },
+      {
+        "slug": "proficiency.survival"
       },
       {
         "slug": "domain.space"
@@ -26476,6 +26467,248 @@ export default [
       },
       {
         "slug": "proficiency.cefr.b1"
+      }
+    ]
+  },
+  {
+    "slug": "frizzante.adjective",
+    "traits": [
+      "TRANSLATED",
+      "EXEMPLIFIED",
+      "RANKED"
+    ],
+    "trait": {
+      "TRANSLATED": {
+        "known": "sparkling",
+        "learning": "frizzante"
+      },
+      "EXEMPLIFIED": {
+        "known": "I would like some sparkling water",
+        "learning": "Vorrei dell'acqua frizzante"
+      },
+      "RANKED": {
+        "rank": 19438,
+        "zipf": 3.43,
+        "fpm": 2.69
+      }
+    },
+    "symbols": [
+      {
+        "slug": "word"
+      },
+      {
+        "slug": "word.lemma.frizzante"
+      },
+      {
+        "slug": "word.part-of-speech.adjective"
+      },
+      {
+        "slug": "word.number.singular"
+      },
+      {
+        "slug": "proficiency.cefr.a1"
+      },
+      {
+        "slug": "proficiency.survival"
+      },
+      {
+        "slug": "domain.food"
+      }
+    ]
+  },
+  {
+    "slug": "allergico.adjective.masculine.singular",
+    "traits": [
+      "TRANSLATED",
+      "EXEMPLIFIED",
+      "RANKED"
+    ],
+    "trait": {
+      "TRANSLATED": {
+        "known": "allergic",
+        "learning": "allergico"
+      },
+      "EXEMPLIFIED": {
+        "known": "I am allergic to milk",
+        "learning": "Sono allergico al latte"
+      },
+      "RANKED": {
+        "rank": 23559,
+        "zipf": 3.3,
+        "fpm": 2.0
+      }
+    },
+    "symbols": [
+      {
+        "slug": "word"
+      },
+      {
+        "slug": "word.lemma.allergico"
+      },
+      {
+        "slug": "word.part-of-speech.adjective"
+      },
+      {
+        "slug": "word.gender.masculine"
+      },
+      {
+        "slug": "word.number.singular"
+      },
+      {
+        "slug": "proficiency.cefr.a1"
+      },
+      {
+        "slug": "proficiency.survival"
+      },
+      {
+        "slug": "domain.health"
+      }
+    ]
+  },
+  {
+    "slug": "allergica.adjective.feminine.singular",
+    "traits": [
+      "TRANSLATED",
+      "EXEMPLIFIED",
+      "RANKED"
+    ],
+    "trait": {
+      "TRANSLATED": {
+        "known": "allergic (fem.)",
+        "learning": "allergica"
+      },
+      "EXEMPLIFIED": {
+        "known": "She is allergic to fish",
+        "learning": "Lei è allergica al pesce"
+      },
+      "RANKED": {
+        "rank": 21816,
+        "zipf": 3.35,
+        "fpm": 2.24
+      }
+    },
+    "symbols": [
+      {
+        "slug": "word"
+      },
+      {
+        "slug": "word.lemma.allergico"
+      },
+      {
+        "slug": "word.part-of-speech.adjective"
+      },
+      {
+        "slug": "word.gender.feminine"
+      },
+      {
+        "slug": "word.number.singular"
+      },
+      {
+        "slug": "proficiency.cefr.a1"
+      },
+      {
+        "slug": "proficiency.survival"
+      },
+      {
+        "slug": "domain.health"
+      }
+    ]
+  },
+  {
+    "slug": "incluso.adjective.masculine.singular",
+    "traits": [
+      "TRANSLATED",
+      "EXEMPLIFIED",
+      "RANKED"
+    ],
+    "trait": {
+      "TRANSLATED": {
+        "known": "included",
+        "learning": "incluso"
+      },
+      "EXEMPLIFIED": {
+        "known": "The service is included in the bill",
+        "learning": "Il servizio è incluso nel conto"
+      },
+      "RANKED": {
+        "rank": 3674,
+        "zipf": 4.38,
+        "fpm": 24.0
+      }
+    },
+    "symbols": [
+      {
+        "slug": "word"
+      },
+      {
+        "slug": "word.lemma.incluso"
+      },
+      {
+        "slug": "word.part-of-speech.adjective"
+      },
+      {
+        "slug": "word.gender.masculine"
+      },
+      {
+        "slug": "word.number.singular"
+      },
+      {
+        "slug": "proficiency.cefr.a1"
+      },
+      {
+        "slug": "proficiency.survival"
+      },
+      {
+        "slug": "domain.travel"
+      }
+    ]
+  },
+  {
+    "slug": "inclusa.adjective.feminine.singular",
+    "traits": [
+      "TRANSLATED",
+      "EXEMPLIFIED",
+      "RANKED"
+    ],
+    "trait": {
+      "TRANSLATED": {
+        "known": "included (fem.)",
+        "learning": "inclusa"
+      },
+      "EXEMPLIFIED": {
+        "known": "Breakfast is included in the price",
+        "learning": "La colazione è inclusa nel prezzo"
+      },
+      "RANKED": {
+        "rank": 5429,
+        "zipf": 4.18,
+        "fpm": 15.1
+      }
+    },
+    "symbols": [
+      {
+        "slug": "word"
+      },
+      {
+        "slug": "word.lemma.incluso"
+      },
+      {
+        "slug": "word.part-of-speech.adjective"
+      },
+      {
+        "slug": "word.gender.feminine"
+      },
+      {
+        "slug": "word.number.singular"
+      },
+      {
+        "slug": "proficiency.cefr.a1"
+      },
+      {
+        "slug": "proficiency.survival"
+      },
+      {
+        "slug": "domain.travel"
       }
     ]
   }

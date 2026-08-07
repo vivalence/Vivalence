@@ -24,6 +24,8 @@ export class Blacklist {
       if (!obj || typeof obj !== "object" || visited.has(obj)) return;
       visited.add(obj);
 
+      if (Array.isArray(obj)) return obj.forEach(extractIds);
+
       const lits = getArray(obj, "literals");
 
       lits.forEach((lit) => {
@@ -45,7 +47,8 @@ export class Blacklist {
       });
 
       Object.entries(obj).forEach(([key, val]) => {
-        if (!["literals", "symbols", "buffers"].includes(key)) extractIds(val);
+        if (["literals", "symbols", "buffers"].includes(key)) return;
+        if (Array.isArray(val) || val?.constructor === Object) extractIds(val);
       });
     };
 

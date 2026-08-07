@@ -10,50 +10,61 @@
   }
 </script>
 
+{#snippet inline(segs)}
+  {#each segs as seg, j (j)}
+    {#if seg.kind === "bold"}<strong>{seg.text}</strong>{:else if seg.kind === "italic"}<em>{seg.text}</em>{:else if seg.kind === "code"}<code class="md-inline-code">{seg.text}</code>{:else if seg.kind === "link"}<a href={seg.href} target="_blank" rel="noreferrer noopener">{seg.text}</a>{:else}{seg.text}{/if}
+  {/each}
+{/snippet}
+
 {#each blocks as block, i (i)}
   {#if block.kind === "paragraph"}
-    <p class="md-p">
-      {#each block.inline as seg, j (j)}
-        {#if seg.kind === "bold"}<strong>{seg.text}</strong>
-        {:else if seg.kind === "italic"}<em>{seg.text}</em>
-        {:else if seg.kind === "code"}<code class="md-inline-code">{seg.text}</code>
-        {:else if seg.kind === "link"}<a href={seg.href} target="_blank" rel="noreferrer noopener">{seg.text}</a>
-        {:else}{seg.text}{/if}
-      {/each}
-    </p>
+    <p class="md-p">{@render inline(block.inline)}</p>
   {:else if block.kind === "heading"}
-    <div class="md-h md-h{block.level}">
-      {#each block.inline as seg, j (j)}
-        {#if seg.kind === "bold"}<strong>{seg.text}</strong>{:else if seg.kind === "italic"}<em>{seg.text}</em>{:else if seg.kind === "code"}<code class="md-inline-code">{seg.text}</code>{:else if seg.kind === "link"}<a href={seg.href} target="_blank" rel="noreferrer noopener">{seg.text}</a>{:else}{seg.text}{/if}
-      {/each}
-    </div>
+    <div class="md-h md-h{block.level}">{@render inline(block.inline)}</div>
   {:else if block.kind === "code-block"}
     <div class="md-code">
       <header>
         <span class="md-lang">{block.lang || "txt"}</span>
         <button type="button" title="copy" onclick={() => copyCode(block.text)}>copy</button>
       </header>
-      <pre>{block.text}</pre>
+      <pre class:wrap={!block.lang || block.lang === "txt" || block.lang === "text"}>{block.text}</pre>
     </div>
   {:else if block.kind === "list"}
     {#if block.ordered}
       <ol class="md-list">
         {#each block.items as item, j (j)}
-          <li>{#each item.inline as seg, k (k)}{#if seg.kind === "bold"}<strong>{seg.text}</strong>{:else if seg.kind === "italic"}<em>{seg.text}</em>{:else if seg.kind === "code"}<code class="md-inline-code">{seg.text}</code>{:else if seg.kind === "link"}<a href={seg.href} target="_blank" rel="noreferrer noopener">{seg.text}</a>{:else}{seg.text}{/if}{/each}</li>
+          <li>{@render inline(item.inline)}</li>
         {/each}
       </ol>
     {:else}
       <ul class="md-list">
         {#each block.items as item, j (j)}
-          <li>{#each item.inline as seg, k (k)}{#if seg.kind === "bold"}<strong>{seg.text}</strong>{:else if seg.kind === "italic"}<em>{seg.text}</em>{:else if seg.kind === "code"}<code class="md-inline-code">{seg.text}</code>{:else if seg.kind === "link"}<a href={seg.href} target="_blank" rel="noreferrer noopener">{seg.text}</a>{:else}{seg.text}{/if}{/each}</li>
+          <li>{@render inline(item.inline)}</li>
         {/each}
       </ul>
     {/if}
   {:else if block.kind === "blockquote"}
-    <div class="md-quote">
-      {#each block.inline as seg, j (j)}
-        {#if seg.kind === "bold"}<strong>{seg.text}</strong>{:else if seg.kind === "italic"}<em>{seg.text}</em>{:else if seg.kind === "code"}<code class="md-inline-code">{seg.text}</code>{:else if seg.kind === "link"}<a href={seg.href} target="_blank" rel="noreferrer noopener">{seg.text}</a>{:else}{seg.text}{/if}
-      {/each}
+    <div class="md-quote">{@render inline(block.inline)}</div>
+  {:else if block.kind === "table"}
+    <div class="md-table-wrap">
+      <table class="md-table">
+        <thead>
+          <tr>
+            {#each block.header as cell, j (j)}
+              <th>{@render inline(cell)}</th>
+            {/each}
+          </tr>
+        </thead>
+        <tbody>
+          {#each block.rows as row, j (j)}
+            <tr>
+              {#each row as cell, k (k)}
+                <td>{@render inline(cell)}</td>
+              {/each}
+            </tr>
+          {/each}
+        </tbody>
+      </table>
     </div>
   {:else if block.kind === "hr"}
     <hr class="md-hr" />
@@ -143,6 +154,39 @@
     overflow-x: auto;
     white-space: pre;
     color: var(--colors-skeleton-0-contrast);
+  }
+  .md-code pre.wrap {
+    white-space: pre-wrap;
+    overflow-wrap: break-word;
+    overflow-x: visible;
+  }
+  .md-table-wrap {
+    margin: 6px 0;
+    overflow-x: auto;
+    border: 1px solid color-mix(in srgb, var(--colors-skeleton-0-boundary) 35%, transparent);
+    border-radius: 3px;
+  }
+  .md-table {
+    border-collapse: collapse;
+    width: 100%;
+  }
+  .md-table th,
+  .md-table td {
+    padding: 4px 8px;
+    text-align: left;
+    border-bottom: 1px solid color-mix(in srgb, var(--colors-skeleton-0-boundary) 25%, transparent);
+    white-space: nowrap;
+  }
+  .md-table th {
+    color: var(--colors-skeleton-0-primary-base);
+    text-transform: lowercase;
+    letter-spacing: 0.08em;
+    font-weight: 400;
+    font-size: var(--font-size-2xs);
+    background: color-mix(in srgb, var(--colors-skeleton-0-surface) 60%, transparent);
+  }
+  .md-table tbody tr:last-child td {
+    border-bottom: none;
   }
   .md-inline-code {
     font-family: var(--font-family-code);

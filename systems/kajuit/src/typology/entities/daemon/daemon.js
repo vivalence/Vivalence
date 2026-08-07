@@ -11,6 +11,7 @@ export class Daemon extends Entity {
   entities = null;
   lighthouse = null;
   cargo = {};
+  statics = {};
   status = new Status();
   modes = {};
 

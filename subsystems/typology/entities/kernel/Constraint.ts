@@ -59,7 +59,6 @@ export default {
 };
 
 // import { Collection, EntitySchema, type Opt, type Rel } from "@mikro-orm/core";
-// import { validators } from "@vivalence/shared";
 // import { VirtualEntity, VirtualRepository, IssueEntity } from "../index.ts";
 
 // export enum ConstraintTraitsEnum {

@@ -246,7 +246,7 @@
     font-size: var(--font-size-sm);
     font-weight: 600;
     letter-spacing: 0.04em;
-    color: var(--colors-palette-gray-10);
+    color: var(--colors-skeleton-1-contrast);
     margin: 0 0 1.25rem 0;
   }
   .dim {
@@ -254,7 +254,7 @@
     font-weight: 400;
   }
   .strong {
-    color: var(--colors-palette-gray-10);
+    color: var(--colors-skeleton-1-contrast);
   }
   .ok {
     color: var(--colors-system-success-contrast);
@@ -282,7 +282,7 @@
     font-family: var(--font-family-code);
     font-size: var(--font-size-lg);
     font-weight: 600;
-    color: var(--colors-palette-gray-10);
+    color: var(--colors-skeleton-1-contrast);
     font-variant-numeric: tabular-nums;
   }
   .digit.hero .value {
@@ -372,7 +372,7 @@
     padding: 0;
   }
   .link.on {
-    color: var(--colors-palette-gray-10);
+    color: var(--colors-skeleton-1-contrast);
     text-decoration: underline;
     text-underline-offset: 3px;
   }
@@ -414,7 +414,7 @@
     align-items: center;
     padding: 0.3rem 0;
     border-bottom: 1px solid color-mix(in srgb, var(--colors-skeleton-1-boundary) 15%, transparent);
-    color: var(--colors-palette-gray-10);
+    color: var(--colors-skeleton-1-contrast);
   }
   .urow.uhead {
     color: var(--colors-skeleton-1-boundary);
@@ -429,7 +429,7 @@
   }
   .urow .strong,
   .wrow .strong {
-    color: var(--colors-palette-gray-10);
+    color: var(--colors-skeleton-1-contrast);
   }
   .urow.thin .strong {
     color: var(--colors-skeleton-1-boundary);
@@ -474,7 +474,7 @@
     display: flex;
     flex-wrap: wrap;
     gap: 0.4rem 1.25rem;
-    color: var(--colors-palette-gray-10);
+    color: var(--colors-skeleton-1-contrast);
     margin-top: 1.25rem;
   }
   .trans strong {

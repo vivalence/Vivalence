@@ -6,6 +6,7 @@
   const data = buffer.data ?? {};
   const recall = data.recall ?? "LEARNING";
   const gameplay = data.gameplay ?? "TRANSLATE";
+  const language = terminal.daemon.statics?.language ?? {};
   const descriptions = data.descriptions ?? [];
 
   let literals = $state(buffer.literals ?? []);
@@ -127,7 +128,7 @@
   {#snippet surface()}
     {#if literals.length}
       <div class="meta">
-        <span class="meta-lang">{gameplay === "DESCRIBE" ? "match" : (recall === "LEARNING" ? "English → Português" : "Português → English")}</span>
+        <span class="meta-lang">{gameplay === "DESCRIBE" ? "match" : (recall === "LEARNING" ? `${language.known?.name} → ${language.learning?.name}` : `${language.learning?.name} → ${language.known?.name}`)}</span>
         <span class="meta-count">{connections.length}/{literals.length}</span>
       </div>
 

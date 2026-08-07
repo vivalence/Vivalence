@@ -170,7 +170,7 @@
     pointer-events: auto; /* .population sets none; its scoped `> *` rule can't cross into here */
     border: 1px solid color-mix(in srgb, var(--colors-skeleton-0-contrast) 30%, transparent);
     border-radius: 5px;
-    background: color-mix(in srgb, #000 35%, var(--colors-skeleton-1-surface));
+    background: color-mix(in srgb, var(--mix-deep) 35%, var(--colors-skeleton-1-surface));
     font-family: var(--font-family-code);
   }
 
@@ -183,7 +183,7 @@
     padding: 0 10px;
     border-radius: 3px;
     border: 1px solid color-mix(in srgb, var(--colors-skeleton-0-contrast) 22%, transparent);
-    background: color-mix(in srgb, #000 22%, var(--colors-skeleton-2-surface));
+    background: color-mix(in srgb, var(--mix-deep) 22%, var(--colors-skeleton-2-surface));
     cursor: pointer;
     transition: all 0.1s;
   }
@@ -213,7 +213,7 @@
     opacity: 1;
   }
   .phasekey.open .name {
-    color: color-mix(in srgb, #000 55%, var(--colors-skeleton-0-primary-base));
+    color: var(--colors-skeleton-0-surface);
     opacity: 1;
   }
   .cursor {
@@ -221,7 +221,7 @@
     opacity: 0.6;
     padding: 1px 5px;
     border-radius: 2px;
-    background: color-mix(in srgb, #000 30%, var(--colors-skeleton-2-surface));
+    background: color-mix(in srgb, var(--mix-deep) 30%, var(--colors-skeleton-2-surface));
   }
 
   /* one unified control row — chunky flat transport keys + the LED */
@@ -240,7 +240,7 @@
     padding: 0 4px;
     border-radius: 3px;
     border: 1px solid color-mix(in srgb, var(--colors-skeleton-0-contrast) 16%, transparent);
-    background: color-mix(in srgb, #000 22%, var(--colors-skeleton-2-surface));
+    background: color-mix(in srgb, var(--mix-deep) 22%, var(--colors-skeleton-2-surface));
     color: var(--colors-skeleton-0-contrast);
     font: inherit;
     font-size: var(--font-size-2xs);
@@ -299,8 +299,8 @@
     padding: 5px;
     border: 1px solid color-mix(in srgb, var(--colors-skeleton-0-contrast) 32%, transparent);
     border-radius: 6px;
-    background: color-mix(in srgb, #000 45%, var(--colors-skeleton-1-surface));
-    box-shadow: 0 6px 18px rgba(0, 0, 0, 0.45);
+    background: color-mix(in srgb, var(--mix-deep) 45%, var(--colors-skeleton-1-surface));
+    box-shadow: 0 6px 18px var(--shadow-soft);
   }
   .grid {
     display: grid;
@@ -316,7 +316,7 @@
     padding: 6px 8px;
     border-radius: 4px;
     border: 1px solid color-mix(in srgb, var(--colors-skeleton-0-contrast) 14%, transparent);
-    background: color-mix(in srgb, #000 22%, var(--colors-skeleton-2-surface));
+    background: color-mix(in srgb, var(--mix-deep) 22%, var(--colors-skeleton-2-surface));
     color: var(--colors-skeleton-0-contrast);
     font: inherit;
     cursor: pointer;
@@ -327,7 +327,7 @@
     border-color: color-mix(in srgb, var(--colors-skeleton-0-primary-base) 55%, transparent);
   }
   .cell.on {
-    color: color-mix(in srgb, #000 55%, var(--colors-skeleton-0-primary-base));
+    color: var(--colors-skeleton-0-surface);
     background: var(--colors-skeleton-0-primary-base);
     border-color: var(--colors-skeleton-0-primary-base);
   }

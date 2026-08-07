@@ -1,4 +1,4 @@
-import { App, Vector, v } from "@vivalence/typology";
+import { object, App, Vector, v } from "@vivalence/typology";
 
 const manifest = {
   type: "game",
@@ -9,6 +9,8 @@ const manifest = {
   version: "0.1.0",
   traits: ["APPLICATION", "EMITTER"],
 };
+
+const ontology = ["sentence"];
 
 const app = new App(
   "buffer/Cloze.svelte",
@@ -47,7 +49,7 @@ const emitter = new Vector()
   .open("/feed", async (ctx) => {
     const limit = ctx.input.limit ?? 1;
     const all = await ctx.daemon.entities.literal.feed(
-      ctx.input.where,
+      object.merge(ctx.input.where, { ontology: { $in: ontology } }),
       { limit: limit * 3, blacklist: ctx.input.blacklist },
     );
     const annotated = all.filter((l) => l.traits?.includes("ANNOTATED"));

@@ -94,8 +94,10 @@
       <span class="active-label">active</span>
       <div class="crumb">
         <span class="daemon">{$thread.daemon?.slug ?? "—"}</span>
-        <span class="sep">/</span>
-        <span class="modename">{$mode?.name ?? $mode?.slug ?? "—"}</span>
+        <span class="seg">
+          <span class="sep">/</span>
+          <span class="modename">{$mode?.name ?? $mode?.slug ?? "—"}</span>
+        </span>
         {#if $mode?.type}<span class="modetype">{$mode.type}</span>{/if}
         <!-- <span class="sep">/</span> -->
         <!-- <span class="thlabel">{labelText($label)}</span> -->
@@ -182,10 +184,11 @@
 
 <style>
   .panel {
-    min-width: 0;
+    min-width: 300px;
     width: 100%;
     height: 100%;
-    overflow: auto;
+    overflow-y: auto;
+    overflow-x: hidden;
     display: flex;
     flex-direction: column;
     background: var(--colors-skeleton-2-surface);
@@ -241,6 +244,12 @@
   .crumb .modename {
     color: var(--colors-skeleton-0-primary-base);
   }
+  .crumb .seg {
+    display: inline-flex;
+    align-items: center;
+    gap: 9px;
+    white-space: nowrap;
+  }
   .crumb .sep {
     opacity: 0.28;
   }
@@ -260,7 +269,6 @@
     font-size: var(--font-size-sm);
     letter-spacing: 0.06em;
     color: color-mix(in srgb, var(--colors-skeleton-0-primary-base) 70%, transparent);
-    white-space: nowrap;
   }
 
   section :global(.section-head) {
@@ -321,6 +329,8 @@
   }
   .widget-body {
     padding: 11px 13px;
+    min-width: 0;
+    overflow-wrap: anywhere;
   }
 
   .intent {
@@ -339,20 +349,26 @@
   }
   .intent-row .thlabel {
     color: var(--colors-skeleton-0-primary-base);
+    min-width: 0;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
   }
   .act {
-    padding: 6px 14px;
-    background: transparent;
-    border: 1px solid color-mix(in srgb, var(--colors-skeleton-0-primary-base) 40%, transparent);
-    border-radius: 3px;
-    color: var(--colors-skeleton-0-primary-base);
+    padding: 0;
+    background: none;
+    border: none;
+    color: inherit;
     font: inherit;
-    font-size: var(--font-size-sm);
-    letter-spacing: 0.04em;
+    font-size: var(--font-size-2xs);
+    letter-spacing: 0.14em;
+    text-transform: uppercase;
+    opacity: 0.4;
     cursor: pointer;
   }
   .act:hover:not(:disabled) {
-    background: color-mix(in srgb, var(--colors-skeleton-0-primary-base) 10%, transparent);
+    opacity: 1;
+    color: var(--colors-skeleton-0-primary-base);
   }
   .act:disabled {
     opacity: 0.3;

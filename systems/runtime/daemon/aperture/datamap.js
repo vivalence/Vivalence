@@ -26,10 +26,6 @@ export async function datamap(die) {
     .branch("/entities/mode")
     .slurp(shard.datamap.repository(entities.mode))
     .slurp(shard.datamap.reactive(entities.mode, die.good.twitch));
-
-  die.good.aperture
-    .branch("/entities/intent")
-    .slurp(shard.datamap.repository(entities.intent));
 }
 
 // export async function datamap(die) {

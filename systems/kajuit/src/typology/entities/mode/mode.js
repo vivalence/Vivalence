@@ -1,4 +1,5 @@
 import { RemoteRepository, Status, is } from "@vivalence/typology";
+import { atom } from "nanostores";
 import { Entity } from "../../prototypes/entity.js";
 import * as traits from "./traits/index.js";
 import { applyTraits } from "../../gestalten/belt/index.js";
@@ -6,8 +7,24 @@ import { applyTraits } from "../../gestalten/belt/index.js";
 export class Mode extends Entity {
   status = new Status();
   metadata = {};
+
+  $app = atom(null);
+
+  get app() {
+    return this.$app.get();
+  }
+
+  set app(value) {
+    this.$app.set(value ?? null);
+  }
+
   implements(trait) {
     return this.traits?.includes(trait.toUpperCase());
+  }
+
+  toJSON() {
+    const { $app, ...base } = super.toJSON();
+    return { ...base, app: this.app };
   }
 }
 

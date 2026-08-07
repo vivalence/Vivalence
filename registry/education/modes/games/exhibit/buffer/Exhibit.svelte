@@ -188,7 +188,7 @@
   .title {
     font-family: var(--font-family-serif-heading);
     font-size: var(--font-size-2xl);
-    color: var(--colors-palette-gray-10);
+    color: var(--colors-skeleton-1-contrast);
     line-height: 1.2;
     margin: 0 0 0.25rem 0;
   }
@@ -252,7 +252,7 @@
   .pattern-text {
     font-family: var(--font-family-serif-heading);
     font-size: var(--font-size-lg);
-    color: var(--colors-palette-gray-10);
+    color: var(--colors-skeleton-1-contrast);
   }
   .pattern-slot {
     font-family: var(--font-family-code);
@@ -277,7 +277,7 @@
   .example-learning {
     font-family: var(--font-family-serif-heading);
     font-size: var(--font-size-lg);
-    color: var(--colors-palette-gray-10);
+    color: var(--colors-skeleton-1-contrast);
     margin: 0 0 0.25rem 0;
     line-height: 1.3;
   }
@@ -313,7 +313,7 @@
   .contrast-learning {
     font-family: var(--font-family-serif-heading);
     font-size: var(--font-size-base);
-    color: var(--colors-palette-gray-10);
+    color: var(--colors-skeleton-1-contrast);
     margin: 0 0 0.125rem 0;
     line-height: 1.3;
   }

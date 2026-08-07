@@ -89,7 +89,6 @@ const patternmap = [
   ],
 ];
 // import { is } from "@vivalence/typology";
-// import { hash } from "@vivalence/shared";
 // import { Signature } from "./signature.js";
 
 // export class Pattern extends Signature {

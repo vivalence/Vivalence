@@ -157,28 +157,28 @@
     width: 6px;
     height: 6px;
     border-radius: 50%;
-    background: var(--colors-skeleton-0-success-base);
-    box-shadow: 0 0 4px var(--colors-skeleton-0-success-base);
+    background: var(--signal-positive);
+    box-shadow: 0 0 4px color-mix(in srgb, var(--signal-positive) 55%, transparent);
     transition: background 0.2s, box-shadow 0.2s;
     flex-shrink: 0;
   }
   .status-dot.lg {
     width: 9px;
     height: 9px;
-    box-shadow: 0 0 6px var(--colors-skeleton-0-success-base);
+    box-shadow: 0 0 6px color-mix(in srgb, var(--signal-positive) 55%, transparent);
   }
   .status-dot[data-status="lag"] {
-    background: var(--colors-skeleton-0-warning-base);
-    box-shadow: 0 0 6px var(--colors-skeleton-0-warning-base);
+    background: var(--signal-caution);
+    box-shadow: 0 0 6px color-mix(in srgb, var(--signal-caution) 55%, transparent);
   }
   .status-dot.lg[data-status="lag"] {
-    box-shadow: 0 0 6px var(--colors-skeleton-0-warning-base);
+    box-shadow: 0 0 6px color-mix(in srgb, var(--signal-caution) 55%, transparent);
   }
   .status-dot[data-status="down"] {
-    background: var(--colors-skeleton-0-danger-base);
-    box-shadow: 0 0 6px var(--colors-skeleton-0-danger-base);
+    background: var(--signal-negative);
+    box-shadow: 0 0 6px color-mix(in srgb, var(--signal-negative) 55%, transparent);
   }
   .status-dot.lg[data-status="down"] {
-    box-shadow: 0 0 8px var(--colors-skeleton-0-danger-base);
+    box-shadow: 0 0 8px color-mix(in srgb, var(--signal-negative) 55%, transparent);
   }
 </style>

@@ -79,7 +79,7 @@ export function authorize(claims = []) {
 //         not.authorized();
 //       }
 //     } catch (error) {
-//       console.log("[AUTH ERROR] @shared/secure/context", error);
+//       console.log("[AUTH ERROR]", error);
 //       if (error.code === "ERR_JWS_INVALID") {
 //         ctx.response.status = 401;
 //         ctx.response.body = { error: { code: "UNAUTHORIZED" } };
@@ -106,7 +106,7 @@ export function authorize(claims = []) {
 //       // ctx.identity = await ctx.authority.provider.authenticate(ctx.authority.token);
 
 //     } catch (error) {
-//       console.log("[AUTH ERROR] @shared/secure/context");
+//       console.log("[AUTH ERROR]");
 //       console.log(error);
 //       ctx.response.status = 401;
 //       if (error.code === "ERR_JWS_INVALID") {

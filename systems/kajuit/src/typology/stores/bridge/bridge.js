@@ -71,8 +71,9 @@ export class Bridge {
         g: false,
         h: false,
         snap: true,
+        theme: saved?.view?.theme ?? "nordic",
       },
-      ["d", "d.threads", "d.intents", "d.modes", "f"],
+      ["d", "d.threads", "d.intents", "d.modes", "f", "theme"],
     );
 
     this.paneSize = store(
@@ -104,6 +105,11 @@ export class Bridge {
 
   toggle = (key) => {
     this.view["$" + key].set(!this.view["$" + key].get());
+  };
+
+  setTheme = (name) => {
+    this.view.$theme.set(name);
+    this.save();
   };
 
   save = () => {

@@ -4,6 +4,7 @@ export async function metadata(die) {
   const root = die.good.aperture.branch("/metadata");
 
   root.open("/manifest", () => die.manifest);
+  root.open("/statics", () => die.good.statics ?? {});
   root.open("/cargo", () => die.good.cargo);
   root.open("/datamap", () => shard.datamap.strip(die.datamap.introspect()));
   root.open("/aperture", () => shape.strip(die.good.aperture));
@@ -36,7 +37,7 @@ export async function metadata(die) {
 
     // if (mode.implements("TOOLED")) meta.open("/tools", () => someMetadataStripOfModuleTools());
 
-    if (mode.implements("FRAUGHT")) meta.open("/freight", () => mode.module.freight.catalog);
+    if (mode.implements("FRAUGHT")) meta.open("/freight", () => mode.freight.catalog);
 
     if (mode.implements("HARNESSED")) {
       meta.open("/harness", () => shape.strip(mode.aperture.branch("/harness")));

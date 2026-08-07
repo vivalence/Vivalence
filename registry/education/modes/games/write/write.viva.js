@@ -1,5 +1,4 @@
-import { cast, App, Vector, v } from "@vivalence/typology";
-import dataset from "./dataset/index.js";
+import { cast, object, App, Vector, v } from "@vivalence/typology";
 
 const manifest = {
   type: "game",
@@ -8,8 +7,10 @@ const manifest = {
   description:
     "Type the translation from memory. Per-token scoring for sentences. Forgiving mode normalizes diacritics.",
   version: "0.2.0",
-  traits: ["APPLICATION", "EMITTER"],
+  traits: ["APPLICATION", "EMITTER", "INTENTED"],
 };
+
+const ontology = ["word", "sentence"];
 
 const app = new App(
   "buffer/Write.svelte",
@@ -36,8 +37,11 @@ const emitter = new Vector()
   .open("/feed", async (ctx) => {
     const limit = ctx.input.limit ?? 3;
     const literals = await ctx.daemon.entities.literal.feed(
-      ctx.input.where,
-      { limit, blacklist: ctx.input.blacklist },
+      object.merge(ctx.input.where, { ontology: { $in: ontology } }),
+      {
+        limit,
+        blacklist: ctx.input.blacklist,
+      },
     );
     if (!literals.length) return [];
     return ctx.mode.app.buffer({
@@ -46,4 +50,18 @@ const emitter = new Vector()
     });
   });
 
+const dataset = {
+  intent: [
+    {
+      slug: "feed",
+      name: "Write",
+      traits: ["MASKED", "AIMED", "QUEUEING"],
+      trait: {
+        MASKED: { batch: 3 },
+        AIMED: { mount: "/emit/feed" },
+        QUEUEING: { depth: 1 },
+      },
+    },
+  ],
+};
 export { manifest, app, emitter, dataset };

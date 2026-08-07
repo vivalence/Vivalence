@@ -5,6 +5,7 @@
 
   const data = buffer.data ?? {};
   const recall = data.recall ?? "LEARNING";
+  const language = terminal.daemon.statics?.language ?? {};
 
   let literals = $state(buffer.literals ?? []);
   let loading = $state(!literals.length);
@@ -12,7 +13,7 @@
   let shuffled = $state([]);
 
   const target = $derived(data.target ? literals.find((l) => l.id === data.target) : literals[0]);
-  const isWord = $derived(target?.symbol?.word);
+  const isWord = $derived(target?.ontology === "word");
   const asset = $derived(terminal.daemon.getAsset(target?.trait?.VOCALIZED?.asset));
 
   const prompt = $derived(
@@ -20,8 +21,8 @@
       ? target.trait?.TRANSLATED?.learning
       : target.trait?.TRANSLATED?.known),
   );
-  const promptLabel = $derived(recall === "KNOWN" ? "Português" : "English");
-  const answerLabel = $derived(recall === "KNOWN" ? "English" : "Português");
+  const promptLabel = $derived(recall === "KNOWN" ? language.learning?.name : language.known?.name);
+  const answerLabel = $derived(recall === "KNOWN" ? language.known?.name : language.learning?.name);
 
   function answerText(lit) {
     return recall === "KNOWN"
@@ -184,7 +185,7 @@
   .prompt {
     font-family: var(--font-family-serif-heading);
     font-size: var(--font-size-xl);
-    color: var(--colors-palette-gray-10);
+    color: var(--colors-skeleton-1-contrast);
     line-height: 1.35;
     margin: 0;
     flex: 1;

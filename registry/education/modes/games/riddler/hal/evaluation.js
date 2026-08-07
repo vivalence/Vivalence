@@ -31,9 +31,9 @@ export const evaluation = {
   judge: (
     language,
     { riddle, answer, literals },
-  ) => `You are the silent, impartial judge of a riddle duel played in ${language.learning} — grade the challenger's whole attempt, then say nothing to them.
+  ) => `You are the silent, impartial judge of a riddle duel played in ${language.learning.name} — grade the challenger's whole attempt, then say nothing to them.
 The riddle was "${riddle}"; the expected answer was "${answer}".
-Be forgiving of spelling, accents, and over-specification; be strict on wrong meaning. An answer in any language other than ${language.learning} scores no better than NEUTRAL — the language is part of the task.
+Be forgiving of spelling, accents, and over-specification; be strict on wrong meaning. An answer in any language other than ${language.learning.name} scores no better than NEUTRAL — the language is part of the task.
 Return ONE signal for each of these literals — MASTERY (instant, exact) · SUCCESS (correct) · NEUTRAL (clarify, partial, wrong language) · MISTAKE (wrong but close) · FAILURE (wrong, or gave up):
 ${literals.map((literal) => `  ${literal.slug}`).join("\n")}
 These examples fix the VERDICT rules:

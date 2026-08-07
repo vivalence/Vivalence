@@ -26,6 +26,7 @@ specimen.describe("Thread", () => {
         QUEUEING: { depth: 1 },
       },
       mode: fixtures.mode,
+      user: fixtures.user,
     });
     await em.flush();
 
@@ -65,6 +66,7 @@ specimen.describe("Thread", () => {
         QUEUEING: { depth: 1 },
       },
       mode: fixtures.mode,
+      user: fixtures.user,
     });
     await em.flush();
 
@@ -91,6 +93,7 @@ specimen.describe("Thread", () => {
         QUEUEING: { depth: 1 },
       },
       mode: fixtures.mode,
+      user: fixtures.user,
     });
     await em.flush();
 

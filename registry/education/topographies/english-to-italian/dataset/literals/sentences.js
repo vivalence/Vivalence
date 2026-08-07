@@ -12,7 +12,7 @@ export default [
         "learning": "Devo andare a dormire."
       },
       "RANKED": {
-        "rank": 1
+        "rank": 533
       },
       "VOCALIZED": {
         "asset": {
@@ -39,7 +39,7 @@ export default [
         "learning": "Sei sicuro?"
       },
       "RANKED": {
-        "rank": 2
+        "rank": 304
       },
       "VOCALIZED": {
         "asset": {
@@ -66,7 +66,7 @@ export default [
         "learning": "Perché lo chiedi?"
       },
       "RANKED": {
-        "rank": 3
+        "rank": 752
       },
       "VOCALIZED": {
         "asset": {
@@ -93,7 +93,7 @@ export default [
         "learning": "Non è importante."
       },
       "RANKED": {
-        "rank": 4
+        "rank": 219
       },
       "VOCALIZED": {
         "asset": {
@@ -120,7 +120,7 @@ export default [
         "learning": "Mi fa male la testa."
       },
       "RANKED": {
-        "rank": 5
+        "rank": 249
       },
       "VOCALIZED": {
         "asset": {
@@ -147,7 +147,7 @@ export default [
         "learning": "Ti do la mia parola."
       },
       "RANKED": {
-        "rank": 6
+        "rank": 478
       },
       "VOCALIZED": {
         "asset": {
@@ -174,7 +174,7 @@ export default [
         "learning": "Ecco il resto."
       },
       "RANKED": {
-        "rank": 7
+        "rank": 306
       },
       "VOCALIZED": {
         "asset": {
@@ -201,7 +201,7 @@ export default [
         "learning": "A chi lo dici!"
       },
       "RANKED": {
-        "rank": 8
+        "rank": 414
       },
       "VOCALIZED": {
         "asset": {
@@ -228,7 +228,7 @@ export default [
         "learning": "Pulisci la camera."
       },
       "RANKED": {
-        "rank": 9
+        "rank": 1068
       },
       "VOCALIZED": {
         "asset": {
@@ -255,7 +255,7 @@ export default [
         "learning": "Vuoi andare?"
       },
       "RANKED": {
-        "rank": 10
+        "rank": 204
       },
       "VOCALIZED": {
         "asset": {
@@ -282,7 +282,7 @@ export default [
         "learning": "Tom è a letto malato."
       },
       "RANKED": {
-        "rank": 11
+        "rank": 830
       },
       "VOCALIZED": {
         "asset": {
@@ -309,7 +309,7 @@ export default [
         "learning": "È la tua bicicletta questa?"
       },
       "RANKED": {
-        "rank": 12
+        "rank": 893
       },
       "VOCALIZED": {
         "asset": {
@@ -336,7 +336,7 @@ export default [
         "learning": "È un gatto quello?"
       },
       "RANKED": {
-        "rank": 13
+        "rank": 684
       },
       "VOCALIZED": {
         "asset": {
@@ -363,7 +363,7 @@ export default [
         "learning": "Domani è festa."
       },
       "RANKED": {
-        "rank": 14
+        "rank": 366
       },
       "VOCALIZED": {
         "asset": {
@@ -390,7 +390,7 @@ export default [
         "learning": "Quella macchina è sua."
       },
       "RANKED": {
-        "rank": 15
+        "rank": 347
       },
       "VOCALIZED": {
         "asset": {
@@ -416,7 +416,7 @@ export default [
         "learning": "Lavoro in banca."
       },
       "RANKED": {
-        "rank": 16
+        "rank": 477
       }
     },
     "symbols": [
@@ -437,7 +437,7 @@ export default [
         "learning": "Tom mi ha dato una penna."
       },
       "RANKED": {
-        "rank": 17
+        "rank": 867
       }
     },
     "symbols": [
@@ -458,7 +458,7 @@ export default [
         "learning": "Che stai facendo?"
       },
       "RANKED": {
-        "rank": 18
+        "rank": 271
       }
     },
     "symbols": [
@@ -479,7 +479,7 @@ export default [
         "learning": "Li conosci?"
       },
       "RANKED": {
-        "rank": 19
+        "rank": 696
       }
     },
     "symbols": [
@@ -501,7 +501,7 @@ export default [
         "learning": "Sei stato occupato."
       },
       "RANKED": {
-        "rank": 20
+        "rank": 753
       },
       "VOCALIZED": {
         "asset": {
@@ -528,7 +528,7 @@ export default [
         "learning": "Quanto è profondo questo lago?"
       },
       "RANKED": {
-        "rank": 21
+        "rank": 647
       },
       "VOCALIZED": {
         "asset": {
@@ -555,7 +555,7 @@ export default [
         "learning": "Non sono ancora pronto."
       },
       "RANKED": {
-        "rank": 22
+        "rank": 468
       },
       "VOCALIZED": {
         "asset": {
@@ -582,7 +582,7 @@ export default [
         "learning": "Dove stavi?"
       },
       "RANKED": {
-        "rank": 23
+        "rank": 1000
       },
       "VOCALIZED": {
         "asset": {
@@ -609,7 +609,7 @@ export default [
         "learning": "Vai troppo lontano."
       },
       "RANKED": {
-        "rank": 24
+        "rank": 450
       },
       "VOCALIZED": {
         "asset": {
@@ -636,7 +636,7 @@ export default [
         "learning": "Mia madre cucina bene."
       },
       "RANKED": {
-        "rank": 25
+        "rank": 473
       },
       "VOCALIZED": {
         "asset": {
@@ -663,7 +663,7 @@ export default [
         "learning": "Ho un cane."
       },
       "RANKED": {
-        "rank": 26
+        "rank": 440
       },
       "VOCALIZED": {
         "asset": {
@@ -690,7 +690,7 @@ export default [
         "learning": "Ho visto un cane."
       },
       "RANKED": {
-        "rank": 27
+        "rank": 443
       },
       "VOCALIZED": {
         "asset": {
@@ -717,7 +717,7 @@ export default [
         "learning": "Non ho un gatto."
       },
       "RANKED": {
-        "rank": 28
+        "rank": 685
       },
       "VOCALIZED": {
         "asset": {
@@ -744,7 +744,7 @@ export default [
         "learning": "Tom è uno studente."
       },
       "RANKED": {
-        "rank": 29
+        "rank": 678
       },
       "VOCALIZED": {
         "asset": {
@@ -771,7 +771,7 @@ export default [
         "learning": "Sei uno studente?"
       },
       "RANKED": {
-        "rank": 30
+        "rank": 676
       },
       "VOCALIZED": {
         "asset": {
@@ -798,7 +798,7 @@ export default [
         "learning": "Sono uno studente."
       },
       "RANKED": {
-        "rank": 31
+        "rank": 677
       },
       "VOCALIZED": {
         "asset": {
@@ -825,7 +825,7 @@ export default [
         "learning": "Come sta tua madre?"
       },
       "RANKED": {
-        "rank": 32
+        "rank": 253
       },
       "VOCALIZED": {
         "asset": {
@@ -852,7 +852,7 @@ export default [
         "learning": "Vivo in città."
       },
       "RANKED": {
-        "rank": 33
+        "rank": 386
       },
       "VOCALIZED": {
         "asset": {
@@ -879,7 +879,7 @@ export default [
         "learning": "Vado in città."
       },
       "RANKED": {
-        "rank": 34
+        "rank": 336
       },
       "VOCALIZED": {
         "asset": {
@@ -906,7 +906,7 @@ export default [
         "learning": "Vorrei una mappa della città."
       },
       "RANKED": {
-        "rank": 35
+        "rank": 87
       },
       "VOCALIZED": {
         "asset": {
@@ -917,6 +917,9 @@ export default [
     "symbols": [
       {
         "slug": "sentence"
+      },
+      {
+        "slug": "proficiency.survival"
       }
     ]
   },
@@ -933,7 +936,7 @@ export default [
         "learning": "Questa è la mia scuola."
       },
       "RANKED": {
-        "rank": 36
+        "rank": 212
       },
       "VOCALIZED": {
         "asset": {
@@ -960,7 +963,7 @@ export default [
         "learning": "Dov'è la tua scuola?"
       },
       "RANKED": {
-        "rank": 37
+        "rank": 794
       },
       "VOCALIZED": {
         "asset": {
@@ -987,7 +990,7 @@ export default [
         "learning": "Lei va a scuola."
       },
       "RANKED": {
-        "rank": 38
+        "rank": 209
       },
       "VOCALIZED": {
         "asset": {
@@ -1014,7 +1017,7 @@ export default [
         "learning": "Ho un sogno."
       },
       "RANKED": {
-        "rank": 39
+        "rank": 486
       },
       "VOCALIZED": {
         "asset": {
@@ -1041,7 +1044,7 @@ export default [
         "learning": "Stai qui con noi."
       },
       "RANKED": {
-        "rank": 40
+        "rank": 278
       },
       "VOCALIZED": {
         "asset": {
@@ -1068,7 +1071,7 @@ export default [
         "learning": "Ecco il mio portafoglio."
       },
       "RANKED": {
-        "rank": 41
+        "rank": 907
       },
       "VOCALIZED": {
         "asset": {
@@ -1095,7 +1098,7 @@ export default [
         "learning": "Vieni qui."
       },
       "RANKED": {
-        "rank": 42
+        "rank": 615
       },
       "VOCALIZED": {
         "asset": {
@@ -1122,7 +1125,7 @@ export default [
         "learning": "Dov'è il problema?"
       },
       "RANKED": {
-        "rank": 43
+        "rank": 790
       },
       "VOCALIZED": {
         "asset": {
@@ -1149,7 +1152,7 @@ export default [
         "learning": "Suono il piano."
       },
       "RANKED": {
-        "rank": 44
+        "rank": 648
       },
       "VOCALIZED": {
         "asset": {
@@ -1176,7 +1179,7 @@ export default [
         "learning": "Vogliamo qualcosa di nuovo."
       },
       "RANKED": {
-        "rank": 45
+        "rank": 388
       },
       "VOCALIZED": {
         "asset": {
@@ -1203,7 +1206,7 @@ export default [
         "learning": "Non è nuovo."
       },
       "RANKED": {
-        "rank": 46
+        "rank": 143
       },
       "VOCALIZED": {
         "asset": {
@@ -1230,7 +1233,7 @@ export default [
         "learning": "Vuoi dello zucchero?"
       },
       "RANKED": {
-        "rank": 47
+        "rank": 731
       },
       "VOCALIZED": {
         "asset": {
@@ -1257,7 +1260,7 @@ export default [
         "learning": "Non abbiamo zucchero."
       },
       "RANKED": {
-        "rank": 48
+        "rank": 730
       },
       "VOCALIZED": {
         "asset": {
@@ -1284,7 +1287,7 @@ export default [
         "learning": "Veramente?"
       },
       "RANKED": {
-        "rank": 49
+        "rank": 293
       },
       "VOCALIZED": {
         "asset": {
@@ -1311,7 +1314,7 @@ export default [
         "learning": "Davvero?"
       },
       "RANKED": {
-        "rank": 50
+        "rank": 164
       },
       "VOCALIZED": {
         "asset": {
@@ -1338,7 +1341,7 @@ export default [
         "learning": "È vero?"
       },
       "RANKED": {
-        "rank": 51
+        "rank": 156
       },
       "VOCALIZED": {
         "asset": {
@@ -1365,7 +1368,7 @@ export default [
         "learning": "Ho fatto un errore."
       },
       "RANKED": {
-        "rank": 52
+        "rank": 457
       },
       "VOCALIZED": {
         "asset": {
@@ -1392,7 +1395,7 @@ export default [
         "learning": "È un errore comune."
       },
       "RANKED": {
-        "rank": 53
+        "rank": 455
       },
       "VOCALIZED": {
         "asset": {
@@ -1419,7 +1422,7 @@ export default [
         "learning": "Dov'è il libro?"
       },
       "RANKED": {
-        "rank": 54
+        "rank": 788
       },
       "VOCALIZED": {
         "asset": {
@@ -1446,7 +1449,7 @@ export default [
         "learning": "Questo libro è nuovo."
       },
       "RANKED": {
-        "rank": 55
+        "rank": 245
       },
       "VOCALIZED": {
         "asset": {
@@ -1473,7 +1476,7 @@ export default [
         "learning": "Questo libro è piccolo."
       },
       "RANKED": {
-        "rank": 56
+        "rank": 292
       },
       "VOCALIZED": {
         "asset": {
@@ -1500,7 +1503,7 @@ export default [
         "learning": "Questo libro è pesante."
       },
       "RANKED": {
-        "rank": 57
+        "rank": 692
       },
       "VOCALIZED": {
         "asset": {
@@ -1527,7 +1530,7 @@ export default [
         "learning": "Questo libro è mio."
       },
       "RANKED": {
-        "rank": 58
+        "rank": 244
       },
       "VOCALIZED": {
         "asset": {
@@ -1554,7 +1557,7 @@ export default [
         "learning": "Questo libro è vecchio."
       },
       "RANKED": {
-        "rank": 59
+        "rank": 377
       },
       "VOCALIZED": {
         "asset": {
@@ -1581,7 +1584,7 @@ export default [
         "learning": "Ho venduto un libro."
       },
       "RANKED": {
-        "rank": 60
+        "rank": 742
       },
       "VOCALIZED": {
         "asset": {
@@ -1608,7 +1611,7 @@ export default [
         "learning": "Il libro è facile."
       },
       "RANKED": {
-        "rank": 61
+        "rank": 320
       },
       "VOCALIZED": {
         "asset": {
@@ -1635,7 +1638,7 @@ export default [
         "learning": "Sono libero."
       },
       "RANKED": {
-        "rank": 62
+        "rank": 365
       },
       "VOCALIZED": {
         "asset": {
@@ -1662,7 +1665,7 @@ export default [
         "learning": "Sei libero domani?"
       },
       "RANKED": {
-        "rank": 63
+        "rank": 369
       },
       "VOCALIZED": {
         "asset": {
@@ -1689,7 +1692,7 @@ export default [
         "learning": "Sono libero ora."
       },
       "RANKED": {
-        "rank": 64
+        "rank": 371
       },
       "VOCALIZED": {
         "asset": {
@@ -1716,7 +1719,7 @@ export default [
         "learning": "Sono libero oggi."
       },
       "RANKED": {
-        "rank": 65
+        "rank": 370
       },
       "VOCALIZED": {
         "asset": {
@@ -1743,7 +1746,7 @@ export default [
         "learning": "Possiamo avere un cucchiaio?"
       },
       "RANKED": {
-        "rank": 66
+        "rank": 1029
       },
       "VOCALIZED": {
         "asset": {
@@ -1770,7 +1773,7 @@ export default [
         "learning": "Mio padre è alto."
       },
       "RANKED": {
-        "rank": 67
+        "rank": 299
       },
       "VOCALIZED": {
         "asset": {
@@ -1797,7 +1800,7 @@ export default [
         "learning": "Come sei alto!"
       },
       "RANKED": {
-        "rank": 68
+        "rank": 297
       },
       "VOCALIZED": {
         "asset": {
@@ -1824,7 +1827,7 @@ export default [
         "learning": "Sono molto alto."
       },
       "RANKED": {
-        "rank": 69
+        "rank": 298
       },
       "VOCALIZED": {
         "asset": {
@@ -1851,7 +1854,7 @@ export default [
         "learning": "Sono alto."
       },
       "RANKED": {
-        "rank": 70
+        "rank": 296
       },
       "VOCALIZED": {
         "asset": {
@@ -1878,7 +1881,7 @@ export default [
         "learning": "Com'è alto!"
       },
       "RANKED": {
-        "rank": 71
+        "rank": 566
       },
       "VOCALIZED": {
         "asset": {
@@ -1905,7 +1908,7 @@ export default [
         "learning": "Sono sceso dal treno."
       },
       "RANKED": {
-        "rank": 72
+        "rank": 951
       },
       "VOCALIZED": {
         "asset": {
@@ -1932,7 +1935,7 @@ export default [
         "learning": "C'è un gatto."
       },
       "RANKED": {
-        "rank": 73
+        "rank": 683
       },
       "VOCALIZED": {
         "asset": {
@@ -1959,7 +1962,7 @@ export default [
         "learning": "Cade di domenica."
       },
       "RANKED": {
-        "rank": 74
+        "rank": 785
       },
       "VOCALIZED": {
         "asset": {
@@ -1986,7 +1989,7 @@ export default [
         "learning": "Ieri era domenica."
       },
       "RANKED": {
-        "rank": 75
+        "rank": 432
       },
       "VOCALIZED": {
         "asset": {
@@ -2013,7 +2016,7 @@ export default [
         "learning": "Lavoro anche di domenica."
       },
       "RANKED": {
-        "rank": 76
+        "rank": 434
       },
       "VOCALIZED": {
         "asset": {
@@ -2040,7 +2043,7 @@ export default [
         "learning": "Sono libero la domenica."
       },
       "RANKED": {
-        "rank": 77
+        "rank": 435
       },
       "VOCALIZED": {
         "asset": {
@@ -2067,7 +2070,7 @@ export default [
         "learning": "È aperto di domenica?"
       },
       "RANKED": {
-        "rank": 78
+        "rank": 43
       },
       "VOCALIZED": {
         "asset": {
@@ -2078,6 +2081,9 @@ export default [
     "symbols": [
       {
         "slug": "sentence"
+      },
+      {
+        "slug": "proficiency.survival"
       }
     ]
   },
@@ -2094,7 +2100,7 @@ export default [
         "learning": "Dopo di te."
       },
       "RANKED": {
-        "rank": 79
+        "rank": 133
       },
       "VOCALIZED": {
         "asset": {
@@ -2121,7 +2127,7 @@ export default [
         "learning": "Dopo di voi."
       },
       "RANKED": {
-        "rank": 80
+        "rank": 160
       },
       "VOCALIZED": {
         "asset": {
@@ -2148,7 +2154,7 @@ export default [
         "learning": "Oggi è nuvoloso."
       },
       "RANKED": {
-        "rank": 81
+        "rank": 1059
       },
       "VOCALIZED": {
         "asset": {
@@ -2175,7 +2181,7 @@ export default [
         "learning": "Oggi è piovoso."
       },
       "RANKED": {
-        "rank": 82
+        "rank": 1070
       },
       "VOCALIZED": {
         "asset": {
@@ -2202,7 +2208,7 @@ export default [
         "learning": "Oggi sono occupato."
       },
       "RANKED": {
-        "rank": 83
+        "rank": 751
       },
       "VOCALIZED": {
         "asset": {
@@ -2229,7 +2235,7 @@ export default [
         "learning": "Ho lezione domani."
       },
       "RANKED": {
-        "rank": 84
+        "rank": 569
       },
       "VOCALIZED": {
         "asset": {
@@ -2256,7 +2262,7 @@ export default [
         "learning": "È un libro."
       },
       "RANKED": {
-        "rank": 85
+        "rank": 239
       },
       "VOCALIZED": {
         "asset": {
@@ -2283,7 +2289,7 @@ export default [
         "learning": "Parlate francese?"
       },
       "RANKED": {
-        "rank": 86
+        "rank": 905
       },
       "VOCALIZED": {
         "asset": {
@@ -2310,7 +2316,7 @@ export default [
         "learning": "Lei sa parlare francese."
       },
       "RANKED": {
-        "rank": 87
+        "rank": 372
       },
       "VOCALIZED": {
         "asset": {
@@ -2337,7 +2343,7 @@ export default [
         "learning": "Parla anche francese."
       },
       "RANKED": {
-        "rank": 88
+        "rank": 368
       },
       "VOCALIZED": {
         "asset": {
@@ -2364,7 +2370,7 @@ export default [
         "learning": "Perfetto!"
       },
       "RANKED": {
-        "rank": 89
+        "rank": 423
       },
       "VOCALIZED": {
         "asset": {
@@ -2391,7 +2397,7 @@ export default [
         "learning": "Questo è il Giappone."
       },
       "RANKED": {
-        "rank": 90
+        "rank": 548
       },
       "VOCALIZED": {
         "asset": {
@@ -2418,7 +2424,7 @@ export default [
         "learning": "Vivo in Giappone."
       },
       "RANKED": {
-        "rank": 91
+        "rank": 545
       },
       "VOCALIZED": {
         "asset": {
@@ -2445,7 +2451,7 @@ export default [
         "learning": "Ho una famiglia."
       },
       "RANKED": {
-        "rank": 92
+        "rank": 178
       },
       "VOCALIZED": {
         "asset": {
@@ -2472,7 +2478,7 @@ export default [
         "learning": "Conosco la sua famiglia."
       },
       "RANKED": {
-        "rank": 93
+        "rank": 466
       },
       "VOCALIZED": {
         "asset": {
@@ -2499,7 +2505,7 @@ export default [
         "learning": "È per la mia famiglia."
       },
       "RANKED": {
-        "rank": 94
+        "rank": 181
       },
       "VOCALIZED": {
         "asset": {
@@ -2526,7 +2532,7 @@ export default [
         "learning": "Scegli fra i due."
       },
       "RANKED": {
-        "rank": 95
+        "rank": 814
       },
       "VOCALIZED": {
         "asset": {
@@ -2553,7 +2559,7 @@ export default [
         "learning": "Il ghiaccio è molto spesso."
       },
       "RANKED": {
-        "rank": 96
+        "rank": 775
       },
       "VOCALIZED": {
         "asset": {
@@ -2580,7 +2586,7 @@ export default [
         "learning": "Roma è in Italia."
       },
       "RANKED": {
-        "rank": 97
+        "rank": 163
       },
       "VOCALIZED": {
         "asset": {
@@ -2607,7 +2613,7 @@ export default [
         "learning": "Non è venuto nessuno."
       },
       "RANKED": {
-        "rank": 98
+        "rank": 580
       },
       "VOCALIZED": {
         "asset": {
@@ -2634,7 +2640,7 @@ export default [
         "learning": "Nessuno era presente."
       },
       "RANKED": {
-        "rank": 99
+        "rank": 264
       },
       "VOCALIZED": {
         "asset": {
@@ -2661,7 +2667,7 @@ export default [
         "learning": "La scatola era troppo pesante."
       },
       "RANKED": {
-        "rank": 100
+        "rank": 811
       },
       "VOCALIZED": {
         "asset": {
@@ -2688,7 +2694,7 @@ export default [
         "learning": "Puoi venire con me."
       },
       "RANKED": {
-        "rank": 101
+        "rank": 398
       },
       "VOCALIZED": {
         "asset": {
@@ -2715,7 +2721,7 @@ export default [
         "learning": "Andrai con Tom?"
       },
       "RANKED": {
-        "rank": 102
+        "rank": 1007
       },
       "VOCALIZED": {
         "asset": {
@@ -2742,7 +2748,7 @@ export default [
         "learning": "Parla bene."
       },
       "RANKED": {
-        "rank": 103
+        "rank": 257
       },
       "VOCALIZED": {
         "asset": {
@@ -2769,7 +2775,7 @@ export default [
         "learning": "Lei parla molto."
       },
       "RANKED": {
-        "rank": 104
+        "rank": 258
       },
       "VOCALIZED": {
         "asset": {
@@ -2796,7 +2802,7 @@ export default [
         "learning": "Ho una bicicletta nuova."
       },
       "RANKED": {
-        "rank": 105
+        "rank": 890
       },
       "VOCALIZED": {
         "asset": {
@@ -2823,7 +2829,7 @@ export default [
         "learning": "Vado a letto!"
       },
       "RANKED": {
-        "rank": 106
+        "rank": 335
       },
       "VOCALIZED": {
         "asset": {
@@ -2850,7 +2856,7 @@ export default [
         "learning": "Conta da uno a dieci."
       },
       "RANKED": {
-        "rank": 107
+        "rank": 536
       },
       "VOCALIZED": {
         "asset": {
@@ -2877,7 +2883,7 @@ export default [
         "learning": "Devo andare adesso."
       },
       "RANKED": {
-        "rank": 108
+        "rank": 232
       },
       "VOCALIZED": {
         "asset": {
@@ -2904,7 +2910,7 @@ export default [
         "learning": "Ho un computer."
       },
       "RANKED": {
-        "rank": 109
+        "rank": 482
       },
       "VOCALIZED": {
         "asset": {
@@ -2931,7 +2937,7 @@ export default [
         "learning": "È una sorpresa."
       },
       "RANKED": {
-        "rank": 110
+        "rank": 616
       },
       "VOCALIZED": {
         "asset": {
@@ -2958,7 +2964,7 @@ export default [
         "learning": "Posso avere questo libro?"
       },
       "RANKED": {
-        "rank": 111
+        "rank": 243
       },
       "VOCALIZED": {
         "asset": {
@@ -2985,7 +2991,7 @@ export default [
         "learning": "Posso avere questa arancia?"
       },
       "RANKED": {
-        "rank": 112
+        "rank": 1040
       },
       "VOCALIZED": {
         "asset": {
@@ -3012,7 +3018,7 @@ export default [
         "learning": "Posso avere un cuscino?"
       },
       "RANKED": {
-        "rank": 113
+        "rank": 96
       },
       "VOCALIZED": {
         "asset": {
@@ -3023,6 +3029,9 @@ export default [
     "symbols": [
       {
         "slug": "sentence"
+      },
+      {
+        "slug": "proficiency.survival"
       }
     ]
   },
@@ -3039,7 +3048,7 @@ export default [
         "learning": "Come sta vostra madre?"
       },
       "RANKED": {
-        "rank": 114
+        "rank": 405
       },
       "VOCALIZED": {
         "asset": {
@@ -3066,7 +3075,7 @@ export default [
         "learning": "Mia madre non può venire."
       },
       "RANKED": {
-        "rank": 115
+        "rank": 401
       },
       "VOCALIZED": {
         "asset": {
@@ -3093,7 +3102,7 @@ export default [
         "learning": "Ha un cane."
       },
       "RANKED": {
-        "rank": 116
+        "rank": 439
       },
       "VOCALIZED": {
         "asset": {
@@ -3120,7 +3129,7 @@ export default [
         "learning": "È molto onesto."
       },
       "RANKED": {
-        "rank": 117
+        "rank": 898
       },
       "VOCALIZED": {
         "asset": {
@@ -3147,7 +3156,7 @@ export default [
         "learning": "È molto bella."
       },
       "RANKED": {
-        "rank": 118
+        "rank": 237
       },
       "VOCALIZED": {
         "asset": {
@@ -3174,7 +3183,7 @@ export default [
         "learning": "Sono stanco ora."
       },
       "RANKED": {
-        "rank": 119
+        "rank": 823
       },
       "VOCALIZED": {
         "asset": {
@@ -3201,7 +3210,7 @@ export default [
         "learning": "Chi ha rotto la finestra?"
       },
       "RANKED": {
-        "rank": 120
+        "rank": 650
       },
       "VOCALIZED": {
         "asset": {
@@ -3228,7 +3237,7 @@ export default [
         "learning": "Voglio la tua opinione."
       },
       "RANKED": {
-        "rank": 121
+        "rank": 453
       },
       "VOCALIZED": {
         "asset": {
@@ -3255,7 +3264,7 @@ export default [
         "learning": "Ho un'idea."
       },
       "RANKED": {
-        "rank": 122
+        "rank": 213
       },
       "VOCALIZED": {
         "asset": {
@@ -3282,7 +3291,7 @@ export default [
         "learning": "Non ne ho idea."
       },
       "RANKED": {
-        "rank": 123
+        "rank": 218
       },
       "VOCALIZED": {
         "asset": {
@@ -3309,7 +3318,7 @@ export default [
         "learning": "È una buona idea!"
       },
       "RANKED": {
-        "rank": 124
+        "rank": 215
       },
       "VOCALIZED": {
         "asset": {
@@ -3336,7 +3345,7 @@ export default [
         "learning": "L'oceano era calmo."
       },
       "RANKED": {
-        "rank": 125
+        "rank": 984
       },
       "VOCALIZED": {
         "asset": {
@@ -3363,7 +3372,7 @@ export default [
         "learning": "Dov'è il presidente?"
       },
       "RANKED": {
-        "rank": 126
+        "rank": 789
       },
       "VOCALIZED": {
         "asset": {
@@ -3390,7 +3399,7 @@ export default [
         "learning": "Sono a casa."
       },
       "RANKED": {
-        "rank": 127
+        "rank": 131
       },
       "VOCALIZED": {
         "asset": {
@@ -3417,7 +3426,7 @@ export default [
         "learning": "L'orologio è sbagliato."
       },
       "RANKED": {
-        "rank": 128
+        "rank": 871
       },
       "VOCALIZED": {
         "asset": {
@@ -3444,7 +3453,7 @@ export default [
         "learning": "Eri occupato."
       },
       "RANKED": {
-        "rank": 129
+        "rank": 749
       },
       "VOCALIZED": {
         "asset": {
@@ -3471,7 +3480,7 @@ export default [
         "learning": "Sei occupato?"
       },
       "RANKED": {
-        "rank": 130
+        "rank": 750
       },
       "VOCALIZED": {
         "asset": {
@@ -3498,7 +3507,7 @@ export default [
         "learning": "Sono occupato ora."
       },
       "RANKED": {
-        "rank": 131
+        "rank": 755
       },
       "VOCALIZED": {
         "asset": {
@@ -3525,7 +3534,7 @@ export default [
         "learning": "Sono molto occupato."
       },
       "RANKED": {
-        "rank": 132
+        "rank": 754
       },
       "VOCALIZED": {
         "asset": {
@@ -3552,7 +3561,7 @@ export default [
         "learning": "Ero un po' sorpreso."
       },
       "RANKED": {
-        "rank": 133
+        "rank": 862
       },
       "VOCALIZED": {
         "asset": {
@@ -3579,7 +3588,7 @@ export default [
         "learning": "Sono un po' stanco."
       },
       "RANKED": {
-        "rank": 134
+        "rank": 828
       },
       "VOCALIZED": {
         "asset": {
@@ -3606,7 +3615,7 @@ export default [
         "learning": "Ha dormito un'ora."
       },
       "RANKED": {
-        "rank": 135
+        "rank": 928
       },
       "VOCALIZED": {
         "asset": {
@@ -3633,7 +3642,7 @@ export default [
         "learning": "Dovresti dormire."
       },
       "RANKED": {
-        "rank": 136
+        "rank": 589
       },
       "VOCALIZED": {
         "asset": {
@@ -3660,7 +3669,7 @@ export default [
         "learning": "Questa è la mia macchina."
       },
       "RANKED": {
-        "rank": 137
+        "rank": 348
       },
       "VOCALIZED": {
         "asset": {
@@ -3687,7 +3696,7 @@ export default [
         "learning": "La mia macchina è tedesca."
       },
       "RANKED": {
-        "rank": 138
+        "rank": 763
       },
       "VOCALIZED": {
         "asset": {
@@ -3714,7 +3723,7 @@ export default [
         "learning": "Ho una macchina."
       },
       "RANKED": {
-        "rank": 139
+        "rank": 343
       },
       "VOCALIZED": {
         "asset": {
@@ -3741,7 +3750,7 @@ export default [
         "learning": "Ha una macchina."
       },
       "RANKED": {
-        "rank": 140
+        "rank": 342
       },
       "VOCALIZED": {
         "asset": {
@@ -3768,7 +3777,7 @@ export default [
         "learning": "Mary suona il piano."
       },
       "RANKED": {
-        "rank": 141
+        "rank": 802
       },
       "VOCALIZED": {
         "asset": {
@@ -3795,7 +3804,7 @@ export default [
         "learning": "Rispondi alla domanda."
       },
       "RANKED": {
-        "rank": 142
+        "rank": 875
       },
       "VOCALIZED": {
         "asset": {
@@ -3822,7 +3831,7 @@ export default [
         "learning": "Devi andare."
       },
       "RANKED": {
-        "rank": 143
+        "rank": 270
       },
       "VOCALIZED": {
         "asset": {
@@ -3845,11 +3854,11 @@ export default [
     ],
     "trait": {
       "TRANSLATED": {
-        "known": "Do you speak English?",
+        "known": "Do you speak English? (informal)",
         "learning": "Parli inglese?"
       },
       "RANKED": {
-        "rank": 144
+        "rank": 18
       },
       "VOCALIZED": {
         "asset": {
@@ -3860,6 +3869,9 @@ export default [
     "symbols": [
       {
         "slug": "sentence"
+      },
+      {
+        "slug": "proficiency.survival"
       }
     ]
   },
@@ -3876,7 +3888,7 @@ export default [
         "learning": "Sono cinese."
       },
       "RANKED": {
-        "rank": 145
+        "rank": 525
       },
       "VOCALIZED": {
         "asset": {
@@ -3903,7 +3915,7 @@ export default [
         "learning": "Fa molto freddo ora."
       },
       "RANKED": {
-        "rank": 146
+        "rank": 546
       },
       "VOCALIZED": {
         "asset": {
@@ -3930,7 +3942,7 @@ export default [
         "learning": "Ero molto occupato oggi."
       },
       "RANKED": {
-        "rank": 147
+        "rank": 756
       },
       "VOCALIZED": {
         "asset": {
@@ -3957,7 +3969,7 @@ export default [
         "learning": "Sei felice?"
       },
       "RANKED": {
-        "rank": 148
+        "rank": 329
       },
       "VOCALIZED": {
         "asset": {
@@ -3984,7 +3996,7 @@ export default [
         "learning": "È sempre felice."
       },
       "RANKED": {
-        "rank": 149
+        "rank": 330
       },
       "VOCALIZED": {
         "asset": {
@@ -4011,7 +4023,7 @@ export default [
         "learning": "Sono triste."
       },
       "RANKED": {
-        "rank": 150
+        "rank": 538
       },
       "VOCALIZED": {
         "asset": {
@@ -4038,7 +4050,7 @@ export default [
         "learning": "Non essere triste."
       },
       "RANKED": {
-        "rank": 151
+        "rank": 542
       },
       "VOCALIZED": {
         "asset": {
@@ -4065,7 +4077,7 @@ export default [
         "learning": "Tutto era calmo."
       },
       "RANKED": {
-        "rank": 152
+        "rank": 983
       },
       "VOCALIZED": {
         "asset": {
@@ -4092,7 +4104,7 @@ export default [
         "learning": "Voglio dell'acqua."
       },
       "RANKED": {
-        "rank": 153
+        "rank": 709
       },
       "VOCALIZED": {
         "asset": {
@@ -4119,7 +4131,7 @@ export default [
         "learning": "Tutto lo zucchero è dolce."
       },
       "RANKED": {
-        "rank": 154
+        "rank": 740
       },
       "VOCALIZED": {
         "asset": {
@@ -4146,7 +4158,7 @@ export default [
         "learning": "Vuoi del ghiaccio?"
       },
       "RANKED": {
-        "rank": 155
+        "rank": 770
       },
       "VOCALIZED": {
         "asset": {
@@ -4173,7 +4185,7 @@ export default [
         "learning": "Ieri faceva freddo."
       },
       "RANKED": {
-        "rank": 156
+        "rank": 541
       },
       "VOCALIZED": {
         "asset": {
@@ -4200,7 +4212,7 @@ export default [
         "learning": "Ho freddo."
       },
       "RANKED": {
-        "rank": 157
+        "rank": 537
       },
       "VOCALIZED": {
         "asset": {
@@ -4227,7 +4239,7 @@ export default [
         "learning": "La cena è pronta."
       },
       "RANKED": {
-        "rank": 158
+        "rank": 600
       },
       "VOCALIZED": {
         "asset": {
@@ -4254,7 +4266,7 @@ export default [
         "learning": "Che lavoro fai?"
       },
       "RANKED": {
-        "rank": 159
+        "rank": 222
       },
       "VOCALIZED": {
         "asset": {
@@ -4281,7 +4293,7 @@ export default [
         "learning": "Che vuoi?"
       },
       "RANKED": {
-        "rank": 160
+        "rank": 203
       },
       "VOCALIZED": {
         "asset": {
@@ -4308,7 +4320,7 @@ export default [
         "learning": "Vado a casa ora."
       },
       "RANKED": {
-        "rank": 161
+        "rank": 338
       },
       "VOCALIZED": {
         "asset": {
@@ -4335,7 +4347,7 @@ export default [
         "learning": "Non sono un insegnante."
       },
       "RANKED": {
-        "rank": 162
+        "rank": 699
       },
       "VOCALIZED": {
         "asset": {
@@ -4362,7 +4374,7 @@ export default [
         "learning": "Sono un insegnante."
       },
       "RANKED": {
-        "rank": 163
+        "rank": 697
       },
       "VOCALIZED": {
         "asset": {
@@ -4389,7 +4401,7 @@ export default [
         "learning": "Credo in te."
       },
       "RANKED": {
-        "rank": 164
+        "rank": 192
       },
       "VOCALIZED": {
         "asset": {
@@ -4416,7 +4428,7 @@ export default [
         "learning": "Credo che sia felice."
       },
       "RANKED": {
-        "rank": 165
+        "rank": 337
       },
       "VOCALIZED": {
         "asset": {
@@ -4443,7 +4455,7 @@ export default [
         "learning": "Credo in lui."
       },
       "RANKED": {
-        "rank": 166
+        "rank": 191
       },
       "VOCALIZED": {
         "asset": {
@@ -4470,7 +4482,7 @@ export default [
         "learning": "Ti credo."
       },
       "RANKED": {
-        "rank": 167
+        "rank": 188
       },
       "VOCALIZED": {
         "asset": {
@@ -4497,7 +4509,7 @@ export default [
         "learning": "Credo che sia malata."
       },
       "RANKED": {
-        "rank": 168
+        "rank": 946
       },
       "VOCALIZED": {
         "asset": {
@@ -4524,7 +4536,7 @@ export default [
         "learning": "Sono in vacanza."
       },
       "RANKED": {
-        "rank": 169
+        "rank": 596
       },
       "VOCALIZED": {
         "asset": {
@@ -4551,7 +4563,7 @@ export default [
         "learning": "Ciao! Come stai?"
       },
       "RANKED": {
-        "rank": 170
+        "rank": 2
       },
       "VOCALIZED": {
         "asset": {
@@ -4562,6 +4574,9 @@ export default [
     "symbols": [
       {
         "slug": "sentence"
+      },
+      {
+        "slug": "proficiency.survival"
       }
     ]
   },
@@ -4578,7 +4593,7 @@ export default [
         "learning": "Nessuno lo saprà."
       },
       "RANKED": {
-        "rank": 171
+        "rank": 971
       },
       "VOCALIZED": {
         "asset": {
@@ -4605,7 +4620,7 @@ export default [
         "learning": "È di mio fratello."
       },
       "RANKED": {
-        "rank": 172
+        "rank": 357
       },
       "VOCALIZED": {
         "asset": {
@@ -4632,7 +4647,7 @@ export default [
         "learning": "Guadagno 100€ al giorno."
       },
       "RANKED": {
-        "rank": 173
+        "rank": 1025
       },
       "VOCALIZED": {
         "asset": {
@@ -4659,7 +4674,7 @@ export default [
         "learning": "Aggiungi un po' di latte."
       },
       "RANKED": {
-        "rank": 174
+        "rank": 930
       },
       "VOCALIZED": {
         "asset": {
@@ -4686,7 +4701,7 @@ export default [
         "learning": "Tom è un mio amico."
       },
       "RANKED": {
-        "rank": 175
+        "rank": 668
       },
       "VOCALIZED": {
         "asset": {
@@ -4713,7 +4728,7 @@ export default [
         "learning": "È lunedì."
       },
       "RANKED": {
-        "rank": 176
+        "rank": 590
       },
       "VOCALIZED": {
         "asset": {
@@ -4740,7 +4755,7 @@ export default [
         "learning": "Ha un piano?"
       },
       "RANKED": {
-        "rank": 177
+        "rank": 234
       },
       "VOCALIZED": {
         "asset": {
@@ -4767,7 +4782,7 @@ export default [
         "learning": "È arrabbiata con me."
       },
       "RANKED": {
-        "rank": 178
+        "rank": 1030
       },
       "VOCALIZED": {
         "asset": {
@@ -4794,7 +4809,7 @@ export default [
         "learning": "So tutto."
       },
       "RANKED": {
-        "rank": 179
+        "rank": 153
       },
       "VOCALIZED": {
         "asset": {
@@ -4821,7 +4836,7 @@ export default [
         "learning": "E ora cosa facciamo?"
       },
       "RANKED": {
-        "rank": 180
+        "rank": 374
       },
       "VOCALIZED": {
         "asset": {
@@ -4848,7 +4863,7 @@ export default [
         "learning": "Le conosco."
       },
       "RANKED": {
-        "rank": 181
+        "rank": 461
       },
       "VOCALIZED": {
         "asset": {
@@ -4875,7 +4890,7 @@ export default [
         "learning": "Li conosco."
       },
       "RANKED": {
-        "rank": 182
+        "rank": 462
       },
       "VOCALIZED": {
         "asset": {
@@ -4902,7 +4917,7 @@ export default [
         "learning": "Chi sono io?"
       },
       "RANKED": {
-        "rank": 183
+        "rank": 118
       },
       "VOCALIZED": {
         "asset": {
@@ -4929,7 +4944,7 @@ export default [
         "learning": "Sono sicuro."
       },
       "RANKED": {
-        "rank": 184
+        "rank": 305
       },
       "VOCALIZED": {
         "asset": {
@@ -4956,7 +4971,7 @@ export default [
         "learning": "Lo so."
       },
       "RANKED": {
-        "rank": 185
+        "rank": 152
       },
       "VOCALIZED": {
         "asset": {
@@ -4983,7 +4998,7 @@ export default [
         "learning": "La stazione è qui vicino."
       },
       "RANKED": {
-        "rank": 186
+        "rank": 75
       },
       "VOCALIZED": {
         "asset": {
@@ -4994,6 +5009,9 @@ export default [
     "symbols": [
       {
         "slug": "sentence"
+      },
+      {
+        "slug": "proficiency.survival"
       }
     ]
   },
@@ -5010,7 +5028,7 @@ export default [
         "learning": "Domani è domenica."
       },
       "RANKED": {
-        "rank": 187
+        "rank": 431
       },
       "VOCALIZED": {
         "asset": {
@@ -5037,7 +5055,7 @@ export default [
         "learning": "Quella casa è la mia."
       },
       "RANKED": {
-        "rank": 188
+        "rank": 132
       },
       "VOCALIZED": {
         "asset": {
@@ -5064,7 +5082,7 @@ export default [
         "learning": "Oggi fa molto caldo."
       },
       "RANKED": {
-        "rank": 189
+        "rank": 515
       },
       "VOCALIZED": {
         "asset": {
@@ -5091,7 +5109,7 @@ export default [
         "learning": "Io mi sveglio alle 6."
       },
       "RANKED": {
-        "rank": 190
+        "rank": 846
       },
       "VOCALIZED": {
         "asset": {
@@ -5118,7 +5136,7 @@ export default [
         "learning": "Questa è la fine."
       },
       "RANKED": {
-        "rank": 191
+        "rank": 145
       },
       "VOCALIZED": {
         "asset": {
@@ -5145,7 +5163,7 @@ export default [
         "learning": "Oggi è un giorno di festa."
       },
       "RANKED": {
-        "rank": 192
+        "rank": 373
       },
       "VOCALIZED": {
         "asset": {
@@ -5172,7 +5190,7 @@ export default [
         "learning": "Mio padre era occupato."
       },
       "RANKED": {
-        "rank": 193
+        "rank": 758
       },
       "VOCALIZED": {
         "asset": {
@@ -5199,7 +5217,7 @@ export default [
         "learning": "La mia macchina è in negozio."
       },
       "RANKED": {
-        "rank": 194
+        "rank": 565
       },
       "VOCALIZED": {
         "asset": {
@@ -5226,7 +5244,7 @@ export default [
         "learning": "Devo andare ora."
       },
       "RANKED": {
-        "rank": 195
+        "rank": 233
       },
       "VOCALIZED": {
         "asset": {
@@ -5253,7 +5271,7 @@ export default [
         "learning": "Posso fare una domanda?"
       },
       "RANKED": {
-        "rank": 196
+        "rank": 267
       },
       "VOCALIZED": {
         "asset": {
@@ -5280,7 +5298,7 @@ export default [
         "learning": "È ora di cena."
       },
       "RANKED": {
-        "rank": 197
+        "rank": 513
       },
       "VOCALIZED": {
         "asset": {
@@ -5307,7 +5325,7 @@ export default [
         "learning": "Mio padre è un dottore."
       },
       "RANKED": {
-        "rank": 198
+        "rank": 748
       },
       "VOCALIZED": {
         "asset": {
@@ -5334,7 +5352,7 @@ export default [
         "learning": "Ho la febbre."
       },
       "RANKED": {
-        "rank": 199
+        "rank": 832
       },
       "VOCALIZED": {
         "asset": {
@@ -5361,7 +5379,7 @@ export default [
         "learning": "Sei molto coraggioso."
       },
       "RANKED": {
-        "rank": 200
+        "rank": 977
       },
       "VOCALIZED": {
         "asset": {
@@ -5388,7 +5406,7 @@ export default [
         "learning": "Sono troppo occupato per andare."
       },
       "RANKED": {
-        "rank": 201
+        "rank": 764
       },
       "VOCALIZED": {
         "asset": {
@@ -5415,7 +5433,7 @@ export default [
         "learning": "Dov'eri?"
       },
       "RANKED": {
-        "rank": 202
+        "rank": 1079
       },
       "VOCALIZED": {
         "asset": {
@@ -5442,7 +5460,7 @@ export default [
         "learning": "Dove eravate?"
       },
       "RANKED": {
-        "rank": 203
+        "rank": 1012
       },
       "VOCALIZED": {
         "asset": {
@@ -5469,7 +5487,7 @@ export default [
         "learning": "Io spesso viaggio."
       },
       "RANKED": {
-        "rank": 204
+        "rank": 324
       },
       "VOCALIZED": {
         "asset": {
@@ -5496,7 +5514,7 @@ export default [
         "learning": "È libero qui?"
       },
       "RANKED": {
-        "rank": 205
+        "rank": 367
       },
       "VOCALIZED": {
         "asset": {
@@ -5523,7 +5541,7 @@ export default [
         "learning": "Sono la vostra insegnante."
       },
       "RANKED": {
-        "rank": 206
+        "rank": 700
       },
       "VOCALIZED": {
         "asset": {
@@ -5550,7 +5568,7 @@ export default [
         "learning": "Tutto bene."
       },
       "RANKED": {
-        "rank": 207
+        "rank": 127
       },
       "VOCALIZED": {
         "asset": {
@@ -5577,7 +5595,7 @@ export default [
         "learning": "Che lavoro fa?"
       },
       "RANKED": {
-        "rank": 208
+        "rank": 129
       },
       "VOCALIZED": {
         "asset": {
@@ -5604,7 +5622,7 @@ export default [
         "learning": "Oggi offro io."
       },
       "RANKED": {
-        "rank": 209
+        "rank": 989
       },
       "VOCALIZED": {
         "asset": {
@@ -5631,7 +5649,7 @@ export default [
         "learning": "Come va il lavoro?"
       },
       "RANKED": {
-        "rank": 210
+        "rank": 150
       },
       "VOCALIZED": {
         "asset": {
@@ -5658,7 +5676,7 @@ export default [
         "learning": "È il tuo libro."
       },
       "RANKED": {
-        "rank": 211
+        "rank": 241
       },
       "VOCALIZED": {
         "asset": {
@@ -5685,7 +5703,7 @@ export default [
         "learning": "C'è dello zucchero?"
       },
       "RANKED": {
-        "rank": 212
+        "rank": 732
       },
       "VOCALIZED": {
         "asset": {
@@ -5712,7 +5730,7 @@ export default [
         "learning": "Ho un libro."
       },
       "RANKED": {
-        "rank": 213
+        "rank": 240
       },
       "VOCALIZED": {
         "asset": {
@@ -5739,7 +5757,7 @@ export default [
         "learning": "Sono pieno."
       },
       "RANKED": {
-        "rank": 214
+        "rank": 395
       },
       "VOCALIZED": {
         "asset": {
@@ -5766,7 +5784,7 @@ export default [
         "learning": "Sono piena."
       },
       "RANKED": {
-        "rank": 215
+        "rank": 454
       },
       "VOCALIZED": {
         "asset": {
@@ -5793,7 +5811,7 @@ export default [
         "learning": "Sono un professore."
       },
       "RANKED": {
-        "rank": 216
+        "rank": 555
       },
       "VOCALIZED": {
         "asset": {
@@ -5820,7 +5838,7 @@ export default [
         "learning": "Sei dalla mia parte."
       },
       "RANKED": {
-        "rank": 217
+        "rank": 125
       },
       "VOCALIZED": {
         "asset": {
@@ -5847,7 +5865,7 @@ export default [
         "learning": "Stai andando anche tu?"
       },
       "RANKED": {
-        "rank": 218
+        "rank": 578
       },
       "VOCALIZED": {
         "asset": {
@@ -5874,7 +5892,7 @@ export default [
         "learning": "Vuoi andare anche tu?"
       },
       "RANKED": {
-        "rank": 219
+        "rank": 211
       },
       "VOCALIZED": {
         "asset": {
@@ -5901,7 +5919,7 @@ export default [
         "learning": "Lavare è il mio lavoro."
       },
       "RANKED": {
-        "rank": 220
+        "rank": 958
       },
       "VOCALIZED": {
         "asset": {
@@ -5928,7 +5946,7 @@ export default [
         "learning": "Hai una domanda?"
       },
       "RANKED": {
-        "rank": 221
+        "rank": 263
       },
       "VOCALIZED": {
         "asset": {
@@ -5955,7 +5973,7 @@ export default [
         "learning": "Che cosa significa?"
       },
       "RANKED": {
-        "rank": 222
+        "rank": 22
       },
       "VOCALIZED": {
         "asset": {
@@ -5966,6 +5984,9 @@ export default [
     "symbols": [
       {
         "slug": "sentence"
+      },
+      {
+        "slug": "proficiency.survival"
       }
     ]
   },
@@ -5982,7 +6003,7 @@ export default [
         "learning": "Avete un calendario?"
       },
       "RANKED": {
-        "rank": 223
+        "rank": 804
       },
       "VOCALIZED": {
         "asset": {
@@ -6009,7 +6030,7 @@ export default [
         "learning": "Il braccio mi fa ancora male."
       },
       "RANKED": {
-        "rank": 224
+        "rank": 626
       },
       "VOCALIZED": {
         "asset": {
@@ -6036,7 +6057,7 @@ export default [
         "learning": "Eravamo uno di troppo."
       },
       "RANKED": {
-        "rank": 225
+        "rank": 629
       },
       "VOCALIZED": {
         "asset": {
@@ -6063,7 +6084,7 @@ export default [
         "learning": "Sono stato occupato ieri."
       },
       "RANKED": {
-        "rank": 226
+        "rank": 761
       },
       "VOCALIZED": {
         "asset": {
@@ -6090,7 +6111,7 @@ export default [
         "learning": "Non mi toccare!"
       },
       "RANKED": {
-        "rank": 227
+        "rank": 833
       },
       "VOCALIZED": {
         "asset": {
@@ -6117,7 +6138,7 @@ export default [
         "learning": "Ti darò un libro."
       },
       "RANKED": {
-        "rank": 228
+        "rank": 978
       },
       "VOCALIZED": {
         "asset": {
@@ -6144,7 +6165,7 @@ export default [
         "learning": "Che cosa fa?"
       },
       "RANKED": {
-        "rank": 229
+        "rank": 116
       },
       "VOCALIZED": {
         "asset": {
@@ -6171,7 +6192,7 @@ export default [
         "learning": "Vuoi questa maglietta?"
       },
       "RANKED": {
-        "rank": 230
+        "rank": 896
       },
       "VOCALIZED": {
         "asset": {
@@ -6198,7 +6219,7 @@ export default [
         "learning": "Ho la pelle secca."
       },
       "RANKED": {
-        "rank": 231
+        "rank": 929
       },
       "VOCALIZED": {
         "asset": {
@@ -6225,7 +6246,7 @@ export default [
         "learning": "Chi sono loro?"
       },
       "RANKED": {
-        "rank": 232
+        "rank": 119
       },
       "VOCALIZED": {
         "asset": {
@@ -6252,7 +6273,7 @@ export default [
         "learning": "Chi viene?"
       },
       "RANKED": {
-        "rank": 233
+        "rank": 146
       },
       "VOCALIZED": {
         "asset": {
@@ -6279,7 +6300,7 @@ export default [
         "learning": "Questa è mia sorella."
       },
       "RANKED": {
-        "rank": 234
+        "rank": 489
       },
       "VOCALIZED": {
         "asset": {
@@ -6306,7 +6327,7 @@ export default [
         "learning": "Chi verrà con noi?"
       },
       "RANKED": {
-        "rank": 235
+        "rank": 451
       },
       "VOCALIZED": {
         "asset": {
@@ -6333,7 +6354,7 @@ export default [
         "learning": "Non la conosco."
       },
       "RANKED": {
-        "rank": 236
+        "rank": 464
       },
       "VOCALIZED": {
         "asset": {
@@ -6360,7 +6381,7 @@ export default [
         "learning": "Andiamo a casa!"
       },
       "RANKED": {
-        "rank": 237
+        "rank": 553
       },
       "VOCALIZED": {
         "asset": {
@@ -6387,7 +6408,7 @@ export default [
         "learning": "Chi ti ha parlato di me?"
       },
       "RANKED": {
-        "rank": 238
+        "rank": 418
       },
       "VOCALIZED": {
         "asset": {
@@ -6414,7 +6435,7 @@ export default [
         "learning": "Oggi è sabato."
       },
       "RANKED": {
-        "rank": 239
+        "rank": 484
       },
       "VOCALIZED": {
         "asset": {
@@ -6441,7 +6462,7 @@ export default [
         "learning": "Perché la neve è bianca?"
       },
       "RANKED": {
-        "rank": 240
+        "rank": 739
       },
       "VOCALIZED": {
         "asset": {
@@ -6468,7 +6489,7 @@ export default [
         "learning": "È pronta la cena?"
       },
       "RANKED": {
-        "rank": 241
+        "rank": 599
       },
       "VOCALIZED": {
         "asset": {
@@ -6495,7 +6516,7 @@ export default [
         "learning": "È pronta la colazione?"
       },
       "RANKED": {
-        "rank": 242
+        "rank": 641
       },
       "VOCALIZED": {
         "asset": {
@@ -6522,7 +6543,7 @@ export default [
         "learning": "Ho visto il cane."
       },
       "RANKED": {
-        "rank": 243
+        "rank": 442
       },
       "VOCALIZED": {
         "asset": {
@@ -6549,7 +6570,7 @@ export default [
         "learning": "Ci ha fatto da guida."
       },
       "RANKED": {
-        "rank": 244
+        "rank": 382
       },
       "VOCALIZED": {
         "asset": {
@@ -6576,7 +6597,7 @@ export default [
         "learning": "Vorrei essere più alto."
       },
       "RANKED": {
-        "rank": 245
+        "rank": 300
       },
       "VOCALIZED": {
         "asset": {
@@ -6603,7 +6624,7 @@ export default [
         "learning": "Vorrei essere più giovane."
       },
       "RANKED": {
-        "rank": 246
+        "rank": 319
       },
       "VOCALIZED": {
         "asset": {
@@ -6630,7 +6651,7 @@ export default [
         "learning": "Vorrei essere giovane."
       },
       "RANKED": {
-        "rank": 247
+        "rank": 317
       },
       "VOCALIZED": {
         "asset": {
@@ -6657,7 +6678,7 @@ export default [
         "learning": "Voglio molto di più."
       },
       "RANKED": {
-        "rank": 248
+        "rank": 174
       },
       "VOCALIZED": {
         "asset": {
@@ -6684,7 +6705,7 @@ export default [
         "learning": "Voglio quella borsa."
       },
       "RANKED": {
-        "rank": 249
+        "rank": 634
       },
       "VOCALIZED": {
         "asset": {
@@ -6711,7 +6732,7 @@ export default [
         "learning": "Lo vuoi veramente?"
       },
       "RANKED": {
-        "rank": 250
+        "rank": 295
       },
       "VOCALIZED": {
         "asset": {
@@ -6738,7 +6759,7 @@ export default [
         "learning": "Sai chi è lei?"
       },
       "RANKED": {
-        "rank": 251
+        "rank": 308
       },
       "VOCALIZED": {
         "asset": {
@@ -6765,7 +6786,7 @@ export default [
         "learning": "Dove è tuo fratello?"
       },
       "RANKED": {
-        "rank": 252
+        "rank": 356
       },
       "VOCALIZED": {
         "asset": {
@@ -6792,7 +6813,7 @@ export default [
         "learning": "Mio padre è in casa."
       },
       "RANKED": {
-        "rank": 253
+        "rank": 231
       },
       "VOCALIZED": {
         "asset": {
@@ -6819,7 +6840,7 @@ export default [
         "learning": "Hai visto mio padre?"
       },
       "RANKED": {
-        "rank": 254
+        "rank": 227
       },
       "VOCALIZED": {
         "asset": {
@@ -6846,7 +6867,7 @@ export default [
         "learning": "Sono contro la guerra."
       },
       "RANKED": {
-        "rank": 255
+        "rank": 202
       },
       "VOCALIZED": {
         "asset": {
@@ -6873,7 +6894,7 @@ export default [
         "learning": "Che cosa hai fatto oggi?"
       },
       "RANKED": {
-        "rank": 256
+        "rank": 142
       },
       "VOCALIZED": {
         "asset": {
@@ -6900,7 +6921,7 @@ export default [
         "learning": "Mi sono chiuso fuori."
       },
       "RANKED": {
-        "rank": 257
+        "rank": 98
       },
       "VOCALIZED": {
         "asset": {
@@ -6911,6 +6932,9 @@ export default [
     "symbols": [
       {
         "slug": "sentence"
+      },
+      {
+        "slug": "proficiency.survival"
       }
     ]
   },
@@ -6927,7 +6951,7 @@ export default [
         "learning": "Dove sei ora?"
       },
       "RANKED": {
-        "rank": 258
+        "rank": 123
       },
       "VOCALIZED": {
         "asset": {
@@ -6954,7 +6978,7 @@ export default [
         "learning": "Non ho paura."
       },
       "RANKED": {
-        "rank": 259
+        "rank": 281
       },
       "VOCALIZED": {
         "asset": {
@@ -6981,7 +7005,7 @@ export default [
         "learning": "Che coincidenza!"
       },
       "RANKED": {
-        "rank": 260
+        "rank": 925
       },
       "VOCALIZED": {
         "asset": {
@@ -7008,7 +7032,7 @@ export default [
         "learning": "Sei molto bella."
       },
       "RANKED": {
-        "rank": 261
+        "rank": 238
       },
       "VOCALIZED": {
         "asset": {
@@ -7035,7 +7059,7 @@ export default [
         "learning": "Ho parlato di musica."
       },
       "RANKED": {
-        "rank": 262
+        "rank": 415
       },
       "VOCALIZED": {
         "asset": {
@@ -7062,7 +7086,7 @@ export default [
         "learning": "Il tavolo è verde."
       },
       "RANKED": {
-        "rank": 263
+        "rank": 612
       },
       "VOCALIZED": {
         "asset": {
@@ -7089,7 +7113,7 @@ export default [
         "learning": "Sto male."
       },
       "RANKED": {
-        "rank": 264
+        "rank": 102
       },
       "VOCALIZED": {
         "asset": {
@@ -7100,6 +7124,9 @@ export default [
     "symbols": [
       {
         "slug": "sentence"
+      },
+      {
+        "slug": "proficiency.survival"
       }
     ]
   },
@@ -7116,7 +7143,7 @@ export default [
         "learning": "Grande, vero?"
       },
       "RANKED": {
-        "rank": 265
+        "rank": 157
       },
       "VOCALIZED": {
         "asset": {
@@ -7143,7 +7170,7 @@ export default [
         "learning": "Lui è il mio capo."
       },
       "RANKED": {
-        "rank": 266
+        "rank": 255
       },
       "VOCALIZED": {
         "asset": {
@@ -7170,7 +7197,7 @@ export default [
         "learning": "Mi ha fatto un vestito."
       },
       "RANKED": {
-        "rank": 267
+        "rank": 687
       },
       "VOCALIZED": {
         "asset": {
@@ -7197,7 +7224,7 @@ export default [
         "learning": "Ho visto tuo padre."
       },
       "RANKED": {
-        "rank": 268
+        "rank": 228
       },
       "VOCALIZED": {
         "asset": {
@@ -7224,7 +7251,7 @@ export default [
         "learning": "Hai finito il lavoro?"
       },
       "RANKED": {
-        "rank": 269
+        "rank": 406
       },
       "VOCALIZED": {
         "asset": {
@@ -7251,7 +7278,7 @@ export default [
         "learning": "La mia penna è nuova."
       },
       "RANKED": {
-        "rank": 270
+        "rank": 866
       },
       "VOCALIZED": {
         "asset": {
@@ -7278,7 +7305,7 @@ export default [
         "learning": "Dove sono?"
       },
       "RANKED": {
-        "rank": 271
+        "rank": 122
       },
       "VOCALIZED": {
         "asset": {
@@ -7305,7 +7332,7 @@ export default [
         "learning": "Chiedo scusa per questo."
       },
       "RANKED": {
-        "rank": 272
+        "rank": 425
       },
       "VOCALIZED": {
         "asset": {
@@ -7332,7 +7359,7 @@ export default [
         "learning": "È un regalo per te."
       },
       "RANKED": {
-        "rank": 273
+        "rank": 632
       },
       "VOCALIZED": {
         "asset": {
@@ -7359,7 +7386,7 @@ export default [
         "learning": "Mi fa male la spalla."
       },
       "RANKED": {
-        "rank": 274
+        "rank": 839
       },
       "VOCALIZED": {
         "asset": {
@@ -7386,7 +7413,7 @@ export default [
         "learning": "Come stai?"
       },
       "RANKED": {
-        "rank": 275
+        "rank": 269
       },
       "VOCALIZED": {
         "asset": {
@@ -7413,7 +7440,7 @@ export default [
         "learning": "Questa è la tua chiave."
       },
       "RANKED": {
-        "rank": 276
+        "rank": 506
       },
       "VOCALIZED": {
         "asset": {
@@ -7440,7 +7467,7 @@ export default [
         "learning": "Questa è una matita."
       },
       "RANKED": {
-        "rank": 277
+        "rank": 999
       },
       "VOCALIZED": {
         "asset": {
@@ -7467,7 +7494,7 @@ export default [
         "learning": "Mi sono appena alzato."
       },
       "RANKED": {
-        "rank": 278
+        "rank": 933
       },
       "VOCALIZED": {
         "asset": {
@@ -7494,7 +7521,7 @@ export default [
         "learning": "Non l'ho incontrato."
       },
       "RANKED": {
-        "rank": 279
+        "rank": 682
       },
       "VOCALIZED": {
         "asset": {
@@ -7521,7 +7548,7 @@ export default [
         "learning": "Dov'è casa tua?"
       },
       "RANKED": {
-        "rank": 280
+        "rank": 786
       },
       "VOCALIZED": {
         "asset": {
@@ -7548,7 +7575,7 @@ export default [
         "learning": "Ho quasi fatto."
       },
       "RANKED": {
-        "rank": 281
+        "rank": 175
       },
       "VOCALIZED": {
         "asset": {
@@ -7575,7 +7602,7 @@ export default [
         "learning": "Sono in ritardo, vero?"
       },
       "RANKED": {
-        "rank": 282
+        "rank": 604
       },
       "VOCALIZED": {
         "asset": {
@@ -7602,7 +7629,7 @@ export default [
         "learning": "Ieri ero malato."
       },
       "RANKED": {
-        "rank": 283
+        "rank": 818
       },
       "VOCALIZED": {
         "asset": {
@@ -7629,7 +7656,7 @@ export default [
         "learning": "Mi sveglio presto."
       },
       "RANKED": {
-        "rank": 284
+        "rank": 844
       },
       "VOCALIZED": {
         "asset": {
@@ -7656,7 +7683,7 @@ export default [
         "learning": "Io non lo voglio."
       },
       "RANKED": {
-        "rank": 285
+        "rank": 172
       },
       "VOCALIZED": {
         "asset": {
@@ -7683,7 +7710,7 @@ export default [
         "learning": "Dov'è tuo fratello?"
       },
       "RANKED": {
-        "rank": 286
+        "rank": 791
       },
       "VOCALIZED": {
         "asset": {
@@ -7710,7 +7737,7 @@ export default [
         "learning": "Non fare tardi."
       },
       "RANKED": {
-        "rank": 287
+        "rank": 419
       },
       "VOCALIZED": {
         "asset": {
@@ -7737,7 +7764,7 @@ export default [
         "learning": "Questa è una scrivania."
       },
       "RANKED": {
-        "rank": 288
+        "rank": 934
       },
       "VOCALIZED": {
         "asset": {
@@ -7764,7 +7791,7 @@ export default [
         "learning": "Mia madre è arrabbiata."
       },
       "RANKED": {
-        "rank": 289
+        "rank": 1033
       },
       "VOCALIZED": {
         "asset": {
@@ -7791,7 +7818,7 @@ export default [
         "learning": "Alla vostra!"
       },
       "RANKED": {
-        "rank": 290
+        "rank": 403
       },
       "VOCALIZED": {
         "asset": {
@@ -7818,7 +7845,7 @@ export default [
         "learning": "Salute!"
       },
       "RANKED": {
-        "rank": 291
+        "rank": 389
       },
       "VOCALIZED": {
         "asset": {
@@ -7845,7 +7872,7 @@ export default [
         "learning": "È francese."
       },
       "RANKED": {
-        "rank": 292
+        "rank": 364
       },
       "VOCALIZED": {
         "asset": {
@@ -7872,7 +7899,7 @@ export default [
         "learning": "Questo è il mio libro."
       },
       "RANKED": {
-        "rank": 293
+        "rank": 247
       },
       "VOCALIZED": {
         "asset": {
@@ -7899,7 +7926,7 @@ export default [
         "learning": "Come sta il cane?"
       },
       "RANKED": {
-        "rank": 294
+        "rank": 441
       },
       "VOCALIZED": {
         "asset": {
@@ -7926,7 +7953,7 @@ export default [
         "learning": "Ho letto il libro."
       },
       "RANKED": {
-        "rank": 295
+        "rank": 242
       },
       "VOCALIZED": {
         "asset": {
@@ -7953,7 +7980,7 @@ export default [
         "learning": "Non posso parlare."
       },
       "RANKED": {
-        "rank": 296
+        "rank": 207
       },
       "VOCALIZED": {
         "asset": {
@@ -7980,7 +8007,7 @@ export default [
         "learning": "Che cosa dovrei fare?"
       },
       "RANKED": {
-        "rank": 297
+        "rank": 526
       },
       "VOCALIZED": {
         "asset": {
@@ -8007,7 +8034,7 @@ export default [
         "learning": "Che cosa fai ora?"
       },
       "RANKED": {
-        "rank": 298
+        "rank": 224
       },
       "VOCALIZED": {
         "asset": {
@@ -8034,7 +8061,7 @@ export default [
         "learning": "Questo è un cane."
       },
       "RANKED": {
-        "rank": 299
+        "rank": 445
       },
       "VOCALIZED": {
         "asset": {
@@ -8061,7 +8088,7 @@ export default [
         "learning": "Grazie per la Sua risposta."
       },
       "RANKED": {
-        "rank": 300
+        "rank": 315
       },
       "VOCALIZED": {
         "asset": {
@@ -8088,7 +8115,7 @@ export default [
         "learning": "È sabato."
       },
       "RANKED": {
-        "rank": 301
+        "rank": 481
       },
       "VOCALIZED": {
         "asset": {
@@ -8115,7 +8142,7 @@ export default [
         "learning": "Lo voglio veramente."
       },
       "RANKED": {
-        "rank": 302
+        "rank": 294
       },
       "VOCALIZED": {
         "asset": {
@@ -8142,7 +8169,7 @@ export default [
         "learning": "Eri con qualcuno?"
       },
       "RANKED": {
-        "rank": 303
+        "rank": 746
       },
       "VOCALIZED": {
         "asset": {
@@ -8169,7 +8196,7 @@ export default [
         "learning": "Ora o mai più."
       },
       "RANKED": {
-        "rank": 304
+        "rank": 121
       },
       "VOCALIZED": {
         "asset": {
@@ -8196,7 +8223,7 @@ export default [
         "learning": "Deve avere nostalgia di casa."
       },
       "RANKED": {
-        "rank": 305
+        "rank": 935
       },
       "VOCALIZED": {
         "asset": {
@@ -8223,7 +8250,7 @@ export default [
         "learning": "Ho chiesto dove andare."
       },
       "RANKED": {
-        "rank": 306
+        "rank": 358
       },
       "VOCALIZED": {
         "asset": {
@@ -8250,7 +8277,7 @@ export default [
         "learning": "Chi lo ha fatto?"
       },
       "RANKED": {
-        "rank": 307
+        "rank": 120
       },
       "VOCALIZED": {
         "asset": {
@@ -8277,7 +8304,7 @@ export default [
         "learning": "È chiaro?"
       },
       "RANKED": {
-        "rank": 308
+        "rank": 355
       },
       "VOCALIZED": {
         "asset": {
@@ -8304,7 +8331,7 @@ export default [
         "learning": "Mio padre è medico."
       },
       "RANKED": {
-        "rank": 309
+        "rank": 411
       },
       "VOCALIZED": {
         "asset": {
@@ -8331,7 +8358,7 @@ export default [
         "learning": "Conto su Tom."
       },
       "RANKED": {
-        "rank": 310
+        "rank": 657
       },
       "VOCALIZED": {
         "asset": {
@@ -8358,7 +8385,7 @@ export default [
         "learning": "Tom è molto gentile."
       },
       "RANKED": {
-        "rank": 311
+        "rank": 666
       },
       "VOCALIZED": {
         "asset": {
@@ -8385,7 +8412,7 @@ export default [
         "learning": "Tom ha rotto la finestra."
       },
       "RANKED": {
-        "rank": 312
+        "rank": 669
       },
       "VOCALIZED": {
         "asset": {
@@ -8412,7 +8439,7 @@ export default [
         "learning": "Tom non sa guidare."
       },
       "RANKED": {
-        "rank": 313
+        "rank": 726
       },
       "VOCALIZED": {
         "asset": {
@@ -8439,7 +8466,7 @@ export default [
         "learning": "Tom è più alto di me."
       },
       "RANKED": {
-        "rank": 314
+        "rank": 673
       },
       "VOCALIZED": {
         "asset": {
@@ -8466,7 +8493,7 @@ export default [
         "learning": "È solo un sogno."
       },
       "RANKED": {
-        "rank": 315
+        "rank": 488
       },
       "VOCALIZED": {
         "asset": {
@@ -8493,7 +8520,7 @@ export default [
         "learning": "Era un topo."
       },
       "RANKED": {
-        "rank": 316
+        "rank": 998
       },
       "VOCALIZED": {
         "asset": {
@@ -8520,7 +8547,7 @@ export default [
         "learning": "Tom conosce bene Boston."
       },
       "RANKED": {
-        "rank": 317
+        "rank": 914
       },
       "VOCALIZED": {
         "asset": {
@@ -8547,7 +8574,7 @@ export default [
         "learning": "Tom è di Boston."
       },
       "RANKED": {
-        "rank": 318
+        "rank": 915
       },
       "VOCALIZED": {
         "asset": {
@@ -8574,7 +8601,7 @@ export default [
         "learning": "Tom è andato a Boston."
       },
       "RANKED": {
-        "rank": 319
+        "rank": 916
       },
       "VOCALIZED": {
         "asset": {
@@ -8601,7 +8628,7 @@ export default [
         "learning": "So andare a cavallo."
       },
       "RANKED": {
-        "rank": 320
+        "rank": 603
       },
       "VOCALIZED": {
         "asset": {
@@ -8628,7 +8655,7 @@ export default [
         "learning": "Questa è carne buona."
       },
       "RANKED": {
-        "rank": 321
+        "rank": 496
       },
       "VOCALIZED": {
         "asset": {
@@ -8655,7 +8682,7 @@ export default [
         "learning": "Sì che lo voglio."
       },
       "RANKED": {
-        "rank": 322
+        "rank": 177
       },
       "VOCALIZED": {
         "asset": {
@@ -8682,7 +8709,7 @@ export default [
         "learning": "Qualcuno lo conosce?"
       },
       "RANKED": {
-        "rank": 323
+        "rank": 559
       },
       "VOCALIZED": {
         "asset": {
@@ -8709,7 +8736,7 @@ export default [
         "learning": "Perché sei solo?"
       },
       "RANKED": {
-        "rank": 324
+        "rank": 124
       },
       "VOCALIZED": {
         "asset": {
@@ -8736,7 +8763,7 @@ export default [
         "learning": "Di chi è questa bicicletta?"
       },
       "RANKED": {
-        "rank": 325
+        "rank": 892
       },
       "VOCALIZED": {
         "asset": {
@@ -8763,7 +8790,7 @@ export default [
         "learning": "È carne di scimmia."
       },
       "RANKED": {
-        "rank": 326
+        "rank": 965
       },
       "VOCALIZED": {
         "asset": {
@@ -8790,7 +8817,7 @@ export default [
         "learning": "È andato al negozio."
       },
       "RANKED": {
-        "rank": 327
+        "rank": 562
       },
       "VOCALIZED": {
         "asset": {
@@ -8817,7 +8844,7 @@ export default [
         "learning": "C'era molto vento."
       },
       "RANKED": {
-        "rank": 328
+        "rank": 576
       },
       "VOCALIZED": {
         "asset": {
@@ -8844,7 +8871,7 @@ export default [
         "learning": "Vieni presto."
       },
       "RANKED": {
-        "rank": 329
+        "rank": 614
       },
       "VOCALIZED": {
         "asset": {
@@ -8871,7 +8898,7 @@ export default [
         "learning": "Il caso è chiuso."
       },
       "RANKED": {
-        "rank": 330
+        "rank": 517
       },
       "VOCALIZED": {
         "asset": {
@@ -8898,7 +8925,7 @@ export default [
         "learning": "Non ho la macchina."
       },
       "RANKED": {
-        "rank": 331
+        "rank": 345
       },
       "VOCALIZED": {
         "asset": {
@@ -8925,7 +8952,7 @@ export default [
         "learning": "Sono nella macchina."
       },
       "RANKED": {
-        "rank": 332
+        "rank": 344
       },
       "VOCALIZED": {
         "asset": {
@@ -8952,7 +8979,7 @@ export default [
         "learning": "Quella casa è grande."
       },
       "RANKED": {
-        "rank": 333
+        "rank": 139
       },
       "VOCALIZED": {
         "asset": {
@@ -8979,7 +9006,7 @@ export default [
         "learning": "È tutto."
       },
       "RANKED": {
-        "rank": 334
+        "rank": 114
       },
       "VOCALIZED": {
         "asset": {
@@ -9006,7 +9033,7 @@ export default [
         "learning": "Posso andare a casa?"
       },
       "RANKED": {
-        "rank": 335
+        "rank": 195
       },
       "VOCALIZED": {
         "asset": {
@@ -9033,7 +9060,7 @@ export default [
         "learning": "Lo puoi fare."
       },
       "RANKED": {
-        "rank": 336
+        "rank": 179
       },
       "VOCALIZED": {
         "asset": {
@@ -9060,7 +9087,7 @@ export default [
         "learning": "Tom non è in casa."
       },
       "RANKED": {
-        "rank": 337
+        "rank": 671
       },
       "VOCALIZED": {
         "asset": {
@@ -9087,7 +9114,7 @@ export default [
         "learning": "Tom non è a casa."
       },
       "RANKED": {
-        "rank": 338
+        "rank": 670
       },
       "VOCALIZED": {
         "asset": {
@@ -9114,7 +9141,7 @@ export default [
         "learning": "Lui è giapponese?"
       },
       "RANKED": {
-        "rank": 339
+        "rank": 570
       },
       "VOCALIZED": {
         "asset": {
@@ -9141,7 +9168,7 @@ export default [
         "learning": "Non ho visto nessuno."
       },
       "RANKED": {
-        "rank": 340
+        "rank": 166
       },
       "VOCALIZED": {
         "asset": {
@@ -9168,7 +9195,7 @@ export default [
         "learning": "È una dottoressa?"
       },
       "RANKED": {
-        "rank": 341
+        "rank": 967
       },
       "VOCALIZED": {
         "asset": {
@@ -9195,7 +9222,7 @@ export default [
         "learning": "Io lavoro."
       },
       "RANKED": {
-        "rank": 342
+        "rank": 128
       },
       "VOCALIZED": {
         "asset": {
@@ -9222,7 +9249,7 @@ export default [
         "learning": "È di mio padre."
       },
       "RANKED": {
-        "rank": 343
+        "rank": 226
       },
       "VOCALIZED": {
         "asset": {
@@ -9249,7 +9276,7 @@ export default [
         "learning": "Questo non è vero."
       },
       "RANKED": {
-        "rank": 344
+        "rank": 158
       },
       "VOCALIZED": {
         "asset": {
@@ -9276,7 +9303,7 @@ export default [
         "learning": "Il cuore è un muscolo."
       },
       "RANKED": {
-        "rank": 345
+        "rank": 988
       },
       "VOCALIZED": {
         "asset": {
@@ -9303,7 +9330,7 @@ export default [
         "learning": "Non toccare il vetro."
       },
       "RANKED": {
-        "rank": 346
+        "rank": 836
       },
       "VOCALIZED": {
         "asset": {
@@ -9330,7 +9357,7 @@ export default [
         "learning": "Fai come ti ho detto."
       },
       "RANKED": {
-        "rank": 347
+        "rank": 225
       },
       "VOCALIZED": {
         "asset": {
@@ -9357,7 +9384,7 @@ export default [
         "learning": "Tuo padre ti vuole."
       },
       "RANKED": {
-        "rank": 348
+        "rank": 229
       },
       "VOCALIZED": {
         "asset": {
@@ -9384,7 +9411,7 @@ export default [
         "learning": "Sveglia!"
       },
       "RANKED": {
-        "rank": 349
+        "rank": 781
       },
       "VOCALIZED": {
         "asset": {
@@ -9411,7 +9438,7 @@ export default [
         "learning": "Lui è il figlio più grande."
       },
       "RANKED": {
-        "rank": 350
+        "rank": 251
       },
       "VOCALIZED": {
         "asset": {
@@ -9438,7 +9465,7 @@ export default [
         "learning": "Quale cane è il tuo?"
       },
       "RANKED": {
-        "rank": 351
+        "rank": 448
       },
       "VOCALIZED": {
         "asset": {
@@ -9465,7 +9492,7 @@ export default [
         "learning": "Questo è un leone."
       },
       "RANKED": {
-        "rank": 352
+        "rank": 691
       },
       "VOCALIZED": {
         "asset": {
@@ -9492,7 +9519,7 @@ export default [
         "learning": "Dov'è la porta di imbarco?"
       },
       "RANKED": {
-        "rank": 353
+        "rank": 79
       },
       "VOCALIZED": {
         "asset": {
@@ -9503,6 +9530,9 @@ export default [
     "symbols": [
       {
         "slug": "sentence"
+      },
+      {
+        "slug": "proficiency.survival"
       }
     ]
   },
@@ -9519,7 +9549,7 @@ export default [
         "learning": "Sii paziente."
       },
       "RANKED": {
-        "rank": 354
+        "rank": 886
       },
       "VOCALIZED": {
         "asset": {
@@ -9546,7 +9576,7 @@ export default [
         "learning": "Posso contare su di te?"
       },
       "RANKED": {
-        "rank": 355
+        "rank": 728
       },
       "VOCALIZED": {
         "asset": {
@@ -9573,7 +9603,7 @@ export default [
         "learning": "So la verità."
       },
       "RANKED": {
-        "rank": 356
+        "rank": 325
       },
       "VOCALIZED": {
         "asset": {
@@ -9600,7 +9630,7 @@ export default [
         "learning": "Ne faccio anche a meno."
       },
       "RANKED": {
-        "rank": 357
+        "rank": 246
       },
       "VOCALIZED": {
         "asset": {
@@ -9627,7 +9657,7 @@ export default [
         "learning": "La rete è enorme."
       },
       "RANKED": {
-        "rank": 358
+        "rank": 547
       },
       "VOCALIZED": {
         "asset": {
@@ -9654,7 +9684,7 @@ export default [
         "learning": "Dove sono adesso?"
       },
       "RANKED": {
-        "rank": 359
+        "rank": 199
       },
       "VOCALIZED": {
         "asset": {
@@ -9681,7 +9711,7 @@ export default [
         "learning": "Chi c'è lì?"
       },
       "RANKED": {
-        "rank": 360
+        "rank": 276
       },
       "VOCALIZED": {
         "asset": {
@@ -9708,7 +9738,7 @@ export default [
         "learning": "Mi sono rotto il braccio."
       },
       "RANKED": {
-        "rank": 361
+        "rank": 643
       },
       "VOCALIZED": {
         "asset": {
@@ -9735,7 +9765,7 @@ export default [
         "learning": "C'è qualcuno lì dentro?"
       },
       "RANKED": {
-        "rank": 362
+        "rank": 311
       },
       "VOCALIZED": {
         "asset": {
@@ -9762,7 +9792,7 @@ export default [
         "learning": "Tom dirà di sì."
       },
       "RANKED": {
-        "rank": 363
+        "rank": 882
       },
       "VOCALIZED": {
         "asset": {
@@ -9789,7 +9819,7 @@ export default [
         "learning": "Mio marito è un essere inutile."
       },
       "RANKED": {
-        "rank": 364
+        "rank": 522
       },
       "VOCALIZED": {
         "asset": {
@@ -9816,7 +9846,7 @@ export default [
         "learning": "Com'è possibile questo?"
       },
       "RANKED": {
-        "rank": 365
+        "rank": 568
       },
       "VOCALIZED": {
         "asset": {
@@ -9843,7 +9873,7 @@ export default [
         "learning": "Ho una ricevuta."
       },
       "RANKED": {
-        "rank": 366
+        "rank": 903
       },
       "VOCALIZED": {
         "asset": {
@@ -9870,7 +9900,7 @@ export default [
         "learning": "Perché non rispondi?"
       },
       "RANKED": {
-        "rank": 367
+        "rank": 874
       },
       "VOCALIZED": {
         "asset": {
@@ -9897,7 +9927,7 @@ export default [
         "learning": "Sei ancora lì?"
       },
       "RANKED": {
-        "rank": 368
+        "rank": 274
       },
       "VOCALIZED": {
         "asset": {
@@ -9924,7 +9954,7 @@ export default [
         "learning": "Non lo posso dire a nessuno."
       },
       "RANKED": {
-        "rank": 369
+        "rank": 197
       },
       "VOCALIZED": {
         "asset": {
@@ -9951,7 +9981,7 @@ export default [
         "learning": "Ero a casa."
       },
       "RANKED": {
-        "rank": 370
+        "rank": 288
       },
       "VOCALIZED": {
         "asset": {
@@ -9978,7 +10008,7 @@ export default [
         "learning": "Ero in casa."
       },
       "RANKED": {
-        "rank": 371
+        "rank": 289
       },
       "VOCALIZED": {
         "asset": {
@@ -10005,7 +10035,7 @@ export default [
         "learning": "Non andare troppo lontano."
       },
       "RANKED": {
-        "rank": 372
+        "rank": 452
       },
       "VOCALIZED": {
         "asset": {
@@ -10032,7 +10062,7 @@ export default [
         "learning": "Non essere deluso."
       },
       "RANKED": {
-        "rank": 373
+        "rank": 899
       },
       "VOCALIZED": {
         "asset": {
@@ -10059,7 +10089,7 @@ export default [
         "learning": "Tu sei medico?"
       },
       "RANKED": {
-        "rank": 374
+        "rank": 410
       },
       "VOCALIZED": {
         "asset": {
@@ -10086,7 +10116,7 @@ export default [
         "learning": "Va tutto bene."
       },
       "RANKED": {
-        "rank": 375
+        "rank": 149
       },
       "VOCALIZED": {
         "asset": {
@@ -10113,7 +10143,7 @@ export default [
         "learning": "Casa tua è grande."
       },
       "RANKED": {
-        "rank": 376
+        "rank": 165
       },
       "VOCALIZED": {
         "asset": {
@@ -10140,7 +10170,7 @@ export default [
         "learning": "La tua casa è grande."
       },
       "RANKED": {
-        "rank": 377
+        "rank": 168
       },
       "VOCALIZED": {
         "asset": {
@@ -10167,7 +10197,7 @@ export default [
         "learning": "Chi lo ha disegnato?"
       },
       "RANKED": {
-        "rank": 378
+        "rank": 968
       },
       "VOCALIZED": {
         "asset": {
@@ -10194,7 +10224,7 @@ export default [
         "learning": "Sono al piano di sopra."
       },
       "RANKED": {
-        "rank": 379
+        "rank": 285
       },
       "VOCALIZED": {
         "asset": {
@@ -10221,7 +10251,7 @@ export default [
         "learning": "Sicuramente mi ha spaventato."
       },
       "RANKED": {
-        "rank": 380
+        "rank": 1037
       },
       "VOCALIZED": {
         "asset": {
@@ -10248,7 +10278,7 @@ export default [
         "learning": "Niente panico!"
       },
       "RANKED": {
-        "rank": 381
+        "rank": 795
       },
       "VOCALIZED": {
         "asset": {
@@ -10275,7 +10305,7 @@ export default [
         "learning": "Mi sta venendo nostalgia di casa."
       },
       "RANKED": {
-        "rank": 382
+        "rank": 939
       },
       "VOCALIZED": {
         "asset": {
@@ -10302,7 +10332,7 @@ export default [
         "learning": "Hai dormito bene?"
       },
       "RANKED": {
-        "rank": 383
+        "rank": 927
       },
       "VOCALIZED": {
         "asset": {
@@ -10329,7 +10359,7 @@ export default [
         "learning": "È una storia molto triste."
       },
       "RANKED": {
-        "rank": 384
+        "rank": 550
       },
       "VOCALIZED": {
         "asset": {
@@ -10356,7 +10386,7 @@ export default [
         "learning": "Dov'è la mia pizza?"
       },
       "RANKED": {
-        "rank": 385
+        "rank": 793
       },
       "VOCALIZED": {
         "asset": {
@@ -10383,7 +10413,7 @@ export default [
         "learning": "Non è bello?"
       },
       "RANKED": {
-        "rank": 386
+        "rank": 273
       },
       "VOCALIZED": {
         "asset": {
@@ -10410,7 +10440,7 @@ export default [
         "learning": "Sono stanco di quello."
       },
       "RANKED": {
-        "rank": 387
+        "rank": 827
       },
       "VOCALIZED": {
         "asset": {
@@ -10437,7 +10467,7 @@ export default [
         "learning": "C'è qualcosa che non va?"
       },
       "RANKED": {
-        "rank": 388
+        "rank": 155
       },
       "VOCALIZED": {
         "asset": {
@@ -10464,7 +10494,7 @@ export default [
         "learning": "Io credo che Tom sappia."
       },
       "RANKED": {
-        "rank": 389
+        "rank": 744
       },
       "VOCALIZED": {
         "asset": {
@@ -10491,7 +10521,7 @@ export default [
         "learning": "Sono troppo basso."
       },
       "RANKED": {
-        "rank": 390
+        "rank": 381
       },
       "VOCALIZED": {
         "asset": {
@@ -10518,7 +10548,7 @@ export default [
         "learning": "Sono il fratello di Tom."
       },
       "RANKED": {
-        "rank": 391
+        "rank": 667
       },
       "VOCALIZED": {
         "asset": {
@@ -10545,7 +10575,7 @@ export default [
         "learning": "L'hai fatto ancora."
       },
       "RANKED": {
-        "rank": 392
+        "rank": 126
       },
       "VOCALIZED": {
         "asset": {
@@ -10572,7 +10602,7 @@ export default [
         "learning": "L'errore è mio."
       },
       "RANKED": {
-        "rank": 393
+        "rank": 459
       },
       "VOCALIZED": {
         "asset": {
@@ -10599,7 +10629,7 @@ export default [
         "learning": "Che dobbiamo fare?"
       },
       "RANKED": {
-        "rank": 394
+        "rank": 322
       },
       "VOCALIZED": {
         "asset": {
@@ -10626,7 +10656,7 @@ export default [
         "learning": "Non fare ritardo."
       },
       "RANKED": {
-        "rank": 395
+        "rank": 593
       },
       "VOCALIZED": {
         "asset": {
@@ -10653,7 +10683,7 @@ export default [
         "learning": "Il mio bicchiere è sporco."
       },
       "RANKED": {
-        "rank": 396
+        "rank": 922
       },
       "VOCALIZED": {
         "asset": {
@@ -10680,7 +10710,7 @@ export default [
         "learning": "Anch'io sono stato lì."
       },
       "RANKED": {
-        "rank": 397
+        "rank": 560
       },
       "VOCALIZED": {
         "asset": {
@@ -10707,7 +10737,7 @@ export default [
         "learning": "Loro sono qui."
       },
       "RANKED": {
-        "rank": 398
+        "rank": 134
       },
       "VOCALIZED": {
         "asset": {
@@ -10734,7 +10764,7 @@ export default [
         "learning": "La mia porta è sempre aperta."
       },
       "RANKED": {
-        "rank": 399
+        "rank": 508
       },
       "VOCALIZED": {
         "asset": {
@@ -10761,7 +10791,7 @@ export default [
         "learning": "Fai esattamente come ti dico."
       },
       "RANKED": {
-        "rank": 400
+        "rank": 408
       },
       "VOCALIZED": {
         "asset": {
@@ -10788,7 +10818,7 @@ export default [
         "learning": "Fai esattamente come ti ho detto."
       },
       "RANKED": {
-        "rank": 401
+        "rank": 409
       },
       "VOCALIZED": {
         "asset": {
@@ -10815,7 +10845,7 @@ export default [
         "learning": "Ordini del direttore."
       },
       "RANKED": {
-        "rank": 402
+        "rank": 595
       },
       "VOCALIZED": {
         "asset": {
@@ -10842,7 +10872,7 @@ export default [
         "learning": "Lo hai fatto di nuovo."
       },
       "RANKED": {
-        "rank": 403
+        "rank": 144
       },
       "VOCALIZED": {
         "asset": {
@@ -10869,7 +10899,7 @@ export default [
         "learning": "Ti sei rotto il braccio."
       },
       "RANKED": {
-        "rank": 404
+        "rank": 645
       },
       "VOCALIZED": {
         "asset": {
@@ -10896,7 +10926,7 @@ export default [
         "learning": "Dovresti andare."
       },
       "RANKED": {
-        "rank": 405
+        "rank": 588
       },
       "VOCALIZED": {
         "asset": {
@@ -10923,7 +10953,7 @@ export default [
         "learning": "Dovresti andare a casa."
       },
       "RANKED": {
-        "rank": 406
+        "rank": 597
       },
       "VOCALIZED": {
         "asset": {
@@ -10950,7 +10980,7 @@ export default [
         "learning": "Hai il lavoro."
       },
       "RANKED": {
-        "rank": 407
+        "rank": 130
       },
       "VOCALIZED": {
         "asset": {
@@ -10977,7 +11007,7 @@ export default [
         "learning": "Sei solo un bambino."
       },
       "RANKED": {
-        "rank": 408
+        "rank": 360
       },
       "VOCALIZED": {
         "asset": {
@@ -11004,7 +11034,7 @@ export default [
         "learning": "Mi hai fatto fare tardi."
       },
       "RANKED": {
-        "rank": 409
+        "rank": 422
       },
       "VOCALIZED": {
         "asset": {
@@ -11031,7 +11061,7 @@ export default [
         "learning": "Non puoi dire di no."
       },
       "RANKED": {
-        "rank": 410
+        "rank": 184
       },
       "VOCALIZED": {
         "asset": {
@@ -11058,7 +11088,7 @@ export default [
         "learning": "Adesso non puoi andare."
       },
       "RANKED": {
-        "rank": 411
+        "rank": 201
       },
       "VOCALIZED": {
         "asset": {
@@ -11085,7 +11115,7 @@ export default [
         "learning": "Hai fatto la tua parte."
       },
       "RANKED": {
-        "rank": 412
+        "rank": 167
       },
       "VOCALIZED": {
         "asset": {
@@ -11112,7 +11142,7 @@ export default [
         "learning": "Hai fatto una promessa."
       },
       "RANKED": {
-        "rank": 413
+        "rank": 757
       },
       "VOCALIZED": {
         "asset": {
@@ -11139,7 +11169,7 @@ export default [
         "learning": "Non puoi ancora andare a casa."
       },
       "RANKED": {
-        "rank": 414
+        "rank": 186
       },
       "VOCALIZED": {
         "asset": {
@@ -11166,7 +11196,7 @@ export default [
         "learning": "Non sono coraggioso."
       },
       "RANKED": {
-        "rank": 415
+        "rank": 976
       },
       "VOCALIZED": {
         "asset": {
@@ -11193,7 +11223,7 @@ export default [
         "learning": "Non ero felice."
       },
       "RANKED": {
-        "rank": 416
+        "rank": 331
       },
       "VOCALIZED": {
         "asset": {
@@ -11220,7 +11250,7 @@ export default [
         "learning": "Non sono in buona salute."
       },
       "RANKED": {
-        "rank": 417
+        "rank": 393
       },
       "VOCALIZED": {
         "asset": {
@@ -11247,7 +11277,7 @@ export default [
         "learning": "Non sono stato onesto."
       },
       "RANKED": {
-        "rank": 418
+        "rank": 901
       },
       "VOCALIZED": {
         "asset": {
@@ -11274,7 +11304,7 @@ export default [
         "learning": "Sono felice che Tom sia a casa."
       },
       "RANKED": {
-        "rank": 419
+        "rank": 675
       },
       "VOCALIZED": {
         "asset": {
@@ -11301,7 +11331,7 @@ export default [
         "learning": "Sto solo facendo il mio lavoro."
       },
       "RANKED": {
-        "rank": 420
+        "rank": 261
       },
       "VOCALIZED": {
         "asset": {
@@ -11328,7 +11358,7 @@ export default [
         "learning": "So che Tom sa."
       },
       "RANKED": {
-        "rank": 421
+        "rank": 665
       },
       "VOCALIZED": {
         "asset": {
@@ -11355,7 +11385,7 @@ export default [
         "learning": "Non sono paziente."
       },
       "RANKED": {
-        "rank": 422
+        "rank": 652
       },
       "VOCALIZED": {
         "asset": {
@@ -11382,7 +11412,7 @@ export default [
         "learning": "Non sono molto paziente."
       },
       "RANKED": {
-        "rank": 423
+        "rank": 654
       },
       "VOCALIZED": {
         "asset": {
@@ -11409,7 +11439,7 @@ export default [
         "learning": "Non ero preparato."
       },
       "RANKED": {
-        "rank": 424
+        "rank": 777
       },
       "VOCALIZED": {
         "asset": {
@@ -11436,7 +11466,7 @@ export default [
         "learning": "Sto venendo per Tom."
       },
       "RANKED": {
-        "rank": 425
+        "rank": 805
       },
       "VOCALIZED": {
         "asset": {
@@ -11463,7 +11493,7 @@ export default [
         "learning": "Verrò con Tom."
       },
       "RANKED": {
-        "rank": 426
+        "rank": 1046
       },
       "VOCALIZED": {
         "asset": {
@@ -11490,7 +11520,7 @@ export default [
         "learning": "Non sono brutto."
       },
       "RANKED": {
-        "rank": 427
+        "rank": 579
       },
       "VOCALIZED": {
         "asset": {
@@ -11517,7 +11547,7 @@ export default [
         "learning": "Non sono giovane."
       },
       "RANKED": {
-        "rank": 428
+        "rank": 316
       },
       "VOCALIZED": {
         "asset": {
@@ -11544,7 +11574,7 @@ export default [
         "learning": "Ho 300$."
       },
       "RANKED": {
-        "rank": 429
+        "rank": 1060
       },
       "VOCALIZED": {
         "asset": {
@@ -11571,7 +11601,7 @@ export default [
         "learning": "Posso venire con te?"
       },
       "RANKED": {
-        "rank": 430
+        "rank": 396
       },
       "VOCALIZED": {
         "asset": {
@@ -11598,7 +11628,7 @@ export default [
         "learning": "Posso avere dell'acqua?"
       },
       "RANKED": {
-        "rank": 431
+        "rank": 55
       },
       "VOCALIZED": {
         "asset": {
@@ -11609,6 +11639,9 @@ export default [
     "symbols": [
       {
         "slug": "sentence"
+      },
+      {
+        "slug": "proficiency.survival"
       }
     ]
   },
@@ -11625,7 +11658,7 @@ export default [
         "learning": "Posso avere un caffè?"
       },
       "RANKED": {
-        "rank": 432
+        "rank": 53
       },
       "VOCALIZED": {
         "asset": {
@@ -11636,6 +11669,9 @@ export default [
     "symbols": [
       {
         "slug": "sentence"
+      },
+      {
+        "slug": "proficiency.survival"
       }
     ]
   },
@@ -11652,7 +11688,7 @@ export default [
         "learning": "Posso avere un abbraccio?"
       },
       "RANKED": {
-        "rank": 433
+        "rank": 904
       },
       "VOCALIZED": {
         "asset": {
@@ -11679,7 +11715,7 @@ export default [
         "learning": "Posso avere un bacio?"
       },
       "RANKED": {
-        "rank": 434
+        "rank": 771
       },
       "VOCALIZED": {
         "asset": {
@@ -11706,7 +11742,7 @@ export default [
         "learning": "Mi puoi rispondere?"
       },
       "RANKED": {
-        "rank": 435
+        "rank": 470
       },
       "VOCALIZED": {
         "asset": {
@@ -11733,7 +11769,7 @@ export default [
         "learning": "Posso venire con Tom?"
       },
       "RANKED": {
-        "rank": 436
+        "rank": 664
       },
       "VOCALIZED": {
         "asset": {
@@ -11760,7 +11796,7 @@ export default [
         "learning": "Possiamo contare su di te?"
       },
       "RANKED": {
-        "rank": 437
+        "rank": 727
       },
       "VOCALIZED": {
         "asset": {
@@ -11787,7 +11823,7 @@ export default [
         "learning": "La tua borsa è aperta."
       },
       "RANKED": {
-        "rank": 438
+        "rank": 636
       },
       "VOCALIZED": {
         "asset": {
@@ -11814,7 +11850,7 @@ export default [
         "learning": "Il mio cavallo è bianco."
       },
       "RANKED": {
-        "rank": 439
+        "rank": 606
       },
       "VOCALIZED": {
         "asset": {
@@ -11841,7 +11877,7 @@ export default [
         "learning": "Questa scatola è leggera."
       },
       "RANKED": {
-        "rank": 440
+        "rank": 810
       },
       "VOCALIZED": {
         "asset": {
@@ -11868,7 +11904,7 @@ export default [
         "learning": "Dovremmo essere con Tom."
       },
       "RANKED": {
-        "rank": 441
+        "rank": 661
       },
       "VOCALIZED": {
         "asset": {
@@ -11895,7 +11931,7 @@ export default [
         "learning": "Ricordo bene Tom."
       },
       "RANKED": {
-        "rank": 442
+        "rank": 658
       },
       "VOCALIZED": {
         "asset": {
@@ -11922,7 +11958,7 @@ export default [
         "learning": "È finito?"
       },
       "RANKED": {
-        "rank": 443
+        "rank": 404
       },
       "VOCALIZED": {
         "asset": {
@@ -11949,7 +11985,7 @@ export default [
         "learning": "Tom non lo saprà."
       },
       "RANKED": {
-        "rank": 444
+        "rank": 973
       },
       "VOCALIZED": {
         "asset": {
@@ -11976,7 +12012,7 @@ export default [
         "learning": "Sei grasso?"
       },
       "RANKED": {
-        "rank": 445
+        "rank": 803
       },
       "VOCALIZED": {
         "asset": {
@@ -12003,7 +12039,7 @@ export default [
         "learning": "Sei grassa?"
       },
       "RANKED": {
-        "rank": 446
+        "rank": 979
       },
       "VOCALIZED": {
         "asset": {
@@ -12030,7 +12066,7 @@ export default [
         "learning": "Tom è arrabbiato, vero?"
       },
       "RANKED": {
-        "rank": 447
+        "rank": 1018
       },
       "VOCALIZED": {
         "asset": {
@@ -12057,7 +12093,7 @@ export default [
         "learning": "La risposta è no."
       },
       "RANKED": {
-        "rank": 448
+        "rank": 314
       },
       "VOCALIZED": {
         "asset": {
@@ -12084,7 +12120,7 @@ export default [
         "learning": "Sono sicuro di questo."
       },
       "RANKED": {
-        "rank": 449
+        "rank": 310
       },
       "VOCALIZED": {
         "asset": {
@@ -12111,7 +12147,7 @@ export default [
         "learning": "Dov'è la mia giacca?"
       },
       "RANKED": {
-        "rank": 450
+        "rank": 881
       },
       "VOCALIZED": {
         "asset": {
@@ -12138,7 +12174,7 @@ export default [
         "learning": "Chi ti ha invitato qui?"
       },
       "RANKED": {
-        "rank": 451
+        "rank": 807
       },
       "VOCALIZED": {
         "asset": {
@@ -12165,7 +12201,7 @@ export default [
         "learning": "L'ho già detto a Tom."
       },
       "RANKED": {
-        "rank": 452
+        "rank": 672
       },
       "VOCALIZED": {
         "asset": {
@@ -12192,7 +12228,7 @@ export default [
         "learning": "Sei molto intelligente."
       },
       "RANKED": {
-        "rank": 453
+        "rank": 689
       },
       "VOCALIZED": {
         "asset": {
@@ -12219,7 +12255,7 @@ export default [
         "learning": "Non vieni dentro?"
       },
       "RANKED": {
-        "rank": 454
+        "rank": 617
       },
       "VOCALIZED": {
         "asset": {
@@ -12246,7 +12282,7 @@ export default [
         "learning": "Non ho più paura."
       },
       "RANKED": {
-        "rank": 455
+        "rank": 284
       },
       "VOCALIZED": {
         "asset": {
@@ -12273,7 +12309,7 @@ export default [
         "learning": "Questo non porta a niente."
       },
       "RANKED": {
-        "rank": 456
+        "rank": 235
       },
       "VOCALIZED": {
         "asset": {
@@ -12300,7 +12336,7 @@ export default [
         "learning": "È un fiume?"
       },
       "RANKED": {
-        "rank": 457
+        "rank": 510
       },
       "VOCALIZED": {
         "asset": {
@@ -12327,7 +12363,7 @@ export default [
         "learning": "Abbiamo finito?"
       },
       "RANKED": {
-        "rank": 458
+        "rank": 402
       },
       "VOCALIZED": {
         "asset": {
@@ -12354,7 +12390,7 @@ export default [
         "learning": "Sono preoccupato."
       },
       "RANKED": {
-        "rank": 459
+        "rank": 894
       },
       "VOCALIZED": {
         "asset": {
@@ -12381,7 +12417,7 @@ export default [
         "learning": "Sono preoccupata."
       },
       "RANKED": {
-        "rank": 460
+        "rank": 970
       },
       "VOCALIZED": {
         "asset": {
@@ -12408,7 +12444,7 @@ export default [
         "learning": "Sei coraggioso."
       },
       "RANKED": {
-        "rank": 461
+        "rank": 975
       },
       "VOCALIZED": {
         "asset": {
@@ -12435,7 +12471,7 @@ export default [
         "learning": "Voglio parlare con lui."
       },
       "RANKED": {
-        "rank": 462
+        "rank": 210
       },
       "VOCALIZED": {
         "asset": {
@@ -12462,7 +12498,7 @@ export default [
         "learning": "Non abbiamo più riso."
       },
       "RANKED": {
-        "rank": 463
+        "rank": 663
       },
       "VOCALIZED": {
         "asset": {
@@ -12489,7 +12525,7 @@ export default [
         "learning": "Ordiniamo?"
       },
       "RANKED": {
-        "rank": 464
+        "rank": 1071
       },
       "VOCALIZED": {
         "asset": {
@@ -12516,7 +12552,7 @@ export default [
         "learning": "Fino a qui tutto bene."
       },
       "RANKED": {
-        "rank": 465
+        "rank": 151
       },
       "VOCALIZED": {
         "asset": {
@@ -12543,7 +12579,7 @@ export default [
         "learning": "Abbiamo parlato per un po'."
       },
       "RANKED": {
-        "rank": 466
+        "rank": 417
       },
       "VOCALIZED": {
         "asset": {
@@ -12570,7 +12606,7 @@ export default [
         "learning": "Era nero."
       },
       "RANKED": {
-        "rank": 467
+        "rank": 380
       },
       "VOCALIZED": {
         "asset": {
@@ -12597,7 +12633,7 @@ export default [
         "learning": "Non sei in ritardo?"
       },
       "RANKED": {
-        "rank": 468
+        "rank": 601
       },
       "VOCALIZED": {
         "asset": {
@@ -12624,7 +12660,7 @@ export default [
         "learning": "Non siete in ritardo?"
       },
       "RANKED": {
-        "rank": 469
+        "rank": 602
       },
       "VOCALIZED": {
         "asset": {
@@ -12651,7 +12687,7 @@ export default [
         "learning": "Sogno in francese."
       },
       "RANKED": {
-        "rank": 470
+        "rank": 487
       },
       "VOCALIZED": {
         "asset": {
@@ -12678,7 +12714,7 @@ export default [
         "learning": "Io dove dormo?"
       },
       "RANKED": {
-        "rank": 471
+        "rank": 1001
       },
       "VOCALIZED": {
         "asset": {
@@ -12705,7 +12741,7 @@ export default [
         "learning": "Dov'è il cane?"
       },
       "RANKED": {
-        "rank": 472
+        "rank": 787
       },
       "VOCALIZED": {
         "asset": {
@@ -12732,7 +12768,7 @@ export default [
         "learning": "Dov'è la chiave?"
       },
       "RANKED": {
-        "rank": 473
+        "rank": 99
       },
       "VOCALIZED": {
         "asset": {
@@ -12743,6 +12779,9 @@ export default [
     "symbols": [
       {
         "slug": "sentence"
+      },
+      {
+        "slug": "proficiency.survival"
       }
     ]
   },
@@ -12759,7 +12798,7 @@ export default [
         "learning": "Lui ha un cane."
       },
       "RANKED": {
-        "rank": 474
+        "rank": 444
       },
       "VOCALIZED": {
         "asset": {
@@ -12786,7 +12825,7 @@ export default [
         "learning": "Potete venire con noi."
       },
       "RANKED": {
-        "rank": 475
+        "rank": 438
       },
       "VOCALIZED": {
         "asset": {
@@ -12813,7 +12852,7 @@ export default [
         "learning": "Puoi venire con noi."
       },
       "RANKED": {
-        "rank": 476
+        "rank": 399
       },
       "VOCALIZED": {
         "asset": {
@@ -12840,7 +12879,7 @@ export default [
         "learning": "Lavoro tutto il giorno."
       },
       "RANKED": {
-        "rank": 477
+        "rank": 138
       },
       "VOCALIZED": {
         "asset": {
@@ -12867,7 +12906,7 @@ export default [
         "learning": "Dite a Tom che sono qui."
       },
       "RANKED": {
-        "rank": 478
+        "rank": 729
       },
       "VOCALIZED": {
         "asset": {
@@ -12894,7 +12933,7 @@ export default [
         "learning": "Certo che Tom andrà."
       },
       "RANKED": {
-        "rank": 479
+        "rank": 660
       },
       "VOCALIZED": {
         "asset": {
@@ -12921,7 +12960,7 @@ export default [
         "learning": "Cosa abbiamo qui?"
       },
       "RANKED": {
-        "rank": 480
+        "rank": 140
       },
       "VOCALIZED": {
         "asset": {
@@ -12948,7 +12987,7 @@ export default [
         "learning": "Voglio che Tom vada a casa."
       },
       "RANKED": {
-        "rank": 481
+        "rank": 674
       },
       "VOCALIZED": {
         "asset": {
@@ -12975,7 +13014,7 @@ export default [
         "learning": "Tom voleva il divorzio."
       },
       "RANKED": {
-        "rank": 482
+        "rank": 872
       },
       "VOCALIZED": {
         "asset": {
@@ -13002,7 +13041,7 @@ export default [
         "learning": "Mi sposo."
       },
       "RANKED": {
-        "rank": 483
+        "rank": 944
       },
       "VOCALIZED": {
         "asset": {
@@ -13029,7 +13068,7 @@ export default [
         "learning": "Quanto pesate?"
       },
       "RANKED": {
-        "rank": 484
+        "rank": 1081
       },
       "VOCALIZED": {
         "asset": {
@@ -13056,7 +13095,7 @@ export default [
         "learning": "Ero in ospedale."
       },
       "RANKED": {
-        "rank": 485
+        "rank": 530
       },
       "VOCALIZED": {
         "asset": {
@@ -13083,7 +13122,7 @@ export default [
         "learning": "L'avete letto?"
       },
       "RANKED": {
-        "rank": 486
+        "rank": 262
       },
       "VOCALIZED": {
         "asset": {
@@ -13110,7 +13149,7 @@ export default [
         "learning": "Dov'è il bancomat?"
       },
       "RANKED": {
-        "rank": 487
+        "rank": 35
       },
       "VOCALIZED": {
         "asset": {
@@ -13121,6 +13160,9 @@ export default [
     "symbols": [
       {
         "slug": "sentence"
+      },
+      {
+        "slug": "proficiency.survival"
       }
     ]
   },
@@ -13137,7 +13179,7 @@ export default [
         "learning": "Non ballo più."
       },
       "RANKED": {
-        "rank": 488
+        "rank": 769
       },
       "VOCALIZED": {
         "asset": {
@@ -13164,7 +13206,7 @@ export default [
         "learning": "Parlo molto."
       },
       "RANKED": {
-        "rank": 489
+        "rank": 591
       },
       "VOCALIZED": {
         "asset": {
@@ -13191,7 +13233,7 @@ export default [
         "learning": "Io parlo molto."
       },
       "RANKED": {
-        "rank": 490
+        "rank": 592
       },
       "VOCALIZED": {
         "asset": {
@@ -13218,7 +13260,7 @@ export default [
         "learning": "Ne abbiamo abbastanza."
       },
       "RANKED": {
-        "rank": 491
+        "rank": 290
       },
       "VOCALIZED": {
         "asset": {
@@ -13245,7 +13287,7 @@ export default [
         "learning": "Mia moglie è preoccupata."
       },
       "RANKED": {
-        "rank": 492
+        "rank": 972
       },
       "VOCALIZED": {
         "asset": {
@@ -13272,7 +13314,7 @@ export default [
         "learning": "Posso suonare il piano?"
       },
       "RANKED": {
-        "rank": 493
+        "rank": 797
       },
       "VOCALIZED": {
         "asset": {
@@ -13299,7 +13341,7 @@ export default [
         "learning": "Quella bicicletta è mia."
       },
       "RANKED": {
-        "rank": 494
+        "rank": 891
       },
       "VOCALIZED": {
         "asset": {
@@ -13326,7 +13368,7 @@ export default [
         "learning": "Non sono qui."
       },
       "RANKED": {
-        "rank": 495
+        "rank": 135
       },
       "VOCALIZED": {
         "asset": {
@@ -13343,12 +13385,16 @@ export default [
   {
     "slug": "la-mattina-faccio-colazione-con-caffe-e-pane",
     "traits": [
-      "TRANSLATED"
+      "TRANSLATED",
+      "RANKED"
     ],
     "trait": {
       "TRANSLATED": {
         "known": "In the morning I have breakfast with coffee and bread.",
         "learning": "La mattina faccio colazione con caffè e pane."
+      },
+      "RANKED": {
+        "rank": 646
       }
     },
     "symbols": [
@@ -13360,12 +13406,16 @@ export default [
   {
     "slug": "dopo-colazione-vado-a-scuola",
     "traits": [
-      "TRANSLATED"
+      "TRANSLATED",
+      "RANKED"
     ],
     "trait": {
       "TRANSLATED": {
         "known": "After breakfast I go to school.",
         "learning": "Dopo colazione vado a scuola."
+      },
+      "RANKED": {
+        "rank": 642
       }
     },
     "symbols": [
@@ -13377,12 +13427,16 @@ export default [
   {
     "slug": "il-pomeriggio-vado-al-lavoro",
     "traits": [
-      "TRANSLATED"
+      "TRANSLATED",
+      "RANKED"
     ],
     "trait": {
       "TRANSLATED": {
         "known": "In the afternoon I go to work.",
         "learning": "Il pomeriggio vado al lavoro."
+      },
+      "RANKED": {
+        "rank": 528
       }
     },
     "symbols": [
@@ -13394,12 +13448,16 @@ export default [
   {
     "slug": "la-sera-preparo-la-cena",
     "traits": [
-      "TRANSLATED"
+      "TRANSLATED",
+      "RANKED"
     ],
     "trait": {
       "TRANSLATED": {
         "known": "In the evening I prepare dinner.",
         "learning": "La sera preparo la cena."
+      },
+      "RANKED": {
+        "rank": 1010
       }
     },
     "symbols": [
@@ -13411,12 +13469,16 @@ export default [
   {
     "slug": "dopo-cena-pulisco-la-cucina",
     "traits": [
-      "TRANSLATED"
+      "TRANSLATED",
+      "RANKED"
     ],
     "trait": {
       "TRANSLATED": {
         "known": "After dinner I clean the kitchen.",
         "learning": "Dopo cena pulisco la cucina."
+      },
+      "RANKED": {
+        "rank": 1065
       }
     },
     "symbols": [
@@ -13428,12 +13490,16 @@ export default [
   {
     "slug": "faccio-la-doccia-prima-di-dormire",
     "traits": [
-      "TRANSLATED"
+      "TRANSLATED",
+      "RANKED"
     ],
     "trait": {
       "TRANSLATED": {
         "known": "I take a shower before sleeping.",
         "learning": "Faccio la doccia prima di dormire."
+      },
+      "RANKED": {
+        "rank": 741
       }
     },
     "symbols": [
@@ -13445,12 +13511,16 @@ export default [
   {
     "slug": "dormo-molto-la-notte",
     "traits": [
-      "TRANSLATED"
+      "TRANSLATED",
+      "RANKED"
     ],
     "trait": {
       "TRANSLATED": {
         "known": "I sleep a lot at night.",
         "learning": "Dormo molto la notte."
+      },
+      "RANKED": {
+        "rank": 1003
       }
     },
     "symbols": [
@@ -13462,12 +13532,16 @@ export default [
   {
     "slug": "il-lunedi-vado-a-scuola",
     "traits": [
-      "TRANSLATED"
+      "TRANSLATED",
+      "RANKED"
     ],
     "trait": {
       "TRANSLATED": {
         "known": "On Mondays I go to school.",
         "learning": "Il lunedì vado a scuola."
+      },
+      "RANKED": {
+        "rank": 605
       }
     },
     "symbols": [
@@ -13479,12 +13553,16 @@ export default [
   {
     "slug": "il-sabato-riposo",
     "traits": [
-      "TRANSLATED"
+      "TRANSLATED",
+      "RANKED"
     ],
     "trait": {
       "TRANSLATED": {
         "known": "On Saturdays I rest.",
         "learning": "Il sabato riposo."
+      },
+      "RANKED": {
+        "rank": 768
       }
     },
     "symbols": [
@@ -13496,12 +13574,16 @@ export default [
   {
     "slug": "la-domenica-sto-a-casa",
     "traits": [
-      "TRANSLATED"
+      "TRANSLATED",
+      "RANKED"
     ],
     "trait": {
       "TRANSLATED": {
         "known": "On Sundays I stay home.",
         "learning": "La domenica sto a casa."
+      },
+      "RANKED": {
+        "rank": 436
       }
     },
     "symbols": [
@@ -13513,12 +13595,16 @@ export default [
   {
     "slug": "la-sera-telefono-a-mia-madre",
     "traits": [
-      "TRANSLATED"
+      "TRANSLATED",
+      "RANKED"
     ],
     "trait": {
       "TRANSLATED": {
         "known": "In the evening I phone my mother.",
         "learning": "La sera telefono a mia madre."
+      },
+      "RANKED": {
+        "rank": 385
       }
     },
     "symbols": [
@@ -13530,12 +13616,16 @@ export default [
   {
     "slug": "mio-padre-guida-la-macchina-la-mattina",
     "traits": [
-      "TRANSLATED"
+      "TRANSLATED",
+      "RANKED"
     ],
     "trait": {
       "TRANSLATED": {
         "known": "My father drives the car in the morning.",
         "learning": "Mio padre guida la macchina la mattina."
+      },
+      "RANKED": {
+        "rank": 394
       }
     },
     "symbols": [
@@ -13547,12 +13637,16 @@ export default [
   {
     "slug": "puliamo-la-casa-insieme",
     "traits": [
-      "TRANSLATED"
+      "TRANSLATED",
+      "RANKED"
     ],
     "trait": {
       "TRANSLATED": {
         "known": "We clean the house together.",
         "learning": "Puliamo la casa insieme."
+      },
+      "RANKED": {
+        "rank": 1080
       }
     },
     "symbols": [
@@ -13564,12 +13658,16 @@ export default [
   {
     "slug": "preparo-il-caffe-alle-sette",
     "traits": [
-      "TRANSLATED"
+      "TRANSLATED",
+      "RANKED"
     ],
     "trait": {
       "TRANSLATED": {
         "known": "I prepare coffee at seven.",
         "learning": "Preparo il caffè alle sette."
+      },
+      "RANKED": {
+        "rank": 1011
       }
     },
     "symbols": [
@@ -13581,12 +13679,16 @@ export default [
   {
     "slug": "accendo-il-computer",
     "traits": [
-      "TRANSLATED"
+      "TRANSLATED",
+      "RANKED"
     ],
     "trait": {
       "TRANSLATED": {
         "known": "I turn on the computer.",
         "learning": "Accendo il computer."
+      },
+      "RANKED": {
+        "rank": 1058
       }
     },
     "symbols": [
@@ -13598,12 +13700,16 @@ export default [
   {
     "slug": "spengo-il-computer-prima-di-dormire",
     "traits": [
-      "TRANSLATED"
+      "TRANSLATED",
+      "RANKED"
     ],
     "trait": {
       "TRANSLATED": {
         "known": "I turn off the computer before sleeping.",
         "learning": "Spengo il computer prima di dormire."
+      },
+      "RANKED": {
+        "rank": 1064
       }
     },
     "symbols": [
@@ -13615,12 +13721,16 @@ export default [
   {
     "slug": "rispondo-al-telefono",
     "traits": [
-      "TRANSLATED"
+      "TRANSLATED",
+      "RANKED"
     ],
     "trait": {
       "TRANSLATED": {
         "known": "I answer the phone.",
         "learning": "Rispondo al telefono."
+      },
+      "RANKED": {
+        "rank": 879
       }
     },
     "symbols": [
@@ -13632,12 +13742,16 @@ export default [
   {
     "slug": "il-telefono-suona-alle-otto",
     "traits": [
-      "TRANSLATED"
+      "TRANSLATED",
+      "RANKED"
     ],
     "trait": {
       "TRANSLATED": {
         "known": "The phone rings at eight.",
         "learning": "Il telefono suona alle otto."
+      },
+      "RANKED": {
+        "rank": 762
       }
     },
     "symbols": [
@@ -13649,12 +13763,16 @@ export default [
   {
     "slug": "mando-un-messaggio-a-mio-fratello",
     "traits": [
-      "TRANSLATED"
+      "TRANSLATED",
+      "RANKED"
     ],
     "trait": {
       "TRANSLATED": {
         "known": "I send a message to my brother.",
         "learning": "Mando un messaggio a mio fratello."
+      },
+      "RANKED": {
+        "rank": 911
       }
     },
     "symbols": [
@@ -13666,12 +13784,16 @@ export default [
   {
     "slug": "ricevo-un-messaggio-da-mia-sorella",
     "traits": [
-      "TRANSLATED"
+      "TRANSLATED",
+      "RANKED"
     ],
     "trait": {
       "TRANSLATED": {
         "known": "I receive a message from my sister.",
         "learning": "Ricevo un messaggio da mia sorella."
+      },
+      "RANKED": {
+        "rank": 1020
       }
     },
     "symbols": [
@@ -13683,12 +13805,16 @@ export default [
   {
     "slug": "finisco-il-lavoro-alle-cinque",
     "traits": [
-      "TRANSLATED"
+      "TRANSLATED",
+      "RANKED"
     ],
     "trait": {
       "TRANSLATED": {
         "known": "I finish work at five.",
         "learning": "Finisco il lavoro alle cinque."
+      },
+      "RANKED": {
+        "rank": 994
       }
     },
     "symbols": [
@@ -13700,12 +13826,16 @@ export default [
   {
     "slug": "inizio-il-lavoro-alle-nove",
     "traits": [
-      "TRANSLATED"
+      "TRANSLATED",
+      "RANKED"
     ],
     "trait": {
       "TRANSLATED": {
         "known": "I start work at nine.",
         "learning": "Inizio il lavoro alle nove."
+      },
+      "RANKED": {
+        "rank": 587
       }
     },
     "symbols": [
@@ -13717,12 +13847,16 @@ export default [
   {
     "slug": "decido-cosa-cucinare-per-cena",
     "traits": [
-      "TRANSLATED"
+      "TRANSLATED",
+      "RANKED"
     ],
     "trait": {
       "TRANSLATED": {
         "known": "I decide what to cook for dinner.",
         "learning": "Decido cosa cucinare per cena."
+      },
+      "RANKED": {
+        "rank": 1028
       }
     },
     "symbols": [
@@ -13734,12 +13868,16 @@ export default [
   {
     "slug": "scelgo-una-camicia-pulita",
     "traits": [
-      "TRANSLATED"
+      "TRANSLATED",
+      "RANKED"
     ],
     "trait": {
       "TRANSLATED": {
         "known": "I choose a clean shirt.",
         "learning": "Scelgo una camicia pulita."
+      },
+      "RANKED": {
+        "rank": 1024
       }
     },
     "symbols": [
@@ -13751,12 +13889,16 @@ export default [
   {
     "slug": "indosso-una-giacca-quando-fa-freddo",
     "traits": [
-      "TRANSLATED"
+      "TRANSLATED",
+      "RANKED"
     ],
     "trait": {
       "TRANSLATED": {
         "known": "I wear a jacket when it's cold.",
         "learning": "Indosso una giacca quando fa freddo."
+      },
+      "RANKED": {
+        "rank": 1038
       }
     },
     "symbols": [
@@ -13768,12 +13910,16 @@ export default [
   {
     "slug": "alzo-il-volume-della-musica",
     "traits": [
-      "TRANSLATED"
+      "TRANSLATED",
+      "RANKED"
     ],
     "trait": {
       "TRANSLATED": {
         "known": "I turn up the volume of the music.",
         "learning": "Alzo il volume della musica."
+      },
+      "RANKED": {
+        "rank": 1034
       }
     },
     "symbols": [
@@ -13785,12 +13931,16 @@ export default [
   {
     "slug": "aggiungo-zucchero-al-caffe",
     "traits": [
-      "TRANSLATED"
+      "TRANSLATED",
+      "RANKED"
     ],
     "trait": {
       "TRANSLATED": {
         "known": "I add sugar to the coffee.",
         "learning": "Aggiungo zucchero al caffè."
+      },
+      "RANKED": {
+        "rank": 806
       }
     },
     "symbols": [
@@ -13802,12 +13952,16 @@ export default [
   {
     "slug": "taglio-il-pane-per-colazione",
     "traits": [
-      "TRANSLATED"
+      "TRANSLATED",
+      "RANKED"
     ],
     "trait": {
       "TRANSLATED": {
         "known": "I cut the bread for breakfast.",
         "learning": "Taglio il pane per colazione."
+      },
+      "RANKED": {
+        "rank": 644
       }
     },
     "symbols": [
@@ -13819,12 +13973,16 @@ export default [
   {
     "slug": "lavo-la-macchina-il-sabato",
     "traits": [
-      "TRANSLATED"
+      "TRANSLATED",
+      "RANKED"
     ],
     "trait": {
       "TRANSLATED": {
         "known": "I wash the car on Saturdays.",
         "learning": "Lavo la macchina il sabato."
+      },
+      "RANKED": {
+        "rank": 1057
       }
     },
     "symbols": [
@@ -13836,12 +13994,16 @@ export default [
   {
     "slug": "riposo-dopo-il-lavoro",
     "traits": [
-      "TRANSLATED"
+      "TRANSLATED",
+      "RANKED"
     ],
     "trait": {
       "TRANSLATED": {
         "known": "I rest after work.",
         "learning": "Riposo dopo il lavoro."
+      },
+      "RANKED": {
+        "rank": 772
       }
     },
     "symbols": [
@@ -13853,12 +14015,16 @@ export default [
   {
     "slug": "conto-il-denaro",
     "traits": [
-      "TRANSLATED"
+      "TRANSLATED",
+      "RANKED"
     ],
     "trait": {
       "TRANSLATED": {
         "known": "I count the money.",
         "learning": "Conto il denaro."
+      },
+      "RANKED": {
+        "rank": 500
       }
     },
     "symbols": [
@@ -13870,12 +14036,16 @@ export default [
   {
     "slug": "peso-la-valigia-prima-del-viaggio",
     "traits": [
-      "TRANSLATED"
+      "TRANSLATED",
+      "RANKED"
     ],
     "trait": {
       "TRANSLATED": {
         "known": "I weigh the suitcase before the trip.",
         "learning": "Peso la valigia prima del viaggio."
+      },
+      "RANKED": {
+        "rank": 943
       }
     },
     "symbols": [
@@ -13887,12 +14057,16 @@ export default [
   {
     "slug": "misuro-il-tavolo",
     "traits": [
-      "TRANSLATED"
+      "TRANSLATED",
+      "RANKED"
     ],
     "trait": {
       "TRANSLATED": {
         "known": "I measure the table.",
         "learning": "Misuro il tavolo."
+      },
+      "RANKED": {
+        "rank": 1085
       }
     },
     "symbols": [
@@ -13904,12 +14078,16 @@ export default [
   {
     "slug": "firmo-il-documento",
     "traits": [
-      "TRANSLATED"
+      "TRANSLATED",
+      "RANKED"
     ],
     "trait": {
       "TRANSLATED": {
         "known": "I sign the document.",
         "learning": "Firmo il documento."
+      },
+      "RANKED": {
+        "rank": 1066
       }
     },
     "symbols": [
@@ -13921,12 +14099,16 @@ export default [
   {
     "slug": "preferisco-il-caffe-la-mattina",
     "traits": [
-      "TRANSLATED"
+      "TRANSLATED",
+      "RANKED"
     ],
     "trait": {
       "TRANSLATED": {
         "known": "I prefer coffee in the morning.",
         "learning": "Preferisco il caffè la mattina."
+      },
+      "RANKED": {
+        "rank": 717
       }
     },
     "symbols": [
@@ -13938,12 +14120,16 @@ export default [
   {
     "slug": "conosco-bene-il-mio-vicino",
     "traits": [
-      "TRANSLATED"
+      "TRANSLATED",
+      "RANKED"
     ],
     "trait": {
       "TRANSLATED": {
         "known": "I know my neighbor well.",
         "learning": "Conosco bene il mio vicino."
+      },
+      "RANKED": {
+        "rank": 469
       }
     },
     "symbols": [
@@ -13955,12 +14141,16 @@ export default [
   {
     "slug": "la-mattina-saluto-il-vicino",
     "traits": [
-      "TRANSLATED"
+      "TRANSLATED",
+      "RANKED"
     ],
     "trait": {
       "TRANSLATED": {
         "known": "In the morning I greet my neighbor.",
         "learning": "La mattina saluto il vicino."
+      },
+      "RANKED": {
+        "rank": 865
       }
     },
     "symbols": [
@@ -13972,12 +14162,16 @@ export default [
   {
     "slug": "ringrazio-mia-madre-per-la-cena",
     "traits": [
-      "TRANSLATED"
+      "TRANSLATED",
+      "RANKED"
     ],
     "trait": {
       "TRANSLATED": {
         "known": "I thank my mother for dinner.",
         "learning": "Ringrazio mia madre per la cena."
+      },
+      "RANKED": {
+        "rank": 704
       }
     },
     "symbols": [
@@ -13989,12 +14183,16 @@ export default [
   {
     "slug": "invito-il-mio-amico-a-cena",
     "traits": [
-      "TRANSLATED"
+      "TRANSLATED",
+      "RANKED"
     ],
     "trait": {
       "TRANSLATED": {
         "known": "I invite my friend to dinner.",
         "learning": "Invito il mio amico a cena."
+      },
+      "RANKED": {
+        "rank": 681
       }
     },
     "symbols": [
@@ -14006,12 +14204,16 @@ export default [
   {
     "slug": "incontro-il-mio-amico-dopo-il-lavoro",
     "traits": [
-      "TRANSLATED"
+      "TRANSLATED",
+      "RANKED"
     ],
     "trait": {
       "TRANSLATED": {
         "known": "I meet my friend after work.",
         "learning": "Incontro il mio amico dopo il lavoro."
+      },
+      "RANKED": {
+        "rank": 383
       }
     },
     "symbols": [
@@ -14023,12 +14225,16 @@ export default [
   {
     "slug": "racconto-una-storia-prima-di-dormire",
     "traits": [
-      "TRANSLATED"
+      "TRANSLATED",
+      "RANKED"
     ],
     "trait": {
       "TRANSLATED": {
         "known": "I tell a story before sleeping.",
         "learning": "Racconto una storia prima di dormire."
+      },
+      "RANKED": {
+        "rank": 627
       }
     },
     "symbols": [
@@ -14040,12 +14246,16 @@ export default [
   {
     "slug": "spiego-la-lezione-a-mio-fratello",
     "traits": [
-      "TRANSLATED"
+      "TRANSLATED",
+      "RANKED"
     ],
     "trait": {
       "TRANSLATED": {
         "known": "I explain the lesson to my brother.",
         "learning": "Spiego la lezione a mio fratello."
+      },
+      "RANKED": {
+        "rank": 917
       }
     },
     "symbols": [
@@ -14057,12 +14267,16 @@ export default [
   {
     "slug": "mostro-la-mappa-al-mio-amico",
     "traits": [
-      "TRANSLATED"
+      "TRANSLATED",
+      "RANKED"
     ],
     "trait": {
       "TRANSLATED": {
         "known": "I show the map to my friend.",
         "learning": "Mostro la mappa al mio amico."
+      },
+      "RANKED": {
+        "rank": 831
       }
     },
     "symbols": [
@@ -14074,12 +14288,16 @@ export default [
   {
     "slug": "offro-il-caffe-al-mio-collega",
     "traits": [
-      "TRANSLATED"
+      "TRANSLATED",
+      "RANKED"
     ],
     "trait": {
       "TRANSLATED": {
         "known": "I offer coffee to my colleague.",
         "learning": "Offro il caffè al mio collega."
+      },
+      "RANKED": {
+        "rank": 993
       }
     },
     "symbols": [
@@ -14091,12 +14309,16 @@ export default [
   {
     "slug": "regalo-un-libro-a-mio-figlio",
     "traits": [
-      "TRANSLATED"
+      "TRANSLATED",
+      "RANKED"
     ],
     "trait": {
       "TRANSLATED": {
         "known": "I give a book to my son.",
         "learning": "Regalo un libro a mio figlio."
+      },
+      "RANKED": {
+        "rank": 633
       }
     },
     "symbols": [
@@ -14108,12 +14330,16 @@ export default [
   {
     "slug": "dobbiamo-andare-al-lavoro-presto",
     "traits": [
-      "TRANSLATED"
+      "TRANSLATED",
+      "RANKED"
     ],
     "trait": {
       "TRANSLATED": {
         "known": "We must go to work early.",
         "learning": "Dobbiamo andare al lavoro presto."
+      },
+      "RANKED": {
+        "rank": 327
       }
     },
     "symbols": [
@@ -14125,12 +14351,16 @@ export default [
   {
     "slug": "voglio-dormire-di-piu",
     "traits": [
-      "TRANSLATED"
+      "TRANSLATED",
+      "RANKED"
     ],
     "trait": {
       "TRANSLATED": {
         "known": "I want to sleep more.",
         "learning": "Voglio dormire di più."
+      },
+      "RANKED": {
+        "rank": 535
       }
     },
     "symbols": [
@@ -14142,12 +14372,16 @@ export default [
   {
     "slug": "posso-riposare-oggi",
     "traits": [
-      "TRANSLATED"
+      "TRANSLATED",
+      "RANKED"
     ],
     "trait": {
       "TRANSLATED": {
         "known": "I can rest today.",
         "learning": "Posso riposare oggi."
+      },
+      "RANKED": {
+        "rank": 960
       }
     },
     "symbols": [
@@ -14159,12 +14393,16 @@ export default [
   {
     "slug": "finiro-il-lavoro-domani",
     "traits": [
-      "TRANSLATED"
+      "TRANSLATED",
+      "RANKED"
     ],
     "trait": {
       "TRANSLATED": {
         "known": "I will finish the work tomorrow.",
         "learning": "Finirò il lavoro domani."
+      },
+      "RANKED": {
+        "rank": 1062
       }
     },
     "symbols": [
@@ -14176,12 +14414,16 @@ export default [
   {
     "slug": "dormirei-di-piu-ma-devo-andare-al-lavoro",
     "traits": [
-      "TRANSLATED"
+      "TRANSLATED",
+      "RANKED"
     ],
     "trait": {
       "TRANSLATED": {
         "known": "I would sleep more but I have to go to work.",
         "learning": "Dormirei di più ma devo andare al lavoro."
+      },
+      "RANKED": {
+        "rank": 1084
       }
     },
     "symbols": [
@@ -14193,63 +14435,88 @@ export default [
   {
     "slug": "vorrei-un-caffe-caldo",
     "traits": [
-      "TRANSLATED"
+      "TRANSLATED",
+      "RANKED"
     ],
     "trait": {
       "TRANSLATED": {
         "known": "I would like a hot coffee.",
         "learning": "Vorrei un caffè caldo."
+      },
+      "RANKED": {
+        "rank": 52
       }
     },
     "symbols": [
       {
         "slug": "sentence"
+      },
+      {
+        "slug": "proficiency.survival"
       }
     ]
   },
   {
     "slug": "vorrei-questa-camicia-blu",
     "traits": [
-      "TRANSLATED"
+      "TRANSLATED",
+      "RANKED"
     ],
     "trait": {
       "TRANSLATED": {
         "known": "I would like this blue shirt.",
         "learning": "Vorrei questa camicia blu."
+      },
+      "RANKED": {
+        "rank": 37
       }
     },
     "symbols": [
       {
         "slug": "sentence"
+      },
+      {
+        "slug": "proficiency.survival"
       }
     ]
   },
   {
     "slug": "quanto-costa-la-camicia",
     "traits": [
-      "TRANSLATED"
+      "TRANSLATED",
+      "RANKED"
     ],
     "trait": {
       "TRANSLATED": {
         "known": "How much does the shirt cost?",
         "learning": "Quanto costa la camicia?"
+      },
+      "RANKED": {
+        "rank": 28
       }
     },
     "symbols": [
       {
         "slug": "sentence"
+      },
+      {
+        "slug": "proficiency.survival"
       }
     ]
   },
   {
     "slug": "il-prezzo-e-dieci-euro",
     "traits": [
-      "TRANSLATED"
+      "TRANSLATED",
+      "RANKED"
     ],
     "trait": {
       "TRANSLATED": {
         "known": "The price is ten euros.",
         "learning": "Il prezzo è dieci euro."
+      },
+      "RANKED": {
+        "rank": 361
       }
     },
     "symbols": [
@@ -14261,29 +14528,40 @@ export default [
   {
     "slug": "c-e-uno-sconto-oggi",
     "traits": [
-      "TRANSLATED"
+      "TRANSLATED",
+      "RANKED"
     ],
     "trait": {
       "TRANSLATED": {
         "known": "Is there a discount today?",
         "learning": "C'è uno sconto oggi?"
+      },
+      "RANKED": {
+        "rank": 36
       }
     },
     "symbols": [
       {
         "slug": "sentence"
+      },
+      {
+        "slug": "proficiency.survival"
       }
     ]
   },
   {
     "slug": "preferisco-la-scarpa-rossa",
     "traits": [
-      "TRANSLATED"
+      "TRANSLATED",
+      "RANKED"
     ],
     "trait": {
       "TRANSLATED": {
         "known": "I prefer the red shoe.",
         "learning": "Preferisco la scarpa rossa."
+      },
+      "RANKED": {
+        "rank": 947
       }
     },
     "symbols": [
@@ -14295,12 +14573,16 @@ export default [
   {
     "slug": "questa-borsa-e-molto-cara",
     "traits": [
-      "TRANSLATED"
+      "TRANSLATED",
+      "RANKED"
     ],
     "trait": {
       "TRANSLATED": {
         "known": "This bag is very expensive.",
         "learning": "Questa borsa è molto cara."
+      },
+      "RANKED": {
+        "rank": 637
       }
     },
     "symbols": [
@@ -14312,12 +14594,16 @@ export default [
   {
     "slug": "questo-negozio-e-caro",
     "traits": [
-      "TRANSLATED"
+      "TRANSLATED",
+      "RANKED"
     ],
     "trait": {
       "TRANSLATED": {
         "known": "This shop is expensive.",
         "learning": "Questo negozio è caro."
+      },
+      "RANKED": {
+        "rank": 564
       }
     },
     "symbols": [
@@ -14329,12 +14615,16 @@ export default [
   {
     "slug": "il-mercato-e-vicino-alla-stazione",
     "traits": [
-      "TRANSLATED"
+      "TRANSLATED",
+      "RANKED"
     ],
     "trait": {
       "TRANSLATED": {
         "known": "The market is near the station.",
         "learning": "Il mercato è vicino alla stazione."
+      },
+      "RANKED": {
+        "rank": 479
       }
     },
     "symbols": [
@@ -14346,12 +14636,16 @@ export default [
   {
     "slug": "vendo-la-mia-bicicletta",
     "traits": [
-      "TRANSLATED"
+      "TRANSLATED",
+      "RANKED"
     ],
     "trait": {
       "TRANSLATED": {
         "known": "I sell my bicycle.",
         "learning": "Vendo la mia bicicletta."
+      },
+      "RANKED": {
+        "rank": 1005
       }
     },
     "symbols": [
@@ -14363,12 +14657,16 @@ export default [
   {
     "slug": "il-commesso-e-molto-gentile",
     "traits": [
-      "TRANSLATED"
+      "TRANSLATED",
+      "RANKED"
     ],
     "trait": {
       "TRANSLATED": {
         "known": "The shop assistant is very kind.",
         "learning": "Il commesso è molto gentile."
+      },
+      "RANKED": {
+        "rank": 743
       }
     },
     "symbols": [
@@ -14380,29 +14678,40 @@ export default [
   {
     "slug": "vorrei-un-panino-con-formaggio",
     "traits": [
-      "TRANSLATED"
+      "TRANSLATED",
+      "RANKED"
     ],
     "trait": {
       "TRANSLATED": {
         "known": "I would like a sandwich with cheese.",
         "learning": "Vorrei un panino con formaggio."
+      },
+      "RANKED": {
+        "rank": 56
       }
     },
     "symbols": [
       {
         "slug": "sentence"
+      },
+      {
+        "slug": "proficiency.survival"
       }
     ]
   },
   {
     "slug": "chiedo-il-conto-al-cameriere",
     "traits": [
-      "TRANSLATED"
+      "TRANSLATED",
+      "RANKED"
     ],
     "trait": {
       "TRANSLATED": {
         "known": "I ask the waiter for the bill.",
         "learning": "Chiedo il conto al cameriere."
+      },
+      "RANKED": {
+        "rank": 956
       }
     },
     "symbols": [
@@ -14414,12 +14723,16 @@ export default [
   {
     "slug": "ordino-la-pizza-con-formaggio",
     "traits": [
-      "TRANSLATED"
+      "TRANSLATED",
+      "RANKED"
     ],
     "trait": {
       "TRANSLATED": {
         "known": "I order the pizza with cheese.",
         "learning": "Ordino la pizza con formaggio."
+      },
+      "RANKED": {
+        "rank": 1061
       }
     },
     "symbols": [
@@ -14431,12 +14744,16 @@ export default [
   {
     "slug": "ordiniamo-un-insalata-e-del-pane",
     "traits": [
-      "TRANSLATED"
+      "TRANSLATED",
+      "RANKED"
     ],
     "trait": {
       "TRANSLATED": {
         "known": "We order a salad and some bread.",
         "learning": "Ordiniamo un'insalata e del pane."
+      },
+      "RANKED": {
+        "rank": 1073
       }
     },
     "symbols": [
@@ -14448,12 +14765,16 @@ export default [
   {
     "slug": "il-ristorante-e-pieno-stasera",
     "traits": [
-      "TRANSLATED"
+      "TRANSLATED",
+      "RANKED"
     ],
     "trait": {
       "TRANSLATED": {
         "known": "The restaurant is full tonight.",
         "learning": "Il ristorante è pieno stasera."
+      },
+      "RANKED": {
+        "rank": 613
       }
     },
     "symbols": [
@@ -14465,12 +14786,16 @@ export default [
   {
     "slug": "preferisci-il-vino-o-la-birra",
     "traits": [
-      "TRANSLATED"
+      "TRANSLATED",
+      "RANKED"
     ],
     "trait": {
       "TRANSLATED": {
         "known": "Do you prefer wine or beer?",
         "learning": "Preferisci il vino o la birra?"
+      },
+      "RANKED": {
+        "rank": 924
       }
     },
     "symbols": [
@@ -14482,12 +14807,16 @@ export default [
   {
     "slug": "preferisco-il-vino-rosso",
     "traits": [
-      "TRANSLATED"
+      "TRANSLATED",
+      "RANKED"
     ],
     "trait": {
       "TRANSLATED": {
         "known": "I prefer red wine.",
         "learning": "Preferisco il vino rosso."
+      },
+      "RANKED": {
+        "rank": 715
       }
     },
     "symbols": [
@@ -14499,12 +14828,16 @@ export default [
   {
     "slug": "il-conto-e-troppo-alto",
     "traits": [
-      "TRANSLATED"
+      "TRANSLATED",
+      "RANKED"
     ],
     "trait": {
       "TRANSLATED": {
         "known": "The bill is too high.",
         "learning": "Il conto è troppo alto."
+      },
+      "RANKED": {
+        "rank": 302
       }
     },
     "symbols": [
@@ -14516,12 +14849,16 @@ export default [
   {
     "slug": "do-una-mancia-al-cameriere",
     "traits": [
-      "TRANSLATED"
+      "TRANSLATED",
+      "RANKED"
     ],
     "trait": {
       "TRANSLATED": {
         "known": "I give a tip to the waiter.",
         "learning": "Do una mancia al cameriere."
+      },
+      "RANKED": {
+        "rank": 1050
       }
     },
     "symbols": [
@@ -14533,12 +14870,16 @@ export default [
   {
     "slug": "il-negozio-vende-un-vestito-elegante",
     "traits": [
-      "TRANSLATED"
+      "TRANSLATED",
+      "RANKED"
     ],
     "trait": {
       "TRANSLATED": {
         "known": "The shop sells an elegant dress.",
         "learning": "Il negozio vende un vestito elegante."
+      },
+      "RANKED": {
+        "rank": 883
       }
     },
     "symbols": [
@@ -14550,12 +14891,16 @@ export default [
   {
     "slug": "questa-gonna-e-troppo-lunga",
     "traits": [
-      "TRANSLATED"
+      "TRANSLATED",
+      "RANKED"
     ],
     "trait": {
       "TRANSLATED": {
         "known": "This skirt is too long.",
         "learning": "Questa gonna è troppo lunga."
+      },
+      "RANKED": {
+        "rank": 974
       }
     },
     "symbols": [
@@ -14567,12 +14912,16 @@ export default [
   {
     "slug": "questa-scarpa-e-piccola",
     "traits": [
-      "TRANSLATED"
+      "TRANSLATED",
+      "RANKED"
     ],
     "trait": {
       "TRANSLATED": {
         "known": "This shoe is small.",
         "learning": "Questa scarpa è piccola."
+      },
+      "RANKED": {
+        "rank": 949
       }
     },
     "symbols": [
@@ -14584,29 +14933,40 @@ export default [
   {
     "slug": "prenoto-un-tavolo-per-stasera",
     "traits": [
-      "TRANSLATED"
+      "TRANSLATED",
+      "RANKED"
     ],
     "trait": {
       "TRANSLATED": {
-        "known": "I book a table for tonight.",
+        "known": "I'm booking a table for tonight.",
         "learning": "Prenoto un tavolo per stasera."
+      },
+      "RANKED": {
+        "rank": 47
       }
     },
     "symbols": [
       {
         "slug": "sentence"
+      },
+      {
+        "slug": "proficiency.survival"
       }
     ]
   },
   {
     "slug": "prenotiamo-un-tavolo-al-ristorante-per-stasera",
     "traits": [
-      "TRANSLATED"
+      "TRANSLATED",
+      "RANKED"
     ],
     "trait": {
       "TRANSLATED": {
         "known": "We book a table at the restaurant for tonight.",
         "learning": "Prenotiamo un tavolo al ristorante per stasera."
+      },
+      "RANKED": {
+        "rank": 1087
       }
     },
     "symbols": [
@@ -14618,12 +14978,16 @@ export default [
   {
     "slug": "il-pane-e-fresco-oggi",
     "traits": [
-      "TRANSLATED"
+      "TRANSLATED",
+      "RANKED"
     ],
     "trait": {
       "TRANSLATED": {
         "known": "The bread is fresh today.",
         "learning": "Il pane è fresco oggi."
+      },
+      "RANKED": {
+        "rank": 837
       }
     },
     "symbols": [
@@ -14635,12 +14999,16 @@ export default [
   {
     "slug": "la-pasta-e-calda",
     "traits": [
-      "TRANSLATED"
+      "TRANSLATED",
+      "RANKED"
     ],
     "trait": {
       "TRANSLATED": {
         "known": "The pasta is hot.",
         "learning": "La pasta è calda."
+      },
+      "RANKED": {
+        "rank": 784
       }
     },
     "symbols": [
@@ -14652,12 +15020,16 @@ export default [
   {
     "slug": "l-acqua-e-fredda",
     "traits": [
-      "TRANSLATED"
+      "TRANSLATED",
+      "RANKED"
     ],
     "trait": {
       "TRANSLATED": {
         "known": "The water is cold.",
         "learning": "L'acqua è fredda."
+      },
+      "RANKED": {
+        "rank": 808
       }
     },
     "symbols": [
@@ -14669,12 +15041,16 @@ export default [
   {
     "slug": "il-caffe-e-troppo-dolce",
     "traits": [
-      "TRANSLATED"
+      "TRANSLATED",
+      "RANKED"
     ],
     "trait": {
       "TRANSLATED": {
         "known": "The coffee is too sweet.",
         "learning": "Il caffè è troppo dolce."
+      },
+      "RANKED": {
+        "rank": 494
       }
     },
     "symbols": [
@@ -14686,12 +15062,16 @@ export default [
   {
     "slug": "questo-piatto-e-molto-buono",
     "traits": [
-      "TRANSLATED"
+      "TRANSLATED",
+      "RANKED"
     ],
     "trait": {
       "TRANSLATED": {
         "known": "This dish is very good.",
         "learning": "Questo piatto è molto buono."
+      },
+      "RANKED": {
+        "rank": 680
       }
     },
     "symbols": [
@@ -14703,12 +15083,16 @@ export default [
   {
     "slug": "il-cameriere-e-molto-simpatico",
     "traits": [
-      "TRANSLATED"
+      "TRANSLATED",
+      "RANKED"
     ],
     "trait": {
       "TRANSLATED": {
         "known": "The waiter is nice.",
         "learning": "Il cameriere è molto simpatico."
+      },
+      "RANKED": {
+        "rank": 957
       }
     },
     "symbols": [
@@ -14720,12 +15104,16 @@ export default [
   {
     "slug": "ordiniamo-due-caffe",
     "traits": [
-      "TRANSLATED"
+      "TRANSLATED",
+      "RANKED"
     ],
     "trait": {
       "TRANSLATED": {
         "known": "We order two coffees.",
         "learning": "Ordiniamo due caffè."
+      },
+      "RANKED": {
+        "rank": 1072
       }
     },
     "symbols": [
@@ -14737,97 +15125,136 @@ export default [
   {
     "slug": "vorrei-un-biglietto-per-roma",
     "traits": [
-      "TRANSLATED"
+      "TRANSLATED",
+      "RANKED"
     ],
     "trait": {
       "TRANSLATED": {
         "known": "I would like one ticket to Rome.",
         "learning": "Vorrei un biglietto per Roma."
+      },
+      "RANKED": {
+        "rank": 67
       }
     },
     "symbols": [
       {
         "slug": "sentence"
+      },
+      {
+        "slug": "proficiency.survival"
       }
     ]
   },
   {
     "slug": "il-conto-e-di-venti-euro",
     "traits": [
-      "TRANSLATED"
+      "TRANSLATED",
+      "RANKED"
     ],
     "trait": {
       "TRANSLATED": {
         "known": "The bill comes to twenty euros.",
         "learning": "Il conto è di venti euro."
+      },
+      "RANKED": {
+        "rank": 64
       }
     },
     "symbols": [
       {
         "slug": "sentence"
+      },
+      {
+        "slug": "proficiency.survival"
       }
     ]
   },
   {
     "slug": "vorrei-prenotare-un-tavolo-per-due",
     "traits": [
-      "TRANSLATED"
+      "TRANSLATED",
+      "RANKED"
     ],
     "trait": {
       "TRANSLATED": {
         "known": "I would like to book a table for two.",
         "learning": "Vorrei prenotare un tavolo per due."
+      },
+      "RANKED": {
+        "rank": 46
       }
     },
     "symbols": [
       {
         "slug": "sentence"
+      },
+      {
+        "slug": "proficiency.survival"
       }
     ]
   },
   {
     "slug": "il-negozio-e-aperto-la-domenica",
     "traits": [
-      "TRANSLATED"
+      "TRANSLATED",
+      "RANKED"
     ],
     "trait": {
       "TRANSLATED": {
         "known": "The shop is open on Sundays.",
         "learning": "Il negozio è aperto la domenica."
+      },
+      "RANKED": {
+        "rank": 41
       }
     },
     "symbols": [
       {
         "slug": "sentence"
+      },
+      {
+        "slug": "proficiency.survival"
       }
     ]
   },
   {
     "slug": "il-negozio-e-chiuso-il-lunedi",
     "traits": [
-      "TRANSLATED"
+      "TRANSLATED",
+      "RANKED"
     ],
     "trait": {
       "TRANSLATED": {
         "known": "The shop is closed on Mondays.",
         "learning": "Il negozio è chiuso il lunedì."
+      },
+      "RANKED": {
+        "rank": 42
       }
     },
     "symbols": [
       {
         "slug": "sentence"
+      },
+      {
+        "slug": "proficiency.survival"
       }
     ]
   },
   {
     "slug": "offriamo-un-caffe-all-ospite",
     "traits": [
-      "TRANSLATED"
+      "TRANSLATED",
+      "RANKED"
     ],
     "trait": {
       "TRANSLATED": {
         "known": "We offer a coffee to the guest.",
         "learning": "Offriamo un caffè all'ospite."
+      },
+      "RANKED": {
+        "rank": 1083
       }
     },
     "symbols": [
@@ -14839,12 +15266,16 @@ export default [
   {
     "slug": "ricevo-il-resto-dal-cameriere",
     "traits": [
-      "TRANSLATED"
+      "TRANSLATED",
+      "RANKED"
     ],
     "trait": {
       "TRANSLATED": {
         "known": "I receive the change from the waiter.",
         "learning": "Ricevo il resto dal cameriere."
+      },
+      "RANKED": {
+        "rank": 1019
       }
     },
     "symbols": [
@@ -14856,12 +15287,16 @@ export default [
   {
     "slug": "ho-la-carta-di-credito-nel-portafoglio",
     "traits": [
-      "TRANSLATED"
+      "TRANSLATED",
+      "RANKED"
     ],
     "trait": {
       "TRANSLATED": {
         "known": "I have the credit card in my wallet.",
         "learning": "Ho la carta di credito nel portafoglio."
+      },
+      "RANKED": {
+        "rank": 909
       }
     },
     "symbols": [
@@ -14873,12 +15308,16 @@ export default [
   {
     "slug": "il-portafoglio-e-nella-borsa",
     "traits": [
-      "TRANSLATED"
+      "TRANSLATED",
+      "RANKED"
     ],
     "trait": {
       "TRANSLATED": {
         "known": "The wallet is in the bag.",
         "learning": "Il portafoglio è nella borsa."
+      },
+      "RANKED": {
+        "rank": 908
       }
     },
     "symbols": [
@@ -14890,12 +15329,16 @@ export default [
   {
     "slug": "scegliamo-una-camicia-insieme",
     "traits": [
-      "TRANSLATED"
+      "TRANSLATED",
+      "RANKED"
     ],
     "trait": {
       "TRANSLATED": {
         "known": "We choose a shirt together.",
         "learning": "Scegliamo una camicia insieme."
+      },
+      "RANKED": {
+        "rank": 1052
       }
     },
     "symbols": [
@@ -14907,12 +15350,16 @@ export default [
   {
     "slug": "il-commesso-mostra-la-camicia-al-cliente",
     "traits": [
-      "TRANSLATED"
+      "TRANSLATED",
+      "RANKED"
     ],
     "trait": {
       "TRANSLATED": {
         "known": "The shop assistant shows the shirt to the customer.",
         "learning": "Il commesso mostra la camicia al cliente."
+      },
+      "RANKED": {
+        "rank": 884
       }
     },
     "symbols": [
@@ -14924,12 +15371,16 @@ export default [
   {
     "slug": "il-cliente-chiede-lo-sconto",
     "traits": [
-      "TRANSLATED"
+      "TRANSLATED",
+      "RANKED"
     ],
     "trait": {
       "TRANSLATED": {
         "known": "The customer asks for the discount.",
         "learning": "Il cliente chiede lo sconto."
+      },
+      "RANKED": {
+        "rank": 798
       }
     },
     "symbols": [
@@ -14941,12 +15392,16 @@ export default [
   {
     "slug": "il-negozio-offre-uno-sconto-oggi",
     "traits": [
-      "TRANSLATED"
+      "TRANSLATED",
+      "RANKED"
     ],
     "trait": {
       "TRANSLATED": {
         "known": "The shop offers a discount today.",
         "learning": "Il negozio offre uno sconto oggi."
+      },
+      "RANKED": {
+        "rank": 799
       }
     },
     "symbols": [
@@ -14958,12 +15413,16 @@ export default [
   {
     "slug": "noleggiamo-una-macchina-per-il-viaggio",
     "traits": [
-      "TRANSLATED"
+      "TRANSLATED",
+      "RANKED"
     ],
     "trait": {
       "TRANSLATED": {
         "known": "We rent a car for the trip.",
         "learning": "Noleggiamo una macchina per il viaggio."
+      },
+      "RANKED": {
+        "rank": 1088
       }
     },
     "symbols": [
@@ -14975,12 +15434,16 @@ export default [
   {
     "slug": "noleggio-una-bicicletta-in-citta",
     "traits": [
-      "TRANSLATED"
+      "TRANSLATED",
+      "RANKED"
     ],
     "trait": {
       "TRANSLATED": {
         "known": "I rent a bicycle in the city.",
         "learning": "Noleggio una bicicletta in città."
+      },
+      "RANKED": {
+        "rank": 1006
       }
     },
     "symbols": [
@@ -14992,12 +15455,16 @@ export default [
   {
     "slug": "il-ristorante-offre-pesce-fresco",
     "traits": [
-      "TRANSLATED"
+      "TRANSLATED",
+      "RANKED"
     ],
     "trait": {
       "TRANSLATED": {
         "known": "The restaurant offers fresh fish.",
         "learning": "Il ristorante offre pesce fresco."
+      },
+      "RANKED": {
+        "rank": 838
       }
     },
     "symbols": [
@@ -15009,29 +15476,40 @@ export default [
   {
     "slug": "vorrei-del-vino-rosso",
     "traits": [
-      "TRANSLATED"
+      "TRANSLATED",
+      "RANKED"
     ],
     "trait": {
       "TRANSLATED": {
         "known": "I would like some red wine.",
         "learning": "Vorrei del vino rosso."
+      },
+      "RANKED": {
+        "rank": 57
       }
     },
     "symbols": [
       {
         "slug": "sentence"
+      },
+      {
+        "slug": "proficiency.survival"
       }
     ]
   },
   {
     "slug": "il-conto-e-pronto",
     "traits": [
-      "TRANSLATED"
+      "TRANSLATED",
+      "RANKED"
     ],
     "trait": {
       "TRANSLATED": {
         "known": "The bill is ready.",
         "learning": "Il conto è pronto."
+      },
+      "RANKED": {
+        "rank": 467
       }
     },
     "symbols": [
@@ -15043,29 +15521,40 @@ export default [
   {
     "slug": "dov-e-la-stazione",
     "traits": [
-      "TRANSLATED"
+      "TRANSLATED",
+      "RANKED"
     ],
     "trait": {
       "TRANSLATED": {
         "known": "Where is the station?",
         "learning": "Dov'è la stazione?"
+      },
+      "RANKED": {
+        "rank": 65
       }
     },
     "symbols": [
       {
         "slug": "sentence"
+      },
+      {
+        "slug": "proficiency.survival"
       }
     ]
   },
   {
     "slug": "la-stazione-e-vicino-al-museo",
     "traits": [
-      "TRANSLATED"
+      "TRANSLATED",
+      "RANKED"
     ],
     "trait": {
       "TRANSLATED": {
         "known": "The station is near the museum.",
         "learning": "La stazione è vicino al museo."
+      },
+      "RANKED": {
+        "rank": 509
       }
     },
     "symbols": [
@@ -15077,12 +15566,16 @@ export default [
   {
     "slug": "l-aeroporto-e-lontano-dal-centro",
     "traits": [
-      "TRANSLATED"
+      "TRANSLATED",
+      "RANKED"
     ],
     "trait": {
       "TRANSLATED": {
         "known": "The airport is far from the center.",
         "learning": "L'aeroporto è lontano dal centro."
+      },
+      "RANKED": {
+        "rank": 817
       }
     },
     "symbols": [
@@ -15094,29 +15587,40 @@ export default [
   {
     "slug": "il-treno-e-in-ritardo",
     "traits": [
-      "TRANSLATED"
+      "TRANSLATED",
+      "RANKED"
     ],
     "trait": {
       "TRANSLATED": {
         "known": "The train is late.",
         "learning": "Il treno è in ritardo."
+      },
+      "RANKED": {
+        "rank": 72
       }
     },
     "symbols": [
       {
         "slug": "sentence"
+      },
+      {
+        "slug": "proficiency.survival"
       }
     ]
   },
   {
     "slug": "l-autobus-e-in-ritardo",
     "traits": [
-      "TRANSLATED"
+      "TRANSLATED",
+      "RANKED"
     ],
     "trait": {
       "TRANSLATED": {
         "known": "The bus is late.",
         "learning": "L'autobus è in ritardo."
+      },
+      "RANKED": {
+        "rank": 737
       }
     },
     "symbols": [
@@ -15128,12 +15632,16 @@ export default [
   {
     "slug": "il-volo-per-roma-e-pieno",
     "traits": [
-      "TRANSLATED"
+      "TRANSLATED",
+      "RANKED"
     ],
     "trait": {
       "TRANSLATED": {
         "known": "The flight to Rome is full.",
         "learning": "Il volo per Roma è pieno."
+      },
+      "RANKED": {
+        "rank": 499
       }
     },
     "symbols": [
@@ -15145,12 +15653,16 @@ export default [
   {
     "slug": "il-mio-volo-e-alle-otto",
     "traits": [
-      "TRANSLATED"
+      "TRANSLATED",
+      "RANKED"
     ],
     "trait": {
       "TRANSLATED": {
         "known": "My flight is at eight.",
         "learning": "Il mio volo è alle otto."
+      },
+      "RANKED": {
+        "rank": 498
       }
     },
     "symbols": [
@@ -15162,29 +15674,40 @@ export default [
   {
     "slug": "devo-salire-sul-treno",
     "traits": [
-      "TRANSLATED"
+      "TRANSLATED",
+      "RANKED"
     ],
     "trait": {
       "TRANSLATED": {
         "known": "I have to get on the train.",
         "learning": "Devo salire sul treno."
+      },
+      "RANKED": {
+        "rank": 73
       }
     },
     "symbols": [
       {
         "slug": "sentence"
+      },
+      {
+        "slug": "proficiency.survival"
       }
     ]
   },
   {
     "slug": "dobbiamo-scendere-qui",
     "traits": [
-      "TRANSLATED"
+      "TRANSLATED",
+      "RANKED"
     ],
     "trait": {
       "TRANSLATED": {
         "known": "We have to get off here.",
         "learning": "Dobbiamo scendere qui."
+      },
+      "RANKED": {
+        "rank": 688
       }
     },
     "symbols": [
@@ -15196,12 +15719,16 @@ export default [
   {
     "slug": "il-passaporto-e-nella-valigia",
     "traits": [
-      "TRANSLATED"
+      "TRANSLATED",
+      "RANKED"
     ],
     "trait": {
       "TRANSLATED": {
         "known": "The passport is in the suitcase.",
         "learning": "Il passaporto è nella valigia."
+      },
+      "RANKED": {
+        "rank": 941
       }
     },
     "symbols": [
@@ -15213,29 +15740,40 @@ export default [
   {
     "slug": "ho-il-biglietto-per-il-treno",
     "traits": [
-      "TRANSLATED"
+      "TRANSLATED",
+      "RANKED"
     ],
     "trait": {
       "TRANSLATED": {
         "known": "I have the ticket for the train.",
         "learning": "Ho il biglietto per il treno."
+      },
+      "RANKED": {
+        "rank": 74
       }
     },
     "symbols": [
       {
         "slug": "sentence"
+      },
+      {
+        "slug": "proficiency.survival"
       }
     ]
   },
   {
     "slug": "il-biglietto-e-caro",
     "traits": [
-      "TRANSLATED"
+      "TRANSLATED",
+      "RANKED"
     ],
     "trait": {
       "TRANSLATED": {
         "known": "The ticket is expensive.",
         "learning": "Il biglietto è caro."
+      },
+      "RANKED": {
+        "rank": 630
       }
     },
     "symbols": [
@@ -15247,12 +15785,16 @@ export default [
   {
     "slug": "la-mappa-mostra-la-strada-giusta",
     "traits": [
-      "TRANSLATED"
+      "TRANSLATED",
+      "RANKED"
     ],
     "trait": {
       "TRANSLATED": {
         "known": "The map shows the right street.",
         "learning": "La mappa mostra la strada giusta."
+      },
+      "RANKED": {
+        "rank": 708
       }
     },
     "symbols": [
@@ -15264,12 +15806,16 @@ export default [
   {
     "slug": "attraversiamo-il-ponte",
     "traits": [
-      "TRANSLATED"
+      "TRANSLATED",
+      "RANKED"
     ],
     "trait": {
       "TRANSLATED": {
         "known": "We cross the bridge.",
         "learning": "Attraversiamo il ponte."
+      },
+      "RANKED": {
+        "rank": 1078
       }
     },
     "symbols": [
@@ -15281,12 +15827,16 @@ export default [
   {
     "slug": "attraverso-la-strada-lentamente",
     "traits": [
-      "TRANSLATED"
+      "TRANSLATED",
+      "RANKED"
     ],
     "trait": {
       "TRANSLATED": {
         "known": "I cross the street slowly.",
         "learning": "Attraverso la strada lentamente."
+      },
+      "RANKED": {
+        "rank": 792
       }
     },
     "symbols": [
@@ -15298,12 +15848,16 @@ export default [
   {
     "slug": "il-fiume-attraversa-la-citta",
     "traits": [
-      "TRANSLATED"
+      "TRANSLATED",
+      "RANKED"
     ],
     "trait": {
       "TRANSLATED": {
         "known": "The river crosses the city.",
         "learning": "Il fiume attraversa la città."
+      },
+      "RANKED": {
+        "rank": 966
       }
     },
     "symbols": [
@@ -15315,12 +15869,16 @@ export default [
   {
     "slug": "andiamo-in-treno-fino-a-roma",
     "traits": [
-      "TRANSLATED"
+      "TRANSLATED",
+      "RANKED"
     ],
     "trait": {
       "TRANSLATED": {
         "known": "We go by train as far as Rome.",
         "learning": "Andiamo in treno fino a Roma."
+      },
+      "RANKED": {
+        "rank": 558
       }
     },
     "symbols": [
@@ -15332,12 +15890,16 @@ export default [
   {
     "slug": "veniamo-in-macchina",
     "traits": [
-      "TRANSLATED"
+      "TRANSLATED",
+      "RANKED"
     ],
     "trait": {
       "TRANSLATED": {
         "known": "We come by car.",
         "learning": "Veniamo in macchina."
+      },
+      "RANKED": {
+        "rank": 961
       }
     },
     "symbols": [
@@ -15349,12 +15911,16 @@ export default [
   {
     "slug": "vieni-con-me-in-vacanza",
     "traits": [
-      "TRANSLATED"
+      "TRANSLATED",
+      "RANKED"
     ],
     "trait": {
       "TRANSLATED": {
         "known": "Are you coming with me on vacation?",
         "learning": "Vieni con me in vacanza?"
+      },
+      "RANKED": {
+        "rank": 625
       }
     },
     "symbols": [
@@ -15366,12 +15932,16 @@ export default [
   {
     "slug": "verro-in-italia-con-la-mia-famiglia",
     "traits": [
-      "TRANSLATED"
+      "TRANSLATED",
+      "RANKED"
     ],
     "trait": {
       "TRANSLATED": {
         "known": "I will come to Italy with my family.",
         "learning": "Verrò in Italia con la mia famiglia."
+      },
+      "RANKED": {
+        "rank": 1047
       }
     },
     "symbols": [
@@ -15383,12 +15953,16 @@ export default [
   {
     "slug": "andro-a-roma-domani",
     "traits": [
-      "TRANSLATED"
+      "TRANSLATED",
+      "RANKED"
     ],
     "trait": {
       "TRANSLATED": {
         "known": "I will go to Rome tomorrow.",
         "learning": "Andrò a Roma domani."
+      },
+      "RANKED": {
+        "rank": 889
       }
     },
     "symbols": [
@@ -15400,12 +15974,16 @@ export default [
   {
     "slug": "andrei-in-italia-domani",
     "traits": [
-      "TRANSLATED"
+      "TRANSLATED",
+      "RANKED"
     ],
     "trait": {
       "TRANSLATED": {
         "known": "I would go to Italy tomorrow.",
         "learning": "Andrei in Italia domani."
+      },
+      "RANKED": {
+        "rank": 963
       }
     },
     "symbols": [
@@ -15417,12 +15995,16 @@ export default [
   {
     "slug": "il-museo-e-dietro-la-chiesa",
     "traits": [
-      "TRANSLATED"
+      "TRANSLATED",
+      "RANKED"
     ],
     "trait": {
       "TRANSLATED": {
         "known": "The museum is behind the church.",
         "learning": "Il museo è dietro la chiesa."
+      },
+      "RANKED": {
+        "rank": 507
       }
     },
     "symbols": [
@@ -15434,12 +16016,16 @@ export default [
   {
     "slug": "il-parco-e-davanti-alla-stazione",
     "traits": [
-      "TRANSLATED"
+      "TRANSLATED",
+      "RANKED"
     ],
     "trait": {
       "TRANSLATED": {
         "known": "The park is in front of the station.",
         "learning": "Il parco è davanti alla stazione."
+      },
+      "RANKED": {
+        "rank": 480
       }
     },
     "symbols": [
@@ -15451,12 +16037,16 @@ export default [
   {
     "slug": "la-farmacia-e-vicino-al-mercato",
     "traits": [
-      "TRANSLATED"
+      "TRANSLATED",
+      "RANKED"
     ],
     "trait": {
       "TRANSLATED": {
         "known": "The pharmacy is near the market.",
         "learning": "La farmacia è vicino al mercato."
+      },
+      "RANKED": {
+        "rank": 954
       }
     },
     "symbols": [
@@ -15468,29 +16058,40 @@ export default [
   {
     "slug": "c-e-una-farmacia-qui-vicino",
     "traits": [
-      "TRANSLATED"
+      "TRANSLATED",
+      "RANKED"
     ],
     "trait": {
       "TRANSLATED": {
-        "known": "Is there a pharmacy nearby here?",
+        "known": "Is there a pharmacy near here?",
         "learning": "C'è una farmacia qui vicino?"
+      },
+      "RANKED": {
+        "rank": 104
       }
     },
     "symbols": [
       {
         "slug": "sentence"
+      },
+      {
+        "slug": "proficiency.survival"
       }
     ]
   },
   {
     "slug": "il-museo-e-aperto-oggi",
     "traits": [
-      "TRANSLATED"
+      "TRANSLATED",
+      "RANKED"
     ],
     "trait": {
       "TRANSLATED": {
         "known": "The museum is open today.",
         "learning": "Il museo è aperto oggi."
+      },
+      "RANKED": {
+        "rank": 505
       }
     },
     "symbols": [
@@ -15502,12 +16103,16 @@ export default [
   {
     "slug": "la-chiesa-e-chiusa-la-domenica",
     "traits": [
-      "TRANSLATED"
+      "TRANSLATED",
+      "RANKED"
     ],
     "trait": {
       "TRANSLATED": {
         "known": "The church is closed on Sundays.",
         "learning": "La chiesa è chiusa la domenica."
+      },
+      "RANKED": {
+        "rank": 656
       }
     },
     "symbols": [
@@ -15519,12 +16124,16 @@ export default [
   {
     "slug": "guidiamo-verso-la-montagna",
     "traits": [
-      "TRANSLATED"
+      "TRANSLATED",
+      "RANKED"
     ],
     "trait": {
       "TRANSLATED": {
         "known": "We drive towards the mountain.",
         "learning": "Guidiamo verso la montagna."
+      },
+      "RANKED": {
+        "rank": 1082
       }
     },
     "symbols": [
@@ -15536,12 +16145,16 @@ export default [
   {
     "slug": "il-taxi-e-vicino-all-albergo",
     "traits": [
-      "TRANSLATED"
+      "TRANSLATED",
+      "RANKED"
     ],
     "trait": {
       "TRANSLATED": {
         "known": "The taxi is near the hotel.",
         "learning": "Il taxi è vicino all'albergo."
+      },
+      "RANKED": {
+        "rank": 1067
       }
     },
     "symbols": [
@@ -15553,46 +16166,64 @@ export default [
   {
     "slug": "l-albergo-e-in-centro",
     "traits": [
-      "TRANSLATED"
+      "TRANSLATED",
+      "RANKED"
     ],
     "trait": {
       "TRANSLATED": {
         "known": "The hotel is downtown.",
         "learning": "L'albergo è in centro."
+      },
+      "RANKED": {
+        "rank": 92
       }
     },
     "symbols": [
       {
         "slug": "sentence"
+      },
+      {
+        "slug": "proficiency.survival"
       }
     ]
   },
   {
     "slug": "la-camera-e-al-terzo-piano",
     "traits": [
-      "TRANSLATED"
+      "TRANSLATED",
+      "RANKED"
     ],
     "trait": {
       "TRANSLATED": {
         "known": "The room is on the third floor.",
         "learning": "La camera è al terzo piano."
+      },
+      "RANKED": {
+        "rank": 91
       }
     },
     "symbols": [
       {
         "slug": "sentence"
+      },
+      {
+        "slug": "proficiency.survival"
       }
     ]
   },
   {
     "slug": "la-chiave-e-nella-borsa",
     "traits": [
-      "TRANSLATED"
+      "TRANSLATED",
+      "RANKED"
     ],
     "trait": {
       "TRANSLATED": {
         "known": "The key is in the bag.",
         "learning": "La chiave è nella borsa."
+      },
+      "RANKED": {
+        "rank": 635
       }
     },
     "symbols": [
@@ -15604,12 +16235,16 @@ export default [
   {
     "slug": "il-traghetto-attraversa-il-mare",
     "traits": [
-      "TRANSLATED"
+      "TRANSLATED",
+      "RANKED"
     ],
     "trait": {
       "TRANSLATED": {
         "known": "The ferry crosses the sea.",
         "learning": "Il traghetto attraversa il mare."
+      },
+      "RANKED": {
+        "rank": 1035
       }
     },
     "symbols": [
@@ -15621,12 +16256,16 @@ export default [
   {
     "slug": "la-nave-e-al-porto",
     "traits": [
-      "TRANSLATED"
+      "TRANSLATED",
+      "RANKED"
     ],
     "trait": {
       "TRANSLATED": {
         "known": "The ship is at the port.",
         "learning": "La nave è al porto."
+      },
+      "RANKED": {
+        "rank": 551
       }
     },
     "symbols": [
@@ -15638,12 +16277,16 @@ export default [
   {
     "slug": "il-volo-e-lungo",
     "traits": [
-      "TRANSLATED"
+      "TRANSLATED",
+      "RANKED"
     ],
     "trait": {
       "TRANSLATED": {
         "known": "The flight is long.",
         "learning": "Il volo è lungo."
+      },
+      "RANKED": {
+        "rank": 495
       }
     },
     "symbols": [
@@ -15655,12 +16298,16 @@ export default [
   {
     "slug": "la-valigia-e-troppo-pesante",
     "traits": [
-      "TRANSLATED"
+      "TRANSLATED",
+      "RANKED"
     ],
     "trait": {
       "TRANSLATED": {
         "known": "The suitcase is too heavy.",
         "learning": "La valigia è troppo pesante."
+      },
+      "RANKED": {
+        "rank": 942
       }
     },
     "symbols": [
@@ -15672,12 +16319,16 @@ export default [
   {
     "slug": "il-quartiere-e-tranquillo",
     "traits": [
-      "TRANSLATED"
+      "TRANSLATED",
+      "RANKED"
     ],
     "trait": {
       "TRANSLATED": {
         "known": "The neighborhood is quiet.",
         "learning": "Il quartiere è tranquillo."
+      },
+      "RANKED": {
+        "rank": 638
       }
     },
     "symbols": [
@@ -15689,12 +16340,16 @@ export default [
   {
     "slug": "la-strada-e-stretta",
     "traits": [
-      "TRANSLATED"
+      "TRANSLATED",
+      "RANKED"
     ],
     "trait": {
       "TRANSLATED": {
         "known": "The street is narrow.",
         "learning": "La strada è stretta."
+      },
+      "RANKED": {
+        "rank": 809
       }
     },
     "symbols": [
@@ -15706,12 +16361,16 @@ export default [
   {
     "slug": "il-ponte-e-grande",
     "traits": [
-      "TRANSLATED"
+      "TRANSLATED",
+      "RANKED"
     ],
     "trait": {
       "TRANSLATED": {
         "known": "The bridge is big.",
         "learning": "Il ponte è grande."
+      },
+      "RANKED": {
+        "rank": 527
       }
     },
     "symbols": [
@@ -15723,12 +16382,16 @@ export default [
   {
     "slug": "come-stai-oggi",
     "traits": [
-      "TRANSLATED"
+      "TRANSLATED",
+      "RANKED"
     ],
     "trait": {
       "TRANSLATED": {
         "known": "How are you today?",
         "learning": "Come stai oggi?"
+      },
+      "RANKED": {
+        "rank": 272
       }
     },
     "symbols": [
@@ -15740,29 +16403,40 @@ export default [
   {
     "slug": "sto-bene-grazie",
     "traits": [
-      "TRANSLATED"
+      "TRANSLATED",
+      "RANKED"
     ],
     "trait": {
       "TRANSLATED": {
         "known": "I'm fine, thank you.",
         "learning": "Sto bene, grazie."
+      },
+      "RANKED": {
+        "rank": 4
       }
     },
     "symbols": [
       {
         "slug": "sentence"
+      },
+      {
+        "slug": "proficiency.survival"
       }
     ]
   },
   {
     "slug": "sto-male-oggi",
     "traits": [
-      "TRANSLATED"
+      "TRANSLATED",
+      "RANKED"
     ],
     "trait": {
       "TRANSLATED": {
         "known": "I feel bad today.",
         "learning": "Sto male oggi."
+      },
+      "RANKED": {
+        "rank": 176
       }
     },
     "symbols": [
@@ -15774,12 +16448,16 @@ export default [
   {
     "slug": "sei-molto-simpatico",
     "traits": [
-      "TRANSLATED"
+      "TRANSLATED",
+      "RANKED"
     ],
     "trait": {
       "TRANSLATED": {
         "known": "You are very nice.",
         "learning": "Sei molto simpatico."
+      },
+      "RANKED": {
+        "rank": 851
       }
     },
     "symbols": [
@@ -15791,12 +16469,16 @@ export default [
   {
     "slug": "sei-molto-simpatica",
     "traits": [
-      "TRANSLATED"
+      "TRANSLATED",
+      "RANKED"
     ],
     "trait": {
       "TRANSLATED": {
         "known": "You are very nice. (fem.)",
         "learning": "Sei molto simpatica."
+      },
+      "RANKED": {
+        "rank": 945
       }
     },
     "symbols": [
@@ -15808,12 +16490,16 @@ export default [
   {
     "slug": "credo-che-tu-sia-simpatico",
     "traits": [
-      "TRANSLATED"
+      "TRANSLATED",
+      "RANKED"
     ],
     "trait": {
       "TRANSLATED": {
         "known": "I believe you are nice.",
         "learning": "Credo che tu sia simpatico."
+      },
+      "RANKED": {
+        "rank": 856
       }
     },
     "symbols": [
@@ -15825,12 +16511,16 @@ export default [
   {
     "slug": "non-credo-che-sia-vero",
     "traits": [
-      "TRANSLATED"
+      "TRANSLATED",
+      "RANKED"
     ],
     "trait": {
       "TRANSLATED": {
         "known": "I don't believe it's true.",
         "learning": "Non credo che sia vero."
+      },
+      "RANKED": {
+        "rank": 196
       }
     },
     "symbols": [
@@ -15842,12 +16532,16 @@ export default [
   {
     "slug": "sono-felice-oggi",
     "traits": [
-      "TRANSLATED"
+      "TRANSLATED",
+      "RANKED"
     ],
     "trait": {
       "TRANSLATED": {
         "known": "I am happy today.",
         "learning": "Sono felice oggi."
+      },
+      "RANKED": {
+        "rank": 334
       }
     },
     "symbols": [
@@ -15859,12 +16553,16 @@ export default [
   {
     "slug": "sei-molto-stanco",
     "traits": [
-      "TRANSLATED"
+      "TRANSLATED",
+      "RANKED"
     ],
     "trait": {
       "TRANSLATED": {
         "known": "Are you very tired?",
         "learning": "Sei molto stanco?"
+      },
+      "RANKED": {
+        "rank": 821
       }
     },
     "symbols": [
@@ -15876,12 +16574,16 @@ export default [
   {
     "slug": "sono-un-po-stanco-oggi",
     "traits": [
-      "TRANSLATED"
+      "TRANSLATED",
+      "RANKED"
     ],
     "trait": {
       "TRANSLATED": {
         "known": "I am a bit tired today.",
         "learning": "Sono un po' stanco oggi."
+      },
+      "RANKED": {
+        "rank": 829
       }
     },
     "symbols": [
@@ -15893,12 +16595,16 @@ export default [
   {
     "slug": "il-clima-qui-e-mite",
     "traits": [
-      "TRANSLATED"
+      "TRANSLATED",
+      "RANKED"
     ],
     "trait": {
       "TRANSLATED": {
         "known": "The climate here is mild.",
         "learning": "Il clima qui è mite."
+      },
+      "RANKED": {
+        "rank": 1045
       }
     },
     "symbols": [
@@ -15910,12 +16616,16 @@ export default [
   {
     "slug": "fa-caldo-oggi",
     "traits": [
-      "TRANSLATED"
+      "TRANSLATED",
+      "RANKED"
     ],
     "trait": {
       "TRANSLATED": {
         "known": "It's hot today.",
         "learning": "Fa caldo oggi."
+      },
+      "RANKED": {
+        "rank": 511
       }
     },
     "symbols": [
@@ -15927,12 +16637,16 @@ export default [
   {
     "slug": "fa-freddo-stasera",
     "traits": [
-      "TRANSLATED"
+      "TRANSLATED",
+      "RANKED"
     ],
     "trait": {
       "TRANSLATED": {
         "known": "It's cold tonight.",
         "learning": "Fa freddo stasera."
+      },
+      "RANKED": {
+        "rank": 539
       }
     },
     "symbols": [
@@ -15944,12 +16658,16 @@ export default [
   {
     "slug": "c-e-pioggia-oggi",
     "traits": [
-      "TRANSLATED"
+      "TRANSLATED",
+      "RANKED"
     ],
     "trait": {
       "TRANSLATED": {
         "known": "There is rain today.",
         "learning": "C'è pioggia oggi."
+      },
+      "RANKED": {
+        "rank": 659
       }
     },
     "symbols": [
@@ -15961,12 +16679,16 @@ export default [
   {
     "slug": "il-cielo-e-grigio",
     "traits": [
-      "TRANSLATED"
+      "TRANSLATED",
+      "RANKED"
     ],
     "trait": {
       "TRANSLATED": {
         "known": "The sky is gray.",
         "learning": "Il cielo è grigio."
+      },
+      "RANKED": {
+        "rank": 848
       }
     },
     "symbols": [
@@ -15978,12 +16700,16 @@ export default [
   {
     "slug": "preferisco-il-vino-bianco",
     "traits": [
-      "TRANSLATED"
+      "TRANSLATED",
+      "RANKED"
     ],
     "trait": {
       "TRANSLATED": {
         "known": "I prefer white wine.",
         "learning": "Preferisco il vino bianco."
+      },
+      "RANKED": {
+        "rank": 714
       }
     },
     "symbols": [
@@ -15995,12 +16721,16 @@ export default [
   {
     "slug": "credo-che-il-film-sia-interessante",
     "traits": [
-      "TRANSLATED"
+      "TRANSLATED",
+      "RANKED"
     ],
     "trait": {
       "TRANSLATED": {
         "known": "I believe the movie is interesting.",
         "learning": "Credo che il film sia interessante."
+      },
+      "RANKED": {
+        "rank": 429
       }
     },
     "symbols": [
@@ -16012,12 +16742,16 @@ export default [
   {
     "slug": "non-credo-proprio",
     "traits": [
-      "TRANSLATED"
+      "TRANSLATED",
+      "RANKED"
     ],
     "trait": {
       "TRANSLATED": {
         "known": "I really don't believe it.",
         "learning": "Non credo proprio."
+      },
+      "RANKED": {
+        "rank": 194
       }
     },
     "symbols": [
@@ -16029,12 +16763,16 @@ export default [
   {
     "slug": "hai-una-buona-idea",
     "traits": [
-      "TRANSLATED"
+      "TRANSLATED",
+      "RANKED"
     ],
     "trait": {
       "TRANSLATED": {
         "known": "Do you have a good idea?",
         "learning": "Hai una buona idea?"
+      },
+      "RANKED": {
+        "rank": 216
       }
     },
     "symbols": [
@@ -16046,12 +16784,16 @@ export default [
   {
     "slug": "questo-film-e-piu-interessante",
     "traits": [
-      "TRANSLATED"
+      "TRANSLATED",
+      "RANKED"
     ],
     "trait": {
       "TRANSLATED": {
         "known": "This movie is more interesting.",
         "learning": "Questo film è più interessante."
+      },
+      "RANKED": {
+        "rank": 428
       }
     },
     "symbols": [
@@ -16063,12 +16805,16 @@ export default [
   {
     "slug": "mio-fratello-e-molto-intelligente",
     "traits": [
-      "TRANSLATED"
+      "TRANSLATED",
+      "RANKED"
     ],
     "trait": {
       "TRANSLATED": {
         "known": "My brother is very intelligent.",
         "learning": "Mio fratello è molto intelligente."
+      },
+      "RANKED": {
+        "rank": 694
       }
     },
     "symbols": [
@@ -16080,12 +16826,16 @@ export default [
   {
     "slug": "mia-sorella-e-gentile-e-simpatica",
     "traits": [
-      "TRANSLATED"
+      "TRANSLATED",
+      "RANKED"
     ],
     "trait": {
       "TRANSLATED": {
         "known": "My sister is kind and nice.",
         "learning": "Mia sorella è gentile e simpatica."
+      },
+      "RANKED": {
+        "rank": 953
       }
     },
     "symbols": [
@@ -16097,12 +16847,16 @@ export default [
   {
     "slug": "il-mio-amico-e-divertente",
     "traits": [
-      "TRANSLATED"
+      "TRANSLATED",
+      "RANKED"
     ],
     "trait": {
       "TRANSLATED": {
         "known": "My friend is fun.",
         "learning": "Il mio amico è divertente."
+      },
+      "RANKED": {
+        "rank": 586
       }
     },
     "symbols": [
@@ -16114,12 +16868,16 @@ export default [
   {
     "slug": "la-mia-amica-e-timida",
     "traits": [
-      "TRANSLATED"
+      "TRANSLATED",
+      "RANKED"
     ],
     "trait": {
       "TRANSLATED": {
         "known": "My friend is shy. (fem.)",
         "learning": "La mia amica è timida."
+      },
+      "RANKED": {
+        "rank": 1048
       }
     },
     "symbols": [
@@ -16131,12 +16889,16 @@ export default [
   {
     "slug": "sono-molto-occupato-oggi",
     "traits": [
-      "TRANSLATED"
+      "TRANSLATED",
+      "RANKED"
     ],
     "trait": {
       "TRANSLATED": {
         "known": "I am very busy today.",
         "learning": "Sono molto occupato oggi."
+      },
+      "RANKED": {
+        "rank": 760
       }
     },
     "symbols": [
@@ -16148,12 +16910,16 @@ export default [
   {
     "slug": "il-mio-capo-e-molto-serio",
     "traits": [
-      "TRANSLATED"
+      "TRANSLATED",
+      "RANKED"
     ],
     "trait": {
       "TRANSLATED": {
         "known": "My boss is very serious.",
         "learning": "Il mio capo è molto serio."
+      },
+      "RANKED": {
+        "rank": 476
       }
     },
     "symbols": [
@@ -16165,12 +16931,16 @@ export default [
   {
     "slug": "la-riunione-e-importante",
     "traits": [
-      "TRANSLATED"
+      "TRANSLATED",
+      "RANKED"
     ],
     "trait": {
       "TRANSLATED": {
         "known": "The meeting is important.",
         "learning": "La riunione è importante."
+      },
+      "RANKED": {
+        "rank": 733
       }
     },
     "symbols": [
@@ -16182,12 +16952,16 @@ export default [
   {
     "slug": "il-progetto-e-difficile",
     "traits": [
-      "TRANSLATED"
+      "TRANSLATED",
+      "RANKED"
     ],
     "trait": {
       "TRANSLATED": {
         "known": "The project is difficult.",
         "learning": "Il progetto è difficile."
+      },
+      "RANKED": {
+        "rank": 266
       }
     },
     "symbols": [
@@ -16199,12 +16973,16 @@ export default [
   {
     "slug": "questo-problema-e-grande",
     "traits": [
-      "TRANSLATED"
+      "TRANSLATED",
+      "RANKED"
     ],
     "trait": {
       "TRANSLATED": {
         "known": "This problem is big.",
         "learning": "Questo problema è grande."
+      },
+      "RANKED": {
+        "rank": 180
       }
     },
     "symbols": [
@@ -16216,12 +16994,16 @@ export default [
   {
     "slug": "la-situazione-e-strana",
     "traits": [
-      "TRANSLATED"
+      "TRANSLATED",
+      "RANKED"
     ],
     "trait": {
       "TRANSLATED": {
         "known": "The situation is strange.",
         "learning": "La situazione è strana."
+      },
+      "RANKED": {
+        "rank": 766
       }
     },
     "symbols": [
@@ -16233,12 +17015,16 @@ export default [
   {
     "slug": "sono-molto-sicuro-di-questo",
     "traits": [
-      "TRANSLATED"
+      "TRANSLATED",
+      "RANKED"
     ],
     "trait": {
       "TRANSLATED": {
         "known": "I am very sure of this.",
         "learning": "Sono molto sicuro di questo."
+      },
+      "RANKED": {
+        "rank": 313
       }
     },
     "symbols": [
@@ -16250,12 +17036,16 @@ export default [
   {
     "slug": "non-sono-per-niente-sicuro",
     "traits": [
-      "TRANSLATED"
+      "TRANSLATED",
+      "RANKED"
     ],
     "trait": {
       "TRANSLATED": {
         "known": "I am not sure at all.",
         "learning": "Non sono per niente sicuro."
+      },
+      "RANKED": {
+        "rank": 312
       }
     },
     "symbols": [
@@ -16267,12 +17057,16 @@ export default [
   {
     "slug": "credo-di-si",
     "traits": [
-      "TRANSLATED"
+      "TRANSLATED",
+      "RANKED"
     ],
     "trait": {
       "TRANSLATED": {
         "known": "I think so.",
         "learning": "Credo di sì."
+      },
+      "RANKED": {
+        "rank": 190
       }
     },
     "symbols": [
@@ -16284,12 +17078,16 @@ export default [
   {
     "slug": "credo-di-no",
     "traits": [
-      "TRANSLATED"
+      "TRANSLATED",
+      "RANKED"
     ],
     "trait": {
       "TRANSLATED": {
         "known": "I think not.",
         "learning": "Credo di no."
+      },
+      "RANKED": {
+        "rank": 189
       }
     },
     "symbols": [
@@ -16301,12 +17099,16 @@ export default [
   {
     "slug": "il-tuo-amico-e-molto-simpatico",
     "traits": [
-      "TRANSLATED"
+      "TRANSLATED",
+      "RANKED"
     ],
     "trait": {
       "TRANSLATED": {
         "known": "Your friend is very nice.",
         "learning": "Il tuo amico è molto simpatico."
+      },
+      "RANKED": {
+        "rank": 860
       }
     },
     "symbols": [
@@ -16318,12 +17120,16 @@ export default [
   {
     "slug": "la-tua-idea-e-interessante",
     "traits": [
-      "TRANSLATED"
+      "TRANSLATED",
+      "RANKED"
     ],
     "trait": {
       "TRANSLATED": {
         "known": "Your idea is interesting.",
         "learning": "La tua idea è interessante."
+      },
+      "RANKED": {
+        "rank": 427
       }
     },
     "symbols": [
@@ -16335,12 +17141,16 @@ export default [
   {
     "slug": "questo-quartiere-e-bello",
     "traits": [
-      "TRANSLATED"
+      "TRANSLATED",
+      "RANKED"
     ],
     "trait": {
       "TRANSLATED": {
         "known": "This neighborhood is beautiful.",
         "learning": "Questo quartiere è bello."
+      },
+      "RANKED": {
+        "rank": 561
       }
     },
     "symbols": [
@@ -16352,12 +17162,16 @@ export default [
   {
     "slug": "la-musica-e-bella",
     "traits": [
-      "TRANSLATED"
+      "TRANSLATED",
+      "RANKED"
     ],
     "trait": {
       "TRANSLATED": {
         "known": "Music is beautiful.",
         "learning": "La musica è bella."
+      },
+      "RANKED": {
+        "rank": 282
       }
     },
     "symbols": [
@@ -16369,12 +17183,16 @@ export default [
   {
     "slug": "parlo-spesso-con-il-mio-amico",
     "traits": [
-      "TRANSLATED"
+      "TRANSLATED",
+      "RANKED"
     ],
     "trait": {
       "TRANSLATED": {
         "known": "I often talk with my friend.",
         "learning": "Parlo spesso con il mio amico."
+      },
+      "RANKED": {
+        "rank": 610
       }
     },
     "symbols": [
@@ -16386,12 +17204,16 @@ export default [
   {
     "slug": "non-parlo-mai-di-politica",
     "traits": [
-      "TRANSLATED"
+      "TRANSLATED",
+      "RANKED"
     ],
     "trait": {
       "TRANSLATED": {
         "known": "I never talk about politics.",
         "learning": "Non parlo mai di politica."
+      },
+      "RANKED": {
+        "rank": 608
       }
     },
     "symbols": [
@@ -16403,12 +17225,16 @@ export default [
   {
     "slug": "chi-sei-tu",
     "traits": [
-      "TRANSLATED"
+      "TRANSLATED",
+      "RANKED"
     ],
     "trait": {
       "TRANSLATED": {
         "known": "Who are you?",
         "learning": "Chi sei tu?"
+      },
+      "RANKED": {
+        "rank": 137
       }
     },
     "symbols": [
@@ -16420,12 +17246,16 @@ export default [
   {
     "slug": "chi-e-questo",
     "traits": [
-      "TRANSLATED"
+      "TRANSLATED",
+      "RANKED"
     ],
     "trait": {
       "TRANSLATED": {
         "known": "Who is this?",
         "learning": "Chi è questo?"
+      },
+      "RANKED": {
+        "rank": 117
       }
     },
     "symbols": [
@@ -16437,12 +17267,16 @@ export default [
   {
     "slug": "cosa-fai-oggi",
     "traits": [
-      "TRANSLATED"
+      "TRANSLATED",
+      "RANKED"
     ],
     "trait": {
       "TRANSLATED": {
         "known": "What are you doing today?",
         "learning": "Cosa fai oggi?"
+      },
+      "RANKED": {
+        "rank": 223
       }
     },
     "symbols": [
@@ -16454,12 +17288,16 @@ export default [
   {
     "slug": "cosa-vuoi-adesso",
     "traits": [
-      "TRANSLATED"
+      "TRANSLATED",
+      "RANKED"
     ],
     "trait": {
       "TRANSLATED": {
         "known": "What do you want now?",
         "learning": "Cosa vuoi adesso?"
+      },
+      "RANKED": {
+        "rank": 205
       }
     },
     "symbols": [
@@ -16471,12 +17309,16 @@ export default [
   {
     "slug": "dove-vai-adesso",
     "traits": [
-      "TRANSLATED"
+      "TRANSLATED",
+      "RANKED"
     ],
     "trait": {
       "TRANSLATED": {
         "known": "Where are you going now?",
         "learning": "Dove vai adesso?"
+      },
+      "RANKED": {
+        "rank": 349
       }
     },
     "symbols": [
@@ -16488,12 +17330,16 @@ export default [
   {
     "slug": "dove-andiamo-stasera",
     "traits": [
-      "TRANSLATED"
+      "TRANSLATED",
+      "RANKED"
     ],
     "trait": {
       "TRANSLATED": {
         "known": "Where are we going tonight?",
         "learning": "Dove andiamo stasera?"
+      },
+      "RANKED": {
+        "rank": 554
       }
     },
     "symbols": [
@@ -16505,12 +17351,16 @@ export default [
   {
     "slug": "quando-vieni-qui",
     "traits": [
-      "TRANSLATED"
+      "TRANSLATED",
+      "RANKED"
     ],
     "trait": {
       "TRANSLATED": {
         "known": "When are you coming here?",
         "learning": "Quando vieni qui?"
+      },
+      "RANKED": {
+        "rank": 618
       }
     },
     "symbols": [
@@ -16522,12 +17372,16 @@ export default [
   {
     "slug": "quando-inizia-il-lavoro",
     "traits": [
-      "TRANSLATED"
+      "TRANSLATED",
+      "RANKED"
     ],
     "trait": {
       "TRANSLATED": {
         "known": "When does work start?",
         "learning": "Quando inizia il lavoro?"
+      },
+      "RANKED": {
+        "rank": 421
       }
     },
     "symbols": [
@@ -16539,12 +17393,16 @@ export default [
   {
     "slug": "com-e-la-cena",
     "traits": [
-      "TRANSLATED"
+      "TRANSLATED",
+      "RANKED"
     ],
     "trait": {
       "TRANSLATED": {
         "known": "How is dinner?",
         "learning": "Com'è la cena?"
+      },
+      "RANKED": {
+        "rank": 567
       }
     },
     "symbols": [
@@ -16556,29 +17414,40 @@ export default [
   {
     "slug": "come-si-dice-questo",
     "traits": [
-      "TRANSLATED"
+      "TRANSLATED",
+      "RANKED"
     ],
     "trait": {
       "TRANSLATED": {
         "known": "How do you say this?",
         "learning": "Come si dice questo?"
+      },
+      "RANKED": {
+        "rank": 21
       }
     },
     "symbols": [
       {
         "slug": "sentence"
+      },
+      {
+        "slug": "proficiency.survival"
       }
     ]
   },
   {
     "slug": "perche-sei-triste",
     "traits": [
-      "TRANSLATED"
+      "TRANSLATED",
+      "RANKED"
     ],
     "trait": {
       "TRANSLATED": {
         "known": "Why are you sad?",
         "learning": "Perché sei triste?"
+      },
+      "RANKED": {
+        "rank": 544
       }
     },
     "symbols": [
@@ -16590,12 +17459,16 @@ export default [
   {
     "slug": "perche-non-mi-rispondi",
     "traits": [
-      "TRANSLATED"
+      "TRANSLATED",
+      "RANKED"
     ],
     "trait": {
       "TRANSLATED": {
         "known": "Why don't you answer me?",
         "learning": "Perché non mi rispondi?"
+      },
+      "RANKED": {
+        "rank": 877
       }
     },
     "symbols": [
@@ -16607,12 +17480,16 @@ export default [
   {
     "slug": "quanto-pesa-la-valigia",
     "traits": [
-      "TRANSLATED"
+      "TRANSLATED",
+      "RANKED"
     ],
     "trait": {
       "TRANSLATED": {
         "known": "How much does the suitcase weigh?",
         "learning": "Quanto pesa la valigia?"
+      },
+      "RANKED": {
+        "rank": 948
       }
     },
     "symbols": [
@@ -16624,12 +17501,16 @@ export default [
   {
     "slug": "quale-scegli-tu",
     "traits": [
-      "TRANSLATED"
+      "TRANSLATED",
+      "RANKED"
     ],
     "trait": {
       "TRANSLATED": {
         "known": "Which one do you choose?",
         "learning": "Quale scegli tu?"
+      },
+      "RANKED": {
+        "rank": 813
       }
     },
     "symbols": [
@@ -16641,12 +17522,16 @@ export default [
   {
     "slug": "quale-preferisci-tu",
     "traits": [
-      "TRANSLATED"
+      "TRANSLATED",
+      "RANKED"
     ],
     "trait": {
       "TRANSLATED": {
         "known": "Which one do you prefer?",
         "learning": "Quale preferisci tu?"
+      },
+      "RANKED": {
+        "rank": 920
       }
     },
     "symbols": [
@@ -16658,12 +17543,16 @@ export default [
   {
     "slug": "chi-viene-con-noi",
     "traits": [
-      "TRANSLATED"
+      "TRANSLATED",
+      "RANKED"
     ],
     "trait": {
       "TRANSLATED": {
         "known": "Who is coming with us?",
         "learning": "Chi viene con noi?"
+      },
+      "RANKED": {
+        "rank": 147
       }
     },
     "symbols": [
@@ -16675,12 +17564,16 @@ export default [
   {
     "slug": "chi-ha-il-biglietto",
     "traits": [
-      "TRANSLATED"
+      "TRANSLATED",
+      "RANKED"
     ],
     "trait": {
       "TRANSLATED": {
         "known": "Who has the ticket?",
         "learning": "Chi ha il biglietto?"
+      },
+      "RANKED": {
+        "rank": 628
       }
     },
     "symbols": [
@@ -16692,12 +17585,16 @@ export default [
   {
     "slug": "cosa-dici-adesso",
     "traits": [
-      "TRANSLATED"
+      "TRANSLATED",
+      "RANKED"
     ],
     "trait": {
       "TRANSLATED": {
         "known": "What are you saying now?",
         "learning": "Cosa dici adesso?"
+      },
+      "RANKED": {
+        "rank": 413
       }
     },
     "symbols": [
@@ -16709,12 +17606,16 @@ export default [
   {
     "slug": "cosa-vuoi-dire",
     "traits": [
-      "TRANSLATED"
+      "TRANSLATED",
+      "RANKED"
     ],
     "trait": {
       "TRANSLATED": {
         "known": "What do you mean?",
         "learning": "Cosa vuoi dire?"
+      },
+      "RANKED": {
+        "rank": 206
       }
     },
     "symbols": [
@@ -16726,12 +17627,16 @@ export default [
   {
     "slug": "dove-sali-adesso",
     "traits": [
-      "TRANSLATED"
+      "TRANSLATED",
+      "RANKED"
     ],
     "trait": {
       "TRANSLATED": {
         "known": "Where are you getting on now?",
         "learning": "Dove sali adesso?"
+      },
+      "RANKED": {
+        "rank": 919
       }
     },
     "symbols": [
@@ -16743,12 +17648,16 @@ export default [
   {
     "slug": "dove-scendi-tu",
     "traits": [
-      "TRANSLATED"
+      "TRANSLATED",
+      "RANKED"
     ],
     "trait": {
       "TRANSLATED": {
         "known": "Where are you getting off?",
         "learning": "Dove scendi tu?"
+      },
+      "RANKED": {
+        "rank": 1043
       }
     },
     "symbols": [
@@ -16760,12 +17669,16 @@ export default [
   {
     "slug": "quando-vieni-a-roma",
     "traits": [
-      "TRANSLATED"
+      "TRANSLATED",
+      "RANKED"
     ],
     "trait": {
       "TRANSLATED": {
         "known": "When are you coming to Rome?",
         "learning": "Quando vieni a Roma?"
+      },
+      "RANKED": {
+        "rank": 623
       }
     },
     "symbols": [
@@ -16777,12 +17690,16 @@ export default [
   {
     "slug": "come-va-oggi",
     "traits": [
-      "TRANSLATED"
+      "TRANSLATED",
+      "RANKED"
     ],
     "trait": {
       "TRANSLATED": {
         "known": "How's it going today?",
         "learning": "Come va oggi?"
+      },
+      "RANKED": {
+        "rank": 148
       }
     },
     "symbols": [
@@ -16794,12 +17711,16 @@ export default [
   {
     "slug": "sei-pronto-adesso",
     "traits": [
-      "TRANSLATED"
+      "TRANSLATED",
+      "RANKED"
     ],
     "trait": {
       "TRANSLATED": {
         "known": "Are you ready now?",
         "learning": "Sei pronto adesso?"
+      },
+      "RANKED": {
+        "rank": 465
       }
     },
     "symbols": [
@@ -16811,12 +17732,16 @@ export default [
   {
     "slug": "sei-sicuro-di-questo",
     "traits": [
-      "TRANSLATED"
+      "TRANSLATED",
+      "RANKED"
     ],
     "trait": {
       "TRANSLATED": {
         "known": "Are you sure about this?",
         "learning": "Sei sicuro di questo?"
+      },
+      "RANKED": {
+        "rank": 309
       }
     },
     "symbols": [
@@ -16828,12 +17753,16 @@ export default [
   {
     "slug": "hai-la-chiave",
     "traits": [
-      "TRANSLATED"
+      "TRANSLATED",
+      "RANKED"
     ],
     "trait": {
       "TRANSLATED": {
         "known": "Do you have the key?",
         "learning": "Hai la chiave?"
+      },
+      "RANKED": {
+        "rank": 501
       }
     },
     "symbols": [
@@ -16845,12 +17774,16 @@ export default [
   {
     "slug": "hai-un-momento",
     "traits": [
-      "TRANSLATED"
+      "TRANSLATED",
+      "RANKED"
     ],
     "trait": {
       "TRANSLATED": {
         "known": "Do you have a moment?",
         "learning": "Hai un momento?"
+      },
+      "RANKED": {
+        "rank": 154
       }
     },
     "symbols": [
@@ -16862,12 +17795,16 @@ export default [
   {
     "slug": "posso-venire-con-voi",
     "traits": [
-      "TRANSLATED"
+      "TRANSLATED",
+      "RANKED"
     ],
     "trait": {
       "TRANSLATED": {
         "known": "Can I come with you all?",
         "learning": "Posso venire con voi?"
+      },
+      "RANKED": {
+        "rank": 397
       }
     },
     "symbols": [
@@ -16879,12 +17816,16 @@ export default [
   {
     "slug": "puoi-rispondere-adesso",
     "traits": [
-      "TRANSLATED"
+      "TRANSLATED",
+      "RANKED"
     ],
     "trait": {
       "TRANSLATED": {
         "known": "Can you answer now?",
         "learning": "Puoi rispondere adesso?"
+      },
+      "RANKED": {
+        "rank": 471
       }
     },
     "symbols": [
@@ -16896,12 +17837,16 @@ export default [
   {
     "slug": "potresti-telefonare-a-mia-madre",
     "traits": [
-      "TRANSLATED"
+      "TRANSLATED",
+      "RANKED"
     ],
     "trait": {
       "TRANSLATED": {
         "known": "Could you phone my mother?",
         "learning": "Potresti telefonare a mia madre?"
+      },
+      "RANKED": {
+        "rank": 1042
       }
     },
     "symbols": [
@@ -16913,12 +17858,16 @@ export default [
   {
     "slug": "dovremmo-andare-ora",
     "traits": [
-      "TRANSLATED"
+      "TRANSLATED",
+      "RANKED"
     ],
     "trait": {
       "TRANSLATED": {
         "known": "Should we go now?",
         "learning": "Dovremmo andare ora?"
+      },
+      "RANKED": {
+        "rank": 585
       }
     },
     "symbols": [
@@ -16930,12 +17879,16 @@ export default [
   {
     "slug": "vuoi-venire-con-me",
     "traits": [
-      "TRANSLATED"
+      "TRANSLATED",
+      "RANKED"
     ],
     "trait": {
       "TRANSLATED": {
         "known": "Do you want to come with me?",
         "learning": "Vuoi venire con me?"
+      },
+      "RANKED": {
+        "rank": 400
       }
     },
     "symbols": [
@@ -16947,12 +17900,16 @@ export default [
   {
     "slug": "vuoi-un-caffe",
     "traits": [
-      "TRANSLATED"
+      "TRANSLATED",
+      "RANKED"
     ],
     "trait": {
       "TRANSLATED": {
         "known": "Do you want a coffee?",
         "learning": "Vuoi un caffè?"
+      },
+      "RANKED": {
+        "rank": 492
       }
     },
     "symbols": [
@@ -16964,29 +17921,40 @@ export default [
   {
     "slug": "sai-dov-e-la-farmacia",
     "traits": [
-      "TRANSLATED"
+      "TRANSLATED",
+      "RANKED"
     ],
     "trait": {
       "TRANSLATED": {
         "known": "Do you know where the pharmacy is?",
         "learning": "Sai dov'è la farmacia?"
+      },
+      "RANKED": {
+        "rank": 112
       }
     },
     "symbols": [
       {
         "slug": "sentence"
+      },
+      {
+        "slug": "proficiency.survival"
       }
     ]
   },
   {
     "slug": "sai-guidare-bene",
     "traits": [
-      "TRANSLATED"
+      "TRANSLATED",
+      "RANKED"
     ],
     "trait": {
       "TRANSLATED": {
         "known": "Do you know how to drive well?",
         "learning": "Sai guidare bene?"
+      },
+      "RANKED": {
+        "rank": 723
       }
     },
     "symbols": [
@@ -16998,12 +17966,16 @@ export default [
   {
     "slug": "chi-e-il-tuo-amico",
     "traits": [
-      "TRANSLATED"
+      "TRANSLATED",
+      "RANKED"
     ],
     "trait": {
       "TRANSLATED": {
         "known": "Who is your friend?",
         "learning": "Chi è il tuo amico?"
+      },
+      "RANKED": {
+        "rank": 301
       }
     },
     "symbols": [
@@ -17015,12 +17987,16 @@ export default [
   {
     "slug": "quanto-pesa-il-bagaglio",
     "traits": [
-      "TRANSLATED"
+      "TRANSLATED",
+      "RANKED"
     ],
     "trait": {
       "TRANSLATED": {
         "known": "How much does the luggage weigh?",
         "learning": "Quanto pesa il bagaglio?"
+      },
+      "RANKED": {
+        "rank": 987
       }
     },
     "symbols": [
@@ -17032,12 +18008,16 @@ export default [
   {
     "slug": "chi-ti-manda-il-messaggio",
     "traits": [
-      "TRANSLATED"
+      "TRANSLATED",
+      "RANKED"
     ],
     "trait": {
       "TRANSLATED": {
         "known": "Who sends you the message?",
         "learning": "Chi ti manda il messaggio?"
+      },
+      "RANKED": {
+        "rank": 767
       }
     },
     "symbols": [
@@ -17049,12 +18029,16 @@ export default [
   {
     "slug": "perche-mi-chiedi-questo",
     "traits": [
-      "TRANSLATED"
+      "TRANSLATED",
+      "RANKED"
     ],
     "trait": {
       "TRANSLATED": {
         "known": "Why are you asking me this?",
         "learning": "Perché mi chiedi questo?"
+      },
+      "RANKED": {
+        "rank": 759
       }
     },
     "symbols": [
@@ -17066,12 +18050,16 @@ export default [
   {
     "slug": "come-mai-sei-qui",
     "traits": [
-      "TRANSLATED"
+      "TRANSLATED",
+      "RANKED"
     ],
     "trait": {
       "TRANSLATED": {
         "known": "How come you're here?",
         "learning": "Come mai sei qui?"
+      },
+      "RANKED": {
+        "rank": 136
       }
     },
     "symbols": [
@@ -17083,12 +18071,16 @@ export default [
   {
     "slug": "vai-a-scuola",
     "traits": [
-      "TRANSLATED"
+      "TRANSLATED",
+      "RANKED"
     ],
     "trait": {
       "TRANSLATED": {
         "known": "Go to school!",
         "learning": "Vai a scuola!"
+      },
+      "RANKED": {
+        "rank": 351
       }
     },
     "symbols": [
@@ -17100,12 +18092,16 @@ export default [
   {
     "slug": "vai-al-lavoro",
     "traits": [
-      "TRANSLATED"
+      "TRANSLATED",
+      "RANKED"
     ],
     "trait": {
       "TRANSLATED": {
         "known": "Go to work!",
         "learning": "Vai al lavoro!"
+      },
+      "RANKED": {
+        "rank": 352
       }
     },
     "symbols": [
@@ -17117,12 +18113,16 @@ export default [
   {
     "slug": "vieni-qui-subito",
     "traits": [
-      "TRANSLATED"
+      "TRANSLATED",
+      "RANKED"
     ],
     "trait": {
       "TRANSLATED": {
         "known": "Come here right away!",
         "learning": "Vieni qui subito!"
+      },
+      "RANKED": {
+        "rank": 622
       }
     },
     "symbols": [
@@ -17134,12 +18134,16 @@ export default [
   {
     "slug": "vieni-con-me",
     "traits": [
-      "TRANSLATED"
+      "TRANSLATED",
+      "RANKED"
     ],
     "trait": {
       "TRANSLATED": {
         "known": "Come with me!",
         "learning": "Vieni con me!"
+      },
+      "RANKED": {
+        "rank": 620
       }
     },
     "symbols": [
@@ -17151,12 +18155,16 @@ export default [
   {
     "slug": "fai-colazione-adesso",
     "traits": [
-      "TRANSLATED"
+      "TRANSLATED",
+      "RANKED"
     ],
     "trait": {
       "TRANSLATED": {
         "known": "Have breakfast now!",
         "learning": "Fai colazione adesso!"
+      },
+      "RANKED": {
+        "rank": 640
       }
     },
     "symbols": [
@@ -17168,12 +18176,16 @@ export default [
   {
     "slug": "fai-proprio-presto",
     "traits": [
-      "TRANSLATED"
+      "TRANSLATED",
+      "RANKED"
     ],
     "trait": {
       "TRANSLATED": {
         "known": "Really hurry up!",
         "learning": "Fai proprio presto!"
+      },
+      "RANKED": {
+        "rank": 323
       }
     },
     "symbols": [
@@ -17185,12 +18197,16 @@ export default [
   {
     "slug": "stai-calmo-adesso",
     "traits": [
-      "TRANSLATED"
+      "TRANSLATED",
+      "RANKED"
     ],
     "trait": {
       "TRANSLATED": {
         "known": "Stay calm now!",
         "learning": "Stai calmo adesso!"
+      },
+      "RANKED": {
+        "rank": 982
       }
     },
     "symbols": [
@@ -17202,12 +18218,16 @@ export default [
   {
     "slug": "stai-a-casa",
     "traits": [
-      "TRANSLATED"
+      "TRANSLATED",
+      "RANKED"
     ],
     "trait": {
       "TRANSLATED": {
         "known": "Stay home!",
         "learning": "Stai a casa!"
+      },
+      "RANKED": {
+        "rank": 275
       }
     },
     "symbols": [
@@ -17219,12 +18239,16 @@ export default [
   {
     "slug": "dai-un-bacio-a-tua-madre",
     "traits": [
-      "TRANSLATED"
+      "TRANSLATED",
+      "RANKED"
     ],
     "trait": {
       "TRANSLATED": {
         "known": "Give a kiss to your mother!",
         "learning": "Dai un bacio a tua madre!"
+      },
+      "RANKED": {
+        "rank": 776
       }
     },
     "symbols": [
@@ -17236,12 +18260,16 @@ export default [
   {
     "slug": "dai-il-libro-a-tuo-fratello",
     "traits": [
-      "TRANSLATED"
+      "TRANSLATED",
+      "RANKED"
     ],
     "trait": {
       "TRANSLATED": {
         "known": "Give the book to your brother!",
         "learning": "Dai il libro a tuo fratello!"
+      },
+      "RANKED": {
+        "rank": 362
       }
     },
     "symbols": [
@@ -17253,12 +18281,16 @@ export default [
   {
     "slug": "dormi-bene-stasera",
     "traits": [
-      "TRANSLATED"
+      "TRANSLATED",
+      "RANKED"
     ],
     "trait": {
       "TRANSLATED": {
         "known": "Sleep well tonight!",
         "learning": "Dormi bene stasera!"
+      },
+      "RANKED": {
+        "rank": 985
       }
     },
     "symbols": [
@@ -17270,12 +18302,16 @@ export default [
   {
     "slug": "dormi-presto-stasera",
     "traits": [
-      "TRANSLATED"
+      "TRANSLATED",
+      "RANKED"
     ],
     "trait": {
       "TRANSLATED": {
         "known": "Sleep early tonight!",
         "learning": "Dormi presto stasera!"
+      },
+      "RANKED": {
+        "rank": 986
       }
     },
     "symbols": [
@@ -17287,12 +18323,16 @@ export default [
   {
     "slug": "finisci-il-lavoro",
     "traits": [
-      "TRANSLATED"
+      "TRANSLATED",
+      "RANKED"
     ],
     "trait": {
       "TRANSLATED": {
         "known": "Finish the work!",
         "learning": "Finisci il lavoro!"
+      },
+      "RANKED": {
+        "rank": 1008
       }
     },
     "symbols": [
@@ -17304,12 +18344,16 @@ export default [
   {
     "slug": "finisci-la-cena-adesso",
     "traits": [
-      "TRANSLATED"
+      "TRANSLATED",
+      "RANKED"
     ],
     "trait": {
       "TRANSLATED": {
         "known": "Finish dinner now!",
         "learning": "Finisci la cena adesso!"
+      },
+      "RANKED": {
+        "rank": 1009
       }
     },
     "symbols": [
@@ -17321,12 +18365,16 @@ export default [
   {
     "slug": "parla-piano-con-me",
     "traits": [
-      "TRANSLATED"
+      "TRANSLATED",
+      "RANKED"
     ],
     "trait": {
       "TRANSLATED": {
         "known": "Speak quietly with me!",
         "learning": "Parla piano con me!"
+      },
+      "RANKED": {
+        "rank": 260
       }
     },
     "symbols": [
@@ -17338,12 +18386,16 @@ export default [
   {
     "slug": "parla-con-il-tuo-amico",
     "traits": [
-      "TRANSLATED"
+      "TRANSLATED",
+      "RANKED"
     ],
     "trait": {
       "TRANSLATED": {
         "known": "Talk to your friend!",
         "learning": "Parla con il tuo amico!"
+      },
+      "RANKED": {
+        "rank": 303
       }
     },
     "symbols": [
@@ -17355,12 +18407,16 @@ export default [
   {
     "slug": "credi-a-me",
     "traits": [
-      "TRANSLATED"
+      "TRANSLATED",
+      "RANKED"
     ],
     "trait": {
       "TRANSLATED": {
         "known": "Believe me!",
         "learning": "Credi a me!"
+      },
+      "RANKED": {
+        "rank": 706
       }
     },
     "symbols": [
@@ -17372,12 +18428,16 @@ export default [
   {
     "slug": "sii-sempre-gentile",
     "traits": [
-      "TRANSLATED"
+      "TRANSLATED",
+      "RANKED"
     ],
     "trait": {
       "TRANSLATED": {
         "known": "Always be kind!",
         "learning": "Sii sempre gentile!"
+      },
+      "RANKED": {
+        "rank": 887
       }
     },
     "symbols": [
@@ -17389,12 +18449,16 @@ export default [
   {
     "slug": "sii-sempre-sincero",
     "traits": [
-      "TRANSLATED"
+      "TRANSLATED",
+      "RANKED"
     ],
     "trait": {
       "TRANSLATED": {
         "known": "Always be sincere!",
         "learning": "Sii sempre sincero!"
+      },
+      "RANKED": {
+        "rank": 888
       }
     },
     "symbols": [
@@ -17406,12 +18470,16 @@ export default [
   {
     "slug": "abbi-sempre-coraggio",
     "traits": [
-      "TRANSLATED"
+      "TRANSLATED",
+      "RANKED"
     ],
     "trait": {
       "TRANSLATED": {
         "known": "Always have courage!",
         "learning": "Abbi sempre coraggio!"
+      },
+      "RANKED": {
+        "rank": 1013
       }
     },
     "symbols": [
@@ -17423,12 +18491,16 @@ export default [
   {
     "slug": "abbi-cura-di-te",
     "traits": [
-      "TRANSLATED"
+      "TRANSLATED",
+      "RANKED"
     ],
     "trait": {
       "TRANSLATED": {
         "known": "Take care of yourself!",
         "learning": "Abbi cura di te!"
+      },
+      "RANKED": {
+        "rank": 1015
       }
     },
     "symbols": [
@@ -17440,12 +18512,16 @@ export default [
   {
     "slug": "sappi-che-ti-ringrazio",
     "traits": [
-      "TRANSLATED"
+      "TRANSLATED",
+      "RANKED"
     ],
     "trait": {
       "TRANSLATED": {
         "known": "Know that I thank you!",
         "learning": "Sappi che ti ringrazio!"
+      },
+      "RANKED": {
+        "rank": 955
       }
     },
     "symbols": [
@@ -17457,12 +18533,16 @@ export default [
   {
     "slug": "di-sempre-la-verita",
     "traits": [
-      "TRANSLATED"
+      "TRANSLATED",
+      "RANKED"
     ],
     "trait": {
       "TRANSLATED": {
         "known": "Always tell the truth!",
         "learning": "Di' sempre la verità!"
+      },
+      "RANKED": {
+        "rank": 326
       }
     },
     "symbols": [
@@ -17474,12 +18554,16 @@ export default [
   {
     "slug": "di-qualcosa-adesso",
     "traits": [
-      "TRANSLATED"
+      "TRANSLATED",
+      "RANKED"
     ],
     "trait": {
       "TRANSLATED": {
         "known": "Say something now!",
         "learning": "Di' qualcosa adesso!"
+      },
+      "RANKED": {
+        "rank": 198
       }
     },
     "symbols": [
@@ -17491,12 +18575,16 @@ export default [
   {
     "slug": "vai-a-casa",
     "traits": [
-      "TRANSLATED"
+      "TRANSLATED",
+      "RANKED"
     ],
     "trait": {
       "TRANSLATED": {
         "known": "Go home!",
         "learning": "Vai a casa!"
+      },
+      "RANKED": {
+        "rank": 350
       }
     },
     "symbols": [
@@ -17508,12 +18596,16 @@ export default [
   {
     "slug": "vai-in-italia",
     "traits": [
-      "TRANSLATED"
+      "TRANSLATED",
+      "RANKED"
     ],
     "trait": {
       "TRANSLATED": {
         "known": "Go to Italy!",
         "learning": "Vai in Italia!"
+      },
+      "RANKED": {
+        "rank": 353
       }
     },
     "symbols": [
@@ -17525,12 +18617,16 @@ export default [
   {
     "slug": "vieni-a-cena",
     "traits": [
-      "TRANSLATED"
+      "TRANSLATED",
+      "RANKED"
     ],
     "trait": {
       "TRANSLATED": {
         "known": "Come to dinner!",
         "learning": "Vieni a cena!"
+      },
+      "RANKED": {
+        "rank": 619
       }
     },
     "symbols": [
@@ -17542,12 +18638,16 @@ export default [
   {
     "slug": "vieni-qui-domani",
     "traits": [
-      "TRANSLATED"
+      "TRANSLATED",
+      "RANKED"
     ],
     "trait": {
       "TRANSLATED": {
         "known": "Come here tomorrow!",
         "learning": "Vieni qui domani!"
+      },
+      "RANKED": {
+        "rank": 621
       }
     },
     "symbols": [
@@ -17559,12 +18659,16 @@ export default [
   {
     "slug": "potresti-telefonare-a-marco",
     "traits": [
-      "TRANSLATED"
+      "TRANSLATED",
+      "RANKED"
     ],
     "trait": {
       "TRANSLATED": {
         "known": "Could you phone Marco?",
         "learning": "Potresti telefonare a Marco?"
+      },
+      "RANKED": {
+        "rank": 1041
       }
     },
     "symbols": [
@@ -17576,12 +18680,16 @@ export default [
   {
     "slug": "potresti-venire-qui",
     "traits": [
-      "TRANSLATED"
+      "TRANSLATED",
+      "RANKED"
     ],
     "trait": {
       "TRANSLATED": {
         "known": "Could you come here?",
         "learning": "Potresti venire qui?"
+      },
+      "RANKED": {
+        "rank": 532
       }
     },
     "symbols": [
@@ -17593,12 +18701,16 @@ export default [
   {
     "slug": "dovresti-riposare-di-piu",
     "traits": [
-      "TRANSLATED"
+      "TRANSLATED",
+      "RANKED"
     ],
     "trait": {
       "TRANSLATED": {
         "known": "You should rest more.",
         "learning": "Dovresti riposare di più."
+      },
+      "RANKED": {
+        "rank": 964
       }
     },
     "symbols": [
@@ -17610,12 +18722,16 @@ export default [
   {
     "slug": "dovresti-dormire-di-piu",
     "traits": [
-      "TRANSLATED"
+      "TRANSLATED",
+      "RANKED"
     ],
     "trait": {
       "TRANSLATED": {
         "known": "You should sleep more.",
         "learning": "Dovresti dormire di più."
+      },
+      "RANKED": {
+        "rank": 598
       }
     },
     "symbols": [
@@ -17627,12 +18743,16 @@ export default [
   {
     "slug": "vorresti-venire-con-noi",
     "traits": [
-      "TRANSLATED"
+      "TRANSLATED",
+      "RANKED"
     ],
     "trait": {
       "TRANSLATED": {
         "known": "Would you like to come with us?",
         "learning": "Vorresti venire con noi?"
+      },
+      "RANKED": {
+        "rank": 774
       }
     },
     "symbols": [
@@ -17644,12 +18764,16 @@ export default [
   {
     "slug": "mi-dai-una-mano",
     "traits": [
-      "TRANSLATED"
+      "TRANSLATED",
+      "RANKED"
     ],
     "trait": {
       "TRANSLATED": {
         "known": "Can you give me a hand?",
         "learning": "Mi dai una mano?"
+      },
+      "RANKED": {
+        "rank": 217
       }
     },
     "symbols": [
@@ -17661,12 +18785,16 @@ export default [
   {
     "slug": "mi-dici-la-verita",
     "traits": [
-      "TRANSLATED"
+      "TRANSLATED",
+      "RANKED"
     ],
     "trait": {
       "TRANSLATED": {
         "known": "Will you tell me the truth?",
         "learning": "Mi dici la verità?"
+      },
+      "RANKED": {
+        "rank": 416
       }
     },
     "symbols": [
@@ -17678,12 +18806,16 @@ export default [
   {
     "slug": "mio-fratello-e-alto",
     "traits": [
-      "TRANSLATED"
+      "TRANSLATED",
+      "RANKED"
     ],
     "trait": {
       "TRANSLATED": {
         "known": "My brother is tall.",
         "learning": "Mio fratello è alto."
+      },
+      "RANKED": {
+        "rank": 359
       }
     },
     "symbols": [
@@ -17695,12 +18827,16 @@ export default [
   {
     "slug": "mia-sorella-e-intelligente",
     "traits": [
-      "TRANSLATED"
+      "TRANSLATED",
+      "RANKED"
     ],
     "trait": {
       "TRANSLATED": {
         "known": "My sister is intelligent.",
         "learning": "Mia sorella è intelligente."
+      },
+      "RANKED": {
+        "rank": 690
       }
     },
     "symbols": [
@@ -17712,12 +18848,16 @@ export default [
   {
     "slug": "mio-nonno-e-anziano",
     "traits": [
-      "TRANSLATED"
+      "TRANSLATED",
+      "RANKED"
     ],
     "trait": {
       "TRANSLATED": {
         "known": "My grandfather is elderly.",
         "learning": "Mio nonno è anziano."
+      },
+      "RANKED": {
+        "rank": 906
       }
     },
     "symbols": [
@@ -17729,12 +18869,16 @@ export default [
   {
     "slug": "mia-nonna-e-gentile",
     "traits": [
-      "TRANSLATED"
+      "TRANSLATED",
+      "RANKED"
     ],
     "trait": {
       "TRANSLATED": {
         "known": "My grandmother is kind.",
         "learning": "Mia nonna è gentile."
+      },
+      "RANKED": {
+        "rank": 631
       }
     },
     "symbols": [
@@ -17746,12 +18890,16 @@ export default [
   {
     "slug": "mio-zio-e-simpatico",
     "traits": [
-      "TRANSLATED"
+      "TRANSLATED",
+      "RANKED"
     ],
     "trait": {
       "TRANSLATED": {
         "known": "My uncle is nice.",
         "learning": "Mio zio è simpatico."
+      },
+      "RANKED": {
+        "rank": 855
       }
     },
     "symbols": [
@@ -17763,12 +18911,16 @@ export default [
   {
     "slug": "mia-zia-e-affettuosa",
     "traits": [
-      "TRANSLATED"
+      "TRANSLATED",
+      "RANKED"
     ],
     "trait": {
       "TRANSLATED": {
         "known": "My aunt is affectionate.",
         "learning": "Mia zia è affettuosa."
+      },
+      "RANKED": {
+        "rank": 1063
       }
     },
     "symbols": [
@@ -17780,12 +18932,16 @@ export default [
   {
     "slug": "mio-cugino-e-timido",
     "traits": [
-      "TRANSLATED"
+      "TRANSLATED",
+      "RANKED"
     ],
     "trait": {
       "TRANSLATED": {
         "known": "My cousin is shy.",
         "learning": "Mio cugino è timido."
+      },
+      "RANKED": {
+        "rank": 1017
       }
     },
     "symbols": [
@@ -17797,12 +18953,16 @@ export default [
   {
     "slug": "mia-cugina-e-coraggiosa",
     "traits": [
-      "TRANSLATED"
+      "TRANSLATED",
+      "RANKED"
     ],
     "trait": {
       "TRANSLATED": {
         "known": "My cousin is brave.",
         "learning": "Mia cugina è coraggiosa."
+      },
+      "RANKED": {
+        "rank": 991
       }
     },
     "symbols": [
@@ -17814,12 +18974,16 @@ export default [
   {
     "slug": "mio-padre-e-avvocato",
     "traits": [
-      "TRANSLATED"
+      "TRANSLATED",
+      "RANKED"
     ],
     "trait": {
       "TRANSLATED": {
         "known": "My father is a lawyer.",
         "learning": "Mio padre è avvocato."
+      },
+      "RANKED": {
+        "rank": 571
       }
     },
     "symbols": [
@@ -17831,12 +18995,16 @@ export default [
   {
     "slug": "mia-madre-e-insegnante",
     "traits": [
-      "TRANSLATED"
+      "TRANSLATED",
+      "RANKED"
     ],
     "trait": {
       "TRANSLATED": {
         "known": "My mother is a teacher.",
         "learning": "Mia madre è insegnante."
+      },
+      "RANKED": {
+        "rank": 698
       }
     },
     "symbols": [
@@ -17848,12 +19016,16 @@ export default [
   {
     "slug": "mio-marito-e-paziente",
     "traits": [
-      "TRANSLATED"
+      "TRANSLATED",
+      "RANKED"
     ],
     "trait": {
       "TRANSLATED": {
         "known": "My husband is patient.",
         "learning": "Mio marito è paziente."
+      },
+      "RANKED": {
+        "rank": 653
       }
     },
     "symbols": [
@@ -17865,12 +19037,16 @@ export default [
   {
     "slug": "mia-moglie-e-elegante",
     "traits": [
-      "TRANSLATED"
+      "TRANSLATED",
+      "RANKED"
     ],
     "trait": {
       "TRANSLATED": {
         "known": "My wife is elegant.",
         "learning": "Mia moglie è elegante."
+      },
+      "RANKED": {
+        "rank": 863
       }
     },
     "symbols": [
@@ -17882,12 +19058,16 @@ export default [
   {
     "slug": "mio-figlio-e-giovane",
     "traits": [
-      "TRANSLATED"
+      "TRANSLATED",
+      "RANKED"
     ],
     "trait": {
       "TRANSLATED": {
         "known": "My son is young.",
         "learning": "Mio figlio è giovane."
+      },
+      "RANKED": {
+        "rank": 318
       }
     },
     "symbols": [
@@ -17899,12 +19079,16 @@ export default [
   {
     "slug": "mia-figlia-e-felice",
     "traits": [
-      "TRANSLATED"
+      "TRANSLATED",
+      "RANKED"
     ],
     "trait": {
       "TRANSLATED": {
         "known": "My daughter is happy.",
         "learning": "Mia figlia è felice."
+      },
+      "RANKED": {
+        "rank": 375
       }
     },
     "symbols": [
@@ -17916,12 +19100,16 @@ export default [
   {
     "slug": "il-mio-amico-e-onesto",
     "traits": [
-      "TRANSLATED"
+      "TRANSLATED",
+      "RANKED"
     ],
     "trait": {
       "TRANSLATED": {
         "known": "My friend is honest.",
         "learning": "Il mio amico è onesto."
+      },
+      "RANKED": {
+        "rank": 902
       }
     },
     "symbols": [
@@ -17933,12 +19121,16 @@ export default [
   {
     "slug": "la-mia-amica-e-sincera",
     "traits": [
-      "TRANSLATED"
+      "TRANSLATED",
+      "RANKED"
     ],
     "trait": {
       "TRANSLATED": {
         "known": "My friend is sincere.",
         "learning": "La mia amica è sincera."
+      },
+      "RANKED": {
+        "rank": 937
       }
     },
     "symbols": [
@@ -17950,12 +19142,16 @@ export default [
   {
     "slug": "il-mio-fidanzato-e-geloso",
     "traits": [
-      "TRANSLATED"
+      "TRANSLATED",
+      "RANKED"
     ],
     "trait": {
       "TRANSLATED": {
         "known": "My boyfriend is jealous.",
         "learning": "Il mio fidanzato è geloso."
+      },
+      "RANKED": {
+        "rank": 995
       }
     },
     "symbols": [
@@ -17967,12 +19163,16 @@ export default [
   {
     "slug": "la-mia-fidanzata-e-dolce",
     "traits": [
-      "TRANSLATED"
+      "TRANSLATED",
+      "RANKED"
     ],
     "trait": {
       "TRANSLATED": {
         "known": "My girlfriend is sweet.",
         "learning": "La mia fidanzata è dolce."
+      },
+      "RANKED": {
+        "rank": 779
       }
     },
     "symbols": [
@@ -17984,12 +19184,16 @@ export default [
   {
     "slug": "il-mio-vicino-e-educato",
     "traits": [
-      "TRANSLATED"
+      "TRANSLATED",
+      "RANKED"
     ],
     "trait": {
       "TRANSLATED": {
         "known": "My neighbor is polite.",
         "learning": "Il mio vicino è educato."
+      },
+      "RANKED": {
+        "rank": 996
       }
     },
     "symbols": [
@@ -18001,12 +19205,16 @@ export default [
   {
     "slug": "la-mia-famiglia-e-grande",
     "traits": [
-      "TRANSLATED"
+      "TRANSLATED",
+      "RANKED"
     ],
     "trait": {
       "TRANSLATED": {
         "known": "My family is big.",
         "learning": "La mia famiglia è grande."
+      },
+      "RANKED": {
+        "rank": 182
       }
     },
     "symbols": [
@@ -18018,12 +19226,16 @@ export default [
   {
     "slug": "mio-cognato-e-avvocato",
     "traits": [
-      "TRANSLATED"
+      "TRANSLATED",
+      "RANKED"
     ],
     "trait": {
       "TRANSLATED": {
         "known": "My brother-in-law is a lawyer.",
         "learning": "Mio cognato è avvocato."
+      },
+      "RANKED": {
+        "rank": 1036
       }
     },
     "symbols": [
@@ -18035,12 +19247,16 @@ export default [
   {
     "slug": "mia-cognata-e-ingegnere",
     "traits": [
-      "TRANSLATED"
+      "TRANSLATED",
+      "RANKED"
     ],
     "trait": {
       "TRANSLATED": {
         "known": "My sister-in-law is an engineer.",
         "learning": "Mia cognata è ingegnere."
+      },
+      "RANKED": {
+        "rank": 1049
       }
     },
     "symbols": [
@@ -18052,12 +19268,16 @@ export default [
   {
     "slug": "che-lavoro-fa-tuo-padre",
     "traits": [
-      "TRANSLATED"
+      "TRANSLATED",
+      "RANKED"
     ],
     "trait": {
       "TRANSLATED": {
         "known": "What job does your father do?",
         "learning": "Che lavoro fa tuo padre?"
+      },
+      "RANKED": {
+        "rank": 230
       }
     },
     "symbols": [
@@ -18069,12 +19289,16 @@ export default [
   {
     "slug": "mio-padre-fa-il-cuoco",
     "traits": [
-      "TRANSLATED"
+      "TRANSLATED",
+      "RANKED"
     ],
     "trait": {
       "TRANSLATED": {
         "known": "My father works as a cook.",
         "learning": "Mio padre fa il cuoco."
+      },
+      "RANKED": {
+        "rank": 969
       }
     },
     "symbols": [
@@ -18086,12 +19310,16 @@ export default [
   {
     "slug": "mia-madre-e-infermiera",
     "traits": [
-      "TRANSLATED"
+      "TRANSLATED",
+      "RANKED"
     ],
     "trait": {
       "TRANSLATED": {
         "known": "My mother is a nurse.",
         "learning": "Mia madre è infermiera."
+      },
+      "RANKED": {
+        "rank": 1022
       }
     },
     "symbols": [
@@ -18103,12 +19331,16 @@ export default [
   {
     "slug": "mio-nonno-e-ancora-forte",
     "traits": [
-      "TRANSLATED"
+      "TRANSLATED",
+      "RANKED"
     ],
     "trait": {
       "TRANSLATED": {
         "known": "My grandfather is still strong.",
         "learning": "Mio nonno è ancora forte."
+      },
+      "RANKED": {
+        "rank": 702
       }
     },
     "symbols": [
@@ -18120,12 +19352,16 @@ export default [
   {
     "slug": "mia-nonna-non-e-mai-stanca",
     "traits": [
-      "TRANSLATED"
+      "TRANSLATED",
+      "RANKED"
     ],
     "trait": {
       "TRANSLATED": {
         "known": "My grandmother is never tired.",
         "learning": "Mia nonna non è mai stanca."
+      },
+      "RANKED": {
+        "rank": 885
       }
     },
     "symbols": [
@@ -18137,12 +19373,16 @@ export default [
   {
     "slug": "mio-cugino-e-studente",
     "traits": [
-      "TRANSLATED"
+      "TRANSLATED",
+      "RANKED"
     ],
     "trait": {
       "TRANSLATED": {
         "known": "My cousin is a student.",
         "learning": "Mio cugino è studente."
+      },
+      "RANKED": {
+        "rank": 835
       }
     },
     "symbols": [
@@ -18154,12 +19394,16 @@ export default [
   {
     "slug": "mio-nipote-e-piccolo",
     "traits": [
-      "TRANSLATED"
+      "TRANSLATED",
+      "RANKED"
     ],
     "trait": {
       "TRANSLATED": {
         "known": "My nephew is small.",
         "learning": "Mio nipote è piccolo."
+      },
+      "RANKED": {
+        "rank": 747
       }
     },
     "symbols": [
@@ -18171,12 +19415,16 @@ export default [
   {
     "slug": "mio-figlio-vuole-essere-medico",
     "traits": [
-      "TRANSLATED"
+      "TRANSLATED",
+      "RANKED"
     ],
     "trait": {
       "TRANSLATED": {
         "known": "My son wants to be a doctor.",
         "learning": "Mio figlio vuole essere medico."
+      },
+      "RANKED": {
+        "rank": 412
       }
     },
     "symbols": [
@@ -18188,12 +19436,16 @@ export default [
   {
     "slug": "mia-figlia-vuole-essere-ingegnere",
     "traits": [
-      "TRANSLATED"
+      "TRANSLATED",
+      "RANKED"
     ],
     "trait": {
       "TRANSLATED": {
         "known": "My daughter wants to be an engineer.",
         "learning": "Mia figlia vuole essere ingegnere."
+      },
+      "RANKED": {
+        "rank": 858
       }
     },
     "symbols": [
@@ -18205,12 +19457,16 @@ export default [
   {
     "slug": "la-mia-famiglia-e-importante-per-me",
     "traits": [
-      "TRANSLATED"
+      "TRANSLATED",
+      "RANKED"
     ],
     "trait": {
       "TRANSLATED": {
         "known": "My family is important to me.",
         "learning": "La mia famiglia è importante per me."
+      },
+      "RANKED": {
+        "rank": 221
       }
     },
     "symbols": [
@@ -18222,12 +19478,16 @@ export default [
   {
     "slug": "mio-zio-e-un-po-pigro",
     "traits": [
-      "TRANSLATED"
+      "TRANSLATED",
+      "RANKED"
     ],
     "trait": {
       "TRANSLATED": {
         "known": "My uncle is a bit lazy.",
         "learning": "Mio zio è un po' pigro."
+      },
+      "RANKED": {
+        "rank": 1044
       }
     },
     "symbols": [
@@ -18239,12 +19499,16 @@ export default [
   {
     "slug": "mia-zia-e-molto-curiosa",
     "traits": [
-      "TRANSLATED"
+      "TRANSLATED",
+      "RANKED"
     ],
     "trait": {
       "TRANSLATED": {
         "known": "My aunt is very curious.",
         "learning": "Mia zia è molto curiosa."
+      },
+      "RANKED": {
+        "rank": 952
       }
     },
     "symbols": [
@@ -18256,12 +19520,16 @@ export default [
   {
     "slug": "mio-nonno-ha-un-amico",
     "traits": [
-      "TRANSLATED"
+      "TRANSLATED",
+      "RANKED"
     ],
     "trait": {
       "TRANSLATED": {
         "known": "My grandfather has a friend.",
         "learning": "Mio nonno ha un amico."
+      },
+      "RANKED": {
+        "rank": 703
       }
     },
     "symbols": [
@@ -18273,12 +19541,16 @@ export default [
   {
     "slug": "mio-cugino-ha-un-cane",
     "traits": [
-      "TRANSLATED"
+      "TRANSLATED",
+      "RANKED"
     ],
     "trait": {
       "TRANSLATED": {
         "known": "My cousin has a dog.",
         "learning": "Mio cugino ha un cane."
+      },
+      "RANKED": {
+        "rank": 840
       }
     },
     "symbols": [
@@ -18290,12 +19562,16 @@ export default [
   {
     "slug": "mio-fratello-mi-crede",
     "traits": [
-      "TRANSLATED"
+      "TRANSLATED",
+      "RANKED"
     ],
     "trait": {
       "TRANSLATED": {
         "known": "My brother believes me.",
         "learning": "Mio fratello mi crede."
+      },
+      "RANKED": {
+        "rank": 503
       }
     },
     "symbols": [
@@ -18307,12 +19583,16 @@ export default [
   {
     "slug": "mia-sorella-risponde-sempre",
     "traits": [
-      "TRANSLATED"
+      "TRANSLATED",
+      "RANKED"
     ],
     "trait": {
       "TRANSLATED": {
         "known": "My sister always answers.",
         "learning": "Mia sorella risponde sempre."
+      },
+      "RANKED": {
+        "rank": 582
       }
     },
     "symbols": [
@@ -18324,12 +19604,16 @@ export default [
   {
     "slug": "mio-padre-dice-sempre-la-verita",
     "traits": [
-      "TRANSLATED"
+      "TRANSLATED",
+      "RANKED"
     ],
     "trait": {
       "TRANSLATED": {
         "known": "My father always tells the truth.",
         "learning": "Mio padre dice sempre la verità."
+      },
+      "RANKED": {
+        "rank": 328
       }
     },
     "symbols": [
@@ -18341,12 +19625,16 @@ export default [
   {
     "slug": "mio-padre-e-molto-occupato-oggi",
     "traits": [
-      "TRANSLATED"
+      "TRANSLATED",
+      "RANKED"
     ],
     "trait": {
       "TRANSLATED": {
         "known": "My father is very busy today.",
         "learning": "Mio padre è molto occupato oggi."
+      },
+      "RANKED": {
+        "rank": 765
       }
     },
     "symbols": [
@@ -18358,12 +19646,16 @@ export default [
   {
     "slug": "mio-cugino-racconta-una-storia",
     "traits": [
-      "TRANSLATED"
+      "TRANSLATED",
+      "RANKED"
     ],
     "trait": {
       "TRANSLATED": {
         "known": "My cousin tells a story.",
         "learning": "Mio cugino racconta una storia."
+      },
+      "RANKED": {
+        "rank": 841
       }
     },
     "symbols": [
@@ -18375,12 +19667,16 @@ export default [
   {
     "slug": "mia-nonna-e-calma",
     "traits": [
-      "TRANSLATED"
+      "TRANSLATED",
+      "RANKED"
     ],
     "trait": {
       "TRANSLATED": {
         "known": "My grandmother is calm.",
         "learning": "Mia nonna è calma."
+      },
+      "RANKED": {
+        "rank": 725
       }
     },
     "symbols": [
@@ -18392,12 +19688,16 @@ export default [
   {
     "slug": "mio-zio-e-orgoglioso",
     "traits": [
-      "TRANSLATED"
+      "TRANSLATED",
+      "RANKED"
     ],
     "trait": {
       "TRANSLATED": {
         "known": "My uncle is proud.",
         "learning": "Mio zio è orgoglioso."
+      },
+      "RANKED": {
+        "rank": 913
       }
     },
     "symbols": [
@@ -18409,12 +19709,16 @@ export default [
   {
     "slug": "mio-figlio-sa-parlare-italiano",
     "traits": [
-      "TRANSLATED"
+      "TRANSLATED",
+      "RANKED"
     ],
     "trait": {
       "TRANSLATED": {
         "known": "My son can speak Italian.",
         "learning": "Mio figlio sa parlare italiano."
+      },
+      "RANKED": {
+        "rank": 250
       }
     },
     "symbols": [
@@ -18426,12 +19730,16 @@ export default [
   {
     "slug": "la-mia-famiglia-e-qui",
     "traits": [
-      "TRANSLATED"
+      "TRANSLATED",
+      "RANKED"
     ],
     "trait": {
       "TRANSLATED": {
         "known": "My family is here.",
         "learning": "La mia famiglia è qui."
+      },
+      "RANKED": {
+        "rank": 183
       }
     },
     "symbols": [
@@ -18443,12 +19751,16 @@ export default [
   {
     "slug": "oggi-e-umido",
     "traits": [
-      "TRANSLATED"
+      "TRANSLATED",
+      "RANKED"
     ],
     "trait": {
       "TRANSLATED": {
         "known": "Today is humid.",
         "learning": "Oggi è umido."
+      },
+      "RANKED": {
+        "rank": 1002
       }
     },
     "symbols": [
@@ -18460,12 +19772,16 @@ export default [
   {
     "slug": "domani-sara-soleggiato",
     "traits": [
-      "TRANSLATED"
+      "TRANSLATED",
+      "RANKED"
     ],
     "trait": {
       "TRANSLATED": {
         "known": "Tomorrow will be sunny.",
         "learning": "Domani sarà soleggiato."
+      },
+      "RANKED": {
+        "rank": 1077
       }
     },
     "symbols": [
@@ -18477,12 +19793,16 @@ export default [
   {
     "slug": "ieri-era-ventoso",
     "traits": [
-      "TRANSLATED"
+      "TRANSLATED",
+      "RANKED"
     ],
     "trait": {
       "TRANSLATED": {
         "known": "Yesterday was windy.",
         "learning": "Ieri era ventoso."
+      },
+      "RANKED": {
+        "rank": 1075
       }
     },
     "symbols": [
@@ -18494,12 +19814,16 @@ export default [
   {
     "slug": "fa-molto-caldo-oggi",
     "traits": [
-      "TRANSLATED"
+      "TRANSLATED",
+      "RANKED"
     ],
     "trait": {
       "TRANSLATED": {
         "known": "It is very hot today.",
         "learning": "Fa molto caldo oggi."
+      },
+      "RANKED": {
+        "rank": 514
       }
     },
     "symbols": [
@@ -18511,12 +19835,16 @@ export default [
   {
     "slug": "oggi-fa-freddo",
     "traits": [
-      "TRANSLATED"
+      "TRANSLATED",
+      "RANKED"
     ],
     "trait": {
       "TRANSLATED": {
         "known": "It is cold today.",
         "learning": "Oggi fa freddo."
+      },
+      "RANKED": {
+        "rank": 543
       }
     },
     "symbols": [
@@ -18528,12 +19856,16 @@ export default [
   {
     "slug": "c-e-nebbia-stamattina",
     "traits": [
-      "TRANSLATED"
+      "TRANSLATED",
+      "RANKED"
     ],
     "trait": {
       "TRANSLATED": {
         "known": "There is fog this morning.",
         "learning": "C'è nebbia stamattina."
+      },
+      "RANKED": {
+        "rank": 921
       }
     },
     "symbols": [
@@ -18545,12 +19877,16 @@ export default [
   {
     "slug": "c-e-il-sole-oggi",
     "traits": [
-      "TRANSLATED"
+      "TRANSLATED",
+      "RANKED"
     ],
     "trait": {
       "TRANSLATED": {
         "known": "There is sun today.",
         "learning": "C'è il sole oggi."
+      },
+      "RANKED": {
+        "rank": 340
       }
     },
     "symbols": [
@@ -18562,12 +19898,16 @@ export default [
   {
     "slug": "c-e-una-tempesta-stanotte",
     "traits": [
-      "TRANSLATED"
+      "TRANSLATED",
+      "RANKED"
     ],
     "trait": {
       "TRANSLATED": {
         "known": "There is a storm tonight.",
         "learning": "C'è una tempesta stanotte."
+      },
+      "RANKED": {
+        "rank": 843
       }
     },
     "symbols": [
@@ -18579,12 +19919,16 @@ export default [
   {
     "slug": "il-cielo-e-blu-oggi",
     "traits": [
-      "TRANSLATED"
+      "TRANSLATED",
+      "RANKED"
     ],
     "trait": {
       "TRANSLATED": {
         "known": "The sky is blue today.",
         "learning": "Il cielo è blu oggi."
+      },
+      "RANKED": {
+        "rank": 520
       }
     },
     "symbols": [
@@ -18596,12 +19940,16 @@ export default [
   {
     "slug": "ho-molto-freddo",
     "traits": [
-      "TRANSLATED"
+      "TRANSLATED",
+      "RANKED"
     ],
     "trait": {
       "TRANSLATED": {
         "known": "I am very cold.",
         "learning": "Ho molto freddo."
+      },
+      "RANKED": {
+        "rank": 540
       }
     },
     "symbols": [
@@ -18613,12 +19961,16 @@ export default [
   {
     "slug": "oggi-ho-caldo",
     "traits": [
-      "TRANSLATED"
+      "TRANSLATED",
+      "RANKED"
     ],
     "trait": {
       "TRANSLATED": {
         "known": "Today I am hot.",
         "learning": "Oggi ho caldo."
+      },
+      "RANKED": {
+        "rank": 512
       }
     },
     "symbols": [
@@ -18630,12 +19982,16 @@ export default [
   {
     "slug": "la-pioggia-e-forte",
     "traits": [
-      "TRANSLATED"
+      "TRANSLATED",
+      "RANKED"
     ],
     "trait": {
       "TRANSLATED": {
         "known": "The rain is heavy.",
         "learning": "La pioggia è forte."
+      },
+      "RANKED": {
+        "rank": 662
       }
     },
     "symbols": [
@@ -18647,12 +20003,16 @@ export default [
   {
     "slug": "il-vento-e-forte",
     "traits": [
-      "TRANSLATED"
+      "TRANSLATED",
+      "RANKED"
     ],
     "trait": {
       "TRANSLATED": {
         "known": "The wind is strong.",
         "learning": "Il vento è forte."
+      },
+      "RANKED": {
+        "rank": 577
       }
     },
     "symbols": [
@@ -18664,12 +20024,16 @@ export default [
   {
     "slug": "oggi-e-lunedi",
     "traits": [
-      "TRANSLATED"
+      "TRANSLATED",
+      "RANKED"
     ],
     "trait": {
       "TRANSLATED": {
         "known": "Today is Monday.",
         "learning": "Oggi è lunedì."
+      },
+      "RANKED": {
+        "rank": 594
       }
     },
     "symbols": [
@@ -18681,12 +20045,16 @@ export default [
   {
     "slug": "domani-e-martedi",
     "traits": [
-      "TRANSLATED"
+      "TRANSLATED",
+      "RANKED"
     ],
     "trait": {
       "TRANSLATED": {
         "known": "Tomorrow is Tuesday.",
         "learning": "Domani è martedì."
+      },
+      "RANKED": {
+        "rank": 745
       }
     },
     "symbols": [
@@ -18698,12 +20066,16 @@ export default [
   {
     "slug": "ieri-era-sabato",
     "traits": [
-      "TRANSLATED"
+      "TRANSLATED",
+      "RANKED"
     ],
     "trait": {
       "TRANSLATED": {
         "known": "Yesterday was Saturday.",
         "learning": "Ieri era sabato."
+      },
+      "RANKED": {
+        "rank": 483
       }
     },
     "symbols": [
@@ -18715,12 +20087,16 @@ export default [
   {
     "slug": "che-giorno-e-oggi",
     "traits": [
-      "TRANSLATED"
+      "TRANSLATED",
+      "RANKED"
     ],
     "trait": {
       "TRANSLATED": {
         "known": "What day is it today?",
         "learning": "Che giorno è oggi?"
+      },
+      "RANKED": {
+        "rank": 141
       }
     },
     "symbols": [
@@ -18732,12 +20108,16 @@ export default [
   {
     "slug": "adesso-e-mezzogiorno",
     "traits": [
-      "TRANSLATED"
+      "TRANSLATED",
+      "RANKED"
     ],
     "trait": {
       "TRANSLATED": {
         "known": "Now it is noon.",
         "learning": "Adesso è mezzogiorno."
+      },
+      "RANKED": {
+        "rank": 850
       }
     },
     "symbols": [
@@ -18749,12 +20129,16 @@ export default [
   {
     "slug": "adesso-e-mezzanotte",
     "traits": [
-      "TRANSLATED"
+      "TRANSLATED",
+      "RANKED"
     ],
     "trait": {
       "TRANSLATED": {
         "known": "Now it is midnight.",
         "learning": "Adesso è mezzanotte."
+      },
+      "RANKED": {
+        "rank": 849
       }
     },
     "symbols": [
@@ -18766,12 +20150,16 @@ export default [
   {
     "slug": "adesso-e-l-una",
     "traits": [
-      "TRANSLATED"
+      "TRANSLATED",
+      "RANKED"
     ],
     "trait": {
       "TRANSLATED": {
         "known": "Now it is one o'clock.",
         "learning": "Adesso è l'una."
+      },
+      "RANKED": {
+        "rank": 200
       }
     },
     "symbols": [
@@ -18783,12 +20171,16 @@ export default [
   {
     "slug": "sono-le-due",
     "traits": [
-      "TRANSLATED"
+      "TRANSLATED",
+      "RANKED"
     ],
     "trait": {
       "TRANSLATED": {
         "known": "It is two o'clock.",
         "learning": "Sono le due."
+      },
+      "RANKED": {
+        "rank": 115
       }
     },
     "symbols": [
@@ -18800,12 +20192,16 @@ export default [
   {
     "slug": "sono-le-sei-di-sera",
     "traits": [
-      "TRANSLATED"
+      "TRANSLATED",
+      "RANKED"
     ],
     "trait": {
       "TRANSLATED": {
         "known": "It is six in the evening.",
         "learning": "Sono le sei di sera."
+      },
+      "RANKED": {
+        "rank": 279
       }
     },
     "symbols": [
@@ -18817,12 +20213,16 @@ export default [
   {
     "slug": "la-mattina-e-calma",
     "traits": [
-      "TRANSLATED"
+      "TRANSLATED",
+      "RANKED"
     ],
     "trait": {
       "TRANSLATED": {
         "known": "The morning is calm.",
         "learning": "La mattina è calma."
+      },
+      "RANKED": {
+        "rank": 724
       }
     },
     "symbols": [
@@ -18834,12 +20234,16 @@ export default [
   {
     "slug": "la-sera-e-tranquilla",
     "traits": [
-      "TRANSLATED"
+      "TRANSLATED",
+      "RANKED"
     ],
     "trait": {
       "TRANSLATED": {
         "known": "The evening is quiet.",
         "learning": "La sera è tranquilla."
+      },
+      "RANKED": {
+        "rank": 735
       }
     },
     "symbols": [
@@ -18851,12 +20255,16 @@ export default [
   {
     "slug": "questa-settimana-e-lunga",
     "traits": [
-      "TRANSLATED"
+      "TRANSLATED",
+      "RANKED"
     ],
     "trait": {
       "TRANSLATED": {
         "known": "This week is long.",
         "learning": "Questa settimana è lunga."
+      },
+      "RANKED": {
+        "rank": 376
       }
     },
     "symbols": [
@@ -18868,12 +20276,16 @@ export default [
   {
     "slug": "questo-giorno-e-importante",
     "traits": [
-      "TRANSLATED"
+      "TRANSLATED",
+      "RANKED"
     ],
     "trait": {
       "TRANSLATED": {
         "known": "This day is important.",
         "learning": "Questo giorno è importante."
+      },
+      "RANKED": {
+        "rank": 220
       }
     },
     "symbols": [
@@ -18885,12 +20297,16 @@ export default [
   {
     "slug": "la-riunione-e-venerdi",
     "traits": [
-      "TRANSLATED"
+      "TRANSLATED",
+      "RANKED"
     ],
     "trait": {
       "TRANSLATED": {
         "known": "The meeting is on Friday.",
         "learning": "La riunione è venerdì."
+      },
+      "RANKED": {
+        "rank": 734
       }
     },
     "symbols": [
@@ -18902,12 +20318,16 @@ export default [
   {
     "slug": "mi-alzo-sempre-presto",
     "traits": [
-      "TRANSLATED"
+      "TRANSLATED",
+      "RANKED"
     ],
     "trait": {
       "TRANSLATED": {
         "known": "I always wake up early.",
         "learning": "Mi alzo sempre presto."
+      },
+      "RANKED": {
+        "rank": 1032
       }
     },
     "symbols": [
@@ -18919,12 +20339,16 @@ export default [
   {
     "slug": "mi-alzo-alle-sette",
     "traits": [
-      "TRANSLATED"
+      "TRANSLATED",
+      "RANKED"
     ],
     "trait": {
       "TRANSLATED": {
         "known": "I wake up at seven.",
         "learning": "Mi alzo alle sette."
+      },
+      "RANKED": {
+        "rank": 1031
       }
     },
     "symbols": [
@@ -18936,12 +20360,16 @@ export default [
   {
     "slug": "adesso-e-gia-tardi",
     "traits": [
-      "TRANSLATED"
+      "TRANSLATED",
+      "RANKED"
     ],
     "trait": {
       "TRANSLATED": {
         "known": "Now it is already late.",
         "learning": "Adesso è già tardi."
+      },
+      "RANKED": {
+        "rank": 420
       }
     },
     "symbols": [
@@ -18953,12 +20381,16 @@ export default [
   {
     "slug": "ti-telefono-domani",
     "traits": [
-      "TRANSLATED"
+      "TRANSLATED",
+      "RANKED"
     ],
     "trait": {
       "TRANSLATED": {
         "known": "I will call you tomorrow.",
         "learning": "Ti telefono domani."
+      },
+      "RANKED": {
+        "rank": 384
       }
     },
     "symbols": [
@@ -18970,12 +20402,16 @@ export default [
   {
     "slug": "noi-parliamo-stasera",
     "traits": [
-      "TRANSLATED"
+      "TRANSLATED",
+      "RANKED"
     ],
     "trait": {
       "TRANSLATED": {
         "known": "We will speak this evening.",
         "learning": "Noi parliamo stasera."
+      },
+      "RANKED": {
+        "rank": 575
       }
     },
     "symbols": [
@@ -18987,12 +20423,16 @@ export default [
   {
     "slug": "l-esame-e-questa-settimana",
     "traits": [
-      "TRANSLATED"
+      "TRANSLATED",
+      "RANKED"
     ],
     "trait": {
       "TRANSLATED": {
         "known": "The exam is this week.",
         "learning": "L'esame è questa settimana."
+      },
+      "RANKED": {
+        "rank": 521
       }
     },
     "symbols": [
@@ -19004,12 +20444,16 @@ export default [
   {
     "slug": "la-stagione-e-variabile",
     "traits": [
-      "TRANSLATED"
+      "TRANSLATED",
+      "RANKED"
     ],
     "trait": {
       "TRANSLATED": {
         "known": "The season is changeable.",
         "learning": "La stagione è variabile."
+      },
+      "RANKED": {
+        "rank": 897
       }
     },
     "symbols": [
@@ -19021,12 +20465,16 @@ export default [
   {
     "slug": "l-umidita-e-forte-oggi",
     "traits": [
-      "TRANSLATED"
+      "TRANSLATED",
+      "RANKED"
     ],
     "trait": {
       "TRANSLATED": {
         "known": "The humidity is strong today.",
         "learning": "L'umidità è forte oggi."
+      },
+      "RANKED": {
+        "rank": 926
       }
     },
     "symbols": [
@@ -19038,12 +20486,16 @@ export default [
   {
     "slug": "c-e-un-arcobaleno",
     "traits": [
-      "TRANSLATED"
+      "TRANSLATED",
+      "RANKED"
     ],
     "trait": {
       "TRANSLATED": {
         "known": "There is a rainbow.",
         "learning": "C'è un arcobaleno."
+      },
+      "RANKED": {
+        "rank": 1023
       }
     },
     "symbols": [
@@ -19055,12 +20507,16 @@ export default [
   {
     "slug": "la-data-e-importante",
     "traits": [
-      "TRANSLATED"
+      "TRANSLATED",
+      "RANKED"
     ],
     "trait": {
       "TRANSLATED": {
         "known": "The date is important.",
         "learning": "La data è importante."
+      },
+      "RANKED": {
+        "rank": 291
       }
     },
     "symbols": [
@@ -19072,12 +20528,16 @@ export default [
   {
     "slug": "il-mio-orologio-e-nuovo",
     "traits": [
-      "TRANSLATED"
+      "TRANSLATED",
+      "RANKED"
     ],
     "trait": {
       "TRANSLATED": {
         "known": "My watch is new.",
         "learning": "Il mio orologio è nuovo."
+      },
+      "RANKED": {
+        "rank": 873
       }
     },
     "symbols": [
@@ -19089,12 +20549,16 @@ export default [
   {
     "slug": "la-sveglia-suona-presto",
     "traits": [
-      "TRANSLATED"
+      "TRANSLATED",
+      "RANKED"
     ],
     "trait": {
       "TRANSLATED": {
         "known": "The alarm clock rings early.",
         "learning": "La sveglia suona presto."
+      },
+      "RANKED": {
+        "rank": 783
       }
     },
     "symbols": [
@@ -19106,12 +20570,16 @@ export default [
   {
     "slug": "il-giorno-e-lungo",
     "traits": [
-      "TRANSLATED"
+      "TRANSLATED",
+      "RANKED"
     ],
     "trait": {
       "TRANSLATED": {
         "known": "The day is long.",
         "learning": "Il giorno è lungo."
+      },
+      "RANKED": {
+        "rank": 236
       }
     },
     "symbols": [
@@ -19123,12 +20591,16 @@ export default [
   {
     "slug": "ho-dolore-alla-testa",
     "traits": [
-      "TRANSLATED"
+      "TRANSLATED",
+      "RANKED"
     ],
     "trait": {
       "TRANSLATED": {
         "known": "My head hurts.",
         "learning": "Ho dolore alla testa."
+      },
+      "RANKED": {
+        "rank": 456
       }
     },
     "symbols": [
@@ -19140,12 +20612,16 @@ export default [
   {
     "slug": "ho-dolore-alla-schiena",
     "traits": [
-      "TRANSLATED"
+      "TRANSLATED",
+      "RANKED"
     ],
     "trait": {
       "TRANSLATED": {
         "known": "My back hurts.",
         "learning": "Ho dolore alla schiena."
+      },
+      "RANKED": {
+        "rank": 778
       }
     },
     "symbols": [
@@ -19157,12 +20633,16 @@ export default [
   {
     "slug": "ho-ancora-la-febbre",
     "traits": [
-      "TRANSLATED"
+      "TRANSLATED",
+      "RANKED"
     ],
     "trait": {
       "TRANSLATED": {
         "known": "I still have a fever.",
         "learning": "Ho ancora la febbre."
+      },
+      "RANKED": {
+        "rank": 834
       }
     },
     "symbols": [
@@ -19174,12 +20654,16 @@ export default [
   {
     "slug": "ho-la-tosse",
     "traits": [
-      "TRANSLATED"
+      "TRANSLATED",
+      "RANKED"
     ],
     "trait": {
       "TRANSLATED": {
         "known": "I have a cough.",
         "learning": "Ho la tosse."
+      },
+      "RANKED": {
+        "rank": 1014
       }
     },
     "symbols": [
@@ -19191,12 +20675,16 @@ export default [
   {
     "slug": "ho-un-raffreddore",
     "traits": [
-      "TRANSLATED"
+      "TRANSLATED",
+      "RANKED"
     ],
     "trait": {
       "TRANSLATED": {
         "known": "I have a cold.",
         "learning": "Ho un raffreddore."
+      },
+      "RANKED": {
+        "rank": 1039
       }
     },
     "symbols": [
@@ -19208,12 +20696,16 @@ export default [
   {
     "slug": "ho-ancora-l-influenza",
     "traits": [
-      "TRANSLATED"
+      "TRANSLATED",
+      "RANKED"
     ],
     "trait": {
       "TRANSLATED": {
         "known": "I still have the flu.",
         "learning": "Ho ancora l'influenza."
+      },
+      "RANKED": {
+        "rank": 611
       }
     },
     "symbols": [
@@ -19225,12 +20717,16 @@ export default [
   {
     "slug": "la-mia-mano-e-piccola",
     "traits": [
-      "TRANSLATED"
+      "TRANSLATED",
+      "RANKED"
     ],
     "trait": {
       "TRANSLATED": {
         "known": "My hand is small.",
         "learning": "La mia mano è piccola."
+      },
+      "RANKED": {
+        "rank": 341
       }
     },
     "symbols": [
@@ -19242,12 +20738,16 @@ export default [
   {
     "slug": "il-mio-braccio-e-forte",
     "traits": [
-      "TRANSLATED"
+      "TRANSLATED",
+      "RANKED"
     ],
     "trait": {
       "TRANSLATED": {
         "known": "My arm is strong.",
         "learning": "Il mio braccio è forte."
+      },
+      "RANKED": {
+        "rank": 624
       }
     },
     "symbols": [
@@ -19259,12 +20759,16 @@ export default [
   {
     "slug": "ho-dolore-alla-gamba",
     "traits": [
-      "TRANSLATED"
+      "TRANSLATED",
+      "RANKED"
     ],
     "trait": {
       "TRANSLATED": {
         "known": "My leg hurts.",
         "learning": "Ho dolore alla gamba."
+      },
+      "RANKED": {
+        "rank": 800
       }
     },
     "symbols": [
@@ -19276,12 +20780,16 @@ export default [
   {
     "slug": "il-mio-occhio-e-verde",
     "traits": [
-      "TRANSLATED"
+      "TRANSLATED",
+      "RANKED"
     ],
     "trait": {
       "TRANSLATED": {
         "known": "My eye is green.",
         "learning": "Il mio occhio è verde."
+      },
+      "RANKED": {
+        "rank": 490
       }
     },
     "symbols": [
@@ -19293,12 +20801,16 @@ export default [
   {
     "slug": "il-mio-cuore-e-sano",
     "traits": [
-      "TRANSLATED"
+      "TRANSLATED",
+      "RANKED"
     ],
     "trait": {
       "TRANSLATED": {
         "known": "My heart is healthy.",
         "learning": "Il mio cuore è sano."
+      },
+      "RANKED": {
+        "rank": 815
       }
     },
     "symbols": [
@@ -19310,12 +20822,16 @@ export default [
   {
     "slug": "oggi-sono-malato",
     "traits": [
-      "TRANSLATED"
+      "TRANSLATED",
+      "RANKED"
     ],
     "trait": {
       "TRANSLATED": {
         "known": "I am sick today.",
         "learning": "Oggi sono malato."
+      },
+      "RANKED": {
+        "rank": 820
       }
     },
     "symbols": [
@@ -19327,12 +20843,16 @@ export default [
   {
     "slug": "sono-molto-stanco",
     "traits": [
-      "TRANSLATED"
+      "TRANSLATED",
+      "RANKED"
     ],
     "trait": {
       "TRANSLATED": {
         "known": "I am very tired.",
         "learning": "Sono molto stanco."
+      },
+      "RANKED": {
+        "rank": 822
       }
     },
     "symbols": [
@@ -19344,12 +20864,16 @@ export default [
   {
     "slug": "sono-molto-debole",
     "traits": [
-      "TRANSLATED"
+      "TRANSLATED",
+      "RANKED"
     ],
     "trait": {
       "TRANSLATED": {
         "known": "I am very weak.",
         "learning": "Sono molto debole."
+      },
+      "RANKED": {
+        "rank": 707
       }
     },
     "symbols": [
@@ -19361,12 +20885,16 @@ export default [
   {
     "slug": "sto-molto-bene",
     "traits": [
-      "TRANSLATED"
+      "TRANSLATED",
+      "RANKED"
     ],
     "trait": {
       "TRANSLATED": {
         "known": "I feel very well.",
         "learning": "Sto molto bene."
+      },
+      "RANKED": {
+        "rank": 162
       }
     },
     "symbols": [
@@ -19378,12 +20906,16 @@ export default [
   {
     "slug": "non-sto-bene",
     "traits": [
-      "TRANSLATED"
+      "TRANSLATED",
+      "RANKED"
     ],
     "trait": {
       "TRANSLATED": {
         "known": "I do not feel well.",
         "learning": "Non sto bene."
+      },
+      "RANKED": {
+        "rank": 161
       }
     },
     "symbols": [
@@ -19395,12 +20927,16 @@ export default [
   {
     "slug": "il-medico-e-simpatico",
     "traits": [
-      "TRANSLATED"
+      "TRANSLATED",
+      "RANKED"
     ],
     "trait": {
       "TRANSLATED": {
         "known": "The doctor is nice.",
         "learning": "Il medico è simpatico."
+      },
+      "RANKED": {
+        "rank": 853
       }
     },
     "symbols": [
@@ -19412,12 +20948,16 @@ export default [
   {
     "slug": "l-infermiera-e-paziente",
     "traits": [
-      "TRANSLATED"
+      "TRANSLATED",
+      "RANKED"
     ],
     "trait": {
       "TRANSLATED": {
         "known": "The nurse is patient.",
         "learning": "L'infermiera è paziente."
+      },
+      "RANKED": {
+        "rank": 1021
       }
     },
     "symbols": [
@@ -19429,12 +20969,16 @@ export default [
   {
     "slug": "devo-andare-in-ospedale",
     "traits": [
-      "TRANSLATED"
+      "TRANSLATED",
+      "RANKED"
     ],
     "trait": {
       "TRANSLATED": {
         "known": "I must go to the hospital.",
         "learning": "Devo andare in ospedale."
+      },
+      "RANKED": {
+        "rank": 534
       }
     },
     "symbols": [
@@ -19446,29 +20990,40 @@ export default [
   {
     "slug": "devo-andare-in-farmacia",
     "traits": [
-      "TRANSLATED"
+      "TRANSLATED",
+      "RANKED"
     ],
     "trait": {
       "TRANSLATED": {
         "known": "I must go to the pharmacy.",
         "learning": "Devo andare in farmacia."
+      },
+      "RANKED": {
+        "rank": 105
       }
     },
     "symbols": [
       {
         "slug": "sentence"
+      },
+      {
+        "slug": "proficiency.survival"
       }
     ]
   },
   {
     "slug": "oggi-devo-riposare",
     "traits": [
-      "TRANSLATED"
+      "TRANSLATED",
+      "RANKED"
     ],
     "trait": {
       "TRANSLATED": {
         "known": "Today I must rest.",
         "learning": "Oggi devo riposare."
+      },
+      "RANKED": {
+        "rank": 959
       }
     },
     "symbols": [
@@ -19480,29 +21035,40 @@ export default [
   {
     "slug": "puoi-telefonare-al-medico",
     "traits": [
-      "TRANSLATED"
+      "TRANSLATED",
+      "RANKED"
     ],
     "trait": {
       "TRANSLATED": {
         "known": "Can you call the doctor?",
         "learning": "Puoi telefonare al medico?"
+      },
+      "RANKED": {
+        "rank": 111
       }
     },
     "symbols": [
       {
         "slug": "sentence"
+      },
+      {
+        "slug": "proficiency.survival"
       }
     ]
   },
   {
     "slug": "il-medico-da-la-medicina",
     "traits": [
-      "TRANSLATED"
+      "TRANSLATED",
+      "RANKED"
     ],
     "trait": {
       "TRANSLATED": {
         "known": "The doctor gives the medicine.",
         "learning": "Il medico dà la medicina."
+      },
+      "RANKED": {
+        "rank": 573
       }
     },
     "symbols": [
@@ -19514,12 +21080,16 @@ export default [
   {
     "slug": "il-dolore-e-forte",
     "traits": [
-      "TRANSLATED"
+      "TRANSLATED",
+      "RANKED"
     ],
     "trait": {
       "TRANSLATED": {
         "known": "The pain is strong.",
         "learning": "Il dolore è forte."
+      },
+      "RANKED": {
+        "rank": 458
       }
     },
     "symbols": [
@@ -19531,12 +21101,16 @@ export default [
   {
     "slug": "la-mia-pelle-e-secca",
     "traits": [
-      "TRANSLATED"
+      "TRANSLATED",
+      "RANKED"
     ],
     "trait": {
       "TRANSLATED": {
         "known": "My skin is dry.",
         "learning": "La mia pelle è secca."
+      },
+      "RANKED": {
+        "rank": 931
       }
     },
     "symbols": [
@@ -19548,12 +21122,16 @@ export default [
   {
     "slug": "ho-un-allergia-oggi",
     "traits": [
-      "TRANSLATED"
+      "TRANSLATED",
+      "RANKED"
     ],
     "trait": {
       "TRANSLATED": {
         "known": "I have an allergy today.",
         "learning": "Ho un'allergia oggi."
+      },
+      "RANKED": {
+        "rank": 1051
       }
     },
     "symbols": [
@@ -19565,12 +21143,16 @@ export default [
   {
     "slug": "ho-una-visita-oggi",
     "traits": [
-      "TRANSLATED"
+      "TRANSLATED",
+      "RANKED"
     ],
     "trait": {
       "TRANSLATED": {
         "known": "I have a checkup today.",
         "learning": "Ho una visita oggi."
+      },
+      "RANKED": {
+        "rank": 433
       }
     },
     "symbols": [
@@ -19582,12 +21164,16 @@ export default [
   {
     "slug": "la-salute-e-importante",
     "traits": [
-      "TRANSLATED"
+      "TRANSLATED",
+      "RANKED"
     ],
     "trait": {
       "TRANSLATED": {
         "known": "Health is important.",
         "learning": "La salute è importante."
+      },
+      "RANKED": {
+        "rank": 390
       }
     },
     "symbols": [
@@ -19599,12 +21185,16 @@ export default [
   {
     "slug": "non-sono-piu-malato",
     "traits": [
-      "TRANSLATED"
+      "TRANSLATED",
+      "RANKED"
     ],
     "trait": {
       "TRANSLATED": {
         "known": "I am not sick anymore.",
         "learning": "Non sono più malato."
+      },
+      "RANKED": {
+        "rank": 825
       }
     },
     "symbols": [
@@ -19616,12 +21206,16 @@ export default [
   {
     "slug": "ho-dolore-al-dente",
     "traits": [
-      "TRANSLATED"
+      "TRANSLATED",
+      "RANKED"
     ],
     "trait": {
       "TRANSLATED": {
         "known": "My tooth hurts.",
         "learning": "Ho dolore al dente."
+      },
+      "RANKED": {
+        "rank": 940
       }
     },
     "symbols": [
@@ -19633,12 +21227,16 @@ export default [
   {
     "slug": "ho-dolore-allo-stomaco",
     "traits": [
-      "TRANSLATED"
+      "TRANSLATED",
+      "RANKED"
     ],
     "trait": {
       "TRANSLATED": {
         "known": "My stomach hurts.",
         "learning": "Ho dolore allo stomaco."
+      },
+      "RANKED": {
+        "rank": 782
       }
     },
     "symbols": [
@@ -19650,12 +21248,16 @@ export default [
   {
     "slug": "riposo-sempre-la-sera",
     "traits": [
-      "TRANSLATED"
+      "TRANSLATED",
+      "RANKED"
     ],
     "trait": {
       "TRANSLATED": {
         "known": "I always rest in the evening.",
         "learning": "Riposo sempre la sera."
+      },
+      "RANKED": {
+        "rank": 773
       }
     },
     "symbols": [
@@ -19667,12 +21269,16 @@ export default [
   {
     "slug": "riposiamo-la-domenica",
     "traits": [
-      "TRANSLATED"
+      "TRANSLATED",
+      "RANKED"
     ],
     "trait": {
       "TRANSLATED": {
         "known": "We rest on Sunday.",
         "learning": "Riposiamo la domenica."
+      },
+      "RANKED": {
+        "rank": 1086
       }
     },
     "symbols": [
@@ -19684,12 +21290,16 @@ export default [
   {
     "slug": "la-ferita-non-e-profonda",
     "traits": [
-      "TRANSLATED"
+      "TRANSLATED",
+      "RANKED"
     ],
     "trait": {
       "TRANSLATED": {
         "known": "The wound is not deep.",
         "learning": "La ferita non è profonda."
+      },
+      "RANKED": {
+        "rank": 864
       }
     },
     "symbols": [
@@ -19701,12 +21311,16 @@ export default [
   {
     "slug": "mi-lavo-sempre-bene",
     "traits": [
-      "TRANSLATED"
+      "TRANSLATED",
+      "RANKED"
     ],
     "trait": {
       "TRANSLATED": {
         "known": "I always wash myself well.",
         "learning": "Mi lavo sempre bene."
+      },
+      "RANKED": {
+        "rank": 1056
       }
     },
     "symbols": [
@@ -19718,12 +21332,16 @@ export default [
   {
     "slug": "lavoro-in-un-ufficio",
     "traits": [
-      "TRANSLATED"
+      "TRANSLATED",
+      "RANKED"
     ],
     "trait": {
       "TRANSLATED": {
         "known": "I work in an office.",
         "learning": "Lavoro in un ufficio."
+      },
+      "RANKED": {
+        "rank": 391
       }
     },
     "symbols": [
@@ -19735,12 +21353,16 @@ export default [
   {
     "slug": "il-mio-capo-e-serio",
     "traits": [
-      "TRANSLATED"
+      "TRANSLATED",
+      "RANKED"
     ],
     "trait": {
       "TRANSLATED": {
         "known": "My boss is serious.",
         "learning": "Il mio capo è serio."
+      },
+      "RANKED": {
+        "rank": 474
       }
     },
     "symbols": [
@@ -19752,12 +21374,16 @@ export default [
   {
     "slug": "il-mio-collega-e-simpatico",
     "traits": [
-      "TRANSLATED"
+      "TRANSLATED",
+      "RANKED"
     ],
     "trait": {
       "TRANSLATED": {
         "known": "My colleague is friendly.",
         "learning": "Il mio collega è simpatico."
+      },
+      "RANKED": {
+        "rank": 857
       }
     },
     "symbols": [
@@ -19769,12 +21395,16 @@ export default [
   {
     "slug": "questa-riunione-e-importante",
     "traits": [
-      "TRANSLATED"
+      "TRANSLATED",
+      "RANKED"
     ],
     "trait": {
       "TRANSLATED": {
         "known": "This meeting is important.",
         "learning": "Questa riunione è importante."
+      },
+      "RANKED": {
+        "rank": 736
       }
     },
     "symbols": [
@@ -19786,12 +21416,16 @@ export default [
   {
     "slug": "ho-un-nuovo-progetto",
     "traits": [
-      "TRANSLATED"
+      "TRANSLATED",
+      "RANKED"
     ],
     "trait": {
       "TRANSLATED": {
         "known": "I have a new project.",
         "learning": "Ho un nuovo progetto."
+      },
+      "RANKED": {
+        "rank": 248
       }
     },
     "symbols": [
@@ -19803,12 +21437,16 @@ export default [
   {
     "slug": "la-scadenza-e-domani",
     "traits": [
-      "TRANSLATED"
+      "TRANSLATED",
+      "RANKED"
     ],
     "trait": {
       "TRANSLATED": {
         "known": "The deadline is tomorrow.",
         "learning": "La scadenza è domani."
+      },
+      "RANKED": {
+        "rank": 801
       }
     },
     "symbols": [
@@ -19820,12 +21458,16 @@ export default [
   {
     "slug": "devo-firmare-il-documento",
     "traits": [
-      "TRANSLATED"
+      "TRANSLATED",
+      "RANKED"
     ],
     "trait": {
       "TRANSLATED": {
         "known": "I must sign the document.",
         "learning": "Devo firmare il documento."
+      },
+      "RANKED": {
+        "rank": 880
       }
     },
     "symbols": [
@@ -19837,12 +21479,16 @@ export default [
   {
     "slug": "mando-un-email-oggi",
     "traits": [
-      "TRANSLATED"
+      "TRANSLATED",
+      "RANKED"
     ],
     "trait": {
       "TRANSLATED": {
         "known": "I send an email today.",
         "learning": "Mando un'email oggi."
+      },
+      "RANKED": {
+        "rank": 910
       }
     },
     "symbols": [
@@ -19854,12 +21500,16 @@ export default [
   {
     "slug": "ricevo-un-messaggio",
     "traits": [
-      "TRANSLATED"
+      "TRANSLATED",
+      "RANKED"
     ],
     "trait": {
       "TRANSLATED": {
         "known": "I receive a message.",
         "learning": "Ricevo un messaggio."
+      },
+      "RANKED": {
+        "rank": 1016
       }
     },
     "symbols": [
@@ -19871,12 +21521,16 @@ export default [
   {
     "slug": "puoi-mandare-il-documento",
     "traits": [
-      "TRANSLATED"
+      "TRANSLATED",
+      "RANKED"
     ],
     "trait": {
       "TRANSLATED": {
         "known": "Can you send the document?",
         "learning": "Puoi mandare il documento?"
+      },
+      "RANKED": {
+        "rank": 649
       }
     },
     "symbols": [
@@ -19888,12 +21542,16 @@ export default [
   {
     "slug": "devo-finire-il-progetto",
     "traits": [
-      "TRANSLATED"
+      "TRANSLATED",
+      "RANKED"
     ],
     "trait": {
       "TRANSLATED": {
         "known": "I must finish the project.",
         "learning": "Devo finire il progetto."
+      },
+      "RANKED": {
+        "rank": 472
       }
     },
     "symbols": [
@@ -19905,12 +21563,16 @@ export default [
   {
     "slug": "domani-inizio-il-nuovo-lavoro",
     "traits": [
-      "TRANSLATED"
+      "TRANSLATED",
+      "RANKED"
     ],
     "trait": {
       "TRANSLATED": {
         "known": "I will start the new job tomorrow.",
         "learning": "Domani inizio il nuovo lavoro."
+      },
+      "RANKED": {
+        "rank": 354
       }
     },
     "symbols": [
@@ -19922,12 +21584,16 @@ export default [
   {
     "slug": "l-azienda-e-grande",
     "traits": [
-      "TRANSLATED"
+      "TRANSLATED",
+      "RANKED"
     ],
     "trait": {
       "TRANSLATED": {
         "known": "The company is big.",
         "learning": "L'azienda è grande."
+      },
+      "RANKED": {
+        "rank": 407
       }
     },
     "symbols": [
@@ -19939,12 +21605,16 @@ export default [
   {
     "slug": "il-mio-stipendio-non-e-alto",
     "traits": [
-      "TRANSLATED"
+      "TRANSLATED",
+      "RANKED"
     ],
     "trait": {
       "TRANSLATED": {
         "known": "My salary is not high.",
         "learning": "Il mio stipendio non è alto."
+      },
+      "RANKED": {
+        "rank": 780
       }
     },
     "symbols": [
@@ -19956,12 +21626,16 @@ export default [
   {
     "slug": "ho-un-colloquio-oggi",
     "traits": [
-      "TRANSLATED"
+      "TRANSLATED",
+      "RANKED"
     ],
     "trait": {
       "TRANSLATED": {
         "known": "I have an interview today.",
         "learning": "Ho un colloquio oggi."
+      },
+      "RANKED": {
+        "rank": 878
       }
     },
     "symbols": [
@@ -19973,12 +21647,16 @@ export default [
   {
     "slug": "il-problema-e-difficile",
     "traits": [
-      "TRANSLATED"
+      "TRANSLATED",
+      "RANKED"
     ],
     "trait": {
       "TRANSLATED": {
         "known": "The problem is difficult.",
         "learning": "Il problema è difficile."
+      },
+      "RANKED": {
+        "rank": 265
       }
     },
     "symbols": [
@@ -19990,12 +21668,16 @@ export default [
   {
     "slug": "posso-spiegare-il-problema",
     "traits": [
-      "TRANSLATED"
+      "TRANSLATED",
+      "RANKED"
     ],
     "trait": {
       "TRANSLATED": {
         "known": "I can explain the problem.",
         "learning": "Posso spiegare il problema."
+      },
+      "RANKED": {
+        "rank": 572
       }
     },
     "symbols": [
@@ -20007,12 +21689,16 @@ export default [
   {
     "slug": "il-professore-spiega-la-lezione",
     "traits": [
-      "TRANSLATED"
+      "TRANSLATED",
+      "RANKED"
     ],
     "trait": {
       "TRANSLATED": {
         "known": "The teacher explains the lesson.",
         "learning": "Il professore spiega la lezione."
+      },
+      "RANKED": {
+        "rank": 574
       }
     },
     "symbols": [
@@ -20024,12 +21710,16 @@ export default [
   {
     "slug": "vado-sempre-a-scuola",
     "traits": [
-      "TRANSLATED"
+      "TRANSLATED",
+      "RANKED"
     ],
     "trait": {
       "TRANSLATED": {
         "known": "I always go to school.",
         "learning": "Vado sempre a scuola."
+      },
+      "RANKED": {
+        "rank": 339
       }
     },
     "symbols": [
@@ -20041,12 +21731,16 @@ export default [
   {
     "slug": "lo-studente-fa-una-domanda",
     "traits": [
-      "TRANSLATED"
+      "TRANSLATED",
+      "RANKED"
     ],
     "trait": {
       "TRANSLATED": {
         "known": "The student asks a question.",
         "learning": "Lo studente fa una domanda."
+      },
+      "RANKED": {
+        "rank": 679
       }
     },
     "symbols": [
@@ -20058,12 +21752,16 @@ export default [
   {
     "slug": "il-professore-risponde-alla-domanda",
     "traits": [
-      "TRANSLATED"
+      "TRANSLATED",
+      "RANKED"
     ],
     "trait": {
       "TRANSLATED": {
         "known": "The teacher answers the question.",
         "learning": "Il professore risponde alla domanda."
+      },
+      "RANKED": {
+        "rank": 584
       }
     },
     "symbols": [
@@ -20075,12 +21773,16 @@ export default [
   {
     "slug": "l-esame-e-difficile",
     "traits": [
-      "TRANSLATED"
+      "TRANSLATED",
+      "RANKED"
     ],
     "trait": {
       "TRANSLATED": {
         "known": "The exam is difficult.",
         "learning": "L'esame è difficile."
+      },
+      "RANKED": {
+        "rank": 518
       }
     },
     "symbols": [
@@ -20092,12 +21794,16 @@ export default [
   {
     "slug": "il-mio-voto-e-buono",
     "traits": [
-      "TRANSLATED"
+      "TRANSLATED",
+      "RANKED"
     ],
     "trait": {
       "TRANSLATED": {
         "known": "My grade is good.",
         "learning": "Il mio voto è buono."
+      },
+      "RANKED": {
+        "rank": 446
       }
     },
     "symbols": [
@@ -20109,12 +21815,16 @@ export default [
   {
     "slug": "devo-fare-il-compito",
     "traits": [
-      "TRANSLATED"
+      "TRANSLATED",
+      "RANKED"
     ],
     "trait": {
       "TRANSLATED": {
         "known": "I must do the homework.",
         "learning": "Devo fare il compito."
+      },
+      "RANKED": {
+        "rank": 556
       }
     },
     "symbols": [
@@ -20126,12 +21836,16 @@ export default [
   {
     "slug": "l-aula-e-piena",
     "traits": [
-      "TRANSLATED"
+      "TRANSLATED",
+      "RANKED"
     ],
     "trait": {
       "TRANSLATED": {
         "known": "The classroom is full.",
         "learning": "L'aula è piena."
+      },
+      "RANKED": {
+        "rank": 845
       }
     },
     "symbols": [
@@ -20143,12 +21857,16 @@ export default [
   {
     "slug": "il-mio-zaino-e-pesante",
     "traits": [
-      "TRANSLATED"
+      "TRANSLATED",
+      "RANKED"
     ],
     "trait": {
       "TRANSLATED": {
         "known": "My backpack is heavy.",
         "learning": "Il mio zaino è pesante."
+      },
+      "RANKED": {
+        "rank": 936
       }
     },
     "symbols": [
@@ -20160,12 +21878,16 @@ export default [
   {
     "slug": "porto-sempre-il-libro",
     "traits": [
-      "TRANSLATED"
+      "TRANSLATED",
+      "RANKED"
     ],
     "trait": {
       "TRANSLATED": {
         "known": "I always bring the book.",
         "learning": "Porto sempre il libro."
+      },
+      "RANKED": {
+        "rank": 387
       }
     },
     "symbols": [
@@ -20177,12 +21899,16 @@ export default [
   {
     "slug": "la-grammatica-e-difficile-per-me",
     "traits": [
-      "TRANSLATED"
+      "TRANSLATED",
+      "RANKED"
     ],
     "trait": {
       "TRANSLATED": {
         "known": "Grammar is difficult for me.",
         "learning": "La grammatica è difficile per me."
+      },
+      "RANKED": {
+        "rank": 938
       }
     },
     "symbols": [
@@ -20194,12 +21920,16 @@ export default [
   {
     "slug": "la-storia-e-interessante",
     "traits": [
-      "TRANSLATED"
+      "TRANSLATED",
+      "RANKED"
     ],
     "trait": {
       "TRANSLATED": {
         "known": "History is interesting.",
         "learning": "La storia è interessante."
+      },
+      "RANKED": {
+        "rank": 426
       }
     },
     "symbols": [
@@ -20211,12 +21941,16 @@ export default [
   {
     "slug": "preferisco-questa-materia",
     "traits": [
-      "TRANSLATED"
+      "TRANSLATED",
+      "RANKED"
     ],
     "trait": {
       "TRANSLATED": {
         "known": "I prefer this subject.",
         "learning": "Preferisco questa materia."
+      },
+      "RANKED": {
+        "rank": 713
       }
     },
     "symbols": [
@@ -20228,12 +21962,16 @@ export default [
   {
     "slug": "il-compito-e-chiaro",
     "traits": [
-      "TRANSLATED"
+      "TRANSLATED",
+      "RANKED"
     ],
     "trait": {
       "TRANSLATED": {
         "known": "The homework is clear.",
         "learning": "Il compito è chiaro."
+      },
+      "RANKED": {
+        "rank": 557
       }
     },
     "symbols": [
@@ -20245,12 +21983,16 @@ export default [
   {
     "slug": "questa-parola-e-nuova",
     "traits": [
-      "TRANSLATED"
+      "TRANSLATED",
+      "RANKED"
     ],
     "trait": {
       "TRANSLATED": {
         "known": "This word is new.",
         "learning": "Questa parola è nuova."
+      },
+      "RANKED": {
+        "rank": 277
       }
     },
     "symbols": [
@@ -20262,12 +22004,16 @@ export default [
   {
     "slug": "questa-frase-e-facile",
     "traits": [
-      "TRANSLATED"
+      "TRANSLATED",
+      "RANKED"
     ],
     "trait": {
       "TRANSLATED": {
         "known": "This sentence is easy.",
         "learning": "Questa frase è facile."
+      },
+      "RANKED": {
+        "rank": 563
       }
     },
     "symbols": [
@@ -20279,12 +22025,16 @@ export default [
   {
     "slug": "il-mio-compagno-e-intelligente",
     "traits": [
-      "TRANSLATED"
+      "TRANSLATED",
+      "RANKED"
     ],
     "trait": {
       "TRANSLATED": {
         "known": "My classmate is intelligent.",
         "learning": "Il mio compagno è intelligente."
+      },
+      "RANKED": {
+        "rank": 693
       }
     },
     "symbols": [
@@ -20296,12 +22046,16 @@ export default [
   {
     "slug": "voglio-una-nuova-carriera",
     "traits": [
-      "TRANSLATED"
+      "TRANSLATED",
+      "RANKED"
     ],
     "trait": {
       "TRANSLATED": {
         "known": "I want a new career.",
         "learning": "Voglio una nuova carriera."
+      },
+      "RANKED": {
+        "rank": 519
       }
     },
     "symbols": [
@@ -20313,12 +22067,16 @@ export default [
   {
     "slug": "devo-decidere-oggi",
     "traits": [
-      "TRANSLATED"
+      "TRANSLATED",
+      "RANKED"
     ],
     "trait": {
       "TRANSLATED": {
         "known": "I must decide today.",
         "learning": "Devo decidere oggi."
+      },
+      "RANKED": {
+        "rank": 581
       }
     },
     "symbols": [
@@ -20330,12 +22088,16 @@ export default [
   {
     "slug": "il-direttore-firma-il-documento",
     "traits": [
-      "TRANSLATED"
+      "TRANSLATED",
+      "RANKED"
     ],
     "trait": {
       "TRANSLATED": {
         "known": "The director signs the document.",
         "learning": "Il direttore firma il documento."
+      },
+      "RANKED": {
+        "rank": 639
       }
     },
     "symbols": [
@@ -20347,12 +22109,16 @@ export default [
   {
     "slug": "prenoto-un-appuntamento",
     "traits": [
-      "TRANSLATED"
+      "TRANSLATED",
+      "RANKED"
     ],
     "trait": {
       "TRANSLATED": {
         "known": "I book an appointment.",
         "learning": "Prenoto un appuntamento."
+      },
+      "RANKED": {
+        "rank": 1074
       }
     },
     "symbols": [
@@ -20364,29 +22130,40 @@ export default [
   {
     "slug": "cosa-significa-questa-parola",
     "traits": [
-      "TRANSLATED"
+      "TRANSLATED",
+      "RANKED"
     ],
     "trait": {
       "TRANSLATED": {
         "known": "What does this word mean?",
         "learning": "Cosa significa questa parola?"
+      },
+      "RANKED": {
+        "rank": 23
       }
     },
     "symbols": [
       {
         "slug": "sentence"
+      },
+      {
+        "slug": "proficiency.survival"
       }
     ]
   },
   {
     "slug": "faccio-sempre-una-pausa-a-mezzogiorno",
     "traits": [
-      "TRANSLATED"
+      "TRANSLATED",
+      "RANKED"
     ],
     "trait": {
       "TRANSLATED": {
         "known": "I always take a break at noon.",
         "learning": "Faccio sempre una pausa a mezzogiorno."
+      },
+      "RANKED": {
+        "rank": 859
       }
     },
     "symbols": [
@@ -20398,12 +22175,16 @@ export default [
   {
     "slug": "posso-rispondere-a-questa-domanda",
     "traits": [
-      "TRANSLATED"
+      "TRANSLATED",
+      "RANKED"
     ],
     "trait": {
       "TRANSLATED": {
         "known": "I can answer this question.",
         "learning": "Posso rispondere a questa domanda."
+      },
+      "RANKED": {
+        "rank": 475
       }
     },
     "symbols": [
@@ -20415,12 +22196,16 @@ export default [
   {
     "slug": "il-professore-e-molto-paziente",
     "traits": [
-      "TRANSLATED"
+      "TRANSLATED",
+      "RANKED"
     ],
     "trait": {
       "TRANSLATED": {
         "known": "The professor is very patient.",
         "learning": "Il professore è molto paziente."
+      },
+      "RANKED": {
+        "rank": 655
       }
     },
     "symbols": [
@@ -20432,12 +22217,16 @@ export default [
   {
     "slug": "il-mio-ufficio-e-piccolo",
     "traits": [
-      "TRANSLATED"
+      "TRANSLATED",
+      "RANKED"
     ],
     "trait": {
       "TRANSLATED": {
         "known": "My office is small.",
         "learning": "Il mio ufficio è piccolo."
+      },
+      "RANKED": {
+        "rank": 392
       }
     },
     "symbols": [
@@ -20449,12 +22238,16 @@ export default [
   {
     "slug": "domani-ho-un-esame",
     "traits": [
-      "TRANSLATED"
+      "TRANSLATED",
+      "RANKED"
     ],
     "trait": {
       "TRANSLATED": {
         "known": "Tomorrow I have an exam.",
         "learning": "Domani ho un esame."
+      },
+      "RANKED": {
+        "rank": 516
       }
     },
     "symbols": [
@@ -20466,12 +22259,16 @@ export default [
   {
     "slug": "finisco-sempre-il-lavoro-alle-sei",
     "traits": [
-      "TRANSLATED"
+      "TRANSLATED",
+      "RANKED"
     ],
     "trait": {
       "TRANSLATED": {
         "known": "I always finish work at six.",
         "learning": "Finisco sempre il lavoro alle sei."
+      },
+      "RANKED": {
+        "rank": 997
       }
     },
     "symbols": [
@@ -20483,12 +22280,16 @@ export default [
   {
     "slug": "oggi-sono-felice",
     "traits": [
-      "TRANSLATED"
+      "TRANSLATED",
+      "RANKED"
     ],
     "trait": {
       "TRANSLATED": {
         "known": "Today I am happy.",
         "learning": "Oggi sono felice."
+      },
+      "RANKED": {
+        "rank": 332
       }
     },
     "symbols": [
@@ -20500,12 +22301,16 @@ export default [
   {
     "slug": "sono-un-po-triste",
     "traits": [
-      "TRANSLATED"
+      "TRANSLATED",
+      "RANKED"
     ],
     "trait": {
       "TRANSLATED": {
         "known": "I am a bit sad.",
         "learning": "Sono un po' triste."
+      },
+      "RANKED": {
+        "rank": 549
       }
     },
     "symbols": [
@@ -20517,12 +22322,16 @@ export default [
   {
     "slug": "sono-molto-nervoso",
     "traits": [
-      "TRANSLATED"
+      "TRANSLATED",
+      "RANKED"
     ],
     "trait": {
       "TRANSLATED": {
         "known": "I am very nervous.",
         "learning": "Sono molto nervoso."
+      },
+      "RANKED": {
+        "rank": 876
       }
     },
     "symbols": [
@@ -20534,12 +22343,16 @@ export default [
   {
     "slug": "sono-sempre-calmo",
     "traits": [
-      "TRANSLATED"
+      "TRANSLATED",
+      "RANKED"
     ],
     "trait": {
       "TRANSLATED": {
         "known": "I am always calm.",
         "learning": "Sono sempre calmo."
+      },
+      "RANKED": {
+        "rank": 981
       }
     },
     "symbols": [
@@ -20551,12 +22364,16 @@ export default [
   {
     "slug": "sono-molto-sorpreso",
     "traits": [
-      "TRANSLATED"
+      "TRANSLATED",
+      "RANKED"
     ],
     "trait": {
       "TRANSLATED": {
         "known": "I am very surprised.",
         "learning": "Sono molto sorpreso."
+      },
+      "RANKED": {
+        "rank": 861
       }
     },
     "symbols": [
@@ -20568,12 +22385,16 @@ export default [
   {
     "slug": "sono-molto-preoccupato",
     "traits": [
-      "TRANSLATED"
+      "TRANSLATED",
+      "RANKED"
     ],
     "trait": {
       "TRANSLATED": {
         "known": "I am very worried.",
         "learning": "Sono molto preoccupato."
+      },
+      "RANKED": {
+        "rank": 895
       }
     },
     "symbols": [
@@ -20585,12 +22406,16 @@ export default [
   {
     "slug": "sono-molto-annoiato",
     "traits": [
-      "TRANSLATED"
+      "TRANSLATED",
+      "RANKED"
     ],
     "trait": {
       "TRANSLATED": {
         "known": "I am very bored.",
         "learning": "Sono molto annoiato."
+      },
+      "RANKED": {
+        "rank": 1054
       }
     },
     "symbols": [
@@ -20602,12 +22427,16 @@ export default [
   {
     "slug": "sono-molto-soddisfatto",
     "traits": [
-      "TRANSLATED"
+      "TRANSLATED",
+      "RANKED"
     ],
     "trait": {
       "TRANSLATED": {
         "known": "I am very satisfied.",
         "learning": "Sono molto soddisfatto."
+      },
+      "RANKED": {
+        "rank": 852
       }
     },
     "symbols": [
@@ -20619,12 +22448,16 @@ export default [
   {
     "slug": "sono-molto-deluso",
     "traits": [
-      "TRANSLATED"
+      "TRANSLATED",
+      "RANKED"
     ],
     "trait": {
       "TRANSLATED": {
         "known": "I am very disappointed.",
         "learning": "Sono molto deluso."
+      },
+      "RANKED": {
+        "rank": 900
       }
     },
     "symbols": [
@@ -20636,12 +22469,16 @@ export default [
   {
     "slug": "sono-molto-rilassato",
     "traits": [
-      "TRANSLATED"
+      "TRANSLATED",
+      "RANKED"
     ],
     "trait": {
       "TRANSLATED": {
         "known": "I am very relaxed.",
         "learning": "Sono molto rilassato."
+      },
+      "RANKED": {
+        "rank": 1053
       }
     },
     "symbols": [
@@ -20653,12 +22490,16 @@ export default [
   {
     "slug": "ho-ancora-paura",
     "traits": [
-      "TRANSLATED"
+      "TRANSLATED",
+      "RANKED"
     ],
     "trait": {
       "TRANSLATED": {
         "known": "I am still scared.",
         "learning": "Ho ancora paura."
+      },
+      "RANKED": {
+        "rank": 280
       }
     },
     "symbols": [
@@ -20670,12 +22511,16 @@ export default [
   {
     "slug": "non-ho-paura-oggi",
     "traits": [
-      "TRANSLATED"
+      "TRANSLATED",
+      "RANKED"
     ],
     "trait": {
       "TRANSLATED": {
         "known": "I am not scared today.",
         "learning": "Non ho paura oggi."
+      },
+      "RANKED": {
+        "rank": 283
       }
     },
     "symbols": [
@@ -20687,12 +22532,16 @@ export default [
   {
     "slug": "preferisco-il-caffe",
     "traits": [
-      "TRANSLATED"
+      "TRANSLATED",
+      "RANKED"
     ],
     "trait": {
       "TRANSLATED": {
         "known": "I prefer coffee.",
         "learning": "Preferisco il caffè."
+      },
+      "RANKED": {
+        "rank": 710
       }
     },
     "symbols": [
@@ -20704,12 +22553,16 @@ export default [
   {
     "slug": "preferisco-il-vino",
     "traits": [
-      "TRANSLATED"
+      "TRANSLATED",
+      "RANKED"
     ],
     "trait": {
       "TRANSLATED": {
         "known": "I prefer wine.",
         "learning": "Preferisco il vino."
+      },
+      "RANKED": {
+        "rank": 711
       }
     },
     "symbols": [
@@ -20721,12 +22574,16 @@ export default [
   {
     "slug": "preferisco-la-pizza-alla-pasta",
     "traits": [
-      "TRANSLATED"
+      "TRANSLATED",
+      "RANKED"
     ],
     "trait": {
       "TRANSLATED": {
         "known": "I prefer pizza to pasta.",
         "learning": "Preferisco la pizza alla pasta."
+      },
+      "RANKED": {
+        "rank": 720
       }
     },
     "symbols": [
@@ -20738,12 +22595,16 @@ export default [
   {
     "slug": "vorrei-un-caffe-adesso",
     "traits": [
-      "TRANSLATED"
+      "TRANSLATED",
+      "RANKED"
     ],
     "trait": {
       "TRANSLATED": {
         "known": "I would like a coffee now.",
         "learning": "Vorrei un caffè adesso."
+      },
+      "RANKED": {
+        "rank": 493
       }
     },
     "symbols": [
@@ -20755,12 +22616,16 @@ export default [
   {
     "slug": "vorrei-solo-riposare",
     "traits": [
-      "TRANSLATED"
+      "TRANSLATED",
+      "RANKED"
     ],
     "trait": {
       "TRANSLATED": {
         "known": "I would just like to rest.",
         "learning": "Vorrei solo riposare."
+      },
+      "RANKED": {
+        "rank": 962
       }
     },
     "symbols": [
@@ -20772,12 +22637,16 @@ export default [
   {
     "slug": "voglio-parlare-italiano",
     "traits": [
-      "TRANSLATED"
+      "TRANSLATED",
+      "RANKED"
     ],
     "trait": {
       "TRANSLATED": {
         "known": "I want to speak Italian.",
         "learning": "Voglio parlare italiano."
+      },
+      "RANKED": {
+        "rank": 208
       }
     },
     "symbols": [
@@ -20789,12 +22658,16 @@ export default [
   {
     "slug": "non-voglio-decidere-oggi",
     "traits": [
-      "TRANSLATED"
+      "TRANSLATED",
+      "RANKED"
     ],
     "trait": {
       "TRANSLATED": {
         "known": "I do not want to decide today.",
         "learning": "Non voglio decidere oggi."
+      },
+      "RANKED": {
+        "rank": 583
       }
     },
     "symbols": [
@@ -20806,12 +22679,16 @@ export default [
   {
     "slug": "cosa-preferisci-oggi",
     "traits": [
-      "TRANSLATED"
+      "TRANSLATED",
+      "RANKED"
     ],
     "trait": {
       "TRANSLATED": {
         "known": "What do you prefer today?",
         "learning": "Cosa preferisci oggi?"
+      },
+      "RANKED": {
+        "rank": 918
       }
     },
     "symbols": [
@@ -20823,12 +22700,16 @@ export default [
   {
     "slug": "preferisci-il-caffe-o-il-vino",
     "traits": [
-      "TRANSLATED"
+      "TRANSLATED",
+      "RANKED"
     ],
     "trait": {
       "TRANSLATED": {
         "known": "Do you prefer coffee or wine?",
         "learning": "Preferisci il caffè o il vino?"
+      },
+      "RANKED": {
+        "rank": 923
       }
     },
     "symbols": [
@@ -20840,12 +22721,16 @@ export default [
   {
     "slug": "mio-fratello-e-entusiasta",
     "traits": [
-      "TRANSLATED"
+      "TRANSLATED",
+      "RANKED"
     ],
     "trait": {
       "TRANSLATED": {
         "known": "My brother is enthusiastic.",
         "learning": "Mio fratello è entusiasta."
+      },
+      "RANKED": {
+        "rank": 992
       }
     },
     "symbols": [
@@ -20857,12 +22742,16 @@ export default [
   {
     "slug": "mia-sorella-e-invidiosa",
     "traits": [
-      "TRANSLATED"
+      "TRANSLATED",
+      "RANKED"
     ],
     "trait": {
       "TRANSLATED": {
         "known": "My sister is envious.",
         "learning": "Mia sorella è invidiosa."
+      },
+      "RANKED": {
+        "rank": 1069
       }
     },
     "symbols": [
@@ -20874,12 +22763,16 @@ export default [
   {
     "slug": "sei-molto-felice",
     "traits": [
-      "TRANSLATED"
+      "TRANSLATED",
+      "RANKED"
     ],
     "trait": {
       "TRANSLATED": {
         "known": "Are you very happy?",
         "learning": "Sei molto felice?"
+      },
+      "RANKED": {
+        "rank": 333
       }
     },
     "symbols": [
@@ -20891,12 +22784,16 @@ export default [
   {
     "slug": "sei-molto-stanco-oggi",
     "traits": [
-      "TRANSLATED"
+      "TRANSLATED",
+      "RANKED"
     ],
     "trait": {
       "TRANSLATED": {
         "known": "Are you very tired today?",
         "learning": "Sei molto stanco oggi?"
+      },
+      "RANKED": {
+        "rank": 826
       }
     },
     "symbols": [
@@ -20908,12 +22805,16 @@ export default [
   {
     "slug": "lui-e-orgoglioso",
     "traits": [
-      "TRANSLATED"
+      "TRANSLATED",
+      "RANKED"
     ],
     "trait": {
       "TRANSLATED": {
         "known": "He is proud.",
         "learning": "Lui è orgoglioso."
+      },
+      "RANKED": {
+        "rank": 912
       }
     },
     "symbols": [
@@ -20925,12 +22826,16 @@ export default [
   {
     "slug": "lei-e-gelosa",
     "traits": [
-      "TRANSLATED"
+      "TRANSLATED",
+      "RANKED"
     ],
     "trait": {
       "TRANSLATED": {
         "known": "She is jealous.",
         "learning": "Lei è gelosa."
+      },
+      "RANKED": {
+        "rank": 1027
       }
     },
     "symbols": [
@@ -20942,12 +22847,16 @@ export default [
   {
     "slug": "mio-padre-e-soddisfatto",
     "traits": [
-      "TRANSLATED"
+      "TRANSLATED",
+      "RANKED"
     ],
     "trait": {
       "TRANSLATED": {
         "known": "My father is satisfied.",
         "learning": "Mio padre è soddisfatto."
+      },
+      "RANKED": {
+        "rank": 854
       }
     },
     "symbols": [
@@ -20959,12 +22868,16 @@ export default [
   {
     "slug": "voglio-bene-alla-mia-famiglia",
     "traits": [
-      "TRANSLATED"
+      "TRANSLATED",
+      "RANKED"
     ],
     "trait": {
       "TRANSLATED": {
         "known": "I love my family.",
         "learning": "Voglio bene alla mia famiglia."
+      },
+      "RANKED": {
+        "rank": 185
       }
     },
     "symbols": [
@@ -20976,12 +22889,16 @@ export default [
   {
     "slug": "la-mia-speranza-e-importante",
     "traits": [
-      "TRANSLATED"
+      "TRANSLATED",
+      "RANKED"
     ],
     "trait": {
       "TRANSLATED": {
         "known": "My hope is important.",
         "learning": "La mia speranza è importante."
+      },
+      "RANKED": {
+        "rank": 447
       }
     },
     "symbols": [
@@ -20993,12 +22910,16 @@ export default [
   {
     "slug": "la-mia-paura-non-e-importante",
     "traits": [
-      "TRANSLATED"
+      "TRANSLATED",
+      "RANKED"
     ],
     "trait": {
       "TRANSLATED": {
         "known": "My fear is not important.",
         "learning": "La mia paura non è importante."
+      },
+      "RANKED": {
+        "rank": 287
       }
     },
     "symbols": [
@@ -21010,12 +22931,16 @@ export default [
   {
     "slug": "questa-decisione-e-giusta",
     "traits": [
-      "TRANSLATED"
+      "TRANSLATED",
+      "RANKED"
     ],
     "trait": {
       "TRANSLATED": {
         "known": "This decision is right.",
         "learning": "Questa decisione è giusta."
+      },
+      "RANKED": {
+        "rank": 460
       }
     },
     "symbols": [
@@ -21027,12 +22952,16 @@ export default [
   {
     "slug": "oggi-sono-un-po-strano",
     "traits": [
-      "TRANSLATED"
+      "TRANSLATED",
+      "RANKED"
     ],
     "trait": {
       "TRANSLATED": {
         "known": "Today I am a bit strange.",
         "learning": "Oggi sono un po' strano."
+      },
+      "RANKED": {
+        "rank": 497
       }
     },
     "symbols": [
@@ -21044,12 +22973,16 @@ export default [
   {
     "slug": "credo-in-questa-idea",
     "traits": [
-      "TRANSLATED"
+      "TRANSLATED",
+      "RANKED"
     ],
     "trait": {
       "TRANSLATED": {
         "known": "I believe in this idea.",
         "learning": "Credo in questa idea."
+      },
+      "RANKED": {
+        "rank": 214
       }
     },
     "symbols": [
@@ -21061,12 +22994,16 @@ export default [
   {
     "slug": "non-ci-credo",
     "traits": [
-      "TRANSLATED"
+      "TRANSLATED",
+      "RANKED"
     ],
     "trait": {
       "TRANSLATED": {
         "known": "I do not believe it.",
         "learning": "Non ci credo."
+      },
+      "RANKED": {
+        "rank": 193
       }
     },
     "symbols": [
@@ -21078,12 +23015,16 @@ export default [
   {
     "slug": "la-mia-gioia-e-grande",
     "traits": [
-      "TRANSLATED"
+      "TRANSLATED",
+      "RANKED"
     ],
     "trait": {
       "TRANSLATED": {
         "known": "My joy is great.",
         "learning": "La mia gioia è grande."
+      },
+      "RANKED": {
+        "rank": 607
       }
     },
     "symbols": [
@@ -21095,12 +23036,16 @@ export default [
   {
     "slug": "la-mia-tristezza-e-normale",
     "traits": [
-      "TRANSLATED"
+      "TRANSLATED",
+      "RANKED"
     ],
     "trait": {
       "TRANSLATED": {
         "known": "My sadness is normal.",
         "learning": "La mia tristezza è normale."
+      },
+      "RANKED": {
+        "rank": 816
       }
     },
     "symbols": [
@@ -21112,12 +23057,16 @@ export default [
   {
     "slug": "sono-molto-innamorato",
     "traits": [
-      "TRANSLATED"
+      "TRANSLATED",
+      "RANKED"
     ],
     "trait": {
       "TRANSLATED": {
         "known": "I am very much in love.",
         "learning": "Sono molto innamorato."
+      },
+      "RANKED": {
+        "rank": 847
       }
     },
     "symbols": [
@@ -21129,12 +23078,16 @@ export default [
   {
     "slug": "questa-sorpresa-e-simpatica",
     "traits": [
-      "TRANSLATED"
+      "TRANSLATED",
+      "RANKED"
     ],
     "trait": {
       "TRANSLATED": {
         "known": "This surprise is nice.",
         "learning": "Questa sorpresa è simpatica."
+      },
+      "RANKED": {
+        "rank": 950
       }
     },
     "symbols": [
@@ -21146,12 +23099,16 @@ export default [
   {
     "slug": "preferisco-la-pace",
     "traits": [
-      "TRANSLATED"
+      "TRANSLATED",
+      "RANKED"
     ],
     "trait": {
       "TRANSLATED": {
         "known": "I prefer peace.",
         "learning": "Preferisco la pace."
+      },
+      "RANKED": {
+        "rank": 712
       }
     },
     "symbols": [
@@ -21163,12 +23120,16 @@ export default [
   {
     "slug": "preferisco-la-domenica-al-lunedi",
     "traits": [
-      "TRANSLATED"
+      "TRANSLATED",
+      "RANKED"
     ],
     "trait": {
       "TRANSLATED": {
         "known": "I prefer Sunday to Monday.",
         "learning": "Preferisco la domenica al lunedì."
+      },
+      "RANKED": {
+        "rank": 718
       }
     },
     "symbols": [
@@ -21180,12 +23141,16 @@ export default [
   {
     "slug": "la-mia-curiosita-e-forte",
     "traits": [
-      "TRANSLATED"
+      "TRANSLATED",
+      "RANKED"
     ],
     "trait": {
       "TRANSLATED": {
         "known": "My curiosity is strong.",
         "learning": "La mia curiosità è forte."
+      },
+      "RANKED": {
+        "rank": 686
       }
     },
     "symbols": [
@@ -21197,12 +23162,16 @@ export default [
   {
     "slug": "adesso-sono-calmo",
     "traits": [
-      "TRANSLATED"
+      "TRANSLATED",
+      "RANKED"
     ],
     "trait": {
       "TRANSLATED": {
         "known": "I feel calm now.",
         "learning": "Adesso sono calmo."
+      },
+      "RANKED": {
+        "rank": 980
       }
     },
     "symbols": [
@@ -21214,12 +23183,16 @@ export default [
   {
     "slug": "sono-sempre-entusiasta",
     "traits": [
-      "TRANSLATED"
+      "TRANSLATED",
+      "RANKED"
     ],
     "trait": {
       "TRANSLATED": {
         "known": "I am always enthusiastic.",
         "learning": "Sono sempre entusiasta."
+      },
+      "RANKED": {
+        "rank": 990
       }
     },
     "symbols": [
@@ -21231,12 +23204,16 @@ export default [
   {
     "slug": "preferisco-la-mattina-alla-sera",
     "traits": [
-      "TRANSLATED"
+      "TRANSLATED",
+      "RANKED"
     ],
     "trait": {
       "TRANSLATED": {
         "known": "I prefer the morning to the evening.",
         "learning": "Preferisco la mattina alla sera."
+      },
+      "RANKED": {
+        "rank": 719
       }
     },
     "symbols": [
@@ -21248,12 +23225,16 @@ export default [
   {
     "slug": "non-sono-stanco",
     "traits": [
-      "TRANSLATED"
+      "TRANSLATED",
+      "RANKED"
     ],
     "trait": {
       "TRANSLATED": {
         "known": "I am not tired.",
         "learning": "Non sono stanco."
+      },
+      "RANKED": {
+        "rank": 819
       }
     },
     "symbols": [
@@ -21265,12 +23246,16 @@ export default [
   {
     "slug": "non-dormo-mai-tardi",
     "traits": [
-      "TRANSLATED"
+      "TRANSLATED",
+      "RANKED"
     ],
     "trait": {
       "TRANSLATED": {
         "known": "I never sleep late.",
         "learning": "Non dormo mai tardi."
+      },
+      "RANKED": {
+        "rank": 1004
       }
     },
     "symbols": [
@@ -21282,12 +23267,16 @@ export default [
   {
     "slug": "non-ho-denaro",
     "traits": [
-      "TRANSLATED"
+      "TRANSLATED",
+      "RANKED"
     ],
     "trait": {
       "TRANSLATED": {
         "known": "I do not have money.",
         "learning": "Non ho denaro."
+      },
+      "RANKED": {
+        "rank": 502
       }
     },
     "symbols": [
@@ -21299,12 +23288,16 @@ export default [
   {
     "slug": "non-c-e-nessuno-qui",
     "traits": [
-      "TRANSLATED"
+      "TRANSLATED",
+      "RANKED"
     ],
     "trait": {
       "TRANSLATED": {
         "known": "Nobody is here.",
         "learning": "Non c'è nessuno qui."
+      },
+      "RANKED": {
+        "rank": 169
       }
     },
     "symbols": [
@@ -21316,12 +23309,16 @@ export default [
   {
     "slug": "non-so-niente",
     "traits": [
-      "TRANSLATED"
+      "TRANSLATED",
+      "RANKED"
     ],
     "trait": {
       "TRANSLATED": {
         "known": "I do not know anything.",
         "learning": "Non so niente."
+      },
+      "RANKED": {
+        "rank": 159
       }
     },
     "symbols": [
@@ -21333,12 +23330,16 @@ export default [
   {
     "slug": "oggi-non-voglio-niente",
     "traits": [
-      "TRANSLATED"
+      "TRANSLATED",
+      "RANKED"
     ],
     "trait": {
       "TRANSLATED": {
         "known": "Today I do not want anything.",
         "learning": "Oggi non voglio niente."
+      },
+      "RANKED": {
+        "rank": 173
       }
     },
     "symbols": [
@@ -21350,12 +23351,16 @@ export default [
   {
     "slug": "non-ho-una-macchina",
     "traits": [
-      "TRANSLATED"
+      "TRANSLATED",
+      "RANKED"
     ],
     "trait": {
       "TRANSLATED": {
         "known": "I do not have a car.",
         "learning": "Non ho una macchina."
+      },
+      "RANKED": {
+        "rank": 346
       }
     },
     "symbols": [
@@ -21367,12 +23372,16 @@ export default [
   {
     "slug": "lei-non-e-qui",
     "traits": [
-      "TRANSLATED"
+      "TRANSLATED",
+      "RANKED"
     ],
     "trait": {
       "TRANSLATED": {
         "known": "She is not here.",
         "learning": "Lei non è qui."
+      },
+      "RANKED": {
+        "rank": 171
       }
     },
     "symbols": [
@@ -21384,12 +23393,16 @@ export default [
   {
     "slug": "lui-non-parla-italiano",
     "traits": [
-      "TRANSLATED"
+      "TRANSLATED",
+      "RANKED"
     ],
     "trait": {
       "TRANSLATED": {
         "known": "He does not speak Italian.",
         "learning": "Lui non parla italiano."
+      },
+      "RANKED": {
+        "rank": 259
       }
     },
     "symbols": [
@@ -21401,12 +23414,16 @@ export default [
   {
     "slug": "oggi-non-abbiamo-una-riunione",
     "traits": [
-      "TRANSLATED"
+      "TRANSLATED",
+      "RANKED"
     ],
     "trait": {
       "TRANSLATED": {
         "known": "We do not have a meeting today.",
         "learning": "Oggi non abbiamo una riunione."
+      },
+      "RANKED": {
+        "rank": 738
       }
     },
     "symbols": [
@@ -21418,12 +23435,16 @@ export default [
   {
     "slug": "oggi-non-sono-sicuro",
     "traits": [
-      "TRANSLATED"
+      "TRANSLATED",
+      "RANKED"
     ],
     "trait": {
       "TRANSLATED": {
         "known": "Today I am not sure.",
         "learning": "Oggi non sono sicuro."
+      },
+      "RANKED": {
+        "rank": 307
       }
     },
     "symbols": [
@@ -21435,12 +23456,16 @@ export default [
   {
     "slug": "questo-non-e-giusto",
     "traits": [
-      "TRANSLATED"
+      "TRANSLATED",
+      "RANKED"
     ],
     "trait": {
       "TRANSLATED": {
         "known": "This is not right.",
         "learning": "Questo non è giusto."
+      },
+      "RANKED": {
+        "rank": 254
       }
     },
     "symbols": [
@@ -21452,12 +23477,16 @@ export default [
   {
     "slug": "questo-non-e-corretto",
     "traits": [
-      "TRANSLATED"
+      "TRANSLATED",
+      "RANKED"
     ],
     "trait": {
       "TRANSLATED": {
         "known": "This is not correct.",
         "learning": "Questo non è corretto."
+      },
+      "RANKED": {
+        "rank": 716
       }
     },
     "symbols": [
@@ -21469,12 +23498,16 @@ export default [
   {
     "slug": "questo-non-e-facile",
     "traits": [
-      "TRANSLATED"
+      "TRANSLATED",
+      "RANKED"
     ],
     "trait": {
       "TRANSLATED": {
         "known": "This is not easy.",
         "learning": "Questo non è facile."
+      },
+      "RANKED": {
+        "rank": 321
       }
     },
     "symbols": [
@@ -21486,12 +23519,16 @@ export default [
   {
     "slug": "non-sono-neanche-stanco",
     "traits": [
-      "TRANSLATED"
+      "TRANSLATED",
+      "RANKED"
     ],
     "trait": {
       "TRANSLATED": {
         "known": "I am not even tired.",
         "learning": "Non sono neanche stanco."
+      },
+      "RANKED": {
+        "rank": 824
       }
     },
     "symbols": [
@@ -21503,12 +23540,16 @@ export default [
   {
     "slug": "mio-fratello-e-piu-alto-di-me",
     "traits": [
-      "TRANSLATED"
+      "TRANSLATED",
+      "RANKED"
     ],
     "trait": {
       "TRANSLATED": {
         "known": "My brother is taller than me.",
         "learning": "Mio fratello è più alto di me."
+      },
+      "RANKED": {
+        "rank": 363
       }
     },
     "symbols": [
@@ -21520,12 +23561,16 @@ export default [
   {
     "slug": "mia-sorella-e-piu-intelligente-di-mio-fratello",
     "traits": [
-      "TRANSLATED"
+      "TRANSLATED",
+      "RANKED"
     ],
     "trait": {
       "TRANSLATED": {
         "known": "My sister is more intelligent than my brother.",
         "learning": "Mia sorella è più intelligente di mio fratello."
+      },
+      "RANKED": {
+        "rank": 695
       }
     },
     "symbols": [
@@ -21537,12 +23582,16 @@ export default [
   {
     "slug": "questo-libro-e-piu-interessante-di-quello",
     "traits": [
-      "TRANSLATED"
+      "TRANSLATED",
+      "RANKED"
     ],
     "trait": {
       "TRANSLATED": {
         "known": "This book is more interesting than that one.",
         "learning": "Questo libro è più interessante di quello."
+      },
+      "RANKED": {
+        "rank": 430
       }
     },
     "symbols": [
@@ -21554,12 +23603,16 @@ export default [
   {
     "slug": "questo-esame-e-meno-difficile-di-quello",
     "traits": [
-      "TRANSLATED"
+      "TRANSLATED",
+      "RANKED"
     ],
     "trait": {
       "TRANSLATED": {
         "known": "This exam is less difficult than that one.",
         "learning": "Questo esame è meno difficile di quello."
+      },
+      "RANKED": {
+        "rank": 524
       }
     },
     "symbols": [
@@ -21571,12 +23624,16 @@ export default [
   {
     "slug": "mio-padre-e-piu-vecchio-di-mia-madre",
     "traits": [
-      "TRANSLATED"
+      "TRANSLATED",
+      "RANKED"
     ],
     "trait": {
       "TRANSLATED": {
         "known": "My father is older than my mother.",
         "learning": "Mio padre è più vecchio di mia madre."
+      },
+      "RANKED": {
+        "rank": 379
       }
     },
     "symbols": [
@@ -21588,12 +23645,16 @@ export default [
   {
     "slug": "questa-macchina-e-piu-veloce-di-quella",
     "traits": [
-      "TRANSLATED"
+      "TRANSLATED",
+      "RANKED"
     ],
     "trait": {
       "TRANSLATED": {
         "known": "This car is faster than that one.",
         "learning": "Questa macchina è più veloce di quella."
+      },
+      "RANKED": {
+        "rank": 529
       }
     },
     "symbols": [
@@ -21605,12 +23666,16 @@ export default [
   {
     "slug": "la-mia-casa-e-piu-grande-della-tua",
     "traits": [
-      "TRANSLATED"
+      "TRANSLATED",
+      "RANKED"
     ],
     "trait": {
       "TRANSLATED": {
         "known": "My house is bigger than yours.",
         "learning": "La mia casa è più grande della tua."
+      },
+      "RANKED": {
+        "rank": 170
       }
     },
     "symbols": [
@@ -21622,12 +23687,16 @@ export default [
   {
     "slug": "il-caffe-e-piu-forte-dell-acqua",
     "traits": [
-      "TRANSLATED"
+      "TRANSLATED",
+      "RANKED"
     ],
     "trait": {
       "TRANSLATED": {
         "known": "Coffee is stronger than water.",
         "learning": "Il caffè è più forte dell'acqua."
+      },
+      "RANKED": {
+        "rank": 722
       }
     },
     "symbols": [
@@ -21639,12 +23708,16 @@ export default [
   {
     "slug": "questa-strada-e-piu-stretta-di-quella",
     "traits": [
-      "TRANSLATED"
+      "TRANSLATED",
+      "RANKED"
     ],
     "trait": {
       "TRANSLATED": {
         "known": "This street is narrower than that one.",
         "learning": "Questa strada è più stretta di quella."
+      },
+      "RANKED": {
+        "rank": 812
       }
     },
     "symbols": [
@@ -21656,12 +23729,16 @@ export default [
   {
     "slug": "oggi-e-piu-freddo-di-ieri",
     "traits": [
-      "TRANSLATED"
+      "TRANSLATED",
+      "RANKED"
     ],
     "trait": {
       "TRANSLATED": {
         "known": "Today is colder than yesterday.",
         "learning": "Oggi è più freddo di ieri."
+      },
+      "RANKED": {
+        "rank": 552
       }
     },
     "symbols": [
@@ -21673,12 +23750,16 @@ export default [
   {
     "slug": "domani-sara-meno-ventoso-di-oggi",
     "traits": [
-      "TRANSLATED"
+      "TRANSLATED",
+      "RANKED"
     ],
     "trait": {
       "TRANSLATED": {
         "known": "Tomorrow will be less windy than today.",
         "learning": "Domani sarà meno ventoso di oggi."
+      },
+      "RANKED": {
+        "rank": 1076
       }
     },
     "symbols": [
@@ -21690,12 +23771,16 @@ export default [
   {
     "slug": "mio-zio-e-tanto-alto-quanto-mio-padre",
     "traits": [
-      "TRANSLATED"
+      "TRANSLATED",
+      "RANKED"
     ],
     "trait": {
       "TRANSLATED": {
         "known": "My uncle is as tall as my father.",
         "learning": "Mio zio è tanto alto quanto mio padre."
+      },
+      "RANKED": {
+        "rank": 651
       }
     },
     "symbols": [
@@ -21707,12 +23792,16 @@ export default [
   {
     "slug": "questo-lavoro-e-tanto-difficile-quanto-quello",
     "traits": [
-      "TRANSLATED"
+      "TRANSLATED",
+      "RANKED"
     ],
     "trait": {
       "TRANSLATED": {
         "known": "This job is as difficult as that one.",
         "learning": "Questo lavoro è tanto difficile quanto quello."
+      },
+      "RANKED": {
+        "rank": 268
       }
     },
     "symbols": [
@@ -21724,12 +23813,16 @@ export default [
   {
     "slug": "mio-cugino-e-meno-paziente-di-mia-sorella",
     "traits": [
-      "TRANSLATED"
+      "TRANSLATED",
+      "RANKED"
     ],
     "trait": {
       "TRANSLATED": {
         "known": "My cousin is less patient than my sister.",
         "learning": "Mio cugino è meno paziente di mia sorella."
+      },
+      "RANKED": {
+        "rank": 842
       }
     },
     "symbols": [
@@ -21741,12 +23834,16 @@ export default [
   {
     "slug": "questo-problema-e-piu-grande-di-quello",
     "traits": [
-      "TRANSLATED"
+      "TRANSLATED",
+      "RANKED"
     ],
     "trait": {
       "TRANSLATED": {
         "known": "This problem is bigger than that one.",
         "learning": "Questo problema è più grande di quello."
+      },
+      "RANKED": {
+        "rank": 187
       }
     },
     "symbols": [
@@ -21758,12 +23855,16 @@ export default [
   {
     "slug": "ho-meno-denaro-di-te",
     "traits": [
-      "TRANSLATED"
+      "TRANSLATED",
+      "RANKED"
     ],
     "trait": {
       "TRANSLATED": {
         "known": "I have less money than you.",
         "learning": "Ho meno denaro di te."
+      },
+      "RANKED": {
+        "rank": 504
       }
     },
     "symbols": [
@@ -21775,12 +23876,16 @@ export default [
   {
     "slug": "preferisco-questo-piu-di-quello",
     "traits": [
-      "TRANSLATED"
+      "TRANSLATED",
+      "RANKED"
     ],
     "trait": {
       "TRANSLATED": {
         "known": "I prefer this more than that.",
         "learning": "Preferisco questo più di quello."
+      },
+      "RANKED": {
+        "rank": 721
       }
     },
     "symbols": [
@@ -21792,12 +23897,16 @@ export default [
   {
     "slug": "mio-nonno-e-il-piu-vecchio-della-famiglia",
     "traits": [
-      "TRANSLATED"
+      "TRANSLATED",
+      "RANKED"
     ],
     "trait": {
       "TRANSLATED": {
         "known": "My grandfather is the oldest in the family.",
         "learning": "Mio nonno è il più vecchio della famiglia."
+      },
+      "RANKED": {
+        "rank": 705
       }
     },
     "symbols": [
@@ -21809,12 +23918,16 @@ export default [
   {
     "slug": "questo-esame-e-il-piu-difficile",
     "traits": [
-      "TRANSLATED"
+      "TRANSLATED",
+      "RANKED"
     ],
     "trait": {
       "TRANSLATED": {
         "known": "This exam is the most difficult.",
         "learning": "Questo esame è il più difficile."
+      },
+      "RANKED": {
+        "rank": 523
       }
     },
     "symbols": [
@@ -21826,12 +23939,16 @@ export default [
   {
     "slug": "questa-non-e-la-scelta-giusta",
     "traits": [
-      "TRANSLATED"
+      "TRANSLATED",
+      "RANKED"
     ],
     "trait": {
       "TRANSLATED": {
         "known": "This is not the right choice.",
         "learning": "Questa non è la scelta giusta."
+      },
+      "RANKED": {
+        "rank": 437
       }
     },
     "symbols": [
@@ -21843,12 +23960,16 @@ export default [
   {
     "slug": "non-sono-mai-in-ritardo",
     "traits": [
-      "TRANSLATED"
+      "TRANSLATED",
+      "RANKED"
     ],
     "trait": {
       "TRANSLATED": {
         "known": "I am never late.",
         "learning": "Non sono mai in ritardo."
+      },
+      "RANKED": {
+        "rank": 609
       }
     },
     "symbols": [
@@ -21860,12 +23981,16 @@ export default [
   {
     "slug": "niente-e-impossibile",
     "traits": [
-      "TRANSLATED"
+      "TRANSLATED",
+      "RANKED"
     ],
     "trait": {
       "TRANSLATED": {
         "known": "Nothing is impossible.",
         "learning": "Niente è impossibile."
+      },
+      "RANKED": {
+        "rank": 449
       }
     },
     "symbols": [
@@ -21877,12 +24002,16 @@ export default [
   {
     "slug": "nessuno-e-perfetto",
     "traits": [
-      "TRANSLATED"
+      "TRANSLATED",
+      "RANKED"
     ],
     "trait": {
       "TRANSLATED": {
         "known": "Nobody is perfect.",
         "learning": "Nessuno è perfetto."
+      },
+      "RANKED": {
+        "rank": 424
       }
     },
     "symbols": [
@@ -21894,12 +24023,16 @@ export default [
   {
     "slug": "non-sono-affamato",
     "traits": [
-      "TRANSLATED"
+      "TRANSLATED",
+      "RANKED"
     ],
     "trait": {
       "TRANSLATED": {
         "known": "I am not hungry.",
         "learning": "Non sono affamato."
+      },
+      "RANKED": {
+        "rank": 1055
       }
     },
     "symbols": [
@@ -21911,12 +24044,16 @@ export default [
   {
     "slug": "questa-strada-e-piu-lunga-di-quella",
     "traits": [
-      "TRANSLATED"
+      "TRANSLATED",
+      "RANKED"
     ],
     "trait": {
       "TRANSLATED": {
         "known": "This road is longer than that one.",
         "learning": "Questa strada è più lunga di quella."
+      },
+      "RANKED": {
+        "rank": 378
       }
     },
     "symbols": [
@@ -21938,7 +24075,7 @@ export default [
         "learning": "Mi manchi."
       },
       "RANKED": {
-        "rank": 496
+        "rank": 932
       },
       "VOCALIZED": {
         "asset": {
@@ -21965,7 +24102,7 @@ export default [
         "learning": "Ti amo."
       },
       "RANKED": {
-        "rank": 497
+        "rank": 463
       },
       "VOCALIZED": {
         "asset": {
@@ -21992,7 +24129,7 @@ export default [
         "learning": "Ti prego, non piangere."
       },
       "RANKED": {
-        "rank": 498
+        "rank": 701
       },
       "VOCALIZED": {
         "asset": {
@@ -22019,7 +24156,7 @@ export default [
         "learning": "Come ti chiami?"
       },
       "RANKED": {
-        "rank": 499
+        "rank": 869
       },
       "VOCALIZED": {
         "asset": {
@@ -22046,7 +24183,7 @@ export default [
         "learning": "Lo vedo raramente."
       },
       "RANKED": {
-        "rank": 500
+        "rank": 796
       },
       "VOCALIZED": {
         "asset": {
@@ -22073,7 +24210,7 @@ export default [
         "learning": "Sei cambiato molto."
       },
       "RANKED": {
-        "rank": 501
+        "rank": 485
       },
       "VOCALIZED": {
         "asset": {
@@ -22100,7 +24237,7 @@ export default [
         "learning": "Ti ricordi?"
       },
       "RANKED": {
-        "rank": 502
+        "rank": 491
       },
       "VOCALIZED": {
         "asset": {
@@ -22127,7 +24264,7 @@ export default [
         "learning": "Siamo tutti d'accordo con te."
       },
       "RANKED": {
-        "rank": 503
+        "rank": 256
       },
       "VOCALIZED": {
         "asset": {
@@ -22154,7 +24291,7 @@ export default [
         "learning": "Ho bisogno del tuo aiuto."
       },
       "RANKED": {
-        "rank": 504
+        "rank": 113
       },
       "VOCALIZED": {
         "asset": {
@@ -22165,6 +24302,9 @@ export default [
     "symbols": [
       {
         "slug": "sentence"
+      },
+      {
+        "slug": "proficiency.survival"
       }
     ]
   },
@@ -22181,7 +24321,7 @@ export default [
         "learning": "Sembri occupato."
       },
       "RANKED": {
-        "rank": 505
+        "rank": 868
       },
       "VOCALIZED": {
         "asset": {
@@ -22208,7 +24348,7 @@ export default [
         "learning": "Ho viaggiato da solo."
       },
       "RANKED": {
-        "rank": 506
+        "rank": 1026
       },
       "VOCALIZED": {
         "asset": {
@@ -22235,7 +24375,7 @@ export default [
         "learning": "Ho perso l'orologio."
       },
       "RANKED": {
-        "rank": 507
+        "rank": 870
       },
       "VOCALIZED": {
         "asset": {
@@ -22262,7 +24402,7 @@ export default [
         "learning": "Mi piace dormire."
       },
       "RANKED": {
-        "rank": 508
+        "rank": 531
       },
       "VOCALIZED": {
         "asset": {
@@ -22289,7 +24429,7 @@ export default [
         "learning": "A mia madre piace la musica."
       },
       "RANKED": {
-        "rank": 509
+        "rank": 286
       },
       "VOCALIZED": {
         "asset": {
@@ -22316,7 +24456,7 @@ export default [
         "learning": "Studio a scuola."
       },
       "RANKED": {
-        "rank": 510
+        "rank": 252
       },
       "VOCALIZED": {
         "asset": {
@@ -22327,6 +24467,1758 @@ export default [
     "symbols": [
       {
         "slug": "sentence"
+      }
+    ]
+  },
+  {
+    "slug": "per-favore",
+    "traits": [
+      "TRANSLATED",
+      "RANKED"
+    ],
+    "trait": {
+      "TRANSLATED": {
+        "known": "Please.",
+        "learning": "Per favore."
+      },
+      "RANKED": {
+        "rank": 8
+      }
+    },
+    "symbols": [
+      {
+        "slug": "sentence"
+      },
+      {
+        "slug": "proficiency.survival"
+      }
+    ]
+  },
+  {
+    "slug": "grazie-mille",
+    "traits": [
+      "TRANSLATED",
+      "RANKED"
+    ],
+    "trait": {
+      "TRANSLATED": {
+        "known": "Thanks a lot.",
+        "learning": "Grazie mille."
+      },
+      "RANKED": {
+        "rank": 9
+      }
+    },
+    "symbols": [
+      {
+        "slug": "sentence"
+      },
+      {
+        "slug": "proficiency.survival"
+      }
+    ]
+  },
+  {
+    "slug": "va-bene",
+    "traits": [
+      "TRANSLATED",
+      "RANKED"
+    ],
+    "trait": {
+      "TRANSLATED": {
+        "known": "All right.",
+        "learning": "Va bene."
+      },
+      "RANKED": {
+        "rank": 12
+      }
+    },
+    "symbols": [
+      {
+        "slug": "sentence"
+      },
+      {
+        "slug": "proficiency.survival"
+      }
+    ]
+  },
+  {
+    "slug": "mi-dispiace",
+    "traits": [
+      "TRANSLATED",
+      "RANKED"
+    ],
+    "trait": {
+      "TRANSLATED": {
+        "known": "I'm sorry.",
+        "learning": "Mi dispiace."
+      },
+      "RANKED": {
+        "rank": 13
+      }
+    },
+    "symbols": [
+      {
+        "slug": "sentence"
+      },
+      {
+        "slug": "proficiency.survival"
+      }
+    ]
+  },
+  {
+    "slug": "non-lo-so",
+    "traits": [
+      "TRANSLATED",
+      "RANKED"
+    ],
+    "trait": {
+      "TRANSLATED": {
+        "known": "I don't know.",
+        "learning": "Non lo so."
+      },
+      "RANKED": {
+        "rank": 14
+      }
+    },
+    "symbols": [
+      {
+        "slug": "sentence"
+      },
+      {
+        "slug": "proficiency.survival"
+      }
+    ]
+  },
+  {
+    "slug": "non-capisco",
+    "traits": [
+      "TRANSLATED",
+      "RANKED"
+    ],
+    "trait": {
+      "TRANSLATED": {
+        "known": "I don't understand.",
+        "learning": "Non capisco."
+      },
+      "RANKED": {
+        "rank": 15
+      }
+    },
+    "symbols": [
+      {
+        "slug": "sentence"
+      },
+      {
+        "slug": "proficiency.survival"
+      }
+    ]
+  },
+  {
+    "slug": "non-parlo-italiano",
+    "traits": [
+      "TRANSLATED",
+      "RANKED"
+    ],
+    "trait": {
+      "TRANSLATED": {
+        "known": "I don't speak Italian.",
+        "learning": "Non parlo italiano."
+      },
+      "RANKED": {
+        "rank": 16
+      }
+    },
+    "symbols": [
+      {
+        "slug": "sentence"
+      },
+      {
+        "slug": "proficiency.survival"
+      }
+    ]
+  },
+  {
+    "slug": "parla-inglese",
+    "traits": [
+      "TRANSLATED",
+      "RANKED"
+    ],
+    "trait": {
+      "TRANSLATED": {
+        "known": "Do you speak English? (formal)",
+        "learning": "Parla inglese?"
+      },
+      "RANKED": {
+        "rank": 17
+      }
+    },
+    "symbols": [
+      {
+        "slug": "sentence"
+      },
+      {
+        "slug": "proficiency.survival"
+      }
+    ]
+  },
+  {
+    "slug": "puo-ripetere-per-favore",
+    "traits": [
+      "TRANSLATED",
+      "RANKED"
+    ],
+    "trait": {
+      "TRANSLATED": {
+        "known": "Can you repeat, please?",
+        "learning": "Può ripetere, per favore?"
+      },
+      "RANKED": {
+        "rank": 19
+      }
+    },
+    "symbols": [
+      {
+        "slug": "sentence"
+      },
+      {
+        "slug": "proficiency.survival"
+      }
+    ]
+  },
+  {
+    "slug": "puo-parlare-piu-lentamente",
+    "traits": [
+      "TRANSLATED",
+      "RANKED"
+    ],
+    "trait": {
+      "TRANSLATED": {
+        "known": "Can you speak more slowly?",
+        "learning": "Può parlare più lentamente?"
+      },
+      "RANKED": {
+        "rank": 20
+      }
+    },
+    "symbols": [
+      {
+        "slug": "sentence"
+      },
+      {
+        "slug": "proficiency.survival"
+      }
+    ]
+  },
+  {
+    "slug": "puo-aiutarmi",
+    "traits": [
+      "TRANSLATED",
+      "RANKED"
+    ],
+    "trait": {
+      "TRANSLATED": {
+        "known": "Can you help me?",
+        "learning": "Può aiutarmi?"
+      },
+      "RANKED": {
+        "rank": 24
+      }
+    },
+    "symbols": [
+      {
+        "slug": "sentence"
+      },
+      {
+        "slug": "proficiency.survival"
+      }
+    ]
+  },
+  {
+    "slug": "mi-chiamo-marco",
+    "traits": [
+      "TRANSLATED",
+      "RANKED"
+    ],
+    "trait": {
+      "TRANSLATED": {
+        "known": "My name is Marco.",
+        "learning": "Mi chiamo Marco."
+      },
+      "RANKED": {
+        "rank": 25
+      }
+    },
+    "symbols": [
+      {
+        "slug": "sentence"
+      },
+      {
+        "slug": "proficiency.survival"
+      }
+    ]
+  },
+  {
+    "slug": "come-si-chiama",
+    "traits": [
+      "TRANSLATED",
+      "RANKED"
+    ],
+    "trait": {
+      "TRANSLATED": {
+        "known": "What is your name? (formal)",
+        "learning": "Come si chiama?"
+      },
+      "RANKED": {
+        "rank": 26
+      }
+    },
+    "symbols": [
+      {
+        "slug": "sentence"
+      },
+      {
+        "slug": "proficiency.survival"
+      }
+    ]
+  },
+  {
+    "slug": "quanto-costa",
+    "traits": [
+      "TRANSLATED",
+      "RANKED"
+    ],
+    "trait": {
+      "TRANSLATED": {
+        "known": "How much does it cost?",
+        "learning": "Quanto costa?"
+      },
+      "RANKED": {
+        "rank": 27
+      }
+    },
+    "symbols": [
+      {
+        "slug": "sentence"
+      },
+      {
+        "slug": "proficiency.survival"
+      }
+    ]
+  },
+  {
+    "slug": "posso-pagare-con-la-carta",
+    "traits": [
+      "TRANSLATED",
+      "RANKED"
+    ],
+    "trait": {
+      "TRANSLATED": {
+        "known": "Can I pay by card?",
+        "learning": "Posso pagare con la carta?"
+      },
+      "RANKED": {
+        "rank": 33
+      }
+    },
+    "symbols": [
+      {
+        "slug": "sentence"
+      },
+      {
+        "slug": "proficiency.survival"
+      }
+    ]
+  },
+  {
+    "slug": "un-tavolo-per-due-per-favore",
+    "traits": [
+      "TRANSLATED",
+      "RANKED"
+    ],
+    "trait": {
+      "TRANSLATED": {
+        "known": "A table for two, please.",
+        "learning": "Un tavolo per due, per favore."
+      },
+      "RANKED": {
+        "rank": 45
+      }
+    },
+    "symbols": [
+      {
+        "slug": "sentence"
+      },
+      {
+        "slug": "proficiency.survival"
+      }
+    ]
+  },
+  {
+    "slug": "vorrei-ordinare",
+    "traits": [
+      "TRANSLATED",
+      "RANKED"
+    ],
+    "trait": {
+      "TRANSLATED": {
+        "known": "I would like to order.",
+        "learning": "Vorrei ordinare."
+      },
+      "RANKED": {
+        "rank": 51
+      }
+    },
+    "symbols": [
+      {
+        "slug": "sentence"
+      },
+      {
+        "slug": "proficiency.survival"
+      }
+    ]
+  },
+  {
+    "slug": "il-conto-per-favore",
+    "traits": [
+      "TRANSLATED",
+      "RANKED"
+    ],
+    "trait": {
+      "TRANSLATED": {
+        "known": "The bill, please.",
+        "learning": "Il conto, per favore."
+      },
+      "RANKED": {
+        "rank": 63
+      }
+    },
+    "symbols": [
+      {
+        "slug": "sentence"
+      },
+      {
+        "slug": "proficiency.survival"
+      }
+    ]
+  },
+  {
+    "slug": "dove-posso-comprare-i-biglietti",
+    "traits": [
+      "TRANSLATED",
+      "RANKED"
+    ],
+    "trait": {
+      "TRANSLATED": {
+        "known": "Where can I buy tickets?",
+        "learning": "Dove posso comprare i biglietti?"
+      },
+      "RANKED": {
+        "rank": 69
+      }
+    },
+    "symbols": [
+      {
+        "slug": "sentence"
+      },
+      {
+        "slug": "proficiency.survival"
+      }
+    ]
+  },
+  {
+    "slug": "a-che-ora-parte-il-treno",
+    "traits": [
+      "TRANSLATED",
+      "RANKED"
+    ],
+    "trait": {
+      "TRANSLATED": {
+        "known": "What time does the train leave?",
+        "learning": "A che ora parte il treno?"
+      },
+      "RANKED": {
+        "rank": 70
+      }
+    },
+    "symbols": [
+      {
+        "slug": "sentence"
+      },
+      {
+        "slug": "proficiency.survival"
+      }
+    ]
+  },
+  {
+    "slug": "da-quale-binario-parte",
+    "traits": [
+      "TRANSLATED",
+      "RANKED"
+    ],
+    "trait": {
+      "TRANSLATED": {
+        "known": "Which platform does it leave from?",
+        "learning": "Da quale binario parte?"
+      },
+      "RANKED": {
+        "rank": 71
+      }
+    },
+    "symbols": [
+      {
+        "slug": "sentence"
+      },
+      {
+        "slug": "proficiency.survival"
+      }
+    ]
+  },
+  {
+    "slug": "quanto-tempo-ci-vuole",
+    "traits": [
+      "TRANSLATED",
+      "RANKED"
+    ],
+    "trait": {
+      "TRANSLATED": {
+        "known": "How long does it take?",
+        "learning": "Quanto tempo ci vuole?"
+      },
+      "RANKED": {
+        "rank": 80
+      }
+    },
+    "symbols": [
+      {
+        "slug": "sentence"
+      },
+      {
+        "slug": "proficiency.survival"
+      }
+    ]
+  },
+  {
+    "slug": "ho-una-prenotazione",
+    "traits": [
+      "TRANSLATED",
+      "RANKED"
+    ],
+    "trait": {
+      "TRANSLATED": {
+        "known": "I have a reservation.",
+        "learning": "Ho una prenotazione."
+      },
+      "RANKED": {
+        "rank": 89
+      }
+    },
+    "symbols": [
+      {
+        "slug": "sentence"
+      },
+      {
+        "slug": "proficiency.survival"
+      }
+    ]
+  },
+  {
+    "slug": "una-camera-per-due-notti",
+    "traits": [
+      "TRANSLATED",
+      "RANKED"
+    ],
+    "trait": {
+      "TRANSLATED": {
+        "known": "A room for two nights.",
+        "learning": "Una camera per due notti."
+      },
+      "RANKED": {
+        "rank": 90
+      }
+    },
+    "symbols": [
+      {
+        "slug": "sentence"
+      },
+      {
+        "slug": "proficiency.survival"
+      }
+    ]
+  },
+  {
+    "slug": "dov-e-il-bagno",
+    "traits": [
+      "TRANSLATED",
+      "RANKED"
+    ],
+    "trait": {
+      "TRANSLATED": {
+        "known": "Where is the bathroom?",
+        "learning": "Dov'è il bagno?"
+      },
+      "RANKED": {
+        "rank": 101
+      }
+    },
+    "symbols": [
+      {
+        "slug": "sentence"
+      },
+      {
+        "slug": "proficiency.survival"
+      }
+    ]
+  },
+  {
+    "slug": "mi-serve-un-medico",
+    "traits": [
+      "TRANSLATED",
+      "RANKED"
+    ],
+    "trait": {
+      "TRANSLATED": {
+        "known": "I need a doctor.",
+        "learning": "Mi serve un medico."
+      },
+      "RANKED": {
+        "rank": 103
+      }
+    },
+    "symbols": [
+      {
+        "slug": "sentence"
+      },
+      {
+        "slug": "proficiency.survival"
+      }
+    ]
+  },
+  {
+    "slug": "chiami-la-polizia",
+    "traits": [
+      "TRANSLATED",
+      "RANKED"
+    ],
+    "trait": {
+      "TRANSLATED": {
+        "known": "Call the police!",
+        "learning": "Chiami la polizia!"
+      },
+      "RANKED": {
+        "rank": 106
+      }
+    },
+    "symbols": [
+      {
+        "slug": "sentence"
+      },
+      {
+        "slug": "proficiency.survival"
+      }
+    ]
+  },
+  {
+    "slug": "chiami-un-ambulanza",
+    "traits": [
+      "TRANSLATED",
+      "RANKED"
+    ],
+    "trait": {
+      "TRANSLATED": {
+        "known": "Call an ambulance!",
+        "learning": "Chiami un'ambulanza!"
+      },
+      "RANKED": {
+        "rank": 107
+      }
+    },
+    "symbols": [
+      {
+        "slug": "sentence"
+      },
+      {
+        "slug": "proficiency.survival"
+      }
+    ]
+  },
+  {
+    "slug": "mi-sono-perso",
+    "traits": [
+      "TRANSLATED",
+      "RANKED"
+    ],
+    "trait": {
+      "TRANSLATED": {
+        "known": "I am lost.",
+        "learning": "Mi sono perso."
+      },
+      "RANKED": {
+        "rank": 108
+      }
+    },
+    "symbols": [
+      {
+        "slug": "sentence"
+      },
+      {
+        "slug": "proficiency.survival"
+      }
+    ]
+  },
+  {
+    "slug": "ho-perso-il-passaporto",
+    "traits": [
+      "TRANSLATED",
+      "RANKED"
+    ],
+    "trait": {
+      "TRANSLATED": {
+        "known": "I lost my passport.",
+        "learning": "Ho perso il passaporto."
+      },
+      "RANKED": {
+        "rank": 109
+      }
+    },
+    "symbols": [
+      {
+        "slug": "sentence"
+      },
+      {
+        "slug": "proficiency.survival"
+      }
+    ]
+  },
+  {
+    "slug": "che-ore-sono",
+    "traits": [
+      "TRANSLATED",
+      "RANKED"
+    ],
+    "trait": {
+      "TRANSLATED": {
+        "known": "What time is it?",
+        "learning": "Che ore sono?"
+      },
+      "RANKED": {
+        "rank": 40
+      }
+    },
+    "symbols": [
+      {
+        "slug": "sentence"
+      },
+      {
+        "slug": "proficiency.survival"
+      }
+    ]
+  },
+  {
+    "slug": "buongiorno-come-sta",
+    "traits": [
+      "TRANSLATED",
+      "RANKED"
+    ],
+    "trait": {
+      "TRANSLATED": {
+        "known": "Good morning, how are you? (formal)",
+        "learning": "Buongiorno, come sta?"
+      },
+      "RANKED": {
+        "rank": 1
+      }
+    },
+    "symbols": [
+      {
+        "slug": "sentence"
+      },
+      {
+        "slug": "proficiency.survival"
+      }
+    ]
+  },
+  {
+    "slug": "piacere-di-conoscerla",
+    "traits": [
+      "TRANSLATED",
+      "RANKED"
+    ],
+    "trait": {
+      "TRANSLATED": {
+        "known": "Nice to meet you. (formal)",
+        "learning": "Piacere di conoscerla."
+      },
+      "RANKED": {
+        "rank": 3
+      }
+    },
+    "symbols": [
+      {
+        "slug": "sentence"
+      },
+      {
+        "slug": "proficiency.survival"
+      }
+    ]
+  },
+  {
+    "slug": "di-dov-e",
+    "traits": [
+      "TRANSLATED",
+      "RANKED"
+    ],
+    "trait": {
+      "TRANSLATED": {
+        "known": "Where are you from? (formal)",
+        "learning": "Di dov'è?"
+      },
+      "RANKED": {
+        "rank": 5
+      }
+    },
+    "symbols": [
+      {
+        "slug": "sentence"
+      },
+      {
+        "slug": "proficiency.survival"
+      }
+    ]
+  },
+  {
+    "slug": "sono-di-berlino",
+    "traits": [
+      "TRANSLATED",
+      "RANKED"
+    ],
+    "trait": {
+      "TRANSLATED": {
+        "known": "I am from Berlin.",
+        "learning": "Sono di Berlino."
+      },
+      "RANKED": {
+        "rank": 6
+      }
+    },
+    "symbols": [
+      {
+        "slug": "sentence"
+      },
+      {
+        "slug": "proficiency.survival"
+      }
+    ]
+  },
+  {
+    "slug": "arrivederci-a-presto",
+    "traits": [
+      "TRANSLATED",
+      "RANKED"
+    ],
+    "trait": {
+      "TRANSLATED": {
+        "known": "Goodbye, see you soon!",
+        "learning": "Arrivederci, a presto!"
+      },
+      "RANKED": {
+        "rank": 7
+      }
+    },
+    "symbols": [
+      {
+        "slug": "sentence"
+      },
+      {
+        "slug": "proficiency.survival"
+      }
+    ]
+  },
+  {
+    "slug": "no-grazie",
+    "traits": [
+      "TRANSLATED",
+      "RANKED"
+    ],
+    "trait": {
+      "TRANSLATED": {
+        "known": "No, thank you.",
+        "learning": "No, grazie."
+      },
+      "RANKED": {
+        "rank": 10
+      }
+    },
+    "symbols": [
+      {
+        "slug": "sentence"
+      },
+      {
+        "slug": "proficiency.survival"
+      }
+    ]
+  },
+  {
+    "slug": "si-per-favore",
+    "traits": [
+      "TRANSLATED",
+      "RANKED"
+    ],
+    "trait": {
+      "TRANSLATED": {
+        "known": "Yes, please.",
+        "learning": "Sì, per favore."
+      },
+      "RANKED": {
+        "rank": 11
+      }
+    },
+    "symbols": [
+      {
+        "slug": "sentence"
+      },
+      {
+        "slug": "proficiency.survival"
+      }
+    ]
+  },
+  {
+    "slug": "lo-prendo",
+    "traits": [
+      "TRANSLATED",
+      "RANKED"
+    ],
+    "trait": {
+      "TRANSLATED": {
+        "known": "I'll take it.",
+        "learning": "Lo prendo."
+      },
+      "RANKED": {
+        "rank": 29
+      }
+    },
+    "symbols": [
+      {
+        "slug": "sentence"
+      },
+      {
+        "slug": "proficiency.survival"
+      }
+    ]
+  },
+  {
+    "slug": "sto-solo-guardando-grazie",
+    "traits": [
+      "TRANSLATED",
+      "RANKED"
+    ],
+    "trait": {
+      "TRANSLATED": {
+        "known": "I'm just looking, thanks.",
+        "learning": "Sto solo guardando, grazie."
+      },
+      "RANKED": {
+        "rank": 30
+      }
+    },
+    "symbols": [
+      {
+        "slug": "sentence"
+      },
+      {
+        "slug": "proficiency.survival"
+      }
+    ]
+  },
+  {
+    "slug": "avete-questo-in-un-altra-taglia",
+    "traits": [
+      "TRANSLATED",
+      "RANKED"
+    ],
+    "trait": {
+      "TRANSLATED": {
+        "known": "Do you have this in another size?",
+        "learning": "Avete questo in un'altra taglia?"
+      },
+      "RANKED": {
+        "rank": 31
+      }
+    },
+    "symbols": [
+      {
+        "slug": "sentence"
+      },
+      {
+        "slug": "proficiency.survival"
+      }
+    ]
+  },
+  {
+    "slug": "nient-altro-grazie",
+    "traits": [
+      "TRANSLATED",
+      "RANKED"
+    ],
+    "trait": {
+      "TRANSLATED": {
+        "known": "Nothing else, thanks.",
+        "learning": "Nient'altro, grazie."
+      },
+      "RANKED": {
+        "rank": 32
+      }
+    },
+    "symbols": [
+      {
+        "slug": "sentence"
+      },
+      {
+        "slug": "proficiency.survival"
+      }
+    ]
+  },
+  {
+    "slug": "posso-pagare-in-contanti",
+    "traits": [
+      "TRANSLATED",
+      "RANKED"
+    ],
+    "trait": {
+      "TRANSLATED": {
+        "known": "Can I pay in cash?",
+        "learning": "Posso pagare in contanti?"
+      },
+      "RANKED": {
+        "rank": 34
+      }
+    },
+    "symbols": [
+      {
+        "slug": "sentence"
+      },
+      {
+        "slug": "proficiency.survival"
+      }
+    ]
+  },
+  {
+    "slug": "a-che-ora-apre",
+    "traits": [
+      "TRANSLATED",
+      "RANKED"
+    ],
+    "trait": {
+      "TRANSLATED": {
+        "known": "What time does it open?",
+        "learning": "A che ora apre?"
+      },
+      "RANKED": {
+        "rank": 38
+      }
+    },
+    "symbols": [
+      {
+        "slug": "sentence"
+      },
+      {
+        "slug": "proficiency.survival"
+      }
+    ]
+  },
+  {
+    "slug": "a-che-ora-chiude",
+    "traits": [
+      "TRANSLATED",
+      "RANKED"
+    ],
+    "trait": {
+      "TRANSLATED": {
+        "known": "What time does it close?",
+        "learning": "A che ora chiude?"
+      },
+      "RANKED": {
+        "rank": 39
+      }
+    },
+    "symbols": [
+      {
+        "slug": "sentence"
+      },
+      {
+        "slug": "proficiency.survival"
+      }
+    ]
+  },
+  {
+    "slug": "avete-un-tavolo-libero",
+    "traits": [
+      "TRANSLATED",
+      "RANKED"
+    ],
+    "trait": {
+      "TRANSLATED": {
+        "known": "Do you have a free table?",
+        "learning": "Avete un tavolo libero?"
+      },
+      "RANKED": {
+        "rank": 44
+      }
+    },
+    "symbols": [
+      {
+        "slug": "sentence"
+      },
+      {
+        "slug": "proficiency.survival"
+      }
+    ]
+  },
+  {
+    "slug": "il-menu-per-favore",
+    "traits": [
+      "TRANSLATED",
+      "RANKED"
+    ],
+    "trait": {
+      "TRANSLATED": {
+        "known": "The menu, please.",
+        "learning": "Il menu, per favore."
+      },
+      "RANKED": {
+        "rank": 48
+      }
+    },
+    "symbols": [
+      {
+        "slug": "sentence"
+      },
+      {
+        "slug": "proficiency.survival"
+      }
+    ]
+  },
+  {
+    "slug": "cosa-consiglia",
+    "traits": [
+      "TRANSLATED",
+      "RANKED"
+    ],
+    "trait": {
+      "TRANSLATED": {
+        "known": "What do you recommend? (formal)",
+        "learning": "Cosa consiglia?"
+      },
+      "RANKED": {
+        "rank": 49
+      }
+    },
+    "symbols": [
+      {
+        "slug": "sentence"
+      },
+      {
+        "slug": "proficiency.survival"
+      }
+    ]
+  },
+  {
+    "slug": "acqua-naturale-o-frizzante",
+    "traits": [
+      "TRANSLATED",
+      "RANKED"
+    ],
+    "trait": {
+      "TRANSLATED": {
+        "known": "Still or sparkling water?",
+        "learning": "Acqua naturale o frizzante?"
+      },
+      "RANKED": {
+        "rank": 50
+      }
+    },
+    "symbols": [
+      {
+        "slug": "sentence"
+      },
+      {
+        "slug": "proficiency.survival"
+      }
+    ]
+  },
+  {
+    "slug": "un-altro-caffe-per-favore",
+    "traits": [
+      "TRANSLATED",
+      "RANKED"
+    ],
+    "trait": {
+      "TRANSLATED": {
+        "known": "Another coffee, please.",
+        "learning": "Un altro caffè, per favore."
+      },
+      "RANKED": {
+        "rank": 54
+      }
+    },
+    "symbols": [
+      {
+        "slug": "sentence"
+      },
+      {
+        "slug": "proficiency.survival"
+      }
+    ]
+  },
+  {
+    "slug": "sono-allergico-al-latte",
+    "traits": [
+      "TRANSLATED",
+      "RANKED"
+    ],
+    "trait": {
+      "TRANSLATED": {
+        "known": "I'm allergic to milk.",
+        "learning": "Sono allergico al latte."
+      },
+      "RANKED": {
+        "rank": 58
+      }
+    },
+    "symbols": [
+      {
+        "slug": "sentence"
+      },
+      {
+        "slug": "proficiency.survival"
+      }
+    ]
+  },
+  {
+    "slug": "ho-fame",
+    "traits": [
+      "TRANSLATED",
+      "RANKED"
+    ],
+    "trait": {
+      "TRANSLATED": {
+        "known": "I'm hungry.",
+        "learning": "Ho fame."
+      },
+      "RANKED": {
+        "rank": 59
+      }
+    },
+    "symbols": [
+      {
+        "slug": "sentence"
+      },
+      {
+        "slug": "proficiency.survival"
+      }
+    ]
+  },
+  {
+    "slug": "ho-sete",
+    "traits": [
+      "TRANSLATED",
+      "RANKED"
+    ],
+    "trait": {
+      "TRANSLATED": {
+        "known": "I'm thirsty.",
+        "learning": "Ho sete."
+      },
+      "RANKED": {
+        "rank": 60
+      }
+    },
+    "symbols": [
+      {
+        "slug": "sentence"
+      },
+      {
+        "slug": "proficiency.survival"
+      }
+    ]
+  },
+  {
+    "slug": "da-portare-via-per-favore",
+    "traits": [
+      "TRANSLATED",
+      "RANKED"
+    ],
+    "trait": {
+      "TRANSLATED": {
+        "known": "To take away, please.",
+        "learning": "Da portare via, per favore."
+      },
+      "RANKED": {
+        "rank": 61
+      }
+    },
+    "symbols": [
+      {
+        "slug": "sentence"
+      },
+      {
+        "slug": "proficiency.survival"
+      }
+    ]
+  },
+  {
+    "slug": "basta-cosi-grazie",
+    "traits": [
+      "TRANSLATED",
+      "RANKED"
+    ],
+    "trait": {
+      "TRANSLATED": {
+        "known": "That's all, thanks.",
+        "learning": "Basta così, grazie."
+      },
+      "RANKED": {
+        "rank": 62
+      }
+    },
+    "symbols": [
+      {
+        "slug": "sentence"
+      },
+      {
+        "slug": "proficiency.survival"
+      }
+    ]
+  },
+  {
+    "slug": "dov-e-la-biglietteria",
+    "traits": [
+      "TRANSLATED",
+      "RANKED"
+    ],
+    "trait": {
+      "TRANSLATED": {
+        "known": "Where is the ticket office?",
+        "learning": "Dov'è la biglietteria?"
+      },
+      "RANKED": {
+        "rank": 66
+      }
+    },
+    "symbols": [
+      {
+        "slug": "sentence"
+      },
+      {
+        "slug": "proficiency.survival"
+      }
+    ]
+  },
+  {
+    "slug": "un-biglietto-di-andata-e-ritorno",
+    "traits": [
+      "TRANSLATED",
+      "RANKED"
+    ],
+    "trait": {
+      "TRANSLATED": {
+        "known": "A round-trip ticket.",
+        "learning": "Un biglietto di andata e ritorno."
+      },
+      "RANKED": {
+        "rank": 68
+      }
+    },
+    "symbols": [
+      {
+        "slug": "sentence"
+      },
+      {
+        "slug": "proficiency.survival"
+      }
+    ]
+  },
+  {
+    "slug": "dove-va-questo-autobus",
+    "traits": [
+      "TRANSLATED",
+      "RANKED"
+    ],
+    "trait": {
+      "TRANSLATED": {
+        "known": "Where does this bus go?",
+        "learning": "Dove va questo autobus?"
+      },
+      "RANKED": {
+        "rank": 76
+      }
+    },
+    "symbols": [
+      {
+        "slug": "sentence"
+      },
+      {
+        "slug": "proficiency.survival"
+      }
+    ]
+  },
+  {
+    "slug": "la-prossima-fermata-per-favore",
+    "traits": [
+      "TRANSLATED",
+      "RANKED"
+    ],
+    "trait": {
+      "TRANSLATED": {
+        "known": "The next stop, please.",
+        "learning": "La prossima fermata, per favore."
+      },
+      "RANKED": {
+        "rank": 77
+      }
+    },
+    "symbols": [
+      {
+        "slug": "sentence"
+      },
+      {
+        "slug": "proficiency.survival"
+      }
+    ]
+  },
+  {
+    "slug": "puo-chiamarmi-un-taxi",
+    "traits": [
+      "TRANSLATED",
+      "RANKED"
+    ],
+    "trait": {
+      "TRANSLATED": {
+        "known": "Can you call me a taxi? (formal)",
+        "learning": "Può chiamarmi un taxi?"
+      },
+      "RANKED": {
+        "rank": 78
+      }
+    },
+    "symbols": [
+      {
+        "slug": "sentence"
+      },
+      {
+        "slug": "proficiency.survival"
+      }
+    ]
+  },
+  {
+    "slug": "dov-e-l-uscita",
+    "traits": [
+      "TRANSLATED",
+      "RANKED"
+    ],
+    "trait": {
+      "TRANSLATED": {
+        "known": "Where is the exit?",
+        "learning": "Dov'è l'uscita?"
+      },
+      "RANKED": {
+        "rank": 81
+      }
+    },
+    "symbols": [
+      {
+        "slug": "sentence"
+      },
+      {
+        "slug": "proficiency.survival"
+      }
+    ]
+  },
+  {
+    "slug": "e-lontano",
+    "traits": [
+      "TRANSLATED",
+      "RANKED"
+    ],
+    "trait": {
+      "TRANSLATED": {
+        "known": "Is it far?",
+        "learning": "È lontano?"
+      },
+      "RANKED": {
+        "rank": 82
+      }
+    },
+    "symbols": [
+      {
+        "slug": "sentence"
+      },
+      {
+        "slug": "proficiency.survival"
+      }
+    ]
+  },
+  {
+    "slug": "a-destra",
+    "traits": [
+      "TRANSLATED",
+      "RANKED"
+    ],
+    "trait": {
+      "TRANSLATED": {
+        "known": "To the right.",
+        "learning": "A destra."
+      },
+      "RANKED": {
+        "rank": 83
+      }
+    },
+    "symbols": [
+      {
+        "slug": "sentence"
+      },
+      {
+        "slug": "proficiency.survival"
+      }
+    ]
+  },
+  {
+    "slug": "a-sinistra",
+    "traits": [
+      "TRANSLATED",
+      "RANKED"
+    ],
+    "trait": {
+      "TRANSLATED": {
+        "known": "To the left.",
+        "learning": "A sinistra."
+      },
+      "RANKED": {
+        "rank": 84
+      }
+    },
+    "symbols": [
+      {
+        "slug": "sentence"
+      },
+      {
+        "slug": "proficiency.survival"
+      }
+    ]
+  },
+  {
+    "slug": "sempre-dritto",
+    "traits": [
+      "TRANSLATED",
+      "RANKED"
+    ],
+    "trait": {
+      "TRANSLATED": {
+        "known": "Straight ahead.",
+        "learning": "Sempre dritto."
+      },
+      "RANKED": {
+        "rank": 85
+      }
+    },
+    "symbols": [
+      {
+        "slug": "sentence"
+      },
+      {
+        "slug": "proficiency.survival"
+      }
+    ]
+  },
+  {
+    "slug": "giri-a-destra-al-semaforo",
+    "traits": [
+      "TRANSLATED",
+      "RANKED"
+    ],
+    "trait": {
+      "TRANSLATED": {
+        "known": "Turn right at the traffic light. (formal)",
+        "learning": "Giri a destra al semaforo."
+      },
+      "RANKED": {
+        "rank": 86
+      }
+    },
+    "symbols": [
+      {
+        "slug": "sentence"
+      },
+      {
+        "slug": "proficiency.survival"
+      }
+    ]
+  },
+  {
+    "slug": "dov-e-il-supermercato-piu-vicino",
+    "traits": [
+      "TRANSLATED",
+      "RANKED"
+    ],
+    "trait": {
+      "TRANSLATED": {
+        "known": "Where is the nearest supermarket?",
+        "learning": "Dov'è il supermercato più vicino?"
+      },
+      "RANKED": {
+        "rank": 88
+      }
+    },
+    "symbols": [
+      {
+        "slug": "sentence"
+      },
+      {
+        "slug": "proficiency.survival"
+      }
+    ]
+  },
+  {
+    "slug": "a-che-ora-e-la-colazione",
+    "traits": [
+      "TRANSLATED",
+      "RANKED"
+    ],
+    "trait": {
+      "TRANSLATED": {
+        "known": "What time is breakfast?",
+        "learning": "A che ora è la colazione?"
+      },
+      "RANKED": {
+        "rank": 93
+      }
+    },
+    "symbols": [
+      {
+        "slug": "sentence"
+      },
+      {
+        "slug": "proficiency.survival"
+      }
+    ]
+  },
+  {
+    "slug": "la-colazione-e-inclusa",
+    "traits": [
+      "TRANSLATED",
+      "RANKED"
+    ],
+    "trait": {
+      "TRANSLATED": {
+        "known": "Is breakfast included?",
+        "learning": "La colazione è inclusa?"
+      },
+      "RANKED": {
+        "rank": 94
+      }
+    },
+    "symbols": [
+      {
+        "slug": "sentence"
+      },
+      {
+        "slug": "proficiency.survival"
+      }
+    ]
+  },
+  {
+    "slug": "c-e-il-wifi",
+    "traits": [
+      "TRANSLATED",
+      "RANKED"
+    ],
+    "trait": {
+      "TRANSLATED": {
+        "known": "Is there wifi?",
+        "learning": "C'è il wifi?"
+      },
+      "RANKED": {
+        "rank": 95
+      }
+    },
+    "symbols": [
+      {
+        "slug": "sentence"
+      },
+      {
+        "slug": "proficiency.survival"
+      }
+    ]
+  },
+  {
+    "slug": "posso-lasciare-qui-il-bagaglio",
+    "traits": [
+      "TRANSLATED",
+      "RANKED"
+    ],
+    "trait": {
+      "TRANSLATED": {
+        "known": "Can I leave my luggage here?",
+        "learning": "Posso lasciare qui il bagaglio?"
+      },
+      "RANKED": {
+        "rank": 97
+      }
+    },
+    "symbols": [
+      {
+        "slug": "sentence"
+      },
+      {
+        "slug": "proficiency.survival"
+      }
+    ]
+  },
+  {
+    "slug": "non-funziona",
+    "traits": [
+      "TRANSLATED",
+      "RANKED"
+    ],
+    "trait": {
+      "TRANSLATED": {
+        "known": "It doesn't work.",
+        "learning": "Non funziona."
+      },
+      "RANKED": {
+        "rank": 100
+      }
+    },
+    "symbols": [
+      {
+        "slug": "sentence"
+      },
+      {
+        "slug": "proficiency.survival"
+      }
+    ]
+  },
+  {
+    "slug": "puo-farci-una-foto",
+    "traits": [
+      "TRANSLATED",
+      "RANKED"
+    ],
+    "trait": {
+      "TRANSLATED": {
+        "known": "Can you take a photo of us? (formal)",
+        "learning": "Può farci una foto?"
+      },
+      "RANKED": {
+        "rank": 110
+      }
+    },
+    "symbols": [
+      {
+        "slug": "sentence"
+      },
+      {
+        "slug": "proficiency.survival"
       }
     ]
   }

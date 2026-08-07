@@ -69,6 +69,7 @@
   const activeBuffer = chain(terminals, "$active", "$buffer");
   const activeData = chain(terminals, "$active", "$buffer", "$data");
   const buffers = chain(terminals, "$active", "$thread", "$buffers");
+  const phase = chain(terminals, "$active", "$thread", "$phase");
 
   let busy = $state(false);
   let listEl = $state(null);
@@ -121,9 +122,15 @@
       {#if !$thread}
         <div class="empty">no thread</div>
       {:else if queueing}
-        <div class="row-actions">
-          <button class="act" onclick={() => startQueue($terminal)}>Start</button>
-          <button class="act" onclick={() => stopQueue($terminal)}>Stop</button>
+        <div class="queue">
+          <button
+            class="queuekey"
+            class:on={$phase === "continuous"}
+            onclick={() => startQueue($terminal)}>start</button>
+          <button
+            class="queuekey"
+            class:on={$phase === "manual"}
+            onclick={() => stopQueue($terminal)}>stop</button>
         </div>
       {:else if aimed}
         <button class="act primary" onclick={onCreate} disabled={busy}
@@ -213,26 +220,51 @@
     opacity: 0.3;
     padding: 2px 2px;
   }
-  .row-actions {
+  .queue {
     display: flex;
-    gap: 7px;
+    width: max-content;
+    border: 1px solid var(--colors-skeleton-3-boundary);
+    border-radius: 2px;
+    overflow: hidden;
+  }
+  .queuekey {
+    padding: 6px 14px;
+    background: transparent;
+    border: none;
+    color: color-mix(in srgb, var(--colors-skeleton-3-contrast) 55%, transparent);
+    font: inherit;
+    font-size: var(--font-size-2xs);
+    letter-spacing: 0.14em;
+    text-transform: uppercase;
+    cursor: pointer;
+  }
+  .queuekey + .queuekey {
+    border-left: 1px solid var(--colors-skeleton-3-boundary);
+  }
+  .queuekey:hover {
+    color: var(--colors-skeleton-3-contrast);
+    background: color-mix(in srgb, var(--colors-skeleton-3-contrast) 5%, transparent);
+  }
+  .queuekey.on {
+    color: var(--colors-skeleton-0-primary-base);
+    background: color-mix(in srgb, var(--colors-skeleton-0-primary-base) 12%, transparent);
   }
   .act {
-    padding: 6px 12px;
+    padding: 7px 14px;
     background: transparent;
-    border: 1px solid color-mix(in srgb, var(--colors-skeleton-3-boundary) 55%, transparent);
-    border-radius: 3px;
-    color: inherit;
+    border: 1px solid var(--colors-skeleton-3-boundary);
+    border-radius: 2px;
+    color: color-mix(in srgb, var(--colors-skeleton-3-contrast) 70%, transparent);
     font: inherit;
-    font-size: var(--font-size-sm);
-    letter-spacing: 0.04em;
+    font-size: var(--font-size-2xs);
+    letter-spacing: 0.14em;
+    text-transform: uppercase;
     cursor: pointer;
-    opacity: 0.7;
   }
   .act:hover:not(:disabled) {
-    opacity: 1;
     border-color: var(--colors-skeleton-0-primary-base);
     color: var(--colors-skeleton-0-primary-base);
+    background: color-mix(in srgb, var(--colors-skeleton-0-primary-base) 6%, transparent);
   }
   .act:disabled {
     opacity: 0.3;
@@ -246,7 +278,6 @@
     padding: 9px;
     border-color: color-mix(in srgb, var(--colors-skeleton-0-primary-base) 45%, transparent);
     color: var(--colors-skeleton-0-primary-base);
-    opacity: 1;
   }
   .act.primary:hover:not(:disabled) {
     background: color-mix(in srgb, var(--colors-skeleton-0-primary-base) 9%, transparent);

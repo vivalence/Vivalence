@@ -468,7 +468,7 @@
   .infinitive {
     font-family: var(--font-family-serif-heading);
     font-size: var(--font-size-2xl);
-    color: var(--colors-palette-gray-10);
+    color: var(--colors-skeleton-1-contrast);
     line-height: 1.2;
     margin: 0;
   }
@@ -568,7 +568,7 @@
     border: 0;
     outline: none;
     padding: 0;
-    color: var(--colors-palette-gray-10);
+    color: var(--colors-skeleton-1-contrast);
     flex: 1;
     min-width: 0;
   }
@@ -614,7 +614,7 @@
       var(--colors-skeleton-1-surface) 50%,
       var(--colors-skeleton-app-surface)
     );
-    color: var(--colors-palette-gray-10);
+    color: var(--colors-skeleton-1-contrast);
     font-size: var(--font-size-base);
     font-family: var(--font-family-serif-heading);
     outline: none;

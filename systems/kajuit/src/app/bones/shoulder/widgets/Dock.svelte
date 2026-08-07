@@ -29,7 +29,7 @@
     font: inherit;
     transition: all 0.1s;
     border: 1px solid color-mix(in srgb, var(--colors-skeleton-0-contrast) 22%, transparent);
-    background: color-mix(in srgb, #000 22%, var(--colors-skeleton-2-surface));
+    background: color-mix(in srgb, var(--mix-deep) 22%, var(--colors-skeleton-2-surface));
     color: var(--colors-skeleton-0-contrast);
   }
   .dock:hover {

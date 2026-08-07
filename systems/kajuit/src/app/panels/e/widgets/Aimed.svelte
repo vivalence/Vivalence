@@ -19,7 +19,7 @@
   });
 
   let mounts = $derived(
-    Object.keys(mode?.metadata.emitter?.branches ?? {}).map((nature) => `/emit/${nature}`),
+    Object.keys(mode?.metadata?.emitter?.branches ?? {}).map((nature) => `/emit/${nature}`),
   );
   let active = $derived(traits.includes("AIMED"));
 
@@ -86,7 +86,12 @@
     border-color: var(--colors-skeleton-0-primary-base);
     color: var(--colors-skeleton-0-primary-base);
   }
+  .path {
+    min-width: 0;
+    overflow-wrap: anywhere;
+  }
   .check {
+    flex: 0 0 auto;
     width: 10px;
     color: color-mix(in srgb, currentColor 50%, transparent);
   }

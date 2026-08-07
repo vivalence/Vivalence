@@ -5,7 +5,12 @@
   const { terminal, buffer, forgiving = true } = $props();
 
   const data = buffer.data ?? {};
-  const queue = buffer.literals ?? [];
+  const playable = (entry) => Boolean(entry?.trait?.TRANSLATED);
+  const rejected = (buffer.literals ?? []).filter((entry) => !playable(entry));
+  if (rejected.length)
+    console.warn("[write] dropped unplayable literals", rejected.map((entry) => entry.slug ?? entry.id));
+  const queue = (buffer.literals ?? []).filter(playable);
+  const language = terminal.daemon.statics?.language ?? {};
 
   function recallFor(i) {
     const r = data.recall;
@@ -86,7 +91,7 @@
   const total = $derived(queue.length);
   const position = $derived(currentIndex + 1);
 
-  const isWord = $derived(literal?.symbol?.word);
+  const isWord = $derived(literal?.ontology === "word");
   const known = $derived(literal?.trait?.TRANSLATED?.known);
   const learning = $derived(literal?.trait?.TRANSLATED?.learning);
   const example = $derived(literal?.trait?.EXEMPLIFIED);
@@ -99,14 +104,14 @@
   const answerEx = $derived(
     example && (activeRecall === "KNOWN" ? example.known : example.learning),
   );
-  const promptLabel = $derived(activeRecall === "KNOWN" ? "Português" : "English");
-  const answerLabel = $derived(activeRecall === "KNOWN" ? "English" : "Português");
+  const promptLabel = $derived(activeRecall === "KNOWN" ? language.learning?.name : language.known?.name);
+  const answerLabel = $derived(activeRecall === "KNOWN" ? language.known?.name : language.learning?.name);
 
   if (!literal) {
     terminal.daemon.connection.call("/pick/literal/feed", { limit: 3 }).then((lits) => {
       if (lits?.length) {
-        for (const l of lits) queue.push(l);
-        literal = queue[0];
+        for (const l of lits.filter(playable)) queue.push(l);
+        literal = queue[0] ?? null;
       }
       loading = false;
     });
@@ -361,13 +366,12 @@
     font-family: var(--font-family-code);
     font-size: var(--font-size-xs);
     font-weight: 500;
-    color: var(--colors-skeleton-1-boundary);
+    color: var(--text-support);
   }
   .meta-hint {
     font-family: var(--font-family-code);
     font-size: var(--font-size-2xs);
-    color: var(--colors-skeleton-1-boundary);
-    opacity: 0.6;
+    color: var(--text-support);
   }
   .audio-block {
     margin-left: auto;
@@ -378,7 +382,7 @@
   .prompt {
     font-family: var(--font-family-serif-heading);
     font-size: var(--font-size-2xl);
-    color: var(--colors-palette-gray-10);
+    color: var(--text-primary);
     line-height: 1.2;
     margin: 0 0 0.5rem 0;
   }
@@ -389,7 +393,7 @@
   .example {
     font-family: var(--font-family-serif-heading);
     font-size: var(--font-size-base);
-    color: var(--colors-skeleton-1-boundary);
+    color: var(--text-support);
     font-style: italic;
     margin: 0 0 1.5rem 0;
   }
@@ -427,7 +431,7 @@
   .fb-key {
     font-family: var(--font-family-code);
     font-size: var(--font-size-xs);
-    color: var(--colors-skeleton-1-boundary);
+    color: var(--text-support);
   }
   .fb-glyph {
     display: inline-flex;
@@ -514,7 +518,7 @@
     border: 0;
     outline: none;
     padding: 0;
-    color: var(--colors-palette-gray-10);
+    color: var(--text-primary);
     font-family: var(--font-family-serif-heading);
     font-size: var(--font-size-base);
     line-height: 1.2;
@@ -545,7 +549,7 @@
   .tok-gloss {
     font-family: var(--font-family-code);
     font-size: var(--font-size-2xs);
-    color: var(--colors-skeleton-1-boundary);
+    color: var(--text-support);
     margin-top: 0.125rem;
   }
 
@@ -579,14 +583,14 @@
     padding: 0.75rem 1rem;
     border-radius: 0.5rem;
     border: 1px solid var(--colors-skeleton-1-boundary);
-    background: color-mix(in srgb, var(--colors-skeleton-1-surface) 50%, var(--colors-skeleton-app-surface));
-    color: var(--colors-palette-gray-10);
+    background: color-mix(in srgb, var(--colors-skeleton-1-surface) 50%, var(--colors-skeleton-0-surface));
+    color: var(--text-primary);
     font-size: var(--font-size-base);
     font-family: var(--font-family-serif-heading);
     outline: none;
     box-sizing: border-box;
   }
-  .field::placeholder { color: var(--colors-skeleton-1-boundary); }
+  .field::placeholder { color: var(--text-support); }
   .btn-check {
     min-height: 48px;
     padding: 0.75rem 1.25rem;
@@ -608,7 +612,7 @@
     border-radius: 0.5rem;
     border: 1px solid var(--colors-skeleton-1-boundary);
     background: transparent;
-    color: var(--colors-palette-gray-200);
+    color: var(--text-body);
     font-size: var(--font-size-md);
     font-weight: 500;
     cursor: pointer;
