@@ -1,5 +1,5 @@
 import { EntitySchema } from "@mikro-orm/core";
-import { DataRepository } from "@vivalence/typology/entities";
+import { DataRepository } from "@vivalence/runtime";
 
 const collate = (tiers) => {
   const slots = {};

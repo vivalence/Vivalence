@@ -1,0 +1,97 @@
+#+title: the ledger group collapses to one vector, fork b dies on a client registry, and a dispatch chase ends at a known gap
+#+filetags: :compact:m31:packages:registry:ghost:paladin:vector:
+
+* the arc
+
+Session resumed on m31's open design floor. beef: /"work out the rest of the
+quest. propose full diff. consoisseur approved design."/ — connoisseur persona
+loaded, every seam grounded before diffing (aperture mutation idiom VERIFIED at
+=subsystems/typology/prototypes/aperture.js= — =.get/.post= method-keyed leaf
+fold; wiring = the explicit call list in =systems/runtime/daemon/die.js:42=,
+not the index barrel; POST handlers must be arity-2 =(input, ctx)= or =fire=
+hands them the CONTEXT).
+
+* the connoisseur settlements
+
+- =Pensieve.evict= DISSOLVED — Pensieve extends Map; =pensieve.delete(owner)=
+  IS eviction (canon: the Map IS the index; trigger 14 minimal delta).
+- shell-truth grammar — ghost pre-resolves =./=/=../= against =INIT_CWD= to an
+  absolute BEFORE vip; registry grammar stays pure. A shell =./= recorded as
+  store-relative would be a lying surface.
+- P4 composes vip, never re-implements: tap = =vip.tap= + =vip.mount=; untap =
+  owner-lookup → =pensieve.delete= → =vip.untap=.
+
+* the corrections (one round, four cuts)
+
+- /"all one file. vector signatures and all."/ — the ledger trajectory group
+  collapses into a single file.
+- /"this would create a registry on client. nono."/ — fork B (registry scope
+  totality) REJECTED. Store exists ONLY via env or citizen; absent = loud
+  throw at the owner (=vip.tap= remote branch · =Registry.resolve= relative
+  branch). Guard hunks proposed, ungone.
+- /"testing - scenario testing!"/ — in-memory scenario tier is the gate
+  everywhere; live git-url tap demoted to optional beef-run validation.
+- /"no daemon ledger yet."/ — P4 WITHDRAWN to Deferred, sketch preserved.
+
+* the go, and the mid-go correction
+
+/"the ledger group … one file. no separate definiton of handlers and vector.
+one thing. go"/ — then mid-build: /"just export a dedicated vector."/ Final
+shape: =systems/ghost/trajectories/ledger/index.js= = =export const ledger =
+new Vector()=, five =ledger.open({nature, valence, schema}, async (ctx) =>
+{…})= with RELATIVE natures and INLINE handlers; central
+=trajectories/index.js= mounts =trajectory.branch("/ledger").slurp(ledger)=;
+=install.js= DELETED. First vector-export trajectory group — the group owns
+its handlers AND signatures, the central index just composes.
+
+* the dispatch chase
+
+Smoke =viva ledger root= → NOT_FOUND. Chased as a regression: control
+(=system doctor=) also failed → synthetic 2-line vector failed with
+ShellSignal but PASSED with plain =Signal= → bisect landed on ShellSignal's
+coercion, which splits ONLY =argv[0]= on =/=. Not a regression — the KNOWN
+multi-segment gap the ghost codemap already records. Live spelling is
+=viva ledger/root=. The finding of record: space form is unsupported; every
+drive-idiom test signal must be SLASH-FORM (=["ledger/tap", "pack"]=).
+
+Verified live against the real record: =viva ledger/root= +
+=viva ledger/taps= → 4 monorepo absolutes, owners
+=@playground @education @fixtures @viva= resolved — the reads ran THROUGH the
+parked P1 =registry.js=.
+
+* the second go
+
+beef: /"whats to be done here?? i dont understand."/ (on PARKED — answered:
+nothing; the code is on disk and live, only the release-or-revert LABEL is
+open) then /"2. clone.js mkdir-parent 3. ghost tests … go"/ + /"finish up"/:
+
+- =subsystems/paladin/belt/clone.js= mkdirs =dirname(target)= before spawn.
+- =systems/ghost/tests/ledger.test.js= — drive idiom, 5 steps (tap-records ·
+  taps-lists-owners · non-package-throws-record-untouched · untap-keeps-store
+  · root-roots). Fix en route: =paladin.ledger.registry= is MINTED in
+  =ledger.mount()= (fn.once, reads scope AT MOUNT) — override scopes THEN
+  mount; only install re-points =.path= post-mount.
+- Verified: ghost 27 passed (5 steps) 0 failed · paladin 16 passed (60 steps)
+  0 failed.
+
+* owed on re-entry
+
+beef's final directive before the fold: /"thoroughly test. update docs."/ —
+STARTED, NOT LANDED. Grounding done: docs pages touching
+vip/registry/package located under =documentation/content/= (candidates:
+=31.01_system-map= · =32.01_runtime= · =52.01_getting-started=; no dedicated
+packages/registry page exists yet — likely a NEW page), paladin
+=registry.test.js= re-read for extension. Test-hardening candidates: re-tap
+idempotence through ghost · rotten-record =taps= entry (dir removed →
+=declared []=) · untap-unknown no-op · tap-absolute-missing-path throw ·
+full-suite sweep (typology · paladin · ghost · runtime =--no-check=) with
+pasted tails. Also still open: guard hunks · =writeShellConfig= →
+=systems/ghost/belt/config.js= lift · P1+P2 release-or-revert label · fork E
+in-body-unconfirmed.
+
+* hygiene
+
+Frontier m31 line was refreshed at wake, then overwritten externally by a
+concurrent frontier pass (m30 telemetry landing) that restored the stale
+pre-session m31 text — re-refreshed at this fold. Quest updated turn-by-turn
+throughout (settlements · corrections · both gos · dispatch finding).

@@ -1,0 +1,43 @@
+#+title: housekeeping coda — m30 enters done, skilled becomes primed, and the frontier fits its own limit for the first time
+
+* what happened, in one breath
+
+Post-close housekeeping, beef-driven in four short orders: "move m30 to done" (quest →
+=quests/done/=, joining m31 and the older folds) · "go through
+.../m28-primed.org and rename all SKILLED references to PRIMED / go" · "clean up the
+frontier" escalated mid-turn to "clean up the frontier thoroughly." · "ikiro compact".
+
+* the rename — beef had already moved first
+
+The quest file was ALREADY =m28-primed.org= when the order arrived — beef renamed it
+himself; the order was to make the CONTENT follow. User edits canonical: propagated, not
+questioned. Sweep per the rename-includes-consumers law (unrestricted grep, docs are
+consumers): =m28-primed.org= itself (title, filetags =:skilled:=→=:primed:=, trait refs,
+the future =traits/skilled.js= path → =traits/primed.js=), then consumers
+=m29-agent-tools.org= ("PRIMED is m28's"), =m23-debuggable-hallucinations.org= (4 design
+refs), =m27-memory-and-notes.org= (filetag, the =m28-skilled.org= link → =m28-primed.org=,
+2 refs). beef's verbatim voice stays as spoken — "what is a skilled trait? I don't
+remember" and "(beef: the skilled trait deserves its own package)" keep lowercase
+=skilled=. No code consumers exist (the trait is unbuilt); the only repo-wide lowercase
+hits are corpus data ("skilled / able", an Italian adjective gloss — untouched).
+
+* the frontier eviction — his call, finally made
+
+The frontier header had carried "STILL OVER at 8751 — the residue is beef's content; the
+next eviction is his call, not mine" for passes. "thoroughly" was the call. Evicted: the
+ENTIRE m30 section (→ a 4-line DONE entry: paid-debt numbers, causes-killed list, quest
+pointer) · m26/m24/m31/boot-display collapsed to one-liners keeping ONLY their opens ·
+spanish-boot dropped from gate 2's never-run list (prod runs 3 daemons now, seen in the
+walk dump). Added to tails so nothing fell off the map: BRIDGE stamp proof owed on next
+=--build-arg= deploy · the three m30 warts (probe-swallow-1001 · per-mode metadata
+volley · =store()= coalescing) · the =47.01= =result.buffers= docs drift. Landed:
+**8751 → 7982 chars** — under the 8000 limit for the first time since the limit was set.
+DONE quests now render as a proper subsection under live quests instead of a status word.
+
+* loose ends
+
+- m28 build itself: unstarted — quest carries design; trait file will be
+  =systems/runtime/daemon/traits/primed.js= when built.
+- Frontier "live quests" heading dropped its stale count "(17)" — counts rot, statuses
+  don't.
+- Everything else open is where the last compact left it.

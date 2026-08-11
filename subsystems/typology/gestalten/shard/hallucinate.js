@@ -43,22 +43,14 @@ export async function dispatch(tools, parts, span) {
           )(call.input),
         );
         branch.mark("close", { condition: spoken.condition });
-        return {
-          call,
-          result: {
-            condition: spoken.condition,
-            message: spoken.message,
-            entities: spoken.entities,
-            object: spoken.object,
-          },
-        };
+        return { call, result: { condition: spoken.condition, output: spoken.output } };
       } catch (fault) {
         branch.fault(fault);
         const message =
           fault instanceof NotFound
             ? { error: `unknown tool: ${call.name}` }
             : { error: fault.message };
-        return { call, result: { condition: "ERROR", message, entities: {}, object: null } };
+        return { call, result: { condition: "ERROR", output: { message } } };
       }
     }),
   );
@@ -69,19 +61,19 @@ const pump = {
   render: async (faculty, request) => soma.drain(await faculty.via.render(request)),
 };
 
-export async function* session(faculty, streamOrRender, hallucinationRequest, requestConfig) {
-  const span = requestConfig.span ?? new Span("/hallucination");
+export async function* respond(faculty, streamOrRender, request, policy) {
+  const span = policy.span ?? new Span("/hallucination");
   span.open();
   span.note({ streamOrRender, faculty: faculty.type });
-  let turns = hallucinationRequest.turns;
+  let turns = request.turns;
   let rounds = 0;
   try {
-    while (rounds < requestConfig.rounds) {
+    while (rounds < policy.rounds) {
       rounds += 1;
       let turn = null;
       for await (const packet of deliver(
-        () => pump[streamOrRender](faculty, { ...hallucinationRequest, turns }),
-        requestConfig.backoff,
+        () => pump[streamOrRender](faculty, { ...request, turns }),
+        policy.backoff,
         span,
       )) {
         turn = soma.pour(turn, packet);
@@ -90,34 +82,30 @@ export async function* session(faculty, streamOrRender, hallucinationRequest, re
       const closed = turn ? state(turn) : "error";
       span.note({ round: rounds, state: closed, usage: turn?.meta?.usage });
       if (closed !== "tools") {
-        yield { event: "/session/close", state: closed, rounds, meta: turn?.meta };
+        yield { event: "/response/close", meta: { ...turn?.meta, state: closed, rounds } };
         return;
       }
-      const settled = await dispatch(requestConfig.tools, turn.parts, span);
+      const settled = await dispatch(policy.tools, turn.parts, span);
       const parts = [];
       for (const { call, result } of settled) {
         yield { event: "/tool/call", id: call.id, name: call.name, input: call.input };
         yield { event: "/tool/yield", id: call.id, result };
-        parts.push({
-          type: "tool_result",
-          id: call.id,
-          output: result.message ?? result.object,
-          entities: result.entities,
-          object: result.object,
-        });
+        parts.push({ type: "tool_result", id: call.id, output: result.output });
       }
       const answered = { role: "user", parts };
       yield { event: "/turn/full", turn: answered };
       turns = [...turns, turn, answered];
     }
-    yield { event: "/session/close", state: "length", rounds };
+    yield { event: "/response/close", meta: { state: "length", rounds } };
   } catch (fault) {
     span.fault(fault);
     yield {
-      event: "/session/close",
-      state: "error",
-      rounds,
-      meta: { fault: { kind: fault.kind ?? "unknown", message: fault.message ?? null } },
+      event: "/response/close",
+      meta: {
+        state: "error",
+        rounds,
+        fault: { kind: fault.kind ?? "unknown", message: fault.message ?? null },
+      },
     };
   } finally {
     span.close();
@@ -126,11 +114,11 @@ export async function* session(faculty, streamOrRender, hallucinationRequest, re
 
 export async function render(faculty, request, policy) {
   let folded = null;
-  for await (const record of session(faculty, "render", request, policy))
+  for await (const record of respond(faculty, "render", request, policy))
     folded = soma.transcript(folded, record);
-  if (folded.state !== "complete")
+  if (folded.meta.state !== "complete")
     throw new Error(
-      `[hallucinate] '${faculty.type}' session closed ${folded.state} after ${folded.rounds} rounds`,
+      `[hallucinate] '${faculty.type}' response closed ${folded.meta.state} after ${folded.meta.rounds} rounds`,
     );
   return folded;
 }

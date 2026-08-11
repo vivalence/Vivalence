@@ -43,6 +43,10 @@ function stream(packets) {
   })();
 }
 
+function toolVector(nature, execute) {
+  return new Vector().open({ nature }, execute);
+}
+
 function populatedCortex() {
   return new Cortex().register([
     {
@@ -85,122 +89,104 @@ function populatedCortex() {
       tune: [0.3, 0.7, 0.8],
       channels: { in: ["text"], out: ["object"] },
       via: {
-        render: async ({ turns, output }) => ({ role: "assistant", parts: [{ type: "object", data: { echo: lastUserText(turns) }, schema: output?.object }], meta: { state: "complete" }, object: { echo: lastUserText(turns) } }),
+        render: async ({ turns, output }) => ({ role: "assistant", parts: [{ type: "object", data: { echo: lastUserText(turns) }, schema: output?.schema }], meta: { state: "complete" }, object: { echo: lastUserText(turns) } }),
       },
     },
   ]);
 }
 
 specimen.describe("Hallucination", () => {
-  specimen.describe("context + transcript compilation", () => {
-    specimen.it("hoists system text ahead of the conversation, ordered by extend", async () => {
+  specimen.describe("the request record — WHAT rides the invocation", () => {
+    specimen.it("system sections cross keyed and ordered; turns carry no system turn", async () => {
       let seen = null;
       const cortex = new Cortex().register([{
         type: "dialogue", tune: [0.5, 0.5, 0.5],
         channels: { in: ["text"], out: ["text"] },
-        via: { render: async ({ turns }) => ((seen = turns), { role: "assistant", parts: [{ type: "text", text: "ok" }], meta: { state: "complete" } }) },
+        via: { render: async (request) => ((seen = request), { role: "assistant", parts: [{ type: "text", text: "ok" }], meta: { state: "complete" } }) },
       }]);
-      const hallucination = Hallucination(cortex);
-      hallucination.context.system("base persona").context.extend({ language: "pt-BR", learner: { level: "a1" } });
-      hallucination.entities.turn.append(userTurn("hi"));
-      await hallucination.dialogue.render();
+      await Hallucination(cortex).dialogue.render({
+        system: { persona: "base persona", language: "pt-BR" },
+        turns: [userTurn("hi")],
+      });
 
-      specimen.expect(seen[0].role).toBe("system");
-      const system = seen[0].parts[0].text;
-      specimen.expect(system.startsWith("base persona")).toBe(true);
-      specimen.expect(system).toContain("language:\npt-BR");
-      specimen.expect(system.indexOf("language:")).toBeLessThan(system.indexOf("learner:"));
-      specimen.expect(seen[1].role).toBe("user");
+      specimen.expect(Object.keys(seen.system)).toEqual(["persona", "language"]);
+      specimen.expect(seen.system.persona).toBe("base persona");
+      specimen.expect(seen.turns[0].role).toBe("user");
+      specimen.expect(seen.cache).toEqual({ marks: ["context"] });
     });
 
-    specimen.it("append is order-preserving; replace swaps the transcript", () => {
-      const repeated = userTurn("hello");
-      const assistant = { role: "assistant", parts: [{ type: "text", text: "hi" }] };
-      const appended = Hallucination(populatedCortex());
-      appended.entities.turn.append(null, repeated, [assistant, repeated], undefined);
-      specimen.expect(appended.entities.turn.all()).toEqual([repeated, assistant, repeated]);
-
-      const replaced = Hallucination(populatedCortex());
-      replaced.entities.turn.append(userTurn("old"));
-      replaced.entities.turn.replace([userTurn("summary"), userTurn("fresh")]);
-      specimen.expect(replaced.entities.turn.all().map((turn) => turn.parts[0].text)).toEqual(["summary", "fresh"]);
+    specimen.it("an explicit cache.marks wins over the derived marks", async () => {
+      let seen = null;
+      const cortex = new Cortex().register([{
+        type: "dialogue", tune: [0.5, 0.5, 0.5],
+        channels: { in: ["text"], out: ["text"] },
+        via: { render: async (request) => ((seen = request), { role: "assistant", parts: [{ type: "text", text: "ok" }], meta: { state: "complete" } }) },
+      }]);
+      await Hallucination(cortex).dialogue.render({
+        system: { persona: "stable", state: "volatile" },
+        turns: [userTurn("hi")],
+        cache: { marks: ["persona"] },
+      });
+      specimen.expect(seen.cache).toEqual({ marks: ["persona"] });
     });
   });
 
-  specimen.describe("config", () => {
-    specimen.it("configure is chainable and validates", () => {
-      const fluent = Hallucination(populatedCortex());
-      specimen.expect(fluent.configure({ tune: "capable" }).context.system("persona")).toBe(fluent);
-
+  specimen.describe("policy — WHO and HOW LONG, validated per invocation", () => {
+    specimen.it("an invalid policy throws at the call; scalars cast", async () => {
       let error = null;
-      try { Hallucination(populatedCortex()).configure({ rounds: 0 }); } catch (thrown) { error = thrown; }
-      specimen.expect(error.message).toContain("invalid config");
-      Hallucination(populatedCortex()).configure({ rounds: "3" });
+      try {
+        await Hallucination(populatedCortex()).dialogue.render({ policy: { rounds: 0 }, turns: [userTurn("hi")] });
+      } catch (thrown) { error = thrown; }
+      specimen.expect(error.message).toContain("invalid policy");
+      await Hallucination(populatedCortex()).dialogue.render({ policy: { rounds: "3", tune: "balanced" }, turns: [userTurn("hi")] });
     });
 
-    specimen.it("cortex.hallucination seeds config eagerly", () => {
+    specimen.it("cortex.hallucinate is the ONE typed-fetch surface, built lazily", () => {
       const cortex = populatedCortex();
-      specimen.expect(cortex.hallucination({ tune: "unleashed" }).configure).toBeDefined();
-      let error = null;
-      try { cortex.hallucination({ rounds: 0 }); } catch (thrown) { error = thrown; }
-      specimen.expect(error.message).toContain("invalid config");
-    });
-
-    specimen.it("the json getter exposes config, context, tool names, and a turns copy", () => {
-      const hallucination = Hallucination(populatedCortex(), { tune: "balanced" });
-      hallucination.context.system("persona");
-      hallucination.tools.open({ nature: "lookup" }, () => ({}));
-      hallucination.entities.turn.append(userTurn("hi"));
-      specimen.expect(hallucination.json.tools).toEqual([{ name: "lookup" }]);
-      specimen.expect(hallucination.json.tune).toBe("balanced");
-      specimen.expect(hallucination.json.turns).toHaveLength(1);
-      specimen.expect(hallucination.json.turns).not.toBe(hallucination.entities.turn.all());
+      specimen.expect(cortex.hallucinate.dialogue).toBeDefined();
+      specimen.expect(cortex.hallucinate).toBe(cortex.hallucinate);
     });
   });
 
-  specimen.describe("render → the session yield", () => {
+  specimen.describe("render → the response yield", () => {
     specimen.it("single-shot returns a complete yield carrying the message", async () => {
-      const hallucination = Hallucination(populatedCortex(), { tune: "balanced" });
-      hallucination.entities.turn.append(userTurn("hello"));
-      const folded = await hallucination.dialogue.render();
-      specimen.expect(folded.state).toBe("complete");
-      specimen.expect(folded.message).toBe("[sonnet] hello");
+      const folded = await Hallucination(populatedCortex())
+        .dialogue.render({ policy: { tune: "balanced" }, turns: [userTurn("hello")] });
+      specimen.expect(folded.meta.state).toBe("complete");
+      specimen.expect(folded.output.message).toBe("[sonnet] hello");
       specimen.expect(folded.turns).toHaveLength(1);
     });
 
     specimen.it("tune selects the faculty: unleashed → opus, balanced → sonnet", async () => {
-      const cortex = populatedCortex();
-      const opus = Hallucination(cortex, { tune: "unleashed" });
-      opus.entities.turn.append(userTurn("test"));
-      const sonnet = Hallucination(cortex, { tune: "balanced" });
-      sonnet.entities.turn.append(userTurn("test"));
-      specimen.expect((await opus.dialogue.render()).message).toContain("[opus]");
-      specimen.expect((await sonnet.dialogue.render()).message).toContain("[sonnet]");
+      const hal = populatedCortex().hallucinate;
+      const turns = [userTurn("test")];
+      specimen.expect((await hal.dialogue.render({ policy: { tune: "unleashed" }, turns })).output.message).toContain("[opus]");
+      specimen.expect((await hal.dialogue.render({ policy: { tune: "balanced" }, turns })).output.message).toContain("[sonnet]");
     });
 
-    specimen.it("a tool loop runs at the leaf: the tool sees ctx.input, the yield folds the rounds", async () => {
-      const hallucination = Hallucination(populatedCortex(), { tune: "unleashed" });
+    specimen.it("a tools Vector on the request is LOWERED to the wire catalog and dispatched", async () => {
       let received = null;
-      hallucination.tools.open({ nature: "lookup" }, async (ctx) => ((received = ctx.input), { message: `${ctx.input.query} means house` }));
-      hallucination.entities.turn.append(userTurn("what is casa"));
-      const folded = await hallucination.dialogue.render();
+      const folded = await Hallucination(populatedCortex()).dialogue.render({
+        policy: { tune: "unleashed" },
+        turns: [userTurn("what is casa")],
+        tools: toolVector("lookup", async (ctx) => ((received = ctx.input), { message: `${ctx.input.query} means house` })),
+      });
       specimen.expect(received.query).toBe("what is casa");
-      specimen.expect(folded.state).toBe("complete");
+      specimen.expect(folded.meta.state).toBe("complete");
       specimen.expect(folded.turns).toHaveLength(3);
     });
 
-    specimen.it("a slurped mode tool vector arms the hallucination", async () => {
+    specimen.it("a slurped mode tool vector arms the request", async () => {
       const modeTools = new Vector();
       let ran = false;
       modeTools.open({ nature: "lookup" }, async () => ((ran = true), { message: "house" }));
-      const hallucination = Hallucination(populatedCortex(), { tune: "unleashed" });
-      hallucination.tools.slurp(modeTools);
-      hallucination.entities.turn.append(userTurn("casa"));
-      await hallucination.dialogue.render();
+      const armed = new Vector().slurp(modeTools);
+      await Hallucination(populatedCortex())
+        .dialogue.render({ policy: { tune: "unleashed" }, turns: [userTurn("casa")], tools: armed });
       specimen.expect(ran).toBe(true);
     });
 
-    specimen.it("an unknown tool becomes an error result and the session still completes", async () => {
+    specimen.it("an unknown tool becomes an error result and the response still completes", async () => {
       let toolResultTurn = null;
       const cortex = new Cortex().register([{
         type: "dialogue", tune: [0.5, 0.5, 0.5],
@@ -215,11 +201,9 @@ specimen.describe("Hallucination", () => {
           },
         },
       }]);
-      const hallucination = Hallucination(cortex);
-      hallucination.entities.turn.append(userTurn("test"));
-      const folded = await hallucination.dialogue.render();
-      specimen.expect(folded.message).toBe("done");
-      specimen.expect(toolResultTurn.parts[0].output.error).toContain("ghost");
+      const folded = await Hallucination(cortex).dialogue.render({ turns: [userTurn("test")] });
+      specimen.expect(folded.output.message).toBe("done");
+      specimen.expect(toolResultTurn.parts[0].output.message.error).toContain("ghost");
     });
 
     specimen.it("rounds ceiling closes length and render throws", async () => {
@@ -228,35 +212,39 @@ specimen.describe("Hallucination", () => {
         channels: { in: ["text"], out: ["text", "tool_use"] },
         via: { render: async () => ({ role: "assistant", parts: [{ type: "tool_use", id: "t1", name: "loop", input: {} }], meta: { state: "tools" } }) },
       }]);
-      const hallucination = Hallucination(cortex, { rounds: 2 });
-      hallucination.tools.open({ nature: "loop" }, async () => "again");
-      hallucination.entities.turn.append(userTurn("go"));
       let error = null;
-      try { await hallucination.dialogue.render(); } catch (thrown) { error = thrown; }
+      try {
+        await Hallucination(cortex).dialogue.render({
+          policy: { rounds: 2 },
+          turns: [userTurn("go")],
+          tools: toolVector("loop", async () => "again"),
+        });
+      } catch (thrown) { error = thrown; }
       specimen.expect(error.message).toContain("closed length");
     });
   });
 
-  specimen.describe("stream → session records", () => {
-    specimen.it("streams packets across a tool round and closes the session", async () => {
-      const hallucination = Hallucination(populatedCortex(), { tune: "unleashed" });
-      hallucination.tools.open({ nature: "lookup" }, async (ctx) => ({ message: `${ctx.input.query} means house`, entities: { buffer: [{ id: "b1" }] } }));
-      hallucination.entities.turn.append(userTurn("what is casa"));
+  specimen.describe("stream → response records", () => {
+    specimen.it("streams packets across a tool round and closes the response", async () => {
+      const source = await Hallucination(populatedCortex()).dialogue.stream({
+        policy: { tune: "unleashed" },
+        turns: [userTurn("what is casa")],
+        tools: toolVector("lookup", async (ctx) => ({ message: `${ctx.input.query} means house`, buffer: [{ id: "b1" }] })),
+      });
       const collected = [];
-      for await (const packet of await hallucination.dialogue.stream()) collected.push(packet);
+      for await (const packet of source) collected.push(packet);
       const events = collected.map((packet) => packet.event);
       specimen.expect(events).toContain("/tool/call");
       specimen.expect(events).toContain("/tool/yield");
-      specimen.expect(events.at(-1)).toBe("/session/close");
+      specimen.expect(events.at(-1)).toBe("/response/close");
     });
   });
 
   specimen.describe("object derivation", () => {
     specimen.it("a real object faculty renders straight to the object channel", async () => {
-      const hallucination = Hallucination(populatedCortex(), { tune: "balanced" });
-      hallucination.entities.turn.append(userTurn("hello"));
-      const folded = await hallucination.object.render();
-      specimen.expect(folded.object.echo).toBe("hello");
+      const folded = await Hallucination(populatedCortex())
+        .object.render({ policy: { tune: "balanced" }, turns: [userTurn("hello")] });
+      specimen.expect(folded.output.object.echo).toBe("hello");
     });
 
     specimen.it("the object avenue resolves the dialogue faculty and folds its structured turn", async () => {
@@ -271,13 +259,14 @@ specimen.describe("Hallucination", () => {
         },
       }]);
       specimen.expect(cortex.find({ type: "object" })).toHaveLength(0);
-      const hallucination = Hallucination(cortex, { output: { object: { type: "object" } } });
-      hallucination.entities.turn.append(userTurn("casa"));
-      const folded = await hallucination.object.render();
-      specimen.expect(folded.object.verdict).toBe("casa");
+      const folded = await Hallucination(cortex).object.render({
+        turns: [userTurn("casa")],
+        output: { schema: { type: "object" } },
+      });
+      specimen.expect(folded.output.object.verdict).toBe("casa");
     });
 
-    specimen.it("output.object schema reaches the provider on request.output", async () => {
+    specimen.it("output.schema reaches the provider on request.output", async () => {
       let seenSchema = null;
       const schema = { marker: "OUT" };
       const cortex = new Cortex().register([{
@@ -285,17 +274,17 @@ specimen.describe("Hallucination", () => {
         channels: { in: ["text"], out: ["object"] },
         via: {
           render: async (request) => {
-            seenSchema = request.output?.object;
-            return { role: "assistant", parts: [{ type: "object", data: request.output.object }], meta: { state: "complete" }, object: request.output.object };
+            seenSchema = request.output?.schema;
+            return { role: "assistant", parts: [{ type: "object", data: request.output.schema }], meta: { state: "complete" }, object: request.output.schema };
           },
         },
       }]);
-      const hallucination = Hallucination(cortex);
-      specimen.expect(hallucination.output.object(schema)).toBe(hallucination);
-      hallucination.entities.turn.append(userTurn("hi"));
-      const folded = await hallucination.object.render();
+      const folded = await Hallucination(cortex).object.render({
+        turns: [userTurn("hi")],
+        output: { schema },
+      });
       specimen.expect(seenSchema).toEqual(schema);
-      specimen.expect(folded.object).toEqual(schema);
+      specimen.expect(folded.output.object).toEqual(schema);
     });
 
     specimen.it("object synthesis runs real tools before the structured turn, lexicon-native", async () => {
@@ -307,17 +296,18 @@ specimen.describe("Hallucination", () => {
             if (!hasToolResult(request.turns))
               return { role: "assistant", parts: [{ type: "tool_use", id: "t1", name: "drill", input: { count: 1 } }], meta: { state: "tools" } };
             const result = request.turns.at(-1).parts.find((part) => part.type === "tool_result");
-            const data = { reply: result.output };
+            const data = { reply: result.output.message };
             return { role: "assistant", parts: [{ type: "object", data }], meta: { state: "complete" }, object: data };
           },
         },
       }]);
-      const hallucination = Hallucination(cortex, { output: { object: { type: "object" } } });
-      hallucination.tools.open({ nature: "drill" }, async () => ({ message: "Drill started: 1 exercise.", entities: { buffer: [{ id: "b1" }] } }));
-      hallucination.entities.turn.append(userTurn("start a drill"));
-      const folded = await hallucination.object.render();
-      specimen.expect(folded.object.reply).toBe("Drill started: 1 exercise.");
-      specimen.expect(folded.entities.buffer).toHaveLength(1);
+      const folded = await Hallucination(cortex).object.render({
+        turns: [userTurn("start a drill")],
+        tools: toolVector("drill", async () => ({ message: "Drill started: 1 exercise.", buffer: [{ id: "b1" }] })),
+        output: { schema: { type: "object" } },
+      });
+      specimen.expect(folded.output.object.reply).toBe("Drill started: 1 exercise.");
+      specimen.expect(folded.output.buffer).toHaveLength(1);
     });
   });
 });

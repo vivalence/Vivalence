@@ -1,0 +1,175 @@
+#+title: the keyboard stops flapping, the panes become tabs, and the trigger moves into the rep row
+#+filetags: :rep-o-gram:m24:design-sync:mobile:focus:keyboard:svelte:drapes:bak:
+
+* the commission
+
+Second import of =Rep-O-Mat.dc.html= from the claude.ai design project,
+plus a standing quality order beside it.
+
+#+begin_quote
+we have a refined design. a: added mobile view. very important. b:
+trigger button changed. c: some additional refinements.
+#+end_quote
+
+#+begin_quote
+separate: make sure that the handling of keyboard and input focus is
+top notch. we had a lot of issues here in hte past. i dont want the
+keyboard to open/close all the time while i am in rep mode.
+look through bak on the modes. look through your past too.
+#+end_quote
+
+Two commissions in one message, and the second is the one with
+history behind it.
+
+* what bak was hiding
+
+=bak= answered before I read a line of the new design.
+=bak/listen/Listen.svelte= and =bak/shadow/buffer/Shadow.svelte= both
+carry this:
+
+#+begin_src js
+$effect(() => {
+  if (gameplay === "TYPE" && !answered && inputEl) inputEl.focus();
+  else if (gameplay === "TYPE" && answered && keyboard) keyboard.focus();
+});
+#+end_src
+
+=keyboard= is =subsystems/drapes/controls/Keyboard.svelte= — an
+off-screen =<input>= at =left:-9999px=, whose entire job is to HOLD
+the soft keyboard open while the real field is unusable. A whole
+drapes component existed as a workaround for a field that blurs.
+That is the archive naming its own failure mode: the dead modes moved
+focus on every answer, so the keyboard closed and reopened on every
+answer, so a hidden input was invented to catch it mid-fall.
+
+* the flap, diagnosed
+
+The live bug in rep-o-gram was not that pattern — it was one line
+above it, in a rule I had written down as a virtue on day 2:
+
+#+begin_quote
+state lifetime = component lifetime — ={#key entry}= remounts
+Rep.svelte per rep; zero reset code.
+#+end_quote
+
+={#key entry}= destroys and recreates =Rep.svelte= every rep, and
+=TypeInput='s =<input>= with it. Destroying the focused element closes
+the soft keyboard, and iOS will not reopen one from a =.focus()= that
+is not inside a user gesture. Zero reset code cost the keyboard on
+every single rep.
+
+The design already had the answer in its shape: the tray is a SIBLING
+of the stage, so React's =this.input= is one node for the whole
+session, and =componentDidUpdate= only ever refocuses behind a guard:
+
+#+begin_src js
+if (... && this.input && document.activeElement !== this.input) this.input.focus();
+#+end_src
+
+Ported: Rep keeps ={#key}='s semantics but pays for them explicitly.
+
+#+begin_src js
+let current = rep;
+$effect.pre(() => {
+  if (rep === current) return;
+  current = rep;
+  clearTimeout(countdown);
+  typed = ""; result = null; revealed = false; picked = null;
+  pending = false; released = false; hinted = false; elapsed = 0;
+  phase = previewing ? "preview" : "recall";
+});
+#+end_src
+
+=previewing=/=speed=/=span= became =$derived= to survive the loss of
+the remount. The =<input>= now outlives every rep in the session.
+
+* three rules that each cost the keyboard
+
+- **never =disabled=, never =readonly=** on the live field — the
+  design uses =disabled={{inputLocked}}= and my first port reached for
+  =readonly=; BOTH dismiss the iOS keyboard on a focused element.
+  Locked is expressed by reverting =oninput= while =submitted=.
+- **=onpointerdown={e => e.preventDefault()}=** on tray buttons.
+  =onmousedown= is the desktop half of that trick and misses touch.
+- **refocus only behind =document.activeElement !== field=** — an
+  unconditional =.focus()= is itself a flap.
+
+Port the design's INTENT (a locked field), never its mechanism, when
+the mechanism is platform-specific.
+
+* the guard was pointed the wrong way
+
+Audit finding, not a design item: =Rep.svelte='s =svelte:window=
+keydown fired for every input on the page. Enter typed into the
+console's symbol filter SUBMITTED THE REP. The old guard asked "is
+this my input?" when the question is "is this someone else's?":
+
+#+begin_src js
+function elsewhere(target) {
+  if (!target?.tagName) return false;
+  if (target.hasAttribute?.("data-rep-input")) return false;
+  return target.tagName === "INPUT" || target.tagName === "TEXTAREA" || target.isContentEditable;
+}
+#+end_src
+
+The same attribute is what lets =\= toggle chrome from inside the rep
+field but not from the console's.
+
+* a — mobile
+
+=narrow= is measured on the SHELL (=bind:clientWidth= < 900), NOT
+=window.innerWidth=: the design is a standalone page, the port lives
+inside a kajuit panel, and the window lies about the panel. Narrow
+turns the docks from side-by-side panes into EXCLUSIVE tabs (=view= ∈
+play·console·inspector), grows a =play= tab in the header, drops the
+axis summary + progress bar, hides the keymap, and takes docks to
+full width borderless. The shell takes =max-height: var(--viva-h,
+100%)= — ViewportLock's visual-viewport height, as =max-height= and
+never =height=, so a shorter panel is unaffected while a
+keyboard-shrunk viewport still clamps the tray into view.
+
+* b — the trigger
+
+=◨= left the floating circle at the player's top-left and joined the
+rep meta row beside the hint =?= (=Prompt.svelte= =.knob=, 28px — the
+design's pairing). The floating =.stray= survives ONLY for the
+non-playing phases, so chrome-off on a done/empty card can't trap you
+on a device with no =\= key.
+
+* c — refinements
+
+=types.PRESETS= gained =ultra= ({streak 3, continuous, limit 600s})
+and the =recall= the design pins on =conjugate= (LEARNING) and
+=translate= (KNOWN). The emitter loops the same table, so
+=/emit/ultra/feed= exists without a line written for it.
+
+Deviations, flagged: paper theme still cut (dapper-second-theme owns
+theming) · narrow modifier named =.full= because Console already owns
+=.wide= for full-width buttons · retype-chip commit still drops focus
+to body, left alone as a pointer affordance.
+
+* state
+
+rep-o-gram 6 suites (26 steps) · runtime 38 (230) · all eight changed
+components compile clean. Owed: milestone 6 — beef drives, on a phone
+this time.
+
+* lessons settled
+
+1. **A law is scoped, and the scope can move.** "state lifetime =
+   component lifetime" was correct on day 2 and became the bug on day
+   4, when focus continuity crossed it. The law didn't die — it lost
+   its cheapest form. Explicit reset is the price of a persistent
+   element.
+2. **Read the archive for the failure, not the fix.** =bak= did not
+   hold the answer; it held a hidden off-screen input built to
+   survive the answer's absence. A workaround in the archive is a
+   fossil of the real problem — dig where it was pointing.
+3. **Port the intent, not the mechanism.** =disabled= and =readonly=
+   are both "locked" on a desktop and both "keyboard closed" on iOS.
+   The design describes what should be true, not how a platform gets
+   there.
+4. **Global handlers need an outward guard.** "is this MY input"
+   passes every foreign input through. Ask "is this someone else's".
+5. **Measure the element, not the window.** Every viewport assumption
+   a standalone design makes is a lie inside a panel.

@@ -1,0 +1,203 @@
+#+title: m31 — very important package registry: the registry becomes user-managed
+#+filetags: :m31:packages:registry:ledger:paladin:vip:ghost:jj:
+#+status: DONE (beef: /"move m31 to done"/) — P1+P2 RELEASED · P3 ghost LANDED · guards + config lift LANDED · tests + docs LANDED (/"go on all non typological"/). Residue at close: fork E in-body-unconfirmed · P4 daemon deferred · dangling /"except"/ unresolved.
+#+history: =m31-very-important-package-registry.HISTORY.quest.org= — laws verbatims, provenance, retired/orphaned decisions, displaced detail (vocabulary · blast · testing · changelog trail). Studies: =.ikiro/bak/m31-studies.org=. Session fold: =.ikiro/compacts/four-studies-triangulate-the-registry-…-code-that-must-wait.org=. Sources: see =* Sources= — the 322 KB verbatim collection is DELETED and rebuildable from git.
+
+* Goal
+
+beef: /"I need to be able to pull, install, and load packages via GitHub, via
+git... via any GitSource … also the local file system … there's a tap … command
+that loads a package And that gets pulled into … the ledger, which loads into
+the registry, into PSF and VIP, and then it's accessible to the system."/
+
+DONE means:
+
+- =viva ledger tap <git-url>= → clone into store → recorded → next boot serves it
+- =viva ledger tap <path>= → recorded (absolute verbatim ¦ store-relative)
+- =viva ledger untap <ref>= → record removal only — store keeps the working copy
+- tooling at PALADIN (=vip.tap/untap=); ghost wires in now, daemon next, svelte
+  client rides the daemon proxy
+- publish = NOT this quest's gate
+
+* Design
+
+*tap = materialize + record. Mount is runtime's.* (beef: /"Mount is at runtime.
+It happens automatically because of the way that our system is architectured.
+So the tap has to do materialize and record. Very clean."/)
+
+#+begin_src text
+tap(src)    remote? → materialize: jj git clone --colocate (git fallback) → rel ref
+            guard: target declares manifest.type "package" or THROW
+            registry.add(ref)                 ← pensieve NEVER touched
+untap(ref)  registry.remove(ref)              ← record only
+supply()    read() ?? seed() → fold registry.resolve → mount each   ← boot, the only mount
+#+end_src
+
+- materialize = the ONLY place source kinds exist (local no-op · git clone ·
+  s3/… future arm). The record never learns URLs — provenance = the clone's own
+  =.jj=/=.git=.
+- reference = prefix-discriminated string: ="/abs"= verbatim external ·
+  ="rel"=≡="./rel"= store-relative · identifier kind PARKED (fork A).
+- ghost is the cwd-aware skin: a shell =./x= / =../x= resolves against
+  =INIT_CWD= to an absolute BEFORE vip — registry grammar stays pure
+  (recording a shell =./= as store-relative would be a lying surface).
+- =Pensieve.evict= DISSOLVED — Pensieve extends Map; =pensieve.delete(owner)=
+  IS eviction. No new method.
+- resolution is REGISTRY-owned (base = store root), never =paladin.source= (cwd).
+- 14 locked laws stand (manifest identity · authored owner · package-blind
+  pensieve · two-throw · record rules …) — table + verbatims in HISTORY, pinned
+  by =vip.test.js= + =pensieve.test.js=.
+
+* State
+
+- P1 ✅ RELEASED :: =Registry.list/has/add/remove/resolve= + =seed= onto
+  =find.type= (readDir bug gone). =registry.test.js= 8 steps green.
+- P2 ✅ RELEASED :: =vip.tap/untap= (A2) + =belt/clone.js= (jj-preferred) +
+  =supply()= folds =registry.resolve=. =vip.tap.test.js= 6 steps green.
+- RELEASE :: the parked label resolved by beef: /"go on all non typological"/
+  — P1+P2 released, guards + config lift executed in the same word. (PARK
+  origin: /"You are going too fast into implementation."/)
+- GUARDS ✅ LANDED :: =vip.tap= remote branch + =Registry.resolve= relative
+  branch THROW =no package store= when =scope.registry= absent (register
+  =[VIP]= / =[PALADIN]=; fork B's replacement). One test each — remote-tap
+  guard fires BEFORE any clone spawn.
+- CONFIG LIFT ✅ LANDED :: =writeShellConfig= → =systems/ghost/belt/config.js=;
+  =belt/index.js= +=export * as config=; =system/init.js= consumes
+  =config.writeShellConfig=. Verified: paladin 16/0 (63 steps) · ghost 27/0 ·
+  live =ledger/root= + =system/doctor= dispatch.
+- P3 LEDGER GROUP ✅ LANDED (the go) :: =trajectories/ledger/index.js= =
+  ONE file exporting a dedicated =Vector= (beef: /"just export a dedicated
+  vector."/) — =export const ledger = new Vector()= with RELATIVE natures
+  (=/install /root /tap /taps /untap=), handlers INLINE in each =open= (beef:
+  /"no separate definiton of handlers and vector. one thing."/); central
+  =trajectories/index.js= mounts =trajectory.branch("/ledger").slurp(ledger)=;
+  =install.js= DELETED. tap pre-resolves shell =./= via =INIT_CWD=. VERIFIED:
+  ghost suite 26/0 · live =viva ledger/root= + =viva ledger/taps= against the
+  real record (4 monorepo absolutes, owners resolved).
+- DISPATCH SPELLING (finding of record) :: space form =viva ledger root= is
+  the KNOWN ShellSignal gap (multi-segment head unsupported) — the coercion
+  splits ONLY argv[0] on =/=; the live spelling is =viva ledger/root=. Chased
+  as a regression first — a synthetic 2-line vector + plain =Signal= worked,
+  ShellSignal space-form didn't; not a regression, pre-existing.
+- P3 TEST ✅ LANDED (the go) :: =systems/ghost/tests/ledger.test.js= — drive
+  idiom (bare Vector + =steer.dispatch.invoke=, SLASH-FORM signals
+  =["ledger/tap", "pack"]=), 5 steps: tap-records · taps-lists-owners ·
+  non-package-throws-record-untouched · untap-keeps-store · root-roots. Ghost
+  27 passed (5 steps) 0 failed. Fix en route: =paladin.ledger.registry= is
+  MINTED in =ledger.mount()= (fn.once, reads scope AT MOUNT) — override
+  scopes THEN mount; only install re-points =.path= post-mount.
+- CLONE TOUCH-UP ✅ LANDED (the go) :: =belt/clone.js= mkdirs
+  =dirname(target)= before spawn (fresh-box store dir). Paladin 16 passed
+  (60 steps) 0 failed.
+- THOROUGH TEST ✅ LANDED (beef: /"owed. no remote tap. except"/ — the
+  trailing "except" never resolved) :: ghost =ledger.test.js= grew to 9 steps
+  (+ re-tap idempotent · tap-missing-absolute throws-record-untouched ·
+  rotten-record =taps= → =declared []= · untap-unknown no-op) · paladin
+  =registry.test.js= + remove-unrecorded-no-op. Remote tap EXCLUDED per beef —
+  clone spawn stays beef-run at the VCS seam. Full sweep: typology 109/0
+  (404 steps) · runtime 49/0 (313) · ghost 27/0 · paladin 16/0 (61).
+- DOCS ✅ LANDED :: NEW =52.03_packages.mdx= (model: store/record/reference ·
+  commands · mount-is-runtime's · sharp edges: slash-form spelling +
+  store-scope need) + touches: =52.01= ledger noun + further-reading ·
+  =31.01= testament bullet · =32.01= supply() line. =deno task build= 35
+  pages clean, =52.03_packages/index.html= built.
+- P4 WITHDRAWN (beef: /"no daemon ledger yet."/) :: the worked-out sketch
+  (datamap idiom: standalone =new Aperture()= + =.get/.post= slurped onto
+  =branch("/ledger")=; die.js explicit call list; tap composes
+  =vip.tap= + =vip.mount=; untap = owner-lookup → =pensieve.delete(owner)= →
+  =vip.untap=; POST handlers arity-2 =(input, ctx)= or =fire= hands them the
+  CONTEXT) parks in Deferred for when the daemon ledger is called.
+- TESTING REGIME (beef: /"scenario testing!"/) :: in-memory scenario tier is
+  the gate everywhere — paladin parked suites ARE it (=vip.tap.test.js= step 5
+  = tap → reboot-supply → accio + untap-starves); ghost = the drive suite;
+  future daemon ledger = =routes.ledger(die)= over the =scenarios/daemon.js=
+  idiom (=shape.http= + =shard.transmitter.inline=). Live git-url tap =
+  OPTIONAL beef-run validation, NOT a gate.
+- ALSO IN THE DIFF :: owner-guards replacing fork B (=vip.tap= remote branch +
+  =Registry.resolve= relative branch THROW when =scope.registry= absent) ·
+  =belt/clone.js= mkdir-parent touch-up (fresh-box store dir).
+
+* Forks
+
+| fork | question | standing |
+|------+----------+----------|
+| F | verb placement | CALLED — A2, =vip.tap/untap= (/"a2. vip tap/un. go."/) |
+| B | store root default | REJECTED as totality flip (beef: /"this would create a registry on client. nono."/) — store exists ONLY via env or citizen; absent = loud throw at the owner (=vip.tap= remote · =Registry.resolve= relative) — guards LANDED |
+| E | VCS in store | jj-preferred + git fallback IN BODY; store agnostic after; UNCONFIRMED as a call |
+| A | identifier-ref semantics | PARKED — goal needs abs + rel only |
+| D | version | PARKED — presence = installed; clone's working copy = implicit version |
+
+* Gates
+
+| step | gate |
+|------+------|
+| release P1+P2 | ✅ /"go on all non typological"/ |
+| P3 | =systems/ghost/tests/ledger.test.js= green (scenario tier — in-memory drive) |
+| optional | live =viva ledger tap <url>= BEEF-RUN at the VCS seam; validation, not a gate |
+
+DONE only with the named test file AND pasted output.
+
+* Deferred
+
+daemon ledger (=/ledger= aperture route — worked-out sketch in State P4;
+scenario test via =routes.ledger(die)= + =shard.transmitter.inline= when
+called) · runtime-surface audit (=@vivalence/*= IS the runtime; complete it,
+no import-map generator) · publish (=jj git push= from store) · =viva install=
+channels · =/ledger/{prune,forget}= · span→ledger pipe.
+
+* Sources — the collection is DERIVED, rebuild it, don't store it
+
+=.ikiro/bak/m31-package-registry.sources.org= (322 KB, 5333 lines) was a verbatim
+concatenation of twelve historical documents. It was DELETED (beef: /"kill it. move
+the meta information about how to rebuild the history into m31 root."/) because it
+stored nothing git does not already hold — every constituent was verified reachable
+before the delete, =reachable=12 unreachable=0=, 318,466 B of blobs against the
+collection's 321,976 B (the delta is the banner lines the rebuild re-emits).
+
+Each entry is =<rev> <date> <path>=, in collection order:
+
+#+begin_src text
+392a4e8d    2026-03-19  .ikiro/very-important-packagemanager.workpackage.org
+4c5a1e2d~1  2026-07-30  .ikiro/compacts/the-registry-dissolves-into-a-package-supply.org
+7e0062db    2026-06-22  .ikiro/quests/m11_packages.quest.org
+38f669d5    2026-07-02  .ikiro/quests/m11_packages.quest.org
+84edd874    2026-07-02  .ikiro/quests/m11_packages.quest.org
+4c5a1e2d~1  2026-07-30  .ikiro/compacts/m11-four-packages-and-blast-bracket-shape.org
+4c5a1e2d~1  2026-07-30  .ikiro/compacts/m11-forks-self-coherence-and-circuitry-dissolves.org
+4c5a1e2d~1  2026-07-30  .ikiro/compacts/m11-landed-the-deep-cut.org
+b6eed2f5    2026-07-17  .ikiro/compacts/the-registry-becomes-user-managed-a-brew-straightel-package-ledger-is-designed-paladin-tap-untap-over-string-refs-and-a-ghost-ledger-vector-both-gated-on-go.org
+305701e9    2026-07-11  .ikiro/quests/viva-install.quest.org
+305701e9    2026-07-11  .ikiro/quests/viva-init-install.quest.org
+7703b295    2026-05-17  .ikiro/quests/very-important-packagemanager.quest.org
+#+end_src
+
+Rebuild — reads only, writes one file outside the repo:
+
+#+begin_src bash
+while read -r rev date path; do
+  printf '# %s\n# SOURCE  %s  %s  %s\n# COMMIT  %s\n# %s\n\n' \
+    "$(printf '=%.0s' {1..76})" "$rev" "$date" "$path" \
+    "$(git log -1 --format=%s "$rev")" "$(printf '=%.0s' {1..76})"
+  git cat-file -p "$rev:$path"
+  printf '\n'
+done < sources.tsv > /tmp/m31-package-registry.sources.org
+#+end_src
+
+Two traps, both hit while verifying this:
+
+- =git= resolves as a shell function here, so it is NOT on =PATH= inside a
+  =while read= loop — the loop reports =command not found= (exit 127) for every
+  entry and reads as /"0 of 12 reachable"/. Use =GIT=$(command -v git)= and call
+  ="$GIT"=. A reachability sweep that returns all-zero is a broken harness until
+  proven otherwise.
+- =4c5a1e2d~1= is deliberate: those four documents were DELETED by =4c5a1e2d=
+  (/"added italian"/), so they exist only at its parent.
+
+* Changelog
+
+- (thin pass) :: Heavy cleanup on /"ikiro compact. heavy cleanup of the quest.
+  thin quest."/ — laws table, vocabulary, blast detail, testing survey, and the
+  changelog trail displaced to HISTORY; session folded to the compact above.
+  Full trail: HISTORY.
+- (sources cut) :: =m31-package-registry.sources.org= deleted, 322 KB of
+  derived-and-still-in-git text; rebuild recipe above replaces it.

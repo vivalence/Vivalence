@@ -4,7 +4,7 @@ description: Bracket a risky edit to load-bearing code so drift cannot hide — 
 when_to_use: "blast X" · "blast change X go" · "change this everywhere" · "is it safe to touch <symbol>?" · any edit whose radius you cannot name from memory.
 ---
 
-# blast-bracket
+# blast-bracket — "blast X" / "change this everywhere": bracket a risky edit to core code
 
 The `blast · test · change · test · blast` discipline, walked rather than remembered. Canon: `.ikiro/self/rituals.md ## blast-bracket`.
 

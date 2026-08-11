@@ -20,7 +20,7 @@ paths: ["subsystems/typology/schematics/**"]
 `schematics/index.js` augments `v` post-import: attaches `v.scalars / v.primitives / v.entities / v.prototypes` + `v.rel / v.bundle` + 8 entityFactory bindings (`v.literal/symbol/buffer/mode/intent/thread/user`).
 - **scalars/** — `ID · Slug · JWTToken · Timestamp · Username · Password` (the only pattern-constrained strings).
 - **primitives/** — `hallucination.js` (Part.*, Role, Turn, axes, Tune, Tier, Faculty, Packet.* · **`Request = {turns, tools?, settings?, output?:{object}}`** — the named provider contract both hallucination + dialogue/object providers speak; `Settings` = model knobs incl. `tool_choice`; `Output.object` = the structured-return schema) · `variant.js` (Mask/Daemon/Service/Runtime/Client/Variant) · `auth.js` · `manifest.js` · `kernel.js` (Domain) · `conversation.js` (**ORPHAN** — not in the barrel; its `Channel` name-collides with hallucination's).
-- **entities/** — `DataEntitySchema` + `{Buffer,Literal,Symbol,Mode,Intent,Thread,Turn,User}Descriptor`.
+- **entities/** — `DataEntitySchema` + `{Buffer,Literal,Symbol,Mode,Intent,Thread,Turn,User}Descriptor` + **`INTELLIGENT`** (thread trait payload schema `{tune?: Tier|Tune, effort?}`, lives in `thread.js` beside its descriptor — trait schemas live ON the entity schematic, not in primitives). These are the WIRE nouns; the mikro reifications live in `systems/runtime/daemon/entities/` since the post-m26 emigration.
 - **prototypes/** — `Yield` (memoized thunk, survives `v.buffer()` eval-order) · `Condition` (the ONE consistent `v.enum`) · `StatusCode/Status/ErrorResponse`.
 
 ## known duplication (the proposal's targets — pointers, not verdicts)

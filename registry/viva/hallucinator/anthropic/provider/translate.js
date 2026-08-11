@@ -55,12 +55,14 @@ function partToAnthropic(part) {
         name: part.name, //@beef move away from name on contract side. signature.
         input: part.input ?? {},
       };
-    case "tool_result":
+    case "tool_result": {
+      const spoken = part.output?.message ?? part.output?.object ?? part.output;
       return {
         type: "tool_result",
         tool_use_id: part.id,
-        content: typeof part.output === "string" ? part.output : JSON.stringify(part.output),
+        content: typeof spoken === "string" ? spoken : JSON.stringify(spoken),
       };
+    }
     default:
       return { type: "text", text: typeof part === "string" ? part : JSON.stringify(part) };
   }
@@ -74,10 +76,15 @@ export const RESPOND = {
 };
 
 export function buildParams(model, request, stream = false) {
-  const { system, messages } = translateTurns(request.turns);
+  const { system: hoisted, messages } = translateTurns(request.turns);
+  const sections = Object.entries(request.system ?? {}).map(([key, content]) => ({
+    key,
+    block: { type: "text", text: typeof content === "string" ? content : JSON.stringify(content) },
+  }));
+  const system = [...sections.map((section) => section.block), ...hoisted];
   const settings = request.settings ?? {};
   const marks = new Set(request.cache?.marks ?? []);
-  const structured = request.output?.object;
+  const structured = request.output?.schema;
   const tool_choice = structured ? { type: "any" } : settings.tool_choice;
   const params = {
     model: model.id,
@@ -85,6 +92,8 @@ export function buildParams(model, request, stream = false) {
     messages,
     max_tokens: settings.maxTokens ?? (model.thinking ? (stream ? 64000 : 16000) : 8192),
   };
+  for (const section of sections)
+    if (marks.has(section.key)) section.block.cache_control = { type: "ephemeral" };
   if (marks.has("context") && system.length) system.at(-1).cache_control = { type: "ephemeral" };
   if (stream) params.stream = true;
   if (model.thinking) {

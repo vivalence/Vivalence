@@ -14,7 +14,7 @@ export async function run() {
     })
 
   // 1 — declare. The edge carries `yields`; the node does not.
-  const [renderEdge, streamEdge] = [...vector.trajectories.keys()]
+  const [renderEdge, streamEdge] = vector.patterns
   console.log("edges    →", JSON.stringify({ [renderEdge.nature]: renderEdge.yields ?? null, [streamEdge.nature]: !!streamEdge.yields }))
 
   // 2 — strip. `yields` crosses the wire as part of the contract.

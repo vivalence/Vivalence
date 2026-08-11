@@ -4,7 +4,7 @@
 // Run: deno task --cwd systems/runtime test  (this file lives under the runtime workspace
 // because Act II imports @vivalence/runtime transitively; docs/ is excluded from the workspace).
 
-import { specimen, soma, Cortex } from "@vivalence/typology";
+import { specimen, soma, Cortex, Vector } from "@vivalence/typology";
 import { create } from "./scenarios/cortex.js";
 
 // A Faculty is a dumb, stateless, single-shot provider: {type, tune, channels, via:{render,stream}}.
@@ -27,7 +27,7 @@ function tutor() {
       render: async (request) => {
         const { turns, tools, output } = request;
         // A structured output was asked for → the provider returns an object turn.
-        if (output?.object) {
+        if (output?.schema) {
           const data = { query: lastUser(turns) };
           return { role: "assistant", parts: [{ type: "object", data }], meta: { state: "complete" }, object: data };
         }
@@ -49,31 +49,33 @@ specimen.describe("47.02 hallucination triad — the request in isolation (typol
   // Cortex is a faculty repository. Register providers, then SPAWN a request through it.
   const cortex = () => new Cortex().register([tutor()]);
 
-  specimen.it("cortex.hallucination(config) is the spawn seam — construct + seed in one call", async () => {
-    const request = cortex().hallucination({ tune: "unleashed" }); // eager configure(); no `new`
-    request.context.system("You are a patient tutor.").entities.turn.append({ role: "user", parts: [{ type: "text", text: "olá" }] });
-
-    const folded = await request.dialogue.render(); // shape.object trie: /dialogue/render leaf
-    specimen.expect(folded.message).toBe("answer: olá");
+  specimen.it("cortex.hallucinate is the typed-fetch surface — ONE record describes the call", async () => {
+    const folded = await cortex().hallucinate.dialogue.render({
+      policy: { tune: "unleashed" },
+      system: { tutor: "You are a patient tutor." },
+      turns: [{ role: "user", parts: [{ type: "text", text: "olá" }] }],
+    }); // shape.object trie: /dialogue/render leaf
+    specimen.expect(folded.output.message).toBe("answer: olá");
   });
 
   specimen.it("a tool loop runs at the leaf, once — tool_use → execute → tool_result → final turn", async () => {
-    const request = cortex().hallucination();
-    request.tools.open({ nature: "lookup" }, async (ctx) => ({ found: ctx.input.query.toUpperCase() }));
-    request.entities.turn.append({ role: "user", parts: [{ type: "text", text: "brasil" }] });
+    const tools = new Vector().open({ nature: "lookup" }, async (ctx) => ({ found: ctx.input.query.toUpperCase() }));
 
-    const folded = await request.dialogue.render(); // round 1 calls lookup, round 2 answers
-    specimen.expect(folded.state).toBe("complete");
-    specimen.expect(folded.message).toBe("answer: brasil");
+    const folded = await cortex().hallucinate.dialogue.render({
+      turns: [{ role: "user", parts: [{ type: "text", text: "brasil" }] }],
+      tools,
+    }); // round 1 calls lookup, round 2 answers
+    specimen.expect(folded.meta.state).toBe("complete");
+    specimen.expect(folded.output.message).toBe("answer: brasil");
   });
 
   specimen.it("object is DERIVED from dialogue — the derivation resolves the same provider, output-aware", async () => {
     // No `object` faculty registered; findOne derives one by pointing at the dialogue donor.
-    const request = cortex().hallucination().output.object({ type: "object" });
-    request.entities.turn.append({ role: "user", parts: [{ type: "text", text: "hi" }] });
-
-    const folded = await request.object.render(); // provider honors request.output → object turn
-    specimen.expect(folded.object).toEqual({ query: "hi" });
+    const folded = await cortex().hallucinate.object.render({
+      turns: [{ role: "user", parts: [{ type: "text", text: "hi" }] }],
+      output: { schema: { type: "object" } },
+    }); // provider honors request.output → object turn
+    specimen.expect(folded.output.object).toEqual({ query: "hi" });
   });
 });
 

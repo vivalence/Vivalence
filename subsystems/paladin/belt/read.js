@@ -28,6 +28,11 @@ export default function read(paladin) {
 
     module: async (path) => await import(resolve(path)),
 
+    data: async (path) => {
+      const module = await import(resolve(path));
+      return module.default ?? module;
+    },
+
     viva: async (path) => {
       const module = await import(resolve(path));
       return cast.viva(module);
@@ -50,5 +55,6 @@ export default function read(paladin) {
     json: readers.json,
     jsonl: readers.jsonl,
     module: readers.module,
+    data: readers.data,
   };
 }

@@ -1,0 +1,88 @@
+#+title: movement three lands, the domain becomes root, francesca goes live — and CONVERSATIONAL turns out to be a client contract, not a corpse
+#+filetags: :m23:m25:domain:francesca:harnessed:tooled:traits:engram:conversational:registry:
+
+* the session shape
+
+Booted onto the m23 quest. First finding, before any work: the quest's =* patch= section carries ONLY the 12 modified-file diffs — the 8 new + 2 moved files that III.1/III.2 describe exist nowhere (the clone that held them is gone). Second finding: deno 2.7.5 is installed here, so the quest's stated blocker ("no deno in the authoring env") was already dead. beef set the pace:
+
+#+begin_quote
+nonono. we dont yet write this quest. did you write anything? not yet.
+step by step.
+just load and reason.
+#+end_quote
+
+Then, after a full m23 walkthrough: *"ok. lets get III up first. propose the full diff."*
+
+* grounding beat the quest's own patch
+
+Pre-flight against disk before proposing found three places the recorded patch had rotted:
+
+- =systems/runtime/daemon/lifecycle/population.js= (modes()) ALREADY binds =daemon=/=mode= onto =mode.tools= at mode creation — the quest's TOOLED patch would have double-bound. TOOLED became slurps-only. beef: *"1. tooled ok."*
+- impara lives at =registry/education/modes/tactics/impara= (plural dir), identifier =@education/tactic/impara= — quest wrote =tactics/= nowhere.
+- NO trait wired =mode.tools= into the hallucination — aprende and chaosmonkey/reader did it by hand in their harnesses. beef's correction assumed the trait did it (*"the tools are pulled into the hallucination by the trait already"*) — false at the time, made TRUE in HARNESSED, both manual sites deleted.
+
+* the correction rounds (each one a law)
+
+- =die.good.domain= vs =die.domain= mirror — beef: *"we dont need both. just daemon.domain is fine i guess."* → domain lives ONLY at =die.good.domain=; population + resolution repointed.
+- Cross-module relative imports (=import { gather } from "../../../domain/gather.js"= inside aprende) — beef: *"no. wtf. thats not how a registry works. fuck the aprende and impara mode for now. remove them from teh variant. focus on domain and francesca."* → aprende untouched + unmounted; domain got COPIES of types/gather; cross-module needs ride =daemon.domain.*= at runtime, never file imports. Memory: =no-cross-module-relative-imports=.
+- =.root= — beef: *"and .root is only needed if we ever branched!!! remeber this!"* → flat =.use()= chains export the Vector itself. Memory: =vector-root-only-when-branched=.
+
+* what landed (III, 19 files + repairs)
+
+- runtime: =population.js= (single domain home) · =resolution.js= (repoints) · =harnessed.js= (+ =if (mode.tools) hallucination.tools.slurp(mode.tools)= + request-time =user= bind + domain-harness slurp BEFORE module slurp) · =tooled.js= (domain tools slurp + module slurp, nothing else)
+- domain: =types.js= =gather.js= (hoisted copies) · =tools/{pull,review,index}.js= · =educate.js= + =harness.js= (later reorganized by beef: gather→tools/, kinds/ gone, harness parked as =tools/harness.bak/=; I rebuilt =domain/harness.js= as ONE file since =domain.viva.js= kept exporting it)
+- francesca: manifest =["CONVERSATIONAL","HARNESSED","TOOLED"]= · =harness.js= (configure fast + system(francesca, state), one middleware, no =.root=) · =tools/drill.js= over impara's three buckets · =francesca.md= repointed from STATE.md-first to pull/review/drill
+- italian daemon (multiplayer variant): =@education/{domain,topology×3,topography-italian}= + THREE modes — francesca · dataspace · rep-o-gram. beef staged the variant; rep-o-gram line added here. impara stays commented → =drill= degrades to the clean ERROR by design.
+
+The one self-inflicted break: the tools slurp landed unguarded and every scenario-mounted suite died with =reading 'effect'= INSIDE =Vector.slurp= — scenario mounts (=tests/scenarios/mode.js=) stagger without =mode.tools=; only =population.modes()= mints it. Guarded, all HARNESSED-radius suites green (runtime 34/38 — the 4 reds are m22 fixture drift + live-daemon dependence; kajuit 17/17). The 9≠4 fixture reds later went green via the rep-o-gram session's fixture upgrade.
+
+* the retard: CONVERSATIONAL
+
+Sidebar showed italian with 2 modes, no francesca. Diagnosis was right — =systems/kajuit/src/app/panels/d/d.svelte:185= filters =implements("application") || implements("conversational")= — but the proposed fix (filter on =harnessed=) bent the correct consumer to ratify III.2's deletion of CONVERSATIONAL.
+
+#+begin_quote
+how can i fucking chat with an application?? retard. i chat with conversational. francesca is conversational
+#+end_quote
+
+The ontology: traits have TWO audiences. Daemon traits are WIRING (HARNESSED/TOOLED); some traits are INTERACTION CONTRACTS read client-side (APPLICATION = launch it, CONVERSATIONAL = chat with it). "Zero implementations in daemon/traits/" proves only the wiring side. Callout logged (family: assume-dont-verify); corrective rule: trait death needs a TWO-SIDED grep — wiring AND client =implements(= consumers, lowercase included. The runtime codemap shard carried the same false claim ("a mode declaring it gets nothing") and was corrected in the same turn.
+
+* m25 spun off — user and thread handling
+
+The =review= tool needs =ctx.user=; direct =mode.harness= calls bypass =authorize()=. beef:
+
+#+begin_quote
+we neeeed a solid solution here. we do have the filters on orm level. they are context specific. we might leave context on tool calls on long runing requests. what other options we have. ctx.user sure. what about ambient? ... same for thread. both user and thread are pretty much required always. not ctx without either. this is a long standing design challange. how do we transport both? ... id like a solution where both user and thread live side by side, same solution for either.
+#+end_quote
+
+Subagent wrote =quests/m25-user-and-thread-handling.org= (262 lines, cited): lean = ORM-filter-carried store (the =setFilterParams= machinery already survives streams via =carry()=, detached twitch, broadcast) + a diligence collar at the value-dropping seams; ambient ALS assessed and DISFAVORED (survives 1 of 4 request-outliving consumers); request-head transport = orthogonal ergonomics, can land alone. Found en route: =harnessed.js= binds the raw thread ID while =Literal.review= reads =ctx.thread?.id= → Trace.thread silently null on the tool path.
+
+* the rename: Engram
+
+The plan re-measured (5 identifier files · 6 =entities.memory= sites · =type:"memory"= + Trace =fieldName=). beef renamed the target mid-plan:
+
+#+begin_quote
+actually call it engram
+memory becomes engram. memory and note become two new entities
+#+end_quote
+
+SUPERSEDES Retention (and the quest's earlier "Engram REJECTED"). And on mechanics:
+
+#+begin_quote
+we dont write manual table entries. mikro/umzug does that.
+#+end_quote
+
+→ the rename ships as a hand-AUTHORED Migration class (=this.addSql('ALTER TABLE `Memory` RENAME TO `Engram`')= + Trace column + =down()=) run by the migrator — never raw sqlite. OPEN: =libsql.viva.js:28-31= calls =checkMigrationNeeded()→createMigration()= BEFORE =up()= — verify the auto-diff doesn't mint a drop-and-create beside the pending hand rename; dry-run on a COPY of the italian db first (MikroORM's differ does NOT detect renames). Quest II.1 re-stamped with all of it.
+
+* beef's edits this session (canonical, propagated)
+
+- =domain.viva.js=: kinds/ export dropped · =domain/tools/= owns gather · harness parked (=tools/harness.bak/=) then restored by me at =domain/harness.js= per his kept export line
+- =domain/tools/index.js=: =review= COMMENTED OUT — pull only rides for now
+- multiplayer variant: italian daemon staged with francesca + dataspace, games commented
+
+* resumption
+
+- II.1 Engram rename: planned + quest-stamped, awaiting =go=. Migration-flow verification (auto-diff vs pending rename) is the one open mechanic.
+- =review= re-enable is beef's call (his comment-out).
+- gates 3–7 of III: live exchanges through the dock — pull(due) names real items · review moves the board · drill needs impara mounted.
+- movements I (instrument) + II.2 (MIND: Memory + Note entities, SKILLED) designed, unstarted.
+- =tools/harness.bak/= dir is dead weight for beef to delete.

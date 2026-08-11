@@ -1,12 +1,12 @@
 > ⚠️ ⚠️ ⚠️ ⚠️ ⚠️ ⚠️ ⚠️ ⚠️ ⚠️ ⚠️ ⚠️ ⚠️ ⚠️ ⚠️ ⚠️ ⚠️ ⚠️ ⚠️ ⚠️ ⚠️
 >
-> # **VCS IS READ-ONLY. READ-ONLY. READ-ONLY.**
-> # **GIT IS FORBIDDEN IN ANY FORM (even read). JJ IS READ-ONLY.**
-> # _(reconciled with `hooks/vcs-guard.sh`: git denied entirely; jj allows only `log`/`st`/`show`/`diff`/`op log`/`config get`.)_
+> # **VCS IS WRITE-PROTECTED. READING IS ENCOURAGED.**
+> # **READ git AND jj freely. NEVER WRITE EITHER.**
+> # _(enforced by `hooks/vcs-guard.sh`: both VCSs allowlist their read surface and deny every mutation.)_
 >
 > **NEVER run mutating `git` or `jj` commands. NOT EVER. NOT WITH "go". NOT WITH "fix". NOT WITH "cleanup". NOT FOR RECOVERY. NOT TO UNDO A PRIOR MISTAKE.**
 >
-> **Read-only allowed (these only):** `jj log` · `jj st` · `jj op log` · `jj show` · `jj diff` · `jj config get` · plain `ls` / `find` / `cat` / `Read` tool.
+> **Read freely — beef does, constantly** (*"i want you to read jj/git vcs !!! i use that all the time. just no write!"*): `git log` · `git status` · `git show` · `git diff` · `git blame` · `git ls-files` · `git rev-parse` · `jj log` · `jj st` · `jj op log` · `jj show` · `jj diff` · `jj config get` · plain `ls` / `find` / `cat` / `Read` tool. Use them to answer questions about history instead of guessing.
 >
 > **NEVER under any circumstance, with or without "go":** `jj rebase` · `jj describe` · `jj new` · `jj edit` · `jj abandon` · `jj squash` · `jj split` · `jj restore` · `jj op restore` · `jj op undo` · `jj git push` · `jj git fetch` · `jj git import` · `jj bookmark` · `git commit` · `git push` · `git pull` · `git rebase` · `git reset` · `git checkout` · `git branch` · `git filter-repo` · `git remote add/remove` · `rm -rf .jj` · `rm -rf .git` · ANY mutation.
 >

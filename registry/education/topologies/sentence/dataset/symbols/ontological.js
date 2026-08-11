@@ -2,7 +2,7 @@ export default [
   {
     slug: "sentence",
     traits: ["ONTOLOGICAL", "LABELED", "TOPOGRAPHICAL"],
-    data: {
+    trait: {
       ONTOLOGICAL: {},
       LABELED: { name: "Sentence", description: "A sentence" },
       TOPOGRAPHICAL: {},
@@ -12,7 +12,7 @@ export default [
   {
     slug: "sentence.force.declarative",
     traits: ["ONTOLOGICAL", "LABELED"],
-    data: {
+    trait: {
       ONTOLOGICAL: {},
       LABELED: {
         name: "Declarative",
@@ -23,7 +23,7 @@ export default [
   {
     slug: "sentence.force.interrogative",
     traits: ["ONTOLOGICAL", "LABELED"],
-    data: {
+    trait: {
       ONTOLOGICAL: {},
       LABELED: {
         name: "Interrogative",
@@ -34,7 +34,7 @@ export default [
   {
     slug: "sentence.force.imperative",
     traits: ["ONTOLOGICAL", "LABELED"],
-    data: {
+    trait: {
       ONTOLOGICAL: {},
       LABELED: {
         name: "Imperative",
@@ -45,7 +45,7 @@ export default [
   {
     slug: "sentence.force.exclamative",
     traits: ["ONTOLOGICAL", "LABELED"],
-    data: {
+    trait: {
       ONTOLOGICAL: {},
       LABELED: {
         name: "Exclamative",
@@ -57,7 +57,7 @@ export default [
   {
     slug: "sentence.force.optative",
     traits: ["ONTOLOGICAL", "LABELED"],
-    data: {
+    trait: {
       ONTOLOGICAL: {},
       LABELED: {
         name: "Optative",
@@ -70,7 +70,7 @@ export default [
   {
     slug: "sentence.finiteness.finite",
     traits: ["ONTOLOGICAL", "LABELED"],
-    data: {
+    trait: {
       ONTOLOGICAL: {},
       LABELED: {
         name: "Finite",
@@ -82,7 +82,7 @@ export default [
   {
     slug: "sentence.finiteness.infinitival",
     traits: ["ONTOLOGICAL", "LABELED"],
-    data: {
+    trait: {
       ONTOLOGICAL: {},
       LABELED: {
         name: "Infinitival",
@@ -94,7 +94,7 @@ export default [
   {
     slug: "sentence.finiteness.participial",
     traits: ["ONTOLOGICAL", "LABELED"],
-    data: {
+    trait: {
       ONTOLOGICAL: {},
       LABELED: {
         name: "Participial",
@@ -105,7 +105,7 @@ export default [
   {
     slug: "sentence.finiteness.gerundial",
     traits: ["ONTOLOGICAL", "LABELED"],
-    data: {
+    trait: {
       ONTOLOGICAL: {},
       LABELED: {
         name: "Gerundial",
@@ -118,7 +118,7 @@ export default [
   {
     slug: "sentence.mood.indicative",
     traits: ["ONTOLOGICAL", "LABELED"],
-    data: {
+    trait: {
       ONTOLOGICAL: {},
       LABELED: { name: "Indicative", description: "Presents the proposition as factual or real." },
     },
@@ -126,7 +126,7 @@ export default [
   {
     slug: "sentence.mood.subjunctive",
     traits: ["ONTOLOGICAL", "LABELED"],
-    data: {
+    trait: {
       ONTOLOGICAL: {},
       LABELED: {
         name: "Subjunctive",
@@ -137,7 +137,7 @@ export default [
   {
     slug: "sentence.mood.conditional",
     traits: ["ONTOLOGICAL", "LABELED"],
-    data: {
+    trait: {
       ONTOLOGICAL: {},
       LABELED: {
         name: "Conditional",
@@ -148,7 +148,7 @@ export default [
   {
     slug: "sentence.mood.imperative",
     traits: ["ONTOLOGICAL", "LABELED"],
-    data: {
+    trait: {
       ONTOLOGICAL: {},
       LABELED: {
         name: "Imperative",
@@ -159,7 +159,7 @@ export default [
   {
     slug: "sentence.mood.jussive",
     traits: ["ONTOLOGICAL", "LABELED"],
-    data: {
+    trait: {
       ONTOLOGICAL: {},
       LABELED: {
         name: "Jussive",
@@ -173,7 +173,7 @@ export default [
   {
     slug: "sentence.tense.present",
     traits: ["ONTOLOGICAL", "LABELED"],
-    data: {
+    trait: {
       ONTOLOGICAL: {},
       LABELED: {
         name: "Present",
@@ -184,7 +184,7 @@ export default [
   {
     slug: "sentence.tense.past",
     traits: ["ONTOLOGICAL", "LABELED"],
-    data: {
+    trait: {
       ONTOLOGICAL: {},
       LABELED: { name: "Past", description: "Event precedes the moment of speech." },
     },
@@ -192,7 +192,7 @@ export default [
   {
     slug: "sentence.tense.future",
     traits: ["ONTOLOGICAL", "LABELED"],
-    data: {
+    trait: {
       ONTOLOGICAL: {},
       LABELED: { name: "Future", description: "Event follows the moment of speech." },
     },
@@ -200,7 +200,7 @@ export default [
   {
     slug: "sentence.tense.imperfect",
     traits: ["ONTOLOGICAL", "LABELED"],
-    data: {
+    trait: {
       ONTOLOGICAL: {},
       LABELED: {
         name: "Imperfect",
@@ -211,7 +211,7 @@ export default [
   {
     slug: "sentence.tense.pluperfect",
     traits: ["ONTOLOGICAL", "LABELED"],
-    data: {
+    trait: {
       ONTOLOGICAL: {},
       LABELED: {
         name: "Pluperfect",
@@ -224,7 +224,7 @@ export default [
   {
     slug: "sentence.aspect.perfective",
     traits: ["ONTOLOGICAL", "LABELED"],
-    data: {
+    trait: {
       ONTOLOGICAL: {},
       LABELED: {
         name: "Perfective",
@@ -235,7 +235,7 @@ export default [
   {
     slug: "sentence.aspect.imperfective",
     traits: ["ONTOLOGICAL", "LABELED"],
-    data: {
+    trait: {
       ONTOLOGICAL: {},
       LABELED: {
         name: "Imperfective",
@@ -246,7 +246,7 @@ export default [
   {
     slug: "sentence.aspect.progressive",
     traits: ["ONTOLOGICAL", "LABELED"],
-    data: {
+    trait: {
       ONTOLOGICAL: {},
       LABELED: {
         name: "Progressive",
@@ -259,7 +259,7 @@ export default [
   {
     slug: "sentence.polarity.positive",
     traits: ["ONTOLOGICAL", "LABELED"],
-    data: {
+    trait: {
       ONTOLOGICAL: {},
       LABELED: { name: "Positive", description: "The proposition is affirmed." },
     },
@@ -267,7 +267,7 @@ export default [
   {
     slug: "sentence.polarity.negative",
     traits: ["ONTOLOGICAL", "LABELED"],
-    data: {
+    trait: {
       ONTOLOGICAL: {},
       LABELED: { name: "Negative", description: "The proposition is denied or reversed." },
     },
@@ -277,7 +277,7 @@ export default [
   {
     slug: "sentence.voice.active",
     traits: ["ONTOLOGICAL", "LABELED"],
-    data: {
+    trait: {
       ONTOLOGICAL: {},
       LABELED: {
         name: "Active",
@@ -288,7 +288,7 @@ export default [
   {
     slug: "sentence.voice.passive",
     traits: ["ONTOLOGICAL", "LABELED"],
-    data: {
+    trait: {
       ONTOLOGICAL: {},
       LABELED: {
         name: "Passive",
@@ -299,7 +299,7 @@ export default [
   {
     slug: "sentence.voice.middle",
     traits: ["ONTOLOGICAL", "LABELED"],
-    data: {
+    trait: {
       ONTOLOGICAL: {},
       LABELED: {
         name: "Middle",
@@ -313,7 +313,7 @@ export default [
   {
     slug: "sentence.interrogative-type.polar",
     traits: ["ONTOLOGICAL", "LABELED"],
-    data: {
+    trait: {
       ONTOLOGICAL: {},
       LABELED: {
         name: "Polar",
@@ -324,7 +324,7 @@ export default [
   {
     slug: "sentence.interrogative-type.content",
     traits: ["ONTOLOGICAL", "LABELED"],
-    data: {
+    trait: {
       ONTOLOGICAL: {},
       LABELED: {
         name: "Content",
@@ -335,7 +335,7 @@ export default [
   {
     slug: "sentence.interrogative-type.alternative",
     traits: ["ONTOLOGICAL", "LABELED"],
-    data: {
+    trait: {
       ONTOLOGICAL: {},
       LABELED: {
         name: "Alternative",
@@ -348,7 +348,7 @@ export default [
   {
     slug: "sentence.wh-element.what",
     traits: ["ONTOLOGICAL", "LABELED"],
-    data: {
+    trait: {
       ONTOLOGICAL: {},
       LABELED: { name: "What", description: "Questions a thing, fact, or action." },
     },
@@ -356,7 +356,7 @@ export default [
   {
     slug: "sentence.wh-element.who",
     traits: ["ONTOLOGICAL", "LABELED"],
-    data: {
+    trait: {
       ONTOLOGICAL: {},
       LABELED: { name: "Who", description: "Questions a person or agent." },
     },
@@ -364,7 +364,7 @@ export default [
   {
     slug: "sentence.wh-element.where",
     traits: ["ONTOLOGICAL", "LABELED"],
-    data: {
+    trait: {
       ONTOLOGICAL: {},
       LABELED: { name: "Where", description: "Questions a location or destination." },
     },
@@ -372,7 +372,7 @@ export default [
   {
     slug: "sentence.wh-element.when",
     traits: ["ONTOLOGICAL", "LABELED"],
-    data: {
+    trait: {
       ONTOLOGICAL: {},
       LABELED: { name: "When", description: "Questions a time or temporal frame." },
     },
@@ -380,7 +380,7 @@ export default [
   {
     slug: "sentence.wh-element.how",
     traits: ["ONTOLOGICAL", "LABELED"],
-    data: {
+    trait: {
       ONTOLOGICAL: {},
       LABELED: { name: "How", description: "Questions a manner, degree, or means." },
     },
@@ -388,7 +388,7 @@ export default [
   {
     slug: "sentence.wh-element.why",
     traits: ["ONTOLOGICAL", "LABELED"],
-    data: {
+    trait: {
       ONTOLOGICAL: {},
       LABELED: { name: "Why", description: "Questions a cause, reason, or purpose." },
     },
@@ -396,7 +396,7 @@ export default [
   {
     slug: "sentence.wh-element.which",
     traits: ["ONTOLOGICAL", "LABELED"],
-    data: {
+    trait: {
       ONTOLOGICAL: {},
       LABELED: { name: "Which", description: "Questions a selection from a known or implied set." },
     },
@@ -406,7 +406,7 @@ export default [
   {
     slug: "sentence.evidentiality.direct",
     traits: ["ONTOLOGICAL", "LABELED"],
-    data: {
+    trait: {
       ONTOLOGICAL: {},
       LABELED: { name: "Direct", description: "The speaker witnessed the event firsthand." },
     },
@@ -414,7 +414,7 @@ export default [
   {
     slug: "sentence.evidentiality.reported",
     traits: ["ONTOLOGICAL", "LABELED"],
-    data: {
+    trait: {
       ONTOLOGICAL: {},
       LABELED: {
         name: "Reported",
@@ -425,7 +425,7 @@ export default [
   {
     slug: "sentence.evidentiality.inferred",
     traits: ["ONTOLOGICAL", "LABELED"],
-    data: {
+    trait: {
       ONTOLOGICAL: {},
       LABELED: {
         name: "Inferred",
@@ -438,7 +438,7 @@ export default [
   {
     slug: "sentence.politeness.informal",
     traits: ["ONTOLOGICAL", "LABELED"],
-    data: {
+    trait: {
       ONTOLOGICAL: {},
       LABELED: { name: "Informal", description: "Familiar register. Tu/você imperative form." },
     },
@@ -446,7 +446,7 @@ export default [
   {
     slug: "sentence.politeness.polite",
     traits: ["ONTOLOGICAL", "LABELED"],
-    data: {
+    trait: {
       ONTOLOGICAL: {},
       LABELED: {
         name: "Polite",
@@ -457,7 +457,7 @@ export default [
   {
     slug: "sentence.politeness.formal",
     traits: ["ONTOLOGICAL", "LABELED"],
-    data: {
+    trait: {
       ONTOLOGICAL: {},
       LABELED: { name: "Formal", description: "Formal register. O senhor / a senhora address." },
     },

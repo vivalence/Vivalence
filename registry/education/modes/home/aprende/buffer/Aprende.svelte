@@ -3,7 +3,7 @@
   import Helpdesk from "./Helpdesk.svelte";
   import Roster from "./Roster.svelte";
   import Actions from "./Actions.svelte";
-  import Memory from "./Memory.svelte";
+  import Retention from "./Retention.svelte";
   import Activity from "./Activity.svelte";
   import Ranks from "./Ranks.svelte";
 
@@ -54,9 +54,9 @@
   <!-- ── actions ── -->
   <Actions {terminal} {buffer} />
 
-  <!-- ── stats · memory + ranks (left) · scatter (right) ── -->
+  <!-- ── stats · retention + ranks (left) · scatter (right) ── -->
   <div class="stats-row">
-    <div class="cell cell-memory"><Memory {board} /></div>
+    <div class="cell cell-retention"><Retention {board} /></div>
     <div class="cell cell-scatter"><Activity {board} {streak} /></div>
     <div class="cell cell-ranks"><Ranks {board} /></div>
   </div>
@@ -91,14 +91,14 @@
     display: grid;
     grid-template-columns: 2fr 3fr;
     grid-template-rows: auto 1fr;
-    grid-template-areas: "memory scatter" "ranks scatter";
+    grid-template-areas: "retention scatter" "ranks scatter";
     gap: 1.5rem 2.25rem;
   }
   .cell {
     min-width: 0;
   }
-  .cell-memory {
-    grid-area: memory;
+  .cell-retention {
+    grid-area: retention;
   }
   .cell-ranks {
     grid-area: ranks;
@@ -110,7 +110,7 @@
     .stats-row {
       grid-template-columns: 1fr;
       grid-template-rows: auto;
-      grid-template-areas: "memory" "scatter" "ranks";
+      grid-template-areas: "retention" "scatter" "ranks";
     }
   }
 </style>

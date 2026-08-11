@@ -1,15 +1,15 @@
 import { types, EntitySchema, type Opt, type Rel } from "@mikro-orm/core";
 
-import { DataEntity, DataSchema } from "@vivalence/typology/entities";
-import { UserEntity, ModeEntity, ThreadEntity } from "@vivalence/typology/entities";
+import { DataEntity, DataSchema } from "@vivalence/runtime";
+import { UserEntity, ModeEntity, ThreadEntity } from "@vivalence/runtime";
 
 import { LiteralEntity } from "../kernel/Literal.ts";
-import { MemoryEntity } from "./Memory.ts";
+import { RetentionEntity } from "./Retention.ts";
 
 export class TraceEntity extends DataEntity {
   user!: Rel<UserEntity>;
   literal!: Rel<LiteralEntity>;
-  memory!: Rel<MemoryEntity>;
+  retention!: Rel<RetentionEntity>;
   mode?: Rel<ModeEntity>;
   thread?: Rel<ThreadEntity>;
 
@@ -43,10 +43,10 @@ export const TraceSchema = new EntitySchema<TraceEntity, DataEntity>({
       updateRule: "cascade",
       deleteRule: "cascade",
     },
-    memory: {
+    retention: {
       kind: "m:1",
-      entity: () => MemoryEntity,
-      fieldName: "memory",
+      entity: () => RetentionEntity,
+      fieldName: "retention",
       updateRule: "cascade",
       deleteRule: "cascade",
     },

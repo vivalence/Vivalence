@@ -36,13 +36,38 @@ export class Vip {
 
   // testament/ledger/registry.json is the record of package locations. Absent →
   // seeded by discovery over scope.registry (self-priming, no init ceremony).
-  // Locations resolve through paladin.source — absolute, ./cwd, {file,source}, bare segment.
+  // References resolve through ledger.registry — absolute verbatim, relative to the store root.
   async supply() {
     await this.paladin.ledger.mount(); // fn.once — self-priming, no boot-order landmine
     const locations = await this.paladin.ledger.registry.read()
       ?? await this.paladin.ledger.registry.seed(this.paladin.scope.registry);
-    for (const location of locations) await this.mount(this.paladin.source(location));
+    for (const location of locations) await this.mount(this.paladin.ledger.registry.resolve(location));
     return this;
+  }
+
+  // tap = materialize + record. Mount is runtime's job — supply() folds the record at boot.
+  async tap(source) {
+    await this.paladin.ledger.mount();
+    let reference = source;
+    if (/^(https?:|git@|ssh:)/.test(source)) {
+      if (!this.paladin.scope.registry)
+        throw new Error(`[VIP] tap ${source}: no package store — a remote tap clones into scope.registry (set VIVA_REGISTRY_MOUNT)`);
+      const slug = source.split("/").at(-1).replace(/\.git$/, "");
+      await this.paladin.clone(source, this.paladin.scope.registry.branch(slug));
+      reference = slug;
+    }
+    const root = this.paladin.ledger.registry.resolve(reference);
+    const declarations = await this.paladin.find.type(root, "package");
+    if (!declarations.length)
+      throw new Error(`[VIP] tap ${source}: no package declaration (manifest.type "package") under ${root.absolute}`);
+    await this.paladin.ledger.registry.add(reference);
+    return reference;
+  }
+
+  // untap = record removal ONLY — the store keeps the working copy; next supply() simply omits it.
+  async untap(reference) {
+    await this.paladin.ledger.mount();
+    return await this.paladin.ledger.registry.remove(reference);
   }
 
   async list(query = {}) {

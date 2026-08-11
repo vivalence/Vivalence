@@ -19,13 +19,13 @@ export const emitter = new Vector().open(
     span.note({ render }).close();
 
     const buffer = vision.app.buffer({
-      data: { prompt: ctx.input.prompt, ...render.object },
+      data: { prompt: ctx.input.prompt, ...render.output.object },
     });
 
     ctx.pool.add(buffer);
 
     console.log({ render, span: span.records, buffer });
 
-    return { span: span.records, object: render.object };
+    return { span: span.records, object: render.output.object };
   },
 );

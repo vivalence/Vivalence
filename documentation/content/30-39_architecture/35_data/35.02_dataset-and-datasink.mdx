@@ -1,0 +1,174 @@
+---
+title: Dataset & Datasink
+jdex: "35.02"
+summary: The two one-way paths between registry files and daemon entities — install brings data in, drain writes it back out — and why neither is a sync.
+---
+
+# 35.02 · Dataset & Datasink
+
+*a module declares where its rows come FROM and where they go BACK TO; the carriers hold only declarations, paladin does the filesystem, and the traits wire the two together. the entity model both move is [[35.01_symbols-and-literals]].*
+
+## purpose
+
+A daemon's dataspace is populated from files in the registry. That direction has always existed — it is `DATASET`, and it runs once at install. The other direction did not: enrichment that happens *inside* the daemon (harvested candidates, agentic annotation, minted lemma symbols, rank corrections) lived only in the sqlite file and died with it.
+
+`DATASINK` is that second direction. Draining makes the registry the durable, versioned, travelling home of the data, and the daemon merely working memory.
+
+They are **not** a sync. Two one-way operations at different times, with no reconciliation, ever:
+
+| operation | truth    | shape                       |
+|-----------|----------|-----------------------------|
+| install   | registry | idempotent upsert           |
+| drain     | daemon   | wholesale scoped projection |
+
+```
+  registry files ──DATASET(install)──▶ daemon entities
+        ▲       paladin.find/read            │
+        │                                    │ writes (harvest, agentic, mint)
+        │                                    │
+        │                          twitch /after/{type}/{op}
+        │                                    │ debounce 1500ms
+        │                                    ▼
+        └──────DATASINK(drain)───── row → match → shape → strata → scribe
+                                                              paladin.state
+```
+
+## the seam
+
+Three layers, and the boundary between them is the whole design:
+
+- **typology CARRIES** — `Dataset` and `Datasink` are pure declarations plus pure row algebra. Nothing under `prototypes/` touches `Deno.*`; that is provable rather than argued (`grep -n "Deno\." subsystems/typology/prototypes/*.js` returns nothing).
+- **paladin does the OS** — the walk, the codec dispatch, the atomic write.
+- **the trait WIRES** — reads the carrier, calls paladin, holds the runtime state.
+
+This is the same shape as `Bundle` ← `paladin.bundler` ← `APPLICATION`. A registry module imports `Dataset` without ever seeing paladin.
+
+The rule earns its keep in a specific way: a carrier that could read a file would be a carrier that behaves differently depending on where it is constructed. Keeping it declarative means the same object can be inspected by a test, serialized to a snapshot, or handed to a daemon, and it means the same thing every time.
+
+## DATASET — the declaration face
+
+A source is a mount-relative string, a directory string, or an inline row array. Every topography in the registry says exactly this:
+
+```javascript
+import { Dataset, Freight } from "@vivalence/typology";
+
+export const manifest = {
+  type: "topography",
+  slug: "english-to-italian",
+  name: "Italian Vocabulary",
+  version: "0.2.0",
+  traits: ["DATASET", "FRAUGHT"],
+};
+
+export const dataset = new Dataset({
+  symbol: "dataset/symbols",
+  literal: "dataset/literals",
+});
+```
+
+Two lines cover 15 files, because `paladin.find.data` walks recursively, dispatches a codec per extension, skips `bak` / `archive` / `slp` like every other walk in the system, and **skips `index.js`** — so an aggregator can never double-count. That last skip is why the aggregators are gone: the walk replaced them.
+
+Each declared value lifts to one of three descriptors:
+
+```javascript
+reader.dir("literals")            // → { walk: "literals" }
+reader.json("symbols/lemmas.json")// → { read: …, codec: "json" }
+reader.rows([{ slug: "x" }])      // → { rows: [...] }
+```
+
+A bare string lifts by extension; an array of strings is a source *list*; anything else is one source. So an inline row array stays whole:
+
+```javascript
+export const dataset = new Dataset({
+  symbol: [
+    {
+      slug: "conjugation",
+      traits: ["ONTOLOGICAL", "LABELED", "TOPOGRAPHICAL"],
+      trait: { LABELED: { name: "Conjugation", description: "A conjugation paradigm" } },
+    },
+  ],
+});
+```
+
+Legacy `{ schema, entities }` still lifts free, so a module written before the descriptors keeps working unchanged. `schema` is accepted and discarded — it is a reserved key with no readers.
+
+Install is a batched upsert (chunk 100) per type, then a link pass in both directions. Two behaviors worth knowing:
+
+- **mint by reference.** A `symbols: [{ slug: "word.lemma.casa" }]` reference whose target is declared in no file creates that symbol. On italian this mints 2381 lemma symbols that exist in the database and in no file — the concrete reason the sink exists.
+- **duplicate slugs fold.** A row legitimately split across two facets is authored once per facet; install folds by slug before upserting and logs the count, because `upsert` is `findOne` + `create` and both copies would otherwise land in the same unflushed chunk and hit `UNIQUE constraint failed`.
+
+`DATASPACE` is `{symbol, literal}`. A module declaring any other entity type — or a user-scoped one — throws at install.
+
+## DATASINK — the declaration face
+
+A sink is a tuple `(selector, projection?, target)`, arity-detected, normalized to `{type, where, match, shape, target}`:
+
+```javascript
+export const datasink = new Datasink({
+  symbol: [
+    [{ slug: { $like: "word.lemma.%" } },
+      project.refs("literals", [[true, project.slug]]),
+      "dataset/symbols/lemmas.json"],
+    [{ traits: ["STRUCTURAL"] }, project.omit("literals"), "dataset/symbols/structural.json"],
+  ],
+  literal: [
+    ["sentence", "dataset/literals/sentences.json"],
+    ["word", writer.split("word.part-of-speech.%", "dataset/literals/words/%.json")],
+  ],
+});
+```
+
+**`%` is the one wildcard**, in the selector and in the target alike — `$like: "word.lemma.%"` selects, `writer.split("word.part-of-speech.%", "…/%.json")` partitions and binds the capture into the path. There is no second glob vocabulary.
+
+The selector goes to **two** places — `repo.find` on the database and a compiled predicate in memory. `belt.query` is what keeps them honest: `query.lift(selector)` normalizes string / array / null / true / object into one MikroORM-shaped query, and `query.where` compiles *that* into a row predicate. The carrier stores the lift, never the sugar, because `repo.find("word")` is read as a primary key and silently matches nothing. Operators are one-to-one with `@mikro-orm/core` — an invented one is a divergence that drains the wrong rows in silence.
+
+Dispatch is **shotgun**: every matching sink receives the row. Partition emerges from disjoint selectors rather than being enforced, and overlap is a feature — italian's 30 contractions carry both `adposition` and `determiner`, bind two captures, and are written to both files. Only a duplicate *target* within one declaration throws, and it throws in the constructor.
+
+Writing is a codec table, open for extension:
+
+```javascript
+writer.codec = { json, js, jsonl }        // Datasink.canonical dispatches through it
+writer.authored = ["slug", "traits", "trait"]   // the default keep-list
+writer.json(target, keep)                 // any target may override it
+```
+
+The keep-list is why an emitted row reads like an authored one. A drained entity otherwise carries every column the ORM reports — `in`, `uses`, `symbol`, `ontology` — none of which any author has ever typed. `Datasink.canonical` additionally sorts by slug, sorts keys recursively, and prunes empty values.
+
+**A write codec without a matching read path is a one-way door.** `paladin.find.data` reads all three, and `subsystems/paladin/tests/corpus.test.js` round-trips every registered codec back through it to prove there isn't one.
+
+## the drain
+
+The trait assembles the drain and hangs it on the carrier:
+
+```javascript
+const report = await mode.datasink.drain({ all: true });
+// → { drained: ["symbol", "literal"], written: 12, orphans: { symbol: 156, literal: 0 } }
+```
+
+It lives on `mode.datasink`, not on `mode` — the mode does not own that verb, the sink does. There is no aperture and no route; remote drainage would be one `EXPOSED` line if a mode ever wanted it.
+
+Three pieces of runtime state sit in the trait, and each exists for a reason:
+
+- **`armed`** is set by the trait's *finalizer*, not at install. The install storm's own writes must not mark anything dirty, or the daemon would drain the corpus it just read.
+- **`dirty`** is a set of entity *types*, not rows. A dirty type is rewritten wholesale, which is what makes partition-migration staleness impossible — move a row between facets and both files are regenerated from the database.
+- **`flight`** memoizes the in-flight drain so concurrent triggers collapse into one.
+
+Writes reach it through a twitch at `/after/{type}/{op}` — phase first, so lane middleware can attach at `twitch.branch("/after")` — debounced 1500ms. `drain({})` with an empty dirty set drains everything (`input.all || !dirty.size`), so a manual call is a full drain while the twitch path stays incremental.
+
+The trait returns `{finalize, terminate}`. `terminate` cancels the pending settle and lands on `mode.terminators`, which `daemon/die.js` runs **before** `datamap.disintegrate()` — teardown has to happen while the connection is still alive, or a settle fires into a closed datamap and throws a `DriverException` nobody catches.
+
+`orphans` is a census, not an error: rows in the database that no sink claimed. On italian the expected figure is 156, and it has a name — the symbols owned by `topologies/{word,sentence,conjugation}`, which have their own datasets and will have their own sinks. A topography must not claim another package's rows.
+
+## the fixpoint
+
+`file = fn(DB)`. A second drain over unchanged state must write nothing, because `paladin.state.scribe` writes atomically (tmp + rename) and only when the bytes differ, and `Datasink.canonical` is deterministic. `written: 0` on the second pass is the whole claim, and it is what `systems/runtime/tests/datasink.roundtrip.test.js` proves — four generations, authored `.js` → `gen1/*.json` → `gen2/*.js` → `gen3/*.json` → `gen4/*.js`, each installing a fresh daemon from its predecessor's emitted corpus, asserting that all four dataspaces are byte-identical and that the two vantages differ by the codec envelope alone.
+
+One constraint falls out of this and is a data-authoring rule rather than a bug: cross-references project to slug. Enrichment attached to a reference *from the far side* does not survive the round trip, so enriched references must live on their owning side.
+
+## status
+
+`DATASET` is declared by **nine** modules — four topographies, three education topologies, two in the young-lady's-primer package.
+
+`DATASINK` is declared by **none**. The trait, the carrier, the drain and its gates are built and green, but no module exports a `datasink`, so on a booted daemon today `mode.datasink` is undefined, no twitch is opened, and nothing is written. The fixpoint is proven in-memory against a fixture topography and has never run at a real corpus's scale.
+
+Read next: [[35.01_symbols-and-literals]] · [[34.02_trait-catalog]] · [[42.06_shard]].

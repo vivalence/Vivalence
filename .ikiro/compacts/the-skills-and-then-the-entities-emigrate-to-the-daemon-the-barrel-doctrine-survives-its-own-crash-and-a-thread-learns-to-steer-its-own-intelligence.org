@@ -1,0 +1,216 @@
+#+title: the skills and then the entities emigrate to the daemon, the barrel doctrine survives its own crash, and a thread learns to steer its own intelligence
+#+filetags: :skills:entities:emigration:barrel:daemon:runtime:INTELLIGENT:thread-trait:e-panel:harness:
+
+* the arc
+
+One question — "what is the issue with the vector tools in belt?" — unwound into two
+package emigrations, a doctrine reversal, and the first thread-configured hallucination.
+The session's through-line: every fix was an OWNERSHIP move, not a mechanism patch.
+
+* the thunk dies by categoric no
+
+I re-explained the vite SSR crash and defended the memoized-thunk fix. Beef:
+
+#+begin_quote
+let vector;
+export const buffer = () => (vector ??= new Vector().open(...));
+no.
+categoric no.
+
+i dont understand why propper @typology package internal relative imports dont resolve
+this? we dont have to go down to file level, i suspect reasonably corse inndex.js imports
+should work?
+#+end_quote
+
+He was right and my earlier "the import doctrine doesn't fix it" was measured at the WRONG
+GRANULARITY — I had tested only the leaf. Applied to the whole chain (4 files) relative
+imports do fix the crash; the trap is that a sub-index is safe only if it doesn't reach
+back into =prototypes/= (=belt/index.js= fails purely because =skill= lived under it).
+
+Then the reversal that mattered more:
+
+#+begin_quote
+i might actually like teh internal barrel imports again.
+aka this might be a good: [the cycle is] downgraded from actively crashing to latent with
+no known trigger.
+#+end_quote
+
+*RULED: typology's internal self-barrel imports STAY.* No relative sweep, no
+=prototypes/=-never-imports-up law, no guardrail test (also: "no inline tests"). The
+62-file cycle is the accepted resting state — latent, zero eval-time work inside it.
+
+* skills find their owner
+
+#+begin_quote
+maybe the skills deserve their own @package? maybe they should be daemon internal? maybe
+paladin internal??!! hhhhmmmm
+#+end_quote
+
+The tell was in the code: precondition =daemon.entities?.buffer=, body
+=ctx.daemon.entities.buffer.find=, sole consumer a daemon trait. Typology owns the buffer
+SCHEMA; the daemon owns the buffer REPOSITORY; a skill needs the repository. Beef:
+
+#+begin_quote
+daemon skills. yep. we'll have daemon skills, paladin skills, and ghost skills. makes more
+sense.
+#+end_quote
+
+Landed: =gestalten/belt/skill/= → =systems/runtime/daemon/skills/= (plural, matching
+=traits/=). Thunks DELETED — module-scope =new Vector()= restored, because the daemon sits
+downstream of the barrel like the 28 registry modules that always did this safely.
+=harnessed.js= imports =../skills/index.js=, slurps =skills.buffer= (no call).
+
+The law that replaced the thunk law: *daemon-dependent effects don't live in typology* — a
+layering rule that enforces itself, instead of a construction rule someone must remember.
+
+* the entities follow — assessment, then "just do"
+
+#+begin_quote
+do an assessment on the following question. should we move the entities from @typology to
+@runtime?
+#+end_quote
+
+Measured verdict: yes, same cut as the skills. =mod.client.js= already excluded entities
+(server-only de facto); all 16 =@mikro-orm= importers in typology were =entities/*=;
+consumers were runtime + registry only, kajuit/ghost ZERO. =schematics/entities/= (wire
+nouns) stays — the noun's contract is typology's, its mikro reification is the daemon's.
+Beef: "Go on task a. no quest needed. just do."
+
+Landed: =entities/= → =systems/runtime/daemon/entities/= beside =daemon/skills/=. Eleven
+tests + the datamap scenario emigrated with them (typology 120→109, runtime 38→49 — the
+delta is exactly the migrants). Registry domain extensions, fixtures, lighthouse rewritten.
+Typology's mikro footprint: ONE file (=gestalten/shard/secure.js=).
+
+Mid-sweep beef reshaped the export surface:
+
+#+begin_quote
+export entities from {e...} from @vivalence/runtime
+scenario is special case internal testiiiing
+#+end_quote
+
+So: main barrel (=@vivalence/runtime=), subpath dropped; =/scenarios= stays subpath as the
+blessed special case. Deno eval confirmed no star-export collisions on the sampled names —
+and then the LIVE WATCHER found the one the sample missed.
+
+* the watcher catches what the sample didn't
+
+Beef's runtime watcher crash-looped on boot:
+=Cannot read properties of undefined (reading 'ensure')= at lighthouse =expose()=. Root
+cause: =mod.js= explicitly exports =daemon= (the namespace), and an explicit export
+SHADOWS a star export — so lighthouse's =import { daemon }= (the entity schema) silently
+received the namespace. Only lowercase-generic schema names can collide, and only =daemon=
+overlapped; =literal=/=symbol=/=buffer= importers were clean. Fix: lighthouse takes
+=sets.network.{identity,daemon}=. Verified =sets.network.daemon= → =DaemonEntity=.
+
+The lesson the sample-check missed: with =export *= vs explicit exports, absence of an
+ERROR is not absence of a COLLISION — the loser is silently shadowed, not reported.
+
+* task B — the thread steers its own intelligence
+
+#+begin_quote
+draw up one of the most obvious derivatives of our conclusion that hte harness/
+hallucionation is a product of the thread. namely that we start keeping data to configure
+the hallucination on the thread. thread has traits. traits store data. i am thinking we
+should start with the model, thinking modes, stuff like that. the loop goes: daemon
+metadata exposes cortex -> pulled to client -> ui for writing that to thread -> thread
+gets read at the root of hallucination -> middlewares can change hallucination to
+whatever. perfect flow.
+#+end_quote
+
+Three of the four legs were already built (cortex stripwired to the client; thread dossier
+writes; keyed-layers override). Naming: CONVERSATION rejected three ways (noun in an
+adjective register · third meaning on the CONVERSATIONAL stem · FALSE SCOPING — the dock is
+a view of the thread, not a config domain; the m26 projection principle demands the config
+ride dialogue/object/speech alike). *INTELLIGENT* chosen; beef: "ok. amen. lets do this."
+
+His second pass sharpened all four edges:
+
+#+begin_quote
+but do another pass on the content and shape of the intelligent thread trait. whast the
+schematics here? and then look at the requirements and how we will implement them in
+kajuit? we probably want reactivity? do we have that on thread.trait or
+thread.trait.INTELLIGENT level?
+
+and for: policy: { ...config, ...thread?.trait?.INTELLIGENT, ...(tune && { tune }) },
+-- this is too broad.
+
+also, if we open the policy up, we should start v.validating
+#+end_quote
+
+Answers that landed:
+- *Schematics*: =INTELLIGENT = v.object({ tune: union([Tier,Tune])?, effort:
+  enum(low|medium|high)? })= — ON THE THREAD ENTITY (=schematics/entities/thread.js=,
+  beside its descriptor; my first placement in =primitives/hallucination.js= was wrong:
+  "wrong. trait. entity thread trait iq..."). No rounds/backoff — loop mechanics are not
+  user preferences.
+- *Projection*: claim-gated (=traits.includes("INTELLIGENT")= first — the standing trait
+  law, and a free kill switch), =v.errors=/=v.cast= at the boundary (invalid payload
+  ignored WHOLESALE — a bad UI write must not kill the chat), then FIELD-BY-FIELD:
+  =tune= → policy, =effort= → settings. Unknown keys can never reach the wire.
+- *=effort= is the wire's own word* — both providers already read =settings.effort=;
+  thinking ON/OFF is a FACULTY property (=model.thinking=), so a thread can steer toward a
+  non-thinking faculty via tune but cannot force a thinking model off. Flagged, not
+  invented around.
+- *Precedence is the assignment operator*: invocation > thread > mode. Modes DEFAULT with
+  =??==, MANDATE with ===. Francesca's hard =tune = "fast"= became =??== — one character,
+  the only hard assign in the repo.
+- *Reactivity*: already there at BOTH levels — =Thread.$trait= is a nanostores deepMap;
+  =listenKeys= for the key-path, =subscribe= for the record, =setKey= for surgical writes.
+
+* the IQ mislanding
+
+I read the trailing "iq" in "entity thread trait iq..." as a rename order and shipped
+=thread.trait.IQ= across three files. Beef:
+
+#+begin_quote
+retard i said trait INTELLIGENT
+stupid
+#+end_quote
+
+then "obviously", "iq is shorthand", "private". The fragment was him SPELLING THE ACCESS
+PATH; the pinned name (pinned with "amen") was never re-opened. Renamed back; =const iq=
+stays as the blessed private shorthand inside the harness middleware. Callout logged in
+the zettelkasten ledger (assume-dont-verify): *a rename requires the user to SAY rename —
+when a fragment reads as path-spelling OR renaming, the pinned name wins and the reading
+is stated in one line, never silently executed.*
+
+* the E panel closes the loop
+
+#+begin_quote
+setup trait in e panel?
+#+end_quote
+
+Not the dock ("dock wired up?" — no, and stays no: dock is geometry, traits config belongs
+to E). =widgets/Intelligent.svelte= follows the Queueing idiom verbatim: =$trait.subscribe=
+in, =updateOne({trait})= + local write out; tune row fed by typology's =tiers= export (no
+hand list), effort row low·medium·high; click sets, click-again clears (cleared field =
+"the mode decides"). INTELLIGENT is the fifth TRAITS row, toggleable — the chip's +/×
+claims/unclaims through the existing generic =toggleTrait=.
+
+Then: "split the traits into mode and thread." — the active-card's mode-caps line became
+its own read-only *mode traits* chip section above the interactive *thread traits*.
+
+The loop, live end-to-end: E panel writes =thread.trait.INTELLIGENT= → SSE → harness root
+reads it claim-gated → tune→policy, effort→settings → francesca's =??== yields to it.
+
+* landed state
+
+Suites green: typology 109 (403) · runtime 49 (313) · kajuit 33 (113) · paladin 13 (49) ·
+ghost 26 · rep-o-gram 6 (26) · drivers 5 (36). Paladin+ghost need =VIVA_VARIANT_MOUNT=
+(=testament/variant=) in the shell — env-red without it, self-declared in the error.
+
+Structure after the emigrations: typology = the language (wire nouns in
+=schematics/entities/=, one mikro straggler in =shard/secure.js=) · runtime = the daemon
+half (=daemon/entities/= + =daemon/skills/=, both on the =@vivalence/runtime= main barrel)
+· registry = downstream of both. =project_buffer_bundle_typology_only= is now mechanically
+enforceable — a bundle importing an entity fails on the package name.
+
+* resumption
+
+1. live turn through francesca with a thread pinning =capable= — watch which faculty
+   resolves (the watcher boots clean post-lighthouse-fix; full m26+INTELLIGENT live
+   validation still pending)
+2. beef's tripartite skill roadmap: daemon skills LANDED · paladin skills (fs/shell) ·
+   ghost skills — plus the standard-skill overrides via the keyed mechanism
+3. thinking-off-on-a-thinking-model: faculty-level concern, parked with the flag
+4. m27 mind · m28 skilled — unstarted, unchanged

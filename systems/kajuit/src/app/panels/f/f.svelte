@@ -58,6 +58,7 @@
   import { getContext } from "svelte";
   import { chain, stores } from "@vivalence/kajuit";
   import { Section } from "@vivalence/drapes";
+  import { logger } from "$telemetry";
   import { TERMINALS } from "$client";
 
   const terminals = getContext(TERMINALS);
@@ -95,6 +96,8 @@
     busy = true;
     try {
       await createBuffer($terminal, $thread);
+    } catch (error) {
+      logger.entry(`buffers/${$thread.id}`).fault(error);
     } finally {
       busy = false;
     }

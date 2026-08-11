@@ -4,7 +4,7 @@ function failedTokenIndices(sentence) {
   const failedSlugs = new Set(
     sentence.uses
       .getItems()
-      .filter((word) => word.memory?.is?.failed)
+      .filter((word) => word.retention?.is?.failed)
       .map((word) => word.slug),
   );
   if (!failedSlugs.size) return [];
@@ -20,7 +20,7 @@ function failedTokenIndices(sentence) {
 export default async (ctx) => {
   const game = ctx.daemon.modes.game;
   const where = { ontology: "sentence", ...ctx.input.where };
-  const opts = { blacklist: ctx.input.blacklist, populate: ["uses.memories", "memories"] };
+  const opts = { blacklist: ctx.input.blacklist, populate: ["uses.retentions", "retentions"] };
 
   const [sentences, errorSentences] = await Promise.all([
     ctx.daemon.entities.literal.feed(where, { ...opts, limit: ctx.input.limit ?? 3 }),
@@ -28,48 +28,56 @@ export default async (ctx) => {
   ]);
   if (!sentences.length) return;
 
-  const virgin = sentences.filter((sentence) => !sentence.memory);
+  const virgin = sentences.filter((sentence) => !sentence.retention);
   for (const sentence of virgin) {
     ctx.pool.add(
-      game.shadow.emit.literals({
+      game["rep-o-gram"].emit.shadow.literals({
         literal: sentence,
         recall: "LEARNING",
-        speed: { rate: "SLOW" },
+        preview: { speed: { rate: "SLOW" } },
       }),
     );
   }
 
-  const reviewed = sentences.filter((sentence) => sentence.memory);
+  const reviewed = sentences.filter((sentence) => sentence.retention);
   const vocalized = reviewed.filter((sentence) => sentence.traits?.includes("VOCALIZED"));
   const written = reviewed.filter((sentence) => !sentence.traits?.includes("VOCALIZED"));
 
   const practice = ctx.pool.section();
 
   for (const sentence of vocalized) {
-    if (sentence.memory.is.virgin || sentence.memory.is.failed) {
+    if (sentence.retention.is.virgin || sentence.retention.is.failed) {
       practice.add(
-        game.listen.emit.literal({ literal: sentence, gameplay: "PICK", recall: "LEARNING" }),
+        game["rep-o-gram"].emit.listen.literal({
+          literal: sentence,
+          gameplay: "PICK",
+          recall: "LEARNING",
+        }),
       );
     } else if (random.coinflip(0.7)) {
       practice.add(
-        game.listen.emit.literal({ literal: sentence, gameplay: "TYPE", recall: "LEARNING" }),
+        game["rep-o-gram"].emit.listen.literal({
+          literal: sentence,
+          gameplay: "TYPE",
+          recall: "LEARNING",
+        }),
       );
     } else {
-      practice.add(game.write.emit.literals({ literal: sentence }));
+      practice.add(game["rep-o-gram"].emit.write.literals({ literal: sentence }));
     }
   }
 
   for (const sentence of written) {
-    if (sentence.memory.is.virgin || sentence.memory.is.failed) {
+    if (sentence.retention.is.virgin || sentence.retention.is.failed) {
       practice.add(
-        game.shadow.emit.literals({
+        game["rep-o-gram"].emit.shadow.literals({
           literal: sentence,
           recall: "LEARNING",
-          speed: { rate: "SLOW" },
+          preview: { speed: { rate: "SLOW" } },
         }),
       );
     } else {
-      practice.add(game.write.emit.literals({ literal: sentence }));
+      practice.add(game["rep-o-gram"].emit.write.literals({ literal: sentence }));
     }
   }
 

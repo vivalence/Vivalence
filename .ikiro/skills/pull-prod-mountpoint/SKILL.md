@@ -4,7 +4,7 @@ description: Snapshot the prod runtime's mountpoint (daemon SQLite + service sta
 when_to_use: "pull prod state" · "snapshot the prod daemon" · "run prod data locally" · "grab the prod sqlite" · debugging a prod-only bug against local code.
 ---
 
-# Pull Prod Mountpoint → Local Testament
+# pull-prod-mountpoint — "pull prod state" / "grab the prod sqlite": prod daemon → testament/
 
 ## Intent
 

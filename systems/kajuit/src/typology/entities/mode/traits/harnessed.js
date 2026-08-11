@@ -1,7 +1,8 @@
 import { shape, is } from "@vivalence/typology";
 
 export const HARNESSED = async (mode, ctx) => {
-  // yield entities are keyed by entity name — merge every kind a local repo exists for
+  // output entity keys are entity names — merge every kind a local repo exists for,
+  // so the fold accumulates managed instances, never wire pojos
   const harness = mode.connection.branch("/harness").use(async (rqx, next) => {
     await next();
 
@@ -9,10 +10,11 @@ export const HARNESSED = async (mode, ctx) => {
 
     const yielded = rqx.response?.body;
 
-    for (const [name, pojos] of Object.entries(yielded.entities)) {
+    for (const [name, pojos] of Object.entries(yielded.output)) {
+      if (name === "message" || name === "object") continue;
       const repository = ctx.daemon.entities[name];
       if (!repository) continue;
-      yielded.entities[name] = await Promise.all(pojos.map((pojo) => repository.merge(pojo)));
+      yielded.output[name] = await Promise.all(pojos.map((pojo) => repository.merge(pojo)));
     }
   });
 

@@ -1,5 +1,5 @@
 // shared visual vocabulary for the aprende homepage panels — one source so the
-// memory blocks, the scatter, and the ranks list can never disagree on a colour.
+// retention blocks, the scatter, and the ranks list can never disagree on a colour.
 
 export const STATUS = ["UNTOUCHED", "UNKNOWN", "LEARNING", "KNOWN", "GRADUATED"];
 

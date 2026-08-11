@@ -6,7 +6,7 @@ const manifest = {
   slug: "nyan",
   name: "Nyan",
   description:
-    "Standalone typing trainer. Setup, practice, review. One keystroke stream split into recall / spelling / motor. Generic words, or learning-domain literals graded back to memory.",
+    "Standalone typing trainer. Setup, practice, review. One keystroke stream split into recall / spelling / motor. Generic words, or learning-domain literals graded back to retention.",
   version: "0.1.0",
   traits: ["APPLICATION", "EMITTER", "STANDALONE", "TOOLED"],
 };
@@ -80,7 +80,7 @@ const emitter = new Vector()
     return ctx.mode.app.buffer({ data });
   })
   // domain ingress: type learning literals; the buffer carries the owner index
-  // so finishing grades each token back to memory (see buffer/Nyan.svelte).
+  // so finishing grades each token back to retention (see buffer/Nyan.svelte).
   .open(
     {
       nature: "/literals",

@@ -1,5 +1,5 @@
 import { specimen } from "@vivalence/typology";
-import { BufferEntity } from "@vivalence/typology/entities";
+import { BufferEntity } from "@vivalence/runtime";
 import { create } from "../scenarios/daemon.js";
 
 specimen.describe("smoke: full lifecycle", () => {
@@ -32,7 +32,7 @@ specimen.describe("smoke: full lifecycle", () => {
       thread: thread.id,
     });
     specimen.expect(result.condition).toBe("NOMINAL");
-    buffers = result.entities.buffer;
+    buffers = result.output.buffer;
     specimen.expect(buffers).toHaveLength(1);
     specimen.expect(buffers[0].id).toBeTruthy();
     specimen.expect(buffers[0].data.recall).toBe("LEARNING");
@@ -61,7 +61,7 @@ specimen.describe("smoke: full lifecycle", () => {
       thread: thread.id,
     });
     specimen.expect(result.condition).toBe("NOMINAL");
-    specimen.expect(result.entities.buffer[0].index).toBeGreaterThan(buffers[0].index);
+    specimen.expect(result.output.buffer[0].index).toBeGreaterThan(buffers[0].index);
   });
 
   specimen.it("all buffers ordered by index", async () => {

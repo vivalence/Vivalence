@@ -1,5 +1,6 @@
 import { map, atom, computed, effect } from "nanostores";
 import { shard } from "@vivalence/typology";
+import { logger } from "$telemetry";
 import { Dataspace } from "../prototypes/dataspace.js";
 import { DaemonDossier } from "../entities/daemon/index.js";
 
@@ -34,8 +35,8 @@ export class Lighthouse {
 
   // get daemons() {return this.dataspace.daemon;}
 
-  constructor(connection, { telemetry = null } = {}) {
-    this.telemetry = telemetry;
+  constructor(connection, { channel = null } = {}) {
+    this.channel = channel;
     this.connection = connection
       .use(shard.track.request())
       .use(shard.track.fault())
@@ -102,7 +103,6 @@ export class Lighthouse {
     }
 
     if (response.body.status === "SUCCESS") {
-      this.$status.set({ code: "VERIFIED" });
       return { status: "OK" };
     }
 
@@ -181,6 +181,7 @@ export class Lighthouse {
 }
 
 export function hydrate(lighthouse) {
+  const hydration = logger.entry("authority").open();
   const key = STORAGE_KEY(lighthouse.connection.url);
   const stored = localStorage.getItem(key);
 
@@ -190,9 +191,18 @@ export function hydrate(lighthouse) {
       if (authority) lighthouse.$authority.set(authority);
       if (identity) lighthouse.$identity.set(identity);
     } catch {
+      hydration.note({ message: "cached authority corrupt — discarded" });
       localStorage.removeItem(key);
     }
   }
+
+  const identity = lighthouse.$identity.get()?.id ?? null;
+  hydration.note({
+    message: identity ? "authority restored from cache" : "no cached authority",
+    identity,
+    refresh: !!lighthouse.$authority.get()?.refresh,
+  });
+  hydration.close();
 
   effect([lighthouse.$authority, lighthouse.$identity], (authority, identity) => {
     if (authority || identity) {
@@ -207,7 +217,7 @@ function seedLighthouse(lighthouse) {
   return (vector) =>
     vector
       .use(shard.context.attach("lighthouse", lighthouse))
-      .use(shard.context.attach("telemetry", lighthouse.telemetry));
+      .use(shard.context.attach("channel", lighthouse.channel));
 }
 
 export async function verifyAuth(lighthouse) {
@@ -227,22 +237,25 @@ export async function boot(lighthouse) {
 
 export async function populate(lighthouse) {
   if (lighthouse.$populating) return lighthouse.$populating;
-  if (lighthouse.$daemons.get().length) return;
+  if (lighthouse.$daemons.get().length) return lighthouse.$status.set({ code: "VERIFIED" });
 
+  lighthouse.$status.set({ code: "POPULATING" });
   lighthouse.$populating = (async () => {
     lighthouse.manifest = await lighthouse.connection.call("/manifest");
+    const mounting = logger.entry("daemons").open();
     await lighthouse.dataspace.populate(["daemon"]);
     lighthouse.$daemons.set([...lighthouse.dataspace.daemon.$entities.get()]);
-    console.log(
-      `[probe] daemons mounted: ${lighthouse.$daemons
-        .get()
-        .map((daemon) => `${daemon.slug}:${daemon.status.reflection.code}`)
-        .join(" ")}`,
-    );
+    const mounted = lighthouse.$daemons.get();
+    mounting.note({
+      message: `${mounted.length} daemon${mounted.length === 1 ? "" : "s"} mounted`,
+      daemons: mounted.map((daemon) => daemon.slug).join(","),
+    });
+    mounting.close();
   })();
   try {
     await lighthouse.$populating;
   } finally {
     lighthouse.$populating = null;
+    lighthouse.$status.set({ code: "VERIFIED" });
   }
 }

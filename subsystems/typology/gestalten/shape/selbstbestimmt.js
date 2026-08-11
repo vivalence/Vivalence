@@ -3,7 +3,7 @@ import { middleware, steer } from "@vivalence/typology";
 export function selbstbestimmt(vector, strategy = steer.strategy.bare) {
   const walk = (node) => {
     if (node.effect != null) return [node.effect, [...node.carry]];
-    for (const trajectory of node.trajectories.values()) {
+    for (const { trajectory } of node.trie.values()) {
       const found = walk(trajectory);
       if (found) return [found[0], [...node.carry, ...found[1]]];
     }

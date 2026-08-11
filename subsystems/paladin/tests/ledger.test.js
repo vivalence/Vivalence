@@ -115,8 +115,13 @@ describe("Ledger.registry", () => {
 
   it("seed writes absolute locations from the registry scope and read round-trips", async () => {
     const registryRoot = await Deno.makeTempDir({ prefix: "paladin-registry-" });
-    await Deno.mkdir(`${registryRoot}/alpha`);
-    await Deno.mkdir(`${registryRoot}/beta`);
+    for (const slug of ["alpha", "beta"]) {
+      await Deno.mkdir(`${registryRoot}/${slug}`);
+      await Deno.writeTextFile(
+        `${registryRoot}/${slug}/${slug}.viva.js`,
+        `export const manifest = { owner: "@${slug}", type: "package", slug: "${slug}", version: "0.0.1" };`,
+      );
+    }
     const seeded = await paladin.ledger.registry.seed({ absolute: registryRoot });
     expect(seeded.sort()).toEqual([`${registryRoot}/alpha`, `${registryRoot}/beta`]);
     expect((await paladin.ledger.registry.read()).sort()).toEqual(seeded.sort());

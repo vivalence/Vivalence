@@ -1,7 +1,7 @@
 <script>
   import { getContext } from "svelte";
   import { BRIDGE } from "$client";
-  import { $telemetry as telemetryStore, $span as spanStore } from "$telemetry";
+  import { logger } from "$telemetry";
   import { trace } from "@vivalence/typology";
 
   const bridge = getContext(BRIDGE);
@@ -9,11 +9,11 @@
   let show = $state(bridge.view.g);
   bridge.view.$g.subscribe(v => show = v);
 
-  let story = $state(telemetryStore.get());
-  telemetryStore.subscribe(value => story = value);
+  let story = $state(logger.$story.get());
+  logger.$story.subscribe(value => story = value);
 
-  let selected = $state(spanStore.get());
-  spanStore.subscribe(node => selected = node);
+  let selected = $state(logger.$selected.get());
+  logger.$selected.subscribe(node => selected = node);
 
   const faulted = (node) => !!node.fault || node.children.some(faulted);
 
@@ -25,8 +25,8 @@
     node.entries.find((entry) => entry.verb === "response")?.data ??
     node.entries.find((entry) => entry.verb === "request")?.data;
 
-  function select(node) { spanStore.set(node); }
-  function back() { spanStore.set(null); }
+  function select(node) { logger.$selected.set(node); }
+  function back() { logger.$selected.set(null); }
 
   function durationClass(duration) {
     if (duration == null) return "";
@@ -194,6 +194,13 @@
           {/each}
         {/if}
 
+        {#if story.roots.length}
+          <div class="section-header">tree</div>
+          {#each [...story.roots].reverse() as root (root.id)}
+            {@render spanNode(root, 0)}
+          {/each}
+        {/if}
+
         {#if story.roots.length === 0}
           <div class="empty">no traces</div>
         {/if}
@@ -201,6 +208,23 @@
     {/if}
   </div>
 {/if}
+
+{#snippet spanNode(node, depth)}
+  <button
+    class="span-node"
+    class:node-fault={node.fault}
+    class:on={node.id === selected?.id}
+    style:padding-left="{14 + depth * 12}px"
+    onclick={() => select(node)}
+  >
+    <span class="node-nature">{node.nature}</span>
+    {#if node.entries.length}<span class="node-count">{node.entries.length}</span>{/if}
+    {#if trace.duration(node) != null}<span class="node-dur">{trace.duration(node).toFixed(0)}ms</span>{/if}
+  </button>
+  {#each node.children as child (child.id)}
+    {@render spanNode(child, depth + 1)}
+  {/each}
+{/snippet}
 
 {#snippet spanRow(node)}
   <button class="span-row" class:has-fault={faulted(node)} onclick={() => select(node)}>
@@ -399,6 +423,32 @@
   .waterfall-ms {
     font-size: var(--font-size-2xs); color: var(--colors-skeleton-2-contrast); opacity: 0.5;
     min-width: 30px; text-align: right; flex-shrink: 0;
+  }
+
+  .span-node {
+    display: flex; align-items: center; gap: 6px;
+    width: 100%; padding: 2px 14px; border: none;
+    background: none; color: inherit; font: inherit;
+    font-family: var(--font-family-code); font-size: var(--font-size-2xs);
+    text-align: left; cursor: pointer;
+  }
+  .span-node:hover {
+    background: color-mix(in srgb, var(--colors-skeleton-1-surface) 40%, transparent);
+  }
+  .span-node.on {
+    background: color-mix(in srgb, var(--colors-skeleton-0-primary-base) 14%, transparent);
+  }
+  .span-node.node-fault .node-nature {
+    color: var(--colors-skeleton-0-danger-base);
+  }
+  .node-nature {
+    color: var(--colors-skeleton-0-primary-base);
+    font-weight: 600; white-space: nowrap;
+  }
+  .node-count { color: var(--colors-skeleton-2-contrast); opacity: 0.4; }
+  .node-dur {
+    margin-left: auto; color: var(--colors-skeleton-2-contrast);
+    opacity: 0.5; white-space: nowrap;
   }
 
   .empty {

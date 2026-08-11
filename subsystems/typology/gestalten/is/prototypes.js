@@ -48,7 +48,7 @@ export function vector(thing) {
   return (
     signature(thing) &&
     is.object(thing) &&
-    is.defined(thing.trajectories) &&
+    is.defined(thing.trie) &&
     is.defined(thing.carry) &&
     is.fn(thing.use) &&
     is.fn(thing.branch) &&
@@ -75,7 +75,7 @@ export function View(thing) {
 
 export function yieldish(thing) {
   // @beef. technically wrong-ish and incomplete.
-  return is.object(thing) && is.string(thing.condition) && is.object(thing.entities);
+  return is.object(thing) && is.string(thing.condition) && is.object(thing.output);
 }
 
 export function buffers(thing) {

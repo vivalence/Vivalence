@@ -9,7 +9,7 @@ export const aperture = new Vector().open(
     const buffer = await ctx.daemon.entities.buffer.findOne(ctx.input.buffer);
     const concepts = await ctx.daemon.entities.literal.find(
       { slug: { $like: "reading.%" } },
-      { populate: ["memories"] },
+      { populate: ["retentions"] },
     );
     const conceptBySlug = new Map(concepts.map((concept) => [concept.slug, concept]));
 
@@ -51,7 +51,7 @@ export const aperture = new Vector().open(
       thread: ctx.input.thread,
     });
 
-    const scene = render.object;
+    const scene = render.output.object;
 
     buffer.data = {
       ...buffer.data,

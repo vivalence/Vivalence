@@ -1,4 +1,5 @@
 export * as object from "./object.js";
+export * as query from "./query.js";
 export * as string from "./string.js";
 export * as array from "./array.js";
 export * as fn from "./fn.js";

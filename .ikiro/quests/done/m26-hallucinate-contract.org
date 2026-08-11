@@ -1,0 +1,936 @@
+#+title: m26 — the hallucinate contract
+#+filetags: :m26:hallucination:yield:output:contract:typology:
+#+status: LANDED — all three waves, seven suites green both sides
+
+* STATUS — LANDED
+
+Beef's go: /"you can start doing the m twenty six sweep... work out the change, work out
+the diff."/ Landed in one session, three waves inside one blast bracket:
+
+- *wave A* — the ={condition, output}= bag at every seam (15 source files + 8 tool returns
+  + ~14 test files); =respond()=; =/response/close=; =Packet.Response=; meta nesting.
+- *wave B* — hal = typed fetch (=prototypes/hallucination.js= → spawn closure + 8 leaves,
+  ALL fluent registers deleted); =Request.system= named sections; providers consume
+  sections + per-key cache marks; =harnessed.js= = assemble-then-invoke on
+  =ctx.hallucination=; every mode harness + direct call site converted.
+- *wave C* — the skill library: =gestalten/belt/skill/{buffer,thread,literal,symbol}.js=
+  (beef renamed tools→SKILL mid-sweep, singular matching =shard=; placement belt/skill —
+  he first moved it OUT of shard as its own thing, then under belt); layered slurp in
+  =harnessed.js= ①skill→②domain→③mode; condemned =domain/tools/{pull,review,gather,index}.js=
+  + =harness.js= =educate()= DELETED, =domain.viva.js= re-export stripped.
+
+Suites both sides: typology 120 (484; +2 = the new fromm =spoken= steps) · runtime 38 (230)
+· kajuit 23 (91) · rep-o-gram 6 (26) · drivers 5 (36) · paladin 13 (49) · ghost 26.
+Snapshots regenerated hot then verified cold (hallucination-request/declarations/json/
+tool-loop/stream/object-schema, cortex-contract-strip/render, oracle-ask).
+
+Landed wrinkles, recorded:
+- =is.vector= requires a SIGNATURE so a root Vector fails it — the lowering uses
+  =is.Vector= (instanceof). Sniff-vs-instanceof asymmetry parked.
+- =slurp()= same-nature collision overwrites the EFFECT but keeps the existing EDGE
+  pattern — an override cannot yet replace valence/input prose. No live collision today;
+  edge-merge wants a beef ruling before layer-② overrides land.
+- shared skill Vectors slurped per-request: a same-nature mode override would MUTATE the
+  shared library node cross-request. Same fix surface as edge-merge.
+- =belt/skill/*= imports =Vector=/=v= DIRECT (=prototypes/vector.js=, =schematics/v.js=) —
+  barrel bindings are TDZ at belt eval time (gestalten evaluates before schematics in
+  =mod.ts=).
+- fixture opus (=registry/fixtures/data/faculties.js=) now calls only a tool named
+  =lookup= — base skills arm every harnessed request, and the old call-tools[0] fixture
+  fired on =buffer_find=.
+
+** post-landing: the two follow-up rulings, LANDED
+
+1. *slurp — later wins on the edge too* (beef: /"absolutely later should win on metadata
+   too... make me happy"/). =prototypes/vector.js= =slurp()=: a collision now DELETES the
+   earlier edge, keys by the LATER pattern (valence/input replace), and mints a FRESH node
+   =new this.constructor(this, this.signature).slurp(existing).slurp(trajectory)= — neither
+   source mutated, which retires BOTH wrinkles (stale edge + shared-library mutation) in
+   one move. Effect still later-wins-only-when-present. HARDENED: self-slurp guard +
+   snapshot iteration (=[...vector.trajectories]=) — the first cut added entries to the Map
+   being iterated and bench's mount looped forever. Invariant tests in =tests/vector.test.js=:
+   collision later-wins + sources-unmutated · earlier-effect-survives · self-slurp no-op.
+   The pre-existing pin (slurp shares / swallow owns for NON-collision subtrees) unchanged.
+2. *ONE bag — policy rides the record* (beef: /"I would prefer probably one"/).
+   =ctx.policy= is DEAD. =Request = {policy?, system?, turns, tools?, settings?, output?,
+   cache?}= — =policy {tune, rounds, backoff}= validated per invocation in the lowering and
+   STRIPPED from the wire (exactly like the tools Vector). =cortex.hallucination= is now a
+   LAZY GETTER (built once, stateless; span minted per request): call sites read
+   =cortex.hallucination.object.render({policy: {tune: "capable"}, …})=. Harness seeds
+   =ctx.hallucination.policy= from input config/tune; francesca writes
+   =ctx.hallucination.policy.tune = "fast"=. CONVERSATION-trait routing simplifies to one
+   carrier: trait model/tune → =request.policy=, trait thinking/maxTokens →
+   =request.settings= — both keys of the ONE record.
+
+Suites re-verified after both: typology 120 (486) · runtime 38 (230) · kajuit 23 (91) ·
+rep-o-gram 6 (26) · drivers 5 (36) · paladin 13 (49) · ghost 26.
+
+3. *=cortex.hallucination= → =cortex.hallucinate=* (beef, full blast). Getter + private
+   field + all 11 live call sites + 4 test files.
+4. *LAZY SKILLS — the SSR crash* (beef pasted the vite trace). =belt/skill/*= built its
+   Vector at MODULE SCOPE; =Vector.open= → =new Pattern= → =Signature= ctor calls
+   =is.array= off the BARREL, and vite's SSR module runner evaluated the skill file before
+   the barrel was populated → =Cannot read properties of undefined (reading 'array')=, every
+   route 500. The earlier direct-import patch (=prototypes/vector.js=, =schematics/v.js=)
+   dodged the =Vector=/=v= bindings but NOT the transitive barrel use inside =Signature= —
+   deno never hit it, vite did. Fixed with the repo's own idiom for this hazard
+   (=schematics/prototypes/yield.js=): a MEMOIZED THUNK — =let vector; export const buffer =
+   () => (vector ??= new Vector()…)=, barrel imports restored, =v= calls moved inside the
+   thunk, harness slurps =skill.buffer()=. LAW, now twice-learned: *typology modules must
+   not construct Vectors (or touch =v=) at module scope* — the barrel is not guaranteed
+   populated, and only a non-deno module runner reveals it.
+
+Beef mid-sweep, on the skill roadmap: thread tooling grows a CONVERSATION trait (model/
+thinking config ON the thread; dock controls write it, the harness projection reads it —
+"the loop is closed"); buffer tooling meets the generative trait (render a view FROM a
+buffer); mode-on-disk writes (datasink freight) LATER; fs/shell/MCP standard skills LATER,
+user-overridable by the keyed mechanism.
+
+CONVERSATION trait ROUTING (settled when beef challenged the policy/request split): the
+trait carries BOTH kinds of model config and the projection routes each — model choice /
+tune → =ctx.policy= (resolution-side, consumed by =cortex.findOne=, never crosses the
+wire; an exact pin grows =policy.model= beside =tune=) · thinking/maxTokens/temperature →
+=ctx.hallucination.settings= (real provider params, they cross). The split exists BECAUSE
+the Request is the CLOSED provider record — every key has a provider mapping; =tune=/
+=rounds=/=backoff= map to nothing and are consumed before a provider exists. One bag =
+the old CONFIG disease reborn.
+
+* the ask
+
+#+begin_quote
+I am very unhappy with the way that the hallucinate object, the contract here works at
+the moment. So what we have is we have an input and an output. The... and then we have
+separately the entities. I don't think that makes sense actually. Maybe we could combine
+the... just use a dedicated output object, and that has either a message or that has
+multiple optional keys. For example, message, object, and then each of the entities we
+come a key in that output object. For example, literal buffer symbols, all of those.
+Just an input and an output. And if we have a schema for the output object, I think we
+should rename that key to just plain schema. schema output schema dot output that makes
+way more sense.
+#+end_quote
+
+#+begin_quote
+Hallucinate output is the one single schema and the one single destination for all of the
+outputs and then all of the entities and the message and the objects and whatever else,
+they all get scoped into the output. and each of the entities has their own key inside of
+it. I think that's way, way cleaner. I need you to do a thorough sweep on this. and go
+into the tank on the design. Don't go completely overboard. Make sure that this is the
+last time that we have to touch it.
+#+end_quote
+
+Beef had already written this design into the code as a TODO, at =gestalten/belt/soma.js:42=:
+
+#+begin_quote
+@beef output.object? and output.message (maybe rename output.text for coherence?) and
+output.turns? wouold be nice to isolate the payload/yield early.
+#+end_quote
+
+* the disease
+
+Two faults, and they compound.
+
+** fault 1 — =output= means FOUR things
+
+| # | site | meaning |
+|---+------+---------|
+| 1 | =Request.output= = ={object: schema}= | a DECLARATION of the wanted shape (input side) |
+| 2 | =Part.ToolResult.output= | the model-facing payload of a tool result |
+| 3 | =EMITTER result.output= (=traits/emitter.js:52=) | the raw vector effect return value |
+| 4 | =ctx.output= | the Vector effect slot (internal — STAYS, out of scope) |
+
+1–3 collide. The pinned law (*"output is vector effect output. aka return value"*) is what
+#3 protects, and it is exactly the word beef now wants for the payload envelope.
+
+** fault 2 — the payload is four flat siblings, re-spelled at every seam
+
+| seam | spelling |
+|------+----------|
+| =fromm.yield()= reader | ={kind, condition, message, entities, object}= |
+| =hallucinate.dispatch()= result | ={condition, message, entities, object}= |
+| =Packet.ToolYield.result= | ={condition, message, entities, object}= |
+| =soma.transcript()= state | ={open, state, rounds, turns, message, entities, object, meta}= — payload MIXED with session bookkeeping |
+| =Pool.drain()= / =Yield.*= | ={kind, condition, entities:{buffer}}= + =result.output= bolted on by the emitter |
+| tool returns | ={message, entities}= · ={condition, message}= · bare ={results}= |
+
+* the contract
+
+*ONE rule: an effect returns ={condition, output}=. =output= is one bag whose keys are
+payload words (=message=, =object=) or entity type names (=buffer=, =literal=, =symbol=, …).*
+
+#+begin_src js
+{
+  condition,                  // NOMINAL | EXHAUSTED | ERROR — envelope status
+  output: {                   // the payload — ONE bag, sparsely filled
+    message?,                 // mind-facing utterance (model / user)
+    object?,                  // caller-code-facing structured value
+    buffer?:  [...],          // entity keys: SINGULAR name = the type,
+    literal?: [...],          // mirroring daemon.entities.* exactly
+    symbol?:  [...],
+  }
+}
+#+end_src
+
+** why =condition= stays OUTSIDE =output=
+
+It reports *whether there is an output*. =EXHAUSTED= means the bag is empty — the verdict
+must be readable without reading the bag. Structurally: =Pool.drain()='s three-way
+discriminator and =is.yieldish='s sniff both need a top-level probe point, and a status
+cannot live inside the thing whose existence it reports.
+
+This is the one place the design does not take *"just an input and an output"* literally.
+=condition= is the ENVELOPE; =output= is the PAYLOAD.
+
+** the request side, mirrored
+
+#+begin_src js
+Request = { turns, tools?, settings?, output?: { schema? }, cache? }
+#+end_src
+
+=output.schema= DECLARES what =output.object= must be. Same word on both sides of the
+wire: one declares, one carries. That IS the input/output symmetry beef asked for.
+
+=hallucination.output.object(schema)= → =hallucination.output.schema(schema)=.
+
+** the flat-namespace risk (accepted, named)
+
+=message= and =object= are now RESERVED and can never be entity type names. Current
+roster — buffer · literal · symbol · mode · intent · thread · turn · user · retention ·
+trace, plus m23 II.2's Memory + Note — has no collision. If a =Message= entity is ever
+wanted, =turn= already occupies that concept. Recorded so the trade is deliberate rather
+than discovered later.
+
+** two sub-decisions off beef's own TODO
+
+- *=output.turns=? NO.* =turns= is the RESPONSE RECORD (it sits beside =meta=), not a tool
+  yield. =render()= returns the folded transcript and the harness reads =.turns= to persist.
+  Moving it inside =output= conflates the conversation with what the tools produced. Stays
+  at the envelope.
+- *=output.text= instead of =output.message=? NO.* =text= is already a part-type word
+  (=Part.Text=) and would read as an encoding rather than an addressee. =message= = mind-facing
+  across the seam, which is the distinction that earns the key.
+
+* the seams — what each becomes
+
+** =gestalten/fromm/yield.js= — the yieldmap
+
+Reader collapses 5 getters → 3: =kind · condition · output=. Every row's =fill= returns
+={condition, output}=. *sniff-never-stamp survives*: producers may return bare or wrapped,
+fromm normalizes both.
+
+Normalization rule, one line: an object is a PAYLOAD if it carries =output=, or =message= /
+=object= / =condition= at top level — then its remaining keys are entity keys and fold in
+beside them. Otherwise it is =opaque= → =output.object = thing=.
+
+#+begin_example
+{ message: "...", buffer: [...] }   → { condition: NOMINAL, output: { message, buffer } }
+{ results: [...] }                  → { condition: NOMINAL, output: { object: { results } } }
+{ output: { message, buffer } }     → passthrough
+{ condition: "ERROR", message }     → { condition: ERROR,   output: { message } }
+#+end_example
+
+Backward-compatible with every tool return in the registry today.
+
+** =prototypes/pool.js=
+
+#+begin_src diff
+-  NOMINAL: (buffers, meta) => ({ kind: "emission", condition: Condition.NOMINAL, entities: { buffer: buffers }, ...meta }),
++  NOMINAL: (buffers, meta) => ({ kind: "emission", condition: Condition.NOMINAL, output: { buffer: buffers }, ...meta }),
+#+end_src
+
+=EXHAUSTED= / =ERROR= likewise. =resolve()=: =case "pool"= → =(await item.drain()).output?.buffer ?? []=,
+=case "nominal"= → =item.output.buffer=. =Pool.add= =case "nominal"= → =this.add(...arg.output.buffer)=.
+
+** =gestalten/is/prototypes.js=
+
+#+begin_src diff
+ export function yieldish(thing) {
+-  return is.object(thing) && is.string(thing.condition) && is.object(thing.entities);
++  return is.object(thing) && is.string(thing.condition) && is.object(thing.output);
+ }
+#+end_src
+
+(beef's =// @beef technically wrong-ish and incomplete= stands — one key renamed, equally wrong.)
+
+** =gestalten/shard/hallucinate.js=
+
+=dispatch()= result → ={condition, output}=. Error path → ={condition:"ERROR", output:{message:{error}}}=.
+
+The tool_result part stops pre-flattening:
+
+#+begin_src diff
+ parts.push({
+   type: "tool_result",
+   id: call.id,
+-  output: result.message ?? result.object,
+-  entities: result.entities,
+-  object: result.object,
++  output: result.output,
+ });
+#+end_src
+
+*The =message ?? object= flatten MOVES to the provider translate.* Strictly better: the part
+now carries the whole bag (so the client reads entities off the persisted turn), and the
+provider decides what the model sees — instead of =dispatch= deciding for everyone.
+
+** =gestalten/belt/soma.js= — =transcript()=
+
+State becomes ={open, condition, turns, meta, output: {}}= — payload nested, diagnosis in
+=meta= (=/response/close= copies its =meta= through verbatim), =open= the only fold-internal
+key. Resolves beef's =:42= TODO verbatim.
+
+The =/tool/yield= fold keeps per-key ACCUMULATION for entity arrays (round 2+ buffers must
+not clobber round 1) but REPLACES for the two payload words:
+
+#+begin_src js
+case "/tool/yield": {
+  const output = { ...current.output };
+  for (const [key, value] of Object.entries(record.result.output ?? {})) {
+    if (key === "message" || key === "object") {
+      if (value != null) output[key] = value;
+      continue;
+    }
+    output[key] = [...(output[key] ?? []), ...(is.array(value) ? value : [value])];
+  }
+  return { ...current, output };
+}
+#+end_src
+
+=/turn/close= writes =output.message= / =output.object= from the sealed assistant turn.
+
+** =systems/runtime/daemon/traits/emitter.js= — THE COLLISION
+
+#+begin_src diff
+ const result = await ctx.pool.drain();
+-if (output !== undefined) result.output = output;
++if (output !== undefined) result.output.object = output;
+#+end_src
+
+*The pinned =output= ≠ =object= distinction is DELIBERATELY RETIRED.* Justification: fromm's
+=opaque= row ALREADY says a bare effect return is =object= — so the emitter was inconsistent
+with the lexicon before this change. One rule now, no exception: =output= is the payload
+envelope everywhere; a plain effect return lands at =output.object=. Oracle's ={trace, object}=
+rides =output.object= whole, unchanged in meaning.
+
+** schemas — =schematics/primitives/hallucination.js=
+
+#+begin_src diff
+ Part.ToolResult = v.object({
+   type: v.const("tool_result"),
+   id: v.string(),
+-  output: v.unknown(),
+-  entities: v.record(v.string(), v.unknown()).optional(),
+-  object: v.unknown().optional(),
++  output: v.record(v.string(), v.unknown()),
+ });
+
+-export const Output = v.object({ object: v.object({}, { additionalProperties: true }).optional() });
++export const Output = v.object({ schema: v.object({}, { additionalProperties: true }).optional() });
+
+ Packet.ToolYield = v.object({
+   event: v.const("/tool/yield"),
+   id: v.string(),
+-  result: v.object({ condition: v.string(), message: v.unknown(), entities: v.record(v.string(), v.unknown()), object: v.unknown() }),
++  result: v.object({ condition: v.string(), output: v.record(v.string(), v.unknown()) }),
+ });
+#+end_src
+
+=schematics/prototypes/yield.js= =Yield()= → ={condition, output: {buffer: [...]}, error?}=,
+still =additionalProperties: true=, still lazy.
+
+** =prototypes/hallucination.js=
+
+=CONFIG.output= → =v.object({schema})=; facade becomes
+
+#+begin_src diff
+-hallucination.output = { object: (schema) => hallucination.configure({ output: { object: schema } }) };
++hallucination.output = { schema: (schema) => hallucination.configure({ output: { schema } }) };
+#+end_src
+
+=json= getter unchanged (reads =config.output= whole).
+
+** providers
+
+=request.output?.object= → =request.output?.schema= — anthropic =provider/index.js:39= +
+=translate.js:80=, openrouter =provider/index.js:31= + =translate.js:89=.
+
+tool_result content, anthropic =translate.js:62= + openrouter =translate.js:27=, absorbs the
+flatten that left =dispatch=:
+
+#+begin_src diff
+-content: typeof part.output === "string" ? part.output : JSON.stringify(part.output),
++content: (() => {
++  const spoken = part.output?.message ?? part.output?.object ?? part.output;
++  return typeof spoken === "string" ? spoken : JSON.stringify(spoken);
++})(),
+#+end_src
+
+** client — =systems/kajuit/src/app/panels/a/widgets/turns.js=
+
+=settled()= reads the bag instead of three siblings:
+
+#+begin_src diff
+ const settled = (result) => {
+-  const output = result.output ?? result.content ?? null;
+-  return { output, entities: result.entities ?? null, object: result.object ?? null,
+-    status: result.condition === "ERROR" || output?.error ? "error" : "ok" };
++  const output = result.output ?? result.content ?? null;
++  const message = output?.message ?? output;
++  return { output: message, entities: output ?? null, object: output?.object ?? null,
++    status: result.condition === "ERROR" || message?.error ? "error" : "ok" };
+ };
+#+end_src
+
+=thread/traits/aimed.js:13= — =emission?.entities?.buffer= → =emission?.output?.buffer=.
+
+* the request record — beef's three questions
+
+#+begin_quote
+a: cache not part of settings?
+b: if at request level turns already contains system, shouldnt it also already contain
+tools? or are tools invocable functions?
+and given that openai, anthropic, openrouter etc all run different system promopt
+contracts, might it make sense to make the request contract more like the response
+contract and be more explicit about input{turns, system, tools}. i dont know. really i
+dont. i need help here. maybe the request and response are differnt in nature and the
+request is fine as is.
+#+end_quote
+
+** the governing distinction — a RECORD is not a BAG
+
+*=output= is a BAG. =Request= is a RECORD.* They must NOT be made symmetric.
+
+- production is OPEN — you cannot know what a tool yields, so =output= is sparsely filled,
+  open-keyed, and SNIFFED.
+- the provider contract is CLOSED — every key has one known role and one provider mapping,
+  so =Request= is fixed, exhaustive, and AUTHORED.
+
+Making =Request= bag-shaped would import sniffing into the one place the shape is already
+known. So the answer to *"maybe request and response are different in nature"* is: yes,
+deliberately, and that difference is the design. But =system= still gets promoted — for a
+different reason, below.
+
+** (a) =cache= is NOT =settings=
+
+Different natures. =settings= is PARAMETRIC — it maps ~1:1 onto provider params (=maxTokens=
+→ =max_tokens=, =temperature= → =temperature=). =cache.marks= is STRUCTURAL — it maps onto no
+param at all; it instructs the TRANSLATOR where to place =cache_control= inside content
+blocks (=anthropic/provider/translate.js=: =if (marks.has("context") && system.length)
+system.at(-1).cache_control = {type:"ephemeral"}=). Folding it into =settings= would make
+=settings= mean two things — the exact disease this quest treats.
+
+Deeper: =cache.marks: ["context","tools"]= naming SEGMENTS BY STRING is a workaround for
+segments not being addressable objects. Once =system= is a real array of sections (below),
+a mark belongs ON the section and top-level =cache= may dissolve entirely. Folding it into
+=settings= now would cement the workaround. *Keep it separate; expect it to migrate.*
+
+** (b) two different things are both called =tools=
+
+| where | what | crosses the wire |
+|-------+------+------------------|
+| =Request.tools= | the CATALOG — =[{name, valence, input}]= from =declarations()= | YES |
+| =requestConfig.tools= | the invocable =Vector= — what =dispatch()= calls | NEVER |
+
+Both are passed to the same function, in two adjacent objects:
+=session(faculty, avenue, hallucinationRequest, requestConfig)=. Same word, two meanings,
+one seam apart. A sibling of the four-=output= disease.
+
+*Fix, minimal and register-free:* hoist the Vector to its own parameter rather than rename
+either — =session(faculty, avenue, request, policy, tools)= and =render(faculty, request,
+policy, tools)=. =Request.tools= keeps the provider-facing wire name it has earned; =policy=
+goes back to being only =rounds/backoff/span=. No new vocabulary.
+
+*Should the catalog live in =turns=? No — and the provider evidence inverts the intuition.*
+A turn is a TRANSCRIPT EVENT WITH AN AUTHOR (role + parts, positioned). Tools are AMBIENT
+CAPABILITY, available across all turns, authored by no one at no position. Empirically:
+anthropic · openai · openrouter · gemini ALL take tools as a top-level array and NONE
+accepts them inline in messages. Providers *disagree about system and agree about tools* —
+so =system= is the one that could be positional, and =tools= is the one that cannot.
+
+** (c) =system= gets promoted to a Request key — but not for symmetry
+
+Today the system content makes a round trip that every provider then undoes:
+
+#+begin_example
+context.system(…)  →  compile() mints [{role:"system", parts:[…]}]  →  prepended to turns
+                   →  provider translate PULLS IT BACK OUT into the top-level system array
+#+end_example
+
+That trip is pure loss. =compile()= joins every section into ONE text part (a turn has parts,
+and there is no per-section identity left), which is precisely why a cache mark cannot
+land on the stable persona block while volatile state changes behind it. The
+representation cannot hold what system needs.
+
+#+begin_src js
+Request = { system?, turns, tools?, settings?, output?: { schema? }, cache? }
+#+end_src
+
+=system= = an array of SECTIONS that keep their identity. Fork A (multi-part compile) then
+falls out free rather than being a separate fight, and =translateTurns= stops hoisting.
+NOTE: this is an INPUT-half change and does not have to land in the same bracket as the
+output contract — but the two forks stop being independent once =Request= is opened, so
+decide the order before starting.
+
+* the three levels — where ={condition, output}= sits relative to a turn
+
+#+begin_quote
+does teh turn carry turn{condition,output,...turn}? or is {condition,output,turn}? or are
+the different level entirely?? is it turn{parts[{condition,output}]}?? not sure.
+#+end_quote
+
+*Different levels entirely.*
+
+| level | shape | scope |
+|-------+-------+-------|
+| PART | =Part.ToolResult = {type, id, output}= | ONE tool call's yield. =output= = the bag ={message?, object?, buffer?, …}=. =id= = provenance (the =tool_use= id). |
+| TURN | =Turn = {role, parts, meta}= | the transcript event. There are many. NO =condition= / =output= of its own — authored content + persisted ENTITY; a condition on it would store a runtime verdict in the dataspace forever. |
+| RESPONSE | ={condition, output, turns, meta}= | ONE request's fold. =output= = the aggregate of THIS exchange only. |
+
+** the Response record — four keys, each ONE thing
+
+#+begin_src js
+Response = {
+  condition,                              // verdict — lexicon-native (NOMINAL | ERROR)
+  output,                                 // the bag
+  turns,                                  // what THIS run produced (persisted by the harness)
+  meta: { state, rounds, usage?, fault? } // diagnosis — why/how it stopped
+}
+
+Packet.ResponseClose = { event: "/response/close", meta: { state, rounds, usage?, fault? } }
+#+end_src
+
+- =turns= is PLURAL because the tool loop AUTHORS turns: assistant tool_use turns, the
+  loop's user-role tool_result turns, the final answer. Input turns never stream, never
+  fold in. Sole consumer: the =harnessed.js= persistence fold — the chain breaks if only
+  the final answer lands.
+- *NOT one-turn-many-parts* (beef asked, my call): the TURN BOUNDARY IS AUTHORSHIP CHANGE.
+  (1) a turn has ONE role and the loop alternates authors — model authors =tool_use=, the
+  loop authors =tool_result=; no role means "both". (2) replay: translate maps turns →
+  messages 1:1 and every provider demands the alternation as separate messages — storing
+  merged means re-splitting forever. (3) per-round =meta= (usage per invocation) dies in a
+  merge. Streaming seals it: =/turn/open…close= per invocation; a merged turn never closes.
+  The instinct is already true one level down: text + tool_use in one utterance = one turn
+  many parts, and 12 buffers ride ONE part's bag. Law: *part = one author's blocks in one
+  utterance · turn = one authorship · response = one request.* Frontend grouping of a run
+  = display, never storage.
+- =condition= = VERDICT (yield lexicon, what any seam branches on) · =meta.state= = CAUSE
+  (provider stop vocabulary: =complete · tools · length · abort · error · filter=). fromm
+  derives: =state === "complete" ? NOMINAL : ERROR=. Same =State= primitive also rides
+  per-turn as =turn.meta.state=.
+- =meta.rounds= = provider invocations inside the loop (1 = no tools; cap =policy.rounds=,
+  hitting it closes =state:"length"=). =meta.usage= = provider token accounting. =meta.fault=
+  = the error-path record.
+- =state= and =rounds= are DIAGNOSIS, not contract — nothing branches on them except
+  =render()='s completeness throw, which reads =meta.state= equally well. ONE spelling on
+  wire and fold (beef: /"how is rounds not in meta?"/ — it is; the packet nests too, the
+  fold copies =meta= through verbatim).
+- =condition= stays MATERIALIZED (not derived-on-read) so a Response IS a yield —
+  =is.yieldish= passes and a Response rides any seam that speaks the lexicon.
+
+*** stress-tested against both alternatives (beef: /"SURE SURE?"/ — yes)
+
+- *flatten =output= into Response* — REJECTED: recreates the condemned flat-sibling shape at
+  the response seam; the bag stops being pluckable (=...emission.output= spread, =output:
+  result.output= forwarding, fold accumulation all need key-filters); Response becomes the
+  ONE carrier spelled differently (fault 2 reborn); =condition=/=turns=/=meta= join the
+  reserved-word set while =turn= and =trace= ARE entities. Gain: one dot.
+- *=turns= inside =output=* — REJECTED: the bag grammar would gain a carrier-dependent
+  exception (a PART's bag can never hold turns — tools don't produce turns), and one
+  grammar everywhere is the contract's entire value; self-nesting =output.turn[].parts[].output=
+  invites double-counting by entity-walkers; bag merge (keyed append, managed) ≠ turn fold
+  (ordered incremental, open-turn tracking); product ≠ medium — the harness persists
+  turns, nothing selects them like buffers.
+- the four keys are four ORTHOGONAL NATURES: =condition= branch on it · =output= pluck/
+  spread/merge it · =turns= persist/replay it · =meta= read it when something's off. Neither
+  alternative removes a nature; both trade a structural guarantee for one dot of depth.
+
+** "session" is DEAD — the envelope is the RESPONSE (beef: /"we dont have a session"/)
+
+The envelope is the pair of =Request=: request in, response out. m18 already dissolved
+Conversation; "session" was the tool-loop's leftover word for the same non-thing.
+
+*Scope law:* one =Response= = ONE hallucinate call — user prompt in → N INTERNAL tool
+rounds → final assistant turn out. =rounds= counts the internal loop. Aggregation happens
+ONLY inside that window. Across the thread NOTHING floats: each request folds its own
+Response, the next starts fresh (beef: /"i want of course to know the ouput per round of
+conversation not float everything up into one"/ — the envelope IS per round of
+conversation). Durable record = the turn chain + tool_result parts; the Response is
+EPHEMERAL, re-derivable by folding any turn slice.
+
+Renames riding the same bracket: =shard.hallucinate.session()= → =respond()= ·
+=/session/close= → =/response/close= · =Packet.SessionClose= → =Packet.ResponseClose= ·
+schema =v.primitives.hallucination.Response=. Dot-notation access (the no-destructuring
+law) keeps the JS =Response= global unshadowed.
+
+** tools don't produce turns (beef, confirmed)
+
+The respond loop wraps tool_result parts into a user-role transcript event because every
+provider demands tool results ride a message. That is WIRE PROTOCOL, the loop's business —
+a tool authors only ={condition, output}=. No entity key =turn= ever appears in a bag.
+
+* the cascade — the contract under snowballing
+
+#+begin_quote
+i might have a conversation where a model invokes a tool adn that tool calls an emitter
+and the return value falls through and aggregatees - cascades and snowballs. the emitter
+returns a buffer or twelve, the tools returns that + a few literals that were used for
+input, and the model gets both back and in the end the whole thing needs to arrive in the
+frontend where the user can f.e. select the buffers to do whatever with them.
+#+end_quote
+
+*This is the justification for the whole redesign.* It only works if it is ONE shape at
+every seam — today it is four spellings plus the emitter bolting =result.output= on beside
+=entities=, so the cascade leaks at each hop.
+
+** the four hops, walked
+
+#+begin_example
+1. EMITTER → TOOL
+   emit.feed(…) ⇒ { condition: NOMINAL, output: { buffer: [×12] } }
+
+2. TOOL → DISPATCH
+   return { message: "12 on screen.", ...emission.output, literal: [×3] }
+   fromm normalizes ⇒ { condition: NOMINAL,
+                        output: { message, buffer: [×12], literal: [×3] } }
+
+3. DISPATCH fans out THREE ways from one bag
+   → MODEL       provider translate flattens output.message ?? output.object → text
+                 (the model gets the WORD, not 12 buffer objects — buffers are screen
+                  objects, not context; this is why the flatten moved to the provider)
+   → TRANSCRIPT  Part.ToolResult.output = the WHOLE bag, persisted on the turn
+   → RESPONSE    soma.transcript /tool/yield accumulates into the envelope output
+
+4. TRANSCRIPT → FRONTEND
+   per-tool + positioned  → read the turn's tool_result parts
+   aggregate for the run  → read the envelope output
+#+end_example
+
+** merge rules (the snowball semantics)
+
+| key | at a PART | at the RESPONSE envelope |
+|-----+-----------+--------------------------|
+| =message= | that tool's word to the model | the ASSISTANT's final word (set by =/turn/close=, NOT accumulated from tools — tool messages are already in the transcript as parts) |
+| =object= | that tool's structured return | last non-null wins |
+| entity keys | what THAT tool produced | CONCAT across all tools and all rounds, MANAGED |
+
+*Entity keys carry MANAGED entities on BOTH sides of the wire* (beef: /"not only deduped by
+ID but also EntityManager managed on both daemon mikro level and client
+remoteentitymapmanager level"/):
+
+- daemon side: tools/emitters return rows out of repos → mikro's identity map already
+  guarantees one instance per id per em. Envelope concat = same id → same reference —
+  dedupe is a CONSEQUENCE of management, never a hand-rolled rule.
+- client side: =soma.transcript= stays pure typology (it never sees a repo). The kajuit
+  stream consumer routes every entity key of a =/tool/yield= through
+  =daemon.entities[key].merge(pojo)= BEFORE folding, so the fold accumulates managed
+  reactive instances, not wire pojos. =thread/traits/aimed.js:13= already does exactly this
+  for emissions — the contract GENERALIZES it from =buffer= to every key in the bag.
+  Systems-level seam (packet middleware at the consumer), no per-view lookup maps.
+
+*=condition= does NOT roll up.* Envelope =condition= is the RESPONSE's verdict (did the run
+complete), never a rollup of tool conditions. A tool erroring is normal operation — the
+model reads the error and continues. Stated explicitly because a rollup is the kind of
+thing that gets "helpfully" added later and silently reddens healthy runs.
+
+** provenance — what makes frontend selection work
+
+The envelope's flat =output.buffer: [×17]= is the CONVENIENCE view and loses which of the
+three tool calls produced which. The PARTS are the authoritative record: each
+=tool_result= carries its own =output= under the =tool_use= id.
+
+- *"select the buffers from this tool call"* → read parts
+- *"everything this turn produced"* → read the envelope
+
+Both derivable from the persisted turn; no extra key, no provenance column. Worth
+contrasting with [[project_dataspace_has_no_provenance]]: RESPONSE provenance exists and is free
+here, unlike dataspace provenance which has no carrier at all.
+
+** what a tool does with the emitter's =condition=
+
+It drops it, and that is correct. =emission.condition= EXHAUSTED is not a tool failure — every
+tool today already maps it to a NOMINAL yield with a different message (=message: buffers.length
+? "…" : "nothing to rep for these filters"=). The tool owns its own verdict. The contract
+preserves this by making =condition= an envelope key that each seam re-decides, not a value
+that propagates.
+
+* blast surface (swept, exhaustive)
+
+** source — 15 files
+
+| file | what |
+|------+------|
+| =subsystems/typology/gestalten/fromm/yield.js= | the yieldmap, 7 rows + reader |
+| =subsystems/typology/prototypes/pool.js= | =Yield.*=, =resolve()=, =Pool.add=, =drain()= |
+| =subsystems/typology/gestalten/is/prototypes.js= | =yieldish= |
+| =subsystems/typology/gestalten/shard/hallucinate.js= | =dispatch()= + the tool_result part |
+| =subsystems/typology/gestalten/belt/soma.js= | =transcript()= incl. the accumulate |
+| =subsystems/typology/prototypes/hallucination.js= | =CONFIG=, =output= facade |
+| =subsystems/typology/schematics/primitives/hallucination.js= | =Part.ToolResult=, =Output=, =Packet.ToolYield= |
+| =subsystems/typology/schematics/prototypes/yield.js= | =Yield()= schema |
+| =systems/runtime/daemon/traits/emitter.js= | the =result.output= collision |
+| =systems/kajuit/src/app/panels/a/widgets/turns.js= | =settled()= |
+| =systems/kajuit/src/typology/entities/thread/traits/aimed.js= | =emission.entities.buffer= |
+| =registry/viva/hallucinator/anthropic/provider/{index,translate}.js= | =output.object= ×2, flatten |
+| =registry/viva/hallucinator/openrouter/provider/{index,translate}.js= | =output.object= ×2, flatten |
+
+** tool returns — 8 (7 live + 1 condemned set)
+
+aprende =activation · flashcard · translation= (spread =...emission=) · =riddle · drill=
+(=entities: emission.entities=) · francesca =drill= · rep-o-gram =index= · aprende =query=
+(bare ={results}= → =opaque=). Pattern: =entities: emission.entities= → =...emission.output=.
+Domain =tools/{pull,review,gather}= are CONDEMNED (m23) — they die, not migrate.
+
+** =.output.object(schema)= call sites — 3 live + 4 test
+
+riddler =emitter.js:61= · riddler =aperture.js:24= · playground =Oracle.svelte:48=.
+
+** tests — ~10 files
+
+runtime =traits.test.js= (11 asserts) · =integration.test.js= (24) · =smoke.test.js= (2) ·
+=emitters.test.js= (1) · typology =soma · fromm · pool · hallucinate · hallucination ·
+hallucination.snapshot · cortex.stripwire · hallucination-triad.doc= · kajuit
+=scenario/buffer.test.js= · rep-o-gram =tests/tools.test.js=.
+
+=soma.test.js:178= keeps a =memory= yield key on purpose (m23 II.2) — it becomes an
+=output.memory= key, still on purpose.
+
+* sequencing
+
+The contract is ONE atomic rename across a closed set — a half-landed state means the
+emitter speaks =output= while the pool speaks =entities= and every buffer vanishes. So it
+lands as one bracket, not milestones:
+
+1. *blast* — the table above IS the blast. Re-grep before starting; it is a survey, not a promise.
+2. *test* — seven suites green, recorded.
+3. *change* — typology core first (yield · pool · is · soma · hallucinate · schemas), then
+   emitter, then providers, then tools, then client, then tests.
+4. *test* — seven suites green, same counts.
+5. *blast* — re-grep =\.entities\b= / =output\.object= / =result\.output=; residue must be
+   =daemon.entities.*= and =hallucination.entities.turn= only.
+
+Typology core types are HOLY — =Part.ToolResult=, =Output=, =Packet.ToolYield=, =Yield()= are
+schematics. Beef's go covers them under this quest; nothing outside the table gets touched.
+
+* provisioning — hal is a typed fetch
+
+#+begin_quote
+all of the above is shit. the below is brilliant.
+const hal = daemon.cortex.hallucination({ tune, rounds, backoff })
+hal.dialogue.render() / .stream()
+#+end_quote
+
+Beef killed EVERY fluent mutation verb — =context.system/.extend= · =entities.turn.append= ·
+=hal.tools.*= · =output.object()= · =configure()= — and kept only spawn + invoke. The
+resolution is not better verbs but ZERO verbs: *the Request is an ARGUMENT, not accumulated
+state.* =fetch(request) → Response=, typed over faculties.
+
+#+begin_src js
+const hal = daemon.cortex.hallucination({ tune, rounds, backoff });   // WHO + HOW LONG — frozen
+
+const response = await hal.dialogue.render({                          // WHAT — plain data, per call
+  system: { persona, tutor: stateFromDb },   // named sections, ordered; compose = object spread
+  turns,                                     // projected history, caller-assembled
+  tools,                                     // ONE Vector; wire catalog derived inside
+  settings: { maxTokens },
+  output: { schema },
+  cache: { marks: ["persona"] },             // marks name section KEYS
+});
+#+end_src
+
+** why each register dies WITHOUT replacement
+
+| dead register | dissolves into |
+|---------------+----------------|
+| =context.system= / =extend= | =system: {key: content}= — replace-by-key = object spread; idempotent by construction; order = key order; the singular-vs-procedural question stops existing |
+| =entities.turn.append= | =turns: [...history, turn]= — the register was a mutable wrapper around an array |
+| =hal.tools.slurp/open/use= | Vector grammar goes back ON the Vector; the harness builds it, passes it under =tools= |
+| =output.object(schema)= | =output: {schema}= in the record |
+| =configure()= | dies — different tune = spawn another; hal is a cheap closure, and every live call site (harness, riddler, Oracle) already spawns fresh per request. The builder never served a second invocation in its life |
+| =json= getter | the request IS the json |
+
+** what statelessness buys
+
+- kills the multi-turn fear STRUCTURALLY: no hidden accumulation, no "did I already set
+  system". Same section bytes across calls = stable prefix = cache lives. The CALLER owns
+  byte-stability, which is where the data lives anyway.
+- m23 debuggable for free: request = data → log, snapshot-test, REPLAY.
+- delegation composes: child call = another record; child Response is a yield; pure
+  functions nest.
+- the harness if-ladder becomes one object literal — the projection frame lands as record
+  assembly, not middleware.
+- =prototypes/hallucination.js= shrinks to spawn closure + 8 leaves (each: resolve faculty →
+  lower request → respond loop). Context Map, entities register, output facade, configure,
+  json getter — deleted.
+
+** the projection frame (the thread side of the same law)
+
+The Request is a PROJECTION of the thread; the caller (harness) is the projector. Three
+channels, never mixed:
+
+| channel | carrier | discipline |
+|---------+---------+------------|
+| HISTORY — what happened | =turns= | append-only, replayed, compaction later |
+| STATE — what is | =system= sections | keyed, re-derived per invocation, byte-stable unless data changed |
+| ACTION — what can be done | =tools= | the ONLY write path |
+
+Rulings that fall out (settled with beef over the multi-turn blob):
+
+1. realtime db data: STATE section if it shapes every utterance (memory strengths), TOOL if
+   on-demand. Litmus: think-before vs ask-when-needed.
+2. buffers in context (email composer, game state): READ = projected section, WRITE = a
+   =buffer.update= tool (plain mikro update — beef confirmed) — the file model, in JSON land
+   (beef: /"they live in Python land, I live in JSON land"/). SELECTION FLIPPED on beef's
+   own insight: *default = the thread's live buffers project* — buffers FK the thread, so
+   agent-generated buffers stay in context and re-derive with fresh data every request; the
+   thread IS the selection. Section key = =buffer:${id}=, content = =buffer.data= JSON raw —
+   byte-identical unless data changed, unchanged buffers cost zero cache. Mode refines by
+   overwriting the section KEY in its middleware — no new declarative surface.
+3. output entities re-entering context: HAPPENED rides the replayed transcript's tool_result
+   parts; IS projects as a state section. Never re-inject bags.
+4. turn↔buffer SQL relation: NO — part-level provenance (m26) already records it; both FK
+   the thread, that is the shared spine.
+5. long-running agents: compaction = fold old turns INTO a state section (history → state);
+   the turn-repository =fold(tract, judge)= design is that slot. DEFERRED, slot named.
+6. branching/delegation: a tool whose execute spawns a hallucination on a child thread; the
+   child Response returns as the tool's yield. Already composes — nothing to invent.
+
+Industry-proofing: the frame maps 1:1 onto the provider convergence (messages=history,
+system=instructions+state, tools=actions, MCP resources=readable state); dialects stay in
+translate; prefix-stability is the one caching discipline every provider rewards.
+
+** the tool library — one factory, three layers (beef initiated)
+
+#+begin_quote
+just like we have with the symbols and literal tools on the domain level, we might want to
+consider building a library of tools around the repository... on harness level we should
+have some tools... have some basic tools for symbols, turns, threads, buffers, literals...
+and then when the domain or any mode implements the same tool for the same entity, they
+would just get overwritten. So we have the basics and then additional tools or richer
+tools override those.
+#+end_quote
+
+ONE principle across both channels: *keyed layers, later wins* — system sections override
+by KEY, tools override by NATURE (the trie already does this: =open()= = direct effect
+overwrite on the same nature).
+
+- *NOT a factory* (beef corrected twice): no =tools.repository(entities, whitelist)=
+  runtime minting. AUTHORED Vector declarations, a few tools per entity, each with real
+  valence prose and input schemas — =gestalten/shard/tools/= (barrel-per-directory):
+  =shard.tools.buffer= (=/buffer/find=, =/buffer/update=) · =shard.tools.thread= ·
+  =shard.tools.turn= · =shard.tools.literal= (=/literal/find=, =/literal/count=) ·
+  =shard.tools.symbol= · … Effects read =ctx.daemon.entities[x]= (ctx-bound, same as
+  domain tools). The whitelist DISSOLVES — authorship IS the curation: buffer has
+  =update= because someone wrote it; literal doesn't.
+- ={where, options}= inputs everywhere; the ONE options =ALLOWED=/=sanitize()= truth-table
+  imported from =datamap.js= (datamap = mikro stuff, beef ruled — tools stay one level up).
+- layering by slurp order in =harnessed.js=: ① =shard.tools.*= slurped per entity →
+  ② =daemon.domain.tools= (richer: =literal.pick= feed/novel/due) → ③ =mode.tools=.
+  Same-nature slurp = override.
+- *the m23 domain tool rebuild NESTS here as layer ②* — its generic half (find/count)
+  moves DOWN into =shard.tools.literal=/=symbol=; domain keeps only domain semantics.
+- VERIFY before build: =slurp()= collision semantics must match =open()='s
+  same-nature-overwrites (trie merge, later effect wins) — if not, one-line merge fix.
+
+** ctx naming (beef ruled)
+
+The assembled record rides =ctx.hallucination=, NOT =ctx.request= — the ctx slot keeps its
+name; only its NATURE changes (mutable prototype → plain Request record). The Request/
+Response type names are unaffected.
+
+BREAKTHROUGH marker (beef: /"I considered this now a breakthrough"/): typed-fetch hal +
+projection frame + keyed layers (sections by KEY, tools by NATURE) + thread-buffers-project-
+by-default + the repository tool library. This section is the design of record.
+
+Beef, mid-sweep, verbatim — the two pins that settled a months-old itch:
+
+#+begin_quote
+really this insight that the harness hallucination is a projection of the thread and that
+we progressively enhance it through keyed properties with a bite comparison and as an
+expression of a of the modes, tools, and entity map is brilliant. It's perfect. It's so
+spot on.
+#+end_quote
+
+#+begin_quote
+We finished in this conversation a problem that has been bugging me for months, and that's
+the kind of the uncertainty in the... or the lack of clarity between the... in the in the
+contracts and the relationships. the contract now of the response with returns and the
+output and meta and condition and how those aggregate up. plus that the hallucination of
+the harness is an expression of the thread. those two really put this whole system into a
+sharp relief. Wonderful.
+#+end_quote
+
+** the one seam decision — tools lowering
+
+Invocation =tools= carries the VECTOR; =respond()= LOWERS it to the wire catalog via
+=declarations()= rollup. One key, the Vector never crosses the wire, the record stays the
+one complete description of the call. This SUPERSEDES the earlier "Vector as fifth
+parameter" note — with a data Request there is no parameter list to hang it on.
+
+** the three views (walked for beef, confirmed frame)
+
+1. *mode level — the mode's harness middleware IS the projection declaration.* No new
+   declarative surface for buffer projection: the mode middleware reads its buffers and
+   writes sections (=ctx.hallucination.system[`board:${buffer.id}`] = render(buffer.data)=).
+   Francesca: =ctx.policy.tune = "fast"; ctx.hallucination.system.francesca = francesca;
+   ctx.hallucination.system.state = state= — two named sections instead of one joined blob, mark
+   after the stable one. One-shot emitter calls (riddler) lose the hand-built
+   =role:"system"= turn — =system= is a real key.
+2. *daemon trait level — HARNESSED = assemble-then-invoke.* hal minting MOVES from the
+   front middleware to the TERMINAL leaf: ① seed =ctx.policy= + =ctx.hallucination= from input
+   (tools Vector slurped domain→mode, ctx binds ride the Vector) → ② domain + mode harness
+   middlewares write sections/tools onto =ctx.hallucination= → ③ =/dialogue= branch projects
+   history into =request.turns= (persistence fold unchanged) → ④ terminal:
+   =cortex.hallucination(ctx.policy)[type].render(ctx.hallucination)=. =ctx.hallucination= inspectable
+   at every middleware boundary — m23 debuggable at every hop.
+3. *the translation — LOWER then TRANSLATE, never mixed.* LOWER (in =respond()=, provider-
+   neutral, the ONE transformation): =tools= Vector ✂ catalog; every other key verbatim.
+   TRANSLATE (per provider): system sections → anthropic system blocks (mark names the KEY
+   → =cache_control= on that block) / gemini =system_instruction= join; turns → messages/
+   contents; catalog → dialect tool defs; =output.schema= → forced tool / =response_schema=.
+   The existing law "compile emits a Request, the named provider contract" survives —
+   compile stopped being a hoisting ceremony and became a cut.
+
+* adjacent, NOT merged
+
+The provider-context research (system-prompt hoisting, cache marks) lands on the INPUT half
+of the same =Request=. Two forks there — *A* multi-part =compile()= so a cache mark can sit on
+the stable persona block, *B* positional system turns — are independent of this contract
+and neither blocks it. Only overlap: both edit =Request='s shape, so they should not land in
+the same bracket.
+
+* decided
+
+- =condition= is the ENVELOPE, =output= is the PAYLOAD — a status cannot live inside the thing
+  whose existence it reports
+- entity keys are SINGULAR, mirroring =daemon.entities.*= — not a new register
+- =message= / =object= are reserved words in the bag; the collision risk with a future entity
+  name is accepted and recorded
+- the =message ?? object= flatten moves from =dispatch= to the provider translates
+- =turns= stays at the transcript envelope, never =output.turns=
+- =message= over =text=
+- the pinned =output= ≠ =object= law is RETIRED deliberately, not by accident
+- =Request= is a RECORD (closed, authored), =output= is a BAG (open, sniffed) — never symmetric
+- =cache= stays out of =settings= (parametric vs structural); expected to dissolve onto
+  system sections once they carry identity
+- the invocable tool Vector leaves =policy= — invocation =Request.tools= carries the Vector,
+  =respond()= lowers it to the wire catalog (supersedes the fifth-parameter note)
+- =system= promoted to a =Request= key as an array of identity-keeping sections; the
+  compile-to-turn-then-unhoist round trip dies; fork A falls out free
+- turn carries NO condition/output — part carries =output= (one call), envelope carries
+  ={condition, output, turns}= (the run)
+- entity concat at the envelope DEDUPES BY =id=; =message= at the envelope is the assistant's
+  final word, not a tool rollup; =condition= NEVER rolls up from tools
+- =Response = {condition, output, turns, meta}= — verdict · payload · record · diagnosis;
+  =state= + =rounds= live in =meta= on BOTH wire and fold, one spelling
+- =condition= materialized on the Response so =is.yieldish= passes — a Response IS a yield
+- PROVISIONING: hal = typed fetch — spawn ={tune, rounds, backoff}= frozen, Request rides
+  the INVOCATION as plain data; ALL fluent mutation registers die without replacement
+  (beef: /"all of the above is shit"/); =system= = named-section record, compose = spread
+- the projection frame: HISTORY=turns · STATE=system sections · ACTION=tools; buffer READ =
+  projected section (mode-declared), buffer WRITE = tool; no turn↔buffer FK; compaction +
+  branching = named slots, deferred
+
+* open
+
+- nothing — the go came and the sweep landed. Residue parked above: =is.vector=
+  sniff-vs-instanceof asymmetry; roadmap LATERs (generative trait, datasink freight,
+  fs/shell/MCP skills).

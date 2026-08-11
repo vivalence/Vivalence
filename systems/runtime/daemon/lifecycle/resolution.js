@@ -6,11 +6,11 @@ export async function domain(daemonDie) {
     .use(shard.secure.authorize())
     .use(daemonDie.datamap.shard.bind("user", (ctx) => ({ user: ctx.user.id })));
 
-  if (daemonDie.domain.aperture)
-    daemonDie.good.aperture.slurp(daemonDie.domain.aperture);
+  if (daemonDie.good.domain.aperture)
+    daemonDie.good.aperture.slurp(daemonDie.good.domain.aperture);
 
-  // domain wires its own userspace entities (trace/memory, …); slim daemon has no domain → no-op
-  await daemonDie.domain.resolve?.(daemonDie);
+  // domain wires its own userspace entities (trace/retention, …); slim daemon has no domain → no-op
+  await daemonDie.good.domain.resolve?.(daemonDie);
 }
 
 export async function freight(daemonDie) {
@@ -41,6 +41,9 @@ export async function modes(daemonDie) {
 
       if (mode.module.aperture && !mode.implements("EXPOSED")) {
         console.warn(`[trait] ${mode.type}/${mode.slug} exports aperture without EXPOSED`);
+      }
+      if (mode.module.datasink && !mode.implements("DATASINK")) {
+        console.warn(`[trait] ${mode.type}/${mode.slug} exports datasink without DATASINK`);
       }
 
       await daemonDie.good.entities.mode.nativeUpdate({ id: mode.entity.id }, { installed: true });

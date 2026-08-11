@@ -13,6 +13,16 @@ export const DEFAULT_COMPOSER = {
   density: "comfortable",
 };
 
+export const FONT_SIZES = {
+  "2xs": "11px",
+  xs: "12.5px",
+  sm: "14px",
+  base: "16px",
+  lg: "18px",
+  xl: "20px",
+  "2xl": "22.5px",
+};
+
 function store(defaults, serialize) {
   const instance = {};
   const atoms = {};
@@ -72,8 +82,9 @@ export class Bridge {
         h: false,
         snap: true,
         theme: saved?.view?.theme ?? "nordic",
+        fontSize: saved?.view?.fontSize ?? "base",
       },
-      ["d", "d.threads", "d.intents", "d.modes", "f", "theme"],
+      ["d", "d.threads", "d.intents", "d.modes", "f", "theme", "fontSize"],
     );
 
     this.paneSize = store(
@@ -109,6 +120,11 @@ export class Bridge {
 
   setTheme = (name) => {
     this.view.$theme.set(name);
+    this.save();
+  };
+
+  setFontSize = (name) => {
+    this.view.$fontSize.set(name);
     this.save();
   };
 

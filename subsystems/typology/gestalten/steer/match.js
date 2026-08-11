@@ -7,7 +7,7 @@ export function feed(matches, signal) {
 }
 
 export function greedy(vector, signal) {
-  for (const [pattern, trajectory] of vector.trajectories.entries()) {
+  for (const { pattern, trajectory } of vector.trie.values()) {
     const match = pattern.apply(signal);
     if (match) return [[match, trajectory, trajectory.effect ?? null]];
   }
@@ -18,7 +18,7 @@ export function greedy(vector, signal) {
 export function scope(vector, signal) {
   const scope = [];
 
-  for (const [pattern, trajectory] of vector.trajectories.entries()) {
+  for (const { pattern, trajectory } of vector.trie.values()) {
     const match = pattern.apply(signal);
     if (match) scope.push([match, trajectory, trajectory.effect ?? null]);
   }

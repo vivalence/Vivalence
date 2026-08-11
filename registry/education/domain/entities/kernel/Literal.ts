@@ -13,13 +13,13 @@ import {
   type EventArgs,
   type FlushEventArgs,
 } from "@mikro-orm/core";
-import { literal as base } from "@vivalence/typology/entities";
+import { literal as base } from "@vivalence/runtime";
 import { object, is } from "@vivalence/typology";
 
-import { MemoryEntity } from "../userspace/Memory.ts";
+import { RetentionEntity } from "../userspace/Retention.ts";
 import { TraceEntity } from "../userspace/Trace.ts";
 import { SymbolEntity } from "./Symbol.ts";
-import { drivers } from "../../memory/index.js";
+import { drivers } from "../../retention/index.js";
 
 export enum LiteralTraitsEnum {
   TRANSLATED = "TRANSLATED",
@@ -31,6 +31,20 @@ export enum LiteralTraitsEnum {
 }
 
 export class LiteralRepository extends base.repository {
+  get card() {
+    return {
+      fields: ["slug", "known", "learning", "ontology", "status"],
+      populate: ["retentions"],
+      project: (literal) => ({
+        slug: literal.slug,
+        known: literal.trait?.TRANSLATED?.known ?? "",
+        learning: literal.trait?.TRANSLATED?.learning ?? "",
+        ontology: literal.ontology,
+        status: literal.retention?.status ?? "UNTOUCHED",
+      }),
+    };
+  }
+
   search(query: any) {
     const like = `%${query.search}%`;
     return [
@@ -64,7 +78,7 @@ export class LiteralRepository extends base.repository {
   async novel(where: any, opts?: any) {
     const { limit, blacklist, populate } = opts || {};
     const filter = object.merge(
-      { memories: { $none: {} } },
+      { retentions: { $none: {} } },
       { id: { $nin: blacklist?.literals || [] } },
       this.constrain(where),
     );
@@ -74,12 +88,12 @@ export class LiteralRepository extends base.repository {
   async due(where: any, opts?: any) {
     const { limit, blacklist, populate } = opts || {};
     const filter = object.merge(
-      { memories: { nextAt: { $lt: new Date() } } },
+      { retentions: { nextAt: { $lt: new Date() } } },
       { id: { $nin: blacklist?.literals || [] } },
       this.constrain(where),
     );
     return this.find(filter, {
-      populate: populate ? [...populate, "memories"] : ["memories"],
+      populate: populate ? [...populate, "retentions"] : ["retentions"],
       limit,
     });
   }
@@ -87,10 +101,10 @@ export class LiteralRepository extends base.repository {
   async byStrength(where: any, opts?: any) {
     const { limit, blacklist, populate } = opts || {};
     return this.find(
-      object.merge({ memories: {} }, { id: { $nin: blacklist?.literals || [] } }, this.constrain(where)),
+      object.merge({ retentions: {} }, { id: { $nin: blacklist?.literals || [] } }, this.constrain(where)),
       {
-        populate: populate ? [...populate, "memories"] : ["memories"],
-        orderBy: { memories: { strength: "ASC" } },
+        populate: populate ? [...populate, "retentions"] : ["retentions"],
+        orderBy: { retentions: { strength: "ASC" } },
         limit,
       },
     );
@@ -100,12 +114,12 @@ export class LiteralRepository extends base.repository {
     const { limit, blacklist, populate } = opts || {};
     return this.find(
       object.merge(
-        { memories: { lastSignal: { $in: signals } } },
+        { retentions: { lastSignal: { $in: signals } } },
         { id: { $nin: blacklist?.literals || [] } },
         this.constrain(where),
       ),
       {
-        populate: populate ? [...populate, "memories"] : ["memories"],
+        populate: populate ? [...populate, "retentions"] : ["retentions"],
         limit,
       },
     );
@@ -115,12 +129,12 @@ export class LiteralRepository extends base.repository {
     const { status, limit, blacklist, populate } = opts || {};
     return this.find(
       object.merge(
-        status ? { memories: { status: { $in: status } } } : { memories: {} },
+        status ? { retentions: { status: { $in: status } } } : { retentions: {} },
         { id: { $nin: blacklist?.literals || [] } },
         this.constrain(where),
       ),
       {
-        populate: populate ? [...populate, "memories"] : ["memories"],
+        populate: populate ? [...populate, "retentions"] : ["retentions"],
         orderBy: { [raw("random()")]: "asc" },
         limit,
       },
@@ -132,11 +146,11 @@ export class LiteralEntity extends base.entity {
   traits: LiteralTraitsEnum[] & Opt = [];
   rank: number & Opt = 999999;
   // strength: ---
-  memories = new Collection<MemoryEntity>(this);
+  retentions = new Collection<RetentionEntity>(this);
   [EntityRepositoryType]?: LiteralRepository;
 
-  get memory(): MemoryEntity | undefined {
-    return this.memories.isInitialized() ? this.memories.getItems()[0] : undefined;
+  get retention(): RetentionEntity | undefined {
+    return this.retentions.isInitialized() ? this.retentions.getItems()[0] : undefined;
   }
 
   get translated() {
@@ -155,13 +169,13 @@ export class LiteralEntity extends base.entity {
     const em = ctx.daemon.entities.em;
     const user = ctx.user.id;
 
-    let memory = this.memory;
-    if (!memory) {
-      memory = await em.findOne(MemoryEntity, { literal: this.id });
+    let retention = this.retention;
+    if (!retention) {
+      retention = await em.findOne(RetentionEntity, { literal: this.id });
     }
 
-    if (!memory) {
-      memory = em.create(MemoryEntity, {
+    if (!retention) {
+      retention = em.create(RetentionEntity, {
         user,
         literal: this.id,
         driver: "BAYESIAN",
@@ -169,16 +183,16 @@ export class LiteralEntity extends base.entity {
         status: "UNTOUCHED",
         state: null,
       });
-      em.persist(memory);
+      em.persist(retention);
     }
 
-    const driver = drivers[memory.driver];
-    const result = memory.evolve(signal, driver);
+    const driver = drivers[retention.driver];
+    const result = retention.evolve(signal, driver);
 
     const trace = em.create(TraceEntity, {
       user,
       literal: this.id,
-      memory: memory,
+      retention: retention,
       mode: ctx.mode?.id ?? null,
       thread: ctx.thread?.id ?? null,
       signal: result.signal,
@@ -192,7 +206,7 @@ export class LiteralEntity extends base.entity {
     em.persist(trace);
 
     await em.flush();
-    return memory;
+    return retention;
   }
 }
 
@@ -232,17 +246,17 @@ export const LiteralSchema = new EntitySchema({
           .filter((d) => d.sql?.strength)
           .map((d) => `WHEN '${d.type}' THEN ${d.sql.strength("m")}`)
           .join(" ");
-        return `(SELECT CASE m.driver ${cases} ELSE 0.0 END FROM Memory m WHERE m.literal = ${alias}.id LIMIT 1)`;
+        return `(SELECT CASE m.driver ${cases} ELSE 0.0 END FROM Retention m WHERE m.literal = ${alias}.id LIMIT 1)`;
       },
       persist: false,
       lazy: true,
       nullable: true,
     },
 
-    memories: {
+    retentions: {
       kind: "1:m",
-      entity: () => MemoryEntity,
-      mappedBy: (memory) => memory.literal,
+      entity: () => RetentionEntity,
+      mappedBy: (retention) => retention.literal,
     },
   },
 });

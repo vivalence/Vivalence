@@ -3,6 +3,7 @@
   import { LIGHTHOUSE, TERMINALS } from "$client";
   import { chain } from "@vivalence/kajuit";
   import { belt } from "@vivalence/typology";
+  import { logger } from "$telemetry";
   import { Section } from "@vivalence/drapes";
   import ThreadLabel from "./ThreadLabel.svelte";
 
@@ -22,6 +23,11 @@
 
   let sections = $state({ daemons: true, threads: true, intents: true });
   const toggleSection = (name) => (sections[name] = !sections[name]);
+
+  let groups = $state({});
+  const groupOpen = (section, slug) =>
+    groups[`${section}:${slug}`] ?? slug === $activeThread?.daemon?.slug;
+  const toggleGroup = (section, slug) => (groups[`${section}:${slug}`] = !groupOpen(section, slug));
 
   const code = (entity) => entity.status?.reflection?.code?.toLowerCase() ?? "";
 
@@ -65,7 +71,7 @@
         if (offBuffer) teardowns.push(offBuffer);
         await daemon.entities.thread
           .find({}, { populate: ["mode", "intent"] })
-          .catch((error) => console.warn(`[probe] d thread find ${daemon.slug} failed`, error));
+          .catch((error) => logger.entry(`threads/${daemon.slug}`).fault(error));
       }
     })();
 
@@ -105,7 +111,7 @@
         terminal.thread = thread;
       }
     } catch (error) {
-      console.warn(`[probe] selectMode ${daemon.slug}/${mode.slug} failed`, error);
+      logger.entry(`threads/${daemon.slug}/${mode.slug}`).fault(error);
     }
   }
 
@@ -119,7 +125,7 @@
       daemon.entities.thread.resolve?.(thread);
       terminal.thread = thread;
     } catch (error) {
-      console.warn(`[probe] activateIntent ${daemon.slug}/${intent.slug} failed`, error);
+      logger.entry(`threads/${daemon.slug}/${intent.slug}`).fault(error);
     }
   }
 
@@ -144,7 +150,21 @@
     try {
       await spawnBuffer(loadThread(thread));
     } catch (error) {
-      console.warn(`[probe] quickStart failed`, error);
+      logger.entry("threads/quickstart").fault(error);
+    }
+  }
+
+  async function deleteThread(thread) {
+    try {
+      groups[`threads:${thread.daemon.slug}`] = true;
+      for (const terminal of terminals.entities)
+        if (terminal.thread?.id === thread.id) terminal.thread = null;
+      for (const buffer of thread.$buffers?.get() ?? [])
+        thread.daemon.entities.buffer.drop(buffer.id);
+      await thread.daemon.entities.buffer.remove({ thread: thread.id });
+      await thread.daemon.entities.thread.removeOne({ id: thread.id });
+    } catch (error) {
+      logger.entry(`threads/${thread.id}`).fault(error);
     }
   }
 
@@ -157,18 +177,28 @@
 
 {#snippet threadRow(thread, daemon)}
   {@const active = $activeThread?.id === thread.id}
-  <button
-    class="row thread"
-    class:on={active}
-    onclick={() => loadThread(thread)}
-    ondblclick={() => quickStart(thread)}
-    onauxclick={(event) => onThreadAux(thread, event)}
-    title="click load · dbl-click quick-start · middle-click new terminal">
-    <span class="tick" class:on={active}></span>
-    <span class="name" class:on={active}><ThreadLabel {thread} /></span>
-    <span class="tmode">{thread.mode?.slug ?? "-"}</span>
-    <span class="time">{belt.time.since(thread.updatedAt)}</span>
-    <span class="bufs" class:has={bufferCount(thread) > 0}>{bufferCount(thread)}</span>
+  <div class="row thread" class:on={active}>
+    <button
+      class="cell"
+      onclick={() => loadThread(thread)}
+      ondblclick={() => quickStart(thread)}
+      onauxclick={(event) => onThreadAux(thread, event)}
+      title="click load · dbl-click quick-start · middle-click new terminal">
+      <span class="tick" class:on={active}></span>
+      <span class="name" class:on={active}><ThreadLabel {thread} /></span>
+      <span class="tmode">{thread.mode?.slug ?? "-"}</span>
+      <span class="time">{belt.time.since(thread.updatedAt)}</span>
+      <span class="bufs" class:has={bufferCount(thread) > 0}>{bufferCount(thread)}</span>
+    </button>
+    <button class="x" onclick={() => deleteThread(thread)} title="delete thread">✕</button>
+  </div>
+{/snippet}
+
+{#snippet groupHead(section, daemon, count)}
+  <button class="subgroup" onclick={() => toggleGroup(section, daemon.slug)}>
+    <span class="caret">{groupOpen(section, daemon.slug) ? "▾" : "▸"}</span>
+    <span class="name">{daemon.slug}</span>
+    <span class="count">{count}</span>
   </button>
 {/snippet}
 
@@ -221,8 +251,10 @@
         {#each availableDaemons as daemon (daemon.slug)}
           {@const daemonThreads = threads.filter((item) => item.daemon.slug === daemon.slug)}
           {#if daemonThreads.length}
-            <div class="subgroup">{daemon.slug}</div>
-            {#each daemonThreads as item (item.thread.id)}{@render threadRow(item.thread, item.daemon)}{/each}
+            {@render groupHead("threads", daemon, daemonThreads.length)}
+            {#if groupOpen("threads", daemon.slug)}
+              {#each daemonThreads as item (item.thread.id)}{@render threadRow(item.thread, item.daemon)}{/each}
+            {/if}
           {/if}
         {/each}
       {/if}
@@ -242,13 +274,15 @@
         {#each availableDaemons as daemon (daemon.slug)}
           {@const daemonIntents = intents.filter((item) => item.daemon.slug === daemon.slug)}
           {#if daemonIntents.length}
-            <div class="subgroup">{daemon.slug}</div>
-            {#each daemonIntents as { intent } (intent.id)}
-              <button class="row intent" onclick={() => activateIntent(daemon, intent)}>
-                <span class="name">{intent.name ?? intent.slug}</span>
-                <span class="type">{intent.mode?.slug ?? ""}</span>
-              </button>
-            {/each}
+            {@render groupHead("intents", daemon, daemonIntents.length)}
+            {#if groupOpen("intents", daemon.slug)}
+              {#each daemonIntents as { intent } (intent.id)}
+                <button class="row intent" onclick={() => activateIntent(daemon, intent)}>
+                  <span class="name">{intent.name ?? intent.slug}</span>
+                  <span class="type">{intent.mode?.slug ?? ""}</span>
+                </button>
+              {/each}
+            {/if}
           {/if}
         {/each}
       {/if}
@@ -355,15 +389,65 @@
     text-transform: uppercase;
   }
   .subgroup {
+    display: flex;
+    align-items: center;
+    gap: 7px;
+    width: 100%;
+    background: none;
+    border: none;
+    color: inherit;
+    text-align: left;
+    cursor: pointer;
+    font-family: inherit;
     font-size: var(--font-size-2xs);
     letter-spacing: 0.16em;
     text-transform: uppercase;
     opacity: 0.28;
     padding: 4px 2px 3px;
   }
+  .subgroup:hover {
+    opacity: 0.55;
+  }
+  .subgroup .count {
+    font-size: var(--font-size-2xs);
+    opacity: 0.8;
+  }
   .thread {
+    gap: 0;
+    padding: 0;
+  }
+  .thread .cell {
+    display: flex;
+    align-items: center;
     gap: 8px;
-    padding: 4px 6px 4px 4px;
+    flex: 1;
+    min-width: 0;
+    padding: 4px 2px 4px 4px;
+    background: none;
+    border: none;
+    border-radius: 2px;
+    color: inherit;
+    font: inherit;
+    text-align: left;
+    line-height: 1.1;
+    cursor: pointer;
+  }
+  .thread:hover {
+    background: color-mix(in srgb, var(--colors-skeleton-3-contrast) 5%, transparent);
+  }
+  .thread .x {
+    padding: 0 6px;
+    background: none;
+    border: none;
+    color: inherit;
+    font: inherit;
+    cursor: pointer;
+    opacity: 0.2;
+    flex-shrink: 0;
+  }
+  .thread .x:hover {
+    opacity: 0.75;
+    color: var(--colors-skeleton-0-danger-base);
   }
   .thread.on {
     background: color-mix(in srgb, var(--colors-skeleton-0-primary-base) 10%, transparent);

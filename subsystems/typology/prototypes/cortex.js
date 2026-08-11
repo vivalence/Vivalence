@@ -33,9 +33,11 @@ const where = (supplied = {}) => {
 
 export class Cortex {
   faculties = new Map(); // type → Faculty[]
+  #hallucinate;
 
-  hallucination(config = {}) {
-    return Hallucination(this, config);
+  // the typed-fetch surface, built once — stateless; policy rides each request
+  get hallucinate() {
+    return (this.#hallucinate ??= Hallucination(this));
   }
 
   register(supplied) {

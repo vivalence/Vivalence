@@ -1,5 +1,6 @@
 import { atom } from "nanostores";
 import { Stall, Blacklist } from "@vivalence/typology";
+import { logger } from "$telemetry";
 import { pull } from "./thread/traits/aimed.js";
 import { depth } from "./thread/traits/queueing.js";
 import { defaultDock } from "../stores/bridge/dock.js";
@@ -10,6 +11,14 @@ export function Terminal({ id = null, dock } = {}) {
   // const $view = atom(null;) //@beef!
   const $dock = atom(dock ?? defaultDock());
   let stall = null;
+
+  let threadVigil = null;
+  let bufferVigil = null;
+
+  const vigil = (entity, repository, clear) =>
+    repository?.$entities?.listen((entities) => {
+      if (!entities.some((candidate) => candidate.id === entity.id)) clear();
+    }) ?? null;
 
   const terminal = {
     id,
@@ -55,7 +64,18 @@ export function Terminal({ id = null, dock } = {}) {
   // the stall re-builds on every thread switch: source = its buffers, active = our pointer,
   // phase = the thread's knob, pull = AIMED.pull (a free capability read live — no stamped
   // method to go stale), depth = QUEUEING.depth. The thread owns config; the stall reacts.
+  $buffer.subscribe((buffer) => {
+    bufferVigil?.();
+    bufferVigil = buffer
+      ? vigil(buffer, $thread.get()?.daemon?.entities?.buffer, () => $buffer.set(null))
+      : null;
+  });
+
   $thread.subscribe((thread) => {
+    threadVigil?.();
+    threadVigil = thread
+      ? vigil(thread, thread.daemon?.entities?.thread, () => (terminal.thread = null))
+      : null;
     stall?.deactivate();
     stall =
       thread &&
@@ -70,7 +90,7 @@ export function Terminal({ id = null, dock } = {}) {
       thread.daemon.entities.buffer.drop(buffer.id); // optimistic: source shrinks now
       thread.daemon.entities.buffer
         .removeOne({ id: buffer.id }) // server sync
-        .catch((error) => console.warn(`[probe] release sync failed ${buffer.id}`, error));
+        .catch((error) => logger.entry(`buffers/release/${buffer.id}`).fault(error));
     });
   });
 

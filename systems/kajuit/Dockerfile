@@ -5,6 +5,9 @@ ENV VIVA_SYSTEM_MODE="BUILD"
 ENV VIVA_SYSTEM_ROLE="CLIENT"
 
 RUN deno install
+
+ARG VIVA_STAMP
+ENV VIVA_STAMP=${VIVA_STAMP}
 RUN deno task kajuit/bundle
 
 FROM nginx:alpine

@@ -1,5 +1,5 @@
 import { Mode, Path, Vector, Aperture, shard } from "@vivalence/typology";
-// import { maps } from "@vivalence/typology/entities";
+// import { maps } from "@vivalence/runtime";
 
 export class Daemon {
   // slug = null;

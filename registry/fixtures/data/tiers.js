@@ -1,4 +1,4 @@
-import { sets } from "@vivalence/typology/entities";
+import { sets } from "@vivalence/runtime";
 import { entities as domain } from "../../education/domain/entities/index.js";
 
 export const stack = [sets.daemon, sets.kernel, sets.userspace, domain];

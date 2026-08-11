@@ -1,4 +1,25 @@
-import { specimen, fn } from "@vivalence/typology";
+import { specimen, fn, sleep } from "@vivalence/typology";
+
+specimen.describe("debounce — the timer is ownable", () => {
+  specimen.it("cancels a pending call, so a scheduled effect cannot outlive its owner", async () => {
+    const fired = [];
+    const settle = fn.debounce(() => fired.push("fired"), 5);
+    settle();
+    settle.cancel();
+    await sleep.ms(20);
+    specimen.expect(fired).toEqual([]);
+  });
+
+  specimen.it("still fires when nobody cancels, and coalesces a burst into one call", async () => {
+    const fired = [];
+    const settle = fn.debounce(() => fired.push("fired"), 5);
+    settle();
+    settle();
+    settle();
+    await sleep.ms(20);
+    specimen.expect(fired).toEqual(["fired"]);
+  });
+});
 
 specimen.describe("fn", () => {
   specimen.it("an inflight run is shared and its success memoized", async () => {

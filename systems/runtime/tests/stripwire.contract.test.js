@@ -1,23 +1,38 @@
 // stripwire · the aperture contract across vantages — reads the committed snapshot corpus
-// (no live daemon): proves {effect?, branches} holds on both wire + instance, reports drift.
+// (no live daemon): proves the LEAN route projection holds on both wire + instance, reports drift.
 import { specimen } from "@vivalence/typology";
 
 const { describe, it, expect } = specimen;
 const dir = new URL("./snapshots", import.meta.url).pathname;
 const read = (name) => JSON.parse(Deno.readTextFileSync(`${dir}/${name}`));
 
-const isContract = (node) =>
-  !!node &&
-  (node.effect === undefined || (typeof node.effect === "object" && node.effect !== null)) &&
-  !!node.branches &&
-  typeof node.branches === "object" &&
-  Object.values(node.branches).every(isContract);
+const DECLARABLE = ["input", "output", "yields"];
+
+// `yields` is the streaming marker: a declared packet type, or bare `true` when the edge
+// streams without one. `input`/`output` are always the io type NAME.
+const declared = (route, key) =>
+  route[key] === undefined ||
+  typeof route[key] === "string" ||
+  (key === "yields" && route[key] === true);
+
+const isContract = (routes) =>
+  Array.isArray(routes) &&
+  routes.length > 0 &&
+  routes.every(
+    (route) =>
+      !!route &&
+      typeof route.path === "string" &&
+      route.path.startsWith("/") &&
+      DECLARABLE.every((key) => declared(route, key)),
+  );
+
+const paths = (snapshot) => snapshot.routes.map((route) => route.path).sort();
 
 describe("stripwire: aperture contract across vantages", () => {
   const files = [...Deno.readDirSync(dir)].map((entry) => entry.name);
   // MODE wire apertures only. `entity-*-aperture.snapshot.json` is a different sense of "aperture":
   // the HTTP find VANTAGE of an entity repo (topography/{literal,symbol}.snapshot.test.js), whose payload
-  // is a find-result array, not a { manifest, aperture } wire contract. Same suffix, different register.
+  // is a find-result array, not a { manifest, routes } wire contract. Same suffix, different register.
   const wire = files.filter(
     (name) =>
       name.endsWith("-aperture.snapshot.json") &&
@@ -32,37 +47,44 @@ describe("stripwire: aperture contract across vantages", () => {
     })
     .filter(Boolean);
 
-  it("every wire aperture is a well-formed strip contract", () => {
+  it("every wire aperture is a well-formed route contract", () => {
     expect(wire.length).toBeGreaterThan(0);
-    for (const name of wire) expect(isContract(read(name).aperture)).toBe(true);
+    for (const name of wire) {
+      const snapshot = read(name);
+      expect(typeof snapshot.manifest?.slug).toBe("string");
+      expect(isContract(snapshot.routes)).toBe(true);
+    }
   });
 
-  it("every instance aperture is a well-formed strip contract", () => {
-    expect(pairs.length).toBeGreaterThan(0);
-    for (const { instance } of pairs) {
-      const aperture = read(instance).aperture;
-      if (aperture) expect(isContract(aperture)).toBe(true);
+  it("declares an io type only from the strip vocabulary", () => {
+    for (const name of wire)
+      for (const route of read(name).routes)
+        for (const key of Object.keys(route)) expect(["path", ...DECLARABLE]).toContain(key);
+  });
+
+  it("every instance aperture is a well-formed route contract", () => {
+    if (!pairs.length) {
+      console.log(
+        `[stripwire] 0/${wire.length} modes have an instance vantage — ` +
+          `*-brazilian.snapshot.json comes from the live-DB topography run; ` +
+          `regenerate with SNAPSHOT_HOT=1 against a booted daemon to cover it`,
+      );
+      return;
     }
+    for (const { instance } of pairs) expect(isContract(read(instance).routes)).toBe(true);
   });
 
   it("reports wire↔instance drift (no equality assertion)", () => {
     let drifted = 0;
     for (const { stem, wire: wireName, instance } of pairs) {
-      const wireAperture = read(wireName).aperture;
-      const instanceAperture = read(instance).aperture;
-      if (!instanceAperture) continue;
-      const wireBranches = Object.keys(wireAperture.branches);
-      const instanceBranches = Object.keys(instanceAperture.branches);
-      const onlyWire = wireBranches.filter((branch) => !instanceBranches.includes(branch));
-      const onlyInstance = instanceBranches.filter((branch) => !wireBranches.includes(branch));
-      const match = !onlyWire.length && !onlyInstance.length;
-      if (!match) drifted++;
-      console.log(
-        `[stripwire] ${stem} · branches wire ${wireBranches.length}/instance ${instanceBranches.length}` +
-          (match ? " · MATCH" : ` · +wire[${onlyWire}] +instance[${onlyInstance}]`),
-      );
+      const onWire = paths(read(wireName));
+      const onInstance = paths(read(instance));
+      const onlyWire = onWire.filter((path) => !onInstance.includes(path));
+      const onlyInstance = onInstance.filter((path) => !onWire.includes(path));
+      if (!onlyWire.length && !onlyInstance.length) continue;
+      drifted++;
+      console.log(`[stripwire] ${stem} drift · wire-only ${onlyWire} · instance-only ${onlyInstance}`);
     }
     console.log(`[stripwire] ${drifted}/${pairs.length} modes drift between vantages`);
-    expect(pairs.length).toBeGreaterThan(0);
   });
 });

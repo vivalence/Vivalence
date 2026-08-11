@@ -21,10 +21,11 @@ export function translateTurns(turns) {
     const results = turn.parts.filter((part) => part.type === "tool_result");
     const remainder = turn.parts.filter((part) => part.type !== "tool_result");
     for (const part of results) {
+      const spoken = part.output?.message ?? part.output?.object ?? part.output;
       messages.push({
         role: "tool",
         tool_call_id: part.id,
-        content: typeof part.output === "string" ? part.output : JSON.stringify(part.output),
+        content: typeof spoken === "string" ? spoken : JSON.stringify(spoken),
       });
     }
     if (remainder.length) messages.push({ role: turn.role, content: remainder.map(partToContent) });
@@ -83,10 +84,14 @@ export const RESPOND = {
 };
 
 export function buildParams(model, request, stream = false) {
-  const messages = translateTurns(request.turns);
+  const sections = Object.values(request.system ?? {}).map((content) => ({
+    role: "system",
+    content: typeof content === "string" ? content : JSON.stringify(content),
+  }));
+  const messages = [...sections, ...translateTurns(request.turns)];
   const settings = request.settings ?? {};
   const marks = new Set(request.cache?.marks ?? []);
-  const structured = request.output?.object;
+  const structured = request.output?.schema;
   const tool_choice = structured
     ? { type: "function", function: { name: RESPOND.name } }
     : settings.tool_choice;

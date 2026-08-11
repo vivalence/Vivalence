@@ -23,11 +23,12 @@ export const font = {
     // /  ()
     // / system (names of daemons, modes, valences)
     // / client (setting panel labels)
-    code: ["Source Code Pro", "monospace"],
+    code: ["Victor Mono", "monospace"],
   },
   size: {
-    xs: "0.6rem",
-    sm: "0.8rem",
+    "2xs": "0.6875rem",
+    xs: "0.75rem",
+    sm: "0.9375rem",
     base: "1rem",
     lg: "1.4rem",
     xl: "1.6rem",
@@ -41,8 +42,9 @@ export const font = {
   },
 };
 export const lineHeight = {
-  xs: "0.8",
-  sm: "1.0",
+  "2xs": "1.35",
+  xs: "1.4",
+  sm: "1.5",
   base: "1.0",
   lg: "1.1",
   xl: "1.1",

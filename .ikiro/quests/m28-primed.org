@@ -1,0 +1,32 @@
+#+title: m28 — primed: the procedural trait
+#+filetags: :m28:primed:skills:trait:francesca:
+
+* provenance
+
+Extracted from m27 (which extracted it from m23 II.2) on beef's order — the PRIMED trait
+deserves its own package. m27 keeps memory + note (semantic); m28 is skill (procedural).
+
+* the design (from m23 II.2, re-grounded on m26)
+
+- skill = PROCEDURAL knowledge. Skills are FILES, not entities: =SKILL.md= + YAML
+  frontmatter, three-level progressive disclosure (agentskills.io shape).
+- PRIMED = the daemon trait: boot-parse the mode's skills folder frontmatter → index,
+  bodies LAZY. Mirrors APPLICATION's path prototype.
+- =@owner/slug= refs pull another mode's index — a mode that is only PRIMED + a skills
+  folder is a CARRIER others reference. v1 = same-daemon.
+- under m26: the skill index = a STABLE system section (before the volatile ones — key
+  order is the cache discipline). Body elevation = a =skill({name, file?})= tool.
+- =francesca.md= is ALREADY frontmattered in this exact shape — "a skill wearing a
+  persona's clothes." Open (inherited): does a persona become a skill, or stay a plain
+  system section?
+
+* trait = three sides (the [[project_trait_has_three_sides]] law)
+
+behavior in =systems/runtime/daemon/traits/primed.js= + =ModeTraitsEnum= member + client
+=implements()= where a client surface cares. One side proves nothing.
+
+* open
+
+- skill tool: ships with the trait or rides the m26 =shard.tools= layer ①?
+- persona-as-skill (francesca) — beef's call when built
+- cross-daemon refs — explicitly out of v1

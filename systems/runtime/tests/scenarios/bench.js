@@ -27,8 +27,8 @@ import {
   Url, Connection, Mode, Path, Aperture, Vector,
   shard, shape, is, array,
 } from "@vivalence/typology";
-import { sets, UserEntity, BufferEntity, LiteralEntity, SymbolEntity } from "@vivalence/typology/entities";
-import { provider as memoryDatamap } from "@vivalence/typology/scenarios";
+import { sets, UserEntity, BufferEntity, LiteralEntity, SymbolEntity } from "@vivalence/runtime";
+import { provider as memoryDatamap } from "./datamap.js";
 import { assemble } from "./fixtures.js";
 import { Daemon } from "@vivalence/runtime/daemon";
 import * as traits from "../../daemon/traits/index.js";
@@ -113,6 +113,7 @@ export async function bench(spec = {}) {
   daemon.url = new Url("http://bench/daemon/bench");
   daemon.attach = new Url("http://bench/attached");
   daemon.entities = datamapInstance.entities;
+  daemon.datamap = datamapInstance;
 
   const subscriber = shape.subscriber(daemon.twitch);
   datamapInstance.subscribe(subscriber);
@@ -197,11 +198,8 @@ export async function bench(spec = {}) {
   daemon.connection = connection;
 
   // ── DATASET trait: seed ontology/corpus entities ─────────────────
-  for (const mode of daemon.flatmodes()) {
-    if (mode.implements("DATASET") && mode.module.dataset?.entities) {
-      await seedDataset(mode.module.dataset.entities, datamapInstance.entities);
-    }
-  }
+  for (const mode of daemon.flatmodes())
+    if (mode.implements("DATASET")) await traits.DATASET(mode, daemon);
 
   return {
     daemon,
@@ -216,27 +214,3 @@ export async function bench(spec = {}) {
   };
 }
 
-// ── dataset seeding ────────────────────────────────────────────────
-// TODO: This is where the DATASET trait's upsert logic belongs.
-// The real trait (daemon/traits/dataset.js) does batched upserts with
-// linkPhase for symbol↔literal M:N relations and updatedAt tracking.
-//
-// For now, implement the minimal version: iterate entities.literal[]
-// and entities.symbol[], call repo.ensure() for each.
-//
-// Consider: should this call the real DATASET trait function, or is a
-// simplified version better for test determinism?
-
-async function seedDataset(datasetEntities, entities) {
-  if (datasetEntities.symbol) {
-    for (const symbolData of datasetEntities.symbol) {
-      await entities.symbol.ensure(symbolData);
-    }
-  }
-  if (datasetEntities.literal) {
-    for (const literalData of datasetEntities.literal) {
-      await entities.literal.ensure(literalData);
-    }
-  }
-  await entities.em.flush();
-}

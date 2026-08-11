@@ -1,0 +1,141 @@
+#+title: the retention rename lands clean, domain tools move into the harness, and the hallucinate output contract goes on the bench
+#+filetags: :m23:retention:rename:tooled:harnessed:domain-tools:hallucinate:output-contract:survey:
+
+* the ask
+
+Two beats, explicitly sequenced:
+
+#+begin_quote
+first i want you to pull context. survey.
+second, after my go, you start design.
+#+end_quote
+
+Steering mid-survey: *"also look at the aperture"* → *"* the domain aperture stupid"* → *"bruno*"*. The survey was of =registry/education/domain= — entities, repos, tools, tests, and every consumer — as the ground for rebuilding the domain toolset.
+
+* what the survey found
+
+The domain is five things: =entities/= (Literal + Symbol kernel, Retention/Trace/Buffer userspace), =aperture/= (=/pick/literal/{feed,novel,due,byStatus,byStrength}= + =/review/literal=), =retention/= (three SRS drivers), =tools/= (=pull= faceted, =review= batch, =gather= report), =harness.js= (=educate()=).
+
+Three findings that mattered:
+
+1. *the repos ARE the tool surface already.* =DataRepository= (ensure/update/remove/findByIdentifiers/resolveTraits) → typology =LiteralRepository= (resolveSearch/resolveSymbols with =$all=/=$in=/=$none=) → domain =LiteralRepository= (feed/novel/due/byStrength/byLastSignal/sample). Every tool today hand-carves an enum facade over these.
+
+2. *the generic ORM projection exists — on the aperture side only.* =subsystems/typology/gestalten/shard/datamap.js:83= =repository(repo)= mints =/find /findOne /findOneOrFail /findAndCount /count /create /upsert /ensure /updateOne /update /removeOne /remove= over ={where, options, data}=, with =sanitize()= whitelisting =populate orderBy limit offset fields exclude=. No tool-side analogue.
+
+3. *beef's verdict was already in the code*, at =registry/education/modes/home/aprende/tools/query.js:3=:
+
+#+begin_quote
+@beef. no. this is shit. i want something thats more aligned with microorms where opts. more ground level. more universal across all of mikro orm.
+#+end_quote
+
+* the ruling on scope
+
+#+begin_quote
+This inconsistent... the inconsistency that you found, um, has nothing to do with the tools that we are building. The question is, do we actually need to fix that now? I think just attach that to the m twenty three as a trailing thing to be fixed, um, as a notes, but we don't need it that now. Yeah. And everything that we have in terms of tools in the domain right now can die, uh, gather and all of its... the entire implementation, all of its can can die. We don't need it.
+#+end_quote
+
+Two drift items parked into a new =* trailing — parked drift (NOT gating the tool rebuild)= section in the m23 quest:
+
+- =gather.js= is DUPLICATED, not moved — =domain/tools/gather.js= and =aprende/gather.js= byte-identical bar the import path; =domain/types.js= and =aprende/types.js= byte-identical. =gather= dies; the =types.js= twin outlives it and still needs one home.
+- the *"ontology column is empty"* ruling in III's =decided= is FALSE. =subsystems/typology/entities/kernel/Literal.ts:123= populates it from the one TOPOGRAPHICAL symbol; three live call sites filter the plain column. =pull='s symbols-only input was justified by a false premise.
+
+* the rename — memory/engram → retention
+
+#+begin_quote
+Okay. You can kill the runtime, also kill the client. The Brazilian and Spanish demons aren't running, haven't been running, so, um, they never were touched. The only question is, um, yeah. No. It's actually not not a question. They'll just do the rename from memory to retention straight. Only the Italian will do the the the the mitts, the the N gram mitts tab. We we can pretty much ignore that. So retention, um, you can start execution
+#+end_quote
+
+Full blast bracket. Ten token forms, enumerated before touching anything:
+
+#+begin_example
+307 engram   84 engrams   18 EngramEntity   11 Engram   6 EngramTypeEnum
+  6 EngramStatusEnum   6 EngramDriverEnum   4 withEngram   2 engramsLoaded   2 EngramSchema
+#+end_example
+
+Every one contains the substring, so *two* substitutions cover the set — no word boundaries needed:
+
+#+begin_src bash
+mv registry/education/domain/entities/userspace/Engram.ts .../Retention.ts
+mv registry/education/domain/engram         registry/education/domain/retention
+mv registry/education/domain/tests/engram   registry/education/domain/tests/retention
+mv .../aprende/buffer/Engram.svelte         .../aprende/buffer/Retention.svelte
+tr '\n' '\0' < rename.txt | xargs -0 perl -pi -e 's/Engram/Retention/g; s/engram/retention/g;'
+#+end_src
+
+70 files. Post-sweep token census came back *1:1 with the pre-change census* — 307/84/18/11/6/6/6/4/2/2 — which is the proof nothing was lost or doubled. Bruno renamed too (=userspace/entities/memory/= → =retention/=, URLs with it; it had never been swept to =engram= at all, so it was two renames behind).
+
+Seven suites green on both sides of the change, identical counts: runtime 38 (230 steps) · typology 120 (482) · kajuit 23 (91) · paladin 13 (49) · ghost 26 · rep-o-gram 6 (26) · drivers 5 (36).
+
+* the FK gotcha, recurring exactly as predicted
+
+Mid-run beef restarted runtime + client. Mikro migrated the italian DB — created =Retention=, dropped =Engram=, renamed =Trace.engram= → =Trace.retention=. And sqlite's =rename column= left the constraint naming the dropped table:
+
+#+begin_example
+constraint `Trace_engram_foreign` foreign key("retention") references `Engram`(`id`)
+#+end_example
+
+→ =SQLITE_ERROR: no such table: main.Engram= on every Trace insert, surfacing as a red in =integration.test.js= that had been green at baseline. The drop cascaded both tables to 0 (23 retentions, 83 traces). Priced as beef priced it in advance — *"we can pretty much ignore that"* — no recovery ceremony this time. One table rebuild with the right FK, =pragma foreign_key_check= clean, suite back to 38.
+
+*This is the second consecutive rename where the same sqlite semantics bit.* Mikro writes the migration (never author one, never patch a =.snapshot-*.json=) but its rename path does NOT rewrite dependent FK constraints — a table rebuild of the referencing table is the standing follow-up, not an incident.
+
+* domain tools move into the harness
+
+#+begin_quote
+Um, side note in the demon trades tool, I think we can remove the demon domain tools. Yeah. We, um, I want that line to be only in the harness. So we load the demon domain tools into the harness, not into the mode tools.
+#+end_quote
+
+Own bracket; radius was one line and no test asserted the old behavior.
+
+#+begin_src diff
+// systems/runtime/daemon/traits/tooled.js
+-export const TOOLED = (mode, daemon) => {
+-  if (daemon.domain?.tools) mode.tools.slurp(daemon.domain.tools);
++export const TOOLED = (mode) => {
+   if (mode.module.tools) mode.tools.slurp(mode.module.tools);
+ };
+
+// systems/runtime/daemon/traits/harnessed.js
++    if (daemon.domain?.tools) hallucination.tools.slurp(daemon.domain.tools);
+     if (mode.tools) hallucination.tools.slurp(mode.tools);
+#+end_src
+
+Consequence worth naming: AGENTIC harvests peer =mode.tools=, so under the old wiring every TOOLED peer carried its own copy of the domain toolset and a hub mode harvested N duplicates of it. Domain tools now enter once, at the harness, and only a HARNESSED mode gets them. Domain still loads before the mode so the mode shadows by nature.
+
+* the tool design — accepted, with two corrections
+
+#+begin_quote
+Okay. Now about the tools. What you defined as we have simple literal intervention that makes sense, um, how you structure the, um, the tool in terms of literal find, literal pick, and then all of the, um, like, feet and stuff that also makes sense. That's pretty close to what I want. I don't think we want a blacklist on those. We just want the knot in to be properly documented. and expressed.
+#+end_quote
+
+So: per-entity =find= / =count= / =pick= over ={where, options}=, =sanitize()= sharing the datamap ALLOWED set, prose in sibling =.md= files. NO =blacklist= parameter — =where.id.$nin= is the mechanism and the documentation carries it.
+
+* the bench item — the hallucinate output contract
+
+#+begin_quote
+And then the interesting part with you named here about the return contract. I am very unhappy with the way that the hallucinate object, the contract here works at the moment. That is true. Maybe that merits some thought now. So what we have is we have an input and an output. The... and then we have separately the entities. I don't think that makes sense actually. Maybe we could combine the... just use a dedicated output object, and that has either a message or that that has multiple optional keys. For example, message, object, and then each of the entities we come a key in that output object. For example, literal buffer symbols, all of those. Objects... yeah. Just an input and an output. And if we have a schema for the output object, I think we should rename that key to just plain schema. schema output schema dot output that makes way more sense
+#+end_quote
+
+#+begin_quote
+So let's consider rejiggling the hallucinate output contract to serve this. This is a little bit of a scope creep. I know, but we have to get this right, and it was annoying me for a while. So hallucinet output. Hallucinate output is the one single schema and the the one single destination for all of the outputs and then all of the entities and the message and the objects and whatever else, they all get scoped into the output. and each of the entities has their own key inside of it. I think that's way, way cleaner. I need you to do a thorough sweep on this. and go into the tank on the design. Don't go completely overboard. Just be, um, just... yeah. Make sure that this is the last time that we have to touch it.
+#+end_quote
+
+#+begin_quote
+don't start the hallucinate task yet. Just report back to me once you are done with the renaming.
+#+end_quote
+
+Target: collapse the four-channel yield (=condition= · =message= · =entities= · =object= — =subsystems/typology/gestalten/fromm/yield.js=) into ONE =output=, with =message=, =object=, and one key per entity type as sibling optional keys. And =Request.output.object(schema)= becomes =output.schema=. NOT STARTED — design sweep pending, explicitly gated.
+
+* live state
+
+- rename LANDED, 70 files, zero =engram= in source; only residue is mikro's own artifacts under =testament/…/daemon_italian/migrations/=, untouched by law
+- italian DB: =Retention= + =Trace= rebuilt with correct FK, both at 0 rows, review path verified by the green integration test
+- brazilian + spanish never booted → they migrate =Memory= → =Retention= straight on first boot; expect the SAME dangling =Trace= FK and the same one-block rebuild
+- runtime + client are UP (beef restarted them at 10:34PM)
+- =domain/tools/{pull,review,gather,index}.js= condemned but NOT yet deleted — =domain.viva.js= re-exports them and =harness.js= imports =gather=; both fall with the rebuild
+
+* resumption
+
+1. design the domain tool surface — per-entity =find=/=count=/=pick=, ={where, options}=, no blacklist, =.md= prose with worked query examples
+2. the hallucinate output contract sweep + design (gated: report before starting)
+3. delete =domain/tools/*= + =harness.js='s =educate()= as part of 1
+4. m23 =* trailing= section holds the two parked drift items

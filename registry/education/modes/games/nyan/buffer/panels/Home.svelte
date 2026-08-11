@@ -9,7 +9,7 @@
   const surfaceOf = (literal) => literal?.trait?.TRANSLATED?.learning ?? literal?.slug ?? "";
   const glossOf = (literal) => literal?.trait?.TRANSLATED?.known ?? "";
   const origin = {
-    domain: "From your learning domain — weak literals, graded back to memory.",
+    domain: "From your learning domain — weak literals, graded back to retention.",
     fixed: "A plain word list handed to the trainer.",
     corpus: "Pick a word source and a length.",
   }[kind];

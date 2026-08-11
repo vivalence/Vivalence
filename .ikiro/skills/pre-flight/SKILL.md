@@ -4,7 +4,7 @@ description: The six checks that run before authoring a noun, an import, or a da
 when_to_use: "add X to <subsystem>" · "wire up <thing>" · "write a new <primitive>" · before any cross-component dispatch · before acting on a command staged in a compact, quest, or orb.
 ---
 
-# pre-flight
+# pre-flight — "add X to <subsystem>" / "wire up <thing>": six checks before authoring
 
 Canon: `.ikiro/self/rituals.md ## pre-flight`. These are standing checks — they apply to every authoring turn for the rest of the task, not only the turn that loaded this skill.
 

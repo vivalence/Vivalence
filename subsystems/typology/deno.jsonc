@@ -6,7 +6,6 @@
     "./prototypes": "./prototypes/index.ts",
     "./schematics": "./schematics/index.js",
     "./gestalten": "./gestalten/index.js",
-    "./entities": "./entities/index.ts",
     "./specimen": "./specimen/index.js",
     "./scenarios": "./tests/scenarios/index.js",
   },

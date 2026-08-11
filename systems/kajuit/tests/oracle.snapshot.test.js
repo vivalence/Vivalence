@@ -24,7 +24,7 @@ const seer = () => ({
   via: {
     render: async (request) => {
       const { turns, output } = request;
-      if (output?.object) {
+      if (output?.schema) {
         const data = { answer: `the mist parts: ${lastUserText(turns)}` };
         return { role: "assistant", parts: [{ type: "object", data }], meta: { state: "complete" }, object: data };
       }
@@ -72,7 +72,7 @@ specimen.describe("oracle /ask over the wire — daemon spans cross as flat reco
       thread: scenario.fixtures.thread.id,
     });
     const render = root.children.find((child) => child.nature === "render");
-    specimen.expect(render.entries[0].data.object).toEqual({ answer: "the mist parts: what am i" });
+    specimen.expect(render.entries[0].data.output.object).toEqual({ answer: "the mist parts: what am i" });
     specimen.expect(trace.duration(root)).not.toBe(null);
 
     const capture = specimen.snapshot(story.roots, {

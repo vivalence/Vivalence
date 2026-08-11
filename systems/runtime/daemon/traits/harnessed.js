@@ -1,10 +1,15 @@
-import { Vector, ToolCall, shape, steer, shard, soma, v } from "@vivalence/typology";
+import { shape, shard, soma, steer, ToolCall, v, Vector } from "@vivalence/typology";
+import paladin from "@vivalence/paladin";
+import * as skills from "../skills/index.js";
 
 const { Packet } = v.primitives.hallucination;
 
 //@beef i think it might make sense to isolate some of the middlewares into
 // ... shards.hal.["xyz"]() which would become our source of truth for cohesion in turn, hallucination etc implementation. nifty.
 
+// the harness ASSEMBLES a Request record on ctx.hallucination — the projection of
+// the thread — and spawns hal at the terminal leaf. Middlewares (domain, mode)
+// write keyed sections and tools onto the record; nothing mutates a hallucination.
 export const HARNESSED = (mode, daemon) => {
   if (!daemon.cortex) throw new Error("HARNESSED: daemon has no cortex");
 
@@ -14,28 +19,57 @@ export const HARNESSED = (mode, daemon) => {
   harness.use(shard.context.bind("mode", mode));
 
   harness.use(async (ctx, next) => {
-    const input = typeof ctx.input === "string" ? { prompt: ctx.input } : (ctx.input ?? {}); // @beef holy shit stop rewriting input for your neurosis.
-    const { system, prompt, turns, output, tune, tools, config } = input;
+    const input = typeof ctx.input === "string" ? { prompt: ctx.input } : (ctx.input ?? {});
+    const { system, prompt, turns, output, tune, config } = input;
 
-    const hallucination = daemon.cortex.hallucination({
-      ...config,
-      ...(tune && { tune }),
-    });
-    if (output) hallucination.output.object(output);
-    if (system) hallucination.context.system(system);
-    if (tools)
-      for (const [name, supplied] of Object.entries(tools)) {
-        const { execute, ...edge } =
-          typeof supplied === "function" ? { execute: supplied } : supplied;
-        hallucination.tools.open({ nature: new ToolCall(name).signal.pathname, ...edge }, execute);
+    // thread.trait.INTELLIGENT — claim-gated, validated, projected field-by-field.
+    // Precedence: invocation > thread > mode default (modes default with ??=).
+    const row = input.thread ? await daemon.entities.thread.findOne({ id: input.thread }) : null;
+    const claimed = row?.traits?.includes("INTELLIGENT") ? row.trait?.INTELLIGENT : undefined;
+    const iq = claimed && ![...v.errors(v.entities.INTELLIGENT, claimed)][0]
+      ? v.cast(v.entities.INTELLIGENT, claimed)
+      : {};
+
+    // keyed layers, later wins: ① daemon skills → ② paladin skills → ③ domain tools → ④ mode tools
+    const armed = new Vector();
+    if (daemon.entities) armed.slurp(skills.entity);
+    if (daemon.entities?.buffer) armed.slurp(skills.buffer);
+    if (daemon.entities?.thread) armed.slurp(skills.thread);
+    if (mode.module?.mount?.dirname) {
+      armed.use(shard.context.bind("root", mode.module.mount.dirname));
+      armed.slurp(paladin.skills.fs);
+      armed.slurp(paladin.skills.shell);
+    }
+    for (const [slug, service] of Object.entries(daemon.services ?? {})) {
+      if (!service.tools) continue;
+      const mounted = armed.branch(`/service/${slug}`);
+      mounted.use(shard.context.bind("service", service));
+      mounted.slurp(service.tools);
+    }
+    if (daemon.domain?.tools) armed.slurp(daemon.domain.tools);
+    if (mode.tools) armed.slurp(mode.tools);
+    if (input.tools) {
+      for (const [name, supplied] of Object.entries(input.tools)) {
+        const { execute, ...edge } = typeof supplied === "function"
+          ? { execute: supplied }
+          : supplied;
+        armed.open({ nature: new ToolCall(name).signal.pathname, ...edge }, execute);
       }
-    if (input.thread) hallucination.tools.use(shard.context.bind("thread", input.thread));
-    if (turns) hallucination.entities.turn.append(turns);
-    else if (prompt)
-      //@beef i dont think we watn manual prompt here?! do we? maybe input prompt is parsed later up the tree?! also to guarantee order. hmmm
-      hallucination.entities.turn.append({ role: "user", parts: [{ type: "text", text: prompt }] });
+    }
+    armed.use(shard.context.bind("daemon", daemon));
+    armed.use(shard.context.bind("mode", mode));
+    if (ctx.user) armed.use(shard.context.bind("user", ctx.user));
+    if (input.thread) armed.use(shard.context.bind("thread", input.thread));
 
-    ctx.hallucination = hallucination;
+    ctx.hallucination = {
+      policy: { ...config, ...(iq.tune && { tune: iq.tune }), ...(tune && { tune }) },
+      ...(iq.effort && { settings: { effort: iq.effort } }),
+      system: typeof system === "string" ? { system } : { ...system },
+      turns: turns ??
+        (prompt ? [{ role: "user", parts: [{ type: "text", text: prompt }] }] : []),
+      tools: armed,
+      ...(output && { output: { schema: output } }),
+    };
     ctx.input = input;
     await next();
   });
@@ -54,7 +88,7 @@ export const HARNESSED = (mode, daemon) => {
         thread: ctx.input.thread,
         mode: ctx.mode.id,
       });
-      ctx.hallucination.entities.turn.replace([...history, ctx.turn]);
+      ctx.hallucination.turns = [...history, ctx.turn];
       await next();
     })
     .use(async (ctx, next) => {
@@ -92,7 +126,7 @@ export const HARNESSED = (mode, daemon) => {
         })();
       } else if (ctx.output?.turns) {
         let parent = ctx.turn;
-        for (const sealed of ctx.output.turns)
+        for (const sealed of ctx.output.turns) {
           parent = await ctx.daemon.entities.turn.chain({
             role: sealed.role,
             parts: sealed.parts,
@@ -101,18 +135,22 @@ export const HARNESSED = (mode, daemon) => {
             thread: ctx.input.thread,
             mode: ctx.mode.id,
           });
+        }
       }
     });
 
-  for (const type of ["dialogue", "object", "speech", "verbatim"])
+  if (daemon.domain?.harness) harness.slurp(daemon.domain.harness);
+  if (mode.module.harness) harness.slurp(mode.module.harness);
+
+  for (const type of ["dialogue", "object", "speech", "verbatim"]) {
     harness
       .branch(type)
-      .open("render", (ctx) => ctx.hallucination[type].render())
-      .open({ nature: "stream", yields: Packet.Session }, (ctx) =>
-        ctx.hallucination[type].stream(),
+      .open("render", (ctx) => daemon.cortex.hallucinate[type].render(ctx.hallucination))
+      .open(
+        { nature: "stream", yields: Packet.Response },
+        (ctx) => daemon.cortex.hallucinate[type].stream(ctx.hallucination),
       );
-
-  if (mode.module.harness) harness.slurp(mode.module.harness);
+  }
 
   return () => {
     mode.harness = shape.object(harness, steer.strategy.echo);

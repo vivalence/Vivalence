@@ -1,6 +1,6 @@
 import { v } from "@vivalence/typology";
 import * as instance from "./instance/index.js";
-import * as ledger from "./ledger/index.js";
+import { ledger } from "./ledger/index.js";
 import * as system from "./system/index.js";
 import * as variant from "./variant/index.js";
 // import * as sheets from "./sheets/index.js";
@@ -71,14 +71,7 @@ export default function (trajectory) {
     instance.stop,
   );
 
-  trajectory.open(
-    {
-      nature: "/ledger/install",
-      valence: "scaffold the ledger (locks/logs) + seed registry.json from the standard packages",
-      schema: v.object({}),
-    },
-    ledger.install,
-  );
+  trajectory.branch("/ledger").slurp(ledger);
 
   trajectory.open(
     {

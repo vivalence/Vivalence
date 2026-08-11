@@ -1,0 +1,173 @@
+#+title: the chrome lands, the reveal bug was an honest empty buffer, and AGENTIC grows up to hand francesca the provision tool
+#+filetags: :rep-o-gram:m24:shell:console:inspector:tooled:agentic:francesca:provision:svelte:
+
+* the commission
+
+Continuation of m24 day 3. beef, pointing at the design screenshot
+(console left, player centre, inspector right):
+
+#+begin_quote
+you forgot the chrome that makes this an app.
+the gram to the rep.
+#+end_quote
+
+#+begin_quote
+basically the idea is that the repogram superseeds all the other
+little games and that it can be loaded standalone as a application
+that provisions itself or is invoked and being provisioned by other
+modes such as francesca
+#+end_quote
+
+Two work items already in flight from the FAILURE record: the
+=Buffer.data= ={}= diagnosis, and the shell build ("go" given).
+
+* the reveal bug — the persist-wipe theory dies against data
+
+The standing theory (mine, recorded in the quest as fact): "data
+persists ={}= while the wire copy is full — something wipes at
+persist." Repro killed it in one run: scenario emit + base-class
+=em.create= BOTH persist full data. Then the live DB, read-only:
+
+#+begin_src
+rowid 2  8075 bytes  thread trait {"MASKED":…,"AIMED":…}
+rowid 3     2 bytes  thread trait {}   intent NULL
+rowid 5     2 bytes  thread trait {}   intent NULL
+rowid 6  3369 bytes  thread trait {"MASKED":…,"AIMED":…}
+rowid 7     2 bytes  thread trait {}   intent NULL
+#+end_src
+
+Interleaved. Empties all sit on BARE threads. The creator:
+=systems/kajuit/src/app/panels/f/f.svelte:6= —
+
+#+begin_src js
+const { literal, literals, symbol, symbols, ...data } = thread.trait?.MASKED ?? {};
+terminal.buffer = await thread.daemon.entities.buffer.create({ mode, thread, data, … });
+#+end_src
+
+Bare thread → no MASKED → =data: {}=. **The DB rows are honest.
+Nothing ever wiped anything.** STANDALONE *means* the view must
+tolerate an empty buffer — the view then self-feeds via =/draw= (the
+"wire copy with knowables" I had reported was component state, not a
+wire copy). And the design had answered this all along:
+
+#+begin_src js
+axes() { return { gameplay: "TYPE", prompt: "TEXT", forgiving: true, ...a }; }
+#+end_src
+
+— the defaults fold I dropped in the port. Without it
+=axes.gameplay= is =undefined=: the tray's else-chain falls through
+to Reveal while the surface's =gameplay === "FLIP"= gate stays false
+— Reveal reveals nothing. With the fold (now =types.DEFAULTS=) the
+two gates cannot diverge. Quest FAILURE section corrected — the
+wrong diagnosis was itself recorded as fact and had to be unwritten.
+
+* the shell
+
+=buffer/RepOGram.svelte= owns header · console · player · inspector
+· keymap; =◨=/=\= toggles. The pieces that carry design weight:
+
+- *presets are real*: a chip calls =/emit/<preset>/feed= and swaps
+  =terminal.buffer= to the emitted entity — the honest machine, not
+  a local imitation. Axes single-sourced in =types.PRESETS= (client
+  chips + emitter branches read one table).
+- *axis flips persist*: =entities.buffer.updateOne({id},{data})= +
+  in-place session restart.
+- *symbol scope*: new =/symbols= aperture (slug + literal count, one
+  junction GROUP BY) → chips → =/emit/symbols=.
+- *provision inline*: new =/provision= aperture — cortex object
+  render over =hal/provision.js= whose OUTPUT schema reuses
+  =types.*=, so the axis descriptions ARE the documentation the
+  model reads. Returns ={reply, axes?, symbols?, knowables?}=.
+- *the journal survives swaps*: =buffer/shell.svelte.js= —
+  module-scope =$state= {narration, dispatches, chat, shell}. Preset
+  swap remounts the component; the narration stays.
+- Scenario daemon gained =statics.language= (real daemons carry it
+  via =wiring()=; =/provision= + =/judge= read it).
+
+* mid-course corrections
+
+#+begin_quote
+why are you still going???
+#+end_quote
+
+— I re-ran a 21-second suite to re-read failure names the first run
+had already printed. Then:
+
+#+begin_quote
+ok. fix
+#+end_quote
+#+begin_quote
+but get on with it.
+#+end_quote
+#+begin_quote
+dont overengineer
+#+end_quote
+
+The two failures: beef's memory→engram rename reached the fixtures
+serializer — stale frozen snapshot (=SNAPSHOT_HOT=1= regenerate);
+the integration failure was its cascade. Zero code.
+
+* the tool — "properly invest in the harness"
+
+#+begin_quote
+add a tool for this. properly invest in the harness. the tool will
+be provided to agents like francesca to allow her to privision teh
+repogram.
+#+end_quote
+#+begin_quote
+also the repogram chrome should be closed if the app is loaded with
+propper provisioning.
+#+end_quote
+
+=tools/index.js= — ONE =/provision= tool, the =francesca/tools/drill.js=
+exemplar shape: structured axes (again =types.*= descs), three
+sources picked in order — authored knowables (=fold.authored= is now
+the ONE ontology stamp; console ad-hoc and provision-apply fold
+through it too) → =emit.knowables= · symbol scope → =emit.symbols= ·
+plain =emit.feed=; =ctx.thread= rides; returns ={message, entities}=.
+rep-o-gram gains TOOLED; francesca gains AGENTIC.
+
+The harness investment was real: AGENTIC harvested peers in phase 1,
+so a hub resolving before its peers slurped EMPTY tool vectors
+(slurp copies trajectories present at call time). Now a FINALIZER —
+runs after every TOOLED phase 1, order-independent.
+
+My first fix was wrong in the other direction: slurping
+=source.module.tools= (raw, order-safe, no domain-tool duplication)
+— and =tests/mode/agentic.test.js= failed it, because the TESTED
+contract is that harvested tools dispatch through the SOURCE mode's
+ctx, whose binds ride =source.tools=. The test taught the contract;
+the finalizer keeps it.
+
+Also caught: the scenario APPLICATION mirror used
+=em.getReference(slug)= where the real trait does
+=findByIdentifiers= — slugs went straight into the =buffer_symbols=
+FK. Mirror aligned.
+
+Chrome contract: =chrome = journal.shell ?? !provisioned= — a buffer
+arriving with data axes or literals renders player-only; the
+driver's =◨= choice persists in the journal so console-driven swaps
+don't re-close the shell mid-drive.
+
+* state
+
+runtime 38/38 · mode tests 6/6 (emitter · machine · aperture ·
+tools) · bundle compiles. Owed: milestone 6 — beef drives; the
+one-line demo is francesca → "drill me on kitchen words" → rep
+session on screen.
+
+* lessons settled
+
+1. **A recorded diagnosis is not a settled diagnosis.** The
+   persist-wipe theory lived in the quest as fact and shaped a day of
+   thinking; one repro + one read-only DB query killed it. Reproduce
+   before theorizing — and go back and UNWRITE the wrong record.
+2. **The design already contains the fix.** The =axes()= defaults
+   fold was in the prototype the whole time; the reveal bug was a
+   port omission, not a system bug. When a live symptom appears,
+   diff the port against the design before diffing the system.
+3. **An existing test is a contract, not an obstacle.** The AGENTIC
+   test rejected the "cleaner" fix and forced the one that preserves
+   source-ctx dispatch.
+4. **Don't re-run what already answered.** The suite names its
+   failures on the first run.

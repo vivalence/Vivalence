@@ -33,14 +33,9 @@ export function pour(turn, packet) {
 export function transcript(state, record) {
   const current = state ?? {
     open: null,
-    state: null,
-    rounds: 0,
-
+    condition: null,
     turns: [],
-    message: null,
-    entities: {},
-    // @beef output.object? and output.message (maybe rename output.text for coherence?) and output.turns? wouold be nice to isolate the payload/yield early.
-    object: null,
+    output: {},
     meta: undefined,
   };
   switch (record.event) {
@@ -55,25 +50,31 @@ export function transcript(state, record) {
           .map((part) => part.text)
           .join(" ");
         const data = sealed.object ?? sealed.parts.find((part) => part.type === "object")?.data;
-        if (text) next.message = text;
-        if (data !== undefined) next.object = data;
+        if (text || data !== undefined) next.output = { ...next.output };
+        if (text) next.output.message = text;
+        if (data !== undefined) next.output.object = data;
       }
       return next;
     }
     case "/turn/full":
       return { ...current, turns: [...current.turns, record.turn] };
     case "/tool/yield": {
-      const entities = { ...current.entities };
-      for (const [key, value] of Object.entries(record.result.entities ?? {}))
-        entities[key] = [...(entities[key] ?? []), ...(Array.isArray(value) ? value : [value])];
+      const output = { ...current.output };
+      for (const [key, value] of Object.entries(record.result.output ?? {})) {
+        if (key === "message" || key === "object") {
+          if (value != null) output[key] = value;
+          continue;
+        }
+        output[key] = [...(output[key] ?? []), ...(Array.isArray(value) ? value : [value])];
+      }
+      return { ...current, output };
+    }
+    case "/response/close":
       return {
         ...current,
-        entities,
-        ...(record.result.object != null && { object: record.result.object }),
+        meta: record.meta,
+        condition: record.meta?.state === "complete" ? "NOMINAL" : "ERROR",
       };
-    }
-    case "/session/close":
-      return { ...current, state: record.state, rounds: record.rounds, meta: record.meta };
     case "/tool/call":
       return current;
     default:

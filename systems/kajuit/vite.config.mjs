@@ -44,6 +44,56 @@ async function serverConfig() {
   };
 }
 
+const UNKNOWN = { change: "unknown", commit: "unknown", authored: null, built: null };
+
+const TEMPLATE =
+  'change_id.short(8) ++ " " ++ commit_id.short(8) ++ " " ++ committer.timestamp().format("%+")';
+
+function stamp() {
+  const read = (bin, args) => {
+    try {
+      const { code, stdout } = new Deno.Command(bin, {
+        args,
+        cwd: __repo,
+        stdout: "piped",
+        stderr: "null",
+      }).outputSync();
+      if (code !== 0) return null;
+      return new TextDecoder().decode(stdout).trim() || null;
+    } catch {
+      return null;
+    }
+  };
+  try {
+    if (typeof Deno === "undefined") return UNKNOWN;
+    const working = Deno.env.get("VIVA_STAMP")?.trim() ||
+      read("jj", [
+        "log",
+        "--no-pager",
+        "--ignore-working-copy",
+        "--color=never",
+        "-r",
+        "@",
+        "--no-graph",
+        "-T",
+        TEMPLATE,
+      ]);
+    const built = new Date().toISOString();
+    if (working) {
+      const [change, commit, authored] = working.split(" ");
+      return { change: change ?? UNKNOWN.change, commit: commit ?? UNKNOWN.commit, authored: authored ?? null, built };
+    }
+    return {
+      change: UNKNOWN.change,
+      commit: read("git", ["rev-parse", "--short=8", "HEAD"]) ?? UNKNOWN.commit,
+      authored: read("git", ["log", "-1", "--format=%cI"]),
+      built,
+    };
+  } catch {
+    return UNKNOWN;
+  }
+}
+
 function beacon() {
   return {
     name: "viva-status-beacon",
@@ -56,6 +106,9 @@ function beacon() {
 export default defineConfig(async ({ command }) => ({
   plugins: [sveltekit(), deno(), beacon()],
   logLevel: "info",
+  define: {
+    __VIVA_BUILD__: JSON.stringify(stamp()),
+  },
   build: {
     target: "es2022",
   },
@@ -67,7 +120,7 @@ export default defineConfig(async ({ command }) => ({
   resolve: {
     alias: {
       // STABLE
-      $telemetry: join(__dirname, "./src/telemetry.js"),
+      $telemetry: join(__dirname, "./src/telemetry/index.js"),
       $client: join(__dirname, "./src/client.js"),
       "@vivalence/kajuit": join(__dirname, "./src/typology/mod.js"),
 

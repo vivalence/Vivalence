@@ -1,5 +1,5 @@
 import { join } from "@std/path";
-import { specimen, v, Cortex, Hallucination } from "@vivalence/typology";
+import { specimen, v, Cortex, Hallucination, Vector } from "@vivalence/typology";
 
 const SNAPSHOTS = new URL("./snapshots", import.meta.url).pathname;
 const HOT = Deno.env.get("SNAPSHOT_HOT") === "1";
@@ -40,29 +40,25 @@ function scriptedCortex(script, seen) {
   ]);
 }
 
-specimen.describe("hallucination snapshot — the compiled session contract, pinned as-is", () => {
+specimen.describe("hallucination snapshot — the compiled response contract, pinned as-is", () => {
   specimen.describe("request compilation", () => {
     specimen.it(
-      "system + extend + hoisted system turn + tool declarations + cache marks + settings + output",
+      "system sections + tool declarations + cache marks + settings + output cross lowered",
       async () => {
         const seen = [];
-        const hallucination = Hallucination(scriptedCortex([sealedTurn("sealed")], seen), {
+        const tools = new Vector()
+          .open({ nature: "bare" }, async () => "bare ran")
+          .open(
+            { nature: "dressed", valence: "looks up a word", input: LookupInput },
+            async () => "dressed ran",
+          );
+        await Hallucination(scriptedCortex([sealedTurn("sealed")], seen)).dialogue.render({
+          system: { persona: "You are the request pin.", language: "pt-BR" },
+          turns: [userTurn("primeira"), { role: "assistant", parts: [{ type: "text", text: "resposta" }] }],
+          tools,
           settings: { temperature: 0, maxTokens: 128 },
-          output: { object: Verdict },
+          output: { schema: Verdict },
         });
-        hallucination.context.system("You are the request pin.");
-        hallucination.context.extend({ language: "pt-BR", learner: { level: "a1" } });
-        hallucination.entities.turn.append(
-          userTurn("primeira"),
-          { role: "system", parts: [{ type: "text", text: "hoisted directive" }] },
-          { role: "assistant", parts: [{ type: "text", text: "resposta" }] },
-        );
-        hallucination.tools.open({ nature: "bare" }, async () => "bare ran");
-        hallucination.tools.open(
-          { nature: "dressed", valence: "looks up a word", input: LookupInput },
-          async () => "dressed ran",
-        );
-        await hallucination.dialogue.render();
 
         pin(seen[0], "hallucination-request.snapshot.json");
       },
@@ -72,14 +68,16 @@ specimen.describe("hallucination snapshot — the compiled session contract, pin
       "declarations carry valence + input only — never an execute closure (the wire law)",
       async () => {
         const seen = [];
-        const hallucination = Hallucination(scriptedCortex([sealedTurn("sealed")], seen));
-        hallucination.tools.open({ nature: "bare" }, async () => "bare ran");
-        hallucination.tools.open(
-          { nature: "dressed", valence: "looks up a word", input: LookupInput },
-          async () => "dressed ran",
-        );
-        hallucination.entities.turn.append(userTurn("casa"));
-        await hallucination.dialogue.render();
+        const tools = new Vector()
+          .open({ nature: "bare" }, async () => "bare ran")
+          .open(
+            { nature: "dressed", valence: "looks up a word", input: LookupInput },
+            async () => "dressed ran",
+          );
+        await Hallucination(scriptedCortex([sealedTurn("sealed")], seen)).dialogue.render({
+          turns: [userTurn("casa")],
+          tools,
+        });
 
         specimen.expect(seen[0].tools.find((tool) => tool.name === "bare")).toEqual({ name: "bare" });
         specimen.expect(seen[0].tools.find((tool) => tool.name === "dressed").execute).toBe(undefined);
@@ -88,22 +86,12 @@ specimen.describe("hallucination snapshot — the compiled session contract, pin
       },
     );
 
-    specimen.it("the json getter exposes config + context + tool names + turns copy", () => {
-      const hallucination = Hallucination(new Cortex(), {
-        tune: "balanced",
-        settings: { temperature: 0 },
-        output: { object: Verdict },
-      });
-      hallucination.context.system("You are the json pin.");
-      hallucination.context.extend({ language: "pt-BR" });
-      hallucination.tools.open("bare", async () => "bare ran");
-      hallucination.tools.open(
-        { nature: "dressed", valence: "looks up a word", input: LookupInput }, //@beef input and valence never reach the snapshot!!! fix
-        async () => "dressed ran",
-      );
-      hallucination.entities.turn.append(userTurn("casa"));
-
-      pin(hallucination.json, "hallucination-json.snapshot.json");
+    specimen.it("an invalid policy throws at the call, named", async () => {
+      let error = null;
+      try {
+        await Hallucination(new Cortex()).dialogue.render({ policy: { rounds: 0 }, turns: [] });
+      } catch (thrown) { error = thrown; }
+      specimen.expect(error.message).toContain("invalid policy");
     });
   });
 
@@ -137,25 +125,16 @@ specimen.describe("hallucination snapshot — the compiled session contract, pin
           seen,
         );
 
-        const hallucination = Hallucination(cortex);
-        hallucination.tools.open({ nature: "reflect" }, async (ctx) => ({
-          message: ctx.input,
-        }));
-        hallucination.tools.open(
-          { nature: "plainString" },
-          async () => "a bare string reply",
-        );
-        hallucination.tools.open({ nature: "messageChannel" }, async () => ({
-          message: "a message reply",
-        }));
-        hallucination.tools.open({ nature: "entitiesChannel" }, async () => ({
-          entities: { literal: [{ id: "literal-1" }] },
-        }));
-        hallucination.tools.open({ nature: "objectChannel" }, async () => ({
-          object: { grade: 1 },
-        }));
-        hallucination.entities.turn.append(userTurn("run every channel"));
-        const folded = await hallucination.dialogue.render();
+        const tools = new Vector()
+          .open({ nature: "reflect" }, async (ctx) => ({ message: ctx.input }))
+          .open({ nature: "plainString" }, async () => "a bare string reply")
+          .open({ nature: "messageChannel" }, async () => ({ message: "a message reply" }))
+          .open({ nature: "entitiesChannel" }, async () => ({ output: { literal: [{ id: "literal-1" }] } }))
+          .open({ nature: "objectChannel" }, async () => ({ object: { grade: 1 } }));
+        const folded = await Hallucination(cortex).dialogue.render({
+          turns: [userTurn("run every channel")],
+          tools,
+        });
 
         pin({ rounds: seen, folded }, "hallucination-tool-loop.snapshot.json");
       },
@@ -164,7 +143,7 @@ specimen.describe("hallucination snapshot — the compiled session contract, pin
 
   specimen.describe("stream", () => {
     specimen.it(
-      "session records across a tool round: call, yield, turn/full, session/close",
+      "response records across a tool round: call, yield, turn/full, response/close",
       async () => {
         const scripts = [
           [
@@ -204,15 +183,16 @@ specimen.describe("hallucination snapshot — the compiled session contract, pin
           },
         ]);
 
-        const hallucination = Hallucination(cortex);
-        hallucination.tools.open({ nature: "lookup" }, async (ctx) => ({
+        const tools = new Vector().open({ nature: "lookup" }, async (ctx) => ({
           message: `${ctx.input.query} means house`,
-          entities: { literal: [{ id: "literal-1" }] },
+          literal: [{ id: "literal-1" }],
         }));
-        hallucination.entities.turn.append(userTurn("what is casa"));
-
         const collected = [];
-        for await (const packet of await hallucination.dialogue.stream()) collected.push(packet);
+        for await (const packet of await Hallucination(cortex).dialogue.stream({
+          turns: [userTurn("what is casa")],
+          tools,
+        }))
+          collected.push(packet);
 
         pin(collected, "hallucination-stream.snapshot.json");
       },
@@ -221,7 +201,7 @@ specimen.describe("hallucination snapshot — the compiled session contract, pin
 
   specimen.describe("object derivation", () => {
     specimen.it(
-      "the request carries output.object with no respond splice; the structured turn folds",
+      "the request carries output.schema with no respond splice; the structured turn folds",
       async () => {
         const seen = [];
         const cortex = new Cortex().register([
@@ -232,7 +212,7 @@ specimen.describe("hallucination snapshot — the compiled session contract, pin
             via: {
               render: async (request) => {
                 seen.push(request);
-                const data = v.fill(request.output.object, { verdict: "casa" });
+                const data = v.fill(request.output.schema, { verdict: "casa" });
                 return {
                   role: "assistant",
                   parts: [{ type: "object", data }],
@@ -244,11 +224,12 @@ specimen.describe("hallucination snapshot — the compiled session contract, pin
           },
         ]);
 
-        const hallucination = Hallucination(cortex).output.object(Verdict);
-        hallucination.entities.turn.append(userTurn("casa"));
-        const folded = await hallucination.object.render();
+        const folded = await Hallucination(cortex).object.render({
+          turns: [userTurn("casa")],
+          output: { schema: Verdict },
+        });
 
-        specimen.expect(folded.object).toEqual({ verdict: "casa", grade: 0.5 });
+        specimen.expect(folded.output.object).toEqual({ verdict: "casa", grade: 0.5 });
         specimen.expect(seen[0].tools).toBe(undefined);
         pin({ request: seen[0], folded }, "hallucination-object-schema.snapshot.json");
       },

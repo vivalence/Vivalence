@@ -27,7 +27,7 @@ export function inject(datamap) {
   };
 }
 
-const ALLOWED = new Set([
+export const ALLOWED = new Set([
   "populate",
   "orderBy",
   "limit",
@@ -39,7 +39,7 @@ const ALLOWED = new Set([
   "onConflictExcludeFields",
 ]);
 
-function sanitize(options = {}) {
+export function sanitize(options = {}) {
   const safe = {};
   for (const key of Object.keys(options)) {
     if (ALLOWED.has(key)) safe[key] = options[key];
@@ -174,7 +174,7 @@ export function reactive(repo, twitch, { scope } = {}) {
   const name = repo.getEntityName().toLowerCase().replace("entity", "");
 
   for (const op of ["create", "update", "delete"]) {
-    twitch.open(`/${name}/${op}/after`, (ctx) => {
+    twitch.open(`/after/${name}/${op}`, (ctx) => {
       const serialized = ctx.input.entity?.toJSON?.() ?? ctx.input.entity;
       // user-scoped entity: the owner rides the ORM request context (the `user` filter param that
       // scopes find; resolution.js binds it per-request). `carry` re-enters that same context for a
@@ -243,6 +243,31 @@ export function scope(resolve) {
   };
 }
 
+export function detached(datamap) {
+  const queue = [];
+  let pumping = false;
+
+  const pump = async () => {
+    if (pumping) return;
+    pumping = true;
+    while (queue.length) {
+      const run = queue.shift();
+      try {
+        await run();
+      } catch (error) {
+        console.error("[twitch:detached]", error);
+      }
+    }
+    pumping = false;
+  };
+
+  return (ctx, next) => {
+    const within = datamap.shard.carry();
+    queue.push(() => within(() => next()));
+    queueMicrotask(pump);
+  };
+}
+
 export function strip(metadata) {
   const schema = {};
   const all = metadata.getAll();
@@ -250,8 +275,14 @@ export function strip(metadata) {
     if (meta.abstract || meta.pivotTable) continue;
     const normalized = name.toLowerCase().replace("entity", "");
     const properties = {};
+    const columns = {};
     for (const prop of Object.values(meta.properties)) {
-      if (prop.kind === "scalar" || prop.kind === "embedded") continue;
+      if (prop.kind === "scalar" || prop.kind === "embedded") {
+        if (prop.primary || prop.onCreate || prop.onUpdate) continue;
+        columns[prop.name] = { type: prop.type, ...(prop.nullable ? { nullable: true } : {}) };
+        continue;
+      }
+      if (prop.persist === false) continue;
       const entry = {
         kind: prop.kind,
         target: prop.targetMeta?.name?.toLowerCase().replace("entity", ""),
@@ -261,7 +292,7 @@ export function strip(metadata) {
       if (prop.nullable) entry.nullable = true;
       properties[prop.name] = entry;
     }
-    schema[normalized] = { properties };
+    schema[normalized] = { properties, columns };
   }
   return schema;
 }

@@ -11,7 +11,7 @@ export function compile(trajectory, run, root = new cliffy.Command()) {
 }
 
 function walk(trajectory, command, run, naturePath) {
-  for (const [pattern, descendant] of trajectory.trajectories) {
+  for (const { pattern, trajectory: descendant } of trajectory.trie.values()) {
     const sub = new cliffy.Command();
     if (pattern.valence) sub.description(pattern.valence);
     const fullPath = [...naturePath, pattern.nature];

@@ -141,42 +141,43 @@ specimen.describe("soma", () => {
     specimen.expect(rebuilt).toEqual(hylomorphic);
   });
 
-  specimen.it("transcript folds session records into the yield fixpoint", () => {
+  specimen.it("transcript folds response records into the yield fixpoint", () => {
     const records = [
       { event: "/turn/open", turn: { role: "assistant" } },
       { event: "/part/open", index: 0, part: { type: "tool_use", id: "u1", name: "lookup", input: {} } },
       { event: "/part/close", index: 0 },
       { event: "/turn/close", meta: { state: "tools" } },
       { event: "/tool/call", id: "u1", name: "lookup", input: {} },
-      { event: "/tool/yield", id: "u1", result: { condition: "NOMINAL", message: "house", entities: { buffer: [{ id: "b1" }] }, object: null } },
-      { event: "/turn/full", turn: { role: "user", parts: [{ type: "tool_result", id: "u1", output: "house" }] } },
+      { event: "/tool/yield", id: "u1", result: { condition: "NOMINAL", output: { message: "house", buffer: [{ id: "b1" }] } } },
+      { event: "/turn/full", turn: { role: "user", parts: [{ type: "tool_result", id: "u1", output: { message: "house" } }] } },
       { event: "/turn/open", turn: { role: "assistant" } },
       { event: "/part/open", index: 0, part: { type: "text", text: "" } },
       { event: "/part/delta", index: 0, delta: { text: "casa means house" } },
       { event: "/part/close", index: 0 },
       { event: "/turn/close", meta: { state: "complete" } },
-      { event: "/session/close", state: "complete", rounds: 2, meta: { state: "complete" } },
+      { event: "/response/close", meta: { state: "complete", rounds: 2 } },
     ];
     const snapshot = JSON.stringify(records);
     const folded = records.reduce(soma.transcript, null);
 
     specimen.expect(JSON.stringify(records)).toBe(snapshot);
-    specimen.expect(folded.state).toBe("complete");
-    specimen.expect(folded.rounds).toBe(2);
+    specimen.expect(folded.condition).toBe("NOMINAL");
+    specimen.expect(folded.meta.state).toBe("complete");
+    specimen.expect(folded.meta.rounds).toBe(2);
     specimen.expect(folded.turns).toHaveLength(3);
-    specimen.expect(folded.message).toBe("casa means house");
-    specimen.expect(folded.entities.buffer).toHaveLength(1);
+    specimen.expect(folded.output.message).toBe("casa means house");
+    specimen.expect(folded.output.buffer).toHaveLength(1);
   });
 
-  specimen.it("transcript merges tool entities by key and keeps the last object", () => {
+  specimen.it("transcript merges tool entity keys and keeps the last object", () => {
     const records = [
-      { event: "/tool/yield", id: "u1", result: { condition: "NOMINAL", message: null, entities: { buffer: [{ id: "b1" }] }, object: { first: true } } },
-      { event: "/tool/yield", id: "u2", result: { condition: "NOMINAL", message: null, entities: { buffer: [{ id: "b2" }], memory: [{ id: "m1" }] }, object: { second: true } } },
+      { event: "/tool/yield", id: "u1", result: { condition: "NOMINAL", output: { buffer: [{ id: "b1" }], object: { first: true } } } },
+      { event: "/tool/yield", id: "u2", result: { condition: "NOMINAL", output: { buffer: [{ id: "b2" }], memory: [{ id: "m1" }], object: { second: true } } } },
     ];
     const folded = records.reduce(soma.transcript, null);
-    specimen.expect(folded.entities.buffer.map((buffer) => buffer.id)).toEqual(["b1", "b2"]);
-    specimen.expect(folded.entities.memory).toHaveLength(1);
-    specimen.expect(folded.object).toEqual({ second: true });
+    specimen.expect(folded.output.buffer.map((buffer) => buffer.id)).toEqual(["b1", "b2"]);
+    specimen.expect(folded.output.memory).toHaveLength(1);
+    specimen.expect(folded.output.object).toEqual({ second: true });
   });
 
   specimen.it("a tap attends the stream without touching it", async () => {

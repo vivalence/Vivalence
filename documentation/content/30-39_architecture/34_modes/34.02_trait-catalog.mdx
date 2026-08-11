@@ -7,13 +7,15 @@ jdex: "34.02"
 
 *every mode trait, and the primitive it binds. the contract and the Vector folds are [[34.01_modes-and-traits]]; what KIND of thing each trait is — and the other four trait-spaces — is [[35.01_symbols-and-literals]].*
 
-Thirteen mode traits are live. Declaration counts across the registry, `/bak/` excluded:
+Fourteen mode traits are live. Declaration counts across the registry, `/bak/` excluded:
 
 ```
 APPLICATION 39 · EMITTER 28 · STANDALONE 13 · EXPOSED 10 · DATASET 9
 TOOLED 8 · HARNESSED 7 · AGENTIC 4 · CONVERSATIONAL 4 · FRAUGHT 4
-INTENTED 3 · GENERATIVE 2 · SELFEVIDENT 2
+INTENTED 3 · GENERATIVE 2 · SELFEVIDENT 2 · DATASINK 0
 ```
+
+`DATASINK 0` is not a rounding error — the trait is built and tested and nothing declares it yet. A trait with no declarers has no runtime surface at all, which is worth reading literally: `mode.datasink` does not exist on any live mode.
 
 They fall into four natures — **endowments** grant a power and mount machinery; **provisions** deliver content once and then have no runtime surface; **flags** carry no payload and exist to be read by someone else; and one **role**-style marker. The full eight-nature taxonomy across every entity tier is in [[35.01_symbols-and-literals]].
 
@@ -57,7 +59,13 @@ Slurps a `generator` Vector into `mode.tools`, or installs a `/view` fallback br
 
 ## DATASET — the mode brings data
 
-Exports a declarative `dataset` (not a Vector): arrays of symbols and literals with slugs, per-trait payloads, and cross-references by slug. Install is a batched upsert (symbols, then literals) followed by m:n linking both directions. Idempotent — skips if `installed`. The entity model it populates is [[35.01_symbols-and-literals]].
+Exports a declarative `dataset` (not a Vector): a `Dataset` carrier naming, per entity type, where its rows come from — a mount-relative file, a directory to walk, or an inline row array. The installer resolves each descriptor through paladin, batch-upserts (chunk 100), then links m:n in both directions, minting referenced-but-undeclared symbols on the way. Idempotent — skips if `installed`. The carrier itself never opens a file. Full treatment in [[35.02_dataset-and-datasink]]; the entity model it populates is [[35.01_symbols-and-literals]].
+
+## DATASINK — the mode writes data back
+
+Exports a declarative `datasink`: per entity type, a list of `(selector, projection?, target)` tuples. The installer compiles each selector once for both the database query and an in-memory predicate, hangs `mode.datasink.drain(input)` on the carrier, and opens a twitch at `/after/{type}/{op}` that marks the type dirty and settles on a 1500ms debounce once *armed* by the finalizer. A dirty type is rewritten wholesale, so `file = fn(DB)` and a second drain over unchanged state writes nothing. Returns a terminator, so a pending settle cannot outlive the datamap. The katabolic counterpart to `DATASET` — [[35.02_dataset-and-datasink]].
+
+**Declared by nothing today.** Built, gated and green, but no module exports a `datasink`, so no daemon currently drains.
 
 ## INTENTED — the mode seeds intents
 

@@ -269,13 +269,22 @@ No direct dapper import. Design system compiled at build time.
 
 #+begin_src js
 import { Button, Text, Card, Shelve } from "@vivalence/drapes";
-
-import * as controls from "@vivalence/drapes";
-import * as display from "@vivalence/drapes";
-import * as triage from "@vivalence/drapes";
-
-import { pack } from "@vivalence/drapes";
-import { components } from "@vivalence/drapes";
+import { skins } from "@vivalence/drapes";
 #+end_src
 
-Single entry point, flat imports.
+Single entry point, flat imports. =skins= is the one namespace export;
+everything else is flat, so =import * as controls from "@vivalence/drapes"=
+never gave a =controls= namespace — it gave the whole barrel, and
+materializing it pins every module. Name what you import.
+
+=pack= is gone: wrapping a component into ={mount, destroy}= is the
+bundler's job now, injected as the stdin entry by
+=subsystems/typology/gestalten/bundle/svelte.js=. A mode points =app= at
+its =.svelte= file directly — the =*.svelte.js= wrapper beside it is
+vestigial, and every one still on disk sits under a =bak/= tree.
+
+There is no aggregate =components= map and no default export, on purpose:
+an object spread of namespace imports is built at module scope, so it
+pins every component and defeats tree shaking. Measured — reinstating
+it takes a rep buffer view from 0.54 MB to 1.33 MB prod, dragging in
+echarts + zrender + carbon icons. Name what you import.

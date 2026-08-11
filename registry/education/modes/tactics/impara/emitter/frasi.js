@@ -15,7 +15,7 @@ export const frasi = new Vector().open(
     const sentences = await ctx.daemon.entities.literal.feed(ctx.input.where, {
       limit: ctx.input.limit,
       blacklist: ctx.input.blacklist,
-      populate: ["memories"],
+      populate: ["retentions"],
     });
     if (!sentences.length) return;
 
@@ -24,33 +24,33 @@ export const frasi = new Vector().open(
     for (const sentence of sentences) {
       const vocalized = sentence.traits?.includes("VOCALIZED");
 
-      if (!sentence.memory || sentence.memory.is.virgin) {
+      if (!sentence.retention || sentence.retention.is.virgin) {
         practice.add(
-          game.shadow.emit.literals({
+          game["rep-o-gram"].emit.shadow.literals({
             literal: sentence,
             recall: "LEARNING",
-            speed: { rate: "SLOW" },
+            preview: { speed: { rate: "SLOW" } },
           }),
         );
       } else if (vocalized) {
         practice.add(
-          game.listen.emit.literal({
+          game["rep-o-gram"].emit.listen.literal({
             literal: sentence,
-            gameplay: sentence.memory.is.failed ? "PICK" : "TYPE",
+            gameplay: sentence.retention.is.failed ? "PICK" : "TYPE",
             recall: "LEARNING",
           }),
         );
-      } else if (sentence.memory.is.failed) {
+      } else if (sentence.retention.is.failed) {
         practice.add(
-          game.shadow.emit.literals({
+          game["rep-o-gram"].emit.shadow.literals({
             literal: sentence,
             recall: "LEARNING",
-            speed: { rate: "SLOW" },
+            preview: { speed: { rate: "SLOW" } },
           }),
         );
       } else {
         practice.add(
-          game.write.emit.literals({ literal: sentence, recall: "LEARNING" }),
+          game["rep-o-gram"].emit.write.literals({ literal: sentence, recall: "LEARNING" }),
         );
       }
     }

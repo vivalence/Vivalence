@@ -12,10 +12,10 @@ export const activation = new Vector().open(
   async (ctx) => {
     const emission = await ctx.mode.emit.activation({ ...ctx.input, thread: ctx.thread });
     return {
-      message: emission.entities.buffer.length
-        ? `Session started — ${emission.entities.buffer.length === 1 ? "one exercise" : `${emission.entities.buffer.length} exercises`} on screen.`
+      message: emission.output.buffer.length
+        ? `Session started — ${emission.output.buffer.length === 1 ? "one exercise" : `${emission.output.buffer.length} exercises`} on screen.`
         : "Nothing available for that selection.",
-      ...emission,
+      ...emission.output,
     };
   },
 );

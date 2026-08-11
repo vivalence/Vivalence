@@ -14,7 +14,7 @@ WORKDIR /app
 RUN git clone https://github.com/stanfordnlp/stanza.git && \
     cd stanza && \
     pip install --no-cache-dir -e . && \
-    pip install --no-cache-dir Flask gunicorn requests
+    pip install --no-cache-dir Flask gunicorn requests transformers peft
 
 WORKDIR /app/stanza
 

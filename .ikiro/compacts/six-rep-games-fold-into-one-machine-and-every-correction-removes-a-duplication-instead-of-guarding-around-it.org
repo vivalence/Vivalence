@@ -1,0 +1,254 @@
+#+title: six rep games fold into one machine, and every correction removes a duplication instead of guarding around it
+#+filetags: :rep-o-mat:m24:games:emitter:vector:svelte:conjugation:eval-surface:connoisseur:
+
+* the commission
+
+beef opened by pointing at the quest file:
+
+#+begin_quote
+.ikiro/quests/rep-o-mat.quest.org.
+#+end_quote
+
+#+begin_quote
+inspect in detail all the inputs/inspirations/things that will be superceeded.
+#+end_quote
+
+#+begin_quote
+take the best of each
+#+end_quote
+
+So: read all eight donors end to end — =write= =shadow= =listen= =pick=
+=flashcard= =conjugation= =bak/translations= — plus the pattern donors
+=riddler= =judge= =paradigm=, and write the inventory into the quest.
+
+Then, session named =m24 repOmat=:
+
+#+begin_quote
+prepend the name of the quest to m24
+#+end_quote
+
+* the donor read (what survived, what died)
+
+The inventory sits in the quest under *Donor inventory*. The finding
+worth keeping in the ledger: **three copies of one sentence-grading
+function had diverged in three DIFFERENT failure directions**, which is
+why the canonical copy is write's and not simply the oldest.
+
+- =write/buffer/Write.svelte:135= — keyed =gloss=/=form= per recall
+  direction + greedy multiset match. CANON.
+- =shadow/buffer/Shadow.svelte:135= — a KNOWN-recall short-circuit
+  stamps every token with the whole-sentence signal: per-token
+  granularity LOST.
+- =listen/Listen.svelte:208= — the same logic re-inlined as a
+  =$derived= for DISPLAY only, so the per-token =/review/literal=
+  fan-out never fires: the token REVIEWS were lost.
+
+Audit drift by failure mode, not by diff size.
+
+Also found and folded: =conjugation.viva.js:81= reads
+=conj.conjugation= while the trait key is =paradigm= — proven against
+the real brazilian DB this session (=trait keys : [ infinitive,
+paradigm ]=), so that mode's =/feed= has been dead the whole time.
+
+* the connoisseur pass
+
+beef:
+
+#+begin_quote
+load the conoisseur. have him have another look
+#+end_quote
+
+Three winces on my own design, all caught by the triggers:
+
+1. **parallel arrays** (trigger 14, minimal delta) — I had
+   =pending[]=/=runs[]=/=reps[]= indexed side by side, when
+   =paradigm/Paradigm.svelte:201= already requeues the SLOT. Entries
+   carry their own counts. And defaulting =streak: 0= makes the
+   single-pass case fall out of the SAME fold — the =if (!state.streak)=
+   branch disappears:
+
+   #+begin_src js
+   export const record = (state, success) => {
+     const [head, ...rest] = state.pending;
+     const entry = { ...head, reps: head.reps + 1, runs: success ? head.runs + 1 : 0 };
+     return { ...state, attempts: state.attempts + 1,
+              pending: entry.runs >= state.streak ? rest : [...rest, entry] };
+   };
+   #+end_src
+
+2. **a string ternary in the preset loop** (trigger 1's twin) —
+   =preset === "conjugate" ? conjugations : …= is a central switch
+   faking data. The preset ROW carries its draw effect instead
+   (discriminator-as-data), and =/symbols= became
+   =symbols(draws)= — a wrap of whatever draw its branch uses.
+
+3. **cargo-culted signal remap** — bak's NEUTRAL→SUCCESS translation
+   died: =domain/memory/bayesian.js:11= gives NEUTRAL its own halflife
+   factor and =boolean.js:3= + =counter.js:3= list it POSITIVE. The
+   drivers were always ready for the honest signal.
+
+* the svelte pass
+
+beef:
+
+#+begin_quote
+what about the svelte? is it good, clean, elegant svelte? solid frontend architecture? how an app should work?
+#+end_quote
+
+Honest answer at the time: no — my parts split was the monolith cut
+into six files. The donors' real disease is **state-lifetime mismatch**:
+per-rep state held at view scope and reset BY HAND in three divergent
+blocks (=Write.svelte:196-201= 7 fields, =Shadow.svelte:220-228= 8,
+=Listen.svelte:185-191= a third variant). The cure is structural:
+
+#+begin_src text
+RepOMat.svelte     queue + session ($state.raw) · limit timer · review/refetch/judge — ALL effects
+└─ {#key current} Rep.svelte    phase · typed · result — born clean, dies with the rep
+     ├─ Prompt · TypeInput · PickOptions · FlipReveal    pure, callbacks only
+     └─ TokenFeedback → Chip.svelte    each chip owns its editing/corrected state
+#+end_src
+
+Reset code: zero lines. The =corrections= Set + =new Set(corrections)=
+reassign dance (copied 5×) and the =editInputEl= focus effect both
+evaporate once a chip owns its own state. The loop is a reducer —
+=session = streak.record(session, success)= over =$state.raw=, which is
+the nanostores shape in runes. beef, on that:
+
+#+begin_quote
+nanostores is love.
+#+end_quote
+
+* go, and the two corrections that followed
+
+#+begin_quote
+go. i thought that you were doing. work out the mode!
+#+end_quote
+
+Milestones 1-2 landed: 29 files —
+=registry/education/modes/games/rep-o-mat/=.
+
+** correction one: conjugations are playable
+
+I reported a "self-feed guard = word+sentence only, conjugation rows
+are never playable raw". beef:
+
+#+begin_quote
+wrong. conjugations are absolutely playable!
+#+end_quote
+
+He is right, and the flaw was mine: I had put the row→forms resolution
+in ONE route instead of in the draw. The fix removes a duplication
+rather than guarding around it:
+
+- **carrier precedence DISSOLVED into a union.** The view's set is
+  =[...literals.map(fold), ...data.knowables]= filtered by =playable=.
+  A conjugation ROW rides =literals= (provenance; filtered out, it has
+  no TRANSLATED) while its member forms ride =knowables=. The old
+  "literals wins" rule would have silently dropped every conjugation in
+  a mixed feed — the exact failure being folded away.
+- **=/feed= guards on all three ontologies** and resolves drawn rows
+  inline via =conjugate()=.
+- **a =/draw= aperture became the view's only draw path.** Standalone
+  self-feed and =continuous= refill both call it, so the ontology
+  guard, the AUDIO filter and the conjugation fold have ONE
+  implementation, daemon-side, shared with =/feed=. The donors' bare
+  =/pick/literal/feed= self-feed has nowhere left to live.
+
+Proven against the real corpus (topography harness, brazilian DB,
+read-only), not against a fixture:
+
+#+begin_src text
+paradigm rows : [ ver.present.indicative, dar.present.indicative ]
+trait keys    : [ infinitive, paradigm ]
+forms resolved: 8
+{ ontology:"conjugation", known:"we see", learning:"vemos",
+  context:{ infinitive:"ver", tense:"present", mood:"indicative",
+            person:"first", number:"plural" } }
+#+end_src
+
+Real labels from =trait.LABELED= — one of the three hardcoded
+Portuguese pronoun maps is gone.
+
+** correction two: the eval surface is the default
+
+beef sent a screenshot of a rep screen and:
+
+#+begin_quote
+make sure this style of eval is the default if possible.
+#+end_quote
+
+#+begin_src text
+WRITE IN ITALIANO   sentence  recall LEARNING  judge MATCH        [?]
+
+The kitchen is small but bright.
+────────────────────────────────────────────────────────────
+FAILURE  MATCH, forgiving true
+
+[ La ]  [ cucina ]  [ è ]  [ piccola ]  [ ma ]  [ luminosa ]
+  The     kitchen    is      small        but     bright
+#+end_src
+
+Read as three laws, all landed:
+- the meta row is MONO and **states how the answer will be graded**
+  (=judge MATCH= / =judge LLM=), key grey / value bright;
+- the verdict line is =SIGNAL= + the judging description
+  (=MATCH, forgiving true=);
+- the chips are gloss CARDS and they ARE the revealed answer, so the
+  separate "expected" block dies. **Red is the verdict only** — a
+  missed token is AMBER (corrective content), a landed one GREEN.
+
+To make =FAILURE= honest, MATCH now grades in three: all tokens landed
+→ SUCCESS, some → MISTAKE, none (or empty input) → FAILURE.
+=bayesian.js:13= already weights FAILURE at 0.08 against MISTAKE — the
+grade the donors never sent.
+
+* landed
+
+| # | milestone | state |
+|---+-----------+-------|
+| 1 | mode: viva · types · emitter (7 raw routes + 7 preset branches = 42 leaves) · hal · aperture (=/draw= + =/judge=) · dataset (8 intents) | LANDED |
+| 2 | machine: streak · judge · knowables · fold · RepOMat · Rep · 6 parts | LANDED |
+| 3 | kill list — 6 dirs → =bak/=, rewire tactics · aprende · 3 kernels · fixtures · bruno | NEXT |
+| 4 | tests — fixture ontology+conjugation, streak invariant, schema round-trip, emitters rewrite, suite green | pending |
+| 5 | ikiro — codemap ONTOLOGY GUARD bullet, language-learning-modes tiers | pending |
+| 6 | live validation (beef drives) | pending |
+
+* the settlement (rules applied, not carried)
+
+- **=count=, not =limit=** — the approved axis =limit {reps, seconds}=
+  is the session cutoff, so the emitter's draw size cannot share the
+  key. =/generate= already spelled it =count=; every route now does.
+  The donors' =MASKED {batch: 3}= dies with it —
+  =kajuit/…/thread/traits/aimed.js:11= spreads MASKED wholesale as
+  emitter input and NOTHING ever read =batch=.
+- **two additive knowable fields**, both earned by donor KEEPs:
+  =example= (EXEMPLIFIED faces) and =asset= (VOCALIZED descriptor —
+  without it every non-literal-carried knowable is silently mute).
+- **scenario harness gap FIXED in place**:
+  =systems/runtime/tests/scenarios/mode.js= never bound =daemon= on the
+  mode aperture, so no mode-aperture route was testable offline while
+  production binds it at =daemon/lifecycle/resolution.js:33=. One line.
+- **fixture gap RECORDED, owed at milestone 4**:
+  =registry/fixtures/data/seed.js= literals carry =ontology: null=, so
+  every =/feed= assertion in =mode/emitters.test.js= passes vacuously
+  (=buffers.length >= 0= against zero buffers). The ontology guard has
+  never been tested by anything.
+
+* open (genuinely underdetermined)
+
+- =SCRIVI IN ITALIANO= renders as =WRITE IN ITALIANO=:
+  =daemon.statics.language.<face>.name= carries the endonym
+  (="Italiano"=) but no verb. Fully native needs an
+  =instruct: {TYPE, PICK, FLIP}= block in the three daemons' language
+  statics. Not invented unilaterally — beef's word lands it.
+- mobile keyboard across preview→recall: shadow held a =Keyboard=
+  component open; rep-o-mat relies on autofocus. Decide at live
+  validation, not before.
+
+* resumption
+
+The mode stands and is smoke-verified offline (routes, fold, streak,
+judge, scenario emits, real-corpus conjugation, esbuild bundle). Next
+turn starts at milestone 3, the kill list — six dirs to =bak/= and
+~40 call sites across tactics, aprende, three kernel lists, fixtures
+and bruno, all rewired to the preset routes with =count=.

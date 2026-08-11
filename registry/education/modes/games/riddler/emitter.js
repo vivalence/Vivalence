@@ -51,38 +51,30 @@ export const emitter = new Vector().open(
       {
         status: ["LEARNING", "KNOWN", "UNKNOWN"],
         limit: ctx.input.levelPoolSize,
-        populate: ["memories", "memories.strength"],
+        populate: ["retentions", "retentions.strength"],
       },
     );
 
     console.log("emitter/riddle/fromSymbols {level}", { level });
-    const { object } = await ctx.daemon.cortex
-      .hallucination({ tune: "capable" })
-      .output.object(hal.emitter.output)
-      .entities.turn.append(
-        {
-          role: "system",
-          parts: [
-            {
-              type: "text",
-              text: [
-                hal.emitter.identity(language),
-                hal.emitter.subject(pool),
-                hal.emitter.ceiling(level),
-              ].join("\n\n"),
-            },
-          ],
-        },
+    const { output } = await ctx.daemon.cortex.hallucinate.object.render({
+      policy: { tune: "capable" },
+      system: {
+        identity: hal.emitter.identity(language),
+        subject: hal.emitter.subject(pool),
+        ceiling: hal.emitter.ceiling(level),
+      },
+      turns: [
         {
           role: "user",
           parts: [
             { type: "text", text: hal.emitter.compose(language, count, ctx.input.instructions) },
           ],
         },
-      )
-      .object.render();
+      ],
+      output: { schema: hal.emitter.output },
+    });
 
-    for (const cast of (object?.riddles ?? []).slice(0, count)) {
+    for (const cast of (output.object?.riddles ?? []).slice(0, count)) {
       const literals = pool.filter((literal) => cast.literals?.includes(literal.slug));
 
       ctx.pool.add(

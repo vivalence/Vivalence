@@ -1,5 +1,5 @@
 import { specimen, shape, Aperture, Vector, Mode } from "@vivalence/typology";
-import { IntentEntity, BufferEntity, ThreadEntity } from "@vivalence/typology/entities";
+import { IntentEntity, BufferEntity, ThreadEntity } from "@vivalence/runtime";
 import { create } from "../scenarios/daemon.js";
 
 const EXPOSED = (mode) => {
@@ -81,7 +81,7 @@ specimen.describe("mode traits", () => {
         literal: { id: scenario.fixtures.hello.id },
       });
       specimen.expect(result.condition).toBe("NOMINAL");
-      specimen.expect(result.entities.buffer[0].data.recall).toBe("LEARNING");
+      specimen.expect(result.output.buffer[0].data.recall).toBe("LEARNING");
     });
 
     specimen.it("arity 2 handlers work through object compilation", async () => {
@@ -136,10 +136,10 @@ specimen.describe("mode traits", () => {
           literal: { id: scenario.fixtures.hello.id },
         });
         specimen.expect(result.condition).toBe("NOMINAL");
-        specimen.expect(result.entities.buffer).toHaveLength(1);
-        specimen.expect(result.entities.buffer[0].mode.id ?? result.entities.buffer[0].mode).toBe(scenario.fixtures.mode.id);
-        specimen.expect(result.entities.buffer[0].data.recall).toBe("LEARNING");
-        specimen.expect(result.entities.buffer[0].literals).toBeTruthy();
+        specimen.expect(result.output.buffer).toHaveLength(1);
+        specimen.expect(result.output.buffer[0].mode.id ?? result.output.buffer[0].mode).toBe(scenario.fixtures.mode.id);
+        specimen.expect(result.output.buffer[0].data.recall).toBe("LEARNING");
+        specimen.expect(result.output.buffer[0].literals).toBeTruthy();
       });
     });
 
@@ -147,7 +147,7 @@ specimen.describe("mode traits", () => {
       await scenario.scoped(async () => {
         const result = await scenario.mode.emit.literal({ literal: { id: scenario.fixtures.goodbye.id } });
         specimen.expect(result.condition).toBe("NOMINAL");
-        specimen.expect(result.entities.buffer).toHaveLength(1);
+        specimen.expect(result.output.buffer).toHaveLength(1);
       });
     });
 
@@ -157,8 +157,8 @@ specimen.describe("mode traits", () => {
         { literal: { id: scenario.fixtures.hello.id } },
       );
       specimen.expect(result.condition).toBe("NOMINAL");
-      specimen.expect(result.entities.buffer[0].data).toBeTruthy();
-      specimen.expect(result.entities.buffer[0].literals).toBeTruthy();
+      specimen.expect(result.output.buffer[0].data).toBeTruthy();
+      specimen.expect(result.output.buffer[0].literals).toBeTruthy();
     });
 
     specimen.it("persists buffer to DB when thread provided", async () => {
@@ -167,8 +167,8 @@ specimen.describe("mode traits", () => {
           literal: { id: scenario.fixtures.hello.id },
           thread: scenario.fixtures.thread.id,
         });
-        specimen.expect(result.entities.buffer[0].id).toBeTruthy();
-        const found = await em.findOne(BufferEntity, { id: result.entities.buffer[0].id }, { populate: ["literals"] });
+        specimen.expect(result.output.buffer[0].id).toBeTruthy();
+        const found = await em.findOne(BufferEntity, { id: result.output.buffer[0].id }, { populate: ["literals"] });
         specimen.expect(found).toBeTruthy();
         specimen.expect(found.data.recall).toBe("LEARNING");
         specimen.expect(found.mode.id).toBe(scenario.fixtures.mode.id);
@@ -184,7 +184,7 @@ specimen.describe("mode traits", () => {
           literal: { id: scenario.fixtures.hello.id },
           thread: scenario.fixtures.thread.id,
         });
-        specimen.expect(result.entities.buffer[0].index).toBe(before);
+        specimen.expect(result.output.buffer[0].index).toBe(before);
         await em.refresh(thread);
         specimen.expect(thread.counter).toBe(before + 1);
       });
@@ -193,7 +193,7 @@ specimen.describe("mode traits", () => {
     specimen.it("buffer without thread has null thread", async () => {
       await scenario.scoped(async (em) => {
         const result = await scenario.mode.emit.literal({ literal: { id: scenario.fixtures.goodbye.id } });
-        const found = await em.findOne(BufferEntity, { id: result.entities.buffer[0].id }, { filters: false });
+        const found = await em.findOne(BufferEntity, { id: result.output.buffer[0].id }, { filters: false });
         specimen.expect(found).toBeTruthy();
         specimen.expect(found.thread).toBeNull();
       });
@@ -210,7 +210,7 @@ specimen.describe("mode traits", () => {
         for (const finalize of await traits.stagger(emptyMode, scenario.daemon, traits)) await finalize();
         const result = await emptyMode.emit.nothing({});
         specimen.expect(result.condition).toBe("EXHAUSTED");
-        specimen.expect(result.entities.buffer).toEqual([]);
+        specimen.expect(result.output.buffer).toEqual([]);
       });
     });
   });

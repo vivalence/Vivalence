@@ -1,14 +1,16 @@
-import { Freight } from "@vivalence/typology";
-import dataset from "./dataset/index.js";
+import { Dataset, Freight } from "@vivalence/typology";
 
-const manifest = {
+export const manifest = {
   type: "topography",
   slug: "english-to-brazilian",
   name: "Brazilian Portuguese Vocabulary",
-  version: "0.3.0",
+  version: "0.4.0",
   traits: ["DATASET", "FRAUGHT"],
 };
 
-const freight = new Freight("freight/audio");
+export const freight = new Freight("freight/audio");
 
-export { manifest, freight, dataset };
+export const dataset = new Dataset({
+  symbol: "dataset/symbols",
+  literal: "dataset/literals",
+});

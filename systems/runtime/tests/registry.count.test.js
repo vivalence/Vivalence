@@ -3,20 +3,53 @@ import { expect } from "@std/expect";
 import paladin from "@vivalence/paladin";
 import { registry } from "../lifecycle/populate.js";
 
-const BASELINE = 39; // ② capture — 4-branch mount, pensieve leaf count (+ @playground/chaosmonkey/reader)
+// A CENSUS, not a count. The old assertion pinned a literal (BASELINE + 8), so ordinary
+// registry growth reddened it and the only repair was re-capturing the number — the act
+// that makes the assertion meaningless. Nothing here names a registry MEMBER or its SIZE:
+// every module lands under a stamped owner, every owner carries its own package manifest,
+// and no owner+type ingests a slug twice. All three hold at any registry size.
 
-const count = (pensieve) => {
-  let total = 0;
-  for (const ownerMap of pensieve.values())
-    for (const typeMap of ownerMap.values())
-      for (const slugMap of typeMap.values()) total += slugMap.size;
-  return total;
+const leaves = (pensieve) => {
+  const found = [];
+  for (const [owner, types] of pensieve)
+    for (const [type, slugs] of types)
+      for (const [slug, versions] of slugs) found.push({ owner, type, slug, versions: versions.size });
+  return found;
 };
 
 describe("registry ingest", () => {
-  it("four-package mount ingests baseline + 4 self-manifests + 2 wafers (variant lives in testament now)", async () => {
+  it("lands every module under a stamped owner — nothing ownerless, nothing versionless", async () => {
     await registry();
-    expect(count(paladin.vip.pensieve)).toBe(BASELINE + 8); // +2 @fixtures (package + language-learning fixture)
+    const ingested = leaves(paladin.vip.pensieve);
+
+    expect(ingested.length).toBeGreaterThan(0);
+    for (const { owner, type, slug, versions } of ingested) {
+      expect(typeof owner === "string" && owner.startsWith("@")).toBe(true);
+      expect(typeof type === "string" && type.length > 0).toBe(true);
+      expect(typeof slug === "string" && slug.length > 0).toBe(true);
+      expect(versions).toBeGreaterThan(0);
+    }
+  });
+
+  // Deliberately NOT a list of expected owners: `@young-ladys-primer` is a real package on
+  // disk that this variant does not mount, so naming the mounted set would pin the same kind
+  // of literal the count did. The invariant is per-owner and survives mounting it later.
+  it("gives every ingested owner a package-typed self-manifest — a mount without one cannot register", async () => {
+    await registry();
+    const ingested = leaves(paladin.vip.pensieve);
+    const owners = [...new Set(ingested.map((leaf) => leaf.owner))];
+
+    expect(owners.length).toBeGreaterThan(0);
+    for (const owner of owners) {
+      const owned = ingested.filter((leaf) => leaf.owner === owner);
+      expect(owned.some((leaf) => leaf.type === "package")).toBe(true);
+    }
+  });
+
+  it("keys a slug once per owner+type, so a mount cannot ingest the same module twice", async () => {
+    await registry();
+    const keys = leaves(paladin.vip.pensieve).map((leaf) => `${leaf.owner}/${leaf.type}/${leaf.slug}`);
+    expect(keys.length).toBe(new Set(keys).size);
   });
 
   // lock-demo fixture assertion POSTPONED with the fixture itself — fork 4.

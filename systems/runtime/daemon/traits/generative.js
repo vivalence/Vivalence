@@ -1,6 +1,6 @@
 import paladin from "@vivalence/paladin";
 import { v } from "@vivalence/typology";
-import { BufferEntity } from "@vivalence/typology/entities";
+import { BufferEntity } from "@vivalence/runtime";
 
 export const GENERATIVE = async (mode, daemon) => {
   if (!daemon.mountpoint) throw new Error("GENERATIVE: daemon carries no mountpoint");
@@ -50,7 +50,7 @@ function fallback(tools) {
           const view = await ctx.mode.gen.bundle({ kind: ctx.input.kind ?? "svelte", source: ctx.input.source });
           const buffer = await ctx.mode.gen.buffer({ view, data: ctx.input.data ?? {}, thread: ctx.thread ?? null });
           await ctx.daemon.entities.em.flush();
-          return { message: `view ${view.hash.slice(0, 16)} on screen`, entities: { buffer: [buffer] } };
+          return { message: `view ${view.hash.slice(0, 16)} on screen`, buffer: [buffer] };
         } catch (error) {
           return { message: `render refused: ${error.message}` };
         }

@@ -1,5 +1,5 @@
 import { is } from "@vivalence/typology";
-import { IntentEntity } from "@vivalence/typology/entities";
+import { IntentEntity } from "@vivalence/runtime";
 
 const ensure = async (em, mode, user) => {
   em.setFilterParams("user", { user: user.id });
@@ -12,7 +12,7 @@ const ensure = async (em, mode, user) => {
 export const INTENTED = async (mode, daemon) => {
   if (!is.array(mode.module.dataset?.intent)) return;
 
-  daemon.twitch.open("/user/create/after", async (ctx) => {
+  daemon.twitch.open("/after/user/create", async (ctx) => {
     const em = ctx.input.em.fork();
     for (const peer of daemon.flatmodes()) {
       if (!peer.implements("INTENTED")) continue;

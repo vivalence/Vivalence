@@ -3,7 +3,7 @@ const MASTERED_STATUS = new Set(["KNOWN", "GRADUATED"]);
 export const prereqsOf = (concept) => concept.trait.REQUIRES.concepts;
 
 export const isMastered = (concept) =>
-  concept.memories.getItems().some((memory) => MASTERED_STATUS.has(memory.status));
+  concept.retentions.getItems().some((retention) => MASTERED_STATUS.has(retention.status));
 
 export function masteredSlugs(concepts) {
   return new Set(concepts.filter(isMastered).map((concept) => concept.slug));

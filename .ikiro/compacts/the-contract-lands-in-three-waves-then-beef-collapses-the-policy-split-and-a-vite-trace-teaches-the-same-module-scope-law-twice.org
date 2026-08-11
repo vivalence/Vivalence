@@ -1,0 +1,237 @@
+#+title: the contract lands in three waves, then beef collapses the policy split and a vite trace teaches the same module-scope law twice — and the fix was not the import doctrine
+#+filetags: :m26:hallucinate:contract:output:response:typed-fetch:skill:slurp:vector:barrel:module-scope:m27:m28:
+
+* the arc
+
+Design session → full sweep → two follow-up rulings → a live crash that revealed a law I
+had already half-learned. m26 went from a bench item to LANDED in one sitting, and m23
+wound down behind it.
+
+* the design, settled by challenge
+
+Beef's opening was a complaint, not a spec:
+
+#+begin_quote
+I am very unhappy with the way that the hallucinate object, the contract here works at the
+moment. So what we have is we have an input and an output. The... and then we have
+separately the entities. I don't think that makes sense actually. ... Just an input and an
+output. ... I need you to do a thorough sweep on this. and go into the tank on the design.
+Don't go completely overboard. Make sure that this is the last time that we have to touch it.
+#+end_quote
+
+The sweep found the disease was bigger than =entities=: *=output= meant FOUR things* —
+=Request.output= (a declaration), =Part.ToolResult.output= (the model-facing payload),
+=EMITTER result.output= (the raw effect return), =ctx.output= (the Vector slot). And he had
+already written the fix as a TODO at =gestalten/belt/soma.js:42=.
+
+Every call I made got challenged, and the challenges improved them:
+
+- *=condition= outside =output=* — accepted ("correct"). A status can't live inside the
+  thing whose existence it reports.
+- *=turns= outside =output=* — accepted. Product vs medium.
+- *"whats session??"* — killed the word. =Response = {condition, output, turns, meta}=,
+  four orthogonal natures: verdict · product · record · diagnosis.
+- *"how is rounds not in meta?"* — it was; the packet carve-out was leftover. One spelling.
+- *"one turn many parts? your call"* — no: turn boundary = AUTHORSHIP change. Three
+  independent blockers (role is singular, replay wants 1:1 messages, per-round meta).
+  Beef: *"amen."*
+- *"SURE SURE we dont want turns in output OR flatten output into response?"* — stress-
+  tested both, both rejected, reasons written down.
+
+** the two insights he named as the payoff
+
+#+begin_quote
+really this insight that the harness hallucination is a projection of the thread and that
+we progressively enhance it through keyed properties with a bite comparison and as an
+expression of a of the modes, tools, and entity map is brilliant. It's perfect. It's so
+spot on.
+#+end_quote
+
+#+begin_quote
+We finished in this conversation a problem that has been bugging me for months, and that's
+the kind of the uncertainty in the... or the lack of clarity between the... in the in the
+contracts and the relationships. the contract now of the response with returns and the
+output and meta and condition and how those aggregate up. plus that the hallucination of
+the harness is an expression of the thread. those two really put this whole system into a
+sharp relief. Wonderful.
+#+end_quote
+
+* the provisioning turn — he killed every verb I proposed
+
+I offered better fluent verbs. He rejected the whole category:
+
+#+begin_quote
+all of the above is shit. the below is brilliant.
+const hal = daemon.cortex.hallucination({ tune, rounds, backoff })
+hal.dialogue.render() / .stream()
+#+end_quote
+
+That collapsed the design: *the Request is an ARGUMENT, not accumulated state* — a typed
+fetch. =context.system= → =system: {key: content}= (compose = object spread, replace-by-key
+idempotent, the singular-vs-procedural question stops existing). =entities.turn.append= →
+=turns: [...]=. =tools= → the Vector, back on the Vector. =configure= → dies.
+
+Statelessness answered his multi-turn fear structurally: same section bytes = stable prefix
+= cache lives, and the caller owns byte-stability because that's where the data lives.
+
+* the sweep — three waves, one bracket
+
+Baseline seven suites green, then:
+
+- *A* — ={condition, output}= at every seam. =fromm/yield.js= (7-row yieldmap → 3 getters,
+  new =spoken= normalization) · =pool.js= · =is.yieldish= · =soma.transcript= ·
+  =session()=→=respond()= · =/response/close= · =Packet.Response= · schemas · both providers
+  absorb the =message ?? object= flatten · 9 tool returns · kajuit =settled()= + the client
+  merge fold generalized from =buffer= to every entity key.
+- *B* — hal typed fetch. =prototypes/hallucination.js= 212 → 103 lines. =Request.system= =
+  named sections; anthropic gets =cache_control= on the MARKED KEY, openrouter leading
+  system messages. =harnessed.js= = assemble-then-invoke.
+- *C* — the skill library + the kill. Condemned =domain/tools/*= + =educate()= DELETED.
+
+* beef renamed the library twice mid-sweep
+
+#+begin_quote
+Maybe really that isn't a chart [shard]. Maybe tools is its own directory next to shard.
+... Shards are more behavioral, functional on the system level, whereas tools, they really
+are their own thing.
+#+end_quote
+
+#+begin_quote
+actually don't call it tools, call it skills, belt slash skills.
+#+end_quote
+
+#+begin_quote
+or in terms of skills or skills, singular, plural, match what we have with shard and shards.
+#+end_quote
+
+Landed: =gestalten/belt/skill/{buffer,thread,literal,symbol}.js=, singular, matching =shard=.
+(Audio recognition kept turning "trait" into "trade" all session — beef: *"It confuses the
+fuck out of me... but alass."*)
+
+* the two follow-up rulings
+
+** slurp — later wins on the edge too
+
+I flagged that =slurp= replaced the EFFECT but kept the earlier EDGE, so a layer-② override
+executed the new function while advertising the old valence.
+
+#+begin_quote
+Good catch and wrinkle number one absolutely later should win on metadata too. Try to find
+an elegant way to do this. Have the connoisseur have a look, make it very functional and
+elegant, and you know my style. Make me happy.
+#+end_quote
+
+On wrinkle two he pushed back and was right to:
+
+#+begin_quote
+I don't understand why that is a problem. I mean, those are stateless functions. ... What
+am I not understanding?
+#+end_quote
+
+The functions ARE stateless — the TRIE is the state. =slurp= on collision recursed INTO the
+shared library node and rebound its effect, so the singleton itself carried a mode's
+override for every later request. One fix retires both: the collision DELETES the earlier
+edge, keys by the LATER pattern, and mints a FRESH node from both sides — neither source
+mutated.
+
+** the policy/request split — collapsed
+
+#+begin_quote
+I don't see why we have a separate context dot policy and context at hallucination. ... I'd
+actually prefer that to be context dot hallucination dot policy. or just part of settings
+maybe. I'm not super happy with this split. ... Maybe it's cleaner to have them as one.
+Maybe it's cleaner to have them as two. I don't know. I'm not telling you how to do your
+job. It's just that I would prefer probably one.
+#+end_quote
+
+One. The mechanism was already there: the lowering separates app-side keys from wire keys
+for =tools=; =policy= became the second thing it strips. =Request = {policy?, system?,
+turns, tools?, settings?, output?, cache?}=, =cortex.hallucinate= a lazy getter (renamed
+from =.hallucination= on his order), spawn config gone entirely.
+
+* the live crash — the same law, twice
+
+Beef pasted a vite trace: every kajuit route 500, =Cannot read properties of undefined
+(reading 'array')= inside =Signature=, thrown from =belt/skill/buffer.js= at module eval.
+
+Skills built their Vector at MODULE SCOPE. =Vector.open= → =new Pattern= → =Signature= ctor
+calls =is.array= off the BARREL, and vite's SSR module runner evaluated the skill file
+before the barrel was populated. *I had already hit the near-miss version of this earlier in
+the same session* — the first cut imported =Vector=/=v= directly to dodge a TDZ error — and
+treated it as a local workaround instead of a law. Deno never hits it; another module runner
+does.
+
+Fixed with the repo's own idiom (=schematics/prototypes/yield.js=): a memoized thunk. LAW,
+now written down: *typology modules must not construct Vectors or touch =v= at module
+scope.*
+
+A second self-inflicted one: the first =slurp= rewrite added entries to the Map it was
+iterating, and =tests/bench/smoke.test.js= looped forever. Beef spotted it before I did —
+*"run tests against this change in the vector. this seems … possibly issuey"* — then
+*"test stuck?"*. Snapshot iteration + self-slurp guard, three invariant tests.
+
+* the import-doctrine question, measured
+
+Beef, on the crash: *"is this something we fix by dogmatically applying the 'relative
+imports within packages' doctrine?"*
+
+*No — provably not, and the trace is the proof.* At crash time =belt/skill/buffer.js= was
+ALREADY on relative imports (=../../../prototypes/vector.js=, =../../../schematics/v.js= —
+I had swapped them earlier that session to dodge a TDZ error). It never fails in the leaf's
+import line; it fails three frames deeper, and every hop goes through the barrel:
+
+#+begin_example
+prototypes/vector.js:1     import { Pattern, Signature }    from "@vivalence/typology";
+prototypes/pattern.js:1    import { object, is, hash }      from "@vivalence/typology";
+prototypes/signature.js:1  import { array, hash, is, cast } from "@vivalence/typology";
+#+end_example
+
+The relative import bought exactly ONE hop before rejoining the same cycle.
+
+Measured across the package: *62 files import typology's own barrel* — prototypes 23/48 ·
+gestalten 34/76 · entities 4/21 · specimen 3/2 · schematics 1/26.
+
+** why it had never bitten before
+
+Two conditions must coincide: a typology-internal module doing WORK at module scope, AND
+that work reaching the barrel. Measured: before m26 there were *ZERO* module-scope
+=new Vector/Aperture/Connection= constructions in =prototypes/= or =gestalten/=.
+=belt/skill/*= was the first to arm condition one.
+
+And *registry modules were never at risk* — 28 of them build =export const tools/emitter/
+harness = new Vector()= at module scope right now. They sit DOWNSTREAM of the barrel, not
+inside it, so it is fully evaluated before they run. The hazard belongs to modules the
+barrel re-exports, nothing else.
+
+** the ruling I did NOT make
+
+Debarreling typology's internals would take the barrel off the critical path and is a real
+cycle-smell fix — but it is a 62-file sweep across the HOLY layer, it does not close the bug
+CLASS (internal cycles survive; module-scope work stays hostage to eval order), and it cuts
+against the standing doctrine one layer up ([[feedback_import_through_barrel]]: kajuit
+imports THROUGH the barrel, never deep paths). A package-internal exception would be a NEW
+rule and beef's to state — I am not inventing one. Filed to =known-issues.org= as
+=typology-internals-import-their-own-barrel — OPEN=, with the note: measure the actual cycle
+set before touching 62 files.
+
+Landed law instead, the one that closes the hazard: *typology-internal modules must not
+construct Vectors or touch =v= at module scope — use a memoized thunk.*
+
+* landed state
+
+Seven suites green: typology 120 (486) · runtime 38 (230) · kajuit 23 (91) · rep-o-gram 6
+(26) · drivers 5 (36) · paladin 13 (49) · ghost 26. Snapshots regenerated hot then verified
+cold. Zero live residue of =entities=-bags, fluent registers, =session=, or spawn config.
+
+Quests: *m26 LANDED* · *m23 WOUND DOWN* (III + II.1 live, II.2 → m27, I = beef's, tool
+rebuild subsumed) · *m27-mind* born (memory + note; recall LATER) · *m28-skilled* extracted
+on his order.
+
+* resumption
+
+1. restart runtime + client — the sweep is unvalidated live
+2. m27 M27.1 (Note + Memory entities) whenever beef picks it up
+3. the skill roadmap he dictated: thread CONVERSATION trait (model config ON the thread —
+   dock writes it, projection reads it, "the loop is closed") · buffer × generative trait ·
+   fs/shell/MCP standard skills, user-overridable by the keyed mechanism · mode-on-disk
+   writes (datasink freight) last

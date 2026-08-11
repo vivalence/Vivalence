@@ -1,3 +1,4 @@
+import { logger } from "$telemetry";
 import { Terminal } from "../typology/entities/terminal.js";
 
 const STORAGE_KEY = "viva.terminals";
@@ -6,13 +7,18 @@ const ACTIVE_KEY = "viva.terminals.active";
 const ABSENT = Symbol("absent");
 const UNREACHABLE = Symbol("unreachable");
 
+const named = (outcome) =>
+  outcome === ABSENT ? "absent" : outcome === UNREACHABLE ? "unreachable" : "resolved";
+
 const serialized = new Map();
 
 export function hydrate({ terminals }) {
+  const hydration = logger.entry("terminals").open();
   let persisted = [];
   try {
     persisted = JSON.parse(localStorage.getItem(STORAGE_KEY)) ?? [];
   } catch {
+    hydration.note({ message: "persisted terminals corrupt — discarded" });
     localStorage.removeItem(STORAGE_KEY);
   }
   const shells = persisted.map((data) => {
@@ -21,10 +27,14 @@ export function hydrate({ terminals }) {
     return Terminal({ id: data.id, dock: data.dock });
   });
   terminals.$entities.set(shells);
-  terminals.$active.set(
-    shells.find((shell) => shell.id === localStorage.getItem(ACTIVE_KEY)) ?? null,
-  );
-  // console.log(`[probe] terminals hydrate — ${shells.length} shells, ${serialized.size} unresolved`);
+  const active = shells.find((shell) => shell.id === localStorage.getItem(ACTIVE_KEY)) ?? null;
+  terminals.$active.set(active);
+  hydration.note({
+    message: `${shells.length} terminal shell${shells.length === 1 ? "" : "s"} hydrated`,
+    unresolved: serialized.size,
+    active: active?.id ?? null,
+  });
+  hydration.close();
 }
 
 export function persist({ terminals }) {
@@ -79,7 +89,7 @@ export function settle({ terminals, lighthouse }) {
           return entity;
         }
       } catch (error) {
-        console.warn(`[probe] settle ${entityName} ${id} FAULT on ${daemon.slug}`, error);
+        logger.entry(`settle/${entityName}`).note({ id, daemon: daemon.slug }).fault(error);
         return UNREACHABLE;
       }
     }
@@ -87,9 +97,11 @@ export function settle({ terminals, lighthouse }) {
   };
 
   const pass = async () => {
+    let settling = null;
     for (const terminal of terminals.entities) {
       const remainder = serialized.get(terminal.id);
       if (!remainder) continue;
+      settling ??= logger.entry("settle").open();
       if (remainder.thread) {
         if (terminal.thread) {
           remainder.thread = null;
@@ -97,8 +109,12 @@ export function settle({ terminals, lighthouse }) {
           const outcome = await restore("thread", remainder.thread, {
             populate: ["mode", "intent"],
           });
+          settling.note({
+            message: `thread ${named(outcome)}`,
+            terminal: terminal.id,
+            thread: remainder.thread,
+          });
           if (outcome !== UNREACHABLE) {
-            // console.log(`[probe] settle thread ${terminal.id} ${outcome === ABSENT ? "absent — dropped" : "resolved"}`,);
             if (outcome !== ABSENT) terminal.thread = outcome;
             remainder.thread = null;
           }
@@ -109,8 +125,12 @@ export function settle({ terminals, lighthouse }) {
           remainder.buffer = null;
         } else {
           const outcome = await restore("buffer", remainder.buffer);
+          settling.note({
+            message: `buffer ${named(outcome)}`,
+            terminal: terminal.id,
+            buffer: remainder.buffer,
+          });
           if (outcome !== UNREACHABLE) {
-            // console.log(`[probe] settle buffer ${terminal.id} ${outcome === ABSENT ? "absent — dropped" : "resolved"}`,);
             if (outcome !== ABSENT) terminal.buffer = outcome;
             remainder.buffer = null;
           }
@@ -118,6 +138,7 @@ export function settle({ terminals, lighthouse }) {
       }
       if (!remainder.thread && !remainder.buffer) serialized.delete(terminal.id);
     }
+    settling?.close();
   };
 
   let inflight = null;

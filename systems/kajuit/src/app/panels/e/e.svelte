@@ -7,6 +7,7 @@
   import Masked from "./widgets/Masked.svelte";
   import Aimed from "./widgets/Aimed.svelte";
   import Queueing from "./widgets/Queueing.svelte";
+  import Intelligent from "./widgets/Intelligent.svelte";
 
   const terminals = getContext(TERMINALS);
 
@@ -20,6 +21,7 @@
     { name: "MASKED", label: "masked", toggleable: false },
     { name: "AIMED", label: "aimed", toggleable: true },
     { name: "QUEUEING", label: "queueing", toggleable: true },
+    { name: "INTELLIGENT", label: "intelligent", toggleable: true },
   ];
 
   let open = $state(new Set([]));
@@ -103,15 +105,19 @@
         <!-- <span class="thlabel">{labelText($label)}</span> -->
         <!-- <span class="spacer"></span> -->
       </div>
-      <div class="traits">
-        {#if ($mode?.traits ?? []).length}
-          <span class="caps">{$mode.traits.join(" · ")}</span>
-        {/if}
-      </div>
     </div>
 
     <section class="traits">
-      <Section label="traits" />
+      <Section label="mode traits" />
+      <div class="chips">
+        {#each $mode?.traits ?? [] as name (name)}
+          <Chip label={name.toLowerCase()} active />
+        {/each}
+      </div>
+    </section>
+
+    <section class="traits">
+      <Section label="thread traits" />
       <div class="chips">
         {#each TRAITS as trait (trait.name)}
           <Chip
@@ -150,6 +156,8 @@
               <Aimed thread={$thread} />
             {:else if name === "QUEUEING"}
               <Queueing thread={$thread} />
+            {:else if name === "INTELLIGENT"}
+              <Intelligent thread={$thread} />
             {/if}
           </div>
         </div>
@@ -265,12 +273,6 @@
     text-transform: uppercase;
     opacity: 0.6;
   }
-  .caps {
-    font-size: var(--font-size-sm);
-    letter-spacing: 0.06em;
-    color: color-mix(in srgb, var(--colors-skeleton-0-primary-base) 70%, transparent);
-  }
-
   section :global(.section-head) {
     margin-bottom: 11px;
   }

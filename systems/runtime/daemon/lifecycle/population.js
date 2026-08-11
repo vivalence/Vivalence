@@ -1,9 +1,9 @@
 import paladin from "@vivalence/paladin";
-import { wrap, EntitySchema } from "@mikro-orm/core";
+import { EntitySchema, wrap } from "@mikro-orm/core";
 
-import { Mode, Url, Path, Aperture, Cortex, Vector, shard, v } from "@vivalence/typology";
-import { is, array, shape, steer } from "@vivalence/typology";
-import { sets, DataRepository } from "@vivalence/typology/entities";
+import { Aperture, Cortex, Mode, Path, shard, Url, v, Vector } from "@vivalence/typology";
+import { array, is, shape, steer } from "@vivalence/typology";
+import { DataRepository, sets } from "@vivalence/runtime";
 
 import * as traits from "../traits/index.js";
 
@@ -18,19 +18,19 @@ export async function core(die) {
 
   die.register = await paladin.vip.accioMap(registry);
 
-  die.domain = v.primitives.kernel.Domain.cast(
+  die.good.domain = v.primitives.kernel.Domain.cast(
     die.register.kernel.find((module) => module.manifest?.type === "domain") ?? {},
   );
 
   die.variant.traits = {
     ...traits,
-    ...die.domain.traits,
+    ...die.good.domain.traits,
   };
 
   // @beef hacky micro/abstract entity handling
   const collate = (tiers) => {
     const slots = {};
-    for (const tier of tiers)
+    for (const tier of tiers) {
       for (const descriptor of Object.values(tier)) {
         const slot = (slots[descriptor.type] ??= { type: descriptor.type, subscribers: new Set() });
         slot.entity = descriptor.entity ?? slot.entity;
@@ -38,24 +38,23 @@ export async function core(die) {
         slot.repository = descriptor.repository ?? slot.repository;
         if (descriptor.subscriber) slot.subscribers.add(descriptor.subscriber);
       }
+    }
     return Object.values(slots);
   };
 
   const seal = (slot) =>
-    !slot.schema.meta.abstract
-      ? slot
-      : {
-          ...slot,
-          schema: new EntitySchema({
-            class: slot.entity,
-            extends: slot.schema,
-            name: slot.schema.meta.className,
-            tableName: slot.schema.meta.className,
-            repository: () => slot.repository ?? DataRepository,
-          }),
-        };
+    !slot.schema.meta.abstract ? slot : {
+      ...slot,
+      schema: new EntitySchema({
+        class: slot.entity,
+        extends: slot.schema,
+        name: slot.schema.meta.className,
+        tableName: slot.schema.meta.className,
+        repository: () => slot.repository ?? DataRepository,
+      }),
+    };
 
-  const variant = collate([sets.daemon, sets.kernel, sets.userspace, die.domain.entities]) //
+  const variant = collate([sets.daemon, sets.kernel, sets.userspace, die.good.domain.entities]) //
     .map(seal);
 
   die.variant.subscribers = [...new Set(variant.flatMap((slot) => [...slot.subscribers]))];
@@ -78,6 +77,7 @@ export async function datamap(daemonDie) {
   daemonDie.good.entities = daemonDie.datamap.entities;
   daemonDie.good.datamap = daemonDie.datamap;
 
+  daemonDie.good.twitch.branch("/after").use(shard.datamap.detached(daemonDie.datamap));
   daemonDie.datamap.subscribe(shape.subscriber(daemonDie.good.twitch));
   daemonDie.good.aperture.use(shard.datamap.inject(daemonDie.datamap));
 }
@@ -110,6 +110,9 @@ export async function services(daemonDie) {
   for (const [slug, servicemask] of Object.entries(daemonDie.mask.consume)) {
     const servicecake = daemonDie.register.consume[slug];
     daemonDie.good.services[slug] = await servicecake.provider(servicemask);
+    if (servicecake.manifest?.traits?.includes("TOOLED") && servicecake.tools) {
+      daemonDie.good.services[slug].tools = servicecake.tools;
+    }
   }
 }
 

@@ -66,7 +66,7 @@ specimen.describe("buffer lifecycle", { sanitizeResources: false, sanitizeOps: f
       thread: scenario.fixtures.thread.id,
     });
     specimen.expect(result.condition).toBe("NOMINAL");
-    const pojo = result.entities.buffer[0];
+    const pojo = result.output.buffer[0];
 
     const buffer = Object.assign(new Buffer(), pojo);
 
@@ -83,7 +83,7 @@ specimen.describe("buffer lifecycle", { sanitizeResources: false, sanitizeOps: f
       thread: scenario.fixtures.thread.id,
     });
 
-    const buffer = Object.assign(new Buffer(), result.entities.buffer[0]);
+    const buffer = Object.assign(new Buffer(), result.output.buffer[0]);
     const terminal = {};
     buffer.context = { buffer, terminal };
 

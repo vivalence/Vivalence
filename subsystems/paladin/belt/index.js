@@ -6,6 +6,7 @@ import is from "./is.js";
 import scope from "./scope.js";
 import publish from "./publish.js";
 import source from "./source.js";
+import clone from "./clone.js";
 import bundler from "./bundler.js";
 
 export default {
@@ -17,5 +18,6 @@ export default {
   scope,
   publish,
   source,
+  clone,
   bundler,
 };

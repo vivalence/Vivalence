@@ -1,9 +1,9 @@
 import { types, Collection, EntitySchema, EntityRepositoryType, type Opt, type Rel } from "@mikro-orm/core";
-// import { maps } from "@vivalence/typology/entities";
-import { symbol as base } from "@vivalence/typology/entities";
+// import { maps } from "@vivalence/runtime";
+import { symbol as base } from "@vivalence/runtime";
 
 // import { PlayEntity } from "../userspace/Play.ts";
-// import { MemoryEntity } from "../userspace/Memory.ts";
+// import { RetentionEntity } from "../userspace/Retention.ts";
 
 // export enum SymbolTraitsEnum {}
 // LEARNABLE = "LEARNABLE", // higher order feature that can be mastered
@@ -13,7 +13,7 @@ export class SymbolEntity extends base.entity {
   [EntityRepositoryType]?: typeof base.repository;
   // traits: SymbolTraitsEnum[] & Opt = [];
   // plays = new Collection<PlayEntity>(this);
-  // memories = new Collection<MemoryEntity>(this);
+  // retentions = new Collection<RetentionEntity>(this);
 }
 
 export const SymbolSchema = new EntitySchema({
@@ -25,7 +25,7 @@ export const SymbolSchema = new EntitySchema({
   properties: {
     // traits: {items: () => SymbolTraitsEnum, enum: true, array: true, default: [], type: types.json,},
     // plays: {kind: "1:m", entity: () => PlayEntity, mappedBy: (play) => play.symbol,},
-    // memories: {kind: "1:m", entity: () => MemoryEntity, mappedBy: (memory) => memory.symbol,},
+    // retentions: {kind: "1:m", entity: () => RetentionEntity, mappedBy: (retention) => retention.symbol,},
   },
 });
 

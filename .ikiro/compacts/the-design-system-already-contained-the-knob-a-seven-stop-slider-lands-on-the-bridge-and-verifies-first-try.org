@@ -1,0 +1,86 @@
+#+title: the design system already contained the knob — a seven-stop slider lands on the bridge and verifies first-try
+#+filetags: :compact:kajuit:bridge:dapper:typography:fontsize:
+
+* the arc
+
+Short session, clean shape: wake → ask → ground → propose → go → land → green
+→ live-verified → scribed. Woke on /"ikiro wake kajuit"/ (kernel + frontier +
+kajuit shard; no orb for the day). beef: /"i want a font size controller in
+kajuit. in bridge. some capability to adjust size. a slider. xxs-xxl font size
+and all that. read design system and all that"/.
+
+* the grounding (pre-flight, and why the feature was one line of mechanism)
+
+The dapper memory body carried the whole design already: the live UI is
+rem-tokenized end-to-end (=var(--font-size-*)=, all rem, kajuit ~40 svelte +
+drapes skins + game views) and dapper sets NO root font-size — so
+=html { font-size }= is the single lever that scales everything. No token
+edits, no dapper edits. Bonus found while grounding: kajuit's viewport meta is
+=user-scalable=no=, so this slider is the ONLY zoom the client offers.
+
+Precedent chain verified live before proposing (memory was 53–88 days old, so
+re-read against disk — the old =prototypes/= layout in the context-architecture
+memory is GONE, bridge now lives at
+=systems/kajuit/src/typology/stores/bridge/=):
+=bridge.view.theme= + =setTheme= → persisted via =save()= → applied in
+=app/+page.svelte= onMount subscribe → controlled in
+=app/panels/b/widgets/BridgeSection.svelte=, which already owned the
+slider + readout CSS from the dock-share row. Font size = fourth verse of the
+same song.
+
+Naming settlement: beef wrote /"xxs-xxl"/ but dapper's register spells
+=2xs=/=2xl= — extended the existing family, flagged the deviation in the
+proposal, no coined register.
+
+* the go
+
+/"lets test. go"/ — landed in four files, no drift from the proposal:
+
+- =systems/kajuit/src/typology/stores/bridge/bridge.js= — =FONT_SIZES=
+  (7 stops: 2xs 11px · xs 12.5px · sm 14px · base 16px · lg 18px · xl 20px ·
+  2xl 22.5px), =view.fontSize= persisted (default =base=), =setFontSize=
+  beside =setTheme=.
+- =systems/kajuit/src/typology/stores/bridge/index.js= — barrel exports
+  =FONT_SIZES=.
+- =systems/kajuit/src/app/+page.svelte= — =$fontSize= subscribe writes
+  =document.documentElement.style.fontSize=, unsubscribed on unmount, beside
+  the theme subscribe. (Consequence recorded, not a bug: pre-mount surfaces —
+  Login — render at browser default until =+page= mounts, exactly like theme.)
+- =systems/kajuit/src/app/panels/b/widgets/BridgeSection.svelte= — =font= row
+  under theme: =type=range= over the stop indices + token readout, reusing the
+  existing =.slider=/=.size-readout= styles.
+
+Old localStorage lacks =fontSize= → =??= default, zero migration.
+
+* the verification detour (suite invocation, re-learned)
+
+Two false starts before green, neither mine to fix:
+1. bare =deno test= → type-check death in runtime =Turn.ts= (114 errors) —
+   the KNOWN pre-existing entities-TS family, untouched.
+2. =deno test --no-check= → 11 instant "uncaught error" failures = graceful-fs
+   probing =GRACEFUL_FS_PLATFORM= without env permission — missing =-A=, not a
+   real failure.
+
+Correct invocation (from the =deno.jsonc= task, minus =--watch=):
+=deno test -A --no-check 'tests/**/*.test.js'= → *32 passed (112 steps), 0
+failed*. Dev servers were already up (kajuit vite + runtime watch); HMR +
+one hard reload.
+
+* the verdict
+
+beef: /"like a charm"/ — LIVE-VERIFIED first try.
+
+* scribed
+
+- kajuit codemap shard: one =font-size knob (LIVE-VERIFIED)= line under decks.
+- =project_dapper_typography_scale= memory: "one knob would scale everything"
+  updated to "that knob now EXISTS", with locations.
+- frontier deliberately NOT touched — one-shot feature, landed + verified,
+  carried by shard + memory; frontier is already over char budget and its
+  eviction is beef's call.
+
+* open
+
+Nothing carried. The px ladder (base 16, ~1.125 ratio) was offered as the one
+open knob; beef live-tested and pronounced it a charm — settled unless his
+eyes reopen it.

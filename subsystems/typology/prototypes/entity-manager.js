@@ -34,6 +34,9 @@ export class RemoteEntityManager {
     // same id dedupe the install even when cast() does awaited resolution
     // of back-referencing children.
     this.installed = new Set();
+
+    this.epochDepth = 0;
+    this.epochTouched = new Set();
   }
 
   // ── repository access ────────────────────────────────────────────
@@ -94,9 +97,23 @@ export class RemoteEntityManager {
 
     const entity = kind ? Object.assign(new kind(), raw) : raw;
     this.identities.set(mapKey, entity);
-    this.stores[name].set([...this.stores[name].get(), entity]);
+    this.stores[name].get().push(entity);
+    this.refreshStore(name);
     this.snapshot(name, entity);
     return entity;
+  }
+
+  async epoch(work) {
+    this.epochDepth++;
+    try {
+      return await work();
+    } finally {
+      if (--this.epochDepth === 0) {
+        const touched = [...this.epochTouched];
+        this.epochTouched.clear();
+        for (const name of touched) this.refreshStore(name);
+      }
+    }
   }
 
   // Identity-gated install. Install runs exactly once per (name, id):
@@ -309,6 +326,10 @@ export class RemoteEntityManager {
   // ── internals ────────────────────────────────────────────────────
 
   refreshStore(name) {
+    if (this.epochDepth > 0) {
+      this.epochTouched.add(name);
+      return;
+    }
     if (this.stores[name]) {
       this.stores[name].set([...this.stores[name].get()]);
     }

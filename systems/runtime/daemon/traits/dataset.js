@@ -1,32 +1,63 @@
-import { is, object, promise, fn } from "@vivalence/typology";
+import { object, promise, fn, shard, Dataset } from "@vivalence/typology";
+import paladin from "@vivalence/paladin";
 
 const CHUNK = 100;
+const DATASPACE = new Set(["symbol", "literal"]);
 const log = (phase) => (done, total) => console.log(`[DATASET:install] ${phase} ${done}/${total}`);
+
+const unique = (rows) => {
+  const bySlug = new Map();
+  for (const row of rows) bySlug.set(row.slug, row);
+  return [...bySlug.values()];
+};
+
+const pull = (source, mount) => {
+  if (source.rows) return source.rows;
+  const at = `${mount.dirname}/${source.walk ?? source.read}`;
+  return source.walk ? paladin.find.data(at) : paladin.read[source.codec](at);
+};
 
 export const DATASET = async (mode, daemon) => {
   if (mode.entity.installed) return;
 
-  const entities = mode.module.dataset.entities;
+  const dataset = new Dataset(mode.module.dataset ?? {});
+  const meta = shard.datamap.strip(daemon.datamap.introspect());
+  const mount = mode.module.mount;
   const flush = () => daemon.entities.em.flush();
+  const staged = {};
 
-  const upsertAll = (type) =>
-    (entities[type] || []).map((item) => {
-      const { literals, symbols, ...data } = item;
-      return promise.retry(async () => upsert(daemon, type, data));
+  for (const type of dataset.types) {
+    guard(mode, meta, type);
+    if (!daemon.entities[type]) {
+      console.warn(`[DATASET] ${mode.type}/${mode.slug} declares unknown entity "${type}"`);
+      continue;
+    }
+    const relations = Object.keys(meta[type]?.properties ?? {});
+    const loaded = [];
+    for (const source of dataset.sources[type]) loaded.push(await pull(source, mount));
+    const read = loaded.flat();
+    staged[type] = unique(read);
+    if (staged[type].length !== read.length)
+      console.log(`[DATASET:install] ${type} ${read.length - staged[type].length} duplicate slugs folded — a row split across facets is authored once per facet`);
+    const upserts = staged[type].map((row) =>
+      promise.retry(() => upsert(daemon, type, object.omit(row, relations))),
+    );
+    await promise.batched(upserts, CHUNK, {
+      afterChunk: flush,
+      onChunk: fn.every(5, log(`upsert:${type}`)),
     });
+  }
 
-  await promise.batched(upsertAll("symbol"), CHUNK, {
-    afterChunk: flush,
-    onChunk: fn.every(5, log("upsert:symbol")),
-  });
-  await promise.batched(upsertAll("literal"), CHUNK, {
-    afterChunk: flush,
-    onChunk: fn.every(5, log("upsert:literal")),
-  });
-
-  await linkPhase(daemon, "symbol", "literal", entities.symbol || []);
-  await linkPhase(daemon, "literal", "symbol", entities.literal || []);
+  for (const type of dataset.types)
+    for (const [prop, relation] of Object.entries(meta[type]?.properties ?? {}))
+      await linkPhase(daemon, meta, type, prop, relation, staged[type] ?? []);
 };
+
+function guard(mode, meta, type) {
+  const scoped = Object.values(meta[type]?.properties ?? {}).some((relation) => relation.target === "user");
+  if (!DATASPACE.has(type) || scoped)
+    throw new Error(`[DATASET] ${mode.type}/${mode.slug} declares non-dataspace entity "${type}"`);
+}
 
 async function upsert(daemon, type, data) {
   const existing = await daemon.entities[type].findOne({ slug: data.slug });
@@ -34,30 +65,35 @@ async function upsert(daemon, type, data) {
   return daemon.entities[type].create(data);
 }
 
-async function linkPhase(daemon, fromType, toType, items) {
-  const refs = items.filter((item) => item[toType + "s"]?.length);
+async function linkPhase(daemon, meta, fromType, prop, relation, rows) {
+  const toType = relation.target;
+  if (!toType || !daemon.entities[toType]) return;
+
+  const refs = rows.filter((row) => row[prop]?.length);
   if (!refs.length) return;
 
-  const fromSlugs = refs.map((r) => r.slug);
-  const toSlugs = [...new Set(refs.flatMap((r) => r[toType + "s"].map((x) => x.slug)))];
+  const fromSlugs = refs.map((row) => row.slug);
+  const toSlugs = [...new Set(refs.flatMap((row) => row[prop].map((ref) => ref.slug)))];
+  const inverse = Object.entries(meta[toType]?.properties ?? {})
+    .find(([, back]) => back.target === fromType)?.[0];
 
   const froms = await daemon.entities[fromType].find(
     { slug: { $in: fromSlugs } },
-    { populate: [toType + "s"] },
+    { populate: [prop] },
   );
   const tos = await daemon.entities[toType].find(
     { slug: { $in: toSlugs } },
-    { populate: [fromType + "s"] },
+    inverse ? { populate: [inverse] } : {},
   );
 
-  const fromMap = new Map(froms.map((e) => [e.slug, e]));
-  const toMap = new Map(tos.map((e) => [e.slug, e]));
+  const fromMap = new Map(froms.map((entity) => [entity.slug, entity]));
+  const toMap = new Map(tos.map((entity) => [entity.slug, entity]));
 
-  for (const item of refs) {
-    const from = fromMap.get(item.slug);
+  for (const row of refs) {
+    const from = fromMap.get(row.slug);
     if (!from) continue;
 
-    for (const ref of item[toType + "s"]) {
+    for (const ref of row[prop]) {
       let to = toMap.get(ref.slug);
       if (to) {
         to.assign(object.patch(to, ref));
@@ -65,13 +101,13 @@ async function linkPhase(daemon, fromType, toType, items) {
         to = daemon.entities[toType].create(ref);
         toMap.set(ref.slug, to);
       }
-      from[toType + "s"].add(to);
+      from[prop].add(to);
     }
 
     from.assign({ updatedAt: new Date() });
   }
 
-  console.log(`[DATASET:install] link:${fromType} ${refs.length} entities linked`);
+  console.log(`[DATASET:install] link:${fromType}.${prop} ${refs.length} entities linked`);
   await daemon.entities.em.flush();
 }
 

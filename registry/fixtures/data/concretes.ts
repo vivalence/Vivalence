@@ -7,9 +7,9 @@ import {
   SymbolEntity,
   BufferEntity,
   TurnEntity,
-} from "@vivalence/typology/entities";
+} from "@vivalence/runtime";
 
-import { SymbolConcrete, BufferConcrete } from "@vivalence/typology/scenarios";
+import { SymbolConcrete, BufferConcrete } from "@vivalence/runtime/scenarios";
 
 export enum LiteralTraits {
   TRANSLATED = "TRANSLATED",

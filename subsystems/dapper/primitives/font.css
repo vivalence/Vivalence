@@ -167,19 +167,97 @@
 	font-style: italic;
 }
 
-/* Source Code Pro font */
+/* Victor Mono font */
 @font-face {
-	font-family: "Source Code Pro";
-	src: url("/static/fonts/Source Code Pro/SourceCodePro-VariableFont_wght.ttf")
-		format("truetype");
-	font-weight: 100 900;
+	font-family: "Victor Mono";
+	src: url("/fonts/Victor Mono/WOFF2/VictorMono-Thin.woff2") format("woff2");
+	font-weight: 100;
 	font-style: normal;
 }
 @font-face {
-	font-family: "Source Code Pro";
-	src: url("/static/fonts/Source Code Pro/SourceCodePro-Italic-VariableFont_wght.ttf")
-		format("truetype");
-	font-weight: 100 900;
+	font-family: "Victor Mono";
+	src: url("/fonts/Victor Mono/WOFF2/VictorMono-ThinItalic.woff2")
+		format("woff2");
+	font-weight: 100;
+	font-style: italic;
+}
+@font-face {
+	font-family: "Victor Mono";
+	src: url("/fonts/Victor Mono/WOFF2/VictorMono-ExtraLight.woff2")
+		format("woff2");
+	font-weight: 200;
+	font-style: normal;
+}
+@font-face {
+	font-family: "Victor Mono";
+	src: url("/fonts/Victor Mono/WOFF2/VictorMono-ExtraLightItalic.woff2")
+		format("woff2");
+	font-weight: 200;
+	font-style: italic;
+}
+@font-face {
+	font-family: "Victor Mono";
+	src: url("/fonts/Victor Mono/WOFF2/VictorMono-Light.woff2") format("woff2");
+	font-weight: 300;
+	font-style: normal;
+}
+@font-face {
+	font-family: "Victor Mono";
+	src: url("/fonts/Victor Mono/WOFF2/VictorMono-LightItalic.woff2")
+		format("woff2");
+	font-weight: 300;
+	font-style: italic;
+}
+@font-face {
+	font-family: "Victor Mono";
+	src: url("/fonts/Victor Mono/WOFF2/VictorMono-Regular.woff2") format("woff2");
+	font-weight: 400;
+	font-style: normal;
+}
+@font-face {
+	font-family: "Victor Mono";
+	src: url("/fonts/Victor Mono/WOFF2/VictorMono-Italic.woff2") format("woff2");
+	font-weight: 400;
+	font-style: italic;
+}
+@font-face {
+	font-family: "Victor Mono";
+	src: url("/fonts/Victor Mono/WOFF2/VictorMono-Medium.woff2") format("woff2");
+	font-weight: 500;
+	font-style: normal;
+}
+@font-face {
+	font-family: "Victor Mono";
+	src: url("/fonts/Victor Mono/WOFF2/VictorMono-MediumItalic.woff2")
+		format("woff2");
+	font-weight: 500;
+	font-style: italic;
+}
+@font-face {
+	font-family: "Victor Mono";
+	src: url("/fonts/Victor Mono/WOFF2/VictorMono-SemiBold.woff2")
+		format("woff2");
+	font-weight: 600;
+	font-style: normal;
+}
+@font-face {
+	font-family: "Victor Mono";
+	src: url("/fonts/Victor Mono/WOFF2/VictorMono-SemiBoldItalic.woff2")
+		format("woff2");
+	font-weight: 600;
+	font-style: italic;
+}
+@font-face {
+	font-family: "Victor Mono";
+	src: url("/fonts/Victor Mono/WOFF2/VictorMono-Bold.woff2") format("woff2");
+	font-weight: 700;
+	font-style: normal;
+}
+@font-face {
+	font-family: "Victor Mono";
+	src: url("/fonts/Victor Mono/WOFF2/VictorMono-BoldItalic.woff2")
+		format("woff2");
+	font-weight: 700;
 	font-style: italic;
 }
 

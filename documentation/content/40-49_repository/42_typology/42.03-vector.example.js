@@ -21,7 +21,7 @@ export async function run() {
   // One vector can be arrived at by many patterns, so the pattern owns the schema.
   const described = new Vector()
   described.open({ nature: "/deal", input: v.object({ count: v.integer() }), valence: "deal cards" }, () => {})
-  const [edge] = [...described.trajectories.keys()]
+  const [edge] = described.patterns
   console.log("edge     →", JSON.stringify({ nature: edge.nature, valence: edge.valence, hasInput: !!edge.input }))
   console.log("node     →", JSON.stringify({ hasInput: !!described.branch("deal").input }))
 

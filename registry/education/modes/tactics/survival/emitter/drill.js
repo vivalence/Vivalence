@@ -15,7 +15,7 @@ export default async (ctx) => {
     symbols: ["word.part-of-speech.verb"],
   });
 
-  const populate = ["uses", "symbols", "memories"];
+  const populate = ["uses", "symbols", "retentions"];
   const opts = (limit) => ({ limit, blacklist, populate });
 
   const [conjugations, conjugationErrors, verbs, verbErrors] = await Promise.all([
@@ -40,7 +40,7 @@ export default async (ctx) => {
 
   const untouched = dedupe(
     [...allVerbs, ...allConjugations.flatMap((c) => c.uses.getItems())].filter(
-      (word) => !word.memory || word.memory.is.virgin,
+      (word) => !word.retention || word.retention.is.virgin,
     ),
   );
   if (untouched.length) {
@@ -70,10 +70,12 @@ export default async (ctx) => {
     const isInfinitive = verb.symbols
       .getItems()
       .some((s) => s.slug === "word.verb-form.infinitive");
-    if (isInfinitive || verb.memory?.is?.failed) {
-      practice.add(game.write.emit.literals({ literal: verb }));
+    if (isInfinitive || verb.retention?.is?.failed) {
+      practice.add(game["rep-o-gram"].emit.write.literals({ literal: verb }));
     } else {
-      practice.add(game.conjugation.emit.literal({ literal: verb }));
+      practice.add(
+        game["rep-o-gram"].emit.conjugations({ where: { uses: { $in: [verb.id] } }, count: 1 }),
+      );
     }
   }
 

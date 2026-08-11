@@ -27,7 +27,7 @@ export async function create() {
 
   dewey.module.harness = new Vector();
   dewey.module.harness.branch("/dialogue").use(async (ctx, next) => {
-    ctx.hallucination.context.system("You are Dewey, a patient language tutor.");
+    ctx.hallucination.system.dewey = "You are Dewey, a patient language tutor.";
     await next();
   });
 

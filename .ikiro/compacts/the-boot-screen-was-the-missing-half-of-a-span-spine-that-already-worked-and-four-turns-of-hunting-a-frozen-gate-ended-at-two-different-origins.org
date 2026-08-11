@@ -1,0 +1,377 @@
+#+title: the boot screen was the missing half of a span spine that already worked, and four turns of hunting a frozen gate ended at two different origins
+#+filetags: :kajuit:telemetry:span:trace:boot:client:debugging:callout:
+
+* the ask
+
+#+begin_quote
+in kajuit on launch there is just the string "boot".
+
+but many things are happening in the background.
+
+what would it take to create a more linux boot screen scify boot loader
+display where the boot screen gets progressively filled with more and more
+text that updates as the system proceedes through its boot steps?
+
+we'd need some early loaded nanostore that stores rows of strings. and then
+we append to that during various boot steps.
+#+end_quote
+
+The nanostore already existed. =systems/kajuit/src/telemetry.js= owns a
+singleton =Pipe=; =+layout.svelte:28= routes every connection call into it via
+=shard.track.span=; =$telemetry= folds the records with =trace.chronicle.step=.
+Three of the wanted lines were already =console.log("[probe] …")=, two of them
+commented out. The feature was never a new spine — it was a display for one
+that had been running all along.
+
+#+begin_quote
+smart. span.
+
+we dont need to force the scify aspects. implement truth.
+
+boot only overlay.
+
+no fake latency or such. just more writes to the span and propper render of
+the output.
+#+end_quote
+
+* the shape of the spine
+
+#+begin_src
+Span.mark() ──record──> Pipe ──tap──> trace.chronicle.step ──> $telemetry ──> panels G/H
+   emitter              channel            fold                  store         readers
+#+end_src
+
+Root =Span= owns =journal[]= + its own =channel=; branches delegate via =root=.
+=.to(telemetry())= bridges a span's private pipe into the shared one — that is
+the opt-in seam, and a span without =.to()= records fine and reaches nobody.
+=ctx.span= is unset on every client =connection.call=, so each request mints its
+own ROOT; =$telemetry.roots= is a flat request list, which is exactly panel G's
+model.
+
+* three rejections that shaped it
+
+** passing the span as an argument
+
+First implementation threaded a =span= parameter through =hydrate=, =boot=,
+=populate= and the terminal effects, with =new Span("lighthouse")= defaults.
+
+#+begin_quote
+export async function boot(lighthouse, span = new Span("lighthouse")) {
+I wnat to die. this is so fucking uglry and retarded OMG
+revert all of this
+omg
+this is bad
+no
+nononono
+#+end_quote
+
+#+begin_quote
+const boot = new Span("boot").to(telemetry());
+  let anchor = boot;
+  boot.open();
+
+this looks fucking WEEIIIIRDD!!
+i dont like this implementation at all. and i HATE that we are passing
+another argument to lighthouse hydrate.
+
+why not a globally exported span? or why a dedicated at all? if we have our
+global span for telemetry then we could just use that?!?! it does have all
+the branching and such
+#+end_quote
+
+Reverted to zero diff. He was right and the reason is sharper than "cleaner":
+the module that owns the pipe should own the mint. What landed is one line:
+
+#+begin_src js
+// systems/kajuit/src/telemetry.js
+export const span = (nature) => new Span(nature).to(telemetry());
+#+end_src
+
+A *factory*, not a shared root. A shared root reads nicer but carries a trap —
+the moment anyone calls =.open()= on it, every branch nests underneath and panel
+G collapses from a request list to one forever-growing tree. A factory cannot
+be misused that way.
+
+The =anchor= middleware (forcing HTTP spans to nest under a boot root) died with
+it. The nesting was never needed: =record.at= is =performance.now()=, so a flat
+merge by time is both simpler and truer, and panel G stays untouched.
+
+** new atoms for the gate
+
+Stage 3 wanted the overlay to survive past =populate=. First attempt added
+=lighthouse.$booted= and =terminals.$settled=.
+
+#+begin_quote
+no. no new atoms. are you nuts? i said simple. remove. this is just for
+display dammit
+#+end_quote
+
+** timers as a completion signal
+
+Second attempt: dismiss when the record stream goes quiet for 600ms, with a
+4000ms deadline and click-to-dismiss.
+
+#+begin_quote
+no..think again
+#+end_quote
+
+Both wrong for reasons already on the table — "stream went quiet" is a
+*heuristic*, and 600ms/4000ms is *fake latency*, which he had ruled out in the
+opening exchange. The truth was already in the system: =$status= is the
+lighthouse's state machine and the gate already watches it. =populate= simply
+never announced itself. Three lines:
+
+#+begin_src js
+lighthouse.$status.set({ code: "POPULATING" });     // after both early returns
+lighthouse.$populating = (async () => { … })();
+try { await lighthouse.$populating; }
+finally { lighthouse.$populating = null; lighthouse.$status.set({ code: "VERIFIED" }); }
+#+end_src
+
+#+begin_quote
+i dont want to get stuck on a load screen
+#+end_quote
+
+It cannot hang: =POPULATING= is set after both early returns and cleared in the
+=finally= that already existed. Same guarantee =$populating = null= relies on.
+
+* how far the gate actually reaches
+
+#+begin_quote
+does that cover all of daemon loading etc?
+#+end_quote
+
+Further than claimed. =find()= at =remote-repository.js:81= awaits
+=Promise.all(results.map(raw => this.cast(raw)))=, =cast= awaits
+=entityManager.integrate=, which runs the =use= middleware in =dossier.js:44=. So
+=await dataspace.populate(["daemon"])= does not resolve until, per daemon, in
+parallel: =/status=, five =/metadata/*=, =/datamap=, mode/thread/intent/buffer/turn
+finds, four subscriptions, the cortex wire.
+
+Worst case ~8s and only when a daemon is down — =dossier.js:57= puts
+=timeout(8000)= on each daemon connection and =:123= catches CLIENT/NETWORK/TIMEOUT,
+sets the daemon inert, and returns normally. Daemons run in parallel, so it is
+~8s total, not 8s × N.
+
+#+begin_quote
+convert dossiert.
+
+and lets try full gate.
+#+end_quote
+
+* the display, twice wrong
+
+First render was one row per record — =open= / =note= / =note= / =close=. Four
+lines per HTTP call, replaying the entire accumulated chronicle including every
+HMR cycle.
+
+#+begin_quote
+a: repetitive.
+b: monotone.
+c: static.
+#+end_quote
+
+Three complaints, one root cause: rendering *records*, and records are uniform
+by construction. The chronicle fold had already grouped them into spans with
+state and duration; the renderer was re-flattening it.
+
+#+begin_quote
+i want a bunch of boot messages like when linux boots.
+we have more structure with our paths and entities.
+sure.
+but mixed in with those some more text messages would be nice.
+#+end_quote
+
+The convention that landed: writers add =message= to notes they already emit.
+The renderer shows it bright with a =[  OK  ]= bracket and the remaining keys dim
+on the right; =fault= already carries =message=, so =[ FAIL ]= came free. The code
+that knows the fact writes the sentence — dmesg's own arrangement, and it keeps
+the renderer from holding a table of what every span means.
+
+#+begin_src
+[   1.932] [  OK  ] authority restored from cache      identity=019d23f1-… refresh=true
+[   1.942] [  OK  ] gate → verifying
+[   1.942] [  OK  ] 1 terminal shell hydrated          unresolved=0 active=hsinrc
+[   1.948]          POST /…/lighthouse/multiplayer/manifest        200     6ms
+[   1.951]          POST /…/lighthouse/multiplayer/auth/verify     200    10ms
+[   1.978]          POST /daemon/playground/metadata/manifest      200     8ms
+[   2.095] [  OK  ] italian mounted        modes=8 threads=9 buffers=7 intents=8 turns=4
+[   2.098] [  OK  ] 2 daemons mounted      daemons=playground,italian
+#+end_src
+
+70 rows, 8 milestones, real =performance.now()= stamps.
+
+* three renderer bugs the live DOM found
+
+Compiling clean proved nothing. Every one of these needed the actual page.
+
+1. *=response= overwrote =request=.* =shard.track.request()= builds its response
+   mark from =ctx.response=, which carries no method and no url, so ={status:200}=
+   replaced ={method,path}= wholesale. Traffic rows rendered as a bare =200 14ms=.
+   Merge, don't replace.
+2. *=trace.dictate= walks tree order, not time order* — root A's full open→close
+   before root B's first record. Mixed with live-tapped records the stamps
+   scrambled. Sort by =at=.
+3. *Boot had no memory.* It tapped the live pipe only; measured =rowsBefore: 0=
+   with 71 records already in the store. =/authority= was lost on every single
+   boot because =hydrate(lighthouse)= runs in the layout's *script body*, before
+   the child's markup renders and installs the tap. Fixed by folding
+   =trace.dictate(story)= through the same =step= function before tapping —
+   replay then live, one fold, bounded to the current boot by slicing from the
+   last =/authority= open.
+
+* the callout: four turns hunting a gate that was never frozen
+
+#+begin_quote
+something isnt right. i run throttled at 3g, no cache, 460 requests, but the
+screen shows nothing but the single line boot.
+#+end_quote
+
+I built a chain of reasoning: =computed().subscribe()= always fires immediately,
+so =gate= stuck at its initial ="boot"= proves the subscribe never ran, so
+=onMount= must be aborting at =terminalEffects.hydrate=. Elegant, internally
+consistent, and wrong.
+
+Then no console errors. Then =[2245.468]= — =performance.now()= in seconds, so
+the document was 37 minutes old and never reloaded. I ran with that too. Then
+a hard reload, =[11.877]=, still one line. I reproduced three storage states in
+my own tab — no key, empty-blob key, valid key — and got correct Login rendering
+every time.
+
+#+begin_quote
+i both logged in/out and reset the server. and cmd shift r.
+still just that one line.
+#+end_quote
+
+The answer arrived in one probe I should have asked for first:
+
+#+begin_src js
+{ "url": "http://localhost:1794/", "status": { "code": "VERIFIED" },
+  "authorized": true, "daemons": 2 }
+#+end_src
+
+Two findings in four lines. He was on =localhost:1794=; I had been testing
+=127.0.0.1:1794= the entire time — *different origins, separate localStorage*,
+which is why "no cached authority" was correct there and unreproducible here.
+And =gateLine= was *absent* from the JSON, not null — =querySelector= returned
+null, =undefined= keys drop out — so Boot was not mounted at all. Status VERIFIED,
+2 daemons: the app was fully booted and had been.
+
+What he stared at was the genuine pre-auth state on that origin. Hydrate finds
+nothing, emits exactly one line, the gate hands off to Login. *One line was the
+correct and complete boot log for a logged-out session.*
+
+The lesson is not "check the origin". It is that I had a cheap, total
+discriminator available — =location.href= — and skipped it in favour of a
+mechanism story I found satisfying. Every subsequent probe deepened the story
+instead of testing whether I was even looking at the same page. **When a symptom
+will not reproduce, stop refining the mechanism and start pinning the
+environment.**
+
+* what landed
+
+| file                                          | change                                                        |
+|-----------------------------------------------+---------------------------------------------------------------|
+| =src/telemetry.js=                              | =span(nature)= factory                                          |
+| =src/app/widgets/Boot.svelte=                   | NEW — dmesg renderer, replay + live tap over one =step= fold    |
+| =src/app/+layout.svelte=                        | =Boot= replaces the gate div · =gate= span · POPULATING branch · onMount reorder |
+| =src/typology/stores/lighthouse.js=             | =authority= + =daemons= spans · POPULATING status · probe deleted |
+| =src/typology/entities/daemon/dossier.js=       | =daemon/<slug>= span · =:120= probe converted · fault marks       |
+| =src/app/terminals.js=                          | =terminals= + =settle= spans (settle opens lazily)              |
+
+Build green, 23/23 tests, verified live in the browser.
+
+onMount now runs =boot()= first (its async half cannot throw past the =.catch=,
+and it sets VERIFYING synchronously so the gate's first emission is honest),
+then the three subscriptions, then the terminal effects. Instrumentation can no
+longer take the state machine with it.
+
+* open, needs go
+
+- *=hydrate= writes ={}= over the token* — =lighthouse.js:197=. nanostores =effect=
+  fires immediately on registration and =map({})= is truthy, so a freshly
+  constructed Lighthouse writes ={"authority":{},"identity":{}}= into
+  localStorage. Signature: =cached=true= with =access=false identity=null=.
+  Guard: =if (authority?.access || identity?.id)=.
+- *=STORAGE_KEY= stringifies a =Url= to =[object Object]=* — =lighthouse.js:6=.
+  Every lighthouse shares one key, defeating the point of keying by URL.
+- *=unsubscribePopulate= races =verify=* — it fires =populate()= immediately on
+  subscribe (authority already hydrated), concurrent with =verify()=, whose
+  =VERIFIED= clobbers =POPULATING=. So =gate → ready= lands before the daemons
+  mount and the full-gate hold is defeated. The subscribe is redundant —
+  =onLogin= calls =boot()=, which does verify→populate in order. Deleting it
+  makes the sequence strictly ordered.
+- *=console.warn= kept beside =mounting.fault=* in =dossier.js= — deliberate,
+  flagged: =fault()= records only message + code, and the raw error object is
+  worth more in devtools when a daemon boot breaks.
+- *settle records never reach the screen* — settle runs after the gate flips;
+  its notes land in panel G only.
+
+* the hard limit
+
+#+begin_src
+246 module requests, last finished     880ms
+first telemetry record                1608ms
+#+end_src
+
+Everything before 880ms is SvelteKit downloading modules. No component exists
+then, so nothing can be displayed. On 3G that phase is minutes of blank screen.
+**The boot display is a module, so it cannot show its own loading.** Only a
+script inlined into =src/client.html= could reach that window.
+
+* the resume protocol
+
+#+begin_quote
+plan to run console logs and i paste you the logs of the things you log and
+you diff versus your expectation
+#+end_quote
+
+Direct answer to this session's failure. I reasoned for four turns without a
+single observation from his tab. The rule now: *state the expected value before
+he runs the probe*, so a paste is a diff and not a fresh interpretation.
+
+One block, every line prefixed =[boot]= so it filters cleanly:
+
+#+begin_src js
+(async () => {
+  const t = await import('/src/telemetry.js');
+  const key = Object.keys(localStorage).find(k => k.startsWith('lighthouse:'));
+  const l = window.__viv?.lighthouse;
+  console.log('[boot] url       ', location.href);
+  console.log('[boot] now       ', Math.round(performance.now()));
+  console.log('[boot] status    ', JSON.stringify(l?.$status?.get()));
+  console.log('[boot] authorized', l?.$isAuthorized?.get());
+  console.log('[boot] daemons   ', l?.$daemons?.get()?.map(d => d.slug).join(',') ?? 'none');
+  console.log('[boot] mounted   ', !!document.querySelector('.boot'), 'login', !!document.querySelector('.gate'));
+  console.log('[boot] gateline  ', document.querySelector('.gate-line')?.textContent?.trim() ?? 'ABSENT');
+  console.log('[boot] rows      ', document.querySelectorAll('.boot .row').length);
+  console.log('[boot] roots     ', t.$telemetry.get().roots.length);
+  console.log('[boot] key       ', key ?? 'NONE');
+  console.log('[boot] stored    ', key ? localStorage.getItem(key) : 'NONE');
+})()
+#+end_src
+
+Expectations, warm authorized boot, stated in advance:
+
+| line       | expected                            | a mismatch means                          |
+|------------+-------------------------------------+-------------------------------------------|
+| url        | *record it first, every time*       | the origin question — never assume again  |
+| now        | < 5000 on a fresh load              | stale document, HMR-patched, not reloaded |
+| status     | ={"code":"VERIFIED"}=                 | mid-boot, or the POPULATING clobber       |
+| authorized | =true=                                | token gone → the ={}= write bug fired       |
+| daemons    | =playground,italian=                  | populate incomplete or a daemon inert     |
+| mounted    | =false= once ready, =true= mid-boot     | =true= at rest = gate genuinely stuck       |
+| gateline   | =ABSENT= once ready                   | present = boot overlay still up           |
+| rows       | 0 at rest, ~70 mid-boot             | 1 row = logged out, correct and complete  |
+| roots      | ~70                                 | far more = HMR accumulation               |
+| stored     | a real access token                 | ={"authority":{},"identity":{}}= = bug #1   |
+
+The =stored= line is the live test for the ={}=-over-token bug: if it reads
+={"authority":{},"identity":{}}= the =effect= at =lighthouse.js:197= has already
+eaten the session and every later boot will honestly report "no cached
+authority".
+
+#+begin_quote
+ok. do a ikiro compact.
+well come backto this
+#+end_quote

@@ -2,12 +2,13 @@ import config from "@vivalence/paladin";
 import { Path, Vector } from "@vivalence/typology";
 
 import provider from "./provider/index.js";
+import { tools } from "./tools/index.js";
 
 const manifest = {
   type: "service",
   slug: "nlp-stanza",
   name: "Stanza NLP service",
-  traits: ["SERVER", "DOCKER", "COMPOSE"],
+  traits: ["SERVER", "DOCKER", "COMPOSE", "TOOLED"],
 };
 
 // const path = as.path.url(import.meta.url);
@@ -80,4 +81,4 @@ const control = new Vector()
     console.log("✓ Stanza NLP services stopped successfully");
   });
 
-export { manifest, control, provider };
+export { manifest, control, provider, tools };

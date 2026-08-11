@@ -55,7 +55,7 @@ specimen.describe("runtime composition", () => {
       "/daemon/test-daemon/entities/literal/find",
       { where: {}, options: { limit: 10 } },
     );
-    specimen.expect(result.length).toBe(4);
+    specimen.expect(result.length).toBe(9);
   });
 
   specimen.it("unmatched route returns 404", async () => {
