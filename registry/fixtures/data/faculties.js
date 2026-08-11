@@ -76,19 +76,21 @@ export function faculties() {
         render: async (request) => {
           const { turns, tools, output } = request;
           const text = lastUserText(turns);
-          if (output?.object) {
+          if (output?.schema) {
             const data = { query: text };
             return { role: "assistant", parts: [{ type: "object", data }], meta: { state: "complete" }, object: data };
           }
-          if (tools && !hasToolResult(turns)) {
-            return toolUseTurn("t1", tools[0].name, { query: text });
+          const lookup = tools?.find((tool) => tool.name === "lookup");
+          if (lookup && !hasToolResult(turns)) {
+            return toolUseTurn("t1", lookup.name, { query: text });
           }
           return textTurn(`[opus] ${text}`);
         },
         stream: async ({ turns, tools }) => {
           const text = lastUserText(turns);
-          if (tools && !hasToolResult(turns)) {
-            return toolUseStream("t1", tools[0].name, { query: text })();
+          const lookup = tools?.find((tool) => tool.name === "lookup");
+          if (lookup && !hasToolResult(turns)) {
+            return toolUseStream("t1", lookup.name, { query: text })();
           }
           return textStream(`[opus] ${text}`)();
         },

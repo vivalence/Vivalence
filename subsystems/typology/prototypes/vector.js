@@ -3,9 +3,7 @@ import { Pattern, Signature } from "@vivalence/typology";
 export class Vector {
   constructor(ancestor, signature = Pattern) {
     this.effect = null;
-    // @beef maybe trajectory to trie
-    // this.trie = new Map();
-    this.trajectories = new Map();
+    this.trie = new Map();
     this.carry = [];
     if (ancestor) this.ancestor = ancestor;
     this.signature = signature;
@@ -26,22 +24,16 @@ export class Vector {
 
     if (pattern.nature == null && !pattern.heir) return this;
 
-    const existing = Array.from(this.trajectories.entries()).find(
-      ([i]) => i.nature === pattern.nature || i.hash === pattern.hash,
-    );
-
-    let descendant;
-    if (existing) {
-      descendant = existing[1];
-    } else {
-      descendant = new this.constructor(this, this.signature);
-      this.trajectories.set(pattern, descendant);
+    let edge = this.trie.get(pattern.nature);
+    if (!edge) {
+      edge = { pattern, trajectory: new this.constructor(this, this.signature) };
+      this.trie.set(pattern.nature, edge);
     }
 
     if (pattern.heir) {
-      return descendant.branch(pattern.heir);
+      return edge.trajectory.branch(pattern.heir);
     }
-    return descendant;
+    return edge.trajectory;
   }
 
   open(signature, effect) {
@@ -60,16 +52,25 @@ export class Vector {
     return this.slurp(vector);
   }
 
+  // share; later wins — on the effect AND on the edge. A collision never writes
+  // into either source: it mints a fresh node carrying both sides merged, keyed
+  // by the LATER pattern (its valence/input replace the earlier edge's). The
+  // snapshot keeps iteration blind to the entries a collision re-sets.
   slurp(vector) {
+    if (vector === this) return this;
     if (vector.effect) this.effect = vector.effect;
 
-    for (const [pattern, trajectory] of vector.trajectories) {
-      const existing = Array.from(this.trajectories.entries()) //
-        .find(([i]) => i.nature === pattern.nature)?.[1];
-      if (existing) {
-        existing.slurp(trajectory);
+    for (const [nature, edge] of [...vector.trie]) {
+      const collided = this.trie.get(nature);
+      if (collided) {
+        this.trie.set(nature, {
+          pattern: edge.pattern,
+          trajectory: new this.constructor(this, this.signature)
+            .slurp(collided.trajectory)
+            .slurp(edge.trajectory),
+        });
       } else {
-        this.trajectories.set(pattern, trajectory);
+        this.trie.set(nature, edge);
       }
     }
 
@@ -81,12 +82,11 @@ export class Vector {
   swallow(vector) {
     if (vector.effect) this.effect = vector.effect;
 
-    for (const [pattern, trajectory] of vector.trajectories) {
-      const existing = Array.from(this.trajectories.entries()) //
-        .find(([i]) => i.nature === pattern.nature)?.[1];
+    for (const [nature, edge] of vector.trie) {
+      const existing = this.trie.get(nature)?.trajectory;
       const branch = existing ?? new this.constructor(this, this.signature);
-      branch.swallow(trajectory);
-      if (!existing) this.trajectories.set(pattern, branch);
+      branch.swallow(edge.trajectory);
+      if (!existing) this.trie.set(nature, { pattern: edge.pattern, trajectory: branch });
     }
 
     this.carry.push(...vector.carry);
@@ -95,10 +95,10 @@ export class Vector {
   }
 
   get patterns() {
-    return [...this.trajectories.keys()];
+    return [...this.trie.values()].map((edge) => edge.pattern);
   }
   get descendants() {
-    return [...this.trajectories.values()];
+    return [...this.trie.values()].map((edge) => edge.trajectory);
   }
   get root() {
     let position = this;
@@ -110,8 +110,8 @@ export class Vector {
   }
 
   survey(visit = (node) => node) {
-    const trajectories = [...this.trajectories.entries()] //
-      .map(([signature, descendant]) => visit({ signature, ...descendant.survey(visit) }));
+    const trajectories = [...this.trie.values()] //
+      .map((edge) => visit({ signature: edge.pattern, ...edge.trajectory.survey(visit) }));
     return { effect: this.effect, trajectories };
   }
 }

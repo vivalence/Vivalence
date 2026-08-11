@@ -1,5 +1,5 @@
 import { Collection, EntitySchema, type Opt, type Rel } from "@mikro-orm/core";
-import { buffer as base, DataRepository } from "@vivalence/typology/entities";
+import { buffer as base, DataRepository } from "@vivalence/runtime";
 
 export class BufferEntity extends base.entity {}
 

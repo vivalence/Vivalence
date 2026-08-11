@@ -1,28 +1,28 @@
 import { Vector, v, array } from "@vivalence/typology";
 import { POOL_FACTOR, weightedSample } from "./sample.js";
 
-// ontology × memory-state → the exercise mode. weak/failed → scaffolded productive
+// ontology × retention-state → the exercise mode. weak/failed → scaffolded productive
 // recall; strong → fast recognition. One literal in, one game-mode buffer out.
 function exercise(game, literal, thread) {
-  const hard = literal.memory?.is?.weak || literal.memory?.is?.failed;
+  const hard = literal.retention?.is?.weak || literal.retention?.is?.failed;
   switch (literal.ontology) {
     case "conjugation":
       return hard
         ? game.paradigm.emit.conjugation({ conjugation: literal, thread }) // full table scaffold
-        : game.conjugation.emit.literal({ literal, thread }); // single form, no scaffold
+        : game["rep-o-gram"].emit.conjugations({ where: { id: literal.id }, count: 1, thread });
     case "sentence":
       return hard
-        ? game.shadow.emit.literals({ literals: [literal], thread }) // flash then type
-        : game.listen.emit.literal({ literal, thread }); // audio recall
+        ? game["rep-o-gram"].emit.shadow.literals({ literals: [literal], thread }) // flash then type
+        : game["rep-o-gram"].emit.listen.literal({ literal, thread }); // audio recall
     default:
       return hard
-        ? game.write.emit.literals({ literals: [literal], thread }) // type from memory
+        ? game["rep-o-gram"].emit.write.literals({ literals: [literal], thread }) // type from retention
         : game.judge.emit.literal({ literal, thread }); // fast true/false
   }
 }
 
 // drill · ONE pull of due literals, each branched to its own exercise by ontology
-// × memory-state. weak/failed items get productive scaffolded recall; strong items
+// × retention-state. weak/failed items get productive scaffolded recall; strong items
 // get fast recognition. The branch mirrors the survival/clinic tactics, kept lean in
 // the homepage. Delegation: pick here, hand each literal to the right game mode, pool
 // the returned buffer (thread forwarded so the buffer binds to the caller's thread).
@@ -35,7 +35,7 @@ export const drill = new Vector().open(
     }),
   },
   async (ctx) => {
-    // one read: due literals across ALL ontologies, with the memory state + the forms
+    // one read: due literals across ALL ontologies, with the retention state + the forms
     // each exercise needs (uses = sentence tokens / paradigm forms). Sort weakest-first
     // so the weighted sample favors the most-decayed items.
     const pool = (
@@ -43,10 +43,10 @@ export const drill = new Vector().open(
         {},
         {
           limit: ctx.input.count * POOL_FACTOR,
-          populate: ["memories", "memories.strength", "uses"],
+          populate: ["retentions", "retentions.strength", "uses"],
         },
       )
-    ).sort((a, b) => (a.memory?.strength ?? 0) - (b.memory?.strength ?? 0));
+    ).sort((a, b) => (a.retention?.strength ?? 0) - (b.retention?.strength ?? 0));
     const literals = weightedSample(pool, ctx.input.count);
     if (!literals.length) return [];
 

@@ -21,5 +21,5 @@ export function extractParadigm(conjugation) {
 export function avgStrengthOfParadigms(paradigms) {
   const forms = paradigms.flatMap((paradigm) => paradigm.uses.getItems());
   if (!forms.length) return 0;
-  return forms.reduce((sum, form) => sum + (form.memory?.strength ?? 0), 0) / forms.length;
+  return forms.reduce((sum, form) => sum + (form.retention?.strength ?? 0), 0) / forms.length;
 }

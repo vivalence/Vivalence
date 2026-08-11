@@ -6,12 +6,12 @@ const tally = (keys) => v.object(Object.fromEntries(keys.map((key) => [key, v.in
 const STATISTICS = v.object({
   totals: v.object({
     literals: v.integer(),
-    memories: v.integer(),
+    retentions: v.integer(),
     traces: v.integer(),
   }),
-  memory: v.object({
+  retention: v.object({
     byStatus: tally(STATUS),
-    seen: v.integer(), // memories past UNTOUCHED
+    seen: v.integer(), // retentions past UNTOUCHED
     due: v.integer(), // nextAt <= now
   }),
   activity: v.object({
@@ -27,23 +27,23 @@ export const statistics = new Vector().open(
     output: STATISTICS,
   },
   async (ctx) => {
-    const { memory, trace, literal } = ctx.daemon.entities;
+    const { retention, trace, literal } = ctx.daemon.entities;
 
     const byKey = (repo, where) => async (keys) =>
       Object.fromEntries(
         await Promise.all(keys.map(async (key) => [key, await repo.count(where(key))])),
       );
 
-    const byStatus = await byKey(memory, (status) => ({ status }))(STATUS);
+    const byStatus = await byKey(retention, (status) => ({ status }))(STATUS);
     const bySignal = await byKey(trace, (enumeration) => ({ signal: { enum: enumeration } }))(
       SIGNAL,
     );
 
-    const [literals, memories, traces, due] = await Promise.all([
+    const [literals, retentions, traces, due] = await Promise.all([
       literal.count({}),
-      memory.count({}),
+      retention.count({}),
       trace.count({}),
-      memory.count({ nextAt: { $lt: new Date() } }),
+      retention.count({ nextAt: { $lt: new Date() } }),
     ]);
 
     // streak — distinct trace-days, newest first, counted while contiguous
@@ -59,8 +59,8 @@ export const statistics = new Vector().open(
     }
 
     return {
-      totals: { literals, memories, traces },
-      memory: { byStatus, seen: memories - (byStatus.UNTOUCHED ?? 0), due },
+      totals: { literals, retentions, traces },
+      retention: { byStatus, seen: retentions - (byStatus.UNTOUCHED ?? 0), due },
       activity: { bySignal, streak },
     };
   },

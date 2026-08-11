@@ -1,0 +1,147 @@
+#+title: the research comes home as an armory — cards, hands, a classifier, and every tool learns whose context it runs in
+
+* arc
+
+Two-track research order → fable synthesis → the whole first pass BUILT in one session:
+the generic entity trio, paladin fs/shell hands, the domain's pull/review (resurrecting a
+layer that had been dead since birth), rep-o-gram's tool spread, and a stanza classifier
+riding a brand-new seam — services transport tools, gated by a TOOLED trait on the
+service manifest. Six suites green on both sides of every bracket.
+
+* the order
+
+beef: /"research two things. a: how effective agents are harnessed and primed. b: how to
+optimally interact query CRUD our entities. and then synthezise these two into a thorough
+update of our tools. both daemon and domain. and, bonus for any additional tools you
+might unearth on your research, setup an m29?m28? quest for tools we might add to either
+daemon or paladin."/ Then: /"once your back, ill change to fable and let you to the
+synthesis in gigabrain mode."/
+
+Mid-research steers: /"not just anthropic."/ · /"look at hackernews f.e."/ · /"sources
+like that"/ · /"github."/ + two repo links (obra/superpowers, the claude-code leak). The
+research settled the laws now living in =.ikiro/quests/m29-agent-tools.org=: tools are a
+contract with a non-deterministic caller · response shaping is the biggest lever ·
+error strings are prompts · progressive disclosure · definitions cost before anything
+runs · stable prefix.
+
+Track B measured OUR surface: full literal row 610 B vs agent projection 104 B (5.9×);
+=literal_find {}= unbounded ≈ 4 MB; =sanitize()= filters option keys but caps nothing;
+francesca's persona naming three tools (=pull=, =review=, =drill=) of which two did not
+exist — =domain/tools/index.js= imported a deleted =pull.js= and =domain.viva.js= never
+exported =tools=, so harness layer ② had been dead forever, silently.
+
+* the synthesis rulings
+
+- m28 was taken (SKILL.md progressive disclosure) → the armory quest is *m29*.
+- /"implement also first pass: entity_schema (introspection) · projected+cursored
+  entity_find · entity_count straight. find/walk · read/write · shell/process. no build
+  yet, just design."/
+- /"state.md is hand-written recitation — Trash. temporary hack for me."/ — never design
+  around it; m27-mind replaces it.
+- /"no new trait."/ — paladin arming rides no EMBODIED/SKILLED; harnessed arms fs/shell
+  for any mode with =mode.module.mount.dirname=, root context-bound there.
+- The generic-vs-specific fork, beef: /"sure that entity trio is the right way? it would
+  be a good low level tool. and tehn the domain can implement specifics - cause i still
+  'd like to have all the specific literal and symbol stuff with a dedicated tool. the
+  domain does so much work to get powerful literals and symbols. they deserve specific
+  tools. so we can have both."/ → BOTH: trio as floor, domain tools as the specific
+  surface.
+- /"buuild me these now"/ + the table; the fs annotation /"-- only call fs/walk
+  -fs/tree"/ read as: rename fs_walk → *fs_tree*, shell_run stays, process_* out.
+- /"you wrote 'card' a few times. what do you mean by card?"/ → card = the agent-facing
+  projection of a row, =repo.get card= = ={fields, populate, project(row)}=; term stood.
+
+* what landed (all green: typology 109 · runtime 50 · kajuit 32 · paladin 16 · domain 5 · rep-o-gram 6)
+
+- *entity trio* =systems/runtime/daemon/skills/entity.js= — =entity_schema= (no-arg:
+  types+counts+cards; with entity: columns from em metadata, relations, operator list,
+  =repo.extensions=, card fields) · =entity_find= (card/full, order, limit≤50 default 12,
+  offset paging via =next.offset=, ~10 kB budget trim with a steering message) ·
+  =entity_count=. Unknown entity → the error names the available types. =literal.js= +
+  =symbol.js= skills DELETED; buffer/thread skills keep only their updates.
+- *card seam* — =DataRepository.get card= (id/slug/traits) + =get extensions= in
+  =systems/runtime/daemon/entities/base/DataEntity.ts=; domain override in
+  =registry/education/domain/entities/kernel/Literal.ts= ({slug, known, learning,
+  ontology, status}, populate retentions). =cardOf()= fallback in the skill — the user
+  entity's schema declares no repository class, so a plain =EntityRepository= arrives
+  cardless (caught by the new =systems/runtime/tests/skill.entity.test.js=).
+- *domain tools* =registry/education/domain/tools/{pull,review,index}.js= + =export
+  { tools }= on =domain.viva.js= — pull{progress|due|novel|weak} rides
+  feed/due/novel/byStrength, cards out; progress folds UNTOUCHED as total−tracked (mikro
+  has no =$exists=); review = batched ={literal, signal}= → =row.review({enum}, ctx)=,
+  ERROR without =ctx.user=.
+- *paladin skills* =subsystems/paladin/skills/{fs,shell}.js=, attached as
+  =paladin.skills= in =mod.js= — fs_tree (depth≤5, 200-entry cap) · fs_find · fs_read
+  (16 kB cap + range steering) · fs_write · shell_run (zsh -c, timeout, 8 kB tail, exit
+  code as information not failure). Every path resolves under =ctx.root=; escape throws
+  naming the root; absolute inputs fold under the root (poka-yoke).
+- *rep-o-gram tools* — beef mid-build: /"add a few tools to repomat too! with the propper
+  harness and descriptions and instructions and examples. then we give francesca the
+  agentic trait and she'll be able to generate buffers for me. gucci"/ (francesca already
+  AGENTIC). =tools/{preset,conjugations,generate}.js= slurped by the provision index:
+  preset enum straight off =types.PRESETS= (third reader of the one table) ·
+  conjugations resolves =uses= slugs→ids for the ={uses:{$in}}= draw · generate rides
+  =emit.generate= — fresh sentences from known vocabulary. Worked examples in every
+  valence.
+- *tool ctx law* — beef (voice): /"context dot user on review, we really should have the
+  user in scope here, isn't it? Same with the threads. Threads and users should both be
+  in the execution context of tools just as the demon and the mode."/ The dig proved
+  daemon/mode had reached skills only BY ACCIDENT — =population.js= binds them on
+  =mode.tools=, and slurping mode.tools leaked the binds to everything; a toolless
+  HARNESSED mode would have crashed every skill. Now =armed= binds all four itself:
+  daemon · mode · user (when authed) · thread (when sent).
+- *services transport tools* — beef (voice): /"the services should also be able to
+  transport tools"/, then /"3b. do it right — services have traits. tooled trait on
+  service. go"/. =registry/viva/nlp/service.viva.js= manifest gains TOOLED + exports
+  =tools=; =population.services()= attaches trait-gated
+  (=manifest.traits.includes("TOOLED")=); harnessed mounts each under
+  =armed.branch(`/service/${slug}`)= with =ctx.service= bound — beef pinned the path
+  shape: /"service / slug / tool"/ → =service_nlp_classify=.
+- *nlp_classify* =registry/viva/nlp/tools/index.js= — the OLD classifier's annotation
+  fold recovered from history (jj: /"the classifier runs and tests succeed"/) and from
+  =topography.bak/classifier.js=: lemma/pos lowercased, feats flattened (split =|=, drop
+  =[brackets]=, first of comma-lists), verb/aux =suffix=; wire noise dropped
+  (deprel/head/offsets); >1000 chars bounces with steering. Fold pinned by
+  =registry/viva/nlp/tests/classify.test.js= against a stub =ctx.service=.
+- *3b prerequisites* — =server/Dockerfile= pip line gains =transformers peft= (prod
+  currently 500s EVERY depparse call: /"name 'transformers' is not defined"/ — the
+  provider's own default processors were broken in prod the whole time). Brazilian
+  daemon's consume mask read =language: "es"= — portuguese daemon querying spanish
+  models; fixed to ="pt"= in =testament/variant/education.js=.
+
+* the armed picture (the /"explain 'armed' tome"/ answer, kept)
+
+=armed= = the per-request tool Vector assembled inside HARNESSED: ① daemon skills
+(entity trio + buffer/thread updates) → ② paladin skills (root-bound, gated on a module
+mount) → ③ =/service/<slug>/…= TOOLED service tools (=ctx.service= bound per branch) →
+④ domain tools → ⑤ mode tools (+ AGENTIC peer harvest) → ⑥ invocation tools. It is
+catalog (trie rollup → declarations), dispatcher (ToolCall Signal back through the same
+trie), and scope (the =.use= binds ARE the execution context). Per-request because
+user/thread differ; cheap because slurp shares. Later layer wins → a mode can shadow a
+daemon skill.
+
+* discipline notes
+
+- The comment-litter gate earned its keep twice: I authored two explainer comments in
+  =DataEntity.ts= (self-caught, stripped) and the hook itself blocked a layer-comment
+  rewrite in =harnessed.js= — that comment now under-counts the layers (missing
+  services); fix needs beef's word since the gate can't tell maintenance from litter.
+- No =retard= fired this session; the IQ callout family (assume-dont-verify) got its
+  exercise instead in the fs-note reading — ambiguous fragment /"-- only call fs/walk
+  -fs/tree"/ was read aloud as a rename + stated in one line before building, per the
+  standing rule.
+
+* resumption
+
+1. beef deploys the nlp image (rebuild on syzygy — =docker compose build= from
+   =registry/viva/nlp/server/=, or ghost service control =/build=). Until then
+   =service_nlp_classify= 500s against prod; first =pt=/=it= calls download models once.
+2. Live validation, one francesca turn: /"perché è 'leggono' e non 'leggano'?"/ — expect
+   =pull= + =nlp_classify= + a rep-o-gram tool to fire. Gate 2's m26 leg (thread-pinned
+   tune) still owed too.
+3. =systems/runtime/daemon/traits/harnessed.js= layer comment stale (gate-blocked) —
+   one word from beef and it gets rewritten.
+4. rep-o-gram's three new tool handlers have no mode-test coverage yet (suite green but
+   they're unexercised); preset/conjugations/generate exercise on the live turn.
+5. m29 backlog waits per-item: entity_write · symbol_tree · retention aggregates ·
+   tool_search/deferred definitions · MCP export · ghost argv.

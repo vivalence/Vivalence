@@ -1,6 +1,91 @@
 {
   "literals": [
     {
+      "slug": "chamar.presente.indicativo",
+      "traits": [],
+      "trait": {
+        "CONJUGATED": {
+          "infinitive": "chamar.verb",
+          "paradigm": {
+            "first.singular": "chamo.verb",
+            "second.singular": "chamas.verb"
+          }
+        }
+      },
+      "symbol": {
+        "word": {
+          "tense": "presente",
+          "mood": "indicativo"
+        }
+      },
+      "ontology": "conjugation",
+      "symbols": [
+        "word.mood.indicativo",
+        "word.tense.presente"
+      ]
+    },
+    {
+      "slug": "chamar.verb",
+      "traits": [
+        "TRANSLATED"
+      ],
+      "trait": {
+        "TRANSLATED": {
+          "known": "to call",
+          "learning": "chamar"
+        }
+      },
+      "symbol": {},
+      "ontology": "word",
+      "symbols": []
+    },
+    {
+      "slug": "chamas.verb",
+      "traits": [
+        "TRANSLATED"
+      ],
+      "trait": {
+        "TRANSLATED": {
+          "known": "you call",
+          "learning": "chamas"
+        }
+      },
+      "symbol": {
+        "word": {
+          "person": "second",
+          "number": "singular"
+        }
+      },
+      "ontology": "word",
+      "symbols": [
+        "word.number.singular",
+        "word.person.second"
+      ]
+    },
+    {
+      "slug": "chamo.verb",
+      "traits": [
+        "TRANSLATED"
+      ],
+      "trait": {
+        "TRANSLATED": {
+          "known": "I call",
+          "learning": "chamo"
+        }
+      },
+      "symbol": {
+        "word": {
+          "person": "first",
+          "number": "singular"
+        }
+      },
+      "ontology": "word",
+      "symbols": [
+        "word.number.singular",
+        "word.person.first"
+      ]
+    },
+    {
       "slug": "goodbye",
       "traits": [
         "TRANSLATED"
@@ -11,8 +96,11 @@
           "learning": "tchau"
         }
       },
-      "symbol": {},
-      "ontology": "",
+      "symbol": {
+        "greeting": true,
+        "casual": true
+      },
+      "ontology": "word",
       "symbols": [
         "casual",
         "greeting"
@@ -29,12 +117,49 @@
           "learning": "olá"
         }
       },
-      "symbol": {},
-      "ontology": "",
+      "symbol": {
+        "greeting": true,
+        "casual": true
+      },
+      "ontology": "word",
       "symbols": [
         "casual",
         "greeting"
       ]
+    },
+    {
+      "slug": "ola-tchau",
+      "traits": [
+        "TRANSLATED",
+        "ANNOTATED"
+      ],
+      "trait": {
+        "TRANSLATED": {
+          "known": "hello and goodbye",
+          "learning": "olá e tchau"
+        },
+        "ANNOTATED": {
+          "tokens": [
+            {
+              "form": "olá",
+              "gloss": "hello",
+              "literal": "hello"
+            },
+            {
+              "form": "e",
+              "gloss": "and"
+            },
+            {
+              "form": "tchau",
+              "gloss": "goodbye",
+              "literal": "goodbye"
+            }
+          ]
+        }
+      },
+      "symbol": {},
+      "ontology": "sentence",
+      "symbols": []
     },
     {
       "slug": "please",
@@ -47,8 +172,11 @@
           "learning": "por favor"
         }
       },
-      "symbol": {},
-      "ontology": "",
+      "symbol": {
+        "greeting": true,
+        "polite": true
+      },
+      "ontology": "word",
       "symbols": [
         "greeting",
         "polite"
@@ -57,16 +185,26 @@
     {
       "slug": "thanks",
       "traits": [
-        "TRANSLATED"
+        "TRANSLATED",
+        "VOCALIZED"
       ],
       "trait": {
         "TRANSLATED": {
           "known": "thanks",
           "learning": "obrigado"
+        },
+        "VOCALIZED": {
+          "asset": {
+            "path": "audio/thanks.mp3",
+            "type": "audio/mpeg"
+          }
         }
       },
-      "symbol": {},
-      "ontology": "",
+      "symbol": {
+        "greeting": true,
+        "polite": true
+      },
+      "ontology": "word",
       "symbols": [
         "greeting",
         "polite"
@@ -94,9 +232,64 @@
         "ONTOLOGICAL"
       ],
       "trait": {}
+    },
+    {
+      "slug": "word.mood.indicativo",
+      "traits": [
+        "ONTOLOGICAL"
+      ],
+      "trait": {
+        "LABELED": {
+          "name": "indicativo"
+        }
+      }
+    },
+    {
+      "slug": "word.number.singular",
+      "traits": [
+        "ONTOLOGICAL"
+      ],
+      "trait": {
+        "LABELED": {
+          "name": "singular"
+        }
+      }
+    },
+    {
+      "slug": "word.person.first",
+      "traits": [
+        "ONTOLOGICAL"
+      ],
+      "trait": {
+        "LABELED": {
+          "name": "eu"
+        }
+      }
+    },
+    {
+      "slug": "word.person.second",
+      "traits": [
+        "ONTOLOGICAL"
+      ],
+      "trait": {
+        "LABELED": {
+          "name": "tu"
+        }
+      }
+    },
+    {
+      "slug": "word.tense.presente",
+      "traits": [
+        "ONTOLOGICAL"
+      ],
+      "trait": {
+        "LABELED": {
+          "name": "presente"
+        }
+      }
     }
   ],
-  "memories": [
+  "retentions": [
     {
       "status": "KNOWN",
       "literal": "hello"
@@ -124,12 +317,13 @@
   ],
   "modes": [
     {
-      "slug": "flashcard",
+      "slug": "rep-o-gram",
       "type": "game",
       "traits": [
         "APPLICATION",
         "INTENTED",
-        "EMITTER"
+        "EMITTER",
+        "STANDALONE"
       ]
     }
   ],
@@ -145,7 +339,8 @@
             "symbols": [
               "greeting"
             ]
-          }
+          },
+          "gameplay": "FLIP"
         }
       }
     }

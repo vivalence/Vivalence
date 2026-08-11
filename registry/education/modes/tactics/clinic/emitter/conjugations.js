@@ -14,7 +14,7 @@ export default async (ctx, config = {}) => {
         ontology: "conjugation",
         symbols: [...baseSymbols, ...group.symbols],
       },
-      { populate: ["uses.memories", "symbols", "memories"] },
+      { populate: ["uses.retentions", "symbols", "retentions"] },
     );
     if (items.length) classes.set(group.label, items);
   }
@@ -30,7 +30,7 @@ export default async (ctx, config = {}) => {
   const { infinitive, forms, tenseSymbol, moodSymbol } = extractParadigm(conjugation);
   if (!forms.length) return;
 
-  if (conjugation.memory?.is?.virgin ?? true) {
+  if (conjugation.retention?.is?.virgin ?? true) {
     ctx.pool.add(
       game.exhibit.emit.present({
         layout: "TABLE",
@@ -53,8 +53,8 @@ export default async (ctx, config = {}) => {
 
   const practice = ctx.pool.section();
   for (const form of forms) {
-    if (!form.memory || form.memory.is.virgin || form.memory.is.failed) {
-      practice.add(game.shadow.emit.literal({ literal: form }));
+    if (!form.retention || form.retention.is.virgin || form.retention.is.failed) {
+      practice.add(game["rep-o-gram"].emit.shadow.literal({ literal: form }));
     }
   }
   practice.apply(array.shuffle);

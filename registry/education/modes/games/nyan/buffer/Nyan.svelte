@@ -13,7 +13,7 @@
   const literals = buffer.literals;
 
   // ── provenance · the app's type, derived once ────────────────────────────────
-  // domain → words are a projection of literals (graded back to memory)
+  // domain → words are a projection of literals (graded back to retention)
   // fixed  → an explicit plaintext list (the list IS the content)
   // corpus → drawn from a wordset; the open standalone trainer
   const kind = literals?.length ? "domain" : seedWords?.length ? "fixed" : "corpus";
@@ -74,7 +74,7 @@
     return { words: pairs.map((pair) => pair.word), owners: pairs.map((pair) => pair.owner) };
   }
 
-  // ── domain egress · a per-word verdict → a memory signal ──────────────────────
+  // ── domain egress · a per-word verdict → a retention signal ──────────────────────
   // clean is the only win; recall (couldn't retrieve) is worst; spelling AND motor
   // slips are negative — the motor channel is exactly what nyan trains.
   const SIGNAL = (label) =>

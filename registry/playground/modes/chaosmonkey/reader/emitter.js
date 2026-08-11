@@ -9,12 +9,12 @@ const AUTHOR = [
 export const emitter = new Vector().open(
   { nature: "/conjure", input: v.object({ brief: v.string() }) },
   async (ctx) => {
-    const scribe = ctx.daemon.cortex.hallucination();
-    scribe.context.system(AUTHOR);
-    scribe.entities.turn.append({ role: "user", parts: [{ type: "text", text: ctx.input.brief }] });
-    const source = await scribe.verbatim.render();
-    const view = await ctx.mode.gen.bundle({ kind: "svelte", source });
+    const response = await ctx.daemon.cortex.hallucinate.verbatim.render({
+      system: { author: AUTHOR },
+      turns: [{ role: "user", parts: [{ type: "text", text: ctx.input.brief }] }],
+    });
+    const view = await ctx.mode.gen.bundle({ kind: "svelte", source: response.output.message });
     const buffer = await ctx.mode.gen.buffer({ view });
-    return { condition: "NOMINAL", entities: { buffer: [buffer] } };
+    return { condition: "NOMINAL", output: { buffer: [buffer] } };
   },
 );

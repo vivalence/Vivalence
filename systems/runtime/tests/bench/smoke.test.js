@@ -3,7 +3,7 @@ import { bench } from "../scenarios/bench.js";
 
 // ── raw import smoke test ──────────────────────────────────────────
 import * as domain from "../../../../registry/education/domain/domain.viva.js";
-import * as flashcard from "../../../../registry/education/modes/games/flashcard/flashcard.viva.js";
+import * as repogram from "../../../../registry/education/modes/games/rep-o-gram/rep-o-gram.viva.js";
 import * as judge from "../../../../registry/education/modes/games/judge/judge.viva.js";
 
 specimen.describe("bench (raw imports)", { sanitizeOps: false, sanitizeResources: false }, () => {
@@ -11,7 +11,7 @@ specimen.describe("bench (raw imports)", { sanitizeOps: false, sanitizeResources
 
   specimen.beforeAll(async () => {
     scenario = await bench({
-      kernel: [domain, flashcard, judge],
+      kernel: [domain, repogram, judge],
     });
   });
 
@@ -20,7 +20,7 @@ specimen.describe("bench (raw imports)", { sanitizeOps: false, sanitizeResources
   });
 
   specimen.it("daemon boots with modes", () => {
-    specimen.expect(scenario.daemon.modes.game.flashcard).toBeTruthy();
+    specimen.expect(scenario.daemon.modes.game["rep-o-gram"]).toBeTruthy();
     specimen.expect(scenario.daemon.modes.game.judge).toBeTruthy();
   });
 
@@ -32,7 +32,7 @@ specimen.describe("bench (raw imports)", { sanitizeOps: false, sanitizeResources
   });
 
   specimen.it("modes have emit objects", () => {
-    specimen.expect(scenario.daemon.modes.game.flashcard.emit).toBeTruthy();
+    specimen.expect(scenario.daemon.modes.game["rep-o-gram"].emit).toBeTruthy();
     specimen.expect(scenario.daemon.modes.game.judge.emit).toBeTruthy();
   });
 
@@ -55,9 +55,8 @@ specimen.describe("bench (paladin specifiers)", { sanitizeOps: false, sanitizeRe
         "@education/domain/language-learning",
         "@education/topology/word",
         "@education/topology/sentence",
-        "@education/game/flashcard",
+        "@education/game/rep-o-gram",
         "@education/game/judge",
-        "@education/game/pick",
         "@education/game/exhibit",
       ],
     });
@@ -67,10 +66,9 @@ specimen.describe("bench (paladin specifiers)", { sanitizeOps: false, sanitizeRe
     await scenario?.teardown();
   });
 
-  specimen.it("daemon boots with 4 modes", () => {
-    specimen.expect(scenario.daemon.modes.game.flashcard).toBeTruthy();
+  specimen.it("daemon boots with 3 modes", () => {
+    specimen.expect(scenario.daemon.modes.game["rep-o-gram"]).toBeTruthy();
     specimen.expect(scenario.daemon.modes.game.judge).toBeTruthy();
-    specimen.expect(scenario.daemon.modes.game.pick).toBeTruthy();
     specimen.expect(scenario.daemon.modes.game.exhibit).toBeTruthy();
   });
 

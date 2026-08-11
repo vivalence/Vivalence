@@ -4,7 +4,7 @@ import {
   IdentitySchema, IdentityEntity,
   DaemonSchema, DaemonEntity,
   AuthenticatorEmbedSchema,
-} from "@vivalence/typology/entities";
+} from "@vivalence/runtime";
 
 const schemas = [IdentitySchema, DaemonSchema, AuthenticatorEmbedSchema];
 

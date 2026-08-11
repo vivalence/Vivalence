@@ -8,7 +8,7 @@ import { SqliteDriver } from "@mikro-orm/sqlite";
 import {
   LiteralEntity,
   SymbolEntity,
-} from "@vivalence/typology/entities";
+} from "@vivalence/runtime";
 import { LiteralDomain, SymbolDomain } from "../scenarios/fixtures.js";
 
 specimen.describe("symbols: m:n slug query", () => {

@@ -1,0 +1,93 @@
+#+title: the epoch survives its own abstraction probe, the boot storm was an f5 goodbye, and the perf instrument is designed to never become the disease
+
+* what happened, in one breath
+
+beef probed the settled design twice before releasing it ("is epoch REEEALLLLLLYY the
+right abstraction?" · "will our thread buffer turns be cached onthe client? aka i click
+around a bunch will that result in wait and wait and wait? or second time is fast?"),
+both probes held, one word "go" landed the whole cluster — epoch + boot diet + focus.js —
+with a new invariant test, four suites and the prod bundle green. Two live boot logs
+followed: the first read as "biiiiit too much happening no?" and decomposed into four
+strands (one real), the second self-diagnosed by beef ("those are all from f5 refresh i
+think") and confirmed by close code 1001. Prong A is live-verified. Prong B went design →
+"plan it" → plan in the quest, with beef's execution sequence as a standing order.
+
+* the two probes, and why they held
+
+**Abstraction**: epoch = the shape every reactive system converged on (Solid =batch=,
+MobX =transaction=, React =batchedUpdates=). The load-bearing reason it must be explicit:
+find's cast chain awaits PER ROW, so one find spans hundreds of microtask ticks — a
+=queueMicrotask= auto-flush would fire mid-find. Only a refcounted window survives
+=await=; nanostores has no scheduler to defer into. Known weakness stated: opt-in — a
+future bulk path that forgets to wrap regresses silently; surface is small (find /
+findAndCount / update are the only bulk entries). Honest limit: epoch cuts fire COUNT,
+not fire COST — the diet handles cost (thread-size rows). Rung above if needed: granular
+per-entity stores (kills the disease category, rewrites every subscriber). Not now.
+
+**Caching**: re-click = ZERO wait for the session (hydration ledger + scoped subs stay
+live, background threads stay fresh). Reload repulls per thread — buffer/turn repos are
+not =persist()=ed, and enabling that waits on coalescing =store()= (the M5 landmine),
+which could ride epoch close for free. Separate item, beef says when.
+
+* the landing
+
+Applied exactly as worked out in the quest: =entity-manager.js= (epoch refcount +
+touched set, refreshStore gate, new-entity push-in-place), =remote-repository.js=
+(guard helper + four wraps), dossier diet (volley + unscoped buffer/turn subs GONE),
+=app/focus.js= NEW, layout mount. Beyond the diff, flagged: NEW invariant test in
+=systems/runtime/tests/entity-manager.test.js= — one fire per touched store · mid-epoch
+=get()= visibility · nested no-flush · value pass-through · immediate outside ·
+flush-on-throw. typology 109/404 · runtime 49/314 · kajuit 32/112 · ghost 27 · prod
+bundle clean. Runtime ran =--no-check= — type-check fails on beef's in-flight
+=registry/education/domain/entities/kernel/Literal.ts= edit (working-tree M, untouched).
+
+* the two boot logs
+
+First log, four strands: (1) focus itself minimal and correct — 2 finds + 2 scoped subs
+per thread, world volley GONE; (2) ×4 optical inflation — dev mirror prints
+open/request/response/close per call; (3) the real remaining volley = per-MODE metadata,
+~35 boot calls, pre-existing, never in m30 scope — next diet candidate is an aggregate
+=/metadata/modes= per daemon; (4) a storm of "sse died 1006" + refused reconnects =
+something briefly down mid-session (beef: "yes. ok. some work iis happenign elsewhere.
+will get back." — parked, beef-side).
+
+Second log, no runtime restart: the storm sits BEFORE =[vite] connecting= with close
+code **1001 "going away"** — the OLD page's probes resubscribing into the void during F5
+teardown. beef called it before the decode landed. Wart flagged, unfixed: the probe
+should swallow 1001 at teardown instead of retrying. Rest of the log = prong A
+live-verified clean (scoped focus ={buffers:2,turns:0}= · ={buffers:0,turns:4}=, gate →
+ready before focus settles).
+
+* prong B — designed, then planned ("plan it")
+
+Full plan lives in the quest (=* prong B — the perf scaffold=). Essence: perf is a
+logger CONSUMER in the app-effect idiom — barrel stays two exports. =app/perf.js=:
+producer pick loaf → longtask → rAF-gap (Firefox has neither loaf nor longtask; Chromium
+loaf carries script attribution + =buffered:true= backfills boot), **threshold ≥50ms —
+the instrument must not become the next inspector-per-pointermove**, records ride the
+ONE journal so blocks correlate with wire spans offline, =dump()= serializes
+=logbook.records= (root ring, cap 1000 — verified in =span.js=, not invented) to a kB
+JSON download. Activation =?perf=, =__viva.perf=. Removal = 3 deletions.
+
+**beef's sequence, verbatim, standing**: "then ikiro compact into the quest. then i
+campact. then you implemnt, i deploy, i provide, you remove, you optimize." — the
+implement-go is CARRIED by this sequence; no further gate after his compact.
+
+* corrections ledger (this session)
+
+- Claimed "Quest updated with the live verification" in the 1001-log turn WITHOUT making
+  the edit — zero tool calls that turn. Caught self next turn, edit made, owned here.
+  The no-completion-claims-without-fresh-verification kernel rule applies to MY OWN
+  ikiro writes too, not just code.
+- First storm read floated "--watch pickup of the typology edits?" as the daemon-restart
+  cause — beef's second log killed the speculation: F5 teardown. Pin the environment
+  before refining the mechanism, again.
+
+* loose ends, settled
+
+- Probe-swallow-1001 wart: flagged in quest, needs a go (typology probe).
+- Per-mode metadata volley (~35 calls): named as next diet candidate, no quest milestone
+  minted — beef's call.
+- Mid-session 1006 outage: beef-side, parked.
+- =store()= coalescing riding epoch close: noted in quest as the unlock for
+  =persist()=-warm reloads. Unscheduled.

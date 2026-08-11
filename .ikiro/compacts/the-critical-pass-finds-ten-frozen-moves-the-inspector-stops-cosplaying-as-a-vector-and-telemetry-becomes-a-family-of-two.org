@@ -1,0 +1,134 @@
+#+title: the critical pass finds ten frozen moves, the inspector stops cosplaying as a Vector, and telemetry becomes a family of two
+
+* what happened, in one breath
+
+beef ordered a hostile re-read of m30 ("work through this critically. analyze both the
+logs and kajuits architecture. … what are the *TRUE* causes"). The re-read broke three of
+my own published numbers, retracted an M1 verdict, and pinned the real mechanism to one
+line of typology. Then beef set a two-prong plan — prong A: work out solutions in THIS
+conversation; prong B: a temporary perf scaffold in kajuit for a deployed capture, later
+("just say yes" — I said yes). Prong A produced one landed fix (vector-less inspector,
+explicit go) and a fully settled design for the client observability ontology, hammered
+flat through four correction rounds. Everything else awaits per-item go.
+
+* the critical pass — what the re-decode changed
+
+- **Marker phases**: DOMEvent markers in FF profiles are phase-2/3 ROW PAIRS (sentinel in
+  the unused slot). ffmark counted rows: n doubled, avg halved, max garbage. Totals
+  survived by accident. Distributions did not — and the distribution WAS the finding.
+- **pointermove is bimodal**: 1676 moves < 5ms (110ms combined, hover noise) vs **10 moves
+  at 1.4–2.0s = 99.3% of 14.7s**, in 5 pairs = 5 drag gestures. Every real pincer write
+  froze ~2s; Firefox coalesced the queue; ~2 writes per gesture ever landed. That IS
+  "drap-drop of the pincer takes FOREVVERRRR" — the pincer teleports once per 1.5s.
+- **There was no message flood**: ONE multiplex frame at t=14.6s ran a 12,591ms handler
+  (the dossier boot volley response — buffer.find populate literals+symbols + turn.find).
+  The other 58 messages: ~330ms total. The worst block IS the frozen boot screen.
+- **M1 "VERIFIED DEAD" RETRACTED**: =get hash=/=hasher= = 87.8% of a clean spike window
+  (1816ms of one 2s spike). My earlier zero-hits claim was a bad search. The memo works
+  per instance; the hot path mints fresh instances. Lesson written into the quest: a
+  "verified dead" claim needs its window and needle recorded next to it.
+- **Root pinned**: =subsystems/typology/prototypes/vector.js:29= — branch's linear sibling
+  scan, O(K²) per K-child branch, with an =|| i.hash === pattern.hash= fallback that
+  forces identity hashing on every nature-miss. slurp/swallow match by nature alone; the
+  fallback is branch's anomaly, and Pattern.hasher includes nature, so it is
+  unreachable-or-collision-bug. K = prod italian's populated rows. THAT is the
+  localhost/prod split, quantified.
+- Boot-freeze attribution: ~45% hash/serialize in per-row integration (EM refreshStore
+  per row · structuredClone snapshot per row per SIGHT · O(rows²) array copies), ~25% two
+  mid-hydration inspector composes, ~20% Bitwarden reacting to our churn, ~10% GC.
+  selbstbestimmt-per-merge exonerated (compiles once). Clicks (1.7s) and resize (927ms)
+  pay the same inspector bill through $active and reanchor→pincer.
+
+* landed (explicit go): the vector-less inspector
+
+beef: "Obviously, a design issue that the vector was used at all here." The law that fell
+out: **Vector = declared behavior (built once, dispatched many) · Span = accumulated
+history · a per-change snapshot is NEITHER — it is plain data.** The inspector never
+dispatched a Signal; it wore a dispatch structure as a costume and paid Pattern identity +
+O(K²) scans per pointermove for it.
+
+=systems/kajuit/src/typology/stores/inspector.js= rewritten: plain node literals in
+shape.tree's output shape (Skin/Breadcrumb contract intact, drapes untouched), ROW_CAP 30
+(bigger repos render count-only), $pincer/$orientation dropped from sources;
+={$nodes, engage, release}= driven by an $effect on =show && open= in h.svelte. Verified:
+kajuit suite 32/0 (turnClipboard passes again — beef's own edit landed) + isolated smoke
+(shape · ROW_CAP 4/31/2000 · engage→1 listener · release→0 · idempotent). NOTE: the
+engage/release API was SUPERSEDED the same session by the computed design below — the
+landed v1 works and stays until the refinement go.
+
+* the ontology — settled with beef, four rulings
+
+**telemetry = the umbrella**, the family name grouping {inspector, logger} — never a
+panel, never a third entity. Remote viewing, if ever, joins as remote logging + remote
+inspecting. beef: "the entities ARE the spine" — no separate spine concept.
+
+| entity    | is      | flow | written by                    | view                       |
+| inspector | the IS  | pull | NOBODY — writers write stores | H                          |
+| logger    | the WAS | push | everyone — ambient pen        | G, and Boot.svelte at boot |
+
+Laws: a record never mutates, a node never persists · anything with a timestamp → logger,
+anything readable from a store → inspector · *during boot, state changes LOG; nobody
+snapshots* (boot-screen gaps are producer gaps) · H's trace tree emigrates to G · the 22
+kajuit console.* sites migrate into the logger.
+
+Natures: *records are the data; the span is the pen; the pipe is the wire; the journal is
+the memory; views are folds.* The inspector is a projection — a pure function
+stores→nodes, materialized only under observation; the absence of a write API is its
+nature. ONE root Span("client"); every span a branch; one journal, one channel (today's
+telemetry.js mints a root per call — the design commits to one).
+
+* the implementation shape — hammered through four corrections
+
+1. beef: role names for prototype instances — "if we instantiate an abstract prototype,
+   then its instantiation should have a name that is … about how that prototype is used in
+   context." → =channel= (not pipe) · =logbook= (not span) · =$selected= (not $span).
+2. beef: "There is a lot of duplication here that feels unnecessary and contrived. thys
+   not how we do things around here" — the open/note/warn/fault exports were wrappers
+   around Span's own verbs. logger.js collapsed to six lines: $selected · $story ·
+   channel (tapped chronicle fold) · logbook = new Span("client").to(channel) ·
+   =entry = (nature) => logbook.branch(nature)= — the ONE seam; a logbook has entries.
+   mirror = a dev channel.tap at layout; dump = call-site serialization. warn is not in
+   the span grammar — migrate warn-sites to note/fault by judgment; a real warn verb would
+   be one Span method (typology, gated).
+3. beef: no attach — telemetry files hold instantiated prototypes + pure functions ONLY;
+   wiring is the consumer's (layout hands logger.channel to the lighthouse track shards).
+4. beef: no TELEMETRY context — "doesn't really benefit in any way, shape, or form." The
+   single consumer wires itself: Inspector.svelte (inside {#if show && open}) calls pure
+   =project(lighthouse, terminals, bridge)= from the deck contexts it already has and
+   subscribes in its own script. Mount boundary = lifecycle. Layout = wiring loom for the
+   ambient side only.
+
+File shape: =src/telemetry/{index.js, logger.js, inspector.js}=, alias =$telemetry= →
+the umbrella barrel (vite.config.mjs:122 — alias name unchanged, now honest).
+
+* pending, all per-item go
+
+- **telemetry build-out**: logger.js single root + entry seam · rename sweep (9 consumer
+  files) · 22 console.* migrations · trace tree h.svelte → g.svelte · inspector →
+  computed + Inspector.svelte (supersedes engage/release) · three build-time
+  verifications: single-root chronicle fold must keep boot dmesg roots identical
+  (depth-1 spans as roots) · branch→root channel/journal delegation · bare-note-on-
+  unopened-span renders.
+- **EM epoch + lazy snapshot** (=entity-manager.js= begin/commit refcounted epoch,
+  flushStore once per touched store; snapshot only re-taken when already tracked;
+  =remote-repository.js= find/findAndCount/update wrap loops in an epoch).
+- **boot volley diet + focus.js**: dossier drops buffer-populate + turn.find + their
+  unscoped subscribes; new app-layer =focus= effect pulls the active thread's buffer
+  graph + turns and scopes subs {thread}. Sign-offs owed: PanelD bufferCount goes
+  focused-only · thread sub stays global.
+- **Vector.branch nature-keyed lookup** (typology, HOLY, separate go): natures Map +
+  adopt(); hash fallback dropped (unreachable — verify by suite + one invariant test).
+- **prong B** (beef: "ill do prong b later"): perf scaffold rides the logger — observers
+  (longtask, event timing, rAF deltas) + repo/transmitter wraps as producers, export =
+  one drawer button serializing $story. beef runs localhost first, then deployed.
+- **reprofile debt**: 35.8s CPU · 32,444 jank · 12,592ms worst block, same drag, same
+  duration.
+
+* corrections ledger (this session)
+
+Published-then-broken by my own re-read: marker counts (rows-as-markers), the 4.4ms
+pointermove average (bimodal fiction), M1 dead-verdict (bad needle), M3 flood framing
+(one frame), candidate (a) inspector-per-merge (wrong as stated — inspector never
+subscribed repo stores; right by accident via $status/$active), candidate (b)
+selbstbestimmt-per-merge (wrong — compiles once). The quest now leads with THE DESIGN and
+demotes all analysis to an evidence record.

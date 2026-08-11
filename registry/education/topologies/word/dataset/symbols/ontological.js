@@ -2,7 +2,7 @@ export default [
   {
     slug: "word",
     traits: ["ONTOLOGICAL", "LABELED", "TOPOGRAPHICAL"],
-    data: {
+    trait: {
       ONTOLOGICAL: {},
       LABELED: { name: "Word", description: "A word" },
       TOPOGRAPHICAL: {},
@@ -11,7 +11,7 @@ export default [
   {
     slug: "word.part-of-speech.adjective",
     traits: ["ONTOLOGICAL", "LABELED"],
-    data: {
+    trait: {
       ONTOLOGICAL: {},
       LABELED: { name: "Adjective", description: "A word that modifies a noun or pronoun." },
     },
@@ -19,7 +19,7 @@ export default [
   {
     slug: "word.part-of-speech.adposition",
     traits: ["ONTOLOGICAL", "LABELED"],
-    data: {
+    trait: {
       ONTOLOGICAL: {},
       LABELED: {
         name: "Adposition",
@@ -30,7 +30,7 @@ export default [
   {
     slug: "word.part-of-speech.adverb",
     traits: ["ONTOLOGICAL", "LABELED"],
-    data: {
+    trait: {
       ONTOLOGICAL: {},
       LABELED: {
         name: "Adverb",
@@ -41,7 +41,7 @@ export default [
   {
     slug: "word.part-of-speech.auxiliary",
     traits: ["ONTOLOGICAL", "LABELED"],
-    data: {
+    trait: {
       ONTOLOGICAL: {},
       LABELED: {
         name: "Auxiliary Verb",
@@ -52,7 +52,7 @@ export default [
   {
     slug: "word.part-of-speech.coordinating-conjunction",
     traits: ["ONTOLOGICAL", "LABELED"],
-    data: {
+    trait: {
       ONTOLOGICAL: {},
       LABELED: {
         name: "Coordinating Conjunction",
@@ -63,7 +63,7 @@ export default [
   {
     slug: "word.part-of-speech.determiner",
     traits: ["ONTOLOGICAL", "LABELED"],
-    data: {
+    trait: {
       ONTOLOGICAL: {},
       LABELED: { name: "Determiner", description: "A word that introduces a noun." },
     },
@@ -71,7 +71,7 @@ export default [
   {
     slug: "word.part-of-speech.interjection",
     traits: ["ONTOLOGICAL", "LABELED"],
-    data: {
+    trait: {
       ONTOLOGICAL: {},
       LABELED: {
         name: "Interjection",
@@ -82,7 +82,7 @@ export default [
   {
     slug: "word.part-of-speech.noun",
     traits: ["ONTOLOGICAL", "LABELED"],
-    data: {
+    trait: {
       ONTOLOGICAL: {},
       LABELED: {
         name: "Noun",
@@ -93,7 +93,7 @@ export default [
   {
     slug: "word.part-of-speech.numeral",
     traits: ["ONTOLOGICAL", "LABELED"],
-    data: {
+    trait: {
       ONTOLOGICAL: {},
       LABELED: { name: "Numeral", description: "A word that expresses a number." },
     },
@@ -101,7 +101,7 @@ export default [
   {
     slug: "word.part-of-speech.particle",
     traits: ["ONTOLOGICAL", "LABELED"],
-    data: {
+    trait: {
       ONTOLOGICAL: {},
       LABELED: {
         name: "Particle",
@@ -113,7 +113,7 @@ export default [
   {
     slug: "word.part-of-speech.pronoun",
     traits: ["ONTOLOGICAL", "LABELED"],
-    data: {
+    trait: {
       ONTOLOGICAL: {},
       LABELED: { name: "Pronoun", description: "A word that takes the place of a noun." },
     },
@@ -121,7 +121,7 @@ export default [
   {
     slug: "word.part-of-speech.proper-noun",
     traits: ["ONTOLOGICAL", "LABELED"],
-    data: {
+    trait: {
       ONTOLOGICAL: {},
       LABELED: {
         name: "Proper Noun",
@@ -132,7 +132,7 @@ export default [
   {
     slug: "word.part-of-speech.punctuation",
     traits: ["ONTOLOGICAL", "LABELED"],
-    data: {
+    trait: {
       ONTOLOGICAL: {},
       LABELED: {
         name: "Punctuation",
@@ -143,7 +143,7 @@ export default [
   {
     slug: "word.part-of-speech.subordinating-conjunction",
     traits: ["ONTOLOGICAL", "LABELED"],
-    data: {
+    trait: {
       ONTOLOGICAL: {},
       LABELED: {
         name: "Subordinating Conjunction",
@@ -154,7 +154,7 @@ export default [
   {
     slug: "word.part-of-speech.verb",
     traits: ["ONTOLOGICAL", "LABELED"],
-    data: {
+    trait: {
       ONTOLOGICAL: {},
       LABELED: {
         name: "Verb",
@@ -165,7 +165,7 @@ export default [
   {
     slug: "word.verb-form.finite",
     traits: ["ONTOLOGICAL", "LABELED"],
-    data: {
+    trait: {
       ONTOLOGICAL: {},
       LABELED: { name: "Finite", description: "A verb form that is limited by subject and tense." },
     },
@@ -173,7 +173,7 @@ export default [
   {
     slug: "word.verb-form.infinitive",
     traits: ["ONTOLOGICAL", "LABELED"],
-    data: {
+    trait: {
       ONTOLOGICAL: {
         // dimension: "word.verb-form.infinitive",
       },
@@ -186,7 +186,7 @@ export default [
   {
     slug: "word.verb-form.participle",
     traits: ["ONTOLOGICAL", "LABELED"],
-    data: {
+    trait: {
       ONTOLOGICAL: {},
       LABELED: {
         name: "Participle",
@@ -197,7 +197,7 @@ export default [
   {
     slug: "word.verb-form.gerund",
     traits: ["ONTOLOGICAL", "LABELED"],
-    data: {
+    trait: {
       ONTOLOGICAL: {},
       LABELED: { name: "Gerund", description: "A verb form that functions as a noun." },
     },
@@ -205,7 +205,7 @@ export default [
   {
     slug: "word.verb-form.supine",
     traits: ["ONTOLOGICAL", "LABELED"],
-    data: {
+    trait: {
       ONTOLOGICAL: {},
       LABELED: {
         name: "Supine",
@@ -216,7 +216,7 @@ export default [
   {
     slug: "word.tense.past",
     traits: ["ONTOLOGICAL", "LABELED"],
-    data: {
+    trait: {
       ONTOLOGICAL: {},
       LABELED: { name: "Past", description: "An action or state that occurred in the past." },
     },
@@ -224,7 +224,7 @@ export default [
   {
     slug: "word.tense.present",
     traits: ["ONTOLOGICAL", "LABELED"],
-    data: {
+    trait: {
       ONTOLOGICAL: {},
       LABELED: { name: "Present", description: "An action or state that is currently occurring." },
     },
@@ -232,7 +232,7 @@ export default [
   {
     slug: "word.tense.future",
     traits: ["ONTOLOGICAL", "LABELED"],
-    data: {
+    trait: {
       ONTOLOGICAL: {},
       LABELED: { name: "Future", description: "An action or state that will occur in the future." },
     },
@@ -240,7 +240,7 @@ export default [
   {
     slug: "word.tense.imperfect",
     traits: ["ONTOLOGICAL", "LABELED"],
-    data: {
+    trait: {
       ONTOLOGICAL: {},
       LABELED: {
         name: "Imperfect",
@@ -251,7 +251,7 @@ export default [
   {
     slug: "word.tense.pluperfect",
     traits: ["ONTOLOGICAL", "LABELED"],
-    data: {
+    trait: {
       ONTOLOGICAL: {},
       LABELED: {
         name: "Pluperfect",
@@ -262,7 +262,7 @@ export default [
   {
     slug: "word.mood.indicative",
     traits: ["ONTOLOGICAL", "LABELED"],
-    data: {
+    trait: {
       ONTOLOGICAL: {},
       LABELED: { name: "Indicative", description: "A mood used for statements of fact." },
     },
@@ -270,7 +270,7 @@ export default [
   {
     slug: "word.mood.subjunctive",
     traits: ["ONTOLOGICAL", "LABELED"],
-    data: {
+    trait: {
       ONTOLOGICAL: {},
       LABELED: {
         name: "Subjunctive",
@@ -281,7 +281,7 @@ export default [
   {
     slug: "word.mood.imperative",
     traits: ["ONTOLOGICAL", "LABELED"],
-    data: {
+    trait: {
       ONTOLOGICAL: {},
       LABELED: { name: "Imperative", description: "A mood used for commands or requests." },
     },
@@ -289,7 +289,7 @@ export default [
   {
     slug: "word.mood.conditional",
     traits: ["ONTOLOGICAL", "LABELED"],
-    data: {
+    trait: {
       ONTOLOGICAL: {},
       LABELED: {
         name: "Conditional",
@@ -300,7 +300,7 @@ export default [
   {
     slug: "word.person.first",
     traits: ["ONTOLOGICAL", "LABELED"],
-    data: {
+    trait: {
       ONTOLOGICAL: {},
       LABELED: { name: "First Person", description: "The speaker or writer." },
     },
@@ -308,7 +308,7 @@ export default [
   {
     slug: "word.person.second",
     traits: ["ONTOLOGICAL", "LABELED"],
-    data: {
+    trait: {
       ONTOLOGICAL: {},
       LABELED: { name: "Second Person", description: "The person being addressed." },
     },
@@ -316,7 +316,7 @@ export default [
   {
     slug: "word.person.third",
     traits: ["ONTOLOGICAL", "LABELED"],
-    data: {
+    trait: {
       ONTOLOGICAL: {},
       LABELED: { name: "Third Person", description: "The person or thing being talked about." },
     },
@@ -324,7 +324,7 @@ export default [
   {
     slug: "word.number.singular",
     traits: ["ONTOLOGICAL", "LABELED"],
-    data: {
+    trait: {
       ONTOLOGICAL: {},
       LABELED: { name: "Singular", description: "One person, place, thing, or idea." },
     },
@@ -332,7 +332,7 @@ export default [
   {
     slug: "word.number.plural",
     traits: ["ONTOLOGICAL", "LABELED"],
-    data: {
+    trait: {
       ONTOLOGICAL: {},
       LABELED: { name: "Plural", description: "More than one person, place, thing, or idea." },
     },
@@ -340,7 +340,7 @@ export default [
   {
     slug: "word.aspect.imperfective",
     traits: ["ONTOLOGICAL", "LABELED"],
-    data: {
+    trait: {
       ONTOLOGICAL: {},
       LABELED: {
         name: "Imperfective",
@@ -351,7 +351,7 @@ export default [
   {
     slug: "word.aspect.perfective",
     traits: ["ONTOLOGICAL", "LABELED"],
-    data: {
+    trait: {
       ONTOLOGICAL: {},
       LABELED: { name: "Perfective", description: "An action or state that is completed." },
     },
@@ -359,7 +359,7 @@ export default [
   {
     slug: "word.aspect.progressive",
     traits: ["ONTOLOGICAL", "LABELED"],
-    data: {
+    trait: {
       ONTOLOGICAL: {},
       LABELED: { name: "Progressive", description: "An action or state that is in progress." },
     },
@@ -367,7 +367,7 @@ export default [
   {
     slug: "word.aspect.habitual",
     traits: ["ONTOLOGICAL", "LABELED"],
-    data: {
+    trait: {
       ONTOLOGICAL: {},
       LABELED: { name: "Habitual", description: "An action that takes place habitually." },
     },
@@ -375,7 +375,7 @@ export default [
   {
     slug: "word.aspect.iterative",
     traits: ["ONTOLOGICAL", "LABELED"],
-    data: {
+    trait: {
       ONTOLOGICAL: {},
       LABELED: { name: "Iterative", description: "An action that is repeated." },
     },
@@ -383,7 +383,7 @@ export default [
   {
     slug: "word.aspect.prospective",
     traits: ["ONTOLOGICAL", "LABELED"],
-    data: {
+    trait: {
       ONTOLOGICAL: {},
       LABELED: { name: "Prospective", description: "An action that is expected to take place." },
     },
@@ -391,7 +391,7 @@ export default [
   {
     slug: "word.gender.feminine",
     traits: ["ONTOLOGICAL", "LABELED"],
-    data: {
+    trait: {
       ONTOLOGICAL: {},
       LABELED: { name: "Feminine", description: "Female grammatical gender." },
     },
@@ -399,7 +399,7 @@ export default [
   {
     slug: "word.gender.masculine",
     traits: ["ONTOLOGICAL", "LABELED"],
-    data: {
+    trait: {
       ONTOLOGICAL: {},
       LABELED: { name: "Masculine", description: "Male grammatical gender." },
     },
@@ -407,7 +407,7 @@ export default [
   {
     slug: "word.gender.neuter",
     traits: ["ONTOLOGICAL", "LABELED"],
-    data: {
+    trait: {
       ONTOLOGICAL: {},
       LABELED: { name: "Neutral", description: "Neutral grammatical gender." },
     },
@@ -415,7 +415,7 @@ export default [
   {
     slug: "word.degree.absolute",
     traits: ["ONTOLOGICAL", "LABELED"],
-    data: {
+    trait: {
       ONTOLOGICAL: {},
       LABELED: { name: "Absolute", description: "An extreme degree of the base form." },
     },
@@ -423,7 +423,7 @@ export default [
   {
     slug: "word.degree.comparative",
     traits: ["ONTOLOGICAL", "LABELED"],
-    data: {
+    trait: {
       ONTOLOGICAL: {},
       LABELED: { name: "Comparative", description: "A higher or lower degree of the base form." },
     },
@@ -431,7 +431,7 @@ export default [
   {
     slug: "word.degree.diminutive",
     traits: ["ONTOLOGICAL", "LABELED"],
-    data: {
+    trait: {
       ONTOLOGICAL: {},
       LABELED: {
         name: "Diminutive",
@@ -442,7 +442,7 @@ export default [
   {
     slug: "word.degree.superlative",
     traits: ["ONTOLOGICAL", "LABELED"],
-    data: {
+    trait: {
       ONTOLOGICAL: {},
       LABELED: {
         name: "Superlative",
@@ -453,7 +453,7 @@ export default [
   {
     slug: "word.definite.definite",
     traits: ["ONTOLOGICAL", "LABELED"],
-    data: {
+    trait: {
       ONTOLOGICAL: {},
       LABELED: { name: "Definite", description: "Refers to something specific or known." },
     },
@@ -461,7 +461,7 @@ export default [
   {
     slug: "word.definite.indefinite",
     traits: ["ONTOLOGICAL", "LABELED"],
-    data: {
+    trait: {
       ONTOLOGICAL: {},
       LABELED: { name: "Indefinite", description: "Refers to something nonspecific or unknown." },
     },
@@ -469,7 +469,7 @@ export default [
   {
     slug: "word.pronoun-type.personal",
     traits: ["ONTOLOGICAL", "LABELED"],
-    data: {
+    trait: {
       ONTOLOGICAL: {},
       LABELED: { name: "Personal", description: "Refers to specific people or things." },
     },
@@ -477,12 +477,12 @@ export default [
   {
     slug: "word.pronoun-type.article",
     traits: ["ONTOLOGICAL", "LABELED"],
-    data: { ONTOLOGICAL: {}, LABELED: { name: "Article", description: "Introduces nouns." } },
+    trait: { ONTOLOGICAL: {}, LABELED: { name: "Article", description: "Introduces nouns." } },
   },
   {
     slug: "word.pronoun-type.interrogative",
     traits: ["ONTOLOGICAL", "LABELED"],
-    data: {
+    trait: {
       ONTOLOGICAL: {},
       LABELED: { name: "Interrogative", description: "Used to ask questions." },
     },
@@ -490,7 +490,7 @@ export default [
   {
     slug: "word.pronoun-type.exclamative",
     traits: ["ONTOLOGICAL", "LABELED"],
-    data: {
+    trait: {
       ONTOLOGICAL: {},
       LABELED: { name: "Exclamative", description: "Expresses strong emotions." },
     },
@@ -498,12 +498,12 @@ export default [
   {
     slug: "word.pronoun-type.relative",
     traits: ["ONTOLOGICAL", "LABELED"],
-    data: { ONTOLOGICAL: {}, LABELED: { name: "Relative", description: "Links clauses." } },
+    trait: { ONTOLOGICAL: {}, LABELED: { name: "Relative", description: "Links clauses." } },
   },
   {
     slug: "word.pronoun-type.demonstrative",
     traits: ["ONTOLOGICAL", "LABELED"],
-    data: {
+    trait: {
       ONTOLOGICAL: {},
       LABELED: { name: "Demonstrative", description: "Points to specific things." },
     },
@@ -511,7 +511,7 @@ export default [
   {
     slug: "word.pronoun-type.total",
     traits: ["ONTOLOGICAL", "LABELED"],
-    data: {
+    trait: {
       ONTOLOGICAL: {},
       LABELED: { name: "Total", description: "Refers to all members of a group." },
     },
@@ -519,12 +519,12 @@ export default [
   {
     slug: "word.pronoun-type.negative",
     traits: ["ONTOLOGICAL", "LABELED"],
-    data: { ONTOLOGICAL: {}, LABELED: { name: "Negative", description: "Indicates negation." } },
+    trait: { ONTOLOGICAL: {}, LABELED: { name: "Negative", description: "Indicates negation." } },
   },
   {
     slug: "word.pronoun-type.indefinite",
     traits: ["ONTOLOGICAL", "LABELED"],
-    data: {
+    trait: {
       ONTOLOGICAL: {},
       LABELED: { name: "Indefinite", description: "Refers to non-specific things or people." },
     },
@@ -532,7 +532,7 @@ export default [
   {
     slug: "word.possessive.yes",
     traits: ["ONTOLOGICAL", "LABELED"],
-    data: {
+    trait: {
       ONTOLOGICAL: {},
       LABELED: { name: "Possessive", description: "Indicates possession." },
     },
@@ -540,7 +540,7 @@ export default [
   {
     slug: "word.possessive.no",
     traits: ["ONTOLOGICAL", "LABELED"],
-    data: {
+    trait: {
       ONTOLOGICAL: {},
       LABELED: { name: "Non-Possessive", description: "Does not indicate possession." },
     },
@@ -548,7 +548,7 @@ export default [
   {
     slug: "word.reflexive.yes",
     traits: ["ONTOLOGICAL", "LABELED"],
-    data: {
+    trait: {
       ONTOLOGICAL: {},
       LABELED: { name: "Reflexive", description: "The subject performs the action on itself." },
     },
@@ -556,7 +556,7 @@ export default [
   {
     slug: "word.reflexive.no",
     traits: ["ONTOLOGICAL", "LABELED"],
-    data: {
+    trait: {
       ONTOLOGICAL: {},
       LABELED: {
         name: "Non-Reflexive",
@@ -567,7 +567,7 @@ export default [
   {
     slug: "word.voice.active",
     traits: ["ONTOLOGICAL", "LABELED"],
-    data: {
+    trait: {
       ONTOLOGICAL: {},
       LABELED: { name: "Active", description: "Subject performs the action." },
     },
@@ -575,7 +575,7 @@ export default [
   {
     slug: "word.voice.passive",
     traits: ["ONTOLOGICAL", "LABELED"],
-    data: {
+    trait: {
       ONTOLOGICAL: {},
       LABELED: { name: "Passive", description: "Subject receives the action." },
     },
@@ -583,12 +583,12 @@ export default [
   {
     slug: "word.polarity.negative",
     traits: ["ONTOLOGICAL", "LABELED"],
-    data: { ONTOLOGICAL: {}, LABELED: { name: "Negative", description: "Indicates negation." } },
+    trait: { ONTOLOGICAL: {}, LABELED: { name: "Negative", description: "Indicates negation." } },
   },
   {
     slug: "word.prepositional-case.prepositional",
     traits: ["ONTOLOGICAL", "LABELED"],
-    data: {
+    trait: {
       ONTOLOGICAL: {},
       LABELED: {
         name: "Prepositional Case",
@@ -599,7 +599,7 @@ export default [
   {
     slug: "word.prepositional-case.non-prepositional",
     traits: ["ONTOLOGICAL", "LABELED"],
-    data: {
+    trait: {
       ONTOLOGICAL: {},
       LABELED: {
         name: "Non-prepositional Case",
@@ -610,7 +610,7 @@ export default [
   {
     slug: "word.numeral-type.cardinal",
     traits: ["ONTOLOGICAL", "LABELED"],
-    data: {
+    trait: {
       ONTOLOGICAL: {},
       LABELED: { name: "Cardinal", description: "A numeral expressing a quantity." },
     },
@@ -618,7 +618,7 @@ export default [
   {
     slug: "word.numeral-type.ordinal",
     traits: ["ONTOLOGICAL", "LABELED"],
-    data: {
+    trait: {
       ONTOLOGICAL: {},
       LABELED: { name: "Ordinal", description: "A numeral expressing position or order." },
     },
@@ -626,7 +626,7 @@ export default [
   {
     slug: "word.numeral-type.multiplicative",
     traits: ["ONTOLOGICAL", "LABELED"],
-    data: {
+    trait: {
       ONTOLOGICAL: {},
       LABELED: { name: "Multiplicative", description: "A numeral expressing how many times." },
     },
@@ -634,7 +634,7 @@ export default [
   {
     slug: "word.numeral-type.fraction",
     traits: ["ONTOLOGICAL", "LABELED"],
-    data: {
+    trait: {
       ONTOLOGICAL: {},
       LABELED: { name: "Fraction", description: "A numeral expressing a part of a whole." },
     },
@@ -642,7 +642,7 @@ export default [
   {
     slug: "word.numeral-form.digit",
     traits: ["ONTOLOGICAL", "LABELED"],
-    data: {
+    trait: {
       ONTOLOGICAL: {},
       LABELED: { name: "Digit", description: "Number expressed using digits (0-9)." },
     },
@@ -650,7 +650,7 @@ export default [
   {
     slug: "word.numeral-form.roman",
     traits: ["ONTOLOGICAL", "LABELED"],
-    data: {
+    trait: {
       ONTOLOGICAL: {},
       LABELED: { name: "Roman", description: "Number expressed using Roman numerals." },
     },
@@ -658,12 +658,12 @@ export default [
   {
     slug: "word.numeral-form.word",
     traits: ["ONTOLOGICAL", "LABELED"],
-    data: { ONTOLOGICAL: {}, LABELED: { name: "Word", description: "Number expressed in words." } },
+    trait: { ONTOLOGICAL: {}, LABELED: { name: "Word", description: "Number expressed in words." } },
   },
   {
     slug: "word.adverb-type.locative",
     traits: ["ONTOLOGICAL", "LABELED"],
-    data: {
+    trait: {
       ONTOLOGICAL: {},
       LABELED: { name: "Locative", description: "Adverbs of place (where, whence, whither)." },
     },
@@ -671,7 +671,7 @@ export default [
   {
     slug: "word.adverb-type.temporal",
     traits: ["ONTOLOGICAL", "LABELED"],
-    data: {
+    trait: {
       ONTOLOGICAL: {},
       LABELED: { name: "Temporal", description: "Adverbs of time (when, how long, how often)." },
     },
@@ -679,7 +679,7 @@ export default [
   {
     slug: "word.case.nominative",
     traits: ["ONTOLOGICAL", "LABELED"],
-    data: {
+    trait: {
       ONTOLOGICAL: {},
       LABELED: {
         name: "Nominative",
@@ -690,7 +690,7 @@ export default [
   {
     slug: "word.case.accusative",
     traits: ["ONTOLOGICAL", "LABELED"],
-    data: {
+    trait: {
       ONTOLOGICAL: {},
       LABELED: {
         name: "Accusative",
@@ -701,7 +701,7 @@ export default [
   {
     slug: "word.case.genitive",
     traits: ["ONTOLOGICAL", "LABELED"],
-    data: {
+    trait: {
       ONTOLOGICAL: {},
       LABELED: {
         name: "Genitive",
@@ -712,7 +712,7 @@ export default [
   {
     slug: "word.case.dative",
     traits: ["ONTOLOGICAL", "LABELED"],
-    data: {
+    trait: {
       ONTOLOGICAL: {},
       LABELED: {
         name: "Dative",
@@ -723,7 +723,7 @@ export default [
   {
     slug: "word.case.ablative",
     traits: ["ONTOLOGICAL", "LABELED"],
-    data: {
+    trait: {
       ONTOLOGICAL: {},
       LABELED: {
         name: "Ablative",
@@ -734,7 +734,7 @@ export default [
   {
     slug: "word.case.vocative",
     traits: ["ONTOLOGICAL", "LABELED"],
-    data: {
+    trait: {
       ONTOLOGICAL: {},
       LABELED: {
         name: "Vocative",
@@ -745,7 +745,7 @@ export default [
   {
     slug: "word.name-type.given",
     traits: ["ONTOLOGICAL", "LABELED"],
-    data: {
+    trait: {
       ONTOLOGICAL: {},
       LABELED: { name: "Given name", description: "Personal first names." },
     },
@@ -753,7 +753,7 @@ export default [
   {
     slug: "word.name-type.surname",
     traits: ["ONTOLOGICAL", "LABELED"],
-    data: {
+    trait: {
       ONTOLOGICAL: {},
       LABELED: { name: "Surname", description: "Family names or surnames." },
     },
@@ -761,7 +761,7 @@ export default [
   {
     slug: "word.name-type.geographic",
     traits: ["ONTOLOGICAL", "LABELED"],
-    data: {
+    trait: {
       ONTOLOGICAL: {},
       LABELED: { name: "Geographic", description: "Place names, geographical locations." },
     },
@@ -769,7 +769,7 @@ export default [
   {
     slug: "word.name-type.literary",
     traits: ["ONTOLOGICAL", "LABELED"],
-    data: {
+    trait: {
       ONTOLOGICAL: {},
       LABELED: { name: "Literary", description: "Titles of books, works, texts." },
     },
@@ -777,7 +777,7 @@ export default [
   {
     slug: "word.name-type.religious",
     traits: ["ONTOLOGICAL", "LABELED"],
-    data: {
+    trait: {
       ONTOLOGICAL: {},
       LABELED: { name: "Religious", description: "Religious or mythological names." },
     },
@@ -785,7 +785,7 @@ export default [
   {
     slug: "word.name-type.ethnic-national",
     traits: ["ONTOLOGICAL", "LABELED"],
-    data: {
+    trait: {
       ONTOLOGICAL: {},
       LABELED: { name: "Ethnic/National", description: "Names referring to peoples or nations." },
     },
@@ -793,7 +793,7 @@ export default [
   {
     slug: "word.inflection-class.indo-european-a-stem",
     traits: ["ONTOLOGICAL", "LABELED"],
-    data: {
+    trait: {
       ONTOLOGICAL: {},
       LABELED: {
         name: "Indo-European A-stem",
@@ -804,7 +804,7 @@ export default [
   {
     slug: "word.inflection-class.indo-european-o-stem",
     traits: ["ONTOLOGICAL", "LABELED"],
-    data: {
+    trait: {
       ONTOLOGICAL: {},
       LABELED: {
         name: "Indo-European O-stem",
@@ -815,7 +815,7 @@ export default [
   {
     slug: "word.inflection-class.indo-european-i-stem",
     traits: ["ONTOLOGICAL", "LABELED"],
-    data: {
+    trait: {
       ONTOLOGICAL: {},
       LABELED: { name: "Indo-European I-stem", description: "Third declension i-stem variation." },
     },
@@ -823,7 +823,7 @@ export default [
   {
     slug: "word.inflection-class.indo-european-consonant-stem",
     traits: ["ONTOLOGICAL", "LABELED"],
-    data: {
+    trait: {
       ONTOLOGICAL: {},
       LABELED: {
         name: "Indo-European consonant stem",
@@ -834,7 +834,7 @@ export default [
   {
     slug: "word.inflection-class.indo-european-e-stem",
     traits: ["ONTOLOGICAL", "LABELED"],
-    data: {
+    trait: {
       ONTOLOGICAL: {},
       LABELED: { name: "Indo-European E-stem", description: "Fifth declension (e-stem nouns)." },
     },
@@ -842,7 +842,7 @@ export default [
   {
     slug: "word.inflection-class.indo-european-u-stem",
     traits: ["ONTOLOGICAL", "LABELED"],
-    data: {
+    trait: {
       ONTOLOGICAL: {},
       LABELED: { name: "Indo-European U-stem", description: "Fourth declension (u-stem nouns)." },
     },
@@ -850,7 +850,7 @@ export default [
   {
     slug: "word.inflection-class.latin-anomalous",
     traits: ["ONTOLOGICAL", "LABELED"],
-    data: {
+    trait: {
       ONTOLOGICAL: {},
       LABELED: { name: "Latin anomalous", description: "Irregular Latin inflection patterns." },
     },
@@ -858,7 +858,7 @@ export default [
   {
     slug: "word.inflection-class.latin-a-conjugation",
     traits: ["ONTOLOGICAL", "LABELED"],
-    data: {
+    trait: {
       ONTOLOGICAL: {},
       LABELED: { name: "Latin A-conjugation", description: "First conjugation verbs (-are)." },
     },
@@ -866,7 +866,7 @@ export default [
   {
     slug: "word.inflection-class.latin-e-conjugation",
     traits: ["ONTOLOGICAL", "LABELED"],
-    data: {
+    trait: {
       ONTOLOGICAL: {},
       LABELED: { name: "Latin E-conjugation", description: "Second conjugation verbs (-ere)." },
     },
@@ -874,7 +874,7 @@ export default [
   {
     slug: "word.inflection-class.latin-consonant-conjugation",
     traits: ["ONTOLOGICAL", "LABELED"],
-    data: {
+    trait: {
       ONTOLOGICAL: {},
       LABELED: {
         name: "Latin consonant conjugation",
@@ -885,7 +885,7 @@ export default [
   {
     slug: "word.inflection-class.latin-i-conjugation",
     traits: ["ONTOLOGICAL", "LABELED"],
-    data: {
+    trait: {
       ONTOLOGICAL: {},
       LABELED: { name: "Latin I-conjugation", description: "Fourth conjugation verbs (-ire)." },
     },
@@ -893,7 +893,7 @@ export default [
   {
     slug: "word.inflection-class.latin-pronominal",
     traits: ["ONTOLOGICAL", "LABELED"],
-    data: {
+    trait: {
       ONTOLOGICAL: {},
       LABELED: { name: "Latin pronominal", description: "Pronominal inflection patterns." },
     },
@@ -901,7 +901,7 @@ export default [
   {
     slug: "word.compound.lexical",
     traits: ["ONTOLOGICAL", "LABELED"],
-    data: {
+    trait: {
       ONTOLOGICAL: {},
       LABELED: {
         name: "Lexical compound",
@@ -913,7 +913,7 @@ export default [
   {
     slug: "word.compound.contraction",
     traits: ["ONTOLOGICAL", "LABELED"],
-    data: {
+    trait: {
       ONTOLOGICAL: {},
       LABELED: {
         name: "Contraction",
@@ -925,7 +925,7 @@ export default [
   {
     slug: "word.compound.clitic",
     traits: ["ONTOLOGICAL", "LABELED"],
-    data: {
+    trait: {
       ONTOLOGICAL: {},
       LABELED: {
         name: "Clitic fusion",
@@ -937,7 +937,7 @@ export default [
   {
     slug: "word.compound.crasis",
     traits: ["ONTOLOGICAL", "LABELED"],
-    data: {
+    trait: {
       ONTOLOGICAL: {},
       LABELED: {
         name: "Crasis",
@@ -949,7 +949,7 @@ export default [
   {
     slug: "word.foreign.yes",
     traits: ["ONTOLOGICAL", "LABELED"],
-    data: {
+    trait: {
       ONTOLOGICAL: {},
       LABELED: { name: "Foreign", description: "Word borrowed from another language." },
     },
@@ -957,22 +957,22 @@ export default [
   {
     slug: "word.suffix.ar",
     traits: ["ONTOLOGICAL", "LABELED"],
-    data: { ONTOLOGICAL: {}, LABELED: { name: "-ar", description: "Verbs ending in -ar." } },
+    trait: { ONTOLOGICAL: {}, LABELED: { name: "-ar", description: "Verbs ending in -ar." } },
   },
   {
     slug: "word.suffix.er",
     traits: ["ONTOLOGICAL", "LABELED"],
-    data: { ONTOLOGICAL: {}, LABELED: { name: "-er", description: "Verbs ending in -er." } },
+    trait: { ONTOLOGICAL: {}, LABELED: { name: "-er", description: "Verbs ending in -er." } },
   },
   {
     slug: "word.suffix.ir",
     traits: ["ONTOLOGICAL", "LABELED"],
-    data: { ONTOLOGICAL: {}, LABELED: { name: "-ir", description: "Verbs ending in -ir." } },
+    trait: { ONTOLOGICAL: {}, LABELED: { name: "-ir", description: "Verbs ending in -ir." } },
   },
   {
     slug: "word.regularity.regular",
     traits: ["ONTOLOGICAL", "LABELED"],
-    data: {
+    trait: {
       ONTOLOGICAL: {},
       LABELED: { name: "Regular", description: "Follows standard conjugation patterns." },
     },
@@ -980,7 +980,7 @@ export default [
   {
     slug: "word.regularity.irregular",
     traits: ["ONTOLOGICAL", "LABELED"],
-    data: {
+    trait: {
       ONTOLOGICAL: {},
       LABELED: { name: "Irregular", description: "Deviates from standard conjugation patterns." },
     },

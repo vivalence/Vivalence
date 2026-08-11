@@ -36,7 +36,7 @@ export default async function provider(service) {
     const render = async (request) => {
       try {
         const turn = translateResponse(await client.messages.create(buildParams(model, request)));
-        return request.output?.object ? extractObject(turn, request.output.object) : turn;
+        return request.output?.schema ? extractObject(turn, request.output.schema) : turn;
       } catch (error) {
         throw fault(error);
       }

@@ -17,7 +17,7 @@ export const grammatica = new Vector().open(
       {
         limit: ctx.input.limit,
         blacklist: ctx.input.blacklist,
-        populate: ["uses", "symbols", "memories"],
+        populate: ["uses", "symbols", "retentions"],
       },
     );
     if (!conjugations.length) return;
@@ -26,7 +26,7 @@ export const grammatica = new Vector().open(
       conjugation.uses.getItems()
     );
     const untouched = forms.filter((form) =>
-      !form.memory || form.memory.is.virgin
+      !form.retention || form.retention.is.virgin
     );
     if (untouched.length) {
       ctx.pool.add(
@@ -51,9 +51,14 @@ export const grammatica = new Vector().open(
       );
     }
 
-    const failed = forms.filter((form) => form.memory?.is.failed);
-    for (const form of failed) {
-      practice.add(game.conjugation.emit.literal({ literal: form }));
+    const failed = forms.filter((form) => form.retention?.is.failed);
+    if (failed.length) {
+      practice.add(
+        game["rep-o-gram"].emit.conjugations({
+          where: { uses: { $in: failed.map((form) => form.id) } },
+          count: failed.length,
+        }),
+      );
     }
 
     practice.apply(array.shuffle);

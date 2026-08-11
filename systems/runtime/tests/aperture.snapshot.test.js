@@ -5,20 +5,16 @@
 //   /daemon/<slug>/metadata/modes                          → modes.aperture.json
 //   /daemon/<slug>/mode/<type>/<slug>/metadata/{manifest,aperture}
 //                                                          → <type>-<slug>.aperture.json
-// /metadata/* IS auth-gated (live daemon returns Unauthorized), so we lighthouse-login
-// first and attach the Bearer token. Skips when the runtime is down — boot it first:
+// /metadata/* IS auth-gated (live daemon returns Unauthorized), so the `live` fixture
+// lighthouse-logs-in and attaches the Bearer token. The daemon slug is DERIVED from
+// /metadata/daemons — never pinned. Skips only when the runtime is down, and says why:
 // `deno task runtime/run`.
-import { specimen, Connection, Url, shard } from "@vivalence/typology";
+import { specimen } from "@vivalence/typology";
+import { live } from "./scenarios/fixtures.js";
 
 const { describe, it, expect, snapshot } = specimen;
-const BASE = "http://localhost:2501";
-const DAEMON = "brazilian";
 const base = new URL("./snapshots", import.meta.url).pathname;
 const DRY = false; // write the *-aperture.snapshot.json files (dry:true to preview)
-
-const alive = async () => {
-  try { await fetch(BASE); return true; } catch { return false; }
-};
 
 const routes = (node, prefix = "") => {
   const out = [];
@@ -38,26 +34,17 @@ const routes = (node, prefix = "") => {
 };
 
 describe("aperture snapshot: /metadata (consumer vantage)", { sanitizeResources: false, sanitizeOps: false }, () => {
-  let skip = false;
-  const conn = new Connection(new Url(BASE), shard.transmitter.fetcher);
+  let runtime;
 
   specimen.beforeAll(async () => {
-    skip = !(await alive());
-    if (skip) return void console.log("  SKIP: no runtime at", BASE);
-    // /metadata/* is auth-gated → lighthouse login, then attach the Bearer on every call
-    const res = await conn.call("/attached/process/lighthouse/multiplayer/auth/login", {
-      username: "beef",
-      password: "biggusdickus",
-    });
-    conn.use(async (ctx, next) => {
-      ctx.request.headers.set("authorization", `Bearer ${res.authority.access}`);
-      await next();
-    });
+    runtime = await live();
+    if (runtime.reason) console.log("  SKIP:", runtime.reason);
+    else console.log(`  LIVE: ${runtime.base} → daemon "${runtime.slug}" as ${runtime.identity?.slug}`);
   });
-  const test = (name, fn) => it(name, async () => { if (!skip) await fn(); });
+  const test = (name, fn) => it(name, async () => { if (runtime.slug) await fn(runtime.connection, runtime.slug); });
 
-  test("modes catalog → modes.aperture.json", async () => {
-    const modes = await conn.call(`/daemon/${DAEMON}/metadata/modes`, {});
+  test("modes catalog → modes.aperture.json", async (connection, daemon) => {
+    const modes = await connection.call(`/daemon/${daemon}/metadata/modes`, {});
     console.log(`\n===BEGIN /metadata/modes===\n${JSON.stringify(modes, null, 2)}\n===END===\n`);
     // wire data is already JSON-safe (server shape.strip'd) — identity parse, no fold.
     const { path } = snapshot(modes, { base, dry: DRY, parse: (x) => x, locate: "modes-aperture.snapshot.json" });
@@ -66,12 +53,12 @@ describe("aperture snapshot: /metadata (consumer vantage)", { sanitizeResources:
     expect(modes.length).toBeGreaterThan(0);
   });
 
-  test("per-mode metadata → <type>-<slug>.aperture.json", async () => {
-    const modes = await conn.call(`/daemon/${DAEMON}/metadata/modes`, {});
+  test("per-mode metadata → <type>-<slug>.aperture.json", async (connection, daemon) => {
+    const modes = await connection.call(`/daemon/${daemon}/metadata/modes`, {});
     for (const mode of modes) {
-      const stem = `/daemon/${DAEMON}/mode/${mode.type}/${mode.slug}/metadata`;
-      const manifest = await conn.call(`${stem}/manifest`, {});
-      const aperture = await conn.call(`${stem}/aperture`, {});
+      const stem = `/daemon/${daemon}/mode/${mode.type}/${mode.slug}/metadata`;
+      const manifest = await connection.call(`${stem}/manifest`, {});
+      const aperture = await connection.call(`${stem}/aperture`, {});
       const pojo = { manifest, routes: routes(aperture) };
       const { path } = snapshot(pojo, { base, dry: DRY, parse: (x) => x, locate: `${mode.type}-${mode.slug}-aperture.snapshot.json` });
       const bytes = JSON.stringify(pojo).length;

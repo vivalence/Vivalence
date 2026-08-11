@@ -62,23 +62,29 @@ export class RemoteRepository {
 
   // ── queries ──────────────────────────────────────────────────────
 
+  epoch(work) {
+    return this.entityManager ? this.entityManager.epoch(work) : work();
+  }
+
   async find(where = {}, options = {}) {
     const local = this.$entities.get();
     if (this.persisted && local.length > 0) {
       this.revalidating = this.connection
         .call("/find", { where, options })
-        .then(async (fresh) => {
+        .then((fresh) => this.epoch(async () => {
           const freshIds = new Set(fresh.map((r) => r.id));
           for (const e of this.$entities.get()) {
             if (!freshIds.has(e.id)) this.drop(e.id);
           }
           await Promise.all(fresh.map((raw) => this.cast(raw)));
-        })
+        }))
         .catch((e) => console.error("[repo] revalidate", e));
-      return Promise.all(local.filter((e) => object.match(e, where)).map((e) => this.cast(e)));
+      return this.epoch(() =>
+        Promise.all(local.filter((e) => object.match(e, where)).map((e) => this.cast(e))),
+      );
     }
     const results = await this.connection.call("/find", { where, options });
-    return Promise.all(results.map((raw) => this.cast(raw)));
+    return this.epoch(() => Promise.all(results.map((raw) => this.cast(raw))));
   }
 
   findOneLocal(where = {}) {
@@ -94,7 +100,7 @@ export class RemoteRepository {
 
   async findAndCount(where = {}, options = {}) {
     const [entities, count] = await this.connection.call("/findAndCount", { where, options });
-    return [await Promise.all(entities.map((raw) => this.cast(raw))), count];
+    return [await this.epoch(() => Promise.all(entities.map((raw) => this.cast(raw)))), count];
   }
 
   async count(where = {}, options = {}) {
@@ -125,7 +131,7 @@ export class RemoteRepository {
 
   async update(where = {}, data = {}) {
     const results = await this.connection.call("/update", { where, data });
-    return Promise.all(results.map((r) => this.merge(r)));
+    return this.epoch(() => Promise.all(results.map((r) => this.merge(r))));
   }
 
   async removeOne(where = {}) {

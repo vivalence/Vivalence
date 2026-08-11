@@ -1,0 +1,343 @@
+#+title: the drain lands in six milestones — and every bug it shipped with was one the quest had argued was impossible, until a hand-driven playground and a four-generation round trip made it run
+#+filetags: :m22:datasink:dataset:katabolic:belt-query:codec:paladin:twitch:terminators:round-trip:fixpoint:
+
+* the commission
+
+beef, opening on a quest that had been designed but never executed:
+
+#+begin_quote
+read the quest m22.
+are we ready to apply?
+#+end_quote
+
+The answer was no, and the four blockers were the shape of everything that
+followed: an inverted =$lt=, a =find.data= that would crash on the very files
+the quest's own fixpoint gate depends on, a green gate that could not reach its
+fixture, and a throw that existed only in prose. Then:
+
+#+begin_quote
+ok. go. first patch.
+tell me if something goes wrong.
+apply my belt/where.js tho.
+#+end_quote
+
+Six milestones landed across the session — M22.0 through M22.4, then M22.7.
+M22.5 beef held back (=5 not yet=), M22.6 needs a runtime he shut down
+mid-session (=i shut down the runtime for now=).
+
+* the naming, settled in three moves
+
+beef had left a margin note in the quest itself:
+
+#+begin_quote
+// @beef this can have its own belt. belt/where.js
+#+end_quote
+
+then, at apply time, =apply my belt/where.js tho=, then:
+
+#+begin_quote
+move belt.where to belt.query.where
+#+end_quote
+
+#+begin_quote
+or belt.filter.where?
+which ever is more accurate.
+#+end_quote
+
+=query= won on three counts, and the third is the decisive one: =filter= is
+already spoken for TWICE in the surface it would sit beside — the ORM's filter
+params (=getFilterParams("user")=, which M22.2 leans on hard) and
+=Broadcaster='s subscription =filter=. A namespace that collides with its two
+nearest neighbours is not a register, it is a trap. =where= is a clause OF the
+MikroORM query language; the siblings it will grow compile that same grammar to
+other targets.
+
+* the bug class this session kept finding
+
+Every defect below was something the quest had ASSERTED was fine. None were
+found by reading. All were found by running.
+
+** =$lt= was =$gt=
+
+#+begin_src javascript
+$lt: (arg) => (value) => value <= arg === false,   // (value <= arg) === false  ≡  value > arg
+#+end_src
+
+The gate covered =$lte= only, so it could never have caught it. A rank cutoff
+would have drained the complement of what it asked for, silently. This sat
+inside the very patch that argued operators must be one-to-one with MikroORM
+"or not at all".
+
+** =where= as DATA was handing MikroORM the sugar
+
+The carrier stored the RAW selector on =sink.where=, so a =["word", …]= tuple
+issued =repo.find("word")= — which MikroORM reads as a primary key. Measured on
+the first drain: every literal sink matched NOTHING, no split file was written,
+=orphans.literal= reported 6 of 6. The in-memory predicate lifted the string and
+the DB query did not.
+
+That is the two-sites-disagree failure the design names as its own reason to
+exist, reproduced inside it. Fixed by making the lift first-class —
+=query.lift(selector)= normalizes string/array/null/true/object into one query
+object, =query.where= compiles THAT, and the carrier stores the lift. One
+normalization, both sites, by construction.
+
+** dual capture broke reinstall
+
+The quest, in two places: /"reinstall upserts by slug, so =file = fn(DB)=
+survives the duplication"/. False. =upsert= does =findOne= then =create=, and
+both copies of =del.contraction= (one from =adposition.json=, one from
+=determiner.json=) land in the same unflushed chunk, so neither sees the other:
+=UNIQUE constraint failed: Literal.slug=. On italian that is 30 rows detonating
+on the first reinstall after M22.6.
+
+Found by the round-trip scenario on its FIRST run — the test beef asked for
+existed for eleven minutes before it paid for itself.
+
+** =find.data= would have crashed on the corpus it exists to read
+
+=read.data= is =import()=, and Deno refuses a =.json= specifier without
+=with { type: "json" }=. The authored walk mapped one reader over a regex that
+matched =json=. It detonates at M22.6 step 4 — the moment the sources are
+repointed at the emitted =.json=, which is the fixpoint gate, which is the whole
+claim of the quest.
+
+** =writer.js= wrote JSON bytes into a =.js= file
+
+=target.codec= had ZERO readers; =canonical= was unconditionally
+=JSON.stringify=. beef's question is what surfaced it —
+
+#+begin_quote
+am i correct to assume that JS is authored by the test in order to serve dataset
+and datasink writes to json?
+or both written by sink?
+#+end_quote
+
+— and his answer to the fix was to widen it rather than delete it:
+
+#+begin_quote
+2. Honour the codec — canonical takes it and wraps in export default …; for js.
+we watn a LOT of codecs eventually
+#+end_quote
+
+So it became a TABLE, not a boolean: =writer.codec = {json, js, jsonl}=, open
+for a package to extend, =canonical(rows, named)= dispatching, extension
+inferred with an explicit name winning, and a THROW on an extension no codec
+claims. The read side moved with it. **The contract: a write codec without a
+matching =find.data= read path is a one-way door**, and =paladin/tests/corpus.test.js=
+round-trips every registered codec to prove there isn't one.
+
+* the writer got strict, and the obvious fix would have shipped broken
+
+beef, reading the first emitted file:
+
+#+begin_quote
+you see all the superflous keys in there? i was worried they would show up.
+in/uses for example. symbol too.
+thats why the writer should be stricter.
+#+end_quote
+
+#+begin_quote
+ontology too.
+#+end_quote
+
+The trap: "drop empty values" looks like a complete fix on the fixture, because
+=ontology= is ="" = and =symbol= is ={}= there. On italian both are POPULATED
+(=ontology: "word"=) — the fixture is quiet only because =seed()= does not
+register =LiteralSubscriber=. Emptiness alone would have shipped clean and
+leaked on the real corpus.
+
+Measured instead: 14/14 italian literal files author exactly =slug=, =traits=,
+=trait=, =symbols=, and NOTHING carries =ontology= or =symbol=. Probed for a
+metadata discriminator — there is none; those two are plain persisted scalars,
+indistinguishable from =slug=. So the vocabulary had to be NAMED, and beef named
+the shape of the naming:
+
+#+begin_quote
+i want a default list and the writer can overwrite it.
+#+end_quote
+
+=writer.authored = ["slug","traits","trait"]=, intersected with the type's real
+columns, overridable per target via =writer.json(target, keep)=.
+
+Separately, =strip= was emitting the ORM's own synthesized inverse sides
+(=BufferEntity_symbols__inverse= in every symbol row). That one DID have a
+discriminator, measured not guessed: MikroORM marks them =persist: false=, while
+every authored relation is =persist: undefined=.
+
+* the fork closed on measurement
+
+The quest left exactly one fork open, explicitly to be /"decided by a test, not
+by argument"/: whether =carry= survives the =queueMicrotask= pump interleaving
+with the flush tail.
+
+It does interleave — =seen= is already populated when =await em.flush()=
+returns, because the flush's own awaits drain the microtask queue. But the
+reentrant read still resolves against the carried context and returns a live
+count. So =carry= holds and =shard.params()= is NOT added to the provider
+contract.
+
+What was wrong was the CLAIM. "Does not run inside the flush that triggered it"
+is not what =detached= guarantees; the guarantee is that the subscriber's
+=await= returns without waiting — the flush is never BLOCKED. The gate now
+asserts =order[0] === "flush-called"= instead of an emptiness a microtask can
+invalidate.
+
+* the playground, and what driving it by hand caught
+
+#+begin_quote
+give me a guide to the test of the integrated layer
+i want to play with it. get a feel for it
+what happens where when
+where stuff is written too
+verify the full loop by hand
+#+end_quote
+
+The suite writes to =Deno.makeTempDir()= against =:memory:=, so nothing survives
+to poke at. =deno task playground/drain= runs the same loop in eleven printed
+stages and leaves the mount on disk.
+
+Its first run printed =BufferEntity_symbols__inverse= into the emitted corpus.
+Its second exposed the debounce crash. Neither was reachable by reading the
+tests, because both were things the tests did not think to assert.
+
+* the round trip
+
+#+begin_quote
+expand testing for this.
+test js->json->js->json with full cata/ana equality
+#+end_quote
+
+#+begin_quote
+scenario testing
+#+end_quote
+
+Four generations, each installing a FRESH daemon from its predecessor's emitted
+corpus via a directory walk: authored =.js= → =gen1/*.json= → =gen2/*.js= →
+=gen3/*.json= → =gen4/*.js=. It asserts ANA equality (all four dataspaces
+byte-identical under =Datasink.canonical=), CATA equality (gen1 ≡ gen3, gen2 ≡
+gen4, byte-for-byte, same file set every generation), that the vantages differ
+by the codec ENVELOPE alone (=js === `export default ${json};`=), and that a
+fifth drain reports =written: 0=.
+
+That last assertion is M22.6 step 5 — the fixpoint, =file = fn(DB)= — proven
+without a live boot. What M22.6 still owns is SCALE and the real corpus, not the
+mechanism.
+
+* traits can now declare teardown
+
+Driving the playground surfaced it: after arming, the 1500ms =fn.debounce=
+settle fires into a closed datamap → =DriverException=, unhandled; and before
+that, the pending timer keeps the process alive. The trait held a resource it
+had no way to release.
+
+#+begin_quote
+go a
+#+end_quote
+
+**My first reading was wrong and is worth keeping.** I reported that modes have
+no teardown hook, on the strength of =grep disintegrate systems/runtime/daemon/lifecycle=
+coming back empty. The cascade exists one level up — =systems/runtime/die.js:43=
+walks children, =daemon/die.js:60= closes the datamap. Only the MODE rung was
+missing. The estimate collapsed from an hour to twenty minutes the moment the
+right file was read. **A grep scoped to the wrong directory reads exactly like
+absence.** =family: assume-dont-verify=
+
+=stagger= KEEPS its array-of-finalizers contract — measured, four consumers, all
+spreading the return. A trait may now return ={finalize, terminate}=;
+=terminate= lands on =mode.terminators=, and the daemon runs them BEFORE
+=datamap.disintegrate()=, while the connection is still alive. Zero call sites
+changed. The trait's own return-shape change then caught its two direct callers
+on the first run — which is the argument for having left =stagger= alone.
+
+* the two red tests, and beef's verdict on the first
+
+#+begin_quote
+this is a dumb test. shouldnt be working this way.
+#+end_quote
+
+then, later:
+
+#+begin_quote
+cleanup
+#+end_quote
+
+#+begin_quote
+dont hardcode the size of the registry?!?!?!?
+makes no sense
+#+end_quote
+
+=registry.count.test.js= pinned a CENSUS to a literal (=BASELINE = 39= plus an
+inline =+ 8=), so ordinary registry growth reddened it and the only repair was
+re-capturing the number — the act that makes the assertion meaningless. Rewritten
+to name neither a member nor a size: every module lands under a stamped owner,
+every owner carries its own package manifest, no owner+type ingests a slug twice.
+All three hold at any registry size.
+
+Writing it surfaced a live falsehood in an auto-loading shard. The paladin
+codemap lists FIVE packages; only FOUR ingest. =@young-ladys-primer= is on disk
+and not mounted, and my first draft asserted it and failed. Shard corrected in
+the same turn.
+
+=stripwire.contract.test.js= read =snapshot.aperture= and asserted the
+={effect?, branches}= tree, while all 23 mode snapshots carry ={manifest, routes}=
+— the lean projection the snapshot-hygiene pass deliberately adopted. The test
+never moved with it. Now asserts the route contract, with =yields= admitted as
+either a packet type or bare =true= (measured across the corpus, not assumed).
+Its instance vantage logs what it could not cover rather than reddening over a
+missing live-DB prerequisite.
+
+* what is green
+
+| suite    | result                          |
+|----------+---------------------------------|
+| typology | 120 passed, 481 steps, 0 failed |
+| paladin  | 13 passed, 49 steps, 0 failed   |
+| runtime  | 16 passed, 96 steps, 0 failed   |
+
+Runtime is fully green for the first time this session — both pre-existing reds
+were the ones beef sent me back to fix.
+
+New gates: =belt/query.test.js= · =paladin/corpus.test.js= ·
+=typology/datasink.test.js= · =shape/subscriber.test.js= (real ORM) ·
+=runtime/dataset.install.test.js= · =runtime/datasink.drain.test.js= ·
+=runtime/datasink.roundtrip.test.js= · =belt/fn.test.js= debounce cancel.
+
+* the seam, proved by absence
+
+M22.7 was the smallest milestone and the only one whose claim is a grep:
+
+#+begin_src
+$ grep -n "Deno\." subsystems/typology/prototypes/*.js
+(nothing)
+#+end_src
+
+=Freight.index()= was the last violator; it became =stow(paths)= and =FRAUGHT=
+does the walk through =paladin.find.walk=. A rule with one grandfathered
+exception was a preference. Two free consequences, both now gated: audio trees
+skip =bak= / =archive= / =slp= like every other walk, and =lading= is sorted so
+=catalog= stops depending on readdir order.
+
+The quest said the blast was /"two call sites"/. Actual: one in the trait and
+THREE in the test. The count was of FILES and got written down as call sites.
+
+* resumption
+
+- **M22.5 — italian cutover. beef holds it** (=5 not yet=). Everything it needs
+  is landed and gated; it is a declaration rewrite in =italian.viva.js= plus two
+  dead aggregators to delete. It has no gate of its own — M22.6 is what verifies
+  it.
+- **M22.6 — live boot.** Blocked on a runtime beef shut down. Its central claim
+  (=written: 0= on the second drain) is already proven in-memory; what remains is
+  scale: 6535 literals, 2381 minted lemmas, the js→json materialization, and the
+  expected =orphans.symbol: 155= that belongs to the topology packages.
+- **69 files under =subsystems/typology/= still import =@vivalence/typology=**
+  instead of relative paths. beef stated the policy — /"we have a policy for
+  this. inside typology imports are relative"/ — and it is the actual root of the
+  client-barrel TDZ (=mod.client.js= throws =Cannot access 'Signature' before
+  initialization=, A/B'd clean of this quest's changes, and not in the package
+  =exports= map at all, so it may be dead). The three files this quest authored
+  obey the policy. Unwinding the rest is a HOLY-container sweep and wants its own
+  quest, not a drive-by.
+- =writer.codec= is open by design. Anyone adding one adds a =find.data= read
+  path in the same turn, or ships a one-way door.

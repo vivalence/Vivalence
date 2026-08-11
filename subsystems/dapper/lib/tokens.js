@@ -23,7 +23,7 @@ export const font = {
     // /  ()
     // / system (names of daemons, modes, valences)
     // / client (setting panel labels)
-    code: ["Source Code Pro", "monospace"],
+    code: ["Victor Mono", "monospace"],
   },
   size: {
     "2xs": "0.55rem",

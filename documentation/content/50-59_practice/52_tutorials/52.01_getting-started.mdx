@@ -12,7 +12,7 @@ Bare machine to a running instance — the same seven steps as the repo README, 
 Three nouns.
 
 - **`registry`** — the catalog of installable packages: variants, domains, topologies, topographies, modes, services. Lives at `<repo>/registry/`. The identifier grammar is `@owner/type/slug` — `@viva/variant/localhost` resolves to `registry/viva/variant/localhost/`.
-- **`ledger`** — this machine's run surface: locks, logs, the seeded registry index. Scaffolded to `<repo>/testament/ledger`.
+- **`ledger`** — this machine's run surface: locks, logs, and the record of package roots the boot mounts (user-managed via `/ledger/tap`, [[52.03_packages]]). Scaffolded to `<repo>/testament/ledger`.
 - **`variant`** — a recipe: which daemons, which services, which lighthouse. Cloning materialises the registry recipe at `<repo>/testament/variant`, and that copy — manifest, `environment/`, `mountpoint/` (daemon + service state, dbs) — is yours to edit and run.
 
 ## 1. Install
@@ -94,6 +94,7 @@ The lighthouse signup endpoint accepts any request — no admin gate, no invite 
 ## Further reading
 
 - [[52.02_docker-walkthrough]] — the same envelope, containerised
+- [[52.03_packages]] — tap external packages into the boot (local paths + git urls)
 - `.ikiro/known-issues.org` — every active gotcha + workaround
 - `systems/ghost/trajectories/index.js` — every registered trajectory (pattern + valence + input schema)
 - `subsystems/paladin/.ikiro/claude.md` — paladin mental model (scopes, vip, system)

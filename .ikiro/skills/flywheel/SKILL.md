@@ -4,7 +4,7 @@ description: The dedicated self-improvement consolidation pass over the Callouts
 when_to_use: "selfimprove" · "another" · "go meta" · or five or more unprocessed callouts since the last run.
 ---
 
-# flywheel
+# flywheel — "selfimprove" / "go meta": drain the Callouts ledger, recompute the Scoreboard
 
 Canon: `.ikiro/self/rituals.md ## the flywheel` + `## the scribe's duties`. Ledger and Scoreboard both live in `.ikiro/zettelkasten.md`.
 

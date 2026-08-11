@@ -11,25 +11,20 @@ export const education = {
     "@education/topology/sentence",
     "@education/topology/conjugation",
     "@education/topography/english-to-brazilian",
-    "@education/game/flashcard",
     "@education/game/riddler",
-    // aprende /drill branches each due literal to one of these by ontology × state:
-    // word weak→write strong→judge · sentence weak→shadow strong→listen ·
-    // conjugation weak→paradigm strong→conjugation.
-    "@education/game/write",
-    "@education/game/shadow",
-    "@education/game/conjugation",
+    // aprende /drill branches each due literal by ontology × state:
+    // word weak→rep-o-gram/write strong→judge · sentence weak→rep-o-gram/shadow
+    // strong→rep-o-gram/listen · conjugation weak→paradigm strong→rep-o-gram/conjugations.
+    "@education/game/rep-o-gram",
     "@education/game/judge",
-    "@education/game/listen",
     "@education/game/paradigm",
     "@education/game/match",
-    "@education/game/pick",
     "@education/game/cloze",
     "@education/game/exhibit",
     "@education/game/nyan",
     "@education/tactic/clinic",
     "@education/tactic/five-fold-session",
-    "@education/homepage/aprende",
+    "@education/teacher/francesca",
     "@education/teacher/dewey",
     "@education/dashboard/dataspace",
   ],

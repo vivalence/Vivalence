@@ -3,6 +3,7 @@ import { array, hash, is, cast } from "@vivalence/typology";
 export class Signature {
   // nature = null; trace = null; gauges = [];
   static coercions = [];
+  #hash = null;
   // [Symbol.for("nodejs.util.inspect.custom")]() {return `${this.constructor.name}:${this.absolute} [${this.nature}]`;}
 
   constructor(signature = null, trace = null) {
@@ -36,6 +37,7 @@ export class Signature {
   }
 
   from(trace, anon = false) {
+    this.#hash = null;
     this.trace = trace;
     if (!anon) this.trace?.gauges.push(this);
     // if (is.fn(trace?.nature) && !this.nature) {this.nature = trace.nature; this.filter = trace.nature;}
@@ -69,7 +71,7 @@ export class Signature {
   }
 
   get hash() {
-    return this.hasher();
+    return (this.#hash ??= this.hasher());
   }
 
   //

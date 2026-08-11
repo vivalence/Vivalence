@@ -27,23 +27,15 @@ export class Freight {
     return this;
   }
 
-  async index(root = "") {
-    const base = root ? this.path.branch(root).absolute : this.path.absolute;
-
-    for await (const entry of Deno.readDir(base)) {
-      const relative = root ? root + "/" + entry.name : entry.name;
-      if (entry.isDirectory) {
-        await this.index(relative);
-        continue;
-      }
-      if (!entry.isFile) continue;
-      const ext = entry.name.split(".").pop().toLowerCase();
-      this.lading.push({
-        slug: entry.name.replace(/\.[^.]+$/, ""),
-        path: relative,
-        type: MIME[ext] || "application/octet-stream",
-      });
-    }
+  stow(paths) {
+    this.lading = [...paths].sort().map((path) => {
+      const name = path.split("/").pop();
+      return {
+        slug: name.replace(/\.[^.]+$/, ""),
+        path,
+        type: MIME[name.split(".").pop().toLowerCase()] || "application/octet-stream",
+      };
+    });
     return this;
   }
 

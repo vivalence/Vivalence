@@ -64,14 +64,14 @@ Part.ToolUse = v.object({
   input: v.record(v.string(), v.unknown()),
 });
 
-// tools may speak the yield lexicon: output (the message) rides back to the
-// model, entities/object stay app-side on the part.
+// tools speak the yield lexicon: output is the ONE bag — message (mind-facing),
+// object (caller-code-facing), and one key per entity type. The provider
+// translate flattens message ?? object for the model; the whole bag persists on
+// the part.
 Part.ToolResult = v.object({
   type: v.const("tool_result"),
   id: v.string(),
-  output: v.unknown(),
-  entities: v.record(v.string(), v.unknown()).optional(),
-  object: v.unknown().optional(),
+  output: v.record(v.string(), v.unknown()),
 });
 
 Part.Thinking = v.object({
@@ -179,10 +179,13 @@ export const Settings = v.object(
 );
 
 export const Output = v.object({
-  object: v.object({}, { additionalProperties: true }).optional(),
+  schema: v.object({}, { additionalProperties: true }).optional(),
 });
 
+// system = named sections, insertion-ordered; a cache mark naming a section key
+// pins cache_control to that block. Stable sections first, volatile last.
 export const Request = v.object({
+  system: v.record(v.string(), v.unknown()).optional(),
   turns: v.array(Turn),
   tools: v.array(Tool).optional(),
   settings: Settings.optional(),
@@ -253,9 +256,7 @@ Packet.ToolYield = v.object({
   id: v.string(),
   result: v.object({
     condition: v.string(),
-    message: v.unknown(),
-    entities: v.record(v.string(), v.unknown()),
-    object: v.unknown(),
+    output: v.record(v.string(), v.unknown()),
   }),
 });
 
@@ -264,14 +265,18 @@ Packet.TurnFull = v.object({
   turn: Turn,
 });
 
-Packet.SessionClose = v.object({
-  event: v.const("/session/close"),
-  state: State,
-  rounds: v.integer(),
-  meta: v.record(v.string(), v.unknown()).optional(),
+Packet.ResponseClose = v.object({
+  event: v.const("/response/close"),
+  meta: v.object(
+    {
+      state: State,
+      rounds: v.integer(),
+    },
+    { additionalProperties: true },
+  ),
 });
 
-Packet.Session = v.union([
+Packet.Response = v.union([
   Packet.TurnOpen,
   Packet.PartOpen,
   Packet.PartDelta,
@@ -280,5 +285,5 @@ Packet.Session = v.union([
   Packet.ToolCall,
   Packet.ToolYield,
   Packet.TurnFull,
-  Packet.SessionClose,
+  Packet.ResponseClose,
 ]);

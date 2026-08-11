@@ -49,13 +49,13 @@ export const EMITTER = async (mode, daemon) => {
     else if (!is.nill(ctx.output)) output = ctx.output;
 
     const result = await ctx.pool.drain();
-    if (output !== undefined) result.output = output;
+    if (output !== undefined) result.output.object = output;
 
     // console.log("EMITTER {result}", { result });
     // console.log(result.buffers.map((b) => console.log(b.literals.map((l) => [l.id, l.slug]))));
 
     if (ctx.thread && result.condition === "NOMINAL") {
-      for (const buffer of result.entities.buffer) {
+      for (const buffer of result.output.buffer) {
         buffer.thread = ctx.thread;
         buffer.index = ctx.thread.counter++;
       }

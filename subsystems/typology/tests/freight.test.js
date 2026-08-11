@@ -1,4 +1,10 @@
 import { specimen, Url, Freight } from "@vivalence/typology";
+import paladin from "@vivalence/paladin";
+
+const stow = async (freight, root) => {
+  const files = await paladin.find.walk(/./)(root);
+  return freight.stow(files.map((file) => file.absolute.slice(root.length + 1)));
+};
 
 specimen.describe("Freight", () => {
   specimen.it("a freight wraps a path and keeps its identity", () => {
@@ -12,7 +18,7 @@ specimen.describe("Freight", () => {
     specimen.expect(freight.url).toBe(url);
   });
 
-  specimen.it("an index walks the directory tree", async () => {
+  specimen.it("a stow folds walked paths into lading, sorted", async () => {
     const directory = await Deno.makeTempDir();
     await Deno.writeFile(`${directory}/beep.mp3`, new Uint8Array([0xff, 0xfb]));
     await Deno.writeFile(`${directory}/icon.png`, new Uint8Array([0x89, 0x50]));
@@ -23,7 +29,7 @@ specimen.describe("Freight", () => {
     await Deno.writeFile(`${directory}/nested/deeper/buried.ogg`, new Uint8Array([0x4f, 0x67]));
 
     const freight = new Freight(directory);
-    specimen.expect(await freight.index()).toBe(freight);
+    specimen.expect(await stow(freight, directory)).toBe(freight);
     specimen.expect(freight.lading.length).toBe(6);
     specimen.expect(freight.lading.find((entry) => entry.path === "beep.mp3").slug).toBe("beep");
     specimen.expect(freight.lading.find((entry) => entry.slug === "deep").path).toBe("nested/deep.wav");
@@ -37,9 +43,17 @@ specimen.describe("Freight", () => {
     specimen.expect(freight.lading.find((entry) => entry.slug === "data").type).toBe("application/json");
     specimen.expect(freight.lading.find((entry) => entry.slug === "mystery").type).toBe("application/octet-stream");
 
-    const empty = new Freight(await Deno.makeTempDir());
-    await empty.index();
+    specimen.expect(freight.lading.map((entry) => entry.path))
+      .toEqual([...freight.lading.map((entry) => entry.path)].sort());
+
+    const emptyRoot = await Deno.makeTempDir();
+    const empty = await stow(new Freight(emptyRoot), emptyRoot);
     specimen.expect(empty.lading).toEqual([]);
+
+    await Deno.mkdir(`${directory}/bak`, { recursive: true });
+    await Deno.writeFile(`${directory}/bak/stale.mp3`, new Uint8Array([0xff]));
+    const skipped = await stow(new Freight(directory), directory);
+    specimen.expect(skipped.lading.map((entry) => entry.slug)).not.toContain("stale");
   });
 
   specimen.it("a query resolves by path or slug", async () => {
@@ -47,7 +61,7 @@ specimen.describe("Freight", () => {
     await Deno.writeFile(`${directory}/beep.mp3`, new Uint8Array([0xff, 0xfb]));
     await Deno.mkdir(`${directory}/nested`, { recursive: true });
     await Deno.writeFile(`${directory}/nested/deep.wav`, new Uint8Array([0x52, 0x49]));
-    const freight = await new Freight(directory).index();
+    const freight = await stow(new Freight(directory), directory);
 
     const exact = freight.resolve("nested/deep.wav");
     specimen.expect(exact).toBeDefined();
@@ -71,7 +85,7 @@ specimen.describe("Freight", () => {
     await Deno.mkdir(`${directory}/nested/deeper`, { recursive: true });
     await Deno.writeFile(`${directory}/nested/deep.wav`, new Uint8Array([0x52, 0x49]));
     await Deno.writeFile(`${directory}/nested/deeper/buried.ogg`, new Uint8Array([0x4f, 0x67]));
-    const freight = await new Freight(directory).index();
+    const freight = await stow(new Freight(directory), directory);
 
     specimen.expect(freight.catalog["beep.mp3"].url).toBeNull();
 

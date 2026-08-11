@@ -8,6 +8,7 @@ import {
   shape,
   shard,
 } from "@vivalence/typology";
+import { logger } from "$telemetry";
 import { Daemon } from "./daemon.js";
 import { Dataspace } from "../../prototypes/dataspace.js";
 import { ModeDossier } from "../mode/index.js";
@@ -48,10 +49,11 @@ export const DaemonDossier = {
 
       const daemon = ctx.entity;
       const url = new Url(daemon.url);
+      const mounting = logger.entry(`daemon/${daemon.slug ?? daemon.url}`).open();
 
       const multiplex = shard.transmitter.multiplex({ authority: ctx.lighthouse.$authority });
       daemon.connection = new Connection(url, shard.transmitter.retry(multiplex, { maxRetries: 2 }))
-        .use(shard.track.span((call) => call.request.url.pathname, ctx.telemetry))
+        .use(shard.track.span((call) => call.request.url.pathname, ctx.channel))
         .use(shard.track.request())
         .use(shard.track.fault())
         .use(shard.connection.timeout(8000));
@@ -91,17 +93,8 @@ export const DaemonDossier = {
           daemon.entities.thread.find({}, { populate: [] }),
           daemon.entities.intent.find({}, { populate: [] }),
         ]);
-        const [buffers, turns] = await Promise.all([
-          daemon.entities.buffer.find({}, { populate: ["literals", "symbols"] }),
-          daemon.entities.turn.find({}, { populate: [] }),
-        ]);
-
         daemon.entities.intent.subscribe();
         daemon.entities.thread.subscribe();
-        daemon.entities.buffer.subscribe({}, (b, s) =>
-          console.log("DAEMON BUFFER SUBSCRIPTION: ", b, s),
-        );
-        daemon.entities.turn.subscribe();
 
         daemon.cortex = new Cortex().register(
           shape.cortex.wire(daemon.connection.branch("/cortex"), cortex),
@@ -117,20 +110,27 @@ export const DaemonDossier = {
           .subscribe("/subscribe", (reflection) =>
             daemon.status.set(reflection?.code === "ALIVE" ? "healthy" : "unavailable"),
           );
-        console.log(
-          `[probe] daemon ${manifest.slug} mounted — modes:${modes.length} threads:${threads.length} buffers:${buffers.length} intents:${intents.length} turns:${turns.length}`,
-        );
+        mounting.note({
+          message: `${manifest.slug} mounted`,
+          modes: modes.length,
+          threads: threads.length,
+          intents: intents.length,
+        });
+        mounting.close();
       } catch (error) {
         if (!["CLIENT", "NETWORK", "TIMEOUT"].includes(error?.type)) {
           daemon.status.set({ code: "error", error });
-          console.warn(`[probe] daemon ${daemon.slug ?? daemon.url} boot error (rethrown)`, error);
+          mounting.fault(error);
+          mounting.close();
           throw error;
         }
         daemon.status.set({ code: "unavailable", error });
-        console.warn(
-          `[probe] daemon ${daemon.slug ?? daemon.url} unreachable (${error.type}) — booted inert, entities ${daemon.entities ? "HALF-BUILT" : "absent"}`,
-          error,
-        );
+        mounting.note({
+          message: `${daemon.slug ?? daemon.url} unreachable (${error.type}) — booted inert`,
+          entities: daemon.entities ? "half-built" : "absent",
+        });
+        mounting.fault(error);
+        mounting.close();
       }
     },
   ],

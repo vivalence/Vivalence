@@ -98,7 +98,7 @@ v.literal({
 So: **the kernel ships the open space; the domain and the mode narrow it.** The clearest proof is the literal trait enum — typology declares it empty on purpose, and the language-learning domain fills it:
 
 ```
-subsystems/typology/entities/kernel/Literal.ts     enum LiteralTraitsEnum { _ = "_" }
+systems/runtime/daemon/entities/kernel/Literal.ts     enum LiteralTraitsEnum { _ = "_" }
 registry/education/domain/entities/kernel/Literal.ts
                                                    TRANSLATED · EXEMPLIFIED · RANKED
                                                    ANNOTATED · VOCALIZED · CONJUGATED
@@ -238,7 +238,7 @@ A `terminal` owns a `Stall` that watches those live and drives the cursor. So "d
 
 ## current state — honest
 
-- **`Buffer` has two definitions.** `subsystems/typology/entities/userspace/Buffer.ts` and `registry/education/domain/entities/userspace/Buffer.ts`. The domain extends the kernel's; the split is deliberate but undocumented here.
+- **`Buffer` has two definitions.** `systems/runtime/daemon/entities/userspace/Buffer.ts` and `registry/education/domain/entities/userspace/Buffer.ts`. The domain extends the kernel's; the split is deliberate but undocumented here.
 - **A second trait machine exists and is unused.** `entities/base/trait.js` exports `trait.define({ methods, hooks, properties })` — mixing methods into entity prototypes and composing MikroORM subscribers. It has **zero call sites**. Two mechanisms share the word "trait"; only the installer one is wired.
 - **The domain's declared trait-space is a stub.** `kernel.js` gives a domain module `traits: v.record(...)` to declare what its traits *mean*, but `registry/education/domain/kinds/index.js` currently exports `{ smurf: () => {} }`. The real definitions live in the entity enum instead.
 - **`Constraint` and `Issue`** are kernel entities that are largely parked.
@@ -257,7 +257,7 @@ console.log([...v.errors(narrowed, bad)].map((e) => e.message))`} />
 
 ## see also
 
-- `subsystems/typology/entities/` — the entity classes · `schematics/entities/` — the descriptors
+- `systems/runtime/daemon/entities/` — the entity classes · `schematics/entities/` — the descriptors
 - `subsystems/typology/schematics/v.js:72` — `narrowable`, the bridge
 - `registry/education/domain/entities/` — how a domain extends the kernel
 - [[34.02_trait-catalog]] — every mode trait, by what it installs

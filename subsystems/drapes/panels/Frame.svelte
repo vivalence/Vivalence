@@ -1,16 +1,16 @@
 <script>
   import { onDestroy } from "svelte";
-  import { computed } from "nanostores";
 
   let { terminal, view = null } = $props();
 
-  let buffer = terminal.$buffer;
-  let bufferId = computed(buffer, (active) => active?.id);
+  const buffer = $derived(terminal.$buffer);
+  const bufferId = $derived($buffer?.id);
   let component = $state(null);
   let dom = $state(null);
   let fault = $state(null);
   let live = null;
   let shown = null;
+  let seated = null;
 
   function identity(record) {
     if (!record) return null;
@@ -24,6 +24,7 @@
     component?.destroy();
     live = null;
     shown = null;
+    seated = null;
     component = null;
     fault = null;
     standing = null;
@@ -33,7 +34,7 @@
     const next = $buffer;
     const key = identity(view);
     const target = dom;
-    if (next === live && key === shown) return;
+    if (next === live && key === shown && terminal === seated) return;
     teardown();
     if (!next) return;
     // A not-yet-resolved buffer (e.g. a persisted id-string awaiting rehydrate) has no
@@ -45,6 +46,7 @@
     if (!view) {
       live = next;
       shown = key;
+      seated = terminal;
       next.mount();
       return;
     }
@@ -52,6 +54,7 @@
     if (!target) return;
     live = next;
     shown = key;
+    seated = terminal;
     (async () => {
       try {
         const module = await view.load();
@@ -72,7 +75,7 @@
   onDestroy(teardown);
 </script>
 
-{#key $bufferId}
+{#key bufferId}
   <div class="viewport">
     {#if fault}
       <div class="fault">

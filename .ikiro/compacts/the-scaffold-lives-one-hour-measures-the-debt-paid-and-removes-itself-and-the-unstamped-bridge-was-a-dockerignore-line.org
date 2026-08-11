@@ -1,0 +1,90 @@
+#+title: the scaffold lives one hour, measures the debt paid, and removes itself — and the unstamped bridge was a dockerignore line
+
+* what happened, in one breath
+
+beef's standing sequence ("then you implemnt, i deploy, i provide, you remove, you
+optimize") ran end-to-end inside one sitting: "go m30" → prong B implemented (perf.js 78
+lines + =?perf= mount + analyzer) → smoke against his running dev server → beef tested
+localhost ("localhost test. sufficient?") → his own dump exposed an instrument defect,
+fixed pre-deploy → he deployed, walked vivalence.com twice, handed two dumps → the debt
+numbers came back PAID (worst 12,592ms → 350ms, boot + drag zero blocks ≥50ms) → beef:
+"looks adn feels good now" → scaffold removed, three deletions exactly as designed →
+**m30 CLOSED** with the optimize phase having nothing to act on. Then a screenshot
+mid-turn (BRIDGE: unstamped · unknown · unknown · bundled 8m ago) opened and closed a
+second arc: root cause in one trace, fix landed on "go".
+
+* the smoke saga — environment pinned before mechanism, this time done right
+
+The chrome smoke tab was created by the extension and NEVER FOREGROUNDED
+(=visibilityState: hidden=). Loaf observers only report when a rendering frame closes,
+so three attempts returned [] — and instead of refining the mechanism, one probe
+(=visibilityState= + did-the-rAF-run) pinned the environment. The payoff was accidental
+and total: a screenshot forced a frame, the QUEUED rAF busy-loop fired, and the scaffold
+recorded ={duration: 405.6, script: "FrameRequestCallback#"}= — one REAL record proving
+the whole chain (block → observer → threshold → =logger.entry= → journal → =dump()= →
+2.5kB file → analyzer). Script attribution live. The lesson that took two failures in
+the storm-decode era took zero here.
+
+* the instrument defect — the dump debugged its own producer
+
+beef's localhost dump: 8 blocks, 6 of them =1003 · 1003 · 2003 · 1001 · 2081ms= —
+quantized to ~1000ms with zero wire activity between. An idle page does not block itself
+at exactly 1.003s repeatedly: Firefox throttles rAF to 1Hz when the window is
+unfocused/occluded, and the gap sampler read the throttle as blocks. Fixed before
+deploy: skip while =document.hidden || !document.hasFocus()=, reset =previous= on
+visibility/blur/focus flips. Known side effect, accepted: console-triggered busy loops
+don't record in Firefox (focus sits in devtools); page interactions record fine. The
+m30 quest carries this as the instrument postscript — all three producer legs
+live-verified (loaf/chrome with attribution, rAF-gap/his firefox, longtask emission).
+
+* the answer to "sufficient?"
+
+Sufficient for the INSTRUMENT, not for the measurement — the m30 law held to the end:
+the cost multiplier is prod's dataspace, profiles 1/2 were deployed builds, so the
+comparison had to be deployed. First vivalence.com dump was boot-only (records ended
+t=9.1s; the file itself could not distinguish clean-drag from no-drag — asked instead of
+assuming). Second dump was the real walk: 47.7s, 3 daemons (brazilian · spanish ·
+italian), 3 threads focused, drags + clicks.
+
+| axis        | profile 2 (debt) | walk dump            |
+|-------------+------------------+----------------------|
+| worst block | 12,592ms         | 350ms (dump click)   |
+| boot        | one 12.6s frame  | ZERO blocks ≥50ms    |
+| drag        | 1.5–2s per write | ZERO blocks ≥50ms    |
+
+The 350+75ms pair sits at t=47.3–47.6 — the dump itself. Removal: perf.js deleted,
+mount + import + cleanup line out of =+layout.svelte=, suite 32/112 + prod bundle green.
+
+* the bridge stamp — one trace, no guessing
+
+Screenshot arrived mid-removal: BRIDGE =unstamped=, change/commit =unknown=, bundled 8m
+ago. Trace: =BridgeSection.svelte= → =$client= =build= → =__VIVA_BUILD__= define →
+=vite.config.mjs stamp()= shells =jj log -r @= (fallback =git rev-parse=) at build time
+→ deploy is a docker build → **=.dockerignore:11-12= excludes =.jj= + =.git= from the
+context** → both commands fail in the container → only =built = new Date()= survives.
+Exactly the screenshot. Fix on "go": =stamp()= takes =VIVA_STAMP= env FIRST (same
+one-line =change commit authored= shape as the jj template), Dockerfile build stage
+gains =ARG VIVA_STAMP= + =ENV=, beef's deploy command gains one =--build-arg= (command
+handed over). Verified: =VIVA_STAMP=-env bundle embeds the live change id =kwoqqlvt= in
+the built JS; no-env local builds keep the jj path. Next deploy proves it on the BRIDGE.
+
+* corrections ledger (this segment)
+
+- The rAF-gap producer SHIPPED with the throttle false-positive — caught only because
+  the localhost dump was read skeptically (quantization + no wire activity) instead of
+  celebrated as findings. An instrument's first output should be interrogated like a
+  suspect, not graphed.
+- Shell cwd reset mid-session made =deno check= fail on a wrong relative path —
+  container-rooted paths in COMMANDS too, not just prose.
+
+* loose ends
+
+- Probe-swallow-1001 wart: beef's localhost log opened with the SAME F5 teardown storm
+  again — still flagged, still un-go'd (typology probe).
+- Per-mode metadata volley (~35 boot calls): visible again in his log, still the next
+  diet candidate, no milestone minted.
+- =store()= coalescing riding epoch close (persist()-warm reloads): unscheduled.
+- Docs drift =47.01_buffer-flow.mdx= =result.buffers=: pre-existing, unfixed.
+- Dumps live in beef's Downloads (=perf-vivalence.com-1786735886996.json= = the walk);
+  analyzer =perfread.mjs= was session-scratchpad, regenerable from the quest section.
+- BRIDGE stamp: verification owed on beef's next deploy with the =--build-arg=.

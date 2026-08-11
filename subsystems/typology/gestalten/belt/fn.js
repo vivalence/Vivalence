@@ -12,10 +12,12 @@ export const every = (n, fn) => (done, total) =>
 
 export const debounce = (fn, ms = 0) => {
   let timer;
-  return function (...args) {
+  const debounced = function (...args) {
     clearTimeout(timer);
     timer = setTimeout(() => fn.apply(this, args), ms);
   };
+  debounced.cancel = () => clearTimeout(timer);
+  return debounced;
 };
 
 //

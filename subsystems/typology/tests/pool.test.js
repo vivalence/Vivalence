@@ -100,39 +100,39 @@ specimen.describe("Pool", () => {
   specimen.it("a drain settles every promise", async () => {
     const full = await Pool.of(buffer("a"), buffer("b")).drain();
     specimen.expect(full.condition).toBe("NOMINAL");
-    specimen.expect(full.entities.buffer).toHaveLength(2);
+    specimen.expect(full.output.buffer).toHaveLength(2);
 
     const empty = await new Pool().drain();
     specimen.expect(empty.condition).toBe("EXHAUSTED");
-    specimen.expect(empty.entities.buffer).toEqual([]);
+    specimen.expect(empty.output.buffer).toEqual([]);
 
     specimen.expect((await Pool.of(null, Yield.EXHAUSTED(), undefined).drain()).condition).toBe("EXHAUSTED");
 
     const resolved = await Pool.of(Promise.resolve(buffer("a")), Promise.resolve(buffer("b"))).drain();
     specimen.expect(resolved.condition).toBe("NOMINAL");
-    specimen.expect(resolved.entities.buffer).toHaveLength(2);
-    specimen.expect(resolved.entities.buffer[0].id).toBe("a");
+    specimen.expect(resolved.output.buffer).toHaveLength(2);
+    specimen.expect(resolved.output.buffer[0].id).toBe("a");
 
-    specimen.expect((await Pool.of(Promise.resolve(Yield.NOMINAL([buffer("a"), buffer("b")]))).drain()).entities.buffer).toHaveLength(2);
+    specimen.expect((await Pool.of(Promise.resolve(Yield.NOMINAL([buffer("a"), buffer("b")]))).drain()).output.buffer).toHaveLength(2);
 
     const dropped = await Pool.of(buffer("a"), Promise.resolve(Yield.EXHAUSTED())).drain();
-    specimen.expect(dropped.entities.buffer).toHaveLength(1);
-    specimen.expect(dropped.entities.buffer[0].id).toBe("a");
+    specimen.expect(dropped.output.buffer).toHaveLength(1);
+    specimen.expect(dropped.output.buffer[0].id).toBe("a");
 
-    specimen.expect((await Pool.of(buffer("a"), Promise.resolve(null)).drain()).entities.buffer).toHaveLength(1);
-    specimen.expect((await Pool.of(Promise.resolve([buffer("a"), buffer("b")])).drain()).entities.buffer).toHaveLength(2);
+    specimen.expect((await Pool.of(buffer("a"), Promise.resolve(null)).drain()).output.buffer).toHaveLength(1);
+    specimen.expect((await Pool.of(Promise.resolve([buffer("a"), buffer("b")])).drain()).output.buffer).toHaveLength(2);
 
     const nested = new Pool();
     nested.add(buffer("a"));
     nested.section(Promise.resolve(buffer("b")), Promise.resolve(buffer("c")));
     const drained = await nested.drain();
-    specimen.expect(drained.entities.buffer).toHaveLength(3);
-    specimen.expect(drained.entities.buffer.map((item) => item.id)).toEqual(["a", "b", "c"]);
+    specimen.expect(drained.output.buffer).toHaveLength(3);
+    specimen.expect(drained.output.buffer.map((item) => item.id)).toEqual(["a", "b", "c"]);
 
     const hollow = new Pool();
     hollow.add(buffer("a"));
     hollow.section(Promise.resolve(null), Promise.resolve(Yield.EXHAUSTED()));
-    specimen.expect((await hollow.drain()).entities.buffer).toHaveLength(1);
+    specimen.expect((await hollow.drain()).output.buffer).toHaveLength(1);
 
     const order = [];
     const delayed = (id, milliseconds) =>
@@ -143,10 +143,10 @@ specimen.describe("Pool", () => {
         }, milliseconds)
       );
     const parallel = await Pool.of(delayed("slow", 30), delayed("fast", 10)).drain();
-    specimen.expect(parallel.entities.buffer).toHaveLength(2);
+    specimen.expect(parallel.output.buffer).toHaveLength(2);
     specimen.expect(order).toEqual(["fast", "slow"]);
-    specimen.expect(parallel.entities.buffer[0].id).toBe("slow");
-    specimen.expect(parallel.entities.buffer[1].id).toBe("fast");
+    specimen.expect(parallel.output.buffer[0].id).toBe("slow");
+    specimen.expect(parallel.output.buffer[1].id).toBe("fast");
   });
 
   specimen.it("a composed pool drains in order", async () => {
@@ -155,15 +155,15 @@ specimen.describe("Pool", () => {
     pool.section(buffer("a"), buffer("b"), buffer("c")).apply((items) => items.reverse());
     pool.add(buffer("last"));
     const shuffled = await pool.drain();
-    specimen.expect(shuffled.entities.buffer[0].id).toBe("first");
-    specimen.expect(shuffled.entities.buffer[1].id).toBe("c");
-    specimen.expect(shuffled.entities.buffer[3].id).toBe("a");
-    specimen.expect(shuffled.entities.buffer[4].id).toBe("last");
+    specimen.expect(shuffled.output.buffer[0].id).toBe("first");
+    specimen.expect(shuffled.output.buffer[1].id).toBe("c");
+    specimen.expect(shuffled.output.buffer[3].id).toBe("a");
+    specimen.expect(shuffled.output.buffer[4].id).toBe("last");
 
     const exhibit = new Pool();
     exhibit.section(buffer("b"), buffer("c"));
     exhibit.head(buffer("a"));
-    specimen.expect((await exhibit.drain()).entities.buffer.map((item) => item.id)).toEqual(["a", "b", "c"]);
+    specimen.expect((await exhibit.drain()).output.buffer.map((item) => item.id)).toEqual(["a", "b", "c"]);
 
     const deferred = new Pool();
     deferred.add(buffer("first"));
@@ -173,16 +173,16 @@ specimen.describe("Pool", () => {
       Promise.resolve(Yield.NOMINAL([buffer("z")])),
     ).apply((items) => items.reverse());
     const settled = await deferred.drain();
-    specimen.expect(settled.entities.buffer[0].id).toBe("first");
-    specimen.expect(settled.entities.buffer[1].id).toBe("z");
-    specimen.expect(settled.entities.buffer[2].id).toBe("y");
-    specimen.expect(settled.entities.buffer[3].id).toBe("x");
+    specimen.expect(settled.output.buffer[0].id).toBe("first");
+    specimen.expect(settled.output.buffer[1].id).toBe("z");
+    specimen.expect(settled.output.buffer[2].id).toBe("y");
+    specimen.expect(settled.output.buffer[3].id).toBe("x");
 
     const ordered = new Pool();
     ordered.add(buffer("1"));
     const outer = ordered.section(buffer("2"));
     outer.section(buffer("3"));
     ordered.add(buffer("4"));
-    specimen.expect((await ordered.drain()).entities.buffer.map((item) => item.id)).toEqual(["1", "2", "3", "4"]);
+    specimen.expect((await ordered.drain()).output.buffer.map((item) => item.id)).toEqual(["1", "2", "3", "4"]);
   });
 });

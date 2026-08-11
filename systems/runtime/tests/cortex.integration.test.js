@@ -1,5 +1,5 @@
 import { specimen, soma } from "@vivalence/typology";
-import { TurnEntity } from "@vivalence/typology/entities";
+import { TurnEntity } from "@vivalence/runtime";
 import { create } from "./scenarios/cortex.js";
 
 // ─── helpers ──────────────────────────────────────────────────────────
@@ -18,13 +18,14 @@ function captureSonnet(cortex) {
   const faculties    = cortex.find({ type: "dialogue" });
   const sonnet       = faculties.find((faculty) => faculty.tune[0] === 0.4);
   const originalStream = sonnet.via.stream;
-  let capturedTurns  = null;
+  let capturedRequest = null;
   sonnet.via.stream  = async (request) => {
-    capturedTurns = request.turns;
+    capturedRequest = request;
     return originalStream(request);
   };
   return {
-    get turns() { return capturedTurns; },
+    get turns() { return capturedRequest?.turns; },
+    get request() { return capturedRequest; },
     restore()   { sonnet.via.stream = originalStream; },
   };
 }
@@ -75,7 +76,7 @@ specimen.describe("cortex integration — HARNESSED harness", () => {
       const { packets, turn } = await collectStream(stream);
 
       specimen.expect(packets[0].event).toBe("/turn/open");
-      specimen.expect(packets.at(-1).event).toBe("/session/close");
+      specimen.expect(packets.at(-1).event).toBe("/response/close");
       specimen.expect(turn.role).toBe("assistant");
       specimen.expect(turn.meta.state).toBe("complete");
     });
@@ -148,7 +149,7 @@ specimen.describe("cortex integration — HARNESSED harness", () => {
         await collectStream(stream2);
 
         specimen.expect(capture.turns).toBeDefined();
-        specimen.expect(capture.turns.length).toBeGreaterThanOrEqual(4);
+        specimen.expect(capture.turns.length).toBeGreaterThanOrEqual(3);
 
         const userTurns = capture.turns.filter((turn) => turn.role === "user");
         specimen.expect(userTurns).toHaveLength(2);
@@ -166,7 +167,7 @@ specimen.describe("cortex integration — HARNESSED harness", () => {
 
   specimen.describe("personality", () => {
 
-    specimen.it("system turn injected by mode harness middleware", async () => {
+    specimen.it("system section written by mode harness middleware", async () => {
       const { dewey, createThread, cortex } = scenario;
       const thread  = await createThread();
       const capture = captureSonnet(cortex);
@@ -175,11 +176,9 @@ specimen.describe("cortex integration — HARNESSED harness", () => {
         const stream = await dewey.harness.dialogue.stream({ parts: [{ type: "text", text: "hi" }], thread });
         await collectStream(stream);
 
-        specimen.expect(capture.turns).toBeDefined();
-        const systemTurns = capture.turns.filter((turn) => turn.role === "system");
-        specimen.expect(systemTurns.length).toBeGreaterThanOrEqual(1);
-        const personality = systemTurns.some((turn) =>
-          turn.parts.some((part) => part.text?.includes("Dewey")),
+        specimen.expect(capture.request.system).toBeDefined();
+        const personality = Object.values(capture.request.system).some((section) =>
+          String(section).includes("Dewey"),
         );
         specimen.expect(personality).toBe(true);
       } finally {
@@ -253,7 +252,7 @@ specimen.describe("cortex integration — HARNESSED harness", () => {
       specimen.expect(opens.length).toBe(2);
       specimen.expect(closes.length).toBe(2);
       specimen.expect(toolFulls.length).toBe(1);
-      specimen.expect(packets.at(-1).event).toBe("/session/close");
+      specimen.expect(packets.at(-1).event).toBe("/response/close");
     });
 
     specimen.it("final turn of tool loop has correct content", async () => {

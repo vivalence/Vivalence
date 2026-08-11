@@ -1,4 +1,4 @@
-export const AGENTIC = (mode, daemon) => {
+export const AGENTIC = (mode, daemon) => () => {
   daemon
     .flatmodes()
     .filter((source) => source !== mode && source.implements("TOOLED"))

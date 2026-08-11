@@ -20,12 +20,12 @@ export const aperture = new Aperture()
 
     return ctx.daemon.entities.literal.find(
       {
-        memories: { status },
+        retentions: { status },
         ...(blacklist?.literals?.length && { id: { $nin: blacklist.literals } }),
         ...where,
       },
       {
-        populate: ["memories"],
+        populate: ["retentions"],
         orderBy: { rank: "ASC" },
         limit,
       },
@@ -46,8 +46,8 @@ export const aperture = new Aperture()
     const literal = await ctx.daemon.entities.literal.findOne(query);
     if (!literal) return { status: "bounce", message: "literal not found" };
 
-    const memory = await literal.review(signal, ctx);
-    return memory;
+    const retention = await literal.review(signal, ctx);
+    return retention;
   });
 
 // Domain resolve hook — runtime calls this at daemon resolution to wire the
@@ -62,7 +62,7 @@ export function resolve(daemonDie) {
     .slurp(shard.datamap.reactive(entities.trace, twitch));
 
   userspace
-    .branch("/entities/memory")
-    .slurp(shard.datamap.repository(entities.memory))
-    .slurp(shard.datamap.reactive(entities.memory, twitch));
+    .branch("/entities/retention")
+    .slurp(shard.datamap.repository(entities.retention))
+    .slurp(shard.datamap.reactive(entities.retention, twitch));
 }

@@ -1,8 +1,8 @@
 import { types, Collection, EntitySchema } from "@mikro-orm/core";
 import Ajv from "ajv";
-import { maps } from "@vivalence/typology/entities";
+import { maps } from "@vivalence/runtime";
 import { PlayEntity } from "../userspace/Play.ts";
-import { MemoryEntity } from "../userspace/Memory.ts";
+import { RetentionEntity } from "../userspace/Retention.ts";
 
 // ─── Traits ──────────────────────────────────────────────────────────────────
 
@@ -51,7 +51,7 @@ const validators = Object.fromEntries(
 
 export class LiteralEntity extends maps.kernel.literal.entity {
   traits = [];
-  memories = new Collection(this);
+  retentions = new Collection(this);
   plays = new Collection(this);
 
   //
@@ -114,10 +114,10 @@ export const LiteralSchema = new EntitySchema({
       defaultRaw: `'[]'`,
       type: types.json,
     },
-    memories: {
+    retentions: {
       kind: "1:m",
-      entity: () => MemoryEntity,
-      mappedBy: (memory) => memory.literal,
+      entity: () => RetentionEntity,
+      mappedBy: (retention) => retention.literal,
     },
     plays: {
       kind: "1:m",

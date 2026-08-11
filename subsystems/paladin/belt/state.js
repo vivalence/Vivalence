@@ -23,6 +23,14 @@ export default function state(paladin) {
       await Deno.writeTextFile(file, JSON.stringify(entry) + "\n", { append: true });
     },
     remove: (path) => Deno.remove(resolve(path)).catch(() => {}),
+    scribe: async (path, text) => {
+      const file = resolve(path);
+      await parent(file);
+      if ((await Deno.readTextFile(file).catch(() => null)) === text) return false;
+      await Deno.writeTextFile(`${file}.tmp`, text);
+      await Deno.rename(`${file}.tmp`, file);
+      return true;
+    },
     open: async (path) => {
       const file = resolve(path);
       await parent(file);

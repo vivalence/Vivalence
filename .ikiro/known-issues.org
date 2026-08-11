@@ -4,6 +4,325 @@
 Issues we know about and have NOT fixed. Each entry: symptom, root cause hypothesis,
 evidence, attempts, why not fixed now, fallback workaround.
 
+* typology-internals-import-their-own-barrel — SETTLED LATENT (ruled post-m26)
+
+** Symptom
+
+Under vite's SSR module runner every kajuit route 500'd:
+
+#+begin_example
+[500] GET /
+TypeError: Cannot read properties of undefined (reading 'array')
+    at new Signature (subsystems/typology/prototypes/signature.js:12:35)
+    at new Pattern   (subsystems/typology/prototypes/pattern.js:9:1)
+    at Vector.branch (subsystems/typology/prototypes/vector.js:28:21)
+    at Vector.open   (subsystems/typology/prototypes/vector.js:51:10)
+    at eval          (subsystems/typology/gestalten/belt/skill/buffer.js:19:4)
+#+end_example
+
+Deno ran the same code green for a whole session. Only the second module
+runner exposed it.
+
+** Root cause
+
+*Typology's internal modules import from typology's own public barrel*, which
+re-exports them — a cycle. Every hop on the crash path does it:
+
+#+begin_example
+prototypes/vector.js:1     import { Pattern, Signature }    from "@vivalence/typology";
+prototypes/pattern.js:1    import { object, is, hash }      from "@vivalence/typology";
+prototypes/signature.js:1  import { array, hash, is, cast } from "@vivalence/typology";
+#+end_example
+
+Measured, whole package: *62 files import their own barrel* — prototypes 23/48,
+gestalten 34/76, entities 4/21, specimen 3/2, schematics 1/26. A module evaluated
+before the barrel finishes populating sees =undefined= for every named import;
+which modules those are is the module runner's choice, and runners differ.
+
+** Why it only bit now
+
+Two conditions must coincide: (a) a typology-internal module doing WORK at module
+scope, and (b) that work reaching the barrel. Measured: before m26 there were
+*ZERO* module-scope =new Vector/Aperture/Connection= constructions inside
+=prototypes/= or =gestalten/=. =belt/skill/*= was the first, so nobody had ever
+armed condition (a).
+
+*Registry modules are NOT affected and never were* — 28 of them build
+=export const tools/emitter/harness = new Vector()= at module scope today. They
+sit DOWNSTREAM of the barrel, not inside it, so the barrel is fully evaluated
+before they run. The hazard is specific to modules the barrel re-exports.
+
+** Attempts
+
+- *Deep-relative imports in the leaf — DID NOT FIX.* At crash time
+  =belt/skill/buffer.js= already imported =../../../prototypes/vector.js= and
+  =../../../schematics/v.js=. It bought exactly one hop before rejoining the same
+  cycle three frames deeper. The trace is the proof: it never fails in the leaf's
+  import line.
+- *Memoized thunk — FIXED, landed.* =let vector; export const buffer = () =>
+  (vector ??= new Vector()…)= — the repo's existing idiom for this hazard
+  (=schematics/prototypes/yield.js= uses it for the same reason). Construction
+  moves to first CALL, by which time every module is evaluated.
+
+** Why not fixed now (the debarrel)
+
+Making typology's internals import each other by relative path would take the
+barrel off the critical path and is a genuine cycle-smell fix. NOT done:
+
+1. 62 files is a sweep across the HOLY layer — needs beef.
+2. It does not close the bug CLASS. Relative imports make the graph explicit
+   rather than funnelled; internal cycles remain possible and module-scope work
+   stays hostage to eval order. Laziness makes the hazard impossible; debarreling
+   only makes the current order less fragile.
+3. It cuts against the standing import doctrine one layer up
+   ([[feedback_import_through_barrel]]: kajuit imports THROUGH the barrel, never
+   deep paths). A package-internal exception is a NEW rule, beef's to state.
+
+Do the measurement first if it is ever picked up: enumerate the actual cycle set,
+do not sweep 62 files on a hunch.
+
+** Resolution (ruled)
+
+Beef RULED the internal self-barrel imports STAY — "i might actually like teh
+internal barrel imports again" — and rejected both the thunk ("categoric no")
+and any relative-import sweep. The fix was an OWNERSHIP move: the skills (the
+only eval-time constructors inside the barrel) emigrated to
+=systems/runtime/daemon/skills/=, downstream of the barrel, module-scope
+=new Vector()= restored. The entities followed to =daemon/entities/= for the
+same reason (their own emigration, not this bug).
+
+Standing law, superseding the thunk law: *daemon-dependent effects do not live
+in typology* — a layering rule that enforces itself. The 62-file cycle remains,
+LATENT WITH NO TRIGGER: zero module-scope construction inside the barrel. The
+memoized-thunk idiom (=schematics/prototypes/yield.js=) stays valid for anything
+that must construct inside the barrel in the future. Registry + daemon modules
+are unaffected — downstream.
+
+* v-facade-pins-typebox-in-every-client-bundle — OPEN (trailing issue on m24)
+
+** Symptom
+
+Every buffer-view bundle carries typebox — 292 KB of 551 KB prod for
+=rep-o-mat=, including typebox's *script parser* (15 KB) and its
+*per-locale files* (=el_GR= 7 KB, =ru_RU= 7 KB, =hi_IN=, =th_TH=, …).
+A rep game that imports =array.shuffle= and =string.fold= ships a schema
+compiler and Greek error messages.
+
+** Root cause
+
+=subsystems/typology/schematics/index.js= assembles the =v= facade by
+MUTATING the binding it imported from =./v.js=:
+
+#+begin_src js
+import { v, entityFactory } from "./v.js";
+import * as scalars from "./scalars/index.js";
+v.scalars = scalars;
+v.rel = (schema) => v.union([scalars.ID, v.object({}, { additionalProperties: true })]);
+v.literal = entityFactory(entities.LiteralDescriptor, entities.DataEntitySchema);
+export { v };
+#+end_src
+
+Top-level mutation of an imported binding is a side effect esbuild may not
+drop, so the module — and everything it reaches — is retained no matter what
+the view actually imported. =mod.client.js= puts it in the graph via
+=export * from "./schematics/index.js"=.
+
+** Evidence
+
+Shortest path, from the esbuild metafile:
+
+#+begin_src text
+<stdin> → registry/…/rep-o-mat/buffer/RepOMat.svelte
+        → subsystems/typology/mod.client.js
+        → typology/schematics/index.js
+        → typology/schematics/v.js → typebox
+#+end_src
+
+Probe bypassing the barrel: =gestalten + prototypes, NO schematics: 457 KB,
+typebox present: false=.
+
+Isolated 4000-export fixture — **only one construction shape shakes**, and
+the near-misses are indistinguishable by eye:
+
+| construction                                     | v unused | v used |
+|--------------------------------------------------+----------+--------|
+| =export const v = { check, object, heavy }=      |     32 B | 214968 |
+| =export const v = { check: core.check, heavy }=  |   214944 |        |
+| =export const v = { ...core, heavy }=            |   214876 |        |
+| =export const v = { ...core, get heavy() {…} }=  |   214917 |        |
+| =core.heavy = heavy; export const v = core=      |   214863 |        |
+
+ONE property access, spread, or call anywhere in the initializer marks the
+whole statement impure and everything it references is retained. Getters do
+NOT rescue it. Identifier references only.
+
+** Why not fixed now
+
+beef wants =import { v } from "@vivalence/typology"= to keep working
+everywhere (73 call sites) — so the cheap fix (drop schematics from the
+client barrel, one subpath import in
+=registry/playground/modes/chaosmonkey/oracle/buffer/Oracle.svelte=, the
+ONE client consumer) is off the table. The real fix needs =v= built as a
+single pure object literal in ONE module, which collides with the cycle:
+=scalars= / =primitives= / =entities= / =prototypes= import =v= and call it
+at module scope.
+
+Two routes, neither picked:
+1. *factories* — each schema module exports =(v) => ({…})=. No cycle, touches
+   every schema file. ~half a day.
+2. *split core* — =v.js= keeps only the typebox wrappers, schema modules
+   import that (no cycle), one new module builds the full =v= literal. One
+   import line per schema file. ~2 hours.
+
+** Why typebox itself is 292 KB — the same defect, one layer down
+
+typebox is not inherently huge. What it ships us:
+
+| build/system/locale |  134 KB | *41 languages of error messages* |
+| build/schema/engine | 32.3 KB | the validator                    |
+| build/type/script   |   25 KB | a runtime TypeScript-syntax parser |
+| build/type/engine   | 24.5 KB | the validator                    |
+| format/guard/value  |  ~35 KB | real work                        |
+
+46% is i18n. Nothing outside =locale/= references the =Locale= namespace —
+=rg "\bLocale\b" build --glob '!**/locale/**'= returns NOTHING — so the 40
+non-default locales are pure dead weight. They are retained because
+=typebox/build/index.mjs= ends with:
+
+#+begin_src js
+export * as Type from './typebox.mjs';
+import * as Type from './typebox.mjs';
+export default Type;
+#+end_src
+
+A materialized namespace plus a default export of it — *the exact defect
+deleted from =drapes/mod.js= this session*, sitting in the dependency.
+=v.js= does =import { Type } from "typebox"=, which touches the namespace,
+which pins =typebox.mjs= → =system.mjs= → =locale/index.mjs= → all 41.
+
+*Ruled out — bundler configuration.* esbuild's =onResolve= can return
+=sideEffects: false=, and typebox declares no =sideEffects= field of its
+own, so this looked like the free fix. Measured on =rep-o-mat=:
+
+#+begin_src text
+as-is              total 553 KB   typebox 292 KB   locales 134 KB
+sideEffects:false  total 553 KB   typebox 292 KB   locales 134 KB
+#+end_src
+
+Zero change. Namespace materialization is a genuine *reference*, not a side
+effect — esbuild cannot drop members of a namespace object that is used. No
+esbuild setting fixes it; only not touching the namespace does.
+
+*Ruled out — upgrading.* typebox latest is 1.3.12 (2026-08-10); we pin
+1.3.0. =build/index.mjs= is byte-identical on the pin, =locale/index.mjs=
+identical, =_locale.mjs= down to 40 modules from 41 (they de-duplicated a
+doubled =fr_CA=). Upgrading buys ~7 KB.
+
+*Untested, cheapest lead for next session.* =v.js= touches exactly 15
+members — =Type.{Any,Array,Boolean,Integer,Intersect,Literal,Null,Number,
+Object,Optional,Record,Ref,String,Union,Unknown}=. The =./type= subpath
+(=build/type/index.mjs=) provably does NOT reach =system/locale= (walked 120
+modules, no hit), so importing those as NAMED bindings from =typebox/type=
+instead of the =Type= namespace from the root may drop the whole 134 KB with
+a one-line change. Verify the names exist on that subpath first — the root's
+=Type= comes from =build/typebox.mjs=, a curated named-export list (which is
+also where the 25 KB =Script= TS-parser hangs off =Type=).
+
+*On an upstream PR* — the root's =export * as Type= + =export default Type=
+and =export * as Locale= are all documented public API; removing any of them
+BREAKS every consumer, so those PRs will not land. The only non-breaking
+upstream change is adding =sideEffects: false= to package.json, which is
+correct hygiene but MEASURED not to help this case. Do not open a PR on an
+unproven mechanism — the locale carrier is still unidentified (nothing
+outside =locale/= references =Locale=, yet all 40 are retained, so the
+retention path is not understood). Prove the named-import fix first; if it
+works, no upstream work is needed at all.
+
+Cheap mitigation available WITHOUT the facade refactor: an esbuild alias in
+=subsystems/typology/gestalten/bundle/svelte.js= stubbing
+=build/system/locale/_locale.mjs= down to =en_US= (=_config.mjs= already
+defaults to it and only =Locale.Set()= would ever need another). ~127 KB off
+every client bundle, one plugin entry, zero source changes. Untested.
+
+** Fallback
+
+None needed — it is weight, not breakage. The drapes half of the same
+problem IS fixed (=components= aggregate deleted, 1.33 MB → 0.54 MB), so
+buffer views are already 2.5× lighter; this issue is the remaining 292 KB.
+
+* aperture-snapshot-pins-a-daemon-the-variant-no-longer-mounts — RESOLVED
+
+** Symptom
+
+=systems/runtime/tests/aperture.snapshot.test.js= fails 2/2 steps with
+=ConnectionError: Client error: 404 @ /daemon/brazilian/metadata/modes= — but
+ONLY while a runtime is booted. With =:2501= down the same file reports green.
+
+** Root cause
+
+The test hardcodes =const DAEMON = "brazilian"= (line 14) and guards itself with
+=alive()=, which only asks whether =:2501= answers AT ALL — not whether the
+daemon it wants is mounted there. So it has three states, and two of them look
+identical from the outside:
+
+| runtime | brazilian mounted | result           |
+|---------+-------------------+------------------|
+| down    | —                 | SKIPS → green    |
+| up      | yes               | runs → green     |
+| up      | no                | 404 → RED        |
+
+The live variant mounts =italian= + =playground=:
+
+#+begin_src text
+  curl -s localhost:2501/metadata/daemons
+  [{"slug":"italian",...,"modes":11},{"slug":"playground",...,"modes":8}]
+  /daemon/brazilian/metadata/modes → 404
+  /daemon/italian/metadata/modes   → 401   (auth-gated, per the test's own header)
+#+end_src
+
+** Why this is nastier than it looks
+
+A skip that counts as a pass makes "green" mean "either verified or not run",
+and nothing in the output distinguishes them. This suite reported green all
+session and only turned red when the runtime came UP — the opposite of the
+usual direction, which is why it reads as a regression from whatever landed
+last. It is not: nothing in the m22 datasink work touches =/metadata=.
+
+** Resolution
+
+@beef: /"this should be handled by the registry testing fixtures"/ — so the
+liveness question left the tests entirely. =registry/fixtures/data/live.js=
+(barrel-exported, reached from the runtime suite through the one-line
+=tests/scenarios/fixtures.js= re-export) probes =/metadata/daemons=, DERIVES the
+slug, lighthouse-logs-in, attaches the Bearer, and returns
+={base, connection, daemons, slug, identity, authority, modes, mounts, reason}=.
+Never a pin. Four branches, each with a reason string the test prints:
+
+#+begin_src text
+  dead port  → { up: false, reason: "no runtime at http://localhost:2599" }
+  bad daemon → { up: true,  reason: 'runtime up, daemon "brazilian" not mounted — mounts: italian(11), playground(8)' }
+  bad login  → { up: true,  reason: "runtime up on italian, lighthouse login failed — Unauthorized @ /attached/…/auth/login" }
+  happy      → { up: true,  slug: "italian" }
+#+end_src
+
+=aperture.snapshot.test.js= and =daemon/integration.test.js= both cut over; the
+latter's hand-rolled =http()= client and its own =alive()= are gone.
+
+The pinned slug was only the first layer. With the daemon derived, the
+integration suite went red on 8 steps — it also pins a MODE CENSUS: italian
+mounts flashcard·write·shadow·listen, so =game/{exhibit,judge,pick,match,cloze}=
+404'd. Same defect, one level down. So the fixture carries =mounts(identifier)=
+off =/metadata/modes= and each game step guards on it, printing
+=SKIP: game/pick not mounted on "italian"=. Skip and pass no longer share a
+symbol anywhere in the file.
+
+Collateral, pre-existing and unrelated to the pin: =tests/bench/smoke.test.js=
+died in the DATASET trait on =daemon.datamap.introspect()= — the m22 cutover
+made the trait read =daemon.datamap=, and =tests/scenarios/bench.js= set
+=daemon.entities= but never =daemon.datamap= (production sets both, in
+=daemon/lifecycle/population.js:79=). One line. Full runtime suite with the
+runtime UP: =42 passed (244 steps) | 0 failed=.
+
 * detached-process-die-on-parent-exit
 
 ** Symptom
@@ -126,3 +445,79 @@ Cosmetic. The override is intentional (ghost wants its cwd-derived variant
 scope to win over the env-derived one) but the warning fires every time. Either
 make paladin silent on re-register, or detect "same value" overwrites and
 suppress.
+
+* registry-count-test-pins-a-number — RESOLVED
+
+** Symptom
+
+=systems/runtime/tests/registry.count.test.js= fails: 51 actual, 47 expected,
+off =const BASELINE = 39= plus an inline =+ 8=. Nothing in M22.0's patch adds a
+=.viva.js= or a wafer, and nothing reflects over the =paladin.find= /
+=paladin.read= key sets — the count moved because the registry grew.
+
+** Cause
+
+The test pins a CENSUS to a literal. Every module added to =registry/= makes it
+red, and the failure says nothing about what changed — the only repair is to
+re-capture the number, which is exactly the act that makes the assertion
+meaningless.
+
+** Resolution
+
+@beef: /"this is a dumb test. shouldnt be working this way."/ then /"cleanup"/.
+Rewritten as a census of SHAPE: The assertion wants a SHAPE, not a total: every mounted
+package's modules resolve under their stamped owner, no module lands ownerless,
+and the four wafers/self-manifests the name promises are each present BY NAME.
+That is stable under registry growth and actually names its failure. Five
+steps, green. Writing it surfaced a live falsehood in the paladin shard: it
+lists FIVE packages, and only FOUR ingest — `@young-ladys-primer` is on disk and
+not mounted, so the first draft of the fix asserted it and failed. Shard
+corrected in the same turn.
+
+* typology-client-barrel-tdz
+
+** Symptom
+
+=import("subsystems/typology/mod.client.js")= throws =Cannot access 'Signature'
+before initialization=. Found while checking whether M22.1's carriers reached
+the client; A/B'd with them moved aside — identical failure, so pre-existing.
+
+** Cause
+
+Circular import + TDZ inside the CLIENT chain
+(=prototypes/index.client.js= → =gestalten/index.client.js= → back), where a
+module reads =Signature= at evaluation time rather than inside a function.
+
+** Why not fixed
+
+Out of M22's scope, and it is not obviously live: =mod.client.js= is not in the
+package's =exports= map at all, so nothing can import it by specifier — kajuit
+reaches the client surface through its own vite aliases. Either it is dead and
+should go, or it is aliased and the client build is carrying a broken entry.
+Decide which before repairing.
+
+* stripwire-contract-test-reads-a-dead-key — RESOLVED
+
+** Symptom
+
+=systems/runtime/tests/stripwire.contract.test.js= fails 3/3 steps:
+=isContract(...)= false for every mode, and =pairs.length= 0.
+
+** Cause
+
+The suite reads =snapshot.aperture= and asserts the =({effect?, branches})=
+tree. All 23 mode snapshots on disk carry ={manifest, routes}= — the LEAN
+projection (path + method + io-type list) that the snapshot-hygiene pass
+adopted deliberately. The test was never moved with it, so it asserts a shape
+that is no longer emitted anywhere.
+
+** Resolution
+
+@beef: /"cleanup"/. The assertion moved down to =routes= entries — every entry
+has a =/=-rooted =path=, and =input=/=output= carry an io type NAME while
+=yields= is either a packet type or bare =true= (the streaming marker, measured
+across the corpus rather than assumed). The instance vantage and the drift
+report survive but no longer assert =pairs.length > 0=: zero
+=*-brazilian.snapshot.json= exist here because they come from the live-DB
+topography run, so the suite LOGS what it could not cover instead of reddening
+over a missing prerequisite. Four steps, green.

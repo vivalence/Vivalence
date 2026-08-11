@@ -41,15 +41,16 @@
     const call = client.branch("/cortex/object");
     call.note({ prompt });
     try {
-      const hallucination = buffer.mode.daemon.cortex
-        .hallucination({ tune: "eager" })
-        .context.system(SYSTEM)
-        .entities.turn.append({ role: "user", parts: [{ type: "text", text: prompt }] })
-        .output.object(v.object({ answer: v.string().desc("the oracle's reply") }));
-      call.note({ request: hallucination.configuration });
-      const render = await hallucination.object.render();
+      const request = {
+        policy: { tune: "eager" },
+        system: { oracle: SYSTEM },
+        turns: [{ role: "user", parts: [{ type: "text", text: prompt }] }],
+        output: { schema: v.object({ answer: v.string().desc("the oracle's reply") }) },
+      };
+      call.note({ request });
+      const render = await buffer.mode.daemon.cortex.hallucinate.object.render(request);
       call.note({ render });
-      assistant.set(render.object?.answer ?? "");
+      assistant.set(render.output?.object?.answer ?? "");
     } catch (error) {
       call.fault(error);
       assistant.set(`… the oracle falters: ${error.message}`);
@@ -71,7 +72,7 @@
         output: v.object({ answer: v.string() }),
       });
       call.note({ render });
-      assistant.set(render?.object?.answer ?? "");
+      assistant.set(render?.output?.object?.answer ?? "");
     } catch (error) {
       call.fault(error);
       assistant.set(`… ${error.message}`);
@@ -113,11 +114,11 @@
     client.branch("/buffer/cortex/dialogue/turn").note(turn);
 
     try {
-      const source = await buffer.mode.daemon.cortex
-        .hallucination({ tune: "eager" })
-        .context.system(SYSTEM)
-        .entities.turn.append(turn)
-        .dialogue.stream();
+      const source = await buffer.mode.daemon.cortex.hallucinate.dialogue.stream({
+        policy: { tune: "eager" },
+        system: { oracle: SYSTEM },
+        turns: [turn],
+      });
       let text = "";
       let tokens = 0;
       for await (const packet of source) {

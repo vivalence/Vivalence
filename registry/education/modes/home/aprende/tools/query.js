@@ -13,7 +13,7 @@ export const query = new Vector().open(
       "slugs feed the symbols filter here and the symbols/subject steering of the exercise " +
       "tools). For literals: text matches slug and both translations; symbols keeps only " +
       "literals tagged with ALL given slugs; ontology narrows to one kind; pick orders the " +
-      "pool — match = plain filtered search, weak = weakest memory first, due = review due " +
+      "pool — match = plain filtered search, weak = weakest retention first, due = review due " +
       "now, novel = never studied, by course rank. For symbols: text matches the slug. Use " +
       "this before steering exercises — to ground what vocabulary exists, find what the " +
       "learner struggles with in a subject, or discover the symbol sets worth drilling.",
@@ -40,7 +40,7 @@ export const query = new Vector().open(
     if (ctx.input.symbols?.length) where.symbols = ctx.input.symbols;
     if (ctx.input.ontology) where.ontology = ctx.input.ontology;
 
-    const opts = { limit: ctx.input.limit, populate: ["memories", "symbols"] };
+    const opts = { limit: ctx.input.limit, populate: ["retentions", "symbols"] };
     const fetch = {
       match: () => ctx.daemon.entities.literal.find(where, opts),
       weak: () => ctx.daemon.entities.literal.byStrength(where, opts),
@@ -55,7 +55,7 @@ export const query = new Vector().open(
         known: literal.trait?.TRANSLATED?.known ?? "",
         learning: literal.trait?.TRANSLATED?.learning ?? "",
         ontology: literal.ontology,
-        status: literal.memory?.status ?? "UNTOUCHED",
+        status: literal.retention?.status ?? "UNTOUCHED",
         symbols: literal.symbols.getItems().map((symbol) => symbol.slug),
       })),
     };

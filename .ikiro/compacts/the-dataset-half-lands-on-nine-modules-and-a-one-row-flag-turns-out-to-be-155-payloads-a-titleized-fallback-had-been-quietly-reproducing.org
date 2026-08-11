@@ -1,0 +1,407 @@
+#+title: the dataset half lands on nine modules — and a one-row flag turns out to be 155 payloads that a titleized fallback had been quietly reproducing
+#+filetags: :m22:dataset:datasink:carrier:cutover:trait-payload:inline-entities:live-boot:documentation:
+
+* the commission
+
+beef, after a load of the m22 quest:
+
+#+begin_quote
+so. as far as i understand, this quest is largely done, expcept for the the
+changeover of datasets for the variants and tehn running it.
+i think we can do without any sink for now. correct?
+#+end_quote
+
+Correct, and it was worth proving rather than agreeing. =DATASINK= has zero
+production consumers: the trait itself, one warn at
+=lifecycle/resolution.js:45= for exporting =datasink= WITHOUT the trait, and
+tests. Drop the trait from =manifest.traits=, export no =datasink=, and nothing
+constructs, opens a twitch, or holds a timer. The katabolic half is genuinely
+detachable — which is a property of the design rather than a lucky accident,
+and the grep is what turned that from a hope into a fact.
+
+* the scope walked out in three messages
+
+#+begin_quote
+also do this for all other datasets
+#+end_quote
+
+#+begin_quote
+and topologies
+#+end_quote
+
+#+begin_quote
+all dataset traits in fact
+#+end_quote
+
+Measured: **nine** =DATASET= declarers, not the one the quest had written up.
+Four topographies, three education topologies, two in young-ladys-primer. The
+quest's M22.5 had been authored against italian alone, and its per-variant
+notes (italian needs a THIRD symbol sink because it declares an
+=ontological.js= the others don't) evaporated the moment the declaration became
+a directory walk. A walk does not care how many files are in the directory.
+
+Every one of the nine collapsed to the same shape:
+
+#+begin_src javascript
+export const dataset = new Dataset({
+  symbol: "dataset/symbols",
+  literal: "dataset/literals",
+});
+#+end_src
+
+Two lines subsume 15 files, because =paladin.find.data= skips =index.js=
+(=belt/find.js:41=). Twelve aggregators deleted — 8 × =dataset/index.js=, 4 ×
+=dataset/literals/words/index.js=.
+
+* schema was dead, and then it was gone
+
+Flagged as a measurement, not a proposal: =dataset.schema= has ZERO readers
+repo-wide. Only =.intent= (=traits/intented.js=, =lifecycle/integration.js:30=)
+and =.entities= (bench) are ever read off a module's dataset.
+
+#+begin_quote
+drop schema. dataset.schema
+#+end_quote
+
+then, twice, on the two things left dangling:
+
+#+begin_quote
+kill
+#+end_quote
+
+#+begin_quote
+cleanup
+#+end_quote
+
+So the four =dataset/schema.json= files are deleted — all four byte-identical,
+all four carrying =$ref: "#/definitions/literal"= against a =definitions= block
+that does not exist, so they had never been a valid schema in the first place —
+and the =schema= field is gone from the =Dataset= carrier. It survives only as
+a reserved key in the constructor's destructure, so a legacy ={schema,
+entities}= module cannot turn it into a source type.
+
+* the one-row flag was 155 rows
+
+Filed at the end of a proposal as a courtesy note: =topologies/conjugation=
+uses =data:= where every other row uses =trait:=. Flagged, not fixed.
+
+#+begin_quote
+fix.
+check which and fix.
+#+end_quote
+
+The check inverted the flag. =data:= is not a one-off typo — it is the
+MAJORITY spelling in the topology files: =word/ontological.js= 111 rows,
+=sentence/ontological.js= 44, plus the conjugation one. And
+=entities/kernel/Symbol.ts:54= declares =trait: { type: types.json }= with no
+=data= property at all, so all 156 installed with **empty trait payloads**.
+
+Why nobody ever noticed, and this is the keeper:
+
+#+begin_src javascript
+// systems/kajuit/src/app/panels/e/widgets/form/picker.js:57
+return symbol?.trait?.LABELED?.name ?? titleize(symbol?.slug?.split(".").at(-1) ?? "");
+#+end_src
+
+A titleized =word.part-of-speech.adjective= is "Adjective" — character for
+character the authored name. **A fallback that reproduces the value it replaces
+hides its own failure indefinitely.** The data had been broken since it was
+authored and the UI looked correct the entire time. It only surfaced because
+the cutover made me read the symbol files, and it only got fixed because beef
+asked which key was right instead of accepting the flag as written.
+
+Family: `graceful-degradation-conceals-the-defect`. The same shape as a skip
+that counts as a pass, later the same session.
+
+* inline entities did not work, and running it is what said so
+
+beef, reading the conjugation cutover:
+
+#+begin_quote
+ah gooood. its already possible to keep entities INLINE!
+#+end_quote
+
+#+begin_quote
+this works right?
+#+end_quote
+
+No. =[sources].flat()= cannot tell a list of SOURCES from a list of ROWS: it
+flattened the row array, and =reader.lift(row)= took the =is.object= branch and
+returned THE ROW as a source descriptor. Eight of the nine modules passed;
+conjugation — the only one declaring inline — died with
+=paladin.read[source.codec] is not a function=. The quest's own vocabulary
+section had promised "a source is a mount-relative STRING, a directory STRING,
+or an inline row array" for four sessions, and the carrier had never been able
+to do the third.
+
+#+begin_quote
+i for sure want inline entities
+#+end_quote
+
+Fixed with a structural discriminator, not a domain sniff:
+
+#+begin_src javascript
+const descriptor = (item) =>
+  is.string(item) || is.array(item) ||
+  (is.object(item) && ("rows" in item || "read" in item || "walk" in item));
+#+end_src
+
+The first draft of that predicate omitted =is.array= and would have broken the
+live mixed case at =tests/datasink.test.js:23= —
+=["dataset/literals/words", [{slug:"synthetic"}]]=. Caught by reading the
+existing gate before running it, which is the cheap half of blast-bracket doing
+its job. New gate case landed beside it.
+
+* "update teh system" was a real second implementation
+
+=systems/runtime/tests/scenarios/bench.js:201= read
+=mode.module.dataset.entities= — which the carrier stops exposing — so after
+the cutover every bench scenario would have seeded NOTHING, silently. Its own
+TODO had already named the fix ("should this call the real DATASET trait
+function?"). It does now; =seedDataset= is deleted. A parallel implementation
+of a trait is a landmine that only detonates when the trait's contract moves.
+
+* the live boot, and the census it corrected
+
+beef booted =daemon_italian= and pasted the log. Every count matched what had
+been measured offline — 111 / 44 / 1 / 55 symbols, 6535 literals, 6535 linked.
+
+The two things a log cannot show, queried read-only off the sqlite:
+
+| measured                     | value |
+|------------------------------+-------|
+| symbols total                |  2592 |
+| minted =word.lemma.*=        |  2381 |
+| authored symbols             |   211 |
+| authored carrying =LABELED=  |   211 |
+| symbols with empty =trait=   |  2381 |
+
+All 211 authored symbols carry their payload — the 156-row fix is real in the
+database, not just on disk. The 2381 empties are exactly the mint-by-reference
+lemmas, which correctly carry identity only.
+
+And 2592, not the 2591 this quest had predicted in four places. The census had
+been assembled by listing =dataset/= directories, so it counted word 111 +
+sentence 44 = 155 topology-owned and missed =topologies/conjugation=, whose
+single symbol is declared INLINE in its =.viva.js=. **A census built from
+directory listings undercounts exactly the modules that don't need a
+directory.** =orphans.symbol= is 156.
+
+* the verb belongs to the sink, not the mode
+
+#+begin_quote
+mode.drain({all: true}),? whats this function?
+there is a .drain on mode???
+since when??!!
+#+end_quote
+
+M22.4, and it exists only on a mode declaring =DATASINK= — which is nothing, so
+it exists nowhere live. Then the correction:
+
+#+begin_quote
+no .drain straight on mode.
+if then mode.datasink.drain()
+#+end_quote
+
+Possible, and the sharing hazard was worth checking before saying so:
+=Datasink= is identity-preserving (=if (input instanceof Datasink) return
+input=), so =mode.datasink= IS the module's own exported carrier — but pensieve
+deep-clones per daemon (=prototypes/pensieve.js:76=,
+=Object.create(getPrototypeOf(value))= + own-key recursion), so each daemon
+gets its own and there is no cross-daemon clobber.
+
+#+begin_quote
+can we move drain onto the prototype?
+#+end_quote
+
+No, and the reason is the seam M22.7 had just finished proving by absence.
+=drain= needs =daemon.entities=, =daemon.datamap.introspect()=,
+=mode.module.mount.dirname= and =paladin.state.scribe= — move it and
+=grep "Deno\." prototypes/*.js= stops returning nothing. The pure parts are
+already there: =strata=, =canonical=, =of=, =types=, =targets=. What's left is
+irreducibly daemon. Offered the middle option (prototype takes the per-sink
+rows→files fold, trait keeps fetch+write) and recommended against it, because
+=drain= would then name two different verbs at two altitudes.
+
+#+begin_quote
+ok not on prototype.
+fine.
+assemble in trait
+#+end_quote
+
+=datasink.drain = once=. Nine call sites, all tests and the playground.
+
+* the red that was a skip wearing green
+
+The runtime suite went 16/95/0 → 15/93/1 immediately after the rename, which
+reads exactly like a regression from the thing that just landed. It wasn't.
+=tests/aperture.snapshot.test.js= hardcodes =const DAEMON = "brazilian"= and
+guards with =alive()=, which only asks whether =:2501= answers — not whether
+the daemon it wants is mounted. Three states, two of which are indistinguishable
+from outside:
+
+| runtime | brazilian mounted | result        |
+|---------+-------------------+---------------|
+| down    | —                 | SKIPS → green |
+| up      | yes               | runs → green  |
+| up      | no                | 404 → RED     |
+
+beef's boot flipped it from state one to state three. The live variant mounts
+italian + playground. Written up in =known-issues.org= — same class as the
+=BASELINE = 39= pin: a test asserting a literal about a deployment it does not
+control. **A skip that counts as a pass makes "green" mean "verified OR not
+run", and nothing in the output separates them.**
+
+* the documentation
+
+#+begin_quote
+just document the sink. no uses now
+#+end_quote
+
+=documentation/content/30-39_architecture/35_data/35.02_dataset-and-datasink.mdx=
+— the anabolic/katabolic pair, the three-layer seam, both declaration faces,
+the drain's three pieces of runtime state and why each exists, the fixpoint,
+and a status section that says plainly that nothing declares it. Plus a
+=DATASINK= entry in =34.02_trait-catalog.mdx= and a corrected =DATASET= one;
+the catalog's count line now reads =DATASINK 0= with a sentence explaining that
+zero is literal, not a rounding error.
+
+* the sink has no provenance, and beef felt it before he could name it
+
+Asked for the italian sink and a full migration:
+
+#+begin_quote
+propsoe italian sink.
+lets say i want to migrate entirely from .js to .json for italian.
+we do that, then you validate that the data comes out 100% correct, then we trash .js
+#+end_quote
+
+then, unprompted, mid-message:
+
+#+begin_quote
+ah. shit. not possible. since the data is assembled from many modules.
+#+end_quote
+
+Right, and the mechanism is sharper than the phrase. =repo.find(sink.where)=
+queries the daemon's WHOLE dataspace and **no row records which module installed
+it**. So the italian declaration this quest had carried for four sessions is
+self-contradicting: ={traits: ["ONTOLOGICAL"]}= matches italian's 3
+=word.suffix.*= AND the 156 topology-owned symbols, while the same section
+states =orphans.symbol: 156= — a number that assumes those rows go unclaimed.
+Both cannot be true. One drain plus one reinstall and italian becomes the
+declaring owner of =topologies/word='s vocabulary, silently, with every count
+still looking plausible.
+
+Slug namespaces are the only selector that respects a package boundary, because
+a slug prefix is owned by its declaring module and a trait is a shared
+vocabulary. ={traits: ["STRUCTURAL"]}= survives only because nothing else
+mounted declares one — a fact about the deployment, not the selector.
+
+Second half of the same finding: =report.orphans= is computed from
+=repo.count({})=, also unscoped. "Orphans" means *rows on this daemon nobody
+claimed*, not *rows of mine*. Italian owns 2436 of 2592, which is exactly why
+the figure looked sane and hid the capture underneath it.
+
+That is what makes the demo NOT italian — =daemon_playground= has Symbol 0 /
+Literal 0, so it is the only daemon where the census means anything.
+
+* the verb, the prototype question, and a red that was a skip
+
+#+begin_quote
+mode.drain({all: true}),? whats this function?
+there is a .drain on mode???
+since when??!!
+#+end_quote
+
+#+begin_quote
+no .drain straight on mode.
+if then mode.datasink.drain()
+#+end_quote
+
+Checked the hazard before agreeing: =Datasink= is identity-preserving, so
+=mode.datasink= IS the module's exported carrier — but pensieve deep-clones per
+daemon (=pensieve.js:76=), so no cross-daemon clobber. Then:
+
+#+begin_quote
+can we move drain onto the prototype?
+#+end_quote
+
+No — =drain= needs =daemon.entities=, =datamap.introspect()=, =mount.dirname=
+and =paladin.state.scribe=; moving it breaks the seam M22.7 had just proved by
+absence. Its pure parts (=strata=, =canonical=, =of=, =types=, =targets=) are
+already there. Offered the middle (prototype takes rows→files, trait keeps
+fetch+write) and recommended against it: =drain= would then name two verbs at
+two altitudes.
+
+#+begin_quote
+ok not on prototype.
+fine.
+assemble in trait
+#+end_quote
+
+Immediately after the rename the runtime suite went 16/95/0 → 15/93/1, which
+reads exactly like a regression from the thing that just landed. It wasn't:
+=aperture.snapshot.test.js= pins =DAEMON = "brazilian"= and guards with
+=alive()=, which asks only whether =:2501= answers — not whether that daemon is
+mounted. beef's boot flipped it from "skips, counted green" to "404, red". Same
+family as the titleize fallback: **a mechanism that produces a plausible result
+when it fails cannot report its own failure.** Written up in
+=known-issues.org=.
+
+* the pre-benching audit
+
+#+begin_quote
+ill bench m22 for now.
+any reason i cant run the system as is now?
+any thing that used to work adn dont no more?
+#+end_quote
+
+Answered by measurement, and his own boot turned out to be the regression test —
+only =italian= + =playground= are in =testament/variant/test.viva.js=' =daemons=
+array, so nothing else was on the live path at all.
+
+ONE behavioural change: **86 of 211 symbol labels now render their authored name
+instead of a titleized slug** — the =data:= fix becoming visible. Several had
+been actively wrong: =word.possessive.yes= rendered "Yes", now "Possessive";
+=word.reflexive.no= rendered "No", now "Non-Reflexive"; =word.suffix.ar= "Ar",
+now "-ar". Diffed off the live sqlite against =titleize= as =picker.js:4=
+actually implements it, not against a guess.
+
+Checked and clean: row counts vs the DELETED aggregators (brazilian + spanish
+recovered through read-only =jj diff= — each imported exactly the 13 files
+present, so walk ≡ aggregator), zero version pins in testament, the one
+=.entities= reader fixed, zero =.schema= readers, and 211/211 authored symbols
+carrying =LABELED= in the live DB after reinstall. One honest gap: vocalized is
+not jj-tracked so its aggregator could not be recovered — and no daemon mounts
+it, so it cannot affect a run.
+
+#+begin_quote
+- Already parked by decision: Datasync, paladin.scribe as the write
+architecture, where converging with DataRepository.resolveTraits.
+mark those in the quest as trailing priority.
+#+end_quote
+
+Done, in the Deferred table.
+
+* where it stands
+
+Quest is **BENCHED** (=ill bench m22 for now=), with M22.8 added as the proposed
+demo and the three parked items marked TRAILING PRIORITY.
+
+| milestone                          | state                                  |
+|------------------------------------+----------------------------------------|
+| M22.0–M22.4, M22.7                 | APPLIED + GREEN                        |
+| M22.5 anabolic half — 9 modules    | APPLIED + GREEN, live-booted at scale  |
+| M22.5 katabolic half — sinks       | not written, by decision; its ONTOLOGICAL selector corrected in place |
+| M22.6 live boot + materialization  | install proven live; the DRAIN has not run; step 4 replaced by a decision |
+| M22.8 demo mode (playground/drainage) | PROPOSED                            |
+
+beef, on exactly that boundary:
+
+#+begin_quote
+of course there is no cata/ana with sink here, but this is great!
+#+end_quote
+
+Verification: typology 120/482/0 · runtime 16/95/0 with the runtime down (15/93/1
+with it up, the snapshot issue above) · paladin 13/49/0 with
+=--env-file=testament/variant/.env=.

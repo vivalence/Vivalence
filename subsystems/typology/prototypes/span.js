@@ -1,6 +1,10 @@
 import { Signature } from "./signature.js";
 import { Pipe } from "./pipe.js";
 
+const CONFIG = {
+  journal: 1000,
+};
+
 export class Span extends Signature {
   static tally = 0;
 
@@ -15,6 +19,10 @@ export class Span extends Signature {
 
   hasher() {
     return this.id;
+  }
+
+  from(trace) {
+    return super.from(trace, true);
   }
 
   get records() {
@@ -45,7 +53,9 @@ export class Span extends Signature {
       at: performance.now(),
     };
     if (data !== undefined) record.data = data;
-    this.records.push(record);
+    const journal = this.records;
+    journal.push(record);
+    if (journal.length > CONFIG.journal) journal.splice(0, journal.length - CONFIG.journal);
     this.pipe.send(record);
     return this;
   }

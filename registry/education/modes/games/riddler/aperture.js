@@ -19,18 +19,18 @@ export const aperture = new Vector().open(
       { role: "user", parts: [{ type: "text", text: ctx.input.message }] },
     ];
 
-    const { object } = await ctx.daemon.cortex
-      .hallucination({ tune: "eager" })
-      .output.object(hal.assistant.output)
-      .entities.turn.append(buffer.data.history)
-      .object.render();
+    const { output } = await ctx.daemon.cortex.hallucinate.object.render({
+      policy: { tune: "eager" },
+      turns: buffer.data.history,
+      output: { schema: hal.assistant.output },
+    });
 
     buffer.data.history = [
       ...buffer.data.history,
-      { role: "assistant", parts: [{ type: "text", text: object.message }] },
+      { role: "assistant", parts: [{ type: "text", text: output.object.message }] },
     ];
 
-    if (object.resolved && buffer.status !== "DONE") {
+    if (output.object.resolved && buffer.status !== "DONE") {
       buffer.status = "DONE";
       // ctx.mode.call("/assistant/evaluate", { buffer }); // @beef todo
     }
@@ -38,11 +38,11 @@ export const aperture = new Vector().open(
     await ctx.daemon.entities.em.flush();
 
     return {
-      message: object.message,
-      taunt: object.taunt,
-      hint: object.hint,
-      resolvable: object.resolvable,
-      resolved: object.resolved,
+      message: output.object.message,
+      taunt: output.object.taunt,
+      hint: output.object.hint,
+      resolvable: output.object.resolvable,
+      resolved: output.object.resolved,
     };
   },
   // )
@@ -61,10 +61,10 @@ export const aperture = new Vector().open(
   //     const literals = buffer.literals?.getItems?.() ?? buffer.literals ?? [];
   //     const dialogue = buffer.data.history.filter((turn) => turn.role !== "system");
 
-  //     const { object } = await ctx.daemon.cortex
+  //     const { output } = await ctx.daemon.cortex
   //       .hallucination({ tune: "balanced" })
   //       .context.extend("dialogue", buffer.data.history)
-  //       .output.object(hal.evaluation.output)
+  //       .output.schema(hal.evaluation.output)
   //       .entities.turn.append(
   //         {
   //           role: "system",

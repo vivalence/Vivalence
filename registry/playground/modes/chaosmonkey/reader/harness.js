@@ -13,12 +13,7 @@ const workflow = [
   "3. Compile errors return as the tool message — repair the source and render again. Never apologize, just fix.",
 ].join("\n");
 
-export const harness = new Vector()
-  .use(async (ctx, next) => {
-    ctx.hallucination.context.system([identity, workflow].join("\n\n"));
-    await next();
-  })
-  .use(async (ctx, next) => {
-    if (ctx.mode.tools) ctx.hallucination.tools.slurp(ctx.mode.tools);
-    await next();
-  });
+export const harness = new Vector().use(async (ctx, next) => {
+  ctx.hallucination.system.reader = [identity, workflow].join("\n\n");
+  await next();
+});

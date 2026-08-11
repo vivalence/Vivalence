@@ -73,7 +73,7 @@ const NOISE = (key, value) =>
 // duck-types — keep the capture tool from importing entity/routing classes.
 const isCollection = (value) => typeof value?.getItems === "function"; // MikroORM Collection
 const isPath = (value) => typeof value?.nature === "string" && Array.isArray(value?.gauges); // Path/Pattern node
-const isVector = (value) => value?.trajectories instanceof Map; // routing Vector (aperture/emitter/tools)
+const isVector = (value) => value?.trie instanceof Map; // routing Vector (aperture/emitter/tools)
 
 // the one combinator — a depth-bounded, cycle-guarded cata over an arbitrary live value.
 //   Date → ISO · BigInt → string · Collection → item ids · Path → its nature string ·

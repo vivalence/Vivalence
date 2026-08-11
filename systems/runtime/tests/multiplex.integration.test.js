@@ -50,8 +50,8 @@ specimen.describe("multiplex integration — dewey harness over one socket", () 
       parts: [{ type: "text", text: "render ping" }],
     });
 
-    specimen.expect(folded.state).toBe("complete");
-    specimen.expect(folded.message).toContain("render ping");
+    specimen.expect(folded.meta.state).toBe("complete");
+    specimen.expect(folded.output.message).toContain("render ping");
   });
 
   specimen.it("dialogue streams through one frame with full turn grammar", async () => {
@@ -112,7 +112,7 @@ specimen.describe("multiplex integration — dewey harness over one socket", () 
       thread: thread.id,
       parts: [{ type: "text", text: "before restart" }],
     });
-    specimen.expect(first.state).toBe("complete");
+    specimen.expect(first.meta.state).toBe("complete");
 
     for (const socket of world.gate.sockets) socket.close();
     world.abort.abort();
@@ -126,7 +126,7 @@ specimen.describe("multiplex integration — dewey harness over one socket", () 
     world = launch(scenario.dewey.aperture, world.port);
 
     const second = await pending;
-    specimen.expect(second.state).toBe("complete");
-    specimen.expect(second.message).toContain("after restart");
+    specimen.expect(second.meta.state).toBe("complete");
+    specimen.expect(second.output.message).toContain("after restart");
   });
 });

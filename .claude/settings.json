@@ -11,6 +11,30 @@
             "statusMessage": "vcs-guard: VCS is read-only"
           }
         ]
+      },
+      {
+        "matcher": "Write|Edit",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "\"$CLAUDE_PROJECT_DIR/.ikiro/hooks/comment-guard.sh\"",
+            "timeout": 10,
+            "statusMessage": "comment-guard: no authored comments in product source"
+          }
+        ]
+      }
+    ],
+    "PreCompact": [
+      {
+        "matcher": "manual",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "\"$CLAUDE_PROJECT_DIR/.ikiro/hooks/compact-gate.sh\"",
+            "timeout": 10,
+            "statusMessage": "compact-gate: fold the session before /compact"
+          }
+        ]
       }
     ]
   }

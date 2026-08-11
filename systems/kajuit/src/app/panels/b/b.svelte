@@ -16,9 +16,9 @@
     style:width="{rect.width}px"
     style:height="{rect.height}px">
     <div class="stack">
+      <BridgeSection />
       <LighthouseSection />
       <TerminalsSection />
-      <BridgeSection />
       <!-- <MainSection /> -->
     </div>
   </div>

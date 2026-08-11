@@ -10,7 +10,7 @@ export const pull = async (thread, args = {}) => {
     thread.trait.AIMED.mount,
     object.merge({ thread: thread.id }, thread.trait.MASKED ?? {}, args),
   );
-  const buffers = emission?.entities?.buffer ?? [];
+  const buffers = emission?.output?.buffer ?? [];
   return Promise.all(buffers.map((pojo) => thread.daemon.entities.buffer.merge(pojo)));
 };
 

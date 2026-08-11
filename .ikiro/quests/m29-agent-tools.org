@@ -1,0 +1,118 @@
+#+title: m29 — agent tools: the armory
+#+filetags: :m29:tools:skills:daemon:paladin:domain:harness:
+
+* provenance
+
+Research session (a: how effective agents are harnessed and primed · b: how to optimally
+interact/query/CRUD our entities), synthesized under fable. beef: "synthezise these two
+into a thorough update of our tools. both daemon and domain. and, bonus for any additional
+tools you might unearth on your research, setup an m29?m28? quest."
+
+m28 was taken (SKILL.md progressive disclosure). This is m29.
+
+beef's skill roadmap (standing): daemon skills LANDED · paladin skills (fs/shell) · ghost
+skills · standard-skill overrides via keyed layers.
+
+* the laws the research settled (carry into every tool built here)
+
+- tools are a CONTRACT with a non-deterministic caller, not an API wrapper. Fewer,
+  higher-leverage; ≤8 params; enums + defaults in the SCHEMA, not the prose.
+- response shaping is the biggest lever: agent-facing projection (our card: 104 B vs
+  610 B full = 5.9×), row caps + offset paging, ~10 kB byte budget with a steering
+  truncation message.
+- error strings are prompts: name the fix in the message ("unknown entity 'litreal' —
+  this daemon has: …"). Errors STAY in context (yield-lexicon dispatch already does this).
+- progressive disclosure: operator/column prose lives behind an introspection tool
+  (entity_schema), never in always-loaded valences.
+- definitions cost before anything runs: 3 MCP servers ≈ 143k/200k window; deferred
+  definitions save 20–40%; masking beats removal (cache).
+- keep the prefix stable (10× cache price); recitation beats memory for long loops.
+
+* first pass — BUILT 2026-08-14 (beef: "buuild me these now"; fs_walk renamed fs_tree, no
+process_* yet, shell_run in). All suites green post-build: typology 109 · runtime 50 (new
+=tests/skill.entity.test.js=) · kajuit 32 · paladin 16 · domain 5 · rep-o-gram 6. Beef
+follow-up mid-build: rep-o-gram gained tools too (=preset= off the PRESETS table ·
+=conjugations= w/ uses→$in resolve · =generate=) — francesca already AGENTIC, harvests
+them as =rep-o-gram_*=. "card" = the agent-facing projection, =repo.get card= +
+=cardOf()= fallback in the skill for plain-EntityRepository schemas (user). Arming seam
+(no new trait, beef): harnessed arms paladin fs/shell for any mode with
+=mode.module.mount.dirname=, root context-bound there.
+
+- =systems/runtime/daemon/skills/entity.js= — entity_schema · entity_find (card/full,
+  order, limit≤50 default 12, offset, ~10 kB budget trim) · entity_count. Kills
+  literal.js/symbol.js and the buffer/thread finds; buffer_update + thread_update stay.
+- =DataRepository.get card= (+ get extensions) — base + LiteralRepository override
+  {slug, known, learning, ontology, status; populate retentions}. Projection colocated
+  with the query verbs; tier fold already carries it (repository overrides by type).
+- =registry/education/domain/tools/{pull,review}.js= + =export { tools }= on
+  domain.viva.js — resurrects harness layer ② (dead since birth; francesca's persona
+  names pull/review which do not exist — pull.js was deleted with only index.js left
+  importing it). pull{progress|due|novel|weak} rides feed/due/novel/byStrength; review =
+  batched {literal, signal} → row.review({enum}, ctx).
+- =subsystems/paladin/skills/{fs,shell}.js= — fs walk/find/read/write (root-confined,
+  16 kB read cap + range steering) · shell run (timeout, 8 kB tail, exit code visible,
+  nonzero ≠ ERROR) · process spawn/list/kill (handle Map; spawned process owns its own
+  VIVA_PROCESS_SLUG).
+- trait wiring: new daemon trait sets =mode.skills= (context-binds root =
+  mode.module.mount.dirname, datasink precedent); harnessed arms =if (mode.skills)
+  armed.slurp(mode.skills)= between layers ② and ③.
+- loop polish: unknown-tool error in =shard/hallucinate.js= dispatch appends the armed
+  name list.
+- drift gate: francesca =tests/arms.test.js= — every tool name the persona md references
+  must be in the armed rollup.
+
+* open (first pass)
+
+- TRAIT NAME for paladin arming — PRIMED is m28's. Proposed: EMBODIED (OS hands;
+  adjective register beside HARNESSED/TOOLED/AGENTIC). Alternatives: HANDED, FIELDED.
+  beef picks.
+- write/shell gating: one trait arms all (root-confined) vs read-set default + escalation.
+- =repo.card= getter touches =DataEntity.ts= base — typology-holy-adjacent, flag on go.
+
+* candidates — the armory backlog (each = one future per-item go)
+
+** daemon
+- entity_write — generic guarded create/update/remove; per-entity allow-list; today's
+  bespoke buffer_update/thread_update fold in as overrides. Research: Postgres MCP ships
+  read-only first, promote deliberately.
+- symbol_tree — the symbol taxonomy as one nested projection (lazy vocabulary lookup —
+  the AWS V4 lesson: taxonomies load on demand).
+- retention aggregates — counts by status/ontology/symbol without loading rows (Datadog:
+  query-language-over-raw-rows made runs 40% cheaper).
+- note / memory — m27-mind's entities as tools (structured note-taking; replaces the
+  state.md hack).
+- skill({name, file?}) — m28's body-elevation tool, rides layer ①.
+- tool masking per thread — INTELLIGENT precedent: a thread trait masks (never removes —
+  cache) tool branches; Manus law.
+- tool_search / deferred definitions — arm name+one-liner only, schema on demand
+  (20–40% definition savings at our AGENTIC fan-in).
+
+** paladin
+- dataset read — paladin.find.data as a tool (the datasink drain's read half).
+- bundle — paladin.bundler invocation (build-a-view-and-report).
+- variant — mount/inspect (ops surface, likely never model-armed; ghost instead).
+
+** ghost
+- argv dispatch as a tool (Signal already tokenizes CLI flags) — the CLI-beats-MCP
+  practitioner pattern with our own dispatch.
+
+** cross-cutting
+- shape.mcp export of any daemon's armed vector (11 call sites already) — vivalence as an
+  MCP server for external agents, free.
+- programmatic tool calling — the model writes code against strip()'d vectors instead of
+  round-tripping (anthropic: −38% input tokens at 75 tools; 150k→2k framing). Needs a
+  sandboxed interpreter — far tail.
+- persona/skill frontmatter index as a STABLE system section before volatile ones (cache
+  key-order discipline, m28 crossover).
+
+* sources (the ones with numbers)
+
+anthropic writing-tools-for-agents (response_format 206→72 tok; 25k tool-result cap) ·
+anthropic context-engineering (JIT retrieval, 1–2k subagent distillation) · agent skills
+(3-level disclosure) · manus (10× cache, keep errors, recitation, mask-don't-remove) ·
+datadog mcp (CSV≈½ JSON, 5× via field trim, token-budget cursors, error-strings-as-
+prompts) · aws mcp-tool-design (six-version bakeoff, ≤8 params, V4 lazy taxonomy) ·
+swe-agent NeurIPS'24 (ACI = model-equal variable, poka-yoke) · cognition
+dont-build-multi-agents (share full traces) · HN 45954572 + 45418251 (143k/200k
+definitions; drift at 20% fill) · obra/superpowers (mandatory process gates, red-flag
+table) · chroma context-rot (18/18 models degrade with length).

@@ -13,9 +13,9 @@ export default async (ctx) => {
   );
 
   for (const literal of literals) {
-    const strong = literal.memory && !literal.memory.is.virgin && literal.memory.strength >= 0.3;
+    const strong = literal.retention && !literal.retention.is.virgin && literal.retention.strength >= 0.3;
     ctx.pool.add(
-      ctx.daemon.modes.game.listen.emit.literal({
+      ctx.daemon.modes.game["rep-o-gram"].emit.listen.literal({
         literal,
         distractors,
         gameplay: strong ? "TYPE" : "PICK",

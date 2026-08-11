@@ -1,15 +1,14 @@
-import { Freight } from "@vivalence/typology";
-import dataset from "./dataset/index.js";
+import { Dataset, Freight } from "@vivalence/typology";
 
-const manifest = {
+export const manifest = {
   type: "topography",
   slug: "english-to-italian",
   name: "Italian Vocabulary",
-  version: "0.1.0",
+  version: "0.2.0",
   traits: ["DATASET", "FRAUGHT"],
 };
 
-const freight = new Freight("freight/audio");
+export const freight = new Freight("freight/audio");
 
 // const attribution = {
 //   audio: "Not owned by the project author — sourced agentically from third-party recordings.",
@@ -17,4 +16,7 @@ const freight = new Freight("freight/audio");
 //   words: "Lingua Libre / Wikimedia Commons + Wiktionary pronunciations (CC)",
 // };
 
-export { manifest, freight, dataset };
+export const dataset = new Dataset({
+  symbol: "dataset/symbols",
+  literal: "dataset/literals",
+});

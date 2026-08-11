@@ -1,0 +1,108 @@
+#+title: m27 — mind: memory + note
+#+filetags: :m27:mind:memory:note:primed:recall:entities:
+
+* provenance
+
+Extracted from m23 II.2 on beef's order (*"for memory and note, set up an m twenty seven
+quest"*) so m23 can close. The design below is m23 II.2's, re-grounded on the m26
+contract where the two touch. Sequencing rulings from beef at extraction time:
+
+- *recall = LATER* (*"recall also later"*) — v1 is entities + write path + index projection.
+- *the instrument (m23 I) = beef-side, ongoing* (*"I'm doing that on the side"*).
+- registry drift (gather/types twins) = later, stays parked in m23 =* trailing=.
+
+* the entities
+
+=subsystems/typology/entities/userspace/= — auto-mount in every variant via =collate=.
+Both carry the disclosure split in shape: =gist= = level-1 line, =body= = level-2.
+
+- =NoteEntity {gist, body?, tags[], salience, mode?}= — SHARED semantic, daemon-holistic.
+- =MemoryEntity= = same + =user!: Rel<UserEntity>= with the default-on user ORM filter
+  (=getFilterParams("user")= machinery exists) — PER-USER semantic.
+- =mode= on both is PROVENANCE, never a fence — cross-mode read YES by default; the
+  budget is the fence.
+- Absent v1: embeddings, decay, review scheduling, visibility flags.
+
+#+begin_src javascript
+export class MemoryRepository extends DataRepository {
+  index(where = {}, { limit = 12 } = {}) {
+    return this.find(where, {
+      orderBy: { salience: "DESC", updatedAt: "DESC" },
+      limit, fields: ["id", "gist", "tags", "salience", "mode"],
+    });
+  }
+  search(query, { limit = 5, where = {}, mode = "lexical" } = {}) { /* rung 1: LIKE + tags */ }
+}
+#+end_src
+
+- *no vector embeddings v1* — 12-line index, recall-as-lookup is BM25 territory. Rungs:
+  (1) =salience DESC, updatedAt DESC= (2) FTS5 over =gist||body= (3) FTS5+vector RRF only on
+  measured failure. =string.cosine= is BIGRAM similarity — NEVER ranking.
+- *embedding trigger is a span query, not a hunch*: mark every recall ={query, mode, hits,
+  ms}=; sustained double-digit zero-hit or re-recall rate moves rungs.
+- =search()='s =why= per hit (="bm25"= / ="vector 0.83"=) rides yield AND span — retrieval
+  quality is unfalsifiable without provenance.
+
+* the m26 reframe — context injection got FREE
+
+m23 II.2 designed =mind.context()= middleware over =context.extend= ("THE HALLUCINATION
+NEEDS ZERO CHANGES"). m26 dissolved that seam: system = keyed sections on a plain record.
+
+#+begin_src javascript
+ctx.hallucination.system.memory = await daemon.entities.memory.index({ user: ctx.user });
+ctx.hallucination.system.notes  = await daemon.entities.note.index();
+#+end_src
+
+- index = STATE channel: keyed, re-derived per invocation, byte-stable unless rows changed.
+- cache-mark placement (II.2's own decision: AFTER persona + skill headers, BEFORE the
+  index) is now just KEY ORDER — stable sections first, index last. No marks machinery.
+- deterministic order + budget stay laws: the index must be cache-stable, never
+  query-dependent.
+
+* the three gates (held from II.2)
+
+#+begin_example
+admission    compile   index lines only, budgeted, deterministic order    system sections
+elevation    loop      recall/skill tools, per-call + per-session bound    LATER (beef)
+distillation persist   volatile parts → receipt at the persistence fold   LATER (with recall)
+#+end_example
+
+* milestones
+
+** M27.1 — entities + write path
+=NoteEntity= + =MemoryEntity= + repos (=index=/=search= seam, rung 1) · =note= + =remember=
+tools — layer ① territory: they belong in =shard.tools.repository='s whitelist world or as
+runtime =mind.js= verbs (=systems/runtime/daemon/tools/=; runtime because daemon.entities —
+typology stays dataspace-blind). Persist + broadcast; aprende-style reactive check.
+
+** M27.2 — index projection
+The two =system= section writes above, in the harness (base projection, beside the
+thread-buffer projection). Gate: a mode's compiled request shows =memory=/=notes= sections;
+Francesca's "Live traps" migrate out of =state.md= into memory rows.
+
+** M27.3 — MOVED to =m28-primed.org= (beef: the skilled trait deserves its own package)
+
+** LATER (beef ruled)
+=recall= + elevation ceiling (span-derived 5-recall budget) · distillation receipts
+(=volatile: true= → receipt at persistence fold) · consolidation · embeddings rungs 2/3.
+
+* the PRIMED answer (beef: "what is a skilled trait? I don't remember")
+
+skill = PROCEDURAL knowledge (note = shared semantic · memory = per-user semantic —
+the II.2 triad). Skills are FILES, not entities: =SKILL.md= + YAML frontmatter,
+three-level progressive disclosure (agentskills.io shape). PRIMED = the daemon trait
+that boot-parses frontmatter into an index and lazy-loads bodies — mirrors APPLICATION's
+path prototype. =francesca.md= is ALREADY frontmattered in this exact shape ("a skill
+wearing a persona's clothes"). Status: DESIGNED ONLY, never built — it was bundled
+inside II.2's one blast and never got a go. Nothing blocks it; it is small and
+independent, hence its own milestone here.
+
+* open
+
+- =mind.js= verbs vs =shard.tools.repository= whitelist — does =remember= ride the generic
+  =memory.update= or stay a flavored verb? (leaning flavored: salience/gist semantics)
+- salience: write-time only vs touch-on-recall (m23 II open, leaning touch-on-recall —
+  moot until recall lands)
+- =soma.test.js:178='s =memory= yield key becomes CORRECT at M27.1 (under m26 spelling:
+  =output.memory=)
+- persona-as-skill vs persona-as-section (francesca.md) — sharpened by m26 sections

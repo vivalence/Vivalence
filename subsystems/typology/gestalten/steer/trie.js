@@ -12,8 +12,8 @@ export function fold(
   frame = { carry: middleware.forward, steps: [], signal: new Signal(), signature: null },
 ) {
   const here = { ...frame, carry: descend(frame.carry, vector) };
-  const trajectories = [...vector.trajectories].map(([pattern, child]) =>
-    fold(child, step, {
+  const trajectories = [...vector.trie.values()].map(({ pattern, trajectory }) =>
+    fold(trajectory, step, {
       ...here,
       signature: pattern,
       steps: [...here.steps, pattern],

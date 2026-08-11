@@ -1,37 +1,48 @@
 <script>
   import { getContext } from "svelte";
-  import { BRIDGE, TERMINALS } from "$client";
+  import { BRIDGE, TERMINALS, build } from "$client";
+  import { belt } from "@vivalence/typology";
   import { chain, stores } from "@vivalence/kajuit";
   import Section from "./Section.svelte";
 
   const SIDES = ["top", "right", "bottom", "left"];
   const SIDE_LABELS = { top: "↥", right: "↦", bottom: "↧", left: "↤" };
   const THEMES = ["nordic", "paper"];
+  const SIZES = Object.keys(stores.bridge.FONT_SIZES);
 
   const bridge = getContext(BRIDGE);
   const terminals = getContext(TERMINALS);
   const dock = chain(terminals, "$active", "$dock");
 
-  let pincer = $state(bridge.layout.pincer);
-  let orientation = $state(bridge.layout.orientation);
-  let viewport = $state(bridge.layout.viewport);
   let g = $state(bridge.view.g);
   let h = $state(bridge.view.h);
   let snap = $state(bridge.view.snap);
   let theme = $state(bridge.view.theme);
+  let fontSize = $state(bridge.view.fontSize);
 
-  bridge.layout.$pincer.subscribe((v) => (pincer = v));
-  bridge.layout.$orientation.subscribe((v) => (orientation = v));
-  bridge.layout.$viewport.subscribe((v) => (viewport = v));
+  const age = (iso) => (iso ? belt.time.since(iso) : "—");
+
   bridge.view.$g.subscribe((v) => (g = v));
   bridge.view.$h.subscribe((v) => (h = v));
   bridge.view.$snap.subscribe((v) => (snap = v));
   bridge.view.$theme.subscribe((v) => (theme = v));
+  bridge.view.$fontSize.subscribe((v) => (fontSize = v));
 </script>
 
-<Section name="bridge" meta={`${orientation}°`}>
-  <div class="row"><span class="k">pincer</span><span class="v mono">{Math.round(pincer.x)}·{Math.round(pincer.y)}</span></div>
-  <div class="row"><span class="k">viewport</span><span class="v mono">{viewport.width}×{viewport.height}</span></div>
+<Section name="bridge" meta={build.known ? build.change : "unstamped"}>
+  <div class="row">
+    <span class="k">change</span>
+    <span class="v mono" title={build.authored ?? "no working-copy stamp"}
+      >{build.change} · {age(build.authored)}</span>
+  </div>
+  <div class="row">
+    <span class="k">commit</span>
+    <span class="v mono">{build.commit}</span>
+  </div>
+  <div class="row">
+    <span class="k">bundled</span>
+    <span class="v mono" title={build.built ?? "no build stamp"}>{age(build.built)} ago</span>
+  </div>
   <div class="actions">
     <button class="act" class:on={g} onclick={() => bridge.toggle("g")}>g</button>
     <button class="act" class:on={h} onclick={() => bridge.toggle("h")}>h</button>
@@ -47,6 +58,20 @@
         <option value={name}>{name}</option>
       {/each}
     </select>
+  </div>
+  <div class="row">
+    <span class="k">font</span>
+    <span class="size-row">
+      <input
+        class="slider"
+        type="range"
+        min="0"
+        max={SIZES.length - 1}
+        step="1"
+        value={SIZES.indexOf(fontSize)}
+        oninput={(e) => bridge.setFontSize(SIZES[Number(e.currentTarget.value)])} />
+      <span class="size-readout">{fontSize}</span>
+    </span>
   </div>
 
   {#if $dock}

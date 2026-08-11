@@ -1,5 +1,5 @@
 import { join } from "@std/path";
-import { specimen, v, Url, Connection, Cortex, Aperture, shard, shape } from "@vivalence/typology";
+import { specimen, v, Url, Connection, Cortex, Aperture, Vector, shard, shape } from "@vivalence/typology";
 import { cortex as mountCortex } from "@vivalence/runtime/daemon/aperture";
 
 const SNAPSHOTS = new URL("./snapshots", import.meta.url).pathname;
@@ -76,22 +76,20 @@ specimen.describe("cortex contract snapshot — what actually crosses the daemon
     strip = await connection.call("/metadata/cortex");
     const remote = new Cortex().register(shape.cortex.wire(connection.branch("/cortex"), strip));
 
-    const hallucination = remote.hallucination({
-      tune: "unleashed",
+    const tools = new Vector()
+      .open({ nature: "lookup" }, async (ctx) => ({ message: `${ctx.input.query} means house` }))
+      .open(
+        { nature: "grade", valence: "grades an answer", input: v.object({ score: v.number() }) },
+        async () => ({ message: "graded" }),
+      );
+    sealed = await remote.hallucinate.dialogue.render({
+      policy: { tune: "unleashed" },
+      system: { pin: "You are the wire contract pin." },
+      turns: [{ role: "user", parts: [{ type: "text", text: "casa" }] }],
+      tools,
       settings: { temperature: 0, maxTokens: 128 },
-      output: { object: v.object({ verdict: v.string() }) },
+      output: { schema: v.object({ verdict: v.string() }) },
     });
-    hallucination.context.system("You are the wire contract pin.");
-    hallucination.tools.open(
-      { nature: "lookup" },
-      async (ctx) => ({ message: `${ctx.input.query} means house` }),
-    );
-    hallucination.tools.open(
-      { nature: "grade", valence: "grades an answer", input: v.object({ score: v.number() }) },
-      async () => ({ message: "graded" }),
-    );
-    hallucination.entities.turn.append({ role: "user", parts: [{ type: "text", text: "casa" }] });
-    sealed = await hallucination.dialogue.render();
   });
 
   specimen.it("the /metadata/cortex strip payload", () => {
@@ -103,7 +101,7 @@ specimen.describe("cortex contract snapshot — what actually crosses the daemon
     specimen.expect(rounds).toHaveLength(2);
     specimen.expect(rounds[0].body.request.tools.find((tool) => tool.name === "lookup")).toEqual({ name: "lookup" });
     specimen.expect(rounds[0].body.request.tools.find((tool) => tool.name === "grade").execute).toBe(undefined);
-    specimen.expect(sealed.message).toBe("casa means house");
+    specimen.expect(sealed.output.message).toBe("casa means house");
     pin(rounds, "cortex-contract-render.snapshot.json");
   });
 });

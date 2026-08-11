@@ -8,12 +8,14 @@
   import { computed } from "nanostores";
 
   import { Connection, Url, shard } from "@vivalence/typology";
-  import { telemetry } from "$telemetry";
+  import { logger } from "$telemetry";
   import { LIGHTHOUSE, TERMINALS, BRIDGE } from "$client";
   import { stores } from "@vivalence/kajuit";
   import * as terminalEffects from "./terminals.js";
+  import * as focusEffects from "./focus.js";
 
   import Login from "./widgets/Login.svelte";
+  import Boot from "./widgets/Boot.svelte";
 
   let { children } = $props();
 
@@ -25,8 +27,8 @@
     new Url(env.PUBLIC_VIVA_LIGHTHOUSE_REMOTE),
     shard.transmitter.retry(shard.transmitter.fetcher, { maxRetries: 2 }),
   );
-  connection.use(shard.track.span((call) => call.request.url.pathname, telemetry()));
-  const lighthouse = new stores.lighthouse.Lighthouse(connection, { telemetry: telemetry() });
+  connection.use(shard.track.span((call) => call.request.url.pathname, logger.channel));
+  const lighthouse = new stores.lighthouse.Lighthouse(connection, { channel: logger.channel });
   stores.lighthouse.hydrate(lighthouse);
   setContext(LIGHTHOUSE, lighthouse);
 
@@ -37,23 +39,15 @@
   setContext(TERMINALS, terminals);
 
   if (typeof window !== "undefined") { // @beef Temporary devtools hack.
-    window.__viv = { lighthouse, terminals, bridge /*, box */ };
-    const chased = Connection.prototype.subscribe;
-    Connection.prototype.subscribe = function (endpoint, callback, options) {
-      const pathname = this.url.branch(endpoint).pathname;
-      if (pathname.includes("/entities/mode/"))
-        console.warn("[chase] mode subscriber", pathname, new Error().stack);
-      return chased.call(this, endpoint, callback, options);
-    };
+    window.__viva = { lighthouse, terminals, bridge /*, box */ };
+  }
+
+  if (import.meta.env.DEV) {
+    logger.channel.tap((record) => console.debug(record.path, record.verb, record.data ?? ""));
   }
 
   onMount(() => {
-    stores.lighthouse.boot(lighthouse).catch(console.error);
-
-    terminalEffects.hydrate({ terminals });
-
-    const unpersist = terminalEffects.persist({ terminals });
-    const unsettle = terminalEffects.settle({ terminals, lighthouse });
+    stores.lighthouse.boot(lighthouse).catch((error) => logger.entry("lighthouse").fault(error));
 
     const unsubscribeGate = computed(
       [lighthouse.$isAuthorized, lighthouse.$status],
@@ -61,24 +55,30 @@
         if (status.code === "OFFLINE") return "offline";
         if (status.code === "ERROR" || status.code === "SESSION_EXPIRED") return "error";
         if (!authorized) return "auth";
-        if (["AUTHENTICATING", "VERIFYING", "REFRESHING"].includes(status.code)) return "verifying";
+        if (status.code === "POPULATING") return "populating";
+        if (status.code !== "VERIFIED") return "verifying";
         return "ready";
       },
-    ).subscribe((value) => (gate = value));
-
-    const unsubscribePopulate = lighthouse.$isAuthorized.subscribe((authorized) => {
-      if (authorized) stores.lighthouse.populate(lighthouse).catch(console.error);
+    ).subscribe((value) => {
+      gate = value;
+      logger.entry("gate").note({ message: `gate → ${value}` });
     });
 
     const unsubscribeTerminals = terminals.$entities.subscribe((entities) => {
       terminalCount = entities.length;
     });
 
+    terminalEffects.hydrate({ terminals });
+
+    const unpersist = terminalEffects.persist({ terminals });
+    const unsettle = terminalEffects.settle({ terminals, lighthouse });
+    const unfocus = focusEffects.focus({ terminals });
+
     return () => {
+      unfocus();
       unpersist();
       unsettle();
       unsubscribeGate();
-      unsubscribePopulate();
       unsubscribeTerminals();
     };
   });
@@ -86,7 +86,7 @@
   async function onReconnect() {
     stores.lighthouse
       .boot(lighthouse)
-      .catch((error) => console.error("[lighthouse] reconnect error", error));
+      .catch((error) => logger.entry("lighthouse/reconnect").fault(error));
   }
 
   async function onLogin() {
@@ -96,7 +96,7 @@
   async function onRetry() {
     stores.lighthouse
       .boot(lighthouse)
-      .catch((error) => console.error("[lighthouse] retry error", error));
+      .catch((error) => logger.entry("lighthouse/retry").fault(error));
   }
 
   function onOpenTerminal() {
@@ -132,7 +132,7 @@
     </div>
   </div>
 {:else}
-  <div class="gate">{gate}</div>
+  <Boot {gate} />
 {/if}
 
 <style>

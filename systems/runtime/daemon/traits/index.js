@@ -1,15 +1,21 @@
 import { Freight, is, shape } from "@vivalence/typology";
+import paladin from "@vivalence/paladin";
 
 export async function stagger(mode, daemon, traits) {
   const finalizers = [];
   for (const trait of mode.traits) {
     const result = await traits[trait]?.(mode, daemon);
     if (is.fn(result)) finalizers.push(result);
+    else if (is.object(result)) {
+      if (is.fn(result.finalize)) finalizers.push(result.finalize);
+      if (is.fn(result.terminate)) (mode.terminators ??= []).push(result.terminate);
+    }
   }
   return finalizers;
 }
 
 export * from "./dataset.js";
+export * from "./datasink.js";
 export * from "./intented.js";
 export * from "./emitter.js";
 export * from "./application.js";
@@ -34,8 +40,9 @@ export const EXPOSED = (mode) => {
 };
 
 export const FRAUGHT = async (mode, daemon) => {
-  mode.freight = new Freight(mode.module.mount.dirname + mode.module.freight.path.nature);
+  const root = mode.module.mount.dirname + mode.module.freight.path.nature;
+  const files = await paladin.find.walk(/./)(root);
+  mode.freight = new Freight(root).stow(files.map((file) => file.absolute.slice(root.length + 1)));
   mode.freight.withUrl(daemon.attach.branch("/cargo").branch(daemon.mount.nature));
-  await mode.freight.index();
   mode.aperture.open("/freight", () => mode.freight.catalog);
 };

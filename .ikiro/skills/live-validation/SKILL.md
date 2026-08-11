@@ -5,7 +5,7 @@ when_to_use: "is it wired?" · "check it in the browser" · "the dock isn't show
 paths: systems/kajuit/**
 ---
 
-# live-validation
+# live-validation — "is it wired?" / "check it in the browser": kajuit change, real DOM
 
 Canon: `.ikiro/self/rituals.md ## live-validation`. Standing rules for the whole browser task, not a one-time walkthrough.
 

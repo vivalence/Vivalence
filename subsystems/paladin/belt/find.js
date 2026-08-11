@@ -34,6 +34,24 @@ export default function find(config) {
 
   const viva = walk(/\.(viva.js|viva.ts|viva.md|viva.org)$/);
 
+  const DATA = /\.(jsonc?|jsonl|js|ts|mjs)$/;
+
+  const data = async (path, depth = Infinity) => {
+    const files = (await walk(DATA)(path, depth))
+      .filter((file) => file.filename !== "index.js")
+      .sort((a, b) => (a.absolute < b.absolute ? -1 : 1));
+    const rows = await Promise.all(
+      files.map((file) =>
+        /\.jsonl$/.test(file.absolute)
+          ? config.read.jsonl(file)
+          : /\.jsonc?$/.test(file.absolute)
+            ? config.read.json(file)
+            : config.read.data(file)
+      ),
+    );
+    return rows.flat();
+  };
+
   // find + read + filter by manifest type — modules carry their source path
   const type = async (path, type, depth = Infinity) => {
     const sources = await viva(path, depth);
@@ -45,6 +63,8 @@ export default function find(config) {
 
   config.find = {
     viva,
+    walk,
+    data,
     json: walk(/\.(jsonc?|json)$/),
     read: readMany(config.read.file),
     type,

@@ -3,6 +3,11 @@ import { string, shard, Url, Request, Response, middleware, promise } from "@viv
 import { object } from "@vivalence/typology";
 import { Socket } from "./socket.js";
 
+const CONFIG = {
+  backoff: 1000,
+  ceiling: 30000,
+};
+
 export class Connection {
   $state = atom("IDLE");
   $error = atom(null);
@@ -152,7 +157,7 @@ export class Connection {
   }
 
   subscribe(endpoint, callback, options = {}) {
-    const { backoff = 1000, resumed, ...streaming } = options;
+    const { backoff = CONFIG.backoff, resumed, ...streaming } = options;
     const controller = new AbortController();
     (async () => {
       for (let attempt = 0, round = 0; !controller.signal.aborted; attempt++, round++) {
@@ -174,7 +179,7 @@ export class Connection {
           console.warn(`[probe] sse died ${this.url.branch(endpoint).pathname} — resubscribing`, error);
         }
         const gate = promise.waiter();
-        const timer = setTimeout(gate.wake, Math.min(backoff * 2 ** attempt, 30000));
+        const timer = setTimeout(gate.wake, Math.min(backoff * 2 ** attempt, CONFIG.ceiling));
         await gate.wait(controller.signal);
         clearTimeout(timer);
       }

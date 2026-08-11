@@ -8,11 +8,11 @@ export default async (ctx) => {
       ontology: "word",
       symbols: [...(ctx.input.where?.symbols ?? []), "word.part-of-speech.pronoun"],
     },
-    { populate: ["memories"] },
+    { populate: ["retentions"] },
   );
   if (!all.length) return;
 
-  const virgin = all.filter((word) => !word.memory);
+  const virgin = all.filter((word) => !word.retention);
   if (virgin.length) {
     ctx.pool.add(
       game.exhibit.emit.present({ layout: "TABLE", title: "Pronouns", literals: virgin }),
@@ -23,7 +23,7 @@ export default async (ctx) => {
   const practice = ctx.pool.section();
 
   for (const word of all) {
-    if (!word.memory || word.memory.is.virgin) {
+    if (!word.retention || word.retention.is.virgin) {
       practice.add(
         game.judge.emit.literal({
           literal: word,
@@ -32,7 +32,7 @@ export default async (ctx) => {
           speed: { rate: "SLOW" },
         }),
       );
-    } else if (word.memory.is.failed) {
+    } else if (word.retention.is.failed) {
       practice.add(
         game.judge.emit.literal({
           literal: word,
@@ -41,8 +41,8 @@ export default async (ctx) => {
           speed: { rate: "FAST" },
         }),
       );
-    } else if (word.memory.is.weak) {
-      practice.add(game.write.emit.literals({ literal: word, recall: "LEARNING" }));
+    } else if (word.retention.is.weak) {
+      practice.add(game["rep-o-gram"].emit.write.literals({ literal: word, recall: "LEARNING" }));
     }
   }
 

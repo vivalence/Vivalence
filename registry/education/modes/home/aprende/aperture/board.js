@@ -3,7 +3,7 @@ import { STATUS } from "../types.js";
 
 // the board — ONE optimized read backing the whole homepage dashboard. Every panel
 // (status bar, strength×due scatter, weakest/strongest ranks) derives from this single
-// array, so they can never disagree. One memory.find, literal + lazy strength populated.
+// array, so they can never disagree. One retention.find, literal + lazy strength populated.
 const BOARD = v.array(
   v.object({
     slug: v.string(),
@@ -22,24 +22,24 @@ export const board = new Vector().open(
   async (ctx) => {
     const DAY = 86_400_000;
     const now = Date.now();
-    // one read: every memory for this user, with the literal + the lazy strength formula
+    // one read: every retention for this user, with the literal + the lazy strength formula
     // populated so each row carries gloss + ontology + strength + due in a single pass.
-    const memories = await ctx.daemon.entities.memory.find(
+    const retentions = await ctx.daemon.entities.retention.find(
       {},
       { populate: ["strength", "literal"] },
     );
-    return memories.map((memory) => {
-      const literal = memory.literal;
+    return retentions.map((retention) => {
+      const literal = retention.literal;
       const translated = literal?.trait?.TRANSLATED ?? {};
       return {
         slug: literal?.slug ?? "",
         en: translated.known ?? "",
         pt: translated.learning ?? "",
         ontology: literal?.ontology || "word",
-        status: memory.status,
-        strength: memory.strength ?? 0,
-        nextDays: memory.nextAt ? (memory.nextAt.getTime() - now) / DAY : 0,
-        seen: memory.status !== "UNTOUCHED",
+        status: retention.status,
+        strength: retention.strength ?? 0,
+        nextDays: retention.nextAt ? (retention.nextAt.getTime() - now) / DAY : 0,
+        seen: retention.status !== "UNTOUCHED",
       };
     });
   },

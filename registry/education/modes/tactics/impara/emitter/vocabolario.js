@@ -15,13 +15,13 @@ export const vocabolario = new Vector().open(
     const words = await ctx.daemon.entities.literal.feed(ctx.input.where, {
       limit: ctx.input.limit,
       blacklist: ctx.input.blacklist,
-      populate: ["memories"],
+      populate: ["retentions"],
     });
     if (!words.length) return;
 
     const distractors = await ctx.daemon.entities.literal.feed(ctx.input.where, { limit: 30 });
 
-    const untouched = words.filter((word) => !word.memory || word.memory.is.virgin);
+    const untouched = words.filter((word) => !word.retention || word.retention.is.virgin);
     if (untouched.length) {
       ctx.pool.add(
         game.exhibit.emit.present({
@@ -37,7 +37,7 @@ export const vocabolario = new Vector().open(
     for (const word of words) {
       const vocalized = word.traits?.includes("VOCALIZED");
 
-      if (!word.memory || word.memory.is.virgin) {
+      if (!word.retention || word.retention.is.virgin) {
         practice.add(
           game.judge.emit.literal({
             literal: word,
@@ -46,7 +46,7 @@ export const vocabolario = new Vector().open(
             speed: { rate: "SLOW" },
           }),
         );
-      } else if (word.memory.is.failed) {
+      } else if (word.retention.is.failed) {
         practice.add(
           game.judge.emit.literal({
             literal: word,
@@ -57,17 +57,17 @@ export const vocabolario = new Vector().open(
         );
       } else if (vocalized && random.coinflip(0.5)) {
         practice.add(
-          game.listen.emit.literal({
+          game["rep-o-gram"].emit.listen.literal({
             literal: word,
             distractors,
-            gameplay: word.memory.is.weak ? "PICK" : "TYPE",
+            gameplay: word.retention.is.weak ? "PICK" : "TYPE",
             recall: "KNOWN",
           }),
         );
-      } else if (word.memory.is.weak) {
-        practice.add(game.pick.emit.literal({ literal: word, recall: "LEARNING" }));
+      } else if (word.retention.is.weak) {
+        practice.add(game["rep-o-gram"].emit.pick.literal({ literal: word, recall: "LEARNING" }));
       } else {
-        practice.add(game.write.emit.literals({ literal: word, recall: "LEARNING" }));
+        practice.add(game["rep-o-gram"].emit.write.literals({ literal: word, recall: "LEARNING" }));
       }
     }
 

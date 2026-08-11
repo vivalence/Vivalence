@@ -9,16 +9,15 @@ import {
   // IdentitySchema,
   // DaemonSchema,
   AuthenticatorEmbedSchema,
-  identity,
-  daemon,
-} from "@vivalence/typology/entities";
+  sets,
+} from "@vivalence/runtime";
 
 export async function systemmap(servicemask) {
   const datamap = await paladin.vip.accio(servicemask.datamap.module);
 
   // const variant = [IdentitySchema, DaemonSchema, AuthenticatorEmbedSchema]
   //   .map((schema) => ({ schema }));
-  const variant = [identity, daemon, { schema: AuthenticatorEmbedSchema }];
+  const variant = [sets.network.identity, sets.network.daemon, { schema: AuthenticatorEmbedSchema }];
 
   // const { orm, entities } = await datamap.provider(servicemask.datamap, variant);
   // return { orm, entities };

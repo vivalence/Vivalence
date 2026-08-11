@@ -1,24 +1,23 @@
+import { Dataset } from "@vivalence/typology";
+
 export const manifest = {
   type: "topology",
   slug: "conjugation",
   name: "Conjugation paradigms",
-  version: "0.1.0",
+  version: "0.2.0",
   traits: ["DATASET"],
 };
 
-export const dataset = {
-  schema: {},
-  entities: {
-    symbol: [
-      {
-        slug: "conjugation",
-        traits: ["ONTOLOGICAL", "LABELED", "TOPOGRAPHICAL"],
-        data: {
-          ONTOLOGICAL: {},
-          LABELED: { name: "Conjugation", description: "A conjugation paradigm" },
-          TOPOGRAPHICAL: {},
-        },
+export const dataset = new Dataset({
+  symbol: [
+    {
+      slug: "conjugation",
+      traits: ["ONTOLOGICAL", "LABELED", "TOPOGRAPHICAL"],
+      trait: {
+        ONTOLOGICAL: {},
+        LABELED: { name: "Conjugation", description: "A conjugation paradigm" },
+        TOPOGRAPHICAL: {},
       },
-    ],
-  },
-};
+    },
+  ],
+});

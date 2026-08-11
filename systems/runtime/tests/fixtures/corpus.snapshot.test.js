@@ -13,7 +13,7 @@ const bySlug = (rows) => [...rows].sort((a, b) => a.slug.localeCompare(b.slug));
 async function project(entities) {
   const literals = await entities.literal.find({}, { populate: ["symbols"] });
   const symbols = await entities.symbol.findAll();
-  const memories = await entities.memory.find({}, { populate: ["literal"] });
+  const retentions = await entities.retention.find({}, { populate: ["literal"] });
   const traces = await entities.trace.find({}, { populate: ["literal"] });
   const modes = await entities.mode.findAll();
   const intents = await entities.intent.findAll();
@@ -33,9 +33,9 @@ async function project(entities) {
       traits: symbol.traits,
       trait: symbol.trait,
     })),
-    memories: [...memories]
+    retentions: [...retentions]
       .sort((a, b) => a.status.localeCompare(b.status))
-      .map((memory) => ({ status: memory.status, literal: memory.literal.slug })),
+      .map((retention) => ({ status: retention.status, literal: retention.literal.slug })),
     traces: [...traces]
       .sort((a, b) => a.status.localeCompare(b.status))
       .map((trace) => ({ status: trace.status, signal: trace.signal, literal: trace.literal.slug })),

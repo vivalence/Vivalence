@@ -1,6 +1,6 @@
 import { specimen, Vector, Span, NotFound, shard, steer } from "@vivalence/typology";
 
-const { state, deliver, dispatch, session, render, signalOf, nameOf } = shard.hallucinate;
+const { state, deliver, dispatch, respond, render, signalOf, nameOf } = shard.hallucinate;
 
 function userTurn(text) {
   return { role: "user", parts: [{ type: "text", text }] };
@@ -146,7 +146,7 @@ specimen.describe("shard.hallucinate", () => {
       const span = new Span("/test");
       const settled = await dispatch(tools, [{ type: "tool_use", id: "u1", name: "lookup", input: { query: "casa" } }], span);
       specimen.expect(settled).toHaveLength(1);
-      specimen.expect(settled[0].result.message).toBe("casa means house");
+      specimen.expect(settled[0].result.output.message).toBe("casa means house");
       specimen.expect(settled[0].result.condition).toBe("NOMINAL");
     });
 
@@ -155,7 +155,7 @@ specimen.describe("shard.hallucinate", () => {
       const span = new Span("/test");
       const settled = await dispatch(tools, [{ type: "tool_use", id: "u1", name: "ghost", input: {} }], span);
       specimen.expect(settled[0].result.condition).toBe("ERROR");
-      specimen.expect(settled[0].result.message.error).toContain("ghost");
+      specimen.expect(settled[0].result.output.message.error).toContain("ghost");
     });
 
     specimen.it("runs parallel tool calls", async () => {
@@ -171,7 +171,7 @@ specimen.describe("shard.hallucinate", () => {
         ],
         span,
       );
-      specimen.expect(settled.map((s) => s.result.message)).toEqual(["A", "B"]);
+      specimen.expect(settled.map((entry) => entry.result.output.message)).toEqual(["A", "B"]);
     });
 
     specimen.it("marks a span branch per tool", async () => {
@@ -184,16 +184,16 @@ specimen.describe("shard.hallucinate", () => {
     });
   });
 
-  specimen.describe("session", () => {
-    specimen.it("emits open→close for a complete render, exactly one /session/close", async () => {
+  specimen.describe("respond", () => {
+    specimen.it("emits open→close for a complete render, exactly one /response/close", async () => {
       const { faculty } = scriptedFaculty([sealed("hello")]);
       const events = [];
-      for await (const event of session(faculty, "render", { turns: [userTurn("hi")] }, { rounds: 5, backoff: [], tools: new Vector() }))
+      for await (const event of respond(faculty, "render", { turns: [userTurn("hi")] }, { rounds: 5, backoff: [], tools: new Vector() }))
         events.push(event);
-      const closes = events.filter((event) => event.event === "/session/close");
+      const closes = events.filter((event) => event.event === "/response/close");
       specimen.expect(closes).toHaveLength(1);
-      specimen.expect(closes[0].state).toBe("complete");
-      specimen.expect(closes[0].rounds).toBe(1);
+      specimen.expect(closes[0].meta.state).toBe("complete");
+      specimen.expect(closes[0].meta.rounds).toBe(1);
     });
 
     specimen.it("runs a tool round: call→yield→turn/full then closes complete", async () => {
@@ -203,12 +203,12 @@ specimen.describe("shard.hallucinate", () => {
       ]);
       const tools = toolVector("lookup", async () => ({ message: "house" }));
       const events = [];
-      for await (const event of session(faculty, "render", { turns: [userTurn("what is casa")] }, { rounds: 5, backoff: [], tools }))
+      for await (const event of respond(faculty, "render", { turns: [userTurn("what is casa")] }, { rounds: 5, backoff: [], tools }))
         events.push(event.event);
       specimen.expect(events).toContain("/tool/call");
       specimen.expect(events).toContain("/tool/yield");
       specimen.expect(events).toContain("/turn/full");
-      specimen.expect(events.at(-1)).toBe("/session/close");
+      specimen.expect(events.at(-1)).toBe("/response/close");
     });
 
     specimen.it("closes length when the loop never settles", async () => {
@@ -219,10 +219,10 @@ specimen.describe("shard.hallucinate", () => {
       ]);
       const tools = toolVector("loop", async () => "again");
       let close = null;
-      for await (const event of session(faculty, "render", { turns: [userTurn("go")] }, { rounds: 2, backoff: [], tools }))
-        if (event.event === "/session/close") close = event;
-      specimen.expect(close.state).toBe("length");
-      specimen.expect(close.rounds).toBe(2);
+      for await (const event of respond(faculty, "render", { turns: [userTurn("go")] }, { rounds: 2, backoff: [], tools }))
+        if (event.event === "/response/close") close = event;
+      specimen.expect(close.meta.state).toBe("length");
+      specimen.expect(close.meta.rounds).toBe(2);
     });
 
     specimen.it("closes error when the faculty faults unrecoverably", async () => {
@@ -235,27 +235,27 @@ specimen.describe("shard.hallucinate", () => {
         },
       };
       let close = null;
-      for await (const event of session(faculty, "render", { turns: [userTurn("hi")] }, { rounds: 3, backoff: [], tools: new Vector() }))
-        if (event.event === "/session/close") close = event;
-      specimen.expect(close.state).toBe("error");
+      for await (const event of respond(faculty, "render", { turns: [userTurn("hi")] }, { rounds: 3, backoff: [], tools: new Vector() }))
+        if (event.event === "/response/close") close = event;
+      specimen.expect(close.meta.state).toBe("error");
     });
   });
 
   specimen.describe("render", () => {
-    specimen.it("folds the session into a yield object", async () => {
+    specimen.it("folds the response into a yield object", async () => {
       const { faculty } = scriptedFaculty([
         toolTurn("u1", "lookup", { query: "casa" }),
         sealed("casa means house"),
       ]);
-      const tools = toolVector("lookup", async () => ({ message: "house", entities: { buffer: [{ id: "b1" }] } }));
+      const tools = toolVector("lookup", async () => ({ message: "house", buffer: [{ id: "b1" }] }));
       const folded = await render(faculty, { turns: [userTurn("what is casa")] }, { rounds: 5, backoff: [], tools });
-      specimen.expect(folded.state).toBe("complete");
-      specimen.expect(folded.message).toBe("casa means house");
-      specimen.expect(folded.entities.buffer).toHaveLength(1);
+      specimen.expect(folded.meta.state).toBe("complete");
+      specimen.expect(folded.output.message).toBe("casa means house");
+      specimen.expect(folded.output.buffer).toHaveLength(1);
       specimen.expect(folded.turns.length).toBe(3);
     });
 
-    specimen.it("throws when the session closes non-complete", async () => {
+    specimen.it("throws when the response closes non-complete", async () => {
       const faculty = { type: "dialogue", via: { render: async () => { throw new Error("down"); } } };
       let thrown = null;
       try {

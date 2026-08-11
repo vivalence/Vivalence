@@ -51,9 +51,13 @@
     const unsubscribeTheme = bridge.view.$theme.subscribe(
       (theme) => (document.documentElement.dataset.theme = theme),
     );
+    const unsubscribeFontSize = bridge.view.$fontSize.subscribe(
+      (name) => (document.documentElement.style.fontSize = stores.bridge.FONT_SIZES[name] ?? "16px"),
+    );
     const detachViewport = stores.bridge.attachViewport(bridge);
     return () => {
       unsubscribeTheme();
+      unsubscribeFontSize();
       detachViewport();
     };
   });

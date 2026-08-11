@@ -1,73 +1,250 @@
-#+title: m23 — debuggable hallucinations
-#+subtitle: the loop becomes legible — one devtool channel, one loading law, and a tutor that reviews what you actually said
+#+TITLE: m23 — debuggable hallucinations
+#+SUBTITLE: three movements — an instrument that shows the loop, a context worth showing, and a tutor whose state stops being hand-written
+#+METHOD: ikiro/quest
+#+STATUS: OPEN — III.1 + III.2 WRITTEN (patch in hand, UNVERIFIED — no deno in the authoring env). Movements I and II designed, unstarted.
+#+BASELINE: trunk @ a290e266 (421)
+#+DATE: 2026-08-11
 
-* law
+* the arc
 
-Two laws carry the whole quest.
+Three movements, semi-independent, one subject.
 
-*ONE DEVTOOL CHANNEL.* Every question about what the system did — what went into a provider, what came out, which tools fired, how long, how much, what entered context — is answered by the *span*. No inspector endpoints, no debug leaves, no parallel introspection surface. If a fact is worth seeing, it is span-marked; if it is span-marked it reaches =$telemetry= for free. The existing =Span=→=Pipe=→=trace.chronicle=→panel g spine is built and unused; m23 is the quest where we *start using it*.
+*I — THE INSTRUMENT.* The loop becomes legible and steerable. Almost everything needed is already on the wire and discarded at the view; the rest is response data one provider drops on the floor. Nothing here changes what the system DOES.
 
-*NOTHING UNBOUNDED ENTERS AT COMPILE TIME.* Turns, system, tools are already bounded by the request. Everything m23 adds — notes, memory, skills — enters as an *index line*, never a body. Bodies are elevated by the agent through a tool, and *distilled back to a receipt* at persist time. Three gates: admission (compile) · elevation (loop) · distillation (persist). The context explosion is not the index; it is the recalled body that rides every subsequent request forever.
+*II — THE CONTEXT.* What the instrument shows becomes worth showing. Notes, memory and skills enter the hallucination under one loading law, and =Memory= is vacated in the education domain to make room.
 
-Corollary to the placement law (m20): the hallucination still compiles only what it is handed. Notes/memory/skills are harness concerns. The provider still translates ONE request; usage, model, and cost are *response* facts and ride =meta=, never the Faculty.
+*III — THE SUBJECT.* Francesca EXISTS (landed at 420) and her learner state is a *hand-maintained markdown file*. Movement III makes it derived. The domain becomes the root of every agent in the daemon. *Started — see the status section.*
 
-* decided
+Movement I ships alone and is worth shipping alone. II and III share one prerequisite (blast 0, folded into III.1's patch). III's tools were written against =entities.memory= deliberately, so the rename does not gate the tutor.
 
-- *=Memory= → =Retention=* (education domain, the SRS mastery row) — vacates the name. beef picked =Retention= from 30; the anatomical register was rejected wholesale. The new per-user agent memory takes =Memory=. =Engram= REJECTED.
-- *no vector embeddings in v1.* The index is 12 lines and recall is lookup — the regime where BM25 wins and dense loses. Build the =search(query, {mode})= seam now, implement =lexical=. Rungs: (1) =salience DESC, updatedAt DESC= (2) FTS5 over =gist||body= (3) FTS5+vector RRF, only on measured failure. =string.cosine= is BIGRAM similarity — NEVER wire it into ranking.
-- *the embedding trigger is a span query, not a hunch*: mark every recall ={query, mode, hits, ms}=; sustained double-digit *zero-hit rate* or *re-recall rate* (immediate second recall, rephrased — the model's own miss signal) moves us to rung 2/3.
-- *pricing rides the response, never the Faculty.* =meta.cost= minted in the provider wrapper off the model table + =usage=. Session totals are a SYSTEM fold (=soma.transcript=) because they span requests.
-- *no new introspection packets beyond fixing dropped response data.* =message_start= carries =model= + input/cache tokens and =translateStreamEvent= throws them away — that is a bug, not a feature request. No =/session/open=, no =inspect= leaf (both proposed, both CUT: the span already answers them).
-- *note = shared semantic · memory = per-user semantic · skill = procedural.* Notes are daemon-holistic; memory carries the =user= ORM filter (free scoping, the =getFilterParams("user")= machinery already exists). =mode= on both is PROVENANCE, never a fence — cross-mode read is YES by default, because the budget is the fence.
-- *skills are files, not entities.* SKILL.md + YAML frontmatter, three-level progressive disclosure (name+description always · body on demand · referenced files on demand), per agentskills.io. A mode that is only =SKILLED= + a skills folder is a *carrier* other modes reference by =@owner/slug=.
-- *ONE tool signature holds* (m20 convergence): =(context) => yield=. The mind tools and the domain tools are ordinary Vectors, slurped by traits.
-- *the domain ships a TRAIT, not new mounting machinery.* =die.variant.traits = {...traits, ...die.domain.traits}= already exists (=population.js:27=) — education exports =EDUCATED=, modes opt in from the manifest.
-- *cache-mark placement*: mark AFTER persona + skill headers, BEFORE the memory/note index. Persona and skills are stable and stay cached; the index churns on every write but is ~500 tokens. Marking the index busts the head cache on every =remember=.
-- deferred: async memory consolidation (background distillation from transcripts) · =note=/=memory= bodies as FILES instead of TEXT (rejected for v1: loses ORM, user filter, reactive broadcast) · embeddings as a fifth cortex Faculty type =embedding= with =via.render(texts)→vectors= (designed, not built).
+* laws
 
-* the three gates
+*ONE DEVTOOL CHANNEL* (I). Every question about what the system did — what went into a provider, what came out, which tools fired, how long, how much, what entered context — is answered by the *span*. No inspector endpoints, no debug leaves, no parallel introspection surface. If a fact is worth seeing it is span-marked; if it is span-marked it reaches the client for free. The =Span=→=Pipe=→=trace.chronicle=→panel g spine is BUILT and UNUSED (beef: *"i dont use them at all rn"*); m23 is where we start using it.
 
-#+begin_example
-admission    compile   index lines only, budgeted, deterministic order    mind.context()
-elevation    loop      recall/skill tools, per-call + per-session bound    5-recall ceiling
-distillation persist   volatile parts → receipt at the persistence fold    2KB → 60 chars
-#+end_example
+*NOTHING UNBOUNDED ENTERS AT COMPILE TIME* (II). Turns, system and tools are bounded by the request. Everything m23 adds enters as an *index line*, never a body. Bodies are elevated by the agent through a tool and *distilled back to a receipt* at persist time. The context explosion is not the index; it is the recalled body that rides every subsequent request forever.
 
-The receipt matters as much as the eviction: next request the model sees it *already looked* and roughly what it found, so it does not re-pull. Re-recall costs one round and the index is right there.
+*THE DOMAIN IS THE ROOT OF ALL AGENTS* (III). beef: *"the domain is kind of the roots of all of the other agents."* Whatever the domain exports injects BETWEEN the daemon base and the mode module. No dedicated trait — the standard daemon traits carry it.
 
-* blast 0 — RETENTION (the rename; prerequisite) — plan
+Carried from m20, unchanged: the provider translates ONE request, the system folds what spans requests; the hallucination compiles only what it is handed.
 
-Blast surface measured: 266 raw hits, *11 live files* (the rest is =bak/=).
+* baseline — what landed at 420–421
 
-Map: =MemoryEntity→RetentionEntity= · =MemorySchema→RetentionSchema= · =MemoryDriverEnum/StatusEnum/TypeEnum→Retention*= · =type:"memory"→"retention"= · =entities.memory→entities.retention= · =domain/entities/userspace/Memory.ts→Retention.ts= · =domain/memory/→domain/retention/=
+Diffed =b660921a= (419) → =a290e266= (421). Everything below is CURRENT, not remembered:
 
-Files: =domain/entities/userspace/{Memory.ts,Trace.ts}= (Trace holds the FK + =fieldName="memory"=) · =domain/entities/index.js= (barrel) · =domain/entities/kernel/{Literal,Symbol,Todoliteral}.ts= · =domain/aperture/index.js= (the =resolve()= reactive mount) · =modes/home/aprende/{gather.js,aperture/board.js,buffer/Aprende.svelte}= · =systems/runtime/tests/fixtures/corpus.snapshot.test.js=
+- *Francesca is real.* =registry/education/modes/teacher/francesca/= — mode type =teacher=, traits =["CONVERSATIONAL","HARNESSED"]=, harness = =configure({tune:"fast"}).context.system(francesca, state)=. =francesca.md= is a developed drill methodology (isolate→distinguish→integrate · correction format · cold ambush · fatigue-is-not-a-gap). =state.md= is the live learner state, WRITTEN BY HAND.
+- *beef already sketched the tool.* Commented in =francesca.viva.js=: a =tools= Vector with =/learner/state= valence — "Read the learner's overall progress histogram, weakest items, recent reviews, due items, and recent mistakes" — over =gather(ctx)=. That IS =pull=.
+- *=CONVERSATIONAL= is not a live trait* — zero implementations in =daemon/traits/=. Francesca declares it; =stagger= no-ops.
+- *=hallucination.context.system(...supplied)= is now VARIADIC* — flattens, =string.stringify=s, joins with a blank line, stores under ONE key =system=. Consequence for I.3: persona and state arrive pre-merged.
+- *Second provider: =@viva/hallucinator/openrouter=*, live in the education daemon, ALREADY minting =meta.usage= + =meta.provider.model= on render AND stream. I.2 is anthropic catch-up, not new ground.
+- *=Tier= gained =fast=* (=[0.4,0.3,1.0,0.8]=); six tiers with =eager=. Francesca rides =fast=.
+- *TOOLED carried a commented-out ambient bind* — beef already tried blast 0 on =mode.tools=. It works: =Vector.slurp= does =carry.push(...vector.carry)=, so middleware survives the slurp.
+- *=tactics/impara= is new* — Italian course in three buckets (vocabolario · grammatica · frasi), each a thread with =LABELED/MASKED/AIMED/QUEUEING= and its own emitter over =literal.feed=.
+- *Neither francesca nor impara was in the localhost education kernel.* Unmounted.
+- *Dock consumer UNCHANGED in shape* — =Dock.svelte:62= still =for await (const turn of soma.scan(…))=, turns only. I.1 holds verbatim.
+- *=registry/education/domain= untouched by 420–421.* The Retention rename surface holds as measured.
+- *Adjacent*: =m22-datasink= (daemon entities → registry files) — =state.md= is precisely a drain target.
 
-DO NOT TOUCH: =subsystems/typology/tests/gestalten/soma.test.js= — its =entities:{memory:[…]}= is a yield-bucket key that becomes CORRECT once the new Memory lands. =MASTERY= in riddler/=types.js= is the signal enum, unrelated.
+* STATUS — WOUND DOWN (beef: "we can move on from m twenty three to m twenty six")
 
-*HAZARD*: =libsql.viva.js= runs =checkMigrationNeeded()=→=createMigration()=→=up()= at boot. Rename the entities and boot, and the migrator autogenerates drop-and-recreate. *Hand-write the migration BEFORE the first boot:*
+Where everything went:
+- *III (domain root + francesca)* — LANDED, live on the italian daemon. Domain tools enter
+  at the HARNESS only (=tooled.js=/=harnessed.js=, landed in the retention session).
+- *II.1 (Retention rename)* — LANDED, 70 files, FK rebuild, 7 suites green.
+- *II.2 (MIND: memory + note + PRIMED)* — EXTRACTED to =m27-mind.org= (beef's order).
+  recall/elevation/distillation = LATER inside m27.
+- *I (the instrument)* — beef-side, ongoing (*"I'm doing that on the side"*). The m26
+  request-as-plain-record gives I.3 fork B (keyed sections — B won) and "copy as
+  reproduction" nearly free.
+- *the domain tool rebuild* — SUBSUMED into m26's =shard.tools.repository= library
+  (layer ②); the condemned =domain/tools/*= + =educate()= die in the m26 sweep.
+- *=* trailing= drift* (gather/types twins, false ontology ruling) — stays parked here,
+  beef: later.
 
-#+begin_src sql
-ALTER TABLE `Memory` RENAME TO `Retention`;
-ALTER TABLE `Trace` RENAME COLUMN `memory` TO `retention`;
+The block below is the historical III status, kept for the record:
+
+Patch in hand, applied to a clone, *not run* — no deno in the authoring environment. Nothing here is test-green. Treat as a diff to bracket, not a landing.
+
+*Modified (12)*: =daemon/lifecycle/population.js= · =daemon/traits/harnessed.js= · =daemon/traits/tooled.js= · =domain/domain.viva.js= · aprende ×5 (import repoints) · =francesca.{viva.js,md}= · =variant/localhost/education.js=
+*Moved (2)*: =aprende/types.js= → =domain/types.js= · =aprende/gather.js= → =domain/gather.js=
+*New (8)*: =domain/{educate,harness}.js= · =domain/tools/{pull,review,index}.js= · =francesca/harness.js= · =francesca/tools/{drill,index}.js=
+
+*Decisions taken while writing, worth knowing*:
+- =gather.js= was ALREADY the learner report with TTL cache + inflight dedupe. Hoisted rather than reimplemented, so =pull(progress)= and =educate()='s pulse share one implementation — and the per-request pulse cost is memoized 60s per user, which answers the concern parked in =open=.
+- Tools written against =entities.memory=, NOT =entities.retention=. II.1's =perl= sweep catches them for free, and a working tutor stays decoupled from a DB migration.
+- Francesca does NOT get =EMITTER= — she owns no emitter; impara's is self-contained (mints its own Pool, drains, thread-binds, flushes), so delegation needs nothing on her side.
+- ONE =drill {bucket, count, symbols}= over impara's three emitters rather than three tools — total wire surface stays at three declarations.
+- =CONVERSATIONAL= dropped from her manifest.
+
+*Unverified assumptions — first boot answers these*:
+1. =ctx.user= on the tool path. =literal.review= needs =ctx.user.id=; it should arrive via the aperture's =authorize()=, but the direct =mode.harness= call path bypasses that.
+2. =ctx.daemon.modes.tactic?.impara= — assumes =daemon.modes[type][slug]= with singular type. Matches impara's manifest and vocabolario's =modes.game=, but unexecuted. Optional chain degrades to a clean ERROR yield.
+3. =repo.sample(where, {status:[…]})= for =pull(ask:"status")= — signature read, not run.
+
+*Live behaviour change on first boot*: aprende and nyan also declare =TOOLED=, so they inherit =pull=/=review= immediately, and aprende inherits the doctrine via =HARNESSED=. Intended — that is what root means — but it is two working modes changing at once.
+
+* III — THE SUBJECT
+
+** the reframe
+
+Francesca shipped at 420 with a hand-maintained =state.md=. Movement III does not build a tutor — it makes her state *derived*. Read her own instruction:
+
+#+begin_quote
+Read =STATE.md= first. It holds the live weak set, the standing traps, and where the roadmap stands. Update it before the session ends.
+#+end_quote
+
+Every line of that file is something the dataspace already knows or should:
+
+| =state.md= section    | becomes                                                     |
+|-----------------------+-------------------------------------------------------------|
+| "Open with this" (10) | =pull(due)= — scheduled retrievals, live                    |
+| Solid                 | =pull(progress)= — counts by status, GRADUATED set          |
+| Live traps            | =memory= entities (II.2) — per-user gist + body + salience  |
+| Roadmap position      | =memory= entity, or an impara bucket phase                  |
+| Session outcomes      | =review= — retention evolve + Trace, per exercised literal  |
+
+The file does not vanish on day one. The ladder: tools land → doctrine prefers tools over the file → the file shrinks to what tools cannot answer → it becomes an m22 drain artifact, or dies.
+
+** decided
+
+- *the domain injects BETWEEN daemon and mode.* HARNESSED slurps =daemon.domain.harness= before =mode.module.harness= (onion: daemon binds → domain → mode → leaves); TOOLED slurps =daemon.domain.tools= before =mode.module.tools= (mode shadows by nature — singular-effect overwrite); domain aperture already slurps into the daemon aperture at =resolution.domain()=. EDUCATED trait REJECTED (beef).
+- *unconditional*, for every HARNESSED/TOOLED mode in the daemon. That is what "root" means; shadowing is the escape hatch.
+- LAW: *the domain harness may extend context and tools; it may never open leaves or rewrite avenues* — leaves are HARNESSED's contract.
+- *=review= is BATCH*, =pull= is FACETED. A sentence exercises several literals, so per-literal review calls would burn the round budget.
+- *creation and update are the same path* — =literal.review= mints the memory when absent, evolves when present; the drivers own state, no direct status writes.
+- *ontology IS a symbol* (word · sentence · conjugation — the column is empty, per the aprende-launcher finding). So =pull= carries =symbols= only; no redundant =ontology= param.
+
+** blast III.1 — THE DOMAIN ROOT + TOOLS — WRITTEN
+
+*Runtime, three lines*:
+
+#+begin_src javascript
+// lifecycle/population.js — beside the die.domain cast
+die.good.domain = die.domain;
+
+// traits/harnessed.js — before the module slurp; and beside the thread bind
+if (daemon.domain?.harness) harness.slurp(daemon.domain.harness);
+if (ctx.user) hallucination.tools.use(shard.context.bind("user", ctx.user));
+
+// traits/tooled.js — beef's commented version, plus the domain root
+export const TOOLED = (mode, daemon) => {
+  mode.tools.use(shard.context.bind("daemon", daemon));
+  mode.tools.use(shard.context.bind("mode", mode));
+  if (daemon.domain?.tools) mode.tools.slurp(daemon.domain.tools);
+  if (mode.module.tools) mode.tools.slurp(mode.module.tools);
+};
 #+end_src
 
-#+begin_src bash
-deno test -A --no-check --ignore='**/bak/**'
-git mv registry/education/domain/entities/userspace/Memory.ts registry/education/domain/entities/userspace/Retention.ts
-git mv registry/education/domain/memory registry/education/domain/retention
-rg -l 'MemoryEntity|MemorySchema|MemoryDriverEnum|MemoryStatusEnum|MemoryTypeEnum' -g '!**/bak/**' \
-  | xargs perl -pi -e 's/\bMemory(Entity|Schema|DriverEnum|StatusEnum|TypeEnum)\b/Retention$1/g'
-deno test -A --no-check --ignore='**/bak/**'
+The ambient bind splits by LIFETIME: =daemon=/=mode= are stable per mode → TOOLED at trait time; =user=/=thread= are request-scoped → HARNESSED at request time. (This is blast 0 from the earlier draft, folded in.)
+
+*Hoists*: =aprende/types.js= → =domain/types.js= (=STATUS=/=SIGNAL= are domain scales), =aprende/gather.js= → =domain/gather.js= (the learner report). Five aprende import sites repointed.
+
+*=domain/tools/pull.js=* — faceted read, one wire name. =ask ∈ resolve|due|feed|novel|weakest|status|progress=, filtered by =symbols= (ANDed via =repo.constrain=) and =limit=. =resolve= runs =repo.search= over slug + both TRANSLATED faces. =progress= delegates to =gather=. Yields message lines + =entities.literal= + =object= slugs. The valence is a block: one line per facet, plus "always pull before planning an exercise — work with real items, never remembered ones" and "if nothing matches, the word is not in the corpus: say so, never invent a slug."
+
+*=domain/tools/review.js=* — batch write, 1–10 per call, per-item bounce (unknown slug reported inline, rest proceed). The valence carries the SIGNAL boundary table inline (MASTERY effortless+fast · SUCCESS correct · NEUTRAL shown/skipped · MISTAKE wrong-but-close · FAILURE blank-or-wrong) plus the behavioural rules: one call per exchange, never the same literal twice, never plain conversation. Yields per-line ==`${slug} ${signal} → ${status}, next ${date}`== + =entities.memory=.
+
+*=domain/educate.js=* — the doctrine middleware. Extends two context sections: =education= (vocabulary literal/symbol/memory · the acquisition ladder · the three-step working order: pull before planning, resolve when uncertain, review once at the end) and =learner= (=gather(ctx).toPrompt()=, the live pulse). Bounded, cache-stable prose — what makes the tools *harnessed* rather than merely declared.
+
+*=domain/harness.js=* — =new Vector().use(educate())=. USE-ONLY, per the law.
+
+*=domain.viva.js=* gains =types=, =gather=, =tools=, =harness=, =educate= exports. The =Domain= primitive is =additionalProperties: true=, so zero schema work.
+
+*Documentation, two levels*: level 1 = the valences (dense, BEHAVIOURAL — when, not just what; self-describing even in a mode without the doctrine). Level 2 = the doctrine section, and later =domain/skills/tutoring/SKILL.md= via II.2's PRIMED.
+
+*Tests, not yet written*: each tool through =steer.dispatch.invoke= against a seeded datamap — pull facets · resolve hit/miss · review batch minting memory+trace · unknown-literal inline bounce · domain-daemon boots with the layered harness · slim daemon unaffected (=daemon.domain?.x= no-ops) · mode-shadows-domain-by-nature.
+
+*FLAGGED, unfixed*: =pull(resolve)= is =$like= over slug + both TRANSLATED faces — blind to conjugations ("mangiato" will not find "mangiare"). =LiteralRepository.conjugated()= exists and returns paradigm slugs; wiring it into =search= is the fix. Francesca drills conjugation paradigms as core content, so this is not optional for her.
+
+** blast III.2 — FRANCESCA REWIRED — WRITTEN
+
+*Manifest*: =["CONVERSATIONAL","HARNESSED"]= → =["HARNESSED","TOOLED"]=. =CONVERSATIONAL= is dead vocabulary. =EMITTER= deliberately absent — she owns no emitter and impara's is self-contained.
+
+*=harness.js=* (extracted from the manifest): =configure({tune:"fast"})= kept as her DEFAULT + =context.system(francesca, state)=, then =tools.slurp(ctx.mode.tools)=. The domain's =educate()= runs BEFORE her middleware, so =francesca.md= can lean on doctrine already in context. NO domain imports in the mode — =pull=/=review= arrive from the root.
+
+*=tools/drill.js=* — one tool over impara's three emitters:
+
+#+begin_src javascript
+const BUCKETS = {
+  vocabolario: { symbols: ["word"], noun: "parole" },
+  grammatica:  { symbols: ["conjugation"], noun: "coniugazioni" },
+  frasi:       { symbols: ["sentence"], noun: "frasi" },
+};
+
+const impara = ctx.daemon.modes.tactic?.impara;
+if (!impara) return { condition: "ERROR", message: "the impara course is not mounted" };
+
+const emission = await impara.emit[bucket]({
+  where: { symbols: [...BUCKETS[bucket].symbols, ...(symbols ?? [])] },
+  limit: count,
+  thread: ctx.thread,
+});
 #+end_src
 
-Then by hand: barrel key · =type:"retention"= · Trace =fieldName= · local =memories=/=memory= identifiers in gather.js + the snapshot fixture (cosmetic, but rename or the next reader misparses). Also hoist =modes/home/aprende/types.js= → =domain/types.js= (=STATUS=/=SIGNAL= are domain scales; aprende re-imports) — blast 7 needs them there.
+The valence names the three buckets, tells her to pull first, and carries her own methodology back at her: "keep count small for fresh material — two or three items in tight rotation, not nine." ZERO new buffer machinery — impara's EMITTER Pool drains, buffers thread-bind + index, reactive subscription → =thread.$buffers= → panel f → =activateBuffer= → stall renders.
 
-Gate: full suites green · =rg 'entities\.memory'= zero · boot :2501 with the hand migration · aprende board renders.
+*=francesca.md=*, two edits only. Frontmatter: "Read STATE.md before the first prompt" → "Call pull(progress) and pull(due) before the first prompt, and review every exercised item at the end." Body: the STATE.md paragraph becomes three — pull is live and comes from actual review history not a file; review is what makes the next session's pull correct ("an exchange you do not review is an exchange that never happened"); drill is for screen exercises while prompts, corrections and ambushes stay in chat. *The methodology is untouched* — it is hard-won and not ours to rewrite.
 
-* blast 1 — THE DOCK READS WHAT IT ALREADY RECEIVES (client only) — plan
+*Mount*: =@education/tactic/impara= and =@education/teacher/francesca= added to the localhost education kernel.
 
-The stream ALREADY carries =Packet.Session= in full. =Dock.svelte= folds it with =soma.scan=→=pour=, which silently drops every non-turn packet. Tool activity, round counts, thinking, session close — all crossing the wire today, all discarded at the view. Zero server work.
+*Client space: nothing to build*, plus one freebie — =domain/aperture resolve()= ALREADY wires reactive broadcast for memory + trace, so a Francesca review flushes → twitch → the aprende dashboard board moves in real time mid-conversation.
+
+*Gates, in order — NONE PASSED YET*:
+1. suites green (the hoist touched five aprende import sites; the trait patches touch every mode)
+2. mounted + boots :2501; she answers at all through the dock
+3. "what should I work on?" → =pull(due)= → she names real corpus items
+4. one Italian exchange: she resolves your production, reviews it, the aprende board moves
+5. "drill me" → =pull(due)= → =drill(vocabolario)= → buffer chip → activate → the game runs
+6. aprende still works — it inherited =pull=/=review= and the doctrine unasked
+7. =state.md= "Solid" and "Open with this" are provably redundant: delete them, session quality unchanged
+
+* I — THE INSTRUMENT
+
+** decided
+
+- *no new introspection packets beyond fixing dropped response data.* Anthropic's =message_start= carries =model= + input/cache tokens and =translateStreamEvent= throws them away — a bug, and openrouter proves it by already doing it right. =/session/open= CUT. An =inspect= leaf CUT. The span answers both.
+- *pricing rides the RESPONSE, never the Faculty.* =meta.cost= minted in each provider wrapper off its model table + =usage=. Session totals are a SYSTEM fold (=soma.transcript=) because they span requests.
+- *models gain =slug= + =name=* (beef). Three roles, no redundancy: =slug= addresses (ours), =name= displays (human), =id= dials the API (theirs). Both AUTHORED — no =name ?? id= fallback, same law that killed the dirname-derived package owner. Addressable faculty identity = =provider/slug= (mirrors =owner/type/slug=; =fast= already exists on openrouter and could exist on anthropic tomorrow).
+- *capture is ALWAYS on; the wire filter is what keeps it cheap.* A brief/full =CONFIG.capture= toggle CUT — you decide to look AFTER something goes wrong, so opt-in capture is the wrong shape for a debugger.
+- *captures ship a turn MANIFEST, not turn bodies.* The client already owns the turns. Ids, roles and part types keep a capture ~10–30KB instead of 100KB+, and stay honest once distillation and compaction make "what is in the DB" diverge from "what went to the provider".
+- *the mode declares the default tune; the user overrides.* Francesca's =configure({tune:"fast"})= runs AFTER the base middleware and would silently stomp a dock pick. HARNESSED registers the override AFTER the =mode.module.harness= slurp (inner = later = wins).
+- deferred: nesting the server tree under the client request span · =trace.decant= sampling for production · speech/verbatim onto the same topology at duplex-voice time · renaming model =id=→=model= in the tables.
+
+** the capture cabinet — heavy data is retained, never pushed
+
+beef: *"the data — i assume quite heavy — should not be loaded by default but only when i 'inspect' it."*
+
+The trace channel is a LIVE PUSH during the request; the cabinet is its PULL sibling. Same channel, same records, two transports — NOT a second introspection surface (nothing re-derives, nothing re-compiles; retrieval of already-captured records is still the span).
+
+*Wire filter — the convention*: any mark whose verb ends =/full= is CABINET-ONLY.
+
+#+begin_src javascript
+const heavy = (record) => record.verb?.endsWith("/full");
+
+export const cabinet = ({ depth = 20 } = {}) => {
+  const shelves = new Map();
+  const write = (records) => {
+    const root = records.find((r) => !r.trace)?.span;
+    if (!root) return;
+    shelves.set(root, records.filter((r) => heavy(r) || !r.trace));
+    while (shelves.size > depth) shelves.delete(shelves.keys().next().value);
+  };
+  return { write, read: (span) => shelves.get(span) ?? null, depth };
+};
+#+end_src
+
+Fed by the existing =trace.hold= gather (accumulates until =trace.sealed=, then flushes). Ephemeral by design — in-memory, dies with the daemon, bounded. Old turns answer =capture expired=, the honest answer for a devtool.
+
+*The pull leaf* — daemon aperture, already =authorize()=-gated:
+
+#+begin_src javascript
+daemonDie.good.aperture.branch("/trace").open("/capture", (input) =>
+  daemon.cabinet.read(input.span) ?? { expired: true });
+#+end_src
+
+*Correlation*: stamp =meta.span= (the root hallucination span id) onto the persisted assistant turn at the HARNESSED persistence fold. Live inspection reads the id off the trace records; after a reload, turn → =meta.span= → cabinet. One field, and the only reason historical inspection works at all.
+
+** blast I.1 — THE DOCK READS WHAT IT ALREADY RECEIVES (client only)
+
+The stream ALREADY carries =Packet.Session= in full. =Dock.svelte:62= folds it with =soma.scan=→=pour=, which silently drops every non-turn packet. Zero server work.
 
 New =systems/kajuit/src/app/panels/a/widgets/session.js=:
 
@@ -103,32 +280,54 @@ export const fold = (s, packet) => {
 };
 #+end_src
 
-Rendered: phase line (=thinking→streaming→tooling(name)→done=, elapsed ticking) · tool strip with round counter =rounds/10= · buffer chips → =activateBuffer(terminal, buffer)= (the select-and-run affordance, inline in the conversation) · thinking as =<details>= via a new =turnThinking(turn)= beside =turnText= · historical =turn.meta.usage= in =entry-meta= (already persisted, never shown) + =state= when not =complete=.
+The consumer becomes =for await (const packet of stream) live = fold(live, packet)= — =soma.scan= stops being the outer call, because scan folds packets INTO a turn and eats the session vocabulary on the way.
 
-Files: =Dock.svelte= · =widgets/session.js= NEW · =widgets/turns.js= (+=turnThinking=).
-Gate: a tool loop shows live "calling flashcard (round 1/10)", buffer chips activate the stall, thinking discloses, per-turn tokens on history.
+Rendered: phase line (=thinking→streaming→tooling(name)→done=, elapsed ticking) · tool strip with round counter =rounds/10= · buffer chips → =activateBuffer(terminal, buffer)= (select-and-run, inline in the conversation) · thinking as =<details>= via a new =turnThinking(turn)= beside =turnText= · historical =turn.meta.usage= in =entry-meta= (already persisted, never shown) + =state= when not =complete=.
 
-* blast 2 — RESPONSE ENRICHMENT (usage · model · context · cost) — plan
+Files: =Dock.svelte= · =widgets/session.js= NEW · =widgets/turns.js=.
+Gate: a tool loop shows live "calling drill (round 1/10)", buffer chips activate the stall, thinking discloses, per-turn tokens on history.
 
-All response truth → rides =meta=, minted by the provider.
+** blast I.2 — MODEL IDENTITY + RESPONSE META
 
-*2a — stop dropping =message_start=.* =Packet.TurnOpen= gains optional =meta=; the dialect fills it:
+Two provider tables now. openrouter already mints =meta.usage= + =meta.provider.model=; anthropic does not on the stream path. This blast levels them and adds identity + price to both.
+
+*a — identity + pricing on the model tables* (both providers, and the variant =statics.models= overrides):
+
+#+begin_src javascript
+opus: { slug: "opus", name: "Claude Opus 5", id: "claude-opus-5",
+        tune: [0.9, 1.0, 0.3], context: 1000000, thinking: true,
+        pricing: { input: 15, output: 75, cacheRead: 1.5, cacheWrite: 18.75 } },
+#+end_src
+
+=pricing= per MTok, OPTIONAL (a variant-authored entry may omit it → no =meta.cost=, and the dock shows no estimate rather than a wrong one).
+
+Faculty registration carries it forward — =provider= derived from =service.manifest.slug=, never authored twice:
+
+#+begin_src javascript
+faculties.push({
+  type: "dialogue", slug: model.slug, name: model.name,
+  provider: service.manifest.slug, model: model.id, thinking: model.thinking,
+  tune: model.tune, context: model.context, channels: { … }, via: { render, stream },
+});
+#+end_src
+
+=Faculty= schema gains =slug=, =name=, =provider=, =model=, =thinking=. =shape.cortex.strip= passes them through — the roster stops being anonymous tune vectors.
+
+*b — stop dropping anthropic's =message_start=.* =Packet.TurnOpen= gains optional =meta=:
 
 #+begin_src javascript
 case "message_start":
-  return {
-    event: "/turn/open",
-    turn: { role: event.message.role },
-    meta: { usage: event.message.usage, provider: { model: event.message.model } },
-  };
+  return { event: "/turn/open", turn: { role: event.message.role },
+           meta: { usage: event.message.usage, provider: { model: event.message.model } } };
 #+end_src
 
-*2b — =soma.pour= MERGES instead of clobbers* so open-meta (model, input + cache tokens) survives close-meta (output tokens, state). Deep-merge =usage= and =provider= specifically; a spread alone loses the input count.
+*c — =soma.pour= MERGES instead of clobbers* so open-meta (model, input + cache tokens) survives close-meta (output tokens, state). Deep-merge =usage= and =provider= specifically; a bare spread loses the input count. Openrouter's stream already stashes =closing.meta.usage= — verify it survives rather than double-writing.
 
-*2c — cost in the provider wrapper* (=index.js= owns the model closure; =translate.js= stays pure per-event):
+*d — cost in each provider wrapper* (=index.js= owns the model closure; =translate.js= stays pure per-event):
 
 #+begin_src javascript
 const cost = (model, usage = {}) => {
+  if (!model.pricing) return undefined;
   const m = (n = 0, rate = 0) => (n * rate) / 1e6;
   return {
     input: m(usage.input_tokens, model.pricing.input),
@@ -136,101 +335,263 @@ const cost = (model, usage = {}) => {
     cache: m(usage.cache_read_input_tokens, model.pricing.cacheRead) +
            m(usage.cache_creation_input_tokens, model.pricing.cacheWrite),
     get total() { return this.input + this.output + this.cache; },
+    currency: "USD",
   };
 };
 
 const dress = (model, meta = {}) => ({
   ...meta,
-  cost: { ...cost(model, meta.usage), currency: "USD" },
-  provider: { ...meta.provider, model: model.id, context: model.context },
+  ...(cost(model, meta.usage) && { cost: cost(model, meta.usage) }),
+  provider: { ...meta.provider, slug: model.slug, model: model.id, context: model.context },
 });
 #+end_src
 
-=models= table gains =pricing {input, output, cacheRead, cacheWrite}= per MTok. Render: =dress= after =translateResponse=. Stream: the wrapper stashes usage at =/turn/open=, merges + dresses at =/turn/close=.
+*e — session totals are a SYSTEM fold*: =soma.transcript= sums =usage= and =cost= at each assistant =/turn/close=.
 
-*2d — session totals are a SYSTEM fold* (spans requests → system, per the m20 law): =soma.transcript= sums =usage= and =cost= at each assistant =/turn/close=, so the session yield and =/session/close= carry totals while per-round stays on the turn.
+Dock meter: =sonnet · 41.2k/1M ctx (4%) · ↑38k ↓3.1k · ~$0.021 · round 2 · 6.4s=
 
-Dock meter (header, from the blast-1 fold, now data-complete):
-=sonnet-4-6 · 41.2k/1M ctx (4%) · ↑38k ↓3.1k · ~$0.021 · round 2 · 6.4s=
+Files: =schematics/primitives/hallucination.js= · =belt/soma.js= · =shape/cortex.js= · anthropic + openrouter =translate.js= / =index.js= · =variant/localhost/education.js= · Dock meter.
+Tests: soma pour-merge unit · both providers offline re-pin · deliberate re-pin of contract + cortex snapshots. *While in here*: rotate the kajuit oracle-dialogue mock off =meta.stop= — m20's tolerated impurity dies in this blast.
 
-Files: =schematics/primitives/hallucination.js= · =belt/soma.js= · anthropic =translate.js= + =index.js= · Dock meter.
-Tests: soma pour-merge unit · anthropic offline re-pin (turn/open meta, dressed close) · deliberate re-pin of the affected contract snapshots. *While in here*: rotate the kajuit oracle-dialogue mock off =meta.stop= — m20's tolerated impurity dies in this blast.
+** blast I.3 — SPAN CAPTURE
 
-* blast 3 — SPAN CAPTURE EXPANSION (what went in, what came out) — plan
-
-The =/hallucination/<type>/<avenue>/<tool>= topology is CONTRACTUAL and under-filled. This IS the provider-I/O capture; no separate inspector.
-
-*3a — request brief at session open* (=shard/hallucinate.js=):
+*a — TWO marks at session open.* Compile hoists every context section into ONE system turn, so capture PRE-HOIST from the context Map — the =hallucination.json= shape:
 
 #+begin_src javascript
-const brief = (request) => ({
+const brief = (hallucination, request, faculty) => ({
   turns: request.turns.length,
-  system: { chars: request.turns.filter((t) => t.role === "system")
-    .flatMap((t) => t.parts).reduce((n, p) => n + (p.text?.length ?? 0), 0) },
+  system: { sections: Object.fromEntries([...hallucination.context].map(([k, v]) => [k, String(v).length])) },
   tools: (request.tools ?? []).map((t) => t.name),
+  faculty: `${faculty.provider}/${faculty.slug}`,
   ...(request.settings && { settings: request.settings }),
   ...(request.output && { output: Object.keys(request.output) }),
   ...(request.cache && { cache: request.cache.marks }),
 });
+
+const full = (hallucination, request) => ({
+  context: Object.fromEntries(hallucination.context),
+  tools: hallucination.tools.declarations(),
+  settings: request.settings,
+  output: request.output,
+  manifest: request.turns.map((t) => ({ id: t.id, role: t.role, parts: t.parts.map((p) => p.type) })),
+});
 #+end_src
 
-=span.mark("request", brief(request))=. Full fidelity behind =CONFIG.capture: v.enum(["brief","full"]).default("brief")= → extra =span.mark("request/full", request)=; settable per-call via harness =input.config=. Brief-always/full-on-ask, because long threads re-marked per request would bloat the blast-4 wire.
+Both always. The wire stays lean because =*/full= never rides it.
 
-*3b — response per round*: the existing round note grows to ={round, state, usage, cost, model, parts: turn.parts.map(p => p.type)}= — the SHAPE of what came out plus the cost of the round, without duplicating text the dialogue channel already carries.
+*THE 421 WRINKLE — =context.system= now joins.* Variadic =system(...supplied)= flattens N sources into ONE =system= key, so Francesca's persona and state arrive pre-merged and the capture can only report =system: 4200=. *Fork, beef's call*:
+- *A (small)* — accept it. Sections legible only for =extend()= keys. Zero code.
+- *B (~6 lines, recommended)* — =context.system= keeps sources keyed (=system.0=, =system.1=…, or a =system({persona, state})= form), =compile= joins in insertion order. Then the inspector shows =persona 1.2k · state 2.1k= and you can see which half is bloating. Francesca is already the two-source case.
 
-*3c — tool yield*: the dispatch close mark grows from ={condition}= to ={condition, ms, message: <length>, entities: {<key>: [ids]}}= — entity ids give buffer/memory provenance at trace level (the open question from the yield-lexicon compact gets a cheap answer). Sizes, never bodies. Input is already marked at open.
+Memory, notes and any future context section need ZERO work here — they are context Map entries, so they appear the day II.2 lands.
 
-*3d — harness correlation*: HARNESSED notes ={thread, mode}= on the hallucination span. Decoration, not knowledge — the request stays dataspace-blind; a note is observation. This is the key that makes the blast-5 dock→trace jump possible.
+*b — response per round*: the round note grows to ={round, state, usage, cost, model, parts}= — the SHAPE of what came out plus the cost of the round.
 
-Files: =shard/hallucinate.js= · =prototypes/hallucination.js= (CONFIG.capture) · =traits/harnessed.js= (one note).
-Gate: a scripted session's =trace.chronicle= snapshot shows request brief → round notes with usage+cost → per-tool open/close with entity ids → close. Deterministic minus =at=, per the m20 snapshot regime.
+*c — tool yield*: the dispatch close mark grows to ={condition, ms, message: <length>, entities: {<key>: [ids]}}= — entity ids give buffer/memory provenance at trace level. Sizes, never bodies.
 
-* blast 4 — THE TRACE CHANNEL (spans reach the client; closes the m20 open tail) — plan
+*d — harness correlation*: HARNESSED notes ={thread, mode}= on the hallucination span. Decoration, not knowledge.
 
-*4a — a terminating span stream.* =Pipe.stream= buffers from tap-time, so attaching before dispatch misses nothing; the root close (session's =finally=) terminates:
+Gate: a scripted session's =trace.chronicle= snapshot shows request brief → round notes with usage+cost → per-tool open/close with entity ids → close. The =*/full= mark asserted PRESENT in records and ABSENT from the projected wire.
+
+** blast I.4 — TRACE CHANNEL + CABINET (closes the m20 open tail)
+
+*a — a terminating span stream.* =Pipe.stream= buffers from tap-time, so attaching before dispatch misses nothing; the root close (session's =finally=) terminates:
 
 #+begin_src javascript
 export async function* tail(span) {
   for await (const record of span.pipe.observe()) {
-    yield { channel: "trace", record };
+    if (!heavy(record)) yield { channel: "trace", record };
     if (record.span === span.id && record.verb === "close") return;
   }
 }
 #+end_src
 
-*4b — HARNESSED merges channels* as the OUTERMOST =.use= on the branch, so the persistence fold never sees trace records. =soma.channel= + =soma.merge= is the established idiom (=shard/hal.js= voice does exactly this). Mount at harness ROOT, not just =/dialogue= — speech/verbatim get tracing free the day their providers speak the Packet grammar.
+The SAME span feeds =trace.hold(daemon.cabinet.write)= — push the light records, shelve the heavy ones.
 
-*4c — client demux.* The Dock consumer routes =packet.channel === "trace"= to =ingest()= and continues; everything else folds. =conversation.js= already has the =packet.channel ?? "dialogue"= precedent.
+*b — HARNESSED merges channels* as the OUTERMOST =.use= on the branch, so the persistence fold never sees trace records. =soma.channel= + =soma.merge= is the established idiom (=shard/hal.js= voice). Mount at harness ROOT — speech/verbatim get tracing free the day their providers speak the Packet grammar.
 
-*NAMESPACE OR IT BREAKS*: =Span.tally= is per-process — raw server ids COLLIDE with client ids in the chronicle's =nodes= Map. One =ns= per dialogue call:
+*c — client demux.* The Dock consumer routes =packet.channel === "trace"= to =ingest()=. =conversation.js= already has the =packet.channel ?? "dialogue"= precedent.
+
+*NAMESPACE OR IT BREAKS*: =Span.tally= is per-process — raw server ids COLLIDE with client ids in the chronicle's =nodes= Map:
 
 #+begin_src javascript
 export const ingest = (record, ns) =>
-  telemetry().send({ ...record,
-    span: `${ns}:${record.span}`,
+  telemetry().send({ ...record, span: `${ns}:${record.span}`,
     trace: record.trace == null ? null : `${ns}:${record.trace}` });
 #+end_src
 
-Always-on locally: own daemon, brief capture, client store trims at 200 roots.
+Gate: one message → panel g grows a live =/hallucination/dialogue/stream= tree while the dock streams. Second gate: =/trace/capture= returns the full capture, and the wire trace provably never carried it.
 
-Files: =belt/soma.js= (=tail=) · =traits/harnessed.js= · =Dock.svelte= · =telemetry.js=.
-Gate: one message → panel g grows a live =/hallucination/dialogue/stream= tree while the dock streams. Same request, two altitudes.
-Deferred here: nesting the server tree UNDER the client request span (needs a trace-id handshake through the wire call — harness accepts =input.trace= and notes it). Polish, not blocking.
+** blast I.5 — THE SURFACES
 
-* blast 5 — PANEL G BECOMES THE DEVTOOL WE ACTUALLY USE (kajuit only) — plan
+*** the context inspector — inline in the dock, lazy, copyable
 
-beef: *"i dont use them at all rn."* The overlay exists; make it worth opening.
+The whole context IS the compiled Request. It renders INLINE at the assistant entry, collapsed, fetching NOTHING until opened.
+
+*Idle* — from the brief, already on the wire, costs zero:
+
+#+begin_example
+▸ context   system 3.1k · tools 3 · turns 14 · anthropic/sonnet       [inspect]
+#+end_example
+
+*Opened* — =[inspect]= fires ONE =/trace/capture {span}= call (idle → loading → loaded | expired):
+
+#+begin_example
+▾ Context                                          [copy all]  [×]
+  ▸ System        persona 1.2k · state 2.1k · education 0.9k · learner 0.2k
+      ▸ persona     1.2k                                        [copy]
+      ▸ state       2.1k                                        [copy]
+  ▸ Tools         pull · review · drill
+      ▸ pull        valence + input schema                      [copy]
+  ▸ Settings      anthropic/sonnet · rounds 10 · cache marks    [copy]
+  ▸ Turns (14)    manifest — id · role · part types             → jumps to the entry
+#+end_example
+
+Section bodies render as wrapping =<pre>=; Turns is a manifest that LINKS into the thread the client already holds. (The per-source System breakdown requires I.3 fork B.)
+
+*Copy* — per section (raw text, exactly what the model saw) + =copy all= (the capture as JSON), clipboard with a =createRange= select fallback for a non-TLS remote daemon. Button flips to =copied= for ~1s.
+
+*Turn-local parts need no fetch* — thinking, =tool_use= input, =tool_result=, entity refs are already in =thread.$turns=. I.1 renders them shaped; add a per-turn =raw= toggle. Two sources, one drawer: local for what was said, cabinet for what was sent.
+
+*** panel g becomes the devtool we actually use
 
 - path-family filter chips off =story.roots= first segments — hallucination trees stop drowning in HTTP noise
-- *live section*: roots with =timing.begun && !timing.sealed= pinned on top, pulsing — "what is running right now"
-- *notes rendered, not dumped*: =request= brief → =turns 14 · system 3.1k · tools [lookup, review]= · round → =round 2 · complete · ↑38k ↓1.2k · $0.008= · tool close → =NOMINAL · 412ms · buffer ×5=. Unknown data falls back to the existing =<pre>=.
-- cumulative footer per selected =/hallucination= root: Σ usage, Σ cost, rounds, wall time
-- *dock→trace jump*: a "trace" action on assistant entries filters roots by the blast-3d ={thread}= note, selects newest, =$span.set=
+- *live section*: roots with =timing.begun && !timing.sealed= pinned on top, pulsing
+- *notes rendered, not dumped*: =request= → =turns 14 · system 3.1k · tools [pull, review, drill] · anthropic/sonnet= · round → =round 2 · complete · ↑38k ↓1.2k · $0.008= · tool close → =NOMINAL · 412ms · buffer ×5=. Unknown data falls back to =<pre>=.
+- cumulative footer per =/hallucination= root: Σ usage, Σ cost, rounds, wall time
+- *dock→trace jump*: a "trace" action on assistant entries filters roots by the I.3d ={thread}= note, selects newest, =$span.set=
 - keep =trim=, add clear
 
-Gate: a full debugging loop with zero =console.log= — dock shows the consumer slice, one click opens the exact tree, request-in/rounds/tools-out/cost readable at a glance.
+Gate: a full debugging loop with zero =console.log=.
 
-* blast 6 — MIND (note · memory · skill) — plan
+** blast I.6 — THE PICKER (tier · tune · faculty, one control)
+
+Three faces, ONE mechanism: every face writes the same two wire fields. Tiers are not a separate system — they are named points in tune-space (=cortex.tiers=), so the tier chips are presets on the slider.
+
+*a — metadata.* =/metadata/cortex= exists and =shape.cortex.strip= already ships =tune/context/channels=. It returns a bare array today; make it an object:
+
+#+begin_src javascript
+root.open("/cortex", () => die.good.cortex
+  ? { faculties: shape.cortex.strip(die.good.cortex), tiers, axes }
+  : { faculties: [], tiers, axes });
+#+end_src
+
+=axes= is promoted from a bare name list to described entries — the =kind= split is what makes the trade legible (capability sliders one colour, economy the other):
+
+#+begin_src javascript
+export const axes = [
+  { key: "intelligence", kind: "capability", label: "Intelligence", desc: "raw problem-solving" },
+  { key: "reasoning",    kind: "capability", label: "Reasoning",    desc: "deliberation depth" },
+  { key: "speed",        kind: "economy",    label: "Speed",        desc: "inverse latency" },
+  { key: "thrift",       kind: "economy",    label: "Thrift",       desc: "cost economy" },
+];
+#+end_src
+
+=shape.cortex.wire= must keep round-tripping — it rebuilds stub faculties from the strip, so it reads =payload.faculties= now.
+
+*b — exact pick in the cortex.* =WHERE= gains =faculty: v.string().optional()= (=provider/slug=); =findOne= short-circuits, falling back to tune when the id is stale so a persisted pick never hard-fails:
+
+#+begin_src javascript
+findOne(supplied) {
+  const query = where(supplied);
+  const pool = this.find(query);
+  if (query.faculty) {
+    const exact = pool.find((f) => `${f.provider}/${f.slug}` === query.faculty);
+    if (exact) return exact;
+  }
+  return nearest(pool, query.tune) ?? DERIVATIONS[query.type]?.(this, query);
+}
+#+end_src
+
+*c — the override middleware*, registered in HARNESSED AFTER the =mode.module.harness= slurp so it runs inner-most and beats a mode's =configure({tune})=:
+
+#+begin_src javascript
+harness.use(async (ctx, next) => {
+  if (ctx.input.faculty) ctx.hallucination.configure({ faculty: ctx.input.faculty });
+  else if (ctx.input.tune) ctx.hallucination.configure({ tune: ctx.input.tune });
+  await next();
+});
+#+end_src
+
+*d — the dock control*, one popover, three faces:
+
+#+begin_example
+  tier    [frugal] [fast] [balanced] [capable] [unleashed] [eager]
+  tune    intelligence ▓▓▓▓▓▓░░░░   reasoning ▓▓▓▓▓▓▓▓░░
+          speed        ▓▓▓░░░░░░░   thrift    ▓▓░░░░░░░░
+          → resolves to  anthropic/sonnet                    [pin]
+  model   anthropic   opus · sonnet · haiku
+          openrouter  fast · strong · standard · light
+#+end_example
+
+*Live resolution preview costs ZERO round-trips* — the client has the roster and =recipe.nearest= is client-side typology (the stripwire proves it):
+
+#+begin_src javascript
+const preview = (roster, tune, type = "dialogue") =>
+  recipe.nearest(roster.filter((f) => f.type === type && f.via.includes("stream")), tune);
+#+end_src
+
+Drag a slider, the resolved name updates under your finger. =[pin]= converts the preview into an exact =faculty= pick — the tune face degrades into the model face by one click. This only reads well BECAUSE I.2 gave faculties a name.
+
+*Where the pick lives*: per-terminal control state (=terminal.$dock= precedent — plain data, rides =toJSON=, dies with the terminal), sent per-message on the wire. The thread stays clean; history's truth comes from the span capture.
+
+Gate: pick =haiku= mid-thread → the next turn's meter says =haiku=, the span brief says =anthropic/haiku=, the =[inspect]= settings section agrees. Slider preview matches what the server resolves, every time.
+
+* II — THE CONTEXT
+
+** decided
+
+- *=Memory= → =Engram=* (education domain, the SRS mastery row) — vacates the name. beef, verbatim: *"actually call it engram. memory becomes engram. memory and note become two new entities."* SUPERSEDES the earlier =Retention= pick (and the earlier =Engram= rejection). The new per-user agent memory takes =Memory=; =Note= is its shared sibling — both are II.2's two new entities.
+- *note = shared semantic · memory = per-user semantic · skill = procedural.* Notes are daemon-holistic; memory carries the =user= ORM filter (free scoping — the =getFilterParams("user")= machinery already exists). =mode= on both is PROVENANCE, never a fence — cross-mode read is YES by default, because the budget is the fence.
+- *skills are files, not entities.* SKILL.md + YAML frontmatter, three-level progressive disclosure, per agentskills.io. A mode that is only =PRIMED= + a skills folder is a *carrier* others reference by =@owner/slug=. Francesca's =francesca.md= is ALREADY frontmattered in this exact shape — it is a skill wearing a persona's clothes.
+- *no vector embeddings in v1.* The index is 12 lines and recall is lookup — the regime where BM25 wins and dense loses. Build the =search(query, {mode})= seam now, implement =lexical=. Rungs: (1) =salience DESC, updatedAt DESC= (2) FTS5 over =gist||body= (3) FTS5+vector RRF, only on measured failure. =string.cosine= is BIGRAM similarity — NEVER wire it into ranking.
+- *the embedding trigger is a span query, not a hunch*: mark every recall ={query, mode, hits, ms}=; sustained double-digit *zero-hit rate* or *re-recall rate* (immediate second recall, rephrased — the model's own miss signal) moves us to rung 2/3.
+- *cache-mark placement*: AFTER persona + skill headers, BEFORE the memory/note index. Persona and skills are stable and stay cached; the index churns on every write but is ~500 tokens. (Today =marks= is a flat =["context","tools"]= — placement work belongs with this blast.)
+- *=mind.js= lives in runtime* (=systems/runtime/daemon/tools/=) because it touches =daemon.entities=; typology stays dataspace-blind.
+- deferred: async consolidation · bodies as FILES instead of TEXT (loses ORM, user filter, reactive broadcast) · =embedding= as a fifth cortex Faculty type with =via.render(texts)→vectors=.
+
+** the three gates
+
+#+begin_example
+admission    compile   index lines only, budgeted, deterministic order    mind.context()
+elevation    loop      recall/skill tools, per-call + per-session bound    5-recall ceiling
+distillation persist   volatile parts → receipt at the persistence fold    2KB → 60 chars
+#+end_example
+
+The receipt matters as much as the eviction: next request the model sees it *already looked* and roughly what it found, so it does not re-pull. Re-recall costs one round and the index is right there.
+
+** blast II.1 — RETENTION (the rename)
+
+Surface re-measured against 421 (=registry/education/domain= untouched by 420–421): 266 raw hits, *11 live files* (the rest is =bak/=) — *plus the 5 files III.1 added*, which the sweep catches for free.
+
+Map: =MemoryEntity→EngramEntity= · =MemorySchema→EngramSchema= · =MemoryDriverEnum/StatusEnum/TypeEnum→Engram*= · =type:"memory"→"engram"= · =entities.memory→entities.engram= · =domain/entities/userspace/Memory.ts→Engram.ts= · =domain/memory/→domain/engram/=
+
+Re-measured post-III (current disk): identifiers in 5 live files — =domain/entities/kernel/{Literal,Symbol,Todoliteral}.ts= + =userspace/{Memory,Trace}.ts=; =entities.memory= at =domain/aperture/index.js= ×2 · =domain/tools/gather.js= · aprende ={board,gather}.js= (dormant) · =tests/fixtures/corpus.snapshot.test.js=; literals =Memory.ts:152= =type:"memory"= · =Trace.ts:49= =fieldName:"memory"=.
+
+*MIGRATION LAW — MIKRO MANAGES THE DB.* beef: *"we dont write manual table entries. mikro/umzug does that."* and, after I inverted it into hand-authored =Migration= classes: *"i fucking told you that fucking mikro writes the fucking migration ... mikro manages db."* There is NO migration artifact to author — not raw sqlite, not a =Migration= class, not a =.snapshot-*.json= patch. Rename the entities; boot; =libsql.viva.js:28-31= diffs, mints, and applies. The drop-and-create the differ emits for a rename is mikro doing its job, not a hazard to route around. (An earlier version of this block claimed the opposite while quoting the same sentence — that was my derivation wearing beef's words, and it is what made me re-commit the error a session later.)
+
+Files: =domain/entities/userspace/{Memory.ts,Trace.ts}= (Trace holds the FK + =fieldName="memory"=) · =domain/entities/index.js= · =domain/entities/kernel/{Literal,Symbol,Todoliteral}.ts= · =domain/aperture/index.js= · =modes/home/aprende/{aperture/board.js,buffer/Aprende.svelte}= · =domain/gather.js= · =domain/tools/{pull,review}.js= · =systems/runtime/tests/fixtures/corpus.snapshot.test.js=
+
+DO NOT TOUCH: =subsystems/typology/tests/gestalten/soma.test.js= — its =entities:{memory:[…]}= is a yield-bucket key that becomes CORRECT once the new Memory lands. =MASTERY= in riddler/=types.js= is the signal enum, unrelated.
+
+*HAZARD — the LIVE daemon, not the differ.* A schema-affecting rename under =deno task runtime/watch= is a DEPLOYMENT: the sweep triggers a reboot, mikro mints and applies its migration mid-refactor. That is how the italian daemon lost 18 engrams + 62 traces (=drop table Memory= cascading through =Trace='s FK) before the sweep was even finished. =ps aux | grep deno= BEFORE renaming any entity; brazilian (658/2900) and spanish (30/32) survived only by not being mounted.
+
+Sweep (=mv=, never =git mv= — VCS read-only):
+
+#+begin_src bash
+mv registry/education/domain/entities/userspace/Memory.ts registry/education/domain/entities/userspace/Engram.ts
+mv registry/education/domain/memory registry/education/domain/engram
+mv registry/education/domain/tests/memory registry/education/domain/tests/engram
+mv registry/education/modes/home/aprende/buffer/Memory.svelte registry/education/modes/home/aprende/buffer/Engram.svelte
+# then, over the classified live-file list (65 files; excludes bak/, :memory:, "in-memory", English "from memory"):
+perl -pi -e 's/\bmemories\b/engrams/g; s/\bmemory\b/engram/g; s/\bMemory\b/Engram/g;
+             s/\bMemory(Entity|Schema|DriverEnum|StatusEnum|TypeEnum)\b/Engram$1/g;
+             s/\bwithMemory\b/withEngram/g; s/\bmemoriesLoaded\b/engramsLoaded/g; s/\bmem\b/eng/g;'
+#+end_src
+
+Gate: full suites green · =rg 'entities\.memory'= zero · boot :2501 and let mikro migrate · aprende board renders · Francesca's =review= still writes.
+
+** blast II.2 — MIND (note · memory · skill)
 
 *Entities* (=subsystems/typology/entities/userspace/=, auto-mount in every variant via =collate=). Both carry the disclosure split in their shape: =gist= is the level-1 line, =body= is level-2.
 
@@ -239,19 +600,18 @@ export class MemoryRepository extends DataRepository {
   index(where = {}, { limit = 12 } = {}) {
     return this.find(where, {
       orderBy: { salience: "DESC", updatedAt: "DESC" },
-      limit,
-      fields: ["id", "gist", "tags", "salience", "mode"],
+      limit, fields: ["id", "gist", "tags", "salience", "mode"],
     });
   }
   search(query, { limit = 5, where = {}, mode = "lexical" } = {}) { /* rung 1: LIKE + tags */ }
 }
 #+end_src
 
-=NoteEntity {gist, body?, tags[], salience, mode?}= · =MemoryEntity= = the same + =user!: Rel<UserEntity>= with =filters: { user: { cond: (a) => ({ user: a.user }), default: true } }=. Deliberately absent for v1: embeddings, decay, review scheduling, visibility flags. The =search()= signature is the SEAM — =why= per hit (="bm25"= / ="vector 0.83"= / ="rrf(bm25:2,vec:1)"=) rides the yield AND the span, because retrieval quality is unfalsifiable without provenance.
+=NoteEntity {gist, body?, tags[], salience, mode?}= · =MemoryEntity= = the same + =user!: Rel<UserEntity>= with =filters: { user: { cond: (a) => ({ user: a.user }), default: true } }=. Absent for v1: embeddings, decay, review scheduling, visibility flags. The =search()= signature IS the seam — =why= per hit (="bm25"= / ="vector 0.83"= / ="rrf(bm25:2,vec:1)"=) rides the yield AND the span, because retrieval quality is unfalsifiable without provenance.
 
-*SKILLED trait* — mirrors APPLICATION's path prototype; boot-parses frontmatter into the index, bodies lazy. =@owner/slug= refs pull another mode's index (carrier modes fall out of this branch). v1 = same-daemon; cross-package accio is a fork.
+*PRIMED trait* — mirrors APPLICATION's path prototype; boot-parses frontmatter into the index, bodies lazy. =@owner/slug= refs pull another mode's index (carrier modes fall out of this branch). v1 = same-daemon.
 
-*Tools* (=systems/runtime/daemon/tools/mind.js= — runtime, because they touch =daemon.entities=; typology is dataspace-blind): =note= · =remember= · =recall({kind, id?, query?, tags?, limit?})= · =skill({name, file?})=. Modes re-flavor by =slurp= + re-=open= with their own valence.
+*Tools* (=systems/runtime/daemon/tools/mind.js=): =note= · =remember= · =recall({kind, id?, query?, tags?, limit?})= · =skill({name, file?})=. Modes re-flavor by =slurp= + re-=open=.
 
 *=mind.context({notes, memory, skills})= middleware* — the level-1 injector over the EXISTING =context.extend= seam. THE HALLUCINATION NEEDS ZERO CHANGES. Index lines only, deterministic order, each section closing with =(load any body via recall)=. Never query-dependent — the always-loaded index must stay cache-stable.
 
@@ -271,75 +631,234 @@ const spent = ctx.span.records.filter((r) => r.path.endsWith("/recall") && r.ver
 if (spent >= 5) return { message: "recall budget spent — work with what you have." };
 #+end_src
 
-*Runtime prerequisite (~4 lines, serves blast 7 identically)*: HARNESSED binds only =thread= onto the tools vector today. Add =daemon=, =mode=, =user=:
-
-#+begin_src javascript
-hallucination.tools.use(shard.context.bind("daemon", daemon));
-hallucination.tools.use(shard.context.bind("mode", mode));
-if (ctx.user) hallucination.tools.use(shard.context.bind("user", ctx.user));
-#+end_src
-
-Gate: a mode with =mind.context()= shows the index in its compiled system turn (span brief proves the size), =remember= persists + broadcasts, =recall= elevates a body, the persisted turn holds a receipt not the body, and the blast-3 span shows the whole arc.
-
-* blast 7 — DOMAIN TOOLS (education) — plan
-
-The FUNCTIONS mostly exist: =literal.review(signal, ctx)= on the entity does the full evolve + Trace mint; the repos have =feed/novel/due/byStatus/byStrength/search/constrain(symbols)=. What is missing is the TOOL surface with its harness of documentation.
-
-=registry/education/domain/tools/= — thin over the repos; the aperture stays the wire surface, both share the entity-level =review= (placement already correct).
-
-- *=review {literal, signal}=* — the keystone. Valence carries the SIGNAL semantics inline: =MASTERY= effortless+fast · =SUCCESS= correct · =NEUTRAL= shown/skipped · =MISTAKE= wrong but close (slip, typo, gender) · =FAILURE= blank or wrong meaning. Plus the behavioral rule: never review the same literal twice in one exchange. Yields ==`${slug} ${signal} → ${status}, next ${date}`== + =entities.retention=.
-- *=resolve {text, limit}=* — surface form → candidate slugs, ranked. "If none fit, the word is not in the corpus — do not invent slugs."
-- *=lookup {pick, symbols, status, ontology, traits, limit}=* — =due|novel|feed|weakest= over =repo.constrain(symbols)=. "Use before planning any exercise so you work with real corpus items."
-- *=progress {}=* — the board read (counts by status, weakest five, due count) as a compact message. Hoist the aprende board logic to the domain so tool and dashboard can never disagree.
-
-*=EDUCATED= trait* (=domain.viva.js= gains =export const traits = { EDUCATED }=) — slurps the domain tools into =mode.tools= and grafts the domain skills. Modes opt in from the manifest; =die.variant.traits= spread already carries it.
-
-*The documentation harness, two levels* — this is half the deliverable, not a garnish:
-- level 1 = the valences above. Dense, BEHAVIORAL — they say *when*, not just *what*.
-- level 2 = =domain/skills/tutoring/SKILL.md=, grafted by EDUCATED: full input/output spaces, the SIGNAL boundary table (MASTERY vs SUCCESS, MISTAKE vs FAILURE), the acquisition ladder, the canonical workflow (=resolve → judge → review=; =lookup(due)= before inventing exercises; one review per literal per exchange), what each yield returns. One file, read once per session by the model when it needs depth — and by a human.
-
-Tests: each tool through =steer.dispatch.invoke= against a seeded datamap — lookup facets · resolve hit/miss · review minting retention+trace · unknown-literal ERROR yield.
-
-*Flagged*: =resolve= is =$like= over slug + both TRANSLATED faces — blind to conjugations ("mangiato" will not find "mangiare"). Add =conjugated()= expansion to =repo.search= IN THIS BLAST, or Francesca only resolves citation forms.
-
-* blast 8 — FRANCESCA (the vehicle) — plan
-
-=registry/education/modes/home/francesca/= — =traits: ["HARNESSED", "TOOLED", "EDUCATED", "EMITTER", "SKILLED"]=. Manifest trait order IS load order: TOOLED slurps her module tools, EDUCATED layers the domain's.
-
-- =harness.js= — persona (tutor discipline: judge every learner production, resolve before review, prefer due literals) + =mind.context()= + =tools.slurp(ctx.mode.tools)=
-- =tools/= — her flavor only: buffer-emitting delegates over the existing game emitters (=flashcard=, =drill=), aprende-shaped: =(ctx) => ({ message, entities })=. ZERO new buffer machinery — the EMITTER Pool drains, buffers thread-bind + index, reactive subscription → =thread.$buffers= → panel f → =activateBuffer= → stall renders.
-
-*Client space: nothing new to build*, plus one freebie — =domain/aperture resolve()= ALREADY wires reactive broadcast for retention + trace, so a Francesca review flushes → twitch → the aprende dashboard board moves in real time mid-conversation.
-
-Gates, in order:
-1. chat → "give me 5 flashcards" → buffers in panel f → activate → renders
-2. one Italian exchange: she resolves your production, reviews it, the board moves
-3. "quiz me on what's due" → =lookup(due)= → buffer → chip → play
-4. panel g shows the whole arc: request brief · rounds · =resolve=→=review= chain with inputs · cost
+Gate: a mode with =mind.context()= shows the index in its compiled system turn (the I.3 brief proves the size), =remember= persists + broadcasts, =recall= elevates a body, the persisted turn holds a receipt not the body, and the inspector shows =memory= / =notes= as sections without a line of inspector code being written. Francesca's "Live traps" migrate out of =state.md= into memory entities.
 
 * dependencies
 
 #+begin_example
-0 RETENTION ──┬─→ 7 DOMAIN TOOLS ──→ 8 FRANCESCA
-              └─→ 6 MIND ──────────┘
-1 DOCK (alone, any time)
-2 RESPONSE ──┐
-3 SPAN ──────┴─→ 4 TRACE CHANNEL ──→ 5 PANEL G
-6 MIND needs the HARNESSED ambient bind, which 7 also needs — land it once, in whichever comes first
+III.1 ─→ III.2                      ← WRITTEN, unverified
+I.1 ───────────────────────────────────────────┐
+I.2 ──┬─→ I.6 (picker needs identity + roster) │   movement I ships alone
+      └─→ I.3 ─→ I.4 ─→ I.5                    │
+II.1 ─→ II.2                                   ┘
 #+end_example
 
-2 and 3 are independent core blasts (both snapshot-gated). 4 needs 3 only for richness. Nothing blocks Francesca on the devtools or vice versa — but every Francesca gate is more legible after 1.
+III.1 folded the ambient bind (old blast 0) into its patch — II.2 inherits it. I.6 needs I.2 (a picker over anonymous tune vectors is useless). I.3's inspector is richer with I.2's identity but not blocked. I.4 needs I.3 only for richness. II.1 sweeps III.1's files for free; III does NOT gate on II.1 because the tools were written against =entities.memory= on purpose.
 
-Suggested run: *0 → 1 → 2 → 3 → 4 → 5 → 6 → 7 → 8*, each gate demoable.
+Suggested run from here: *verify III → I.1 → I.2 → I.6 → I.3 → I.4 → I.5 → II.1 → II.2*.
 
 * open
 
-- =resolve= conjugation expansion — do it in blast 7 or Francesca reads only citation forms
-- salience: write-time only, or touch-on-recall? (recall bumps =salience=/=lastAt= → used memories stay indexed, decay without a scheduler; three lines, and it is the consolidation loop in miniature) — leaning touch-on-recall
-- one =recall({kind})= vs per-kind tools — merged note+memory, kept =skill= separate (files vs entities, different level-3). Tool-count vs valence-clarity.
-- async consolidation: a HARNESSED after-fold (or cron mode) minting memories from the session transcript. The entity shape does not preclude it. Real fork, not v1.
-- =capture:"full"= surfaced as a per-message dev toggle in the UI
-- thread-cumulative cost meter (fold over =thread.$turns= meta)
-- production trace policy — =trace.decant(sink, trace.faulty)= / =trace.slower(500)= sampling when this leaves the moat
-- =TurnRepository.fold(tract, judge)= compaction as the long-thread backstop — orthogonal to distillation (derived data vs what was actually said), already scaffolded
-- docs 47.02 re-tangle still carries m20's =meta.stop= drift; blast 2 touches the same surface — fold it in
+*III (immediate)* — the three unverified assumptions above · =pull(resolve)= conjugation blindness (=LiteralRepository.conjugated()= exists; wire it into =search=) · =educate()='s pulse now runs for every HARNESSED mode in the daemon — memoized 60s per user via =gather=, so probably fine, but it is a behaviour change to aprende · =CONVERSATIONAL= appears on live modes with no implementation — audit for other dead trait names · impara's buckets are Italian-authored while the doctrine is English — pick a language law for tool valences before it spreads · whether =progress= should eventually be the ONLY board implementation so tool and dashboard cannot disagree.
+
+*I* — cabinet =depth= (20) and eviction; or persist captures beside the turn for permanent history (rejected v1: DB bloat for a devtool) · "copy as reproduction" — system + tools + turns as a pasteable prompt for replaying against another model · server tree nested under the client request span · thread-cumulative cost meter · production trace policy (=trace.decant(sink, trace.faulty)= / =trace.slower(500)=) · *I.3 fork A/B* (accept the joined =system= blob, or key it per source — recommend B) · whether the picker's choice should ALSO be persistable per-thread for reproducibility · model =id=→=model= rename in the tables · docs 47.02 re-tangle still carries m20's =meta.stop= drift — I.2 touches the same surface, fold it in.
+
+*II* — salience: write-time only, or touch-on-recall? (recall bumps =salience=/=lastAt= → used memories stay indexed, decay without a scheduler; three lines, the consolidation loop in miniature) — leaning touch-on-recall · one =recall({kind})= vs per-kind tools · async consolidation · =TurnRepository.fold(tract, judge)= compaction as the long-thread backstop, orthogonal to distillation · =francesca.md= is frontmattered like a SKILL.md already — does a persona become a skill, or stay a system section? · =state.md= as an m22-datasink drain target once the tools cover it.
+* trailing — parked drift (NOT gating the tool rebuild)
+
+Found during the domain survey that precedes the tool rebuild. Both are pre-existing drift, unrelated to the tools; beef: *"the inconsistency ... has nothing to do with the tools that we are building ... just attach that to the m twenty three as a trailing thing to be fixed."* Do not fix while building the tools.
+
+1. *=gather.js= is DUPLICATED, not moved.* III.1's status section says =aprende/gather.js= → =domain/gather.js= was a MOVE. On disk both exist and are byte-identical apart from the =types.js= import path and one prettier wrap:
+   - =registry/education/domain/tools/gather.js= (imports =../types.js=)
+   - =registry/education/modes/home/aprende/gather.js= (imports =./types.js=)
+   =registry/education/domain/types.js= and =registry/education/modes/home/aprende/types.js= are byte-identical too. Two live copies of STATUS/SIGNAL and of the learner report. Moot for =gather= itself — beef: *"everything that we have in terms of tools in the domain right now can die, gather and all of its ... the entire implementation, all of it can die"* — but the =types.js= twin outlives it and still needs one home.
+
+2. *the "ontology column is empty" ruling is FALSE and still written into =decided=.* III's =decided= says *"ontology IS a symbol (word · sentence · conjugation — the column is empty, per the aprende-launcher finding). So =pull= carries =symbols= only; no redundant =ontology= param."* The column is populated: =subsystems/typology/entities/kernel/Literal.ts:123-143= — =LiteralSubscriber.ontology()= derives it from the literal's one TOPOGRAPHICAL symbol on beforeCreate/beforeUpdate. Live readers filter the plain indexed column: =aprende/tools/query.js:41= (=where.ontology=), =rep-o-gram/emitter/conjugate.js:16=, =survival/emitter/buildup.js:77=. The registry codemap shard already carries the correction; this quest section does not. =pull='s symbols-only input was justified by the false premise.
+
+* patch
+diff --git a/registry/education/domain/domain.viva.js b/registry/education/domain/domain.viva.js
+index ba66581b..6ee621b3 100644
+--- a/registry/education/domain/domain.viva.js
++++ b/registry/education/domain/domain.viva.js
+@@ -4,6 +4,10 @@
+ export * from "./entities/index.js";
+ export * from "./kinds/index.js";
+ export * from "./aperture/index.js";
++export * from "./types.js";
++export { gather } from "./gather.js";
++export { tools } from "./tools/index.js";
++export { harness, educate } from "./harness.js";
+ 
+ export const manifest = {
+   type: "domain",
+diff --git a/registry/education/modes/home/aprende/aperture/board.js b/registry/education/modes/home/aprende/aperture/board.js
+index deaf71f2..e2e32ed3 100644
+--- a/registry/education/modes/home/aprende/aperture/board.js
++++ b/registry/education/modes/home/aprende/aperture/board.js
+@@ -1,5 +1,5 @@
+ import { Vector, v } from "@vivalence/typology";
+-import { STATUS } from "../types.js";
++import { STATUS } from "../../../../domain/types.js";
+ 
+ // the board — ONE optimized read backing the whole homepage dashboard. Every panel
+ // (status bar, strength×due scatter, weakest/strongest ranks) derives from this single
+diff --git a/registry/education/modes/home/aprende/aperture/message.js b/registry/education/modes/home/aprende/aperture/message.js
+index 2cced613..99f12e73 100644
+--- a/registry/education/modes/home/aprende/aperture/message.js
++++ b/registry/education/modes/home/aprende/aperture/message.js
+@@ -1,6 +1,6 @@
+ import { Vector, v } from "@vivalence/typology";
+ import * as hal from "../hal/index.js";
+-import { TUTOR_MESSAGE_INPUT } from "../types.js";
++import { TUTOR_MESSAGE_INPUT } from "../../../../domain/types.js";
+ 
+ export const message = new Vector().open(
+   {
+diff --git a/registry/education/modes/home/aprende/aperture/statistics.js b/registry/education/modes/home/aprende/aperture/statistics.js
+index fb7c90ad..7829011a 100644
+--- a/registry/education/modes/home/aprende/aperture/statistics.js
++++ b/registry/education/modes/home/aprende/aperture/statistics.js
+@@ -1,5 +1,5 @@
+ import { Vector, v } from "@vivalence/typology";
+-import { STATUS, SIGNAL } from "../types.js";
++import { STATUS, SIGNAL } from "../../../../domain/types.js";
+ 
+ const tally = (keys) => v.object(Object.fromEntries(keys.map((key) => [key, v.integer()])));
+ 
+diff --git a/registry/education/modes/home/aprende/aprende.viva.js b/registry/education/modes/home/aprende/aprende.viva.js
+index b7d8647d..f3974e96 100644
+--- a/registry/education/modes/home/aprende/aprende.viva.js
++++ b/registry/education/modes/home/aprende/aprende.viva.js
+@@ -1,5 +1,5 @@
+ import { Vector, App, shape } from "@vivalence/typology";
+-import { gather } from "./gather.js";
++import { gather } from "../../../domain/gather.js";
+ 
+ export { emitter } from "./emitter/index.js";
+ export { aperture } from "./aperture/index.js";
+diff --git a/registry/education/modes/home/aprende/harness.js b/registry/education/modes/home/aprende/harness.js
+index 7d0a22d9..7fe4087a 100644
+--- a/registry/education/modes/home/aprende/harness.js
++++ b/registry/education/modes/home/aprende/harness.js
+@@ -1,7 +1,7 @@
+ import { Vector } from "@vivalence/typology";
+ 
+ import * as hal from "./hal/index.js";
+-import { gather } from "./gather.js";
++import { gather } from "../../../domain/gather.js";
+ 
+ export const harness = new Vector() //
+   .use(async (ctx, next) => {
+diff --git a/registry/education/modes/teacher/francesca/francesca.md b/registry/education/modes/teacher/francesca/francesca.md
+index 6528991f..dc89c733 100644
+--- a/registry/education/modes/teacher/francesca/francesca.md
++++ b/registry/education/modes/teacher/francesca/francesca.md
+@@ -1,13 +1,17 @@
+ ---
+ name: francesca
+-description: Drill-based Italian tutoring. Use whenever the user asks to continue Italian, run a lesson, be tested, ambushed, drilled, or says "go", "next", "sentences", "test me", or names a lesson number. Read STATE.md before the first prompt of any session and update it at the end. This methodology was built by trial and error over many sessions — follow it exactly rather than reverting to generic tutoring habits.
++description: Drill-based Italian tutoring. Use whenever the user asks to continue Italian, run a lesson, be tested, ambushed, drilled, or says "go", "next", "sentences", "test me", or names a lesson number. Call pull(progress) and pull(due) before the first prompt of any session, and review every exercised item at the end. This methodology was built by trial and error over many sessions — follow it exactly rather than reverting to generic tutoring habits.
+ ---
+ 
+ # Francesca — Italian tutor
+ 
+ You run drills. You do not lecture, and you do not manage the session — the learner steers, you supply prompts and corrections.
+ 
+-Read `STATE.md` first. It holds the live weak set, the standing traps, and where the roadmap stands. Update it before the session ends.
++Open every session with `pull(progress)` and `pull(due)`. Those are live — the counts, the due queue and the weak items come from the learner's actual review history, not from a file. `STATE.md` holds only what the tools cannot yet answer: the standing traps, the roadmap position, and the methodology notes below. Update it before the session ends, and never write into it anything `pull` already reports.
++
++Record outcomes with `review` — one call at the end of the exchange carrying every literal the learner exercised. Reviews reschedule items, which is what makes the next session's `pull(due)` correct. An exchange you do not review is an exchange that never happened.
++
++Reach for `drill` when the material suits a screen exercise rather than chat: a set of words to recognise, a paradigm to fill, sentences to assemble. Prompts, corrections and ambushes stay in chat.
+ 
+ ## The core loop
+ 
+diff --git a/registry/education/modes/teacher/francesca/francesca.viva.js b/registry/education/modes/teacher/francesca/francesca.viva.js
+index 2d2e6d87..40f9bf94 100644
+--- a/registry/education/modes/teacher/francesca/francesca.viva.js
++++ b/registry/education/modes/teacher/francesca/francesca.viva.js
+@@ -1,21 +1,10 @@
+-import { Vector, v, App } from "@vivalence/typology";
+-import francesca from "./francesca.md" with { type: "text" };
+-import state from "./state.md" with { type: "text" };
++export { harness } from "./harness.js";
++export { tools } from "./tools/index.js";
+ 
+ export const manifest = {
+   type: "teacher",
+   slug: "francesca",
+   name: "Francesca",
+   description: "Italian conversation tutor.",
+-  traits: ["CONVERSATIONAL", "HARNESSED"],
++  traits: ["HARNESSED", "TOOLED"],
+ };
+-
+-export const harness = new Vector()
+-  .use(async (ctx, next) => {
+-    ctx.hallucination.configure({ tune: "fast" }).context.system(francesca, state);
+-    await next();
+-  }).root;
+-
+-// export const harness = new Vector(); harness.use(async (ctx, next) => {ctx.hallucination.add([``]); await next();});
+-// harness.branch("/dialogue").use(async (ctx, next) => {const report = await gather(ctx); ctx.hallucination.add(report.toPrompt()); await next();});
+-// export const tools = new Vector(); tools.open({nature: "/learner/state", valence: "Read the learner's overall progress histogram, weakest items, recent reviews, due items, and recent mistakes. Use to ground responses in what the learner is actually working on.", input: v.object({}), output: v.object({histogram: v.record(v.string(), v.integer()), weak: v.array(v.unknown()), recent: v.array(v.unknown()), due: v.array(v.unknown()), mistakes: v.array(v.unknown()),}),}, async (ctx) => (await gather(ctx)).toJSON(),);
+diff --git a/registry/viva/variant/localhost/education.js b/registry/viva/variant/localhost/education.js
+index 21dde772..d73872c7 100644
+--- a/registry/viva/variant/localhost/education.js
++++ b/registry/viva/variant/localhost/education.js
+@@ -29,7 +29,9 @@ export const education = {
+     "@education/game/nyan",
+     "@education/tactic/clinic",
+     "@education/tactic/five-fold-session",
++    "@education/tactic/impara",
+     "@education/homepage/aprende",
++    "@education/teacher/francesca",
+     "@education/teacher/dewey",
+     "@education/dashboard/dataspace",
+   ],
+diff --git a/systems/runtime/daemon/lifecycle/population.js b/systems/runtime/daemon/lifecycle/population.js
+index 48fbb0c8..53653b2e 100644
+--- a/systems/runtime/daemon/lifecycle/population.js
++++ b/systems/runtime/daemon/lifecycle/population.js
+@@ -22,6 +22,8 @@ export async function core(die) {
+     die.register.kernel.find((module) => module.manifest?.type === "domain") ?? {},
+   );
+ 
++  die.good.domain = die.domain;
++
+   die.variant.traits = {
+     ...traits,
+     ...die.domain.traits,
+diff --git a/systems/runtime/daemon/traits/harnessed.js b/systems/runtime/daemon/traits/harnessed.js
+index 7f3dca47..733e196d 100644
+--- a/systems/runtime/daemon/traits/harnessed.js
++++ b/systems/runtime/daemon/traits/harnessed.js
+@@ -29,6 +29,7 @@ export const HARNESSED = (mode, daemon) => {
+           typeof supplied === "function" ? { execute: supplied } : supplied;
+         hallucination.tools.open({ nature: new ToolCall(name).signal.pathname, ...edge }, execute);
+       }
++    if (ctx.user) hallucination.tools.use(shard.context.bind("user", ctx.user));
+     if (input.thread) hallucination.tools.use(shard.context.bind("thread", input.thread));
+     if (turns) hallucination.entities.turn.append(turns);
+     else if (prompt)
+@@ -112,6 +113,7 @@ export const HARNESSED = (mode, daemon) => {
+         ctx.hallucination[type].stream(),
+       );
+ 
++  if (daemon.domain?.harness) harness.slurp(daemon.domain.harness);
+   if (mode.module.harness) harness.slurp(mode.module.harness);
+ 
+   return () => {
+diff --git a/systems/runtime/daemon/traits/tooled.js b/systems/runtime/daemon/traits/tooled.js
+index baa7b1f9..c025071f 100644
+--- a/systems/runtime/daemon/traits/tooled.js
++++ b/systems/runtime/daemon/traits/tooled.js
+@@ -1,11 +1,9 @@
+-export const TOOLED = (mode) => {
+-  if (mode.module.tools) mode.tools.slurp(mode.module.tools);
+-};
++import { shard } from "@vivalence/typology";
+ 
+-// import { Vector, shard } from "@vivalence/typology";
++export const TOOLED = (mode, daemon) => {
++  mode.tools.use(shard.context.bind("daemon", daemon));
++  mode.tools.use(shard.context.bind("mode", mode));
+ 
+-// export const TOOLED = (mode, daemon) => {
+-//   mode.tools.use(shard.context.bind("daemon", daemon));
+-//   mode.tools.use(shard.context.bind("mode", mode));
+-//   if (mode.module.tools) mode.tools.slurp(mode.module.tools);
+-// };
++  if (daemon.domain?.tools) mode.tools.slurp(daemon.domain.tools);
++  if (mode.module.tools) mode.tools.slurp(mode.module.tools);
++};

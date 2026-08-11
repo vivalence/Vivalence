@@ -1,6 +1,6 @@
 import { Vector, v } from "@vivalence/typology";
 
-const game = v.enum(["flashcard", "write"]);
+const preset = v.enum(["flashcard", "write"]);
 
 export const deck = new Vector().open(
   {
@@ -8,7 +8,7 @@ export const deck = new Vector().open(
     input: v.object({
       count: v.integer({ minimum: 1, maximum: 50 }).default(20),
       ontology: v.enum(["word", "sentence"]).default("word"),
-      games: v.array(game).default(["flashcard"]),
+      games: v.array(preset).default(["flashcard"]),
       symbols: v.array(v.string()).default([]),
       thread: v.string().optional(),
     }),
@@ -21,11 +21,13 @@ export const deck = new Vector().open(
     const extra = ctx.input.count % roster.length;
 
     for (let index = 0; index < roster.length; index++) {
-      const limit = per + (index < extra ? 1 : 0);
-      if (limit < 1) continue;
-      const mode = ctx.daemon.modes.game[roster[index]];
-      if (!mode) continue;
-      const emitted = await mode.emit.feed({ limit, where, thread: ctx.input.thread });
+      const count = per + (index < extra ? 1 : 0);
+      if (count < 1) continue;
+      const emitted = await ctx.daemon.modes.game["rep-o-gram"].emit[roster[index]].feed({
+        count,
+        where,
+        thread: ctx.input.thread,
+      });
       for (const buffer of [].concat(emitted)) if (buffer) ctx.pool.add(buffer);
     }
   },

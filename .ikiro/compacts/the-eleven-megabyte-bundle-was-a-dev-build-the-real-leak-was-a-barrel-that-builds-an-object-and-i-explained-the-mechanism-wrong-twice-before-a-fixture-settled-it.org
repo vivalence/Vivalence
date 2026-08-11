@@ -1,0 +1,279 @@
+#+title: the eleven-megabyte bundle was a dev build, the real leak was a barrel that builds an object, and i explained the mechanism wrong twice before a fixture settled it
+#+filetags: :bundling:treeshaking:drapes:typology:typebox:esbuild:rep-o-mat:m24:design-import:
+
+* the commission
+
+beef designed the rep player in Claude Design and handed me the project:
+
+#+begin_quote
+Implement: =Rep-O-Mat.dc.html=
+#+end_quote
+
+Read as a spec the file has TWO layers. I implemented the player — the
+centre column: empty/done/playing, meta row, preview, prompt, result,
+controls tray — and skipped the prototype shell (header chrome, axis
+console, session inspector, narration feed, keymap footer, theme toggle),
+filing it as chrome a buffer cannot own.
+
+** the player cutover (landed)
+
+| landed                                                        | was                            |
+|---------------------------------------------------------------+--------------------------------|
+| =Standby= done card: attempts/knowables/sets/reviews grid      | =buffer.release()=, set vanished |
+| =Standby= empty card: the real =/draw= args + self-feed button | "nothing left to practise here" |
+| streak PIPS (filled = =entry.runs=), =continuous · set N=      | invisible to the player        |
+| =N reps left= / =Ns left=, red past 80% spent                  | limits fired with no warning   |
+| AUDIO = 60px =Asset variant="inline"= + 28-bar wave            | a small audio dot              |
+| =?= opens a hint block (prompt text + example)                 | =?= swapped its own label      |
+| conjugation context as key/value pairs                         | one joined string + stray span |
+| =you wrote= / =expected= on a token-less miss                  | a =scale="whole"= Chip (deleted) |
+| PICK options + FLIP reveal in the TRAY, controls 64px          | both in the surface, 48px      |
+| =judge MATCH\vert LLM\vert self\vert identity=, verdict says WHY | =MATCH\vert LLM=, static string |
+
+Deviations, deliberate: the done card's action is =buffer.release()= (the
+design's in-place =Run it again= cannot work — release drops the buffer from
+the stall and deletes it server-side); the 28-bar wave is static because
+drapes =Audio= owns =playing= and does not expose it; SPEED keeps its
+per-rate multipliers over the design's flat =MULT = 40=.
+
+Found while implementing: the LLM-judge path in =Rep.svelte= never called
+=onresult=, so an LLM-graded rep dispatched *no* =/review/literal= at all.
+The exact drift the fold exists to kill — one path reviewed, the other
+silently did not.
+
+** the shell: my reason was wrong
+
+#+begin_quote
+why wasnt the shell implemented?
+#+end_quote
+
+#+begin_quote
+she shell is besides the dock. separate thing entirely.
+#+end_quote
+
+#+begin_quote
+the dock harness comes tomorrow
+#+end_quote
+
+I had filed the console/inspector as chrome and argued "a buffer renders
+inside kajuit's chrome and owns no dock". Wrong frame: the shell is not the
+dock, it is its own surface, and its home arrives with the dock harness.
+Parked, not dropped — the mode already exposes every route it drives
+(=/emit/<preset>/*=, =/emit/symbols=, =/emit/knowables=, =/emit/generate=,
+=/draw=, =/judge=). It needs a home, not new routes.
+
+* holy shit the bundle is HOW big
+
+#+begin_quote
+holy shit the bundle is HOW big??
+am i still tree shaking??!!
+#+end_quote
+
+First correction was mine to make: *11.78 MB was a DEV build* — my own
+scratch harness ran with =paladin.is.prod = false=, and
+=typology/gestalten/bundle/svelte.js:34-40= keys =minify=, =sourcemap=
+inline and svelte =dev= off that flag.
+
+#+begin_src text
+paladin.is.prod = false
+rep-o-mat    dev   11.78 MB   prod    1.33 MB
+write        dev   11.65 MB   prod    1.30 MB
+flashcard    dev    8.57 MB   prod    0.89 MB
+#+end_src
+
+rep-o-mat sat +0.03 MB over write. Not the mode. But 1.33 MB for a rep game
+is still absurd, and =treeShaking: true= was already set — so the shaking
+was ON and DEFEATED. Attribution:
+
+#+begin_src text
+    551 KB  echarts@6.0.0        294 KB  typebox@1.3.0
+    174 KB  zrender@6.0.0        122 KB  repo: typology
+     66 KB  svelte                63 KB  repo: drapes
+     38 KB  repo: rep-o-mat      ← the whole mode
+#+end_src
+
+The same four components imported by deep path instead of the barrel:
+*62 KB*. A rep game was shipping a charting engine.
+
+** the leak
+
+=subsystems/drapes/mod.js= ended with an aggregate:
+
+#+begin_src js
+export const components = { ...decor, ...triage, ...display, ...controls, ...panels, ...stage };
+export default components;
+#+end_src
+
+Consumers repo-wide: ONE line in =drapes/readme.org=. Deleted.
+
+#+begin_src text
+rep-o-mat   prod 1.33 MB → 0.54 MB
+flashcard   prod 0.89 MB → 0.10 MB      9×
+#+end_src
+
+#+begin_quote
+i still want to be able to import echarts. but yeah. clean this
+#+end_quote
+
+Kept working — =export * from "./stage/index.js"= untouched and
+=stage/lib.js= has no top-level side effects, so it shakes out for views
+that do not ask and stays for the five that do (Nyan 882 KB, Dashboard
+855 KB, =echarts present: true=).
+
+** and he asked the right question twice
+
+#+begin_quote
+whait. why is just deleteing the answer?? i need those exports elsewhere?
+why doesnt this get treeshaken?
+#+end_quote
+
+#+begin_quote
+did you check for consumers?
+#+end_quote
+
+The six =import * as decor/display/…= lines were LOCAL to =mod.js=, never
+exported — =export * from "./decor/index.js"= re-exports decor's *members*,
+not a =decor= namespace, so nothing outside could ever have reached them.
+Verified with a full binding census rather than memory: every named import
+repo-wide, and the only three =import * as … from "@vivalence/drapes"= lines
+are in the readme (and were wrong on their own terms — that gives you the
+whole flat barrel, not a namespace).
+
+* three wrong mechanisms before the fixture
+
+This is the part worth keeping. I explained the cause from theory twice and
+was wrong twice, and the first wrong version went into =invariants.md=,
+which auto-loads.
+
+1. *"`export * as ns from` pins the barrel"* — WRONG. Measured 32 B, fully
+   shakeable. On that false claim I had proposed deleting three lines from
+   =typology/mod.client.js= that would have changed nothing.
+2. *"the `.svelte` modules are side-effecting via `css:\"injected\"`"* —
+   WRONG. Pure and side-effecting fixtures pin identically.
+3. The fixture (4000 exports, one variable at a time) settled it:
+
+#+begin_src text
+export * from "./heavy.js"                        32 B    shakeable
+export * as heavy from "./heavy.js"               32 B    shakeable
+export const v = { check, object, heavy }         32 B    shakeable   ← identifiers only
+export const v = { check: core.check, heavy }  214944 B   PINNED      ← property access
+export const v = { ...core, heavy }            214876 B   PINNED      ← spread
+export const v = { ...core, get heavy() {…} }  214917 B   PINNED      ← getters don't rescue
+core.heavy = heavy; export const v = core      214863 B   PINNED      ← mutation
+#+end_src
+
+*ONE property access, spread, or call anywhere in the initializer marks the
+whole statement impure and everything it references is retained.* Re-exports
+are never the problem. Building an object is.
+
+The lesson is not the rule, it is that I shipped two confident mechanisms
+before running a 20-line fixture that took two minutes. Logged.
+
+* pack was not lost, it was absorbed
+
+#+begin_quote
+i think pack has moved when we moved bundling to paladin and had bundler
+inline-wrap compontents. check and fix
+#+end_quote
+
+Right on both counts. =pack= is defined nowhere in drapes yet imported by 7
+files. Its whole job —
+
+#+begin_src js
+import { pack } from "@vivalence/drapes";
+import Game from "./Translations.svelte";
+export default pack(Game);
+#+end_src
+
+— is now =typology/gestalten/bundle/svelte.js:60-71=, injected as the stdin
+entry. The tell: =tests/gestalten/bundle.test.js:12= is still named *"a
+svelte entry bundles with auto-pack"*. Every surviving =*.svelte.js= wrapper
+is under a =bak/= tree and nothing resolves =*.svelte.js= as a view entry.
+Fixed the one live artifact (the readme) and left the graveyard alone.
+
+* typology is somewhat holy
+
+#+begin_quote
+typology is somewhat holy. jsut dont do retarded stuff there. but you CAN
+edit if you align it with me.
+#+end_quote
+
+This revises the kernel's "typology is HOLY (ask before touching core
+types)", which I had been reading as a veto — I filed the typebox pin as
+"unfixed: typology is holy" instead of designing the fix. The gate is
+*alignment, not prohibition*: bring the mechanism with numbers attached, get
+the nod, then edit. Silence is not safety; an untouched known defect is
+still mine. Recorded in the zettelkasten as a law revision, not a strike.
+
+* typebox: traced, then parked
+
+#+begin_quote
+i do want to be able to import {v} everywhere. still possible?
+#+end_quote
+
+Yes — the one-file pure literal shakes (=v unused: 32 B / v used: 214968 B=,
+pay only if you touch it). But =typology/schematics/index.js= assembles the
+facade by MUTATING the binding it imported from =./v.js= (=v.scalars =
+scalars=, =v.literal = entityFactory(…)=), which pins it for everyone. The
+pure-literal shape needs =v= built in ONE module, which collides with the
+=scalars/primitives/entities/prototypes → v= cycle. Two routes costed
+(factories ~half a day; split-core ~2 hours), neither picked.
+
+#+begin_quote
+mark this v schematics topic up as a trailing issue on m24. document it.
+take care of it another day.
+#+end_quote
+
+Then three good follow-ups, all answered with measurements:
+
+- *why is typebox so large?* 46% of it is i18n — =build/system/locale=
+  134 KB, 41 languages of error messages, plus a 25 KB runtime
+  TypeScript-syntax parser (=Type.Script=). The validator itself is ~57 KB.
+  It pins ITSELF the same way drapes did: =typebox/build/index.mjs= ends
+  =export * as Type= + =import * as Type= + =export default Type=.
+- *still a problem in the latest?* No change. 1.3.12 (published two days
+  before this session) is byte-identical on =index.mjs= and
+  =locale/index.mjs=; =_locale.mjs= went 41 → 40 modules because they
+  de-duplicated a doubled =fr_CA=. Upgrading buys ~7 KB.
+- *can esbuild be configured around it?* No. =onResolve= can return
+  =sideEffects: false= and typebox declares none of its own, so it looked
+  free — measured =553 KB → 553 KB=, zero change. Namespace materialization
+  is a genuine REFERENCE, not a side effect.
+- *would a PR make sense?* No: all three candidates (=export default Type=,
+  =export * as Type=, =export * as Locale=) are documented public API and
+  removing any breaks every consumer. The only non-breaking upstream change
+  is =sideEffects: false=, measured not to help. And I still cannot name the
+  locale carrier — nothing outside =locale/= references =Locale=, yet all 40
+  are retained. *Do not PR a mechanism you cannot explain.*
+
+Cheapest untested lead, recorded for next session: =v.js= touches exactly 15
+=Type.*= members, and the =./type= subpath provably never reaches
+=system/locale= (walked 120 modules, no hit) — named imports from
+=typebox/type= may drop all 134 KB in one line, and take =Type.Script= with
+them. Prove that first; if it works no upstream work is needed at all.
+
+* settlement
+
+- =subsystems/drapes/mod.js= — aggregate + default deleted. Named exports
+  untouched, =Canvas=/=stage= still resolve for the five views that ask.
+- =subsystems/drapes/readme.org= — the =components= example, the =pack=
+  example and the three bogus =import * as= lines replaced with what is
+  true, each carrying its measurement so nobody re-adds them.
+- =registry/education/modes/games/rep-o-mat/buffer/= — 11 files, new
+  =parts/Standby.svelte=, =judge.js= split into =method()= (meta row) and
+  =describe()= (verdict note), =knowables.draw()= exports the call shape so
+  the empty card cannot drift from the real request. Bundles clean.
+- =.ikiro/known-issues.org= — =v-facade-pins-typebox-in-every-client-bundle=,
+  the full record: metafile trace, the shape table, typebox's self-pin, both
+  refactor routes, the ruled-out branches, the named-import lead.
+- =.ikiro/quests/m24-rep-o-mat.quest.org= — *Trailing issue* section (drapes
+  FIXED / typebox PARKED) + a *design cutover* section (both layers, the
+  landed table, three deviations, the =onresult= bug) + milestone =2b=.
+- =.ikiro/world/codemap/invariants.md= — the measured law, twice corrected.
+
+* resumption
+
+Next is milestone 3, the kill list — six game dirs → =bak/=, ~40 call sites
+across tactics, aprende, three kernel lists, fixtures, bruno. The shell
+waits on the dock harness. The typebox pin waits on a one-line experiment
+(=typebox/type= named imports) before anything bigger is designed.

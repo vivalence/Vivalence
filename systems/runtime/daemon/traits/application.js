@@ -1,6 +1,6 @@
 import paladin from "@vivalence/paladin";
 import { App, Path } from "@vivalence/typology";
-import { BufferEntity } from "@vivalence/typology/entities";
+import { BufferEntity } from "@vivalence/runtime";
 
 export const APPLICATION = async (mode, daemon) => {
   const entry = new Path(mode.module.mount.dirname + mode.module.app.mount.nature);

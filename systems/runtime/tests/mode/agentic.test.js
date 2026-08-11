@@ -54,7 +54,7 @@ specimen.describe("AGENTIC trait", () => {
     const daemon = daemonOf([aprende, riddler, hub]);
     [aprende, riddler, hub].forEach((mode) => provision(mode, daemon));
 
-    AGENTIC(hub, daemon);
+    AGENTIC(hub, daemon)();
 
     const harvested = names(hub.tools);
     specimen.expect(harvested).toContain("aprende_flashcard");
@@ -76,7 +76,7 @@ specimen.describe("AGENTIC trait", () => {
     const daemon = daemonOf([aprende, plain, hub]);
     [aprende, plain, hub].forEach((mode) => provision(mode, daemon));
 
-    AGENTIC(hub, daemon);
+    AGENTIC(hub, daemon)();
 
     const harvested = names(hub.tools);
     specimen.expect(harvested).toContain("aprende_flashcard");
@@ -92,7 +92,7 @@ specimen.describe("AGENTIC trait", () => {
     const daemon = daemonOf([hub]);
     provision(hub, daemon);
 
-    AGENTIC(hub, daemon);
+    AGENTIC(hub, daemon)();
 
     const harvested = names(hub.tools);
     specimen.expect(harvested).toContain("own");
@@ -113,7 +113,7 @@ specimen.describe("AGENTIC trait", () => {
     const daemon = daemonOf([aprende, hub]);
     [aprende, hub].forEach((mode) => provision(mode, daemon));
 
-    AGENTIC(hub, daemon);
+    AGENTIC(hub, daemon)();
 
     const result = await steer.dispatch.invoke(
       hub.tools,

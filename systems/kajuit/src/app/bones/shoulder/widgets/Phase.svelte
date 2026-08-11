@@ -168,9 +168,10 @@
     padding: 3px;
     gap: 4px;
     pointer-events: auto; /* .population sets none; its scoped `> *` rule can't cross into here */
-    border: 1px solid color-mix(in srgb, var(--colors-skeleton-0-contrast) 30%, transparent);
+    border: 1px solid var(--colors-skeleton-3-boundary);
     border-radius: 5px;
-    background: color-mix(in srgb, var(--mix-deep) 35%, var(--colors-skeleton-1-surface));
+    background: var(--colors-skeleton-3-surface);
+    color: var(--colors-skeleton-3-contrast);
     font-family: var(--font-family-code);
   }
 
@@ -182,38 +183,38 @@
     height: 22px;
     padding: 0 10px;
     border-radius: 3px;
-    border: 1px solid color-mix(in srgb, var(--colors-skeleton-0-contrast) 22%, transparent);
-    background: color-mix(in srgb, var(--mix-deep) 22%, var(--colors-skeleton-2-surface));
+    border: 1px solid color-mix(in srgb, var(--colors-skeleton-3-boundary) 65%, transparent);
+    background: var(--colors-skeleton-2-surface);
     cursor: pointer;
     transition: all 0.1s;
   }
   .phasekey:hover {
-    border-color: color-mix(in srgb, var(--colors-skeleton-0-primary-base) 45%, transparent);
+    border-color: color-mix(in srgb, var(--colors-skeleton-3-primary-base) 45%, transparent);
   }
   /* lit ONLY when a buffer is actually rendered; passive otherwise */
   .phasekey.active {
-    border-color: var(--colors-skeleton-0-primary-base);
-    background: color-mix(in srgb, var(--colors-skeleton-0-primary-base) 16%, transparent);
+    border-color: var(--colors-skeleton-3-primary-base);
+    background: color-mix(in srgb, var(--colors-skeleton-3-primary-base) 14%, var(--colors-skeleton-2-surface));
   }
   .phasekey.open {
-    background: var(--colors-skeleton-0-primary-base);
-    border-color: var(--colors-skeleton-0-primary-base);
-    box-shadow: 0 0 8px color-mix(in srgb, var(--colors-skeleton-0-primary-base) 70%, transparent);
+    background: var(--colors-skeleton-3-primary-base);
+    border-color: var(--colors-skeleton-3-primary-base);
+    box-shadow: 0 0 8px color-mix(in srgb, var(--colors-skeleton-3-primary-base) 55%, transparent);
   }
   .name {
     font-size: var(--font-size-2xs);
     letter-spacing: 0.12em;
     text-transform: uppercase;
     font-weight: 600;
-    color: var(--colors-skeleton-0-contrast);
+    color: var(--colors-skeleton-3-contrast);
     opacity: 0.6;
   }
   .phasekey.active .name {
-    color: var(--colors-skeleton-0-primary-base);
+    color: var(--colors-skeleton-3-primary-base);
     opacity: 1;
   }
   .phasekey.open .name {
-    color: var(--colors-skeleton-0-surface);
+    color: var(--colors-skeleton-3-surface);
     opacity: 1;
   }
   .cursor {
@@ -221,7 +222,7 @@
     opacity: 0.6;
     padding: 1px 5px;
     border-radius: 2px;
-    background: color-mix(in srgb, var(--mix-deep) 30%, var(--colors-skeleton-2-surface));
+    background: var(--colors-skeleton-2-surface);
   }
 
   /* one unified control row — chunky flat transport keys + the LED */
@@ -239,35 +240,35 @@
     height: 22px;
     padding: 0 4px;
     border-radius: 3px;
-    border: 1px solid color-mix(in srgb, var(--colors-skeleton-0-contrast) 16%, transparent);
-    background: color-mix(in srgb, var(--mix-deep) 22%, var(--colors-skeleton-2-surface));
-    color: var(--colors-skeleton-0-contrast);
+    border: 1px solid color-mix(in srgb, var(--colors-skeleton-3-boundary) 55%, transparent);
+    background: var(--colors-skeleton-2-surface);
+    color: var(--colors-skeleton-3-contrast);
     font: inherit;
     font-size: var(--font-size-2xs);
     cursor: pointer;
     transition: all 0.1s;
   }
   .ctl:hover {
-    color: var(--colors-skeleton-0-primary-base);
-    border-color: color-mix(in srgb, var(--colors-skeleton-0-primary-base) 50%, transparent);
+    color: var(--colors-skeleton-3-primary-base);
+    border-color: color-mix(in srgb, var(--colors-skeleton-3-primary-base) 50%, transparent);
   }
   .ctl:active {
-    background: color-mix(in srgb, var(--colors-skeleton-0-primary-base) 22%, var(--colors-skeleton-2-surface));
+    background: color-mix(in srgb, var(--colors-skeleton-3-primary-base) 20%, var(--colors-skeleton-2-surface));
   }
   .depth {
     cursor: default;
-    color: var(--colors-skeleton-0-primary-base);
+    color: var(--colors-skeleton-3-primary-base);
   }
   /* the LED key — glows by state, no border */
   .led {
     border-color: transparent;
     background: none;
     cursor: default;
-    filter: drop-shadow(0 0 4px color-mix(in srgb, var(--colors-skeleton-0-success-base) 55%, transparent));
+    filter: drop-shadow(0 0 4px color-mix(in srgb, var(--colors-skeleton-3-success-base) 45%, transparent));
   }
   .led.flagged {
     cursor: pointer;
-    filter: drop-shadow(0 0 5px color-mix(in srgb, var(--colors-skeleton-0-danger-base) 70%, transparent));
+    filter: drop-shadow(0 0 5px color-mix(in srgb, var(--colors-skeleton-3-danger-base) 60%, transparent));
   }
 
   /* queue — the queued-buffer readout (position / total), trailing */
@@ -276,7 +277,7 @@
     align-items: center;
     gap: 4px;
     padding: 0 4px;
-    color: var(--colors-skeleton-0-primary-base);
+    color: var(--colors-skeleton-3-primary-base);
   }
   .qpos {
     font-size: var(--font-size-2xs);
@@ -297,9 +298,10 @@
     position: fixed;
     z-index: 61;
     padding: 5px;
-    border: 1px solid color-mix(in srgb, var(--colors-skeleton-0-contrast) 32%, transparent);
+    border: 1px solid var(--colors-skeleton-3-boundary);
     border-radius: 6px;
-    background: color-mix(in srgb, var(--mix-deep) 45%, var(--colors-skeleton-1-surface));
+    background: var(--colors-skeleton-4-surface);
+    color: var(--colors-skeleton-4-contrast);
     box-shadow: 0 6px 18px var(--shadow-soft);
   }
   .grid {
@@ -315,26 +317,26 @@
     gap: 6px;
     padding: 6px 8px;
     border-radius: 4px;
-    border: 1px solid color-mix(in srgb, var(--colors-skeleton-0-contrast) 14%, transparent);
-    background: color-mix(in srgb, var(--mix-deep) 22%, var(--colors-skeleton-2-surface));
-    color: var(--colors-skeleton-0-contrast);
+    border: 1px solid color-mix(in srgb, var(--colors-skeleton-4-boundary) 55%, transparent);
+    background: var(--colors-skeleton-3-surface);
+    color: var(--colors-skeleton-4-contrast);
     font: inherit;
     cursor: pointer;
     text-align: left;
     transition: all 0.1s;
   }
   .cell:hover {
-    border-color: color-mix(in srgb, var(--colors-skeleton-0-primary-base) 55%, transparent);
+    border-color: color-mix(in srgb, var(--colors-skeleton-4-primary-base) 55%, transparent);
   }
   .cell.on {
-    color: var(--colors-skeleton-0-surface);
-    background: var(--colors-skeleton-0-primary-base);
-    border-color: var(--colors-skeleton-0-primary-base);
+    color: var(--colors-skeleton-3-surface);
+    background: var(--colors-skeleton-4-primary-base);
+    border-color: var(--colors-skeleton-4-primary-base);
   }
   .cell.blocked {
     opacity: 0.55;
     cursor: not-allowed;
-    border-color: color-mix(in srgb, var(--colors-skeleton-0-danger-base) 30%, transparent);
+    border-color: color-mix(in srgb, var(--colors-skeleton-4-danger-base) 30%, transparent);
   }
   .cell-glyph {
     font-size: var(--font-size-md);
@@ -348,7 +350,7 @@
   .cell-why {
     grid-column: 1 / -1;
     font-size: var(--font-size-2xs);
-    color: var(--colors-skeleton-0-danger-base);
+    color: var(--colors-skeleton-4-danger-base);
     opacity: 0.85;
   }
   .menu-foot {
@@ -356,15 +358,15 @@
     gap: 12px;
     margin-top: 6px;
     padding: 4px 4px 0;
-    border-top: 1px solid color-mix(in srgb, var(--colors-skeleton-0-contrast) 14%, transparent);
+    border-top: 1px solid color-mix(in srgb, var(--colors-skeleton-4-boundary) 55%, transparent);
     font-size: var(--font-size-2xs);
     opacity: 0.7;
   }
   .menu-foot b {
-    color: var(--colors-skeleton-0-primary-base);
+    color: var(--colors-skeleton-4-primary-base);
   }
   .menu-foot .bad {
-    color: var(--colors-skeleton-0-danger-base);
+    color: var(--colors-skeleton-4-danger-base);
     opacity: 1;
   }
 </style>

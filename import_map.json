@@ -1,5 +1,6 @@
 {
   "imports": {
+    "$telemetry": "./systems/kajuit/src/telemetry/index.js",
     "@std/testing": "jsr:@std/testing@1.0",
     "@std/testing/bdd": "jsr:@std/testing@1.0/bdd",
     "@std/expect": "jsr:@std/expect@1.0",

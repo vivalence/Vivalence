@@ -22,7 +22,7 @@ export default async (ctx) => {
   const failures = collect(
     await ctx.daemon.entities.literal.byLastSignal(
       ["MISTAKE", "FAILURE", "NEUTRAL"],
-      { ...ctx.input.where, memories: { nextAt: { $lt: horizon } } },
+      { ...ctx.input.where, retentions: { nextAt: { $lt: horizon } } },
       { limit: 4, blacklist: ctx.input.blacklist },
     ),
   );
@@ -36,7 +36,7 @@ export default async (ctx) => {
 
   const weak = collect(
     await ctx.daemon.entities.literal.byStrength(
-      { ...ctx.input.where, memories: { strength: { $gte: 0.1, $lte: 0.5 } } },
+      { ...ctx.input.where, retentions: { strength: { $gte: 0.1, $lte: 0.5 } } },
       { limit: 4, blacklist: ctx.input.blacklist },
     ),
   );
@@ -46,7 +46,7 @@ export default async (ctx) => {
 
   const distractors = await ctx.daemon.entities.literal.find(ctx.input.where ?? {}, { limit: 30 });
 
-  const untouched = words.filter((word) => !word.memory || word.memory.is.virgin);
+  const untouched = words.filter((word) => !word.retention || word.retention.is.virgin);
   if (untouched.length) {
     ctx.pool.add(
       ctx.daemon.modes.game.exhibit.emit.present({
@@ -62,7 +62,7 @@ export default async (ctx) => {
   for (const word of words) {
     const vocalized = word.traits?.includes("VOCALIZED");
 
-    if (!word.memory || word.memory.is.virgin) {
+    if (!word.retention || word.retention.is.virgin) {
       // practice.add(ctx.daemon.modes.game.exhibit.emit.present({ literals: [word] }));
       practice.add(
         ctx.daemon.modes.game.judge.emit.literal({
@@ -73,7 +73,7 @@ export default async (ctx) => {
       );
     } else if (vocalized && random.coinflip(0.7)) {
       practice.add(
-        ctx.daemon.modes.game.listen.emit.literal({
+        ctx.daemon.modes.game["rep-o-gram"].emit.listen.literal({
           literal: word,
           distractors,
           gameplay: "TYPE",
@@ -81,7 +81,7 @@ export default async (ctx) => {
         }),
       );
     } else {
-      practice.add(ctx.daemon.modes.game.write.emit.literals({ literal: word }));
+      practice.add(ctx.daemon.modes.game["rep-o-gram"].emit.write.literals({ literal: word }));
     }
   }
 
@@ -90,17 +90,17 @@ export default async (ctx) => {
   // ctx.pool
   //   .section(
   //     ...words
-  //       // .filter((l) => !l.memory?.is.virgin)
+  //       // .filter((l) => !l.retention?.is.virgin)
   //       // .filter((word) => !word.traits?.includes("VOCALIZED"))
   //       .map((literal) =>
   //         ctx.daemon.modes.game.flashcard.emit.literals({
-  //           recall: !literal.memory?.is.succeeded ? "KNOWN" : "LEARNING",
+  //           recall: !literal.retention?.is.succeeded ? "KNOWN" : "LEARNING",
   //           literal,
   //         }),
   //       ),
 
   //     ...words
-  //       .filter((l) => l.memory?.is.virgin)
+  //       .filter((l) => l.retention?.is.virgin)
   //       .map((literal) =>
   //         ctx.daemon.modes.game.judge.emit.literal({
   //           literal,
@@ -115,7 +115,7 @@ export default async (ctx) => {
   //           literal,
   //           distractors,
   //           // gameplay: "TYPE",
-  //           gameplay: !literal.memory?.is.succeeded ? "PICK" : "TYPE",
+  //           gameplay: !literal.retention?.is.succeeded ? "PICK" : "TYPE",
   //           recall: "KNOWN",
   //         }),
   //       ),

@@ -1,4 +1,5 @@
 import { is } from "@vivalence/typology";
+import { where } from "./query.js";
 
 export const place = (obj, path, val) => {
   const keys = path.split(".");
@@ -52,14 +53,7 @@ export function pluck(obj, keys) {
   return Object.fromEntries(Object.entries(picked).filter(([, v]) => v !== undefined));
 }
 
-export const match = (obj, pattern) =>
-  Object.entries(pattern).every(([k, v]) =>
-    is.object(v) && is.object(obj[k])
-      ? match(obj[k], v)
-      : is.array(v)
-        ? is.array(obj[k]) && v.every((item) => obj[k].includes(item))
-        : obj[k] === v,
-  );
+export const match = (obj, pattern) => where(pattern)?.(obj) ?? false;
 
 export function strip(obj) {
   if (!is.object(obj)) return obj;
@@ -102,6 +96,13 @@ export const descend = (value, seen = new WeakSet()) => {
   for (const key of Object.keys(value)) out[key] = descend(value[key], seen);
   return out;
 };
+
+export const ordered = (value) =>
+  is.array(value)
+    ? value.map(ordered)
+    : is.object(value)
+      ? Object.fromEntries(Object.keys(value).sort().map((key) => [key, ordered(value[key])]))
+      : value;
 
 export function clone(value) {
   if (value === null || value === undefined) {

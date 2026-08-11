@@ -1,0 +1,125 @@
+#+title: the telemetry family moves in behind two doors, and the vector becomes the trie beef had already written in a comment
+
+* what happened, in one breath
+
+beef reset the frame ("we went a little bit overboard on all kinds of stuff earlier") and
+asked for three things done right: instantiation, usage, display of telemetry. One status
+read, one three-wave work package, one "go on all" — landed in a single pass, then
+tightened twice by ruling (two-export barrel; role of the fold vocabulary). Then the last
+typology move: my first Vector.branch design was rejected flat ("no"), the second try
+realized the trie beef's own constructor comment had been asking for, he kept the name
+(=this.trie=), gave the go, and closed the one open ordering question with "keep
+position". Four suites green, docs capture byte-identical, bench trivial. m30's remaining
+disease is the boot frame — EM epoch + boot volley diet stay OPEN by beef's explicit
+word.
+
+* telemetry — landed, three waves, one go ("go on all")
+
+**Instantiation** =systems/kajuit/src/telemetry/{logger.js, inspector.js, index.js}=:
+logger = the settled six lines ($selected · $story · channel tapped chronicle fold +
+trim 200 · =logbook = new Span("client").to(channel)= · =entry(nature)=); inspector =
+pure =project(lighthouse, terminals, bridge)= → lazy =computed= over 7 deck stores.
+Old =telemetry.js= + =stores/inspector.js= DELETED; =$telemetry= vite alias → the
+barrel (name unchanged, honest). Root =import_map.json= gained ="$telemetry"= — deno
+tests reach it now; a workspace member's =imports= is IGNORED when the root config
+names an importMap file (deno warns, learned by hitting it).
+
+**The barrel ruling** (beef, after landing): "just two exports from telemetry. inspector
+and logger. 2 exports. 2 imports. everything else scope into that." →
+=export * as logger= / =export * as inspector=; every call site reads
+=logger.entry(…)= · =logger.$story= · =logger.$selected= · =logger.channel= ·
+=inspector.project(…)= — dot-notation provenance.
+
+**Usage**: 8 consumer files renamed; Lighthouse opt + ctx key =telemetry=→=channel=
+through dossier; ALL live console.* → =logger.entry().note/.fault= (judged: audio
+sampleRate → note; probes → fault with context in the nature path; two dossier warns
+DELETED not migrated — each duplicated a =mounting.fault=/=note= one line above). Dev
+mirror = =logger.channel.tap= at layout behind =import.meta.env.DEV=. Commented fossils
++ =Buffer.bak.svelte= untouched.
+
+**Display**: =Inspector.svelte= self-wires from deck contexts inside ={#if open}= —
+mount boundary = lifecycle, engage/release deleted. Trace tree emigrated H → G (=tree=
+section + spanNode snippet, select feeds G's detail). Boot rides =logger.$story= +
+=logger.channel=; boot anchor loosened to =path.endsWith("/authority")= (entry paths
+gained the =/client= prefix; track-shard wire spans stay bare).
+
+**The load-bearing accident**: a root span that never marks is invisible to
+=chronicle= — =sprout= parents into =story.nodes.get(record.trace) ?? roots=, so
+=entry()= branches land as FLAT ROOTS. Single-root landed with ZERO fold changes.
+Smoke-verified: bare note renders {entries:1, timing:null} · depth-1 as roots ·
+=entry().pipe === logbook.pipe= (one journal, one channel) · fault · trim 200.
+
+* the vector trie — landed after one rejection and two rulings
+
+First design (secondary =natures= index + adopt/disown seam + coherence invariant):
+beef — "no." The retry named the disease: =trajectories= was keyed by Pattern OBJECT
+IDENTITY while every query is by nature — a Map nobody can .get() into — and the answer
+was already in the file: =// @beef maybe trajectory to trie / this.trie = new Map()=.
+
+Landed shape: =trie: Map<nature, {pattern, trajectory}>= (beef: "keep the name tho.
+this.trie"). Entry is a per-parent pairing, NOT =pattern.trajectory= — one pattern may
+sit in two parents pointing at different subtrees (slurp shares edges); hanging the
+target on the pattern would break exactly there. The wrapper is minted per parent and
+never mutated in place, so edge-sharing stays safe. branch/slurp/swallow key by nature
+O(1); the O(K²) sibling scan AND the =|| i.hash === pattern.hash= fallback are GONE —
+the fallback proved unreachable by every suite (Pattern.hasher includes nature; it
+could only ever fire on an fnv1a collision, i.e. as a bug).
+
+**Ruling — keep position** (beef): a slurp collision HOLDS ITS SLOT. The old delete+set
+tail-move silently changed dispatch precedence (declaration-order law: a =:param=
+opened first shadows forever). Later pattern still wins the edge metadata; position is
+immovable. Pinned in the invariant test.
+
+**Fold vocabulary KEPT**: survey output + trie.fold frames still say =trajectories= —
+field name ≠ fold key, flagged and beef let it stand.
+
+Sweep (rename = consumers, unrestricted): match.js ×2 · steer/trie.js ·
+selbstbestimmt.js · ghost/belt/shape.js loops; =is/prototypes.js= + =specimen/snapshot=
+sniffs → =.trie=; vector.test.js (title now "grows its trie and merges by nature") +
+selbstbestimmt.test.js; 2 doc examples → =.patterns= (docs are consumers). New
+invariant test: sibling nature uniqueness · declaration order immovable · collision
+holds its slot.
+
+Verified: typology 109 (404 steps) · runtime 49 (313) · kajuit 32 (112) · ghost 27 —
+all 0 failed, re-run after the keep-position change. =deno task capture= snapshots
+BYTE-IDENTICAL. Bench: 5000 siblings build 8.3ms, 5000 re-lookups 4.4ms — the ~2s-per-
+pincer-write path is structurally inexpressible now.
+
+* where m30 stands
+
+| cause                                    | state                                    |
+| Vector.branch O(K²) × hashing            | DEAD — trie landed                       |
+| inspector rebuild-per-write             | DEAD — pure lazy projection, pincer out  |
+| whole-world boot hydration × EM fan-out | ALIVE — the 12.6s frame stands untouched |
+
+OPEN by beef's word ("keep empoch and boot volley open"):
+- **EM epoch + lazy re-sight snapshot** — =entity-manager.js= begin/commit refcounted
+  epoch, flushStore once per touched store, snapshot only-if-tracked;
+  =remote-repository.js= find/findAndCount/update wrap in an epoch. Typology, gated.
+- **boot volley diet + focus.js** — dossier drops buffer-populate + turn.find + their
+  unscoped subscribes; new app-layer =focus= effect pulls the active thread's graph,
+  subs scoped {thread}. Sign-offs owed: PanelD bufferCount focused-only · thread sub
+  stays global.
+- **prong B** (later): perf scaffold rides the logger — observers as producers, export
+  = serialize $story; beef runs localhost, then deployed.
+- **reprofile debt**: 35.8s CPU · 32,444 jank · 12,592ms worst block, same drag, same
+  duration. Drag + boot fixes both LIVE-UNVERIFIED in a real browser.
+
+* corrections ledger (this session)
+
+- "no" — the secondary-index design rejected whole; the trie was the answer and it was
+  already written in beef's comment. Lesson: before inventing a structure beside the
+  structure, read what the author left in the margins.
+- "2 exports. 2 imports. everything else scope into that" — flat barrel exports
+  collapsed to two namespaces after I'd shipped them flat.
+- =$telemetry= deno resolution: member =imports= silently ignored under a root
+  importMap file — mapping belongs in =import_map.json=.
+- ghost suite counts 27 now (was 26) — one test grew in beef's working tree, not ours.
+
+* loose ends, settled
+
+- =46.12_lifecycle.mdx= + m31/35.02 diffs in the working tree are beef's, untouched.
+- The =Signature= import in vector.js was already unused before this pass; left as-is.
+- Boot's =/authority= anchor matches BOTH the lighthouse hydration span (now
+  =/client/authority=) and bare track-shard wire spans — =endsWith= preserves the old
+  double-match semantics exactly.

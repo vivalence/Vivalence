@@ -1,5 +1,5 @@
 // import { wrap } from "@mikro-orm/core";
-import { wrap } from "@vivalence/typology/entities";
+import { wrap } from "@vivalence/runtime";
 import * as argon2 from "argon2";
 import createJWT from "./lib/jwt.js";
 

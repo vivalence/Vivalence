@@ -1,21 +1,9 @@
 <script>
   import { getContext } from "svelte";
-  import { LIGHTHOUSE, TERMINALS, BRIDGE } from "$client";
-  import { skins } from "@vivalence/drapes";
-  import { inspector } from "@vivalence/kajuit";
-  import { $telemetry as telemetryStore, $span as spanStore } from "$telemetry";
-  import { trace } from "@vivalence/typology";
-  const { Skin } = skins;
+  import { BRIDGE } from "$client";
+  import Inspector from "./Inspector.svelte";
 
-  const lighthouse = getContext(LIGHTHOUSE);
-  const terminals = getContext(TERMINALS);
   const bridge = getContext(BRIDGE);
-
-  let story = $state(telemetryStore.get());
-  telemetryStore.subscribe(value => story = value);
-
-  let selected = $state(spanStore.get());
-  spanStore.subscribe(node => selected = node);
 
   let show = $state(bridge.view.h);
   let gActive = $state(bridge.view.g);
@@ -24,10 +12,6 @@
 
   let inspectorHeight = $state(bridge.layout.inspectorHeight);
   bridge.layout.$inspectorHeight.subscribe(v => inspectorHeight = v);
-
-  const nodesAtom = inspector.inspectorAtom(lighthouse, terminals, bridge);
-  let nodes = $state(nodesAtom.get());
-  nodesAtom.subscribe(v => nodes = v);
 
   let dragging = $state(false);
   let dragStartY = $state(0);
@@ -73,17 +57,9 @@
       <button class="btn close" onclick={() => bridge.toggle("h")}>×</button>
     </div>
 
-    {#if open && nodes}
+    {#if open}
       <div class="inspector-body">
-        <Skin {nodes} variant="breadcrumb" />
-        {#if story.roots.length}
-          <div class="trace-tree">
-            <div class="tree-label">traces</div>
-            {#each [...story.roots].reverse() as root (root.id)}
-              {@render spanNode(root, 0)}
-            {/each}
-          </div>
-        {/if}
+        <Inspector />
       </div>
     {/if}
 
@@ -99,23 +75,6 @@
     </div>
   </div>
 {/if}
-
-{#snippet spanNode(node, depth)}
-  <button
-    class="span-node"
-    class:fault={node.fault}
-    class:on={node.id === selected?.id}
-    style:padding-left="{8 + depth * 12}px"
-    onclick={() => { spanStore.set(node); if (!gActive) bridge.toggle("g"); }}
-  >
-    <span class="node-nature">{node.nature}</span>
-    {#if node.entries.length}<span class="node-count">{node.entries.length}</span>{/if}
-    {#if trace.duration(node) != null}<span class="node-dur">{trace.duration(node).toFixed(0)}ms</span>{/if}
-  </button>
-  {#each node.children as child (child.id)}
-    {@render spanNode(child, depth + 1)}
-  {/each}
-{/snippet}
 
 <style>
   .drawer {
@@ -153,60 +112,6 @@
     overflow-x: hidden;
     padding: 8px 10px;
     -webkit-overflow-scrolling: touch;
-  }
-  .trace-tree {
-    margin-top: 10px;
-    border-top: 1px solid var(--colors-skeleton-0-boundary);
-    padding-top: 6px;
-    display: flex;
-    flex-direction: column;
-  }
-  .tree-label {
-    padding: 2px 8px 4px;
-    font-size: var(--font-size-2xs);
-    text-transform: uppercase;
-    letter-spacing: 0.12em;
-    color: var(--colors-skeleton-2-contrast);
-    opacity: 0.5;
-  }
-  .span-node {
-    display: flex;
-    align-items: center;
-    gap: 6px;
-    padding: 2px 8px;
-    border: none;
-    background: none;
-    color: inherit;
-    font: inherit;
-    font-family: var(--font-family-code);
-    font-size: var(--font-size-2xs);
-    text-align: left;
-    cursor: pointer;
-    border-radius: 3px;
-  }
-  .span-node:hover {
-    background: color-mix(in srgb, var(--colors-skeleton-2-surface) 60%, transparent);
-  }
-  .span-node.on {
-    background: color-mix(in srgb, var(--colors-skeleton-0-primary-base) 14%, transparent);
-  }
-  .span-node.fault .node-nature {
-    color: var(--colors-skeleton-0-danger-base);
-  }
-  .node-nature {
-    color: var(--colors-skeleton-0-primary-base);
-    font-weight: 600;
-    white-space: nowrap;
-  }
-  .node-count {
-    color: var(--colors-skeleton-2-contrast);
-    opacity: 0.4;
-  }
-  .node-dur {
-    margin-left: auto;
-    color: var(--colors-skeleton-2-contrast);
-    opacity: 0.5;
-    white-space: nowrap;
   }
   .drag-handle {
     flex-shrink: 0;

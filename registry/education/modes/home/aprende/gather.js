@@ -11,18 +11,18 @@ const memos = new Map(); // user id → { at, promise }
 async function compose(ctx) {
   const now = Date.now();
 
-  const [literals, memories, weakest, symbols] = await Promise.all([
+  const [literals, retentions, weakest, symbols] = await Promise.all([
     ctx.daemon.entities.literal.count({}),
-    ctx.daemon.entities.memory.find({}, { fields: ["status", "nextAt"] }),
+    ctx.daemon.entities.retention.find({}, { fields: ["status", "nextAt"] }),
     ctx.daemon.entities.literal.byStrength({}, { limit: 10 }),
     ctx.daemon.entities.symbol.find({}, { fields: ["slug"] }),
   ]);
 
   const byStatus = Object.fromEntries(STATUS.map((status) => [status, 0]));
   let due = 0;
-  for (const memory of memories) {
-    byStatus[memory.status] = (byStatus[memory.status] ?? 0) + 1;
-    if (memory.nextAt && memory.nextAt.getTime() <= now) due += 1;
+  for (const retention of retentions) {
+    byStatus[retention.status] = (byStatus[retention.status] ?? 0) + 1;
+    if (retention.nextAt && retention.nextAt.getTime() <= now) due += 1;
   }
 
   const domains = symbols
@@ -31,7 +31,7 @@ async function compose(ctx) {
 
   return {
     literals,
-    memories: { total: memories.length, byStatus, due },
+    retentions: { total: retentions.length, byStatus, due },
     weakest: weakest.map((literal) => ({
       slug: literal.slug,
       learning: literal.trait?.TRANSLATED?.learning ?? "",
@@ -42,9 +42,9 @@ async function compose(ctx) {
     toPrompt() {
       return [
         "[Learner report]",
-        `Vocabulary: ${this.literals} literals · ${this.memories.total} with memory ` +
-          `(${STATUS.map((status) => `${status.toLowerCase()} ${this.memories.byStatus[status]}`).join(" · ")}) · ` +
-          `${this.memories.due} due for review.`,
+        `Vocabulary: ${this.literals} literals · ${this.retentions.total} with retention ` +
+          `(${STATUS.map((status) => `${status.toLowerCase()} ${this.retentions.byStatus[status]}`).join(" · ")}) · ` +
+          `${this.retentions.due} due for review.`,
         this.weakest.length
           ? `Weakest words: ${this.weakest
               .map((literal) => `${literal.learning} (${literal.known})`)
