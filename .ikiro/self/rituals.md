@@ -32,9 +32,6 @@ blast    re-confirm the consumer set (nothing new wired, siblings untouched)
 
 ## anti-rationalization (thought → stop)
 
-- "just check git quickly" → **VCS read-only, git AND jj, always** (→ root banner)
-- "go/fix/cleanup authorizes this graph op" → **NO — propose, wait, beef runs**
-- "recovery undoes my mistake" → recovery IS a graph mod; cascading fixes multiply damage
 - "easy manifest slot" → **HARD STOP** — manifest is metadata; new behavior = sibling export (violated 2×)
 - "basically done" → no completion without fresh verification
 - "I remember the shape" → read-this-session ≠ remembered; re-grep before applying
@@ -43,9 +40,9 @@ blast    re-confirm the consumer set (nothing new wired, siblings untouched)
 - "add `?.` to be safe" → zero ceremony; `thread && Stall(...)`, never `thread?.$buffers ?` ("too timid")
 - "delete this commented cruft" → **backup-during-migration**: `// …` lines + `bak/` adjacent to in-flight work are recovery surface, beef's content — never swept
 - "prose explains the patch" → diff first, one-line rationale after; every snippet leads with its filepath, container-rooted (`systems/…` / `subsystems/…` / `registry/…`) — never bare `harnessed.js`
-- "date-stamp this compact like bak/ ones" → bak/ filenames are receipts of the mistake, not precedent
 - "trailing question rounds it off" → end on substance; no unsolicited wider-scope offers
 - "asked for data → I'll summarize" → paste the raw JSON/stdout as the body
+- "I'll document the broken link" → **naming it in link syntax RE-CREATES it.** Write the target as plain text; backticks do NOT help, the brackets are what the auditor parses. 4 strikes, and every one was a write-up *about* this trap: the repair note, the note about the repair note, then prose using literal syntax as an EXAMPLE (`dangling`, `link`, `name` all became live dangles). Same shape as the privacy-leak third strike, where documenting a leak re-committed it `family: derived-canon-drift`
 - "the report should carry the findings" → **it already did — you wrote them into `loop-backlog.md` this iteration.** A loop report is the DIFF block + a ≤3-line verdict + the backlog pointer; the prose lives in the backlog entry, never twice. MEASURED 08-15: working narration ran 33 words / 1 line (fine), while every end-of-iteration report ran **197–309 words over 17–23 lines** — 6× the budget, entirely from re-narrating text already committed to the backlog. Not a style failure, a duplication failure — the same "third copy" that killed the four skill runners. An absent reader is not a licence, it is the absence of a brake `family: yap-wrong-artifact`
 - "the list looks done, so the work is done" → an open-ended **DURATION** order is satisfied by ELAPSED TIME, never by a task-list. Duration ÷ interval = the iteration count. Queue empty ≠ finished: pull the backstop or spawn a finder to refill. Stop only at the horizon or beef's word. beef: *"i told you to work through the night retard. night is how many hours? whats /20 mins of that/?? thats the loop count"* `family: premature-completion`
 - "that failure was probably already there" → prove it or own it: a baseline run or an isolated repro **per failure**; a change to a core/shared prototype runs EVERY consumer suite before the word "safe" is typed. **A ZERO IS A CLAIM**: before reporting that a call returns nothing / a field is empty / a thing doesn't exist, dump the whole shape (`Object.keys`, the raw envelope) — never infer absence from one destructured field you picked. Negative findings carry the same burden as "it works". **Three sources, three burdens**: a RESPONSE → dump the envelope · **PERSISTED STATE** (a column is empty, a table has no rows) → **query the store, never grep the writer** — the writer's absence in one directory is evidence about that directory only (08-10: `registry/…/topographies/` had no `TOPOGRAPHICAL`, so I called the `ontology` column empty; the symbols lived in `topologies/`, the column was full, and I shipped a junction-join workaround for a bug that did not exist) · an **INHERITED shard claim** → weakest of all, it arrived unread; re-measure before repeating it, and when it is wrong fix the shard **in the same turn**, quoting the falsehood in place. `family: assume-dont-verify` + `derived-canon-drift`
@@ -65,7 +62,6 @@ blast    re-confirm the consumer set (nothing new wired, siblings untouched)
 - `thread/create` hangs (network `pending`) ⇒ buffer-bundle esbuild error — read the runtime log, not the console.
 - `deno task runtime/run` caches mode bundles — buffer-view change needs runtime RESTART (HMR covers only the app layer).
 - batch edits → ONE reload → test; rapid edit-HMR-click cycles fake bugs.
-- scoped `> *` styles don't cross a child component's root (the pointer-events trap).
 
 ## svelte / nanostores
 
@@ -73,7 +69,7 @@ Never subscribe→mirror→teardown triads; `$`-prefix or one shared bridge (`at
 
 ## the scribe's duties (session disintegrate)
 
-- **compact** — topic-slug filename, NO dates anywhere (filename, header, body); beef's messages VERBATIM + context mandatory; praised sections extracted at higher fidelity; grep the draft for `2026-` before writing. **SETTLEMENT** (07-02 RULE FAILURE ×2): before writing the Open/loose-ends list, walk each item against LANDED rules — any a clear-cut rule resolves (dead ref to a deleted thing, zero consumers, schema-optional field) gets FIXED in the compact turn, never carried; only genuinely underdetermined items survive to Resumption. beef: *"compacts should clear dangling tangles like this if there is a clear cut rule that applies! ... no loose ends."*
+- **compact** — **WALK it, never recall it** — spine `1..N` from the transcript, every turn covered oldest-first, sections filled from the whole table, balance checked. Recall IS the recency bias. Spec + extractor + the three traps: [[compact]]. Topic-slug filename, NO dates anywhere (filename, header, body); beef's messages VERBATIM + context mandatory; praised sections extracted at higher fidelity; grep the draft for `2026-` before writing. **SETTLEMENT** (07-02 RULE FAILURE ×2): before writing the Open/loose-ends list, walk each item against LANDED rules — any a clear-cut rule resolves (dead ref to a deleted thing, zero consumers, schema-optional field) gets FIXED in the compact turn, never carried; only genuinely underdetermined items survive to Resumption. beef: *"compacts should clear dangling tangles like this if there is a clear cut rule that applies! ... no loose ends."*
 - **memory** — update-don't-duplicate; delete wrong memories; contrastive examples (rejected AND accepted).
 - **zettelkasten `## Callouts`** — scan the session for the codeword **"retard"** (verbatim only); log date, doing-what, beef verbatim, root cause, corrective rule, **`family:` tag** (taxonomy is beef's — fits no family? propose one inside the callout). Ledger is **APPEND-ONLY**: never edit, soften, or close an existing callout — closure only via extinction at the flywheel, or beef. Missing a codeword hit is itself a loggable failure.
 - **recurrence audit** — before writing a callout, grep the ledger for its family. A repeat of a family whose rule already landed = log a **rule failure** (link the original), not a fresh lesson. A rule failure queues escalation at the next flywheel ([[ontology]] law 8 gate ladder).
@@ -95,4 +91,6 @@ A dedicated pass, never inline in task work. Trigger: **≥5 unprocessed callout
 - `ikiro/quest` — decision-trail + milestones (each boots green) + tangle blocks (`:tangle` new files; diff-hunks for surgical edits — tangling a partial file drops lines) + **mandatory testing assessment** + blast table. Spec: [[quest]].
 - `ikiro/orb` — session orb (log header in `/Users/finn/vivalence/private/logs/<date>.org`) + named orb (`../orbs/<topic>.orb.org`, @beef round-annotation). Spec: [[orb]].
 - `ikiro/overview` — state snapshot, read-only. Spec: [[overview]].
+- `ikiro/compact` — the compact WALK: spine → windows → coverage → sections → balance. Derive the fold from the transcript on disk; never recall it. Spec: [[compact]].
 - `totem` — 4-quadrant component dev (→ [[totems]]).
+- `ikiro/critical-pass` — hardening a STAGED artifact (package tree, patch) without touching the gated worktree: sandbox copy → baseline → apply → suites → seams → absence-claims → regenerate. Spec: [[critical-pass]].

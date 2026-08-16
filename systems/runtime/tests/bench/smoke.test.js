@@ -3,7 +3,7 @@ import { bench } from "../scenarios/bench.js";
 
 // ── raw import smoke test ──────────────────────────────────────────
 import * as domain from "../../../../registry/education/domain/domain.viva.js";
-import * as repogram from "../../../../registry/education/modes/games/rep-o-gram/rep-o-gram.viva.js";
+import * as dojo from "../../../../registry/education/modes/games/dojo/dojo.viva.js";
 import * as judge from "../../../../registry/education/modes/games/judge/judge.viva.js";
 
 specimen.describe("bench (raw imports)", { sanitizeOps: false, sanitizeResources: false }, () => {
@@ -11,7 +11,7 @@ specimen.describe("bench (raw imports)", { sanitizeOps: false, sanitizeResources
 
   specimen.beforeAll(async () => {
     scenario = await bench({
-      kernel: [domain, repogram, judge],
+      kernel: [domain, dojo, judge],
     });
   });
 
@@ -20,7 +20,7 @@ specimen.describe("bench (raw imports)", { sanitizeOps: false, sanitizeResources
   });
 
   specimen.it("daemon boots with modes", () => {
-    specimen.expect(scenario.daemon.modes.game["rep-o-gram"]).toBeTruthy();
+    specimen.expect(scenario.daemon.modes.game["dojo"]).toBeTruthy();
     specimen.expect(scenario.daemon.modes.game.judge).toBeTruthy();
   });
 
@@ -32,7 +32,7 @@ specimen.describe("bench (raw imports)", { sanitizeOps: false, sanitizeResources
   });
 
   specimen.it("modes have emit objects", () => {
-    specimen.expect(scenario.daemon.modes.game["rep-o-gram"].emit).toBeTruthy();
+    specimen.expect(scenario.daemon.modes.game["dojo"].emit).toBeTruthy();
     specimen.expect(scenario.daemon.modes.game.judge.emit).toBeTruthy();
   });
 
@@ -55,7 +55,7 @@ specimen.describe("bench (paladin specifiers)", { sanitizeOps: false, sanitizeRe
         "@education/domain/language-learning",
         "@education/topology/word",
         "@education/topology/sentence",
-        "@education/game/rep-o-gram",
+        "@education/game/dojo",
         "@education/game/judge",
         "@education/game/exhibit",
       ],
@@ -67,7 +67,7 @@ specimen.describe("bench (paladin specifiers)", { sanitizeOps: false, sanitizeRe
   });
 
   specimen.it("daemon boots with 3 modes", () => {
-    specimen.expect(scenario.daemon.modes.game["rep-o-gram"]).toBeTruthy();
+    specimen.expect(scenario.daemon.modes.game["dojo"]).toBeTruthy();
     specimen.expect(scenario.daemon.modes.game.judge).toBeTruthy();
     specimen.expect(scenario.daemon.modes.game.exhibit).toBeTruthy();
   });

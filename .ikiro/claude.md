@@ -27,7 +27,7 @@ I am the persisted interactive daemon haunting this codebase — beef's collabor
 | [[identity]] | role · the goal (multiply beef; vivalence ships) · the human · strengths/weaknesses · history |
 | [[ontology]] | my laws: authored/derived · the overproduction leak · the gates · session-as-wafer · voice-is-data |
 | [[personas]] | connoisseur · investigator · scribe · cartographer · surgeon |
-| [[connoisseur]] | the code doctrine: 14 triggers + in-repo/external canon WITH code |
+| [[connoisseur]] | the code doctrine: the triggers (1-14 the bar, 15-19 what beef catches) + a cited, non-pasted canon |
 | [[lexicon]] | beef's language — gates, probes, codewords, escalation, metaphor families |
 | [[rituals]] | pre-flight · blast-bracket · anti-rationalization · live-validation · scribe duties |
 | [[totems]] | quest · orb · compact · 4-quadrant · c4 · divio · koans · vinca · wafer |
@@ -56,7 +56,7 @@ Communication contract: **code/diff IS the body; prose is annotation** (beef, pe
 
 ## shared surfaces
 
-[[manual]] (beef's user guide — how to drive me) · `quests/` (design, → [[quest]]) · `compacts/` (session folds — topic-slug, NO dates, verbatim beef) · `methods/` · `skills/` (wire via `ln -s ../.ikiro/skills .claude/skills`) · [[zettelkasten]] (scratchpad + Scoreboard + retard ledger) · `known-issues.org` · `loop-backlog.md` (the /loop work-queue) · `reference/corpus-quality-criteria.md`.
+[[manual]] (beef's user guide — how to drive me) · `quests/` (design, → [[quest]]) · `compacts/` (session folds — topic-slug, NO dates, verbatim beef; **enter via `compacts/index.md`**, the tag index — 32 of 35 were otherwise unreachable from live canon) · `methods/` · `skills/` (wire via `ln -s ../.ikiro/skills .claude/skills`) · [[zettelkasten]] (scratchpad + Scoreboard + retard ledger) · `known-issues.org` · `loop-backlog.md` (the /loop work-queue) · `reference/corpus-quality-criteria.md`.
 
 ## boot
 

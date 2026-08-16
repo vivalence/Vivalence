@@ -1,5 +1,5 @@
 #+title: m27 — mind: memory + note
-#+filetags: :m27:mind:memory:note:primed:recall:entities:
+#+filetags: :m27:mind:memory:note:primed:recall:entities:traits:presets:dojo:
 
 * provenance
 
@@ -13,8 +13,18 @@ contract where the two touch. Sequencing rulings from beef at extraction time:
 
 * the entities
 
-=subsystems/typology/entities/userspace/= — auto-mount in every variant via =collate=.
+=systems/runtime/daemon/entities/userspace/= (entities EMIGRATED to runtime — the quest's
+original =subsystems/typology/entities/= path is stale; =Note.js= already sits there as a
+0-byte placeholder next to =Artifact.js= / =Message.js=). Registered through =sets.userspace=
+in =entities/index.ts=; a domain adds its own via =registry/<domain>/domain/entities/index.js=
+=export const entities = {…}=.
 Both carry the disclosure split in shape: =gist= = level-1 line, =body= = level-2.
+
+Name collision to settle before M27.1: the m32 critical pass renamed memoriter's Memory →
+=Retention= (=registry/education/domain/entities/userspace/Retention.ts=, per-user default
+filter — the same ORM machinery =MemoryEntity= wants). "Memory" stays m27's word for the
+per-user semantic row; Retention is the domain's per-literal scheduling row. Distinct
+things, both real.
 
 - =NoteEntity {gist, body?, tags[], salience, mode?}= — SHARED semantic, daemon-holistic.
 - =MemoryEntity= = same + =user!: Rel<UserEntity>= with the default-on user ORM filter
@@ -43,6 +53,158 @@ export class MemoryRepository extends DataRepository {
 - =search()='s =why= per hit (="bm25"= / ="vector 0.83"=) rides yield AND span — retrieval
   quality is unfalsifiable without provenance.
 
+* note — the design (beef's second pass)
+
+beef, verbatim: /"memory are per user. notes are general. notes should serve a few use
+cases. notes should f.e. carry configuration. i have the dojo mode an in there there are
+presets. these presets are one case for notes. in that case the notes must be loaded
+deterministically. so notes need slugs. and in this case they are per mode. but they might
+also serve as ways to facilitate jobs like a skill.md does rn only that its managed by the
+mode itself. aka the mode does something and learns something thats beyond a single user
+and everyone would benefit. or a note is how the mode docuemnts adn advertises its own use
+to other modes."/ … /"i suspect a note should always be attached to a mode but readable by
+many. if there is daemon wide note that might live on the domain."/ … /"for learnign the
+notes might also cary infromatino about learner types and serve as instructionns for how ot
+guide other users."/ … /"are they trait keyed? do they have a type?? is there any precedent
+for anything liek this note type already? can we steal or must we invent??"/
+
+** verdict: steal
+
+In-repo precedent (verbatim shapes, all live):
+- =systems/runtime/daemon/entities/userspace/Intent.ts= — ={user, mode, slug, name,
+  description, traits: Enum[], trait: json}=, unique =(user, slug, mode)=. *Note ≈ Intent
+  minus =user=* — the memory/note split, already drawn once.
+- =traits[]= + =trait{}= is the house "type" idiom (Intent · Symbol · Mode). No entity carries
+  a =type= string except Mode (package type). =DataRepository.resolveTraits= already queries
+  ={traits: {$contains|$overlap|$none}}=; =card= already projects =slug + traits=. →
+  *trait-keyed, not typed*: a dojo preset is CONFIG and ADVERTISED at once; traits compose,
+  a type excludes.
+- =registry/education/modes/games/dojo/types.js:32= =PRESETS.meet = { note, count, axes }= —
+  a preset is already ={gist, data}= keyed by slug; the field is literally named =note=.
+- =registry/education/modes/teacher/francesca/state.md= (imported as text at
+  =harness.js:3=) — "roadmap position + methodology" = NOTE; "Live traps" = MEMORY. One file,
+  two entities; the traps migrate (M27.2 gate).
+- =Buffer.thread?= nullable → =Note.mode?= nullable = daemon-wide. Domain is not an entity.
+- ikiro's own memory frontmatter (=name= / =description= / =type= / body / links) — the
+  same triad a third time.
+
+External precedent — the two facets the house lacks:
+- *MCP resources* ={uri, name, description}= + =resources/list= — "mode advertises its use
+  to other modes" exactly: listable index line, lazy body, URI = slug.
+- *Letta memory blocks* ={label, value}= attached to N agents — shared ≠ co-owned: one
+  writer, many readers; reading is a query, not a join. Answers "one to many ???": *author
+  m:1, readership = query.* No m:n table in v1.
+- ConfigMap (namespaced keyed =data=, consumed by name) = the preset case; =.claude/rules=
+  =paths:= = a note naming its own AUDIENCE by selector.
+
+** the entity
+
+#+begin_src typescript
+// systems/runtime/daemon/entities/userspace/Note.ts
+export enum NoteTraitsEnum {
+  CONFIG = "CONFIG",         // data-bearing; code reads by (mode, slug); never in the prompt
+  ADVISORY = "ADVISORY",     // mode learned it beyond one user; own system.notes
+  ADVERTISED = "ADVERTISED", // enters OTHER modes' system.notes (MCP-resource semantics)
+  PEDAGOGIC = "PEDAGOGIC",   // learner-type guidance; tutors read
+}
+
+export class NoteEntity extends DataEntity {
+  mode?: Rel<ModeEntity>;                 // AUTHOR / provenance; null = daemon-wide
+  slug: string & Opt = "";                // unique (mode, slug) → deterministic load
+  traits: NoteTraitsEnum[] & Opt = [];    // claims (house idiom)
+  trait: any & Opt = {};                  // per-trait payload
+  gist!: string;                          // level-1 index line
+  body?: string;                          // level-2 prose
+  data: any & Opt = {};                   // level-2 structured ({count, axes})
+  tags: string[] & Opt = [];
+  salience: number & Opt = 0;
+  audience: any & Opt = null;             // null=all | {modes:[slug]} | {traits:[ModeTrait]}
+}
+// uniques: [{ properties: ["mode", "slug"] }]  — Intent / Mode precedent
+#+end_src
+
+Admission (M27.2) falls out of the traits, no new machinery:
+- own =system.notes= = =note.index({ $or: [{mode}, {mode: null}], traits: {$overlap:
+  [ADVISORY, PEDAGOGIC]} })=
+- foreign =system.notes= = =note.index({ traits: "ADVERTISED", audience: matches me })=
+- presets = =note.findOne({ mode: dojo, slug: "preset.meet" })= — code path, never prompt.
+
+Boundary vs m28: skill = authored at BUILD (file, beef writes) · note = authored at RUNTIME
+(row, the mode writes via a =note= tool). Both procedural-ish; the split is writer + time,
+not content.
+
+Slug namespace: the examples took a dot namespace on their own (=preset.meet= ·
+=themes.missing= · =tuning.clues= · =handoff.dojo=) — the symbol-slug convention
+(=word.pronoun-type.personal=). Emerged, not invented; pin it in M27.1.
+
+** example rows (italian daemon — dataspace is per daemon, language is never a field)
+
+#+begin_src javascript
+// 1 CONFIG — dojo preset. writer: dojo dataset seed · reader: dojo code + survival/riddler by slug · channel: findOne
+{ mode: dojo, slug: "preset.meet", traits: ["CONFIG", "ADVERTISED"],
+  gist: "first contact — see the meaning, flip to the word, grade yourself",
+  data: { count: 8, axes: { gameplay: "FLIP", prompt: "TEXT", recall: "LEARNING" } },
+  audience: { traits: ["HARNESSED"] } }                       // replaces dojo/types.js:33
+
+// 2 CONFIG, self-written at runtime — survival learns which tactic themes are EMPTY here
+// writer: tactics/survival/emitter/buildup.js:106 (today a commented console.log) · reader: buildup ranking
+{ mode: survival, slug: "themes.missing", traits: ["CONFIG"],
+  gist: "6 of 21 tactic themes have n=0 in the italian pool — skip in buildup",
+  data: { missing: ["word.pronoun-type.indefinite", "word.article.partitive"] } }
+
+// 3 CONFIG, self-tuned — riddler learns a parameter. writer: riddler after N plays · reader: riddler
+{ mode: riddler, slug: "tuning.clues", traits: ["CONFIG", "ADVISORY"],
+  gist: "3 clues resolve ~80%, 2 clues ~40% — default 3, drop to 2 only on KNOWN",
+  data: { clues: 3, floor: 2 }, salience: 0.6 }
+
+// 4 ADVISORY — francesca learns beyond one user. writer: francesca `note` tool · reader: own system.notes
+{ mode: francesca, slug: "spanish-leak", traits: ["ADVISORY", "PEDAGOGIC"],
+  gist: "Spanish-background learners leak en/como/comer/hablar — run a leak ambush BEFORE verb families",
+  body: "Observed across 4 learners. `en` for `in`, `como` for `come`, h-drop in abitare …",
+  tags: ["interference", "spanish"], salience: 0.9 }
+
+// 5 ADVERTISED, mode → mode addressed. writer: francesca · reader: dojo · channel: foreign system.notes
+{ mode: francesca, slug: "handoff.dojo", traits: ["ADVERTISED"], audience: { modes: ["dojo"] },
+  gist: "learners sent from lesson 7 want preset drill on -ire verbs, recall LEARNING, count 6",
+  data: { preset: "drill", symbols: ["word.verb.conjugation.-ire"], count: 6 } }
+
+// 6 ADVERTISED, self-description (MCP-resource semantics). writer: dojo seed · reader: every HARNESSED mode
+{ mode: dojo, slug: "about", traits: ["ADVERTISED"], audience: { traits: ["HARNESSED"] },
+  gist: "dojo = one rep machine; commission via /emit/feed {preset, symbols} or /emit/conjugations {lemma}; 8 presets",
+  body: "…when to reach for it: sets to recognise, paradigms to fill, sentence assembly. Not for chat corrections." }
+  // francesca's `drill` tool stops hardcoding what dojo can do
+
+// 7 daemon-wide (mode: null) — capability / corpus fact. writer: dataset seal · reader: all modes
+{ mode: null, slug: "corpus", traits: ["ADVERTISED", "CONFIG"],
+  gist: "italian corpus SEALED 6386 literals · sentences annotated 0/1015 → cloze unmountable · audio 0%",
+  data: { literals: 6386, sentences: { total: 1015, annotated: 0 }, audio: 0 } }
+
+// 8 PEDAGOGIC — learner-type guidance. writer: aprende seed, later tutors · reader: francesca, aprende launcher
+{ mode: aprende, slug: "learner.auditory", traits: ["PEDAGOGIC"],
+  gist: "auditory learner: prefer listen/shadow presets, ambush by voice, keep TEXT prompts short",
+  data: { presets: ["listen", "shadow"], prompt: "AUDIO" }, tags: ["learner-type"] }
+  // paired with a per-user MEMORY row that SELECTS this note — note = instruction, memory = assignment
+
+// 9 CONTRAST — same subject, MEMORY not NOTE (per user). writer: francesca `remember` · reader: system.memory (user-filtered)
+{ user: finn, mode: francesca, slug: "trap.loro-ono",
+  gist: "e-family loro -ono invaded by -are -ano; voi -ete/-ite weakest slot", salience: 0.95 }
+#+end_src
+
+Range: seeded vs runtime-written · code-read vs prompt-read · own vs foreign vs daemon-wide ·
+data-heavy vs prose-heavy · addressed by mode vs by trait vs all. Rows 1/2/3 need =data=,
+4/6 need =body=, 5/7 both — free json =data= holds for v1.
+
+** forks (beef's)
+
+1. =data= schema — mode exports =notes: { CONFIG: v.object({count, axes}) }= sibling to
+   =app= (mirrors =v.buffer({data})=), or =data= stays free json v1. Lean: free v1, schema
+   when a second CONFIG consumer appears.
+2. presets → seeded notes (dojo =dataset/=) kills =types.PRESETS=; the 8 slugs are API
+   (survival · riddler bruno · dataset intents · emitter tests). Blast before touching.
+3. =audience= field vs plain =tags= for addressing. Lean: =audience= — a selector is a query,
+   a tag is a string.
+4. =mode?= nullable vs a root/domain mode row. Lean: nullable (=Buffer.thread= precedent).
+
 * the m26 reframe — context injection got FREE
 
 m23 II.2 designed =mind.context()= middleware over =context.extend= ("THE HALLUCINATION
@@ -70,10 +232,15 @@ distillation persist   volatile parts → receipt at the persistence fold   LATE
 * milestones
 
 ** M27.1 — entities + write path
-=NoteEntity= + =MemoryEntity= + repos (=index=/=search= seam, rung 1) · =note= + =remember=
-tools — layer ① territory: they belong in =shard.tools.repository='s whitelist world or as
-runtime =mind.js= verbs (=systems/runtime/daemon/tools/=; runtime because daemon.entities —
-typology stays dataspace-blind). Persist + broadcast; aprende-style reactive check.
+=NoteEntity= (shape above: =mode?= · =slug= · =traits[]/trait{}= · =gist= · =body?= · =data= ·
+=tags= · =salience= · =audience=; unique =(mode, slug)=; dot-namespaced slugs) +
+=MemoryEntity= + repos (=index=/=search= seam, rung 1) · =note= + =remember= tools — layer ①
+territory: they belong in =shard.tools.repository='s whitelist world or as runtime =mind.js=
+verbs (a runtime =tools/= dir does NOT exist yet — =systems/runtime/daemon/= holds =traits/=
+and =entities/=; place is a fork). Runtime because daemon.entities — typology stays
+dataspace-blind. Persist + broadcast; aprende-style reactive check. Write site for M27.2 is
+=systems/runtime/daemon/traits/harnessed.js:64= — =ctx.hallucination.system= is already a
+keyed record.
 
 ** M27.2 — index projection
 The two =system= section writes above, in the harness (base projection, beside the
@@ -98,6 +265,10 @@ inside II.2's one blast and never got a go. Nothing blocks it; it is small and
 independent, hence its own milestone here.
 
 * open
+
+- the four note forks above (data schema · presets→notes · audience vs tags · nullable mode)
+- =mind.js= home: no =systems/runtime/daemon/tools/= exists — sibling of =traits/=, or ride
+  =shard.tools.repository=
 
 - =mind.js= verbs vs =shard.tools.repository= whitelist — does =remember= ride the generic
   =memory.update= or stay a flavored verb? (leaning flavored: salience/gist semantics)

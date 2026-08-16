@@ -48,6 +48,29 @@ specimen.describe("openrouter provider", () => {
       specimen.expect(messages[1]).toEqual({ role: "user", content: [{ type: "text", text: "and also" }] });
     });
 
+    specimen.it("an assistant turn carrying its own tool_result splits into tool_calls then role:tool — same wire as a sync round", () => {
+      const messages = translateTurns([
+        {
+          role: "assistant",
+          parts: [
+            { type: "text", text: "done" },
+            { type: "tool_use", id: "a1", name: "appraise", input: {} },
+            { type: "tool_result", id: "a1", output: { object: [{ literal: "vedere", signal: "SUCCESS" }] } },
+          ],
+        },
+      ]);
+      specimen.expect(messages[0]).toEqual({
+        role: "assistant",
+        content: [{ type: "text", text: "done" }],
+        tool_calls: [{ id: "a1", type: "function", function: { name: "appraise", arguments: "{}" } }],
+      });
+      specimen.expect(messages[1]).toEqual({
+        role: "tool",
+        tool_call_id: "a1",
+        content: JSON.stringify([{ literal: "vedere", signal: "SUCCESS" }]),
+      });
+    });
+
     specimen.it("translates image parts to data-url image_url; assistant thinking folds into message.reasoning", () => {
       const messages = translateTurns([
         { role: "user", parts: [{ type: "image", data: "abc", media: "image/png" }] },
@@ -239,6 +262,10 @@ specimen.describe("openrouter provider", () => {
       specimen.expect(buildParams(strong, { ...request(), settings: { effort: "high" } }).reasoning).toEqual({ effort: "high" });
     });
 
+    specimen.it("effort none disables reasoning on a thinking model", () => {
+      specimen.expect(buildParams(strong, { ...request(), settings: { effort: "none" } }).reasoning).toEqual({ enabled: false });
+    });
+
     specimen.it("a non-thinking model explicitly disables reasoning — provider defaults must not leak thinking", () => {
       specimen.expect(buildParams(light, request()).reasoning).toEqual({ enabled: false });
     });
@@ -258,7 +285,7 @@ specimen.describe("openrouter provider", () => {
 
     specimen.it("request.output.object appends a respond tool + forces tool_choice to it", () => {
       const schema = { type: "object", properties: { verdict: { type: "string" } } };
-      const params = buildParams(light, { ...request(), output: { object: schema } });
+      const params = buildParams(light, { ...request(), output: { schema } });
       specimen.expect(params.tools.at(-1)).toEqual({
         type: "function",
         function: { name: "respond", description: "Return the final result as structured data.", parameters: schema },
@@ -268,13 +295,25 @@ specimen.describe("openrouter provider", () => {
 
     specimen.it("output.object appends respond after the mode's real tools", () => {
       const schema = { type: "object" };
-      const params = buildParams(light, { ...request(), tools: [{ name: "look" }], output: { object: schema } });
+      const params = buildParams(light, { ...request(), tools: [{ name: "look" }], output: { schema } });
       specimen.expect(params.tools.map((tool) => tool.function.name)).toEqual(["look", "respond"]);
     });
 
     specimen.it("cache marks: context pins cache_control on the last system content part", () => {
       const params = buildParams(light, { ...request(), cache: { marks: ["context"] } });
       specimen.expect(params.messages[0].content.at(-1).cache_control).toEqual({ type: "ephemeral" });
+    });
+
+    specimen.it("a record-shaped system section survives the context mark as a parts array", () => {
+      const params = buildParams(light, {
+        system: { persona: "You are Francesca.\n" },
+        turns: [{ role: "user", parts: [{ type: "text", text: "ciao" }] }],
+        cache: { marks: ["context"] },
+      });
+      const section = params.messages[0];
+      specimen.expect(section.role).toBe("system");
+      specimen.expect(section.content.at(-1).text).toBe("You are Francesca.\n");
+      specimen.expect(section.content.at(-1).cache_control).toEqual({ type: "ephemeral" });
     });
   });
 

@@ -1,78 +1,10 @@
 ---
-import { getCollection } from "astro:content"
+import { getEntry, render } from "astro:content"
 import Layout from "../layouts/Layout.astro"
 
-const collection = await getCollection("docs")
-const byJdex = Object.fromEntries(collection.map((entry) => [entry.data.jdex, entry]))
-const linkTo = (jdex) => (byJdex[jdex] ? `/${byJdex[jdex].id}` : "/jdex")
-
-const pillars = [
-  { key: "10–19", title: "About", desc: "What Vivalence is, the vision, and where it came from.", jdex: "11.01" },
-  { key: "30–39", title: "Architecture", desc: "Runtime, daemons, modes and traits — how the system composes.", jdex: "31.01" },
-  { key: "40–49", title: "Repository", desc: "The dispatch spine, the client, and integration internals.", jdex: "42.01" },
-]
-const startHere = [
-  { jdex: "11.01", title: "What is Vivalence", desc: "The one-page orientation." },
-  { jdex: "31.01", title: "System Map", desc: "The containers and how they compose." },
-  { jdex: "52.01", title: "Getting Started", desc: "Boot a variant into a live daemon." },
-]
+const entry = await getEntry("site", "home")
+const { Content } = await render(entry)
 ---
-<Layout title="Vivalence Docs" variant="home">
-  <div class="home">
-    <div class="hero">
-      <div class="eyebrow">an AI-era symbolic OS</div>
-      <h1>The docs run the real system and show you the real output.</h1>
-      <p class="sub">
-        Vivalence is built from numbered primitives — modes, traits, literals, symbols. These docs
-        execute those primitives at build time and inline the captured stdout and span traces, so
-        every example is the system, not a description of it.
-      </p>
-      <div class="totems">
-        <span class="totem"><b>Less</b> is More</span>
-        <span class="totem"><b>Code</b> is Data</span>
-        <span class="totem"><b>Schema</b> is God</span>
-      </div>
-    </div>
-    <div class="home-body">
-      <div class="pillars">
-        {pillars.map((pillar) => (
-          <a class="pillar" href={linkTo(pillar.jdex)}>
-            <span class="pk">{pillar.key}</span>
-            <h3>{pillar.title}</h3>
-            <p>{pillar.desc}</p>
-          </a>
-        ))}
-      </div>
-      <div class="home-cols">
-        <div>
-          <h4>start here</h4>
-          <div class="startlist">
-            {startHere.map((step) => (
-              <a href={linkTo(step.jdex)}>
-                <span class="sn">{step.jdex}</span>
-                <span class="st">{step.title}</span>
-                <span class="sd">{step.desc}</span>
-              </a>
-            ))}
-          </div>
-        </div>
-        <div class="home-side">
-          <div class="live-card">
-            <h4>living examples</h4>
-            <p>
-              Doc code fences tagged <code>tangle=</code> are written to disk and executed.
-              <b>Source</b> shows the exact code, <b>Example</b> its captured stdout,
-              <b>Trace</b> a real runtime span.
-            </p>
-            <div class="mini-trace">
-              <span><span class="v">open</span> deal · thread=table</span>
-              <span style="padding-left:1.2ch">note pool.add {"{"}face:"A♠"{"}"}</span>
-              <span style="padding-left:1.2ch">note pool.drain NOMINAL</span>
-              <span><span class="v">close</span> deal · 18ms</span>
-            </div>
-          </div>
-        </div>
-      </div>
-    </div>
-  </div>
+<Layout title={entry.data.title} variant="home">
+  <Content />
 </Layout>

@@ -1,0 +1,192 @@
+#+title: m37 — converse: voice in · voice out · two-sided
+#+filetags: :m37:converse:dictation:speech:verbatim:vocal:deepgram:elevenlabs:kajuit:dock:harness:typology:runtime:multiplex:
+#+status: stage I "voice in" PATCH WORKED OUT + VERIFIED + RE-WORKED by passes III+IV (=m37-converse/voice-in.patch=, 44 files, +1772/−240; applies 44/44 clean on the worktree; typology 110→117 · runtime 51→52 · kajuit 32→34 · deepgram 1→2 suites, 0 failed; kajuit vite build ✓) · UNAPPLIED · forks A-D rode the defaults · stage II/III sketched. Numbered by beef ("graduate to a numberered quest").
+
+* provenance
+- [[m33-dictation]] = stage I's body: the original quest + build report + =m33-dictation/dictation.patch= (31 files) + critical pass I (mechanical; 5 defects fixed in-patch) + *critical pass II (design; 9 findings)*. This quest does NOT re-narrate m33 — it frames it and supersedes its workstreams.
+- beef, verbatim, on the reframe: /"think again. not in terms of stages of rollout but capabilities delivered. so probably 2/3 stages instaed of 6. voice in dictation. voice out speech. * in kajuit chrome * in mode. real time two sided conversation."/ — then /"go on the queest"/ · /"lets get started on dictation. work out voice in."/
+
+* intent
+Three capabilities, each delivered END-TO-END at two surfaces — *kajuit chrome* (the generic client, domain-blind) and *mode* (mode code + mode/thread config). Each later capability rides the earlier one's substrate UNCHANGED: dictation is the converse frame with one leg lit; speech is the tee already sketched in =shard.hal.voice=; converse is the same frame with every leg lit plus the arbiter. One structure, thin cases.
+
+* the issues (critical pass II, ranked; detail + evidence in [[m33-dictation]] § critical pass II (m33 = stage I body))
+1. *DOA on every real mode* — assembly skipped by path sniff; every real mode harness writes =ctx.hallucination.*= at ROOT (francesca/aprende/oracle/reader/dealer/primer) and is slurped after → TypeError on =/harness/verbatim/stream=. Test passed only because scenario dewey writes under =/dialogue=.
+2. *the wire contract lies* — leaf strips as =yields=; the client mirror compiles =mode.harness.verbatim.stream= to a JSON-body =connection.stream= → server 500. Patch bypasses the mirror with a raw path + =?thread= + a =split("?")= hack in HOLY =Connection.fetch=. Root: the pattern has no upstream dual of =input=; socket already models input+stream, transmitter collapses them.
+3. *polish* — per-segment grain splits sentences (test enshrines ="The quick fox. Jumps over the dog."=); prompt widened to "fix obvious mistranscriptions" (rewrites the learner's L2 — errors are SIGNAL); serial await stalls the tail ~300 ms per segment; =vocal.tune= leaks into the polish dialogue render. Root: the fold flattens =settled= to a string → polish unaddressable → forced ordering.
+4. *third event grammar* — =nature: "turn.start"= dot-form; =nature= is already the Vector-descriptor word for a signal path; live merged streams use ={channel, event:"/…"}=.
+5. *client shape* — =terminal={terminals.active}= untracked + closure captures the first terminal (Dock unkeyed → stale after switch); =bind:this= + exported =cancel/listening= + =onghost/onsplice= callbacks; 4 manual subscribes mirrored into =$state=; anchor drift while typing; fire-on-subscribe =cancel()= releases the mic at construction; no capability gate though =daemon.cortex= mirror exists.
+6. *duplicated primitives* — provider =socketEvents= IS =Queue=; =sse.frames= duplicates =Connection.stream='s decoder (encode inline ×2 too); =AudioDriver.encode/decode= 1-line delegations; mic batching on main thread not in the worklet.
+7. *sniffs + false name* — =if (request.source)= root-lowering sniff; ="eager"= hard-coded in typology; =transcribing("speech")= (TTS ≠ transcription); harmonize inlined in the prototype vs dialogue's =shard.hallucinate.respond= symmetry; =rendering("verbatim")= lie survives.
+8. *provider/protocol* — no =utterance_end_ms= → nova never yields =turn.end=; =smart_format= interim/final token drift; =Start.transcript= reset away; tune vectors placed to win the resolver; dead un-encoded =conversation.listen()=; ={stream:true}= = unnamed 4th quadrant; verbatim Span never marked.
+9. *vivalence gap* — =final.words= (confidence/language/timing) die at the dock; a turn never knows it was SPOKEN.
+Keepable: =fold= · =harmonize= · =claimed= · =pcm= · sse belt (one home) · =Verbatim=/=Speech= families (re-keyed per fork B) · tests · VOCAL · two real =Connection= bugs found.
+
+* the framing — three capabilities × two surfaces
+** I · voice in — dictation
+- *chrome* — mic in the dock, ghost strip (committed solid · tail ghost), splice into draft at the caret, send is still manual.
+- *mode* — =mode.harness.verbatim.stream(source, {thread})= callable from mode code (a "say it" drill transcribes server-side); =thread.trait.VOCAL= ={language?, tune?, harmonize?, polish?}= claim-gated, projected field-by-field beside INTELLIGENT; a mode defaults with =??==.
+- *substrate it forces (II/III ride it)* — the converse frame · one event grammar · total assembly · segmented fold · multi-turn stream.
+** II · voice out — speech
+- *chrome* — speak-aloud on any assistant turn; auto-voice on the thread (answer streams as audio while text renders); speaker playback rate-parametric.
+- *mode* — =mode.harness.speech.stream({text})= for mode-generated text; voice/language as mode sibling export + VOCAL ={voice?, autoVoice?}=.
+- *substrate* — =shard.hal.voice= wired on =/dialogue= (=soma.tee= → dialogue ⊕ speech channels merged); =/speech/stream= is unary-in/stream-out (today's mirror compiles it); elevenlabs provider Queue-based like deepgram.
+** III · converse — real-time two-sided
+- *chrome* — call button in the dock: mic open across turns, live captions (the SAME fold), speaker, barge-in (<60 ms local flush).
+- *mode* — turn policy as data (interruptible, thresholds); backchannel lexicon from LANGUAGE STATICS (=statics.language[slug]=, never the en+de hardcode in parked =turn.js=); a mode may run converse server-side for a drill.
+- *substrate* — =/harness/converse=: the frame from I with all legs — ↑ audio + control events on the same line grammar, ↓ verbatim ⊕ dialogue ⊕ speech merged; server loop: verbatim → arbiter (=decide/cursor/truncate=, flux EOT) → =mode.harness.dialogue.stream= (sibling branch, no recursion) → =hal.voice= tee; barge-in persists the assistant turn TRUNCATED at the heard cursor (=meta.state:"interrupted"=) — today's scribe =em.remove()=s an aborted turn.
+
+* decision trail (locked unless beef overrides)
+- *server loop on one duplex frame* (III) over client orchestration — truncation-persist + turn-taking need verbatim and dialogue state together; client stays dumb + domain-blind; M18's objection was the dedicated WS + handshake, not a server loop — the multiplex frame is what m33 already uses. Consequence: the verbatim frame of I IS the converse frame, one leg lit.
+- *one frame kind*: =feeds= (↑) + =yields= (↓) on the pattern; =input= rides beside the stream (socket already: =body: packet.input= + =raw.body=); thread = =input.thread= like every harness leaf; the mirror compiles it; the frame never closes on =turn.end=, only on upstream close/abort.
+- *one event grammar*: Packets with =event: "/…"= + =channel= when merged — verbatim/speech join the dialogue family; =nature= stays the Vector word.
+- *assembly TOTAL* in the harness root middleware — no sniff; VOCAL projected beside INTELLIGENT; =armed= built for verbatim too (µs, harmless).
+- *segmented fold*: =settled = [{id, text}]=; =final= carries the segment id (server counter per turn), =polish= echoes it → polish concurrent (=soma.merge=), addressable, never stalls the tail; polish grain = the utterance (at =turn.end= / stop) over the joined text; prompt FORMAT-ONLY (punctuation · casing · ITN; never lexical); polish tune fixed =fast=.
+- *dictation is a composer feature* — lands in =draft= at the caret; user sends. Composer locked (readonly) while listening so the anchor cannot drift; Escape cancels.
+- *VOCAL is the one voice trait* on the thread: I ={language, tune, harmonize, polish}=; II adds ={voice, autoVoice}=; III adds ={interruptible}=. Mode defaults via sibling export + =??==.
+- *faculty tune vectors are honest*; the DEFAULT desire is policy (mode =??=), not coordinates placed to win =nearest=.
+- *turn.js stays parked* until III (zero consumers until then).
+- *words travel*: =final.words= reach the client and the spliced part is marked spoken (=part.meta.spoken={words}= or equivalent) — pennies now.
+
+* forks (defaults chosen — say the word to flip)
+- *A · the 4th connection verb* — =call= (1↔1) · =stream= (1→∞) · =publish= (∞→1) · **=converse=** (∞↔∞). Default: =connection.converse(endpoint, source, {input, signal})=; =publish= keeps its unary-reply shape (=/ingest= tests); the ={stream:true}= flag dies.
+- *B · grammar + names* — default: =Verbatim.*= re-keyed to packets =event: "/turn/open" | "/verbatim/commit" | "/verbatim/partial" | "/verbatim/final" | "/verbatim/polish" | "/turn/close"=; audio BOTH directions as one schema =Audio.Packet = {event:"/audio/packet", audio, rate, codec?, pts?, align?}= + =Audio.Close= (mic feeds it; speech yields it; contract 2+5 collapse into one); upstream key on the pattern = =feeds= (pairs =Socket.feed=).
+- *C · polish grain* — default utterance-level at stop/turn.end; alternative per-segment-addressable only (no utterance pass). Default wins on sentence integrity.
+- *D · VOCAL.voice placement (II)* — default on VOCAL; alternative a SPEAKING trait. Settle when II opens.
+
+* stage I — voice in, worked out
+Each milestone boots green at its boundary; per-milestone go; isolated scratchpad copy → suites both sides → worktree only on go (pass-I method).
+
+** I.1 typology — the frame contract + the vocabulary (pure, offline)
+- =schematics/primitives/hallucination.js= — =Verbatim.*= re-keyed to =event= paths (fork B); =Audio.Packet/Close=; =Verbatim.Final.segment= · =Verbatim.Polish.segment=; =Speech.*= ⇒ =Audio.*= (drop the duplicate family).
+- =prototypes/vector.js= / =shape/strip.js= — pattern carries =feeds=; =edgeMeta= plucks it.
+- =shape/connection.js= =aim()= — =feeds= ⇒ =(source, {input, signal}) => connection.converse("", source, {input, signal})=; =yields= alone ⇒ =stream= (unchanged).
+- =prototypes/connection.js= — =converse(endpoint, source, {input, signal})=: SSE-encodes =source= via =belt/sse.encode=, sends =input= beside the stream, =accept: text/event-stream=; =stream()= decodes via =belt/sse.frames=; =publish= unchanged but rides =sse.encode=. The patch's =fetch= =split("?")= hunk is DROPPED (no query channel needed).
+- =shard/transmitter.js= — =input: request.body= ALWAYS; =stream: request.raw?.body instanceof ReadableStream= (Request grows =raw.body= for the upstream stream — mirrors what the socket hands the server). Socket untouched.
+- =belt/sse.js= ={encode, frames}= — ONE home; =Response.publish= rides =encode=.
+- =belt/verbatim.js= — =harmonize= (kept; =turn.start.transcript= seeds the ring instead of being reset away) · =fold= segmented ={settled:[{id,text}], tail, segment}= + =text(state)= projection · =empty=.
+- =belt/pcm.js= (kept) · =shard/trait.js claimed= (kept).
+- =prototypes/hallucination.js= — lowering branch-scoped: =hallucinator.branch("/dialogue").use(lowering)= (+ =/object=); =/verbatim/stream= + =/speech/stream= get a source-lowering (=policy.tune= only, default from =WHERE= not a hard-coded tier); two true-named leaves =transcribing= (verbatim) · =synthesizing= (speech); verbatim's fold lives in =shard/hallucinate.transcribe(faculty, source, config, {harmonize})= beside =respond=; =rendering("verbatim")= removed.
+- green gate: =deno task typology/test= — harmonize/fold/schema (kept, re-keyed) + NEW =wire.converse.test.js= (strip⟷wire round-trip: a =feeds= leaf compiles to =converse=; a =yields=-only leaf still to =stream=) + multiplex/connection suites (=/ingest= publish still unary).
+
+** I.2 runtime — the harness, total
+- =daemon/traits/harnessed.js= — root mw TOTAL (sniff gone); =const vocal = shard.trait.claimed(row, "VOCAL", v.entities.VOCAL)= beside =iq=; =ctx.vocal= bound; =/verbatim= branch: =.open({nature:"stream", feeds: Audio.Packet, yields: Verbatim.Any}, …)= mounting =shard.hal.verbatim()=; generic loop keeps dialogue/object/speech.
+- =gestalten/shard/hal.js= =verbatim()= — =sse.frames(ctx.request.raw.body)= → =cortex.hallucinate.verbatim.stream({source, config, harmonize, policy})= → polish stage: utterance-level at =/turn/close= (and on upstream close), CONCURRENT via =soma.merge=, =segment=-addressed, format-only prompt, tune =fast= — the prompt TEXT moves out of typology into runtime (=daemon/skills/=-adjacent authored prose), hal takes it as data.
+- green gate: =deno task runtime/test= — =dictation.integration.test.js= (kept, re-keyed) + NEW case: a mode harness with a ROOT =.use= writing =ctx.hallucination.system.x= mounted → verbatim frame still yields (the regression #1 needed) + polish after =/turn/close=, concurrent (next segment's partial is NOT held).
+
+** I.3 kajuit — chrome, owned right
+- =typology/prototypes/dictation.js= — =dictation({terminals, box})=; =start()= resolves =terminals.active.thread= and calls =thread.mode.harness.verbatim.stream(frames(signal), {input:{thread: thread.id}, signal})= — the MIRROR; two controllers (feed/link) kept; fold via =verbatim.fold= → atoms; no fire-on-subscribe cancel (thread switch handled by Dock's existing =$thread= chain).
+- =panels/a/widgets/Dock.svelte= — owns =dictation=; reads =$committed/$tail= for the ghost; composer readonly while listening; splice at the caret captured at start; Escape cancels; gate =daemon.cortex.find({type:"verbatim"}).length=.
+- =panels/a/widgets/Dictaphone.svelte= — dumb button over =$active= + =$level= (store contract, no =bind:this=, no callbacks).
+- =stores/box/device/microphone/worklet.js= — batch 1024 in =process()=; =microphone.js= loses =pending=.
+- =stores/box/drivers/audio/audio.js= — no =encode/decode= methods; dictation imports =pcm=.
+- =typology/prototypes/conversation.js= — =listen()= deleted (dead + wrong); =send= untouched.
+- green gate: =deno task kajuit/test= — =dictation.store.test.js= (re-shaped for =terminals=) + =dictate.splice.test.js= (kept).
+
+** I.4 provider — deepgram honest
+- =socketEvents= ⇒ =Queue=; =utterance_end_ms=1000= on nova (turn.end exists); =smart_format= decided against interims (or commit-by-count guarded); profiles: multi (honest tune) · flux; en/pt dropped once =provider.test.js= is revised; =words= pass through on final with =segment=.
+- green gate: =deno task --filter deepgram= offline suite + one live test gated on =SECRET_VIVA_DEEPGRAM_API_KEY=.
+
+** I.5 live (gate 2)
+=runtime/run= + =kajuit/run= → :1794 → dictate into francesca (a mode WITH a root harness mw) → settle → send. Tune VOCAL.harmonize on the thread; promote winners into =belt/verbatim.defaults=.
+
+* stage II — voice out (sketch; worked out when I lands)
+wire =shard.hal.voice= on =/dialogue= (=// .use(shard.hal.voice()) @@beef not yet=, =harnessed.js:80=) reading VOCAL.autoVoice/voice · =/speech/stream= yields =Audio.Packet= · Speaker decode rate-parametric · dock speak-aloud on a turn + auto-voice toggle · elevenlabs provider on =Queue= · mode sibling export for voice prefs.
+
+* stage III — converse (sketch; worked out when II lands)
+=/harness/converse= leaf ={feeds: Audio.Packet ∪ control, yields: merged}= · un-park =turn.js= (arbiter = data: policy from VOCAL, lexicon from language statics) · scribe keeps interrupted turns truncated at cursor · dock call button + captions via the same fold.
+
+* testing assessment (stage I)
+- *in place* — typology 109 · runtime 50 · kajuit 32 · deepgram 1 (HEAD baseline, pass I). Coverage gap: nothing exercises a harness call on a mode with a ROOT harness middleware; nothing exercises strip⟷wire for an upstream leaf; no live mic/deepgram path has ever run.
+- *changes* — patch tests re-keyed for fork B (=nature=→=event=) and for =terminals=; =provider.test.js= loses en/pt pins; multiplex/connection =/ingest= publish cases unchanged.
+- *adds* — =wire.converse.test.js= · runtime root-mw regression + concurrent-polish case · kajuit dictation over =terminals= · deepgram live-gated.
+- *ladder* — I.1 typology green incl. round-trip → I.2 runtime green incl. root-mw case → I.3 kajuit green → I.4 deepgram green (+live) → I.5 manual drive. Pre-DONE = named file + pasted counts.
+
+* blast table (stage I)
+| file | change | milestone | kind |
+|------|--------|-----------|------|
+| =subsystems/typology/schematics/primitives/hallucination.js= | Verbatim re-keyed · Audio family · segment ids | I.1 | schema (HOLY — fork B) |
+| =subsystems/typology/gestalten/shape/strip.js= | =feeds= in edgeMeta (=vector.js= untouched — Pattern valence already carries it) | I.1 | mirror |
+| =subsystems/typology/gestalten/shape/connection.js= | =feeds= ⇒ converse | I.1 | mirror |
+| =subsystems/typology/prototypes/connection.js= | =converse()= · sse belt | I.1 | core (HOLY) |
+| =subsystems/typology/prototypes/request.js= | =raw.body= upstream slot | I.1 | core (HOLY) |
+| =subsystems/typology/gestalten/shard/transmitter.js= | input beside stream | I.1 | transport |
+| =subsystems/typology/gestalten/belt/{sse,verbatim,pcm}.js= | one home · segmented fold | I.1 | belt |
+| =subsystems/typology/prototypes/hallucination.js= + =shard/hallucinate.js= | branch-scoped lowering · transcribe | I.1 | core (HOLY) |
+| =systems/runtime/daemon/traits/harnessed.js= | total assembly · VOCAL · /verbatim leaf | I.2 | runtime |
+| =subsystems/typology/gestalten/shard/hal.js= | verbatim() polish concurrent/addressable | I.2 | shard |
+| =systems/kajuit/src/typology/prototypes/{dictation,conversation}.js= | owned by Dock · listen() gone | I.3 | client |
+| =systems/kajuit/src/app/panels/a/widgets/{Dock,Dictaphone}.svelte= | ghost · gate · dumb button | I.3 | client |
+| =systems/kajuit/src/typology/stores/box/...= | worklet batching · driver slim | I.3 | client |
+| =registry/viva/hallucinator/deepgram/provider/index.js= | Queue · utterance_end_ms · honest tune | I.4 | provider |
+| =registry/fixtures/data/faculties.js= | verbatim/audio stubs (kept) | I.1 | fixture |
+
+* deferred
+binary frame lane on the socket (profile first) · E-panel VOCAL widget (entity skill/dataspace until then) · =ThreadTraitsEnum= VOCAL (pre-existing INTELLIGENT gap) · =turn.js= (III) · thread ownership check at the harness (pre-existing, not new).
+
+* stage I — the patch (=m37-converse/voice-in.patch=)
+beef: /"work out the full patch."/ Built pass-I style: base + work copies of the WORKTREE (not HEAD — beef's uncommitted Dock/connection/layout edits are the base), suites baselined in the copy, I.1→I.4 implemented, suites after each, patch = =git diff --no-index base work=. Worktree untouched; =patch -p1 --dry-run= 41/41, no offsets.
+
+** verification (pass II, historical — superseded by pass III below)
+#+begin_src text
+baseline (worktree, isolated copy)   typology 109 (411 steps) · runtime 51 (322) · kajuit 31 (110) · deepgram 1 (2)   0 failed
+patched   (work copy)                typology 114 (432 steps) · runtime 52 (325) · kajuit 33 (119) · deepgram 1 (3)   0 failed
+kajuit    deno run -A npm:vite@6 build → "✓ built" · "✔ done" (Dock/Dictaphone compile; a11y warnings pre-existing, none ours)
+comment gate   git diff … | grep '^+\s*//' → 0 authored comment lines
+#+end_src
+New suites: =typology/tests/harmonize.test.js= (8 harmonize + 3 fold) · =typology/tests/dictation.conversation.test.js= (3 schema + 5 flow incl. CONCURRENT polish) · =typology/tests/wire.converse.test.js= (strip⟷wire round-trip: feeds ⇒ converse, yields ⇒ stream) · =runtime/tests/dictation.integration.test.js= (3 — through the REAL mirror, through a mode whose harness writes =ctx.hallucination.*= at ROOT = the regression finding 1 needed) · =kajuit/tests/dictation.store.test.js= (3) + =dictate.splice.test.js= (6) · deepgram =provider.test.js= rewritten (nova/flux translators exported + unit-tested offline).
+
+** what landed, per milestone (deltas vs the worked-out plan are marked ⚑)
+- I.1 typology — =belt/sse.js= ={lines, encode, frames}= ONE home: =Request.subscribe=, =Response.publish=, =Connection.stream/publish/converse= all ride it · =belt/pcm.js= · =belt/verbatim.js= (=harmonize= event-keyed, mints =segment= on final; =fold= over =settled:[{id,text}]=, =transcript(state)= projection, polish addresses =segments:[ids]=) · =shard/trait.claimed= · =Connection.converse(endpoint, source, {input, signal})= = =stream()= with an SSE-encoded =raw.body=; =stream()= gained =raw= passthrough; =publish= rides =raw.body= too (one carriage) · transmitters: multiplex sends =input= beside =stream:true= and feeds =raw.body=; fetcher sends =raw.body= as the HTTP body (input dropped on plain HTTP — multiplex is the duplex transport) · =shape.strip= carries =feeds=; =shape.connection.wire= compiles =feeds= ⇒ =converse= · schemas: =Word= · =Audio.{Packet,Close,Any}= · =Verbatim.{Commit,Partial,Eager,Resume,Final,Polish,Any}= with =Packet.TurnOpen/TurnClose= as the turn boundaries (⚑ verbatim turns ARE Packet turns, role user) · =VOCAL= ={language,tune,harmonize,polish}= · =prototypes/hallucination.js= branch-scoped: =/dialogue= =/object= =.use(lowering)= stream+render; =/verbatim= =/speech= =.use(sourcing)= stream only (⚑ =/verbatim/render= + =/speech/render= GONE; =rendering("verbatim")= lie dead); leaves =transcribing= / =synthesizing= delegate to =shard.hallucinate.transcribe= / =synthesize= (span-marked) · ⚑ =prototypes/vector.js= UNTOUCHED — =Pattern= coercion already carries every extra pattern key as valence.
+- I.2 runtime — =harnessed.js= assembly TOTAL (sniff gone), =ctx.vocal = shard.trait.claimed(row, "VOCAL", …)= beside =iq=; =/verbatim= =.open({nature:"stream", feeds: Audio.Packet, yields: Verbatim.Any}, shard.hal.verbatim({polish: POLISH, tune: "fast"}))= — prompt TEXT and the default desire live in RUNTIME as data (⚑ the const sits in =harnessed.js=, colocated with the trait that mounts it); generic loop = =["dialogue","object"]= (⚑ =/harness/speech/*= removed — it ran a speech faculty through the dialogue respond loop; stage II mounts the real leaf) · =shard/hal.js= =verbatim({polish, tune})=: source = =ctx.input.source ?? ctx.request.subscribe()= (mode surface ∪ wire surface), =polishing(events, repair)= = =soma.merge(upstream, Queue)= — fires at =/turn/close= and at stream end over the turn's joined finals, yields ={event:"/verbatim/polish", transcript, segments}= concurrently, never holds the next turn; repair failure swallowed; tune =fast= fixed · ⚑ =registry/playground/modes/chaosmonkey/reader/emitter.js= =verbatim.render= → =dialogue.render= (it was a dialogue call on a leaf that could never resolve) · =tests/scenarios/cortex.js= =create({harness})= override · =aperture.snapshot.test.js= routes projection carries =feeds= (frozen =*-aperture.snapshot.json= still list =/harness/speech/*= + =/harness/verbatim/render= — live-gated writers, they rewrite on the next :2501 run; not hand-edited).
+- I.3 kajuit — =prototypes/dictation.js= =dictation({terminals, box})=: =start()= resolves =terminals.active.thread= and calls =thread.mode.harness.verbatim.stream(frames(feed.signal), {input:{thread}, signal})= — the MIRROR; frames = ={event:"/audio/packet", audio: pcm.encode(samples), rate: box.drivers.audio.context.sampleRate, pts}=; fold → =$committed= (=verbatim.transcript=) / =$tail=; =stop()= aborts the feed + pauses the mic and keeps draining; =cancel()= aborts both; refuses to start without a verbatim harness (=$error=) · =Dock.svelte= owns =dictation=, gates the button on =$modeStore.daemon.cortex.find({type:"verbatim", via:"stream"})=, ghost strip reads =$committed/$tail= directly, composer =readonly= while listening (anchor cannot drift), =Escape= cancels dictation before stream-stop, splice at the anchor captured on start with caret restore, thread switch cancels via =chain(terminals,"$active","$thread")= in an =$effect= · =Dictaphone.svelte= dumb: props =active/level= (stores, =$=-read), =onstart/onstop= · =worklet.js= batches 1024 samples in =process()= (⚑ the main-thread =pending= fields never existed) · =AudioDriver= untouched (⚑ no encode/decode methods) · =conversation.js= =listen()/mute()= DELETED, speech leg decodes via =pcm.decode= (⚑ it referenced a driver method that never existed) · =BOX= context + =stores.box.Box= at layout.
+- I.4 provider — =deepgram/provider/index.js= rewritten on =Queue= (the socket inbox IS a Queue; =line/opened/pump/transcribe=), translators =nova()= / =flux()= EXPORTED (pure, tested), honest tunes (nova-3 multi =[0.5,0.1,0.9,0.6]=, flux =[0.6,0.2,0.8,0.4]=; the default desire =fast= lives in the harness, not in coordinates), nova URL =interim_results=true&punctuate=true&vad_events=true&utterance_end_ms=1000&endpointing=100= (⚑ =smart_format= OFF — it reformats numbers between interim and final and breaks commit-by-count; polish owns ITN), =config.language= pins, =words= pass through on final; ⚑ en/pt profiles DROPPED (redundant with the pin; the test that pinned them is the one rewritten).
+
+** I.5 live checklist (gate 2 — your machine)
+1. apply (=git apply= or =patch -p1=) · =deno task runtime/run= + =kajuit/run= → :1794.
+2. francesca (ROOT harness mw) → mic beside send appears only where the daemon's cortex has a verbatim stream faculty → dictate → ghost strip (committed solid · tail ghost) → stop → polish lands → splice → send.
+3. watch for: nova =UtteranceEnd= arriving (turn/close) · polish latency vs stop · multi-language utterance on =language=multi=.
+4. tune =thread.trait.VOCAL.harmonize= on the thread (entity skill / dataspace until an E-panel widget exists); promote winners into =belt/verbatim.defaults=.
+5. =SNAPSHOT_HOT=1= / live run regenerates the frozen aperture snapshots (=/harness/speech/*= gone, =verbatim/stream= gains =feeds=).
+
+* critical pass III — the patch itself, judged and re-worked (beef: "deep and critical pass by conoisseur typology statndard … update the patch. make it pop")
+Pass II judged the design; this pass judged the PATCH's own code against the triggers and landed every finding back into =voice-in.patch= same-session. Verdict up front: the frame HELD — =converse= = =stream= + one raw carriage · sse one home · =harmonize=/=fold= = the =soma.pour= family · =polishing= = =soma.merge= of upstream ⊕ a =Queue= of repairs — nothing structural moved. The findings were discipline-grade:
+1. *silent input drop on plain HTTP* (trigger 10, LOUD) — the fetcher quietly discarded =input= whenever an upstream body rode the request; a converse over plain HTTP lost its thread binding without a sound. Now =ConnectionError= at the transmitter ("plain HTTP cannot carry input beside an upstream body — converse rides the multiplex transport"), firing only on non-empty input; a wire test pins it.
+2. *words died at the fold* — "words travel" was half-honored: deepgram exported =final.words=, the schema carried them, =verbatim.fold= dropped them. Settled entries now keep =words=; a polish sheds them (polished text has no timings); =part.meta.spoken= stays deferred to II/III — span tracking through composer edits is real design, not pennies.
+3. *double-defaulting dissolved the worst name* — hal spread =belt.defaults= into a =harmonize= that already defaults itself (two locks, one door), and THAT forced =import { verbatim as belt }= — an alias whose provenance points backwards. Cut the merge → the import dies → hal.js is one barrel line. The alias was the symptom; the duplication was the disease.
+4. *the mechanism already computes it* (trigger 17) — both transmitters hand-checked =request.raw?.body instanceof ReadableStream= while =Request.stream()= already answers it (=prototypes/request.js:36=, pre-existing). Both now read the accessor.
+5. *eventualities over shapes no producer makes* (trigger 10 twin), all cut — =packet?.audio ?? packet= (pump + fixture; the contract IS =Audio.Packet=) · =event.segment ?? segment= in harmonize (nothing upstream mints segments — mint at the owner, unconditionally) · =context?.sampleRate ?? 16000= (claim precedes frames; the driver pins 16000) · =ctx.vocal ?? {}= / =ctx.input?.source= (assembly is TOTAL — trust it; the tests now carry =body: {}= like the wire does) · =rendered?.output?.= (render throws or returns a transcript whose =output= is always set).
+6. *silent-empty source* — no =input.source= and no fed body yielded an empty event stream and a clean close: the worst failure shape (mic lights up, nothing returns, no error). =[hal.verbatim] no audio source= now throws.
+7. *cancel-during-arming race* — Escape while =microphone.claim()= was pending let =start()= resurrect "listening" after the cancel (Escape reaches =cancel()= in every non-idle phase; the button alone never could). Post-claim state check releases and returns.
+Micro, naming & idiom: fold state is ={settled, open, tail}= — =open= kills the second meaning of "segment" (one word, two types, one file) and mirrors =soma.transcript='s own ={open, turns}= register · Dock: gate =vocal= → =verbatim= (vocal says SPEAKS; this gate says the daemon HEARS — name it by the faculty, no coined register) · instance =dictaphone= → =recorder= (the component is the button; the instance is the machine) · =polishing='s =open= array → =finals= · fold's polish case = one =flatMap= anchored at the first present segment (was findIndex + filter + splice) · =aim= feeds-leaf passes =options= through whole · the dialogue/object stanzas are one loop (harnessed.js's own idiom) · =pcm.encode= chunks =fromCharCode= (2048 concats → 1 per frame) · =pts= is a cumulative media clock (=samples/rate=), not =Date.now()= wall time · POLISH drops "capitalization" (casing already says it) · =wordsAgree= internal as =agree= (nothing consumed the export).
+Tests: the hal pipeline suite now feeds =sse.encode= — the REAL encoder round-trips in situ, hand-rolled SSE helper deleted · NEW =pcm.test.js= + =sse.test.js= — both cata/ana pairs get their identity tests (=decode∘encode= ≈ id within one quantization step, clamp at full scale; =frames∘encode= = id, including a frame split across chunk boundaries) · fold-keeps-words case · fetcher-refuses-input case · =pts= pinned to =[0, 2/16000]=.
+Left alone, deliberately: =shard.trait.claimed= swallowing an invalid trait mirrors the INTELLIGENT precedent — changing it reshapes pre-existing semantics; flagged here, not smuggled · =transcribe=/=synthesize= span ceremony matches =respond='s own inline idiom · =shape.object= stays feeds-blind — the server-surface call shape (=stream({source})=) ≠ the mirror shape (=stream(source, {input})=); zero server-side callers exist, and touching the keystone for none is how epicycles start; settle it when a mode first calls it · =Verbatim.Final.segment= stays optional — the family validates both stations, pre- and post-harmonize.
+One trigger-19 on myself: the first cut typed =new ConnectionError(message)= from muscle memory — the ctor is =(type, message, context)= — and the NEW wire test caught the empty =.message= before anything else could. The gate works.
+** verification (pass III — isolated copies, base = today's worktree)
+#+begin_src text
+baseline (worktree TODAY, isolated copy)   typology 110 (412) · runtime 51 (322) · kajuit 32 (112) · deepgram 1 (2)   0 failed
+patched   (work copy, pass III applied)    typology 117 (440) · runtime 52 (325) · kajuit 34 (121) · deepgram 1 (3)   0 failed
+kajuit    deno run -A npm:vite@6 build → "✔ done"
+comment gate   0 authored comment lines added
+patch     43 files · +1621/−240 · patch -p1 --dry-run 43/43 clean on the worktree
+#+end_src
+
+* critical pass IV — three-pass senior review, three findings fixed (beef: "another pass on converse. m37" + correctness/design/ship rubric; then "fix all three")
+Pass III judged by the triggers; this pass ran beef's three-pass rubric (correctness trace · design · ship-readiness) with one cold-eyes reviewer agent riding shotgun, every claim verified against live code before it counted. The frame held its fourth review — what surfaced was three failure-path defects, all landed back into =voice-in.patch= same-session on "fix all three":
+1. *BLOCKER — one malformed client frame killed the daemon process.* =transcribe='s =const feeding = pump(...)= attached its rejection handler only in =finally= — while the drain loop was parked, a rejected pump was an UNHANDLED rejection, and Deno exits on those (proven with a 5-line probe: reject at T0, catch at T+100ms → =Uncaught (in promise)=, exit 1; no =unhandledrejection= handler exists anywhere in the repo). Reachable from the network: any =data: garbage= line → =sse.frames= yields the raw string → =packet.audio= undefined → =atob("undefined")= throws in pump. One curl = daemon down. Now the handler rides the promise from creation; the fault closes the deepgram socket, surfaces after the drain, and kills exactly ONE stream as a 500 error frame — the socket and its sibling lines live (serve catch is per-signal, =socket.js:211-217=).
+2. *deepgram failure was indistinguishable from "you stopped talking".* =line()='s =error= listener (and any abnormal close — deepgram idle-timeout closes 1011) just did =inbox.close()=: mid-utterance outage → HTTP 200, clean end, truncated transcript, =$error= never set. Silent fail at a trust boundary, no log line even. =line()= now records a fault on =error= and on close codes ≠1000/≠1005; =transcribe= throws it after the drain. The delivery chain to the user existed the whole time and was verified station by station: throw → =span.fault= → serve catch → ={frame, error: {status: 500}}= (=socket.js:217=) → client =throw frameError= (=socket.js:251=) → =reduce= catch → =$error= → Dictaphone title.
+3. *the pass-III arming guard could kill its successor's microphone.* Pass III's fix 7 stopped cancel-during-arming from resurrecting "listening" — but its guard checked GLOBAL state (=$active !== "arming"=), not session identity. The mic claim is a plain boolean (=claim()= no-ops when claimed, =release()= hard-stops), and =getUserMedia='s permission prompt makes the arming window seconds wide: start A → cancel (thread switch) → start B → B listening → A's stale claim resolves → guard sees "listening" ≠ "arming" → releases B's LIVE mic; B's recording dies silently and B's own =reduce= finally then force-idles the UI. Same category in =reduce='s finally (unconditional shared-slot mutation). Now a =session= generation token: =start()= takes =++session=, the post-claim guard and =reduce='s loop/catch/finally all check =id === session=, =cancel()= bumps — a stale actor touches nothing, releasing only when nobody armed after it.
+The reviewer's version of finding 3 claimed a seconds-wide race via =reduce= latency ("bounded by polish-LLM latency") — REFUTED: =socket.shut= runs =frame.close()= locally before the wire send, so =cancel()= tears the client iterator in microtasks. Chasing the refutation exposed the arming path, which is the reachable one. Also verified real (suspicions raised and killed): Dock's =$modeStore?.daemon?.cortex?.find= gate — the client daemon carries a sync =Cortex= hydrated from =/metadata/cortex= (=daemon/dossier.js:100=) · =terminals.active= / =terminal.thread= / =thread.mode= all real getters · =polishing='s inflight/drained accounting clean (reviewer confirmed independently) · fold's polish anchoring safe (flush batches are disjoint).
+Tests: NEW =deepgram/tests/transcribe.test.js= — a stubbed =WebSocket= class drives all four eventualities (clean 1000 close = no fault · mid-stream =error= throws after delivering what arrived · abnormal close names its code · malformed frame faults the stream loudly, and the test passing at all proves the process survives) · dictation store suite + "a session cancelled while arming never clobbers its successor" — deferred claims, release counter pinned across the stale resolution.
+Left alone: =flux= hints ride the URL unescaped (server-config-sourced; nit noted) · during "settling" only Escape rescues a hung daemon (verified working) · =Connection.publish= outlives its last production caller on test coverage — watch item.
+** verification (pass IV — same isolated copies, fixes applied)
+#+begin_src text
+patched   typology 117 (440) · runtime 52 (325) · kajuit 34 (122) · deepgram 2 (7)   0 failed
+patch     44 files · +1772/−240 · patch -p1 --dry-run 44/44 clean on the worktree
+probe     deno late-handled rejection → "Uncaught (in promise)", exit 1 — blocker mechanism proven, fix pins it
+#+end_src
+
+* changelog
+- FRAMED: capability stages I/II/III; issues 1-9 ranked; forks A-D defaulted; stage I worked out to milestones + blast + tests. No code touched.
+- STAGE I PATCH: =m37-converse/voice-in.patch= worked out + verified in isolation (numbers above); 41 files; UNAPPLIED. Coverage delta: typology 109→114 tests (harmonize/fold, schema families, hal.verbatim flow incl. concurrent polish, strip⟷wire round-trip) · runtime 51→52 (duplex verbatim through the mirror + a ROOT-mw mode + VOCAL projection + abort hygiene) · kajuit 31→33 (dictation prototype over terminals, spliceAt) · deepgram translators unit-tested. Deviations from the worked-out plan marked ⚑ above.
+- PASS IV: three-pass senior review (correctness/design/ship) + cold-eyes reviewer agent; 3 failure-path findings — process-killing unhandled rejection (proven by probe), silent deepgram fault, stale-session mic clobber — all fixed on "fix all three"; patch regenerated — 44 files (+ =transcribe.test.js=); all four suites green; still UNAPPLIED.
+- PASS III: connoisseur pass ON the patch ("update the patch. make it pop"); 7 findings + a naming/idiom sweep landed in place; patch regenerated — 43 files, two NEW identity suites (=pcm.test.js=, =sse.test.js=); all four suites green both sides against TODAY's worktree; still UNAPPLIED.

@@ -1,0 +1,253 @@
+#+title: the prod drive lands eight fixes, mikro drops the user filter inside subqueries, and the domain gets its first real tests
+#+filetags: :m35:dojo:prod:mobile:kajuit:preview:workbench:rank:trace:migration:datamap:bruno:curl:domain-tests:multiplayer:retention:mikro:callouts:
+
+* arc
+
+The fold opens on the CONJUGATE-gameplay cut already reported and beef asleep — then beef
+comes back from the phone, on PROD, with two punch lists. Block A is the dojo as a mobile
+instrument: the drawer forgets a half-built rule when you switch sections, the preview
+knows only "first rep", the prod kernel spells the language static as bare strings so the
+prompt says "WRITE IN " and the input placeholder says =undefined…=, the audio dot next to
+the prompt plays THE ANSWER, LISTEN never shows the gloss, and with the keyboard up the
+verdict lives below the fold. Block B is the drawer under real data: feed leads with
+=ingrassiamo= and =proibisci= (rank 0 sorted first), a completed set restarts on stale
+material, the pincer overflows its bar and drags a shadow across the bones, a wrong answer
+gets an orange whisper instead of red, and the drag handles are invisible hairlines nobody
+can hit with a thumb. All eight land in one pass — with beef's "3 go. 2 go. 1 go. app
+level. 6 go. 4 go. 5 go" as the only design meeting.
+
+Under the drive two prod incidents surface. =/review/literal= dies on every insert with
+/no such table: main.Memory/ — not code (zero refs outside =bak/=), but prod's =Trace= table
+still says =references Memory=: SQLite =rename column= keeps the FK TARGET, so the generated
+migration chain Memory → Engram → Retention left the FK pointing at a dropped table; local
+never saw it because testament is regenerated. And the rank-0 rows are a stale =RANKED= from
+an older dataset build that reinstall cannot clear because install's upsert is a deep
+MERGE. The rank fix is where the fold burns: I answer a curl-holding beef with sqlite —
+twice — and get the codeword; then a Bruno file; then, told "do it yourself" and handed a
+token, I run the loop against prod (23 rows → 9999, feed leads essere/avere) — after
+discovering the datamap ops mount at =/entities/<type>/=, not =/pick/<type>/=. Earlier the
+same evening the second codeword: two mXX quest files of mine — /"i manage mXX quests"/ —
+deleted, references rewritten, memory saved.
+
+Then beef asks the question the whole fold was circling: /"why wasnt this tested?"/ — and
+/"test the whole domain"/. The domain had ONE live-gated integration file and a bayesian
+unit test. It gets fifteen suites, and two of them catch real bugs on the way in:
+=byStrength=/=sample= filtered on ={retentions: {}}= (constrains nothing) and — the big one —
+mikro does NOT apply the Retention =user= filter inside =$none=/=$some= subqueries, so on a
+multiplayer daemon =novel= for one learner hid every word another learner had studied. Both
+fixed in =Literal.ts=; a rank guard (=rankOf=) makes the rank-0 incident impossible by
+construction. Kajuit's boot logs stop flowing under the iOS status bar.
+
+* the walk
+
+N = 196 for the session; rows 1–136 are the two earlier folds (by reference); 137–139 are the
+fold mechanics (=/compact= ×2 + the continuation summary). This fold walks 140–196.
+
+| n | beef | landed / decided |
+|---|------|------------------|
+| 140 | the post-compact echo of /"maybe teh conjugation is gameplay not preset?!"/ | NOTHING new — post-compact ack sent |
+| 141 | /"when i have only write gameplay selected and throw in conjugations, id like to play write not paradigm. paradigm is greedy but not assertive"/ | verified the served bundle (=0735da54…=) already expands rows under TYPE; found the ONE remaining greed — =redraw= pins aboard tables under a live toggle — offered to cut it; asked cold-start vs live |
+| 142 | /"i love you"/ | NOTHING |
+| 143–144 | /"dojo notes"/: drawer state loss between sections · /"preview option for once or repeating or on last signal error"/ · /"static language italian is missing on prod variant"/ · /"audio giving away the answer."/ · /"translation prompt in known missing"/ · /"design ought to be more compact and fit into viewport with keyboard open"/ · /"answer not visible. have to scroll"/ + 5 screenshots | six items diagnosed to lines (Builder local state · =types.preview= first-rep only · =multiplayer.viva.js:60= strings vs =.name= · Prompt dot beside =shown= · listening branch no gloss · feedback below the fold) |
+| 145–146 | /"oh the 'translation prompt in known missing' is due to the listen game. my mistake. but add the translation back in there"/ | A5 = gloss under the wave |
+| 147 | /"3 go. 2 go. 1 go. app level. 6 go. 4 go. 5 go"/ | all six greenlit; workbench = app level |
+| 148 | /"go"/ | kernels → ={slug,name}= (multiplayer, localhost, ghost) · Prompt =audible= + LISTEN gloss · =preview.when= schema · knowables carry =signal= = the last signal (=fold.fromLiteral=, =paradigms= tokens, =knowables.forms=) · streak =missed= · =knowables.previews()= |
+| 149–154 | /"get fucking on with it"/ · /"no reason to spend all day on this"/ · /"dammit"/ | pace correction taken — Rep/Dojo/Gameplay/Prompt wired for =when=; workbench hoist begun (=buffer/workbench.js=, Builder regex-hoisted 83 sites, =bind:workbench=) |
+| 155 | /"go"/ | hoist wired Dojo → Drawer → Builder; 18 views compile |
+| 156 | block B (4 screenshots): /"these verbs seem pretty advanced… validate."/ · /"when i restart a set after having completed it, or when i end it, the sets should refresh"/ · /"weird shadow eminating from the chromes bones and the pincer border is misconfigured on paper to overflow the bone bar"/ · /"errors should have red input outline and button color"/ · /"the drag handles are UNREACHABLE on mobile… invisible aka implicit"/ | queued behind A |
+| 157 | prod feed dump (100 rows): 19 leading rows =RANKED.rank: 0=, zipf 1.0–1.45 | diagnosis: rank 0 sorts first under =rank ASC= |
+| 158–159 | /"i suspect the issue with the verb selection is due to a stale dataset regarding rank"/ · /"ill investigate that. you do the rest"/ | B1 handed to beef; A6 + B2–B5 mine |
+| 160 | reinstall log + still rank 0 + the lighthouse still lists brazilian/spanish daemons | rank 0 is in the installed data; install can't drop it (deep-merge upsert); daemon-remove request written |
+| 161–162 | /"are these yours??? overkill mate. i never asked for them retard. i manage mXX quests"/ | **CALLOUT** — m34/m35 quest files DELETED, refs rewritten in frontier/codemap/3 compacts, memory =feedback_mxx_quests_are_finns=, MEMORY.md hook |
+| 163 | /"write me a request to rewrite all rank 0 to rank 9999"/ | curl loop written (find → per-row updateOne, trait merged client-side — =/update= would replace the json) |
+| 164 | /"go"/ | A6 dock + Desk dense + Prompt compact · B4 red miss/green landing · B2 refresh on end · B3 viket border-box, shadow off · B5 grips · tests + rebundle =a7bfa195c87b8615= · compact tail + frontier |
+| 165–170 | prod log: =/review/literal= → /no such table: main.Memory/ (54k chars) · /"cont"/ ×3 | Trace FK diagnosis (rename-column chain, migration =Migration20260812174538=) → =DROP TABLE Trace= + restart; report of A/B |
+| 171 | /"all? double pass. check"/ | every item re-verified to file:line + 19-view compile; no holes; one known-minor (LISTEN + hint repeats the gloss) |
+| 172 | the same Trace log again: /"what about this? fixed?"/ | no — prod sqlite, not code; commands restated |
+| 173 | /"and how do i fix the rank 0 ?"/ | answered with =sqlite3 UPDATE= — WRONG channel |
+| 174 | /"no fuckface. did i fucking send you fukcing sql statemetns? retard"/ | **CALLOUT** (channel fidelity + mikro-owns-the-db) — curl loop restated |
+| 175–178 | beef's curl (a Bruno export) · /"spassssstic"/ · /"those are bruno statements"/ | two =.bru= files written into his collection (=rerank-zero= with a post-response axios loop, =count-zero=) |
+| 179–181 | /"just give me curl you worthless brainless spastic"/ · /"or wget"/ | bare curl block, token as =$TOKEN= |
+| 182–183 | Bruno screenshot: /"how tf is this supposed to work?? fuck"/ | send → Script tab loop → Tests; prereqs |
+| 184 | /"there are such things as UPDATE statements"/ | verified =EntityAssigner.js:106=: =/update= REPLACES json props (=mergeObjectProperties: false=) — one-line fix proposed (=DataEntity.ts= assign merge), gated on go |
+| 185–186 | /"do it yourself"/ + a fresh access token | ran it: datamap ops live at =/entities/literal/*= (=/pick/literal/*= is feed/due/novel/… only) — 23 rows → 9999, count 0, feed leads essere/avere; token file wiped; =.bru= URLs corrected |
+| 187 | /"why wasnt this tested? there seem to be thorough test gaps on domain level. scan and plug."/ | scan: one live-gated integration file · =kernel/literal.test.js= (rank law, feed order, review→retention+trace+lastSignal, FK targets) · =rankOf= guard in =Literal.ts= |
+| 188 | /"test the whole domain"/ | =scenarios/domain.js= + aperture · userspace scoping (two users) · tools · drivers · domain.test · literal extras — 15 suites / 112 steps; TWO domain bugs fixed (=$some=; owner inside subqueries) |
+| 189–194 | /"about kajuit. on mobile the boot loading screen overflows on top… on ios… the loading messages… loading boot logs… they flow over/under the ios chrome… like the time and network status"/ | =Boot.svelte= + layout =.gate= pad by =--safe-area-*= |
+| 195–196 | =/compact= · /"ikiro compact"/ | this fold |
+
+Balance: rows cited in the last third (178–196): 8 of the table's 30 rows — the arc leans on 141–164.
+
+* the live drive — beef on the phone against prod, two task blocks (LANDED)
+
+beef, block A: /"when toggling between sections in the drawer i dont want to lose state in one.
+either state on app level, maybe even buffer?"/ · /"i want a preview option for once or repeating
+or on last signal error"/ · /"static language italian is missing on prod variant"/ · /"audio giving
+away the answer."/ · /"translation prompt in known missing"/ → /"oh … is due to the listen game. my
+mistake. but add the translation back in there"/ · /"design ought to be more compact and fit into
+viewport with keyboard open"/ · /"answer not visible. have to scroll"/ — then /"3 go. 2 go. 1 go.
+app level. 6 go. 4 go. 5 go"/.
+
+- workbench hoisted: =buffer/workbench.js= (=blank=, =fresh=) · =Dojo= owns =workbench= $state ·
+  =Drawer= + =Builder= take =bind:workbench= (=tab draft aimed symQ kind litQ=) — a narrow section
+  switch no longer kills the draft. App level, not buffer (a draft is not setup).
+- =preview.when: ONCE|ALWAYS|MISSED= (=types.PREVIEW_WHENS=; ONCE = today's law); =knowables.previews()=
+  is the one law; MISSED reads the knowable's =signal= (last signal — =fold.fromLiteral= from
+  =retention.lastSignal=, tables/forms per token from =paradigms()=, resolve populates
+  =uses.retentions= + =retentions=) and the session's own =streak= entry =missed= (set on =record=).
+  Gameplay row "preview when" (=axis: "preview"= for the frozen check) · Prompt kicker names it.
+- prod statics: =multiplayer.viva.js= (+ =localhost/education.js=, ghost, the commented spanish/brazilian
+  blocks) said =language: {known: "english", learning: "italian"}= — strings — while every view reads
+  =.name=; now ={slug, name}= like testament. Root of "WRITE IN " and the =undefined…= placeholder.
+- audio: =Prompt= dot only when the shown side is the learning side (=recall KNOWN=) or listening —
+  under recall LEARNING the asset IS the answer. LISTEN shows the gloss under the wave (recall LEARNING).
+- compact: =Rep compact= (Dojo =tier === "narrow"=) — feedback DOCKS above the input (=TokenFeedback
+  dense=: verdict + you wrote → expected in one row) so the answer never scrolls off; =Desk= gets
+  =dense= (stage/controls padding halved); =Prompt compact= (meta/context margins halved).
+
+beef, block B: /"these verbs seem pretty advanced. id expect feed to return more basic verbs at this
+point … validate."/ · /"when i restart a set after having completed it, or when i end it, the sets
+should refresh to reflect the new feed state"/ · /"there is this weird shadow eminating from the chromes
+bones and the pincer border is misconfigured on paper to overflow the bone bar"/ · /"errors should have
+red input outline and button color"/ · /"the drag handles are UNREACHABLE on mobile. very finicky. and
+they are invisible aka implicit"/ · /"i suspect the issue with the verb selection is due to a stale
+dataset regarding rank … ill investigate that. you do the rest"/
+
+- B1 (beef's): prod feed returned 19 =RANKED.rank: 0= rows first (zipf ~1.0–1.45: significare, pesare,
+  costare, ingrassare…) — =rank 0= sorts as best under =orderBy rank ASC=. Reinstall didn't change it (the
+  dataset says 0). Written for beef: per-row =updateOne= 0 → 9999 (bulk =/update= would REPLACE the whole
+  =trait= json — mikro =assign= has =mergeObjectProperties: false=; the =rank= column follows via the
+  =beforeUpdate= hook).
+- B2: =stop()= + =finish()= → =dirty = declared= + =refreshPreview()= — the clause cards re-resolve
+  against the new retention state and start recommissions.
+- B3: kajuit =pincer.svelte= =.viket= — =box-sizing: border-box= (45px incl. the 2px border, was 51 =
+  overflow), resting drop-shadow + 1px ring gone (the "shadow emanating from the bones"), dragging keeps
+  a soft one.
+- B4: =TypeInput= — =missed= (MISTAKE|FAILURE) = error border + glow + red Next; =landed= = success.
+- B5: =Builder .split= 14px (22 narrow) with a grip pill + hairlines; =Drawer .wall= 12px with a
+  vertical grip — visible, reachable.
+- ALSO prod: =/review/literal= dies "no such table: main.Memory" — prod's =Trace= FK still targets
+  =Memory= (rename-column chain Memory→Engram→Retention keeps the FK TARGET); zero code refs. Told beef:
+  =.schema Trace=, =DROP TABLE Trace=, restart → mikro's boot migrator recreates it. Stale lighthouse
+  daemons brazilian/spanish → =/entities/daemon/remove= request written.
+- ALSO ikiro: beef: /"are these yours??? overkill mate. i never asked for them retard. i manage mXX
+  quests"/ — my m34/m35 quest files DELETED, references rewritten, callout logged, memory
+  =feedback_mxx_quests_are_finns=.
+
+tests: dojo 9 / 45 · runtime 51 / 322 · 18 views compile · rebundled (=a7bfa195c87b8615=). Prod needs a
+redeploy for the kernel statics + pincer + dojo bundle.
+
+* domain test gaps — beef: /"why wasnt this tested? there seem to be thorough test gaps on domain level. scan and plug."/
+
+Scan: the only domain-level coverage was =systems/runtime/tests/daemon/integration.test.js= — LIVE-gated
+(skips offline) and shallow ("feed returns something", review returns an id). Nothing pinned feed ORDER,
+the =rank= column law, the trace write, =lastSignal=, or FK integrity. Offline domain tests =
+=registry/education/domain/tests/retention/bayesian.test.js= alone.
+
+Plugged: =registry/education/domain/tests/kernel/literal.test.js= (in-memory seed, 5 suites / 15 steps):
+rank law (=rankOf=: RANKED.rank ≥ 1 wins; rank 0/negative/missing → 10^(9−zipf) per the corpus
+criteria's own formula, else =UNRANKED= 999999; stamped on create AND update, caller's =rank= ignored) ·
+feed order (due first, novel by rank ASC, rank-0 never ahead of ranked, limit + blacklist, symbol $and) ·
+novel/due membership · review (one retention per user·literal, one trace per review, =lastSignal= = newest
+trace via the literal's retention, =byLastSignal=) · schema (every =references X= target exists +
+=pragma foreign_key_check= empty). One product change with it: =Literal.ts= =LiteralSubscriber= now
+stamps =rank = rankOf(trait)= — the guard that makes the prod incident impossible (a stale =rank: 0= sorts
+by its zipf, not first).
+
+Prod done by hand (beef: /"do it yourself"/ + token): 23 rows =RANKED.rank 0 → 9999= through
+=entities/literal/updateOne= (the datamap ops mount at =/entities/<type>/=, NOT =/pick/<type>/= — the two
+=.bru= requests corrected too); feed now leads essere/avere. Token file wiped.
+
+Still open, decisions for beef: (a) =/update= replaces the whole json prop (=DataEntity.update= →
+=assign= without =mergeObjectProperties=) — one line makes it merge, then bulk trait patches are ONE
+request; (b) reinstall cannot drop a stale trait (=dataset.js= upsert = deep merge) — is the dataset the
+source of truth for traits?; (c) migration drift: SQLite =rename column= keeps the FK TARGET, so a
+generated chain (Memory → Engram → Retention) leaves =Trace= pointing at a dropped table — no boot-time
+integrity check exists; the new schema test guards a fresh db only; (d) 24 brazilian dataset rows carry
+=rank: 0= (zipf present) — harmless under the guard, still wrong data by the criteria doc.
+
+* the whole domain under test — beef: /"test the whole domain"/
+
+=registry/education/domain/tests/= — 15 suites / 112 steps, offline, in-memory seed:
+- =scenarios/domain.js=: runtime =daemon.create()= + the domain aperture slurped the way
+  =lifecycle/resolution.js domain()= does (authorize + user filter bind, =daemon.call= proxy,
+  =domain.resolve(die)= for the userspace routes), http handler recompiled AFTER the mount (the
+  compiled aperture is frozen at =shape.http= time), tools proxied with =steer.strategy.direct=.
+- =aperture/aperture.test.js=: 401 unauth · feed/novel/due/byStatus/byStrength over the wire · bounces ·
+  literal by slug/id/query · reschedule + trace count + lastSignal · =daemon.call= in-process ·
+  userspace retention/trace routes user-scoped.
+- =userspace/scoping.test.js=: TWO users — alice's retentions invisible to bob, bob's review makes HIS
+  rows, uniqueness user·literal is a constraint, byStatus/byStrength/sample per user, deleting a
+  literal cascades every user's retention + trace.
+- =tools/tools.test.js=: vector shape (four routes, input schemas) · =line= · lookup (slug/known/learning,
+  "not in the corpus") · queue (five picks, symbols AND, empty) · review (no user → ERROR, unknown
+  slug reported, retentions returned, leaves novel) · progress report.
+- =retention/drivers.test.js=: registry = driver enum · every driver × every SIGNAL inside STATUS ·
+  boolean (graduate/unknown, ratio halves/thirds) · counter (schedule 1,1,24,24,24,168,168,168 →
+  UNKNOWN→LEARNING@2→KNOWN@5→GRADUATED@8, miss resets streak not totals) · =RetentionEntity.evolve=
+  (encode→evolve, string signal, lastAt, =is= predicates).
+- =domain.test.js=: manifest TOOLED+EXPOSED · five tiers · routes + tools present · STATUS = enum ladder ·
+  SIGNAL five-step + TAU refuses strangers · trait enum.
+- =kernel/literal.test.js= (+): search over slug/known/learning · =reference= · =card= · =symbol= json
+  facets · =uses=/=in= linked from ANNOTATED + CONJUGATED after flush.
+
+TWO domain bugs the tests caught, fixed in =Literal.ts=:
+1. =byStrength= / =sample= filtered ={retentions: {}}= — an EMPTY relation condition constrains nothing
+   in mikro, so "weakest" and "sample" returned UNRETAINED literals too. Now ={retentions: {$some: …}}=.
+2. MULTIPLAYER: mikro does NOT apply the Retention =user= filter inside =$none= / =$some= subqueries
+   (probe SQL: =inner join Retention r1 on … = with no =r1.user = ?=). So =novel= for bob excluded every
+   literal alice had studied, =byStrength=/=sample= saw everyone's retentions. Every retention
+   sub-condition now carries the owner explicitly — =LiteralRepository.owner()= reads the em CONTEXT's
+   =user= filter params → =$none: {user}=, =$some: {user}=, and =due=/=byLastSignal=/=sample(status)=
+   spread it too. Test: alice ↔ bob in =scoping.test.js=.
+
+Also: =entities/kernel/Todoliteral.ts= has zero importers — dead file, untouched. Kajuit: =Boot.svelte=
++ the layout =.gate= now pad by =--safe-area-*= (beef: boot logs flowed under the iOS status bar —
+=+page.svelte= zeroes body padding, only the bones geometry knew the inset).
+
+* failures — three, two with the codeword
+
+- **mXX quests are Finn's** (rows 161–162). Two quest files of mine in his milestone namespace.
+  /"are these yours??? overkill mate. i never asked for them retard. i manage mXX quests"/. Root:
+  "all inside ikiro is yours" read as every directory; the numbered sequence is HIS roadmap voice.
+  Deleted, references rewritten, callout + memory. Rule: plans → compact tail / frontier; a quest
+  document needs his number.
+- **channel fidelity** (rows 173–186). Asked "how do i fix the rank 0?" by a beef holding curl, I
+  answered with =sqlite3 UPDATE= — the file on disk, a mikro-owned db, a channel he never opened —
+  and did it AGAIN when the question repeated. /"no fuckface. did i fucking send you fukcing sql
+  statemetns? retard"/. Then over-corrected into a Bruno file he did not want either (/"just give me
+  curl"/). Rule: the request's format IS the delivery format; direct db access is never an answer
+  for a daemon-owned store — the datamap API, or design the API side. Callout logged; also the
+  route lesson: datamap ops mount at =/entities/<type>/=, =/pick/<type>/= is the domain's picks.
+- **pace** (rows 149–154). Six greenlit items, and I was still reading =Desk.svelte= for the sixth
+  when beef wrote /"get fucking on with it … no reason to spend all day on this"/. Not a codeword;
+  the correction was taken (rest landed in one pass), and it is the same family as the
+  narration/diagnostic-theater rules — the go had been given, the reading was for comfort.
+
+* state at fold
+
+- Code, UNCOMMITTED (VCS is beef's): dojo block A/B fixes (workbench hoist · =preview.when= ·
+  Prompt audible + LISTEN gloss · compact dock · red miss/green landing · refresh on end · grips) ·
+  kernels ={slug,name}= (multiplayer, localhost, ghost) · kajuit =pincer.svelte= viket + =Boot.svelte=
+  + layout =.gate= safe-area · domain =Literal.ts= (=rankOf= guard, =owner()= in every retention
+  sub-condition, =$some=) · =testament/_bruno/…/pick/literal/{rerank-zero,count-zero}.bru=.
+- Tests: domain 15 / 112 · dojo 9 / 45 · runtime 51 / 322 · 19 views compile. Local rebundled
+  (=a7bfa195c87b8615=), italian daemon up (401 = up).
+- PROD: rank 0 → 9999 DONE by hand (23 rows) · Trace/Memory FK OPEN — needs =DROP TABLE Trace= +
+  restart on the box (no datamap op can do it) · lighthouse still lists brazilian/spanish (remove
+  request written) · redeploy owed for kernel statics + pincer + boot + dojo bundle + the domain
+  fixes.
+- Decisions for beef: (a) =/update= merge (one line, =DataEntity.ts=) · (b) is the dataset the source
+  of truth for traits (install deep-merges, cannot drop) · (c) migration drift has no boot-time FK
+  integrity check · (d) 24 brazilian dataset rows with =rank: 0= (harmless under the guard) ·
+  (e) the =redraw= pin (aboard tables stay tables under a live gameplay toggle) — cut on request.
+- Ikiro: compact 45 trimmed to its fold (this fold's sections moved here) · frontier · memory
+  =project_test_suite_baseline= (domain 15/112 + scenario) · =feedback_mxx_quests_are_finns= ·
+  two callouts in the ledger · =Todoliteral.ts= dead (zero importers), untouched.
+
+* resumption
+
+1. Beef: =DROP TABLE Trace= + restart on prod; redeploy; then review a literal from the phone.
+2. Live drive of block A/B on the phone: docked verdict with the keyboard up · red miss · grips ·
+   preview =missed= · restart draws fresh feed.
+3. Answer (a)–(e) above; =go= on the =/update= merge line makes bulk trait patches one request.

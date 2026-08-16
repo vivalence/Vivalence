@@ -1,0 +1,578 @@
+#+title: m33 — dictation
+#+filetags: :m33:dictation:verbatim:vocal:deepgram:harmonizer:kajuit:dock:harness:typology:runtime:
+#+status: STAGED + CRITICAL PASS I (mechanical) DONE + CRITICAL PASS II (design) DONE → DO NOT APPLY AS-IS (9 findings, 5 structural; see "* critical pass II"). (beef: /"do the same check and critical pass against m33"/). Patch VERIFIED in an isolated copy against HEAD: applies clean, all four suites green (typology 109→113 · runtime 50→51 · kajuit 32→34 · deepgram 1→1, 0 failed). Four defects fixed IN THE PATCH, one scope-creep module parked. Patch still UNAPPLIED in this worktree; nothing live-validated with a real microphone or deepgram.
+
+* provenance
+
+SUPERSEDED-AS-FRAMING by [[m37-converse]] (capabilities I voice-in · II voice-out · III converse); this file remains stage I's body — original design, build report, patch, critical passes I+II.
+
+beef, mid-wake, verbatim: "move these into quest m33" — three files from ~/Downloads, authored
+outside this session against commit =7952148=:
+
+- =quest-dictation.md= → the quest body below (md→org via pandoc, content untouched)
+- =dictation-implemented.md= → [[*implemented — build report][implemented — build report]] below
+- =dictation.patch= → =.ikiro/quests/m33-dictation/dictation.patch= (34 files, +1658/−77, base =7952148=)
+
+=7952148= is a SIBLING of local HEAD =b8e1f85e1= (both children of =53d1f4962=; =7952148= sits on
+=github/trunk=). Patch is UNAPPLIED in this worktree; nothing in this file was verified live in
+this session — the build report's "green" claims are the author's, re-run before trusting.
+
+* critical pass — verified against HEAD, defects fixed in the patch
+
+Method: pristine copy of the repo in scratchpad (node_modules + testament symlinked), baseline
+suites run, patch applied with =patch -p1=, suites re-run, every terrain claim grepped against
+live code, then fixes made in the copy and the patch REGENERATED from it (=git diff --no-index=
+against a fresh base). Nothing in the worktree touched. =7952148= is a sibling of HEAD but
+carries the IDENTICAL diff on every patched file (=git diff --stat 7952148 HEAD -- <files>= is
+empty; the two differ only in eight =.ikiro/= files), so "applies clean on 7952148" ⇒ applies
+clean here — confirmed 31/31 hunks, zero fuzz.
+
+** verification (numbers, not the report's)
+#+begin_src text
+baseline (real repo, unpatched)     typology 109 · runtime 50 · kajuit 32 · deepgram 1     — 0 failed
+original patch (isolated copy)      typology 115 · runtime 51 · kajuit 34 · deepgram 1     — 0 failed
+corrected patch (isolated copy)     typology 113 · runtime 51 · kajuit 34 · deepgram 1     — 0 failed
+                                    (−2 = the parked turn tests; kajuit store test 10/10 after the flake fix)
+#+end_src
+The report's "identical pre-existing failures (snapshot demos)" does not reproduce — baseline
+is clean here.
+
+** terrain claims that held
+=Socket.open(signal, {stream:true})= / =feed= / =ctx.request.raw.body= materialisation
+(=socket.js:156-175=; the query string DOES ride the frame — =packet.query= is spliced into
+=request.url=, so =?thread=&language== reach the harness) · transmitter gates the streaming
+body on =accept: text/event-stream= (=transmitter.js:80=) · deepgram provider ships verbatim
+faculties · =FacultyType= has verbatim · HARNESSED assembles =ctx.hallucination= as a plain
+record and looped verbatim through the generic branch (now removed) · =eager= is a real Tier
+(=cortex.js:14=) · =dialogue.render= returns ={turns, output, meta}= (=soma.transcript=), so
+=polish()= reading =turns.at(-1).parts= is sound · =BOX= context was pre-planned (commented
+=export const BOX= in =client.js=, =/*, box */= in the layout) — the patch enables it, no new
+root · =Box= construction is SSR-safe (AudioContext acquired lazily, =navigator= guarded).
+
+** defects found and FIXED in the regenerated patch
+1. *fold lost every segment but the last.* deepgram emits =is_final= per segment (several per
+   dictation, plus one per utterance); =fold='s =final= and =polish= did =committed =
+   event.transcript= — wholesale replace — so "the quick fox. jumps over the dog" settled as
+   "jumps over the dog". Now =fold= keeps ={settled, segment, closed}= behind =committed=:
+   =final= closes the segment, the next commit/partial/final/turn.start folds the closed
+   segment into =settled=, =polish= repairs only a closed segment and is dropped once the next
+   one opened. =verbatim.empty= exported; =dictation.js= starts from it. Two test cases added
+   (multi-segment append + polish-after-next-segment dropped). Old single-segment case still
+   passes.
+2. *"multi by default" was false.* Default resolution goes through =cortex.findOne({tune:
+   "eager"})= = squared-euclid nearest in tune-space. Original vectors: multi
+   =[0.5,0.6,0.6,0.1]= (d²=0.06) vs en/pt =[0.4,0.6,0.5,0.1]= (d²=0.02) → *English-only nova
+   won every default dictation*. multi now sits on eager exactly =[0.3,0.5,0.5,0.1]=. en/pt
+   profiles are redundant with =config.language= pinning (the nova stream already does
+   =config.language ?? profile.language=) — kept only because =provider.test.js= pins them;
+   fold them away when that test is revised (repo change, gated).
+3. *duplicated a typology primitive.* Design + report: /"no typology distance util exists, so
+   a 15-line DP"/. False — =gestalten/belt/string.js:53= =levenshtein= and =:94= =similarity=
+   (same normalised formula) exist. =verbatim.wordsAgree= now rides =string.similarity=;
+   the private =distance= is gone.
+4. *=deno.lock= hunk was noise* — two astro/markdown-remark entries from the author's docs
+   environment, nothing to do with dictation. Dropped.
+5. *kajuit store test leaked a timer (flaky, ~1 in 3).* The fake microphone's =sleep.ms(5)=
+   sat pending when the =cancel= case ended. Wait is now abort-aware (=pause(signal, ms)=).
+   10/10 green.
+
+** parked, not landed — =m33-dictation/deferred/=
+=belt/turn.js= (=decide= / =cursor= / =truncate= — the barge-in arbiter, backchannel lexicon
+en+de) and its test. Zero consumers in the tree; the quest's own scope line says /"dictation
+only — no full voice mode. that's a later quest"/. Tested and complete, so preserved verbatim
+for the voice quest; one =mv= re-adds it. Standing rule: no unsolicited expansion.
+
+** design ↔ build drift the report already admits (kept, annotated inline)
+- =publish= accept header: design says default-on; build made it opt-in (={stream: true}=)
+  after the multiplex suite proved the unconditional default broke unary publishes. Correct
+  call; the design paragraph is superseded.
+- =pcm.decode(audio)= is not rate-parametric (rate is a playback fact — belongs to
+  =AudioDriver=/speaker, not to int16→float32). Forward contract 5 stands; the belt signature
+  in workstream A is superseded.
+- ghost text: mirrored-overlay vs readonly-overlay → shipped a floating strip above the
+  composer. Fine.
+
+** stale wiring text (workstream F · live checklist 1)
+Deepgram is ALREADY mounted in all three education daemons
+(=testament/variant/education.js:57,141,212=, module =@viva/hallucinator/deepgram=) under
+=SECRET_VIVA_DEEPGRAM_API_KEY= — not =SECRET_DEEPGRAM=. Nothing to mount; verify the key is
+set. =test.viva.js= boots italian → deepgram present.
+
+** residue / unverified
+- No live run: real microphone, real deepgram, =interim_results= on =language=multi= GA (the
+  provider's multi profile assumes yes), the flux =/v2/listen= endpoint + =language_hint=
+  param, the tablet-of-events feel. Gate 2 owed.
+- =hal.polished= awaits the polish render INSIDE the event loop — the next segment's partials
+  are held for the polish latency (~300 ms) after every =final=. Ordering (=polish= before
+  =turn.end=) is what forces it; accepted for dictation, revisit for captions.
+- =/speech/stream= is now =transcribing("speech")= (source-shaped, no respond loop) with no
+  consumer — behaviour changed for a path nobody calls yet. Option B as resolved; note only.
+- =ThreadTraitsEnum= (=Thread.ts:22=) holds neither INTELLIGENT nor VOCAL — pre-existing gap
+  INTELLIGENT already lives with (json array, not enforced). VOCAL inherits it. No E-panel
+  widget for VOCAL (INTELLIGENT has =Intelligent.svelte=) — live tuning is via the entity
+  skill / dataspace until one exists.
+- =polish()= trusts the fast-tier model to answer with the transcript only; the =!==
+  transcript= guard is the only sanity check.
+- Original 34-file patch superseded IN PLACE (this file records the delta); the pre-fix state
+  is recoverable only by reversing the five items above.
+
+* intent
+
+speak into the dock. words land in the draft as you talk — stable prefix solid, a volatile 4-5 word tail ghosted, revised into coherence as audio context accrues. release, the tail settles, the draft is editable text. the anthropic experience, not the openai one.
+
+scope: kajuit dock UI → client wiring → daemon =/harness/verbatim/stream= → cortex → verbatim faculty, plus a post-final polish pass. dictation only — no speech synthesis, no full voice mode. that's a later quest that reuses everything built here (see forward contracts).
+
+--------------
+
+* terrain — what already exists
+read before writing. all of this is live at commit =7952148=.
+
+*transport is done.* the multiplex socket is full duplex: =Socket.open(signal, { stream: true })= opens a frame, =Socket.feed(frame, body)= pushes upstream chunks, the server side materializes them as =ctx.request.raw.body= (a ReadableStream fed by =input= packets), and async-iterable =ctx.output= flows back as =output= frames (=subsystems/typology/prototypes/socket.js=). =Connection.publish(endpoint, iterable)= SSE-frames the iterable and the multiplex transmitter detects the ReadableStream body and routes it as a streaming frame (=prototypes/connection.js:196=, =gestalten/shard/transmitter.js:66-78=). nothing to build here — only to consume correctly.
+
+*the faculty exists.* =registry/viva/hallucinator/deepgram/provider/index.js= ships =verbatim= faculties: pcm_16000 linear16 in, ={nature: turn.start|partial|final|turn.end, transcript}= events out, per-language profiles, interim_results on. tests in place (no-network).
+
+*the vocabulary half-exists.* =FacultyType= includes =verbatim=. =Hallucination= opens =/verbatim/stream=. =HARNESSED= (runtime) loops verbatim into the harness. the spec test =subsystems/typology/tests/voice.conversation.test.js= demonstrates the intended event grammar end to end over a raw websocket.
+
+*the client has hardware.* =Microphone= (kajuit box): getUserMedia → AudioWorklet → Float32 PCM @16k into a =Pipe=, amplitude VAD (=$level=, =$speaking=). =AudioDriver= owns the 16k AudioContext. =conversation.js= prototype already sketches =listen()= publishing =mic.in.stream(signal)= to =/harness/verbatim/stream=.
+
+* terrain — what is broken or missing
+1. *verbatim is mis-plumbed through the dialogue machinery.* =Hallucination.streaming("verbatim")= lowers the request into a hallucination record (=turns=, =tools=, =cache=) and runs it through =shard.hallucinate.respond= — the tool loop, which =soma.pour=s every packet into a turn. verbatim events (={nature: "partial"}=) are not turn packets; pour will choke, the tool loop is meaningless for ASR, and the declared =yields: Packet.Response= is a lie. same lie in =HARNESSED=, which passes =ctx.hallucination= (the assembled record) where the faculty wants =(audioSource, config)=.
+2. *no =Verbatim= schema family.* the event grammar lives only in the deepgram provider and the spec test, unvalidated.
+3. *no harmonizer.* deepgram interim results flicker — each partial replaces the whole utterance text. nothing produces the commit/tail split.
+4. *no upstream body decoding.* the daemon handler receives SSE-framed text chunks (=data: {json}\n\n=); nobody parses them back into an audio source.
+5. *no encoder.* Microphone emits Float32Array frames; the faculty wants base64 linear16.
+6. *no dictation surface in the dock.* no mic affordance, no ghost text, no draft insertion.
+7. *=conversation.listen()= drains verbatim events through =drain()=,* which pours them as dialogue turns — wrong consumer for dictation.
+8. *=publish= never asks for a stream back.* the multiplex transmitter only hands over the streaming =follow()= body when =accept: text/event-stream= is set (=transmitter.js:80=), and =publish= doesn't set it — a caller today gets exactly one event and a closed frame. =publish= should default the accept header; =listen()= inherits the fix.
+
+--------------
+
+* design decisions (settled — argue in review, not mid-build)
+*event grammar.* a =Verbatim= schema family beside =Packet= in the primitives, one object per nature + =Verbatim.Any= union — mirroring how =Packet.TurnOpen … Packet.Any= is laid out:
+
+#+begin_example
+{ nature: "turn.start" }
+{ nature: "commit",  text }
+{ nature: "partial", transcript }
+{ nature: "final",   transcript, words? }
+{ nature: "polish",  transcript }
+{ nature: "turn.end", meta? }
+#+end_example
+
+=commit= carries only newly-stabilized words (append-only downstream). =partial= carries the full volatile tail (replace downstream). =final= carries the settled full utterance — client reconciles committed+tail against it and takes final as truth. =polish= swap-replaces final's text once the cleanup pass lands. providers need only emit partial/final/turn.*; commit and polish are minted server-side. (=nature= is the established discriminator for faculty event streams — spec test and deepgram provider both use it; =event= stays the discriminator for turn packets. two families, two fields, no mixing.)
+
+*harmonizer runs daemon-side.* it sits between faculty and wire so every client gets the anthropic experience for free and provider quirks stay server-side. pure function, lives in typology so tests need no daemon.
+
+*algorithm: LocalAgreement-2 with similarity tolerance.* the published technique behind the observed behavior — WhisperKit/ufal whisper_streaming: commit the longest common word-prefix of two consecutive hypotheses; everything after is the tail. add per-word Levenshtein tolerance (≥0.8 normalized) so ="vivalance"→"vivalence"= doesn't stall the commit frontier (the SAPrefix refinement). tail capped at 8 words in the partial event; defaults: agreement window 2, tolerance 0.8. that yields the observed 4-5-words-in-flux feel on natural speech.
+
+*verbatim does not pass through the respond loop.* the Hallucination vector gets a dedicated =transcribing(type)= leaf: resolve faculty, call =faculty.via.stream(source, config)= directly, pipe through the harmonizer. no turns, no tools, no pour. same shape later for =speech=.
+
+*wire audio format.* each upstream SSE data line is ={ audio: <base64 linear16 @16k>, pts }= — matches what the deepgram faculty already decodes and what the spec test stubs. chunk cadence ~64ms (1024 samples) from the encoder.
+
+*dictation is a composer feature, not a conversation feature.* dictated text lands in =draft= at the cursor; the user still presses send. no auto-submit in this quest.
+
+*configuration rides the thread, INTELLIGENT-style.* new claim-gated trait =thread.trait.VOCAL=:
+
+#+begin_example
+{ language?, tune?, harmonize?: { window?, tolerance?, tail? } }
+#+end_example
+
+validated at the harness boundary, projected field-by-field, absent fields mean "the mode decides". harmonizer constants therefore live in one place — the harmonize defaults object — overridable per thread for live tuning without redeploys.
+
+*multilingual by default, code-switching native.* the deepgram faculty defaults to =model=nova-3&language=multi= — real-time code-switching across languages within a single utterance, word-level language tags, =endpointing=100= recommended for switch pauses. =VOCAL.language= pins a monolingual model when set (measurably better on short single-language utterances). the polish pass must be language-preserving: fix punctuation and formatting in whatever languages were spoken, never translate.
+
+*post-final polish pass is in scope (phase 2 folded in).* on =final=, the daemon pipes the settled transcript through a =fast=-tier dialogue faculty for punctuation, capitalization, and inverse text normalization, then emits ={nature: "polish", transcript}= after =final=. client splices =final= immediately (no added latency to the felt experience) and swap-replaces with =polish= when it lands ~300ms later — the same revise-into-coherence gesture the tail already performs. =VOCAL= can disable it (=polish: false=) once that field earns its place.
+
+--------------
+
+* workstreams
+** A — typology: vocabulary + harmonizer
+=subsystems/typology/schematics/primitives/hallucination.js=
+
+- add the =Verbatim= family (grammar above): one =v.object= per nature + =Verbatim.Any=, exported beside =Packet=. leave =Packet.Response= untouched.
+- add the =Speech= family per forward contract 2: =Speech.Packet= ={nature: "packet", audio, rate, codec, pts, align?}=, =Speech.Close= ={nature: "close"}=, =Speech.Any=. schema only — no speech implementation this quest.
+
+=subsystems/typology/schematics/entities/thread.js=
+
+- add =VOCAL= next to =INTELLIGENT=: =v.object({ language: v.string().optional(), tune: v.union([Tier, Tune]).optional(), harmonize: v.object({ window, tolerance, tail }).optional() })=, export through entities index.
+
+=subsystems/typology/gestalten/belt/verbatim.js=
+
+- =harmonize(events, { window = 2, tolerance = 0.8, tail = 8 } = {})= — async generator transformer. state: committed word count, ring of last =window= hypotheses, keyed per turn (reset on =turn.end=, forward contract 1). on =partial=: tokenize, extend commit frontier by tolerant longest-common-prefix across the window, yield ={nature:"commit", text}= for newly frozen words when any, then yield ={nature:"partial", transcript: tailWords.slice(-tail).join(" ")}=. on =final=: flush remaining words as one =commit=, yield =final= untouched. =turn.*= and =polish= pass through.
+- =wordsAgree(a, b, tolerance)= — exact or normalized-Levenshtein. /(pass: =string.similarity= already existed at =belt/string.js:94=; the patch rides it — the "no util exists, 15-line DP" claim was false.)/
+- =fold(state, event)= — the pure client-side reduction ={committed, tail} × event → {committed, tail}= (forward contract 4). lives here so kajuit imports it and voice mode reuses it. /(pass: state now also carries ={settled, segment, closed}= so multi-segment finals append instead of replace; =committed= stays the client-facing field.)/
+
+=subsystems/typology/gestalten/belt/sse.js=
+
+- =frames(readable)= — async generator: text chunks → SSE frame split → JSON per =data:= line. reused by speech later.
+
+=subsystems/typology/gestalten/belt/pcm.js=
+
+- =encode(float32)= / =decode(base64, rate)= — Float32 ↔ Int16 ↔ base64, isomorphic. the kajuit driver and the deepgram provider both inline this today; daemon tests need it for fixtures; speech playback needs the rate-parametric decode. one home.
+
+=subsystems/typology/gestalten/shard/trait.js=
+
+- =claimed(row, name, schema)= — the claim-gate + =v.errors= + =v.cast= dance currently inlined in harnessed.js for INTELLIGENT. extract it; INTELLIGENT and VOCAL both call it. one projection idiom, two traits.
+
+=subsystems/typology/gestalten/shard/hal.js=
+
+- =hal.verbatim()= — the whole daemon-agnostic pipeline as a mountable middleware: =sse.frames(ctx.request.raw.body)= → cortex verbatim stream → harmonize → polish stage → yield. cortex and projected VOCAL arrive via ctx. this is the =//@beef ... shards.hal.["xyz"]()= annotation in harnessed.js made real, and it pre-shapes the anticipated =shard.hal.voice()= slot on the dialogue branch.
+
+=subsystems/typology/prototypes/hallucination.js=
+
+- add =transcribing(type)=: resolve faculty via =resolveFaculty(type, "stream", tune)=, =ctx.output = harmonize(faculty.via.stream(ctx.input.source, ctx.input.config ?? {}), ctx.input.harmonize)=.
+- repoint: =.open({ nature: "/verbatim/stream", yields: Verbatim.Any }, transcribing("verbatim"))=. lowering middleware must not mangle verbatim input — branch early: if the signal is verbatim (or speech), skip the policy/turns lowering except =tune=.
+
+=subsystems/typology/prototypes/connection.js=
+
+- =publish= defaults =accept: "text/event-stream"= (gap 8) and sets =duplex: "half"= on the fetch options so the plain-fetcher path is correct wherever it runs (Deno; browsers never hit it — kajuit is multiplex end to end). /(superseded: shipped as opt-in ={stream: true}= — see build report.)/
+
+** B — runtime daemon: the verbatim branch
+=systems/runtime/daemon/traits/harnessed.js=
+
+- the record-assembly middleware currently runs for every branch; gate it so =/verbatim= skips hallucination-record assembly (it only needs the projected trait + query config).
+- add a =/verbatim= branch before the generic loop that projects =thread.trait.VOCAL= via =shard.trait.claimed= (precedence invocation > thread > mode default; language → faculty config, harmonize → harmonizer options, tune → faculty resolution), binds it onto ctx, then mounts =shard.hal.verbatim()= — the pipeline itself lives in typology (workstream A). runtime contributes only what is runtime: the thread-row lookup and the mount.
+- the polish stage inside =hal.verbatim=: after the faculty stream yields =final=, resolve a =fast= dialogue faculty and render the settled transcript through a fixed system prompt (punctuate, capitalize, normalize numbers/units, preserve every language as spoken, output only the corrected text), yield ={nature: "polish", transcript}= before =turn.end=. faculty failure degrades silently — final already shipped. the stream stays open across turns (forward contract 1): polish per utterance, never a frame close.
+- refactor INTELLIGENT's inline projection to =shard.trait.claimed= while there — same idiom, no drift.
+- remove =verbatim= (and =speech=) from the generic =for (const type of [...])= loop once the dedicated branch lands — dialogue/object keep the old path.
+
+check: the http shape only JSON-parses bodies with =content-type: application/json=; the multiplex path sets =ctx.request.raw= itself, so no http.js change needed. dictation over plain HTTP (non-multiplex) is out of scope — the browser duplex-fetch mess is exactly why the socket path wins.
+
+** C — kajuit client: encode + dictate
+=systems/kajuit/src/typology/stores/box/drivers/audio/audio.js=
+
+- =encode=/=decode= become thin re-exports of =belt/pcm.js= — the driver keeps only AudioContext ownership (platform), the math lives in typology (forward contract 5 satisfied by pcm's rate-parametric decode).
+
+=systems/kajuit/src/typology/stores/box/device/microphone/microphone.js=
+
+- add frame batching: accumulate worklet frames to 1024 samples before pushing to =in=, so the wire isn't 128-sample confetti.
+
+=systems/kajuit/src/typology/prototypes/dictation.js= — sibling to conversation.js, not a graft onto it:
+
+- =dictation({ terminal, box })= returning ={ $active, $committed, $tail, $error, start, stop, cancel }=.
+- =start()=: claim mic, =up = new AbortController()=, map mic frames through =audio.encode= into ={audio, pts}= objects, =connection.publish("/harness/verbatim/stream", source, { signal })=, reduce the returned event stream through =verbatim.fold= into the atoms; =polish= swaps =$committed= wholesale — unless the user already edited the spliced text (draft diverged), then drop it silently, user edits win.
+- =stop()=: release mic (pipe closes → upstream =done= → faculty flushes final) but keep draining until =turn.end=.
+- =cancel()=: abort both directions, discard state.
+
+** D — registry: deepgram provider upgrade
+=registry/viva/hallucinator/deepgram/provider/index.js=
+
+- add a =multi= profile: =model=nova-3&language=multi&endpointing=100&interim_results=true&smart_format=true=, positioned as the default (nearest-tune) faculty; keep monolingual profiles for =VOCAL.language= pinning. /(pass: "nearest" is squared-euclid to the =eager= vector; the original tune put en/pt nearer — fixed, multi sits on eager.)/
+- pass word metadata through on =final= (=words: [{word, start, end, confidence, language}]=, forward contract 3).
+- decode inline base64 via =belt/pcm.js= instead of the local atob dance.
+- implementation check: confirm interim_results behaves on =language=multi= GA (early beta rejected it).
+
+=registry/fixtures/data/faculties.js=
+
+- add stub =verbatim= and =speech= faculties beside the existing dialogue stub — the spec test inlines its own today, and the runtime integration tests would otherwise duplicate them a third time. one fixture, every suite.
+
+** E — kajuit dock: the surface
+=systems/kajuit/src/app/panels/a/widgets/Dock.svelte=
+
+- mic button next to send. states: =idle → arming (permission/claim) → listening → settling (mic released, awaiting final/polish) → idle=. disabled while =sending=.
+- while listening/settling: textarea shows =draft.slice(0, anchor) + committed + tail + draft.slice(anchor)= where =anchor= is cursor position at start; committed renders as normal text, tail as ghost (textarea can't style ranges — mirrored overlay div behind a transparent-text textarea is the known pattern; swap-to-readonly-overlay is the cheaper fallback, pick during build).
+- on =final=: splice settled transcript into =draft= at anchor, restore focus + cursor after inserted text; on =polish=: swap the spliced range if untouched.
+- =$level= drives a minimal input-level indicator on the button. =Escape= cancels dictation before it cancels streams (extend the existing keydown chain).
+- click-toggle only; no push-to-talk.
+
+** F — variant wiring
+- =testament/variant=: mount =@viva/hallucinator/deepgram= service, =SECRET_DEEPGRAM= in =.env.example=. confirm =service.viva.js= secret key name matches. /(pass: already mounted in all three education daemons under =SECRET_VIVA_DEEPGRAM_API_KEY= — nothing to do but confirm the key is set.)/
+- localhost mode manifest: ensure the mode's cortex registers the verbatim faculties (mirror how anthropic dialogue faculties are registered).
+
+--------------
+
+* testing
+*typology — harmonizer unit* (=subsystems/typology/tests/harmonize.test.js=)
+table-driven over event scripts:
+
+- monotonic partials ="the" → "the quick" → "the quick brown"= with window 2 → commits ="the"= after hypothesis 2, ="quick"= after 3; tails shrink accordingly.
+- flickering partial (="the quick brawn" → "the quick brown fox"=) → =brawn= never commits; tolerance case (="vivalance" ≈ "vivalence"=) does commit.
+- =final= flushes the remainder as one commit then passes final through; state resets across =turn.end=; multi-turn: two utterances through one stream commit independently; tail cap respected on long run-ons.
+- property: concatenated commit texts + last final are consistent (final wins verbatim).
+- =fold=: scripted event stream → ={committed, tail}= progression, final reconciliation, polish swap.
+
+*typology — schema* — =Verbatim.Any= accepts each nature, rejects unknown natures and missing fields via =v.errors=; =Speech.Any= likewise.
+
+*typology — flow spec* — extend =voice.conversation.test.js= pattern (or new =dictation.conversation.test.js=): stub verbatim faculty emitting scripted partials → assert client-visible order =turn.start, commit*, partial*, final, polish?, turn.end= and that commits are append-only.
+
+*runtime — duplex integration* (=systems/runtime/tests/dictation.integration.test.js=)
+follow =multiplex.integration.test.js= scaffolding: scenario cortex with stub verbatim faculty, =shard.serve.multiplex= gate, =Connection= + multiplex transmitter. =connection.publish("/harness/verbatim/stream", frames)= with 3 fake audio packets → drain downstream → assert harmonized event sequence and that =sse.frames= decoded exactly 3 audio payloads. second case: abort mid-stream → upstream closes, no orphan frames (=socket.lines= empty). third: two utterances over one frame, both settle.
+
+*runtime — polish stage* — stub =fast= dialogue faculty returning a canned corrected transcript → assert =polish= arrives after =final=, before =turn.end=; stub faculty throwing → stream still closes clean with final intact.
+
+*runtime — VOCAL projection* — thread with =VOCAL.harmonize.window = 3= → harmonizer observes 3 (stub faculty emits a script where window 2 vs 3 commit differently); schema rejects junk fields.
+
+*deepgram provider* — keep existing no-network tests; add live tests gated on =SECRET_DEEPGRAM= (skip otherwise): 2s wav fixture → ≥1 partial + final containing the spoken word; code-switching fixture (one sentence crossing en→de) → both languages survive in final, =words[].language= present.
+
+*kajuit — store* (=systems/kajuit/tests/dictation.store.test.js=)
+feed a scripted event stream into the dictation prototype with a fake connection: atom progression, cancel discards, stop waits for turn.end, polish-after-edit dropped.
+
+*kajuit — dock* — extend the =dock-turns.test.js= neighborhood: splice-at-anchor math as an extracted pure function, button state machine transitions.
+
+run: =deno task typology/test && deno task runtime/test && deno task kajuit/test=.
+
+--------------
+
+* sequencing
+1. A — vocabulary, harmonizer, fold, sse.frames, transcribing leaf, publish fix. pure, fully testable offline.
+2. B — daemon branch + VOCAL projection + polish. integration tests green over stub faculties.
+3. C — encode + dictation prototype. store test green over fake connection.
+4. D — deepgram multi profile + words passthrough. live tests gated.
+5. E — dock surface. manual against localhost variant + deepgram live.
+6. F — variant wiring last.
+
+each lands with its tests; nothing merges red.
+
+* forward contracts — speech out, dialogue mode, language learning
+decisions that cost pennies now and fortunes to retrofit. binding on this quest.
+
+1. *verbatim streams are multi-turn.* one open frame carries N utterances (=turn.start … turn.end= repeating); the daemon branch and harmonizer key state per turn and never close the stream on =turn.end= — only on upstream close or abort. dictation happens to stop after the first settle; dialogue mode keeps the mic open across the whole session on the same protocol. deepgram's UtteranceEnd already fires mid-stream, so this is also just correct.
+
+2. *the =Speech= family is defined now, unimplemented.* =Speech.Packet= ={nature: "packet", audio, rate, codec, pts, align?}= + =Speech.Close=, matching the spec-test stub. =rate= is mandatory — TTS engines emit 22.05/24/44.1k and the mic context is pinned at 16k; nothing downstream may assume a sample rate. =align= reserves word/char-level timestamps (elevenlabs emits them) — karaoke highlighting and pronunciation feedback for the language tooling hang off this field.
+
+3. *=final= carries words.* =words?: [{word, start, end, confidence, language}]= — deepgram already produces all five per word on =language=multi=; pass them through instead of stripping. costs one spread now; retrofitting timing + per-word language onto stored transcripts later is a migration.
+
+4. *the dictation fold is a pure export.* =verbatim.fold= — the commit/partial/final/polish → ={committed, tail}= reduction — is a standalone belt function consumed by the dictation prototype, not buried in its closure. voice mode reuses the identical fold for live captions; the language tooling reuses it for read-along.
+
+5. *playback path stays rate-parametric.* =AudioDriver.decode(audio, rate)= and the speaker device resample or run a second context; the 16k pin is a mic-capture fact, not an audio-system fact. speaker keeps =flush()= — barge-in interruption in dialogue mode depends on it.
+
+polish stays an /additional/ event after final precisely so dialogue mode can trigger the dialogue faculty off =final= without waiting on it.
+
+* resolved
+- *polish pass* — in scope, workstream B. degrade-silently, user edits win.
+- *tuning constants* — one defaults object in the harmonizer, overridable via =thread.trait.VOCAL.harmonize=. tune live against a thread, promote winners to defaults.
+- *multi-language* — nova-3 =language=multi= default; mid-utterance code-switching is native to the model, no client logic. =VOCAL.language= pins monolingual. polish prompt preserves languages as spoken.
+- *push-to-talk* — dropped. click-toggle only.
+- *multiplex transport* — non-issue. kajuit's daemon connection is multiplex (dossier.js), publish streams over socket frames, no browser duplex-fetch anywhere in the path. the plain =fetcher= transport (Connection default, used by ghost) runs in Deno where streaming request bodies work natively; ghost doesn't dictate anyway. hardened anyway in workstream A: publish defaults =accept: text/event-stream= and sets =duplex: "half"=.
+- *=speech= symmetry* — option B. type-generic leaf + =sse.frames= + =Speech= schema land now; the elevenlabs provider, speaker playback, and turn-taking are the voice-mode quest.
+
+* open questions (flag, don't block)
+- *wire framing* — publish SSE-frames JSON and the socket re-chunks it; fine at 64ms cadence, but if profiling shows overhead, a binary frame lane on the socket protocol is the fix — separate quest, don't smuggle it in here.
+
+* references
+- LocalAgreement: ufal/whisper_streaming (Macháček 2023), WhisperKit paper (arXiv 2507.10860) — confirmed/hypothesis dual stream.
+- deflickering via prefix-biased rescoring: bruguier.com/pub/deflickering.pdf — why revisions feel coherent.
+- KoljaB/RealtimeVoiceChat — =text_similarity.py= (last-n-words Levenshtein) and =turndetect.py= (semantic endpointing → dynamic silence) are the patterns to steal for tolerance and, later, voice-mode turn-taking.
+
+* implemented — build report
+
+verbatim from =dictation-implemented.md=; the patch it describes is =.ikiro/quests/m33-dictation/dictation.patch=.
+
+quest-dictation.md, built. 34 files, +1658/−77, every workstream landed with its tests green. one patch: =dictation.patch=, applies clean on =7952148=. /(pass: the patch on disk is now the CORRECTED one — 31 files, +1363/−74; see =* critical pass=.)/
+
+#+begin_src sh
+git apply dictation.patch
+deno task typology/test    # harmonize, turn, schemas, flow, multiplex, voice spec — green
+deno task runtime/test     # dictation.integration (duplex), multiplex, sse — green
+deno task kajuit/test      # store fold, splice math — green
+#+end_src
+
+** the research, distilled into code
+the 2026 meta: multi-signal turn detection (VAD → transcript endpointing → semantic completeness), with deepgram flux collapsing the stack into the ASR itself — a conversational state machine emitting StartOfTurn / Update / EagerEndOfTurn / TurnResumed / EndOfTurn, ~260ms EOT, StartOfTurn guaranteed to carry transcript (the reliable barge trigger). barge-in consensus: transcript-confirmed interruption only, backchannel lexicons, min-word thresholds, interruptibility as per-utterance policy, <60ms flush, word-level truncation of context to what was actually heard.
+
+all of it landed as two pure belt modules:
+
+- *=belt/verbatim.js=* — =harmonize= (LocalAgreement-2 over a hypothesis ring, per-word Levenshtein tolerance so =vivalance→vivalence= doesn't stall the frontier, tail cap, multi-turn reset) and =fold= (the client ={committed, tail}= reduction — dictation, live captions, and read-along all share it).
+- *=belt/turn.js=* — =decide= (the arbiter: listen / arm / yield / hold / draft / scrap / respond / confirm, full flux vocabulary, backchannel lexicon en+de, min-word arming, interruptible policy flag), =cursor= (spoken position by align offset or text length), =truncate= (word-boundary cut, =meta.state: "interrupted"=). the voice quest wires these; they ship tested now. /(pass: PARKED under =m33-dictation/deferred/= — out of this quest's stated scope, zero consumers.)/
+
+** file map
+*typology*
+
+- =schematics/primitives/hallucination.js= — =Verbatim.*= family (start/commit/partial/eager/resume/final+words/polish/end) + =Speech.*= (packet with mandatory rate + align, close). =nature= discriminates faculty streams; =event= stays turn-packets.
+- =schematics/entities/thread.js= — =VOCAL= ={language?, tune?, harmonize?{window,tolerance,tail}, polish?}=.
+- =belt/pcm.js= — float32↔int16↔base64 (kajuit driver + deepgram provider both delegate here now).
+- =belt/sse.js= — =frames(readable)=, the upstream decoder.
+- =belt/verbatim.js=, =belt/turn.js= — above.
+- =shard/trait.js= — =claimed(row, name, schema)=; INTELLIGENT refactored onto it.
+- =shard/hal.js= — =hal.verbatim()=: sse decode → cortex verbatim stream → harmonize → polish stage (fast-tier render, language-preserving prompt, degrades silently, =polish: false= respected). =hal.voice()= untouched, waiting.
+- =prototypes/hallucination.js= — =transcribing(type)= leaf for verbatim AND speech; =source=-shaped requests bypass the dialogue lowering + respond loop entirely.
+- =prototypes/connection.js= — two real bugs fixed: =fetch= now splits =?query= into =url.with()= instead of polluting the route (this was silently 404ing any querystringed call over the multiplex), and =publish= gained an explicit ={stream: true}= opt-in that sets =accept: text/event-stream= (without it the transmitter hands back only the first frame — the gap-8 fix, made opt-in after the multiplex suite proved the unconditional default broke unary publishes).
+
+*runtime*
+
+- =daemon/traits/harnessed.js= — =/verbatim= branch: skips record assembly, projects VOCAL via =shard.trait.claimed= (thread + =?language= override), mounts =hal.verbatim()=. verbatim out of the generic loop.
+
+*registry*
+
+- =deepgram/provider= — rewritten. profiles: nova-3 =language=multi= + =endpointing=100= (code-switching default), en/pt monolingual pins, and a *flux* faculty (=/v2/listen=, =flux-general-multi=, TurnInfo→verbatim mapping incl. eager/resume, =eot/eager_eot/eot_timeout= via config). words ={word,start,end,confidence,language}= pass through on final.
+- =fixtures= — =verbatimFaculty()= / =speechFaculty()= stubs, exported; every suite shares them.
+
+*kajuit*
+
+- =prototypes/dictation.js= — ={$active, $committed, $tail, $error, start, stop, cancel}=. two abort controllers: =stop()= kills only the mic feed so the faculty flushes final+polish before the stream settles; =cancel()= kills both. thread-switch cancels.
+- =stores/box= — mic batches worklet confetti to 1024-sample frames; audio driver delegates to pcm; =Box= now provided at layout via new =BOX= context (SSR-safe, =window.__viva.box= wired).
+- =panels/a/widgets/Dictaphone.svelte= — the mic toggle. idle → arming → listening (pulse scales with =$level=) → settling. emits =onghost= per event, =onsplice(settled)= on idle.
+- =panels/a/widgets/dictate.js= — =spliceAt(draft, anchor, text)= pure: joining spaces, caret math, clamping.
+- =Dock.svelte= — dictaphone beside send; ghost strip floats above the composer (breathing red mark, committed solid, tail italic-dimmed); splice lands at the cursor position captured when dictation began, caret restored after; =Escape= cancels dictation before it reaches stream-stop.
+
+** tests (all green)
+- typology: 8 harmonize cases (monotonic commit, flicker, tolerance, final flush, multi-turn, tail cap, passthrough, consistency property) + fold; 10 arbiter cases + cursor + truncate; schema accept/reject; 4 flow cases through cortex+hal (ordering, append-only, polish degradation, VOCAL reaching the harmonizer).
+- runtime: full duplex over one multiplex socket — 3 audio frames up, harmonized events down, polish between final and turn.end; VOCAL ={tail:1, polish:false}= projected from a real thread row; mid-stream abort leaves zero orphan frames.
+- kajuit: prototype with faked box/connection (frame encoding, endpoint+stream flag, fold into atoms, settle sequencing, cancel); spliceAt table.
+- regression: typology suite diffed against baseline — identical pre-existing failures (snapshot demos), zero new, one fixed-forward (multiplex, via the publish opt-in).
+
+** live checklist (needs your machine)
+1. mount deepgram in =testament/variant=, =SECRET_DEEPGRAM= in =.env=. /(pass: already mounted; key is =SECRET_VIVA_DEEPGRAM_API_KEY=.)/
+2. =deno task runtime/run= + =kajuit/run=, open :1794 — mic button beside send.
+3. verify =interim_results= on =language=multi= GA (flagged in quest; the flux profile sidesteps it entirely if not).
+4. tune: set =thread.trait.VOCAL.harmonize= live; promote winners into =belt/verbatim.defaults=.
+
+** what the voice quest inherits ready-made
+speech schema + type-generic leaf, flux faculty with eager/resume flowing as verbatim events, the arbiter + spoken cursor + truncate, =fold= for captions, speaker flush, rate-parametric pcm, multi-turn streams. remaining: =/speech= branch (mirror of verbatim minus harmonize), =soma.sentences= chunker, and wiring =turn.decide='s verbs to real effects.
+
+* critical pass II — the DESIGN, judged against the live mechanism (connoisseur)
+
+Pass I was mechanical (applies, suites, terrain claims). This pass judges the design decisions +
+their embodiment against the laws on disk. Evidence is file:line in HEAD =b8e1f85e1= + patch.
+Ranked most-severe first.
+
+** 1 · DEAD ON ARRIVAL on every real mode — the assembly skip crashes slurped mode harnesses
+The patch gates the harness root assembly with a path sniff
+(=harnessed.js= patch: =if (ctx.signal?.pathname?.includes("/verbatim")) return next();=) so
+=ctx.hallucination= is never built for verbatim. But =harness.slurp(mode.module.harness)=
+(=systems/runtime/daemon/traits/harnessed.js:143=; =Vector.slurp= appends root carries,
+=subsystems/typology/prototypes/vector.js:77=) pulls every mode's ROOT =.use= in after it — and
+every real mode writes =ctx.hallucination.*= at root:
+=registry/education/modes/teacher/francesca/harness.js:5= (=ctx.hallucination.policy.tune ??= "fast"=),
+=aprende/harness.js:6=, =chaosmonkey/oracle/harness.js:5=, =reader/harness.js:17=,
+=playground/modes/dealer/dealer.viva.js:21=, =young-ladys-primer/.../primer/harness.js:5=.
+→ =/harness/verbatim/stream= throws =TypeError: Cannot read properties of undefined (reading
+'policy'|'system')= on ALL six. The integration test passed only because the scenario's dewey
+writes under =.branch("/dialogue")= (=systems/runtime/tests/scenarios/cortex.js:29=).
+Fix is structural, not a guard: make assembly TOTAL (trigger 10) — drop the sniff, let the root
+mw run for verbatim too (row lookup is needed anyway; =armed= costs µs), project VOCAL beside
+INTELLIGENT in the SAME mw (=ctx.vocal = shard.trait.claimed(row, "VOCAL", v.entities.VOCAL)=).
+Kills the bug category AND the sniff wince in one move (no-hotfix law).
+
+** 2 · the wire contract LIES — the compiled client mirror cannot call the leaf it advertises
+=shape.strip= carries ={input,output,yields,methods}= (=gestalten/shape/strip.js:4-9=); the client
+mints =mode.harness = shape.connection.wire(...)= (=systems/kajuit/src/typology/entities/mode/traits/harnessed.js:22=)
+and =wire= compiles any =yields= edge to =connection.stream("", signal, {body: input})=
+(=gestalten/shape/connection.js:35-41=). So =mode.harness.verbatim.stream(x)= EXISTS on the
+client and POSTs a JSON body → server =sse.frames(ctx.request.raw.body)= on a non-stream frame
+(=raw = {signal}= only, =socket.js:179=) → TypeError 500. The patch therefore bypasses the mirror
+with a raw string path + =?thread= + a =split("?")= hack inside =Connection.fetch= (HOLY core,
+untouched by "go"). Every other harness call rides the mirror (=Dock.svelte:179=
+=thread.mode.harness.dialogue.stream=).
+Root cause: the pattern vocabulary has the downstream dual of =output= (=yields=) but NO upstream
+dual of =input=. Meanwhile the socket ALREADY models input+upstream as two things
+(=socket.js:164= =body: packet.input= + =:170-177= =raw.body= stream); only the transmitter
+collapses them (=transmitter.js:70= =input: streaming ? undefined : request.body=).
+Proposal (naming for beef to pin): declare the upstream stream on the pattern — pair with
+=Socket.feed= → ={nature:"stream", feeds: Audio.Frame, yields: Verbatim.Any}= — strip carries
+=feeds=, =wire= compiles =feeds= → =connection.publish=, transmitter sends =input= alongside
+=stream:true= → =thread= rides =input.thread= like every harness call. No query string, no
+=fetch= split, no second thread channel, mirror tells the truth.
+Also: =ctx.request.url= is ALWAYS a =Url= (=prototypes/request.js:5=); the patch's
+=typeof raw === "string" ? split : raw?.search= dual-sniff is dead ceremony — idiom is
+=ctx.request.url.searchParams.get(...)= (=gestalten/shard/secure.js:13=).
+
+** 3 · polish: wrong grain, widened scope, forced serialization — one root cause in the fold
+- grain: polish fires per deepgram =is_final= SEGMENT; a sentence spanning two segments becomes
+  two sentences — the fold test ENSHRINES the artifact: ="The quick fox. Jumps over the dog."=.
+- scope: design said punctuation/caps/ITN; the shipped POLISH prompt adds /"obvious
+  mistranscriptions from context"/ → an LLM rewrites the learner's L2 utterance. In a language
+  OS the learner's errors are the SIGNAL; polish must never touch lexical content.
+- serialization: =polished()= awaits the render INSIDE the loop → the next segment's partials
+  stall ~300 ms at every segment boundary (quest residue admits it).
+- =vocal.tune= leaks into the polish render (=policy: {tune: vocal.tune ?? "fast"}=): VOCAL.tune
+  is declared as verbatim-faculty steering; here it also steers a DIALOGUE faculty.
+Root cause: =fold= flattens =settled= to a joined string, so a late polish cannot address its
+segment → ordering must be forced → stall. Fix: settled = LIST of segments; =final= carries a
+segment id (counter server-side), =polish= echoes it; polish runs CONCURRENTLY (=soma.merge=,
+=belt/soma.js:189=) and the fold repairs by id regardless of arrival; polish grain = the
+utterance at =turn.end=/stop over the joined text; prompt narrowed to format-only; polish tune
+fixed =fast= (or its own field), never =vocal.tune=.
+
+** 4 · event grammar — third discriminator grammar on the same streams
+Law: packet events are =/=-path Signal forms (=/turn/open=; [[project_event_grammar]]). Live merged
+faculty streams tag with =channel= + =event= (=soma.channel= =belt/soma.js:185=;
+=kajuit prototypes/conversation.js:16-22=). Verbatim ships =nature: "turn.start"= — dot-form, and
+=nature= is ALREADY the Vector-descriptor word for a signal path (=.open({nature: "/verbatim/stream"})=).
+"Established" rests on a dead spec (=voice.conversation.test.js= rides the dissolved
+=Conversation=). Proposal: Packets — =event: "/turn/open" | "/verbatim/commit" | "/verbatim/partial" |
+"/verbatim/final" | "/verbatim/polish" | "/turn/close"= (Speech likewise) — one family, one
+field, dispatchable, merge-safe with dialogue/speech. Typology-holy: beef's call.
+
+** 5 · client shape — stale terminal, imperative component handle, store-contract ceremony
+- =<Dictaphone terminal={terminals.active}>=: =terminals.active= is an untracked getter
+  ([[project_svelte_class_state_gap]]) and =dictation({terminal})= CAPTURES the first terminal at
+  construction; =Dock= is one unkeyed instance (=panels/a/a.svelte:99=) → after a terminal switch
+  dictation publishes to the OLD thread's mode. =send()= already shows the right shape: resolve
+  =terminals.active= at call time (=Dock.svelte:165=).
+- =bind:this= + =export function cancel()= + =export const listening= = imperative component API;
+  =onghost=/=onsplice= callbacks hoist state UP. Invert: =dictation()= owned by the Dock (or the
+  terminal layer), resolves =terminals.active.thread= in =start()=; Dictaphone = dumb button over
+  =$active=/=$level=; Dock reads =$committed=/=$tail= for the ghost directly.
+- 4 manual =subscribe= → =$state= mirrors + =unsubs= + =onDestroy= (~30 lines) — nanostores atoms
+  satisfy the Svelte store contract; =Dock= already does =$turnsStore=.
+- anchor drift: textarea stays editable while dictating; =ghostAnchor= is captured once → typing
+  before the anchor shifts the splice mid-word. Lock the composer during dictation or track a
+  live range.
+- fire-on-subscribe side effect: =terminal.$thread.subscribe(() => cancel())= runs =cancel()= at
+  construction → =microphone.release()= → =teardown= on a mic another consumer may hold.
+- no capability gate: button shows on every HARNESSED mode; =daemon.cortex= mirror exists
+  client-side (=entities/daemon/dossier.js:100=) → gate on =daemon.cortex.find({type:"verbatim"}).length=.
+
+** 6 · duplicated primitives (pass-I family, three more)
+- deepgram =socketEvents= (events[] + wake/rest) IS =Queue= (=prototypes/queue.js=: backlog +
+  =promise.waiter=); =drain(line, translate)= = =for await (data of queue.drain()) yield* translate(data)=.
+- =belt/sse.frames= duplicates the inline SSE decode in =Connection.stream=
+  (=connection.js:123-141=); SSE ENCODE is inline twice too (=connection.publish= =:195-204=,
+  =Response.publish= =response.js:26=). One =belt/sse= {encode, frames}, four sites ride it.
+- =AudioDriver.encode/decode= are new 1-line delegations to =pcm=; =dictation.js= can import
+  =pcm= directly (kajuit prototypes import typology).
+- mic batching on the main thread AFTER =postMessage= (8 messages per frame still cross the
+  worklet boundary) + =pending=/=pendingSamples= stamped on the instance; batch inside
+  =worklet.js= =process()= (10-line file).
+
+** 7 · the lowering/leaf sniffs + a false name
+- =hallucination.js=: =if (request.source) {…early return}= — shape-sniff in the root lowering;
+  branch-scoped middleware is the Vector idiom (=harness.branch("/dialogue").use= in the same
+  runtime file). =ctx.policy = {tune: ?? "eager"}= hard-codes a default tier in typology.
+- =transcribing("speech")= — TTS is not transcription; the metaphor must be TRUE. Two leaves, or a
+  fold-parameterised one; the =type === "verbatim" ? harmonize : events= ternary is the tell.
+- harmonize placement: the dialogue analog keeps the session fold in =shard/hallucinate.respond=,
+  invoked from the leaf; verbatim inlines =verbatim.harmonize= in the prototype. Symmetry wants
+  =shard.hallucinate.transcribe(faculty, source, config, {harmonize})=.
+- =/verbatim/render= vanished from the harness loop; =hallucination.js= still has
+  =rendering("verbatim")= over a dialogue Request — the lie survives at that leaf.
+
+** 8 · provider + protocol residue
+- nova URL has =vad_events=true= but NO =utterance_end_ms= → Deepgram never sends =UtteranceEnd=
+  → nova never yields =turn.end=; the stream settles on socket close, not on the grammar. Forward
+  contract 1 (multi-turn on one frame) is therefore untrue for the default faculty. Verify live.
+- =smart_format=true= on nova: finals may be formatted while interims are raw → token counts
+  diverge → harmonizer's commit-by-count vs final breaks the "commits ⊕ final consistent"
+  invariant. Fold survives (final replaces segment); the invariant test won't in the field.
+- =Verbatim.Start.transcript= (flux StartOfTurn) is reset away by =harmonize=.
+- faculty tune vectors placed to WIN the resolver (multi moved onto =eager= exactly) — tune as
+  opaque proximity key is tolerated for verbatim ([[project_hallucination_harness_cortex_ontology]]),
+  but the design says "multi by default", and a default belongs in policy, not in coordinates.
+- =conversation.listen()= (zero consumers, =kajuit prototypes/conversation.js:48-60=) still
+  publishes RAW Float32 frames, un-encoded — a second, dead, wrong verbatim client path touched
+  only to add ={stream:true}=. Delete or ride =frames()=.
+- ={stream:true}= opt-in on publish: the 2×2 (unary/stream × up/down) has three names
+  (=call= · =stream= · =publish=) + a flag for the 4th quadrant — name the quadrant or accept the
+  flag knowingly.
+- verbatim span: =new Span("/hallucination")= minted, never branched/marked — zero telemetry on
+  ASR latency while dialogue marks per avenue.
+
+** 9 · forward-contract gap specific to vivalence
+=final.words= ({word,start,end,confidence,language}) reaches the client and DIES — the dock splices
+text, drops words, sends a turn with no provenance. A language OS wants to know a turn was
+SPOKEN and at what confidence (pronunciation feedback, retention signal). Pennies now: mark the
+part (=part.meta.spoken= / source) and keep =words= reachable; fortunes later otherwise.
+
+** what holds (effect over model)
+=fold= is a true reducer (trigger 2) · =harmonize= as a generator transformer (Unix pipe) ·
+=claimed= one idiom two traits · =Verbatim= family mirrors =Packet= layout · =hal.verbatim= lands
+where beef's annotation pointed · forward contracts 2/4/5 are the right discipline · two real
+=Connection= bugs found (query-in-path 404; first-frame-only publish).
+
+** recommendation
+Do NOT apply as-is. Settle 1 (total assembly), 2 (=feeds= / mirror truth — naming is beef's),
+3 (segmented fold + concurrent addressable polish + narrowed prompt), 4 (grammar — beef's call),
+5 (client ownership) BEFORE patch surgery; 6-9 ride along. The harmonizer/fold/schemas/tests are
+keepable; the harness, hallucination lowering, client prototype + Dock wiring, and polish stage
+want a redesign pass, not hunks.

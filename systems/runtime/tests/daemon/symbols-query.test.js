@@ -4,7 +4,7 @@
 
 import { specimen } from "@vivalence/typology";
 import { MikroORM } from "@mikro-orm/core";
-import { SqliteDriver } from "@mikro-orm/sqlite";
+import { config } from "../../../../registry/viva/datamap/libsql/libsql.viva.js";
 import {
   LiteralEntity,
   SymbolEntity,
@@ -18,9 +18,7 @@ specimen.describe("symbols: m:n slug query", () => {
 
   specimen.beforeAll(async () => {
     orm = await MikroORM.init({
-      driver: SqliteDriver,
-      dbName: ":memory:",
-      entities: [LiteralDomain, SymbolDomain],
+      ...config({ dbName: ":memory:", entities: [LiteralDomain, SymbolDomain] }),
       allowGlobalContext: true,
     });
     await orm.schema.refreshDatabase();

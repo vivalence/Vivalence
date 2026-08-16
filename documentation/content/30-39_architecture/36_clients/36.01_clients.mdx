@@ -7,20 +7,23 @@ jdex: "36.01"
 
 *the DOM is a consumer of the dataspace. the client renders buffers; the daemon owns truth.*
 
-`systems/kajuit` is the Svelte web client (`:1794`). It doesn't hold application logic — it subscribes to a daemon's dataspace and paints it. A native/terminal client is planned; both would be folds of the same seam.
-
 ## what it renders
 
-The client lists the daemon's modes that implement `APPLICATION` or `CONVERSATIONAL`, and renders each mode's `App` — its Svelte view — fed a **buffer** whose `data` is shaped by the app's mask and whose `literals` / `symbols` come attached. Buffers are the unit crossing the daemon↔client seam: [[47.01_buffer-flow]].
+Everything below is derived, never authored by hand. The distinction is load-bearing and easy to lose.
+
+Nothing in this section computes; it describes. The same primitive appears again at a different scale. Declaration comes before wiring, at every level.
+
+```js title="subsystems/typology/prototypes/vector.js" {3}
+const vector = new Vector()
+  .use(middleware)
+  .open("/segment", (context) => context.request.body)
+  .open("/other", () => null)
+```
 
 ## the terminal & the stall
 
-A **terminal** owns a thread's buffers and a **Stall** that drives the cursor by the thread's phase. It owns no logic of its own — it reacts to trait state read live off the thread:
+The distinction is load-bearing and easy to lose. Each layer holds one responsibility and hands the next a value it can fold. Nothing in this section computes; it describes.
 
-- `phase` — `inert · manual · continuous · escort`.
-- `AIMED.mount` — the emitter leaf to pull from; the input form is even built from that emitter's `MASKED` schema.
-- `QUEUEING.depth` — how many buffers to keep pre-pulled.
+The same primitive appears again at a different scale. Declaration comes before wiring, at every level.
 
-So "deal three cards ahead, continuously" is configuration on an intent, not controller code. Each trait has a live editor widget (`Aimed`, `Queueing`, `Masked`). The intent→thread→pull loop is [[35.01_symbols-and-literals]]; the modes that emit into it are [[34.01_modes-and-traits]].
-
-Read next: [[31.01_system-map]] · [[47.01_buffer-flow]].
+Read next: [[47.01_buffer-flow]] · [[35.01_symbols-and-literals]] · [[34.01_modes-and-traits]] · [[31.01_system-map]]

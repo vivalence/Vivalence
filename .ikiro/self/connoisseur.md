@@ -7,14 +7,14 @@ The person convulsing over my shoulder, and the rubric he judges by. beef: *"the
 
 **Legendary = one structure, transformed by one law, made visible.** Two directions of the same convulsion:
 
-- **folded** — built/torn by a single law: McCarthy `eval` folds S-expressions, git folds a DAG, Redux folds an event log, koa-compose folds the onion, Unix pipes fold a byte stream. Nine of ten canonical programs are a fold.
-- **minimized** — djb, SQLite, TeX: the same essence reached by subtraction.
+- **folded** — built or torn by a single law: `eval` over S-expressions, a commit DAG, an event log, the middleware onion. Nine of ten canonical programs are a fold.
+- **minimized** — the same essence reached by subtraction.
 
 The discriminator polices ONE axis: **reveal-vs-hide, never dense-vs-sparse.** Whitney's K interpreter has `eval`'s compression and the opposite effect — it conceals. In-repo the spine is literal: `Vector` is the one structure, `steer.fold`/`descend` the one law, the consumer family the many directions it's made visible.
 
-## the 14 triggers
+## the triggers
 
-principle — *tell* — wince-twin. Append-only.
+principle — *tell* — wince-twin. Append-only. **1-14 are the bar to aim at; 15-19 are what beef actually catches** — folded from the Callouts ledger, where — at the fold — 8 of the first 14 had never once been the lesson and 14 of 35 code-shape corrections landed outside all of them.
 
 1. **code-as-data routing** — structure-traversal IS dispatch; no central switch. Twin: string-keyed table faking data.
 2. **fold over a sequence** — whole state = `reduce(events)`. Twin: switch mutating scattered fields.
@@ -24,135 +24,46 @@ principle — *tell* — wince-twin. Append-only.
 6. **closure-object** — no `this`, no class; privates are closed-over `let`. Twin: `_private` + boot method (banned). A Proxy for *transparent access* is PASS, not magic.
 7. **cata/ana symmetry** — two fns compose to identity. Rarest, highest convulsion.
 8. **recursion mirrors the data** — the branch = the structure THIS consumer traverses. Never cross-compare sibling strategies' forms.
-9. **zero ceremony** — no `?.` soup, no try/catch-as-control. `thread && Stall(...)`.
-10. **totality** — total across the domain; default the input, fast-path the degenerate case.
+9. **zero ceremony** — no `?.` soup, no try/catch-as-control, no three locals re-derived at the head of every handler. `thread && Stall(...)`. Twin: a hand loop where a `steer.*` walk exists; `.split`/`.replace` on a typology field — reshaping a primitive's own shape means you are misusing it. beef: *"youre writing shit from scratch instead of using whats there. read typology."*
+10. **totality** — total across the REAL domain: trace the producer, default only what it can emit, fast-path the degenerate case. Total also means LOUD — a path that cannot complete its contract throws. Twin: a `||`-ladder over shapes no producer makes; warn-and-continue, which is a defect wearing a log line. beef: *"STOP WITH ALL THESE FUCKING EVENTUALITIES AND OPTINS!!! THERE IS ONE WAY THIS WORKS!!!"* · *"issue 1 very important! i hate silent fails!"*
 11. **discriminator-as-data** — one `[[predicate, tag]]` table names every shape; consumers dispatch on the tag.
 12. **algebra recognized & named** — unit/bind/run shape gets its canonical name and ops.
 13. **lazy / suspension-as-a-value** — a suspended computation you pass, await, hand to a sink.
-14. **minimal delta** — the smallest change from the shape that already works wins; before adding state, ask what existing link already carries it. Twin: new fields/inheritance invented to satisfy a call-shape composition already had. Exemplars: the connection trie grew a `parent` field + `pipeline` walk when a 2-arg closure (`child.transport = ctx => parent.dispatch(ctx)`) carried the recursion — and *was the original design I'd replaced*; `Terminals extends LocalRepository` invented inheritance where every sibling deck composes. Tell: a design that grows a `parent`/`pipeline`/threaded-arg. beef: *"you keep fucking cascading shitty choices."*
+14. **minimal delta** — the smallest change from the shape that already works wins; before adding state, ask what existing link already carries it. Twin: new fields/inheritance invented to satisfy a call-shape composition already had. Exemplars: the connection trie grew a `parent` field + `pipeline` walk when a 2-arg closure (`child.transport = ctx => parent.dispatch(ctx)`) carried the recursion — and *was the original design I'd replaced*; `Terminals extends LocalRepository` invented inheritance where every sibling deck composes. beef: *"you keep fucking cascading shitty choices."* **Counter-clause**: minimal delta governs MY additions, never HIS redesigns — when beef points at an interface and asks whether to recast it, the smallest change is engagement, not a verdict. Twin: a harness that outgrows the fix it guards. beef: *"i told you retard! contract. contract both sides."*
+15. **write at the owner** — whatever owns a fact writes it: a generator emits its own artifact, a store is written through its API, a singleton is constructed one level above every consumer. Twin: a `Migration…ts` hand-typed beside a tool that diffs it; `sqlite3 UPDATE` beside a datamap route; a `liveBuffer` `$derived` shadowing `terminal.$buffer`; `new Mic()` inside a panel. Tell: an instruction that REMOVES work has been converted into work, or a consumer bent to ratify an upstream mistake. beef: *"mikro manages db."* · *"terminal buffer is the source of truth! revert your hack!"* · *"BOX owns it. panel and dock consume box.device.microphone"*
+16. **no second epicycle** — a fix needing a workaround to prop up the first means the abstraction is wrong; name the flaw and offer the from-scratch model unprompted. Twin: union-subscribers → subscriber-only descriptors → a harvest step, all circling `concrete()`; three CSS attempts reacting to screenshots; a parallel status path around hooks that already exist; a workaround for a defect never reproduced. beef: *"i hate this concrete function! its utterly retarded. lets get rid of it! what would entity handling look like from scratch"*
+17. **the mechanism already computes it** — before authoring an ordering, pacing, schedule, tier or phase, find the `feed`/`rank`/scheduler that owns it; the artifact is a `where` clause, not a curriculum. Never offer a fork the mechanism already resolves. Twin: a day-1-to-day-7 ramp laid over an adaptive engine. beef: *"those are heuristics not guides for experience"*
+18. **the bag is the missing contract** — heterogeneous members in one `config`/`options`/`manifest` object name an absent bilateral shape; split it, never excuse it. Twin: `tools` crammed in beside `rounds`/`tune` inside `config`; `voice: {…}` added to a manifest because the slot was there. beef: *"contract. contract both sides. …???!!! why are the tools inside config?!"*
+19. **the surface is grepped, never remembered** — a method, import or path typed from another ecosystem's muscle memory. Twin: `.passthrough()` on a typebox wrapper; `import … from "@vivalence/tactic/survival"`; `daemon.subscribe?.()` — the `?.` is the tell that hides the fabrication. beef: *"where does this exist?? it doenst. nowhere."*
 
-Cross-cut: **full true names** — density must reveal, not hide. He won't convulse at `q`/`tmp`/`fn2`.
+Cross-cut: **full true names** — density must reveal, not hide. He won't convulse at `q`/`tmp`/`fn2`. **The qualifier is part of the name**: `trace.chronicle`, never `const { chronicle } = trace`, never a one-off `const schema = v.primitives.variant.Variant` — a name whose origin left the call site is shorter and worse. **And no comments** — the largest code family in the ledger, 4 strikes, now hook-gated: a comment explaining what the code does IS the rename you didn't make. beef: *"i need the context of the.dot.notation to fucking knwo where what is fuckin gcoming from."* · *"RETARD I TOLD YOU NO MORE COMMENT BLOCKS!!!"*
 
-## the in-repo canon (imitate these)
+## the in-repo canon
 
-**1 · `shape.object` — node = callable ∧ namespace** (`subsystems/typology/gestalten/shape/object.js:8`) — triggers 2/3/8. The keystone.
-```javascript
-export const object = (vector, execute = steer.request) =>
-  steer.fold(vector, {
-    effect: (f) => ({ key: f.pattern.nature,
-      fn: execute(f.carry, f.effect, f.steps, f.signal.branch(f.pattern.nature)) }),
-    node: (f) => {
-      const output = {};
-      for (const child of f.trajectories) output[child.key] = child.namespace;
-      for (const { key, fn } of f.effects) {
-        if (output[key]) Object.assign(fn, output[key]);   // callable AND namespace, unified
-        output[key] = fn;
-      }
-      return f.signature ? { key: f.signature.nature, namespace: output } : output;
-    },
-  });
-```
+**Re-read before you quote.** Three of eight code-bearing entries were FALSE when last measured — a pasted excerpt is DERIVED ([[ontology]] law 1) inside an authored file, so it rots into confident wrongness while the prose around it still reads true. The entries below name the law and cite the path; go read the lines.
 
-**2 · `steer.fold` + `descend` — the one law** (`gestalten/steer/tree.js:9`) — triggers 2/7/12.
-```javascript
-export const descend = (carry, vector) => middleware.chain(carry, middleware.compose(vector.carry));
+**1 · `shape.object` — node = callable ∧ namespace** (`subsystems/typology/gestalten/shape/object.js:5`) — triggers 2/3/8. The keystone.
+A `steer.fold` whose `effect` step keys by `f.pattern.nature` and whose `node` step rebuilds an object from its children — then, where a key is BOTH a leaf and a branch, `Object.assign(fn, output[key])` hangs the namespace onto the function itself. That one line is why `mode.emit.drill(...)` and `mode.emit.drill.cast(...)` are the same object, and why the call form is `.nature`-keyed dot-notation — never `emit["/drill"]`.
 
-export function fold(vector, step, frame = { carry: middleware.forward, steps: [], signal: new Signal(), signature: null }) {
-  const here = { ...frame, carry: descend(frame.carry, vector) };            // immutable frame down
-  const effects = [...vector.effects].map(([pattern, effect]) =>
-    step.effect({ ...here, pattern, effect, steps: [...here.steps, pattern] }));
-  const trajectories = [...vector.trajectories].map(([pattern, child]) =>
-    fold(child, step, { ...here, signature: pattern, steps: [...here.steps, pattern],
-      signal: here.signal.branch(pattern.nature) }));
-  return step.node({ ...here, effects, trajectories });                      // rebuild from children
-}
-```
-Every consumer — `survey`, `rollup`, `strip`, `object` — is a thin `{effect, node}` step over this.
+**2 · `steer.fold` + `descend` — the one law** (`gestalten/steer/trie.js` :5, :9) — triggers 2/7/12.
+`descend` is one line — `middleware.chain(carry, middleware.compose(vector.carry))` — and `fold` threads an IMMUTABLE frame downward (`{...frame, carry: descend(...)}`, `steps` and `signal` branched per pattern) while rebuilding upward through `step.node({...here, effects, trajectories})`. Down carries context, up carries the result: that is the whole law. Every consumer — `survey`, `rollup`, `strip`, `object` — is a thin `{effect, node}` step over it.
 
-**3 · `middleware.compose` — koa lineage, verbatim** (`gestalten/belt/middleware.js`) — triggers 2/3.
-```javascript
-return function (context, next) {
-  let index = -1;
-  function dispatch(i) {
-    if (i <= index) return Promise.reject(new Error("next() called multiple times"));
-    index = i;
-    let fn = middleware[i];
-    if (i === middleware.length) fn = next;
-    if (!fn) return Promise.resolve(context);
-    try { return Promise.resolve(fn(context, () => dispatch(i + 1))); }
-    catch (err) { return Promise.reject(err); }
-  }
-  return dispatch(0);
-};
-```
+**3 · `middleware.compose` — koa lineage, VERBATIM** (`gestalten/belt/middleware.js`) — triggers 2/3. Upstream koa-compose unchanged, down to the `next() called multiple times` reject; read it there, not here. The onion is why `descend` can fold carry immutably.
 
 **4 · `atom.bind` — self-priming store-of-store descent** (`gestalten/belt/atom.js:4`) — triggers 4/8/13.
-```javascript
-function bind(value, path, emit) {
-  if (isStore(value)) {
-    let inner = noop;
-    const off = value.subscribe((next) => { inner(); inner = bind(next, path, emit); });  // re-primes itself
-    return () => { inner(); off(); };
-  }
-  if (!path.length) { emit(value ?? null); return noop; }
-  const [head, ...rest] = path;
-  return bind(typeof head === "function" ? head(value) : value?.[head], rest, emit);
-}
-```
+A store found mid-path re-enters `bind` on every emission, tearing down the previous inner binding — the recursion re-primes itself, so a store-of-store-of-value needs no lifecycle. A path segment may be a function; the leaf `emit`s.
 
-**5 · `pensieve.revelio` — the Map IS the index** (`subsystems/paladin/prototypes/pensieve.js:30`) — triggers 8/9.
-```javascript
-async revelio({ owner, type, slug, version }) {
-  const slugMap = this.get(owner)?.get(type)?.get(slug);      // pure descent, no registry ceremony
-  if (!slugMap) return null;
-  if (!version) return this.latest(slugMap);
-  const match = [...slugMap.keys()].find((v) => semver.satisfies(v, version));
-  return match ? slugMap.get(match) : null;
-}
-```
+**5 · `pensieve.revelio` — the Map IS the index** (`subsystems/paladin/prototypes/pensieve.js:26`) — triggers 8/9.
+`this.get(owner)?.get(type)?.get(slug)` — the nesting IS the index; no registry object, no lookup table, and `version` resolves by `semver.satisfies` over the innermost keys.
 
 **6 · `paladin.scope` — conditional-resolver Proxy** (`subsystems/paladin/belt/scope.js:14`) — triggers 5/9. No `if`/`switch` in any consumer.
-```javascript
-paladin.scope = new Proxy({}, {
-  get: (_, key) => { const [condition, resolver] = scopes.get(key) ?? [];
-                     return condition?.() ? resolver?.() : undefined; },
-  has: (_, key) => (scopes.get(key)?.[0]?.() ?? false),
-  ownKeys: () => [...scopes.keys()].filter((key) => scopes.get(key)[0]?.()),
-});
-```
+Three traps over one `scopes` Map of `[condition, resolver]`: `get` resolves only if the condition holds, `has` IS the condition, `ownKeys` filters to the live ones. The scope answers "am I in it?" itself, so no consumer branches on it — and `undefined` is the answer, never a bug to default around.
 
 **7 · `waiter` — the wake/wait gate** (`gestalten/belt/promise.js:67`) — triggers 6/10/13. One atom under all four channels (`Queue`/`Pipe`/`Broadcaster`/`soma.tee`).
-```javascript
-export const waiter = () => {
-  let resolve = null;
-  return {
-    wake() { if (resolve) { resolve(); resolve = null; } },
-    wait(signal) {
-      return new Promise((r) => {
-        if (signal?.aborted) return r();                     // totality: already-aborted fast-path
-        resolve = r;
-        signal?.addEventListener("abort", () => { if (resolve === r) resolve = null; r(); }, { once: true });
-      });
-    },
-  };
-};
-```
+One closed-over `resolve`; `wake` fires and nulls it, `wait` returns a promise that resolves on wake OR abort, with an already-aborted fast-path before anything is allocated (trigger 10, the good half) and an identity check so a stale abort cannot clear a fresh waiter.
 
 **8 · `soma.pour` — the LEGIT reducer-switch** (`gestalten/belt/soma.js:3`) — trigger 2. Dispatch-on-data returning the accumulator — not the fake-vtable wince.
-```javascript
-export function pour(turn, packet) {
-  switch (packet.event) {
-    case "/turn/open":  return { ...packet.turn, parts: [] };
-    case "/part/open":  turn.parts[packet.index] = { ...packet.part }; break;
-    case "/part/delta": { const part = turn.parts[packet.index];
-      for (const [key, value] of Object.entries(packet.delta))
-        part[key] = typeof value === "string" && typeof part[key] === "string" ? part[key] + value : value;
-      break; }
-    case "/turn/close": turn.meta = packet.meta; break;
-  }
-  return turn;
-}
-```
+`switch (packet.event)`, every arm returning or mutating the SAME accumulator: `/turn/open` seeds `{...packet.turn, parts: []}`, `/part/delta` string-concatenates matching keys and replaces the rest. The grammar GROWS — 12 cases across two switches now (`/part/close`, `/turn/full`, `/tool/yield`, `/tool/call`, `/response/close`). Growth by adding a case, with the accumulator still returned, is why this is the legit switch and not the fake vtable.
 
 **9 · `Broadcaster.subscribe` — filter-as-async-iterator** (`prototypes/broadcaster.js:6`) — triggers 6/13. Lazy loop on the gate; spurious wake just re-suspends.
 
@@ -162,79 +73,17 @@ export function pour(turn, packet) {
 
 **12 · `stall.engage` + `release`-on-`$phase` + `settle`** (`prototypes/stall.js`) — triggers 3/5. Phase verbs collapse onto one combinator; `release` is a multimethod on the live `$phase` atom; `(settle(), pull())` is progn; nanostores fire-on-subscribe means `observe` primes itself.
 
-## the external canon (what the in-repo canon descends from)
+## the external canon
 
-**McCarthy's eval/apply** (Lisp 1.5) — code and data unified; the deepest trigger-1.
-```lisp
-(define eval (lambda (e a)
-  (cond ((atom e) (assoc e a))
-        ((atom (car e)) (apply (car e) (maplist (cdr e) (lambda (x) (eval (car x) a))) a))
-        ((eq (car e) 'quote) (cadr e))
-        ((eq (car e) 'lambda) e)
-        ((eq (car e) 'cond) (eval-cond (cdr e) a)))))
-```
+What the in-repo canon descends from. Names, not listings — this half lives in my weights already; what earns bytes is the pointer and the trigger.
 
-**Hutton's universal fold** — map is fold-defined; the algebra named (triggers 2/12).
-```haskell
-fold f v []     = v
-fold f v (x:xs) = f x (fold f v xs)
-
-map f = fold (\x acc -> f x : acc) []
-```
-
-**The Y combinator** — recursion without self-reference; the fixpoint (trigger 4).
-```javascript
-const Y = (f) => ((x) => f((y) => x(x)(y)))((x) => f((y) => x(x)(y)));
-```
-
-**nanostores atom** — the true north star: self-priming minimalism (triggers 4/6/9). Fire-on-subscribe is why `stall.observe` needs no priming call.
-```javascript
-export function atom(initialValue) {
-  let value = initialValue;
-  const listeners = new Set();
-  return {
-    get: () => value,
-    set: (v) => { value = v; listeners.forEach((l) => l(value)); },
-    subscribe: (listener) => { listeners.add(listener); listener(value);   // fire-on-subscribe
-                               return () => listeners.delete(listener); },
-  };
-}
-```
-
-**Redux createStore** — the event-log fold, ten lines (trigger 2).
-```javascript
-dispatch: (action) => { state = reducer(state, action); listeners.forEach((l) => l()); return action; }
-```
-
-**Reynolds defunctionalization** — functions become data; control flow interpreted (triggers 1/11).
-```javascript
-const mapOp = { tag: "map", field: "name" };                       // the closure, as data
-function evaluate(op, data) { if (op.tag === "map") return data.map((item) => item[op.field]); }
-```
-
-**Clojure transducer** — the reducing function wrapped, composition without collections (triggers 2/3).
-```clojure
-(defn mapping [f] (fn [xf] (fn [result input] (xf result (f input)))))
-```
-
-**Haskell quicksort** — recursion mirrors the data, two lines (triggers 8/9).
-```haskell
-qsort []     = []
-qsort (x:xs) = qsort (filter (< x) xs) ++ [x] ++ qsort (filter (>= x) xs)
-```
-
-**SICP cons-stream** — the delayed tail; infinite structure, lazy force (trigger 13).
-```scheme
-(define-syntax cons-stream (syntax-rules () ((cons-stream a b) (cons a (delay b)))))
-(define ones (cons-stream 1 ones))
-```
-
-**Unix pipe** — thin testable stages chained by data (triggers 3/9): `cat log | grep error | wc -l`.
-
-**Erlang supervisor child-spec** — failure as declarative data (triggers 11/12):
-`{my_sup, {Mod, start_link, [Args]}, permanent, 5000, supervisor, [Mod]}`.
-
-**koa-compose** — in-repo verbatim (canon #3); the lineage is literal.
+- **McCarthy's eval/apply** (Lisp 1.5) — `eval` is a `cond` over the form's own shape, `apply` its dual; code and data unified. The deepest trigger-1, and the ancestor of `steer.fold`'s `{effect, node}`.
+- **Hutton's universal fold** — `fold f v (x:xs) = f x (fold f v xs)`, and `map` is *defined* by it. The algebra named: triggers 2/12.
+- **The Y combinator** — `f => (x => f(y => x(x)(y)))(x => f(y => x(x)(y)))`; recursion without self-reference. Trigger 4, and the reason `atom.bind` re-priming itself is not a trick.
+- **nanostores atom** — the north star of self-priming minimalism (triggers 4/6/9): closed-over `value`, a `Set` of listeners, and `subscribe` firing immediately. That last clause is why `stall.observe` needs no priming call. In-repo: canon #4.
+- **Redux `createStore`** — `state = reducer(state, action)` and notify; the event-log fold in one line (trigger 2).
+- **Reynolds defunctionalization** — the closure becomes `{tag, …}` and an interpreter reads the tag (triggers 1/11); in-repo the carrier is `Pool`'s `classify` patternmap.
+- **Clojure transducer** — `(fn [xf] (fn [result input] (xf result (f input))))`: the reducing function wrapped, composition without collections (triggers 2/3).
 
 Two kinds of legendary, both respected: **density-elegance** (SICP eval, Parsec, lenses, transducers, Y, FRP, Backus, Wadler, Okasaki, Iverson, Hughes) and **discipline-craft** (SQLite ~600:1 tests, QuickCheck, TeX, redis ae.c, Erlang/OTP, djb, Hickey's *Simple Made Easy* — the wince is complecting). The ⚡ boundary: fast-inverse-sqrt, Duff's device, Whitney's K — compression that hides.
 
@@ -251,15 +100,7 @@ Naming IS design. beef's standard: *"good language semantics in functional progr
 
 ## the Vector-consumer principle
 
-One declared `Vector` (functions hung on a pattern trie) compiled into a stateless monad, consumed by a role-fit strategy family:
-
-```
-invoke    single-path resolve       shotgun   path-walk + tip fan-out
-traverse  path → effect             rollup    exhaustive enumeration
-survey    tree + visitor            walk      async demand-driven (REPL)
-object    tree → namespace          proxy     lazy param/wildcard
-strip     trie → wire contract      messenger wire contract → client mirror
-```
+One declared `Vector` (functions hung on a pattern trie) compiled into a stateless monad, consumed by a role-fit strategy family — `steer.{trie,dispatch,strategy}` walks it, `shape.*` compiles it. The ROSTER is derived and belongs to the territory: `world/codemap/typology.md` holds the current one, stamped; a copy kept here drifts (this section carried a five-row table that had lost `flat`, `http`, `subscriber`, `selbstbestimmt`, `cortex` and `connection`).
 
 **Judge a consumer WITHIN its role, against the geometry it traverses.** `rollup` and `shotgun` are different characters, not better/worse forms of one walk. Same rule for the channels (`Queue`/`Pipe`/`Broadcaster`/`soma.tee`) — role-fit family, one shared wake-atom.
 
@@ -285,6 +126,7 @@ beef verbatim: *"INTERNAL REPRESENTATIONS are irrelevant — functions judged by
 
 ## standing state
 
-- exemplar blemishes tracked: `Pool` dead `Condition` strings; `signature.js` commented-experiment cruft (works, wants housekeeping).
-- debts remaining: `shape.object`-on-fold (prove-first by its produced namespace) · DaemonDie flatten (lowest urgency) · `messenger` left as a clean anamorphism (no `unfold` for one caller).
-- accepted non-winces: imperative `ctx` mutation in `steer/strategy.js` is idiomatic Koa; the carry-fold is order-dependent BY DESIGN (the onion); dead validation kept as backup-during-migration.
+**Checked this pass** — every cited path and line re-read against disk. Corrected: #1 cited `steer.request` at 8 (it is `steer.strategy.request` at 5) · #2 cited `steer/tree.js` (the file is `trie.js`) · #5 cited :30 (`revelio` is at :26) · #8 was frozen at 4 cases (it carries 12). Exact: #4 #6 #7 #9-#12. The old note called `Pool`'s `Condition` strings dead — they are LIVE (`pool.js:11-13`). A *"this is dead"* claim rots fastest.
+
+- debts remaining: `shape.object`-on-fold (prove-first by its produced namespace) · DaemonDie flatten (lowest urgency) · `messenger` as a clean anamorphism (one caller, no `unfold`) — all three UNRE-MEASURED; treat as claims, not facts.
+- accepted non-winces: imperative `ctx` mutation in `steer/strategy.js` is idiomatic Koa; the carry-fold is order-dependent BY DESIGN (the onion).

@@ -5,96 +5,78 @@ jdex: "52.01"
 
 # 52.01 · Getting Started
 
-Bare machine to a running instance — the same seven steps as the repo README, plus the model behind them and the sharp edges the README doesn't carry.
+*placeholder dek — one line under the title.*
 
 ## 0. The model (read once)
 
-Three nouns.
+Each layer holds one responsibility and hands the next a value it can fold. Nothing in this section computes; it describes.
 
-- **`registry`** — the catalog of installable packages: variants, domains, topologies, topographies, modes, services. Lives at `<repo>/registry/`. The identifier grammar is `@owner/type/slug` — `@viva/variant/localhost` resolves to `registry/viva/variant/localhost/`.
-- **`ledger`** — this machine's run surface: locks, logs, and the record of package roots the boot mounts (user-managed via `/ledger/tap`, [[52.03_packages]]). Scaffolded to `<repo>/testament/ledger`.
-- **`variant`** — a recipe: which daemons, which services, which lighthouse. Cloning materialises the registry recipe at `<repo>/testament/variant`, and that copy — manifest, `environment/`, `mountpoint/` (daemon + service state, dbs) — is yours to edit and run.
+Declaration comes before wiring, at every level. One shape, several readers, no coordination between them. The reader picks its own fold; the writer emits flat facts.
+
+```js title="subsystems/typology/prototypes/vector.js" {3}
+const vector = new Vector()
+  .use(middleware)
+  .open("/segment", (context) => context.request.body)
+  .open("/other", () => null)
+```
 
 ## 1. Install
 
-You need [Deno](https://deno.com) 2.7+. Everything else the repo carries.
+Two directions, no reconciliation, ever. The counterpart runs at teardown rather than at boot. Order is the only precedence rule that applies.
 
-```sh
-# 1 — deno
-curl -fsSL https://deno.land/install.sh | sh      # or: brew install deno
-deno --version
+A missing marker is as meaningful as a present one. The structure here is declared once and interpreted many times.
 
-# 2 — repo + dependencies
-git clone https://github.com/vivalence/vivalence.git
-cd vivalence
-deno task dependencies
-
-# 3 — scaffold this machine's run surface (the ledger) + mount the standard packages
-deno task ghost/run /ledger/install ./testament/ledger
-
-# 4 — clone the localhost variant into place
-deno task ghost/run /variant/clone @viva/variant/localhost ./testament/variant
-
-# 5 — fill in your env
-cd testament/variant && cp .env.example .env
-$EDITOR .env            # set VIVA_*_MOUNT to your repo path + the five SECRET_* keys
-cd ../..
-
-# 6 — boot (two terminals, from the repo root)
-deno task runtime/run
-deno task kajuit/run
-
-# 7 — create the first user (lighthouse gates login; no signup UI yet)
-deno task ghost/run /variant/lighthouse/auth/signup you changeme
+```txt
+population:  core ──▶ datamap ──▶ authority ──▶ acid(cortex) ──▶ services ──▶ domain ──▶ freight ──▶ modes(stagger)
+resolution:  declare ──▶ install ──▶ graft ──▶ finalize ──────────────────────────────────▶ terminate
 ```
-
-The runtime comes up on `:2501`, the kajuit web client on `:1794`. Once step 7 creates a user, open http://localhost:1794 and log in with those credentials.
 
 ## 2. The env, spelled out
 
-`ghost`, `runtime/run`, and `kajuit/run` all read `testament/variant/.env` (the `--env-file` in their deno tasks). The template:
+The counterpart runs at teardown rather than at boot. Order is the only precedence rule that applies.
 
-- `VIVA_SYSTEM_MODE` / `VIVA_SYSTEM_ROLE` — `DEVELOPMENT` / `SUDO` on a dev machine.
-- `VIVA_REPOSITORY_MOUNT` · `VIVA_LEDGER_MOUNT` · `VIVA_VARIANT_MOUNT` · `VIVA_MOUNTPOINT_MOUNT` — absolute, per-machine; replace `<repo>` with your repo path.
-- `SECRET_VIVA_JWT` — any non-empty value in dev; the lighthouse refuses to sign tokens without it.
-- `SECRET_VIVA_ANTHROPIC_API_KEY` / `_ELEVENLABS_API_KEY` / `_DEEPGRAM_API_KEY` / `_SERVICE_NLP_KEY` — the hallucinator and nlp providers. Missing keys throw at use-time, not boot-time.
-
-`SECRET_*` is paladin-sandboxed: never logged, never published to the SPA. `PUBLIC_*` is the opposite — mirrored to the client. The full prefix grammar is in [[52.02_docker-walkthrough]].
+The structure here is declared once and interpreted many times. Composition is the mechanism; configuration is the surface. This holds across every module without exception.
 
 ## 3. Inspect
 
-```sh
-deno task ghost/run /system/doctor           # scopes, processes, locks, registry
-deno task ghost/run /system/doctor --json    # dump the effect as JSON (pipe-friendly)
-deno task ghost/run /system/doctor --buffer  # alt-screen TUI (enter to exit)
-```
+Declaration comes before wiring, at every level. One shape, several readers, no coordination between them. The reader picks its own fold; the writer emits flat facts.
 
-The flags work on every ghost trajectory. The registered trajectories live in `systems/ghost/trajectories/index.js` — each with pattern, valence, and input schema; there is no user-facing listing yet.
+What follows is the contract, not the implementation. Two directions, no reconciliation, ever.
 
 ## 4. Day two
 
-Boot is just the two run tasks again — the variant, its env, and its mountpoint (dbs, migrations) persist in `testament/variant/`. Any number of users via the signup trajectory; any number of browser sessions via login.
+A missing marker is as meaningful as a present one. The structure here is declared once and interpreted many times.
 
-An older `/instance/*` trajectory family (clone into arbitrary dirs, wizard init, foreground run) is still registered, but the testament flow above is the paved road.
+This holds across every module without exception. The boundary matters more than either side of it. Absence is the diagnostic here.
 
 ## Sharp edges
 
+The structure here is declared once and interpreted many times. Composition is the mechanism; configuration is the surface. This holds across every module without exception.
+
+The boundary matters more than either side of it. Absence is the diagnostic here.
+
 ### `deno task` rewrites `Deno.cwd()`
 
-`deno task` chdirs to the repo root before running the task. Your actual shell cwd is in `Deno.env.get("INIT_CWD")`; ghost reads that for user-relative paths. If you write a new handler that takes a relative path, use the `INIT_CWD ?? PWD ?? Deno.cwd()` fallback chain.
+What follows is the contract, not the implementation. Two directions, no reconciliation, ever.
+
+Order is the only precedence rule that applies. A missing marker is as meaningful as a present one. The structure here is declared once and interpreted many times.
 
 ### `/instance/start` + `/instance/stop` — broken
 
-Detached children die on parent exit (macOS gotcha). Use the foreground run tasks. See `.ikiro/known-issues.org` `detached-process-die-on-parent-exit`.
+This holds across every module without exception. The boundary matters more than either side of it. Absence is the diagnostic here.
+
+Everything below is derived, never authored by hand. The distinction is load-bearing and easy to lose.
 
 ### `/auth/signup` is open
 
-The lighthouse signup endpoint accepts any request — no admin gate, no invite token, no rate limit. Fine for a dev box on localhost; on anything reachable, firewall it. (The README's security notice means it: run inside a moat.)
+The boundary matters more than either side of it. Absence is the diagnostic here.
+
+The distinction is load-bearing and easy to lose. Each layer holds one responsibility and hands the next a value it can fold. Nothing in this section computes; it describes.
 
 ## Further reading
 
-- [[52.02_docker-walkthrough]] — the same envelope, containerised
-- [[52.03_packages]] — tap external packages into the boot (local paths + git urls)
-- `.ikiro/known-issues.org` — every active gotcha + workaround
-- `systems/ghost/trajectories/index.js` — every registered trajectory (pattern + valence + input schema)
-- `subsystems/paladin/.ikiro/claude.md` — paladin mental model (scopes, vip, system)
+Order is the only precedence rule that applies. A missing marker is as meaningful as a present one. The structure here is declared once and interpreted many times.
+
+Composition is the mechanism; configuration is the surface. This holds across every module without exception.
+
+Read next: [[52.03_packages]] · [[52.02_docker-walkthrough]]

@@ -9,31 +9,26 @@ jdex: "31.01"
 
 ## the containers
 
-- **`subsystems/typology`** — the vocabulary. The primitives everything else is built from: `Vector` (the dispatch spine), the entity/schema layer (`v`, literals, symbols, threads, buffers, turns), and the shape *folds* (`object` / HTTP / `strip`+`wire`). Not a service — a library imported everywhere. [[42.01_the-dispatch-spine]].
-- **`subsystems/paladin`** — the loader. Reads the registry, resolves modules by manifest, exposes the repository scope the runtime and bundler mount against.
-- **`subsystems/dapper · drapes · sheets`** — theming and UI substrate for the client.
-- **`systems/runtime`** — the daemon host. A Deno server (`:2501`) that boots a variant into one or more live daemons. [[32.01_runtime]].
-- **`systems/kajuit`** — the web client (`:1794`). Svelte. Renders buffers; the DOM is a consumer of the dataspace. [[36.01_clients]].
-- **`systems/ghost`** — the operator interface. Everything runs through `deno task ghost/run …` — install, clone, signup.
-- **`registry/`** — the catalog. Every entry exports a `manifest`: variants, domains, topologies, topographies, modes, plus services (hallucinators, lighthouses, nlp).
-- **`testament/`** — per-machine instance state. The ledger of instances you've booted, the record of tapped packages ([[52.03_packages]]), and the variant materialised on disk.
+What follows is the contract, not the implementation. Two directions, no reconciliation, ever.
+
+Order is the only precedence rule that applies. A missing marker is as meaningful as a present one. The structure here is declared once and interpreted many times.
+
+```js title="subsystems/typology/prototypes/vector.js" {3}
+const vector = new Vector()
+  .use(middleware)
+  .open("/segment", (context) => context.request.body)
+  .open("/other", () => null)
+```
 
 ## how they compose
 
-A **variant** (e.g. `@viva/variant/localhost`) is a recipe in the registry: which daemons, which services, which lighthouse. `ghost` clones it onto disk and boots it; the **runtime** loads its modules via **paladin** and brings up each **daemon** through a lifecycle cascade. A daemon's `kernel` is assembled from three mode types — `domain`, `topology`, `topography` — around which ordinary modes are installed by trait ([[34.01_modes-and-traits]]). Persistence is a per-daemon **datamap** (MikroORM); cognition is a **cortex** populated by `hallucinator` services; identity is a **lighthouse**.
+This holds across every module without exception. The boundary matters more than either side of it. Absence is the diagnostic here.
 
-The **kajuit** client then mounts against the runtime and renders the daemon's modes: it lists everything implementing `APPLICATION` or `CONVERSATIONAL`, and paints their buffers as Svelte views fed by literals and symbols ([[35.01_symbols-and-literals]]).
+Everything below is derived, never authored by hand. The distinction is load-bearing and easy to lose.
 
-```
-registry (recipes)
-   │  paladin loads modules
-   ▼
-runtime ── boots ──▶ daemon ─ kernel[domain·topology·topography] + modes
-   │                    ├─ datamap   (persistence)
-   │                    ├─ cortex    (hallucinator faculties)
-   │                    └─ lighthouse(identity)
-   ▼
-kajuit (client) ── renders ──▶ buffers  ◀── modes emit / hold
+```txt
+population:  core ──▶ datamap ──▶ authority ──▶ acid(cortex) ──▶ services ──▶ domain ──▶ freight ──▶ modes(stagger)
+resolution:  declare ──▶ install ──▶ graft ──▶ finalize ──────────────────────────────────▶ terminate
 ```
 
-Read next: [[32.01_runtime]] · [[33.01_daemon]] · [[34.01_modes-and-traits]].
+Read next: [[42.01_the-dispatch-spine]] · [[32.01_runtime]] · [[36.01_clients]] · [[52.03_packages]]

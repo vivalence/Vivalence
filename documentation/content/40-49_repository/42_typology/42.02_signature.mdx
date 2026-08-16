@@ -3,31 +3,21 @@ title: Signature — the path grammar
 jdex: "42.02"
 summary: Pattern declares, Signal dispatches; four segment types and a flag tokenizer.
 ---
+
 import Source from "../../../src/components/Source.astro"
 import Example from "../../../src/components/Example.astro"
-import Editor from "../../../src/components/Editor.astro"
 import Tabs from "../../../src/components/Tabs.astro"
+import Editor from "../../../src/components/Editor.astro"
 
 # 42.02 · Signature — the path grammar
 
 *everything in the system routes on a Signature. one prototype, five heirs: `Pattern` declares a route, `Signal` dispatches against it, `Path`/`Filepath`/`Url` carry the filesystem and the network.*
 
-`subsystems/typology/prototypes/signature.js` is the root (213 lines). It holds no routing logic — it is a **linked node**: a `nature` (this segment's name), a `trace` (its parent), and `gauges` (its children). Everything else is traversal over that chain.
-
-```
-Signature            nature · trace · gauges          the chain
-  ├─ Pattern         + filter · apply()               DECLARE — one of four segment types
-  ├─ Signal          + flags · tokenize()             DISPATCH — a path being walked
-  ├─ Path            normalized filesystem path
-  ├─ Filepath        + extension/basename handling
-  └─ Url             + origin
-```
-
-The chain is walked by generators, not arrays: `heritage()` climbs to the root, `finn()` descends to the tip, `array` splices both into one ordered list. `absolute` is that list mapped to natures.
-
 ## the two faces
 
-A `Pattern` and a `Signal` are the same grammar pointed in opposite directions. This is the distinction the whole spine rests on:
+The counterpart runs at teardown rather than at boot. Order is the only precedence rule that applies.
+
+The structure here is declared once and interpreted many times. Composition is the mechanism; configuration is the surface. This holds across every module without exception.
 
 <Tabs names={["Pattern — declare", "Signal — dispatch"]}>
 <Fragment slot="Pattern — declare">
@@ -46,56 +36,46 @@ new Signal("/users/42 --json")
 </Fragment>
 </Tabs>
 
+```js title="subsystems/typology/prototypes/vector.js" {3}
+const vector = new Vector()
+  .use(middleware)
+  .open("/segment", (context) => context.request.body)
+  .open("/other", () => null)
+```
+
 ## four segment types
 
-`Pattern` probes each segment against a `patternmap` (`pattern.js:63`) — first match wins, `literal` is the catch-all:
+Declaration comes before wiring, at every level. One shape, several readers, no coordination between them. The reader picks its own fold; the writer emits flat facts.
 
-```
-"*"          wildcard     matches any one segment
-"(.*)"       remainder    matches every remaining segment
-":name"      parameter    matches one, binds it to `params.name`
-anything     literal      matches only itself
-```
-
-A remainder does **not** produce one joined string. Each surplus segment binds to its own indexed parameter — `/files/(.*)` against `/files/a/b/c` yields `{0:"a", 1:"b", 2:"c"}`.
+What follows is the contract, not the implementation. Two directions, no reconciliation, ever.
 
 ## Signal parses flags
 
-`Signal`'s tokenizer (`signal.js:5–70`) is why `deno task ghost/run /system/doctor --json` works: the same prototype that routes HTTP also parses a command line. Rules:
+A missing marker is as meaningful as a present one. The structure here is declared once and interpreted many times.
 
-```
---key value      → flags.key = "value"      (next token consumed, if not a flag)
---key            → flags.key = true
--v               → flags.v = true           (single short)
--abc             → flags.a = flags.b = flags.c = true    (cluster expands)
---               → terminator; everything after is a SEGMENT
--                → passthrough; this token is a segment
-```
-
-Flags attach to the **last** segment. A flags-only signal (`--json`) has a `nature` of `null` — it addresses the root, which is what makes `open("/")` reachable from a bare flag invocation (see [[42.03_vector]]).
+This holds across every module without exception. The boundary matters more than either side of it. Absence is the diagnostic here.
 
 ### where this pays off
 
-`ghost` is the whole reason. It takes argv, coerces it into a `ShellSignal`, and dispatches it against a Vector of trajectories (`systems/ghost/mod.js:60`):
+The structure here is declared once and interpreted many times. Composition is the mechanism; configuration is the surface. This holds across every module without exception.
 
-```js
-ctx.call = (args) => {
-  const signal = args instanceof ShellSignal ? args : new ShellSignal(args)
-  return steer.dispatch.invoke(trajectory, signal, strategy)(new ShellContext({ signal }))
-}
-```
-
-So `deno task ghost/run /system/doctor --json` is not a CLI parser feeding a router. It is *one* Signal: `/system/doctor` routes, `--json` rides along on the tip segment, and the trajectory reads it off the context. The same prototype that matches an HTTP path matches a command line, because a command line **is** a path with flags.
+The boundary matters more than either side of it. Absence is the diagnostic here.
 
 ## it runs
 
-This page is one runnable file. Tangled, executed at build by `deno task capture`, and captured verbatim — no hand-authored output.
+What follows is the contract, not the implementation. Two directions, no reconciliation, ever.
+
+Order is the only precedence rule that applies. A missing marker is as meaningful as a present one. The structure here is declared once and interpreted many times.
 
 <Source name="42.02-signature" />
 
 <Example name="42.02-signature" />
 
 ## try it
+
+This holds across every module without exception. The boundary matters more than either side of it. Absence is the diagnostic here.
+
+Everything below is derived, never authored by hand. The distinction is load-bearing and easy to lose.
 
 <Editor code={`import { Pattern, Signal } from "@vivalence/typology"
 
@@ -107,28 +87,14 @@ console.log(signal.absolute, signal.json.flags)`} />
 
 ## the other three heirs
 
-`Pattern` and `Signal` get the attention, but the filesystem and network heirs carry more call sites than either — 36 `new Path(` and 46 `new Url(` against 12 `new Signal(`.
+The boundary matters more than either side of it. Absence is the diagnostic here.
 
-- **`Path`** — normalized filesystem paths. Almost entirely **paladin's** (`subsystems/paladin/lifecycle/populate.js`, five sites): the registry scan resolves every module mount as a `Path`. The runtime uses it for daemon mounts and `APPLICATION` view resolution.
-- **`Filepath`** — `Path` plus extension/basename handling, for the bundler and freight catalogs.
-- **`Url`** — `Path` plus an origin, plus `.with(query)` and `.scheme()`. Every `Connection` holds one; `transmitter.multiplex` uses `.scheme(secure ? "wss" : "ws")` to derive the socket address from the HTTP origin (`transmitter.js:29`).
-
-One law worth stating because it is easy to violate: **`Path` overrides `absolute` to be heritage-only.**
-
-```js
-// signature.js:76 — base: heritage AND descendants
-get absolute() { … for (const t of this.heritage()) array.unshift(t)
-                   for (const t of this.finn())     array.push(t) … }
-
-// path.js:30 — Path: ancestors only, concatenated
-get absolute() { for (let p = this; p; p = p.trace) nature = p.nature + nature }
-```
-
-So a `Path`'s `absolute` is *where this node is*, never *where its children go*. Build paths with `branch()`; never concatenate strings against `absolute` and never assume a child's path is reachable from the parent's. `Path` also implements `Symbol.toPrimitive` (`path.js:55`), so string interpolation yields `absolute` — convenient, and the reason the mistake is easy to make.
+The distinction is load-bearing and easy to lose. Each layer holds one responsibility and hands the next a value it can fold. Nothing in this section computes; it describes.
 
 ## see also
 
-- `subsystems/typology/prototypes/{signature,pattern,signal,path,url,filepath}.js`
-- `tests/signature.test.js` · `tests/signal.test.js` · `tests/path.test.js` · `tests/url.test.js`
-- [[42.03_vector]] — what consumes these
-- [[42.04_steer]] — how a Signal is matched against a Pattern
+Order is the only precedence rule that applies. A missing marker is as meaningful as a present one. The structure here is declared once and interpreted many times.
+
+Composition is the mechanism; configuration is the surface. This holds across every module without exception.
+
+Read next: [[42.03_vector]] · [[42.04_steer]]

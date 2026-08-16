@@ -1,7 +1,16 @@
 ---
-import { getCollection } from "astro:content"
+import { getCollection, getEntry, render } from "astro:content"
 import Layout from "../layouts/Layout.astro"
 import { AREAS, CATEGORIES, areaKey, areaNote, decadeOf, categoryName, isReserved } from "../lib/jdex.js"
+
+const entry = await getEntry("site", "jdex")
+const { Content } = await render(entry)
+
+const swatches = {
+  live: "background:var(--accent)",
+  planned: "background:var(--faint)",
+  reserved: "border:1px dashed var(--faint);background:transparent",
+}
 
 const collection = await getCollection("docs")
 const live = collection
@@ -19,18 +28,15 @@ const decades = Object.keys(AREAS).map(Number).sort((a, b) => a - b)
 const categoriesIn = (decade) =>
   Object.keys(CATEGORIES).map(Number).filter((c) => decadeOf(c) === decade).sort((a, b) => a - b)
 ---
-<Layout title="JDex" variant="jdex">
+<Layout title={entry.data.title} variant="jdex">
   <div class="jdex">
     <div class="jdex-hero">
-      <h1>jdex — the index of everything</h1>
-      <p>
-        The complete Johnny-Decimal map. Every area, every category, every item — including what is
-        declared but not yet written. The numbering is the identity.
-      </p>
+      <h1>{entry.data.headline}</h1>
+      <Content />
       <div class="jdex-legend">
-        <span><i style="background:var(--accent)"></i> live page</span>
-        <span><i style="background:var(--faint)"></i> planned</span>
-        <span><i style="border:1px dashed var(--faint);background:transparent"></i> reserved area</span>
+        {(entry.data.legend ?? []).map((mark) => (
+          <span><i style={swatches[mark.swatch]}></i> {mark.label}</span>
+        ))}
       </div>
     </div>
     <div class="jdex-list">

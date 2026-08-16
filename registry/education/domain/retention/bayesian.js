@@ -30,12 +30,12 @@ const assess = ({ state }) => {
 
 const encode = (signal) => {
   let tau;
-  if (signal.enum) {
-    tau = TAU[signal.enum];
-    if (tau == null) throw new Error(`Invalid signal enum: ${signal.enum}`);
-  } else if (signal.ratio) {
+  if (signal.ratio) {
     const r = signal.ratio.success / signal.ratio.total;
     tau = r >= 1 ? 8 : r > 0.8 ? 2.4 : 0.26;
+  } else if (signal.enum) {
+    tau = TAU[signal.enum];
+    if (tau == null) throw new Error(`Invalid signal enum: ${signal.enum}`);
   } else {
     throw new Error("No signal provided to encode retention");
   }
@@ -52,7 +52,9 @@ const evolve = (signal, retention) => {
   const elapsed = Math.max(time.hoursBetween(retention.lastAt), 0.001);
   let state = retention.state;
 
-  if (signal.enum) {
+  if (signal.ratio) {
+    state = ebisu.updateRecall(state, signal.ratio.success, signal.ratio.total, elapsed);
+  } else if (signal.enum) {
     switch (signal.enum) {
       case "MASTERY":
         state = ebisu.updateRecall(state, 1, 1, elapsed);
@@ -74,8 +76,6 @@ const evolve = (signal, retention) => {
       default:
         throw new Error(`Invalid signal enum: ${signal.enum}`);
     }
-  } else if (signal.ratio) {
-    state = ebisu.updateRecall(state, signal.ratio.success, signal.ratio.total, elapsed);
   } else {
     throw new Error("No signal provided to evolve retention");
   }

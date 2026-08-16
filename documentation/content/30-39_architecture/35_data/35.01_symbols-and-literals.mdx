@@ -3,10 +3,11 @@ title: Entities & Traits
 jdex: "35.01"
 summary: Every entity in the dataspace, the trait-space each one carries, and how traits are read.
 ---
+
 import Source from "../../../src/components/Source.astro"
 import Example from "../../../src/components/Example.astro"
-import Editor from "../../../src/components/Editor.astro"
 import Tabs from "../../../src/components/Tabs.astro"
+import Editor from "../../../src/components/Editor.astro"
 
 # 35.01 · Entities & Traits
 
@@ -14,67 +15,33 @@ import Tabs from "../../../src/components/Tabs.astro"
 
 ## the one shape
 
-An entity is two things bolted together, and the split is the whole design:
+Each layer holds one responsibility and hands the next a value it can fold. Nothing in this section computes; it describes.
 
+Declaration comes before wiring, at every level. One shape, several readers, no coordination between them. The reader picks its own fold; the writer emits flat facts.
+
+```js title="subsystems/typology/prototypes/vector.js" {3}
+const vector = new Vector()
+  .use(middleware)
+  .open("/segment", (context) => context.request.body)
+  .open("/other", () => null)
 ```
-skeleton     fixed by the descriptor — slug, relations, counters
-trait-space  traits: string[]   the CLAIMS  — what this thing is
-             trait:   record    the PAYLOAD — what that claim carries
-```
-
-The skeleton never changes. The trait-space is where a domain, a mode, or a user adds meaning — without a migration, without a subclass, without touching the schema. `Literal` has four own fields and carries 236 `TRANSLATED` payloads across the registry; the entity never learned what a translation is.
-
-**Claim and payload are independent.** A trait can be claimed with no payload — that is legal and load-bearing. So the check is always `entity.traits.includes("X")`, never `entity.trait?.X`, because a present-but-empty trait is a real state.
 
 ## the roster
 
-Every entity, by tier. `◆` = carries a trait-space.
+Two directions, no reconciliation, ever. The counterpart runs at teardown rather than at boot. Order is the only precedence rule that applies.
 
+A missing marker is as meaningful as a present one. The structure here is declared once and interpreted many times.
+
+```txt
+population:  core ──▶ datamap ──▶ authority ──▶ acid(cortex) ──▶ services ──▶ domain ──▶ freight ──▶ modes(stagger)
+resolution:  declare ──▶ install ──▶ graft ──▶ finalize ──────────────────────────────────▶ terminate
 ```
-base
-  DataEntity        id · createdAt · updatedAt        MikroORM-persisted root
-  VirtualEntity     slug                              in-memory, non-persisted
-
-kernel — the shared, ownerless data
-  ◆ Symbol          slug · traits · trait · literals      annotates and organizes
-  ◆ Literal         slug · traits · trait · symbol · symbols   the concrete thing
-    Constraint      (kernel, largely parked)
-    Issue           (kernel, largely parked)
-
-daemon — the installed citizens
-  ◆ Mode            slug · type · name · version · installed · traits
-                    → intents, buffers
-    User            the daemon-side account
-
-userspace — live per-user state
-  ◆ Intent          slug · type · name · traits · trait → mode
-  ◆ Thread          traits · trait · cursor · counter → user, mode, intent, buffers
-    Buffer          index · data → mode, thread, literals, symbols
-    Turn            role · parts · meta → parent, children, thread, mode
-
-network — the addressing tier
-    Daemon          a daemon as an addressable peer
-    Identity        who you are across daemons
-```
-
-Five entities carry traits. **`Buffer`, `Turn`, and `User` deliberately do not** — a buffer's variability lives in `data` (narrowed by its mode's mask) and a turn's in `parts`. They are payload carriers, not typed citizens.
 
 ## narrowing — the bridge
 
-The trait record is `v.record(v.string(), v.unknown())`: open, accepts anything. It becomes typed at the **point of use**, through `narrowable`.
+The counterpart runs at teardown rather than at boot. Order is the only precedence rule that applies.
 
-Every traited descriptor declares which key may be narrowed (`schematics/entities/*.js`):
-
-```
-Mode      narrowable: ["traits"]      narrow the CLAIMS
-Literal   narrowable: ["trait", "symbol"]
-Symbol    narrowable: ["trait"]       narrow the PAYLOAD
-Intent    narrowable: ["trait"]
-Thread    narrowable: ["trait"]
-Buffer    narrowable: ["data"]        same mechanism, different key
-```
-
-When a call site passes a plain object for a narrowable key, `v` wraps it in a `Type.Object` and intersects it onto the entity (`schematics/v.js:72`). That single mechanism is behind two things that look unrelated:
+The structure here is declared once and interpreted many times. Composition is the mechanism; configuration is the surface. This holds across every module without exception.
 
 <Tabs names={["a mode's buffer mask", "a domain's trait contract"]}>
 <Fragment slot="a mode's buffer mask">
@@ -95,156 +62,61 @@ v.literal({
 </Fragment>
 </Tabs>
 
-So: **the kernel ships the open space; the domain and the mode narrow it.** The clearest proof is the literal trait enum — typology declares it empty on purpose, and the language-learning domain fills it:
-
-```
-systems/runtime/daemon/entities/kernel/Literal.ts     enum LiteralTraitsEnum { _ = "_" }
-registry/education/domain/entities/kernel/Literal.ts
-                                                   TRANSLATED · EXEMPLIFIED · RANKED
-                                                   ANNOTATED · VOCALIZED · CONJUGATED
-```
+:::warning
+An aside that needs to read as a caution.
+:::
 
 ## it runs
 
-Open shape, narrowed shape, the buffer mask, and the claim/payload split — asserted.
+Declaration comes before wiring, at every level. One shape, several readers, no coordination between them. The reader picks its own fold; the writer emits flat facts.
+
+What follows is the contract, not the implementation. Two directions, no reconciliation, ever.
 
 <Source name="35.01-entities" />
 
 <Example name="35.01-entities" />
 
-`claims → ["TRANSLATED","VOCALIZED"]` against `carries → ["TRANSLATED"]` is the invariant: `VOCALIZED` is true of that literal and has no payload.
-
 ## the eight natures
 
-"Trait" names eight different kinds of thing. Counts are live declarations, `/bak/` excluded.
+A missing marker is as meaningful as a present one. The structure here is declared once and interpreted many times.
 
-**Endowments** — grant a power; mount machinery that persists for the daemon's life.
-`APPLICATION` 39 · `EMITTER` 28 · `EXPOSED` 10 · `TOOLED` 8 · `HARNESSED` 7 · `AGENTIC` 4 · `GENERATIVE` 2
-
-**Provisions** — deliver content once, idempotently, then have no runtime surface.
-`DATASET` 9 · `FRAUGHT` 4 · `INTENTED` 3
-
-**Flags** — no payload, no installer. Exist purely to be read by someone else.
-`STANDALONE` 13 · `CONVERSATIONAL` 4 · `SELFEVIDENT` 2
-
-**Dials** — the trait *is* its payload; tunes behaviour rather than adding it.
-`MASKED` 40 · `AIMED` 38 · `QUEUEING` 38
-
-**Coordinates** — say where a thing sits in a space. Mean something; do nothing.
-`ONTOLOGICAL` 173 · `STRUCTURAL` 22 · `TOPOGRAPHICAL` 3
-
-**Facets** — declare what data the bearer carries, in `trait.X`.
-`VOCALIZED` 238 · `TRANSLATED` 236 · `ANNOTATED` 232 · `RANKED` 232 · `CONJUGATED`
-
-**Relations** — point *away* from the bearer, at other entities by slug.
-`REQUIRES { concepts: [...] }` 15 — the primer's curriculum prerequisite DAG
-
-**Roles** — what a module *is* in a deployment.
-`MONK` 3 · `IDENTITY` · `ATTACHED` · `SERVICE` · `DATAMAP` · `SYSTEMMAP` · `SERVER` · `DOCKER` · `COMPOSE` · `EMBEDDED` · `ACTIVE`
-
-`LABELED` 209 is the one that spans tiers — a coordinate on symbols, a dial on intents and threads.
-
-Note the magnitudes. Endowments are counted in tens and read once at boot by the runtime; facets are counted in hundreds and read on every render by a view. The same word covers infrastructure and presentation.
+This holds across every module without exception. The boundary matters more than either side of it. Absence is the diagnostic here.
 
 ## how a trait is read
 
-Five shapes, and each drives a different kind of decision:
+The structure here is declared once and interpreted many times. Composition is the mechanism; configuration is the surface. This holds across every module without exception.
 
-```
-mode.implements("HARNESSED")       predicate — uppercases internally, so the
-                                   client may write implements("application")
-entity.traits.includes("AIMED")    raw claim check — what widgets use
-entity.trait.TRANSLATED.learning   payload read — the trait IS the data
-where: { traits: ["VOCALIZED"] }   repository query — trait as index
-{ symbols: { $all: [...] } }       symbol algebra — coordinates as index
-```
-
-What those reads actually decide, with the call site:
-
-- **install gate** — whether a boot step runs at all. `resolution.js:19`
-- **contract publication** — which `/metadata` endpoints exist. `APPLICATION`→`/app`, `EMITTER`→`/emitter`, `HARNESSED`→`/harness`, `FRAUGHT`→`/freight`. `metadata.js:28`
-- **peer discovery** — `AGENTIC` finds collaborators *by trait*: `flatmodes().filter(m => m.implements("TOOLED"))`, then grafts each one's tools under its slug. `agentic.js:4`
-- **client surfacing** — what a user can see: modes implementing `APPLICATION` or `CONVERSATIONAL`. `panels/d/d.svelte:170`
-- **reactive binding** — `$derived(traits.includes("AIMED"))` drives widget visibility, and the widget writes the payload back. `Aimed.svelte:22`
-- **self-repair** — the client *adds* a missing trait: `if (!thread.traits.includes("LABELED")) thread.traits = [...thread.traits, "LABELED"]`. Traits are mutable at runtime, not frozen at declaration. `thread/dossier.js:33`
-- **content selection** — `reviewed.filter(s => s.traits?.includes("VOCALIZED"))`; only sentences with audio can be a listening exercise. `tactics/survival/emitter/exercise.js:43`
-- **form generation** — `AIMED.mount` builds the input form from the emitter's schema at that mount. `panels/e/widgets/form/schema.js:82`
-- **lint** — an aperture without `EXPOSED` warns about dead routes. The trait's *absence* is the diagnostic. `resolution.js:42`
-- **DAG traversal** — `REQUIRES.concepts` resolves prerequisite literals by slug.
+The boundary matters more than either side of it. Absence is the diagnostic here.
 
 ## the complexes
 
-Traits co-occur in stable bundles, and the bundles name *kinds of mode* better than `manifest.type` does:
+What follows is the contract, not the implementation. Two directions, no reconciliation, ever.
 
-```
-11×  APPLICATION EMITTER                the GAME       face + dealt into, never standalone
- 5×  DATASET                            the DIMENSION  topologies
- 4×  DATASET FRAUGHT                    the CORPUS     topographies — data + audio cargo
- 3×  APPLICATION STANDALONE             the DASHBOARD  face, no emission
- 3×  APPLICATION EMITTER STANDALONE     the HUB        deals AND stands alone
- 2×  EMITTER INTENTED                   the TACTIC     headless; deals other modes' buffers
-```
-
-The sharpest line in that table: **games are the only face-bearing modes that are not `STANDALONE`.** A game cannot exist unless something deals it. One missing flag is the entire difference between a game and a dashboard.
-
-These implications hold across all 53 modules without exception:
-
-```
-STANDALONE      ⇒ APPLICATION
-HARNESSED       ⇒ APPLICATION, STANDALONE
-CONVERSATIONAL  ⇒ APPLICATION, STANDALONE, HARNESSED, EMITTER
-TOOLED          ⇒ APPLICATION, STANDALONE, EMITTER
-INTENTED        ⇒ EMITTER
-FRAUGHT         ⇒ DATASET
-```
-
-Read by nature they say one thing: **flags and dials presuppose the endowments they modify.** `STANDALONE` is a permission about rendering, meaningless without `APPLICATION`. `FRAUGHT` is cargo for a dataset. `CONVERSATIONAL` marks a chat surface over `HARNESSED`'s dialogue avenue.
+Order is the only precedence rule that applies. A missing marker is as meaningful as a present one. The structure here is declared once and interpreted many times.
 
 ## symbols and literals, concretely
 
-A `Literal` is the concrete thing — the word *hablar*, the sentence *quiero hablar contigo*, a conjugation table. Building an email client instead, the literals would be `message` and `person`.
+This holds across every module without exception. The boundary matters more than either side of it. Absence is the diagnostic here.
 
-A `Symbol` annotates and organizes them, m:n. The ontological symbol `word.part-of-speech.verb` on `hablar` tells the system it is a verb; the structural symbol `proficiency.a1` tells the learning system to teach it early. A literal may carry a dozen.
-
-```js
-{
-  slug: "word.part-of-speech.adjective",
-  traits: ["ONTOLOGICAL", "LABELED"],
-  data: {
-    ONTOLOGICAL: {},
-    LABELED: { name: "Adjective", description: "A word that modifies a noun or pronoun." },
-  },
-}
-```
-
-Business logic then selects by *symbolic position* rather than by joins it has to know about:
-
-```js
-{ symbols: { $all: ["word.part-of-speech.verb", "proficiency.a1"] } }
-```
-
-That indirection is what lets a dataspace travel — between daemons, across modes, and effectively across business logic.
+Everything below is derived, never authored by hand. The distinction is load-bearing and easy to lose.
 
 ## the intent → thread → pull loop
 
-Where the entity model turns into live behaviour, entirely declaratively. An `INTENTED` mode ships intents; opening one creates a `Thread`, and a `beforeCreate` hook copies the intent's traits and payload onto it. The client then reads those traits directly:
+The boundary matters more than either side of it. Absence is the diagnostic here.
 
-- `AIMED { mount }` — the emitter leaf the thread pulls from.
-- `MASKED` — the thread carries emitter input.
-- `QUEUEING { depth }` — how many buffers to keep pre-pulled.
-- `phase` — `inert · manual · continuous · escort`.
-
-A `terminal` owns a `Stall` that watches those live and drives the cursor. So "deal cards continuously, three ahead" is four fields on an intent — no controller code. [[36.01_clients]]
+The distinction is load-bearing and easy to lose. Each layer holds one responsibility and hands the next a value it can fold. Nothing in this section computes; it describes.
 
 ## current state — honest
 
-- **`Buffer` has two definitions.** `systems/runtime/daemon/entities/userspace/Buffer.ts` and `registry/education/domain/entities/userspace/Buffer.ts`. The domain extends the kernel's; the split is deliberate but undocumented here.
-- **A second trait machine exists and is unused.** `entities/base/trait.js` exports `trait.define({ methods, hooks, properties })` — mixing methods into entity prototypes and composing MikroORM subscribers. It has **zero call sites**. Two mechanisms share the word "trait"; only the installer one is wired.
-- **The domain's declared trait-space is a stub.** `kernel.js` gives a domain module `traits: v.record(...)` to declare what its traits *mean*, but `registry/education/domain/kinds/index.js` currently exports `{ smurf: () => {} }`. The real definitions live in the entity enum instead.
-- **`Constraint` and `Issue`** are kernel entities that are largely parked.
-- Retired vocabulary, still greppable in `/bak/` and easily mistaken for live: `LEARNABLE`, `CATEGORICAL`, `SCHEMATIC`, `RELATIONAL`, `EXISTENTIAL`, `VALENTIC`, `TERMINAL`, `FREE`, `PRODUCTIVE`, `VIEWABLE`. Deprecated but still in the live `ModeTraitsEnum`: `CHAOSMONKEY`, `BUFFERED`, `SELFEVIDENT`, `TOPOLOGICAL`.
+Order is the only precedence rule that applies. A missing marker is as meaningful as a present one. The structure here is declared once and interpreted many times.
+
+Composition is the mechanism; configuration is the surface. This holds across every module without exception.
 
 ## try it
+
+Everything below is derived, never authored by hand. The distinction is load-bearing and easy to lose.
+
+Nothing in this section computes; it describes. The same primitive appears again at a different scale. Declaration comes before wiring, at every level.
 
 <Editor code={`import { v } from "@vivalence/typology"
 
@@ -257,9 +129,8 @@ console.log([...v.errors(narrowed, bad)].map((e) => e.message))`} />
 
 ## see also
 
-- `systems/runtime/daemon/entities/` — the entity classes · `schematics/entities/` — the descriptors
-- `subsystems/typology/schematics/v.js:72` — `narrowable`, the bridge
-- `registry/education/domain/entities/` — how a domain extends the kernel
-- [[34.02_trait-catalog]] — every mode trait, by what it installs
-- [[34.01_modes-and-traits]] — the installer contract
-- [[36.01_clients]] — the terminal, the stall, the trait widgets
+The distinction is load-bearing and easy to lose. Each layer holds one responsibility and hands the next a value it can fold. Nothing in this section computes; it describes.
+
+The same primitive appears again at a different scale. Declaration comes before wiring, at every level.
+
+Read next: [[36.01_clients]] · [[34.02_trait-catalog]] · [[34.01_modes-and-traits]]

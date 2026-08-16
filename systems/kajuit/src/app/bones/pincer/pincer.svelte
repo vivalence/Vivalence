@@ -109,16 +109,14 @@
     color: var(--colors-skeleton-0-contrast);
     border: 2px solid var(--brand-outline);
     border-radius: 0;
+    box-sizing: border-box;
     display: grid;
     place-items: center;
     cursor: grab;
     touch-action: none;
     user-select: none;
     z-index: 100;
-    box-shadow:
-      inset 0 0 12px color-mix(in srgb, var(--colors-skeleton-0-primary-base) 20%, transparent),
-      0 0 0 1px var(--colors-skeleton-0-surface),
-      0 6px 22px var(--shadow-strong);
+    box-shadow: inset 0 0 12px color-mix(in srgb, var(--colors-skeleton-0-primary-base) 20%, transparent);
     transition:
       background 0.12s,
       box-shadow 0.12s,
@@ -130,7 +128,7 @@
   .viket.dragging {
     cursor: grabbing;
     background: var(--colors-skeleton-2-surface);
-    box-shadow: 0 12px 32px var(--shadow-strong);
+    box-shadow: 0 6px 18px var(--shadow-soft);
   }
   .viket.longpress {
     background: var(--colors-skeleton-0-accent-base);

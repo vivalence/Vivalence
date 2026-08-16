@@ -22,7 +22,7 @@ export const vocabolario = new Vector().open(
     const distractors = await ctx.daemon.entities.literal.feed(ctx.input.where, { limit: 30 });
 
     const untouched = words.filter((word) => !word.retention || word.retention.is.virgin);
-    if (untouched.length) {
+    if (untouched.length && game.exhibit) {
       ctx.pool.add(
         game.exhibit.emit.present({
           layout: "TABLE",
@@ -39,25 +39,41 @@ export const vocabolario = new Vector().open(
 
       if (!word.retention || word.retention.is.virgin) {
         practice.add(
-          game.judge.emit.literal({
-            literal: word,
-            distractors,
-            recall: "LEARNING",
-            speed: { rate: "SLOW" },
-          }),
+          game.judge
+            ? game.judge.emit.literal({
+                literal: word,
+                distractors,
+                recall: "LEARNING",
+                speed: { rate: "SLOW" },
+              })
+            : game["dojo"].emit.literal({
+                literal: word,
+                distractors,
+                gameplay: "PICK",
+                recall: "LEARNING",
+                preview: { when: "ONCE", speed: { rate: "SLOW" } },
+              }),
         );
       } else if (word.retention.is.failed) {
         practice.add(
-          game.judge.emit.literal({
-            literal: word,
-            distractors,
-            recall: "LEARNING",
-            speed: { rate: "FAST" },
-          }),
+          game.judge
+            ? game.judge.emit.literal({
+                literal: word,
+                distractors,
+                recall: "LEARNING",
+                speed: { rate: "FAST" },
+              })
+            : game["dojo"].emit.literal({
+                literal: word,
+                distractors,
+                gameplay: "PICK",
+                recall: "LEARNING",
+                preview: { when: "MISSED", speed: { rate: "FAST" } },
+              }),
         );
       } else if (vocalized && random.coinflip(0.5)) {
         practice.add(
-          game["rep-o-gram"].emit.listen.literal({
+          game["dojo"].emit.listen.literal({
             literal: word,
             distractors,
             gameplay: word.retention.is.weak ? "PICK" : "TYPE",
@@ -65,13 +81,13 @@ export const vocabolario = new Vector().open(
           }),
         );
       } else if (word.retention.is.weak) {
-        practice.add(game["rep-o-gram"].emit.pick.literal({ literal: word, recall: "LEARNING" }));
+        practice.add(game["dojo"].emit.literal({ literal: word, distractors, gameplay: "PICK", recall: "LEARNING" }));
       } else {
-        practice.add(game["rep-o-gram"].emit.write.literals({ literal: word, recall: "LEARNING" }));
+        practice.add(game["dojo"].emit.write.literals({ literal: word, recall: "LEARNING" }));
       }
     }
 
-    if (words.length >= 4) {
+    if (words.length >= 4 && game.match) {
       practice.add(
         game.match.emit.batch({
           literals: words.slice(0, 6),

@@ -6,7 +6,7 @@ import { Tier, Tune } from "../primitives/hallucination.js";
 // policy, effort → settings. Absent fields mean "the mode decides".
 export const INTELLIGENT = v.object({
   tune: v.union([Tier, Tune]).optional(),
-  effort: v.enum(["low", "medium", "high"]).optional(),
+  effort: v.enum(["none", "low", "medium", "high"]).optional(),
 });
 
 export const ThreadDescriptor = {

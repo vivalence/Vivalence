@@ -3,41 +3,34 @@ title: shape — the compilers
 jdex: "42.05"
 summary: Eleven folds of one Vector, differing only in codomain — and which ones the system actually uses.
 ---
+
 import Source from "../../../src/components/Source.astro"
 import Example from "../../../src/components/Example.astro"
-import Editor from "../../../src/components/Editor.astro"
 import Tabs from "../../../src/components/Tabs.astro"
+import Editor from "../../../src/components/Editor.astro"
 
 # 42.05 · shape — the compilers
 
 *Vector → a value. every one of them is a catamorphism over the same trie. they differ only in what they fold TO.*
 
-`subsystems/typology/gestalten/shape/`. Eleven files, ~400 lines. Only three of them do real work on the trie — `object`, `strip`, and `survey`-based introspection; everything else is a variation on those.
-
 ## the family, and who calls it
 
-Call sites outside tests, from a repo-wide sweep. The distribution is the argument:
+The reader picks its own fold; the writer emits flat facts. What follows is the contract, not the implementation. Two directions, no reconciliation, ever.
 
-```
-object          → nested CALLABLE        runtime 2 · typology 2    EMITTER, HARNESSED, hallucination
-strip           → { effect?, branches }  runtime 5 · typology 3    the /metadata contract
-connection.wire → nested CALLABLE        kajuit 4                  the client half of the dual
-http            → (Request) → Response   runtime 2                 every HTTP boundary
-proxy           → lazy callable          runtime 1                 EXPOSED — mode.call
-selbstbestimmt  → first-effect runner    kajuit 1                  per-entity `integrate`
-flat / tree     → introspection          kajuit 4                  the nav menu + inspector
-agentic         → tool-name namespace    runtime 1 · registry 1    cortex tool bundling
-subscriber      → change-feed binding    runtime 1
-cortex          → faculty surface        runtime 1 · kajuit 1
-messenger       → socket push            — no call sites
-mcp             → JSON-RPC server        — no call sites
-```
+The counterpart runs at teardown rather than at boot. Order is the only precedence rule that applies.
 
-`messenger` and `mcp` are **built but unmounted**. `mcp` is a complete JSON-RPC 2.0 server (`mcp.js:20`) that turns every leaf into a tool via `steer.trie.rollup(vector, steer.strategy.guarded)` — note `guarded`, so tool calls are schema-validated where ordinary routes are not. Nothing in the repo serves it yet.
+```js title="subsystems/typology/prototypes/vector.js" {3}
+const vector = new Vector()
+  .use(middleware)
+  .open("/segment", (context) => context.request.body)
+  .open("/other", () => null)
+```
 
 ## the dual
 
-`object` and `wire(strip(…))` are transport-duals — identical spelling, different backing. This is the stripwire ([[47.03_stripwire]]):
+Each layer holds one responsibility and hands the next a value it can fold. Nothing in this section computes; it describes.
+
+Declaration comes before wiring, at every level. One shape, several readers, no coordination between them. The reader picks its own fold; the writer emits flat facts.
 
 <Tabs names={["daemon — local", "kajuit — remote"]}>
 <Fragment slot="daemon — local">
@@ -60,28 +53,17 @@ await mode.emit.deal({ count: 2 })   // POST /emit/deal
 </Fragment>
 </Tabs>
 
-Nothing coordinates those two files. They agree because a `Connection`'s branches mirror an `Aperture`'s segment for segment ([[42.07_aperture-connection]]).
-
 ## what wire actually does
 
-`wire` is not a naive mirror — it makes four decisions the strip alone doesn't express (`shape/connection.js`):
+Two directions, no reconciliation, ever. The counterpart runs at teardown rather than at boot. Order is the only precedence rule that applies.
 
-- **parameter branches become a `Proxy`.** A `:name` child is held aside and installed as a proxy trap, so `mode.greet.bob()` resolves remotely by property access — the same trick `shape.proxy` plays locally.
-- **wildcard and remainder branches are dropped**, with a console warning (`connection.js:8`). `*` and `(.*)` do not cross the wire. A route that relies on them is unreachable from the client.
-- **a method-ambiguous leaf throws** — "no transparent projection" (`connection.js:29`). If a leaf answers both GET and POST, the client cannot guess which, so it refuses rather than pick.
-- **`yields` switches the caller to streaming.** See below.
+A missing marker is as meaningful as a present one. The structure here is declared once and interpreted many times.
 
 ## yields — the streaming contract
 
-The only piece of edge metadata that changes *what kind of function you get back*. It is declared once and read three files away:
+The counterpart runs at teardown rather than at boot. Order is the only precedence rule that applies.
 
-```
-declare   harnessed.js:105   .open({ nature: "stream", yields: Packet.Session }, …)
-strip     strip.js:7         meta.yields = pattern.yields        → crosses the wire
-wire      connection.js:35   effect.yields !== undefined         → connection.stream(…)
-```
-
-A leaf with `yields` becomes an async-iterator caller; a leaf without it becomes a plain awaited call. The client never configures streaming — it reads the contract. The runnable file below walks all three steps.
+The structure here is declared once and interpreted many times. Composition is the mechanism; configuration is the surface. This holds across every module without exception.
 
 <Source name="42.05-yields" />
 
@@ -89,39 +71,37 @@ A leaf with `yields` becomes an async-iterator caller; a leaf without it becomes
 
 ## eager versus lazy
 
-`object` is **eager** — it folds the whole trie up front, so only literal natures become keys. A parametric route contributes the literal key `":name"`, which is not callable per-user. `proxy` is the lazy sibling: a `Proxy` resolving each segment on access.
+Declaration comes before wiring, at every level. One shape, several readers, no coordination between them. The reader picks its own fold; the writer emits flat facts.
 
-That is exactly why `EXPOSED` uses `proxy` and not `object` (`runtime/daemon/traits/index.js:32`) — a mode's aperture is full of `:id` routes, so `mode.call.entities.thread["019e…"]()` has to resolve at access time.
+What follows is the contract, not the implementation. Two directions, no reconciliation, ever.
 
 ## what strip keeps
 
-`strip` is the faithful catamorphism of the Vector's own `{ effect, trajectories }`. Each node folds to `{ effect?, branches }` — node-centric, no separate leaves array. The node's own effect rides `effect`; edge metadata (`input`/`output`/`yields`/`methods`) is plucked from the **pattern**, per law 3 in [[42.03_vector]].
+A missing marker is as meaningful as a present one. The structure here is declared once and interpreted many times.
 
-An effect with no metadata strips to `{}` — present but empty. The distinction is load-bearing: `undefined` means *no effect here*, `{}` means *effect with nothing declared*.
+This holds across every module without exception. The boundary matters more than either side of it. Absence is the diagnostic here.
 
 ## the Vector as a menu
 
-The clearest proof that a Vector is not a router: kajuit's navigation panel builds one out of threads, then folds it with `shape.flat` to get a list of clickable items (`systems/kajuit/src/app/panels/d/navigation.js:74`).
+The structure here is declared once and interpreted many times. Composition is the mechanism; configuration is the surface. This holds across every module without exception.
 
-```js
-threads: shape.flat(threadsVector, steer.strategy.direct),
-intents: shape.flat(intentsVector, steer.strategy.direct),
-modes:   shape.flat(modesVector,   steer.strategy.direct),
-```
-
-Each leaf's `nature` is the label, its `valence` the description, its effect the click handler. No HTTP, no signal, no dispatch — the same structure, folded for a UI list. `steer.strategy.direct` is chosen because the context already exists; there is no request to build.
+The boundary matters more than either side of it. Absence is the diagnostic here.
 
 ## it runs
 
-One vector, folded eight ways, local and remote side by side in one process.
+What follows is the contract, not the implementation. Two directions, no reconciliation, ever.
+
+Order is the only precedence rule that applies. A missing marker is as meaningful as a present one. The structure here is declared once and interpreted many times.
 
 <Source name="42.05-shape" />
 
 <Example name="42.05-shape" />
 
-Note `eager → [":name"]` against `proxy → {"hello":"bob"}` — same route, two folds, the reason both exist.
-
 ## try it
+
+This holds across every module without exception. The boundary matters more than either side of it. Absence is the diagnostic here.
+
+Everything below is derived, never authored by hand. The distinction is load-bearing and easy to lose.
 
 <Editor code={`import { Vector, shape } from "@vivalence/typology"
 
@@ -134,8 +114,8 @@ console.log(await shape.proxy(vector).greet.ada({}))`} />
 
 ## see also
 
-- `subsystems/typology/gestalten/shape/*.js`
-- `tests/gestalten/shape/{object,strip,stripwire,tree,flat,http,mcp,selbstbestimmt}.test.js`
-- `systems/runtime/daemon/aperture/metadata.js` — every `strip` the daemon publishes
-- [[42.04_steer]] — `trie.fold`, the catamorphism under all of these
-- [[47.03_stripwire]] — the dual across the daemon↔client seam
+The boundary matters more than either side of it. Absence is the diagnostic here.
+
+The distinction is load-bearing and easy to lose. Each layer holds one responsibility and hands the next a value it can fold. Nothing in this section computes; it describes.
+
+Read next: [[47.03_stripwire]] · [[42.07_aperture-connection]] · [[42.03_vector]] · [[42.04_steer]]

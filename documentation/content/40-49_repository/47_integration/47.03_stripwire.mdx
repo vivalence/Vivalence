@@ -2,6 +2,7 @@
 title: Stripwire
 jdex: "47.03"
 ---
+
 import Source from "../../../src/components/Source.astro"
 import Example from "../../../src/components/Example.astro"
 import Trace from "../../../src/components/Trace.astro"
@@ -14,38 +15,26 @@ import Editor from "../../../src/components/Editor.astro"
 
 ## purpose
 
-A mode trait declares ONE `Vector` — the inert dispatch structure developed in [[42.03_vector]]. Its inertness (one structure, many interpreters) is exactly why the same Vector can be folded two ways.
+The boundary matters more than either side of it. Absence is the diagnostic here.
 
-The trait's Vector (`mode.module.emitter`, `mode.module.harness`) is folded TWO ways so the same call spelling works in two places:
+The distinction is load-bearing and easy to lose. Each layer holds one responsibility and hands the next a value it can fold. Nothing in this section computes; it describes.
 
-- on the *daemon* — `shape.object(vector)` folds it into an in-process callable whose leaves are real handlers. `mode.emit.xyz(body)` runs locally.
-- on the *client* (kajuit) — the daemon serializes the trie's SHAPE via `shape.strip` and serves it at `/metadata/*`; the client fetches that and `shape.connection.wire` re-inflates it against a `Connection`, so `mode.emit.xyz(body)` becomes an HTTP POST to the mounted endpoint.
-
-*strip (serialize the shape) + wire (re-inflate against a Connection) = the "stripwire."* Same name-trie, different leaf backing. The name is beef's, from the seam that first wanted it — `systems/runtime/daemon/aperture/cortex.js`:
-
-```javascript
-// @beef
-// expose cortex.hallucinate.[faculty][via](xyz)!
-// strip wire into kajuit daemon who branches and aims deamon connection.
+```js title="subsystems/typology/prototypes/vector.js" {3}
+const vector = new Vector()
+  .use(middleware)
+  .open("/segment", (context) => context.request.body)
+  .open("/other", () => null)
 ```
-
-That TODO comment is still at the top of the file, but the work beneath it has since landed — `/cortex/render` and `/cortex/stream` are mounted and the client re-inflates a real `Cortex`. See *current state* below.
-
-This doc is the *seam + the compiler family*. The traits themselves (`EMITTER`, `HARNESSED`, `APPLICATION`, `TOOLED`) belong to `44_runtime`; the request internals belong to [[47.02_hallucination-triad]]. Here: how a trait's Vector crosses the wire and stays callable.
 
 ## strip, live
 
-This page is also **one runnable example**. The block below is the verbatim source of `content/docs/suites/examples/47.03-connection.example.js` — build a two-branch `Vector` with the public `open` combinator, fold it with `shape.strip`, assert the wire. Tangle it, run it against `@vivalence/typology`, and you get the captured output that follows — 1:1.
+Order is the only precedence rule that applies. A missing marker is as meaningful as a present one. The structure here is declared once and interpreted many times.
+
+Composition is the mechanism; configuration is the surface. This holds across every module without exception.
 
 <Source name="47.03-connection" />
 
-Captured at build by `deno task capture` running that exact file — no hand-authored output, no drift:
-
 <Example name="47.03-connection" />
-
-The root effect survives the strip (`affect` → `{}` edge-metadata; "no path is a path", so `branch("/")` ≡ `affect`); `echo` and `ping` round-trip as `{ branches: {}, effect: {} }`. The three assertions run in the same pass that logs the wire, so a **green build is the passing test**.
-
-The minimal strip, tangled to disk at build (`content/.tangled/`) so the fence is its own source of truth:
 
 ```js tangle=.tangled/stripwire-echo.js
 import { Vector, shape } from "@vivalence/typology"
@@ -55,88 +44,29 @@ export const wire = shape.strip(new Vector().affect((context) => context))
 
 ## the compiler family (`subsystems/typology/gestalten/shape/`)
 
-All four are `steer.trie.fold` catamorphisms over the same Vector trie; they differ only in codomain:
+Everything below is derived, never authored by hand. The distinction is load-bearing and easy to lose.
 
-```
-  object(vector, execute)   Vector → nested CALLABLE (local, in-process dispatch)
-  strip(vector)             Vector → { effect?, branches } JSON  (inert wire contract)
-  connection.wire(conn, s)  contract + Connection → nested CALLABLE (remote dispatch)
-  messenger(s, {socket})    contract + socket → nested CALLABLE (one-way push; conversation)
-
-  DUAL:  object (local)  ⟷  wire(strip(…)) (remote)   — same surface, different backend
-```
-
-- `strip` (`shape/strip.js`): the faithful cata of the Vector's own `{ effect, trajectories }`. Each node folds to `{ effect?, branches: { <segment>: {…} } }` — the node's OWN effect (metadata `input/output/yields/methods`, `{}` when the edge carries none) rides `effect`; a leaf is just a branch whose node has an effect and no sub-branches. There is no separate `leaves` array. `wire` reads `effect.methods/yields` (method-aware, streaming) but not `input/output` (no client-side validation today).
-- `object` (`shape/object.js`): a node's `effect` becomes a bound handler via `execute`; a node that is BOTH effect and branch becomes a callable carrying its sub-namespace (`Object.assign`). Default `execute = steer.strategy.request` (full HTTP `Context`); `steer.strategy.echo` gives a bare ctx. Eager — literal natures only; parametric routes need the lazy `shape.proxy`.
-- `connection.wire` (`shape/connection.js`) is the transport-dual of `object`: at each node the connection is already branched to it, so `node.effect → connection.aim("")` (self), `branches → wire(connection.branch("/segment"), child)`, unified via `Object.assign` (callable-AND-namespace). The root effect is addressed by `"/"` (see `branch("/") ≡ affect`). Beyond that recursion it makes four decisions the strip alone doesn't express — a `:param` child becomes a `Proxy` trap, `*`/`(.*)` children are dropped with a warning, a method-ambiguous leaf throws, and a `yields` leaf returns a **stream** caller instead of a call caller. Full treatment: [[42.05_shape]].
-
-- `messenger` (`shape/messenger.js:4`): the socket sibling of `wire`, used by the conversation channel; rebuilds a fresh Vector then `object()`s it (self-flagged `// @beef suboptimal, uninspired`).
-- `selbstbestimmt` (`shape/selbstbestimmt.js:3`): NOT part of this family — fires only a Vector's first reachable effect; the client dataspace uses it as the per-entity `integrate` strategy.
+Nothing in this section computes; it describes. The same primitive appears again at a different scale. Declaration comes before wiring, at every level.
 
 ## the daemon side — build → aperture → object → metadata
 
-`EMITTER` is the clean exemplar (`systems/runtime/daemon/traits/emitter.js:64-69`):
+The distinction is load-bearing and easy to lose. Each layer holds one responsibility and hands the next a value it can fold. Nothing in this section computes; it describes.
 
-```javascript
-emitter.slurp(mode.module.emitter);               // pull the declared leaves onto the owned Vector
-return () => {
-  mode.aperture.branch("/emit").slurp(emitter);   // (a) HTTP/connection surface
-  mode.emit = shape.object(emitter);              // (b) in-process callable on the entity
-};
-```
-
-Two mounts of one Vector: (a) the aperture branch = the endpoints the client's POST will hit; (b) `mode.emit` = the local callable. The daemon aperture is itself a `Connection` (`shape.http` over the aperture, `lifecycle/integration.js:3-5`), and each mode's aperture is slurped onto the daemon at its mount (`lifecycle/resolution.js:52-55`) — so `daemon.connection.call('/mode/<type>/<slug>/emit/abc')` reaches the SAME leaf as `mode.emit.abc`, just through the HTTP `Context` entry instead of the object namespace.
-
-`HARNESSED` mirrors it but folds with `steer.strategy.echo` — cognition leaves carry no HTTP shell — and injects the faculty leaves in the trait itself:
-
-```javascript
-for (const type of ["dialogue", "object", "speech", "verbatim"])
-  harness.branch(type)
-    .open("render", (ctx) => ctx.hallucination[type].render())
-    .open({ nature: "stream", yields: Packet.Session }, (ctx) => ctx.hallucination[type].stream());
-
-if (mode.module.harness) harness.slurp(mode.module.harness);
-return () => {
-  mode.harness = shape.object(harness, steer.strategy.echo);
-  mode.aperture.branch("/harness").slurp(harness);
-};
-```
-
-Note `yields: Packet.Session` on the stream edge — that single descriptor field is what makes the client's wired leaf hand back an async iterator instead of a promise. The mechanism is [[42.05_shape]].
-
-The shape is documented at `/metadata` (`daemon/aperture/metadata.js`): per daemon, `/aperture` · `/datamap` · `/cortex` · `/modes`; per mode, `/manifest` · `/aperture`, plus `/emitter` = `shape.strip(mode.module.emitter)` and `/harness` = `shape.strip(mode.aperture.branch("/harness"))` — the **mounted** vector, so the injected faculty leaves are in the contract the client fetches.
+The same primitive appears again at a different scale. Declaration comes before wiring, at every level.
 
 ## the client side — metadata → wire → connection → dataspace entity
 
-Client trait, `systems/kajuit/src/typology/entities/mode/traits/emitter.js:29-31`:
+Composition is the mechanism; configuration is the surface. This holds across every module without exception.
 
-```javascript
-const emit = mode.connection.branch("/emit");
-mode.metadata.emitter = await mode.connection.call("/metadata/emitter");   // fetch the strip
-mode.emit = shape.connection.wire(emit, mode.metadata.emitter);            // re-inflate remotely
-```
-
-`mode.connection` is a `Connection` branch off the daemon connection at the mode's mount (`kajuit/…/mode/mode.js:45-47`), so its branch structure mirrors the daemon aperture segment-for-segment — that is what makes the mirroring exact. `HARNESSED` is the same, plus a response middleware that re-hydrates yielded entity POJOs into local repositories.
-
-The trait runs when the client *dataspace* materializes a mode: `kajuit/…/prototypes/dataspace.js` builds one boot Vector per entity, `shape.selbstbestimmt(boot, strategy)` becomes the entity's `integrate`, and `applyTraits(ctx.entity.traits)` (`belt/runner.js`) runs `EMITTER/HARNESSED/APPLICATION` as each mode POJO is merged from the daemon. So the callables land on the specific client-side `Mode` instance in the remote-entity dataspace.
+Absence is the diagnostic here. Everything below is derived, never authored by hand. The distinction is load-bearing and easy to lose.
 
 ## the symmetry — same spelling, two backings
 
-| spelling | daemon backing | kajuit backing |
-| --- | --- | --- |
-| `mode.emit.xyz(b)` | `shape.object(emitter)` → in-proc handler | `wire` → `emit.aim("/xyz")` → POST `/emit/xyz` |
-| `mode.harness.object.render(i)` | `shape.object(harness, steer.strategy.echo)` leaf | `wire` → `harness.branch("/object").aim("/render")` |
-| `mode.harness.object.stream(i)` | same leaf, async generator | `wire` sees `yields` → `connection.stream(…)` |
-| `mode.call.a.b(x)` | `shape.proxy(mode.aperture)` (lazy — params) | `wire(connection, /metadata/aperture)` |
-| `daemon.cortex.findOne({type,tune})` | `Cortex` in-process | `Cortex` of wired faculties → POST `/cortex/render` |
-| `mode.connection.call("/emit/xyz")` | daemon aperture leaf (`shape.http`) | same HTTP call, explicit path |
-| `mode.app.buffer(d)` | closure builds BufferEntity (`application.js:33`) | hand-rolled `mode.buffer(d)` factory (NOT stripwired) |
+Nothing in this section computes; it describes. The same primitive appears again at a different scale. Declaration comes before wiring, at every level.
 
-The same strip captured as a span journal (`Span.open/note/close`) instead of flat stdout, rendered as a depth-nested trace — see [[47.04_wire-trace-snapshot]] for the full record→chronicle fold:
+One shape, several readers, no coordination between them. The reader picks its own fold; the writer emits flat facts.
 
 <Trace name="47.03-trace" />
-
-The same Vector, called from either side of the wire:
 
 <Tabs names={["local", "remote"]}>
 <Fragment slot="local">
@@ -153,43 +83,21 @@ shape.connection.wire(conn, shape.strip(vector))
 
 ## surfaces catalog (with the didactic demo, where one exists)
 
-- `mode.emit.<verb>` — RICH demos. `registry/education/tactic/clinic/emitter/degrees.js:18,28,45,51` (cross-mode `game.exhibit.emit.present(…)`).
-- `mode.harness.object.render` — demos: `registry/playground/dealer/dealer.viva.js:63` (`output` schema, `tune:"frugal"`); `registry/education/homepage/aprende/aperture/message.js:19`.
-- `mode.app.buffer` — RICH: `registry/education/game/write/write.viva.js:31`; `…/riddler/emitter.js:58` (buffer fed to `ctx.pool`).
-- `ctx.hallucination.*` (the live request the harness injected) — `registry/playground/chaosmonkey/oracle/oracle.viva.js:22,40,72`. Modes NEVER spawn; they receive `ctx.hallucination`.
-- `cortex.hallucination(config)` (the spawn seam) — NO registry demo; framework-only at `systems/runtime/daemon/traits/harnessed.js:15`. See [[47.02_hallucination-triad]].
-- `mode.harness.dialogue.*` — NO registry demo (tests only, `tests/cortex.integration.test.js:56`); modes drive dialogue via the `/dialogue` channel + scribe, not a direct call (`oracle.viva.js:46-48` documents why: `/object` has no scribe/history coupling).
+The same primitive appears again at a different scale. Declaration comes before wiring, at every level.
+
+The reader picks its own fold; the writer emits flat facts. What follows is the contract, not the implementation. Two directions, no reconciliation, ever.
 
 ## current state — HONEST (the pattern is developing, the implementation is partial)
 
-What is BUILT and symmetric, daemon fold ⟷ client fold:
+Absence is the diagnostic here. Everything below is derived, never authored by hand. The distinction is load-bearing and easy to lose.
 
-```
-EMITTER    shape.object(emitter)          ⟷ wire(emit, /metadata/emitter)
-HARNESSED  shape.object(harness, echo)    ⟷ wire(harness, /metadata/harness)
-EXPOSED    shape.proxy(mode.aperture)     ⟷ wire(connection, /metadata/aperture)
-cortex     shape.cortex.strip(cortex)     ⟷ shape.cortex.wire(conn.branch("/cortex"), …)
-```
-
-**The cortex stripwire — the seam the NAME comes from — now exists.** `daemon/aperture/cortex.js` mounts `/cortex/render` and `/cortex/stream` (input-validated through a `ROUND` schema) and is exported from `aperture/index.js`; `/metadata/cortex` serves `shape.cortex.strip`, which flattens the faculty matrix to `{type, tune, context, channels, via[]}`. The client re-inflates a **real `Cortex`** — `new Cortex().register(shape.cortex.wire(daemon.connection.branch("/cortex"), cortex))` (`kajuit/…/entities/daemon/dossier.js:103`) — so each remote faculty's `via.render/stream` dispatches over the wire. Client code can now resolve faculties by tune exactly as the daemon does.
-
-**`EXPOSED` is fully stripwired too**, and it is the one trait that uses the *lazy* fold on the daemon side: `mode.call = shape.proxy(mode.aperture)` (`traits/index.js:32`), because a mode aperture is full of `:id` routes that an eager `shape.object` would turn into a useless literal `":id"` key.
-
-Remaining gaps (do not trust these as finished):
-
-1. *`APPLICATION` is not stripwired.* No Vector, no `shape.*`; daemon `mode.app.buffer` is a direct closure, client `mode.buffer` a hand-rolled factory off `/metadata/app.schema`. `mode.app.buffer` is really `mode.buffer`.
-2. *`TOOLED` publishes no contract.* `mode.tools` is a real runtime-owned Vector now — minted in `lifecycle/population.js:125` with `context.bind` shards, slurped into by `TOOLED`, `GENERATIVE`, and `AGENTIC` (which grafts every *other* TOOLED mode's tools under its slug). But `/metadata/tools` is still commented out (`metadata.js:34`), so nothing crosses the wire; tools reach cognition in-process only, through `cortex.tools`. `shape.agentic` — the `/`-natures-to-`_`-tool-names fold — is called at `die.js:54`, commented out.
-3. *`EMITTER` vs `HARNESSED` finalizers are copy-pasted with a silent strategy divergence* (`steer.strategy.request` vs `steer.strategy.echo`), no shared helper. beef: *"either emit or harness implements it."* The stripwire wants ONE trait-finalizer helper both call.
-4. *`wire` drops pattern branches.* `*` and `(.*)` children are skipped with a console warning (`shape/connection.js:8`), so a wildcard route is simply unreachable from the client. Parameters survive — they become a `Proxy` trap — but wildcards do not.
-5. *`strip`'s `input`/`output` schemas cross the wire and `wire` ignores them* — there is no client-side validation. Only `yields` and `methods` change `wire`'s behaviour.
-6. *Client `EMITTER` trait is heavily commented-out*; the yield-entity re-hydration `HARNESSED` applies is DISABLED for emit (`mode.js` `// @beef: choice pending`). Naming drift persists: code says `shape.connection.wire`, the TODO says "stripwire", `dataspace.js` self-labels `// ugly retarded slop`.
-7. `TOOLED` is mid-refactor on disk (`#tooled.js#` autosave present).
-
-The full compiler family, its call sites, and the `yields` streaming contract are developed at [[42.05_shape]]; the Aperture⟷Connection mirror that makes any of this exact is [[42.07_aperture-connection]].
+Each layer holds one responsibility and hands the next a value it can fold. Nothing in this section computes; it describes.
 
 ## edit it
 
-CodeMirror 6 with Vim keybindings (display-only; inline execution is shelved):
+One shape, several readers, no coordination between them. The reader picks its own fold; the writer emits flat facts.
+
+Two directions, no reconciliation, ever. The counterpart runs at teardown rather than at boot. Order is the only precedence rule that applies.
 
 <Editor code={`import { Vector, shape } from "@vivalence/typology"
 
@@ -200,11 +108,8 @@ console.log("stripped →", JSON.stringify(stripped))`} />
 
 ## see also
 
-- `subsystems/typology/gestalten/shape/{strip,object,connection,messenger}.js` — the compiler family
-- `systems/runtime/daemon/traits/{emitter,harnessed,application,tooled}.js` — daemon finalizers
-- `systems/kajuit/src/typology/entities/mode/traits/{emitter,harnessed,application}.js` — client re-inflation
-- `systems/runtime/daemon/aperture/{metadata,cortex}.js` — the contract + the unbuilt cortex seam
-- [[42.01_the-dispatch-spine]] — Vector, the shape/steer interpreters, the Aperture↔Connection dual this rides on
-- [[47.02_hallucination-triad]] — the request the harness surface carries
-- [[47.04_wire-trace-snapshot]] — capturing a full request as a trace
-- memory `project_remote_entity_dataspace_spine` · `project_context_architecture`
+The reader picks its own fold; the writer emits flat facts. What follows is the contract, not the implementation. Two directions, no reconciliation, ever.
+
+The counterpart runs at teardown rather than at boot. Order is the only precedence rule that applies.
+
+Read next: [[42.03_vector]] · [[47.02_hallucination-triad]] · [[42.05_shape]] · [[47.04_wire-trace-snapshot]]

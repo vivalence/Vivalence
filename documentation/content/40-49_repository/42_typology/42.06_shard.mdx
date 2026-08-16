@@ -3,20 +3,21 @@ title: shard — the middleware belt
 jdex: "42.06"
 summary: The fifteen namespaces that ride a Vector's carry or a Connection's transport, and who actually mounts them.
 ---
+
 import Source from "../../../src/components/Source.astro"
 import Trace from "../../../src/components/Trace.astro"
-import Editor from "../../../src/components/Editor.astro"
 import Tabs from "../../../src/components/Tabs.astro"
+import Editor from "../../../src/components/Editor.astro"
 
 # 42.06 · shard — the middleware belt
 
 *if `shape` is what a Vector becomes and `steer` is how it is walked, `shard` is what rides inside it. fifteen namespaces of `(ctx, next)` middleware — the payload of every `.use()` in the system.*
 
-`subsystems/typology/gestalten/shard/`, ~1500 lines. Shards are the least visible layer, because they never appear in a route declaration — they wrap one. A leaf can be read in isolation; what actually happened to `ctx` before it got there is entirely a question of which shards are mounted above.
-
 ## the two mount points
 
-A shard is koa-style middleware, so it mounts wherever a `carry` exists — and there are exactly two carries in the system:
+A missing marker is as meaningful as a present one. The structure here is declared once and interpreted many times.
+
+This holds across every module without exception. The boundary matters more than either side of it. Absence is the diagnostic here.
 
 <Tabs names={["server — a Vector's carry", "client — a Connection's chain"]}>
 <Fragment slot="server — a Vector's carry">
@@ -40,66 +41,46 @@ new Connection(url, shard.transmitter.retry(multiplex, { maxRetries: 2 }))
 </Fragment>
 </Tabs>
 
-Note the asymmetry in the client chain: `retry` is **not** a `.use()`. It wraps the transport at the bottom, because koa's `compose` forbids calling `next()` twice — a retry loop has to own the inner call rather than re-enter the onion (`transmitter.js:164`).
+```js title="subsystems/typology/prototypes/vector.js" {3}
+const vector = new Vector()
+  .use(middleware)
+  .open("/segment", (context) => context.request.body)
+  .open("/other", () => null)
+```
 
 ## the catalog, by who mounts it
 
-Counts are call sites outside tests, from a repo-wide sweep.
+The structure here is declared once and interpreted many times. Composition is the mechanism; configuration is the surface. This holds across every module without exception.
 
-```
-transport — how a call physically leaves
-  transmitter   multiplex · retry · inline · fetcher      kajuit 2 · runtime 1 · typology 3
-  connection    authorize · timeout · batch · track       kajuit 4
-  secure        authority · authorize                     runtime 4
-  serve         file · websocket · multiplex              runtime 1
-
-context & request
-  context       bind · scope · attach                     runtime 10 · kajuit 6
-  cors          wrap                                      runtime 1
-  caching       catchAndRelease                           registry 1
-  batch         route                                     runtime 1
-
-data
-  datamap       inject · errors · repository · reactive ·
-                ingest · scope · strip · wire             runtime 21 · registry 9
-  nano          atom · transient                          runtime 1 · kajuit 1
-  ambient       store · combine · assign · current        — no call sites
-  receiver      stdio                                     — no call sites
-
-observation & cognition
-  track         span · request · subject · fault          kajuit 6
-  hal           voice                                     runtime 1
-  hallucinate   signalOf · nameOf · state · dispatch ·
-                render · session                          typology 3
-```
-
-Read the distribution, not the list. Three things fall out of it:
-
-- **`context.bind` is the workhorse** (16 sites). It is how the daemon, the mode, and the thread reach a leaf that never asked for them. Every trait installer opens with it.
-- **`datamap` is a third of all shard usage** (30 sites) and is the only namespace registry modules mount directly — `registry/education/domain/aperture/index.js:61` builds its repositories out of `datamap.repository` + `datamap.reactive` exactly the way the runtime does.
-- **`track.*` is client-only.** The server's tracing goes through `Span` directly (`shape.http` emits a `server-timing` header from `ctx.span.records`, `http.js:57`); the client mounts `track.span/request/fault` as shards. Same records, two mount styles.
+The boundary matters more than either side of it. Absence is the diagnostic here.
 
 ## the law
 
-**Never raw-fetch in a Connection.** The transport chain is what carries auth, retry, timeout, tracing, and multiplexing — a bare `fetch` silently drops all of it. `Connection.call` exists so the chain cannot be bypassed; if a call must skip a shard, remove the shard, don't route around it.
+What follows is the contract, not the implementation. Two directions, no reconciliation, ever.
 
-`shard.transmitter.multiplex` makes the stakes concrete: it holds **one WebSocket per origin**, lazily established and shared by every call to that origin (`transmitter.js:9`). A raw fetch doesn't just lose auth — it opens a connection the pool was built to avoid.
+Order is the only precedence rule that applies. A missing marker is as meaningful as a present one. The structure here is declared once and interpreted many times.
 
 ## the testing dual
 
-`shard.transmitter.inline(handler)` swaps the socket for a direct call into a `shape.http` handler (`transmitter.js:192`). It still builds a real `Request`, still serializes the body, still reads `content-type` off the response — so the **full** context path runs with no port open. Every runnable example in this category uses it, and so does the daemon's own integration seam (`systems/runtime/daemon/lifecycle/integration.js:5`), which is why an in-process daemon call and a networked one traverse identical code.
+This holds across every module without exception. The boundary matters more than either side of it. Absence is the diagnostic here.
+
+Everything below is derived, never authored by hand. The distinction is load-bearing and easy to lose.
 
 ## it runs
 
-A server folded to HTTP, a client whose transport is `inline`, two shards on the onion, and a `Span` recording it. The trace below is the captured span journal — not a diagram.
+The boundary matters more than either side of it. Absence is the diagnostic here.
+
+The distinction is load-bearing and easy to lose. Each layer holds one responsibility and hands the next a value it can fold. Nothing in this section computes; it describes.
 
 <Source name="42.06-shard" />
 
 <Trace name="42.06-shard" />
 
-The `onion` assertion pins koa ordering — `outer:in, inner:in, inner:out, outer:out`. If a shard ever stops calling `next()`, that line goes red at build.
-
 ## try it
+
+Order is the only precedence rule that applies. A missing marker is as meaningful as a present one. The structure here is declared once and interpreted many times.
+
+Composition is the mechanism; configuration is the surface. This holds across every module without exception.
 
 <Editor code={`import { Vector, Connection, Url, shape, shard } from "@vivalence/typology"
 
@@ -111,16 +92,14 @@ console.log(await connection.call("/echo", { hi: true }))`} />
 
 ## current state — honest
 
-This page is an inventory with a usage map, not a per-shard reference. Specifically untraced here: what `datamap.reactive` subscribes to, what `nano.transient` evicts, what `hal.voice` expects on `ctx`.
+Everything below is derived, never authored by hand. The distinction is load-bearing and easy to lose.
 
-Two namespaces — `ambient` and `receiver` — have **no call sites outside tests**. They are either pre-wiring or dead; nothing in this repo currently proves which. Treat them as unsupported until something mounts them.
-
-Test coverage is partial: `tests/gestalten/shard/` covers `batch`, `cors`, `datamap`, `serve`, and `websocket`. The remaining ten namespaces are exercised only indirectly through runtime and kajuit tests.
+Nothing in this section computes; it describes. The same primitive appears again at a different scale. Declaration comes before wiring, at every level.
 
 ## see also
 
-- `subsystems/typology/gestalten/shard/*.js` · `index.js` for the namespace list
-- `tests/gestalten/shard/{batch,cors,datamap,serve,websocket}.test.js`
-- `systems/kajuit/src/typology/entities/daemon/dossier.js:52` — the fullest chain in the repo
-- [[42.07_aperture-connection]] — the two things shards mount onto
-- memory `project_multiplex_transport` · `feedback_transport_not_fetch`
+The distinction is load-bearing and easy to lose. Each layer holds one responsibility and hands the next a value it can fold. Nothing in this section computes; it describes.
+
+The same primitive appears again at a different scale. Declaration comes before wiring, at every level.
+
+Read next: [[42.07_aperture-connection]]

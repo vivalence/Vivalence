@@ -1,5 +1,5 @@
 import { MikroORM } from "@mikro-orm/core";
-import { SqliteDriver } from "@mikro-orm/sqlite";
+import { config } from "../../viva/datamap/libsql/libsql.viva.js";
 import {
   IdentitySchema, IdentityEntity,
   DaemonSchema, DaemonEntity,
@@ -10,9 +10,7 @@ const schemas = [IdentitySchema, DaemonSchema, AuthenticatorEmbedSchema];
 
 export async function seed() {
   const orm = await MikroORM.init({
-    driver: SqliteDriver,
-    dbName: ":memory:",
-    entities: schemas,
+    ...config({ dbName: ":memory:", entities: schemas }),
     allowGlobalContext: true,
   });
 

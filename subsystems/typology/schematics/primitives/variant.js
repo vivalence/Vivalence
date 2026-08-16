@@ -16,7 +16,7 @@ export const Daemon = v.object(
   {
     manifest: Manifest,
     statics: v.record(v.string(), v.unknown()).default({}),
-    kernel: v.array(v.string()).default([]),
+    kernel: v.array(v.union([v.string(), v.object({}, { additionalProperties: true })])).default([]),
     consume: v.record(v.string(), Mask).default({}),
     lighthouse: Mask,
     datamap: Mask,

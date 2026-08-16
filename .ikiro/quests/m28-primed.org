@@ -30,3 +30,49 @@ behavior in =systems/runtime/daemon/traits/primed.js= + =ModeTraitsEnum= member 
 - skill tool: ships with the trait or rides the m26 =shard.tools= layer ①?
 - persona-as-skill (francesca) — beef's call when built
 - cross-daemon refs — explicitly out of v1
+
+* reframed under m27 notes — PROPOSAL, awaiting beef
+
+beef: /"if we have notes, do we actually need the primed trait? … where does the primded
+solve anything? … its an industry standard, sure."/ then /"primed might make sense if
+paired with some prototype implement heuristics for file loading. aka export cosnt prime =
+walkFileTree(./dir).loadMarkdownToSystem()"/
+
+Grounded (compact /notes are trait-keyed not typed…/): the loader exists —
+=subsystems/typology/prototypes/dataset.js= =reader= (=dir=/=json=/=js=/=rows=/=lift=) +
+=systems/runtime/daemon/traits/dataset.js:14= =pull()=; INTENTED consumes =dataset.intent=
+via =ensure=; TOOLED is one line, =harnessed.js:50= slurps =mode.tools= without a trait
+check. Missing: an =md→note= codec (=CODECS= knows json/jsonc/js/ts/mjs; =paladin.read= has
+no frontmatter reader). DATASET is install-once — wrong for 3 skill files edited daily.
+
+Proposed shape — PRIMED = seeder-every-boot + manifest claim, NOT a loader, NO =Prime=
+prototype:
+
+#+begin_src javascript
+// mode
+export const dataset = { note: "skills" };            // reader.lift → { walk: "skills" }
+// systems/runtime/daemon/traits/primed.js — mirrors INTENTED
+export const PRIMED = async (mode, daemon) => {
+  const sources = new Dataset(mode.module.dataset ?? {}).sources.note ?? [];
+  return async () => {
+    for (const source of sources)
+      for (const row of await pull(source, mode.module.mount))
+        await daemon.entities.note.ensure({ ...row, mode: mode.entity.id });
+    await daemon.entities.em.flush();
+  };
+};
+#+end_src
+
+Skills become NOTE ROWS (=SKILL.md= frontmatter: name→slug, description→gist, metadata→data,
+body→body — agentskills shape kept, interop intact). One channel: gist → =system.notes=
+(m27.2) · body → =note({slug})= · full-body-always → =trait.<T>.admission = "full"= or the
+static import already at =francesca/harness.js:2=. The "skill index section" and
+=skill()= tool of the original design dissolve into m27's.
+
+Alternatives on the table (row 6 of the compact): A skills = seed source for notes (this
+proposal) · B skills = sibling export, no rows, own index · keep PRIMED as designed · kill
+PRIMED outright. Lean A.
+
+Open here: =md= codec home (=Dataset.reader= + =paladin.read=, both gated) · does the
+=note()= tool ship with PRIMED or layer ① · does the trait survive at all (three-sides
+cost vs every-boot re-seed + =implements("PRIMED")= claim).

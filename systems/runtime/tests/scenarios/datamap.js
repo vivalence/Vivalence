@@ -1,5 +1,5 @@
 import { MikroORM, EntitySchema, RequestContext } from "@mikro-orm/core"
-import { SqliteDriver } from "@mikro-orm/sqlite"
+import { config } from "../../../../registry/viva/datamap/libsql/libsql.viva.js"
 import {
   LiteralEntity, LiteralSchema,
   SymbolEntity, SymbolSchema,
@@ -49,10 +49,7 @@ export const shard = (orm) => ({
 
 export async function provider(variant, subscribers = variant.map((v) => v.subscriber)) {
   const orm = await MikroORM.init({
-    driver: SqliteDriver,
-    dbName: ":memory:",
-    entities: variant.map((v) => v.schema).filter(Boolean),
-    subscribers: subscribers.filter(Boolean).map((Subscriber) => new Subscriber()),
+    ...config({ dbName: ":memory:", entities: variant.map((v) => v.schema), subscribers }),
     allowGlobalContext: true,
   })
 
@@ -81,9 +78,7 @@ export const schemas = [
 
 export async function seed() {
   const orm = await MikroORM.init({
-    driver: SqliteDriver,
-    dbName: ":memory:",
-    entities: schemas,
+    ...config({ dbName: ":memory:", entities: schemas }),
     allowGlobalContext: true,
   })
 

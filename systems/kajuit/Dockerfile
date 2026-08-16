@@ -1,10 +1,37 @@
-FROM vivalence/viva:alpine AS build
+ARG VIVA_BASE=vivalence/viva:alpine
+FROM ${VIVA_BASE} AS build
 
 WORKDIR /viva/repository
 ENV VIVA_SYSTEM_MODE="BUILD"
 ENV VIVA_SYSTEM_ROLE="CLIENT"
 
+RUN rm -rf \
+    ./registry \
+    ./systems/kajuit \
+    ./subsystems/typology \
+    ./subsystems/dapper \
+    ./subsystems/drapes \
+    ./subsystems/paladin
+
+COPY deno.jsonc import_map.json ./
+COPY systems/runtime/deno.jsonc ./systems/runtime/deno.jsonc
+COPY systems/kajuit/deno.jsonc ./systems/kajuit/deno.jsonc
+COPY systems/ghost/deno.jsonc ./systems/ghost/deno.jsonc
+COPY subsystems/typology/deno.jsonc ./subsystems/typology/deno.jsonc
+COPY subsystems/paladin/deno.jsonc ./subsystems/paladin/deno.jsonc
+COPY subsystems/dapper/deno.jsonc ./subsystems/dapper/deno.jsonc
+COPY subsystems/drapes/deno.jsonc ./subsystems/drapes/deno.jsonc
+COPY subsystems/sheets/deno.jsonc ./subsystems/sheets/deno.jsonc
+COPY documentation/deno.jsonc ./documentation/deno.jsonc
+
 RUN deno install
+
+COPY registry/ ./registry/
+COPY subsystems/typology/ ./subsystems/typology/
+COPY subsystems/dapper/ ./subsystems/dapper/
+COPY subsystems/drapes/ ./subsystems/drapes/
+COPY subsystems/paladin/ ./subsystems/paladin/
+COPY systems/kajuit/ ./systems/kajuit/
 
 ARG VIVA_STAMP
 ENV VIVA_STAMP=${VIVA_STAMP}

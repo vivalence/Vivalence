@@ -1,4 +1,14 @@
+import { isAbsolute, resolve as resolvePath } from "@std/path";
 import { Pipe, Mask, v, fn } from "@vivalence/typology";
+
+const reference = (home) => (entry) =>
+  typeof entry !== "string"
+    ? { ...entry, mount: entry.mount ?? home }
+    : isAbsolute(entry)
+      ? entry
+      : /^\.\.?\//.test(entry)
+        ? resolvePath(home.dirname, entry)
+        : entry;
 
 const hydrate = (node) =>
   typeof node === "function"
@@ -27,11 +37,17 @@ async function resolve(variant) {
     });
 
   const [module] = modules;
+
+  const materialize = (declaration) => {
+    const { kernel = [], ...rest } = declaration;
+    return { ...hydrate(rest), kernel: kernel.map(reference(module.source)) };
+  };
+
   variant.manifest = module.manifest;
   variant.runtime = hydrate(module.runtime ?? {});
   variant.clients = hydrate(module.clients ?? {});
   variant.lighthouse = hydrate(module.lighthouse ?? {});
-  variant.daemons = (module.daemons ?? []).map((declaration) => mask("daemon")(hydrate(declaration)));
+  variant.daemons = (module.daemons ?? []).map((declaration) => mask("daemon")(materialize(declaration)));
   variant.services = (module.services ?? []).map((declaration) => mask("service")(hydrate(declaration)));
 
   // variant.runtime.logs = new Pipe()

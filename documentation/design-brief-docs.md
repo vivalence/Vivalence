@@ -2,7 +2,7 @@
 
 ## 0. Mission
 
-Take the Vivalence documentation site from *competent-but-generic* to a **top-tier, distinctive, precise docs experience** — the calibre of Stripe / Tailwind / Astro Starlight / Linear / the Rust Book, but with its own identity. Every surface is in scope: layout, the left nav tree, the right TOC, article typography, code blocks, the signature build-capture components, admonitions, tabs, breadcrumbs, backlinks, pager, the `/jdex` index, the homepage, search, color, motion, responsive, both themes.
+Take the Vivalence documentation site from *competent-but-generic* to a **top-tier, distinctive, precise docs experience** — the calibre of Stripe / Tailwind / Astro Starlight / Linear / the Rust Book, but with its own identity. Every surface is in scope: layout, the left nav tree, the right TOC, article typography, code blocks, the signature build-capture components, admonitions (all five kinds specimened on 00.01), tabs, breadcrumbs, backlinks, pager, the `/jdex` index, the homepage, search, color, motion, responsive, both themes.
 
 The current implementation works and is coherent, but it's under-designed: ad-hoc spacing, no real type scale, a single flat accent, a broken sidebar number-column, and the site's *actual differentiators* (Johnny-Decimal numbering, tangle-1:1 build-capture, span traces) are rendered as plain boxes instead of being made to feel special. Fix the mechanics **and** raise the craft.
 
@@ -13,7 +13,7 @@ This is a **visual/UX task on a static site.** No backend, no content rewrites. 
 ## 1. What the site is
 
 - **Astro 7 static docs, on Deno.** Hand-built theme — **no Starlight, no UI framework, no islands.** One layout renders every page. All styling is one inline `<style is:global>` in `Layout.astro`; all behaviour is one inline vanilla `<script is:inline>` (theme toggle, Pagefind init, heading anchors, tabs, copy buttons). The only bundled JS is the CodeMirror editor component.
-- **Johnny-Decimal content model.** 3 levels: **Area** (decade `30–39`) → **Category** (`34`) → **Item** (page `34.01`). Numbers ARE the identity — slug, URL, and wikilink are all the number. Routes are flat-by-basename (`/34.01_modes-and-traits`). ~25 pages today, must scale to ~100 and to declared-but-empty areas/categories (*planned*).
+- **Johnny-Decimal content model.** 3 levels: **Area** (decade `30–39`) → **Category** (`34`) → **Item** (page `34.01`). Numbers ARE the identity — slug, URL, and wikilink are all the number. Routes are flat-by-basename (`/34.01_modes-and-traits`). 33 pages today — all **placeholder scaffold** (real headings, filler prose, live component specimens); must scale to ~100 and to declared-but-empty areas/categories (*planned*).
 - **The signature feature: build-capture-inline / tangle-1:1.** Doc code fences with `tangle=…` are written to disk at build; a capture runner executes each example and inlines its real output. `<Source>` shows the exact source, `<Example>` shows its captured stdout, `<Trace>` shows a captured span (a real runtime primitive) as a depth-nested tree, `<Editor>` is a live CodeMirror+vim playground. **This "the docs run the real system and show you the real output" story is the brand — design it like it matters.**
 - **Identity:** Vivalence — an AI-era symbolic OS. Logo is the plasma "viket-chevron" (`public/vivalence-viket-logo-plasma.png`). Accent is purple. Voice: precise, technical, Emacs-hacker-meets-premium, numbered/systematic. Totems: *Less is More · Code is Data · Schema is God.* Let the design echo that: systematic, dense, calm, exact.
 
@@ -25,13 +25,13 @@ This is a **visual/UX task on a static site.** No backend, no content rewrites. 
 - `documentation/src/layouts/Layout.astro` — the whole chrome: data prep, `<style is:global>` (tokens + every rule below), sidebar markup, TOC, breadcrumbs, connections, pager, inline `<script>`.
 
 **Also in scope (small, restyle as needed):**
-- `documentation/src/pages/jdex.astro` — the `/jdex` index page (its own `<style>` block).
-- `documentation/src/pages/index.mdx` — the homepage content.
+- `documentation/src/pages/jdex.astro` — the `/jdex` route: renders the JD fold; its hero words come from `content/_site/jdex.mdx`.
+- `documentation/src/components/Home.astro` — the homepage markup; its words and lists come from `content/_site/home.mdx`.
 - `documentation/src/components/Example.astro`, `Source.astro`, `Trace.astro`, `Tabs.astro`, `Editor.astro` — the capture/interaction components (markup + they rely on classes defined in Layout's global CSS).
 
-**Read for the data model (don't edit):** `src/lib/jdex.js`, `src/lib/tree.js` (shapes in §5).
+**Read for the data model (don't edit):** `src/lib/jdex.js`, `src/lib/tree.js` (shapes in §5), `src/lib/trace.js` (the span-record fold shared by `Trace.astro` and the homepage mini-trace).
 
-**Do NOT touch:** `content/**` (the 25 pages — you may assume their markdown; don't rewrite them), `src/content.config.ts`, `astro.config.mjs`, `deno.jsonc`, `src/tangle.js`, `subsystems/**`, `registry/**`, `public/pagefind/**` (generated search index).
+**Do NOT touch:** `content/**` (33 scaffold pages plus `content/_site/` — the prose is deliberate filler; design against it, don't rewrite it), `src/content.config.ts`, `astro.config.mjs`, `deno.jsonc`, `src/tangle.js`, `subsystems/**`, `registry/**`, `public/pagefind/**` (generated search index).
 
 ---
 
@@ -138,7 +138,7 @@ Goals: a crisp sidebar header — brand lockup, a good **search field** (cmd-K h
 Current: `jdex.astro` renders the whole JD map — every area → category → item, empties shown as *"— planned"*, reserved areas as *"reserved."* Its own small `<style>`.
 Goals: make this a **beautiful, canonical index** — the "map of everything, including what's planned." It's a signature page (the JD system made visible). Give it real design: area cards or columns, clear planned-vs-live states, the numbering celebrated.
 
-### N. Homepage (`index.mdx`)
+### N. Homepage (`Home.astro` + `content/_site/home.mdx`)
 Current: plain H1 + intro paragraph + grouped wikilink lists (about / architecture / repository & practice) + link to `/jdex`.
 Goals: a proper **landing** — a strong hero (what Vivalence docs are), clear entry points (start-here, the pillars), a nod to the live-examples/JD system. Still content-driven MDX, but designed.
 
@@ -199,7 +199,7 @@ Recommendation to beat: **A or C**. Non-negotiable regardless: one aligned numbe
 ---
 
 ## 11. Constraints (hard)
-- **Self-contained**: all CSS in the one `<style is:global>` (plus jdex.astro's scoped block); all behaviour in the one inline `<script>` (+ the existing CodeMirror component). No new npm UI deps, no external stylesheets/fonts/CDN, no bundler plugins (Astro-on-Deno rejects them). The CodeMirror editor is the only bundled-JS component — leave its imports intact.
+- **Self-contained**: all CSS in the one `<style is:global>` (jdex.astro has no scoped block); all behaviour in the one inline `<script>` (+ the existing CodeMirror component). No new npm UI deps, no external stylesheets/fonts/CDN, no bundler plugins (Astro-on-Deno rejects them). The CodeMirror editor is the only bundled-JS component — leave its imports intact.
 - **No authored comments** in shipped code. Firm.
 - **No abbreviations** in JS identifiers (`category` not `cat`).
 - **Native-first**: `<details>` for folds; vanilla JS + `localStorage` for enhancements (theme toggle is the pattern).
@@ -209,10 +209,10 @@ Recommendation to beat: **A or C**. Non-negotiable regardless: one aligned numbe
 ---
 
 ## 12. Workflow
-1. Read `Layout.astro` fully (data prep · the entire `<style>` · sidebar/TOC/breadcrumb/connections/pager markup · inline script). Read `jdex.astro`, `index.mdx`, and the 5 components. Read `jdex.js`/`tree.js` for shapes.
+1. Read `Layout.astro` fully (data prep · the entire `<style>` · sidebar/TOC/breadcrumb/connections/pager markup · inline script). Read `jdex.astro`, `Home.astro`, and the 5 capture components. Read `jdex.js`/`tree.js` for shapes.
 2. Design the **systems first** (§3: color, type, spacing, measure, motion), then apply them surface by surface (§4).
 3. Commit to a sidebar IA option (§9). Implement.
 4. `cd documentation && deno task build` → expect **27 pages, exit 0**. If Chrome automation is unavailable, sanity-grep the built CSS/markup (fold structure present, number-gutter CSS present, tokens defined, search slot intact).
 5. Report: the design language chosen (color/type/spacing decisions), the sidebar option + why, the capability set implemented vs deferred, per-surface changes, and how you verified. Flag everything a human should eyeball at `deno task run` → `http://127.0.0.1:4321` (light + dark, wide + mobile).
 
-Deliverables: edited `Layout.astro` (primary), plus `jdex.astro`, `index.mdx`, and the components as needed. Make the whole thing feel designed, systematic, and unmistakably Vivalence.
+Deliverables: edited `Layout.astro` (primary), plus `jdex.astro`, `Home.astro`, and the components as needed. Make the whole thing feel designed, systematic, and unmistakably Vivalence.

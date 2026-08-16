@@ -17,12 +17,12 @@
     toolBuffers,
     toolDigest,
     turnCensus,
-    turnDigest,
     scalarPairs,
     bufferLabel,
     turnClipboard,
     turnManifest,
     sessionUsage,
+    contextSize,
     tokens,
   } from "./turns.js";
 
@@ -156,7 +156,6 @@
       think: turnThinking(turn),
       tools,
       census: turnCensus(tools),
-      digest: turnDigest(tools),
       failures: tools.filter((tool) => tool.status === "error").length,
       artifacts: turnArtifacts(turn),
       buffers: toolBuffers(tools),
@@ -374,6 +373,7 @@
       })),
   );
   const spend = $derived(sessionUsage(turns));
+  const held = $derived(contextSize(turns));
   // every entity the session touched, summed — a count, so it lives in the console
   const harvest = $derived(turnCensus(exchanges.flatMap((item) => item.tools)));
 </script>
@@ -391,9 +391,6 @@
       <span class="call-name">{tool.name}</span>
       <span class="call-args">{tool.digest}</span>
       <span class="grow"></span>
-      {#each tool.census as entry (entry.type)}
-        <span class="chip">{entry.type} ×{entry.count}</span>
-      {/each}
       {#if !running}
         <span class="call-status {tool.status}">{tool.status}</span>
       {/if}
@@ -531,7 +528,7 @@
     </div>
   {/if}
 
-  <div class="sweep">{#if busy}<span></span>{/if}</div>
+  <div class="sweep"></div>
 
   <div class="split" class:narrow>
   <div class="stream">
@@ -546,17 +543,14 @@
         <div class="entry" class:user={turn.role === "user"} class:agent={turn.role === "assistant"}>
           <div class="entry-meta">
             {#if turn.role === "assistant"}
-              <button type="button" class="head" class:inert={!rich} onclick={() => rich && toggle(fold, true)}>
-                {#if rich}<span class="fold">{caret(fold, true)}</span>{/if}
+              <button type="button" class="head" class:inert={!rich} onclick={() => rich && toggle(fold)}>
+                {#if rich}<span class="fold">{caret(fold)}</span>{/if}
                 <span class="diamond">◆</span>
                 <span class="who">{thread?.label?.name ?? "agent"}</span>
                 {#if item.date}<span class="time" title={item.date.toLocaleString()}>{clockTime(item.date)}</span>{/if}
                 {#if item.think}<span class="tool-count">thought</span>{/if}
                 {#if item.tools.length}<span class="tool-count">{item.tools.length} {item.tools.length === 1 ? "tool" : "tools"}</span>{/if}
-                {#if !isOpen(fold, true)}
-                  {#each item.digest as entry (entry.type)}
-                    <span class="chip">{entry.type} ×{entry.count}</span>
-                  {/each}
+                {#if !isOpen(fold)}
                   {#if item.failures}<span class="chip bad">{item.failures} failed</span>{/if}
                 {/if}
               </button>
@@ -571,7 +565,7 @@
               {/if}
             </span>
           </div>
-          {#if rich && isOpen(fold, true)}
+          {#if rich && isOpen(fold)}
             <div class="activity">{@render activity(item, turn.id)}</div>
           {/if}
           {@render chips(item)}
@@ -614,12 +608,12 @@
         {/if}
       </div>
     {:else if isThinking}
-      <div class="entry agent thinking-entry">
+      <div class="entry agent streaming-entry">
         <div class="entry-meta">
           <span class="diamond">◆</span>
           <span class="who">{thread?.label?.name ?? "agent"}</span>
+          <span class="time"><span class="dot"></span><span class="dot"></span><span class="dot"></span></span>
         </div>
-        <div class="text thinking-text"><span class="dot"></span><span class="dot"></span><span class="dot"></span></div>
       </div>
     {/if}
 
@@ -718,6 +712,7 @@
             {#if spend.seen}
               <span>tokens in</span><span>{tokens(spend.input)}</span>
               <span>tokens out</span><span>{tokens(spend.output)}</span>
+              {#if held != null}<span>context</span><span>{tokens(held)}</span>{/if}
             {/if}
             {#if busy}<span>elapsed</span><span>{elapsedLabel}</span>{/if}
           </div>
@@ -995,18 +990,6 @@
     overflow: hidden;
     position: relative;
   }
-  .sweep span {
-    position: absolute;
-    inset: 0 auto 0 0;
-    width: 24%;
-    background: var(--colors-skeleton-0-primary-base);
-    animation: sweep 1.6s ease-in-out infinite;
-  }
-  @keyframes sweep {
-    0% { transform: translateX(-100%); }
-    100% { transform: translateX(340%); }
-  }
-
   .split {
     flex: 1;
     min-height: 0;
@@ -1542,8 +1525,7 @@
   }
 
   .streaming-entry .time .dot,
-  .state.thinking .dot,
-  .thinking-text .dot {
+  .state.thinking .dot {
     display: inline-block;
     width: 4px;
     height: 4px;
@@ -1553,11 +1535,9 @@
     animation: dot-pulse 1.2s ease-in-out infinite;
   }
   .streaming-entry .time .dot:nth-child(2),
-  .state.thinking .dot:nth-of-type(2),
-  .thinking-text .dot:nth-child(2) { animation-delay: 0.2s; }
+  .state.thinking .dot:nth-of-type(2) { animation-delay: 0.2s; }
   .streaming-entry .time .dot:nth-child(3),
-  .state.thinking .dot:nth-of-type(3),
-  .thinking-text .dot:nth-child(3) { animation-delay: 0.4s; }
+  .state.thinking .dot:nth-of-type(3) { animation-delay: 0.4s; }
   @keyframes dot-pulse {
     0%, 80%, 100% { opacity: 0.3; transform: scale(0.85); }
     40% { opacity: 1; transform: scale(1); }

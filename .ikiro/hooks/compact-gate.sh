@@ -23,12 +23,18 @@ fi
 cat >&2 <<'GATE'
 ikiro compact ritual has not run this session.
 
-Fold the session FIRST, then /compact again (the retry is never blocked):
-  1. write .ikiro/compacts/<topic-slug>.org   — NO dates in the slug, beef verbatim preserved
-  2. memory: new/updated facts + MEMORY.md pointer
-  3. .ikiro/zettelkasten.md — Open / Callouts
-  4. .ikiro/world/frontier.md — what is live now
+Fold the session FIRST, then /compact again (the retry is never blocked).
 
-Canon: .ikiro/self/rituals.md ## the scribe's duties
+WALK it, do not recall it — recall is where the recency bias comes from:
+  0. spine   run the extractor in .ikiro/methods/compact.md -> N beef turns,
+             numbered, INCLUDING queue-operation mid-turn ones a user-walk misses
+  1. rows    oldest-first, ~4 turns per window; every n in 1..N accounted for,
+             "NOTHING" written where a turn carried nothing durable
+  2. compact write .ikiro/compacts/<topic-slug>.org — NO dates, beef verbatim;
+             fill each section from the WHOLE table, not top-to-bottom
+  3. balance >half the citations in the last third of N = bias survived, redo
+  4. then    memory + MEMORY.md pointer · zettelkasten Open/Callouts · frontier
+
+Canon: .ikiro/methods/compact.md · .ikiro/self/rituals.md ## the scribe's duties
 GATE
 exit 2

@@ -10,9 +10,14 @@ export class DataEntity extends BaseEntity {
 
 export class DataRepository extends EntityRepository {
   unique(x) {
-    // probably ought to be able to compute this from entity schema.
-    console.log(`${this.constructor.name} needs custom .unique()`);
-    return x;
+    // derived from the schema's declared identity; override only when the schema can't say it.
+    const declared = this.em.getMetadata().find(this.entityName)?.uniques?.[0]?.properties;
+    if (!declared) {
+      console.log(`${this.constructor.name} declares no unique — schema uniques or custom .unique()`);
+      return x;
+    }
+    const keys = [declared].flat().filter((key) => x[key] !== undefined);
+    return keys.length ? Object.fromEntries(keys.map((key) => [key, x[key]])) : x;
   }
 
   get card() {

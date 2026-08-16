@@ -9,7 +9,7 @@ export const flashcard = new Vector().open(
     }),
   },
   async (ctx) => {
-    const buffer = await ctx.daemon.modes.game["rep-o-gram"].emit.flashcard.feed({
+    const buffer = await ctx.daemon.modes.game["dojo"].emit.flashcard.feed({
       count: ctx.input.count,
       thread: ctx.input.thread,
     });

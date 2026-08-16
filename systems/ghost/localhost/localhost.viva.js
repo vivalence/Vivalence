@@ -80,7 +80,10 @@ export const daemons = [
     },
 
     statics: {
-      language: { known: "english", learning: "brazilian" },
+      language: {
+        known: { slug: "english", name: "English" },
+        learning: { slug: "brazilian", name: "Português" },
+      },
     },
 
     kernel: [
@@ -89,11 +92,10 @@ export const daemons = [
       "@vivalence/ontology/sentence",
       "@vivalence/ontology/conjugation",
       "@vivalence/corpus/english-to-brazilian",
-      "@vivalence/game/rep-o-gram",
+      "@vivalence/game/dojo",
       "@vivalence/game/judge",
       "@vivalence/game/match",
       "@vivalence/game/cloze",
-      "@vivalence/game/paradigm",
       "@vivalence/game/exhibit",
       "@vivalence/tactic/five-fold-session",
       "@vivalence/tactic/clinic",

@@ -256,7 +256,9 @@
 <style>
   .overlay {
     position: fixed;
-    top: 16px; right: 16px; bottom: 16px;
+    top: calc(16px + var(--safe-area-top));
+    right: calc(16px + var(--safe-area-right));
+    bottom: calc(16px + var(--safe-area-bottom));
     width: min(380px, calc(100vw - 32px));
     background: var(--colors-skeleton-0-surface);
     color: var(--colors-skeleton-1-contrast);
@@ -277,7 +279,7 @@
     flex-shrink: 0;
   }
   .stream, .detail {
-    flex: 1; overflow-y: auto; padding: 0;
+    flex: 1; overflow-y: auto; overflow-x: hidden; padding: 0;
     font-size: var(--font-size-xs); -webkit-overflow-scrolling: touch;
   }
 
@@ -470,5 +472,13 @@
     padding: 0 10px; color: var(--colors-skeleton-2-contrast);
   }
   .btn.close:hover { background: var(--colors-skeleton-0-danger-base); color: var(--colors-skeleton-0-danger-base); }
-  @media (max-width: 600px) { .overlay { left: 12px; right: 12px; width: auto; } }
+  @media (max-width: 600px) {
+    .overlay {
+      left: calc(12px + var(--safe-area-left));
+      right: calc(12px + var(--safe-area-right));
+      width: auto;
+    }
+    .btn.close { height: 44px; min-width: 44px; }
+    .btn.back { height: 44px; min-width: 44px; }
+  }
 </style>

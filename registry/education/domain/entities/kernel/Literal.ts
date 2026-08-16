@@ -54,6 +54,11 @@ export class LiteralRepository extends base.repository {
     ];
   }
 
+  owner() {
+    const params = this.getEntityManager().getContext().getFilterParams("user") as any;
+    return params?.user ? { user: params.user } : {};
+  }
+
   constrain(where: any) {
     if (!where || !is.array(where.symbols)) return where;
     const { symbols, ...rest } = where;
@@ -78,7 +83,7 @@ export class LiteralRepository extends base.repository {
   async novel(where: any, opts?: any) {
     const { limit, blacklist, populate } = opts || {};
     const filter = object.merge(
-      { retentions: { $none: {} } },
+      { retentions: { $none: this.owner() } },
       { id: { $nin: blacklist?.literals || [] } },
       this.constrain(where),
     );
@@ -88,7 +93,7 @@ export class LiteralRepository extends base.repository {
   async due(where: any, opts?: any) {
     const { limit, blacklist, populate } = opts || {};
     const filter = object.merge(
-      { retentions: { nextAt: { $lt: new Date() } } },
+      { retentions: { nextAt: { $lt: new Date() }, ...this.owner() } },
       { id: { $nin: blacklist?.literals || [] } },
       this.constrain(where),
     );
@@ -101,7 +106,7 @@ export class LiteralRepository extends base.repository {
   async byStrength(where: any, opts?: any) {
     const { limit, blacklist, populate } = opts || {};
     return this.find(
-      object.merge({ retentions: {} }, { id: { $nin: blacklist?.literals || [] } }, this.constrain(where)),
+      object.merge({ retentions: { $some: this.owner() } }, { id: { $nin: blacklist?.literals || [] } }, this.constrain(where)),
       {
         populate: populate ? [...populate, "retentions"] : ["retentions"],
         orderBy: { retentions: { strength: "ASC" } },
@@ -114,7 +119,7 @@ export class LiteralRepository extends base.repository {
     const { limit, blacklist, populate } = opts || {};
     return this.find(
       object.merge(
-        { retentions: { lastSignal: { $in: signals } } },
+        { retentions: { lastSignal: { $in: signals }, ...this.owner() } },
         { id: { $nin: blacklist?.literals || [] } },
         this.constrain(where),
       ),
@@ -129,7 +134,7 @@ export class LiteralRepository extends base.repository {
     const { status, limit, blacklist, populate } = opts || {};
     return this.find(
       object.merge(
-        status ? { retentions: { status: { $in: status } } } : { retentions: {} },
+        status ? { retentions: { status: { $in: status }, ...this.owner() } } : { retentions: { $some: this.owner() } },
         { id: { $nin: blacklist?.literals || [] } },
         this.constrain(where),
       ),
@@ -142,9 +147,19 @@ export class LiteralRepository extends base.repository {
   }
 }
 
+export const UNRANKED = 999999;
+
+export const rankOf = (trait: any): number => {
+  const ranked = trait?.RANKED;
+  if (!ranked) return UNRANKED;
+  if (Number.isInteger(ranked.rank) && ranked.rank >= 1) return ranked.rank;
+  if (typeof ranked.zipf === "number" && ranked.zipf > 0) return Math.round(10 ** (9 - ranked.zipf));
+  return UNRANKED;
+};
+
 export class LiteralEntity extends base.entity {
   traits: LiteralTraitsEnum[] & Opt = [];
-  rank: number & Opt = 999999;
+  rank: number & Opt = UNRANKED;
   // strength: ---
   retentions = new Collection<RetentionEntity>(this);
   [EntityRepositoryType]?: LiteralRepository;
@@ -257,6 +272,7 @@ export const LiteralSchema = new EntitySchema({
       kind: "1:m",
       entity: () => RetentionEntity,
       mappedBy: (retention) => retention.literal,
+      strategy: "select-in",
     },
   },
 });
@@ -267,11 +283,11 @@ export class LiteralSubscriber implements EventSubscriber<LiteralEntity> {
   }
 
   beforeCreate({ entity }: EventArgs<LiteralEntity>) {
-    entity.rank = entity.trait?.RANKED?.rank ?? 999999;
+    entity.rank = rankOf(entity.trait);
   }
 
   beforeUpdate({ entity }: EventArgs<LiteralEntity>) {
-    entity.rank = entity.trait?.RANKED?.rank ?? 999999;
+    entity.rank = rankOf(entity.trait);
   }
 
   async afterFlush({ em, uow }: FlushEventArgs) {

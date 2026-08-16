@@ -1,0 +1,129 @@
+#+title: the designer returns a drawer, the query engine is widened to everything both repositories speak, the drawer lands in one evening, and beef drives it live until the runtime eats sixteen gigabytes
+#+filetags: :m34:m24:dojo:drawer:design-import:repository-grammar:symbols:traits:streams:kajuit:svelte:responsive:aperture:mikro-orm:memory:known-issue:
+
+* arc
+
+beef wakes ikiro with a design in hand — the designer's =Dojo.dc.html= (a drawer pulled down
+over the player: library · build · the set · gameplay) — and stops the first reflex twice:
+/"dont jsut go into it. read the compact, read the past quests on the dojo/repogram.
+understand what is why. and only then go into exec. i am here for Questions."/ The wake
+reads compact 20 and 34 and the whole m24 quest (whose corrective rule — the design IS the
+commission — governs the day), decodes the =.dc.html= and its concept sheet, reads the
+repositories, and comes back with what/why/how and five questions. beef answers them in one
+breath and widens the brief: the query engine must expose /"what the repositories provide -
+domain and runtime … literal and symbol on both"/, responsive at /"any width or screen
+size"/, cap a parameter, no inspector, saved sets whole in localStorage, the assistant
+benched /"but comment it out"/, and the bins are mine to redesign — /"you can go above 3
+buckets … the agent that build the design didnt have all the facts and youre smarter, fable."/
+Then /"go do the whole thing."/ Server first (grammar, streams, =/count /symbols /traits=,
+=omit= dies, the assistant benched behind an =@beef= block), then the Svelte — eight parts,
+three tiers, one orchestrator — verified live on the italian daemon through the browser.
+beef drives it and calls adjustments mid-flight: draggable walls (columns, the drawer's
+height, the form/results split) persisted in the mode's localStorage; gameplay/prompt/recall
+multi-select again; streak and limit as typeable ± steppers among the axes; the resolves
+list capped at 50 with its own stepper; an "end" beside start; cap default 10. All land.
+Then the runtime climbs to 16 GB on his machine — /"document this. dont tackle the memory
+issue now"/ — chrome is taken away, and the fold is called.
+
+* the walk
+
+| n | beef (verbatim where it decides) | landed |
+|---|---|---|
+| 1–59 | the previous arc | covered by [[the-dojo-is-recast-into-declared-sets-the-facet-law-dies-twice-the-repository-grammar-speaks-for-itself-and-the-console-lands-impenetrable-so-a-designer-gets-a-briefing]] (recast, verdict, briefing, that fold). |
+| 60 | /compact | NOTHING |
+| 61 | continuation summary (system) | NOTHING — context fold. |
+| 62 | /"Use the claude_design MCP … Implement: Dojo.dc.html … ikiro wake. we now have a design for the dojo setup."/ + two screenshots (63, 64: desktop drawer, phone stubs) | Wake begun: kernel, frontier, methods listed. |
+| 65 | /"think what to implement, why, and how."/ (mid-turn) | Deliverable pinned as reasoning, not code. |
+| 66–70 | /"dont jsut go into it"/ · /"read the compact, read the past quests on the dojo/repogram"/ · /"understand what is why"/ · /"and only then go into exec"/ · /"i am here for Questions"/ (mid-turn, five in a row) | READ: compact 20 (recast) whole, compact 34 (buffer-is-the-dojo) whole, m24 quest whole (1336 lines — the design-IS-the-commission rule, the shell failure, the focus law), the dc-decode compact head, =Dojo.dc.html= whole + concept sheet + wireframes text + =corpus.js= + =github.md=, current dojo code (types, set/, aperture, Dojo.svelte, hal). Report: what each region is FOR, why it answers the two verdicts, the 1:1 model mapping, server delta, client file plan, adjustments flagged, five questions + one small. |
+| 71–75 | the same five lines re-sent (queue replay) | NOTHING — duplicates. |
+| 76 | /"so. i watn the query engine that we now have a design for to be adapted closely to what the repositories provide - domain and runtime. only becasue there aint a consumer today aint reason to not do it. … the whole thing outght to be responsive. any width or screen size. be smart here. 2. Cap off: - cap should be a parameter. 200 is a good default. 1. … its a design. ui and ux. content is your perview. you control content. adapt and integrate. 3. Inspector - no more inspector. 4. … the whole set is saved adn in localstorage. maybe in the threads in the future or maybe notes once we implement them. 5. bench the assistant for today. build it but comment it out. keep it in the compact and quest. future music. Small: … align with what the repo's offer us. you can go above 3 buckets. you design this. remember, its a design not an implementation. the agent that build the design didnt have all the facts and youre smarter, fable. go"/ | DECIDED, all six. Quest the m34 quest file (DELETED — mXX quests are Finn's) written first (desired end state, the grammar table, tiers, benched). |
+| 77 | /"go do the whole thing"/ (mid-turn) | GO confirmed for server + client. |
+| 78–80 | /"literal repo too!"/ · /"literal and symbol on both runtime and domain!"/ (mid-turn) | Grammar census: runtime =LiteralRepository= (=symbols= array/{$all,$in,$none} · =search=), =DataRepository= (=traits= string/[]/{$contains,$overlap,$none}), domain =LiteralRepository= (=feed due novel byStrength byLastSignal(signals) sample({status})= · =card= · =constrain=), runtime = domain =SymbolRepository= (slug · =trait.LABELED.name= · traits ONTOLOGICAL/STRUCTURAL/TOPOGRAPHICAL). Server landed: =types= (PICKS renamed to the repo's own words, =signals=/=status= on the clause, =traits= object form, =omit= gone) · =set/where= · =set/picks= (retentions populated → =status= on rows; =count= exported) · =set/describe= (=label=) · aperture =/count= · =/symbols {search,traits,limit}= through the symbol repository · =/traits= · =/resolve= rows + slug/rank/status · =/provision= benched (=@beef= block, hal contract → ={reply, clause?, axes?}=) · fixture retentions =lastSignal=. Tests rewritten: 8 suites / 37 steps green. |
+| 81 | /"very good, continue. i believe in you!"/ (mid-turn) | NOTHING durable. |
+| 82 | /"ahaem where is the svelte parts?? that coming? substance before presentation? or you forgot bout that whole thing?"/ (mid-turn) | Client written: =Segment= · =Builder= (tabs by symbol/by literal · 01 find with kind filter · 02 three bins taking symbol AND trait chips, click-to-aimed + drag · 03 take = the streams, byLastSignal/sample open their toggles · cap · 04 window rank/text · resolves-to rows with status · add/update · pin) · =Clauses= (cards, save-as, clear) · =Gameplay= (start · presets · axes) · =Library= (saved · recents · assistant commented) · =Drawer= (tiers, rail, stubs, close bar) · =Handle= · =Standby= secondary action · =Dojo.svelte= rewritten (drawer over player, tiers, phases, panes/recents/saved in =viva.mode.dojo=). DEAD: Console · Set · Header · Inspector · Keymap · shell.svelte.js. All compile. |
+| 83–84 | /"continue"/ ×3 (one interrupted) | Runtime + kajuit dev started; italian daemon up; first live screenshots — it renders (medium tier at 989 px, short → drawer 100%). |
+| 85 | task notification | NOTHING |
+| 86–87 | /"few adjustments. i want the walls to be dragable and the state to be stored in the modes localstorage"/ · /"and"/ (mid-turn) | Queued. |
+| 88 | screenshot /"alignment here is wrong"/ (mid-turn) | Cause found live: a GLOBAL kajuit rule =section .row { display:flex }= hijacked the axis rows → =.axis=. |
+| 89 | /"gameplay prompt and recall should also be multi select like we had before"/ | =prompt= became a POOL (schema union, =types.listening()=, =knowables.promptFor()= per knowable among what it can resolve, =Rep=/=Prompt= read =knowable.prompt=); segments toggle membership, empty = whole pool. |
+| 90 | /"streak and limit should live at the top and both be direct number selectors with + and - increments by 1 / 10 on shift click"/ | =Stepper.svelte= (typeable, ↑↓, shift ×10); streak · reps · min. |
+| 91–92 | screenshot /"this should be capped at 50 with a number controller as well"/ · /"the number controllers besides the +- should be typeable"/ | =view= stepper (50) over the resolves list; all steppers typeable. |
+| 93–96 | /"besides start - when in session - i need a clear button"/ · /"just ending the session."/ · /"such that the lock disaapearss"/ · /"not the selections"/ | =stop()= — phase idle, queue kept, set/axes untouched; "end" beside start in every start area. |
+| 97 | the same list consolidated (mid-turn) | Cross-checked; walls not yet done. |
+| 98 | /"teh walls dragable walls meaning hte drawer itself, the sections vertical lines, and the line between the symbol selector and the resulting list of literals"/ | Three wall kinds: column walls (library/set/gameplay/side, px), drawer height (drag the close bar; click still closes, 4 px slop), builder split (form/results px) — all in =panes= under =viva.mode.dojo=. |
+| 99 | screenshot /"stream and limit still are axes. below presets, above gameplay. harmonize the design a bit too. layout and sizing dont work out at all."/ | Streak + limit moved into the axes list as rows (key · note · steppers), sizes unified (segment = stepper = 1.75 rem). |
+| 100–101 | /"whats the difference between the two counters here?"/ · /"and whats this section do?"/ (screenshots) | Answered: CAP = what the clause pulls (persisted) vs SHOW = rows rendered (display only); 04 WINDOW = the repository's =rank= window + =search=. |
+| 102 | /"if this is the amoutn of literals to pull into set - the cap - then start at 10 default not 200. … if this is the number of literals getting displayed then remove the highlight color and sync the number here"/ | Draft cap = 10 explicit per clause (schema ceiling stays 200); steppers unlit unless meaningful; header note "showing N · of M matched · pick · cap C · rule". |
+| 103–107 | /"ok. issue. for some reason the runtime now causes issues with memory. it runs up to 16 GB on my 16gb ram machine."/ · /"had to stop the runtiem"/ · /"over this"/ · /"i suspect it happens on query?! maybe there is a leak, maybe the queries arent canceled? maybe there is a reactivity issue"/ · /"document this. dont tackle the memory issue now"/ | =known-issues.org= + =runtime memory runs to 16 GB while the dojo drawer is driven — OPEN=: symptom, the =0 rows / 1938 counted= preview seen in the same minutes, four suspects (un-aborted per-keystroke queries · =populate retentions= + limit on =all= · =sample= without status · shared em identity map), where to start. Not tackled. |
+| 108 | /"fix up all the design stuff, everything ive mentioned up and including this … then we do an ikiro compact"/ | Every item 86–102 re-checked landed; compile clean; dojo 8/37; runtime 50/320. |
+| 109 | /"i have taken away chrome."/ | Browser driving ends; narrow tier unseen live. |
+| 110 | task notification (runtime suite green) | NOTHING |
+| 111 | /"prepare for ikiro compact"/ | this fold. |
+
+Coverage 111/111 (1–59 by reference). Balance: design read + questions 62–75, decisions + server
+76–80, client 82–84, live adjustments 86–102, memory + close 103–111 — the middle third holds
+the build, the last third holds beef's live verdicts because that is when he drove it.
+
+* what the repositories provide, and what the drawer now speaks
+
+The brief was one sentence — /"adapted closely to what the repositories provide - domain
+and runtime … literal and symbol on both"/ — and the census is the whole design:
+
+- runtime =LiteralRepository=: =symbols= (array = AND · ={$all,$in,$none}=), =search= over slug + both translations.
+- runtime =DataRepository= (base of literal AND symbol): =traits= string · [] · ={$contains,$overlap,$none}=.
+- domain =LiteralRepository=: =feed · due · novel · byStrength · byLastSignal(signals) · sample({status})=, =card= (status from the user's retention), =constrain=.
+- symbol repository (runtime = domain): =slug=, =trait.LABELED.name=, =traits= ONTOLOGICAL/STRUCTURAL/TOPOGRAPHICAL, =findByIdentifiers=.
+- entity fields: =ontology= (already a TOPOGRAPHICAL symbol chip), =rank=.
+
+So the three bins take symbol chips AND trait chips — the two grammars have the same three
+buckets, and one gesture carries both (=symbols.$all · traits.$contains= / =$in · $overlap= /
+=$none · $none=, printed under each bin as the stored keys, not the design's =$every=). Take
+= the domain streams by their own names (=by strength=, =last signal= with signal toggles,
+=sample= with status toggles). 04 window = =rank= and =search=. Symbol search is the symbol
+repository's own =find= (slug LIKE, LABELED name LIKE, =traits.$overlap= kind filter),
+server-side per keystroke — the 2600-row payload of yesterday is gone. Nothing was invented;
+=omit= died because nothing in the design or the repositories asks for it.
+
+* the drawer — what changed against the mock, and why
+
+The mock is the commission (m24's rule); the deviations are content, which beef made mine:
+all eight presets, not six; multi-select pools on gameplay/prompt/recall because the machine
+already draws per knowable; streak and limit as typeable steppers, not fixed chips (beef);
+the =preview= axis row (shadow is emitter API); the assistant benched behind an =@beef=
+block; no "N overlap dropped" (the resolver dedups); the player is OURS (Rep, chips, judge),
+only the handle, the 2 px progress strip, the idle and done cards are the mock's. Responsive
+by the SHELL's width, never the window: narrow < 700 one space + stubs, medium < 1040 build +
+a side column with set|gameplay tabs, wide all four; height < 520 the drawer is 100 %.
+Every wall drags and persists.
+
+* the live half
+
+Chrome drove it on the italian daemon: =word.tense.present= into ALL, =lemma.essere= and
+=lemma.fare= into ANY → =24 of 28 matched · all · present · (essere ∨ fare)= — beef's own
+example from the recast session, resolving live in the drawer. Also found live: a global
+=section .row= rule in kajuit restyling any =.row= inside a =<section>= (renamed =.axis=),
+the vite SSR module runner losing =chronicle= after a runtime restart (kajuit dev restarted),
+and beef's 16 GB.
+
+* state at fold
+
+- Code: server + client LANDED, dojo 8 suites / 37 steps, runtime 50 / 320, every view
+  compiles. Not committed — VCS is beef's.
+- Ikiro: quest the m34 quest file (DELETED — mXX quests are Finn's) (IMPLEMENTED, open list) · known-issues =runtime memory
+  runs to 16 GB= · this compact · index · frontier · memory.
+- Benched: ✦ assistant — aperture route + hal + Library block, all commented; revive contract
+  ={reply, clause?, axes?}= (one rule into the builder).
+- Open: the memory issue (documented, beef's call when) · =0 rows / 1938 counted= seen once
+  (same suspects) · narrow tier unseen live · streams count paradigms, rows show forms · the
+  =/setup= write per keystroke-free path is fine, but every builder keystroke still fires
+  =/symbols=, =/resolve=, =/count= without cancellation.
+
+* resumption
+
+1. Memory: reproduce with =ps= open while typing a wide =all= rule; compare =/resolve= with
+   and without =populate: retentions=; then cancellation on the client (see known-issues).
+2. Drive narrow (< 700) and wide (≥ 1040) tiers live; the walls, the drawer height, the
+   split — all persisted, none seen twice.
+3. Play half against a materialized set: streak, continuous refill via =/resolve= + played
+   blacklist, AUDIO pool per knowable, "end" mid-session.
+4. Revive the assistant when beef says so.

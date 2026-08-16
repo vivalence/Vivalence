@@ -1,4 +1,5 @@
 #+TITLE: The ikiro tree is cut to a fifth, six of eight auto-loading shards turn out to be carrying false claims, and the flywheel's own clock breaks with the compacts it counted
+#+filetags: :compact:audit:callout:bak:
 
 * Arc
 

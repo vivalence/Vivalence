@@ -105,7 +105,7 @@ Out of scope. Do not attempt without explicit user instruction — overwriting p
 
 ## Compose context
 
-The volume is declared in `registry/wafers/@vivalence/variant/multiplayer/docker-compose.yml`:
+The volume is declared in `registry/viva/variant/multiplayer/docker-compose.yml`:
 
 ```yaml
 volumes:

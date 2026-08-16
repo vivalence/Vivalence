@@ -6,6 +6,7 @@ const ACTIVE_KEY = "viva.terminals.active";
 
 const ABSENT = Symbol("absent");
 const UNREACHABLE = Symbol("unreachable");
+const PENDING = Symbol("pending");
 
 const named = (outcome) =>
   outcome === ABSENT ? "absent" : outcome === UNREACHABLE ? "unreachable" : "resolved";
@@ -76,14 +77,14 @@ export function persist({ terminals }) {
 
 export function settle({ terminals, lighthouse }) {
   const restore = async (entityName, id, options) => {
-    let reachable = false;
-    for (const daemon of lighthouse.$daemons.get()) {
-      if (!daemon.status.is("healthy")) continue;
-      const repository = daemon?.entities?.[entityName];
-      if (!repository) continue;
+    const daemons = lighthouse.$daemons
+      .get()
+      .filter((daemon) => daemon.status.is("healthy") && daemon?.entities?.[entityName]);
+    if (!daemons.length) return PENDING;
+    for (const daemon of daemons) {
+      const repository = daemon.entities[entityName];
       try {
         const entity = await repository.findOne({ id }, options);
-        reachable = true;
         if (entity) {
           repository.resolve?.(entity);
           return entity;
@@ -93,15 +94,15 @@ export function settle({ terminals, lighthouse }) {
         return UNREACHABLE;
       }
     }
-    return reachable ? ABSENT : UNREACHABLE;
+    return ABSENT;
   };
 
   const pass = async () => {
     let settling = null;
+    const record = (data) => (settling ??= logger.entry("settle").open()).note(data);
     for (const terminal of terminals.entities) {
       const remainder = serialized.get(terminal.id);
       if (!remainder) continue;
-      settling ??= logger.entry("settle").open();
       if (remainder.thread) {
         if (terminal.thread) {
           remainder.thread = null;
@@ -109,7 +110,8 @@ export function settle({ terminals, lighthouse }) {
           const outcome = await restore("thread", remainder.thread, {
             populate: ["mode", "intent"],
           });
-          settling.note({
+          if (outcome === PENDING) continue;
+          record({
             message: `thread ${named(outcome)}`,
             terminal: terminal.id,
             thread: remainder.thread,
@@ -125,7 +127,8 @@ export function settle({ terminals, lighthouse }) {
           remainder.buffer = null;
         } else {
           const outcome = await restore("buffer", remainder.buffer);
-          settling.note({
+          if (outcome === PENDING) continue;
+          record({
             message: `buffer ${named(outcome)}`,
             terminal: terminal.id,
             buffer: remainder.buffer,

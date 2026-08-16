@@ -23,7 +23,7 @@ export const deck = new Vector().open(
     for (let index = 0; index < roster.length; index++) {
       const count = per + (index < extra ? 1 : 0);
       if (count < 1) continue;
-      const emitted = await ctx.daemon.modes.game["rep-o-gram"].emit[roster[index]].feed({
+      const emitted = await ctx.daemon.modes.game["dojo"].emit[roster[index]].feed({
         count,
         where,
         thread: ctx.input.thread,

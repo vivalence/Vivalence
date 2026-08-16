@@ -1,5 +1,5 @@
 import { MikroORM } from "@mikro-orm/core";
-import { SqliteDriver } from "@mikro-orm/sqlite";
+import { config } from "../../../../registry/viva/datamap/libsql/libsql.viva.js";
 import { Url, Connection, shard, shape, Aperture, Vector, specimen, RemoteRepository, RemoteEntityManager } from "@vivalence/typology";
 import * as routes from "@vivalence/runtime/daemon/aperture";
 import { variant } from "../scenarios/fixtures.js";
@@ -52,13 +52,11 @@ export const SYMBOL_SLUGS = [
 export async function topography() {
   const descriptors = variant();
   const orm = await MikroORM.init({
-    driver: SqliteDriver,
-    dbName: DB,
-    entities: descriptors.map((descriptor) => descriptor.schema).filter(Boolean),
-    subscribers: descriptors
-      .map((descriptor) => descriptor.subscriber)
-      .filter(Boolean)
-      .map((Subscriber) => new Subscriber()),
+    ...config({
+      dbName: DB,
+      entities: descriptors.map((descriptor) => descriptor.schema),
+      subscribers: descriptors.map((descriptor) => descriptor.subscriber),
+    }),
     allowGlobalContext: true,
   });
 

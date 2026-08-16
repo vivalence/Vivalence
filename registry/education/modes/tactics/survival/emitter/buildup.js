@@ -152,7 +152,7 @@ export default async (ctx) => {
         }),
       );
     } else if (word.retention.is.weak) {
-      ctx.pool.add(game["rep-o-gram"].emit.write.literals({ literal: word, recall: "LEARNING" }));
+      ctx.pool.add(game["dojo"].emit.write.literals({ literal: word, recall: "LEARNING" }));
     }
   }
 

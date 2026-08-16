@@ -1,0 +1,2770 @@
+diff --git a/registry/fixtures/data/faculties.js b/registry/fixtures/data/faculties.js
+index 39ac2e3..b0428ef 100644
+--- a/registry/fixtures/data/faculties.js
++++ b/registry/fixtures/data/faculties.js
+@@ -117,3 +117,43 @@ export function faculties() {
+     },
+   ];
+ }
++
++export function verbatimFaculty(overrides = {}) {
++  return {
++    type: "verbatim",
++    tune: [0.4, 0.6, 0.5, 0.1],
++    context: 0,
++    channels: { in: [{ type: "audio", codec: "pcm_16000" }], out: [{ type: "event" }] },
++    via: {
++      stream: async function* (audioSource) {
++        const heard = [];
++        yield { event: "/turn/open", turn: { role: "user" } };
++        for await (const packet of audioSource) {
++          heard.push(packet.audio);
++          yield { event: "/verbatim/partial", transcript: heard.join(" ").trim() };
++        }
++        yield { event: "/verbatim/final", transcript: heard.join(" ").trim() };
++        yield { event: "/turn/close" };
++      },
++    },
++    ...overrides,
++  };
++}
++
++export function speechFaculty(overrides = {}) {
++  return {
++    type: "speech",
++    tune: [0.3, 0.5, 0.5, 0.1],
++    context: 0,
++    channels: { in: [{ type: "text" }], out: [{ type: "audio", codec: "pcm_16000" }] },
++    via: {
++      stream: async function* (textChunks) {
++        for await (const chunk of textChunks) {
++          yield { event: "/audio/packet", audio: "audio:" + chunk, rate: 16000 };
++        }
++        yield { event: "/audio/close" };
++      },
++    },
++    ...overrides,
++  };
++}
+diff --git a/registry/fixtures/data/index.js b/registry/fixtures/data/index.js
+index 3c071c0..baed974 100644
+--- a/registry/fixtures/data/index.js
++++ b/registry/fixtures/data/index.js
+@@ -10,6 +10,8 @@ export {
+   toolUseStream,
+   lastUserText,
+   hasToolResult,
++  verbatimFaculty,
++  speechFaculty,
+ } from "./faculties.js";
+ export * as lighthouse from "./lighthouse.js";
+ export { live, BASE, CREDENTIALS } from "./live.js";
+diff --git a/registry/playground/modes/chaosmonkey/reader/emitter.js b/registry/playground/modes/chaosmonkey/reader/emitter.js
+index 3e14b4c..e9923b9 100644
+--- a/registry/playground/modes/chaosmonkey/reader/emitter.js
++++ b/registry/playground/modes/chaosmonkey/reader/emitter.js
+@@ -9,7 +9,7 @@ const AUTHOR = [
+ export const emitter = new Vector().open(
+   { nature: "/conjure", input: v.object({ brief: v.string() }) },
+   async (ctx) => {
+-    const response = await ctx.daemon.cortex.hallucinate.verbatim.render({
++    const response = await ctx.daemon.cortex.hallucinate.dialogue.render({
+       system: { author: AUTHOR },
+       turns: [{ role: "user", parts: [{ type: "text", text: ctx.input.brief }] }],
+     });
+diff --git a/registry/viva/hallucinator/deepgram/provider/index.js b/registry/viva/hallucinator/deepgram/provider/index.js
+index 4330894..7921162 100644
+--- a/registry/viva/hallucinator/deepgram/provider/index.js
++++ b/registry/viva/hallucinator/deepgram/provider/index.js
+@@ -1,82 +1,157 @@
+-export default async function provider(service) {
+-  const apiKey = service.secrets.key;
++import { Queue, pcm } from "@vivalence/typology";
+ 
+-  const profiles = {
+-    "pt-BR": { tune: [0.4, 0.6, 0.5, 0.1], language: "pt" },
+-    "en":    { tune: [0.4, 0.6, 0.5, 0.1], language: "en" },
+-  };
+-
+-  function makeVerbatim(profile) {
+-    const stream = async function* (audioSource, config = {}) {
+-      const url =
+-        `wss://api.deepgram.com/v1/listen?` +
+-        `encoding=linear16&sample_rate=16000&language=${profile.language}&` +
+-        `vad_events=true&endpointing=${config.endpointing ?? 300}&interim_results=true`;
+-      const ws = new WebSocket(url, ["token", apiKey]);
+-      await new Promise((open, fail) => {
+-        ws.onopen  = open;
+-        ws.onerror = fail;
+-      });
++function line(url, protocols) {
++  const ws = new WebSocket(url, protocols);
++  const inbox = new Queue();
++  let fault = null;
++  ws.addEventListener("message", (event) => {
++    try {
++      inbox.enqueue(JSON.parse(event.data));
++    } catch {}
++  });
++  ws.addEventListener("close", (event) => {
++    if (event.code !== 1000 && event.code !== 1005)
++      fault ??= new Error(`[deepgram] socket closed ${event.code}${event.reason ? ` ${event.reason}` : ""}`);
++    inbox.close();
++  });
++  ws.addEventListener("error", () => {
++    fault ??= new Error("[deepgram] socket failed");
++    inbox.close();
++  });
++  return { ws, inbox, failed: () => fault };
++}
+ 
+-      const events = [];
+-      let wake = null;
++const opened = (ws) =>
++  new Promise((open, fail) => {
++    ws.addEventListener("open", open, { once: true });
++    ws.addEventListener("error", fail, { once: true });
++  });
+ 
+-      ws.addEventListener("message", (event) => {
+-        let data;
+-        try { data = JSON.parse(event.data); } catch { return; }
+-        if (data.type === "SpeechStarted") events.push({ nature: "turn.start" });
+-        if (data.type === "UtteranceEnd")  events.push({ nature: "turn.end"   });
+-        const transcript = data.channel?.alternatives?.[0]?.transcript;
+-        if (transcript) {
+-          events.push({
+-            nature:     data.is_final ? "final" : "partial",
+-            transcript,
+-          });
+-        }
+-        if (wake) { wake(); wake = null; }
+-      });
++async function pump(ws, audioSource, close) {
++  try {
++    for await (const packet of audioSource) {
++      if (ws.readyState !== WebSocket.OPEN) break;
++      ws.send(pcm.bytes(packet.audio));
++    }
++  } finally {
++    if (ws.readyState === WebSocket.OPEN) ws.send(JSON.stringify(close));
++  }
++}
+ 
+-      ws.addEventListener("close", () => {
+-        if (wake) { wake(); wake = null; }
+-      });
++export async function* transcribe(url, protocols, audioSource, translate, close) {
++  const { ws, inbox, failed } = line(url, protocols);
++  await opened(ws);
++  let broken = null;
++  const feeding = pump(ws, audioSource, close).catch((fault) => {
++    broken = fault;
++    if (ws.readyState === WebSocket.OPEN) ws.close();
++  });
++  try {
++    for await (const data of inbox.drain()) yield* translate(data);
++    const fault = broken ?? failed();
++    if (fault) throw fault;
++  } finally {
++    if (ws.readyState === WebSocket.OPEN) ws.close();
++    await feeding;
++  }
++}
+ 
+-      const pump = (async () => {
+-        try {
+-          for await (const audio of audioSource) {
+-            if (ws.readyState !== WebSocket.OPEN) break;
+-            const bytes = typeof audio === "string"
+-              ? Uint8Array.from(atob(audio), (c) => c.charCodeAt(0))
+-              : audio;
+-            ws.send(bytes);
+-          }
+-        } finally {
+-          if (ws.readyState === WebSocket.OPEN) {
+-            ws.send(JSON.stringify({ type: "CloseStream" }));
+-          }
+-        }
+-      })();
++const word = (entry) => ({
++  word: entry.word ?? entry.punctuated_word,
++  ...(entry.start !== undefined && { start: entry.start }),
++  ...(entry.end !== undefined && { end: entry.end }),
++  ...(entry.confidence !== undefined && { confidence: entry.confidence }),
++  ...(entry.language && { language: entry.language }),
++});
+ 
+-      try {
+-        while (ws.readyState === WebSocket.OPEN || events.length) {
+-          while (events.length) yield events.shift();
+-          if (ws.readyState !== WebSocket.OPEN) break;
+-          await new Promise((resolve) => { wake = resolve; });
+-        }
+-      } finally {
+-        if (ws.readyState === WebSocket.OPEN) ws.close();
+-        await pump.catch(() => {});
+-      }
+-    };
++export function* nova(data) {
++  if (data.type === "SpeechStarted") yield { event: "/turn/open", turn: { role: "user" } };
++  if (data.type === "UtteranceEnd") yield { event: "/turn/close" };
++  const alternative = data.channel?.alternatives?.[0];
++  if (!alternative?.transcript) return;
++  yield {
++    event: data.is_final ? "/verbatim/final" : "/verbatim/partial",
++    transcript: alternative.transcript,
++    ...(data.is_final && alternative.words?.length && { words: alternative.words.map(word) }),
++  };
++}
+ 
+-    return {
+-      type:     "verbatim",
+-      tune:     profile.tune,
+-      context:  0,
+-      channels: { in: [{ type: "audio", codec: "pcm_16000" }], out: [{ type: "event" }] },
+-      config:   { language: profile.language },
+-      via:      { stream },
+-    };
++export function* flux(data) {
++  const kind = data.event ?? data.type;
++  const transcript = data.transcript ?? "";
++  switch (kind) {
++    case "StartOfTurn":
++      yield { event: "/turn/open", turn: { role: "user" } };
++      if (transcript) yield { event: "/verbatim/partial", transcript };
++      return;
++    case "Update":
++      if (transcript) yield { event: "/verbatim/partial", transcript };
++      return;
++    case "EagerEndOfTurn":
++      yield { event: "/verbatim/eager", transcript };
++      return;
++    case "TurnResumed":
++      yield { event: "/verbatim/resume" };
++      return;
++    case "EndOfTurn":
++      yield {
++        event: "/verbatim/final",
++        transcript,
++        ...(data.words?.length && { words: data.words.map(word) }),
++      };
++      yield { event: "/turn/close" };
++      return;
+   }
++}
++
++export default async function provider(service) {
++  const apiKey = service.secrets.key;
++  const protocols = ["token", apiKey];
++
++  const novaFaculty = () => ({
++    type: "verbatim",
++    tune: [0.5, 0.1, 0.9, 0.6],
++    context: 0,
++    channels: { in: [{ type: "audio", codec: "pcm_16000" }], out: [{ type: "event" }] },
++    config: { model: "nova-3", language: "multi" },
++    via: {
++      stream: (audioSource, config = {}) =>
++        transcribe(
++          `wss://api.deepgram.com/v1/listen?` +
++            `model=nova-3&encoding=linear16&sample_rate=16000&` +
++            `language=${config.language ?? "multi"}&` +
++            `interim_results=true&punctuate=true&vad_events=true&` +
++            `utterance_end_ms=${config.utteranceEnd ?? 1000}&endpointing=${config.endpointing ?? 100}`,
++          protocols,
++          audioSource,
++          nova,
++          { type: "CloseStream" },
++        ),
++    },
++  });
++
++  const fluxFaculty = () => ({
++    type: "verbatim",
++    tune: [0.6, 0.2, 0.8, 0.4],
++    context: 0,
++    channels: { in: [{ type: "audio", codec: "pcm_16000" }], out: [{ type: "event" }] },
++    config: { model: "flux-general-multi", turns: true },
++    via: {
++      stream: (audioSource, config = {}) =>
++        transcribe(
++          `wss://api.deepgram.com/v2/listen?` +
++            `model=flux-general-multi&encoding=linear16&sample_rate=16000&` +
++            `eot_threshold=${config.eotThreshold ?? 0.7}` +
++            (config.eagerThreshold ? `&eager_eot_threshold=${config.eagerThreshold}` : "") +
++            (config.eotTimeout ? `&eot_timeout_ms=${config.eotTimeout}` : "") +
++            (config.hints ?? []).map((hint) => `&language_hint=${hint}`).join(""),
++          protocols,
++          audioSource,
++          flux,
++          { type: "CloseStream" },
++        ),
++    },
++  });
+ 
+-  return Object.values(profiles).map(makeVerbatim);
++  return [novaFaculty(), fluxFaculty()];
+ }
+diff --git a/registry/viva/hallucinator/deepgram/tests/provider.test.js b/registry/viva/hallucinator/deepgram/tests/provider.test.js
+index 435e4ee..1cec9e2 100644
+--- a/registry/viva/hallucinator/deepgram/tests/provider.test.js
++++ b/registry/viva/hallucinator/deepgram/tests/provider.test.js
+@@ -1,25 +1,50 @@
+ import { specimen } from "@vivalence/typology";
+-import provider from "../provider/index.js";
++import provider, { nova, flux } from "../provider/index.js";
++
++const events = (translate, data) => [...translate(data)];
+ 
+ specimen.describe("deepgram provider", () => {
+-  specimen.it("returns array of verbatim faculties without performing network calls", async () => {
++  specimen.it("returns verbatim faculties without performing network calls", async () => {
+     const faculties = await provider({ secrets: { key: "fake-key" } });
+-
+-    specimen.expect(Array.isArray(faculties)).toBe(true);
+-    specimen.expect(faculties.length > 0).toBe(true);
+-
++    specimen.expect(faculties.map((faculty) => faculty.config.model)).toEqual(["nova-3", "flux-general-multi"]);
+     for (const faculty of faculties) {
+       specimen.expect(faculty.type).toBe("verbatim");
+       specimen.expect(typeof faculty.via.stream).toBe("function");
+-      specimen.expect(Array.isArray(faculty.tune)).toBe(true);
++      specimen.expect(faculty.tune.length).toBe(4);
+       specimen.expect(faculty.channels.in[0].codec).toBe("pcm_16000");
+     }
++    specimen.expect(faculties[0].config.language).toBe("multi");
+   });
+ 
+-  specimen.it("offers profiles for both pt-BR and en", async () => {
+-    const faculties = await provider({ secrets: { key: "fake-key" } });
+-    const langs = faculties.map((f) => f.config.language);
+-    specimen.expect(langs).toContain("pt");
+-    specimen.expect(langs).toContain("en");
++  specimen.it("nova results translate to verbatim packets; words ride the final", () => {
++    specimen.expect(events(nova, { type: "SpeechStarted" })).toEqual([{ event: "/turn/open", turn: { role: "user" } }]);
++    specimen.expect(events(nova, { type: "Results", is_final: false, channel: { alternatives: [{ transcript: "ciao a" }] } }))
++      .toEqual([{ event: "/verbatim/partial", transcript: "ciao a" }]);
++    specimen.expect(
++      events(nova, {
++        type: "Results",
++        is_final: true,
++        channel: { alternatives: [{ transcript: "ciao a tutti", words: [{ word: "ciao", start: 0, end: 0.3, confidence: 0.97, language: "it" }] }] },
++      }),
++    ).toEqual([
++      { event: "/verbatim/final", transcript: "ciao a tutti", words: [{ word: "ciao", start: 0, end: 0.3, confidence: 0.97, language: "it" }] },
++    ]);
++    specimen.expect(events(nova, { type: "UtteranceEnd" })).toEqual([{ event: "/turn/close" }]);
++    specimen.expect(events(nova, { type: "Metadata" })).toEqual([]);
++    specimen.expect(events(nova, { type: "Results", channel: { alternatives: [{ transcript: "" }] } })).toEqual([]);
++  });
++
++  specimen.it("flux turn events translate to the same grammar plus eager/resume", () => {
++    specimen.expect(events(flux, { event: "StartOfTurn", transcript: "so" })).toEqual([
++      { event: "/turn/open", turn: { role: "user" } },
++      { event: "/verbatim/partial", transcript: "so" },
++    ]);
++    specimen.expect(events(flux, { event: "Update", transcript: "so the" })).toEqual([{ event: "/verbatim/partial", transcript: "so the" }]);
++    specimen.expect(events(flux, { event: "EagerEndOfTurn", transcript: "so the plan" })).toEqual([{ event: "/verbatim/eager", transcript: "so the plan" }]);
++    specimen.expect(events(flux, { event: "TurnResumed" })).toEqual([{ event: "/verbatim/resume" }]);
++    specimen.expect(events(flux, { event: "EndOfTurn", transcript: "so the plan is simple", words: [{ word: "so", confidence: 0.9 }] })).toEqual([
++      { event: "/verbatim/final", transcript: "so the plan is simple", words: [{ word: "so", confidence: 0.9 }] },
++      { event: "/turn/close" },
++    ]);
+   });
+ });
+diff --git a/registry/viva/hallucinator/deepgram/tests/transcribe.test.js b/registry/viva/hallucinator/deepgram/tests/transcribe.test.js
+new file mode 100644
+index 0000000..75606a5
+--- /dev/null
++++ b/registry/viva/hallucinator/deepgram/tests/transcribe.test.js
+@@ -0,0 +1,117 @@
++import { specimen, sleep } from "@vivalence/typology";
++import { transcribe, nova } from "../provider/index.js";
++
++class FakeSocket {
++  static OPEN = 1;
++  static instances = [];
++  readyState = 0;
++  sent = [];
++  listeners = new Map();
++  constructor(url, protocols) {
++    this.url = url;
++    this.protocols = protocols;
++    FakeSocket.instances.push(this);
++  }
++  addEventListener(kind, handler) {
++    this.listeners.set(kind, [...(this.listeners.get(kind) ?? []), handler]);
++  }
++  dispatch(kind, event = {}) {
++    for (const handler of this.listeners.get(kind) ?? []) handler(event);
++  }
++  open() {
++    this.readyState = FakeSocket.OPEN;
++    this.dispatch("open");
++  }
++  send(payload) {
++    this.sent.push(payload);
++  }
++  close(code = 1000) {
++    if (this.readyState === 3) return;
++    this.readyState = 3;
++    this.dispatch("close", { code, reason: "" });
++  }
++}
++
++async function* silence() {}
++
++function run(source, translate = nova) {
++  const collected = [];
++  let fault = null;
++  const done = (async () => {
++    try {
++      for await (const event of transcribe("wss://fake", [], source, translate, { type: "CloseStream" })) {
++        collected.push(event);
++      }
++    } catch (error) {
++      fault = error;
++    }
++  })();
++  return { collected, fault: () => fault, done };
++}
++
++specimen.describe("deepgram transcribe — faults are loud, never a clean-looking end", () => {
++  let original;
++
++  specimen.beforeAll(() => {
++    original = globalThis.WebSocket;
++    globalThis.WebSocket = FakeSocket;
++  });
++
++  specimen.afterAll(() => {
++    globalThis.WebSocket = original;
++  });
++
++  specimen.it("a clean 1000 close ends the stream without a fault", async () => {
++    FakeSocket.instances = [];
++    const flow = run(silence());
++    await sleep.ms(1);
++    const ws = FakeSocket.instances[0];
++    ws.open();
++    ws.dispatch("message", { data: JSON.stringify({ type: "Results", is_final: false, channel: { alternatives: [{ transcript: "ciao" }] } }) });
++    await sleep.ms(1);
++    ws.close(1000);
++    await flow.done;
++    specimen.expect(flow.collected).toEqual([{ event: "/verbatim/partial", transcript: "ciao" }]);
++    specimen.expect(flow.fault()).toBe(null);
++  });
++
++  specimen.it("a socket error mid-stream throws instead of ending clean", async () => {
++    FakeSocket.instances = [];
++    const flow = run(silence());
++    await sleep.ms(1);
++    const ws = FakeSocket.instances[0];
++    ws.open();
++    ws.dispatch("message", { data: JSON.stringify({ type: "Results", is_final: false, channel: { alternatives: [{ transcript: "so" }] } }) });
++    await sleep.ms(1);
++    ws.dispatch("error");
++    await flow.done;
++    specimen.expect(flow.collected).toEqual([{ event: "/verbatim/partial", transcript: "so" }]);
++    specimen.expect(flow.fault()?.message).toContain("socket failed");
++  });
++
++  specimen.it("an abnormal close code names itself in the fault", async () => {
++    FakeSocket.instances = [];
++    const flow = run(silence());
++    await sleep.ms(1);
++    const ws = FakeSocket.instances[0];
++    ws.open();
++    ws.dispatch("close", { code: 1011, reason: "timeout" });
++    await flow.done;
++    specimen.expect(flow.fault()?.message).toContain("1011");
++  });
++
++  specimen.it("a malformed audio frame faults the stream loudly, not the process", async () => {
++    FakeSocket.instances = [];
++    async function* garbage() {
++      yield "data-that-is-not-a-packet";
++      await sleep.ms(60);
++    }
++    const flow = run(garbage());
++    await sleep.ms(1);
++    const ws = FakeSocket.instances[0];
++    ws.open();
++    await flow.done;
++    specimen.expect(flow.collected).toEqual([]);
++    specimen.expect(flow.fault()).not.toBe(null);
++  });
++});
+diff --git a/subsystems/typology/gestalten/belt/index.js b/subsystems/typology/gestalten/belt/index.js
+index cb51117..9127127 100644
+--- a/subsystems/typology/gestalten/belt/index.js
++++ b/subsystems/typology/gestalten/belt/index.js
+@@ -13,6 +13,9 @@ export * as hash from "./hash.js";
+ export * as crypto from "./crypto.js";
+ export * as middleware from "./middleware.js";
+ export * as soma from "./soma.js";
++export * as pcm from "./pcm.js";
++export * as sse from "./sse.js";
++export * as verbatim from "./verbatim.js";
+ export * as atom from "./atom.js";
+ export * as recipe from "./recipe.js";
+ export * as trace from "./trace.js";
+diff --git a/subsystems/typology/gestalten/belt/pcm.js b/subsystems/typology/gestalten/belt/pcm.js
+new file mode 100644
+index 0000000..0db65cb
+--- /dev/null
++++ b/subsystems/typology/gestalten/belt/pcm.js
+@@ -0,0 +1,27 @@
++export function encode(samples) {
++  const ints = new Int16Array(samples.length);
++  for (let i = 0; i < samples.length; i++) {
++    const sample = Math.max(-1, Math.min(1, samples[i]));
++    ints[i] = sample < 0 ? sample * 0x8000 : sample * 0x7fff;
++  }
++  const view = new Uint8Array(ints.buffer);
++  let binary = "";
++  for (let i = 0; i < view.length; i += 0x8000)
++    binary += String.fromCharCode(...view.subarray(i, i + 0x8000));
++  return btoa(binary);
++}
++
++export function bytes(audio) {
++  if (audio instanceof Uint8Array) return audio;
++  return Uint8Array.from(atob(audio), (character) => character.charCodeAt(0));
++}
++
++export function decode(audio) {
++  const raw = bytes(audio);
++  const ints = new Int16Array(raw.buffer, raw.byteOffset, Math.floor(raw.byteLength / 2));
++  const samples = new Float32Array(ints.length);
++  for (let i = 0; i < ints.length; i++) {
++    samples[i] = ints[i] < 0 ? ints[i] / 0x8000 : ints[i] / 0x7fff;
++  }
++  return samples;
++}
+diff --git a/subsystems/typology/gestalten/belt/sse.js b/subsystems/typology/gestalten/belt/sse.js
+new file mode 100644
+index 0000000..865bfd2
+--- /dev/null
++++ b/subsystems/typology/gestalten/belt/sse.js
+@@ -0,0 +1,51 @@
++const encoder = new TextEncoder();
++const decoder = new TextDecoder();
++
++export async function* lines(source) {
++  for await (const item of source) {
++    yield `data: ${typeof item === "string" ? item : JSON.stringify(item)}\n\n`;
++  }
++}
++
++export function encode(source) {
++  const iterator = lines(source)[Symbol.asyncIterator]();
++  return new ReadableStream({
++    async pull(controller) {
++      const { value, done } = await iterator.next();
++      if (done) return controller.close();
++      controller.enqueue(encoder.encode(value));
++    },
++    async cancel() {
++      await iterator.return?.();
++    },
++  });
++}
++
++export async function* frames(readable) {
++  const reader = readable.getReader();
++  let buffer = "";
++  try {
++    while (true) {
++      const { value, done } = await reader.read();
++      if (done) break;
++      buffer += typeof value === "string" ? value : decoder.decode(value, { stream: true });
++      const framed = buffer.split("\n\n");
++      buffer = framed.pop();
++      for (const frame of framed) {
++        const line = frame.split("\n").find((candidate) => candidate.startsWith("data:"));
++        if (!line) continue;
++        const payload = line.slice(5).trim();
++        if (!payload) continue;
++        try {
++          yield JSON.parse(payload);
++        } catch {
++          yield payload;
++        }
++      }
++    }
++  } finally {
++    try {
++      await reader.cancel();
++    } catch {}
++  }
++}
+diff --git a/subsystems/typology/gestalten/belt/verbatim.js b/subsystems/typology/gestalten/belt/verbatim.js
+new file mode 100644
+index 0000000..4dafd01
+--- /dev/null
++++ b/subsystems/typology/gestalten/belt/verbatim.js
+@@ -0,0 +1,107 @@
++import { similarity } from "./string.js";
++
++export const defaults = { window: 2, tolerance: 0.8, tail: 8 };
++
++const bare = (word) => word.toLowerCase().replace(/[^\p{L}\p{N}]/gu, "");
++
++const agree = (a, b, tolerance) => {
++  const left = bare(a);
++  const right = bare(b);
++  return left === right || similarity(left, right) >= tolerance;
++};
++
++const tokens = (transcript) => (transcript ?? "").trim().split(/\s+/).filter(Boolean);
++
++function frontier(ring, committed, tolerance) {
++  const limit = Math.min(...ring.map((hypothesis) => hypothesis.length));
++  let index = committed;
++  while (index < limit) {
++    const anchor = ring.at(-1)[index];
++    if (!ring.every((hypothesis) => agree(hypothesis[index], anchor, tolerance))) break;
++    index += 1;
++  }
++  return index;
++}
++
++export async function* harmonize(events, options = {}) {
++  const { window, tolerance, tail } = { ...defaults, ...options };
++  let committed = 0;
++  let ring = [];
++  let segment = 0;
++
++  const reset = () => {
++    committed = 0;
++    ring = [];
++  };
++
++  for await (const event of events) {
++    switch (event.event) {
++      case "/turn/open": {
++        reset();
++        yield event;
++        break;
++      }
++      case "/verbatim/partial": {
++        const hypothesis = tokens(event.transcript);
++        ring = [...ring, hypothesis].slice(-window);
++        if (ring.length === window) {
++          const settled = frontier(ring, committed, tolerance);
++          if (settled > committed) {
++            yield { event: "/verbatim/commit", text: hypothesis.slice(committed, settled).join(" ") };
++            committed = settled;
++          }
++        }
++        yield { event: "/verbatim/partial", transcript: hypothesis.slice(committed).slice(-tail).join(" ") };
++        break;
++      }
++      case "/verbatim/final": {
++        const remainder = tokens(event.transcript).slice(committed);
++        if (remainder.length) yield { event: "/verbatim/commit", text: remainder.join(" ") };
++        yield { ...event, segment };
++        segment += 1;
++        reset();
++        break;
++      }
++      case "/turn/close": {
++        reset();
++        yield event;
++        break;
++      }
++      default:
++        yield event;
++    }
++  }
++}
++
++const join = (...parts) => parts.filter(Boolean).join(" ");
++
++export const empty = { settled: [], open: "", tail: "" };
++
++export const transcript = (state) => join(...state.settled.map((entry) => entry.text), state.open);
++
++export function fold(state = empty, event) {
++  switch (event.event) {
++    case "/turn/open":
++      return { ...state, tail: "" };
++    case "/verbatim/commit":
++      return { ...state, open: join(state.open, event.text), tail: "" };
++    case "/verbatim/partial":
++      return { ...state, tail: event.transcript };
++    case "/verbatim/final": {
++      const entry = { id: event.segment, text: event.transcript, ...(event.words && { words: event.words }) };
++      return { ...state, settled: [...state.settled, entry], open: "", tail: "" };
++    }
++    case "/verbatim/polish": {
++      let anchored = false;
++      const settled = state.settled.flatMap((entry) => {
++        if (!event.segments.includes(entry.id)) return [entry];
++        if (anchored) return [];
++        anchored = true;
++        return [{ id: entry.id, text: event.transcript }];
++      });
++      return anchored ? { ...state, settled } : state;
++    }
++    default:
++      return state;
++  }
++}
+diff --git a/subsystems/typology/gestalten/shape/connection.js b/subsystems/typology/gestalten/shape/connection.js
+index 2322f3b..b129a55 100644
+--- a/subsystems/typology/gestalten/shape/connection.js
++++ b/subsystems/typology/gestalten/shape/connection.js
+@@ -32,6 +32,9 @@ function aim(connection, effect) {
+ 
+   const method = effect.methods?.[0];
+ 
++  if (effect.feeds !== undefined)
++    return (source, options = {}) => connection.converse("", source, options);
++
+   if (effect.yields !== undefined)
+     return (input = {}, options = {}) =>
+       connection.stream("", options.signal, {
+diff --git a/subsystems/typology/gestalten/shape/strip.js b/subsystems/typology/gestalten/shape/strip.js
+index 7ee9c38..2488917 100644
+--- a/subsystems/typology/gestalten/shape/strip.js
++++ b/subsystems/typology/gestalten/shape/strip.js
+@@ -5,6 +5,7 @@ const edgeMeta = (pattern, effect) => {
+   if (pattern?.input !== undefined) meta.input = pattern.input;
+   if (pattern?.output !== undefined) meta.output = pattern.output;
+   if (pattern?.yields !== undefined) meta.yields = pattern.yields;
++  if (pattern?.feeds !== undefined) meta.feeds = pattern.feeds;
+   if (effect?.methods) meta.methods = Object.keys(effect.methods);
+   return meta;
+ };
+diff --git a/subsystems/typology/gestalten/shard/hal.js b/subsystems/typology/gestalten/shard/hal.js
+index 398e61c..5705233 100644
+--- a/subsystems/typology/gestalten/shard/hal.js
++++ b/subsystems/typology/gestalten/shard/hal.js
+@@ -1,4 +1,75 @@
+-import { soma } from "../belt/index.js";
++import { Queue, soma } from "@vivalence/typology";
++
++async function* polishing(events, repair) {
++  const polishes = new Queue();
++  let finals = [];
++  let inflight = 0;
++  let drained = false;
++
++  const settle = () => {
++    if (drained && !inflight) polishes.close();
++  };
++
++  const flush = () => {
++    if (!finals.length) return;
++    const segments = finals.map((final) => final.segment);
++    const text = finals.map((final) => final.transcript).join(" ");
++    finals = [];
++    inflight += 1;
++    Promise.resolve(repair(text))
++      .then((corrected) => {
++        if (corrected && corrected !== text)
++          polishes.enqueue({ event: "/verbatim/polish", transcript: corrected, segments });
++      })
++      .catch(() => {})
++      .finally(() => {
++        inflight -= 1;
++        settle();
++      });
++  };
++
++  const upstream = (async function* () {
++    try {
++      for await (const event of events) {
++        if (event.event === "/verbatim/final") finals.push(event);
++        if (event.event === "/turn/close") flush();
++        yield event;
++      }
++      flush();
++    } finally {
++      drained = true;
++      settle();
++    }
++  })();
++
++  yield* soma.merge(upstream, polishes.drain());
++}
++
++export const verbatim = ({ polish, tune } = {}) => async (ctx) => {
++  const vocal = ctx.vocal;
++  const source = ctx.input.source ?? (ctx.request.raw?.body && ctx.request.subscribe());
++  if (!source) throw new Error("[hal.verbatim] no audio source — pass input.source or feed the request body");
++  const desire = vocal.tune ?? tune;
++  const events = await ctx.daemon.cortex.hallucinate.verbatim.stream({
++    source,
++    config: { ...(vocal.language && { language: vocal.language }) },
++    ...(vocal.harmonize && { harmonize: vocal.harmonize }),
++    policy: { ...(desire && { tune: desire }) },
++  });
++  if (!polish || vocal.polish === false) {
++    ctx.output = events;
++    return;
++  }
++  const repair = async (text) => {
++    const rendered = await ctx.daemon.cortex.hallucinate.dialogue.render({
++      system: { polish },
++      turns: [{ role: "user", parts: [{ type: "text", text }] }],
++      policy: { tune: "fast", rounds: 1 },
++    });
++    return rendered.output.message?.trim() ?? null;
++  };
++  ctx.output = polishing(events, repair);
++};
+ 
+ export const voice = () => async (ctx, next) => {
+   await next();
+diff --git a/subsystems/typology/gestalten/shard/hallucinate.js b/subsystems/typology/gestalten/shard/hallucinate.js
+index 00dc89a..602d7f7 100644
+--- a/subsystems/typology/gestalten/shard/hallucinate.js
++++ b/subsystems/typology/gestalten/shard/hallucinate.js
+@@ -1,4 +1,4 @@
+-import { NotFound, Span, ToolCall, fromm, soma, steer } from "@vivalence/typology";
++import { NotFound, Span, ToolCall, fromm, soma, steer, verbatim } from "@vivalence/typology";
+ 
+ export const signalOf = (name) => new ToolCall(name).signal;
+ export const nameOf = (steps) => new ToolCall(steps).name;
+@@ -125,3 +125,31 @@ export async function render(faculty, request, policy) {
+     );
+   return folded;
+ }
++
++export async function* transcribe(faculty, { source, config, harmonize }, policy = {}) {
++  const span = policy.span ?? new Span("/hallucination");
++  span.open();
++  span.note({ faculty: faculty.type, harmonize });
++  try {
++    yield* verbatim.harmonize(faculty.via.stream(source, config), harmonize);
++  } catch (fault) {
++    span.fault(fault);
++    throw fault;
++  } finally {
++    span.close();
++  }
++}
++
++export async function* synthesize(faculty, { source, config }, policy = {}) {
++  const span = policy.span ?? new Span("/hallucination");
++  span.open();
++  span.note({ faculty: faculty.type });
++  try {
++    yield* faculty.via.stream(source, config);
++  } catch (fault) {
++    span.fault(fault);
++    throw fault;
++  } finally {
++    span.close();
++  }
++}
+diff --git a/subsystems/typology/gestalten/shard/index.js b/subsystems/typology/gestalten/shard/index.js
+index edfe2e3..6272688 100644
+--- a/subsystems/typology/gestalten/shard/index.js
++++ b/subsystems/typology/gestalten/shard/index.js
+@@ -12,4 +12,5 @@ export * as batch from "./batch.js";
+ export * as track from "./track.js";
+ export * as nano from "./nano.js";
+ export * as hal from "./hal.js";
++export * as trait from "./trait.js";
+ export * as hallucinate from "./hallucinate.js";
+diff --git a/subsystems/typology/gestalten/shard/trait.js b/subsystems/typology/gestalten/shard/trait.js
+new file mode 100644
+index 0000000..515a10b
+--- /dev/null
++++ b/subsystems/typology/gestalten/shard/trait.js
+@@ -0,0 +1,8 @@
++import { v } from "../../schematics/v.js";
++
++export function claimed(row, name, schema) {
++  const value = row?.traits?.includes(name) ? row.trait?.[name] : undefined;
++  if (!value) return {};
++  if ([...v.errors(schema, value)][0]) return {};
++  return v.cast(schema, value);
++}
+diff --git a/subsystems/typology/gestalten/shard/transmitter.js b/subsystems/typology/gestalten/shard/transmitter.js
+index 2da42d1..84433f6 100644
+--- a/subsystems/typology/gestalten/shard/transmitter.js
++++ b/subsystems/typology/gestalten/shard/transmitter.js
+@@ -63,19 +63,19 @@ export function multiplex({ authority, mount = "/multiplex", vector, connect } =
+     const { request, response } = ctx;
+     try {
+       const socket = await establish(request.url.origin);
+-      const streaming = request.body instanceof ReadableStream;
++      const upstream = request.stream();
+ 
+       const frame = await socket.open(request.url, {
+         query: request.url.search || undefined,
+-        input: streaming ? undefined : request.body,
++        input: request.body,
+         verb: request.method,
+         token: authority?.get()?.access,
+-        stream: streaming || undefined,
++        stream: upstream ? true : undefined,
+       });
+ 
+       const abort = () => socket.shut(frame);
+       request.signal.addEventListener("abort", abort, { once: true });
+-      if (streaming) socket.feed(frame, request.body);
++      if (upstream) socket.feed(frame, upstream);
+ 
+       if (request.headers.get("accept") === "text/event-stream") {
+         response.status = 200;
+@@ -234,13 +234,19 @@ export const fetcher = async (ctx) => {
+     signal: request.signal,
+   };
+ 
+-  if (request.method !== "GET" && request.body !== undefined) {
+-    const streaming = request.body instanceof ReadableStream;
+-    options.body = streaming ? request.body : JSON.stringify(request.body);
+-    if (streaming) {
+-      options.duplex = "half";
+-      options.headers["Content-Type"] = "text/event-stream";
+-    }
++  const upstream = request.stream();
++  if (upstream) {
++    if (request.body && Object.keys(request.body).length)
++      throw new ConnectionError(
++        "TRANSPORT",
++        "plain HTTP cannot carry input beside an upstream body — converse rides the multiplex transport",
++        { url: request.url.absolute },
++      );
++    options.body = upstream;
++    options.duplex = "half";
++    options.headers["Content-Type"] = "text/event-stream";
++  } else if (request.method !== "GET" && request.body !== undefined) {
++    options.body = JSON.stringify(request.body);
+   }
+ 
+   try {
+diff --git a/subsystems/typology/prototypes/connection.js b/subsystems/typology/prototypes/connection.js
+index 94ac6de..3308fd6 100644
+--- a/subsystems/typology/prototypes/connection.js
++++ b/subsystems/typology/prototypes/connection.js
+@@ -1,5 +1,5 @@
+ import { atom, computed, onMount } from "nanostores";
+-import { string, shard, Url, Request, Response, middleware, promise } from "@vivalence/typology";
++import { string, shard, sse, Url, Request, Response, middleware, promise } from "@vivalence/typology";
+ import { object } from "@vivalence/typology";
+ import { Socket } from "./socket.js";
+ 
+@@ -104,11 +104,12 @@ export class Connection {
+     };
+   }
+ 
+-  async *stream(endpoint, signal, { method = "GET", body, headers, opened } = {}) {
++  async *stream(endpoint, signal, { method = "GET", body, headers, opened, raw } = {}) {
+     const response = await this.fetch(endpoint, body ?? {}, {
+       method,
+       headers: { accept: "text/event-stream", ...headers },
+       signal,
++      ...(raw && { raw }),
+     });
+     if (response.error) throw response.error;
+     if (response.body?.[Symbol.asyncIterator] && !response.body.getReader) {
+@@ -120,33 +121,17 @@ export class Connection {
+     if (!response.body?.getReader)
+       throw new Error(`SSE stream expected ReadableStream, got ${typeof response.body}`);
+     opened?.();
+-    const reader = response.body.getReader();
+-    const decoder = new TextDecoder();
+-    let buffer = "";
+-    try {
+-      while (true) {
+-        const { value, done } = await reader.read();
+-        if (done) break;
+-        buffer += decoder.decode(value, { stream: true });
+-        const frames = buffer.split("\n\n");
+-        buffer = frames.pop();
+-        for (const frame of frames) {
+-          const line = frame.split("\n").find((l) => l.startsWith("data: "));
+-          if (!line) continue;
+-          const payload = line.slice(6);
+-          try {
+-            yield JSON.parse(payload);
+-          } catch {
+-            yield payload;
+-          }
+-        }
+-      }
+-    } finally {
+-      // consumer broke early (or aborted/threw): release the body so it doesn't leak
+-      try {
+-        await reader.cancel();
+-      } catch (_) {}
+-    }
++    yield* sse.frames(response.body);
++  }
++
++  converse(endpoint, source, { input, signal, headers, opened } = {}) {
++    return this.stream(endpoint, signal, {
++      method: "POST",
++      body: input ?? {},
++      headers,
++      opened,
++      raw: { body: sse.encode(source) },
++    });
+   }
+ 
+   observe(endpoint, options = {}) {
+@@ -192,21 +177,11 @@ export class Connection {
+   }
+ 
+   async publish(endpoint, source, options = {}) {
+-    const encoder = new TextEncoder();
+-    const iterator = source[Symbol.asyncIterator]();
+-    const body = new ReadableStream({
+-      async pull(controller) {
+-        const { value, done } = await iterator.next();
+-        if (done) return controller.close();
+-        const payload = typeof value === "string" ? value : JSON.stringify(value);
+-        controller.enqueue(encoder.encode(`data: ${payload}\n\n`));
+-      },
+-    });
+-
+-    const response = await this.fetch(endpoint, body, {
++    const response = await this.fetch(endpoint, options.input ?? {}, {
+       method: "POST",
+       headers: { ...options.headers },
+       signal: options.signal,
++      raw: { body: sse.encode(source) },
+     });
+     return response.body;
+   }
+diff --git a/subsystems/typology/prototypes/hallucination.js b/subsystems/typology/prototypes/hallucination.js
+index 8f922ee..bdd9f03 100644
+--- a/subsystems/typology/prototypes/hallucination.js
++++ b/subsystems/typology/prototypes/hallucination.js
+@@ -1,6 +1,6 @@
+ import { Vector, Span, is, object, shape, shard, steer } from "@vivalence/typology";
+ import { v } from "../schematics/v.js";
+-import { Tier, Tune, Packet } from "../schematics/primitives/hallucination.js";
++import { Tier, Tune, Packet, Verbatim, Audio } from "../schematics/primitives/hallucination.js";
+ 
+ // hal is a typed fetch over the cortex — ONE record describes the whole call:
+ // { policy?, system?, turns, tools?, settings?, output?, cache? }. `policy` is
+@@ -36,6 +36,52 @@ export function Hallucination(cortex) {
+     span: ctx.span.branch(type).branch(avenue),
+   });
+ 
++  const policing = (request) => {
++    const policy = v.create(POLICY);
++    v.cast(POLICY, object.assign(policy, request.policy ?? {}));
++    const failure = [...v.errors(POLICY, policy)][0];
++    if (failure)
++      throw new Error(`[hallucination] invalid policy ${failure.path}: ${failure.message}`);
++    return policy;
++  };
++
++  const lowering = async (ctx, next) => {
++    const request = ctx.input ?? {};
++    const policy = policing(request);
++
++    const tools = is.Vector(request.tools) ? request.tools : new Vector();
++    const catalog = is.Vector(request.tools) ? declarations(tools) : (request.tools ?? []);
++    const marks = request.cache?.marks ?? [
++      ...(request.system && Object.keys(request.system).length ? ["context"] : []),
++      ...(catalog.length ? ["tools"] : []),
++    ];
++
++    ctx.policy = policy;
++    ctx.tools = tools;
++    ctx.span = new Span("/hallucination");
++    ctx.input = {
++      ...(request.system && { system: request.system }),
++      turns: request.turns ?? [],
++      ...(catalog.length && { tools: catalog }),
++      ...(marks.length && { cache: { marks } }),
++      ...(request.settings && { settings: request.settings }),
++      ...(request.output && { output: request.output }),
++    };
++    await next();
++  };
++
++  const sourcing = async (ctx, next) => {
++    const request = ctx.input ?? {};
++    ctx.policy = policing(request);
++    ctx.span = new Span("/hallucination");
++    ctx.input = {
++      source: request.source,
++      config: request.config ?? {},
++      ...(request.harmonize && { harmonize: request.harmonize }),
++    };
++    await next();
++  };
++
+   const rendering = (type) => async (ctx) => {
+     ctx.output = await shard.hallucinate.render(
+       resolveFaculty(type, "render", ctx.policy.tune),
+@@ -53,44 +99,41 @@ export function Hallucination(cortex) {
+     );
+   };
+ 
+-  const hallucinator = new Vector()
+-    .use(async (ctx, next) => {
+-      const request = ctx.input ?? {};
+-
+-      const policy = v.create(POLICY);
+-      v.cast(POLICY, object.assign(policy, request.policy ?? {}));
+-      const failure = [...v.errors(POLICY, policy)][0];
+-      if (failure)
+-        throw new Error(`[hallucination] invalid policy ${failure.path}: ${failure.message}`);
+-
+-      const tools = is.Vector(request.tools) ? request.tools : new Vector();
+-      const catalog = is.Vector(request.tools) ? declarations(tools) : (request.tools ?? []);
+-      const marks = request.cache?.marks ?? [
+-        ...(request.system && Object.keys(request.system).length ? ["context"] : []),
+-        ...(catalog.length ? ["tools"] : []),
+-      ];
+-
+-      ctx.policy = policy;
+-      ctx.tools = tools;
+-      ctx.span = new Span("/hallucination");
+-      ctx.input = {
+-        ...(request.system && { system: request.system }),
+-        turns: request.turns ?? [],
+-        ...(catalog.length && { tools: catalog }),
+-        ...(marks.length && { cache: { marks } }),
+-        ...(request.settings && { settings: request.settings }),
+-        ...(request.output && { output: request.output }),
+-      };
+-      await next();
+-    })
+-    .open({ nature: "/dialogue/stream", yields: Packet.Response }, streaming("dialogue"))
+-    .open({ nature: "/object/stream", yields: Packet.Response }, streaming("object"))
+-    .open({ nature: "/speech/stream", yields: Packet.Response }, streaming("speech"))
+-    .open({ nature: "/verbatim/stream", yields: Packet.Response }, streaming("verbatim"))
+-    .open("/dialogue/render", rendering("dialogue"))
+-    .open("/object/render", rendering("object"))
+-    .open("/speech/render", rendering("speech"))
+-    .open("/verbatim/render", rendering("verbatim"));
++  const transcribing = (ctx) => {
++    ctx.output = shard.hallucinate.transcribe(
++      resolveFaculty("verbatim", "stream", ctx.policy.tune),
++      ctx.input,
++      policyOf(ctx, "verbatim", "stream"),
++    );
++  };
++
++  const synthesizing = (ctx) => {
++    ctx.output = shard.hallucinate.synthesize(
++      resolveFaculty("speech", "stream", ctx.policy.tune),
++      ctx.input,
++      policyOf(ctx, "speech", "stream"),
++    );
++  };
++
++  const hallucinator = new Vector();
++
++  for (const avenue of ["dialogue", "object"]) {
++    hallucinator
++      .branch(`/${avenue}`)
++      .use(lowering)
++      .open({ nature: "stream", yields: Packet.Response }, streaming(avenue))
++      .open("render", rendering(avenue));
++  }
++
++  hallucinator
++    .branch("/verbatim")
++    .use(sourcing)
++    .open({ nature: "stream", feeds: Audio.Packet, yields: Verbatim.Any }, transcribing);
++
++  hallucinator
++    .branch("/speech")
++    .use(sourcing)
++    .open({ nature: "stream", yields: Audio.Any }, synthesizing);
+ 
+   return shape.object(hallucinator, steer.strategy.echo);
+ }
+diff --git a/subsystems/typology/prototypes/request.js b/subsystems/typology/prototypes/request.js
+index d950f0b..7b615d3 100644
+--- a/subsystems/typology/prototypes/request.js
++++ b/subsystems/typology/prototypes/request.js
+@@ -1,4 +1,5 @@
+ import { Url } from "./url.js";
++import { sse } from "@vivalence/typology";
+ 
+ export class Request {
+   constructor(request = {}) {
+@@ -39,22 +40,7 @@ export class Request {
+   async *subscribe() {
+     const body = this.raw?.body;
+     if (!body) return;
+-    const reader = body.getReader();
+-    const decoder = new TextDecoder();
+-    let buffer = "";
+-    while (true) {
+-      const { value, done } = await reader.read();
+-      if (done) break;
+-      buffer += decoder.decode(value, { stream: true });
+-      const frames = buffer.split("\n\n");
+-      buffer = frames.pop();
+-      for (const frame of frames) {
+-        const line = frame.split("\n").find((l) => l.startsWith("data: "));
+-        if (!line) continue;
+-        const payload = line.slice(6);
+-        try { yield JSON.parse(payload); } catch { yield payload; }
+-      }
+-    }
++    yield* sse.frames(body);
+   }
+ 
+   clone() {
+diff --git a/subsystems/typology/prototypes/response.js b/subsystems/typology/prototypes/response.js
+index f0675f9..e60295b 100644
+--- a/subsystems/typology/prototypes/response.js
++++ b/subsystems/typology/prototypes/response.js
+@@ -1,4 +1,5 @@
+ import { ConnectionError } from "./errors/index.js";
++import { sse } from "@vivalence/typology";
+ 
+ const encoder = new TextEncoder();
+ 
+@@ -26,13 +27,7 @@ export class Response {
+   publish(source) {
+     this.type = "text/event-stream";
+     this.headers.set("cache-control", "no-cache");
+-    const framed = async function* () {
+-      for await (const item of source) {
+-        const payload = typeof item === "string" ? item : JSON.stringify(item);
+-        yield `data: ${payload}\n\n`;
+-      }
+-    };
+-    return this.stream(framed());
++    return this.stream(sse.lines(source));
+   }
+ 
+   get ok() {
+diff --git a/subsystems/typology/schematics/entities/index.js b/subsystems/typology/schematics/entities/index.js
+index 4e9f44d..236cc38 100644
+--- a/subsystems/typology/schematics/entities/index.js
++++ b/subsystems/typology/schematics/entities/index.js
+@@ -4,5 +4,5 @@ export { LiteralDescriptor } from "./literal.js";
+ export { SymbolDescriptor } from "./symbol.js";
+ export { ModeDescriptor } from "./mode.js";
+ export { IntentDescriptor } from "./intent.js";
+-export { ThreadDescriptor, INTELLIGENT } from "./thread.js";
++export { ThreadDescriptor, INTELLIGENT, VOCAL } from "./thread.js";
+ export { UserDescriptor } from "./user.js";
+diff --git a/subsystems/typology/schematics/entities/thread.js b/subsystems/typology/schematics/entities/thread.js
+index 2e31390..008bad2 100644
+--- a/subsystems/typology/schematics/entities/thread.js
++++ b/subsystems/typology/schematics/entities/thread.js
+@@ -9,6 +9,19 @@ export const INTELLIGENT = v.object({
+   effort: v.enum(["none", "low", "medium", "high"]).optional(),
+ });
+ 
++export const VOCAL = v.object({
++  language: v.string().optional(),
++  tune: v.union([Tier, Tune]).optional(),
++  harmonize: v
++    .object({
++      window: v.integer({ minimum: 1 }).optional(),
++      tolerance: v.number({ minimum: 0, maximum: 1 }).optional(),
++      tail: v.integer({ minimum: 1 }).optional(),
++    })
++    .optional(),
++  polish: v.boolean().optional(),
++});
++
+ export const ThreadDescriptor = {
+   $id: "Thread",
+   own: {
+diff --git a/subsystems/typology/schematics/primitives/hallucination.js b/subsystems/typology/schematics/primitives/hallucination.js
+index 21bede0..487c40d 100644
+--- a/subsystems/typology/schematics/primitives/hallucination.js
++++ b/subsystems/typology/schematics/primitives/hallucination.js
+@@ -276,6 +276,86 @@ Packet.ResponseClose = v.object({
+   ),
+ });
+ 
++export const Word = v.object({
++  word: v.string(),
++  start: v.number().optional(),
++  end: v.number().optional(),
++  confidence: v.number().optional(),
++  language: v.string().optional(),
++});
++
++export const Audio = {};
++
++Audio.Packet = v.object({
++  event: v.const("/audio/packet"),
++  audio: v.string(),
++  rate: v.integer(),
++  codec: v.string().optional(),
++  pts: v.number().optional(),
++  align: v
++    .array(
++      v.object({
++        text: v.string().optional(),
++        offset: v.integer().optional(),
++        start: v.number().optional(),
++        end: v.number().optional(),
++      }),
++    )
++    .optional(),
++});
++
++Audio.Close = v.object({
++  event: v.const("/audio/close"),
++  meta: v.record(v.string(), v.unknown()).optional(),
++});
++
++Audio.Any = v.union([Audio.Packet, Audio.Close]);
++
++export const Verbatim = {};
++
++Verbatim.Commit = v.object({
++  event: v.const("/verbatim/commit"),
++  text: v.string(),
++});
++
++Verbatim.Partial = v.object({
++  event: v.const("/verbatim/partial"),
++  transcript: v.string(),
++});
++
++Verbatim.Eager = v.object({
++  event: v.const("/verbatim/eager"),
++  transcript: v.string(),
++});
++
++Verbatim.Resume = v.object({
++  event: v.const("/verbatim/resume"),
++});
++
++Verbatim.Final = v.object({
++  event: v.const("/verbatim/final"),
++  transcript: v.string(),
++  segment: v.integer().optional(),
++  words: v.array(Word).optional(),
++});
++
++Verbatim.Polish = v.object({
++  event: v.const("/verbatim/polish"),
++  transcript: v.string(),
++  segments: v.array(v.integer()),
++});
++
++Verbatim.Any = v.union([
++  Packet.TurnOpen,
++  Packet.TurnClose,
++  Verbatim.Commit,
++  Verbatim.Partial,
++  Verbatim.Eager,
++  Verbatim.Resume,
++  Verbatim.Final,
++  Verbatim.Polish,
++]);
++
+ Packet.Response = v.union([
+   Packet.TurnOpen,
+   Packet.PartOpen,
+diff --git a/subsystems/typology/tests/dictation.conversation.test.js b/subsystems/typology/tests/dictation.conversation.test.js
+new file mode 100644
+index 0000000..ddc2732
+--- /dev/null
++++ b/subsystems/typology/tests/dictation.conversation.test.js
+@@ -0,0 +1,174 @@
++import { specimen, v, Cortex, shard, sse, Context, sleep } from "@vivalence/typology";
++import { Verbatim, Audio } from "../schematics/primitives/hallucination.js";
++
++const invalid = (schema, value) => [...v.errors(schema, value)].length > 0;
++
++specimen.describe("Verbatim + Audio packet families", () => {
++  specimen.it("accepts every verbatim event", () => {
++    const events = [
++      { event: "/turn/open", turn: { role: "user" } },
++      { event: "/verbatim/commit", text: "hello" },
++      { event: "/verbatim/partial", transcript: "wor" },
++      { event: "/verbatim/eager", transcript: "hello world" },
++      { event: "/verbatim/resume" },
++      { event: "/verbatim/final", transcript: "hello world", segment: 0, words: [{ word: "hello", start: 0, end: 0.4, confidence: 0.98, language: "en" }] },
++      { event: "/verbatim/polish", transcript: "Hello, world.", segments: [0] },
++      { event: "/turn/close", meta: { reason: "utterance" } },
++    ];
++    for (const event of events) specimen.expect(invalid(Verbatim.Any, event)).toBe(false);
++  });
++
++  specimen.it("rejects unknown events and missing fields", () => {
++    specimen.expect(invalid(Verbatim.Any, { event: "/verbatim/mystery" })).toBe(true);
++    specimen.expect(invalid(Verbatim.Any, { event: "/verbatim/commit" })).toBe(true);
++    specimen.expect(invalid(Verbatim.Any, { event: "/verbatim/polish", transcript: "x" })).toBe(true);
++    specimen.expect(invalid(Verbatim.Any, { nature: "partial", transcript: "x" })).toBe(true);
++  });
++
++  specimen.it("audio packets demand a rate", () => {
++    specimen.expect(invalid(Audio.Any, { event: "/audio/packet", audio: "aGk=", rate: 24000 })).toBe(false);
++    specimen.expect(invalid(Audio.Any, { event: "/audio/packet", audio: "aGk=" })).toBe(true);
++    specimen.expect(invalid(Audio.Any, { event: "/audio/close" })).toBe(false);
++  });
++});
++
++function scriptedFaculty(hypotheses, final) {
++  return {
++    type: "verbatim",
++    tune: [0.4, 0.6, 0.5, 0.1],
++    context: 0,
++    channels: { in: [{ type: "audio", codec: "pcm_16000" }], out: [{ type: "event" }] },
++    via: {
++      stream: async function* (audioSource) {
++        yield { event: "/turn/open", turn: { role: "user" } };
++        let index = 0;
++        for await (const _ of audioSource) {
++          if (index < hypotheses.length) yield { event: "/verbatim/partial", transcript: hypotheses[index++] };
++        }
++        while (index < hypotheses.length) yield { event: "/verbatim/partial", transcript: hypotheses[index++] };
++        yield { event: "/verbatim/final", transcript: final };
++        yield { event: "/turn/close" };
++      },
++    },
++  };
++}
++
++function fastDialogue(correct, delay = 0) {
++  return {
++    type: "dialogue",
++    tune: [0.4, 0.3, 1.0, 0.8],
++    context: 1000,
++    channels: { in: ["text"], out: ["text"] },
++    via: {
++      render: async ({ turns }) => {
++        if (delay) await sleep.ms(delay);
++        return {
++          role: "assistant",
++          parts: [{ type: "text", text: correct(turns.at(-1).parts[0].text) }],
++          meta: { state: "complete" },
++        };
++      },
++    },
++  };
++}
++
++const source = (chunks) =>
++  sse.encode(
++    (async function* () {
++      for (const chunk of chunks) yield { event: "/audio/packet", audio: chunk, rate: 16000 };
++    })(),
++  );
++
++const POLISH = "Punctuate and capitalize. Output only the corrected transcript.";
++
++async function pipeline({ vocal = {}, hypotheses, final, correct, chunks = ["oi", "tudo", "bem"], polish = POLISH, delay }) {
++  const cortex = new Cortex().register([
++    scriptedFaculty(hypotheses, final),
++    fastDialogue(correct ?? ((text) => text), delay),
++  ]);
++  const ctx = new Context({ request: { url: "http://socket/harness/verbatim/stream", body: {}, raw: { body: source(chunks) } } });
++  ctx.daemon = { cortex };
++  ctx.vocal = vocal;
++  await shard.hal.verbatim({ polish })(ctx);
++  const events = [];
++  for await (const event of ctx.output) events.push(event);
++  return events;
++}
++
++specimen.describe("dictation flow — hal.verbatim over the cortex", () => {
++  specimen.it("yields turn/open, commits, partials, final, polish, turn/close — every one a Verbatim event", async () => {
++    const events = await pipeline({
++      hypotheses: ["hello", "hello wor", "hello world how"],
++      final: "hello world how are you",
++      correct: (text) => text[0].toUpperCase() + text.slice(1) + "?",
++    });
++    const kinds = events.map((event) => event.event);
++    specimen.expect(kinds[0]).toBe("/turn/open");
++    specimen.expect(kinds.indexOf("/verbatim/final")).toBeLessThan(kinds.indexOf("/verbatim/polish"));
++    specimen.expect(kinds.indexOf("/turn/close")).toBeLessThan(kinds.indexOf("/verbatim/polish"));
++    const polish = events.find((event) => event.event === "/verbatim/polish");
++    specimen.expect(polish).toEqual({ event: "/verbatim/polish", transcript: "Hello world how are you?", segments: [0] });
++    for (const event of events) specimen.expect([...v.errors(Verbatim.Any, event)].length).toBe(0);
++  });
++
++  specimen.it("commits are append-only and consistent with final; polish:false yields none", async () => {
++    const events = await pipeline({
++      hypotheses: ["so the", "so the plan", "so the plan is"],
++      final: "so the plan is simple",
++      vocal: { polish: false },
++    });
++    const committed = events.filter((event) => event.event === "/verbatim/commit").map((event) => event.text).join(" ");
++    specimen.expect(committed).toBe("so the plan is simple");
++    specimen.expect(events.some((event) => event.event === "/verbatim/polish")).toBe(false);
++  });
++
++  specimen.it("polish failure degrades silently, final intact, stream closes", async () => {
++    const cortex = new Cortex().register([
++      scriptedFaculty(["hi"], "hi there"),
++      { ...fastDialogue((text) => text), via: { render: async () => { throw new Error("provider down"); } } },
++    ]);
++    const ctx = new Context({ request: { url: "http://socket/harness/verbatim/stream", body: {}, raw: { body: source(["hi"]) } } });
++    ctx.daemon = { cortex };
++    ctx.vocal = {};
++    await shard.hal.verbatim({ polish: POLISH })(ctx);
++    const events = [];
++    for await (const event of ctx.output) events.push(event);
++    specimen.expect(events.find((event) => event.event === "/verbatim/final").transcript).toBe("hi there");
++    specimen.expect(events.some((event) => event.event === "/verbatim/polish")).toBe(false);
++    specimen.expect(events.at(-1).event).toBe("/turn/close");
++  });
++
++  specimen.it("polish is concurrent — a slow repair never holds the next turn's events", async () => {
++    const turns = async function* () {
++      for (const utterance of [["one", "one two"], ["three"]]) {
++        yield { event: "/turn/open", turn: { role: "user" } };
++        for (const hypothesis of utterance) yield { event: "/verbatim/partial", transcript: hypothesis };
++        yield { event: "/verbatim/final", transcript: utterance.at(-1) };
++        yield { event: "/turn/close" };
++        await sleep.ms(5);
++      }
++    };
++    const faculty = { ...scriptedFaculty([], ""), via: { stream: () => turns() } };
++    const cortex = new Cortex().register([faculty, fastDialogue((text) => text.toUpperCase(), 60)]);
++    const ctx = new Context({ request: { url: "http://socket/harness/verbatim/stream", body: {}, raw: { body: source(["x"]) } } });
++    ctx.daemon = { cortex };
++    ctx.vocal = {};
++    await shard.hal.verbatim({ polish: POLISH })(ctx);
++    const order = [];
++    for await (const event of ctx.output) order.push(event.event === "/verbatim/polish" ? `polish:${event.segments}` : event.event);
++    const secondOpen = order.indexOf("/turn/open", 1);
++    specimen.expect(order.indexOf("polish:0")).toBeGreaterThan(secondOpen);
++    specimen.expect(order.filter((entry) => entry.startsWith("polish:"))).toEqual(["polish:0", "polish:1"]);
++  });
++
++  specimen.it("VOCAL harmonize options reach the harmonizer", async () => {
++    const loose = await pipeline({
++      hypotheses: ["one two three four five", "one two three four five six"],
++      final: "one two three four five six",
++      vocal: { polish: false, harmonize: { tail: 2 } },
++    });
++    for (const event of loose.filter((event) => event.event === "/verbatim/partial")) {
++      specimen.expect(event.transcript.split(" ").length <= 2).toBe(true);
++    }
++  });
++});
+diff --git a/subsystems/typology/tests/harmonize.test.js b/subsystems/typology/tests/harmonize.test.js
+new file mode 100644
+index 0000000..0c0692a
+--- /dev/null
++++ b/subsystems/typology/tests/harmonize.test.js
+@@ -0,0 +1,151 @@
++import { specimen, verbatim } from "@vivalence/typology";
++
++async function* script(events) {
++  yield* events;
++}
++
++async function collect(stream) {
++  const out = [];
++  for await (const event of stream) out.push(event);
++  return out;
++}
++
++const partial = (transcript) => ({ event: "/verbatim/partial", transcript });
++const final = (transcript) => ({ event: "/verbatim/final", transcript });
++const commits = (events) => events.filter((e) => e.event === "/verbatim/commit").map((e) => e.text);
++const partials = (events) => events.filter((e) => e.event === "/verbatim/partial").map((e) => e.transcript);
++
++specimen.describe("belt.verbatim.harmonize — LocalAgreement with tolerance", () => {
++  specimen.it("commits the agreed prefix across the window, tail shrinks", async () => {
++    const events = await collect(
++      verbatim.harmonize(script([partial("the"), partial("the quick"), partial("the quick brown")]), { window: 2 }),
++    );
++    specimen.expect(commits(events)).toEqual(["the", "quick"]);
++    specimen.expect(partials(events)).toEqual(["the", "quick", "brown"]);
++  });
++
++  specimen.it("never commits a flickering word", async () => {
++    const events = await collect(
++      verbatim.harmonize(script([partial("the quick brawn"), partial("the quick brown fox")]), { window: 2, tolerance: 1 }),
++    );
++    specimen.expect(commits(events)).toEqual(["the quick"]);
++  });
++
++  specimen.it("tolerates near-identical spellings", async () => {
++    const events = await collect(
++      verbatim.harmonize(script([partial("vivalance rocks"), partial("vivalence rocks hard")]), { window: 2, tolerance: 0.8 }),
++    );
++    specimen.expect(commits(events)[0]).toBe("vivalence rocks");
++  });
++
++  specimen.it("final flushes the remainder as one commit, passes through with a minted segment id", async () => {
++    const events = await collect(
++      verbatim.harmonize(script([partial("count to"), partial("count to three"), final("count to three now")]), { window: 2 }),
++    );
++    specimen.expect(commits(events)).toEqual(["count to", "three now"]);
++    specimen.expect(events.at(-1)).toEqual({ event: "/verbatim/final", transcript: "count to three now", segment: 0 });
++  });
++
++  specimen.it("segment ids climb across finals; state resets across turns on one stream", async () => {
++    const events = await collect(
++      verbatim.harmonize(
++        script([
++          { event: "/turn/open", turn: { role: "user" } },
++          partial("first utterance"),
++          final("first utterance"),
++          { event: "/turn/close" },
++          { event: "/turn/open", turn: { role: "user" } },
++          partial("second"),
++          partial("second thought"),
++          final("second thought"),
++          { event: "/turn/close" },
++        ]),
++        { window: 2 },
++      ),
++    );
++    specimen.expect(commits(events)).toEqual(["first utterance", "second", "thought"]);
++    specimen.expect(events.filter((e) => e.event === "/verbatim/final").map((e) => e.segment)).toEqual([0, 1]);
++    specimen.expect(events.filter((e) => e.event === "/turn/close").length).toBe(2);
++  });
++
++  specimen.it("caps the volatile tail", async () => {
++    const long = "one two three four five six seven eight nine ten";
++    const events = await collect(verbatim.harmonize(script([partial(long)]), { window: 2, tail: 3 }));
++    specimen.expect(partials(events)[0]).toBe("eight nine ten");
++  });
++
++  specimen.it("passes eager, resume, and polish through untouched", async () => {
++    const events = await collect(
++      verbatim.harmonize(
++        script([
++          { event: "/verbatim/eager", transcript: "hello there" },
++          { event: "/verbatim/resume" },
++          { event: "/verbatim/polish", transcript: "Hello there.", segments: [0] },
++        ]),
++      ),
++    );
++    specimen.expect(events.map((e) => e.event)).toEqual(["/verbatim/eager", "/verbatim/resume", "/verbatim/polish"]);
++  });
++
++  specimen.it("commits plus final stay consistent", async () => {
++    const hypotheses = ["so", "so the", "so the plan", "so the plan is", "so the plan is simple"];
++    const events = await collect(
++      verbatim.harmonize(script([...hypotheses.map(partial), final("so the plan is simple")]), { window: 2 }),
++    );
++    specimen.expect(commits(events).join(" ")).toBe("so the plan is simple");
++  });
++});
++
++specimen.describe("belt.verbatim.fold — the client reduction over addressable segments", () => {
++  const view = (state) => ({ committed: verbatim.transcript(state), tail: state.tail });
++
++  specimen.it("folds commit, partial, final, polish", () => {
++    let state = verbatim.fold(undefined, { event: "/turn/open", turn: { role: "user" } });
++    state = verbatim.fold(state, { event: "/verbatim/commit", text: "hello" });
++    state = verbatim.fold(state, { event: "/verbatim/partial", transcript: "wor" });
++    specimen.expect(view(state)).toEqual({ committed: "hello", tail: "wor" });
++    state = verbatim.fold(state, { event: "/verbatim/commit", text: "world" });
++    specimen.expect(view(state)).toEqual({ committed: "hello world", tail: "" });
++    state = verbatim.fold(state, { event: "/verbatim/final", transcript: "hello world", segment: 0 });
++    specimen.expect(view(state)).toEqual({ committed: "hello world", tail: "" });
++    state = verbatim.fold(state, { event: "/verbatim/polish", transcript: "Hello, world.", segments: [0] });
++    specimen.expect(verbatim.transcript(state)).toBe("Hello, world.");
++  });
++
++  specimen.it("keeps every settled segment; a polish addresses its segments by id no matter when it lands", () => {
++    let state = verbatim.fold(undefined, { event: "/verbatim/commit", text: "the quick" });
++    state = verbatim.fold(state, { event: "/verbatim/final", transcript: "the quick fox", segment: 0 });
++    state = verbatim.fold(state, { event: "/verbatim/commit", text: "jumps" });
++    state = verbatim.fold(state, { event: "/verbatim/partial", transcript: "over the" });
++    specimen.expect(view(state)).toEqual({ committed: "the quick fox jumps", tail: "over the" });
++    state = verbatim.fold(state, { event: "/verbatim/final", transcript: "jumps over the dog", segment: 1 });
++    state = verbatim.fold(state, { event: "/turn/close" });
++    state = verbatim.fold(state, { event: "/turn/open", turn: { role: "user" } });
++    state = verbatim.fold(state, { event: "/verbatim/partial", transcript: "and" });
++    specimen.expect(view(state)).toEqual({ committed: "the quick fox jumps over the dog", tail: "and" });
++    state = verbatim.fold(state, { event: "/verbatim/polish", transcript: "The quick fox jumps over the dog.", segments: [0, 1] });
++    specimen.expect(view(state)).toEqual({ committed: "The quick fox jumps over the dog.", tail: "and" });
++    state = verbatim.fold(state, { event: "/verbatim/final", transcript: "and then", segment: 2 });
++    specimen.expect(verbatim.transcript(state)).toBe("The quick fox jumps over the dog. and then");
++    state = verbatim.fold(state, { event: "/verbatim/polish", transcript: "And then.", segments: [2] });
++    specimen.expect(verbatim.transcript(state)).toBe("The quick fox jumps over the dog. And then.");
++  });
++
++  specimen.it("a final carries its words into the settled entry; polish sheds them", () => {
++    let state = verbatim.fold(undefined, {
++      event: "/verbatim/final",
++      transcript: "ciao",
++      segment: 0,
++      words: [{ word: "ciao", confidence: 0.97 }],
++    });
++    specimen.expect(state.settled[0].words).toEqual([{ word: "ciao", confidence: 0.97 }]);
++    state = verbatim.fold(state, { event: "/verbatim/polish", transcript: "Ciao.", segments: [0] });
++    specimen.expect(state.settled[0]).toEqual({ id: 0, text: "Ciao." });
++  });
++
++  specimen.it("ignores a polish for segments it never settled", () => {
++    let state = verbatim.fold(undefined, { event: "/verbatim/final", transcript: "one", segment: 0 });
++    state = verbatim.fold(state, { event: "/verbatim/polish", transcript: "Two.", segments: [7] });
++    specimen.expect(verbatim.transcript(state)).toBe("one");
++  });
++});
+diff --git a/subsystems/typology/tests/pcm.test.js b/subsystems/typology/tests/pcm.test.js
+new file mode 100644
+index 0000000..e4b3851
+--- /dev/null
++++ b/subsystems/typology/tests/pcm.test.js
+@@ -0,0 +1,24 @@
++import { specimen, pcm } from "@vivalence/typology";
++
++specimen.describe("belt.pcm — decode ∘ encode ≈ identity", () => {
++  specimen.it("round-trips samples within one quantization step", () => {
++    const samples = Float32Array.from([0, 0.5, -0.5, 1, -1, 0.123, -0.987]);
++    const out = pcm.decode(pcm.encode(samples));
++    specimen.expect(out.length).toBe(samples.length);
++    for (let i = 0; i < samples.length; i++) {
++      specimen.expect(Math.abs(out[i] - samples[i]) < 1 / 0x7fff).toBe(true);
++    }
++  });
++
++  specimen.it("clamps beyond full scale", () => {
++    const out = pcm.decode(pcm.encode(Float32Array.from([2, -2])));
++    specimen.expect(out[0]).toBe(1);
++    specimen.expect(out[1]).toBe(-1);
++  });
++
++  specimen.it("bytes is identity on bytes and the inverse of base64", () => {
++    const raw = Uint8Array.from([1, 2, 255]);
++    specimen.expect(pcm.bytes(raw)).toBe(raw);
++    specimen.expect([...pcm.bytes(btoa("\x01\x02\xff"))]).toEqual([1, 2, 255]);
++  });
++});
+diff --git a/subsystems/typology/tests/sse.test.js b/subsystems/typology/tests/sse.test.js
+new file mode 100644
+index 0000000..48d7973
+--- /dev/null
++++ b/subsystems/typology/tests/sse.test.js
+@@ -0,0 +1,30 @@
++import { specimen, sse } from "@vivalence/typology";
++
++async function collect(readable) {
++  const out = [];
++  for await (const frame of sse.frames(readable)) out.push(frame);
++  return out;
++}
++
++specimen.describe("belt.sse — frames ∘ encode = identity", () => {
++  specimen.it("round-trips a packet stream through the wire form", async () => {
++    const events = [
++      { event: "/audio/packet", audio: "aGk=", rate: 16000 },
++      { event: "/turn/close" },
++      "plain",
++    ];
++    specimen.expect(await collect(sse.encode(events))).toEqual(events);
++  });
++
++  specimen.it("reassembles frames split across chunk boundaries", async () => {
++    const encoder = new TextEncoder();
++    const readable = new ReadableStream({
++      start(controller) {
++        controller.enqueue(encoder.encode('data: {"a":1}\n\ndata: {"b":'));
++        controller.enqueue(encoder.encode("2}\n\n"));
++        controller.close();
++      },
++    });
++    specimen.expect(await collect(readable)).toEqual([{ a: 1 }, { b: 2 }]);
++  });
++});
+diff --git a/subsystems/typology/tests/wire.converse.test.js b/subsystems/typology/tests/wire.converse.test.js
+new file mode 100644
+index 0000000..d8239a3
+--- /dev/null
++++ b/subsystems/typology/tests/wire.converse.test.js
+@@ -0,0 +1,61 @@
++import { specimen, v, Vector, Connection, Url, shape } from "@vivalence/typology";
++
++const Frame = v.object({ event: v.const("/audio/packet"), audio: v.string(), rate: v.integer() });
++const Event = v.object({ event: v.string() });
++
++specimen.describe("strip ⟷ wire — an upstream leaf compiles to converse", () => {
++  const aperture = new Vector()
++    .open({ nature: "/verbatim/stream", feeds: Frame, yields: Event }, () => null)
++    .open({ nature: "/dialogue/stream", yields: Event }, () => null)
++    .open("/dialogue/render", () => null);
++
++  specimen.it("strip carries feeds beside yields", () => {
++    const stripped = shape.strip(aperture);
++    specimen.expect(stripped.branches.verbatim.branches.stream.effect.feeds).toBeDefined();
++    specimen.expect(stripped.branches.verbatim.branches.stream.effect.yields).toBeDefined();
++    specimen.expect(stripped.branches.dialogue.branches.stream.effect.feeds).toBeUndefined();
++  });
++
++  specimen.it("a feeds leaf calls converse with the source up and input beside; a yields leaf still streams", async () => {
++    const calls = [];
++    const transport = async (ctx) => {
++      calls.push({
++        path: ctx.request.url.pathname,
++        accept: ctx.request.headers.get("accept"),
++        input: ctx.request.body,
++        upstream: ctx.request.raw?.body instanceof ReadableStream,
++      });
++      ctx.response.status = 200;
++      ctx.response.body = (async function* () {
++        yield { event: "/ok" };
++      })();
++    };
++    const connection = new Connection(new Url("http://wire.test"), transport);
++    const mirror = shape.connection.wire(connection, shape.strip(aperture));
++
++    async function* source() {
++      yield { event: "/audio/packet", audio: "aGk=", rate: 16000 };
++    }
++    const down = [];
++    for await (const event of mirror.verbatim.stream(source(), { input: { thread: "t1" } })) down.push(event);
++    specimen.expect(down).toEqual([{ event: "/ok" }]);
++    specimen.expect(calls[0]).toEqual({ path: "/verbatim/stream", accept: "text/event-stream", input: { thread: "t1" }, upstream: true });
++
++    for await (const _ of mirror.dialogue.stream({ thread: "t1" })) break;
++    specimen.expect(calls[1]).toEqual({ path: "/dialogue/stream", accept: "text/event-stream", input: { thread: "t1" }, upstream: false });
++  });
++
++  specimen.it("plain HTTP refuses converse input loudly", async () => {
++    const connection = new Connection(new Url("http://nowhere.test"));
++    async function* source() {
++      yield { event: "/audio/packet", audio: "aGk=", rate: 16000 };
++    }
++    let fault = null;
++    try {
++      for await (const _ of connection.converse("/x", source(), { input: { thread: "t1" } })) break;
++    } catch (error) {
++      fault = error;
++    }
++    specimen.expect(fault?.message ?? "").toContain("multiplex");
++  });
++});
+diff --git a/systems/kajuit/src/app/+layout.svelte b/systems/kajuit/src/app/+layout.svelte
+index 35948dc..e05a1e5 100644
+--- a/systems/kajuit/src/app/+layout.svelte
++++ b/systems/kajuit/src/app/+layout.svelte
+@@ -9,7 +9,7 @@
+ 
+   import { Connection, Url, shard } from "@vivalence/typology";
+   import { logger } from "$telemetry";
+-  import { LIGHTHOUSE, TERMINALS, BRIDGE } from "$client";
++  import { LIGHTHOUSE, TERMINALS, BRIDGE, BOX } from "$client";
+   import { stores } from "@vivalence/kajuit";
+   import * as terminalEffects from "./terminals.js";
+   import * as focusEffects from "./focus.js";
+@@ -38,8 +38,11 @@
+   const terminals = new stores.terminals.Terminals();
+   setContext(TERMINALS, terminals);
+ 
++  const box = new stores.box.Box();
++  setContext(BOX, box);
++
+   if (typeof window !== "undefined") { // @beef Temporary devtools hack.
+-    window.__viva = { lighthouse, terminals, bridge /*, box */ };
++    window.__viva = { lighthouse, terminals, bridge, box };
+   }
+ 
+   if (import.meta.env.DEV) {
+diff --git a/systems/kajuit/src/app/panels/a/widgets/Dictaphone.svelte b/systems/kajuit/src/app/panels/a/widgets/Dictaphone.svelte
+new file mode 100644
+index 0000000..a42939a
+--- /dev/null
++++ b/systems/kajuit/src/app/panels/a/widgets/Dictaphone.svelte
+@@ -0,0 +1,73 @@
++<script>
++  let { active, level, disabled = false, fault = null, onstart, onstop } = $props();
++
++  const busy = $derived($active === "arming" || $active === "settling");
++  const listening = $derived($active === "listening");
++</script>
++
++<button
++  class="dictaphone"
++  class:listening
++  class:busy
++  onclick={() => (listening ? onstop?.() : onstart?.())}
++  onpointerdown={(event) => event.preventDefault()}
++  disabled={disabled || busy}
++  title={fault ?? (listening ? "settle dictation" : "dictate")}
++  aria-label={listening ? "stop dictation" : "start dictation"}
++>
++  <span class="pulse" style:transform="scale({1 + Math.min(($level ?? 0) * 6, 0.9)})"></span>
++  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
++    <rect x="9" y="3" width="6" height="11" rx="3" />
++    <path d="M5 11a7 7 0 0 0 14 0" />
++    <line x1="12" y1="18" x2="12" y2="21" />
++  </svg>
++</button>
++
++<style>
++  .dictaphone {
++    position: relative;
++    width: 32px;
++    height: 32px;
++    padding: 0;
++    display: grid;
++    place-items: center;
++    background: color-mix(in srgb, var(--colors-skeleton-0-primary-base) 8%, transparent);
++    border: 1px solid color-mix(in srgb, var(--colors-skeleton-0-primary-base) 45%, transparent);
++    border-radius: 2px;
++    color: var(--colors-skeleton-0-primary-base);
++    cursor: pointer;
++    transition: background 0.16s, color 0.16s, border-color 0.16s;
++    flex-shrink: 0;
++    overflow: hidden;
++  }
++  .dictaphone svg {
++    width: 15px;
++    height: 15px;
++    display: block;
++    position: relative;
++  }
++  .dictaphone:not(:disabled):hover {
++    background: color-mix(in srgb, var(--colors-skeleton-0-primary-base) 16%, transparent);
++    border-color: var(--colors-skeleton-0-primary-base);
++  }
++  .dictaphone:disabled {
++    opacity: 0.4;
++    cursor: progress;
++  }
++  .dictaphone.listening {
++    border-color: var(--colors-skeleton-0-danger-base);
++    color: var(--colors-skeleton-0-danger-base);
++  }
++  .dictaphone.busy {
++    border-color: var(--colors-skeleton-0-primary-base);
++  }
++  .pulse {
++    position: absolute;
++    inset: 0;
++    border-radius: 2px;
++    background: color-mix(in srgb, currentColor 14%, transparent);
++    transform-origin: center;
++    transition: transform 0.08s linear;
++    pointer-events: none;
++  }
++</style>
+diff --git a/systems/kajuit/src/app/panels/a/widgets/Dock.svelte b/systems/kajuit/src/app/panels/a/widgets/Dock.svelte
+index 55228b1..3fcf5ae 100644
+--- a/systems/kajuit/src/app/panels/a/widgets/Dock.svelte
++++ b/systems/kajuit/src/app/panels/a/widgets/Dock.svelte
+@@ -1,10 +1,12 @@
+ <script>
+   import { getContext } from "svelte";
+-  import { chain, stores } from "@vivalence/kajuit";
++  import { chain, stores, dictation } from "@vivalence/kajuit";
+   import { soma } from "@vivalence/typology";
+-  import { TERMINALS, BRIDGE } from "$client";
++  import { TERMINALS, BRIDGE, BOX } from "$client";
+   import { Json } from "@vivalence/drapes";
+   import Markdown from "./Markdown.svelte";
++  import Dictaphone from "./Dictaphone.svelte";
++  import { spliceAt } from "./dictate.js";
+   import {
+     turnText,
+     turnThinking,
+@@ -30,6 +32,7 @@
+ 
+   const terminals = getContext(TERMINALS);
+   const bridge = getContext(BRIDGE);
++  const box = getContext(BOX);
+ 
+   // reactive reads via chain from the STABLE terminals root (survives thread switches).
+   const turnsStore = chain(terminals, "$active", "$thread", "$turns");
+@@ -40,6 +43,16 @@
+ 
+   let turns = $derived($turnsStore ?? []);
+   let harnessed = $derived($modeStore?.implements?.("HARNESSED") ?? false);
++  let verbatim = $derived(harnessed && ($modeStore?.daemon?.cortex?.find({ type: "verbatim", via: "stream" }).length ?? 0) > 0);
++
++  const recorder = dictation({ terminals, box });
++  const dictating = recorder.$active;
++  const committed = recorder.$committed;
++  const tail = recorder.$tail;
++  const dictationFault = recorder.$error;
++  const level = box.device.microphone.$level;
++  let anchor = 0;
++  const listening = $derived($dictating !== "idle");
+   let full = $derived($dockStore?.full ?? false);
+ 
+   // in-flight = pure view state. history is thread.$turns (the repo). the user turn is minted
+@@ -162,6 +175,32 @@
+     };
+   }
+ 
++  function dictate() {
++    anchor = textareaEl?.selectionStart ?? draft.length;
++    recorder.start();
++  }
++
++  async function settle() {
++    recorder.stop();
++    await recorder.settled();
++    const text = recorder.$committed.get();
++    if (!text) return;
++    const spliced = spliceAt(draft, anchor, text);
++    draft = spliced.draft;
++    requestAnimationFrame(() => {
++      textareaEl?.focus();
++      if (textareaEl) textareaEl.selectionStart = textareaEl.selectionEnd = spliced.caret;
++    });
++  }
++
++  $effect(() => {
++    const unswitch = chain(terminals, "$active", "$thread").subscribe(() => recorder.cancel());
++    return () => {
++      unswitch();
++      recorder.cancel();
++    };
++  });
++
+   async function send() {
+     if (!draft.trim() || !harnessed || sending) return;
+     const parts = [{ type: "text", text: draft.trim() }];
+@@ -224,6 +263,9 @@
+     } else if (event.key === "ArrowUp" && draft === "") {
+       event.preventDefault();
+       recallLastUser();
++    } else if (event.key === "Escape" && listening) {
++      event.preventDefault();
++      recorder.cancel();
+     } else if (event.key === "Escape" && (isStreaming || sending)) {
+       event.preventDefault();
+       stop();
+@@ -629,6 +671,12 @@
+   {/if}
+ 
+   <div class="composer">
++    {#if listening}
++      <div class="dictation-ghost">
++        <span class="mark"></span>
++        <span class="settled">{$committed}</span>{#if $tail}<span class="volatile">&nbsp;{$tail}</span>{/if}
++      </div>
++    {/if}
+     {#if !pinned}
+       <button type="button" class="new-pill" class:quiet={unread === 0} onpointerdown={(event) => event.preventDefault()} onclick={() => { pinned = true; pinBottom(); unread = 0; }} aria-label="scroll to bottom">
+         ↓{#if unread > 0}&nbsp;{unread} new{/if}
+@@ -641,9 +689,19 @@
+       onkeydown={onKey}
+       placeholder={harnessed ? hint : "—"}
+       disabled={!harnessed}
++      readonly={listening}
+       rows="1"
+       style:max-height="{Math.max(112, Math.round(dockHeight * 0.6))}px"></textarea>
+ 
++    {#if verbatim}
++      <Dictaphone
++        active={dictating}
++        {level}
++        fault={$dictationFault}
++        disabled={sending}
++        onstart={dictate}
++        onstop={settle} />
++    {/if}
+     {#if isStreaming || sending}
+       <button class="send stop" onclick={stop} onpointerdown={(event) => event.preventDefault()} title={coarsePointer ? "stop" : "stop (esc)"} aria-label="stop">
+         <svg viewBox="0 0 24 24">
+@@ -1671,4 +1729,40 @@
+   .send.stop:hover {
+     background: color-mix(in srgb, var(--colors-skeleton-0-danger-base) 18%, transparent);
+   }
++  .dictation-ghost {
++    position: absolute;
++    bottom: calc(100% + 6px);
++    left: 8px;
++    right: 8px;
++    display: flex;
++    align-items: baseline;
++    gap: 6px;
++    padding: 5px 8px;
++    font-size: 12px;
++    line-height: 17px;
++    background: color-mix(in srgb, var(--colors-skeleton-0-surface) 92%, transparent);
++    border: 1px solid color-mix(in srgb, var(--colors-skeleton-0-danger-base) 40%, transparent);
++    border-radius: 2px;
++    backdrop-filter: blur(4px);
++    pointer-events: none;
++    white-space: pre-wrap;
++    overflow-wrap: anywhere;
++  }
++  .dictation-ghost .mark {
++    width: 6px;
++    height: 6px;
++    border-radius: 50%;
++    background: var(--colors-skeleton-0-danger-base);
++    flex-shrink: 0;
++    align-self: center;
++    animation: dictation-breathe 1.4s ease-in-out infinite;
++  }
++  .dictation-ghost .volatile {
++    opacity: 0.45;
++    font-style: italic;
++  }
++  @keyframes dictation-breathe {
++    0%, 100% { opacity: 0.35; }
++    50% { opacity: 1; }
++  }
+ </style>
+diff --git a/systems/kajuit/src/app/panels/a/widgets/dictate.js b/systems/kajuit/src/app/panels/a/widgets/dictate.js
+new file mode 100644
+index 0000000..74dabcd
+--- /dev/null
++++ b/systems/kajuit/src/app/panels/a/widgets/dictate.js
+@@ -0,0 +1,9 @@
++export function spliceAt(draft, anchor, text) {
++  if (!text) return { draft, caret: anchor };
++  const at = Math.max(0, Math.min(anchor, draft.length));
++  const head = draft.slice(0, at);
++  const rest = draft.slice(at);
++  const lead = head && !/\s$/.test(head) ? " " : "";
++  const trail = rest && !/^\s/.test(rest) ? " " : "";
++  return { draft: head + lead + text + trail + rest, caret: at + lead.length + text.length };
++}
+diff --git a/systems/kajuit/src/client.js b/systems/kajuit/src/client.js
+index 1154572..8baa84f 100644
+--- a/systems/kajuit/src/client.js
++++ b/systems/kajuit/src/client.js
+@@ -1,7 +1,7 @@
+ export const LIGHTHOUSE = Symbol("lighthouse"); // dataspaces & daemons
+ export const BRIDGE = Symbol("bridge"); // layout & controls
+ export const TERMINALS = Symbol("terminals"); // terminals collection + active terminal/thread/daemon/mode
+-// export const BOX = Symbol("box"); // device drivers — mic, speaker, etc.
++export const BOX = Symbol("box"); // device drivers — mic, speaker, etc.
+ 
+ const UNKNOWN = { change: "unknown", commit: "unknown", authored: null, built: null };
+ 
+diff --git a/systems/kajuit/src/typology/prototypes/conversation.js b/systems/kajuit/src/typology/prototypes/conversation.js
+index 742a2b4..70ffbec 100644
+--- a/systems/kajuit/src/typology/prototypes/conversation.js
++++ b/systems/kajuit/src/typology/prototypes/conversation.js
+@@ -1,5 +1,5 @@
+ import { atom } from "nanostores";
+-import { soma } from "@vivalence/typology";
++import { pcm, soma } from "@vivalence/typology";
+ 
+ export function conversation({ terminal, box }) {
+   const $streaming = atom(null);
+@@ -7,14 +7,13 @@ export function conversation({ terminal, box }) {
+   const $error = atom(null);
+ 
+   let down = null;
+-  let up = null;
+ 
+   async function drain(stream) {
+     let assistant = null;
+     try {
+       for await (const packet of stream) {
+         if ((packet.channel ?? "dialogue") === "speech") {
+-          box.device.speaker.out.enqueue(box.drivers.audio.decode(packet.audio));
++          box.device.speaker.out.enqueue(pcm.decode(packet.audio));
+           continue;
+         }
+         assistant = soma.pour(assistant, packet);
+@@ -45,30 +44,9 @@ export function conversation({ terminal, box }) {
+ 
+   const abort = () => down?.abort();
+ 
+-  async function listen() {
+-    const thread = terminal.thread;
+-    await box.device.microphone.claim();
+-    await box.device.speaker.claim();
+-    up = new AbortController();
+-    drain(
+-      await thread.mode.connection.publish(
+-        "/harness/verbatim/stream",
+-        box.device.microphone.in.stream(up.signal),
+-        { signal: up.signal },
+-      ),
+-    );
+-  }
+-
+-  const mute = () => {
+-    up?.abort();
+-    up = null;
+-    box.device.microphone.release();
+-    box.device.speaker.flush();
+-  };
+-
+   function close() {
+     abort();
+-    mute();
++    box.device.speaker.flush();
+     $streaming.set(null);
+     $pending.set(false);
+   }
+@@ -81,8 +59,6 @@ export function conversation({ terminal, box }) {
+     $error,
+     send,
+     abort,
+-    listen,
+-    mute,
+     close,
+     teardown: () => {
+       close();
+diff --git a/systems/kajuit/src/typology/prototypes/dictation.js b/systems/kajuit/src/typology/prototypes/dictation.js
+new file mode 100644
+index 0000000..009f85e
+--- /dev/null
++++ b/systems/kajuit/src/typology/prototypes/dictation.js
+@@ -0,0 +1,109 @@
++import { atom } from "nanostores";
++import { pcm, verbatim } from "@vivalence/typology";
++
++export function dictation({ terminals, box }) {
++  const $active = atom("idle");
++  const $committed = atom("");
++  const $tail = atom("");
++  const $error = atom(null);
++
++  let feed = null;
++  let link = null;
++  let settled = null;
++  let session = 0;
++
++  async function* frames(signal) {
++    const rate = box.drivers.audio.context.sampleRate;
++    let pts = 0;
++    for await (const samples of box.device.microphone.in.stream(signal)) {
++      yield { event: "/audio/packet", audio: pcm.encode(samples), rate, pts };
++      pts += samples.length / rate;
++    }
++  }
++
++  async function reduce(events, id) {
++    let state = verbatim.empty;
++    try {
++      for await (const event of events) {
++        if (id !== session) break;
++        state = verbatim.fold(state, event);
++        $committed.set(verbatim.transcript(state));
++        $tail.set(state.tail);
++      }
++    } catch (error) {
++      if (id === session && error.name !== "AbortError") $error.set(error.message);
++    } finally {
++      if (id === session) {
++        box.device.microphone.release();
++        feed = null;
++        link = null;
++        $tail.set("");
++        $active.set("idle");
++      }
++    }
++  }
++
++  async function start() {
++    if ($active.get() !== "idle") return;
++    const thread = terminals.active?.thread;
++    if (!thread?.mode?.harness?.verbatim?.stream) {
++      $error.set("no verbatim harness on this thread");
++      return;
++    }
++    const id = ++session;
++    $error.set(null);
++    $committed.set("");
++    $tail.set("");
++    $active.set("arming");
++    try {
++      await box.device.microphone.claim();
++    } catch (error) {
++      if (id === session) {
++        $error.set(error.message);
++        $active.set("idle");
++      }
++      return;
++    }
++    if (id !== session) {
++      if ($active.get() === "idle") box.device.microphone.release();
++      return;
++    }
++    feed = new AbortController();
++    link = new AbortController();
++    const events = thread.mode.harness.verbatim.stream(frames(feed.signal), {
++      input: { thread: thread.id },
++      signal: link.signal,
++    });
++    $active.set("listening");
++    settled = reduce(events, id);
++  }
++
++  function stop() {
++    if ($active.get() !== "listening") return;
++    $active.set("settling");
++    feed?.abort();
++    box.device.microphone.pause();
++  }
++
++  function cancel() {
++    const was = $active.get();
++    session += 1;
++    feed?.abort();
++    link?.abort();
++    if (was !== "idle") box.device.microphone.release();
++    $committed.set("");
++    $tail.set("");
++    $active.set("idle");
++  }
++
++  return {
++    $active,
++    $committed,
++    $tail,
++    $error,
++    start,
++    stop,
++    cancel,
++    settled: () => settled,
++  };
++}
+diff --git a/systems/kajuit/src/typology/prototypes/index.js b/systems/kajuit/src/typology/prototypes/index.js
+index 7b425c9..9a7e763 100644
+--- a/systems/kajuit/src/typology/prototypes/index.js
++++ b/systems/kajuit/src/typology/prototypes/index.js
+@@ -1,2 +1,3 @@
+ export { Entity } from "./entity.js";
+ export { conversation } from "./conversation.js";
++export { dictation } from "./dictation.js";
+diff --git a/systems/kajuit/src/typology/stores/box/device/microphone/worklet.js b/systems/kajuit/src/typology/stores/box/device/microphone/worklet.js
+index b524496..4a79e5a 100644
+--- a/systems/kajuit/src/typology/stores/box/device/microphone/worklet.js
++++ b/systems/kajuit/src/typology/stores/box/device/microphone/worklet.js
+@@ -1,10 +1,24 @@
++const FRAME_SAMPLES = 1024;
++
+ class MicrophonePcmProcessor extends AudioWorkletProcessor {
++  pending = [];
++  pendingSamples = 0;
++
+   process(inputs) {
+     const channel = inputs[0]?.[0];
+-    if (channel) {
+-      const copy = new Float32Array(channel);
+-      this.port.postMessage(copy, [copy.buffer]);
++    if (!channel) return true;
++    this.pending.push(new Float32Array(channel));
++    this.pendingSamples += channel.length;
++    if (this.pendingSamples < FRAME_SAMPLES) return true;
++    const frame = new Float32Array(this.pendingSamples);
++    let offset = 0;
++    for (const slice of this.pending) {
++      frame.set(slice, offset);
++      offset += slice.length;
+     }
++    this.pending = [];
++    this.pendingSamples = 0;
++    this.port.postMessage(frame, [frame.buffer]);
+     return true;
+   }
+ }
+diff --git a/systems/kajuit/tests/dictate.splice.test.js b/systems/kajuit/tests/dictate.splice.test.js
+new file mode 100644
+index 0000000..28824c9
+--- /dev/null
++++ b/systems/kajuit/tests/dictate.splice.test.js
+@@ -0,0 +1,33 @@
++import { specimen } from "@vivalence/typology";
++import { spliceAt } from "../src/app/panels/a/widgets/dictate.js";
++
++specimen.describe("dictate.spliceAt", () => {
++  specimen.it("appends to an empty draft without padding", () => {
++    specimen.expect(spliceAt("", 0, "hello world")).toEqual({ draft: "hello world", caret: 11 });
++  });
++
++  specimen.it("inserts mid-draft with joining spaces on both sides", () => {
++    const { draft, caret } = spliceAt("fix the bug", 7, "obvious");
++    specimen.expect(draft).toBe("fix the obvious bug");
++    specimen.expect(draft.slice(0, caret)).toBe("fix the obvious");
++  });
++
++  specimen.it("respects existing whitespace, adds none twice", () => {
++    specimen.expect(spliceAt("before  after", 7, "mid").draft).toBe("before mid after");
++  });
++
++  specimen.it("appends at the end with a single leading space", () => {
++    const { draft, caret } = spliceAt("first thought", 13, "second thought");
++    specimen.expect(draft).toBe("first thought second thought");
++    specimen.expect(caret).toBe(draft.length);
++  });
++
++  specimen.it("clamps out-of-range anchors", () => {
++    specimen.expect(spliceAt("short", 99, "tail").draft).toBe("short tail");
++    specimen.expect(spliceAt("short", -3, "head").draft).toBe("head short");
++  });
++
++  specimen.it("empty text is a no-op", () => {
++    specimen.expect(spliceAt("draft", 2, "")).toEqual({ draft: "draft", caret: 2 });
++  });
++});
+diff --git a/systems/kajuit/tests/dictation.store.test.js b/systems/kajuit/tests/dictation.store.test.js
+new file mode 100644
+index 0000000..cfebc83
+--- /dev/null
++++ b/systems/kajuit/tests/dictation.store.test.js
+@@ -0,0 +1,146 @@
++import { specimen, sleep } from "@vivalence/typology";
++import { dictation } from "../src/typology/prototypes/dictation.js";
++
++const pause = (signal, ms) =>
++  new Promise((resolve) => {
++    const timer = setTimeout(done, ms);
++    function done() {
++      clearTimeout(timer);
++      signal.removeEventListener("abort", done);
++      resolve();
++    }
++    signal.addEventListener("abort", done, { once: true });
++  });
++
++function fakeBox(samples) {
++  const box = {
++    released: false,
++    paused: false,
++    drivers: { audio: { context: { sampleRate: 16000 } } },
++    device: {
++      microphone: {
++        claim: async () => {},
++        pause: () => (box.paused = true),
++        release: () => (box.released = true),
++        in: {
++          stream: async function* (signal) {
++            for (const sample of samples) {
++              if (signal.aborted) return;
++              yield sample;
++              await pause(signal, 5);
++            }
++            if (signal.aborted) return;
++            await new Promise((resolve) => signal.addEventListener("abort", resolve, { once: true }));
++          },
++        },
++      },
++    },
++  };
++  return box;
++}
++
++function fakeTerminals(events) {
++  const captured = {};
++  const thread = {
++    id: "t1",
++    mode: {
++      harness: {
++        verbatim: {
++          stream: (source, options) => {
++            captured.options = options;
++            return (async function* () {
++              const sent = [];
++              for await (const frame of source) sent.push(frame);
++              captured.sent = sent;
++              yield* events(sent);
++            })();
++          },
++        },
++      },
++    },
++  };
++  return { terminals: { active: { thread } }, captured };
++}
++
++specimen.describe("kajuit dictation prototype", () => {
++  specimen.it("streams audio packets up through the mirror and folds events into atoms", async () => {
++    const box = fakeBox([new Float32Array([0, 0.5]), new Float32Array([-0.5, 1])]);
++    const { terminals, captured } = fakeTerminals((sent) => [
++      { event: "/turn/open", turn: { role: "user" } },
++      { event: "/verbatim/commit", text: "hello" },
++      { event: "/verbatim/partial", transcript: "wor" },
++      { event: "/verbatim/final", transcript: `hello world x${sent.length}`, segment: 0 },
++      { event: "/turn/close" },
++      { event: "/verbatim/polish", transcript: `Hello world x${sent.length}.`, segments: [0] },
++    ]);
++
++    const dictaphone = dictation({ terminals, box });
++    await dictaphone.start();
++    specimen.expect(dictaphone.$active.get()).toBe("listening");
++
++    await sleep.ms(40);
++    dictaphone.stop();
++    specimen.expect(dictaphone.$active.get()).toBe("settling");
++    specimen.expect(box.paused).toBe(true);
++
++    await dictaphone.settled();
++    specimen.expect(captured.options.input).toEqual({ thread: "t1" });
++    specimen.expect(captured.sent.map((frame) => frame.event)).toEqual(["/audio/packet", "/audio/packet"]);
++    specimen.expect(captured.sent[0].rate).toBe(16000);
++    specimen.expect(typeof captured.sent[0].audio).toBe("string");
++    specimen.expect(captured.sent.map((frame) => frame.pts)).toEqual([0, 2 / 16000]);
++    specimen.expect(dictaphone.$committed.get()).toBe("Hello world x2.");
++    specimen.expect(dictaphone.$tail.get()).toBe("");
++    specimen.expect(dictaphone.$active.get()).toBe("idle");
++    specimen.expect(box.released).toBe(true);
++  });
++
++  specimen.it("cancel discards state and releases the microphone", async () => {
++    const box = fakeBox([new Float32Array([0]), new Float32Array([0]), new Float32Array([0])]);
++    const { terminals } = fakeTerminals(() => []);
++    const dictaphone = dictation({ terminals, box });
++    await dictaphone.start();
++    await sleep.ms(10);
++    dictaphone.cancel();
++
++    specimen.expect(dictaphone.$active.get()).toBe("idle");
++    specimen.expect(dictaphone.$committed.get()).toBe("");
++    specimen.expect(dictaphone.$tail.get()).toBe("");
++    specimen.expect(box.released).toBe(true);
++  });
++
++  specimen.it("a session cancelled while arming never clobbers its successor", async () => {
++    const claims = [];
++    const box = fakeBox([new Float32Array([0]), new Float32Array([0]), new Float32Array([0])]);
++    box.releases = 0;
++    box.device.microphone.claim = () => new Promise((resolve) => claims.push(resolve));
++    box.device.microphone.release = () => (box.releases += 1);
++    const { terminals } = fakeTerminals(() => [{ event: "/verbatim/partial", transcript: "second session" }]);
++    const dictaphone = dictation({ terminals, box });
++
++    const first = dictaphone.start();
++    dictaphone.cancel();
++    const second = dictaphone.start();
++    claims[1]();
++    await second;
++    specimen.expect(dictaphone.$active.get()).toBe("listening");
++
++    const releases = box.releases;
++    claims[0]();
++    await first;
++    specimen.expect(dictaphone.$active.get()).toBe("listening");
++    specimen.expect(box.releases).toBe(releases);
++
++    dictaphone.cancel();
++    await dictaphone.settled();
++  });
++
++  specimen.it("refuses to start without a verbatim harness on the active thread", async () => {
++    const box = fakeBox([]);
++    const dictaphone = dictation({ terminals: { active: { thread: { id: "t2", mode: { harness: {} } } } }, box });
++    await dictaphone.start();
++    specimen.expect(dictaphone.$active.get()).toBe("idle");
++    specimen.expect(dictaphone.$error.get()).toContain("verbatim");
++    specimen.expect(box.released).toBe(false);
++  });
++});
+diff --git a/systems/runtime/daemon/traits/harnessed.js b/systems/runtime/daemon/traits/harnessed.js
+index 2434995..5c64c5f 100644
+--- a/systems/runtime/daemon/traits/harnessed.js
++++ b/systems/runtime/daemon/traits/harnessed.js
+@@ -2,7 +2,14 @@ import { shape, shard, soma, steer, ToolCall, v, Vector } from "@vivalence/typol
+ import paladin from "@vivalence/paladin";
+ import * as skills from "../skills/index.js";
+ 
+-const { Packet } = v.primitives.hallucination;
++const { Packet, Verbatim, Audio } = v.primitives.hallucination;
++
++const POLISH = [
++  "You repair the formatting of a machine transcription of dictated speech.",
++  "Fix punctuation and casing; normalize numbers, dates and units the way a careful typist would.",
++  "Preserve every word as spoken, in whatever language it was spoken — never translate, never correct grammar or word choice, never add, remove or reorder content, never answer or comment.",
++  "Output only the corrected transcript.",
++].join(" ");
+ 
+ //@beef i think it might make sense to isolate some of the middlewares into
+ // ... shards.hal.["xyz"]() which would become our source of truth for cohesion in turn, hallucination etc implementation. nifty.
+@@ -25,10 +32,8 @@ export const HARNESSED = (mode, daemon) => {
+     // thread.trait.INTELLIGENT — claim-gated, validated, projected field-by-field.
+     // Precedence: invocation > thread > mode default (modes default with ??=).
+     const row = input.thread ? await daemon.entities.thread.findOne({ id: input.thread }) : null;
+-    const claimed = row?.traits?.includes("INTELLIGENT") ? row.trait?.INTELLIGENT : undefined;
+-    const iq = claimed && ![...v.errors(v.entities.INTELLIGENT, claimed)][0]
+-      ? v.cast(v.entities.INTELLIGENT, claimed)
+-      : {};
++    const iq = shard.trait.claimed(row, "INTELLIGENT", v.entities.INTELLIGENT);
++    ctx.vocal = shard.trait.claimed(row, "VOCAL", v.entities.VOCAL);
+ 
+     // keyed layers, later wins: ① daemon skills → ② paladin skills → ③ domain tools → ④ mode tools
+     const armed = new Vector();
+@@ -74,6 +79,10 @@ export const HARNESSED = (mode, daemon) => {
+     await next();
+   });
+ 
++  harness
++    .branch("/verbatim")
++    .open({ nature: "stream", feeds: Audio.Packet, yields: Verbatim.Any }, shard.hal.verbatim({ polish: POLISH, tune: "fast" }));
++
+   // DIALOGUE
+   harness
+     .branch("/dialogue")
+@@ -142,7 +151,7 @@ export const HARNESSED = (mode, daemon) => {
+   if (daemon.domain?.harness) harness.slurp(daemon.domain.harness);
+   if (mode.module.harness) harness.slurp(mode.module.harness);
+ 
+-  for (const type of ["dialogue", "object", "speech", "verbatim"]) {
++  for (const type of ["dialogue", "object"]) {
+     harness
+       .branch(type)
+       .open("render", (ctx) => daemon.cortex.hallucinate[type].render(ctx.hallucination))
+diff --git a/systems/runtime/tests/aperture.snapshot.test.js b/systems/runtime/tests/aperture.snapshot.test.js
+index ed5ac38..e30e0d0 100644
+--- a/systems/runtime/tests/aperture.snapshot.test.js
++++ b/systems/runtime/tests/aperture.snapshot.test.js
+@@ -25,6 +25,7 @@ const routes = (node, prefix = "") => {
+     if (effect.input !== undefined) leaf.input = effect.input?.type ?? true;
+     if (effect.output !== undefined) leaf.output = effect.output?.type ?? true;
+     if (effect.yields !== undefined) leaf.yields = effect.yields?.type ?? true;
++    if (effect.feeds !== undefined) leaf.feeds = effect.feeds?.type ?? true;
+     out.push(leaf);
+   }
+   for (const [segment, child] of Object.entries(node?.branches ?? {})) {
+diff --git a/systems/runtime/tests/dictation.integration.test.js b/systems/runtime/tests/dictation.integration.test.js
+new file mode 100644
+index 0000000..6e63f8c
+--- /dev/null
++++ b/systems/runtime/tests/dictation.integration.test.js
+@@ -0,0 +1,122 @@
++import { specimen, sleep, shape, shard, Url, Connection, Vector } from "@vivalence/typology";
++import { create } from "./scenarios/cortex.js";
++import { verbatimFaculty } from "./scenarios/fixtures.js";
++
++function launch(aperture, port = 0) {
++  const gate = shard.serve.multiplex(aperture);
++  aperture.open("/multiplex", gate);
++  const abort = new AbortController();
++  const server = Deno.serve({ port, signal: abort.signal, onListen() {} }, shape.http(aperture));
++  return {
++    gate,
++    abort,
++    port: server.addr.port,
++    url: new Url(`http://localhost:${server.addr.port}`),
++  };
++}
++
++async function* frames(chunks) {
++  for (const chunk of chunks) yield { event: "/audio/packet", audio: chunk, rate: 16000 };
++}
++
++async function drain(source) {
++  const events = [];
++  for await (const event of source) events.push(event);
++  return events;
++}
++
++const kinds = (events) => events.map((event) => event.event);
++const commits = (events) => events.filter((e) => e.event === "/verbatim/commit").map((e) => e.text);
++
++let scenario;
++let world;
++let transport;
++let connection;
++let harness;
++
++specimen.describe("dictation integration — duplex verbatim over one socket, through a mode with a ROOT harness middleware", () => {
++  specimen.beforeAll(async () => {
++    const persona = new Vector().use(async (ctx, next) => {
++      ctx.hallucination.policy.tune ??= "fast";
++      ctx.hallucination.system.persona = "You are Dewey.";
++      await next();
++    });
++    scenario = await create({ harness: persona });
++    scenario.cortex.register([verbatimFaculty()]);
++    world = launch(scenario.daemon.aperture);
++    await sleep.ms(100);
++    transport = shard.transmitter.multiplex({ authority: { get: () => ({ access: "probe" }) } });
++    connection = new Connection(world.url, transport);
++    const mode = connection.branch(scenario.dewey.mount.absolute);
++    harness = shape.connection.wire(
++      mode.branch("/harness"),
++      shape.strip(scenario.dewey.aperture.branch("/harness")),
++    );
++  });
++
++  specimen.afterAll(async () => {
++    transport.close();
++    await sleep.ms(200);
++    world.abort.abort();
++    await sleep.ms(20);
++    await scenario.orm.close();
++  });
++
++  specimen.it("audio frames up, harmonized events down, polish after turn/close — the mirror compiles the leaf", async () => {
++    const thread = await scenario.createThread();
++    const events = await drain(harness.verbatim.stream(frames(["one", "two", "three"]), { input: { thread: thread.id } }));
++
++    const order = kinds(events);
++    specimen.expect(order[0]).toBe("/turn/open");
++    specimen.expect(order.filter((kind) => kind === "/verbatim/partial").length).toBe(3);
++    specimen.expect(commits(events).join(" ")).toBe("one two three");
++    const final = events.find((event) => event.event === "/verbatim/final");
++    specimen.expect(final.transcript).toBe("one two three");
++    specimen.expect(final.segment).toBe(0);
++    specimen.expect(order.indexOf("/verbatim/polish")).toBeGreaterThan(order.indexOf("/turn/close"));
++    const polish = events.find((event) => event.event === "/verbatim/polish");
++    specimen.expect(polish.segments).toEqual([0]);
++  });
++
++  specimen.it("thread.trait.VOCAL projects into the pipeline", async () => {
++    const thread = await scenario.createThread();
++    thread.traits = ["VOCAL"];
++    thread.trait = { VOCAL: { harmonize: { tail: 1 }, polish: false } };
++    await scenario.em.flush();
++
++    const events = await drain(
++      connection.branch(scenario.dewey.mount.absolute).converse("/harness/verbatim/stream", frames(["alpha", "beta", "gamma"]), {
++        input: { thread: thread.id },
++      }),
++    );
++    for (const event of events.filter((e) => e.event === "/verbatim/partial")) {
++      specimen.expect(event.transcript.split(" ").filter(Boolean).length <= 1).toBe(true);
++    }
++    specimen.expect(events.some((event) => event.event === "/verbatim/polish")).toBe(false);
++  });
++
++  specimen.it("abort mid-stream leaves no orphan frames on the socket", async () => {
++    const thread = await scenario.createThread();
++    const controller = new AbortController();
++
++    async function* trickle() {
++      yield { event: "/audio/packet", audio: "only", rate: 16000 };
++      await sleep.ms(30);
++      controller.abort();
++      await sleep.ms(1000);
++    }
++
++    try {
++      await drain(
++        connection.branch(scenario.dewey.mount.absolute).converse("/harness/verbatim/stream", trickle(), {
++          input: { thread: thread.id },
++          signal: controller.signal,
++        }),
++      );
++    } catch {}
++    await sleep.ms(200);
++    for (const socket of world.gate.sockets) {
++      specimen.expect(socket.lines.size).toBe(0);
++    }
++  });
++});
+diff --git a/systems/runtime/tests/scenarios/cortex.js b/systems/runtime/tests/scenarios/cortex.js
+index 8729670..1f4f489 100644
+--- a/systems/runtime/tests/scenarios/cortex.js
++++ b/systems/runtime/tests/scenarios/cortex.js
+@@ -3,7 +3,7 @@ import { seed, tiers, faculties } from "./fixtures.js";
+ 
+ import { HARNESSED } from "@vivalence/runtime/daemon/traits";
+ 
+-export async function create() {
++export async function create({ harness } = {}) {
+   const { orm, em, datamap, entities, fixtures } = await seed();
+ 
+   const deweyEntity = em.create(tiers.mode.entity, {
+@@ -25,11 +25,13 @@ export async function create() {
+   dewey.id = deweyEntity.id;
+   dewey.module.tune = "balanced";
+ 
+-  dewey.module.harness = new Vector();
+-  dewey.module.harness.branch("/dialogue").use(async (ctx, next) => {
+-    ctx.hallucination.system.dewey = "You are Dewey, a patient language tutor.";
+-    await next();
+-  });
++  dewey.module.harness = harness ?? new Vector();
++  if (!harness) {
++    dewey.module.harness.branch("/dialogue").use(async (ctx, next) => {
++      ctx.hallucination.system.dewey = "You are Dewey, a patient language tutor.";
++      await next();
++    });
++  }
+ 
+   const daemon = {
+     manifest: { slug: "test-daemon", traits: [] },

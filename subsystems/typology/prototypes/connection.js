@@ -173,10 +173,8 @@ export class Connection {
             callback(event);
           }
           if (controller.signal.aborted) return;
-          console.warn(`[probe] sse closed by server ${this.url.branch(endpoint).pathname} — resubscribing`);
         } catch (error) {
           if (controller.signal.aborted || error.name === "AbortError") return;
-          console.warn(`[probe] sse died ${this.url.branch(endpoint).pathname} — resubscribing`, error);
         }
         const gate = promise.waiter();
         const timer = setTimeout(gate.wake, Math.min(backoff * 2 ** attempt, CONFIG.ceiling));

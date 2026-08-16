@@ -25,6 +25,7 @@ export async function metadata(die) {
 
     meta.open("/manifest", () => mode.manifest);
     meta.open("/aperture", () => shape.strip(mode.aperture));
+    if (mode.statics) meta.open("/statics", () => mode.statics);
 
     if (mode.implements("APPLICATION"))
       meta.open("/app", () => ({

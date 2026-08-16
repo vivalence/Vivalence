@@ -1,0 +1,166 @@
+#+title: two staged artifacts get a critical pass, the sandbox verifies what the worktree cannot touch, and green suites hide the defects at the seams
+#+filetags: :m32:m33:critical-pass:sandbox:memoriter:dictation:packages:retention:verbatim:absence-claims:method:
+
+* arc
+
+Two artifacts authored outside the session — a package tree and a 79 KB patch — enter as
+quest attachments. beef asks for the same thing twice: a critical pass that improves and
+fixes. The first pass finds a package frozen two renames back and written against an API
+that never existed; the second finds a patch whose every suite is green while its central
+design claim ("multi by default") is false and its client fold loses every dictated segment
+but the last. Both get fixed IN THE ARTIFACT, verified in an isolated copy, with the repo
+untouched. The session ends with a method written down — the critical pass — and beef's
+question: what was learned beyond the quests.
+
+* the walk
+
+| n | beef (verbatim where it decides) | landed |
+|---|---|---|
+| 1 | /"~/Downloads/anki ~/Downloads/memoriter.patch — move these into quest m32"/ | =quests/m32-memoriter.org= (inventory only, nothing go'd) + sibling dir with the package (folder =anki/= → =memoriter/=, the one adjustment, flagged) and the rename patch (already applied inside the tree). Frontier line added, file kept under its 8000-char limit by trimming two phrases. |
+| 2 | /"do a ciritcal pass against that quest. improve it. fix anything in need of fixing"/ | pre-flight loaded; whole package read; compared against the live education domain, a live HARNESSED+TOOLED+APPLICATION mode (aprende, francesca, riddler, impara, primer), typology/runtime barrels, ModeTraitsEnum, the DATASET/FRAUGHT/EMITTER/HARNESSED traits, the italian topography, kajuit client idioms. Fixed: dead import path · fabricated hallucination API · Memory→Retention ontology · symbol vocabulary (TOPOGRAPHICAL roots, ONTOLOGICAL facets, UD pos slugs) · emitter idiom + status stamped into buffer.data · =card= projection · =types.js= · latent NaN in sm2 · Italian leftovers · README wiring. New =tests/dataset.test.js=. 16/16 green, all four module entrypoints load. |
+| 3 | (skill body injected — pre-flight) | NOTHING |
+| 4 | /"do the same check and critical pass against m33."/ | m33 already staged by another session (quest + patch on =7952148=). Base facts: sibling of HEAD, IDENTICAL diff on every patched file. Sandbox built in scratchpad; baseline vs patched vs corrected suites; every terrain claim grepped. Fixed in the regenerated patch: fold multi-segment · multi-default tune vector · duplicated levenshtein · deno.lock noise · flaky timer in the store test. =turn.js= parked (scope). Patch 34→31 files, applies clean; quest annotated; frontier updated. |
+| 5 | /"ikiro compact. what did you learn that is high level interesting beyond the quest specifics?"/ | this fold · =methods/critical-pass.md= · rituals: three VCS anti-rationalization lines evicted (verbatim duplicates of the kernel banner, they pointed at it) + the =bak/= date-stamp line (bak/ is deleted) → 15758 chars, under budget; methods-index pointer added · index regenerated. |
+
+Coverage 5/5. Balance: rows 1, 2, 4 carry the substance; 5 the fold. No recency skew — the two
+passes are the two halves.
+
+* m32 — the package that time forgot
+
+Rows 1–2. The tree was a copy of the education domain frozen at a state TWO renames back
+(memory → engram → retention; compact /the retention rename lands clean…/), importing from
+=@vivalence/typology/entities= — an export path that does not exist (=subsystems/typology/
+deno.jsonc= exports; entities emigrated to runtime) — and driving the harness through
+=ctx.hallucination.configure({tune}).context.system(…)= + =.tools.slurp(ctx.mode.tools)=,
+neither of which exists: =ctx.hallucination= is a plain record ={policy, system, turns,
+tools, output}= assembled by HARNESSED, which already arms =mode.tools= at layer ④ (the slurp
+would have double-armed). "Memory" is m27's word now (mind: memory + note); the package
+becomes =Retention= throughout, and its =/memory= tool becomes =/progress= — the family name
+(=registry/education/domain/tools/progress.js=).
+
+The seam nobody wrote: the tablet read =literal.retention?.status=, but the client hydrates
+=buffer.literals= with =populate: ["literals","symbols"]= only (=systems/kajuit/src/app/
+focus.js:13=) — status could never arrive. Emitter now stamps =data.status[slug]=; the
+schema gained =v.record=. Symbol vocabulary aligned to the family (=word=/=sentence= roots
+TOPOGRAPHICAL — =literal.ontology= DERIVES from them, =kernel/Literal.ts ontology()=;
+grammatical facets ONTOLOGICAL; groupings STRUCTURAL; =word.part-of-speech.*=). Latent
+NaN: =sm2.evolve= treated the entity default ={}= as a state. Dataset proven by a new test
+(counts · dupes · symbol closure · roots · trait classes · freight files) — which caught the
+=gratias-ago= regression when =string.fold= stripped the hyphen. Verified, not changed: SM-2
+constants, driver contract, =Aperture.open=, =App(entry, v.buffer)=, =Freight("freight")=
+MIME (wav+png), client idioms, all seven mode traits live in =ModeTraitsEnum=.
+
+Memory hook that overstated: "CONVERSATIONAL DEAD" is thread-scoped (=Thread.ts:28=
+commented) — =Mode.ts:19= still carries it. Nearly wrote a residue item from the hook; the
+body check caught it.
+
+* m33 — green suites, false claims
+
+Row 4. Method first: =7952148= claimed as base; =git diff --stat 7952148 HEAD -- <patched
+files>= empty → identical → applies here (31/31 dry-run, zero fuzz). Sandbox: rsync of the
+code containers to scratchpad, =node_modules= + =testament= symlinked, workspace stub for
+=documentation/=. Baseline in the real repo (read-only, =:memory:= datamaps), patched in
+the copy.
+
+#+begin_src text
+baseline    typology 109 · runtime 50 · kajuit 32 · deepgram 1   0 failed
+original    typology 115 · runtime 51 · kajuit 34 · deepgram 1   0 failed
+corrected   typology 113 · runtime 51 · kajuit 34 · deepgram 1   0 failed   (−2 = parked turn tests)
+#+end_src
+
+Every suite green on the original patch. And:
+
+- =fold= wiped every segment but the last — deepgram emits =is_final= per segment; =final=
+  and =polish= did wholesale replace. Now ={settled, segment, closed}= behind =committed=.
+- "multi by default" false — =cortex.findOne({tune:"eager"})= is squared-euclid nearest
+  (=belt/array.js:52=); en/pt =[0.4,0.6,0.5,0.1]= sat nearer eager (d²=0.02) than multi
+  =[0.5,0.6,0.6,0.1]= (0.06). English-only nova would have won every default dictation.
+  multi now sits on eager exactly.
+- /"no typology distance util exists, so a 15-line DP"/ — =belt/string.js:53 levenshtein=,
+  =:94 similarity= exist. Rides them now.
+- =deno.lock= hunk = astro noise from the author's docs environment. Dropped.
+- kajuit store test leaked a timer 1 in 3 — fake mic's =sleep.ms(5)= not abort-aware.
+- =belt/turn.js= (barge-in arbiter, backchannel lexicon en+de, zero consumers) vs the quest's
+  own /"dictation only — no full voice mode"/ → parked under =m33-dictation/deferred/=.
+- Wiring text stale: deepgram ALREADY mounted in all three education daemons
+  (=education.js:57,141,212=) under =SECRET_VIVA_DEEPGRAM_API_KEY=, not =SECRET_DEEPGRAM=.
+
+Held: socket carries =packet.query= into =request.url= on frames (=socket.js:156=), so
+=?thread=&language== reach the harness; =eager= is a real Tier; =dialogue.render= returns
+={turns, output, meta}=; BOX context was pre-planned (commented export) — enabled, no new
+root; =Box= SSR-safe.
+
+Regeneration: fresh pristine base → =git diff --no-index= → the raw diff picked up beef's
+LIVE edits (rep-o-gram files, kajuit =.svelte-kit/=) because the sandbox was a snapshot →
+whitelist to the intended file set, normalize prefixes, dry-apply. 34 → 31 files,
++1363/−74. Original patch superseded in place; the quest records the delta.
+
+* what was learned beyond the quests (row 5 — beef's question)
+
+1. *A staged artifact is a third kind of thing between design and code.* Quests can carry
+   executables (a package tree, a patch) as attachments; =.ikiro/= is mine, so the artifact
+   is hardened IN PLACE while the repo it targets stays gated. Two quests now share the
+   convention (=quests/<name>.org= + =quests/<name>/=). The pass is a repeatable method now
+   (=methods/critical-pass.md=, pointer in rituals).
+
+2. *The scratchpad sandbox verifies gated code without touching it.* rsync + symlinks, ~250
+   MB, two minutes: apply a patch, run every suite, fix, regenerate — worktree clean, VCS
+   untouched, beef's watchers unbothered. Before this, "verify the patch" meant either
+   trusting the author or asking beef for a =go= just to test. That gap is closed.
+
+3. *Tests encode the author's model; defects live at the seams the artifact did not write.*
+   Both artifacts were green by their own tests. Both were wrong where they met code they
+   did not touch: the client's populate list, the cortex's nearest metric, deepgram's segment
+   semantics. Reading the CONSUMER side of every new seam is the audit; the artifact's own
+   test count is not evidence.
+
+4. *"By default" is a claim about a mechanism; find it and compute it.* Nearest-tune is a
+   metric with a vector; "multi is default" was decided by arithmetic the author never did.
+   Same shape as m32's "self-contained" being contradicted by its imports. When a design
+   says default, the pass finds the resolver and runs the numbers.
+
+5. *Absence claims are the highest-yield audit target in delegated work.* /"no distance util
+   exists"/, /"CONVERSATIONAL is dead"/ (my own memory hook), /"nobody decodes the upstream
+   body"/. Both artifacts carried one; both were false; each was one grep. The kernel already
+   says absence rots fastest — this session measured it on other agents' output, not only on
+   codemap shards.
+
+6. *Delegated builds drift in predictable directions.* Frozen at the author's snapshot of the
+   codebase (two renames back); fabricated glue where the snapshot had a gap
+   (=configure().context.system=); wiring sections describing an imagined environment
+   (=localhost.viva.js=, hand-edited =registry.json=, =SECRET_DEEPGRAM=); tested
+   completeness that quietly widens scope (=turn.js=). Wiring is the least trustworthy
+   section every time — re-derive from =testament/variant/= + docs.
+
+7. *Regenerating a patch against a live repo needs a whitelist.* beef edits while I work; a
+   fresh base captures his concurrent changes and generated files. The intended file set is
+   the contract, not "everything that differs".
+
+8. *Two flake families now named.* Fake async sources in tests must be abort-aware (a pending
+   =sleep= at test end trips Deno's leak detector); a hyphen-normalising slugify must fold
+   hyphens to spaces before =string.fold= or hyphenated lemmas split.
+
+* settlement
+
+- rituals over budget (16169/16000 chars) at fold → evicted whole items: three VCS
+  anti-rationalization lines (verbatim duplicates of the always-loaded kernel banner — they
+  literally said "→ root banner") and the =bak/= date-stamp line (bak/ deleted). 15758 after
+  adding the =ikiro/critical-pass= pointer.
+- memory =project_context_architecture= is stale (QUARTERS/THREAD, "no stores/ dir") — the
+  live layout is LIGHTHOUSE · TERMINALS · BRIDGE (+ BOX now enabled by the m33 patch),
+  =stores/box=, =stores/terminals=. Not rewritten this turn; flagged here.
+- =ThreadTraitsEnum= holds neither INTELLIGENT nor VOCAL — pre-existing gap; recorded in the
+  m33 quest residue, not a rule failure of the patch.
+
+* state at fold
+
+- m32: package corrected, 16 tests green, entrypoints load, NEVER booted on a daemon;
+  wiring recipe in README + quest; nothing go'd for the repo.
+- m33: corrected patch (31 files) applies clean, four suites green in isolation, UNAPPLIED,
+  no live microphone/deepgram run; =interim_results= on =language=multi= and the flux
+  endpoint unverified; =hal.polished= blocks next-segment partials for the polish latency;
+  =turn.js= parked with its test.
+- repo code untouched by me (=git status= shows only beef's live edits: domain tools,
+  rep-o-gram).
+- new: =methods/critical-pass.md=; rituals methods index points at it; frontier lines for
+  m32 and m33 current (7943 chars).

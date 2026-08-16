@@ -1,0 +1,131 @@
+#+title: the rep machine becomes the dojo, the buffer becomes the dojo itself, and nothing plays until it is commissioned
+#+filetags: :m24:dojo:rep-o-gram:rename:kajuit:svelte:drapes:typology:aperture:presets:pools:commission:string-belt:
+
+* arc
+
+beef wakes ikiro onto the rep-o-gram quest and the mode, then drives it live for a whole
+evening with screenshots. Two layout asks open (fit to screen, resizable panes) and the
+session widens turn by turn into a re-founding: the mode must not launch into reps until it
+is COMMISSIONED; the console is re-cut (symbols top, dojo setup, recent, presets); a
+three-alternative gloss that graded MISTAKE exposes a two-window bug in
+=string.separate=; the feedback card is polished twice; then the decisive turn — /"read/write
+the data into buffer data! … dont create a new buffer. just write to the current buffer.
+think thorougly about how to set this up RIGHT"/ — makes THE BUFFER THE DOJO: =data= the
+setup, =symbols= the scope, =literals= the set, written through two apertures, no emit from
+the console ever again. Multi-select becomes POOLS on gameplay and recall, presets are
+capped at eight and re-cut across the learning journey, and mid-turn beef renames the whole
+mode: /"rename repogram to dojo"/. 53 files, three moves, one snapshot, zero residue; seven
+suites / thirty steps green. Live validation owed — beef drives.
+
+* the walk
+
+| n | beef (verbatim where it decides) | landed |
+|---|---|---|
+| 1 | /"ikiro wake. look for the quest and the mode repogram. well work on that"/ | kernel + frontier + memory read; the m24 quest lives only in git (=quests/done/=); mode tree listed. |
+| 2 | /voice | NOTHING |
+| 3 | /"go"/ (mid-turn) | first suite run tripped on type-check noise (=--no-check= is the task's own flag). |
+| 4 | interrupted | NOTHING |
+| 5 | /"read the mode too"/ | =RepOGram.svelte= + =shell.svelte.js= read whole. |
+| 6 | /"two things to start with: a: the mode grows wider than screenwidth … fit it to screen. b: console and inspector should be adjustable in their width. store that under a generic mode key in localstorage to makeit reusable."/ | Root cause =.deck{overflow-x:auto}= + =.player{min-width:480px}= = 1104px floor → =overflow:hidden=, =min-width:0=; panes clamp against the shell width (=bind:clientWidth=, never =window.innerWidth=). Drag dividers with pointer capture; widths through a new generic helper =subsystems/drapes/context/preferences.js= → =viva.mode.<slug>= (dot-namespace like =viva.terminals=). |
+| 7 | /"read the mode too"/ (dup) | NOTHING |
+| 8 | interrupted | NOTHING |
+| 9 | /"go"/ | Console/Inspector =width= prop → =style:width=. Compile check: 5 warnings = HEAD baseline. |
+| 10–19 | /"go"/ · /"continue"/ ×5 · interruptions | the same landing, verified; nothing new decided. |
+| 20 | /"lets talk about the way the mode boots. id' like the mode to only launch into reps once its comissioned. it can be comissioned from an emitter or via the console … only then is the mode filled with literals and only then do they show up in the inspector and only then can i start with the actual practice session. i should still be able to change certain settings ad hoc, but only after i've already started."/ | Design talk, no code: phase spine =commissioning → commissioned → playing → drawing → done=; =empty= + the self-feed card die; commissioned ⇔ carriers non-empty; Start is a GESTURE (iOS keyboard); two axis tiers in one table (=types.LIVE=); three forks stated (tactic buffers, prompt tier, streak tier). |
+| 21 | /"go. and re-order the console to have the literal/symbol selection up top. chat and custom literals sitll at bottom."/ | Spine landed; =apply()= tier-filters under lock (=recall= re-prepares in place); Console reordered; Inspector empty-copy per phase. Forks taken as recommended. |
+| 22–23 | screenshot: /"this shoudl have hit green"/ (=he is= vs =he/she/it is=) | Diagnosed: =string.separate= walks ADJACENT pairs only, so a chain of ≥3 never gives =he= the tail. Typology HOLY → proposal + blast list, no write. |
+| 24–25 | screenshot: /"go"/ (=he has=) | Bracket: string belt 1/4 → change → 1/5; dojo machine 3/10. Every single-word alt borrows from the NEAREST multi-word alt either side — a superset of the old window. Test added. |
+| 26–27 | screenshot: /"i am missing the target langauge on correct. and the MATCH forgiving neednt be there."/ | =judge.describe= returns =null= for MATCH; =TokenFeedback= shows the canonical answer on landed (forgiving may have accepted =e= for =è=). |
+| 28–29 | screenshot: /"very ugly."/ (the commissioned stat grid) | Proposal: =Standby= gains a =facts[]= mono line in the player's meta-row idiom, only PRESENT axes; done card keeps its numeric grid. |
+| 30 | /"ok. and remember the symbol selection. show me a live feed of the count of literals available for seleciton. change the axis console - a: rename to dojo setup. b: is limit reps the amount of literals in selection? if so move to first place. then gameplay. make the presets be actual presets, including the most 3-5 most recent manual creations. presets at the bottom of dojo setup. and on the number selections: make them go one by one and in larger 5 steps if shift clicked. move the emitted buffer to inspector."/ | Answered b: NO — =limit.reps= is the session cutoff; the draw size is =count= (was a hardcoded 6). Landed: =/count= aperture (SQL count under guard+scope, ticketed against stale replies) + test; =count= FIRST row; presets APPLY axes instead of emitting; recents (≤5) recorded on commission; commission button = scope ? =/emit/symbols= : =/emit/feed=; ±1 / shift 5; JSON → Inspector =buffer= tab. Scope/count still in localStorage at this point. |
+| 31–32 | screenshot: /"i need ot know what symbols i selected. and read/write the data into buffer data! i dont want to restart every time i jump terminals. and dont create a new buffer. just write to the current buffer. think thorougly about how to set this up RIGHT"/ | Traced Frame remount identity (=next === live=), remote-repository =merge=/=cast= (same instance mutated), =updateOne = assign=, =app.buffer= factory. Design: THE BUFFER IS THE DOJO — =/setup= (full-write of =types.SETUP=; symbols via =findByIdentifiers=) + =/commission= (draw from the buffer's own setup); client =cast(raw)= folds the same instance, view refreshes itself; scope chips row. Three forks. |
+| 33 | /"i want a multi select option here too. chagne the random in 'recall' learning/known to multi select and make that be the 'ranmdom' optoin."/ | Pool law: scalar = fixed, array = drawn per knowable, omit = whole pool; the old "recall array = per index" reading dies (one =fill= test was its only consumer). |
+| 34–35 | /"move 'recent' above presets. work out the presets to be semantically richer for different styles, goals, and phases of a learning journey"/ | Grep: eight legacy keys are API (survival · riddler bruno · dataset · emitter tests). Proposed one richer table with a journey layer on top — 16 entries. |
+| 36 | /"too many presets. 8 max. go nuts. its your mode."/ | GO for the batch. Cut to eight — meet · recognize · write · shadow · listen · drill · mixed · ultra; =conjugate=/=translate= dropped (they wrapped first-class =/emit/conjugations= + =/emit/generate=; dataset intents point there); =flashcard=→=meet=, =pick=→=recognize= with consumers. |
+| 37 | /"rename repogram to dojo"/ (mid-turn) | Rename FIRST, batch after: 3 moves + 53 files (kernels, survival/clinic/impara/aprende callers, bruno =GAME_DOJO= + folder, seed + corpus snapshot slug, runtime tests, snapshot file), residue 0. Then the whole batch on =games/dojo/=: apertures, pools, presets, Console rebuild, Inspector, Rep/Prompt/Header per-knowable gameplay, scenario test-APPLICATION binds =desc.thread=. 7 suites / 30 steps; smoke 2/7; aperture snapshot self-regenerated. Ikiro world + memory folded. |
+| 38 | /voice | NOTHING |
+| 39 | /"ikiro compact"/ | this fold; settlement pass (live ikiro refs renamed; old memory banner-superseded); index regenerated. |
+| 40 | /compact | NOTHING |
+
+Coverage 40/40. Balance: substance in rows 6, 20–21, 22–26, 30, 31, 33, 36, 37 — the two
+halves of the evening each carry roughly half; the last third holds the biggest asks
+because that is when beef made them, not because the fold forgot the start.
+
+* fit and resize — the first two, and a helper that outlives them
+
+Row 6. The horizontal scroll was arithmetic: two fixed docks plus a 480px player floor. The
+fix is not a media query but a clamp derived from the shell's own measured width (the
+kajuit law: a buffer view lives in a pincer panel, so =window.innerWidth= lies). Pane
+widths persist through =preferences(mode)= — the ONE generic helper this session left in
+drapes — under =viva.mode.<slug>=, deliberately the same dot-namespace as
+=viva.terminals=. By the end of the session that helper holds only pane widths and recent
+setups; everything that is dojo STATE moved onto the buffer (row 31).
+
+* commission — the mode stops launching itself
+
+Rows 20–21. Both auto-launches were named from the code: =phase = queue.length ? "playing"
+: "drawing"= sends a carried buffer straight to rep 1 and an empty one straight to a
+=/draw=. beef: /"only launch into reps once its comissioned"/. Ship metaphor already runs
+kajuit, so the phase is *commission*: =commissioning= (nothing aboard, console is the yard,
+NO auto draw) → =commissioned= (Start ⏎, a gesture — which is exactly what the FOCUS LAW
+says iOS needs to open the keyboard) → =playing= (locked) → =drawing= (continuous only) →
+=done= (flip an axis → re-commissioned). Every door lands on the same Start card — emitter,
+tool, tactic, console — because the buffer records no provenance and there is nothing to
+branch on. /"change certain settings ad hoc, but only after i've already started"/ became
+=types.LIVE= — one table read by console, =apply()= and provision alike.
+
+* the string that never received its tail
+
+Rows 22–25. Two screenshots, one law: =separate("he/she/it has")= produced =["he","she","it
+has","she has"]= because it distributed tails across ADJACENT pairs. Fix in the belt (one
+consumer of =separate=, five of =matches= — paradigm, cloze, nyan, Chip, dojo judge — every
+one gains acceptances, none loses): each single-word alt borrows the tail of the nearest
+multi-word alt on the right AND the head of the nearest on the left. Bracket 4 → 5 steps.
+Typology touched, one belt function, no core type; flagged.
+
+* the buffer is the dojo
+
+Rows 30–31. Row 30 put scope and count in localStorage; row 31 corrected it: /"read/write
+the data into buffer data … dont create a new buffer"/. The right shape came from tracing
+the client spine, not from designing on paper: Frame remounts on object identity (=next
+=== live=), and remote-repository =merge=/=cast= mutate the SAME instance — so a daemon
+write followed by =cast(raw)= updates the buffer prop in place with no remount and the view
+refreshes its own state. Two apertures, both returning the populated buffer: =/setup=
+REPLACES the =types.SETUP= keys (JSON drops =undefined=; a full-write is the only way
+=streak: off= lands — the same reason the old =persist()= wrote whole =data=) and resolves
+symbols with =findByIdentifiers=; =/commission {buffer, knowables?}= draws from the buffer's
+OWN setup into its literals, or takes authored knowables and clears them. The console emits
+nothing any more; ad hoc lines and provision-authored pairs go through =/commission=.
+=buffer.symbols= is the SCOPE — the selection itself, one home — read by =/commission=,
+=continuous= and =/count= alike.
+
+* pools, eight presets, and the rename
+
+Rows 33–37. Multi-select is a POOL: scalar fixed, array drawn per knowable in =prepare()=,
+omit = the whole pool; both lit = random. The per-rep readers moved from =axes.gameplay= to
+=knowable.gameplay= (Rep, Prompt, options, keys, judge method, preview's "TYPE only").
+Presets: beef capped them — /"too many presets. 8 max. go nuts. its your mode."/ — and the
+eight cover the journey without aliases: meet · recognize (phase, breadth) · write ·
+shadow · listen (style, the legacy names survival still calls) · drill · mixed · ultra
+(goal). The two dropped keys were wrappers over first-class routes. Then, mid-batch,
+/"rename repogram to dojo"/ — done FIRST so the batch landed once, on =games/dojo/=,
+unrestricted grep including gitignored testament, 0 residue.
+
+* state at fold
+
+Landed: =games/dojo/= (rename complete) · =/setup= =/commission= =/count= · phase spine ·
+=types.LIVE= tiers · gameplay/recall pools · 8 presets one table · Console re-cut · Inspector
+=buffer= tab · Standby =facts= · resizable panes · =string.separate= chain fix ·
+scenario test-APPLICATION binds =desc.thread= · docs-strings on the app schema rewritten.
+Verified: dojo 7/30 · runtime smoke 2/7 · string belt 1/5 · aperture snapshot regenerated
+(=game-dojo-aperture.snapshot.json=) · every view compiles.
+
+Resumption (genuinely open, no landed rule resolves them):
+- in-flight streak session dies on a terminal jump — fork: module-scope cache keyed by
+  buffer id in =shell.svelte.js= (the =journal= pattern).
+- =continuous= refill stays in-memory =/draw=; routing it through =/commission= would keep
+  the buffer holding the set being played.
+- =/count= ignores the AUDIO listenable filter (needs per-row cargo; draw OVERFETCHes 3×).
+- commission button sits at the END of dojo setup — beef's call whether it belongs under
+  the symbols.
+- live validation on desktop + phone — beef drives.

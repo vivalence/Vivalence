@@ -1,4 +1,5 @@
 #+title: the epoch survives its own abstraction probe, the boot storm was an f5 goodbye, and the perf instrument is designed to never become the disease
+#+filetags: :performance:boot:profiling:span:
 
 * what happened, in one breath
 

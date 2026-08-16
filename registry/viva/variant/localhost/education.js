@@ -4,7 +4,12 @@ import { Url } from "@vivalence/typology";
 export const education = {
   manifest: { type: "daemon", slug: "brazilian", version: "0.0.1" },
   docs: { name: "", valence: "", icon: { emoji: "" } },
-  statics: { language: { known: "english", learning: "brazilian" } },
+  statics: {
+    language: {
+      known: { slug: "english", name: "English" },
+      learning: { slug: "brazilian", name: "Português" },
+    },
+  },
   kernel: [
     "@education/domain/language-learning",
     "@education/topology/word",
@@ -13,11 +18,10 @@ export const education = {
     "@education/topography/english-to-brazilian",
     "@education/game/riddler",
     // aprende /drill branches each due literal by ontology × state:
-    // word weak→rep-o-gram/write strong→judge · sentence weak→rep-o-gram/shadow
-    // strong→rep-o-gram/listen · conjugation weak→paradigm strong→rep-o-gram/conjugations.
-    "@education/game/rep-o-gram",
+    // word weak→dojo/write strong→judge · sentence weak→dojo/shadow
+    // strong→dojo/listen · conjugation weak→dojo table strong→dojo forms.
+    "@education/game/dojo",
     "@education/game/judge",
-    "@education/game/paradigm",
     "@education/game/match",
     "@education/game/cloze",
     "@education/game/exhibit",

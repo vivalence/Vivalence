@@ -1,4 +1,5 @@
 #+TITLE: The "start chatting" button flipped a flag the dock pane ignored — the button (panel F) gated on HARNESSED, the pane (panel A) gated on CONVERSATIONAL-engagement — two authorities for one toggle. The cure unifies on HARNESSED and moves the singleton bridge.$dock onto the terminal, per-terminal, the thing that already crosses.
+#+filetags: :drapes:harnessed:conversational:m18:terminal:
 #+TOPIC: kajuit client. beef: the dock is a per-terminal structure and the toggle was double-gated. Session = diagnose the authority split, relocate dock singleton→terminal, collapse the visibility gate to HARNESSED. Rhymes with [[the-continuation-problem-ambient-state-dies-at-every-async-boundary-and-the-cure-is-never-carry-harder-but-put-the-fact-on-the-one-thing-that-already-crosses]] (two channels for one fact).
 #+AUTHOR: finn + ikiro (connoisseur)
 

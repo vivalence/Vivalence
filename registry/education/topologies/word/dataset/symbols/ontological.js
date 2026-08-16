@@ -111,6 +111,17 @@ export default [
     },
   },
   {
+    slug: "word.part-of-speech.preposition",
+    traits: ["ONTOLOGICAL", "LABELED"],
+    trait: {
+      ONTOLOGICAL: {},
+      LABELED: {
+        name: "Preposition",
+        description: "An adposition placed before its object.",
+      },
+    },
+  },
+  {
     slug: "word.part-of-speech.pronoun",
     traits: ["ONTOLOGICAL", "LABELED"],
     trait: {

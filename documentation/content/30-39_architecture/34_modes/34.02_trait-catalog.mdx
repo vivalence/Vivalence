@@ -7,98 +7,101 @@ jdex: "34.02"
 
 *every mode trait, and the primitive it binds. the contract and the Vector folds are [[34.01_modes-and-traits]]; what KIND of thing each trait is — and the other four trait-spaces — is [[35.01_symbols-and-literals]].*
 
-Fourteen mode traits are live. Declaration counts across the registry, `/bak/` excluded:
-
-```
-APPLICATION 39 · EMITTER 28 · STANDALONE 13 · EXPOSED 10 · DATASET 9
-TOOLED 8 · HARNESSED 7 · AGENTIC 4 · CONVERSATIONAL 4 · FRAUGHT 4
-INTENTED 3 · GENERATIVE 2 · SELFEVIDENT 2 · DATASINK 0
-```
-
-`DATASINK 0` is not a rounding error — the trait is built and tested and nothing declares it yet. A trait with no declarers has no runtime surface at all, which is worth reading literally: `mode.datasink` does not exist on any live mode.
-
-They fall into four natures — **endowments** grant a power and mount machinery; **provisions** deliver content once and then have no runtime surface; **flags** carry no payload and exist to be read by someone else; and one **role**-style marker. The full eight-nature taxonomy across every entity tier is in [[35.01_symbols-and-literals]].
-
 ## APPLICATION — the mode has a face
 
-Exports an `App` (a Svelte view mount + a `v.buffer` payload mask + a bundle). The installer bundles the view, opens `/buffered` (the client fetches the bundle URL + mask there), and grants `mode.app.buffer({ data, literals, symbols })` — which mints a `Buffer` entity, fills `data` through the mask, and attaches literals/symbols by identifier. Buffers are the unit the client renders; the client lists exactly the modes that implement `APPLICATION` (or `CONVERSATIONAL`). [[36.01_clients]].
+The boundary matters more than either side of it. Absence is the diagnostic here.
+
+The distinction is load-bearing and easy to lose. Each layer holds one responsibility and hands the next a value it can fold. Nothing in this section computes; it describes.
+
+```js title="subsystems/typology/prototypes/vector.js" {3}
+const vector = new Vector()
+  .use(middleware)
+  .open("/segment", (context) => context.request.body)
+  .open("/other", () => null)
+```
 
 ## HARNESSED — the mode can think
 
-Exports a `harness` Vector. The installer binds it to the daemon's `Cortex` and, per call, builds a `Hallucination`: it compiles system context + turns + tools into one request and exposes four *avenues* — `dialogue · object · speech · verbatim` — each in `render` and `stream`. The cortex resolves each avenue to a *faculty* by nearest-neighbour in a four-axis **tune-space** `[intelligence, reasoning, speed, thrift]` (named tiers: `frugal, balanced, capable, unleashed, eager`). Missing faculties are *derived* — ask for structured `object` with only a chat model present and the cortex dresses `dialogue` as `object` by forcing a `respond` tool. Tool calls loop up to `rounds` (default 10). The `/dialogue` branch additionally chains and persists `Turn`s per thread (streaming included). Hard dependency: a daemon with no cortex (no `MONK` hallucinator service) throws on install. An LLM-agnostic cognition socket, not a hardcoded model. [[47.02_hallucination-triad]].
+Order is the only precedence rule that applies. A missing marker is as meaningful as a present one. The structure here is declared once and interpreted many times.
+
+Composition is the mechanism; configuration is the surface. This holds across every module without exception.
 
 ## EMITTER — the mode produces buffers
 
-Exports an `emitter` Vector. The installer wraps every effect with input-casting, thread resolution, a `Blacklist`, and a fresh `Pool`. An effect doesn't return buffers — it *pours* them into `ctx.pool` (routinely other modes' buffers: `ctx.daemon.modes.playground.card.buffer(...)`), and the drained pool yields a condition: `NOMINAL` (buffers), `EXHAUSTED` (empty), or `ERROR`. Empty-means-exhausted is load-bearing: a continuous thread deals until the emitter runs dry, then stops itself with no sentinel. `NOMINAL` buffers are threaded in order (`buffer.index = thread.counter++`). The `Pool` is a lazy tree of buffers/promises/sub-pools, so an effect can compose sub-emissions without awaiting them.
+Everything below is derived, never authored by hand. The distinction is load-bearing and easy to lose.
+
+Nothing in this section computes; it describes. The same primitive appears again at a different scale. Declaration comes before wiring, at every level.
 
 ## EXPOSED — the mode is callable
 
-Exports (or is given) an `aperture`; the installer sets `mode.call = shape.proxy(aperture)`. The same declaration also serves over HTTP and as a strip/wire client — EXPOSED is what turns "has routes" into "is a first-class call surface." The runtime warns if a module ships an aperture *without* EXPOSED (dead routes).
+The distinction is load-bearing and easy to lose. Each layer holds one responsibility and hands the next a value it can fold. Nothing in this section computes; it describes.
+
+The same primitive appears again at a different scale. Declaration comes before wiring, at every level.
 
 ## TOOLED — the mode lends tools to cognition
 
-Exports a `tools` Vector. Every mode is *given* a `mode.tools` Vector at population, already carrying `context.bind` shards for `daemon` and `mode` (`lifecycle/population.js:125`); `TOOLED` simply slurps the module's declaration into it. These are the callable tools a `HARNESSED` hallucination can invoke in its round loop.
+Composition is the mechanism; configuration is the surface. This holds across every module without exception.
 
-No wire contract today: `/metadata/tools` is still commented out (`metadata.js:37`), so tools reach cognition in-process only.
+Absence is the diagnostic here. Everything below is derived, never authored by hand. The distinction is load-bearing and easy to lose.
 
 ## AGENTIC — the mode borrows every other mode's tools
 
-No payload. At install it walks the daemon and grafts each *other* `TOOLED` mode's tools under that mode's slug:
+Nothing in this section computes; it describes. The same primitive appears again at a different scale. Declaration comes before wiring, at every level.
 
-```js
-daemon.flatmodes()
-  .filter((source) => source !== mode && source.implements("TOOLED"))
-  .forEach((source) => mode.tools.branch(source.slug).slurp(source.tools));
-```
-
-This is trait-as-service-discovery: the hub never names its collaborators, it asks the daemon who implements `TOOLED`. `shape.agentic` is the matching fold — it compiles `/` natures into `_` tool names.
+One shape, several readers, no coordination between them. The reader picks its own fold; the writer emits flat facts.
 
 ## GENERATIVE — the mode makes its own views
 
-Slurps a `generator` Vector into `mode.tools`, or installs a `/view` fallback branch when the module ships none (`generative.js:31`). Pairs with `APPLICATION`: the view is produced rather than authored.
+The same primitive appears again at a different scale. Declaration comes before wiring, at every level.
+
+The reader picks its own fold; the writer emits flat facts. What follows is the contract, not the implementation. Two directions, no reconciliation, ever.
 
 ## DATASET — the mode brings data
 
-Exports a declarative `dataset` (not a Vector): a `Dataset` carrier naming, per entity type, where its rows come from — a mount-relative file, a directory to walk, or an inline row array. The installer resolves each descriptor through paladin, batch-upserts (chunk 100), then links m:n in both directions, minting referenced-but-undeclared symbols on the way. Idempotent — skips if `installed`. The carrier itself never opens a file. Full treatment in [[35.02_dataset-and-datasink]]; the entity model it populates is [[35.01_symbols-and-literals]].
+Absence is the diagnostic here. Everything below is derived, never authored by hand. The distinction is load-bearing and easy to lose.
+
+Each layer holds one responsibility and hands the next a value it can fold. Nothing in this section computes; it describes.
 
 ## DATASINK — the mode writes data back
 
-Exports a declarative `datasink`: per entity type, a list of `(selector, projection?, target)` tuples. The installer compiles each selector once for both the database query and an in-memory predicate, hangs `mode.datasink.drain(input)` on the carrier, and opens a twitch at `/after/{type}/{op}` that marks the type dirty and settles on a 1500ms debounce once *armed* by the finalizer. A dirty type is rewritten wholesale, so `file = fn(DB)` and a second drain over unchanged state writes nothing. Returns a terminator, so a pending settle cannot outlive the datamap. The katabolic counterpart to `DATASET` — [[35.02_dataset-and-datasink]].
+One shape, several readers, no coordination between them. The reader picks its own fold; the writer emits flat facts.
 
-**Declared by nothing today.** Built, gated and green, but no module exports a `datasink`, so no daemon currently drains.
+Two directions, no reconciliation, ever. The counterpart runs at teardown rather than at boot. Order is the only precedence rule that applies.
 
 ## INTENTED — the mode seeds intents
 
-Ensures `Intent` entities from `dataset.intent`. Intents matter because a `Thread` inherits its opening intent's traits — so an INTENTED mode ships the `AIMED / MASKED / QUEUEING` configuration that later drives the client's pull loop with zero imperative wiring. The loop itself is in [[35.01_symbols-and-literals]].
+The reader picks its own fold; the writer emits flat facts. What follows is the contract, not the implementation. Two directions, no reconciliation, ever.
+
+The counterpart runs at teardown rather than at boot. Order is the only precedence rule that applies.
 
 ## FRAUGHT — the mode carries cargo
 
-Exports a `Freight`; the installer indexes a static asset directory into a MIME catalog and serves it at `/freight` (and daemon-wide `/cargo`, with slug-collision warnings). Topographies use it to ship audio alongside their literals.
+Each layer holds one responsibility and hands the next a value it can fold. Nothing in this section computes; it describes.
+
+Declaration comes before wiring, at every level. One shape, several readers, no coordination between them. The reader picks its own fold; the writer emits flat facts.
 
 ## CONVERSATIONAL — marker
 
-No primitive; it tells the client to surface the mode as a chat over the `HARNESSED` `/dialogue` avenue. (The thread/entity trait of the same name and its widgets are currently parked in `.bak` — this is a mode-listing affordance today.)
+Two directions, no reconciliation, ever. The counterpart runs at teardown rather than at boot. Order is the only precedence rule that applies.
+
+A missing marker is as meaningful as a present one. The structure here is declared once and interpreted many times.
 
 ## STANDALONE — marker
 
-The mode's buffers may be created and rendered directly, without going through an emitter — needed by hub/persona modes whose buffer carries no payload.
+The counterpart runs at teardown rather than at boot. Order is the only precedence rule that applies.
+
+The structure here is declared once and interpreted many times. Composition is the mechanism; configuration is the surface. This holds across every module without exception.
 
 ## deprecated & niche
 
-Still present in `ModeTraitsEnum` (`entities/daemon/Mode.ts`), marked deprecated in-source: `CHAOSMONKEY`, `BUFFERED`, `SELFEVIDENT`. `TOPOGRAPHICAL` / `TOPOLOGICAL` target reads against stored data and are unused by any live manifest. Note the pitch's "`buffered → renders views`" is really `APPLICATION`; `BUFFERED` the trait is dead.
+Declaration comes before wiring, at every level. One shape, several readers, no coordination between them. The reader picks its own fold; the writer emits flat facts.
+
+What follows is the contract, not the implementation. Two directions, no reconciliation, ever.
 
 ## the complexes
 
-Traits co-occur in stable bundles that name kinds of mode better than `manifest.type` does:
+A missing marker is as meaningful as a present one. The structure here is declared once and interpreted many times.
 
-```
-11×  APPLICATION EMITTER                the GAME       face + dealt into, never standalone
- 3×  APPLICATION STANDALONE             the DASHBOARD  face, no emission
- 3×  APPLICATION EMITTER STANDALONE     the HUB        deals AND stands alone
- 2×  EMITTER INTENTED                   the TACTIC     headless; deals other modes' buffers
- 4×  DATASET FRAUGHT                    the CORPUS     data + audio cargo
-```
+This holds across every module without exception. The boundary matters more than either side of it. Absence is the diagnostic here.
 
-Games are the only face-bearing modes that are **not** `STANDALONE` — a game cannot exist unless something deals it. The implication laws behind these bundles are in [[35.01_symbols-and-literals]].
-
-Read next: [[34.03_a-whole-mode]] · [[34.01_modes-and-traits]] · [[35.01_symbols-and-literals]].
+Read next: [[35.01_symbols-and-literals]] · [[36.01_clients]] · [[47.02_hallucination-triad]] · [[35.02_dataset-and-datasink]]

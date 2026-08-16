@@ -1,4 +1,5 @@
 #+title: housekeeping coda — m30 enters done, skilled becomes primed, and the frontier fits its own limit for the first time
+#+filetags: :m30:rename:frontier:compact:
 
 * what happened, in one breath
 

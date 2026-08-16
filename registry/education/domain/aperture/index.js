@@ -1,7 +1,18 @@
-import { Aperture, shard } from "@vivalence/typology";
+import { Aperture, object, shard } from "@vivalence/typology";
 import { is } from "@vivalence/typology";
+import { LANGUAGE } from "../types.js";
+
+const languages = (ctx) => {
+  const declared = ctx.daemon.statics?.language ?? {};
+  const provided = ctx.daemon.flatmodes().map((mode) => mode.statics?.language ?? {});
+  const side = (entry) =>
+    entry?.slug ? LANGUAGE.cast(object.merge(...provided.map((table) => table[entry.slug] ?? {}), entry)) : null;
+  return { known: side(declared.known), learning: side(declared.learning) };
+};
 
 export const aperture = new Aperture()
+  .open("/language", (input, ctx) => languages(ctx))
+
   .open("/pick/literal/feed", async (input, ctx) => {
     return ctx.daemon.entities.literal.feed(input.where, { limit: input.limit || 10, blacklist: input.blacklist });
   })

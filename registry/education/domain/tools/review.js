@@ -1,18 +1,22 @@
 import { v, Vector } from "@vivalence/typology";
+import { SIGNAL } from "../types.js";
 
 export const review = new Vector().open(
   {
     nature: "/review",
-    valence: "Record outcomes for every literal the learner exercised — one batched call per " +
-      "exchange. Reviews reschedule the due queue; an exchange you do not review never " +
-      'happened. Example: { reviews: [{ literal: "leggere", signal: "SUCCESS" }, ' +
-      '{ literal: "capire", signal: "FAILURE" }] }.',
+    valence: [
+      "Record the outcome of every literal the learner exercised this exchange. Signals:",
+      "MASTERY — effortless and fast · SUCCESS — correct · NEUTRAL — shown or skipped · MISTAKE — wrong but close · FAILURE — blank or wrong.",
+      "One call per exchange, at the end, carrying every exercised literal. Never the same literal twice in one call. Never review plain conversation — only items actually exercised.",
+      "Each review reschedules the item and answers with its new status and next date; an exchange you do not review never happened.",
+    ].join("\n"),
     input: v.object({
       reviews: v.array(
         v.object({
-          literal: v.string().desc("Literal slug or id."),
-          signal: v.enum(["SUCCESS", "FAILURE"]),
+          literal: v.string().desc("The literal's slug, exactly as the read tools report it."),
+          signal: v.enum(SIGNAL),
         }),
+        { minItems: 1, maxItems: 10 },
       ),
     }),
   },
@@ -20,28 +24,33 @@ export const review = new Vector().open(
     if (!ctx.user?.id) {
       return {
         condition: "ERROR",
-        output: { message: "no user on this thread — reviews need an owner" },
+        message: "review needs an authorized caller — no user on this path",
       };
     }
-    const missing = [];
-    let reviewed = 0;
-    for (const { literal: reference, signal } of ctx.input.reviews) {
-      const row = await ctx.daemon.entities.literal.findOne(
-        ctx.daemon.entities.literal.reference(reference),
+
+    const lines = [];
+    const retentions = [];
+    for (const item of ctx.input.reviews) {
+      const literal = await ctx.daemon.entities.literal.findOne(
+        ctx.daemon.entities.literal.reference(item.literal),
       );
-      if (!row) {
-        missing.push(reference);
+      if (!literal) {
+        lines.push(`${item.literal} — not in the corpus`);
         continue;
       }
-      await row.review({ enum: signal }, ctx);
-      reviewed += 1;
+      const retention = await ctx.daemon.call["/review/literal"]({
+        user: ctx.user,
+        mode: ctx.mode,
+        thread: ctx.thread ? { id: ctx.thread } : null,
+        input: { literal: literal.slug, signal: item.signal },
+      });
+      lines.push(
+        `${literal.slug} ${item.signal} → ${retention.status}, next ${
+          retention.nextAt?.toISOString().slice(0, 10) ?? "—"
+        }`,
+      );
+      retentions.push(retention);
     }
-    return {
-      condition: missing.length ? "ERROR" : "NOMINAL",
-      output: {
-        message: `${reviewed} reviewed` +
-          (missing.length ? ` — unknown literals skipped: ${missing.join(", ")}` : ""),
-      },
-    };
+    return { message: lines.join("\n"), entities: { retention: retentions } };
   },
 );

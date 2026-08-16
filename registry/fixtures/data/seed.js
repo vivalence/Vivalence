@@ -90,6 +90,7 @@ export async function seed() {
       user,
       literal: hello,
       status: "KNOWN",
+      lastSignal: "SUCCESS",
       state: {},
       nextAt: new Date(now.getTime() + 86_400_000),
       lastAt: now,
@@ -98,6 +99,7 @@ export async function seed() {
       user,
       literal: goodbye,
       status: "LEARNING",
+      lastSignal: "MISTAKE",
       state: {},
       nextAt: new Date(now.getTime() - 86_400_000),
       lastAt: now,
@@ -124,7 +126,7 @@ export async function seed() {
   await em.flush();
 
   const mode = em.create(tiers.mode.entity, {
-    slug: "rep-o-gram",
+    slug: "dojo",
     type: "game",
     traits: ["APPLICATION", "INTENTED", "EMITTER", "STANDALONE"],
     installed: true,

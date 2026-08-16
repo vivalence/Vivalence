@@ -1,0 +1,63 @@
+#+title: the phone goes slow, the session heartbeat was echoing the whole buffer, and a throwaway probe proves the cut in one deploy
+#+filetags: :dojo:mobile:performance:session:datamap:broadcast:bridge:viewport:pincer:focus:persist:drawer:builder:probe:kajuit:panel-b:panel-f:mikro:nativeupdate:libsql:
+#+spine: 294 beef turns in the session (442 raw, 148 queue duplicates collapsed) — this fold walks rows 276–294; rows 1–275 live in compacts 45–47.
+
+* the walk (rows — every section below cites these)
+| n | beef (verbatim at gates) | landed | decided / killed |
+|---|---|---|---|
+| 276 | =/compact= | context fold | NOTHING |
+| 277 | continuation summary | compact 47 reported to beef in one block | NOTHING new |
+| 278 | /ok the last build \/ change has made it such that the mode is SUUUPER slow on mobile. its slow, jerky, and buggy. the typing has a massive delay. each commit throws the layout into a frenzy. the keyboard still closes all the time. i guess something is structurally wrong/ | systematic-debugging invoked; Phase 1 read of =Dojo.svelte= · =Rep= · =TypeInput= · =Table= · =Prompt= · drapes =persist\/visible\/drag\/Keyboard= · =bridge.js attachViewport= · =ViewportLock= · F panel · entity merge path | assessment, no code |
+| 279 | /too many listeners. things not properly timed or debounced and throttled/ (MID-TURN) | listener census per phone rep: 2 window keydown · 4 bridge viewport · 2 ViewportLock · persist 2 · =visible= per Table row · Drawer walls · =drag= 8\/chip incl. non-passive touchmove; the UNTHROTTLED one named: =attachViewport= per vv event → 3 store sets → whole pincer relayout | — |
+| 280 | /things done in manual js that could be css?/ (MID-TURN) | named: preview bar 50 ms interval → CSS animation; =drag= ghost copying 10 computed styles; =visible= smooth scroll | — |
+| 281 | (skill body payload) | — | NOTHING |
+| 282 | /no problem on desktop/ (MID-TURN) | narrowed to mobile-only paths: keyboard\/visual-viewport\/focus | — |
+| 283 | /but mobile is a mess/ (MID-TURN) | assessment delivered: hypothesis 1 viewport fight loop (iOS caret-reveal pan ↔ =anchor()= =scrollTo(0,0)= ↔ =resize(bridge)= ↔ =--viva-h=), hypothesis 2 four async focus authorities; one 60-s probe asked (vv scroll counter in the inspector) | waited |
+| 284 | /i cant run the probe rn. a: i run viva in an installed web-app via safari - manifest. b: my network isnt strong enough to build the iphone bridge. what we could do is: you build into bridge a capability for me to copy the data and tehn i paste it here after a deply. i want you to already attempt a fix of your best guess blind or with whatever i can provide via desktop safari\/firefox/ | GO. probe designed into the BRIDGE deck (panel B); evidence continued: =keep(record())= → =retain= → =buffer.data= + =\/session= POST of the WHOLE queue every 1.5 s; =shard\/datamap.js reactive()= broadcasts every flush to every ={thread}= subscriber INCLUDING the writer; client =merge= → =$data.set= → panel F =<pre>JSON.stringify(data)= (=panes.f= ON by default) + =structuredClone= snapshot | blind fix set chosen |
+| 285 | /note that the issue is NEW! hasnt been there before/ (MID-TURN) | re-ranked by newness: the session keep\/echo is new and fits every symptom; the bridge handler is old → coalescing only, knob for A\/B | #1 = echo |
+| 286 | /let me start and stop the performance watching. and copy is to clipboard!/ (MID-TURN) | probe contract fixed: start\/stop · copy (=navigator.clipboard=) · share (=navigator.share=) · textarea fallback | — |
+| 287 | /and while youre at it: change those two lines to monospace/ (MID-TURN, image: you wrote\/expected) | =TokenFeedback.svelte= =.value= → =--font-family-code= | — |
+| 288 | /maybe we should also make sure that all the drawer stuff doesnt actaully render html when the drawer is closed. nothgin behind the curtains until they are opened. and there are thousandds of symbols with all the lemmas. thats gonna cause a strain. maybe pagination makes sense. .../ (MID-TURN) | Drawer mounts nothing until =open= (=shown= flips back on =transitionend=); Builder =\/symbols= paged =types.SYMBOL_PAGE = 40= + =more= chip, page resets on search\/kind | — |
+| 289 | /and another thing. keep track of the number of reps for me up here/ (MID-TURN, image: handle line) | =handleSummary= appends =· N reps= while live | — |
+| 290 | /can you do to enter what you did to holding this button? aka i have no input, hold enter, it commits empty/ | Rep =onkeydown\/onkeyup=: Enter held on an empty TYPE rep = =submit({ force: true })= after the same =HOLD= (600 ms, now owned by Rep, passed to TypeInput) | — |
+| 291 | (screenshot path) | — | NOTHING |
+| 292 | desktop Firefox probe JSON — /test. works? as expected?/ | yes: 9 keystrokes, input→frame p50 1 ms \/ max 4, 0 jank, 0 viewport writes = the clean baseline; probe gained an =enter= marker | — |
+| 293 | iPhone 18.7 PWA probe JSON — /feels good again. what you did worked. anything that can be learned still from the logs? remove the probe/ | learnings extracted (below); probe + =anchor= knob removed; pincer clamp diff-guarded; dojo 12\/58 · kajuit 32\/112 green | FIXED |
+| 294 | /ikiro compact/ | this file; frontier · kajuit codemap · memory · index | — |
+
+Coverage: 276–294 = 19 rows, 4 NOTHING (276 · 277 · 281 · 291), none skipped. Balance: the arc cites rows 278–293 across the whole span; the last third of this fold (289–294) carries 2 of the 6 arc beats.
+
+* arc
+** the read (rows 278–283)
+beef's three lines arrived while I was still reading: listeners, throttling, JS-that-should-be-CSS. The read confirmed the shape — four focus authorities, three viewport movers, one unthrottled bridge handler, a 50 ms preview interval — and I bet on a viewport fight loop. The bet was wrong (row 293 says so in numbers) but the inventory was right, and every item on it landed anyway because each was cheap and each was one of beef's three lines.
+
+** the pivot (rows 284–286)
+/i cant run the probe rn … build into bridge a capability for me to copy the data … attempt a fix of your best guess blind./ Two deliverables in one deploy: a throwaway recorder in the bridge deck, and the best guess applied. Then /the issue is NEW!/ — the discriminator. What was new since the phone lists: the =\/session= keep. Traced to the end: every flush of =buffer.data= is broadcast by =shard\/datamap.js reactive()= to every subscriber of the thread, the writer included; the phone received its own whole buffer (knowables + =session.queue=, hundreds of KB) every heartbeat over a weak link, and panel F — on by default — re-laid out a pretty-printed dump of it on each arrival. Desktop chews that; a phone stalls per commit.
+
+** the cut (rows 284–290)
+- =registry\/education\/modes\/games\/dojo\/aperture\/index.js= =\/session= → =keepQuietly=: raw =UPDATE= through =em.getConnection().execute= with table\/column from =em.getMetadata()=, then =em.refresh(buffer)=. No flush, no =afterUpdate=, no broadcast. =nativeUpdate= was tried first and DOUBLE-ENCODES json columns on libsql (an object → one quoting by =JsonType=, one by the driver; a pre-stringified value goes triple). The refresh keeps the identity map honest in the test scenario, whose calls share one em (prod forks per request via =datamap.inject=). Test pins: keeps never broadcast, =\/setup= does; a queue-less keep inherits the kept queue.
+- =Dojo.svelte= heartbeats carry =queue= only when its identity changed (=sentQueue=; resume seeds it). Keep ≈ 1 KB.
+- panel F data dump opt-in. Drawer empty while closed. Builder symbols paged. =drag= registers its non-passive touch listeners only while armed. One focus owner: =persist= (TypeInput =$effect= settle + Dojo =holding= effect deleted). Preview bar = CSS =@keyframes memorize= driven by =animation-duration: {span}ms=; Rep's interval → one =setTimeout=. Bridge =attachViewport= rAF-coalesced + =resize()= diff-guarded (nanostores notify on every =set=, equal objects included). Plus the three asides: monospace feedback lines, =· N reps= in the handle, hold-Enter commits empty.
+
+** the proof (rows 292–293)
+Desktop first: p50 1 ms, nothing moving. Then the phone: 50 keystrokes at input→frame p50 6 ms \/ max 13; 18 jank frames in 112 s, all placed — keyboard open 60 ms, a Builder bin tap 75 ms, viket drags — none in the typing runs. The viewport path was quiet (vv.resize 12 = store.viewport 12, vv.scroll 5, win.scroll 5): the keyboard-loop hypothesis dies, the echo hypothesis holds. /feels good again. what you did worked./ Residuals from the paste: =store.pincer= 349 writes in ~20 s of viket drag with runs of 8 identical values — the gesture writes =layout.pincer= per pointermove even when the clamped point did not move; and the 240-event ring was eaten by those writes, so a future probe ring must coalesce repeats. Probe and the =anchor= A\/B knob removed on his word; the pincer clamp gained the same diff guard.
+
+** the neighbour (row 293, observed)
+Another session was editing the dojo concurrently (=dress-on-the-entry=: =streak.worn\/wear\/redress=, =knowables.wardrobe\/dressFor=). Both edit sets are present in =Dojo.svelte= \/ =streak.js=, both compile, dojo 12\/58 green. The frontier is a shared file under two writers this evening — budget evictions were made only from old, elsewhere-recorded tails (into =known-issues.org=, whole), never from the neighbour's fresh lines.
+
+* mechanisms worth keeping (from the whole table)
+- An entity flush broadcasts to the WRITER too (=reactive()= pushes ={op, entity: toJSON()}= to every matching subscriber). High-frequency ephemeral client state on a broadcast entity is a category error; the quiet write is the mitigation, origin-excluded broadcast or a non-entity store is the real design (un-go'd).
+- =nativeUpdate= + json column + libsql = double encoding. Raw UPDATE with metadata-derived names is the honest path when the ORM path carries a side effect you must not have.
+- nanostores notify on every =set=; a fresh-object setter called per event re-lays out the whole pincer. Diff before set.
+- =panes.f= defaults ON and F pretty-prints the active buffer's =data= — any mode that grows =buffer.data= pays that per write.
+- iOS PWA standalone: the visual viewport barely scrolls the app (5 win.scroll in 112 s); =anchor()= always-snap is harmless there.
+- A paste-back probe is a one-deploy diagnosis on devices without an inspector: vv\/window scroll + focusin\/out with target marks + =input=→rAF latency + rAF gaps > 50 ms + store =listen=s + a ring + =clipboard.writeText= in the click. Recipe in the kajuit codemap; the module is gone.
+
+* failures / callouts
+No =retard= this session (rows 276–294 scanned). The first blind bet (viewport fight loop) was wrong — recorded, not hidden; it cost nothing because the bet's own items were all beef's three lines. Flagged as deliberate: a raw SQL write inside a mode aperture (bypasses the entity event pipeline on purpose). The =anchor= knob and the F gate were ad-hoc additions, flagged at the time; the knob was removed with the probe.
+
+* state at fold
+- Deployed by beef and verified on the phone: the whole cut through row 289.
+- Landed after the paste, UN-DEPLOYED: hold-Enter commits empty (row 290) · probe + knob removal · pincer clamp diff guard.
+- Un-go'd: shallow-equal guard in =bridge.js store()= setters (gesture no-op writes) · ={#key turn}<Asset autoplay>= = =new Audio()= per rep + per table cell (BOX should own audio) · =visible= smooth scrolls · the real design for session keeps (origin-excluded broadcast or a non-entity store).
+- Records: frontier dojo line → FIXED; kajuit codemap (viewport owner · one focus owner · probe recipe); memory =project_dojo_mode= + =MEMORY.md= hook; four old frontier tails moved whole into =known-issues.org=.

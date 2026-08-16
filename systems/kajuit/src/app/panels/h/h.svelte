@@ -82,6 +82,9 @@
     top: 0;
     left: 0;
     right: 0;
+    padding-top: var(--safe-area-top);
+    padding-left: var(--safe-area-left);
+    padding-right: var(--safe-area-right);
     min-height: 50px;
     background: var(--colors-skeleton-1-surface);
     color: var(--colors-skeleton-1-contrast);
@@ -174,5 +177,10 @@
   }
   .btn.close:hover {
     color: var(--colors-skeleton-0-danger-base);
+  }
+
+  @media (max-width: 600px) {
+    .btn.close { height: 44px; min-width: 44px; }
+    .btn { height: 32px; min-width: 32px; }
   }
 </style>

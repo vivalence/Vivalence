@@ -1,4 +1,4 @@
-import { specimen, Bundle, View, App, Path, v } from "@vivalence/typology";
+import { specimen, Bundle, View, App, Path, svelte, v } from "@vivalence/typology";
 
 specimen.describe("Bundle prototype", () => {
   specimen.it("record|array form; entry() finds by mount; json = entries (no url)", () => {
@@ -38,5 +38,18 @@ specimen.describe("App prototype", () => {
     specimen.expect(a.fill({ data: {} }).recall).toBe("LEARNING");
     specimen.expect(new App({ mount: "x", schema }).schema).toBe(schema);
     specimen.expect(new App(a)).toBe(a);
+  });
+});
+
+specimen.describe("App source (m39)", () => {
+  specimen.it("svelte`` yields {source}; App carries source with mount null; neither mount nor source throws", () => {
+    const schema = v.buffer({ data: {} });
+    const tag = svelte`<h1>hi ${"beef"}</h1>`;
+    specimen.expect(tag.source).toBe("<h1>hi beef</h1>");
+    const a = new App(tag, schema);
+    specimen.expect(a.source).toBe("<h1>hi beef</h1>");
+    specimen.expect(a.mount).toBe(null);
+    specimen.expect(a.schema).toBe(schema);
+    specimen.expect(() => new App({})).toThrow("App: mount or source required");
   });
 });

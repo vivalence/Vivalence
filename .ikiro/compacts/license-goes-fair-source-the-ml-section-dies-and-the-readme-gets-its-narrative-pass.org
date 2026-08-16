@@ -1,4 +1,5 @@
 #+TITLE: license 2.1 lands fair-source with the ML section deleted outright; bak.licence triaged (education carve-out explored and killed); the README gets a full narrative/style pass — emoji-anchored bullets, notices absorb the prose, no naked links.
+#+filetags: :license:readme:documentation:
 #+TOPIC: on disk: =LICENSE.md= v2.1 (header still "(draft)") · =README.md= rebuilt top-to-bottom · =.github/FUNDING.yml= · scratchpad draft retired.
 
 * Arc

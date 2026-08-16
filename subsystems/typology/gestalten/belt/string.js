@@ -18,24 +18,49 @@ export const separate = (s) => {
     .split("/")
     .map((a) => a.replace(/\(.*?\)/g, "").trim())
     .filter(Boolean);
-  const expanded = [...raw];
-  for (let i = 0; i < raw.length - 1; i++) {
-    const prev = raw[i].split(/\s+/);
-    const next = raw[i + 1].split(/\s+/);
-    if (prev.length > 1 && next.length === 1) {
-      expanded.push([...prev.slice(0, -1), next[0]].join(" "));
-    } else if (prev.length === 1 && next.length > 1) {
-      expanded.push([prev[0], ...next.slice(1)].join(" "));
-    }
-  }
-  return [...new Set(expanded)];
+  const words = raw.map((alt) => alt.split(/\s+/));
+  const borrowed = raw.flatMap((alt, index) => {
+    if (words[index].length > 1) return [];
+    const right = words.slice(index + 1).find((tail) => tail.length > 1);
+    const left = words.slice(0, index).reverse().find((head) => head.length > 1);
+    return [
+      ...(right ? [[words[index][0], ...right.slice(1)].join(" ")] : []),
+      ...(left ? [[...left.slice(0, -1), words[index][0]].join(" ")] : []),
+    ];
+  });
+  return [...new Set([...raw, ...borrowed])];
 };
 
-export const matches = (input, expected, { forgiving = true } = {}) => {
-  const normalize = forgiving ? fold : (s) => s.toLowerCase().trim();
+const escape = (s) => s.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
+
+const suffix = (short) => short.startsWith("'") || short.startsWith("n'");
+
+export const contract = (text, contractions = {}, normalize = fold) => {
+  const entries = Object.entries(contractions).flatMap(([short, longs]) =>
+    [].concat(longs).map((long) => ({ short, long: normalize(long), brief: normalize(short) })),
+  );
+  const ordered = entries
+    .filter(({ long, brief }) => long && long !== brief)
+    .sort((left, right) => Number(suffix(left.short)) - Number(suffix(right.short)) || right.long.length - left.long.length);
+  return ordered.reduce(
+    (out, { short, long, brief }) =>
+      suffix(short)
+        ? out.replace(new RegExp(`(^|\\s)(\\S+) ${escape(long)}(?=\\s|$)`, "g"), `$1$2${brief}`)
+        : out.replace(new RegExp(`(^|\\s)${escape(long)}(?=\\s|$)`, "g"), `$1${brief}`),
+    normalize(text),
+  );
+};
+
+export const elided = (expected, normalize = fold) =>
+  new RegExp(`^${expected.split("'").map((chunk) => escape(normalize(chunk))).join("[aeiou]? ?")}$`);
+
+export const matches = (input, expected, { forgiving = true, contractions = null, elision = false } = {}) => {
+  const base = forgiving ? fold : (s) => s.toLowerCase().trim();
+  const normalize = contractions ? (s) => contract(s, contractions, base) : base;
   const alts = separate(expected);
   const got = normalize(input);
   if (alts.some((alt) => got === normalize(alt))) return true;
+  if (elision && alts.some((alt) => alt.includes("'") && elided(alt, normalize).test(got))) return true;
   if (alts.length > 1) {
     const inputWords = new Set(got.split(/\s+/));
     const altWords = new Set(alts.flatMap((alt) => normalize(alt).split(/\s+/)));

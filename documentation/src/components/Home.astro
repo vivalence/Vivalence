@@ -1,0 +1,68 @@
+---
+import { getCollection } from "astro:content"
+import { capture, fold } from "../lib/trace.js"
+
+const { data } = Astro.props
+
+const docs = await getCollection("docs")
+const byJdex = Object.fromEntries(docs.map((entry) => [entry.data.jdex, entry]))
+const linkTo = (jdex) => (byJdex[jdex] ? `/${byJdex[jdex].id}` : "/jdex")
+
+const trace = fold(capture(data.live?.capture)?.records ?? [])
+---
+<div class="home">
+  <div class="hero">
+    {data.eyebrow && <div class="eyebrow">{data.eyebrow}</div>}
+    <h1>{data.headline}</h1>
+    {data.sub && <p class="sub">{data.sub}</p>}
+    {data.totems && (
+      <div class="totems">
+        {data.totems.map((totem) => (
+          <span class="totem"><b>{totem.term}</b> {totem.rest}</span>
+        ))}
+      </div>
+    )}
+  </div>
+  <div class="home-body">
+    {data.pillars && (
+      <div class="pillars">
+        {data.pillars.map((pillar) => (
+          <a class="pillar" href={linkTo(pillar.jdex)}>
+            <span class="pk">{pillar.key}</span>
+            <h3>{pillar.title}</h3>
+            <p>{pillar.desc}</p>
+          </a>
+        ))}
+      </div>
+    )}
+    <div class="home-cols">
+      <div>
+        <h4>{data.start?.title}</h4>
+        <div class="startlist">
+          {(data.start?.items ?? []).map((step) => (
+            <a href={linkTo(step.jdex)}>
+              <span class="sn">{step.jdex}</span>
+              <span class="st">{step.title}</span>
+              <span class="sd">{step.desc}</span>
+            </a>
+          ))}
+        </div>
+      </div>
+      <div class="home-side">
+        <div class="live-card">
+          <h4>{data.live?.title}</h4>
+          <slot />
+          <div class="mini-trace">
+            {trace.map((row) => (
+              <span style={row.depth ? `padding-left:${row.depth * 1.2}ch` : undefined}>
+                {row.verb === "note" ? row.verb : <span class="v">{row.verb}</span>}
+                {row.data ? ` ${JSON.stringify(row.data)}` : ` ${row.path}`}
+                {row.duration && ` · ${row.duration}`}
+              </span>
+            ))}
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>

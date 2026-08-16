@@ -15,10 +15,10 @@ const assess = ({ state }) => {
 
 const encode = (signal) => {
   let state;
-  if (signal.enum) {
-    state = POSITIVE.includes(signal.enum);
-  } else if (signal.ratio) {
+  if (signal.ratio) {
     state = signal.ratio.success / signal.ratio.total >= 0.5;
+  } else if (signal.enum) {
+    state = POSITIVE.includes(signal.enum);
   } else {
     throw new Error("No signal provided to encode retention");
   }
@@ -27,10 +27,10 @@ const encode = (signal) => {
 
 const evolve = (signal, retention) => {
   let state;
-  if (signal.enum) {
-    state = POSITIVE.includes(signal.enum);
-  } else if (signal.ratio) {
+  if (signal.ratio) {
     state = signal.ratio.success / signal.ratio.total >= 0.3;
+  } else if (signal.enum) {
+    state = POSITIVE.includes(signal.enum);
   } else {
     throw new Error("No signal provided to evolve retention");
   }

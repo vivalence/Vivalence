@@ -43,6 +43,31 @@ specimen.describe("anthropic provider", () => {
       specimen.expect(messages[1].content[0]).toEqual({ type: "tool_result", tool_use_id: "t1", content: JSON.stringify({ r: 2 }) });
     });
 
+    specimen.it("an assistant turn carrying its own tool_result splits into assistant then user messages — same wire as a sync round", () => {
+      const { messages } = translateTurns([
+        {
+          role: "assistant",
+          parts: [
+            { type: "text", text: "done" },
+            { type: "tool_use", id: "a1", name: "appraise", input: {} },
+            { type: "tool_result", id: "a1", output: { object: [{ literal: "vedere", signal: "SUCCESS" }] } },
+          ],
+        },
+      ]);
+      specimen.expect(messages[0].role).toBe("assistant");
+      specimen.expect(messages[0].content.map((part) => part.type)).toEqual(["text", "tool_use"]);
+      specimen.expect(messages[1]).toEqual({
+        role: "user",
+        content: [
+          {
+            type: "tool_result",
+            tool_use_id: "a1",
+            content: JSON.stringify([{ literal: "vedere", signal: "SUCCESS" }]),
+          },
+        ],
+      });
+    });
+
     specimen.it("passes tool_use input verbatim — parse-once lives at soma /part/close", () => {
       const { messages } = translateTurns([
         { role: "assistant", parts: [{ type: "tool_use", id: "t1", name: "look", input: { q: 1 } }] },
@@ -182,6 +207,12 @@ specimen.describe("anthropic provider", () => {
       specimen.expect(params.output_config).toEqual({ effort: "xhigh" });
     });
 
+    specimen.it("effort none forces a thinking model quiet — no thinking, no output_config, sane budget", () => {
+      const params = buildParams(opus, { ...request(), settings: { effort: "none" } });
+      specimen.expect(params.thinking).toBe(undefined);
+      specimen.expect(params.output_config).toBe(undefined);
+    });
+
     specimen.it("a non-thinking model never adds thinking", () => {
       specimen.expect(buildParams(haiku, request()).thinking).toBe(undefined);
     });
@@ -197,16 +228,16 @@ specimen.describe("anthropic provider", () => {
       specimen.expect(params.tool_choice).toBe(undefined);
     });
 
-    specimen.it("request.output.object appends a respond tool + forces tool_choice:any", () => {
+    specimen.it("request.output.schema appends a respond tool + forces tool_choice:any", () => {
       const schema = { type: "object", properties: { verdict: { type: "string" } } };
-      const params = buildParams(haiku, { ...request(), output: { object: schema } });
+      const params = buildParams(haiku, { ...request(), output: { schema } });
       specimen.expect(params.tools.at(-1)).toEqual({ name: "respond", description: "Return the final result as structured data.", input_schema: schema });
       specimen.expect(params.tool_choice).toEqual({ type: "any" });
     });
 
-    specimen.it("output.object appends respond after the mode's real tools", () => {
+    specimen.it("output.schema appends respond after the mode's real tools", () => {
       const schema = { type: "object" };
-      const params = buildParams(haiku, { ...request(), tools: [{ name: "look" }], output: { object: schema } });
+      const params = buildParams(haiku, { ...request(), tools: [{ name: "look" }], output: { schema } });
       specimen.expect(params.tools.map((tool) => tool.name)).toEqual(["look", "respond"]);
     });
   });

@@ -104,7 +104,10 @@ export async function* respond(faculty, streamOrRender, request, policy) {
       meta: {
         state: "error",
         rounds,
-        fault: { kind: fault.kind ?? "unknown", message: fault.message ?? null },
+        fault: {
+          kind: fault.kind ?? "unknown",
+          message: fault.provider?.message ?? fault.message ?? null,
+        },
       },
     };
   } finally {

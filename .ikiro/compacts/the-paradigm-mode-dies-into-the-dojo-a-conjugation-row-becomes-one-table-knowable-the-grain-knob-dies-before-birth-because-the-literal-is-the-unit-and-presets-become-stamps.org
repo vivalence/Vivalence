@@ -1,0 +1,165 @@
+#+title: the paradigm mode dies into the dojo, a conjugation row becomes one table knowable, the grain knob dies before birth because the literal is the unit, and presets become stamps
+#+filetags: :m35:m34:m24:dojo:paradigm:conjugation:table:compound-knowable:streak:presets:kajuit:svelte:aprende:tactics:repository-grammar:
+
+* arc
+
+Straight after the m34 fold beef names the next fold: /"we have the conjugation paradigm
+mode. i think i'd like the dojo to handle that too."/ The dojo already ate paradigm rows —
+but only exploded into six form reps, the row itself never reviewed — while =games/paradigm/=
+played the WHOLE table as one rep with its own axes and Portuguese pronouns hardcoded in the
+view. The wake reads both, finds the pin already in the code — a table is a COMPOUND
+knowable, the very shape the sentence lives under (tokens reviewed per literal, the whole
+under =judge.js sentence()='s aggregate law) — and comes back with reasoning, a sketch and
+four questions. beef answers all four in one line: table by default, realtime only, slot
+order, labels /"whatever is available"/, /"streak per cell."/ Then, before =go=, he reasons
+the one thing that mattered: /"how does the dojo select that it should run the paradigm
+instead of one by one conjugations? i guess its by literal … if the literals with ontology
+conjugation are given then paradigm, if literal is the conjugated thing, then that."/ The
+=clause.conjugate= knob proposed an hour earlier dies before it is born — the repository ROW
+is the unit, nothing to declare — and =go= lands the whole thing in one pass: server, the
+table surface, the cell machine, four consumers rewired, three kernels, the paradigm mode
+into =bak/=, tests green. beef drives the drawer again with screenshots and calls three
+small things: presets that cannot be deselected (they are stamps — the most specific
+satisfied one now lights, a =where= preset scoped by what the set resolves to), the "show" stepper dropped,
+the 04 block renamed =filter= and sized like its neighbours. Then the fold.
+
+* the walk
+
+| n | beef (verbatim where it decides) | landed |
+|---|---|---|
+| 1–117 | the previous arcs | covered by [[the-designer-returns-a-drawer-the-query-engine-is-widened-to-everything-both-repositories-speak-the-drawer-lands-in-one-evening-and-beef-drives-it-live-until-the-runtime-eats-sixteen-gigabytes]] and its predecessors. |
+| 118 | continuation summary (system) | NOTHING — context fold; the m34 closing report was delivered from it. |
+| 119 | /"we have the conjugation paradigm mode. i think i'd like the dojo to handle that too."/ | READ: =games/paradigm/{paradigm.viva.js,Paradigm.svelte}=, dojo =set/resolve.js= + =emitter/conjugate.js= (the form explosion), =buffer/{knowables,judge,streak}.js=, =Rep/Prompt/TypeInput=, the m24 quest's paradigm notes, the four =game.paradigm.emit.conjugation= consumers, the corpus (=essere.present.indicative= row + its form words with =word.person/number/tense/mood/lemma= symbols), =LiteralEntity= =uses/in=. Report: the pin (compound knowable = sentence law), a =clause.conjugate= grain knob per clause, the player, deaths/consumers, four questions. No code. |
+| 120 | /"1 ok. 2. realtime. order not random. 3. for now just whatever is available, in the future i will provide those as statics. streak per cell."/ | Quest the m35 quest file (DELETED — mXX quests are Finn's) written DESIGNED with the four answers verbatim; frontier line added (7997/8000). Awaiting go. |
+| 121 | /"lets reason one thing. how does the dojo select that it should run the paradigm instead of one by one conjugations? i guess its by literal. ie if the literals with ontology conjugation are given then paradigm, if literal is the conjugated thing, then that. ok yeah. makes sense. go"/ | GRAIN BY LITERAL — the knob DIED. Landed in one pass: =emitter/paradigms.js= (row → ONE table knowable) · =set/resolve.js= (tables replace expansion, one cap across tables + spoken, a table's forms out of the clause + later ones) · =emitter/conjugate.js= deleted · =fold.js= =context()= from a form word's own facets + =table()= · =types.js= descs + preset =conjugate= (ninth, carries =where=; =presets.js fold()= merges it, the drawer's =preset()= declares it) · =buffer/knowables.js= =gameplayFor(pool, knowable)= (table ⇒ TYPE + FLIP) + audible-per-token · =streak.js= =settle= + =defer= · NEW =parts/Table.svelte= · =Rep.svelte= cell machine reusing =TypeInput= (streak per cell, realtime form reviews, row aggregate over first attempts, Tab defers, click a settled miss to retype) · =Dojo.svelte= =land()= honours =result.literal=, =advance()= settles tables, =assetOf= · =Builder= row label =table · N forms= / =form= · consumers: aprende drill (hard → table via =dojo.emit.literals=, strong → =write.literals(row.uses)=), clinic, impara grammatica, survival drill · kernels testament/localhost/ghost(+multiplayer comments) · =games/paradigm/= → =games/bak/= · tests: dojo 9 suites / 43 steps, runtime 51 / 322, 18 views compile · runtime watch restarted (italian 401 = up) · quest IMPLEMENTED, codemap dojo bullet, frontier, memories =project_dojo_mode= + =project_language_label_hardcoded=. |
+| 122 | screenshot: /"i am unable to deselect write in this seutp. on purpose?"/ | Explained: presets are stamps (=presetOn= = every axis equal), =write= ⊂ =conjugate= so both light; two fixes offered, rec most-specific; =go?= |
+| 123 | /"[Image #18] whats the 04 window here? if only conjugations are in set and ocnjugtion is selected, deselect write."/ (+124 image dup) | 04 window = the literal repo's =rank= window + =search=. Preset law landed in =Gameplay.svelte=: satisfied = axes equal ∧ =where= holds for EVERY clause (empty set = not scoped); lit = satisfied ∧ no other satisfied preset carries a strict superset of constraints; =set= rides the gameplay group. |
+| 124 | image duplicate | NOTHING |
+| 125 | /"[Image #19] we dont need cap and show. drop show."/ (+126 image dup) | SHOW stepper dropped; rows = the whole resolve; "add clause" right-aligned. |
+| 126 | image duplicate | NOTHING |
+| 127 | (mid-turn) /"and why do we need text contains? we already have the search up top? i assume that searches slug and translations?"/ | Answered: top = SYMBOL search (=/symbols=: slug + LABELED name → chips), text contains = the LITERAL repo's =search= (slug + both translations) over what the rule resolves. |
+| 128 | /"ah no"/ | NOTHING — self-correction begun. |
+| 129 | interrupt | NOTHING |
+| 130 | /"ah no my mistake. this is symbol search adn then an additional filter. lets keep it. fine. there is some sizing issues tho. gets quite small down there."/ | Kept; =.key= 2xs → xs, =.mini= 4rem × 1.75rem (the cap stepper's height) xs, text field sm. |
+| 131 | (mid-turn) /"rename window to filter"/ | 04 window → 04 filter; codemap, memory, m34 quest propagated. |
+| 132 | /"ikiro compact"/ | this. |
+| 133 | /compact | NOTHING |
+| 134 | (mid-compact) /"the conjugate is not selectable. the right game pops out paradigm - but [Image #20] i cnat select conjugate"/ | The =where= scoping read clause SYNTAX (=where.ontology=) — a conjugation-only set built through the =conjugation= symbol CHIP never matched. Rescoped to the MATERIAL: Dojo derives =material= = the ontologies of what the set resolves to (queue while playing, preview rows while dirty) and the preset lights when every one is inside the preset's =where.ontology=. |
+| 135 | /"maybe teh conjugation is gameplay not preset?! its also preset but conjugation is gameplay next to type and flip. which fits the multiselect. its just that conjugation literals greedyly chose paradigm game. this would also allow me to conjugate both/either way which is nice."/ | DECIDED (see /the next cut/): =CONJUGATE= joins =types.GAMEPLAYS=; the row stays the unit of MATERIAL, gameplay picks the SURFACE. Sketch + consequences reported; =go?= |
+| 136 | /"ikiro compact. write that up. i compact. you continue"/ | This compact amended; quest m35 carries the design; implementation continues after beef's =/compact=. |
+
+Coverage: 136/136 — 1–117 by reference, 118–136 walked, 6 NOTHING. Balance: every cited
+row sits in the last third of N by construction — the session's first 117 turns are two
+prior folds; inside 118–136 the citations spread 119–136 evenly.
+
+* the pin, and the knob that died (rows 119–121)
+
+- A conjugation table is a COMPOUND knowable — one knowable, N tokens, each token reviewed
+  on its own literal, the whole reviewed with the sentence aggregate (all → SUCCESS · some →
+  MISTAKE · none → FAILURE). =Dojo.land()= already reviewed =result.tokens[].literal= then
+  =knowable.literal=; the table only needed a different INPUT SURFACE.
+- Knowable =ontology: "conjugation"= = THE ROW, the corpus's own word. The old per-form
+  knowable was a word wearing the row's name; a form IS a word — =fold.context()= reads its
+  own =symbol.word= facets ={lemma → infinitive, tense, mood, person, number}=.
+- The wake proposed =clause.conjugate: true= to explode rows into forms. beef's question
+  killed it: the grain is decided by WHAT THE CLAUSE DRAWS. Draw rows → tables. Draw form
+  words (=symbols= lemma+tense+mood · =literals= ids · any pick) → one by one. Nothing to
+  declare — the "is this the repository's own word?" law applied to itself.
+- Table knowable: ={ontology, known/learning = the infinitive, context {tense, mood, suffix,
+  regularity} LABELED, tokens [{slot, form, gloss, literal, person, number, asset?}] in slot
+  order, literal: row.id, asset?}=. Labels = LABELED person·number names — fixture =eu
+  singular=, italian =First Person Singular= — until beef's pronoun STATICS.
+- Presets may carry a =where= (=conjugate: {ontology: "conjugation"}=); =emitter/presets.js
+  fold()= merges it, the drawer's =preset()= declares it. Ninth preset.
+
+* the cell machine (row 121)
+
+=Rep.svelte= owns it, =Table.svelte= renders it. =TypeInput= stays the ONE =[data-rep-input]=
+(FOCUS LAW). =cellSession = streak.begin(tokens, axes.streak)= — the streak runs PER CELL:
+a missed cell resets + requeues at the end, Tab =defer=s (to the end, no rep), the table
+completes when every cell has its runs. Each commit reviews the FORM literal at once
+(REALTIME); completion reviews the ROW with the aggregate over FIRST attempts. =recall= is
+drawn per cell from the pool; cell order = slot order. Gameplay for a table draws among what
+a table can resolve — TYPE + FLIP, never PICK — the =promptFor= law one axis over. Preview
+= the filled table for =base + Σ form length × multiplier= ms. =Dojo.advance()= SETTLES a
+table (=streak.settle= — one outer pass, whatever happened inside) and RECORDS everything
+else. After completion a settled miss can be clicked and retyped in place (correction, no
+review, no streak).
+
+* the drive (rows 122–131)
+
+- Presets are STAMPS, not selections: a chip lights when the current axes satisfy it, and
+  there is nothing to deselect. beef: /"if only conjugations are in set and ocnjugtion is
+  selected, deselect write."/ Law: satisfied = axes equal ∧ (the preset's =where.ontology=
+  covers every ontology the set RESOLVES TO — the material, never the clause syntax; empty
+  material = not scoped); lit = satisfied ∧ no other satisfied preset carries a strict
+  superset of constraints. =write= yields to =conjugate=/=shadow=/=drill=/=ultra= when those hold.
+  First cut read =clause.where.ontology= and missed a set built through the =conjugation=
+  symbol chip — beef caught it mid-compact (row 134).
+- SHOW stepper dropped (/"we dont need cap and show. drop show."/) — cap bounds the resolve,
+  the list shows all of it.
+- 04 window → 04 filter (/"rename window to filter"/); =rank ≥/≤= = the literal repo's
+  =rank= window, =text contains= = its =search= — distinct from the SYMBOL search up top
+  (beef caught it himself: /"this is symbol search adn then an additional filter. lets keep
+  it."/); sized like the cap stepper after /"gets quite small down there."/
+
+* the next cut — CONJUGATE is a gameplay (rows 135–136; decided, LANDED right after the fold call)
+
+beef: /"conjugation is gameplay next to type and flip. which fits the multiselect. its just
+that conjugation literals greedyly chose paradigm game. this would also allow me to
+conjugate both/either way."/ The by-literal law keeps its true half — a conjugation ROW
+always resolves to ONE table knowable, its forms travel as tokens — and drops the greedy
+half: GAMEPLAY decides the SURFACE.
+
+- =types.GAMEPLAYS = [TYPE, PICK, FLIP, CONJUGATE]=; =CONJUGATE= = the whole table, cell by
+  cell — feasible for conjugation rows only (the =promptFor= law: a word/sentence never draws
+  it; pool =[CONJUGATE]= alone → TYPE).
+- row + CONJUGATE → the table as landed tonight; row + TYPE/PICK/FLIP → its forms one by
+  one, each a =word= carrying ={infinitive, tense, mood, person, number}=, EXPANDED
+  CLIENT-SIDE at queue build (start / refill / continuous refill), reviews per form, no row
+  review; PICK's distractors = the sibling forms already in the queue. Pool =[TYPE,
+  CONJUGATE]= → drawn per row — "both/either way".
+- default =gameplay: TYPE= ⇒ rows play as forms unless CONJUGATE is in the pool — no greed.
+  Preset =conjugate= = ={gameplay: CONJUGATE, recall: LEARNING, where conjugation}= — still a
+  preset too (/"its also preset"/).
+- FLIP-on-a-table (reveal + self-grade) DIES; CONJUGATE is the only table surface; FLIP on
+  a row = flip each form.
+- an ABOARD table stays a table under a live gameplay change (mid-session expansion would
+  reindex the streak); live changes reach words + forms — said on the axis desc, not hidden.
+- consumers SAY it: clinic/impara/survival → =gameplay: "CONJUGATE"=; aprende drill hard →
+  CONJUGATE, strong → TYPE on the same row (replaces the =write.literals(row.uses)= detour);
+  =/conjugations= defaults CONJUGATE unless the caller says otherwise; intent =conjugate= →
+  CONJUGATE. Rep: CONJUGATE takes =TypeInput= + the cell keymap; Prompt task "conjugate in
+  <language>"; the Gameplay axis row shows the fourth chip.
+
+* state at fold
+
+- Code: m35 table + the CONJUGATE-gameplay cut BOTH landed, UNCOMMITTED (VCS is beef's).
+  dojo 9 suites / 44 steps · runtime 51 / 322 · 18 views compile. Landed for the cut:
+  =types.GAMEPLAYS= + desc · preset/emitter/intent say CONJUGATE · =knowables.gameplayFor=
+  feasibility flipped, =forms()= + =surface()= · =Dojo= =prepare= (draw + expand at build) /
+  =redraw= (live, tables pinned) · =Rep= =table = row ∧ CONJUGATE=, FLIP-table gone · =Prompt=
+  task · =Gameplay= note · consumers say CONJUGATE / TYPE (aprende strong branch = the same
+  row under TYPE) · tests. beef: /"i compact. you continue"/ — continued. Runtime watch running (italian at =[::1]:2501=, 401 = up); kajuit dev
+  at =127.0.0.1:1794=.
+- Ikiro: the m35 quest file (DELETED — mXX quests are Finn's) IMPLEMENTED (the knob's death recorded in-body) ·
+  registry codemap dojo bullet · frontier (m35 LANDED, live-drive owed; ≤ 8000) · memories
+  =project_dojo_mode= (grain-by-literal law in How to apply) + =project_language_label_hardcoded=
+  (paradigm's pronouns died; exhibit remains) + MEMORY.md hooks.
+- OPEN: the table UNSEEN live in a browser (chrome away for the build; beef drove the
+  drawer, not the table) · italian row labels =First Person Singular= until pronoun statics
+  (beef) · PICK over a table not built · BATCH feedback + RANDOM cell order dropped by beef ·
+  =aprende/buffer/Roster.svelte= ACCENTS names dead slugs (pre-existing drift).
+
+* resumption
+
+1. Open the dojo, preset =conjugate=, start: type the six forms, watch six form reviews +
+   one row review land; try Tab, a miss under =streak 2=, click-to-retype after completion,
+   FLIP on a table, AUDIO prompt.
+2. Narrow tier of the drawer, still unseen.
+3. Pronoun statics when beef ships them — the =who= slot in =Table.svelte= is where they land.
+
+* continued
+
+The prod drive, its two task blocks, the rank-0 and Trace incidents, the mXX-quest callout, and the
+domain test sweep are the NEXT compact — same session, next fold.

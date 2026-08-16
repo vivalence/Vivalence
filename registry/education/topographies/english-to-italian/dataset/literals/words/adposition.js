@@ -38,6 +38,9 @@ export default [
         "slug": "word.part-of-speech.adposition"
       },
       {
+        "slug": "word.part-of-speech.preposition"
+      },
+      {
         "slug": "proficiency.cefr.a1"
       },
       {
@@ -88,6 +91,9 @@ export default [
       },
       {
         "slug": "word.part-of-speech.adposition"
+      },
+      {
+        "slug": "word.part-of-speech.preposition"
       },
       {
         "slug": "proficiency.cefr.a1"
@@ -142,6 +148,9 @@ export default [
         "slug": "word.part-of-speech.adposition"
       },
       {
+        "slug": "word.part-of-speech.preposition"
+      },
+      {
         "slug": "proficiency.cefr.a1"
       },
       {
@@ -192,6 +201,9 @@ export default [
       },
       {
         "slug": "word.part-of-speech.adposition"
+      },
+      {
+        "slug": "word.part-of-speech.preposition"
       },
       {
         "slug": "proficiency.cefr.a1"
@@ -246,6 +258,9 @@ export default [
         "slug": "word.part-of-speech.adposition"
       },
       {
+        "slug": "word.part-of-speech.preposition"
+      },
+      {
         "slug": "proficiency.cefr.a1"
       },
       {
@@ -296,6 +311,9 @@ export default [
       },
       {
         "slug": "word.part-of-speech.adposition"
+      },
+      {
+        "slug": "word.part-of-speech.preposition"
       },
       {
         "slug": "proficiency.cefr.a1"
@@ -350,6 +368,9 @@ export default [
         "slug": "word.part-of-speech.adposition"
       },
       {
+        "slug": "word.part-of-speech.preposition"
+      },
+      {
         "slug": "proficiency.cefr.a1"
       },
       {
@@ -402,6 +423,9 @@ export default [
         "slug": "word.part-of-speech.adposition"
       },
       {
+        "slug": "word.part-of-speech.preposition"
+      },
+      {
         "slug": "proficiency.cefr.a1"
       },
       {
@@ -451,6 +475,9 @@ export default [
         "slug": "word.part-of-speech.adposition"
       },
       {
+        "slug": "word.part-of-speech.preposition"
+      },
+      {
         "slug": "proficiency.cefr.a1"
       },
       {
@@ -495,6 +522,9 @@ export default [
       },
       {
         "slug": "word.part-of-speech.adposition"
+      },
+      {
+        "slug": "word.part-of-speech.preposition"
       },
       {
         "slug": "proficiency.cefr.a1"
@@ -544,6 +574,9 @@ export default [
       },
       {
         "slug": "word.part-of-speech.adposition"
+      },
+      {
+        "slug": "word.part-of-speech.preposition"
       },
       {
         "slug": "proficiency.cefr.a1"
@@ -598,6 +631,9 @@ export default [
         "slug": "word.part-of-speech.adposition"
       },
       {
+        "slug": "word.part-of-speech.preposition"
+      },
+      {
         "slug": "proficiency.cefr.a1"
       },
       {
@@ -650,6 +686,9 @@ export default [
         "slug": "word.part-of-speech.adposition"
       },
       {
+        "slug": "word.part-of-speech.preposition"
+      },
+      {
         "slug": "proficiency.cefr.a2"
       },
       {
@@ -699,6 +738,9 @@ export default [
         "slug": "word.part-of-speech.adposition"
       },
       {
+        "slug": "word.part-of-speech.preposition"
+      },
+      {
         "slug": "proficiency.cefr.a2"
       },
       {
@@ -743,6 +785,9 @@ export default [
       },
       {
         "slug": "word.part-of-speech.adposition"
+      },
+      {
+        "slug": "word.part-of-speech.preposition"
       },
       {
         "slug": "proficiency.cefr.a2"
@@ -791,6 +836,9 @@ export default [
         "slug": "word.part-of-speech.adposition"
       },
       {
+        "slug": "word.part-of-speech.preposition"
+      },
+      {
         "slug": "proficiency.cefr.a2"
       },
       {
@@ -834,6 +882,9 @@ export default [
         "slug": "word.part-of-speech.adposition"
       },
       {
+        "slug": "word.part-of-speech.preposition"
+      },
+      {
         "slug": "proficiency.cefr.a2"
       },
       {
@@ -872,6 +923,9 @@ export default [
       },
       {
         "slug": "word.part-of-speech.adposition"
+      },
+      {
+        "slug": "word.part-of-speech.preposition"
       },
       {
         "slug": "proficiency.cefr.b1"

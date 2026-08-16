@@ -42,19 +42,12 @@ export default async (ctx, config = {}) => {
       }),
     );
   }
-  ctx.pool.add(
-    game.paradigm.emit.conjugation({
-      conjugation,
-      recall: "LEARNING",
-      feedback: "REALTIME",
-      order: "ORDERED",
-    }),
-  );
+  ctx.pool.add(game["dojo"].emit.literals({ literals: [conjugation], gameplay: "CONJUGATE", recall: "LEARNING" }));
 
   const practice = ctx.pool.section();
   for (const form of forms) {
     if (!form.retention || form.retention.is.virgin || form.retention.is.failed) {
-      practice.add(game["rep-o-gram"].emit.shadow.literal({ literal: form }));
+      practice.add(game["dojo"].emit.shadow.literal({ literal: form }));
     }
   }
   practice.apply(array.shuffle);

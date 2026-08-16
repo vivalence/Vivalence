@@ -26,6 +26,8 @@ Vivalence is like if WeChat, Emacs, and Hal9000 had a baby that's fair-source, d
 
 ## What is Vivalence and what is it for?
 
+🧠 **Modal Apps and Runtimes** Vivalence is Emacs' modal architecture applied to servers, applications, knowledge-graphs, and AI. 
+
 🧠 **Procedurally generated, agentic apps**, a hallucination harness for the common AI faculties and modalities.
 
 👾 **Daemons and dataspaces** composed from trait-based modes ("pluggable mini-apps").

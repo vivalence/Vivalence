@@ -1,0 +1,96 @@
+#+title: the classifier goes live, the thin rebuild gets caught against history, and m23 sets with its tangles filed
+#+filetags: :domain-tools:daemon-call:nlp:m23-sunset:m29:
+
+* arc
+
+The armory's second act. The nlp redeploy verifies live across three languages; beef's
+one-line question — /"where does m29-agent-tools.org differ from m23. did we fuck up
+today?"/ — catches the pull/review rebuild THIN against the condemned m23 originals in
+git history; a validated last pass restores fidelity; beef splits pull into three precise
+tools and routes review through the compiled aperture surface; an improvement pass lands
+four fixes; m23 sunsets into done/ with every tangle settled or filed into m29.
+
+* nlp — deployed and verified
+
+beef: /"redeployed nlp. test"/. Results: es depparse REAL (deprel root/nsubj/expl:pv,
+heads populated — the transformers fix holds) · it fails bare (/"No processors to load
+for language it"/ — the server's =PACKAGE= env default is =gsd=, a treebank name, forced
+onto every language) · it and pt green with =package: "default"= (pt model downloaded in
+13 s on first call). Fix landed provider-side, no redeploy: the request always sends
+=package: service.statics.package ?? "default"=. Known-issues entry → RESOLVED.
+
+* the audit — /"did we fuck up today?"/
+
+Yes, half. The architecture half was CLEAN — domain enters at the harness, review is
+BATCH, pull is FACETED, creation=update, and the armory closed m23's open item #1
+(ctx.user on the tool path). The content half was a thin rebuild from =francesca.md=
+prose: I never dug the CONDEMNED originals out of history even though the
+deleted-=pull.js= import was the sign they existed. =git show 23cf35095= had them, and
+=domain/types.js:6= still exported the five-way SIGNAL unread. Thin spots: review's
+signal enum 2/5 (amputating MISTAKE, which =judge.js= itself emits — driver multipliers
+24/3.4/1.0/0.15/0.08) · the per-line reschedule receipt lost · resolve/feed/status
+facets gone · both doctrine lines gone · gather's report thinned.
+
+beef: /"do another pass then. be thorough."/ then /"validate before impleemnt. htis is
+the last pass you get."/ — so the pass VALIDATED first: every repo signature read
+(=sample(where,{status,limit})= real; due/byStrength/sample self-populate retentions —
+so facet calls pass NO populate and novel's missing retention is an honest UNTOUCHED),
+=literal.review= returns the retention entity post-flush, =domain.*= symbols confirmed
+in the italian db, judge grades confirmed three-way. Then one clean pass restored m23
+fidelity on retention-era names.
+
+* the split + the compiled surface
+
+beef: /"break up pull into 2 or 3 more precise tools. review doesnt have a next date.
+review produces a next date. revview internal should validate the entity by slug adn
+then invoke the domain aperture tool whcih also creates a traces afaik."/
+
+Split: =progress= (the gather-parity learner report) · =lookup= (text→items, "never
+invent a slug") · =queue= ({pick: due|feed|novel|weakest|status}) + shared =line.js=.
+=francesca.md= followed (three references — beef's methodology prose untouched).
+
+First review wiring used =steer.dispatch.invoke= at module scope; beef: /"not how we do
+thiings around here. the aperture gets compiled into mode.call[aperture]. use that. aka
+go via daemon trait"/. Landed: =resolution.domain= binds daemon on the domain aperture,
+slurps it, compiles =good.call = shape.proxy(domain.aperture, steer.strategy.direct)= —
+the exact twin of EXPOSED's =mode.call=, compiled PRE-slurp because the daemon root's
+=authorize()= 401s any headerless internal call; =direct= is the context-threading
+strategy so the tool passes ={user, mode, thread, input}=. This un-comments the future
+beef sketched at =riddler/aperture.js:92=. The Daemon class's =call = null= slot was
+the intended home all along.
+
+* the improvement pass (beef: /"another pass over all tools. anything to improve?"/ → go)
+
+1. *Trace.thread was null on every tool-path review* — armed binds thread as the RAW id,
+   =literal.review= reads =ctx.thread?.id=. Fixed at the tool: =thread: {id:
+   ctx.thread}=. The harnessed-side raw-id bind stays (drill/preset forward it as an id
+   correctly) — m25's fork remains for other Trace writers.
+2. *Paladin skills had zero tests including the escape guard* —
+   =subsystems/paladin/tests/skills.test.js=, 8 steps: =../= + absolute-path folding
+   throw/fold, bak skip, range slice, empty file, write-creates-parents, nonzero exit
+   stays NOMINAL.
+3. =fs_read= of an empty file → ="(empty)"= instead of a blank the model can't read.
+4. =lookup= text gains =minLength: 1= (empty string matched the whole corpus).
+
+Suites green: paladin 17 (incl. new) · domain 5 · runtime 50.
+
+* m23 sunset
+
+beef: /"lets sunste m23 and move to m29. sunset. move everything tangling from m23 to
+m29. move m23 to done."/ + a volley of go. Settled at the sunset: the three unverified
+assumptions (all resolved by the armory) · =educate()='s pulse (dead with educate) ·
+picker-per-thread (subsumed by INTELLIGENT) · the false ontology ruling (corrected in
+place, historical). Moved to m29's inherited section: lookup conjugation blindness ·
+the =types.js=/=gather.js= twins (aprende copies still live and byte-twinned) ·
+=progress= as the ONLY board implementation · the valence language law · the instrument
+(I) and mind (II) tail lists, recorded per the order though I's are beef-side and II's
+are m27's domain. File moved to =quests/done/=; frontier m23 line → SUNSET.
+
+* resumption
+
+1. Live francesca turn = the whole armory's validation (gate 2): progress + queue fire
+   on open, review reschedules with real Trace.thread, =service_nlp_classify= answers a
+   grammar question, a rep-o-gram tool puts a buffer on screen.
+2. rep-o-gram tool handlers + francesca arms-drift gate — the two untested seams (m29
+   "not built" list).
+3. m29 backlog + inherited tangles wait per-item.

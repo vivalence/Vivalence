@@ -17,6 +17,11 @@ function APPLICATION(mode, daemon) {
       view: null,
       index: desc.index ?? 0,
     });
+    if (desc.thread) {
+      const thread = await daemon.entities.thread.findOne(desc.thread);
+      buffer.thread = thread;
+      buffer.index = thread.counter++;
+    }
     if (desc.literals) buffer.literals.add(await daemon.entities.literal.findByIdentifiers(desc.literals));
     if (desc.symbols) buffer.symbols.add(await daemon.entities.symbol.findByIdentifiers(desc.symbols));
     return buffer;

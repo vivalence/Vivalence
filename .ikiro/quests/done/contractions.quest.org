@@ -1,0 +1,118 @@
+#+title: contractions — where the checker's language knowledge lives
+#+filetags: :contractions:judge:string-matches:statics:topography:domain:typology:dojo:cloze:
+#+status: LANDED, HYBRID (unnumbered — mXX is beef's ledger). beef: /"lets do the generic one and keep it … ah well actually. can we do a hybrid. makes sense to have scalability + accuracy. i dont want contraction tables a mile long where avoidable."/ Rules where a rule is true (english suffixes · italian elision), lists where it isn't (english irregulars · =po'= · portuguese colloquial). Live-verified through bruno. Owed: one device rep.
+
+* intent
+
+beef, verbatim: /"i hate that i am constantly getting ccontractions wrong. like "i'm" vs "i am". this is something thats quite straight forward to fix. i just need a table of those and then have the checker go through them. the design part is where does this list live? per mode is too low level. daemon statics feels like the wrong level. the two i cna see are either domain statics - leaving the import path to be designed. daemon.domain.statics.contractions** ? or maybe thats actually something in the data. topogrpahy. which is -correct- but very involved. especaially with italian this is interesting."/
+
+Two deliverables: (1) the checker treats =I'm= ≡ =I am= (and friends) as one answer; (2) ONE home for the table, designed so the next per-language static (beef's promised pronoun statics, the survival tactic themes) lands in the same slot instead of reopening the question.
+
+* the concept, pinned
+
+Today's forgiveness is UNIVERSAL: =string.fold= (=subsystems/typology/gestalten/belt/string.js:9=) kills case · diacritics · punctuation (incl. the apostrophe) · =/= alternatives via =separate= · parentheticals via dojo =bare()=. It knows no language.
+
+A contraction equivalence is the first LANGUAGE-DEPENDENT forgiveness: =I'm= ≡ =I am= holds in english, =dov'è= ≡ =dove è= holds in italian, =pra= ≡ =para= holds in brazilian, and =del= ≢ =di il= in italian/spanish (mandatory contraction — accepting the expansion would teach an error). So the checker gains a LANGUAGE AXIS, and a language — today only =daemon.statics.language.{known,learning} = {slug, name}= — grows its first piece of static linguistic knowledge. That is the real design object: *per-language statics*, contractions being entry one.
+
+Naming: =contractions= is already the in-repo word — brazilian literal slugs =*.contraction= (54, every one ANNOTATED with its decomposition =do = de + o=), symbol =word.compound.contraction=, italian =*.contraction= (30 preposizioni articolate). Keep it. No coined register.
+
+* terrain (verified this session)
+
+- =string.matches(input, expected, { forgiving })= — the ONE checker. Callers outside bak: dojo =buffer/judge.js= (client, MATCH + retype-correction + sentence token path), =cloze/buffer/Cloze.svelte= (client), typology tests. =judge/judge.viva.js= and dojo =emitter/distractors.js= use =fold= + =dice= for similarity, not equality — unaffected.
+- =fold("I'm") = "im"=, =fold("I am") = "i am"= → genuinely different; the apostrophe strip does NOT save us. Same for =dov'è=/=dove è=.
+- The data is MIXED on purpose and stays so: italian sentences =known= field: =I'm= 56 · =I am= 39 · =n't= 46 · =not= 35 · ='s= 64; brazilian =I'm= 8 / =I am= 3; spanish =I'm= 1 / =I am= 25. Normalising the corpus is the wrong fix — the learner types either form and both are english.
+- =daemon.statics= = the variant mask statics (=population.wiring()=), served to the client by =/metadata/statics= (=systems/runtime/daemon/aperture/metadata.js:7=); games already read =terminal.daemon.statics.language.{known,learning}.name= for labels. =daemon.domain= = the domain module cast through =Domain= (=schematics/primitives/kernel.js=, =additionalProperties: true= → every sibling export rides; =francesca/harness.js= reads =ctx.daemon.domain.SIGNAL=) — server-side only, nothing ships it to the client.
+- Kernel entries in a variant are bare specifiers (="@education/topography/english-to-italian"=) — no per-kernel-module statics slot exists today; only lighthouse/datamap/hallucinators/consume carry ={module, statics}=.
+- Topography modules export =manifest · freight · dataset= and nothing else; a sibling export is the lawful way to add a member (kernel rule: manifest is metadata — new behavior = sibling export).
+- Module taxonomy pin: topography = the surveyed terrain of a language pair (empirical, language-specific); topology = invariant structure; domain = language-agnostic learning machinery. A topography package (m31) must be publishable without editing the domain.
+- Related open wants that share this slot: pronoun statics (beef: /"in the future i will provide those as statics"/ — dojo table row labels, exhibit persons), survival tactic themes hardcoded portuguese (21 slugs), =project_language_label_hardcoded=.
+
+* options — where the table lives
+
+| home | reach server | reach client | dup | cost |
+|------+--------------+--------------+-----+------|
+| A variant =statics.language.known.contractions= | free | free | english ×3 daemons | linguistic data in a DEPLOY file; beef: wrong level |
+| B domain sibling export =statics.languages[slug]= | =daemon.domain.statics…= free | NEW wiring (merge into =die.good.statics= or =/metadata/domain=) | none | the domain becomes a LANGUAGE REGISTRY — every new pair edits the domain; a 3rd-party topography can't ship its table |
+| C topography sibling export =statics.language[slug]=, daemon FOLDS into =statics.language.{known,learning}= at population | free (=ctx.daemon.statics.language.known.contractions=) | free (=terminal.daemon.statics.language.known.contractions=) | english ×3 topographies | one population fold (~10 lines); the fold is the design |
+| D new module type =@education/language/<slug>= | free | free | none | NEW ROOT in the taxonomy — beef's call only; premature for one table |
+| E entity data (literal trait / symbol on the contraction literals) | db read | needs an aperture | none for italian; ENGLISH HAS NO LITERALS | the beef case is the KNOWN side — english is never a literal. Dead on arrival for v1; correct only for the learning-side decompositions, which the brazilian ANNOTATED tokens already carry |
+
+Recommendation: *C*. Reasoning, ranked:
+1. A language's contractions are a property of the language → the pair module that surveys that language owns them; the domain stays language-agnostic; a packaged topography ships whole.
+2. =statics.language.{known,learning}= already IS the language object on both sides of the wire — the only code motion is the fold; zero new client wiring; the checker reads what the label code already reads.
+3. "derive by default, lock to override": the variant keeps authoring ={slug, name}= only; the topography supplies the linguistic half; a variant MAY override a key inline (mask wins in the merge) for the one-off.
+4. Pronoun statics land in the same slot next (=statics.language.learning.pronouns=) — the question never reopens.
+
+The honest cost: the english table (~40 entries) lives 3× (italian/brazilian/spanish topographies). Mitigation path if it grows: the domain owns the KNOWN language's table (fork 2) — but only once a second known language exists or the table stops being tiny.
+
+* the shape — LANDED (beef: /"the topography si the right place. neither domain nor daemon make sense. topography statics makes sense."/ · /"i feel like the domain should offer this. yeah. domain knows that some modes provide langauge statics and serves them."/ · /"just flat then. no need to be clever."/)
+
+The daemon-fold from the first cut is DEAD — beef: /"this part kills it. makes no sense. this would force the runtime/daemon to know domain internals."/ What landed instead, each piece in its lawful container:
+
+1. *runtime, blind* — =systems/runtime/daemon/aperture/metadata.js=: =if (mode.statics) meta.open("/statics", () => mode.statics)=. Any kernel module MAY export =statics=; served at =/mode/<type>/<slug>/metadata/statics=. Topographies are already modes (=flatmodes()= wraps every kernel register; =Mode= is =Object.assign(this, module)= so =mode.statics= IS the export).
+2. *topography, provides* — =registry/education/topographies/english-to-{italian,brazilian,spanish}/statics/language.js= → =export const statics = { language: { english: { contractions }, <learning>: { contractions } } }=, re-exported from each =.viva.js=. English ×3 (51 entries, ='s=/='d= both expansions). Italian = 15 OPTIONAL elisions only; =del=/=di il= stays wrong. Brazilian = 16 colloquial. Spanish = ={}=.
+3. *domain, folds and serves* — =registry/education/domain/types.js= =LANGUAGE= (slug · name? · contractions record) + =aperture/index.js= flat =/language= → ={ known, learning }= = mask =ctx.daemon.statics.language= ⊕ every =flatmodes()= module's =statics.language[slug]=, cast through =LANGUAGE=. The domain says "whoever carries =statics.language=", never "topography". Mounted at the daemon root like =/review/literal=. Beef rejected nesting (=/statics/language/:side=) — flat.
+4. *checker* — =subsystems/typology/gestalten/belt/string.js= =contract(text, contractions, normalize)= (longest rule first, same normaliser as the comparison) + =matches(input, expected, { forgiving, contractions })=. CONTRACT both sides: =he is=→=he's=, =he has=→=he's= — function, no ambiguity.
+5. *consumers* — dojo =buffer/Dojo.svelte= calls =/language= once (mask statics as fallback; labels + both tables) → =Rep= picks the side by recall into =judge.evaluate({ contractions })= (MATCH · retype-correction · table cells · cell corrections; =judge.js= contracts the token path too). cloze → =language.learning.contractions=.
+
+Tests: typology =string.test.js= +2 (contract · matches both directions, strict mode, italian, =di il= stays false) · domain =aperture.test.js= +2 (=/language= fold over fake modules incl. a mute one; no pair → null sides) · dojo =machine.test.js= +1 (KNOWN recall =I am=/=I'm=, token path). Counts at landing: typology 109/410 · domain 15/115 · dojo 11/54 · runtime 51/322.
+
+Live: runtime restarted; =/daemon/italian/language= and =…/metadata/statics= route (401 = mounted, authed). Device rep not yet driven — owed.
+
+** the hybrid (second cut, same session)
+
+beef, on the 51-entry english dump: /"those are very specific. is it feasable to be more .... abstract? but true? maybe nto"/ → /"can we do a hybrid. makes sense to have scalability + accuracy."/
+
+- =LANGUAGE= grew =elision: boolean=; =contractions= keys are now two kinds: a key starting with ='= or =n'= is a SUFFIX RULE riding any host word (='re= → =are=: =you're=, =there're=, =the cats're= all free), any other key is a literal pair (=won't= → =will not=).
+- =string.contract=: literal pairs first, then suffix rules, longest =long= first within a kind — so =will not= → =won't= lands before =n't= could make =willnt=. Suffix regex =(^|\s)(\S+) <long>(?=\s|$)= → =$1$2<short>=.
+- =string.elided(expected)= builds =^chunk[aeiou]? ?chunk…$= from the answer's apostrophes; =matches({ elision: true })= accepts it. Directional — only fires where the ANSWER elides, so =la casa è= never collapses; fusions (=del=/=di il=) stay rejected because no apostrophe. Cost accepted: =lo amico= ≡ =l'amico= (the optional/mandatory line lives in no list now).
+- Tables: english 10 (7 rules + 3 irregulars) ×3 · italian ={ elision: true, contractions: { "po'": ["poco"] } }= (truncation, not elision) · brazilian 16 colloquial (not rule-derivable — the honest list) · spanish ={}=.
+- =judge.evaluate({ language })= now takes the whole side (=contractions= + =elision=); Rep passes =side(recall)=; cloze passes =language.learning=.
+- Live through bruno: =testament/_bruno/variants/education-language/domain/aperture/language.bru= (login → =/language=; 5 asserts + 1 test green); payload: known = the 10 + =elision:false=, learning = italian =elision:true= + =po'=.
+
+* forks (call before blasting)
+
+1. *home*: C (topography export + fold) — recommended · B (domain registry, =daemon.domain.statics.languages[slug]=, + client wiring) · D (language module type, new root).
+2. *english ×3*: accept the dup now (tiny, closed) · or the domain owns the =known= language's table as its one concession (all three daemons have =known: english=).
+3. *typology surface*: =matches= gains ={ contractions }= + exported =string.contract= (belt edit, HOLY → your go) · or callers pre-contract before calling =matches= (no typology touch; every caller must remember — systems-perspective says no).
+4. *ambiguous pairs*: ='s= → is/has, ='d= → would/had both accepted (over-accept by design) · or list only the unambiguous and leave ='s/'d= to today's behaviour.
+5. *the variant override*: allow =statics.language.known.contractions= inline in the mask (mask wins) · or forbid (fold is the only source). Recommend allow — it's free and is the lock for "derive by default".
+
+* deferred (+ reopen trigger)
+
+- Mandatory contractions as a HINT (=del = di + il=, =c'è = ci è=): the decomposition already exists as ANNOTATED tokens on brazilian contraction literals; italian has 30 =*.contraction= literals without tokens. Reopens with a "why was I wrong" feedback feature — it is pedagogy, not equivalence.
+- Pronoun statics in the same slot (=statics.language.learning.pronouns=) — beef-authored; the fold carries them untouched the day they appear.
+- A shared english package when a second known language arrives (fork 2).
+- Token-level contraction across SEPARATE glosses (gloss "I" + gloss "am" vs typed "I'm") — needs adjacent-token joining; no such data observed (italian sentences un-annotated; brazilian glosses are per source token).
+
+* testing assessment
+
+In place: =subsystems/typology/tests/gestalten/belt/string.test.js= (matches · separate · fold, 19 cases); dojo =tests/machine.test.js= (judge cases incl. forgiving + parentheticals + randomness + previews), =tests/aperture.test.js=; runtime suites 51/322. COVERAGE GAP: nothing tests =population.wiring()= output shape; nothing tests =/metadata/statics= content.
+
+Changes: none of the existing assertions move (the option is additive; =fold= untouched).
+
+Adds:
+- typology: =string.contract= (longest-first · forgiving/strict normalisers · ='s= both expansions · no-op on empty table) + =matches= with =contractions= (=I'm=/=I am= both directions · =he has= vs =he's= · =dove è= vs =dov'è= · =di il= vs =del= STAYS false · =/= alternatives still separate after contracting).
+- dojo machine: =evaluate= KNOWN recall =I'm=↔=I am= SUCCESS; retype-correction flips to success; sentence token path with a contracted gloss; LEARNING recall on italian uses the italian table, not english.
+- runtime: =wiring()= fold — mask ={slug,name}= + topography statics → merged side; mask override wins; kernel without topography statics → mask passthrough (the slim/playground daemon).
+
+Green ladder: typology suite (113→+N) · dojo 11/52→+4 · runtime 51/322→+1. Pre-DONE gate per milestone = named test file + pasted counts.
+
+* blast table (sized, un-go'd)
+
+| file | change | kind |
+|------+--------+------|
+| =subsystems/typology/gestalten/belt/string.js= | =contract= + =matches= option | belt, HOLY — fork 3 |
+| =subsystems/typology/tests/gestalten/belt/string.test.js= | +2 describes | test |
+| =registry/education/topographies/english-to-{italian,brazilian,spanish}/statics/language.js= | authored tables (english + learning half) | data, 3 files |
+| =registry/education/topographies/…/{italian,brazilian,spanish}.viva.js= | =export { statics }= sibling | 1 line × 3 (vocalized: none) |
+| =systems/runtime/daemon/lifecycle/population.js= | =wiring()= fold | ~8 lines |
+| =registry/education/modes/games/dojo/buffer/judge.js= | =contractions= through =evaluate= → =matches= + =normalize= | ~6 lines |
+| =registry/education/modes/games/dojo/buffer/parts/Rep.svelte= | pick side by recall, pass down | ~3 lines |
+| =registry/education/modes/games/cloze/buffer/Cloze.svelte= | pass =language.learning.contractions= | 1 line |
+| =registry/education/modes/games/dojo/tests/machine.test.js= · runtime population test | adds | test |
+
+Milestones, each boots green: M1 typology primitive + tests → M2 tables + fold + runtime test (client sees them at =/metadata/statics= — verify with the live daemon, paste the JSON) → M3 dojo + cloze consumers + machine tests → M4 live: the =I'm=/=I am= rep on device.
+
+* changelog
+- design authored from the live terrain (string.js · judge.js · population.js · metadata.js · kernel.js · topography datasets incl. the brazilian ANNOTATED contraction decompositions); no code touched.

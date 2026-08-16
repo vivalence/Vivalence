@@ -1215,7 +1215,7 @@ export default [
     ],
     "trait": {
       "TRANSLATED": {
-        "known": "his / her (masc. noun)",
+        "known": "his / her (before a masc. noun)",
         "learning": "suo"
       },
       "EXEMPLIFIED": {
@@ -1276,7 +1276,7 @@ export default [
     ],
     "trait": {
       "TRANSLATED": {
-        "known": "his / her (fem. noun)",
+        "known": "his / her (before a fem. noun)",
         "learning": "sua"
       },
       "EXEMPLIFIED": {

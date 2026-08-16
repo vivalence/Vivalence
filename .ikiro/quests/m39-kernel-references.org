@@ -1,0 +1,162 @@
+#+title: m39 — kernel references: a daemon kernel entry stops being a package name
+#+filetags: :m39:kernel:variant:paladin:vip:typology:app:svelte:bundler:runtime:application:playground:
+#+status: LANDED (beef: "we did some work between now and the patch. do a deep pass. land it. go") — deep pass re-ran against the MOVED worktree, then applied via plain =patch -p1= (vcs-guard blocks =git apply=; same bytes; uncommitted — commit is beef's). Suites post-land: typology 110/110 · paladin 18+1 pre-existing env-fail · runtime 51/51 =--no-check=. Probe green on worktree code. Isolated boot :2599 green. Tests graduated.
+
+* provenance
+- Arrived as =~/Downloads/kernel-references.patch= + =~/Downloads/test.viva.js=; both copied here verbatim. Author not stated in the patch.
+- beef: /"read up here"/ → /"give me an overview of what changes are happening where"/ → /"move this into a numbered quest"/. Number = m39 (m38 is spoken for by the dojo bag in =zettelkasten.md:72= + =world/codemap/runtime.md:12=, unnumbered narrative, no file).
+- No prior compact, no prior frontier line. This is a NEW strand.
+
+* intent
+One sentence: *a daemon =kernel[]= entry stops being only a bare package specifier, and a mode's app stops needing a file on disk.*
+
+Four kernel forms, one array:
+#+begin_src js
+kernel: [
+  "@playground/playground/spawner",   // bare specifier  → pensieve.revelio            (unchanged)
+  "/abs/path/x.viva.js",              // absolute path   → paladin.read.viva            NEW
+  "./greeter/greeter.viva.js",        // relative        → resolved vs the VARIANT FILE  NEW
+  hello,                              // inline module   → passed through verbatim       NEW
+]
+#+end_src
+
+Plus the app seam: =svelte`…`= returns ={source}=, =App= carries it, =APPLICATION= bundles from source. A whole mode can now live inside the variant file with no directory at all.
+
+Why it matters: the variant file becomes self-sufficient. A playground, a test rig, a one-file demo, an LLM-emitted mode (simmering strand #3, /"ad-hoc svelte buffer renderer … would be INSANE"/) all stop needing a package published into the pensieve first.
+
+* the change map
+#+begin_example
+deno.lock
+  +npm:@astrojs/markdown-remark  +npm:astro@7        drive-by, docs site — NOT part of this strand
+
+subsystems/typology/prototypes/app.js                 THE SEAM
+  App.source = null                                    new field beside mount
+  mount becomes optional                               throws unless mount || source
+  export const svelte = (strings,...) => ({source})    tagged template → {source}
+    ↳ reaches @vivalence/typology free — prototypes/index.ts:23 and
+      prototypes/index.client.js:26 both `export * from "./app.js"`
+
+subsystems/typology/schematics/primitives/variant.js  THE GATE
+  Daemon.kernel: v.array(v.string())
+            →    v.array(v.union([v.string(), v.object({}, {additionalProperties:true})]))
+    ↳ sole consumer = subsystems/paladin/prototypes/variant.js:57 `Daemon.cast(daemon)`
+      — a validate pass, return value discarded, so no strip risk to the inline App instance
+
+subsystems/paladin/prototypes/variant.js              THE RESOLVER
+  +reference(home)   home = module.source, a Path stamped at subsystems/paladin/belt/find.js:59
+      object    → {...entry, mount: entry.mount ?? home}
+      absolute  → as-is
+      ./  ../   → resolvePath(home.dirname, entry)      (Path.dirname → string, no trailing slash)
+      else      → as-is  (bare specifier)
+  +materialize(d)   = hydrate(rest) + kernel.map(reference(module.source))
+  daemons: mask("daemon")(hydrate(d)) → mask("daemon")(materialize(d))
+    ↳ services keep plain hydrate — kernel references are daemon-only
+
+subsystems/paladin/prototypes/vip.js                  THE LOADER
+  accioMany's inline arrow extracted to accioOne(query), four branches:
+      absolute string       → read.viva(query), stamps {mount: new Path(query)}
+      {manifest} no module  → return verbatim  (already a module)
+      {module: string}      → {service, mask}  (was the only special case)
+      else                  → accio(query)     (bare specifier, unchanged)
+
+systems/runtime/daemon/traits/application.js          THE BUNDLE
+  entry    = declared.source ? null : Path(mode.module.mount.dirname + declared.mount.nature)
+  mode.app = declared.source ? new App({source, schema}) : new App(entry, schema)
+  bundle({kind:"svelte", source})  vs  bundle({kind:"svelte", entry})
+    ↳ rides an EXISTING capability — subsystems/paladin/belt/bundler.js:35 already takes
+      `source`, content-addresses it (crypto.digest), green at
+      subsystems/paladin/tests/bundler.test.js:39 ("a svelte source bundles to a content-addressed View")
+#+end_example
+
+* findings — REVISED by the critical pass (initial read struck through where the run disproved it)
+1. *kernel skips =hydrate= — DOWNGRADED defect → intended asymmetry.* PROVEN live (probe: =staticsProbe: "function"= survives resolve) — but file modules never hydrate either (no registry mode carries a thunk; =read.viva= returns raw exports; =aperture/metadata.js:28= serves =mode.statics= raw). Kernel entries are MODULE-shaped, not declaration-shaped; thunks fire only in variant declarations. Consistent. Worth ONE sentence of doc, zero code. (A thunk in an inline module's statics silently stays a function at =/metadata/statics= — the only trap.)
+2. *resolver family, now four members* — =belt/source.js= (CLI: =./= = cwd-relative, bare = repo-root) · =ledger/registry.js normalize= · =read.js resolved= · patch's =reference= (=./= = variant-file-relative, bare = pensieve specifier). Variant-file-relative is CORRECT here — a daemon boots from any cwd; a variant file's =./= must mean itself. The flag is the FAMILY: same string shapes, four local grammars, none named. Not a blocker; a candidate consolidation (widen =paladin.source= to take a =Path= home) when it next itches.
+3. *inline =mount= = the variant FILE — RESOLVED, correct by precedent.* =vip.mount:17= stamps every pensieve module the same way: ={...module, mount: new Path(path)}= — module-layer =mount= IS the file path (=APPLICATION='s =mode.module.mount.dirname + app.mount.nature= depends on it). =entry.mount ?? home= says: an inline module's file is the variant file. Coherent; the mixed case (inline module, file-based =app.mount=) even resolves the app relative to the variant's dir — right on purpose, not by accident.
+4. (new) *missing-file error is raw* — =accioOne("/nowhere/nothing.viva.js")= → =Module not found "file:///nowhere/nothing.viva.js"= — legible but not =[VIP]=-prefixed like its sibling errors. Pennies.
+
+* critical pass — sandbox run (m32/m33 method; worktree untouched)
+Sandbox: repo copy in scratchpad =m39-sandbox= (no =.git=/=.jj=; =node_modules= symlinked for native bindings), patch applied via plain =patch -p1= — *applies clean, 6/6 files*.
+| suite | pre-patch | post-patch |
+|-------+-----------+------------|
+| typology | 109 passed (411 steps) | 109 passed (411 steps) |
+| paladin | 16 passed + 1 fail (env: =variant.snapshot= pins repo paths) | IDENTICAL |
+| runtime | — | 51 passed (322 steps) |
+Acceptance probe (=m39-sandbox/probe.js=, specimen-derived variant + real =greeter.viva.js=):
+#+begin_example
+resolved kernel: ["<abs>/greeter/greeter.viva.js",          ← "./greeter/…" resolved vs variant file
+                 "<abs>/greeter/greeter.viva.js",           ← absolute passthrough
+                 {inline, mount:"<abs>/test.viva.js", staticsProbe:"function", appSource:true}]
+accioMany:      [{slug:"greeter", mount:file}, {slug:"greeter", mount:file}, {slug:"hello", mount:variant-file}]
+inline bundle:  {"bundled":true,"keys":["kind","hash","mount","bundle"]}   ← svelte`` source → View
+#+end_example
+Structural evidence for the design: =bundler.bundle({kind:"svelte", source})= PRE-EXISTED the patch, green at =subsystems/paladin/tests/bundler.test.js:39= · the union idiom has direct precedent (=v.rel=, =subsystems/typology/schematics/index.js:17=) · =mount=-stamp matches =vip.mount:17= · the wire is real (=die.mask.kernel= → =accioMap= → =accioMany= → =accioOne=, =systems/runtime/daemon/lifecycle/population.js:19=) · =new App(= grep: no bare construction anywhere, the new throw breaks nobody · no =svelte= name collision in either typology barrel.
+
+* forks (beef picks; two settled by the pass)
+- *A · resolver family consolidation* — default: leave the patch as-is now, consolidate the four resolvers (=belt/source.js= · =ledger/registry.js normalize= · =belt/read.js= · =reference=) into =paladin.source= widened to a =Path= home when the family next itches. Alternative: fold =reference= in before landing.
+- *D · inline slug namespace* — =hello= declares its own =manifest.slug=; nothing checks it against pensieve names (inline + absolute bypass =Pensieve.register= entirely — no =owner= demanded, unregistered, unversioned, variant-local). Default: that IS the feature. Flag only.
+- ~B · hydrate order~ — SETTLED: kernel entries are module-shaped, hydrate correctly does not touch them (finding 1).
+- ~C · mount = file vs dirname~ — SETTLED: file, per =vip.mount:17= precedent (finding 3).
+
+* the landing (deep pass + land, in one)
+beef: /"we did some work between now and the patch. do a deep pass. d land it. go"/
+
+Deep pass vs the moved worktree (49 uncommitted files of interval work):
+- =patch -p1 --dry-run -F0= — 6/6 EXACT context, zero fuzz. Interval =deno.lock= churn (svelte-check 4 bump) doesn't touch the astro hunks.
+- Fresh greps: =accioMany= still internal-only (=vip.js:86,:104=) · no =svelte=/=materialize=/=reference=/=@std/path= collisions in target files · every =new App(= in the tree passes a mount — the new throw breaks nobody.
+- Applied via plain =patch -p1= (NOT =git apply= — vcs-guard; identical bytes). =deno.lock= astro drive-by landed WITH it, accepted knowingly.
+
+| check | result |
+|-------+--------|
+| typology | 110 passed (412 steps) — includes new App-source case |
+| paladin | 18 passed + 1 fail — =variant.snapshot= "no scope.variant", PRE-EXISTING (reverse-patch → same fail → re-applied) |
+| runtime | 51 passed (322 steps) with =--no-check= — TS errors pre-exist in beef's uncommitted =registry/education/.../Literal.ts= |
+| probe on worktree | =deno run -c deno.jsonc= against sandbox specimen: relative resolved · absolute passthrough · inline mount=variant-file · inline source → bundled View |
+| isolated boot | testament variant clone on :2599, fresh mountpoint+ledger, =--env-file= for =SECRET_VIVA_JWT= — =Status:ALIVE=, italian + playground =/metadata/modes= → 401 MISSING_TOKEN. beef's :2501 instance untouched. |
+
+Tests graduated (condition 3):
+- =subsystems/paladin/tests/kernel.test.js= — variant resolve with all four kernel forms + pinned-mount + module-shape (thunk survives, App survives) · =accioOne= absolute-stamp + inline-verbatim branches. Stubbed paladin, no env, no fs.
+- =subsystems/typology/tests/view.test.js= — =svelte``= → ={source}= with interpolation · =App(tag, schema)= carries source, mount null · bare ={}= throws.
+- Condition 5's doc sentence became a TEST NAME: /"an inline module is module-shaped: hydrate never fires inside it"/.
+
+* what remains (beef)
+1. Commit — worktree carries the 6 patched files + 2 test files amid your 49 interval files. VCS is yours.
+2. Prod redeploy whenever — :2501 still runs pre-patch code.
+3. Fork A (resolver-family consolidation) unchanged: deferred until it itches.
+
+* live demo (beef: "add a playground dummy demo of this capability")
+=testament/variant/playground.js= — mode =inline= declared as an OBJECT in the playground daemon's kernel: manifest (type playground, traits APPLICATION+STANDALONE) + =new App(svelte`…`, v.buffer({data:{greeting}}))=. No file on disk. Watch restarted on save; the LIVE :2501 instance bundled it — =mountpoint/daemon_playground/bundles/playground/inline/af2ef0716239a189.svelte.mjs=, demo markup compiled in. That live-fires the inline-source APPLICATION path on a running daemon — the last unproven seam. One constraint surfaced en route (scratch-boot esbuild fail): inline source bundles FROM the mountpoint store, so the mountpoint must sit where =svelte= is import-resolvable — in-repo mountpoints (testament, prod) are; an out-of-tree mountpoint is not.
+
+* live demo II — flashcard (beef: "slightly more advanced … flashcard app, minimal review, memory inside the literals trait, 2 literals + 2 symbols, ALL data inline, + HARNESSED with two tools + slightest conversation harness identity, has to compile and run")
+=testament/variant/playground.js= mode =flashcard=, traits =["APPLICATION","STANDALONE","TOOLED","HARNESSED"]= — the whole app in the variant file:
+- DATA inline: 2 symbols (cat · dog) + 2 literals (gatto · cane), each literal carrying ={traits: {memory: {streak, seen}}}= — memory lives ON the literal, no Retention entity, no domain.
+- app: =svelte`…`= flashcard — weakest-streak-first card, flip, forgot/knew-it verdict, memory readout per literal. Buffer schema defaults deliver the deck.
+- tools (module =tools= Vector, slurped by TOOLED =tooled.js= into the =population.js:128= mode Vector, auto-armed into every harness turn by =harnessed.js= "④ mode tools"): =/load= → the deck verbatim · =/memory= {literal, remembered} → seen++, streak climbs/resets. Yield lexicon ={condition, output}=.
+- harness: one middleware writing =ctx.hallucination.system.flashcard= — the dealer-precedent keyed identity section.
+Verified before promotion (playground used as testbed per beef): isolated boot :2599 with in-repo mountpoint — mode mounted + bundled, HARNESSED found cortex, no errors · compiled-aperture drive (=shape.object(tools)=): load OK, knew→streak 1→2, forgot→0 with seen 3, bogus literal → lexicon ERROR naming the deck, reload shows persisted memory · harness slurp+leaf probe prints the identity section. Promoted; live :2501 watch rebundled same content hash =562150d2…=. tmp-probe artifacts deleted.
+
+* live demo III — flashcard v2: Retention entity + real symbols (beef: "memory not transported in a trait but with a dedicated entity like the domain uses. call it retention. use real-ish symbols from typology")
+=testament/variant/playground.js= rewritten — traits =["APPLICATION","STANDALONE","DATASET","TOOLED","HARNESSED","EXPOSED"]= + an INLINE DOMAIN module:
+- =RetentionEntity/Schema/Repository= declared in the variant file (mikro =EntitySchema= extends =DataSchema=, m:1 → =LiteralEntity=, unique(literal), streak/seen/lastSignal — education's =Retention.ts= minus user/driver/state). Carried by inline module =recall= {manifest type "domain", entities:{retention}} — enters =die.good.domain= via =population.core='s kernel find, collated into the datamap, MIGRATED automatically.
+- deck now DATASET-seeded (trait): 2 real-grammar symbols (=word.part-of-speech.interjection= / =.noun=, ONTOLOGICAL+LABELED — the word-topology authoring grammar; runtime =SymbolTraitsEnum= from =entities/kernel/Symbol.ts=) + 2 literals (ciao/mondo, =trait.TRANSLATED= known/learning + RANKED — corpus grammar), linked via dataset linkPhase.
+- ONE pair of free-fn handlers (=load=/=review=) feeds BOTH the tools Vector (harness) and an =aperture= Vector (EXPOSED, oracle pattern) — app rides =buffer.mode.call.deck()/review()=; client entity repos NOT used (kajuit dossiers are a static registry, no retention — domain entities reach clients through the mode aperture).
+- Discovery en route: =/entities/<type>= transport routes are HARDCODED (literal/symbol/mode + userspace); a domain exposes its own via the =resolve(daemonDie)= hook (education =domain/aperture/index.js:65=). Demo doesn't need it (no client repo consumer) — SKIPPED deliberately.
+- Debug lesson: three probe rounds hit a STALE boot6 process still holding :2599 (kill was skipped in that script) — all 404s were the old draft. Kill-by-pidfile now.
+Verified: isolated boot :2599 — migrator created Retention · dataset installed 2+2+2 links (sqlite) · authed live-fire of =/mode/playground/flashcard/deck|review=: streak 1→2→0, seen 3, bogus → lexicon ERROR, sqlite row =0|3|FAILURE=. Promoted: live :2501 watch-restarted, Retention MIGRATED into live playground db, reseed via =installed:false= updateOne + touch (v1 had marked the mode installed), live smoke: deck 2 literals + review mondo → =1|1|SUCCESS= in live db. Bundle =289403cb…=.
+
+* live demo IV — the one-file machine (beef: "move all that into a variant 'stantalone' in testament")
+=testament/standalone/= — the whole m39 demo stack is now its OWN VARIANT (read "stantalone" as the typo): =standalone.viva.js= (331 lines, ONE file = manifest + runtime + lighthouse + kajuit client + daemon =standalone= whose kernel is =[inline, recall, flashcard]= — all three inline objects — + multiplayer service) · =environment/variant.jsonc= (ports 2601/1796) · own =.env= (mounts → standalone, dev secrets copied) · own =mountpoint/=.
+Boot: =cd systems/runtime && deno run -A --env-file=../../testament/standalone/.env run.js= — verified: ALIVE, both modes bundled, dataset seeded into =standalone.viva.db=, authed =/daemon/standalone/mode/playground/flashcard/deck|review= green (ciao 2|2|SUCCESS · mondo 0|1|FAILURE persisted).
+The move-out: =testament/variant/playground.js= RESTORED to pre-demo original — live :2501 watch-restarted, mikro migrator auto-DROPPED the Retention table (entity left the collate), seeded literals/symbols transport-removed ({ok:true} ×4), playground db back to 0 literals / 0 symbols. Leftovers, deliberate: orphan bundle dirs in the live store (content-addressed, inert) + Mode rows for the departed modes (standard).
+
+* live demo V — simplification pass (beef: "can we do without [RetentionRepository]?" · "inline the functions" · "generally inline as much as possible" · "why inline AND flashcard? simplify")
+=standalone.viva.js= now 275 lines, kernel = =[recall, flashcard]=:
+- RetentionRepository DELETED — =unique()= has one caller (=DataRepository.ensure=, =entities/base/DataEntity.ts:41=) and nothing calls =ensure= on retention (review does =findOne ?? create= itself); schema points at =DataRepository= directly.
+- ONE =deck= Vector = tools AND aperture (same object both keys — the only non-duplicating inline; handlers inline in =.open=, REVIEW_INPUT inline in the edge). App calls =mode.call.load()/review()=.
+- Modes nest DIRECTLY in =kernel[]=; schema inline in the domain entry; harness = =new Vector().use(...)= inline. Only two hoists left: =RetentionEntity= (class, referenced by schema + m:1) and =deck= (two uses).
+- =inline= hello mode DROPPED — flashcard is itself the inline-mode proof.
+Reboot from FRESH mountpoint green: migration + dataset + =/load= + =/review= (ciao 1|1|SUCCESS), flashcard bundled.
+
+* live demo VI — unique derivation + declaration geometry (beef: "go on unique - no splash tho" · "move the whole entity declaration stuff into one section" · "get the mode declarations out of the daemon")
+- =systems/runtime/daemon/entities/base/DataEntity.ts= — =DataRepository.unique(x)= now DERIVES from the schema's declared identity: =this.em.getMetadata().find(this.entityName)?.uniques?.[0]?.properties=, filtered to keys present on x; no declaration → old pass-through + nag. The schema's =uniques:= is the single statement of identity — no dedicated repo needed for it, ever. NO SPLASH: Symbol/Literal/Mode/Intent overrides left standing (all shadow the base; all mirror their schema — deletable later). The requirement was REAL: =shard.datamap.js:142= mounts =/ensure= as a transport route on every entity repo (beef: /"daemon calls ensure"/). Probe: single/composite/string-prop/missing-key/no-declaration all correct. Runtime 51/51.
+- =standalone.viva.js= (281 lines) regeometried: ONE entity section (class + descriptor + schema together as =const retention=), =const domain= / =const flashcard= hoisted above, daemon kernel = =[domain, flashcard]=. Fresh-mountpoint boot green, review/load smoke green.
+- Idea PERSISTED to frontier design list: entity-provision-as-trait (degrade the domain; any mode carries entities — collate sweeps kernel modules by manifest trait, pre-Mode) + TRANSPORTED descriptor marker (generic route mounting, kills both hardcoded lists, lighthouse-closure lever).

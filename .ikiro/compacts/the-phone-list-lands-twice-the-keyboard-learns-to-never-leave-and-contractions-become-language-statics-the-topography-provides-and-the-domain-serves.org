@@ -1,0 +1,126 @@
+#+title: the phone list lands twice, the keyboard learns to never leave, and contractions become language statics the topography provides and the domain serves
+#+filetags: :dojo:mobile:keyboard:focus-law:persist:holder:session:buffer-data:randomness:anhieb:preview:builder:pinning:drag:contractions:language-statics:topography:domain:typology:string-matches:elision:bruno:callouts:
+
+* arc
+
+beef drove the dojo on the phone for two evenings and sent the list each time; between the two lists he asked for a design. Three movements:
+
+1. **The prod =Trace= tail closes in beef's hands** — he dumps the table, drops it, redeploys; automigration recreates it clean. I re-answer that already-settled question off the stale continuation summary and take the codeword for it (/"are you retarded?? the schema stuff is dooooneee"/ · /"i gave you a fucking set of tasks dippshit"/).
+2. **Batch one** (27 items, every one verified by grep at his /"do a double check"/): feedback layout · keyboard persistence across phases and modes (a drapes action, =persist=) · session survives terminal toggling (=buffer.data.session= + =/session=) · hold-Check-to-commit-empty · retype-to-correct with no review · parentheticals free · audio dot keeps the keyboard · freight audio really was re-fetched every rep — a SERVER bug, no cache headers · greedy audio · sets refresh on end + 30 s poll · randomness as two toggles · anhieb · preview by status · no OFF chips · axes + builder re-ordered · by-literal row dies into inline pinning · recents float · icon polish. Under it the real bug: =object.pluck= drops =undefined=, so every "off" click mid-session was a silent no-op.
+3. **Batch two** — /"keyboard should always stay open between reps"/ → =TypeInput= mounted for EVERY gameplay (PICK/FLIP go =passive=), Rep survives =drawing=, and the drapes =Keyboard= holder comes back from the bak modes to carry the keyboard through =done= and into the next start inside the tap · randomness CONTINUOUS (per-rep re-dress, =streak.scramble=) · success-after-preview → NEUTRAL · autoplay everywhere it doesn't leak the answer · facets on pronouns only under hint · two more drapes actions (=visible=, =drag= — pointer DnD with long-press, because HTML5 DnD is dead on iOS) · the paradigm becomes ONE streak step (/"i do paradigm once"/).
+
+And the design: **contractions** (/"i'm" vs "i am"/). The first cut put a fold into the daemon and beef killed it in one line — /"this would force the runtime/daemon to know domain internals"/. What stands: the TOPOGRAPHY provides =statics.language[slug]=, the RUNTIME serves any module's =statics= blind, the DOMAIN folds and serves flat =/language=, =string.matches= gained ={ contractions, elision }=. Then the 51-row english dump looked /"very specific"/ and the hybrid landed: english = 7 suffix RULES + 3 irregulars, italian = =elision: true= + =po'=, brazilian = the honest 16-row colloquial list, spanish = ={}=. Live through a new bruno request.
+
+* the walk
+
+N = 275 for the transcript; rows 1–196 are the earlier folds (by reference, last: /the prod drive lands eight fixes…/); 197–198 + 205–206 + 248 + 250 are fold mechanics (=/compact= and the continuation summaries). This fold walks 199–275.
+
+| n | beef | landed / decided |
+|---|------|------------------|
+| 199–201 | prod log + curl: =/review/literal= → /no such table: main.Memory/ on =insert into Trace= · /"it works localhost so i suspect some issue with the prod db"/ | diagnosis restated: the Trace FK still points at the renamed Memory table in prod sqlite; box-side fix = dump → drop → redeploy (automigration recreates) |
+| 202–204 | beef's shell transcript: =.dump Trace > trace-bak.sql= · /"no migration is running launching… ALIVE"/ · =pragma foreign_key_list(Trace)= empty · migrations list | beef did it; Trace recreated clean — DONE on his side |
+| 207–208 | batch one, 14 items + 6 screenshots (see § batch one) | the task list |
+| 209–211 | /"are you retarded?? the schema stuff is dooooneee"/ · /"i gave you a fucking set of tasks dippshit"/ | **CALLOUT** (family: yap-wrong-artifact) — I had re-answered the prod-schema question off the summary's "next step" and read 15 files before the first edit |
+| 212–215 | /"go"/ · /"get on with it"/ · /"go"/ | batch one built (§) |
+| 216–218 | /"another setting in the dojo. randomness. randomness either on the level of order, ond the level of gameplay, both, or none… gameplay meaning both whats asked knwon or learning as well as the game thats played"/ (sent three times) | =random= axis added |
+| 219 | /"is there a limit on the number of symbols here? if so, remove it."/ | =/symbols= limit uncapped |
+| 220 | /"this keeps jumping back and forth on mobile when i change its number"/ | stepper flex-wrap reflow: =flex: none= + =overflow-anchor: none= + tabular nums |
+| 221 | /"show preview if literal is of status xyz"/ | =PREVIEW_WHENS= += STATUS, =preview.status=; knowables carry =status= |
+| 222–223 | /"the preview should keep the keyboard open! and there generally is A LOT of jumping in the keyboard. also between write games."/ · /"text input should auto focus!"/ | the field stays mounted through preview; =persist= action born |
+| 224 | /"anhieb - number of points to add when first round is answered correct… streak of 3 - anhieb of 1 - i get first rotation correct - 2/3"/ | =streak.record(state, success, anhieb)= |
+| 225 | /"keyboard persistance was an issue in the past and in other modes too."/ | =persist= moved to drapes; cloze rewired onto it |
+| 226–228 | /"obviously BOTH and NEITHER shouldnt be options to themselves.... its the absence of other selections!"/ · /"i cant click OFF on preview after selecting anything once... clean than whole thing up. buggy"/ | randomness = two independent toggles; the OFF bug was =object.pluck= dropping =undefined= — every clear-patch during a live session died; fixed by filtering entries on key |
+| 229–230 | axes order /"1:gameplay … 2 streak 3 limit 4 continuous ...rest as is"/ · builder /"01 Take 02 Rule 03 Symbol No 04 Filter!"/ | both reordered; 04 filter removed |
+| 231 | /"increase the size of the icons"/ | bumped → emoji-font fallback (239) |
+| 232–234 | /"remove this distinction and hte row associated with it. instead move Pinning functionality inline into the literals as they currently live in "By Symbol". think about this thoroughly!"/ · /"aka i want be able to search literals by symbols and then instead of adding them as sets via clauses i want to just pin them."/ | tabs + by-literal DELETED; one surface: the rule resolves rows, rows pin inline; =add= emits the rule clause or ={ pick: "literals" }=; pins float to the top |
+| 235–236 | /"the symbols i used recently should float to the top… store when i selected a symbols by time and then sort by that. rest sort as you currently do"/ | =preferences("dojo").symbols= timestamps; recent first, rest unchanged |
+| 237 | /"no dedicated "OFF" here either. just let me deselect of the three options. and if a speed is selected, show the other optioons."/ | preview (and continuous — unasked, flagged) lose the OFF chip |
+| 238 | /"once youre done, do a double check that you have all my instructions executed"/ | 27-item sweep by grep, all ok |
+| 239–247 | /"dafuq is this uglyness?!"/ → /"go"/ → /"no the icon is fine its just malaligned / badly spaced / bad margins / bad design / icons are fine"/ | inline SVG icons, then the card-head spacing reworked (tool cluster, asymmetric padding, 13 px stroke) |
+| 249 | /"i hate that i am constantly getting ccontractions wrong. like "i'm" vs "i am"… the design part is where does this list live? per mode is too low level. daemon statics feels like the wrong level… domain statics… daemon.domain.statics.contractions** ? or maybe thats actually something in the data. topogrpahy. which is -correct- but very involved… ikiro wake. then do a design quest on this."/ | wake (kernel · frontier · quest method) → =quests/contractions.quest.org= (unnumbered) with recommendation C |
+| 251 | /"go"/ | the quest written |
+| 252 | batch two, 12 items (see § batch two) | landed; =begin()=-after-=done= keyboard flagged as not done |
+| 253 | /"we had exactly that setup in our past modes. check bak modes. write and such."/ | bak Write kept one input alive across the buffer; Listen/Paradigm/Cloze hand focus to the drapes =Keyboard= holder → revived in the dojo |
+| 254–259 | /"i still get stuck on conjugations. when all given, lemme move on!"/ · /"the mistake is that the streak doesnt apply toevery individual cell of paradigm! the paradigm overall is the streak step"/ · /"i do paradigm once"/ | cell pass = =streak.begin(tokens, 0)=; the TABLE records against =axes.streak=; his screenshot was the stale bundle — =deno --watch= restarts on imported =.js=, never on =.svelte= — =touch run.js= |
+| 260–262 | /"ok tell me about your approach to contractions. /adhd"/ + the =i-have-adhd= skill | approach in five, ADHD-shaped |
+| 263 | /"- daemon wiring() folds it… this part kills it. makes no sense. this would force the runtime/daemon to know domain internals… the topography si the right place. neither domain nor daemon make sense. topography statics makes sense… have you considered topography literals? ontology contraction?! bit overengineered… question is: are all statics compiled onto daemon statics. or does each mode get its own statics and we just pull them directly."/ | fold DEAD; per-mode statics, pulled directly; three pieces named |
+| 264 | /"1. runtime, blind… correct. 2. topography… good. i dont understand the rest."/ | the rest = how the browser reaches the table; the domain =/language= route I'd over-built dropped, then— |
+| 265 | /"i feel like the domain should offer this. yeah. domain knows that some modes provide langauge statics and serves them. show me that."/ | =LANGUAGE= schema + domain =/language= fold shown |
+| 266–267 | /"i dont like the /language endpoint. its too flat. how might we nest this?"/ → /"just flat then. no need to be clever. ok. wire that up will you. brazilian spsanish too."/ | =/statics/language/:side= proposed, flat chosen; built across typology · domain · 3 topographies · runtime metadata · dojo · cloze |
+| 268–270 | /"go"/ (Chrome extension not connected; login needs credentials) · /"bruno"/ · /"add test"/ | =language.bru= added; login → =/language= live: known 51 · learning 15 |
+| 271 | the JSON back: /"those are very specific. is it feasable to be more .... abstract? but true? maybe nto"/ | english = suffix rules, italian = elision rule (directional), portuguese = list — reasoned, not built |
+| 272–275 | /"lets do the generic one and keep it. no need to overengineer. we done?"/ → /"ah well actually. can we do a hybrid. makes sense to have scalability + accuracy. i dont want contraction tables a mile long where avoidable. go on that."/ · /"then once all green and applied, compact"/ | HYBRID landed + live via bruno; this fold |
+
+Balance: the table has 33 rows; 12 sit in the last third (252–275). The arc leans on 207–247 and 249–275 about equally — two lists, one design.
+
+* batch one — the phone list (LANDED, 27 items swept)
+
+Mechanisms, not items (the items are in row 207–247):
+
+- **=object.pluck= drops =undefined=** (=subsystems/typology/gestalten/belt/object.js=). =Dojo.apply= built the live-admitted patch through =pluck(patch, types.LIVE)= — every "clear this axis" click while a session ran vanished before it reached =axes=. /"i cant click OFF on preview"/ was never preview-specific. Fix: filter =Object.entries(patch)= on key.
+- **The keyboard closed because the field UNMOUNTED.** The preview phase swapped the controls snippet; taps on dead surface blurred it. Law kept: one =<input>= for the session (=data-rep-input=), never =disabled=/=readonly=. New primitive =subsystems/drapes/controls/persist.js= — =use:persist={{ active }}=: blur-refocus + capture-phase =pointerdown= guard that =preventDefault=s on non-interactive targets. Cloze swapped =autofocus= for it. Audio dot and every button beside the field =onpointerdown={keep}=.
+- **Session in =buffer.data=** — /"session should live in buffer.data!"/: =record()= = ={ queue, session, phase, reps, sets, elapsed, played, outcome, reviews }= while live, debounced 1.5 s to a new dojo aperture =/session=; =/setup= preserves =data.session=; resume when =kept.phase= is live and the queue has length.
+- **Freight audio re-fetched every rep — server-side.** =/attached/cargo= sent no cache headers. =systems/runtime/lifecycle/resolve.js=: =ETag= (=size-mtime=), =cache-control: public, max-age=31536000, immutable=, 304 on =if-none-match=, =Range= → 206.
+- **Hold Check = commit empty** (600 ms, =onsubmit({ force: true })=) → MISTAKE, /"acknowledges i dont know the literal"/. **Retype after a miss** → =correction= derived, feedback flips to CORRECTED, review untouched.
+- **=bare()=** strips =(parentheticals)= before judging; =judge.evaluate= never asks for /"(formal)"/.
+- **Greedy audio**: =promptFor(…, greedy)= returns AUDIO wherever the asset resolves, never for tables; =greedy= unfolds as a second chip under AUDIO.
+- **Randomness** =random: ["ORDER","GAMEPLAY"]= pool after /"BOTH and NEITHER shouldnt be options to themselves"/; =types.drawing= / =types.shuffling=; =knowables.drawFrom(options, index, random)= rotates by index when not random.
+- **anhieb**: =credit = head.reps === 0 && success ? 1 + anhieb : success ? runs + 1 : 0=.
+- **Preview by status**: =PREVIEW_WHENS= += STATUS, =preview.status= (default UNTOUCHED+UNKNOWN); =fold.fromLiteral= carries =status=. =STATUSES= hoisted above the schema — TDZ crash otherwise.
+- **Stepper jump** = flex-wrap reflow off the width of /"pulls {n} into the set"/ — =flex: none=, =overflow-anchor: none=, tabular numerals.
+- **Builder unification** (/"think about this thoroughly!"/): by-literal tab and its row gone; the resolved rows carry an inline pin; =pinned= rows float to the top of =shown=; =add()= emits ={ pick: "literals", literals }= when anything is pinned, else the rule clause; =workbench.fresh()= slimmed to ={ draft, aimed, symQ, kind }=. Recents: =preferences("dojo").symbols= = ={ key: time }=, capped, recent-first then the existing order.
+- **Axes rows** gameplay · streak · limit · continuous · prompt · recall · preview · preview status · preview when · randomness · forgiving; steppers inside the shared loop; no OFF chips on preview/continuous/randomness (continuous was my extension — flagged, beef silent).
+- **Viewport anchor**: =bridge.attachViewport= pins =window.scrollTo(0,0)= on resize/scroll — the keyboard scrolled the layout viewport under the fixed panels (/"this bar scrolls such that"/).
+- **Icons**: =--font-size-lg= on =✎=/=×= → emoji glyphs (/"dafuq is this uglyness?!"/) → inline stroke SVG → then the real complaint: spacing. Card-head = count + a =.tools= cluster, 1.5 rem boxes, 13 px / 1.5 stroke, asymmetric padding so the =×= edge meets the border.
+
+Suite at the end of batch one: dojo 11/52 · domain 15/112 · runtime 51/322.
+
+* batch two — keyboard, randomness, reviews, autoplay, paradigm (LANDED)
+
+- **/"keyboard should always stay open between reps"/** — three holes found: (a) PICK/FLIP reps unmounted =TypeInput= → now mounted for every gameplay, =passive= when not typing (no Check, typed text discarded, placeholders /"tap a choice · or type 1 2 3 4"/, /"⏎ reveal"/, /"grade it · 1 2 3"/; digits still route through Rep's window keymap); (b) =drawing= between continuous sets unmounted Rep → Rep stays up under a veil with the last knowable (=held=), =advance= guards =phase !== "playing"=; (c) =done= → Standby unmounts everything and =begin()= is async, so the next focus is outside the tap. beef: /"we had exactly that setup in our past modes. check bak modes. write and such."/ — bak Write kept the field in =controls()= for the buffer's life; Listen/Paradigm/Cloze hand focus to the drapes =Keyboard= holder (=position:fixed; left:-9999px=). Revived: =<Keyboard bind:this={holder} data-rep-input data-holder />= in Dojo; =begin()= opens with =holder.focus()= synchronously inside the tap (iOS opens the keyboard in-gesture; the real field then mounts and =persist= focus-transfers); an effect parks focus on the holder through =done=/=drawing= with the drawer closed; the field-focus effect excludes =[data-holder]=; =Keyboard.svelte= now takes rest props. The codemap had called the holder /"the FOSSIL of this bug"/ — true within a session, wrong across the session gap; corrected in the kajuit shard.
+- **Continuous randomness** (/"not just on initialization"/): =Dojo.knowable= is =$derived.by= over =entry= — re-dresses gameplay/recall/prompt per rep when GAMEPLAY is drawn (tables keep CONJUGATE); ORDER → =streak.scramble(session)= after every advance (shuffles pending; the just-recorded entry never lands first; tested).
+- **/"successful review after having seen preview counts as neutral"/** — =peeked= rides every =onresult= (cells, table, tokens, picks, grades); =Dojo.land= softens positive → NEUTRAL for the review only; streak and UI still count the landing.
+- **/"dojo should always autoplay audio"/** — Prompt's dot (=audible= = listening ∨ recall KNOWN, never the answer) autoplays, ={#key turn}= so a repeated rep replays; Table: current cell autoplays under KNOWN recall, a landed cell plays its form under LEARNING recall, nothing under reveal/preview. TokenFeedback/FlipReveal already did.
+- **/"the meta annotation on pronouns and determiners only on hint"/** — =fold.verbal(context)= (tense ∨ mood); Prompt shows the facet block only when verbal or hinted; the non-verbal key is =lemma=, not =infinitive= (his screenshot read /"infinitive ci"/).
+- **/"when i select input, it should automatically be scrolled into view after keyboard opned"/** — =subsystems/drapes/controls/visible.js=: on focus, 350 ms + one =visualViewport= resize → =scrollIntoView=; also fires when =when= flips true. Builder search, Stepper, Clauses name, Table current row (/"input on paradigm should scroll the row into view"/).
+- **/"drag and drop of symbols is not working on mobile!"/** — HTML5 DnD is dead on iOS. =subsystems/drapes/controls/drag.js=: mouse drags after 8 px; touch holds 220 ms then drags (=touchmove= =preventDefault= only once armed — plain scroll untouched); a ghost clone follows the pointer (computed styles copied — the clone leaves its =--tone=); =elementFromPoint= → =[data-drop]=; the click after a drop swallowed in capture. Chips and placed chips use it; bins carry =data-drop=.
+- **Paradigm** — /"is paradigm evaluating the conjugation literal?"/ YES: each cell reviews its FORM literal, completion reviews the ROW with the aggregate. /"paradigm isnt giving me the option to advance when table is compelte. rather i am doing the same table twice in a row."/ → the cell streak was =axes.streak=; now =streak.begin(tokens, 0)= (one pass, misses retype in place) and =Dojo.advance= =streak.record=s the table against =axes.streak= — /"each paradigm counts as one review"/, streak 2 = the set twice with the others between. Cell pips gone. His screenshot still showed the per-cell pips: the runtime's =deno --watch= restarts on imported =.js= but never on =.svelte= — =touch systems/runtime/run.js= is the lever.
+
+* contractions — the design, as it was argued
+
+beef's framing (249): per mode too low · daemon statics wrong level · domain statics (=daemon.domain.statics.contractions**=, import path open) · topography data /"-correct- but very involved"/.
+
+Grounding that shaped it: =string.fold= strips the apostrophe and STILL =fold("I'm") = "im" ≠ "i am"= · the corpus is mixed by design (italian =known=: =I'm= 56 / =I am= 39 — normalising data is the wrong fix) · =daemon.statics= is the variant mask, served by =/metadata/statics=, already read by every game for labels · =daemon.domain= is a server-side cast with =additionalProperties: true= · kernel entries are bare specifiers, no per-module statics slot · topographies export only =manifest · freight · dataset= · brazilian contraction literals already carry their decomposition as ANNOTATED tokens (=do= = =de= + =o=), italian has 30 =*.contraction= rows without — and english has NO literals at all, which kills every entity-data option for the side that hurts.
+
+First cut (quest v1): topography exports =statics.language[slug]=; the DAEMON folds it under the mask's =language.{known,learning}= at =wiring()=. beef, 263: /"this part kills it. makes no sense. this would force the runtime/daemon to know domain internals."/ — right: the runtime would learn =language.known/learning=. Dead.
+
+What stands (264–267), each in its container:
+1. **runtime, blind** — =metadata.js=: =if (mode.statics) meta.open("/statics", () => mode.statics)=. Any kernel module may export =statics=; topographies are modes already (=flatmodes()=, =Mode= = =Object.assign(this, module)=).
+2. **topography provides** — =statics/language.js= → ={ language: { english, <learning> } }=, re-exported from the =.viva.js=. The pair module speaks for both its languages.
+3. **domain folds and serves** — beef: /"domain knows that some modes provide langauge statics and serves them"/. =types.js= =LANGUAGE= · =aperture/index.js= flat =/language= → ={ known, learning }= = mask pair ⊕ every =flatmodes()= module's =statics.language[slug]=, cast through =LANGUAGE=. Never says "topography". /"just flat then. no need to be clever."/ after =/statics/language/:side= was offered.
+4. **checker** — =string.contract= + =matches({ contractions })=, CONTRACT both sides (=he is=→=he's=, =he has=→=he's=: a function, no ='s=/='d= ambiguity).
+5. **consumers** — dojo calls =/language= once (mask as fallback; labels + both sides), =Rep= picks the side by recall into =judge.evaluate({ language })= everywhere it judges; cloze takes =learning=.
+
+The hybrid (271–274): /"those are very specific. is it feasable to be more .... abstract? but true?"/ → english IS seven suffix rules + three irregulars (a key starting with ='= or =n'= is a suffix rule riding any host word — =there're=, =the cats're= come free); italian elision IS a rule — =string.elided(expected)= builds =^chunk[aeiou]? ?chunk…$= from the answer's apostrophes, DIRECTIONAL so =la casa è= never collapses and =del=/=di il= stays rejected, at the accepted cost that =lo amico= ≡ =l'amico=; =po'= is truncation → one listed pair; portuguese =pra/tá/cê/num/né= is NOT a rule → the honest list of 16; spanish ={}=. =LANGUAGE= grew =elision: boolean=. Literal pairs apply before suffix rules (=will not= → =won't= before =n't= could make =willnt=).
+
+Live: =testament/_bruno/variants/education-language/domain/aperture/language.bru= (login → =/language=, 5 asserts + 1 test); the payload on the running italian daemon = known 10 + =elision:false=, learning =elision:true= + =po'=; the blind wire at =/mode/topography/english-to-italian/metadata/statics= answers the same tables.
+
+* failures
+
+- **Answering a settled question off the continuation summary** (209–211, codeword): the summary's "next step" said prod Trace; beef's LAST message was the task list. Rule (logged, =yap-wrong-artifact=): on resume the last USER message wins over the summary's next step; a task list is a go — edit as soon as the first file is read.
+- **The daemon fold** (263): put a domain shape into the runtime. One-line kill. Rule restated in the quest: the runtime serves module exports BLIND; the domain is where "language" means anything.
+- **Chrome extension not connected, login needs credentials** (268): the device rep stayed undriven; bruno's own login request was the lawful door (/"bruno"/ · /"add test"/) and covered the wire; the on-phone =I am= rep is still his.
+- **Icon bump** (239): a font-size bump flipped =✎=/=×= into emoji glyphs; fixed with inline SVG, but the actual complaint was spacing — read the screenshot before reaching for the glyph.
+
+* state at fold
+
+- suites: typology 109/411 · domain 15/115 · dojo 11/54 · runtime 51/322 — all green, counts pasted in the quest.
+- runtime restarted (=touch run.js=), =/daemon/italian/language= live and asserted through bruno.
+- quest =quests/contractions.quest.org= = LANDED, HYBRID (unnumbered — mXX is beef's); frontier stamped; kajuit codemap's "FOSSIL" line corrected in this fold's sweep.
+- owed: the phone rep (=I am …= against an =I'm …= answer; =dove è= against =dov'è=); =begin()= after =done= now opens the keyboard in-tap — verify on device.
+- unasked-and-flagged: continuous lost its OFF chip (one =on= chip toggles).
+- beef's standing sentence on the dojo, twice this fold: /"i do paradigm once"/.
+
+* resumption
+
+Read this fold's § batch two and § contractions; the quest holds the contractions terrain + hybrid; =project_dojo_mode= memory carries the dojo state. Nothing is mid-flight. First device feedback decides whether =lo amico= ≡ =l'amico= stays acceptable (the list is the only thing that could encode "optional").

@@ -1,6 +1,6 @@
 <script>
   import { string } from "@vivalence/typology";
-  import { Keyboard, Asset, ViewportLock, Desk } from "@vivalence/drapes";
+  import { Keyboard, Asset, ViewportLock, Desk, persist } from "@vivalence/drapes";
 
   const { terminal, buffer } = $props();
 
@@ -8,9 +8,16 @@
 
   const data = buffer.data ?? {};
   const gameplay = data.gameplay ?? "TYPE";
-  const language = terminal.daemon.statics?.language ?? {};
+  let language = $state.raw(terminal.daemon.statics?.language ?? {});
   const blankIndices = new Set(data.blankIndices ?? []);
   const forgiving = data.forgiving ?? true;
+
+  terminal.daemon.connection
+    .call("/language", {})
+    .then((pair) => {
+      if (pair?.known || pair?.learning) language = pair;
+    })
+    .catch((error) => console.warn("[cloze] /language failed", error));
 
   let literal = $state(buffer.literals?.[0] ?? null);
   let loading = $state(!literal);
@@ -33,7 +40,11 @@
   function evaluate(index) {
     const token = tokens[index];
     if (!token) return false;
-    return string.matches(answers[index] ?? "", token.form, { forgiving });
+    return string.matches(answers[index] ?? "", token.form, {
+      forgiving,
+      contractions: language.learning?.contractions ?? null,
+      elision: language.learning?.elision ?? false,
+    });
   }
 
   function submit() {
@@ -128,7 +139,7 @@
                   type="text"
                   placeholder={token.gloss ?? "…"}
                   bind:value={answers[i]}
-                  autofocus={i === [...blankIndices][0]}
+                  use:persist={{ active: i === [...blankIndices][0] }}
                 />
               {:else}
                 <span class="gap-gloss">{token.gloss ?? "…"}</span>
@@ -149,7 +160,6 @@
             <button
               class="opt"
               class:opt-selected={selected}
-              ontouchstart={(e) => e.preventDefault()}
               onclick={() => {
                 const nextBlank = [...blankIndices].find((i) => !answers[i]);
                 if (nextBlank !== undefined) selectOption(nextBlank, opt);
@@ -171,11 +181,11 @@
     {#if loading}
       <span class="menu-hint">loading…</span>
     {:else if submitted}
-      <button class="btn btn-next" onmousedown={(e) => e.preventDefault()} onclick={advance}>
+      <button class="btn btn-next" onclick={advance}>
         Next
       </button>
     {:else if gameplay === "TYPE" || gameplay === "LISTEN"}
-      <button class="btn btn-submit" onmousedown={(e) => e.preventDefault()} onclick={submit}>
+      <button class="btn btn-submit" onclick={submit}>
         Check
       </button>
     {:else}

@@ -5,30 +5,41 @@ jdex: "46.11"
 
 # 46.11 · Tree
 
+*placeholder dek — one line under the title.*
+
 ## purpose
-- Ground-truth file layout of `systems/kajuit/`. The territory, not the map.
-- Regenerable from disk; every other 46.x doc cites this, never re-tallies.
-- Boundary: metrics (line counts, sizing, coverage) roll up to `40.30_structure`; this file is **structure + role**, not numbers.
-- [TODO prose: one paragraph — "what you are looking at and how to read it".]
+
+The same primitive appears again at a different scale. Declaration comes before wiring, at every level.
+
+The reader picks its own fold; the writer emits flat facts. What follows is the contract, not the implementation. Two directions, no reconciliation, ever.
+
+```js title="subsystems/typology/prototypes/vector.js" {3}
+const vector = new Vector()
+  .use(middleware)
+  .open("/segment", (context) => context.request.body)
+  .open("/other", () => null)
+```
 
 ## the tree
-- Annotated `find` over `src/` (94 code files — 37 svelte, 57 js). Dirs annotated, leaf files grouped.
-- `src/client.js` — 4 context symbols (LIGHTHOUSE QUARTERS BRIDGE MAIN; BOX commented)
-- `src/telemetry.js` — Pipe + $telemetry atom (200 cap) → panel G
-- `src/routes/+layout.svelte` — the mount (→ [[46.12_lifecycle]])
-- `src/routes/pincer/{bones,panels}` — bones: crown pincer shoulder spine; panels a–h
-- `src/typology/decks/` — lighthouse quarters bridge/ main inspector box/ (→ [[46.13_contexts]])
-- `src/typology/entities/` — terminal mode intent buffer turn literal thread/
-- `src/typology/prototypes/` — daemon dataspace entity stall todo/
-- `src/typology/traits/{mode,thread}/` — thread: labeled masked aimed queueing selfevident conversational
-- [TODO: paste the full annotated #+begin_src tree block here.]
+
+Absence is the diagnostic here. Everything below is derived, never authored by hand. The distinction is load-bearing and easy to lose.
+
+Each layer holds one responsibility and hands the next a value it can fold. Nothing in this section computes; it describes.
 
 ## entry points
-- `+layout.svelte` — everything starts here; walk continues in [[46.12_lifecycle]].
-- `typology/mod.js` — the `@vivalence/kajuit` barrel; all consumers import through it.
-- `client.js` — the four context symbols, one line each.
-- [TODO: barrel rule note — entities/ MUST NOT import the barrel (Rollup TDZ); use relative paths.]
+
+One shape, several readers, no coordination between them. The reader picks its own fold; the writer emits flat facts.
+
+Two directions, no reconciliation, ever. The counterpart runs at teardown rather than at boot. Order is the only precedence rule that applies.
+
+:::warning
+An aside that needs to read as a caution.
+:::
 
 ## panels (a–h)
-- Quick lookup table: a buffer+Dock · b controls · c D|E|F split · d nav+thread · e trait editors+Json · f buffer DAG · g telemetry · h inspector drawer.
-- [TODO: confirm each against `routes/pincer/panels/<x>/<x>.svelte` before publishing.]
+
+The reader picks its own fold; the writer emits flat facts. What follows is the contract, not the implementation. Two directions, no reconciliation, ever.
+
+The counterpart runs at teardown rather than at boot. Order is the only precedence rule that applies.
+
+Read next: [[46.12_lifecycle]] · [[46.13_contexts]]

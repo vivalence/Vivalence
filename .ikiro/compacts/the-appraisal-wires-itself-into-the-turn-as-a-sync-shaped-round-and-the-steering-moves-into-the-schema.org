@@ -1,0 +1,119 @@
+#+title: the appraisal wires itself into the turn as a sync-shaped round, and the steering moves into the schema
+#+filetags: :francesca:appraise:m29:dock:kajuit:hallucinator:translate:schema:
+
+* arc
+
+The window opens on a screenshot (turn 180): beef sees a tool invocation in
+francesca's transcript and asks /"why does the tool invocation show up in francesca?
+dont we attach to the turn??"/ — it was her own session-opener =progress=/=queue=
+rounds, always persisted, newly *visible* because =turn.subscribe= now delivers live.
+But the question was better than the diagnosis: over the next thirty turns the
+appraisal migrates from invisible Trace-only side effect → =turn.meta= annotation →
+*a retro-fitted SYNC-SHAPED tool round on the sealed assistant turn*, the client
+purpose-built machinery gets DELETED twice over, and the review's judgment rules move
+out of the prompt into the output schema's own field descriptions.
+
+* the three representations, in order
+
+1. *Meta annotation* (turns 183–187). beef: /"why not inject appraise to the turn?"/
+   Verified seams first: provider =translate.js= reads =turn.parts= ONLY — meta never
+   crosses the wire; client =remote-repository.js:164= merges =event.entity= on EVERY
+   subscription event — updates trickle free. Landed: =sealed.meta.appraise=,
+   idempotency guard, plus a GENERIC dock annotation renderer (=turnAnnotations=:
+   any non-runtime meta key → summary chip) under the law beef stamped mid-turn
+   (185): /"remmeber. nothign domain or mode speciifc can be loaded rendered or run
+   on the client"/ → =feedback_client_domain_blind= memory. Cleanups rode along
+   (184): =francesca.md= lost its inline-=review= doctrine (single writer — a
+   stronger tune obeying the old text would have double-reviewed every exchange),
+   the console.log died, the guard came free.
+2. *Tool-shaped display* (189–191). beef, on the chip row: /"i dont like this
+   display?!??! it should be just another tool."/ Annotations became tool-shaped
+   entries through stock =turnTools=. Same turn, the audit he demanded (188 — /"sure
+   this is it?"/) found the latent edge: the mode mw wrapped =ctx.output=
+   UNCONDITIONALLY, so a =/dialogue/render= call would be swallowed into a
+   generator. beef pasted the guard back as the order (191): =if
+   (!ctx.output?.[Symbol.asyncIterator]) return; after await next(). Go.=
+3. *The sync-shaped round* (193–196, the shape he was driving at all along). His
+   ruling (194): /"we dont want to grow fake tursns. my thought was that we attach
+   the review ot the assistant message and that gets passed to the next invocation.
+   just as if the tool call had happened sync. just that it happened async and we
+   wired it inot place."/ Feasibility hinged on ONE grammar rule, both providers: a
+   =tool_result= inside an ASSISTANT turn splits out as the grammar's carrier
+   immediately after the assistant message (anthropic: synthesized user message of
+   =tool_result= blocks — its 1:1 turn→message fold would 400 otherwise; openrouter:
+   =role:"tool"= after =tool_calls= — its assistantToMessage was stringifying results
+   into text content). +1 invariant step each, baselines exact (the 4 pre-existing
+   reds across both provider suites turned out to be ONE root cause — the
+   output.schema/output.object contract decision, known-issues extended). Harness:
+   =sealed.parts += [{tool_use "appraise"}, {tool_result {object: reviews}}]=; guard
+   = parts scan (meta clause kept for transition rows). And the payoff beef named
+   (196: /"ok yes this was the obviosu solution i was going for all along"/): the
+   ENTIRE client annotation subsystem from representation 1 deleted — wire
+   byte-identical to a real sync round means francesca, the next appraise, AND the
+   dock all consume it with zero special code.
+
+* duplication, overcorrection, and the ruling that fixed both
+
+beef (197): /"check the current francesca thread and its turn data. theer is
+duplicaiton as fuck"/. SQL read proved it: the "come" exchange appraised {cosa,
+partire, come, vedere}; the next ("vediamo") appraised {partire, come, vedere} again
+— the fast model re-reviewed the whole visible window every time, and retention rows
+inflated (vedere collected 4 SUCCESS from single reps). First fix stripped the render
+window to tool-parts + final exchange — mechanical, and WRONG. beef killed it (199):
+/"the tool needs context of previous turns and what was reviewed. the learning
+experience might be a multi turn thing. … maybe sometimes it makes sense for the
+review to withhold and wait for another turn f.e. add a thinking step to review. ...
+since we have the time. i dont see that overengineering does us any good. especially
+if we never provide adequate context"/. Full window restored; discipline moved into
+a =thinking= field ahead of =reviews= (field order forces think-then-commit, free on
+a detached hook) plus withhold semantics: mid-arc items wait for a later exchange.
+
+* the schema becomes the steering surface
+
+beef (202): /"add propper descriptions to both thinking reviews and overall output.
+they serve to steer the model after all."/ Every field got =.desc()= (the domain
+tools' own idiom — =review.js= wording family reused verbatim for =literal=), probe
+proved descriptions serialize into the wire JSON schema, and the prompt slimmed to a
+role brief. Then the judgment rules themselves (203): negative honesty — /"tell the
+agent to not avoid negative reviews if i fuck up"/ → "negative signals are the
+system working; milder-when-torn covers factual uncertainty, not kindness" — and the
+COMPOSITE fault-attribution heuristic from his own live fumble: /"the mistake here
+was un/uno but the CAUSE was that my studente was wrong. imporant difference!!!"/ →
+composite reps score PER ITEM by where the fault lies; =studente.noun= takes the
+MISTAKE, not the article slot where the error surfaced (worked example with real
+corpus slugs in the =reviews= description).
+
+* dock polish riding the arc
+
+Fold default CLOSED (192). The double-rendered review object (205) was
+=settled()= mapping a message-less bag into BOTH =output= and the =object= channel —
+output now carries =message= only; empty =input {}= channels hidden. The dominant
+=entities ×N= chips died at both heads (208) — entry digest AND callRow census;
+=turnDigest= deleted with its test block (kajuit 31/110 green); counts live on in
+the console rail's harvest. Also noted from live turn data: the =language-learning_=
+prefix lead gained evidence — one persisted catalog carries =progress= bare AND
+=language-learning_queue= prefixed in the SAME turn; per-tool per-request, filed.
+
+* NOTHING turns
+
+179 (/compact) · 181 (continuation paste) · 182/190/204/206/209 (screenshot payload
+rows) · 186 (typo-dup of the client law) · 200 ("go" mid-execution) · 201 (interrupt)
+· 207 (stale watcher task killed).
+
+* state at fold
+
+- =francesca/harness.js= FINAL: asyncIterator-guarded =/dialogue= mw → detached
+  =within(appraise)= → 1s settle → last-10 =find= DESC+reverse → parts-scan guard
+  (+ legacy meta clause, removable once the live thread ages) → =object.render=
+  with described-schema ={thinking, reviews}= → parts append + flush → per-review
+  =daemon.call["/review/literal"]=.
+- Provider translates: same-turn tool_result splits are LAW on both; invariant
+  steps pin them; the 4 baseline reds remain, now attributed to the single
+  output-contract decision (beef's to make).
+- Kajuit dock: zero appraise knowledge, closed folds, no census chips, deduped
+  call bodies. =turnAnnotations= existed for ~90 minutes and is gone — the best
+  client code for a domain feature is none.
+- LIVE-UNVERIFIED: the described-schema discipline (withhold, composite
+  attribution, negative honesty) has no post-change drill data yet; retention rows
+  from the duplicate era remain inflated (beef's call whether to settle them).
+- Daemon runs =--watch= — registry edits hot-reload; no restart round-trips.

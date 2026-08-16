@@ -28,7 +28,7 @@ export const grammatica = new Vector().open(
     const untouched = forms.filter((form) =>
       !form.retention || form.retention.is.virgin
     );
-    if (untouched.length) {
+    if (untouched.length && game.exhibit) {
       ctx.pool.add(
         game.exhibit.emit.present({
           layout: "TABLE",
@@ -41,20 +41,13 @@ export const grammatica = new Vector().open(
     const practice = ctx.pool.section();
 
     for (const conjugation of conjugations) {
-      practice.add(
-        game.paradigm.emit.conjugation({
-          conjugation,
-          recall: "LEARNING",
-          feedback: "REALTIME",
-          order: "ORDERED",
-        }),
-      );
+      practice.add(game["dojo"].emit.literals({ literals: [conjugation], gameplay: "CONJUGATE", recall: "LEARNING" }));
     }
 
     const failed = forms.filter((form) => form.retention?.is.failed);
     if (failed.length) {
       practice.add(
-        game["rep-o-gram"].emit.conjugations({
+        game["dojo"].emit.conjugations({
           where: { uses: { $in: failed.map((form) => form.id) } },
           count: failed.length,
         }),

@@ -1,0 +1,525 @@
+#+TITLE: progress feedback — the learner sees their own retention
+#+SUBTITLE: sweep result → spec → designer brief
+#+STATUS: DESIGN · nothing go'd · no code written
+
+* intent
+
+The learner exercises a literal; the domain evolves a =Retention= and writes a =Trace=; the
+learner is never told. Today the only place a person can see their standing is the aprende
+homepage, and it is a *cold* surface — you go there deliberately, between sessions. Inside a
+game, where the learning actually happens, retention is invisible: every mode fires
+=/review/literal= and throws the answer away.
+
+This quest closes that. Three moves, smallest first:
+
+1. *the receipt* — =/review/literal= already returns the updated retention. Render it at the rep.
+2. *the ledger* — a trace-history surface (recent · mistakes), which exists nowhere live.
+3. *the board's three lies* — UNTOUCHED reads 0, strength collapses to 0, due is a bare count.
+
+Move 1 is the whole point. Moves 2–3 are the debt the sweep turned up on the way.
+
+* the sweep — what exists today (verified, cited)
+
+** the three places progress is shown
+
+*** 1 · aprende homepage — the only real dashboard (LIVE)
+
+Two reads back the whole page. =registry/education/modes/home/aprende/buffer/Aprende.svelte:35,40=:
+
+#+BEGIN_SRC js
+    .call("/assistant/wakeup/board", {})
+    .call("/assistant/wakeup/statistics", {})
+#+END_SRC
+
+- =aperture/board.js= — ONE =retention.find({}, {populate:["strength","literal"]})=, one row per
+  studied literal. Panels =Retention.svelte= (status blocks), =Activity.svelte= (strength×due
+  scatter + streak), =Ranks.svelte= (weakest/strongest 6+6) all =$derived= from it, so they
+  cannot disagree. Locked in [[project_aprende_board_single_read]].
+- =aperture/statistics.js= — counts + streak. =:63-64=:
+  #+BEGIN_SRC js
+      retention: { byStatus, seen: retentions - (byStatus.UNTOUCHED ?? 0), due },
+      activity: { bySignal, streak },
+  #+END_SRC
+
+*** 2 · the =/progress= tool — prose, and only for the model (LIVE)
+
+=registry/education/domain/tools/progress.js:52= returns =return { message };= — a formatted
+string, no structured payload. The learner sees it only if a tutor repeats it.
+
+*** 3 · in-game — session-local counters, zero retention (LIVE)
+
+Dojo: =buffer/Dojo.svelte:162= =const progress = $derived(queue.length ? Math.round((satisfied / queue.length) * 100) : 0);=
+· =parts/Prompt.svelte:96= streak pips · =parts/Table.svelte:96= ={clean}/{tokens.length} on the first try=
+· recap grid =Dojo.svelte:638-643= (attempts · subjects · sets · reviews sent). All four are client
+=$state=. None reads a =Retention=.
+
+The single exception in the whole live tree: =parts/Builder.svelte:490= paints one bar per
+literal from =row.status=. That is the *only* place a learner sees the ladder per item — and it
+lives in the set *builder*, not in play.
+
+** the hole, exactly
+
+=registry/education/modes/games/dojo/buffer/Dojo.svelte:536-541=:
+
+#+BEGIN_SRC js
+  function review(signal, literal) {
+    if (!literal || !signal) return;
+    reviews += 1;
+    const sent = terminal.daemon.connection
+      .call("/review/literal", { signal, scope: { literal } })
+      .catch((error) => console.warn("[dojo] /review/literal failed", error))
+      .finally(() => inflight.delete(sent));
+#+END_SRC
+
+The promise is added to =inflight= and dropped. Same shape in =cloze/buffer/Cloze.svelte:59=,
+=match/buffer/Match.svelte:116=, =judge/buffer/Judge.svelte:88=, =nyan/buffer/Nyan.svelte:88=.
+
+And the call *does* answer. =registry/education/domain/entities/kernel/Literal.ts:183-226=
+=review()= → =retention.evolve(signal, driver)= → persists a =Trace= → =return retention=.
+=registry/education/domain/aperture/index.js:75= =const retention = await literal.review(signal, ctx); return retention;=
+
+So the new =status=, =nextIn=, =nextAt=, =state= are on the wire, at the moment of the rep,
+already paid for. Nothing renders them.
+
+Corroborating greps (from the sweep):
+- =strength= / =nextAt= / =nextIn= / =lastAt= appear in *zero* live game view files — only as
+  sort-key names (=dojo/set/picks.js:42 byStrength: stream("byStrength")=).
+- =trace= (case-insensitive) has *no* hits across the seven live games.
+- =COUNTER= / =BOOLEAN= drivers exist in =retention/index.js= but nothing selects them:
+  =Literal.ts:190= hardcodes =driver: "BAYESIAN"=.
+
+* the data — real rows, read-only, from the italian testament
+
+Source: =testament/variant/mountpoint/daemon_italian/test-language-italian.viva.db=, sampled
+read-only. *Designer: these are the actual numbers, not mock-ups.* Everything below is what a
+panel would receive today.
+
+** the corpus, as counted
+
+#+BEGIN_EXAMPLE
+literals  retentions  traces  untouched-rows  due
+6535      23          271     0               17
+#+END_EXAMPLE
+
+Read that twice: *6535 literals, 23 retentions.* A =Retention= row is only born on first review
+(=Literal.ts:186-197=). So "UNTOUCHED" is not a status anyone has — it is the 6512 literals with
+no row at all.
+
+** four real retention rows
+
+#+BEGIN_SRC json
+[{"slug":"essere.future.indicative","status":"UNKNOWN","driver":"BAYESIAN",
+  "state":[4.9639929868167085,4.963992986797963,0.7946460864678245],
+  "nextIn":0.7946313170428299,"nextAt":1787156625094,"lastAt":1787153764422},
+ {"slug":"il.determiner","status":"UNKNOWN","driver":"BAYESIAN",
+  "state":[4.9639929868167085,4.963992986797963,0.7946460864678245],
+  "nextIn":0.7946313170428299,"nextAt":1787152748550,"lastAt":1787149887878},
+ {"slug":"essere.present.indicative","status":"UNKNOWN","driver":"BAYESIAN",
+  "state":[5.931593320813236,5.9315933226213025,0.6595778148264922],
+  "nextIn":0.6595655558029720,"nextAt":1787149144487,"lastAt":1787146770051},
+ {"slug":"essere.verb.indicative.present.third.plural","status":"LEARNING","driver":"BAYESIAN",
+  "state":[4.2742256827588,4.274225682897581,15.706205682056474],
+  "nextIn":15.705913763892246,"nextAt":1787203311338,"lastAt":1787146770049}]
+#+END_SRC
+
+=state= is the ebisu triple =[alpha, beta, halflife-hours]=. =nextIn= is *hours*. The ladder
+cutoffs (=retention/bayesian.js:19-27=): =nextIn > 24*45= GRADUATED · => 24*7= KNOWN ·
+=>= 6= LEARNING · else UNKNOWN.
+
+So the third row above — =essere.present.indicative=, halflife 40 minutes — is UNKNOWN. The
+fourth — halflife 15.7 hours — is LEARNING. *The distance between "no idea" and "learning" is
+about one working day of halflife.* That is the scale a designer is drawing.
+
+** two real traces (the receipt payload, verbatim)
+
+#+BEGIN_SRC json
+[{"signal":"{\"enum\":\"SUCCESS\"}","status":"UNKNOWN",
+  "snapshot":"{\"state\":[4.9639929868167085,4.963992986797963,0.7946460864678245],
+              \"nextIn\":0.7946313170428299,\"nextAt\":\"2026-08-19T16:23:45.094Z\"}",
+  "created_at":1787153764423},
+ {"signal":"{\"enum\":\"FAILURE\"}","status":"UNKNOWN",
+  "snapshot":"{\"state\":[4.9639287146470945,4.9639287146470945,0.7944899967869471],
+              \"nextIn\":0.7944752302630613,\"nextAt\":\"2026-08-19T16:23:44.526Z\"}",
+  "created_at":1787153764416}]
+#+END_SRC
+
+Note the timestamps: =...4416= and =...4423=. *Seven milliseconds apart, same literal.* That is
+one dojo sentence rep firing =land()= over its tokens (=Dojo.svelte:548-549=). Any "recent
+activity" surface that lists traces raw will show four rows for one sentence.
+
+** the board rows a panel actually gets (live formula, computed now)
+
+Six weakest, with =strength= from the real SQL formula and =nextDays= from =nextAt=:
+
+#+BEGIN_SRC json
+[{"slug":"del.contraction","learning":"del","known":"of the (masc.)",
+  "ontology":"word","status":"UNKNOWN","strength":0.0,"nextDays":-3.56},
+ {"slug":"avere.verb.indicative.present.first.singular","learning":"ho","known":"I have",
+  "ontology":"word","status":"UNKNOWN","strength":0.0,"nextDays":-3.58},
+ {"slug":"buongiorno-come-sta","learning":"Buongiorno, come sta?",
+  "known":"Good morning, how are you? (formal)",
+  "ontology":"sentence","status":"UNKNOWN","strength":0.0,"nextDays":-3.68},
+ {"slug":"di.adposition","learning":"di","known":"of / from",
+  "ontology":"word","status":"UNKNOWN","strength":0.0,"nextDays":-3.68},
+ {"slug":"andare.verb.indicative.present.first.plural","learning":"andiamo","known":"we go",
+  "ontology":"word","status":"UNKNOWN","strength":0.0,"nextDays":-2.78},
+ {"slug":"andare.verb.indicative.present.second.plural","learning":"andate","known":"you all go",
+  "ontology":"word","status":"UNKNOWN","strength":0.0,"nextDays":-2.78}]
+#+END_SRC
+
+** trace-days (what =streak= folds)
+
+#+BEGIN_EXAMPLE
+2026-08-19  36
+2026-08-18  15
+2026-08-17   9
+2026-08-16  10
+2026-08-15  61
+2026-08-14  92
+2026-08-13  44
+2026-08-12   4
+#+END_EXAMPLE
+
+Contiguous → =streak = 8=. This is the one progress number in the system that already reads
+*true and satisfying*, and it is buried in a scatter-plot header.
+
+* the three lies the real data exposes
+
+** lie 1 · UNTOUCHED always reads 0
+
+=statistics.js:37= counts =retention.count({status})= per rung. No row is ever written with
+=UNTOUCHED= (=Literal.ts:190= creates then immediately evolves), so the bucket is structurally
+empty — measured above: =untouched-rows = 0= against 6512 untouched literals.
+=Retention.svelte:44= renders =← untouched · {counts.UNTOUCHED || 0}= — permanently "0".
+
+The dead dewey knew this. =registry/education/modes/bak/dewey.bak/gather.js:49=:
+#+BEGIN_SRC js
+  histogram.UNTOUCHED = Math.max(0, totalLiterals - memories.length);
+#+END_SRC
+
+** lie 2 · strength is 0 for everything you actually need to study
+
+=Retention.ts:131-136= → =bayesian.js: sql.strength=:
+=exp(-(now - lastAt) * 24 / state[2])=. With a 0.79 h halflife and 3.5 days elapsed the exponent
+is ≈ −106, so =strength = 0.0= — all six rows above, identically.
+
+=Ranks.svelte:19= then does
+#+BEGIN_SRC js
+  const litPct = (d) => Math.round((100 * (Math.log10(Math.max(d.strength, 1e-3)) + 3)) / 3);
+#+END_SRC
+=log10(1e-3) = -3= → *every weak item draws a 0 % bar*. The "weakest" list is real; its bars are
+a flat row of nothing, and its ordering among the zeros is arbitrary.
+
+Strength answers "would you recall it *right now*" — it is a within-the-hour quantity. For "how
+am I doing" the honest axes are *status* and *overdue-ness* (=nextDays=, which reads −3.56,
+−3.58, −3.68 above — legible, ordered, true).
+
+** lie 3 · due is a bare integer
+
+=due = 17= says nothing about *how* late. dewey carried the magnitude
+(=bak/dewey.bak/gather.js:19-21=):
+#+BEGIN_SRC js
+  overdueHours: literal.memory?.nextAt
+    ? Math.max(0, (Date.now() - literal.memory.nextAt.getTime()) / 3.6e6) : null,
+#+END_SRC
+
+* THE DESIGNER BRIEF
+
+Read this section alone if you are drawing. Everything is grounded in the data above.
+
+** what we are designing
+
+Three surfaces, in priority order.
+
+*** A · THE RECEIPT — inline, at the rep (the one that matters)
+
+The learner just answered. Within ~200 ms the daemon answers with the new retention. Show it
+*without breaking the rep loop*.
+
+Payload available at that instant (real shape, from =/review/literal=):
+
+#+BEGIN_SRC json
+{ "status": "LEARNING",
+  "nextIn": 15.705913763892246,
+  "nextAt": "2026-08-20T07:21:51.338Z",
+  "lastSignal": "SUCCESS",
+  "state": [4.2742256827588, 4.274225682897581, 15.706205682056474] }
+#+END_SRC
+
+Plus what the client already knows locally: the previous status (from the knowable —
+=dojo/buffer/fold.js:29= carries =status=), and the signal it just sent.
+
+So the receipt can state a *transition*:
+
+#+BEGIN_EXAMPLE
+  andiamo        UNKNOWN → LEARNING        next in 16 h
+  del            UNKNOWN                   next in 48 min
+  Buongiorno…    LEARNING → KNOWN          next in 8 d
+#+END_EXAMPLE
+
+**** hard constraints (violate these and it ships broken)
+
+- *FOCUS LAW.* Dojo keeps exactly one persistent =<input>= alive, never disabled, never
+  readonly; =TypeInput= stays mounted for every gameplay ([[project_rep_o_mat]],
+  [[project_dojo_mode]]). The receipt *must not* take focus, mount over the input, or reflow the
+  input's position. On phone the keyboard is up and must stay up.
+- *Phone first.* beef drives this on a phone. Narrow tier already docks the verdict *above* the
+  input (=TokenFeedback dense=). The receipt rides that same dock — one line, not a card.
+- *Never block the advance.* The rep may be over before the response lands (dojo advances
+  optimistically). A receipt that arrives after the next prompt is drawn must either attach to
+  the outgoing item's fading feedback or be dropped. It must never delay the next question.
+- *Fire-and-forget stays the fallback.* If the call fails, play continues silently — current
+  behaviour (=.catch(console.warn)=). No error UI in the rep loop.
+
+**** what to draw
+
+1. the transition (previous → current), or just the current rung when unchanged
+2. the interval in human units — =48 min= / =16 h= / =8 d= (=nextIn= is hours; see the copy table)
+3. the rung's colour, from the existing palette (below)
+
+**** the ladder, with its real meaning
+
+| rung        | condition (=nextIn=, hours) | real example from the db                                     |
+|-------------+-----------------------------+--------------------------------------------------------------|
+| UNTOUCHED   | no row exists               | 6512 of 6535 literals                                        |
+| UNKNOWN     | < 6                         | =essere.present.indicative= — halflife 40 min                |
+| LEARNING    | 6 … 168                     | =essere.…third.plural= — halflife 15.7 h                     |
+| KNOWN       | 168 … 1080                  | (none yet in this corpus)                                    |
+| GRADUATED   | > 1080                      | (none yet in this corpus)                                    |
+
+The dead schema carried the gloss worth reviving —
+=registry/education/domain/retention/bak/schema.js:48-53=:
+=//   GRADUATED // sufficiently learned and not Showing anymore=. That is the sentence a learner
+wants under the top rung.
+
+**** palette — already canonical, reuse it
+
+=registry/education/modes/home/aprende/buffer/palette.js:6-12=:
+
+#+BEGIN_SRC js
+export const STATUS_COLOR = {
+  UNTOUCHED: "#3b3b3b",
+  UNKNOWN:   "#6b5b73",
+  LEARNING:  "#c4a35a",
+  KNOWN:     "#5b8c5a",
+  GRADUATED: "#3a7ca5",
+};
+export const DUE = "#c4715a";
+export const MUTED = "#8b8b93";
+export const TEAL = "#1EBCB5";
+#+END_SRC
+
+Ontology glyphs, same file =:19-23=: word =●= · sentence =▬= · conjugation =◆=.
+
+Dojo's builder carries its own copy at =parts/Builder.svelte:82-86= — *one of these two must
+die*; see fork F3.
+
+**** the five signals, as the learner already sees them
+
+Dojo renders the raw enum: =parts/TokenFeedback.svelte:16=
+=<span class="signal" class:landed>{result.corrected ? "CORRECTED" : result.signal}</span>=.
+FLIP gameplay softens them into a self-grade ladder (=parts/Rep.svelte:400-402=):
+=1 · Unknown= / =2 · Known= / =3 · Easy=.
+
+| signal  | tau (hours) | what it means            |
+|---------+-------------+--------------------------|
+| MASTERY |          24 | instant, exact           |
+| SUCCESS |         3.4 | correct                  |
+| NEUTRAL |         1.0 | shown, skipped, partial  |
+| MISTAKE |        0.15 | wrong but close          |
+| FAILURE |        0.08 | blank or wrong           |
+
+(=retention/bayesian.js:8-14=. MASTERY additionally rescales halflife ×3, FAILURE ×0.3.)
+
+*** B · THE LEDGER — trace history (exists nowhere live)
+
+Two lists. Both were in dewey (=bak/dewey.bak/gather.js:88-89, :94-95=), both are gone.
+
+**** recent
+
+#+BEGIN_EXAMPLE
+  SUCCESS   essere.future.indicative     15:36
+  FAILURE   essere.future.indicative     15:36
+  SUCCESS   il.determiner                14:31
+#+END_EXAMPLE
+
+*The collapsing problem is the design work here.* The real data shows 4 traces in the same
+second for one sentence rep (see the two-trace sample above: =...4416= / =...4423=). A raw list
+is unreadable. Options for the designer to pick between:
+
+- collapse by =(literal, second)= → one row, worst signal wins
+- collapse by rep → needs a rep id on the trace; there is none today (fork F4)
+- show sentence-level only, tokens on expand
+
+**** mistakes
+
+Last N where =signal ∈ {MISTAKE, FAILURE}=. Real counts in this corpus: =FAILURE 51 · MISTAKE 21=
+against =SUCCESS 198 · NEUTRAL 1=. So the mistakes list is ~27 % of activity — dense enough to
+be a real surface, not an empty state.
+
+**** the day histogram (free win)
+
+The trace-day fold above is already computed for =streak=. Eight bars, values =4 … 92=. A
+GitHub-style ribbon under the streak number costs one extra field.
+
+*** C · THE BOARD — fix the three lies
+
+- UNTOUCHED := =literals − retentions= (6512, not 0)
+- replace the strength bar with *overdue-ness*; keep strength only where it is honest (a
+  freshly-reviewed item), or drop it from the ranks entirely
+- due gains a magnitude: =17 due · oldest 3.7 d=
+
+** empty + edge states (all reachable in the real corpus)
+
+| state                        | reality                                    | what to draw                          |
+|------------------------------+--------------------------------------------+---------------------------------------|
+| brand-new learner            | 0 retentions, 6535 literals                | not "0 %" — "nothing studied yet"     |
+| all rungs empty but two      | today: UNKNOWN 18 · LEARNING 5, rest 0     | never render a 5-block bar with 3 zeros |
+| every strength = 0           | today, all six weakest                     | do not draw six identical 0 % bars    |
+| overdue by days              | −3.68 d                                    | negative =nextDays= is the norm, not an error |
+| 4 traces in one second       | token reps of one sentence                 | collapse                              |
+| receipt arrives after advance| optimistic advance                          | attach to fading feedback, or drop    |
+| no KNOWN/GRADUATED yet       | true of the whole italian corpus           | the top two rungs must look *reachable*, not broken |
+
+** density tiers (match dojo's existing breakpoints)
+
+Dojo's drawer already tiers on the *shell* width: narrow < 700 · medium < 1040 · wide.
+=parts/Desk.svelte= / =TokenFeedback= take a =dense= prop. The receipt should be:
+
+- narrow — one line in the docked verdict strip, above the input
+- medium/wide — a line beside the verdict, right-aligned
+- never — a modal, a toast that moves layout, or anything focus-taking
+
+* milestones
+
+Each boots green at its boundary.
+
+** M1 · the receipt (the only one that matters)
+
+*Blast:* the five call sites (dojo, cloze, match, judge, nyan). *Change:* thread the resolved
+retention back to the view; render in dojo only. *Test:* dojo suite. *Land:* dojo. *Test.*
+*Blast:* confirm no other consumer of =review()= expects a discarded promise.
+
+Client-side shape, proposed (surgical, in =registry/education/modes/games/dojo/buffer/Dojo.svelte=):
+
+#+BEGIN_SRC diff
+   function review(signal, literal) {
+     if (!literal || !signal) return;
+     reviews += 1;
+     const sent = terminal.daemon.connection
+       .call("/review/literal", { signal, scope: { literal } })
+-      .catch((error) => console.warn("[dojo] /review/literal failed", error))
++      .then((retention) => retention && receipt(literal, signal, retention))
++      .catch((error) => console.warn("[dojo] /review/literal failed", error))
+       .finally(() => inflight.delete(sent));
+     inflight.add(sent);
+   }
+#+END_SRC
+
+=receipt()= holds only the *subject* literal's answer (token receipts are noise — the collapsing
+problem, one layer up). Exact rendering is the designer's call; the data contract is fixed above.
+
+*Boots green at its boundary:* nothing else changes. If =receipt()= is a no-op the mode behaves
+exactly as today.
+
+** M2 · the ledger
+
+New aperture on the domain, structured (not prose). Fork F2 decides *where* it mounts —
+=/progress= gaining an =object=, or a sibling nature. Then the view.
+
+** M3 · the board's three lies
+
+=statistics.js= gains the derived UNTOUCHED and an overdue magnitude; =board.js= gains
+=overdueHours=; =Ranks.svelte= swaps its bar basis.
+
+** M4 · one status renderer
+
+Kill the duplicate palette (=Builder.svelte:82-86= vs =palette.js:6-12=). Fork F3.
+
+* testing assessment
+
+** in place
+
+- =registry/education/domain/tests/retention/drivers.test.js= — driver registry + evolution.
+- =registry/education/domain/tests/= — domain suite, *15 of 115* at the last count
+  ([[project_test_suite_baseline]]).
+- =registry/education/modes/games/dojo/tests/= — dojo suite.
+- *COVERAGE GAP, named:* no test anywhere asserts on what =/review/literal= *returns* to a
+  caller. The whole premise of M1 is untested surface. That is the new-test debt.
+
+** changes
+
+- Any dojo test asserting the =review()= promise chain shape.
+- Snapshot regen if =statistics.js= output schema gains fields (M3) — =STATISTICS= is a declared
+  =v.object=, so the schema change is the test change.
+
+** adds
+
+- domain: =/review/literal= returns a retention carrying =status=, =nextIn=, =nextAt= after an
+  evolve — the contract M1 depends on.
+- domain: UNTOUCHED derivation = =literals − retentions= against a seeded scenario (M3).
+- dojo: a receipt renders on a resolved review and *does not* move focus (M1) — the focus
+  assertion is the one that protects the FOCUS LAW.
+- ledger: trace collapse — 4 traces in one second fold to 1 row (M2).
+
+** green ladder
+
+| milestone | gate                                                              |
+|-----------+-------------------------------------------------------------------|
+| M1        | domain review-contract test + dojo receipt/focus test, both green |
+| M2        | trace-collapse test green                                         |
+| M3        | statistics schema test + UNTOUCHED derivation test green          |
+| M4        | dojo suite green after the palette import swap                    |
+
+** pre-DONE gate
+
+No milestone flips to DONE without (a) the named test file and (b) the suite's *pasted* counts.
+"Green" without numbers is an assertion.
+
+* blast table
+
+| file                                                              | change                             | milestone | kind     |
+|-------------------------------------------------------------------+------------------------------------+-----------+----------|
+| =registry/education/modes/games/dojo/buffer/Dojo.svelte=          | =review()= resolves → =receipt()=  | M1        | surgical |
+| =registry/education/modes/games/dojo/buffer/parts/TokenFeedback.svelte= | receipt line (dense + full)   | M1        | additive |
+| =registry/education/modes/games/cloze/buffer/Cloze.svelte=        | same seam, deferred                | M1+       | surgical |
+| =registry/education/modes/games/match/buffer/Match.svelte=        | same seam, deferred                | M1+       | surgical |
+| =registry/education/modes/games/judge/buffer/Judge.svelte=        | same seam, deferred                | M1+       | surgical |
+| =registry/education/modes/games/nyan/buffer/Nyan.svelte=          | same seam, deferred                | M1+       | surgical |
+| =registry/education/domain/tools/progress.js=                     | structured =object= beside =message= | M2      | additive |
+| =registry/education/modes/home/aprende/aperture/statistics.js=    | UNTOUCHED derived · overdue        | M3        | surgical |
+| =registry/education/modes/home/aprende/aperture/board.js=         | =overdueHours=                     | M3        | additive |
+| =registry/education/modes/home/aprende/buffer/Ranks.svelte=       | bar basis                          | M3        | surgical |
+| =registry/education/modes/games/dojo/buffer/parts/Builder.svelte= | import the shared palette          | M4        | surgical |
+
+* forks — beef calls these before blasting
+
+- *F1 · does the receipt show on every rep, or only on a transition?* Every rep is honest but
+  noisy (most reps do not move the rung). Transition-only is quiet but hides the interval.
+  My lean: interval always, rung only when it changes.
+- *F2 · where does the ledger mount?* =/progress= gaining a structured =object= (one tool, two
+  faces) vs a sibling nature. Dewey's dead version returned structured
+  (=bak/dewey.bak/dewey.viva.js:40-44=); live =/progress= returns =message= only.
+- *F3 · which palette wins* — =aprende/buffer/palette.js= (shared, has ontology glyphs) or
+  =dojo/parts/Builder.svelte:82-86= (local). Shared is the obvious answer; it means a game
+  importing from a home mode, which may violate the client's domain-blindness posture. Your call.
+- *F4 · does a Trace get a rep id?* It would make ledger collapse exact instead of heuristic.
+  Schema change on a live entity — not mine to take.
+- *F5 · is strength shown to the learner at all?* Measured, it is 0 for everything overdue. Either
+  it becomes an *hours-since-review* readout, or it stays an internal sort key and never renders.
+
+* deferred
+
+- The other four games' receipts (M1+) — land dojo first, prove the shape, then propagate.
+- Paradigm-level rollup (min/max/avg strength over a conjugation table) —
+  =domain/entities/kernel/bak/Conjugation.ts:92-94=. Reopens when a table-level standing is asked for.
+- Symbol/tag-level strength ("your weakest *grammar axis*, not word") —
+  =bak/tactic/article-practice/provision.js:16-18=. Reopens with m27.
+- COUNTER / BOOLEAN drivers — dead until something selects them.
+- Riddler's appraisal path — =riddler/aperture.js:35= is commented out; out of scope.
+
+* changelog
+
+- session "progress feedback" — sweep run (6 finders, 3 landed, 3 pulled early on beef's
+  *"this was overdone. too big"*); real data sampled read-only from the italian testament; quest
+  written. Nothing implemented, nothing go'd.

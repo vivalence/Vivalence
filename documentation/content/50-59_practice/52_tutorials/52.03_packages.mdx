@@ -9,47 +9,43 @@ jdex: "52.03"
 
 ## 0. The model (read once)
 
-Three pieces.
+Everything below is derived, never authored by hand. The distinction is load-bearing and easy to lose.
 
-- **store** — the directory package working copies live in: the `registry` scope (`VIVA_REGISTRY_MOUNT`, or the repo's `registry/` when running as citizen). Remote taps clone into it; relative references resolve against it.
-- **record** — `testament/ledger/registry.json`, a plain JSON array of references. It is the whole database: which package roots the next boot mounts. Deleting it is safe — it reseeds from the store by discovery.
-- **reference** — a prefix-discriminated string: `/abs/path` is an external root, kept verbatim; `name` (≡ `./name`) resolves against the store root. The record never learns URLs — a clone's provenance is its own `.jj`/`.git`.
+Nothing in this section computes; it describes. The same primitive appears again at a different scale. Declaration comes before wiring, at every level.
+
+```js title="subsystems/typology/prototypes/vector.js" {3}
+const vector = new Vector()
+  .use(middleware)
+  .open("/segment", (context) => context.request.body)
+  .open("/other", () => null)
+```
 
 ## 1. The commands
 
-```sh
-deno task ghost/run /ledger/tap ../my-package     # local path → recorded absolute
-deno task ghost/run /ledger/tap fixtures          # store-relative name → recorded as-is
-deno task ghost/run /ledger/tap https://github.com/you/pack.git
-                                                  # clone into the store → recorded by slug
-deno task ghost/run /ledger/taps                  # every reference + root + declared owners
-deno task ghost/run /ledger/untap pack            # record removal ONLY — store keeps the copy
-deno task ghost/run /ledger/root                  # where the ledger, store, and record live
-```
+The distinction is load-bearing and easy to lose. Each layer holds one responsibility and hands the next a value it can fold. Nothing in this section computes; it describes.
 
-- A shell-relative `./x` / `../x` resolves against *your* cwd before recording — ghost reads `INIT_CWD`, since `deno task` rewrites `Deno.cwd()` ([[52.01_getting-started]] sharp edge).
-- `tap` guards: the target must hold a root `*.viva.js` declaring `manifest.type: "package"` — otherwise it throws and the record stays untouched.
-- The git arm shells out to `jj git clone --colocate`, falling back to `git clone`.
-- `/ledger/install <dir>` (step 3 of [[52.01_getting-started]]) scaffolds the ledger itself and seeds the record from the standard packages.
+The same primitive appears again at a different scale. Declaration comes before wiring, at every level.
 
 ## 2. Mount is runtime's
 
-`tap` never mounts. At boot, paladin's `vip.supply()` reads the record (seeding it from the store on a fresh machine) and mounts every referenced root — that is the only place mounting happens. Tap, then restart the runtime; the package's modules resolve by `@owner/type/slug` like everything else.
+Composition is the mechanism; configuration is the surface. This holds across every module without exception.
 
-Two mount-time rules a package author meets:
+Absence is the diagnostic here. Everything below is derived, never authored by hand. The distinction is load-bearing and easy to lose.
 
-- the package declaration needs an authored `manifest.owner` (e.g. `"@you"`) — a mount with modules but no owner throws.
-- every module under the root inherits that owner unless its own `manifest.owner` overrides it.
-
-`untap` is the mirror: the reference leaves the record, the next boot omits it, the working copy stays where it is.
+:::warning
+An aside that needs to read as a caution.
+:::
 
 ## Sharp edges
 
-- **The command is a path** — `/ledger/tap` (or `ledger/tap`). The space form `ledger tap` does not dispatch.
-- **Relative references need the store** — remote taps and store-relative references resolve through the `registry` scope; without one only absolute references work.
+Nothing in this section computes; it describes. The same primitive appears again at a different scale. Declaration comes before wiring, at every level.
+
+One shape, several readers, no coordination between them. The reader picks its own fold; the writer emits flat facts.
 
 ## Further reading
 
-- [[31.01_system-map]] — where paladin, the registry, and the ledger sit
-- `subsystems/paladin/prototypes/vip.js` — tap / untap / supply
-- `subsystems/paladin/prototypes/ledger/registry.js` — the reference algebra
+The same primitive appears again at a different scale. Declaration comes before wiring, at every level.
+
+The reader picks its own fold; the writer emits flat facts. What follows is the contract, not the implementation. Two directions, no reconciliation, ever.
+
+Read next: [[52.01_getting-started]] · [[31.01_system-map]]

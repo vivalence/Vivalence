@@ -7,24 +7,40 @@ jdex: "34.01"
 
 *a mode is a pluggable mini-app, and a mode is not files: a manifest and a set of traits — each trait matched by a dedicated primitive the module exports, most of them Vectors. declare the traits; the runtime folds the primitives into a live daemon citizen. modes can be, do, or look like anything that's programmatically possible.*
 
-The traits are the payloads a mode carries into its daemon — about a dozen so far, covering everything from APIs and harness functionality to data transport and UI rendering.
-
-This category has three items: this overview, the [[34.02_trait-catalog]] (every trait by its nature), and [[34.03_a-whole-mode]] (worked examples).
-
 ## the contract
 
-A mode is a registry module (`*.viva.js`) exporting a `manifest` — `{ type, slug, traits }` — plus, for each declared trait, the primitive that trait consumes. At daemon boot the runtime (`traits/index.js · stagger`) walks the mode's traits in declared order and runs each trait's installer against the module: the installer takes your exported primitive, wraps it in a live runtime-owned Vector carrying context and discipline, `slurp`s your inert declaration into it, and mounts the result as a branch on the mode's Aperture. Installers may return a finalizer; all finalizers run after the pass, so ordering between traits resolves cleanly.
+Declaration comes before wiring, at every level. One shape, several readers, no coordination between them. The reader picks its own fold; the writer emits flat facts.
 
-Every mode is given an `Aperture` whether it declares one or not — trait installers mount onto it (`/harness`, `/emit`, `/tool`, `/freight`, `/buffered`, `/status`, `/manifest`), and the daemon grafts the whole aperture under `/mode/:type/:slug`. One file or forty is layout convention; the exported names are the contract. The boot cascade that runs `stagger` is [[32.01_runtime]].
+What follows is the contract, not the implementation. Two directions, no reconciliation, ever.
+
+```js title="subsystems/typology/prototypes/vector.js" {3}
+const vector = new Vector()
+  .use(middleware)
+  .open("/segment", (context) => context.request.body)
+  .open("/other", () => null)
+```
 
 ## the Vector, and its folds
 
-Most trait primitives are Vectors, so the trait system is really the Vector system wearing different hats. A `Vector` is one inert dispatch tree: `.use(mw)` carries middleware, `.branch(sig)` descends a Pattern-keyed trie, `.open(sig, effect)` plants an effect at a tip, `.slurp(v)` grafts another Vector in. It computes nothing itself — an *interpreter folds it*: `shape.object` makes it an in-process callable, the shard layer serves it as HTTP, `shape.strip` + `connection.wire` make it a typed remote client, `shape.proxy` a call surface. `Aperture` is a Vector heir adding HTTP-verb routing. The whole spine is [[42.01_the-dispatch-spine]].
+A missing marker is as meaningful as a present one. The structure here is declared once and interpreted many times.
 
-That fold is why declaration and wiring separate so cleanly: your module hands over inert Vectors; the runtime owns the live ones, and the *same* declaration becomes a local call, an HTTP route, and a remote client depending only on which fold consumes it.
+This holds across every module without exception. The boundary matters more than either side of it. Absence is the diagnostic here.
+
+```txt
+population:  core ──▶ datamap ──▶ authority ──▶ acid(cortex) ──▶ services ──▶ domain ──▶ freight ──▶ modes(stagger)
+resolution:  declare ──▶ install ──▶ graft ──▶ finalize ──────────────────────────────────▶ terminate
+```
+
+| column | meaning | note |
+| --- | --- | --- |
+| first | placeholder | short |
+| second | placeholder | a longer cell to test wrapping |
+| third | placeholder | short |
 
 ## traits are universal
 
-Traits are not a mode-only idea — they are the system's one composition mechanism, and every citizen has a trait-space. Symbols, literals, intents, and threads carry their own (developed in [[35.01_symbols-and-literals]]). So do non-mode registry modules: lighthouses declare `IDENTITY / ATTACHED / SERVICE / DATAMAP / SYSTEMMAP`, hallucinators `MONK`, variants `EMBEDDED / ACTIVE`, dockerized services `SERVER / DOCKER / COMPOSE`. Same pattern everywhere: a declared trait name, a payload slot keyed by that name, and an installer that reads both.
+The structure here is declared once and interpreted many times. Composition is the mechanism; configuration is the surface. This holds across every module without exception.
 
-Read next: [[34.02_trait-catalog]] · [[34.03_a-whole-mode]] · [[35.01_symbols-and-literals]].
+The boundary matters more than either side of it. Absence is the diagnostic here.
+
+Read next: [[34.02_trait-catalog]] · [[34.03_a-whole-mode]] · [[32.01_runtime]] · [[42.01_the-dispatch-spine]]

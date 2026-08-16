@@ -1,4 +1,5 @@
 #+title: the scaffold lives one hour, measures the debt paid, and removes itself — and the unstamped bridge was a dockerignore line
+#+filetags: :docker:ci:deploy:probe:
 
 * what happened, in one breath
 

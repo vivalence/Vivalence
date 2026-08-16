@@ -20,3 +20,5 @@ export const dataset = new Dataset({
   symbol: "dataset/symbols",
   literal: "dataset/literals",
 });
+
+export { statics } from "./statics/language.js";

@@ -74,6 +74,7 @@
 
   let busy = $state(false);
   let listEl = $state(null);
+  let showData = $state(false);
 
   const dock = chain(terminals, "$active", "$dock");
 
@@ -191,8 +192,13 @@
           <div class="item">{literal.slug ?? literal.ontology ?? literal.id}</div>
         {/each}
       {/if}
-      <div class="kv top"><span class="k">data</span></div>
-      <pre class="json">{JSON.stringify($activeData ?? {}, null, 2)}</pre>
+      <div class="kv top">
+        <span class="k">data</span>
+        <button class="mini" onclick={() => (showData = !showData)}>{showData ? "hide" : `show · ${Object.keys($activeData ?? {}).length} keys`}</button>
+      </div>
+      {#if showData}
+        <pre class="json">{JSON.stringify($activeData ?? {}, null, 2)}</pre>
+      {/if}
     </section>
   {/if}
 </div>

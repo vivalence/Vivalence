@@ -1,0 +1,344 @@
+#+TITLE: m36 — supabase per die: one cluster, schema-per-die datamap, lighthouse as GoTrue facade, and schema evolution with nowhere to put migration files
+#+FILETAGS: :m36:datamap:supabase:postgres:lighthouse:auth:migrations:coolify:
+#+METHOD: ikiro/quest
+#+STATUS: DRAFTED
+#+DATE: 2026-08-17
+
+* provenance
+
+Session under fable. beef runs many sqlite instances today — one per die
+(runtime · lighthouse · each daemon). Wants a selfhosted supabase in prod for
+"all of the interfaces and the web client", integrated with lighthouse and
+datamap, per die, with proper migration management. Settled in session:
+schema-per-die (NOT database-per-die — supabase studio/postgrest/auth all
+assume the one =postgres= database), one new datamap provider (NOT a new
+lighthouse service — the provider seam at =population.js:71= exists precisely
+so service code never touches the driver), lighthouse shrinks to identity
+mapper + GoTrue proxy.
+
+* the laws (carry into every milestone)
+
+- *the seam is the provider.* =register.datamap.provider(mask.datamap,
+  entities, subscribers)= per die. Nothing above the provider changes. If any
+  daemon/aperture/lighthouse file needs a driver-conditional, the quest has
+  failed.
+- *schema is the new file.* Every sqlite =statics.db.file= boundary becomes a
+  postgres =schema=. Hard rule: no two dies share a schema; no die touches
+  =public= or supabase territory (=auth= =storage= =realtime= =_supabase*=
+  =supabase_functions= =graphql*= =extensions= =vault=). Mikro never diffs
+  outside its pinned schema.
+- *nothing that knows the die set exists before deploy.* The variant composes
+  arbitrary dies at deploy time; the registry is pulled for any installation;
+  the docker build is generic. So there is NO repo location that can hold
+  per-die migration files, and generating them at build time is impossible.
+  Schema evolution must be an ad-hoc act of the running deployment. (Struck
+  design call, first draft: committed =<variant>/migrations/<schema>/= dirs.
+  beef: /"the registry is pulled for various kinds of installations for any
+  kind of die … that information is only available once we deploy"/.)
+- *DDL is serialized per schema, always.* Whatever mechanism evolves the
+  schema, N dies boot concurrently on every coolify redeploy. =pg_advisory_lock=
+  per schema, or it races.
+- *destructive is never automatic.* No boot path drops or renames. Refused DDL
+  gets surfaced loudly, and applying it is a deliberate operator act.
+- *migrate direct, serve pooled (or not at all).* DDL through supavisor
+  transaction-mode breaks. Migrations connect to =5432= raw. At current scale,
+  skip the pooler entirely.
+- *sqlite stays the dev default.* The postgres provider is a sibling, not a
+  replacement. localhost variants keep libsql; the prod variant selects
+  postgres. Image = engine, variant = config — this quest is a variant story.
+- *auth verifies against keys, not shared strings.* Asymmetric signing keys +
+  JWKS; =SECRET_VIVA_JWT= dies with the lowdb refresh store.
+
+* the shape in one screen
+
+#+begin_example
+                         ┌────────────────────── supabase stack (own coolify resource) ─┐
+                         │  kong :8000 → gotrue · postgrest · realtime · storage · studio │
+                         │  postgres :5432  (database: postgres)                          │
+                         │    schemas: auth │ storage │ public │ …                        │
+                         │             runtime │ lighthouse │ daemon_italian │ daemon_*   │
+                         └───────────────▲───────────────▲───────────────────────────────┘
+                              5432 direct│               │ /auth/v1/* (via kong)
+                                         │               │
+  runtime container ── die[runtime] ── @viva/datamap/postgres ── schema: runtime
+                    ── die[italian] ── @viva/datamap/postgres ── schema: daemon_italian
+                    ── svc[lighthouse] ─ @viva/datamap/postgres ── schema: lighthouse
+                                         │
+                       lighthouse /signup /signin /refresh /verify ──▶ GoTrue
+                       authority.authenticate(token) ──▶ jose.createRemoteJWKSet(JWKS)
+                       identity row (lighthouse schema) keyed by supabase sub, lazy-provisioned
+#+end_example
+
+* terminology
+
+| term | definition |
+|------+------------|
+| die schema | the postgres schema owned by exactly one die. =runtime=, =lighthouse=, =daemon_<slug>=. The isolation unit that replaces the sqlite file. |
+| provider | =registry/viva/datamap/postgres/postgres.viva.js=, same ={ manifest, provider }= shape as libsql. |
+| facade | lighthouse auth endpoints proxying GoTrue; lighthouse keeps its identity entity, drops token minting. |
+| sub | supabase =auth.users.id= (uuid). Stored on the identity row. NEVER an FK into =auth.users= — foreign territory, store the uuid cold. |
+| direct DSN | =postgres://…@<db-host>:5432/postgres= — DDL + serving. No supavisor in the loop. |
+| evolution | how a die's schema reaches the shape its entities imply. =SYNC= (option A, derived, no files) or =MIGRATOR= (option B, generated files on the mountpoint). |
+| refused SQL | destructive DDL (drops, renames-as-drop+add) that no boot path applies. Surfaced, never executed. |
+
+* config contract (variant + env)
+
+Variant slot, mechanical swap of =file= → =schema=:
+
+#+begin_src js
+datamap: {
+  module: "@viva/datamap/postgres",
+  statics: {
+    db: {
+      schema: "lighthouse",                                    // ← was file: "lighthouse.viva.db"
+      url: () => paladin.secret.get("SECRET_VIVA_DATAMAP_URL"), // one DSN, all dies
+      evolution: "SYNC",                                       // SYNC (A) | MIGRATOR (B)
+    },
+  },
+},
+#+end_src
+
+Daemon schemas derive =daemon_<manifest.slug>= when unset — declared beats
+derived, derived beats crashing.
+
+Env additions (compose / coolify):
+
+| var | holds |
+|-----+-------|
+| =SECRET_VIVA_DATAMAP_URL= | direct 5432 DSN |
+| =PUBLIC_VIVA_SUPABASE_REMOTE= | kong base url (client-facing) |
+| =SECRET_VIVA_SUPABASE_SERVICE_KEY= | service-role key, lighthouse→GoTrue admin only |
+| =VIVA_SUPABASE_JWKS= | =…/auth/v1/.well-known/jwks.json= (public — verification needs no secret) |
+
+Retired: =SECRET_VIVA_JWT= (with the lowdb store).
+
+* schema evolution — THE OPEN DECISION (A vs B)
+
+The constraint, stated plainly: the die set is only known at deploy. No repo
+path can hold per-die migration files, and the generic docker image cannot
+generate them at build. So either the deployment derives its schema from the
+entities it booted with (A), or it generates and keeps a migration history
+beside the data it belongs to (B). Both are ad hoc by necessity; they differ in
+what artifact they leave behind and what they refuse to do automatically.
+
+Shared by both, non-negotiable:
+
+- =CREATE SCHEMA IF NOT EXISTS "<die schema>"= before ORM init needs it.
+- =advisory(orm, schema, fn)= = =pg_advisory_lock(hashtext('viva_evolve_' ||
+  schema))= → fn → =pg_advisory_unlock= in =finally=. Every DDL path wrapped.
+- Provider refuses DSNs on pooler ports (6543) with a named-fix error — DDL
+  through supavisor transaction mode fails cryptically.
+- The existing =<mount>/migrations= sqlite files are poison to postgres. Never
+  shared, never read, whichever option wins.
+- =transactional: true= (pg has transactional DDL; the libsql =false= was a
+  sqlite workaround, not a preference).
+
+** option A — schema sync, no files (RECOMMENDED)
+
+No Migrator. The entities are the source of truth; the schema is derived state.
+Every deployment converges its own schema on boot from the dies it actually
+booted with — which is the sqlite mental model made honest, and needs no
+artifact to live anywhere.
+
+#+begin_src js
+await orm.schema.ensureDatabase();
+await advisory(orm, schema, async () => {
+  await orm.schema.updateSchema({ safe: true, dropTables: false, schema });
+  const refused = await orm.schema.getUpdateSchemaSQL({ safe: false, schema });
+  if (refused.trim()) evolve(die, schema, refused);
+});
+#+end_src
+
+- =safe: true= applies additive DDL only — new tables, columns, indexes. It can
+  never drop a column or table, which makes it *safer than generated
+  migrations*, since those cheerfully include DROPs nobody reviewed.
+- =evolve()= surfaces the refused destructive SQL loudly (log + =/metadata=
+  topic on the datamap surface, so it is inspectable rather than buried in
+  container logs). Applying it is a deliberate operator act: a ghost/paladin
+  skill (=datamap_evolve=, confirm-gated, prints the SQL first) — preferred over
+  an env var, because an env var lingers and a skill invocation does not.
+- Data-preserving transforms (rename, retype) are the one real loss: a rename
+  reads as drop+add, so it is refused, and surviving data needs a ferry (M36.6
+  machinery, reused). Rare enough not to deserve infrastructure.
+- No ledger, no dirs, no dialect drift, nothing to locate. Idempotent per boot.
+
+Costs, honestly: no history of how a schema got where it is (the entities are
+the history — =git log= on the registry); no down path (there never really was
+one); production DDL is derived at runtime, so a bad entity commit reaches the
+database at redeploy with nothing between — which is exactly what libsql does
+today, so it is not a regression.
+
+** option B — Migrator on the mountpoint
+
+Port libsql's arrangement verbatim to postgres: migration files live on the
+deployment's own volume, next to the database they describe.
+
+| knob | value |
+|------+-------|
+| =migrations.path= | =datamap.mount.branch("migrations").branch(schema).absolute= |
+| =migrations.tableName= | =_mikro_migrations= inside the die schema |
+| =migrations.transactional= | =true= |
+| =schema= | die schema (pins diffing + ledger + entities) |
+
+#+begin_src js
+const migrator = orm.getMigrator();
+await advisory(orm, schema, async () => {
+  if (await migrator.checkMigrationNeeded()) await migrator.createMigration();
+  if ((await migrator.getPendingMigrations()).length) await migrator.up();
+});
+#+end_src
+
+- Coherent on its own terms: the database and its history are both deployment
+  state, colocated per volume, and =pull-prod-mountpoint= already knows how to
+  fetch that volume — so the history IS retrievable for forensics.
+- Keeps a real ledger and a down path, and =createMigration= diffs are readable
+  artifacts.
+
+Costs: re-admits generate-in-production, and generated diffs include
+destructive DDL by default — so the destructive guard has to be re-implemented
+anyway by filtering generated SQL, which is strictly more machinery than A for
+the same protection. Files nobody will ever hand-edit or down-migrate (they sit
+on a prod volume), so the ledger buys little. Two dies in the same variant can
+generate divergent histories for the same entity set across environments, and
+nothing reconciles them.
+
+** decision
+
+Recommendation: *A*, with the =datamap_evolve= skill as the escape hatch and
+the M36.6 ferry as the data-preserving path. B stays documented as the fallback
+if a refused-transform turns out to be routine rather than rare, or if
+forensic history on prod schema changes becomes a real need. Both are
+implementable behind the same provider config — =statics.db.evolution:
+"SYNC" | "MIGRATOR"= — so the choice is one variant key and not a rewrite,
+and M36.1 ships A with the B branch stubbed.
+
+* pooling
+
+N dies × =MikroORM.init= = N pools on one cluster. =pool: { min: 0, max: 2 }=
+per die (config-overridable via =statics.db.pool=). Supabase default
+=max_connections= 100ish — 10 dies × 2 = 20, comfortable. No supavisor.
+
+* auth cutover (lighthouse = facade)
+
+Current: =server/auth.js= mints HS256 via jose + =SECRET_VIVA_JWT=, refresh
+tokens in *lowdb* (=server/lib/jwt.js= — prod-smelly, dies here). Daemons
+verify through =shard.secure.authorize()= → =ctx.authority.authenticate(token)=
+→ =identity.getUser()= — caller-agnostic already.
+
+| endpoint | becomes |
+|----------+---------|
+| =/signup= | GoTrue =POST /auth/v1/signup= |
+| =/signin= | =POST /auth/v1/token?grant_type=password= |
+| =/refresh= | =grant_type=refresh_token= — rotation/revocation/sessions = GoTrue's problem; lowdb deleted |
+| =/verify= | local verify against JWKS |
+
+Authority: =jose.createRemoteJWKSet(VIVA_SUPABASE_JWKS)= (enable asymmetric
+signing keys in supabase — daemons hold zero secrets). =authenticate= verifies
+sig + =iss= + =exp=, then =identity.getUser()= resolves the lighthouse-schema
+identity row by =payload.sub=, lazy-provisioning on first sight (idempotent
+upsert keyed on sub; GoTrue webhook = later hardening, not load-bearing).
+Claims ride =app_metadata= (user can't self-edit, lands in the JWT) → the
+commented-out claims gate in =secure.js authorize()= comes back for free.
+
+Payoff: tokens are real supabase sessions → kajuit can hit
+postgrest/realtime/storage directly. RLS on exposed schemas becomes worth
+writing then; mikro's own connection is service-role and bypasses it — fine.
+
+* deploy (coolify)
+
+- supabase = its own coolify resource (one-click template). Vivalence compose
+  untouched in shape.
+- coolify isolates resource networks → attach runtime to the supabase stack
+  network (compose =networks: external=) to reach =db:5432= direct. Publishing
+  5432 to the host is the fallback, not the plan.
+- while in the compose: =restart: unless-stopped= on runtime (kajuit/docs have
+  it, runtime doesn't); fix the =PUBLIC_*= split-brain (runtime advertises
+  =localhost:2501=, kajuit points at =runtime.s4y.vivalence.com= — same file);
+  quit committing placeholder secrets, coolify injects env.
+- ci unchanged: images are engine, this is all variant + env. The
+  =$COOLIFY_TOKEN && $COOLIFY_BASE= webhook jobs keep firing as-is.
+
+* milestones
+
+** M36.0 — provider skeleton
+=registry/viva/datamap/postgres/postgres.viva.js=. =@mikro-orm/postgresql=,
+=clientUrl= from statics, =schema= pinned, pool capped, =shard=
+(=scope/bind/carry= — the RequestContext machinery incl. the =carry=
+storage.run hack is driver-agnostic, port verbatim), =subscribe/introspect/
+disintegrate=. Migrations OFF this milestone.
+▸ proof: a die boots against local supabase, entities CRUD in its schema,
+runtime datamap tests green with module swapped.
+
+** M36.1 — schema evolution (option A, B stubbed)
+=CREATE SCHEMA IF NOT EXISTS= + =advisory()= + =updateSchema({safe})= +
+=evolve()= surfacing refused SQL (log + =/metadata/datamap= topic) +
+=datamap_evolve= skill (prints SQL, confirm-gated, wrapped in the same lock).
+=statics.db.evolution= dispatches; =MIGRATOR= branch stubbed per option B so
+the switch is a variant key later, not a rewrite.
+▸ proof: (1) fresh db, one die → schema materializes, entities CRUD. (2) three
+dies booted concurrently 20× against a fresh db — zero races, converged
+schemas, no duplicate-object errors. (3) drop a column from an entity → boot
+applies nothing, refused SQL appears on the metadata topic; =datamap_evolve=
+applies it only when invoked. (4) add a column → next boot applies it
+additively, no data loss.
+
+** M36.2 — variant
+=registry/viva/variant/supabase/= (fork of multiplayer): every =datamap=
+slot → postgres module + schema, DSN/env contract wired, daemon schema
+derivation in place. localhost variants untouched on libsql.
+▸ proof: full runtime boots on the variant, every die in its own schema,
+=\dn= shows exactly the expected set, supabase territory pristine.
+
+** M36.3 — lighthouse facade
+Endpoints → GoTrue proxy · =lib/jwt.js= + lowdb deleted · identity keyed by
+sub with lazy provision.
+▸ proof: signup→signin→refresh→verify round trip through GoTrue; bruno
+=testament/_bruno= auth suite green against the facade; =auth.users= row and
+lighthouse identity row correlate by sub.
+
+** M36.4 — authority on JWKS
+=authenticate= verifies via remote JWKS; =SECRET_VIVA_JWT= retired from
+variant + compose; claims gate resurrected off =app_metadata=.
+▸ proof: daemon request with a supabase access token passes =authorize()=,
+=bind("user")= filters rows by the mapped identity id; tampered/expired
+tokens 401; claim-gated route 403s a claimless user.
+
+** M36.5 — compose + coolify
+Supabase resource up · network attach · env contract in coolify · compose
+fixes (restart, PUBLIC_ split-brain, placeholder secrets out).
+▸ proof: push to trunk → ci builds → webhooks fire → runtime redeploys,
+migrates under lock, serves. Kajuit login against prod lighthouse lands a
+supabase session.
+
+** M36.6 — data ferry (sqlite → postgres, once; and the rename path)
+One-shot script: open each =.viva.db=, read via mikro sqlite, write via
+postgres provider into the die schema. Identity rows get subs by
+email-matching GoTrue users created in M36.3 (unmatched → provision via
+admin API). Not sync — a single crossing, then the sqlite files are archive.
+Generalize the crossing into reusable machinery: it is also the answer to
+option A's refused renames (old shape → new shape, one deliberate run).
+▸ proof: row counts match per entity per die; a pre-existing user signs in
+through GoTrue and sees their pre-migration data.
+
+* explicitly out of scope
+
+- RLS policies + exposing die schemas through postgrest (post-M36, once the
+  web client actually reads them)
+- GoTrue webhooks for eager provisioning (lazy is load-bearing; webhook is
+  hardening)
+- supavisor / pgbouncer (scale problem we don't have)
+- retiring libsql (dev default forever, or until it annoys someone)
+- multi-host split (runtime host A / kajuit host B) — orthogonal, docs §8
+  already sketch it
+
+* risks
+
+| risk | teeth | mitigation |
+|------+-------+------------|
+| entity defs carry sqlite-isms (type quirks, no real timestamps/uuid) | first pg schema materializes wrong | M36.1 proof (1) inspects =\d= on a fresh sync BY EYE before any data lands; fix entities, not the database |
+| a bad entity commit reaches prod DDL at redeploy with nothing in between | additive junk columns accumulate | true of libsql today, so not a regression; =safe: true= bounds the damage to additive, and refused-SQL surfacing makes the cleanup visible |
+| a data-preserving rename turns out to be routine, not rare | option A's one real gap | M36.6 ferry machinery covers the crossing; if it recurs, flip =evolution: "MIGRATOR"= (option B, already stubbed) |
+| coolify redeploy restarts all dies at once | concurrent DDL stampede | =pg_advisory_lock= per schema; M36.1 proof (2) simulates it 20× |
+| supabase studio "helpfully" edits a die schema | studio's addition is invisible to the entities and =safe: true= will not remove it | die schemas are mikro's, studio is for looking; refused-SQL surfacing makes the divergence visible on the metadata topic |
+| GoTrue email confirmation defaults on | signup flow surprise-breaks | facade passes through GoTrue config explicitly; bruno covers the confirm path |
+| supavisor sneaks into the DSN via copy-paste | migrations die cryptically | provider REFUSES DSNs on known pooler ports (6543) with a named-fix error |

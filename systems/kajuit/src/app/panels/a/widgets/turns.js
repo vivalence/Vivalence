@@ -47,7 +47,7 @@ const settled = (result) => {
       )
     : null;
   return {
-    output: bag ? (bag.message ?? bag.object ?? null) : output,
+    output: bag ? (bag.message ?? null) : output,
     entities: entities && Object.keys(entities).length ? entities : null,
     object: bag ? (bag.object ?? null) : null,
     status:
@@ -180,17 +180,10 @@ export const turnCensus = (tools) => {
   return Object.entries(totals).map(([type, count]) => ({ type, count }));
 };
 
-// the activity line carries the LAST call's entity summary, not the turn's sum — the
-// line is nowrap and one round's digest is the fact the reader wants at rest
-export const turnDigest = (tools) => {
-  const last = (tools ?? []).at(-1);
-  if (!last) return [];
-  return last.census ?? toolCensus(last.entities);
-};
-
 export function toolChannels(tool) {
   const channels = [];
-  if (tool?.input) channels.push({ key: "input", value: tool.input, rows: null });
+  if (tool?.input && Object.keys(tool.input).length)
+    channels.push({ key: "input", value: tool.input, rows: null });
   for (const [key, value] of Object.entries(tool?.entities ?? {}))
     channels.push({ key, value, rows: entityRows(key, value) });
   if (tool?.object) channels.push({ key: "object", value: tool.object, rows: null });
@@ -220,6 +213,14 @@ export const sessionUsage = (turns) =>
     },
     { input: 0, output: 0, seen: false },
   );
+
+export const contextSize = (turns) => {
+  for (let index = (turns ?? []).length - 1; index >= 0; index--) {
+    const usage = turnUsage(turns[index]);
+    if (usage) return usage.input + usage.output;
+  }
+  return null;
+};
 
 export const tokens = (count) =>
   count >= 1000 ? `${(count / 1000).toFixed(1)}k` : String(Math.round(count));

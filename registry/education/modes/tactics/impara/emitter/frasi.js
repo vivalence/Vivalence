@@ -26,7 +26,7 @@ export const frasi = new Vector().open(
 
       if (!sentence.retention || sentence.retention.is.virgin) {
         practice.add(
-          game["rep-o-gram"].emit.shadow.literals({
+          game["dojo"].emit.shadow.literals({
             literal: sentence,
             recall: "LEARNING",
             preview: { speed: { rate: "SLOW" } },
@@ -34,7 +34,7 @@ export const frasi = new Vector().open(
         );
       } else if (vocalized) {
         practice.add(
-          game["rep-o-gram"].emit.listen.literal({
+          game["dojo"].emit.listen.literal({
             literal: sentence,
             gameplay: sentence.retention.is.failed ? "PICK" : "TYPE",
             recall: "LEARNING",
@@ -42,7 +42,7 @@ export const frasi = new Vector().open(
         );
       } else if (sentence.retention.is.failed) {
         practice.add(
-          game["rep-o-gram"].emit.shadow.literals({
+          game["dojo"].emit.shadow.literals({
             literal: sentence,
             recall: "LEARNING",
             preview: { speed: { rate: "SLOW" } },
@@ -50,7 +50,7 @@ export const frasi = new Vector().open(
         );
       } else {
         practice.add(
-          game["rep-o-gram"].emit.write.literals({ literal: sentence, recall: "LEARNING" }),
+          game["dojo"].emit.write.literals({ literal: sentence, recall: "LEARNING" }),
         );
       }
     }

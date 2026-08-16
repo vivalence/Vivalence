@@ -14849,7 +14849,7 @@ export default [
     ],
     "trait": {
       "TRANSLATED": {
-        "known": "he/she/it does / it is (weather)",
+        "known": "he/she/it does / makes",
         "learning": "fa"
       },
       "EXEMPLIFIED": {

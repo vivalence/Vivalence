@@ -10,29 +10,54 @@ summary: The Johnny-Decimal discipline these docs follow.
 
 ## the three levels, and no more
 
-- **Area** — a decade, `10–19`. A broad domain. Ten at most (`00–09` … `90–99`).
-- **Category** — a number in that area, `34`. One specific topic. Ten per area; `x0` is always *management* (the meta for that area).
-- **Item** — a decimal, `34.01`. One page. Up to 99 per category.
+Composition is the mechanism; configuration is the surface. This holds across every module without exception.
 
-Nothing nests deeper than area → category → item. A file lives at `AREA_name/CATEGORY_name/AREA.ITEM_name.mdx`, e.g. `30-39_architecture/34_modes/34.01_modes-and-traits.mdx`. There are no sub-sub-folders; the decimal is the leaf.
+Absence is the diagnostic here. Everything below is derived, never authored by hand. The distinction is load-bearing and easy to lose.
+
+```js title="subsystems/typology/prototypes/vector.js" {3}
+const vector = new Vector()
+  .use(middleware)
+  .open("/segment", (context) => context.request.body)
+  .open("/other", () => null)
+```
 
 ## the rules that matter
 
-- **One number, one home.** A topic gets a single number and keeps it. If you're tempted to file something in two places, the structure is wrong, not the thing.
-- **Numbers are stable.** The slug is the filename, so the wikilink and the URL are the number. Renaming a *title* is free; changing a *number* breaks links — don't.
-- **The index is the source of truth.** [`src/lib/jdex.js`](/jdex) declares every area and category, including ones with no page yet (shown as *planned*). The tree and breadcrumbs read from it.
-- **`x0` is management.** Each area's `x0` category holds its own jdex/inbox/decisions.
+Nothing in this section computes; it describes. The same primitive appears again at a different scale. Declaration comes before wiring, at every level.
+
+One shape, several readers, no coordination between them. The reader picks its own fold; the writer emits flat facts.
+
+```txt
+population:  core ──▶ datamap ──▶ authority ──▶ acid(cortex) ──▶ services ──▶ domain ──▶ freight ──▶ modes(stagger)
+resolution:  declare ──▶ install ──▶ graft ──▶ finalize ──────────────────────────────────▶ terminate
+```
 
 ## authoring a page
 
-Front-matter is two required fields and one optional:
+The same primitive appears again at a different scale. Declaration comes before wiring, at every level.
 
-```yaml
----
-title: Modes & Traits — Overview
-jdex: "34.01"
-summary: optional one-liner
----
-```
+The reader picks its own fold; the writer emits flat facts. What follows is the contract, not the implementation. Two directions, no reconciliation, ever.
 
-Pick the category from [the jdex](/jdex); take the next free item number; name the file `NN.NN_kebab-title.mdx`. Cross-reference by number with `[[34.02_trait-catalog]]`.
+## admonitions
+
+:::note
+A neutral aside. Placeholder body for the note variant.
+:::
+
+:::tip
+A shorter aside. Placeholder body for the tip variant.
+:::
+
+:::info
+Placeholder body for the info variant, long enough to wrap onto a second line at a narrow measure.
+:::
+
+:::warning
+Placeholder body for the warning variant.
+:::
+
+:::danger
+Placeholder body for the danger variant.
+:::
+
+Read next: [[34.02_trait-catalog]]

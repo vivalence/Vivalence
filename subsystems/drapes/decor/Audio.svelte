@@ -47,6 +47,8 @@
     };
   });
 
+  const keep = (event) => event.preventDefault();
+
   function toggle() {
     if (!audio) return;
     if (playing) {
@@ -65,6 +67,7 @@
     class="audio-inline {className}"
     class:audio-playing={playing}
     onclick={toggle}
+    onpointerdown={keep}
     aria-label={playing ? "Pause" : "Play"}
   >
     {#if playing}
@@ -92,7 +95,7 @@
     class="audio-dot {className}"
     class:audio-playing={playing}
     onclick={toggle}
-    onmousedown={(e) => e.preventDefault()}
+    onpointerdown={keep}
     aria-label={playing ? "Pause" : "Play"}
   >
     {#if playing}

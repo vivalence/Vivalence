@@ -3,10 +3,11 @@ title: Aperture ⟷ Connection
 jdex: "42.07"
 summary: One serves a trie, the other calls one; the mirror is what makes strip/wire exact.
 ---
+
 import Source from "../../../src/components/Source.astro"
 import Example from "../../../src/components/Example.astro"
-import Editor from "../../../src/components/Editor.astro"
 import Tabs from "../../../src/components/Tabs.astro"
+import Editor from "../../../src/components/Editor.astro"
 
 # 42.07 · Aperture ⟷ Connection
 
@@ -14,35 +15,39 @@ import Tabs from "../../../src/components/Tabs.astro"
 
 ## Aperture — a Vector with verbs
 
-`prototypes/aperture.js` is 48 lines. It extends `Vector` and adds one idea: a **method-keyed leaf fold**.
+Order is the only precedence rule that applies. A missing marker is as meaningful as a present one. The structure here is declared once and interpreted many times.
 
-```js
-aperture.get("/thing", read)
-aperture.post("/thing", write)
+Composition is the mechanism; configuration is the surface. This holds across every module without exception.
+
+```js title="subsystems/typology/prototypes/vector.js" {3}
+const vector = new Vector()
+  .use(middleware)
+  .open("/segment", (context) => context.request.body)
+  .open("/other", () => null)
 ```
-
-Both land on **one node**. The leaf's effect becomes a `methods` dispatcher — a function carrying a `methods` map — rather than two sibling leaves. Verbs are a property of the leaf, not of the path.
-
-Four consequences:
-
-- An unregistered verb on an existing node is a **405**, not a 404. The node exists; the method doesn't.
-- `methods` is what `strip` plucks onto the wire (`strip.js:8`), which is how `wire` knows to send GET instead of POST.
-- A method-ambiguous leaf asked *without* a method **throws**, unless exactly one handler is registered (`aperture.js:43`). `"*"` is the explicit any-method slot.
-- Registering a verb on a leaf that already has a plain effect **demotes** that effect to `methods["*"]` (`aperture.js:18`) — it is preserved as the fallback, not overwritten.
-
-The HTTP server is not a framework. It is `shape.http(aperture)` — a fold. Routing, middleware, and dispatch belong to the Vector. `http.js` is 71 lines, and half of it is response encoding.
 
 ## what shape.http adds
 
-Beyond dispatch, the fold owns three behaviours worth knowing (`shape/http.js:35`):
+Everything below is derived, never authored by hand. The distinction is load-bearing and easy to lose.
 
-- **async generators are auto-framed as SSE.** If a leaf returns an async iterator, `respond` wraps it into an event stream — which is what makes a `yields` leaf work end to end without the handler knowing about SSE.
-- **`server-timing` comes from the span.** If `ctx.span` exists, its records are folded by `trace.chronicle` and emitted as a timing header (`http.js:57`).
-- **404 versus 500 is decided by the throw.** A `NotFound` (or `code === "NOT_FOUND"`) is a 404; anything else is logged and returned as a 500 with `{ code: "INTERNAL" }`.
+Nothing in this section computes; it describes. The same primitive appears again at a different scale. Declaration comes before wiring, at every level.
+
+```txt
+population:  core ──▶ datamap ──▶ authority ──▶ acid(cortex) ──▶ services ──▶ domain ──▶ freight ──▶ modes(stagger)
+resolution:  declare ──▶ install ──▶ graft ──▶ finalize ──────────────────────────────────▶ terminate
+```
+
+| column | meaning | note |
+| --- | --- | --- |
+| first | placeholder | short |
+| second | placeholder | a longer cell to test wrapping |
+| third | placeholder | short |
 
 ## Connection — the transport dual
 
-`prototypes/connection.js`, 224 live lines. Where an Aperture registers, a Connection aims:
+The distinction is load-bearing and easy to lose. Each layer holds one responsibility and hands the next a value it can fold. Nothing in this section computes; it describes.
+
+The same primitive appears again at a different scale. Declaration comes before wiring, at every level.
 
 <Tabs names={["Aperture — serve", "Connection — call"]}>
 <Fragment slot="Aperture — serve">
@@ -65,57 +70,41 @@ await deal({ count: 2 })   // → POST /emit/deal
 
 ### a Connection is a tree, not a URL builder
 
-This is the part that surprises. `branch()` walks segments, and each `child()` is **memoized** in a `children` Map (`connection.js:27`). More importantly, the child's transport is `(ctx) => this.dispatch(ctx)` — **the parent's whole middleware chain**. So a shard mounted once at the root applies to every descendant call, at any depth, forever.
+Composition is the mechanism; configuration is the surface. This holds across every module without exception.
 
-`resolve()` is the counterpart (`connection.js:65`): given an endpoint it walks only through children that *already exist* and stops at the first missing segment. That is why `call("/a/b/c")` dispatches from the deepest branch anyone has actually created — the tree is built by use, not by path parsing.
+Absence is the diagnostic here. Everything below is derived, never authored by hand. The distinction is load-bearing and easy to lose.
 
 ### the live surface
 
-```
-.branch(sig)      mirror an aperture branch (memoized)
-.aim(sig)         a bound caller; the caller's body merges OVER the pre-bound one
-.call(sig, body)  dispatch through the chain; throws on response.error
-.fetch(…)         same, returns the Response instead of throwing
-.stream(…)        SSE async-iterator; parses `data:` frames, cancels the reader on early break
-.subscribe(…)     stream + auto-resubscribe, exponential backoff capped at 30s
-.observe(…)       stream + an .unsubscribe() handle
-.nanoatom(…)      a nanostores atom fed by a subscription, mounted lazily
-.publish(…)       the reverse — push an async iterator UP as an SSE request body
-.socket(…)        upgrade to a WebSocket carrying a Vector
-```
+Nothing in this section computes; it describes. The same primitive appears again at a different scale. Declaration comes before wiring, at every level.
 
-`subscribe` is the resilient one: it loops until aborted, resets its backoff on every successful event, and fires a `resumed` callback only when a *reconnect* succeeds — not on the first open (`connection.js:154`).
-
-**A Connection never raw-fetches.** Auth, retry, timeout, tracing, and multiplexing live in the transport chain ([[42.06_shard]]).
+One shape, several readers, no coordination between them. The reader picks its own fold; the writer emits flat facts.
 
 ## why the mirror matters
 
-Because a Connection's branches mirror an Aperture's segment for segment, a client re-inflated from the server's `shape.strip` contract hits exactly the endpoints the Aperture mounted. Nothing coordinates the two — the structural mirror *is* the coordination.
+The same primitive appears again at a different scale. Declaration comes before wiring, at every level.
 
-```
-daemon:   mode.emit.deal(body)  = shape.object(emitter)         → in-process handler
-client:   mode.emit.deal(body)  = wire(conn, strip(emitter))    → POST /emit/deal
-                                       ▲                  ▲
-                                  same trie shape    same segments
-```
+The reader picks its own fold; the writer emits flat facts. What follows is the contract, not the implementation. Two directions, no reconciliation, ever.
 
 ## it runs
 
-Two verbs on one node, a 405, and the same leaf reached through a `Connection` — one process, no port.
+Absence is the diagnostic here. Everything below is derived, never authored by hand. The distinction is load-bearing and easy to lose.
+
+Each layer holds one responsibility and hands the next a value it can fold. Nothing in this section computes; it describes.
 
 <Source name="42.07-aperture" />
 
 <Example name="42.07-aperture" />
-
-`nodes → 1` with `leaf → ["GET","POST"]` is the method-fold; `DELETE → 405` is the consequence.
-
-And the tree behaviour — memoized branches, one root shard observing every descendant:
 
 <Source name="42.07-connection" />
 
 <Example name="42.07-connection" />
 
 ## try it
+
+One shape, several readers, no coordination between them. The reader picks its own fold; the writer emits flat facts.
+
+Two directions, no reconciliation, ever. The counterpart runs at teardown rather than at boot. Order is the only precedence rule that applies.
 
 <Editor code={`import { Aperture, shape } from "@vivalence/typology"
 
@@ -129,9 +118,8 @@ console.log("PUT →", res.status)`} />
 
 ## see also
 
-- `subsystems/typology/prototypes/{aperture,connection,socket}.js`
-- `tests/aperture.test.js` · `tests/connection.test.js` · `tests/gestalten/shape/http.test.js`
-- `systems/kajuit/src/typology/entities/daemon/dossier.js:52` — the fullest chain in the repo
-- [[42.05_shape]] — `http`, `strip`, `connection.wire`
-- [[42.06_shard]] — what rides the transport chain
-- [[47.03_stripwire]] — the dual across the daemon↔client seam
+The reader picks its own fold; the writer emits flat facts. What follows is the contract, not the implementation. Two directions, no reconciliation, ever.
+
+The counterpart runs at teardown rather than at boot. Order is the only precedence rule that applies.
+
+Read next: [[42.06_shard]] · [[42.05_shape]] · [[47.03_stripwire]]

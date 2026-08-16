@@ -1,0 +1,171 @@
+diff --git a/deno.lock b/deno.lock
+index 314a1242..c30cadd6 100644
+--- a/deno.lock
++++ b/deno.lock
+@@ -61,6 +61,7 @@
+     "jsr:@std/yaml@*": "1.2.0",
+     "npm:@ai-sdk/anthropic@3.0": "3.0.9_zod@4.4.3",
+     "npm:@anthropic-ai/sdk@*": "0.71.2_zod@4.4.3",
++    "npm:@astrojs/markdown-remark@*": "7.2.1",
+     "npm:@astrojs/mdx@*": "7.0.3_astro@7.0.9__@astrojs+markdown-remark@7.2.1",
+     "npm:@codemirror/lang-javascript@*": "6.2.5",
+     "npm:@codemirror/lang-javascript@6": "6.2.5",
+@@ -89,6 +90,7 @@
+     "npm:ajv@8.17.1": "8.17.1",
+     "npm:argon2@0.44.0": "0.44.0",
+     "npm:astro@*": "7.0.9_@astrojs+markdown-remark@7.2.1",
++    "npm:astro@7": "7.0.9_@astrojs+markdown-remark@7.2.1",
+     "npm:autoprefixer@10.4.20": "10.4.20_postcss@8.4.49",
+     "npm:better-sqlite3@*": "12.8.0",
+     "npm:bits-ui@^1.4.0": "1.8.0_svelte@5.39.6__acorn@8.15.0",
+diff --git a/subsystems/paladin/prototypes/variant.js b/subsystems/paladin/prototypes/variant.js
+index 784a456f..b8553717 100644
+--- a/subsystems/paladin/prototypes/variant.js
++++ b/subsystems/paladin/prototypes/variant.js
+@@ -1,5 +1,15 @@
++import { isAbsolute, resolve as resolvePath } from "@std/path";
+ import { Pipe, Mask, v, fn } from "@vivalence/typology";
+ 
++const reference = (home) => (entry) =>
++  typeof entry !== "string"
++    ? { ...entry, mount: entry.mount ?? home }
++    : isAbsolute(entry)
++      ? entry
++      : /^\.\.?\//.test(entry)
++        ? resolvePath(home.dirname, entry)
++        : entry;
++
+ const hydrate = (node) =>
+   typeof node === "function"
+     ? node()
+@@ -27,11 +37,17 @@ async function resolve(variant) {
+     });
+ 
+   const [module] = modules;
++
++  const materialize = (declaration) => {
++    const { kernel = [], ...rest } = declaration;
++    return { ...hydrate(rest), kernel: kernel.map(reference(module.source)) };
++  };
++
+   variant.manifest = module.manifest;
+   variant.runtime = hydrate(module.runtime ?? {});
+   variant.clients = hydrate(module.clients ?? {});
+   variant.lighthouse = hydrate(module.lighthouse ?? {});
+-  variant.daemons = (module.daemons ?? []).map((declaration) => mask("daemon")(hydrate(declaration)));
++  variant.daemons = (module.daemons ?? []).map((declaration) => mask("daemon")(materialize(declaration)));
+   variant.services = (module.services ?? []).map((declaration) => mask("service")(hydrate(declaration)));
+ 
+   // variant.runtime.logs = new Pipe()
+diff --git a/subsystems/paladin/prototypes/vip.js b/subsystems/paladin/prototypes/vip.js
+index 9fe9a9d6..05aab78a 100644
+--- a/subsystems/paladin/prototypes/vip.js
++++ b/subsystems/paladin/prototypes/vip.js
+@@ -1,3 +1,4 @@
++import { isAbsolute } from "@std/path";
+ import { is, cast, Path } from "@vivalence/typology";
+ import { Pensieve } from "./pensieve.js";
+ 
+@@ -83,13 +84,20 @@ export class Vip {
+     throw new Error(`[VIP] Module 404: ${JSON.stringify({ lookup })}`);
+   }
+ 
++  async accioOne(query) {
++    if (is.string(query) && isAbsolute(query)) {
++      const module = await this.paladin.read.viva(query);
++      return { ...module, mount: new Path(query) };
++    }
++    if (is.object(query) && query.manifest && !query.module) return query;
++    if (is.object(query) && is.string(query.module)) {
++      return { service: await this.accio(query.module), mask: query };
++    }
++    return await this.accio(query);
++  }
++
+   async accioMany(many) {
+-    return await Promise.all(many.map(async (query) => {
+-      if (typeof query === "object" && query !== null && typeof query.module === "string") {
+-        return { service: await this.accio(query.module), mask: query };
+-      }
+-      return await this.accio(query);
+-    }));
++    return await Promise.all(many.map((query) => this.accioOne(query)));
+   }
+ 
+   async accioMap(many) {
+diff --git a/subsystems/typology/prototypes/app.js b/subsystems/typology/prototypes/app.js
+index f3f32d33..713b7a38 100644
+--- a/subsystems/typology/prototypes/app.js
++++ b/subsystems/typology/prototypes/app.js
+@@ -2,16 +2,19 @@ import { Path } from "./path.js";
+ 
+ export class App {
+   mount = null;
++  source = null;
+   schema = null;
+ 
+   constructor(mount, schema = null) {
+     if (mount instanceof App) return mount;
+     if (typeof mount === "object" && !(mount instanceof Path)) {
+       schema = mount.schema ?? schema;
++      this.source = mount.source ?? null;
+       mount = mount.mount;
+     }
+     this.schema = schema;
+-    this.mount = new Path(mount);
++    this.mount = mount ? new Path(mount) : null;
++    if (!this.mount && !this.source) throw new Error("App: mount or source required");
+   }
+ 
+   fill(desc = {}) {
+@@ -20,3 +23,7 @@ export class App {
+     return desc.data;
+   }
+ }
++
++export const svelte = (strings, ...values) => ({
++  source: String.raw({ raw: strings }, ...values),
++});
+diff --git a/subsystems/typology/schematics/primitives/variant.js b/subsystems/typology/schematics/primitives/variant.js
+index 9e4ac189..7784f1ce 100644
+--- a/subsystems/typology/schematics/primitives/variant.js
++++ b/subsystems/typology/schematics/primitives/variant.js
+@@ -16,7 +16,7 @@ export const Daemon = v.object(
+   {
+     manifest: Manifest,
+     statics: v.record(v.string(), v.unknown()).default({}),
+-    kernel: v.array(v.string()).default([]),
++    kernel: v.array(v.union([v.string(), v.object({}, { additionalProperties: true })])).default([]),
+     consume: v.record(v.string(), Mask).default({}),
+     lighthouse: Mask,
+     datamap: Mask,
+diff --git a/systems/runtime/daemon/traits/application.js b/systems/runtime/daemon/traits/application.js
+index de2fae71..16b3b443 100644
+--- a/systems/runtime/daemon/traits/application.js
++++ b/systems/runtime/daemon/traits/application.js
+@@ -3,8 +3,11 @@ import { App, Path } from "@vivalence/typology";
+ import { BufferEntity } from "@vivalence/runtime";
+ 
+ export const APPLICATION = async (mode, daemon) => {
+-  const entry = new Path(mode.module.mount.dirname + mode.module.app.mount.nature);
+-  mode.app = new App(entry, mode.module.app.schema);
++  const declared = mode.module.app;
++  const entry = declared.source ? null : new Path(mode.module.mount.dirname + declared.mount.nature);
++  mode.app = declared.source
++    ? new App({ source: declared.source, schema: declared.schema })
++    : new App(entry, declared.schema);
+ 
+   mode.app.buffer = async (desc = {}) => {
+     const buffer = daemon.entities.em.create(BufferEntity, {
+@@ -25,6 +28,10 @@ export const APPLICATION = async (mode, daemon) => {
+ 
+   return async () => {
+     const store = `${daemon.mountpoint.absolute}/bundles/${mode.type}/${mode.slug}`;
+-    mode.app.view = await paladin.bundler(store).bundle({ kind: "svelte", entry: entry.absolute });
++    mode.app.view = await paladin.bundler(store).bundle(
++      mode.app.source
++        ? { kind: "svelte", source: mode.app.source }
++        : { kind: "svelte", entry: entry.absolute },
++    );
+   };
+ };

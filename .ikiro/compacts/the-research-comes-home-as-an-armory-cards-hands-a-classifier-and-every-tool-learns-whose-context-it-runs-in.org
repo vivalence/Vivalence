@@ -1,4 +1,5 @@
 #+title: the research comes home as an armory — cards, hands, a classifier, and every tool learns whose context it runs in
+#+filetags: :agentic:tooled:harness:domain-tools:
 
 * arc
 

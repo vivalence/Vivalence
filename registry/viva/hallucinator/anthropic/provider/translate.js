@@ -13,6 +13,14 @@ export function translateTurns(turns) {
       }
       continue;
     }
+    if (turn.role === "assistant" && turn.parts.some((part) => part.type === "tool_result")) {
+      const results = turn.parts.filter((part) => part.type === "tool_result");
+      const remainder = turn.parts.filter((part) => part.type !== "tool_result");
+      if (remainder.length)
+        messages.push({ role: "assistant", content: remainder.map(partToAnthropic) });
+      messages.push({ role: "user", content: results.map(partToAnthropic) });
+      continue;
+    }
     messages.push({
       role: turn.role,
       content: turn.parts.map(partToAnthropic),
@@ -96,7 +104,7 @@ export function buildParams(model, request, stream = false) {
     if (marks.has(section.key)) section.block.cache_control = { type: "ephemeral" };
   if (marks.has("context") && system.length) system.at(-1).cache_control = { type: "ephemeral" };
   if (stream) params.stream = true;
-  if (model.thinking) {
+  if (model.thinking && settings.effort !== "none") {
     params.thinking = { type: "adaptive", display: "summarized" };
     if (settings.effort) params.output_config = { effort: settings.effort };
   }

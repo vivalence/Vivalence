@@ -4,6 +4,10 @@
 #+VERIFIED: full claim-by-claim sweep post-m26 — 125 claims: 94 confirmed · 28 drifted ·
 3 wrong; corrections folded in below. The tree was HOT during the sweep (=harnessed.js= +
 =domain/tools/*= edited uncommitted mid-audit) — line refs are working-tree-current, expect float.
+#+BREAKAGE: adversarial sweep (14 BREAKS / 6 root causes, 7 LATENT) in "where it breaks".
+CROWN = a live cross-user IDOR: Turn has no =user= filter, harness discards the thread
+null-check → any authed user reads+writes any thread via =input.thread=. The store debate
+was never the whole problem — there is NO ownership CHECK on the harness path.
 #+DATE: 2026-08-12
 
 * the question
@@ -129,6 +133,185 @@ What changed the QUESTION while this quest sat:
   =ensure()= sets =setFilterParams("user", …)= at :5; the twitch path forks at :16; the
   boot walk (:24-28) sets params on the shared root em UNFORKED (wrinkle). Prior art:
   when there is no request, you fork-and-set.
+
+* where it breaks (adversarial sweep)
+
+Red-team pass, 7 attack surfaces × find-then-refute-then-synthesize (15 agents, all
+findings re-verified against disk post-refutation). *14 BREAKS collapse to 6 root causes;
+7 LATENT wait on a named near-future thing.* The mission-level finding reframes the whole
+quest:
+
+#+begin_quote
+Isolation rests ENTIRELY on the MikroORM =user= filter (=default:true=). =authorize()=
+only sets =ctx.user= from the token — there is NO server-side thread-ownership check
+ANYWHERE. Ownership IS the ORM filter, and two entities that need it don't have it.
+#+end_quote
+
+So the diligence collar the lean called ergonomics is actually the SECURITY BOUNDARY,
+and it is currently absent on the harness path.
+
+** root cause 1 — Turn has NO =user= filter (and no user column) [CROWN, BREAKS]
+
+=Turn.ts:54-93= declares no =filters= block and no user FK — every sibling userspace
+entity (Thread/Buffer/Intent/Retention/Trace) has one, Turn is the hole. Two breaks
+ride it, and one fix (a =user= filter on Turn conditioned through the thread relation,
+=({thread:{user:args.user}})=, exactly like =Buffer.ts:36-41=) closes both:
+
+- *rank 1 — cross-user IDOR, read AND write.* Any authenticated user POSTs
+  ={thread: <VICTIM_ID>, parts}= to =/mode/*/harness/dialogue/stream= (the client already
+  puts the thread id in the body plain — =conversation.js:39=). =harnessed.js:27= loads
+  the thread row USER-SCOPED (foreign id → null) but NEVER gates on the null and discards
+  the row; :62 binds the raw id STRING; the =/dialogue= branch runs
+  =turn.history({thread: ctx.input.thread})= (:82) → victim's whole conversation loaded
+  into the ATTACKER's LLM prompt (extractable by "repeat everything above"), and
+  =turn.chain({thread: ctx.input.thread, role:"user", parts})= (:83) → create+flush BEFORE
+  any LLM round-trip, so attacker + assistant turns land in the victim's thread
+  UNCONDITIONALLY (Turn has no user column, the FK is satisfied). Both invariants die:
+  cross-user leak + wrong-user write.
+- *rank 5 — the =entity_find= skill reads unfiltered Turn/User.* =skills/entity.js= (armed
+  for EVERY harnessed mode, =harnessed.js:35=) enumerates every repo with =getEntityName=;
+  =entity_find({entity:"turn", where:{}, fields:"full"})= → =repository.find= with no scope
+  → every user's =Turn.parts= exfiltrated, paged past the 10kB budget trim;
+  =entity_find({entity:"user"})= enumerates all account ids. This is ALSO the harvester
+  that hands rank 1 its victim thread ids. Model-mediated (fires when the model emits the
+  call — incl. prompt-injection via corpus or a leaked turn).
+
+** root cause 2 — =reactive()= with no scope → =/subscribe= filter ={}= → match-all [BREAKS]
+
+A reactive mount with NEITHER a scope middleware NOR a scope option resolves its subscribe
+filter to ={}= → =broadcaster.js:58= match-all, and the push-side owner-stamp
+(=datamap.js:183=) is skipped. Two locations, two fixes, one pattern:
+
+- *rank 7 — intent, STOCK CLIENT.* =userspace.js:9-11= — intent is the only userspace
+  branch with neither mechanism (thread :15, buffer :21-27, turn :31-37 all have one). The
+  stock client auto-subscribes =intent where={}= (=dossier.js:96=); any new user's signup
+  seeds intents → afterCreate → every subscribed client gets every user's intent rows.
+  Automatic, zero crafting. DEFLATED: intent content is template-identical across users, so
+  the breach is user-existence disclosure + in-memory pollution, not persisted-data leak.
+- *rank 8 — domain trace/retention, EXPLOIT-ONLY but SENSITIVE.*
+  =education/domain/aperture/index.js:59-67= slurps =reactive(trace)=/=reactive(retention)=
+  with no scope → any authenticated user opening a crafted subscribe frame to
+  =/userspace/entities/{trace,retention}/subscribe= streams every user's spaced-repetition
+  state (=Retention.strength/status=) + review provenance. Higher content-sensitivity than
+  rank 7; no client repo wired so no stock-client path.
+
+** root cause 3 — the streamed turn-persistence generator is non-transactional + finally-less [BREAKS]
+
+=harnessed.js:103-126= is =try { for-await…; flush() } catch { remove; throw }= with NO
+=finally=.
+
+- *rank 2 — abort mid-stream bricks the thread.* A write-tool's mid-stream =em.flush=
+  (review/thread/buffer/provision) commits the assistant =tool_use= turn (half a pair)
+  before its =tool_result= exists; a client abort (live WS close → =socket= =return()= at the
+  yield) runs NEITHER the post-loop flush NOR the catch, so the dangling =tool_use=
+  persists. Every later =render()= includes it → Anthropic 400 (non-retryable) → thread
+  PERMANENTLY bricked until row surgery. "Model used a tool, user hit stop / sent a
+  follow-up" is a normal chat gesture — deterministic on the live WS path. Highest
+  severity×normal-use of the persistence family. (Sub-variants: plain abort loses the
+  assistant reply; provider-error rollback is a no-op because the rollback registers
+  =em.remove= but never flushes — but that path is near-unreachable, =respond()= swallows
+  provider faults into =/response/close=, =hallucinate.js:100-109=. The LIVE break is abort.)
+
+** root cause 4 — =Thread.counter= is a RMW with no version / atomic bump / unique [BREAKS]
+
+=Thread.counter= (=Thread.ts:43,120=) — no version column, no atomic increment, no
+=unique(thread,index)= on Buffer. One atomic-bump fix kills rank 11 + 12 and halves 17.
+
+- *rank 11 — concurrent =/emit= on one thread.* Two concurrent emits each fork their own
+  em, both read =counter=N=, both write =N+1= (one increment lost), both set
+  =buffer.index=N= (=emitter.js:57-64=) → duplicate index, "index orders the buffers"
+  invariant dies silently. Same-user (two tabs / tab+bruno).
+- *rank 12 — stale identity-map instance in a stream fork.* =harnessed.js:27= loads the
+  Thread into a fork that lives for MINUTES; a mid-stream provision tool emits in that
+  same fork and =findOne= returns the STALE instance (mikro never re-hydrates a PK hit
+  without refresh) while a concurrent =/emit= moved =N→N+k= → counter REGRESSION + reused
+  indexes.
+
+** root cause 5 — the thread ROW is loaded then discarded; the raw id STRING is bound [BREAKS]
+
+=harnessed.js:27= loads the thread entity (for the INTELLIGENT claim) and throws it away;
+:62 binds =ctx.thread= = the raw wire STRING. This is quest fork #3, and the fix is one
+assignment — the row is already in hand at :27.
+
+- *rank 9 — Trace.thread silently NULL on every harness-tool review.* The guarded tool ctx
+  carries the string; =Literal.review='s =thread: ctx.thread?.id ?? null= (=Literal.ts:197=)
+  → null; =Trace.thread= is nullable → persists silently. Fires on EVERY francesca review
+  that rides the tool loop. Pure attribution loss (user + Retention are correct — user is
+  bound as an ENTITY). Highest-frequency break, lowest impact.
+- *rank 21 [LATENT] — primer aperture, DISTINCT site.* =primer /assistant/turn= calls
+  =Literal.review= with a plain mode-aperture ctx where NOTHING binds =ctx.thread= → same
+  null. Fixing rank 9's string-bind does NOT fix this. Gated on a young-ladys-primer daemon
+  booting (mounted in no variant today).
+
+** root cause 6 — stale identity-map instance in the long-lived stream fork [BREAKS]
+
+Same mechanism as rank 12, second victim:
+
+- *rank 13 — mid-stream =thread/update= skill clobbers a concurrent client trait edit.*
+  =skills/thread.js:17-21= =findOneOrFail= → PK identity-map hit → stale instance holding
+  =trait=T0= from =harnessed.js:27=; it merges its patch over the stale JSON and flushes,
+  wholesale-overwriting a concurrent client E-panel trait edit (T1). The user's
+  INTELLIGENT/MASKED config edit is silently reverted (whole JSON column). Lost write,
+  broadcasts the clobber so the panel snaps back.
+
+** standalone breaks (not in a shared root)
+
+| rank | title | trigger gate | severity |
+|------+-------+--------------+----------|
+| 3 | INTENTED boot finalizers share ONE fork under =Promise.all= → filter-param cross-talk → dup insert → whole-process BOOT CRASH | ≥2 INTENTED modes (education: clinic 14 + rep-o-gram 8) AND ≥2 users; single-user dev DB safe | total outage, boot-loop |
+| 4 | same-tab logout→login: userB renders userA's REAL threads/intents over a never-torn-down subscription | account switch in one tab; =logout()= clears identity but never drops daemons/subs, =daemon.release= assigned but called NOWHERE | cross-user leak (real content, client-side) |
+| 6 | =input.tools= nature-collision overwrites SHARED module-scope skill leaf → persistent daemon-wide tool DoS | one crafted harness body: JSON =tools:{entity_find:{…}}= can't carry a function → =execute=undefined= → =armed.open= overwrites the shared leaf's effect (PROBE-PROVEN) | tool dead daemon-wide until restart |
+| 10 | concurrent dialogue on one thread → =createdAt=-braided history splits a =tool_use/tool_result= pair → provider 400 | two overlapping streams on one thread (2 tabs / kajuit+bruno; client aborts only its OWN prior); =history()= orders by createdAt, ignores parent linkage | persistent send failure, same-user |
+| 14 | echo harness caller (aprende render) drops =ctx.user= → review collar fires ERROR → lost Retention/Trace | aprende =/assistant/message= on brazilian/spanish; echo mints ctx w/o user, =:61= bind skipped | lost write (no wrong-user rows — ORM ambient still scopes) |
+
+** LATENT — waiting on a named thing
+
+| rank | title | the gate |
+|------+-------+----------|
+| 15 | per-request auth clone written onto the SHARED daemon singleton (=ctx.daemon.connection=, =population.js:92-97=) → cross-user token BLEED | zero server-side readers today; fires when a domain tool makes an authed cross-daemon call through =ctx.daemon.connection= |
+| 16 | TOOLED =/metadata/tools= remote invocation would dispatch =mode.tools= bypassing the harness assemble → userless/threadless ctx | =metadata.js:38= commented; AGENTIC harvest is NOT an escape (harvested tools ride the source mode's binds) |
+| 19 | headerless socket PUSH path silently 401-drops a userspace write | only push producer =shape.messenger= has zero live consumers; fires when any mode wires it for a fire-and-forget WRITE |
+| 20 | debounced datasink auto-settle overwritten by reactive on the same twitch path + timer resurrects a dead RequestContext fork | ZERO datasink declarers today; doubly-gated |
+
+** gaps — surfaces NOBODY probed (beef's next "and and and")
+
+1. *client-minted turn PK* — =harnessed.js:84= passes =id: ctx.input.id= from the dialogue
+   body straight into =turn.chain= → =em.create= with a CLIENT-controlled primary key.
+   Unexamined: supplying a victim's existing turn id → cross-fork PK collision → 500 as a
+   turn-existence ORACLE; or, combined with rank 1's foreign-thread write, pre-seeding a
+   chosen PK onto a victim thread.
+2. *turn/buffer reactive push-delivery with no =user= column* — =userspace.js:34-37= (turn)
+   and =:24-27= (buffer) set the reactive scope option to ={user: ctx.user.id}=, but neither
+   entity serializes a flat =user= field (Buffer scopes via ={thread:{user}}=). The
+   =datamap.js:183= owner-STAMP branch RUNS for them (they have a scope option, unlike
+   thread) — does it inject a =user= onto the userless serialized row so match succeeds, and
+   what happens when the writing fork lacks the param (the streaming generator's
+   assistant-turn creates, or a threadless emit)? HOLD-via-stamp or silent live-update
+   delivery failure — unresolved.
+3. *concurrent same-user first-request double-submit* racing the INTENTED =/after/user/create=
+   twitch (=intented.js:15-22=) → Intent =unique[user,slug,mode]= collision, swallowed in
+   the pump's per-item try/catch. Distinct from rank 3 (that's the BOOT walk).
+4. *UserEntity serialization surface* — =/userspace/handshake= (=userspace.js:39=) returns
+   the full =ctx.user= entity, and =ctx.user= is bound into every armed tool ctx. Which
+   fields serialize (auth material / tokens / email)? Self-scoped so not cross-user, but if
+   a provider secret rides =toJSON= it reaches the browser. Needs a User-schema read.
+
+** what the sweep settles for the design
+
+- the store question (A/B/C/D) was NEVER the whole problem — *there is no ownership CHECK
+  at all on the harness path.* Whatever store wins, the harness MUST gate on the thread row
+  it already loads (=harnessed.js:27=), and Turn MUST carry the =user= filter. These are the
+  actual m25 deliverables; the store is downstream.
+- fork #3 (entity-at-bind vs id-string) is no longer cosmetic: it is root cause 5, live,
+  one assignment from fixed.
+- the collar (fork #2 scope-of-law) has TEETH now: rank 1 proves the userspace-WRITE law is
+  a security boundary, not a nicety. =review.js='s soft ERROR collar is the right shape but
+  the wrong LAYER — it guards one tool, not the harness seam every write rides.
+- HOLDS worth keeping as LOAD-BEARING defenses (documented so nobody removes them):
+  per-frame RequestContext + =inject= per-pull carry re-entry (concurrency isolation) ·
+  Thread's own user filter + null-guard on the =/emit= path · batch re-auth on the daemon
+  aperture root · thread reactive's scope-middleware + serialized FK delivery · AGENTIC
+  harvest rebinding only daemon+mode (caller user/thread survive).
 
 * the four escape hatches
 
@@ -272,6 +455,14 @@ repo.getEntityManager().getFilterParams("thread")
   ambient — a role it already plays de facto.
 
 ** preliminary lean (assessment, not decision)
+
+REFRAMED by the breakage sweep: the store choice is DOWNSTREAM of two must-fixes the sweep
+made non-optional — (1) Turn gets the =user= filter (closes the crown IDOR + the skill
+leak), (2) the harness GATES on the thread row it already loads at =harnessed.js:27=
+(bounce foreign/deleted threads) and binds the ENTITY not the string. Those are the m25
+deliverables; A/B/C/D only decide how user/thread TRAVEL, which the ORM filter + a harness
+gate already largely settle. Original lean below stands for the travel question:
+
 D for the store + a diligence collar at the two seams that drop values (echo
 harness objects, guarded tool ctx): replace the ad-hoc value-binds with ONE
 provenance shard that hydrates =ctx.user=/=ctx.thread= from the fork's params

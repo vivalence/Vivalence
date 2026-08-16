@@ -10,7 +10,7 @@ export default async (ctx) => {
   for (const literal of literals) {
     const strong = literal.retention && !literal.retention.is.virgin && literal.retention.strength >= 0.3;
     ctx.pool.add(
-      ctx.daemon.modes.game["rep-o-gram"].emit.listen.literal({
+      ctx.daemon.modes.game["dojo"].emit.listen.literal({
         literal,
         gameplay: strong ? "TYPE" : "PICK",
         recall: "LEARNING",

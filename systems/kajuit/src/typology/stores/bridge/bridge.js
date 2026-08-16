@@ -182,8 +182,9 @@ export function resize(bridge) {
   const orientation = layout.$orientation.get();
   const rotation = isDeviceRotation(layout);
   const next = viewportDimensions(bridge.$safeAreaTop.get());
+  if (next.offsetTop !== bridge.$viewportOffsetTop.get()) bridge.$viewportOffsetTop.set(next.offsetTop);
+  if (next.width === oldViewport.width && next.height === oldViewport.height) return false;
   layout.viewport = { width: next.width, height: next.height };
-  bridge.$viewportOffsetTop.set(next.offsetTop);
 
   if (rotation && oldViewport.width > 0 && oldViewport.height > 0) {
     const deltaWidth = next.width - oldViewport.width;
@@ -205,22 +206,40 @@ export function resize(bridge) {
     layout.standard = reanchor(layout.$standard.get());
   } else {
     const current = layout.$pincer.get();
-    layout.pincer = {
+    const clamped = {
       x: clamp(current.x, EDGE_PADDING, next.width - EDGE_PADDING),
       y: clamp(current.y, EDGE_PADDING, next.height - EDGE_PADDING),
     };
+    if (clamped.x !== current.x || clamped.y !== current.y) layout.pincer = clamped;
   }
+  return true;
 }
 
 export function attachViewport(bridge) {
   if (typeof window === "undefined") return () => {};
-  const onResize = () => resize(bridge);
-  window.addEventListener("resize", onResize);
-  window.visualViewport?.addEventListener("resize", onResize);
-  window.visualViewport?.addEventListener("scroll", onResize);
+  let frame = 0;
+  const anchor = () => {
+    if (window.scrollY || window.scrollX) window.scrollTo(0, 0);
+  };
+  const sync = () => {
+    if (frame) return;
+    frame = requestAnimationFrame(() => {
+      frame = 0;
+      anchor();
+      resize(bridge);
+    });
+  };
+  window.addEventListener("resize", sync);
+  window.addEventListener("scroll", anchor, { passive: true });
+  window.addEventListener("focusout", sync);
+  window.visualViewport?.addEventListener("resize", sync);
+  window.visualViewport?.addEventListener("scroll", sync);
   return () => {
-    window.removeEventListener("resize", onResize);
-    window.visualViewport?.removeEventListener("resize", onResize);
-    window.visualViewport?.removeEventListener("scroll", onResize);
+    cancelAnimationFrame(frame);
+    window.removeEventListener("resize", sync);
+    window.removeEventListener("scroll", anchor);
+    window.removeEventListener("focusout", sync);
+    window.visualViewport?.removeEventListener("resize", sync);
+    window.visualViewport?.removeEventListener("scroll", sync);
   };
 }

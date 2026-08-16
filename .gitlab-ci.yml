@@ -20,9 +20,9 @@ build-and-push:
   script:
     - export VIVA_STAMP="$CI_COMMIT_SHORT_SHA $CI_COMMIT_SHORT_SHA $CI_COMMIT_TIMESTAMP"
 
-    - docker build -f ./Dockerfile -t vivalence/viva:alpine .
+    - docker build -f ./Dockerfile -t vivalence/viva:alpine -t vivalence/viva:$CI_COMMIT_SHORT_SHA .
     - docker build -f ./systems/runtime/Dockerfile -t vivalence/runtime:alpine .
-    - docker build --build-arg VIVA_STAMP="$VIVA_STAMP" -f ./systems/kajuit/Dockerfile -t vivalence/kajuit:alpine .
+    - docker build --build-arg VIVA_BASE=vivalence/viva:$CI_COMMIT_SHORT_SHA --build-arg VIVA_STAMP="$VIVA_STAMP" -f ./systems/kajuit/Dockerfile -t vivalence/kajuit:alpine .
     - docker build -f ./documentation/Dockerfile -t vivalence/documentation:alpine .
 
     - |

@@ -32,6 +32,12 @@ export default [
         "slug": "word.part-of-speech.adposition"
       },
       {
+        "slug": "word.part-of-speech.preposition"
+      },
+      {
+        "slug": "word.compound.contraction"
+      },
+      {
         "slug": "word.part-of-speech.determiner"
       },
       {
@@ -87,6 +93,12 @@ export default [
         "slug": "word.part-of-speech.adposition"
       },
       {
+        "slug": "word.part-of-speech.preposition"
+      },
+      {
+        "slug": "word.compound.contraction"
+      },
+      {
         "slug": "word.part-of-speech.determiner"
       },
       {
@@ -139,6 +151,12 @@ export default [
         "slug": "word.part-of-speech.adposition"
       },
       {
+        "slug": "word.part-of-speech.preposition"
+      },
+      {
+        "slug": "word.compound.contraction"
+      },
+      {
         "slug": "word.part-of-speech.determiner"
       },
       {
@@ -186,6 +204,12 @@ export default [
       },
       {
         "slug": "word.part-of-speech.adposition"
+      },
+      {
+        "slug": "word.part-of-speech.preposition"
+      },
+      {
+        "slug": "word.compound.contraction"
       },
       {
         "slug": "word.part-of-speech.determiner"
@@ -237,6 +261,12 @@ export default [
         "slug": "word.part-of-speech.adposition"
       },
       {
+        "slug": "word.part-of-speech.preposition"
+      },
+      {
+        "slug": "word.compound.contraction"
+      },
+      {
         "slug": "word.part-of-speech.determiner"
       },
       {
@@ -281,6 +311,12 @@ export default [
       },
       {
         "slug": "word.part-of-speech.adposition"
+      },
+      {
+        "slug": "word.part-of-speech.preposition"
+      },
+      {
+        "slug": "word.compound.contraction"
       },
       {
         "slug": "word.part-of-speech.determiner"
@@ -338,6 +374,12 @@ export default [
         "slug": "word.part-of-speech.adposition"
       },
       {
+        "slug": "word.part-of-speech.preposition"
+      },
+      {
+        "slug": "word.compound.contraction"
+      },
+      {
         "slug": "word.part-of-speech.determiner"
       },
       {
@@ -385,6 +427,12 @@ export default [
       },
       {
         "slug": "word.part-of-speech.adposition"
+      },
+      {
+        "slug": "word.part-of-speech.preposition"
+      },
+      {
+        "slug": "word.compound.contraction"
       },
       {
         "slug": "word.part-of-speech.determiner"
@@ -439,6 +487,12 @@ export default [
         "slug": "word.part-of-speech.adposition"
       },
       {
+        "slug": "word.part-of-speech.preposition"
+      },
+      {
+        "slug": "word.compound.contraction"
+      },
+      {
         "slug": "word.part-of-speech.determiner"
       },
       {
@@ -486,6 +540,12 @@ export default [
       },
       {
         "slug": "word.part-of-speech.adposition"
+      },
+      {
+        "slug": "word.part-of-speech.preposition"
+      },
+      {
+        "slug": "word.compound.contraction"
       },
       {
         "slug": "word.part-of-speech.determiner"
@@ -537,6 +597,12 @@ export default [
         "slug": "word.part-of-speech.adposition"
       },
       {
+        "slug": "word.part-of-speech.preposition"
+      },
+      {
+        "slug": "word.compound.contraction"
+      },
+      {
         "slug": "word.part-of-speech.determiner"
       },
       {
@@ -581,6 +647,12 @@ export default [
       },
       {
         "slug": "word.part-of-speech.adposition"
+      },
+      {
+        "slug": "word.part-of-speech.preposition"
+      },
+      {
+        "slug": "word.compound.contraction"
       },
       {
         "slug": "word.part-of-speech.determiner"
@@ -632,6 +704,12 @@ export default [
         "slug": "word.part-of-speech.adposition"
       },
       {
+        "slug": "word.part-of-speech.preposition"
+      },
+      {
+        "slug": "word.compound.contraction"
+      },
+      {
         "slug": "word.part-of-speech.determiner"
       },
       {
@@ -681,6 +759,12 @@ export default [
         "slug": "word.part-of-speech.adposition"
       },
       {
+        "slug": "word.part-of-speech.preposition"
+      },
+      {
+        "slug": "word.compound.contraction"
+      },
+      {
         "slug": "word.part-of-speech.determiner"
       },
       {
@@ -725,6 +809,12 @@ export default [
       },
       {
         "slug": "word.part-of-speech.adposition"
+      },
+      {
+        "slug": "word.part-of-speech.preposition"
+      },
+      {
+        "slug": "word.compound.contraction"
       },
       {
         "slug": "word.part-of-speech.determiner"
@@ -782,6 +872,12 @@ export default [
         "slug": "word.part-of-speech.adposition"
       },
       {
+        "slug": "word.part-of-speech.preposition"
+      },
+      {
+        "slug": "word.compound.contraction"
+      },
+      {
         "slug": "word.part-of-speech.determiner"
       },
       {
@@ -828,6 +924,12 @@ export default [
         "slug": "word.part-of-speech.adposition"
       },
       {
+        "slug": "word.part-of-speech.preposition"
+      },
+      {
+        "slug": "word.compound.contraction"
+      },
+      {
         "slug": "word.part-of-speech.determiner"
       },
       {
@@ -872,6 +974,12 @@ export default [
       },
       {
         "slug": "word.part-of-speech.adposition"
+      },
+      {
+        "slug": "word.part-of-speech.preposition"
+      },
+      {
+        "slug": "word.compound.contraction"
       },
       {
         "slug": "word.part-of-speech.determiner"
@@ -926,6 +1034,12 @@ export default [
         "slug": "word.part-of-speech.adposition"
       },
       {
+        "slug": "word.part-of-speech.preposition"
+      },
+      {
+        "slug": "word.compound.contraction"
+      },
+      {
         "slug": "word.part-of-speech.determiner"
       },
       {
@@ -973,6 +1087,12 @@ export default [
       },
       {
         "slug": "word.part-of-speech.adposition"
+      },
+      {
+        "slug": "word.part-of-speech.preposition"
+      },
+      {
+        "slug": "word.compound.contraction"
       },
       {
         "slug": "word.part-of-speech.determiner"
@@ -1027,6 +1147,12 @@ export default [
         "slug": "word.part-of-speech.adposition"
       },
       {
+        "slug": "word.part-of-speech.preposition"
+      },
+      {
+        "slug": "word.compound.contraction"
+      },
+      {
         "slug": "word.part-of-speech.determiner"
       },
       {
@@ -1076,6 +1202,12 @@ export default [
         "slug": "word.part-of-speech.adposition"
       },
       {
+        "slug": "word.part-of-speech.preposition"
+      },
+      {
+        "slug": "word.compound.contraction"
+      },
+      {
         "slug": "word.part-of-speech.determiner"
       },
       {
@@ -1120,6 +1252,12 @@ export default [
       },
       {
         "slug": "word.part-of-speech.adposition"
+      },
+      {
+        "slug": "word.part-of-speech.preposition"
+      },
+      {
+        "slug": "word.compound.contraction"
       },
       {
         "slug": "word.part-of-speech.determiner"
@@ -1174,6 +1312,12 @@ export default [
         "slug": "word.part-of-speech.adposition"
       },
       {
+        "slug": "word.part-of-speech.preposition"
+      },
+      {
+        "slug": "word.compound.contraction"
+      },
+      {
         "slug": "word.part-of-speech.determiner"
       },
       {
@@ -1218,6 +1362,12 @@ export default [
       },
       {
         "slug": "word.part-of-speech.adposition"
+      },
+      {
+        "slug": "word.part-of-speech.preposition"
+      },
+      {
+        "slug": "word.compound.contraction"
       },
       {
         "slug": "word.part-of-speech.determiner"
@@ -1269,6 +1419,12 @@ export default [
         "slug": "word.part-of-speech.adposition"
       },
       {
+        "slug": "word.part-of-speech.preposition"
+      },
+      {
+        "slug": "word.compound.contraction"
+      },
+      {
         "slug": "word.part-of-speech.determiner"
       },
       {
@@ -1313,6 +1469,12 @@ export default [
       },
       {
         "slug": "word.part-of-speech.adposition"
+      },
+      {
+        "slug": "word.part-of-speech.preposition"
+      },
+      {
+        "slug": "word.compound.contraction"
       },
       {
         "slug": "word.part-of-speech.determiner"
@@ -1364,6 +1526,12 @@ export default [
         "slug": "word.part-of-speech.adposition"
       },
       {
+        "slug": "word.part-of-speech.preposition"
+      },
+      {
+        "slug": "word.compound.contraction"
+      },
+      {
         "slug": "word.part-of-speech.determiner"
       },
       {
@@ -1410,6 +1578,12 @@ export default [
         "slug": "word.part-of-speech.adposition"
       },
       {
+        "slug": "word.part-of-speech.preposition"
+      },
+      {
+        "slug": "word.compound.contraction"
+      },
+      {
         "slug": "word.part-of-speech.determiner"
       },
       {
@@ -1454,6 +1628,12 @@ export default [
       },
       {
         "slug": "word.part-of-speech.adposition"
+      },
+      {
+        "slug": "word.part-of-speech.preposition"
+      },
+      {
+        "slug": "word.compound.contraction"
       },
       {
         "slug": "word.part-of-speech.determiner"

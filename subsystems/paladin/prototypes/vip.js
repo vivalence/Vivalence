@@ -1,3 +1,4 @@
+import { isAbsolute } from "@std/path";
 import { is, cast, Path } from "@vivalence/typology";
 import { Pensieve } from "./pensieve.js";
 
@@ -83,13 +84,20 @@ export class Vip {
     throw new Error(`[VIP] Module 404: ${JSON.stringify({ lookup })}`);
   }
 
+  async accioOne(query) {
+    if (is.string(query) && isAbsolute(query)) {
+      const module = await this.paladin.read.viva(query);
+      return { ...module, mount: new Path(query) };
+    }
+    if (is.object(query) && query.manifest && !query.module) return query;
+    if (is.object(query) && is.string(query.module)) {
+      return { service: await this.accio(query.module), mask: query };
+    }
+    return await this.accio(query);
+  }
+
   async accioMany(many) {
-    return await Promise.all(many.map(async (query) => {
-      if (typeof query === "object" && query !== null && typeof query.module === "string") {
-        return { service: await this.accio(query.module), mask: query };
-      }
-      return await this.accio(query);
-    }));
+    return await Promise.all(many.map((query) => this.accioOne(query)));
   }
 
   async accioMap(many) {

@@ -1,0 +1,147 @@
+#+title: the dojo is recast into declared sets, the facet law dies twice, the repository grammar speaks for itself, and the console lands impenetrable so a designer gets a briefing
+#+filetags: :m24:dojo:sets:clauses:repository-grammar:mikro-orm:kajuit:svelte:aperture:emitter:resolver:design-brief:ui-rejected:
+
+* arc
+
+The evening's compact folds and beef reopens the dojo at once: /"i think we need to recast
+the thing in another paradigm. maybe a pipeline? not sure yet."/ — sets built from symbols
+with real logic (a tense AND some lemmas), literals picked directly from streams (rank, due,
+feed), everything else a processor over the set, the LLM and presets and recents all
+writing STATE instead of launching sessions. The study finds the repository already carries
+the logic the old console never used: =$all / $in / $none=, =search=, =traits=, five
+streams. My first proposal hides a "facet law" inside a plain symbol array (same facet = OR,
+different facets = AND); beef cannot follow it, twice — /"the array is either AND or OR. so
+either SHITTON or NONE"/, then /"iffy as fuck. dont like"/ — and it dies for good: a clause
+is ={pick, where, limit}= with =where= the repository's grammar verbatim, nothing implied. Five
+interface paradigms are weighed, beef grades them, the fold is "one room, many clauses", and
+he says /"no quest. directly into dojo. in context. let me touch this."/ The whole recast
+lands — types, a =set/= resolver every emitter and aperture rides, =/resolve /setup
+/commission=, a rewritten console, a live set stage, eight suites green, live probes on
+italian that expose a MikroORM join collapse and a paradigm/form duplication, both fixed —
+and then beef sees it: /"no. this is horrible. utterly impentirarble."/ · /"utter garbage.
+shit"/. No more proposals. A designer gets a briefing that describes the model, the goals in
+his words, the old text-driven console that was good, the new one that is not, and why.
+
+* the walk
+
+| n | beef (verbatim where it decides) | landed |
+|---|---|---|
+| 1–41 | the previous arc | covered by [[the-rep-machine-becomes-the-dojo-the-buffer-becomes-the-dojo-itself-and-nothing-plays-until-it-is-commissioned]] — rename, buffer-is-the-dojo, pools, eight presets, that fold. |
+| 42 | continuation summary (system) | NOTHING — context fold. |
+| 43 | /"i want you to take another look at the way the dojo works. i think we need to recast the thing in another paradigm. maybe a pipeline? not sure yet. so idea is that we select some set of literals. … via symbols needs more logic to it. the repository offers us more logic than subsets … f.e. present tense i am do make eat and drink. … select literals directly too. from different streams. by rank, due, feed, etc. and then all the other settings are something like processors. given set x i want to do y. … i have select literals by symbols and filter literals by symbols. two separate things. builing sets. applying processors. thats the way i build my dojo. and the text llm input really shouldnt launch me directly into a session. … it drives state. … same way with the presets and recents. maybe the split of console inspector and ... action space ? ... isnt right for this. … study the dojo. propose an approach. or a few"/ | Study: dojo tree, =Literal.ts= base + domain, =Symbol.ts=, queue/lookup tools, italian symbol families (=word.lemma= 2329, =domain= 29, =word.tense= 3 …). Repository already has =symbols: {$all,$in,$none}=, =search=, =traits=, streams =feed·due·novel·byStrength·sample=. Proposal: set = fold over clauses, play = axes record, every writer a patch on ={set, play}=, Start = commission+start, center stage shows the set; seven choices. Carried a hidden facet law on the symbol array — later killed. |
+| 44 | /i-have-adhd | output shaping only; choices recut to five letters. NOTHING durable. |
+| 45 | /"i dont understand any of the choices i am making here."/ | Each choice explained in learner terms. |
+| 46 | /"2. dont care. 1. b sounds good. a sounds good. show me more on boht. c out. 3 a. 4 a. were inside dojo today. 5 a."/ | DECIDED: names free (axes stay flat; =set= / =omit= added — no rename churn) · Start = commission+start, one gesture · query compile lives IN the dojo, not the domain repository · play schema array-ready later. Shown: 1a union of adds vs 1b ordered pipeline vs hybrid (adds + a whole-set tail). |
+| 47 | /"design still. my problem with 1a … this pick of symbols would result in either 0 literals or a shitton of literals. no literal is both lemma essere and fare. OR a lot of literals are either present tense OR lemma or lemma or lemma. so 1a doesnt WORK?? am i misunderstanding?? 1b is kinda cool but hard to use. … but that dont allow my to build WEIRD sets like xyz verbs in tense + some nouns for distraction and some applicative sentneces. neither are good."/ | I re-explained the facet law and showed the weird set as three adds. Wrong move: defended a hidden rule instead of hearing that it was hidden. |
+| 48 | /"i dont understand the logic then. … the array is either AND or OR. so either SHITTON or NONE. the symbols / literals repo has rich search semantics. study them."/ | Studied =resolveSymbols= / =resolveTraits= / =search= properly. Facet law DROPPED. Clause = ={pick, where, limit}=; =where= = repository language verbatim (=symbols: [..]= AND · ={$all,$in,$none}= · =search= · =ontology= · =traits= · =rank=). His example: =$all: [present], $in: [essere, fare]= → 2 paradigms → 12 forms. |
+| 49–50 | /"Facet law: same facet = OR, different facets = AND, different clauses = UNION. this is iffy as fuck."/ · /"dont like"/ (mid-turn) | Confirmed dead. Design pinned: clause · set = union minus omit · play = axes · Start = commission+start with live preview. |
+| 51 | /"siths right. but challanging interface paradigm. any ideas?"/ | Five: tri-state chips · sentence slots · query line · browse table (filters = the where, rows = the preview) · card stack. Recommended 4+5. |
+| 52 | /"1 sounds like a nice interaction but its not enough to build the whole thing. 4 is great but i guess will suffer from a low ceiling, but the live display aspect is golden. 5 is very cool for building sets aka high ceiling but each room will be weird. 3 and 2 are grammars that i dont want to force on my users. the llm shortcut/interaction must work on all of them."/ | Fold: ONE persistent builder room (4 with 1's chips), "add as clause" freezes it into a collapsed clause list (5 without weird rooms), stage = live union grouped by clause; LLM works everywhere because every surface is a view of ={set, axes}=. |
+| 53 | /"no quest. directly into dojo. in context. let me touch this."/ | GO. Landed — server: =types.js= (=PICKS= all·due·feed·novel·weakest·literals·authored, =query=, =clause=, =set=, =omit=, =CAP= 200, =STREAM_LIMIT= 10); =set/{where,picks,resolve,describe,index}.js= — ONE resolver: fold over clauses, each blacklisting what earlier ones took, paradigms → forms via =conjugate=, AUDIO filter, per-clause count; =emitter/buffer.js= resolves the clause set (feed/symbols/literals/knowables/conjugations/generate all compile to clauses; =conjugate.rows= gone); aperture =/resolve= (preview, no write) · =/setup {buffer, set?, omit?, ...AXES}= (symbols = projection of the set) · =/commission {buffer}= · =/symbols= (+LABELED name) · =/provision {text, state}= → ={reply, set?, omit?, axes?}= with unknown slugs dropped and named · =/judge=; =/draw= and =/count= gone; =hal/provision= new contract; =dojo.viva.js= schema =set= + =omit=, =count= dropped. Client: =Dojo.svelte= (set/omit/dirty/preview/groups, pick/drop/omit, begin = commission if dirty then play, redraw, =again=), =Console.svelte= (builder: pick tabs · tri-state chips · ontology · traits · search · limit · live rows with =+= · add/update clause; clause list ✎×; play rows; presets; recents; chat), new =parts/Set.svelte= stage, =Inspector= copy, =knowables.refetch= via =/resolve= + blacklist. Tests: aperture rewritten (grammar =$all/$in/$none/search/ontology=, union order, setup/commission, provision validation), emitter +2, machine +3 → 8 suites / 35 steps. Live on italian (watch daemon rebundled): =$all+$in= → 0 and =$all+$none= → =no such column: s2.id= — MikroORM collapses several conditions on one m:n into ONE join → compile every symbol condition to its own =$and= branch, bypass =resolveSymbols=; form-literals carry the same tense/lemma symbols as their paradigm → drawn twice → forms win, spoken duplicates drop, ids taken. Browser drive: chips cycle, typeahead over 2381 lemmas, nested-scroll trap → groups collapsed + one global symbol search, zero-count symbols hidden, "Domain > Food" → "Food". |
+| 54 | /"no. this is horrible. utterly impentirarble."/ (mid-turn, watching it live) | Stopped. Diagnosis offered: controls before content, jargon first, fifteen concepts one column, no visible literal. A content-first recut sketched. |
+| 55 | /"utter garbage. shit"/ (mid-turn) | No more proposals. Two doors: revert while he describes, or he describes and I build exactly that. |
+| 56 | /"ill have a designer do a pass. write a briefing. in markdown. describe the issue and goals and dojo in detail."/ | =documentation/design-brief-dojo.md= — mission · what the dojo is · his words verbatim · the fixed model (clause, set, resolution, axes, phases) · corpus facts · where it lives (kajuit panel, narrow, tokens) · the console · not negotiable · open · acceptance · files. Same shape as =design-brief-docs.md=. |
+| 57 | /"describe both how the console used to work and how it works now. it was text driven selection which was good"/ (mid-turn) | §6.1 the scope console (one text field narrows the slug list, chips, live count, count + axes, commission; what it could not do; what was good) · §6.2 as-built · §6.3 why impenetrable, seventh point: the text-driven gesture got buried. "Text-driven selection stays the primary gesture" moved into the non-negotiables. |
+| 58 | /"ikiro compact"/ | this fold. |
+| 59 | /compact | NOTHING |
+
+Coverage 59/59 (1–41 by reference). Balance: design 43–52, build 53, verdict + briefing
+54–57 — the last third carries the verdict because that is when he saw it, the middle
+carries the code, the first third the model.
+
+* what the repository already had
+
+The old console had one selection idea, a symbol SCOPE, AND every symbol, drawn by a count
+from the feed. The base =LiteralRepository= (=systems/runtime/daemon/entities/kernel/Literal.ts=)
+already speaks more: =symbols: [..]= (AND) or ={$all, $in, $none}=; =search= over slug and
+both translations; =DataRepository.resolveTraits= (=traits: string | [] | {$contains,$overlap,$none}=);
+the domain repository adds =feed · due · novel · byStrength · byLastSignal · sample= and
+=constrain=. The armed =entity_find= tool already exposes this grammar to agents through
+=card= + =extensions=. Nothing new had to be invented; the dojo had to stop ignoring it.
+
+* the facet law dies twice
+
+Row 43 proposed that a flat symbol array on a clause means "same facet OR, different facets
+AND" — =[tense.present, lemma.essere, lemma.fare]= → present AND (essere OR fare). Neat, and
+invisible: beef read the array as an array — /"either SHITTON or NONE"/ — and when the rule
+was explained back to him with his own example he named it: /"iffy as fuck"/. The lesson is
+not about facets. A grammar that already exists must be used as written; layering a hidden
+rule on top of it makes the visible thing lie. Landed as the design's first law: /nothing
+implicit — what is written is what is asked/. The clause carries =where= in the repository's
+own words and the UI, whatever it becomes, edits THAT.
+
+* declared set, materialized set
+
+The model that landed and holds regardless of the UI verdict:
+
+- =buffer.data.set= = clauses ={pick, where?, limit?, literals?, knowables?}=; =data.omit= = ids
+  removed by hand; axes stay FLAT on =data= (beef: names /"dont care"/ — no rename churn);
+  =buffer.literals= + =data.knowables= = the materialization; =buffer.symbols= = projection of
+  every symbol the set mentions (discoverability, not truth). =data.count= is gone — the cap
+  is per clause.
+- =set/resolve.js= is the ONE fold: clauses in order, each blacklisting omit + played + what
+  earlier clauses took; =all= runs =find= under the ontology guard with a SQL count beside it;
+  streams call the domain methods; =literals= = =findByIdentifiers=; =authored= = pairs through
+  =fold.authored=; conjugation paradigms expand to forms; under AUDIO overfetch ×3 then keep
+  the audible. Emitters, =/resolve=, =/commission=, continuous refill all ride it — the "continuous
+  still uses in-memory =/draw=" tail from the previous fold is closed by construction.
+- =set/where.js compile()= turns =symbols= into its own =$and= branches. Reason found live, not
+  in tests: MikroORM folds several conditions on the same m:n into one join, so
+  =$all + $in= yields 0 and =$all + $none= yields =no such column: s2.id=. Bypassing
+  =resolveSymbols= entirely (never set a top-level =symbols= key) makes every combination
+  work; the scenario suite passed both ways, the italian daemon did not.
+- Form-literals in the corpus carry the same tense/lemma symbols as their paradigm row, so a
+  symbol query returns the form twice — as a word literal and as an expanded form. Forms
+  win (they carry the grammatical context the rep shows), spoken duplicates drop, their ids
+  are marked taken.
+- Apertures: =/resolve {set, omit?, prompt?, blacklist?}= → ={clauses: [{count, literals, knowables}], total}=
+  · =/setup {buffer, set?, omit?, ...AXES}= · =/commission {buffer}= · =/symbols= (slug · literals · name)
+  · =/provision {text, state}= → the COMPLETE set after the request plus axis patch, unknown
+  slugs dropped and reported in the reply · =/judge= unchanged.
+- Client law: Start = materialize + play in one gesture; the stage shows the live preview
+  while =dirty=, the materialized carriers when not; a buffer that arrived filled shows "aboard"
+  and starts without redraw; =↻ redraw= re-materializes stream clauses.
+- Suites 8 / 35 steps green (=tests/{aperture,emitter,machine,tools}.test.js=); aperture snapshot
+  regenerated from the live italian daemon (=/resolve /setup /commission /symbols /provision /judge=).
+
+* the console that landed impenetrable
+
+Rows 53–57. What shipped: pick tabs · a three-glyph legend · a symbol search with cross-group
+typeahead · fifteen collapsed symbol groups · ontology · traits · free text · limit · "this
+clause yields" rows with =+= · add as clause · a clause list with ✎× · nine axis rows ·
+recents · presets · chat — one column, one weight, in a ~1100×370 panel; the stage to the
+right showing the union grouped by clause with a Start button. Every piece works. Beef,
+watching it live: /"no. this is horrible. utterly impentirarble."/ then /"utter garbage.
+shit"/. Why, as written into the briefing: controls before content (not one Italian word on
+the first screen), jargon as navigation, too many concepts stacked at equal weight, two
+result surfaces, a small panel, no obvious first or last step, and — his own addition — the
+text-driven gesture the old console had (/"it was text driven selection which was good"/)
+buried among fifteen controls. A content-first recut offered under the first verdict was
+refused before the second. The designer starts clean from
+=documentation/design-brief-dojo.md=; the port back is ours.
+
+* state at fold
+
+- Code: recast LIVE on the italian watch daemon (rebundled on save); every mode test green;
+  smoke/scenario paths untouched elsewhere (=survival= etc. still call =game["dojo"].emit.*=,
+  now compiled to clauses). Not committed — VCS is beef's.
+- =documentation/design-brief-dojo.md= written; designer pass pending; the as-built console
+  stays until the mock returns (offered: revert to the scope console meanwhile — no answer).
+- Ikiro: this compact; index regenerated; registry codemap dojo bullet rewritten to the
+  recast; frontier m24 line updated; memory =project_dojo_mode= rewritten; new feedback
+  memory on hidden rules + content-before-controls.
+- Open (carried): the designer's mock → port · the previous fold's in-flight-session-across-
+  terminal-jumps fork (module-scope cache by buffer id) still open · =/symbols= ships all
+  ~2600 symbols in one payload (fine on desktop, unmeasured on phone) · =weakest= counts
+  paradigms while the rows show forms (limit 5 → 30 rows; legible in the stage, surprising
+  in the clause count).
+
+* resumption
+
+1. Wait for the designer's mock; port it over the same ={set, omit, axes}= state and the same
+   apertures — nothing under the console changes.
+2. If beef asks: revert =Console.svelte= to the scope console (text field · slug list · chips
+   · live count) on top of the new model, i.e. a one-clause =all= builder, until the mock lands.
+3. Live-validate the play half against a materialized set (streak, continuous refill via
+   =/resolve= + blacklist, AUDIO) — beef drives.
+4. Terminal-jump session survival (previous fold's fork) when the building surface is settled.

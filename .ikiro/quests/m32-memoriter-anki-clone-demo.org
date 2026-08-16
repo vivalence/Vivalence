@@ -1,0 +1,141 @@
+#+title: m32 — memoriter: Anki as one out-of-tree vivalence package
+#+filetags: :m32:packages:srs:sm2:retention:domain:dataset:mode:demo:
+#+status: STAGED + CRITICAL PASS DONE (beef: /"move these into quest m32"/ · /"do a critical pass against that quest. improve it. fix anything in need of fixing"/). Package corrected against the live system, 16 tests green, all three module entrypoints load. NOT booted on a daemon yet. Nothing in the repo proper touched; no design pass; no goal stated.
+
+* provenance
+
+beef dropped two artifacts in =~/Downloads=: =anki/= (the package tree, already post-rename)
+and =memoriter.patch= (the anki → memoriter rename diff, with a by-hand variant-wiring note in
+its tail). Both moved here:
+
+- =.ikiro/quests/m32-memoriter/memoriter/= — the package (49 files after the pass, 344K, 200K
+  placeholder freight). Folder renamed =anki/= → =memoriter/= to match =manifest.slug=.
+- =.ikiro/quests/m32-memoriter/memoriter.patch= — the rename patch, historical record only.
+  Its wiring tail is SUPERSEDED by =* wiring= below (it names =localhost.viva.js= and a hand
+  edit of =registry.json=; neither is how the system works).
+
+Sits on m31: =deno task ghost/run /ledger/tap <path>= registers an out-of-tree package. This
+would be the first package that carries its OWN domain outside =registry/= — young-ladys-primer
+reuses education's.
+
+* what the package is
+
+memoriter — Latin, "from memory, by heart". Anki rebuilt as the smallest complete vertical:
+domain + dataset + mode + daemon, self-contained, one imported registry module
+(=@viva/hallucinator/anthropic= for the Magister persona). Full anatomy in the package README.
+
+#+begin_src text
+package.viva.js          owner @memoriter · type "package" · slug memoriter
+domain/                  @memoriter/domain/srs — Literal(card) Symbol Retention Trace Buffer
+  retention/sm2.js       SM-2 as a retention DRIVER: encode · evolve · assess · sql.strength · preview
+  aperture/              /pick/* · /review/literal · /preview/literal · resolve() wires /userspace/entities/{trace,retention}
+  types.js               STATUS · SIGNAL (AGAIN HARD GOOD EASY — the package's own signal scale)
+dataset/                 @memoriter/topography/latin-core — DATASET + FRAUGHT, rows inline via dataset = { entities }
+mode/                    @memoriter/srs/memoriter — APPLICATION STANDALONE EMITTER EXPOSED HARNESSED CONVERSATIONAL TOOLED
+  tools/                 /review /grade /progress /add
+  progress.js            the learner report both /stats and /progress speak
+tests/                   sm2.test.js (10) · dataset.test.js (6)
+#+end_src
+
+* the critical pass — what was wrong, what changed
+
+The tree was a copy of the education domain frozen TWO renames back and written against a
+hallucination API that never existed. Every item below verified against live code, not memory.
+
+** broken against the live system (would not boot)
+- =@vivalence/typology/entities= → =@vivalence/runtime= in all five entity files. The
+  typology export does not exist (=subsystems/typology/deno.jsonc= exports); entities
+  emigrated to runtime (=systems/runtime/mod.js= re-exports =daemon/entities/index.ts=).
+- =mode/harness.js= called =ctx.hallucination.configure({tune}).context.system(…)= and
+  =ctx.hallucination.tools.slurp(ctx.mode.tools)=. Neither exists — =ctx.hallucination= is a
+  plain record ={policy, system, turns, tools, output}= assembled by HARNESSED
+  (=systems/runtime/daemon/traits/harnessed.js=), and HARNESSED already arms =mode.tools= at
+  layer ④, so the slurp would have double-armed. Now: =policy.tune ??= "fast"= ·
+  =system.magister = …= · =system.language = …= (francesca / aprende / primer idiom).
+  Stray =.root= dropped.
+
+** ontology (contested term)
+- =Memory= → =Retention= everywhere: entity, enums, =domain/memory/= → =domain/retention/=,
+  relation =memories= → =retentions=, getter =literal.retention=, aperture
+  =/userspace/entities/retention=, SQL =FROM Retention=, driver param. Education went
+  memory → engram → retention (compact: /the retention rename lands clean…/); "memory" is now
+  m27's word (mind: memory + note). Tool =/memory= → =/progress= — the family name for the
+  learner report (=registry/education/domain/tools/progress.js=).
+
+** family alignment
+- symbols: roots =word= / =sentence= gain TOPOGRAPHICAL (a literal's =ontology= DERIVES from
+  its one TOPOGRAPHICAL symbol — =systems/runtime/daemon/entities/kernel/Literal.ts
+  ontology()=); the explicit =ontology:= field on rows dropped; grammatical facets
+  (=word.part-of-speech.*=, =word.gender.*=, =word.lemma.*=) are ONTOLOGICAL, groupings
+  (=topic.*=, =level.*=) STRUCTURAL — as =registry/education/topologies/word= and the italian
+  topography do. =word.pos.*= → =word.part-of-speech.*= (UD vocabulary).
+- =/add= attaches the root symbol instead of setting =ontology= by hand; slug via
+  =string.fold= (typology belt) with hyphens normalised to spaces first (=gratias-ago= must
+  land on the same lemma as =gratias ago=).
+- emitter: =ctx.pool.add(ctx.mode.app.buffer(…))= (the idiom; the return path also works
+  per =traits/emitter.js:48=). Stamps =data.status[slug]= because the client hydrates
+  =buffer.literals= with =populate: ["literals","symbols"]= only
+  (=systems/kajuit/src/app/focus.js:13=) — =literal.retention= never reaches the tablet.
+- =LiteralRepository.card= added — the m29 agent projection the entity skill reads
+  (=systems/runtime/daemon/skills/entity.js cardOf=).
+- =domain/types.js= + =mode/types.js= carry STATUS/SIGNAL (aprende duplicates mode-locally,
+  same here). Fabricated =export const traits = {} / kinds = {}= dropped from
+  =domain.viva.js= — no live domain exports them.
+- =/stats= and =/progress= shared one =progress()= (counts via =repo.count= per status, no
+  row loads — =aprende/aperture/statistics.js= shape).
+
+** latent bugs
+- =sm2.evolve=: =retention.state ?? fresh()= treated the entity default ={}= as a state →
+  NaN steps. Now =state?.phase ? state : fresh()=. HARD-in-learning no-op de-noised.
+- tablet: =buffer.release()= on session end (was a dead-end summary).
+
+** leftovers of the Italian original
+- =package.viva.js= "Italian dataset" → Latin · =/add= valences "Italian expression / the
+  Italian side" → Latin · =topic.food= example → =topic.religio= · builder params =it/exIt=
+  → =la/exLa= · dataset description "200 words" → 219 (counted).
+- root symbol label "Verbum" collided with pos verb "Verbum" → "Vocabulum".
+
+** verified, not changed
+- SM-2 constants match Anki defaults; driver contract identical to =retention/counter.js= /
+  =bayesian.js= (=type · encode(signal) · evolve(signal, retention) · assess · sql.strength=).
+- =Aperture.open(path, (input, ctx))= domain style · =Vector.open({nature,input,…}, ctx)=
+  mode style · =App(entry, v.buffer({data, literals}))= (riddler) · =v.rel(v.literal())= ·
+  =v.record= · =Freight("freight")= root serving =audio/= + =images/= (MIME has wav+png) ·
+  =terminal.daemon.connection.call= / =getAsset= / =buffer.release= client idioms ·
+  =ctx.mode.harness.object.render= (aprende message.js) · all seven mode traits live in
+  =ModeTraitsEnum= (=Mode.ts:13-21=) · =dataset = { entities }= lifts through
+  =new Dataset()= (=prototypes/dataset.js=) · dataset rows hand-authored per row (build.js
+  = row builders, same as italian's) · DEPICTED is a package-local trait mirroring
+  VOCALIZED ={asset:{path}}= — no such trait elsewhere, kept.
+
+** verification run
+#+begin_src text
+deno test -A --no-check .ikiro/quests/m32-memoriter/memoriter/tests/   → ok | 16 passed | 0 failed
+smoke import of domain.viva.js · latin.viva.js · memoriter.viva.js · package.viva.js → all resolve;
+  entities: literal,symbol,buffer,retention,trace · mode exports aperture,app,emitter,harness,manifest,tools
+#+end_src
+
+* wiring (not done — outside the package)
+
+#+begin_src text
+deno task ghost/run /ledger/tap /Users/finn/vivalence/code/vivalence/.ikiro/quests/m32-memoriter/memoriter
+testament/variant/memoriter.js     daemon record — full example in the package README
+                                   (statics.language english→latin · kernel three modules ·
+                                    lighthouse + datamap + anthropic hallucinator; lighthouse is
+                                    REQUIRED by the Daemon schema, primitives/variant.js)
+testament/variant/test.viva.js     daemons: [italian, playground, memoriter]
+#+end_src
+
+Node resolution constraint (README) is moot while the folder sits inside the repo tree — the
+svelte bundler's upward walk finds the repo's =node_modules=.
+
+* residue / open
+
+- NOT booted: mikro-orm metadata assembly of the five entity schemas against a real daemon,
+  DATASET install of 269 literals / 242 symbols, FRAUGHT catalog, the tablet, a Magister turn.
+  Gate 2 (live-validation) owed before anything is claimed working.
+- =mode/aperture.js /chat= duplicates aprende's =/assistant/message= — kept as the package's
+  own surface; if a shared tutor-turn primitive lands, ride it.
+- =topic.*= / =level.*= chosen over the education register =domain.*= / =proficiency.*= —
+  package-internal vocabulary, deliberate ("domain" is overloaded).
+- no goal / DONE-means yet — beef to state; nothing here is go'd for the repo proper.

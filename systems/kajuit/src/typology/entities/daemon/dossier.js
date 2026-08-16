@@ -95,6 +95,7 @@ export const DaemonDossier = {
         ]);
         daemon.entities.intent.subscribe();
         daemon.entities.thread.subscribe();
+        daemon.entities.turn.subscribe();
 
         daemon.cortex = new Cortex().register(
           shape.cortex.wire(daemon.connection.branch("/cortex"), cortex),

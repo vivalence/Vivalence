@@ -13,6 +13,7 @@ export const clients = {
     slug: "kajuit",
     // module: "@vivalence/kajuit",
     statics: {
+      // app/manifest:{},
       serve: () => new Url(paladin.env.get("VIVA_CLIENT_KAJUIT_SERVE")),
       lighthouse: {
         remote: () => new Url(paladin.env.get("PUBLIC_VIVA_LIGHTHOUSE_REMOTE")),
@@ -57,7 +58,12 @@ export const daemons = [
   {
     manifest: { type: "daemon", slug: "italian", version: "0.0.1" },
     docs: { name: "", valence: "", icon: { emoji: "" } },
-    statics: { language: { known: "english", learning: "italian" } },
+    statics: {
+      language: {
+        known: { slug: "english", name: "English" },
+        learning: { slug: "italian", name: "Italiano" },
+      },
+    },
     kernel: [
       "@education/domain/language-learning",
       "@education/topology/word",
@@ -67,7 +73,7 @@ export const daemons = [
 
       "@education/teacher/francesca",
       "@education/dashboard/dataspace",
-      "@education/game/rep-o-gram",
+      "@education/game/dojo",
 
       // "@education/homepage/aprende",
       // "@education/tactic/impara",
@@ -82,7 +88,6 @@ export const daemons = [
       // "@education/game/match",
       // "@education/game/pick",
       // "@education/game/shadow",
-      // "@education/game/paradigm",
       // "@education/game/conjugation",
     ],
     lighthouse: {
@@ -120,7 +125,12 @@ export const daemons = [
   // {
   //   manifest: { type: "daemon", slug: "spanish", version: "0.0.1" },
   //   docs: { name: "", valence: "", icon: { emoji: "" } },
-  //   statics: { language: { known: "english", learning: "spanish" } },
+  //   statics: {
+  //     language: {
+  //       known: { slug: "english", name: "English" },
+  //       learning: { slug: "spanish", name: "Español" },
+  //     },
+  //   },
   //   kernel: [
   //     "@education/domain/language-learning",
   //     "@education/topology/word",
@@ -142,7 +152,6 @@ export const daemons = [
   //     "@education/game/conjugation",
   //     "@education/game/judge",
   //     "@education/game/listen",
-  //     "@education/game/paradigm",
   //     "@education/game/match",
   //     "@education/game/pick",
   //     "@education/game/cloze",
@@ -195,7 +204,10 @@ export const daemons = [
   //   // docs: {name: "", valence: "", icon: { emoji: "" },},
 
   //   statics: {
-  //     language: { known: "english", learning: "brazilian" },
+  //     language: {
+  //       known: { slug: "english", name: "English" },
+  //       learning: { slug: "brazilian", name: "Português" },
+  //     },
   //   },
 
   //   kernel: [
@@ -210,7 +222,6 @@ export const daemons = [
   //     "@education/game/judge",
   //     "@education/game/match",
   //     "@education/game/conjugation",
-  //     "@education/game/paradigm",
   //     "@education/game/pick",
   //     "@education/game/cloze",
   //     "@education/game/listen",

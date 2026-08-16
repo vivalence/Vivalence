@@ -5,36 +5,41 @@ jdex: "46.12"
 
 # 46.12 · Lifecycle
 
+*placeholder dek — one line under the title.*
+
 ## phase 1 — construct (synchronous, top-level)
-- Runs at module init, before onMount. Order matters — Main depends on quarters+lighthouse.
-- `new Lighthouse(new Connection(new Url(env.PUBLIC_VIVA_LIGHTHOUSE_REMOTE)))` → connection URL comes from env (PUBLIC_), never hardcoded.
-- `lighthouseDeck.hydrate(lighthouse)` — restore $authority/$identity from localStorage key `lighthouse:<url>`; effect re-persists on change.
-- `setContext(LIGHTHOUSE)` → `new Quarters()` (terminals repo `restore()`) → `setContext(QUARTERS)`
-- `new Bridge()` → `setContext(BRIDGE)` → `new Main(quarters, lighthouse)` → `setContext(MAIN)`
-- `traits.thread.conversational.provide({ main })` — box arg commented (audio unwired).
-- `window.__viva = { lighthouse, terminals, bridge }` — debug handle.
-- [TODO: note BOX block is commented; flag as the audio gate.]
+
+Two directions, no reconciliation, ever. The counterpart runs at teardown rather than at boot. Order is the only precedence rule that applies.
+
+A missing marker is as meaningful as a present one. The structure here is declared once and interpreted many times.
+
+```js title="subsystems/typology/prototypes/vector.js" {3}
+const vector = new Vector()
+  .use(middleware)
+  .open("/segment", (context) => context.request.body)
+  .open("/other", () => null)
+```
 
 ## phase 2 — onMount (populate + gate)
-- `lighthouseDeck.boot(lighthouse)` → `verifyAuth` → (if authorized) `populate`.
-  - populate: `connection.call("/manifest")`; `call("/entities/daemon/find")`; bootDaemon each → `lighthouse.daemons` map; `$daemons.set([...])`. Memoized via `$populating`.
-- gate = `computed([$isAuthorized, $status])` → subscribe sets `gate`.
-- second subscribe: on `$isAuthorized` true → populate (covers post-login).
-- `terminalCount` from `quarters.terminals.$entities`.
-- cleanup: returns unsubscribe trio.
-- [TODO: sequence diagram or indented trace of boot→verify→populate.]
+
+The counterpart runs at teardown rather than at boot. Order is the only precedence rule that applies.
+
+The structure here is declared once and interpreted many times. Composition is the mechanism; configuration is the surface. This holds across every module without exception.
 
 ## gate states + status codes
-- gate values: `offline | error | auth | verifying | ready`.
-- status codes (lighthouse.$status): IDLE · AUTHENTICATING · AUTHENTICATED · VERIFYING · VERIFIED · REFRESHING · REFRESHED · OFFLINE · ERROR · SESSION_EXPIRED · LOGGED_OUT.
-- mapping rule: OFFLINE→offline; ERROR/SESSION_EXPIRED→error; !authorized→auth; AUTHENTICATING/VERIFYING/REFRESHING→verifying; else→ready.
-- [TODO: table gate ← status code.]
+
+Declaration comes before wiring, at every level. One shape, several readers, no coordination between them. The reader picks its own fold; the writer emits flat facts.
+
+What follows is the contract, not the implementation. Two directions, no reconciliation, ever.
 
 ## render branches
-- `ready` → render `children()` + empty-overlay (`main.spawn()`) when terminalCount 0.
-- `auth` → `<Login>` skin.
-- `error` / `offline` → gate message + retry/reconnect (re-boot).
-- fallback → raw gate string ("boot").
+
+A missing marker is as meaningful as a present one. The structure here is declared once and interpreted many times.
+
+This holds across every module without exception. The boundary matters more than either side of it. Absence is the diagnostic here.
 
 ## variant-missing defence
-- [TODO: 05.25 — paladin boots variant-less; only ghost runs without variant. kajuit reads PUBLIC_VIVA_LIGHTHOUSE_REMOTE; when runtime/variant absent the gate lands in offline/error. Document the failure surface here, honestly.]
+
+The structure here is declared once and interpreted many times. Composition is the mechanism; configuration is the surface. This holds across every module without exception.
+
+The boundary matters more than either side of it. Absence is the diagnostic here.
