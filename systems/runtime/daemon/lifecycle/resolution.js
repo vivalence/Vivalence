@@ -1,4 +1,4 @@
-import { shard } from "@vivalence/typology";
+import { shape, shard, steer } from "@vivalence/typology";
 import { stagger } from "../traits/index.js";
 
 export async function domain(daemonDie) {
@@ -6,8 +6,11 @@ export async function domain(daemonDie) {
     .use(shard.secure.authorize())
     .use(daemonDie.datamap.shard.bind("user", (ctx) => ({ user: ctx.user.id })));
 
-  if (daemonDie.good.domain.aperture)
+  if (daemonDie.good.domain.aperture) {
+    daemonDie.good.domain.aperture.use(shard.context.bind("daemon", daemonDie.good));
     daemonDie.good.aperture.slurp(daemonDie.good.domain.aperture);
+    daemonDie.good.call = shape.proxy(daemonDie.good.domain.aperture, steer.strategy.direct);
+  }
 
   // domain wires its own userspace entities (trace/retention, …); slim daemon has no domain → no-op
   await daemonDie.good.domain.resolve?.(daemonDie);

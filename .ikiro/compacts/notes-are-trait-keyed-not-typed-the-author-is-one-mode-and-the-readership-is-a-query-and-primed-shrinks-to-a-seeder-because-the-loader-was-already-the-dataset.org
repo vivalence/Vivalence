@@ -1,0 +1,154 @@
+#+title: notes are trait-keyed not typed, the author is one mode and the readership is a query, and primed shrinks to a seeder because the loader was already the dataset
+#+filetags: :m27:m28:note:memory:primed:dataset:traits:precedent:dojo:presets:design:reader:
+
+* arc
+
+A short design evening, no code. beef wakes ikiro onto the m27 quest and brings a second
+pass on NOTES: per-user memory vs general notes, and the use cases a note must serve —
+configuration (dojo presets, loaded deterministically, so slugs, so per mode), a
+mode-managed skill-like record of what the mode learned beyond one user, a mode's own
+advertisement to other modes, learner-type guidance. He asks the three questions that
+decide the schema: /"are they trait keyed? do they have a type?? is there any precedent
+… can we steal or must we invent??"/ The answer is STEAL — the house already carries the
+shape twice (Intent minus =user=; =traits[]= + =trait{}=), and two externals name the two
+missing facets (MCP resources for advertisement, Letta blocks for shared-not-co-owned).
+Nine example rows are walked, drained into the quest, and then beef turns the same knife
+on m28: /"if we have notes, do we actually need the primed trait?"/ Both sides argued;
+then his own refinement — primed paired with a file-loading prototype — is grounded and
+found to already exist as =Dataset.reader= + =pull()=, missing only an =md= codec. PRIMED
+survives as a seeder + a claim, not as a loader. Nothing go'd for code; the forks are his.
+
+* the walk
+
+| n | beef (verbatim where it decides) | landed |
+|---|---|---|
+| 1 | /"read up on memory and notes"/ | boot walk: kernel · frontier · no orb marked (last private log predates the session by weeks) · memory index · two latest compacts · loop-backlog · m27 quest · disk grounding: entities live at =systems/runtime/daemon/entities/userspace/= (quest said typology — stale), =todo/Note.js= exists at 0 bytes, memoriter Memory→Retention name collision, =harnessed.js:64= =ctx.hallucination.system= is a keyed record (M27.2 write site), no =systems/runtime/daemon/tools/= dir. |
+| 2 | /"ikiro wake"/ (mid-turn) | folded into row 1's boot; report delivered. |
+| 3 | /"memory are per user. notes are general. notes should serve a few use cases. notes should f.e. carry configuration. … these presets are one case for notes. in that case the notes must be loaded deterministically. so notes need slugs. and in this case they are per mode. but they might also serve as ways to facilitate jobs like a skill.md does rn only that its managed by the mode itself. … or a note is how the mode docuemnts adn advertises its own use to other modes. … i suspect a note should always be attached to a mode but readable by many. if there is daemon wide note that might live on the domain. … maybe hte relationnnship between modes and notes is one to many. ??? … are they trait keyed? do they have a type?? is there any precedent for anything liek this note type already? can we steal or must we invent??"/ | precedent inventory (in-repo + external) · verdict STEAL · entity sketch: trait-keyed CONFIG/ADVISORY/ADVERTISED/PEDAGOGIC, =mode?= author m:1 (null = daemon-wide), =(mode, slug)= unique, gist/body/data, =audience= selector · admission by trait query · boundary vs m28 = writer + time · four forks. |
+| 4 | /"now. run me thorugh a few example notes. wide range"/ | nine rows on the italian daemon (dataspace per daemon → language never a field): seeded vs runtime-written · code-read vs prompt-read · own vs foreign vs daemon-wide · data vs prose · addressed by mode / by trait / all · one MEMORY row for contrast. Dot-namespaced slugs emerged on their own (=preset.meet= · =themes.missing= · =tuning.clues= · =handoff.dojo=) — the symbol-slug convention. |
+| 5 | /"great. drain this into the quest"/ | =quests/m27-memory-and-notes.org= 5.5K → 16.4K: =* note — the design= (beef verbatim · precedent · entity · admission · rows · forks) · entities path corrected · Retention collision flagged · M27.1 shape + write site + missing tools dir · open extended. Frontier m27 line re-stamped, 7947/8000. |
+| 6 | /"if we have notes, do we actually need the primed trait? … between the ability to just read md into system prompt and to write notes into DB and presumable force their loading into context, where does the primded solve anything? … its an industry standard, sure. … think about this. both sides pro con."/ | =harnessed.js:50= =if (mode.tools) armed.slurp(mode.tools)= — no trait check, the export is the mechanism. Each PRIMED promise mapped to what covers it (notes index · elevation by slug · ADVISORY · static import · DATASET seeding). Pro: files versioned/reviewable/shipped, agentskills interop, cross-daemon refs, clean writer split. Con: third channel for one job, three-sides law for "read files", disclosure pays at N≫3 not N≈1, the standard's value lives in the FILE FORMAT. Two shapes: A skills = seed source for notes · B sibling export. Lean A. |
+| 7 | /"hmm primed might make sense if paired with some prototype implement heuristics for file loading. aka export cosnt prime = walkFileTree(./dir).loadMarkdownToSystem()"/ | grounded: =subsystems/typology/prototypes/dataset.js= =reader= (=dir=/=json=/=js=/=rows=/=lift=) IS that grammar; =traits/dataset.js:14= =pull()= walks or reads; INTENTED consumes =dataset.intent= via =ensure=; TOOLED is one line; NO =md= codec (=CODECS= = json/jsonc/js/ts/mjs; =paladin.read= has no frontmatter reader); DATASET is install-once — wrong for 3 files beef edits daily. Verdict: PRIMED = seeder-every-boot + claim; loader = existing grammar + one =md→note= codec; =dataset.note: "skills"=; =loadMarkdownToSystem= fuses load with admission, which m27 splits on purpose. |
+| 8 | /"ikiro compact"/ | this fold; m28 quest annotated with the reframe (proposal, awaiting beef); index regenerated. |
+
+Coverage 8/8. Balance: rows 3–4 carry the note design, 6–7 the primed argument — the two
+halves of the evening each hold one decision-shaped exchange; row 5 and 8 are folds.
+
+* notes — the split, and why the answer is steal (row 3)
+
+beef drew the line first: /"memory are per user. notes are general."/ The house had
+already drawn it once — =systems/runtime/daemon/entities/userspace/Intent.ts= is
+={user, mode, slug, name, description, traits: Enum[], trait: json}=, unique
+=(user, slug, mode)=; a note is Intent minus =user=. His /"are they trait keyed? do they
+have a type??"/ has one answer on disk: no entity carries a =type= string except Mode
+(the package type); Intent, Symbol and Mode all carry =traits[]= claims plus a =trait{}=
+payload, and =DataRepository.resolveTraits= already queries ={$contains|$overlap|$none}=.
+Trait-keyed, because a dojo preset is CONFIG *and* ADVERTISED — traits compose, a type
+excludes. =registry/education/modes/games/dojo/types.js:32= already spells a preset as
+={ note, count, axes }= keyed by slug; the field is literally named =note=.
+=registry/education/modes/teacher/francesca/state.md= is one file carrying both entities:
+"roadmap + methodology" is a note, "Live traps" is memory (m27 already rules the traps
+migrate). =Buffer.thread?= nullable is the precedent for =Note.mode?= nullable = daemon-wide
+— /"if there is daemon wide note that might live on the domain"/, and the domain is not an
+entity. Two externals supply what the house lacks: MCP resources (={uri, name,
+description}= + =resources/list=) are exactly /"how the mode advertises its own use to
+other modes"/; Letta memory blocks (one writer, attached to N agents) settle /"one to many
+???"/ — shared is not co-owned: **author m:1, readership = a query, no join table in v1.**
+
+* the entity, and admission that falls out of it (rows 3–4)
+
+#+begin_src typescript
+export enum NoteTraitsEnum { CONFIG, ADVISORY, ADVERTISED, PEDAGOGIC }
+export class NoteEntity extends DataEntity {
+  mode?: Rel<ModeEntity>;   slug: string;   traits: NoteTraitsEnum[];   trait: json;
+  gist!: string;   body?: string;   data: json;   tags: string[];   salience: number;
+  audience: null | { modes: string[] } | { traits: ModeTraitsEnum[] };
+}   // unique (mode, slug)
+#+end_src
+
+- own =system.notes= = =note.index({ $or: [{mode}, {mode: null}], traits: {$overlap:
+  [ADVISORY, PEDAGOGIC]} })= · foreign = =note.index({ traits: "ADVERTISED", audience:
+  matches me })= · presets = =note.findOne({ mode: dojo, slug: "preset.meet" })= — code
+  path, never prompt. No new machinery; the traits pick the channel.
+- boundary vs m28: skill = authored at BUILD (file, beef) · note = authored at RUNTIME
+  (row, the mode via a =note= tool). Writer + time, not content.
+- the nine rows (in the quest verbatim): dojo =preset.meet= (CONFIG+ADVERTISED, replaces
+  =types.js:33=) · survival =themes.missing= (CONFIG, self-written — today a commented
+  =console.log= at =buildup.js:106=) · riddler =tuning.clues= (self-tuned) · francesca
+  =spanish-leak= (ADVISORY+PEDAGOGIC, learned across learners) · francesca→dojo
+  =handoff.dojo= (ADVERTISED, =audience {modes}=) · dojo =about= (ADVERTISED to
+  ={traits: [HARNESSED]}=, MCP-resource semantics) · daemon-wide =corpus= (=mode: null=) ·
+  aprende =learner.auditory= (PEDAGOGIC) · a MEMORY row for contrast. Rows 1/2/3 need
+  =data=, 4/6 need =body=, 5/7 both — free json =data= holds v1.
+- forks, beef's: =data= schema as a =notes= sibling export vs free json · presets→seeded
+  notes (8 slugs are API — blast first) · =audience= vs =tags= · =mode?= nullable vs a root
+  mode row.
+
+* primed — both sides, then the loader that already existed (rows 6–7)
+
+beef: /"where does the primded solve anything?"/ Grounding first: TOOLED is
+=if (mode.module.tools) mode.tools.slurp(…)= and =harnessed.js:50= slurps =mode.tools=
+with no trait check — the sibling export is the mechanism, the trait a claim. Every PRIMED
+promise has cover: index section → m27.2 =system.notes=; lazy body → =note({slug})= (slug
+fetch, not the LATER search-recall); mode-learned procedure → ADVISORY rows; the
+always-needed methodology → the static import at =francesca/harness.js:2=, which must be in
+every prompt anyway; files→rows → DATASET. Pro PRIMED: files are git-versioned,
+PR-reviewable, shipped by m31 packages, agentskills-portable, resolvable across daemons; a
+clean writer split. Con: a third channel for prose-into-=system=; the three-sides law for
+"read files at boot"; progressive disclosure pays at N≫3 procedures and a mode has 1–3;
+/"its an industry standard, sure"/ — and every value in the standard lives in the FILE
+FORMAT, which survives without a trait.
+
+beef's refinement — /"primed might make sense if paired with some prototype implement
+heuristics for file loading. aka export cosnt prime = walkFileTree(./dir).loadMarkdownToSystem()"/
+— sent the walk to =subsystems/typology/prototypes/dataset.js=: =reader.dir(target) →
+{walk}=, =reader.lift("skills") → {walk: "skills"}=, =json/js → {read, codec}=, and
+=traits/dataset.js:14= =pull(source, mount)= already walks (=paladin.find.data=) or reads
+(=paladin.read[codec]=). INTENTED already consumes its own key of =mode.module.dataset=
+through =repo.ensure({...row, mode, user})=. =walkFileTree(./dir)= is one live line. What
+is missing is one codec: =CODECS= knows json/jsonc/js/ts/mjs and =paladin.read= has no
+frontmatter reader. And one semantic: DATASET returns on =mode.entity.installed= —
+install-once, right for 6386 literals, wrong for three skill files beef edits daily.
+
+Verdict: **PRIMED = a seeder that re-walks every boot + a manifest claim; the loader is
+=Dataset.reader= plus an =md→note= codec.** No =Prime= prototype. =dataset.note: "skills"=
+in the mode; =primed.js= ≈ 12 lines mirroring INTENTED (=ensure({...row, mode})= per row,
+flush). =loadMarkdownToSystem= splits: gist → =system.notes= index (M27.2) · body →
+=note({slug})= · full-body-always → a =trait.<T>.admission = "full"= payload or the static
+import that already works. Where the trait still earns itself: every-boot re-seed, the
+=implements("PRIMED")= claim, a home for the elevation tool if it is not layer ①. Where it
+does not: as a loader.
+
+* settlement
+
+- m28 quest annotated (=* reframed under m27 notes= — PROPOSAL, awaiting beef): the
+  seeder+claim shape, the missing =md= codec, the install-once vs every-boot distinction,
+  the A/B fork from row 6. Nothing removed from m28's own design text.
+- memory: no new file — the design lives in the two quests, and the loader facts are
+  derivable from =prototypes/dataset.js= + =traits/dataset.js=. One update:
+  =project_test_suite_baseline= absorbed the frontier's =--watch= tail (re-measured: 5 of 6
+  =deno task test= are =--watch=, dapper is not) so the frontier duplicate could be evicted.
+  Two pre-existing staleness flags (=project_context_architecture= layout; "CONVERSATIONAL
+  DEAD" thread-scoped) stay open — not this session's.
+- zettel scan: no codeword this session.
+- frontier: m27 line re-stamped at row 5, m28 at fold. Budget trap: python =len()= read
+  7984 while =wc -c= read 8182 — the ritual measures BYTES and the file is full of =→ · ×=.
+  Held at 7896 bytes by shortening my own two lines to link-plus-verdict (the quests carry
+  the detail) and evicting one whole item already recorded in memory.
+- date scan clean.
+
+* state at fold
+
+- code untouched. =git status= carries only beef's live tree (the loop's 50% ikiro cut,
+  compacts, quests) — nothing of mine outside =.ikiro/=.
+- m27: entity + admission + nine rows + four forks in the quest; M27.1 shape pinned;
+  =Note.js= placeholder is 0 bytes at the live path.
+- m28: reframed as seeder+claim under m27; awaits beef's word on A/B and on whether the
+  trait survives at all.
+
+Resumption (genuinely open, no landed rule resolves them):
+- beef's four note forks (data schema · presets→notes · audience vs tags · nullable mode).
+- PRIMED: keep-as-seeder / A / B / kill — beef's call.
+- =md→note= codec home: =Dataset.reader= =CODECS= + =paladin.read= — both files gated
+  (typology HOLY, paladin core); propose before touching.
+- =note()= elevation tool: ships with PRIMED or rides =shard.tools= layer ①.

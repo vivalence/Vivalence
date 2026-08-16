@@ -33,9 +33,9 @@ export default async (ctx) => {
         }),
       );
     } else if (word.retention.is.failed) {
-      practice.add(game["rep-o-gram"].emit.shadow.literal({ literal: word }));
+      practice.add(game["dojo"].emit.shadow.literal({ literal: word }));
     } else if (word.retention.is.weak) {
-      practice.add(game["rep-o-gram"].emit.write.literals({ literal: word }));
+      practice.add(game["dojo"].emit.write.literals({ literal: word }));
     }
   }
 

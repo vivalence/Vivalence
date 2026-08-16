@@ -54,7 +54,7 @@ export default async (ctx, config = {}) => {
   const practice = ctx.pool.section();
   for (const form of forms) {
     if (!form.retention || form.retention.is.virgin || form.retention.is.failed) {
-      practice.add(game["rep-o-gram"].emit.shadow.literal({ literal: form }));
+      practice.add(game["dojo"].emit.shadow.literal({ literal: form }));
     }
   }
   practice.apply(array.shuffle);

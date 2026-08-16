@@ -71,10 +71,10 @@ export default async (ctx) => {
       .getItems()
       .some((s) => s.slug === "word.verb-form.infinitive");
     if (isInfinitive || verb.retention?.is?.failed) {
-      practice.add(game["rep-o-gram"].emit.write.literals({ literal: verb }));
+      practice.add(game["dojo"].emit.write.literals({ literal: verb }));
     } else {
       practice.add(
-        game["rep-o-gram"].emit.conjugations({ where: { uses: { $in: [verb.id] } }, count: 1 }),
+        game["dojo"].emit.conjugations({ where: { uses: { $in: [verb.id] } }, count: 1 }),
       );
     }
   }

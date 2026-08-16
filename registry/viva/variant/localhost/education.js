@@ -13,9 +13,9 @@ export const education = {
     "@education/topography/english-to-brazilian",
     "@education/game/riddler",
     // aprende /drill branches each due literal by ontology × state:
-    // word weak→rep-o-gram/write strong→judge · sentence weak→rep-o-gram/shadow
-    // strong→rep-o-gram/listen · conjugation weak→paradigm strong→rep-o-gram/conjugations.
-    "@education/game/rep-o-gram",
+    // word weak→dojo/write strong→judge · sentence weak→dojo/shadow
+    // strong→dojo/listen · conjugation weak→paradigm strong→dojo/conjugations.
+    "@education/game/dojo",
     "@education/game/judge",
     "@education/game/paradigm",
     "@education/game/match",

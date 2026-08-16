@@ -13,14 +13,13 @@ export class Signature {
     if (is.fn(signature)) signature = this.coerce(signature(this.constructor));
     if (signature instanceof this.constructor) return signature.from(trace);
     if (signature instanceof Signature) this.nature = signature.nature;
-
-    if (is.string(signature)) this.nature = signature;
-    if (is.signature(signature)) Object.assign(this, signature);
-    if (is.array(signature)) {
+    else if (is.string(signature)) this.nature = signature;
+    else if (is.signature(signature)) Object.assign(this, signature);
+    else if (is.array(signature)) {
       // recursion if coerce returns array
-      let root = signature.shift();
-      root = new this.constructor(root).from(trace);
-      if (!is.empty(signature)) root.branch(signature);
+      const [head, ...heirs] = signature;
+      const root = new this.constructor(head).from(trace);
+      if (!is.empty(heirs)) root.branch(heirs);
       return root;
     }
 

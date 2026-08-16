@@ -1,0 +1,156 @@
+diff --git a/README.md b/README.md
+index 365e255..4b9edd5 100644
+--- a/README.md
++++ b/README.md
+@@ -1,22 +1,22 @@
+-# @anki
++# @memoriter
+ 
+-Anki rebuilt as one self-contained vivalence package. A demonstration: the full vertical — domain, dataset, mode, daemon — in the smallest shape that is still complete.
++Anki rebuilt as one self-contained vivalence package, under its Latin name: memoriter, "from memory, by heart". A demonstration: the full vertical — domain, dataset, mode, daemon — in the smallest shape that is still complete.
+ 
+ ## Anatomy
+ 
+ ```
+-package.viva.js          the package declaration, owner @anki
+-domain/                  @anki/domain/srs — the kernel module
++package.viva.js          the package declaration, owner @memoriter
++domain/                  @memoriter/domain/srs — the kernel module
+   entities/              Literal (card), Symbol, Memory, Trace, Buffer
+   memory/sm2.js          the SM-2 scheduler as a memory driver
+   aperture/              /pick/*, /review/literal, /preview/literal
+-dataset/                 @anki/topography/latin-core
++dataset/                 @memoriter/topography/latin-core
+   latin.viva.js          DATASET + FRAUGHT: seeds on daemon boot, serves freight
+   entities/              219 words, 50 sentences, ~240 symbols, built by build.js
+   freight/               10 voices (sentences), 10 pictures (nouns) — placeholders
+-mode/                    @anki/srs/anki — the one mode
+-  anki.viva.js           APPLICATION STANDALONE EMITTER EXPOSED HARNESSED CONVERSATIONAL TOOLED
+-  buffer/Anki.svelte     the tablet: flip, four grades with live SM-2 horizons
++mode/                    @memoriter/srs/memoriter — the one mode
++  memoriter.viva.js      APPLICATION STANDALONE EMITTER EXPOSED HARNESSED CONVERSATIONAL TOOLED
++  buffer/Memoriter.svelte  the tablet: flip, four grades with live SM-2 horizons
+   harness.js + hal/      Magister, the persona
+   tools/                 /review /grade /memory /add — the conversational loop
+   aperture.js            /chat (harness render) and /stats
+@@ -37,7 +37,7 @@ English to Latin, classical and ecclesiastical. Ten topics from Religio to Sermo
+ Registered like any out-of-tree package: the folder's absolute path appended to `testament/ledger/registry.json`, the daemon declared in the variant:
+ 
+ ```js
+-kernel: ["@anki/domain/srs", "@anki/topography/latin-core", "@anki/srs/anki"]
++kernel: ["@memoriter/domain/srs", "@memoriter/topography/latin-core", "@memoriter/srs/memoriter"]
+ ```
+ 
+ The one imported registry module is the hallucinator (`@viva/hallucinator/anthropic`), which powers the Magister's conversation; everything else the package carries.
+diff --git a/mode/aperture.js b/mode/aperture.js
+index 0356961..3e61695 100644
+--- a/mode/aperture.js
++++ b/mode/aperture.js
+@@ -16,7 +16,7 @@ export const aperture = new Vector()
+         output: v.object({ answer: v.string() }),
+         thread: ctx.input.thread,
+       });
+-      if (!render.object?.answer) throw new Error("[anki/chat] render.object.answer missing");
++      if (!render.object?.answer) throw new Error("[memoriter/chat] render.object.answer missing");
+       return { answer: render.object.answer, render };
+     },
+   )
+diff --git a/mode/buffer/Anki.svelte b/mode/buffer/Memoriter.svelte
+similarity index 99%
+rename from mode/buffer/Anki.svelte
+rename to mode/buffer/Memoriter.svelte
+index 043d718..be7928a 100644
+--- a/mode/buffer/Anki.svelte
++++ b/mode/buffer/Memoriter.svelte
+@@ -68,7 +68,7 @@
+   ];
+ </script>
+ 
+-<div class="anki">
++<div class="memoriter">
+   {#if !literal}
+     <div class="empty">Nihil recolendum. Redi postea — nothing to review, return later.</div>
+   {:else if finished}
+@@ -131,7 +131,7 @@
+ </div>
+ 
+ <style>
+-  .anki {
++  .memoriter {
+     max-width: 34rem;
+     margin: 0 auto;
+     padding: 1.25rem;
+diff --git a/mode/hal/anki.md b/mode/hal/memoriter.md
+similarity index 100%
+rename from mode/hal/anki.md
+rename to mode/hal/memoriter.md
+diff --git a/mode/harness.js b/mode/harness.js
+index 6cfde75..8cbd0ee 100644
+--- a/mode/harness.js
++++ b/mode/harness.js
+@@ -1,11 +1,11 @@
+ import { Vector } from "@vivalence/typology";
+-import anki from "./hal/anki.md" with { type: "text" };
++import memoriter from "./hal/memoriter.md" with { type: "text" };
+ 
+ export const harness = new Vector()
+   .use(async (ctx, next) => {
+     const language = ctx.daemon.statics?.language;
+     const pair = language ? `Known: ${language.known?.name}. Learning: ${language.learning?.name}.` : "";
+-    ctx.hallucination.configure({ tune: "fast" }).context.system(anki, pair);
++    ctx.hallucination.configure({ tune: "fast" }).context.system(memoriter, pair);
+     await next();
+   })
+   .use(async (ctx, next) => {
+diff --git a/mode/anki.viva.js b/mode/memoriter.viva.js
+similarity index 89%
+rename from mode/anki.viva.js
+rename to mode/memoriter.viva.js
+index 543db33..f9abaee 100644
+--- a/mode/anki.viva.js
++++ b/mode/memoriter.viva.js
+@@ -7,15 +7,15 @@ export { emitter } from "./emitter.js";
+ 
+ export const manifest = {
+   type: "srs",
+-  slug: "anki",
+-  name: "Anki",
++  slug: "memoriter",
++  name: "Memoriter",
+   description: "Spaced-repetition flashcards on SM-2: review at the tablet or in conversation with the Magister.",
+   version: "0.1.0",
+   traits: ["APPLICATION", "STANDALONE", "EMITTER", "EXPOSED", "HARNESSED", "CONVERSATIONAL", "TOOLED"],
+ };
+ 
+ export const app = new App(
+-  "buffer/Anki.svelte",
++  "buffer/Memoriter.svelte",
+   v.buffer({
+     data: {},
+     literals: v.array(v.rel(v.literal())),
+diff --git a/package.viva.js b/package.viva.js
+index df44498..f8ff10a 100644
+--- a/package.viva.js
++++ b/package.viva.js
+@@ -1,8 +1,8 @@
+ export const manifest = {
+-  owner: "@anki",
++  owner: "@memoriter",
+   type: "package",
+-  slug: "anki",
+-  name: "Anki",
++  slug: "memoriter",
++  name: "Memoriter",
+   description: "Self-contained spaced-repetition demo: SM-2 domain, Italian dataset, one conversational mode.",
+   version: "0.1.0",
+ };
+
+# --- variant wiring (outside the package, apply by hand) ---
+# testament/variant/anki.js -> testament/variant/memoriter.js
+#   export const anki -> export const memoriter
+#   manifest slug "anki" -> "memoriter", name "Memoriter"
+#   kernel -> ["@memoriter/domain/srs", "@memoriter/topography/latin-core", "@memoriter/srs/memoriter"]
+#   db file anki.viva.db -> memoriter.viva.db
+# testament/variant/localhost.viva.js
+#   import { memoriter } from "./memoriter.js"
+#   daemons: [..., memoriter]

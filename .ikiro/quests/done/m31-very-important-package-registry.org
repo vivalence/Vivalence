@@ -1,7 +1,7 @@
 #+title: m31 — very important package registry: the registry becomes user-managed
 #+filetags: :m31:packages:registry:ledger:paladin:vip:ghost:jj:
 #+status: DONE (beef: /"move m31 to done"/) — P1+P2 RELEASED · P3 ghost LANDED · guards + config lift LANDED · tests + docs LANDED (/"go on all non typological"/). Residue at close: fork E in-body-unconfirmed · P4 daemon deferred · dangling /"except"/ unresolved.
-#+history: =m31-very-important-package-registry.HISTORY.quest.org= — laws verbatims, provenance, retired/orphaned decisions, displaced detail (vocabulary · blast · testing · changelog trail). Studies: =.ikiro/bak/m31-studies.org=. Session fold: =.ikiro/compacts/four-studies-triangulate-the-registry-…-code-that-must-wait.org=. Sources: see =* Sources= — the 322 KB verbatim collection is DELETED and rebuildable from git.
+#+history: DELETED in the 50% cut, both recoverable verbatim — =git show b8e1f85e1d:.ikiro/quests/done/m31-very-important-package-registry.HISTORY.quest.org= (laws verbatims, provenance, retired/orphaned decisions, displaced detail: vocabulary · blast · testing · changelog trail) and =git show b8e1f85e1d:.ikiro/bak/m31-studies.org= (the four studies). Session fold: =.ikiro/compacts/four-studies-triangulate-the-registry-…-code-that-must-wait.org=. Sources: see =* Sources= — the 322 KB verbatim collection is DELETED and rebuildable from git.
 
 * Goal
 

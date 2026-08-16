@@ -521,3 +521,266 @@ report survive but no longer assert =pairs.length > 0=: zero
 =*-brazilian.snapshot.json= exist here because they come from the live-DB
 topography run, so the suite LOGS what it could not cover instead of reddening
 over a missing prerequisite. Four steps, green.
+
+* prod-nlp-image-lacks-transformers — RESOLVED (redeployed + verified)
+
+** Symptom
+
+Every =POST /tokenize= against =https://nlp.syzygy.vivalence.com= with the DEFAULT
+processors string 500s:
+
+#+begin_example
+{"error":"internal_error","message":"name 'transformers' is not defined"}
+#+end_example
+
+=/status= reports alive, =loaded_pipelines: []= — the first pipeline build crashes, so
+the service has never served a full-processor request in prod. =tokenize,mwt,pos,lemma=
+works; only =depparse= needs the missing dep.
+
+** Root cause
+
+=registry/viva/nlp/server/Dockerfile= pip line installed stanza + Flask only; stanza's
+es/it/pt depparse wants the =transformers= package (charlm/transformer-backed parser).
+Both the provider default AND every =consume.nlp.statics.processors= in
+=testament/variant/education.js= pin =tokenize,mwt,pos,lemma,depparse= — so every
+provider call, and now every =service_nlp_classify= tool call, hits the broken path.
+
+** State
+
+Dockerfile FIXED in-tree (=+ transformers peft= on the pip line, beef: "3b. do it
+right"). Deploy is beef's: rebuild + redeploy on syzygy (=docker compose build= from
+=registry/viva/nlp/server/=, or ghost service control =/build=). First =pt=/=it= call
+after deploy downloads models once (slow). Brazilian consume mask was also querying
+=language: "es"= — fixed to ="pt"= in the same pass.
+
+** Resolution
+
+beef rebuilt + redeployed. Verified live: es depparse real (deprel root/nsubj/expl:pv),
+it + pt green with =package: "default"= (pt model downloaded in 13 s on first call).
+Residual server wart: =PACKAGE= env default is =gsd= (a treebank name) — bare it/pt
+requests fail ="No processors to load"=; fixed provider-side, the request now always
+sends =package: statics.package ?? "default"=.
+
+* user/thread isolation — the m25 breakage sweep (LIVE, UNFIXED)
+
+Full map + evidence in =.ikiro/quests/m25-user-and-thread-handling.org= ("where it breaks").
+Recorded here so the security-critical ones don't sink into a design quest. Nothing gated on
+beef except the ruling — these are FINDINGS, no code touched.
+
+** CROWN — cross-user IDOR on the harness dialogue path (BREAKS, security)
+
+*** Symptom
+
+Any authenticated user reads AND writes ANY other user's conversation by putting a foreign
+thread id in the request body: POST =/mode/*/harness/dialogue/stream= with
+={thread: <VICTIM_ID>, parts:[…]}=.
+
+*** Root cause
+
+Isolation rests ENTIRELY on the MikroORM =user= filter (=default:true=); =authorize()=
+only sets =ctx.user=, there is NO server-side thread-ownership check anywhere. =Turn.ts:54-93=
+declares no =user= filter and no user column (every sibling userspace entity has one).
+=harnessed.js:27= loads the thread row USER-scoped (foreign id → null) but never gates on the
+null and discards the row; :62 binds the raw id STRING; the =/dialogue= branch runs
+=turn.history({thread})= (victim's convo → attacker's LLM context) and =turn.chain({thread})=
+(create+flush BEFORE any LLM call → attacker+assistant turns in the victim's thread).
+
+*** Why not fixed
+
+m25 design decision (beef's). The fix is two moves: (1) give Turn a =user= filter through the
+thread relation (={thread:{user:args.user}}=, like =Buffer.ts:36-41=) — also closes the
+=entity_find= skill leak/enumeration (rank 5); (2) gate the harness on the already-loaded
+=harnessed.js:27= thread row being non-null. Typology/entities are HOLY — needs go.
+
+** thread bricked by abort-mid-tool-stream (BREAKS, deterministic)
+
+*** Symptom
+
+Model calls a write-tool, user hits stop / sends a follow-up → thread permanently unusable
+(every later send → Anthropic 400, non-retryable) until DB row surgery.
+
+*** Root cause
+
+=harnessed.js:103-126= streamed persistence is =try{…flush()}catch{remove;throw}= with NO
+=finally=. A write-tool's mid-stream =em.flush= commits the assistant =tool_use= turn (half a
+pair) before its =tool_result= exists; a client abort runs the generator's =return()= — NEITHER
+the post-loop flush NOR the catch — so the dangling =tool_use= persists and every later
+=render()= 400s.
+
+*** Why not fixed
+
+Needs a transactional / finally-guarded scribe. Design call in the quest.
+
+** boot crash on multi-user education daemon (BREAKS, gated on ≥2 users)
+
+=resolution.js:29= wraps modes() in ONE RequestContext fork; :52 =Promise.all= runs trait
+finalizers concurrently; the INTENTED boot walk (=intented.js:24-28=) mutates that shared
+fork's =user= filter param mid-walk → wrong-user findOne miss → create → Intent
+=unique[user,slug,mode]= violation → =Promise.all= rejects → uncaught → runtime boot-loops.
+Fires with ≥2 INTENTED modes (education: clinic + dojo, ex rep-o-gram) AND ≥2 users; single-user dev
+DB is safe today. Fix: fork-per-walk (the twitch path at =intented.js:16= already does).
+
+** account-switch leak, same tab (BREAKS, client)
+
+Same-tab logout→login as a different user: =logout()= clears identity but never tears down
+daemons/subscriptions (=populate()= early-returns on =$daemons.length=; =daemon.release=
+assigned at =dossier.js:62=, called NOWHERE) → userB renders userA's REAL threads/intents and
+userA's authed-once SSE keeps streaming. Client-side lifecycle fix.
+
+** tool DoS by input.tools nature-collision (BREAKS, probe-proven)
+
+A crafted harness body =tools:{entity_find:{…}}= — JSON can't carry a function → =execute=
+undefined → =armed.open({nature:"/entity/find"}, undefined)= navigates the SHARED module-scope
+skill Vector subtree (slurp shares edges) and overwrites the real leaf's effect with undefined
+→ that tool ERRORs daemon-wide for every later request/user until restart. One request, no
+auth-crafting beyond a valid token. Fix: guard =armed.open= against undefined execute, or
+don't share the collided leaf.
+
+** object.render output contract drift (LATENT, two consumers broken)
+
+*** Symptom
+
+=dealer.viva.js:61= destructures ={ object }= off =mode.harness.object.render(...)= — that
+field does not exist on the folded transcript; dealer has been reading =undefined=
+silently (its filter over =object?.faces= just yields nothing). The openrouter provider
+suite carries 2 red steps for the same family: tests feed =output: { object: schema }=
+while =buildParams= reads =request.output?.schema=. The anthropic suite carries the SAME
+2 reds (its =provider.test.js output.object= steps + the =translate.snapshot= buildParams
+pin, which expects a =respond= tool + =tool_choice: any= the =output?.schema= read never
+appends) — all four baseline reds across both providers are this one contract decision.
+
+*** Root cause
+
+The real contract is =render.output.object= (=belt/soma.js transcript= mints
+=output.object= from sealed object parts; primer =aperture.js:53= reads it correctly).
+Somewhere a ={object}=-shaped contract was designed (typology codemap: "compile emits
+output {object}") and providers/tests half-migrated. Two spellings live at once.
+
+*** Why not fixed
+
+Needs the contract DECISION (=output.schema= vs =output.object= on the Request, and
+whether render lifts =.object= top-level), which crosses typology compile + both
+providers + harness assemble. Francesca's appraise hook uses =render.output.object= —
+the working spelling.
+
+** armed domain tools carry a =language-learning_= prefix nobody wires (LEAD)
+
+Live francesca turns show tool_use named =language-learning_progress= /
+=language-learning_queue= — executed successfully, so the armed trie really nests domain
+tools under =/language-learning=. But =harnessed.js:49= slurps =daemon.domain.tools=
+FLAT, and probes of both the raw module and =Domain.cast= produce bare names
+(=progress=). Something between population (pensieve =own()= clone?) and assemble adds
+the branch. Works — names valid, dispatch resolves — but the mechanism is unexplained
+and =francesca.md= / valences reference the BARE names.
+
+New evidence (appraise session): the prefix is INTERMITTENT and MIXED WITHIN ONE
+CATALOG — a persisted opener turn carries =progress= (bare) and
+=language-learning_queue= (prefixed) in the SAME assistant turn; a later session's
+opener has both prefixed. Whatever adds the branch does it per-tool per-request, not
+per-boot.
+
+* mikro-orm folds several conditions on one m:n into ONE join — WORKED AROUND (dojo-local)
+
+** Symptom
+
+On the live italian daemon, a literal query with two symbol conditions on the same
+relation collapsed:
+
+#+begin_example
+symbols: { $all: ["word.tense.present"], $in: ["word.lemma.essere", "word.lemma.fare"] }   → 0 rows
+symbols: { $all: ["domain.food"], $none: ["word.part-of-speech.noun"] }
+   → SQLITE_ERROR: no such column: s2.id
+     … where l0.ontology in (…) and s1.slug = 'domain.food' and s2.id not in (select l0.id …)
+#+end_example
+
+The scenario suite (=mountMode= over the seeded fixture db) passed the same shapes.
+
+** Root cause
+
+=LiteralRepository.resolveSymbols= (=systems/runtime/daemon/entities/kernel/Literal.ts=)
+writes =$all= into =where.$and= but =$in= / =$none= onto the top-level =where.symbols= key.
+MikroORM's query builder reuses ONE join alias for every condition that names the same
+m:n at different nesting levels: the =$all= branch and the top-level =symbols= share
+=s1=/=s2=, so =slug = 'present' AND slug IN (essere, fare)= is asked of one row (0), and the
+=$none= subquery is compared against the JUNCTION alias (=s2.id=, which has no =id=).
+
+** Workaround (landed)
+
+=registry/education/modes/games/dojo/set/where.js compile()= never sets a top-level
+=symbols= key: every symbol condition becomes its own =$and= branch —
+={symbols:{slug}}= per =$all= slug, one ={symbols:{slug:{$in}}}= branch, one
+={symbols:{$none:{slug:{$in}}}}= branch. Separate branches get separate joins. Verified
+live: =$all+$in= → 28 matches / 24 forms; =$all+$none= → 26.
+
+** Why not fixed at the source
+
+The base repository is runtime kernel (typology-adjacent, ask-before); every consumer of
+=resolveSymbols= (queue tool, aprende, tactics) sends ONE condition kind at a time and is
+correct today. Fixing it there = the same =$and=-branch compile inside =resolveSymbols=;
+should happen when the second consumer needs mixed conditions.
+
+* runtime memory runs to 16 GB while the dojo drawer is driven — RESOLVED (JOINED to-many populate × unconstrained where-joins; datamap now =loadStrategy: "balanced\=)
+
+** Symptom
+
+Driving the m34 drawer on the live italian daemon (kajuit dev + =deno task runtime/watch=),
+beef's runtime process grew to the machine's full 16 GB and had to be killed. In the same
+minutes one preview came back wrong: =all= · =symbols.$all: [word.part-of-speech.…]= ·
+=cap 150= showed =0 RESOLVES TO · of 1938 matched= — the =/count= said 1938, the =/resolve=
+rows came back empty (or never came back and the stale =0= stood).
+
+** Suspects (none verified — beef: /"document this. dont tackle the memory issue now"/)
+
+- Query volume: every keystroke in the builder fires =/symbols=, and every draft change
+  fires =/resolve([clause])= + =/count([full, …one per non-empty bin])=, each debounced 200 ms
+  but NEVER aborted — in-flight requests pile up on the daemon while the client only
+  drops the answers (=ticket= guard). Same for the whole-set =/resolve= in =Dojo.svelte=
+  (320 ms). beef: /"maybe the queries arent canceled? maybe there is a reactivity issue"/.
+- =picks.all= now passes =populate: ["retentions"]= together with =limit= + =orderBy= on a
+  where that carries =$and= symbol branches — MikroORM paginates joined populates through
+  a subquery; on 6535 literals × junction rows that may materialize far more than the
+  cap before slicing. This is also the first suspect for the =0 rows / 1938 counted=
+  mismatch (the fixture suite passes; the italian corpus did not yesterday either until
+  the join-collapse workaround above).
+- =sample= without =status= = =find({retentions: {}, …}, {orderBy: random()})= — the empty
+  relation condition joins every retention row.
+- Shared entity manager: if =ctx.daemon.entities= is one long-lived em, every preview loads
+  hundreds of literals + retentions into an identity map that is never cleared.
+
+** Resolution
+
+Reproduced in a capped subprocess on a COPY of the italian db (=--max-old-space-size=1024=,
+RSS watchdog, =timeout=): =/count= 1746 in 36 ms; the same where through =find(..., {limit: 20,
+orderBy: {rank}, populate: ["retentions"]})= returned 20 literals but fetched **59 086 rows**
+(+470 MB); outer-row count by chip count in ALL: 2 → 4 077 · 3 → 59 086 · 4 → 626 441. beef's
+sample: =node_sqlite3.node= 0 samples, main thread 100 % V8 hydrating — one synchronous request,
+not a pile-up. Mechanism (MikroORM 6.6.7): joined to-many populate + limit → =wrapPaginateSubQuery=
+(=@mikro-orm/knex/query/QueryBuilder.js:1332=) moves the where into the subquery and normally
+PRUNES the outer joins it no longer needs (=:1403=) — but returns early at =:1399= when any
+selected field is a =RawQueryFragment=; =Retention.lastSignal= is a non-lazy formula, so the
+prune is skipped and the where's =symbols= joins stay on the outer query without their =slug =
+conditions → =symbols^k= rows per literal. =0 rows / 1938 counted= = the same request dying.
+
+Fix (category kill, not a patch): =registry/viva/datamap/libsql/libsql.viva.js= exports
+=config({dbName, entities, subscribers, migrations})= with =loadStrategy: "balanced"= (to-one
+JOINED, every to-many SELECT-IN, additive not multiplicative); the provider and all five test/
+fixture =MikroORM.init= sites ride it (scenarios/datamap ×2, topography/harness, daemon/
+symbols-query, fixtures/lighthouse) so tests mirror prod. =Literal.retentions= additionally
+declares =strategy: "select-in"=. =lastSignal= NOT made lazy — 11 consumers read
+=retention.is.failed= off it (beef: /"no lazy on last signal"/). Invariant test
+=systems/runtime/tests/repository.populate.test.js= (root rows fetched ≤ limit; red 8 on JOINED,
+green on balanced). Suites: runtime 51/322, dojo 8/37, lighthouse unchanged. Verified under
+balanced: =retentions.strength= lazy populate carries values; =uses= populate keeps its
+=orderBy=; =byStrength= 20 rows vs 46 932. Unverified: aprende · impara · clinic · survival ·
+riddler · primer emitters (no suites) — drive live.
+
+Still open, separate: every builder keystroke fires =/symbols=, =/resolve=, =/count= without
+cancellation (=Builder.svelte:258=) — wasted work, not the cause.
+
+** How to reproduce / where to start
+
+Watch =ps= while typing in the symbol field with a wide =all= clause; then reproduce
+=/resolve {set:[{pick:"all", where:{symbols:{$all:[<big pos symbol>]}}, limit:150}]}= alone
+against the italian db (read-only) and compare with the same query minus =populate=.
+Client side: an =AbortController= per debounce ticket on =/symbols=, =/resolve=, =/count=
+(the connection layer needs to expose cancellation first — check =mode.connection.call=).

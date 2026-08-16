@@ -16,22 +16,26 @@ export function translateTurns(turns) {
     }
     if (turn.role === "assistant") {
       messages.push(assistantToMessage(turn));
+      for (const part of turn.parts.filter((part) => part.type === "tool_result"))
+        messages.push(resultToMessage(part));
       continue;
     }
     const results = turn.parts.filter((part) => part.type === "tool_result");
     const remainder = turn.parts.filter((part) => part.type !== "tool_result");
-    for (const part of results) {
-      const spoken = part.output?.message ?? part.output?.object ?? part.output;
-      messages.push({
-        role: "tool",
-        tool_call_id: part.id,
-        content: typeof spoken === "string" ? spoken : JSON.stringify(spoken),
-      });
-    }
+    for (const part of results) messages.push(resultToMessage(part));
     if (remainder.length) messages.push({ role: turn.role, content: remainder.map(partToContent) });
   }
 
   return messages;
+}
+
+function resultToMessage(part) {
+  const spoken = part.output?.message ?? part.output?.object ?? part.output;
+  return {
+    role: "tool",
+    tool_call_id: part.id,
+    content: typeof spoken === "string" ? spoken : JSON.stringify(spoken),
+  };
 }
 
 function assistantToMessage(turn) {
@@ -41,7 +45,9 @@ function assistantToMessage(turn) {
   let reasoning = "";
 
   for (const part of turn.parts) {
-    if (part.type === "tool_use") {
+    if (part.type === "tool_result") {
+      continue;
+    } else if (part.type === "tool_use") {
       calls.push({
         id: part.id,
         type: "function",
@@ -86,7 +92,7 @@ export const RESPOND = {
 export function buildParams(model, request, stream = false) {
   const sections = Object.values(request.system ?? {}).map((content) => ({
     role: "system",
-    content: typeof content === "string" ? content : JSON.stringify(content),
+    content: [{ type: "text", text: typeof content === "string" ? content : JSON.stringify(content) }],
   }));
   const messages = [...sections, ...translateTurns(request.turns)];
   const settings = request.settings ?? {};

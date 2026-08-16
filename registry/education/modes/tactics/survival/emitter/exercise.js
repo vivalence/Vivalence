@@ -31,7 +31,7 @@ export default async (ctx) => {
   const virgin = sentences.filter((sentence) => !sentence.retention);
   for (const sentence of virgin) {
     ctx.pool.add(
-      game["rep-o-gram"].emit.shadow.literals({
+      game["dojo"].emit.shadow.literals({
         literal: sentence,
         recall: "LEARNING",
         preview: { speed: { rate: "SLOW" } },
@@ -48,7 +48,7 @@ export default async (ctx) => {
   for (const sentence of vocalized) {
     if (sentence.retention.is.virgin || sentence.retention.is.failed) {
       practice.add(
-        game["rep-o-gram"].emit.listen.literal({
+        game["dojo"].emit.listen.literal({
           literal: sentence,
           gameplay: "PICK",
           recall: "LEARNING",
@@ -56,28 +56,28 @@ export default async (ctx) => {
       );
     } else if (random.coinflip(0.7)) {
       practice.add(
-        game["rep-o-gram"].emit.listen.literal({
+        game["dojo"].emit.listen.literal({
           literal: sentence,
           gameplay: "TYPE",
           recall: "LEARNING",
         }),
       );
     } else {
-      practice.add(game["rep-o-gram"].emit.write.literals({ literal: sentence }));
+      practice.add(game["dojo"].emit.write.literals({ literal: sentence }));
     }
   }
 
   for (const sentence of written) {
     if (sentence.retention.is.virgin || sentence.retention.is.failed) {
       practice.add(
-        game["rep-o-gram"].emit.shadow.literals({
+        game["dojo"].emit.shadow.literals({
           literal: sentence,
           recall: "LEARNING",
           preview: { speed: { rate: "SLOW" } },
         }),
       );
     } else {
-      practice.add(game["rep-o-gram"].emit.write.literals({ literal: sentence }));
+      practice.add(game["dojo"].emit.write.literals({ literal: sentence }));
     }
   }
 

@@ -1,0 +1,116 @@
+#+title: the dock goes silent over four stacked defects, and the signature constructor stops sharing linkage
+#+filetags: :typology:signature:dock:openrouter:francesca:appraise:m29:
+
+* arc
+
+beef types into the dock and the message vanishes — /"i type in a message, send, it
+flashes for a half second in dock and then it dissappears. no response is generated. no
+errors appear."/ One symptom, FOUR stacked defects, each hiding the next. The session
+peels them in order, then builds the thing the armory was still owed: francesca's work
+actually getting reviewed — detached, mode-level, 25 lines.
+
+* the peel — four defects under one silence
+
+1. *Names* (turn 158 ruling). The armory's =/entity/*= trio and =/fs/*= quartet were the
+   first multi-leaf shared-branch tool vectors ever rolled into a provider catalog — and
+   every sibling collapsed to the first child's name (=fs_tree= ×4, =entity_schema= ×3
+   → anthropic 400 duplicate names). Probe pinned it: =Signature='s constructor ran its
+   adoption branches UNSEQUENCED — a live Pattern donor passed BOTH =instanceof
+   Signature= (nature copy) AND the =is.signature= duck test, so =Object.assign= copied
+   the donor's =gauges= ARRAY BY REFERENCE and =trace=; =name= → =absolute= → =finn()=
+   walks =gauges[0]=, so every sibling read the first sibling's chain — and every
+   =nameOf= call PUSHED a ToolCall into the live trie pattern's gauges (probe: 1→4,
+   accumulating across requests through the slurp-shared module vectors). beef, on being
+   offered a shard-level patch: /"this seems like an issue on type / signature level.
+   this should never be an issue. something deeper is wrong here. thats not somethign to
+   be fixed in daemon or client."/ → /"run bracket. test thoroughly"/. Landed in
+   =subsystems/typology/prototypes/signature.js=: the four branches became an
+   =else=-chain (instance donors give IDENTITY, never linkage; plain records keep the
+   duck-assign — that's how =open()= edge metadata rides), and the array path stopped
+   =shift()=-consuming its argument. Blast checked every cross-class construction
+   (strings and =instanceof=-guarded everywhere); typology 109 · paladin 17 · runtime 50
+   · kajuit 32 · domain 5 green both sides; +3 invariant steps in =toolcall.test.js=.
+2. *Blindness*. =respond='s error close-packet read =fault.message= — but the anthropic
+   =fault()= nests provider text under =fault.provider.message= → the wire carried
+   =message: null=, the dock's =drain()= had NO handler for an error-close, and the span
+   swallowed the rest. Three silences stacked; beef: /"why is there no error messgae?"/
+   Fix: =shard/hallucinate.js= close packet now carries =fault.provider?.message ??
+   fault.message=.
+3. *The openrouter crash* (the fault the un-blinding exposed): =Cannot create property
+   'cache_control' on string '\n'= — francesca's =tune ??= "fast"= routes OPENROUTER,
+   whose =buildParams= built system sections as STRING content; the =context= cache mark
+   did =content.at(-1)= — last CHARACTER of francesca.md. Its own test never saw it
+   (fixture routes system via turns → array content). beef: /"where does this live?? is
+   this typology or registry? you do registry. go. i've never read openrouter. yours."/
+   Fix: sections carry parts arrays; +1 test. Two PRE-EXISTING reds surfaced and left:
+   openrouter =output.object= vs =output?.schema= contract drift (2 steps), and dealer's
+   ={ object }= destructure reading a field that does not exist (the real contract is
+   =render.output.object= — primer has it right).
+4. *The vanish* (turn 161): streaming worked, then user message + reply disappeared
+   until refresh. =Dock.svelte:45= documents the contract — "the repo delivers the SAME
+   id → echo drops on identity" — but =daemon/dossier.js= subscribed only intent +
+   thread. =turn.subscribe()= was never wired. One line. beef: /"lol. yeah."/ then, as
+   the flood of probe turns hit his live dock: /"uuuups"/ /"hahahah"/.
+
+* dock polish (turn 165)
+
+/"the animation of some activity bar at the top that cycles when llm is active is
+annoying as FUCK. rmeove."/ — sweep span + keyframes deleted, 1px strip stays. The
+typing-indicator jump: thinking-entry rendered dots on their OWN row, streaming-entry
+rendered them INLINE in the meta row — every phase transition gained or lost a row. One
+skeleton now: dots inline in =.time=, text only ever grows below.
+
+* the appraise — /"i wnat to have my work reviewed"/
+
+francesca has the doctrine (=francesca.md:12= "an exchange you do not review is an
+exchange that never happened") and ignores it — fast-tier discipline. beef killed
+prompt-harder, then domain placement (/"domain is a bit OP here. lets do that inline in
+teh mode"/), asked for mechanisms (/"attach the meta of the tool call after the fact? i
+assume so, no?"/), and go'd. First build: soma folding + capture bag + synthetic tool
+rounds + armed dispatch — beef, mid-turn, pasting the whole thing back: /"this seems
+horrendously convoluted. i was thinking about somethign WAY simpler. i suspect this can
+be done in 15-25 lines."/ Right. The simplification keys: =ctx= SURVIVES the request
+whole (user included → =ctx.daemon.call["/review/literal"]= direct, no dispatch
+ceremony), the persisted history IS the transcript (receipts carry the slugs — no
+folding), and reviews land silently. Landed in
+=registry/education/modes/teacher/francesca/harness.js= (~40 lines): =/dialogue= mw
+wraps =ctx.output=, =finally= fires =within(() => appraise(ctx))= un-awaited —
+=datamap.shard.carry()= re-enters the ORM request context so user-scoped broadcasts keep
+their owner (beef: /"good catch on the context"/). appraise: 1s settle → last-10 turns
+at QUERY level (=find= DESC+limit+reverse — =history()= pins ASC, turn 177) →
+=mode.harness.object.render= over history + appraise prompt (SIGNAL enum from
+=ctx.daemon.domain.SIGNAL= — Domain.cast keeps extra exports) → per-review
+=daemon.call=. Console log per landing (turn 178). NOT blocking — stream is fully
+drained before appraise starts; beef's "attach the turn in retrospect" (synthetic tool
+round, subs trickle it into the dock) stays OFFERED, un-go'd.
+
+*Live proof* (probe thread =appraise-probe=): drill "lui è. loro sono." → extraction
+judged 5 essere forms (SUCCESS where he was right, MISTAKE where he fumbled — matching
+the actual exchange) → 5 retentions rescheduled → Trace 201→206.
+
+* debugging shape
+
+Reproduction beat theory all session: raw SSE replay from beef's browser session
+(localStorage token, fetch in page context) turned "no errors appear" into packets;
+headless catalog/mechanism probes pinned the constructor in isolation; read-only sqlite
+(=mode=ro=) verified retention writes. The =render.output.object= miss burned one loop
+(copied dealer's broken idiom); the debug channel that settled it was a temp file-dump
+because the daemon's stderr lives in beef's terminal.
+
+* observed, not mine
+
+beef renamed rep-o-gram → dojo on disk MID-SESSION (probe imports started 404ing between
+runs); the dojo emitter suite carries 2 reds and =dojo/aperture/index.js= imports a
+=draw= that =emitter/feed.js= no longer exports — supply throws on the full walk. He
+also trimmed =state.md= out of francesca's harness (the hand-written recitation he'd
+called Trash finally dying). Live armed shows domain tools named
+=language-learning_progress= — disk wiring says flat slurp; UNEXPLAINED, works, filed as
+a lead.
+
+* state at fold
+
+m29 gate-2 VALIDATED live: francesca streams, calls =language-learning_progress= +
+=queue= on open, drills, and the appraise hook reviews the work with real Traces. Open:
+dealer/openrouter output-contract drift · dojo rename mid-flight (beef's) ·
+=harnessed.js:33= stale layer comment (gate) · the armed domain-prefix lead · synthetic
+tool-round visibility (offered).

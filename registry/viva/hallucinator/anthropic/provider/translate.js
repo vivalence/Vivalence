@@ -13,6 +13,14 @@ export function translateTurns(turns) {
       }
       continue;
     }
+    if (turn.role === "assistant" && turn.parts.some((part) => part.type === "tool_result")) {
+      const results = turn.parts.filter((part) => part.type === "tool_result");
+      const remainder = turn.parts.filter((part) => part.type !== "tool_result");
+      if (remainder.length)
+        messages.push({ role: "assistant", content: remainder.map(partToAnthropic) });
+      messages.push({ role: "user", content: results.map(partToAnthropic) });
+      continue;
+    }
     messages.push({
       role: turn.role,
       content: turn.parts.map(partToAnthropic),

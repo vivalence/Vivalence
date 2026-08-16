@@ -257,6 +257,7 @@ export const LiteralSchema = new EntitySchema({
       kind: "1:m",
       entity: () => RetentionEntity,
       mappedBy: (retention) => retention.literal,
+      strategy: "select-in",
     },
   },
 });

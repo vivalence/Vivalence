@@ -9,7 +9,7 @@ export const translation = new Vector().open(
     }),
   },
   async (ctx) => {
-    const buffer = await ctx.daemon.modes.game["rep-o-gram"].emit.write.feed({
+    const buffer = await ctx.daemon.modes.game["dojo"].emit.write.feed({
       count: ctx.input.count,
       thread: ctx.input.thread,
     });

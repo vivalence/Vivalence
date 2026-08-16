@@ -48,6 +48,29 @@ specimen.describe("openrouter provider", () => {
       specimen.expect(messages[1]).toEqual({ role: "user", content: [{ type: "text", text: "and also" }] });
     });
 
+    specimen.it("an assistant turn carrying its own tool_result splits into tool_calls then role:tool — same wire as a sync round", () => {
+      const messages = translateTurns([
+        {
+          role: "assistant",
+          parts: [
+            { type: "text", text: "done" },
+            { type: "tool_use", id: "a1", name: "appraise", input: {} },
+            { type: "tool_result", id: "a1", output: { object: [{ literal: "vedere", signal: "SUCCESS" }] } },
+          ],
+        },
+      ]);
+      specimen.expect(messages[0]).toEqual({
+        role: "assistant",
+        content: [{ type: "text", text: "done" }],
+        tool_calls: [{ id: "a1", type: "function", function: { name: "appraise", arguments: "{}" } }],
+      });
+      specimen.expect(messages[1]).toEqual({
+        role: "tool",
+        tool_call_id: "a1",
+        content: JSON.stringify([{ literal: "vedere", signal: "SUCCESS" }]),
+      });
+    });
+
     specimen.it("translates image parts to data-url image_url; assistant thinking folds into message.reasoning", () => {
       const messages = translateTurns([
         { role: "user", parts: [{ type: "image", data: "abc", media: "image/png" }] },
@@ -275,6 +298,18 @@ specimen.describe("openrouter provider", () => {
     specimen.it("cache marks: context pins cache_control on the last system content part", () => {
       const params = buildParams(light, { ...request(), cache: { marks: ["context"] } });
       specimen.expect(params.messages[0].content.at(-1).cache_control).toEqual({ type: "ephemeral" });
+    });
+
+    specimen.it("a record-shaped system section survives the context mark as a parts array", () => {
+      const params = buildParams(light, {
+        system: { persona: "You are Francesca.\n" },
+        turns: [{ role: "user", parts: [{ type: "text", text: "ciao" }] }],
+        cache: { marks: ["context"] },
+      });
+      const section = params.messages[0];
+      specimen.expect(section.role).toBe("system");
+      specimen.expect(section.content.at(-1).text).toBe("You are Francesca.\n");
+      specimen.expect(section.content.at(-1).cache_control).toEqual({ type: "ephemeral" });
     });
   });
 

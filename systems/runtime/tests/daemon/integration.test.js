@@ -309,7 +309,7 @@ specimen.describe("integration: full client lifecycle", { sanitizeResources: fal
     it("create thread, emit with thread, query buffers", async () => {
       // find a mode + intent to create a thread against
       const modes = await daemon.call("modes/game/findOne", {
-        where: { slug: "rep-o-gram" },
+        where: { slug: "dojo" },
       });
       specimen.expect(modes.manifest).toBeTruthy();
 

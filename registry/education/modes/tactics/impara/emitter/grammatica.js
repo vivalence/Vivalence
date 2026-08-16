@@ -54,7 +54,7 @@ export const grammatica = new Vector().open(
     const failed = forms.filter((form) => form.retention?.is.failed);
     if (failed.length) {
       practice.add(
-        game["rep-o-gram"].emit.conjugations({
+        game["dojo"].emit.conjugations({
           where: { uses: { $in: failed.map((form) => form.id) } },
           count: failed.length,
         }),

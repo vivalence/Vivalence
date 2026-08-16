@@ -43,6 +43,31 @@ specimen.describe("anthropic provider", () => {
       specimen.expect(messages[1].content[0]).toEqual({ type: "tool_result", tool_use_id: "t1", content: JSON.stringify({ r: 2 }) });
     });
 
+    specimen.it("an assistant turn carrying its own tool_result splits into assistant then user messages — same wire as a sync round", () => {
+      const { messages } = translateTurns([
+        {
+          role: "assistant",
+          parts: [
+            { type: "text", text: "done" },
+            { type: "tool_use", id: "a1", name: "appraise", input: {} },
+            { type: "tool_result", id: "a1", output: { object: [{ literal: "vedere", signal: "SUCCESS" }] } },
+          ],
+        },
+      ]);
+      specimen.expect(messages[0].role).toBe("assistant");
+      specimen.expect(messages[0].content.map((part) => part.type)).toEqual(["text", "tool_use"]);
+      specimen.expect(messages[1]).toEqual({
+        role: "user",
+        content: [
+          {
+            type: "tool_result",
+            tool_use_id: "a1",
+            content: JSON.stringify([{ literal: "vedere", signal: "SUCCESS" }]),
+          },
+        ],
+      });
+    });
+
     specimen.it("passes tool_use input verbatim — parse-once lives at soma /part/close", () => {
       const { messages } = translateTurns([
         { role: "assistant", parts: [{ type: "tool_use", id: "t1", name: "look", input: { q: 1 } }] },

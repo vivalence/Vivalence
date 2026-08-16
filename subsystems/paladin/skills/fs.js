@@ -111,7 +111,7 @@ export const fs = new Vector()
         slice = slice.slice(0, READ_CAP);
         note = `\n… cut at ${READ_CAP} bytes (file has ${lines.length} lines) — narrow with range`;
       }
-      return { output: { message: slice + note } };
+      return { output: { message: (slice || "(empty)") + note } };
     },
   )
   .open(

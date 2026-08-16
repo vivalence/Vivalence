@@ -1,4 +1,5 @@
 #+TITLE: the tangle driver comes back from jj and the JD patch lands; the styling fight escalates into a whole-site design brief; the designer returns a dc.html mock — "a ui not an app" — which gets bundle-decoded, fetched canonically over the claude_design MCP, and ported 1:1 into the Astro site; then the brand pass (viket plasma, K2D wordmark, Poppins/Inter/Source Code Pro) and a two-axis pixel pass on the navtree.
+#+filetags: :astro:design-import:dapper:documentation:
 #+TOPIC: on disk: =documentation/src= fully re-skinned (Layout.astro rewritten; rehype-codeblock + rehype-article NEW; components → panel family; jdex/index pages rebuilt, index.mdx dead) · =public/fonts/{K2D,Inter,Poppins,SourceCodePro}= self-hosted · 27 pages green · pagefind index refreshed.
 
 * Arc

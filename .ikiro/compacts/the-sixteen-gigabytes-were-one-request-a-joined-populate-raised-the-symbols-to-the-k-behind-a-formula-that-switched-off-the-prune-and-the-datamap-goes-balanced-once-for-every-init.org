@@ -1,0 +1,95 @@
+#+title: the sixteen gigabytes were one request: a joined populate raised the symbols to the k behind a formula that switched off the prune, and the datamap goes balanced once for every init
+#+filetags: :m34:dojo:mikro-orm:memory:known-issue:datamap:populate:blast-bracket:systematic-debugging:invariant-test:runtime:tests:
+
+* arc
+
+beef opens with /"investigate dojo. including recent compacts and quests."/ and, before the
+read is done, the real thing: /"when i select multiple symbols like tense.present pos.verb
+etc, then the preview row just keeps loading and over the course of a maybe 20 seconds the
+memory used by the process jumps from the usual 500mb to 16gb."/ — the issue compact 44 had
+filed as OPEN under his own /"dont tackle the memory issue now"/. He kills the runtime and the
+client and sets the one constraint of the day: /"make sure to not cause the issue in an
+uncontrolled way."/ Every reproduction after that runs in a capped subprocess on a COPY of the
+italian db. He steers from the side — /"must be some loop or retry or recursion or so."/,
+/"the database isnt big enough to serve 16gb wroth of literal data"/ — and hands over an
+Activity Monitor sample that decides it: =node_sqlite3.node= has zero samples, the main thread
+is 100 % V8, one synchronous request, no pile-up. The probes then put a number on it: =/count=
+1746 in 36 ms; the same where through =find(..., {limit 20, populate: ["retentions"]})=
+returns 20 literals having fetched **59 086 rows**; 2 chips 4 077 · 3 → 59 086 · 4 → 626 441.
+Read in the MikroORM source: the paginate wrap prunes unused outer joins — unless a selected
+field is a raw fragment, and =Retention.lastSignal= is a formula. /"expand on the category
+level kill."/ → three levels, one primitive: a to-many loaded by JOIN. beef: /"i want all
+those."/ — the blast shows the third (=lastSignal: lazy=) breaks eleven =is.failed= readers;
+/"go - lazy"/ · /"no lazy on last signal"/. Bracket: baseline green, invariant test red at 8,
+=config()= exported once with =loadStrategy: "balanced"= and every =MikroORM.init= rides it,
+=select-in= on =retentions=, suites green (runtime 51/322, dojo 8/37), re-blast 6/6.
+/"ikiro compact"/.
+
+* the walk
+
+| n | beef (verbatim where it decides) | landed |
+|---|---|---|
+| 1 | /"investigate dojo. including recent compacts and quests."/ | READ: memory =project_dojo_mode=, compact 44 (drawer + 16 GB) whole, known-issues entry, quest m34, dojo code — =set/{where,picks,resolve}.js=, =aperture/index.js=, =fold.js=, =emitter/conjugate.js=, =Builder.svelte= preview effect, =Dojo.svelte= whole-set preview. |
+| 2–3 | =/i-have-adhd= (+ body) | NOTHING — format skill. |
+| 4 | /"when i select multiple symbols like tense.present pos.verb etc, then the preview row just keeps loading and over the course of a maybe 20 seconds the memory used by the process jumps from the usual 500mb to 16gb."/ (screenshot: =1746 of 6535= · =0 RESOLVES TO of 1746 matched= · =cut after 20=) | systematic-debugging invoked; the screenshot itself is the first fact — =/count= answers, =/resolve= does not. |
+| 5–7 | interrupt · the image · the debugging skill body | NOTHING durable (phase 1 begins). |
+| 8 | /"i have stopped the runtime adn client. make sure to not cause the issue in an uncontrolled way."/ | LAW for the day: no live daemon, no browser. All repro = =probe.js= under =guarded.sh= — subprocess, =--v8-flags=--max-old-space-size=1024=, RSS watchdog kill at 2.5 GB, 90 s timeout, on a =cp= of =testament/…/daemon_italian/test-language-italian.viva.db=. |
+| 9 | /"i suspect its something to do with the processes running here"/ (+ two screenshots of the resolves row, SHOW 50) | Client read: =Builder.svelte:258= effect fires one =/resolve= + one =/count= per debounced draft change, no self-retrigger; =Dojo.svelte:403= keyed on =[set, axes.prompt]=. Not a client loop. =/count= and =/resolve= share the SAME =where=; only =find= adds =limit + orderBy + populate + $nin=. |
+| 10 | /"must be some loop or retry or recursion or so."/ | Hypothesis narrowed to server-side JS. |
+| 11 | /"the database isnt big enough to serve 16gb wroth of literal data"/ | Confirmed by =sqlite3 -readonly=: 6535 literals · 50 328 pivot rows · 12 retentions. Multiplication, not volume. |
+| 12 | /"did a memory sample"/ (=~/Downloads/memorysample.txt=) | Sample read: =node_sqlite3.node= loaded, **0 samples**; main thread 2085/2085 in one deep V8 stack (copy/alloc leaves); tokio worker idle → ONE synchronous JS computation. Probes: =count= 36 ms / 1746 · =find-plain= 68 ms / 20 rows / +0 MB · =find-populate= 630 ms / **59 086 results** / RSS 192 → 659 MB · =strategy: "select-in"= 64 ms / 20 rows / +3 MB · outer-row scaling by chips in ALL (sqlite3 =count(*)=, limit 20): 2 → 4 077 · 3 → 59 086 · 4 → 626 441. ROOT CAUSE reported: the paginate outer query keeps the where's =symbol_literals=/=Symbol= LEFT JOINs without their =slug == conditions → =symbols^k= per literal. Fix proposed (property-level =select-in= vs global), gated on go. |
+| 13 | /"expand on the category level kill."/ | MikroORM 6.6.7 read: =wrapPaginateSubQuery= (=@mikro-orm/knex/query/QueryBuilder.js:1332=) prunes unused outer joins at =:1403= — EXCEPT the early return at =:1399= when any selected field is a =RawQueryFragment=; =Retention.lastSignal= (=Retention.ts:123=) is a non-lazy formula → prune skipped. Also: joined populate of two to-many at once (=uses×symbols= in =set/resolve.js:10=, =literals×symbols= in =held()=) multiplies without paginate. THE CATEGORY = a to-many loaded by JOIN. Three levels tabled: =select-in= on =retentions= · =lastSignal: lazy= · global =loadStrategy: "balanced"= (=LoadStrategy.BALANCED= exists in 6.6.7: to-one JOINED, to-many SELECT-IN). Probed balanced: =find-populate= 115 ms / +2 MB (root + =select r0.* … where user = ? and literal in (…)=); =byStrength= 20 rows vs **46 932** joined. Flagged: 4 other =MikroORM.init= sites hand-roll config; invariant test shape; client non-cancellation not in scope. |
+| 14 | the table quoted back + /"i want all those. what would be the expected change throughout the app? anything youd expect to break?"/ + /"whats this?"/ (client non-cancellation) | blast-bracket invoked, beat 1: =lastSignal= readers = =retention.is.failed/succeeded= (=Retention.ts:51-52=) in impara ×3, clinic ×7, aprende drill — a lazy formula is undefined unless populated as =retentions.lastSignal= → **=lastSignal: lazy= is a BREAKER**, recommended dropped (redundant once balanced lands). Radius per populate site listed (~25 in =registry/=, all to-many). Unverified named: =retentions.strength= lazy populate, =uses= schema orderBy, no-suite modes (aprende · impara · clinic · survival · riddler · primer). Config drift → sibling export =config()= on =libsql.viva.js=. Client non-cancellation explained: older =/resolve= =/count= =/symbols= not aborted, only their answers dropped (=ticket=); wasted work, not the cause; fix = =AbortController= through =mode.connection.call=, transport-level. |
+| 15–17 | =/i-have-adhd= · blast-bracket body · adhd body | State restated, waiting for go. |
+| 18 | /"go - lazy"/ | GO minus lazy. Beat 2 baseline: runtime 50/320 · dojo 8/37 · lighthouse datamap green, =auth=/=server= red = live =:1729= refused (env, recorded). Proof-before-patch: =systems/runtime/tests/repository.populate.test.js= written FIRST — =find({symbols:["greeting","casual"]}, {limit: 2, populate: ["retentions"]})=, patched =connection.execute= counts rows per query → **RED: 8 fetched for limit 2**. Change: =libsql.viva.js= exports =config({dbName, entities, subscribers, migrations})= = =defineConfig({loadStrategy: "balanced", …})=, provider rides it; =tests/scenarios/datamap.js= ×2, =tests/topography/harness.js=, =tests/daemon/symbols-query.test.js=, =registry/fixtures/data/lighthouse.js= → ={...config(…), allowGlobalContext: true}=, =SqliteDriver= imports gone; =Literal.retentions= + =strategy: "select-in"=. |
+| 19 | /"no lazy on last signal"/ | Confirmed — =lastSignal= untouched. |
+| 20 | task notification (baseline runtime) | NOTHING — 50/320 recorded. |
+| 21 | task notification (after runtime) | Beat 4: invariant GREEN; runtime **51/322**; dojo **8/37**; lighthouse identical. Under balanced, probed: =retentions.strength= populate carries values (=3.4e-14 … /SUCCESS=); =uses= keeps 7 forms, first = infinitive (joined contrast fetched 98 rows for 2 paradigms). Beat 5: 6 =MikroORM.init= sites, 6 ride =config()=, 0 =SqliteDriver= leftovers, radius = beat 1. Ikiro: known-issues entry → RESOLVED with mechanism; quest m34 status; codemap =invariants.md= + =registry.md=; memory =project_mikro_populate_balanced= + dojo memory. |
+| 22 | /"ikiro compact"/ | this fold. |
+
+Coverage 22/22. Balance: mechanism + probes 8–13 (middle), decisions 4 · 8 · 13 · 14 · 18 · 19, bracket 18–21 — the last third holds the go and the verification because that is when they happened; the middle third holds the finding.
+
+* what the sixteen gigabytes were
+
+Not sqlite, not a pile-up, not the client. One =/resolve= for an =all= clause with k chips in
+ALL: =picks.all= → =repository.find(where, {limit, orderBy: {rank}, populate: ["retentions"]})=.
+MikroORM 6.6.7, default =loadStrategy: "joined"= (=core/utils/Configuration.js:50=): a joined
+to-many populate + =limit= sets =PAGINATE=; =wrapPaginateSubQuery= moves the where into a
+subquery (=… where s2.slug = … and s4.slug = … group by l0.id order by min(rank) limit 20=)
+and would delete the outer joins it no longer needs — but it returns before that when any
+selected field is a =RawQueryFragment=. =Retention.lastSignal= is a formula selected with the
+populate. So the outer query keeps =left join symbol_literals s3 … left join Symbol s2 …= three
+times over, unconstrained: per literal =symbols^k= rows, each carrying =l0.*= (the trait JSON),
+all hydrated on the main thread. =/count= never populates → 36 ms. The fixture suites were green
+because fixture literals carry two symbols. =0 of 1938 counted= from compact 44 was the same
+request dying and =catch → rows = []=.
+
+* the category and its three levels
+
+The category is not "retentions" and not "the formula" — it is **a to-many relation loaded by
+JOIN**: every multiplication found (=symbols^k= behind paginate; =uses×symbols= and
+=literals×symbols= without it) needs that primitive. So:
+
+- =strategy: "select-in"= on =retentions= — kills the dojo/stream shape only. Kept, explicit at the relation.
+- =lastSignal: lazy= — kills only this trigger, re-arms on the next formula, and BREAKS eleven readers of =retention.is.failed=. beef: /"no lazy on last signal"/.
+- =loadStrategy: "balanced"= — to-one JOINED (one row), to-many SELECT-IN (root query + one =where fk in (ids)= per relation per level, additive). Kills the primitive; the upstream early-return becomes unreachable. Declared ONCE in =config()= so no =MikroORM.init= — daemon or test — can drift back to JOINED unnoticed.
+
+* the bracket, in numbers
+
+blast → 25 populate sites, 11 =lastSignal= readers, 6 init sites · test → 50/320 · 8/37 ·
+lighthouse 1 suite green + 2 live-red · **red proof 8 > 2** · change → 7 files · test →
+**51/322 · 8/37 · lighthouse identical** · blast → 6/6 ride =config()=, 0 =SqliteDriver=.
+
+* state at fold
+
+- Code (NOT committed — VCS is beef's): =registry/viva/datamap/libsql/libsql.viva.js= (=config= export, balanced) · =registry/education/domain/entities/kernel/Literal.ts= (=retentions.strategy=) · =systems/runtime/tests/scenarios/datamap.js= · =tests/topography/harness.js= · =tests/daemon/symbols-query.test.js= · =registry/fixtures/data/lighthouse.js= · NEW =systems/runtime/tests/repository.populate.test.js=.
+- Ikiro: known-issues =runtime memory runs to 16 GB= → RESOLVED (mechanism + resolution) · quest =m34-dojo-drawer.org= status + MEMORY line · =world/codemap/invariants.md= MikroORM bullet · =world/codemap/registry.md= dojo bullet · memory =project_mikro_populate_balanced= (new, indexed) + =project_dojo_mode= · this compact · index · frontier.
+- Verified under balanced: dojo =find= shapes, =byStrength=, =retentions.strength= populate, =uses= populate order.
+- Unverified: aprende · impara · clinic · survival · riddler · primer emitters (no suites) — the query shape changed under them.
+- Open, separate: builder keystrokes fire =/symbols= =/resolve= =/count= without cancellation (=Builder.svelte:258=; needs a signal through =mode.connection.call=). Inherited from compact 44, untouched: narrow tier unseen live · streams count paradigms while rows show forms · assistant benched.
+
+* resumption
+
+1. Drive it: =deno task runtime/watch= + kajuit, drawer, four chips in ALL, =ps= open — RSS flat, "resolves to" fills.
+2. Drive one emitter each of aprende / impara / clinic / survival / riddler on the italian daemon — the balanced query shape lands there unverified.
+3. Client cancellation as its own small quest when beef says so.

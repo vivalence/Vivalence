@@ -18,17 +18,17 @@ export const separate = (s) => {
     .split("/")
     .map((a) => a.replace(/\(.*?\)/g, "").trim())
     .filter(Boolean);
-  const expanded = [...raw];
-  for (let i = 0; i < raw.length - 1; i++) {
-    const prev = raw[i].split(/\s+/);
-    const next = raw[i + 1].split(/\s+/);
-    if (prev.length > 1 && next.length === 1) {
-      expanded.push([...prev.slice(0, -1), next[0]].join(" "));
-    } else if (prev.length === 1 && next.length > 1) {
-      expanded.push([prev[0], ...next.slice(1)].join(" "));
-    }
-  }
-  return [...new Set(expanded)];
+  const words = raw.map((alt) => alt.split(/\s+/));
+  const borrowed = raw.flatMap((alt, index) => {
+    if (words[index].length > 1) return [];
+    const right = words.slice(index + 1).find((tail) => tail.length > 1);
+    const left = words.slice(0, index).reverse().find((head) => head.length > 1);
+    return [
+      ...(right ? [[words[index][0], ...right.slice(1)].join(" ")] : []),
+      ...(left ? [[...left.slice(0, -1), words[index][0]].join(" ")] : []),
+    ];
+  });
+  return [...new Set([...raw, ...borrowed])];
 };
 
 export const matches = (input, expected, { forgiving = true } = {}) => {

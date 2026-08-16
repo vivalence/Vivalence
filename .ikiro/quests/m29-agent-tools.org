@@ -33,7 +33,7 @@ process_* yet, shell_run in). All suites green post-build: typology 109 · runti
 =tests/skill.entity.test.js=) · kajuit 32 · paladin 16 · domain 5 · rep-o-gram 6. Beef
 follow-up mid-build: rep-o-gram gained tools too (=preset= off the PRESETS table ·
 =conjugations= w/ uses→$in resolve · =generate=) — francesca already AGENTIC, harvests
-them as =rep-o-gram_*=. "card" = the agent-facing projection, =repo.get card= +
+them as =dojo_*= (the mode was rep-o-gram then). "card" = the agent-facing projection, =repo.get card= +
 =cardOf()= fallback in the skill for plain-EntityRepository schemas (user). Arming seam
 (no new trait, beef): harnessed arms paladin fs/shell for any mode with
 =mode.module.mount.dirname=, root context-bound there.
@@ -44,30 +44,40 @@ them as =rep-o-gram_*=. "card" = the agent-facing projection, =repo.get card= +
 - =DataRepository.get card= (+ get extensions) — base + LiteralRepository override
   {slug, known, learning, ontology, status; populate retentions}. Projection colocated
   with the query verbs; tier fold already carries it (repository overrides by type).
-- =registry/education/domain/tools/{pull,review}.js= + =export { tools }= on
-  domain.viva.js — resurrects harness layer ② (dead since birth; francesca's persona
-  names pull/review which do not exist — pull.js was deleted with only index.js left
-  importing it). pull{progress|due|novel|weak} rides feed/due/novel/byStrength; review =
-  batched {literal, signal} → row.review({enum}, ctx).
-- =subsystems/paladin/skills/{fs,shell}.js= — fs walk/find/read/write (root-confined,
-  16 kB read cap + range steering) · shell run (timeout, 8 kB tail, exit code visible,
-  nonzero ≠ ERROR) · process spawn/list/kill (handle Map; spawned process owns its own
-  VIVA_PROCESS_SLUG).
-- trait wiring: new daemon trait sets =mode.skills= (context-binds root =
-  mode.module.mount.dirname, datasink precedent); harnessed arms =if (mode.skills)
-  armed.slurp(mode.skills)= between layers ② and ③.
+- =registry/education/domain/tools/= — the m23-vs-m29 audit (beef: "did we fuck up
+  today?" — yes, partially: the first rebuild came from francesca.md prose, not the
+  condemned originals in history) forced a validated last pass, then beef split it:
+  =progress= (the learner report, gather-parity inline) · =lookup= (text→items, minLength
+  1, "never invent a slug") · =queue= ({pick: due|feed|novel|weakest|status}) · =review=
+  (5-signal SIGNAL from =domain/types.js=, receipt =slug SIGNAL → status, next date=,
+  min 1 max 10, validates slug then invokes the compiled aperture surface
+  =ctx.daemon.call["/review/literal"]= — the trace-minting path — with =thread: {id}= so
+  Trace.thread is real on the tool path). =export { tools }= on domain.viva.js
+  resurrected layer ④ (dead since birth). Shared =line.js= card-line.
+- daemon.call wiring (beef: "not how we do thiings around here… aka go via daemon
+  trait"): =resolution.domain= binds daemon on the domain aperture, slurps it, compiles
+  =good.call = shape.proxy(domain.aperture, steer.strategy.direct)= — exact twin of
+  EXPOSED's =mode.call=, pre-slurp so =authorize()= never 401s internal calls; =direct=
+  threads the caller's user/mode/thread.
+- =subsystems/paladin/skills/{fs,shell}.js= — fs_tree/find/read/write (root-confined,
+  16 kB read cap + range steering, "(empty)" over blank) · shell_run (timeout, 8 kB
+  tail, exit code visible, nonzero ≠ ERROR). Escape guard + behaviors pinned by
+  =subsystems/paladin/tests/skills.test.js= (8 steps). No process_*; no trait — armed in
+  harnessed for any mode with =mode.module.mount.dirname=.
+- =service_nlp_classify= — TOOLED service transport (manifest trait gate in
+  =population.services()=, =/service/<slug>/<tool>= branch, =ctx.service= bound); the
+  recovered classifier fold; prod REDEPLOYED + verified es/it/pt with depparse; provider
+  sends =package: statics.package ?? "default"= (server's =gsd= default broke bare
+  it/pt).
+
+* not built (was in the first-pass design; backlog now)
+
 - loop polish: unknown-tool error in =shard/hallucinate.js= dispatch appends the armed
   name list.
 - drift gate: francesca =tests/arms.test.js= — every tool name the persona md references
   must be in the armed rollup.
-
-* open (first pass)
-
-- TRAIT NAME for paladin arming — PRIMED is m28's. Proposed: EMBODIED (OS hands;
-  adjective register beside HARNESSED/TOOLED/AGENTIC). Alternatives: HANDED, FIELDED.
-  beef picks.
-- write/shell gating: one trait arms all (root-confined) vs read-set default + escalation.
-- =repo.card= getter touches =DataEntity.ts= base — typology-holy-adjacent, flag on go.
+- write/shell gating escalation (one gate arms all today, root-confined).
+- dojo (ex rep-o-gram) =tools/{preset,conjugations,generate}.js= mode-test coverage.
 
 * candidates — the armory backlog (each = one future per-item go)
 
@@ -116,3 +126,37 @@ swe-agent NeurIPS'24 (ACI = model-equal variable, poka-yoke) · cognition
 dont-build-multi-agents (share full traces) · HN 45954572 + 45418251 (143k/200k
 definitions; drift at 20% fill) · obra/superpowers (mandatory process gates, red-flag
 table) · chroma context-rot (18/18 models degrade with length).
+
+* inherited from m23 (sunset — beef: "move everything tangling from m23 to m29")
+
+Settled at the sunset, against the armory's state:
+- m23's three unverified assumptions: ctx.user tool path (SOLVED — armed binds all four) ·
+  =daemon.modes[type][slug]= shape (CONFIRMED — rep-o-gram tools ride it) · =repo.sample=
+  signature (VALIDATED + live in =queue=).
+- =educate()='s per-mode pulse — DEAD with educate (m26 sweep); =progress= is a tool now.
+- picker choice persisted per-thread — SUBSUMED by thread.trait.INTELLIGENT.
+- the false "ontology column is empty" ruling — corrected in the m23 quest body itself +
+  the registry shard; historical.
+
+Still tangling, now m29's:
+- *lookup conjugation blindness* — "mangiato" will not find "mangiare";
+  =LiteralSubscriber.conjugated()= exists, wire the paradigm resolution into
+  =LiteralRepository.search=. Francesca drills paradigms as core content.
+- *types.js twins* — =registry/education/domain/types.js= ≡
+  =modes/home/aprende/types.js= (byte-twinned STATUS/SIGNAL) and =aprende/gather.js=
+  still lives (=aprende.viva.js= imports it). One home; the aprende copies die when the
+  board rides the domain.
+- *=progress= as the ONLY board implementation* — aprende's =/wakeup/board= read and the
+  =progress= tool must not be able to disagree; fold the board onto the domain surface.
+- *valence language law* — impara's buckets are Italian-authored, the doctrine English;
+  pick one before it spreads.
+- *instrument tails (I — beef-side, recorded per the sunset order)*: cabinet depth 20 +
+  eviction · copy-as-reproduction (system+tools+turns as pasteable prompt) · server span
+  tree under the client request span · thread-cumulative cost meter · production trace
+  policy (=trace.decant(sink, trace.faulty)= / =trace.slower(500)=) · model =id=→=model=
+  rename · docs 47.02 =meta.stop= drift.
+- *mind tails (II — m27's domain, recorded here per the sunset order)*: salience
+  touch-on-recall · one =recall({kind})= vs per-kind tools · async consolidation ·
+  =TurnRepository.fold(tract, judge)= as long-thread backstop · persona-as-skill
+  (=francesca.md= is already SKILL.md-shaped — m28 crossover) · =state.md= as a datasink
+  drain target once the tools cover it.

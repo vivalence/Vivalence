@@ -29,6 +29,15 @@ specimen.describe("string", () => {
     specimen.expect(string.separate("good / bad day")).toContain("good day");
   });
 
+  specimen.it("a chain of alternatives distributes the shared tail to every member", () => {
+    specimen.expect(string.separate("he/she/it has")).toEqual(["he", "she", "it has", "he has", "she has"]);
+    specimen.expect(string.matches("he has", "he/she/it has")).toBe(true);
+    specimen.expect(string.matches("she is", "he/she/it is")).toBe(true);
+    specimen.expect(string.matches("it is", "he/she/it is")).toBe(true);
+    specimen.expect(string.matches("we go", "we go/went/gone")).toBe(true);
+    specimen.expect(string.matches("we gone", "we go/went/gone")).toBe(true);
+  });
+
   specimen.it("a string folds to bare words", () => {
     specimen.expect(string.fold("Hello")).toBe("hello");
     specimen.expect(string.fold("voção")).toBe("vocao");

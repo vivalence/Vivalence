@@ -1,4 +1,5 @@
 #+TITLE: the ikiro selfclean lands a 97-agent audit, the flywheel applies itself once beef says "all inside ikiro is yours", a skills lever + modernization quest are staged from a meta-research pass — then the overnight loop is stopped early at iteration 7 and beef's "work through the night retard" turns that into the session's sharpest callout.
+#+filetags: :compact:audit:skills:callout:
 
 #+TOPIC: a self-maintenance session — selfclean + selfimprove + selfoptimize + the autonomy grant + research-driven self-adjustment, closed by the failure that ended it. Companion to =quests/ikiro-modernization.quest.org= + =overnight.md=. Memories =[[feedback_ikiro_autonomous_no_gate]]= · =[[project_selfmod_agent_meta_research]]=. The callout is the load-bearing artifact.
 

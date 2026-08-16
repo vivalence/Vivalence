@@ -67,7 +67,7 @@ export const daemons = [
 
       "@education/teacher/francesca",
       "@education/dashboard/dataspace",
-      "@education/game/rep-o-gram",
+      "@education/game/dojo",
 
       // "@education/homepage/aprende",
       // "@education/tactic/impara",

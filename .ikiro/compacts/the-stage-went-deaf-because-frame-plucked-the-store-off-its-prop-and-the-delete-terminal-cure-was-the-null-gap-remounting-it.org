@@ -1,0 +1,159 @@
+#+title: the stage went deaf because Frame plucked the store off its prop — and the delete-terminal cure was the null gap remounting it
+#+filetags: :compact:kajuit:drapes:frame:svelte:terminal:buffer:debugging:
+
+* the arc
+
+One-topic session, the debugging spine end to end: report → static sweep →
+live repro → mid-turn clue reframes the hunt → root cause → propose → /"go"/ →
+blast-bracket → live-validate → scribe. beef opened with two screenshots
+(nordic dark, crown showing =[empty] · Rep-O-Gram · Francesca=, the stage
+black, panel F showing two rep-o-gram buffers AND a populated ACTIVE BUFFER
+section) and the report:
+
+/"i CONSTANTLY run into the situation where i select a buffer but it dont
+fucking load."/
+
+/"i can toggle between buffers and all this shit. but. it. dont. fucking.
+load. and i dont know why. the only way to get the buffer into the terminal is
+to delete the terminal and start another and load the thread. i dont like
+that. find the issue."/
+
+The screenshots carried the contradiction that shaped everything: panel F
+*saw* the selection (row highlighted, ACTIVE BUFFER kv populated) while the
+stage showed nothing. So the write to =terminal.$buffer= was landing — some
+reader downstream wasn't listening.
+
+* the sweep that could not prove it
+
+Static pass through the whole path: =systems/kajuit/src/app/panels/f/f.svelte=
+=activateBuffer= (toggle write) → =systems/kajuit/src/typology/entities/terminal.js=
+(=$buffer= atom, vigil, stall wiring) → =systems/kajuit/src/app/panels/a/a.svelte=
+(the =view= derived, =chain= across =$buffer → mode → $app=) →
+=subsystems/drapes/panels/Frame.svelte= (the mount effect) →
+=subsystems/typology/prototypes/{view,bundle,stall}.js=.
+
+Candidates accumulated but none closed: the =chain= helper reads plain
+properties once (real, but buffer.mode resolves before click time); the stall's
+=settle= only fights when the active id leaves the list; the vigil clears by
+id, not instance; the ={#key}=/=bind:this= effect ordering survives scrutiny in
+Svelte 5. The honest state after reading everything: multiple plausible
+mechanisms, zero proof. So: browser.
+
+* going live — the clue that reframed the hunt
+
+Fresh tab on localhost:1794, loaded the Rep-O-Gram thread, toggled both
+buffers: *worked*. Both directions, instantly. While that was on screen beef
+dropped the load-bearing datum mid-turn:
+
+/"its usually not a problem on a new tab"/
+
+That message killed the wrong branch before it grew. First aging hypothesis —
+socket churn — even volunteered its own evidence: the console showed a
+spontaneous =socket closed (1006)= + full resubscribe sweep from minutes
+earlier. Toggled again after it: still worked. Reconnect ruled OUT by
+experiment, not argument. What actually ages in a tab is not the connection;
+it is the *terminal topology* — and beef's screenshots had three crown tabs.
+
+* the root cause — one plain =let=
+
+=subsystems/drapes/panels/Frame.svelte=:
+
+#+begin_src js
+let { terminal, view = null } = $props();
+
+let buffer = terminal.$buffer;                          // ← captured ONCE
+let bufferId = computed(buffer, (active) => active?.id);
+#+end_src
+
+The prop is reactive; the pluck is not. Frame mounts once at boot —
+=panels/a/a.svelte= wraps it in ={#if $terminal}=, which only breaks when the
+active terminal becomes NULL. Crown switches swap the =terminal= prop, but
+=buffer= stays subscribed to the *boot* terminal's store forever. Panel F
+writes the ACTIVE terminal's =$buffer=; Frame listens to another object
+entirely. Stage shows whatever the pinned terminal last held — black when the
+pinned one is =[empty]=.
+
+Every symptom collapses into it:
+- new tab fine → one terminal; pin == active until you switch
+- beef's cure works → deleting the active terminal drives =$terminal= through
+  null, the ={#if}= gap destroys Frame, the new instance pins the new terminal
+- the cure doesn't hold → next terminal switch re-splits pin from active
+
+* the reproduction — two ids diverge on disk
+
+Second terminal created, thread loaded into it, italian buffer clicked in
+panel F: row highlights, ACTIVE BUFFER updates, stage STAYS english. The
+localStorage snapshot at that moment is the whole proof:
+
+#+begin_example
+active: hp5n96
+hp5n96.buffer = 01a00083-5bf0-…998a37   ← what beef selected
+hbsste.buffer = 01a00083-36d6-…83921   ← what the stage rendered
+#+end_example
+
+Same click on the single-terminal tab flips the view instantly. Both arms
+verified before proposing anything.
+
+* the fix — mount identity gains the terminal
+
+Landed on /"go"/, inside a full blast-bracket (radius: ONE consumer,
+=panels/a/a.svelte:65= + the drapes barrel; kajuit suite 32/0 green both
+sides):
+
+#+begin_src diff
+subsystems/drapes/panels/Frame.svelte
+-  import { computed } from "nanostores";
+-  let buffer = terminal.$buffer;
+-  let bufferId = computed(buffer, (active) => active?.id);
++  const buffer = $derived(terminal.$buffer);
++  const bufferId = $derived($buffer?.id);
+
+-    if (next === live && key === shown) return;
++    if (next === live && key === shown && terminal === seated) return;
+#+end_src
+
+=seated= records the terminal at both mount sites and dies in =teardown()= —
+without it, switching between two terminals holding the SAME buffer instance
+would keep a component that closed over the old terminal. ={#key $bufferId}=
+became ={#key bufferId}= (plain derived, no store).
+
+* the validation — probes over pixels, and three traps
+
+The naive marker lied first: I had asserted row1=english/row2=italiano from
+two samples, but rep-o-gram's =recall random= re-rolls direction per session —
+after the fix, three successive clicks all said ITALIANO and proved nothing.
+Direction is not identity. The replacement: stamp =dataset.probe= on a node
+inside the mounted view, switch, check whether the node survived. Remount =
+probe GONE.
+
+- distinct-buffer switch → probe gone, remount ✓
+- crown terminal switch (the dead move) → active flips =hp5n96→hbsste=, panel
+  F selection follows, probe gone ✓
+- clicking the already-active row → =activateBuffer= toggles to null, the
+  stall's =settle= snaps it straight back, and the identity check eats the
+  round-trip: probe SURVIVES. No flicker. The early-return is load-bearing for
+  the stall's toggle-noop — a naive always-remount "fix" would have shipped a
+  flicker regression.
+
+Traps worth keeping: DOM text search missed "WRITE IN ENGLISH" because the
+uppercase is CSS =text-transform= — =innerText= renders it, =textContent=
+holds "write in English"; and =.tab= is not one namespace — the first crown
+click landed on rep-o-gram's own raw/narrated console tabs (filter crown tabs
+by their =.tab-close= child).
+
+* settlement
+
+- law scribed into =world/codemap/kajuit.md= style gotchas: a store plucked
+  off a prop into a plain =let= freezes at first render; =$derived(prop.$store)=
+  + =$store= is the cure; mount identity = (buffer, view-key, terminal).
+- repro residue cleared: the two test terminals wiped from localhost:1794
+  localStorage (=viva.terminals= + =.active= removed; app re-mints a clean
+  shell on next boot).
+- beef's own long-lived tabs self-heal: vite HMR swaps Frame, the new instance
+  pins whatever terminal is active at that moment, and the =$derived= follows
+  every switch after.
+
+* resumption
+
+Nothing underdetermined survives. The Frame diff sits uncommitted in the
+working tree alongside beef's pending work — his graph, his commit.

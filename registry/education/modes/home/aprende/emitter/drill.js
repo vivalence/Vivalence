@@ -9,14 +9,14 @@ function exercise(game, literal, thread) {
     case "conjugation":
       return hard
         ? game.paradigm.emit.conjugation({ conjugation: literal, thread }) // full table scaffold
-        : game["rep-o-gram"].emit.conjugations({ where: { id: literal.id }, count: 1, thread });
+        : game["dojo"].emit.conjugations({ where: { id: literal.id }, count: 1, thread });
     case "sentence":
       return hard
-        ? game["rep-o-gram"].emit.shadow.literals({ literals: [literal], thread }) // flash then type
-        : game["rep-o-gram"].emit.listen.literal({ literal, thread }); // audio recall
+        ? game["dojo"].emit.shadow.literals({ literals: [literal], thread }) // flash then type
+        : game["dojo"].emit.listen.literal({ literal, thread }); // audio recall
     default:
       return hard
-        ? game["rep-o-gram"].emit.write.literals({ literals: [literal], thread }) // type from retention
+        ? game["dojo"].emit.write.literals({ literals: [literal], thread }) // type from retention
         : game.judge.emit.literal({ literal, thread }); // fast true/false
   }
 }

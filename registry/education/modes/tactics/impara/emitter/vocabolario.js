@@ -57,7 +57,7 @@ export const vocabolario = new Vector().open(
         );
       } else if (vocalized && random.coinflip(0.5)) {
         practice.add(
-          game["rep-o-gram"].emit.listen.literal({
+          game["dojo"].emit.listen.literal({
             literal: word,
             distractors,
             gameplay: word.retention.is.weak ? "PICK" : "TYPE",
@@ -65,9 +65,9 @@ export const vocabolario = new Vector().open(
           }),
         );
       } else if (word.retention.is.weak) {
-        practice.add(game["rep-o-gram"].emit.pick.literal({ literal: word, recall: "LEARNING" }));
+        practice.add(game["dojo"].emit.pick.literal({ literal: word, recall: "LEARNING" }));
       } else {
-        practice.add(game["rep-o-gram"].emit.write.literals({ literal: word, recall: "LEARNING" }));
+        practice.add(game["dojo"].emit.write.literals({ literal: word, recall: "LEARNING" }));
       }
     }
 

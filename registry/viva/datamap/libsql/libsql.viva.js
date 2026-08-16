@@ -8,22 +8,27 @@ const manifest = {
   name: "libsql",
 };
 
-async function provider(datamap, variant, subscribers) {
-  const mikroconfig = defineConfig({
-    dbName: datamap.mount.branch(datamap.statics.db.file).absolute,
-    entities: variant.map((v) => v.schema).filter(Boolean),
-    subscribers: (subscribers ?? variant.map((v) => v.subscriber))
-      .filter(Boolean)
-      .map((Subscriber) => new Subscriber()),
-    extensions: [Migrator],
-    migrations: {
-      tableName: "_mikro_migrations",
-      path: datamap.mount.branch("migrations").absolute,
-      transactional: false,
-    },
+const config = ({ dbName, entities, subscribers = [], migrations }) =>
+  defineConfig({
+    dbName,
+    loadStrategy: "balanced",
+    entities: entities.filter(Boolean),
+    subscribers: subscribers.filter(Boolean).map((Subscriber) => new Subscriber()),
+    ...(migrations && {
+      extensions: [Migrator],
+      migrations: { tableName: "_mikro_migrations", path: migrations, transactional: false },
+    }),
   });
 
-  const orm = await MikroORM.init(mikroconfig);
+async function provider(datamap, variant, subscribers) {
+  const orm = await MikroORM.init(
+    config({
+      dbName: datamap.mount.branch(datamap.statics.db.file).absolute,
+      entities: variant.map((v) => v.schema),
+      subscribers: subscribers ?? variant.map((v) => v.subscriber),
+      migrations: datamap.mount.branch("migrations").absolute,
+    }),
+  );
 
   const migrator = orm.getMigrator();
   if (await migrator.checkMigrationNeeded()) await migrator.createMigration();
@@ -67,4 +72,4 @@ async function provider(datamap, variant, subscribers) {
   };
 }
 
-export { manifest, provider };
+export { manifest, provider, config };

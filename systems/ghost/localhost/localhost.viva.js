@@ -89,7 +89,7 @@ export const daemons = [
       "@vivalence/ontology/sentence",
       "@vivalence/ontology/conjugation",
       "@vivalence/corpus/english-to-brazilian",
-      "@vivalence/game/rep-o-gram",
+      "@vivalence/game/dojo",
       "@vivalence/game/judge",
       "@vivalence/game/match",
       "@vivalence/game/cloze",

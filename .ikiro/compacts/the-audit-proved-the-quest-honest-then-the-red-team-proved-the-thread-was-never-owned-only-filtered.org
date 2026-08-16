@@ -1,0 +1,210 @@
+#+title: the audit proved the quest honest, then the red team proved the thread was never owned — only filtered
+#+filetags: :m25:security:thread:harnessed:mikro:idor:audit:breakage:
+
+* arc
+
+One quest, =m25-user-and-thread-handling.org= — a PRELIMINARY considerations dump on how
+user + thread should travel through ctx, written before m26 landed and left to sit. Two
+passes over it in one session, each a fan-out-then-refute-then-synthesize workflow. Pass
+one AUDITED every factual claim against post-m26 disk: 125 claims, 94 held, the quest was
+honest. Pass two RED-TEAMED the mechanics the quest describes and found the thing the
+design memo never said out loud — *there is no server-side thread-ownership check anywhere;
+isolation rests ENTIRELY on the MikroORM =user= filter, and the one entity every
+conversation writes through (Turn) does not have that filter.* A live cross-user IDOR,
+reachable by any authenticated user. Also settled: m26's own quest done (a one-line stale
+status), two codemap shards carrying claims that contradicted disk.
+
+* the gos
+
+1. On =m26-hallucinate-contract.org=: /"is it done?"/ → LANDED, all three waves + follow-up
+   rulings on disk; the only rot was a stale =* open= line still saying "nothing gated"
+   under a =STATUS: LANDED= header. Settled it to match.
+2. On m25: /"do a thorough pass ... i mean THOROUGH! go ultracode on this."/
+3. Then: /"do another pass. find ways this can break down. like the multiplex, or long
+   running tool invocations that outlive the request, and and and. find where this
+   breaks."/
+
+* pass one — the audit (11 agents, ~975k tokens)
+
+Seven claim-cluster verifiers over the quest's ground-truth (ctx-mint seams · auth+ORM
+wiring · datamap ALS spine · thread consumers · escape hatches · m26 staleness · mikro
+filter-param semantics + counts). Each verifier that produced a WRONG/UNVERIFIABLE row was
+adversarially re-checked by a refuter trying to overturn it. Completeness critic + gap-fill
+on top.
+
+*Tally: 94 CONFIRMED · 28 DRIFTED · 3 WRONG · 0 UNVERIFIABLE.* The quest was solid; drift
+concentrated in =harnessed.js= (m26 rewrote it into assemble-then-invoke) and pure
+line-float. The 3 WRONG:
+
+| # | quest claim | truth |
+|---+-------------+-------|
+| 1 | multiplex push "bypasses auth entirely" | INVERTED — push dispatches through full carry incl. =authorize()=; headerless ctx → silent 401, effect never runs, response discarded. Auth-DENIED, not auth-free. Wrong at write time. |
+| 2 | option C "head contract gives pushes auth for free" | nothing free — =socket.js:131= mint must ALSO consult =packet.token=/=this.bearer= (a typology change) |
+| 3 | tool loop "user never bound today" | m26 landed the m23 III.1 bind WITHOUT m25's ruling: =harnessed.js:52= =if (ctx.user) armed.use(shard.context.bind("user", ctx.user))= |
+
+*Fork 4 SETTLED* from installed mikro 6.6.7 source, no probe: =setFilterParams= /
+=getFilterParams= (=EntityManager.js:211-219=) are a plain per-context object DISJOINT from
+the =filters= registry (:42-43); the "No arguments provided for filter" throw (:391) fires
+only for a REGISTERED active filter; forks COPY params (:1445). → option D needs params
+alone, a =thread= filter declaration only if you ALSO want auto-scoped thread queries.
+
+*The premise shifted under the quest.* m26 landed A-style ctx value-binds for BOTH user
+(=harnessed.js:52=, the ENTITY) and thread (:53, the raw id STRING) at the tool seam, with
+no thread ORM param anywhere. De facto: user rides D (ORM param, =resolution.js:7=) AND A;
+thread rides A only — the OPPOSITE direction from the quest's D-lean. And beef re-landed
+=domain/tools/{pull,review}.js= (untracked) mid-session, so the m23-movement-III tool path
+the quest's Trigger describes is REACHABLE again, its =review.js= already carrying a soft
+=ctx.user= collar. All folded into a new "the drift since" section + a =#+VERIFIED= header.
+
+*Codemap fixes* (shards carrying claims that contradicted disk — the exact failure the
+kernel warns about):
+- =typology.md= said =shard.ambient='s =.store= was deleted — FALSE; =store/combine/assign/
+  current= all live at =gestalten/shard/ambient.js:6-22=, only the =resolution.js= call site
+  was removed; sole caller =multiplex.filter.test.js:23= uses =.store=.
+- =runtime.md= said INTENTED "sets mode but NEVER a user → 0 intent rows" — FIXED on disk,
+  =intented.js:7= now spreads =user: user.id=.
+- =runtime.md= skills roster =/{buffer,thread,literal,symbol}= → actual =/{entity,buffer,
+  thread}= (=entity.js= subsumes literal/symbol via a generic =repositories()= enum), and
+  paladin fs/shell skills have LANDED in the armed stack.
+
+* pass two — the red team (15 agents, ~2.27M tokens)
+
+Seven attack-surface finders (multiplex · stream-outlives-request · bind-identities ·
+detached-roots · cross-mode · emitter-races · client-edge), each followed by an adversarial
+REFUTER told to KILL every claimed break — hunt the defense the finder missed, downgrade to
+HOLDS with the saving mechanism or keep BREAKS only if the attack survives. Then dedupe +
+rank + completeness critic. *14 BREAKS collapse to 6 root causes; 7 LATENT.*
+
+** the mission-level finding
+
+#+begin_quote
+Isolation rests ENTIRELY on the MikroORM =user= filter (=default:true=). =authorize()= only
+sets =ctx.user= from the token — there is NO server-side thread-ownership check ANYWHERE.
+Ownership IS the ORM filter, and two entities that need it don't have it (Turn, User).
+#+end_quote
+
+So the "diligence collar" the quest's lean called ergonomics is actually the SECURITY
+BOUNDARY, and it is absent on the harness path.
+
+** root cause 1 — Turn has NO =user= filter (CROWN, security)
+
+=Turn.ts:54-93= — no =filters= block, no user column; every sibling userspace entity
+(Thread/Buffer/Intent/Retention/Trace) has one. Two breaks ride it, one fix closes both (a
+=user= filter through the thread relation, ={thread:{user:args.user}}=, like =Buffer.ts:36-41=):
+
+- *rank 1 — cross-user IDOR, read AND write.* Any authed user POSTs ={thread:<VICTIM_ID>,
+  parts}= to =/mode/*/harness/dialogue/stream= (the client already puts the thread id in the
+  body plain — =conversation.js:39=). =harnessed.js:27= loads the thread row USER-scoped
+  (foreign → null) but NEVER gates on the null and discards the row; :62 binds the raw id
+  STRING; the =/dialogue= branch runs =turn.history({thread: ctx.input.thread})= (:82 →
+  victim's whole convo into the ATTACKER's LLM prompt, "repeat everything above") and
+  =turn.chain({thread, role:"user", parts})= (:83 → create+flush BEFORE any LLM round-trip →
+  attacker+assistant turns in the victim's thread, unconditionally; Turn has no user column,
+  the FK is satisfied).
+- *rank 5 — =entity_find= skill.* =skills/entity.js= (armed for EVERY harnessed mode,
+  =harnessed.js:35=) enumerates every repo with =getEntityName=; =entity_find({entity:"turn",
+  where:{}, fields:"full"})= → every user's =Turn.parts= exfiltrated, paged past the budget
+  trim; =entity_find({entity:"user"})= enumerates all accounts. Also the harvester that hands
+  rank 1 its victim thread ids. Model-mediated (fires when the model emits the call — incl.
+  prompt-injection via corpus / a leaked turn).
+
+** the other five roots
+
+| root | breaks | one fix |
+|------+--------+---------|
+| 2 · =reactive()= with no scope → subscribe ={}= → =broadcaster.js:58= match-all | r7 intent leaks to the STOCK client (=userspace.js:9-11=, only userspace branch with neither scope mw nor scope option; =dossier.js:96= auto-subscribes ={}=) · r8 domain trace/retention leak spaced-rep state, exploit-only but SENSITIVE (=education/domain/aperture/index.js:59-67=) | scope mw/option, 2 files |
+| 3 · streamed persist non-transactional + finally-less (=harnessed.js:103-126= =try{…flush}catch{remove;throw}=) | r2 abort-mid-tool-stream → generator =return()= skips BOTH the post-loop flush AND the catch → dangling =tool_use= turn persists → every later =render()= 400s (non-retryable) → thread BRICKED. "Model used a tool, user hit stop" is normal chat. Deterministic on the live WS path | transactional/finally scribe |
+| 4 · =Thread.counter= RMW no version/atomic/unique (=Thread.ts:43,120=) | r11 concurrent =/emit= → lost increment + dup =buffer.index= (=emitter.js:57-64=) · r12 stale identity-map instance in a minutes-long stream fork → counter REGRESSION | atomic bump |
+| 5 · thread ROW loaded then discarded, raw id STRING bound (=harnessed.js:27= vs :62) | r9 =Trace.thread= NULL on every francesca tool-loop review (=Literal.ts:197= reads =ctx.thread?.id=; user+Retention correct, user bound as ENTITY) · r21 [LATENT] primer aperture, distinct site | bind the entity :27 already holds — quest fork #3, one assignment |
+| 6 · stale identity-map instance in the long-lived stream fork | r13 mid-stream =thread/update= skill (=skills/thread.js:17-21= findOneOrFail → PK hit → stale T0) merges over the stale trait JSON → silently clobbers a concurrent client E-panel trait edit | em refresh / version |
+
+** standalone breaks
+
+| rank | break | gate |
+|------+-------+------|
+| 3 | INTENTED boot finalizers share ONE fork under =resolution.js:52= =Promise.all= → filter-param cross-talk (=intented.js:24-28= unforked ensure) → Intent =unique[user,slug,mode]= violation → uncaught → whole runtime BOOT-LOOPS | ≥2 INTENTED modes (education: clinic 14 + rep-o-gram 8) AND ≥2 users; single-user dev DB safe |
+| 4 | same-tab logout→login: userB renders userA's REAL threads/intents over a never-torn-down subscription; =logout()= clears identity but never drops daemons/subs, =daemon.release= (=dossier.js:62=) called NOWHERE | account switch, zero crafting |
+| 6 | =input.tools= nature-collision: JSON =tools:{entity_find:{…}}= can't carry a function → =execute=undefined= → =armed.open= overwrites the SHARED module-scope skill leaf's effect (slurp shares edges) → tool dead daemon-wide until restart. PROBE-PROVEN | one crafted harness body |
+| 10 | concurrent dialogue on one thread → =history()= orders by =createdAt=, ignores parent linkage (=Turn.ts:8-10=) → braids two streams → splits a =tool_use/tool_result= pair → provider 400, persistent | two overlapping streams on one thread (client aborts only its OWN prior) |
+| 14 | echo harness caller (aprende render) drops =ctx.user= → =:61= bind skipped → review collar ERROR → lost Retention/Trace | aprende =/assistant/message=; no wrong-user rows (ORM ambient still scopes) |
+
+** LATENT (waiting on a named thing)
+
+| rank | latent | gate |
+|------+--------+------|
+| 15 | per-request auth clone written onto the SHARED daemon singleton (=ctx.daemon.connection=, =population.js:92-97=) → cross-user token BLEED | zero server-side readers today; fires when a domain tool makes an authed cross-daemon call through it |
+| 16 | TOOLED =/metadata/tools= remote would dispatch =mode.tools= bypassing the harness assemble → userless/threadless ctx | =metadata.js:38= commented; AGENTIC harvest is NOT an escape (harvested tools ride the source mode's binds) |
+| 19 | headerless socket PUSH silently 401-drops a userspace write | only push producer =shape.messenger= has zero live consumers |
+| 20 | datasink auto-settle overwritten by reactive on the same twitch + timer resurrects a dead RequestContext fork | ZERO datasink declarers today |
+
+** gaps NOBODY probed (beef's next "and and and")
+
+1. *client-minted turn PK* — =harnessed.js:84= passes =id: ctx.input.id= from the dialogue
+   body into =em.create= with a CLIENT-controlled primary key. Victim's existing turn id →
+   cross-fork PK collision → 500 as an existence ORACLE; or pre-seed a chosen PK onto a
+   victim thread (with rank 1's write).
+2. *turn/buffer reactive push-delivery with no =user= column* — =userspace.js:34-37= (turn) /
+   =:24-27= (buffer) set the reactive scope option to ={user:ctx.user.id}=, but neither
+   serializes a flat =user= field. The =datamap.js:183= owner-STAMP branch RUNS for them
+   (they have a scope option, unlike thread) — does it inject a =user= onto the userless row
+   so match succeeds, and what happens when the writing fork lacks the param (the streaming
+   generator's assistant-turn creates, or a threadless emit)? HOLD-via-stamp or silent
+   live-update failure — unresolved.
+3. *concurrent same-user first-request double-submit* racing the INTENTED =/after/user/create=
+   twitch (=intented.js:15-22=) → Intent unique collision, swallowed in the pump's try/catch.
+   Distinct from rank 3 (that's the BOOT walk).
+4. *UserEntity serialization surface* — =/userspace/handshake= (=userspace.js:39=) returns the
+   full =ctx.user= entity, bound into every armed tool ctx. Which fields serialize (auth
+   material / tokens / email)? Self-scoped so not cross-user, but a provider secret on
+   =toJSON= reaches the browser. Needs a User-schema read.
+
+** HOLDS worth keeping — load-bearing defenses (documented so nobody removes them)
+
+per-frame RequestContext + =inject= per-pull carry re-entry (concurrency isolation) ·
+Thread's own user filter + null-guard on the =/emit= path · batch re-auth on the daemon
+aperture root · thread reactive's scope-middleware + serialized FK delivery · AGENTIC
+harvest rebinding only daemon+mode (caller user/thread survive).
+
+* what it settles for the design
+
+- the store debate (A/B/C/D) was NEVER the whole problem. Two must-fixes are now
+  non-optional and UPSTREAM of the store choice: (1) Turn gets the =user= filter (closes the
+  crown IDOR + the skill leak), (2) the harness GATES on the thread row it already loads at
+  =harnessed.js:27= (bounce foreign/deleted threads) and binds the ENTITY not the string.
+  A/B/C/D only decide how user/thread TRAVEL, which the ORM filter + a harness gate already
+  largely settle.
+- fork #3 (entity-at-bind vs id-string) is no longer cosmetic — it's root cause 5, live,
+  one assignment from fixed.
+- fork #2 (scope-of-law) has TEETH now: rank 1 proves the userspace-WRITE law is a security
+  boundary, not a nicety. =review.js='s soft ERROR collar is the RIGHT SHAPE at the WRONG
+  LAYER — it guards one tool, not the harness seam every write rides.
+- recorded: full map in the quest's "where it breaks"; the five live security-critical
+  breaks (crown IDOR, bricked thread, boot crash, account-switch leak, tool DoS) also logged
+  in =known-issues.org= so they don't sink into a design memo.
+
+* craft notes
+
+- *the tree was HOT during the audit.* beef was editing =harnessed.js= and re-landing
+  =domain/tools/{pull,review}.js= WHILE the seven verifiers read — which is exactly why
+  inter-cluster line numbers contradicted (one cluster cited =:47/:48=, the recheck found
+  =:52/:53=). The critic caught it by re-reading on a later timestamp. Lesson: on a live
+  tree, cite working-tree lines and SAY SO; ±3 tolerance is meaningless mid-edit.
+- *the refuter earned its slot.* It downgraded cluster F's "pool double-bind BREAKS" to
+  LATENT (the shared identity-mapped counter keeps indexes unique — no listed invariant
+  dies) and flagged that the provider-error rollback framing is near-unreachable
+  (=respond()= swallows provider faults into =/response/close=, =hallucinate.js:100-109=) so
+  the LIVE turn-persistence break is the abort path, not provider error. Adversarial
+  verification stopped two inflated-severity findings from shipping.
+- *dedup by ROOT CAUSE, not symptom.* 14 BREAKS across 7 surfaces collapsed to 6 roots —
+  and two of the six (Turn-no-filter, streamed-persist-non-transactional) each surfaced on
+  three separate clusters. One fix per root, not per symptom.
+
+* state
+
+- =m26-hallucinate-contract.org= — DONE, stale =* open= settled.
+- =m25-user-and-thread-handling.org= — still PRELIMINARY (a design memo, not a build), now
+  carrying =#+VERIFIED= + =#+BREAKAGE= headers, a "the drift since" section, a "where it
+  breaks" section, fork 4 settled, forks 1/2/3/5/6 sharpened, the lean REFRAMED (store is
+  downstream of the two must-fixes).
+- nothing gated but beef's ruling. Offered: draft the Turn-filter + harness-gate fix as a
+  blast bracket. Held pending go.

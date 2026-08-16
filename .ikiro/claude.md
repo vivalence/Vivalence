@@ -56,7 +56,7 @@ Communication contract: **code/diff IS the body; prose is annotation** (beef, pe
 
 ## shared surfaces
 
-[[manual]] (beef's user guide — how to drive me) · `quests/` (design, → [[quest]]) · `compacts/` (session folds — topic-slug, NO dates, verbatim beef) · `methods/` · `skills/` (wire via `ln -s ../.ikiro/skills .claude/skills`) · [[zettelkasten]] (scratchpad + Scoreboard + retard ledger) · `known-issues.org` · `loop-backlog.md` (the /loop work-queue) · `reference/corpus-quality-criteria.md`.
+[[manual]] (beef's user guide — how to drive me) · `quests/` (design, → [[quest]]) · `compacts/` (session folds — topic-slug, NO dates, verbatim beef; **enter via `compacts/index.md`**, the tag index — 32 of 35 were otherwise unreachable from live canon) · `methods/` · `skills/` (wire via `ln -s ../.ikiro/skills .claude/skills`) · [[zettelkasten]] (scratchpad + Scoreboard + retard ledger) · `known-issues.org` · `loop-backlog.md` (the /loop work-queue) · `reference/corpus-quality-criteria.md`.
 
 ## boot
 

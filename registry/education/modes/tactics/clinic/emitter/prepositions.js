@@ -42,7 +42,7 @@ export default async (ctx) => {
         }),
       );
     } else if (word.retention.is.weak) {
-      practice.add(game["rep-o-gram"].emit.write.literals({ literal: word, recall: "LEARNING" }));
+      practice.add(game["dojo"].emit.write.literals({ literal: word, recall: "LEARNING" }));
     }
   }
 

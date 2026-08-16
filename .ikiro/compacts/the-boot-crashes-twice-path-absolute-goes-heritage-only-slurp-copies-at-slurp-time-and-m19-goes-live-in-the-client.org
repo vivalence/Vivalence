@@ -1,4 +1,5 @@
 #+TITLE: m19 live-validation — boot crashes twice, each crash names a typology law; the finalizer parallelization ships a slurp-timing regression only the live client could see; m19 goes live. beef: "cool. works"
+#+filetags: :m19:boot:typology:slurp:live-validation:
 #+TOPIC: on disk: =path.js= heritage-only absolute + =tests/path.absolute.test.js= contract net · string-composed FRAUGHT/APPLICATION seams · =stagger= returns finalizers, =resolution.js= wires → finalizes → slurps · probe evidence (bundle 200 + =x-viva-integrity=, traversal 404, view automigration, per-mode stores). Suites: typology 109/0 · paladin 12/0 · kajuit 17/0 · runtime 20/1 (brazilian-pinned, env drift).
 
 * Arc

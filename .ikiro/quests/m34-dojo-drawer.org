@@ -1,0 +1,80 @@
+#+TITLE: M34 Dojo drawer — the designer's Dojo.dc.html ported over the declared-set model, the query engine adapted to what the repositories provide
+#+STATUS: IMPLEMENTED (live-driven on italian; the 16 GB memory issue RESOLVED — see known-issues)
+
+* Intent
+
+The building half of the dojo lands as designed in =~/Downloads/Mode recast concept/Dojo.dc.html=
+(design project =6a9d17f9=): the PLAYER with a DRAWER pulled down over it. The set stays
+declared-then-materialized (m24 recast, compact 20). What changes is WHERE building happens
+and WHICH gesture is the hero — search field first, Italian rows always visible, the rule as
+three spatial bins, one clause list, axes to the right of the set.
+
+beef, deciding (verbatim):
+- /"i watn the query engine that we now have a design for to be adapted closely to what the repositories provide - domain and runtime. only becasue there aint a consumer today aint reason to not do it."/ · /"literal and symbol on both runtime and domain!"/
+- /"the whole thing outght to be responsive. any width or screen size. be smart here."/
+- cap: /"cap should be a parameter. 200 is a good default."/
+- presets/axes rows: /"its a design. ui and ux. content is your perview. you control content. adapt and integrate."/
+- /"no more inspector."/
+- saved sets: /"the whole set is saved adn in localstorage. maybe in the threads in the future or maybe notes once we implement them."/
+- assistant: /"bench the assistant for today. build it but comment it out. keep it in the compact and quest. future music."/
+- bins: /"align with what the repo's offer us. you can go above 3 buckets. you design this. remember, its a design not an implementation. the agent that build the design didnt have all the facts and youre smarter, fable."/
+
+* Desired end state (plain language)
+
+Open the dojo: the drawer is down. One field finds symbols (slug or LABELED name) and literal
+traits; a chip clicked lands in the aimed bin — MUST HAVE ALL OF · ANY ONE OF · NEVER — and
+the rows below re-resolve as Italian at once, with a count. Take = the domain repository's
+own streams. Cap = one typeable number, 10 by default in the drawer, 200 the ceiling. Add clause → a card in THE SET with a live count
+and five previewed rows. Presets, recents and saved sets load a whole set. Axes on the right.
+Start materializes and closes the drawer; the rep is what remains; the handle over it reads
+"N in the set · TYPE ×2". Esc pulls the drawer back. Same thing on a phone, one space at a
+time with four stubs. Nothing under the buffer changes: =data.set= clauses in the
+repositories' grammar, one resolver, =/resolve /setup /commission=.
+
+* The query engine — exactly what the repositories provide
+
+| repository (level)                     | grammar exposed                                                                 | drawer surface                                   |
+|----------------------------------------+---------------------------------------------------------------------------------+--------------------------------------------------|
+| Literal (runtime, base)                | =symbols: [..]= AND · ={$all,$in,$none}= · =search= (slug + translations)         | bins ∧ ∨ ∅ take symbol chips · TEXT contains       |
+| Data (runtime, base of both)           | =traits: string | [] | {$contains,$overlap,$none}=                              | trait chips drop into the SAME bins              |
+| Literal entity fields                  | =ontology= · =rank=                                                             | ontology = TOPOGRAPHICAL symbol chips · RANK window |
+| Literal (domain)                       | =feed · due · novel · byStrength · byLastSignal(signals) · sample({status})= · =card= | TAKE row; byLastSignal opens signal toggles, sample opens status toggles; rows carry =status= |
+| Symbol (runtime = domain)              | =slug= · =trait.LABELED.name= · =traits {$contains,$overlap,$none}= (ONTOLOGICAL/STRUCTURAL/TOPOGRAPHICAL) · =findByIdentifiers= | =/symbols {search, traits, limit}= — server typeahead, kind filter, trait-dot colour |
+| Retention (domain)                     | status · strength · lastSignal · nextAt                                          | through the streams only — no invented filters   |
+
+Clause = ={pick, where?, limit?, signals?, status?, literals?, knowables?}=. =limit= unset = =types.CAP= 200 (emitters); the drawer writes 10 unless told otherwise.
+=data.omit= DIES (no surface, no consumer).
+
+* Regions (design → intent)
+
+- handle bar over the player: setup readable mid-session.
+- library: saved sets (whole set + axes, localStorage) · recents (whole set) · assistant BENCHED.
+- build: by symbol (01 find · 02 rule bins · 03 take + cap · 04 window: rank/text · resolves-to rows · add clause) | by literal (search rows, pin).
+- the set: clause cards (kind · label · count · ✎ × · 5 previews).
+- gameplay: START · presets (all eight; content is mine) · axes rows (incl. preview + pools where the row can carry them).
+- narrow: four stubs + start ▲.
+
+* Responsive tiers (measured on the shell, never the window)
+
+- width < 700: ONE space at a time + stubs + start; drawer 100%.
+- 700 ≤ width < 1040: build + ONE side column (set | gameplay via stubs); library overlays.
+- width ≥ 1040: build + set + gameplay; library rail → panel.
+- height < 520: drawer 100% (the player is hidden while building anyway).
+
+* Benched — future music
+
+- ✦ assistant: =/provision= (aperture + hal + client Library block) built, commented out. Contract to revive: ={reply, clause?, axes?}= — one rule proposal loaded INTO THE BUILDER, axes applied directly; never adds, never starts.
+
+* Landed (same evening as the design)
+
+- server: =types.js= (PICKS = all·feed·due·novel·byStrength·byLastSignal·sample·literals·authored, =signals=/=status= on the clause, =traits= as array | {$contains,$overlap,$none}, =prompt= a POOL, =CAP= 200 the schema ceiling, =omit= gone) · =set/where.js= (traits object passthrough) · =set/picks.js= (=byLastSignal(signals)=, =sample({status})=, retentions populated so rows carry =status=, exported =count=) · =set/describe.js= (=label()= for pick names) · aperture =/count {wheres}= · =/symbols {search, traits, limit}= (repository find over slug + LABELED name + traits.$overlap, counts by GROUP BY, sorted by literal count) · =/traits= · =/resolve= rows + =slug rank status= · =/provision= BENCHED in a =@beef= block, =hal/provision.js= rewritten to the future ={reply, clause?, axes?}= contract · fixture retentions gain =lastSignal=.
+- client: =Dojo.svelte= rewritten (drawer over the player, tiers narrow/medium/wide by shell width, short by height, phases idle→playing→drawing→done, =stop()= ends a session and drops the lock, panes persisted under =viva.mode.dojo=) · NEW =parts/{Handle,Drawer,Library,Builder,Clauses,Gameplay,Segment,Stepper}.svelte= · =Standby= gains a secondary action · =Rep=/=Prompt= read a per-knowable =prompt= · DEAD: =Console Set Header Inspector Keymap shell.svelte.js=.
+- beef's live adjustments (all landed): draggable walls — column lines, the drawer's height (drag the close bar), the builder's form/results split — stored in the mode's localStorage · gameplay/prompt/recall multi-select pools · streak + limit as axis rows under presets with typeable ± steppers (1 / 10 on shift) · resolves list capped at 50 with a typeable "show" stepper (unlit, count synced into the header) · cap default 10 per clause · "end" beside start while playing · =.row= class collision with a global kajuit rule → =.axis=.
+- tests: dojo 8 suites / 37 steps · runtime 50 / 320 · every view compiles.
+
+* Open
+
+- MEMORY: the runtime ran to 16 GB while the drawer was driven — RESOLVED: JOINED to-many populate left the where's symbol joins unconstrained on the paginate outer query (=symbols^k= rows per literal); datamap =loadStrategy: "balanced"= via one shared =config()= + =Literal.retentions strategy: "select-in"= + invariant test =repository.populate.test.js=. =0 rows / 1938 counted= was the same request dying. Details in =known-issues.org=.
+- streams count paradigms while rows show forms (cap 10 → up to 60 rows on conjugation-heavy rules) — carried from m24.
+- narrow + medium tiers unseen live (chrome was taken away mid-drive; wide/medium tier at 989 px verified: search, bins, counts, take, cap, show, add clause, presets, axes).
+- =/symbols= zero-count symbols hidden client-side; symbol chips show the raw slug (design verbatim), LABELED name in the title.

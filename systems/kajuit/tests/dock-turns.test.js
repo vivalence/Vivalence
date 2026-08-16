@@ -17,7 +17,6 @@ import {
   scalarPairs,
   strengthBand,
   turnCensus,
-  turnDigest,
   turnUsage,
   sessionUsage,
   tokens,
@@ -400,23 +399,5 @@ specimen.describe("turnCensus", () => {
     specimen.expect(turnCensus([{ entities: { engram: [1, 2] } }])[0].count).toBe(2);
     specimen.expect(turnCensus([]).length).toBe(0);
     specimen.expect(turnCensus(null).length).toBe(0);
-  });
-});
-
-specimen.describe("turnDigest", () => {
-  specimen.it("carries the LAST call's summary, not the turn's sum", () => {
-    const digest = turnDigest([
-      { census: [{ type: "literal", count: 14 }] },
-      { census: [{ type: "buffer", count: 1 }] },
-    ]);
-    specimen.expect(digest.length).toBe(1);
-    specimen.expect(digest[0].type).toBe("buffer");
-    specimen.expect(digest[0].count).toBe(1);
-  });
-
-  specimen.it("falls back to the raw entities bag and is empty for no tools", () => {
-    specimen.expect(turnDigest([{ entities: { literal: [1, 2, 3] } }])[0].count).toBe(3);
-    specimen.expect(turnDigest([]).length).toBe(0);
-    specimen.expect(turnDigest(null).length).toBe(0);
   });
 });

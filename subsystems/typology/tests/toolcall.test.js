@@ -1,4 +1,4 @@
-import { specimen, ToolCall, Signal } from "@vivalence/typology";
+import { specimen, steer, ToolCall, Signal, Vector } from "@vivalence/typology";
 
 specimen.describe("ToolCall — the wire↔signal codec, a Signal sibling on the underscore", () => {
   specimen.it("a flat name is one segment", () => {
@@ -27,5 +27,32 @@ specimen.describe("ToolCall — the wire↔signal codec, a Signal sibling on the
 
   specimen.it("its signal is a real Signal, ready for steer.dispatch", () => {
     specimen.expect(new ToolCall("drill_pick").signal).toBeInstanceOf(Signal);
+  });
+
+  specimen.it("builds from live trie Patterns: siblings keep distinct names", () => {
+    const tools = new Vector()
+      .open({ nature: "/fs/tree" }, () => {})
+      .open({ nature: "/fs/find" }, () => {})
+      .open({ nature: "/fs/read" }, () => {});
+    const names = steer.trie.rollup(tools, () => null).map(({ steps }) => new ToolCall(steps).name);
+    specimen.expect(names).toEqual(["fs_tree", "fs_find", "fs_read"]);
+  });
+
+  specimen.it("construction from a foreign Signature adopts identity, never linkage", () => {
+    const tools = new Vector().open({ nature: "/fs/tree" }, () => {});
+    const entries = steer.trie.rollup(tools, () => null);
+    const donor = entries[0].steps[0];
+    const gauges = donor.gauges.length;
+    const trace = donor.trace;
+    new ToolCall(entries[0].steps).name;
+    new ToolCall(entries[0].steps).name;
+    specimen.expect(donor.gauges.length).toBe(gauges);
+    specimen.expect(donor.trace).toBe(trace);
+  });
+
+  specimen.it("an array argument is read, not consumed", () => {
+    const steps = [{ nature: "fs" }, { nature: "tree" }];
+    new ToolCall(steps);
+    specimen.expect(steps.length).toBe(2);
   });
 });

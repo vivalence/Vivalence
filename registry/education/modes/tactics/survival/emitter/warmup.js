@@ -73,7 +73,7 @@ export default async (ctx) => {
       );
     } else if (vocalized && random.coinflip(0.7)) {
       practice.add(
-        ctx.daemon.modes.game["rep-o-gram"].emit.listen.literal({
+        ctx.daemon.modes.game["dojo"].emit.listen.literal({
           literal: word,
           distractors,
           gameplay: "TYPE",
@@ -81,7 +81,7 @@ export default async (ctx) => {
         }),
       );
     } else {
-      practice.add(ctx.daemon.modes.game["rep-o-gram"].emit.write.literals({ literal: word }));
+      practice.add(ctx.daemon.modes.game["dojo"].emit.write.literals({ literal: word }));
     }
   }
 
