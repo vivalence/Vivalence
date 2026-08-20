@@ -1,4 +1,4 @@
-import { NotFound, Span, ToolCall, fromm, soma, steer } from "@vivalence/typology";
+import { NotFound, Span, ToolCall, fromm, soma, steer, verbatim } from "@vivalence/typology";
 
 export const signalOf = (name) => new ToolCall(name).signal;
 export const nameOf = (steps) => new ToolCall(steps).name;
@@ -124,4 +124,32 @@ export async function render(faculty, request, policy) {
       `[hallucinate] '${faculty.type}' response closed ${folded.meta.state} after ${folded.meta.rounds} rounds`,
     );
   return folded;
+}
+
+export async function* transcribe(faculty, { source, config, harmonize }, policy = {}) {
+  const span = policy.span ?? new Span("/hallucination");
+  span.open();
+  span.note({ faculty: faculty.type, harmonize });
+  try {
+    yield* verbatim.harmonize(faculty.via.stream(source, config), harmonize);
+  } catch (fault) {
+    span.fault(fault);
+    throw fault;
+  } finally {
+    span.close();
+  }
+}
+
+export async function* synthesize(faculty, { source, config }, policy = {}) {
+  const span = policy.span ?? new Span("/hallucination");
+  span.open();
+  span.note({ faculty: faculty.type });
+  try {
+    yield* faculty.via.stream(source, config);
+  } catch (fault) {
+    span.fault(fault);
+    throw fault;
+  } finally {
+    span.close();
+  }
 }

@@ -1,0 +1,9 @@
+{
+  "VIVA_RUNTIME_SERVE": "http://localhost:2601/",
+  "VIVA_LIGHTHOUSE_SERVE": "http://localhost:2601/attached/process/lighthouse/multiplayer",
+  "VIVA_CLIENT_KAJUIT_SERVE": "http://localhost:1796/",
+
+  "PUBLIC_VIVA_RUNTIME_REMOTE": "http://localhost:2601/",
+  "PUBLIC_VIVA_LIGHTHOUSE_REMOTE": "http://localhost:2601/attached/process/lighthouse/multiplayer",
+  "PUBLIC_VIVA_CLIENT_KAJUIT_REMOTE": "http://localhost:1796/",
+}

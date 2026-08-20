@@ -9,6 +9,19 @@ export const INTELLIGENT = v.object({
   effort: v.enum(["none", "low", "medium", "high"]).optional(),
 });
 
+export const VOCAL = v.object({
+  language: v.string().optional(),
+  tune: v.union([Tier, Tune]).optional(),
+  harmonize: v
+    .object({
+      window: v.integer({ minimum: 1 }).optional(),
+      tolerance: v.number({ minimum: 0, maximum: 1 }).optional(),
+      tail: v.integer({ minimum: 1 }).optional(),
+    })
+    .optional(),
+  polish: v.boolean().optional(),
+});
+
 export const ThreadDescriptor = {
   $id: "Thread",
   own: {

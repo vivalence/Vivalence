@@ -10,6 +10,8 @@ export {
   toolUseStream,
   lastUserText,
   hasToolResult,
+  verbatimFaculty,
+  speechFaculty,
 } from "./faculties.js";
 export * as lighthouse from "./lighthouse.js";
 export { live, BASE, CREDENTIALS } from "./live.js";

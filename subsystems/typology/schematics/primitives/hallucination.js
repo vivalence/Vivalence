@@ -276,6 +276,86 @@ Packet.ResponseClose = v.object({
   ),
 });
 
+export const Word = v.object({
+  word: v.string(),
+  start: v.number().optional(),
+  end: v.number().optional(),
+  confidence: v.number().optional(),
+  language: v.string().optional(),
+});
+
+export const Audio = {};
+
+Audio.Packet = v.object({
+  event: v.const("/audio/packet"),
+  audio: v.string(),
+  rate: v.integer(),
+  codec: v.string().optional(),
+  pts: v.number().optional(),
+  align: v
+    .array(
+      v.object({
+        text: v.string().optional(),
+        offset: v.integer().optional(),
+        start: v.number().optional(),
+        end: v.number().optional(),
+      }),
+    )
+    .optional(),
+});
+
+Audio.Close = v.object({
+  event: v.const("/audio/close"),
+  meta: v.record(v.string(), v.unknown()).optional(),
+});
+
+Audio.Any = v.union([Audio.Packet, Audio.Close]);
+
+export const Verbatim = {};
+
+Verbatim.Commit = v.object({
+  event: v.const("/verbatim/commit"),
+  text: v.string(),
+});
+
+Verbatim.Partial = v.object({
+  event: v.const("/verbatim/partial"),
+  transcript: v.string(),
+});
+
+Verbatim.Eager = v.object({
+  event: v.const("/verbatim/eager"),
+  transcript: v.string(),
+});
+
+Verbatim.Resume = v.object({
+  event: v.const("/verbatim/resume"),
+});
+
+Verbatim.Final = v.object({
+  event: v.const("/verbatim/final"),
+  transcript: v.string(),
+  segment: v.integer().optional(),
+  words: v.array(Word).optional(),
+});
+
+Verbatim.Polish = v.object({
+  event: v.const("/verbatim/polish"),
+  transcript: v.string(),
+  segments: v.array(v.integer()),
+});
+
+Verbatim.Any = v.union([
+  Packet.TurnOpen,
+  Packet.TurnClose,
+  Verbatim.Commit,
+  Verbatim.Partial,
+  Verbatim.Eager,
+  Verbatim.Resume,
+  Verbatim.Final,
+  Verbatim.Polish,
+]);
+
 Packet.Response = v.union([
   Packet.TurnOpen,
   Packet.PartOpen,

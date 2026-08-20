@@ -1,4 +1,5 @@
 import { Url } from "./url.js";
+import { sse } from "@vivalence/typology";
 
 export class Request {
   constructor(request = {}) {
@@ -39,22 +40,7 @@ export class Request {
   async *subscribe() {
     const body = this.raw?.body;
     if (!body) return;
-    const reader = body.getReader();
-    const decoder = new TextDecoder();
-    let buffer = "";
-    while (true) {
-      const { value, done } = await reader.read();
-      if (done) break;
-      buffer += decoder.decode(value, { stream: true });
-      const frames = buffer.split("\n\n");
-      buffer = frames.pop();
-      for (const frame of frames) {
-        const line = frame.split("\n").find((l) => l.startsWith("data: "));
-        if (!line) continue;
-        const payload = line.slice(6);
-        try { yield JSON.parse(payload); } catch { yield payload; }
-      }
-    }
+    yield* sse.frames(body);
   }
 
   clone() {

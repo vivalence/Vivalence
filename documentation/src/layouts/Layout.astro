@@ -468,6 +468,15 @@ const incoming = current
       .live-card p { font-size: var(--step--1); color: var(--ink); line-height: 1.5; margin: 0 0 var(--s3); }
       .live-card .mini-trace { font-family: var(--mono); font-size: var(--step--2); color: var(--muted); display: grid; gap: 2px; }
       .live-card .mini-trace .v { color: var(--accent); }
+      .guide-wrap { margin-top: var(--s7); border-top: 1px solid var(--line); padding-top: var(--s6); }
+      .guide { max-width: 74ch; }
+      .guide > :first-child { margin-top: 0; }
+      .guide h2 { font-family: var(--display); font-size: var(--step-3); letter-spacing: -0.015em; margin: 0 0 var(--s4); }
+      .guide h3 { font-family: var(--display); font-size: var(--step-1); margin: var(--s6) 0 var(--s3); }
+      .guide p { color: var(--muted); line-height: 1.6; margin: 0 0 var(--s4); max-width: 68ch; }
+      .guide p code, .guide li code { font-family: var(--mono); font-size: 0.92em; color: var(--ink);
+        background: var(--code); border: 1px solid var(--line); border-radius: var(--r1); padding: 0.05em 0.35em; }
+      .guide .codeblock, .guide .admonition { max-width: none; margin-bottom: var(--s5); }
 
       .mobile-bar { display: none; }
       .scrim { display: none; }

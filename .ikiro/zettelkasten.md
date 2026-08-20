@@ -8,7 +8,14 @@
 >
 > ⚠️ **"quiet since X" measures BEEF'S ATTENTION, not my behaviour — and where that has been tested, it was wrong.** Every `PROVEN` / `quiet since` on this board is inferred from the absence of a callout, which is the `A ZERO IS A CLAIM` shape turned on the board itself. Two families have now been measured directly against the 67-transcript corpus rather than inferred: **`vcs-write-reflex` CONFIRMED** (2 matches in 5,657 Bash calls, both read-only commands caught by a loose regex — genuinely extinct at the hook rung) and **`comment-litter` REFUTED** (65 authored-comment incidents across 20 days during its "quiet since 07-11", trending up). One confirmed, one wrong by ~16×. **Treat every untested `PROVEN` as unearned**: promote on measurement where a family has a mechanical signature (`comment-litter`, `vcs-write-reflex`, `namespace-destructuring`, `no-abbreviations`, `compact-date-discipline` all do), and only fall back to silence for the ones that genuinely cannot be greped.
 >
-> **`n` counts LEDGER ENTRIES, and the `entries` column lists the date of every one** — so any cell can be re-derived by grepping `## Callouts` for those dates. This replaces the previous `~n` column, whose numbers silently mixed entries with in-entry strike counts and could not be reproduced from the ledger. Where an entry records multiple strikes in one incident (privacy-leak, comment-litter) the strike count is stated in the rule cell, never folded into `n`. 34 entries predate the `family:` tag; their classification is stated here — the ledger stays append-only and untouched. **RECONCILED at the connoisseur pass: 90 ledger `###` entries = 89 family-counted + 1 standing-constraint (typology-holy, "not an incident").**
+> **`n` counts LEDGER ENTRIES, and the `entries` column lists the date of every one** — so any cell can be re-derived by grepping `## Callouts
+- **Abbreviated the code in a README section.** Wrote the "Hello, Variant!" block with `...` elisions —
+  `svelte\`<script>...</script>\``, `symbol: [...], literal: [...]`, `kernel: [domain, flashcard], ... }]` —
+  instead of inlining the real file. beef pasted the whole file back under `# whatever` and shouted
+  NOT A FUCKING ABBREVIATION. A README code sample IS the documentation; eliding it defeats the point,
+  and it is the same recidivism family as [[feedback_no_abbreviations]]. Fix: paste the file, read it
+  from disk so it cannot drift.
+` for those dates. This replaces the previous `~n` column, whose numbers silently mixed entries with in-entry strike counts and could not be reproduced from the ledger. Where an entry records multiple strikes in one incident (privacy-leak, comment-litter) the strike count is stated in the rule cell, never folded into `n`. 34 entries predate the `family:` tag; their classification is stated here — the ledger stays append-only and untouched. **RECONCILED at the connoisseur pass: 90 ledger `###` entries = 89 family-counted + 1 standing-constraint (typology-holy, "not an incident").**
 
 | family | n | entries | rule | rung | status |
 |---|---|---|---|---|---|

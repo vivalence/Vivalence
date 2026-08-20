@@ -9,7 +9,7 @@ const AUTHOR = [
 export const emitter = new Vector().open(
   { nature: "/conjure", input: v.object({ brief: v.string() }) },
   async (ctx) => {
-    const response = await ctx.daemon.cortex.hallucinate.verbatim.render({
+    const response = await ctx.daemon.cortex.hallucinate.dialogue.render({
       system: { author: AUTHOR },
       turns: [{ role: "user", parts: [{ type: "text", text: ctx.input.brief }] }],
     });
