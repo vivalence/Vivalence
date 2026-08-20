@@ -1,5 +1,5 @@
 import { atom } from "nanostores";
-import { soma } from "@vivalence/typology";
+import { pcm, soma } from "@vivalence/typology";
 
 export function conversation({ terminal, box }) {
   const $streaming = atom(null);
@@ -7,14 +7,13 @@ export function conversation({ terminal, box }) {
   const $error = atom(null);
 
   let down = null;
-  let up = null;
 
   async function drain(stream) {
     let assistant = null;
     try {
       for await (const packet of stream) {
         if ((packet.channel ?? "dialogue") === "speech") {
-          box.device.speaker.out.enqueue(box.drivers.audio.decode(packet.audio));
+          box.device.speaker.out.enqueue(pcm.decode(packet.audio));
           continue;
         }
         assistant = soma.pour(assistant, packet);
@@ -45,30 +44,9 @@ export function conversation({ terminal, box }) {
 
   const abort = () => down?.abort();
 
-  async function listen() {
-    const thread = terminal.thread;
-    await box.device.microphone.claim();
-    await box.device.speaker.claim();
-    up = new AbortController();
-    drain(
-      await thread.mode.connection.publish(
-        "/harness/verbatim/stream",
-        box.device.microphone.in.stream(up.signal),
-        { signal: up.signal },
-      ),
-    );
-  }
-
-  const mute = () => {
-    up?.abort();
-    up = null;
-    box.device.microphone.release();
-    box.device.speaker.flush();
-  };
-
   function close() {
     abort();
-    mute();
+    box.device.speaker.flush();
     $streaming.set(null);
     $pending.set(false);
   }
@@ -81,8 +59,6 @@ export function conversation({ terminal, box }) {
     $error,
     send,
     abort,
-    listen,
-    mute,
     close,
     teardown: () => {
       close();

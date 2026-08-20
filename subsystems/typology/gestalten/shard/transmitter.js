@@ -63,19 +63,19 @@ export function multiplex({ authority, mount = "/multiplex", vector, connect } =
     const { request, response } = ctx;
     try {
       const socket = await establish(request.url.origin);
-      const streaming = request.body instanceof ReadableStream;
+      const upstream = request.stream();
 
       const frame = await socket.open(request.url, {
         query: request.url.search || undefined,
-        input: streaming ? undefined : request.body,
+        input: request.body,
         verb: request.method,
         token: authority?.get()?.access,
-        stream: streaming || undefined,
+        stream: upstream ? true : undefined,
       });
 
       const abort = () => socket.shut(frame);
       request.signal.addEventListener("abort", abort, { once: true });
-      if (streaming) socket.feed(frame, request.body);
+      if (upstream) socket.feed(frame, upstream);
 
       if (request.headers.get("accept") === "text/event-stream") {
         response.status = 200;
@@ -234,13 +234,19 @@ export const fetcher = async (ctx) => {
     signal: request.signal,
   };
 
-  if (request.method !== "GET" && request.body !== undefined) {
-    const streaming = request.body instanceof ReadableStream;
-    options.body = streaming ? request.body : JSON.stringify(request.body);
-    if (streaming) {
-      options.duplex = "half";
-      options.headers["Content-Type"] = "text/event-stream";
-    }
+  const upstream = request.stream();
+  if (upstream) {
+    if (request.body && Object.keys(request.body).length)
+      throw new ConnectionError(
+        "TRANSPORT",
+        "plain HTTP cannot carry input beside an upstream body — converse rides the multiplex transport",
+        { url: request.url.absolute },
+      );
+    options.body = upstream;
+    options.duplex = "half";
+    options.headers["Content-Type"] = "text/event-stream";
+  } else if (request.method !== "GET" && request.body !== undefined) {
+    options.body = JSON.stringify(request.body);
   }
 
   try {

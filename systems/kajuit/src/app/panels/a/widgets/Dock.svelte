@@ -1,10 +1,12 @@
 <script>
   import { getContext } from "svelte";
-  import { chain, stores } from "@vivalence/kajuit";
+  import { chain, stores, dictation } from "@vivalence/kajuit";
   import { soma } from "@vivalence/typology";
-  import { TERMINALS, BRIDGE } from "$client";
+  import { TERMINALS, BRIDGE, BOX } from "$client";
   import { Json } from "@vivalence/drapes";
   import Markdown from "./Markdown.svelte";
+  import Dictaphone from "./Dictaphone.svelte";
+  import { spliceAt } from "./dictate.js";
   import {
     turnText,
     turnThinking,
@@ -30,6 +32,7 @@
 
   const terminals = getContext(TERMINALS);
   const bridge = getContext(BRIDGE);
+  const box = getContext(BOX);
 
   // reactive reads via chain from the STABLE terminals root (survives thread switches).
   const turnsStore = chain(terminals, "$active", "$thread", "$turns");
@@ -40,6 +43,16 @@
 
   let turns = $derived($turnsStore ?? []);
   let harnessed = $derived($modeStore?.implements?.("HARNESSED") ?? false);
+  let verbatim = $derived(harnessed && ($modeStore?.daemon?.cortex?.find({ type: "verbatim", via: "stream" }).length ?? 0) > 0);
+
+  const recorder = dictation({ terminals, box });
+  const dictating = recorder.$active;
+  const committed = recorder.$committed;
+  const tail = recorder.$tail;
+  const dictationFault = recorder.$error;
+  const level = box.device.microphone.$level;
+  let anchor = 0;
+  const listening = $derived($dictating !== "idle");
   let full = $derived($dockStore?.full ?? false);
 
   // in-flight = pure view state. history is thread.$turns (the repo). the user turn is minted
@@ -162,6 +175,32 @@
     };
   }
 
+  function dictate() {
+    anchor = textareaEl?.selectionStart ?? draft.length;
+    recorder.start();
+  }
+
+  async function settle() {
+    recorder.stop();
+    await recorder.settled();
+    const text = recorder.$committed.get();
+    if (!text) return;
+    const spliced = spliceAt(draft, anchor, text);
+    draft = spliced.draft;
+    requestAnimationFrame(() => {
+      textareaEl?.focus();
+      if (textareaEl) textareaEl.selectionStart = textareaEl.selectionEnd = spliced.caret;
+    });
+  }
+
+  $effect(() => {
+    const unswitch = chain(terminals, "$active", "$thread").subscribe(() => recorder.cancel());
+    return () => {
+      unswitch();
+      recorder.cancel();
+    };
+  });
+
   async function send() {
     if (!draft.trim() || !harnessed || sending) return;
     const parts = [{ type: "text", text: draft.trim() }];
@@ -224,6 +263,9 @@
     } else if (event.key === "ArrowUp" && draft === "") {
       event.preventDefault();
       recallLastUser();
+    } else if (event.key === "Escape" && listening) {
+      event.preventDefault();
+      recorder.cancel();
     } else if (event.key === "Escape" && (isStreaming || sending)) {
       event.preventDefault();
       stop();
@@ -629,6 +671,12 @@
   {/if}
 
   <div class="composer">
+    {#if listening}
+      <div class="dictation-ghost">
+        <span class="mark"></span>
+        <span class="settled">{$committed}</span>{#if $tail}<span class="volatile">&nbsp;{$tail}</span>{/if}
+      </div>
+    {/if}
     {#if !pinned}
       <button type="button" class="new-pill" class:quiet={unread === 0} onpointerdown={(event) => event.preventDefault()} onclick={() => { pinned = true; pinBottom(); unread = 0; }} aria-label="scroll to bottom">
         ↓{#if unread > 0}&nbsp;{unread} new{/if}
@@ -641,9 +689,19 @@
       onkeydown={onKey}
       placeholder={harnessed ? hint : "—"}
       disabled={!harnessed}
+      readonly={listening}
       rows="1"
       style:max-height="{Math.max(112, Math.round(dockHeight * 0.6))}px"></textarea>
 
+    {#if verbatim}
+      <Dictaphone
+        active={dictating}
+        {level}
+        fault={$dictationFault}
+        disabled={sending}
+        onstart={dictate}
+        onstop={settle} />
+    {/if}
     {#if isStreaming || sending}
       <button class="send stop" onclick={stop} onpointerdown={(event) => event.preventDefault()} title={coarsePointer ? "stop" : "stop (esc)"} aria-label="stop">
         <svg viewBox="0 0 24 24">
@@ -1670,5 +1728,41 @@
   }
   .send.stop:hover {
     background: color-mix(in srgb, var(--colors-skeleton-0-danger-base) 18%, transparent);
+  }
+  .dictation-ghost {
+    position: absolute;
+    bottom: calc(100% + 6px);
+    left: 8px;
+    right: 8px;
+    display: flex;
+    align-items: baseline;
+    gap: 6px;
+    padding: 5px 8px;
+    font-size: 12px;
+    line-height: 17px;
+    background: color-mix(in srgb, var(--colors-skeleton-0-surface) 92%, transparent);
+    border: 1px solid color-mix(in srgb, var(--colors-skeleton-0-danger-base) 40%, transparent);
+    border-radius: 2px;
+    backdrop-filter: blur(4px);
+    pointer-events: none;
+    white-space: pre-wrap;
+    overflow-wrap: anywhere;
+  }
+  .dictation-ghost .mark {
+    width: 6px;
+    height: 6px;
+    border-radius: 50%;
+    background: var(--colors-skeleton-0-danger-base);
+    flex-shrink: 0;
+    align-self: center;
+    animation: dictation-breathe 1.4s ease-in-out infinite;
+  }
+  .dictation-ghost .volatile {
+    opacity: 0.45;
+    font-style: italic;
+  }
+  @keyframes dictation-breathe {
+    0%, 100% { opacity: 0.35; }
+    50% { opacity: 1; }
   }
 </style>

@@ -1,6 +1,6 @@
 import { Vector, Span, is, object, shape, shard, steer } from "@vivalence/typology";
 import { v } from "../schematics/v.js";
-import { Tier, Tune, Packet } from "../schematics/primitives/hallucination.js";
+import { Tier, Tune, Packet, Verbatim, Audio } from "../schematics/primitives/hallucination.js";
 
 // hal is a typed fetch over the cortex — ONE record describes the whole call:
 // { policy?, system?, turns, tools?, settings?, output?, cache? }. `policy` is
@@ -36,6 +36,52 @@ export function Hallucination(cortex) {
     span: ctx.span.branch(type).branch(avenue),
   });
 
+  const policing = (request) => {
+    const policy = v.create(POLICY);
+    v.cast(POLICY, object.assign(policy, request.policy ?? {}));
+    const failure = [...v.errors(POLICY, policy)][0];
+    if (failure)
+      throw new Error(`[hallucination] invalid policy ${failure.path}: ${failure.message}`);
+    return policy;
+  };
+
+  const lowering = async (ctx, next) => {
+    const request = ctx.input ?? {};
+    const policy = policing(request);
+
+    const tools = is.Vector(request.tools) ? request.tools : new Vector();
+    const catalog = is.Vector(request.tools) ? declarations(tools) : (request.tools ?? []);
+    const marks = request.cache?.marks ?? [
+      ...(request.system && Object.keys(request.system).length ? ["context"] : []),
+      ...(catalog.length ? ["tools"] : []),
+    ];
+
+    ctx.policy = policy;
+    ctx.tools = tools;
+    ctx.span = new Span("/hallucination");
+    ctx.input = {
+      ...(request.system && { system: request.system }),
+      turns: request.turns ?? [],
+      ...(catalog.length && { tools: catalog }),
+      ...(marks.length && { cache: { marks } }),
+      ...(request.settings && { settings: request.settings }),
+      ...(request.output && { output: request.output }),
+    };
+    await next();
+  };
+
+  const sourcing = async (ctx, next) => {
+    const request = ctx.input ?? {};
+    ctx.policy = policing(request);
+    ctx.span = new Span("/hallucination");
+    ctx.input = {
+      source: request.source,
+      config: request.config ?? {},
+      ...(request.harmonize && { harmonize: request.harmonize }),
+    };
+    await next();
+  };
+
   const rendering = (type) => async (ctx) => {
     ctx.output = await shard.hallucinate.render(
       resolveFaculty(type, "render", ctx.policy.tune),
@@ -53,44 +99,41 @@ export function Hallucination(cortex) {
     );
   };
 
-  const hallucinator = new Vector()
-    .use(async (ctx, next) => {
-      const request = ctx.input ?? {};
+  const transcribing = (ctx) => {
+    ctx.output = shard.hallucinate.transcribe(
+      resolveFaculty("verbatim", "stream", ctx.policy.tune),
+      ctx.input,
+      policyOf(ctx, "verbatim", "stream"),
+    );
+  };
 
-      const policy = v.create(POLICY);
-      v.cast(POLICY, object.assign(policy, request.policy ?? {}));
-      const failure = [...v.errors(POLICY, policy)][0];
-      if (failure)
-        throw new Error(`[hallucination] invalid policy ${failure.path}: ${failure.message}`);
+  const synthesizing = (ctx) => {
+    ctx.output = shard.hallucinate.synthesize(
+      resolveFaculty("speech", "stream", ctx.policy.tune),
+      ctx.input,
+      policyOf(ctx, "speech", "stream"),
+    );
+  };
 
-      const tools = is.Vector(request.tools) ? request.tools : new Vector();
-      const catalog = is.Vector(request.tools) ? declarations(tools) : (request.tools ?? []);
-      const marks = request.cache?.marks ?? [
-        ...(request.system && Object.keys(request.system).length ? ["context"] : []),
-        ...(catalog.length ? ["tools"] : []),
-      ];
+  const hallucinator = new Vector();
 
-      ctx.policy = policy;
-      ctx.tools = tools;
-      ctx.span = new Span("/hallucination");
-      ctx.input = {
-        ...(request.system && { system: request.system }),
-        turns: request.turns ?? [],
-        ...(catalog.length && { tools: catalog }),
-        ...(marks.length && { cache: { marks } }),
-        ...(request.settings && { settings: request.settings }),
-        ...(request.output && { output: request.output }),
-      };
-      await next();
-    })
-    .open({ nature: "/dialogue/stream", yields: Packet.Response }, streaming("dialogue"))
-    .open({ nature: "/object/stream", yields: Packet.Response }, streaming("object"))
-    .open({ nature: "/speech/stream", yields: Packet.Response }, streaming("speech"))
-    .open({ nature: "/verbatim/stream", yields: Packet.Response }, streaming("verbatim"))
-    .open("/dialogue/render", rendering("dialogue"))
-    .open("/object/render", rendering("object"))
-    .open("/speech/render", rendering("speech"))
-    .open("/verbatim/render", rendering("verbatim"));
+  for (const avenue of ["dialogue", "object"]) {
+    hallucinator
+      .branch(`/${avenue}`)
+      .use(lowering)
+      .open({ nature: "stream", yields: Packet.Response }, streaming(avenue))
+      .open("render", rendering(avenue));
+  }
+
+  hallucinator
+    .branch("/verbatim")
+    .use(sourcing)
+    .open({ nature: "stream", feeds: Audio.Packet, yields: Verbatim.Any }, transcribing);
+
+  hallucinator
+    .branch("/speech")
+    .use(sourcing)
+    .open({ nature: "stream", yields: Audio.Any }, synthesizing);
 
   return shape.object(hallucinator, steer.strategy.echo);
 }

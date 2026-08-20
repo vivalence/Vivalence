@@ -32,6 +32,9 @@ function aim(connection, effect) {
 
   const method = effect.methods?.[0];
 
+  if (effect.feeds !== undefined)
+    return (source, options = {}) => connection.converse("", source, options);
+
   if (effect.yields !== undefined)
     return (input = {}, options = {}) =>
       connection.stream("", options.signal, {

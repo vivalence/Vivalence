@@ -64,5 +64,8 @@ const trace = fold(capture(data.live?.capture)?.records ?? [])
         </div>
       </div>
     </div>
+    <section class="guide-wrap">
+      <article class="guide" data-pagefind-body><slot name="guide" /></article>
+    </section>
   </div>
 </div>

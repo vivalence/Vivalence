@@ -9,7 +9,7 @@
 
   import { Connection, Url, shard } from "@vivalence/typology";
   import { logger } from "$telemetry";
-  import { LIGHTHOUSE, TERMINALS, BRIDGE } from "$client";
+  import { LIGHTHOUSE, TERMINALS, BRIDGE, BOX } from "$client";
   import { stores } from "@vivalence/kajuit";
   import * as terminalEffects from "./terminals.js";
   import * as focusEffects from "./focus.js";
@@ -38,8 +38,11 @@
   const terminals = new stores.terminals.Terminals();
   setContext(TERMINALS, terminals);
 
+  const box = new stores.box.Box();
+  setContext(BOX, box);
+
   if (typeof window !== "undefined") { // @beef Temporary devtools hack.
-    window.__viva = { lighthouse, terminals, bridge /*, box */ };
+    window.__viva = { lighthouse, terminals, bridge, box };
   }
 
   if (import.meta.env.DEV) {

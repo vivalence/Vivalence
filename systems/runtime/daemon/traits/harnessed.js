@@ -2,7 +2,14 @@ import { shape, shard, soma, steer, ToolCall, v, Vector } from "@vivalence/typol
 import paladin from "@vivalence/paladin";
 import * as skills from "../skills/index.js";
 
-const { Packet } = v.primitives.hallucination;
+const { Packet, Verbatim, Audio } = v.primitives.hallucination;
+
+const POLISH = [
+  "You repair the formatting of a machine transcription of dictated speech.",
+  "Fix punctuation and casing; normalize numbers, dates and units the way a careful typist would.",
+  "Preserve every word as spoken, in whatever language it was spoken — never translate, never correct grammar or word choice, never add, remove or reorder content, never answer or comment.",
+  "Output only the corrected transcript.",
+].join(" ");
 
 //@beef i think it might make sense to isolate some of the middlewares into
 // ... shards.hal.["xyz"]() which would become our source of truth for cohesion in turn, hallucination etc implementation. nifty.
@@ -25,10 +32,8 @@ export const HARNESSED = (mode, daemon) => {
     // thread.trait.INTELLIGENT — claim-gated, validated, projected field-by-field.
     // Precedence: invocation > thread > mode default (modes default with ??=).
     const row = input.thread ? await daemon.entities.thread.findOne({ id: input.thread }) : null;
-    const claimed = row?.traits?.includes("INTELLIGENT") ? row.trait?.INTELLIGENT : undefined;
-    const iq = claimed && ![...v.errors(v.entities.INTELLIGENT, claimed)][0]
-      ? v.cast(v.entities.INTELLIGENT, claimed)
-      : {};
+    const iq = shard.trait.claimed(row, "INTELLIGENT", v.entities.INTELLIGENT);
+    ctx.vocal = shard.trait.claimed(row, "VOCAL", v.entities.VOCAL);
 
     // keyed layers, later wins: ① daemon skills → ② paladin skills → ③ domain tools → ④ mode tools
     const armed = new Vector();
@@ -73,6 +78,10 @@ export const HARNESSED = (mode, daemon) => {
     ctx.input = input;
     await next();
   });
+
+  harness
+    .branch("/verbatim")
+    .open({ nature: "stream", feeds: Audio.Packet, yields: Verbatim.Any }, shard.hal.verbatim({ polish: POLISH, tune: "fast" }));
 
   // DIALOGUE
   harness
@@ -142,7 +151,7 @@ export const HARNESSED = (mode, daemon) => {
   if (daemon.domain?.harness) harness.slurp(daemon.domain.harness);
   if (mode.module.harness) harness.slurp(mode.module.harness);
 
-  for (const type of ["dialogue", "object", "speech", "verbatim"]) {
+  for (const type of ["dialogue", "object"]) {
     harness
       .branch(type)
       .open("render", (ctx) => daemon.cortex.hallucinate[type].render(ctx.hallucination))
