@@ -40,4 +40,73 @@ import Home from "../../src/components/Home.astro"
   Doc code fences tagged <code>tangle=</code> are written to disk and executed.
   <b>Source</b> shows the exact code, <b>Example</b> its captured stdout,
   <b>Trace</b> a real runtime span.
+
+  <Fragment slot="guide">
+
+## the standalone variant — a whole app in one file
+
+`@viva/variant/standalone` is the shortest complete thing Vivalence can be: one file that declares an entity, a domain, a mode with a face, an LLM coach, and the machine that boots them. It is the tech demo — every claim on this page, running.
+
+### 1 · one file is the whole recipe
+
+A variant is normally a *recipe* — a list of registry modules to assemble. This one declares its modules inline, so there is nothing else to read.
+
+```js title="registry/viva/variant/standalone/standalone.viva.js"
+export const manifest = { type: "variant", slug: "standalone", version: "0.0.1" };
+```
+
+### 2 · an entity, declared beside its schema
+
+The dataspace grows a new persisted type with no migration to author — the class and its MikroORM schema sit together, and the daemon collates them at boot.
+
+```js title="standalone.viva.js — retention"
+class RetentionEntity extends DataEntity {
+  literal;
+  streak = 0;
+  seen = 0;
+  lastSignal = "";
+}
+```
+
+### 3 · one Vector, mounted twice
+
+The load/review pair is declared once. It becomes the coach's **tools** and the app's **call surface** — same declaration, two folds. This is the dispatch spine, made concrete.
+
+```js title="standalone.viva.js — flashcard" {2,3}
+const flashcard = {
+  tools: deck,
+  aperture: deck,
+};
+```
+
+### 4 · the mode carries its face
+
+Six traits and a Svelte view written inline with the `svelte` tag. `APPLICATION` gives it a face, `HARNESSED` gives it cognition, `DATASET` seeds its two italian cards.
+
+```js title="standalone.viva.js — manifest"
+traits: ["APPLICATION", "STANDALONE", "DATASET", "TOOLED", "HARNESSED", "EXPOSED"],
+```
+
+### 5 · the machine
+
+A runtime, one daemon whose kernel is `[domain, flashcard]`, a lighthouse service, and the kajuit client — the same four nouns every deployment has.
+
+```js title="standalone.viva.js — daemons"
+kernel: [domain, flashcard],
+```
+
+### run it
+
+```sh
+deno task ghost/run /variant/clone @viva/variant/standalone ./testament/standalone
+cd testament/standalone && cp .env.example .env && $EDITOR .env
+deno task runtime/run
+deno task kajuit/run
+```
+
+:::note
+The flashcard coach is `HARNESSED`, so it wants `SECRET_VIVA_ANTHROPIC_API_KEY`. The deck, the review loop, and the Retention entity all work without one.
+:::
+
+  </Fragment>
 </Home>

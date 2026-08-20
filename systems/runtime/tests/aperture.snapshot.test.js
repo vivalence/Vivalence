@@ -25,6 +25,7 @@ const routes = (node, prefix = "") => {
     if (effect.input !== undefined) leaf.input = effect.input?.type ?? true;
     if (effect.output !== undefined) leaf.output = effect.output?.type ?? true;
     if (effect.yields !== undefined) leaf.yields = effect.yields?.type ?? true;
+    if (effect.feeds !== undefined) leaf.feeds = effect.feeds?.type ?? true;
     out.push(leaf);
   }
   for (const [segment, child] of Object.entries(node?.branches ?? {})) {

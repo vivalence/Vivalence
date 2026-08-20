@@ -1,5 +1,5 @@
 import { atom, computed, onMount } from "nanostores";
-import { string, shard, Url, Request, Response, middleware, promise } from "@vivalence/typology";
+import { string, shard, sse, Url, Request, Response, middleware, promise } from "@vivalence/typology";
 import { object } from "@vivalence/typology";
 import { Socket } from "./socket.js";
 
@@ -104,11 +104,12 @@ export class Connection {
     };
   }
 
-  async *stream(endpoint, signal, { method = "GET", body, headers, opened } = {}) {
+  async *stream(endpoint, signal, { method = "GET", body, headers, opened, raw } = {}) {
     const response = await this.fetch(endpoint, body ?? {}, {
       method,
       headers: { accept: "text/event-stream", ...headers },
       signal,
+      ...(raw && { raw }),
     });
     if (response.error) throw response.error;
     if (response.body?.[Symbol.asyncIterator] && !response.body.getReader) {
@@ -120,33 +121,17 @@ export class Connection {
     if (!response.body?.getReader)
       throw new Error(`SSE stream expected ReadableStream, got ${typeof response.body}`);
     opened?.();
-    const reader = response.body.getReader();
-    const decoder = new TextDecoder();
-    let buffer = "";
-    try {
-      while (true) {
-        const { value, done } = await reader.read();
-        if (done) break;
-        buffer += decoder.decode(value, { stream: true });
-        const frames = buffer.split("\n\n");
-        buffer = frames.pop();
-        for (const frame of frames) {
-          const line = frame.split("\n").find((l) => l.startsWith("data: "));
-          if (!line) continue;
-          const payload = line.slice(6);
-          try {
-            yield JSON.parse(payload);
-          } catch {
-            yield payload;
-          }
-        }
-      }
-    } finally {
-      // consumer broke early (or aborted/threw): release the body so it doesn't leak
-      try {
-        await reader.cancel();
-      } catch (_) {}
-    }
+    yield* sse.frames(response.body);
+  }
+
+  converse(endpoint, source, { input, signal, headers, opened } = {}) {
+    return this.stream(endpoint, signal, {
+      method: "POST",
+      body: input ?? {},
+      headers,
+      opened,
+      raw: { body: sse.encode(source) },
+    });
   }
 
   observe(endpoint, options = {}) {
@@ -192,21 +177,11 @@ export class Connection {
   }
 
   async publish(endpoint, source, options = {}) {
-    const encoder = new TextEncoder();
-    const iterator = source[Symbol.asyncIterator]();
-    const body = new ReadableStream({
-      async pull(controller) {
-        const { value, done } = await iterator.next();
-        if (done) return controller.close();
-        const payload = typeof value === "string" ? value : JSON.stringify(value);
-        controller.enqueue(encoder.encode(`data: ${payload}\n\n`));
-      },
-    });
-
-    const response = await this.fetch(endpoint, body, {
+    const response = await this.fetch(endpoint, options.input ?? {}, {
       method: "POST",
       headers: { ...options.headers },
       signal: options.signal,
+      raw: { body: sse.encode(source) },
     });
     return response.body;
   }

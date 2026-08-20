@@ -3,7 +3,7 @@ import { seed, tiers, faculties } from "./fixtures.js";
 
 import { HARNESSED } from "@vivalence/runtime/daemon/traits";
 
-export async function create() {
+export async function create({ harness } = {}) {
   const { orm, em, datamap, entities, fixtures } = await seed();
 
   const deweyEntity = em.create(tiers.mode.entity, {
@@ -25,11 +25,13 @@ export async function create() {
   dewey.id = deweyEntity.id;
   dewey.module.tune = "balanced";
 
-  dewey.module.harness = new Vector();
-  dewey.module.harness.branch("/dialogue").use(async (ctx, next) => {
-    ctx.hallucination.system.dewey = "You are Dewey, a patient language tutor.";
-    await next();
-  });
+  dewey.module.harness = harness ?? new Vector();
+  if (!harness) {
+    dewey.module.harness.branch("/dialogue").use(async (ctx, next) => {
+      ctx.hallucination.system.dewey = "You are Dewey, a patient language tutor.";
+      await next();
+    });
+  }
 
   const daemon = {
     manifest: { slug: "test-daemon", traits: [] },

@@ -1,4 +1,5 @@
 import { ConnectionError } from "./errors/index.js";
+import { sse } from "@vivalence/typology";
 
 const encoder = new TextEncoder();
 
@@ -26,13 +27,7 @@ export class Response {
   publish(source) {
     this.type = "text/event-stream";
     this.headers.set("cache-control", "no-cache");
-    const framed = async function* () {
-      for await (const item of source) {
-        const payload = typeof item === "string" ? item : JSON.stringify(item);
-        yield `data: ${payload}\n\n`;
-      }
-    };
-    return this.stream(framed());
+    return this.stream(sse.lines(source));
   }
 
   get ok() {

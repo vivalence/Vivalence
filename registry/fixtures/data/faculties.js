@@ -117,3 +117,43 @@ export function faculties() {
     },
   ];
 }
+
+export function verbatimFaculty(overrides = {}) {
+  return {
+    type: "verbatim",
+    tune: [0.4, 0.6, 0.5, 0.1],
+    context: 0,
+    channels: { in: [{ type: "audio", codec: "pcm_16000" }], out: [{ type: "event" }] },
+    via: {
+      stream: async function* (audioSource) {
+        const heard = [];
+        yield { event: "/turn/open", turn: { role: "user" } };
+        for await (const packet of audioSource) {
+          heard.push(packet.audio);
+          yield { event: "/verbatim/partial", transcript: heard.join(" ").trim() };
+        }
+        yield { event: "/verbatim/final", transcript: heard.join(" ").trim() };
+        yield { event: "/turn/close" };
+      },
+    },
+    ...overrides,
+  };
+}
+
+export function speechFaculty(overrides = {}) {
+  return {
+    type: "speech",
+    tune: [0.3, 0.5, 0.5, 0.1],
+    context: 0,
+    channels: { in: [{ type: "text" }], out: [{ type: "audio", codec: "pcm_16000" }] },
+    via: {
+      stream: async function* (textChunks) {
+        for await (const chunk of textChunks) {
+          yield { event: "/audio/packet", audio: "audio:" + chunk, rate: 16000 };
+        }
+        yield { event: "/audio/close" };
+      },
+    },
+    ...overrides,
+  };
+}
