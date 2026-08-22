@@ -1,115 +1,121 @@
 # compacts — tag index
 
+
 ## by tag
 
-- **kajuit** — 8, 11, 14, 15, 19, 21, 22, 24, 35, 38, 39, 41, 44, 50
-- **dojo** — 6, 21, 24, 38, 39, 40, 41, 44, 48
-- **typology** — 10, 14, 15, 22, 23, 26, 40, 43, 44
-- **compact** — 2, 3, 19, 31, 32, 35, 37, 50
-- **m24** — 7, 12, 21, 24, 26, 36, 38, 44
-- **svelte** — 7, 12, 21, 24, 36, 38, 44, 50
-- **vector** — 7, 14, 16, 17, 37, 43, 52
-- **drapes** — 15, 26, 36, 44, 50, 51
-- **callout** — 11, 14, 29, 31, 32
-- **francesca** — 5, 8, 12, 23, 27
-- **harnessed** — 5, 9, 22, 46, 51
-- **traits** — 5, 6, 21, 27, 43
-- **connoisseur** — 7, 15, 29, 43
-- **dictation** — 15, 22, 30, 53
-- **documentation** — 4, 18, 20, 43
-- **mikro** — 9, 27, 39, 41
-- **mobile** — 36, 39, 40, 41
-- **probe** — 1, 30, 39, 47
-- **registry** — 2, 5, 35, 37
-- **rename** — 3, 27, 44, 46
-- **span** — 11, 14, 28, 52
-- **tooled** — 5, 12, 45, 46
-- **agentic** — 12, 27, 45
-- **aperture** — 21, 24, 44
-- **audit** — 9, 31, 32
-- **boot** — 10, 11, 28
-- **converse** — 15, 22, 30
-- **critical-pass** — 15, 22, 53
-- **datamap** — 39, 41, 48
-- **dataset** — 6, 18, 25
-- **design-import** — 20, 21, 26
-- **dock** — 8, 22, 23
-- **domain-tools** — 13, 45, 46
-- **emitter** — 1, 7, 24
-- **frame** — 1, 15, 50
-- **italian** — 33, 34, 42
-- **m23** — 5, 27, 46
-- **m29** — 8, 13, 23
-- **m34** — 21, 38, 48
-- **m37** — 15, 22, 30
-- **memory** — 6, 21, 48
-- **mikro-orm** — 21, 24, 48
-- **packages** — 2, 37, 53
-- **paladin** — 2, 25, 37
-- **performance** — 14, 28, 39
-- **presets** — 6, 38, 44
-- **rep-o-gram** — 12, 36, 44
-- **repository-grammar** — 21, 24, 38
-- **retention** — 41, 46, 53
-- **telemetry** — 11, 17, 52
-- **topography** — 33, 40, 42
-- **verbatim** — 15, 22, 53
-- **appraise** — 8, 23
-- **astro** — 20, 43
-- **bak** — 32, 36
-- **barrel** — 16, 49
-- **bridge** — 19, 39
-- **bruno** — 40, 41
-- **buffer** — 1, 50
-- **builder** — 39, 40
-- **callouts** — 40, 41
-- **ci** — 35, 47
-- **conjugation** — 7, 38
-- **conversational** — 5, 51
-- **dapper** — 19, 20
-- **datasink** — 18, 25
-- **debugging** — 11, 50
-- **deepgram** — 22, 30
-- **deploy** — 35, 47
-- **docker** — 35, 47
-- **domain** — 5, 40
-- **drawer** — 21, 39
-- **engram** — 5, 27
-- **entities** — 43, 49
-- **focus** — 36, 39
-- **ghost** — 2, 37
-- **hallucinate** — 16, 46
-- **harness** — 45, 49
-- **inspector** — 12, 17
-- **keyboard** — 36, 40
-- **known-issue** — 21, 48
-- **live-validation** — 10, 34
-- **m22** — 18, 25
+- **kajuit** — 8, 12, 16, 17, 21, 23, 24, 26, 37, 40, 41, 43, 46, 52
+- **dojo** — 6, 10, 13, 23, 26, 40, 41, 42, 43, 46, 50
+- **typology** — 11, 13, 16, 17, 24, 25, 28, 42, 45, 46
+- **compact** — 2, 3, 21, 33, 34, 37, 39, 52
+- **m24** — 7, 14, 23, 26, 28, 38, 40, 46
+- **svelte** — 7, 14, 23, 26, 38, 40, 46, 52
+- **callout** — 10, 12, 13, 16, 31, 33, 34
+- **vector** — 7, 16, 18, 19, 39, 45, 54
+- **drapes** — 17, 28, 38, 46, 52, 53
+- **francesca** — 5, 8, 10, 14, 25, 29
+- **harnessed** — 5, 9, 24, 48, 53
+- **tooled** — 5, 10, 14, 47, 48
+- **traits** — 5, 6, 23, 29, 45
+- **connoisseur** — 7, 17, 31, 45
+- **dictation** — 17, 24, 32, 55
+- **dock** — 8, 10, 24, 25
+- **documentation** — 4, 20, 22, 45
+- **mikro** — 9, 29, 41, 43
+- **mobile** — 38, 41, 42, 43
+- **probe** — 1, 32, 41, 49
+- **registry** — 2, 5, 37, 39
+- **rename** — 3, 29, 46, 48
+- **retention** — 10, 43, 48, 55
+- **span** — 12, 16, 30, 54
+- **agentic** — 14, 29, 47
+- **aperture** — 23, 26, 46
+- **audit** — 9, 33, 34
+- **boot** — 11, 12, 30
+- **converse** — 17, 24, 32
+- **critical-pass** — 17, 24, 55
+- **datamap** — 41, 43, 50
+- **dataset** — 6, 20, 27
+- **design-import** — 22, 23, 28
+- **domain-tools** — 15, 47, 48
+- **drawer** — 10, 23, 41
+- **emitter** — 1, 7, 26
+- **frame** — 1, 17, 52
+- **italian** — 35, 36, 44
+- **m23** — 5, 29, 48
+- **m29** — 8, 15, 25
+- **m34** — 23, 40, 50
+- **m37** — 17, 24, 32
+- **memory** — 6, 23, 50
+- **mikro-orm** — 23, 26, 50
+- **packages** — 2, 39, 55
+- **paladin** — 2, 27, 39
+- **performance** — 16, 30, 41
+- **presets** — 6, 40, 46
+- **rep-o-gram** — 14, 38, 46
+- **repository-grammar** — 23, 26, 40
+- **telemetry** — 12, 19, 54
+- **topography** — 35, 42, 44
+- **verbatim** — 17, 24, 55
+- **appraise** — 8, 25
+- **astro** — 22, 45
+- **bak** — 34, 38
+- **barrel** — 18, 51
+- **bridge** — 21, 41
+- **bruno** — 42, 43
+- **buffer** — 1, 52
+- **builder** — 41, 42
+- **callouts** — 42, 43
+- **ci** — 37, 49
+- **conjugation** — 7, 40
+- **conversational** — 5, 53
+- **dapper** — 21, 22
+- **datasink** — 20, 27
+- **debugging** — 12, 52
+- **deepgram** — 24, 32
+- **deploy** — 37, 49
+- **docker** — 37, 49
+- **domain** — 5, 42
+- **engram** — 5, 29
+- **entities** — 45, 51
+- **focus** — 38, 41
+- **ghost** — 2, 39
+- **hallucinate** — 18, 48
+- **harness** — 47, 51
+- **impara** — 10, 36
+- **inspector** — 14, 19
+- **keyboard** — 38, 42
+- **known-issue** — 23, 50
+- **live-validation** — 11, 36
+- **m22** — 20, 27
 - **m25** — 5, 9
-- **m27** — 6, 16
-- **m28** — 6, 16
-- **m30** — 3, 52
-- **m31** — 2, 37
-- **m33** — 22, 53
-- **m35** — 38, 41
-- **multiplayer** — 34, 41
-- **ontology** — 1, 17
-- **persist** — 39, 40
-- **preview** — 40, 41
-- **profiling** — 14, 28
-- **rep-o-mat** — 7, 26
-- **runtime** — 48, 49
-- **session** — 39, 40
-- **signature** — 14, 23
-- **skills** — 31, 49
-- **slurp** — 10, 16
-- **stall** — 1, 34
-- **systematic-debugging** — 1, 48
-- **terminal** — 50, 51
-- **thread** — 9, 34
-- **trace** — 11, 41
+- **m27** — 6, 18
+- **m28** — 6, 18
+- **m30** — 3, 54
+- **m31** — 2, 39
+- **m33** — 24, 55
+- **m35** — 40, 43
+- **multiplayer** — 36, 43
+- **ontology** — 1, 19
+- **paradigm** — 10, 40
+- **persist** — 41, 42
+- **preview** — 42, 43
+- **profiling** — 16, 30
+- **rep-o-mat** — 7, 28
+- **review** — 10, 32
+- **runtime** — 50, 51
+- **session** — 41, 42
+- **signature** — 16, 25
+- **skills** — 33, 51
+- **slurp** — 11, 18
+- **stall** — 1, 36
+- **string-matches** — 13, 42
+- **symbols** — 10, 23
+- **systematic-debugging** — 1, 50
+- **terminal** — 52, 53
+- **thread** — 9, 36
+- **trace** — 12, 43
 
-- *singletons* — INTELLIGENT 49 · absence-claims 53 · agents 29 · aimed 34 · anhieb 40 · applied 30 · aprende 38 · audio-harvest 33 · belt 1 · belt-query 25 · blast-bracket 48 · box 15 · breakage 9 · broadcast 39 · buffer-data 40 · bundling 26 · capabilities 15 · carrier 18 · clauses 24 · client 11 · codec 25 · commission 44 · compound-knowable 38 · connection 22 · console 12 · contract 16 · contractions 40 · coolify 35 · corpus 33 · curation 42 · curl 41 · cutover 18 · daemon 49 · daemon-call 13 · design 6 · design-brief 24 · design-sync 36 · didactic-rank 42 · doctrine 29 · domain-tests 41 · drag 40 · e-panel 49 · elision 40 · emigration 49 · emission-contract 34 · esbuild 26 · eval-surface 7 · firefox 14 · fixpoint 25 · flywheel 29 · focus-law 40 · fontsize 19 · frontier 3 · games 7 · guard 1 · hallucinator 8 · holder 40 · idor 9 · ikiro 29 · impara 34 · inline-entities 18 · intent 34 · invariant-test 48 · katabolic 25 · language-statics 40 · libsql 39 · license 4 · lingua-libre 33 · literal 1 · literate 43 · live-boot 18 · m18 51 · m19 10 · m23-sunset 13 · m26 16 · m32 53 · memoriter 53 · method 53 · migration 41 · migrations 27 · mode 15 · module-scope 16 · multiplex 22 · nativeupdate 39 · nlp 13 · note 6 · openrouter 23 · output 16 · output-contract 46 · overnight-loop 33 · panel-b 39 · panel-f 39 · paradigm 38 · patch 15 · pincer 39 · pinning 40 · pools 44 · populate 48 · precedent 6 · primed 6 · prod 41 · provision 12 · qa 42 · qa-panel 33 · quest 22 · randomness 40 · rank 41 · ranked 42 · reader 6 · readme 4 · resolver 24 · response 16 · responsive 21 · retard 27 · review 30 · round-trip 25 · sandbox 53 · schema 8 · scoreboard 29 · sdd 33 · security 9 · selfimprove 29 · sentences 42 · sets 24 · shell 12 · skill 16 · spend-limit 33 · streak 38 · streams 21 · string-belt 44 · string-matches 40 · studies 2 · survey 46 · survival 42 · symbols 21 · table 38 · tactic 34 · tactics 38 · tatoeba 33 · terminators 25 · tests 48 · thread-trait 49 · trait-payload 18 · translate 8 · treeshaking 26 · triggers 29 · twitch 25 · typebox 26 · typed-fetch 16 · typography 19 · ui-rejected 24 · unhandled-rejection 30 · viewport 39 · vip 2 · vocal 22 · wordfreq 42 · workbench 41 · zettelkasten 29
+- *singletons* — INTELLIGENT 51 · absence-claims 55 · agents 31 · aimed 36 · anhieb 42 · applied 32 · aprende 40 · audio-harvest 35 · autocomplete 10 · belt 1 · belt-query 27 · binomial 10 · blast-bracket 50 · box 17 · breakage 9 · broadcast 41 · buffer-data 42 · bundling 28 · capabilities 17 · carrier 20 · clauses 26 · client 12 · codec 27 · commission 46 · compound-knowable 40 · connection 24 · console 14 · contract 18 · contraction 10 · contractions 42 · coolify 37 · corpus 35 · curation 44 · curl 43 · cutover 20 · daemon 51 · daemon-call 15 · design 6 · design-brief 26 · design-sync 38 · didactic-rank 44 · doctrine 31 · domain-tests 43 · drag 42 · e-panel 51 · ebisu 10 · effort 10 · elision 42 · emigration 51 · emission-contract 36 · esbuild 28 · eval-surface 7 · firefox 16 · fixpoint 27 · fleet 13 · flywheel 31 · focus-law 42 · fontsize 21 · frontier 3 · games 7 · guard 1 · hallucinator 8 · hints 10 · holder 42 · idor 9 · ikiro 31 · inline-entities 20 · intelligent 10 · intent 36 · invariant-test 50 · italian-corpus 13 · katabolic 27 · language-statics 42 · libsql 41 · license 4 · lingua-libre 35 · literal 1 · literate 45 · live-boot 20 · m18 53 · m19 11 · m23-sunset 15 · m26 18 · m32 55 · memoriter 55 · meter 10 · method 55 · migration 43 · migrations 29 · mode 17 · module-scope 18 · multiplex 24 · nativeupdate 41 · nlp 15 · note 6 · openrouter 25 · output 18 · output-contract 48 · overnight-loop 35 · panel-b 41 · panel-f 41 · patch 17 · pincer 41 · pinning 42 · pools 46 · populate 50 · precedent 6 · preposition 10 · primed 6 · prod 43 · provision 14 · qa 44 · qa-panel 35 · quest 24 · rail 10 · randomness 42 · rank 43 · ranked 44 · reader 6 · readme 4 · resolver 26 · response 18 · responsive 23 · retard 29 · round-trip 27 · sandbox 55 · schema 8 · scope-inflation 13 · scoreboard 31 · sdd 35 · security 9 · selfimprove 31 · sentences 44 · separate 13 · sets 26 · shell 14 · skill 18 · spend-limit 35 · streak 40 · streams 23 · string-belt 46 · studies 2 · survey 48 · survival 44 · table 40 · tactic 36 · tactics 40 · tatoeba 35 · terminators 27 · tests 50 · thinking 10 · thread-trait 51 · trait-payload 20 · translate 8 · treeshaking 28 · triggers 31 · twitch 27 · typebox 28 · typed-fetch 18 · typography 21 · ui-rejected 26 · unhandled-rejection 32 · viewport 41 · vip 2 · vocal 24 · wordfreq 44 · workbench 43 · zettelkasten 31
 
 ## compacts
 
@@ -122,47 +128,49 @@
  7. `six-rep-games-fold-into-one-machine-and-every-correction-removes-a-duplication-instead-of-guarding-around-it`
  8. `the-appraisal-wires-itself-into-the-turn-as-a-sync-shaped-round-and-the-steering-moves-into-the-schema`
  9. `the-audit-proved-the-quest-honest-then-the-red-team-proved-the-thread-was-never-owned-only-filtered`
-10. `the-boot-crashes-twice-path-absolute-goes-heritage-only-slurp-copies-at-slurp-time-and-m19-goes-live-in-the-client`
-11. `the-boot-screen-was-the-missing-half-of-a-span-spine-that-already-worked-and-four-turns-of-hunting-a-frozen-gate-ended-at-two-different-origins`
-12. `the-chrome-lands-the-reveal-bug-was-an-honest-empty-buffer-and-agentic-grows-up-to-hand-francesca-the-provision-tool`
-13. `the-classifier-goes-live-the-thin-rebuild-gets-caught-against-history-and-m23-sets-with-its-tangles-filed`
-14. `the-client-froze-because-identity-was-recomputed-forever-a-483mb-profile-named-the-function-and-a-rename-i-called-done-was-not`
-15. `the-connoisseur-turns-on-his-own-patch-and-the-mode-frame-is-found-holding-exactly-two-props`
-16. `the-contract-lands-in-three-waves-then-beef-collapses-the-policy-split-and-a-vite-trace-teaches-the-same-module-scope-law-twice`
-17. `the-critical-pass-finds-ten-frozen-moves-the-inspector-stops-cosplaying-as-a-vector-and-telemetry-becomes-a-family-of-two`
-18. `the-dataset-half-lands-on-nine-modules-and-a-one-row-flag-turns-out-to-be-155-payloads-a-titleized-fallback-had-been-quietly-reproducing`
-19. `the-design-system-already-contained-the-knob-a-seven-stop-slider-lands-on-the-bridge-and-verifies-first-try`
-20. `the-designer-returns-a-dc-mock-not-an-app-the-bundle-is-decoded-and-ported-1-1-into-astro-then-viket-k2d-and-a-two-axis-pixel-pass-on-the-navtree`
-21. `the-designer-returns-a-drawer-the-query-engine-is-widened-to-everything-both-repositories-speak-the-drawer-lands-in-one-evening-and-beef-drives-it-live-until-the-runtime-eats-sixteen-gigabytes`
-22. `the-dictation-patch-fails-its-design-pass-the-quest-reframes-to-capabilities-and-the-converse-frame-lands-as-a-verified-patch`
-23. `the-dock-goes-silent-over-four-stacked-defects-and-the-signature-constructor-stops-sharing-linkage`
-24. `the-dojo-is-recast-into-declared-sets-the-facet-law-dies-twice-the-repository-grammar-speaks-for-itself-and-the-console-lands-impenetrable-so-a-designer-gets-a-briefing`
-25. `the-drain-lands-in-six-milestones-and-every-bug-it-shipped-with-was-one-the-quest-had-argued-was-impossible-until-a-hand-driven-playground-and-a-four-generation-round-trip-made-it-run`
-26. `the-eleven-megabyte-bundle-was-a-dev-build-the-real-leak-was-a-barrel-that-builds-an-object-and-i-explained-the-mechanism-wrong-twice-before-a-fixture-settled-it`
-27. `the-engram-rename-lands-mikro-owns-the-db-and-agentic-turns-out-to-have-been-half-real-all-along`
-28. `the-epoch-survives-its-own-abstraction-probe-the-boot-storm-was-an-f5-goodbye-and-the-perf-instrument-is-designed-to-never-become-the-disease`
-29. `the-fleet-launches-unasked-and-dies-of-stalls-so-the-one-surviving-miner-reframes-the-doctrine-from-the-bar-to-what-beef-actually-catches`
-30. `the-fourth-pass-proves-one-curl-kills-the-daemon-then-go-time-lands-all-44-files-in-the-tree`
-31. `the-ikiro-selfclean-lands-a-97-agent-audit-the-flywheel-applies-itself-once-all-inside-ikiro-is-yours-a-skills-lever-is-staged-then-the-overnight-loop-is-stopped-early-at-iteration-seven-and-that-becomes-the-callout`
-32. `the-ikiro-tree-is-cut-to-a-fifth-and-then-six-of-eight-auto-loading-shards-turn-out-to-be-carrying-false-claims-while-the-flywheels-own-clock-breaks-with-the-compacts-it-counted`
-33. `the-italian-corpus-lands-in-one-night-an-index-first-audio-harvest-replaces-per-word-search-a-subagent-fleet-stages-behind-mechanical-gates-and-the-opus-quality-pass-catches-what-sonnet-blessed`
-34. `the-italian-course-lands-without-intents-three-threads-carry-their-own-traits-and-the-stall-pull-was-reading-a-field-the-server-never-sent`
-35. `the-kajuit-image-never-moved-because-its-build-stage-read-nothing-from-the-context-and-the-stamp-arg-was-never-passed`
-36. `the-keyboard-stops-flapping-the-panes-become-tabs-and-the-trigger-moves-into-the-rep-row`
-37. `the-ledger-group-collapses-to-one-vector-fork-b-dies-on-a-client-registry-and-a-dispatch-chase-ends-at-a-known-gap`
-38. `the-paradigm-mode-dies-into-the-dojo-a-conjugation-row-becomes-one-table-knowable-the-grain-knob-dies-before-birth-because-the-literal-is-the-unit-and-presets-become-stamps`
-39. `the-phone-goes-slow-the-session-heartbeat-was-echoing-the-whole-buffer-and-a-throwaway-probe-proves-the-cut-in-one-deploy`
-40. `the-phone-list-lands-twice-the-keyboard-learns-to-never-leave-and-contractions-become-language-statics-the-topography-provides-and-the-domain-serves`
-41. `the-prod-drive-lands-eight-fixes-mikro-drops-the-user-filter-inside-subqueries-and-the-domain-gets-its-first-real-tests`
-42. `the-rank-zero-prune-breaks-the-paradigms-behind-it-survival-is-recurated-against-spanish-while-brazilian-turns-out-garbage-and-sentence-rank-is-declared-didactic-until-the-last-italian-course-closes-at-113-phrases`
-43. `the-readme-reformulation-cascades-into-a-seven-page-vector-spine-built-literate-first-where-running-the-examples-catches-two-doc-bugs-and-one-of-my-own-then-the-trait-census-folds-eight-natures-into-the-entity-rewrite`
-44. `the-rep-machine-becomes-the-dojo-the-buffer-becomes-the-dojo-itself-and-nothing-plays-until-it-is-commissioned`
-45. `the-research-comes-home-as-an-armory-cards-hands-a-classifier-and-every-tool-learns-whose-context-it-runs-in`
-46. `the-retention-rename-lands-clean-domain-tools-move-into-the-harness-and-the-hallucinate-output-contract-goes-on-the-bench`
-47. `the-scaffold-lives-one-hour-measures-the-debt-paid-and-removes-itself-and-the-unstamped-bridge-was-a-dockerignore-line`
-48. `the-sixteen-gigabytes-were-one-request-a-joined-populate-raised-the-symbols-to-the-k-behind-a-formula-that-switched-off-the-prune-and-the-datamap-goes-balanced-once-for-every-init`
-49. `the-skills-and-then-the-entities-emigrate-to-the-daemon-the-barrel-doctrine-survives-its-own-crash-and-a-thread-learns-to-steer-its-own-intelligence`
-50. `the-stage-went-deaf-because-frame-plucked-the-store-off-its-prop-and-the-delete-terminal-cure-was-the-null-gap-remounting-it`
-51. `the-start-chatting-button-flipped-a-flag-the-dock-pane-ignored-the-button-gated-on-harnessed-the-pane-on-conversational-and-the-cure-is-one-authority-plus-a-per-terminal-dock`
-52. `the-telemetry-family-moves-in-behind-two-doors-and-the-vector-becomes-the-trie-beef-had-already-written-in-a-comment`
-53. `two-staged-artifacts-get-a-critical-pass-the-sandbox-verifies-what-the-worktree-cannot-touch-and-green-suites-hide-the-defects-at-the-seams`
+10. `the-bag-lands-in-one-pass-then-the-rail-trio-takes-four-tellings-no-thinking-moves-to-effort-and-the-drivers-always-spoke-binomial`
+11. `the-boot-crashes-twice-path-absolute-goes-heritage-only-slurp-copies-at-slurp-time-and-m19-goes-live-in-the-client`
+12. `the-boot-screen-was-the-missing-half-of-a-span-spine-that-already-worked-and-four-turns-of-hunting-a-frozen-gate-ended-at-two-different-origins`
+13. `the-checker-cannot-cross-two-slash-groups-five-screenshot-fixes-land-and-six-agents-answer-one-function`
+14. `the-chrome-lands-the-reveal-bug-was-an-honest-empty-buffer-and-agentic-grows-up-to-hand-francesca-the-provision-tool`
+15. `the-classifier-goes-live-the-thin-rebuild-gets-caught-against-history-and-m23-sets-with-its-tangles-filed`
+16. `the-client-froze-because-identity-was-recomputed-forever-a-483mb-profile-named-the-function-and-a-rename-i-called-done-was-not`
+17. `the-connoisseur-turns-on-his-own-patch-and-the-mode-frame-is-found-holding-exactly-two-props`
+18. `the-contract-lands-in-three-waves-then-beef-collapses-the-policy-split-and-a-vite-trace-teaches-the-same-module-scope-law-twice`
+19. `the-critical-pass-finds-ten-frozen-moves-the-inspector-stops-cosplaying-as-a-vector-and-telemetry-becomes-a-family-of-two`
+20. `the-dataset-half-lands-on-nine-modules-and-a-one-row-flag-turns-out-to-be-155-payloads-a-titleized-fallback-had-been-quietly-reproducing`
+21. `the-design-system-already-contained-the-knob-a-seven-stop-slider-lands-on-the-bridge-and-verifies-first-try`
+22. `the-designer-returns-a-dc-mock-not-an-app-the-bundle-is-decoded-and-ported-1-1-into-astro-then-viket-k2d-and-a-two-axis-pixel-pass-on-the-navtree`
+23. `the-designer-returns-a-drawer-the-query-engine-is-widened-to-everything-both-repositories-speak-the-drawer-lands-in-one-evening-and-beef-drives-it-live-until-the-runtime-eats-sixteen-gigabytes`
+24. `the-dictation-patch-fails-its-design-pass-the-quest-reframes-to-capabilities-and-the-converse-frame-lands-as-a-verified-patch`
+25. `the-dock-goes-silent-over-four-stacked-defects-and-the-signature-constructor-stops-sharing-linkage`
+26. `the-dojo-is-recast-into-declared-sets-the-facet-law-dies-twice-the-repository-grammar-speaks-for-itself-and-the-console-lands-impenetrable-so-a-designer-gets-a-briefing`
+27. `the-drain-lands-in-six-milestones-and-every-bug-it-shipped-with-was-one-the-quest-had-argued-was-impossible-until-a-hand-driven-playground-and-a-four-generation-round-trip-made-it-run`
+28. `the-eleven-megabyte-bundle-was-a-dev-build-the-real-leak-was-a-barrel-that-builds-an-object-and-i-explained-the-mechanism-wrong-twice-before-a-fixture-settled-it`
+29. `the-engram-rename-lands-mikro-owns-the-db-and-agentic-turns-out-to-have-been-half-real-all-along`
+30. `the-epoch-survives-its-own-abstraction-probe-the-boot-storm-was-an-f5-goodbye-and-the-perf-instrument-is-designed-to-never-become-the-disease`
+31. `the-fleet-launches-unasked-and-dies-of-stalls-so-the-one-surviving-miner-reframes-the-doctrine-from-the-bar-to-what-beef-actually-catches`
+32. `the-fourth-pass-proves-one-curl-kills-the-daemon-then-go-time-lands-all-44-files-in-the-tree`
+33. `the-ikiro-selfclean-lands-a-97-agent-audit-the-flywheel-applies-itself-once-all-inside-ikiro-is-yours-a-skills-lever-is-staged-then-the-overnight-loop-is-stopped-early-at-iteration-seven-and-that-becomes-the-callout`
+34. `the-ikiro-tree-is-cut-to-a-fifth-and-then-six-of-eight-auto-loading-shards-turn-out-to-be-carrying-false-claims-while-the-flywheels-own-clock-breaks-with-the-compacts-it-counted`
+35. `the-italian-corpus-lands-in-one-night-an-index-first-audio-harvest-replaces-per-word-search-a-subagent-fleet-stages-behind-mechanical-gates-and-the-opus-quality-pass-catches-what-sonnet-blessed`
+36. `the-italian-course-lands-without-intents-three-threads-carry-their-own-traits-and-the-stall-pull-was-reading-a-field-the-server-never-sent`
+37. `the-kajuit-image-never-moved-because-its-build-stage-read-nothing-from-the-context-and-the-stamp-arg-was-never-passed`
+38. `the-keyboard-stops-flapping-the-panes-become-tabs-and-the-trigger-moves-into-the-rep-row`
+39. `the-ledger-group-collapses-to-one-vector-fork-b-dies-on-a-client-registry-and-a-dispatch-chase-ends-at-a-known-gap`
+40. `the-paradigm-mode-dies-into-the-dojo-a-conjugation-row-becomes-one-table-knowable-the-grain-knob-dies-before-birth-because-the-literal-is-the-unit-and-presets-become-stamps`
+41. `the-phone-goes-slow-the-session-heartbeat-was-echoing-the-whole-buffer-and-a-throwaway-probe-proves-the-cut-in-one-deploy`
+42. `the-phone-list-lands-twice-the-keyboard-learns-to-never-leave-and-contractions-become-language-statics-the-topography-provides-and-the-domain-serves`
+43. `the-prod-drive-lands-eight-fixes-mikro-drops-the-user-filter-inside-subqueries-and-the-domain-gets-its-first-real-tests`
+44. `the-rank-zero-prune-breaks-the-paradigms-behind-it-survival-is-recurated-against-spanish-while-brazilian-turns-out-garbage-and-sentence-rank-is-declared-didactic-until-the-last-italian-course-closes-at-113-phrases`
+45. `the-readme-reformulation-cascades-into-a-seven-page-vector-spine-built-literate-first-where-running-the-examples-catches-two-doc-bugs-and-one-of-my-own-then-the-trait-census-folds-eight-natures-into-the-entity-rewrite`
+46. `the-rep-machine-becomes-the-dojo-the-buffer-becomes-the-dojo-itself-and-nothing-plays-until-it-is-commissioned`
+47. `the-research-comes-home-as-an-armory-cards-hands-a-classifier-and-every-tool-learns-whose-context-it-runs-in`
+48. `the-retention-rename-lands-clean-domain-tools-move-into-the-harness-and-the-hallucinate-output-contract-goes-on-the-bench`
+49. `the-scaffold-lives-one-hour-measures-the-debt-paid-and-removes-itself-and-the-unstamped-bridge-was-a-dockerignore-line`
+50. `the-sixteen-gigabytes-were-one-request-a-joined-populate-raised-the-symbols-to-the-k-behind-a-formula-that-switched-off-the-prune-and-the-datamap-goes-balanced-once-for-every-init`
+51. `the-skills-and-then-the-entities-emigrate-to-the-daemon-the-barrel-doctrine-survives-its-own-crash-and-a-thread-learns-to-steer-its-own-intelligence`
+52. `the-stage-went-deaf-because-frame-plucked-the-store-off-its-prop-and-the-delete-terminal-cure-was-the-null-gap-remounting-it`
+53. `the-start-chatting-button-flipped-a-flag-the-dock-pane-ignored-the-button-gated-on-harnessed-the-pane-on-conversational-and-the-cure-is-one-authority-plus-a-per-terminal-dock`
+54. `the-telemetry-family-moves-in-behind-two-doors-and-the-vector-becomes-the-trie-beef-had-already-written-in-a-comment`
+55. `two-staged-artifacts-get-a-critical-pass-the-sandbox-verifies-what-the-worktree-cannot-touch-and-green-suites-hide-the-defects-at-the-seams`

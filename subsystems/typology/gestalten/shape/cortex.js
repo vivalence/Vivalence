@@ -4,6 +4,8 @@ export const strip = (cortex) =>
     tune: faculty.tune,
     context: faculty.context,
     channels: faculty.channels,
+    ...(faculty.provider && { provider: faculty.provider }),
+    ...(faculty.config && { config: faculty.config }),
     via: Object.keys(faculty.via),
   }));
 

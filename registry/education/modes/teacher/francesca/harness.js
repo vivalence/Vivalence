@@ -30,10 +30,18 @@ async function appraise(ctx) {
       { orderBy: { createdAt: "DESC" }, limit: 10 },
     )
   ).reverse();
+  const ROUNDS = ["review", "language-learning_review", "appraise"];
   const sealed = turns.findLast((turn) => turn.role === "assistant");
   const appraised = (turn) =>
-    turn.parts.some((part) => part.type === "tool_use" && part.name === "appraise");
+    turn.parts.some((part) => part.type === "tool_use" && ROUNDS.includes(part.name));
   if (!sealed || sealed.meta?.appraise || appraised(sealed)) return;
+  const previous = turns.filter((turn) => turn.role === "assistant" && turn !== sealed).slice(-4);
+  const prior = new Set(
+    previous
+      .flatMap((turn) => turn.parts)
+      .filter((part) => part.type === "tool_use" && ROUNDS.includes(part.name))
+      .flatMap((part) => part.input?.reviews?.map((review) => review.literal) ?? []),
+  );
   const render = await ctx.mode.harness.object.render({
     turns: [
       ...turns,
@@ -42,7 +50,11 @@ async function appraise(ctx) {
         parts: [
           {
             type: "text",
-            text: `You are the reviewer riding this tutoring session. The recent conversation is above, including earlier appraise calls. Appraise the LATEST exchange only — everything before it is context for judging arcs, slugs and prior coverage. Think first, then review; the output field descriptions carry the rules.`,
+            text: `You are the reviewer riding this tutoring session. The recent conversation is above, including earlier review calls. Appraise the LATEST exchange only — everything before it is context for judging arcs, slugs and prior coverage. Think first, then review; the output field descriptions carry the rules.${
+              prior.size
+                ? ` Already reviewed in the recent exchanges, and dropped if repeated: ${[...prior].join(", ")}.`
+                : ""
+            }`,
           },
         ],
       },
@@ -52,7 +64,7 @@ async function appraise(ctx) {
         thinking: v
           .string()
           .desc(
-            "Work through before deciding: what did the learner actually exercise in the LATEST exchange and how did each rep go? For a composite rep, which component's knowledge caused the miss — the surface slot where the error shows, or the item behind it? What is still mid-drill and should be withheld until it settles? What did an earlier appraise call already cover? Was this exchange meta-talk with nothing to review?",
+            "Work through before deciding: what did the learner actually exercise in the LATEST exchange and how did each rep go? For a composite rep, which component's knowledge caused the miss — the surface slot where the error shows, or the item behind it? What is still mid-drill and should be withheld until it settles? What did an earlier review call already cover? Was this exchange meta-talk with nothing to review?",
           ),
         reviews: v
           .array(
@@ -71,27 +83,49 @@ async function appraise(ctx) {
             { maxItems: 10 },
           )
           .desc(
-            "One entry per item the learner completed a rep of in the LATEST exchange — produced it, failed it, or got corrected on it. Composite reps (article+noun, verb+person, contraction) score PER ITEM by where the fault lies: the item whose knowledge CAUSED the miss takes the negative signal, not the slot where the error surfaced — 'un studente' for 'uno studente' is an article-slot error, but the cause is the learner's model of studente's article class, so studente.noun takes the MISTAKE; a component the learner genuinely produced right takes its own positive signal; a component merely given by the prompt is not reviewed. WITHHOLD items still mid-arc (rotation running, correction awaiting its retry); they get appraised on a later exchange. Never repeat an item an earlier appraise call covered unless this exchange exercised it again. Empty when the exchange was meta-talk or everything is still in flight.",
+            "One entry per item the learner completed a rep of in the LATEST exchange — produced it, failed it, or got corrected on it. Composite reps (article+noun, verb+person, contraction) score PER ITEM by where the fault lies: the item whose knowledge CAUSED the miss takes the negative signal, not the slot where the error surfaced — 'un studente' for 'uno studente' is an article-slot error, but the cause is the learner's model of studente's article class, so studente.noun takes the MISTAKE; a component the learner genuinely produced right takes its own positive signal; a component merely given by the prompt is not reviewed. WITHHOLD items still mid-arc (rotation running, correction awaiting its retry); they get appraised on a later exchange. Never repeat an item an earlier review call covered unless this exchange exercised it again. Empty when the exchange was meta-talk or everything is still in flight.",
           ),
       })
       .desc(
         "The appraisal of the latest exchange. Every entry becomes a spaced-repetition review that reschedules the item — an over-report inflates the learner's record, an under-report loses a rep.",
       ),
   });
-  const reviews = render.output?.object?.reviews ?? [];
+  const reviews = (render.output?.object?.reviews ?? []).filter(
+    (review, index, all) =>
+      !prior.has(review.literal) &&
+      all.findIndex((other) => other.literal === review.literal) === index,
+  );
   if (!reviews.length) return;
+  const lines = [];
+  const retentions = [];
+  for (const review of reviews) {
+    try {
+      const retention = await ctx.daemon.call["/review/literal"]({
+        user: ctx.user,
+        mode: ctx.mode,
+        thread: { id: ctx.input.thread },
+        input: review,
+      });
+      lines.push(
+        `${review.literal} ${review.signal} → ${retention.status}, next ${
+          retention.nextAt?.toISOString().slice(0, 10) ?? "—"
+        }`,
+      );
+      retentions.push(retention);
+    } catch (fault) {
+      console.error("[francesca/appraise]", review.literal, fault.message);
+      lines.push(`${review.literal} ${review.signal} → error: ${fault.message}`);
+    }
+  }
   const id = crypto.randomUUID();
   sealed.parts = [
     ...sealed.parts,
-    { type: "tool_use", id, name: "appraise", input: {} },
-    { type: "tool_result", id, output: { object: reviews } },
+    { type: "tool_use", id, name: "language-learning_review", input: { reviews } },
+    {
+      type: "tool_result",
+      id,
+      output: { message: lines.join("\n"), entities: { retention: retentions } },
+    },
   ];
   await ctx.daemon.entities.em.flush();
-  for (const review of reviews)
-    await ctx.daemon.call["/review/literal"]({
-      user: ctx.user,
-      mode: ctx.mode,
-      thread: { id: ctx.input.thread },
-      input: review,
-    }).catch((fault) => console.error("[francesca/appraise]", review.literal, fault.message));
 }

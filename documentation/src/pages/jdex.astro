@@ -1,7 +1,7 @@
 ---
 import { getCollection, getEntry, render } from "astro:content"
 import Layout from "../layouts/Layout.astro"
-import { AREAS, CATEGORIES, areaKey, areaNote, decadeOf, categoryName, isReserved } from "../lib/jdex.js"
+import { AREAS, CATEGORIES, areaKey, areaNote, decadeOf, categoryName, isReserved } from "../../content/_site/jdex.js"
 
 const entry = await getEntry("site", "jdex")
 const { Content } = await render(entry)

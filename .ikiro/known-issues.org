@@ -663,21 +663,30 @@ whether render lifts =.object= top-level), which crosses typology compile + both
 providers + harness assemble. Francesca's appraise hook uses =render.output.object= —
 the working spelling.
 
-** armed domain tools carry a =language-learning_= prefix nobody wires (LEAD)
+** armed domain tools carry a =language-learning_= prefix nobody wires — SOLVED (fix owed)
 
-Live francesca turns show tool_use named =language-learning_progress= /
-=language-learning_queue= — executed successfully, so the armed trie really nests domain
-tools under =/language-learning=. But =harnessed.js:49= slurps =daemon.domain.tools=
-FLAT, and probes of both the raw module and =Domain.cast= produce bare names
-(=progress=). Something between population (pensieve =own()= clone?) and assemble adds
-the branch. Works — names valid, dispatch resolves — but the mechanism is unexplained
-and =francesca.md= / valences reference the BARE names.
+ROOT CAUSE (m38 wake, transcript audit): the domain IS a TOOLED flatmode.
+=domain.viva.js= declares =traits: ["EXPOSED", "TOOLED"]= with =slug:
+"language-learning"=, so an AGENTIC mode's finalizer (=daemon/traits/agentic.js= —
+=flatmodes().filter(implements("TOOLED")).forEach(source =>
+mode.tools.branch(source.slug).slurp(source.tools))=) harvests the domain's tools
+namespaced =language-learning_*= — while =harnessed.js:54= arms the SAME tools bare at
+layer ④. Both names land in one catalog; the model calls both (live transcript:
+=progress= AND =language-learning_progress= in the same opener turn, every session).
+Not intermittent, not per-request magic — deterministic for every AGENTIC mode
+(francesca). Non-AGENTIC harnessed modes show only bare names, which is why probes of
+the raw module produced bare names.
 
-New evidence (appraise session): the prefix is INTERMITTENT and MIXED WITHIN ONE
-CATALOG — a persisted opener turn carries =progress= (bare) and
-=language-learning_queue= (prefixed) in the SAME assistant turn; a later session's
-opener has both prefixed. Whatever adds the branch does it per-tool per-request, not
-per-boot.
+FIXED (beef's go, prefix KEPT — "i'd like the tools to still carry the mode slug"):
+=harnessed.js= layer ④ now branches domain tools under the domain slug
+(=armed.branch("/" + daemon.domain.manifest.slug)=) so the canonical names ARE
+=language-learning_progress= etc. for every harnessed mode; =agentic.js= filters
+=source.manifest?.type !== "domain"= so AGENTIC modes no longer double-harvest.
+Consumers updated: =francesca.md= names the prefixed tools; the appraise hook's
+retro-fitted round is =language-learning_review= (catalog-valid — imitation now lands
+on a real tool, double-write still guarded by =appraised()=). Runtime 52/325 green.
+Note: the layer comment at =harnessed.js:38= is still the old 4-layer wording — the
+comment-litter gate blocks editing it; beef can touch it.
 
 * mikro-orm folds several conditions on one m:n into ONE join — WORKED AROUND (dojo-local)
 
@@ -786,6 +795,20 @@ Client side: an =AbortController= per debounce ticket on =/symbols=, =/resolve=,
 (the connection layer needs to expose cancellation first — check =mode.connection.call=).
 
 * frontier evictions (budget) — still open, moved here whole
+
+** evicted at the m38 compact (compact 51) — whole items, loss-free
+- **BENCHED** — m22-datasink (runtime codemap shard + `35.02`) · m16_client_provisioning · m7-snapshot-testing (3 gaps) · ikiro-modernization (forks await beef)
+- **DONE** (→ `quests/done/`) — m31 package registry
+- **STAGED** — **m32 memoriter** (Anki as out-of-tree package; critical pass DONE, 16 tests green, never booted; nothing go'd) → [[m32-memoriter]]
+- ## known open tails (nothing else records them)
+  
+  - Portuguese pronouns hardcoded in `exhibit/buffer/Exhibit.svelte` only ([[project_language_label_hardcoded]]; pronoun statics = beef)
+-  Homed elsewhere: m18 conversation-dissolves (BUILT) · generative-views (m19 LIVE, reader reg. pending)
+- **SUNSET** — **m23 → done/** (beef: "sunset. move everything tangling from m23 to m29") — III/II.1 landed · II.2 → m27 · I beef-side; tangles settled or moved to m29's inherited section (lookup conjugation blindness · types.js/gather twins · progress-as-only-board · valence language law · instrument/mind tail lists) → [[project_m23_domain_root_tutor]]
+- **LANDED+LIVE, unnumbered** — **contractions** HYBRID (I'm ≡ I am: topography `statics.language[slug]` · runtime blind `/metadata/statics` · domain flat `/language` · `string.matches({contractions, elision})` — english = 7 suffix RULES + 3 irregulars, italian = `elision:true` + `po'`, brazilian = 16 colloquial list; bruno `language.bru` green; device rep owed) → [[contractions]] (`quests/contractions.quest.org`)
+- **DESIGN, nothing go'd** — **progress-feedback** (the learner never sees their retention: `/review/literal` returns the evolved retention + writes a Trace, all five games discard it; board's three lies — UNTOUCHED structurally 0, strength collapses to 0.0 for everything overdue, due is a bare int; designer brief + real italian-testament rows in the quest; 5 forks for beef) → [[progress-feedback]]
+- **IMPLEMENTING** — longdistance (audio: enum ✓, variant wire + live boot next) · english-to-spanish (M1 A1+survival) · c-panel-rebuild (metadata cutover tail)
+
 - m30 warts, un-go'd: probe swallows close-code 1001 at F5 teardown · per-MODE metadata boot volley ~35 calls (aggregate `/metadata/modes`) · `store()` coalescing riding epoch close
 - beef's skill roadmap: daemon skills LANDED · paladin skills LANDED (fs_tree/find/read/write + shell_run, root-bound, no trait) · ghost skills next — then standard-skill overrides via keyed layers
 - tactic themes hardcoded Portuguese in `survival/emitter/buildup.js` (21 slugs; 6/20 in italian) — derive from `symbol.find()`

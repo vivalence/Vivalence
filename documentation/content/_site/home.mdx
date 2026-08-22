@@ -1,112 +1,134 @@
 ---
 title: Vivalence Docs
 eyebrow: an AI-era symbolic OS
-headline: The docs run the real system and show you the real output.
+headline: Vivalence is a symbolic operating system for the AI era
 sub: >-
-  Vivalence is built from numbered primitives — modes, traits, literals, symbols. These docs
-  execute those primitives at build time and inline the captured stdout and span traces, so
-  every example is the system, not a description of it.
+ Everything is a mode. Your data, your apps, your agents — one coherent, scalable, and flexible system. Use it to build any harness, integrate any service, and surface them as Svelte apps and soon via CLI.
 totems:
-  - { term: Less, rest: is More }
-  - { term: Code, rest: is Data }
-  - { term: Schema, rest: is God }
-pillars:
-  - key: "10–19"
-    title: About
-    desc: What Vivalence is, the vision, and where it came from.
-    jdex: "11.01"
-  - key: "30–39"
-    title: Architecture
-    desc: Runtime, daemons, modes and traits — how the system composes.
-    jdex: "31.01"
-  - key: "40–49"
-    title: Repository
-    desc: The dispatch spine, the client, and integration internals.
-    jdex: "42.01"
-start:
-  title: start here
-  items:
-    - { jdex: "11.01", title: What is Vivalence, desc: The one-page orientation. }
-    - { jdex: "31.01", title: System Map, desc: The containers and how they compose. }
-    - { jdex: "52.01", title: Getting Started, desc: Boot a variant into a live daemon. }
-live:
-  title: living examples
-  capture: home
+  - { term: Knowledge Graphs, rest: rich and persistent }
+  - { term: Daemon Runtimes, rest: integrating compute and data }
+  - { term: Svelte Applications, rest: bring your own surfaces }
+# pillars:
+#   - key: "11.01"
+#     title: What is Vivalence
+#     desc: Why it exists, the vision, the goal, and where it came from.
+#     jdex: "11.01"
+#   - key: "11.01"
+#     title: Architecture
+#     desc: How modes, traits, symbols and literals work.
+#     jdex: "11.01"
+#   - key: "11.01"
+#     title: Guide to the repo
+#     desc: Algebraic types from @typology, the @runtime, and client @kajuit. Shell client @ghost coming soon.
+#     jdex: "11.01"
+# start:
+#   title: Getting Started
+#   items:
+#     - { jdex: "11.01", title: Install the system, desc: xxx. }
+#     - { jdex: "11.01", title: Run a Daemon, desc: xxx. }
+#     - { jdex: "11.01", title: Bring your own data, desc: Chat with your data. }
+#     - { jdex: "11.01", title: Bring your own service, desc: Chat with your data. }
+#     - { jdex: "11.01", title: Write a Harness, desc: Chat with your data. }
+#     - { jdex: "11.01", title: Write an App, desc: Any surface in Svelte. }
 ---
 
 import Home from "../../src/components/Home.astro"
+import LiveExample from "../../src/components/LiveExample.astro"
 
 <Home data={frontmatter}>
-  Doc code fences tagged <code>tangle=</code> are written to disk and executed.
-  <b>Source</b> shows the exact code, <b>Example</b> its captured stdout,
-  <b>Trace</b> a real runtime span.
+  {/* <LiveExample slot="live" title="rich docs" capture="home">
+    Doc code fences tagged <code>tangle=</code> are written to disk and executed.
+    <b>Source</b> shows the exact code, <b>Example</b> its captured stdout,
+    <b>Trace</b> a real runtime span.
+  </LiveExample> */}
+
+<Fragment slot="guide">
+# Three 5-minute starters
+- quick start installation
+- grammar, verbs and nouns
+- build your own system
+</Fragment>
 
   <Fragment slot="guide">
+## quick start
+Deno ^2.7 must be installed. Currently only installation from repo at this point.
 
-## the standalone variant — a whole app in one file
+minimum vocabulary required:
 
-`@viva/variant/standalone` is the shortest complete thing Vivalence can be: one file that declares an entity, a domain, a mode with a face, an LLM coach, and the machine that boots them. It is the tech demo — every claim on this page, running.
+- `viva` — the CLI. Installed to the OS, or `deno task ghost/run` if so inclined.
+- `ledger` — the `~` directory for system-level stuff: tracking registry packages, coordinating runtimes, logs, locks, etc.
+- `package` — a unit of modes living in the registry, likely git-managed. Services, applications, datasets, harnesses, and variants are grouped into a package.
+- `variant` — an executable system unit made up of runtime and clients, and the daemons running on top of them.
 
-### 1 · one file is the whole recipe
-
-A variant is normally a *recipe* — a list of registry modules to assemble. This one declares its modules inline, so there is nothing else to read.
-
-```js title="registry/viva/variant/standalone/standalone.viva.js"
-export const manifest = { type: "variant", slug: "standalone", version: "0.0.1" };
-```
-
-### 2 · an entity, declared beside its schema
-
-The dataspace grows a new persisted type with no migration to author — the class and its MikroORM schema sit together, and the daemon collates them at boot.
-
-```js title="standalone.viva.js — retention"
-class RetentionEntity extends DataEntity {
-  literal;
-  streak = 0;
-  seen = 0;
-  lastSignal = "";
-}
-```
-
-### 3 · one Vector, mounted twice
-
-The load/review pair is declared once. It becomes the coach's **tools** and the app's **call surface** — same declaration, two folds. This is the dispatch spine, made concrete.
-
-```js title="standalone.viva.js — flashcard" {2,3}
-const flashcard = {
-  tools: deck,
-  aperture: deck,
-};
-```
-
-### 4 · the mode carries its face
-
-Six traits and a Svelte view written inline with the `svelte` tag. `APPLICATION` gives it a face, `HARNESSED` gives it cognition, `DATASET` seeds its two italian cards.
-
-```js title="standalone.viva.js — manifest"
-traits: ["APPLICATION", "STANDALONE", "DATASET", "TOOLED", "HARNESSED", "EXPOSED"],
-```
-
-### 5 · the machine
-
-A runtime, one daemon whose kernel is `[domain, flashcard]`, a lighthouse service, and the kajuit client — the same four nouns every deployment has.
-
-```js title="standalone.viva.js — daemons"
-kernel: [domain, flashcard],
-```
-
-### run it
+### Install the Vivalence CLI
 
 ```sh
-deno task ghost/run /variant/clone @viva/variant/standalone ./testament/standalone
-cd testament/standalone && cp .env.example .env && $EDITOR .env
+git clone https://github.com/vivalence/vivalence.git vivalence
+cd vivalence
+deno task install
+viva ledger/install ~/viva
+```
+
+`deno task install` fetches dependencies and links `viva` into `~/.deno/bin` — the CLI
+remembers the repo via `~/.config/viva/env`. `ledger/install` scaffolds the system ledger
+and seeds `registry.json` from the in-repo packages.
+
+### Add a package
+tap a package — a local path is recorded as-is, a git URL is cloned into the store
+
+```sh
+viva ledger/tap <path | git url>
+viva ledger/taps
+```
+
+### Set up a variant
+clone a variant out of the registry and give it its `.env`
+
+```sh
+viva variant/clone @viva/variant/localhost ./localhost
+
+cd localhost 
+cp .env.example .env 
+$EDITOR .env
+```
+
+### Boot runtime and client
+
+```sh
 deno task runtime/run
 deno task kajuit/run
 ```
 
-:::note
-The flashcard coach is `HARNESSED`, so it wants `SECRET_VIVA_ANTHROPIC_API_KEY`. The deck, the review loop, and the Retention entity all work without one.
-:::
+create your account against the variant's lighthouse — the client logs in with it:
 
-  </Fragment>
+```sh
+viva variant/lighthouse/auth/signup <username> <password>
+```
+
+#### Deployment
+Works already, not documented yet — check `registry/viva/variant/multiplayer/docker-compose.yml` for an example.
+
+</Fragment>
+
+<Fragment slot="guide">
+## grammar, verbs and nouns
+- the makings of a viva system
+
+runtime, daemons, clients, and services
+
+modes have type and traits.
+special types: domain, service
+primary traits: dataset, application, harness, exposed, fraught, xxx
+
+entities
+built-in:
+custom domain level:
+
+</Fragment>
+
+<Fragment slot="guide">
+## the variant and its modes
+- a whole system in one file - the standalone demo
+</Fragment>
+
 </Home>

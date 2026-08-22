@@ -3,6 +3,12 @@ import { NotFound, Span, ToolCall, fromm, soma, steer, verbatim } from "@vivalen
 export const signalOf = (name) => new ToolCall(name).signal;
 export const nameOf = (steps) => new ToolCall(steps).name;
 
+const armory = (tools) =>
+  steer.trie
+    .rollup(tools, () => null)
+    .map((entry) => nameOf(entry.steps))
+    .join(", ");
+
 export const state = (turn) =>
   turn.parts.some((part) => part.type === "tool_use") ? "tools" : (turn.meta?.state ?? "complete");
 
@@ -48,7 +54,7 @@ export async function dispatch(tools, parts, span) {
         branch.fault(fault);
         const message =
           fault instanceof NotFound
-            ? { error: `unknown tool: ${call.name}` }
+            ? { error: `unknown tool: ${call.name} — armed: ${armory(tools) || "(none)"}` }
             : { error: fault.message };
         return { call, result: { condition: "ERROR", output: { message } } };
       }

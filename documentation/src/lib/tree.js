@@ -1,4 +1,4 @@
-import { areaKey, areaName, categoryName, decadeOf } from "./jdex.js"
+import { areaKey, areaName, categoryName, decadeOf } from "../../content/_site/jdex.js"
 
 export function flatten(pages) {
   return [...pages].sort((left, right) => left.jdex.localeCompare(right.jdex))

@@ -48,6 +48,42 @@ specimen.describe("tools — lookup", () => {
     specimen.expect(out.message).toContain("not in the corpus");
     specimen.expect(out.entities).toBeUndefined();
   });
+
+  specimen.it("a conjugated form walks to its paradigm and infinitive", async () => {
+    const out = await scenario.invoke("/lookup", { text: "chamas", limit: 12 });
+    specimen.expect(out.message).toContain("↳ form in chamar.presente.indicativo");
+    specimen.expect(out.message).toContain("chamar.verb");
+    specimen.expect(out.object.slugs).toContain("chamar.verb");
+  });
+
+  specimen.it("an unmatched inflection retries by lemma when the daemon classifies", async () => {
+    scenario.daemon.services = {
+      nlp: async ({ text }) => [[{ token: text, lemma: "chamar" }]],
+    };
+    try {
+      const out = await scenario.invoke("/lookup", { text: "chamavam", limit: 12 });
+      specimen.expect(out.message).toContain('its lemma chamar');
+      specimen.expect(out.object.slugs).toContain("chamar.verb");
+    } finally {
+      delete scenario.daemon.services;
+    }
+  });
+
+  specimen.it("the lemma leg fails silent — no service, or a throwing one, still reports the miss", async () => {
+    const bare = await scenario.invoke("/lookup", { text: "chamavam", limit: 12 });
+    specimen.expect(bare.message).toContain("not in the corpus");
+    scenario.daemon.services = {
+      nlp: async () => {
+        throw new Error("nlp is down");
+      },
+    };
+    try {
+      const out = await scenario.invoke("/lookup", { text: "chamavam", limit: 12 });
+      specimen.expect(out.message).toContain("not in the corpus");
+    } finally {
+      delete scenario.daemon.services;
+    }
+  });
 });
 
 specimen.describe("tools — queue", () => {

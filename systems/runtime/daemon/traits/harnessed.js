@@ -51,7 +51,9 @@ export const HARNESSED = (mode, daemon) => {
       mounted.use(shard.context.bind("service", service));
       mounted.slurp(service.tools);
     }
-    if (daemon.domain?.tools) armed.slurp(daemon.domain.tools);
+    if (daemon.domain?.tools) {
+      armed.branch("/" + daemon.domain.manifest.slug).slurp(daemon.domain.tools);
+    }
     if (mode.tools) armed.slurp(mode.tools);
     if (input.tools) {
       for (const [name, supplied] of Object.entries(input.tools)) {
@@ -67,7 +69,12 @@ export const HARNESSED = (mode, daemon) => {
     if (input.thread) armed.use(shard.context.bind("thread", input.thread));
 
     ctx.hallucination = {
-      policy: { ...config, ...(iq.tune && { tune: iq.tune }), ...(tune && { tune }) },
+      policy: {
+        ...config,
+        ...(iq.tune && { tune: iq.tune }),
+        ...(iq.rounds && { rounds: iq.rounds }),
+        ...(tune && { tune }),
+      },
       ...(iq.effort && { settings: { effort: iq.effort } }),
       system: typeof system === "string" ? { system } : { ...system },
       turns: turns ??

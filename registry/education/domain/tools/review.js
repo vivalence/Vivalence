@@ -9,6 +9,7 @@ export const review = new Vector().open(
       "MASTERY — effortless and fast · SUCCESS — correct · NEUTRAL — shown or skipped · MISTAKE — wrong but close · FAILURE — blank or wrong.",
       "One call per exchange, at the end, carrying every exercised literal. Never the same literal twice in one call. Never review plain conversation — only items actually exercised.",
       "Each review reschedules the item and answers with its new status and next date; an exchange you do not review never happened.",
+      "EXCEPT when a reviewer rides the session: if review rounds already appear in the history without you calling this tool, reviews are wired in automatically — then never call this yourself unless explicitly instructed.",
     ].join("\n"),
     input: v.object({
       reviews: v.array(

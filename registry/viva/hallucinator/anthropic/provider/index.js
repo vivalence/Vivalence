@@ -19,11 +19,11 @@ function extractObject(turn, schema) {
 }
 
 const models = {
-  opus: { id: "claude-opus-5", tune: [0.9, 1.0, 0.3], context: 1000000, thinking: true },
-  sonnet: { id: "claude-sonnet-5", tune: [0.5, 0.7, 0.7], context: 1000000, thinking: true },
+  opus: { id: "claude-opus-5", tune: [0.95, 1.0, 0.15, 0.15], context: 1000000, thinking: true },
+  sonnet: { id: "claude-sonnet-5", tune: [0.6, 0.65, 0.6, 0.5], context: 1000000, thinking: true },
   haiku: {
     id: "claude-haiku-4-5",
-    tune: [0.1, 0.3, 1.0],
+    tune: [0.25, 0.3, 0.95, 0.5],
     context: 200000,
     thinking: false,
   },
@@ -72,6 +72,7 @@ export default async function provider(service) {
         in: ["text", "image", "document", "tool_result", ...(model.thinking ? ["thinking"] : [])],
         out: ["text", "tool_use", ...(model.thinking ? ["thinking"] : [])],
       },
+      config: { model: model.id },
       via: { render, stream },
     });
   }

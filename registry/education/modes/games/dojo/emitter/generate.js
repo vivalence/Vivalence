@@ -20,19 +20,43 @@ const tokenize = (sentence, pool) =>
 
 export const generate = async (ctx) => {
   const language = ctx.daemon.statics.language;
+  const literal = ctx.daemon.entities.literal;
   const count = ctx.input.count ?? 4;
+  const target = count * POOL_FACTOR;
+  const where = object.merge(ctx.input.where, { ontology: "word" });
 
-  const vocabulary = await ctx.daemon.entities.literal.feed(
-    object.merge(ctx.input.where, { ontology: "word" }),
-    { limit: count * POOL_FACTOR, blacklist: ctx.input.blacklist },
-  );
-  if (!vocabulary.length) return [];
+  const anchors = ctx.input.anchors?.length
+    ? await literal.findByIdentifiers(ctx.input.anchors)
+    : [];
+
+  const drawn = [...(ctx.input.blacklist?.literals ?? []), ...anchors.map((row) => row.id)];
+  const weak = await literal.byStrength(where, {
+    limit: Math.ceil(target / 2),
+    blacklist: { literals: drawn },
+  });
+  drawn.push(...weak.map((row) => row.id));
+  const familiar = await literal.sample(where, {
+    limit: target - weak.length,
+    blacklist: { literals: drawn },
+  });
+  drawn.push(...familiar.map((row) => row.id));
+  const vocabulary = [...weak, ...familiar];
+  if (vocabulary.length < target) {
+    vocabulary.push(
+      ...(await literal.feed(where, {
+        limit: target - vocabulary.length,
+        blacklist: { literals: drawn },
+      })),
+    );
+  }
+  if (!vocabulary.length && !anchors.length) return [];
 
   const render = await ctx.daemon.cortex.hallucinate.object.render({
     policy: { tune: "capable" },
     system: {
       identity: hal.generate.identity(language),
       pool: hal.generate.pool(vocabulary),
+      ...(anchors.length && { anchors: hal.generate.anchors(anchors) }),
     },
     turns: [
       {
@@ -46,7 +70,10 @@ export const generate = async (ctx) => {
   });
 
   const pool = new Map(
-    vocabulary.map((literal) => [string.fold(literal.trait?.TRANSLATED?.learning ?? ""), literal]),
+    [...vocabulary, ...anchors].map((row) => [
+      string.fold(row.trait?.TRANSLATED?.learning ?? ""),
+      row,
+    ]),
   );
 
   const knowables = (render.output.object?.sentences ?? []).slice(0, count).map((sentence) => ({

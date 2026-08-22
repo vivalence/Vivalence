@@ -5,10 +5,13 @@
 
   const TIERS = Object.keys(tiers);
   const EFFORTS = ["none", "low", "medium", "high"];
+  const ROUNDS = [1, 2, 5, 10, 25];
   const AXES = ["intelligence", "reasoning", "speed", "thrift"];
 
   let tune = $state(undefined);
   let effort = $state(undefined);
+  let thinking = $state(undefined);
+  let rounds = $state(undefined);
   let saving = $state(false);
 
   $effect(() => {
@@ -16,6 +19,8 @@
     const off = thread.$trait.subscribe((value) => {
       tune = value?.INTELLIGENT?.tune;
       effort = value?.INTELLIGENT?.effort;
+      thinking = value?.INTELLIGENT?.thinking;
+      rounds = value?.INTELLIGENT?.rounds;
     });
     return off;
   });
@@ -35,12 +40,21 @@
   const resolved = $derived(resolve(tune));
 
   const contextLabel = (context) =>
-    context >= 1000 ? `${Math.round(context / 1000)}k context` : `${context ?? "?"} context`;
+    context >= 1_000_000
+      ? `${Math.round(context / 1_048_576)}m context`
+      : context >= 1000
+        ? `${Math.round(context / 1000)}k context`
+        : `${context ?? "?"} context`;
   const avenues = (faculty) => Object.keys(faculty?.via ?? {}).join(" + ");
-  const thinking = (faculty) =>
+  const thinkingLabel = (faculty) =>
     !thinks(faculty) ? "no thinking" : effort === "none" ? "thinking off" : "thinking";
+  const origin = (faculty) => [faculty?.provider, faculty?.config?.model].filter(Boolean).join(" · ");
   const summary = (faculty) =>
-    faculty ? `${faculty.type} · ${contextLabel(faculty.context)} · ${thinks(faculty) ? "thinking" : "no thinking"}` : "";
+    faculty
+      ? [faculty.type, origin(faculty), contextLabel(faculty.context), thinks(faculty) ? "thinking" : "no thinking"]
+          .filter(Boolean)
+          .join(" · ")
+      : "";
 
   async function write(patch) {
     if (!thread || saving) return;
@@ -49,8 +63,10 @@
       const current = { ...(thread.trait?.INTELLIGENT ?? {}), ...patch };
       for (const key of Object.keys(current)) if (current[key] === undefined) delete current[key];
       const trait = { ...thread.trait, INTELLIGENT: current };
-      await thread.daemon.entities.thread.updateOne({ id: thread.id }, { trait });
+      const claim = thread.traits.includes("INTELLIGENT") ? {} : { traits: [...thread.traits, "INTELLIGENT"] };
+      await thread.daemon.entities.thread.updateOne({ id: thread.id }, { trait, ...claim });
       thread.trait = trait;
+      if (claim.traits) thread.traits = claim.traits;
     } finally {
       saving = false;
     }
@@ -73,7 +89,7 @@
   </div>
   <div class="row">
     <span class="key">effort</span>
-    <div class="chips">
+    <div class="chips" class:inert={resolved && !thinks(resolved)} title={resolved && !thinks(resolved) ? "resolved faculty doesn't think — effort has no effect here" : undefined}>
       {#each EFFORTS as level (level)}
         <button
           class="chip"
@@ -84,18 +100,54 @@
       {/each}
     </div>
   </div>
+  <div class="row">
+    <span class="key">rounds</span>
+    <div class="chips">
+      {#each ROUNDS as count (count)}
+        <button
+          class="chip"
+          class:on={rounds === count}
+          title={count === 1
+            ? "one round — the model answers directly, no tool loop"
+            : `up to ${count} model rounds per turn — each round may call tools`}
+          onclick={() => write({ rounds: rounds === count ? undefined : count })}>{count}</button>
+      {/each}
+      {#if rounds !== undefined && !ROUNDS.includes(rounds)}<span class="chip on">{rounds}</span>{/if}
+    </div>
+  </div>
+  <div class="row">
+    <span class="key">thinking</span>
+    <div class="chips">
+      <button
+        class="chip"
+        class:on={thinking === true}
+        title="render the thinking process inline on every turn"
+        onclick={() => write({ thinking: thinking === true ? undefined : true })}>shown</button>
+      <button
+        class="chip"
+        class:on={thinking === false}
+        title="never show the thinking process"
+        onclick={() => write({ thinking: thinking === false ? undefined : false })}>hidden</button>
+    </div>
+  </div>
   {#if resolved}
     <div class="resolved">
       <span class="type">{resolved.type}</span>
+      {#if origin(resolved)}<span class="origin">{origin(resolved)}</span>{/if}
       <span class="fact">{contextLabel(resolved.context)}</span>
-      <span class="fact" class:lit={thinking(resolved) === "thinking"}>{thinking(resolved)}</span>
+      <span class="fact" class:lit={thinkingLabel(resolved) === "thinking"}>{thinkingLabel(resolved)}</span>
       <span class="fact">{avenues(resolved)}</span>
     </div>
     <div class="axes">
       {#each AXES as axis, index (axis)}
-        <span class="axis" title="{axis} {(resolved.tune?.[index] ?? 0).toFixed(1)}">
+        {@const value = resolved.tune?.[index] ?? 0}
+        <span class="axis" title="{axis} {value.toFixed(1)}">
           <span class="axis-name">{axis}</span>
-          <span class="axis-bar"><span class="axis-fill" style:width="{(resolved.tune?.[index] ?? 0) * 100}%"></span></span>
+          <span class="cells">
+            {#each { length: 5 } as _, cell (cell)}
+              <span class="cell" class:full={value * 5 >= cell + 0.5}></span>
+            {/each}
+          </span>
         </span>
       {/each}
     </div>
@@ -113,11 +165,12 @@
   }
   .row {
     display: flex;
-    align-items: center;
+    align-items: flex-start;
     gap: 8px;
   }
   .key {
     min-width: 44px;
+    line-height: 18px;
     opacity: 0.55;
     font-size: var(--font-size-2xs);
   }
@@ -140,14 +193,20 @@
     opacity: 0.5;
     transition: opacity 0.16s, color 0.16s, border-color 0.16s;
   }
-  .chip:hover {
-    opacity: 0.9;
-    color: var(--colors-skeleton-0-primary-base);
+  @media (hover: hover) {
+    .chip:hover {
+      opacity: 0.9;
+      color: var(--colors-skeleton-0-primary-base);
+    }
   }
   .chip.on {
     opacity: 1;
-    color: var(--colors-skeleton-0-primary-base);
+    background: var(--colors-skeleton-0-primary-base);
+    color: var(--colors-skeleton-0-surface);
     border-color: var(--colors-skeleton-0-primary-base);
+  }
+  .chips.inert {
+    opacity: 0.35;
   }
   .resolved {
     display: flex;
@@ -166,6 +225,12 @@
     font-size: var(--font-size-2xs);
     color: var(--colors-skeleton-0-primary-base);
   }
+  .origin {
+    font-family: var(--font-family-code);
+    font-size: var(--font-size-2xs);
+    opacity: 0.75;
+    overflow-wrap: anywhere;
+  }
   .fact {
     font-size: var(--font-size-2xs);
     opacity: 0.55;
@@ -175,32 +240,33 @@
     color: var(--colors-skeleton-0-primary-base);
   }
   .axes {
-    display: grid;
-    grid-template-columns: 1fr 1fr;
-    gap: 2px 12px;
+    display: flex;
+    flex-wrap: wrap;
+    gap: 4px 16px;
     padding-left: 52px;
   }
   .axis {
-    display: grid;
-    grid-template-columns: 68px 1fr;
+    display: inline-flex;
     align-items: center;
     gap: 6px;
+    white-space: nowrap;
   }
   .axis-name {
     font-size: var(--font-size-2xs);
     opacity: 0.45;
   }
-  .axis-bar {
-    height: 3px;
-    border-radius: 2px;
-    background: color-mix(in srgb, var(--colors-skeleton-0-boundary) 55%, transparent);
-    overflow: hidden;
-    display: block;
+  .cells {
+    display: inline-flex;
+    gap: 2px;
   }
-  .axis-fill {
-    display: block;
-    height: 100%;
+  .cell {
+    width: 7px;
+    height: 7px;
+    border-radius: 1px;
+    background: color-mix(in srgb, var(--colors-skeleton-0-boundary) 55%, transparent);
+  }
+  .cell.full {
     background: var(--colors-skeleton-0-primary-base);
-    opacity: 0.7;
+    opacity: 0.8;
   }
 </style>

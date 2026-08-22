@@ -1,14 +1,14 @@
 export const AREAS = {
-  0: { title: "System", note: "the docs system itself" },
+  // 0: { title: "Meta", note: "the docs system itself" },
   10: { title: "About", note: "what vivalence is, and why" },
   20: { title: "Grammar", note: "language, vocabulary, semantics" },
   30: { title: "Architecture", note: "functional composition" },
   40: { title: "Repository", note: "filesystem reality + walks" },
   50: { title: "Practice", note: "how-to, criteria, conventions" },
-  60: { title: "Trajectory", note: "development time axis" },
-  70: { title: "Reserved", note: "" },
-  80: { title: "Reserved", note: "" },
-  90: { title: "Reserved", note: "" },
+  // 60: { title: "Trajectory", note: "development time axis" },
+  // 70: { title: "Reserved", note: "" },
+  // 80: { title: "Reserved", note: "" },
+  // 90: { title: "Reserved", note: "" },
 };
 
 export const CATEGORIES = {

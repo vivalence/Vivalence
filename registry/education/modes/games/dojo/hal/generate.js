@@ -26,6 +26,15 @@ ${literals
   .join("\n")}
 Use as many of these words as fit naturally into a single sentence. Never force a word that makes the sentence awkward.`,
 
+  anchors: (literals) =>
+    `Anchor material — EVERY sentence must contain at least one of these, in this form or a natural inflection of it:
+${literals
+  .map(
+    (literal) =>
+      `  ${literal.trait?.TRANSLATED?.learning} (${literal.trait?.TRANSLATED?.known})`,
+  )
+  .join("\n")}`,
+
   compose: (language, count, instructions) =>
     `Compose ${count} DISTINCT sentence pairs in ${language.learning.name}, each one clear sentence — no compounds, no run-ons.
 Favor practical everyday scenarios: daily routine, conversation, opinions, directions.

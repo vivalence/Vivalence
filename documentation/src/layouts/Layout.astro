@@ -1,7 +1,7 @@
 ---
 import { getCollection } from "astro:content"
 import { flatten, breadcrumb } from "../lib/tree.js"
-import { AREAS, CATEGORIES, areaKey, areaNote, decadeOf, categoryName, isReserved } from "../lib/jdex.js"
+import { AREAS, CATEGORIES, areaKey, areaNote, decadeOf, categoryName, isReserved } from "../../content/_site/jdex.js"
 
 const collection = await getCollection("docs")
 const pages = collection.map((entry) => ({
@@ -468,7 +468,7 @@ const incoming = current
       .live-card p { font-size: var(--step--1); color: var(--ink); line-height: 1.5; margin: 0 0 var(--s3); }
       .live-card .mini-trace { font-family: var(--mono); font-size: var(--step--2); color: var(--muted); display: grid; gap: 2px; }
       .live-card .mini-trace .v { color: var(--accent); }
-      .guide-wrap { margin-top: var(--s7); border-top: 1px solid var(--line); padding-top: var(--s6); }
+      .guide-wrap { margin-top: var(--s7); }
       .guide { max-width: 74ch; }
       .guide > :first-child { margin-top: 0; }
       .guide h2 { font-family: var(--display); font-size: var(--step-3); letter-spacing: -0.015em; margin: 0 0 var(--s4); }

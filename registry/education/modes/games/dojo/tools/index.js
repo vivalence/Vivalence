@@ -4,6 +4,7 @@ import * as fold from "../fold.js";
 import { preset } from "./preset.js";
 import { conjugations } from "./conjugations.js";
 import { generate } from "./generate.js";
+import { symbols } from "./symbols.js";
 
 const AXES = object.pluck(types.AXES, types.SETUP);
 
@@ -18,6 +19,8 @@ export const tools = new Vector().open(
       "with {pick: 'literals', literals: [slugs]}, stream the weakest with byStrength, scope any clause " +
       "with a `where`; clauses union in order), authored knowables (your own pairs — they rep without " +
       "touching the retention), a symbol scope (drawn from the corpus, AND per symbol), or the plain memory feed. " +
+      "When the material exists in the corpus, PIN it — pinned slugs rep against the learner's real " +
+      "retention; authored pairs leave no history. Author only what the corpus lacks. " +
       "Every axis the drawer offers rides here too — recall, gameplay, prompt, greedy, random, preview, " +
       "streak, anhieb, continuous, limit, forgiving. Defaults are TYPE gameplay, TEXT prompt, a single pass; " +
       "set streak for consecutive-success mastery, limit for a hard cutoff, prompt AUDIO only when the " +
@@ -80,4 +83,5 @@ export const tools = new Vector().open(
 )
   .slurp(preset)
   .slurp(conjugations)
-  .slurp(generate);
+  .slurp(generate)
+  .slurp(symbols);
