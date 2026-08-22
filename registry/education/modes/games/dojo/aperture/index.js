@@ -20,6 +20,34 @@ const COUNT_INPUT = v.object({
   wheres: v.array(types.query).desc("Queries to count under the ontology guard — one count per entry, pick-independent."),
 });
 
+export const catalog = async (daemon, { search, traits, limit }) => {
+  const like = search ? `%${search}%` : null;
+  const where = {
+    ...(like
+      ? { $or: [{ slug: { $like: like } }, { trait: { LABELED: { name: { $like: like } } } }] }
+      : {}),
+    ...(traits?.length ? { traits: { $overlap: traits } } : {}),
+  };
+  const [symbols, tallies] = await Promise.all([
+    daemon.entities.symbol.find(where),
+    daemon.entities.em
+      .getConnection()
+      .execute(
+        "SELECT symbol_entity_id AS symbol, count(*) AS literals FROM symbol_literals GROUP BY symbol_entity_id",
+      ),
+  ]);
+  const counted = new Map(tallies.map((tally) => [tally.symbol, Number(tally.literals)]));
+  return symbols
+    .map((symbol) => ({
+      slug: symbol.slug,
+      traits: symbol.traits ?? [],
+      literals: counted.get(symbol.id) ?? 0,
+      ...(symbol.trait?.LABELED?.name ? { name: symbol.trait.LABELED.name } : {}),
+    }))
+    .sort((left, right) => right.literals - left.literals || left.slug.localeCompare(right.slug))
+    .slice(0, limit ?? Infinity);
+};
+
 const SYMBOLS_INPUT = v.object({
   search: v.string().desc("Matched against the symbol slug and its LABELED name.").optional(),
   traits: v
@@ -134,34 +162,7 @@ export const aperture = new Vector()
     return buffer;
   })
 
-  .open({ nature: "/symbols", input: SYMBOLS_INPUT }, async (ctx) => {
-    const { search, traits, limit } = ctx.input;
-    const like = search ? `%${search}%` : null;
-    const where = {
-      ...(like
-        ? { $or: [{ slug: { $like: like } }, { trait: { LABELED: { name: { $like: like } } } }] }
-        : {}),
-      ...(traits?.length ? { traits: { $overlap: traits } } : {}),
-    };
-    const [symbols, tallies] = await Promise.all([
-      ctx.daemon.entities.symbol.find(where),
-      ctx.daemon.entities.em
-        .getConnection()
-        .execute(
-          "SELECT symbol_entity_id AS symbol, count(*) AS literals FROM symbol_literals GROUP BY symbol_entity_id",
-        ),
-    ]);
-    const counted = new Map(tallies.map((tally) => [tally.symbol, Number(tally.literals)]));
-    return symbols
-      .map((symbol) => ({
-        slug: symbol.slug,
-        traits: symbol.traits ?? [],
-        literals: counted.get(symbol.id) ?? 0,
-        ...(symbol.trait?.LABELED?.name ? { name: symbol.trait.LABELED.name } : {}),
-      }))
-      .sort((left, right) => right.literals - left.literals || left.slug.localeCompare(right.slug))
-      .slice(0, limit ?? Infinity);
-  })
+  .open({ nature: "/symbols", input: SYMBOLS_INPUT }, (ctx) => catalog(ctx.daemon, ctx.input))
 
   .open({ nature: "/traits" }, async (ctx) => {
     const counts = await Promise.all(types.TRAITS.map((name) => count(ctx, { traits: [name] })));

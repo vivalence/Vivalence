@@ -1,0 +1,141 @@
+#+title: the docs learn to boot their own subject, the capture hangs on an unclosed orm, and every page signs its author
+#+filetags: :documentation:tangle:paladin:runtime:boot:diataxis:critical-pass:astro:
+
+* what happened, in one breath
+
+Beef re-opened 32.01 with a seven-step brief ("READ! EVERY! SINGLE! FILE! THIS! TOUCHES! …
+no subagents!" for the read, one subagent mandated for the critique) and two mid-turn
+escalations: 51.02 is the sibling ("like https://diataxis.fr/ — study this too") and the
+pages must USE the docs' execution machinery ("utilize the capacity of the docs to tangle
+executed code and all that. show me the stuff WORKING. step by step. pre and post").
+Then: "i dotn want to hear from you for a while." The session delivered both pages as a
+diataxis pair with two example files that boot the real standalone variant at every docs
+build, survived a real infra hunt (the capture process never exits — an unclosed mikro
+ORM holds Deno's event loop), took a 25-finding subagent critique, and ended with beef
+replacing the just-built tag chips with author bylines by NAME: =beef (human)= ·
+=claude (agent)=, rendered below "on this page".
+
+* the tangle machinery (as found, now proven under load)
+
+- =src/tangle.js= walks =content/**/*.example.js=; each exports ={name, run}=. Captured
+  =console.log= lines land in =logs=; =run()= returning an array makes it =records= →
+  channel "span", else "stdout". Snapshot written BESIDE the example:
+  =<name>.snapshot.json= (gitignored).
+- Components: =Source= (raw example via glob) · =Example= (stdout panel) · =Trace=
+  (span records folded to a depth tree with durations) · =Tabs= (slot names must match
+  =names= array) · =LiveExample= (mini-trace card). =remark-tangle=: a fence meta
+  =tangle=path= writes the fence to disk at build ("⟿ tangled" badge) — unused by these
+  pages (no append semantics; one file per fence).
+- =deno task build= = capture && astro build. So the pages RE-EXECUTE their subject at
+  every build — "proof over promise" is now the docs' own property.
+
+* the two examples (the executable pages)
+
+- =32.01-anatomy.example.js= — the eight-stage boot, span-branched per stage, stdout as a
+  pre/post ledger: paladin import (env split, scopes) → variant.mount (thunk → Url,
+  masks, publish 3 PUBLIC_) → runtime Die.populate (latch, pensieve @education @fixtures
+  @playground @viva, DaemonDie, lighthouse ProcessDie) → daemon populate (db absent →
+  automigrated; 9 entities incl retention; 2 Mode rows in the daemon's OWN table; 3
+  faculties) → resolve (DATASET seeds 2+2+0, mode.call undefined → function, app.view
+  hash) → integrate (inline Connection http://internal; prune IS≡WAS) → runtime resolve
+  (aperture tree printed from =shape.strip=) → "the server is a function": =shape.http=
+  handler called in-process — =/metadata/daemons= 200 · =/daemon/standalone/metadata/modes=
+  401 MISSING_TOKEN (mounted, routing, locked) · POST
+  =/attached/process/lighthouse/multiplayer/entities/daemon/ensure= 200 — announce
+  executed THROUGH the runtime's own tree, no socket. Asserts 200/401/200 + seed counts;
+  returns 24 span records.
+- =51.02-flashcard.example.js= — boots headless, then plays the flashcard through
+  =mode.call= (the EXPOSED proxy, each call wrapped in =datamap.shard.context=): load
+  (both cards 0/0) → review ciao remembered (1/1 SUCCESS) → ciao forgot (0/2 FAILURE —
+  "streak resets on a miss — seen never lies") → mondo remembered (1/1) → load again →
+  =retention.count()= = 2. Asserts the exact post-state; 12 records.
+
+* the iteration ledger (what broke and why, in order)
+
+1. Global-EM error — repo calls outside a request: wrap in =datamap.shard.context=.
+2. esbuild could not resolve svelte from =/var/folders= temp — bundle store must live
+   INSIDE the repo so node_modules resolution walks up. Scratch =testament/docs-anatomy/=
+   (gitignored, convention-true), wiped by whichever example claims it first per capture.
+3. tangle walk order is readdir order (nondeterministic between runs) — 32.01 force-wipes
+   the daemon db (+ -wal/-shm) before stage 4 so it ALWAYS narrates a true first boot.
+4. ANSI codes in migrator lines — console.log hook strips =\x1b[…m= for clean capture.
+5. **THE HANG**: every capture run "completed" its snapshots then lived until timeout.
+   Binary search: stage 3 → =population.processes= → lighthouse boot. Minimal probe:
+   libsql =provider()= then exit-without-close HANGS (124), =datamap.disintegrate()=
+   exits 0. **Law: an open mikro/sqlite ORM holds the Deno event loop.** The lighthouse
+   process ORM is never closed — =ProcessDie= has no =disintegrate= (prod never noticed:
+   it perpetuates). Fix applied where it belongs for docs: =tangle.js= + =Deno.exit(0)=
+   after all snapshots — the capture runner exits regardless of example leaks. esbuild's
+   service child was the first suspect; stopped it, hang persisted, removed the stop.
+
+* the pages (diataxis pair, cross-linked "Build there, understand here")
+
+- =51.02_run-a-variant= (tutorial) — the dump broken at the file's own section comments
+  into seven fences, each a BYTE-VERBATIM slice (critic diffed programmatically: zero
+  drift), each with a short why: marker → retention entity → deck (one vector, two
+  mounts) → mode face (traits list, one line each) → coach+seed → machine (references,
+  lighthouse hosted vs consumed) → environment (variant.jsonc addresses vs .env identity).
+  run-it CORRECTED: clone target =./testament/variant= — every task pins
+  =testament/variant/.env= (root deno.jsonc:42, runtime:15, kajuit:17; beef's readme:168
+  clones localhost there too); the README's =./testament/standalone= boots nothing on a
+  fresh machine (README itself untouched — flagged). Signup step added from 51.01.
+- =32.01_anatomy-of-a-variant= (explanation) — eight lowercase-heading stages; the five
+  beats land where they happen (thunk→hydrate "the declaration is data" · mode rows in
+  the daemon's own db · prune is the diff · inline self-call same shape · announce
+  through the system's own entity grammar + the variant.jsonc lighthouse URL pointing
+  INTO the runtime's own path tree). Beef's line counts kept verbatim (2,106 / 7,202 +
+  1,256 / 15,314 — core ≈ 26k). Both pages end in stdout/span/source Tabs.
+
+* the critique (step 7 — 25 findings, the useful kind)
+
+Verbatim fences CONFIRMED byte-exact; wikilinks and Tabs slots correct. Applied (~20):
+"input is cast before the handler runs" was FALSE (only =guarded= casts; EXPOSED compiles
+=strategy.request=) → "declared contract" · mode.call backing corrected (daemon-side twin;
+the view rides the wire — "one vector, two backings") · announce actor = the RUNTIME
+loops its daemons · STANDALONE ≠ thread-free (kajuit gates Open on $thread) — "without an
+emitter" only · bundle (daemon) vs serve (runtime) split stated on both pages · scope
+enumeration +repository · run.js fence marked "condensed" · EXPOSED fence titled with the
+real path · the 70-word populate sentence → bullets · sibling-split said once · capture
+pre-narration cut (the capture tells the arc itself) · .env.example quoted verbatim with
+its comments · E2 helper =call= → =scoped= · boot narration line before migrator noise ·
+stale cross-capture comment replaced with the wipe contract. SKIPPED as canonical (beef's
+words): the line counts (critic: they include tests and drifted — typology now measures
+15,249) · "Run a Variant" Title-Case · the intro's capitalized "A Mode… A Variant".
+
+* authorship (the same session's second movement)
+
+Tag chips ("AI-written"/"Human-written" above "on this page") built, verified, then
+REPLACED on beef's word: "yeah lets go with authorship by name. remove teh tags. add an
+author at the head. beef and claude" + mid-turn "well beef (human) and claude (agent)".
+Final: frontmatter =author: beef (human)= (11.01, 13.01) · =author: claude (agent)=
+(32.01, 41.01, 51.02); schema =tags= → =author= (optional string); byline rendered in the
+toc aside BELOW the "on this page" rail ("move the authro … to below on this page") —
+mono, =--step--2=, faint. Free-form string in frontmatter, zero mapping logic.
+
+* laws extracted this session
+
+- **An open MikroORM sqlite handle holds the Deno event loop** — any short-lived process
+  that boots a datamap must close it or =Deno.exit=. ProcessDie's missing =disintegrate=
+  is the system-side gap (un-go'd, system code untouched).
+- **The bundle store must live inside the repo** — esbuild resolves bare imports by
+  walking up from the OUTPUT path; =/tmp= mountpoints cannot see node_modules.
+- **Docs examples are order-proof by construction**: own your freshness (wipe your db)
+  rather than assuming capture order; scratch = =testament/docs-anatomy/=, first claimant
+  wipes.
+- **Docs pages execute their subject**: example.js beside the page, assertions inside,
+  Tabs(stdout/span/source) at the bottom. A red example fails the build — docs rot is
+  now a build failure.
+- Beef's authorship register: by NAME with role parenthetical, not by category.
+
+* open ends
+
+- README's Hello-Variant run-it still says =./testament/standalone= — the broken-on-fresh
+  clone target; beef's file, flagged, not touched.
+- =ProcessDie= never closes its datamap (lighthouse ORM) — fine under perpetuate, leaks
+  in anything short-lived. Un-go'd.
+- =translate.snapshot.test.js= RED both hallucinator packages (pre-existing, unrelated).
+- Line counts on 32.01 are beef's frozen numbers; code has drifted slightly (critic
+  measured typology 15,249). His call whether to re-pin or compute at build.
+- Capture now boots the full variant twice per docs build (~10s total) — acceptable,
+  but the second boot is warm (dataset skipped) and the cost grows with the registry walk.
+- 21_vocabulary category name still unconfirmed; 51.03–51.07 + 14.01 still =.bak=.

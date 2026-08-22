@@ -1,0 +1,494 @@
+#+title: italian datasink — the loop closes: entities write the mode back to disk
+#+filetags: :datasink:freight:fraught:paladin:typology:runtime:topography:harvest:mode:tooled:harnessed:tts:
+#+status: REDESIGNED (pass 2, beef-driven) — TANGLE BLOCKS canonical; =italian-datasink.patch= is the pre-pass cut, now TWO passes behind (still exact on state.js/freight.js/FRAUGHT/italian.viva.js hunks, obsolete on the mode). fn.memo ALREADY LANDED live (typology belt + tests green). Everything else unapplied; runtime/typology hunks are beef-review items.
+
+* intent
+
+beef, verbatim (pass 1): /"We do have the data set entity, and we also have a data sync entity. The data sync entity gives us the rather nice capability of writing freight to disc. There's a missing capability about updating the actual mode content, the dataset and the the stuff that is on disc. And I want you to take the data sync capability and the... and develop new capability to update the actual mode on this. probably via some paradigm file writing tooling. to develop a dedicated mode, a harvest mode that incorporates all of the harvesting capability to take the stuff that we have been doing in our sessions here and do it via mode."/
+
+beef, verbatim (pass 2, the recast): /"NOT only via chat. give me an actual MODE to do this. the mode is harnessed itself. there is a tool francesca might use. but shes really more teacher. and the mode should source either via web-search OR via tts. which is new."/ · /"we have to split the capability to harvest store write and updte frieght and literals and shit (system) from the sources we pull this shit from (tts, wiki, tatobea, xxx)."/
+
+One sentence: *close the katabolic loop* — an operator mode mutates literals and receives freight, and the mode content on disk (dataset files + mp3s) follows via the sink, with no hand-run scripts.
+
+* terrain (verified pass 1, extended pass 2)
+
+- =DATASINK= exists as a runtime trait with a full test bed; NO registry mode declares one. The missing capability was mostly WIRING.
+- Drain mechanics: entity flush → twitch =/after/literal/update= → debounced (1500ms) drain → =Datasink.canonical= → =paladin.state.scribe= per target. The twitch event CARRIES the row (=subsystems/typology/gestalten/shape/subscriber.js:15= passes mikro's =args= with =.entity=) and every sink tuple already carries an in-memory =match= predicate (=belt/query= lift) — today's handler ignores both.
+- =DATASET= install runs ONCE (=systems/runtime/daemon/traits/dataset.js:21= gates on =Mode.installed= boolean) — fs-ahead-of-DB divergence is invisible until a drain reverts it.
+- Freight ownership is PER MODE (=FRAUGHT= → =mode.freight=); EXPOSITION is a per-daemon flat aggregate: =die.good.cargo= boot-time COPY (=daemon/lifecycle/resolution.js:20=) serves =/cargo= + =/metadata/cargo=; bytes serve ad-hoc per request (=systems/runtime/lifecycle/resolve.js:53= — live =freight.resolve= + =Deno.readFile=, so newly laden bytes serve instantly).
+- Client: dossier loads =/metadata/cargo= ONCE (=systems/kajuit/src/typology/entities/daemon/dossier.js:66=); =getAsset= resolves only through that map.
+- =deno task runtime/watch= = =deno run -A --watch= with NO exclude (=systems/runtime/deno.jsonc:16=); dataset files are import()'ed (=find.data=) hence IN the watch graph — a drain would restart the runtime.
+- TTS: a TTS hallucinator ALREADY EXISTS — =registry/viva/hallucinator/elevenlabs/= (faculty =type: "speech"=, =via.stream= websocket, eleven_turbo_v2_5, two pt-BR voices), wired with =SECRET_VIVA_ELEVENLABS_API_KEY= into every education variant. Cortex registers any faculty type generically; the aperture already speaks both avenues (=daemon/aperture/cortex.js= =round("render")/round("stream")=). Missing: a =render= avenue + an italian voice.
+- Yield truth: providers flatten =output.message ?? output.object ?? output= for the model (=registry/viva/hallucinator/anthropic/provider/translate.js:67= + openrouter twin) — a tool with a =message= key hides every data key from the model. Data tools return the bag with NO message (=daemon/skills/entity.js entity_find= precedent).
+
+* the decision trail
+
+Locked pass 1, still standing:
+1. *Paradigm split*: typology declares (=Freight.admit=, pure) · paladin does IO (=state.lade=) · runtime composes (=FRAUGHT= gains =mode.freight.receive=). No new trait name.
+2. *The topography declares its own datasink* — exemplar verbatim, DATASINK trait appended.
+3. *First-drain canonicalization accepted* — ordering lives in =RANKED.rank=, never file position.
+4. *No fabrication BY DEFAULT* — amended pass 2: TTS is now a legitimate EXPLICIT source (=source: "tts"=), never a silent fallback; synthetic audio is marked in its attribution.
+5. *Loudnorm chain pinned*: =loudnorm=I=-18:TP=-2:LRA=11=, 44.1kHz, 128k, 4000-byte floor.
+
+Ruled pass 2 (beef):
+6. *Harvest is an OPERATOR mode* — =["CONVERSATIONAL", "HARNESSED", "TOOLED"]=: drivable in its own kajuit terminal with its own doctrine; francesca still slurps the tools via AGENTIC (donor unchanged) but /"shes really more teacher"/.
+7. *System/source split* — tools = source-blind capability half; sources = pluggable modules under the mode, one contract. NOTHING language- or speaker-hardcoded: =language= is a tool INPUT (no default); the speaker-preference list is DEAD (topography-declared harvest config REJECTED as /"an unscalable one-off hack"/).
+8. *Tool returns are BAGS, no =message= key* — the model must see the data (=/survey='s targets are its whole point). Error paths keep ={condition: "ERROR", message}=.
+9. *Attribution rides the trait, nested*: =VOCALIZED: {asset: {path}, attribution: {author, license, source}}= — corpus self-attributing, drains with the dataset; the =.harvest/attribution.jsonl= sidecar is DEAD. /"its never read. nobody gives a fuck except for lawyers."/
+10. *Stamp, WARN-only*: =Mode.installed= boolean → content stamp; boot hashes dataset files, mismatch → loud warn, ARM ANYWAY. /"ignore todays state. its a dev setup. fuck it. stamp warn."/ No reseed gate, no refusal. Future paladin setting =warn|refuse= deferred.
+11. *Per-SINK drain precision, no per-row* — =sink.match(entity)= in the twitch handler, drain over dirty SINKS. /"no per entity sink."/ Blast radius and read cost bound to the claimed sink.
+12. *Client cargo freshness = debounced refetch-on-miss* — URL synthesis /"categorical no"/. See the client section below.
+13. *Ownership*: registry (mode + hallucinators) = mine, autonomous. Runtime/typology/system changes = beef reviews every one. The runtime ledger for this quest: =FRAUGHT.receive= · stamp-warn · per-sink dirty · cargo getter · =--watch-exclude= · =Freight.admit= (typology).
+
+* milestones
+
+| # | lands | owner | green gate (OPEN) |
+|---+-------+-------+-------------------|
+| M1 | =paladin.state.lade= + =Freight.admit= + =FRAUGHT.receive= | paladin/typology/runtime (beef reviews) | +admit cases in =freight.test.js= · lade byte-idempotence in paladin suite |
+| M2 | runtime wave: stamp-warn · per-sink dirty · =die.good.cargo= getter · =--watch-exclude=registry/= | runtime (beef reviews) | stamp: warn fires on mutated dataset, boot proceeds · dirty: sentence update drains ONLY the sentence sink (test) · cargo: admit visible on next =/metadata/cargo= read |
+| M3 | topography: DATASINK declaration + trait | registry | =datasink.roundtrip.test.js= pattern vs the REAL italian corpus: install → drain → reinstall → drain → fixpoint |
+| M4 | harvest mode: operator recast + system tools + sources (tatoeba/commons/tts) + doctrine | registry (mine) | playground: seed literals, stub sources, =/vocalize= dry+wet, freight landed + VOCALIZED.attribution stamped + drain wrote the file |
+| M5 | elevenlabs =via.render= + italian voice | registry (mine; voice id = beef's ear) | render returns mp3 bytes ≥ floor; tts source end-to-end via stubbed faculty |
+| M6 | kajuit =getAsset= refetch-on-miss | kajuit | miss triggers ONE debounced refetch; absent asset cannot loop |
+| M7 | live sweep | — | daemon boot, =/survey= then =/vocalize band:160 language:ita=; one audible rep + attribution present on the drained rows |
+
+* tangle — surgical edits (unchanged from pass 1; hunk-verified vs HEAD 011508554)
+
+=subsystems/paladin/belt/state.js= — the binary sibling of =scribe=:
+
+#+BEGIN_SRC diff
+diff --git a/subsystems/paladin/belt/state.js b/subsystems/paladin/belt/state.js
+index 007c7fd..8bdd4b2 100644
+--- a/subsystems/paladin/belt/state.js
++++ b/subsystems/paladin/belt/state.js
+@@ -31,6 +31,15 @@ export default function state(paladin) {
+       await Deno.rename(`${file}.tmp`, file);
+       return true;
+     },
++    lade: async (path, bytes) => {
++      const file = resolve(path);
++      await parent(file);
++      const held = await Deno.readFile(file).catch(() => null);
++      if (held && held.length === bytes.length && held.every((byte, i) => byte === bytes[i])) return false;
++      await Deno.writeFile(`${file}.tmp`, bytes);
++      await Deno.rename(`${file}.tmp`, file);
++      return true;
++    },
+     open: async (path) => {
+       const file = resolve(path);
+       await parent(file);
+#+END_SRC
+
+=subsystems/typology/prototypes/freight.js= — =entry()= extracted from =stow=, =admit= registers new cargo (idempotent, lading stays path-sorted); pure, no IO:
+
+#+BEGIN_SRC diff
+diff --git a/subsystems/typology/prototypes/freight.js b/subsystems/typology/prototypes/freight.js
+index 693912b..744bcd0 100644
+--- a/subsystems/typology/prototypes/freight.js
++++ b/subsystems/typology/prototypes/freight.js
+@@ -14,6 +14,15 @@ const MIME = {
+   json: "application/json",
+ };
+
++const entry = (path) => {
++  const name = path.split("/").pop();
++  return {
++    slug: name.replace(/\.[^.]+$/, ""),
++    path,
++    type: MIME[name.split(".").pop().toLowerCase()] || "application/octet-stream",
++  };
++};
++
+ export class Freight {
+   lading = [];
+
+@@ -28,14 +37,13 @@ export class Freight {
+   }
+
+   stow(paths) {
+-    this.lading = [...paths].sort().map((path) => {
+-      const name = path.split("/").pop();
+-      return {
+-        slug: name.replace(/\.[^.]+$/, ""),
+-        path,
+-        type: MIME[name.split(".").pop().toLowerCase()] || "application/octet-stream",
+-      };
+-    });
++    this.lading = [...paths].sort().map(entry);
++    return this;
++  }
++
++  admit(path) {
++    if (this.lading.some((held) => held.path === path)) return this;
++    this.lading = [...this.lading, entry(path)].sort((a, b) => (a.path < b.path ? -1 : 1));
+     return this;
+   }
+#+END_SRC
+
+=systems/runtime/daemon/traits/index.js= — =FRAUGHT= composes the two into =mode.freight.receive(path, bytes)=:
+
+#+BEGIN_SRC diff
+diff --git a/systems/runtime/daemon/traits/index.js b/systems/runtime/daemon/traits/index.js
+index 0432f34..07022f4 100644
+--- a/systems/runtime/daemon/traits/index.js
++++ b/systems/runtime/daemon/traits/index.js
+@@ -44,5 +44,9 @@ export const FRAUGHT = async (mode, daemon) => {
+   const files = await paladin.find.walk(/./)(root);
+   mode.freight = new Freight(root).stow(files.map((file) => file.absolute.slice(root.length + 1)));
+   mode.freight.withUrl(daemon.attach.branch("/cargo").branch(daemon.mount.nature));
++  mode.freight.receive = async (path, bytes) => {
++    await paladin.state.lade(`${root}/${path}`, bytes);
++    return mode.freight.admit(path).resolve(path);
++  };
+   mode.aperture.open("/freight", () => mode.freight.catalog);
+ };
+#+END_SRC
+
+=registry/education/topographies/english-to-italian/italian.viva.js= — the wiring (exemplar verbatim):
+
+#+BEGIN_SRC diff
+diff --git a/registry/education/topographies/english-to-italian/italian.viva.js b/registry/education/topographies/english-to-italian/italian.viva.js
+index 610f31a..c01451d 100644
+--- a/registry/education/topographies/english-to-italian/italian.viva.js
++++ b/registry/education/topographies/english-to-italian/italian.viva.js
+@@ -1,11 +1,11 @@
+-import { Dataset, Freight } from "@vivalence/typology";
++import { Dataset, Datasink, Freight, writer } from "@vivalence/typology";
+
+ export const manifest = {
+   type: "topography",
+   slug: "english-to-italian",
+   name: "Italian Vocabulary",
+   version: "0.2.0",
+-  traits: ["DATASET", "FRAUGHT"],
++  traits: ["DATASET", "FRAUGHT", "DATASINK"],
+ };
+
+ export const freight = new Freight("freight/audio");
+@@ -21,4 +21,11 @@ export const dataset = new Dataset({
+   literal: "dataset/literals",
+ });
+
++export const datasink = new Datasink({
++  literal: [
++    ["sentence", "dataset/literals/sentences.js"],
++    ["word", writer.split("word.part-of-speech.%", "dataset/literals/words/%.js")],
++  ],
++});
++
+ export { statics } from "./statics/language.js";
+#+END_SRC
+
+* tangle — runtime wave M2 (sketches; beef reviews, exact diffs cut at land)
+
+=systems/runtime/daemon/entities/daemon/Mode.ts= — =installed: Boolean= (line 45) becomes a content STAMP (string; hash of the dataset's canonical file bytes). Column change = mikro, beef's.
+
+=systems/runtime/daemon/traits/dataset.js= — install gate compares stamp, stores stamp:
+
+#+BEGIN_SRC js
+const stamp = await hash(dataset files);
+if (mode.entity.installed === stamp) return;
+...existing upsert install...
+mode.entity.installed = stamp;
+#+END_SRC
+
+=systems/runtime/daemon/traits/datasink.js= — TWO edits:
+
+#+BEGIN_SRC js
+// (a) stamp tripwire, WARN-only (beef: "stamp warn"): at arm time compare hash(dataset files)
+// vs mode.entity.installed — mismatch → loud console warn ("dataset files differ from the
+// installed stamp — same-sink drains may revert them; reseed when convenient"), arm anyway.
+// Future: paladin setting warn|refuse (deferred).
+
+// (b) per-sink dirty (beef: "no per entity sink" — sink precision is the floor AND the ceiling):
+const dirty = new Set();                                    // sinks, not type strings
+daemon.twitch.open(`/after/${type}/${op}`, ({ entity }) => {
+  if (!armed) return;
+  for (const sink of datasink.of(type))
+    if (!entity || sink.match?.(entity) !== false) dirty.add(sink);
+  settle();
+});
+// drain iterates dirty SINKS (grouped by type for the repo read); {all:true} unchanged.
+// Conservative: no entity / uncompilable match → sink dirties.
+#+END_SRC
+
+=systems/runtime/daemon/lifecycle/resolution.js= — =freight()= stops COPYING catalogs into =die.good.cargo= at boot; =cargo= becomes a getter folding =mode.freight.catalog= over flatmodes at read time (collision warn stays at boot). The two aperture thunks (=daemon/aperture/freight.js:2=, =daemon/aperture/metadata.js:8=) go fresh for free.
+
+=systems/runtime/deno.jsonc:16= — the watch task gains =--watch-exclude=registry/= (dataset files are in the module graph via =find.data= import(); a drain must not restart the runtime).
+
+* tangle — the mode (registry, mine; full files authored at M4)
+
+#+BEGIN_SRC js
+// registry/education/modes/tactics/harvest/harvest.viva.js
+export { tools } from "./tools/index.js";
+export { harness } from "./harness.js";
+
+export const manifest = {
+  type: "tactic",
+  slug: "harvest",
+  name: "Harvest",
+  version: "0.1.0",
+  description:
+    "Operator mode that closes the katabolic loop: survey what has no voice, resolve recordings " +
+    "from web sources or synthesize via TTS, receive them into the topography's freight, stamp " +
+    "VOCALIZED with attribution, and let the datasink write the mode content back to disk.",
+  traits: ["CONVERSATIONAL", "HARNESSED", "TOOLED"],
+};
+#+END_SRC
+
+The SYSTEM half — =registry/education/modes/tactics/harvest/tools/index.js= — source-blind:
+
+#+BEGIN_SRC js
+// registry/education/modes/tactics/harvest/tools/index.js
+import { Vector, sleep, v } from "@vivalence/typology";
+import { tatoeba } from "../sources/tatoeba.js";
+import { commons } from "../sources/commons.js";
+import { tts } from "../sources/tts.js";
+
+const AGENT = "vivalence-harvest/0.1";
+const BREATHER = 2000;
+const SOURCES = { tatoeba, commons, tts };
+
+const topographies = (daemon) => Object.values(daemon.modes.topography ?? {});
+
+const anchored = (daemon, slug) =>
+  slug
+    ? daemon.modes.topography?.[slug]
+    : topographies(daemon).find((mode) => mode.implements("FRAUGHT") && mode.datasink);
+
+const kind = (literal) => (literal.ontology === "sentence" ? "sentence" : "word");
+
+const unvocalized = async (daemon, { band, limit }) => {
+  const found = await daemon.entities.literal.find(
+    band ? { rank: { $lte: band } } : {},
+    { orderBy: { rank: "ASC" } },
+  );
+  return found.filter((literal) => !literal.traits?.includes("VOCALIZED")).slice(0, limit ?? 20);
+};
+
+const SURVEY_INPUT = v.object({
+  topography: v.string().desc("Topography slug. Omit to take the mounted one.").optional(),
+  band: v.number().desc("Only literals ranked at or under this.").optional(),
+  limit: v.number().default(50),
+});
+
+const VOCALIZE_INPUT = v.object({
+  topography: v.string().optional(),
+  language: v.string().desc("ISO 639-3 of the learning language — e.g. ita. Name it every sweep."),
+  source: v.enum(["auto", "tatoeba", "commons", "tts"]).default("auto")
+    .desc("auto = tatoeba for sentences, commons for words — NEVER tts unless named explicitly."),
+  slugs: v.array(v.string()).desc("Exact literals. Omit to sweep the band.").optional(),
+  band: v.number().optional(),
+  limit: v.number().default(20),
+  dry: v.boolean().desc("Resolve and report without touching freight or entities.").default(false),
+});
+
+const DRAIN_INPUT = v.object({ topography: v.string().optional() });
+
+// data tools return BAGS with NO message key — the provider flatten
+// (output.message ?? output.object ?? output) would hide every data key from the model.
+// Error paths keep {condition: "ERROR", message}.
+export const tools = new Vector()
+  .open(
+    { nature: "/survey", valence: "...", input: SURVEY_INPUT },
+    async (ctx) => {
+      const topography = anchored(ctx.daemon, ctx.input.topography);
+      if (!topography) return { condition: "ERROR", message: "no topography mounted" };
+      const targets = await unvocalized(ctx.daemon, ctx.input);
+      return {
+        total: targets.length,
+        band: ctx.input.band ?? null,
+        targets: targets.map((literal) => ({
+          slug: literal.slug,
+          kind: kind(literal),
+          rank: literal.trait?.RANKED?.rank ?? null,
+          learning: literal.trait?.TRANSLATED?.learning ?? "",
+        })),
+      };
+    },
+  )
+  .open(
+    { nature: "/vocalize", valence: "...", input: VOCALIZE_INPUT },
+    async (ctx) => {
+      const topography = anchored(ctx.daemon, ctx.input.topography);
+      if (!topography) return { condition: "ERROR", message: "no topography mounted" };
+      if (!topography.freight?.receive)
+        return { condition: "ERROR", message: `${topography.slug} carries no receivable freight` };
+
+      const { language, source: pick } = ctx.input;
+      const targets = ctx.input.slugs?.length
+        ? await ctx.daemon.entities.literal.find({ slug: { $in: ctx.input.slugs } })
+        : await unvocalized(ctx.daemon, ctx.input);
+
+      const report = { vocalized: [], missed: [], failed: [] };
+      for (const literal of targets) {
+        if (literal.traits?.includes("VOCALIZED")) continue;
+        const shelf = kind(literal);
+        const chosen = pick === "auto" ? (shelf === "sentence" ? "tatoeba" : "commons") : pick;
+        const source = SOURCES[chosen]({ agent: AGENT, daemon: ctx.daemon });
+        const text = literal.trait?.TRANSLATED?.learning;
+        try {
+          const found = text ? await source.resolve({ text, kind: shelf, language }) : null;
+          if (!found) report.missed.push(literal.slug);
+          else if (ctx.input.dry) report.vocalized.push({ slug: literal.slug, ...found, dry: true });
+          else {
+            const bytes = await normalize(await source.fetch(found));
+            if (!bytes) report.failed.push(literal.slug);
+            else {
+              const path = `${shelf}s/${literal.slug}.mp3`;
+              await topography.freight.receive(path, bytes);
+              literal.assign({
+                traits: [...new Set([...(literal.traits ?? []), "VOCALIZED"])],
+                trait: {
+                  ...literal.trait,
+                  VOCALIZED: {
+                    asset: { path },
+                    attribution: { author: found.author, license: found.license, source: found.source },
+                  },
+                },
+              });
+              report.vocalized.push({ slug: literal.slug, path, ...found });
+            }
+          }
+        } catch {
+          report.failed.push(literal.slug);
+        }
+        await sleep.ms(BREATHER);
+      }
+      if (!ctx.input.dry) await ctx.daemon.entities.em.flush();
+      return report;
+    },
+  )
+  .open(
+    { nature: "/drain", valence: "...", input: DRAIN_INPUT },
+    async (ctx) => {
+      const topography = anchored(ctx.daemon, ctx.input.topography);
+      if (!topography?.datasink?.drain)
+        return { condition: "ERROR", message: "no drainable topography mounted" };
+      return topography.datasink.drain({ all: true });
+    },
+  );
+#+END_SRC
+
+The SOURCE half — one contract, pluggable, nothing hardcoded:
+
+#+BEGIN_SRC js
+// registry/education/modes/tactics/harvest/sources/<slug>.js — the contract
+export const <slug> = ({ agent, daemon }) => ({
+  slug,
+  resolve: async ({ text, kind, language }) => found | null,   // found = {source, author, license, ...locator}
+  fetch: async (found) => Uint8Array,
+});
+#+END_SRC
+
+- =sources/tatoeba.js= — per-text =api_v0/search?from=${language}&has_audio=yes= exact match (right at 20-per-sweep scale; the CSV/index route reopens only for bulk). License gate =PERMISSIVE = /^(CC0|CC BY(?!-))/=, license REQUIRED — pass-1 amendment stands.
+- =sources/commons.js= — INDEX-FIRST, per the italian-build doctrine (compact 38: /"index-first beats search-first"/; per-word =srsearch= + the title-regex heuristic are DEAD). Build/refresh a category dump ONCE (=categorymembers= pagination over =Category:Lingua Libre pronunciation-${language}=; extra categories accepted as input for language-specific families like the italian =File:It-*= sweep), cached via =paladin.state.json= under the MODE's own mount (=.cache/commons-<language>.json= — the mode owns its cache, never another mode's dir). =resolve= = exact form intersection against the index → =imageinfo= url. Speaker preference DEAD; license from =extmetadata=. OPEN FORK on license policy below.
+- =sources/tts.js= — thin: =resolve= always returns ={source: "tts", synthesize: text, author: "<provider>", license: "synthetic"}=; =fetch= calls =daemon.cortex.hallucinate.speech.render(...)= (the surface =daemon/traits/harnessed.js:164= already uses) → bytes → the same normalize chain. Reached ONLY by explicit =source: "tts"= (decision 4).
+- =belt/audio.js= — normalize (ffmpeg loudnorm, pinned chain, 4000-byte floor) + =pull= — unchanged from pass 1.
+
+The HARNESS — =harness.js= + =hal/archivist.js= (francesca's section-palette pattern): operator persona; the ladder (survey → pick → =dry= vocalize → wet → drain); language named every sweep; source semantics (auto never synthesizes); license law; misses reported honestly, never papered over.
+
+* tangle — elevenlabs render (M5, registry, mine)
+
+=registry/viva/hallucinator/elevenlabs/provider/index.js= gains =via.render= — the REST endpoint (=POST https://api.elevenlabs.io/v1/text-to-speech/<voiceId>=, one finished mp3 body, single fetch) beside the existing websocket =via.stream=; plus ONE italian voice entry in the =voices= table (=eleven_turbo_v2_5= is multilingual; the voice ID is an EAR-PICK — beef's, one config line, fork below).
+
+* client cargo freshness (kajuit — refetch-on-miss, beef-approved)
+
+The daemon-level catalog (=/metadata/cargo=) is loaded ONCE per dossier
+(=systems/kajuit/src/typology/entities/daemon/dossier.js:66=), so an asset laden mid-session
+misses in =getAsset= even though the runtime serves its bytes ad-hoc. URL synthesis on miss was
+REJECTED (beef: categorical no) — the fix is a debounced index refetch, once per path per session:
+
+#+BEGIN_SRC js
+// systems/kajuit/src/typology/entities/daemon/daemon.js
+sought = new Set();
+refresh = fn.debounce(fn.inflight(async () => {
+  this.cargo = await this.connection.call("/metadata/cargo");
+}), 2000);
+
+getAsset(asset) {
+  if (!this.cargo || !asset) return null;
+  const found = /* existing path/slug resolution */;
+  if (!found && asset.path && !this.sought.has(asset.path)) {
+    this.sought.add(asset.path);
+    this.refresh();
+  }
+  return found;
+}
+#+END_SRC
+
+=fn.inflight= guards double-fire, =fn.debounce= gates the burst, =sought= stops absent assets
+looping. Reassignment of =this.cargo= rides the same reactivity as the dossier's initial load.
+Requires M2's cargo getter so the refetch actually sees fresh entries.
+
+* testing assessment
+
+In place: typology =freight.test.js= · =datasink.test.js= · runtime drain/roundtrip suites + =drain.playground.js= · paladin suite · **=fn.memo= LANDED with tests this session** (=subsystems/typology/tests/gestalten/belt/fn.test.js= — 4 passed, 8 steps; =once= gained its first case too).
+
+Adds owed per milestone: admit idempotence + sort position · lade byte-compare · receive lands file AND catalog entry · stamp-warn fires + boot proceeds · per-sink dirty (sentence update drains ONLY the sentence sink) · cargo getter freshness · italian corpus install→drain→fixpoint · =/vocalize= with stubbed sources (dry: no writes; wet: freight + trait.attribution; miss: reported; license-reject per source policy) · tts source via stubbed =speech.render= · commons index build + exact-intersection resolve · kajuit refetch guard.
+
+Pre-DONE gate: each milestone flips only with the named test file + pasted counts. No suite ran for the quest scope except the landed =fn.test.js=.
+
+* blast table
+
+| file | change | milestone | kind |
+|------+--------+-----------+------|
+| =subsystems/paladin/belt/state.js= | +lade | M1 | surgical |
+| =subsystems/typology/prototypes/freight.js= | entry extraction + admit | M1 | surgical |
+| =systems/runtime/daemon/traits/index.js= | FRAUGHT +receive | M1 | surgical |
+| =systems/runtime/daemon/entities/daemon/Mode.ts= | installed Boolean → stamp | M2 | surgical (beef/mikro) |
+| =systems/runtime/daemon/traits/dataset.js= | stamp compare + store | M2 | surgical |
+| =systems/runtime/daemon/traits/datasink.js= | stamp warn + per-sink dirty | M2 | surgical |
+| =systems/runtime/daemon/lifecycle/resolution.js= | cargo copy → getter | M2 | surgical |
+| =systems/runtime/deno.jsonc= | watch-exclude registry/ | M2 | config |
+| =registry/…/italian.viva.js= | +Datasink, +DATASINK trait | M3 | surgical |
+| =registry/education/modes/tactics/harvest/*= | NEW operator mode, ~8 files | M4 | authored |
+| =registry/viva/hallucinator/elevenlabs/provider/index.js= | +via.render, +italian voice | M5 | surgical |
+| =systems/kajuit/…/daemon.js= (+dossier if needed) | getAsset refetch-on-miss | M6 | surgical |
+| =subsystems/typology/gestalten/belt/fn.js= (+test) | +fn.memo | — | LANDED |
+
+* deferred (+ reopen trigger)
+
+- *Freight/cargo handling PER MODE* (beef order: mark, not today) — today ownership is per mode
+  but EXPOSITION is a flat per-daemon aggregate (=die.good.cargo= fold, slug-collision warned;
+  client dossier mirrors the flat map). At some point the daemon aggregate + client map go
+  per-mode; touches =daemon/lifecycle/resolution.js= + =/metadata/cargo= contract + kajuit
+  =dossier.js=/=daemon.js getAsset=.
+- Paladin setting =warn|refuse= for the stamp tripwire — reopens when the dev-setup era ends.
+- Client cargo PUSH (=/daemon/cargo/update= packet over the multiplex WS) — the successor of
+  refetch-on-miss; reopens if the debounced refetch chafes live.
+- Detached =/vocalize= as an emitter job (appraise precedent) — reopens if a sweep stalls a turn.
+- Split-sink target precision (row's facet → single POS file) — reopens if per-sink drains chafe;
+  per-ROW sink is DEAD by ruling, not deferred.
+- Provider-translate "message + stripped bag" (both provider translates, entity-strip rule) —
+  reopens if the message/data exclusivity chafes beyond harvest; =entity_find='s trim-message
+  hiding its rows is the standing evidence.
+- Symbol sinks · =receive= concurrency (two sweeps racing one path) · word-freight reuse for
+  sentence entries (beef killed it) — carried from pass 1 unchanged.
+
+* forks (call before the milestone lands)
+
+1. *Commons license policy* (before M4): the existing word freight is Lingua Libre stock =CC BY-SA=
+   — a strict =CC0/CC BY= gate on commons would reject nearly the whole word source, while tatoeba
+   stays strict per pass 1. Options: per-source policy (tatoeba strict · commons admits BY-SA with
+   trait-borne attribution — the status quo of the shipped freight) — recommended · or strict
+   everywhere and words lean on tts.
+2. *Italian voice* (before M5): ear-pick the elevenlabs voice id — beef.
+3. *Codec fidelity* (pass 1, stands): accept slug order + trailing-semicolon as canonical · or
+   rank-ordered writer comparator (cosmetic).
+4. *Network policy for M7*: allowlist =tatoeba.org= · =commons.wikimedia.org= · =upload.wikimedia.org=
+   · =api.elevenlabs.io= — or local run only.
+
+* critical pass (pass 1, against HEAD 011508554 — kept as record)
+
+Context verified: all four surgical hunks match the live files byte-for-byte. Precedents confirmed live: =paladin.state.jsonl= · =sleep.ms= · =writer.split= exemplar · =drain= returns ={drained, written, orphans}= · =entities.em= in the prod provider (=libsql.viva.js:45=) · =daemon.modes.<type>.<slug>= · daemon-side =mode.implements()= · =literal.assign= · VOCALIZED corpus shape.
+
+The five amendments (folded then; two now superseded by pass 2): license gate required+strict (=/^(CC0|CC BY(?!-))/= — stands for tatoeba; commons policy re-opened as fork 1) · =kind()= via =literal.ontology=, populates dropped (stands) · band query on the =rank= COLUMN (stands) · =limit ?? 20= floor, dead =where= dropped (stands) · commons regex escaping (SUPERSEDED — the whole srsearch path is dead, index-first replaces it). The TWIN license bug remains OPEN in the curriculum quest's =harvest-phrasebook.js pick()=.
+
+Notes, no change owed: flush-at-end is CORRECT (per-literal flush would fire the 1500ms drain debounce under the 2000ms breather); crash recovery idempotent (=lade= byte-compare; DB-ahead deltas heal lazily at the next drain); datasink's unscoped =repo.find= safe only while the italian daemon is standalone.
+
+* changelog
+
+- session (cloud): terrain read → M1 capability triple → M2 declaration → M3 mode authored → patch cut.
+- critical pass (pass 1): hunks verified vs HEAD 011508554, precedents confirmed except the band query; 5 amendments folded into the tangle — tangle canonical, patch one pass behind.
+- design pass (pass 2, beef-driven): mode recast to OPERATOR (=CONVERSATIONAL+HARNESSED+TOOLED=; francesca stays a tool consumer) · system/source split (language = input, speakers DEAD, topography-config rejected) · TTS legitimized as an explicit source — elevenlabs hallucinator found ALREADY WIRED, needs only =via.render= + a voice · tool returns bagged (provider flatten truth) · stale-DB resolved as stamp-WARN (no reseed ceremony — /"its a dev setup. fuck it"/) · per-SINK drain precision in (per-row ruled DEAD) · cargo getter + client refetch-on-miss + =--watch-exclude= · attribution nested on VOCALIZED, jsonl dead · =fn.memo= LANDED live with tests. Patch now two passes behind; runtime ledger: receive · stamp · dirty · cargo · watch · admit — every one beef-reviewed at land.

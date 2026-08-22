@@ -1,41 +1,69 @@
 ---
 title: What is Vivalence
-jdex: "11.01"
+summary: Layered systems and everything being a mode.
+author: beef (human)
 ---
 
-# 11.01 · What is Vivalence
+## Paradigm shift
 
-*your `~home` on any device — a modular, agentic, functional, symbolic operating system. a thin functional wrapper around language.*
+The history of software systems up to this point has been one of differentiation; most software stands in isolation and tries to distinguish itself from other software. Vivalence changes the paradigm to integration by standardising on a common denominator.
 
-## the architecture in three sentences
+Today's applications share the wrong layer: they keep private what is actually common — the schemas, ontologies, logic, and services that every system solving for a problemspace reimplements — and they share what should be custom: the presentation, workflows, and surfaces. Vivalence inverts this with its common denominator — the mode. Modes carry domain and business logic, they implement services, they transport data, and they surface application interfaces. This allows the core parts of any stack to be standardized and shared, while higher-order features and surfaces can be individualized with little effort.
 
-The reader picks its own fold; the writer emits flat facts. What follows is the contract, not the implementation. Two directions, no reconciliation, ever.
+This moment in time offers a unique opportunity to redo our software stack — AI is giving everyone the capabilities to create, design, and populate their own applications. What's missing is the right substrate and tooling. Introducing: Vivalence.
 
-The counterpart runs at teardown rather than at boot. Order is the only precedence rule that applies.
+## Disintegration
 
-```js title="subsystems/typology/prototypes/vector.js" {3}
-const vector = new Vector()
-  .use(middleware)
-  .open("/segment", (context) => context.request.body)
-  .open("/other", () => null)
-```
+The last 30 years of software have produced ever more elaborate, powerful, and complex applications — and they all deny us the same three things.
 
-## where it's at
+### Owning the application
 
-Each layer holds one responsibility and hands the next a value it can fold. Nothing in this section computes; it describes.
+Users have little influence over the surfaces and control-flows of their applications: SaaS ships one and the same product to everyone, and customization ends where the feature flags do. Microsoft Excel has thousands of features, and there is a saying that anyone only uses 5% of them — but everyone uses a different 5%. This is true. No vendor can build an individual application per user, so applications grow complex and intricate instead, expensive to maintain and slow to evolve. Overwhelming, yet suboptimal for any one single user.
 
-Declaration comes before wiring, at every level. One shape, several readers, no coordination between them. The reader picks its own fold; the writer emits flat facts.
+### Owning the data
 
-| column | meaning | note |
-| --- | --- | --- |
-| first | placeholder | short |
-| second | placeholder | a longer cell to test wrapping |
-| third | placeholder | short |
+Applications hold dominion over their users' data. There are a dozen popular calendars, inventory systems, and learning platforms, and their schemas are closely related and ought to be interoperable to some degree, since they model the same underlying problemspace — every calendar shares a notion of what an event is, when it happens, and which people attend, and the same goes for any other domain. But interoperability introduces churn risk without upside, so vendors build silos. Users have no ownership, no portability, and no safety regarding their data.
 
-## the claim
+### Owning the runtime
 
-Two directions, no reconciliation, ever. The counterpart runs at teardown rather than at boot. Order is the only precedence rule that applies.
+Systems run on machines users don't control, executing code that can't be inspected, moving data through flows users can neither see nor audit. With AI agents entering the loop this turns acute: opaque cloud agents acting on invisible data. No transparency, no verifiable trust.
 
-A missing marker is as meaningful as a present one. The structure here is declared once and interpreted many times.
+Application, data, runtime. Control, portability, transparency. These three failures stem from the same cause: the wrong application layers are shared.
 
-Read next: [[34.01_modes-and-traits]] · [[35.01_symbols-and-literals]] · [[13.01_license]] · [[12.01_vision]]
+## Decomposition
+
+Vivalence decomposes a system into layers and building blocks — the modes. Modes carry domain and business logic, they implement services, they transport data, and they surface application interfaces. The layers are, sorted from most shared to most individual:
+
+**Services** — databases, authentication, intelligence (LLM inference, embeddings, transcription), or messaging (mail, notifications). Commodities — swap any of them without the layers above noticing.
+
+**Domain** — the anatomy of any problemspace: the data-objects, their properties and relationships, and the business logic that operates on top of them.
+
+**Data** — the actual content a system runs on: datasets and assets. These could be private records like email, or shared communal datasets like language-learning corpora.
+
+**Surface** — what users touch: the interfaces and workflows that present the data, the controls that invoke domain logic, the agent harnesses, context pipelines, and tools.
+
+Any instance of Vivalence is made from the same components: a runtime that hosts daemons, and clients to reach them. A daemon is a self-contained, persistent system — and it is composed of modes. A daemon is the sum of its modes, and each mode brings something to the daemon, be it Data, Surface, Domain, or Service. And the whole system is constructed from a library — the typology — of custom, clean, algebraic types.
+
+## Integration
+
+As an example: an individual who has Vivalence installed wants to learn Spanish. They pull packages containing the various building blocks of a language-learning daemon (or, more likely, tell their agent to do it).
+
+The vocabulary-practice domain mode brings the anatomy — what a word or sentence looks like, the memory entities that store retention data, the routines for reviewing an item, a place to pull due or new ones. A corpus mode brings the data — Spanish words, sentences, conjugations, audio. Add in some standard service modes for LLM and datastorage — and you have a system to teach Spanish. 
+
+One person prefers flashcard drills. Another wants a conversational agent that practices with them in dialogue. Neither has to compromise: the surface is theirs to shape, and shaping it is as simple as a plain text command — they describe their intent to a coding agent, and the agent builds it as a custom mode. The corpus, the domain logic, the services underneath stay untouched and shared. And if they want to learn Latin with their shiny new custom setup, all they need to do is clone that daemon and exchange the mode carrying the dataset.
+
+Same daemons, same domain, different 5%. This is the benefit of everything being a mode.
+
+AI makes it trivially cheap to produce a mode: a surface costs a prompt, a domain is within reach of any community that knows its problemspace, and a service is just an adapter to a standard interface. What AI cannot do is provide the shared substrate that keeps it all coherent at scale. Vivalence is that substrate. It's the missing half of the AI story.
+
+Three more good-to-knows:
+
+- A mode is just JavaScript, JSON, and Svelte — no magic.
+- Modes live in managed packages and can be shared via git servers, USB sticks, AirDrop, or Dropbox. The system is not opinionated about the sourcing of modes — as long as they arrive in the filesystem.
+- The whole system can be set up without any external dependency — a Viva instance can be air-gapped, if desired and properly resourced.
+
+## Unit
+
+Vivalence achieves this composability and integration the same way the printing press worked its magic: by articulating the common denominator of text and building everything around it. Before movable type, every scribe wrote their own hand and every region spelled its own dialect; the press forced text through a single unit — the letter — and out of that constraint grew shared spellings, shared grammars, whole standardized languages that millions would learn to read.
+
+In a printing press, everything is a letter. In Vivalence, everything is a mode.

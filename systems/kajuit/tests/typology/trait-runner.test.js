@@ -77,7 +77,7 @@ describe({
     await middleware({ entity: {} }, async () => {});
   });
 
-  it("awaits async trait functions", async () => {
+  it("runs trait functions concurrently, awaiting all", async () => {
     const order = [];
     const ns = {
       A: async () => {
@@ -88,7 +88,7 @@ describe({
     };
     const middleware = applyTraits(ns);
     await middleware({ entity: { traits: ["A", "B"] } }, async () => {});
-    expect(order).toEqual(["A", "B"]);
+    expect(order).toEqual(["B", "A"]);
   });
 
   it("awaits async finalizers in order", async () => {

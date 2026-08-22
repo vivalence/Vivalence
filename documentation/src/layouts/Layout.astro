@@ -1,15 +1,10 @@
 ---
 import { getCollection } from "astro:content"
 import { flatten, breadcrumb } from "../lib/tree.js"
-import { AREAS, CATEGORIES, areaKey, areaNote, decadeOf, categoryName, isReserved } from "../lib/jdex.js"
+import { AREAS, CATEGORIES, areaKey, areaNote, decadeOf, categoryName, isReserved, page } from "../../content/jdex.js"
 
 const collection = await getCollection("docs")
-const pages = collection.map((entry) => ({
-  slug: entry.id,
-  jdex: entry.data.jdex,
-  title: entry.data.title,
-  body: entry.body ?? "",
-}))
+const pages = collection.map((entry) => ({ ...page(entry), body: entry.body ?? "" }))
 
 const ordered = flatten(pages)
 const here = Astro.url.pathname.replace(/\/$/, "") || "/"
@@ -19,8 +14,8 @@ const previous = position > 0 ? ordered[position - 1] : null
 const next = position >= 0 && position < ordered.length - 1 ? ordered[position + 1] : null
 
 const { frontmatter, headings, variant = "doc" } = Astro.props
-const heading = frontmatter?.title ?? Astro.props.title
-const crumbs = current ? breadcrumb(current.jdex) : []
+const heading = frontmatter?.title ?? current?.title ?? Astro.props.title
+const crumbs = current ? breadcrumb(current) : []
 const toc = (headings ?? []).filter((entry) => entry.depth === 2 || entry.depth === 3)
 
 const pagesByCategory = {}
@@ -44,7 +39,7 @@ const navAreas = decades
         : { kind: "group", category, name: categoryName(category), items }
     })
     const count = categories.reduce((total, category) => total + pagesByCategory[category].length, 0)
-    return { key: areaKey(decade), name: AREAS[decade].title.toLowerCase(), note: areaNote(decade), rows, count, open: decade === activeDecade }
+    return { key: areaKey(decade), name: AREAS[decade].title, note: areaNote(decade), rows, count, open: decade === activeDecade }
   })
   .filter((area) => area.rows.length > 0 || area.name !== "reserved")
 
@@ -178,11 +173,14 @@ const incoming = current
         border: 1px solid var(--line); background: var(--surface); color: var(--muted); border-radius: var(--r1);
         cursor: pointer; font-size: 13px; transition: color var(--dur) var(--ease), border-color var(--dur) var(--ease), background var(--dur) var(--ease); }
       .icon-btn:hover { color: var(--ink); border-color: var(--line-strong); background: var(--panel-2); }
+      .icon-btn svg, .reopen svg { display: block; }
 
       .search { position: relative; }
       .search .pagefind-ui__search-input { font-family: var(--mono) !important; font-weight: 400 !important; font-size: var(--step--1) !important;
         background: var(--surface) !important; border: 1px solid var(--line) !important; border-radius: var(--r2) !important;
         transition: border-color var(--dur) var(--ease), box-shadow var(--dur) var(--ease); }
+      .search .pagefind-ui__search-input { height: 38px !important; padding: 0 46px 0 36px !important; }
+      .search .pagefind-ui__form::before { top: 19px !important; left: 12px !important; transform: translateY(-50%); margin: 0 !important; }
       .search .pagefind-ui__search-input::placeholder { color: var(--faint); }
       .search .pagefind-ui__search-input:focus { outline: none !important; border-color: var(--accent) !important; box-shadow: 0 0 0 3px var(--accent-soft); }
       .search .kbd { position: absolute; right: var(--s3); top: 19px; transform: translateY(-50%);
@@ -202,9 +200,9 @@ const incoming = current
       .collapse-all { font-family: var(--mono); font-size: var(--step--2); color: var(--muted); background: none; border: 0; cursor: pointer; padding: 2px 4px; border-radius: 4px; }
       .collapse-all:hover { color: var(--ink); }
 
-      nav.tree { display: flex; flex-direction: column; gap: 1px; }
+      nav.tree { display: flex; flex-direction: column; gap: var(--s2); }
       .area { border: 1px solid transparent; border-radius: var(--r2); transition: background var(--dur) var(--ease); }
-      .area[open] { background: var(--surface); border-color: var(--line); box-shadow: var(--shadow); margin: var(--s2) 0; }
+      .area[open] { background: var(--surface); border-color: var(--line); box-shadow: var(--shadow); }
       .area > summary { list-style: none; display: grid; grid-template-columns: var(--gutter-fold) var(--gutter-num) 1fr auto; align-items: center;
         gap: 0 var(--s2); padding: var(--s3) var(--s2); cursor: pointer; border-radius: var(--r2); transition: background var(--dur) var(--ease); }
       .area > summary::-webkit-details-marker { display: none; }
@@ -231,6 +229,8 @@ const incoming = current
       a.entry.active .num { color: var(--accent-strong); }
 
       .group { margin: var(--s2) 0; }
+      .area-body > .group:first-child { margin-top: 0; }
+      .area-body > .group:last-child { margin-bottom: 0; }
       .group > summary { list-style: none; display: grid; grid-template-columns: var(--gutter-fold) var(--gutter-num) 1fr; gap: 0 var(--s2); align-items: center;
         padding: var(--s2) var(--s1); cursor: pointer; border-radius: var(--r1); }
       .group > summary::-webkit-details-marker { display: none; }
@@ -266,6 +266,7 @@ const incoming = current
         margin: 0 0 var(--s6); padding-left: var(--s4); border-left: 2px solid var(--accent); max-width: 66ch; }
       article h2 { font-size: var(--step-2); line-height: 1.2; letter-spacing: -0.01em; font-weight: 650; margin: var(--s7) 0 var(--s3);
         padding-top: var(--s5); border-top: 1px solid var(--line); }
+      article > h2:first-child { border-top: 0; padding-top: 0; margin-top: 0; }
       article h3 { font-size: var(--step-1); line-height: 1.25; font-weight: 650; margin: var(--s6) 0 var(--s2); }
       article h4 { font-size: var(--step-0); font-weight: 650; margin: var(--s5) 0 var(--s2); color: var(--ink); }
       article h1, article h2, article h3, article h4 { scroll-margin-top: 1.5rem; }
@@ -404,6 +405,8 @@ const incoming = current
       .pager .next { text-align: right; grid-column: 2; }
 
       .toc { position: sticky; top: 0; align-self: start; height: 100vh; overflow-y: auto; padding: var(--s6) var(--s4) var(--s6) var(--s2); }
+      .toc .byline { font-family: var(--mono); font-size: var(--step--2); color: var(--faint); margin-top: var(--s4); }
+      .toc .byline .who { color: var(--muted); }
       .toc .toc-head { font-family: var(--mono); font-size: var(--step--2); text-transform: uppercase; letter-spacing: 0.09em; color: var(--faint); margin-bottom: var(--s3); }
       .toc .rail { position: relative; padding-left: var(--s3); border-left: 1px solid var(--line); }
       .toc .progress { position: absolute; left: -1px; top: 0; width: 2px; background: var(--accent); border-radius: 2px; transition: height 120ms linear, top 120ms linear; }
@@ -455,7 +458,7 @@ const incoming = current
       .pillar p { margin: 0; font-size: var(--step--1); color: var(--muted); line-height: 1.45; }
       .home-cols { display: grid; grid-template-columns: 2fr 1fr; gap: var(--s6); }
       .home-cols h4 { font-family: var(--mono); font-size: var(--step--2); text-transform: uppercase; letter-spacing: 0.08em; color: var(--muted); margin: 0 0 var(--s3); }
-      .startlist { display: flex; flex-direction: column; gap: var(--s2); }
+      .startlist { display: grid; grid-template-columns: 1fr 1fr; gap: var(--s2) var(--s5); align-items: start; }
       .startlist a { display: grid; grid-template-columns: 5ch 1fr; gap: 0 var(--s3); padding: var(--s3); border-radius: var(--r2);
         border: 1px solid transparent; transition: all var(--dur) var(--ease); }
       .startlist a:hover { border-color: var(--line); background: var(--panel); }
@@ -468,7 +471,7 @@ const incoming = current
       .live-card p { font-size: var(--step--1); color: var(--ink); line-height: 1.5; margin: 0 0 var(--s3); }
       .live-card .mini-trace { font-family: var(--mono); font-size: var(--step--2); color: var(--muted); display: grid; gap: 2px; }
       .live-card .mini-trace .v { color: var(--accent); }
-      .guide-wrap { margin-top: var(--s7); border-top: 1px solid var(--line); padding-top: var(--s6); }
+      .guide-wrap { margin-top: var(--s7); }
       .guide { max-width: 74ch; }
       .guide > :first-child { margin-top: 0; }
       .guide h2 { font-family: var(--display); font-size: var(--step-3); letter-spacing: -0.015em; margin: 0 0 var(--s4); }
@@ -508,6 +511,7 @@ const incoming = current
         .hero { padding: var(--s6) var(--s5) var(--s5); }
         .home-body { padding: var(--s6) var(--s5) 0; }
         .home-cols { grid-template-columns: 1fr; }
+        .startlist { grid-template-columns: 1fr; }
         .jdex { padding: var(--s6) var(--s5) var(--s8); }
         .jdex-area { grid-template-columns: 1fr; gap: var(--s3); }
         article > * { max-width: none; }
@@ -518,7 +522,7 @@ const incoming = current
     </style>
   </head>
   <body>
-    <button type="button" class="reopen" aria-label="Show navigation" data-nav-reopen>»</button>
+    <button type="button" class="reopen" aria-label="Show navigation" data-nav-reopen><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="m6 17 5-5-5-5"/><path d="m13 17 5-5-5-5"/></svg></button>
     <div class="mobile-bar">
       <button type="button" class="burger" aria-label="Open navigation" data-nav-burger>☰</button>
       <a class="mb-brand" href="/"><img class="brand-mark" src="/vivalence-viket-logo-plasma.png" alt="" width="24" height="24" /> <span class="brand-name"><b>vivalence</b> <span>docs</span></span></a>
@@ -535,7 +539,7 @@ const incoming = current
           </a>
           <div class="brand-tools">
             <button type="button" class="icon-btn" aria-label="Toggle theme" data-theme-toggle></button>
-            <button type="button" class="icon-btn" aria-label="Collapse sidebar" data-nav-collapse>«</button>
+            <button type="button" class="icon-btn" aria-label="Collapse sidebar" data-nav-collapse><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="m11 17-5-5 5-5"/><path d="m18 17-5-5 5-5"/></svg></button>
           </div>
         </div>
         <div class="search">
@@ -555,7 +559,7 @@ const incoming = current
                 <span class="area-name">{area.name}</span>
                 {area.count > 0 ? <span class="count">{area.count}</span> : <span class="tag">planned</span>}
               </summary>
-              <div class="area-body">
+              {area.rows.length > 0 && <div class="area-body">
                 {area.rows.map((row) =>
                   row.kind === "item" ? (
                     <a href={`/${row.page.slug}`} class:list={["entry", { active: `/${row.page.slug}` === here }]}>
@@ -574,7 +578,7 @@ const incoming = current
                     </details>
                   )
                 )}
-              </div>
+              </div>}
             </details>
           ))}
         </nav>
@@ -652,6 +656,9 @@ const incoming = current
             </div>
           </>
         )}
+        {variant === "doc" && frontmatter?.author && (
+          <div class="byline">author · <span class="who">{frontmatter.author}</span></div>
+        )}
       </aside>
     </div>
 
@@ -662,7 +669,11 @@ const incoming = current
         (root.getAttribute("data-theme") ||
           (window.matchMedia("(prefers-color-scheme: dark)").matches ? "dark" : "light")) === "dark"
       const themeToggles = document.querySelectorAll("[data-theme-toggle]")
-      const paintToggles = () => themeToggles.forEach((button) => (button.textContent = isDark() ? "☀" : "☾"))
+      const sunIcon =
+        '<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><circle cx="12" cy="12" r="4" fill="currentColor" stroke="none"/><path d="M12 2v2m0 16v2M4.93 4.93l1.41 1.41m11.32 11.32 1.41 1.41M2 12h2m16 0h2M4.93 19.07l1.41-1.41m11.32-11.32 1.41-1.41"/></svg>'
+      const moonIcon =
+        '<svg width="14" height="14" viewBox="0 0 24 24" fill="currentColor"><path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"/></svg>'
+      const paintToggles = () => themeToggles.forEach((button) => (button.innerHTML = isDark() ? sunIcon : moonIcon))
       paintToggles()
       themeToggles.forEach((button) =>
         button.addEventListener("click", () => {

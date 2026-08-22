@@ -9,7 +9,8 @@ export const preset = new Vector().open(
       "table, you supply the material. Presets: " +
       Object.keys(types.PRESETS).join(" · ") +
       ". Three sources, picked in order: authored knowables (your own pairs — they rep " +
-      "without touching the retention), a symbol scope (drawn from the corpus, AND per " +
+      "without touching the retention, so prefer corpus material: a symbol scope here, or " +
+      "pinned slugs via provision), a symbol scope (drawn from the corpus, AND per " +
       "symbol), or the plain memory feed. Keep count small — two or three fresh items " +
       'beat nine stale ones. Example: { preset: "listen", symbols: ["food"], count: 3 }. ' +
       Object.entries(types.PRESETS)

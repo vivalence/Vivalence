@@ -130,6 +130,30 @@ export class LiteralRepository extends base.repository {
     );
   }
 
+  async family(rows: any[]) {
+    const words = rows.filter((row) => row.ontology === "word");
+    if (!words.length) return [];
+    const seen = new Set(rows.map((row) => row.slug));
+    const paradigms = (await this.find(
+      { uses: { $in: words.map((row) => row.id) }, ontology: "conjugation" },
+      { limit: 10 },
+    )).filter((paradigm) => !seen.has(paradigm.slug));
+    if (!paradigms.length) return [];
+    const wanted = [
+      ...new Set(
+        paradigms.map((paradigm) => paradigm.trait?.CONJUGATED?.infinitive).filter(Boolean),
+      ),
+    ].filter((slug) => !seen.has(slug));
+    const infinitives = wanted.length
+      ? await this.find({ slug: { $in: wanted } }, { populate: ["retentions"] })
+      : [];
+    return paradigms.map((paradigm) => ({
+      paradigm,
+      infinitive:
+        infinitives.find((row) => row.slug === paradigm.trait?.CONJUGATED?.infinitive) ?? null,
+    }));
+  }
+
   async sample(where: any, opts?: any) {
     const { status, limit, blacklist, populate } = opts || {};
     return this.find(

@@ -7571,8 +7571,8 @@ export default [
     ],
     "trait": {
       "TRANSLATED": {
-        "known": "I'm almost done.",
-        "learning": "Ho quasi fatto."
+        "known": "I'm almost finished.",
+        "learning": "Ho quasi finito."
       },
       "RANKED": {
         "rank": 175
@@ -8678,7 +8678,7 @@ export default [
     ],
     "trait": {
       "TRANSLATED": {
-        "known": "I do want it.",
+        "known": "Yes, I do want it.",
         "learning": "Sì che lo voglio."
       },
       "RANKED": {

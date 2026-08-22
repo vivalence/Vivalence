@@ -7,6 +7,15 @@ export const once = (fn) => {
   };
 };
 
+export const memo = (fn, key = JSON.stringify) => {
+  const cache = new Map();
+  return function (...args) {
+    const at = key(args);
+    if (!cache.has(at)) cache.set(at, fn.apply(this, args));
+    return cache.get(at);
+  };
+};
+
 export const every = (n, fn) => (done, total) =>
   (done % n === 0 || done === total) && fn(done, total);
 

@@ -1,0 +1,75 @@
+---
+title: Ubiquity and a thin slice
+summary: Economics and business strategy of Vivalence, the company.
+author: beef (human)
+---
+
+Vivalence is the organization; viva is the system and product. This is the business model and strategy of both.
+
+## The System
+
+Viva is an operating system: an application platform, a system of record, and a runtime for data-, UI-, and agent-driven applications. A novel symbolic type system and a modal architecture make data, business logic, and application layers composable and portable — and let both agents and developers iterate any layer rapidly.
+
+The architecture is layered: runtimes host daemons (persistent data and business logic), daemons expose modes (micro-applications), modes are accessed through clients. Each daemon is composed of a set of building blocks — or modules: The core of any daemon — the kernel — is made up of ontology and domain. Ontologies define the shape and boundary of the dataspace and domains encapsulate business logic and implement shared capabilities. On top of those, modes facilitate user interaction and implement use-cases. Additionally, topologies provide datasets and means to generate or classify new data. Further capabilities (TTS, NLP, chess-engine, whatever) can be provided through services which are managed by the runtime and consumed by the daemon.
+
+The system is contained in a monorepo, runs in single- and multiplayer setups, across terminal, browser, native, edge, local, and cloud. Declarative configuration compiles these modules into coherent, stable, active systems that can be run and served in essentially infinitely variable setups and use-cases.
+
+All layers of the system — its modules — run off an open registry, which allows depth and breadth of applications to be developed and shared. Modules are intended to be created and maintained by an ecosystem of developers and contributors, except for some core modules maintained by Vivalence for demonstration purposes, safety, and reliability — primary example here might be the authentication and identity services.
+
+Classical application patterns developed and evolved around the primitives of compute, storage, networking, and IO. Viva was designed from the ground up with Artificial Intelligence as another first class primitive and its architecture assumes inference, generation, classification, and embedding as primary components — on par with databases or a network socket.
+
+Additionally, AI is collapsing the cost of building software toward zero. The result is a proliferation of excellent one-off applications — Claude one-shots something great, it gets used once, and there is no system to integrate, embed, and persist it in. Worse, each of these one-offs invents its own incompatible type and data system. Viva is the answer to both problems.
+
+## Platform Strategy
+
+Vivalence offers viva under a custom Fair Source, source-available license. The goal is to empower an ecosystem and to incentivize network effects, while providing clear channels for monetization, driving a flywheel of adoption and ecosystem growth. Economically, the intent is not to capture a market and compete in it. The intent is to become a standard and to tax the market. Ubiquity and a thin slice.
+
+The business model treats fair source as a distribution and ecosystem channel, B2C SaaS as a source of funding for the ecosystem, B2B as the channel to be monetized with a profit incentive, and B2G as the endgame of ubiquity: once institutions and citizens share the substrate, government adoption follows.
+
+The system is offered free for private use — any natural person — initially especially developers — can download the system, run it, host it for friends, do whatever they want. No support, no limits, and no strings attached. Any private person can use viva across any number of use-cases, replacing other applications — at no cost to Vivalence. Vivalence's upside is that adoption pulls an ecosystem into existence: content, tooling, talent, and eventually familiarity. That ecosystem in turn pulls institutions towards the system and thus Vivalence's monetized channels of Licensed use, PaaS, and Consulting.
+
+For institutions, the value proposition is straightforward: it's a more powerful and extremely flexible operating system with an architecture designed to persistently and quickly adapt to their needs, with access to a strong ecosystem for talent and support, and an ever growing library of capabilities to plug-and-play, without vendor lock-in, restrictions on interoperability, or constraints on deployment topology, at a low, flat and predictable price.
+
+The business is designed to largely run itself: independent revenue vectors and ecosystem incentives that compound. Few cost centers, frictionless scale — and a fair, useful platform for as many people and institutions as possible.
+
+Fair Source is viva's unfair advantage, B2C finances the ecosystem, and B2B is where Vivalence makes its money.
+
+## Revenue Streams
+
+### SaaS (B2C)
+Vivalence hosts the best daemons and modes available in the viva ecosystem and sells access to them via website and apps. This is intended to serve non-technical users. A classical tiered subscription model: higher tiers allow more usage and more sophisticated modes.
+
+To incentivize the creation, maintenance, and quality of these applications, and the growth of the ecosystem as a whole, the SaaS revenue stream is intended to be funneled back to the contributors and dependencies, with Vivalence taking only a small slice of the B2C pie.
+
+Pricing follows a quartering model: one fourth covers COGS (infrastructure, customer acquisition, administration). One fourth goes toward viva's dependencies (the software viva uses internally — deno, mikroorm, oak, svelte, vite, linux, docker, coolify, etc). One fourth funds contributors (the creators who built the daemons, modes and services running as SaaS). One fourth is Vivalence's margin and may be extracted as profit or invested at the organization's discretion.
+
+This is intended to align incentives and pull in contributions. Contributors and dependencies get rewarded as a function of adoption. The ecosystem profits when Vivalence profits, driving a flywheel to make viva thrive. The result is an ecosystem that actively wants the platform to succeed — not because of ideology, but because of economics.
+
+### Licensing (B2B)
+Any institutional use requires a license. The same license for anyone. Issuance is automated, no human in the loop. An institution signs up, declares headcount, pays, uses — frictionless. No strings attached, no support by Vivalence, but full access to the system, registry and ecosystem, and no limitations on usage. This allows for massive scale with close to no cost centers.
+
+Same terms everywhere, except for the special cases of ISP use (providing viva to third parties as a non-competing product or service), government use, and use in AI training, which require separate agreements. Competing use is prohibited. Institutions that want operational responsibility handled for them — a throat to choke — move to PaaS.
+
+### PaaS (B2B)
+Standardized hosted platform for institutions. Vivalence's hardware, Vivalence's operations, a standard set of daemons and modes. Customers get support, although limited. Example: a language learning application hosted for a company's employees. No customization. If they want more, they move to consulting.
+
+### Consulting (B2B, B2G)
+Custom solutions, hosted either on-premise (customer's hardware) or dedicated (Vivalence's hardware, custom deployment). Development of custom applications, content, integrations. Named support — you know the person whose throat you're choking. This is where institutions with specialized needs or high assurance requirements land. From Vivalence's standpoint, this is headcount-heavy, support-intensive, priced at a premium, and probably facilitated by a dedicated organization.
+
+## Implications
+
+Consider a language learning application. A base daemon might ship with an ontology and topology for linguistic structures — grammatical rules, vocabulary, phrasebooks, various curricula — and a domain implementing spaced repetition, skill tracking, and adaptive content selection. Out of the box, a learner gets a system that tracks what they know, identifies gaps, and serves exercises targeting precisely what they need in that moment. The modal layer might provide experiences like text-adventures, interactive voice conversation, or 3D games where learners apply their target language to navigate scenarios, solve problems, and absorb new material.
+
+But the interesting part is what happens at the edges. A teacher or student of Japanese might develop a novel, particularly effective mode for pitch-accent drilling — something Duolingo doesn't offer and Anki can only approximate with fragile workarounds. They publish the mode to the registry. Now every learner of Japanese on the platform has access to it and the contributor is eligible for a small share of B2C revenue.
+
+With Duolingo, if you have a better idea for how vocabulary should be drilled, you have nowhere to put it. With Anki, you can build a custom deck, but it's functionally limited and isolated — your innovation doesn't propagate, your data model is locked in, and the moment you want anything beyond flashcards you're writing a standalone application from scratch. Viva's modular architecture paired with the open registry means that any innovation at any layer — curriculum, interaction, methodology, content — can be made available to the entire ecosystem and you're rewarded for providing value. And because LLMs write code, many modes can be created without any technical abilities — all that's needed is intent and taste.
+
+## Long-term Opportunities
+
+Adoption of the system at scale enables additional products and services to be offered. Those might include infrastructure services like identity, payments and subscriptions, or a marketplace for applications and content. Even a social network becomes possible and desirable once the system has gained critical mass. Use-cases for our example of language learning might be cohort-based classes, competitions with leaderboards, or matchmaking among students or with tutors. An Upwork-style matchmaking service for support — connecting private or institutional users with independent experts — is another possible vector for future expansion.
+
+## Vision
+
+The goal is for viva to be the operating system, platform primitive, and ecosystem that humanity standardizes on for human computer interaction. Every person and institution runs hundreds of instances across countless contexts, use-cases, types of devices, and classes of systems. A platform that scales beyond our lifetime, to be passed down the generations.
+
+A cultural institution first, and a business-model in its service. Ubiquity and a thin slice. Like the alphabet — but for computers.

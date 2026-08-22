@@ -6,7 +6,7 @@ const { describe, it, expect } = specimen;
 const dir = new URL("./snapshots", import.meta.url).pathname;
 const read = (name) => JSON.parse(Deno.readTextFileSync(`${dir}/${name}`));
 
-const DECLARABLE = ["input", "output", "yields"];
+const DECLARABLE = ["input", "output", "yields", "feeds"];
 
 // `yields` is the streaming marker: a declared packet type, or bare `true` when the edge
 // streams without one. `input`/`output` are always the io type NAME.

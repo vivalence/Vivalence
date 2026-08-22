@@ -1,0 +1,78 @@
+---
+title: Guide to the repo
+summary: Algebraic types from @typology, the @runtime, and client @kajuit. Shell client @ghost coming soon.
+author: claude (agent)
+---
+
+```
+subsystems/       libraries — imported, never booted
+  typology/       the algebraic type library. the vocabulary the whole system speaks
+  paladin/        composition — environment, secrets, variant files
+  dapper/         design tokens and themes
+  drapes/         svelte component library
+systems/          processes — things that boot
+  runtime/        hosts daemons — entities, traits, HTTP
+  kajuit/         the browser client
+  ghost/          the CLI, installed as viva (WIP)
+registry/         packages — the content: modes, services, variants
+  viva/           core services (datamap, hallucinator, lighthouse, nlp) and the variants
+  playground/     demo modes
+  fixtures/       test data
+```
+
+One monorepo, one Deno workspace. Three kinds of place.
+
+## subsystems
+
+### typology
+
+The one to read first — everything else is written in its vocabulary. Four rooms:
+
+- `prototypes/` — the types themselves: Signature, Vector, Shape, Mode, App, Aperture, Connection, Cortex, Hallucination, Dataset, Datasink, and friends. One class per file.
+- `gestalten/` — the operations over them: `cast`, `shape`, `steer`, `shard`, `is`/`not`. Where a type is a noun, a gestalt is the verb that folds it.
+- `schematics/` — the `v` schema language: scalars, primitives, entity schemas. Validation, defaults, and casting for everything that crosses a boundary.
+- `specimen/` — the snapshot instrument: run a subject, capture its output, write it beside the source. This site's live examples ride it.
+
+### paladin
+
+Composition. Reads a variant file and the environment around it — `paladin.env`, `paladin.secret`, scopes — and hands the runtime a resolved, validated system declaration. Also carries the shared lifecycle every container follows: construct → populate → resolve → integrate → disintegrate.
+
+### dapper and drapes
+
+The look. `dapper` is the design system — token primitives and themes. `drapes` is the Svelte component library sorted by family: `controls`, `display`, `panels`, `decor`, `skins`, `stage`.
+
+## systems
+
+### runtime
+
+The server side. Boots from a variant file: constructs the daemons, gives each its entities, mounts each mode's traits, and serves the whole thing over HTTP. `daemon/` is the heart — a daemon is the sum of its modes, and the runtime is the machine that makes that sentence true.
+
+### kajuit
+
+The browser client. A Svelte SPA that logs in against a lighthouse, attaches to daemons, and renders their modes' apps as buffers. Carries the client half of typology — the same types, minus the server-only rooms.
+
+### ghost
+
+The operator's CLI — the `viva` command from the install guide: ledger, package, and variant operations. Work in progress.
+
+## registry
+
+The content. A package is a unit of modes; everything a daemon is made of comes from here.
+
+### viva
+
+The core package — services and variants:
+
+- `datamap/libsql` — the database service. Entities in, schema out, automigration included.
+- `hallucinator/` — intelligence providers behind one interface: `anthropic`, `openrouter` (LLM), `elevenlabs` (speech out), `deepgram` (speech in).
+- `lighthouse/` — identity and auth: `localhost` for single-player, `multiplayer` for real accounts.
+- `nlp` — linguistic analysis as a service.
+- `variant/` — the runnable recipes: `localhost`, `multiplayer`, and the one-file `standalone` demo from the Run a Variant guide.
+
+### playground
+
+Demo modes — small rigs that each demonstrate one mechanic: `card` and `dealer` (buffers dealt, driven, and released), `spawner` and `spawned` (a hub that spawns render targets), `automaton` (a thread that configures itself from its intent), `switchboard` (live thread phases), `chaosmonkey` (breaks things on purpose).
+
+### fixtures
+
+Test data.

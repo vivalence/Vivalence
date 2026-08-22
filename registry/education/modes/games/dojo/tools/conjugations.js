@@ -31,7 +31,7 @@ export const conjugations = new Vector().open(
           condition: "ERROR",
           message: `no literals match ${
             ctx.input.uses.join(", ")
-          } — check slugs via pull or entity_find`,
+          } — check slugs via lookup or entity_find`,
         };
       }
       where.uses = { $in: rows.map((row) => row.id) };

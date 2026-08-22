@@ -3,19 +3,19 @@ import { glob } from "astro/loaders"
 
 const docs = defineCollection({
   loader: glob({
-    pattern: ["**/*.mdx", "!_*/**"],
+    pattern: ["*/**/*.mdx", "!**/*.00_*.mdx"],
     base: "./content",
     generateId: ({ entry }) => entry.replace(/.*\//, "").replace(/\.mdx$/, ""),
   }),
   schema: z.object({
-    title: z.string(),
-    jdex: z.string().regex(/^\d{1,2}\.\d{2}$/, "jdex must be NN.NN (e.g. 34.01)"),
+    title: z.string().optional(),
     summary: z.string().optional(),
+    author: z.string().optional(),
   }),
 })
 
 const site = defineCollection({
-  loader: glob({ pattern: "**/*.mdx", base: "./content/_site" }),
+  loader: glob({ pattern: "*.mdx", base: "./content" }),
   schema: z.object({
     title: z.string(),
     headline: z.string(),
@@ -30,9 +30,6 @@ const site = defineCollection({
         title: z.string(),
         items: z.array(z.object({ jdex: z.string(), title: z.string(), desc: z.string() })),
       })
-      .optional(),
-    live: z
-      .object({ title: z.string(), capture: z.string() })
       .optional(),
     legend: z.array(z.object({ swatch: z.enum(["live", "planned", "reserved"]), label: z.string() })).optional(),
   }),

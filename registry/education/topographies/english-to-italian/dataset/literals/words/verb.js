@@ -14785,7 +14785,7 @@ export default [
     ],
     "trait": {
       "TRANSLATED": {
-        "known": "you do",
+        "known": "you do / you make",
         "learning": "fai"
       },
       "EXEMPLIFIED": {
@@ -14916,7 +14916,7 @@ export default [
     ],
     "trait": {
       "TRANSLATED": {
-        "known": "we do",
+        "known": "we do / we make",
         "learning": "facciamo"
       },
       "EXEMPLIFIED": {
@@ -14981,7 +14981,7 @@ export default [
     ],
     "trait": {
       "TRANSLATED": {
-        "known": "you all do",
+        "known": "you all do / you all make",
         "learning": "fate"
       },
       "EXEMPLIFIED": {

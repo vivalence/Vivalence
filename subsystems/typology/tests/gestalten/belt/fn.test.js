@@ -21,6 +21,56 @@ specimen.describe("debounce — the timer is ownable", () => {
   });
 });
 
+specimen.describe("memo — same args, one computation", () => {
+  specimen.it("caches per argument set and recomputes for fresh ones", () => {
+    let calls = 0;
+    const area = fn.memo((w, h) => {
+      calls++;
+      return w * h;
+    });
+    specimen.expect(area(2, 3)).toBe(6);
+    specimen.expect(area(2, 3)).toBe(6);
+    specimen.expect(calls).toBe(1);
+    specimen.expect(area(4, 5)).toBe(20);
+    specimen.expect(calls).toBe(2);
+  });
+
+  specimen.it("a custom key collapses arguments the caller declares equivalent", () => {
+    let calls = 0;
+    const lookup = fn.memo(
+      (path) => {
+        calls++;
+        return path;
+      },
+      ([path]) => path.toLowerCase(),
+    );
+    specimen.expect(lookup("Sentences/A.mp3")).toBe("Sentences/A.mp3");
+    specimen.expect(lookup("sentences/a.mp3")).toBe("Sentences/A.mp3");
+    specimen.expect(calls).toBe(1);
+  });
+
+  specimen.it("a cached falsy value is still a hit", () => {
+    let calls = 0;
+    const sniff = fn.memo(() => {
+      calls++;
+      return null;
+    });
+    specimen.expect(sniff()).toBe(null);
+    specimen.expect(sniff()).toBe(null);
+    specimen.expect(calls).toBe(1);
+  });
+});
+
+specimen.describe("once — the first call is the only call", () => {
+  specimen.it("runs once, swallows repeats", () => {
+    let calls = 0;
+    const prime = fn.once(() => ++calls);
+    specimen.expect(prime()).toBe(1);
+    specimen.expect(prime()).toBe(undefined);
+    specimen.expect(calls).toBe(1);
+  });
+});
+
 specimen.describe("fn", () => {
   specimen.it("an inflight run is shared and its success memoized", async () => {
     let sharedCalls = 0;

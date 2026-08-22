@@ -1,0 +1,429 @@
+diff --git a/registry/education/modes/tactics/harvest/belt/audio.js b/registry/education/modes/tactics/harvest/belt/audio.js
+new file mode 100644
+index 0000000..9926d32
+--- /dev/null
++++ b/registry/education/modes/tactics/harvest/belt/audio.js
+@@ -0,0 +1,27 @@
++const LOUDNORM = ["-af", "loudnorm=I=-18:TP=-2:LRA=11", "-ar", "44100", "-b:a", "128k"];
++const FLOOR = 4000;
++
++export const normalize = async (raw) => {
++  const inbound = await Deno.makeTempFile();
++  const outbound = await Deno.makeTempFile({ suffix: ".mp3" });
++  try {
++    await Deno.writeFile(inbound, raw);
++    const run = await new Deno.Command("ffmpeg", {
++      args: ["-y", "-i", inbound, ...LOUDNORM, outbound],
++      stderr: "null",
++      stdout: "null",
++    }).output();
++    if (!run.success) return null;
++    const bytes = await Deno.readFile(outbound);
++    return bytes.length < FLOOR ? null : bytes;
++  } finally {
++    await Deno.remove(inbound).catch(() => {});
++    await Deno.remove(outbound).catch(() => {});
++  }
++};
++
++export const pull = async (url, agent) => {
++  const response = await fetch(url, { headers: { "User-Agent": agent } });
++  if (!response.ok) throw new Error(`[pull] ${response.status} ${url}`);
++  return new Uint8Array(await response.arrayBuffer());
++};
+diff --git a/registry/education/modes/tactics/harvest/harvest.viva.js b/registry/education/modes/tactics/harvest/harvest.viva.js
+new file mode 100644
+index 0000000..f11d6fb
+--- /dev/null
++++ b/registry/education/modes/tactics/harvest/harvest.viva.js
+@@ -0,0 +1,13 @@
++export { tools } from "./tools/index.js";
++
++export const manifest = {
++  type: "tactic",
++  slug: "harvest",
++  name: "Harvest",
++  version: "0.1.0",
++  description:
++    "Agentic freight harvesting over a mounted topography: survey what has no voice, resolve " +
++    "recordings from Tatoeba and Wikimedia Commons, receive them into freight, stamp VOCALIZED " +
++    "onto the literals, and let the topography's datasink write the mode content back to disk.",
++  traits: ["TOOLED"],
++};
+diff --git a/registry/education/modes/tactics/harvest/sources/commons.js b/registry/education/modes/tactics/harvest/sources/commons.js
+new file mode 100644
+index 0000000..a0b5866
+--- /dev/null
++++ b/registry/education/modes/tactics/harvest/sources/commons.js
+@@ -0,0 +1,58 @@
++import { pull } from "../belt/audio.js";
++
++const HOST = "https://commons.wikimedia.org/w/api.php";
++const SPEAKERS = ["wiktionary", "happypheasant", "ciampix", "langpao", "xana000", "cerchia-g"];
++
++const speaker = (title) =>
++  /^File:It-/.test(title) ? "wiktionary" : title.match(/LL-[^-]+-([^-]+)-/)?.[1]?.toLowerCase() ?? "anon";
++
++const preference = (title) => {
++  const found = SPEAKERS.indexOf(speaker(title));
++  return found === -1 ? SPEAKERS.length : found;
++};
++
++const api = async (params, agent) => {
++  const query = new URLSearchParams({ format: "json", origin: "*", ...params });
++  const response = await fetch(`${HOST}?${query}`, { headers: { "User-Agent": agent } });
++  if (!response.ok) return null;
++  return response.json();
++};
++
++export const commons = (agent) => ({
++  slug: "commons",
++
++  resolve: async (text) => {
++    const hunt = await api(
++      {
++        action: "query",
++        list: "search",
++        srnamespace: "6",
++        srlimit: "20",
++        srsearch: `intitle:"${text}" filetype:audio`,
++      },
++      agent,
++    );
++    const titles = (hunt?.query?.search ?? [])
++      .map((hit) => hit.title)
++      .filter((title) => new RegExp(`[-(]${text}[.)]`, "i").test(title.replaceAll(" ", "_")))
++      .sort((a, b) => preference(a) - preference(b));
++    if (!titles.length) return null;
++
++    const info = await api(
++      { action: "query", prop: "imageinfo", iiprop: "url|extmetadata", titles: titles[0] },
++      agent,
++    );
++    const page = Object.values(info?.query?.pages ?? {})[0];
++    const image = page?.imageinfo?.[0];
++    if (!image?.url) return null;
++    return {
++      source: "commons",
++      title: page.title,
++      url: image.url,
++      author: speaker(page.title),
++      license: image.extmetadata?.LicenseShortName?.value ?? "CC",
++    };
++  },
++
++  fetch: (found) => pull(found.url, agent),
++});
+diff --git a/registry/education/modes/tactics/harvest/sources/tatoeba.js b/registry/education/modes/tactics/harvest/sources/tatoeba.js
+new file mode 100644
+index 0000000..e52b1ae
+--- /dev/null
++++ b/registry/education/modes/tactics/harvest/sources/tatoeba.js
+@@ -0,0 +1,33 @@
++import { pull } from "../belt/audio.js";
++
++const HOST = "https://tatoeba.org";
++const PERMISSIVE = /^(CC0|CC BY(?!-NC))/;
++
++export const tatoeba = (agent, language = "ita") => ({
++  slug: "tatoeba",
++
++  resolve: async (text) => {
++    const query = encodeURIComponent(`=${text}`);
++    const response = await fetch(
++      `${HOST}/eng/api_v0/search?from=${language}&has_audio=yes&query=${query}`,
++      { headers: { "User-Agent": agent } },
++    );
++    if (!response.ok) return null;
++    const { results = [] } = await response.json();
++    return results
++      .filter((result) => result.text.trim() === text.trim())
++      .flatMap((result) =>
++        (result.audios ?? [])
++          .filter((audio) => !audio.license || PERMISSIVE.test(audio.license))
++          .map((audio) => ({
++            source: "tatoeba",
++            sentence: result.id,
++            audio: audio.id,
++            author: audio.author,
++            license: audio.license ?? "Tatoeba audio terms",
++          })),
++      )[0] ?? null;
++  },
++
++  fetch: (found) => pull(`${HOST}/audio/download/${found.audio}`, agent),
++});
+diff --git a/registry/education/modes/tactics/harvest/tools/index.js b/registry/education/modes/tactics/harvest/tools/index.js
+new file mode 100644
+index 0000000..0868f0f
+--- /dev/null
++++ b/registry/education/modes/tactics/harvest/tools/index.js
+@@ -0,0 +1,162 @@
++import { Vector, sleep, v } from "@vivalence/typology";
++import paladin from "@vivalence/paladin";
++import { tatoeba } from "../sources/tatoeba.js";
++import { commons } from "../sources/commons.js";
++import { normalize } from "../belt/audio.js";
++
++const AGENT = "vivalence-harvest/0.1";
++const BREATHER = 2000;
++
++const topographies = (daemon) => Object.values(daemon.modes.topography ?? {});
++
++const anchored = (daemon, slug) =>
++  slug
++    ? daemon.modes.topography?.[slug]
++    : topographies(daemon).find((mode) => mode.implements("FRAUGHT") && mode.datasink);
++
++const kind = (literal) =>
++  (literal.symbols?.getItems?.() ?? literal.symbols ?? []).some((symbol) => symbol.slug === "sentence")
++    ? "sentence"
++    : "word";
++
++const unvocalized = async (daemon, { band, where, limit }) => {
++  const found = await daemon.entities.literal.find(
++    { ...(where ?? {}), ...(band ? { trait: { RANKED: { rank: { $lte: band } } } } : {}) },
++    { populate: ["symbols"] },
++  );
++  return found
++    .filter((literal) => !literal.traits?.includes("VOCALIZED"))
++    .sort((a, b) => (a.trait?.RANKED?.rank ?? Infinity) - (b.trait?.RANKED?.rank ?? Infinity))
++    .slice(0, limit ?? Infinity);
++};
++
++const SURVEY_INPUT = v.object({
++  topography: v.string().desc("Topography slug to survey. Omit to take the mounted one.").optional(),
++  band: v.number().desc("Only literals ranked at or under this. Omit for the whole corpus.").optional(),
++  limit: v.number().default(50),
++});
++
++const VOCALIZE_INPUT = v.object({
++  topography: v.string().optional(),
++  slugs: v.array(v.string()).desc("Exact literals to vocalize. Omit to sweep the band.").optional(),
++  band: v.number().optional(),
++  limit: v.number().default(20),
++  dry: v.boolean().desc("Resolve and report without touching freight or entities.").default(false),
++});
++
++const DRAIN_INPUT = v.object({ topography: v.string().optional() });
++
++export const tools = new Vector()
++  .open(
++    {
++      nature: "/survey",
++      valence:
++        "Count and list the literals that have no voice yet — optionally fenced to a rank band. " +
++        "Read this before /vocalize to see what a sweep would attempt.",
++      input: SURVEY_INPUT,
++    },
++    async (ctx) => {
++      const topography = anchored(ctx.daemon, ctx.input.topography);
++      if (!topography) return { condition: "ERROR", message: "no topography mounted" };
++      const targets = await unvocalized(ctx.daemon, ctx.input);
++      return {
++        message: `${targets.length} literal${targets.length === 1 ? "" : "s"} without audio` +
++          (ctx.input.band ? ` at rank ≤ ${ctx.input.band}` : "") + ".",
++        targets: targets.map((literal) => ({
++          slug: literal.slug,
++          kind: kind(literal),
++          rank: literal.trait?.RANKED?.rank ?? null,
++          learning: literal.trait?.TRANSLATED?.learning ?? "",
++        })),
++      };
++    },
++  )
++  .open(
++    {
++      nature: "/vocalize",
++      valence:
++        "Harvest native-speaker audio for unvocalized literals and land it as mode content on disk. " +
++        "Sentences resolve against Tatoeba (any speaker, exact text, permissive licenses only); " +
++        "words resolve against Wikimedia Commons (Wiktionary and Lingua Libre pronunciations). " +
++        "Every hit is loudness-normalized, received into the topography's freight, stamped onto the " +
++        "literal as VOCALIZED, and logged with author and license for attribution. The topography's " +
++        "datasink drains the mutated literals back into the registry dataset files on its own. " +
++        "Text without a recording is reported as missed — never fabricated.",
++      input: VOCALIZE_INPUT,
++    },
++    async (ctx) => {
++      const topography = anchored(ctx.daemon, ctx.input.topography);
++      if (!topography) return { condition: "ERROR", message: "no topography mounted" };
++      if (!topography.freight?.receive)
++        return { condition: "ERROR", message: `${topography.slug} carries no receivable freight` };
++
++      const sources = { sentence: tatoeba(AGENT), word: commons(AGENT) };
++      const targets = ctx.input.slugs?.length
++        ? await ctx.daemon.entities.literal.find(
++            { slug: { $in: ctx.input.slugs } },
++            { populate: ["symbols"] },
++          )
++        : await unvocalized(ctx.daemon, ctx.input);
++
++      const report = { vocalized: [], missed: [], failed: [] };
++      const ledger = `${topography.module.mount.dirname}/.harvest/attribution.jsonl`;
++
++      for (const literal of targets) {
++        if (literal.traits?.includes("VOCALIZED")) continue;
++        const shelf = kind(literal);
++        const source = sources[shelf];
++        const text = literal.trait?.TRANSLATED?.learning;
++        try {
++          const found = text ? await source.resolve(text) : null;
++          if (!found) {
++            report.missed.push(literal.slug);
++          } else if (ctx.input.dry) {
++            report.vocalized.push({ slug: literal.slug, ...found, dry: true });
++          } else {
++            const bytes = await normalize(await source.fetch(found));
++            if (!bytes) {
++              report.failed.push(literal.slug);
++            } else {
++              const path = `${shelf}s/${literal.slug}.mp3`;
++              await topography.freight.receive(path, bytes);
++              literal.assign({
++                traits: [...new Set([...(literal.traits ?? []), "VOCALIZED"])],
++                trait: { ...literal.trait, VOCALIZED: { asset: { path } } },
++              });
++              await paladin.state.jsonl(ledger, { slug: literal.slug, ...found });
++              report.vocalized.push({ slug: literal.slug, path, author: found.author, license: found.license });
++            }
++          }
++        } catch {
++          report.failed.push(literal.slug);
++        }
++        await sleep.ms(BREATHER);
++      }
++
++      if (!ctx.input.dry) await ctx.daemon.entities.em.flush();
++
++      return {
++        message:
++          `${report.vocalized.length} vocalized, ${report.missed.length} without a recording, ` +
++          `${report.failed.length} failed` + (ctx.input.dry ? " (dry run)." : "."),
++        ...report,
++      };
++    },
++  )
++  .open(
++    {
++      nature: "/drain",
++      valence:
++        "Force the topography's datasink to write every declared entity type back to the registry " +
++        "files now, instead of waiting for the debounced settle. The write is canonical — sorted, " +
++        "sparse, ordered — and idempotent.",
++      input: DRAIN_INPUT,
++    },
++    async (ctx) => {
++      const topography = anchored(ctx.daemon, ctx.input.topography);
++      if (!topography?.datasink?.drain)
++        return { condition: "ERROR", message: "no drainable topography mounted" };
++      const drained = await topography.datasink.drain({ all: true });
++      return { message: `drained ${drained.drained.join(", ")} — ${drained.written} file(s) written.`, ...drained };
++    },
++  );
+diff --git a/registry/education/topographies/english-to-italian/italian.viva.js b/registry/education/topographies/english-to-italian/italian.viva.js
+index 610f31a..c01451d 100644
+--- a/registry/education/topographies/english-to-italian/italian.viva.js
++++ b/registry/education/topographies/english-to-italian/italian.viva.js
+@@ -1,11 +1,11 @@
+-import { Dataset, Freight } from "@vivalence/typology";
++import { Dataset, Datasink, Freight, writer } from "@vivalence/typology";
+ 
+ export const manifest = {
+   type: "topography",
+   slug: "english-to-italian",
+   name: "Italian Vocabulary",
+   version: "0.2.0",
+-  traits: ["DATASET", "FRAUGHT"],
++  traits: ["DATASET", "FRAUGHT", "DATASINK"],
+ };
+ 
+ export const freight = new Freight("freight/audio");
+@@ -21,4 +21,11 @@ export const dataset = new Dataset({
+   literal: "dataset/literals",
+ });
+ 
++export const datasink = new Datasink({
++  literal: [
++    ["sentence", "dataset/literals/sentences.js"],
++    ["word", writer.split("word.part-of-speech.%", "dataset/literals/words/%.js")],
++  ],
++});
++
+ export { statics } from "./statics/language.js";
+diff --git a/subsystems/paladin/belt/state.js b/subsystems/paladin/belt/state.js
+index 007c7fd..8bdd4b2 100644
+--- a/subsystems/paladin/belt/state.js
++++ b/subsystems/paladin/belt/state.js
+@@ -31,6 +31,15 @@ export default function state(paladin) {
+       await Deno.rename(`${file}.tmp`, file);
+       return true;
+     },
++    lade: async (path, bytes) => {
++      const file = resolve(path);
++      await parent(file);
++      const held = await Deno.readFile(file).catch(() => null);
++      if (held && held.length === bytes.length && held.every((byte, i) => byte === bytes[i])) return false;
++      await Deno.writeFile(`${file}.tmp`, bytes);
++      await Deno.rename(`${file}.tmp`, file);
++      return true;
++    },
+     open: async (path) => {
+       const file = resolve(path);
+       await parent(file);
+diff --git a/subsystems/typology/prototypes/freight.js b/subsystems/typology/prototypes/freight.js
+index 693912b..744bcd0 100644
+--- a/subsystems/typology/prototypes/freight.js
++++ b/subsystems/typology/prototypes/freight.js
+@@ -14,6 +14,15 @@ const MIME = {
+   json: "application/json",
+ };
+ 
++const entry = (path) => {
++  const name = path.split("/").pop();
++  return {
++    slug: name.replace(/\.[^.]+$/, ""),
++    path,
++    type: MIME[name.split(".").pop().toLowerCase()] || "application/octet-stream",
++  };
++};
++
+ export class Freight {
+   lading = [];
+ 
+@@ -28,14 +37,13 @@ export class Freight {
+   }
+ 
+   stow(paths) {
+-    this.lading = [...paths].sort().map((path) => {
+-      const name = path.split("/").pop();
+-      return {
+-        slug: name.replace(/\.[^.]+$/, ""),
+-        path,
+-        type: MIME[name.split(".").pop().toLowerCase()] || "application/octet-stream",
+-      };
+-    });
++    this.lading = [...paths].sort().map(entry);
++    return this;
++  }
++
++  admit(path) {
++    if (this.lading.some((held) => held.path === path)) return this;
++    this.lading = [...this.lading, entry(path)].sort((a, b) => (a.path < b.path ? -1 : 1));
+     return this;
+   }
+ 
+diff --git a/systems/runtime/daemon/traits/index.js b/systems/runtime/daemon/traits/index.js
+index 0432f34..07022f4 100644
+--- a/systems/runtime/daemon/traits/index.js
++++ b/systems/runtime/daemon/traits/index.js
+@@ -44,5 +44,9 @@ export const FRAUGHT = async (mode, daemon) => {
+   const files = await paladin.find.walk(/./)(root);
+   mode.freight = new Freight(root).stow(files.map((file) => file.absolute.slice(root.length + 1)));
+   mode.freight.withUrl(daemon.attach.branch("/cargo").branch(daemon.mount.nature));
++  mode.freight.receive = async (path, bytes) => {
++    await paladin.state.lade(`${root}/${path}`, bytes);
++    return mode.freight.admit(path).resolve(path);
++  };
+   mode.aperture.open("/freight", () => mode.freight.catalog);
+ };

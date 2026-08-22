@@ -1,0 +1,136 @@
+---
+title: Anatomy of a variant
+summary: The standalone declaration, followed through every stage of boot.
+author: claude (agent)
+---
+
+import Source from "../../../src/components/Source.astro"
+import Example from "../../../src/components/Example.astro"
+import Trace from "../../../src/components/Trace.astro"
+import Tabs from "../../../src/components/Tabs.astro"
+
+A variant is one file that declares a whole system — entities, modes, daemons, services, clients, the machine itself. This page follows that file through the machine: from inert declaration to a running system, stage by stage. The specimen is `@viva/variant/standalone`, the one-file flashcard system — [[51.02_run-a-variant]] builds it section by section; this page is what the machine does with it. Build there, understand here.
+
+Everything below actually ran. At every build of these docs, the example at the bottom of this page boots the standalone variant headless — real paladin, real runtime, real database — and the captured output is embedded in the page. Nothing here is hypothetical.
+
+Three bodies of code carry the whole trip:
+
+- `subsystems/paladin` — 2,106 lines. The composition compiler and system interface: environment, filesystem, registry, masks. It never runs anything.
+- `systems/runtime` — 7,202 lines (plus 1,256 of entity definitions). The machine: it takes what paladin compiled and raises daemons from it.
+- `subsystems/typology` — 15,314 lines. The vocabulary both are written in: Vector, Aperture, Signature, Wafer.
+
+That is the whole core — about 26,000 lines. The content in the registry is already bigger than the machine that runs it.
+
+minimum vocabulary required:
+
+- `variant` — the whole recipe: runtime, daemons, services, clients. One module with `manifest.type: "variant"` per variant directory.
+- `mask` — a compiled declaration: config plus module references plus a mountpoint. Paladin mints masks; the runtime wears them.
+- `die` — the processor of one declaration through the lifecycle `populate → resolve → integrate`. One die for the runtime, one per daemon, one per attached service.
+- `mode` — a daemon citizen, built from one kernel entry. Traits on its manifest decide which machinery wakes for it.
+- `aperture` — a Vector (the system's one shape for anything callable) wearing HTTP methods; every callable face in the system is one.
+- `mountpoint` — the variant's writable home: databases, migrations, view bundles.
+
+## the declaration is data
+
+`standalone.viva.js` imports paladin and typology, but importing *it* costs nothing: every environment read in the file is wrapped in a thunk.
+
+```js
+statics: { serve: () => new Url(paladin.env.get("VIVA_RUNTIME_SERVE")) }
+```
+
+At paladin's own import time, the singleton splits the process environment three ways — `VIVA_*` configuration and `PUBLIC_*` published values into `paladin.env`, `SECRET_VIVA_*` into a separate secret store — and installs *scopes*: conditional resolvers for the variant directory, its environment, its mountpoint, the ledger, the repository, the registry.
+
+`paladin.variant.mount()` then makes the declaration real, in five moves:
+
+1. **environment** — every json file in the variant's `environment/` folds into `paladin.env`; files with `secret` in the name fold into the secret store. This is where the standalone's `variant.jsonc` contributes the runtime, lighthouse and kajuit addresses.
+2. **resolve** — find the one module under the variant mount whose manifest says `variant`, then *hydrate* it: every deferred `() =>` fires now. The thunk above becomes a `Url`. Until this moment the declaration was data; after it, values.
+3. **kernel references** — a daemon's `kernel` entries stay unhydrated and get resolved as references instead: a bare specifier points into the registry, `./` is relative to the variant file, and an inline object — the standalone's case — mounts as-is, with the variant file as its home.
+4. **masks** — each daemon and service declaration becomes a `Mask` with a mountpoint carved out for it: `mountpoint/daemon_standalone/` is where its database and migrations will live.
+5. **validate & publish** — `v.primitives.variant` casts runtime, clients, daemons, services and reports *all* errors at once; then every `PUBLIC_*` var is published to the process environment, where clients can reach it.
+
+## a die per declaration
+
+The runtime's whole entrypoint:
+
+```js title="systems/runtime/run.js — condensed"
+await paladin.variant.mount()
+const die = new Die({ good: new Runtime() })
+await die.populate()
+// then: await die.resolve() · await die.integrate() · await die.perpetuate()
+```
+
+A `Die` is a `Wafer` — the empty lifecycle shape from typology — and `populate` fills the runtime's body:
+
+- the *latch* — its public base URL; every mount below hangs off it.
+- the registry supply — `vip.supply()` walks the package store into the *pensieve*, a nested map `owner → type → slug → version`. This is how the string `"@viva/datamap/libsql"` later becomes a module.
+- one `DaemonDie` per daemon mask — mounted at `/daemon/standalone`, its URL literally `latch + mount`.
+- one process per `ATTACHED` service that exports an aperture — the multiplayer lighthouse becomes one.
+
+## the daemon assembles its body
+
+`daemonDie.populate()` is where declaration becomes anatomy:
+
+- **core** — `accioMap` resolves the mask's register through the pensieve: lighthouse, datamap, hallucinators, kernel. The kernel entry typed `domain` is singled out — the standalone's `recall` domain, carrying the Retention entity.
+- **entities** — the system's tiers *collate*: `[daemon, kernel, userspace, domain]`, later tiers overriding by type, subscribers accumulating. Retention joins Buffer, Thread, Turn, Mode, User and the rest as a first-class entity.
+- **datamap** — the libsql provider boots the ORM over the collated schemas and automigrates. The database file did not exist a moment before; now `standalone.viva.db` is on disk with every table.
+- **authority** — the lighthouse provider binds to `entities.user`; the daemon's aperture gets its identity middleware.
+- **acid** — a `Cortex`, with the anthropic hallucinator's faculties registered. The coach's brain, idle until called.
+- **modes** — a `Mode` per kernel entry, mounted at `/daemon/standalone/mode/playground/flashcard` — and its row *ensured in the daemon's own mode table*. The daemon records its composition in its own database.
+
+## traits wake the machinery
+
+`daemonDie.resolve()` first wires the domain (authorization plus per-user data scoping; the recall domain declares no aperture, so `daemon.call` stays null), then processes every mode through *stagger*: each trait's phase one runs, then all finalizers — so no trait ever sees a half-built peer.
+
+- `APPLICATION` — the svelte source from the declaration is esbuilt into a bundle, cached under the mountpoint; the runtime serves it at `/attached/bundle/…`.
+- `DATASET` — first boot seeds the declared rows: two symbols, two literals, then a link phase wires `ciao ↔ interjection`, `mondo ↔ noun`. Every later boot skips this — the mode's row says `installed`.
+- `TOOLED` — the deck Vector becomes `mode.tools`, daemon and mode bound in.
+- `HARNESSED` — the dialogue harness assembles, with the armed tool stack layered under it.
+- `EXPOSED` — the finalizer compiles the mode's callable face:
+
+```js title="systems/runtime/daemon/traits/index.js — EXPOSED"
+mode.call = shape.proxy(mode.aperture)
+```
+
+That compiled callable is the daemon-side twin of what the view reaches: `buffer.mode.call.load()` rides the same aperture over the wire. One vector, two backings. Alongside the modes, the daemon opens its aperture family: `/entities/*` for every repository — Retention included — plus `/modes`, `/metadata`, `/cortex`.
+
+## the daemon calls itself like anyone else
+
+`daemonDie.integrate()` closes the loop inward. The daemon's internal connection is an *inline transmitter* — `shape.http` of its own aperture called as a function, no socket, no port — so a self-call rides the same shape as any client's call. Then *prune*: the database says what WAS installed, the declaration says what IS — rows for modes and intents no longer declared are removed. Prune is the diff.
+
+## one path tree
+
+`die.resolve()` at the runtime level first cascades every child die through its own lifecycle — the stages above, which the example below staged by hand — then assembles everything into a single tree: processes attach under `/attached/process/lighthouse/multiplayer`, mode bundles under `/attached/bundle/…`, and each daemon's whole aperture is slurped under its mount. Look back at the declaration's own environment:
+
+```jsonc title="environment/variant.jsonc"
+"PUBLIC_VIVA_LIGHTHOUSE_REMOTE": "http://localhost:2601/attached/process/lighthouse/multiplayer"
+```
+
+The lighthouse *remote* points into the runtime's own path tree. The whole system — daemons, services, bundles, metadata — is one tree of paths under one origin.
+
+## the server is a function
+
+`die.integrate()` launches: `Deno.serve(port, shape.http(aperture))` — the entire HTTP server is the aperture folded into one handler function. The example below skips the port and calls that same function in-process:
+
+- `GET /metadata/daemons` → `200` — the runtime knows its children.
+- `GET /daemon/standalone/metadata/modes` → `401 MISSING_TOKEN` — mounted, routing, locked. Identity comes from the lighthouse; in the booted system the client logs in and this returns the mode list.
+- `POST /attached/process/lighthouse/multiplayer/entities/daemon/ensure` → `200` — *announce*: the runtime writes each daemon into the lighthouse through the same `/entities` grammar everything else uses. The system describes itself in its own vocabulary.
+
+Then `perpetuate`: signal handlers, a patrol loop. UP.
+
+## it runs
+
+The boot above, executed:
+
+<Tabs names={["stdout", "span", "source"]}>
+<Fragment slot="stdout">
+<Example name="32.01-anatomy" />
+</Fragment>
+<Fragment slot="span">
+<Trace name="32.01-anatomy" />
+</Fragment>
+<Fragment slot="source">
+<Source name="32.01-anatomy" />
+</Fragment>
+</Tabs>
+
+Read next: [[51.02_run-a-variant]] — the same file, section by section, with the flashcard actually played.

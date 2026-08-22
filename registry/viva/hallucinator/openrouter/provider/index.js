@@ -15,9 +15,9 @@ function extractObject(turn, schema) {
 }
 
 const models = {
-  strong: { id: "openai/gpt-5.1", tune: [0.9, 1.0, 0.3], context: 400000, thinking: true },
-  standard: { id: "google/gemini-2.5-flash", tune: [0.5, 0.7, 0.7], context: 1048576, thinking: false },
-  light: { id: "google/gemini-2.5-flash-lite", tune: [0.1, 0.3, 1.0], context: 1048576, thinking: false },
+  strong: { id: "openai/gpt-5.1", tune: [0.8, 0.85, 0.35, 0.3], context: 400000, thinking: true },
+  standard: { id: "google/gemini-2.5-flash", tune: [0.45, 0.5, 0.85, 0.7], context: 1048576, thinking: false },
+  light: { id: "google/gemini-2.5-flash-lite", tune: [0.1, 0.1, 1.0, 0.95], context: 1048576, thinking: false },
 };
 
 export default async function provider(service) {
@@ -65,6 +65,7 @@ export default async function provider(service) {
         in: ["text", "image", "document", "tool_result", ...(model.thinking ? ["thinking"] : [])],
         out: ["text", "tool_use", ...(model.thinking ? ["thinking"] : [])],
       },
+      config: { model: model.id },
       via: { render, stream },
     });
   }

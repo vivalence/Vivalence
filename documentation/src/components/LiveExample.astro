@@ -1,0 +1,20 @@
+---
+import { capture, fold } from "../lib/trace.js"
+
+const { title, capture: name } = Astro.props
+
+const trace = fold(capture(name)?.records ?? [])
+---
+<div class="live-card">
+  {title && <h4>{title}</h4>}
+  <slot />
+  <div class="mini-trace">
+    {trace.map((row) => (
+      <span style={row.depth ? `padding-left:${row.depth * 1.2}ch` : undefined}>
+        {row.verb === "note" ? row.verb : <span class="v">{row.verb}</span>}
+        {row.data ? ` ${JSON.stringify(row.data)}` : ` ${row.path}`}
+        {row.duration && ` · ${row.duration}`}
+      </span>
+    ))}
+  </div>
+</div>

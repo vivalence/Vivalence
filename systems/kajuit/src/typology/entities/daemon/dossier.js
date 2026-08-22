@@ -62,27 +62,27 @@ export const DaemonDossier = {
       daemon.release = multiplex.close;
 
       try {
-        daemon.status.set(await daemon.connection.call("/status"));
-        const [manifest, cargo, cortex, aperture, statics] = await Promise.all([
+        daemon.entities = new Dataspace({
+          connection: daemon.connection,
+          entities,
+          seed: seedDaemon(daemon),
+        });
+        const [status, manifest, cargo, cortex, aperture, statics] = await Promise.all([
+          daemon.connection.call("/status"),
           daemon.connection.call("/metadata/manifest"),
           daemon.connection.call("/metadata/cargo"),
           daemon.connection.call("/metadata/cortex"),
           daemon.connection.call("/metadata/aperture"),
           daemon.connection.call("/metadata/statics"),
+          daemon.entities.init(),
         ]);
+        daemon.status.set(status);
         daemon.manifest = manifest;
         daemon.statics = statics;
         daemon.mount = new Path(`/daemon/${manifest.slug}`);
         daemon.cargo = cargo;
         daemon.link = new Path(`/${ctx.lighthouse.manifest.slug}/${manifest.slug}`).rebase("/viva");
         daemon.call = shape.connection.wire(daemon.connection, aperture);
-
-        daemon.entities = new Dataspace({
-          connection: daemon.connection,
-          entities,
-          seed: seedDaemon(daemon),
-        });
-        await daemon.entities.init();
         // await daemon.entities.populate(["mode", "intent", "thread"]);
 
         // await daemon.entities.thread.find({}, { populate: ["mode","buffers"] });
@@ -95,6 +95,7 @@ export const DaemonDossier = {
         ]);
         daemon.entities.intent.subscribe();
         daemon.entities.thread.subscribe();
+        daemon.entities.buffer.subscribe();
         daemon.entities.turn.subscribe();
 
         daemon.cortex = new Cortex().register(

@@ -1,7 +1,7 @@
 ---
 import { getCollection, getEntry, render } from "astro:content"
 import Layout from "../layouts/Layout.astro"
-import { AREAS, CATEGORIES, areaKey, areaNote, decadeOf, categoryName, isReserved } from "../lib/jdex.js"
+import { AREAS, CATEGORIES, areaKey, areaNote, decadeOf, categoryName, isReserved, page } from "../../content/jdex.js"
 
 const entry = await getEntry("site", "jdex")
 const { Content } = await render(entry)
@@ -13,9 +13,7 @@ const swatches = {
 }
 
 const collection = await getCollection("docs")
-const live = collection
-  .map((entry) => ({ slug: entry.id, jdex: entry.data.jdex, title: entry.data.title }))
-  .filter((entry) => entry.jdex)
+const live = collection.map(page)
 
 const itemsByCategory = {}
 for (const entry of live) {
@@ -44,7 +42,7 @@ const categoriesIn = (decade) =>
         <div class:list={["jdex-area", { reserved: isReserved(decade) }]}>
           <div class="ja-head">
             <div class="ja-key">{areaKey(decade)}</div>
-            <div class="ja-name">{AREAS[decade].title.toLowerCase()}</div>
+            <div class="ja-name">{AREAS[decade].title}</div>
             <div class="ja-note">{isReserved(decade) ? "reserved." : areaNote(decade)}</div>
           </div>
           {!isReserved(decade) && (

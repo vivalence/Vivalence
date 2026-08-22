@@ -119,6 +119,61 @@ specimen.describe("dojo tools", () => {
     });
   });
 
+  specimen.it("generate anchors force drilled literals into the composition — cortex stubbed", async () => {
+    await scenario.scoped(async () => {
+      const [anchor] = await scenario.daemon.entities.literal.find(
+        { ontology: "word" },
+        { limit: 1 },
+      );
+      let request;
+      const stubbed = {
+        hallucinate: {
+          object: {
+            render: async (input) => {
+              request = input;
+              return {
+                output: {
+                  object: {
+                    sentences: [
+                      {
+                        known: `about ${anchor.trait.TRANSLATED.known}`,
+                        learning: `sobre ${anchor.trait.TRANSLATED.learning}`,
+                      },
+                    ],
+                  },
+                },
+              };
+            },
+          },
+        },
+      };
+      const original = Object.getOwnPropertyDescriptor(scenario.daemon, "cortex");
+      Object.defineProperty(scenario.daemon, "cortex", { value: stubbed, configurable: true });
+      try {
+        const result = await tools.generate({ count: 1, anchors: [anchor.slug] });
+        specimen.expect(request.system.anchors).toContain(anchor.trait.TRANSLATED.learning);
+        const [minted] = result.buffer;
+        const [knowable] = minted.data.knowables;
+        const token = knowable.tokens.find((entry) => entry.literal === anchor.id);
+        specimen.expect(token).toBeDefined();
+        specimen.expect(token.gloss).toBe(anchor.trait.TRANSLATED.known);
+      } finally {
+        if (original) Object.defineProperty(scenario.daemon, "cortex", original);
+        else delete scenario.daemon.cortex;
+      }
+    });
+  });
+
+  specimen.it("symbols searches the catalog with literal counts", async () => {
+    await scenario.scoped(async () => {
+      const result = await tools.symbols({ search: "greeting" });
+      specimen.expect(result.message).toContain("greeting");
+      specimen.expect(result.message).toMatch(/\d+ literals?/);
+      const empty = await tools.symbols({ search: "no-such-symbol-anywhere" });
+      specimen.expect(empty.message).toContain("no symbols match");
+    });
+  });
+
   specimen.it("provision with symbols scopes the draw", async () => {
     await scenario.scoped(async () => {
       const result = await tools.provision({ symbols: ["greeting"], count: 5 });

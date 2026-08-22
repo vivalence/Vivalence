@@ -1,0 +1,46 @@
+---
+title: Vivalence Docs
+eyebrow: an AI-era symbolic OS
+headline: Vivalence is a symbolic operating system for the AI era
+sub: >-
+ Everything is a mode. Your data, your apps, your agents — one coherent, scalable, and flexible system. Use it to build any harness, integrate any service, and surface them as Svelte apps and soon via CLI.
+totems:
+  - { term: Modal Systems, rest: everything is a mode }
+  - { term: Daemon Runtimes, rest: integrating compute and data }
+  - { term: Knowledge Graphs, rest: rich and persistent }
+  - { term: Svelte Applications, rest: bring your own surfaces }
+pillars:
+  - key: "11.01"
+    jdex: "11.01"
+    title: What is Vivalence
+    desc: Layered systems and everything being a mode.
+  - key: "32.01"
+    jdex: "32.01"
+    title: Anatomy of a variant
+    desc: One declaration, processed — from paladin through the daemon until the runtime is up.
+  - key: "41.01"
+    jdex: "41.01"
+    title: Guide to the repo
+    desc: Algebraic types from @typology, the @runtime, and client @kajuit. Shell client @ghost coming soon.
+  - key: "13.01"
+    jdex: "13.01"
+    title: Ubiquity and a thin slice
+    desc: Economics and business strategy of Vivalence, the company.
+start:
+  title: Getting Started
+  items:
+    - { jdex: "51.01", title: Install the system, desc: From git clone to a booted client. }
+    - { jdex: "51.02", title: Run a Variant, desc: The standalone demo — a whole system in one file. }
+---
+
+import Home from "../src/components/Home.astro"
+import LiveExample from "../src/components/LiveExample.astro"
+
+<Home data={frontmatter}>
+  {/* <LiveExample slot="live" title="rich docs" capture="home">
+    Doc code fences tagged <code>tangle=</code> are written to disk and executed.
+    <b>Source</b> shows the exact code, <b>Example</b> its captured stdout,
+    <b>Trace</b> a real runtime span.
+  </LiveExample> */}
+
+</Home>

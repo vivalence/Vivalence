@@ -1,0 +1,325 @@
+#+title: m40 ledger convention — one home: registry + variants live in the ledger
+#+filetags: :ledger:paladin:ghost:registry:variant:packages:convention:docker:docs:
+#+status: CHANGESET COMPLETE — every edit below is exact against HEAD; code gated on per-stage =go=. The earlier T1 (citizen-branch) is DEAD — recon killed it, see decision 5. *M2 (education emigration) is OUT OF SCOPE* — beef: /"ignore m2. not in scope."/ — its section stays below as the preserved record for a future quest; F1–F3 sleep with it. Live scope = M1 + M3.
+
+* intent
+
+beef, verbatim: /"i'd like to think up a convention. maybe we place the registry and the variants into the ledger. ie .viva/registry .viva/variants and all those suplocations can be gitmanaged. the ledger aint, no?"/
+
+/"we have to separate variant from variants. ledger/variants are many. but any runtime ever only renders one of them."/
+
+/"i dont want a variants mount either. if a variant isntall comand has a location attached then the variant, its env, mountpoints etc all go there. the ledger/variants/slug is a fallback/default."/
+
+/"i want to thin out the registry. specifically i want to move the education out. the fixtures, playground and viva make sense. they are testing, dev, and std respectively."/
+
+One sentence: *the ledger becomes THE machine home* — package store and variant shelf live under it by convention, every path stays env-overridable, the monorepo registry thins to =fixtures/playground/viva=, education emigrates as the first out-of-tree package.
+
+* the convention
+
+#+BEGIN_EXAMPLE
+~/.viva/                 scope.ledger — machine state, NEVER git-managed
+  registry.json          record: package locations (absolute = pinned checkouts
+                         incl. the repo's own packages; relative = store children)
+  instances.json  locks/  logs/
+  registry/              package STORE — scope.registry, unconditional default;
+    <slug>/              remote taps clone here; each child = its own git clone
+  variants/              variant shelf — NO scope, NO env var; pure convention;
+    <slug>/              each child git-manageable; holds variant + environment/ (+ mountpoint/ at runtime)
+#+END_EXAMPLE
+
+Resolution law, everywhere: *explicit env mount > convention default*. Docker (=VIVA_*_MOUNT=) and repo-dev (=.env= pins testament) untouched by construction.
+
+=scope.variant= stays SINGULAR — the one variant this runtime renders. =variants/= is a directory two commands share (clone fallback target, slug resolution), never a mount.
+
+* terrain (verified, complete)
+
+- =subsystems/paladin/lifecycle/populate.js:28= — =scope.ledger= already =VIVA_LEDGER_MOUNT ?? ~/.viva=. =:80= — =scope.registry= gated on env ∨ =is.citizen=; =:33= — =scope.variant= = raw =new Path(env)=.
+- **=is.citizen= ≠ "in-repo"** (=belt/is.js:29=): citizen = server-side runtime with write access (Deno/Bun/Node, not deployed). EVERY server process is citizen — an installed viva on a user machine too. So "citizen → repo registry, else ledger" (the first tangle's T1) encoded a distinction that does not exist. Killed.
+- **supply is already the ONE mechanism**: =systems/runtime/lifecycle/populate.js:7=, =systems/ghost/trajectories/instance/clone.js:75=, =system/doctor.js:132=, =variant/clone.js:13= all call =vip.supply()=. The ghost codemap's "mounts registry FLAT" claim was stale (fixed in-shard this session). No raw =vip.mount(scope.registry)= call sites remain outside comments.
+- **seed already writes ABSOLUTE paths** (=registry.js:55= =dirname(module.source.absolute)=) — existing testament ledgers hold absolute repo-package refs; they resolve verbatim and keep booting bit-identical through this quest. Zero migration.
+- **seed clobbers taps**: =registry.js:56= writes wholesale; =/ledger/install= calls it unconditionally — re-install erases every tap. Becomes a union (C4).
+- **env-file hole**: registry scope resolver reads =Deno.env= directly; a =VIVA_REGISTRY_MOUNT= arriving via =VIVA_ENV_FILE= lands only in =paladin.env= → silently ignored. Fixed in C1. (Same quirk exists on environment/mountpoint resolvers =:45,:59= — left alone, noted in known-issues, NOT this quest.)
+- **education is import-clean**: live imports = =@vivalence/typology= (118) + =@vivalence/runtime= (4, tests/scenarios only) — both workspace members, resolved by name via the root config every spawn passes (=--config <root>=). =shared=/=vector= hits were 45 =bak/= files. m11's "audit before first external package" closes CLEAN.
+- **=@vivalence/runtime= exports =./scenarios=** (=systems/runtime/deno.jsonc:12= → =./tests/scenarios/index.js=) — emigrated tests keep the bench/mountMode harness by specifier.
+- education couplings outside its tree — the COMPLETE list:
+  - =systems/runtime/tests/mode/emitters.test.js:4-6= · =aprende.literals.test.js:6= · =aprende.statistics.test.js:6= · =tests/bench/smoke.test.js:5-7,55-60= — relative imports + =@education/*= kernel list
+  - =Dockerfile:48= =COPY registry/= + =:60= =ENV VIVA_REGISTRY_MOUNT=/viva/repository/registry= — image loses education without C11; git IS in the image (=Dockerfile:5=)
+  - =registry/viva/variant/{localhost,multiplayer}= kernels demand =@education/*= — after emigration the variant boots ONLY where education is tapped/cloned; README + docker must carry the tap step
+  - =documentation/content/50-59_practice/51_guides/51.02_run-a-variant.mdx:341= — prose, stays valid
+  - =subsystems/paladin/tests/{pensieve,vip}.test.js= — "@education" inert fixture strings, zero coupling
+- test harness fixtures own their scopes (=registry.test.js= / =vip.tap.test.js= scaffold raw =new Paladin()= + manual =scopes([…])=, never =populate.scopes=) — the two "no package store" throw-tests keep passing untouched under C1, because their paladins never register a registry scope at all.
+- =ledger.test.js mkPaladin()= runs =populate.scopes= with env injected via =paladin.env= — the natural home for the new scope-convention cases (C8).
+
+* decision trail (locked)
+
+1. *Convention = defaults only.* No new env var, no new scope for =variants/=. The ledger mount is the single knob that moves the whole home.
+2. *variant ≠ variants* (beef). Runtime renders ONE; =scope.variant= singular forever; the plural is a shelf.
+3. *Explicit location wins wholesale*: clone with target puts variant + =environment/= (+ runtime-derived =mountpoint/=) there — already structurally true (=scope.environment=/=mountpoint= branch off =scope.variant=). Only the no-target fallback changes.
+4. *=VIVA_VARIANT_MOUNT= learns slugs*: bare token (no =/=, no leading =.=) → =<ledger>/variants/<slug>=; everything else rides =paladin.source= (absolute / =./=cwd / bare-segment-repo-relative).
+5. *The store is the ledger's, UNCONDITIONALLY* — =scope.registry= = env ?? =<ledger>/registry=, no citizen branch (recon: citizen cannot discriminate repo-dev from installed). The repo's standard packages are NOT the store's business: they enter =registry.json= as ABSOLUTE refs via seed over =scope.repository.branch("registry")=. This completes the m11 sentence "monorepo registry/ demoted to tapped absolute refs" — and existing ledgers already hold exactly that shape, so nothing migrates.
+6. *Seed source moves to the repository registry* (=vip.supply= + =/ledger/install=) — the store starts empty and fills by tap; discovery fills the standard packages.
+7. *seed = union* — discovery adds, never erases.
+8. *Education emigrates*; monorepo registry = =fixtures/playground/viva= (testing, dev, std). All four education-material runtime test files emigrate WITH it (F2 firmed — scenarios are exported, the harness travels by specifier).
+9. *Naming collision accepted* (beef: "fine") — =registry.json= record beside =registry/= store, the brew duality.
+
+* forks (DORMANT — all three belong to the out-of-scope M2)
+
+- *F1 education destination + VCS shape*: lean = sibling repo =~/vivalence/code/education=, plain move + fresh =git init= (subtree-split only if history matters). Repo tap ref = absolute path on beef's machine; fresh users tap the git URL.
+- *F2 education test runner*: the four emigrated test files import =@vivalence/runtime/scenarios= + their own modes relatively — but standalone =deno test= inside the education repo has no import map for =@vivalence/*=. Lean: run them FROM the vivalence repo (=deno test --config <repo>/deno.jsonc ../education/tests/=, wired as a repo task =education/test=). Alternative: education grows its own =deno.jsonc= with sibling-relative mappings (machine-shaped, ugly). Pick at gate.
+- *F3 docker education ref*: lean = C11 clone-into-image-registry (zero code, discovery seeds it). URL is F1's output.
+
+* changeset — complete, per file (apply on per-stage =go=)
+
+** M1 — convention defaults (one blast-bracket: C1–C9 land together)
+
+*C1* =subsystems/paladin/lifecycle/populate.js= — registry scope unconditional; env read via =paladin.env= (fixes the env-file hole):
+
+#+BEGIN_SRC diff
+     [
+       "registry",
+-      () => Deno.env.has("VIVA_REGISTRY_MOUNT") || paladin.is.citizen,
+-      () => {
+-        let envpath;
+-        if (Deno.env.has("VIVA_REGISTRY_MOUNT")) {
+-          envpath = Deno.env.get("VIVA_REGISTRY_MOUNT");
+-        } else {
+-          envpath = paladin.scope.repository.branch("registry").absolute;
+-        }
+-        return envpath ? new Path(envpath) : undefined;
+-      },
++      () => true,
++      () => {
++        if (paladin.env.has("VIVA_REGISTRY_MOUNT"))
++          return new Path(paladin.env.get("VIVA_REGISTRY_MOUNT"));
++        return paladin.scope.ledger.branch("registry");
++      },
+     ],
+#+END_SRC
+
+*C2* same file — variant scope: bare slug → shelf; paths ride =paladin.source=:
+
+#+BEGIN_SRC diff
+     [
+       "variant", //
+       () => paladin.env.has("VIVA_VARIANT_MOUNT"),
+-      () => new Path(paladin.env.get("VIVA_VARIANT_MOUNT")),
++      () => {
++        const reference = paladin.env.get("VIVA_VARIANT_MOUNT");
++        if (!reference.includes("/") && !reference.startsWith("."))
++          return paladin.scope.ledger.branch(`variants/${reference}`);
++        return paladin.source(reference);
++      },
+     ],
+#+END_SRC
+
+*C3* =subsystems/paladin/prototypes/vip.js= — supply's self-seed reads the repository registry, not the store:
+
+#+BEGIN_SRC diff
+   async supply() {
+     await this.paladin.ledger.mount(); // fn.once — self-priming, no boot-order landmine
+     const locations = await this.paladin.ledger.registry.read()
+-      ?? await this.paladin.ledger.registry.seed(this.paladin.scope.registry);
++      ?? await this.paladin.ledger.registry.seed(this.paladin.scope.repository.branch("registry"));
+     for (const location of locations) await this.mount(this.paladin.ledger.registry.resolve(location));
+     return this;
+   }
+#+END_SRC
+
+(the comment block above it updates: record absent → seeded by discovery over the REPOSITORY registry; the store fills by tap.)
+
+*C4* =subsystems/paladin/prototypes/ledger/registry.js= — seed = union, never erase:
+
+#+BEGIN_SRC diff
+   async seed(scope) {
+     const declarations = await this.paladin.find.type(scope, "package");
+     const locations = [...new Set(declarations.map((module) => dirname(module.source.absolute)))];
+-    await this.write(locations);
+-    return locations;
++    const held = (await this.read()) ?? [];
++    const next = [...new Set([...held, ...locations])];
++    await this.write(next);
++    return next;
+   }
+#+END_SRC
+
+*C5* =systems/ghost/trajectories/ledger/index.js= =/install= — scaffold the full home, seed from the repository registry:
+
+#+BEGIN_SRC diff
+-    for (const sub of ["locks", "logs"]) {
++    for (const sub of ["locks", "logs", "registry", "variants"]) {
+       await Deno.mkdir(paladin.scope.ledger.branch(sub).absolute, { recursive: true });
+     }
+
+-    const registry = await paladin.ledger.registry.seed(paladin.scope.registry);
++    const registry = await paladin.ledger.registry.seed(paladin.scope.repository.branch("registry"));
+#+END_SRC
+
+(effect =scaffolded= list follows: =["locks", "logs", "registry", "variants"]=.)
+
+*C6* same file =/root= — the whole anatomy:
+
+#+BEGIN_SRC diff
+     ctx.effect = {
+       ledger: paladin.scope.ledger.absolute,
+-      registry: paladin.scope.registry?.absolute ?? null,
++      store: paladin.scope.registry.absolute,
++      variants: paladin.scope.ledger.branch("variants").absolute,
++      repository: paladin.scope.repository.branch("registry").absolute,
+       record: paladin.ledger.registry.path.absolute,
+     };
+#+END_SRC
+
+*C7* =systems/ghost/trajectories/variant/clone.js= — no-target fallback = shelf; effect names the =.env= line:
+
+#+BEGIN_SRC diff
+-import { dirname, resolve } from "@std/path";
++import { basename, dirname, resolve } from "@std/path";
++import { cast } from "@vivalence/typology";
+ import { cloneDir } from "../instance/clone.js";
+@@
+-  const cwd = Deno.env.get("INIT_CWD") ?? Deno.env.get("PWD") ?? Deno.cwd();
+-  const destination = resolve(cwd, target ?? "testament/variant");
++  const slug = source.startsWith("@") ? cast.lookup(source).slug : basename(mount);
++  const cwd = Deno.env.get("INIT_CWD") ?? Deno.env.get("PWD") ?? Deno.cwd();
++  const destination = target
++    ? resolve(cwd, target)
++    : paladin.scope.ledger.branch(`variants/${slug}`).absolute;
+
+   await cloneDir(mount, destination);
+
+-  ctx.effect = { source, from: mount, target: destination };
++  ctx.effect = { source, from: mount, target: destination, env: `VIVA_VARIANT_MOUNT=${target ? destination : slug}` };
+#+END_SRC
+
+*C8* =subsystems/paladin/tests/ledger.test.js= — new describe, rides the existing =mkPaladin= (which already runs =populate.scopes= against =paladin.env=):
+
+#+BEGIN_SRC js
+describe("scope conventions — the ledger is the home", () => {
+  it("registry store defaults to <ledger>/registry", async () => {
+    const paladin = await mkPaladin();
+    expect(paladin.scope.registry.absolute).toBe(paladin.scope.ledger.branch("registry").absolute);
+  });
+
+  it("VIVA_REGISTRY_MOUNT from paladin.env wins over the convention", async () => {
+    const paladin = await mkPaladin();
+    const explicit = await Deno.makeTempDir({ prefix: "paladin-store-" });
+    paladin.env.set("VIVA_REGISTRY_MOUNT", explicit);
+    expect(paladin.scope.registry.absolute).toBe(explicit);
+  });
+
+  it("VIVA_VARIANT_MOUNT bare slug shelves under <ledger>/variants/", async () => {
+    const paladin = await mkPaladin();
+    paladin.env.set("VIVA_VARIANT_MOUNT", "localhost");
+    expect(paladin.scope.variant.absolute).toBe(paladin.scope.ledger.branch("variants/localhost").absolute);
+  });
+
+  it("VIVA_VARIANT_MOUNT absolute path stays verbatim", async () => {
+    const paladin = await mkPaladin();
+    const home = await Deno.makeTempDir({ prefix: "paladin-variant-" });
+    paladin.env.set("VIVA_VARIANT_MOUNT", home);
+    expect(paladin.scope.variant.absolute).toBe(home);
+  });
+
+  it("seed unions with held taps instead of erasing them", async () => {
+    const paladin = await mkPaladin();
+    await paladin.ledger.registry.add("/external/checkout");
+    const registryRoot = await Deno.makeTempDir({ prefix: "paladin-registry-" });
+    await Deno.mkdir(`${registryRoot}/alpha`);
+    await Deno.writeTextFile(
+      `${registryRoot}/alpha/alpha.viva.js`,
+      `export const manifest = { owner: "@alpha", type: "package", slug: "alpha", version: "0.0.1" };`,
+    );
+    const seeded = await paladin.ledger.registry.seed({ absolute: registryRoot });
+    expect(seeded.sort()).toEqual(["/external/checkout", `${registryRoot}/alpha`].sort());
+  });
+});
+#+END_SRC
+
+Note: the =mkPaladin= env additions ride =paladin.env=, and =scope.variant='s resolver needs =paladin.source= attached — =mkPaladin= must gain the belt population that carries =source= (verify at land time which populate step attaches it; add the call if =populate.scopes= alone was enough only by accident).
+
+*C9* =systems/ghost/tests/ledger.test.js= — two cases in the existing drive-harness:
+
+#+BEGIN_SRC js
+it("/ledger/install scaffolds registry/ and variants/ under the ledger", async () => {
+  await drive(["/ledger/install"]);
+  for (const sub of ["registry", "variants"]) {
+    expect((await Deno.stat(paladin.scope.ledger.branch(sub).absolute)).isDirectory).toBe(true);
+  }
+});
+
+it("/variant/clone without target shelves under <ledger>/variants/<slug>", async () => {
+  await author(store, "pack", "@pack");
+  await Deno.writeTextFile(
+    `${store}/pack/probe.viva.js`,
+    `export const manifest = { type: "variant", slug: "probe", version: "0.0.1" };`,
+  );
+  await paladin.vip.tap("pack");
+  const effect = await drive(["/variant/clone", "@pack/variant/probe"]);
+  expect(effect.target).toBe(paladin.scope.ledger.branch("variants/probe").absolute);
+  expect(effect.env).toBe("VIVA_VARIANT_MOUNT=probe");
+});
+#+END_SRC
+
+Untouched by design: the two "no package store" guard-throws (=registry.js:49=, =vip.js:55=) stay — their tests scaffold scope-less paladins and keep passing; =doctor.js:130='s =!scope.registry= early-return goes permanently false — harmless, remove opportunistically at land time.
+
+M1 gate: =deno task paladin/test= + ghost suite green, incl. every C8/C9 case · a testament-ledger boot resolves bit-identical (absolute refs, C1–C4 change nothing it reads).
+
+** M2 — education emigration — OUT OF SCOPE (beef: "ignore m2. not in scope.") — preserved record only
+
+beef's ops (VCS — PROPOSE → beef runs; per F1 lean):
+
+#+BEGIN_EXAMPLE
+1. mkdir ~/vivalence/code/education && cp -R registry/education/ there (minus bak/)  — or subtree split
+2. mv the four test files into education/tests/:
+   systems/runtime/tests/mode/emitters.test.js
+   systems/runtime/tests/mode/aprende.literals.test.js
+   systems/runtime/tests/mode/aprende.statistics.test.js
+   systems/runtime/tests/bench/smoke.test.js
+3. git init + first commit in education/; rm -rf registry/education in the repo
+4. viva ledger tap ~/vivalence/code/education        # abs ref on this machine
+#+END_EXAMPLE
+
+my mechanical edits on =go= (post-move):
+
+- the four test files: =../scenarios/bench.js= → =@vivalence/runtime/scenarios=; education-module imports → education-repo-relative; kernel specifier lists stay =@education/*= (supply serves them from the tap).
+- root =deno.jsonc=: new task =education/test= running the education suite under the repo config (F2 lean).
+- *C11* =Dockerfile= (F3 lean; URL from F1):
+
+#+BEGIN_SRC diff
+ COPY registry/ ./registry/
++RUN git clone --depth 1 <education-git-url> ./registry/education
+#+END_SRC
+
+- sweep re-grep for =registry/education= at bracket time (terrain list is the blast list).
+
+M2 gate: =vip.supply()= serves =@education/*= from the tap · localhost variant boots · education suite green under the repo-config runner · docker build green · full 8-suite baseline green.
+
+** M3 — documentation (prose, no bracket)
+
+- =README.md= §3–5 becomes two named flows:
+
+#+BEGIN_EXAMPLE
+# machine flow (default — everything lands in ~/.viva; repo packages seed automatically)
+viva ledger install
+viva variant clone @viva/variant/localhost   # → ~/.viva/variants/localhost
+# .env: VIVA_VARIANT_MOUNT=localhost
+
+# repo-dev flow (everything lands in testament/, unchanged)
+viva ledger install ./testament/ledger
+viva variant clone @viva/variant/localhost ./testament/variant
+#+END_EXAMPLE
+
+- =documentation/content/30-39_architecture/33_ledger/33.01_anatomy.mdx= (slot after live =32_daemon=; number = beef's if he objects): the tree from "the convention" + the one resolution law + the record/store duality paragraph.
+- =.env.example= header comment: testament wording → "machine home is ~/.viva by default; testament/ pins a repo-local home"; add =VIVA_VARIANT_MOUNT= slug example.
+- =51.02_run-a-variant.mdx:341= — verified, stays.
+
+M3 gate: fresh-clone walkthrough of the machine flow on a clean =VIVA_LEDGER_MOUNT= temp dir reaches a booting daemon.
+
+* milestones
+
+| #  | lands                                      | gate                                                                                                                     |
+|----+--------------------------------------------+--------------------------------------------------------------------------------------------------------------------------|
+| M1 | C1–C9, one bracket                         | paladin + ghost suites green incl. new cases · existing testament ledger boots bit-identical                             |
+| M3 | README two-flow + anatomy page + env words | clean-ledger machine-flow walkthrough boots                                                                              |
+
+(M2 row removed — out of scope by beef's word; the preserved section above is the future quest's seed.)

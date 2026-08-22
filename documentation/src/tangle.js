@@ -33,3 +33,6 @@ for (const file of walk(DOCS)) {
   const { path } = specimen.snapshot(payload, { base: dirname(file), dry: false, parse: (value) => value, locate: `${example.name}.snapshot.json` })
   console.log(`snapshot → ${path} · ${channel}`)
 }
+
+// captures are written — exit even when an example leaked a handle (an unclosed ORM holds the loop)
+Deno.exit(0)

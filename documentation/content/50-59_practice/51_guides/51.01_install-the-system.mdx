@@ -1,0 +1,60 @@
+---
+title: Install the system
+summary: From git clone to a booted client.
+---
+
+Deno ^2.7 must be installed. Currently only installation from repo at this point.
+
+minimum vocabulary required:
+
+- `viva` — the CLI. Installed to the OS, or `deno task ghost/run` if so inclined.
+- `ledger` — the `~` directory for system-level stuff: tracking registry packages, coordinating runtimes, logs, locks, etc.
+- `package` — a unit of modes living in the registry, likely git-managed. Services, applications, datasets, harnesses, and variants are grouped into a package.
+- `variant` — an executable system unit made up of runtime and clients, and the daemons running on top of them.
+
+## Install the Vivalence CLI
+
+```sh
+git clone https://github.com/vivalence/vivalence.git vivalence
+cd vivalence
+deno task install
+viva ledger/install ~/viva
+```
+
+`deno task install` fetches dependencies and links `viva` into `~/.deno/bin` — the CLI
+remembers the repo via `~/.config/viva/env`. `ledger/install` scaffolds the system ledger
+and seeds `registry.json` from the in-repo packages.
+
+## Add a package
+
+tap a package — a local path is recorded as-is, a git URL is cloned into the store
+
+```sh
+viva ledger/tap <path | git url>
+viva ledger/taps
+```
+
+## Set up a variant
+
+clone a variant out of the registry and give it its `.env`
+
+```sh
+viva variant/clone @viva/variant/localhost ./localhost
+
+cd localhost 
+cp .env.example .env 
+$EDITOR .env
+```
+
+## Boot runtime and client
+
+```sh
+deno task runtime/run
+deno task kajuit/run
+```
+
+create your account against the variant's lighthouse — the client logs in with it:
+
+```sh
+viva variant/lighthouse/auth/signup <username> <password>
+```

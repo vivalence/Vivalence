@@ -53,6 +53,10 @@ const CONJUGATIONS_INPUT = v.object({
 const GENERATE_INPUT = v.object({
   where: types.where,
   count: types.count,
+  anchors: v
+    .array(v.string())
+    .desc("Literal slugs or ids that every composed sentence must build around.")
+    .optional(),
   instructions: v.string().desc("Freeform steering, appended verbatim to the composition prompt.").optional(),
   thread,
   ...types.AXES,

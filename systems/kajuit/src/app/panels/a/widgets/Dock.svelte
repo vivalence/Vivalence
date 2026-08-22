@@ -39,9 +39,11 @@
   const modeStore = chain(terminals, "$active", "$thread", "$mode");
   const dockStore = chain(terminals, "$active", "$dock");
   const buffersStore = chain(terminals, "$active", "$thread", "$buffers");
+  const traitStore = chain(terminals, "$active", "$thread", "$trait");
   const composerStore = bridge.$composer;
 
   let turns = $derived($turnsStore ?? []);
+  let thinkMode = $derived($traitStore?.INTELLIGENT?.thinking);
   let harnessed = $derived($modeStore?.implements?.("HARNESSED") ?? false);
   let verbatim = $derived(harnessed && ($modeStore?.daemon?.cortex?.find({ type: "verbatim", via: "stream" }).length ?? 0) > 0);
 
@@ -133,7 +135,18 @@
     const terminal = terminals.active;
     const buffer = ($buffersStore ?? []).find((candidate) => candidate.id === row.id);
     if (!terminal || !buffer) return;
-    terminal.buffer = terminal.buffer?.id === buffer.id ? null : buffer;
+    terminal.buffer = buffer;
+    if (full) stores.bridge.setDockFull(terminal.$dock, false);
+  }
+
+  function launchLabel(row) {
+    const managed = ($buffersStore ?? []).find((candidate) => candidate.id === row.id) ?? row;
+    const named = managed?.data?.label ?? managed?.data?.title ?? managed?.label;
+    if (named) return named;
+    const modeId = typeof managed?.mode === "string" ? managed.mode : managed?.mode?.id;
+    const modes = $modeStore?.daemon?.entities?.mode?.$entities?.get() ?? [];
+    const slug = managed?.mode?.slug ?? modes.find((mode) => mode.id === modeId)?.slug;
+    return slug ?? bufferLabel(managed);
   }
 
   const coarsePointer = typeof matchMedia === "function" && matchMedia("(pointer: coarse)").matches;
@@ -392,6 +405,17 @@
         items.push({ kind: "divider", id: `div-${day}`, label: dayLabel(date) });
         prevDay = day;
       }
+      const prior = items.at(-1);
+      if (turn.role === "assistant" && prior?.kind === "turn" && prior.turn.role === "assistant") {
+        prior.tools = [...prior.tools, ...projected.tools];
+        prior.text = [prior.text, projected.text].filter(Boolean).join("\n\n");
+        prior.think = [prior.think, projected.think].filter(Boolean).join("\n\n");
+        prior.failures += projected.failures;
+        prior.artifacts = [...prior.artifacts, ...projected.artifacts];
+        prior.buffers = [...prior.buffers, ...projected.buffers];
+        prior.census = turnCensus(prior.tools);
+        continue;
+      }
       items.push({ kind: "turn", turn, date, ...projected });
     }
     return items;
@@ -503,7 +527,7 @@
 {/snippet}
 
 {#snippet activity(item, base)}
-  {#if item.think}
+  {#if item.think && thinkMode == null}
     {@const key = `${base}/think`}
     <div class="chan">
       <button type="button" class="chan-head" onclick={() => toggle(key)}>
@@ -522,7 +546,7 @@
   {#if item.buffers.length}
     <div class="launchers">
       {#each item.buffers as buffer (buffer.id)}
-        <button type="button" class="launch" disabled={!bufferIds.has(buffer.id)} onclick={() => launch(buffer)}>▶ {bufferLabel(buffer)}</button>
+        <button type="button" class="launch" disabled={!bufferIds.has(buffer.id)} onclick={() => launch(buffer)}>▶ {launchLabel(buffer)}</button>
       {/each}
     </div>
   {/if}
@@ -559,7 +583,15 @@
     {:else}
       <span class="state">idle</span>
     {/if}
-    <button type="button" class="meta-toggle" class:on={metaOpen} onclick={() => (metaOpen = !metaOpen)} title="meta" aria-label="toggle meta bar">⋮⋮</button>
+    <button
+      type="button"
+      class="meta-toggle"
+      class:on={metaOpen}
+      onclick={() => {
+        metaOpen = !metaOpen;
+        if (!metaOpen) railOpen = false;
+      }}
+      aria-label="toggle meta bar">⋮⋮ meta</button>
   </header>
 
   {#if metaOpen}
@@ -581,7 +613,7 @@
       {:else}
         {@const turn = item.turn}
         {@const fold = `${turn.id}/open`}
-        {@const rich = item.tools.length > 0 || !!item.think}
+        {@const rich = item.tools.length > 0 || (!!item.think && thinkMode == null)}
         <div class="entry" class:user={turn.role === "user"} class:agent={turn.role === "assistant"}>
           <div class="entry-meta">
             {#if turn.role === "assistant"}
@@ -590,7 +622,7 @@
                 <span class="diamond">◆</span>
                 <span class="who">{thread?.label?.name ?? "agent"}</span>
                 {#if item.date}<span class="time" title={item.date.toLocaleString()}>{clockTime(item.date)}</span>{/if}
-                {#if item.think}<span class="tool-count">thought</span>{/if}
+                {#if item.think && thinkMode == null}<span class="tool-count">thought</span>{/if}
                 {#if item.tools.length}<span class="tool-count">{item.tools.length} {item.tools.length === 1 ? "tool" : "tools"}</span>{/if}
                 {#if !isOpen(fold)}
                   {#if item.failures}<span class="chip bad">{item.failures} failed</span>{/if}
@@ -611,6 +643,9 @@
             <div class="activity">{@render activity(item, turn.id)}</div>
           {/if}
           {@render chips(item)}
+          {#if item.think && thinkMode === true}
+            <div class="think inline">{item.think}</div>
+          {/if}
           {#if item.text}
             <div class="text"><Markdown text={item.text} /></div>
           {/if}
@@ -641,10 +676,13 @@
           <span class="who">{thread?.label?.name ?? "agent"}</span>
           <span class="time"><span class="dot"></span><span class="dot"></span><span class="dot"></span></span>
         </div>
-        {#if liveItem.tools.length || liveItem.think}
+        {#if liveItem.tools.length || (liveItem.think && thinkMode == null)}
           <div class="activity">{@render activity(liveItem, "live")}</div>
         {/if}
         {@render chips(liveItem)}
+        {#if liveItem.think && thinkMode === true}
+          <div class="think inline">{liveItem.think}</div>
+        {/if}
         {#if liveItem.text}
           <div class="text live"><Markdown text={liveItem.text} /></div>
         {/if}
@@ -879,23 +917,32 @@
     margin-right: 4px;
   }
   .meta-toggle {
+    display: inline-flex;
+    align-items: center;
+    gap: 4px;
+    padding: 4px 10px;
     background: transparent;
-    border: none;
-    padding: 0 2px;
+    border: 1px solid color-mix(in srgb, var(--colors-skeleton-0-primary-base) 40%, transparent);
+    border-radius: 2px;
     color: var(--colors-skeleton-0-primary-base);
-    font: inherit;
-    letter-spacing: -0.1em;
+    font-family: var(--font-family-code);
+    font-size: var(--font-size-2xs);
+    letter-spacing: 0.06em;
     cursor: pointer;
-    opacity: 0.55;
+    opacity: 0.7;
   }
   .meta-toggle:hover, .meta-toggle.on {
     opacity: 1;
+    background: color-mix(in srgb, var(--colors-skeleton-0-primary-base) 10%, transparent);
+    border-color: var(--colors-skeleton-0-primary-base);
   }
   .meta {
     display: flex;
     align-items: stretch;
-    gap: 6px;
-    padding: 0 12px 8px;
+    gap: 8px;
+    padding: 0 14px 8px;
+    padding-left: max(14px, calc((100% - 640px) / 2));
+    padding-right: max(14px, calc((100% - 640px) / 2));
     flex-shrink: 0;
     font-size: var(--font-size-2xs);
   }
@@ -1087,7 +1134,7 @@
   .rail-chip {
     display: inline-flex;
     align-items: center;
-    padding: 3px 8px;
+    padding: 6px 14px;
     border: 1px solid var(--colors-skeleton-2-boundary);
     border-radius: 2px;
     background: transparent;
@@ -1376,6 +1423,9 @@
     max-width: 100%;
     overflow-x: auto;
     overscroll-behavior-x: contain;
+  }
+  .think.inline {
+    margin: 2px 0 6px;
   }
   .think {
     margin-left: 8px;

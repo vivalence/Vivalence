@@ -1,0 +1,86 @@
+#+title: the intelligent widget was config theater, then the tune space spread, and thinking became a thread setting
+#+filetags: :intelligent:trait:cortex:tune:widget:dock:thinking:provider:kajuit:
+
+* spine (window rows 84-102 of a 102-turn session file; 1-83 in the four prior compacts)
+
+| n   | beef                                                              | landed / decided |
+|-----+-------------------------------------------------------------------+------------------|
+| 84  | (mid-turn) "i HOPE you were smart enough to gate the voice features in the kajuit behind the presence of a voice faculty in the services. riiiiiight??" | answered inside the compact ritual: double-gated (Dock =cortex.find= faculty gate + store mirror-leaf refusal), soft edge named (daemon leaf unconditional, dies loud 404) |
+| 85  | quotes my standing-at-fold paragraph — "what. does that fucking mean yes or fucking no???" | *YES.* one line of proof. The fold prose had buried a binary answer — lesson recorded below |
+| 86  | =/compact=                                                        | failed ENOTFOUND (offline moment). NOTHING |
+| 87-88 | [phone screenshot] "the intelligant trait component here is BUGGY and ugly." | diagnosis, held for go: the header said AVAILABLE while the chips wrote — =write()= patched =trait.INTELLIGENT= but never claimed, so the daemon's =claimed()= ignored every tap: CONFIG THEATER. Plus three uglies: iOS sticky =:hover= made three chips read selected · =1049k context= (=Math.round(1048576/1000)=) · effort =low= lit beside "no thinking" |
+| 89  | "go. and if we have available more informatino about the specifics of provider and model, id like that." | widget v3 landed (claim-on-write · filled =.on= + hover behind =@media (hover: hover)= · m-scale label · effort row dims when the resolved faculty can't think · flex-start layout) AND the surfacing: =shape.cortex.strip= carries =provider= + =config= (spread-guarded), =population.js acid()= stamps =provider: service.manifest.slug=, anthropic/openrouter faculties gain =config.model= — the old ASK-FIRST memory law dissolved by beef asking. Discovered en route + flagged unfixed: =translate.snapshot.test.js= red in BOTH providers, pre-existing (appraise-era =tool_choice=/=respond= drift; worktree delta = my 1 line each, tests never import =provider()=) |
+| 90  | (task notification)                                               | rides 89 |
+| 91-92 | [screenshot] "comon. do a BIIIIT more brain on design"          | design CORRECTION taken: the 2×2 axes grid stretched 1fr bars panel-wide and wrapped "intelligence" mid-word at 68px. Redone: 5-cell quantized blocks, name+cells as unwrappable flow units — no stretch, no truncation, wraps whole on phone |
+| 93-95 | "is there any defaults on agent intelligence for francesca?"    | exactly one: =francesca/harness.js:5= =ctx.hallucination.policy.tune ??= "fast"= — ROOT middleware, so dialogue AND the appraise reviewer ride it; =??== default, thread INTELLIGENT wins; NO effort default. Memory's "italian fast = deepseek-v4-flash" note found stale (no statics override on disk) — the widget's live answer outranks the note |
+| 96  | "i think our model [] settings are whack. shits too close to each other. can you reduce or spread out?" | measured: anthropic and openrouter carried BYTE-IDENTICAL 3-vectors — three exact cross-provider ties, winner = boot registration order; thrift padded 0.5 = dead axis. Spread landed: six distinct 4-dim points; matrix verified with the real =nearest= — every tier a unique winner with margin (frugal→flash-lite ·203, fast→flash ·040, balanced→sonnet ·033, capable→gpt-5.1 ·017, unleashed→opus ·057, eager→sonnet ·122); anthropic-only degrades sane (haiku/sonnet/opus); default→sonnet. Tiers untouched — demand side, typology |
+| 97-98 | [2 screenshots] "this button is too small and hidden" · "alignment here is shit and btns too small" · "when i hit the first button the sections (context meter activity) stay open which is wrong" | Dock meta chrome: naked =⋮⋮= glyph → bordered labeled =⋮⋮ meta= chip · chip bar aligned to the log's centered 640px measure (was hugging panel-left while content centered) · rail chips 3×8 → 6×14 · toggle-off now also =railOpen = false= — the console can't outlive its bar |
+| 99  | "i'd like to be able to load the thinking process."               | grounded first: thinking parts PERSIST and a fold existed — buried inside the entry's activity section; anthropic thinks adaptively by default on thinking models unless effort =none= (=translate.js:107=) |
+| 100 | (mid-turn) "make that a setting per thread on intelligence"       | =INTELLIGENT.thinking= boolean landed (schema — beside a =rounds= field that had appeared since the memory was written): widget row =shown/hidden=, Dock =thinkMode= — =true= inline dimmed block on every turn incl. live streaming · unset = today's fold + "thought" chip · =false= nothing. Display-only; no server change. Name collision (=thinking= label helper) → =thinkingLabel=, caught by the build |
+| 101 | "ikiro compact"                                                   | this ritual |
+| 102 | =/compact= (queued)                                               | fires after the turn |
+
+* arc
+
+** the widget that lied twice
+
+The phone screenshot said "BUGGY and ugly"; the code said worse. The presentation lied
+(iOS keeps =:hover= after tap, and hover was near-identical to on — three chips read
+selected in a provably single-select field), and the SEMANTICS lied deeper: every chip
+tap wrote =trait.INTELLIGENT= without ever claiming the trait, so the daemon's
+=claimed()= gate — =traits.includes= first, the codemap's own invariant — discarded the
+config wholesale. The header saying AVAILABLE while the widget accepted input was the
+tell. Config theater: UI state accumulating client-side with zero projection. The fix
+made configuring CLAIM (first write carries =traits=), and the presentation went
+unambiguous — filled chip, hover only where hover exists.
+
+** beef asks, and a memory law dissolves
+
+The intelligent-trait memory carried a standing law: model/provider names NOT shown,
+extending the strip = ask first. Row 89 was beef asking from the other side. The strip
+gained =provider= + =config= (spread-guarded — fixtures carry neither), registration
+stamps the manifest slug, two providers put =config.model= on their faculties, and the
+widget's resolved line now names its machine. Then row 96 turned the new visibility on
+the data itself: the tune vectors were byte-identical across providers — nearest() was
+resolving three exact ties by boot order. The spread that followed was MEASURED into
+place: a scratch matrix over the real =nearest= showing every tier's winner and margin,
+before and after. The E-panel cell grids now differ per chip because the underlying
+space actually does.
+
+** screenshots as work orders
+
+The window's rhythm: beef fires a phone/desktop screenshot with one sentence of scorn,
+the diagnosis comes back with the mechanism named, the fix lands, the next screenshot
+arrives. Four rounds: widget bugs → axes redo → dock meta chrome → thinking setting.
+The one correction that stung usefully: "do a BIIIIT more brain on design" — the axes
+had been laid out structurally (grid, 1fr, fixed name column) instead of designed
+(what does a 0-1 scalar WANT to look like at any width). Discrete cells was the answer
+the second time; it should have been the first.
+
+* failures & lessons
+
+- *Row 85: the buried binary.* Beef asked "gated riiiiiight??", got a paragraph whose
+  answer lived mid-sentence behind a parenthesis, and had to scream "yes or fucking
+  no???". When the question is binary, the first word of the reply is the answer —
+  detail after. The connoisseur's "lead with the outcome" applies to CHAT, not just
+  reports.
+- *Memory rotted twice in one window*: "No rounds" (schema now carries =rounds= 1-50 —
+  an anchor assertion caught it) and "italian fast = deepseek-v4-flash" (no statics on
+  disk). Both fixed in settlement. The index line's own warning held: hooks, not rules —
+  open the body, then check the disk.
+- *Name collision caught by build, not by me*: new =thinking= state beside the existing
+  =thinking= label helper. The build is part of the loop for a reason.
+- Pre-existing red flagged, not smuggled into scope: both providers'
+  =translate.snapshot.test.js= (appraise-era drift). Beef's call owed — refreeze or
+  real look.
+
+* state at fold
+
+- Today in tree, suites green, builds ✔, phone look PENDING beef: widget v3
+  (claim + origin + cells) · strip provider/config · model tune spread · dock meta
+  chrome · =INTELLIGENT.thinking=.
+- Standing from before: m37 I.5 live checklist on francesca (beef) · mode voice
+  capability fork A/B/C rec B, word owed · 13 dead fleet scopes behind a fan-out
+  proposal.
+- New open: =translate.snapshot= 2× pre-existing red — refreeze vs investigate, beef's
+  call.

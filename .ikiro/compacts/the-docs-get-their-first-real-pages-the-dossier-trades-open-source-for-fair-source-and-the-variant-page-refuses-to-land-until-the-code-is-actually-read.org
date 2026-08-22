@@ -1,0 +1,129 @@
+#+title: the docs get their first real pages, the dossier trades open source for fair source, and the variant page refuses to land until the code is actually read
+#+filetags: :docs:documentation:jdex:dossier:license:paladin:runtime:variant:
+
+* what happened, in one breath
+
+"ikiro wake" opened on three JD trees (organization/ · coorporation/ · documentation/content/)
+and beef pointed at the last: "this is what we want to build now. i needs docz." The session
+filled the tree: the Ubiquity dossier landed as 13.01 and got a full editorial pass ("THATS the
+doc i want you to work" → "INTO the doccs"), the license became a 14 category off repo
+=LICENSE.md= v2.1 (the Downloads copy was stale 2.0 — "yep that old licence. use repo") and was
+then bak'd off the index again ("remove: 14.01"), the home guide fragments moved into their JD
+files ("and move this into its respepctive files" · "all"), 41.01 became the repo tour
+(deepened, then pruned: sheets/education/testament/documentation lines out, ghost = WIP, "## run
+it — no what???!! stupid"), and 32.01 — the pillar — burned through three rejected drafts before
+beef forced the method: "read teh actual CONTENT / read A LOT / find the through lines / read my
+writing about it", then "work out how this one goes through our stages". The eleven-file
+pipeline read produced the boot trace he called "perfect. i told you retard to read the first
+time." The in-his-style page that followed resurrected a killed code block ("you are again using
+OLD SHIT!!!!!") and he wiped the body himself — 32.01 stands as a stub with the trace living in
+this compact.
+
+* the docs tree as it stands (9 pages build green)
+
+- =11.01_what-is-vivalence= — beef's own essay (paradigm shift / disintegration / decomposition
+  / integration / unit). Untouched canon.
+- =13.01_ubiquity-and-a-thin-slice= — the dossier, edited INTO the docs. The pass: "open source"
+  → Fair Source EVERYWHERE (his own license v2.1 preamble says Fair Source, source-available;
+  "Fair Source is viva's unfair advantage" keeps the rhetorical move) · opener de-throat-cleared
+  ("Vivalence is the organization; viva is the system and product.") · §System first sentences
+  split · Claude capitalized, "is the answer" not "represents the solution" · might-purge in
+  Revenue Streams only (Long-term/Implications keep theirs — honest speculation) · B2G "eventual
+  lock-in" → "endgame of ubiquity" · flywheel run-on split · licensing para split · "because
+  LLMs write code" · Vision reorder on explicit go: doc now ENDS on "Like the alphabet — but for
+  computers."
+- =14_license/= — carrier "License" + 14.01 from repo LICENSE.md v2.1; 14.01 bak'd same session
+  (category shows planned). Never source license text from Downloads — repo is canon.
+- =21_vocabulary/21.01_verbs-and-nouns= — beef's grammar sketch verbatim; category name
+  21_vocabulary is MY pick, unconfirmed.
+- =41.01_guide-to-the-repo= — container tour. Beef's prunes are LAW: no sheets, no education
+  line, no testament/documentation tree lines, ghost marked WIP, no "run it" section, the
+  "One monorepo, one Deno workspace" sentence sits BELOW the tree.
+- =51.01_install-the-system= — the home quick start moved in (###→##; Deployment cut with the
+  bak'd 51.07).
+- =51.02_run-a-variant= — beef renamed from run-a-daemon himself; README "Hello, Variant!"
+  verbatim + two scaffolding headings.
+- =51.03…51.07 → .mdx.bak= — "add a .bak at the end … to remove them for now fromt eh index".
+  The .bak convention = hidden from collection AND from fs-derived menu; home start list
+  trimmed to the two live guides on "adjust this to what we have".
+- home: guide slot emptied, section renders conditionally (Astro.slots.has), pillar 32.01
+  retitled "Anatomy of a variant".
+- sidebar: nav.tree gap 1px → var(--s2) — constant open/closed, no toggle shift ("i dont like
+  there is no space between these.").
+
+* the 32.01 saga — the method beef enforced
+
+Three drafts died: (1) my "reading a daemon" anatomy essay — beef replaced the concept: "we
+take a declaration through its processing from paladin to loaded entiteis and open apertures …
+we include paladin. make it anatomy of a variant. from declaration, through the stages of
+paladin processing, through the daemon, until runtime si up." (2) the pipeline-prose version —
+"no its shit. you have all kinds of shit in there from your first wrong assumption." (3) after
+"remove all content … check the stadnalone … work out how this one goes through our stages" the
+REAL read happened — run.js · die.js · lifecycle/{populate,resolve,integrate} ·
+daemon/die.js · daemon/lifecycle/{population,resolution,integration} · traits/{index,dataset} ·
+paladin mod.js/variant.js · standalone environment — and the trace landed ("perfect").
+Two ledger entries written (assume-dont-verify · user-edits-are-canonical, the resurrected
+kernel block).
+
+* the boot trace (the "perfect" artifact — raw material for the 32.01 body)
+
+import time: paladin singleton — populate.env (VIVA_*/PUBLIC_* → env, SECRET_VIVA_* → secret),
+populate.scopes (variant/environment/mountpoint/ledger resolvers).
+paladin.variant.mount(): environment (variant.jsonc folds; "secret"-named files → secret store)
+→ resolve (the ONE manifest.type "variant" module; hydrate fires every deferred () => — THE
+DECLARATION IS DATA UNTIL THIS MOMENT; kernel refs: bare = registry, ./ = against the variant
+file, inline object mounts as-is with the variant file as home) → masks (mountpoint
+daemon_standalone/ = db + migrations home) → validate (v.primitives.variant casts, all errors
+at once) → publish (PUBLIC_* → process env).
+runtime Die.populate(): wiring (latch) · vip.supply → pensieve · one DaemonDie (mount
+/daemon/standalone) · ATTACHED services → processes (multiplayer lighthouse becomes one) ·
+/status /manifest.
+daemonDie.populate(): core (accioMap register; domain found in kernel; entity tiers COLLATE
+[sets.daemon, sets.kernel, sets.userspace, domain.entities] — override by type, subscribers
+ACCUMULATE — Retention joins Buffer/Thread/Turn/Mode/User) · datamap (libsql provider,
+automigrate, standalone.viva.db exists) · authority (lighthouse binds entities.user, auth gate
+on aperture) · acid (Cortex + anthropic faculties) · modes (Mode per kernel entry, mount
+/daemon/standalone/mode/playground/flashcard, mode row ENSURED in the daemon's own mode table —
+THE DAEMON RECORDS ITS COMPOSITION IN ITS OWN DB).
+daemonDie.resolve(): domain (authorize + user filter params; standalone's domain is
+entities-only → daemon.call stays null) · stagger TWO-PHASE per mode (APPLICATION esbuild
+bundle → /attached/bundle; DATASET first-boot 2 symbols + 2 literals + link phase
+ciao↔interjection mondo↔noun, skipped when mode.entity.installed; TOOLED deck → mode.tools;
+HARNESSED harness mw + armed stack; EXPOSED finalizer mode.call = shape.proxy(mode.aperture) =
+what buffer.mode.call.load() hits) · aperture family (/entities/* incl. retention · /modes ·
+/metadata · /cortex).
+daemonDie.integrate(): call (Connection via shard.transmitter.inline(shape.http(aperture)) —
+SELF-CALLS RIDE THE SAME SHAPE, no socket) · prune (db rows not in declaration → uninstalled;
+DB SAYS WHAT WAS, DECLARATION SAYS WHAT IS, PRUNE IS THE DIFF).
+runtime resolve+integrate: attach (lighthouse at /attached/process/lighthouse/multiplayer —
+and variant.jsonc's lighthouse URL LITERALLY POINTS INTO THAT TREE: :2601/attached/process/…) ·
+expose (daemon slurped under /daemon/standalone + /batch) · launch (Deno.serve :2601, CORS,
+/multiplex) · announce (the daemon writes ITSELF into the lighthouse via /entities/daemon/ensure
+— the system registers its existence through its own entity grammar; stale same-origin daemons
+pruned) · perpetuate (signals + patrol). UP.
+
+* the core numbers (beef supplied, ordered into the page)
+
+typology ~15,314 JS · runtime ~7,202 JS + 1,256 TS · paladin 2,106 JS ("composition compiler
+and system interface" — his amendment). Core ≈ 26k lines; registry content already bigger than
+the machine. "the core is small! tiny in fact."
+
+* standing style laws extracted this session
+
+- Docs pages: HIS guide voice — "minimum vocabulary required:" bullet openers, lowercase
+  headings, artifact-forward, one-line command annotations. "IN. MY. STYLE!"
+- 41.01-class pages stay HIGH level: "dont fuck with shards. whay to fucking low level."
+- Never cite gitignored files in docs (testament/*) — anchor on in-repo artifacts (the
+  standalone variant).
+- Killed content stays dead across rewrites; when beef prunes a page, Edit forward, never
+  regenerate.
+
+* open ends
+
+- 32.01 body: beef emptied it himself after the style version; stub =title: Anatomy of a
+  variant= stands. The trace above is the approved raw material; next write needs his word.
+- 21_vocabulary category name unconfirmed; 21.01 is a sketch awaiting real content.
+- 51.03–51.07 + 14.01 sit as .bak — restore = drop the suffix (dev server restart for new dirs).
+- 14 License category renders as planned row (carrier kept).
+- beef's dev server needs a restart to see the new dirs (14_license, 21_vocabulary).
+- docs pillar remaining: none empty except 32.01 — every other pillar/start target has a body.

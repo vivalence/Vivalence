@@ -7,6 +7,8 @@ import { Tier, Tune } from "../primitives/hallucination.js";
 export const INTELLIGENT = v.object({
   tune: v.union([Tier, Tune]).optional(),
   effort: v.enum(["none", "low", "medium", "high"]).optional(),
+  rounds: v.integer({ minimum: 1, maximum: 50 }).optional(),
+  thinking: v.boolean().optional(),
 });
 
 export const VOCAL = v.object({
