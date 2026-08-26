@@ -1,0 +1,717 @@
+[
+ {
+  "slug": "buongiorno-come-sta",
+  "text": "Buongiorno, come sta?",
+  "rank": 1
+ },
+ {
+  "slug": "buonasera-come-va",
+  "text": "Buonasera, come va?",
+  "rank": 3
+ },
+ {
+  "slug": "buonanotte-a-domani",
+  "text": "Buonanotte, a domani.",
+  "rank": 4
+ },
+ {
+  "slug": "piacere-di-conoscerla",
+  "text": "Piacere di conoscerla.",
+  "rank": 5
+ },
+ {
+  "slug": "mi-chiamo-marco",
+  "text": "Mi chiamo Marco.",
+  "rank": 6
+ },
+ {
+  "slug": "come-si-chiama",
+  "text": "Come si chiama?",
+  "rank": 7
+ },
+ {
+  "slug": "di-dov-e",
+  "text": "Di dov'è?",
+  "rank": 8
+ },
+ {
+  "slug": "sono-di-berlino",
+  "text": "Sono di Berlino.",
+  "rank": 9
+ },
+ {
+  "slug": "abito-a-berlino",
+  "text": "Abito a Berlino.",
+  "rank": 10
+ },
+ {
+  "slug": "sono-qui-in-vacanza",
+  "text": "Sono qui in vacanza.",
+  "rank": 11
+ },
+ {
+  "slug": "sono-qui-per-lavoro",
+  "text": "Sono qui per lavoro.",
+  "rank": 12
+ },
+ {
+  "slug": "sto-bene-grazie",
+  "text": "Sto bene, grazie.",
+  "rank": 13
+ },
+ {
+  "slug": "tutto-bene-e-tu",
+  "text": "Tutto bene, e tu?",
+  "rank": 14
+ },
+ {
+  "slug": "non-c-e-male",
+  "text": "Non c'è male.",
+  "rank": 15
+ },
+ {
+  "slug": "e-tu",
+  "text": "E tu?",
+  "rank": 16
+ },
+ {
+  "slug": "e-lei",
+  "text": "E Lei?",
+  "rank": 17
+ },
+ {
+  "slug": "per-favore",
+  "text": "Per favore.",
+  "rank": 18
+ },
+ {
+  "slug": "grazie-mille",
+  "text": "Grazie mille.",
+  "rank": 19
+ },
+ {
+  "slug": "di-niente",
+  "text": "Di niente.",
+  "rank": 20
+ },
+ {
+  "slug": "no-grazie",
+  "text": "No, grazie.",
+  "rank": 21
+ },
+ {
+  "slug": "si-per-favore",
+  "text": "Sì, per favore.",
+  "rank": 22
+ },
+ {
+  "slug": "mi-scusi",
+  "text": "Mi scusi.",
+  "rank": 23
+ },
+ {
+  "slug": "scusa-il-ritardo",
+  "text": "Scusa il ritardo.",
+  "rank": 24
+ },
+ {
+  "slug": "posso-passare",
+  "text": "Posso passare?",
+  "rank": 25
+ },
+ {
+  "slug": "mi-dispiace",
+  "text": "Mi dispiace.",
+  "rank": 26
+ },
+ {
+  "slug": "va-bene",
+  "text": "Va bene.",
+  "rank": 27
+ },
+ {
+  "slug": "sono-d-accordo",
+  "text": "Sono d'accordo.",
+  "rank": 28
+ },
+ {
+  "slug": "certo-che-si",
+  "text": "Certo che sì.",
+  "rank": 29
+ },
+ {
+  "slug": "si-volentieri",
+  "text": "Sì, volentieri.",
+  "rank": 30
+ },
+ {
+  "slug": "puo-darsi",
+  "text": "Può darsi.",
+  "rank": 31
+ },
+ {
+  "slug": "purtroppo-no",
+  "text": "Purtroppo no.",
+  "rank": 32
+ },
+ {
+  "slug": "un-attimo-per-favore",
+  "text": "Un attimo, per favore.",
+  "rank": 33
+ },
+ {
+  "slug": "non-lo-so",
+  "text": "Non lo so.",
+  "rank": 34
+ },
+ {
+  "slug": "non-capisco",
+  "text": "Non capisco.",
+  "rank": 35
+ },
+ {
+  "slug": "ho-capito",
+  "text": "Ho capito.",
+  "rank": 36
+ },
+ {
+  "slug": "non-ho-capito",
+  "text": "Non ho capito.",
+  "rank": 37
+ },
+ {
+  "slug": "non-parlo-italiano",
+  "text": "Non parlo italiano.",
+  "rank": 38
+ },
+ {
+  "slug": "parlo-solo-un-po-di-italiano",
+  "text": "Parlo solo un po' di italiano.",
+  "rank": 39
+ },
+ {
+  "slug": "sto-imparando-l-italiano",
+  "text": "Sto imparando l'italiano.",
+  "rank": 40
+ },
+ {
+  "slug": "parla-inglese",
+  "text": "Parla inglese?",
+  "rank": 41
+ },
+ {
+  "slug": "puo-ripetere-per-favore",
+  "text": "Può ripetere, per favore?",
+  "rank": 43
+ },
+ {
+  "slug": "puo-parlare-piu-lentamente",
+  "text": "Può parlare più lentamente?",
+  "rank": 44
+ },
+ {
+  "slug": "piu-lentamente-per-favore",
+  "text": "Più lentamente, per favore.",
+  "rank": 45
+ },
+ {
+  "slug": "puo-scriverlo",
+  "text": "Può scriverlo?",
+  "rank": 46
+ },
+ {
+  "slug": "come-si-dice-questo",
+  "text": "Come si dice questo?",
+  "rank": 47
+ },
+ {
+  "slug": "cosa-significa-questa-parola",
+  "text": "Cosa significa questa parola?",
+  "rank": 49
+ },
+ {
+  "slug": "puo-aiutarmi",
+  "text": "Può aiutarmi?",
+  "rank": 50
+ },
+ {
+  "slug": "puo-aiutarmi-per-favore",
+  "text": "Può aiutarmi, per favore?",
+  "rank": 51
+ },
+ {
+  "slug": "arrivederci-a-presto",
+  "text": "Arrivederci, a presto!",
+  "rank": 52
+ },
+ {
+  "slug": "ci-vediamo",
+  "text": "Ci vediamo!",
+  "rank": 53
+ },
+ {
+  "slug": "a-domani-2",
+  "text": "A domani!",
+  "rank": 54
+ },
+ {
+  "slug": "a-dopo",
+  "text": "A dopo!",
+  "rank": 55
+ },
+ {
+  "slug": "buona-giornata",
+  "text": "Buona giornata!",
+  "rank": 56
+ },
+ {
+  "slug": "avete-un-tavolo-libero",
+  "text": "Avete un tavolo libero?",
+  "rank": 57
+ },
+ {
+  "slug": "un-tavolo-per-due-per-favore",
+  "text": "Un tavolo per due, per favore.",
+  "rank": 58
+ },
+ {
+  "slug": "un-tavolo-per-uno",
+  "text": "Un tavolo per uno.",
+  "rank": 59
+ },
+ {
+  "slug": "e-libero-questo-posto",
+  "text": "È libero questo posto?",
+  "rank": 60
+ },
+ {
+  "slug": "ho-una-prenotazione",
+  "text": "Ho una prenotazione.",
+  "rank": 61
+ },
+ {
+  "slug": "senta-scusi",
+  "text": "Senta, scusi!",
+  "rank": 62
+ },
+ {
+  "slug": "il-menu-per-favore",
+  "text": "Il menu, per favore.",
+  "rank": 63
+ },
+ {
+  "slug": "posso-avere-il-menu",
+  "text": "Posso avere il menu?",
+  "rank": 64
+ },
+ {
+  "slug": "cosa-consiglia",
+  "text": "Cosa consiglia?",
+  "rank": 65
+ },
+ {
+  "slug": "acqua-naturale-o-frizzante",
+  "text": "Acqua naturale o frizzante?",
+  "rank": 66
+ },
+ {
+  "slug": "vorrei-ordinare",
+  "text": "Vorrei ordinare.",
+  "rank": 67
+ },
+ {
+  "slug": "per-me-un-caffe",
+  "text": "Per me, un caffè.",
+  "rank": 69
+ },
+ {
+  "slug": "per-me-la-pasta",
+  "text": "Per me, la pasta.",
+  "rank": 70
+ },
+ {
+  "slug": "anche-per-me",
+  "text": "Anche per me.",
+  "rank": 71
+ },
+ {
+  "slug": "vorrei-un-caffe-caldo",
+  "text": "Vorrei un caffè caldo.",
+  "rank": 74
+ },
+ {
+  "slug": "un-altro-caffe-per-favore",
+  "text": "Un altro caffè, per favore.",
+  "rank": 75
+ },
+ {
+  "slug": "vorrei-un-panino-con-formaggio",
+  "text": "Vorrei un panino con formaggio.",
+  "rank": 76
+ },
+ {
+  "slug": "vorrei-del-vino-rosso",
+  "text": "Vorrei del vino rosso.",
+  "rank": 77
+ },
+ {
+  "slug": "buon-appetito",
+  "text": "Buon appetito!",
+  "rank": 78
+ },
+ {
+  "slug": "grazie-altrettanto",
+  "text": "Grazie, altrettanto.",
+  "rank": 79
+ },
+ {
+  "slug": "ho-fame",
+  "text": "Ho fame.",
+  "rank": 80
+ },
+ {
+  "slug": "ho-sete",
+  "text": "Ho sete.",
+  "rank": 81
+ },
+ {
+  "slug": "sono-allergico-al-latte",
+  "text": "Sono allergico al latte.",
+  "rank": 82
+ },
+ {
+  "slug": "da-portare-via-per-favore",
+  "text": "Da portare via, per favore.",
+  "rank": 83
+ },
+ {
+  "slug": "basta-cosi-grazie",
+  "text": "Basta così, grazie.",
+  "rank": 84
+ },
+ {
+  "slug": "il-conto-per-favore",
+  "text": "Il conto, per favore.",
+  "rank": 85
+ },
+ {
+  "slug": "il-conto-e-di-venti-euro",
+  "text": "Il conto è di venti euro.",
+  "rank": 86
+ },
+ {
+  "slug": "quanto-costa",
+  "text": "Quanto costa?",
+  "rank": 87
+ },
+ {
+  "slug": "quanto-viene",
+  "text": "Quanto viene?",
+  "rank": 88
+ },
+ {
+  "slug": "posso-pagare-con-la-carta",
+  "text": "Posso pagare con la carta?",
+  "rank": 89
+ },
+ {
+  "slug": "posso-pagare-in-contanti",
+  "text": "Posso pagare in contanti?",
+  "rank": 90
+ },
+ {
+  "slug": "va-bene-cosi",
+  "text": "Va bene così.",
+  "rank": 91
+ },
+ {
+  "slug": "vorrei-prenotare-un-tavolo-per-due",
+  "text": "Vorrei prenotare un tavolo per due.",
+  "rank": 93
+ },
+ {
+  "slug": "prenoto-un-tavolo-per-stasera",
+  "text": "Prenoto un tavolo per stasera.",
+  "rank": 94
+ },
+ {
+  "slug": "prenotiamo-un-tavolo-al-ristorante-per-stasera",
+  "text": "Prenotiamo un tavolo al ristorante per stasera.",
+  "rank": 95
+ },
+ {
+  "slug": "ordino-la-pizza-con-formaggio",
+  "text": "Ordino la pizza con formaggio.",
+  "rank": 96
+ },
+ {
+  "slug": "ordiniamo-due-caffe",
+  "text": "Ordiniamo due caffè.",
+  "rank": 97
+ },
+ {
+  "slug": "ordiniamo-un-insalata-e-del-pane",
+  "text": "Ordiniamo un'insalata e del pane.",
+  "rank": 98
+ },
+ {
+  "slug": "preferisco-il-caffe",
+  "text": "Preferisco il caffè.",
+  "rank": 99
+ },
+ {
+  "slug": "preferisco-il-vino",
+  "text": "Preferisco il vino.",
+  "rank": 100
+ },
+ {
+  "slug": "preferisci-il-caffe-o-il-vino",
+  "text": "Preferisci il caffè o il vino?",
+  "rank": 101
+ },
+ {
+  "slug": "a-che-ora-e-la-colazione",
+  "text": "A che ora è la colazione?",
+  "rank": 103
+ },
+ {
+  "slug": "la-colazione-e-inclusa",
+  "text": "La colazione è inclusa?",
+  "rank": 104
+ },
+ {
+  "slug": "vorrei-questo",
+  "text": "Vorrei questo.",
+  "rank": 105
+ },
+ {
+  "slug": "prendo-questo",
+  "text": "Prendo questo.",
+  "rank": 106
+ },
+ {
+  "slug": "lo-prendo",
+  "text": "Lo prendo.",
+  "rank": 107
+ },
+ {
+  "slug": "sto-solo-guardando-grazie",
+  "text": "Sto solo guardando, grazie.",
+  "rank": 108
+ },
+ {
+  "slug": "quanto-costa-la-camicia",
+  "text": "Quanto costa la camicia?",
+  "rank": 109
+ },
+ {
+  "slug": "avete-questo-in-un-altra-taglia",
+  "text": "Avete questo in un'altra taglia?",
+  "rank": 110
+ },
+ {
+  "slug": "nient-altro-grazie",
+  "text": "Nient'altro, grazie.",
+  "rank": 111
+ },
+ {
+  "slug": "c-e-uno-sconto-oggi",
+  "text": "C'è uno sconto oggi?",
+  "rank": 112
+ },
+ {
+  "slug": "a-che-ora-apre",
+  "text": "A che ora apre?",
+  "rank": 113
+ },
+ {
+  "slug": "a-che-ora-chiude",
+  "text": "A che ora chiude?",
+  "rank": 114
+ },
+ {
+  "slug": "a-che-ora-2",
+  "text": "A che ora?",
+  "rank": 115
+ },
+ {
+  "slug": "che-ore-sono",
+  "text": "Che ore sono?",
+  "rank": 117
+ },
+ {
+  "slug": "dov-e-la-stazione",
+  "text": "Dov'è la stazione?",
+  "rank": 118
+ },
+ {
+  "slug": "dov-e-la-biglietteria",
+  "text": "Dov'è la biglietteria?",
+  "rank": 119
+ },
+ {
+  "slug": "vorrei-un-biglietto-per-roma",
+  "text": "Vorrei un biglietto per Roma.",
+  "rank": 120
+ },
+ {
+  "slug": "un-biglietto-di-andata-e-ritorno",
+  "text": "Un biglietto di andata e ritorno.",
+  "rank": 121
+ },
+ {
+  "slug": "dove-posso-comprare-i-biglietti",
+  "text": "Dove posso comprare i biglietti?",
+  "rank": 122
+ },
+ {
+  "slug": "a-che-ora-parte-il-treno",
+  "text": "A che ora parte il treno?",
+  "rank": 123
+ },
+ {
+  "slug": "da-quale-binario-parte",
+  "text": "Da quale binario parte?",
+  "rank": 124
+ },
+ {
+  "slug": "il-treno-e-in-ritardo",
+  "text": "Il treno è in ritardo.",
+  "rank": 125
+ },
+ {
+  "slug": "dove-va-questo-autobus",
+  "text": "Dove va questo autobus?",
+  "rank": 127
+ },
+ {
+  "slug": "dove-devo-scendere",
+  "text": "Dove devo scendere?",
+  "rank": 128
+ },
+ {
+  "slug": "la-prossima-fermata-per-favore",
+  "text": "La prossima fermata, per favore.",
+  "rank": 129
+ },
+ {
+  "slug": "puo-chiamarmi-un-taxi",
+  "text": "Può chiamarmi un taxi?",
+  "rank": 130
+ },
+ {
+  "slug": "quanto-tempo-ci-vuole",
+  "text": "Quanto tempo ci vuole?",
+  "rank": 131
+ },
+ {
+  "slug": "e-lontano",
+  "text": "È lontano?",
+  "rank": 132
+ },
+ {
+  "slug": "a-destra",
+  "text": "A destra.",
+  "rank": 134
+ },
+ {
+  "slug": "a-sinistra",
+  "text": "A sinistra.",
+  "rank": 135
+ },
+ {
+  "slug": "sempre-dritto",
+  "text": "Sempre dritto.",
+  "rank": 136
+ },
+ {
+  "slug": "giri-a-destra-al-semaforo",
+  "text": "Giri a destra al semaforo.",
+  "rank": 137
+ },
+ {
+  "slug": "dov-e-l-uscita",
+  "text": "Dov'è l'uscita?",
+  "rank": 138
+ },
+ {
+  "slug": "dov-e-il-supermercato-piu-vicino",
+  "text": "Dov'è il supermercato più vicino?",
+  "rank": 139
+ },
+ {
+  "slug": "dov-e-il-bagno",
+  "text": "Dov'è il bagno?",
+  "rank": 141
+ },
+ {
+  "slug": "una-camera-per-due-notti",
+  "text": "Una camera per due notti.",
+  "rank": 142
+ },
+ {
+  "slug": "la-camera-e-al-terzo-piano",
+  "text": "La camera è al terzo piano.",
+  "rank": 143
+ },
+ {
+  "slug": "l-albergo-e-in-centro",
+  "text": "L'albergo è in centro.",
+  "rank": 144
+ },
+ {
+  "slug": "c-e-il-wifi",
+  "text": "C'è il wifi?",
+  "rank": 145
+ },
+ {
+  "slug": "posso-lasciare-qui-il-bagaglio",
+  "text": "Posso lasciare qui il bagaglio?",
+  "rank": 147
+ },
+ {
+  "slug": "non-funziona",
+  "text": "Non funziona.",
+  "rank": 149
+ },
+ {
+  "slug": "mi-serve-un-medico",
+  "text": "Mi serve un medico.",
+  "rank": 152
+ },
+ {
+  "slug": "c-e-una-farmacia-qui-vicino",
+  "text": "C'è una farmacia qui vicino?",
+  "rank": 153
+ },
+ {
+  "slug": "devo-andare-in-farmacia",
+  "text": "Devo andare in farmacia.",
+  "rank": 154
+ },
+ {
+  "slug": "mi-sono-perso",
+  "text": "Mi sono perso.",
+  "rank": 155
+ },
+ {
+  "slug": "ho-perso-il-passaporto",
+  "text": "Ho perso il passaporto.",
+  "rank": 156
+ },
+ {
+  "slug": "chiami-la-polizia",
+  "text": "Chiami la polizia!",
+  "rank": 157
+ },
+ {
+  "slug": "chiami-un-ambulanza",
+  "text": "Chiami un'ambulanza!",
+  "rank": 158
+ },
+ {
+  "slug": "puo-farci-una-foto",
+  "text": "Può farci una foto?",
+  "rank": 159
+ }
+]

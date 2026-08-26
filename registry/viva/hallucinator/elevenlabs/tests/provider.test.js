@@ -11,8 +11,10 @@ specimen.describe("elevenlabs provider", () => {
     for (const faculty of faculties) {
       specimen.expect(faculty.type).toBe("speech");
       specimen.expect(typeof faculty.via.stream).toBe("function");
+      specimen.expect(typeof faculty.via.render).toBe("function");
       specimen.expect(Array.isArray(faculty.tune)).toBe(true);
       specimen.expect(faculty.channels.out[0].codec).toBe("pcm_16000");
+      specimen.expect(faculty.channels.out[1].codec).toBe("mp3_44100_128");
     }
   });
 

@@ -1,5 +1,5 @@
 import * as dotenv from "@std/dotenv";
-import { join } from "@std/path";
+import { isAbsolute, join } from "@std/path";
 import { Path } from "@vivalence/typology";
 
 export async function env(paladin) {
@@ -31,9 +31,15 @@ export async function scopes(paladin) {
   ]);
   paladin.scopes([
     [
-      "variant", //
+      "variant",
       () => paladin.env.has("VIVA_VARIANT_MOUNT"),
-      () => new Path(paladin.env.get("VIVA_VARIANT_MOUNT")),
+      () => {
+        const reference = paladin.env.get("VIVA_VARIANT_MOUNT");
+        if (!reference.includes("/") && !reference.startsWith("."))
+          return paladin.scope.ledger.branch(`variants/${reference}`);
+        if (isAbsolute(reference)) return new Path(reference);
+        return paladin.source(reference);
+      },
     ],
 
     [
@@ -77,15 +83,11 @@ export async function scopes(paladin) {
     ],
     [
       "registry",
-      () => Deno.env.has("VIVA_REGISTRY_MOUNT") || paladin.is.citizen,
+      () => true,
       () => {
-        let envpath;
-        if (Deno.env.has("VIVA_REGISTRY_MOUNT")) {
-          envpath = Deno.env.get("VIVA_REGISTRY_MOUNT");
-        } else {
-          envpath = paladin.scope.repository.branch("registry").absolute;
-        }
-        return envpath ? new Path(envpath) : undefined;
+        if (paladin.env.has("VIVA_REGISTRY_MOUNT"))
+          return new Path(paladin.env.get("VIVA_REGISTRY_MOUNT"));
+        return paladin.scope.ledger.branch("registry");
       },
     ],
   ]);

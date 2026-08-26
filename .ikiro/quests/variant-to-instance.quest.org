@@ -1,0 +1,214 @@
+#+title: variant → instance — the recipe gets its true name, flag-day, no aliases
+#+filetags: :rename:paladin:typology:runtime:ghost:registry:testament:docs:
+#+status: MAPPED + PLANNED — nothing applied; gated on per-milestone =go=. Blast beat 1 run TWICE: first pass, then re-blasted after the m40 CLI rewrite landed in the working copy and inverted the ghost terrain.
+
+* intent
+
+beef, verbatim: /"BIG rename coming up. i want to rename variant to instance. this is preety hefyt. high scope, width and depeth."/ · /"sense a and b. the die variant instance specifics."/ · /"you map the entire thing. plan it all. double check. no apply yet."/
+
+One sentence: the system-recipe noun *variant* (paladin =Variant= / =scope.variant= / =type:"variant"= / =VIVA_VARIANT_MOUNT= / =/variant= routes+natures / dirs) AND the daemon entity-set *variant* (=die.variant=, fixtures, datamap provider param) become *instance* — everywhere, flag-day, old names killed.
+
+* terrain (re-verified against the working copy AFTER m40 landed; HEAD =bc6143b1d= + uncommitted m40 wave)
+
+- The m40 CLI rewrite COLLAPSED ghost to two nouns: natures are now =/variant/{create,init,run,start,stop,auth,doctor}= + =/ledger/*= (=systems/ghost/trajectories/index.js=). =trajectories/instance/= is DELETED, =trajectories/system/= is DELETED (doctor absorbed into =/variant/doctor= + =ledger/Doctor.jsx=), lighthouse auth collapsed into ONE =/variant/auth= nature. clone → *create* (no-target lands on the shelf).
+- The earlier pre-existing red is GONE: =systems/ghost/tests/target.test.js:2= now imports =../trajectories/variant/target.js= and the file exists. The earlier "8 dead files" claim is obsolete — =trajectories/variant/= is a fresh rewrite, all exported, all live.
+- The two-noun ontology is now DOCUMENTED: =documentation/content/30-39_architecture/33_ledger/33.01_anatomy-of-the-ledger.mdx:16= — /"instance — the ledger's noun for a variant at its mount: instances.json records them, locks and logs key by them."/ This rename MERGES the documented pair: post-rename, the registry package is the recipe, *instance* is the unit — mounted or shelved; =instances.json=/locks/=ledger.lock(instance, process)= already speak instance and DO NOT change. The 33.01 sentence gets RECAST, not word-swapped.
+- The bare-slug shelf is live and grew an =isAbsolute= branch: =subsystems/paladin/lifecycle/populate.js= (scope block ~:21-75) resolves a bare token to =paladin.scope.ledger.branch(`variants/${reference}`)=; =trajectories/variant/create.js:27= lands no-target creates on the same shelf.
+- Flag-day is genuinely cheap: =testament/ledger/registry.json= and =~/.viva/registry.json= hold ONLY registry ROOT paths (read both) — no persisted identifiers. Pensieve derives =@owner/type/slug= from manifests at supply-time; =vip.js= post-m40 has ZERO hardcoded "variant" (grepped).
+- =environment/variant.jsonc= is convention-only — no code binds the filename.
+- =testament/variant/.env= is referenced by FIVE deno.jsonc task files (root, runtime, kajuit, ghost, paladin) — all must flip with the disk mv.
+- The word is 3-ways overloaded; only ONE sense renames (keep-list below).
+- Coupling law that shaped M1: scope key, env var, =find.type= discriminator value, manifest =type= strings, ledger shelf path, and every =paladin.variant=/=scope.variant= consumer (runtime lifecycle + ghost trajectory INTERNALS) form ONE atomic set — any split leaves boot red between milestones. Nature STRINGS (=/variant/*=) and valence prose are decoupled CLI surface and can flip separately (M3) — a nature named =/variant/run= over =paladin.instance= internals boots green.
+
+* the decision trail (all forks RESOLVED by beef)
+
+1. *Sense B renames too.* Fork: =die.variant= (daemon entity-set) — rename with, keep, or re-noun later? beef: /"rename"/.
+2. *Flag-day manifest type.* Fork: dual-read ="variant"|"instance"= window? beef: /"entirely. no dual read. replace with instance."/ No out-of-tree packages exist yet (education not emigrated).
+3. *Hard env swap.* Fork: =VIVA_INSTANCE_MOUNT ?? VIVA_VARIANT_MOUNT= fallback? beef: /"no fallback window. i manage installations. you everything on this sysem!"/ → beef migrates prod + other machines; this quest migrates THIS machine (=testament/=, =~/.viva=).
+4. *Old routes die.* Fork: alias =/variant= HTTP route + CLI natures? beef: /"KILLLLLL"/. Route becomes =/instance=, natures become =/instance/*=, no alias.
+5. *Docs rename fully.* beef: /"rename files, content and references."/ Slugs take the grammar: =anatomy-of-AN-instance=, =run-AN-instance=.
+
+* wrinkles surfaced by the m40 re-blast (not forks — rulings cover them; flagged for review)
+
+- =ledger doctor= report carries BOTH =instances:= (mounted-process records from =instances.json=) and =variant:= (the mounted recipe report) — post-rename these read =instances:= + =instance:=. Distinct meanings, adjacent names; kept as-is unless beef renames the report keys.
+- =trajectories/variant/target.js:25= computes =instance = basename(mount)= (carries beef's =// @beef ugly and stupid=) — untouched by the rename beyond the file move; the lock keys it produces do not change.
+- Usage/identifier strings (=/variant/create <@owner/variant/slug | ../path>=) contain the IDENTIFIER type segment — that flips in M1 with the manifests (identifiers users type must resolve), while pure valence prose flips in M3.
+
+* keep-list — the word survives where it means something else
+
+- style variants: all of =subsystems/drapes/= (=variant== props, =variantClasses=, =ROLE_VARIANTS=), kajuit =<Icon variant=/=<Skin variant=, =<Asset variant="dot|inline">= in education modes, =registry/playground/modes/chaosmonkey/oracle/buffer/Paragraph.svelte=
+- =signature.directed.variant= (skin selector): =subsystems/typology/tests/scenarios/cats/=, =tests/gestalten/shape/tree.test.js=, =systems/kajuit/src/telemetry/inspector.js=, =systems/kajuit/src/app/panels/h/Inspector.svelte=
+- generic union: =subsystems/typology/schematics/v.js:97= =union: (variants, opts)=
+- CSS =font-variant-numeric= · npm =tailwind-variants= (=import_map.json:94=)
+- linguistic variant/invariant: everything under =registry/education/topographies/*/.harvest/=, =Builder.svelte:281= local =variants=
+- the word "invariant(s)": =dock.geometry.test.js=, =registry.count.test.js:36=, =world/codemap/invariants.md=
+- ledger internals ALREADY instance — =subsystems/paladin/prototypes/ledger/= (=Instances=, =instances.json=, =lock(instance, process)=), =mode-instance.snapshot.test.js= (snapshot vantage): correct already, untouched
+- =.ikiro/compacts/= (historical, never edited) · =.ikiro/quests/mXX-*= + =done/= + m40 wording (beef's files; ghost README pointer to =variant.quest.org= stays) · =.ikiro/quests/m39-kernel-references/test.viva.js= (no live test reads it — =kernel.test.js= builds its fixture inline)
+- =systems/runtime/tests/scenarios/variant.bak.js= — bak, untouched
+
+* new names, exact
+
+class =Instance= · =paladin.instance= · =paladin.scope.instance= · scope key ="instance"= · =type: "instance"= · =VIVA_INSTANCE_MOUNT= · shelf =<ledger>/instances/= · route =/instance= · natures =/instance/{create,init,run,start,stop,auth,doctor}= · =@viva/instance/<slug>= · =registry/viva/instance/= · =testament/instance/= · =environment/instance.jsonc= · =v.primitives.instance= · =die.instance.{traits,entities,subscribers}=. Collisions checked: =datamapInstance= (bench.js) coexists; no existing =v.primitives.instance=; ledger's =instance=/=instances.json= usage is the SAME concept converging, not a collision.
+
+* milestones
+
+| # | lands | boundary gate (boots green) |
+|---+-------+-----------------------------|
+| M0 | baseline: 5 suites run post-m40, counts recorded; blast count recorded | pasted outputs (the old target.test red is gone — verify, don't assume) |
+| M1 | SPINE (atomic): typology primitive · paladin · every =paladin.variant=/=scope.variant= consumer (runtime lifecycle + ghost mod/ledger/trajectory INTERNALS) · route =/instance= · ALL manifest =type= strings + identifier/usage strings · shelf =instances/= · env var + =testament/= mv + FIVE deno.jsonc files + =.env.example= · coupled tests | full boot via =deno task ghost/run /variant/doctor= (nature still old-named at this boundary) + all suites green |
+| M2 | sense B: =die.instance.*= · =libsql.viva.js= provider param · lighthouse local · fixtures =instance= export + consumers | runtime suite green |
+| M3 | ghost noun flip (CLI surface): =trajectories/variant/= → =trajectories/instance/= mv · 7 nature strings =/instance/*= · valences "a variant"→"an instance" · =target.test.js= import path · shellsignal fixtures · =README.org= | ghost suite green; =viva instance/doctor= answers |
+| M4 | registry cosmetics: =registry/viva/variant/= → =instance/= mv · =.env.example= pair · =docker-compose.yml= · =environment/instance.jsonc= | paladin+runtime suites green; vip resolves =@viva/instance/*= |
+| M5 | docs: two mdx renames (a→an) + wiki-links + example.js pair + 51.01 (m40-rewritten: =viva variant/create=…) + 41.01/home + NEW =33_ledger= pair (33.01 ontology sentence RECAST) + regen snapshots/pagefind | docs build green (example.js EXECUTE at build against renamed repo) |
+| M6 | meta: root =README.md= (m40-rewritten quickstart: =/variant/create=, =/variant/auth=) · readme.org/wafer comment wording · codemap shards | full 5-suite run + FINAL BLAST residue grep = quest pointer only |
+
+* blast table (every touchpoint · refs re-verified post-m40 · milestone · kind)
+
+| file | change | M | kind |
+|------+--------+---+------|
+| =subsystems/typology/schematics/primitives/variant.js= | mv → =instance.js=; =Variant= schema export → =Instance= | M1 | code |
+| =subsystems/typology/schematics/primitives/index.js:6= | =export * as instance from "./instance.js"= | M1 | code |
+| =subsystems/typology/tests/path.absolute.test.js= + =path.test.js= | fixture strings =/testament/variant/mountpoint= → =/testament/instance/mountpoint= (pure string math) | M1 | test |
+| =subsystems/paladin/prototypes/variant.js= (35 hits) | mv → =instance.js=; class =Instance=; =find.type(_, "instance")=; error strings; =v.primitives.instance.*= | M1 | code |
+| =subsystems/paladin/prototypes/paladin.js:4,29= | import + =this.instance = new Instance(this)= | M1 | code |
+| =subsystems/paladin/prototypes/index.js:5= | barrel | M1 | code |
+| =subsystems/paladin/lifecycle/populate.js= scope block (~:21-75, post-m40 incl. =isAbsolute= branch) | scope key ="instance"=; =VIVA_INSTANCE_MOUNT= ×2; shelf =instances/${reference}=; closures =scope.instance=; commented fallback line | M1 | code |
+| =subsystems/paladin/lifecycle/integrate.js:11-15,49= | =scope.instance=, =paladin.instance.*=, comment | M1 | code |
+| =subsystems/paladin/belt/scope.js= (commented block) + =belt/scribe.js:8= | comment wording | M1 | code |
+| =subsystems/paladin/tests/kernel.test.js= | import path, fixture =type:"instance"=, =scope:{instance}=, wording | M1 | test |
+| =subsystems/paladin/tests/boot.test.js:8-28= | =fresh.instance=, =Instance=, =instance.mount= | M1 | test |
+| =subsystems/paladin/tests/source.test.js:22= | fictional path coherence | M1 | test |
+| =subsystems/paladin/tests/ledger.test.js= (5 hits, NEW post-m40) | scope/shelf/env refs in lockstep | M1 | test |
+| =subsystems/paladin/tests/variant.snapshot.test.js= | mv → =instance.snapshot.test.js=; =locate:"paladin-instance.snapshot.json"=; snapshots regen (scope snapshot too) | M1 | test |
+| =systems/runtime/run.js:6-8= · =die.js:7= · =lifecycle/populate.js:21,38,51,56= · =lifecycle/integrate.js:22,28,57,61,95,102= | =paladin.instance.*= | M1 | code |
+| =systems/runtime/lifecycle/resolve.js:108-110= | route =root.open("/instance")= — KILL, no alias (zero in-tree consumers of old path) | M1 | code |
+| =systems/ghost/mod.js:24,70-73= | =find.type(_, "instance", 0)=; =paladin.scopes([["instance",…]])=; =ctx.instance= (verify sole consumer: =grep -rn "ctx.variant" systems/ghost=) | M1 | code |
+| =systems/ghost/trajectories/ledger/index.js:10,16,28,128,152-156= | SCAFFOLD ="instances"=; =["instance",0]=; valence; =branch("instances")=; report =instance:{…}= + =paladin.instance?.*= (the =instances:= key at :150 STAYS — already the process-record sense) | M1 | code |
+| =systems/ghost/trajectories/variant/*.js= + =Init.jsx= + =ledger/Doctor.jsx= INTERNALS | every =paladin.variant=/=paladin.scope.variant= → =instance=; error strings =set VIVA_INSTANCE_MOUNT=; =create.js:27= shelf =instances/${slug}=; usage/identifier strings =@owner/instance/slug=; =next:= hints =viva instance/init= (dir mv itself waits for M3) | M1 | code |
+| =systems/ghost/localhost/localhost.viva.js:6= | =type:"instance"= | M1 | data |
+| =registry/viva/variant/{standalone,localhost,multiplayer}/*.viva.js= | =type:"instance"= (dir mv waits for M4) | M1 | data |
+| =testament/variant/= → =testament/instance/= | plain =mv= — sqlite DBs + migrations ride, NEVER deleted; =ps aux \vert grep deno= first (mikro owns the db) | M1 | disk |
+| =testament/instance/.env= | var name + self-referencing VALUES; =environment/variant.jsonc= → =instance.jsonc=; =test.viva.js= =type:"instance"= | M1 | disk |
+| =testament/standalone/.env= (if exists — =ls -a=) | var name; value stays =testament/standalone= | M1 | disk |
+| =deno.jsonc:42,43= (root) · =systems/runtime/deno.jsonc:15-19= (4 tasks) · =systems/kajuit/deno.jsonc:10,11,17,18= · =systems/ghost/deno.jsonc:12-14= · =subsystems/paladin/deno.jsonc:9= | every =testament/variant/.env= → =testament/instance/.env= (commented lines too); then =grep -rn "testament/variant" **/deno.jsonc= → 0 | M1 | code |
+| =.env.example= (m40-reworded: bare-slug prose) | header + var + values + =<ledger>/variants/<slug>= prose → =instances/= | M1 | data |
+| =systems/runtime/tests/registry.count.test.js:60,61= | =revelio({owner:"@viva", type:"instance", slug})= | M1 | test |
+| =systems/runtime/daemon/die.js:19= | =instance = {= | M2 | code |
+| =systems/runtime/daemon/lifecycle/population.js:25,57,60,61,73,74= | =die.instance.*=; local =const instance = collate(…)= | M2 | code |
+| =systems/runtime/daemon/lifecycle/resolution.js:51= (shifted post-m40) | =daemonDie.instance.traits= | M2 | code |
+| =registry/viva/datamap/libsql/libsql.viva.js:23-46= | =provider(datamap, instance, subscribers)= + body + comments | M2 | code |
+| =registry/viva/lighthouse/multiplayer/server/entities.js:18-24= | local =instance= + commented lines | M2 | code |
+| =registry/fixtures/data/tiers.js:13= · =index.js:3= · =assemble.js:32-35= | export =instance=; then grep consumers beyond harness | M2 | code |
+| =systems/runtime/tests/scenarios/bench.js:93-135= | =instanceTraits/instanceEntities/instanceSubscribers=; die literal =instance:{= | M2 | test |
+| =systems/runtime/tests/scenarios/datamap.js:36-59= | provider param + comment | M2 | test |
+| =systems/runtime/tests/topography/harness.js:5,11,53= | =import { instance }=; path literal → =testament/instance/…= | M2 | test |
+| =systems/ghost/trajectories/variant/= → =trajectories/instance/= | plain =mv= of the whole dir (post-m40 it is ALL live: create/init/run/start/stop/auth/doctor/target/index/Init.jsx) | M3 | code |
+| =systems/ghost/trajectories/index.js= | import path =./instance/index.js=; 7 nature strings → =/instance/*=; valences "a variant" → "an instance" | M3 | code |
+| =systems/ghost/tests/target.test.js:2= | import path → =../trajectories/instance/target.js= | M3 | test |
+| =systems/ghost/tests/shellsignal.test.js:73-77,103-107,131= | signal fixtures =["install","instance",…]=, =/path/to/instance= | M3 | test |
+| =systems/ghost/tests/ledger.test.js= (13 hits, NEW post-m40) | nature/wording refs in lockstep | M3 | test |
+| =systems/ghost/README.org= | m40-era wording pass: =viva instance init=, scope list, =VIVA_INSTANCE_MOUNT=; quest pointer STAYS | M3 | docs |
+| =registry/viva/variant/= → =registry/viva/instance/= | =mv= (dir name is NOT the discriminator — pensieve records mount paths at scan; verify first: =grep -rn "registry/viva/variant" systems/ subsystems/ --include='*.js'= → 0) | M4 | data |
+| =registry/viva/instance/standalone/environment/variant.jsonc= | mv → =instance.jsonc= | M4 | data |
+| =registry/viva/instance/{localhost,standalone}/.env.example= | header prose + var name; localhost values → =testament/instance=; standalone value stays =testament/standalone= | M4 | data |
+| =registry/viva/instance/multiplayer/docker-compose.yml:19,43,79= | =VIVA_INSTANCE_MOUNT=/viva/repository/registry/viva/instance/multiplayer/=; commented =@vivalence/instance/…= | M4 | data |
+| =documentation/…/32.01_anatomy-of-a-variant.mdx= | mv → =32.01_anatomy-of-an-instance.mdx= + full content pass | M5 | docs |
+| =documentation/…/51.02_run-a-variant.mdx= | mv → =51.02_run-an-instance.mdx= + content (=@viva/instance/standalone=, =/instance/create= shell blocks, =environment/instance.jsonc= titles, =cd testament/instance=) | M5 | docs |
+| wiki-links + referrers | =grep -rn "anatomy-of-a-variant\vert{}run-a-variant" documentation/content= → every hit incl. "Read next" + =home.mdx= card | M5 | docs |
+| =32.01-anatomy.example.js= · =51.02-flashcard.example.js= | env guard+set =VIVA_INSTANCE_MOUNT=; import =registry/viva/instance/standalone/…=; log line jsonc name | M5 | docs |
+| =51.01_install-the-system.mdx= (m40-rewritten) | =viva instance/create @viva/instance/localhost=; =instance/init= wizard prose; ledger noun list ("the variant shelf" → instance shelf) | M5 | docs |
+| =33_ledger/33.01_anatomy-of-the-ledger.mdx= (NEW, ~10 hits) + =33.00_ledger.mdx= | full pass; :16 ontology sentence RECAST (the pair merges — do not word-swap); tree =variants/= → =instances/=; ="variant, singular"= section → instance; =VIVA_INSTANCE_MOUNT= | M5 | docs |
+| =41.01_guide-to-the-repo.mdx= (8 hits) · =home.mdx:19= | prose + card title "Anatomy of an instance" | M5 | docs |
+| =32.01-anatomy.snapshot.json= · =51.02-flashcard.snapshot.json= · pagefind | regen at build, not hand-edited | M5 | gen |
+| =README.md= (m40-rewritten quickstart) | =/instance/create @viva/instance/localhost ./testament/instance=, =cd testament/instance=, =/instance/auth signup=, shelf prose | M6 | docs |
+| =subsystems/typology/readme.org:35= | SENSE-CHECK in context — display-sense stays, recipe-sense renames | M6 | docs |
+| =subsystems/typology/specimen/readme.org= · =prototypes/wafer.js:55,82= | commented mentions → instance (keeps future grep clean) | M6 | docs |
+| =.ikiro/world/codemap/{ghost,testament,paladin,runtime,typology,registry}.md= + =typology/schematics.md= | every live-claim updated (post-m40 shards may already describe the new CLI — re-read before editing) | M6 | meta |
+
+* tangle — the three load-bearing seams (surgical =diff=, applied by hand; the rest is mechanical per the blast table)
+
+=subsystems/paladin/lifecycle/populate.js= — the scope spine (key + env var + shelf; post-m40 shape with =isAbsolute=):
+
+#+BEGIN_SRC diff
+   paladin.scopes([
+     [
+-      "variant",
+-      () => paladin.env.has("VIVA_VARIANT_MOUNT"),
++      "instance",
++      () => paladin.env.has("VIVA_INSTANCE_MOUNT"),
+       () => {
+-        const reference = paladin.env.get("VIVA_VARIANT_MOUNT");
++        const reference = paladin.env.get("VIVA_INSTANCE_MOUNT");
+         if (!reference.includes("/") && !reference.startsWith("."))
+-          return paladin.scope.ledger.branch(`variants/${reference}`);
++          return paladin.scope.ledger.branch(`instances/${reference}`);
+         if (isAbsolute(reference)) return new Path(reference);
+         return paladin.source(reference);
+       },
+     ],
+#+END_SRC
+(+ the two =paladin.scope.variant= reads in the environment/mountpoint closures → =paladin.scope.instance=.)
+
+=systems/runtime/lifecycle/resolve.js:108= — the route kill:
+
+#+BEGIN_SRC diff
+-  root.open("/variant", () => ({
+-    daemons: paladin.variant.daemons.map((mask) => mask.manifest ?? mask),
+-    services: paladin.variant.services.map((mask) => mask.manifest ?? { module: mask.module }),
++  root.open("/instance", () => ({
++    daemons: paladin.instance.daemons.map((mask) => mask.manifest ?? mask),
++    services: paladin.instance.services.map((mask) => mask.manifest ?? { module: mask.module }),
+#+END_SRC
+
+=systems/ghost/trajectories/index.js= — the noun flip (M3 shape; internals already =paladin.instance= from M1):
+
+#+BEGIN_SRC diff
+-import * as variant from "./variant/index.js";
++import * as instance from "./instance/index.js";
+ ...
+-      nature: "/variant/create",
+-      valence: "create a variant from a source — no target lands it in <ledger>/variants/<slug>",
++      nature: "/instance/create",
++      valence: "create an instance from a source — no target lands it in <ledger>/instances/<slug>",
+       (…init/run/start/stop/auth/doctor: same flip, 7 natures total; every =variant.<fn>= wiring → =instance.<fn>=)
+#+END_SRC
+
+* testing assessment (mandatory)
+
+*In place* — =subsystems/typology/tests/= path suite (string math, no disk) · =subsystems/paladin/tests/= kernel/boot/source/ledger(NEW)/state(NEW) + snapshot family (parse-override regime) · =systems/runtime/tests/= bench/datamap/registry.count/topography-harness · =systems/ghost/tests/= shellsignal + target (import FIXED by m40) + ledger(NEW) · =systems/kajuit/tests/= (cargo NEW; untouched by this quest). COVERAGE GAPS (named, not filled — a rename must not grow system surface): the =/instance= HTTP route has no test; trajectory nature registration has no direct test (the NEW ghost =ledger.test.js= exercises trajectories via the Vector — partial); =find.type= discriminator covered only indirectly via =kernel.test.js= mount.
+
+*Changes* — every =test= row in the blast table: string/identifier updates in lockstep with the code they pin (fixtures own liveness — path literals are fixture strings, not deployment facts). Snapshot files regen via their own test runs, never hand-edited: =paladin-instance.snapshot.json= (new name), =paladin-scope.snapshot.json= (scope key flips inside).
+
+*Adds* — NONE. Gaps above are pre-existing debt, recorded, not smuggled in under a rename.
+
+*Per-milestone green ladder* — the =boundary gate= column IS the ladder. Additionally:
+- M0 pastes the counts — fresh baseline REQUIRED post-m40 (the old baseline predates the CLI rewrite; the target red is believed gone — verify, don't assume).
+- M1 gate includes a LIVE boot (=deno task ghost/run /variant/doctor= — nature still old-named at that boundary): paladin mounts =scope.instance=, daemon opens the MOVED sqlite. Suites alone can't prove the disk+env seam.
+- M3 gate: =viva instance/doctor= answers over the renamed natures; ghost suite green.
+- M5 gate is the docs build — the example.js pair EXECUTE standalone at build; a green build is the cross-check that M1/M4 and the docs agree.
+- M6 closing blast:
+#+BEGIN_SRC bash
+grep -rn "variant" systems/ subsystems/ registry/viva registry/fixtures deno.jsonc .env.example README.md \
+  --include='*.js' --include='*.jsx' --include='*.svelte' --include='*.jsonc' --include='*.yml' --include='*.org' --include='*.md' --include='*.example' \
+  | grep -v '/bak/' \
+  | grep -vi 'font-variant\|invariant\|tailwind-variants\|variant="\|variant={\|variantClass\|ROLE_VARIANTS\|directed\|union: (variants\|\.bak\.'
+#+END_SRC
+Expected residue: the ghost README.org quest pointer ONLY. Anything else = missed site.
+
+*Pre-DONE gate* — a milestone flips DONE only with named test files + PASTED suite output (counts, not claims). Coverage delta per milestone recorded in the changelog.
+
+* deferred / not mine
+
+- Prod + other machines: env swap + mount renames wherever =VIVA_VARIANT_MOUNT= is set. beef: /"i manage installations."/
+- =.ikiro/quests/m40-ledger-convention.org= wording + ghost README's =variant.quest.org= pointer — beef's files.
+- Memory files (=~/.claude/.../memory/=): I update AFTER the rename lands — not part of the repo diff.
+- Kajuit consumers of the =/instance= route: none exist today; if one appears it consumes the new name.
+
+* forks
+
+None open. All five resolved in the decision trail; wrinkles section carries the review-flags.
+
+* changelog
+
+- 2026-08-26 — quest filed. Blast beat 1 complete: full radius enumerated and verified against disk (identifier census 336/34/26/14; keep-list separated; both registry.json files read; coupling analysis forced the atomic M1). Discovered en route: broken =target.test.js= import; dead files in =trajectories/variant/=; live =variants/= shelf in populate.js. NOTHING applied.
+- 2026-08-26 (later) — RE-BLASTED after the m40 CLI rewrite landed in the working copy: =trajectories/instance/= deleted, CLI collapsed to =/variant/{create,init,run,start,stop,auth,doctor}= + =/ledger/*=, target.test fixed upstream, lighthouse folded into =/variant/auth=, =33_ledger= docs born (and DOCUMENT the two-noun ontology this rename merges), five deno.jsonc files now carry the env path. Old M3 (fold) replaced by M3 (noun flip); ghost internals absorbed into M1; blast table re-verified row by row. Still NOTHING applied.

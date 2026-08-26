@@ -75,7 +75,7 @@ export default [
         "learning": "Lo zaino è pesante"
       },
       "RANKED": {
-        "rank": 33,
+        "rank": 19,
         "zipf": 6.52,
         "fpm": 3310.0
       },
@@ -191,7 +191,7 @@ export default [
         "learning": "I bambini giocano"
       },
       "RANKED": {
-        "rank": 14,
+        "rank": 12,
         "zipf": 6.94,
         "fpm": 8710.0
       },
@@ -249,7 +249,7 @@ export default [
         "learning": "Gli amici arrivano domani"
       },
       "RANKED": {
-        "rank": 34,
+        "rank": 20,
         "zipf": 6.51,
         "fpm": 3240.0
       },
@@ -307,7 +307,7 @@ export default [
         "learning": "Le ragazze cantano"
       },
       "RANKED": {
-        "rank": 16,
+        "rank": 14,
         "zipf": 6.9,
         "fpm": 7940.0
       },

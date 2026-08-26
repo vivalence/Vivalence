@@ -16,7 +16,7 @@ export default [
         "learning": "Il colore del mare"
       },
       "RANKED": {
-        "rank": 12,
+        "rank": 27,
         "zipf": 6.99,
         "fpm": 9770.0
       }
@@ -130,7 +130,7 @@ export default [
         "learning": "La chiave della macchina"
       },
       "RANKED": {
-        "rank": 19,
+        "rank": 29,
         "zipf": 6.86,
         "fpm": 7240.0
       },
@@ -190,7 +190,7 @@ export default [
         "learning": "Il prezzo dei biglietti"
       },
       "RANKED": {
-        "rank": 27,
+        "rank": 33,
         "zipf": 6.61,
         "fpm": 4070.0
       }
@@ -297,7 +297,7 @@ export default [
         "learning": "Il profumo delle rose"
       },
       "RANKED": {
-        "rank": 35,
+        "rank": 40,
         "zipf": 6.49,
         "fpm": 3090.0
       }
@@ -353,7 +353,7 @@ export default [
         "learning": "Vado al mercato"
       },
       "RANKED": {
-        "rank": 23,
+        "rank": 31,
         "zipf": 6.71,
         "fpm": 5130.0
       },
@@ -466,7 +466,7 @@ export default [
         "learning": "Torno alla stazione"
       },
       "RANKED": {
-        "rank": 31,
+        "rank": 35,
         "zipf": 6.53,
         "fpm": 3390.0
       },
@@ -1013,7 +1013,7 @@ export default [
         "learning": "Il pane è nel forno"
       },
       "RANKED": {
-        "rank": 29,
+        "rank": 34,
         "zipf": 6.59,
         "fpm": 3890.0
       },

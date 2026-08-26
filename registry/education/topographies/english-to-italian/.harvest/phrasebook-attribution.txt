@@ -1,0 +1,5 @@
+che-ore-sono: tatoeba.org sentence 4426, audio by NM1 (CC BY 4.0)
+il-conto-per-favore: tatoeba.org sentence 4447, audio by NM1 (CC BY 4.0)
+dov-e-l-uscita: tatoeba.org sentence 791406, audio by NM1 (CC BY 4.0)
+grazie-mille: tatoeba.org sentence 3138248, audio by NM1 (CC BY 4.0)
+ho-fame: tatoeba.org sentence 5446778, audio by NM1 (CC BY 4.0)

@@ -81,7 +81,7 @@ function populatedCortex() {
       tune: [0.3, 0.8, 0.7],
       channels: { in: ["text"], out: ["audio"] },
       via: {
-        render: async ({ turns }) => ({ role: "assistant", parts: [{ type: "audio", data: btoa(lastUserText(turns)), media: "audio/mp3" }], meta: { state: "complete" } }),
+        render: async (source) => new TextEncoder().encode(source),
       },
     },
     {
@@ -237,6 +237,25 @@ specimen.describe("Hallucination", () => {
       specimen.expect(events).toContain("/tool/call");
       specimen.expect(events).toContain("/tool/yield");
       specimen.expect(events.at(-1)).toBe("/response/close");
+    });
+  });
+
+  specimen.describe("speech render → vocalize", () => {
+    specimen.it("returns the faculty's finished bytes for a source text", async () => {
+      const bytes = await Hallucination(populatedCortex()).speech.render({ source: "ciao" });
+      specimen.expect(bytes instanceof Uint8Array).toBe(true);
+      specimen.expect(new TextDecoder().decode(bytes)).toBe("ciao");
+    });
+
+    specimen.it("throws when no speech faculty carries a render avenue", async () => {
+      const cortex = new Cortex().register([{
+        type: "speech", tune: [0.5, 0.5, 0.5],
+        channels: { in: ["text"], out: ["audio"] },
+        via: { stream: async function* () {} },
+      }]);
+      let failure = null;
+      await Hallucination(cortex).speech.render({ source: "ciao" }).catch((error) => (failure = error));
+      specimen.expect(failure?.message).toContain("no 'speech' faculty resolves a 'render' avenue");
     });
   });
 

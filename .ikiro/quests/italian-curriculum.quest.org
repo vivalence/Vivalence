@@ -1,6 +1,6 @@
 #+title: italian curriculum — the rank permutation is the pedagogy
 #+filetags: :curriculum:topography:english-to-italian:sentences:words:ranked:survival:tatoeba:harvest:
-#+status: PATCHED, NOT LANDED — ships as =italian-curriculum.patch= (verified =git apply --check= clean against master 3d140e4). Owed: the phrasebook audio run (M4, blocked in-session on network allowlist), one live rep through survival to feel the new 1–160.
+#+status: LANDED + M4 RUN — patch applied via =patch -p1= (clean, survives the m38 symbol edits) and the harvest EXECUTED index-first: 143 targets → 81 exist in the tatoeba corpus → *5 licensed audio hits* (all NM1, CC BY 4.0 per CSV — the API reports =license: null= for the same rows), all 5 landed in freight + VOCALIZED injected (506 → 511) + attribution ledger written. 138 genuinely have no tatoeba recording → the TTS queue (datasink M4/M5 is the recording pipeline the deferred section predicted). Owed: beef reseeds the italian DB (rerank + 45 adds + m38 symbol edits + 5 VOCALIZED all reach the db in ONE re-populate), one live rep through 1–160.
 
 * intent
 
@@ -301,106 +301,24 @@ console.log("done", output.length, "chop:", chopCandidates.length)
 
 Note: the 45 additions are already merged into =sentences.js= by the patch, so the generator reads them as base corpus; the session-side =additions.js= builder is retired.
 
-The phrasebook harvester (M4) — resumable, license-gated, attribution-ledgered:
+The phrasebook harvester (M4) — RUN, and REWRITTEN INDEX-FIRST in the process. The landed
+file =registry/education/topographies/english-to-italian/.harvest/harvest-phrasebook.js= is the
+truth (same rule as the dataset files: the repo copy, not a tangle reproduction). Why the rewrite:
 
-#+BEGIN_SRC js :tangle ../../registry/education/topographies/english-to-italian/.harvest/harvest-phrasebook.js :mkdirp yes
-const TOPOGRAPHY = new URL("..", import.meta.url).pathname.replace(/\/$/, "")
-const HARVEST = `${TOPOGRAPHY}/.harvest`
-const FREIGHT = `${TOPOGRAPHY}/freight/audio/sentences`
-const STATE = `${HARVEST}/harvest-phrasebook-state.json`
-const OK_LICENSES = /^(CC0|CC BY(?!-NC))/
+- the =api_v0= exact-match syntax this quest recorded (=query==text=) does NOT exact-match — it
+  stems ('Non capisco.' returned 'Non capirete.'). Real exact syntax is =query=="text"=, moot now.
+- the search API reports =license: null= for NM1's recordings — the very rows whose CSV export
+  says =CC BY 4.0=. A strict license gate over the API auto-rejects everything; the original
+  ='!a.license ||'= acceptance was compensating for that, not sloppiness. The CSV is the license
+  authority: =sentences_with_audio.csv= cols 4–5.
+- index-first doctrine (compact 38) applies verbatim: two cached exports
+  (=per_language/ita/ita_sentences.tsv.bz2= + =sentences_with_audio.tar.bz2=, cached under
+  =/tmp/tatoeba/=) → exact text intersection → license gate =/^(CC0|CC BY(?!-))/= on CSV data →
+  download only the survivors by =audio_id=. Same normalize chain, state file, inject, ledger.
 
-const sleep = (ms) => new Promise((r) => setTimeout(r, ms))
-
-const readJson = async (path, fallback) =>
-  await Deno.readTextFile(path).then(JSON.parse).catch(() => fallback)
-
-const api = async (text) => {
-  const url = `https://tatoeba.org/eng/api_v0/search?from=ita&has_audio=yes&query==${encodeURIComponent(text)}`
-  const res = await fetch(url, { headers: { "User-Agent": "vivalence-harvester/0.2" } })
-  if (!res.ok) throw new Error(`${res.status}`)
-  return res.json()
-}
-
-const pick = (results, text) =>
-  results
-    .filter((r) => r.text.trim() === text.trim())
-    .flatMap((r) =>
-      r.audios
-        .filter((a) => !a.license || OK_LICENSES.test(a.license))
-        .map((a) => ({ sid: r.id, audio: a.id, author: a.author, license: a.license ?? "Tatoeba terms" }))
-    )[0]
-
-const download = async (audioId, dest) => {
-  const res = await fetch(`https://tatoeba.org/audio/download/${audioId}`, {
-    headers: { "User-Agent": "vivalence-harvester/0.2" },
-  })
-  if (!res.ok) throw new Error(`${res.status}`)
-  const raw = `${dest}.raw`
-  await Deno.writeFile(raw, new Uint8Array(await res.arrayBuffer()))
-  const norm = await new Deno.Command("ffmpeg", {
-    args: ["-y", "-i", raw, "-af", "loudnorm=I=-18:TP=-2:LRA=11", "-ar", "44100", "-b:a", "128k", dest],
-  }).output()
-  await Deno.remove(raw)
-  const size = await Deno.stat(dest).then((s) => s.size).catch(() => 0)
-  if (!norm.success || size < 4000) {
-    await Deno.remove(dest).catch(() => {})
-    return false
-  }
-  return true
-}
-
-const inject = async (state) => {
-  const fpath = `${TOPOGRAPHY}/dataset/literals/sentences.js`
-  const entities = JSON.parse((await Deno.readTextFile(fpath)).replace("export default ", ""))
-  const patched = entities.map((e) => {
-    const hit = state.done[e.slug]
-    if (!hit || e.traits.includes("VOCALIZED")) return e
-    return {
-      ...e,
-      traits: [...e.traits, "VOCALIZED"],
-      trait: { ...e.trait, VOCALIZED: { asset: { path: `sentences/${e.slug}.mp3` } } },
-    }
-  })
-  await Deno.writeTextFile(fpath, "export default " + JSON.stringify(patched, null, 2) + "\n")
-}
-
-const targets = await readJson(`${HARVEST}/harvest-targets.json`, [])
-const state = await readJson(STATE, { done: {}, misses: [], failed: [] })
-await Deno.mkdir(FREIGHT, { recursive: true })
-
-const pending = targets.filter((t) =>
-  !state.done[t.slug] && !state.misses.includes(t.slug) && !state.failed.includes(t.slug)
-)
-console.log(`targets ${targets.length}, pending ${pending.length}`)
-
-for (const [i, t] of pending.entries()) {
-  try {
-    const found = pick((await api(t.text)).results ?? [], t.text)
-    if (!found) {
-      state.misses.push(t.slug)
-    } else if (await download(found.audio, `${FREIGHT}/${t.slug}.mp3`)) {
-      state.done[t.slug] = found
-    } else {
-      state.failed.push(t.slug)
-    }
-  } catch {
-    state.failed.push(t.slug)
-  }
-  await Deno.writeTextFile(STATE, JSON.stringify(state, null, 1))
-  await sleep(2000)
-  if ((i + 1) % 20 === 0) {
-    console.log(`[${i + 1}/${pending.length}] hits ${Object.keys(state.done).length} misses ${state.misses.length} failed ${state.failed.length}`)
-  }
-}
-
-await inject(state)
-const attribution = Object.entries(state.done).map(([slug, d]) =>
-  `${slug}: tatoeba.org sentence ${d.sid}, audio by ${d.author} (${d.license})`
-)
-await Deno.writeTextFile(`${HARVEST}/phrasebook-attribution.txt`, attribution.join("\n") + "\n")
-console.log(`done: ${Object.keys(state.done).length} hits, ${state.misses.length} no-audio, ${state.failed.length} failed`)
-#+END_SRC
+Run result: =targets 143, in corpus 81, licensed audio 5, pending 5= → =done: 5 hits, 138
+no-audio, 0 failed=. The 5: che-ore-sono · il-conto-per-favore · dov-e-l-uscita · grazie-mille ·
+ho-fame — all NM1, CC BY 4.0, ledgered in =.harvest/phrasebook-attribution.txt=.
 
 Word reorder = 13 rank values; the diff IS the clearest form — see the patch hunks on =words/{adposition,determiner,contraction}.js=. Invariant to re-assert after any future word edit: =max(rank of {di,a,da,in,su,il,lo,la,i,gli,le}) < min(rank over contraction.js)=.
 

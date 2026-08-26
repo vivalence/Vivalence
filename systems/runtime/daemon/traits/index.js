@@ -44,5 +44,9 @@ export const FRAUGHT = async (mode, daemon) => {
   const files = await paladin.find.walk(/./)(root);
   mode.freight = new Freight(root).stow(files.map((file) => file.absolute.slice(root.length + 1)));
   mode.freight.withUrl(daemon.attach.branch("/cargo").branch(daemon.mount.nature));
+  mode.freight.receive = async (path, bytes) => {
+    await paladin.state.store(`${root}/${path}`, bytes);
+    return mode.freight.admit(path).resolve(path);
+  };
   mode.aperture.open("/freight", () => mode.freight.catalog);
 };

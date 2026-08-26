@@ -77,11 +77,11 @@ specimen.describe("shard.datamap.repository", () => {
     specimen.expect(await scenario.repos.literal.findOne({ slug: "ephemeral" })).toBeNull()
 
     const first = await conn.call("/mode/ensure", {
-      data: { slug: "ensured", type: "test", traits: [], installed: false },
+      data: { slug: "ensured", type: "test", traits: [], installed: "" },
     })
     specimen.expect(first.slug).toBe("ensured")
     const second = await conn.call("/mode/ensure", {
-      data: { slug: "ensured", type: "test", traits: ["APPLICATION"], installed: true },
+      data: { slug: "ensured", type: "test", traits: ["APPLICATION"], installed: "installed" },
     })
     specimen.expect(second.id).toBe(first.id)
     specimen.expect(second.traits).toContain("APPLICATION")

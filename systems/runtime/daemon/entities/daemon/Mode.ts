@@ -10,6 +10,7 @@ export enum ModeTraitsEnum {
   TOPOLOGICAL = "TOPOLOGICAL", // use to target read data from storage in mode
   DATASET = "DATASET", // use to control data storage in mode
 
+  DATASINK = "DATASINK",
   FRAUGHT = "FRAUGHT",
   APPLICATION = "APPLICATION",
   EXPOSED = "EXPOSED",
@@ -42,7 +43,7 @@ export class ModeEntity extends DataEntity {
   name?: string;
   description?: string;
   version?: string;
-  installed: Boolean = false;
+  installed: string & Opt = "";
 
   intents = new Collection<IntentEntity>(this);
   buffers = new Collection<BufferEntity>(this);
@@ -61,7 +62,7 @@ export const ModeSchema = new EntitySchema({
     slug: { type: types.string },
     name: { type: types.string, nullable: true },
     description: { type: types.string, nullable: true },
-    installed: { type: types.boolean },
+    installed: { type: types.string, default: "" },
     version: { type: types.string, nullable: true },
 
     traits: {

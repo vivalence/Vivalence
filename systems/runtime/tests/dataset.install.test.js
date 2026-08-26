@@ -18,7 +18,7 @@ specimen.beforeAll(async () => {
   mode = {
     type: "topography",
     slug: "fixture",
-    entity: { installed: false },
+    entity: { installed: "" },
     module: { mount: corpus, dataset: topography.dataset() },
   };
 
@@ -67,14 +67,14 @@ specimen.describe("what install put in the database", () => {
 specimen.describe("what install refuses", () => {
   specimen.it("is inert on an already-installed mode", async () => {
     const before = await scenario.repos.symbol.count({});
-    await DATASET({ ...mode, entity: { installed: true } }, daemon);
+    await DATASET({ ...mode, entity: { installed: "installed" } }, daemon);
     specimen.expect(await scenario.repos.symbol.count({})).toBe(before);
   });
 
   specimen.it("throws rather than installing anything outside the dataspace", async () => {
     const userspace = {
       ...mode,
-      entity: { installed: false },
+      entity: { installed: "" },
       module: {
         ...mode.module,
         dataset: new Dataset({ schema: {}, thread: [[{ slug: "leak" }]] }),

@@ -10,7 +10,7 @@ export async function create({ harness } = {}) {
     slug: "dewey",
     type: "teacher",
     traits: ["EXPOSED", "HARNESSED"],
-    installed: true,
+    installed: "installed",
   });
   await em.flush();
 

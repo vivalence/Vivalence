@@ -1,0 +1,58 @@
+---
+title: Anatomy of the ledger
+summary: The machine home — where packages, variants, and run-state live.
+author: claude (agent)
+---
+
+The ledger is the one directory vivalence owns on a machine. Everything the system
+needs to remember between runs — which packages exist, which variants are shelved,
+what is currently running — lives under it.
+
+minimum vocabulary required:
+
+- `record` — `registry.json`, the list of package locations. Managed by `tap`/`untap`, read at boot. The only mount truth.
+- `store` — `registry/`, the default directory packages materialize into. A location heuristic, nothing more.
+- `shelf` — `variants/`, where created variants land when no target is given.
+- `instance` — the ledger's noun for a variant at its mount: `instances.json` records them, locks and logs key by them.
+
+```
+~/.viva/
+  registry.json          the record: package locations (absolute = pinned checkouts,
+                         relative = store children)
+  instances.json         known variants on this machine
+  locks/                 <instance>_<process>.lock — what is running
+  logs/                  <instance>/ span + stdout/err streams
+  registry/              the store — remote taps clone here; each child its own git clone
+  variants/              the shelf — each child a variant home: the declaration,
+                         environment/, .env, and (at runtime) mountpoint/
+```
+
+## one resolution law
+
+Every path has a convention default and an environment override, and the override
+always wins: `VIVA_LEDGER_MOUNT` moves the whole home (default `~/.viva`),
+`VIVA_REGISTRY_MOUNT` moves the store (default `<ledger>/registry`),
+`VIVA_VARIANT_MOUNT` names the one variant a runtime renders — an absolute path
+verbatim, or a bare slug resolved against the shelf.
+
+The ledger itself is machine state and never git-managed — the record pins absolute
+paths, the locks hold pids. Its children are the git units: every tapped package in
+the store is its own clone, and a shelved variant is yours to version.
+
+## record over discovery
+
+A package sitting in the store but absent from the record stays unmounted — that is
+a feature, not a gap. Presence is not activation; `tap` activates, `untap` deactivates,
+and the working copy survives both. Packages can live anywhere on disk: the store is
+only where they land when nothing else is said.
+
+At boot, `supply()` reads the record and mounts each entry. Only when the record is
+absent entirely does it seed one — by discovery over the repository's own `registry/`,
+so a fresh clone boots the standard packages without ceremony.
+
+## variant, singular
+
+The shelf holds many variants; a runtime ever renders one. `variant create` copies a
+variant wholesale — declaration, `environment/`, its `.env` seed — to the shelf or to
+an explicit target, and everything derived (`mountpoint/` databases) grows inside that
+home. Two runs of the same declaration are two shelved copies, not two moods of one.

@@ -4,12 +4,12 @@
 
 - **kajuit** — 7, 9, 13, 17, 18, 22, 24, 25, 28, 37, 40, 43, 44, 46, 49, 55
 - **dojo** — 6, 11, 14, 24, 28, 43, 44, 45, 46, 49, 53, 58
-- **typology** — 12, 14, 17, 18, 25, 26, 30, 45, 48, 49
+- **typology** — 12, 14, 17, 18, 25, 26, 30, 45, 48, 49, 63
 - **compact** — 2, 3, 22, 35, 36, 40, 42, 55
 - **francesca** — 5, 7, 9, 11, 15, 26, 31, 58
 - **m24** — 8, 15, 24, 28, 30, 41, 43, 49
 - **svelte** — 8, 15, 24, 28, 41, 43, 49, 55
-- **callout** — 11, 13, 14, 17, 33, 35, 36, 60
+- **callout** — 11, 13, 14, 17, 33, 35, 36, 60, 63
 - **vector** — 8, 17, 19, 20, 42, 48, 57
 - **dock** — 7, 9, 11, 25, 26, 37
 - **drapes** — 18, 30, 41, 49, 55, 56
@@ -45,7 +45,7 @@
 - **drawer** — 11, 24, 44
 - **emitter** — 1, 8, 28
 - **frame** — 1, 18, 55
-- **ghost** — 2, 27, 42
+- **ghost** — 2, 27, 42, 63
 - **harness** — 50, 54, 58
 - **intelligent** — 7, 11, 37
 - **italian** — 38, 39, 47, 61
@@ -55,7 +55,7 @@
 - **memory** — 6, 24, 53
 - **mikro-orm** — 24, 28, 53
 - **packages** — 2, 42, 59
-- **paladin** — 2, 29, 42, 62
+- **paladin** — 2, 29, 42, 62, 63
 - **performance** — 17, 32, 44
 - **presets** — 6, 43, 49
 - **rep-o-gram** — 15, 41, 49
@@ -185,3 +185,4 @@
 60. `the-docs-get-their-first-real-pages-the-dossier-trades-open-source-for-fair-source-and-the-variant-page-refuses-to-land-until-the-code-is-actually-read`
 61. `two-quests-arrive-as-downloads-the-vcs-guard-eats-even-the-check-and-the-datasink-pass-catches-the-license-gate-accepting-the-unlicensed`
 62. `the-docs-learn-to-boot-their-own-subject-the-capture-hangs-on-an-unclosed-orm-and-every-page-signs-its-author`
+63. `the-ledger-becomes-the-one-home-the-cli-collapses-to-two-nouns-and-every-viva-command-was-already-dead`

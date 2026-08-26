@@ -133,6 +133,35 @@ describe("Ledger.registry", () => {
   });
 });
 
+describe("scope conventions — the ledger is the home", () => {
+  it("registry store defaults to <ledger>/registry", async () => {
+    const paladin = await mkPaladin();
+    expect(paladin.scope.registry.absolute).toBe(paladin.scope.ledger.branch("registry").absolute);
+  });
+
+  it("VIVA_REGISTRY_MOUNT from paladin.env wins over the convention", async () => {
+    const paladin = await mkPaladin();
+    const explicit = await Deno.makeTempDir({ prefix: "paladin-store-" });
+    paladin.env.set("VIVA_REGISTRY_MOUNT", explicit);
+    expect(paladin.scope.registry.absolute).toBe(explicit);
+  });
+
+  it("VIVA_VARIANT_MOUNT bare slug shelves under <ledger>/variants/", async () => {
+    const paladin = await mkPaladin();
+    paladin.env.set("VIVA_VARIANT_MOUNT", "localhost");
+    expect(paladin.scope.variant.absolute).toBe(
+      paladin.scope.ledger.branch("variants/localhost").absolute,
+    );
+  });
+
+  it("VIVA_VARIANT_MOUNT absolute path stays verbatim", async () => {
+    const paladin = await mkPaladin();
+    const home = await Deno.makeTempDir({ prefix: "paladin-variant-" });
+    paladin.env.set("VIVA_VARIANT_MOUNT", home);
+    expect(paladin.scope.variant.absolute).toBe(home);
+  });
+});
+
 describe("Ledger.log", () => {
   let paladin;
   beforeAll(async () => {

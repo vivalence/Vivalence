@@ -1,6 +1,6 @@
 #+title: italian datasink — the loop closes: entities write the mode back to disk
 #+filetags: :datasink:freight:fraught:paladin:typology:runtime:topography:harvest:mode:tooled:harnessed:tts:
-#+status: REDESIGNED (pass 2, beef-driven) — TANGLE BLOCKS canonical; =italian-datasink.patch= is the pre-pass cut, now TWO passes behind (still exact on state.js/freight.js/FRAUGHT/italian.viva.js hunks, obsolete on the mode). fn.memo ALREADY LANDED live (typology belt + tests green). Everything else unapplied; runtime/typology hunks are beef-review items.
+#+status: M1–M6 ALL LANDED (beef: /"go"/ on M2+M4 after M1/M3/M5/M6). Remaining: mount line =@education/tactic/harvest= in =testament/variant/education.js= italian kernel (beef's file) · M7 live sweep (boot → survey → vocalize band 160 tts → audible rep) · italian voice ear-pick · reseed. Suites at close: runtime 52/325 · harvest tools 4 steps (wet path runs REAL ffmpeg) · paladin 1/1+prior · typology freight/datasink 6/26 · kajuit 35 green; hallucination.snapshot still the one pre-existing red. Boot-crash fixed en route: =ModeTraitsEnum= (runtime =daemon/entities/daemon/Mode.ts=) never carried DATASINK — enum member added. TANGLE BLOCKS canonical; =italian-datasink.patch= is the pre-pass cut, TWO passes behind (still exact on state.js/freight.js/FRAUGHT/italian.viva.js hunks, obsolete on the mode). LANDED: fn.memo (typology belt) · =speech.render= avenue (beef ruled /"minor changes to the hal prototype are fine"/ → =shard.hallucinate.vocalize= + =/speech= render leaf, contract =(source, config) → Uint8Array=; pass-2's "zero typology changes" claim was WRONG — =/speech= only opened stream) · elevenlabs =via.render= (REST mp3_44100_128; italian voice ear-pick still open) · M6 as a DEDICATED =Cargo= prototype (beef: /"time to build a dedicated cargo consumer on kajuit"/ + /"just calling it cargo should be fine"/) — =systems/kajuit/src/typology/prototypes/cargo.js=, =daemon.cargo= is now a Cargo instance (catalog + sought + debounced refetch-on-miss), =getAsset= delegates; NOTE: refetch is INERT until M2's cargo getter lands (=/metadata/cargo= still serves the boot copy). DEVIATION from the approved sketch, flagged: =fn.inflight= dropped from the refetch chain — it memoizes success permanently, so only the FIRST miss burst would ever refetch; =debounce= + =sought= carry the guard alone. Typology suite: 118 passed / 1 failed = hallucination.snapshot, PRE-EXISTING at HEAD (armory-naming error message vs stale snapshot, m38-wake debt). Kajuit 35/126 green.
 
 * intent
 
@@ -24,7 +24,7 @@ One sentence: *close the katabolic loop* — an operator mode mutates literals a
 * the decision trail
 
 Locked pass 1, still standing:
-1. *Paradigm split*: typology declares (=Freight.admit=, pure) · paladin does IO (=state.lade=) · runtime composes (=FRAUGHT= gains =mode.freight.receive=). No new trait name.
+1. *Paradigm split*: typology declares (=Freight.admit=, pure) · paladin does IO (=state.store=) · runtime composes (=FRAUGHT= gains =mode.freight.receive=). No new trait name.
 2. *The topography declares its own datasink* — exemplar verbatim, DATASINK trait appended.
 3. *First-drain canonicalization accepted* — ordering lives in =RANKED.rank=, never file position.
 4. *No fabrication BY DEFAULT* — amended pass 2: TTS is now a legitimate EXPLICIT source (=source: "tts"=), never a silent fallback; synthetic audio is marked in its attribution.
@@ -44,12 +44,12 @@ Ruled pass 2 (beef):
 
 | # | lands | owner | green gate (OPEN) |
 |---+-------+-------+-------------------|
-| M1 | =paladin.state.lade= + =Freight.admit= + =FRAUGHT.receive= | paladin/typology/runtime (beef reviews) | +admit cases in =freight.test.js= · lade byte-idempotence in paladin suite |
-| M2 | runtime wave: stamp-warn · per-sink dirty · =die.good.cargo= getter · =--watch-exclude=registry/= | runtime (beef reviews) | stamp: warn fires on mutated dataset, boot proceeds · dirty: sentence update drains ONLY the sentence sink (test) · cargo: admit visible on next =/metadata/cargo= read |
+| M1 | =paladin.state.store= + =Freight.admit= + =FRAUGHT.receive= | paladin/typology/runtime (beef reviews) | LANDED — admit case in =freight.test.js= + =paladin/tests/state.test.js=, suites green |
+| M2 | runtime wave: stamp-warn · per-sink dirty · daemon =Cargo= prototype · =--watch-exclude= | runtime (beef reviewed live) | LANDED — semantics amended at land, see changelog: claimed-sinks-else-ALL dirty (the sketch's =!== false= form had a false-negative hazard on raw entities) · stamp = string on =Mode.installed=, preserved at boot, REFRESHED after drain · cargo = typology =Cargo= (freights thunk, =catalog= getter, =toJSON=) on the Daemon field — beef killed the =defineProperty= form |
 | M3 | topography: DATASINK declaration + trait | registry | =datasink.roundtrip.test.js= pattern vs the REAL italian corpus: install → drain → reinstall → drain → fixpoint |
-| M4 | harvest mode: operator recast + system tools + sources (tatoeba/commons/tts) + doctrine | registry (mine) | playground: seed literals, stub sources, =/vocalize= dry+wet, freight landed + VOCALIZED.attribution stamped + drain wrote the file |
-| M5 | elevenlabs =via.render= + italian voice | registry (mine; voice id = beef's ear) | render returns mp3 bytes ≥ floor; tts source end-to-end via stubbed faculty |
-| M6 | kajuit =getAsset= refetch-on-miss | kajuit | miss triggers ONE debounced refetch; absent asset cannot loop |
+| M4 | harvest mode: operator recast + system tools + sources (tatoeba/commons/tts) + doctrine | registry (mine) | LANDED — =registry/education/modes/tactics/harvest/= (viva.js · tools/index.js · sources/{tatoeba,commons,tts}.js · belt/audio.js · harness.js · hal/archivist.md); =tests/tools.test.js= 4 steps: survey bag · dry no-touch · WET tts through real ffmpeg → freight.receive + nested attribution + flush · drain routes. Mount line in testament = beef |
+| M5 | elevenlabs =via.render= + italian voice | registry (mine; voice id = beef's ear) | LANDED (render + typology vocalize leaf + tests green); italian voice OPEN — beef's ear |
+| M6 | kajuit =Cargo= prototype, refetch-on-miss | kajuit | LANDED (=tests/cargo.test.js= 4 steps green); freshness INERT until M2 cargo getter |
 | M7 | live sweep | — | daemon boot, =/survey= then =/vocalize band:160 language:ita=; one audible rep + attribution present on the drained rows |
 
 * tangle — surgical edits (unchanged from pass 1; hunk-verified vs HEAD 011508554)
@@ -65,7 +65,7 @@ index 007c7fd..8bdd4b2 100644
        await Deno.rename(`${file}.tmp`, file);
        return true;
      },
-+    lade: async (path, bytes) => {
++    store: async (path, bytes) => {
 +      const file = resolve(path);
 +      await parent(file);
 +      const held = await Deno.readFile(file).catch(() => null);
@@ -137,7 +137,7 @@ index 0432f34..07022f4 100644
    mode.freight = new Freight(root).stow(files.map((file) => file.absolute.slice(root.length + 1)));
    mode.freight.withUrl(daemon.attach.branch("/cargo").branch(daemon.mount.nature));
 +  mode.freight.receive = async (path, bytes) => {
-+    await paladin.state.lade(`${root}/${path}`, bytes);
++    await paladin.state.store(`${root}/${path}`, bytes);
 +    return mode.freight.admit(path).resolve(path);
 +  };
    mode.aperture.open("/freight", () => mode.freight.catalog);
@@ -425,7 +425,7 @@ Requires M2's cargo getter so the refetch actually sees fresh entries.
 
 In place: typology =freight.test.js= · =datasink.test.js= · runtime drain/roundtrip suites + =drain.playground.js= · paladin suite · **=fn.memo= LANDED with tests this session** (=subsystems/typology/tests/gestalten/belt/fn.test.js= — 4 passed, 8 steps; =once= gained its first case too).
 
-Adds owed per milestone: admit idempotence + sort position · lade byte-compare · receive lands file AND catalog entry · stamp-warn fires + boot proceeds · per-sink dirty (sentence update drains ONLY the sentence sink) · cargo getter freshness · italian corpus install→drain→fixpoint · =/vocalize= with stubbed sources (dry: no writes; wet: freight + trait.attribution; miss: reported; license-reject per source policy) · tts source via stubbed =speech.render= · commons index build + exact-intersection resolve · kajuit refetch guard.
+Adds owed per milestone: admit idempotence + sort position · store byte-compare · receive lands file AND catalog entry · stamp-warn fires + boot proceeds · per-sink dirty (sentence update drains ONLY the sentence sink) · cargo getter freshness · italian corpus install→drain→fixpoint · =/vocalize= with stubbed sources (dry: no writes; wet: freight + trait.attribution; miss: reported; license-reject per source policy) · tts source via stubbed =speech.render= · commons index build + exact-intersection resolve · kajuit refetch guard.
 
 Pre-DONE gate: each milestone flips only with the named test file + pasted counts. No suite ran for the quest scope except the landed =fn.test.js=.
 
@@ -433,7 +433,7 @@ Pre-DONE gate: each milestone flips only with the named test file + pasted count
 
 | file | change | milestone | kind |
 |------+--------+-----------+------|
-| =subsystems/paladin/belt/state.js= | +lade | M1 | surgical |
+| =subsystems/paladin/belt/state.js= | +store | M1 | surgical |
 | =subsystems/typology/prototypes/freight.js= | entry extraction + admit | M1 | surgical |
 | =systems/runtime/daemon/traits/index.js= | FRAUGHT +receive | M1 | surgical |
 | =systems/runtime/daemon/entities/daemon/Mode.ts= | installed Boolean → stamp | M2 | surgical (beef/mikro) |
@@ -485,10 +485,12 @@ Context verified: all four surgical hunks match the live files byte-for-byte. Pr
 
 The five amendments (folded then; two now superseded by pass 2): license gate required+strict (=/^(CC0|CC BY(?!-))/= — stands for tatoeba; commons policy re-opened as fork 1) · =kind()= via =literal.ontology=, populates dropped (stands) · band query on the =rank= COLUMN (stands) · =limit ?? 20= floor, dead =where= dropped (stands) · commons regex escaping (SUPERSEDED — the whole srsearch path is dead, index-first replaces it). The TWIN license bug remains OPEN in the curriculum quest's =harvest-phrasebook.js pick()=.
 
-Notes, no change owed: flush-at-end is CORRECT (per-literal flush would fire the 1500ms drain debounce under the 2000ms breather); crash recovery idempotent (=lade= byte-compare; DB-ahead deltas heal lazily at the next drain); datasink's unscoped =repo.find= safe only while the italian daemon is standalone.
+Notes, no change owed: flush-at-end is CORRECT (per-literal flush would fire the 1500ms drain debounce under the 2000ms breather); crash recovery idempotent (=store= byte-compare; DB-ahead deltas heal lazily at the next drain); datasink's unscoped =repo.find= safe only while the italian daemon is standalone.
 
 * changelog
 
 - session (cloud): terrain read → M1 capability triple → M2 declaration → M3 mode authored → patch cut.
 - critical pass (pass 1): hunks verified vs HEAD 011508554, precedents confirmed except the band query; 5 amendments folded into the tangle — tangle canonical, patch one pass behind.
 - design pass (pass 2, beef-driven): mode recast to OPERATOR (=CONVERSATIONAL+HARNESSED+TOOLED=; francesca stays a tool consumer) · system/source split (language = input, speakers DEAD, topography-config rejected) · TTS legitimized as an explicit source — elevenlabs hallucinator found ALREADY WIRED, needs only =via.render= + a voice · tool returns bagged (provider flatten truth) · stale-DB resolved as stamp-WARN (no reseed ceremony — /"its a dev setup. fuck it"/) · per-SINK drain precision in (per-row ruled DEAD) · cargo getter + client refetch-on-miss + =--watch-exclude= · attribution nested on VOCALIZED, jsonl dead · =fn.memo= LANDED live with tests. Patch now two passes behind; runtime ledger: receive · stamp · dirty · cargo · watch · admit — every one beef-reviewed at land.
+- land session 2 (M1 + M3): /"go on m1"/ + rename ruling /"paladin.state.lade i dont like this function name. change it to store"/ — all four hunks applied with =store=, tests written and green. Harvest ruling /"5 audios is not enough!! if no licence, assume one"/ EXECUTED (gate accepts null license, attributed "Tatoeba terms") — result UNCHANGED: 5 audio rows exist on ALL of tatoeba for our 143 targets, ANY license (counted from the full =sentences_with_audio.csv=). 5 is the availability ceiling, not a licensing artifact; the 138 are TTS-only. Also verified: the harvester never downloaded fuzzy-matched audio — the index intersection is exact-text; the stemming find explains the OLD zero-hit run, no content correction owed. M6 consumer sweep re-run unrestricted: =daemon.cargo= consumers were daemon.js + dossier.js only, =getAsset= surface unchanged for every buffer view — nothing missed.
+- land session (M5 + M6): =shard.hallucinate.vocalize= + =/speech= render leaf in typology (beef's mid-turn ruling: /"minor changes to the hal prototype are fine"/; the speech stub in =tests/hallucination.test.js= recast to the =(source, config) → bytes= contract, 2 new vocalize cases) · elevenlabs =via.render= (REST, =mp3_44100_128=, second out channel; provider test extended) · M6 grew into the =Cargo= prototype (beef named it; daemon slims to a delegate; dossier boots =new Cargo(connection)= + =refetch()= in the parallel gather; =fn.inflight= deviation flagged in status) · typology 118/1-pre-existing-snapshot-fail, kajuit 35 suites green. Curriculum quest side: patch APPLIED, harvest RUN index-first (5 hits / 138 → TTS queue) — the TTS queue is now M4's first real workload.

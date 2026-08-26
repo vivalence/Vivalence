@@ -1,6 +1,27 @@
 #+title: m40 ledger convention — one home: registry + variants live in the ledger
 #+filetags: :ledger:paladin:ghost:registry:variant:packages:convention:docker:docs:
-#+status: CHANGESET COMPLETE — every edit below is exact against HEAD; code gated on per-stage =go=. The earlier T1 (citizen-branch) is DEAD — recon killed it, see decision 5. *M2 (education emigration) is OUT OF SCOPE* — beef: /"ignore m2. not in scope."/ — its section stays below as the preserved record for a future quest; F1–F3 sleep with it. Live scope = M1 + M3.
+#+status: *M1' + M3 LANDED GREEN, uncommitted* — CLI rewrite + scope conventions + docs all in the working tree; typology 118 · paladin 20 · ghost 27 · runtime 52 · docs build 10 pages incl. the new =33.01_anatomy-of-the-ledger=; live `viva ledger doctor` renders. One pre-existing typology red (hallucination snapshot tool-loop step, byte-identical at HEAD). Late beef rulings folded: =variant init= = FULL first-boot (seed .env → filled → WIZARD boots + signs up admin + tears down — old instance =Init.jsx= restored verbatim to =variant/Init.jsx=; params form stays non-interactive); dispatch holy fix RATIFIED. M3 = README §3–7 renatured + machine-flow line · =51.01_install-the-system.mdx= rewritten on the new surface · new =33_ledger/33.01= anatomy page · =.env.example= wording. *M2 OUT OF SCOPE* (preserved below). *Rename variant→instance: LATER.* Quest COMPLETE pending beef commit.
+
+* the landed surface (beef's redesign, supersedes the C-tangle below)
+
+#+BEGIN_EXAMPLE
+viva ledger init [path]        wizard (pick home, persist VIVA_LEDGER_MOUNT) when no path;
+                               scaffolds locks/ logs/ registry/ variants/ + instances.json; NO seed
+viva ledger tap <src> [tgt]    remote → clone into store (or tgt, abs ref); local → abs ref in place
+viva ledger untap <ref>
+viva ledger doctor             absorbs /root + /taps + system/doctor: homes · record listing ·
+                               record health · store census · locks · instances · logs
+viva variant create <src> [tgt]  was clone; no tgt → <ledger>/variants/<slug>; prints VIVA_VARIANT_MOUNT line
+viva variant init              seeds .env from .env.example (rich wizard later)
+viva variant run|start|stop [runtime|kajuit|all]   run/start register into instances.json
+viva variant auth <signup|login> <user> <pass>
+viva variant doctor [slug|path]
+DEAD: system group · instance group · /ledger/{install,root,taps} · /variant/clone · lighthouse path segment
+#+END_EXAMPLE
+
+Files: =systems/ghost/trajectories/{index.js, ledger/index.js, variant/{create,auth,doctor,init,run,start,stop,target,index}.js}=; =ledger/{Init,Doctor}.jsx= moved from =system/=; =instance/= + =system/= + =variant/lighthouse/= + =variant/clone.js= deleted. =subsystems/paladin/lifecycle/populate.js= (store default = =<ledger>/registry= via =paladin.env=; variant bare-slug → =variants/<slug>=, absolute verbatim, else =paladin.source=). =subsystems/paladin/prototypes/vip.js= (=tap(source, target)=; supply's absent-record seed source → =scope.repository.branch("registry")= — flagged deviation, keeps fresh-clone boot alive while store-resident-unrecorded stays unmounted). Tests: =subsystems/paladin/tests/ledger.test.js= scope-convention describe · =systems/ghost/tests/ledger.test.js= rewritten (init scaffold · tap target error · doctor homes/record/rot · create shelf fallback) · =systems/ghost/tests/target.test.js= import retargeted.
+
+*Root-cause bonus — the CLI was DEAD at HEAD*: =subsystems/typology/gestalten/steer/dispatch.js:60= =invoke= (and =shotgun=) rewrapped every signal as =new Signal(signal)=; Signature adoption is EXCLUSIVE (nature only), so a two-segment =ShellSignal= collapsed to one segment and EVERY multi-segment =viva= command threw NotFound (probed: 2 segments in, 1 out; all 9 ghost ledger steps red at baseline). Fix: skip the rewrap for real Signatures — =if (!(signal instanceof Signature)) signal = new Signal(signal)= — HOLY-GROUND EDIT, minimal, both call sites, restores documented behavior; typology suite green minus the one pre-existing red.
 
 * intent
 

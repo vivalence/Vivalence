@@ -127,7 +127,7 @@ export default [
         "learning": "Vengo da Napoli"
       },
       "RANKED": {
-        "rank": 20,
+        "rank": 16,
         "zipf": 6.84,
         "fpm": 6920.0
       },
@@ -292,7 +292,7 @@ export default [
         "learning": "Leggo un articolo su Roma"
       },
       "RANKED": {
-        "rank": 40,
+        "rank": 23,
         "zipf": 6.38,
         "fpm": 2400.0
       },

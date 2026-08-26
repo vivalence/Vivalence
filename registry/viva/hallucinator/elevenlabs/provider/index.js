@@ -7,6 +7,26 @@ export default async function provider(service) {
   };
 
   function makeSpeech(voice) {
+    const render = async (text, config = {}) => {
+      const url =
+        `https://api.elevenlabs.io/v1/text-to-speech/${voice.id}` +
+        `?output_format=mp3_44100_128`;
+      const res = await fetch(url, {
+        method: "POST",
+        headers: { "xi-api-key": apiKey, "Content-Type": "application/json" },
+        body: JSON.stringify({
+          text,
+          model_id: "eleven_turbo_v2_5",
+          voice_settings: {
+            stability: config.stability ?? 0.5,
+            similarity_boost: config.similarityBoost ?? 0.75,
+          },
+        }),
+      });
+      if (!res.ok) throw new Error(`[elevenlabs] render ${res.status}: ${await res.text()}`);
+      return new Uint8Array(await res.arrayBuffer());
+    };
+
     const stream = async function* (textChunks, config = {}) {
       const url =
         `wss://api.elevenlabs.io/v1/text-to-speech/${voice.id}/stream-input` +
@@ -69,9 +89,12 @@ export default async function provider(service) {
       type:     "speech",
       tune:     voice.tune,
       context:  0,
-      channels: { in: [{ type: "text" }], out: [{ type: "audio", codec: "pcm_16000" }] },
+      channels: {
+        in: [{ type: "text" }],
+        out: [{ type: "audio", codec: "pcm_16000" }, { type: "audio", codec: "mp3_44100_128" }],
+      },
       config:   { voice: voice.id },
-      via:      { stream },
+      via:      { stream, render },
     };
   }
 

@@ -28,6 +28,7 @@ export * from "./view.js";
 export { View } from "./view.js";
 
 export * from "./freight.js";
+export * from "./cargo.js";
 export * from "./dataset.js";
 export * from "./datasink.js";
 // export * from "./feature.js";

@@ -10,21 +10,13 @@ export class Daemon extends Entity {
   connection = null;
   entities = null;
   lighthouse = null;
-  cargo = {};
+  cargo = null;
   statics = {};
   status = new Status();
   modes = {};
 
   getAsset(asset) {
-    if (!this.cargo || !asset) return null;
-    if (asset.path) return this.cargo[asset.path] ?? null;
-    if (asset.slug) {
-      const entry = Object.entries(this.cargo).find(
-        ([key]) => key.endsWith("/" + asset.slug) || key.startsWith(asset.slug),
-      );
-      return entry?.[1] ?? null;
-    }
-    return null;
+    return this.cargo?.resolve(asset) ?? null;
   }
 
   toJSON() {

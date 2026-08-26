@@ -115,6 +115,14 @@ export function Hallucination(cortex) {
     );
   };
 
+  const vocalizing = async (ctx) => {
+    ctx.output = await shard.hallucinate.vocalize(
+      resolveFaculty("speech", "render", ctx.policy.tune),
+      ctx.input,
+      policyOf(ctx, "speech", "render"),
+    );
+  };
+
   const hallucinator = new Vector();
 
   for (const avenue of ["dialogue", "object"]) {
@@ -133,7 +141,8 @@ export function Hallucination(cortex) {
   hallucinator
     .branch("/speech")
     .use(sourcing)
-    .open({ nature: "stream", yields: Audio.Any }, synthesizing);
+    .open({ nature: "stream", yields: Audio.Any }, synthesizing)
+    .open("render", vocalizing);
 
   return shape.object(hallucinator, steer.strategy.echo);
 }

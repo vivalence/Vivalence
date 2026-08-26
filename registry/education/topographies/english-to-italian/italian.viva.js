@@ -1,11 +1,11 @@
-import { Dataset, Freight } from "@vivalence/typology";
+import { Dataset, Datasink, Freight, writer } from "@vivalence/typology";
 
 export const manifest = {
   type: "topography",
   slug: "english-to-italian",
   name: "Italian Vocabulary",
   version: "0.2.0",
-  traits: ["DATASET", "FRAUGHT"],
+  traits: ["DATASET", "FRAUGHT", "DATASINK"],
 };
 
 export const freight = new Freight("freight/audio");
@@ -19,6 +19,13 @@ export const freight = new Freight("freight/audio");
 export const dataset = new Dataset({
   symbol: "dataset/symbols",
   literal: "dataset/literals",
+});
+
+export const datasink = new Datasink({
+  literal: [
+    ["sentence", "dataset/literals/sentences.js"],
+    ["word", writer.split("word.part-of-speech.%", "dataset/literals/words/%.js")],
+  ],
 });
 
 export { statics } from "./statics/language.js";

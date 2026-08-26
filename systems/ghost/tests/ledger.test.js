@@ -29,11 +29,12 @@ async function author(root, slug, owner) {
   );
 }
 
-describe("viva ledger/{tap,taps,untap,root}", () => {
+describe("viva ledger/{init,tap,untap,doctor} + variant/create", () => {
+  let ledger;
   let store;
 
   beforeAll(async () => {
-    const ledger = await Deno.makeTempDir({ prefix: "ghost-ledger-" });
+    ledger = await Deno.makeTempDir({ prefix: "ghost-ledger-" });
     store = await Deno.makeTempDir({ prefix: "ghost-store-" });
     paladin.scopes([
       ["ledger", () => true, () => new Path(ledger)],
@@ -41,6 +42,15 @@ describe("viva ledger/{tap,taps,untap,root}", () => {
     ]);
     await paladin.ledger.mount();
     await author(store, "pack", "@pack");
+  });
+
+  it("init scaffolds locks/logs/registry/variants + instances.json", async () => {
+    const effect = await drive(["ledger/init", ledger]);
+    expect(effect.scaffolded).toEqual(["locks", "logs", "registry", "variants"]);
+    for (const sub of effect.scaffolded) {
+      expect((await Deno.stat(`${ledger}/${sub}`)).isDirectory).toBe(true);
+    }
+    expect(await paladin.read.json(new Path(`${ledger}/instances.json`))).toEqual({});
   });
 
   it("tap records a store-relative reference", async () => {
@@ -55,11 +65,10 @@ describe("viva ledger/{tap,taps,untap,root}", () => {
     expect(effect.record).toEqual(["pack"]);
   });
 
-  it("taps lists reference + root + declared owners", async () => {
-    const [entry] = await drive(["ledger/taps"]);
-    expect(entry.reference).toBe("pack");
-    expect(entry.root).toBe(`${store}/pack`);
-    expect(entry.declared).toEqual(["@pack"]);
+  it("tap of a local source with a target throws", async () => {
+    const error = await drive(["ledger/tap", "pack", `${store}/elsewhere`])
+      .then(() => null, (thrown) => thrown);
+    expect(String(error).includes("target only applies to a remote source")).toBe(true);
   });
 
   it("tap throws on a dir with no package declaration", async () => {
@@ -76,14 +85,46 @@ describe("viva ledger/{tap,taps,untap,root}", () => {
     expect(await paladin.ledger.registry.list()).toEqual(["pack"]);
   });
 
-  it("taps tolerates a rotten record entry — declared goes empty", async () => {
+  it("doctor reports homes + the record with roots and declared owners", async () => {
+    const effect = await drive(["ledger/doctor"]);
+    expect(effect.homes.ledger).toBe(paladin.scope.ledger.absolute);
+    expect(effect.homes.store).toBe(new Path(store).absolute);
+    expect(effect.homes.variants).toBe(`${ledger}/variants`);
+    expect(effect.homes.record.endsWith("registry.json")).toBe(true);
+    const entry = effect.record.find((held) => held.reference === "pack");
+    expect(entry.root).toBe(`${store}/pack`);
+    expect(entry.declared).toEqual(["@pack"]);
+  });
+
+  it("doctor tolerates a rotten record entry — declared goes empty", async () => {
     await author(store, "rot", "@rot");
     await drive(["ledger/tap", "rot"]);
     await Deno.remove(`${store}/rot`, { recursive: true });
-    const entries = await drive(["ledger/taps"]);
-    const rotten = entries.find((entry) => entry.reference === "rot");
+    const effect = await drive(["ledger/doctor"]);
+    const rotten = effect.record.find((held) => held.reference === "rot");
     expect(rotten.declared).toEqual([]);
     await drive(["ledger/untap", "rot"]);
+  });
+
+  it("variant create without a target shelves under <ledger>/variants/<slug>", async () => {
+    await Deno.writeTextFile(
+      `${store}/pack/probe.viva.js`,
+      `export const manifest = { type: "variant", slug: "probe", version: "0.0.1" };`,
+    );
+    const effect = await drive(["variant/create", "@pack/variant/probe"]);
+    expect(effect.target).toBe(`${ledger}/variants/probe`);
+    expect(effect.env).toBe("VIVA_VARIANT_MOUNT=probe");
+    expect((await Deno.stat(`${ledger}/variants/probe/probe.viva.js`)).isFile).toBe(true);
+  });
+
+  it("variant init seeds .env from .env.example, idempotent, names the fill", async () => {
+    const home = `${ledger}/variants/probe`;
+    await Deno.writeTextFile(`${home}/.env.example`, "VIVA_SYSTEM_MODE=\nSECRET_VIVA_JWT=\n");
+    paladin.scopes([["variant", () => true, () => new Path(home)]]);
+    const first = await drive(["variant/init"]);
+    expect(first.env).toBe("created");
+    expect(first.fill).toEqual(["VIVA_SYSTEM_MODE", "SECRET_VIVA_JWT"]);
+    expect(first.next.includes("fill .env")).toBe(true);
   });
 
   it("untap of an unrecorded reference is a no-op", async () => {
@@ -95,12 +136,5 @@ describe("viva ledger/{tap,taps,untap,root}", () => {
     const effect = await drive(["ledger/untap", "pack"]);
     expect(effect.record).toEqual([]);
     expect((await Deno.stat(`${store}/pack`)).isDirectory).toBe(true);
-  });
-
-  it("root shows ledger + store roots and the record path", async () => {
-    const effect = await drive(["ledger/root"]);
-    expect(effect.registry).toBe(new Path(store).absolute);
-    expect(effect.ledger).toBe(paladin.scope.ledger.absolute);
-    expect(effect.record.endsWith("registry.json")).toBe(true);
   });
 });

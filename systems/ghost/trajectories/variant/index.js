@@ -1,2 +1,7 @@
-export { clone } from "./clone.js";
-export * as lighthouse from "./lighthouse/index.js";
+export { auth } from "./auth.js";
+export { cloneDir, create } from "./create.js";
+export { doctor } from "./doctor.js";
+export { init } from "./init.js";
+export { run } from "./run.js";
+export { start } from "./start.js";
+export { stop } from "./stop.js";

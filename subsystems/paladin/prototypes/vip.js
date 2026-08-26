@@ -35,27 +35,27 @@ export class Vip {
     return this;
   }
 
-  // testament/ledger/registry.json is the record of package locations. Absent →
-  // seeded by discovery over scope.registry (self-priming, no init ceremony).
-  // References resolve through ledger.registry — absolute verbatim, relative to the store root.
   async supply() {
     await this.paladin.ledger.mount(); // fn.once — self-priming, no boot-order landmine
     const locations = await this.paladin.ledger.registry.read()
-      ?? await this.paladin.ledger.registry.seed(this.paladin.scope.registry);
+      ?? await this.paladin.ledger.registry.seed(this.paladin.scope.repository.branch("registry"));
     for (const location of locations) await this.mount(this.paladin.ledger.registry.resolve(location));
     return this;
   }
 
   // tap = materialize + record. Mount is runtime's job — supply() folds the record at boot.
-  async tap(source) {
+  async tap(source, target) {
     await this.paladin.ledger.mount();
     let reference = source;
     if (/^(https?:|git@|ssh:)/.test(source)) {
-      if (!this.paladin.scope.registry)
+      if (!target && !this.paladin.scope.registry)
         throw new Error(`[VIP] tap ${source}: no package store — a remote tap clones into scope.registry (set VIVA_REGISTRY_MOUNT)`);
       const slug = source.split("/").at(-1).replace(/\.git$/, "");
-      await this.paladin.clone(source, this.paladin.scope.registry.branch(slug));
-      reference = slug;
+      const destination = target ? new Path(target) : this.paladin.scope.registry.branch(slug);
+      await this.paladin.clone(source, destination);
+      reference = target ? destination.absolute : slug;
+    } else if (target) {
+      throw new Error(`[VIP] tap ${source}: target only applies to a remote source — a local tap records the reference in place`);
     }
     const root = this.paladin.ledger.registry.resolve(reference);
     const declarations = await this.paladin.find.type(root, "package");

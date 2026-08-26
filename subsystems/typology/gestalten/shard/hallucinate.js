@@ -159,3 +159,17 @@ export async function* synthesize(faculty, { source, config }, policy = {}) {
     span.close();
   }
 }
+
+export async function vocalize(faculty, { source, config }, policy = {}) {
+  const span = policy.span ?? new Span("/hallucination");
+  span.open();
+  span.note({ faculty: faculty.type });
+  try {
+    return await faculty.via.render(source, config);
+  } catch (fault) {
+    span.fault(fault);
+    throw fault;
+  } finally {
+    span.close();
+  }
+}

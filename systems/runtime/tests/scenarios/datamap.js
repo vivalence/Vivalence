@@ -99,7 +99,7 @@ export async function seed() {
   await em.flush()
 
   const mode = em.create(ModeEntity, {
-    slug: "test", type: "test", traits: ["APPLICATION"], installed: true,
+    slug: "test", type: "test", traits: ["APPLICATION"], installed: "installed",
   })
   await em.flush()
 

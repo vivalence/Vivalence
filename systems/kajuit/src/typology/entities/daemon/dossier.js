@@ -10,6 +10,7 @@ import {
 } from "@vivalence/typology";
 import { logger } from "$telemetry";
 import { Daemon } from "./daemon.js";
+import { Cargo } from "../../prototypes/cargo.js";
 import { Dataspace } from "../../prototypes/dataspace.js";
 import { ModeDossier } from "../mode/index.js";
 import { IntentDossier } from "../intent.js";
@@ -67,20 +68,20 @@ export const DaemonDossier = {
           entities,
           seed: seedDaemon(daemon),
         });
-        const [status, manifest, cargo, cortex, aperture, statics] = await Promise.all([
+        daemon.cargo = new Cargo(daemon.connection);
+        const [status, manifest, cortex, aperture, statics] = await Promise.all([
           daemon.connection.call("/status"),
           daemon.connection.call("/metadata/manifest"),
-          daemon.connection.call("/metadata/cargo"),
           daemon.connection.call("/metadata/cortex"),
           daemon.connection.call("/metadata/aperture"),
           daemon.connection.call("/metadata/statics"),
+          daemon.cargo.refetch(),
           daemon.entities.init(),
         ]);
         daemon.status.set(status);
         daemon.manifest = manifest;
         daemon.statics = statics;
         daemon.mount = new Path(`/daemon/${manifest.slug}`);
-        daemon.cargo = cargo;
         daemon.link = new Path(`/${ctx.lighthouse.manifest.slug}/${manifest.slug}`).rebase("/viva");
         daemon.call = shape.connection.wire(daemon.connection, aperture);
         // await daemon.entities.populate(["mode", "intent", "thread"]);

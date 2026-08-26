@@ -14,6 +14,15 @@ const MIME = {
   json: "application/json",
 };
 
+const entry = (path) => {
+  const name = path.split("/").pop();
+  return {
+    slug: name.replace(/\.[^.]+$/, ""),
+    path,
+    type: MIME[name.split(".").pop().toLowerCase()] || "application/octet-stream",
+  };
+};
+
 export class Freight {
   lading = [];
 
@@ -28,14 +37,13 @@ export class Freight {
   }
 
   stow(paths) {
-    this.lading = [...paths].sort().map((path) => {
-      const name = path.split("/").pop();
-      return {
-        slug: name.replace(/\.[^.]+$/, ""),
-        path,
-        type: MIME[name.split(".").pop().toLowerCase()] || "application/octet-stream",
-      };
-    });
+    this.lading = [...paths].sort().map(entry);
+    return this;
+  }
+
+  admit(path) {
+    if (this.lading.some((held) => held.path === path)) return this;
+    this.lading = [...this.lading, entry(path)].sort((a, b) => (a.path < b.path ? -1 : 1));
     return this;
   }
 

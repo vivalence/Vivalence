@@ -1,5 +1,5 @@
 import { assertEquals, assertThrows } from "@std/assert";
-import { specs } from "../trajectories/instance/target.js";
+import { specs } from "../trajectories/variant/target.js";
 
 Deno.test("specs: no target → all children", () => {
   const result = specs(undefined);

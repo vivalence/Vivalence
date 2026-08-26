@@ -56,6 +56,26 @@ specimen.describe("Freight", () => {
     specimen.expect(skipped.lading.map((entry) => entry.slug)).not.toContain("stale");
   });
 
+  specimen.it("an admit registers new cargo idempotently, lading stays path-sorted", async () => {
+    const directory = await Deno.makeTempDir();
+    await Deno.writeFile(`${directory}/beep.mp3`, new Uint8Array([0xff, 0xfb]));
+    await Deno.writeFile(`${directory}/zulu.mp3`, new Uint8Array([0xff, 0xfb]));
+    const freight = await stow(new Freight(directory), directory);
+
+    specimen.expect(freight.admit("nested/fresh.mp3")).toBe(freight);
+    specimen.expect(freight.lading.map((entry) => entry.path)).toEqual([
+      "beep.mp3",
+      "nested/fresh.mp3",
+      "zulu.mp3",
+    ]);
+    const fresh = freight.resolve("nested/fresh.mp3");
+    specimen.expect(fresh.slug).toBe("fresh");
+    specimen.expect(fresh.type).toBe("audio/mpeg");
+
+    freight.admit("nested/fresh.mp3");
+    specimen.expect(freight.lading.length).toBe(3);
+  });
+
   specimen.it("a query resolves by path or slug", async () => {
     const directory = await Deno.makeTempDir();
     await Deno.writeFile(`${directory}/beep.mp3`, new Uint8Array([0xff, 0xfb]));

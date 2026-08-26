@@ -1,0 +1,117 @@
+#+title: the ledger becomes the one home, the cli collapses to two nouns, and every viva command was already dead
+#+filetags: :ledger:paladin:ghost:typology:dispatch:cli:convention:m40:callout:
+
+* what happened, in one breath
+
+Beef opened with a convention question ("i'd like to think up a convention. maybe we
+place the registry and the variants into the ledger. ie .viva/registry .viva/variants
+and all those suplocations can be gitmanaged. the ledger aint,no?"), the study became
+quest m40 ("number it"), the quest became a full CLI-surface redesign across five
+exchanges of verb ontology, and the go ("go on the cli rewrite. do it now. rename
+later.") landed it — during which the baseline test run exposed that EVERY multi-segment
+=viva= command was dead at HEAD: =steer.dispatch.invoke= rewrapped signals as
+=new Signal(signal)= and Signature adoption-exclusive collapsed a two-segment
+ShellSignal to one segment, NotFound forever. Two-line instanceof guard
+(holy-ground, beef ratified: "go on the fix"), four suites green, live
+=viva ledger doctor= renders, M3 docs landed. Quest COMPLETE pending beef's commit.
+
+* the convention (landed)
+
+=~/.viva/= = scope.ledger, machine state, never git: =registry.json= (record) ·
+=instances.json= · =locks/ logs/= · =registry/= (store — each child its own clone) ·
+=variants/= (shelf). One law: explicit env mount > convention default, everywhere.
+Store = =<ledger>/registry= UNCONDITIONAL (the citizen-branch draft died — recon:
+=is.citizen= means server-side-with-write-access, cannot discriminate repo-dev).
+=VIVA_VARIANT_MOUNT= learns bare slugs → =variants/<slug>=; both scope resolvers now
+read =paladin.env= (closed the env-file hole where a mounted =VIVA_REGISTRY_MOUNT=
+via =VIVA_ENV_FILE= was silently ignored).
+
+* the verb ontology (beef's rulings, verbatim)
+
+- "we have to separate variant from variants. ledger/variants are many. but any
+  runtime ever only renders one of them." — scope.variant SINGULAR forever, no
+  variants mount ("i dont want a variants mount either… the ledger/variants/slug is
+  a fallback/default").
+- seed: "no fallback on boot. if a package is in /registry but not .json thats a
+  feature. and on install makes no sense." + "the idea is that packages can live
+  ANYWHERE. the ledger/register is just a heuristic. like brew has a default
+  location. only we can have others too." — record over discovery; my
+  "fresh clone mounts nothing until tapped" overreach got "i didnt say that. fuck.
+  youre way off." Settlement: supply seeds an ABSENT record from
+  =scope.repository.branch("registry")= (flagged deviation, keeps fresh-clone boot);
+  init NEVER seeds; store-resident-unrecorded stays unmounted.
+- surface audit ("what commands do i have on ghost…") found the rot: "ok. i think we
+  can cut down system and move the good stuff into ledger. viva ledger install.
+  viva ledger doctor… move ledger root into ledger doctor too. and we can fold
+  instance and variant into just variant. or is this a nono?" — not a nono; instance
+  ≡ variant-at-its-mount; "instance" survives as paladin's ledger NOUN.
+- "lets standardize either install or init. or are they different?" — different:
+  install = from elsewhere, init = fresh in place; viva needs only init (tap/clone
+  carry the from-elsewhere). "and standardize tapping, cloning??" — both stay: tap =
+  reference, clone = copy-to-own… then "rename variatn clone to variant create".
+- amendments: tap gains =[target]= (remote only) · auth flattened ("these are too
+  deep. viva variant auth [] is fine") · run/start/stop all take =[runtime|kajuit|all]=
+  · variant doctor takes =[slug|path]= · "collaps taps into doctor".
+- init: first folded away, then resurrected ("where init will have a rich wizard
+  later"), then mid-landing "i assume init also runs signup?!?!?" + "init still
+  wizard for ensuring credentials" — final: seed .env → filled → the OLD instance
+  Init.jsx (restored verbatim from git to =variant/Init.jsx=) boots, tails to ALIVE,
+  prompts credentials, signs up, tears down; =<user> <pass>= params skip the wizard.
+
+* the landed surface
+
+=viva ledger {init,tap,untap,doctor}= + =viva variant {create,init,run,start,stop,auth,doctor}=.
+DEAD: ghost =trajectories/system/= (5 files) · =trajectories/instance/= (9) ·
+=/ledger/{install,root,taps}= · =/variant/clone= · =variant/lighthouse/= (4).
+create shelves to =variants/<slug>= and prints the =VIVA_VARIANT_MOUNT= line;
+run/start/init register =instances.json=; ledger doctor absorbed root+taps+system-doctor
+(homes · record listing · store census · locks · instances · logs).
+Files: =systems/ghost/trajectories/{index.js, ledger/*, variant/*}= ·
+=subsystems/paladin/lifecycle/populate.js= · =subsystems/paladin/prototypes/vip.js=
+(=tap(source, target)=) · tests in both suites.
+
+* the corpse in the baseline
+
+Ghost baseline: 9 ledger steps red, "Not found" at
+=subsystems/typology/gestalten/steer/dispatch.js:62=. Probe: =new Signal(shellSignal)=
+→ 2 segments in, 1 out (adoption-exclusive gives nature only, heir chain gone). The
+trie was perfect; the CLI entry (=mod.js:115=) rides the same invoke — the live
+=viva= binary could not dispatch ANY =noun/verb= command. Fix (both call sites):
+=if (!(signal instanceof Signature)) signal = new Signal(signal)=. Typology suite
+green minus one hallucination-snapshot step — first called "pre-existing at HEAD",
+CORRECTED at commit-sorting time: the tree carries the italian-datasink strand's
+edits to =prototypes/hallucination.js= etc., so that red belongs to the OTHER
+strand's mid-flight state, not to pristine HEAD.
+
+* M3 docs (landed, build green — 10 pages)
+
+README §3–7 renatured (=/ledger/init= · =/variant/create= · =/variant/auth signup=)
++ one machine-flow line (no path args → everything lands in =~/.viva=) ·
+=51.01_install-the-system.mdx= rewritten on the new surface (ledger/init wizard →
+tap/doctor → create + =export VIVA_VARIANT_MOUNT=localhost= → init twice → run) ·
+NEW =documentation/content/30-39_architecture/33_ledger/33.01_anatomy-of-the-ledger.mdx=
+(tree · one resolution law · record-over-discovery · variant-singular) ·
+=.env.example= wording.
+
+* callouts logged this session
+
+Container-rooted-paths recidivism, second same-day strike ("i told you I DONT FUCKING
+KNOW WHICH FILE populate.js IS WITHOUT FUCKING PAAATTTHHHS!!! … what /install ????
+CONTEXT RETARD COOONTTTEEEEEEEXXXTT") — the collision was real: two =populate.js=
+in the very quest (paladin + runtime lifecycle). Rule: the path scan is per-MESSAGE,
+not per-file-write. =family: yap-wrong-artifact=.
+
+* settlement — loose ends, all placed
+
+1. Commit = beef, TWO buckets: m40 set vs italian-pair set (list in transcript;
+   the strands share the tree).
+2. M2 education emigration OUT OF SCOPE ("ignore m2. not in scope.") — preserved
+   in-quest with clean import recon (typology 118 + runtime-tests 4; shared/vector
+   scare was 45 bak/ files).
+3. Rename variant→instance: beef said LATER; an untracked
+   =.ikiro/quests/variant-to-instance.quest.org= from a parallel session already
+   exists — reconcile numbering before executing.
+4. The init wizard's live boot leg is untested (needs filled env + live lighthouse)
+   — one manual =viva variant/init= owed at next boot.
+5. ghost codemap stale flat-mount line fixed in-shard; frontier + memory
+   (project_package_ledger_feature) updated to LANDED.

@@ -1,6 +1,6 @@
 import { Box, React, Select, Text, TextInput, useInput, useState } from "@vivalence/sheets";
 
-// narrative wizard for /system/init.
+// narrative wizard for /ledger/init.
 // step 1 :: how is viva embedded? (.config file | manual export line | abort)
 // step 2 :: where does $viva live?
 // step 3 :: (only when manual) show export line, wait for enter
@@ -53,7 +53,7 @@ export function Init({ home, persist, exportLineFor, buffer }) {
     return (
       <Box flexDirection="column">
         <Text bold>
-          where does $viva live? <Text color="gray">$VIVA_SYSTEM_MOUNT</Text>{" "}
+          where does $viva live? <Text color="gray">$VIVA_LEDGER_MOUNT</Text>{" "}
         </Text>
         <TextInput value={mount} onChange={setMount} onSubmit={onSubmit} />
       </Box>

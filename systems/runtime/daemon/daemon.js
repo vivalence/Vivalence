@@ -1,4 +1,4 @@
-import { Mode, Path, Vector, Aperture, shard } from "@vivalence/typology";
+import { Mode, Path, Vector, Aperture, Cargo, shard } from "@vivalence/typology";
 // import { maps } from "@vivalence/runtime";
 
 export class Daemon {
@@ -15,7 +15,7 @@ export class Daemon {
   harness = null;
   entity = null; // ? maybe network level, thus runtime thus daemonDie. daemonDie.entity? hmm
   statics = null;
-  cargo = {};
+  cargo = new Cargo();
   docs = {};
 
   // schema = {

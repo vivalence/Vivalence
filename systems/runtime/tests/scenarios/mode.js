@@ -84,7 +84,7 @@ async function wireMode(viva, daemon) {
       slug: viva.manifest.slug,
       type: viva.manifest.type,
       traits: viva.manifest.traits,
-      installed: true,
+      installed: "installed",
     });
   await em.flush();
   mode.id = mode.entity.id;

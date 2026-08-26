@@ -31,6 +31,15 @@ export default function state(paladin) {
       await Deno.rename(`${file}.tmp`, file);
       return true;
     },
+    store: async (path, bytes) => {
+      const file = resolve(path);
+      await parent(file);
+      const held = await Deno.readFile(file).catch(() => null);
+      if (held && held.length === bytes.length && held.every((byte, i) => byte === bytes[i])) return false;
+      await Deno.writeFile(`${file}.tmp`, bytes);
+      await Deno.rename(`${file}.tmp`, file);
+      return true;
+    },
     open: async (path) => {
       const file = resolve(path);
       await parent(file);

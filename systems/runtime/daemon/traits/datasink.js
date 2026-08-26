@@ -1,5 +1,6 @@
 import { fn, shard, project, Datasink } from "@vivalence/typology";
 import paladin from "@vivalence/paladin";
+import { stamp } from "./dataset.js";
 
 const DATASPACE = new Set(["symbol", "literal"]);
 const DEBOUNCE = 1500;
@@ -22,18 +23,20 @@ export const DATASINK = (mode, daemon) => {
   let flight = null;
 
   const drain = async (input = {}) => {
-    const types = input.all || !dirty.size ? datasink.types : [...dirty];
+    const chosen = input.all || !dirty.size ? null : [...dirty];
+    dirty.clear();
     const report = { drained: [], written: 0, orphans: {} };
 
-    for (const type of types) {
-      dirty.delete(type);
+    for (const type of datasink.types) {
+      const sinks = datasink.of(type).filter((sink) => !chosen || chosen.includes(sink));
+      if (!sinks.length) continue;
       const repo = daemon.entities[type];
       if (!repo) continue;
 
       const relations = Object.keys(meta[type]?.properties ?? {});
       const claimed = new Set();
 
-      for (const sink of datasink.of(type)) {
+      for (const sink of sinks) {
         const columns = sink.target.keep.filter((name) => meta[type]?.columns?.[name]);
         const found = await repo.find(sink.where ?? {}, { populate: relations });
         const rows = found
@@ -49,9 +52,16 @@ export const DATASINK = (mode, daemon) => {
         }
       }
 
-      const total = await repo.count({});
-      report.orphans[type] = Math.max(0, total - claimed.size);
+      if (sinks.length === datasink.of(type).length) {
+        const total = await repo.count({});
+        report.orphans[type] = Math.max(0, total - claimed.size);
+      }
       report.drained.push(type);
+    }
+
+    if (report.written && mode.entity?.id && daemon.entities.mode) {
+      mode.entity.installed = await stamp(mode);
+      await daemon.entities.mode.nativeUpdate({ id: mode.entity.id }, { installed: mode.entity.installed });
     }
 
     return report;
@@ -64,15 +74,25 @@ export const DATASINK = (mode, daemon) => {
 
   for (const type of datasink.types)
     for (const op of ["create", "update", "delete"])
-      daemon.twitch.open(`/after/${type}/${op}`, () => {
+      daemon.twitch.open(`/after/${type}/${op}`, (ctx) => {
         if (!armed) return;
-        dirty.add(type);
+        const entity = ctx?.input?.entity;
+        const sinks = datasink.of(type);
+        const claimed = entity
+          ? sinks.filter((sink) => sink.match?.(entity, { daemon, mode }) === true)
+          : [];
+        for (const sink of claimed.length ? claimed : sinks) dirty.add(sink);
         settle();
       });
 
   return {
-    finalize: () => {
+    finalize: async () => {
       armed = true;
+      const held = mode.entity.installed;
+      if (typeof held === "string" && held && held !== (await stamp(mode)))
+        console.warn(
+          `[DATASINK] ${mode.type}/${mode.slug} dataset files differ from the installed stamp — same-sink drains may revert them; reseed when convenient`,
+        );
     },
     terminate: () => {
       armed = false;

@@ -5,6 +5,12 @@ const CHILDREN = {
   kajuit: { task: "kajuit/watch" },
 };
 
+export async function register() {
+  await paladin.ledger.mount();
+  const mount = paladin.scope.variant.absolute;
+  await paladin.ledger.instances.write(mount, { mount });
+}
+
 export function specs(param, { attachment = "inherit" } = {}) {
   const target = param ?? "all";
   const known = ["all", ...Object.keys(CHILDREN)];

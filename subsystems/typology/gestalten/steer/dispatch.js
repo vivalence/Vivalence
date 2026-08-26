@@ -1,4 +1,4 @@
-import { Signal, Long, Short, middleware, NotFound } from "@vivalence/typology";
+import { Signal, Signature, Long, Short, middleware, NotFound } from "@vivalence/typology";
 import { scope, feed } from "./match.js";
 import { request } from "./strategy.js";
 import { descend } from "./trie.js"; // the carry-fold step, shared with the tree family
@@ -57,14 +57,14 @@ export function traverse(vector, signals) {
 }
 
 export function invoke(vector, signal, execute = request) {
-  signal = new Signal(signal);
+  if (!(signal instanceof Signature)) signal = new Signal(signal);
   const [effect, carry, steps] = traverse(vector, signal);
   if (!effect) throw new NotFound(signal);
   return execute(carry, effect, steps, signal);
 }
 
 export function shotgun(vector, signal, execute = request) {
-  signal = new Signal(signal);
+  if (!(signal instanceof Signature)) signal = new Signal(signal);
   let position = vector;
   let carry = middleware.forward;
   let steps = [];

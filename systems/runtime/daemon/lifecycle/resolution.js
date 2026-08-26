@@ -1,5 +1,6 @@
-import { shape, shard, steer } from "@vivalence/typology";
+import { shape, shard, steer, Cargo } from "@vivalence/typology";
 import { stagger } from "../traits/index.js";
+import { stamp } from "../traits/dataset.js";
 
 export async function domain(daemonDie) {
   daemonDie.good.aperture
@@ -17,13 +18,20 @@ export async function domain(daemonDie) {
 }
 
 export async function freight(daemonDie) {
-  daemonDie.good.cargo = {};
-  for (const mode of daemonDie.good.flatmodes()) {
-    if (!mode.implements("FRAUGHT")) continue;
-    const catalog = mode.freight.catalog;
-    for (const [key, value] of Object.entries(catalog)) {
-      if (daemonDie.good.cargo[key]) console.warn(`[FREIGHT] slug collision: "${key}"`);
-      daemonDie.good.cargo[key] = value;
+  const good = daemonDie.good;
+  const fraught = () =>
+    good
+      .flatmodes()
+      .filter((mode) => mode.implements("FRAUGHT"))
+      .map((mode) => mode.freight);
+
+  good.cargo = new Cargo(fraught);
+
+  const seen = new Set();
+  for (const freight of fraught()) {
+    for (const key of Object.keys(freight.catalog)) {
+      if (seen.has(key)) console.warn(`[FREIGHT] slug collision: "${key}"`);
+      seen.add(key);
     }
   }
 }
@@ -49,7 +57,10 @@ export async function modes(daemonDie) {
         console.warn(`[trait] ${mode.type}/${mode.slug} exports datasink without DATASINK`);
       }
 
-      await daemonDie.good.entities.mode.nativeUpdate({ id: mode.entity.id }, { installed: true });
+      const held = mode.entity.installed;
+      const stamped = typeof held === "string" && held ? held : await stamp(mode);
+      mode.entity.installed = stamped;
+      await daemonDie.good.entities.mode.nativeUpdate({ id: mode.entity.id }, { installed: stamped });
     }
 
     await Promise.all(finalizers.map((finalize) => finalize()));

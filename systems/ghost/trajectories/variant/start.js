@@ -1,10 +1,9 @@
 import paladin from "@vivalence/paladin";
-import { specs } from "./target.js";
+import { register, specs } from "./target.js";
 
 export async function start(ctx) {
   const chosen = specs(ctx.signal.params[0], { attachment: "detached" });
 
-  // dedup: refuse if a live lock exists; sweep stale locks
   for (const spec of chosen) {
     if (await paladin.ledger.lock(spec.instance, spec.process).alive()) {
       throw new Error(`${spec.instance}:${spec.process} already running`);
@@ -13,6 +12,7 @@ export async function start(ctx) {
   }
 
   const processes = await Promise.all(chosen.map((spec) => paladin.ledger.spawn(spec)));
+  await register();
   const slug = processes[0]?.spec.slug;
 
   console.log(
@@ -20,7 +20,7 @@ export async function start(ctx) {
       .map((process) => `${process.spec.type}=${process.pid}`)
       .join(", ")})`,
   );
-  console.log(`ghost: stop with: viva /instance/stop`);
+  console.log(`ghost: stop with: viva /variant/stop`);
 
   ctx.effect = {
     status: "started",
