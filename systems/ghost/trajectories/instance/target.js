@@ -6,12 +6,16 @@ const CHILDREN = {
 };
 
 export async function register() {
-  await paladin.ledger.mount();
   const mount = paladin.scope.instance.absolute;
-  await paladin.ledger.instances.write(mount, { mount });
+  const held = await paladin.ledger.instances.lookup(mount);
+  if (!held) {
+    throw new Error(`instance: mount not registered — viva instances/tap ${mount} --slug=<slug>`);
+  }
+  await paladin.ledger.instances.write(held.slug, { mount });
+  return held.slug;
 }
 
-export function specs(param, { attachment = "inherit" } = {}) {
+export function specs(param, { attachment = "inherit", instance = null } = {}) {
   const target = param ?? "all";
   const known = ["all", ...Object.keys(CHILDREN)];
   if (!known.includes(target)) {
@@ -21,7 +25,6 @@ export function specs(param, { attachment = "inherit" } = {}) {
   if (!paladin.scope.instance) throw new Error("instance: no instance mounted — set VIVA_INSTANCE_MOUNT");
 
   const mount = paladin.scope.instance.absolute;
-  const instance = mount.split("/").filter(Boolean).pop(); // @beef ugly and stupid
   const config = `${paladin.scope.repository.absolute}/deno.jsonc`;
 
   const chosen = target === "all" ? Object.keys(CHILDREN) : [target];

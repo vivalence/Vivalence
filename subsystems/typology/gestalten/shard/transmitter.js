@@ -1,6 +1,8 @@
 import { atom } from "nanostores";
 import { ConnectionError, Response, Socket, Url, Vector } from "@vivalence/typology";
 
+const stamp = () => new Date().toISOString().slice(11, 23);
+
 // used in connections
 
 // multiplex — base transport. One WebSocket per origin, lazily established and
@@ -62,7 +64,26 @@ export function multiplex({ authority, mount = "/multiplex", vector, connect } =
   const transport = async (ctx) => {
     const { request, response } = ctx;
     try {
-      const socket = await establish(request.url.origin);
+      const origin = request.url.origin;
+      const keep = keeper(origin);
+      const cold = !(keep.socket && keep.socket.ws.readyState === 1);
+      const opened = cold ? Date.now() : 0;
+      if (cold)
+        ctx.span?.note({
+          message: `multiplex ${keep.opening ? "joining" : "establishing"}`,
+          origin,
+        });
+      let deny;
+      const socket = await Promise.race([
+        establish(origin),
+        new Promise((_, reject) => {
+          deny = () =>
+            reject(ConnectionError.timeout(`multiplex establish aborted ${origin}`, { request }));
+          if (request.signal.aborted) deny();
+          else request.signal.addEventListener("abort", deny, { once: true });
+        }),
+      ]).finally(() => request.signal.removeEventListener("abort", deny));
+      if (cold) ctx.span?.note({ message: "multiplex connected", origin, ms: Date.now() - opened });
       const upstream = request.stream();
 
       const frame = await socket.open(request.url, {
@@ -175,15 +196,20 @@ export const retry = (transport, options = {}) => {
     for (let attempt = 0; ; attempt++) {
       ctx.request._attempt = attempt;
       await transport(ctx);
-      if (!ctx.response.error || attempt >= maxRetries || !shouldRetry(ctx)) return;
+      if (!ctx.response.error || ctx.request.aborted || attempt >= maxRetries || !shouldRetry(ctx))
+        return;
+      const delay = Math.round(Math.min(baseDelay * 2 ** attempt + Math.random() * 500, maxDelay));
+      ctx.span?.note({
+        message: `retry ${attempt + 1}/${maxRetries} after ${ctx.response.error.type}`,
+        delay,
+      });
       console.log(
-        `[probe] retry ${attempt + 1}/${maxRetries} ${ctx.request.url.pathname} after ${ctx.response.error.type}`,
+        `[probe ${stamp()}] retry ${attempt + 1}/${maxRetries} ${ctx.request.url.pathname} after ${ctx.response.error.type} — ${delay}ms backoff`,
       );
       ctx.response = new Response();
       ctx.request._controller = null;
-      await new Promise((resolve) =>
-        setTimeout(resolve, Math.min(baseDelay * 2 ** attempt + Math.random() * 500, maxDelay)),
-      );
+      await new Promise((resolve) => setTimeout(resolve, delay));
+      if (ctx.request.aborted) return;
     }
   };
   return wrapped;
@@ -271,7 +297,7 @@ export const fetcher = async (ctx) => {
       response.setError(ConnectionError.fromStatus(res.status, response));
     }
   } catch (error) {
-    console.warn(`[probe] fetch failed ${request.url.absolute}`, error);
+    console.warn(`[probe ${stamp()}] fetch failed ${request.url.absolute}`, error);
     response.status = 0;
     response.error = ConnectionError.fromFetch(error, request);
     response.body = { request, error };

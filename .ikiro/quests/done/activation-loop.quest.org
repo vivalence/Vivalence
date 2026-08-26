@@ -1,0 +1,150 @@
+* Intent
+Close the first end-to-end game loop — *Activation* — on top of a formalized
+terminal rendering substrate. Activation is the Neon typer run through an
+emitter. Two entry points reach it: an LLM tool fired on an assistant message,
+and a games-row UI element. The substrate underneath (terminal-owned =Stall=
+with explicit rendering phases) is shared by all three games — Activation,
+Drill, Riddler — and is the riskier, foundational half of the work.
+
+This quest is the technical engine for the launch WBS (=private/logs/2026.06.23.org=),
+specifically the mode/buffer orchestration (A7) and the interactive modes.
+
+** Desired End State
+- Terminal renders buffers through a single always-on =Stall= with a declared
+  *phase* (static / continuous / manual). Phase, not ad-hoc code, decides what
+  happens when the active buffer or the buffer list changes.
+- Clicking *Activation* in the games row (or the assistant calling the
+  activation tool) writes config onto the thread, fires the emitter, and the
+  returned exercise buffers render in the moat and self-delete on completion.
+- No entity knows anything about the terminal.
+
+* Build sequence (today's time-plan)
+Ordered. Each item gates roughly on the prior. First three are substrate; the
+rest is Activation, then Drill, then Riddler.
+
+** TODO 1 · Buffer emission reactivity test  ← START HERE
+Server generates buffers; client holds them via subscription. *Open question to
+settle first:* how fast do server-generated buffers appear on the client, and
+is =subscribe= actually firing? Everything downstream (manual DB insertion of
+client/tool-generated buffers) depends on this answer.
+- Measure: server-side =BufferEntity= create → client =$entities= emission latency.
+- Confirm the lighthouse/datamap subscription path delivers without a manual refresh.
+
+** TODO 2 · Dummy rendering modes + dedicated demo
+A throwaway testbed mode (or two) plus a dedicated demo route whose only job is
+exercising the rendering phases below. Lets phase behavior be validated without
+the full Activation machinery.
+
+** DONE (mostly) 3 · Formalize terminal rendering phases (Stall)
+LANDED — see compact =stall-phases-and-the-lisp-ejaculator.org=. =Stall= moved
+to =subsystems/typology/prototypes/stall.js=, rewritten as a PHASE machine and a
+constructor *function* (class collapsed, as called for below). Phases:
+=INERT / STATIC / CONTINUOUS / ESCORT / MANUAL= over one =engage(phase, react)=.
+Terminal-owned, installed by default, lifecycled per thread; =$source ←
+thread.$buffers=, =$active ← terminal.$buffer=. Completion is =buffer.release()=;
+eviction is a terminal-wired =stall.on.release= hook (NOT in the Stall). =ESCORT=
+is the new round-trip phase (walk a queue, return to the launching buffer). STILL
+OPEN: the trait→phase =project(thread, stall)= seam (formulated, benched) so the
+phase derives from thread traits instead of being set by hand.
+
+Original design notes (kept):
+Elevate =Stall= from queue-only (=thread.queue=) to the terminal's core
+buffer-rendering/management structure. The =Terminal= entity already reserves
+=terminal.stall= (currently =null=).
+- *Source of truth:* =Stall.$source= ← =thread.$buffers= (the thread's buffer
+  list, taken directly from the thread, NOT a client-side lookup map).
+  =Stall.$active= ← =terminal.$buffer=.
+- *Always-on:* booted with the terminal. With no threshold and no face it just
+  sits idle — does nothing — which is fine.
+- *Lifecycle (nuke, don't mutate):* effect on =terminal.$thread=. On thread
+  change → =stall.deactivate()= + drop it, then construct a fresh =Stall= with
+  the new thread's =$buffers= atom and =terminal.$buffer=. Do NOT swap
+  =$source= on a live stall.
+- *Three phases:*
+  - =static= — buffer resolves, no further action. Threshold 0, no pull.
+  - =continuous= — validate thread composition (a standalone boat, or
+    aimed + queuing); regenerate on resolve. This is the existing =Stall= pull
+    behavior. (Standalone-regenerate may want an animation — edge case.)
+  - =manual= — the *application* controls buffer rendering directly. Root face.
+    The app gets thorough control over the terminal's rendering phase.
+- *Refactor:* once phases land, collapse =Stall= from a class back to a single
+  constructor function. The class has outgrown its weight.
+
+** DONE 4 · Aprende statistics aperture
+Landed — =/assistant/wakeup/{board,statistics,literals}= in
+=registry/education/homepage/aprende/aprende.viva.js=.
+
+** TODO 5 · Conversation scaffold (help-desk chat) — superseded by =m12_streaming_harness_toolcalling.quest.org=
+The =/turn= aperture named here never got built; the real path is
+=mode.harness.dialogue.render= (=HARNESSED= trait's compiled harness Vector,
+=/harness/dialogue/render=), not a bespoke =/turn= route. Full build order
+now lives in M12's MILESTONE 12.0. Answers the open question below directly:
+tools call the mode's OWN =/emit= route internally (thread-bound + flushed
+by the existing =EMITTER= trait chain before the tool call even returns) —
+no manual DB insert of client/tool-returned buffers needed.
+
+** TODO 6 · Application-layer navigation
+Application layer ready to handle navigation between buffers / modes. Shape
+informed by what the rendering-phase research surfaces.
+
+** TODO 7 · Activation
+The first loop to close. Neon typer (background) run through an emitter.
+*** Entry A — games-row UI
+Three JSON blobs (one per game): { game, emitter, mask, session-config }.
+For Activation: write its blob onto the thread → thread =MASK= + =AIMED=
+traits (aimed, not queuing, masked); set the terminal =Stall= phase. Then call
+the emitter.
+*** Entry B — assistant tool
+On assistant message, harnessed turns expose an activation-emitter tool. The
+hallucinator may call it. Awaited (slow) → use a subpar/cheap model.
+*** Emitter
+Simple: walk symbols + memory statuses, compile a word set, send to the typing
+game. Returns exercise buffers (≈3 small activation exercises).
+*** Resolution
+- Treat the whole emission response as *one* unit (not buffer-by-buffer invoke).
+- Assistant message must return messages AND buffers.
+- Middleware can't parse client/tool-returned buffers → insert into the DB
+  *manually*. (Gated on TODO 1's reactivity answer.)
+- Buffers display in the moat, resolve through the active =Stall= phase, and
+  *self-delete on completion*.
+
+** TODO 8 · Drill
+** DONE 9 · Riddler  (shipped ahead of Drill)
+=registry/modes/@vivalence/game/riddler/= — single turn-free riddle buffers,
+=/assistant/message= aperture (buffer-level history, resolvable/resolved + 1.5s
+resolve UI), memory/trace-grounded emitter, review + search tools. Forced the
+cortex =object= faculty (derived from dialogue + respond-tool — see
+=cortex.quest.org= addendum). Wired into the brazilian daemon; live-test pending.
+resolvable/resolved landed as =buffer.data.solved/resolved= + self-deleting
+=/assistant/resolve=.
+
+* Decisions locked
+- =Stall= = terminal-level core buffer rendering + management; one per terminal,
+  lifecycled per thread (nuke + recreate, never mutate =$source=).
+- Phases: =static= / =continuous= / =manual=; =manual= = root face, hands
+  rendering control to the application.
+- Multi-buffer emission handled as a single response unit.
+- Activation emitter awaited → cheap model.
+- Build order: substrate (1–3) → aprende + conversation scaffold (4–6) →
+  Activation (7) → Drill (8) → Riddler (9).
+
+* Open questions
+- *Buffer self-delete:* a buffer =type= or a =trait= on the buffer? Is the app
+  responsible for rendering/triggering the deletion? (Lean: app controls it.)
+- *Client/tool buffers into the dataspace* — RESOLVED, see TODO 5 /
+  =m12_streaming_harness_toolcalling.quest.org=. No manual insert.
+- *"Where's the view coming from"* when manually writing a mode into the
+  terminal — the manual-phase rendering path is still murky.
+- *Idle stall with a face:* always-on but face set + no threshold = "metastatic"?
+  Define the degenerate state.
+- *Continuous standalone regenerate* may need an animation to not feel abrupt.
+
+* Symbols
+- =systems/kajuit/src/typology/prototypes/stall.js= — current =Stall= class.
+- =systems/kajuit/src/typology/entities/terminal.js= — =$thread=, =$buffer=,
+  =stall= (null placeholder).
+- =systems/kajuit/src/typology/entities/thread/thread.js= — =$buffers= source.
+- =registry/modes/@vivalence/homepage/aprende/aprende.viva.js= — homepage mode,
+  =harness=, =tools=.
+- =systems/kajuit/tests/stall.test.js= — existing stall coverage.
+- =private/logs/2026.06.23.org= — launch WBS this engine serves (A7).

@@ -31,3 +31,22 @@ specimen.describe("object.place", () => {
     specimen.expect(result).toEqual({ word: { "part-of-speech": "adposition" } });
   });
 });
+
+specimen.describe("object.filter", () => {
+  specimen.it("keeps entries the predicate accepts, passing key and value", () => {
+    specimen.expect(object.filter({ a: 1, b: 2, c: 3 }, (key, value) => key !== "b" && value < 3))
+      .toEqual({ a: 1 });
+  });
+
+  specimen.it("always-true is identity, always-false is empty", () => {
+    const source = { a: 1, b: 2 };
+    specimen.expect(object.filter(source, () => true)).toEqual(source);
+    specimen.expect(object.filter(source, () => false)).toEqual({});
+  });
+
+  specimen.it("does not mutate the source", () => {
+    const source = { a: 1 };
+    object.filter(source, () => false);
+    specimen.expect(source).toEqual({ a: 1 });
+  });
+});

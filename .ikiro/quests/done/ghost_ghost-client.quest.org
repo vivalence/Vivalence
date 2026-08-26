@@ -1,0 +1,249 @@
+#+TITLE: Ghost — Operator Interface
+#+AUTHOR: Vivalence
+#+DATE: 2026-03-30
+
+* Intent
+
+Ghost is the operator interface to vivalence. One trajectory tree, three
+presentation layers: human REPL, agent JSON, MCP stdio. Same effects,
+different surfaces.
+
+Three customers in order of urgency:
+
+1. Vivalence itself — ghost is HOW you install and run wafers on a host.
+   systemd-style verbs (install/enable/start/stop/status/show/list/logs).
+2. Claude — verify topology edits against the running database; query
+   entities; test pick/review flow.
+3. Finn — replace ad-hoc bruno + curl with discoverable operator commands.
+
+* Execution Modes
+
+| mode | trigger | shape |
+|------+---------+-------|
+| command | signal present OR !isTerminal OR --json | parse → resolve → call → print → exit |
+| session | bare invocation in TTY | boot → REPL loop with cached state |
+
+Single dispatcher in =mod.js=. Command mode is stateless per invocation;
+session mode keeps Connection warm and accumulates history.
+
+* Auth Gate (coarse)
+
+Open branches: =/install/*=, =/auth/*=, =/help=, =/list= (filesystem-only),
+=/status= (local).
+
+Gated branches: =/daemon/*=, =/start=, =/stop=, =/status <wafer>=, etc.
+Anything that touches a running runtime needs auth.
+
+Gate behavior forks on mode:
+- command mode: clean error, =Deno.exit(1)= with hint =viva auth/login=
+- session mode: drop into inline auth/login, store in memory, retry
+
+Auth artifact: =~/.viva/session.json= holds ={ lighthouse, authority:
+{access, refresh}, identity }=. Shared by both modes; session mode keeps
+the deserialized value live.
+
+* Command Surface (systemd-style)
+
+Layer 1 — filesystem-level wafer management. Engineering vocabulary.
+
+| verb | systemd analog | does |
+|------+----------------+------|
+| install | cp into /etc/systemd/system/ | drop wafer file into variant/circuitry/ |
+| uninstall | rm | remove from circuitry |
+| enable | systemctl enable | mark for autostart |
+| disable | systemctl disable | unmark |
+| start | systemctl start | spawn now |
+| stop | systemctl stop | halt |
+| restart | systemctl restart | stop + start |
+| kill | systemctl kill | hard stop with signal |
+| reload | systemctl reload | re-read config without restart |
+| status | systemctl status | health + recent activity |
+| show | systemctl cat | dump manifest |
+| list | systemctl list-units | enumerate |
+| logs | journalctl -u | tail history |
+| mask | systemctl mask | block from ever running |
+| daemon-reload | systemctl daemon-reload | re-scan circuitry dir |
+
+Argument shape:
+#+begin_src
+viva install <type> <slug> [path||./]
+viva start   <slug>
+viva status  <slug>
+viva list
+#+end_src
+
+Layer 2 — live composition into running daemons (attach a mode at
+runtime, extend a kernel). Different verb namespace, viva-native
+(attach/extend/init or similar). Deferred; not designed.
+
+* Manifest Type =wafer=
+
+Introduce =manifest.type = "wafer"= for the bundle artifacts under
+=registry/wafers/=. Currently those files declare =type: "circuit"=,
+which is wrong: they're composition bundles, not circuit definitions.
+
+| concept | what it bundles | example slug |
+|---------+-----------------+--------------|
+| wafer | daemons[], services[], lighthouse, datamap | =@vivalence/variant/multiplayer/server/daemon= |
+| circuit | a single circuit definition | (testament/variant/circuitry/*.viva.js) |
+
+Disambiguation: registry/wafers/*.viva.js → =type: "wafer"=. testament
+circuits stay =type: "circuit"=. Identity = =manifest.slug= +
+=manifest.scope= (or scope-qualified path).
+
+* Architecture
+
+** File layout (target)
+
+#+begin_src
+systems/ghost/
+  mod.js                    dispatcher: command vs session
+  lifecycle/
+    boot.js                 process signal handling, spawn registry
+    parse.js                flags + body + positional (no signal split)
+    resolve.js              trajectory-aware signal/argv resolution
+    call.js                 shared effect invocation
+    command.js              one-shot path
+    session.js              REPL loop (folds today's run.js)
+  trajectories/
+    install.js              /install (gated: no)
+    uninstall.js
+    enable.js, disable.js
+    start.js, stop.js, restart.js, kill.js, reload.js
+    status.js, show.js, list.js, logs.js
+    auth.js                 /auth/* (gated: no)
+    daemon.js               /daemon/* (gated: yes)
+  lib/
+    session.js              ~/.viva/session.json
+    connect.js              lighthouse/daemon Connection factory
+    output.js               JSON for agent, formatted for TTY
+    supervisor.js           NEW: spawn registry, PID tracking, signal dispatch
+#+end_src
+
+** Wafer identity resolution
+
+Current install resolves via filesystem: =<registry>/wafers/<slug>.viva.js=.
+Once =type: "wafer"= exists, identity becomes manifest-driven:
+
+#+begin_src
+slug = @<scope>/<rest>   →   scan registry/wafers/, match manifest.scope+slug
+#+end_src
+
+For now, keep path-based resolution (it works). Manifest scan deferred
+until a slug collision forces the issue.
+
+** Run-state persistence
+
+Open question. systemd uses /run/systemd/system/. Vivalence equivalent
+TBD — candidates:
+- =VIVA_RUNTIME_STATE= directory with per-wafer PID files
+- supervisor.js holds in-memory registry (lost on ghost exit, fine for
+  command mode if "viva start" daemonizes the child)
+- per-variant =run/= dir alongside =circuitry/=
+
+* MCP
+
+Implemented 2026-03-30 (86 lines, 34 specs). Three pieces:
+
+- =steer.rollup(vector, execute)= — tree walk → ={pattern, steps, fn}[]=
+- =shape.mcp(vector, info)= — Vector → MCP tool server (JSON-RPC 2.0)
+- =shard.receiver.stdio(handle)= — newline-delimited JSON over stdin/stdout
+
+Phase 5 wires =viva --mcp= as a trajectory-tree MCP stdio server.
+Phase 6 adds an MCP trait at the runtime layer so individual modes
+expose tools via Streamable HTTP.
+
+See =subsystems/typology/tests/gestalten/shape/mcp.test.js= for the
+canonical pattern.
+
+* Phases
+
+** Phase 0: Hygiene [DONE 2026-05-18]
+
+- [X] shell → ghost rename (dir, package, tasks, testament refs, quest)
+- [X] parse decoupled from signal (=parse.js= returns flags + body + positional)
+- [X] lifecycle/resolve.js — trajectory-aware signal/argv split (greedy match against live Vector)
+- [X] 12 unit tests green (parse + resolve)
+
+** Phase 1: Install Surface [IN PROGRESS]
+
+- [X] =/install/wafer= — copy =registry/wafers/<slug>.viva.js= → target
+       (target defaults to =paladin.scope.circuitry=; dir → append
+       =<basename>.viva.js=; file → as-is; =--force= overwrites)
+- [X] =/list= — enumerate installed wafers in variant/circuitry/ (returns =[{name, type, slug, path}]=)
+- [X] =/show <name>= — load wafer module, dump manifest + export keys
+- [X] =/uninstall <name>= — delete file from circuitry
+- [ ] Introduce =manifest.type = "wafer"=; retype =registry/wafers/*.viva.js=
+- [ ] =/install= dispatch: =viva install <type> <slug> <path>= (type ∈ {wafer, mode, service, kernel})
+
+** Phase 2: Run Surface
+
+- [ ] =supervisor.js= — spawn registry, PID tracking
+- [ ] =/start=, =/stop=, =/restart=, =/kill=
+- [ ] =/status= — health + last-known state
+- [ ] =/enable=, =/disable= — autostart marker (variant config)
+- [ ] =/reload= — re-scan circuitry dir without restarting children
+- [ ] =/logs= — tail (depends on output policy)
+
+** Phase 3: Two Execution Modes
+
+- [ ] =lifecycle/command.js= — one-shot, exits after print
+- [ ] =lifecycle/session.js= — REPL loop, persistent Connection, history
+- [ ] =mod.js= dispatch on =isCommand=
+- [ ] Fold =lifecycle/run.js= into =session.js=
+
+** Phase 4: Auth + Daemon Surface
+
+- [ ] Verify existing =trajectories/auth.js= (login/refresh/logout/status/verify)
+- [ ] =gate(die)= middleware on =/daemon/*= branch (and any other gated branch)
+- [ ] =/daemon/:slug= — resolve URL, create Connection, fetch /datamap, wire repos
+- [ ] =/daemon/:slug/entities/:type/:method= — RemoteRepository catch-all
+- [ ] Domain endpoints: =/daemon/:slug/{pick,review,cargo,modes}=
+
+** Phase 5: MCP Stdio Server (=viva --mcp=)
+
+- [ ] Wrap trajectory tree via =shape.mcp= + =shard.receiver.stdio=
+- [ ] Tool auto-generation from strip + domain endpoints
+
+** Phase 6: MCP Trait for Modes (daemon-side)
+
+- [ ] Runtime trait =MCPEXPOSED= in =ModeTraitsEnum=
+- [ ] =shard.receiver.http= for Streamable HTTP
+- [ ] Mounted at daemon-level MCP endpoint
+
+* Open Questions
+
+- Type dispatch under =/install=: branch per type (=/install/wafer=) or
+  single =/install= effect with type arg? Branch-per-type today is what
+  ships; revisit when adding mode/service/kernel.
+- =enable=/=disable= persistence: where does "autostart on viva boot"
+  live? Candidates: per-variant config file, per-wafer manifest flag,
+  separate =enabled.json= manifest in variant/.
+- Run-state directory: per-variant =run/= dir vs system-wide
+  =VIVA_RUNTIME_STATE=. systemd splits unit files (=/etc=) from runtime
+  state (=/run=); vivalence should mirror.
+- Layer-2 verb selection (attach/extend/init/...) — deferred.
+
+* Vocabulary
+
+| Term | Definition |
+|------+------------|
+| ghost | The operator client; the persona of the shell |
+| operator | Human or agent invoking ghost |
+| wafer | Composition manifest bundling daemons/services/lighthouse/datamap |
+| circuit | Single-circuit manifest used in variant/circuitry |
+| variant | A configured instance of vivalence (VIVA_VARIANT_MOUNT or testament/variant/) |
+| trajectory | Route in ghost's Vector tree (CLI equivalent of an aperture branch) |
+| session | Persisted auth state at ~/.viva/session.json (also: ghost's REPL mode) |
+| receiver | Server-side I/O bridge (counterpart to transport) |
+| rollup | steer controller — recursive tree walk collecting all effects |
+| supervisor | Spawn registry inside ghost — tracks PIDs of started wafers |
+
+* Changelog
+
+- 2026-03-30: Initial quest. Shell-client concept with Claude as first customer. MCP exploration as future phase.
+- 2026-03-30: MCP implemented. =steer.rollup= (18L, 14 specs), =shape.mcp= (53L, 20 specs), =shard.receiver.stdio= (15L).
+- 2026-05-18: Renamed shell → ghost. =systems/shell= → =systems/ghost=, =@vivalence/shell= → =@vivalence/ghost=, tasks =shell/do|watch= → =ghost/do|watch=. Binary =viva= unchanged.
+- 2026-05-18: =/install/wafer= shipped (non-gated). Trajectory-aware signal resolution in =lifecycle/resolve.js= — users can type space-separated commands; legacy slash-form preserved. 12 unit tests green.
+- 2026-05-18: Quest restructured around systemd-style verb surface. Two-mode + auth-gate decisions locked. =type: "wafer"= introduction queued. Layer-1 (filesystem) = engineering vocab; layer-2 (live composition) = viva-native, deferred.
+- 2026-05-18: =/list=, =/show=, =/uninstall= shipped. Install path now defaults to =paladin.scope.circuitry= (=testament/variant/circuitry/= in repo). All four filesystem-level verbs (=install/list/show/uninstall=) operate on the circuitry dir as one coherent set. =show= loads the module via =import()= and surfaces =manifest= + export keys.

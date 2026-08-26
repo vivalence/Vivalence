@@ -40,7 +40,10 @@ export class ConnectionError extends Error {
 
   static fromStatus(status, response) {
     const body = response?.body;
-    const detail = body?.message || body?.code || "";
+    // a handler may answer { error: { code, message } } or put them at the top — read both, or the
+    // reason the server gave is dropped and the caller sees only a bare status.
+    const held = body?.error ?? body;
+    const detail = held?.message || held?.code || "";
     const suffix = detail ? ` — ${detail}` : "";
     if (status >= 500) return ConnectionError.server(status, { response }, suffix);
     if (status === 401 || status === 403)

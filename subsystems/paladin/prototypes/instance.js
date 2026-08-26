@@ -1,5 +1,6 @@
 import { isAbsolute, resolve as resolvePath } from "@std/path";
-import { Pipe, Mask, v, fn } from "@vivalence/typology";
+import { load } from "@std/dotenv";
+import { Pipe, Mask, Url, v, fn } from "@vivalence/typology";
 
 const reference = (home) => (entry) =>
   typeof entry !== "string"
@@ -10,23 +11,101 @@ const reference = (home) => (entry) =>
         ? resolvePath(home.dirname, entry)
         : entry;
 
-const hydrate = (node) =>
-  typeof node === "function"
-    ? node()
-    : Array.isArray(node)
-      ? node.map(hydrate)
-      : node?.constructor === Object
-        ? Object.fromEntries(Object.entries(node).map(([key, value]) => [key, hydrate(value)]))
-        : node;
+// branches handed back as thunks, so no value lands on the instance.
+const DEFERRED = new Set(["secrets"]);
+
+// records every key asked for; the thunk sees paladin unchanged.
+const watch = (bag, read) =>
+  new Proxy(bag, {
+    get: (target, prop, receiver) =>
+      prop === "get"
+        ? (key, ...rest) => {
+            const value = target.get(key, ...rest);
+            read.push({ key, unset: value === null || value === undefined || value === "" });
+            return value;
+          }
+        : Reflect.get(target, prop, receiver),
+  });
+
+// produced but unusable: new Url(unset) does not throw, it yields href "NaN".
+const usable = (value) =>
+  value instanceof Url
+    ? value.origin !== undefined
+    : value !== undefined && value !== null && value !== "";
+
+// SUPERSEDED — a sentinel probe: a second walker fired deferred thunks against a fake bag to
+// learn their keys. bought nothing over firing once and discarding.
+// const DRY = "«deferred»";
+// const watch = (bag, read, dry = false) => ... return dry ? DRY : value ...
+//
+// function probe(node, record, paladin, at) {
+//   if (typeof node === "function") {
+//     const read = [];
+//     const { env, secret } = paladin;
+//     paladin.env = watch(env, read, true);
+//     paladin.secret = watch(secret, read, true);
+//     try { node(); } catch { /* a thunk that cannot survive a sentinel still counted its keys */ }
+//     finally { paladin.env = env; paladin.secret = secret; }
+//     record.push({ at, read: ..., unset: ..., usable: null, deferred: true });
+//     return;
+//   }
+//   if (Array.isArray(node)) return node.forEach((v, i) => probe(v, record, paladin, `${at}[${i}]`));
+//   if (node?.constructor === Object)
+//     for (const [key, value] of Object.entries(node)) probe(value, record, paladin, `${at}.${key}`);
+// }
+
+// the pinhole: every thunk in a declaration fires here and nowhere else.
+export function hydrate(node, record = null, paladin = null, at = "", deferred = false) {
+  if (typeof node === "function") {
+    if (!record || !paladin) return node();
+    const read = [];
+    const { env, secret } = paladin;
+    paladin.env = watch(env, read);
+    paladin.secret = watch(secret, read);
+    let value;
+    // thunks are synchronous by contract.
+    try {
+      value = node();
+    } finally {
+      paladin.env = env;
+      paladin.secret = secret;
+    }
+    record.push({
+      at,
+      read: read.map((held) => held.key),
+      unset: read.filter((held) => held.unset).map((held) => held.key),
+      usable: usable(value),
+      deferred,
+    });
+    return deferred ? node : value;
+  }
+  if (Array.isArray(node))
+    return node.map((value, index) => hydrate(value, record, paladin, `${at}[${index}]`, deferred));
+  if (node?.constructor === Object)
+    return Object.fromEntries(
+      Object.entries(node).map(([key, value]) => [
+        key,
+        hydrate(value, record, paladin, at ? `${at}.${key}` : key, deferred || DEFERRED.has(key)),
+      ]),
+    );
+  return node;
+}
 
 // move to lifecycle / dossier / die
 async function resolve(instance) {
   if (!instance.paladin.scope.instance) throw new Error("instance.mount: no scope.instance");
-  await instance.paladin.state.dir(instance.paladin.scope.instance.absolute);
 
-  const modules = await instance.paladin.find.type(instance.paladin.scope.instance, "instance");
+
+  // mounting must not SCAFFOLD, so an absent home reaches here as a readdir ENOENT — name it.
+  const home = instance.paladin.scope.instance.absolute;
+  const modules = await instance.paladin.find
+    .type(instance.paladin.scope.instance, "instance")
+    .catch((error) => {
+      if (error?.code === "ENOENT") throw new Error(`instance.mount: no instance at ${home}`);
+      throw error;
+    });
   if (modules.length !== 1)
-    throw new Error(`instance.mount: expected 1 instance module, found ${modules.length}`);
+    throw new Error(`instance.mount: expected 1 instance module in ${home}, found ${modules.length}`);
 
   const mask = (kind) => (declaration) =>
     new Mask({
@@ -38,17 +117,28 @@ async function resolve(instance) {
 
   const [module] = modules;
 
-  const materialize = (declaration) => {
+  const record = [];
+  const at = (label) => (declaration) => hydrate(declaration, record, instance.paladin, label);
+
+  const materialize = (label) => (declaration) => {
     const { kernel = [], ...rest } = declaration;
-    return { ...hydrate(rest), kernel: kernel.map(reference(module.source)) };
+    return { ...at(label)(rest), kernel: kernel.map(reference(module.source)) };
   };
 
+  const slug = (declaration) => declaration.slug ?? declaration.manifest?.slug;
+
   instance.manifest = module.manifest;
-  instance.runtime = hydrate(module.runtime ?? {});
-  instance.clients = hydrate(module.clients ?? {});
-  instance.lighthouse = hydrate(module.lighthouse ?? {});
-  instance.daemons = (module.daemons ?? []).map((declaration) => mask("daemon")(materialize(declaration)));
-  instance.services = (module.services ?? []).map((declaration) => mask("service")(hydrate(declaration)));
+  instance.runtime = at("runtime")(module.runtime ?? {});
+  instance.clients = at("clients")(module.clients ?? {});
+  instance.lighthouse = at("lighthouse")(module.lighthouse ?? {});
+  instance.daemons = (module.daemons ?? []).map((declaration) =>
+    mask("daemon")(materialize(`daemon[${slug(declaration)}]`)(declaration)),
+  );
+  instance.services = (module.services ?? []).map((declaration) =>
+    mask("service")(at(`service[${slug(declaration)}]`)(declaration)),
+  );
+  instance.requirements = record;
+  instance.environment = module.environment ?? {};
 
   // instance.runtime.logs = new Pipe()
   // instance.clients.kajuit.logs = new Pipe()
@@ -80,22 +170,26 @@ function validate(instance) {
   if (errors.length) throw new Error(`[instance.mount validate]\n  ${errors.join("\n  ")}`);
 }
 
-// move to lifecycle / dossier / die
+// SUPERSEDED — .env / environment.json / .jsonc at one stratum, so the last file read won:
+// a committed placeholder overwrote a real secret beside it.
+// const FILES = [".env", "environment.json", "environment.jsonc"];
+// async function environment(instance) {
+//   if (!instance.paladin.scope.instance) return;
+//   for (const name of FILES) {
+//     // scope.instance mints a fresh Path per access — branch() MUTATES, so never reuse one
+//     const file = instance.paladin.scope.instance.branch(name);
+//     if (!(await Deno.stat(file.absolute).catch(() => null))) continue;
+//     const bag = name === ".env" ? await load({ envPath: file.absolute })
+//                                 : await instance.paladin.read.json(file);
+//     instance.paladin.assign(bag, "instance");
+//   }
+// }
+
 async function environment(instance) {
-  if (!instance.paladin.scope.environment) return;
-  await instance.paladin.state.dir(instance.paladin.scope.environment);
-  const files = await instance.paladin.find.json(instance.paladin.scope.environment);
-  await Promise.all(
-    files.map((file) =>
-      instance.paladin.read
-        .json(file)
-        .then((json) =>
-          (file.absolute.includes("secret") ? instance.paladin.secret : instance.paladin.env).assign(
-            json,
-          ),
-        ),
-    ),
-  );
+  if (!instance.paladin.scope.instance) return;
+  const file = instance.paladin.scope.instance.branch(".env").absolute;
+  if (!(await Deno.stat(file).catch(() => null))) return;
+  instance.paladin.claim(await load({ envPath: file }), "instance", file);
 }
 
 export class Instance {

@@ -1,7 +1,10 @@
 import paladin from "@vivalence/paladin";
-import { Vector, Span, Path, steer, shard } from "@vivalence/typology";
-import { view, JsonTree } from "@vivalence/sheets";
+import { is, object, Vector, Span, Path, steer, shard } from "@vivalence/typology";
+import { view, JsonTree, Effect } from "@vivalence/sheets";
+import * as dotenv from "@std/dotenv";
+import { resolve } from "@std/path";
 import { ShellSignal, ShellContext } from "./typology.js";
+import { config, path } from "./belt/index.js";
 
 import trajectories from "./trajectories/index.js";
 
@@ -59,17 +62,19 @@ trajectory
     // };
     ctx.call = (args) => {
       const signal = args instanceof ShellSignal ? args : new ShellSignal(args);
-      return steer.dispatch.invoke(trajectory, signal, strategy)(new ShellContext({ signal }));
+      const inner = new ShellContext({ signal });
+      inner.rendered = true;
+      return steer.dispatch.invoke(trajectory, signal, strategy)(inner);
     };
 
     await next();
   })
   .use(async (ctx, next) => {
     // shell cwd — deno task rewrites Deno.cwd() to repo root; INIT_CWD preserves user shell cwd
-    const cwd = Deno.env.get("INIT_CWD") ?? Deno.env.get("PWD") ?? Deno.cwd();
+    const cwd = path.cwd();
     const modules = await paladin.find.type(new Path(cwd), "instance", 0);
     if (modules.length) {
-      paladin.scopes([["instance", () => true, () => new Path(cwd)]]);
+      paladin.env.set("VIVA_INSTANCE_MOUNT", cwd, "cwd");
       ctx.instance = await paladin.instance.mount();
     }
     await next();
@@ -78,14 +83,23 @@ trajectory
   // post-body :: --json dumps effect; --tree walks effect interactively.
   .use(async (ctx, next) => {
     const flags = ctx.signal.flags ?? {};
-    // console.log({ ctx }, ctx.signal.flags);
     let shell = null;
+
+    // one ruling on whether this shell can prompt at all — pickers and wizards read it, never re-derive it.
+    ctx.interactive = !flags.json && Deno.stdin.isTerminal() && Deno.stdout.isTerminal();
+
+    const marking = (verb) => (...args) => {
+      ctx.rendered = true;
+      return view.scroll[verb](...args);
+    };
 
     if (flags.buffer) {
       shell = view.buffer.shell();
       ctx.view = view.hijack(shell);
+      ctx.rendered = true;
     } else {
-      ctx.view = view;
+      const emit = flags.json ? async () => (ctx.rendered = true) : marking("emit");
+      ctx.view = { ...view, scroll: { ...view.scroll, emit, render: marking("render") } };
     }
 
     try {
@@ -95,21 +109,49 @@ trajectory
       if (shell) shell.release();
       if (flags.json) {
         console.log(JSON.stringify(ctx.effect, null, 2));
-        // } else if (flags.tree) {
-        // ctx.view = view.hijack(shell);
-        //   await view.scroll.render({ data: ctx.effect }, null, JsonTree);
+      } else if (!ctx.rendered && ctx.effect != null && !ctx.error) {
+        await view.scroll.emit({ data: ctx.effect }, null, Effect);
       }
     }
   });
 
 trajectories(trajectory);
 
-if (!Deno.args.length) Deno.exit(0);
+const argv = Deno.args.length ? [...Deno.args] : ["help"];
+if (argv[0] === "--help") argv[0] = "help";
 
-const signal = new ShellSignal(Deno.args);
+let signal = new ShellSignal(argv);
+if (signal.flags?.help) {
+  const nature = signal.array.map((segment) => segment.nature).join("/");
+  const carried = Object.entries(signal.flags)
+    .filter(([key]) => key !== "help")
+    .map(([key, value]) => (value === true ? `--${key}` : `--${key}=${value}`));
+  signal = new ShellSignal(["help", ...(nature ? [nature] : []), ...carried]);
+}
 const context = new ShellContext({ signal });
 
-await paladin.ledger.mount();
+for (const mount of config.MOUNTS) {
+  const reference = signal.flags?.[mount];
+  if (!is.string(reference)) continue;
+  // MOUNT MEANS PATH — --instance may name a slug on the shelf, the env var never holds one.
+  const pinned = mount === "instance" ? path.instance(reference) : path.pin(reference);
+  paladin.env.set(`VIVA_${mount.toUpperCase()}_MOUNT`, pinned, "flag");
+}
+
+if (signal.flags?.env === true) throw new Error("--env needs a value: --env=<path>");
+if (is.string(signal.flags?.env)) {
+  const vars = await dotenv.load({ envPath: resolve(path.cwd(), signal.flags.env) });
+  const keys = {
+    public: (key) => key.startsWith("VIVA_") || key.startsWith("PUBLIC_VIVA_"),
+    secret: (key) => key.startsWith("SECRET_VIVA_"),
+  };
+  const held = object.filter(vars, keys.public);
+  const secrets = object.filter(vars, keys.secret);
+  if (!Object.keys(held).length && !Object.keys(secrets).length)
+    throw new Error(`--env ${signal.flags.env}: no VIVA_* knowledge in it`);
+  paladin.env.assign(held, ".env");
+  paladin.secret.assign(secrets, ".env");
+}
 
 try {
   await steer.dispatch.invoke(trajectory, signal, strategy)(context);
@@ -117,6 +159,7 @@ try {
 } catch (error) {
   if (error.code === "NOT_FOUND") {
     console.error("ghost: no handler for", signal.absolute.join(" "));
+    console.error("try: viva help");
     Deno.exit(127);
   }
   console.error(error);

@@ -3,19 +3,20 @@ import { isAbsolute, join } from "@std/path";
 import { Path } from "@vivalence/typology";
 
 export async function env(paladin) {
-  for (const [key, value] of Object.entries(Deno.env.toObject())) {
-    if (key.startsWith("VIVA_") || key.startsWith("PUBLIC_VIVA_")) paladin.env.set(key, value);
-    if (key.startsWith("SECRET_VIVA_")) paladin.secret.set(key, value);
+  paladin.assign(Deno.env.toObject(), "os");
+
+  const cwd = Deno.env.get("INIT_CWD") ?? Deno.env.get("PWD") ?? Deno.cwd();
+  const local = `${cwd}/.env`;
+  if (await Deno.stat(local).catch(() => null)) {
+    paladin.observe(await dotenv.load({ envPath: local }), ".env", local);
   }
 
   if (Deno.env.has("VIVA_ENV_FILE")) {
     const envPath = Deno.env.get("VIVA_ENV_FILE");
-    paladin.env.assign(await dotenv.load({ envPath }));
+    const { held, secrets } = paladin.claim(await dotenv.load({ envPath }), ".env", envPath);
+    if (!Object.keys(held).length && !Object.keys(secrets).length)
+      throw new Error(`[PALADIN] VIVA_ENV_FILE ${envPath}: no VIVA_* knowledge in it`);
   }
-
-  // fallback to repo .env
-  // if (paladin.check.env(["VIVA_REPOSITORY_MOUNT", "VIVA_INSTANCE_MOUNT"]).fails && (paladin.is.citizen || paladin.is.dev)) {const ROOT_OFFSET = "../../../.env"; const envPath = new URL(ROOT_OFFSET, import.meta.url).pathname; const env = await dotenv.load({ envPath }); paladin.env.assign(env);}
-  // fallback removed for configurable paladin.
 }
 
 export async function scopes(paladin) {
@@ -35,38 +36,25 @@ export async function scopes(paladin) {
       () => paladin.env.has("VIVA_INSTANCE_MOUNT"),
       () => {
         const reference = paladin.env.get("VIVA_INSTANCE_MOUNT");
+        // MOUNT MEANS PATH. a bare slug here is an upstream bug — resolving it silently is what
+        // let `use` store one. the CLI resolves a slug via ledger.instances.resolve() before writing.
         if (!reference.includes("/") && !reference.startsWith("."))
-          return paladin.scope.ledger.branch(`instances/${reference}`);
+          throw new Error(
+            `[PALADIN] VIVA_INSTANCE_MOUNT="${reference}" is a slug — a *_MOUNT is always a path. ` +
+              `try: viva instances/use ${reference}`,
+          );
         if (isAbsolute(reference)) return new Path(reference);
         return paladin.source(reference);
       },
     ],
 
     [
-      "environment",
-      () =>
-        paladin.env.has("VIVA_ENVIRONMENT_MOUNT") || (paladin.scope.instance && paladin.is.citizen),
-      () => {
-        let envpath;
-        if (Deno.env.has("VIVA_ENVIRONMENT_MOUNT")) {
-          envpath = Deno.env.get("VIVA_ENVIRONMENT_MOUNT");
-        } else {
-          envpath = paladin.scope.instance.branch("environment").absolute;
-        }
-        return envpath ? new Path(envpath) : undefined;
-      },
-    ],
-    [
       "mountpoint",
       () =>
         paladin.env.has("VIVA_MOUNTPOINT_MOUNT") || (paladin.scope.instance && paladin.is.citizen),
       () => {
-        let envpath;
-        if (Deno.env.has("VIVA_MOUNTPOINT_MOUNT")) {
-          envpath = Deno.env.get("VIVA_MOUNTPOINT_MOUNT");
-        } else {
-          envpath = paladin.scope.instance.branch("mountpoint").absolute;
-        }
+        const envpath = paladin.env.get("VIVA_MOUNTPOINT_MOUNT") ??
+          paladin.scope.instance.branch("mountpoint").absolute;
         return envpath ? new Path(envpath) : undefined;
       },
     ],
@@ -91,6 +79,17 @@ export async function scopes(paladin) {
       },
     ],
   ]);
+
+  const shell = Deno.env.get("VIVA_PROCESS_ID");
+  if (shell) {
+    const session = await paladin.read.json(paladin.scope.ledger.branch(`sessions/${shell}.json`), null);
+    if (session) paladin.assign(session, "session");
+  }
+
+  const machine = paladin.scope.ledger.branch(".env").absolute;
+  if (await Deno.stat(machine).catch(() => null)) {
+    paladin.claim(await dotenv.load({ envPath: machine }), "ledger", machine);
+  }
 }
 
 // export async function questions(paladin) {

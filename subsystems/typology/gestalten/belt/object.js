@@ -53,6 +53,10 @@ export function pluck(obj, keys) {
   return Object.fromEntries(Object.entries(picked).filter(([, v]) => v !== undefined));
 }
 
+export function filter(obj, predicate) {
+  return Object.fromEntries(Object.entries(obj).filter(([key, value]) => predicate(key, value)));
+}
+
 export const match = (obj, pattern) => where(pattern)?.(obj) ?? false;
 
 export function strip(obj) {

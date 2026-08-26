@@ -1,0 +1,174 @@
+#+TITLE: Pool — Emitter Composition Primitive
+#+AUTHOR: Vivalence
+#+DATE: 2026-04-02
+#+STATUS: DONE
+
+* Intent
+
+Replace the accumulator pattern and the ugly mode.emit unwrap with
+Pool — a smart buffer collector that absorbs anything (raw pojos,
+arrays, yield envelopes, other Pools, promises, nulls) and drains
+into a yield envelope at the boundary.
+
+Pool lives on =ctx.pool=, one per emitter call. Game emitters ignore
+it (they return pojos as before, middleware catches via ctx.output).
+Tactic emitters use =ctx.pool.add()= and =ctx.pool.section()= instead
+of =buffers = []=, =buffers.push()=, =return buffers=.
+
+After: yield envelopes are an output format, not an internal data
+structure. No wrap-then-unwrap. No =Promise.all= in tactic emitters.
+=drain()= is async and resolves promises internally.
+
+* Design Decisions
+
+| Decision            | Choice                                   | Rationale                                                   |
+|---------------------+------------------------------------------+-------------------------------------------------------------|
+| File                | pool.js (new), yield.js unchanged        | Pool is builder, Yield is envelope — separate concerns      |
+| drain()             | async                                    | Resolves deferred promises, no-await emit calls in tactics  |
+| of()                | Pure factory, no side effects            | Composable, predictable                                     |
+| section()           | Factory + auto-attach to parent          | Eliminates add-after-of redundancy                          |
+| apply(fn)           | items → items transform, returns this    | Generic, composes with array.shuffle and any belt utility   |
+| head()              | Prepend absorbed items                   | Exhibit-first patterns in warmup/cooldown                   |
+| Absorption rules    | falsy→drop, Pool→nest, NOMINAL→unwrap,   | Smart normalization at every entry point                    |
+|                     | EXHAUSTED/ERROR→drop, Array→recurse,     |                                                             |
+|                     | Promise→defer, else→keep as buffer       |                                                             |
+| shard.ambient.assign| Removed from emitter trait               | Dead weight — ctx.daemon already provides everything        |
+| accumulator         | Removed from yield.js                    | Fully dead after tactic migration                           |
+| mode.emit unwrap    | Killed                                   | Pool.add() absorbs yield envelopes — unwrap was the symptom |
+| Old commented code  | Removed from emitter.js                  | Lines 61-92 pre-Yield, was in dead code registry            |
+| Test scoping        | scenario.scoped() helper                 | Mirrors production RequestContext + filter params            |
+| Falsy absorption    | !arg (not arg == null)                   | Drops false from condition && emit patterns                 |
+
+* Pool API
+
+#+BEGIN_SRC js
+class Pool {
+  items = [];
+
+  static of(...args)              // pure factory — new Pool().add(...args)
+
+  add(...args)                    // absorb anything, return this
+  of(...args)                     // instance factory — Pool.of(...args), no attachment
+  section(...args)                // of() + auto-attach as nested pool, return sub-pool
+  head(...args)                   // absorb + prepend
+  apply(fn)                       // this.items = fn(this.items), return this
+  flatten()                       // recursive flatten, nested pools resolved in order
+  async drain()                   // resolve promises → flatten → Yield.NOMINAL or EXHAUSTED
+  get length                      // flat count (unreliable before drain if promises pending)
+}
+#+END_SRC
+
+Absorption rules (applied by =add=):
+- falsy (null, undefined, false, 0) → drop
+- =Pool= → push as nested (preserves section boundary)
+- ={condition: "NOMINAL", buffers}= → extract buffers, recurse
+- ={condition: *}= → drop (EXHAUSTED/ERROR silently ignored)
+- =Array= → recurse each item
+- =Promise= → keep as deferred, resolved on drain
+- anything else → keep as buffer pojo
+
+* Tactic Usage Shape
+
+#+BEGIN_SRC js
+// buildup (representative)
+export default async (ctx) => {
+  // ...data fetching...
+
+  ctx.pool.add(isVirgin && exhibit.emit.present({...}));
+
+  ctx.pool.section(
+    ...shuffle([...weak, ...due]).map(literal =>
+      pick.emit.literal({ literal, distractors })
+    ),
+  ).apply(array.shuffle);
+
+  if (weak.length >= 2) ctx.pool.add(match.emit.batch({...}));
+  ctx.pool.add(paradigm.emit.conjugation({...}));
+
+  ctx.pool.section(
+    ...shuffle([...due, ...weak]).map(literal =>
+      conjugation.emit.literal({ literal, infinitive })
+    ),
+  ).apply(array.shuffle);
+};
+#+END_SRC
+
+No =await= on emit calls — Pool defers promises, drain resolves.
+No =return= — middleware drains ctx.pool.
+No =Promise.all= — Pool handles it.
+=section()= creates nested pool for independent shuffling.
+
+* Milestones — ALL DONE
+
+** M1: Pool Prototype + Unit Tests ✓
+
+Layer: typology. 49 test steps.
+
+- NEW: subsystems/typology/prototypes/pool.js
+- EDIT: subsystems/typology/prototypes/index.ts (add export)
+- NEW: subsystems/typology/tests/pool.test.js
+
+** M2: Emitter Trait Migration + Trait Tests ✓
+
+Layer: runtime. 53 test steps.
+
+- EDIT: systems/runtime/daemon/traits/emitter.js — Pool replaces
+  accumulator, shard.ambient.assign removed, unwrap killed, old
+  commented code removed
+- EDIT: systems/runtime/tests/mode/traits.test.js — yield envelope
+  expectations, scoped() wrapper for RequestContext
+- EDIT: systems/runtime/tests/mode/emitters.test.js — yield envelope
+  expectations, scoped() wrapper
+- EDIT: systems/runtime/tests/scenarios/daemon.js — scoped() helper
+- EDIT: systems/runtime/tests/scenarios/mode.js — scoped() helper
+
+** M3: Tactic Emitter Migration + Integration Verification ✓
+
+Layer: registry/runtime. 41 integration test steps.
+
+- EDIT: 5 tactic emitters (buildup, drill, warmup, cooldown, exercise)
+  migrated to ctx.pool.add / section / no return
+- EDIT: subsystems/typology/prototypes/yield.js — accumulator removed
+
+* Adjacent Work (during implementation)
+
+** Trace + memory routes moved to domain aperture
+
+Trace route was incorrectly in =systems/runtime/daemon/aperture/userspace.js=
+(system layer). Trace and memory are domain entities — their datamap
+routes belong on the domain kernel's aperture. Moved to
+=systems/runtime/daemon/lifecycle/resolution.js= kernel(), branched
+under =/userspace/entities/= on the domain aperture before slurp.
+No per-entity scope needed — both schemas define =filters.user= with
+=default: true=, covered by root-level =bind("user", ...)=.
+
+** User filter investigation
+
+Thread and buffer cannot use =filters.user= alone.
+=shard.datamap.scope()= does double duty: read-scoping (WHERE on
+queries) AND write-defaulting (merge into create/upsert data).
+Schema filters only cover reads. Thread and buffer keep their
+per-route scopes in userspace.js.
+
+Trace and memory are pure user-facing (never queried internally by
+emitter trait), so =filters.user= with =default: true= works. Thread
+and buffer are dual-use (queried internally by emitter trait during
+buffer production), requiring the route-level scope approach.
+
+** Test infrastructure: scenario.scoped()
+
+Tests now mirror production: emit calls and assertions wrapped in
+=RequestContext.create()= with filter params set. Thread and buffer
+schemas got =filters.user= for internal read-scoping. Thread counter
+test reads from scoped em (not stale root fixture). Threadless buffer
+assertion uses =filters: false= (correct — threadless buffers are
+invisible under user filter).
+
+* Changelog
+
+- 2026-04-02: Initial design. Three milestones scoped.
+- 2026-04-02: M1-M3 implemented. accumulator removed.
+  Adjacent: trace/memory routes to domain aperture, user filter
+  investigation (scope does read+write, filter only reads),
+  test scoping via scenario.scoped(). Pre-existing test gap
+  fixed (userspace.js trace route missing from daemon scenario).

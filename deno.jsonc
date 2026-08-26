@@ -39,8 +39,10 @@
     "runtime/run": "deno task --cwd ./systems/runtime run",
     "runtime/watch": "deno task --cwd ./systems/runtime watch",
 
-    "ghost/run": "deno run -A --env-file=./testament/instance/.env ./systems/ghost/mod.js",
-    "ghost/watch": "deno run -A --watch --env-file=./testament/instance/.env ./systems/ghost/mod.js",
+    "ghost/run": "deno run -A ./systems/ghost/mod.js",
+    "ghost/watch": "deno run -A --watch ./systems/ghost/mod.js",
+    // "ghost/run": "deno run -A  ./systems/ghost/mod.js",
+    "ghost/watch": "deno run -A   ./systems/ghost/mod.js",
     "ghost/install": "sh systems/ghost/install.sh \"$(pwd)\"",
 
     "kajuit/run": "deno task --cwd ./systems/kajuit run",

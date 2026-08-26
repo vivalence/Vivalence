@@ -9,7 +9,7 @@ import Example from "../../../src/components/Example.astro"
 import Trace from "../../../src/components/Trace.astro"
 import Tabs from "../../../src/components/Tabs.astro"
 
-An instance is one file that declares a whole system — entities, modes, daemons, services, clients, the machine itself. This page follows that file through the machine: from inert declaration to a running system, stage by stage. The specimen is `@viva/instance/standalone`, the one-file flashcard system — [[51.02_run-an-instance]] builds it section by section; this page is what the machine does with it. Build there, understand here.
+An instance is one file that declares a whole system — entities, modes, daemons, services, clients, the machine itself. This page follows that file through the machine: from inert declaration to a running system, stage by stage. The specimen is `@viva/instance/standalone`, the one-file flashcard system — [[51.02_instance-from-scratch]] builds it section by section; this page is what the machine does with it. Build there, understand here.
 
 Everything below actually ran. At every build of these docs, the example at the bottom of this page boots the standalone instance headless — real paladin, real runtime, real database — and the captured output is embedded in the page. Nothing here is hypothetical.
 
@@ -38,11 +38,11 @@ minimum vocabulary required:
 statics: { serve: () => new Url(paladin.env.get("VIVA_RUNTIME_SERVE")) }
 ```
 
-At paladin's own import time, the singleton splits the process environment three ways — `VIVA_*` configuration and `PUBLIC_*` published values into `paladin.env`, `SECRET_VIVA_*` into a separate secret store — and installs *scopes*: conditional resolvers for the instance directory, its environment, its mountpoint, the ledger, the repository, the registry.
+At paladin's own import time, the singleton hands the process environment to `paladin.assign` — the one ingress every environment source goes through — which splits the bag by **key**: `VIVA_*` configuration and `PUBLIC_VIVA_*` published values into `paladin.env`, `SECRET_*` into a separate secret store, everything else ignored. Then it installs *scopes*: conditional resolvers for the instance directory, its mountpoint, the ledger, the repository, the registry.
 
 `paladin.instance.mount()` then makes the declaration real, in five moves:
 
-1. **environment** — every json file in the instance's `environment/` folds into `paladin.env`; files with `secret` in the name fold into the secret store. This is where the standalone's `instance.jsonc` contributes the runtime, lighthouse and kajuit addresses.
+1. **environment** — the instance's own `.env`, at its root and nothing else, folds in through `paladin.claim` at the `instance` stratum. One file at one stratum, so nothing can silently overwrite anything. The key decides secrecy, so a `SECRET_*` reaches the secret store wherever it is written. This is where the runtime, lighthouse and kajuit addresses arrive.
 2. **resolve** — find the one module under the instance mount whose manifest says `instance`, then *hydrate* it: every deferred `() =>` fires now. The thunk above becomes a `Url`. Until this moment the declaration was data; after it, values.
 3. **kernel references** — a daemon's `kernel` entries stay unhydrated and get resolved as references instead: a bare specifier points into the registry, `./` is relative to the instance file, and an inline object — the standalone's case — mounts as-is, with the instance file as its home.
 4. **masks** — each daemon and service declaration becomes a `Mask` with a mountpoint carved out for it: `mountpoint/daemon_standalone/` is where its database and migrations will live.
@@ -101,7 +101,7 @@ That compiled callable is the daemon-side twin of what the view reaches: `buffer
 
 `die.resolve()` at the runtime level first cascades every child die through its own lifecycle — the stages above, which the example below staged by hand — then assembles everything into a single tree: processes attach under `/attached/process/lighthouse/multiplayer`, mode bundles under `/attached/bundle/…`, and each daemon's whole aperture is slurped under its mount. Look back at the declaration's own environment:
 
-```jsonc title="environment/instance.jsonc"
+```sh title=".env"
 "PUBLIC_VIVA_LIGHTHOUSE_REMOTE": "http://localhost:2601/attached/process/lighthouse/multiplayer"
 ```
 
@@ -133,4 +133,4 @@ The boot above, executed:
 </Fragment>
 </Tabs>
 
-Read next: [[51.02_run-an-instance]] — the same file, section by section, with the flashcard actually played.
+Read next: [[51.02_instance-from-scratch]] — the same file, section by section, with the flashcard actually played.

@@ -61,6 +61,8 @@ A rage-caps entry means the rule was stated ≥2 times before. The ladder is my 
 
 A new name must JOIN a family. The metaphor must be TRUE (point the right way) — `graft` was rejected for naming a copy.
 
+**"hand knows foot"** (body family, m44-era) — ghost and fixtures are both repo members: components of ONE repo may name each other's paths literally. Never build a marker, trait, or discovery mechanism for knowledge the repo already has about itself — a dedicated trajectory that hardcodes `registry/fixtures` IS the design. (Context: an ELECTIVE package-trait + seed filter was proposed for optional supply; killed — "no. omg. wrong way entirely. i think all we need is a dedicated trajectory.")
+
 ## patterns (the repeatables)
 
 1. **verb-first, context-after**: `"diagnose. no fix"` — the constraint arrives with the command; honor both halves.

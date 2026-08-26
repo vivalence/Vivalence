@@ -2,7 +2,8 @@ import paladin from "@vivalence/paladin";
 import { specs } from "./target.js";
 
 export async function stop(ctx) {
-  const chosen = specs(ctx.signal.params[0]);
+  const held = await paladin.ledger.instances.lookup(paladin.scope.instance.absolute);
+  const chosen = specs(ctx.signal.params[0], { instance: held?.slug ?? null });
   const instance = chosen[0]?.instance;
 
   const killed = [];

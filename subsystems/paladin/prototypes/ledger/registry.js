@@ -1,4 +1,4 @@
-import { dirname, isAbsolute } from "@std/path";
+import { dirname, isAbsolute, relative } from "@std/path";
 import { Path } from "@vivalence/typology";
 
 const normalize = (reference) =>
@@ -40,6 +40,13 @@ export class Registry {
     const next = (await this.list()).filter((held) => held !== reference);
     await this.write(next);
     return next;
+  }
+
+  reference(absolute) {
+    const store = this.paladin.scope.registry?.absolute;
+    if (!store) return absolute;
+    const segment = relative(store, absolute);
+    return segment && !segment.startsWith("..") && !isAbsolute(segment) ? segment : absolute;
   }
 
   resolve(reference) {

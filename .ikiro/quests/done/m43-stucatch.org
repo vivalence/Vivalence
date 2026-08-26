@@ -1,0 +1,205 @@
+#+title: m43 stucatch — the daemon grows ears: mesh lines become literals become a view
+#+filetags: :stucatch:runtime:mode:literal:booted:application:kajuit:
+#+status: DESIGN — prerequisite BOOTED trait LANDED in-tree (traits/booted.js + enum + 2 tests,
+runtime 52/0). Everything else awaits per-milestone go. Firmware v4 + mesh-sim stand in the
+stucatch repo, uncommitted, beef commits.
+
+* intent
+
+beef, verbatim: /"lets think about this in terms of a daemon, literals, and modes now. i think
+we can do a single mode type domain now and give that the application trait."/ · /"we might
+need some sort of generic boot function that gets passed the daemon and the mode and that can
+just do ... anything. like say a trait BOOTED exporing a async function boot(daemon,mode){...
+listen to ports, read devices, bla bla; ... return (teardown)();}"/ · /"issue of course is that
+there is no authentication or user for those. but thats fine. WE just want to read and write
+literals. no user stuff in this domain."/ · /"a boot function sets up some f() that reads in
+any datastream from source x. if a line arrives, we do p(x) which is probably creating a
+literal according to our annotation."/ · /"then we maybe set up a twitch for further
+processing. first step just something extremely simple just to demo."/ · /"then we export an
+app with some buffer that just displays our literals as they arrive. to demo the reading and
+creating and subscription end to end."/ · /"no emitter for buffers. just open the app and
+display."/ · /"fuck. ignore pi-app. its INSPIRATION!!!!!!!!!! not something we interact with.
+we REIMPLEMENT pi app. i will delete it."/ · /"no sink for now"/ · on the mode spawning its own
+source: /"this is a big fat no. lol. THINK."/
+
+One sentence: *the stucatch mesh's serial NDJSON becomes reception literals inside a daemon
+mode via BOOTED, and an APPLICATION view proves the whole spine — read, annotate, mint,
+subscribe, render — no user, no emitter, no sink.*
+
+** 
+Brief Description: A wireless distributed system for early detection and direction-finding of mechanical vibrations and impacts. Built on ESP32 microcontrollers using the ESP-NOW protocol for real-time communication without requiring a traditional Wi-Fi router.
+Key System Components:
+1. Sensor Nodes:
+  - ESP32-C3 microcontrollers equipped with ADXL345 accelerometers.
+  - Autonomously monitor surfaces or objects for vibrations exceeding a predefined threshold (Vibration Threshold).
+  - Upon detecting an impact, instantly calculate force (g) and directional angle, then generate a data packet with a unique ID and timestamp.
+2. Relay Nodes:
+  - Intermediate ESP32 nodes that extend network range using a mesh topology principle.
+  - Receive packets from remote sensors, increment the hop counter (hop_count), and forward them instantly.
+3. Central Hub (Endpoint):
+  - The final data-collection point connected to a computer or control device.
+  - Aggregates all telemetry from the network, synchronizes time via periodic sync packets, and outputs structured JSON data streams through the Serial port for further processing or visualization.
+* terrain — what already stands (all verified live this session)
+
+- *firmware v4* — =~/.viva/registry/stucatch/stucatch/logic=, compile-verified C3+S3.
+  Wire: 19B header =version u8 · kind u8 · origin u32 · seq u16 · forwarder u32 · hops u8 ·
+  stamped u32 · epoch u16= + per-kind payload (SYNC 4 / PING 0 / RANGE 5 / ALARM 8 / STATUS 22).
+  Identity = (origin, seq), random-seeded, never 0. Hub = sole SYNC authority. Every role
+  prints every reception as NDJSON; blind alarm resends (+200ms/+800ms, same seq); dedup is
+  the reader's job. Serial grammar: data lines ={"v":4,...}= (rssi ABSENT on gateway
+  self-lines), log lines ={"type":"log","ev":...}=.
+- *mesh-sim* — =mesh-sim/mesh-sim.js=, physics simulator (path-loss rssi, relays, impacts,
+  reboots, loss), 743/743 lines validated against a strict v4 parser, EPIPE-clean.
+- *BOOTED trait* — =systems/runtime/daemon/traits/booted.js=: mode exports
+  =boot(daemon, mode)=; fires at finalize (=lifecycle/resolution.js:73=, after ALL mode traits
+  wire); returned teardown rides ={finalize, terminate}= → =stagger()= → =mode.terminators= →
+  =die.disintegrate()=. Missing export = warn + no-op. Tests in =tests/mode/traits.test.js=.
+- *stucatch repo* tapped at =~/.viva/registry/stucatch= — needs =package.viva.js= to be a real
+  m11 package (marker = =manifest.type === "package"=, NOT filename).
+- *pi-app* — Luca's node app. INSPIRATION ONLY, beef deletes it. Ideas worth stealing into the
+  reimplementation: strict-on-load-bearing/lenient-on-diagnostics parsing; junk counted never
+  thrown; STATUS =boots= increment as definitive reboot signal (beats silence age-out);
+  per-role liveness thresholds; uint16 wraparound seq compare.
+
+* ontology — the strata tower (the map; m43 builds only its ground floor)
+
+#+BEGIN_EXAMPLE
+order 0   reception     one serial line: what the gateway heard, path facts attached
+order 1   utterance     dedup fold over receptions, keyed (origin, seq)
+order 1'  calibration   clock offsets per node per epoch · rssi→distance fits   (sibling branch)
+order 2   fix           multilateration from RANGE edges + ALARM bearings
+order 3   event         first SYMBOL — a name for a bundle of measurements
+order 4   track         symbols about symbols: identity through time
+order 5   pattern       relations between relations
+
+laws: certainty DECAYS upward · identity WEAKENS upward · symbols appear at 3
+time: INGESTED wall clock = the spine (only monotone axis) · stamped+epoch = a
+      measurement CLAIM in a named clock frame, never corrected in place
+#+END_EXAMPLE
+
+m43 scope: order 0 minted for real; ONE demo derivation (M5); the tower above stays design.
+
+* literal schema — the annotation p(line) mints
+
+Per data line, one *reception literal*, slug-namespaced (dataspace has no provenance — the
+namespace IS the provenance):
+
+#+BEGIN_EXAMPLE
+{
+  slug: "stucatch.reception.<origin>.<seq>.<via>.<ingestMs>",
+  traits: ["EMITTED", "STAMPED", "RECEIVED", "INGESTED", <kind trait>],
+  trait: {
+    EMITTED:  { node, seq, kind },                # utterance identity, sender's claim
+    STAMPED:  { at, epoch },                      # sender clock value + frame — raw, uncorrected
+    RECEIVED: { via, hops, rssi },                # the PATH — rssi omitted on self-lines
+    INGESTED: { at, raw },                        # wall clock spine + the verbatim line
+    SYNCED:   { authority },                                    # kind 0
+    RANGED:   { peer, rssi },                                   # kind 2 — the node↔node edge
+    SENSED:   { magnitude, bearing },                           # kind 3 — bearing = sensor frame
+    REPORTED: { fw, role, boots, uptimeS, syncAgeS, tx, rx, drop },  # kind 4
+  },                                              # kind 1 PING = header traits only
+  symbols: [{ slug: "node.<origin>" }],           # + node.<via> when relayed (fork 3)
+}
+#+END_EXAMPLE
+
+- =node.<id>= symbols minted lazily on first sight: =traits [STRUCTURAL, LABELED]=.
+- Duplicates are DATA: a relayed copy or blackout resend = distinct reception of the same
+  utterance — (origin, seq) equal, path/ingest differ. Never dropped at ingress.
+- Log lines: skipped in m43 (fork 4). Junk lines: counted, never thrown.
+
+* the mode — single mode, whole domain
+
+#+BEGIN_EXAMPLE
+~/.viva/registry/stucatch/stucatch/          (the tapped git repo)
+  package.viva.js                            type "package", slug "stucatch"
+  viva/watch/watch.viva.js                   manifest { type: <fork 1>, slug: "watch",
+                                               traits: ["BOOTED", "APPLICATION", "STANDALONE"] }
+    export boot(daemon, mode)                the ears
+    export app                               the eyes
+#+END_EXAMPLE
+
+=boot(daemon, mode)=:
+1. resolve source path (fork 2): a *file-shaped stream* — serial device or FIFO. Device:
+   =stty -f <dev> 115200 raw= subprocess once, then =Deno.open= → readable → TextDecoderStream
+   → line split. FIFO: same code path, zero branches.
+2. per line: =p(line)= — strict parse (v==4, kind known, origin hex, seq u16; junk tolerated)
+   → mint reception literal + lazy node symbol → flush discipline per the mikro memos.
+3. return teardown: abort the reader, close the handle. Daemon disintegrate calls it.
+
+Dev rig (the answer to the big fat no — the mode NEVER spawns its source):
+#+BEGIN_EXAMPLE
+mkfifo /tmp/stucatch.fifo
+node mesh-sim/mesh-sim.js > /tmp/stucatch.fifo        # beef's shell, or the hub's serial later
+VIVA_STUCATCH_SOURCE=/tmp/stucatch.fifo …             # boot just opens a path
+#+END_EXAMPLE
+Same open/read/annotate code for sim and hardware; the path is the only difference.
+
+* the app
+
+APPLICATION view (svelte, ships with the mode, client stays domain-blind): one buffer showing
+the latest receptions as rows, live over the dataspace reactive spine. Open the app → watch
+lines arrive → the read/mint/subscribe/render spine is proven end to end. STANDALONE marker =
+renderable without an emitter (=traits/index.js= documents exactly this).
+
+* the twitch (M5, gated)
+
+The twitch-vector (=fanout=) design lives ONLY in frontier's "design held only here" list —
+*restate from its compact before wiring anything*. Demo fold candidate: per-node =lastSeen= /
+=alarmCount= refreshed as a trait on =node.<id>= — one dumb derivation to prove subscription
+of derived state.
+
+* pre-flight reads (before M2 code — grep, never guess)
+
+1. runtime literal mint API — how dataset install / nyan =/literals= ingress creates
+   =LiteralEntity= live; exact repo/em call + flush discipline ([[mikro hook flush]] — M:N
+   junction writes need care).
+2. symbol lazy-mint + membership add, same API family.
+3. client subscription filter shape for a slug-namespace — exemplar:
+   =@education/dashboard/dataspace=.
+4. the twitch compact (M5 gate).
+
+* milestones — each boots green before the next
+
+- *M1 package + skeleton* — =package.viva.js= + manifest-only =watch.viva.js= + instance
+  kernel mount line (beef's edit, like the italian testament line). Gate: daemon boots,
+  =/mode= lists watch, no =[BOOTED]= warn.
+- *M2 ears* — source resolve + line reader + teardown. Gate: wet test feeds a FIFO fixture,
+  boot logs the lines, disintegrate provably closes the reader. Unit: reader over a fixture
+  file (EOF behavior per fork 8).
+- *M3 annotation* — =p(line)= + literal minting + node symbols. Gate: a mesh-sim capture in →
+  =/find= count out; dupes distinct; junk counted; INGESTED.raw verbatim.
+- *M4 eyes* — the app view + subscription. Gate: live-validation in Chrome (JS DOM assert),
+  rows appear while the FIFO feeds; runtime restart first (bundles cache).
+- *M5 twitch demo* — gated on the compact restatement.
+- *M6 hardware wet* — real =/dev/cu.usbmodem*= on beef's machine, hub board flashed v4.
+  Gate: tap the sensor, see the literal, see the row.
+
+Blast close per milestone: runtime suite; + kajuit once M4 touches the client.
+
+* testing assessment — kill the product space, not the matrix
+
+- *parser unit*: ONE fixture file carrying every kind + junk + a dupe pair + a self-status
+  line (no rssi) → golden annotations. The fixture is the wire contract's pin.
+- *reader lifecycle*: boot → lines → teardown → reader closed (leak = red).
+- *annotation invariants*: reception slugs distinct across resends/relays; =INGESTED.raw=
+  byte-verbatim; PING mints header traits only.
+- *subscription smoke*: mint one literal → client observes (the sse-test CREATE=emit-merge
+  pattern already exists).
+- M4 is a live-validation ritual, not a unit test.
+
+* forks — beef gates
+
+1. mode =type= word — rec *"dashboard"* (existing class; "watch" is the slug).
+2. source config — rec =VIVA_STUCATCH_SOURCE= via paladin env (m41 strata carry it), mode
+   statics as override.
+3. relayed receptions also member of =node.<via>= — rec yes (free link visibility).
+4. log lines — rec skip now; diagnostics literals later.
+5. utterance fold (order 1) as the M5 twitch vs later — rec later; M5 stays dumber.
+6. reception slug carries =<ingestMs>= — rec yes (blackout resend = same origin+seq+via twice).
+7. which instance kernel gets the mount line (beef's edit).
+8. FIFO EOF: reopen-and-wait vs teardown — rec reopen (a producer restart is not a shutdown).
+
+* deletion note
+
+pi-app dies by beef's hand (the =--stdin= patch dies with it). mesh-sim SURVIVES — it feeds
+the FIFO. =secure PI layer/security.js= stays inspiration for a future diagnostics stratum.

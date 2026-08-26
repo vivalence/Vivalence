@@ -20,11 +20,13 @@ minimum vocabulary required:
   registry.json          the record: package locations (absolute = pinned checkouts,
                          relative = store children)
   instances.json         known instances on this machine
+  .env                   the machine's own environment, hand-authored (viva instances use x --ledger upserts one line)
   locks/                 <instance>_<process>.lock — what is running
   logs/                  <instance>/ span + stdout/err streams
+  sessions/              <shell-pid>.json — per-shell selections (viva instances use)
   registry/              the store — remote taps clone here; each child its own git clone
   instances/              the shelf — each child an instance home: the declaration,
-                         environment/, .env, and (at runtime) mountpoint/
+                         its .env, and (at runtime) mountpoint/
 ```
 
 ## one resolution law
@@ -32,8 +34,51 @@ minimum vocabulary required:
 Every path has a convention default and an environment override, and the override
 always wins: `VIVA_LEDGER_MOUNT` moves the whole home (default `~/.viva`),
 `VIVA_REGISTRY_MOUNT` moves the store (default `<ledger>/registry`),
-`VIVA_INSTANCE_MOUNT` names the one instance a runtime renders — an absolute path
-verbatim, or a bare slug resolved against the shelf.
+`VIVA_INSTANCE_MOUNT` names the one instance a runtime renders — and a `*_MOUNT` is
+always a path, never a slug. Paladin throws on a slug rather than resolving one. The
+shelf lookup belongs to the operator: `viva instances use <slug>` resolves the slug and
+writes the resolved path.
+
+`instances.json` is the identity authority: **the record names instances; manifests name
+recipes.** A module's `manifest.slug` says which recipe a registry reference resolves to,
+and nothing more — every reader of instance identity (locks, logs, run targets, the
+doctor) goes through the record, and a mount the record does not hold is simply not an
+instance yet: `viva instances/tap <path> --slug=<name>` adopts it.
+
+## seven strata
+
+"The environment" is not one bag — it is seven voices in fixed precedence, and the
+strongest voice holding a key wins:
+
+```
+flag      --instance=x / --ledger=/x / --env=file.env    this invocation only
+cwd       standing in an instance directory
+instance  the instance's own .env, at its root
+.env      ./ .env scan, then VIVA_ENV_FILE, then --env    (within: later wins)
+os        exported shell variables (VIVA_* / PUBLIC_VIVA_* / SECRET_VIVA_*)
+session   <ledger>/sessions/<shell>.json                  viva instances use x
+ledger    <ledger>/.env                                   hand-authored; --ledger upserts here
+```
+
+`viva ledger doctor` prints every variable with the stratum that won it, and dims the
+shadowed voices under each — "why is my `.env` not applying" is answered by reading the
+column.
+
+Every source hands its raw bag to one ingress,
+`paladin.assign(bag, stratum)`, and the **key** decides what the value is: `SECRET_*`
+goes to the secret store, `VIVA_*` and `PUBLIC_VIVA_*` to the environment, anything else
+is ignored. No filename and no caller may decide it, so `SECRET_VIVA_JWT` is a secret in
+whichever of the two files you write it. An explicit source (`--env`, `VIVA_ENV_FILE`)
+that yields no VIVA knowledge throws instead of silently doing nothing.
+
+`viva instances use italian` selects an instance for the current shell. The id is the
+invoking shell's own pid: `ghost.sh` takes `${VIVA_PROCESS_ID:-$PPID}`, so every shell
+carries a stable id with nothing to configure. Each shell's selection lives in its own
+session file, so two terminals work two instances in parallel. Add `--ledger` to set the machine default instead. Trailing
+segments chain: `viva instances use italian run` selects and runs in one invocation.
+One deliberate edge: chaining re-enters the full resolution, so standing *inside*
+another instance's directory outranks the selection you just made — the directory you
+are in is the stronger voice, by design.
 
 The ledger itself is machine state and never git-managed — the record pins absolute
 paths, the locks hold pids. Its children are the git units: every tapped package in
@@ -53,6 +98,6 @@ so a fresh clone boots the standard packages without ceremony.
 ## instance, singular
 
 The shelf holds many instances; a runtime ever renders one. `instance create` copies an
-instance wholesale — declaration, `environment/`, its `.env` seed — to the shelf or to
+instance wholesale — the declaration and its `environment` schema — to the shelf or to
 an explicit target, and everything derived (`mountpoint/` databases) grows inside that
 home. Two runs of the same declaration are two shelved copies, not two moods of one.

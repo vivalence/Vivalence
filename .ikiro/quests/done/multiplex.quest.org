@@ -1,0 +1,77 @@
+#+title: multiplex — the daemon session: Socket exchanges frames
+#+status: LANDED (typology + runtime green; live Phase-B + Phase-C pending)
+
+* the problem
+
+Browser 6-per-host HTTP/1.1 pool. SSE subscriptions hold sockets; two daemons break
+it. The tunnel (earlier prototype, 32/32) proved one-socket muxing but was HTTP
+cosplay — frames re-synthesized web Requests server-side, re-entered shape.http.
+Every follow-up patch (retry capability smuggling, carrier leases, Duct ws-shim, ALS
+carry hack) was adapter code. Connoisseur verdict: the tunnel reinvented four things
+the system already owned — Queue, Socket's dispatch, the packet grammar, the channel
+family. Structure wrong.
+
+* the concept — one grammar
+
+The daemon surface is a Vector dispatching Signals. Put signals on the wire.
+
+- SOCKET GREW. echo (unary correlation) → FRAME (multi-reply correlation). One
+  dispatcher both sides (the one Socket already had). One correlation scheme.
+- Every living exchange is a frame: call (first frame), flow (stream), subscribe
+  (durable). push() stays frame-less. Server-side iterable outputs consumed INSIDE
+  the middleware carry — the ALS/RequestContext bug class dies structurally.
+- multiplex = a KEEPER combinator (shard.transmitter), NOT a class: address (Url+token), lazy establish, waiter
+  backoff, Socket recreation on drop, transport() shim for Connection compat. ~130 lines.
+- Queue IS the frame inbox (buffer/waiter/close/drain). Failure is DATA (an error
+  frame in the stream), never channel poison — Queue untouched, matches /dialogue/error.
+
+* frame grammar (Socket)
+
+  → { frame, signal, input?, verb?, token?, stream? }   open
+  → { frame, input } / { frame, done }                upstream chunk / end
+  → { frame, close }                                    cancel
+  ← { frame, open }                                     attach ACK (leaf ran)
+  ← { frame, output }                                   reply / stream item
+  ← { frame, close } / { frame, error }               end / failure
+  (frame-less { signal, input } = push, unchanged)
+
+* what landed
+
+  prototypes/socket.js         GROWN: frames, Context ctx, carry-consumed iterable
+                               outputs, call()=first frame, flow(), open()/pump()/shut();
+                               #ready guard kept; per-open token → one auth header
+  gestalten/shard/transmitter.js  multiplex() combinator — closure keeper (establish/backoff/transport/follow/release)
+  prototypes/queue.js          UNTOUCHED (failure = frame data, not fault state)
+  prototypes/trunk.js          DELETED (class dissolved into the combinator)
+  gestalten/shard/serve.js     tunnel() → multiplex(vector) = 12 lines (a Socket on the aperture)
+  gestalten/shard/transmitter.js  all tunnel machinery DELETED
+  gestalten/shard/datamap.js   inject() wraps async-iterable bodies to re-enter the
+                               request's RequestContext per pull (the context-OWNER
+                               owns the span — not the transport)
+  datamap providers (libsql + scenario)  shard.carry() = same-context re-entry
+  connection.js                iterable-body + opened() in stream/subscribe; capability
+                               reverts; resumed() heals missed events on reattach
+  remote-repository.js         subscribe sends body.where + resumed→find() resync
+  runtime aperture/trunk.js    per-daemon /multiplex mount (die.js after cortex)
+  lifecycle/integrate.js       /tunnel reverted
+  kajuit dossier               daemon.trunk + retry(trunk.transport()); authorize shard
+                               dropped (token rides upgrade + per-open frame); daemon.release()
+
+* proofs
+
+  typology 126/1186/0. multiplex.test.js: matrix (unary/GET-input/stream/interleave/publish/
+  push/token-auth/timeout/drop-retryable/retry-restart/subscribe-resumed) × networked
+  AND stubbed. multiplex.integration 5/5 incl. STREAMED DIALOGUE PERSISTS INSIDE THE ONION
+  (the /turn/close crash, now impossible). multiplex.filter 5/5 incl. REQUESTCONTEXT FORK
+  SPANS EVERY STREAM PULL (bench forking). conversation.integration 5/5 — conversational
+  rides frames over raw WS with ZERO trait change (echo was the degenerate frame).
+
+* still pending (not trunk code)
+
+- Phase B live: restart :2501, run bruno + probe (retarget to trunk frames).
+- Phase C: kajuit+Chrome — 1 WS/daemon, zero pooled SSE, two→six daemons; update
+  project_browser_connection_budget.
+- conversational v2: swap /conversation raw WS for the daemon trunk (a frame) —
+  Socket already supports it; a call-site change, deferred.
+- 3 runtime failures (metadata/modes, pick/literal) = parallel aperture-calling
+  surgery, inline transport, NOT trunk.

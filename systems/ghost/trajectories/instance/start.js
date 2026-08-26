@@ -2,7 +2,8 @@ import paladin from "@vivalence/paladin";
 import { register, specs } from "./target.js";
 
 export async function start(ctx) {
-  const chosen = specs(ctx.signal.params[0], { attachment: "detached" });
+  const slug = await register();
+  const chosen = specs(ctx.signal.params[0], { attachment: "detached", instance: slug });
 
   for (const spec of chosen) {
     if (await paladin.ledger.lock(spec.instance, spec.process).alive()) {
@@ -12,12 +13,10 @@ export async function start(ctx) {
   }
 
   const processes = await Promise.all(chosen.map((spec) => paladin.ledger.spawn(spec)));
-  await register();
-  const slug = processes[0]?.spec.slug;
 
   console.log(
     `ghost: started ${slug} (${processes
-      .map((process) => `${process.spec.type}=${process.pid}`)
+      .map((process) => `${process.spec.process}=${process.pid}`)
       .join(", ")})`,
   );
   console.log(`ghost: stop with: viva /instance/stop`);
@@ -25,6 +24,6 @@ export async function start(ctx) {
   ctx.effect = {
     status: "started",
     slug,
-    pids: processes.map((process) => ({ type: process.spec.type, pid: process.pid })),
+    pids: processes.map((process) => ({ process: process.spec.process, pid: process.pid })),
   };
 }

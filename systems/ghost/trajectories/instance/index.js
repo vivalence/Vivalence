@@ -1,5 +1,5 @@
 export { auth } from "./auth.js";
-export { cloneDir, create } from "./create.js";
+export { create } from "./create.js";
 export { doctor } from "./doctor.js";
 export { init } from "./init.js";
 export { run } from "./run.js";

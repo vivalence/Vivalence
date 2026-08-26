@@ -1,4 +1,3 @@
-import { fn } from "@vivalence/typology";
 import { Lock } from "./lock.js";
 import { Log } from "./log.js";
 import { Instances } from "./instances.js";
@@ -10,21 +9,14 @@ export class Ledger {
     this.paladin = paladin;
     this.attached = new Set();
     this.armed = false;
-    this.mount = fn.once(this.mount.bind(this));
   }
 
-  async mount() {
-    this.instances = new Instances(
-      this.paladin,
-      this.paladin.scope.ledger.branch("instances.json"),
-    );
-    this.registry = new Registry(
-      this.paladin,
-      this.paladin.scope.ledger.branch("registry.json"),
-    );
-    this.paladin.publish();
+  get instances() {
+    return new Instances(this.paladin, this.paladin.scope.ledger.branch("instances.json"));
+  }
 
-    return this;
+  get registry() {
+    return new Registry(this.paladin, this.paladin.scope.ledger.branch("registry.json"));
   }
 
   lock(instance, process) {
@@ -52,6 +44,7 @@ export class Ledger {
   }
 
   async spawn(spec) {
+    this.paladin.publish();
     const process = await new Process(this, spec).spawn();
     if (spec.attachment !== "detached") {
       this.arm();

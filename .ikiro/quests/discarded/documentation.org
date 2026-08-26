@@ -1,0 +1,131 @@
+ROOT
+  README.md                       repo entry
+  docs/README.md                  /docs front door → 00.00
+  docs/00.00_jdex.md              master flat index
+  docs/00.01_inbox.md             repo-wide untriaged
+
+  00-09 SYSTEM (docs about docs)
+    00     management
+    00.00  jdex
+    00.01  inbox
+    00.02  tasks
+    00.03  templates
+    00.04  links
+    00.08  someday
+    00.09  archive
+
+  10-19 ABOUT
+    10     management
+    11     identity                 what vivalence IS + what
+  this doc IS
+    12     vision                   readme.org manifesto
+    15     history                  origin, lineage
+    1z     methods                  formats, methods, totems
+
+  20-29 GRAMMAR (about the system)
+    20     management
+    21     trait-arc                declarative metadata +
+  functional dispatch → emergent wiring
+    22     lifecycle                construct → populate →
+  resolve → integrate → disintegrate
+    23     manifest-contract        shared shape across kinds
+    24     channel-grammar          signal = /channel/verb
+    25     language-map             THE glossary
+    26     pensieve                 @owner/type/slug@version
+  addressing
+    27     dossier                  every entity paired with
+  dossier object
+    28     primitives
+  daemon/mode/literal/symbol/trait/manifest as sub-IDs
+
+  30-39 ARCHITECTURE (functional composition)
+    30     management
+    31     map                      C4 L2 — containers +
+  composition diagram
+    32     typology                 "one constructor, many
+  shapes"
+    33     paladin                  "declarative manifests,
+  compiled product"
+    34     runtime                  "cascade lifecycle"
+    35     registry                 "every entry exports
+  manifest"
+    36     ghost                    operator interface
+    37     kajuit                   "DOM is a consumer of the
+   dataspace"
+    38     sheets                   TUI surface (ink/react)
+    39     dapper                   theming (drapes folded)
+
+  40-49 REPOSITORY (filesystem reality; tour embedded
+  per-package)
+    40     management
+    40.10  testing                  repo-wide pyramid, gaps,
+  conventions
+    40.20  dependencies             import graph + external
+  deps
+    10     management
+    11     identity                 what vivalence IS + what this doc IS
+    12     vision                   readme.org manifesto
+    15     history                  origin, lineage
+    1z     methods                  formats, methods, totems
+
+  20-29 GRAMMAR (about the system)
+    20     management
+    21     trait-arc                declarative metadata + functional dispatch → emergent wiring
+    22     lifecycle                construct → populate → resolve → integrate → disintegrate
+    23     manifest-contract        shared shape across kinds
+    24     channel-grammar          signal = /channel/verb
+    25     language-map             THE glossary
+    26     pensieve                 @owner/type/slug@version addressing
+    27     dossier                  every entity paired with dossier object
+    28     primitives               daemon/mode/literal/symbol/trait/manifest as sub-IDs
+
+  30-39 ARCHITECTURE (functional composition)
+    30     management
+    31     map                      C4 L2 — containers + composition diagram
+    32     typology                 "one constructor, many shapes"
+    33     paladin                  "declarative manifests, compiled product"
+    34     runtime                  "cascade lifecycle"
+    35     registry                 "every entry exports manifest"
+    36     ghost                    operator interface
+    37     kajuit                   "DOM is a consumer of the dataspace"
+    38     sheets                   TUI surface (ink/react)
+    39     dapper                   theming (drapes folded)
+
+  40-49 REPOSITORY (filesystem reality; tour embedded per-package)
+    40     management
+    40.10  testing                  repo-wide pyramid, gaps, conventions
+    40.20  dependencies             import graph + external deps
+    40.30  structure                sizing, line counts, file metrics
+    40.40  quality                  dead code, known issues, regressions
+    41     typology                 dir tree + tour-stop Literal.ts
+    42     paladin                  dir tree + tour-stop
+    43     runtime                  dir tree + tour-stop run.js
+    44     registry                 44.10 kernels / 44.20 modes / 44.30 services / 44.40 wafers; tour-stops embedded
+    45     ghost
+    46     kajuit                   dir tree + tour-stop +layout.svelte
+    47     sheets
+    48     dapper                   drapes nested
+
+  50-59 PRACTICE (how-to + criteria + conventions)
+    50     management
+    51     system-and-instances
+    51.01  create-a-instance
+    52     create-a-mode            walks dewey reference
+    53     create-a-kernel
+    54     create-a-corpus          links → corpus-quality-criteria.md
+    55     wire-a-circuit           wafer authoring
+    56     corpus-criteria          data quality rules
+    57     conventions              code style, no-comments, no-_var, barrel rules
+
+  60-69 TRAJECTORY (time axis)
+    60     management
+    61     now                      in-flight workpackages
+    62     next                     committed
+    63     later                    intent
+    64     out-of-scope             explicit non-goals
+    65     workpackages             index of .ikiro/workpackages/*.org
+    66     compacts                 index of .ikiro/compacts/*.org
+
+  70-79 reserved
+  80-89 reserved
+  90-99 reserved

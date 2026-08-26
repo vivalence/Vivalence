@@ -245,9 +245,17 @@ export async function populate(lighthouse) {
     const mounting = logger.entry("daemons").open();
     await lighthouse.dataspace.populate(["daemon"]);
     lighthouse.$daemons.set([...lighthouse.dataspace.daemon.$entities.get()]);
+    for (const daemon of lighthouse.$daemons.get()) {
+      let code = daemon.status.reflection.code;
+      daemon.status.$transient.listen((reflection) => {
+        if (reflection.code === code) return;
+        code = reflection.code;
+        lighthouse.$daemons.set([...lighthouse.$daemons.get()]);
+      });
+    }
     const mounted = lighthouse.$daemons.get();
     mounting.note({
-      message: `${mounted.length} daemon${mounted.length === 1 ? "" : "s"} mounted`,
+      message: `${mounted.length} daemon${mounted.length === 1 ? "" : "s"} found — mounting in background`,
       daemons: mounted.map((daemon) => daemon.slug).join(","),
     });
     mounting.close();

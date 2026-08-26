@@ -3,7 +3,7 @@ import { activeField, atActions, init, reduce } from "../state/form.js";
 
 Deno.test("formMachine: set stores value at active field without advancing focus", () => {
   let state = init({
-    fields: [{ name: "username" }, { name: "password" }],
+    pages: [{ fields: [{ name: "username" }, { name: "password" }] }],
     actions: ["commit", "skip"],
   });
   state = reduce(state, { kind: "set", value: "beef" });
@@ -13,7 +13,7 @@ Deno.test("formMachine: set stores value at active field without advancing focus
 });
 
 Deno.test("formMachine: next/prev move focus, clamped, reaching the actions bar", () => {
-  let state = init({ fields: [{ name: "a" }, { name: "b" }], actions: ["ok"] });
+  let state = init({ pages: [{ fields: [{ name: "a" }, { name: "b" }] }], actions: ["ok"] });
   state = reduce(state, { kind: "prev" });
   assertEquals(state.active, 0);
   state = reduce(state, { kind: "next" });
@@ -26,7 +26,7 @@ Deno.test("formMachine: next/prev move focus, clamped, reaching the actions bar"
 
 Deno.test("formMachine: skip is reachable with empty values (no data left behind)", () => {
   let state = init({
-    fields: [{ name: "username" }, { name: "password" }],
+    pages: [{ fields: [{ name: "username" }, { name: "password" }] }],
     actions: ["commit", "skip"],
   });
   state = reduce(state, { kind: "next" });
@@ -39,7 +39,7 @@ Deno.test("formMachine: skip is reachable with empty values (no data left behind
 });
 
 Deno.test("formMachine: commit carries collected values", () => {
-  let state = init({ fields: [{ name: "username" }], actions: ["commit", "skip"] });
+  let state = init({ pages: [{ fields: [{ name: "username" }] }], actions: ["commit", "skip"] });
   state = reduce(state, { kind: "set", value: "beef" });
   state = reduce(state, { kind: "next" });
   state = reduce(state, { kind: "action", action: "commit" });

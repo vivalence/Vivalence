@@ -1,0 +1,259 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN"
+	"http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+
+<head>
+<title>README.html</title>
+<meta http-equiv="Content-Type" content="text/html;charset=utf-8"/>
+
+</head>
+
+<body>
+
+<p align="center">
+<dl>
+<dt><a target="_blank" href="https://docs.vivalence.org">Docs</a> ·
+<a href="#building-blocks">Blocks</a> ·
+<a href="#getting-started">Install</a> ·
+<a href="#noticeboard">Notices</a> · <a href="#pricing-b2b">Pricing</a>
+· <a href="#funding-p2p">Funding</a> ·
+<a target="_blank" href="https://discord.gg/QyS9Xt9ht8">Discord</a></dt>
+<dd>
+<p>$home</p>
+</dd>
+</dl>
+<p>Vivalence is a modal operating system and app platform. AI-harnessed
+as a first principle.</p>
+<p>You compose systems instead of installing apps: modes are the
+building blocks (datasets, domain logic, services, interfaces - all
+properties of modes) and you compose them into daemons. Vivalence’s
+modal architecture turns apps into evolving systems, capable of growing
+and changing to fit your needs when they arise.</p>
+<p>Free for private use, <a href="#pricing-b2b">flat license fee</a> for
+institutional and commercial use. Fair Source.</p>
+<h2 id="modality">Modality</h2>
+<p>Your setup shouldn’t have to be like anyone else’s.</p>
+<p>A mode is just JavaScript and Svelte — no magic.</p>
+<p>Fork existing systems, hand-roll your own, or prompt one into
+existence on an architecture designed for it.</p>
+<!-- → **[awesome-vivalence](https://github.com/vivalence/awesome-vivalence)** — the curated (and growing) registry. PRs welcome. -->
+<h2 id="quickstart">Quickstart</h2>
+<p>Five steps from zero to a running system.</p>
+<p>For more depth, read the
+<a target="_blank" href="https://docs.vivalence.org">Slowstart</a>.</p>
+<h3 id="install">0 — Install</h3>
+<p>Everything runs through <code>viva</code>, an instance of the shell
+client <code>@vivalence/ghost</code>.</p>
+<div class="sourceCode" id="cb1"><pre class="sourceCode sh"><code class="sourceCode bash"><span id="cb1-1"><a href="#cb1-1" aria-hidden="true" tabindex="-1"></a><span class="ex">curl</span> <span class="at">-fsSL</span> https://deno.land/install.sh <span class="kw">|</span> <span class="fu">sh</span></span>
+<span id="cb1-2"><a href="#cb1-2" aria-hidden="true" tabindex="-1"></a><span class="fu">git</span> clone https://github.com/vivalence/vivalence.git</span>
+<span id="cb1-3"><a href="#cb1-3" aria-hidden="true" tabindex="-1"></a><span class="bu">cd</span> vivalence</span>
+<span id="cb1-4"><a href="#cb1-4" aria-hidden="true" tabindex="-1"></a><span class="ex">deno</span> task install</span></code></pre></div>
+<p>Deno 2.7+ is the only prerequisite; the repo carries everything else.
+<code>deno task install</code> fetches dependencies and links
+<code>viva</code> into <code>~/.deno/bin</code> — deno’s installer
+already put that on your PATH; if deno is brand new, open a fresh shell
+once. The CLI remembers this repo via
+<code>$VIVA_REPOSITORY_MOUNT</code> in
+<code>~/.config/viva/env</code>.</p>
+<p>So, from here on you can run <code>viva</code> from anywhere.</p>
+<h3 id="viva-ledgerinit">1 — <code>viva ledger/init</code></h3>
+<div class="sourceCode" id="cb2"><pre class="sourceCode sh"><code class="sourceCode bash"><span id="cb2-1"><a href="#cb2-1" aria-hidden="true" tabindex="-1"></a><span class="ex">viva</span> ledger/init</span></code></pre></div>
+<p>Creates the <code>ledger</code> — the one directory Vivalence owns on
+your machine (default <code>~/.viva</code>, the wizard lets you move it
+and persists <code>VIVA_LEDGER_MOUNT</code>). The ledger holds
+everything the system needs to remember: the record of tapped packages,
+the store remote packages clone into, the shelf created instances live
+on, plus locks, logs, and sessions.</p>
+<p>It’s machine state, not git-managed at top level.</p>
+<p>The doctor should tell you that</p>
+<div class="sourceCode" id="cb3"><pre class="sourceCode sh"><code class="sourceCode bash"><span id="cb3-1"><a href="#cb3-1" aria-hidden="true" tabindex="-1"></a><span class="ex">viva</span> ledger/doctor</span>
+<span id="cb3-2"><a href="#cb3-2" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb3-3"><a href="#cb3-3" aria-hidden="true" tabindex="-1"></a><span class="op">&lt;</span>!-- <span class="ex">integrate</span> exmle: generic.</span>
+<span id="cb3-4"><a href="#cb3-4" aria-hidden="true" tabindex="-1"></a><span class="ex">✓</span> ledger         /Users/finn/.viva</span>
+<span id="cb3-5"><a href="#cb3-5" aria-hidden="true" tabindex="-1"></a><span class="ex">✓</span> repository     /Users/finn/vivalence/code/vivalence</span>
+<span id="cb3-6"><a href="#cb3-6" aria-hidden="true" tabindex="-1"></a><span class="ex">--</span><span class="op">&gt;</span></span></code></pre></div>
+<h3 id="viva-registrytap">2 — <code>viva registry/tap</code></h3>
+<div class="sourceCode" id="cb4"><pre class="sourceCode sh"><code class="sourceCode bash"><span id="cb4-1"><a href="#cb4-1" aria-hidden="true" tabindex="-1"></a><span class="ex">viva</span> registry/tap <span class="op">&lt;</span>source: path <span class="kw">|</span> <span class="fu">git</span> url<span class="op">&gt;</span> [target: path]</span></code></pre></div>
+<p>Adds a <code>package</code> to the registry. Packages are modes whose
+job is to carry other modes: datasets, domains, services, instance
+recipes. <code>tap</code> takes a local path or a git URL; local is
+recorded in place, remote is cloned into the ledger’s store — or into an
+optional <code>[target]</code> if you’d rather keep it somewhere of your
+own. Either way the package is recorded and its modes can be used in
+daemons, referenced by owner/type/slug:
+<code>@viva/instance/hello-world</code>.</p>
+<p>The record now lists the package, and every mode it carries resolves
+by reference from any shell.</p>
+<h3 id="viva-instancecreate">3 — <code>viva instance/create</code></h3>
+<div class="sourceCode" id="cb5"><pre class="sourceCode sh"><code class="sourceCode bash"><span id="cb5-1"><a href="#cb5-1" aria-hidden="true" tabindex="-1"></a><span class="ex">viva</span> instance/create @viva/instance/hello-world</span></code></pre></div>
+<p>An <code>instance</code> is one runnable system: a runtime, its
+daemons, its clients — declared in one directory. <code>create</code>
+copies the recipe out of the registry onto the shelf
+(<code>~/.viva/instances/hello-world/</code>). It’s a full copy, yours
+to edit and version: the declaration — which carries its own
+<code>environment</code> schema — and, once running, its
+<code>mountpoint/</code> with databases and bundles. Two runs of the
+same recipe are two shelved copies, not two moods of one.</p>
+<!-- @beef here does some example of what an instance must contain ie what an instance file looks like; maybe some barebones mini inline instance without any fance. just render <p>`<<` Hello, World</p> check the standalone mode -->
+<p>The shelf now holds <code>~/.viva/instances/hello-world/</code>, and
+<code>viva instances/list</code> shows it.</p>
+<h3 id="viva-instanceinit">4 — <code>viva instance/init</code></h3>
+<div class="sourceCode" id="cb6"><pre class="sourceCode sh"><code class="sourceCode bash"><span id="cb6-1"><a href="#cb6-1" aria-hidden="true" tabindex="-1"></a><span class="ex">viva</span> instances/use hello-world</span>
+<span id="cb6-2"><a href="#cb6-2" aria-hidden="true" tabindex="-1"></a><span class="ex">viva</span> instance/init</span>
+<span id="cb6-3"><a href="#cb6-3" aria-hidden="true" tabindex="-1"></a><span class="ex">viva</span> instance/auth signup <span class="op">&lt;</span>username<span class="op">&gt;</span> <span class="op">&lt;</span>password<span class="op">&gt;</span></span></code></pre></div>
+<p><code>instances/use</code> selects one instance out of the set for
+this shell. <code>instance/init</code> reads the declaration’s
+<code>environment</code> schema, writes the <code>.env</code> with every
+default filled and every describe as a comment, then prompts for what is
+still owed — usually just the secrets. Then create your account:
+<code>auth signup</code> boots the instance headless, registers you
+against its lighthouse — the identity service; there is no signup UI —
+and shuts down again. Repeat it any time for more users.</p>
+<p>The instance’s <code>.env</code> now sits filled on the shelf and the
+lighthouse knows your account — rerunning <code>instance/init</code>
+owes nothing.</p>
+<h3 id="viva-instancerun">5 — <code>viva instance/run</code></h3>
+<div class="sourceCode" id="cb7"><pre class="sourceCode sh"><code class="sourceCode bash"><span id="cb7-1"><a href="#cb7-1" aria-hidden="true" tabindex="-1"></a><span class="ex">viva</span> instance/run</span></code></pre></div>
+<p>Boots the instance’s children as supervised processes and registers
+them in the ledger’s locks. For <code>hello-world</code> that’s two:</p>
+<table>
+<thead>
+<tr>
+<th>process</th>
+<th>what</th>
+<th>where</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>runtime</code></td>
+<td>daemons, entities, HTTP</td>
+<td><code>http://localhost:2501</code></td>
+</tr>
+<tr>
+<td><code>kajuit</code></td>
+<td>the browser client</td>
+<td><code>http://localhost:1794</code></td>
+</tr>
+</tbody>
+</table>
+<p>The runtime hosts everything as one path tree: daemons under
+<code>/daemon/&lt;slug&gt;</code>, attached services like the lighthouse
+under <code>/attached/process/…</code>, mode bundles under
+<code>/attached/bundle/…</code>.</p>
+<p>Open <strong>http://localhost:1794</strong>, log in with the account
+from step 4, and you’re inside: the kajuit client attaches to the
+daemons and renders their modes as buffers.</p>
+<h2 id="hello-mode">Hello, Mode!</h2>
+<p>Here is a little dummy Mode. It talks to an LLM, exposes one
+endpoint, and renders a Svelte view in ~50 lines.</p>
+<p><code>registry/dummy/mode.viva.js</code> — what it is:</p>
+<div class="sourceCode" id="cb8"><pre class="sourceCode js"><code class="sourceCode javascript"><span id="cb8-1"><a href="#cb8-1" aria-hidden="true" tabindex="-1"></a><span class="im">import</span> { App<span class="op">,</span> Vector<span class="op">,</span> v } <span class="im">from</span> <span class="st">&quot;@vivalence/typology&quot;</span><span class="op">;</span></span>
+<span id="cb8-2"><a href="#cb8-2" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb8-3"><a href="#cb8-3" aria-hidden="true" tabindex="-1"></a><span class="im">export</span> <span class="kw">const</span> manifest <span class="op">=</span> {</span>
+<span id="cb8-4"><a href="#cb8-4" aria-hidden="true" tabindex="-1"></a>  <span class="dt">type</span><span class="op">:</span> <span class="st">&quot;demo&quot;</span><span class="op">,</span></span>
+<span id="cb8-5"><a href="#cb8-5" aria-hidden="true" tabindex="-1"></a>  <span class="dt">slug</span><span class="op">:</span> <span class="st">&quot;dummy&quot;</span><span class="op">,</span></span>
+<span id="cb8-6"><a href="#cb8-6" aria-hidden="true" tabindex="-1"></a>  <span class="dt">traits</span><span class="op">:</span> [<span class="st">&quot;APPLICATION&quot;</span><span class="op">,</span> <span class="st">&quot;HARNESSED&quot;</span><span class="op">,</span> <span class="st">&quot;EXPOSED&quot;</span><span class="op">,</span> <span class="st">&quot;STANDALONE&quot;</span>]<span class="op">,</span></span>
+<span id="cb8-7"><a href="#cb8-7" aria-hidden="true" tabindex="-1"></a>}<span class="op">;</span></span>
+<span id="cb8-8"><a href="#cb8-8" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb8-9"><a href="#cb8-9" aria-hidden="true" tabindex="-1"></a><span class="im">export</span> <span class="kw">const</span> app <span class="op">=</span> <span class="kw">new</span> <span class="fu">App</span>(<span class="st">&quot;./App.svelte&quot;</span><span class="op">,</span> v<span class="op">.</span><span class="fu">buffer</span>({ <span class="dt">data</span><span class="op">:</span> {} }))<span class="op">;</span></span>
+<span id="cb8-10"><a href="#cb8-10" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb8-11"><a href="#cb8-11" aria-hidden="true" tabindex="-1"></a><span class="im">export</span> <span class="kw">const</span> harness <span class="op">=</span> <span class="kw">new</span> <span class="fu">Vector</span>()<span class="op">.</span><span class="fu">use</span>(<span class="kw">async</span> (ctx<span class="op">,</span> next) <span class="kw">=&gt;</span> {</span>
+<span id="cb8-12"><a href="#cb8-12" aria-hidden="true" tabindex="-1"></a>  ctx<span class="op">.</span><span class="at">hallucination</span><span class="op">.</span><span class="at">context</span><span class="op">.</span><span class="fu">system</span>(<span class="st">&quot;You are a demo. Demonstrate yourself.&quot;</span>)<span class="op">;</span></span>
+<span id="cb8-13"><a href="#cb8-13" aria-hidden="true" tabindex="-1"></a>  <span class="cf">await</span> <span class="fu">next</span>()<span class="op">;</span></span>
+<span id="cb8-14"><a href="#cb8-14" aria-hidden="true" tabindex="-1"></a>})<span class="op">;</span></span>
+<span id="cb8-15"><a href="#cb8-15" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb8-16"><a href="#cb8-16" aria-hidden="true" tabindex="-1"></a><span class="im">export</span> <span class="kw">const</span> aperture <span class="op">=</span> <span class="kw">new</span> <span class="fu">Vector</span>()<span class="op">.</span><span class="fu">open</span>(<span class="st">&quot;/hello/world&quot;</span><span class="op">,</span> <span class="kw">async</span> (ctx) <span class="kw">=&gt;</span> {</span>
+<span id="cb8-17"><a href="#cb8-17" aria-hidden="true" tabindex="-1"></a>  <span class="kw">const</span> { object } <span class="op">=</span> <span class="cf">await</span> ctx<span class="op">.</span><span class="at">mode</span><span class="op">.</span><span class="at">harness</span><span class="op">.</span><span class="at">object</span><span class="op">.</span><span class="fu">render</span>({</span>
+<span id="cb8-18"><a href="#cb8-18" aria-hidden="true" tabindex="-1"></a>    <span class="dt">turns</span><span class="op">:</span> [{ <span class="dt">role</span><span class="op">:</span> <span class="st">&quot;user&quot;</span><span class="op">,</span> <span class="dt">parts</span><span class="op">:</span> [{ <span class="dt">type</span><span class="op">:</span> <span class="st">&quot;text&quot;</span><span class="op">,</span> <span class="dt">text</span><span class="op">:</span> <span class="st">&quot;Say hello.&quot;</span> }] }]<span class="op">,</span></span>
+<span id="cb8-19"><a href="#cb8-19" aria-hidden="true" tabindex="-1"></a>    <span class="dt">output</span><span class="op">:</span> v<span class="op">.</span><span class="fu">object</span>({ <span class="dt">greeting</span><span class="op">:</span> v<span class="op">.</span><span class="fu">string</span>() })<span class="op">,</span></span>
+<span id="cb8-20"><a href="#cb8-20" aria-hidden="true" tabindex="-1"></a>  })<span class="op">;</span></span>
+<span id="cb8-21"><a href="#cb8-21" aria-hidden="true" tabindex="-1"></a>  <span class="cf">return</span> { <span class="dt">greeting</span><span class="op">:</span> object<span class="op">.</span><span class="at">greeting</span> }<span class="op">;</span></span>
+<span id="cb8-22"><a href="#cb8-22" aria-hidden="true" tabindex="-1"></a>})<span class="op">;</span></span></code></pre></div>
+<p><code>registry/dummy/App.svelte</code> — what it is:</p>
+<pre class="svelte"><code>&lt;script&gt;
+  let { terminal, daemon, mode, thread, buffer } = $props();
+
+  let greeting = $state(&quot;&quot;);
+
+  const modes = terminal.daemon.entities.mode.$entities.get(); 
+
+  async function demonstrate() {
+    const result = await buffer.mode.connection.call(&quot;/hello/world&quot;);
+    greeting = result.greeting;
+  }
+&lt;/script&gt;
+
+&lt;h1&gt;hello world&lt;/h1&gt;
+&lt;button onclick={demonstrate}&gt;demonstrate&lt;/button&gt;
+&lt;p&gt;{greeting}&lt;/p&gt;
+&lt;ul&gt;
+  {#each modes as mode}
+    &lt;li&gt;{mode.type}/{mode.slug}&lt;/li&gt;
+  {/each}
+&lt;/ul&gt;</code></pre>
+<h2 id="noticeboard">Noticeboard</h2>
+<ul>
+<li><em>Security Notice:</em> Vivalence is in early alpha and only just
+transitioning to build-in-public. It is considered insecure on a network
+level and should - for now - live inside a moat 🌊🏰.</li>
+<li><em>Development Notice:</em> Vivalence is only just transitioning to
+build-in-public and is to be considered both <em>early</em> and
+<em>alpha</em>. Don’t expect things to be working or documented. This
+release is for the curious. It’s probably another year to stability and
+a decade to maturity and invisible effortlessness.</li>
+<li><em>Funding Notice:</em> See <a href="#funding-p2p">#funding</a>;
+more funding -&gt; more faster better.</li>
+<li><em>Development Notice:</em> Docs are low priority right now. This
+release is for the curious. Use llms. Move and break things.</li>
+<li><em>Community Notice:</em>
+<a target="_blank" href="https://discord.gg/QyS9Xt9ht8">Discord</a>.</li>
+<li><em>Community Notice:</em> Email list 🔎 🗺️ 💎</li>
+<li><em>Brand Notice:</em>
+<a target="_blank" href="https://www.youtube.com/watch?v=4Ia6MDbNJWI">Teaser</a></li>
+<li><em>Organizational Notice:</em> Vivalence splits in two. .org &amp;
+.com. The .com is the engine, the .org is the estate. Commerce funds the
+commons.</li>
+<li><em>License Notice:</em> The license aims to balance individual
+freedom of use and safety in contribution with the economic
+sustainability of the project — unrestricted private use, licensed
+institutional use. Fair Source.</li>
+<li><em>Community Notice:</em> This is an ecosystem play. I intend to
+pay successful contributors permanently — core, registry, the
+dependencies this stands on, the infrastructure it runs on. More
+adoption -&gt; more money for the ecosystem.</li>
+<li><em>Contribution Notice:</em> AI slop is only accepted in — and in
+fact intended for — the registry. Contributions to the core get
+stickler-meeseeks’d line by line. Yappers, sloppers, and boneheads get
+blocked. Less is more.</li>
+<li><em>Contribution Notice:</em> The architecture is — I suspect —
+extremely scalable and flexible in its application. I would LOVE to have
+some input and feedback on this.</li>
+<li><em>Personal Notice:</em> Vivalence is meant to be yours. I neither
+can nor want to be responsible for you and your actions. The software is
+provided as is — fuck around and find out.</li>
+</ul>
+<p>🐆 The cat is out of the bag.
+<a target="_blank" href="https://www.youtube.com/watch?v=lX-K63pVPTM">o/acc.</a></p>
+<h1 id="pricing-b2b">Pricing (B2B)</h1>
+<p>Vivalence is free for private use. Institutional use requires a
+license — a flat fee of ~€12/$13/£10/¥2,000/90元 per person per month,
+with a 10/12 discount on yearly. SaaS, PaaS, and consulting services
+will follow in time.</p>
+<p>Licenses are issued programmatically —
+<a target="_blank" href="https://vivalence.lemonsqueezy.com/checkout/buy/1716f8a4-2def-4373-b46a-d5447a7e3232">get
+one here →</a>.</p>
+<h1 id="funding-p2p">Funding (P2P)</h1>
+<p>I <strong>also</strong> accept private financial contributions, in
+one of two buckets: gas money and break money. Monthly patreonage is gas
+money — it funds further development. One-off tips are break money — for
+me to take a breather. After ~3 years of solo development, I could use
+some break money.</p>
+<p><a target="_blank" href="https://ko-fi.com/crackedbeefcake"><img src="https://ko-fi.com/img/githubbutton_sm.svg" alt="Support me on Ko-fi" /></a></p>
+<p>For one-off gas funding there will be an Open-Collective and a
+Kickstarter in due course.</p>
+
+</body>
+</html>

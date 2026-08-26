@@ -11,7 +11,6 @@ async function mkPaladin() {
   paladin.env.set("VIVA_LEDGER_MOUNT", root);
   paladin.env.set("VIVA_REPOSITORY_MOUNT", root);
   await populate.scopes(paladin);
-  await paladin.ledger.mount();
   return paladin;
 }
 
@@ -105,6 +104,34 @@ describe("Ledger.instances", () => {
   it("read returns null for an unknown slug", async () => {
     expect(await paladin.ledger.instances.read("ghost")).toBe(null);
   });
+
+  it("lookup finds the slug by mount; miss is null", async () => {
+    await paladin.ledger.instances.write("beta", { mount: "/beta-mount" });
+    const held = await paladin.ledger.instances.lookup("/beta-mount");
+    expect(held.slug).toBe("beta");
+    expect(held.mount).toBe("/beta-mount");
+    expect(await paladin.ledger.instances.lookup("/nowhere")).toBe(null);
+  });
+
+  it("rename moves the record key, keeps createdAt, refuses collisions and ghosts", async () => {
+    await paladin.ledger.instances.write("gamma", { mount: "/gamma-mount" });
+    const before = await paladin.ledger.instances.read("gamma");
+    await paladin.ledger.instances.rename("gamma", "delta");
+    expect(await paladin.ledger.instances.read("gamma")).toBe(null);
+    const after = await paladin.ledger.instances.read("delta");
+    expect(after.mount).toBe("/gamma-mount");
+    expect(after.createdAt).toBe(before.createdAt);
+    await expect(paladin.ledger.instances.rename("nope", "x")).rejects.toThrow("no record");
+    await paladin.ledger.instances.write("epsilon", { mount: "/e" });
+    await expect(paladin.ledger.instances.rename("delta", "epsilon")).rejects.toThrow("already held");
+  });
+
+  it("remove drops the entry and nothing else", async () => {
+    await paladin.ledger.instances.write("zeta", { mount: "/z" });
+    await paladin.ledger.instances.remove("zeta");
+    expect(await paladin.ledger.instances.read("zeta")).toBe(null);
+    expect(await paladin.ledger.instances.read("delta")).not.toBe(null);
+  });
 });
 
 describe("Ledger.registry", () => {
@@ -146,10 +173,15 @@ describe("scope conventions — the ledger is the home", () => {
     expect(paladin.scope.registry.absolute).toBe(explicit);
   });
 
-  it("VIVA_INSTANCE_MOUNT bare slug shelves under <ledger>/instances/", async () => {
+  it("VIVA_INSTANCE_MOUNT bare slug THROWS — a *_MOUNT is always a path", async () => {
     const paladin = await mkPaladin();
     paladin.env.set("VIVA_INSTANCE_MOUNT", "localhost");
-    expect(paladin.scope.instance.absolute).toBe(
+    expect(() => paladin.scope.instance).toThrow("is a slug");
+  });
+
+  it("ledger.instances.shelf maps a slug onto the shelf — the ONE place that does", async () => {
+    const paladin = await mkPaladin();
+    expect(paladin.ledger.instances.shelf("localhost").absolute).toBe(
       paladin.scope.ledger.branch("instances/localhost").absolute,
     );
   });

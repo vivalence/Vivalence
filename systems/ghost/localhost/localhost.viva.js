@@ -58,7 +58,7 @@ export const services = [
     module: "@vivalence/service/nlp-stanza",
     secrets: { key: () => paladin.secret.get("SECRET_VIVA_SERVICE_NLP_KEY") },
     statics: {
-      serve: () => new Url(paladin.env.get("SERVICE_NLP_SERVE")),
+      serve: () => new Url(paladin.env.get("VIVA_SERVICE_NLP_SERVE")),
       processors: "tokenize,mwt,pos,lemma,depparse",
     },
   },
@@ -140,7 +140,7 @@ export const daemons = [
         module: "@vivalence/service/nlp-stanza",
         secrets: { key: () => paladin.secret.get("SECRET_VIVA_SERVICE_NLP_KEY") },
         statics: {
-          remote: () => new Url(paladin.env.get("SERVICE_NLP_REMOTE")),
+          remote: () => new Url(paladin.env.get("VIVA_SERVICE_NLP_REMOTE")),
           language: "es",
           processors: "tokenize,mwt,pos,lemma,depparse",
         },

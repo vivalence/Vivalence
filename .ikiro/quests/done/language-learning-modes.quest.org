@@ -1,0 +1,304 @@
+#+TITLE: Modes — Game Modes & Tactics for Language Learning
+#+AUTHOR: Vivalence
+#+DATE: 2026-03-25
+#+STATUS: ACTIVE
+
+* Intent
+
+Build a complete language learning toolset from the existing symbol
+coordinate system. The ontology defines dimensions (morphology,
+function, domain, sentence force). The corpus authors literals into
+those dimensions. Modes are interaction shapes. Tactics are seek
+patterns that select content by symbol coordinates and route to modes.
+
+Two architectures:
+
+1. *Emitter tactics* — seek literals by symbol coordinates, emit
+   buffers to game modes. No hallucinator.
+2. *Conversational tactics* — LANGUAGED/AGENTIC. Hallucinator
+   generates the experience. See cortex.quest.org.
+
+* Symbol Axes
+
+| Axis | Symbol Examples | What It Teaches | Literal Type |
+|------+-----------------+-----------------+--------------|
+| Proficiency | proficiency.survival, .cefr.a1 | *Which* content, in what order | word, sentence |
+| Part of speech | word.part-of-speech.verb/.noun/.adjective | Category awareness | word |
+| Verb morphology | word.tense × word.mood × word.person × word.number | Conjugation paradigms | word per form |
+| Gender/number | word.gender.masculine × word.number.plural | Agreement patterns | word |
+| Functional role | functional.pronoun, .connector, .negation | Grammar in context | word (token in sentence) |
+| Semantic domain | domain.food, .family, .transport | Thematic vocabulary | word, sentence |
+| Sentence force | sentence.force.interrogative/.imperative | Sentence construction | sentence |
+| Sentence mood | sentence.mood.subjunctive/.conditional | Register/modality | sentence |
+
+Literal traits (content surface): TRANSLATED (known+learning text),
+EXEMPLIFIED (example pair), ANNOTATED (token decomposition), VOCALIZED
+(audio asset), RANKED (frequency rank).
+
+Memory states: UNTOUCHED → UNKNOWN → LEARNING → KNOWN → GRADUATED
+
+* Architecture 1: Emitter Tactics
+
+Tactic queries literals via LiteralRepository
+(feed/novel/due/byStrength/findBySymbols), then emits buffers to game
+modes. Intent's FEEDING trait defines query params. Memory.lastSignal
+(from Trace) enables error-aware selection.
+
+** Tactic: Vocabulary
+
+Baseline. Seeks =word= + =proficiency.*= ± =domain.*=. Routes to
+flashcard, write, shadow, listen, pick, match. Every Tier 1/3 mode
+addressable by a vocabulary intent.
+
+** Tactic: Introduction
+
+Seeks =sentence= + =proficiency.*=. Resolves ANNOTATED tokens, checks
+memory: UNKNOWN→shadow, LEARNING→flashcard, UNKNOWN→write. One
+sentence generates 5-15 buffers. Composes multiple modes per sentence;
+client stall sequences them.
+
+** Tactic: Decomposition
+
+Seeks =sentence= whose ANNOTATED tokens match a target =functional.*=.
+Routes to cloze (blank target), pick (choose token). Examples:
+"pronoun practice", "connector drill", "negation".
+
+Emitter logic: seek by proficiency + structural → filter to sentences
+containing target functional tokens → emit cloze per matching token.
+Grammar through sentences, not rules.
+
+** Tactic: Morphology (Conjugation)
+
+Seeks =word.part-of-speech.verb= + =word.verb-form.finite= + target
+tense/mood. Routes to pick/write/cloze. Each conjugated form is its
+own literal with full morphological symbols. Distractors: same-paradigm
+wrong forms or cross-paradigm confusions (-ar vs -er).
+
+Depends on conjugation data authored in corpus (DONE — survival 359
++ a1 897 entities).
+
+** Tactic: Comprehension
+
+Seeks literals with =VOCALIZED=. Routes to listen, dictation,
+speed-judge. Speech faculty (cortex) can fill audio gaps.
+
+* Architecture 2: Conversational Tactics (Design Only)
+
+Depends on cortex.quest.org.
+
+- *Immersion* — LANGUAGED. Chat UI scoped by =domain.*= + memory state
+  + daemon statics. Hallucinator tools: literal memory lookup,
+  /review/literal, TRANSLATED data. Example: waiter at Brazilian
+  restaurant, A1.
+- *Remediation* — AGENTIC. Analyzes memory FAILURE/MISTAKE patterns.
+  Identifies weak symbol areas. Composes custom sessions from
+  Architecture 1 modes. Smart tutor as tactic composer.
+
+* Game Modes
+
+SUPERSEDED IN PART BY M24 (=m24-rep-o-gram.quest.org=): =write= ·
+=shadow= · =listen= · =flashcard= · =pick= · =conjugation= are FOLDED
+into the one =rep-o-gram= mode (their dirs live in =games/bak/=; the
+tier notes below are history). Callers use its preset branches
+(=emit.write.*= etc.). Still standalone: =cloze= · =match= · =judge=
+(speed-judge) · =exhibit= · =paradigm= · =nyan= · =riddler=.
+
+** Tier 1 — DONE
+
+All built and operational. Self-loading buffers, survival tactic
+routes to all. =registry/modes/@vivalence/game/=.
+
+- *cloze* — sentence with blank(s); type/pick/listen gameplay (see Implementation)
+- *pick* — multiple choice, distractor self-serve from same-band
+- *listen* — audio-first; pick/type gameplay
+- *speed-judge* — flash pair, correct/wrong, timed; visual/audio/audio-only
+- *match* — grid of pairs; translate (described future)
+- *flashcard*, *write*, *shadow* — pre-existing, migrated to v schematics
+- *exhibit* — pre-existing
+
+All 9 modes operational with manifest + BufferView + emitter Vector + Svelte.
+
+** Tier 2 — In Flight
+
+*** Reorder
+
+Shuffled tokens → arrange in correct order. ANNOTATED provides
+shuffled set + answer. View: draggable/tap-to-place chips. Per-token
+review for misplaced tokens.
+
+Schema: ={data: {recall}, literals: [sentence], tokens: shuffled ANNOTATED}=
+
+*** Dictation
+
+Audio → transcribe (same-language). Differs from listen (which tests
+meaning). Both audio-first, different skills.
+
+Schema: ={data: {recall, speed}, literals: [sentence], asset}=
+
+*** Conversation
+
+Chat UI for LANGUAGED. Deferred to cortex.
+
+** Tier 3 — Open
+
+- *minimal-pair* — two confusables in context (ser/estar, por/para,
+  m/f articles). Tactic detects from memory (both LEARNING, similar
+  symbols, frequent MISTAKE). Schema: ={data: {recall}, context, pair, answer}=
+
+* Dependencies
+
+** Topology Content
+
+| Content | For | Status |
+|---------+-----+--------|
+| Conjugated forms with morphology symbols | Morphology | DONE (survival 359 + a1 897, all paradigms) |
+| Structural symbols grouping paradigms | Morphology lookup | open |
+| Functional symbols on word literals | Decomposition | DONE (survival) |
+| Sentence force/mood symbols | Sentence construction | present |
+| VOCALIZED on literals | Comprehension | DONE (1050 mp3s, 1250 entities, 0 orphaned) |
+| RANKED on word literals | Ordering | DONE (0 missing, wordfreq-sourced) |
+
+** System
+
+| Dependency | Status |
+|------------+--------|
+| LiteralRepository.findBySymbols (all/any/none) | DONE |
+| feed/novel/due/byStrength | DONE |
+| Memory.lastSignal via Trace | DONE |
+| Trace entity (immutable review log) | DONE |
+| Distractor generation (same-symbol lookup) | self-serve in emitters |
+| Cortex (LANGUAGED/AGENTIC, speech) | separate quest |
+| Keymap shards | designed in client.quest.org |
+
+* Design Decisions
+
+1. *Symbols are the query language.* Tactics seek by coordinates, no
+   hardcoded content. "Conjugation tactic" = seek =word.tense.X ×
+   word.mood.Y × word.person.Z=.
+2. *Conjugated forms are literals.* "falo", "falas", "fala" each their
+   own literal with morphological symbols. No runtime derivation.
+3. *Game modes are interaction shapes, not content types.* Mode renders
+   buffer; tactic decides content.
+4. *Distractors are same-symbol lookups.* Tactic logic, not hallucinator.
+5. *Two architectures, clean boundary.* Emitter or conversational,
+   never mixed.
+6. *Tactics compose modes; modes don't compose each other.*
+   Composition lives in tactic emitter Vector.
+7. *ANNOTATED is the grammar exercise substrate.* Token data enables
+   cloze, reorder, per-token review, decomposition.
+8. *Per-token review propagates learning.* Cloze blanks pronoun → both
+   token and sentence get /review/literal.
+
+* Implementation: Game Mode Contracts
+
+Scaffolded 2026-03-25. =registry/modes/@vivalence/game/=.
+
+** Gameplay enum pattern
+
+Modes with multiple variants expose =data.gameplay= (string enum). Set
+by tactic (memory status, preference, explicit). Component switches on
+gameplay. =data.forgiving= (default true) controls diacritical
+normalization for typed input.
+
+** Cloze — =game/cloze/=
+
+Gameplay: ="type"= | ="pick"= | ="listen"=. Multi-blank via
+=data.blankIndices: number[]=. Listen gameplay: hear "Espero que você
+______ bem", type "esteja".
+
+Schema: ={data: {recall, gameplay, blankIndices, options?, forgiving}, literals: [sentence]}=
+
+Domain: MUST ANNOTATED + TRANSLATED. VOCALIZED for listen.
+
+Review: per-blank-token + sentence. Correct = SUCCESS token; all
+correct = SUCCESS sentence; any wrong = NEUTRAL sentence.
+
+Emitter =/literal=: ={literal, blankIndices, gameplay, options?}=
+
+** Pick — =game/pick/=
+
+No gameplay enum. Schema: ={data: {recall}, literals: [target, ...distractors]}=
+
+Self-serves distractors from =/pick/literal/feed= (3 same-band) when
+tactic doesn't provide. Review: correct = SUCCESS target; wrong =
+FAILURE target + FAILURE distractor.
+
+Keyboard: 1-4. Closed on mobile.
+
+** Match — =game/match/=
+
+Gameplay: ="translate"= | ="describe"= (cortex-gated, future).
+
+Schema: ={data: {recall, gameplay, descriptions?}, literals: [batch]}=
+
+Failure is sticky: any wrong match = permanent FAILURE on both
+literals. Sentences allowed, cap 4-5 candidates (UX).
+
+Emitter =/batch=: ={literals, gameplay, descriptions?}=
+
+** Speed Judge — =game/speed-judge/=
+
+Gameplay: ="visual"= | ="audio"= | ="audio-only"=. Single-item
+buffers. =data.distractor= boolean — true means =literals[1]= is wrong
+translation. =literals[0]= always target. Component derives shown text
+from literals + recall direction.
+
+Schema: ={data: {recall, gameplay, speed, distractor}, literals: [target, distractor?]}=
+
+Emitter =/literal=: single-literal entry. Distractors from seen items
+(={memories: {}}=, not feed). Coin-flips correct/wrong. Guards
+identical translations. =/feed= calls =ctx.mode.emit.literal()= in a
+loop — self-referential.
+
+Speed presets (base + multiplier per char):
+- FAST: 1500ms + 80ms/char
+- NORMAL: 2500ms + 120ms/char (default)
+- SLOW: 3500ms + 180ms/char
+
+Override via =data.speed.{base,multiplier}=. =multiplier: 0= means
+base is absolute.
+
+Swipe: left=wrong, right=correct (50px threshold). Keys: left/1=wrong,
+right/2=correct. Timer bar at top.
+
+Review: correct = SUCCESS; wrong/timeout = MISTAKE target.
+
+** Listen — =game/listen/=
+
+Gameplay: ="pick"= | ="type"=. Set by memory (UNKNOWN/LEARNING→pick,
+KNOWN→type) or tactic.
+
+Schema: ={data: {recall, gameplay, forgiving}, literals: [target, ...distractors?]}=
+
+Direction: LEARNING = hear PT → produce EN; KNOWN = hear PT → type PT
+(transcription).
+
+Emitter =/literal=: self-serves distractors for pick (same-band + same
+POS + similar length).
+
+Audio REQUIRED. Autoplay on mount. =r= replay. FRAUGHT trait on manifest.
+
+Type: MISTAKE for close answers (levenshtein ≤ 2). Pick: FAILURE on
+target + distractor for wrong picks.
+
+* Sequencing
+
+- Phase 1 — Tier 1 modes — DONE (9 operational)
+- Phase 2 — Vocabulary tactic expansion (multiple intents per dataset)
+- Phase 3 — Decomposition tactic + sentence-by-token-symbol seek
+- Phase 4 — Morphology tactic (paradigm seek + distractors)
+- Phase 5 — Tier 2 (reorder, dictation)
+- Phase 6 — Tier 3 (minimal-pair)
+- Phase 7 — Conversational tactics (post-cortex)
+
+* Changelog
+
+- 2026-03-25: Initial design + scaffolded 5 game modes + batch literal support
+- 2026-03-26: v schema migration (M3). Browser validation. FK cascade fixes. seek deprecated
+- 2026-03-27: Vocalized pipeline complete (1256 entities, 1050 mp3s, RANKED on all)
+- 2026-03-28: seek→where/limit refactor. MikroORM user filter. resolveTraits. UX polish
+- 2026-03-29: Mobile layout overhaul. Judge mode rewrite (items[]→single distractor). Ontology match fix
+- 2026-03-31: Yield protocol (NOMINAL/EXHAUSTED/ERROR). Integration test: 41 steps
+- 2026-04-03: LiteralRepository signature refactor: feed/novel/due/byStrength → (where, opts?), byLastSignal → (signals, where?, opts?). ~30 call sites updated. emitters.test.js intents seeded guard
+- 2026-04-03: Tactic cleanup. Exercise emitter rewritten (sentence fluency thesis): virgin→exhibit+shadow, failed→shadow, else→write, trace-driven cloze, listen(type) if vocalized. 183→83 lines. Removed manual token→entity resolution. Cooldown gameplay/recall bug fixed. Write autoadvance removed (user controls). Dead code cleaned
+- 2026-08-10: ONTOLOGY GUARD. A game now declares what it can play. Reported as "the buffer doesn't dismount, it just stagnates" — actually literal 2 of 3 was an untranslated conjugation rendering blank; the release machinery never ran. Cause: ranks are PER-ONTOLOGY, so unconstrained =literal.feed= (novel, =rank ASC=) interleaves the 710 CONJUGATED literals — which have no =TRANSLATED= — into every translate-game queue. Guard at two levels: emitter =/feed= merges =object.merge(ctx.input.where, { ontology: { $in: ontology } })= in 9 games (=["word","sentence"]=; cloze =["sentence"]=), buffer views filter both ingress paths on =trait.TRANSLATED= (+ gameplay-aware audio predicate for listen: TYPE needs audio on every literal, PICK only on the target). Also fixed =belt/object.place=, which dropped single-segment slugs and so erased every root ontology symbol from =literal.symbol= — hence =isWord = symbol?.word= was truthy for conjugations; 6 views swapped to =literal.ontology === "word"=. New invariant test =tests/gestalten/belt/object.test.js=. Typology 8/0, kajuit 17/0. DEFERRED by beef: the =word.*= facet namespace is semantically wrong for tense/mood/person

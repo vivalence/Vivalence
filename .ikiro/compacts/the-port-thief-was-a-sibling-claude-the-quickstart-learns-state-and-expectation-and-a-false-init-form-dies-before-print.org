@@ -1,0 +1,114 @@
+#+title: the port thief was a sibling claude, the quickstart learns state and expectation, and a false init form dies before print
+#+filetags: :ghost:documentation:cli:ledger:registry:emacs:
+
+* what happened, in one breath
+
+Three unrelated arcs, one discipline: nothing printed that wasn't first run. A "processes
+don't die" report turned out to be a parallel Claude session's background task squatting on
+vite's port from its own process group. An emacs preview request surfaced a tangle footgun
+that would have silently eaten Customize state. Then the real work: beef drove a
+marker-by-marker rewrite of the README quickstart and a follow-on pass over 50.01 slowstart,
+where every example block got REPLACED BY CAPTURED OUTPUT — =ledger/doctor=, =registry/list=,
+=instance/run=, =deno task install= all executed live and genericized — and one documented
+command form was killed because the code cannot parse it. Ends: README quickstart 0–6
+marker-free, slowstart truth-synced, both uncommitted.
+
+* the port thief (carried over the fold)
+
+/"when i run multiple cycles of viva instance/run ctrl+c cancel then some processes dont die
+and i get this error"/ — =Error: Port 1794 is already in use=.
+
+The hypothesis died under measurement. =instance/run='s whole spawn chain shares the
+terminal's foreground pgid, so ctrl+c reaches every child including esbuild — and machine-wide
+there were ZERO deno/vite processes with ppid 1. The holder was a *sibling Claude session's
+background task* (=claude daemon → bg-spare → zsh 85391=) running kajuit's vite under its own
+process group, invisible to any terminal ctrl+c, ~5 minutes old. Every subsequent run cycle
+failed kajuit on the bind and read as "didn't die". beef ran =/bin/kill -- -85391= via =!=;
+verified: port free, group dead. Teardown exonerated, nothing to fix in ghost.
+
+* the emacs interlude, and the tangle that ate Customize
+
+/"how can\/should i run a .md and .mdx preview in emacs?"/ — measured first: emacs 30.2 brew,
+no xwidgets; pandoc the only renderer present; =markdown-mode= already owns =.mdx=
+(init.org:3310). Ruling: =.md= → =markdown-live-preview-mode= over pandoc gfm, in-emacs;
+=.mdx= → the owning framework's dev server is the only true preview, JSX renders as garbage
+anywhere else. Landed on go: =markdown-command= + =, p= / =, P= leader binds.
+
+The footgun: batch-tangling init.org regenerated init.el and DELETED two blocks Emacs
+Customize had written directly into it (=custom-safe-themes=, org-level faces) — present in
+init.el only, invisible to the org source. Caught by diffing against a pre-tangle backup;
+restored; edit applied by hand instead. /"who what ?!?!? anything important? remedy"/ —
+nothing lost, both blocks minor, remedy sketched (dedicated =custom-file=) and left ungated.
+
+* the marker loop — README quickstart
+
+beef's protocol, new this session: he plants an inline comment marker, I resolve it against
+the live system, he re-edits on disk in parallel, his version canonical. Rounds:
+
+- /"we should at least mention the env var."/ → traced =deno task install= →
+  =systems/ghost/install.sh:6= upserts =VIVA_REPOSITORY_MOUNT= into =~/.config/viva/env=.
+  Proposed the wording; beef's own edit beat me to disk — nothing applied.
+- /"one sentence now about state change and expaction"/ ×4 → wrote closers; mid-turn steer
+  /"like this — So, from here on you can run `viva` from anywhere."/ → reworked into the
+  "So, now…" register; beef's next disk save reverted to the v1 sentences — left canonical,
+  flagged once.
+- /"integrate exmle: generic."/ → RAN =viva ledger/doctor=, kept the scopes stanza,
+  genericized, kept the didactic =✗ instance —= line.
+- /"@beef example registry\/list?"/ → the verb EXISTS (=trajectories/registry/index.js:11=);
+  ran it; the @viva row shows reference = root for a local tap.
+- /"go. and: … here: ### 5 — `viva instance\/run`"/ → tap invocation added; §5's 139-line
+  pasted transcript (secrets wizard, two doctors, run) folded to five real output lines.
+- mid-turn: /"step by step: checkboxes of what was affected. outcomes."/ → §6 summary, six
+  checkboxes, then /"this. specifically"/ → deep link =docs.vivalence.org/50.01_slowstart=
+  (route verified against =documentation/dist/= — collection ids flatten, no
+  =50-59_practice/= segment).
+
+** the kill
+
+README §4 claimed =viva instance/init hello-world= works "without the session bind". It
+cannot: =trajectories/instance/init.js= reads =ctx.signal.params= as =[username, password]= —
+a bare slug becomes a username, and with no instance mounted the verb errors. The form was
+deleted, not documented around. Same sweep fixed =instance/use= → =instances/use= (use lives
+under the PLURAL group; its valence documents chaining: trailing segments chain under
+=/instance=) and filled the =???= with =viva instance/auth signup <username> <password>=
+(=auth.js:7= usage string is the authority).
+
+* the slowstart pass
+
+/"ok. new pass on: …50.01_slowstart.mdx"/ — same regime, deeper:
+
+- =@beef there are things happening here!= → ran =deno task install=; the page's guessed
+  output line =viva → $VIVA_REPOSITORY_MOUNT/ghost.sh= was WRONG — the real installer prints
+  =viva → <resolved repo> · config: <env file>=. Captured, genericized.
+- §1 tree gains =.env= (=ledger/init= scaffolds it, =trajectories/ledger/index.js:63=);
+  =registry.json= stays correctly ABSENT — boot seeds the record by discovery later, and the
+  prose already said so.
+- §2 record example: =$VIVA_REPOSITORY_MOUNT/…= strings → literal absolute paths. The record
+  stores resolved paths — MOUNT MEANS PATH; the =$=-form implied stored variables.
+- §3: beef added =--use= mid-pass (control flags + a *bind* section). Verified real before
+  letting it stand: =trajectories/instance/create.js:53= chains =instances/use= on the flag.
+  My duplicate sentence removed; his prose kept.
+- §4 walkthrough gains the chain comment mirroring the README.
+
+* observations deposited, not acted on
+
+- =deno task install= warns *Ignored build scripts: better-sqlite3@12.8.0, argon2@0.44.0* —
+  the allow-list covers only =npm:sqlite3,npm:svelte-preprocess=. argon2 is lighthouse
+  password hashing; a fresh machine may need =deno approve-scripts= for a working signup.
+  beef's call whether the task's allow-list grows.
+- the manifest lie is now VISIBLE in the quickstart's own flow: =instance/doctor= on
+  hello-world shows =daemons: brazilian playground=, 8 REQUIRED secrets — the fresh reader
+  hits the secrets wizard wall at step 4 while the README promises "usually just the
+  secrets". Owed to the instances reshape (beef's lane), already on the frontier.
+- README line 24's Slowstart link still points at the docs root; the §6 deep link is the
+  pattern. One-line fix, ungated.
+- slowstart §2's tap example URL (=github.com/vivalence/registry-education=) is illustrative,
+  not a live repo; shape verified correct, left as-is.
+- emacs =custom-file= remedy sketched, ungated — dotfiles lane.
+
+* resumption
+
+README 0–6 and 50.01 are marker-free and truth-synced, uncommitted alongside everything else.
+The doc-example discipline that emerged: *a command block enters a doc only after the command
+ran this session; outputs genericized, never composed.* The instances reshape is now the one
+lie both documents share.

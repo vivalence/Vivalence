@@ -1,0 +1,101 @@
+#+title: the record becomes the only name, a quest bows to the landing it collided with, and the guessing dies at every door
+#+filetags: :ghost:paladin:ledger:instance:identity:cli:m44:registry:fixtures:quest:callout:landing:
+
+* what happened, in one breath
+
+Beef probed tap (/"can i run viva registry/tap … aka just REGISTER this package to the
+registry? no pull whatever?"/) → canonical tap landed (/"canonical. go."/): file→dirname,
+record = declaration dirname, store-relative (=Registry.reference()=, resolve's inverse).
+Then create's crash (/"NotFound: stat 'stucatch'"/) → /"lens. that was it. use lens. and
+create the instance too."/ — create.js moved onto the use.js syntax law + pick's null
+contract, and a stucatch instance source authored INTO the package made
+=viva instance/create stucatch= resolve headlessly. A quest arrived as a download
+(/"injest"/), renumbered (/"ok. injest the quest in as m44"/ — m42 was history-purge's),
+survived a delta pass (/"work out the diff. disk has changes. there is a delta. work it
+out."/), an m41-reversion pass (/"so. the quest dint read the shit we fixed for m41…
+check that were not reverting anything."/), four fork rulings, a beef-ordered rewrite,
+subordination to the env quest (/"consider yourself as subordinate to that outcome."/),
+a full-patch pass (/"work out the full patch. remove as much as you add if needbe."/),
+a landed-terrain re-verify (/"quest has landed. double check each subject… work it in if
+all as expected with minor fuzzing. go"/) — and then /"go"/: M1–M7 BLASTED GREEN.
+paladin 26/130/0 · ghost 77/23/0 · sheets 37/0 · docs build Complete. Uncommitted.
+
+* the law that landed
+
+=instances.json = { slug: { mount, createdAt, updatedAt } }= is THE identity authority —
+a MAP (/"keep."/ — uniqueness structural, rows are a projection). =manifest.slug= names
+the RECIPE. =register()= is record-only: lookup by mount, miss THROWS the tap line;
+=use=/=init= catch into a =note= and complete. =specs= threads ={instance}= — the
+=// @beef ugly and stupid= basename derivation is dead. =create= writes identity at
+birth (=--slug=, collision = hard error, no suffixing). =use= takes =row.mount= from the
+record — the shelf guess died at BOTH doors (no-match and empty-record error honestly).
+=instances/tap= adopts a hand-placed dir (bare token REFUSED — the m41 path law at the
+door), =instances/rename= moves record key + dead locks + the log dir, refuses while
+running. Doctor flags dangling / orphan-tap-it / shadowed. MOUNT MEANS PATH is
+permanent: /"can only every be a path. mount is a path type. non negotiatable.
+always."/ — populate's throw untouched, forever.
+
+* the quest's five lives
+
+1. AUTHORED elsewhere against a pre-m41 clone; ingested; number collision with
+   history-purge → m44.
+2. DELTA pass: M4's before-image was GONE (m41 populate throw), the session-rewrite leg
+   was dead (sessions store resolved paths), init had TWO register callers the terrain
+   missed, tap's tangle would have recorded a NON-PATH off ambient cwd.
+3. REWRITTEN on order with all four forks closed — the trail holds beef verbatim
+   including the killed ideas: list-of-objects (/"iwht slug inlined}"/ → map kept),
+   session-keyed logs (/"if we 'ALWAYS' set session, we could merge those?!"/ → killed
+   on lifetime, /"move on rename. obviously."/).
+4. SUBORDINATED — env-coherence (beef later renamed it m55-abandoned-coherence) landed
+   mid-story; every m44 diff re-targeted its END state; the use.js hunks became a full
+   TANGLE because two quests owned one function. /"ignore stucatch"/ · /"the others are
+   more important."/ · /"fixtures"/ → FIXTURES LAW: no test pins a live registry slug;
+   =@fixtures/instance/fixture= is the lens target.
+5. BLASTED, TDD, RED watched per milestone. Mid-blast the terrain moved AGAIN: a PLURAL
+   =instances/= trajectory group appeared (/"instance/* acts on the one you selected;
+   instances/* answers about all of them"/) and =use.js= moved there under my feet —
+   tap/rename followed as set-verbs. The =strata.wet= bareword leg pinned the old shelf
+   guess and was re-pinned to the law.
+
+* the callout — hand knows foot
+
+For optional packages (fixtures shipped-but-not-installed) I proposed an ELECTIVE
+manifest trait + seed filter. Beef: /"ELECTIVE. no. omg. wrong way entirely. i think all
+we need is a dedicated trajectory. no trait for this needed."/ · /"ghost and fixtures
+are both repo members. hand knows foot.! ikiro mark."/ — repo members name each other's
+paths literally; never a marker/discovery mechanism for knowledge the repo has about
+itself. Marked: lexicon (metaphor families) + feedback memory. The verb ruling:
+/"ledger/dev/init; this. its about the installed system."/ — designed, NOT built; the
+virgin-machine default set (=@viva= alone vs +=@education=, seed's survival) is still
+beef's open call. His counter-float =viva instance/create fixtures= resolved as
+composition, not either/or: dev/init supplies the package, then the fixture recipe makes
+=instance/create fixture= real.
+
+* stucatch, before the ruling cut it loose
+
+The lens fix was proven ON stucatch: instance source authored inside the package
+(=instances/stucatch/=, ports 2502/1795), =viva instance/create stucatch= headless,
+=init admin admin= booted + signup SUCCESS after a timeline scare (/"are you high??"/ —
+his error predated the seeded =.env=; receipts settled it). Then /"ignore stucatch"/ —
+its =environment.json= is dead under the one-=.env= law and stays broken BY RULING;
+education/language-learning is what matters.
+
+* settlement
+
+- Commit of the whole m44 blast + fixture recipe + docs (50.01 =--slug= sentence, 33.01
+  "the record names instances; manifests name recipes") — beef's.
+- Beef's post-blast touches observed and canonical: =create --use= chains into
+  =instances/use=; init's =signup= falls back to login on USERNAME_EXISTS; =owed()=
+  folds schema defaults; the env quest file now =m55-abandoned-coherence=.
+- =ledger/dev/init= — designed only; default-set ruling open.
+- m44 deferred intact: untap · pre-m44 record migration · slug charset · immutable
+  record id (trigger: rename churn).
+- The env-vars-to-ledger question from early in the session is SETTLED BY the env
+  quest's landing (=<ledger>/.env= + =${VAR}= expansion answer it better than the
+  proposed move).
+- Three of four quest verbatim quotes remain UNVERIFIED against their source session
+  (beef never pasted the rest; /"suuggest"/ typo preserved suggests quoted-not-
+  paraphrased).
+- Renames transitional: =localhost= + =multiplayer.bak= still register beside
+  =hello-world=/=starter= — beef's naming sweep pending (/"they should be named
+  carefully."/).

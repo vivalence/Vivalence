@@ -15,15 +15,17 @@ import {
   useState,
 } from "@vivalence/sheets";
 
-export function Init({ boot, signup, teardown, buffer }) {
-  const [phase, setPhase] = useState("boot");
+export function Init({ pages, commit, boot, signup, teardown, buffer }) {
+  const [phase, setPhase] = useState(pages?.length ? "fill" : "boot");
   const [procs, setProcs] = useState([]);
   const [tail, setTail] = useState([]);
   const [admin, setAdmin] = useState(null);
   const [steps, setSteps] = useState([]);
+  const [filled, setFilled] = useState(null);
   const [exits, setExits] = useState({});
 
   useEffect(() => {
+    if (phase !== "boot") return;
     let alive = true;
     (async () => {
       const processes = await boot();
@@ -45,7 +47,7 @@ export function Init({ boot, signup, teardown, buffer }) {
       if (alive) setPhase("create");
     })();
     return () => (alive = false);
-  }, []);
+  }, [phase]);
 
   useInput((input, key) => {
     if (phase === "ready" && (key.return || key.escape)) {
@@ -57,6 +59,20 @@ export function Init({ boot, signup, teardown, buffer }) {
       );
     }
   });
+
+  const onFill = async ({ values, action }) => {
+    if (action !== "commit") return setPhase("boot");
+    setPhase("install");
+    setSteps([{ label: ".env", status: "running", detail: `${Object.keys(values).length} keys` }]);
+    try {
+      const held = await commit(values);
+      setFilled(held);
+      setSteps([{ label: ".env", status: "done", detail: held.filled.join(" ") }]);
+    } catch (error) {
+      setSteps([{ label: ".env", status: "failed", detail: error.message }]);
+    }
+    setPhase("boot");
+  };
 
   const onCreate = async ({ values, action }) => {
     if (action !== "commit") {
@@ -81,11 +97,16 @@ export function Init({ boot, signup, teardown, buffer }) {
     setPhase("ready");
   };
 
-  const title = { boot: "booting", create: "create admin", install: "installing", ready: "ready" }[
-    phase
-  ];
+  const title = {
+    boot: "booting",
+    fill: "environment",
+    create: "create admin",
+    install: "installing",
+    ready: "ready",
+  }[phase];
   const hint = {
     boot: "starting processes…",
+    fill: "↑↓/tab move · type · enter next · ←→ action",
     create: "↑↓/tab move · type · enter next · ←→ action",
     install: "creating user…",
     ready: "enter → stop + exit",
@@ -124,11 +145,33 @@ export function Init({ boot, signup, teardown, buffer }) {
           </Box>
         )}
 
+        {phase === "fill" && (
+          <Form
+            pages={pages.map((group) => ({
+              title: group.title,
+              fields: group.fields.map((row) => ({
+                name: row.key,
+                label: row.key,
+                hint: row.describe,
+                input: row.key.startsWith("SECRET_") ? PasswordInput : TextInput,
+                props: { defaultValue: row.default ?? "" },
+              })),
+            }))}
+            actions={["commit", "skip"]}
+            done={onFill}
+          />
+        )}
+
         {phase === "create" && (
           <Form
-            fields={[
-              { name: "username", label: "username", input: TextInput },
-              { name: "password", label: "password", input: PasswordInput },
+            pages={[
+              {
+                title: "admin",
+                fields: [
+                  { name: "username", label: "username", input: TextInput },
+                  { name: "password", label: "password", input: PasswordInput },
+                ],
+              },
             ]}
             actions={["commit", "skip"]}
             done={onCreate}

@@ -1,0 +1,2386 @@
+#+TITLE: M11 — Packages (the registry dissolves into a package supply)
+#+AUTHOR: Vivalence
+#+STATUS: DESIGN
+#+DATE: 2026-07-01
+* Meta
+** Intent
+
+Turn registry loading into a functional fold over a declared list of *packages*,
+and settle the repo's package distribution + the four run scenarios BEFORE any
+loader change. The unifying idea: *=registry= is not a thing, =package= is.*
+
+The supply is FOUR in-tree packages (beef, verbatim: *"core call vivalence -
+services and such. education is education. playground check. add another for
+testing called simulation."*):
+
+| package     | holds                                                          |
+|-------------+----------------------------------------------------------------|
+| @viva       | platform services: datamap, hallucinator, lighthouse, nlp (fork 5, beef: "go on @viva instead of @vivalence") |
+| @education  | the domain: corpus/ontology/domain kernels + game/tactic/teacher/homepage/dashboard modes |
+| @development | dev/demo modes, type =playground= (spawner, card, dealer, automaton, switchboard, spawned) |
+| @simulation | the testing world: the test variant (daemons/services inlined, no circuitry indirection) + future fixtures |
+
+And the identity axis is RENAMED (beef, verbatim: *"the package name is now the
+owner name … we need to rename this variable owner. I think package is the more
+accurate term."*): =owner= → =package= throughout — manifest field, pensieve top
+axis, =cast.lookup=, =is.lookup=. Free disambiguation win: =owner= stays
+available for the datamap's user-scoped ENTITY owner (different concept, same
+word today).
+
+Reference ripple (beef: *"the things now don't need to only reference @vivalence
+but also all of the other package names"*): every module lookup string re-homes
+to its package — =@vivalence/game/write= → =@education/game/write= (the
+=@vivalence= source here is what beef's quote above and the disk both say
+TODAY — that identity itself is now =@viva=, see the locked-design section).
+
+Testament dissolves as a package and survives as the machine's RUN SURFACE
+(beef: *"the testament is the thing that we run live … the running files"* +
+*"We might want to move the circuitry for that package, like the package as a
+whole, into the registry"* — judged YES for the authored half): the authored
+variant (test.viva.js + environment jsonc) moves into
+=registry/simulation/variant/=; the derived half (system locks/logs, mountpoint
+dbs, .env, secrets) stays gitignored under =testament/=. **The gitignore line
+becomes the authored/derived line** — same axis as variant-declares /
+ledger-pins.
+
+*NO circuitry indirection* (beef, addendum: *"let's lose the circuitry
+terminology entirely. Our variant modules don't export any circuitry.
+Paladin doesn't handle circuitry. They just export runtime services daemons,
+such stuff."*): a variant module exports =daemons=/=services=/=runtime=/=clients=
+DIRECTLY — no separate =circuitry.js= file, no =export * as circuitry from
+"./circuitry.js"= re-export, no =cake.circuitry?.X= merge in =variant.js=.
+Two live files carried this pattern — both get inlined, not moved alongside:
+=testament/variant/circuitry.js= (daemons: brazilian + playground) into
+=test.viva.js=; =registry/wafers/@vivalence/variant/multiplayer/circuitry.js=
+(daemons: brazilian) into =multiplayer.viva.js=. =localhost.viva.js= never
+had this indirection — its daemon was always inline. Content-drift NOTE
+(not reconciled, just surfaced): multiplayer's brazilian daemon config and
+testament's have diverged — multiplayer lacks =game/riddler=/=game/nyan=,
+carries =tactic/five-fold-session=+=tactic/clinic=+=dashboard/dataspace=
+UNCOMMENTED where testament has them commented out. Inlining preserves each
+as-is; unifying them is a separate, unrequested call.
+
+This quest resolves the *in-tree* case. Out-of-tree apparatus (ledger,
+materialize, =viva install package=) stays deferred.
+
+** The locked design (the decision trail)
+
+*** owner = the manifest KEY; package = the module TYPE (fork 7 reshaped this)
+beef (fork 7, reversing the key-rename before it ever landed): *"i dont like
+the package name here: package: pkg. maybe this is one of those cases where
+we not name the think after its mode/module type. maybe owner was the better
+name. module type is package. but the key on manifest i think makes sense as
+'owner'."*
+
+So: =pensieve= keys =owner→type→slug→version= — UNCHANGED from live. What
+changes is where the VALUE comes from and what it means: =owner= names a
+package (=@viva=, =@education=, … — fork 5), derived from the mount path by
+default, lockable by self-declaration. The THING on disk is a *package*
+(=type: "package"=, the four self-manifests; the ledger's =registry.json=,
+the supply record) — the manifest FIELD that points at one stays =owner=.
+Don't name the field after the module type it references.
+
+Two packages shipping =game/flashcard= land under different owner keys → no
+collision. =@viva= is the core PLATFORM package, not "the org".
+
+**** DERIVED by default, LOCKED on demand (beef, addendum)
+The owner is computed *within =vip.mount='s own scope* — a package needn't
+author =owner: "@viva"= at all; the name derives from the mount path
+(=registry/viva= → =@viva=). No mode/kernel/service needs to export
+=manifest.owner= either — a module inherits whatever its mount stamped, by
+default.
+
+A =package.viva.js= (or any module) MAY still self-declare =manifest.owner=
+to *lock* an explicit identity — the self-declaration wins over the
+mount-derived default when present. Opt-in, not required (the real fixture is
+postponed, fork 4; the mechanism is proven in-memory in =vip.test.js=).
+
+The reserved-word wrinkle (=package= is a strict-mode reserved word; a whole
+convention existed to dodge it: keys =package=, bindings =pkg=) DISSOLVES
+under fork 7 — =owner= binds freely, every =pkg= binding dies unborn, the
+=cast.lookup= destructure stays exactly as it is live. The earlier
+"revert to owner?" analysis concluded "no revert needed" on narrow syntax
+grounds; fork 7 reverts on SEMANTIC grounds — the syntax analysis stays true,
+just moot.
+
+*** supply / demand — now TRUE in code (fork 8 fixed the violation)
+system = supply (fills the pensieve, pre-variant). variant = demand (composes
+module identities). The earlier =variant.packages= put the supply declaration
+ON the demand object — fork 8 removed it. Runtime and variant both stay
+package-blind; =vip.supply()= (the ledger's =registry.json=, seeded by
+discovery) is the one supply mechanism.
+
+*** system supplies, variant demands (fork 8 — was: "variant declares, ledger pins")
+The flake.nix analogy RETIRES (wrong layer — flakes pin inputs to BUILD a
+system; the variant composes RUNTIME demand). The true analogy is
+pip/site-packages · Homebrew cellar: the registry directory = the cellar,
+PRESENCE = installed, =viva install= (ghost) = pip, and a demanded-but-absent
+package = ImportError (=vip.accio= throws "not supplied", distinct from
+"Module 404"). In-tree, the ledger IS the filesystem (a file restating
+=ls registry/= is a tautology); a real ledger FILE
+(=testament/ledger/packages.json=, name→mount pins, resolved via the parked
+=paladin.source=) arrives with the first OUT-OF-TREE package — that's the
+trigger, fork 9 named the home for it.
+
+*** the four scenarios (the settlement)
+| scenario      | packages (supply = presence, fork 8) | variant mount                          | state (derived)                | env |
+|---------------+---------------------------------+----------------------------------------+--------------------------------+-----|
+| development   | all four — =vip.supply()= reads/seeds =ledger/registry.json= | =registry/simulation/variant= (tracked) | =testament/{ledger,mountpoint}= | =testament/.env= (machine-local; template =.env.example=) |
+| testing       | same supply call (scenarios seed their own registry scope) | same tracked variant — fresh clone + CI now possible | temp / =testament/=            | same =--env-file=; secrets via env |
+| docker        | image COPYs =registry/= → all four PRESENT = installed, VARIANT INCLUDED | =/viva/repository/registry/simulation/variant= (11.4 wires it) | container volume ≙ testament   | injected ENV |
+| local install | =viva install variant= → =~/.viva= | installed copy                         | =~/.viva=                      | =~/.viva= |
+
+The standing bug this kills: =deno task runtime/test= reads
+=--env-file=../../testament/.env= AND the test variant sat gitignored — the
+suite depended on untracked files. After 11.0 the variant + environment jsonc
+are tracked; only mounts/secrets stay machine-local.
+
+@education's own shipped variants (brazilian, spanish) are DEFERRED — the dev/
+test world lives in @simulation for now; education variants land when the
+spanish daemon revives.
+
+*** deno static-import resolution is already solved (no S0)
+=@vivalence/*= JS import specifiers resolve by *workspace member name*
+(location-independent) and are a DIFFERENT namespace from lookup strings — the
+rename touches lookup strings only, never import statements. Spawns already
+pass =--config <root>=.
+
+*** the boot order is already correct
+=runtime/run.js= =variant.mount()= precedes =die.js= =registry()=. No reorder.
+
+** The shape (from-scratch)
+
+#+begin_src text
+  registry/                          # tracked — the package supply
+    viva/        package.viva.js     #   datamap/ hallucinator/ lighthouse/ nlp/ variant/multiplayer/ (fork 5: was vivalence/)
+    education/   package.viva.js     #   corpus/ ontology/ domain/ game/ tactic/ teacher/ homepage/ dashboard/
+    development/ package.viva.js     #   spawner/ card/ dealer/ automaton/ switchboard/ spawned/ (type: playground)
+    simulation/  package.viva.js     #   variant/{test.viva.js, localhost.viva.js, environment/} — no circuitry.js
+
+  testament/                         # ONE gitignore line — all derived
+    .env                             #   mounts + secrets   (template: /.env.example)
+    system/                          #   locks, logs, instances.json
+    mountpoint/                      #   daemon dbs
+
+  vip.mount(scope.registry.branch(name))
+        │  derive package = "@" + name                  (default — no file needed)
+        │  package.viva.js MAY declare manifest.owner  (LOCK — overrides derived; fork 7: the key is owner)
+        ▼  each walked module inherits the stamp UNLESS it locks its own
+  pensieve.register  →  package→type→slug→version
+        │
+        ▼  accio("@education/game/write")  ← runtime, package-blind
+#+end_src
+
+** Deferred (unchanged + new)
+- ledger.json / materialize() / =viva install package= / system-dir redesign —
+  until the first out-of-tree package.
+- =v.primitives.variant.Package= schematic (NOT =circuitry.Package= — circuitry
+  is dead as a namespace for anything package-related; =circuitry.{Daemon,Service,ModuleSpec}=
+  stay, out of scope, typology schematics HOLY, beef's ask was about the
+  variant FILE layer not the schema layer).
+- workspace-member audit (=vector=/=entities= etc. not workspace members) —
+  before the first external package.
+- @education ships =variant/brazilian.viva.js= + =variant/spanish.viva.js= —
+  when the spanish daemon revives; dev/test world stays @simulation until then.
+
+** Forks (call before blasting)
+1. *playground double segment — RESOLVED (beef)*: not the mode TYPE, the
+   PACKAGE renamed instead — =@playground= → =@development=. Mode type stays
+   =playground=; lookups become =@development/playground/<slug>=, no repeated
+   word. Cheaper than the original two options (no =variant.modes[type]=
+   tiered-registries key touched). Ripples through the tangle: dir
+   =registry/playground/= → =registry/development/=, package.viva.js slug,
+   the sweep's =@playground/playground/= target, the =test.viva.js= =packages=
+   list (⑨c, landed at 11.0③, not 11.2).
+2. *=registry/wafers/= residence — RESOLVED (beef, law 9)*: not dormant, not
+   bak/ — ported, same bracket. beef's mapping (production → platform, dev/test
+   → simulation): =multiplayer= (docker-compose, no daemons — the deploy
+   shape) → =registry/viva/variant/multiplayer/= (fork 5: was =vivalence/=);
+   =localhost= (full local run — the dev shape) → =registry/simulation/variant/localhost/=,
+   sibling to =test.viva.js= (both =type: "variant"=, @simulation = the
+   dev+test world). =@development= (playground) has no wafer today — no move
+   needed, open slot only if one is ever authored. Grounding: =localhost.viva.js=
+   is the exact source =ghost/tests/wafer.test.js= installs via =LOCALHOST_WAFER=
+   (the "local install" scenario) — real, load-bearing, never actually dormant.
+   =registry/wafers/@vivalence/bak/= is untouched (backup-during-migration,
+   [[rituals]] — never swept; SOURCE path, stays =@vivalence= since that's
+   the real on-disk name today). Ripples in the tangle below: mv, drop the
+   stale =owner: "@vivalence"= line on localhost (derives =@simulation= from
+   its new mount), fold localhost's education-type lookups into the existing
+   sweep, =wafer.test.js='s =LOCALHOST_WAFER= path, =registry.count.test.js=
+   → BASELINE + 6 post-fork-10 (variant left the walk; not +7 — see fork 10; not +8 — =lock-demo= postponed separately, fork 4 is a
+   DIFFERENT fork).
+3. *scope.registry retire vs dormant — RESOLVED (beef, law 9)*: the fork's own
+   premise was ungrounded — checked live: =scope.registry= (=belt/scope.js=,
+   =VIVA_REGISTRY_MOUNT= or =repository.branch("registry")=) is the BASE every
+   package mount branches from (=.branch("vivalence")= etc.) — structurally
+   required, not vestigial, in both local (=repository.branch("registry")=)
+   and Docker (=ENV VIVA_REGISTRY_MOUNT=/viva/repository/registry=, packages
+   branch off it identically inside the container). The only INCOHERENT usage
+   was mounting the root directly with no branch (ghost =clone.js=/=doctor.js=)
+   — already fixed in 11.0③'s existing diff. Nothing to retire, nothing dormant.
+   KEEP =scope.registry= unchanged; no new blast-table entry.
+4. *=registry/simulation/scenario/lock-demo.viva.js= residence — POSTPONED
+   (beef)* → re-homed as [[file:m14_testing_fixtures.quest.org][M14 testing fixtures]] (the =@fixtures= package):
+   *"i am not sure about this specific settlement yet... mark it as
+   forked and keep the tangle clean!"* The LOCK mechanism itself is proven
+   (=vip.js='s precedence, tested in-memory in =vip.test.js=) — only the REAL
+   fixture file is parked, pending beef's call on where/how it should live
+   (its path — fork 5 settled the package-identity half, it's =@viva= now —
+   and whether =scenario/= is even the right home). Not in
+   =registry.count.test.js='s BASELINE math, not tangled.
+5. *=vivalence= → =viva= package rename — RESOLVED (beef): "go on @viva
+   instead of @vivalence - close the fork."* Folded into THIS bracket
+   (11.0③), not deferred — beef closed it outright rather than parking it.
+   Ripple, now executed: directory =registry/vivalence/= → =registry/viva/=
+   (derive-by-default means the dir name IS the identity); every lookup
+   previously marked "stays @vivalence/*, unswept" (platform:
+   =lighthouse=/=datamap=/=hallucinator=/=service=) now gets its OWN sweep
+   pass to =@viva/*= — a real, new addition to the sweep script, not just a
+   find-replace on this document. SOURCE-side references (what's literally
+   on disk TODAY, pre-blast: =registry/wafers/@vivalence/=,
+   =registry/services/@vivalence/= etc., and beef's own verbatim quotes)
+   stay =@vivalence= throughout this quest — only DESIGN/DESTINATION content
+   renamed. Import specifiers (=from "@vivalence/typology"=) are UNTOUCHED —
+   confirmed different namespace, a Deno workspace member name, out of scope
+   (renaming that requires a =deno.jsonc= workspace edit, not this quest).
+6. *"cake" naming — OPEN (beef)* → re-homed as [[file:m15_cake_rename.quest.org][M15 cake rename]]:
+   *"lets globally rename cake. i dont like the name. we cant use module
+   because syntax conflict. what can we use? fork this."* =cake= names "the object read.viva() returns: manifest +
+   named exports + eventually =.mount=" — used pervasively (=vip.js=,
+   =find.js='s own =cakes= plural, =variant.js=, tests). =module= is out
+   (beef named the exact conflict: shadows the real JS module concept,
+   confusing inside a system already full of ES modules). Candidates,
+   none applied: =pkg= is taken now (the destructured PACKAGE STRING, this
+   session's OTHER rename — reusing it for a different thing would be worse
+   than the status quo); =crate= (Cargo's own word for "a compiled unit",
+   thematically on-brand for a package-manager vocabulary, no existing
+   collision found); =parcel= (plain English, "a bundled thing", no
+   collision found, but weak thematic tie); =declaration= (already used
+   locally in =vip.js= for the package.viva.js read specifically — reusing
+   it for EVERY module read blurs that distinction, risk of confusion).
+   Leaning =crate= if forced to pick one, but genuinely open — same
+   "land as its own bracket" reasoning as fork 5, this is a global rename
+   across files M11 doesn't otherwise touch.
+7. *=owner= key restored — RESOLVED (beef)*: *"i dont like the package name
+   here: package: pkg. maybe this is one of those cases where we not name
+   the think after its mode/module type. maybe owner was the better name.
+   module type is package. but the key on manifest i think makes sense as
+   'owner'."* The manifest KEY stays =owner= (its value: a package reference,
+   =@viva= …); *package* remains the module TYPE (=type: "package"=) and the
+   supply concept (the registry's four directories, the ledger record). Caught before
+   landing — pure shrink: blast rows ③④⑤⑥ drop entirely (=manifest.js=,
+   =cast.lookup=, =is.lookup=, schematics — all already speak =owner=, now
+   untouched), =pensieve.js='s change collapses to killing the default,
+   =vip.js= stamps =owner=, every =pkg= binding and the whole reserved-word
+   convention die unborn. Fork 6's "pkg is taken" note is moot too — =pkg=
+   no longer exists anywhere.
+8. *supply moves to SYSTEM level — RESOLVED (beef, connoisseur concurring)*:
+   *"I think we've made the design boo boo. I think the source of packages
+   should actually be the system ledger. I think variant should not declare
+   its packages. The … Pensive should rather throw an error if a package is
+   loaded that isn't in the registry. But the population of the registry
+   should happen elsewhere. It's similar to how there is multiple instances
+   of Python packages … per system."* SUPERSEDES the earlier verbatim *"NO!
+   these must be defined as part of the variant!"* — both kept, the later
+   wins. The design's own locked pair (system = supply, variant = demand)
+   was being violated by =variant.packages= (demand authoring supply).
+   Model: registry directory = site-packages/cellar. beef follow-up made
+   the ledger FILE concrete NOW (not deferred): *"the ledger path is from
+   now on the directory that contains the lock files and the
+   instances.JSON. It now further contains a registry.json containing a
+   record of package locations."* So: =testament/ledger/registry.json= =
+   the record of package locations (per-machine, derived — like
+   =instances.json=); ABSENT → seeded by discovery over =scope.registry=
+   (self-priming, no init ceremony); locations resolve via =paladin.source=
+   (⑨d — parked for one turn, unparked by this, its real consumer).
+   Ripples: =vip.supply()= lands (read record → seed if absent → mount
+   each location — the ONE mechanism runtime/ghost/bench all call; ghost's
+   chicken-and-egg dissolves by construction, the ledger is pre-variant);
+   =vip.accio= throws "package not supplied" distinct from "Module 404"
+   (policy in Vip, =pensieve.revelio= stays a pure descent); =Registry=
+   record class lands beside =Instances= in the System prototype;
+   ⑨b/⑨c (variant seam + declaration) DIE.
+9. *=testament/system= → =testament/ledger= rename — RESOLVED (beef)*:
+   *"lets rename the system directory to ledger. including the blast radius
+   of env vars and further references to that folder/part of system."*
+   Ghost's own comment already called it "the system ledger" — the name was
+   emergent. beef follow-up pinned the contents: *"the ledger path is from
+   now on the directory that contains the lock files and the instances.JSON.
+   It now further contains a registry.json containing a record of package
+   locations."* + correction: *"a log directory and a lock directory"* — so
+   =testament/ledger/{locks/, logs/, instances.json, registry.json}=,
+   matching the paths the code already writes (=/locks/=, =/logs/= — the ⑱
+   Log class targets the latter). Renames: the directory (=mv testament/system
+   testament/ledger=, derived content rides), =VIVA_SYSTEM_MOUNT= → =VIVA_LEDGER_MOUNT=
+   (=populate.scopes=, ghost =system/init.js= persist+export, trajectory
+   valence string, both paladin test files, =testament/.env=,
+   =.env.example=), scope key ="system"= → ="ledger"= (=populate.scopes=;
+   =scope.ledger= consumers: =system/system.js= ×3, ghost =doctor.js= ×2,
+   =system.test.js=), =paladin-scope.snapshot.json= regen (key renames).
+   STAYS — the actor and the process, not the folder: =System= prototype +
+   =paladin.system= accessor ("the system keeps its ledger"),
+   =VIVA_SYSTEM_MODE=/=VIVA_SYSTEM_ROLE= (process mode/role, 10 refs),
+   ghost =viva system {init,doctor}= command namespace, =~/.viva= default
+   (the machine-global ledger home when no env is set).
+
+10. *variant back in testament, daemons decomposed — RESOLVED (beef, mid-blast)*:
+   *"the variant file that we want to have running … inside of our testament
+   folder next to the dot env file. we want to have basically the old
+   variant back with the daemons and services decomposed into two …
+   imported files. Circuitry, ignore that term. one playground with all of
+   the playground stuff we have been building, one education with all of
+   the language learning stuff … that's it for now."* LANDED:
+   =testament/test.viva.js= (manifest/runtime/clients/services +
+   =daemons: [education, playground]=) importing =testament/education.js=
+   (slug =brazilian=, FULL mode set: 13 games + clinic + five-fold-session +
+   aprende + dewey + dataspace) and =testament/playground.js= (all six
+   playground modes); =environment/= moved alongside;
+   =VIVA_VARIANT_MOUNT=<repo>/testament= (find.type walks it, bak/ dirs
+   skipped, exactly 1 variant cake). =registry/simulation/variant/= keeps
+   only =localhost/=. =registry.count= → BASELINE+6. Reverses the
+   tracked-variant fresh-clone win — beef's explicit call, "for now".
+   Discovered en route: =tactic/survival/= DIR holds slug
+   =five-fold-session= (dirs cosmetic, manifests rule — M11's own lesson);
+   both tactic manifests lacked =version= (never loaded live before), added
+   ="0.0.1"=. The spanish daemon block was NOT carried over ("that's it for
+   now" — it lives in VCS history).
+11. *no hardcoded =package.viva.js= filename — RESOLVED (beef, mid-blast)*:
+   *"we dont hardcode package.viva.js !!!! what?!?! we do a recursive find
+   of viva files to populate the registry. the packages have a
+   manifest.type property that identifies a pacakge. wrong approach!!!"*
+   =vip.mount= reads NO magic filename: the walk itself finds the package
+   cake (=manifest.type === "package"=) among the cakes; its
+   =manifest.owner=, when authored, LOCKS the mount's identity. The four
+   =package.viva.js= files keep their names by CONVENTION only — they are
+   identified by manifest, like every module. =vip.test.js= rewritten to
+   the walk shape (+ a "presence alone locks nothing" case).
+
+** Blast table
+
+| # | file | change | when | kind |
+|---+------+--------+------+------|
+| ① | =paladin/prototypes/vip.js= | mount derives =owner= from scope path; optional self-declare LOCKS (fork 7: key stays =owner=) | 11.0③ | edit |
+| ② | =paladin/prototypes/pensieve.js= | kill the =@vivalence= default; missing owner throws (fork 7: axis unchanged) | 11.0③ | edit |
+| ③④⑤⑥ | =manifest.js= · =cast/primitives.js= · =is/primitives.js= · schematics =manifest.js= | DROPPED (fork 7) — all four already speak =owner=, untouched | — | none |
+
+| ⑦ | =registry/{viva,education,development,simulation}/package.viva.js= | the four manifests, no =owner:= field (derived) — fork 5: =viva= not =vivalence= | 11.0③ | NEW |
+| ⑦b | =registry/simulation/scenario/lock-demo.viva.js= | POSTPONED (fork 4, beef) — reference only, not tangled | — | none |
+| ⑧ | =registry/= tree | the split mv — INCLUDES fork 2's wafer moves (multiplayer→viva, localhost→simulation) + owner-field drop + fork 5's dir rename | 11.0③ | move |
+
+| ⑨ | =runtime/lifecycle/populate.js= | 4 tiers → =paladin.vip.supply()= — supply is SYSTEM-level (fork 8: ledger record, seeded by discovery), the variant declares nothing | 11.0③ | edit |
+| ⑨b | — | DIED (fork 8) — no =variant.packages= seam, ever | — | — |
+| ⑨c | — | DIED (fork 8) — no =export const packages= declaration | — | — |
+| ⑨d | =paladin/belt/source.js= + =belt/index.js= + =source.test.js= | =paladin.source= — every =registry.json= location resolves through it (parked one turn, unparked by beef's ledger-record refinement) | 11.0③ | NEW/edit |
+| ⑨e | =paladin/prototypes/system/registry.js= + =system.js= mount hunk | =Registry= record (read/write/seed) beside =Instances= — =testament/ledger/registry.json= | 11.0③ | NEW/edit |
+
+| ⑩ | ghost =clone.js:75= / =doctor.js:132= | root mount → same =vip.supply()= as the loader — ONE mechanism (discovery lives in =Registry.seed=); chicken-and-egg dissolved by construction (the ledger is pre-variant) | 11.0③ | edit |
+| ⑩b | =systems/ghost/tests/wafer.test.js= | =LOCALHOST_WAFER= path (fork 2) | 11.0③ | edit |
+| ⑪ | =test.viva.js= (circuitry inlined), =multiplayer.viva.js= (circuitry inlined), =localhost.viva.js= | inline circuitry + lookup sweep IN PLACE | 11.0③ | edit |
+| ⑪b | =paladin/prototypes/variant.js= | drop =cake.circuitry?.X= merges (daemons+services) — circuitry gone, not just packages | 11.0③ | edit |
+
+| ⑫ | runtime tests ×5 + =scenarios/bench.js= | sweeps + mounts | 11.0③ | change test |
+| ⑬ | =paladin/tests/{pensieve,vip}.test.js= + =runtime/tests/registry.count.test.js= | new coverage | 11.0③ | NEW test |
+| ⑭ | =testament/variant/= → =registry/simulation/variant/= | dissolution mv + manifest claim | 11.0③ | move |
+| ⑮ | =testament/.env= · =.gitignore= · =.env.example= | scenario wiring | 11.0③ | edit/NEW |
+| ⑯ | — | ABSORBED into ⑨b/⑨c (beef killed the two-step, no separate 11.2 row) | — | — |
+| ⑰ | Dockerfile variant mount · docs | cleanup | 11.4 | edit/docs |
+
+| ⑱ | =paladin/prototypes/system/system.js= + NEW =log.js= | ledger repair (② finding, gate-radius): =lock(instance, process)= vocabulary, =locks(instance)= carries =process=, =Log= lands as the span sink (=system.test.js= IS the spec, unchanged) | 11.0③ | edit/NEW |
+| ⑲ | =system/process.js= · ghost =target.js=/=start.js=/=stop.js= | spec keys =type=/=slug= → =process=/=instance= through the spawn seam | 11.0③ | edit |
+| ⑳ | =paladin/tests/spawn.test.js= | flips to instance-first vocabulary (it was process-first; =system.test.js= wins — see ledger tangle) | 11.0③ | change test |
+| ㉑ | =paladin/lifecycle/populate.js= (scopes) · ghost =system/{init,doctor}.js= + trajectory valence · =testament/.env= · =.env.example= · both paladin test files · =mv testament/system testament/ledger= · scope snapshot regen | fork 9: the ledger rename — scope key ="ledger"=, =VIVA_LEDGER_MOUNT=; =System= prototype + =VIVA_SYSTEM_MODE/ROLE= + =viva system= command STAY | 11.0③ | edit/move |
+
+** Blast radius — the complete tree
+beef, twice: *"no inlining or folding"*, then *"i am fine with two spatial
+splitting. implement elegant semantic clustering on them. flatter. too much
+depth per line."* Two flat trees, not one deep one — BEFORE (what's on disk
+today, what happens to it) and AFTER (what's new). Mixing them was the
+earlier mistake: two semantics (spatial move vs content mutation) stacked in
+one tree, duplicating every moved path. Clustered by PURPOSE instead of raw
+nesting — nothing goes past 2 levels now (the old tree needed 5 to reach a
+wafer's =circuitry.js=). =(E)= edited in place · =(X)= deleted, not moved ·
+=(N)= new · unmarked = untouched, listed for completeness.
+
+*** BEFORE — current disk: drains, moves, edits, deletions
+
+#+begin_src text
+registry content (drains into the four packages)
+  registry/services/@vivalence/{datamap,hallucinator,lighthouse,nlp}/*  → viva/
+  registry/kernels/@vivalence/{corpus,ontology,domain}/*                → education/
+  registry/modes/@vivalence/{game,tactic,teacher,dashboard,homepage}/*  → education/
+  registry/playground/{spawner,card,dealer,automaton,switchboard,spawned}/
+                                                    → whole-dir rename → development/
+
+wafers (fork 2 — ported, not dormant; fork 5 — dest is viva/ not vivalence/)
+  registry/wafers/@vivalence/variant/multiplayer/  → whole-dir move → viva/variant/
+    multiplayer.viva.js     (E) circuitry inlined, sweep
+    circuitry.js            (X) inlined into multiplayer.viva.js first
+    docker-compose.yml, bak/client/client.viva.js   ride along untouched
+  registry/wafers/@vivalence/variant/localhost/    → whole-dir move → simulation/variant/
+    localhost.viva.js       (E) owner: dropped, sweep
+    environment/{services,variant}.jsonc            ride along untouched
+    environment/secrets.jsonc                       ride along untouched (placeholder-safe already)
+  registry/wafers/@vivalence/bak/                  stays untouched (backup-during-migration)
+
+testament dissolution
+  testament/variant/test.viva.js        → registry/simulation/variant/
+                                           (E) circuitry inlined, owner re-stamped @simulation, sweep
+  testament/variant/circuitry.js        (X) inlined into test.viva.js first
+  testament/variant/environment/{services,variant}.jsonc → registry/simulation/variant/environment/
+  testament/variant/environment/secrets.jsonc  (X) DELETED, not moved — security (real live keys, already leaked)
+  testament/variant/mountpoint/*        → testament/mountpoint/
+  testament/variant/bak/                stays untouched
+  testament/.env                        (E) hand-edited, never tangled
+  testament/system/                     → testament/ledger/ (fork 9 mv; locks/ logs/ instances.json ride, registry.json joins on first supply)
+#+end_src
+
+*** AFTER — new files and in-place edits (nothing above repeated)
+
+#+begin_src text
+registry roots (all N)
+  registry/{viva,education,development,simulation}/package.viva.js
+  .env.example                          (N) tracked template
+  .gitignore                            (E) replaced
+
+paladin core
+  subsystems/paladin/prototypes/{vip,pensieve}.js        (E) rewrite
+  subsystems/paladin/prototypes/manifest.js              (E)
+  subsystems/paladin/prototypes/variant.js               (E) ×2 — circuitry-merge drop + packages seam
+  subsystems/paladin/tests/{pensieve,vip}.test.js        (N)
+  subsystems/paladin/tests/variant.snapshot.test.js      (E) regenerate + its .json
+
+typology
+  subsystems/typology/gestalten/{cast,is}/primitives.js       (E)
+  subsystems/typology/schematics/primitives/manifest.js       (E)
+
+runtime + tests
+  systems/runtime/lifecycle/populate.js                        (E)
+  systems/runtime/tests/registry.count.test.js                 (N)
+  systems/runtime/tests/scenarios/{bench,variant}.js            (E)
+  systems/runtime/tests/bench/smoke.test.js                     (E) lookups + import path
+  systems/runtime/tests/mode/{emitters,aprende.literals,aprende.statistics}.test.js
+                                                                 (E) import path
+
+ghost
+  systems/ghost/trajectories/instance/clone.js          (E)
+  systems/ghost/trajectories/system/doctor.js           (E)
+  systems/ghost/tests/wafer.test.js                     (E)
+
+11.4, deferred but real — not this bracket:
+registry/.ikiro/claude.md · .ikiro/world/codemap/paladin.md ·
+docker-walkthrough.org · nlp README · Dockerfile
+#+end_src
+
+Count: 4 source dirs drain, 1 whole-dir rename, 2 whole-dir moves, 2
+circuitry.js inlined-then-deleted, 1 secrets.jsonc deleted for security, 3
+variant files edited in place, 4 new package.viva.js, 1 postponed fixture, 4
+paladin/typology edits + 2 new paladin tests, 6 runtime edits + 1 new test,
+3 ghost edits, 1 regenerated snapshot, 1 new tracked template, 1 replaced
+gitignore.
+
+** Milestones (each: blast → test → land → test → blast)
+
+*** MILESTONE 11.0 · SETTLEMENT — LANDED (blast executed this session; ①-⑤ complete, all suites green)
+beef (verbatim, the shape correction): *"Consider this not as a atomic step by
+step microprocess, but as a blast change where we define an outside radius,
+where we run the tests to make sure that the systems are working the way
+they're supposed to already. Then we apply the change. We land the change that
+we want, and we adjust the tests, check that the tests still run on
+integration level two. And then we check that the blast radius also checks
+out."* This is the standing =blast-bracket= ritual (=self/rituals.md=:
+*"blast. test. change. test. blast."*), applied whole to the package
+settlement — ONE bracket, not gated micro-rungs. The rename, the tree split,
+the stamp, the reference sweep, and the testament dissolution all land as ONE
+change (step ③); they are internally ordered for correctness, not separately
+gated with their own green-test checkpoint.
+
+**** ① BLAST — the outside radius
+Every consumer of the four things this bracket touches, swept this session:
+- =owner= (manifest field / pensieve axis / =cast.lookup= / =is.lookup= /
+  schematics =manifest=): =vip.js=, =pensieve.js=, =manifest.js=,
+  =gestalten/cast/primitives.js=, =gestalten/is/primitives.js=,
+  =schematics/primitives/manifest.js= — fork 7: still the RADIUS (they all
+  consume the axis; ⑤ greps them), but only =vip.js=/=pensieve.js= CHANGE,
+  the other four stay untouched (the key stays =owner=); three live
+  declarations, all IN the bracket (fork 2 resolved): =registry/wafers/@vivalence/variant/localhost/localhost.viva.js=
+  (moving + dropping its stale =owner:=), =registry/wafers/@vivalence/variant/multiplayer/multiplayer.viva.js=
+  (moving, never had =owner:=), =testament/variant/test.viva.js=.
+- =scope.registry= tier-branch mounts: =systems/runtime/lifecycle/populate.js=
+  (the loader), =systems/ghost/trajectories/instance/clone.js:75= +
+  =system/doctor.js:132= (mount the registry ROOT — would throw the moment a
+  =package.viva.js= read lands there), =systems/runtime/tests/scenarios/bench.js=
+  (hardcoded branch mounts).
+- =@vivalence/{domain,ontology,corpus,game,tactic,teacher,homepage,dashboard}/*=
+  lookup strings (→ =@education/*=) AND =@vivalence/playground/*= (→
+  =@development/playground/*= — type stays =playground=, only the package
+  re-homes): the live daemon declarations, now INLINED (circuitry gone) —
+  =test.viva.js= (the one that matters at runtime) AND =multiplayer.viva.js=
+  (discovered this round: its daemon was hiding behind its own
+  =circuitry.js=, same lookups, same sweep — missed in the original fork 2
+  pass), plus test-only lookups in =systems/runtime/tests/bench/smoke.test.js=
+  and =scenarios/bench.js=.
+- fork 5 addition: =@vivalence/{lighthouse,datamap,hallucinator,service}/*=
+  platform lookups — PREVIOUSLY out of radius ("stays @vivalence/*,
+  unswept"), NOW IN it — beef closed the =viva= rename, so these get their
+  OWN sweep to =@viva/*=. Same three files as the education-type sweep
+  (=test.viva.js=, =multiplayer.viva.js=, =localhost.viva.js= — the latter
+  already =@vivalence=-free at the field level but still references
+  =@vivalence/lighthouse/multiplayer= in its own =lighthouse= config).
+- =registry/{kernels,modes,services}/@vivalence/*= deep-import FILE paths
+  (relative traversal into registry test fixtures, not workspace-member
+  import specifiers — those stay =@vivalence/typology= untouched, confirmed
+  different namespace): 5 test files (=bench/smoke.test.js=,
+  =mode/emitters.test.js=, =mode/aprende.{literals,statistics}.test.js=,
+  =scenarios/variant.js=) — destination is now =registry/viva/= for the
+  services-sourced ones (fork 5), =registry/education/= unaffected.
+- testament authored/derived boundary: =testament/variant/{test.viva.js,
+  environment/}= (authored — moving, circuitry.js inlined into test.viva.js
+  first, not co-moved) vs =testament/{ledger/, mountpoint/,.env}= (derived —
+  fork 9: =ledger/= was =system/= —
+  staying); =.gitignore= (redundant =testament/variant= lines); =testament/.env=
+  (machine-local, hand-edited, never tracked); root =.env.example= (NEW,
+  tracked).
+- paladin coverage gap: =test/vip= + =test/pensieve= deno tasks already point
+  at =tests/{vip,pensieve}.test.js= — files currently sit in =tests/bak/=, so
+  the owner/package axis has ZERO live coverage today.
+- =subsystems/paladin/tests/variant.snapshot.test.js= + its generated snapshot
+  (the resolved-variant shape changes: =owner=→=package= AND the new
+  =packages= field, both in the SAME 11.0③ regeneration — one snapshot pass,
+  not two).
+
+**** ② TEST — baseline (before touching anything)
+Confirm the radius above is GREEN before landing the change.
+#+BEGIN_SRC sh
+cd /Users/finn/vivalence/code/vivalence
+deno task paladin/test
+deno task runtime/test
+deno eval --env-file=testament/.env '
+import paladin from "@vivalence/paladin";
+for (const dir of ["kernels", "modes", "services", "playground"])
+  await paladin.vip.mount(paladin.scope.registry.branch(dir));
+let total = 0;
+for (const ownerMap of paladin.vip.pensieve.values())
+  for (const typeMap of ownerMap.values())
+    for (const slugMap of typeMap.values()) total += slugMap.size;
+console.log({ total });
+'
+#+END_SRC
+Record: suites green/red, and the printed =total= as BASELINE — paste it into
+=registry.count.test.js= before landing ③.
+
+***** ② CAPTURED (this session — the actual baseline)
+=BASELINE = 38= (pasted into the =registry.count.test.js= tangle). All =bak/=
+dirs excluded; =--watch= stripped (the deno tasks never exit); paladin needs
+=--no-check= like every sibling task (its task string lacks it — 75 stale TS
+errors otherwise) and =--env-file= (the snapshot test's own header demands it).
+
+| suite | result | pre-existing red detail |
+|-------+--------+------------------------|
+| typology | GREEN 104 passed (1082 steps) | — |
+| kajuit | GREEN 8 passed (45 steps) | 8 fossil test files excluded (dead imports: =src/daemon/*=, =src/entities/*=, =src/typology/*= — gone in earlier migrations) |
+| paladin | 5 passed / 2 FAILED | =System.lock= =locks()= + =System.log= ("log(type, slug) LEGACY") — predates the bracket; beef called it: GATE-radius, repaired in ③ step 8 (rows ⑱⑲⑳), =system.test.js= is the spec |
+| runtime | 24 passed / 1 FAILED | =integration: full client lifecycle=: emit 404 for =game/{exhibit,pick,match}= — beef commented those modes out of =circuitry.js=; test expectation drifted from the variant. IN radius: the inline (③.4) carries the commented block as-is; ④ adjusts the integration expectations to the declared mode set |
+| ghost | 0 passed / 5 FAILED | whole suite red (shell→ghost WIP): =variant.mount= 0 cakes via =init.js=, stale =pickStartPlan= export, =ctx.view.scroll= undefined; +4 fossil files (dead imports). =wafer.test.js= is RED for NON-M11 reasons — its ④ gate is "no NEW failure mode", not green-to-green |
+
+Live state: runtime :2501 ALIVE + auth-gated (=/daemon/brazilian/entities/literal/find= → 401,
+correct unauthenticated answer); kajuit vite :1794 serves, login gate renders,
+console clean. NOTE: beef's runtime watcher (pid 29956) was killed on a
+false-404 diagnosis (bare curl probes lack the transport auth — wrong route
+shapes 404 regardless of health) and relaunched identically (=--watch=, same
+env); its stdout now lands in the session scratchpad, not beef's terminal.
+Snapshots re-cast fresh, both perspectives: =paladin-variant.snapshot.json=
+(pre-change shape — =owner: "@vivalence"=, no =packages= field),
+=paladin-scope.snapshot.json= (pre-dissolution paths — =variant=/=environment=/
+=mountpoint= all under =testament/variant=), and the full runtime
+=tests/snapshots/= aperture+daemon set including the newly-declared modes
+(write/shadow/conjugation/judge/listen/paradigm/riddler/nyan).
+=testament/variant/= disk state matches the dissolution mv's assumptions
+(=mountpoint/= lives under =variant/=; the script moves it to
+=testament/mountpoint/= ✓). =instances.json= carries one stale ledger entry
+(=testament/temp=, localhost, May-era) — harmless, derived.
+
+**** ③ CHANGE — land the whole mutation
+No internal gates. Ordered because filesystem mutations compose sequentially,
+not because each step earns its own test run:
+
+1. NO key rename (fork 7 — =owner= stays): =pensieve.register= drops its
+   =@vivalence= default and throws on a missing owner; =manifest.js=,
+   =cast.lookup=, =is.lookup=, schematics untouched.
+2. Tree split (mv script) + four =package.viva.js= manifests (no =owner:=
+   field — derived from the mount path).
+3. =vip.mount= derives =owner= from the branch name by default; a
+   =package.viva.js= or any module MAY self-declare =manifest.owner= to
+   LOCK an explicit identity, overriding the derived stamp. (The real
+   lock-demo fixture is POSTPONED, fork 4 — the mechanism is proven
+   in-memory in =vip.test.js=.)
+4. Circuitry inline (beef, addendum — no separate circuitry file, ever):
+   =testament/variant/circuitry.js='s =daemons= inlined straight into
+   =test.viva.js=, the =export * as circuitry= line dropped, circuitry.js
+   deleted. Same for =multiplayer/circuitry.js= → =multiplayer.viva.js=.
+   =variant.js='s =cake.circuitry?.X= merges dropped — =resolve()= reads
+   =cake.daemons=/=cake.services= directly, nothing else.
+5. Reference sweep (perl scripts), AFTER the inline so the newly-merged
+   daemon content is caught by the same pass: =test.viva.js= AND
+   =multiplayer.viva.js= lookups re-home to =@education/*= /
+   =@development/playground/*= IN PLACE (still the live/dormant files at
+   this point in the bracket); deep-import paths rewritten in the 5 test
+   files.
+6. Loader: four tier-branches → =paladin.vip.supply()= (fork 8 — supply is
+   SYSTEM-level: =testament/ledger/registry.json= is the record of package
+   locations, seeded by discovery over =scope.registry= when absent, each
+   location resolved via =paladin.source=; supersedes the earlier *"defined
+   as part of the variant"* verbatim, both quotes kept in fork 8). NO =variant.packages=
+   seam, NO declaration in =test.viva.js= — the variant demands only
+   (=vip.accio= throws "package not supplied" when demand outruns supply).
+   Same =vip.supply= call in ghost =clone.js=/=doctor.js= (chicken-and-egg
+   dissolved: supply is pre-variant by construction) and in
+   =scenarios/bench.js= — ONE mechanism, three former shapes converge.
+7. Testament dissolution: authored half (=test.viva.js= — now
+   circuitry-inlined —, =environment/=) moves to =registry/simulation/variant/=
+   (mv script); the moved =test.viva.js= claims =owner: "@simulation"=;
+   derived half (=ledger/= — fork 9, was =system/= —, =mountpoint/=) stays
+   under =testament/=; =.env= hand-edit, =.gitignore= replace,
+   =.env.example= added (tangles below).
+8. System ledger repair (② finding — gate-radius, rows ⑱⑲⑳): the two
+   pre-existing paladin reds land green in the same bracket. =Log= class
+   lands (span sink, =spans.jsonl= + child streams), =locks()= carries
+   =process=, lock vocabulary settles instance-first through the spawn seam
+   (=system.js=/=process.js=/ghost =target.js=/=start.js=/=stop.js=/
+   =spawn.test.js=). =system.test.js= is the spec — unchanged, goes green.
+9. Ledger rename (fork 9, row ㉑): =mv testament/system testament/ledger=,
+   scope key ="system"= → ="ledger"= in =paladin/lifecycle/populate.js=,
+   =VIVA_SYSTEM_MOUNT= → =VIVA_LEDGER_MOUNT= everywhere (ghost
+   =system/init.js= persist+export, trajectory valence, both paladin test
+   files, =testament/.env=, =.env.example=), =scope.ledger= consumers
+   updated (=system/system.js=, ghost =doctor.js=), scope snapshot regens.
+   =System= prototype / =VIVA_SYSTEM_MODE,ROLE= / =viva system= command
+   STAY — the actor and the process keep their names; only the folder and
+   its references rename. (=system.test.js='s "unchanged" in step 8 now
+   reads: unchanged EXCEPT this mechanical env-key + scope-key rename.)
+
+**** ④ TEST — adjust + confirm integration tier
+Update the suites the change requires as part of THIS step (not a separate
+gated milestone): the 5 deep-import rewrites, =scenarios/bench.js= mounts,
+=variant.snapshot= regeneration. Add the coverage the radius flagged as
+missing: =pensieve.test.js=, =vip.test.js=, =registry.count.test.js=
+(BASELINE + 6 — the four self-manifests + 2 wafers; =test.viva.js= LEFT the walk again at fork 10
+now that testament dissolution rides in the same change, and
+=localhost.viva.js= + =multiplayer.viva.js= joining live now that fork 2
+ports them into =@simulation=/=@viva= instead of leaving them dormant.
+NOT +8 — =lock-demo= is POSTPONED, fork 4, not part of this count).
+=vip.test.js= carries both new behaviors: derive-by-default (no
+=package.viva.js= needed) and lock-overrides-derived (a module's own
+=manifest.owner= wins, proven via an in-memory fixture — the real
+=lock-demo.viva.js= file is postponed, the MECHANISM isn't).
+
+#+BEGIN_SRC sh
+cd /Users/finn/vivalence/code/vivalence
+deno task paladin/test
+deno task runtime/test
+#+END_SRC
+Integration-level-2 (not unit-only): a live boot resolving
+=paladin.vip.accio("@education/game/flashcard")= end to end, or the
+=scenarios/bench.js= harness doing the same through =accioMap= — proves the
+package axis holds through the daemon's real resolution path, not just
+=Pensieve= in isolation.
+
+**** ⑤ BLAST — re-confirm the radius
+Re-sweep step ①'s list against the landed state:
+- nothing new silently wired (grep for stray =owner:= / old =@vivalence/game/*=
+  / stray un-swept =@vivalence/{lighthouse,datamap,hallucinator,service}/*=
+  (fork 5) lookups — zero exceptions now, forks 2 and 5 closed the last
+  known ones);
+- =registry/wafers/= holds ONLY =@vivalence/bak/= (SOURCE path, real
+  on-disk name, backup-during-migration, never swept) — no live =variant/=
+  subdir left behind;
+- ghost =clone.js= / =doctor.js= mount calls hold (four-package loop, not the
+  old root mount);
+- =testament/= holds ONLY derived content (=ledger/= — locks/logs/
+  instances.json/registry.json —, =mountpoint/=, =.env=); no =system/= left
+  (fork 9 mv);
+- fresh-clone dry run: =cp .env.example testament/.env=, fill the four paths,
+  boot — proves the tracked variant is suffient without any of beef's local
+  history.
+
+*** MILESTONE 11.1 · IDENTITY — ABSORBED into 11.0 ③
+(the stamp, the manifest read, the killed default, the collapsed tier-mounts)
+
+*** MILESTONE 11.2 · PLURALITY — ABSORBED into 11.0③ (beef killed the two-step)
+beef: *"NO! these must be defined as part of the variant! runtime mounts
+packages into registry via loaded variant. nothing hardcoded!"* There is no
+"four hardcoded, then N declared later" — the fold lands in the SAME bracket
+as everything else. =variant.js= (the =packages= seam — no circuitry
+fallback of any kind, circuitry is gone entirely as of 11.0③),
+=registry/simulation/variant/test.viva.js= (the =packages= declaration),
+=runtime/lifecycle/populate.js= (=paladin.source= + the fold), ghost call
+sites (a DIFFERENT fix — self-discovery, not the variant fold, see below) —
+all ⑨/⑨b/⑨c/⑩ in the blast table, all 11.0③. =variant.snapshot= regenerates
+in the same step (new =packages= field on the resolved shape).
+
+**** source resolution — four styles, tendentially (beef)
+"Packages are by no means defined relative to repo root... absolute paths,
+relative to CLI execution, relative to file name, etc — I want our primitive
+to tendentially support all of them." A bare string stays repo-root-relative
+(today's default, zero breaking change to the already-tangled declaration);
+everything else is additive. Low-hanging fruit — every building block already
+lives in the repo, none of this is new dependency:
+- absolute — =@std/path='s =isAbsolute= (already imported: =snapshot.js=,
+  =nlp/tests/tokenize.test.js=).
+- CLI-cwd-relative (=./=, =../= prefix) — the =INIT_CWD ?? PWD ?? Deno.cwd()=
+  pattern ghost's own =clone.js= already uses for clone targets.
+- file-relative (=\{file: import.meta.url, source: "../sibling"\}= object
+  form) — the =fromFileUrl= + =dirname= pattern =wafer.test.js= already uses,
+  same shape =populate.js= already uses for the =VIVA_REPOSITORY_MOUNT=
+  default (=new URL("../../../", import.meta.url).pathname=).
+- repo-root bare segment — =scope.repository.branch(ref)=, unchanged.
+See tangle below (=paladin.source=, ⑨d + ⑨b/⑨c tangles — landed 11.0③;
+re-homed to =paladin/belt/source.js= per beef's inline comment).
+
+*** MILESTONE 11.3 · FLATTEN — ABSORBED into 11.0 11.0③
+(the split IS the flatten: =registry/<package>/<type-ish>/<slug>=; dirs are
+cosmetic — =find.viva= walks by content)
+
+*** MILESTONE 11.4 · CLEANUP + DOCS
+=scope.registry= keeps (fork 3, resolved — see Forks). =registry/wafers/= is
+fully dissolved in 11.0③ (fork 2, resolved) — nothing left here for either.
+- Dockerfile: point =VIVA_VARIANT_MOUNT= at the now-baked
+  =/viva/repository/registry/simulation/variant= (the image already COPYs
+  =registry/= — the variant rides along for free now).
+- Docs sweep: =registry/.ikiro/claude.md=, tier diagrams, docker-walkthrough.org,
+  nlp README, =.ikiro/world/codemap/paladin.md= (deploy line), stale
+  =registry/(kernels|modes|services)/@vivalence= paths across =.ikiro/=.
+
+** Testing assessment
+
+*** In place
+- =subsystems/paladin/tests/=: =boot.test.js=, =variant.snapshot.test.js= (+
+  generated snapshot), =system.test.js= (② found it 2-red — it is the LEDGER
+  SPEC the ⑱⑲⑳ diffs satisfy, unchanged), =spawn.test.js=. The =test/vip= /
+  =test/pensieve= deno tasks exist but their files sat in =tests/bak/= — 11.0③
+  fills both names.
+- =systems/runtime/tests/=: bench/mode suites (deep-import paths — rewritten
+  11.0③), scenarios (=bench.js= mounts — rewritten 11.0③), daemon/integration
+  suites exercise =accio= indirectly.
+- *GAP paid at 11.0③*: pensieve/vip owner-axis had ZERO direct coverage.
+
+*** Changes
+| test | why | when |
+|------+-----+------|
+| =scenarios/bench.js= mounts | tier-branches → package mounts | 11.0③ |
+| =bench/smoke.test.js= | lookups → =@education/*= + import paths | 11.0③ |
+| =mode/*.test.js= ×3, =scenarios/variant.js= | import path rewrite | 11.0③ |
+| =variant.snapshot.{test.js,json}= | the new =packages= field (fork 7: no key rename — =owner= stays), one regen | 11.0③ |
+| =paladin/tests/spawn.test.js= | flips to instance-first lock vocabulary (⑳, ledger) | 11.0③ |
+| =registry.count.test.js= | asserts BASELINE + 6 (4 self-manifests + 2 wafers; variant in testament per fork 10 — NOT lock-demo, postponed) | 11.0③ |
+| =systems/ghost/tests/wafer.test.js= | =LOCALHOST_WAFER= path (fork 2 move); ② found it ALREADY RED (ghost WIP, =ctx.view.scroll=) — gate is "no NEW failure mode" | 11.0③ |
+
+*** Adds
+=pensieve.test.js= · =vip.test.js= (derive-by-default + lock-override cases,
+lock proven via in-memory fixture not the postponed real file) ·
+=registry.count.test.js= · =source.test.js= (⑨d, one case per resolution
+style) · =log.js= coverage rides =system.test.js= (the spec, already
+written; gains a =System.registry= describe — seed writes absolute
+locations, read round-trips) — all tangled above. Also 11.0③ (fork 8):
+=vip.test.js='s "not supplied ≠ Module 404" case + post-boot
+=accio("@education/game/flashcard")= smoke via =registry.count.test.js=,
+proving =vip.supply()= (ledger record → =paladin.source= → mount) resolves
+through =Vip=/=Pensieve= end to end.
+=registry/simulation/scenario/lock-demo.viva.js= POSTPONED (fork 4),
+reference only, not tangled.
+
+*** Green ladder
+| bracket step / milestone | gate |
+|---------------------------+------|
+| 11.0 ② (blast → test, baseline) | CAPTURED this session — BASELINE=38; greens/reds recorded in the ② CAPTURED block (typology+kajuit green; paladin/runtime/ghost carry pre-existing reds) |
+| 11.0 ③→④ (change → test) | new units green; full =paladin/test= + =runtime/test= green — INCLUDING =system.test.js='s two ② reds (ledger ⑱⑲⑳ lands in the same bracket); live boot resolves every daemon mode via the REAL ledger supply (=registry.json= seeded then read — fork 8, nothing hardcoded); fresh-clone dry-run boots |
+| 11.0 ⑤ (blast, re-confirm) | radius re-swept clean — no stray old-style lookups, wafers/ holds ONLY bak/, ghost mounts hold (self-discovery, not a hardcoded list) |
+| 11.4 | ghost + Docker boot; docs swept |
+
+** Changelog
+- 2026-07-01 :: Design captured. owner=package + supply/demand + variant-declares/
+  ledger-pins locked. Sanity-cut to in-tree. deno-resolution proven a non-issue.
+  Five milestones, tangleable.
+- 2026-07-02 :: SETTLEMENT pass (beef): four packages named — vivalence ·
+  education · playground · simulation. =owner= RENAMED =package= (manifest field,
+  pensieve axis, cast/is.lookup) — reserved-word convention: keys =package=,
+  bindings =packageName=. Reference re-homing swept (=@education/*=,
+  =@playground/*=; platform stays =@vivalence/*=). Testament dissolves to the
+  machine run surface (gitignore = authored/derived line); authored variant moves
+  to =registry/simulation/variant/=; fresh-clone testing unblocked via tracked
+  variant + =.env.example=. M11.0 rebuilt as three green rungs, fully tangled;
+  11.1 + 11.3 ABSORBED into it; 11.2/11.4 re-pathed.
+- 2026-07-02 :: SHAPE correction (beef): *"Consider this not as a atomic step
+  by step microprocess, but as a blast change where we define an outside
+  radius … run the tests … apply the change … adjust the tests, check
+  integration level two … check that the blast radius also checks out."*
+  M11.0's three "rungs" collapsed into ONE =blast-bracket= (① blast the radius
+  ② test baseline ③ land the whole change, no internal gates ④ test + adjust
+  + confirm integration tier ⑤ re-blast the radius) — matches
+  =self/rituals.md='s standing =blast. test. change. test. blast.= ritual
+  verbatim. All prior tangle content kept; only the milestone framing and the
+  count-test's staged +4/+5 comments (now a single BASELINE+5 assertion) changed.
+- 2026-07-02 :: DERIVE-BY-DEFAULT addendum (beef): *"the package source ought
+  now be derived withitn paladin/vip/pensieve scope … we dont need every mode
+  to export manifest package. we can if we want to lock it. but neednt by
+  defualt. one package maybe within a testing scenario to test the lock case
+  and functions as a docs/demo."* =vip.mount= now derives =package= from the
+  branch name (=registry/vivalence= → =@vivalence=) instead of requiring
+  =package.viva.js= to author it; a =package.viva.js= or any module MAY still
+  self-declare =manifest.package= to LOCK an explicit identity, overriding the
+  derived stamp. The four self-manifests drop their (now redundant)
+  =package:= field. New fixture =registry/simulation/scenario/lock-demo/=
+  demonstrates + regression-tests the module-level lock (mounted under
+  =@simulation=, locks to =@vivalence=). =registry.count.test.js= moves to
+  BASELINE + 6. =vip.test.js= gains derive + lock coverage. Fork 2
+  (=registry/wafers/=) noted as cheaper to resolve under this model but left
+  open, unconfirmed this pass.
+- 2026-07-02 :: FORK 1 RESOLVED — package rename, not mode-type rename
+  (beef): *"maybe we rename playground package into development or
+  playground mode type into layout emitters. Now let's, uh, rename the
+  package into development."* =@playground= → =@development= throughout;
+  mode type stays =playground= (no =variant.modes[type]= tiered-registries
+  touch). =registry/playground/= → =registry/development/= (new =mv= line in
+  the tree-split script, no longer "leave alone"). Ripples: package table,
+  shape diagram, blast table ⑦, radius bullet, package.viva.js tangle +
+  path, populate.js/ghost mount arrays, bench.js prose, sweep script +
+  perl target (=@vivalence/playground/= → =@development/playground/=),
+  pensieve.test.js collision example, 11.2 =packages= list. Historical
+  quotes/changelog entries left as accurate-at-the-time; pre-change baseline
+  capture script (② TEST) still mounts old =registry/playground= — it
+  measures TODAY's disk, not the renamed one.
+- 2026-07-02 :: FORKS 2 + 3 RESOLVED, ontology law 9 written (beef): *"To
+  prohibit off the wall at the blast radius we want our system to be always
+  self coherent. That is part of the ontology of ikiro."* → =[[ontology]]=
+  law 9 ("self-coherence, proven at the blast radius"). beef then: *"confirm
+  fork 2. fork 2 is resolvable given the new rule i declared above retard."* /
+  *"confirm fork 2. fork 3 is resolvable given the new rule i declared above
+  retard."* (callout logged — law 9 written but not swept against these two
+  open forks in the same turn). Fork 2: wafers PORTED, not left dormant —
+  =multiplayer= (production, docker-compose) → =registry/vivalence/variant/=;
+  =localhost= (dev/test, the real =ghost/tests/wafer.test.js= install source)
+  → =registry/simulation/variant/=, sibling to =test.viva.js=; stale
+  =owner: "@vivalence"= dropped from localhost (derives =@simulation=); both
+  join the sweep + the mv script; =wafer.test.js='s =LOCALHOST_WAFER= path
+  fixed; =registry.count.test.js= → BASELINE + 8. Fork 3: premise was
+  ungrounded — =scope.registry= is the base every package branches from,
+  local AND Docker, never vestigial; only the un-branched root-mount usage
+  (ghost, already fixed in ③) was ever incoherent. 11.4 shrinks to Dockerfile
+  variant mount + docs.
+- 2026-07-02 :: 11.2 grounding fixes (beef, two corrections, both to the
+  still-deferred plurality milestone): (1) *"circuitry doesnt export
+  packages."* — checked live, =testament/variant/circuitry.js= exports only
+  =daemons=/=services=; the =variant.js= diff's =cake.circuitry?.packages=
+  fallback was a false analogy (packages = supply, circuitry = demand/wiring,
+  different axis) — dropped, =variant.packages = (cake.packages ?? []).map(hydrate)=.
+  (2) *"packages are by no means defined relative to repo root... absolute
+  paths, relative to cli execution, relative to file name, etc... I want our
+  primitive to tendentially support all of them. check what low hanging
+  fruits we have."* Audited existing precedent (none new needed): =@std/path=
+  =isAbsolute=/=resolve= (already used in =snapshot.js=, =nlp/tests/tokenize.test.js=),
+  the =INIT_CWD ?? PWD ?? Deno.cwd()= pattern (=ghost/clone.js=), the
+  =fromFileUrl=+=dirname= file-relative pattern (=wafer.test.js=,
+  =populate.js='s own =VIVA_REPOSITORY_MOUNT= default). Composed into
+  =resolveSource()= in the 11.2 loader diff: bare segment stays
+  repo-root-relative (unchanged default, zero breakage), absolute/=./=-=../=-cwd/
+  =\{file,source\}=-file-relative all additive. =test.viva.js='s =packages=
+  declaration gains an illustrative commented example of the file-relative form.
+- 2026-07-02 :: CIRCUITRY TERMINOLOGY KILLED (beef): *"let's lose the
+  circuitry terminology entirely. Our variant modules don't export any
+  circuitry. Paladin doesn't handle circuitry. They just export runtime
+  services daemons, such stuff."* No more =export * as circuitry from
+  "./circuitry.js"=, no more =cake.circuitry?.X= merge in =variant.js='s
+  =resolve()=. Two live files carried the pattern, both inlined not co-moved:
+  =testament/variant/circuitry.js= (daemons: brazilian+playground) →
+  =test.viva.js=; =registry/wafers/.../multiplayer/circuitry.js= (daemons:
+  brazilian) → =multiplayer.viva.js= — discovering multiplayer's OWN
+  circuitry.js was itself a find: fork 2's earlier pass had wrongly called
+  multiplayer "no daemons, platform-lookup-only" because the daemon was
+  hiding behind this exact indirection; now caught, added to the lookup
+  sweep. =localhost.viva.js= never had circuitry.js — untouched. New SH
+  block (=tail -n +3= + drop the re-export line + =rm=) runs before the
+  sweep so inlined content gets swept too. New blast-table row ⑪b + DIFF for
+  =variant.js= (=daemons=/=services= lose =cake.circuitry?.X=, not just
+  =packages= — that fallback was already dead per the prior round). Content
+  drift surfaced, not reconciled: multiplayer's brazilian daemon lacks
+  =riddler=/=nyan=, has =tactic/*=+=dashboard/dataspace= uncommented where
+  testament's has them commented — inlining preserves both as-is.
+  =v.primitives.circuitry.Package= (an 11.0-Deferred idea, never built)
+  renamed to =v.primitives.variant.Package= — =circuitry.\{Daemon,Service,ModuleSpec\}=
+  schema classes stay, out of scope (typology schematics HOLY; beef's ask
+  was the variant FILE layer, not the schema layer). =/metadata/circuitry=
+  (runtime aperture endpoint) and =scope.circuitry= (dead, commented) also
+  out of scope — different concepts, not touched.
+- 2026-07-02 :: beef's inline @-comments reconciled, 9 of them, after
+  flagging one as possibly jumbled by an interrupted edit. RECOVERED: the
+  tree-split =mv= script had every line double/single-commented into a
+  no-op (traced to a uniform accidental =  # = prepend over an
+  already-partially-commented block) — rebuilt from first principles,
+  cross-checked against every downstream claim depending on it (fork 2's
+  wafer-move description, the ⑤ BLAST bullet, fork 3's =bak/= survival).
+  RESOLVED: =packageName= → =pkg= throughout (beef: *"i hat these
+  intermediary variables"*); confirmed the =package=/=owner= reserved-word
+  conflict is narrow (bare-identifier bindings only, already solved) — no
+  revert needed. RESTRUCTURED: 11.2 (PLURALITY) fully ABSORBED into 11.0③ —
+  beef rejected even a temporary hardcoded-array stepping stone (*"NO!
+  these must be defined as part of the variant! nothing hardcoded!"*); the
+  loader's =resolveSource= fold, =variant.js='s =packages= seam, and
+  =test.viva.js='s =packages= declaration all land in ONE change now (⑨/⑨b/⑨c).
+  Ghost's =clone.js=/=doctor.js= got a DIFFERENT fix than "same fold" — the
+  =variant.packages= fold isn't available pre-variant-selection (chicken-
+  and-egg), so ghost self-discovers by listing =scope.registry='s immediate
+  children instead (zero-hardcode, matches ghost's own existing raw-=Deno.readDir=
+  style). =bench.js= got a scenario-local named array (not the runtime fold,
+  not bare inline calls either) — and beef's *"only need @viva and
+  @simulation"* hypothesis checked FALSE against what bench actually accios
+  (domain/game live under =@education=, =@simulation= wouldn't help).
+  POSTPONED: =lock-demo.viva.js= (fork 4) — real fixture file pulled from
+  the active tangle and =registry.count.test.js= math (BASELINE+8 → +7); the
+  LOCK mechanism itself stays proven via an in-memory =vip.test.js= case.
+  OPENED, not executed: fork 5 (=vivalence=→=viva= package rename — large
+  ripple, every "stays @vivalence/*, unswept" claim would need a second
+  sweep) and fork 6 (the "cake" naming — used pervasively outside M11's own
+  radius, candidates proposed: =crate=/=parcel=/=declaration=, none applied).
+  ADDED: a complete, unfolded blast-radius file tree (beef: *"no inlining or
+  folding"*) under Meta, listing every individual touched path instead of
+  the blast table's brace-expansions and ×N counts.
+- 2026-07-02 :: FORK 5 CLOSED (beef): *"go on @viva instead of @vivalence -
+  close the fork."* =@vivalence= → =@viva= swept everywhere the design
+  touches: package table, locked-design prose, shape diagram, all four
+  forks' cross-references, blast table, the four =package.viva.js=
+  manifests (path + slug), the tree-split mv's destinations
+  (=registry/viva/=, not =registry/vivalence/=), the circuitry-inline
+  script's post-move paths, =bench.js='s =BENCH_PACKAGES=,
+  =test.viva.js='s =packages= declaration, every test fixture using
+  =@vivalence= as an illustrative package. NEW: a platform-lookup sweep
+  (=@vivalence/\{lighthouse,datamap,hallucinator,service\}/*= → =@viva/$1/=)
+  — previously the ONE thing marked "stays @vivalence/*, unswept"; fork 5
+  closes that carve-out too. NOT touched, confirmed different namespace:
+  import specifiers (=from "@vivalence/typology"=, =from "@vivalence/paladin"=
+  — Deno workspace member names, a =deno.jsonc= edit, out of scope) and every
+  SOURCE-side reference to what's literally on disk today (=registry/wafers/@vivalence/=,
+  =registry/services/@vivalence/= etc. — pre-existing paths we mv FROM, not
+  something we authored) and beef's own verbatim quotes (voice is data,
+  never edited). The blast-radius tree got rebuilt in the same pass per a
+  live formatting correction (two rounds — see the tree section's own
+  header) into two flat, semantically-clustered trees instead of one deep
+  mixed-semantics one.
+
+- 2026-07-02 :: ② BASELINE CAPTURED (beef: *"load up m11 packages and run our
+  first blast testing"*). =BASELINE = 38= pasted into the count-test tangle.
+  Full record in the ② CAPTURED block under milestone 11.0: typology + kajuit
+  GREEN; paladin 2 pre-existing reds (System.lock/System.log, outside radius);
+  runtime 1 red (integration expects =game/{exhibit,pick,match}= — beef
+  commented them out of circuitry; ④ adjusts expectations); ghost wholly red
+  (shell→ghost WIP — =wafer.test.js='s ④ gate downgraded to "no NEW failure
+  mode"). Snapshots re-cast both perspectives (paladin variant+scope, runtime
+  aperture+daemon set). Live: runtime :2501 ALIVE auth-gated, kajuit :1794
+  login gate renders, console clean. Fossil tests (dead imports) mapped:
+  4 ghost + 8 kajuit files.
+- 2026-07-02 :: FORK 7 — =owner= key RESTORED (beef: *"i dont like the
+  package name here: package: pkg … maybe owner was the better name. module
+  type is package. but the key on manifest i think makes sense as
+  'owner'."*). Caught before landing; pure shrink: blast rows ③④⑤⑥ dropped
+  (manifest.js/cast/is/schematics all untouched — the typology half of the
+  bracket vanishes), pensieve's change collapses to default→throw, vip
+  stamps =owner=, every =pkg= binding and the whole reserved-word convention
+  die unborn. Same pass: =resolveSource= re-homed to =paladin.source=
+  (=belt/source.js= + installer registration + NEW =source.test.js=, ⑨d —
+  beef's inline *"move this to paladin"* comment reconciled; typology
+  rejected structurally, not aesthetically: =index.client.js= ships to
+  browsers and =Deno.env=/=Deno.cwd= have no client-safe form). Two orphaned
+  changelog entries found dangling at EOF (past the tangle) and spliced back
+  into order here. SYSTEM LEDGER folded in (rows ⑱⑲⑳, ③ step 8): the two ②
+  paladin reds are gate-radius — =Log= lands as the span sink (ghost
+  =mod.js:21='s own breadcrumb anticipated it: =pipe.tap(span=> …
+  paladin.system.log())=; =Span.json= is the jsonl line format), lock
+  vocabulary settles instance-first (=system.test.js= IS the spec,
+  unchanged; =spawn.test.js= and the ghost spawn seam flip to match).
+- 2026-07-02 :: FORK 8 — supply moves to SYSTEM level (beef: *"design boo
+  boo … the source of packages should actually be the system ledger …
+  variant should not declare its packages … Pensive should rather throw"*;
+  connoisseur pass CONCURRED — the design's own supply/demand pair was
+  being violated by =variant.packages=). Two beef refinements landed in the
+  same pass: =registry.json= NOW, not deferred (*"the ledger path … now
+  further contains a registry.json containing a record of package
+  locations"* + correction *"a log directory and a lock directory"*), and
+  FORK 9 — =testament/system= → =testament/ledger= (=VIVA_LEDGER_MOUNT=,
+  scope key ="ledger"=; =System= prototype / =VIVA_SYSTEM_MODE,ROLE= /
+  =viva system= command STAY — the actor keeps its name).
+  Net: ⑨b/⑨c DIED (variant demand-only; =variant.snapshot= never grows
+  =packages=); =vip.supply()= = read =registry.json= ?? seed-by-discovery →
+  mount each location via =paladin.source= (⑨d parked for exactly one turn,
+  unparked by its real consumer); =Registry= record class (⑨e) beside
+  =Instances=; runtime/ghost/bench converge on ONE supply call (ghost's
+  chicken-and-egg dissolved by construction — the ledger is pre-variant,
+  beef's *"same!"* comes true one round late); =vip.accio= distinguishes
+  "package not supplied" from "Module 404"; flake.nix analogy retired for
+  pip/site-packages/cellar. Fork numbering note: 8/9 were appended after
+  fork 7 was already cross-referenced everywhere — numbering is
+  append-order, not decision-order.
+
+- 2026-07-02 :: ③④⑤ BLASTED — the bracket LANDED, all suites green
+  (paladin 11 · runtime 26/172 steps · typology 104 · kajuit 8; ghost keeps
+  its pre-existing WIP reds, no NEW failure mode — gate held). Deviations
+  from the tangled plan, each caught live: (1) quest tangles carried
+  =CHANGE START/END= markers into live files — stripped post-tangle;
+  (2) =belt.source(this)= missing from the =Paladin= constructor (the quest
+  only registered the barrel; installers run in the constructor);
+  (3) =mv registry/playground registry/development= would have NESTED (the
+  tangle had already created =development/= with its package.viva.js) —
+  content-move instead; (4) secrets.jsonc values folded into
+  =testament/.env= mechanically via a deno one-liner (values never passed
+  through the assistant's output) before the rm — .env had NO SECRET lines,
+  cold delete = silently dead hallucinators; (5) circuitry-inline produced
+  DUPLICATE =export const services= in test.viva.js (pre-inline they merged
+  in variant.js) — arrays merged by hand; (6) the dissolution left TWO
+  variant cakes under the variant mount (test.viva.js + localhost/) —
+  =variant.mount= throws on ≠1 — resolved first as =variant/test/=, then
+  fork 10 moved the live variant to =testament/= entirely; (7) REAL BUG
+  found and proven: =Signature.branch= links the child into the parent's
+  fin chain — =root.branch(x)= GROWS =root.absolute= (slurp semantics) —
+  =vip.mount= switched to string composition, typology untouched (HOLY);
+  (8) the sweep's lookup pass ran before the deep-import pass and rewrote
+  =@vivalence= inside file PATHS (=registry/kernels/@education/...=) —
+  repaired with a second perl pass; (9) fork 11 landed mid-blast (no magic
+  filename); (10) fork 10 landed mid-blast (variant → testament,
+  decomposed daemons, FULL mode sets — integration's exhibit/pick/match/
+  cloze describes un-commented and now GREEN against the live runtime).
+  CIRCUITRY fully eradicated on beef's call (*"Shouldn't exist anymore"*):
+  schematics =primitives/circuitry.js= merged into =primitives/variant.js=
+  (Daemon/Service/ModuleSpec now variant exports), barrel line dropped,
+  =v.primitives.circuitry.*= → =v.primitives.variant.*= in paladin
+  validate, runtime =/metadata/circuitry= → =/metadata/variant=, dead
+  commented lines deleted (scope.js/integrate.js/mask.js). Live state:
+  runtime :2501 ALIVE (education daemon = 17 modes incl. tactics+dataspace,
+  playground = 6), kajuit :1794 serving 200, ledger seeded
+  (=testament/ledger/registry.json=), chrome check degraded to HTTP-level
+  (extension lost host permission mid-session).
+- 2026-07-02 :: POST-BLAST settle — simulation CUT (beef: *"cut simulation
+  for now"*): =registry/simulation= deleted, ledger =registry.json= deleted
+  to self-reseed ={development, education, viva}=, localhost re-homed to
+  =registry/viva/variant=, count test → BASELINE + 5, green. The last live
+  =@simulation= string — =test.viva.js= =manifest.owner= — carried as an
+  "awaiting beef" question through two compacts; beef retard-called it
+  (*"compacts should clear dangling tangles like this if there is a clear
+  cut rule that applies! like no loose ends"*) — field DROPPED (dead
+  reference, zero consumers, =owner= optional in manifest schema; the
+  testament variant never enters the pensieve), paladin 11 green.
+  Remaining =@simulation= strings are synthetic fixture names in
+  =vip.test.js= stubs — not references to the dead package. Settlement rule
+  logged in zettelkasten Callouts: compacts FIX rule-decided loose ends in
+  the compact turn; only genuinely underdetermined decisions survive into
+  Resumption.
+
+* Tangle
+
+Convention: NEW files and fully-replaced small files carry =:tangle= (relative
+to =.ikiro/quests/= → =../../=). Surgical edits inside large files are =diff= /
+=sh= hunks — apply by hand, do not tangle.
+
+** the four package manifests (NEW · 11.0③)
+=find.viva= walks each and self-registers it (=@viva/package/viva= …)
+— harmless, introspectable (=pensieve.byType("package")= lists the supply).
+No =owner:= field — identity derives from the mount path
+(=registry/viva= → =@viva=, fork 5); a =package.viva.js= MAY declare
+=owner:= to lock (fork 7: the key is =owner=, the TYPE is =package=).
+
+#+BEGIN_SRC javascript :tangle ../../registry/viva/package.viva.js :mkdirp yes
+export const manifest = {
+  type: "package",
+  slug: "viva", // fork 5, RESOLVED — beef: "go on @viva instead of @vivalence"
+  version: "0.0.1",
+};
+#+END_SRC
+
+#+BEGIN_SRC javascript :tangle ../../registry/education/package.viva.js :mkdirp yes
+export const manifest = {
+  type: "package",
+  slug: "education",
+  version: "0.0.1",
+};
+#+END_SRC
+
+#+BEGIN_SRC javascript :tangle ../../registry/development/package.viva.js :mkdirp yes
+export const manifest = {
+  type: "package",
+  slug: "development", 
+  version: "0.0.1",
+};
+#+END_SRC
+
+#+BEGIN_SRC javascript :tangle ../../registry/simulation/package.viva.js :mkdirp yes
+export const manifest = {
+  type: "package",
+  slug: "simulation",
+  version: "0.0.1",
+};
+#+END_SRC
+
+# ** =registry/simulation/scenario/lock-demo.viva.js= — the LOCK fixture — POSTPONED (beef, fork 4)
+# beef: *"i am not sure about this specific settlement yet. ignore this for
+# scenario/lock demo for now. mark it as forked and keep the tangle clean!"*
+# Design intent unchanged (lives inside =@simulation='s mount but self-declares
+# =manifest.owner= (fork 7) — proves + documents the module-level LOCK override) —
+# NOT tangled, NOT counted in =registry.count.test.js=, NOT part of 11.0③'s
+# active scope. See fork 4. Reference only, no =:tangle= directive:
+
+# #+BEGIN_SRC javascript
+# // demo + regression fixture for the module-level package LOCK. POSTPONED.
+# // physically mounted under @simulation; explicitly claims @viva (fork 5
+# // resolved this half; still parked on path/scenario placement, fork 4).
+# export const manifest = {
+#   owner: "@viva", // fork 7: the lock key is owner
+#   type: "fixture",
+#   slug: "lock-demo",
+#   version: "0.0.1",
+# };
+# #+END_SRC
+
+
+** =subsystems/paladin/prototypes/vip.js= — supply/demand made literal (11.0③)
+Three changes now (fork 8 added two): =mount= derives owner + modules may
+lock; =supply= lands (the ONE system-level discovery — runtime, ghost,
+bench all call it); =accio= gains the demand-side throw ("package not
+supplied" ≠ "Module 404" — policy lives HERE, =pensieve.revelio= stays a
+pure descent, canon #5). =list=/=accioMany=/=accioMap=/=toJSON= unchanged
+from live — verbatim, re-read this turn to confirm, not assumed.
+
+The live file today (full, for comparison — only =mount= changes):
+#+BEGIN_SRC javascript
+import { is, cast, Path } from "@vivalence/typology";
+import { Pensieve } from "./pensieve.js";
+
+export class Vip {
+  constructor(paladin) {
+    this.paladin = paladin;
+    this.pensieve = new Pensieve();
+  }
+
+  async mount(mount) {
+    const paths = await this.paladin.find.viva(mount);
+    for await (const path of paths) {
+      const cake = await this.paladin.read.viva(path);
+      this.pensieve.register({ ...cake, mount: new Path(path) });
+    }
+
+    return this;
+  }
+  async list(query = {}) {
+    return this.pensieve.byType(query.type);
+  }
+  // accio / accioMany / accioMap / toJSON below — identical in both, omitted here
+}
+#+END_SRC
+
+The full replacement — =// === CHANGE START/END ===​= brackets the only part
+that differs from the live file above (=mount='s body; the param rename
+=mount=→=root= is itself part of the change, old body used =mount= for both
+the param and the loop variable name, confusingly):
+#+BEGIN_SRC javascript :tangle ../../subsystems/paladin/prototypes/vip.js :mkdirp yes
+import { is, cast, Path } from "@vivalence/typology";
+import { Pensieve } from "./pensieve.js";
+
+export class Vip {
+  constructor(paladin) {
+    this.paladin = paladin;
+    this.pensieve = new Pensieve();
+  }
+
+  // === CHANGE START — was: async mount(mount) { paths = find.viva(mount); register({...cake, mount: new Path(path)}) } ===
+  async mount(root) {
+    // default: the owner derives from the mount scope itself — no
+    // package.viva.js required. A package.viva.js MAY still self-declare
+    // manifest.owner to LOCK an explicit identity (overrides the derived one).
+    const derived = `@${root.absolute.split("/").filter(Boolean).at(-1)}`;
+    const declaration = await this.paladin.read.viva(root.branch("package.viva.js")).catch(() => null);
+    const owner = declaration?.manifest?.owner ?? derived;
+
+    const paths = await this.paladin.find.viva(root);
+    for await (const path of paths) {
+      const cake = await this.paladin.read.viva(path); // "cake" naming — fork 6, unresolved this pass, see Forks
+      // stamp on a COPY — read.viva returns the live module namespace; don't mutate the import.
+      // by default a module inherits the mount's stamp; a module MAY self-declare
+      // its own manifest.owner to LOCK it, overriding the mount-derived default.
+      this.pensieve.register({
+        ...cake,
+        manifest: { ...cake.manifest, owner: cake.manifest?.owner ?? owner },
+        mount: new Path(path),
+      });
+    }
+
+    return this;
+  }
+  // === CHANGE END ===
+
+  // === CHANGE START — NEW (fork 8, beef refinement): supply = the ledger's registry record ===
+  // testament/ledger/registry.json is the record of package locations. Absent →
+  // seeded by discovery over scope.registry (self-priming, no init ceremony).
+  // Locations resolve through paladin.source — absolute, ./cwd, {file,source}, bare segment.
+  async supply() {
+    await this.paladin.system.mount(); // fn.once — self-priming, no boot-order landmine
+    const locations = await this.paladin.system.registry.read()
+      ?? await this.paladin.system.registry.seed(this.paladin.scope.registry);
+    for (const location of locations) await this.mount(this.paladin.source(location));
+    return this;
+  }
+  // === CHANGE END ===
+
+  async list(query = {}) {
+    return this.pensieve.byType(query.type);
+  }
+
+  // === CHANGE START — was: accio threw one undifferentiated Module 404 ===
+  async accio(query) {
+    const lookup = cast.lookup(query);
+    if (!this.pensieve.has(lookup.owner))
+      throw new Error(`[VIP] package ${lookup.owner} not supplied on this system`);
+    const module = await this.pensieve.revelio(lookup);
+    if (module) return module;
+    throw new Error(`[VIP] Module 404: ${JSON.stringify({ lookup })}`);
+  }
+  // === CHANGE END ===
+
+  async accioMany(many) {
+    return await Promise.all(many.map(async (query) => {
+      if (typeof query === "object" && query !== null && typeof query.module === "string") {
+        return { service: await this.accio(query.module), mask: query };
+      }
+      return await this.accio(query);
+    }));
+  }
+
+  async accioMap(many) {
+    const accioedModules = await Promise.all(
+      Object.entries(many).map(async ([slug, query]) => {
+        if (!query) return null;
+        if (typeof query === "string") {
+          return [slug, await this.accio(query)];
+        } else if (typeof query.module === "string") {
+          return [slug, await this.accio(query.module)];
+        } else if (is.array(query)) {
+          return [slug, await this.accioMany(query)];
+        } else if (is.object(query)) {
+          return [slug, await this.accioMap(query)];
+        }
+      }),
+    );
+    const filteredModule = Object.fromEntries(
+      accioedModules.filter((entry) => entry !== null),
+    );
+    return filteredModule;
+  }
+
+  toJSON() {
+    return { pensive: this.pensieve };
+  }
+}
+#+END_SRC
+
+** =subsystems/paladin/prototypes/pensieve.js= — owner axis, no default (11.0③)
+Fork 7 shrank this file's change to ONE thing: the =@vivalence= default dies
+(=owner= is supplied by =vip.mount= — derived from scope, or locked by
+self-declaration — never defaulted here). The axis, =revelio=, =byType= all
+already speak =owner= and stay byte-identical to live; the earlier
+package-rename + optional-chaining rewrite was churn riding the rename, cut
+with it.
+
+The live file today (full, re-read this turn — NOT the shape assumed
+earlier; the real default was =cake.manifest.owner = "@vivalence"= set
+BEFORE constructing =Manifest=, plus dead/commented lines this tangle also
+drops):
+#+BEGIN_SRC javascript
+// import {once, fn:{once}} from "@vivalence/belt";
+// import {once, fn:{once}} from "@vivalence/typology/belt";
+import * as semver from "@std/semver";
+import { Manifest } from "./manifest.js";
+// // vectorizable af.
+
+export class Pensieve extends Map {
+  register(cake) {
+    //todo: cast module
+    // cast cake.manifest
+    if (!cake || !cake.manifest) console.log("no manifest", cake);
+    if (!cake.manifest.owner) cake.manifest.owner = "@vivalence";
+    cake.manifest = new Manifest(cake.manifest);
+    const { owner, type, slug, version } = cake.manifest;
+    // console.log(cake.manifest.identifier);
+
+    if (!this.has(owner)) this.set(owner, new Map());
+    const ownerMap = this.get(owner);
+
+    if (!ownerMap.has(type)) ownerMap.set(type, new Map());
+    const typeMap = ownerMap.get(type);
+
+    if (!typeMap.has(slug)) typeMap.set(slug, new Map());
+    const slugMap = typeMap.get(slug);
+
+    slugMap.set(version, cake);
+    return this;
+  }
+
+  async revelio({ owner, type, slug, version }) {
+    const ownerMap = this.get(owner);
+    if (!ownerMap) return null;
+    const typeMap = ownerMap.get(type);
+    if (!typeMap) return null;
+    const slugMap = typeMap.get(slug);
+    if (!slugMap) return null;
+    if (!version) return this.latest(slugMap);
+    const versions = Array.from(slugMap.keys());
+    const matchingVersion = versions.find((v) => semver.satisfies(v, version));
+    return matchingVersion ? slugMap.get(matchingVersion) : null;
+  }
+
+  latest(slugMap) { /* IDENTICAL below — omitted here */ }
+
+  byType(type) {
+    const out = [];
+    for (const ownerMap of this.values())
+      for (const slugMap of ownerMap.get(type)?.values() ?? []) out.push(this.latest(slugMap));
+    return out;
+  }
+}
+#+END_SRC
+
+The full replacement — ONE =CHANGE= bracket (=register='s default →
+throw); =revelio=/=latest=/=byType= verbatim from live; the dead/commented
+import lines and inline =//todo= comments are the only other drops:
+#+BEGIN_SRC javascript :tangle ../../subsystems/paladin/prototypes/pensieve.js :mkdirp yes
+import * as semver from "@std/semver";
+import { Manifest } from "./manifest.js";
+
+export class Pensieve extends Map {
+  register(cake) {
+    if (!cake || !cake.manifest) console.log("no manifest", cake);
+    // === CHANGE START — was: if (!cake.manifest.owner) cake.manifest.owner = "@vivalence"; ===
+    // owner is supplied by vip.mount (derived from scope, or locked) — never defaulted here.
+    if (!cake.manifest.owner)
+      throw new Error(`[Pensieve] register: no owner (mount must stamp) — undefined/${cake.manifest.type}/${cake.manifest.slug}`);
+    // === CHANGE END ===
+    cake.manifest = new Manifest(cake.manifest);
+    const { owner, type, slug, version } = cake.manifest;
+
+    if (!this.has(owner)) this.set(owner, new Map());
+    const ownerMap = this.get(owner);
+
+    if (!ownerMap.has(type)) ownerMap.set(type, new Map());
+    const typeMap = ownerMap.get(type);
+
+    if (!typeMap.has(slug)) typeMap.set(slug, new Map());
+    const slugMap = typeMap.get(slug);
+
+    slugMap.set(version, cake);
+    return this;
+  }
+
+  async revelio({ owner, type, slug, version }) {
+    const ownerMap = this.get(owner);
+    if (!ownerMap) return null;
+    const typeMap = ownerMap.get(type);
+    if (!typeMap) return null;
+    const slugMap = typeMap.get(slug);
+    if (!slugMap) return null;
+    if (!version) return this.latest(slugMap);
+    const versions = Array.from(slugMap.keys());
+    const matchingVersion = versions.find((v) => semver.satisfies(v, version));
+    return matchingVersion ? slugMap.get(matchingVersion) : null;
+  }
+
+  latest(slugMap) {
+    const [top] = Array.from(slugMap.keys())
+      .sort((a, b) => semver.compare(semver.parse(a), semver.parse(b)))
+      .reverse();
+    return slugMap.get(top);
+  }
+
+  byType(type) {
+    const out = [];
+    for (const ownerMap of this.values())
+      for (const slugMap of ownerMap.get(type)?.values() ?? []) out.push(this.latest(slugMap));
+    return out;
+  }
+}
+#+END_SRC
+
+** ③④⑤⑥ — DROPPED (fork 7: the key stays =owner=)
+=manifest.js= (=identifier= already reads =this.owner=), =cast/primitives.js=
+(=cast.lookup= already destructures =owner=), =is/primitives.js= (already
+checks =thing.owner=), =schematics/primitives/manifest.js= (already
+=owner: v.string().optional()=) — all four were pure key-renames, all four
+are now UNTOUCHED. The typology half of the bracket vanishes entirely
+(typology HOLY — the best edit is none).
+
+
+** =systems/runtime/lifecycle/populate.js= — loader (DIFF · 11.0③)
+beef killed the two-step (*"NO! these must be defined as part of the
+variant! runtime mounts packages into registry via loaded variant. nothing
+hardcoded! maybe @viva hardcoded but not on runtime level."*) — then fork 8
+superseded the variant-fold half: supply is SYSTEM-level, the loader calls
+the one supply mechanism. Still nothing hardcoded — the registry's own
+children ARE the data:
+
+#+BEGIN_SRC diff
+   export async function registry(runtimeDie) {
+  -  await paladin.vip.mount(paladin.scope.registry.branch("kernels"));
+  -  await paladin.vip.mount(paladin.scope.registry.branch("modes"));
+  -  await paladin.vip.mount(paladin.scope.registry.branch("services"));
+  -  await paladin.vip.mount(paladin.scope.registry.branch("playground"));
+  +  await paladin.vip.supply();
+   }
+#+END_SRC
+
+** =subsystems/paladin/belt/source.js= — =paladin.source= (NEW · 11.0③ · ⑨d)
+beef (inline, reconciled): *"move this to paladin. or maybe if the
+conoisseur can pull this off elegantly, then into typology. but paladin
+default."* Paladin it is — and not for lack of elegance: =typology='s
+=index.client.js= ships into browser bundles, and this function reads
+=Deno.env=/=Deno.cwd= — environment-sniffing has no client-safe form, so
+typology is structurally WRONG for it, not just unidiomatic. Belt installer
+pattern, same as every sibling (=state.js=, =read.js=, …).
+
+(Parked for exactly one turn — fork 8 briefly left it caller-less, then
+beef's =registry.json= refinement gave it its real consumer: every ledger
+location resolves through this.)
+
+#+BEGIN_SRC javascript :tangle ../../subsystems/paladin/belt/source.js :mkdirp yes
+import { isAbsolute, resolve, dirname, fromFileUrl } from "@std/path";
+import { Path } from "@vivalence/typology";
+
+// tendentially supports every way a path gets referenced — beef: "absolute
+// paths, relative to cli execution, relative to file name, etc". A bare
+// string stays repo-root-relative; everything else is additive, all built
+// from precedent already live elsewhere in the repo.
+export default function source(paladin) {
+  paladin.source = (reference) => {
+    if (typeof reference === "object" && reference.file)
+      return new Path(resolve(dirname(fromFileUrl(reference.file)), reference.source)); // relative to the declaring file
+    const target = typeof reference === "string" ? reference : reference.source;
+    if (isAbsolute(target)) return new Path(target); // absolute — as-is
+    if (target.startsWith("./") || target.startsWith("../")) { // relative to CLI execution
+      const cwd = Deno.env.get("INIT_CWD") ?? Deno.env.get("PWD") ?? Deno.cwd();
+      return new Path(resolve(cwd, target));
+    }
+    return paladin.scope.repository.branch(target); // bare segment — repo-root-relative
+  };
+}
+#+END_SRC
+
+=subsystems/paladin/belt/index.js= — register the installer:
+#+BEGIN_SRC diff
+ import scope from "./scope.js";
+ import publish from "./publish.js";
++import source from "./source.js";
+
+ export default {
+   find,
+   read,
+   check,
+   state,
+   is,
+   scope,
+   publish,
++  source,
+ };
+#+END_SRC
+
+** =subsystems/paladin/tests/source.test.js= (NEW · 11.0③ · ⑨d)
+One case per resolution style — the styles are the contract.
+#+BEGIN_SRC javascript :tangle ../../subsystems/paladin/tests/source.test.js :mkdirp yes
+import { describe, it } from "@std/testing/bdd";
+import { expect } from "@std/expect";
+import source from "../belt/source.js";
+
+const paladin = {
+  scope: { repository: { branch: (segment) => ({ repository: segment }) } },
+};
+source(paladin);
+
+describe("paladin.source", () => {
+  it("absolute string — as-is", () => {
+    expect(paladin.source("/opt/packages/viva").absolute).toBe("/opt/packages/viva");
+  });
+
+  it("./ and ../ — relative to CLI execution (INIT_CWD wins)", () => {
+    Deno.env.set("INIT_CWD", "/work/here");
+    expect(paladin.source("./packages/viva").absolute).toBe("/work/here/packages/viva");
+    Deno.env.delete("INIT_CWD");
+  });
+
+  it("{file, source} — relative to the declaring file", () => {
+    const resolved = paladin.source({ file: "file:///repo/registry/simulation/variant/test.viva.js", source: "../fixtures" });
+    expect(resolved.absolute).toBe("/repo/registry/simulation/fixtures");
+  });
+
+  it("bare segment — repo-root-relative via scope.repository", () => {
+    expect(paladin.source("registry/viva")).toEqual({ repository: "registry/viva" });
+  });
+});
+#+END_SRC
+
+
+** ghost call sites (DIFF · 11.0③)
+Both mount the registry ROOT today. Under derive-by-default this no longer
+THROWS — worse, it silently mis-stamps: every module across all four
+packages would derive =owner: "@registry"= (the mount root's own
+directory name), collapsing the whole partition into one wrong bucket.
+
+History of this diff, three rounds: beef said *"same!"* (same fold as the
+loader) → checked, the VARIANT fold couldn't apply (clone.js runs before
+any variant is chosen — chicken-and-egg) → ghost got its own =readDir=
+self-discovery → fork 8 moved supply to SYSTEM level, which is exactly
+what ghost needed all along: =vip.supply= needs only =scope.registry=,
+which exists pre-variant. beef's "same!" comes TRUE — the chicken-and-egg
+was an artifact of putting supply on the variant, and it dissolves with it.
+The readDir loop now lives in =vip.supply= (one mechanism); ghost calls it
+like everyone else.
+
+=systems/ghost/trajectories/instance/clone.js:75= and
+=systems/ghost/trajectories/system/doctor.js:132=:
+#+BEGIN_SRC diff
+-  await paladin.vip.mount(paladin.scope.registry);
++  await paladin.vip.supply();
+#+END_SRC
+
+** =systems/ghost/tests/wafer.test.js= — LOCALHOST_WAFER path (DIFF · 11.0③)
+Fork 2: the wafer moves. This constant is the "local install" scenario
+proof (=viva install variant= copies it wholesale) — grounds why fork 2 could
+never have been dormant.
+#+BEGIN_SRC diff
+-const LOCALHOST_WAFER = resolvePath(HERE, "../../../registry/wafers/@vivalence/variant/localhost")
++const LOCALHOST_WAFER = resolvePath(HERE, "../../../registry/simulation/variant/localhost")
+#+END_SRC
+
+
+** =systems/runtime/tests/scenarios/bench.js= — scenario mounts (DIFF · 11.0③)
+beef asked two things: is a repeated inline =.branch()= call still
+"hardcoded", and would =@viva= + =@simulation= alone cover it — *"we
+probably only need @viva and @simulation."* Checked against what bench
+actually accios: the existing comment below (unchanged, still correct)
+says =domain/game/service modules= — =domain=/=game= live under
+=@education=, not =@simulation= (=@simulation= holds the TEST VARIANT
+DECLARATION, not the game/domain content itself; mounting it wouldn't make
+=@education/game/write= resolvable). So the narrower pair doesn't cover
+bench's real accio targets — =@viva= (service) + =@education=
+(domain/game) is still the right SET.
+
+What DOES change (fork 8 superseded the scenario-local-array round): bench
+calls the same =vip.supply()= as everyone else — the ledger is pre-variant,
+so the old chicken-and-egg objection is gone, and the whole
+"which-packages-does-bench-need" question is moot (supply mounts all four;
+the full walk is 38 modules, trivial). The @viva+@education analysis above
+stays as the record of why beef's narrower pair wouldn't have covered it.
+#+BEGIN_SRC diff
+       if (!paladinMounted) {
+-        await paladin.vip.mount(paladin.scope.registry.branch("kernels"));
+-        await paladin.vip.mount(paladin.scope.registry.branch("modes"));
+-        await paladin.vip.mount(paladin.scope.registry.branch("services"));
++        await paladin.vip.supply(); // fork 8: the one mechanism — reads/seeds the ledger record
+         paladinMounted = true;
+       }
+#+END_SRC
+(bench fixtures accio only domain/game/service modules — development/simulation
+not needed on the hot path; =@simulation= specifically doesn't help here, see
+above.)
+
+** the mv — tree split (SH · 11.0③)
+Plain filesystem moves.
+
+RECOVERED (beef flagged this block as possibly jumbled after an interrupted
+edit — verified line by line against every decision this session, not
+guessed): the corruption was a uniform `  # ` prepended to every line of the
+block below, including lines that were already real single-# comments
+(`rmdir`'s own hunk, `LEAVE ALONE`) — which is why those showed doubled `##`.
+Content re-derived from first principles and cross-checked against downstream
+claims that depend on it: fork 1 (playground→development), fork 2 (both
+wafer moves), and the ⑤ BLAST re-confirm bullet's *"wafers/ holds ONLY
+bak/"* + fork 2's *"no live variant/ subdir left behind"* — both require
+=registry/wafers/@vivalence/variant/= to end up rmdir'd, =bak/= to survive.
+Every =rmdir= target verified empty-after-the-moves-above before this line
+runs (no rmdir on a non-empty dir, no rmdir skipped that should fire):
+=registry/services/@vivalence/= and =registry/services/= (fully drained by
+the =services= mv) · =registry/kernels/@vivalence/= and =registry/kernels/=
+(fully drained by the =kernels= mv) · =registry/modes/@vivalence/= and
+=registry/modes/= (fully drained by the =modes= mv) ·
+=registry/wafers/@vivalence/variant/= (drained by BOTH wafer moves —
+=multiplayer= and =localhost= were its only two children). =registry/playground=
+needs no rmdir — a bare =mv= to =registry/development= consumes the whole
+directory, nothing left behind. =registry/wafers/@vivalence/= itself and
+=registry/wafers/= are NOT rmdir'd — =bak/= still lives there.
+
+#+BEGIN_SRC sh
+cd /Users/finn/vivalence/code/vivalence
+mkdir -p registry/viva/variant registry/education registry/simulation/variant
+mv registry/services/@vivalence/* registry/viva/           # datamap hallucinator lighthouse nlp (fork 5: dest is viva/)
+mv registry/kernels/@vivalence/*  registry/education/      # corpus ontology domain
+mv registry/modes/@vivalence/*    registry/education/      # game tactic teacher homepage dashboard bak
+mv registry/playground registry/development                # RENAME — package @playground → @development (fork 1)
+mv registry/wafers/@vivalence/variant/multiplayer registry/viva/variant/multiplayer   # fork 2: production, fork 5: dest is viva/
+mv registry/wafers/@vivalence/variant/localhost   registry/simulation/variant/localhost    # fork 2: dev/test
+rmdir registry/services/@vivalence registry/services \
+      registry/kernels/@vivalence  registry/kernels \
+      registry/modes/@vivalence    registry/modes \
+      registry/wafers/@vivalence/variant
+# stale pre-rename field — localhost now derives @simulation from its new mount, drop it
+perl -ni -e 'print unless /^\s*owner: "\@vivalence",\s*$/' registry/simulation/variant/localhost/localhost.viva.js
+# LEAVE ALONE:
+#   registry/wafers/@vivalence/bak/   backup-during-migration, never swept ([[rituals]]).
+#   bak/ dirs                         ride along; find.viva skips bak/archive/slp.
+#+END_SRC
+
+** circuitry inline (SH · 11.0③) — no separate circuitry file, ever
+Runs BEFORE the sweep so the newly-merged daemon content gets caught by the
+same pass. Operates on files at their CURRENT location in the bracket:
+=test.viva.js= is still at =testament/variant/= (dissolution mv is a later
+sub-step); =multiplayer.viva.js= already moved to =registry/viva/variant/=
+(fork 5 — the tree-split mv, earlier sub-step, moved the whole directory —
+circuitry.js rode along). =localhost.viva.js= never had a circuitry.js —
+untouched here.
+
+#+BEGIN_SRC sh
+cd /Users/finn/vivalence/code/vivalence
+tail -n +3 testament/variant/circuitry.js >> testament/variant/test.viva.js
+tail -n +3 registry/viva/variant/multiplayer/circuitry.js >> registry/viva/variant/multiplayer/multiplayer.viva.js
+perl -ni -e 'print unless /^export \* as circuitry from "\.\/circuitry\.js";$/' \
+  testament/variant/test.viva.js \
+  registry/viva/variant/multiplayer/multiplayer.viva.js
+rm testament/variant/circuitry.js registry/viva/variant/multiplayer/circuitry.js
+#+END_SRC
+(=tail -n +3= drops each circuitry.js's own 2 import lines + blank line —
+both only import =paladin=/=Url=, already imported by the file they're
+merging into; multiplayer's circuitry.js additionally imports unused
+=Env=/=Vector=, dropped with it, not investigated further — out of scope.)
+
+** the sweep — lookups + imports (SH · 11.0③)
+Lookup strings and JS import paths are DIFFERENT namespaces — separate rules.
+=test.viva.js= is swept IN PLACE, before the testament mv runs later in this
+same step — sweep then move, never move then sweep (the mv'd path is the
+target of the NEXT sub-step, not this one).
+
+#+BEGIN_SRC sh
+cd /Users/finn/vivalence/code/vivalence
+# lookup strings — education types re-home (localhost + multiplayer join, fork 2;
+# multiplayer's daemon was hiding behind its own circuitry.js — missed in the
+# original fork 2 pass, caught this round)
+perl -pi -e 's{\@vivalence/(domain|ontology|corpus|game|tactic|teacher|homepage|dashboard)/}{\@education/$1/}g' \
+  testament/variant/test.viva.js \
+  registry/simulation/variant/localhost/localhost.viva.js \
+  registry/viva/variant/multiplayer/multiplayer.viva.js \
+  systems/runtime/tests/bench/smoke.test.js \
+  systems/runtime/tests/scenarios/bench.js
+# lookup strings — playground-type modes re-home to the renamed package (type stays "playground", no collision — fork 1 resolved)
+perl -pi -e 's{\@vivalence/playground/}{\@development/playground/}g' \
+  testament/variant/test.viva.js
+# lookup strings — fork 5: platform lookups re-home too, @vivalence → @viva
+# (PREVIOUSLY marked "stays unswept" — beef closed the rename, this is new)
+perl -pi -e 's{\@vivalence/(lighthouse|datamap|hallucinator|service)/}{\@viva/$1/}g' \
+  testament/variant/test.viva.js \
+  registry/simulation/variant/localhost/localhost.viva.js \
+  registry/viva/variant/multiplayer/multiplayer.viva.js
+# JS import paths — the 13 deep-import lines (fork 5: services dest is now viva/)
+perl -pi -e 's{registry/kernels/\@vivalence/}{registry/education/}g; s{registry/modes/\@vivalence/}{registry/education/}g; s{registry/services/\@vivalence/}{registry/viva/}g' \
+  systems/runtime/tests/bench/smoke.test.js \
+  systems/runtime/tests/mode/emitters.test.js \
+  systems/runtime/tests/mode/aprende.literals.test.js \
+  systems/runtime/tests/mode/aprende.statistics.test.js \
+  systems/runtime/tests/scenarios/variant.js
+#+END_SRC
+
+Fork 5 closes the last "stays @vivalence/*, unswept" carve-out — platform
+lookups (=lighthouse/=, =datamap/=, =hallucinator/=, =service/=) now sweep
+to =@viva/*= same as everything else. The ONLY thing that stays
+=@vivalence= anywhere in the live tangle is import SPECIFIERS
+(=from "@vivalence/typology"=, =from "@vivalence/paladin"=) — confirmed
+different namespace, a Deno workspace member name in =deno.jsonc=, out of
+this quest's scope entirely.
+
+** the mv — testament dissolution (SH · 11.0③)
+SECURITY (beef, addendum — grounded via read-only =jj log=/=jj st=): plain
+=mv environment= would carry =secrets.jsonc= into tracked =registry/=.
+Live-checked: it's ALREADY tracked today despite the =testament=/=testament/variant=
+gitignore lines (gitignore never retroactively untracks a file committed
+before the rule existed) and holds real-looking keys — pre-existing exposure,
+not created by this bracket, but this =mv= would relocate and cement it.
+=services.jsonc=/=variant.jsonc= carry no secret material — move normally.
+=secrets.jsonc= is also redundant: =populate.env= already reads
+=SECRET_VIVA_*= from =testament/.env= (gitignored, zero history, confirmed)
+straight into =paladin.secret=, and every variant already references secrets
+lazily (=() => paladin.secret.get("SECRET_VIVA_X")=) — nothing reads
+=secrets.jsonc= except =environment()='s now-redundant secret branch. Fix:
+=secrets.jsonc= is never moved, never recreated, deleted at the source. The
+real key/value pairs it held are beef's to fold into =testament/.env= by
+hand if not already there — not something tangled here (never write live
+secret VALUES into a script or a file I author).
+#+BEGIN_SRC sh
+cd /Users/finn/vivalence/code/vivalence
+mkdir -p testament/mountpoint registry/simulation/variant
+mv testament/variant/test.viva.js registry/simulation/variant/   # circuitry.js already inlined + deleted
+mkdir -p registry/simulation/variant/environment
+mv testament/variant/environment/services.jsonc testament/variant/environment/variant.jsonc \
+  registry/simulation/variant/environment/
+rm testament/variant/environment/secrets.jsonc   # NOT moved — see SECURITY note above
+rmdir testament/variant/environment
+mv testament/variant/mountpoint/* testament/mountpoint/ 2>/dev/null
+rmdir testament/variant/mountpoint
+mv testament/system testament/ledger   # fork 9 — locks/ logs/ instances.json ride; registry.json joins on first supply
+# the moved variant claims its new owner (fork 7: key stays owner)
+perl -pi -e 's{owner: "\@vivalence"}{owner: "\@simulation"}' registry/simulation/variant/test.viva.js
+# testament/variant/bak stays behind (backup-during-migration; ignored with the rest)
+#+END_SRC
+
+
+** =subsystems/paladin/prototypes/variant.js= — drop circuitry merge (DIFF · 11.0③)
+Not the =packages= seam (⑨b, below — unaffected, it never had a circuitry
+fallback). This is =daemons=/=services= losing theirs: circuitry is gone as
+a concept, =resolve()= reads the variant's own exports only. Same file, two
+distinct edits, same bracket.
+#+BEGIN_SRC diff
+- variant.daemons = [...(cake.daemons ?? []), ...(cake.circuitry?.daemons ?? [])].map(
+-   (declaration) => mask("daemon")(hydrate(declaration)),
+- );
+- variant.services = [...(cake.services ?? []), ...(cake.circuitry?.services ?? [])].map(
+-   (declaration) => mask("service")(hydrate(declaration)),
+- );
++ variant.daemons = (cake.daemons ?? []).map((declaration) => mask("daemon")(hydrate(declaration)));
++ variant.services = (cake.services ?? []).map((declaration) => mask("service")(hydrate(declaration)));
+#+END_SRC
+
+** =testament/.env= — hand-edit (11.0③; machine-local, never tangled)
+#+BEGIN_SRC diff
+-VIVA_SYSTEM_MOUNT="/Users/finn/vivalence/code/vivalence/testament/system"
++VIVA_LEDGER_MOUNT="/Users/finn/vivalence/code/vivalence/testament/ledger"
+-VIVA_VARIANT_MOUNT="/Users/finn/vivalence/code/vivalence/testament/variant"
++VIVA_VARIANT_MOUNT="/Users/finn/vivalence/code/vivalence/registry/simulation/variant"
++VIVA_MOUNTPOINT_MOUNT="/Users/finn/vivalence/code/vivalence/testament/mountpoint"
+#+END_SRC
+(without the explicit mountpoint mount, the citizen default resolves
+=variant.branch("mountpoint")= — dbs inside the tracked tree; covered by the
+=**/mountpoint= ignore but dirty. Explicit wins.)
+
+** =.env.example= — the tracked template (NEW · 11.0③)
+#+BEGIN_SRC sh :tangle ../../.env.example :mkdirp yes
+# copy to testament/.env and fill in. testament/ is this machine's run surface
+# (gitignored wholesale): the ledger (locks/logs/instances/registry records),
+# mountpoint dbs, this file.
+VIVA_SYSTEM_MODE="DEVELOPMENT"
+VIVA_SYSTEM_ROLE="SUDO"
+
+VIVA_REPOSITORY_MOUNT="<absolute repo root>"
+VIVA_LEDGER_MOUNT="<repo>/testament/ledger"
+VIVA_VARIANT_MOUNT="<repo>/registry/simulation/variant"
+VIVA_MOUNTPOINT_MOUNT="<repo>/testament/mountpoint"
+
+SECRET_VIVA_JWT=""
+SECRET_VIVA_ANTHROPIC_API_KEY=""
+SECRET_VIVA_ELEVENLABS_API_KEY=""
+SECRET_VIVA_DEEPGRAM_API_KEY=""
+SECRET_VIVA_SERVICE_NLP_KEY=""
+#+END_SRC
+
+** =.gitignore= — the authored/derived line (REPLACE · 11.0③)
+Live file re-read this turn to confirm — first 5 lines change, everything
+after =**/mountpoint= is untouched:
+#+BEGIN_SRC diff
+ testament
+-testament/system
+-testament/variant
+-./testament/variant
+ **/mountpoint
++**/environment/secrets.jsonc
+#+END_SRC
+Full tangle (this diff applied):
+#+BEGIN_SRC text :tangle ../../.gitignore
+testament
+**/mountpoint
+**/environment/secrets.jsonc
+
+.jj
+.git
+.github
+node_modules
+**/node_modules
+
+*/package-lock.json
+
+migrations/
+*.db
+
+.env
+.env.*
+**/.env
+**/.env.*
+!.env.source
+!.env.example
+
+.DS_Store
+**/build
+.aider*
+.claude/worktrees
+.claude/settings.local.json
+
+# specimen.snapshot artifacts — generated by <name>.snapshot.test.js, not source.
+# Regenerate by running the snapshot tests; the tool + the tests stay tracked.
+*.snapshot.json
+**/tests/snapshots/
+#+END_SRC
+(drops the redundant =testament/system= / =testament/variant= / =./testament/variant=
+lines; adds =**/environment/secrets.jsonc= so the tracked variant's environment
+dir can hold an ignored secrets file.)
+
+
+** =subsystems/paladin/tests/pensieve.test.js= (NEW · 11.0③)
+The name the existing =test/pensieve= task already points at.
+
+#+BEGIN_SRC javascript :tangle ../../subsystems/paladin/tests/pensieve.test.js :mkdirp yes
+import { describe, it } from "@std/testing/bdd";
+import { expect } from "@std/expect";
+import { Pensieve } from "../prototypes/pensieve.js";
+
+const cake = (owner, type, slug, version = "0.0.1") => ({
+  manifest: { owner, type, slug, version },
+});
+
+describe("Pensieve", () => {
+  it("keys by manifest owner→type→slug→version", async () => {
+    const pensieve = new Pensieve();
+    pensieve.register(cake("@education", "game", "write"));
+    const found = await pensieve.revelio({ owner: "@education", type: "game", slug: "write" });
+    expect(found.manifest.slug).toBe("write");
+  });
+
+  it("does NOT default a missing owner — mount must stamp", () => {
+    const pensieve = new Pensieve();
+    expect(() => pensieve.register({ manifest: { type: "game", slug: "write", version: "0.0.1" } }))
+      .toThrow();
+  });
+
+  it("two packages shipping the same type/slug do not collide", async () => {
+    const pensieve = new Pensieve();
+    pensieve.register(cake("@education", "game", "flashcard"));
+    pensieve.register(cake("@development", "game", "flashcard"));
+    const education = await pensieve.revelio({ owner: "@education", type: "game", slug: "flashcard" });
+    const development = await pensieve.revelio({ owner: "@development", type: "game", slug: "flashcard" });
+    expect(education.manifest.owner).toBe("@education");
+    expect(development.manifest.owner).toBe("@development");
+  });
+
+  it("latest() resolves the highest semver within a slug", async () => {
+    const pensieve = new Pensieve();
+    pensieve.register(cake("@education", "game", "write", "0.1.0"));
+    pensieve.register(cake("@education", "game", "write", "0.2.0"));
+    const found = await pensieve.revelio({ owner: "@education", type: "game", slug: "write" });
+    expect(found.manifest.version).toBe("0.2.0");
+  });
+});
+#+END_SRC
+
+** =subsystems/paladin/tests/vip.test.js= (NEW · 11.0③)
+The name the existing =test/vip= task already points at. In-memory fake paladin
+— no fixtures on disk. Covers both new behaviors: derive-by-default and
+lock-overrides-derived.
+
+#+BEGIN_SRC javascript :tangle ../../subsystems/paladin/tests/vip.test.js :mkdirp yes
+import { describe, it } from "@std/testing/bdd";
+import { expect } from "@std/expect";
+import { Vip } from "../prototypes/vip.js";
+
+const rootStub = (dir) => ({
+  absolute: dir,
+  branch: (child) => ({ absolute: `${dir}/${child}` }),
+});
+
+// declaration: what package.viva.js resolves to (null = file absent, pure derivation).
+// moduleManifests: manifest for each walked module, keyed by path (omit "owner" to inherit).
+const fakePaladin = (declaration, modulePaths, moduleManifests = {}) => ({
+  read: {
+    viva: async (path) => {
+      const absolute = path.absolute ?? String(path);
+      if (absolute.endsWith("package.viva.js")) {
+        if (!declaration) throw new Error("no package.viva.js");
+        return { manifest: declaration };
+      }
+      const slug = absolute.split("/").at(-2);
+      return { manifest: { type: "game", slug, version: "0.0.1", ...moduleManifests[absolute] } };
+    },
+  },
+  find: {
+    viva: async () => modulePaths.map((absolute) => ({ absolute })),
+  },
+});
+
+describe("Vip.mount", () => {
+  it("derives the owner from the mount path by default — no package.viva.js needed", async () => {
+    const paladin = fakePaladin(null, ["/registry/simulation/game/write/write.viva.js"]);
+    const vip = new Vip(paladin);
+    await vip.mount(rootStub("/registry/simulation"));
+
+    const module = await vip.pensieve.revelio({ owner: "@simulation", type: "game", slug: "write" });
+    expect(module).toBeTruthy();
+    expect(module.manifest.owner).toBe("@simulation");
+  });
+
+  it("a package.viva.js self-declaration LOCKS the derived name", async () => {
+    const paladin = fakePaladin(
+      { type: "package", slug: "fixture", version: "0.0.1", owner: "@viva" },
+      ["/registry/simulation/game/write/write.viva.js"],
+    );
+    const vip = new Vip(paladin);
+    await vip.mount(rootStub("/registry/simulation"));
+
+    const module = await vip.pensieve.revelio({ owner: "@viva", type: "game", slug: "write" });
+    expect(module.manifest.owner).toBe("@viva");
+  });
+
+  it("a module's own manifest.owner LOCKS it, overriding the mount-derived stamp", async () => {
+    const modulePath = "/registry/simulation/fixture/lock-demo/lock-demo.viva.js";
+    const paladin = fakePaladin(null, [modulePath], { [modulePath]: { owner: "@viva", type: "fixture", slug: "lock-demo" } });
+    const vip = new Vip(paladin);
+    await vip.mount(rootStub("/registry/simulation"));
+
+    const locked = await vip.pensieve.revelio({ owner: "@viva", type: "fixture", slug: "lock-demo" });
+    expect(locked).toBeTruthy();
+    const notUnderSimulation = await vip.pensieve.revelio({ owner: "@simulation", type: "fixture", slug: "lock-demo" });
+    expect(notUnderSimulation).toBeNull();
+  });
+
+  it("demand outrunning supply throws 'not supplied' — distinct from Module 404 (fork 8)", async () => {
+    const paladin = fakePaladin(null, ["/registry/simulation/game/write/write.viva.js"]);
+    const vip = new Vip(paladin);
+    await vip.mount(rootStub("/registry/simulation"));
+
+    await expect(vip.accio("@education/game/write")).rejects.toThrow("not supplied");
+    await expect(vip.accio("@simulation/game/missing")).rejects.toThrow("Module 404");
+  });
+});
+#+END_SRC
+
+
+** =systems/runtime/tests/registry.count.test.js= (NEW · 11.0③)
+The strongest proof the whole-bracket change is pure: same leaf count as
+BASELINE, plus exactly SIX new leaves (fork 10 pulled the variant back out) — the four =package.viva.js=
+self-manifests, =test.viva.js= (testament dissolution rides in the same
+change), and =localhost.viva.js= + =multiplayer.viva.js= (fork 2 — ported
+instead of left dormant, so they join the walk for the first time: the old
+loader never mounted =wafers/= at all). NOT eight — =lock-demo= is
+POSTPONED (fork 4, beef), no fixture file, no leaf, no assertion for it here.
+
+#+BEGIN_SRC javascript :tangle ../../systems/runtime/tests/registry.count.test.js :mkdirp yes
+import { describe, it } from "@std/testing/bdd";
+import { expect } from "@std/expect";
+import paladin from "@vivalence/paladin";
+import { registry } from "../lifecycle/populate.js";
+
+const BASELINE = 38; // ② capture — 4-branch mount, pensieve leaf count
+
+const count = (pensieve) => {
+  let total = 0;
+  for (const ownerMap of pensieve.values())
+    for (const typeMap of ownerMap.values())
+      for (const slugMap of typeMap.values()) total += slugMap.size;
+  return total;
+};
+
+describe("registry ingest", () => {
+  it("four-package mount ingests baseline + 4 self-manifests + 2 wafers (variant lives in testament, fork 10)", async () => {
+    await registry();
+    expect(count(paladin.vip.pensieve)).toBe(BASELINE + 6);
+  });
+
+  // lock-demo fixture assertion POSTPONED with the fixture itself — fork 4.
+  // the LOCK mechanism is still covered, in vip.test.js, via an in-memory fixture.
+
+  it("fork 2: multiplayer wafer resolves under @viva, localhost under @simulation", async () => {
+    await registry();
+    const multiplayer = await paladin.vip.pensieve.revelio({ owner: "@viva", type: "variant", slug: "multiplayer" });
+    const localhost = await paladin.vip.pensieve.revelio({ owner: "@simulation", type: "variant", slug: "localhost" });
+    expect(multiplayer).toBeTruthy();
+    expect(localhost).toBeTruthy();
+  });
+});
+#+END_SRC
+
+** ⑨b/⑨c — DIED (fork 8: the variant declares NOTHING about supply)
+The =variant.packages= seam (=variant.js= hydrated-array + =test.viva.js='s
+=export const packages=) was fully tangled here for one round, then beef's
+fork 8 correction removed the concept: supply lives at SYSTEM level
+(=testament/ledger/registry.json=, seeded by discovery — see ⑨e and the
+=vip.supply= tangle). The variant is demand-only; =variant.snapshot= never
+grows a =packages= field. Killed before blasting — no live file ever
+carried it.
+
+** ⑱⑲⑳ — the system ledger (② finding · gate-radius · 11.0③ step 8)
+The two pre-existing paladin reds sit in files M11's CHANGE never touches —
+but =paladin/test= is the bracket's ④ GATE, and the tests are the ledger
+spec for the exact ledger directory (=testament/ledger/=, fork 9 — was
+=system/=) the dissolution declares "derived, stays". Law 9: a bracket
+can't certify green over a red gate suite. Both reds land green here.
+
+*** grounding — what a lock IS (beef asked: "what are we locking?")
+A lock is a SPAWNED CHILD PROCESS of an instance. Ghost's =target.js= is
+the only live spec source: =CHILDREN = { runtime: …, kajuit: … }= — the
+process KIND; the other axis is the instance identity, today derived from
+the variant mount's directory name (=target.js:19=, still carrying beef's
+own =// @beef ugly and stupid= comment — untouched here, it's a real
+derivation smell but a different fork). So the lock key is
+=(instance, process)= — beef's =<variant>/<type>/<slug>= instinct is the
+same two axes (variant≈instance, type≈process kind); a third axis only
+appears if daemons/services ever spawn as OS processes, and the record
+(not the filename) can grow it then.
+
+Two test files spoke two vocabularies: =system.test.js= (May 25 —
+instance-first: =lock("inst", "runtime")=, =locks("multi")= lists
+=.process=) vs =spawn.test.js= + the May 27 System rewrite (process-first:
+=lock(spec.type, spec.slug)=). Instance-first wins: it matches beef's
+instinct, and =locks(instance)= — "what runs for THIS instance" — is the
+grouping ghost/doctor actually needs (=locks(process-kind)= across
+instances answers nothing anyone asks). =system.test.js= is the SPEC —
+unchanged, goes green.
+
+*** grounding — =System.log= is the Span sink (beef: "typology / span ?!")
+Confirmed fit, and ghost already knew: =systems/ghost/mod.js:21= carries
+the breadcrumb =// pipe.tap(span=> paladin.system.pipe[...probably
+paladin.system.log()])=. =Span= (typology prototype, Signature-rooted) has
+exactly the two halves the test expects: =span.json= (the pojo getter —
+nature/timing/transport/transition/subject/fault/children) and
+=drain(pipe)= (sends the sealed span to a pipe/function). =Log= is the
+LEDGER END of that pipe — =append(span)= writes =span.json= as one line of
+=/logs/<instance>/spans.jsonl= (matches the telemetry architecture:
+ontology lives in typology, the analyzer reads spans.jsonl). =Log= invents
+NOTHING — both methods are thin naming over the existing =paladin.state=
+belt (=state.jsonl= appends + ensures parent dirs; =state.open= returns an
+append/create file handle). The =open(process, stream)= half is the child
+process stdout/stderr stream file (=<process>.<stream>.log=) — where
+=Process.spawn='s piped output lands next (wiring the ghost =pipe.tap= is
+deferred, ghost WIP territory).
+
+*** =subsystems/paladin/prototypes/system/log.js= (NEW · ⑱)
+#+BEGIN_SRC javascript :tangle ../../subsystems/paladin/prototypes/system/log.js :mkdirp yes
+export class Log {
+  constructor(paladin, instance) {
+    this.paladin = paladin;
+    this.base = paladin.scope.ledger.branch(`/logs/${instance}`);
+  }
+
+  append(span) {
+    return this.paladin.state.jsonl(this.base.branch("spans.jsonl"), span.json);
+  }
+
+  open(process, stream) {
+    return this.paladin.state.open(this.base.branch(`${process}.${stream}.log`));
+  }
+}
+#+END_SRC
+
+*** =subsystems/paladin/prototypes/system/registry.js= (NEW · ⑨e)
+beef: *"It now further contains a registry.json containing a record of
+package locations."* =Instances= twin — read/write over the belt, plus
+=seed= (derives the initial record by listing =scope.registry='s children;
+ABSOLUTE paths, correct for a per-machine ledger — pins, not portable
+declarations; =paladin.source= resolves them back). A plain ARRAY of
+locations, not name-keyed — a second naming authority would fight the
+derive/lock owner design; names stay with the packages themselves.
+#+BEGIN_SRC javascript :tangle ../../subsystems/paladin/prototypes/system/registry.js :mkdirp yes
+export class Registry {
+  constructor(paladin, path) {
+    this.paladin = paladin;
+    this.path = path;
+  }
+
+  read() {
+    return this.paladin.read.json(this.path, null);
+  }
+
+  write(locations) {
+    return this.paladin.state.json(this.path, locations);
+  }
+
+  async seed(scope) {
+    const locations = [];
+    for await (const entry of Deno.readDir(scope.absolute)) {
+      if (entry.isDirectory) locations.push(`${scope.absolute}/${entry.name}`);
+    }
+    await this.write(locations);
+    return locations;
+  }
+}
+#+END_SRC
+
+*** =subsystems/paladin/prototypes/system/system.js= (DIFF · ⑱ + ⑨e + fork 9)
+Five hunks: the Log import replaces its own dead commented ancestor (and
+the =Pipe= import + =// this.logs = new Pipe()= line it superseded), the
+=Registry= joins =mount= beside =Instances= (both on =scope.ledger= now,
+fork 9), the stub dies, =lock=/=locks=/=kill= flip to instance-first.
+#+BEGIN_SRC diff
+-import { Pipe, fn } from "@vivalence/typology";
++import { fn } from "@vivalence/typology";
+ import { Lock } from "./lock.js";
+-// import { Log } from "./log.js";
++import { Log } from "./log.js";
+ import { Instances } from "./instances.js";
++import { Registry } from "./registry.js";
+ import { Process } from "./process.js";
+
+   constructor(paladin) {
+     this.paladin = paladin;
+     this.attached = new Set();
+-    // this.logs = new Pipe();
+     this.armed = false;
+#+END_SRC
+#+BEGIN_SRC diff
+   async mount() {
+     this.instances = new Instances(
+       this.paladin,
+-      this.paladin.scope.system.branch("instances.json"),
++      this.paladin.scope.ledger.branch("instances.json"),
+     );
++    this.registry = new Registry(
++      this.paladin,
++      this.paladin.scope.ledger.branch("registry.json"),
++    );
+     this.paladin.publish();
+#+END_SRC
+#+BEGIN_SRC diff
+-  lock(type, slug) {
+-    return new Lock(this.paladin, this.paladin.scope.system.branch(`/locks/${type}_${slug}.lock`));
+-  }
+-
+-  log(type, slug) {
+-    console.log("log(type, slug) LEGACY");
+-    //
+-  }
+-
+-  async locks(type) {
+-    const dir = this.paladin.scope.system.branch(`/locks`);
+-    const prefix = `${type}_`;
+-    try {
+-      const out = [];
+-      for await (const entry of Deno.readDir(dir.absolute)) {
+-        if (!entry.name.startsWith(prefix) || !entry.name.endsWith(".lock")) continue;
+-        const slug = entry.name.slice(prefix.length, -".lock".length);
+-        out.push({ type, slug, ...(await this.lock(type, slug).read()) });
+-      }
+-      return out;
+-    } catch {
+-      return [];
+-    }
+-  }
++  lock(instance, process) {
++    return new Lock(this.paladin, this.paladin.scope.ledger.branch(`/locks/${instance}_${process}.lock`));
++  }
++
++  log(instance) {
++    return new Log(this.paladin, instance);
++  }
++
++  async locks(instance) {
++    const dir = this.paladin.scope.ledger.branch(`/locks`);
++    const prefix = `${instance}_`;
++    try {
++      const out = [];
++      for await (const entry of Deno.readDir(dir.absolute)) {
++        if (!entry.name.startsWith(prefix) || !entry.name.endsWith(".lock")) continue;
++        const process = entry.name.slice(prefix.length, -".lock".length);
++        out.push({ instance, process, ...(await this.lock(instance, process).read()) });
++      }
++      return out;
++    } catch {
++      return [];
++    }
++  }
+#+END_SRC
+#+BEGIN_SRC diff
+-  async kill(type, slug) {
+-    const lock = await this.lock(type, slug).read();
++  async kill(instance, process) {
++    const lock = await this.lock(instance, process).read();
+     if (!lock) return null;
+     try {
+       Deno.kill(lock.pid, "SIGTERM");
+     } catch {
+       /* gone */
+     }
+-    await this.lock(type, slug).remove();
++    await this.lock(instance, process).remove();
+     return lock.pid;
+   }
+#+END_SRC
+
+*** the spawn seam — spec keys =type=/=slug= → =process=/=instance= (DIFF · ⑲)
+One vocabulary through the whole seam (law 9): the spec that ghost authors,
+the Process that consumes it, the lock record it writes.
+
+=subsystems/paladin/prototypes/system/process.js=:
+#+BEGIN_SRC diff
+   constructor(system, spec) {
+     this.spec = spec;
+-    this.lock = system.lock(spec.type, spec.slug);
++    this.lock = system.lock(spec.instance, spec.process);
+#+END_SRC
+#+BEGIN_SRC diff
+     await this.lock.write({
+       pid: this.child.pid,
+-      type: this.spec.type,
+-      slug: this.spec.slug,
++      instance: this.spec.instance,
++      process: this.spec.process,
+       mount: this.spec.mount,
+       started: new Date().toISOString(),
+     });
+#+END_SRC
+
+=systems/ghost/trajectories/instance/target.js=:
+#+BEGIN_SRC diff
+   const mount = variant.absolute;
+-  const slug = mount.split("/").filter(Boolean).pop(); // @beef ugly and stupid
++  const instance = mount.split("/").filter(Boolean).pop(); // @beef ugly and stupid — derivation unchanged, still a smell, different fork
+   const config = `${paladin.scope.repository.absolute}/deno.jsonc`;
+
+   const chosen = target === "all" ? Object.keys(CHILDREN) : [target];
+-  return chosen.map((type) => ({
+-    type,
+-    slug,
++  return chosen.map((process) => ({
++    process,
++    instance,
+     mount,
+     attachment,
+-    cmd: ["deno", "task", "--config", config, "-q", CHILDREN[type].task],
++    cmd: ["deno", "task", "--config", config, "-q", CHILDREN[process].task],
+     env: { VIVA_VARIANT_MOUNT: mount },
+   }));
+#+END_SRC
+
+=systems/ghost/trajectories/instance/start.js=:
+#+BEGIN_SRC diff
+-    if (await paladin.system.lock(spec.type, spec.slug).alive()) {
++    if (await paladin.system.lock(spec.instance, spec.process).alive()) {
+#+END_SRC
+#+BEGIN_SRC diff
+-    await paladin.system.lock(spec.type, spec.slug).remove();
++    await paladin.system.lock(spec.instance, spec.process).remove();
+#+END_SRC
+
+=systems/ghost/trajectories/instance/stop.js=:
+#+BEGIN_SRC diff
+   const chosen = specs(ctx.signal.params[0]);
+-  const slug = chosen[0]?.slug;
++  const instance = chosen[0]?.instance;
+
+   const killed = [];
+   for (const spec of chosen) {
+-    const pid = await paladin.system.kill(spec.type, spec.slug);
+-    if (pid !== null) killed.push({ type: spec.type, pid });
++    const pid = await paladin.system.kill(spec.instance, spec.process);
++    if (pid !== null) killed.push({ process: spec.process, pid });
+   }
+
+   console.log(
+     killed.length
+-      ? `ghost: stopped ${slug} (${killed.map((entry) => `${entry.type}=${entry.pid}`).join(", ")})`
+-      : `ghost: ${slug} not running`,
++      ? `ghost: stopped ${instance} (${killed.map((entry) => `${entry.process}=${entry.pid}`).join(", ")})`
++      : `ghost: ${instance} not running`,
+   );
+
+-  ctx.effect = { status: killed.length ? "stopped" : "nothing-to-stop", slug, killed: killed.length };
++  ctx.effect = { status: killed.length ? "stopped" : "nothing-to-stop", instance, killed: killed.length };
+#+END_SRC
+
+*** =subsystems/paladin/tests/spawn.test.js= (DIFF · ⑳)
+Flips to the winning vocabulary; reads BETTER — "two processes of one
+instance" was always what it spawned.
+#+BEGIN_SRC diff
+-const linger = (type) => ({
+-  type,
+-  slug: "spawn",
++const linger = (process) => ({
++  process,
++  instance: "spawn",
+   mount: "/tmp",
+   detached: false,
+   env: {},
+   cmd: ["deno", "eval", "setTimeout(() => Deno.exit(0), 400)"],
+ });
+#+END_SRC
+#+BEGIN_SRC diff
+-    const live = await paladin.system.lock("alpha", "spawn").read();
++    const live = await paladin.system.lock("spawn", "alpha").read();
+     assertEquals(live?.pid, processes[0].pid);
+
+     await Promise.all(processes.map((process) => process.status));
+-    const cleared = await until(async () => (await paladin.system.lock("alpha", "spawn").read()) === null);
++    const cleared = await until(async () => (await paladin.system.lock("spawn", "alpha").read()) === null);
+     assert(cleared, "lock removed after exit");
+#+END_SRC
+(=system.test.js= — the spec these diffs satisfy. ZERO behavioral changes;
+fork 9 rides through it mechanically — =VIVA_SYSTEM_MOUNT= →
+=VIVA_LEDGER_MOUNT= in =mkPaladin=, =scope.system= → =scope.ledger= in the
+belt/log path reads — same for =spawn.test.js='s =mkPaladin=. A NEW
+=System.registry= describe joins it: seed writes absolute locations from a
+temp registry scope; read round-trips; =vip.supply()= e2e stays with
+=registry.count.test.js=.)
+
+*** the ledger rename seam (DIFF · ㉑ · fork 9)
+The folder and its references; the actor keeps its name.
+
+=subsystems/paladin/lifecycle/populate.js= — the scope registration:
+#+BEGIN_SRC diff
+   paladin.scopes([
+     [
+-      "system",
++      "ledger",
+       () => true,
+       () => {
+-        const explicit = paladin.env.get("VIVA_SYSTEM_MOUNT");
++        const explicit = paladin.env.get("VIVA_LEDGER_MOUNT");
+         return new Path(explicit ?? join(Deno.env.get("HOME"), ".viva"));
+       },
+     ],
+   ]);
+#+END_SRC
+(=~/.viva= default stays — it IS the machine-global ledger home.)
+
+=systems/ghost/trajectories/system/init.js= — persist + export + comment:
+#+BEGIN_SRC diff
+-  const exportLineFor = (mount) => `export VIVA_SYSTEM_MOUNT="${mount}"`;
+-  const persist = (mount) => writeShellConfig("VIVA_SYSTEM_MOUNT", mount);
++  const exportLineFor = (mount) => `export VIVA_LEDGER_MOUNT="${mount}"`;
++  const persist = (mount) => writeShellConfig("VIVA_LEDGER_MOUNT", mount);
+#+END_SRC
+#+BEGIN_SRC diff
+-  // pin paladin.scope.system to chosen dir
++  // pin paladin.scope.ledger to chosen dir
+#+END_SRC
+
+=systems/ghost/trajectories/system/doctor.js:40,42=:
+#+BEGIN_SRC diff
+-    locks: await collectLocks(paladin.scope.system),
++    locks: await collectLocks(paladin.scope.ledger),
+-    logs: await collectLogs(paladin.scope.system),
++    logs: await collectLogs(paladin.scope.ledger),
+#+END_SRC
+
+=systems/ghost/trajectories/index.js:84= — the valence string:
+#+BEGIN_SRC diff
+-      valence: "init $VIVA_SYSTEM_MOUNT + scaffold logs/locks + persist embedding",
++      valence: "init $VIVA_LEDGER_MOUNT + scaffold logs/locks + persist embedding",
+#+END_SRC
+
+=systems/ghost/trajectories/instance/init.js:49= — the comment that named
+the ledger before we did:
+#+BEGIN_SRC diff
+-  // register the instance with the system ledger (testament/system/instances.json)
++  // register the instance with the ledger (testament/ledger/instances.json)
+#+END_SRC
+
+=subsystems/paladin/tests/{system,spawn}.test.js= — both =mkPaladin= helpers:
+#+BEGIN_SRC diff
+-  paladin.env.set("VIVA_SYSTEM_MOUNT", root);
++  paladin.env.set("VIVA_LEDGER_MOUNT", root);
+#+END_SRC
+plus =system.test.js='s =scope.system.branch(…)= reads → =scope.ledger.branch(…)=
+(belt probe paths + the =System.log= span/stream assertions — mechanical).
+
+=testament/.env= / =.env.example= — see their own tangles above (=VIVA_LEDGER_MOUNT=).
+=paladin-scope.snapshot.json= regenerates: key ="system"= → ="ledger"=, value
+=…/testament/ledger= (rides the snapshot suite re-run at ④).

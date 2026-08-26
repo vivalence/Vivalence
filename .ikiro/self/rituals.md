@@ -10,7 +10,9 @@ The zettelkasten verdict: *"The rules are knowable. Failures are execution-disci
 3. **verify imports exist** — never write `import { x } from "@vivalence/…"` unconfirmed. Never fabricate an API (`v` is typebox-wrapped: no `.passthrough/.strict/.transform/.refine/.partial/.nullable`).
 4. **ontology before verbs** — contested term? stop coding, survey repo-wide usage, lock identity first. beef: *"stop fucking coding. start designing."*
 5. **read ≥3 existing entries** before authoring into any dataset (entities, manifests, faculties).
-6. **pre-staged commands are NOTES** — anything written in a compact/quest/orb needs a fresh per-op `go`. VCS commands additionally: beef runs them.
+6. **pre-staged commands are NOTES** — anything written in a compact/quest needs a fresh per-op `go`. VCS commands additionally: beef runs them.
+7. **name the path's frame owner** — operator-typed → shell cwd · module declaration → declaring repo · record entry → its registry's root; dev-tree roots (`testament/`) never in a registry package. PRINT a runtime value before deriving a path from it. A path-semantics correction closes only after `grep -rn` over templates, deno tasks, docs, fixtures — hits listed. `family: pin-ontology-before-naming`
+8. **the artifact's OWNER decides placement** — a mode's tests live in the mode, a domain's literals/fold/twitch in the domain (`daemon.domain.*`); `find <owner> -name "*.test.js"` before authoring a test; check where education puts the same organ. `family: fit-existing-trees`
 
 ## blast-bracket (changing load-bearing code)
 
@@ -35,7 +37,8 @@ blast    re-confirm the consumer set (nothing new wired, siblings untouched)
 - "easy manifest slot" → **HARD STOP** — manifest is metadata; new behavior = sibling export (violated 2×)
 - "basically done" → no completion without fresh verification
 - "I remember the shape" → read-this-session ≠ remembered; re-grep before applying
-- "I'll derive a local copy" → fix at the source of truth; never shadow-derive; aggregate server-side
+- "I'll derive a local copy" → fix at the source of truth; never shadow-derive; aggregate server-side. DECLARED derived = COMPUTED derived everywhere it renders (baked solver output is a cache, never a source); an ingester OPENS its boundary, never SPAWNS its feeder; a classifying ingress is ONE named operation, never a conditional at a read site `family: consumer-side-patch`
+- "his words fit my frame" → beef's role/ontology rulings are STANDING AXES: "inspiration"/"concrete = literal" bind every later design touching the named thing — re-read the naming quote before wiring; after an ontology strike, re-audit the WHOLE design for the same move `family: user-intent-drift`
 - "absence needs a flag" → absence IS the signal; no liveness booleans, no `||`-fallback masking upstream bugs; one value has ONE shape — trace to producer. **MECHANICAL** (07-21 RULE FAILURE, m19 store `?? repository.branch("/mountpoint")`): any `??`/`||` fallback on a `paladin.scope.*` / env / mount read requires a grep proving the fallback path exists in `testament/` or the scope declarations BEFORE the `??` is typed — no proof → `throw`, never default. beef: *"check testament mountmount and mode mountpooint in paladin."*
 - "add `?.` to be safe" → zero ceremony; `thread && Stall(...)`, never `thread?.$buffers ?` ("too timid")
 - "delete this commented cruft" → **backup-during-migration**: `// …` lines + `bak/` adjacent to in-flight work are recovery surface, beef's content — never swept
@@ -47,10 +50,8 @@ blast    re-confirm the consumer set (nothing new wired, siblings untouched)
 - "the list looks done, so the work is done" → an open-ended **DURATION** order is satisfied by ELAPSED TIME, never by a task-list. Duration ÷ interval = the iteration count. Queue empty ≠ finished: pull the backstop or spawn a finder to refill. Stop only at the horizon or beef's word. beef: *"i told you to work through the night retard. night is how many hours? whats /20 mins of that/?? thats the loop count"* `family: premature-completion`
 - "that failure was probably already there" → prove it or own it: a baseline run or an isolated repro **per failure**; a change to a core/shared prototype runs EVERY consumer suite before the word "safe" is typed. **A ZERO IS A CLAIM**: before reporting that a call returns nothing / a field is empty / a thing doesn't exist, dump the whole shape (`Object.keys`, the raw envelope) — never infer absence from one destructured field you picked. Negative findings carry the same burden as "it works". **Three sources, three burdens**: a RESPONSE → dump the envelope · **PERSISTED STATE** (a column is empty, a table has no rows) → **query the store, never grep the writer** — the writer's absence in one directory is evidence about that directory only (08-10: `registry/…/topographies/` had no `TOPOGRAPHICAL`, so I called the `ontology` column empty; the symbols lived in `topologies/`, the column was full, and I shipped a junction-join workaround for a bug that did not exist) · an **INHERITED shard claim** → weakest of all, it arrived unread; re-measure before repeating it, and when it is wrong fix the shard **in the same turn**, quoting the falsehood in place. `family: assume-dont-verify` + `derived-canon-drift`
 - "one more workaround and it'll hold" → a second patch propping up the first means the ABSTRACTION is wrong: stop, name the design flaw in words, offer the from-scratch model unprompted. Three screenshot-reaction fixes is one structural miss, not three bugs `family: hotfix-cascade`
-- "explain the diagnosis first" → take the direct action; narration is not diagnosis `family: diagnostic-theater`
 - "mention the smell further down" → a smell beef is known to hate leads the response, never buried under what's working `family: values-misranked`
 - "it's clean, I checked" → show the command AND its output; an assertion without the paste is not a verification `family: assert-without-showing`
-- "the design is settled, start executing" → a design-mode ask is not an execution checklist; converge when beef converges, not before `family: premature-convergence`
 - "YAGNI — the current contract is fine" → beef pointing at an interface IS a design lean; engage the redesign, never argue him out of it `family: status-quo-defense`
 - "while I'm here, sweep the neighbours" → pin scope with beef first; the narrowest reading adjacent to the live task wins, and crossing a container boundary needs per-target `go` `family: scope-inflation`
 - "this pattern deserves an evocative name" → never mint a naming register; extend the existing family or use plain technical words `family: coined-register`
@@ -62,10 +63,6 @@ blast    re-confirm the consumer set (nothing new wired, siblings untouched)
 - `thread/create` hangs (network `pending`) ⇒ buffer-bundle esbuild error — read the runtime log, not the console.
 - `deno task runtime/run` caches mode bundles — buffer-view change needs runtime RESTART (HMR covers only the app layer).
 - batch edits → ONE reload → test; rapid edit-HMR-click cycles fake bugs.
-
-## svelte / nanostores
-
-Never subscribe→mirror→teardown triads; `$`-prefix or one shared bridge (`atom.chain`). Transparent accessors — vanilla getters, consumers never `.get()`. `$state` doesn't deep-track class instances → atom-backed `$field` + chain-subscribe. Never name props `state/derived/effect`.
 
 ## the scribe's duties (session disintegrate)
 
@@ -88,9 +85,4 @@ A dedicated pass, never inline in task work. Trigger: **≥5 unprocessed callout
 
 ## methods index
 
-- `ikiro/quest` — decision-trail + milestones (each boots green) + tangle blocks (`:tangle` new files; diff-hunks for surgical edits — tangling a partial file drops lines) + **mandatory testing assessment** + blast table. Spec: [[quest]].
-- `ikiro/orb` — session orb (log header in `/Users/finn/vivalence/private/logs/<date>.org`) + named orb (`../orbs/<topic>.orb.org`, @beef round-annotation). Spec: [[orb]].
-- `ikiro/overview` — state snapshot, read-only. Spec: [[overview]].
-- `ikiro/compact` — the compact WALK: spine → windows → coverage → sections → balance. Derive the fold from the transcript on disk; never recall it. Spec: [[compact]].
-- `totem` — 4-quadrant component dev (→ [[totems]]).
-- `ikiro/critical-pass` — hardening a STAGED artifact (package tree, patch) without touching the gated worktree: sandbox copy → baseline → apply → suites → seams → absence-claims → regenerate. Spec: [[critical-pass]].
+Specs live in `methods/`, one file per method — [[quest]] · [[overview]] · [[compact]] · [[totems]] · [[critical-pass]]; the release-changelog format rides `skills/quest-lifecycle`. The compact WALK stays law: derive the fold from the transcript on disk; never recall it.

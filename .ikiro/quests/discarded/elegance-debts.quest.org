@@ -1,0 +1,204 @@
+* Intent
+Pay down the elegance + discipline debts surfaced by the connoisseur analysis
+(the =## code= doctrine in =.ikiro/CLAUDE.md=). Each item is a real wince the
+rubric named; this quest sequences them by leverage and readiness. The governing
+rule, learned the hard way this session: *extract shared ATOMS, never collapse
+role-fit families.* The Vector consumers (=invoke/shotgun/rollup/survey/traverse/
+walk/object=) and the stream channels (=Queue/Pipe/Broadcaster/soma.tee=) are
+different characters by design — they stay distinct; only the duplicated atom
+between them gets lifted.
+
+Most sketches already exist in-code as =PROPOSED (not wired)= comments — this
+quest is the plan to wire them, gated on per-item =go=.
+
+** Desired End State
+- The async wake-suspend atom lives once in =belt.promise.waiter()=; the four
+  channels consume it and keep their distinct shapes.
+- The Vector tree-enumeration plumbing (=descend= + steps + signal-branch) is
+  written once as =fold(vector, step)=; =survey/rollup/shape.object= become thin
+  step fns. Path-walkers keep their own recursion (share only =descend=).
+- Validation is wired or deleted — no commented-out safety scaffolding pretending
+  to guard.
+- The load-bearing primitives carry invariant tests (round-trip, source-non-
+  mutation, double-next), not just behavior tests.
+- =Pool= has one coercion truth-table and a live =Condition= tag.
+- =DaemonDie='s nesting is flattened so ownership is unambiguous (long-tail).
+
+* Build sequence (leverage × readiness)
+Ordered. Each gates on per-item =go=. Nothing wired without it.
+
+** DONE 1 · Wake-atom → belt
+=belt.promise.waiter()= + =belt.sleep.signal(ms)= + =belt.fn.inflight()= (the last
+with BOTH reject policies — retry default, =retry:false= caches — "belt is a lib").
+Invariant suites green: =tests/gestalten/belt/{waiter,fn}.test.js=. ALL FOUR channels
+migrated onto the gate — =Pipe.stream=, =soma.tee=, =Queue.drain=, =Broadcaster.next()=
+— each keeping its character; blast-bracketed (blast → baseline → change → re-test →
+blast), every consumer green (speaker, SSE/datamap, process, conversation, voice).
+=Broadcaster.next()= is now a loop → the =return()= hang + spurious-wake-resuspend
+fixed for free. =deferred= still staged (no consumer).
+Original plan below ↓
+
+Lift the wake-suspend atom into =belt.promise.waiter()=; rewrite the four channels
+on top WITHOUT collapsing them. Full proposal verified this session (call-site
+survey + channel rewrites + tests + migration order).
+- New: =belt.promise.{waiter,deferred}=, =belt.sleep.signal(ms)= (the abort-after
+  shim, NOT =AbortSignal.timeout= — keep the platform floor), =belt.fn.inflight=
+  (the async =once=; =feedback_inflight_promise_guard=). Sketches already staged
+  as comments in =belt/{promise,fn,sleep}.js=.
+- Rewrite: =Queue.drain=, =Pipe.stream=, =soma.tee=, =Broadcaster='s =next()=
+  (pull form). Each keeps its character.
+- Free bug-fix: =Broadcaster.return()= must =gate.wake()= a suspended =next()=
+  (currently hangs). Fix the spurious-wake guard to re-suspend, not =done:true=.
+- Tests: =tests/waiter.test.js= invariant suite (wake-before-wait lost-wake,
+  wait-before-wake, abort mid-wait, already-aborted, double-wake, wake/abort race,
+  value-non-mutation) + the =return()=-while-suspended regression per channel.
+- Migrate order: Pipe → soma.tee → Queue → Broadcaster (rising risk; Broadcaster
+  is the SSE/datamap spine — smoke a live create/update subscription).
+
+** IMPLEMENTING 2 · Wire or delete validation + invariant tests (discipline gap #1)
+LANDED (invariant tests): =soma.pour↔drain= turn round-trip (proves the hylomorphism),
+=Vector.slurp= source-non-mutation, =middleware.compose= double-=next= rejection — all
+green. FINDING from the slurp test: source-non-mutation holds, but =vector.js:73=
+=this.trajectories.set(pattern, trajectory)= SHARES the trajectory Vector by reference
+when dest has no existing branch → a later edit to dest's branch mutates src's. Latent
+aliasing; needs a decision (deep-copy trajectories on slurp, or document the share).
+RESOLVED: the validation/dead-Connection comments — Finn's call: KEEP them (backup-
+during-migration surface, not slop). No deletion. The slurp aliasing finding became a
+FEATURE pair, not a fix: =Vector.swallow= added (deep-copy owning merge) alongside
+=slurp= (live structural-sharing graft) — both pinned in =vector.test.js=.
+Original plan below ↓
+
+- =steer/strategy.js:61= output validation is commented out WITH a copy-paste typo
+  (=step.input.errors= on output), at active call sites =shape/agentic.js= +
+  =shape/mcp.js=. Decide: wire it (fix typo, test) or delete the pretense. Same for
+  the commented block at =:44=.
+- Add the missing invariant tests the rubric flagged: =soma.pour↔drain= turn
+  round-trip; =Vector.slurp= source-non-mutation (=feedback_invariant_tests=);
+  =middleware.compose= double-=next= rejection.
+- Resolve =connection.js:198-355= (157 dead commented lines; =$error= atom now set
+  nowhere) — wire error state or delete.
+
+** DONE 3 · Reify the Vector tree-fold (debt #1)
+LANDED: =fold(vector, step)= + =descend= real in =tree.js=; =survey= + =rollup= rebuilt
+as thin step fns over it — no =carry== reassignment, no =steps.push=, immutable frame.
+EFFECT-proven (the gate, not a model review): green-on-both-sides across steer +
+shape/{tree,flat,agentic,mcp} + vector + aperture — identical output, different
+internals. survey's root-not-visited asymmetry preserved via =frame.signature= (null
+at root). =shape.object= NOW folded too (EFFECT-proven: object.test 40 steps + full typology
+101/1056 green; the wrapped-execute machinery gone — carry accumulates in the frame).
+=descend= exported from =tree.js= and shared by the =walk.js= path-walkers
+(traverse/shotgun) — the carry-fold atom now lives in ONE place for both families.
+=shape.strip= made a defaulted-input function (=vector = new Vector()=, total on undefined).
+PREREQUISITE LANDED: steer split into =tree.js= (survey · rollup · fold) and
+=walk.js= (traverse · invoke · shotgun · walk) — file boundary now = geometry boundary
+(the Vector-consumer principle, made structural). Blast-bracketed: barrel-only, zero
+deep-imports, verbatim move; steer/vector/aperture/socket/datamap/cortex green (lone
+connection.test failure is environmental — external whoami fetch, no network). =fold=
+sketch relocated into =tree.js=. PROOF GATE for landing fold (and #5): prove by EFFECT
+(the namespace/proxy/entries produced), never by internal-model resemblance — see
+=## code= "effect over model". =shape.object=/=shape.proxy= validated by their output
+surface only.
+Original plan ↓
+
+Lift =descend(carry, vector)= (copy-pasted 6×) and =fold(vector, step)= so the
+TREE-ENUMERATION family (=survey/rollup/shape.object=) is thin steps over one
+combinator with an IMMUTABLE frame (no =carry== reassignment, no =steps.push=).
+Path-walkers (=traverse/shotgun/walk=) keep their path recursion, share only
+=descend=. Sketch staged as comments at the end of =steer/navigate.js=.
+- Honesty: =survey= today leaves its ROOT un-visited; a literal fold visits every
+  level — restore the quirk with a top-level unwrap iff anything depends on it.
+
+** DONE 4 · Pool cleanup
+=Condition= wired into =Yield= (dead map now live). =resolve= (eager) + =add= (lazy)
+dedup'd onto one =classify= (patternmap form, like pattern.js's =probe=) — the shape
+truth-table lives once, can't drift. =tests/pool.test.js= green (49 steps, behavior
+unchanged).
+Original plan below ↓
+
+=prototypes/pool.js=: =Condition= frozen map is dead (=Yield= builders hardcode the
+strings) — use it or delete it. =resolve= (lazy) and =add= (eager) duplicate the
+coercion truth-table with subtly different rules — fold into one normalize-step so
+they can't drift.
+
+** DONE 5 · strip via steer.fold (messenger left)
+=shape.strip= rebuilt as a thin step over =steer.fold= (cata: Vector trie →
+{leaves,branches}). EFFECT-proven (the gate): a new contract harness
+=tests/gestalten/shape/strip.test.js= green on BOTH hand-rolled + fold versions; the
+ENTIRE typology suite green-on-both-sides (START 100/1053, END 101/1056 — +harness,
+same lone environmental whoami fail). Blast was runtime-wide — strip serializes every
+aperture+emitter for =/metadata=, the conversation handshake, and =shape.connection.wire=
+— all consume the unchanged contract. =messenger=/=rehydrate= LEFT as-is: a clean
+anamorphism; no generic =unfold= exists and building one for one caller is incidental
+complexity (the =@beef "uninspired"= is overstated). =shape.object= on fold still
+DEFERRED (prove-first by its produced namespace).
+FINDING (test hygiene, not fixed): =connection.test.js= "subscribe + publish + websocket"
+uses a hardcoded =Deno.serve({ port: 9883 })= → flaky under full-suite concurrency (a
+one-off :221 race, gone on re-run). Worth a dynamic port someday.
+Original plan ↓
+The wire-handshake hylomorphism (=shape/strip.js= cata ↔ =shape/messenger.js= ana)
+is hand-rolled — both carry Finn's =// @beef suboptimal, uninspired=. =strip=
+should be =survey= with a contract-visitor; =rehydrate= should be a Vector-unfold
+combinator. Depends on TODO 3's =fold=.
+
+** TODO 6 · DaemonDie nesting flatten (long-tail)
+Ground-VERIFIED (read =systems/runtime/daemon/die.js= + =lifecycle/population.js= — was
+agent-2-sourced; unlike the remote-repo "zero tests" hearsay, this one HOLDS).
+
+FOUR parallel containers, overlapping concerns:
+- =die.register= — raw loaded cakes (vip.accioMap): lighthouse · hallucinator · datamap · kernel[] · modes[] · services[] (INPUTS)
+- =die.variant= — domain-resolved tables: kernel{} · modes[] · traits{} · entities[] · services{} (RESOLVED TABLES)
+- =die.kernel= — a re-bucket of register.kernel: {domain, corpus[], ontology[]} (SLICE)
+- =die.good= — the live Daemon: entities · datamap · lighthouse · cortex · services · modes · aperture · twitch · mount · url · statics · docs · flatmodes · attach (~14, flat)
+- =die.datamap= === =die.good.datamap= (population.js:56 sets one, :62 mirrors it — DUPLICATE)
+
+Three winces (criterion 9 / naming):
+1. =modes= means THREE things under near-identical paths — register.modes (raw cakes) /
+   variant.modes (domain type→class) / good.modes (runtime type→slug→instance). Same for
+   services / kernel / entities. Ownership is learned by tracing population.js, not read off the shape.
+2. Duplication: die.datamap ↔ good.datamap (one object, two paths); die.kernel re-buckets register.kernel.
+3. =good= is a 14-prop grab-bag mixing transport / persistence / AI / routing / identity / assets, flat.
+
+The intent is clean (=die= = Wafer lifecycle + construction scaffolding; =good= = the live Daemon) but
+the boundary LEAKS: scaffolding sits flat on die beside Wafer's fields, good is unstructured, the
+datamap mirror crosses the line. die.js itself says =// TODO migrate to dossier pattern=.
+
+DESIGN DECISION FIRST (not a silent sweep) — proposed ownership rule:
+- =die.register= = inputs (keep); collapse =variant=+=kernel= into one =die.resolved=;
+- =die.good= = ONLY the live daemon (kill the datamap mirror, no scaffolding leak);
+- group good by concern: good.data{datamap,entities} · good.net{aperture,attach,url} · good.ai{cortex,services} · good.modes.
+
+WHY LAST: widest blast radius in the codebase (die.good.*/register.*/variant.* span all of
+daemon/lifecycle/ + aperture/); PURE ergonomics, zero behavior bug (readability wince, not correctness);
+needs the ownership-rule decided with Finn before any change. Method when taken: settle the rule →
+blast-bracket with full-RUNTIME-suite bookends (runtime-wide, like strip) → mechanical rename one pass.
+
+* Decisions locked
+- *Belt is the home* for the async-control atoms (already holds =retry/resilient/
+  batched/linear= + =fn.once/debounce= + =sleep=). A =prototypes/waiter.js= would be
+  the wrong shelf.
+- *Extract atoms, not characters.* Role-fit families (Vector consumers, stream
+  channels) stay distinct. This is the central lesson — see =## code= the
+  Vector-consumer principle.
+- *No monad library.* The =fold= reification gives the State monad's benefit
+  (invisible, safe threading) without its cost; JS has no do-notation.
+- *Sketches stay commented* until per-item =go=. Staged in =steer/navigate.js= and
+  =belt/{promise,fn,sleep}.js=.
+
+* Open questions
+- =belt.fn.inflight=: clear the memo on reject (retryable) or cache the rejection?
+- =waiter= internal to typology vs exported on the public barrel? (Lean internal
+  until a consumer outside typology needs it.)
+- TODO 2: wire output validation, or delete it? (If agents/MCP genuinely need
+  output contracts enforced, wire; else the commented block is a lie — delete.)
+- TODO 5/3 ordering: =strip/messenger= cleanup wants =fold= first.
+
+* Symbols
+- =.ikiro/CLAUDE.md= =## code= — the connoisseur doctrine (rubric, debts,
+  discipline scorecard, the every-level exemplars). The source of this quest.
+- =subsystems/typology/gestalten/belt/{promise,fn,sleep}.js= — staged atom sketches.
+- =subsystems/typology/gestalten/steer/navigate.js= — staged =fold=/=survey=/=rollup=.
+- =subsystems/typology/gestalten/steer/{apply,strategy,match}.js= — Vector consumers.
+- =subsystems/typology/prototypes/{queue,pipe,broadcaster,pool}.js= + =belt/soma.js= — channels.
+- =subsystems/typology/gestalten/shape/{strip,messenger,object}.js= — the wire handshake.
+- =subsystems/runtime/daemon/die.js= — DaemonDie nesting.
+- =.ikiro/zettelkasten.md= =## Open follow-ups → Architecture / elegance= — the TODO seeds.

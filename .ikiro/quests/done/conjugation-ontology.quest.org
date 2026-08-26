@@ -1,0 +1,113 @@
+#+TITLE: Conjugation Ontology — Conjugation as Literal
+#+AUTHOR: Vivalence
+#+DATE: 2026-03-30
+#+STATUS: DONE
+
+* Intent
+
+Migrate the Conjugation virtual entity to a first-class ontology.
+Conjugation becomes the third ontology alongside word and sentence.
+Conjugation literals are learnable entities with their own Memory,
+connected to their form literals via the uses/in M:N self-relation.
+
+The virtual entity (100-line SQL pivot over symbol_literals x5) is
+dead. Conjugation lookup is a simple literal.feed() with populated
+uses. No more lemma hacks.
+
+* Design Decisions
+
+| Decision | Choice | Rationale |
+|----------+--------+-----------|
+| Ontology count | 3: word, sentence, conjugation | Conjugation is structurally distinct |
+| Shape | Literal with CONJUGATED trait | Reuses entity infra, learnable via Memory |
+| Trait structure | { infinitive: slug, paradigm: { slot: slug } } | Infinitive at root, person slots in paradigm object |
+| Strength tracking | Conjugation has its own Memory | Reviewed as a unit, tracks independently |
+| Traits | RANKED, CONJUGATED | No TRANSLATED, EXEMPLIFIED, ANNOTATED, VOCALIZED |
+| Ontology enforcement | Callers pass ontology in where | No repo-level enforcement. Flexible, explicit |
+| Lemma encoding | None. Feed pipeline handles it. | Symbol-based queries + rank + blacklist replace lemma lists |
+| Brazilian slots | 4: 1sg, 3sg, 1pl, 3pl | tu/vós not used in standard Brazilian speech |
+
+* Conjugation Literal Shape
+
+#+BEGIN_SRC
+slug:     "falar.present.indicative"
+ontology: "conjugation"
+symbols:  [conjugation, word.lemma.falar, word.tense.present,
+           word.mood.indicative, word.suffix.ar,
+           word.regularity.regular, proficiency.survival]
+uses:     [falar.verb.infinitive, falo, fala, falamos, falam]
+trait: {
+  RANKED: { rank: 1 },
+  CONJUGATED: {
+    infinitive: "falar.verb.infinitive",
+    paradigm: {
+      firstSingular:  "falar.verb.indicative.present.first.singular",
+      thirdSingular:  "falar.verb.indicative.present.third.singular",
+      firstPlural:    "falar.verb.indicative.present.first.plural",
+      thirdPlural:    "falar.verb.indicative.present.third.plural"
+    }
+  }
+}
+#+END_SRC
+
+* Milestones — ALL DONE
+
+** M1: Ontology Guards ✓
+
+- Cooldown mask: added "word" to symbols
+- Exercise token slug lookup: added ontology: "word"
+
+** M2: CONJUGATED Resolver + Ontology Symbol ✓
+
+- CONJUGATED in domain LiteralTraitsEnum
+- conjugated() extractor + collect() merger on LiteralSubscriber
+- conjugation.viva.js ontology package (single file)
+- Wired in test-daemon + multiplayer wafer circuitry
+
+** M3: Dataset ✓
+
+- 70 conjugation literals generated from survival verb.js
+- Split: 14 present.indicative in survival, 56 in A1
+- 176 non-present verb forms migrated survival → A1
+- 10 high-frequency forms kept in survival (foi, fui, fez, era,
+  tinha, poderia, tenha, seja)
+- Freight moved accordingly
+
+** M4: Mode Rewrite ✓
+
+- conjugation.viva.js: feed queries conjugation literals, conjugation
+  field on buffer, no more PERSON_SLOTS or lemma lists
+- paradigm.viva.js: /conjugation takes conjugation literal (not
+  virtual entity), /feed queries via literal.feed
+- buildup.js: one query via feed (was two), 7 phases (added
+  CONTEXTUALIZE — cross-ontology sentences containing drilled forms)
+- All modes use populate param on feed for uses/symbols loading
+- Dataset masks: ontology: "conjugation" replaces 14-item lemma lists
+
+** M5: Kill Virtual Entity ✓
+
+- Removed from entities/index.js
+- Dead test code in die.js cleaned up
+- Conjugation.ts file remains on disk (Finn removes via jj)
+
+** M6: Tactic Rewrite ✓
+
+Not in original plan. Added after M1-M5 completed.
+
+- byLastSignal() repo method on LiteralRepository
+- populate param added to feed/novel/due/byStrength
+- warmup: trace-informed success activation + readable sentence
+- exercise: graph-traversal token resolution (uses, 1 query not N),
+  adaptive cloze (blank LEARNING/KNOWN, scaffold UNTOUCHED)
+- drill: error-aware (byLastSignal FAILURE/MISTAKE mixed in)
+- cooldown: error remediation (trace-targeted, no new literals,
+  sentence context via cross-ontology uses query)
+- buildup: cross-ontology CONTEXTUALIZE phase
+- Queue thresholds bumped 2-3 across all intents
+
+* Changelog
+
+- 2026-03-30: Initial design. All milestones scoped.
+- 2026-03-30: M1-M5 implemented. Data migrated survival/A1.
+- 2026-03-30: M6 added — tactic rewrite with trace + graph powers.
+  byLastSignal, adaptive cloze, cross-ontology bridges.

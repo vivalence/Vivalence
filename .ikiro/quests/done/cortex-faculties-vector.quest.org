@@ -1,0 +1,438 @@
+#+TITLE: Cortex — table(Map) → faculties(Vector) recast
+#+STATUS: LANDED — M1 core + cortex.tools removal + M3 tests + M4 verify green (63 steps), 4-dimension adversarial review clean. M2 (name faculties /type/slug) PARKED — needs go to touch the 3 providers.
+#+AUTHOR: ikiro (scribe), grounded by a 3-agent blast map
+#+SEED: beef — "i like table as vector. this has a blast." + cortex.js:23 "@beef maybe recasting table as a vector and using steering and shapes for interfaces might be the solution"
+
+* Intent — desired end state in plain language
+
+The cortex holds faculties in =table = new Map()= (string-keyed, hand-iterated) and tools
+in =tools = new Vector()=. It uses the ANTI-PATTERN (Map) for the LIVE path (faculties)
+and the CANONICAL structure (Vector) for a DEAD path (tools). Backwards.
+
+End state: faculties live in a =Vector= (=/type/slug= trie). =resolve/has/via/shard.faculties=
+become thin consumers over that Vector (descend + =array.nearest=), NOT hand-rolled Map
+walking. The =resolve/via/extend= API beef hates ("this must change", "juck. uck.",
+"i hate this interface") DISSOLVES — it was Map-iteration ceremony, not a real interface.
+
+ONE structure (=Vector=), ONE law (descend + =nearest=), consumer family made visible.
+
+Scope guard: =cortex.tools= REMOVED this pass (beef: "clear out cortex tools. go." — the
+deferred removal was pulled forward alongside the recast). =tooled.js= keeps the live
+=mode.aperture.branch("/tool")= mount; only the dead global-registry slurp went.
+
+* Why — the connoisseur read
+
+- =table = new Map()= is trigger-1's WINCE-TWIN verbatim ([[connoisseur]]): "string-keyed
+  table faking data." Consumed by hand-iterated =resolve/has/shard.faculties=.
+- The canon says descend-and-read-the-leaf is legendary: =pensieve.revelio=
+  (=this.get(owner)?.get(type)?.get(slug)=, triggers 8/9) is EXACTLY what faculty
+  resolution becomes — descend to =/type=, read the leaves, pick nearest.
+- Effect over model ([[connoisseur]] "INTERNAL REPRESENTATIONS are irrelevant"): the recast
+  is proven by OUTPUT (the faculty =resolve= returns, the leaves =shard.faculties= opens),
+  green both sides. The =.table.get()= tests assert the MODEL, not behavior — they get
+  recast to behavioral assertions (M3), not preserved as Map-shape.
+
+** honesty (investigator, not salesman)
+
+Faculty resolution is =nearest-in-tune-space= — NOT a standard steer walk (walks are
+exact-path or exhaustive; this is metric-nearest over sibling leaves). So =resolve= does
+not reuse =steer.rollup=/=invoke=; it is a small CUSTOM consumer (descend + =array.nearest=).
+Also =rollup(vector, guarded)= would MANGLE a faculty: it compiles effects as ctx-handlers
+(right for tools — they ARE aperture handlers), but a faculty's =via.render(turns, config)=
+is a provider call, not a ctx-handler. So faculties CANNOT ride the tool path. The win is
+real (one structure, canonical =nearest=, FACULTY_TYPES dies) but =resolve= joins the
+consumer family as a NEW named member, it does not vanish into an existing walker.
+
+* Ground truth (the 3-agent blast map)
+
+** supply — what =extend= must keep accepting (7 faculties, 3 providers)
+
+| provider   | count | type     | tune len | config?          | via keys        |
+|------------+-------+----------+----------+------------------+-----------------|
+| anthropic  |     3 | dialogue | 3 → pad4 | no               | render + stream |
+| elevenlabs |     2 | speech   | 4        | ={voice}=        | stream only     |
+| deepgram   |     2 | verbatim | 4        | ={language}=     | stream only     |
+
+Every faculty carries =type, tune, context, channels, via=; audio ones also =config=.
+=extend= reads only =type= + =tune= (mutates: pads length-3 to 4). =channels/context/config=
+are stored, never read inside cortex.js. **Faculties carry NO slug/name today** — the
+model key (opus/sonnet/haiku, luiza/leandro, pt-BR/en) lives in the provider's table, not
+on the faculty. This is the one supply-side change the recast wants (M2).
+
+** blast — 7 prod call sites, 3 files. =.table= is TEST-ONLY.
+
+| API                | prod-active | where                                      |
+|--------------------+-------------+--------------------------------------------|
+| =.table=           |           0 | (every reader is a test)                   |
+| =.resolve(=        |           2 | =daemon/aperture/metadata.js:44,45= (=!!=) |
+| =.has(=            |           1 | =daemon/aperture/metadata.js:41= (=?.=)    |
+| =.extend(=         |           1 | =daemon/lifecycle/population.js:101=       |
+| =.via(=            |           0 | (internal only)                            |
+| =.derivable(=      |           0 | (internal only)                            |
+| =.shard.faculties( |           1 | =daemon/traits/harnessed.js:89=            |
+| =new Cortex(=      |           1 | =daemon/lifecycle/population.js:99=        |
+| import =Cortex=    |           1 | =daemon/lifecycle/population.js:4=         |
+
+No production code observes the Map-ness of =table=. External prod blast is fully mediated
+by =resolve/has/extend/shard.faculties= (all inside cortex.js). Every =.table.get()= /
+=.table.has()= consumer is a TEST: =cortex.test.js:58-68=, =hallucination.test.js:314=,
+=cortex.integration.test.js:18=. Commented future-callers (=conversational.js= speech/asr,
+=harnessed.js= dead block) go through =resolve= too — no new shape needed.
+
+** contract — the behaviors to keep green (from the test-contract agent)
+
+The 26-item list, compressed to the load-bearing invariants:
+1. =resolve(type,{tune,via})= → nearest faculty by tune (string tier or vector); =via=
+   filter drops faculties lacking that avenue BEFORE nearest; no tune → midpoint =[.5×4]=.
+2. =extend= chainable (returns =this=), additive across calls, pads length-3 tune to 4,
+   preserves per-type INSERTION ORDER (nearest strict-=<= tie-break → earliest wins).
+3. =has(type)= true for stored types AND for =object= when derivable (dialogue+render
+   exists) though NOT physically stored — the =has("object")=true= / =stored=false=
+   divergence is asserted (=hallucination.test.js:313-314=).
+4. =shard.faculties(vector)=: for each present type, branch; open =stream= leaf iff
+   =resolve(via:stream)=, =render= leaf iff =resolve(via:render)= — render-only faculties
+   (haiku, object) get no stream leaf. Object branch opens by derivation. Works via both
+   the =makeHarness= test path and the runtime HARNESSED finalizer, trait-order-independent.
+5. derived =object=: synthesizes via dialogue + injected =respond= tool (=tool_choice:any=),
+   runs real tools first, forwards =thread= into tool inputs, lexicon-native returns
+   (={message,entities}=) split =message= onto =output=.
+6. exported =nearest(faculties, target)=: string tier → =tiers= vector → squared-euclidean;
+   unknown tier → midpoint. (Unchanged — kept verbatim.)
+
+* The design
+
+** faculty-Vector encoding — =/type/slug= leaves
+
+=faculties = new Vector()=. Each faculty a leaf: =faculties.branch(type).open({nature: slug}, faculty)=.
+Yields =/dialogue/opus=, =/dialogue/sonnet=, =/dialogue/haiku=, =/speech/luiza=,
+=/verbatim/pt-BR=… — beef's own =harnessed.js:14= spelling (=/type/slug/…=) made literal.
+The faculty object is the effect value; =tune= stays on the faculty (read by =nearest=).
+
+Pre-naming tolerance: =open({nature: faculty.slug ?? faculty.type}, faculty)= — before M2,
+same-type faculties share nature but are distinct effect entries (Map keys by pattern
+IDENTITY, one =new Pattern= per =open=), so =stored(type)= still returns all of them in
+insertion order. Naming (M2) only makes the trie legible; the core works without it.
+
+** =stored(type)= — the non-mutating descent (why not =branch()=)
+
+=Vector.branch(type)= is get-OR-CREATE: calling it in =resolve/has= would pollute the tree
+with empty branches on every miss. So =stored= does a read-only find (the =revelio= descent):
+
+: stored(type) {
+:   const branch = [...this.faculties.trajectories.entries()]
+:     .find(([pattern]) => pattern.nature === type)?.[1];
+:   return branch ? [...branch.effects.values()] : [];
+: }
+
+Returns the per-type faculty array (or =[]=) without mutating. =resolve/has/shard= all fold
+through this. (A non-mutating =Vector.find(nature)= could later absorb this, but that
+touches typology-holy Vector — kept inline in cortex for a contained recast.)
+
+** =resolve= — descend + nearest (structure unchanged, source swapped)
+
+Body is IDENTICAL to today except =this.table.get(type) || []= becomes =this.stored(type)=.
+The derivation fallback, via-filter, and =nearest(eligible, tune ?? [.5×4])= are untouched.
+=has/via/derivable= likewise: same logic, =stored()= instead of =table.get/has=.
+
+** =shard.faculties= — data-driven; =FACULTY_TYPES= dies
+
+Today it loops a hardcoded =["dialogue","object","speech","verbatim"]=. The recast drives it
+from the Vector's ACTUAL type-branches ∪ =DERIVATIONS= keys (so derived =object= still
+opens):
+
+: const types = new Set([
+:   ...[...cortex.faculties.trajectories.keys()].map((p) => p.nature),
+:   ...Object.keys(DERIVATIONS),
+: ]);
+: for (const type of types) { if (!cortex.has(type)) continue; /* …branch+leaves… */ }
+
+Same output set (only =has()=-true types get branches), the =FACULTY_TYPES= constant gone —
+the data (what services extended) drives the wiring.
+
+* Milestones
+
+** M0 — ontology pin (no code) — DECIDE
+
+Faculties become named leaves in a =/type/slug= trie; =resolve= is descend + =nearest=
+(a new named consumer, not a reused walker); =cortex.tools= untouched. Gate: beef blesses
+(a) naming faculties (supply-contract change, M2) and (b) the =stored()= inline vs a future
+=Vector.find=. Nothing tangles until M0 is agreed.
+
+** M1 — core recast — =subsystems/typology/prototypes/cortex.js= [TANGLE]
+
+Full-file replacement (tangle block at the end of this quest). =table= → =faculties=
+Vector; =stored()= added; =extend/has/derivable/resolve/via/shard.faculties= re-sourced;
+=FACULTY_TYPES= removed; =DERIVATIONS.object= gains =slug: "object"=. =executeTools=,
+=streamLeaf=, =renderLeaf=, =deriveObjectFallback=, =nearest=, =tiers= are VERBATIM
+(behavior-critical, untouched). Imports unchanged (=array, is, soma, Vector=).
+
+** M2 — name the faculties — 3 provider files [DIFF, gated]
+
+Add =slug= to each faculty literal, sourced from the provider's model-table key:
+- =registry/viva/hallucinator/anthropic/provider/index.js= — the model loop already has the
+  key; add =slug: key= to the faculty literal.
+- =registry/viva/hallucinator/elevenlabs/provider/index.js= — =Object.values(voices).map(makeSpeech)=
+  → =Object.entries(voices).map(([slug, voice]) => makeSpeech(voice, slug))=; add =slug= to literal.
+- =registry/viva/hallucinator/deepgram/provider/index.js= — same shape as elevenlabs
+  (=profiles=). Add =slug= (=pt-BR=, =en=).
+
+This is the one supply-side touch. Independently good: faculties become identifiable
+(=/capabilities= can name them, logs read =opus= not =dialogue#0=). Exact loop vars confirmed
+at tangle time. M1 runs WITHOUT M2 (slug falls back to type); M2 only sharpens the trie.
+
+** M3 — tests → behavior (effect over model) [DIFF]
+
+The =.table=-poking tests assert the Map model; recast them to behavioral assertions:
+- =cortex.test.js:58-68= — =table.get(t).toHaveLength(n)= → assert =resolve= at N tunes
+  returns the N distinct faculties; =table.get("nonexistent")=undefined= → =has("x")=false=
+  + =resolve("x")=null=.
+- =hallucination.test.js:314= — =cortex.table.has("object")===false= → =cortex.stored("object").length===0=
+  (physically absent) while =cortex.has("object")===true= (derivable) stays. Same behavior,
+  new surface.
+- =cortex.integration.test.js:18= — =cortex.table.get("dialogue").find(...)= monkeypatch →
+  reach the faculty via =cortex.stored("dialogue")= (or =resolve=) to patch =via.stream=.
+All =resolve/has/nearest/shard.faculties= assertions (the majority) are UNCHANGED — they
+already test behavior.
+
+** M4 — verify green both sides
+
+Run: =subsystems/typology/tests/cortex.test.js=, =hallucination.test.js=,
+=cortex.hallucinators.test.js=, =voice.conversation.test.js=; =systems/runtime/tests/mode/tooled.test.js=,
+=cortex.integration.test.js=, =conversation.integration.test.js=. The 26-item contract green.
+Then a live boot smoke (=population.acid= extends 7 real faculties; =/capabilities= lists
+dialogue+object; a HARNESSED mode renders). No completion claim without this output.
+
+* Risks / open decisions
+
+- **Touching the 3 providers (M2)** — supply-contract change on the faculty shape. Gated on
+  beef. If vetoed: M1 stands alone (slug falls back to =type=; trie less legible, resolution
+  identical). Naming is the only thing M2 buys.
+- **=stored()= inline vs =Vector.find=** — inlined to keep the recast out of typology-holy
+  Vector. If beef wants the non-mutating find as a first-class Vector method, it graduates
+  later (broadly useful; would also clean =slurp/swallow='s =find(([i]) => i.nature…)= dupes).
+- **=cortex.tools= stays** — beef deferred removal. Untouched here.
+- **insertion-order tie-break** — Map(effects) preserves insertion; =stored()= reads
+  =.values()= in insertion order = extend order. Contract item 2 holds. (Verified against
+  the strict-=<= in =array.nearest=.)
+
+* Tangle — the full recast cortex.js
+
+Target below is the COMPLETE file. Behavior-critical helpers reproduced verbatim so the
+tangle is a clean full replacement, not a patch.
+
+#+begin_src javascript :tangle ../../subsystems/typology/prototypes/cortex.js :mkdirp no
+import { array, is, soma, Vector } from "@vivalence/typology";
+
+const DERIVATIONS = {
+  object: (cortex, tune) => ({
+    type: "object",
+    slug: "object",
+    channels: { in: ["text"], out: ["object"] },
+    tune: tune ?? [0.5, 0.5, 0.5, 0.5],
+    via: { render: deriveObjectFallback(cortex, tune) },
+  }),
+};
+
+export const tiers = {
+  frugal: [0.1, 0.3, 0.9, 1.0],
+  balanced: [0.4, 0.6, 0.6, 0.6],
+  capable: [0.6, 0.8, 0.4, 0.4],
+  unleashed: [0.9, 1.0, 0.2, 0.2],
+  eager: [0.3, 0.5, 0.5, 0.1],
+};
+
+export class Cortex {
+  faculties = new Vector();
+
+  extend(supplied) {
+    for (const faculty of supplied) {
+      if (faculty.tune.length === 3) faculty.tune = [...faculty.tune, 0.5];
+      this.faculties.branch(faculty.type).open({ nature: faculty.slug ?? faculty.type }, faculty);
+    }
+    return this;
+  }
+
+  // the revelio descent: read-only lookup of a /type branch's faculty leaves, in
+  // insertion order. NOT `branch(type)` — that is get-or-create and would pollute the
+  // tree with empty branches on every resolve/has miss.
+  stored(type) {
+    const branch = [...this.faculties.trajectories.entries()] //
+      .find(([pattern]) => pattern.nature === type)?.[1];
+    return branch ? [...branch.effects.values()] : [];
+  }
+
+  has(type) {
+    return this.stored(type).length > 0 || (type in DERIVATIONS && this.derivable(type));
+  }
+
+  derivable(type) {
+    return type === "object" ? !!this.resolve("dialogue", { via: "render" }) : false;
+  }
+
+  resolve(type, { tune, via } = {}) {
+    const eligible = this.stored(type).filter((faculty) => !via || faculty.via[via]);
+    const native = nearest(eligible, tune ?? [0.5, 0.5, 0.5, 0.5]);
+    if (native) return native;
+
+    const derive = DERIVATIONS[type];
+    if (!derive || !this.derivable(type)) return native;
+    const derived = derive(this, tune);
+    return !via || derived.via[via] ? derived : undefined;
+  }
+
+  via(type, name, tune) {
+    return this.resolve(type, { tune, via: name })?.via[name];
+  }
+
+  get shard() {
+    const cortex = this;
+    return {
+      faculties: (vector) => {
+        const types = new Set([
+          ...[...cortex.faculties.trajectories.keys()].map((pattern) => pattern.nature),
+          ...Object.keys(DERIVATIONS),
+        ]);
+
+        for (const type of types) {
+          if (!cortex.has(type)) continue;
+
+          const branch = vector.branch(type);
+
+          if (cortex.resolve(type, { via: "stream" }))
+            branch.open("stream", streamLeaf(cortex, type));
+
+          if (cortex.resolve(type, { via: "render" }))
+            branch.open("render", renderLeaf(cortex, type));
+        }
+      },
+    };
+  }
+}
+
+async function executeTools(tools, parts, thread) {
+  const results = [];
+  for (const part of parts) {
+    if (part.type !== "tool_use") continue;
+    const tool = tools[part.name];
+    const handler = typeof tool === "function" ? tool : tool?.execute;
+    if (!handler) {
+      results.push({
+        type: "tool_result",
+        id: part.id,
+        output: { error: `unknown tool: ${part.name}` },
+      });
+      console.log("@cortex: unknown tool called", { results });
+      continue;
+    }
+    const input =
+      typeof part.input === "string"
+        ? part.input
+          ? JSON.parse(part.input)
+          : {}
+        : (part.input ?? {});
+    const returned = await handler(thread ? { ...input, thread } : input);
+    const native =
+      is.object(returned) &&
+      ("message" in returned || "entities" in returned || "object" in returned);
+    const { message, entities, object } = native ? returned : { message: returned };
+    results.push({ type: "tool_result", id: part.id, output: message, entities, object });
+  }
+  return results;
+}
+
+function streamLeaf(cortex, type) {
+  return async (ctx) => {
+    const { tuning, turns, tools, config, thread } = ctx.hallucination;
+    ctx.output = (async function* () {
+      const stream = cortex.via(type, "stream", tuning);
+      const callConfig = { ...config };
+      if (Object.keys(tools).length) callConfig.tools = tools;
+      let currentTurns = [...turns];
+      for (let round = 0; round < 10; round++) {
+        let turn = null;
+        for await (const packet of await stream(currentTurns, callConfig)) {
+          turn = soma.pour(turn, packet);
+          yield packet;
+        }
+        if (turn.meta?.stop !== "tool_use") return;
+        const results = await executeTools(tools, turn.parts, thread);
+        yield* soma.drain({ role: "user", parts: results });
+        currentTurns = [...currentTurns, turn, { role: "user", parts: results }];
+      }
+    })();
+  };
+}
+
+function renderLeaf(cortex, type) {
+  return async (ctx) => {
+    const { tuning, turns, tools, config, thread } = ctx.hallucination;
+    const render = cortex.via(type, "render", tuning);
+    const callConfig = { ...config, thread };
+    if (Object.keys(tools).length) callConfig.tools = tools;
+    let currentTurns = [...turns];
+    for (let round = 0; round < 10; round++) {
+      const turn = await render(currentTurns, callConfig);
+      if (turn.meta?.stop !== "tool_use") {
+        ctx.output = turn;
+        return;
+      }
+      const results = await executeTools(tools, turn.parts, thread);
+      currentTurns = [...currentTurns, turn, { role: "user", parts: results }];
+    }
+  };
+}
+
+function deriveObjectFallback(cortex, tune) {
+  return async (turns, config) => {
+    const tools = config?.tools ?? {};
+    const respond = {
+      valence: "Return the final result as structured data.",
+      input: config?.schema,
+    };
+    const render = cortex.via("dialogue", "render", tune);
+    let currentTurns = [...turns];
+    for (let round = 0; round < 10; round++) {
+      const turn = await render(currentTurns, {
+        ...config,
+        tools: { ...tools, respond },
+        tool_choice: { type: "any" },
+      });
+      const done = turn.parts.find((part) => part.type === "tool_use" && part.name === "respond");
+      if (done) {
+        const data =
+          typeof done.input === "string" ? (done.input ? JSON.parse(done.input) : {}) : done.input;
+        return {
+          role: "assistant",
+          parts: [{ type: "object", data }],
+          meta: { stop: "end_turn" },
+          object: data,
+        };
+      }
+      const results = await executeTools(tools, turn.parts, config.thread);
+      currentTurns = [...currentTurns, turn, { role: "user", parts: results }];
+    }
+  };
+}
+
+export function nearest(faculties, target) {
+  if (typeof target === "string") target = tiers[target] ?? [0.5, 0.5, 0.5, 0.5];
+  return array.nearest(faculties, target, (faculty) => faculty.tune);
+}
+#+end_src
+
+* Changelog
+
+- (planning) 3-agent blast map: supply shape (7 faculties), 7 prod call sites / 3 files
+  (=.table= test-only), 26-item behavioral contract. Design pinned: =/type/slug= faculty
+  trie, =stored()= revelio descent, =FACULTY_TYPES= dies, =cortex.tools= deferred. Full
+  recast cortex.js tangled below.
+- (landed) M1 core recast + =cortex.tools= removal (beef pulled it forward from "future")
+  + =tooled.js= dead slurp removed (aperture mount kept). M3 tests recast to behavior
+  (=.table.get→.stored=, =.table.has("object")=false→.stored("object")=[]=; tooled.test.js
+  cortex.tools assertions → =shape.object(mode.aperture.branch("/tool"))=). M4 verify:
+  =cortex.test.js + hallucination.test.js= (32 steps) and =tooled.test.js + cortex.integration.test.js=
+  (31 steps) all green; zero live =cortex.tools=/=.table=/=FACULTY_TYPES= refs remain.
+  4-dimension adversarial review (resolve/nearest/stored · shard/derivation · blast · encoding),
+  each finding gated by ≥2 skeptics: zero confirmed defects. Faculties keyed =nature: slug ?? type=
+  — pre-naming all share =nature=type= as distinct effect entries; M2 (/type/slug legibility)
+  parked pending a go to touch anthropic/elevenlabs/deepgram providers.

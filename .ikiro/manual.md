@@ -27,7 +27,7 @@ Questions are probes — `"possible?"`, `"what might this look like?"` get reaso
 ## the session shape (what happens without you asking)
 
 ```
-boot          kernel auto-loads → frontier (live state) → your orb header if marked
+boot          kernel auto-loads → frontier (live state)
               → the codemap shard for wherever the task lands → docs → code
 work          propose → your go → blast-bracket → verify with fresh output
 disintegrate  compact (your words verbatim, no dates) · memory · zettel scan
@@ -40,7 +40,6 @@ End-of-day delegation works: leave me a standing order ("i am leaving claude wit
 
 ### the surfaces — where to put what
 - **chat** — everything transient. Your typos/STT noise cost nothing; I parse intent.
-- **orb** (`private/logs/<date>.org` header, or `orbs/<topic>.orb.org`) — co-design. Annotate `@beef` inline; I translate annotations into named directives and fold them into the quest.
 - **quest** (`quests/*.quest.org`) — the durable spec: decision-trail, milestones that boot green, tangle blocks, mandatory testing assessment. Ask for one with "write out a quest".
 - **your file edits ARE spec** — edit code instead of explaining; I read the diff and propagate the pattern.
 

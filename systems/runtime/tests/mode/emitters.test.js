@@ -1,9 +1,7 @@
 import { specimen } from "@vivalence/typology";
+import { accio } from "../scenarios/registry.js";
 import { mountMode } from "../scenarios/mode.js";
 
-import * as exhibit from "../../../../registry/education/modes/games/exhibit/exhibit.viva.js";
-import * as match from "../../../../registry/education/modes/games/match/match.viva.js";
-import * as judge from "../../../../registry/education/modes/games/judge/judge.viva.js";
 
 const emitted = (result) => result?.output?.buffer ?? [];
 
@@ -29,14 +27,21 @@ const inputs = {
   },
 };
 
-const modes = { exhibit, match, judge };
+// resolved at module scope, not in beforeAll — the describe body branches on viva.manifest
+// at collection time, before any hook has run.
+const domain = await accio("@education/domain/language-learning");
+const modes = Object.fromEntries(
+  await Promise.all(
+    ["exhibit", "match", "judge"].map(async (slug) => [slug, await accio(`@education/game/${slug}`)]),
+  ),
+);
 
 for (const [slug, viva] of Object.entries(modes)) {
   specimen.describe(`game/${slug}`, () => {
     let scenario;
 
     specimen.beforeAll(async () => {
-      scenario = await mountMode(viva);
+      scenario = await mountMode(viva, { entities: domain.entities });
     });
 
     specimen.afterAll(async () => {

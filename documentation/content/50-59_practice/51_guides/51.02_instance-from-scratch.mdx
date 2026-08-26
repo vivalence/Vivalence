@@ -1,0 +1,470 @@
+---
+title: An instance from scratch.
+summary: Create a whole instance of Vivalence from scratch.
+author: claude (agent)
+---
+{/*
+steps:
+	hello world
+	load data
+	build a harness
+	svelte app ui
+	expose an aperture
+*/}
+
+import Source from "../../../src/components/Source.astro"
+import Example from "../../../src/components/Example.astro"
+import Trace from "../../../src/components/Trace.astro"
+import Tabs from "../../../src/components/Tabs.astro"
+
+A Mode is one citizen. An **Instance** is the whole recipe — runtime, daemons, services, client. `@viva/instance/standalone` is the shortest complete thing Vivalence can be: one file that declares a persisted entity, a domain, a mode with a face and an LLM coach, the machine that boots them, and some placeholder data.
+
+This page walks the file section by section — what each part declares and why it is the way it is. Its sibling [[32.01_anatomy-of-an-instance]] follows the same file through the machine: what paladin, the runtime and the daemon do with each of these declarations at boot. Build here, understand there.
+
+minimum vocabulary required:
+
+- `manifest` — `{type, slug, version, traits}`. Every module carries one; the `type` decides what the system does with it, the `traits` decide which machinery wakes.
+- `kernel` — a daemon's list of member modules. Usually references into the registry; here, inline objects — the whole daemon's content lives in this one file.
+- `statics` / `secrets` — a declaration's configuration. Every environment read is a thunk (`() => …`) so the file can be imported anywhere without an environment; paladin fires them at mount.
+- `mountpoint` — the instance's writable home. Databases and view bundles land there, never beside your code.
+
+## the marker
+
+```js title="standalone.viva.js — manifest"
+import paladin from "@vivalence/paladin";
+import { App, Url, Vector, svelte, v } from "@vivalence/typology";
+import { EntitySchema, types } from "@mikro-orm/core";
+import { DataEntity, DataRepository, DataSchema, LiteralEntity } from "@vivalence/runtime";
+
+export const manifest = { type: "instance", slug: "standalone", version: "0.0.1" };
+```
+
+`type: "instance"` is the marker paladin searches for: an instance directory must contain exactly one module that carries it. Everything else in the file hangs off this identity.
+
+## retention — an entity, declared
+
+```js title="standalone.viva.js — retention"
+class RetentionEntity extends DataEntity {
+  literal;
+  streak = 0;
+  seen = 0;
+  lastSignal = "";
+}
+const RetentionSchema = new EntitySchema({
+  class: RetentionEntity,
+  extends: DataSchema,
+  name: "Retention",
+  tableName: "Retention",
+  uniques: [{ properties: ["literal"] }],
+  repository: () => DataRepository,
+  properties: {
+    literal: {
+      kind: "m:1",
+      entity: () => LiteralEntity,
+      fieldName: "literal",
+      updateRule: "cascade",
+      deleteRule: "cascade",
+    },
+    streak: { type: types.integer },
+    seen: { type: types.integer },
+    lastSignal: { type: types.string, nullable: true },
+  },
+});
+
+const domain = {
+  manifest: { type: "domain", slug: "recall", version: "0.0.1", traits: [] },
+  entities: {
+    retention: {
+      type: "retention",
+      entity: RetentionEntity,
+      schema: RetentionSchema,
+      repository: DataRepository,
+    },
+  },
+};
+```
+
+Review memory gets its *own entity* instead of a JSON blob on some existing row. The declaration is the standard MikroORM tuple — class, schema, repository — wrapped in a kernel entry typed `domain`; at boot its entities join the system's own as equals ([[32.01_anatomy-of-an-instance]] shows the collate). The unique on `literal` pins the shape: one memory row per word. And nobody writes a migration — the daemon automigrates the schema into the instance's own database.
+
+## the deck — one vector, two mounts
+
+```js title="standalone.viva.js — deck"
+// ONE vector — the coach's tools AND the app's aperture (mode.call) are the same two natures.
+const deck = new Vector()
+  .open(
+    {
+      nature: "/load",
+      valence:
+        "Load the deck — every literal with its symbols and its retention (the dedicated review-memory entity; zeros when the literal was never reviewed).",
+    },
+    async (ctx) => {
+      const literals = await ctx.daemon.entities.literal.find({}, { populate: ["symbols"] });
+      const retentions = await ctx.daemon.entities.retention.find({}, { populate: ["literal"] });
+      const kept = new Map(retentions.map((row) => [row.literal.slug, row]));
+      return {
+        condition: "OK",
+        output: literals.map((literal) => {
+          const row = kept.get(literal.slug);
+          return {
+            slug: literal.slug,
+            trait: literal.trait,
+            symbols: literal.symbols.getItems().map((symbol) => symbol.slug),
+            retention: {
+              streak: row?.streak ?? 0,
+              seen: row?.seen ?? 0,
+              lastSignal: row?.lastSignal ?? null,
+            },
+          };
+        }),
+      };
+    },
+  )
+  .open(
+    {
+      nature: "/review",
+      valence:
+        "Record one review — upserts the literal's Retention row: seen always bumps, streak climbs when remembered and resets when forgotten.",
+      input: v.object({
+        literal: v.string().desc("The literal's slug, e.g. ciao."),
+        remembered: v.boolean().desc("Did the learner produce it?"),
+      }),
+    },
+    async (ctx) => {
+      const literal = await ctx.daemon.entities.literal.findOne({ slug: ctx.input.literal });
+      if (!literal)
+        return { condition: "ERROR", output: { message: `no literal '${ctx.input.literal}'` } };
+      const row =
+        (await ctx.daemon.entities.retention.findOne({ literal: literal.id })) ??
+        ctx.daemon.entities.retention.create({ literal, streak: 0, seen: 0 });
+      row.seen += 1;
+      row.streak = ctx.input.remembered ? row.streak + 1 : 0;
+      row.lastSignal = ctx.input.remembered ? "SUCCESS" : "FAILURE";
+      await ctx.daemon.entities.em.flush();
+      return {
+        condition: "OK",
+        output: {
+          literal: literal.slug,
+          streak: row.streak,
+          seen: row.seen,
+          lastSignal: row.lastSignal,
+        },
+      };
+    },
+  );
+```
+
+A `Vector` is a declaratively dispatched tree of handlers — the system's one shape for anything callable. Two natures here: `/load` reads the deck through the daemon's repositories, `/review` upserts one Retention row. The `valence` strings aren't comments — they're the tool descriptions the LLM coach reads. The `input` schema on `/review` is the declared contract: the coach's tool schema and the client wire both derive from it.
+
+Declared once, this vector is mounted twice in the mode below — `tools: deck` arms the coach with it, `aperture: deck` exposes it to the view as `mode.call`. Same behavior, two callers, zero duplication.
+
+## the flashcard mode — face
+
+```js title="standalone.viva.js — flashcard, manifest + app"
+const flashcard = {
+  manifest: {
+    type: "playground",
+    slug: "flashcard",
+    name: "Flashcard",
+    description:
+      "m39 demo — a whole flashcard app declared in the instance file: dataset-seeded literals and symbols, review memory in a dedicated Retention entity, a coach that loads the deck and records reviews.",
+    version: "0.0.1",
+    traits: ["APPLICATION", "STANDALONE", "DATASET", "TOOLED", "HARNESSED", "EXPOSED"],
+  },
+  app: new App(
+    svelte`
+      <script>
+        let { buffer } = $props();
+
+        let deck = $state([]);
+        let flipped = $state(false);
+
+        async function refresh() {
+          const result = await buffer.mode.call.load();
+          deck = result.output ?? [];
+        }
+        refresh();
+
+        let card = $derived([...deck].sort((a, b) => a.retention.streak - b.retention.streak)[0]);
+
+        async function verdict(remembered) {
+          await buffer.mode.call.review({ literal: card.slug, remembered });
+          flipped = false;
+          await refresh();
+        }
+      </script>
+
+      <div class="flashcard">
+        <p class="deck">{deck.length} literals · retention is its own entity — reload keeps the memory</p>
+
+        {#if card}
+          <button class="card" onclick={() => (flipped = !flipped)}>
+            {#if flipped}
+              <span class="text">{card.trait.TRANSLATED.learning}</span>
+              <span class="hint">{card.symbols[0]}</span>
+            {:else}
+              <span class="text">{card.trait.TRANSLATED.known}</span>
+              <span class="hint">tap to flip</span>
+            {/if}
+          </button>
+
+          {#if flipped}
+            <div class="verdict">
+              <button onclick={() => verdict(false)}>forgot</button>
+              <button onclick={() => verdict(true)}>knew it</button>
+            </div>
+          {/if}
+        {/if}
+
+        <ul class="memory">
+          {#each deck as literal (literal.slug)}
+            <li>
+              {literal.trait.TRANSLATED.learning} → {literal.trait.TRANSLATED.known}
+              · streak {literal.retention.streak}
+              · seen {literal.retention.seen}
+            </li>
+          {/each}
+        </ul>
+      </div>
+
+      <style>
+        .flashcard { height: 100%; display: grid; place-content: center; gap: 1rem; text-align: center; font-family: var(--font-family-code); }
+        .card { display: grid; gap: 0.4rem; padding: 2rem 3rem; cursor: pointer; }
+        .text { font-size: var(--font-size-4xl); }
+        .hint { opacity: 0.4; font-size: var(--font-size-sm); }
+        .verdict { display: flex; gap: 0.6rem; justify-content: center; }
+        .memory { list-style: none; opacity: 0.55; font-size: var(--font-size-sm); display: grid; gap: 0.2rem; }
+      </style>
+    `,
+    v.buffer({ data: {} }),
+  ),
+```
+
+The `traits` array is the mode's contract with the daemon — each name wakes one piece of machinery at boot:
+
+- `APPLICATION` — the mode has a face; the daemon bundles it, the runtime serves it.
+- `STANDALONE` — the face can open without an emitter behind it.
+- `DATASET` — the mode seeds data on first boot.
+- `TOOLED` — the mode arms tools (the deck).
+- `HARNESSED` — the mode has a dialogue harness; an LLM can drive it.
+- `EXPOSED` — the mode's aperture is compiled into `mode.call`.
+
+The face itself is Svelte 5 in a tagged template — ``svelte`…` `` — so this mode needs no second file. The view's whole contract with the system is the `buffer` prop: `buffer.mode.call.load()` and `buffer.mode.call.review({…})` are the deck vector from above, reached through the mode's exposed aperture. The weakest card (lowest streak) sorts to the front — the review loop drives what you see.
+
+## the flashcard mode — coach and seed
+
+```js title="standalone.viva.js — flashcard, harness + dataset"
+  harness: new Vector().use(async (ctx, next) => {
+    ctx.hallucination.system.flashcard = [
+      "You are the Flashcard coach — a two-card italian deck seeded by the mode's dataset.",
+      "Load the deck with the load tool; when the learner reports a review, record it with the review tool — it evolves the literal's Retention entity.",
+      "Keep replies to a sentence or two, plain text.",
+    ].join("\n");
+    await next();
+  }),
+  dataset: {
+    entities: {
+      symbol: [
+        {
+          slug: "word.part-of-speech.interjection",
+          traits: ["ONTOLOGICAL", "LABELED"],
+          trait: {
+            ONTOLOGICAL: {},
+            LABELED: {
+              name: "Interjection",
+              description: "A word expressing spontaneous feeling — a greeting.",
+            },
+          },
+        },
+        {
+          slug: "word.part-of-speech.noun",
+          traits: ["ONTOLOGICAL", "LABELED"],
+          trait: {
+            ONTOLOGICAL: {},
+            LABELED: { name: "Noun", description: "A word naming a thing." },
+          },
+        },
+      ],
+      literal: [
+        {
+          slug: "ciao",
+          traits: [],
+          trait: { TRANSLATED: { known: "hello", learning: "ciao" }, RANKED: { rank: 1 } },
+          symbols: [{ slug: "word.part-of-speech.interjection" }],
+        },
+        {
+          slug: "mondo",
+          traits: [],
+          trait: { TRANSLATED: { known: "world", learning: "mondo" }, RANKED: { rank: 2 } },
+          symbols: [{ slug: "word.part-of-speech.noun" }],
+        },
+      ],
+    },
+  },
+  tools: deck,
+  aperture: deck,
+};
+```
+
+The harness is middleware on the daemon's dialogue pipeline: it writes one system-prompt section onto the assembling request and passes on. The coach's actual capabilities come from `tools: deck` — when a learner tells it what happened, it calls `/review` itself, and the descriptions it acts on are the `valence` strings you already wrote.
+
+The dataset is the mode's starter content: two symbols, two literals, the links between them declared by slug. Seeded on first boot, skipped ever after — data lives in the daemon's database, the declaration is just its origin.
+
+## the machine
+
+```js title="standalone.viva.js — runtime + daemon"
+export const runtime = {
+  slug: "standalone-runtime",
+  statics: { serve: () => new Url(paladin.env.get("VIVA_RUNTIME_SERVE")) },
+  datamap: {
+    module: "@viva/datamap/libsql",
+    statics: { db: { file: `runtime.viva.db` } },
+  },
+};
+
+export const daemons = [
+  {
+    manifest: { type: "daemon", slug: "standalone", version: "0.0.1" },
+    docs: { name: "Standalone", valence: "the m39 one-file machine", icon: { emoji: "🃏" } },
+    statics: {},
+    kernel: [domain, flashcard],
+    lighthouse: {
+      module: "@viva/lighthouse/multiplayer",
+      statics: { remote: () => new Url(paladin.env.get("PUBLIC_VIVA_LIGHTHOUSE_REMOTE")) },
+    },
+    datamap: {
+      module: "@viva/datamap/libsql",
+      statics: { db: { file: `standalone.viva.db` } },
+    },
+    hallucinators: [
+      {
+        module: "@viva/hallucinator/anthropic",
+        statics: {},
+        secrets: { key: () => paladin.secret.get("SECRET_VIVA_ANTHROPIC_API_KEY") },
+      },
+    ],
+    consume: {},
+  },
+];
+```
+
+`kernel: [domain, flashcard]` is the whole daemon — the two objects declared above, inline. In a grown instance these are registry references (`"@education/domain/language-learning"`); the mechanism is the same, the daemon doesn't care where its kernel entries come from. Around the kernel, the daemon picks its services: a datamap for persistence, a lighthouse for identity, hallucinators for intelligence. Each is a `{module, statics, secrets}` reference — configuration for a module that lives in the registry, resolved at boot.
+
+Note what is *not* here: no ports hardcoded, no keys inline. Every environment read is a thunk into `paladin.env` or `paladin.secret`.
+
+```js title="standalone.viva.js — services + clients"
+export const services = [
+  {
+    slug: "multiplayer",
+    module: "@viva/lighthouse/multiplayer",
+    secrets: { jwt: () => paladin.secret.get("SECRET_VIVA_JWT") },
+    statics: { serve: () => new Url(paladin.env.get("VIVA_LIGHTHOUSE_SERVE")) },
+    datamap: {
+      module: "@viva/datamap/libsql",
+      statics: { db: { file: `lighthouse.viva.db` } },
+    },
+  },
+];
+
+export const lighthouse = {
+  statics: { remote: () => new Url(paladin.env.get("PUBLIC_VIVA_LIGHTHOUSE_REMOTE")) },
+};
+
+export const clients = {
+  kajuit: {
+    slug: "kajuit",
+    traits: ["ATTACHED"],
+    statics: {
+      serve: () => new Url(paladin.env.get("VIVA_CLIENT_KAJUIT_SERVE")),
+      lighthouse: {
+        remote: () => new Url(paladin.env.get("PUBLIC_VIVA_LIGHTHOUSE_REMOTE")),
+      },
+    },
+  },
+};
+```
+
+The lighthouse appears twice on purpose. Under `services` it is *hosted*: the instance runs its own identity service, attached inside the runtime's path tree. Under `lighthouse` (and in the daemon above) it is *consumed*: a remote URL. In this instance both point at the same instance — the standalone is self-sufficient — but the split is what lets a fleet of instances share one lighthouse later. The kajuit client is `ATTACHED` the same way: part of this recipe, served alongside.
+
+## environment
+
+The declaration reads its environment; two files supply it, side by side at the instance root.
+
+```js title="hello-world.viva.js — the environment schema, beside the manifest"
+export const environment = {
+  VIVA_RUNTIME_ORIGIN: {
+    describe: "Scheme and authority the runtime is reachable at. Everything below derives from it.",
+    default: "http://localhost:2601",
+    group: "addresses",
+  },
+  VIVA_RUNTIME_SERVE: {
+    describe: "Base URL the runtime serves on.",
+    default: "${VIVA_RUNTIME_ORIGIN}/",
+    group: "addresses",
+  },
+  PUBLIC_VIVA_LIGHTHOUSE_REMOTE: {
+    describe: "Lighthouse address as consumed — by the daemons, and by the browser after publish().",
+    default: "${VIVA_RUNTIME_ORIGIN}/attached/process/lighthouse/multiplayer",
+    group: "addresses",
+  },
+  SECRET_VIVA_JWT: {
+    describe: "Lighthouse signing secret. Generate with: openssl rand -base64 24",
+    group: "keys",
+  },
+};
+```
+
+There is exactly one environment **file** — `.env`, at the instance root, never committed — and
+exactly one **schema**, the export above. The schema is authored, because a machine cannot write
+"the coach needs one"; it is not generated. What *is* derived is the other direction: `hydrate`
+fires every thunk in the declaration through one pinhole and records which variables each one
+read, so `viva instance/doctor` can name every key, the exact site that needs it, and whether what
+it produced is usable. A key read by a thunk but described nowhere is the one drift that is always
+a bug, and it is reported.
+
+A default may reference another key with `${VAR}`. Expansion happens on read, so the written
+`.env` keeps the reference: change `VIVA_RUNTIME_ORIGIN` once and every address moves with it.
+
+An entry with no default is one you owe. `instance/init` prompts for exactly those, in the pages
+its `group`s describe, and writes them through a line-preserving upsert — so the comments the
+schema carried survive in your `.env`.
+
+## run it
+
+```sh
+viva instance/create @viva/instance/standalone     # → <ledger>/instances/standalone
+viva instances/use standalone                        # select it for this shell
+viva instance/init                                  # prompts for what the schema says is owed
+viva instance/run                                   # raises the runtime and the kajuit client
+```
+
+`create` with no target shelves the instance under `<ledger>/instances/<slug>`; pass a path as a second
+argument to put it anywhere else. Either way the instance never records where it lives — you needed its
+location to read its files, so storing it inside would be circular. `use` writes the *resolved path* into
+this shell's session file, or as one upserted line in `<ledger>/.env` with `--ledger`. Everything derived —
+`mountpoint/` and its databases — grows inside the instance home. Then give the client an account against
+the instance's own lighthouse:
+
+```sh
+viva instance/auth signup <username> <password>
+```
+
+The flashcard coach is `HARNESSED`, so it wants `SECRET_VIVA_ANTHROPIC_API_KEY`. The deck, the review
+loop, and the Retention entity all work without one.
+
+## it runs
+
+Proof over promise: at every build of these docs, the example below mounts this instance, raises the daemon headless, and plays the flashcard through `mode.call` — the exact calls the view makes. The capture tells the arc itself: load, three verdicts, load again — Retention holding all of it.
+
+<Tabs names={["stdout", "span", "source"]}>
+<Fragment slot="stdout">
+<Example name="51.02-flashcard" />
+</Fragment>
+<Fragment slot="span">
+<Trace name="51.02-flashcard" />
+</Fragment>
+<Fragment slot="source">
+<Source name="51.02-flashcard" />
+</Fragment>
+</Tabs>
+
+Read next: [[32.01_anatomy-of-an-instance]] — what the machine does with every one of these declarations, stage by stage.

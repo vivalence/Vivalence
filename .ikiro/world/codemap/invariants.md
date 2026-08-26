@@ -4,6 +4,8 @@ paths: ["subsystems/**", "systems/**", "registry/**", "testament/**"]
 <!-- writer: agent · derived-from: cross-container corpus read · verified: MikroORM.init sites grepped (6/6 ride datamap `config()`), `repository.populate.test.js` red-on-joined/green-on-balanced, runtime 51/322 · limit: 20 lines -->
 # codemap: cross-container invariants
 
+- **THIN inline docs** ([[thin]], `methods/thin.md`): one line, never a paragraph, never a rationale. Reasoning goes in the quest; *what* goes in the name. Check before reporting: added `//` lines vs added code lines — over ~1 in 12 is a fail, go cut. Stated in the kernel already and it did NOT fire for a whole session across five files, which is why it is repeated in this path-gated channel.
+- **GENERATED code is unverified until counted** ([[generated]], `methods/generated.md`): a placeholder must be impossible in the content (`@@SLOT@@`, never `D`); anchor by uniqueness, never by a start→end slice; then grep the output for the identifiers the template promised. **Parsing is not verification** — `.replace("D", "${")` turned `traits: ["ATTACHED"]` into `["ATTACHE${"]`, which type-checked clean and would have booted the client unattached.
 - **trait grammar everywhere**: declarative metadata in artifact + functional dispatch in resolver → emergent wiring. Ask "what trait expresses this?" before "what code implements this?".
 - trait check: `entity.traits.includes("X")` (array), never `entity.trait?.X` (values may be null = present-with-no-data).
 - **transport**: never raw fetch in Connection — the transport chain carries auth.

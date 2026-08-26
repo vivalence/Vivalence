@@ -1,17 +1,34 @@
 import { v } from "@vivalence/typology";
+import { config } from "../belt/index.js";
 import { ledger } from "./ledger/index.js";
+import { registry } from "./registry/index.js";
 import * as instance from "./instance/index.js";
+import { instances } from "./instances/index.js";
+import { census } from "./help.js";
+import { Help } from "./Help.jsx";
+
+const FLAGS = [
+  "--json",
+  "--buffer",
+  "--help",
+  "--env=<path>",
+  ...config.MOUNTS.map((mount) => `--${mount}=<path>`),
+];
 
 export default function (trajectory) {
   trajectory.branch("/ledger").slurp(ledger);
+  trajectory.branch("/registry").slurp(registry);
+  trajectory.branch("/instances").slurp(instances);
 
   trajectory.open(
     {
       nature: "/instance/create",
-      valence: "create an instance from a source — no target lands it in <ledger>/instances/<slug>",
+      valence:
+        "create an instance from a source — a bare slug resolves against the registry, an ambiguous or missing one opens the picker; no target lands it in <ledger>/instances/<slug>",
       schema: v.object({
-        source: v.string().desc("@owner/instance/slug identifier or ../path").optional(),
+        source: v.string().desc("slug | @owner/instance/slug | ../path — preset for the picker").optional(),
         target: v.string().desc("destination dir (defaults to <ledger>/instances/<slug>)").optional(),
+        use: v.boolean().desc("select it for this shell once created, and record it on the shelf").optional(),
       }),
     },
     instance.create,
@@ -81,8 +98,28 @@ export default function (trajectory) {
       valence: "instance report card — manifest, services, locks",
       schema: v.object({
         target: v.string().desc("slug or path (defaults to the mounted instance)").optional(),
+        filter: v
+          .string()
+          .desc("narrow the env table — a substring, or a facet: group:keys · verdict:REQUIRED · key:NLP")
+          .optional(),
       }),
     },
     instance.doctor,
+  );
+
+  trajectory.open(
+    {
+      nature: "/help",
+      valence: "every nature with its params and valence; a prefix narrows, an exact nature details",
+      schema: v.object({ filter: v.string().desc("noun or path prefix").optional() }),
+    },
+    async (ctx) => {
+      const filter = ctx.signal.params?.[0];
+      const commands = census(trajectory).filter(
+        (row) => !filter || row.nature.startsWith(filter),
+      );
+      ctx.effect = { commands, flags: FLAGS };
+      await ctx.view?.scroll.emit({ commands, flags: FLAGS }, null, Help);
+    },
   );
 }

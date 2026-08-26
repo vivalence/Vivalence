@@ -6,7 +6,7 @@
   },
   "version": "0.0.1",
   "tasks": {
-    "test": "deno test -A --no-check --watch --env-file=../../testament/instance/.env tests/**/*.test.js",
+    "test": "deno test -A --no-check --watch tests/**/*.test.js",
     "test/vip": "deno test -A --no-check --watch tests/vip.test.js",
     "test/pensieve": "deno test -A --no-check --watch tests/pensieve.test.js",
   },

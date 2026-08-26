@@ -1,0 +1,114 @@
+#+TITLE: M14 — testing fixtures (the @fixtures package + lock-demo residence)
+#+AUTHOR: Vivalence
+#+STATUS: DESIGN
+#+DATE: 2026-07-02
+
+* Meta
+** Intent
+
+beef (verbatim, voice): *"an m fourteen for the lock demo residence, which we
+will call m fourteen testing fixtures. And I think we are gonna create a new
+package called fixtures, which will be used throughout testing."*
+
+Two halves, one settlement:
+
+1. *The =fixtures= package* — NEW =registry/fixtures/= (derives =@fixtures=
+   from the mount dirname, M11 derive-by-default), used throughout testing.
+   Fills the hole =@simulation= left when it was cut: today's test fixtures
+   are synthetic in-memory strings (=vip.test.js= stubs still say
+   =@simulation= as fake owner names) — real on-disk fixtures would exercise
+   the REAL walk/mount/supply path.
+
+2. *lock-demo residence* — M11 fork 4, POSTPONED by beef (verbatim: *"i am
+   not sure about this specific settlement yet... mark it as forked and keep
+   the tangle clean!"*). The LOCK mechanism is proven (vip precedence,
+   in-memory in =vip.test.js=); only the REAL fixture file is parked. Its
+   natural home is now obvious: inside =@fixtures=. Open sub-question from
+   fork 4 survives: is =scenario/= the right type/dir for it?
+
+** Considerations (unresolved, for the design pass)
+
+- A walked =registry/fixtures/= changes =registry.count.test.js='s BASELINE
+  math — decide whether fixtures are part of the default supply (seeded into
+  =testament/ledger/registry.json=) or mounted only by test setups
+  (=vip.mount= on demand, ledger untouched).
+- =vip.test.js='s synthetic =@simulation= strings could migrate to
+  =@fixtures= for coherence — or stay synthetic (in-memory stubs don't need
+  a real package; the two test styles cover different layers).
+
+* Milestones
+
+** M14.0 · settle supply-membership question, create the package, re-home lock-demo — one bracket
+
+*** LANDED (uncommitted) — scenarios → @fixtures
+
+Settled forks (beef): =@fixtures= IN default supply · determinism = builders
++ frozen snapshots · migrate everything EXCEPT the tooling layer (bench + the
+mount/daemon/cortex scaffolds stay, fold toward bench).
+
+*THE LAW that fell out — DATA vs MECHANICS.* Thing-by-thing:
+- DATA / variant-level → =@fixtures= (registry): the seed corpus, the entity
+  =tiers=/=variant=, the mock cortex faculties (47.02 literal), the lighthouse
+  identity/daemon seed, the standalone concretes.
+- MECHANICS / tooling → stays in each system's tests: the in-memory =provider=
+  (typology/specimen level, keeps typology standalone-publishable), =cats= (a
+  typology-internal Vector sample, NOT a fixture), and the =mountMode=/=daemon=/
+  =cortex=/=lighthouse= SCAFFOLDS + =bench= (runtime, the bench-family apex).
+
+*Faithful assembly (the crux).* =@fixtures/data/assemble.js= reproduces
+=population.core='s =collate=/=seal= — schema/entity/repository OVERRIDE,
+subscribers ACCUMULATE, abstract bases sealed. The old scenario =variant.js=
+used the stale =Object.values= merge that DROPS the base =LiteralSubscriber=
+([[project_entity_variant_assembly]]); =@fixtures= registers it (verified: 2
+subscribers reach the provider). typology scenario =provider(variant,
+subscribers)= gained the 3rd arg (mirrors real libsql provider; variant.map
+fallback keeps existing consumers unchanged). bench re-abstracted onto
+=assemble= too — kills its own dropped-subscriber + no longer depends on the
+domain to concretize (seal handles abstract bases).
+
+*Shape.* =registry/fixtures/=: =package.viva.js= (@fixtures) + =language-learning/
+corpus.viva.js= (manifest-only, LIGHT — never drags the harness into prod
+supply) + =data/= {assemble, tiers, seed, faculties, lighthouse, concretes,
+index} + =snapshots/corpus.snapshot.json= (frozen, tracked via scoped
+=.gitignore= =!corpus.snapshot.json=). Determinism test at
+=systems/runtime/tests/fixtures/corpus.snapshot.test.js= (HOT writes, DRY
+re-seed asserts byte-match). Old data files =.bak='d
+(=entities.bak.ts=/=variant.bak.js=); scaffolds rewired to the ONE shim
+=scenarios/fixtures.js= → =../../../../registry/fixtures/data/index.js=;
+=@vivalence/runtime/scenarios= barrel + consumers untouched (no deno.jsonc/
+import_map edits — all inside **/tests + fixtures).
+
+*Count baseline.* =registry.count.test.js= BASELINE+7 → +8 (=46; +2 @fixtures:
+package + language-learning fixture). Was already stale (real 44, expected 45)
+before this.
+
+*Verified green:* runtime (daemon/mode/bench/cortex/multiplex/topography),
+typology (datamap/repo/em), paladin (count/supply/vip), kajuit
+(scenario/oracle/harness-wire), multiplayer. Only red = =daemon/integration.test.js=
+(live :2501, environmental, no scenario imports).
+
+*Fixed en route (pre-existing M11-flatten + domain-reorg collateral, in-scope
+**/tests):* =bench/smoke.test.js= (=domain/learning/= → =domain/=, =game/*= →
+=modes/games/*=), =mode/aprende.*= + =mode/emitters.test.js= (=game/*=,
+=homepage/= → =modes/games/*=, =modes/home/=).
+
+*Open / flagged:*
+- Seed literals show =symbol:{}= / =ontology:""= — the base LiteralSubscriber
+  is now REGISTERED but doesn't derive on this seed's flush pattern (create
+  literal, then link symbols in a later flush → junction change doesn't re-fire
+  the literal subscriber). Matches old scenario output; the real DATASET path
+  derives via batched upsert. Fidelity-vs-real gap, not a migration regression.
+  Decision owed: make the seed re-persist post-link, or accept the simplification.
+- lock-demo residence (fork 4) — still parked; natural home confirmed as
+  =@fixtures=, not built this bracket.
+- @simulation stubs in =vip.test.js=/=source.test.js= — could migrate to the
+  real =@fixtures= package now that it's supplied; deferred.
+- bench DATASET still double-seeds (real trait via stagger + hand-rolled
+  =seedDataset=); idempotent, in-file TODO stands.
+
+* Changelog
+- 2026-07-02 :: Quest seeded on beef's instruction — fork 4 notes carried
+  from M11, considerations listed, nothing designed.
+- M14.0 :: scenarios → @fixtures LANDED. DATA/mechanics split; collate/seal
+  faithful assembly; determinism snapshot; bench re-abstracted; all consumer
+  suites green.

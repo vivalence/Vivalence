@@ -1,0 +1,1036 @@
+* Intent
+Make the existing modes RUN on the rebuilt stall, and rebuild the =playground=
+into the canonical teaching rig for the new architecture. The stall core landed
+(M1–M3, below); this quest is the UI integration pass — the playground first
+(rewritten as deep as it wants to go), then a sweep of the live modes to confirm
+the =buffer.release()= contract still drives them.
+
+This is M4 of the stall arc. M5 (=widget-glyphs=) is its sibling.
+
+* How we got here (the journey + the fingerprint)
+This quest is downstream of a long research → design → implement session. The
+fingerprint matters because the *reasoning* is the spec.
+
+1. *Research.* Started from "how does stall rendering work?" — traced the cursor
+   from =prototypes/stall.js= through =terminal.js= ($buffer = stall.$active),
+   =Frame.svelte= (renders =terminal.$buffer=), and the panel drivers. Then a
+   deep sweep of the Vector/Signal/steer/context machine + every panel (a/c/d/e/f)
+   + the trait shapes (MASKED/AIMED/QUEUEING) + the entity schemas, ground-truthed
+   by parallel agents AND re-read by hand (the investigator's ground-truth gate).
+2. *The connoisseur verdict.* The blast radius proved there are exactly two roles
+   already sharing one interface — *drivers* (set phase + seize the cursor:
+   f.svelte, the Spawner, d.svelte) and *targets* (report done via
+   =buffer.release()=: 13 game modes + spawned). The common interface EXISTED; it
+   was just transient (f.svelte hand-passed =continuous({fetch,queue})=). The fix
+   was *hoisting, not rebuilding*: phase → =thread.phase= (the entity already had
+   the field, enum only =STREAM=), config → =thread.trait=, fetch → =thread.pull=
+   (AIMED already installs it). I explicitly REJECTED a Vector-based stall — elegant
+   but incidental for four flat phases reacting to atoms (the discriminator:
+   essential vs incidental complexity).
+3. *The build (LANDED, green).* Three blast→test→land→test→blast milestones:
+   - *M1 typology core* — =prototypes/stall.js= rewritten: =Stall({source, active,
+     phase, pull, depth})=, four phases =inert/manual/continuous/escort=, ONE
+     cursor authority (=settle= absorbs the old a-panel auto-focus), phase READ
+     LIVE never written (drivers write =thread.phase=). =ThreadPhaseEnum= →
+     =inert/manual/continuous/escort= (default =manual=). =tests/stall.test.js=
+     rewritten to the new contract → 10 passed; full typology 102 passed.
+   - *M2 client wiring* — =terminal.js= builds the stall from the thread (live
+     =pull=/=depth= thunks, =phase: thread.$phase=); =thread.js= =$phase= atom
+     activated (the getter/setter were already scaffolded, commented); a.svelte
+     auto-focus =$effect= deleted (settle owns it).
+   - *M3 drivers* — f.svelte start/stop → =thread.phase= write + persist;
+     e.svelte gained a phase selector (the driver UI); Spawner/Spawned migrated;
+     a focused integration test (=systems/kajuit/tests/terminal.stall.test.js=)
+     proves Terminal builds a stall from a thread and phase drives =terminal.$buffer=.
+
+The throughline (worth re-reading the =## code= doctrine's =### the throughline=):
+*one knob (=thread.phase=), one cursor authority (=settle=), one fetch
+(=thread.pull=), one preserved contract (=buffer.release()=).* This quest does NOT
+touch that core — it makes the surface express it.
+
+* Six directions of travel (the conversation that produced this)
+The session moved through six directions; M4 sits at the confluence of four. Verbatim
+Finn, because the reasoning IS the spec.
+
+** D2 · Stall substrate research  [load-bearing]
+Began at "how does stall rendering work" — mapped the cursor, four phases, the render
+path (=terminal.$buffer= → =Frame=). Finn, narrowing:
+  "What render phases do we have to find currently in stall and terminal? and I think
+   in thread."
+That instinct — phase belongs on the thread — became the architecture.
+
+** D3 · Finn's rebuild intent (the scribe download)  [load-bearing]
+The phases + the common interface came straight from Finn thinking aloud:
+  "the inert phase where we just literally do nothing… manual is where we receive a
+   function and some configuration… an event happened, should I pull now?… continuous
+   and escort, which are two ways for the stall to manage the emitters itself."
+  "who are the consumers of our stall? They are either the apps that we render in our
+   frames or they are the c panel… they both share the same interface."
+  "the render phase should live on the thread. as the source of truth with a reactive
+   living on stall for everybody to read."
+  "there's a nice way to isolate all of the phases to, like, serialize that function,
+   make the base class easily accessible. and I need you to do it."
+M4 makes the playground EXPRESS this driver/target split and runs the real modes on it.
+
+** D5 · Architecture verdict + blast  [load-bearing]
+The blast radius confirmed the "common interface" hunch — two roles, one surface.
+  "reason through whether the architecture as it stands now is the right way to
+   approach this problem. Is that the common interface that both the buffer apps and
+   the c panel need?"
+  "give me the blast radius of stall inside of registry and our client. What
+   specifically do we have to change? who are the consumers… what entities do they
+   expect in return."
+Verdict: yes — hoist phase→thread, config→trait, fetch→thread.pull. M4 is the proof on
+a rig we control + a sweep of the 13 release-driven modes.
+
+** D6 · Build discipline  [active]
+  "do a step by step implementation. 3 milestones. each a blast test land test blast
+   method… go."
+M1–M3 landed green under that discipline; M4 continues it (4.0 → 4.1 → 4.2, each
+blast→test→land→test→blast). And on the playground freedom:
+  "Start with just the playground… you can rewrite the playground entirely… go as deep
+   as you want to make this simple, direct, elegant. you you know the drill."
+
+** D1 · Connoisseur frame  [moderate]
+The rewrite is judged by the rubric — one rig, one law, legible. ("simple, direct,
+elegant… you know the drill.")
+
+** D4 · Vector-as-combinator  [excluded — the road not taken]
+A Vector-based stall (phases as leaves) was explored and REJECTED for four flat phases
+(incidental complexity — the discriminator). M4 carries none of it; recorded so a
+future reader doesn't re-litigate. Finn's gate that pinned us to prod primitives:
+  "solve this function using no speculative interfaces! only whats apready tested and
+   used in prod!"
+
+* Architecture (grounded — the landed contract)
+The stall, post-M3, is a pure reactive function over a thread:
+#+BEGIN_SRC
+  Stall({ source, active, phase, pull, depth })
+    source = thread.$buffers          active = terminal.$buffer (the one render pointer)
+    phase  = thread.$phase            pull   = thread.pull (AIMED) ; depth = thread.trait.QUEUEING.depth
+
+  phases (read live from thread.$phase):
+    inert       no subscription; deliberate null active respected (homepage empty-state)
+    manual      settle (auto-focus + advance-on-release); the app drives pulls
+    continuous  manual + pull() to keep depth() queued; release refills
+    escort      manual; walks a pre-loaded queue, returns to `home` on drain (NO fetch)
+
+  roles:
+    DRIVER   writes thread.phase (+ optional .only filter)     c-panel e/f · buffer-apps · (M5: the face)
+    TARGET   calls buffer.release()                            13 game modes + spawned
+#+END_SRC
+
+Trait shapes (verified, historical):
+- =AIMED: { mount: "/emit/<type>/<nature>" }= → installs =thread.pull(args)= =
+  =mode.connection.call(mount, merge({thread}, MASKED, args))=.
+- =MASKED: { where?, limit?, ... }= → the emit body merged into the pull call.
+- =QUEUEING: { depth: N }= → the stall's =depth()=.
+The Thread =beforeCreate= hook copies =intent.traits= + deep-merges =intent.trait=
+(thread wins per key), so a mode's =dataset.intent= seeds all of this for free.
+
+* Desired End State
+- =playground= is the canonical, self-explanatory rig for the four phases + the
+  driver/target split — no demo hacks (the M3 Spawner injects =thread.pull=emit=
+  inline; replace with a REAL AIMED config so continuous pulls legitimately).
+- Every live mode that renders a buffer runs unchanged on the new stall, verified
+  against the =buffer.release()= contract; any mode that read the old phase strings
+  (=STATIC=, =Phase.CONTINUOUS=) or configured the stall directly is fixed.
+- The three drivers (e-panel phase chips, f-panel start/stop, a buffer-app) are
+  shown to drive IDENTICALLY — all just write =thread.phase=.
+- One demo per phase, reachable from the playground, that a newcomer can read.
+
+* What we REUSE (do not rebuild)
+The stall core, the terminal wiring, the e-panel phase selector, the AIMED/MASKED/
+QUEUEING traits, the emitter pipeline (=mode.emit.*= → Pool → =em.flush=), the
+=dataset.intent= seeding, the Frame moat. New code = a cleaner playground + a thin
+mode-sweep. The plumbing already exists and is green.
+
+* ───────────────────────────────────────────────────────────────────────────
+* MILESTONE 4.0 · BASELINE — assess that M1–M3 actually runs
+Before any new M4 work, confirm the landed stall rebuild WORKS in the live app. The
+typology + integration tests are green, but the client was never driven through a browser.
+This milestone is manual: three click-paths Finn walks (the chrome extension is flaky, so
+Finn drives; I read the console + code if something breaks). Each path exercises a distinct
+piece of M1–M3. This GATES the rest — no new M4 code until the baseline is green.
+
+** Path A · MANUAL phase — render + advance + the deleted auto-focus
+1. d-panel: pick a daemon → an APPLICATION mode (a game mode, or playground spawner) →
+   creates a thread, default =phase: "manual"=.
+2. f-panel: "Open" / create a buffer.
+3. a-panel (moat): the buffer auto-focuses + RENDERS with no extra click.
+   *Proves:* =settle= is the single cursor authority — the a-panel auto-focus =$effect= was
+   deleted in M2; if the buffer renders, settle replaced it.
+4. Complete the buffer (the mode's done action → =buffer.release()=).
+   *Proves:* the release contract — cursor advances (or empties) AND the buffer is evicted
+   (terminal =on.release= → removeOne). The 13-mode contract, live.
+
+** Path B · CONTINUOUS via the e-panel chip — the new driver + thread.pull
+1. d-panel: open an AIMED-capable thread (emitter has leaves; or e-panel → toggle AIMED, set
+   a mount + MASKED).
+2. e-panel: the new =phase= chips are visible. Click =continuous=.
+   *Proves:* the M3 e-panel driver writes =thread.phase=; the stall re-engages live.
+3. Watch buffers pull in (=thread.pull=/AIMED) up to QUEUEING depth; ✓complete one → refills.
+   *Proves:* continuous pull + depth + release-refill, fetch from =thread.pull=.
+4. Click =inert=. Pulling stops; a deliberate-empty moat is respected.
+   *Proves:* phase-gating (live read) + the inert do-nothing path.
+
+** Path C · the playground rig — all four phases + driver-equivalence
+1. d-panel: open the playground =spawner=.
+2. moat: click =spawn= → spawned cards appear in the thread.
+3. =static= (→manual) walk + ✓advance · =continuous= refills · =escort= seizes then returns
+   to the hub on drain.
+   *Proves:* all four phases through a BUFFER-APP driver (the M3 Spawner migration).
+4. With the same thread active, set its phase from the e-panel chip instead of the hub
+   button — identical behavior.
+   *Proves:* the common interface — buffer-app and c-panel are ONE driver (both write
+   =thread.phase=).
+
+** What a failure tells us
+- Won't render on open → settle/auto-focus regression (M2): =terminal.js= stall build +
+  =a.svelte= Frame binding.
+- Phase chip does nothing → =thread.$phase= not wired/persisted: =thread.js= =$phase= +
+  =e.svelte setPhase=.
+- Continuous won't pull → =thread.pull= undefined (AIMED) or the terminal pull thunk.
+- ✓complete won't advance/evict → the =buffer.release()= bridge (=stall.js= observe) or the
+  terminal =on.release= hook.
+
+* MILESTONE 4.1 · the intent declares the phase (entity foundation)
+An intent already declares a thread's traits + trait-config; it should ALSO declare its
+render PHASE, so opening an intent yields a fully-configured, auto-engaged thread — no hub
+click needed to start. Four touch points.
+
+** DIFF · Intent entity — an optional phase
+=subsystems/typology/entities/userspace/Intent.ts=: add =phase?: ThreadPhaseEnum & Opt=
+(nullable — absent means "thread keeps its default"). Schema property: enum, nullable,
+=items: () => ThreadPhaseEnum= (reuse the Thread enum, exported from Thread.ts).
+
+** DIFF · Thread.beforeCreate — copy it (intent-wins, like traits)
+The hook already does =thread.traits = [...intent.traits]= (intent overwrites wholesale).
+=phase= is the scalar sibling — add after the traits copy:
+#+BEGIN_SRC javascript
+  if (intent.phase) thread.phase = intent.phase;   // intent-declared phase seeds the thread
+#+END_SRC
+Semantics: =traits= + =phase= are intent-wins; =trait= (config object) stays thread-wins-
+per-key (=object.merge(intent.trait, thread.trait)=).
+
+** DIFF · datasets declare it
+Each mode's =dataset.intent[]= gains =phase=:
+- queue-y intents (playground spawn, survival, clinic) → =phase: "continuous"=
+- single-buffer app intents → =phase: "manual"= (or omit → default manual)
+The playground intent, in full:
+#+BEGIN_SRC javascript
+  { slug: "spawn", name: "Spawn",
+    traits: ["MASKED", "AIMED", "QUEUEING"],
+    trait: { AIMED: { mount: "/emit/playground/spawn" }, MASKED: {}, QUEUEING: { depth: 2 } },
+    phase: "continuous" }
+#+END_SRC
+
+** DIFF · e-panel save captures it
+=e.svelte onSaveIntent=: add =phase: current.phase= to the =intent.create({...})= body, so
+"save as intent" preserves the live phase alongside traits + trait.
+
+** Verify
+- Open an intent-thread → =thread.phase= equals the intent's; the terminal's stall
+  auto-engages it (continuous starts pulling with no manual button press).
+- A thread created WITHOUT an intent still defaults to =manual=.
+- Round-trip: configure a thread, save-as-intent, re-open the intent → same phase.
+- Legacy =STREAM= rows still pass the enum CHECK (kept @deprecated); a =stream= thread
+  behaves as a managed phase (settle, no fetch — not inert), acceptable until migrated.
+
+* MILESTONE 4.2 · playground, rewritten from scratch — LITERATE / TANGLE-ABLE
+Determined against Finn's original scribe expectations (§"Six directions" D3) and where
+the system now stands. The playground splits into FOUR groups, by *who manages the
+buffers* — the exact axis from the scribe download ("continuous and escort are two ways
+for the STALL to manage the emitters" vs inert/manual where the APP owns it) — plus a
+fourth that switches BETWEEN them live:
+
+#+BEGIN_SRC
+  GROUP 1  Organic / self-managed       spawner + spawned     inert · manual         the APP owns progression
+  GROUP 2  Dealt / stall-managed        dealer  + card        continuous · escort    the STALL manages the emitter
+  GROUP 3  Intent-driven / self-config  automaton + N intents all phases             open an intent → self-manages
+  GROUP 4  Thread-driven / live-switch  switchboard           all phases, hot-swapped switch phase + cursor on a live thread
+#+END_SRC
+
+Together they cover all four phases across three management models, plus every behavior
+we built this session (emit · cross-mode · AIMED/MASKED/QUEUEING · EXHAUSTED · intent.phase ·
+harness · conversation · the common interface). Reserved (Finn expected, NOT yet built —
+the dealer readout keeps a face for them): the config-integrity =$errors= stack, the
+"network tab", explicit Aim/Mask validation, and escort's "render an empty buffer" for
+standalone (today's escort returns =home=).
+
+** Prereqs / tangle notes
+- The =playground= daemon needs a *cortex* (Group 2's HARNESSED + CONVERSATIONAL require
+  it). No cortex → drop those two traits from =dealer= and skip /oracle + chat; the rest
+  still demos.
+- =spawner/spawned= are REPURPOSED, not deleted (Group 1). Tangle overwrites them.
+- Tangle paths are relative to THIS file (=.ikiro/quests/=); =:mkdirp yes= creates dirs.
+
+* ── GROUP 1 · Organic (self-managed): spawner + spawned ──────────────────────────────
+The APP owns its buffers. Only =inert= (=free=: the stall does nothing, each spawned
+self-evicts) and =manual= (=walk=: the stall does cursor discipline only, the app spawns).
+NO AIMED, NO stall pull — this is the counter-demo to Group 2.
+
+** spawner.viva.js
+#+BEGIN_SRC javascript :tangle ../../registry/playground/spawner/spawner.viva.js :mkdirp yes
+import { App, Vector, v } from "@vivalence/typology";
+
+export const manifest = {
+  type: "playground",
+  slug: "spawner",
+  name: "Spawner",
+  description: "Organic hub: the app spawns self-managed buffers (inert/manual).",
+  version: "0.2.0",
+  traits: ["APPLICATION", "STANDALONE", "EMITTER"],
+};
+
+export const app = new App("buffer/Spawner.svelte", v.buffer({ data: {} }));
+
+// emit `spawned` buffers (cross-mode). NO AIMED — the app spawns on demand; the stall
+// never pulls. inert = app fully owns; manual = stall does cursor discipline only.
+export const emitter = new Vector().open(
+  { nature: "/spawn", input: v.object({ count: v.integer({ minimum: 1 }).default(2) }) },
+  async (ctx) => {
+    const spawned = ctx.daemon.modes.playground.spawned;
+    for (let index = 0; index < ctx.input.count; index++)
+      ctx.pool.add(spawned.buffer({ data: { label: "spawned" } }));
+  },
+);
+#+END_SRC
+
+** buffer/Spawner.svelte
+#+BEGIN_SRC html :tangle ../../registry/playground/spawner/buffer/Spawner.svelte :mkdirp yes
+<script>
+  import { atom } from "@vivalence/typology";
+
+  const { terminal, buffer } = $props();
+  const $phase = atom.chain(terminal, "$thread", "$phase");
+  const $buffers = atom.chain(terminal, "$thread", "$buffers");
+  const isSpawned = (b) => b.mode?.slug === "spawned";
+
+  // only the two SELF-MANAGED phases — no continuous/escort here.
+  const PHASES = [
+    { key: "inert", label: "free", hint: "stall does nothing; each spawned self-evicts" },
+    { key: "manual", label: "walk", hint: "stall advances the cursor on done; the app spawns" },
+  ];
+
+  async function spawn() {
+    await buffer.mode.emit.spawn({ thread: terminal.thread.id });
+  }
+  function setPhase(key) {
+    terminal.stall?.only(isSpawned);
+    terminal.thread.phase = key;
+    terminal.thread.daemon.entities.thread.updateOne({ id: terminal.thread.id }, { phase: key });
+    if (key === "manual")
+      terminal.buffer = terminal.thread.$buffers.get().find(isSpawned) ?? buffer;
+  }
+</script>
+
+<div class="spawner">
+  <div class="tag">playground · spawner (self-managed)</div>
+  <div class="readout">
+    <span>phase <b>{$phase ?? "—"}</b></span>
+    <span>buffers <b>{($buffers ?? []).filter(isSpawned).length}</b></span>
+  </div>
+  <div class="row"><button onclick={spawn}>spawn</button></div>
+  <div class="row">
+    {#each PHASES as p (p.key)}
+      <button class:on={$phase === p.key} title={p.hint} onclick={() => setPhase(p.key)}>{p.label}</button>
+    {/each}
+  </div>
+  <ul class="list">
+    {#each ($buffers ?? []).filter(isSpawned) as b (b.id)}
+      <li class:active={terminal.buffer?.id === b.id}>
+        <button onclick={() => (terminal.buffer = terminal.buffer?.id === b.id ? null : b)}>
+          #{b.index ?? 0} {b.data?.label ?? ""}
+        </button>
+      </li>
+    {/each}
+  </ul>
+</div>
+
+<style>
+  .spawner { min-height:100%; box-sizing:border-box; display:flex; flex-direction:column; align-items:center; justify-content:center; gap:.8rem; padding:18px; background:var(--colors-skeleton-2-surface); color:var(--colors-skeleton-2-contrast); font-family:var(--font-family-code); }
+  .tag { font-size:var(--font-size-xs); text-transform:uppercase; letter-spacing:.12em; color:var(--colors-skeleton-0-primary-base); }
+  .readout { display:flex; gap:1rem; font-size:var(--font-size-2xs); opacity:.7; }
+  .readout b { color:var(--colors-skeleton-0-primary-base); font-weight:600; }
+  .row { display:flex; gap:.5rem; }
+  button { padding:.35rem .9rem; font:inherit; font-size:var(--font-size-2xs); color:inherit; background:transparent; border:1px solid color-mix(in srgb,currentColor 25%,transparent); border-radius:.3rem; cursor:pointer; opacity:.8; }
+  button:hover { opacity:1; border-color:var(--colors-skeleton-0-primary-base); }
+  button.on { opacity:1; color:var(--colors-skeleton-0-primary-base); border-color:var(--colors-skeleton-0-primary-base); }
+  .list { list-style:none; margin:0; padding:0; display:flex; flex-direction:column; gap:.2rem; width:13rem; }
+  .list li.active button { color:var(--colors-skeleton-0-primary-base); border-color:var(--colors-skeleton-0-primary-base); }
+</style>
+#+END_SRC
+
+** spawned.viva.js
+#+BEGIN_SRC javascript :tangle ../../registry/playground/spawned/spawned.viva.js :mkdirp yes
+import { App, v } from "@vivalence/typology";
+
+export const manifest = {
+  type: "playground",
+  slug: "spawned",
+  name: "Spawned",
+  description: "Self-managed render target — owns its own progression.",
+  version: "0.2.0",
+  traits: ["APPLICATION"],
+};
+
+export const app = new App("buffer/Spawned.svelte", v.buffer({ data: { label: v.string() } }));
+#+END_SRC
+
+** buffer/Spawned.svelte
+#+BEGIN_SRC html :tangle ../../registry/playground/spawned/buffer/Spawned.svelte :mkdirp yes
+<script>
+  import { atom } from "@vivalence/typology";
+
+  const { buffer, terminal } = $props();
+  const $data = atom.chain(buffer, "$data");
+
+  // report done. under MANUAL the stall advances + the terminal evicts; under INERT the
+  // app owns it, so evict here (the self-managed path).
+  function done() {
+    buffer.release();
+    if (terminal.stall?.$phase?.get?.() !== "inert") return;
+    terminal.thread.daemon.entities.buffer.drop(buffer.id);
+    terminal.thread.daemon.entities.buffer.removeOne({ id: buffer.id });
+    if (terminal.buffer?.id === buffer.id) terminal.buffer = null;
+  }
+</script>
+
+<div class="spawned">
+  <div class="idx">#{buffer.index ?? 0}</div>
+  <div class="label">{$data?.label ?? "spawned"}</div>
+  <button class="done" onclick={done}>done ✓</button>
+</div>
+
+<style>
+  .spawned { height:100%; display:flex; flex-direction:column; align-items:center; justify-content:center; gap:.6rem; background:var(--colors-skeleton-3-surface); color:var(--colors-skeleton-3-contrast); font-family:var(--font-family-code); }
+  .idx { opacity:.35; font-size:var(--font-size-sm); }
+  .label { font-size:var(--font-size-4xl); }
+  .done { margin-top:.4rem; padding:.4rem 1.1rem; font:inherit; font-size:var(--font-size-xs); color:var(--colors-skeleton-0-primary-base); background:transparent; border:1px solid var(--colors-skeleton-0-primary-base); border-radius:.3rem; cursor:pointer; }
+  .done:hover { background:color-mix(in srgb,var(--colors-skeleton-0-primary-base) 12%,transparent); }
+</style>
+#+END_SRC
+
+* ── GROUP 2 · Dealt (stall-managed): dealer + card ───────────────────────────────────
+The STALL manages the emitter (continuous/escort). AIMED =thread.pull=, QUEUEING depth,
+cross-mode emit, finite deck → EXHAUSTED, harness + conversation.
+
+** dealer.viva.js — manifest · app · harness · emitter · conversation · dataset
+The hub. Drives the phase (it does NOT fetch — continuous pulls via the AIMED =thread.pull=,
+which points back at this mode's own =/emit/deal=). Emits =card= buffers (cross-mode). The
+finite =DECK= + =thread.counter= give a clean EXHAUSTED.
+#+BEGIN_SRC javascript :tangle ../../registry/playground/dealer/dealer.viva.js :mkdirp yes
+import { App, Vector, v } from "@vivalence/typology";
+
+export const manifest = {
+  type: "playground",
+  slug: "dealer",
+  name: "Dealer",
+  description: "Driver hub: deals card buffers, drives the thread phase, talks.",
+  version: "0.1.0",
+  traits: ["APPLICATION", "STANDALONE", "EMITTER", "HARNESSED", "CONVERSATIONAL"],
+};
+
+// the hub is a control surface — its buffer carries nothing.
+export const app = new App("buffer/Dealer.svelte", v.buffer({ data: {} }));
+
+// the finite deck the dealer deals from. running off the end = EXHAUSTED.
+const DECK = ["A♠", "K♥", "Q♦", "J♣", "10♠", "9♥", "8♦", "7♣"];
+
+// ── harness · the dealer's persona — powers /oracle AND the conversation ─────────
+export const harness = new Vector();
+harness.use(async (ctx, next) => {
+  ctx.hallucination.add([
+    "You are the Dealer in a card-game playground inside vivalence.",
+    "You deal cards (render buffers) onto the table (the moat) for the player.",
+    "Keep replies short and plain — two or three sentences, no markdown.",
+  ]);
+  await next();
+});
+
+// ── emitter · two ways to deal, both yielding `card` buffers (cross-mode) ─────────
+export const emitter = new Vector()
+  // deterministic: deal the next N off the finite deck. thread.counter = how many already
+  // dealt, so the deck empties → Pool drains EXHAUSTED → continuous stops cleanly.
+  .open(
+    { nature: "/deal", input: v.object({ count: v.integer({ minimum: 1 }).default(2) }) },
+    async (ctx) => {
+      const card = ctx.daemon.modes.playground.card;
+      const start = ctx.thread?.counter ?? 0;
+      for (const face of DECK.slice(start, start + ctx.input.count))
+        ctx.pool.add(card.buffer({ data: { face } }));
+    },
+  )
+  // agentic: the dealer picks a themed hand via its harness (mirrors aprende /coach).
+  .open(
+    {
+      nature: "/oracle",
+      input: v.object({
+        count: v.integer({ minimum: 1 }).default(3),
+        focus: v.string().optional(),
+        thread: v.string().optional(),
+      }),
+    },
+    async (ctx) => {
+      const card = ctx.daemon.modes.playground.card;
+      const context = [
+        `Pick ${ctx.input.count} cards for a themed hand from this deck: ${DECK.join(" ")}.`,
+        ctx.input.focus ? `Theme: ${ctx.input.focus}.` : null,
+        "Return the faces only, exactly as written in the deck.",
+      ]
+        .filter(Boolean)
+        .join("\n");
+      const { parts } = await ctx.mode.harness.object.render({
+        turns: [
+          { role: "system", parts: [{ type: "text", text: context }] },
+          { role: "user", parts: [{ type: "text", text: "Deal the hand." }] },
+        ],
+        config: { schema: v.object({ faces: v.array(v.string()) }) },
+        tune: "frugal",
+      });
+      const cast = parts.find((part) => part.type === "object")?.data ?? {};
+      for (const face of (cast.faces ?? []).filter((f) => DECK.includes(f)))
+        ctx.pool.add(card.buffer({ data: { face } }));
+    },
+  );
+
+// ── dataset · a fully-declarative thread: AIMED at /deal, queued, continuous on open ──
+// intent.phase (M4.1) means opening this intent auto-engages continuous — no hub click.
+export const dataset = {
+  intent: [
+    {
+      slug: "table",
+      name: "Open table",
+      traits: ["MASKED", "AIMED", "QUEUEING"],
+      trait: { AIMED: { mount: "/emit/deal" }, MASKED: {}, QUEUEING: { depth: 3 } },
+      phase: "continuous",
+    },
+  ],
+};
+#+END_SRC
+
+** buffer/Dealer.svelte — the driver UI (phase controls + readout + deal/oracle)
+Each phase button is ONE =thread.phase= write — the SAME interface the e-panel chip and
+the f-panel Start use (the common-interface proof, M4.4). The conversation surfaces through
+the dock (CONVERSATIONAL), not here.
+#+BEGIN_SRC html :tangle ../../registry/playground/dealer/buffer/Dealer.svelte :mkdirp yes
+<script>
+  import { atom } from "@vivalence/typology";
+
+  const { terminal, buffer } = $props();
+
+  const $phase = atom.chain(terminal, "$thread", "$phase");
+  const $buffers = atom.chain(terminal, "$thread", "$buffers");
+
+  const isCard = (b) => b.mode?.slug === "card";
+  const hand = () => (terminal.thread?.$buffers.get() ?? []).filter(isCard);
+
+  // the four phases, in the dealer's language. each is one thread.phase write.
+  const PHASES = [
+    { key: "inert", label: "closed", hint: "table closed — cards ignored" },
+    { key: "manual", label: "deal", hint: "play the hand, advance on play (no refill)" },
+    { key: "continuous", label: "running", hint: "keep the hand topped up to depth" },
+    { key: "escort", label: "round", hint: "seize the table, return to the dealer on drain" },
+  ];
+
+  function setPhase(key) {
+    terminal.stall?.only(isCard); // scope the cursor to cards (the hub stays unselectable)
+    terminal.thread.phase = key; // live → the stall re-engages
+    terminal.thread.daemon.entities.thread.updateOne({ id: terminal.thread.id }, { phase: key });
+    if (key !== "inert") terminal.buffer = hand()[0] ?? buffer;
+  }
+
+  // deal — deterministic, off the finite deck (drains to EXHAUSTED).
+  async function deal() {
+    await buffer.mode.emit.deal({ thread: terminal.thread.id });
+  }
+  // oracle — the dealer picks a themed hand via its harness (agentic).
+  let theme = $state("");
+  async function oracle() {
+    await buffer.mode.emit.oracle({ thread: terminal.thread.id, focus: theme || undefined });
+  }
+</script>
+
+<div class="dealer">
+  <div class="tag">playground · dealer</div>
+
+  <div class="readout">
+    <span>phase <b>{$phase ?? "—"}</b></span>
+    <span>hand <b>{($buffers ?? []).filter(isCard).length}</b></span>
+    <!-- reserved: config-integrity stack (unbuilt — see §gaps) -->
+    <span class="muted">errors <b>0</b></span>
+  </div>
+
+  <div class="row">
+    <button onclick={deal}>deal</button>
+    <label class="theme">theme <input bind:value={theme} placeholder="reds…" /></label>
+    <button onclick={oracle}>oracle</button>
+  </div>
+
+  <div class="phases">
+    {#each PHASES as p (p.key)}
+      <button class:on={$phase === p.key} title={p.hint} onclick={() => setPhase(p.key)}>{p.label}</button>
+    {/each}
+  </div>
+
+  <ul class="hand">
+    {#each ($buffers ?? []).filter(isCard) as c (c.id)}
+      <li class:active={terminal.buffer?.id === c.id}>
+        <button onclick={() => (terminal.buffer = terminal.buffer?.id === c.id ? null : c)}>
+          {c.data?.face ?? "?"}
+        </button>
+      </li>
+    {/each}
+  </ul>
+</div>
+
+<style>
+  .dealer {
+    min-height: 100%;
+    box-sizing: border-box;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: 0.8rem;
+    padding: 18px;
+    background: var(--colors-skeleton-2-surface);
+    color: var(--colors-skeleton-2-contrast);
+    font-family: var(--font-family-code);
+  }
+  .tag {
+    font-size: var(--font-size-xs);
+    text-transform: uppercase;
+    letter-spacing: 0.12em;
+    color: var(--colors-skeleton-0-primary-base);
+  }
+  .readout {
+    display: flex;
+    gap: 1rem;
+    font-size: var(--font-size-2xs);
+    opacity: 0.7;
+  }
+  .readout b {
+    color: var(--colors-skeleton-0-primary-base);
+    font-weight: 600;
+  }
+  .readout .muted b {
+    color: inherit;
+    opacity: 0.5;
+  }
+  .row,
+  .phases {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+  }
+  button {
+    padding: 0.35rem 0.9rem;
+    font-family: inherit;
+    font-size: var(--font-size-2xs);
+    color: inherit;
+    background: transparent;
+    border: 1px solid color-mix(in srgb, currentColor 25%, transparent);
+    border-radius: 0.3rem;
+    cursor: pointer;
+    opacity: 0.8;
+  }
+  button:hover {
+    opacity: 1;
+    border-color: var(--colors-skeleton-0-primary-base);
+  }
+  button.on {
+    opacity: 1;
+    color: var(--colors-skeleton-0-primary-base);
+    border-color: var(--colors-skeleton-0-primary-base);
+  }
+  .theme {
+    display: flex;
+    align-items: center;
+    gap: 0.3rem;
+    font-size: var(--font-size-2xs);
+    opacity: 0.7;
+  }
+  .theme input {
+    width: 5rem;
+    font: inherit;
+    font-size: var(--font-size-2xs);
+    color: var(--colors-skeleton-0-primary-base);
+    background: transparent;
+    border: none;
+    border-bottom: 1px solid color-mix(in srgb, currentColor 30%, transparent);
+  }
+  .hand {
+    list-style: none;
+    margin: 0;
+    padding: 0;
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.3rem;
+    justify-content: center;
+    max-width: 16rem;
+  }
+  .hand li.active button {
+    color: var(--colors-skeleton-0-primary-base);
+    border-color: var(--colors-skeleton-0-primary-base);
+  }
+</style>
+#+END_SRC
+
+** card.viva.js — the pure render target
+#+BEGIN_SRC javascript :tangle ../../registry/playground/card/card.viva.js :mkdirp yes
+import { App, v } from "@vivalence/typology";
+
+export const manifest = {
+  type: "playground",
+  slug: "card",
+  name: "Card",
+  description: "A render target — a dealt card; reports done via buffer.release().",
+  version: "0.1.0",
+  traits: ["APPLICATION"],
+};
+
+export const app = new App("buffer/Card.svelte", v.buffer({ data: { face: v.string() } }));
+#+END_SRC
+
+** buffer/Card.svelte — render + play→release (INERT self-evicts)
+#+BEGIN_SRC html :tangle ../../registry/playground/card/buffer/Card.svelte :mkdirp yes
+<script>
+  import { atom } from "@vivalence/typology";
+
+  const { buffer, terminal } = $props();
+  const $data = atom.chain(buffer, "$data");
+
+  // "play" the card. under any managed phase the stall consumes + advances (and the
+  // terminal's on.release hook evicts). under INERT (the app owns release) the card
+  // evicts itself, so the table still moves on.
+  function play() {
+    buffer.release();
+    if (terminal.stall?.$phase?.get?.() !== "inert") return;
+    terminal.thread.daemon.entities.buffer.drop(buffer.id);
+    terminal.thread.daemon.entities.buffer.removeOne({ id: buffer.id });
+    if (terminal.buffer?.id === buffer.id) terminal.buffer = null;
+  }
+</script>
+
+<div class="card">
+  <div class="face">{$data?.face ?? "?"}</div>
+  <button class="play" onclick={play}>play ✓</button>
+</div>
+
+<style>
+  .card {
+    height: 100%;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: 0.8rem;
+    background: var(--colors-skeleton-3-surface);
+    color: var(--colors-skeleton-3-contrast);
+    font-family: var(--font-family-code);
+  }
+  .face {
+    font-size: var(--font-size-6xl);
+    letter-spacing: 0.04em;
+  }
+  .play {
+    padding: 0.4rem 1.1rem;
+    font: inherit;
+    font-size: var(--font-size-xs);
+    color: var(--colors-skeleton-0-primary-base);
+    background: transparent;
+    border: 1px solid var(--colors-skeleton-0-primary-base);
+    border-radius: 0.3rem;
+    cursor: pointer;
+  }
+  .play:hover {
+    background: color-mix(in srgb, var(--colors-skeleton-0-primary-base) 12%, transparent);
+  }
+</style>
+#+END_SRC
+
+* ── GROUP 3 · Intent-driven (self-configuring): automaton + N intents ────────────────
+The INTENT does the work. =automaton= carries several intents, each a different
+disposition. Open one from the intents panel → =thread.create({mode, intent})= →
+=beforeCreate= inherits =traits= + =trait= + =phase= (M4.1) → the system self-manages with
+NO further input. This is the purest demonstration of the intent system: the same mode,
+four behaviors, chosen entirely by which intent you open.
+
+** automaton.viva.js — one mode, four intents
+#+BEGIN_SRC javascript :tangle ../../registry/playground/automaton/automaton.viva.js :mkdirp yes
+import { App, Vector, v } from "@vivalence/typology";
+
+export const manifest = {
+  type: "playground",
+  slug: "automaton",
+  name: "Automaton",
+  description: "Intent-driven: open one of its intents and the thread self-configures + self-manages.",
+  version: "0.1.0",
+  traits: ["APPLICATION", "STANDALONE", "EMITTER"],
+};
+
+// the hub renders a self-description of how its intent configured the thread.
+export const app = new App("buffer/Automaton.svelte", v.buffer({ data: {} }));
+
+// AIMED intents pull `card` buffers (reuse the Group-2 target) — cross-mode again.
+export const emitter = new Vector().open(
+  { nature: "/tick", input: v.object({ count: v.integer({ minimum: 1 }).default(1) }) },
+  async (ctx) => {
+    const card = ctx.daemon.modes.playground.card;
+    const start = ctx.thread?.counter ?? 0;
+    for (let i = 0; i < ctx.input.count; i++)
+      ctx.pool.add(card.buffer({ data: { face: `#${start + i}` } }));
+  },
+);
+
+// MULTIPLE intents — each a different disposition. opening one creates a thread that
+// inherits its traits + trait + phase, then self-manages. The four cover every model:
+export const dataset = {
+  intent: [
+    // auto-feed: AIMED + QUEUEING + continuous → the stall pulls + manages, hands-free.
+    {
+      slug: "auto",
+      name: "Auto-feed",
+      traits: ["MASKED", "AIMED", "QUEUEING"],
+      trait: { AIMED: { mount: "/emit/tick" }, MASKED: {}, QUEUEING: { depth: 3 } },
+      phase: "continuous",
+    },
+    // round-trip: AIMED + escort → seize the moat, walk, return home on drain.
+    {
+      slug: "round",
+      name: "Round trip",
+      traits: ["MASKED", "AIMED", "QUEUEING"],
+      trait: { AIMED: { mount: "/emit/tick" }, MASKED: {}, QUEUEING: { depth: 2 } },
+      phase: "escort",
+    },
+    // single: no AIMED → manual cursor discipline; the app/user drives (f-panel Open
+    // renders the automaton hub itself, since there's no emitter to pull).
+    { slug: "single", name: "Single", traits: [], trait: {}, phase: "manual" },
+    // dormant: inert → the system does nothing until the app acts.
+    { slug: "dormant", name: "Dormant", traits: [], trait: {}, phase: "inert" },
+  ],
+};
+#+END_SRC
+
+** buffer/Automaton.svelte — self-describes the intent-driven disposition
+#+BEGIN_SRC html :tangle ../../registry/playground/automaton/buffer/Automaton.svelte :mkdirp yes
+<script>
+  import { atom } from "@vivalence/typology";
+
+  const { terminal } = $props();
+  const $phase = atom.chain(terminal, "$thread", "$phase");
+  const $traits = atom.chain(terminal, "$thread", "$traits");
+  const intent = () => terminal.thread?.intent;
+</script>
+
+<div class="automaton">
+  <div class="tag">playground · automaton (intent-driven)</div>
+  <div class="intent">intent <b>{intent()?.name ?? intent()?.slug ?? "— (no intent)"}</b></div>
+  <div class="config">
+    <span>phase <b>{$phase ?? "—"}</b></span>
+    <span>traits <b>{($traits ?? []).join(" · ") || "none"}</b></span>
+  </div>
+  <p class="note">
+    opened from an intent → the thread inherited this disposition. The stall is managing
+    accordingly: continuous/escort intents feed cards into the moat; manual/inert leave it
+    to you.
+  </p>
+</div>
+
+<style>
+  .automaton { height:100%; box-sizing:border-box; display:flex; flex-direction:column; align-items:center; justify-content:center; gap:.7rem; padding:18px; background:var(--colors-skeleton-1-surface); color:var(--colors-skeleton-1-contrast); font-family:var(--font-family-code); text-align:center; }
+  .tag { font-size:var(--font-size-xs); text-transform:uppercase; letter-spacing:.12em; color:var(--colors-skeleton-0-primary-base); }
+  .intent { font-size:var(--font-size-lg); }
+  .intent b, .config b { color:var(--colors-skeleton-0-primary-base); }
+  .config { display:flex; gap:1.2rem; font-size:var(--font-size-2xs); opacity:.75; }
+  .note { max-width:22rem; font-size:var(--font-size-2xs); line-height:1.5; opacity:.55; }
+</style>
+#+END_SRC
+
+* ── GROUP 4 · Thread-driven (live switching): switchboard ────────────────────────────
+The THREAD is hot. =phase= is a thread property and the cursor is the terminal's pointer
+— both switch live, and the stall re-engages instantly with NO recreation. G4 highlights
+exactly that capacity: take ONE populated set of buffers and hot-swap the stall phase
+through all four while watching the same buffers behave differently, and switch the render
+cursor independently. Where G1–G3 each pick a management model, G4 shows you switching
+BETWEEN them on a live thread.
+
+** switchboard.viva.js — feed + the live switching surface
+Self-contained (feeds via its own button, like the spawner) so phase-switching works with
+no AIMED. (For =running='s auto-refill, enable AIMED in the e-panel — else continuous
+behaves like manual; everything else switches regardless.)
+#+BEGIN_SRC javascript :tangle ../../registry/playground/switchboard/switchboard.viva.js :mkdirp yes
+import { App, Vector, v } from "@vivalence/typology";
+
+export const manifest = {
+  type: "playground",
+  slug: "switchboard",
+  name: "Switchboard",
+  description: "Thread-driven: hot-swap the stall phase + the render cursor live; watch the stall re-engage.",
+  version: "0.1.0",
+  traits: ["APPLICATION", "STANDALONE", "EMITTER"],
+};
+
+export const app = new App("buffer/Switchboard.svelte", v.buffer({ data: {} }));
+
+// feed `card` buffers on demand (cross-mode) — the set you then switch phases over.
+export const emitter = new Vector().open(
+  { nature: "/feed", input: v.object({ count: v.integer({ minimum: 1 }).default(3) }) },
+  async (ctx) => {
+    const card = ctx.daemon.modes.playground.card;
+    const start = ctx.thread?.counter ?? 0;
+    for (let i = 0; i < ctx.input.count; i++)
+      ctx.pool.add(card.buffer({ data: { face: `#${start + i}` } }));
+  },
+);
+#+END_SRC
+
+** buffer/Switchboard.svelte — phase cycler + cursor nav + a switch trace
+#+BEGIN_SRC html :tangle ../../registry/playground/switchboard/buffer/Switchboard.svelte :mkdirp yes
+<script>
+  import { atom } from "@vivalence/typology";
+
+  const { terminal, buffer } = $props();
+  const $phase = atom.chain(terminal, "$thread", "$phase");
+  const $active = atom.chain(terminal, "$buffer");
+  const isCard = (b) => b.mode?.slug === "card";
+  const cards = () => (terminal.thread?.$buffers.get() ?? []).filter(isCard);
+
+  const ORDER = ["inert", "manual", "continuous", "escort"];
+  let trace = $state([]);
+
+  function setPhase(key) {
+    terminal.stall?.only(isCard);
+    terminal.thread.phase = key; // live → the stall re-engages on the SAME buffers
+    terminal.thread.daemon.entities.thread.updateOne({ id: terminal.thread.id }, { phase: key });
+    trace = [`phase → ${key}`, ...trace].slice(0, 6);
+  }
+  function cyclePhase() {
+    setPhase(ORDER[(ORDER.indexOf(terminal.thread.phase) + 1) % ORDER.length]);
+  }
+  // switch the render cursor independently of the phase.
+  function step(delta) {
+    const list = cards();
+    if (!list.length) return;
+    const at = list.findIndex((b) => b.id === terminal.buffer?.id);
+    terminal.buffer = list[(at + delta + list.length) % list.length];
+    trace = [`cursor → ${terminal.buffer?.data?.face ?? "?"}`, ...trace].slice(0, 6);
+  }
+  async function feed() {
+    await buffer.mode.emit.feed({ thread: terminal.thread.id });
+  }
+  const cursorAt = () => cards().findIndex((b) => b.id === $active.get?.()?.id) + 1;
+</script>
+
+<div class="switchboard">
+  <div class="tag">playground · switchboard (thread-driven)</div>
+  <div class="readout">
+    <span>phase <b>{$phase ?? "—"}</b></span>
+    <span>cursor <b>{cursorAt()}/{cards().length}</b></span>
+  </div>
+
+  <div class="row">
+    <button onclick={feed}>feed</button>
+    <button class="cycle" onclick={cyclePhase}>switch phase ⟳</button>
+  </div>
+  <div class="row">
+    {#each ORDER as p (p)}
+      <button class:on={$phase === p} onclick={() => setPhase(p)}>{p}</button>
+    {/each}
+  </div>
+  <div class="row">
+    <button onclick={() => step(-1)}>‹ prev</button>
+    <button onclick={() => step(1)}>next ›</button>
+  </div>
+
+  <ul class="trace">
+    {#each trace as line (line + Math.random())}<li>{line}</li>{/each}
+  </ul>
+</div>
+
+<style>
+  .switchboard { min-height:100%; box-sizing:border-box; display:flex; flex-direction:column; align-items:center; justify-content:center; gap:.7rem; padding:18px; background:var(--colors-skeleton-2-surface); color:var(--colors-skeleton-2-contrast); font-family:var(--font-family-code); }
+  .tag { font-size:var(--font-size-xs); text-transform:uppercase; letter-spacing:.12em; color:var(--colors-skeleton-0-primary-base); }
+  .readout { display:flex; gap:1rem; font-size:var(--font-size-2xs); opacity:.7; } .readout b { color:var(--colors-skeleton-0-primary-base); font-weight:600; }
+  .row { display:flex; gap:.5rem; }
+  button { padding:.35rem .9rem; font:inherit; font-size:var(--font-size-2xs); color:inherit; background:transparent; border:1px solid color-mix(in srgb,currentColor 25%,transparent); border-radius:.3rem; cursor:pointer; opacity:.8; }
+  button:hover { opacity:1; border-color:var(--colors-skeleton-0-primary-base); } button.on, button.cycle { opacity:1; color:var(--colors-skeleton-0-primary-base); border-color:var(--colors-skeleton-0-primary-base); }
+  .trace { list-style:none; margin:.3rem 0 0; padding:0; font-size:var(--font-size-2xs); opacity:.5; text-align:center; min-height:5rem; }
+</style>
+#+END_SRC
+
+** Demo scenarios (the "sets", by group)
+#+BEGIN_SRC
+  G1 organic     spawner → spawn → `free`(inert): cards self-evict on done · `walk`(manual): cursor advances — the APP owns it
+  G2 dealt       dealer  → `running`(continuous) refills via AIMED /deal · `round`(escort) round-trips · deck empties → EXHAUSTED
+  G2 cross-mode  dealer.emit.deal yields `card` buffers (a DIFFERENT mode) — the delegation seam
+  G2 agentic     /oracle deals an LLM-curated hand; chat the dealer via the dock (CONVERSATIONAL)
+  G3 intent      open automaton's `auto`/`round`/`single`/`dormant` intents → same mode, four self-managing behaviors
+  G4 switch      switchboard → feed a set → hot-swap inert→manual→continuous→escort on the SAME buffers; nav the cursor live
+  X  interface   any phase set from the hub button ≡ e-panel chip ≡ f-panel Start (M4.4)
+  X  multi-term  same thread in two terminals → independent cursors (buffer navigation)
+#+END_SRC
+
+** Verify
+- *G1 organic:* under =free=(inert) a spawned self-evicts; under =walk=(manual) the cursor
+  advances on done. The app spawns; the stall never pulls (no AIMED).
+- *G2 dealt:* =running= refills via the AIMED =thread.pull= (=/emit/deal=) to depth; =round=
+  returns home on drain; =EXHAUSTED= surfaces when the deck empties (counter ≥ 8), no crash.
+  NO inline =thread.pull===/=thread.trait== anywhere (the M3 hack is gone). /oracle + chat
+  reach the harness (cortex present).
+- *G3 intent:* opening each intent yields a thread whose =phase= + =traits= match the intent
+  (the automaton buffer self-reports them); =auto=/=round= feed cards, =single=/=dormant=
+  don't — all from the declaration, no clicks.
+- *G4 switch:* feed a set, then hot-swap the phase through all four — the SAME buffers
+  obey each phase with no recreation (inert freezes · manual walks · escort round-trips ·
+  continuous refills IF AIMED). The cursor =prev/next= moves the render independently of
+  the phase; the trace logs each switch.
+- =card= / =spawned= render + ✓ advances/evicts under every managed phase; INERT self-evicts.
+
+* MILESTONE 4.3 · sweep the live modes
+The 13 modes that call =buffer.release()= (write, cloze, match, flashcard,
+conjugation, listen, shadow, paradigm, exhibit, judge, pick, nyan + spawned)
+inherit the new behavior for free — but verify, don't assume.
+
+** Worklist
+- *Grep for old phase strings / direct stall config* across registry buffer views:
+  =Phase.STATIC=, ="STATIC"=, =.continuous(=, =.static()=, =stall.*\.(engage|withPull)=.
+  M3 cleared the client + playground; confirm NO game mode reads them.
+- *nyan* is the one mode with prior stall/phase awareness (=Nyan.svelte= reads
+  =buffer.release?.()= on quit; the app is multi-phase internally). Confirm its
+  internal "phase" (home/practice) does NOT collide with =thread.phase= — they are
+  different axes (mode-internal app state vs terminal render phase). Likely fine;
+  verify by reading.
+- *Each mode's release* should: under manual/continuous/escort → advance+evict via
+  the stall; under inert → the mode/target self-manages. Most modes are pure targets
+  (just call release) → no change.
+
+** Verify
+- Open each mode through d→e→f, set =manual=, complete a buffer, confirm advance +
+  evict. (Screenshot-gated; Finn drives the live check — the extension is flaky.)
+
+* MILESTONE 4.4 · prove the three drivers are one interface
+Demonstrate that the e-panel phase chips, the f-panel start/stop, and a buffer-app
+(the playground hub) all drive a thread IDENTICALLY — they only write
+=thread.phase=. This is the payoff of the whole arc made visible.
+
+** Verify
+- Set =continuous= from the e-panel chip, from the f-panel Start, and from the hub
+  button — all produce the same stall behavior on the same thread.
+- A focused test extending =terminal.stall.test.js=: drive =thread.$phase= from
+  three "sources" and assert one behavior.
+
+* Open questions (for Finn)
+- Rename =spawner/spawned= to =conductor/card= (clearer role names), or keep?
+- Add a finite =deck= source mode to demonstrate EXHAUSTED, or keep the infinite
+  spawn?
+- Should =escort='s "return home" eventually flip the thread back to =inert= (the
+  old escort "stood down"; the new stall can't write phase — the driver would)?
+
+* Notes
+- VCS is read-only; Finn lands commits. No git/jj here.
+- Build order, when go'd: 4.0 (playground) proves the architecture end-to-end on a
+  rig we control, THEN 4.1 sweeps the real modes against it, THEN 4.2 makes the
+  unification legible. Each milestone blast→test→land→test→blast.

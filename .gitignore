@@ -1,6 +1,5 @@
 testament
 **/mountpoint
-**/environment/secrets.jsonc
 
 .jj
 .git
@@ -18,7 +17,6 @@ migrations/
 **/.env
 **/.env.*
 !.env.source
-!.env.example
 
 .DS_Store
 **/build

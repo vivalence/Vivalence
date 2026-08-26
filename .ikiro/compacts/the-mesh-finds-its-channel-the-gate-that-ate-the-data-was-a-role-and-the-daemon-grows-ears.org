@@ -1,0 +1,94 @@
+#+title: the mesh finds its channel, the gate that ate the data was a role, and the daemon grows ears
+#+filetags: :stucatch:firmware:esp32:runtime:booted:literal:mesh-sim:m43:triage:callout:
+
+* what happened, in one breath
+
+A downloads folder of container-made fixes got triaged (validation FLIPPED one verdict), three
+landed in vivalence; then the session became the stucatch arc: the ESP-NOW mesh that "worked
+yesterday" got a channel pin (v2), thorough JSON logging in English (v3 — /"i want to know
+every state transition and event"/), and a full protocol rebuild (v4) against a schema settled
+field-by-field in chat; a physics simulator (mesh-sim) proved byte-compatible against Luca's
+parser 743/743; Luca's pi-app was read, admired, and ruled /"INSPIRATION!!!!!!!!!! not
+something we interact with"/; the daemon gained the BOOTED trait (landed, tested, 52/0); and
+the whole viva integration got worked out as [[m43-stucatch]] — ontology, literal schema, boot,
+app, milestones, 8 forks.
+
+* the downloads triage (validation flipped a verdict)
+
+Six-part patch from a sandboxed run. Verdicts after fresh evidence: ① 4 stale
+=viva/datamap/= → =datamaps/= imports LANDED (old path Module-not-found, new resolves; the 11
+=@viva/datamap= strings are VIP specifiers — singular, correct, untouched) · ② shell.js zsh
+hardcode LANDED as rewrite (=interpreter= picked once via =runnable= that stats absolutes too —
+the patch's =startsWith("/")= defect demonstrated live) · ③ dangling =@education/teacher/dewey=
+mount LANDED (find.js skips =bak/= → pensieve revelio null → =[VIP] Module 404= at boot) ·
+④ =HOME ?? "/tmp"= REJECTED (loud TypeError today is correct; /tmp = silent phantom ledger) ·
+⑤ DENO_DIR-in-wet-test REJECTED after the verdict FLIPPED: baseline green without it, and the
+=~/.cache/deno= fallback is a darwin cold-cache regression (20MB jsr re-download, offline-red)
+· ⑥ crucible Rust FFI mode REJECTED (two new roots, "forge" not in the 22-type taxonomy,
+unsound ='static= laundering, 382 vs 385 ns/msg — hand scanner buys nothing over serde).
+Bracket close exposed frontier's "paladin 22/0" as stale: =instance.snapshot= red is
+PRE-EXISTING (fails identically on HEAD content) — =~/.viva/environment.json= is ={}= on this
+machine, the owed variant→instance env swap. Ledgered in known-issues.
+
+* the firmware arc — v2, v3, v4
+
+- *v2* (channel): =peerInfo.channel = 0= + never-pinned WiFi channel = the classic "works
+  yesterday" ESP-NOW bug. Pin channel 6 + loud =esp_now_init= fail. beef: /"v2 is just the fix
+  to get shit flowing again."/
+- *v3* (eyes): /"thorough logging. i want to know every state transition and event."/ — LOG
+  (always) vs TRACE (DEV-gated) macros, every line JSON, English; send callback with IDF≥5.3
+  signature guard; TX-power hygiene trio. Mesh WENT GREEN on v3 — and the boot log convicted
+  two more bugs from a single line: ="txPower":78= (setTxPower silently no-ops before WiFi is
+  up — the CHANNEL was the real fix) and ="id":"0"= (=WiFi.macAddress()= returns zeros before
+  radio start → =esp_read_mac=). The self-verifying log paid for itself immediately.
+- *v4* (rebuild): schema settled in chat — 19B header, =(origin, seq)= identity random-seeded,
+  variable per-kind payloads (ghost fields structurally dead — a live ping carrying the
+  previous alarm's payload had confirmed the disease), =RANGE.peer= in band (the one-endpoint
+  edge was THE schema hole: /"whats the issue?"/ → the type-2 reply couldn't name whose ping it
+  measured), =epoch= u16 in band (the node TELLS you its clock frame), hub-only SYNC authority,
+  RX callback = validate+enqueue only, per-origin dedup with age-out, blind alarm resends same
+  seq, STATUS all roles, bootCount in NVS. Warts killed on /"can you fix the warts?"/: hub
+  self-STATUS omits rssi (RSSI_SELF sentinel), counters u32. Compile-verified C3+S3 every step
+  (arduino-cli + esp32 core 3.3.11 installed for it; struct sizes host-verified: frames
+  23/19/24/27/41B). README written; role docs + DEV doc inline after /"thats not fucking
+  inline is it??"/
+- *the gate that ate the data*: live logs showed the laptop board printing rx traces but no
+  data lines — flashed ROLE_SENSOR, and =printReception= was role-gated. beef, on being shown
+  the gate: /"why would we ever drop data?!"/ → gate REMOVED, every role prints every
+  reception; roles now differ only in radio behavior. The AskUserQuestion fork offered 4 drop
+  candidates and the true referent was a 5th — ledgered.
+
+* mesh-sim + pi-app
+
+mesh-sim (=mesh-sim/mesh-sim.js=, zero deps, node-runnable, seeded): simulates the MESH not
+the lines — plane positions, log-distance rssi + noise, relay duplicates, clock skew + epoch
+adoption, mounting-rotation bearings, impacts by distance, dialable loss/reboots, =--gateway=
+swaps whose serial you read. 743/743 lines clean through Luca's =parseLine=; EPIPE-clean after
+beef's pipe run crashed it. pi-app read end-to-end: genuinely good (strict/lenient parser,
+boots-increment reboot detection, liveness states, one lazy dep) — first framed as the
+boundary to read from; beef, twice as loud the second time: /"fuck. ignore pi-app. i told you.
+its INSPIRATION!!!!!!!!!! not something we interact with. we REIMPLEMENT pi app. i will delete
+it."/ The =--stdin= patch added to run pi-app off mesh-sim dies with the deletion.
+
+* the daemon grows ears — BOOTED (LANDED)
+
+beef: /"we might need some sort of generic boot function that gets passed the daemon and the
+mode and that can just do ... anything."/ → =systems/runtime/daemon/traits/booted.js=: mode
+exports =boot(daemon, mode)=; trait returns ={finalize, terminate}= — and the teardown plumbing
+ALREADY EXISTED (=stagger()= routes terminate → =mode.terminators= → =die.disintegrate()=
+walks them). Enum + index wired, 2 tests in =tests/mode/traits.test.js=, runtime 52/0. The
+subprocess-as-source proposal (mode spawns mesh-sim) got /"this is a big fat no. lol. THINK."/
+— the consumer never manufactures its source; the FIFO answer (mode opens a PATH, sim and
+serial share one code path) is in the quest.
+
+* settlement
+
+- *beef owes*: commit vivalence (①②③ fixes + BOOTED + m43 quest) · commit stucatch repo
+  (v4 =logic= + README + mesh-sim) · delete pi-app · flash v4 on ALL THREE boards in one
+  sitting (v3/v4 cannot coexist on air) · repopulate =~/.viva/environment.json= (heals the
+  paladin red) · answer m43 forks 1–8.
+- *open*: m43 M1 awaits fork answers + go. Twitch design still needs restatement from its
+  compact before M5.
+- *rules walked*: no dates in this compact ✓ · corrections ledgered (3 entries + the
+  4-candidates miss folded in) ✓ · frontier re-stamped (m43 HOT; m41 paladin count corrected) ✓
+  · new memory =project_stucatch_mesh= + m41 memory correction ✓.

@@ -215,3 +215,32 @@ specimen.describe("mode traits", () => {
     });
   });
 });
+
+specimen.describe("BOOTED", () => {
+  specimen.it("finalize runs boot with (daemon, mode); terminate calls the returned teardown", async () => {
+    const { BOOTED } = await import("@vivalence/runtime/daemon/traits");
+    const calls = [];
+    const mode = {
+      type: "probe",
+      slug: "booted",
+      module: {
+        boot: async (daemon, self) => {
+          calls.push(["boot", daemon, self]);
+          return () => calls.push(["teardown"]);
+        },
+      },
+    };
+    const daemon = { marker: "daemon" };
+    const wired = BOOTED(mode, daemon);
+    specimen.expect(calls.length).toBe(0);
+    await wired.finalize();
+    specimen.expect(calls[0]).toEqual(["boot", daemon, mode]);
+    await wired.terminate();
+    specimen.expect(calls[1]).toEqual(["teardown"]);
+  });
+
+  specimen.it("a BOOTED declaration without a boot export wires nothing", async () => {
+    const { BOOTED } = await import("@vivalence/runtime/daemon/traits");
+    specimen.expect(BOOTED({ type: "probe", slug: "hollow", module: {} }, {})).toBe(undefined);
+  });
+});

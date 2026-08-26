@@ -1,0 +1,807 @@
+#+title: m55 abandoned coherence — one file, one pinhole, one authored schema
+#+filetags: :paladin:typology:ghost:sheets:env:instance:ledger:wizard:cli:
+#+status: ALL EIGHT STEPS APPLIED. typology 122/480/1 (pre-existing red) · paladin 26/127/0 ·
+#+status: sheets 37/0 · ghost 63/20/0 · runtime 53/327/0 · docs 10 pages. Uncommitted.
+#+status: Deltas between what this quest predicted and what the blast found are logged in
+#+status: "expectation vs reality" below — that section is the record, keep it current.
+
+* intent
+
+beef, verbatim: /"just one default way of doing things. either .env or environment.json. lets cut it
+to just .env."/ · /".env is the standard. .env.example is the way to seed."/ · /"security by studidity
+is not security"/ · /"all i need is the information to avoid silent fails. but not all missing env
+vars are a dealbreaker. i just need to know."/ · /"sometimes toJSON is used to store to cache. cant be
+destructive here."/ · /"is this the right approach really? is this a standard? any libs to use? must
+we roll our own? why would we?"/ · /"should we maybe build and name dedicated surfaces"/ · and the two
+rulings that reshaped everything:
+
+/"is the fact of the thunks the issue or the lack of coherence in their invocation?! id rather
+pinhole thunkresolution."/ — killed the =Reference= class, =Env.demand=, the reflective walker.
+
+/"what if we just fire it ONCE, casting, and passing. we could just do without ANY and ALL of this
+consumer mapping."/ — killed the sentinel probe AND the =UNREAD= check, in one line.
+
+On the schema: /"amen"/ to the =environment= sibling export. On =.env.example=: /"or do we need the
+eample??! not sure actually."/ — answered NO below.
+
+One sentence: *an instance's environment is one file, its dependencies are learned at one pinhole,
+and its schema is authored once beside the manifest.*
+
+* the law
+
+#+BEGIN_EXAMPLE
+authored env     .env                <instance>/.env · <ledger>/.env    human writes; comments are content
+machine records  .json               sessions/*.json · instances.json · registry.json
+schema           export environment  authored prose, beside `manifest`
+
+one pinhole      hydrate()           the ONLY place a declaration's thunk fires
+one ingress      paladin.assign()    the ONLY place a bag is split; the KEY decides secrecy
+one upsert       paladin.state.env   the ONLY writer of a .env; edits by LINE, never re-serializes
+#+END_EXAMPLE
+
+*Anything that owns a =.env= declares an =environment=.* An instance in its declaration; the ledger as a
+const in ghost. If a third thing owns one, it declares one too.
+
+*There is no =.env.example=.* It is deleted, not generated — see III.2.
+
+* terrain — measured, not assumed
+
+Re-verify before blasting; beef renamed =instances/localhost= → =hello-world= and =multiplayer= →
+=starter= + =multiplayer.bak= mid-design.
+
+1. *=hydrate= is already the pinhole* — =prototypes/instance.js=, 6 call sites, the only place a thunk
+   fires. =tests/kernel.test.js:63= already pins that it must NOT fire inside an inline module, so
+   selective firing is precedent.
+2. *=paladin.check= exists and is dead* — =belt/check.js=, wired at =belt/index.js:15=, zero live call
+   sites (=populate.js:94=, =integrate.js:39= both commented out).
+3. *=new Url(undefined)= does not throw.* =url.js:111= is =this.origin + this.nature + this.search=, so
+   two undefineds give numeric =NaN=, then ="NaN"=. Measured: =undefined= → ="NaN"= · =null= → ="NaN"= ·
+   =""= → ="undefined/"=; all three have =origin === undefined=. =get json= THROWS at =:122=
+   (=this.nature.split=), so =JSON.stringify= of an unseeded declaration blows up.
+4. *The secret bag protects almost nothing.* CANARY through a real mount: absent from =paladin.env=,
+   absent from =Deno.env= (the =PUBLIC_= prefix does that, not the bag), *PLAINTEXT on
+   =instance.services[multiplayer].secrets.jwt=*. It cannot hide anything from a mode. It buys ONE
+   thing: =ledger/doctor= prints env VALUES (=index.js:93=) but only COUNTS secrets (=:99=).
+   *Keep it for the chokepoint, not the protection* — =paladin.secret.get= is the one door, and it is
+   what makes a future Worker boundary a one-method change instead of an audit.
+5. *=@std/dotenv= expands nothing* — =parse= and =load= both return =${VAR}= and =$HOME= literal.
+6. *No library puts schema in the env file* — envalid · znv · t3-env · zod · dotenvx all put it in
+   CODE and treat =.env.example= as a dumb example. A comment-parser would be against the grain of
+   the entire field.
+7. *One file can be claimed by two strata, today.* Standing in an instance dir, its =.env= lands at
+   both =instance= (rank 3) and =.env= (rank 4). Cosmetic now; harmful once =<ledger>/.env= exists,
+   because =cd ~/.viva= would re-file the machine defaults at rank 4 where they outrank os, session
+   AND ledger — you would change instance by changing directory.
+8. *=.gitignore=*: =**/.env= (=:17=) ignores every instance =.env=; =!.env.example= (=:21=) un-ignores
+   the example at any depth. Verified with =git check-ignore=.
+9. *A line-preserving env upsert ALREADY EXISTS* — =ghost/belt/config.js:5-17= =writeShellConfig=
+   reads, splits, finds =export KEY==, replaces or appends. =paladin.state.env= is that function
+   generalized, not a new idea. (=dotenv.stringify=, by contrast, destroys every comment and flips
+   quotes to single — measured.)
+10. *=sheets/state/form.js= has no paging* — flat =fields=, an =active= index, =next=/=prev=/=action=.
+    =Form= has *exactly one call site* (=Init.jsx:128=), and =sheets/state/= already holds five pure
+    fold modules (=form= · =multiselect= · =search= · =select= · =text=), so paging has an obvious home
+    and changing the signature is free. beef: /"we are capable of itterating on sheets. important is
+    that there is a coherent formulation."/ — so it goes in =state/form.js=, NOT smuggled into
+    =Init.jsx= as a local page index. Two tests cover form.js (=form.state.test.js=,
+    =field-protocol.test.js=) and move with it.
+11. *=Doctor.jsx= has a generic =Section= (=title= + =hint=)*, and its =environment= section already
+    renders ={key, stratum, value, shadowed[]}=. A requirements section is one more =Section=.
+12. *hello-world's real inventory*: 6 env keys read by thunks, 6 secrets, and *3 supplied but read by
+    NO thunk* (=PUBLIC_VIVA_RUNTIME_REMOTE=, =PUBLIC_VIVA_CLIENT_KAJUIT_REMOTE=, =VIVA_SERVICE_NLP_PORT=
+    — the browser bundle and a docker container read those). *That is 3 of 15 = a 20% false-positive
+    rate for any "described but unread" check*, which is why =UNREAD= and =consumer:= are deleted.
+
+* stage I — one file
+
+** I.1 the instance reads .env and nothing else
+
+=FILES= dies; =environment()= is one =.env= read. One shape at one stratum means no later-wins — which
+kills the live defect where =systems/ghost/localhost/environment.json='s placeholder secrets
+OVERWRITE a real =.env= (=Env.assign= is =Object.assign=, and =environment.json= was read second).
+
+** I.2 named surfaces — beef: /"should we maybe build and name dedicated surfaces"/
+
+#+BEGIN_SRC js
+env.observe(bag, tag, source)   // AMBIENT — provisional: "nobody better has spoken for this file"
+env.claim(bag, tag, source)     // ROLE     — authoritative: evicts an ambient claim of the same file
+#+END_SRC
+
+Only the cwd scan observes; ledger, instance and flag claim. Preserves what beef called the feature
+(/"variables split by stratum is nice"/) while killing terrain 7.
+
+** I.3 seven strata; `use` never rewrites a .env wholesale
+
+beef killed =sessions/default.json=: /"what?! no? makes no sense. thats ledger level. ledger .env."/
+
+#+BEGIN_EXAMPLE
+flag › cwd › instance › .env › os › session › ledger
+#+END_EXAMPLE
+
+=<ledger>/.env= is hand-authored. =viva instances/use x --ledger= upserts ONE LINE via =paladin.state.env=
+(terrain 9). =sessions/<pid>.json= stays JSON and stays a *general env bag*, not a pointer — beef:
+/"i like the ability for the session file to ALSO be that."/
+
+** I.4 the two dead ingresses
+
+=populate.js:86,90= call =paladin.env.assign= directly — no key split at all. A =SECRET_*= in
+=~/.viva/environment.json= lands in =paladin.env= today, where doctor prints it. Route through
+=paladin.assign=.
+
+* stage II — the pinhole, fire-once
+
+beef: the thunks are innocent; the pinhole is blind. Three things it must learn — where it is, what
+the thunk read, and which branches must not hand back a value — and *one* branch expresses the last:
+
+#+BEGIN_SRC js
+return deferred ? node : value;
+#+END_SRC
+
+Fire every thunk exactly once. Record what it read. For a deferred branch, hand back the *thunk*
+instead of the value, so no secret lands on the instance. No sentinel, no second walker, no
+=usable: null= special case — all three were mine and all three delete.
+
+*Known limit*: a recording view sees only the keys a thunk reads on that run, so a branching thunk
+reveals one path. Every thunk in the tree is a one-liner today; the record under-reports rather
+than lies. Deferred thunks are pure reads by contract; a side-effecting one would run twice.
+
+** II.1 required-ness is derived, and it may tell you something you did not want to hear
+
+=usable= is strict: a Url needs an =origin=; anything else must not be =undefined=, =null= or ="".
+Then the verdict is mechanical — and *the check reports what the code demands, not what the author
+intended.*
+
+*The first thing it catches is one of beef's own assumptions*, and he confirmed it:
+/"yes you caught it."/ =VIVA_SERVICE_NLP_REMOTE= will read *REQUIRED*, because
+=education.js:73= is =remote: () => new Url(paladin.env.get("VIVA_SERVICE_NLP_REMOTE"))= — no
+fallback, no guard. beef has called nlp optional throughout (/"nlp might be null but registry
+required"/); the declaration has never said so. *Optionality was never expressed anywhere in this
+codebase* — that is the finding, and it is exactly the class of thing the check exists for.
+
+Nothing breaks on landing (no caller gates on =rows.fails= yet), so this surfaces as a doctor row
+and a decision, not a red suite. Two honest resolutions, and it is a *declaration* decision, not an
+env one:
+
+#+BEGIN_EXAMPLE
+accept    the daemon really does need nlp → seed the key. one line in <instance>/.env.
+express   the daemon degrades without it  → the declaration must SAY so:
+            remote: () => { const held = paladin.env.get("VIVA_SERVICE_NLP_REMOTE");
+                            return held ? new Url(held) : null; }
+          …and every consumer of `consume.nlp` must then survive a null remote — which is a
+          runtime question nobody has answered, and the reason this is beef's call and not mine.
+#+END_EXAMPLE
+
+* stage III — the schema
+
+** III.1 ${VAR}, and only ${VAR}
+
+POSIX / docker-compose form, lazy at =Env.get= so it resolves across strata regardless of load order,
+with a cycle guard. Bare =$VAR= is deliberately NOT expanded — too easy to write inside a password.
+Expansion resolves within one bag, so =env= can never reach into =secret=. =Env.vars= stays raw so
+doctor shows source text.
+
+*Not marginal*: on hello-world it collapses 9 address/service keys into 3 answers, and because
+=get= expands lazily the written =.env= STAYS in that form — change a port once, nine values move.
+
+** III.2 the schema is a sibling export, and there is no .env.example
+
+Generation loses something in both directions: =declaration → template= cannot write prose,
+=template → declaration= drifts from what is read. So the schema is *authored*, in code, beside
+=manifest= — the codebase's own idiom, and where the whole ecosystem puts it (terrain 6).
+
+*The pinhole does not generate it — it CHECKS it*, in exactly one direction:
+
+#+BEGIN_EXAMPLE
+UNDOCUMENTED   a thunk read a key nothing describes      ← always a bug, never false
+UNREAD         described, nothing observed reading it    ← DELETED: 20% false positive (terrain 12)
+#+END_EXAMPLE
+
+*=.env.example= is deleted, not generated.* Its only unique job was bootstrap-without-tooling, and
+the tooling ships inside the instance. Every job it looked like it had goes somewhere better:
+
+#+BEGIN_EXAMPLE
+tell me what to fill        → the wizard
+cp bootstrap                → init writes .env directly
+read it without cloning     → docs, rendered from `environment`
+CI / docker needs the names → viva instance/doctor --json
+#+END_EXAMPLE
+
+*Accepted cost, stated plainly*: an instance cloned by someone who never runs =viva= then has no
+committed hint of what it needs. The hint becomes the declaration itself — readable JS sitting right
+there, and better than a file that lies.
+
+** III.3 the wizard
+
+*Paging is a sheets concern, not a caller's.* A page index living in =Init.jsx= would make the next
+multi-page form re-implement it; =state/form.js= is where the codebase already puts exactly this
+kind of pure interaction fold. So =form.js= grows pages and a single-page form becomes
+=pages.length === 1= — one concept, not two — and =Form= takes =pages= rather than =fields=. One call
+site, so nothing else moves. Fields come from =environment= ⋈ the record:
+prose and defaults from the schema, /needed by/ and required-ness from the pinhole. Writes through
+=state.env=, so the resulting =.env= keeps every comment the schema carried.
+
+** III.4 the ledger uses the same capability
+
+The ledger owns a =.env= but has no declaration, so its schema is a const in =ghost/trajectories/ledger=.
+Same wizard, same writer, same doctor renderer. It has no pinhole — nothing hydrates there — so it
+gets no =UNDOCUMENTED= check. *That is fine and worth saying: the check is a bonus the instance path
+gets for free, not a requirement of the shape.*
+
+* the patch — all eight steps
+
+** step 1 · hydrate: fire-once, delete probe and DRY
+
+#+BEGIN_SRC diff
+-const DRY = "«deferred»";
+-const watch = (bag, read, dry = false) =>
++const watch = (bag, read) =>
+   new Proxy(bag, {
+     get: (target, prop, receiver) =>
+       prop === "get"
+         ? (key, ...rest) => {
+             const value = target.get(key, ...rest);
+             read.push({ key, unset: value === null || value === undefined || value === "" });
+-            return dry ? DRY : value;
++            return value;
+           }
+         : Reflect.get(target, prop, receiver),
+   });
+
+-// strict: a Url needs an origin; anything else must not be undefined.
+-const usable = (value) => (value instanceof Url ? value.origin !== undefined : value !== undefined);
++// strict, because "produced but unusable" is the whole point: a Url needs an origin, and anything
++// else must not be absent. an unset secret is not "optional" merely because null is a value.
++const usable = (value) =>
++  value instanceof Url ? value.origin !== undefined : value !== undefined && value !== null && value !== "";
+
+-function probe(node, record, paladin, at) { /* ~28 lines */ }
++// (deleted — one code path now covers both)
+
+-export function hydrate(node, record = null, paladin = null, at = "") {
++export function hydrate(node, record = null, paladin = null, at = "", deferred = false) {
+   if (typeof node === "function") {
+     if (!record || !paladin) return node();
+     ...
+-    record.push({ at, read, unset, usable: usable(value) });
+-    return value;
++    record.push({ at, read, unset, usable: usable(value), deferred });
++    // a deferred branch is OBSERVED, never resolved onto the instance: we learn what it needs and
++    // hand back the thunk, so the plaintext never lands and no serializer has to lie about it.
++    return deferred ? node : value;
+   }
+   ...
+-        DEFERRED.has(key)
+-          ? (record && paladin && probe(value, record, paladin, ...), value)
+-          : hydrate(value, record, paladin, at ? `${at}.${key}` : key),
++        hydrate(value, record, paladin, at ? `${at}.${key}` : key, deferred || DEFERRED.has(key)),
+#+END_SRC
+
+** step 2 · check: UNDOCUMENTED only
+
+#+BEGIN_SRC diff
+   const environment = (instance) => {
+     ...
+-          verdict: !held ? "UNDOCUMENTED" : !unset ? "ok" : entry.deferred ? "owed"
+-                  : entry.usable ? "optional" : "REQUIRED",
++          deferred: entry.deferred === true,
++          verdict: !held ? "UNDOCUMENTED" : !unset ? "ok" : entry.usable ? "optional" : "REQUIRED",
+     }
+-    // described but unread — DELETED. 3 of hello-world's 15 keys are read by the browser bundle
+-    // or a docker container, so this branch was wrong 20% of the time on the first instance tried.
+-    for (const [key, held] of Object.entries(schema)) { ...UNREAD / external... }
++    // a described key nothing was observed reading is DOCUMENTED, not wrong. it is still rendered
++    // and still offered by the wizard — it just carries no `at`.
++    for (const [key, held] of Object.entries(schema)) {
++      if (seen.has(key)) continue;
++      rows.push({ key, at: null, describe: held.describe ?? null, group: held.group ?? null,
++                  unset: config.env.get(key) === null && config.secret.get(key) === null,
++                  deferred: key.startsWith("SECRET_"), verdict: "documented" });
++    }
+-    rows.fails = rows.some((row) => ["UNDOCUMENTED", "UNREAD", "REQUIRED"].includes(row.verdict));
++    rows.fails = rows.some((row) => ["UNDOCUMENTED", "REQUIRED"].includes(row.verdict));
+#+END_SRC
+
+** step 3 · hello-world: drop consumer, ${VAR} the derivable nine
+
+#+BEGIN_SRC diff
+   PUBLIC_VIVA_RUNTIME_REMOTE: {
+     describe: "Runtime address the browser bundle calls.",
+-    default: "http://localhost:2501/",
++    default: "${VIVA_RUNTIME_SERVE}",
+     group: "addresses",
+-    consumer: "client",
+   },
+#+END_SRC
+
+Three free variables answer nine keys:
+
+#+BEGIN_SRC sh
+VIVA_RUNTIME_SERVE="${VIVA_RUNTIME_ORIGIN}/"
+VIVA_LIGHTHOUSE_SERVE="${VIVA_RUNTIME_ORIGIN}/attached/process/lighthouse/multiplayer"
+PUBLIC_VIVA_RUNTIME_REMOTE="${VIVA_RUNTIME_SERVE}"
+PUBLIC_VIVA_LIGHTHOUSE_REMOTE="${VIVA_LIGHTHOUSE_SERVE}"
+VIVA_CLIENT_KAJUIT_SERVE="${VIVA_KAJUIT_ORIGIN}/"
+PUBLIC_VIVA_CLIENT_KAJUIT_REMOTE="${VIVA_CLIENT_KAJUIT_SERVE}"
+VIVA_SERVICE_NLP_SERVE="http://0.0.0.0:${VIVA_SERVICE_NLP_PORT}"
+VIVA_SERVICE_NLP_REMOTE="http://localhost:${VIVA_SERVICE_NLP_PORT}"
+#+END_SRC
+
+Net: 15 keys, and the wizard asks *6 questions* — the secrets. Everything else defaults or derives.
+
+** step 4 · init + Init.jsx: the wizard, and state.env
+
+=paladin.state.env=, modelled on =writeShellConfig= (terrain 9) and living beside =state.json=:
+
+#+BEGIN_SRC js
+// upsert by LINE. a .env is authored, so its comments, ordering and blank lines are content —
+// a machine that rewrites it must leave them alone. dotenv.stringify destroys all three.
+env: async (path, bag) => {
+  const file = resolve(path);
+  let text = (await Deno.readTextFile(file).catch(() => null)) ?? "";
+  for (const [key, value] of Object.entries(bag)) {
+    const line = `${key}="${value}"`;
+    const held = new RegExp(`^[ \\t]*(?:export[ \\t]+)?${key}[ \\t]*=.*$`, "m");
+    text = held.test(text) ? text.replace(held, line) : `${text.replace(/\n*$/, "\n")}${line}\n`;
+  }
+  await paladin.state.scribe(file, text);
+},
+#+END_SRC
+
+*=sheets/state/form.js= grows pages* — the fold, not the caller:
+
+#+BEGIN_SRC diff
+-export function init({ fields, actions }) {
+-  return { fields, actions, active: 0, values: {}, done: false, action: null };
++// a form is one or more pages of fields. a single-page form is pages.length === 1 — one concept,
++// not two, and `next` past the last field of a page crosses to the next page rather than ending.
++export function init({ pages, actions }) {
++  return { pages, actions, page: 0, active: 0, values: {}, done: false, action: null };
+ }
+#+END_SRC
+
+=fields= becomes =pages[state.page].fields=; =next= at the end of a page advances =page= and resets
+=active=; =prev= at =active === 0= steps back into the previous page's last field. =activeField= and
+=atActions= read from the current page. =form.state.test.js= and =field-protocol.test.js= move with it.
+
+=init.js=: =seed()= stops reading =.env.example= and builds pages from =check.environment= grouped by
+=group=; the wizard writes through =state.env=. =Init.jsx= then only picks the component:
+
+#+BEGIN_SRC diff
+ {phase === "fill" && (
+   <Form
+-    fields={[{ name: "username", ... }, { name: "password", ... }]}
++    // pages come from the schema's `group`s; Form owns the paging, this only names the inputs.
++    pages={pages.map((group) => ({
++      title: group.title,
++      fields: group.fields.map((field) => ({
++        name: field.key,
++        label: field.describe ?? field.key,
++        input: field.key.startsWith("SECRET_") ? PasswordInput : TextInput,
++        props: { defaultValue: field.default ?? "" },
++      })),
++    }))}
+     actions={["commit", "skip"]}
+-    done={onCreate}
++    done={onFill}   // → write .env via state.env, then the existing admin-signup phase
+   />
+ )}
+#+END_SRC
+
+The admin username/password phase is untouched — it stays a second, hardcoded page after the
+schema pages, because it is not environment.
+
+** step 5 · ledger: its own schema, the same wizard
+
+#+BEGIN_SRC js
+// ghost/trajectories/ledger/index.js — the ledger owns a .env but has no declaration to hang a
+// sibling export on, so its schema is a const. same shape, same wizard, same writer.
+const environment = {
+  VIVA_REPOSITORY_MOUNT: { describe: "Absolute path to the vivalence checkout.", group: "homes" },
+  SECRET_VIVA_ANTHROPIC_API_KEY: { describe: "Machine-wide Anthropic key…", group: "keys" },
+  ...
+};
+#+END_SRC
+
+=ledger/init= scaffolds, then runs the same wizard against that const and writes =<ledger>/.env=.
+=writeShellConfig= becomes a caller of =paladin.state.env= rather than its own implementation.
+
+** step 6 · deletes
+
+#+BEGIN_EXAMPLE
+registry/viva/instances/hello-world/.env.example      file
+.env.example                                          repo root
+.gitignore:21   !.env.example                          the un-ignore rule
+init.js:11-13   the .env.example seed path             replaced by the schema
+prototypes/instance.js  FILES / environment.json / .jsonc branches
+5 environment.json files (2 repo, 3 on beef's disk)   folded into .env
+11 --env-file=$HOME/.viva/dev.env flags               paladin reads <ledger>/.env natively
+#+END_EXAMPLE
+
+** step 7 · doctor + docs
+
+=instance/doctor.js= gains =requirements: paladin.check.environment(paladin.instance)=. =Doctor.jsx=
+gains one =<Section title="requirements">= beside the existing =environment= one — same shape as the
+=shadowed= rows it already renders (terrain 11):
+
+#+BEGIN_EXAMPLE
+key                              group      needed by                        verdict
+VIVA_RUNTIME_SERVE               addresses  runtime.statics.serve            ok
+SECRET_VIVA_JWT                  keys       service[multiplayer].secrets.jwt REQUIRED
+VIVA_SERVICE_NLP_PORT            services   —                                documented
+#+END_EXAMPLE
+
+Docs: =32.01= (the mount's five moves), =33.01= (strata table, the shelf, `create` copies),
+=51.02= (the whole environment section + run flow) all re-render from =environment=, and stop
+mentioning =.env.example= entirely.
+
+** step 8 · suites
+
+paladin · ghost · runtime · *sheets* (step 4 moves =form.js=; =form.state.test.js= and
+=field-protocol.test.js= move with it). Baselines from this session: *paladin 23/99/0 · ghost 62/20/0
+· runtime 53/327/0*. =hydrate.test.js= loses its probe test and gains a fire-once one; =instance.snapshot=
+re-baselines (=instance.environment= and =instance.requirements= are new fields on the snapshot).
+
+* expectation vs reality — the blast log
+
+Appended as the blast runs. Each row is a place this quest was wrong, incomplete, or right in a way
+worth pinning. *This is the record; keep it current.*
+
+** ① Env.ambient had to become a LIST, not one entry
+
+QUEST said =Map<source, {tag, keys}>=. REALITY: one file can be observed at more than one stratum,
+and a single entry evicts only the last — the earlier claim survives and keeps outranking the owner.
+=Map<source, [{tag, keys}]>=, and =claim= walks all of them. *Found by a test, not by reading*
+(=env.expansion.test.js= "a second observe of the same file re-points the ambient record").
+
+** ② usable was deleted by accident, not by design
+
+A blast hazard, not a design change. The earlier probe insert had put =probe()= BETWEEN =watch= and
+=usable=, so slicing "probe-start → PINHOLE" took =usable= with it. Restored strict. *Only caught
+because the suite ran immediately after.* Lesson for the remaining steps: slice by exact anchors,
+never by a start/end pair spanning code that moved.
+
+*RECURRED, 40 minutes later, and that is the real finding.* Generating the three =@education=
+instance declarations used =.replace("D", "${")=, which ate every uppercase D: =SECRET_VIVA_DEEPGRAM_API_KEY=
+→ =SECRET_VIVA_${EEPGRAM_API_KEY= (crashed beef's runtime at =vip.supply=), and — the one that
+matters — =traits: ["ATTACHED"]= → =traits: ["ATTACHE${"]=, which PARSES, type-checks, and would
+have booted kajuit without the trait, silently. A lesson written into a quest does not fire; it is
+now =methods/generated.md= plus a line in =world/codemap/invariants.md=, the path-gated channel,
+exactly where [[thin]] had to go for the same reason.
+
+** ③ the schema grew 15 → 17 keys, and the two new ones VALIDATE the check
+
+QUEST said "three free variables answer nine keys" but did not notice that two of the three —
+=VIVA_RUNTIME_ORIGIN=, =VIVA_CLIENT_KAJUIT_ORIGIN= — *do not exist anywhere today*. No thunk reads
+them; they exist only to be referenced by =${...}=.
+
+Under the OLD check they would have been =UNREAD= false positives — two more on top of the three
+that killed that verdict, taking it to *5 of 17*. Under the new one they are =documented=, which is
+exactly right. The deletion of =UNREAD= paid for itself before the step that removed it finished.
+
+** ④ paladin grew three named ingresses, not one
+
+QUEST specified =observe=/=claim= on =Env= only. In practice =paladin.assign= had to split into
+=split()= plus =assign= / =observe= / =claim=, because the key-split and the claim-strength are
+independent concerns and every ingress needs both. Same shape one layer up; no new concept.
+
+** ⑤ step 6's FILES deletion landed inside I.1
+
+The =environment.json= / =.jsonc= branches came out as part of writing the one-=.env= reader, not as
+a separate delete. Step 6 keeps the DATA migrations and the =.env.example= removals.
+
+** ⑥ publish() shipped RAW ${VAR} to the browser — caught end-to-end, not by a test
+
+The worst one, and mine. =Env.vars= stays raw so doctor can show source text (III.1's own decision),
+and =belt/publish.js= iterated =vars= — so =PUBLIC_VIVA_RUNTIME_REMOTE= reached the kajuit bundle as
+the literal =${VIVA_RUNTIME_SERVE}=. Every unit test passed. Found only by mounting a seeded
+instance and printing =Deno.env= after publish.
+
+Fix: iterate the KEYS and read through =get()=. *A decision about one surface (raw for display)
+leaked into another (published for consumption) with nothing between them to notice.* Pinned by
+=state.env.test.js= "publishes the EXPANDED value".
+
+Downstream, confirmed by reading rather than assumed: =systems/kajuit/vite.config.mjs:12-14=
+imports paladin and mounts the instance, so =publish()= → =Deno.env= → SvelteKit
+=$env/dynamic/public= (=+layout.svelte:5=) → browser. beef: /"paladin controls rendering and vite is
+that."/ The architecture already holds; the remaining coupling is that =$env/dynamic/public= SOURCES
+from ambient process env rather than being handed values — it works because publish runs first in
+the same process, and it is the seam if vite ever runs detached.
+
+** ⑦ mount is fn.once, so the wizard needed paladin.remount()
+
+Unforeseen: =init= writes =.env= and must then boot with the values just answered, but
+=Instance.mount= is =fn.once=-wrapped in the constructor and returns undefined on a second call.
+Added =paladin.remount()= — mints a fresh Instance and mounts it. Four lines, and the wizard is
+exactly the case the memo never anticipated.
+
+** ⑧ state.env had two bugs on its first run
+
+Both caught by its own cases: an empty file got a LEADING newline (=""= through
+=replace(/\n*$/, "\n")=), and =String.replace= treats =$= in the replacement as special, so a
+=${VAR}= value could corrupt on the replace branch. Fixed with a function replacement.
+
+** ⑨ counts and paths this quest had wrong
+
+- =--env-file=$HOME/.viva/dev.env= flags: *12*, not 11.
+- Doc targets moved under me mid-blast: =51.02_run-an-instance= → =51.02_instance-from-scratch=, and
+  a NEW =50.01_slowstart.mdx= (beef's) carried the two-file model heavily. Four pages updated, not
+  three. Docs now grep CLEAN for =.env.example= · =environment.json= · =environment/= · =dev.env=.
+- =registry/viva/instances/localhost= → =hello-world= (beef's rename, mid-design).
+
+** ⑩ the nlp finding, confirmed live
+
+=viva instance/doctor= on an unseeded hello-world: *18 REQUIRED*. Seeded from schema defaults:
+*8 REQUIRED, all of them secrets*, every address =ok=. =VIVA_SERVICE_NLP_REMOTE= resolves once
+seeded — but with no seed it reads REQUIRED exactly as predicted, because =education.js:73= has no
+fallback. beef: /"yes you caught it."/ → *RESOLVED: ACCEPTED as required* — /"its required. it truely
+is."/ (his live instance points it at =https://nlp.syzygy.vivalence.com=, so it always was.)
+beef expects more of these: /"there will be a few of those i suspect around the system. thats a
+later pass tho."/ → the check now finds them; sweeping them is a separate pass.
+
+** ⑪–⑳ what a full scenario found that eight green suites did not
+
+Ran the whole arc through the real CLI in a hermetic ledger: =ledger/init= → =instance/create= →
+=instance/use= → =instance/init= → fill → =instance/doctor=. Ten findings, none of which any unit
+test could have produced.
+
+1. *=ledger/init= wrote bare =KEY=""=* — the schema's prose never reached the file, which makes a
+   comment-preserving writer pointless. NEW =systems/ghost/belt/envfile.js= =scaffold(schema)=:
+   groups → =## sections=, describes → the comment above each key. Both inits use it.
+2. *=instance/init= then did the same thing*, and better: scaffold first, ask only for what is
+   still blank. hello-world went from *17 prompts to 6*, all secrets.
+3. *The manifest slug was still =localhost=* after beef renamed the directory to =hello-world=, so
+   =@viva/instance/hello-world= did not resolve while =50.01_slowstart.mdx= already documented it.
+   Completed: file renamed, =manifest.slug= updated, 3 tests moved with it.
+4. *=init= gated on =ctx.view=, which is still set under =--json=* — so it fell into the wizard and
+   hung booting processes. Gates on =ctx.interactive= now, the predicate mod.js already sets.
+5. *=Init.jsx= booted BEFORE filling.* You cannot start an instance whose addresses are unset.
+   Reordered: fill → commit → boot → create admin → ready.
+6. *=owed()= returned one row per consumer SITE*, so the wizard would ask
+   =PUBLIC_VIVA_LIGHTHOUSE_REMOTE= four times. Right for the doctor, wrong for a prompt: deduped.
+7. *=check='s documented-row =unset= used ===== null=*, so a scaffolded =SECRET_VIVA_JWT=""= read as
+   SET and the second =init= reported nothing owed. The pinhole already counted ="" as unset;
+   =check= now matches. *Two predicates for one concept, three days apart.*
+8. *=mount= is =fn.once=, so =init= saw a stale instance* whenever the singleton had already mounted.
+   =init= is the verb that must see current truth: it calls =paladin.remount()=.
+9. *=instance/create= never writes =instances.json=*, so =use <slug>= has nothing to resolve — the
+   working path is =use <path>= first, which registers. PRE-EXISTING, and exactly [[m44-record-authoritative-slug]]'s
+   subject, unlanded. =50.01_slowstart.mdx= shows the record populated right after create, which is
+   aspirational today.
+10. *My scenario harness was the bug once*: zsh does not word-split unquoted parameters, so an
+    env-var string went in as one giant =VIVA_LEDGER_MOUNT=. Product was fine.
+
+*End state, measured*: unseeded → *18 REQUIRED*; after =init= scaffolds → *6 owed, all secrets*;
+after filling → *18 ok · 5 documented · 0 problems*, with =${VAR}= references intact in the file and
+resolved at every read.
+
+* cleanup — landed, and what is left
+
+** disk, folded through the real writer
+
+=paladin.state.env= folded each =environment.json= into the =.env= beside it, then deleted the JSON —
+dogfooding the upsert on live data. Comments and secrets survived untouched; addresses landed under
+a =# addresses= header.
+
+#+BEGIN_EXAMPLE
+~/.viva/environment.json                        → ~/.viva/.env            (VIVA_REPOSITORY_MOUNT)
+~/.viva/instances/language-learning/environment.json → its .env           (9 address keys)
+~/.viva/instances/language-learning/.env.bak    deleted (pre-mount-law shape, held real secrets)
+~/.config/viva/env.bak                          deleted
+~/.config/viva/env                              dead `# export VIVA_SHELL="$$"` line removed
+                                                — the last VIVA_SHELL anywhere, and the `$$` that
+                                                  never worked (ghost.sh sources this file)
+#+END_EXAMPLE
+
+** HAZARD, self-inflicted and repaired
+
+beef said stucatch could be considered abandoned, so it was moved to =instances/.abandoned/= and
+dropped from =instances.json=. *Both its processes were ALIVE* — pids 23092 (=runtime/run=) and
+23093 (=kajuit/watch=), up 2d 2h — so the move pulled the mount out from under two running
+processes. Restored in full, directory and record, within the same step.
+
+*The check that caught it existed and ran too late*: the lock files were read AFTER the move, to
+prune them. Reading a lock is how you learn an instance is live — so lock inspection belongs
+BEFORE any instance-directory operation, not after.
+
+Left for beef: stop 23092/23093, then retire stucatch. Untouched until then.
+
+** orphan — systems/ghost/localhost/
+
+Zero references anywhere in the repo (grepped: only two hits, both in =documentation/bak/=). It
+holds =.logs/=, =mountpoint/= and =localhost.viva.js=, so it was RUN from at some point. Its
+=environment.json= is deleted with the rest, which leaves it with no environment at all and no
+=environment= schema in its declaration. *Marked CLEANUP: delete the directory.* It is not a
+template — =registry/viva/instances/hello-world= is — and it is not reachable.
+
+* the QA pass — run this
+
+Written for beef to execute against his own machine. State at the time of writing:
+
+#+BEGIN_EXAMPLE
+language-learning   resolves fully — runtime :2501 · lighthouse · kajuit :1794 · nlp → nlp.syzygy.vivalence.com
+                    daemons: italian, playground · services: multiplayer, nlp-stanza
+                    18 UNDOCUMENTED — test.viva.js has no `environment` export yet
+stucatch            23092/23093 are DEAD now. Safe to retire whenever you say.
+locks               empty · nothing running
+sessions            5102 → language-learning · 65767 → stucatch (stale)
+#+END_EXAMPLE
+
+The instance is *ready to boot*. The 18 UNDOCUMENTED are informational — nothing gates on them.
+
+** part 1 — revive italian
+
+#+BEGIN_SRC sh
+viva instances/use language-learning     # 1. this shell
+viva instance/doctor                    # 2. confirm it mounts
+viva instance/run                       # 3. runtime + kajuit
+#+END_SRC
+
+Then open *http://localhost:1794* and log in.
+
+If =run= complains about a lock, =viva ledger/doctor= shows what is held — locks are currently empty,
+so it should not.
+
+*Step 4, optional but it is the whole point of this work* — give the declaration an =environment=
+export and the 18 UNDOCUMENTED become a documented, wizard-driven surface. The block for
+=~/.viva/instances/language-learning/test.viva.js= can be written from what the pinhole already
+measured.
+
+** part 2 — the QA pass
+
+Ten checks. Each is one command, an expected result, and what a *bug* looks like.
+
+*** 1 · provenance — which voice won, and who was shadowed
+
+#+BEGIN_SRC sh
+viva ledger/doctor
+#+END_SRC
+
+*Expect* an =environment= section: every var with its winning stratum, shadowed voices dimmed under
+it. A =strata= hint reading =flag › cwd › instance › .env › os › session › ledger=.
+*Bug* if a var shows no stratum, or the ladder has 8 entries.
+
+*** 2 · ${VAR} — one origin, nine addresses
+
+#+BEGIN_SRC sh
+grep VIVA_RUNTIME ~/.viva/instances/language-learning/.env
+viva instance/doctor language-learning --json | grep -A2 RUNTIME_SERVE
+#+END_SRC
+
+Yours are currently written out in full (folded from the old JSON), so this shows literals. To feel
+it, edit =VIVA_RUNTIME_SERVE= to ="${VIVA_RUNTIME_ORIGIN}/"=, add
+=VIVA_RUNTIME_ORIGIN="http://localhost:2501"=, and re-run doctor.
+*Expect* every derived address to move. *Bug* if doctor reports =REQUIRED= or the value stays literal.
+
+*** 3 · the claim law — standing somewhere must not change what you are on
+
+#+BEGIN_SRC sh
+viva instances/use language-learning
+cd ~/.viva && viva instances/use && cd -
+#+END_SRC
+
+*Expect* =stratum: session=, still language-learning.
+*Bug* if the stratum flips to =.env= — that is the ambient claim beating its owner, which is
+precisely what =observe=/=claim= exists to stop.
+
+*** 4 · the pinhole — every key, and who needs it
+
+#+BEGIN_SRC sh
+viva instance/doctor language-learning --json | jq '.requirements[] | [.key, .at, .verdict] | @tsv' -r
+#+END_SRC
+
+*Expect* one row per /consumer site/ — =PUBLIC_VIVA_LIGHTHOUSE_REMOTE= appears 4×, at four different
+=at= paths. That is the per-consumer env set.
+*Bug* if =at= is null for a key a thunk reads.
+
+*** 5 · UNDOCUMENTED fires, and only in one direction
+
+Currently all 18 of yours. After step 4 of part 1 they become =ok=.
+*Bug* if a key you /describe but nothing reads/ shows as an error — that verdict was deleted for
+having a 20% false-positive rate.
+
+*** 6 · secrets never materialise
+
+#+BEGIN_SRC sh
+viva ledger/doctor --json | jq '.environment[].key' | grep SECRET || echo "none — correct"
+viva ledger/doctor --json | jq '.secrets'
+#+END_SRC
+
+*Expect* zero =SECRET_*= in =environment= (which prints values), and =secrets= as a *count*.
+*Bug* if any secret value appears in doctor output.
+
+*** 7 · the writer preserves what you wrote
+
+#+BEGIN_SRC sh
+cp ~/.viva/.env /tmp/env.before
+viva instances/use language-learning --ledger
+diff /tmp/env.before ~/.viva/.env
+#+END_SRC
+
+*Expect* exactly one line changed or added. Comments, blank lines, order untouched.
+*Bug* if comments vanish — that is =dotenv.stringify= semantics leaking in.
+
+*** 8 · two shells, two instances
+
+Open two terminals:
+
+#+BEGIN_SRC sh
+# terminal A
+viva instances/use language-learning && viva instances/use
+# terminal B
+viva instances/use stucatch && viva instances/use
+#+END_SRC
+
+*Expect* each reports its own. *Bug* if they collide — that is =VIVA_PROCESS_ID= not tracking =$PPID=.
+
+*** 9 · a fresh instance, from nothing
+
+#+BEGIN_SRC sh
+viva instance/create @viva/instance/hello-world
+viva instances/use ~/.viva/instances/hello-world
+viva instance/init
+#+END_SRC
+
+*Expect* =env: "scaffolded"=, =fill:= *6 keys, all secrets*, and a =.env= with =## addresses= /
+=## services= / =## keys= sections and a comment above every key.
+*Known gap*: =use <slug>= fails before =use <path>=, because =create= does not write =instances.json=.
+That is [[m44-record-authoritative-slug]], unlanded.
+
+*** 10 · interactive wizard
+
+#+BEGIN_SRC sh
+viva instance/init          # in a real terminal, no --json
+#+END_SRC
+
+*Expect* a =fill= phase with grouped pages (=addresses=, =services=, =keys=), secrets masked, defaults
+pre-filled — *then* boot, then the admin form.
+*Bug* if it boots before filling. That was live an hour ago.
+
+** part 3 — scenarios that stress the design
+
+*A · move the whole instance to a real host.* Set =VIVA_RUNTIME_ORIGIN="https://runtime.example.com"=
+in one line. Every serve and remote should follow. Tests: expansion is lazy, not baked.
+
+*B · break something deliberately.* Comment out =SECRET_VIVA_JWT= and run =instance/doctor=. Expect
+=REQUIRED= naming =service[multiplayer].secrets.jwt=. Tests: the silent failure is now loud.
+
+*C · add a provider.* Put a new =SECRET_VIVA_X= read into a daemon declaration, no schema entry.
+Expect =UNDOCUMENTED= naming the exact site. Tests: the one drift that is always a bug.
+
+*D · add a key nothing reads.* Put one in =environment= only. Expect =documented=, not an error.
+Tests: the false-positive class stays dead.
+
+*E · two instances, one machine.* =use --ledger= one, =use= the other in a shell. Expect session to
+beat ledger. Tests: strata ordering end to end.
+
+* blast order
+
+#+BEGIN_EXAMPLE
+1  hydrate           fire-once · delete probe + DRY · strict usable          paladin
+2  check             UNDOCUMENTED only · documented rows                     paladin
+3  hello-world       drop consumer · ${VAR} nine keys                        registry   ⚠ needs III.1
+   I.1 I.2 I.4       instance .env only · observe/claim · dead ingresses     paladin + typology ⚠
+   III.1             ${VAR} in Env.get                                       typology ⚠
+4  state.env + form  upsert primitive · PAGES in sheets/state/form.js       paladin + ghost + sheets
+   I.3               use --ledger upserts · seven strata                     ghost
+5  ledger            environment const · ledger/init wizard · writeShellConfig  ghost
+6  deletes           .env.example ×2 · gitignore:21 · FILES · 5 migrations · 11 flags
+7  doctor + docs     requirements section · 3 pages                          ghost + docs
+8  suites            paladin · ghost · runtime · SHEETS · re-baseline snapshot
+#+END_EXAMPLE
+
+⚠ = touches typology (=env.js= for =observe=/=claim= and =${VAR}=). *beef's go, per typology-holy.*
+Step 3's =${VAR}= defaults are inert until III.1 lands, so III.1 must precede 3 or 3 ships literals.
+
+* what this quest does NOT do
+
+- No =Reference= class, =Env.demand=, reflective =validate()= walker, comment parser, =toJSON= override,
+  sentinel probe, =UNREAD= check or =consumer:= field. All eight were proposed and all eight killed.
+- No Worker isolation. II keeps the seam cheap; real isolation stays unspent.
+- No rename to =.env.template=. The authored artifact is the export, so the file names nothing.
+- No server/deploy migration — beef: /"the whole deploy setup is broken now… i take care of it."/
+  =starter/docker-compose.yml= still names =registry/viva/instance/multiplayer/= (singular, dead since
+  the rename) and an unprefixed =VIVA_SERVICE_NLP_KEY=. Both his.
+- Does not fix =Url.absolute= returning ="NaN"= (terrain 3). One line, recommended, open:
+  =return `${this.origin ?? ""}${this.nature ?? ""}${this.search}`= — typology, beef's go. A THROWING
+  Url constructor is recommended AGAINST: 8+ files build Urls from partial data, and refusal belongs
+  in =check=, which is the layer that knows required from optional.

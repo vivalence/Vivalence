@@ -1,6 +1,8 @@
 import { dirname } from "@std/path";
 import { Path } from "@vivalence/typology";
 
+const REMOTE = /^(https?:|git@|ssh:)/;
+
 export default function clone(paladin) {
   const attempt = async (bin, args) => {
     try {
@@ -22,4 +24,8 @@ export default function clone(paladin) {
     if (git?.success) return new Path(target);
     throw new Error(`[PALADIN] clone ${remote}: ${git ? git.stderr : "neither jj nor git on PATH"}`);
   };
+
+  // the ONE test for "is this a remote spec" — callers that pre-resolve paths must ask before
+  // resolving, or an scp-style `git@host:path` is rewritten into a cwd path and stops being remote.
+  paladin.clone.remote = (source) => REMOTE.test(String(source ?? ""));
 }

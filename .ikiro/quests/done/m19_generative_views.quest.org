@@ -1,0 +1,2175 @@
+#+title: m19 generative views — bundle is the primitive. 6 steps, ~30 min total
+#+property: header-args :mkdirp yes
+
+* THE CONTRACT (beef's pin, the whole design in six lines)
+
+Bundle is the primitive — the generic wire unit ={entries[{type, mount,
+integrity?, bytes}]}=, the same schematic wherever it appears, always pointing
+at a target served from =/attached/bundle=. Every view has a bundle. Buffers
+have views. Apps have views. The client reads =buffer.view= (row) or
+=mode.app.view= (declaration) and =.bundle= from either — one law, spelled
+once. Factories: =mode.app.buffer()= and =mode.gen.buffer()=.
+
+Two sources, one schematic: the app view bundle compiles on boot and serves
+from the mode's bundle route; the buffer view bundle is spawned into the
+daemon's store and serves from the SAME route. The client wraps the record in
+a View, passes it with a terminal into a Frame; the Frame loads the bundle.
+
+* HARNESS IS IN FLUX — m19 touches none of it
+
+The runtime HARNESSED trait + Hallucination interface are beef's live refactor
+zone (=shard/hallucinate.js=, =prototypes/hallucination.js=). m19 does NOT
+rewrite either. Tools reach the model the proven way: GENERATIVE registers
+=/view/render= + =/view/inspect= on =mode.tools= (TOOLED's Vector); the
+reader's OWN mode-harness slurps =mode.tools= into the hallucination — the
+exact line aprende already runs (=hallucination.tools.slurp(ctx.mode.tools)=).
+No =hallucination.entities.tool= (that register is dissolving); no runtime-trait
+edit; aprende untouched.
+
+* ⚠ APPLIED MANUALLY — DO NOT TANGLE
+
+The patch was applied to disk file-by-file (Claude, test-gated per stage) and
+the suites ran green as each stage landed. =C-c C-v t= would now OVERWRITE the
+applied + test-fixed disk state with these payloads (which lag the fixes below).
+The payloads remain as the design record; disk is truth.
+
+Deltas discovered while applying (disk carries them; payloads may lag):
+- =ModeTraitsEnum= gains =GENERATIVE= (entities/daemon/Mode.ts); =ENTRYPOINT= was
+  fiction — dropped from the reader manifest
+- schematic uses =v.string().optional()= (chained) — static =v.optional()= does
+  not exist; =entries= pins ={minItems: 1}=
+- =paladin.bundler= bundle(): kind + source-or-entry guards hoisted; existing
+  artifact short-circuits (no recompile per call)
+- =generator=/=emitter= exports must be ROOT vectors (=.branch()= returns the
+  child — never export the branch)
+- reader emitter returns a NOMINAL Yield, no explicit thread (EMITTER binds
+  post-drain — explicit + post-drain would double-increment)
+- =tooled.js= TOOLED = the =module.tools= slurp (population mints =mode.tools=
+  universally; no =equip= needed); AGENTIC harvests under =slug= only
+- client Buffer =toJSON= drops =$data=/=$view= backing fields (the atom leaked)
+- registry pensieve BASELINE 38 → 39 (+reader)
+- BOOT FIX: fresh-Path-then-=branch()= handed to a CTOR dies — =new Freight(path)=
+  / =new App(mount)= RE-WRAP (=new Path(path)= drops the trace → =/freight/audio=
+  with no repo prefix). COMPOSE STRINGS at both seams:
+  =new Freight(dirname + nature)= · =new Path(dirname + nature)= (single segment
+  survives re-wrap — proven by eval)
+
+* checklist [5/6]
+
+- [X] 1. files landed — written manually, no tangle
+- [X] 2. typology surgical edits — barrels + is.View + schematic export + enum
+- [X] 3. client surgical edits — dossier + form schema + trait rewrite
+- [X] 4. leftovers audit — metadata?.app / app.mask / app.cast / withBundler all zero;
+      =/buffered= dead (tests retargeted)
+- [X] 5. suites — typology 105/0 · paladin 12/0 · runtime 31/1* · kajuit 17/0
+      (*stripwire = PRE-EXISTING offline-red: stale strip snapshots + missing
+      =-brazilian= instance captures; untouched by m19)
+- [ ] 6. live — reader boot → =view_render= → view on screen (beef)
+
+* step 1 — tangle
+
+=C-c C-v t= in this buffer. 26 blocks land (typology 5, paladin 2, runtime 8,
+kajuit 3, drapes 1, registry 5, tests 2). Payloads start at [[*payload — typology]].
+
+Done when:
+
+#+begin_src shell :tangle no
+cd /Users/finn/vivalence/code/vivalence
+ls subsystems/paladin/belt/bundler.js subsystems/typology/prototypes/view.js \
+   systems/runtime/daemon/traits/generative.js registry/playground/modes/chaosmonkey/reader/generator.js
+#+end_src
+
+All four exist → check the box, go to step 2.
+
+* step 2 — typology surgical edits
+
+Nothing typology is deleted. =app.js= / =bundle.js= survive (recast by the
+tangle); =prototypes/view.js= + =schematics/prototypes/view.js= are new; the
+bundler is a PALADIN belt (no typology =gestalten/bundle/*= additions). If the
+codex/FilePath patch landed first, the index + =is= files already carry its
+=filepath.js= additions — UNION these on top, never replace. Each line one edit:
+
+#+begin_src text :tangle no
+subsystems/typology/prototypes/index.ts
+  + export * from "./view.js";        (app.js / bundle.js export lines STAY)
+
+subsystems/typology/prototypes/index.client.js
+  + export * from "./view.js";
+
+subsystems/typology/gestalten/is/prototypes.js
+  + export function View(thing) { return thing.constructor.name === "View"; }
+    (is.App STAYS — App lives)
+
+subsystems/typology/schematics/prototypes/index.js
+  + export { Bundle, View } from "./view.js";   (beside the Yield re-export)
+
+subsystems/paladin/belt/index.js
+  + import bundler + add it to the aggregate {…, state, bundler}
+
+subsystems/paladin/prototypes/paladin.js
+  + belt.bundler(this);   (in the constructor, beside belt.state(this))
+#+end_src
+
+Then confirm =bundle.svelte= is a real barrel export (=import { bundle } from
+"@vivalence/typology"= → =bundle.svelte=) so the paladin bundler resolves it:
+
+#+begin_src shell :tangle no
+rg -n 'export .* svelte|as bundle' subsystems/typology/gestalten/bundle/index.js subsystems/typology/mod*.js
+#+end_src
+
+Then the mask→schema rename audit (App's buffer schema was named =mask=,
+colliding with the deployment-mask register; the recast App spells it
+=schema=). Retarget any hit:
+
+#+begin_src shell :tangle no
+rg -n '\.app\.mask|\.app\.cast\(' registry systems subsystems --glob '!**/bak/**'
+#+end_src
+
+Zero hits (or retargeted) → step 3.
+
+* step 3 — client surgical edits
+
+3 spots, one edit each. NO runtime-harness edit (in flux — see the top note):
+
+#+begin_src text :tangle no
+systems/kajuit/src/typology/entities/thread/dossier.js:38
+  - thread.mode?.metadata?.app?.schema  →  thread.mode?.app?.schema
+
+systems/kajuit/src/typology/skins/form/schema.js:86
+  - const app = mode?.metadata?.app?.schema;  →  const app = mode?.app?.schema;
+
+systems/kajuit/src/typology/entities/mode/traits/index.js
+  - // export * from "./procedural.js";   (delete the line — GENERATIVE exports from application.js)
+#+end_src
+
+Done when:
+
+#+begin_src shell :tangle no
+rg -n 'metadata\?\.app' systems/kajuit/src
+#+end_src
+
+Zero hits → step 4.
+
+* step 4 — leftovers audit
+
+There is NO codemod. =mode.app.buffer()=, =new App(=, =/metadata/app= all keep
+their spelling — every game emitter, the oracle cross-mode emit, and the
+runtime scenario tests are untouched by rename. Audit only:
+
+#+begin_src shell :tangle no
+cd /Users/finn/vivalence/code/vivalence
+rg -n '/buffered|withUrl\(|withBundler\(' registry systems subsystems --glob '!**/bak/**' | head -30
+#+end_src
+
+Expected survivors: =Freight.withUrl= inside =freight.js= (that stays; the
+FRAUGHT trait now stamps it). Anything else → it is a consumer of the dead
+compile-era =App.withUrl=/=App.withBundler= — retarget it. Clean → step 5.
+
+* step 5 — suites
+
+One command per container, in order:
+
+#+begin_src shell :tangle no
+cd /Users/finn/vivalence/code/vivalence/subsystems/typology && deno task test
+cd /Users/finn/vivalence/code/vivalence/subsystems/paladin && deno task test
+cd /Users/finn/vivalence/code/vivalence/systems/runtime && deno task test
+cd /Users/finn/vivalence/code/vivalence/systems/kajuit && deno task test
+#+end_src
+
+Known churn (if one fails, the fix is the retarget, never new surface):
+- =systems/runtime/tests/mode/traits.test.js= — =/buffered= assertions die with the route
+- =systems/kajuit/tests/scenario/buffer.test.js= — =/buffered= calls retarget =/metadata/app=
+- =subsystems/typology/tests/buffer.test.js= — UNTOUCHED (=new App= stays)
+- =subsystems/typology/tests/gestalten/bundle.test.js= — coverage of the dead
+  compile-lifecycle Bundle; its compile coverage moved to view.spawn.test.js,
+  its wire-unit coverage to the new record asserts. Rewrite against the recast
+  Bundle (entries/entry/load) or purge and report.
+- =subsystems/typology/tests/schematics/view.test.js= — the contract test (Bundle
+  · View · Nascent · Served · /metadata/app); GREEN now, migrate its local
+  hoists to =v.prototypes.{Bundle,View}()= once the schematic tangles.
+
+All green → step 6.
+
+* step 6 — live validation
+
+1. Boot the variant.
+2. Open the reader mode, open the dock chat.
+3. Ask for any interface ("a recipe card for carbonara").
+4. Watch: =view_render= fires → buffer lands on screen MID-stream.
+5. Iterate once ("sepia, bigger type") → new hash, new row, old buffer still renders.
+
+View on screen + iteration works → quest done. Check the last box.
+
+* LATER — not steps, parked
+
+Schema + store:
+- =view= column migration (additive json nullable; verify libsql automigration carries it)
+- store GC — unbounded, per-daemon; mark-and-sweep against =buffer.view.hash= rows safe whenever wanted
+
+Bundle growth (the generic type earns its keep):
+- entries beyond the single js: css/img/tts ride the same ={type, mount,
+  integrity?, bytes}= shape; the =shard.serve= MIME table is ready
+- freight/cargo as Bundle consumers — the lading catalog IS a bundle wanting
+  the schematic; converge when touched next
+- react kind = one =kinds= entry; Frame already kind-blind via the module contract
+- diffable render — total-source today; a diff tool = a new spawn, the store supports it
+- =kinds.svelte.compile= reads =entry= (needs the file on disk), =html= reads
+  =source= — an APPLICATION authored in =html= would need =compile= to pass
+  =source= too. No html apps exist; wire it when the first one does.
+
+Harness convergence (when beef's refactor settles):
+- runtime HARNESSED currently ingests tools from =input.tools=; once it settles,
+  fold =mode.tools= there so EVERY harnessed mode gets its mode tools for free
+  and the reader's own slurp middleware retires (aprende's too)
+- harness middlewares graduate into =shard.hal.*= — =shard/hallucinate.js= is
+  the seed (session/deliver/dispatch already live there)
+- gen-only modes (GENERATIVE without APPLICATION) have no =mode.app.url= to base
+  row bundles on — the bundle base then needs its own metadata home (candidate
+  =/metadata/bundle= = ={url}=). Reader is APPLICATION+GENERATIVE; defer.
+
+Housekeeping:
+- =@playground/chaosmonkey/reader= testament registration
+- invariant test: emitter descriptor carrying =thread= must not double-increment the counter
+- 47.03 stripwire doc + world-file codemap respell (=/buffered= death, App.schema rename)
+
+* WHY — design reference (skim only if lost)
+
+Supersedes the View-absorbs-everything draft. That draft collapsed the wrong
+pair: it fused App AND Bundle into one View class and deleted =bundle.js= —
+which put "the record on the row", "the declaration on the mode", and "the
+served artifact" into ONE name and produced the semantic-polymorphism mess at
+every seam that touched it. There are three objects on two axes:
+
+| object | is                                                                  | home                                                    |
+|--------+---------------------------------------------------------------------+---------------------------------------------------------|
+| Bundle | the wire unit — ={entries[{type, mount, integrity?, bytes}]}=, generic | =view.bundle= everywhere; later freight/cargo           |
+| View   | render meta wrapping ONE bundle — ={kind, hash?, mount, bundle}=      | =mode.app.view= (boot-born) · =buffer.view= (row-born)  |
+| App    | the declaration — ={mount, schema}= + boot-minted =view=/=buffer()=    | =mode.app= (trait-owned copy; the module is READ-ONLY)  |
+
+*Homes — the bundler is paladin's, traits only wire.* THE bundler is a paladin
+belt (=belt/bundler.js=): configured at system level (=paladin.scope= = repo
+root), reads the repo, writes to disk — paladin's exact job, and it sits above
+typology so it imports =View=/=bundle.svelte=/=crypto= with no injection. Bound
+to a =directory=, =paladin.bundler(dir)= is ONE interface for app + gen + serve:
+=bundle(nascent view)= → content-addressed persisted =View= · =serve(name)= ·
+=inspect(hash)=. Buffer rows are inlined in each trait (dup, ok). NO invented
+daemon/mode field — traits derive the mode's dir from the EXISTING
+=daemon.mountpoint= + mode identity (=<mountpoint>/<type>/<slug>=) and hand it to
+the bundler, which owns a =bundle/= subdir under it. The store is PER-MODE (each
+mode owns its bundles). What's left in the two traits is pure composition — construct the bundler,
+bundle, inline the row, wire tools. Nothing builds or stores inside typology;
+nothing bundles on the
+daemon.
+
+*The read law.* =buffer.view ?? mode.app.view=, then =.bundle= from either.
+The row wins because the DAEMON decided at creation: =gen.buffer= stamps the
+pointer, =app.buffer= leaves it null; the client reads that decision off a
+sparse column. One fold in the app panel; the Frame resolves nothing.
+
+*One operation, per-mode store.* App and gen are the SAME operation now:
+APPLICATION bundles its repo entry on boot (a finalizer), GENERATIVE bundles a
+model string on demand — both content-address, persist to the MODE's store, mint
+a =View=. Integrity is ALWAYS stamped (no sealed/dev split; a dev edit → reboot →
+new hash). The store is per-mode — =<daemon mount>/<type>/<slug>/bundle/= — so
+each mode owns its bundles (isolation; the cost is no cross-mode dedup, cheap for
+bespoke views). One =serve= route per mode =/attached/bundle/<mode mount>/(.*)= →
+=paladin.bundler(<mode dir>).serve=. Miss → 404; integrity rides
+=x-viva-integrity=. The network standardizes on bundle.
+
+*Two factories, two data policies — row inlined in each.* =mode.app.buffer(desc)=
+fills through the schema (Default-only — Convert mauls Collections), view null;
+=mode.gen.buffer({view, data, …})= takes an ALREADY-bundled View and stamps its
+=.json=. Each trait inlines the ~8-line row (em.create + thread/literal/symbol) —
+duplicated on purpose (beef: "probably slightly different dynamics anyways"). NO
+repository method. The nascent view =({kind, source})= carries the authored text +
+dialect; =bundle()= eats those → complete View, the row eats the rest.
+
+*The module is read-only.* The old population pass wrote the rebased entry
+back through =mode.module.app.mount.from(…)= and =mode.module.freight.path.from(…)=
+— mutating the authored module. Both die. Each trait mints the mode's OWN
+copy (=mode.app = new App(rebased entry, module schema)=,
+=mode.freight = new Freight(rebased path)=) and the module is never written.
+
+*The bundler is =paladin.bundler(dir)=.* A paladin belt — configured at system
+level (=paladin.scope.repository=), reads the repo, writes to disk: paladin's job
+exactly, and paladin sits ABOVE typology so it imports =View=/=bundle.svelte=/=crypto=
+with no port injection. =variant.js:24= stamps every daemon mask
+=mount: scope.mountpoint.branch("/daemon_<slug>")= — the per-daemon state dir
+where its db already lives; =wiring()= copies it onto the good as =mountpoint=.
+Traits derive the mode's dir inline (=`${daemon.mountpoint.absolute}/${mode.type}/${mode.slug}`=)
+and hand it to =paladin.bundler(dir)=, which writes under a =bundle/= subdir it
+owns — no invented daemon/mode field. =bundle= writes source + compiled =.mjs=
+through =paladin.state.text= (raw writer beside json/jsonl — the codex codecs are
+STRUCTURED authoring and cannot cata opaque model text or a compiled bundle) and
+reads via =paladin.read.text(path).catch(NotFound → null)=. Content-addressed +
+idempotent; boot-persistent, per-mode.
+
+*Tools — a mode-owned =generator=, else the trait fallback.* Tools ride
+=mode.tools= (TOOLED's register via =equip=). If the mode exports a =generator=
+Vector, GENERATIVE slurps it — the mode OWNS its generative tools (rich valence,
+examples, even a sub-hallucination; the prompt shebang lives in the mode).
+Otherwise GENERATIVE registers the generic FALLBACK =view/render= + =view/inspect=
+(the model authors =source=, the tool plumbs). Either way the reader's OWN harness
+runs =hallucination.tools.slurp(ctx.mode.tools)= — the line aprende already runs —
+so ZERO runtime-Hallucination edit (in flux). The trait's per-request
+=hallucination.tools.use(bind("thread"))= binds thread onto the slurped tools;
+the render tool reads =ctx.thread= to attach the buffer. =mode.gen= can ALSO be
+driven manually from an emitter (one-off hallucination → =bundle= → =buffer=).
+
+*The client.* One primitive pair both sides: the metadata record and the row
+rehydrate to =View= (constructor is pojo-tolerant), the panel stamps the
+serve base (=withUrl=), and Frame receives ={terminal, view}= — "we create a
+bundle and pass it together with a terminal into a frame." =Bundle.load= owns
+fetch → verify-iff-integrity → blob import → memo-by-integrity (the client
+face the old Bundle always had, upgraded); Frame keeps only mount/teardown +
+the fault UI. No app/gen collapse on the client: APPLICATION hydrates
+=mode.app= from =/metadata/app=; generated views ride the row; GENERATIVE is
+a client noop.
+
+*Consumer surface unchanged.* =mode.app.buffer()= (every game emitter, the
+oracle cross-mode emit), =new App(…)= (every viva), =/metadata/app= (dossier,
+form schema via the mode.app hop) — all keep their spelling. The codemod
+step from the old draft evaporates.
+
+*Cuts:*
+
+| where    | dies                                                                        |
+|----------+------------------------------------------------------------------------------|
+| typology | App's compile-era limbs (=withUrl=/=withBundler=/=cast()=/=mask= name) · Bundle's daemon compile face (=outputs=/=bundler=/=serve(branch)=) |
+| routes   | =/buffered= · =modes.js= =buffered= enrichment                               |
+| runtime  | =daemon.bundler= · =traits/{view,store,buffer}.js= · =BufferRepository.mint= · per-mode serve (=shard.serve.bundles=) · sealed/dev-recompile split · population's APPLICATION + FRAUGHT module mutations · resolve.js graveyard |
+| client   | Frame =Component= arm + inline loader/digest · =mode.buffer= factory · =Buffer.app= slot · terminal =$view= flirtation |
+
+*Verified mechanics this patch leans on:*
+- =mode.tools= is the live register (=tooled.js= mints; aprende slurps it into the hallucination TODAY via =hallucination.tools.slurp=)
+- tools are a Vector on =hallucination.tools=; dispatch invokes via =steer.dispatch.invoke(tools, signal, steer.strategy.guarded)= (=shard/hallucinate.js=); context-bind middleware on the tools vector reaches tool effects; there is NO =hallucination.entities.tool= (dissolving)
+- =read.text= is the codex refactor's raw reader (no fallback); the store catches =Deno.errors.NotFound= → null. =state.text= is the raw writer (codex can't cata opaque source / compiled artifacts)
+- =Url.branch= returns new (chained branches off =good.attach= stay pure); never =branch()= a REUSED Path — fresh-Path-then-branch or compose strings
+- svelte bundler already emits the ONE module contract =export default (target, props) => ({...instance, destroy})= (svelte.js:64)
+- =bundle.svelte= sets =outfile = entry= (svelte.js:72) → the single outputFile has =output.path === entry= (the absolute path passed in); the paladin bundler keys on it — RE-CHECK at write, load-bearing
+- paladin → typology is a CLEAN edge (paladin imports Path/View/crypto; typology never imports paladin, save dead =prototypes/bak/=) — the bundler belt =import { View, bundle, crypto } from "@vivalence/typology"= is safe
+- the inlined row uses the datamap repos =daemon.entities.{em,thread,literal,symbol}=; =findByIdentifiers= is the literal/symbol repo method
+- the manual emitter drives =daemon.cortex.hallucination()= + =verbatim.render()= — VERIFY an emitter ctx carries =ctx.daemon.cortex=
+- EMITTER binds thread post-drain — emitter descriptors carry no =thread= key, the row's binding never doubles
+- masks carry the per-daemon fs mount (=variant.js:24=); the topography harness already reads a db exactly there
+
+*Flows:*
+- APPLICATION: viva exports =app = new App(entry, v.buffer(…))= → trait mints the
+  mode's OWN thin App + =mode.app.buffer= (row, view NULL) + a FINALIZER that
+  =paladin.bundler(<mode dir>).bundle({entry})= → =mode.app.view= (View,
+  content-addressed) → emitter mints an app row → EMITTER binds thread → SSE →
+  client merge → a.svelte fold: row has no view → =mode.app.view= (url-stamped) →
+  Frame =view.load()= → =Bundle.load= fetch =url + mount=, digest === integrity,
+  memoized → blob import → =module.default(dom, {buffer, terminal})= →
+  =buffer.mount()=.
+- GENERATIVE (automated): dock chat → =/harness/dialogue/stream= → reader harness
+  slurps =mode.tools= (its =generator=) into =hallucination.tools= (trait binds
+  thread) → model calls =view_render({source})= → =bundle({kind, source})= writes
+  =<store>/<hash16>.svelte= + compiled =.svelte.mjs= via =paladin.state.text=
+  (idempotent) → =mode.gen.buffer({view, …})= inlines the row, stamps =view.json=,
+  binds thread → flush mid-stream → SSE lands the buffer DURING the reply → fold:
+  row view wins → Frame verifies + mounts. Iterate =view_inspect({hash})= → edit
+  → =view_render= → NEW hash, NEW row; records immutable, old buffer verifies
+  forever.
+- GENERATIVE (manual): reader =emitter= on =/conjure= → =daemon.cortex.hallucination()=
+  authors source → =mode.gen.bundle= → =mode.gen.buffer= — same primitives, no
+  model tool-loop.
+- RESTART: the store persists under the daemon's mask mount beside its db;
+  rows carry relative mounts only; serve re-reads the same content-addressed
+  artifacts byte-identical; a changed runtime origin changes only the
+  metadata url.
+- TAMPER: served text ≠ integrity → Frame faults "view refused" before the
+  module ever executes; unknown/traversal names die at the ARTIFACT regex;
+  missing artifact → serve null → 404.
+
+* payload — typology
+
+** subsystems/typology/prototypes/bundle.js :recast:
+
+The generic wire unit + the client face. Daemon compile face is GONE (that
+lifecycle lives in the runtime trait seam). Client-safe: fetch, subtle-crypto
+digest, blob import — zero build deps. =json= carries entries only — rows
+carry relative mounts, never an origin; =url= is client-stamped transport
+state.
+
+#+begin_src js :tangle ../../subsystems/typology/prototypes/bundle.js
+import { digest } from "../gestalten/belt/crypto.js";
+
+const verified = new Map();
+
+export class Bundle {
+  url = null;
+  entries = [];
+
+  constructor(record = {}) {
+    if (record instanceof Bundle) return record;
+    if (Array.isArray(record)) record = { entries: record };
+    this.entries = record.entries ?? [];
+    this.url = record.url ?? null;
+  }
+
+  entry(mount) {
+    return this.entries.find((candidate) => candidate.mount === mount);
+  }
+
+  withUrl(url) {
+    this.url = url;
+    return this;
+  }
+
+  async load(mount) {
+    const entry = this.entry(mount) ?? this.entries[0];
+    if (!entry) throw new Error("bundle has no entries");
+    if (entry.integrity && verified.has(entry.integrity)) return verified.get(entry.integrity);
+    const response = await fetch(this.url + entry.mount);
+    if (!response.ok) throw new Error(`bundle fetch ${response.status}`);
+    const text = await response.text();
+    if (entry.integrity) {
+      const digested = await digest(text);
+      if (digested !== entry.integrity)
+        throw new Error(`integrity sha256 ${digested.slice(0, 12)} is not ${entry.integrity.slice(0, 12)}`);
+    }
+    const url = URL.createObjectURL(new Blob([text], { type: "text/javascript" }));
+    try {
+      const module = await import(/* @vite-ignore */ url);
+      if (entry.integrity) verified.set(entry.integrity, module);
+      return module;
+    } finally {
+      URL.revokeObjectURL(url);
+    }
+  }
+
+  get json() {
+    return { entries: this.entries };
+  }
+
+  toJSON() {
+    return this.json;
+  }
+}
+#+end_src
+
+** subsystems/typology/prototypes/view.js :new:
+
+Render meta wrapping ONE bundle. =kind= computes from the mount extension
+when omitted; =hash= is the GENERATIVE content address (absent for boot
+apps). =load()= delegates to the bundle at the view's own entry mount.
+
+#+begin_src js :tangle ../../subsystems/typology/prototypes/view.js
+import { Path } from "./path.js";
+import { Bundle } from "./bundle.js";
+
+export class View {
+  kind = null;
+  hash = null;
+  mount = null;
+  bundle = null;
+
+  constructor(record = {}, bundle = null, kind = null) {
+    if (record instanceof View) return record;
+    if (typeof record === "string" || record instanceof Path) record = { mount: record };
+    this.mount = new Path(record.mount);
+    this.bundle = new Bundle(bundle ?? record.bundle);
+    this.hash = record.hash ?? null;
+    this.kind = kind ?? record.kind ?? this.mount.absolute.split(".").pop();
+  }
+
+  withUrl(url) {
+    this.bundle.withUrl(url);
+    return this;
+  }
+
+  load() {
+    return this.bundle.load(this.mount.nature);
+  }
+
+  get json() {
+    return {
+      kind: this.kind,
+      ...(this.hash && { hash: this.hash }),
+      mount: this.mount.nature,
+      bundle: this.bundle.json,
+    };
+  }
+
+  toJSON() {
+    return this.json;
+  }
+}
+#+end_src
+
+** subsystems/typology/prototypes/app.js :recast:
+
+The declaration, slimmed to what a viva authors: entry + schema. =mask= is
+respelled =schema= (the deployment-mask register keeps its name). =view= and
+=buffer= are boot-minted by APPLICATION; the compile-era limbs
+(=withUrl=/=withBundler=/=cast=) die.
+
+#+begin_src js :tangle ../../subsystems/typology/prototypes/app.js
+import { Path } from "./path.js";
+
+export class App {
+  mount = null;
+  schema = null;
+
+  constructor(mount, schema = null) {
+    if (mount instanceof App) return mount;
+    if (typeof mount === "object" && !(mount instanceof Path)) {
+      schema = mount.schema ?? schema;
+      mount = mount.mount;
+    }
+    this.schema = schema;
+    this.mount = new Path(mount);
+  }
+
+  fill(descriptor = {}) {
+    descriptor.data ??= {};
+    this.schema?.fill(descriptor);
+    return descriptor.data;
+  }
+}
+#+end_src
+
+** subsystems/typology/schematics/prototypes/view.js :new:
+
+The view-record schematic — the row's =view= column and the metadata's =view=
+field both check against it. Author beside yield.js, export from the
+schematics prototypes index (step 2).
+
+#+begin_src js :tangle ../../subsystems/typology/schematics/prototypes/view.js
+import { v } from "../index.js";
+
+export const Bundle = () =>
+  v.object({
+    entries: v.array(
+      v.object({
+        type: v.string(),
+        mount: v.string(),
+        integrity: v.string().optional(),
+        bytes: v.integer(),
+      }),
+      { minItems: 1 },
+    ),
+  });
+
+export const View = () =>
+  v.object({
+    kind: v.string(),
+    hash: v.string().optional(),
+    mount: v.string(),
+    bundle: Bundle(),
+  });
+#+end_src
+
+** subsystems/typology/entities/userspace/Buffer.ts :modified:
+
+The =view= json column — nullable pointer beside =data=; the DAEMON decides at
+creation (gen stamps it, app leaves null). Its shape is pinned by
+=v.prototypes.View= (contract test) and stored as the View's =.json=. No
+repository method — each trait inlines its own row.
+
+#+begin_src js :tangle ../../subsystems/typology/entities/userspace/Buffer.ts
+import { types, Collection, EntitySchema, type Opt, type Rel } from "@mikro-orm/core";
+
+import { DataRepository, DataEntity, DataSchema } from "../index.ts";
+import { ModeEntity } from "../index.ts";
+import { ThreadEntity } from "../index.ts";
+import { LiteralEntity } from "../index.ts";
+import { SymbolEntity } from "../index.ts";
+
+export enum BufferStatusEnum {
+  PENDING = "PENDING",
+  ACTIVE = "ACTIVE",
+  DONE = "DONE",
+  ERROR = "ERROR",
+  STALE = "STALE",
+}
+
+export class BufferEntity extends DataEntity {
+  status: BufferStatusEnum & Opt = BufferStatusEnum.PENDING;
+  data: any & Opt = {};
+  view: any & Opt = null;
+  index: number & Opt = 0;
+
+  mode!: Rel<ModeEntity>;
+  thread?: Rel<ThreadEntity>;
+
+  literals = new Collection<LiteralEntity>(this);
+  symbols = new Collection<SymbolEntity>(this);
+}
+
+export const BufferSchema = new EntitySchema<BufferEntity, DataEntity>({
+  extends: DataSchema,
+  name: "Buffer",
+  tableName: "Buffer",
+  repository: () => DataRepository,
+  abstract: true,
+  filters: {
+    user: {
+      cond: (args: any) => ({ thread: { user: args.user } }),
+      default: true,
+    },
+  },
+  properties: {
+    status: {
+      enum: true,
+      items: () => BufferStatusEnum,
+      defaultRaw: `'${BufferStatusEnum.PENDING}'`,
+    },
+    data: { type: types.json, defaultRaw: `'{}'` },
+    view: { type: types.json, nullable: true },
+    index: { type: types.integer, default: 0 },
+
+    mode: {
+      kind: "m:1",
+      entity: () => ModeEntity,
+      fieldName: "mode",
+      updateRule: "cascade",
+      deleteRule: "cascade",
+    },
+
+    thread: {
+      kind: "m:1",
+      entity: () => ThreadEntity,
+      fieldName: "thread",
+      nullable: true,
+    },
+
+    literals: {
+      kind: "m:n",
+      entity: () => LiteralEntity,
+      owner: true,
+    },
+
+    symbols: {
+      kind: "m:n",
+      entity: () => SymbolEntity,
+      owner: true,
+    },
+  },
+});
+
+export default {
+  type: "buffer",
+  schema: BufferSchema,
+  entity: BufferEntity,
+};
+#+end_src
+
+* payload — paladin
+
+** subsystems/paladin/belt/state.js :modified:
+
+=state.text= joins the belt — the raw-text writer beside json/jsonl. First
+consumer: =paladin.bundler= (opaque model source + compiled =.mjs=).
+
+#+begin_src js :tangle ../../subsystems/paladin/belt/state.js
+import fs from "@std/fs";
+import { dirname } from "@std/path";
+
+export default function state(paladin) {
+  const resolve = (path) => (typeof path === "function" ? path() : path?.absolute ?? path);
+  const parent = (file) => fs.ensureDir(dirname(file));
+
+  paladin.state = {
+    dir: (path) => fs.ensureDir(resolve(path)),
+    text: async (path, text) => {
+      const file = resolve(path);
+      await parent(file);
+      await Deno.writeTextFile(file, text);
+    },
+    json: async (path, data) => {
+      const file = resolve(path);
+      await parent(file);
+      await Deno.writeTextFile(file, JSON.stringify(data, null, 2));
+    },
+    jsonl: async (path, entry) => {
+      const file = resolve(path);
+      await parent(file);
+      await Deno.writeTextFile(file, JSON.stringify(entry) + "\n", { append: true });
+    },
+    remove: (path) => Deno.remove(resolve(path)).catch(() => {}),
+    open: async (path) => {
+      const file = resolve(path);
+      await parent(file);
+      return Deno.open(file, { write: true, create: true, append: true });
+    },
+  };
+}
+#+end_src
+
+** subsystems/paladin/belt/bundler.js :new:
+
+THE bundler, as a paladin belt — configured at system level (=paladin.scope=
+= repo root), reads the repo, writes to disk. paladin sits above typology so it
+imports =View=/=bundle.svelte=/=crypto= directly — no port injection. Bound to
+a =directory= (the caller's — here a per-mode dir), it exposes ONE interface for
+app + gen + serve: =bundle(nascent view)= → complete =View= (content-addressed,
+persisted, under a =bundle/= subdir); =serve(name)= reads any artifact;
+=inspect(hash)= reads back source. imports
+built the vivalence way — =scope.repository.branch(…).absolute=, no raw
+=import.meta.url= (=bundle.svelte= defaults =baseUrl=, inert with absolute
+imports).
+
+#+begin_src js :tangle ../../subsystems/paladin/belt/bundler.js
+import { View, bundle as compiler, crypto } from "@vivalence/typology";
+
+const ARTIFACT = /^\/?[0-9a-f]{16}\.(svelte|html)\.mjs$/;
+const missing = (error) => {
+  if (error instanceof Deno.errors.NotFound) return null;
+  throw error;
+};
+
+export default function bundler(paladin) {
+  const imports = () => ({
+    "@vivalence/typology": paladin.scope.repository.branch("subsystems/typology/mod.client.js").absolute,
+    "@vivalence/drapes": paladin.scope.repository.branch("subsystems/drapes/mod.js").absolute,
+  });
+
+  const kinds = {
+    svelte: {
+      ext: "svelte",
+      compile: async (entry) =>
+        (await compiler.svelte(entry, { prod: paladin.is.prod, imports: imports() })).find(
+          (output) => output.path === entry,
+        ).text,
+    },
+    html: {
+      ext: "html",
+      compile: async (entry) => {
+        const html = await paladin.read.text(entry);
+        return `const html = ${JSON.stringify(html)};\nexport default (target) => { target.innerHTML = html; return { destroy: () => { target.innerHTML = ""; } }; };`;
+      },
+    },
+  };
+
+  paladin.bundler = (directory) => {
+    const at = (name) => `${directory}/bundle/${name}`;
+
+    const bundle = async ({ kind = "svelte", source = null, entry = null }) => {
+      if (!kinds[kind]) throw new Error(`bundle: unknown kind "${kind}" — one of ${Object.keys(kinds)}`);
+      if (source === null && entry === null) throw new Error("bundle: source or entry required");
+      let hash = null;
+      let text = null;
+      if (source !== null) {
+        if (!source.trim()) throw new Error("bundle: source is empty");
+        hash = await crypto.digest(source);
+        text = await paladin.read.text(at(`${hash.slice(0, 16)}.${kind}.mjs`)).catch(missing);
+        if (text === null) {
+          entry = at(`${hash.slice(0, 16)}.${kinds[kind].ext}`);
+          await paladin.state.text(entry, source);
+        }
+      }
+      if (text === null) {
+        text = await kinds[kind].compile(entry);
+        hash ??= await crypto.digest(text);
+        await paladin.state.text(at(`${hash.slice(0, 16)}.${kind}.mjs`), text);
+      }
+      const mount = `/${hash.slice(0, 16)}.${kind}.mjs`;
+      return new View({
+        kind,
+        hash,
+        mount,
+        bundle: { entries: [{ type: "js", mount, integrity: await crypto.digest(text), bytes: text.length }] },
+      });
+    };
+
+    const serve = async (name) => {
+      const stem = name.replace(/^\//, "");
+      if (!ARTIFACT.test(stem)) return null;
+      const text = await paladin.read.text(at(stem)).catch(missing);
+      return text === null ? null : { text, type: "application/javascript", integrity: await crypto.digest(text) };
+    };
+
+    const inspect = async (hash) => {
+      for (const { ext } of Object.values(kinds)) {
+        const text = await paladin.read.text(at(`${hash.slice(0, 16)}.${ext}`)).catch(missing);
+        if (text !== null) return { hash: await crypto.digest(text), source: text };
+      }
+      throw new Error(`bundler.inspect: unknown view: ${hash}`);
+    };
+
+    return { bundle, serve, inspect };
+  };
+}
+#+end_src
+
+Belt wiring (step 2): add =bundler= to =subsystems/paladin/belt/index.js= and
+call =belt.bundler(this)= in the =Paladin= constructor, beside =state=/=read=/=scope=.
+
+* payload — runtime
+
+Traits are wiring only — no build, no serve, no store logic. They derive the
+mode dir (=<daemon.mountpoint>/<type>/<slug>=) and construct
+=paladin.bundler(dir)= at use (the bundler owns its =bundle/= subdir), then
+inline their own buffer row. There is NO =traits/{view,store,buffer}.js=, no
+=daemon.bundler=, no =daemon.store=, no =mode.store=.
+
+** systems/runtime/daemon/traits/application.js :modified:
+
+Wiring only. Mints the mode's own thin =App= off the module declaration (fresh
+Path, then branch; the module is never written) + the row factory (=view= null
+— app rows fall back to =mode.app.view=). Returns a FINALIZER that bundles the
+entry through =paladin.bundler(<mode dir>)= after all traits wire — the App view is
+content-addressed + persisted like any other. No compile, no serve here; serve
+is the daemon's one route. Row inlined (dup with gen, ok — different dynamics).
+
+#+begin_src js :tangle ../../systems/runtime/daemon/traits/application.js
+import paladin from "@vivalence/paladin";
+import { App, Path } from "@vivalence/typology";
+import { BufferEntity } from "@vivalence/typology/entities";
+
+export const APPLICATION = async (mode, daemon) => {
+  const entry = new Path(mode.module.mount.dirname + mode.module.app.mount.nature);
+  mode.app = new App(entry, mode.module.app.schema);
+
+  mode.app.buffer = async (desc = {}) => {
+    const buffer = daemon.entities.em.create(BufferEntity, {
+      mode: mode.entity.id,
+      data: mode.app.fill(desc),
+      view: null,
+      index: desc.index ?? 0,
+    });
+    if (desc.thread) {
+      const thread = await daemon.entities.thread.findOne(desc.thread);
+      buffer.thread = thread;
+      buffer.index = thread.counter++;
+    }
+    if (desc.literals) buffer.literals.add(await daemon.entities.literal.findByIdentifiers(desc.literals));
+    if (desc.symbols) buffer.symbols.add(await daemon.entities.symbol.findByIdentifiers(desc.symbols));
+    return buffer;
+  };
+
+  return async () => {
+    const store = `${daemon.mountpoint.absolute}/${mode.type}/${mode.slug}`;
+    mode.app.view = await paladin.bundler(store).bundle({ kind: "svelte", entry: entry.absolute });
+  };
+};
+#+end_src
+
+** systems/runtime/daemon/traits/generative.js :new:
+
+Wiring only. =mode.gen= exposes the three primitives over =paladin.bundler(<mode dir>)=:
+=bundle(nascent {kind, source})= → complete =View= · =buffer({view, …})= → row
+· =inspect(hash)=. Row inlined (dup with app, ok). Then the TOOL surface: if the
+mode exported a =generator= Vector, slurp it onto =mode.tools= (the mode owns
+its tools — rich valence, examples, sub-hallucination, whatever); ELSE register
+the generic FALLBACK =view/render= + =view/inspect= — the model authors the
+source, the tool plumbs. Either way tools ride =mode.tools=, no
+runtime-Hallucination edit.
+
+#+begin_src js :tangle ../../systems/runtime/daemon/traits/generative.js
+import paladin from "@vivalence/paladin";
+import { v } from "@vivalence/typology";
+import { BufferEntity } from "@vivalence/typology/entities";
+import { equip } from "./tooled.js";
+
+export const GENERATIVE = async (mode, daemon) => {
+  const bundler = paladin.bundler(`${daemon.mountpoint.absolute}/${mode.type}/${mode.slug}`);
+  mode.gen = {
+    bundle: bundler.bundle,
+    inspect: bundler.inspect,
+    buffer: async ({ view, data = {}, thread = null, literals, symbols, index = 0 }) => {
+      const buffer = daemon.entities.em.create(BufferEntity, {
+        mode: mode.entity.id,
+        data,
+        view: view.json,
+        index,
+      });
+      if (thread) {
+        const found = await daemon.entities.thread.findOne(thread);
+        buffer.thread = found;
+        buffer.index = found.counter++;
+      }
+      if (literals) buffer.literals.add(await daemon.entities.literal.findByIdentifiers(literals));
+      if (symbols) buffer.symbols.add(await daemon.entities.symbol.findByIdentifiers(symbols));
+      return buffer;
+    },
+  };
+
+  const tools = equip(mode, daemon);
+  if (mode.module.generator) tools.slurp(mode.module.generator);
+  else fallback(tools.branch("/generator"));
+};
+
+function fallback(tools) {
+  tools
+    .open(
+      {
+        nature: "/render",
+        valence:
+          "Render a live interface: submit a COMPLETE Svelte 5 component (runes only; props {buffer, terminal}; self-contained). It mounts on the user's screen at once.",
+        input: v.object({ source: v.string(), kind: v.optional(v.string()), data: v.optional(v.any()) }),
+      },
+      async (ctx) => {
+        try {
+          const view = await ctx.mode.gen.bundle({ kind: ctx.input.kind ?? "svelte", source: ctx.input.source });
+          const buffer = await ctx.mode.gen.buffer({ view, data: ctx.input.data ?? {}, thread: ctx.thread ?? null });
+          await ctx.daemon.entities.em.flush();
+          return { message: `view ${view.hash.slice(0, 16)} on screen`, entities: { buffer: [buffer] } };
+        } catch (error) {
+          return { message: `render refused: ${error.message}` };
+        }
+      },
+    )
+    .open(
+      {
+        nature: "/inspect",
+        valence: "Read back the exact source of a rendered view by its hash, to revise it.",
+        input: v.object({ hash: v.string() }),
+      },
+      async (ctx) => {
+        try {
+          return await ctx.mode.gen.inspect(ctx.input.hash);
+        } catch (error) {
+          return { message: error.message };
+        }
+      },
+    );
+}
+#+end_src
+
+** systems/runtime/daemon/traits/tooled.js :modified:
+
+=equip= extracted — the one mint for =mode.tools= (idempotent, context-bound
+once). TOOLED and GENERATIVE are both suppliers to it.
+
+#+begin_src js :tangle ../../systems/runtime/daemon/traits/tooled.js
+import { Vector, shard } from "@vivalence/typology";
+
+export const TOOLED = (mode, daemon) => {
+  mode.tools.use(shard.context.bind("daemon", daemon));
+  mode.tools.use(shard.context.bind("mode", mode));
+};
+#+end_src
+
+** systems/runtime/daemon/traits/index.js :modified:
+
+FRAUGHT swallows: the trait mints the mode's own Freight off the module
+declaration (fresh Path, then branch) — the module is never written; the
+=withUrl= plumbing leaves population. HARNESSED stays as-is (in flux — not
+re-exported differently, just carried through).
+
+#+begin_src js :tangle ../../systems/runtime/daemon/traits/index.js
+import { Freight, Path, is, shape } from "@vivalence/typology";
+
+export async function stagger(mode, daemon, traits) {
+  const finalizers = [];
+  for (const trait of mode.traits) {
+    const result = await traits[trait]?.(mode, daemon);
+    if (is.fn(result)) finalizers.push(result);
+  }
+  for (const finalize of finalizers) await finalize();
+}
+
+export * from "./dataset.js";
+export * from "./intented.js";
+export * from "./emitter.js";
+export * from "./application.js";
+export * from "./generative.js";
+export * from "./harnessed.js";
+export * from "./tooled.js";
+
+export const SELFEVIDENT = () => {};
+
+// marker: only STANDALONE modes can be created/rendered without an emitter (direct buffer from MASKED)
+export const STANDALONE = () => {};
+
+export const EXPOSED = (mode) => {
+  if (!mode.aperture) {
+    console.warn(`[EXPOSED] ${mode.type}/${mode.slug} has no aperture`);
+    return;
+  }
+  return () => {
+    mode.call = shape.proxy(mode.aperture);
+  };
+};
+
+export const FRAUGHT = async (mode, daemon) => {
+  mode.freight = new Freight(mode.module.mount.dirname + mode.module.freight.path.nature);
+  mode.freight.withUrl(daemon.attach.branch("/cargo").branch(daemon.mount.nature));
+  await mode.freight.index();
+  mode.aperture.open("/freight", () => mode.freight.catalog);
+};
+#+end_src
+
+** systems/runtime/daemon/lifecycle/population.js :modified:
+
+The module mutations DIE — no =mode.module.app.mount.from(…)=, no
+=mode.module.freight.path.from(…)=, no =withUrl= stamping. The module is
+read-only; each trait mints its own copy. =wiring()= copies the mask's fs mount
+onto the good as =mountpoint= (the statics/docs precedent) — that's all. NO
+=good.store=, NO =good.bundler=: traits derive the per-mode dir from
+=daemon.mountpoint= + mode identity and pass it to =paladin.bundler(...)= at use.
+
+#+begin_src js :tangle ../../systems/runtime/daemon/lifecycle/population.js
+  import paladin from "@vivalence/paladin";
+  import { wrap, EntitySchema } from "@mikro-orm/core";
+
+  import { Mode, Url, Path, Aperture, Cortex, shard, v } from "@vivalence/typology";
+  import { is, array, shape, steer } from "@vivalence/typology";
+  import { sets, DataRepository } from "@vivalence/typology/entities";
+
+  import * as traits from "../traits/index.js";
+
+  export async function core(die) {
+    const registry = {
+      lighthouse: die.mask.lighthouse,
+      hallucinators: die.mask.hallucinators,
+      datamap: die.mask.datamap,
+      kernel: die.mask.kernel,
+      consume: die.mask.consume,
+    };
+
+    die.register = await paladin.vip.accioMap(registry);
+
+    die.domain = v.primitives.kernel.Domain.cast(
+      die.register.kernel.find((module) => module.manifest?.type === "domain") ?? {},
+    );
+
+    die.variant.traits = {
+      ...traits,
+      ...die.domain.traits,
+    };
+
+    const collate = (tiers) => {
+      const slots = {};
+      for (const tier of tiers)
+        for (const descriptor of Object.values(tier)) {
+          const slot = (slots[descriptor.type] ??= { type: descriptor.type, subscribers: new Set() });
+          slot.entity = descriptor.entity ?? slot.entity;
+          slot.schema = descriptor.schema ?? slot.schema;
+          slot.repository = descriptor.repository ?? slot.repository;
+          if (descriptor.subscriber) slot.subscribers.add(descriptor.subscriber);
+        }
+      return Object.values(slots);
+    };
+
+    const seal = (slot) =>
+      !slot.schema.meta.abstract
+        ? slot
+        : {
+            ...slot,
+            schema: new EntitySchema({
+              class: slot.entity,
+              extends: slot.schema,
+              name: slot.schema.meta.className,
+              tableName: slot.schema.meta.className,
+              repository: () => slot.repository ?? DataRepository,
+            }),
+          };
+
+    const variant = collate([sets.daemon, sets.kernel, sets.userspace, die.domain.entities]) //
+      .map(seal);
+
+    die.variant.subscribers = [...new Set(variant.flatMap((slot) => [...slot.subscribers]))];
+    die.variant.entities = variant.map(({ subscribers, ...entity }) => entity);
+  }
+
+  export function wiring(daemonDie) {
+    daemonDie.good.statics = daemonDie.mask.statics;
+    daemonDie.good.docs = daemonDie.mask.docs;
+    daemonDie.good.mountpoint = daemonDie.mask.mount;
+  }
+
+  export async function datamap(daemonDie) {
+    daemonDie.datamap = await daemonDie.register.datamap.provider(
+      daemonDie.mask.datamap,
+      daemonDie.variant.entities,
+      daemonDie.variant.subscribers,
+    );
+
+    daemonDie.good.entities = daemonDie.datamap.entities;
+    daemonDie.good.datamap = daemonDie.datamap;
+
+    daemonDie.datamap.subscribe(shape.subscriber(daemonDie.good.twitch));
+    daemonDie.good.aperture.use(shard.datamap.inject(daemonDie.datamap));
+  }
+
+  export async function authority(daemonDie) {
+    daemonDie.good.lighthouse = await daemonDie.register.lighthouse //
+      .provider(daemonDie.mask.lighthouse, daemonDie.good.entities.user);
+
+    daemonDie.good.aperture //
+      .use(shard.secure.authority(daemonDie.good.lighthouse))
+      .use(async (ctx, next) => {
+        ctx.daemon.connection = daemonDie.connection.clone();
+        ctx.daemon.connection //
+          .use(async (context, next) => {
+            context.request.headers.set("authorization", ctx.request.headers.get("authorization"));
+            await next();
+          });
+        await next();
+      });
+  }
+
+  export async function acid(daemonDie) {
+    daemonDie.good.cortex = new Cortex();
+    for (const { service, mask } of daemonDie.register.hallucinators ?? []) {
+      daemonDie.good.cortex.register(await service.provider(mask));
+    }
+  }
+
+  export async function services(daemonDie) {
+    for (const [slug, servicemask] of Object.entries(daemonDie.mask.consume)) {
+      const servicecake = daemonDie.register.consume[slug];
+      daemonDie.good.services[slug] = await servicecake.provider(servicemask);
+    }
+  }
+
+  export async function modes(daemonDie) {
+    await daemonDie.datamap.shard.context(async () => {
+      for (const register of daemonDie.register.kernel) {
+        const mode = new Mode(register);
+        mode.mount = daemonDie.good.mount.clone().branch(`/mode/${mode.type}/${mode.slug}`);
+        mode.url = daemonDie.good.url.branch(mode.mount.nature);
+
+        if (!mode.aperture) mode.aperture = new Aperture();
+        if(!mode.tools) mode.tools = new Vector()
+
+        mode.entity = await daemonDie.good.entities.mode //
+          .ensure(mode.manifest);
+
+        mode.entity.traits = array.unique([...mode.entity.traits, ...mode.traits]);
+
+        await daemonDie.good.entities.em.flush();
+
+        mode.entity = wrap(mode.entity).toPOJO(); // hack
+        mode.id = mode.entity.id;
+
+        if (!daemonDie.good.modes[mode.type]) daemonDie.good.modes[mode.type] = {};
+        daemonDie.good.modes[mode.type][mode.slug] = mode;
+      }
+    });
+  }
+
+  export function handlers(daemonDie) {
+    daemonDie.good.flatmodes = () =>
+      Object.values(daemonDie.good.modes)
+        .map((type) => Object.values(type))
+        .flat();
+  }
+#+end_src
+
+** systems/runtime/daemon/aperture/metadata.js :modified:
+
+=/metadata/app= keeps its name and gains the view record: ={url, view,
+schema}=. APPLICATION-only — no GENERATIVE arm, no polymorphism; generated
+views ride rows. =url= = the mode's bundle base, derived inline from
+=die.good.attach=.
+
+#+begin_src js :tangle ../../systems/runtime/daemon/aperture/metadata.js
+import { shape, shard } from "@vivalence/typology";
+
+export async function metadata(die) {
+  const root = die.good.aperture.branch("/metadata");
+
+  root.open("/manifest", () => die.manifest);
+  root.open("/cargo", () => die.good.cargo);
+  root.open("/datamap", () => shard.datamap.strip(die.datamap.introspect()));
+  root.open("/aperture", () => shape.strip(die.good.aperture));
+
+  root.open("/cortex", () => (die.good.cortex ? shape.cortex.strip(die.good.cortex) : []));
+  root.open("/modes", () =>
+    die.good.flatmodes().map((mode) => ({
+      type: mode.type,
+      slug: mode.slug,
+      name: mode.manifest.name ?? mode.slug,
+      traits: mode.traits,
+      metadata: `${die.good.mount.nature}/mode/${mode.type}/${mode.slug}/metadata`,
+    })),
+  );
+
+  for (const mode of die.good.flatmodes()) {
+    const meta = die.good.aperture.branch(mode.mount.nature).branch("/metadata");
+
+    meta.open("/manifest", () => mode.manifest);
+    meta.open("/aperture", () => shape.strip(mode.aperture));
+
+    if (mode.implements("APPLICATION"))
+      meta.open("/app", () => ({
+        url: die.good.attach.branch("/bundle").branch(mode.mount.absolute).absolute,
+        view: mode.app.view.json,
+        schema: mode.app.schema ?? null,
+      }));
+
+    if (mode.implements("EMITTER")) meta.open("/emitter", () => shape.strip(mode.module.emitter));
+
+    if (mode.implements("FRAUGHT")) meta.open("/freight", () => mode.freight.catalog);
+
+    if (mode.implements("HARNESSED")) {
+      meta.open("/harness", () => shape.strip(mode.aperture.branch("/harness")));
+    }
+  }
+}
+#+end_src
+
+** systems/runtime/daemon/aperture/modes.js :modified:
+
+The =buffered= enrichment dies — third spelling of one payload.
+
+#+begin_src js :tangle ../../systems/runtime/daemon/aperture/modes.js
+export async function modes(die) {
+  die.good.aperture.open("/modes/:type/:method", async (body, ctx) => {
+    const params = ctx.params;
+    const modes = ctx.daemon.modes[params.type];
+    if (!modes) throw new Error("unsupported mode");
+    let mode = {};
+    switch (params.method) {
+      case "findOne":
+        mode = modes[body.where.slug];
+        break;
+      default:
+        throw new Error("unsupported method");
+    }
+    return { manifest: mode.manifest };
+  });
+}
+#+end_src
+
+** systems/runtime/lifecycle/resolve.js :modified:
+
+=attachDaemons= → =attachBundles=: the network standardizes on bundle — ONE
+route per view-bearing mode at =/attached/bundle/<mode mount>/(.*)= over its
+bundle sources, regex-guarded artifacts first, compiled outputs second.
+=attachCargo= reads the trait-owned =mode.freight=. The commented graveyard
+dies.
+
+#+begin_src js :tangle ../../systems/runtime/lifecycle/resolve.js
+import paladin from "@vivalence/paladin";
+import { fromm, shard, shape } from "@vivalence/typology";
+
+export async function attach(runtimeDie) {
+  async function attachProcesses(runtimeDie) {
+    for (const processDie of runtimeDie.good.processes) {
+      processDie.good
+        .open("/status", () => processDie.status.reflection)
+        .open("/manifest", () => processDie.manifest);
+
+      runtimeDie.good.aperture
+        .branch(`/attached/process/${processDie.type}/${processDie.slug}`)
+        .use(shard.context.attach(processDie.type, processDie.mask))
+        .slurp(processDie.good);
+    }
+  }
+
+  async function attachBundles(runtimeDie) {
+    for (const daemonDie of runtimeDie.good.daemons) {
+      for (const mode of daemonDie.good.flatmodes()) {
+        if (!mode.implements("APPLICATION") && !mode.implements("GENERATIVE")) continue;
+        const bundler = paladin.bundler(
+          `${daemonDie.good.mountpoint.absolute}/${mode.type}/${mode.slug}`,
+        );
+
+        runtimeDie.good.aperture
+          .branch("/attached/bundle")
+          .branch(mode.mount.absolute)
+          .open("/(.*)", async (input, ctx) => {
+            const served = await bundler.serve(fromm.params(ctx.params).path.absolute);
+            if (!served) {
+              ctx.response.status = 404;
+              return null;
+            }
+            ctx.response.type = served.type;
+            ctx.response.headers.set("x-viva-integrity", `sha256-${served.integrity}`);
+            return served.text;
+          });
+      }
+    }
+  }
+
+  async function attachCargo(runtimeDie) {
+    for (const daemonDie of runtimeDie.good.daemons) {
+      const modes = daemonDie.good.flatmodes().filter((mode) => mode.implements("FRAUGHT"));
+      if (!modes.length) continue;
+
+      runtimeDie.good.aperture
+        .branch("/attached/cargo")
+        .branch(daemonDie.good.mount.nature)
+        .use(shard.context.bind("daemon", daemonDie.good))
+        .open("/(.*)", async (input, ctx) => {
+          const query = fromm.params(ctx.params).path.absolute.replace(/^\//, "");
+          for (const mode of modes) {
+            const entry = mode.freight.resolve(query);
+            if (!entry) continue;
+            const filePath = mode.freight.path.branch("/" + entry.path).absolute;
+            ctx.response.type = entry.type;
+            return await Deno.readFile(filePath);
+          }
+          ctx.response.status = 404;
+        });
+    }
+  }
+
+  await attachProcesses(runtimeDie);
+  await attachBundles(runtimeDie);
+  await attachCargo(runtimeDie);
+}
+
+export async function expose(runtimeDie) {
+  for (const daemonDie of runtimeDie.good.daemons) {
+    const daemonBranch = runtimeDie.good.aperture.branch(daemonDie.good.mount.nature);
+    daemonBranch.branch("/status").slurp(shard.nano.atom(daemonDie.status.$transient));
+    daemonBranch
+      .open("/manifest", () => daemonDie.manifest)
+      .slurp(daemonDie.good.aperture)
+      .open("/batch", shard.batch.route(daemonBranch));
+  }
+}
+
+export async function metadata(runtimeDie) {
+  const root = runtimeDie.good.aperture.branch("/metadata");
+
+  root.open("/manifest", () => runtimeDie.manifest);
+  root.open("/aperture", () => shape.strip(runtimeDie.good.aperture));
+
+  root.open("/variant", () => ({
+    daemons: paladin.variant.daemons.map((mask) => mask.manifest ?? mask),
+    services: paladin.variant.services.map((mask) => mask.manifest ?? { module: mask.module }),
+  }));
+
+  root.open("/daemons", () =>
+    runtimeDie.good.daemons.map((daemonDie) => ({
+      slug: daemonDie.slug,
+      mount: daemonDie.good.mount.nature,
+      modes: daemonDie.good.flatmodes().length,
+      metadata: `${daemonDie.good.mount.nature}/metadata`,
+    })),
+  );
+
+  root.open("/services", () =>
+    runtimeDie.good.processes.map((processDie) => ({
+      type: processDie.type,
+      slug: processDie.slug,
+      mount: `/attached/process/${processDie.type}/${processDie.slug}`,
+      metadata: `/attached/process/${processDie.type}/${processDie.slug}/metadata`,
+    })),
+  );
+}
+#+end_src
+
+* payload — kajuit
+
+** systems/kajuit/src/typology/entities/mode/traits/application.js :modified:
+
+APPLICATION hydrates =mode.app= from =/metadata/app= — the wire record
+rehydrated to the primitive pair: =view= becomes a View, url-stamped once
+here. GENERATIVE is a client noop — generated views ride the row, no
+app/gen collapse.
+
+#+begin_src js :tangle ../../systems/kajuit/src/typology/entities/mode/traits/application.js
+import { View } from "@vivalence/typology";
+
+export const APPLICATION = async (mode) => {
+  const record = await mode.connection.call("/metadata/app");
+  mode.app = {
+    url: record.url,
+    schema: record.schema,
+    view: new View(record.view).withUrl(record.url),
+  };
+};
+
+export const GENERATIVE = () => {};
+#+end_src
+
+** systems/kajuit/src/typology/entities/buffer.js :modified:
+
+The =view= slot rides merge and toJSON as a plain enumerable; the dead =app=
+slot dies.
+
+#+begin_src js :tangle ../../systems/kajuit/src/typology/entities/buffer.js
+import { atom } from "nanostores";
+import { fn, View, RemoteRepository } from "@vivalence/typology";
+import { Entity } from "../prototypes/entity.js";
+
+export class Buffer extends Entity {
+  $data = atom({});
+
+  get data() {
+    return this.$data.get();
+  }
+
+  set data(value) {
+    this.$data.set(value ?? {});
+  }
+
+  // base toJSON walks own enumerable props — it skips the $data atom and would
+  // drop the `data` getter; re-add the plain value so serialized buffers carry data.
+  toJSON() {
+    return { ...super.toJSON(), data: this.data, view: this.view };
+  }
+
+  $view = null;
+  get view() {
+    return this.$view;
+  }
+  set view(record) {
+    this.$view = !record || record instanceof View ? record : new View(record);
+  }
+
+  context = null;
+  hooks = { mount: [], unmount: [], release: [] };
+
+  on = {
+    mount: (callback) => {
+      this.hooks.mount.push(fn.once(callback));
+      return this;
+    },
+    unmount: (callback) => {
+      this.hooks.unmount.push(fn.once(callback));
+      return this;
+    },
+    release: (callback) => {
+      this.hooks.release.push(fn.once(callback));
+      return this;
+    },
+  };
+
+  mount() {
+    for (const hook of this.hooks.mount) hook(this);
+  }
+  unmount() {
+    for (const hook of this.hooks.unmount) hook(this);
+  }
+  release(...a) {
+    for (const hook of this.hooks.release) hook(this, ...a);
+  }
+}
+
+export const BufferDossier = {
+  name: "buffer",
+  kind: () => Buffer,
+  repository: (schema, dataspace) => {
+    const repo = new RemoteRepository(schema.kind());
+    repo.connect(dataspace.connection.branch("/userspace/entities/buffer"));
+    return repo;
+  },
+
+  use: [],
+};
+#+end_src
+
+** systems/kajuit/src/app/panels/a/a.svelte :modified:
+
+THE read law, spelled once: =buffer.view ?? mode.app.view=, row wins (the
+daemon decided at creation). Row records rehydrate to a View here and take
+the app's serve base; the declaration arrives already stamped by the client
+trait. Frame receives a resolved View + terminal, resolves nothing.
+
+#+begin_src js :tangle ../../systems/kajuit/src/app/panels/a/a.svelte
+  <script>
+    import { getContext } from "svelte";
+    import { TERMINALS } from "$client";
+    import { chain, stores } from "@vivalence/kajuit";
+    import { Frame } from "@vivalence/drapes";
+    import Dock from "./widgets/Dock.svelte";
+
+    let { rect } = $props();
+
+    const terminals = getContext(TERMINALS);
+
+    const terminal = terminals.$active;
+    const thread = chain(terminals, "$active", "$thread");
+    const buffer = chain(terminals, "$active", "$buffer");
+    const mode = chain(terminals, "$active", "$thread", "$mode");
+    const dock = chain(terminals, "$active", "$dock");
+
+    const view = $derived.by(() => {
+      const active = $buffer;
+      if (!active) return null;
+      const base = active.mode?.app?.url ?? null;
+      if (active.view) return base ? active.view.withUrl(base) : active.view;
+      if (!active.mode?.app?.view) throw new Error("[a] buffer & mode missing view");
+      return active.mode.app.view;
+    });
+
+    const dockable = $derived($mode?.implements("HARNESSED") ?? false);
+    const geom = $derived(dockable && rect.width > 0 && rect.height > 0 ? stores.bridge.resolve($dock, rect) : null,);
+
+    let last = null;
+    function onSeamDown(event) {
+      event.preventDefault();
+      event.currentTarget.setPointerCapture(event.pointerId);
+      last = { x: event.clientX, y: event.clientY };
+    }
+    function onSeamMove(event) {
+      if (!last || !geom) return;
+      const deltaPx = geom.vertical ? event.clientX - last.x : event.clientY - last.y;
+      last = { x: event.clientX, y: event.clientY };
+      stores.bridge.dragDock(terminals.active?.$dock, rect, deltaPx);
+    }
+    function onSeamUp(event) {
+      if (!last) return;
+      try {
+        event.currentTarget.releasePointerCapture(event.pointerId);
+      } catch (_) {}
+      last = null;
+    }
+  </script>
+
+  {#if rect.width > 0 && rect.height > 0}
+    <div
+      class="panel"
+      style:left="{rect.left}px"
+      style:top="{rect.top}px"
+      style:width="{rect.width}px"
+      style:height="{rect.height}px"
+      style:flex-direction={geom?.direction ?? "row"}>
+      <div class="stage">
+        {#if $terminal}
+          <Frame terminal={$terminal} {view}>
+            <span class="label">A</span>
+          </Frame>
+        {:else}
+          <span class="label">A</span>
+        {/if}
+      </div>
+
+      {#if geom && $thread && !$dock?.collapsed}
+        <div
+          class="seam"
+          class:vertical={geom.vertical}
+          onpointerdown={onSeamDown}
+          onpointermove={onSeamMove}
+          onpointerup={onSeamUp}
+          onpointercancel={onSeamUp}>
+        </div>
+        <div
+          class="dock-slot"
+          style:width={geom.vertical ? `${geom.size}px` : "100%"}
+          style:height={geom.vertical ? "100%" : `${geom.size}px`}>
+          <Dock thread={$thread} />
+        </div>
+      {/if}
+    </div>
+  {/if}
+
+  <style>
+    .panel {
+      position: fixed;
+      display: flex;
+      overflow: hidden;
+      background: var(--colors-skeleton-0-surface);
+      color: var(--colors-skeleton-0-contrast);
+    }
+    .stage {
+      flex: 1;
+      min-width: 0;
+      min-height: 0;
+      display: flex;
+      overflow: auto;
+    }
+    .seam {
+      flex: 0 0 auto;
+      background: var(--colors-skeleton-2-boundary);
+      opacity: 0.4;
+      cursor: ns-resize;
+      touch-action: none;
+      transition: opacity 0.12s, background 0.12s;
+    }
+    .seam.vertical {
+      width: 4px;
+      cursor: ew-resize;
+    }
+    .seam:not(.vertical) {
+      height: 4px;
+    }
+    .seam:hover {
+      opacity: 1;
+      background: var(--colors-skeleton-0-primary-base);
+    }
+    .dock-slot {
+      flex: 0 0 auto;
+      min-width: 0;
+      min-height: 0;
+      overflow: hidden;
+    }
+    .label {
+      margin: auto;
+      font-size: var(--font-size-7xl);
+      font-weight: 900;
+      opacity: 0.35;
+      user-select: none;
+    }
+  </style>
+#+end_src
+
+* payload — drapes
+
+** subsystems/drapes/panels/Frame.svelte :modified:
+
+Thin: fetch/verify/import live in =Bundle.load= (the primitive's client
+face). Frame keeps mount/teardown + the fault UI. The re-render key is the
+view's identity (hash, else base+mount) — View instances are minted per
+derive, so identity compares by value, not reference. Fail closed.
+
+#+begin_src js :tangle ../../subsystems/drapes/panels/Frame.svelte
+<script>
+  import { onDestroy } from "svelte";
+  import { computed } from "nanostores";
+
+  let { terminal, view = null } = $props();
+
+  let buffer = terminal.$buffer;
+  let bufferId = computed(buffer, (active) => active?.id);
+  let component = $state(null);
+  let dom = $state(null);
+  let fault = $state(null);
+  let live = null;
+  let shown = null;
+
+  function identity(record) {
+    if (!record) return null;
+    return record.hash ?? record.bundle.url + record.mount.nature;
+  }
+
+  function teardown() {
+    live?.unmount();
+    component?.destroy();
+    live = null;
+    shown = null;
+    component = null;
+    fault = null;
+  }
+
+  $effect(() => {
+    const next = $buffer;
+    const key = identity(view);
+    if (next === live && key === shown) return;
+    teardown();
+    if (!next) return;
+    if (typeof next.mount !== "function") return;
+    live = next;
+    shown = key;
+    if (!view) {
+      next.mount();
+      return;
+    }
+    (async () => {
+      try {
+        const module = await view.load();
+        if (live !== next || shown !== key || !dom) return;
+        component = module.default(dom, { buffer: next, terminal });
+        next.mount();
+      } catch (error) {
+        console.error(`[Frame] view refused for buffer ${next.id}`, error);
+        if (live === next) fault = error.message;
+      }
+    })();
+  });
+
+  onDestroy(teardown);
+</script>
+
+{#key $bufferId}
+  {#if fault}
+    <div class="fault">view refused: {fault}</div>
+  {:else if view}
+    <div class="stage" bind:this={dom}></div>
+  {:else}
+    <slot />
+  {/if}
+{/key}
+
+<style>
+  .stage {
+    width: 100%;
+    height: 100%;
+    max-width: 100vw;
+  }
+  .fault {
+    margin: auto;
+    padding: 1rem 1.5rem;
+    font-family: var(--font-family-code);
+    font-size: var(--font-size-xs);
+    color: var(--colors-skeleton-0-danger-base, #c33);
+    border: 1px solid currentColor;
+    border-radius: 6px;
+    opacity: 0.8;
+  }
+</style>
+#+end_src
+
+* payload — registry (reader, the exemplar)
+
+Reader demonstrates =mode.gen= two ways (beef's ask). MANUAL: an =emitter= that
+drives a one-off hallucination itself and hand-wires =mode.gen.bundle= →
+=mode.gen.buffer= (no model, no tools). AUTOMATED: it exports a =generator= —
+its OWN view tools with rich valence + examples (the prompt shebang lives in the
+mode, not the trait); the model authors the source, the tool plumbs. The
+generator REPLACES the trait fallback that any bare GENERATIVE mode gets free
+(covered by the test). The persona carries only identity + iteration; the
+component contract rides the generator's valence.
+
+** registry/playground/modes/chaosmonkey/reader/reader.viva.js :new:
+
+#+begin_src js :tangle ../../registry/playground/modes/chaosmonkey/reader/reader.viva.js
+import { App, v } from "@vivalence/typology";
+
+export { harness } from "./harness.js";
+export { emitter } from "./emitter.js";
+export { generator } from "./generator.js";
+
+export const manifest = {
+  type: "chaosmonkey",
+  slug: "reader",
+  name: "Reader",
+  description:
+    "Conversational UI craftsman — describe any interface in chat and it is bundled live into your frame, then reshaped wish by wish.",
+  version: "0.1.0",
+  traits: ["APPLICATION", "STANDALONE", "ENTRYPOINT", "EMITTER", "HARNESSED", "GENERATIVE"],
+};
+
+export const app = new App("buffer/Reader.svelte", v.buffer({ data: {} }));
+#+end_src
+
+** registry/playground/modes/chaosmonkey/reader/emitter.js :new:
+
+MANUAL demonstration. An ingress emitter runs its OWN one-off hallucination via
+=cortex=, then wires =bundle= → =buffer= by hand — the imperative path, no model
+tool-calling. (EMITTER binds thread post-drain; the buffer carries it because
+the emitter forwards =ctx.input.thread=.)
+
+#+begin_src js :tangle ../../registry/playground/modes/chaosmonkey/reader/emitter.js
+import { Vector, v } from "@vivalence/typology";
+
+const AUTHOR = [
+  "Author a COMPLETE Svelte 5 component (runes; props {buffer, terminal}; self-contained;",
+  'imports only "svelte"/"nanostores"; scoped <style>; root fills + scrolls).',
+  "Output ONLY the component source — no fences, no prose.",
+].join(" ");
+
+export const emitter = new Vector().open(
+  { nature: "/conjure", input: v.object({ brief: v.string() }) },
+  async (ctx) => {
+    const scribe = ctx.daemon.cortex.hallucination();
+    scribe.context.system(AUTHOR);
+    scribe.entities.turn.append({ role: "user", parts: [{ type: "text", text: ctx.input.brief }] });
+    const source = await scribe.verbatim.render();
+    const view = await ctx.mode.gen.bundle({ kind: "svelte", source });
+    return ctx.mode.gen.buffer({ view, data: {}, thread: ctx.input.thread });
+  },
+);
+#+end_src
+
+** registry/playground/modes/chaosmonkey/reader/generator.js :new:
+
+AUTOMATED demonstration. The mode OWNS its generative tools — rich valence +
+examples HERE (answering "the specifics ought to live in the mode"). Slurped
+onto =mode.tools= by GENERATIVE, replacing the generic fallback. The model
+authors =source= in dialogue; the tool bundles + buffers.
+
+#+begin_src js :tangle ../../registry/playground/modes/chaosmonkey/reader/generator.js
+import { Vector, v } from "@vivalence/typology";
+
+const RENDER = [
+  "Render a live interface for the user — submit a COMPLETE Svelte 5 component as `source`.",
+  "",
+  "RULES: runes only ($props/$state/$derived/$effect); `let { buffer, terminal } = $props();`",
+  '(payload at buffer.data); imports only "svelte"/"nanostores"; scoped <style>, no global CSS;',
+  "root fills + scrolls (height:100%; overflow-y:auto); build real controls as $state.",
+  "",
+  "EXAMPLE source:",
+  "<script>let { buffer } = $props(); let n = $state(0);</script>",
+  "<button onclick={() => n++}>{buffer.data.label}: {n}</button>",
+  "<style>button { font-size: 1.2rem; }</style>",
+].join("\n");
+
+export const generator = new Vector()
+  .branch("/view")
+  .open(
+    { nature: "/render", valence: RENDER, input: v.object({ source: v.string(), data: v.optional(v.any()) }) },
+    async (ctx) => {
+      try {
+        const view = await ctx.mode.gen.bundle({ kind: "svelte", source: ctx.input.source });
+        const buffer = await ctx.mode.gen.buffer({ view, data: ctx.input.data ?? {}, thread: ctx.thread ?? null });
+        await ctx.daemon.entities.em.flush();
+        return { message: `view ${view.hash.slice(0, 16)} on screen`, entities: { buffer: [buffer] } };
+      } catch (error) {
+        return { message: `render refused: ${error.message}` };
+      }
+    },
+  )
+  .open(
+    {
+      nature: "/inspect",
+      valence: "Read back a rendered view's exact source by its hash, to revise it.",
+      input: v.object({ hash: v.string() }),
+    },
+    async (ctx) => {
+      try {
+        return await ctx.mode.gen.inspect(ctx.input.hash);
+      } catch (error) {
+        return { message: error.message };
+      }
+    },
+  );
+#+end_src
+
+** registry/playground/modes/chaosmonkey/reader/harness.js :new:
+
+Two middlewares: the persona system prompt, and the tool slurp — the exact
+line aprende runs, mirrored here so the reader's =mode.tools= reach the
+hallucination without touching the in-flux runtime trait.
+
+#+begin_src js :tangle ../../registry/playground/modes/chaosmonkey/reader/harness.js
+import { Vector } from "@vivalence/typology";
+
+const identity = [
+  "You are Reader, a UI craftsman living inside vivalence.",
+  "Given content or a wish in conversation, you hand-build a bespoke Svelte interface for exactly that.",
+  "You iterate conversationally: colors, fonts, controls, layout — every wish becomes a re-render.",
+].join(" ");
+
+const workflow = [
+  "WORKFLOW",
+  "1. Design for the user's wish, then view_render({source}) a COMPLETE component — it lands on screen at once. The tool's own description carries the full component contract.",
+  "2. Iterate: view_inspect({hash}) the shipped source, edit it, view_render again.",
+  "3. Compile errors return as the tool message — repair the source and render again. Never apologize, just fix.",
+].join("\n");
+
+export const harness = new Vector()
+  .use(async (ctx, next) => {
+    ctx.hallucination.context.system([identity, workflow].join("\n\n"));
+    await next();
+  })
+  .use(async (ctx, next) => {
+    if (ctx.mode.tools) ctx.hallucination.tools.slurp(ctx.mode.tools);
+    await next();
+  });
+#+end_src
+
+** registry/playground/modes/chaosmonkey/reader/buffer/Reader.svelte :new:
+
+#+begin_src html :tangle ../../registry/playground/modes/chaosmonkey/reader/buffer/Reader.svelte
+<script>
+  let { buffer } = $props();
+</script>
+
+<div class="reader-hub">
+  <span class="glyph">❡</span>
+  <h2>Reader</h2>
+  <p>Describe an interface in the chat. I'll build it live, just for this.</p>
+  <p class="hint">Then push it around — “sepia”, “bigger type”, “add a progress bar”…</p>
+</div>
+
+<style>
+  .reader-hub {
+    height: 100%;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: 0.5rem;
+    text-align: center;
+    padding: 2rem;
+    color: var(--colors-skeleton-0-contrast);
+  }
+  .glyph {
+    font-size: 2.5rem;
+    opacity: 0.5;
+  }
+  h2 {
+    margin: 0;
+    font-weight: 600;
+  }
+  p {
+    margin: 0;
+    max-width: 34ch;
+    opacity: 0.8;
+  }
+  .hint {
+    font-size: 0.85em;
+    opacity: 0.5;
+  }
+</style>
+#+end_src
+
+* payload — tests
+
+** systems/runtime/tests/scenarios/mode.js :modified:
+
+The stub inlines the row exactly like the real trait — no paladin, no bundler;
+scenario rows never carry a view pointer (bundle coverage lives in
+view.spawn.test.js against the real =paladin.bundler=).
+
+#+begin_src js :tangle ../../systems/runtime/tests/scenarios/mode.js
+import { Url, Connection, Mode, Path, Aperture, Vector, shape, shard } from "@vivalence/typology";
+import { RequestContext } from "@mikro-orm/core";
+import { seed, tiers } from "./fixtures.js";
+import { INTENTED, EMITTER, EXPOSED, HARNESSED, stagger } from "@vivalence/runtime/daemon/traits";
+
+// ── test-only APPLICATION ─────────────────────────────────────────────
+// No paladin, no bundler — inline the row exactly like the real trait
+// (fill() is Default-only, never cast(), whose Convert pass mauls Collections).
+function APPLICATION(mode, daemon) {
+  if (!mode.module.app) return;
+  mode.app.buffer = async (desc = {}) => {
+    const em = daemon.entities.em;
+    const buffer = em.create(tiers.buffer.entity, {
+      mode: mode.entity.id,
+      data: mode.app.fill(desc),
+      view: null,
+      index: desc.index ?? 0,
+    });
+    if (desc.thread) {
+      const thread = await em.findOne(tiers.thread.entity, { id: desc.thread });
+      buffer.thread = thread;
+      buffer.index = thread.counter++;
+    }
+    if (desc.literals)
+      buffer.literals.add(desc.literals.map((literal) => em.getReference(tiers.literal.entity, literal?.id ?? literal)));
+    if (desc.symbols)
+      buffer.symbols.add(desc.symbols.map((symbol) => em.getReference(tiers.symbol.entity, symbol?.id ?? symbol)));
+    return buffer;
+  };
+}
+
+// ── daemon scaffold ────────────────────────────────────────────────
+// entities = the datamap repos, keyed by type — exactly daemon.good.entities
+// in the real runtime. Aperture carries the daemon on ctx (effects read
+// ctx.daemon.entities) + a test authority for any auth-gated branch.
+function buildDaemon(datamap, fixtures) {
+  const daemon = {
+    manifest: { slug: "test-daemon", traits: [] },
+    mount: new Path("/daemon/test-daemon"),
+    aperture: new Aperture(),
+    twitch: new Vector(),
+    entities: datamap.entities,
+    modes: {},
+    cargo: { version: "0.0.1", test: true },
+    services: {},
+    flatmodes() {
+      return Object.values(this.modes).flatMap((type) => Object.values(type));
+    },
+  };
+
+  datamap.subscribe(shape.subscriber(daemon.twitch));
+
+  daemon.aperture.use(shard.context.bind("daemon", daemon));
+  daemon.aperture.use(async (ctx, next) => {
+    ctx.authority = {
+      authenticate: async (token) => {
+        if (token === "test-token") return { getUser: async () => fixtures.user };
+        throw new Error("invalid token");
+      },
+    };
+    await next();
+  });
+
+  return daemon;
+}
+
+// ── wire a single .viva.js into the daemon ─────────────────────────
+async function wireMode(viva, daemon) {
+  const em = daemon.entities.em;
+  const mode = new Mode({ manifest: viva.manifest });
+  mode.aperture = new Aperture();
+  mode.aperture.use(shard.context.bind("mode", mode));
+  mode.mount = new Path(`/mode/${viva.manifest.type}/${viva.manifest.slug}`);
+
+  mode.entity =
+    (await em.findOne(tiers.mode.entity, { slug: viva.manifest.slug })) ??
+    em.create(tiers.mode.entity, {
+      slug: viva.manifest.slug,
+      type: viva.manifest.type,
+      traits: viva.manifest.traits,
+      installed: true,
+    });
+  await em.flush();
+  mode.id = mode.entity.id;
+
+  if (viva.app) {
+    mode.app = mode.module.app = viva.app; // mirror real Mode: Object.assign makes mode.app === mode.module.app
+  }
+  if (viva.dataset) mode.module.dataset = viva.dataset;
+  if (viva.emitter) mode.module.emitter = new Vector().slurp(viva.emitter);
+  if (viva.harness) mode.module.harness = viva.harness;
+  if (viva.aperture) mode.aperture.slurp(viva.aperture); // exported aperture endpoints
+
+  daemon.modes[viva.manifest.type] ??= {};
+  daemon.modes[viva.manifest.type][viva.manifest.slug] = mode;
+
+  await stagger(mode, daemon, { APPLICATION, INTENTED, EMITTER, EXPOSED, ...(daemon.cortex && { HARNESSED }) });
+
+  daemon.aperture.branch(mode.mount.absolute).slurp(mode.aperture); // → conn-reachable
+
+  return mode;
+}
+
+// ── public API ─────────────────────────────────────────────────────
+
+export async function mountMode(viva, options = {}) {
+  const { orm, em, datamap, fixtures } = await seed();
+  const daemon = buildDaemon(datamap, fixtures);
+  if (options.cortex) daemon.cortex = options.cortex;
+  const mode = await wireMode(viva, daemon);
+
+  const handler = shape.http(daemon.aperture);
+  const conn = new Connection(new Url("http://test"), shard.transmitter.inline(handler));
+  const authedConn = new Connection(new Url("http://test"), shard.transmitter.inline(handler));
+  authedConn.use(async (ctx, next) => {
+    ctx.request.headers.set("authorization", "Bearer test-token");
+    await next();
+  });
+
+  const scoped = (fn) =>
+    RequestContext.create(orm.em, async () => {
+      RequestContext.getEntityManager().setFilterParams("user", { user: fixtures.user.id });
+      return fn(RequestContext.getEntityManager());
+    });
+
+  return { mode, daemon, datamap, orm, em, fixtures, conn, authedConn, scoped };
+}
+
+export async function mountModes(vivas) {
+  const { orm, em, datamap, fixtures } = await seed();
+  const daemon = buildDaemon(datamap, fixtures);
+  const modes = {};
+  for (const viva of vivas) {
+    modes[viva.manifest.slug] = await wireMode(viva, daemon);
+  }
+  return { modes, daemon, datamap, orm, em, fixtures };
+}
+#+end_src
+
+** systems/runtime/tests/view.spawn.test.js :new:
+
+The bundle pipeline headless against the REAL =paladin.bundler=: content-address
++ compile + persist to a scratch dir, check the record against =v.prototypes.View=,
+refuse what must be refused, ride =mode.gen.buffer= onto the row, survive the ORM
+round-trip. (Uses real paladin — if its bootstrap needs env headless, wire a
+minimal scope; flag at run.)
+
+#+begin_src js :tangle ../../systems/runtime/tests/view.spawn.test.js
+import { specimen, crypto, v } from "@vivalence/typology";
+import paladin from "@vivalence/paladin";
+import { mountMode } from "@vivalence/runtime/scenarios";
+import * as reader from "../../../registry/playground/modes/chaosmonkey/reader/reader.viva.js";
+
+const SOURCE = [
+  "<script>",
+  "  let { buffer } = $props();",
+  "  let size = $state(18);",
+  "</script>",
+  "",
+  '<div class="spawned" style:font-size="{size}px">',
+  "  <h1>{buffer.data.title}</h1>",
+  '  <button onclick={() => (size += 2)}>A+</button>',
+  "</div>",
+  "",
+  "<style>",
+  "  .spawned { height: 100%; overflow-y: auto; }",
+  "</style>",
+].join("\n");
+
+let scenario;
+let mode;
+let directory;
+let bundler;
+
+specimen.describe("generative views", { sanitizeResources: false, sanitizeOps: false }, () => {
+  specimen.beforeAll(async () => {
+    scenario = await mountMode(reader);
+    mode = scenario.mode;
+    directory = await Deno.makeTempDir({ prefix: "spawned-" });
+    bundler = paladin.bundler(directory);
+    mode.gen = {
+      bundle: bundler.bundle,
+      inspect: bundler.inspect,
+      buffer: async ({ view, data = {}, thread = null }) => {
+        const buffer = scenario.daemon.entities.buffer.create({
+          mode: mode.entity.id,
+          data,
+          view: view.json,
+          index: 0,
+        });
+        if (thread) {
+          const found = await scenario.daemon.entities.thread.findOne(thread);
+          buffer.thread = found;
+          buffer.index = found.counter++;
+        }
+        return buffer;
+      },
+    };
+  });
+  specimen.afterAll(async () => {
+    await scenario.orm.close();
+  });
+
+  specimen.it("a source bundles to a content-addressed view", async () => {
+    const view = await mode.gen.bundle({ kind: "svelte", source: SOURCE });
+    const hash = await crypto.digest(SOURCE);
+    const stem = hash.slice(0, 16);
+
+    specimen.expect(await Deno.readTextFile(`${directory}/bundle/${stem}.svelte`)).toBe(SOURCE);
+    const artifact = await Deno.readTextFile(`${directory}/bundle/${stem}.svelte.mjs`);
+    specimen.expect(view.json).toEqual({
+      kind: "svelte",
+      hash,
+      mount: `/${stem}.svelte.mjs`,
+      bundle: {
+        entries: [
+          { type: "js", mount: `/${stem}.svelte.mjs`, integrity: await crypto.digest(artifact), bytes: artifact.length },
+        ],
+      },
+    });
+    specimen.expect(v.prototypes.View().check(view.json)).toBe(true);
+
+    specimen.expect((await mode.gen.bundle({ kind: "svelte", source: SOURCE })).json).toEqual(view.json); // idempotent
+
+    const served = await bundler.serve(view.mount.nature);
+    specimen.expect(served.text).toBe(artifact);
+    specimen.expect(served.integrity).toBe(view.bundle.entries[0].integrity);
+
+    specimen.expect(await mode.gen.inspect(hash)).toEqual({ hash, source: SOURCE });
+
+    const wrapped = await mode.gen.bundle({ kind: "html", source: "<h1>plain</h1>" });
+    const html = await bundler.serve(wrapped.mount.nature);
+    specimen.expect(wrapped.kind).toBe("html");
+    specimen.expect(html.text.includes("innerHTML")).toBeTruthy();
+  });
+
+  specimen.it("the bundler refuses what it must", async () => {
+    const refused = async (fn) => {
+      try {
+        await fn();
+        return false;
+      } catch {
+        return true;
+      }
+    };
+
+    const bad = [
+      { kind: "svelte", source: "<script>let { = $props();</script>" },
+      { kind: "svelte", source: '<script>import x from "left-pad";</script><p>{x}</p>' },
+      { kind: "svelte", source: "" },
+      { kind: "react", source: "<p>hi</p>" },
+    ];
+    for (const nascent of bad)
+      specimen.expect(await refused(() => mode.gen.bundle(nascent))).toBeTruthy();
+
+    const names = ["/../secrets", "/x.mjs", "/deadbeefdeadbeef.mjs", "/deadbeefdeadbeef.svelte", `/${"0".repeat(16)}.svelte.mjs`];
+    for (const name of names) specimen.expect(await bundler.serve(name)).toBe(null);
+
+    specimen.expect(await refused(() => mode.gen.inspect("f".repeat(64)))).toBeTruthy();
+  });
+
+  specimen.it("a buffer carries its view pointer through the round-trip", async () => {
+    await scenario.scoped(async (em) => {
+      const view = await mode.gen.bundle({ kind: "svelte", source: SOURCE });
+      const buffer = await mode.gen.buffer({ view, data: { title: "Spawned" }, thread: scenario.fixtures.thread.id });
+      await em.flush();
+
+      specimen.expect(buffer.view.hash).toBe(await crypto.digest(SOURCE));
+      specimen.expect(buffer.data.title).toBe("Spawned");
+      specimen.expect(buffer.thread.id).toBe(scenario.fixtures.thread.id);
+      specimen.expect(v.prototypes.View().check(buffer.view)).toBe(true);
+
+      em.clear();
+      const row = await em.findOne(buffer.constructor, { id: buffer.id });
+      specimen.expect(row.view).toEqual(buffer.view);
+    });
+  });
+});
+#+end_src

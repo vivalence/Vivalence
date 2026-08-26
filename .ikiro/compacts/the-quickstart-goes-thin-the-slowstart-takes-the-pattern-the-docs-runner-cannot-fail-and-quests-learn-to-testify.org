@@ -1,0 +1,152 @@
+#+title: the quickstart goes thin, the slowstart takes the pattern, the docs runner cannot fail, and quests learn to testify
+#+filetags: :docs:documentation:readme:ghost:ledger:registry:tangle:quest:qa:meta:m44:
+
+* what happened, in one breath
+
+/"we rewrite docs"/ — wake + terrain read found the live ledger PROVING 33.01's claims
+on disk and the registry mid-reshape under my feet (localhost dir vanished between two
+reads; =hello-world= + =starter= staged as the demo cases). Beef set the three-lane plan
+(readme quickstart thin · guide thorough · instances as demo cases), then ruled the
+split: /"the quickstart is aimed at showing teh default case without examples, theory,
+and $. 50.01 is about all of those"/ → *(rename to 50.01 slowstart go!)* — landed:
+=50.01_slowstart.mdx= in the control/environment/default/walkthrough pattern, README
+trimmed to grammar-only steps, build green 10 pages (after fixing the ALREADY-red MDX
+comment). Then two design rounds, both held at sketch: iterate the tangle/capture
+systems /"from scratch"/ (verdict: the runner cannot fail, and that is the disease), and
+the annotation grammar for shell-signal docs (notation = a RENDER of the schema). Last:
+/"new meta on quests. QA instructions… two perspectives"/ — codified in
+=methods/quest.md=, first applied to m44, marker renamed on the spot to =#+marker_qa=.
+
+* the terrain read (rows 1–2)
+
+- =~/.viva= verified against =33.01_anatomy-of-the-ledger.mdx= — every claim TRUE on
+  disk, including record-over-discovery live: =young-ladys-primer= sits in the store,
+  absent from the record, unmounted. The doc's best example is beef's own machine.
+- Registry reality: type dirs pluralized (=datamaps/hallucinators/lighthouses/
+  instances=), education emigrated to =~/.viva/registry/education=,
+  =registry/viva/instances/standalone/= DELETED from the tree while =32.01= + =51.02=
+  still specimen it (both =.example.js= captures deleted with it — only =home= survives).
+- Beef's plan, verbatim: /"a: a hello world to demo some example app, just an app, dumb
+  harness, some literal - just enough to get into the system. b: a skeleton starter for
+  new installations."/ Mid-read the dirs appeared: =hello-world/= = old localhost
+  WHOLESALE (manifest still =slug: "localhost"=, dead =five-fold-session= kernel ref,
+  =language: "es"= on the brazilian daemon), =starter/= = old multiplayer (compose file
+  pins pre-plural =instance/multiplayer= path). Dead standalone at HEAD = prime (a)
+  material: =git show HEAD:registry/viva/instances/standalone/standalone.viva.js=.
+- Ghost verb surface pinned from source: =ledger {init,doctor}= · =registry
+  {tap,untap,bootstrap}= · =instance {create,init,use,run,start,stop,auth,doctor}=;
+  =install.sh= writes =VIVA_REPOSITORY_MOUNT= into =~/.config/viva/env=, =ghost.sh=
+  sources it per invocation (answered both README =@beef= questions).
+
+* the go — slowstart + thin readme (row 3)
+
+- =51.01_getting-started.mdx= → =documentation/content/50-59_practice/50.01_slowstart.mdx=
+  (area root). Pattern per step, from beef's own README scratch: *control* (abstract
+  signature) · *environment* ($KEY, who writes it where) · *default* · *walkthrough*
+  ($-session) · divergence prose. Step 4 carries the voice ladder (flag > cwd > os >
+  session > ledger) as THE reason controls diverge.
+- README: dup step-2 block, =$ cat= blocks, package tree, control/example scaffolds all
+  pulled into slowstart; steps = fence + short prose; Slowstart pointer added. The
+  unresolved inline-instance =@beef= marker KEPT.
+- Build fixes: =content/jdex.js= +1 line (area =NN.00= stub also names category NN —
+  breadcrumb was "50 › 50 50") · beef's plan comment atop 51.02 =<!-- -->= → ={/* */}=
+  — *MDX rejects HTML comments; the build was red before this session's pages entered.*
+- Consumers swept: =home.mdx= start items → 50.01/51.02 new names; =32.01= wikilinks →
+  =[[51.02_instance-from-scratch]]=. Verified in dist: crumbs, hrefs, 10 pages.
+- FLAGGED DEVIATION: examples say =@viva/instance/hello-world= while the manifest still
+  says =localhost= — docs bet on the reshape landing the slugs.
+- Walkthrough logs are COMPOSED from real file shapes, not captured — graduation path
+  designed in row 4.
+
+* the runner ruled unable to fail (row 4)
+
+/"i ithink we ought to itterate these systems. from scratch. investigte teh repository.
+what can we do? what should we facilitate? where do we wantto apply this, why and how?"/
+
+- Defects: =src/tangle.js= swallows example errors into the snapshot and exits 0 — a
+  broken example ships as a red panel line, build green ("a green build IS the passing
+  test" is currently FALSE; the dead examples only asserted because they hand-threw) ·
+  =remark-tangle= writes files at RENDER time, orphans (=.tangled/stripwire-echo.js=),
+  nothing executes them · no doc↔repo binding — 51.02's "byte-verbatim" fences were
+  hand-copies and kept lying for a week after standalone died · no shell channel.
+- Facilitations ranked: ① fail-red capture (3 lines) · ② shell channel — real =viva=
+  argv against a hermetic scratch ledger (m41's hermetic-wet pattern) · ③ repo-pinned
+  =<Source file=>= with region markers · ④ tangle moved to capture-time + doc-tests
+  executed. Convergence noted with the designed bruno→specimen regime (derive-don't-
+  author oracles from =v.output=).
+- Forks left with beef: 51.02 registry-truth (rec) vs doc-tangle · hermetic (rec) vs
+  live ledger · hard-red (rec). Sequencing: slowstart shell channel gates on nothing;
+  51.02/32.01 revival gates on the hello-world reshape.
+
+* the annotation grammar (row 5)
+
+Beef's m44 inline comment (schema annotation format, =[required] <option> ?optional?=,
+env keys, /"semantic level identifiers that are coherent with the @typology/
+schematics"/) + /"there is a part in this for you! how do you want the readme.md and
+50.01.mdx to format documentation /and tangle demos?"/ Answer held at sketch:
+
+- Principle: the notation is a *render of the schema, never a sibling convention* —
+  hand-written =[optional]= beside =.optional()= is two readers and a silent loser,
+  m44's disease at the notation level.
+- Grammar (docopt family, not coined): =viva instance/create <source: identifier|path>
+  [target: path] [--slug=slug]= · semantic types closed set =path·slug·identifier·url= ·
+  scope tokens =<ledger>/instances/<slug>= only for the five paladin scopes · =$VIVA_*=
+  for env keys · abstract lines use scopes, walkthroughs use literals, never mixed.
+- Derivation chain (sketch): =systems/ghost/typology.js= semantic types + =.flag()= →
+  =belt/signature.js= fold =({nature,schema}) → grammar string= → =help.js= render →
+  docs quote the render via shell channel. README = grammar-only fences; 50.01 = the
+  four blocks with fixed carriers + the *tangle demo unit* (tangle fence authors a tiny
+  package → Shell capture taps it — hermetic and self-proving).
+- Three go-pieces offered, none go'd: ① grammar sweep over README+50.01 ② signature
+  fold + help render (rides m44) ③ runner iteration.
+
+* quests learn to testify (rows 6–7)
+
+/"new meta on quests. QA instructions. Quality assurance. two perspectives. one is the
+human side. ergonomics. actually someone giving testimony to the expected experience.
+and the second part is for programmatic testing and ikiro markers for a future
+self-improvement reflection pass."/
+
+- Codified: =methods/quest.md ## QA instructions= (+ structure bullet, + totem line).
+  ① testimony — first-person pre-registered experience contract, one gesture per item,
+  voice not exit code, validated at beef's live walk, divergence = callout candidate.
+  ② programmatic — e2e probes + grep gates ON TOP of the testing assessment, one
+  marker per item: =#+marker_qa: <quest>/<T|P>-<slug> · pending · <what>=, verdicts
+  =pending → held | broken | revised=, updated in place, never deleted.
+- Renamed live on beef's word (/"make that market_qa"/ → =marker_qa=) across all FIVE
+  carriers — quest.md, m44, and the three a PARALLEL session had wired meanwhile
+  (=methods/release.md=, =skills/reflection=, =skills/quest-lifecycle=). Grep 0.
+- First application: =quests/m44-authoritative-slugs.org * QA= — 7 testimony items
+  (create-collision voice · =--slug= override with manifest ignored · use-miss tap line
+  · tap bare-token door · rename live-refusal · rename carries locks+logs · doctor
+  glance) + 4 probes (2 e2e, grep gates second-reader-dead + basename-display-only) +
+  10 =pending= markers.
+
+* state at fold
+
+- Docs: slowstart + thin README LANDED, build 10/10 green, uncommitted (beef's commit).
+  Slug lie stands until the instances reshape lands =hello-world=/=starter= manifests.
+- SETTLED AT SECOND PASS — **env-coherence LANDED whole** while this session ran
+  (=quests/env-coherence.quest.org=, all 8 steps, paladin 26/127 + ghost 63/20
+  fresh-green, =paladin.remount()= new primitive): ONE =.env= at the instance stratum
+  via =paladin.claim=, declaration carries its own =environment= schema,
+  =.env.example= ×2 DELETED. The two-file (=environment.json= + =.env=) story this
+  session wrote into slowstart/README is DEAD — beef swept the docs pages himself;
+  the last README =.env.example= sentence was fixed at this pass. m44 gate LIFTED —
+  whole ladder blastable, REBASED on the landed tree.
+- Designed, ungated: runner iteration (fail-red · shell channel · Source file= ·
+  tangle-at-capture) and the annotation grammar chain. Both wait on per-piece go.
+- 51.02 + 32.01 still specimen the dead standalone; captures dangling-but-building.
+  Gate: the instances reshape — transitional on disk: =hello-world= (new) AND
+  =localhost= (old, STILL MOUNTING) AND =starter= + =multiplayer.bak= (the walk skips
+  only dirs named exactly =bak=, so the .bak module still registers). Fixtures law:
+  tests never pin live registry slugs — =@fixtures/instance/fixture=.
+- m44: full patch + QA section, forks CLOSED in-file, not blasted; 10 markers pending
+  blast + walk.
+- MDX law recorded: HTML comments break the build — beef's org-style notes in .mdx
+  must be ={/* */}=.
+- Second-pass mechanics: frontier was OVER BUDGET 9,974/8,000 chars — m41 body evicted
+  whole to known-issues "frontier evictions", stub left, now 7,906. Canon path audit:
+  ~20 stale =registry/education/...= + =testament/variant/...= paths across memory
+  files, all from two known moves (education emigration · testament→instances) —
+  flywheel lead, not swept here. No codeword this session; date-scan 0; index 72/72.

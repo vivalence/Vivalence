@@ -457,24 +457,19 @@ written — the capture runner exits regardless of example leaks.
 service provider contract to hand the datamap (or a terminator) back to the
 die instead of swallowing it in the server closure.
 
-* paladin-scope-overwrite-warning
+* paladin-scope-overwrite-warning — RESOLVED (m41)
 
 ** Symptom
 
-Every =viva= invocation prints =paladin.scope overwrite= to stderr.
+Every =viva= invocation printed =paladin.scope overwrite= to stderr.
 
-** Cause
+** Resolution
 
-Ghost mw re-registers the =instance= scope on every invocation via
-=paladin.scopes([["instance", () => true, () => new Path(cwd)]])=. Paladin's
-scope ledger warns when a scope is re-registered.
-
-** Why not fixed
-
-Cosmetic. The override is intentional (ghost wants its cwd-derived instance
-scope to win over the env-derived one) but the warning fires every time. Either
-make paladin silent on re-register, or detect "same value" overwrites and
-suppress.
+The epicycle was a missing stratum: ghost's cwd middleware no longer
+re-registers the =instance= scope — it writes
+=paladin.env.set("VIVA_INSTANCE_MOUNT", cwd, "cwd")= into the cwd stratum and
+the ONE scope resolver reads through the stratified env. The warning's trigger
+is gone structurally (m41 stratified-env).
 
 * registry-count-test-pins-a-number — RESOLVED
 
@@ -826,6 +821,23 @@ Client side: an =AbortController= per debounce ticket on =/symbols=, =/resolve=,
 
 * frontier evictions (budget) — still open, moved here whole
 
+** m40 ledger-convention (evicted whole)
+**LANDED GREEN, uncommitted** — **m40 ledger-convention** (CLI rewrite live: `ledger {init,doctor}` + `registry {tap,untap,bootstrap}` (tap/untap EMIGRATED from /ledger, compact 2) + `instance {create,init,use,run,start,stop,auth,doctor}`, system group dead; store=`<ledger>/registry`, slug mounts, shelf fallback; **bonus: viva CLI was DEAD at HEAD** — dispatch rewrap collapsed multi-segment signals, instanceof guard in `steer/dispatch.js`, HOLY edit flagged; 4 suites green, 1 pre-existing typology red; `variant init` = full first-boot wizard (seed .env → boot+signup+teardown, old Init.jsx restored); **M3 docs LANDED** (README renatured · 51.01 rewritten · new 33.01 ledger anatomy · .env.example) — docs build 10 pages green; M2 out of scope; rename LATER; QUEST COMPLETE pending beef commit) → [[m40-ledger-convention]]
+
+** m44 authoritative-slugs (evicted whole)
+**BLASTED GREEN, uncommitted** — **m44 authoritative-slugs** (M1–M7 TDD: record proto lookup/rename/remove · register record-only + catch notes in use/init · create --slug+collision+record-at-birth · use takes row.mount, shelf-guess DEAD · instances/tap + instances/rename NEW under the PLURAL group that landed mid-blast (use.js moved there; set-verbs follow) · doctor dangling/orphan/shadowed · docs 50.01+33.01; paladin 26/130/0 · ghost 77/23/0 · sheets 37/0 · docs build Complete; fixture recipe @fixtures/instance/fixture; strata.wet bareword leg re-pinned to the law; commit beef's) (quest = THE PATCH — 18 diff/tangle blocks, every change concrete incl. run/start flip, stop read-only, init enroll() catch ×2, use restructure, rename.js source, routing both files, doctor body; tests author RED-first at blast; quest REWRITTEN by beef's order with all four forks CLOSED: record = MAP (uniqueness structural, "keep.") · MOUNT MEANS PATH "non negotiatable. always." — populate throw PERMANENT, old M4 dead, recast as use.js taking `row.mount` from the record (shelf-guess resolution dies) · register throws on unrecorded mount, use/init CATCH + tap note ("amen.", init has TWO call sites) · rename moves locks AND logs ("move on rename. obviously."; session-keyed logs killed on lifetime — sessions are shell-pid ephemera); tap.js tangle carries the bare-token refusal (m41 path law at the door); M3 env hint stays `${destination}`; immutable record id parked in deferred; green ladder M1 record proto → M2 target+callers → M3 create --slug → M4 use record-mount → M5 tap/rename → M6 doctor → M7 docs; `* QA` ADDED per the NEW quest QA meta — 7 testimony + 4 probes + 10 `#+marker_qa` pending) → [[m44-authoritative-slugs]]
+
+** m55 abandoned-coherence (evicted whole)
+**LANDED GREEN, uncommitted** — **m55 abandoned-coherence** (env surface FINISHED: ONE file (`<instance>/.env`, `<ledger>/.env`) — `environment.json` DEAD everywhere incl. beef's disk · 7 strata + `observe`/`claim` (a file lands at the stratum that OWNS it; standing in ~/.viva no longer hijacks your selection) · `${VAR}` lazy at `Env.get` (9 addresses ← 3 answers) · `state.env` line upsert (comments are content) · **the pinhole**: `hydrate` fires every thunk and RECORDS what it read — `instance.requirements`, keys LEARNED not declared, zero declarations annotated; secrets deferred so plaintext never lands · `export const environment` sibling schema, CHECKED not generated (`UNDOCUMENTED` only; `UNREAD` killed at a measured 5/17 false-positive rate) · `paladin.check` revived from zero call sites · wizard reads the schema (17 keys → 6 questions) · sheets `Table` + `Form` pages · `instances/{list,use}` · `registry/list` · `create --use` · `doctor [target] [filter]` reusing the picker's fold · 3 recipes `@education/instance/{italian,spanish,brazilian}` · **2 method constraints named** ([[thin]], [[generated]]) after each failed twice · suites typology 122/1 (pre-existing) · paladin 26/0 · sheets 37/0 · ghost 77/0 · runtime 53/0 · docs 10 pages. OPEN: registry has ZERO doc pages · `url.js:111` still returns "NaN" for an absent Url · `ghost/localhost/` orphan · beef owes commit + server migration) → [[m55-abandoned-coherence]] · compact 38
+
+** variant→instance rename (evicted whole)
+**LANDED GREEN, uncommitted** — **variant→instance rename** (flag-day, whole spine; suites match baseline, docs 10 pages, live `/instance/doctor` proven. Local env swaps DONE — the dev instance now lives at `~/.viva/instances/<slug>`; **PROD/other-machine swaps + commit still beef's**) → [[variant-to-instance]]
+  NOTE (m55): the ENV half is subsumed — `environment.json` is gone from repo and disk, the dev instance reads one `.env`, and the local swaps are done. What remains is beef's: PROD/other-machine swaps + commit.
+
+** m41 stratified-env (evicted whole)
+**LANDED GREEN, uncommitted** — **m41 stratified-env** (M1–M7 + rename + path law + punch-list, ALL APPLIED + LIVE-PROVEN on beef's machine: paladin.env → 7-strata first-hit fold `flag > cwd > instance > .env > os > session > ledger` · `Env` strata Map + `strati(key)` voices · `object.filter` · populate filter→tagged-assign, ./ scan, loud VIVA_ENV_FILE, divergence fix · ghost `--instance=`/`--env=` bridges + cwd stratum · `viva instance/use` per-shell (`VIVA_PROCESS_ID` — renamed from VIVA_SHELL — + `sessions/<pid>.json`; the shipped `export VIVA_PROCESS_ID="$$"` in `~/.config/viva/env` NEVER WORKED, ghost.sh sources that file so `$$` was its own pid — now `${VIVA_PROCESS_ID:-$PPID}`, compact 2), bare `--ledger` = machine default, chaining FIXED live (`ctx.call` takes `instance/<verb>` — args[0] IS the path; unit fake hid it, real-CLI wet test now pins) · doctor: strati+shadowed rows, `strata` ladder, byOwner registry (owner→type→slugs), instances rows +mount, beef's section order, mounts the instance, bare effects render via NEW sheets Effect.jsx ink tree (JSON only under --json) (`fn.once` returns undefined after #1 — Promise.resolve wrap), SIGURG prune · register writes `manifest.slug` · **ghost path law**: operator-typed paths pin absolute vs shell cwd at ingress via NEW `systems/ghost/belt/path.js` (`cwd()`+`pin()`; slug-vs-path splits on SYNTAX; repo-relative only for repo property — codeword walk, zettel 08-26) · M7 `ledger.mount` DISSOLVED (getters, publish→spawn) · **machine⇄suite leak**: ledger stratum reads real `~/.viva/environment.json` — ghost ledger.test scrubs; paladin instance.snapshot env-red HEALED by it · blast: typology 120/1 (pre-existing red) · paladin 21/1 (instance.snapshot env-red: ~/.viva/environment.json now {} — beef owes the swap; ledgered in known-issues) · ghost 42/0 (incl. 9 hermetic wet) · runtime 52/0 · kajuit 35/0 · docs 10 pages · OPEN: deregister verb · config prune · init ledger-scope re-register (last overwrite print); beef owes commit + stale config/record cleanup) → [[m41-stratified-env]] · compacts 66–68
+
+
 ** evicted at the m38-wake compact (compact 52) — whole item, loss-free
 - **entity-provision-as-trait + TRANSPORTED** (design held only in the frontier until now — restate before building): beef: "rn only domains can provide entities … make that a trait, available to any mode. degrade the domain; upgrade the traits" — collate's domain tier becomes a kernel sweep over trait-carrying modules (manifest check, pre-Mode); domain degrades to traits/kinds/aperture hooks. Sibling: TRANSPORTED marker on the entity descriptor mounts =shard.datamap.repository= + =reactive= generically, deletes the two hardcoded route lists (=aperture/datamap.js=, education =resolve()= hook), and is the lighthouse-closure lever — default off = entities stop leaking. m39 demos V–VI hold the walked context.
 
@@ -848,3 +860,24 @@ Client side: an =AbortController= per debounce ticket on =/symbols=, =/resolve=,
 - cloze unmountable on italian: sentences un-ANNOTATED (0/1015)
 - **proof owed on the next pipeline: kajuit digest must MOVE** (`VIVA_STAMP` build-arg + `:$CI_COMMIT_SHORT_SHA` receipt tag wired both sides; mechanism + history) → [[the-kajuit-image-never-moved-because-its-build-stage-read-nothing-from-the-context-and-the-stamp-arg-was-never-passed]]
 - `translate.snapshot.test.js` RED in BOTH hallucinator packages (anthropic + openrouter), pre-existing: frozen `buildParams` snapshots lack the appraise-era `tool_choice: {type:"any"}` + `respond` tool. Unrelated to the tune/config work (tests never import `provider()`). Refreeze vs investigate — beef's call.
+
+* RESOLVED — paladin instance.snapshot red on empty machine environment.json
+Was: instance.snapshot.test.js threw `instance.mount: no scope.instance` whenever the machine's
+environment.json did not name an instance. Root cause was never the env — the test mounted whatever
+was AMBIENT, a deployment fact, so it broke when testament moved, when the instance was renamed, and
+again when its env line was commented out. It now mounts the in-repo `registry/viva/instances/localhost`
+fixture and passes with NO env file at all. paladin 22/0.
+
+* OPEN — daemon /after/literal/update twitch never fires (create lane does)
+Observed live on the stucatch instance: shape.subscriber wires all six lanes and
+population.js:80-81 registers it on the ORM event manager; /after/literal/create
+dispatches (the whole signal→fix→track fold rides it), but an UPDATE flushed from a
+domain aperture handler (trait reassign + em.flush, UPDATE SQL provably lands) never
+reaches a handler opened on /after/literal/update — an unconditional console probe in
+the handler stayed silent while PLACED changed in the DB. tests/subscriber.test.js
+pins the update lane GREEN against the scenario datamap, so the gap is
+production-spine-specific (transport request context? detached pump? em identity?).
+Worked around in stucatch: the placement/adjust aperture verbs own their refold
+directly (refoldAll after flush); the update-twitch registration stays in place and
+is idempotent if the lane ever comes alive. Diagnose before any other domain leans
+on entity-update reactivity.

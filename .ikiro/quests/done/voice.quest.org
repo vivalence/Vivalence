@@ -1,0 +1,1473 @@
+#+TITLE: Voice — single-tier shuo-style implementation
+#+AUTHOR: Vivalence
+#+DATE: 2026-05-06
+#+STATUS: IMPLEMENTED — Box deck + audio engagement folded into CONVERSATIONAL trait shipped. Hallucinators-array refactor extends paladin. Verification pending live test (keys in, runtime + kajuit dev up, awaiting handshake-flow inspection).
+
+#+begin_quote
+The quest is god. Single source of truth for voice in vivalence.
+Spec organized per *file*, not per milestone. Each file lists WHY + CHANGES.
+Build sequence (=Order of operations=) is a separate concern.
+#+end_quote
+
+* Aim
+
+Single-tier orchestration: STT → LLM → TTS streamed end-to-end with token-level
+pipelining and barge-in cancellation. New BOX deck owns mic + speaker. New
+VOCALIZED trait gates server fanout. Existing CONVERSATIONAL trait already
+carries the audio branch — we activate it.
+
+Two-tier (fast filler + slow thinker) explicitly out — appendix.
+
+* Reference (shuo)
+
+Repo: =/Users/finn/vivalence/code/shuo= · Author: Nick Tikhonov · Blog: https://www.ntik.me/posts/voice-agent
+
+| shuo                      | vivalence equivalent                                     |
+|---------------------------+----------------------------------------------------------|
+| =shuo/state.py= FSM       | emergent from atoms + Pipe/Queue                         |
+| =shuo/conversation.py=    | =systems/runtime/daemon/traits/conversational.js=        |
+| =shuo/agent.py=           | =mode.harness.dialogue.stream= + cortex resolve          |
+| =services/flux.py=        | =registry/services/.../hallucinator/deepgram=            |
+| =services/tts.py=         | =registry/services/.../hallucinator/elevenlabs=          |
+| =services/llm.py=         | =registry/services/.../hallucinator/{anthropic,groq}=    |
+| =services/tts_pool.py=    | deferred (M+1)                                           |
+| =services/player.py=      | BOX deck speaker                                         |
+
+What we drop: Twilio (browser WS), mulaw_8000 (PCM 16kHz), TTS pool (defer),
+client VAD (Flux is server-authoritative), CallConfig REST API, Phase 1 VAD-only
+baseline.
+
+* Distilled rules
+
+1. Single tier. No fast/slow split. Two-tier rejected (appendix).
+2. *Decks are pure.* No deck takes another deck (beyond pre-existing
+   =Top(quarters, lighthouse)=). No deck knows entities or audio. Each deck
+   owns its concern: =Box= (mic+speaker), =Quarters= (terminals), =Top= (active
+   terminal/thread), =Bridge= (layout), =Lighthouse= (auth/daemons). Cross-deck
+   orchestration lives in =traits/thread/vocalized.js= — a free function wired
+   once at +layout init.
+3. Use typology primitives — =Pipe=, =Queue=, =Conversation.subscribe=, =soma.tee=.
+4. Trait gates: =mode.traits.includes("VOCALIZED")= server gate;
+   =thread.trait.INSITU.audio.enabled= per-thread runtime gate.
+5. Pipeline by default. Stream packet-by-packet.
+6. Cancellation propagates. Barge-in reaches LLM, TTS, AND speaker buffer
+   atomically. Idempotent.
+7. Hallucinator namespace — =@vivalence/hallucinator/{deepgram,elevenlabs,anthropic,groq}=.
+8. Faculty types — =dialogue=, =speech=, =verbatim=.
+9. Trait colocation. =vocalized.js= owns guard server-side + engagement
+   client-side.
+10. PCM 16kHz int16 end-to-end. Mic worklet downsamples 48→16. ElevenLabs
+    =output_format=pcm_16000=. No mp3 chunking.
+11. Vanilla getters where natural; =.get()= fine where natural. No rigid rule.
+12. Inflight promise memoization for =claim()=.
+13. Server-authoritative barge-in. Client speaker stops on =/speech/abort= packet.
+14. Standard typology barrel pattern. Multi-file directories carry =index.js=
+    barrels.
+15. Voice tier mandates Groq for sub-1s. Anthropic for non-voice.
+
+* Codec
+
+| Direction              | Format                    | Notes                                                |
+|------------------------+---------------------------+------------------------------------------------------|
+| Browser → server       | int16 PCM 16kHz mono      | Worklet downsamples 48→16. 20ms frames. ~50fps WS    |
+| Server → ElevenLabs    | text chunks               | =soma.textFromPackets= over audioBranch              |
+| ElevenLabs → server    | int16 PCM 16kHz mono      | =output_format=pcm_16000=                            |
+| Server → browser       | int16 PCM 16kHz mono      | Pass-through                                          |
+| Browser → speaker      | AudioBuffer chain         | =createBuffer + start()= per chunk; no decodeAudioData |
+
+Backpressure: =socket.bufferedAmount= watch at mic tap site.
+
+* Architecture overview
+
+#+begin_example
+                     ┌─────────────────── BROWSER (kajuit) ──────────────────┐
+                     │                                                       │
+  USER MIC ──────────┼──► AudioWorklet ──► box.mic.send ──► socket.send      │
+                     │       (resample        (Pipe)             │           │
+                     │        to int16 16k)                      ▼           │
+                     │                                  conversation.send    │
+                     │                                  .verbatim.packet     │
+                     │                                                       │
+  USER EAR ◄─────────┤◄── box.speaker ◄─ conversation.subscribe              │
+                     │   (Queue +           "/speech/packet" → enqueue       │
+                     │    AudioBuffer       "/speech/abort"  → flush         │
+                     │    chain)            "/speech/close"  → close         │
+                     │                                                       │
+                     │  wireVoiceEngagement(box, top)  ← orchestrator        │
+                     │      ├─ top.$current.subscribe                         │
+                     │      ├─ thread.$trait.subscribe (audio.enabled)        │
+                     │      └─ engage/release box; route conversation         │
+                     │                                                       │
+                     └───────────────────────┬───────────────────────────────┘
+                                             │ WebSocket /conversation
+                     ┌───────────────────────▼───────────────────────────────┐
+                     │                                                       │
+                     │  daemon/traits/conversational.js + helpers.js         │
+                     │                                                       │
+                     │  /verbatim/packet ───► spinVerbatim queue ──► Deepgram│
+                     │                                Flux WS                │
+                     │                                  │                    │
+                     │                                  ▼                    │
+                     │                   on EndOfTurn(transcript) ───────────┐
+                     │                                                       │
+                     │  /dialogue/open ──► fanoutDialogue(state, …)  ◄───────┘
+                     │                              │                        │
+                     │                              ▼ soma.tee               │
+                     │                       ┌──────┴──────┐                 │
+                     │                       ▼             ▼                 │
+                     │                   textBranch     audioBranch          │
+                     │                       │             │                 │
+                     │                       ▼             ▼                 │
+                     │              .send.dialogue   ElevenLabs.via.stream  │
+                     │              .packet               (PCM 16kHz)        │
+                     │                                    │                  │
+                     │                                    ▼                  │
+                     │                            .send.speech.packet        │
+                     │                                                       │
+                     │  Barge-in: Flux StartOfTurn ──► abort all inflight    │
+                     │            + .send.speech.abort ───► client flushes   │
+                     │                                                       │
+                     └───────────────────────────────────────────────────────┘
+#+end_example
+
+* File tree
+
+#+begin_example
+.ikiro/quests/
+└── voice.quest.org           ← THIS FILE (tangleable)
+
+subsystems/typology/
+├── schematics/entities/mode.js     ← VOCALIZED added to ModeTraitsEnum
+└── tests/quest/voice.session.test.js   ← server-side e2e
+
+systems/runtime/daemon/
+├── traits/
+│   ├── index.js                    ← export vocalized
+│   ├── vocalized.js                ← NEW: fail-fast cortex-has guard (server)
+│   ├── conversational.js           ← UPDATED: helpers extraction; inflight init
+│   └── conversational.helpers.js   ← NEW: fanoutDialogue
+└── lifecycle/population.js         ← uncomment/add speech + verbatim + groq
+
+testament/variant/circuitry/
+└── test-daemon.viva.js             ← speech/verbatim slots; dialogue array
+
+registry/
+├── services/@vivalence/hallucinator/
+│   ├── deepgram/service.viva.js    ← verify Flux + PCM 16kHz input
+│   ├── elevenlabs/service.viva.js  ← set output_format=pcm_16000
+│   └── groq/service.viva.js        ← verify; new for voice tier
+└── modes/@vivalence/teacher/dewey/dewey.viva.js  ← VOCALIZED + call intent
+
+systems/kajuit/
+├── src/
+│   ├── client.js                   ← BOX context symbol
+│   ├── routes/
+│   │   ├── +layout.svelte          ← setContext BOX; wireVoiceEngagement(box, top)
+│   │   └── pincer/
+│   │       ├── panels/a/widgets/Dock.svelte           ← mic pip + VU + speaker pip
+│   │       └── panels/e/widgets/Conversational.svelte ← AUDIO toggle
+│   └── typology/
+│       ├── decks/
+│       │   ├── index.js            ← export * as box from "./box/index.js"
+│       │   └── box/
+│       │       ├── index.js        ← NEW: barrel
+│       │       ├── box.js          ← NEW: deck class (pure: Pipe + Queue + AudioCtx)
+│       │       └── worklet.js      ← NEW: AudioWorklet processor
+│       └── traits/thread/
+│           ├── index.js            ← export vocalized
+│           └── vocalized.js        ← NEW: client-side trait + wireVoiceEngagement
+└── tests/quest/box.test.js   ← BOX deck tests
+#+end_example
+
+* Per-file spec
+
+Each file gets WHY + CHANGES. Tangle paths relative to =.ikiro/quests/=.
+Diffs apply by hand. New files use =:tangle= blocks.
+
+** =subsystems/typology/schematics/entities/mode.js= [PATCH]
+
+WHY: register the new mode trait. Without it MikroORM rejects mode upserts
+carrying =VOCALIZED=.
+
+#+begin_src diff
+@@ ModeTraitsEnum
+   CONVERSATIONAL = "CONVERSATIONAL",
+   CHAOSMONKEY = "CHAOSMONKEY",
++  VOCALIZED = "VOCALIZED",
+ }
+#+end_src
+
+Migration: =subsystems/typology/migrations/Migration<TS>.js= adds enum value to
+=mode_traits= column. Concatenated =addSql= gotcha per
+=project_longdistance_audio_sketch= step 2.
+
+** =systems/runtime/daemon/traits/vocalized.js= [NEW — server]
+
+WHY: trait module per =feedback_trait_colocation=. Fails fast if cortex lacks
+=speech= or =verbatim= faculties.
+
+#+begin_src js :tangle ../../systems/runtime/daemon/traits/vocalized.js :mkdirp yes
+const REQUIRED = ["speech", "verbatim"];
+const PROVIDER = { speech: "elevenlabs", verbatim: "deepgram" };
+
+export const VOCALIZED = (mode, daemon) => {
+  for (const faculty of REQUIRED) {
+    if (!daemon.cortex.has(faculty)) {
+      throw new Error(
+        `VOCALIZED trait requires \`${faculty}\` faculty. ` +
+        `Wire @vivalence/hallucinator/${PROVIDER[faculty]} into circuitry.`
+      );
+    }
+  }
+};
+#+end_src
+
+** =systems/runtime/daemon/traits/index.js= [PATCH]
+
+#+begin_src diff
+ export * from "./conversational.js";
+ export * from "./chaosmonkey.js";
++export * from "./vocalized.js";
+#+end_src
+
+** =systems/runtime/daemon/traits/conversational.helpers.js= [NEW — server]
+
+WHY: existing =conversational.js= has dead code in =spinVerbatim= autoVoice path
+(=.stream(...).catch(() => {})= — generator never iterates). Extract dialogue
+fanout into a shared helper used by both =/dialogue/open= and the autoVoice
+branch. Tracks per-turn AbortController in =state.inflight= so barge-in via
+=/dialogue/abort= can target a specific turn.
+
+#+begin_src js :tangle ../../systems/runtime/daemon/traits/conversational.helpers.js :mkdirp yes
+import { soma } from "@vivalence/typology";
+
+let counter = 0;
+const nextTurnId = () => `turn-${Date.now()}-${++counter}`;
+
+export async function fanoutDialogue({ daemon, mode, state, parts, thread, tune }) {
+  const conversation = state.conversation;
+  const turn = nextTurnId();
+  const controller = new AbortController();
+  state.inflight ??= new Map();
+  state.inflight.set(turn, controller);
+
+  try {
+    const stream = await mode.harness.dialogue.stream({ parts, thread, tune });
+    const vocalized = mode.traits.includes("VOCALIZED");
+
+    if (!vocalized) {
+      for await (const packet of stream) {
+        if (controller.signal.aborted) break;
+        conversation.send.dialogue.packet({ ...packet, turn });
+      }
+      conversation.send.dialogue.close({ turn });
+      return;
+    }
+
+    const [textBranch, audioBranch] = soma.tee(stream);
+
+    const dialoguePath = (async () => {
+      for await (const packet of textBranch) {
+        if (controller.signal.aborted) break;
+        conversation.send.dialogue.packet({ ...packet, turn });
+      }
+      conversation.send.dialogue.close({ turn });
+    })();
+
+    const speechPath = (async () => {
+      const speech = daemon.cortex.resolve("speech", { tune: tune ?? "eager", via: "stream" });
+      if (!speech) return;
+      const textChunks = soma.textFromPackets(audioBranch);
+      for await (const packet of speech.via.stream(textChunks, {})) {
+        if (controller.signal.aborted) break;
+        conversation.send.speech.packet({ ...packet, turn });
+      }
+      conversation.send.speech.close({ turn });
+    })();
+
+    await Promise.all([
+      dialoguePath.catch((error) =>
+        conversation.send.dialogue.error({ message: error.message, turn })
+      ),
+      speechPath.catch((error) =>
+        conversation.send.speech.error({ message: error.message, turn })
+      ),
+    ]);
+  } finally {
+    state.inflight.delete(turn);
+  }
+}
+#+end_src
+
+** =systems/runtime/daemon/traits/conversational.js= [PATCH — server]
+
+WHY: route both =/dialogue/open= and =spinVerbatim= autoVoice through the helper.
+Initialize =state.inflight= once per socket. =/dialogue/abort= targets by turn or
+falls back to all-inflight.
+
+#+begin_src diff
+-import { Vector, Queue, shard, Socket, Conversation, soma } from "@vivalence/typology";
++import { Vector, Queue, shard, Socket, Conversation } from "@vivalence/typology";
++import { fanoutDialogue } from "./conversational.helpers.js";
+
+ export const CONVERSATIONAL = (mode, daemon) => {
+   const conversation = new Vector();
+@@ before branches
++  conversation.use(async (ctx, next) => {
++    ctx.socket.state.inflight ??= new Map();
++    await next();
++  });
+@@ /dialogue/open
+   conversation.branch("dialogue").open("open", async (ctx) => {
+     ctx.socket.state.thread = ctx.input.thread;
+-    const stream = await mode.harness.dialogue.stream(...);
+-    if (!vocalized) { ... }
+-    const [textBranch, audioBranch] = soma.tee(stream);
+-    ...
++    await fanoutDialogue({
++      daemon, mode,
++      state: ctx.socket.state,
++      parts: ctx.input.parts,
++      thread: ctx.input.thread,
++      tune: ctx.input.tune,
++    });
+   });
+@@ /dialogue/abort
+   conversation.branch("dialogue").open("abort", (ctx) => {
+-    ctx.socket.state.inflight?.get(ctx.input.turn)?.abort();
++    if (ctx.input.turn) ctx.socket.state.inflight?.get(ctx.input.turn)?.abort();
++    else for (const c of ctx.socket.state.inflight?.values() ?? []) c.abort();
+     ctx.socket.state.conversation.send.speech?.abort?.({});
+   });
+@@ spinVerbatim autoVoice
+-      if (event.nature === "final" && state.thread && mode.config?.autoVoice !== false) {
+-        mode.harness.dialogue.stream(...).catch(() => {});
+-      }
++      if (event.nature === "final" && state.thread && mode.config?.autoVoice !== false) {
++        fanoutDialogue({
++          daemon, mode, state,
++          parts: [{ type: "text", text: event.transcript }],
++          thread: state.thread,
++          tune: "eager",
++        }).catch((error) =>
++          state.conversation.send.dialogue?.error?.({ message: error.message })
++        );
++      }
+#+end_src
+
+** =systems/runtime/daemon/lifecycle/population.js= [PATCH — server]
+
+WHY: register speech, verbatim, groq faculties.
+
+#+begin_src diff
+@@ core()
+   await import("@vivalence/hallucinator/anthropic");
++  await import("@vivalence/hallucinator/groq");
++  await import("@vivalence/hallucinator/elevenlabs");
++  await import("@vivalence/hallucinator/deepgram");
+@@ acid()
+   cortex.extend(anthropicFaculties);
++  cortex.extend(groqFaculties);
++  cortex.extend(elevenlabsFaculties);
++  cortex.extend(deepgramFaculties);
+#+end_src
+
+** =testament/variant/circuitry/test-daemon.viva.js= [PATCH]
+
+WHY: bind hallucinator services to faculty slots. Multi-provider dialogue so
+cortex picks Groq at =eager= tune for voice.
+
+#+begin_src diff
+   services: {
+-    dialogue: { service: "@vivalence/hallucinator/anthropic" },
++    dialogue: [
++      { service: "@vivalence/hallucinator/anthropic" },
++      { service: "@vivalence/hallucinator/groq" },
++    ],
++    speech: { service: "@vivalence/hallucinator/elevenlabs" },
++    verbatim: { service: "@vivalence/hallucinator/deepgram" },
+   },
+#+end_src
+
+(Verify circuitry shape supports arrays before applying.)
+
+** =registry/services/@vivalence/hallucinator/{deepgram,elevenlabs,groq}/service.viva.js= [VERIFY]
+
+WHY: services exist (deepgram, elevenlabs); groq new for voice tier. Verify:
+- =deepgram=: Flux turn events surface; PCM 16kHz input
+- =elevenlabs=: =output_format=pcm_16000=
+- =groq=: dialogue faculty with =eager= tune
+
+No diff — touch only if shape needs adjustment.
+
+** =registry/modes/@vivalence/teacher/dewey/dewey.viva.js= [PATCH]
+
+WHY: dewey is the test mode. Add VOCALIZED + =call= intent.
+
+#+begin_src diff
+   traits: [
+     "SELFEVIDENT",
+     "CONVERSATIONAL",
++    "VOCALIZED",
+   ],
+@@ intents (extend)
++  call: {
++    traits: ["INSITU"],
++    trait: { INSITU: { audio: { enabled: true } } },
++    // additional fields per dataset convention — fill from sibling intent shape
++  },
+#+end_src
+
+** =systems/kajuit/src/client.js= [PATCH]
+
+WHY: BOX context symbol joins existing four.
+
+#+begin_src diff
+ export const LIGHTHOUSE = Symbol("LIGHTHOUSE");
+ export const QUARTERS = Symbol("QUARTERS");
+ export const BRIDGE = Symbol("BRIDGE");
+ export const TOP = Symbol("TOP");
++export const BOX = Symbol("BOX");
+#+end_src
+
+** =systems/kajuit/src/routes/+layout.svelte= [PATCH]
+
+WHY: construct Box (no deps), set context, wire voice engagement once via free
+function from VOCALIZED trait file. Decks stay pure.
+
+#+begin_src diff
+   import { LIGHTHOUSE, QUARTERS, BRIDGE, TOP, BOX } from "$lib/client.js";
+   import { Box } from "$lib/typology/decks/box/index.js";
++  import { wireVoiceEngagement } from "$lib/typology/traits/thread/vocalized.js";
+@@
+   const box = new Box();
+   const lighthouse = new Lighthouse(connection);
+   const quarters = new Quarters();
+   const bridge = new Bridge();
+   const top = new Top(quarters, lighthouse);
+@@
+   setContext(BOX, box);
+   setContext(LIGHTHOUSE, lighthouse);
+   setContext(QUARTERS, quarters);
+   setContext(BRIDGE, bridge);
+   setContext(TOP, top);
+@@ onMount
++  const teardownVoice = wireVoiceEngagement({ box, top });
+   const onUnload = () => box.release();
+   window.addEventListener("beforeunload", onUnload);
+@@ onDestroy
+   window.removeEventListener("beforeunload", onUnload);
++  teardownVoice();
+   box.release();
+#+end_src
+
+** =systems/kajuit/src/typology/decks/index.js= [PATCH]
+
+#+begin_src diff
+ export * as lighthouse from "./lighthouse.js";
+ export * as quarters from "./quarters.js";
+ export * as bridge from "./bridge/index.js";
+ export * as top from "./top.js";
+ export * as inspector from "./inspector.js";
++export * as box from "./box/index.js";
+#+end_src
+
+** =systems/kajuit/src/typology/decks/box/index.js= [NEW — barrel]
+
+#+begin_src js :tangle ../../systems/kajuit/src/typology/decks/box/index.js :mkdirp yes
+export { Box } from "./box.js";
+#+end_src
+
+** =systems/kajuit/src/typology/decks/box/box.js= [NEW — pure deck]
+
+WHY: BOX deck owns mic + speaker. Pure. Zero dependencies on other decks. Doesn't
+know terminals, threads, conversations. Exposes =mic: Pipe=, =speaker: Queue=,
+atoms, =claim()/release()=. Inflight-memoized claim per
+=feedback_inflight_promise_guard=.
+
+#+begin_src js :tangle ../../systems/kajuit/src/typology/decks/box/box.js :mkdirp yes
+import { atom } from "nanostores";
+import { Pipe, Queue } from "@vivalence/typology";
+import workletURL from "./worklet.js?url";
+
+const PROMPT = "prompt";
+const GRANTED = "granted";
+const DENIED = "denied";
+
+export class Box {
+  $claimed = atom(false);
+  $permission = atom(PROMPT);
+  $error = atom(null);
+  $inputLevel = atom(0);
+  $playing = atom(false);
+
+  mic = new Pipe();
+  speaker = new Queue();
+
+  audioContext = null;
+  micStream = null;
+  micNode = null;
+  activeSource = null;
+  drainController = null;
+  claimInflight = null;
+
+  get claimed() { return this.$claimed.get(); }
+  get permission() { return this.$permission.get(); }
+  get error() { return this.$error.get(); }
+  get inputLevel() { return this.$inputLevel.get(); }
+  get playing() { return this.$playing.get(); }
+  get queueDepth() { return this.speaker.depth; }
+
+  claim() {
+    if (this.claimInflight) return this.claimInflight;
+    if (this.$claimed.get()) return Promise.resolve();
+    this.claimInflight = this.openAudio().finally(() => { this.claimInflight = null; });
+    return this.claimInflight;
+  }
+
+  async openAudio() {
+    try {
+      this.audioContext = new (window.AudioContext || window.webkitAudioContext)({
+        sampleRate: 48000,
+      });
+      if (this.audioContext.state === "suspended") await this.audioContext.resume();
+      await this.audioContext.audioWorklet.addModule(workletURL);
+      this.micStream = await navigator.mediaDevices.getUserMedia({
+        audio: {
+          channelCount: 1,
+          echoCancellation: true,
+          noiseSuppression: true,
+          autoGainControl: true,
+        },
+      });
+      this.$permission.set(GRANTED);
+      const source = this.audioContext.createMediaStreamSource(this.micStream);
+      this.micNode = new AudioWorkletNode(this.audioContext, "box-input-processor");
+      this.micNode.port.onmessage = (event) => this.handleMicFrame(event.data);
+      source.connect(this.micNode);
+      this.$claimed.set(true);
+      this.startSpeakerDrain();
+    } catch (error) {
+      this.$error.set(error.message ?? String(error));
+      if (error?.name === "NotAllowedError") this.$permission.set(DENIED);
+      this.teardownAudio();
+      throw error;
+    }
+  }
+
+  release() {
+    if (!this.$claimed.get()) return;
+    this.teardownAudio();
+    this.$claimed.set(false);
+  }
+
+  teardownAudio() {
+    this.drainController?.abort();
+    this.drainController = null;
+    this.speaker.flush();
+    if (this.activeSource) {
+      try { this.activeSource.stop(); } catch {}
+      this.activeSource = null;
+    }
+    this.$playing.set(false);
+    if (this.micNode) {
+      this.micNode.port.onmessage = null;
+      this.micNode.disconnect();
+      this.micNode = null;
+    }
+    if (this.micStream) {
+      for (const track of this.micStream.getTracks()) track.stop();
+      this.micStream = null;
+    }
+    if (this.audioContext) {
+      this.audioContext.close().catch(() => {});
+      this.audioContext = null;
+    }
+    this.$inputLevel.set(0);
+  }
+
+  handleMicFrame({ pcm16, rms }) {
+    this.$inputLevel.set(rms);
+    this.mic.send({ audio: pcm16, rms });
+  }
+
+  startSpeakerDrain() {
+    this.drainController = new AbortController();
+    (async () => {
+      try {
+        for await (const packet of this.speaker.drain(this.drainController.signal)) {
+          await this.playPacket(packet);
+        }
+      } catch {} finally {
+        this.$playing.set(false);
+      }
+    })();
+  }
+
+  async playPacket(packet) {
+    if (!this.audioContext) return;
+    const buffer = this.toAudioBuffer(packet);
+    if (!buffer) return;
+    const source = this.audioContext.createBufferSource();
+    source.buffer = buffer;
+    source.connect(this.audioContext.destination);
+    this.$playing.set(true);
+    this.activeSource = source;
+    await new Promise((resolve) => {
+      source.onended = () => resolve();
+      try { source.start(); } catch { resolve(); }
+    });
+    if (this.activeSource === source) this.activeSource = null;
+    if (this.speaker.depth === 0) this.$playing.set(false);
+  }
+
+  toAudioBuffer(packet) {
+    if (!this.audioContext) return null;
+    const audio = packet?.audio ?? packet;
+    const bytes = audio instanceof ArrayBuffer
+      ? new Int16Array(audio)
+      : ArrayBuffer.isView(audio)
+        ? new Int16Array(audio.buffer, audio.byteOffset, audio.byteLength / 2)
+        : null;
+    if (!bytes) return null;
+    const buffer = this.audioContext.createBuffer(1, bytes.length, 16000);
+    const channel = buffer.getChannelData(0);
+    for (let i = 0; i < bytes.length; i++) channel[i] = bytes[i] / 0x8000;
+    return buffer;
+  }
+}
+#+end_src
+
+** =systems/kajuit/src/typology/decks/box/worklet.js= [NEW — AudioWorklet]
+
+WHY: AudioWorklet runs in a separate realm. Loaded via Vite =?url=. Downsamples
+Float32 48kHz → Int16 16kHz, emits 20ms frames + RMS.
+
+#+begin_src js :tangle ../../systems/kajuit/src/typology/decks/box/worklet.js :mkdirp yes
+class BoxInputProcessor extends AudioWorkletProcessor {
+  constructor() {
+    super();
+    this.buffer = [];
+    this.targetSampleRate = 16000;
+    this.ratio = sampleRate / this.targetSampleRate;
+    this.frameSize = (this.targetSampleRate * 20) / 1000;
+  }
+  process(inputs) {
+    const input = inputs[0];
+    if (!input || !input[0]) return true;
+    const channel = input[0];
+    let sumSquares = 0;
+    for (let i = 0; i < channel.length; i++) sumSquares += channel[i] * channel[i];
+    const rms = Math.sqrt(sumSquares / channel.length);
+    for (let i = 0; i < channel.length; i += this.ratio) {
+      this.buffer.push(channel[Math.floor(i)]);
+    }
+    while (this.buffer.length >= this.frameSize) {
+      const frame = this.buffer.splice(0, this.frameSize);
+      const pcm16 = new Int16Array(frame.length);
+      for (let i = 0; i < frame.length; i++) {
+        const sample = Math.max(-1, Math.min(1, frame[i]));
+        pcm16[i] = sample < 0 ? sample * 0x8000 : sample * 0x7FFF;
+      }
+      this.port.postMessage({ pcm16: pcm16.buffer, rms }, [pcm16.buffer]);
+    }
+    return true;
+  }
+}
+registerProcessor("box-input-processor", BoxInputProcessor);
+#+end_src
+
+** =systems/kajuit/src/typology/traits/thread/vocalized.js= [NEW — client]
+
+WHY: client-side mirror of server VOCALIZED trait. Two responsibilities:
+
+1. =VOCALIZED= trait function — registers inbound conversation branches
+   (=/speech/{packet,abort,close,error}=, =/verbatim/{packet,error}=) so the
+   handshake shape includes them. Called from trait runner during thread
+   integration when =thread.traits.includes("VOCALIZED")=.
+
+2. =wireVoiceEngagement({ box, top })= — orchestrator function called once at
+   +layout init. Subscribes to =top.$current= + =thread.$trait= (deepMap fires
+   on =INSITU.audio.enabled= toggle). On engage: claim box, tap mic into
+   conversation.send.verbatim.packet, subscribe to /speech/* on conversation,
+   route to box.speaker. On disengage: single =AbortController= aborts the whole
+   engagement and releases box.
+
+This file is the *only* place that knows about both Box AND Top. Decks remain
+pure. Returns a teardown function for +layout's =onDestroy=.
+
+#+begin_src js :tangle ../../systems/kajuit/src/typology/traits/thread/vocalized.js :mkdirp yes
+export const VOCALIZED = (thread, _ctx) => {
+  const conversation = thread.conversation;
+  if (!conversation) return;
+  conversation.inbound.branch("speech").open("packet", () => {});
+  conversation.inbound.branch("speech").open("abort", () => {});
+  conversation.inbound.branch("speech").open("close", () => {});
+  conversation.inbound.branch("speech").open("error", () => {});
+  conversation.inbound.branch("verbatim").open("packet", () => {});
+  conversation.inbound.branch("verbatim").open("error", () => {});
+};
+
+export function wireVoiceEngagement({ box, top }) {
+  let engagement = null;
+  let threadSubs = null;
+
+  const reconcile = () => {
+    engagement?.controller.abort();
+    engagement = null;
+    const thread = top.$current.get();
+    if (!thread) return;
+    if (!thread.traits?.includes("VOCALIZED")) return;
+    if (thread.trait?.INSITU?.audio?.enabled !== true) return;
+    engagement = engage(box, thread);
+  };
+
+  const offCurrent = top.$current.subscribe((thread) => {
+    threadSubs?.();
+    threadSubs = null;
+    if (thread) {
+      const offTrait = thread.$trait?.subscribe?.(reconcile);
+      const offTraits = thread.$traits?.subscribe?.(reconcile);
+      threadSubs = () => { offTrait?.(); offTraits?.(); };
+    }
+    reconcile();
+  });
+
+  return () => {
+    engagement?.controller.abort();
+    engagement = null;
+    threadSubs?.();
+    offCurrent();
+  };
+}
+
+function engage(box, thread) {
+  const controller = new AbortController();
+  const conversation = thread.conversation;
+
+  (async () => {
+    try {
+      await box.claim();
+    } catch {
+      const trait = thread.trait ?? {};
+      const insitu = { ...(trait.INSITU ?? {}), audio: { enabled: false } };
+      thread.trait = { ...trait, INSITU: insitu };
+      return;
+    }
+    if (controller.signal.aborted || !conversation) {
+      box.release();
+      return;
+    }
+
+    const releaseTap = box.mic.tap(({ audio }) => {
+      conversation.send.verbatim.packet({ audio });
+    });
+    const offSpeechPacket = conversation.subscribe("/speech/packet", (packet) => {
+      box.speaker.enqueue(packet);
+    });
+    const offSpeechAbort = conversation.subscribe("/speech/abort", () => {
+      box.speaker.flush();
+    });
+    const offSpeechClose = conversation.subscribe("/speech/close", () => {});
+
+    controller.signal.addEventListener("abort", () => {
+      releaseTap();
+      offSpeechPacket();
+      offSpeechAbort();
+      offSpeechClose();
+      conversation.send.verbatim?.close?.();
+      box.release();
+    });
+  })();
+
+  return { controller };
+}
+#+end_src
+
+** =systems/kajuit/src/typology/traits/thread/index.js= [PATCH]
+
+#+begin_src diff
+ export * from "./labeled.js";
+ export * from "./conversational.js";
+ ...
++export * from "./vocalized.js";
+#+end_src
+
+** =systems/kajuit/src/routes/pincer/panels/a/widgets/Dock.svelte= [PATCH]
+
+WHY: surface mic + speaker activity in the Dock header.
+
+#+begin_src diff
+ <script>
+   import { getContext } from "svelte";
+-  import { TOP } from "$lib/client.js";
++  import { TOP, BOX } from "$lib/client.js";
+   const top = getContext(TOP);
++  const box = getContext(BOX);
++  const level = box.$inputLevel;
++  const playing = box.$playing;
+ </script>
+
++<div class="audio-strip">
++  <span class="mic-pip"><span class="vu" style="--level:{$level}"></span></span>
++  <span class="speaker-pip" class:active={$playing}></span>
++</div>
+#+end_src
+
+** =systems/kajuit/src/routes/pincer/panels/e/widgets/Conversational.svelte= [PATCH]
+
+WHY: per-thread AUDIO toggle. =wireVoiceEngagement= reacts to the deepMap change.
+
+#+begin_src diff
+ <script>
+   import { getContext } from "svelte";
+   import { TOP } from "$lib/client.js";
+   const top = getContext(TOP);
++  function toggleAudio(thread, enabled) {
++    const trait = thread.trait ?? {};
++    const insitu = { ...(trait.INSITU ?? {}), audio: { enabled } };
++    thread.trait = { ...trait, INSITU: insitu };
++  }
+ </script>
+@@
+ {#if $thread?.traits?.includes("CONVERSATIONAL")}
++  {#if $thread.traits.includes("VOCALIZED")}
++    <label class="audio-toggle">
++      <input type="checkbox"
++             checked={$thread.trait?.INSITU?.audio?.enabled === true}
++             on:change={(event) => toggleAudio($thread, event.target.checked)} />
++      AUDIO
++    </label>
++  {/if}
+   ...
+ {/if}
+#+end_src
+
+** =subsystems/typology/tests/quest/voice.session.test.js= [NEW]
+
+WHY: server-side e2e for cortex resolution + faculty contracts. Per
+=tests/quest/= staging convention.
+
+#+begin_src js :tangle ../../subsystems/typology/tests/quest/voice.session.test.js :mkdirp yes
+import { describe, it, expect } from "vitest";
+import { Cortex } from "@vivalence/typology";
+
+function stubSpeechFaculty() {
+  return {
+    type: "speech",
+    tune: [0.3, 0.5, 0.5, 0.1],
+    via: {
+      stream: async function* (textChunks) {
+        for await (const text of textChunks) {
+          yield { nature: "audio", audio: new Uint8Array([0, 0]).buffer, pts: 0, text };
+        }
+      },
+    },
+  };
+}
+
+function stubVerbatimFaculty(turns) {
+  return {
+    type: "verbatim",
+    tune: [0.3, 0.5, 0.5, 0.1],
+    via: {
+      stream: async function* (audioSource) {
+        for await (const _ of audioSource) {}
+        for (const transcript of turns) {
+          yield { nature: "final", transcript };
+          yield { nature: "turn.end" };
+        }
+      },
+    },
+  };
+}
+
+describe("voice.session", () => {
+  it("cortex has speech + verbatim after extend", () => {
+    const cortex = new Cortex().extend([stubSpeechFaculty(), stubVerbatimFaculty(["hi"])]);
+    expect(cortex.has("speech")).toBe(true);
+    expect(cortex.has("verbatim")).toBe(true);
+  });
+
+  it("speech faculty resolves with eager tune via stream", () => {
+    const cortex = new Cortex().extend([stubSpeechFaculty()]);
+    const faculty = cortex.resolve("speech", { tune: "eager", via: "stream" });
+    expect(faculty).toBeTruthy();
+    expect(typeof faculty.via.stream).toBe("function");
+  });
+
+  it("verbatim emits final transcript", async () => {
+    const cortex = new Cortex().extend([stubVerbatimFaculty(["hello world"])]);
+    const faculty = cortex.resolve("verbatim", { tune: "eager", via: "stream" });
+    const events = [];
+    for await (const event of faculty.via.stream((async function* () {})())) {
+      events.push(event);
+    }
+    expect(events.find((e) => e.nature === "final")?.transcript).toBe("hello world");
+  });
+});
+#+end_src
+
+** =systems/kajuit/tests/quest/box.test.js= [NEW]
+
+WHY: per =tests/quest/= staging convention. Tests only what BOX adds —
+AudioContext lifecycle, inflight-memoized claim, mic frame conversion, speaker
+decode, permission denial, idempotent release. Pipe + Queue covered in their
+own layer; not re-tested.
+
+Vitest config: =?url= imports need =vitest.config.js= alias OR per-file
+=vi.mock("./worklet.js?url", () => ({ default: "stub" }))=.
+
+#+begin_src js :tangle ../../systems/kajuit/tests/quest/box.test.js :mkdirp yes
+import { describe, it, expect, vi, beforeEach } from "vitest";
+import { Pipe, Queue } from "@vivalence/typology";
+
+class StubAudioContext {
+  state = "running";
+  destination = {};
+  audioWorklet = { addModule: async () => {} };
+  createMediaStreamSource() { return { connect() {} }; }
+  createBufferSource() {
+    const source = { buffer: null, connect() {}, start() {}, stop() {}, onended: null };
+    queueMicrotask(() => source.onended?.());
+    return source;
+  }
+  createBuffer(_channels, length) {
+    return { getChannelData: () => new Float32Array(length) };
+  }
+  resume() { return Promise.resolve(); }
+  close() { return Promise.resolve(); }
+}
+class StubAudioWorkletNode { port = { onmessage: null }; disconnect() {} }
+class StubMediaStream {
+  constructor() { this.tracks = [{ stop: vi.fn() }]; }
+  getTracks() { return this.tracks; }
+}
+
+beforeEach(() => {
+  globalThis.window = globalThis.window ?? {};
+  globalThis.window.AudioContext = StubAudioContext;
+  globalThis.AudioContext = StubAudioContext;
+  globalThis.AudioWorkletNode = StubAudioWorkletNode;
+  globalThis.navigator = {
+    mediaDevices: { getUserMedia: async () => new StubMediaStream() },
+  };
+});
+
+describe("Box deck", () => {
+  it("uses Pipe + Queue from typology", async () => {
+    const { Box } = await import("../../src/typology/decks/box/box.js");
+    const box = new Box();
+    expect(box.mic).toBeInstanceOf(Pipe);
+    expect(box.speaker).toBeInstanceOf(Queue);
+  });
+
+  it("claim is inflight-memoized — concurrent calls share the promise", async () => {
+    const { Box } = await import("../../src/typology/decks/box/box.js");
+    const box = new Box();
+    const a = box.claim();
+    const b = box.claim();
+    expect(a).toBe(b);
+    await a;
+    expect(box.claimed).toBe(true);
+  });
+
+  it("release is idempotent", async () => {
+    const { Box } = await import("../../src/typology/decks/box/box.js");
+    const box = new Box();
+    await box.claim();
+    box.release();
+    box.release();
+    expect(box.claimed).toBe(false);
+  });
+
+  it("mic frame conversion fires through Pipe", async () => {
+    const { Box } = await import("../../src/typology/decks/box/box.js");
+    const box = new Box();
+    await box.claim();
+    const callback = vi.fn();
+    box.mic.tap(callback);
+    box.handleMicFrame({ pcm16: new ArrayBuffer(640), rms: 0.1 });
+    expect(callback).toHaveBeenCalledOnce();
+    expect(box.inputLevel).toBeCloseTo(0.1);
+    box.release();
+  });
+
+  it("speaker.flush clears the queue", async () => {
+    const { Box } = await import("../../src/typology/decks/box/box.js");
+    const box = new Box();
+    await box.claim();
+    box.speaker.enqueue({ audio: new Int16Array(160).buffer });
+    box.speaker.enqueue({ audio: new Int16Array(160).buffer });
+    box.speaker.flush();
+    expect(box.queueDepth).toBe(0);
+    box.release();
+  });
+
+  it("permission denial sets $error + $permission and rejects", async () => {
+    const { Box } = await import("../../src/typology/decks/box/box.js");
+    const box = new Box();
+    globalThis.navigator.mediaDevices.getUserMedia = async () => {
+      const error = new Error("denied");
+      error.name = "NotAllowedError";
+      throw error;
+    };
+    await expect(box.claim()).rejects.toThrow();
+    expect(box.permission).toBe("denied");
+    expect(box.error).toContain("denied");
+  });
+});
+#+end_src
+
+* Wiring sequence
+
+Construction order in =+layout.svelte=. All decks pure: Box has zero deps; Top
+still takes (quarters, lighthouse) per existing pattern; nothing else
+cross-wired through constructors. Voice cross-deck orchestration done by
+=wireVoiceEngagement(box, top)= — a free function from =traits/thread/vocalized.js=
+called once. No deck modified to know about another deck.
+
+#+begin_example
+1. const box        = new Box()                           // pure: AudioCtx + Pipe + Queue
+2. const lighthouse = new Lighthouse(connection)
+3. const quarters   = new Quarters()                      // unchanged
+4. const bridge     = new Bridge()
+5. const top        = new Top(quarters, lighthouse)       // unchanged
+6. setContext(BOX|LIGHTHOUSE|QUARTERS|BRIDGE|TOP)
+7. onMount:
+     teardownVoice = wireVoiceEngagement({ box, top })   // observes top.$current
+     addEventListener("beforeunload", () => box.release())
+8. onDestroy:
+     teardownVoice()
+     box.release()
+#+end_example
+
+=wireVoiceEngagement= is the *only* place that knows about Box AND Top together.
+Decks stay in their lanes.
+
+* Latency budget
+
+| Stage              | shuo local (Turkey) | shuo Railway EU (Groq) | Vivalence (Groq) | Vivalence (Anthropic) |
+|--------------------+---------------------+------------------------+------------------+-----------------------|
+| TTFT (LLM)         | ~1300ms             | 80ms                   | < 300ms          | < 700ms                |
+| First TTS audio    | ~1600ms             | 550-750ms              | < 700ms          | < 1100ms               |
+| Total e2e (server) | ~1700ms             | ~690ms                 | < 1000ms         | < 1500ms               |
+
+Voice tier mandates Groq for sub-1s. Anthropic fine for non-voice. Geography:
+deployment region must match Deepgram + ElevenLabs region. EU recommended.
+
+* Telemetry spans
+
+| Span                  | Begin                              | End                              |
+|-----------------------+------------------------------------+----------------------------------|
+| =voice.turn=          | =/verbatim/packet= EndOfTurn       | =/speech/close= or barge-in      |
+| =voice.verbatim.flux= | =spinVerbatim= start               | first =EndOfTurn= or call close  |
+| =voice.dialogue.llm=  | =mode.harness.dialogue.stream=     | first packet                     |
+| =voice.speech.tts=    | speech faculty =via.stream=        | first audio packet               |
+| =voice.playback=      | first =speaker.enqueue=            | =queue.depth=0= AND not playing  |
+| =voice.bargeIn=       | Flux StartOfTurn during RESPONDING | =/speech/abort= acked by client  |
+
+* Failure modes
+
+| Failure                          | Detection                          | Response                                        |
+|----------------------------------+------------------------------------+-------------------------------------------------|
+| Mic permission denied            | =getUserMedia= throws NotAllowed   | =$error= set; =$permission=denied=; engagement flips =INSITU.audio.enabled=false= |
+| Tab hidden                       | (no auto-release)                  | call continues                                  |
+| Page unload                      | =beforeunload=                     | =box.release()=                                 |
+| AudioContext suspended (mobile)  | =audioContext.state==="suspended"= | =resume()= during =openAudio=                   |
+| Deepgram WS drops mid-call       | spinVerbatim catch                 | =verbatim.error= packet; UI surfaces; flush speaker |
+| ElevenLabs throttle / 429        | speech.via.stream throws           | =speech.error= packet; conversation continues text-only |
+| Speaker queue overflows          | =speaker.depth > N=                | =Queue.flush()= + reset                         |
+| WS bufferedAmount climbs         | =socket.bufferedAmount > threshold= | drop mic frames at tap site until drain        |
+| Concurrent =claim()=             | second caller hits inflight check  | both await same promise                         |
+| Two threads VOCALIZED+enabled    | only =top.$current= reconciles    | switching releases old + claims new             |
+
+* Order of operations (build sequence)
+
+Independently mergeable steps. Each has TDD anchor + UI smoke before/after.
+
+| #  | Step                               | Risk | Files                                                     |
+|----+------------------------------------+------+-----------------------------------------------------------|
+| 1  | Enum + dewey manifest              | LOW  | =mode.js=, migration, =dewey.viva.js=                     |
+| 2  | Vocalized trait fail-fast (server) | LOW  | =traits/vocalized.js=, =traits/index.js=                  |
+| 3  | conversational.helpers + patch     | HIGH | =helpers.js= (new), =conversational.js= (patch)           |
+| 4  | Population + circuitry             | MED  | =population.js=, =test-daemon.viva.js=                    |
+| 5  | BOX deck                           | HIGH | =decks/box/{box,worklet,index}.js=, =decks/index.js=, =client.js=, =+layout.svelte= |
+| 6  | Client VOCALIZED trait             | HIGH | =traits/thread/vocalized.js=, =traits/thread/index.js=   |
+| 7  | UI: Dock pip + AUDIO toggle        | MED  | =Dock.svelte=, =Conversational.svelte=                    |
+| 8  | Live e2e (with secrets)            | LOW  | =secrets.jsonc= (env)                                     |
+| 9  | Telemetry spans                    | LOW  | =helpers.js=, =box.js= instrumentation                    |
+
+* Verification protocol
+
+Per step:
+
+1. Before — relevant tests run, chrome smoke screenshot
+2. Implement (apply diff or tangle code blocks)
+3. After — rerun tests, rerun chrome smoke
+4. Both green to advance
+5. If a step breaks something, revert in same step (per =feedback_no_hotfix_cascades=)
+
+Test layering: BOX tests cover only what BOX adds. Pipe + Queue covered by their
+own layer; not re-tested in =box.test.js=.
+
+* Off the table
+
+- Two-tier (fast filler + slow thinker) — appendix
+- TTS connection pool — defer to M+1
+- Twilio integration — browser WS only
+- mulaw_8000 codec — PCM end-to-end
+- Custom client VAD — Flux is server-authoritative
+- =bell.js= prototype — abandoned
+- Per-call REST API — mode config drives
+- New panel for voice — Dock pip + Panel E suffice for v1
+- mp3 streaming — PCM 16kHz only
+- Decks knowing each other (beyond pre-existing =Top(quarters, lighthouse)=) —
+  cross-deck orchestration lives in trait files; constructors stay free of
+  audio/voice refs
+
+* Open questions
+
+- Voice picker UI — =mode.config.voice= mode-level vs per-thread? Lean mode-level for v1
+- Speaker pre-buffer ms (smoothness vs latency) — default 0; expose tuning if jitter visible
+- Deployment region for voice — needs EU co-location with Deepgram + ElevenLabs
+
+* Appendix — research
+
+** Two-tier verdict (rejected)
+
+NOT consensus best-practice. Single canonical OSS impl: =agonza1/webrtc-agent-livekit=.
+Pipecat, LiveKit, Vapi ship single-model or string-injected fillers. Sierra
+explicitly rejects filler-audio. Tradeoffs: doubled compute, incoherence, rollback waste.
+
+Adjacent (not two-tier):
+- Preemptive generation (single LLM started before EndOfTurn)
+- Filler injection (string "um"/"yeah" into one LLM stream)
+- Speculative decoding (inference layer)
+- Adaptive routing (classifier picks model by complexity)
+
+Sources:
+- [[https://webrtc.ventures/2025/06/reducing-voice-agent-latency-with-parallel-slms-and-llms/][WebRTC.ventures]]
+- [[https://github.com/agonza1/webrtc-agent-livekit][agonza1/webrtc-agent-livekit]]
+- [[https://docs.livekit.io/agents/multimodality/audio/][LiveKit Agents]]
+- [[https://github.com/pipecat-ai/pipecat/issues/3321][Pipecat #3321]]
+- [[https://arxiv.org/abs/2601.19952][LTS-VoiceAgent]]
+- [[https://sierra.ai/uk/blog/voice-latency][Sierra]]
+
+** shuo blogpost
+
+Source: https://www.ntik.me/posts/voice-agent
+
+Quoted insights folded into rules:
+
+- "Voice is an orchestration problem"
+- "TTFT accounts for more than half of the total latency"
+- "Establishing a fresh WebSocket to ElevenLabs adds a few hundred milliseconds"
+- "Geography dominates everything"
+- "Cannot be built as STT → LLM → TTS as three sequential steps"
+- "Missing any cancellation point makes barge-ins feel broken"
+
+** Faculty alignment
+
+| shuo service       | cortex faculty type | provider                          |
+|--------------------+---------------------+-----------------------------------|
+| services/flux.py   | verbatim            | @vivalence/hallucinator/deepgram  |
+| services/llm.py    | dialogue            | @vivalence/hallucinator/{anthropic,groq} |
+| services/tts.py    | speech              | @vivalence/hallucinator/elevenlabs |
+| services/player.py | n/a (browser-side)  | BOX deck (kajuit-local)           |
+
+** Typology primitives used
+
+| Primitive                | Source                                              | Purpose                       |
+|--------------------------+-----------------------------------------------------+-------------------------------|
+| =Pipe=                   | =subsystems/typology/prototypes/pipe.js=            | mic frame fan-out             |
+| =Queue=                  | =subsystems/typology/prototypes/queue.js=           | speaker buffer                |
+| =Conversation.subscribe= | =subsystems/typology/prototypes/conversation.js:56= | server→client packet sub      |
+| =Conversation.send.X.Y=  | =subsystems/typology/prototypes/conversation.js:50= | client→server packet emit     |
+| =soma.tee=               | =subsystems/typology/gestalten/belt/soma.js:67=     | dialogue stream split         |
+| =soma.textFromPackets=   | =subsystems/typology/gestalten/belt/soma.js:106=    | text deltas for TTS chunks    |
+| =Cortex.has / .resolve=  | =subsystems/typology/prototypes/cortex.js:94,98=    | faculty registry              |
+| nanostores =atom=        | external                                            | reactive $fields              |
+
+* Lessons (session 2026-05-06)
+
+Carry forward into next session. These are general — not voice-specific.
+
+1. *Read the wider convention before extrapolating local notes.* The
+   typology-rotation quest has a narrow rule "no single-export =index.js=
+   barrels" — it applies to the degenerate dir-with-one-file case only. I
+   extrapolated it into a universal anti-barrel stance and argued for flat
+   =decks/box.js= when typology-wide convention is barrel-per-directory
+   (=gestalten/belt/=, =gestalten/shape/=, =decks/bridge/=, =entities/thread/=).
+   Cost: quest rewrite. The standing ikiro directive — "read
+   =subsystems/typology/.ikiro/CLAUDE.md= greedily before working in any
+   subsystem" — exists for this exact failure.
+
+2. *Decks are pure.* No cross-deck constructor injection. =Quarters= takes
+   nothing audio/voice-related. =Box= takes nothing. The pre-existing
+   =Top(quarters, lighthouse)= is the exception, not a precedent. Cross-deck
+   orchestration is a *separate concern* — lives in trait files as free
+   functions (=wireVoiceEngagement=) called once at +layout init. Same lesson
+   as typology-rotation =$dock= relocation: "this is dirty as FUCK. belongs
+   into traits".
+
+3. *Vanilla getters are a preference, not a hard rule.* =$field.get()= is fine
+   where natural. =feedback_transparent_accessors= is "prefer", not "ban".
+
+4. *When the session's output is a quest, the quest IS the compact.*
+   Don't write date-specific =.ikiro/compacts/<date>.<topic>.org= when a single
+   quest owns the session's substance. Fold arc into Changelog, lessons
+   into Lessons section, quote ledger if useful. Date-specific compacts are
+   for sessions without a single quest anchor.
+
+5. *Structure docs by what they describe, not by build order.* Files-as-the-
+   thing is the spec; milestones are a separate document about execution order.
+   "What changes in conversational.js" lives in conversational.js's section,
+   not scattered across M2.5 + M3 + M4.
+
+6. *Inline @beef annotations in the quest are authoritative.* When user
+   edits the file mid-conversation, that's the new spec — don't argue with it,
+   propagate it.
+
+7. *Service category vs faculty type are different layers.* All hallucinator-
+   class services declare =manifest.type: "hallucinator"=. The faculty TYPE
+   (=dialogue= / =speech= / =verbatim=) lives on the faculty object emitted by
+   =provider(mask)=. Cortex.resolve reads faculty.type, never service.manifest.
+   type. Existing files declaring =manifest.type: "speech"= / =manifest.type:
+   "verbatim"= were misnamed; corrected.
+
+8. *Hallucinator slot is uniform — collapse per-faculty slots.* Don't have
+   parallel daemon-manifest slots =hallucinator: {...}, speech: {...},
+   verbatim: {...}=. One array =hallucinators: [{module, statics, secrets},
+   ...]= per daemon. Each provider returns faculties of any type; cortex
+   accumulates them. Adding a new faculty class (e.g. embedding) is a new
+   service module + a new array entry — no daemon-manifest schema change, no
+   population.js change.
+
+9. *Paladin pairs object queries with their mask.* When a registry slot's
+   query is an object with =.module=, =accioMany= returns ={ service: <module>,
+   mask: <query> }=. String queries return bare module (back-compat).
+   Consumers iterate paired entries and call =service.provider(mask)= with
+   no parallel-array bookkeeping.
+
+10. *VOCALIZED is dead. Voice capability is cortex-driven.* No separate
+    VOCALIZED trait at runtime, mode, or thread layer. Server's
+    CONVERSATIONAL trait branches on =daemon.cortex.has("speech")= +
+    =daemon.cortex.has("verbatim")=. Mode authors don't declare voice as a
+    flag; they declare it by giving the daemon speech/verbatim hallucinators
+    in its manifest. =VOCALIZED= survives only as a corpus literal-trait
+    (audio-quality marker on dictionary words), an unrelated concern.
+
+11. *BOX deck owns devices, panels and docks consume.* =new Microphone()=
+    inside a panel/dock is the wrong pattern — every other kajuit deck
+    (Bridge, Top, Quarters, Lighthouse) is constructed once in =+layout.
+    svelte= and consumed via =getContext=. Panels are consumers, not
+    instantiators. "Divorced from X" never means "skip the deck" — only
+    "skip cross-deck wiring". Hardware singletons especially demand deck
+    ownership: browser limits one mic stream + one AudioContext per page.
+
+12. *Audio engagement belongs inside the trait, not in +layout.* The
+    conversational trait's per-thread =wire(thread)= + =open(thread)= already
+    own conversation lifecycle. Audio engagement (mic claim, speech
+    subscription, transcript routing) is part of that lifecycle. Layout's
+    only obligation is =provide({box, top})= once at construction — an
+    explicit dependency-injection handoff, not a subscription loop.
+
+13. *Mode-level config is a sibling export, not a manifest field.* Manifest
+    is metadata (type, slug, traits). Configurable behavior (autoVoice,
+    language, voice preference) is an export sibling like =harness=,
+    =dataset=, =tools= — assigned to mode instance via =Object.assign(this,
+    cake)=. Faculty objects emitted by service providers stay uniform; mode-
+    specific resolution preferences are read by the consumer (server
+    =conversational.js=) at =cortex.resolve= time.
+
+14. *"retard" is the self-improve codeword, not just an insult.* Each
+    occurrence in a session = log a callout in =.ikiro/zettelkasten.md= with
+    Finn-verbatim quote + root cause + corrective rule. Three callouts
+    landed this session (panel-as-owner, service-vs-faculty type, manifest-
+    hardcoding + faculty-discriminator). All preventable by reading
+    surrounding code before proposing.
+
+* Changelog
+
+** 2026-05-06 — Voice quest authored (single session)
+
+Session arc: voice pivot from longterm quest → shuo
+(=NickTikhonov/shuo=) identification → deep read of shuo Python source (single-
+tier orchestration confirmed; not two-tier) → research dispatch (GitHub, HN,
+Sierra, Pipecat, LiveKit, Vapi, etc.) → two-tier verdict NOT consensus best-
+practice (canonical OSS = =agonza1/webrtc-agent-livekit=; Sierra rejects filler
+audio; LTS-VoiceAgent paper formalizes pattern) → two-tier rejected by user →
+single-tier hypothesis layout → BOX deck locked (=bell.js= prototype concept
+abandoned) → shuo blogpost read (=ntik.me/posts/voice-agent=, latency table
+extracted, geography-dominates insight folded) → quest drafted as
+tangleable org-babel doc → critical pass round 1 (improvability) → critical
+pass round 2 (style + overeng + reuse — *Pipe + Queue from typology miss*
+caught here) → quest rewritten with everything folded → self-coherence
+pass (12 incoherencies fixed in-place: M4.5 client inbound branches, inflight
+Map init, latency budget split Groq/Anthropic, etc.) → barrel rule hallucination
+called out + corrected → @beef pure-decks correction (Quarters change reverted,
+=wireVoiceEngagement= free function landed) → per-file restructure (milestones
+folded into Order of operations; per-file spec is primary structure).
+
+Three corrections from user across the session:
+1. *Barrel hallucination* — fabricated universal anti-barrel rule from
+   typology-rotation's narrow note. Reading typology showed barrel-per-directory
+   is universal. Memory =project_typology_barrel_convention.md= written.
+2. *Cross-deck contamination* — designed Quarters constructor to take Box and
+   inject via dossier middleware. Decks must be pure. Reverted to free
+   function =wireVoiceEngagement({ box, top })= in trait file.
+3. *Date-specific compact* — wrote a separate compact file at session end when
+   the quest owns the session's substance. Deleted; this Changelog is
+   the compact.
+
+Final quest state: single source of truth for voice. 19 files specified
+per filetree (server: 7, kajuit: 8, registry: 4, tests: 2, schematics: 1).
+Tangle paths relative =.ikiro/quests/= (=../../=). 9-step build sequence
+in =Order of operations=. Decks pure throughout.
+
+The quest is self-coherent end-to-end. All decisions live here.
+
+** 2026-05-08 — Voice implementation shipped + hallucinators refactor
+
+Session arc: revisited quest with Box-deck implementation start → minimal
+Mic in panel-b (corrected: panel-as-owner anti-pattern; BOX must own) → BOX deck
+scaffolded with =device.microphone= + =device.speaker= + =drivers.audio=
+shared singleton → AudioWorklet for both mic (PCM emit) and speaker (ring-
+buffer drain with jitter prime) → critical pass round (gaps 1-10) → polish-tier
+fixes landed (context-close detection, sample-rate verify, mic pause/resume,
+speaker jitter buffer, $speaking VAD with hysteresis, trailing-frame leak
+gate via $claimed check, permission API hydration on construction) → wirer
+sketch as =wireVoiceEngagement({box, top})= free function (corrected: belongs
+inside conversational trait, not as +layout subscription) → folded into
+=traits/thread/conversational.js= as =provide({box, top})= setter +
+=attachAudio(thread)= called inside =open(thread)= after handshake →
+=detachAudio(thread)= in =close(thread)= → /verbatim/packet client
+subscription → =thread.$liveTranscript= atom → Dock displays italic
+transcript above composer → service-side wiring discovery: testament/
+test-daemon was active variant (not brazilian wafer); had commented-out
+speech/verbatim slots with WRONG module paths (=@vivalence/speech/elevenlabs=)
+→ keys missing → Finn provisioned ElevenLabs + Deepgram → hallucinators
+refactor (3 slots → 1 array): paladin =accioMany= extended to pair object
+queries with masks; =population.acid()= reduced to 4-line loop; service
+manifests fixed (=manifest.type: "hallucinator"= for all three providers);
+=secrets.key= rename (was =secrets.elevenlabs= / =secrets.deepgram=) → tests
+written bottom-up: paladin accioMany pairing (passes), cortex hallucinators
+scenario (3 sub-tests pass), elevenlabs + deepgram provider shape (4 sub-
+tests pass) → live test attempted: handshake-stuck on Dewey thread (root
+cause investigation pending; servers are up, secrets-jsonc filled, runtime
+restart picked up new pensieve mounts).
+
+Six corrections from user across the session:
+1. *Panel-as-owner anti-pattern* — built Microphone with panel constructing
+   and managing lifecycle. BOX owns; panels consume. Pattern matches every
+   other kajuit deck.
+2. *Class methods, not free functions, for claim/release.* Bridge-style free
+   functions are right for cross-cutting lifecycle (=bootLayout(bridge)=);
+   device claim/release are scoped to one device, live as class methods.
+3. *=box.contexts= → =box.drivers=.* Shared hardware singletons go under
+   =drivers/= slice; downstream consumers (mic, speaker) read via
+   =box.drivers.audio.acquire()=.
+4. *Wirer in +layout vs in trait.* =wireAudio({box, top})= subscription in
+   +layout was wrong placement — conversational trait already owns
+   conversation lifecycle, audio engagement is part of that. =provide({box,
+   top})= setter + per-thread =attachAudio= folded into the trait.
+5. *Service type vs faculty type.* All hallucinator-class services declare
+   =manifest.type: "hallucinator"=. Faculty type lives on faculty objects.
+   Inconsistent existing manifests (elevenlabs=speech, deepgram=verbatim)
+   were the bug, not the convention.
+6. *Mode-level config is a sibling export, not a manifest field.* Faculty
+   objects stay service-uniform; mode-specific preferences (language,
+   voice) are mode artifacts read by consumer at resolve time. Provider
+   files do not gate on language.
+
+Files shipped this session (deviations from original spec noted):
+
+Server:
+- =systems/runtime/daemon/lifecycle/population.js= — =core()= single-line
+  registry; =acid()= 4-line loop over =register.hallucinators=
+- =systems/runtime/daemon/traits/conversational.js= — =cortex.has("speech")=
+  / =cortex.has("verbatim")= replaces VOCALIZED check
+- =subsystems/paladin/prototypes/vip.js= — =accioMany= pairs object queries
+  with mask; back-compat for string queries
+
+Service:
+- =registry/services/@vivalence/hallucinator/elevenlabs/= — =manifest.type:
+  "hallucinator"=, =output_format=pcm_16000=, =secrets.key=
+- =registry/services/@vivalence/hallucinator/deepgram/= — =manifest.type:
+  "hallucinator"=, =encoding=linear16&sample_rate=16000=, base64 decode
+  pump, =secrets.key=
+- =registry/services/@vivalence/hallucinator/anthropic/provider/index.js= —
+  =secrets.key= rename
+
+Daemon manifests:
+- =testament/variant/circuitry/test-daemon.viva.js= — =hallucinators: [3
+  entries]= replaces 3 slots
+- =registry/wafers/@vivalence/variant/multiplayer/server/daemon.viva.js= —
+  same
+
+Client (kajuit):
+- =systems/kajuit/src/typology/decks/box/box.js= — Box class composing
+  =drivers.audio= + =device.microphone= + =device.speaker=
+- =systems/kajuit/src/typology/decks/box/drivers/audio/audio.js= —
+  AudioDriver class (=acquire= sync lazy, =release= async, =$state= atom,
+  sample-rate verify warn)
+- =systems/kajuit/src/typology/decks/box/device/microphone/microphone.js= —
+  Microphone class (=$claimed=, =$permission=, =$error=, =$level=,
+  =$speaking=, =$paused= atoms; =in: Pipe<Float32Array>=; =claim=/=release=
+  class methods, =pause=/=resume= class methods; track-end auto-teardown;
+  permission-API hydration; context-close subscription)
+- =systems/kajuit/src/typology/decks/box/device/microphone/worklet.js= —
+  AudioWorklet PCM processor
+- =systems/kajuit/src/typology/decks/box/device/speaker/speaker.js= —
+  Speaker class (=$claimed=, =$playing=, =$error= atoms; =out:
+  Queue<Float32Array>=; =claim=/=release=/=flush= class methods; drain
+  loop with transferable postMessage; context-close subscription)
+- =systems/kajuit/src/typology/decks/box/device/speaker/worklet.js= —
+  AudioWorklet ring buffer with 100ms jitter prime + flush re-prime
+- =systems/kajuit/src/typology/decks/box/{box,drivers/audio,device/microphone,
+  device/speaker}/index.js= — barrels (per typology convention)
+- =systems/kajuit/src/typology/decks/index.js= — =export * as box=
+- =systems/kajuit/src/client.js= — =BOX= context symbol
+- =systems/kajuit/src/routes/+layout.svelte= — Box construction +
+  =setContext(BOX, box)= + =traits.thread.conversational.provide({box, top})=
+  (single sync line at script body)
+- =systems/kajuit/src/typology/traits/thread/conversational.js= — module-
+  level =boxRef=/=topRef=/=audioTeardowns= state; =provide()= setter;
+  =attachAudio(thread)= subscribes to thread.conversation.$state +
+  top.$current; =engageBox(box, thread, conversation)= claims devices, taps
+  =mic.in= → /verbatim/packet, subscribes /speech/packet → =speaker.out=,
+  /speech/abort → =speaker.flush=, /verbatim/packet → =thread.$liveTranscript=;
+  helpers: =float32ToInt16=, =int16ToFloat32=, =int16ToBase64=,
+  =base64ToInt16=
+- =systems/kajuit/src/typology/entities/thread/thread.js= — =$liveTranscript=
+  atom field
+- =systems/kajuit/src/routes/pincer/panels/a/widgets/Dock.svelte= — mic
+  mute pip in composer, =$liveTranscript= italic display above composer
+- =systems/kajuit/src/routes/pincer/panels/e/widgets/Conversational.svelte=
+  — voice kv row (mic state · spk state)
+- =systems/kajuit/src/routes/pincer/panels/b/widgets/BoxSection.svelte=
+  (panel b debug widget — full mic+speaker controls including tone/flush
+  buttons)
+
+Tests written:
+- =subsystems/paladin/tests/vip.test.js= — accioMany pair behavior
+- =subsystems/typology/tests/quest/cortex.hallucinators.test.js= —
+  3-step scenario for register-loop → cortex
+- =registry/services/@vivalence/hallucinator/elevenlabs/tests/provider.test.js=
+- =registry/services/@vivalence/hallucinator/deepgram/tests/provider.test.js=
+
+Deviations from original spec:
+- =vocalized.js= NEW [server + client] never landed — folded into
+  =conversational.js= (Lesson 10).
+- =wireVoiceEngagement({box, top})= renamed to =provide({box, top})= and
+  internalized to conversational.js (Lesson 12).
+- BOX file structure deviates: =box/{drivers,device}/{slot}/{slot,worklet,
+  index}.js= — proper barrel-per-dir + drivers vs device split (Box-class
+  hollow, only composes).
+- =mode.harness.dialogue= path unchanged (CHAOSMONKEY trait still wires
+  this); =VOCALIZED= as a runtime gate disappeared.
+
+Verification status: tests green (paladin pair + cortex scenario + service
+provider shape). Live handshake test inconclusive — Dewey conversation stays
+in awaiting-handshake state; root cause not yet identified.

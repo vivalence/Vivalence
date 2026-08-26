@@ -1,0 +1,294 @@
+#+title: m44 record-authoritative slug — instances.json names the instance, the manifest names the recipe
+#+filetags: :ghost:paladin:ledger:instance:identity:cli:
+#+status: REWRITTEN post-rulings — all forks CLOSED, terrain verified against LIVE tree (post-m41, post lens-fix). Not blasted.
+
+* intent
+
+beef, verbatim: /"i think i detected an issue in ledger. we store a slug in instances.json and
+then another in ledger/instances/*/*.vivajs. no?"/ · /"instances.json is the identity authority:
+{ slug: { mount } }. Manifest slug is template-only and never consulted for instance identity.
+amen!"/ · /"dir name as slug??!! suuggest that again i get grok"/ · /"as is not flag. is second
+optional param"/ → revised → /"--slug maybe makes sense"/ · flags ruled property-specific over
+semantic: /"amen"/ to =--slug=.
+
+One sentence: *instance identity has exactly one store — the ledger record* — =manifest.slug=
+names the RECIPE (what a registry reference resolves to), =instances.json= names the INSTANCE
+(slug → mount), and every reader (locks, logs, sessions, specs, doctor) resolves through the
+record; nothing ever derives identity from a directory name or a manifest again.
+
+* the law
+
+#+BEGIN_EXAMPLE
+instances.json = { <slug>: { mount, createdAt, updatedAt } }     THE identity authority
+                 a MAP — the key IS the slug; uniqueness is structural, never a runtime check
+
+write   instance/create <source> [target] --slug=<slug>          slug default: recipe slug
+        collision on existing slug = HARD ERROR (no heuristic, no suffixing)
+        instance/tap <path> --slug=<slug>                        adopt a hand-placed dir
+        instance/rename <old> <new>                              record key move + locks + logs
+
+read    slug-by-mount  = lookup(mount) reverse scan (register)   miss = CAUGHT, "tap it" note
+        mount-by-slug  = the record row the picker already read  (use takes row.mount)
+
+never   manifest.slug for identity — template-only
+never   basename(mount) for identity — display fallback only, never written
+never   a slug in VIVA_INSTANCE_MOUNT — MOUNT MEANS PATH, populate's throw is PERMANENT
+#+END_EXAMPLE
+
+Two shelved copies of one recipe now hold two record entries with the same =manifest.slug= —
+the README promise ("two shelved copies, not two moods of one") becomes true at the
+locks/record layer, not just on disk.
+
+* the decision trail
+
+- *Array-of-paths record, slug = basename* — proposed, KILLED by beef (/"dir name as
+  slug??!!"/). Path is identity's *anchor*, not its *name*.
+- *Manifest as instance identity* — killed jointly: every copy needs a file edit or collides;
+  "iffy cause hard to set".
+- *Heuristic precedence* (=manifest.slug ?? basename=, target.js:11) — this IS the bug: two
+  readers, silent loser. (The manifest preference was itself m41 work — deliberate
+  supersession, not drift.)
+- *=--as= vs =--slug=* — property-specific ruled: flags name the record field they set. /"amen"/.
+- *[target] param stays a path* — beef corrected himself; slug is never positional.
+- *List of objects, slug inlined* — beef floated (/"what do you think about implementing this
+  as a list of objects instead iwht slug inlined}"/), then ruled /"keep."/ the map: rows are a
+  projection every reader folds in one line; the authority file's job is uniqueness, and a map
+  makes slug collision impossible BY CONSTRUCTION.
+- *Bare slug in VIVA_INSTANCE_MOUNT* (the old M4: record lookup + shelf fallback in populate)
+  — KILLED: /"can only every be a path. mount is a path type. non negotiatable. always."/
+  populate's m41 throw is permanent; slugs enter ONLY through =instance/use=, which resolves
+  them via the record and stores the path. M4 recast accordingly.
+- *register on unknown mount* — throws; =use=/=init= CATCH and print the tap line. /"amen."/
+- *Log identity on rename* — beef floated session-keyed logs (/"if we 'ALWAYS' set session, we
+  could merge those?!"/) — killed: sessions are shell-pid-keyed and reaped, wrong lifetime for
+  instance history. Ruling: /"move on rename. obviously."/ Locks AND logs move with the key.
+
+* terrain (verified against LIVE tree — post-m41, post lens-fix)
+
+- =systems/ghost/trajectories/instance/target.js:11= — =module?.manifest?.slug ?? basename=
+  → =instances.write(slug, {mount})=. The second reader. DIES.
+- =target.js:25= — =specs()= derives lock/log instance name from basename, self-annotated
+  =// @beef ugly and stupid=. DIES into threaded record slug.
+- =register()= has THREE callers: =use.js:45=, =init.js:55=, =init.js= =boot()= helper —
+  all three gain the catch.
+- =systems/ghost/trajectories/instance/create.js= — post lens-fix arbitration (syntax splits
+  slug/path, pick errors honestly); slug from recipe or basename names the shelf; never writes
+  the record. Gains =--slug= + record write + collision. =create.test.js= EXISTS (3 cases).
+- =systems/ghost/trajectories/instance/use.js= — picked slug resolves through
+  =path.instance()= = SHELF GUESS (=instances/<slug>=), the last basename-flavored resolution
+  left; and a no-match bare slug falls back to the same guess. Both DIE into record mount.
+- =subsystems/paladin/lifecycle/populate.js= — bare =VIVA_INSTANCE_MOUNT= THROWS (m41).
+  UNTOUCHED by this quest. Forever.
+- =subsystems/paladin/prototypes/ledger/instances.js= — record proto (read/shelf/list/write);
+  gains =lookup(mount)=, =rename(prior,next)=, =remove(slug)=.
+- =systems/ghost/trajectories/ledger/index.js:181= — doctor =collectInstances=; gains
+  dangling/orphan/shadowed checks.
+- Locks =${instance}_${process}.lock= + logs =logs/<instance>/= — instance string always the
+  record slug; rename carries both.
+- ShellSignal parses any =--key=value= generically (=shellsignal.js:19-24=) — =--slug= needs
+  no parser change.
+
+* milestones — each boots green before the next
+
+** M1 — the record proto learns identity ops
+=subsystems/paladin/prototypes/ledger/instances.js= — after =write()=:
+
+#+BEGIN_SRC diff
+   async write(slug, partial) { ... }
++  async lookup(mount) {
++    const all = await this.paladin.read.json(this.path, {});
++    const hit = Object.entries(all).find(([, held]) => held.mount === mount);
++    return hit ? { slug: hit[0], ...hit[1] } : null;
++  }
++  async rename(prior, next) {
++    const all = await this.paladin.read.json(this.path, {});
++    if (!all[prior]) throw new Error(`instances: no record '${prior}'`);
++    if (all[next]) throw new Error(`instances: '${next}' already held`);
++    all[next] = { ...all[prior], updatedAt: new Date().toISOString() };
++    delete all[prior];
++    await this.paladin.state.json(this.path, all);
++  }
++  async remove(slug) {
++    const all = await this.paladin.read.json(this.path, {});
++    delete all[slug];
++    await this.paladin.state.json(this.path, all);
++  }
+#+END_SRC
+
+** M2 — target.js: one reader, zero writers of derived identity; callers thread the slug
+#+BEGIN_SRC diff
+ export async function register() {
+   const mount = paladin.scope.instance.absolute;
+-  const [module] = await paladin.find.type(paladin.scope.instance, "instance", 0);
+-  const slug = module?.manifest?.slug ?? mount.split("/").filter(Boolean).pop();
+-  await paladin.ledger.instances.write(slug, { mount });
++  const held = await paladin.ledger.instances.lookup(mount);
++  if (!held) {
++    throw new Error(
++      `instance: mount not registered — viva instance/tap ${mount} --slug=<slug>`,
++    );
++  }
++  await paladin.ledger.instances.write(held.slug, { mount });
++  return held.slug;
+ }
+#+END_SRC
+
+#+BEGIN_SRC diff
+-export function specs(param, { attachment = "inherit" } = {}) {
++export function specs(param, { attachment = "inherit", instance = null } = {}) {
+   ...
+   const mount = paladin.scope.instance.absolute;
+-  const instance = mount.split("/").filter(Boolean).pop(); // @beef ugly and stupid
+#+END_SRC
+
+=register()= returns the slug; every caller threads it:
+- =run.js= flips: =const slug = await register()= FIRST, then
+  =boot(specs(param, { instance: slug }))=.
+- =start.js= same flip; its =const slug = processes[0]?.spec.instance= line dies.
+- =stop.js= gains a read-only =lookup(mount)= (never touches =updatedAt=); miss → =instance:
+  null= → kill no-ops → honest "not running".
+- =use.js= + =init.js= (BOTH call sites): =register()= wrapped — on the not-registered throw,
+  effect gains a =note: "not registered — viva instance/tap <mount> --slug=<slug>"= and the
+  command COMPLETES. Selection/boot must not die half-done on an untapped dir.
+
+** M3 — create.js: identity is written at birth
+#+BEGIN_SRC diff
+-  const slug = source.startsWith("@") ? cast.lookup(source).slug : basename(mount);
++  const recipe = source.startsWith("@") ? cast.lookup(source).slug : basename(mount);
++  const slug = ctx.signal.flags?.slug ?? recipe;
++  if (await paladin.ledger.instances.read(slug)) {
++    return (ctx.effect = { error: `instance '${slug}' exists — pass --slug=<other>` });
++  }
+   const destination = target
+     ? resolve(path.cwd(), target)
+     : paladin.scope.ledger.branch(`instances/${slug}`).absolute;
+
+   await clone.tree(mount, destination);
++  await paladin.ledger.instances.write(slug, { mount: destination });
+
+   ctx.effect = {
+     source,
++    slug,
+     from: mount,
+     target: destination,
+     env: `VIVA_INSTANCE_MOUNT=${destination}`,
+   };
+#+END_SRC
+The env hint stays a PATH — mount is a path type, non negotiable. Shelf dir named by slug
+remains a *convenience*, never an authority.
+
+** M4 — use resolves a slug through the record, never the shelf
+(Replaces the dead populate milestone — populate's throw is law, untouched.)
+=use.js=: a picked row carries its mount — take it. =chosen.row.mount= replaces
+=path.instance(chosen.reference)=. A bare slug that matches NO record row is an honest error
+(=no instance '<x>' — viva instance/tap <path> --slug=<x>=), never a shelf guess. Typed paths
+(=local=) keep riding =path.instance()= untouched. =path.instance()='s slug→shelf branch loses
+its last caller in =use=; =shelf()= itself survives (create names shelves with it).
+
+** M5 — instance/tap + instance/rename (new trajectories)
+=systems/ghost/trajectories/instance/tap.js= — NEW:
+#+BEGIN_SRC js
+import paladin from "@vivalence/paladin";
+import { path } from "../../belt/index.js";
+
+export async function tap(ctx) {
+  const [input] = ctx.signal.params ?? [];
+  const slug = ctx.signal.flags?.slug;
+  if (!input || !slug) {
+    return (ctx.effect = { error: "usage: /instance/tap <path> --slug=<slug>" });
+  }
+  if (!input.includes("/") && !input.startsWith(".")) {
+    return (ctx.effect = { error: `'${input}' is a slug-shaped token — a tap takes a PATH; try ./${input}` });
+  }
+  const mount = path.pin(input);
+  const stat = await Deno.stat(mount).catch(() => null);
+  if (!stat?.isDirectory) return (ctx.effect = { error: `no directory at ${mount}` });
+  if (await paladin.ledger.instances.read(slug)) {
+    return (ctx.effect = { error: `instance '${slug}' exists` });
+  }
+  await paladin.ledger.instances.write(slug, { mount });
+  ctx.effect = { tapped: slug, mount };
+}
+#+END_SRC
+The bare-token refusal is the m41 path law at the door: without it a bare token stats the
+ambient PROCESS cwd and writes a NON-PATH mount into the record.
+
+=rename.js= — NEW: refuse while any =locks/<old>_*.lock= is alive (a running instance keeps
+its name); then =instances.rename(old,new)= + move =locks/<old>_*.lock= AND =logs/<old>/= to
+the new prefix. NO session rewrite — sessions store resolved PATHS (m41) and rename keeps the
+mount; nothing stales. Wire both into =instance/index.js=.
+
+** M6 — doctor grows three checks
+In =collectInstances= (=ledger/index.js:181=): per record entry, =stat(mount)= → *dangling*
+if missing; scan =<ledger>/instances/*= dirs absent from any record mount → *orphan (tap
+it)*; record slug whose shelf dir =instances/<slug>= exists but points elsewhere → *shadowed*.
+Report rows, no auto-repair. (No "fallback fired" check — the fallback is dead.)
+
+** M7 — docs + README
+Getting-started step 3 gains =--slug= sentence; =33.01_anatomy-of-the-ledger.mdx= identity
+paragraph: "the record names instances; manifests name recipes."
+
+* testing assessment
+
+- *In place*: =paladin/tests/ledger.test.js= (record write/update — gains
+  lookup/rename/remove cases) · ghost =use.test.js= (7 cases — every case touching
+  =register()= gains an =instances.write= arrange line; the register path now needs the
+  record or the effect carries the tap note) · =create.test.js= (3 cases, lens-fix era —
+  gains default-slug, =--slug=, collision, record-entry-written) · =target.test.js=
+  (basename-derivation assertions DIE → record-slug) · ghost =ledger.test.js= (doctor —
+  gains 3 check cases).
+- *Adds*: tap tests (happy, bare-token refusal, collision) · rename tests (happy, collision,
+  live-lock refusal, locks+logs moved) · use record-mount test (picked slug lands on
+  record mount, no-match errors honestly).
+- *Green ladder*: M1 → paladin ledger suite · M2 → ghost target+use suites · M3 → create
+  suite · M4 → use suite · M5 → tap/rename suites · M6 → ghost ledger suite · M7 → docs boot.
+- Pre-DONE gate: pasted counts per milestone, per method. No counts, no DONE.
+
+* blast table
+
+| file                                                | change                            | M  | kind     |
+|-----------------------------------------------------+-----------------------------------+----+----------|
+| subsystems/paladin/prototypes/ledger/instances.js   | lookup/rename/remove              | M1 | surgical |
+| systems/ghost/trajectories/instance/target.js       | record-only register + specs opt  | M2 | surgical |
+| systems/ghost/trajectories/instance/run.js          | flip order, thread slug           | M2 | surgical |
+| systems/ghost/trajectories/instance/start.js        | flip order, thread slug           | M2 | surgical |
+| systems/ghost/trajectories/instance/stop.js         | read-only slug lookup             | M2 | surgical |
+| systems/ghost/trajectories/instance/use.js          | register catch + record mount     | M2+M4 | surgical |
+| systems/ghost/trajectories/instance/init.js         | register catch (BOTH call sites)  | M2 | surgical |
+| systems/ghost/trajectories/instance/create.js       | --slug, record write, collision   | M3 | surgical |
+| systems/ghost/trajectories/instance/tap.js          | NEW (bare-token refusal)          | M5 | tangle   |
+| systems/ghost/trajectories/instance/rename.js       | NEW (locks + logs move)           | M5 | tangle   |
+| systems/ghost/trajectories/instance/index.js        | route tap/rename                  | M5 | surgical |
+| systems/ghost/trajectories/ledger/index.js          | 3 doctor checks                   | M6 | surgical |
+| tests (paladin ledger; ghost use/target/create/...) | per assessment                    | *  | surgical |
+| documentation + README step 3                       | identity law                      | M7 | prose    |
+
+* deferred
+
+- =instance/untap= (record remove without dir delete) — trigger: first user asks.
+- Migration for pre-m44 records keyed oddly — trigger: doctor's dangling check screams on a
+  real ledger.
+- Slug charset validation — trigger: first slug with a =/= in it.
+- Immutable record id (rename-proof lock/log keys) — floated at the logs ruling, parked:
+  move-on-rename is 3 lines and filenames stay greppable. Trigger: rename churn makes moved
+  history a real cost.
+
+* forks — ALL CLOSED
+
+1. ~M4 fallback~ → MOUNT MEANS PATH always; populate throw permanent; use resolves via record.
+2. ~register on unknown mount~ → throw; use/init catch + tap note.
+3. ~rename × logs~ → move, with locks.
+4. ~record shape~ → map. Key = identity, uniqueness structural.
+
+* changelog
+
+- authored: full quest from the beef session that found the duplication (target.js:11 two
+  readers), ruled the record authoritative, killed basename-identity, ruled --slug
+  property-specific. Diffs against clone @ 6e026a6.
+- ingested as m44 (m42 was taken by history-purge); delta + m41-reversion pass in session
+  "authoritative slugs": M4's before-image was gone (m41 populate throw), tap needed the
+  bare-token guard, session-rewrite leg was dead, init's two register calls surfaced.
+- REWRITTEN post-rulings, same session: all four forks closed by beef (map kept · MOUNT
+  means path always, populate untouched, M4 recast onto use.js · register catch amen'd ·
+  rename moves locks+logs, session-keyed logs killed on lifetime). Diffs rebased onto the
+  live tree (post-m41, post lens-fix, create.test.js/use.test.js current). Ready to blast.

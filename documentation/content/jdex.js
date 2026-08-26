@@ -31,6 +31,7 @@ for (const area of readdirSync(root, { withFileTypes: true })) {
     title: areaIndex.title ?? areaMatch[2].replaceAll("-", " "),
     note: areaIndex.summary ?? "",
   }
+  CATEGORIES[decade] = AREAS[decade].title
   for (const entry of readdirSync(areaDir, { withFileTypes: true })) {
     const match = entry.isDirectory() && entry.name.match(/^(\d{2})_(.+)$/)
     if (!match) continue

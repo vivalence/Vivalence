@@ -20,16 +20,19 @@ export class Request {
 
     this._controller = null;
     this._attempt = 0;
+    this.aborted = false;
   }
 
   get signal() {
     if (!this._controller) {
       this._controller = new AbortController();
+      if (this.aborted) this._controller.abort();
     }
     return this._controller.signal;
   }
 
   abort() {
+    this.aborted = true;
     this._controller?.abort();
   }
 

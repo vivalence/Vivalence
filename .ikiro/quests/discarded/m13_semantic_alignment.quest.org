@@ -1,0 +1,32 @@
+#+TITLE: M13 — module · mode · kernel semantic alignment
+#+AUTHOR: Vivalence
+#+STATUS: DESIGN
+#+DATE: 2026-07-02
+
+* Meta
+** Intent
+
+beef (verbatim, voice): *"We have a m thirteen named at module mode and
+kernel semantic alignment."*
+
+Seed only — no design work done. The territory: the three terms overlap
+today and want their semantics pinned against each other.
+
+- =module= — the registry unit (what =vip.accio= resolves; manifest
+  owner/type/slug/version) AND the ES-module sense AND the =module:= key in
+  variant daemon/service specs. Three senses, one word.
+- =mode= — a module TYPE (=type: "game"= etc. resolve through the mode
+  seam) AND the general plugin system (modes are general, not
+  learning-loop-bound) AND the daemon-side Mode entity.
+- =kernel= — a module type (=type: "kernel"=, domain kernels) with its own
+  registry tier history (=registry/kernels/=, flattened in M11).
+
+Related open naming: M15 (=cake=) — the read-result term sits underneath
+all three; sequencing against M15 is a design decision for this quest.
+
+* Milestones
+
+** M13.0 · pin the ontology (what IS each term), then name once, plumb once
+
+* Changelog
+- 2026-07-02 :: Quest seeded on beef's instruction, deliberately near-empty.

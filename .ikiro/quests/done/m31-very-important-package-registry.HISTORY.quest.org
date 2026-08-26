@@ -1,0 +1,365 @@
+#+title: m31 HISTORY — provenance, recovery verbs, retired + orphaned decisions
+#+filetags: :m31:packages:registry:history:provenance:
+#+note: The archival half of =m31-very-important-package-registry.org=. Nothing here is live design; the live quest carries the locked decisions, current state, milestones, and forks. Companion archives: =.ikiro/bak/m31-package-registry.sources.org= (322 kB, all twelve deleted sources verbatim) · =.ikiro/bak/m31-studies.org= (brew · straight.el · vivalence-nature · beef-verbatim studies).
+
+* Supersession chain
+
+m31 supersedes: =very-important-packagemanager.{workpackage,quest}.org= ·
+=m11_packages.quest.org= · =viva-install.quest.org= · =viva-init-install.quest.org=
+· 5 compacts — all deleted at =4c5a1e2d5=, all recoverable (below).
+
+* History — how to reach the full record
+
+Everything m31 compiles was deleted from the working tree in the 20% cut.
+None of it is lost. *VCS is write-protected, reading is encouraged* — git AND jj
+read surfaces are both open (kernel, beef verbatim: /"i want you to read jj/git
+vcs !!! i use that all the time. just no write!"/). Every command below was run
+and its output verified.
+
+** the cut commit
+
+=4c5a1e2d5= ("added italian") is the 20%-cut commit. It deleted the entire
+package/registry document thread in one move:
+
+#+begin_src sh
+git show --stat --name-only --diff-filter=D --format='' 4c5a1e2d5 | grep -iE "package|registry|install"
+#+end_src
+
+Which returns, verified:
+
+#+begin_src text
+.ikiro/compacts/daemon-isolation-lands-as-a-registry-mint-own-at-pensieve-revelio-then-the-aprende-hub-…org
+.ikiro/compacts/hallucination-is-the-request-harness-is-tooling-cortex-is-the-registry.org
+.ikiro/compacts/m11-four-packages-and-blast-bracket-shape.org
+.ikiro/compacts/the-getting-started-becomes-real-ledger-install-and-variant-clone-land-…org
+.ikiro/compacts/the-registry-becomes-user-managed-a-brew-straightel-package-ledger-is-designed-…org
+.ikiro/compacts/the-registry-dissolves-into-a-package-supply.org
+.ikiro/quests/m11_packages.quest.org
+.ikiro/quests/viva-init-install.quest.org
+.ikiro/quests/viva-install.quest.org
+#+end_src
+
+So for every one of those, *the last living revision is* =4c5a1e2d5~1=.
+
+** the four recovery verbs
+
+| want | command |
+|------+---------|
+| full content of a deleted file | =git show <sha>:<path>= |
+| every revision that touched a path (deletions included) | =git log --all --oneline --diff-filter=D --name-only -- '<glob>'= |
+| the revision history of a still-live path | =git log --all --oneline -- <path>= |
+| what a single revision changed inside one file | =git diff <sha>~1 <sha> -- <path>= |
+
+Worked example — the ideation compact the quest's Intent quote comes from:
+
+#+begin_src sh
+git show 4c5a1e2d5~1:.ikiro/compacts/the-registry-becomes-user-managed-a-brew-straightel-package-ledger-is-designed-paladin-tap-untap-over-string-refs-and-a-ghost-ledger-vector-both-gated-on-go.org
+#+end_src
+
+Sizes at =4c5a1e2d5~1=, verified: =m11_packages.quest.org= 129 939 B ·
+=viva-init-install.quest.org= 8 549 B · =viva-install.quest.org= 4 394 B.
+
+** the jj equivalents (when git is not the tool at hand)
+
+jj has no =show <rev>:<path>= — =jj show= takes a REVSET, not a path, and errors
+on one. The two forms that do work:
+
+#+begin_src sh
+jj log -r 'files("<path>")' --no-graph \
+   -T 'commit_id.short() ++ "  " ++ committer.timestamp().format("%Y-%m-%d") ++ "  " ++ description.first_line() ++ "\n"'
+
+jj diff --from 'root()' --to <sha> <path> | sed -E '1d; s/^ *[0-9]+: //'
+#+end_src
+
+The second renders the whole file as one big addition, then strips jj's
+=NNNN: = line-number gutter. Two gotchas, both hit and confirmed:
+
+- =jj log -r 'files(p)'= lists the DELETING commit too (it touches the path by
+  removing it). The last-alive revision is the *second* row.
+- glob revsets (=files("glob:.ikiro/compacts/**registry**")=) returned empty for
+  paths that exact-match fine. *Use exact paths*; for discovery use
+  =jj diff -r <sha> --stat | grep=.
+
+** the verbatim collection
+
+=.ikiro/bak/m31-package-registry.sources.org= (322 kB) — all twelve sources
+concatenated with their sha/date/commit headers, so a cold session can read the
+whole thread without touching VCS at all. It is the offline mirror of the
+Provenance table below; the commands above regenerate it if it is ever lost.
+
+* RETIRED — superseded, do not re-litigate
+
+| retired | why | replaced by |
+|---------+-----+-------------|
+| flake.nix / flake.lock ("variant declares, ledger pins") | WRONG LAYER — flakes pin inputs to BUILD a system; the variant composes RUNTIME demand | pip/site-packages · Homebrew cellar: registry dir = cellar, PRESENCE = installed, =viva install= = pip, absent demand = ImportError |
+| =variant.packages= | put the SUPPLY declaration on the DEMAND object | =vip.supply()= reads the ledger |
+| owner derived from mount dirname (=@${last-segment}=) | silent wrong-owner beats a loud throw | authored-or-throw (decision #5) |
+| =manifest.package= / =pkg= binding | =owner= is the manifest key; =package= is the module TYPE + the supply concept | fork 7 |
+| =type: "circuit"= as a deployment artifact | filesystem-grouping, not semantic | =type: "variant"= single root manifest |
+| brew PATH-convention identity (=homebrew-<n>=) | beef: /"i am not going to use directories for naming"/ | manifest identity only |
+| "no package self-manifest" | never beef's constraint — imported from brew and strawmanned onto him | =type: "package"= self-manifest |
+| =@vivalence= as namespace | it is the CORE PACKAGE, not an org | =@viva= (fork 5) |
+| =@playground= → =@development= rename | landed at M11, since reverted on disk | =@playground= stands |
+
+* ORPHANED — the jj thread, cut but never replaced
+
+| decision | status |
+|----------+--------|
+| *package = a jj repository; identity IS repo* (VIP vocabulary) | never built |
+| *version = jj state — working copy revision, bookmarks, op log; packages don't declare their own version* (VIP D5) | never built. Fork 8 retired the analogy that carried it, and ="presence = installed"= pins NOTHING. m22 confirms: =grep "@[0-9]"= across =testament/= is empty — ZERO version pins exist, while =Pensieve.latest= still folds semver over a single version each |
+| =materialize()= — the =self ¦ clone(jj) ¦ link ¦ bake= switch | deferred at the M11 sanity cut ("in-tree = identity"), never reopened |
+| machine level = "a directory containing cloned jj repos; jj manages each repo's revision state" | the store does not exist |
+
+The sanity cut that parked all of it, beef: /"overcomplex?! maybe. not sure. do a
+sanity pass."/ → /"In-tree needs no ledger. source = mount, version = working
+copy → a packages-ledger is a tautology."/ Trigger named at the time: *NO =viva
+install package= until the first OUT-OF-TREE package forces it.* That trigger
+fired 2026-07-17 and the design was cut again before it landed.
+
+*Production is unaffected either way* (VIP, still true): packages baked into the
+image, no jj, paladin walks directories and doesn't care whether they're repos.
+Same code path.
+
+* Fork C — ghost vector shape [CLOSED BY DISK]
+
+=/ledger/*= is *already* a nature-group in the shared Vector —
+=systems/ghost/trajectories/index.js:76= registers =/ledger/install= from
+=./ledger/index.js=. The standalone-=new Vector()= alternative is moot. P3
+extends the existing group.
+
+* Provenance
+
+Twelve sources, all deleted from the working tree between 2026-07-21 and
+2026-08-07. Shas re-verified with =git log --all --diff-filter=D= and
+=jj log -r 'files(...)'=; dates are committer timestamps, so they can run a day
+past the document's own =#+DATE=. Offline mirror:
+=.ikiro/bak/m31-package-registry.sources.org=.
+
+| last-alive sha | date | path |
+|-----+------+------|
+| =392a4e8dd5d0= | 2026-03-20 | =.ikiro/very-important-packagemanager.workpackage.org= |
+| =7703b295b6e5= | 2026-05-25 | =.ikiro/quests/very-important-packagemanager.quest.org= (=topology data= → =corpus data=, sole diff) |
+| =7e0062db788a= | 2026-07-02 | =.ikiro/compacts/the-registry-dissolves-into-a-package-supply.org= |
+| =7e0062db788a= | 2026-07-02 | =.ikiro/quests/m11_packages.quest.org= (v1 — carries =clone(jj)=) |
+| =38f669d5312e= | 2026-07-07 | =.ikiro/quests/m11_packages.quest.org= (v2) |
+| =84edd874b969= | 2026-07-07 | =.ikiro/quests/m11_packages.quest.org= (v3 — fork 8, flake retired) |
+| =38f669d5312e= | 2026-07-07 | =.ikiro/compacts/m11-four-packages-and-blast-bracket-shape.org= |
+| =38f669d5312e= | 2026-07-07 | =.ikiro/compacts/m11-forks-self-coherence-and-circuitry-dissolves.org= |
+| =84edd874b969= | 2026-07-07 | =.ikiro/compacts/m11-landed-the-deep-cut.org= |
+| =4c5a1e2d5~1= | 2026-08-07 | =.ikiro/compacts/the-registry-becomes-user-managed-a-brew-straightel-package-ledger-is-designed-…-both-gated-on-go.org= ⚠ the compiled source dated this =b6eed2f5=; that sha touches no compact — the file lived until the cut |
+| =305701e905b4= | 2026-07-13 | =.ikiro/quests/viva-init-install.quest.org= |
+| =eb5d73521988= | 2026-05-27 | =.ikiro/quests/viva-install.quest.org= |
+
+* Related historical state elsewhere
+
+- =.ikiro/methods/quest.md= "Derive by default, lock to override" still cites
+  =m11_packages= =vip.mount= deriving owner from the branch name as its anchor.
+  *That derivation is DEAD* (decision #5). The principle may stand; the anchor is
+  stale and will mislead a cold read.
+
+* Displaced from the live quest — lean pass
+
+** original framing (2026-03-19)
+
+#+begin_quote
+The registry evolves from a single scanned directory into a system of
+composable, jj-driven packages. Packages are the unit of distribution.
+#+end_quote
+
+** decision-trail verbatims (behind the Laws table)
+
+Fork 8:
+
+#+begin_quote
+I think we've made the design boo boo. I think the source of packages should
+actually be the system ledger. I think variant should not declare its packages.
+The Paladin… or the the Pensive should rather throw an error if a package is
+loaded that isn't in the registry. But the population of the registry should
+happen elsewhere. It's similar to how there is multiple instances of Python
+packages, um, like casks and stuff like that per system.
+#+end_quote
+
+Fork 11:
+
+#+begin_quote
+we dont hardcode package.viva.js !!!! what?!?! we do a recursive find of viva
+files to populate the registry. the packages have a manifest.type property that
+identifies a pacakge. wrong approach!!!
+#+end_quote
+
+Owner-law tightening:
+
+#+begin_quote
+no automatic resolve of package to @viva. if no owner package given === same
+class of error as slug missing.
+#+end_quote
+
+** the seed ⚠ long form
+
+=Registry.seed= is a raw =Deno.readDir= loop that pushes *every child directory*
+of =scope.registry= as a location — it never reads a manifest, so it cannot know
+whether a child is a package:
+
+#+begin_src js
+  async seed(scope) {
+    const locations = [];
+    for await (const entry of Deno.readDir(scope.absolute)) {
+      if (entry.isDirectory) locations.push(`${scope.absolute}/${entry.name}`);
+    }
+    await this.write(locations);
+    return locations;
+  }
+#+end_src
+
+It survives today only because the monorepo =registry/= happens to be one flat
+level of packages. Point =VIVA_REGISTRY_MOUNT= at any directory with a stray
+child and it seeds garbage. This is *literally the shape fork 11 rejected*
+surviving one layer down from where it was killed — the imperative-walk
+recidivism family (pre-flight check 1). =paladin.find= is not a drop-in: it
+yields FILES by pattern, so the fix is =find(/\.viva\.js$/)= → read → keep
+=manifest.type === "package"= → dirname, which is what fork 11 asked for anyway.
+
+** full testing survey (pre-goal)
+
+| suite | cases | covers | gap |
+|-------+-------+--------+-----|
+| =subsystems/paladin/tests/vip.test.js= | 5 | mount-with-no-package throws · package owner stamps the mount · package-without-owner throws · module owner overrides · =accio= two-throw | no =supply()= over a mixed-kind registry; no =tap=/=untap= |
+| =subsystems/paladin/tests/pensieve.test.js= | 4 | owner→type→slug→version keying · missing-owner throw · same type/slug under two owners · =latest= semver | no =evict=; =latest= never exercised against a real multi-version package |
+| =subsystems/paladin/tests/ledger.test.js= | 16 | belt json/jsonl round-trips · Lock write/read/alive · Instances write/merge/read | *=Registry= is untouched by all 16* — =seed= has zero coverage, which is why the ⚠ readDir bug sat unnoticed |
+| =subsystems/paladin/tests/{boot,source,spawn,corpus,bundler,variant.snapshot}.test.js= | — | scope population · =paladin.source= 4 styles · spawn · corpus walk | — |
+| =systems/ghost/tests/{shellsignal,target}.test.js= | — | signal tokenizing · instance target resolution | ⚠ *ghost has NO test that invokes a trajectory.* =/ledger/install= — the one landed verb in this area — is untested end to end |
+| =systems/runtime/tests/registry.count.test.js= | — | census of mounted modules | pins a LITERAL; fails on registry growth — known-issue, wants a floor not an equality |
+
+** the jj surface that exists (pre-goal survey)
+
+- =Dockerfile:6= — =jujutsu= in the apk layer.
+- =.gitignore:5= / =.dockerignore:11= — =.jj= ignored; git-primary, jj colocated locally.
+- =.ikiro/claude.md= — VCS write-protected; both read surfaces open; enforced by
+  =hooks/vcs-guard.sh=. Any live clone/fetch/push in a test or demo is beef-run
+  at the VCS seam; the agent proposes the exact command.
+
+** displaced deferred entries (long form)
+
+- =viva install= product channels — JSR (=deno install -g jsr:@vivalence/ghost=)
+  and curl bootstrapper (=curl https://viva.sh/install ¦ sh=), converging on
+  =$XDG_CONFIG_HOME/viva/env=. Blocked on: entities-TS 72 errors, spawn pipeline
+  =--config <repo>= → =jsr:= specifiers, =import.meta.url= repo offset dying
+  post-publish.
+- old P4 obstacle of record — =registry.json= holds absolute local paths by
+  decision #10; a cloned or jj-tracked registry cannot carry it; the store must
+  be addressable independently of the record. (Resolved in the live design by
+  store-relative references.)
+- =.ikiro/methods/quest.md= "Derive by default, lock to override" still anchors
+  on the DEAD owner-derivation (decision #5 killed it) — stale anchor, live
+  principle.
+
+* Displaced — thin pass
+
+** the 14 locked laws (full table)
+
+| # | law | mechanism |
+|---+-----+-----------|
+| 1 | module identity lives in the MANIFEST, never the filesystem | =pensieve.register= keys =owner→type→slug→version= |
+| 2 | =owner= IS package identity | the pensieve's top axis |
+| 3 | packages are INVISIBLE to the Pensieve | =revelio= = pure Map descent |
+| 4 | package marker = =manifest.type === "package"= | NOT a filename |
+| 5 | owner is AUTHORED or the mount THROWS | same error class as a missing slug |
+| 6 | a module's own =manifest.owner= LOCKS over the mount stamp | stamped on a COPY |
+| 7 | SYSTEM supplies, VARIANT demands | variant declares nothing about packages |
+| 8 | the throw sits at VIP, not Pensieve | policy at the demand seam |
+| 9 | two distinct failures | ="not supplied"= ≠ ="Module 404"= |
+| 10 | =registry.json= = ARRAY of location strings | per-machine, not name-keyed |
+| 11 | the ledger self-seeds by discovery | no init ceremony |
+| 12 | ledger is the FOLDER name | =VIVA_LEDGER_MOUNT=, =scope.ledger= |
+| 13 | =revelio= MINTS per daemon | =own()= deep-clone, immutable leaves shared |
+| 14 | =VIP.mount= and =Pensieve= stay as they are | only what FEEDS them changes |
+
+** vocabulary (full table)
+
+| term | definition |
+|------+------------|
+| package | Unit of distribution. Discovery scope declaring =type:"package"= + authored =owner=. |
+| owner | The manifest KEY naming a package. Package identity. |
+| pensieve | In-memory index =owner→type→slug→version=. Package-blind. |
+| ledger | Per-machine record dir (=~/.viva=): =registry.json= · =instances.json= · =locks/= · =logs/=. |
+| store / registry root | Where tapped packages live. =scope.registry=. The cellar. |
+| record / registry manifest | =registry.json= — the array of references. |
+| reference | Prefix-discriminated string: absolute · store-relative · (identifier, parked). |
+| tap | Materialize (if remote) + record. Never mounts — supply() does, at boot. |
+| untap | Remove the reference from the record. Store keeps the working copy. |
+| materialize | Get a package onto disk: =self ¦ clone ¦ link ¦ bake= (only =clone= in scope). |
+| supply / demand | System fills the pensieve / variant composes identities, package-blind. |
+
+** blast record of the landed half (P1+P2, parked)
+
+| file | change |
+|------+--------|
+| =subsystems/paladin/prototypes/ledger/registry.js= | + =list/has/add/remove/resolve=; =seed= onto =find.type= + dirname |
+| =subsystems/paladin/prototypes/vip.js= | + =tap/untap=; =supply()= folds =registry.resolve=; comment corrected |
+| =subsystems/paladin/belt/clone.js= | NEW — jj-preferred clone; registered in =belt/index.js= + =prototypes/paladin.js= |
+| =subsystems/paladin/tests/registry.test.js= | NEW — 6 steps |
+| =subsystems/paladin/tests/vip.tap.test.js= | NEW — 5 steps, tap→supply→accio pipeline |
+| =subsystems/paladin/tests/ledger.test.js= | seed case authors real package manifests (was pinning the readDir bug) |
+
+Suite at park time: paladin 16 passed (60 steps) 0 failed · runtime
+=registry.count= 4 steps green (=--no-check=, known entities-TS errors).
+
+** testing changes still owed by later milestones
+
+- =systems/ghost/tests/ledger.test.js= — P3; establishes the drive idiom (own
+  Vector over =trajectories/index.js=; =mod.js= unimportable — module-scope
+  =Deno.exit=). Covers the already-landed =/ledger/install= while there.
+- =systems/runtime/tests/registry.count.test.js= — literal → floor once tap can
+  grow the census.
+- =variant.snapshot.test.js= — regenerate if fork B lands.
+- Singleton caveat: ghost handlers import the paladin SINGLETON — test scope
+  overrides are process-global; set once in =beforeAll=, order-sensitive across
+  files.
+
+** related state
+
+- =.ikiro/world/codemap/paladin.md= — live shard for the area.
+- =.ikiro/bak/paladin-isolation.quest.org= — trust model; wakes when tap goes
+  network-reachable (P4) or third-party packages arrive.
+- =m22-datasink= (BENCHED) — registry as travelling data home; not sync, no
+  reconciliation, ever.
+
+** changelog trail (live quest, compressed out)
+
+- 2026-08-14 :: P1+P2 landed on /"a2. vip tap/un. go."/; mid-build correction
+  (tap = materialize + record, mount is runtime's, evict → P4); fork E landed
+  in body; ledger.test.js seed-coverage claim corrected; then PARKED on /"You
+  are going too fast into implementation."/ P3+P4 subsequently proposed as
+  chat-only diffs.
+- 2026-08-14 :: Lean pass — goal pinned from session verbatim; milestones
+  re-cut; fork F opened (three placement approaches) and later called A2;
+  heavy text displaced here.
+- 2026-08-14 :: Thin pass — laws, vocabulary, blast record, testing survey,
+  changelog trail all displaced here; session folded to the compact
+  =four-studies-triangulate-…-code-that-must-wait.org=.
+
+* Changelog
+
+- 2026-08-14 :: Lean pass on the live quest — goal pinned (pull/install/load via
+  git + local fs), milestones re-cut, fork F opened. Displaced here: original
+  framing · fork-8/11/owner verbatims · seed-⚠ long form · full testing survey ·
+  jj-surface survey · long deferred entries.
+- 2026-08-14 :: Split out of =m31-very-important-package-registry.org= — the
+  live quest keeps locked decisions, current state, milestones, testing, blast
+  table, open forks, vocabulary; this file keeps provenance, recovery verbs,
+  retired/orphaned decisions, and closed fork C.
+- 2026-08-14 :: (original opening entry) Opened as m31 from the compiled
+  =package-management.quest.org= (which folded twelve deleted sources).
+  Re-verified every path against disk rather than inheriting it, which produced
+  four corrections: ghost lives at =systems/ghost/= not =subsystems/ghost/= ·
+  =/ledger/*= is an EXISTING nature-group with a landed =install= verb, closing
+  fork C and re-scoping P3 from "create" to "extend" · =systems/ghost/tests/=
+  contains no trajectory-invocation test at all, so P3's drive idiom must be
+  established, not copied · =Registry.seed= is a bare =Deno.readDir= child-dir
+  loop with zero test coverage, contradicting decision #4 and reviving the exact
+  shape fork 11 rejected — folded into P1 as a rewrite onto =paladin.find= +
+  =manifest.type=. Provenance sha for the user-managed compact corrected from
+  =b6eed2f5= (touches no compact) to =4c5a1e2d5~1=. Added History — the verified
+  git/jj recipes for pulling every cut document back out, now that the kernel
+  opened both read surfaces. Verbatim collection archived at
+  =.ikiro/bak/m31-package-registry.sources.org=.

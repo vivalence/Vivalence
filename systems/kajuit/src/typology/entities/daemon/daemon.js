@@ -9,6 +9,7 @@ export class Daemon extends Entity {
   mount = null;
   connection = null;
   entities = null;
+  mounting = null;
   lighthouse = null;
   cargo = null;
   statics = {};

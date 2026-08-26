@@ -1,0 +1,134 @@
+#+title: literals all the way down, the domain grows its own fold, and the stairs appear under the map
+#+filetags: :stucatch:runtime:mode:literal:twitch:booted:application:playback:dataset:
+
+* what happened, in one breath
+
+The stucatch tower got CONCRETE: beef struck symbols from the design twice (/"events are not
+fucking symbols stupid. they are concrete - literal."/), the tower collapsed to four literal
+ontologies — stage · sensor · signal · fix · track — a hand-hallucinated case.json pinned every
+trait, the @stucatch package/domain/mode tree was built and MOUNTED, the whole data pipeline
+went live (domain entities + pure fold + twitch, mode boot feeds lines), real stairs logs were
+mined for runs and padded/synced into demo shape, the map gained playback, a photo backdrop,
+and edge-resize — and the session closed with the app rendering both sensors ON the actual
+staircase photograph at 5.7 × 4 m.
+
+* the ontology, as ruled (supersedes m43's tower above order 2)
+
+- /"symbols are abstract things. never concrete. its not a symbol per sensor or something. if
+  its concrete, its a literal. symbols operate on higher level. they might be attributed after
+  we have done 2 or 3 processing steps."/ — nodes, events, tracks: ALL literals. Zero symbols
+  anywhere in v1; base SymbolEntity untouched.
+- /"from signal to fix to track"/ · fix = /"deduplicated detections. something happened here we
+  are sure about it."/ · /"i'd include the relationship as fix uses signal. lovely. ... track
+  uses fix."/ — provenance rides the BASE uses/in m:n; membership mirrored in
+  =trait.DERIVED.of= for the client.
+- /"i am against this: origin: "9B05C4C0" from: { slug: "node.9B05C4C0", origin: ... }"/ —
+  sensor identity = slug alone, no duplicated column.
+- Slug grammar: =stage= · =sensor.<id>= · =signal.<origin>.<seq>.<via>.<ingestMs>= ·
+  =fix.<ingestMs>= · =track.<n>=. The =ontology= column written directly at mint (base
+  subscriber only overrides when TOPOGRAPHICAL symbols exist — none do).
+- Traits (all on the domain's LiteralTraitsEnum, 17): signal EMITTED/STAMPED/RECEIVED/INGESTED
+  + kind trait (SYNCED/RANGED/SENSED/REPORTED) + HALLUCINATED for padded rows · fix
+  OCCURRED/LOCATED/DERIVED · track MOVED/DERIVED · sensor PLACED{x,y,rot}/LABELED/REPORTED ·
+  stage SIZED{width,height,unit} · SUPERSEDED reserved. PICTURED{href,opacity} designed for the
+  stage backdrop (view honors it; not yet minted).
+- =case.json= (registry/stucatch/) = the designed fixture: design section (trait schemas, frame
+  conventions) + 38 literals, every number derived from placed geometry, uses/in symmetric,
+  machine-validated (recomputed intersections off by exactly the injected bearing noise).
+
+* the paradigm correction (the big one)
+
+beef: /"the entire ontology of sensors and signals is relative ... a signal knows only how far
+away it is from the sensor. ... signals are real. fixes are f(signals) and tracks are f(fixes).
+thats why the reactive twitchy paradigm for the processing architecture makes so much sense.
+but your approach seems to have the paradigm wrong."/ — the views had been rendering BAKED
+=LOCATED=/=MOVED= from the fixture while sensors moved. Fixed: geometry-free facts stay data
+(signal payloads, fix/track MEMBERSHIP, OCCURRED times); every position, quality, speed,
+heading re-derives live — =$derived= is the client-side twin of the twitch. Proven: shift all
+sensors +2 m → fixes follow by exactly +2.00.
+
+* the pipeline (LIVE — the m43 spine, built domain-first)
+
+beef: /"the domain should create its own literals. check the education domain for demo"/ —
+ingest/fold moved OUT of the mode:
+
+- =vivalence/stucatch.viva.js= — package, owner @stucatch (beef named the file mid-flight).
+- =vivalence/domain/= — =entities/kernel/Literal.ts= (traits-enum override; mikro's
+  EnumArrayType THROWS on unknown items, so the override is load-bearing; migration applied
+  clean at boot) · =fold.js= (PURE: annotate(line) · foldSignal(world, signal) → actions ·
+  solver: ≥2 sensors least-squares bearing-intersect, 1 sensor polar via mag-range, residual
+  quality, stage-clamp) · =ingress.js= (seed stage+sensors · ingest(daemon, line) idempotent
+  by slug · resolve(daemonDie) registers =/after/literal/create= twitch → foldSignal → persist
+  via forked em · aperture /ingest/line + /ingest/seed) · manifest traits ["EXPOSED"].
+- =vivalence/modes/watch/= — =watch.viva.js= traits [BOOTED, APPLICATION, STANDALONE];
+  =boot.js= seeds via daemon.domain.seed, resolves source
+  ($VIVA_STUCATCH_SOURCE → mountpoint/logs → ../logs → ../../logs), feeds every v4 line to
+  daemon.domain.ingest; =Watch.svelte= (tabs + playback transport + daemon-literals fetch with
+  case.json fixture fallback) · =Stage.svelte= (drag+rotate placement, 4-edge drag-resize with
+  left/bottom re-anchoring, backdrop file picker) · =Map.svelte= (backdrop/sensors/signals/
+  fixes/tracks layers, radial-gradient fixes sized by 1−quality, smooth glowing track curves,
+  clamped label pills, time-filtered progressive solve) · =model.js= (view's solver copy —
+  intentional duplication, domain fold.js is canonical) · =backdrop.js= (stairs.png → 300 KB
+  jpeg data-URI module; bundler has NO image loaders).
+- Fold constants: FIX_WINDOW 250 ms (same impact), resend copies attach to their utterance's
+  fix without re-solve (the witness pattern), TRACK_GAP 4 s, MAX_SPEED 3 m/s, tracks minted on
+  the second plausible fix (orphans stay trackless).
+- Dry-run over the padded stairs capture: 34 fixes · 8 tracks (all ≤ 2.01 m/s after the stage
+  clamp killed a 10.96 m/s ghost from off-stage polars) · 16 two-ray fixes · 12 orphans.
+- Playback: ▶/⏸, 1×/4×/16×, scrub, clock, live; =now= gates the chain — fixes SHARPEN as
+  echoes land, tracks extend leg by leg. Signal dots sit at each alarm's own polar estimate.
+
+* the stairs data (prod logs → demo shape)
+
+=instances/stucatch/logs/mesh_stairs.jsonl= — fw 6 (window capture in), STILL no hub on air
+(epoch:0, syncAge:65535 — second capture in a row), Luca's Pi added =pi_timestamp= = the only
+shared clock. 96 alarm receptions → 39 utterances → 13 bursts; five demo runs picked (anchor:
+the 01:51:41 crossing — real handoff FEF8→C4C0→FEF8 with three genuine co-detections).
+/"i want you to pad and sync timestamps. make the data good for demo"/ →
+=mesh_stairs.padded.jsonl=: every stamped rewritten into one fabricated hub frame off first
+reception (dupes share their utterance's stamp; epoch on a 10 s schedule; STATUS syncAge
+0–9), 14 hallucinated rows ="hallucinated": true= — sub-threshold echoes the 0.20 gate ate,
+anchored to their TARGET utterance's first reception ±45–100 ms (run-start offsets LIE — the
+raw interleaving burned me once), seqs slotted into real per-sensor gaps. Result: runs 1/2/5/
+6/7 all track-worthy (run 2 nearly untouched: 6 steps, 5 co-detected, 2 pads).
+
+* firmware + settings (the audit that stuck)
+
+Window capture LANDED (30 ms after crossing, peak mag + energy-weighted bearing; hor/vert
+split in the alarm LOG line = the bearing-validity diagnostic); Egor bumped fw to 6.0.0-dev and
+added TILT_JITTER. Standing flags: transport timers all fine; 0.20 g threshold is AT the
+ambient floor (lone 0.21–0.26 trips at rest) — do NOT lower it, the peak capture already
+raised effective sensitivity; **Egor's tilt gate (|total−1| < 0.2) eats purely HORIZONTAL
+impacts up to ~0.66 g** — exactly the band bearings need — proposed discriminator is
+persistence (tilt stays, impact rings back), his turf; bearing scatter inside bursts is real
+(180° ring flips), lone-alarm bearings are per-sensor-stable — the field ritual (known impacts
+at marked spots) decides everything and NO capture so far had a synced hub.
+
+* traps sprung (and pinned)
+
+- =new Map(entries)= keeps the LAST duplicate per key — my run validator silently measured
+  every utterance at its +1 s resend; the padded file was right, the ruler lied. Utterance
+  dedup keeps the FIRST reception, everywhere, forever.
+- =daemon.mountpoint.absolute= = =instances/<i>/mountpoint/daemon_<slug>= — guessed the level
+  TWICE before printing it (logs live at =../../logs=). Print the value, then write the path.
+- Fixture and daemon share sensor SLUGS — the view seeded placements from the fixture before
+  the daemon rows arrived and the ~!placed[slug]~ guard kept stale coords: on source flip,
+  RESET then reseed.
+- esbuild json loader needs STRICT json (case.json got prettier'd into unquoted-key JS and
+  back); the svelte bundler loads js ONLY — images enter as data-URI modules.
+- domain aperture without EXPOSED in manifest = boot warn + no mode-branch mount.
+
+* settlement
+
+- *beef owes*: commit both repos (stucatch fw6+LOGS; the @stucatch registry tree + case.json +
+  padded jsonl are untracked) · flash the HUB (two capture sessions ran hubless) · field
+  ritual with Egor (stomp test → co-detection rate, bearing vs truth, hor/vert) · Egor: tilt
+  gate + any fw 6.1 detection work.
+- *open in the mode*: placement/stage edits still LOCAL (no entity write-back → daemon LOCATED
+  goes stale behind the view's live solve) · app fetches once (no reactive literal
+  subscription — playback tail ≠ live tail) · PICTURED trait not minted (backdrop ships in
+  the bundle instead) · daemon-side re-fold on placement change unbuilt.
+- *rules walked*: no dates ✓ · callouts ledgered (4) ✓ · frontier restamped ✓ · memory
+  =project_stucatch_mesh= rewritten ✓ · m43 quest is now PARTIALLY SUPERSEDED by this compact
+  (tower simplified, no symbols, domain-first pipeline) — the compact is canonical for the
+  ontology; the quest survives for the M-ladder framing.

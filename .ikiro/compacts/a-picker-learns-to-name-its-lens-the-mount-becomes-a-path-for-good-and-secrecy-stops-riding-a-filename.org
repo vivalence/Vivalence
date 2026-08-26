@@ -1,0 +1,216 @@
+#+title: a picker learns to name its lens, the mount becomes a path for good, and secrecy stops riding a filename
+#+filetags: :ghost:paladin:sheets:fixtures:registry:env:cli:lens:picker:paths:testing:callout:landing:
+
+* what happened, in one breath
+
+29 beef turns, three arcs and two codeword-grade callouts. Opened on a paste of
+=viva instance/create standalone= → =NotFound: stat 'standalone'= and /"i want to be
+able to just pass in a slug… build a tui for searching all modes"/ → the whole
+Search/pick/lens stack landed (sheets fold + ghost lenses + arbitration). Then
+/ledger/{tap,untap}/ emigrated to =/registry/= and gained =bootstrap=. Then beef moved
+his testament instance out of the repo, which detonated a five-hour excavation: the
+runtime suite could not LOAD, =instance/use= had never worked, =*_MOUNT= held a slug,
+an instance declared its own location, its =.env= was never read, and secrecy was
+decided by a substring of a filename. Every one found by beef running the real CLI,
+not by a test. Ends: **161 passed / 437 steps / 0 failed**, app booted and running.
+
+* the lens stack (turns 1, 3, 7, 8, 11)
+
+Three layers, each replaceable, none knowing the others' data:
+
+- =subsystems/sheets/state/search.js= — the pure fold. Haystack lowercased ONCE at
+  init; =seek= narrows the PREVIOUS match set only when every old term survives as a
+  prefix of its new counterpart /with the same key/, else rescans. That guard exists
+  because typing =owner= (plain term, 0 hits) then =owner:= (facet, all hits) WIDENS —
+  a naive =startsWith= incremental never recovers. Pinned by "incremental narrowing
+  agrees with a cold rescan" across exactly that transition.
+- =components/Search.jsx= — corpus-blind picker, windowed (=slice=): ink repaint is
+  the ceiling, never the filter.
+- =ghost/belt/lens.js= + =belt/pick.js= — lenses per dataset, then 0/1/N arbitration.
+  One match answers headlessly through the SAME fold the picker runs; a picker in a
+  pipe is a hang, so non-interactive ambiguity THROWS naming every candidate.
+
+**Facets are declared, never inferred** — =key:value= narrows only for a key the lens
+lists; an undeclared =slug:dojo= stays literal.
+
+** the naming gate
+
+/"i dont like the corpus term here. pensieve? ledger? register / registry ? whats most
+true??!"/ — all three were live code nouns AND all three name a SOURCE, but the family
+spans two stores (=modes= reads the pensieve, =instances= reads the ledger), so any
+source-name makes half the family a lie. =corpus= was worse: here it means the
+LINGUISTIC dataset. A lens names the PROJECTION — traced to beef's own
+=self/totems.md= /"a totem is a lens, not a checklist"/. He answered /"lense. go"/,
+then two turns later /"use lens."/ — renamed across 6 sites, including a local
+=const lens= in =use.js= the namespace would have shadowed.
+
+* the registry group + bootstrap (turns 4, 9, 10)
+
+/"lets move those to registry/tap untap. and lets add a registry/bootstrap command"/.
+=/registry= branch slurped beside =/ledger=; handlers moved verbatim (=vip.tap/untap=
+keeps its name); no aliases, flag-day. =bootstrap [destination] [source?]= = author +
+tap: bare manifest, or a clone whose declaration is REPLACED (never patched) with the
+destination's own owner/slug — the pensieve keys on owner/type/slug, so a verbatim
+copy would shadow its source the moment it was tapped.
+
+* the testament exodus (turns 12, 15, 16, 23)
+
+/"i removed my testament instance to .viva/instances/test"/ + /"1: recast the env
+variables. 2: are there any parts of the testing that need the /testament dir?"/
+
+The audit found more than asked. =registry/education/= had ALSO left the repo (tapped
+package now), and **nine relative imports reached into it** — the runtime suite could
+not even load. Fix: =tests/scenarios/registry.js= exports =accio(reference)=; tests
+resolve cross-package modules through the REGISTRY. =emitters.test.js= must accio at
+MODULE scope — its describe body branches on =viva.manifest= at collection time.
+
+/"OMG!!!!!!!! i hate that you fucking keep using relative imports."/ →
+/"obviously. fixtures are standalone."/ @fixtures now owns
+=language-learning/entities/{Retention,Trace}.ts=, thin and data-shaped. The cost
+arrived immediately and is the honest one: a mode calling =literal.feed= or populating
+=literal.retentions= must MOUNT THE DOMAIN — =seed(extra)= / =mountMode(viva,
+{entities})= / =instance(extra)=. Three sites do.
+
+/"you own testing"/ — delegation. Used it to reject the option I had recommended:
+moving Retention/Trace into =@vivalence/runtime= would mutate the production entity
+spine, which is not testing.
+
+** a suite that was lying
+
+=topography/harness.js= pointed at a dead =testament/…/daemon_brazilian= DB and its
+=missing()= guard turned that into a silent SKIP — two snapshot suites, green,
+running nothing. DB now derives from =paladin.scope.mountpoint=; both really run.
+Same disease in =target.test.js= (read an AMBIENT =VIVA_INSTANCE_MOUNT=, and its last
+test deleted it) and =instance.snapshot.test.js= (mounted beef's live instance, broke
+three times in one day). Both own their fixtures now. **The suite is byte-identical
+with and without an env file.**
+
+* two laws about mounts (turns 20, 21, 27)
+
+/"mount always means path. never not path. never slug. ghost interface might allow
+instance slug but env var must be path."/ Slug→path now resolves in ONE place, split
+by frame owner: =paladin.ledger.instances.shelf(slug)= (paladin owns the shelf) and
+=ghost/belt/path.js instance(token)= (ghost owns the operator's cwd frame — =apps/nested=
+is cwd-relative, NOT =paladin.source='s repo frame). Every writer routes through it;
+=populate.js= now THROWS on a slug rather than resolving one — that tolerance was
+exactly what let one get stored.
+
+/"i dont see how it makes sense to have the information of the instance mount in the
+mounted instance?!"/ — circular: you need the location to read the file. Location is
+the LEDGER's knowledge (=use <slug>= → session · =--ledger= → =environment.json=).
+Both =.env.example= templates stripped of every mount line.
+
+/"the machine should be able to set it. but the instance can overwrite it. is thats
+what currently is? if so, gucci."/ — yes: =flag › cwd › instance › .env › os ›
+session › ledger=, first hit wins, =instance= sits above =os= and =ledger=.
+
+* the secrecy callout and the env reduction (turns 27, 28)
+
+/"i feel like we need to tie down, cleanup, make coherent… they are weird rn"/ →
+/"does this make sense actually? is there a simpler, more coherent way? what would be
+CORRECT?"/ The survey found secrecy decided TWO ways: by key prefix on the =.env=/os
+path, and by =file.absolute.includes("secret")= on the jsonc path. =mv secrets.jsonc
+keys.jsonc= silently published every secret — and =ledger/doctor= PRINTS public values
+while only counting secrets.
+
+/"i feel like this is extremely shitty prototype design. on your end. you build this.
+this leaks business logic into the prototype. no. no no no. fuck no. no fuck no.
+please god no."/
+
+**=paladin.assign(bag, stratum)=** is now the ONE ingress — splits by KEY
+(=SECRET_*= → secret bag, =VIVA_*=/=PUBLIC_VIVA_*= → env bag, rest ignored), returns
+={held, secrets, ignored}=. os · cwd =.env= · =VIVA_ENV_FILE= · the instance's own
+files all call it. No file and no caller decides secrecy.
+
+/"i am good with the reduction, but i want to keep environemnt.json. we move it next to
+.env. no reason really other than i like json/jsonc!"/ + /"rename to viva_service…"/ →
+each scope carries =.env= BESIDE =environment.json=, both at the root, same stratum;
+=environment/= the directory dies and takes =scope.environment= +
+=VIVA_ENVIRONMENT_MOUNT= with it. =SERVICE_*= → =VIVA_SERVICE_*= (it was in no
+namespace: no key filter on the jsonc path, filtered out on the =.env= path — the same
+var worked in one file and vanished in the other). 7 files renamed.
+
+* five bugs, every one found by beef at a real prompt
+
+1. **=instance/use= had never worked.** =ledger/init= wrote =export VIVA_PROCESS_ID="$$"=
+   into =~/.config/viva/env= — which **=ghost.sh= sources**, so =$$= was ghost.sh's own
+   pid, fresh every invocation. Selections were written under an id that never recurred.
+   =ghost.sh= now takes =${VIVA_PROCESS_ID:-$PPID}= — the invoker is our parent.
+2. **=registry/tap git@host:path=** — =path.pin= guards =://= but not the scp form, so
+   it resolved into a cwd path and stopped being remote. The remote test now exists
+   ONCE, at =paladin.clone.remote=, next to the thing that fetches. /"should work
+   really."/
+3. **=registry/tap v=** → raw =ENOENT readdir=. =vip.tap= stats first and names what it
+   looked for.
+4. **The instance's =.env= was never read.** =populate.env= reads os + =${cwd}/.env= +
+   =VIVA_ENV_FILE=; =mount()= folded only =environment/*.jsonc=. It had worked by
+   ACCIDENT — the deno tasks passed =--env-file=, putting secrets in the =os= stratum.
+   The moment =instance/run= spawned a child inheriting only =VIVA_INSTANCE_MOUNT=, the
+   lighthouse died on =JWT secret not configured=. /"…/.env doesnt get read?!"/
+5. **=run undefined=54417=** — =ledger/process.js= builds its lock from
+   ={instance, process}=; three readers invented =spec.type=/=spec.slug=.
+
+* callouts
+
+- **relative cross-package imports** (turn 15, /"i hate that you fucking keep using
+  relative imports"/) — nine of them into a package that had left the repo. The line
+  quoted was pre-existing, but the family is on the ledger and the law is now
+  enforced by =scenarios/registry.js=.
+- **business logic in a prototype** (turn 28) — a prototype deciding secrecy from a
+  filename substring. Unspoofable only by accident, and the leak was silent. Root
+  cause: routing was written where the FILES were read instead of where the RULE
+  lives. Corrective: an ingress that classifies must be a single named operation the
+  prototypes call, never a conditional at a read site.
+
+* the invisible turns
+
+18 and 19 (=queue-operation=, identical, >180 s apart so not deduped) carried only
+=/Users/finn/.viva/instances/language-learning/test.viva.js= — a bare path, no
+instruction, and **neither surfaced in the working context**. Recorded because the
+compact method's own trap #1 says mid-turn interjections are structurally invisible;
+here it cost nothing, but the walk is the only reason they are on the record at all.
+
+* state at fold
+
+- **Suites**: ghost 59 · paladin 22 · runtime 52 · sheets 27 → **161 / 437 steps / 0
+  failed**, identical with and without an env file.
+- **Live**: =viva instance/run= → =run runtime=… kajuit=…=, app serving; doctor shows
+  11 vars at the =instance= stratum, identity =SUDO dev=, secrets 6.
+- **Uncommitted**, as is everything from the m41 line.
+- **Owed**: =33.01_anatomy-of-the-ledger.mdx= + =51.02_run-an-instance.mdx= still
+  document =environment/= and the old vars (~15 min) · the runtime needs a RESTART to
+  pick up =VIVA_SERVICE_NLP_*= · =~/.viva/registry/education/tmp/= is a duplicate tree
+  and =tmp= sorts after =modes=, so =@education/game/exhibit= resolves to the STALE
+  copy (pensieve has no shadow detection) · pickers for =registry/{tap,untap}= designed
+  not built.
+
+* the canon path audit
+
+67 leads, and they are one class wearing three coats: **=registry/education/*= is no
+longer in the repo** (~15 leads across memory + shards), =registry/viva/datamap= →
+=datamaps= and =hallucinator= → =hallucinators= (beef's in-flight renames), and the
+pre-existing =testament/variant/= era. Not chased — the audit is a lead generator, and
+these are beef's moves mid-flight, not drift I introduced. The one I DID own is fixed:
+paladin's codemap claimed =deploy: local = testament mounts (testament/instance/.env)=.
+
+* settlement
+
+- =frontier.md= 7967 → **7262** chars: m40's CLI shape corrected then the whole item
+  EVICTED whole to =known-issues.org= (budget), m41's =VIVA_PROCESS_ID="$$"= claim
+  corrected to =$PPID= (it shipped a line that never worked), variant→instance
+  compressed (its local env-swap owe is now DONE), new item added.
+- =known-issues.org=: **RESOLVED** the "paladin instance.snapshot red on empty machine
+  environment.json" entry — the root cause was never the env, it was a test mounting an
+  AMBIENT instance; it owns a fixture now and passes with no env file.
+- =codemap/ghost.md= (14/20 lines) gained the picker stack, the whole path law, the
+  =ghost.sh= session-id rule, and the ={instance, process}= spec keys;
+  =codemap/paladin.md= (13/30) gained =paladin.assign=, =instances.shelf=, the
+  environment-scope death, and a corrected deploy line.
+- Index regenerated: **70 compacts, 70 numbered entries, 0 untagged.**
+
+* resumption
+
+The env surface is coherent and the mount law is whole-surface. The next honest thread
+is the =tmp/= shadow — it is a package-hygiene bug on beef's disk, but the deeper item
+is that =Pensieve.register= overwrites silently where =doctor= already renders =shadowed=
+for env strata. Same defect class, one layer down.

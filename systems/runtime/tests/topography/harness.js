@@ -1,22 +1,26 @@
 import { MikroORM } from "@mikro-orm/core";
-import { config } from "../../../../registry/viva/datamap/libsql/libsql.viva.js";
+import paladin from "@vivalence/paladin";
+
 import { Url, Connection, shard, shape, Aperture, Vector, specimen, RemoteRepository, RemoteEntityManager } from "@vivalence/typology";
 import * as routes from "@vivalence/runtime/daemon/aperture";
 import { instance } from "../scenarios/fixtures.js";
+import { accio } from "../scenarios/registry.js";
 
 class LiteralKind {}
 class SymbolKind {}
 
-export const DB = new URL(
-  "../../../../testament/instance/mountpoint/daemon_brazilian/test-language.viva.db",
-  import.meta.url,
-).pathname;
+// the DB rides the MOUNTED instance, never a repo-relative walk — the dev instance moved out of
+// testament/ and a hardcoded path here does not fail, it makes `missing()` skip the whole suite.
+export const DB = paladin.scope.mountpoint
+  ? paladin.scope.mountpoint.branch("daemon_brazilian/test-language.viva.db").absolute
+  : null;
 
 export const SNAPSHOTS = new URL("../snapshots", import.meta.url).pathname;
 
 export const DRY = Deno.env.get("SNAPSHOT_HOT") !== "1";
 
 export const missing = () => {
+  if (!DB) return true;
   try {
     Deno.statSync(DB);
     return false;
@@ -50,7 +54,9 @@ export const SYMBOL_SLUGS = [
 ];
 
 export async function topography() {
-  const descriptors = instance();
+  const { config } = await accio("@viva/datamap/libsql");
+  const domain = await accio("@education/domain/language-learning");
+  const descriptors = instance(domain.entities);
   const orm = await MikroORM.init({
     ...config({
       dbName: DB,

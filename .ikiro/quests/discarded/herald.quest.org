@@ -1,0 +1,241 @@
+#+TITLE: Herald — unified self-description route family
+#+AUTHOR: Vivalence
+#+DATE: 2026-04-17
+#+STATUS: DESIGN
+
+* Intent
+
+Collect the scattered family of metadata-publishing routes (~/manifest~,
+~/cargo~, ~/datamap~, ~/buffered~, ~/freight~, etc.) under one named prefix:
+*=/herald/*=*.
+
+Herald is the self-description layer: *who I am, what I offer, what I
+can do*. Not dataflow, not queries, not mutations, not reactive state.
+Cacheable by convention. Trait-contributed. Composable.
+
+Enables the INSITU controller (in the E panel) to read a mode's full
+capability surface via a single sitemap, rather than hardcoding route
+names across the client.
+
+* Why
+
+| Problem                                                           | Herald answer                             |
+|-------------------------------------------------------------------+-------------------------------------------|
+| ~/manifest~, ~/cargo~, ~/datamap~ scattered at daemon root        | Grouped under ~/herald/~                  |
+| ~/buffered~, ~/freight~ added to mode root by traits              | Grouped under ~/mode/.../herald/~         |
+| No convention for trait-contributed metadata routes               | Traits write under their mode's herald    |
+| Client hardcodes route names per capability                       | Client reads ~/herald/~ sitemap first     |
+| No home for cortex faculty table, coming CONVERSATIONAL capabilities | ~/herald/cortex~, ~/herald/speech~, etc. |
+
+* Contract
+
+- *Self-description only.* Metadata about what exists and what's on
+  offer. Not state (~/status~ stays separate — it's reflective
+  telemetry, different family). Not identity (~/userspace/handshake~
+  stays under userspace — auth confirmation, not capability).
+- *Cacheable per connection.* Never changes mid-session. Client fetches
+  on bind, stores, reuses. Daemon pushes ~/herald/refresh~ over the
+  session socket if capabilities hot-reload.
+- *Trait-contributed.* Traits publishing capability routes write under
+  the owning mode's ~/herald/~. E.g. BUFFERED writes ~/herald/buffered~.
+- *Public-by-default, auth-gated when sensitive.* Manifest and sitemap
+  typically pre-auth; cortex faculty table and mode-level herald may
+  be post-auth depending on tenancy concerns.
+- *Sitemap-rooted.* ~GET /herald/~ returns an index of available herald
+  routes at that scope. Client reads sitemap, fetches what it
+  recognizes — no hardcoded route table.
+
+* Routes
+
+** Daemon-level ~/herald/*~
+
+| Current          | → New               | Content                         | Registered in                    |
+|------------------+---------------------+---------------------------------+----------------------------------|
+| ~/manifest~      | ~/herald/manifest~  | daemon slug, traits, version    | ~daemon/lifecycle/resolve.js~    |
+| ~/cargo~         | ~/herald/cargo~     | daemon cargo index              | ~daemon/aperture/freight.js~     |
+| ~/datamap~       | ~/herald/datamap~   | entity schema map               | ~daemon/aperture/datamap.js~     |
+| ~/modes/:type/:method~ | ~/herald/modes~ | mode enumeration                | ~daemon/aperture/modes.js~       |
+| —                | ~/herald/cortex~    | cortex faculty table (new)      | ~daemon/aperture/herald.js~ new  |
+| —                | ~/herald/~          | sitemap (new)                   | ~daemon/aperture/herald.js~ new  |
+
+** Mode-level ~/mode/:type/:slug/herald/*~
+
+| Current     | → New                | Content                         | Added by                 |
+|-------------+----------------------+---------------------------------+--------------------------|
+| ~/manifest~ | ~/herald/manifest~   | mode manifest                   | ~daemon/lifecycle/resolution.js~ |
+| ~/buffered~ | ~/herald/buffered~   | buffer schema + view url        | BUFFERED trait           |
+| ~/freight~  | ~/herald/freight~    | freight catalog                 | FRAUGHT trait            |
+| —           | ~/herald/speech~     | TTS endpoint + faculty ref      | CONVERSATIONAL.speech (M4.1) |
+| —           | ~/herald/transcription~ | STT endpoint + faculty ref   | CONVERSATIONAL.transcription (M4.1) |
+| —           | ~/herald/~           | mode-level sitemap              | new                      |
+
+** Runtime-level ~/herald/*~
+
+| Current     | → New               |
+|-------------+---------------------|
+| ~/manifest~ | ~/herald/manifest~  |
+
+** Explicitly not herald (stay put)
+
+- ~/status~ — live state (ALIVE/STOPPING). Reactive. Separate family
+  — *pulse* or *vitals* (future rename).
+- ~/userspace/handshake~ — post-auth identity confirmation. Stays under
+  ~/userspace~.
+- ~/batch~, ~/auth/*~, ~/entities/*~, ~/dialogue/*~, ~/connect~,
+  ~/view/*~ — dataflow, transport, static assets.
+
+* New aperture module
+
+Add ~systems/runtime/daemon/aperture/herald.js~:
+
+#+BEGIN_SRC js
+export async function herald(daemonDie) {
+  const aperture = daemonDie.good.aperture;
+  const branch = aperture.branch("/herald");
+
+  branch.open("/", () => sitemap(branch));                     // sitemap
+  branch.open("/manifest", () => daemonDie.good.manifest);     // moved from /manifest
+  branch.open("/cargo", () => daemonDie.good.cargo);           // moved from /cargo
+  branch.open("/datamap", () => shard.datamap.strip(...));     // moved from /datamap
+  branch.open("/modes", async (body) => { ... });              // moved from /modes/:type/:method
+  branch.open("/cortex", () => cortexManifest(daemonDie));     // new
+}
+#+END_SRC
+
+Mode-level herald lives on ~mode.aperture.branch("/herald")~ —
+constructed by ~daemon/lifecycle/resolution.js~ when each mode is
+mounted. Traits (BUFFERED, FRAUGHT, CONVERSATIONAL) add routes
+under =mode.aperture.herald= instead of the mode root.
+
+Sitemap generator walks the branch's child routes and lists them.
+One helper, shared between daemon-level and mode-level heralds.
+
+* Cortex herald content
+
+~/herald/cortex~ returns the faculty table needed by INSITU
+controller:
+
+#+BEGIN_SRC js
+{
+  faculties: [
+    { type: "conversation", tune: [0.9, 1.0, 0.3], context: 200000,
+      channels: { in: [...], out: [...] }, tools: true },
+    { type: "speech",       tune: [0.5, 0.5, 0.9, 0.1], ... },
+    { type: "transcription", tune: [..., 0.05],       ... },
+    // ...
+  ],
+}
+#+END_SRC
+
+Derived from ~daemon.good.cortex~ — no new data, new route only.
+
+* Client migration
+
+Call sites to update (4 lines):
+
+| File                                          | Line | Before                         | After                                  |
+|-----------------------------------------------+------+--------------------------------+----------------------------------------|
+| ~typology/prototypes/daemon.js~               |   77 | ~call("/manifest")~            | ~call("/herald/manifest")~             |
+| ~typology/prototypes/daemon.js~               |   78 | ~call("/cargo")~               | ~call("/herald/cargo")~                |
+| ~typology/prototypes/dataspace.js~            |   27 | ~call("/datamap")~             | ~call("/herald/datamap")~              |
+| ~typology/entities/mode.js~                   |   23 | ~call("/buffered")~            | ~call("/herald/buffered")~             |
+| ~typology/prototypes/lighthouse.js~           |  184 | ~call("/manifest")~            | ~call("/herald/manifest")~             |
+| ~typology/prototypes/lighthouse.js~           |  244 | ~call("/manifest")~            | ~call("/herald/manifest")~             |
+
+(lighthouse is already a runtime — applies runtime-level herald move.)
+
+Deferred: migrate hard-coded call sites to *sitemap-driven* — client reads
+~/herald/~, discovers routes, only calls what's listed. Not required for
+this diff; land after pattern stabilizes.
+
+* Server migration scope
+
+Files touched (6 active + 1 new):
+
+1. *new* ~daemon/aperture/herald.js~ — module owning daemon-level herald branch and sitemap helper.
+2. ~daemon/aperture/index.js~ — add ~export * from "./herald.js"~; drop ~datamap~, ~modes~, ~freight~ re-exports when their contents migrate into herald.
+3. ~daemon/aperture/datamap.js~ — move ~/datamap~ registration into herald module. File may disappear.
+4. ~daemon/aperture/modes.js~ — move ~/modes/:type/:method~ → ~/herald/modes~. File may disappear.
+5. ~daemon/aperture/freight.js~ — move ~/cargo~ → ~/herald/cargo~. File may disappear.
+6. ~daemon/lifecycle/resolve.js~ — move daemon-level ~/manifest~ registration into herald.
+7. ~daemon/lifecycle/resolution.js~ — mode-level ~/manifest~, ~/status~ split: status stays, manifest moves to mode ~/herald/~.
+8. ~daemon/traits/buffered.js~ — write ~/buffered~ under mode ~/herald/~ branch.
+9. ~daemon/traits/index.js~ (freight trait hook) — same pattern.
+10. ~lifecycle/populate.js~ (runtime-level) — runtime ~/manifest~ → ~/herald/manifest~.
+
+Die lifecycle addition (~daemon/die.js~, one line in ~resolve()~):
+
+#+BEGIN_SRC js
+await aperture.herald(this);  // after other aperture.* steps
+#+END_SRC
+
+* Tests
+
+- *New* ~tests/daemon/herald.test.js~:
+  - ~/herald/~ returns sitemap including ~manifest, cargo, datamap, modes, cortex~.
+  - ~/herald/manifest~ returns daemon manifest (identical shape to old ~/manifest~).
+  - ~/herald/cargo~ returns cargo.
+  - ~/herald/datamap~ returns datamap.
+  - ~/herald/cortex~ returns faculty table shaped as expected.
+  - Mode-level ~/mode/:type/:slug/herald/~ sitemap includes buffered/freight/manifest as declared.
+  - Auth: public routes accessible pre-auth; auth-gated routes return 401 without bearer.
+
+- *Update* existing call-site tests (whatever asserts ~/manifest~, ~/cargo~, ~/datamap~, ~/buffered~, ~/modes/:type/:method~ — sweep to herald paths).
+
+- *No* runtime behavior change outside routing — tests should remain green apart from path edits.
+
+* Consequences for INSITU controller (E panel)
+
+Client-side composition of the session controller surface reads from
+herald:
+
+1. On daemon bind, client fetches ~/herald/~ → sitemap →
+   fetch ~/herald/cortex~ → ~daemon.cortex.faculties~.
+2. On mode activation (thread ACTIVE + mode attached), client fetches
+   mode's ~/herald/~ → sitemap → fetches only declared capability
+   routes (buffered, speech, transcription, ...).
+3. INSITU controller renders controllers for the *intersection*:
+   present-on-mode ∧ supported-by-cortex. Nothing shown for
+   unsupported slots. No greyed-out lies.
+
+This makes the INSITU E-panel a pure derivation, not authored wiring.
+
+* Open questions
+
+- *Sitemap format*: flat list of relative paths (~["manifest",
+  "cargo", ...]~) or structured with metadata per entry
+  (~[{name, path, auth, cacheable}]~)? Lean flat for v0; upgrade
+  when we need auth markers on the client.
+- */status* home: keep at root (current) or move to its own family
+  word (*pulse*, *vitals*)? Orthogonal to herald — separate
+  quest if we commit.
+- *Auth gating default*: all-public except explicit opt-in to auth,
+  or all-post-auth except explicit opt-out? Default post-auth is
+  safer; ~/herald/manifest~ and ~/herald/~ sitemap opt-out since
+  client needs them pre-login.
+
+* Gates before implementation
+
+1. *Scope lock*: exactly which current routes move, which stay. (Covered
+   above — locked.)
+2. *Status family*: keep ~/status~ at root for now, orthogonal rename
+   deferred. (Decided — yes, defer.)
+3. *Auth default*: post-auth except ~/herald/manifest~ + ~/herald/~.
+   (Needs confirmation.)
+4. *Sitemap shape*: flat list of paths for v0. (Needs confirmation.)
+5. *Client sitemap adoption*: hardcoded route names in v0, sitemap-driven
+   later. (Decided.)
+
+* Why:
+
+Tracks the herald migration as its own work. Keeps session socket diff
+(longdistance M4.0) clean — doesn't tangle route-reorg with new
+transport layer.
+
+* How to apply:
+
+Land this before or alongside M4.0's ~/connect~ route. The session
+socket mounts at daemon root (not under herald — it's dataflow, not
+metadata). But the INSITU controller that decides whether to open the
+session reads herald. So herald wants to exist before the client-side
+INSITU controller lands.

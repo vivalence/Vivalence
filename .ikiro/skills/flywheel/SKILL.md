@@ -6,6 +6,8 @@ when_to_use: "selfimprove" · "another" · "go meta" · or five or more unproces
 
 # flywheel — "selfimprove" / "go meta": drain the Callouts ledger, recompute the Scoreboard
 
+Every ~5th flywheel (≈25 ledger entries): run [[reflection]] (`skills/reflection/`) — the meta-pass that audits THIS one (rung efficacy, staged-gate staleness, stranded channels, pipeline reconcile). Never in the same pass.
+
 Canon: `.ikiro/self/rituals.md ## the flywheel` + `## the scribe's duties`. Ledger and Scoreboard both live in `.ikiro/zettelkasten.md`.
 
 Leave `disable-model-invocation` unset. Setting it true would stop a scheduled task or `/loop` prompt saying *"selfimprove"* from ever loading this skill — which is its main firing path.

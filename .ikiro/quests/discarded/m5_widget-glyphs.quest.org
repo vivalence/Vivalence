@@ -1,0 +1,129 @@
+#+TITLE: M5 · widget glyphs — a control lever + status reporters in vinca (the glyph UX language)
+
+* Intent
+M5 is a SET OF WIDGETS for the terminal's instrument panel — a *control lever* and
+*status reporters* (errors · queue depth · phase activity · lock) — rendered in *vinca*,
+the vivalence glyph UX language. The widgets ARE the deliverable; vinca/glyphs is the
+LANGUAGE they're drawn in (a design philosophy, sibling to Scandinavian minimalism /
+organized sophistication / playful pragmatism). Mounts in the pincer T-bone shoulder as
+the active terminal's constant face.
+
+  - *vinca* = the UX language: flat stacked lines (the I-Ching primitive — solid ⚊ /
+    broken ⚋), the simplest possible visual atoms, cycled by touch. Archaic, iconic,
+    never hieroglyphic / Chinese-character / cave-painting (Finn: "the simple ones from
+    the I Ching, not the hexagram"). Density that REVEALS (the discriminator).
+  - *widget glyphs* (this quest) = the first widget set built in vinca.
+
+This is M5 of the stall arc, sibling to M4 (=phase-playground=). The lever is a fourth
+DRIVER of the M3 common interface (alongside e-panel chips, f-panel, buffer-apps); the
+reporters surface the stall's state — including its RESERVED faces (=$errors=, the lock).
+
+* The widget set (Finn's spec)
+#+BEGIN_SRC
+  CONTROL
+    lever      drives thread.phase — a 4-detent control (inert · manual · continuous · escort)
+               glyph: a bigram (2 lines → 4 states) cycled, or a vertical lever with 4 notches
+               WRITES thread.phase via the M3 driver (setPhase) — the one common interface
+  STATUS (read-only reporters over the stall/terminal)
+    errors     config-integrity stack — glyph lights solid on error (+ count)     reads stall.$errors  (NEW)
+    depth      queue fill — items vs depth() — a tick-strip (filled / target marks) reads items()/depth()
+    activity   phase activity — settling/pulling — a pulse line                    reads phase + $pulse
+    lock       pull in flight — monogram solid=locked / broken=idle                reads stall.$locked  (NEW)
+#+END_SRC
+The lever WRITES; the four reporters READ. Together they read as the terminal's face — a
+stable portrait that breathes as the stall works.
+
+* Stall-side exposure (the prerequisite — what the reporters read)
+The reporters need state the stall doesn't yet expose. This is where M5 BUILDS the
+stall's "reserved faces" (flagged in =phase-playground= M4.2):
+#+BEGIN_SRC
+  stall.$errors    NEW atom    the integrity check writes it (the config-error stack) — was reserved, now real
+  stall.$locked    NEW atom    promote the closure-local `let locked` (pull-in-flight) → an exposed atom
+  depth / items    DERIVE      stall.items().length vs depth()        (no new state)
+  activity/$pulse  DERIVE      a $pulse atom bumped on each react()   (or derive from phase + lock)
+#+END_SRC
+Small, additive stall changes (=prototypes/stall.js=): two atoms + a pulse bump. The
+control lever needs nothing new (it rides =thread.phase=). Blast-bracket the stall edit
+(=stall.test.js= green on both sides).
+
+* vinca — the grammar (the obvious algebra)
+** The atom — the line
+#+BEGIN_SRC
+  ⚊  yang  solid    — on / active / present / locked
+  ⚋  yin   broken   — off / idle / absent
+#+END_SRC
+Rendered NOT as unicode (font-dependent) but as flat CSS bars: a solid bar, or a bar with
+a center gap. ~3px tall, hand-sized hit area. One atom, composed by stacking, read by
+position — an ALGEBRA, not a sprite sheet.
+** The widget — a stack of lines = one axis
+A widget is N stacked lines (monogram 1 · bigram 2 · trigram 3) encoding one axis; the
+lever cycles, the reporters just read. Gating IS cooperation — illegal states
+unrepresentable (continuous/escort poles refuse when AIMED off, mirroring =phaseAvailable=).
+
+* Architecture (grounded in code)
+** Mount — the shoulder (currently empty)
+=systems/kajuit/src/app/bones/shoulder/shoulder.svelte= — a horizontal T-bone bar,
+everything commented. Scaffolding ready: a =.population= flex row, code font,
+=container-type: inline-size; container-name: shoulder=, a =@container shoulder
+(max-width:190px)= rule. The widgets mount into =.population=; reads
+=getContext(TERMINALS)= → =terminals.$active=.
+** The M3 interface it rides (reuse verbatim)
+- READ: =terminal.$thread.$phase=, =.$traits=, =.$buffers=, =terminal.$buffer=, +
+  =terminal.stall.{$errors,$locked,items,depth,$pulse}= (the exposure above).
+- WRITE (the lever only): =setPhase(p)= = =thread.phase=p; …updateOne({id},{phase:p})= —
+  the same M3 driver the e-panel/f-panel/buffer-apps use. Invents NO new control path.
+
+* Build sequence (DESIGN — gated on go)
+** M5.0 · vinca primitive — =Glyph.svelte=
+props =lines= (array of =true=solid|false=broken=, bottom-first), =disabled=, =onclick=.
+Renders stacked CSS bars, generous hit area, hover/active tint from skeleton tokens. No
+state — pure render of =lines=. *Verify:* the 4 bigrams + 8 trigrams render legibly at
+shoulder height; solid vs broken unmistakable at a glance.
+** M5.1 · stall exposure (the prerequisite)
+=stall.js=: add =$errors= + =$locked= atoms (promote the closure `locked`), a =$pulse=
+bump in =react()=; integrity-check writes =$errors=. Blast-bracket; =stall.test.js= green
+both sides. *Verify:* the atoms reflect a real run (lock flips during pull; errors on a
+bad config).
+** M5.2 · the status reporters (read-only)
+=Errors= · =Depth= · =Activity= · =Lock= — each =Glyph= + a projection of the stall state.
+No writes. *Verify:* under a continuous run the depth fills/empties, lock pulses, activity
+breathes; a bad AIMED config lights errors.
+** M5.3 · the control lever (write)
+=Lever= — the phase bigram (or 4-notch lever); cycles to the next AVAILABLE phase (skips
+continuous/escort when AIMED off). Writes =thread.phase=. *Verify:* the lever drives a
+real thread through all four phases; the moat reacts; identical to the e-panel chip.
+** M5.4 · compose + mount — =Panel.svelte= (the face)
+Lay lever + reporters in a row in =shoulder.svelte='s =.population=; wire the commented
+=getContext(TERMINALS)= + thread subscription. Responsive: drop reporters first under
+width, keep the lever. *Verify:* the shoulder shows a live face; switching terminals
+re-portraits; no thread → a resting (all-broken) face.
+
+* How we got here (the journey + the fingerprint)
+M5 only exists because of the stall rebuild (M1–M3, =phase-playground.quest.org=): *after
+M1–M3, controlling a terminal is ONE write — =thread.phase=. The control surface is tiny
+and total.* The e-panel surfaces it verbosely; vinca compresses it to the primitive —
+where the e-panel says "continuous", the lever shows two solid lines. Finn's brief,
+verbatim: "a widget in the pincers, in the t bone shoulder… we probably want multiple
+that cooperate. We want manual controls… a very simple, very obvious grammar… a constant
+display… effects happen… flat… iconic. iconoclastic. archaic. almost primitive… like
+some of the simple ones from the I Ching." And the M5 sharpening: "m5 WIDGETS!!!! …the
+control lever and status reporter like errors and queue depth phase activity lock… call
+it widget glyphs. with glyphs being vinca ux language." The connoisseur fingerprint: the
+grammar is an ALGEBRA (one atom, composed, read by position), not a sprite sheet — and
+the reporters are PROJECTIONS of stall state, not stored copies (effect-over-model).
+
+* Open questions (for Finn)
+- The phase→bigram MAP: which line-pairs for inert/manual/continuous/escort? (taste —
+  your call.)
+- lever as a bigram (cycle) vs a literal 4-notch vertical lever (drag)?
+- glyphs language ("vinca") — capture it among the M9 design buckets as a named design
+  language (its first consumer is this widget set).
+- reporters: active terminal only, or one face per terminal in the shoulder?
+
+* Notes
+- The lever rides M3 (no core change); the reporters need the small =stall.js= exposure
+  (M5.1) — the only non-additive bit, blast-bracketed.
+- VCS read-only; Finn lands commits.
+- Aesthetic gate: run vinca past the connoisseur — one atom, composed, legible at a
+  glance, archaic not ornate. If a newcomer can't read the phase off the lever in a
+  second, the map is wrong.

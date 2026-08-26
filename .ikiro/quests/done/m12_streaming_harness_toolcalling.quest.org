@@ -1,0 +1,419 @@
+#+TITLE: M12 — streaming harness, tool-calling, buffer generation
+#+DATE: 2026-07-02
+
+* Intent
+
+Two cases on the aprende homepage, both need buffers to emerge from a
+conversation with the tutor, not just from a direct emitter call:
+
+1. *Helpdesk* — single-shot ask ("give me a quiz") through a non-streaming
+   harness render. Today: =Aprende.svelte:303= =askTutor= is a stub
+   (=console.log; return null=).
+2. *Aprende via conversation* — the full streamed chat. Tool calls happen
+   mid-stream; a tool can internally call the SAME emitters case 1 would use.
+
+Buffer DELIVERY to the client is not a new problem — it's already solved,
+caller-agnostic, by the reactive entity broadcast (=shard/datamap.js:152-182=
+=twitch.open("/buffer/create/after")= → =Broadcaster.push=, the SAME feed
+=thread.$buffers= already subscribes through for the homepage Action tiles,
+=Aprende.svelte:292=). M12 is not building a new transport. It's routing
+TOOL CALLS through the emitter machinery that already triggers that
+broadcast, for both the render path (case 1) and the stream path (case 2).
+
+* Pool/Yield stays untouched — the false binary, found and dissolved this session
+
+Mid-session, chased a redesign of =Pool=/=Yield= (=prototypes/pool.js=) into
+a =type=-discriminated envelope — motivated by a real found bug (Pool's
+shape-classifier catch-all would silently treat ANY unrecognized tool
+output as a raw buffer; riddler's commented-out =literal_review=/
+=literal_search= tools are a live example of a plain-data tool that would
+get miscategorized). Went as far as a full census (3 parallel Explore
+agents) + a Plan agent's blast-bracket implementation plan.
+
+Beef killed it, two objections:
+- *"the pool doesn't reach into yield internals afaik?!"* — right. Pool's
+  =classify=/=resolve= never branches on type; making =Pool= carry
+  =this.type= + a registry lookup in =drain()= was inventing coupling Pool
+  never needed, just to have somewhere to stamp a label.
+- *"maybe buffer generation [should be] a special type of tool output,
+  entirely separate from the dataspace handling of the buffer"* — the
+  actual axis was never PAYLOAD-TYPE (buffer vs log vs artifact). It was
+  AUDIENCE-CHANNEL (what the model reads vs what the app reads). Two
+  different axes were conflated into one "does Yield need a type enum"
+  question — a false binary (connoisseur.md:247, "settle how many objects
+  there are before choosing between them"). Split the axes and the whole
+  Pool/Yield redesign evaporates.
+
+External research, both converge on the same split:
+- *MCP* (=modelcontextprotocol.io/specification/2025-06-18/server/tools=):
+  tool results carry =content= (model-facing, token-efficient) separately
+  from =structuredContent= (machine-facing, schema-validated) + a
+  =resource_link= content type (a URI pointer instead of inlining a payload).
+- *LangChain* (=@tool(response_format="content_and_artifact")=): a tool
+  returns =(content, artifact)=. =content= goes to the model. =artifact= is
+  explicitly "not meant to be sent to the model," stays attached for the
+  app layer — their own example: content references text, artifact carries
+  document identifiers an application uses to render a page.
+
+=Pool=/=Yield= are UNCHANGED by M12. No =type= field, no constructor param,
+no registry. The split lives one layer up, in the tool-result part.
+
+* buffer delivery — already solved, verified this session
+
+=shard/datamap.js:152-182= =reactive(repo, twitch, {scope})=: every entity
+create/update/delete fires =twitch.open("/{name}/{op}/after")=, caller-
+agnostic — the ORM hook doesn't know or care whether the write came from a
+direct =/emit= aperture call or from inside a tool handler mid-harness-
+render. =Broadcaster.push= fans it out to any =/subscribe= SSE client
+matching the filter. This is the EXACT mechanism =thread.$buffers= already
+rides for the homepage Action tiles today. A tool calling
+=ctx.mode.emit.drill(...)= triggers the identical =BufferEntity= create →
+identical broadcast → identical client-side merge, zero new code, for BOTH
+case 1 (render) and case 2 (stream).
+
+Consequence: nothing in the render/stream loop needs to POOL or FORWARD
+buffer data at all. No =Pool= import in =cortex.js=. No merge logic on the
+client. The harness response only ever needs to carry the tutor's TEXT
+reply — buffers arrive on their own, independently, usually before the
+text reply even finishes.
+
+* the real design — =content=/=yield= split on =tool_result=
+
+*SUPERSEDED — the yield lexicon.* The split's AXIS (model-facing vs
+app-facing) stands, but the field spelling below is dead: tool returns
+are now lexicon-native ={message, entities, object}= and =executeTools=
+puts =message= in =output= with siblings riding the part app-side —
+LANDED in =subsystems/typology/prototypes/cortex.js= +
+=subsystems/typology/gestalten/fromm/yield.js=, along with milestone
+12.0's cortex edits (thread-forward + the split). See compact
+[[yield-lexicon-four-channels-fromm-yield-and-the-emission-respelling]].
+Remaining 12.0/12.1 work (aprende tools, server proof, askTutor) builds
+on the lexicon spelling, not =.yield=.
+
+Field named =.yield=, not =.artifact= (beef: "why keeping content/artifact
+but not using .buffer?"). =.artifact= was borrowing MCP/LangChain's label
+for the AXIS along with the axis itself — but what concretely rides here is
+exactly a =Yield= (=Pool.drain()=/=ctx.mode.emit.X()='s return shape).
+=buffer=/=buffers= undersells it (not just buffers — the whole
+condition-tagged envelope, could be =EXHAUSTED=). =yield= joins the
+existing in-repo register (=Yield=/=Pool=/=drain=) instead of a new,
+ungrounded word for something already precisely named. The SPLIT itself
+(model-facing vs app-facing) stays the borrowed, externally-validated
+insight — only the field name changed.
+
+=executeTools= (=cortex.js:19=) today: =results.push({ type: "tool_result",
+id: part.id, output })=, =output= = whatever the handler returned, raw.
+=translate.js:48-53= (=partToAnthropic=) reads =part.output= ONLY —
+=JSON.stringify=s it if non-string, sends as the wire =content=. It does
+NOT spread unknown keys, so a sibling =.yield= field is automatically
+excluded from what reaches the model — zero changes needed in =translate.js=.
+
+Note: =yield= is a strict-mode reserved word as a BARE destructuring
+binding (ES modules are always strict — confirmed empirically:
+=const \{ yield \} = obj= throws =Unexpected strict mode reserved word=).
+Fine as an object key (=\{ yield: emission \}=) and fine via dot-access
+(=result.yield=); a destructure must rename:
+
+#+BEGIN_SRC javascript
+async function executeTools(tools, parts, thread) {
+  const results = [];
+  for (const part of parts) {
+    if (part.type !== "tool_use") continue;
+    const tool = tools[part.name];
+    const handler = typeof tool === "function" ? tool : tool?.execute;
+    if (!handler) {
+      results.push({ type: "tool_result", id: part.id, output: { error: `unknown tool: ${part.name}` } });
+      continue;
+    }
+    const input = typeof part.input === "string" ? (part.input ? JSON.parse(part.input) : {}) : (part.input ?? {});
+    const returned = await handler(thread ? { ...input, thread } : input);
+    const { content, yield: emission } = returned?.content !== undefined ? returned : { content: returned };
+    results.push({ type: "tool_result", id: part.id, output: content, yield: emission });
+  }
+  return results;
+}
+#+END_SRC
+
+A buffer-producing tool:
+#+BEGIN_SRC javascript
+tools.open(
+  { nature: "drill", valence: "Start a review drill.", input: v.object({ count: v.integer().optional() }) },
+  async (ctx) => {
+    const emission = await ctx.mode.emit.drill({ ...ctx.input, thread: ctx.input.thread });
+    return { content: `Started a drill, ${emission.buffers.length} exercises.`, yield: emission };
+  },
+);
+#+END_SRC
+
+=.yield='s ONLY job: keep =content= (what the LLM reads back) short instead
+of dumping a raw Yield/entity blob into the model's context. Nothing
+downstream reads =.yield= — not =renderLeaf=, not the client, not a test. It
+is thrown away once the round loop's synthetic =tool_result= turn
+is consumed. Plain-data tools (riddler's =literal_review=) never populate
+it, never look Yield-shaped, never risk being misclassified by anything —
+there's no classifier to misclassify them anymore.
+
+** thread must still reach the tool call — the one real cortex.js bug
+=synthesizeObject= (=cortex.js:86-107=) calls its OWN internal
+=executeTools(tools, turn.parts)= with NO third argument — =thread= never
+reaches a tool handler through the =object.render= path (=renderLeaf='s own
+=executeTools= call, line 77, has always correctly received =thread=
+directly from =ctx.hallucination= — this bug is =synthesizeObject=-only).
+Fix, verified safe against the provider (=anthropic/provider/index.js:23-40=
+explicitly allowlists which =config= keys it reads into the API params,
+never spreads =config= wholesale — passing =.thread= through is inert):
+#+BEGIN_SRC javascript
+// renderLeaf — one line, unconditional, harmless for native faculties too
+const callConfig = { ...config, thread };
+
+// synthesizeObject — forward it into the real tool call
+const results = await executeTools(tools, turn.parts, config.thread);
+#+END_SRC
+
+** =Packet=/=Part= (primitives/hallucination.js) and =Channel=/=Verb=
+(primitives/conversation.js) are ORPHANED — checked =primitives/index.js=,
+neither file is exported, zero importers repo-wide outside their own file.
+Orthogonal to M12 (fork E, still open, still not blocking).
+
+** NO new packet grammar — retracted mid-session (first pass of this quest),
+kept on record. First draft proposed a distinct packet event for mid-stream
+buffers, reasoning =/turn/close= only fires once at the end. Wrong —
+=soma.drain= (=belt/soma.js:28=) synthesizes a full =/turn/open= →
+=/part/*= → =/turn/close= envelope for the SYNTHETIC tool-result turn once
+per ROUND, and =executeTools=/=soma.drain= never stringify tool output. Now
+moot anyway — buffers don't travel through packets at all (see delivery
+section above), but the retraction stays on record as the session's first
+self-correction.
+
+** case 1 wiring gaps (concrete, unchanged by today's redesign)
+
+Infra gaps CLOSED since this was written — proven via a different mode
+(=chaosmonkey/oracle=, not aprende) in the interim:
+- ~systems/kajuit/src/typology/entities/mode/traits/harnessed.js~ — client
+  =HARNESSED= trait EXISTS now (strip-wire, mirrors emitter's client wiring).
+- ~systems/runtime/daemon/aperture/metadata.js~ — =/metadata/harness= route
+  landed (=shape.strip(mode.module.harness)=).
+- ~systems/runtime/daemon/traits/harnessed.js:95~ — =mode.module.harness =
+  harness= reassignment landed (rename note: =mode.cake=→=mode.module= per
+  M15).
+Both server+client mechanism LIVE-VERIFIED against the real anthropic API
+via =harness.object.render= (aperture-mediated AND client-strip-wired), see
+[[file:.ikiro/compacts/chaosmonkey-oracle-harness-lexicon-and-exposed-aperture.org]].
+MILESTONE 12.0's MECHANISM is proven. The aprende-specific integration has
+since LANDED (all three items below were stale — corrected here, see
+changelog + [[file:../compacts/aprende-tool-quartet-query-seed-and-the-cortex-return-split.org]]):
+- =registry/education/homepage/aprende/aprende.viva.js= — manifest carries
+  =TOOLED=; mode-scoped tools absorbed on the harness's own =/object= branch,
+  daemon-wide table staying a =/dialogue= concern.
+- =tools/= is the real quartet: =query= (generic literal/symbol read — bare
+  ={results}= return so rows survive =executeTools='s message/entities/object
+  split) + =activation= + =drill= + =riddle= (receipt-pattern emit delegates).
+- =Aprende.svelte= =askTutor= is real — =terminal.thread.mode.call("/assistant/message")=.
+
+** fork F — harness-root de-scope (turn half RESOLVED differently; tool half still open)
+
+~systems/runtime/daemon/traits/harnessed.js:21,66,83~ mounts turn-scribe,
+history-load, AND tool-absorb (=ctx.hallucination.absorb(shape.agentic(ctx.daemon.cortex.tools))=)
+on =harness.branch("/dialogue")= ONLY — root ~harness.use(...)~ (lines 10-18)
+is the only code that hits every faculty. An object-render call
+(oracle's =/ask= aperture) got NONE of the three: no turn persisted, no
+history loaded, no tools available.
+
+**Turn-scribe + history-load half — RESOLVED, NOT by de-scoping.** A later
+session pass (=turn-repository-history-chain-fold-and-the-connection-budget-recurrence.org=)
+built =history=/=chain=/=fold= straight onto =TurnRepository=
+(~subsystems/typology/entities/userspace/Turn.ts~). =/object= callers (oracle's
+=/ask=, aprende's =/object= middleware) now call =ctx.daemon.entities.turn.history/chain=
+explicitly, as thin callers — same effect as de-scoping =harnessed.js=
+(persistence available on any surface) without touching the shared trait file
+or its branch-matching at all. This is the doctrinally cleaner fix: one core
+(=TurnRepository=), thin callers, no implicit branch-scoping magic to reason
+about. De-scoping =harnessed.js= itself is no longer needed for this half.
+
+**Tool-absorb half — still genuinely open, still parked.** Nothing this
+session touched tool availability on =/object=. Tool-calling was explicitly
+parked ("ignore tool calling") before the turn work started and stays parked
+— "tools on any harness surface" (beef's original ask, session start) is
+unresolved, and DOES still need either de-scoping =harnessed.js='s tool-absorb
+middleware or an equivalent explicit-caller pattern, whichever this quest
+lands on when tool-calling is picked back up. No =go= yet on either.
+
+**Tool-absorb half — since RESOLVED mode-locally, mirroring the turn half's
+shape.** =aprende.viva.js= scopes its own tool branch onto =/object=
+(=harness.branch("/object").use(... absorb(shape.agentic(ctx.daemon.cortex.tools.branch(ctx.mode.slug))))=)
+— the explicit-caller pattern again, =harnessed.js= untouched. Whether other
+modes get =/object= tools by copying this line or by generalizing
+=harnessed.js= stays undecided: aprende is the only =/object= tool consumer,
+no second data point yet.
+
+Cross-referenced at [[file:conversation-dock-recast.quest.org]]'s 1.2
+(aperture-created turns needing the same dock effect as WS-streamed ones) —
+that piece is ALSO resolved by the same =turn.history=/=turn.chain= calls,
+not by de-scoping.
+
+** another occurrence — =buffer.thread= only ever set by emitter bind
+
+Live bug found this session, same family as fork F (hand-rolled turn
+persistence, no shared source of truth for "what thread is this"):
+=buffer.thread= is set in exactly one place repo-wide —
+~systems/runtime/daemon/traits/emitter.js:49~ (=buffer.thread = ctx.thread=,
+emitter-bound creation only). Oracle's own buffer is created via the
+STANDALONE direct-create path (~application.js:36~'s =mode.buffer()=
+factory), which never touches =.thread=. Both of oracle's hand-rolled
+turn-registration call sites (=/ask= aperture, =askHarness()=) gated on
+=buffer.thread?.id= — always falsy for this buffer — so turns silently,
+permanently, never persisted. No error anywhere; the render still worked,
+so it looked fine.
+
+Quick fix landed: =Oracle.svelte= now reads =terminal= from props (it was
+already there, unused) and threads =terminal.thread?.id= instead of
+=buffer.thread?.id= through both call sites — same shape as the earlier
+=askTutor= correction in aprende. Structural gap NOT fixed: a STANDALONE
+buffer still never carries =.thread= on its own entity; any future
+STANDALONE mode hand-rolling turn persistence off =buffer.thread= will hit
+the same silent no-op. Real fix (beef, tonight): fold into this quest's
+broader de-scope pass alongside fork F.
+
+* Forks
+
+- *fork C — RESOLVED, two-stage*: MILESTONE 12.0 proves the mechanism via
+  =harness.object.render= (server-only, cheapest live-validation layer).
+  MILESTONE 12.1 wires the real helpdesk chat via =harness.dialogue.render=
+  (free-text, tutor decides when to call a tool — =object.render= forces
+  =tool_choice: "any"= + a terminal =respond= schema-tool, wrong shape for
+  open chat).
+- *fork D — DISSOLVED*: was "round granularity — multiple tool calls in one
+  round, buffers from call 1 wait for call 3." Moot now — nothing pools or
+  waits on anything inside the round loop; each tool's buffer is
+  independently persisted + broadcast the instant its =em.flush()= runs,
+  regardless of how many other tool calls are in the same round.
+- *fork E* — =primitives/index.js= wiring for the orphaned
+  =hallucination.js=/=conversation.js= files: land standalone, orthogonal to
+  M12 either way. Still open, not blocking.
+
+* Milestones (blast → test → land → test → blast, per the M11 shape correction)
+
+Beef's sequencing: =object.render= FIRST, server-side only, before any
+client/UI work — "verify this later once the harness works reliably on the
+server side" (beef, verbatim). MILESTONE 12.2 (streamed chat) from the
+prior draft is CUT — see note at the end.
+
+** MILESTONE 12.0 · OBJECT-RENDER TOOL LOOP (server-only) — ready to tangle
+- ①BLAST radius — =executeTools= (shared by both leaves) + =synthesizeObject=
+  (only caller: =DERIVATIONS.object=, =cortex.js:110-114=) + riddler's
+  EXISTING =/assistant/message= (=riddler.viva.js:80=, no tools passed
+  today — must stay byte-identical; the =content=/=yield= unpack is a
+  no-op when a handler returns a bare value, confirmed by the ternary's
+  fallback branch).
+- ②TEST baseline — riddler's =/assistant/message= scenario/aperture test
+  green before touching anything (locate + run; not yet confirmed).
+- ③CHANGE, ordered:
+  1. =cortex.js= — thread-forward fix (=callConfig= / =config.thread=) +
+     =executeTools='s =content=/=yield= unpack. No =Pool= import, no
+     accumulation, no extra field attached to any returned turn.
+  2. =aprende.viva.js= — manifest =+TOOLED=; real tool descriptors wrapping
+     =/activation=, =/drill=, =/riddle=, each returning
+     =\{content, yield\}= per the pattern above.
+  3. NEW test/scenario — call =ctx.mode.harness.object.render({ turns: [...
+     "start a drill" ...], config: { schema: v.object({ reply: v.string()
+     }) }, thread })=, then assert via =ctx.daemon.entities.buffer.find({
+     thread })= directly — NOT through any harness-response field. Tests
+     the same path the client actually observes (the broadcast), not a
+     server-only side-channel.
+- ④TEST adjust — the new scenario green; riddler's existing test STILL
+  green (regression check on =executeTools='s signature-preserving change).
+- ⑤BLAST re-confirm — =/emit= path untouched, =dialogue.render=/
+  =streamLeaf= untouched, no client-side code touched at all.
+
+** MILESTONE 12.1 · DIALOGUE-RENDER + CLIENT WIRING — deferred, gated on 12.0 proving reliable
+Fork C's second stage. Carries:
+- Client =HARNESSED= trait (=systems/kajuit/.../mode/traits/harnessed.js=,
+  new file) — mirrors =emitter.js='s shape (=/metadata/harness= fetch +
+  =shape.connection.wire=), but its ONLY job is exposing
+  =mode.harness.dialogue.render(...)= as a callable. NO merge hook, NO
+  =is.yieldish= check on the response — that machinery from the prior draft
+  is cut, buffers arrive via the broadcast independently.
+- =/metadata/harness= route (=metadata.js=) — =shape.strip(mode.cake.harness)=.
+- =harnessed.js:89= — =mode.cake.harness = harness= reassignment so the
+  route above has something to strip.
+- =Aprende.svelte:303-306= — =askTutor= calls =mode.harness.dialogue.render({
+  thread, parts: [\{type:"text",text\}] })=, displays the returned turn's
+  text in =Helpdesk.svelte=. Nothing else — =thread.$buffers= updates on its
+  own via the already-subscribed broadcast, same tick the tool's =em.flush()=
+  runs, typically before the render promise even resolves.
+
+* Deferred
+
+- =primitives/hallucination.js=/=conversation.js= barrel wiring (fork E) —
+  standalone.
+- Speech/verbatim tool-calling parity — out of scope, dialogue-only for M12.
+- *MILESTONE 12.2 (streamed chat), CUT*: prior draft speced a client
+  dialogue-stream fold merge site (=is.yieldish(part.output) →
+  buffers.merge= on settling =tool_result= packets). Superseded — this would
+  have raced the reactive broadcast for the same data through a slower,
+  redundant path. =streamLeaf= needs zero changes for buffer delivery; only
+  the =executeTools= fix above (shared with =renderLeaf=) applies to it at
+  all, and only for the model-context-hygiene reason, not transport.
+
+* Changelog
+
+- *2026-07-02* — session opened on the raw ask (=2026.07.02.org=). Ground-read
+  produced an 8-step breakdown; step 3 wrongly proposed a new packet event
+  for mid-stream buffers.
+- *2026-07-02* — schematics check: =Yield()= schema found orphaned (wired,
+  unused). =Packet=/=Part=/=Channel=/=Verb= (=primitives/{hallucination,
+  conversation}.js=) found ORPHANED, zero importers.
+- *2026-07-02* — beef pushback on step 3, verbatim: /"false. why would it be
+  an issue to drain into turn close?... i need a connoisseur assessment...
+  is there another way to get mid-stream buffers out? a more elegant way?"/
+  — traced the actual =/turn/close= cadence, step 3 RETRACTED.
+- *2026-07-02* — beef re-sequenced: =object.render= first, server-only,
+  client work deferred "until the harness works reliably on the server
+  side." Found =synthesizeObject='s tool loop never receives =thread= (a
+  real, previously-undiscovered bug distinct from the dialogue path).
+- *2026-07-02* — beef pushed further: "does it make sense to... take the
+  yield schematic and extend it by a type, unified across turns and buffer
+  generation?" Explored generalizing =Pool=/=Yield= into a =type=-
+  discriminated envelope. Full repo-wide census (3 Explore agents) + a
+  blast-bracket implementation plan (Plan agent) produced, spot-verified
+  against real files, written to a plan-mode file.
+- *2026-07-02* — beef REJECTED the plan on architectural grounds: /"i dont
+  understand why we have to assert or constrain the pool per yield type as
+  the pool doesnt reach into yield internals"/ and /"maybe we need to have
+  buffer generation as some sort of special type of tool output... entirely
+  separate from the dataspace handling of the buffer"/ — asked for external
+  research on established artifact/tool-output semantics. Found MCP's
+  =content=/=structuredContent= split and LangChain's =content=/=artifact=
+  tuple, both independently modeling exactly this axis. =Pool=/=Yield=
+  redesign abandoned in full; plan-mode file left stale/dead.
+- *2026-07-02* — traced the full server+client flow with a tool producing a
+  buffer, step by step. Found buffer DELIVERY already happens via the
+  reactive entity broadcast (=shard/datamap.js:152-182=), caller-agnostic,
+  independent of the harness response entirely — the exact mechanism
+  direct-emit Action tiles already use. Connoisseur pass (beef: "ask
+  connoisseur, what should i want?") named the false binary (payload-type
+  vs audience-channel) and cut the Pool-accumulation machinery from both
+  leaves as ceremony with no consumer. MILESTONE 12.2 (client stream-merge)
+  cut entirely as now-redundant/racing the broadcast. Quest rewritten in
+  full to reflect the =content=/=artifact= design.
+- *2026-07-02* — beef: "why keeping .content/.artifact but not using
+  .buffer?" =.artifact= was borrowed labeling for a borrowed axis; renamed
+  the field to =.yield= — exactly what rides there (=Pool.drain()='s return
+  shape), joins the in-repo =Yield=/=Pool=/=drain= register instead of
+  introducing an external word. Confirmed empirically that =yield= can't be
+  a bare destructuring binding in strict mode (ES modules always are) —
+  needs =\{ yield: renamed \}=; fine as an object key or dot-access.
+- *2026-07-04* — aprende tool quartet COMPLETE:
+  =registry/education/homepage/aprende/tools/query.js= NEW (generic
+  literal/symbol read — =entity= × =text=/=symbols=/=ontology= × =pick=
+  match|weak|due|novel routing to =find=/=byStrength=/=due=/=novel=; bare
+  ={results}= return, deliberate: =executeTools= splits returns carrying
+  =message=/=entities=/=object= keys and only =message= reaches the model)
+  + =tools/drill.js= NEW (receipt-pattern delegate to the existing =/drill=
+  emitter); =tools/index.js= slurps query+activation+drill+riddle.
+  Smoke-verified via TOOLED-identical stub binding + =shape.agentic=
+  compile (defaults cast, pick routing, thread forwarding); live model
+  round-trip NOT exercised. Quality pass (4 parallel review agents) stopped
+  by beef mid-flight — outstanding. Stale aprende-integration status lines
+  above corrected same pass. Compact:
+  [[file:../compacts/aprende-tool-quartet-query-seed-and-the-cortex-return-split.org]].

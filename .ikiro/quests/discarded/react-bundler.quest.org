@@ -1,0 +1,417 @@
+#+TITLE: React-in-Svelte Micro-Frontend Integration
+#+AUTHOR: Vivalence
+#+DATE: 2026-03-11
+
+* Overview
+
+The Vivalence view system already speaks a framework-agnostic mount protocol:
+=module.default(dom, context) → { destroy }=. This means any framework that
+can mount to a div and clean up after itself slots into the existing
+=Frame.svelte= → =pack()= → =view-bundler= pipeline with zero changes to the
+client shell.
+
+This document adds React as a second renderer target alongside Svelte.
+
+** File tree
+
+#+begin_example
+pack-react.js                              ← new
+view-bundler-react.js                      ← new
+view-bundler.js                            ← export mapimports (1 word change)
+traitmap.js                                ← bundler routing
+modes/react-pick/
+  react-pick.viva.js                       ← manifest with renderer: "react"
+  buffer/
+    react-pick.js                          ← entry, uses pack-react
+    ReactPick.jsx                          ← React component, uses data.js
+#+end_example
+
+* New Files
+
+** pack-react.js
+
+React equivalent of =@vivalence/drapes= =pack()=. Same contract:
+=(dom, context) → { destroy }=.
+
+#+begin_src js :tangle pack-react.js
+import { createElement } from "react";
+import { createRoot } from "react-dom/client";
+
+export const pack = (Component) => (dom, context) => {
+  const root = createRoot(dom);
+  root.render(createElement(Component, context));
+  return { destroy: () => root.unmount() };
+};
+#+end_src
+
+** view-bundler-react.js
+
+Parallel esbuild pipeline to =svelte()= in =view-bundler.js=. Handles JSX
+via esbuild's automatic transform. Externalizes =react= / =react-dom= so
+they're loaded once on the client via importmap, not bundled per-mode.
+
+#+begin_src js :tangle view-bundler-react.js
+import { dirname } from "@std/path";
+import esbuild from "esbuild";
+
+import { mapimports } from "./view-bundler.js";
+
+export async function react(entry, isDev) {
+  const bundle = await esbuild.build({
+    entryPoints: [entry],
+    minify: false,
+    bundle: true,
+    sourcemap: false,
+    write: false,
+    format: "esm",
+    target: "es6",
+    treeShaking: true,
+    outdir: dirname(entry),
+    jsx: "automatic",
+    jsxImportSource: "react",
+    external: ["react", "react-dom", "react-dom/client", "react/jsx-runtime"],
+    plugins: [mapimports()],
+  });
+  return bundle.outputFiles;
+}
+#+end_src
+
+** modes/react-pick/react-pick.viva.js
+
+Mode manifest. Identical structure to Svelte modes, with =renderer: "react"=
+added so the VIEWABLE trait routes to the correct bundler.
+
+#+begin_src js :tangle modes/react-pick/react-pick.viva.js
+import { View } from "@vivalence/typology";
+
+const manifest = {
+  type: "game",
+  slug: "react-pick",
+  name: "Pick (React)",
+  description: "Same pick game, rendered by React inside the Svelte shell.",
+  version: "0.1.0",
+  traits: ["VIEWABLE", "TERMINAL"],
+  renderer: "react",
+};
+
+const view = new View("buffer/react-pick.js");
+
+export { manifest, view };
+#+end_src
+
+** modes/react-pick/buffer/react-pick.js
+
+Entry point. Uses =pack-react= instead of =@vivalence/drapes= =pack=.
+
+#+begin_src js :tangle modes/react-pick/buffer/react-pick.js
+import { pack } from "@vivalence/drapes/react";
+import ReactPick from "./ReactPick.jsx";
+export default pack(ReactPick);
+#+end_src
+
+** modes/react-pick/buffer/ReactPick.jsx
+
+A minimal React pick game using the shared =data.js=. Consumes the same CSS
+custom properties and =bsp-node= layout classes as the Svelte modes. Has a
+purple =react= tag in the meta bar so you can tell which renderer is active.
+
+#+begin_src jsx :tangle modes/react-pick/buffer/ReactPick.jsx
+import { useState, useCallback, useMemo } from "react";
+import { words, sentences, pickOne, pick, shuffle } from "../../data.js";
+
+const pool = [
+  ...words.map((w) => ({ ...w, type: "word" })),
+  ...sentences.map((s) => ({ ...s, type: "sentence" })),
+];
+
+const generate = () => {
+  const t = pickOne(pool);
+  const d = Math.random() > 0.5 ? "l1l2" : "l2l1";
+  const same = pool.filter((x) => x.type === t.type && x.slug !== t.slug);
+  return {
+    target: t,
+    direction: d,
+    options: shuffle([t, ...pick(same, 3)]),
+    selected: null,
+  };
+};
+
+const optionText = (o, d) => (d === "l1l2" ? o.learning : o.known);
+
+export default function ReactPick() {
+  const [state, setState] = useState(generate);
+
+  const { target, direction, options, selected } = state;
+  const prompt = direction === "l1l2" ? target.known : target.learning;
+  const promptLang = direction === "l1l2" ? "English" : "Português";
+  const answerLang = direction === "l1l2" ? "Português" : "English";
+  const answered = selected !== null;
+
+  const select = useCallback(
+    (slug) => {
+      if (answered) return;
+      setState((s) => ({ ...s, selected: slug }));
+    },
+    [answered],
+  );
+
+  const next = useCallback(() => setState(generate), []);
+
+  return (
+    <div className="bsp-node" style={{ gridTemplateRows: "1fr auto" }}>
+      <div className="bsp-node" style={{ overflowY: "auto" }}>
+        <div style={styles.stage}>
+          <div style={styles.meta}>
+            <span style={styles.tagLang}>{promptLang}</span>
+            <span style={styles.tagMuted}>{target.type}</span>
+            <span style={{ ...styles.tagMuted, color: "#e879f9" }}>react</span>
+          </div>
+
+          <p style={target.type === "word" ? styles.promptWord : styles.prompt}>
+            {prompt}
+          </p>
+
+          <div style={styles.options}>
+            {options.map((option) => {
+              const isThis = selected === option.slug;
+              const isAnswer = option.slug === target.slug;
+              const style = answered
+                ? isAnswer
+                  ? styles.optCorrect
+                  : isThis
+                    ? styles.optWrong
+                    : styles.optDimmed
+                : styles.opt;
+
+              return (
+                <button
+                  key={option.slug}
+                  style={style}
+                  onClick={() => select(option.slug)}
+                  disabled={answered}
+                >
+                  {optionText(option, direction)}
+                </button>
+              );
+            })}
+          </div>
+        </div>
+      </div>
+
+      <div style={styles.menu}>
+        <div style={styles.menuInner}>
+          {answered ? (
+            <button style={styles.btnNext} onClick={next}>
+              Next →
+            </button>
+          ) : (
+            <span style={styles.menuHint}>pick the {answerLang} translation</span>
+          )}
+        </div>
+      </div>
+    </div>
+  );
+}
+
+const styles = {
+  stage: {
+    maxWidth: 480,
+    width: "100%",
+    margin: "0 auto",
+    padding: "15vh 1.25rem 2rem",
+    display: "flex",
+    flexDirection: "column",
+  },
+  meta: { display: "flex", gap: "0.5rem", marginBottom: "0.75rem" },
+  tagLang: {
+    padding: "0.15rem 0.5rem",
+    borderRadius: "0.25rem",
+    fontFamily: "var(--font-family-code)",
+    fontSize: "0.6rem",
+    fontWeight: 600,
+    letterSpacing: "0.08em",
+    textTransform: "uppercase",
+    background: "color-mix(in srgb, var(--colors-theme-primary-surface) 60%, transparent)",
+    color: "var(--colors-theme-primary-contrast)",
+  },
+  tagMuted: {
+    padding: "0.15rem 0.5rem",
+    borderRadius: "0.25rem",
+    fontFamily: "var(--font-family-code)",
+    fontSize: "0.6rem",
+    fontWeight: 500,
+    letterSpacing: "0.08em",
+    textTransform: "uppercase",
+    background: "var(--colors-skeleton-1-boundary)",
+    color: "var(--colors-skeleton-1-contrast)",
+  },
+  prompt: {
+    fontFamily: "var(--font-family-serif-heading)",
+    fontSize: "var(--font-size-2xl)",
+    color: "var(--colors-palette-gray-10)",
+    lineHeight: 1.2,
+    margin: "0 0 1.75rem 0",
+  },
+  promptWord: {
+    fontFamily: "var(--font-family-serif-heading)",
+    fontSize: "var(--font-size-3xl)",
+    color: "var(--colors-palette-gray-10)",
+    lineHeight: 1.2,
+    margin: "0 0 1.75rem 0",
+  },
+  options: { display: "flex", flexDirection: "column", gap: "0.5rem" },
+  opt: {
+    padding: "0.875rem 1.125rem",
+    borderRadius: "0.625rem",
+    border: "1px solid var(--colors-skeleton-1-boundary)",
+    background: "color-mix(in srgb, var(--colors-skeleton-1-surface) 70%, var(--colors-skeleton-2-surface))",
+    color: "var(--colors-palette-gray-100)",
+    fontSize: "var(--font-size-lg)",
+    fontFamily: "var(--font-family-serif-heading)",
+    cursor: "pointer",
+    textAlign: "left",
+  },
+  optCorrect: {
+    padding: "0.875rem 1.125rem",
+    borderRadius: "0.625rem",
+    border: "1px solid var(--colors-system-success-contrast)",
+    background: "color-mix(in srgb, var(--colors-system-success-surface) 80%, transparent)",
+    color: "var(--colors-system-success-contrast)",
+    fontSize: "var(--font-size-lg)",
+    fontFamily: "var(--font-family-serif-heading)",
+    textAlign: "left",
+  },
+  optWrong: {
+    padding: "0.875rem 1.125rem",
+    borderRadius: "0.625rem",
+    border: "1px solid var(--colors-system-error-contrast)",
+    background: "color-mix(in srgb, var(--colors-system-error-surface) 80%, transparent)",
+    color: "var(--colors-system-error-contrast)",
+    fontSize: "var(--font-size-lg)",
+    fontFamily: "var(--font-family-serif-heading)",
+    textAlign: "left",
+  },
+  optDimmed: {
+    padding: "0.875rem 1.125rem",
+    borderRadius: "0.625rem",
+    border: "1px solid var(--colors-skeleton-1-boundary)",
+    background: "color-mix(in srgb, var(--colors-skeleton-1-surface) 70%, var(--colors-skeleton-2-surface))",
+    color: "var(--colors-palette-gray-100)",
+    fontSize: "var(--font-size-lg)",
+    fontFamily: "var(--font-family-serif-heading)",
+    textAlign: "left",
+    opacity: 0.35,
+  },
+  menu: {
+    borderTop: "1px solid var(--colors-skeleton-1-boundary)",
+    padding: "1rem 1.25rem",
+  },
+  menuInner: { maxWidth: 480, margin: "0 auto" },
+  btnNext: {
+    width: "100%",
+    padding: "0.875rem",
+    borderRadius: "0.5rem",
+    border: "1px solid var(--colors-skeleton-1-boundary)",
+    background: "transparent",
+    color: "var(--colors-palette-gray-200)",
+    fontSize: "0.875rem",
+    fontWeight: 500,
+    cursor: "pointer",
+    fontFamily: "var(--font-family-sans-text)",
+  },
+  menuHint: {
+    display: "block",
+    textAlign: "center",
+    padding: "0.875rem",
+    color: "var(--colors-skeleton-1-boundary)",
+    fontSize: "0.75rem",
+    fontFamily: "var(--font-family-code)",
+  },
+};
+#+end_src
+
+* Changes to Existing Files
+
+** view-bundler.js — export =mapimports=
+
+One word. The react bundler reuses the importmap resolver.
+
+#+begin_src diff
+-function mapimports() {
++export function mapimports() {
+#+end_src
+
+** traitmap.js — VIEWABLE trait routing
+
+Route to the correct esbuild pipeline based on =manifest.renderer=.
+
+#+begin_src diff
+ import { svelte } from "./view-bundler.js";
++import { react } from "./view-bundler-react.js";
++
++const bundlers = { svelte, react };
+
+ export const VIEWABLE = async (mode, daemon) => {
+-  mode.cake.view.withBundler(svelte);
++  const renderer = mode.cake.manifest?.renderer || "svelte";
++  mode.cake.view.withBundler(bundlers[renderer]);
+   await mode.cake.view.bundle();
+   mode.aperture.open("/view", () => ({ url: mode.cake.view.url.absolute }));
+ };
+#+end_src
+
+** Client =app.html= — React importmap
+
+Since =react= / =react-dom= are externalized in the esbuild bundle, the
+client needs them available at runtime. Add to your SvelteKit shell:
+
+#+begin_src html
+<script type="importmap">
+{
+  "imports": {
+    "react": "https://esm.sh/react@19",
+    "react/jsx-runtime": "https://esm.sh/react@19/jsx-runtime",
+    "react-dom/client": "https://esm.sh/react-dom@19/client"
+  }
+}
+</script>
+#+end_src
+
+** Frame.svelte — no changes
+
+Already speaks the universal protocol:
+
+#+begin_src js
+const module = await import(/* @vite-ignore */ buffer.view.url);
+component = module.default(dom, buffer.context);
+#+end_src
+
+React modes return the same ={ destroy }= contract. Nothing to touch.
+
+* Importmap for =pack-react=
+
+Either expose as =@vivalence/drapes/react= by adding to your importmap in
+=view-bundler.js=:
+
+#+begin_src js
+"@vivalence/drapes/react": join(reporoot, "subsystems/drapes/pack-react.js"),
+#+end_src
+
+Or adjust the import in =react-pick.js= to a relative path.
+
+* Why This Works
+
+The =pack()= contract is a framework adapter boundary:
+
+#+begin_example
+(dom: HTMLElement, context: Object) → { destroy: () → void }
+#+end_example
+
+=Frame.svelte= calls =module.default(dom, context)= and expects ={ destroy }=
+back. It has no knowledge of what framework produced the module. The view
+bundler compiles framework-specific code into ESM bundles that conform to this
+contract. The VIEWABLE trait just needs to know which bundler to invoke.
+
+This is, by accident, a micro-frontend runtime. The same protocol would work
+for Solid, Preact, vanilla DOM, or anything else that can mount to a div and
+clean up after itself.

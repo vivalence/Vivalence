@@ -46,7 +46,14 @@
   }
 
   if (import.meta.env.DEV) {
-    logger.channel.tap((record) => console.debug(record.path, record.verb, record.data ?? ""));
+    logger.channel.tap((record) =>
+      console.debug(
+        `[${(record.at / 1000).toFixed(3).padStart(8)}]`,
+        record.path,
+        record.verb,
+        record.data ?? "",
+      ),
+    );
   }
 
   onMount(() => {
@@ -55,9 +62,8 @@
     const unsubscribeGate = computed(
       [lighthouse.$isAuthorized, lighthouse.$status],
       (authorized, status) => {
-        if (status.code === "OFFLINE") return "offline";
-        if (status.code === "ERROR" || status.code === "SESSION_EXPIRED") return "error";
-        if (!authorized) return "auth";
+        if (!authorized) return "signin";
+        if (status.code === "OFFLINE" || status.code === "ERROR") return "signin";
         if (status.code === "POPULATING") return "populating";
         if (status.code !== "VERIFIED") return "verifying";
         return "ready";
@@ -86,14 +92,10 @@
     };
   });
 
-  async function onReconnect() {
+  async function onLogin() {
     stores.lighthouse
       .boot(lighthouse)
-      .catch((error) => logger.entry("lighthouse/reconnect").fault(error));
-  }
-
-  async function onLogin() {
-    await stores.lighthouse.boot(lighthouse);
+      .catch((error) => logger.entry("lighthouse/login").fault(error));
   }
 
   async function onRetry() {
@@ -114,25 +116,9 @@
       <span class="empty-prompt">open terminal</span>
     </div>
   {/if}
-{:else if gate === "auth"}
+{:else if gate === "signin"}
   <div class="gate">
-    <Login {lighthouse} onConnected={onLogin} />
-  </div>
-{:else if gate === "error"}
-  <div class="gate">
-    <div class="gate-message">
-      <span class="gate-status">error</span>
-      <span class="gate-detail">{lighthouse.status.message ?? "connection failed"}</span>
-      <button class="gate-action" onclick={onRetry}>retry</button>
-    </div>
-  </div>
-{:else if gate === "offline"}
-  <div class="gate">
-    <div class="gate-message">
-      <span class="gate-status">offline</span>
-      <span class="gate-detail">network unavailable</span>
-      <button class="gate-action" onclick={onReconnect}>reconnect</button>
-    </div>
+    <Login {lighthouse} onConnected={onLogin} {onRetry} />
   </div>
 {:else}
   <Boot {gate} />
@@ -152,36 +138,6 @@
     font-size: var(--font-size-2xs);
     letter-spacing: 0.08em;
     text-transform: lowercase;
-  }
-  .gate-message {
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    gap: 12px;
-  }
-  .gate-status {
-    font-size: var(--font-size-xs);
-    font-weight: 600;
-    color: var(--colors-skeleton-0-danger-base);
-  }
-  .gate-detail {
-    color: var(--colors-skeleton-2-contrast);
-  }
-  .gate-action {
-    background: none;
-    border: 1px solid var(--colors-skeleton-0-boundary);
-    border-radius: 4px;
-    color: var(--colors-skeleton-0-contrast);
-    font-family: var(--font-family-code);
-    font-size: var(--font-size-2xs);
-    letter-spacing: 0.08em;
-    padding: 4px 12px;
-    cursor: pointer;
-    transition: all 0.12s;
-  }
-  .gate-action:hover {
-    background: var(--colors-skeleton-2-surface);
-    color: var(--colors-skeleton-1-contrast);
   }
   .empty-overlay {
     position: fixed;

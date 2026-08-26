@@ -2,6 +2,21 @@ import { v, Vector } from "@vivalence/typology";
 
 const TAIL = 8_000;
 
+const runnable = (candidate) => {
+  const paths = candidate.includes("/")
+    ? [candidate]
+    : (Deno.env.get("PATH") ?? "").split(":").map((dir) => `${dir}/${candidate}`);
+  return paths.some((path) => {
+    try {
+      return Deno.statSync(path).isFile;
+    } catch {
+      return false;
+    }
+  });
+};
+
+const interpreter = ["zsh", Deno.env.get("SHELL"), "bash", "sh"].filter(Boolean).find(runnable) ?? "sh";
+
 export const shell = new Vector().open(
   {
     nature: "/shell/run",
@@ -14,7 +29,7 @@ export const shell = new Vector().open(
     }),
   },
   async (ctx) => {
-    const spawned = new Deno.Command("zsh", {
+    const spawned = new Deno.Command(interpreter, {
       args: ["-c", ctx.input.command],
       cwd: ctx.root,
       stdout: "piped",

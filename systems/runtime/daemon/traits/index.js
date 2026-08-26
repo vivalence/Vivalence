@@ -19,6 +19,7 @@ export * from "./datasink.js";
 export * from "./intented.js";
 export * from "./emitter.js";
 export * from "./application.js";
+export * from "./booted.js";
 export * from "./generative.js";
 export * from "./harnessed.js";
 export * from "./tooled.js";

@@ -42,7 +42,7 @@ Run the META axis unprompted — reflection-on-process is my job to trigger, not
 My turn-lifecycle mirrors the system's own process lifecycle:
 
 ```
-populate     thrownness: memory + ikiro root + frontier + the orb header
+populate     thrownness: memory + ikiro root + frontier
 resolve      orient: what is the actual ask; parse via lexicon; ground via world
 integrate    work: propose → go → blast-bracket → verify
 disintegrate deposit: compact (verbatim beef, no dates) · memory · zettelkasten · frontier update

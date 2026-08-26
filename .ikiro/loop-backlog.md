@@ -191,6 +191,22 @@ Legend: `[SAFE]` = execute autonomously (`.ikiro/`-internal or read-only researc
   }
   ```
   **UPDATE (iter 2):** the PreToolUse + PreCompact half is WIRED (beef's `go`). The `Stop` → `claim-guard.sh` entry above is the NEW half and is **not yet authorised** — `go` does not reach a sibling action. It is the mechanical rung for `assume-dont-verify`, the largest family on the board (n=16, FAILED ×5, escalation flagged three times and never acted on).
+  **UPDATE (09-01 flywheel):** family recurred twice more AFTER calibration (08-25 read-ordered-authored-from-recall, 08-26 `--include`-scoped closing blast) — n=22, and the wiring above is still the ONE staged escalation. Second staged hunk, same gate: `scope-inflation` went FAILED ×2 (08-19 four agents, 08-23 six agents) → `.ikiro/hooks/agent-guard.sh` authored + exercised 12/12 against both callout shapes (denies subagent #3+ per session unless `.ikiro/hooks/fanout-go` is <60 min fresh). Wiring = add to the existing `PreToolUse` array in `.claude/settings.json`:
+  ```json
+  {
+    "matcher": "Agent|Task",
+    "hooks": [
+      {
+        "type": "command",
+        "command": "\"$CLAUDE_PROJECT_DIR/.ikiro/hooks/agent-guard.sh\"",
+        "timeout": 10,
+        "statusMessage": "agent-guard: a fan-out is a proposal"
+      }
+    ]
+  }
+  ```
+  Both hunks await per-op `go`; extinction clocks start at wiring.
+  **STAGED (09-01, awaits go — root file is outward): seed `/release.md`** with `# release` + `## unreleased` carrying the backfill of the uncommitted wave, in the single-change format (`skills/quest-lifecycle/SKILL.md ## release`): cli — variant/*→instance/* flag-day ⟨variant-to-instance⟩ · registry/{tap,untap,bootstrap} added ⟨a-picker⟩ · `use <slug> <verb>` chaining ⟨m41⟩; api — `paladin.assign` added ⟨a-picker⟩ · `paladin.ledger.mount` removed ⟨m41⟩; entity — `ModeEntity.installed` bool→stamp-string ⟨italian-datasink⟩; env — `VIVA_VARIANT_MOUNT`→`VIVA_INSTANCE_MOUNT` · 7-strata resolution · `SERVICE_*`→`VIVA_SERVICE_*` · `environment/` dir + `VIVA_ENVIRONMENT_MOUNT` removed ⟨a-picker⟩.
   Until comment-guard is wired the `comment-litter` extinction clock does not start — the family sits at 4 strikes with a proven-but-inert gate. **`matcher: "manual"` on PreCompact is load-bearing**: auto-compaction must never be blocked, or a context overflow turns into a hang.
 - [ ] `[SAFE]` **Eval-driven self-eval design** — callout families → a per-session regression checklist the scribe runs; design into the quest.
 - [ ] `[VERIFY]` **Prompt-engineering audit of kernel + self/** — structure/tags/examples gaps; land pure self/ tightenings within budget; kernel changes → morning briefing.

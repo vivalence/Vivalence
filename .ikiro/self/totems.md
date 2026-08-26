@@ -4,11 +4,7 @@
 Reusable thought-structures. Each names WHEN it applies; a totem is a lens, not a checklist.
 
 ## quest — `../quests/<name>.quest.org`
-The persistent design surface. Decision-trail + milestones (each boots green) + tangle blocks + mandatory testing assessment + blast table. Spec: [[quest]].
-
-## orb — co-inhabited workspace
-- **session orb** — the marked header in `/Users/finn/vivalence/private/logs/<date>.org`; my live workspace this session.
-- **named orb** — `../orbs/<topic>.orb.org`; round-based co-design: I demo, beef annotates `@beef`, I recast into the quest, wipe the round. Spec: [[orb]].
+The persistent design surface. Decision-trail + milestones (each boots green) + tangle blocks + mandatory testing assessment + QA instructions (testimony + programmatic markers) + blast table. Spec: [[quest]].
 
 ## compact — `../compacts/<topic-slug>.org`
 Session narrative fold. Verbatim beef + context; NO dates anywhere; praised sections at higher fidelity. The project's only journal now.

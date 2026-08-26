@@ -9,7 +9,6 @@ export async function statements(paladin) {
       paladin.scope.repository,
       paladin.scope.registry,
       paladin.scope.instance,
-      paladin.scope.environment,
       ...paladin.instance.services.map((s) => s.mount),
       ...paladin.instance.daemons.map((d) => d.mount),
       ...paladin.instance.daemons
@@ -21,8 +20,13 @@ export async function statements(paladin) {
     ]);
   }
 
+  // an instance HOME is never created here. everything below lives INSIDE one, so if the home is
+  // absent the reference is wrong and scaffolding it turns a typo into a shelf entry — which is
+  // exactly what `instance/doctor <typo>` used to do, silently, before any verb ran.
+  const home = paladin.scope.instance;
+  if (home && !(await Deno.stat(home.absolute).catch(() => null))) return;
+
   for (const mount of mounts.flat().filter(Boolean)) {
-    // console.log("@testable mount:", mount.absolute);
     await paladin.state.dir(mount.absolute);
   }
 }

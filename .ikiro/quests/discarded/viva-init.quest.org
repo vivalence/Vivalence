@@ -1,0 +1,299 @@
+#+TITLE: Viva Init — sheets wizard library + process telemetry + init trajectory
+#+AUTHOR: Vivalence
+#+DATE: 2026-05-27
+#+STATUS: DESIGN
+
+* Intent
+
+A good =viva instance/init= is an interactive multi-step wizard (GATHER)
+that then boots and holds the variant's processes with live lifecycle
+visibility (ACT). None of the parts it needs are init-specific. This quest
+builds the three reusable layers and composes them into =init=:
+
+1. *sheets* — a bottom-up TUI component library: isolated input atoms, pure
+   testable state, composable form/list/panel layouts, and a field-result
+   protocol where terminal actions (=[commit]= / =[skip]= / =[back]=) are
+   first-class.
+2. *paladin* — process lifecycle telemetry: a lifecycle =Pipe= + span tree so
+   any consumer (ghost) can render "what is happening" to background
+   subprocesses, plus a shared =boot= helper.
+3. *ghost* — =instance/init= composed from 1+2: zero hand-rolled components,
+   declarative composition, observable boot.
+
+This is the first concrete cut of the broader =viva-cli= surface that
+[[file:viva-install.quest.org][viva-install]] depends on (it lists "viva-cli quest — system/init, instance/*"
+as orthogonal to install). =init= is the driver; the library is the payload.
+
+* Why
+
+@beef: *"i dont like every clone/init/start/trajectory handler implementing
+their own components. we need solid forms, panels, layouts."* Today every
+trajectory hand-rolls =React.createElement= pickers inline (=clone.js=
+=SlugPicker= / =TargetPicker=). That does not scale to a wizard with users,
+secrets, filesystem-scanned config, and live process boot.
+
+@beef on the throwaway pseudocode (=field.text()= / =ctx.view.list({groups})=):
+*"this component is too high level. go at it from the other end. bottom up.
+build it out in full, isolate components, look at the display topography and
+the role of the library, design an implementation that expresses the problem
+elegantly."* — the library must be designed bottom-up from real isolated
+primitives, not top-down from magic factories.
+
+* Directives (translated from @beef annotations)
+
+- *D1* — the handler loads its own primary subject top-level and logs it; no
+  hidden loader helper. (annotation: =await variants()= "dont load this in a
+  separate function. load this on top level. log it to console.")
+- *D2* — NO magic =field.text("username")= factory. Bottom-up: isolated, full
+  components, passed by reference. (annotation: "where is field coming from? …
+  too high level.")
+- *D3* — terminal actions carry weight. A form resolves to ={values, action}=;
+  the chosen action drives downstream (commit → create user, skip → do not).
+  (annotation: =actions: ["commit","skip"]= "this carries a lot of weight.")
+- *D4* — lists are ABSTRACT primitives used for a purpose, not purpose-built;
+  not all have groups; there will be dozens. (annotation: "this isnt a purpose
+  build list. this is a abstract list used for a purpose.")
+- *D5* — the ACT phase must be observable: nice logs + span/pipe meta-level
+  subprocess lifecycle. (annotation: "we still need to know whats happening …
+  pipe some meta level information about the state and lifecycle of the
+  subprocesses.")
+- *D6* — components live in sheets; trajectories compose them. No per-handler
+  components.
+- *D7* — =ctx.view= is a sheets shard (already shipped this session): the runner
+  that mounts components and resolves on =done()=.
+
+* Research — the tank (stolen ideas)
+
+Surveyed @inkjs/ui, @clack/prompts, charmbracelet/huh + gum, @shopify/cli-kit.
+
+- *R1* (inkjs/ui) — three-layer component split: pure state reducer ::
+  input-wiring :: thin view. The reducer is unit-testable with zero rendering.
+  This is our TDD seam — logic tests need no TTY.
+- *R2* (inkjs/ui) — =isDisabled= is the WHOLE focus story for forms. No
+  =useFocusManager=. Parent enables exactly one input. Avoids Tab-capture and
+  the #1 multi-input bug (every mounted =useInput= fires unless gated).
+- *R3* (inkjs/ui) — uncontrolled inputs: =defaultValue= + =onChange= +
+  =onSubmit=. Controlled =value= causes per-keystroke re-render storms and
+  cursor lag. Reset/back = remount via React =key=.
+- *R4* (huh) — a field returns a discriminated result
+  ={kind:"value", value}= | ={kind:"nav", direction}=. Action buttons
+  (=[commit]= / =[skip]= / =[back]=) are degenerate nav-only fields. This is
+  THE answer to D3 — actions and values share one protocol without polluting
+  the value space.
+- *R5* (clack) — a wizard is a sequence threading prior answers; a step returns
+  =undefined= to skip itself. Our sequence is the trajectory body (locked
+  earlier: =const subject = await step(ctx)= checkpoints).
+- *R6* (clack/shopify) — "show me what's happening" ladder: spinner (atomic) →
+  task-list (ordered steps) → streaming-logs-retained-on-failure (noisy). Boot
+  uses a task-list bound to lifecycle events; tail retained only on failure.
+- *R7* (shopify) — prompts vs banners vs tasks are three render categories. The
+  success banner has a =nextSteps= slot (the gold-standard "you're done, here's
+  what to do" screen).
+- *R8* (clack/huh) — cancel is one typed sentinel that unwinds the whole
+  wizard; cleanup owned by the primitive, not scattered in callers. Maps to our
+  =ctx.effect = { aborted: true }=.
+- *R9* (consensus) — NO "step 2/4" counters; conditional/skippable steps make
+  the denominator a lie. Use a persistent gutter + collapse-completed-to-summary
+  + section titles as breadcrumbs.
+- *R10* (inkjs/ui) — theme via =styles: (props) => InkProps=; variants are a
+  prop, not new components. Forward-link to a dapper theme shard (out of scope
+  here; keep colors centralized so the seam exists).
+
+* Display topography (the role of the library)
+
+Ink renders a Box tree to the TTY. The wizard frame the library owns:
+
+#+begin_example
+  intro line — what am I doing
+  │   ← persistent gutter (R9), never a counter
+  ◆ active prompt (expanded)          ← exactly one isDisabled=false (R2)
+  │
+  ◇ completed step → collapsed summary line
+  │
+  [ commit ] [ skip ]                 ← Actions bar = nav-only fields (R4)
+  outro / success Banner (nextSteps)  ← R7
+#+end_example
+
+A trajectory supplies the field list + labels; it never touches rendering (D6).
+
+* Architecture — bottom-up, three strata + telemetry
+
+** Stratum 1 — atoms (isolated input primitives)
+=subsystems/sheets/state/*.js= (pure reducers, exported, tested) +
+=subsystems/sheets/components/*.jsx= (thin views). Uncontrolled (R3),
+=isDisabled=-gated (R2).
+
+- migrate existing inline atoms out of =mod.jsx= into isolated files:
+  =TextInput=, =Select=, =TextArea=, =List= (List stays abstract + flat, D4).
+- new atoms: =PasswordInput= (mask), =MultiSelect= (checkbox list, abstract),
+  =Confirm= (binary).
+- pure reducers: =textState=, =selectState=, =multiSelectState= —
+  =(state, key) => state=, the M1 test surface (R1).
+
+** Stratum 2 — layouts (composition primitives)
+=subsystems/sheets/components/=.
+
+- =Field({ label, active, status, children })= — labeled wrapper + gutter
+  symbol by state. This is the isolated replacement for =field.text()= (D2):
+  a layout, not a factory.
+- =Actions({ options, onAction })= — renders =[ commit ] [ skip ]=, arrow+enter
+  selects, emits ={kind:"nav", action}= (R4/D3).
+- =Form({ fields, actions, done })= — the runner. Holds active index + collected
+  values; advances on each field's submit; the terminal =Actions= resolves
+  =done({ values, action })=. A field descriptor is data:
+  ={ name, label, input: PasswordInput, props }= where =input= is an *imported
+  sheets component by reference* (D2 — real component, not a string-keyed magic
+  factory). Form maps descriptors → =<Field><input …/></Field>=.
+- =Banner({ variant, headline, body, nextSteps })= — status frame (R7);
+  variant ∈ =info|success|warning|error=.
+- =Tasks({ items })= — live task-list (R6); each item
+  ={ label, status: pending|running|done|failed, detail }=. Driven by the
+  paladin lifecycle Pipe.
+
+** Stratum 3 — the runner (shard)
+=subsystems/sheets/= — already shipped: =ctx.view.{once, form, app}=.
+Compositions mount via =form= (blocking, resolves on =done=) or =app=
+(persistent handle, for the live =Tasks= view during ACT). No new runner verb.
+
+** Telemetry — paladin process lifecycle
+=subsystems/paladin/prototypes/system.js=.
+
+- *D5*: add =System.lifecycle = new Pipe()=. =Process= emits phase events to it:
+  ={ type, slug, pid, phase: "spawning"|"running"|"exited"|"killed", code? }=.
+- =System.boot(specs)= — spawn a set attached, return handles. The shared core
+  of =run= / =init= (=run.js= currently hand-rolls the loop; DRY it).
+- spans unchanged (branch-per-process already in =run.js=); the lifecycle Pipe
+  is the NEW meta-level stream D5 asks for. ghost taps =system.lifecycle= →
+  drives the =Tasks= view + logs. Spans = trace record; Pipe = live state.
+
+* The init trajectory (compose everything)
+=systems/ghost/trajectories/instance/init.js=.
+
+- *D1*: top-level =const cakes = await paladin.vip.list({ type: "variant" })=
+  (after =vip.mount=), =console.log= them. Not a hidden helper.
+- *GATHER*: =ctx.view.form(Form, { fields:[username, password], actions:["commit","skip"] })=
+  for the admin (D2/D3); =ctx.view.form(MultiSelect panel)= for config (D4),
+  items scanned from the variant.
+- *ACT* (D5): =paladin.system.boot(specs)=; tap =system.lifecycle= →
+  =ctx.view.app(Tasks)= live; spans branch =ctx.span= per process; on
+  =action === "commit"= + lighthouse present → =lighthouse.createUser=; hold
+  until signal; teardown kills held handles.
+- the two annotation docs (below) ride as JSDoc on =init=.
+
+* Milestones (test-driven)
+
+** M1 — sheets component library (atoms + layouts + field protocol) [SHIPPED]
+Test-first. The pure reducers + the Form state machine are the testable surface
+(R1) — no ink rendering for logic tests.
+
+- tests → =subsystems/sheets/tests/= (flat; @beef moved out of =workpackage/=)
+  - =text.state.test.js= — insert / delete / cursor move+clamp.
+  - =select.state.test.js= — up/down clamp; value reads option.value.
+  - =multiselect.state.test.js= — toggle add/remove; defaultValue seeds.
+  - =field-protocol.test.js= — value advances, nav routes, unknown is identity.
+  - =form.state.test.js= — =formMachine=: advance, collect by name, terminal
+    action resolves ={values, action}=, back steps without losing values.
+- impl: =state/{text,select,multiselect,form}.js= (pure) +
+  =components/{TextInput,PasswordInput,Select,MultiSelect,Confirm,TextArea,List,Field,Actions,Form,Banner,Tasks}.jsx=
+  + app shell =components/{Logo,Background,Chrome}.jsx= + =theme.js= (brand
+  palette + glyphs + wordmark; the dapper-TUI seam, R10)
+  + =mod.jsx= barrel re-exporting all + =shard=. Deps =react=/=ink= via
+  =import_map.json= (no =npm:= specifiers, @beef).
+- acceptance: *14 reducer tests green*; barrel loads all components; ghost
+  =shard= intact; live UX demo =testament/temp.js= (Form =[commit]/[skip]= →
+  ={values, action}=, MultiSelect, live Tasks, success Banner).
+
+** M2 — paladin process spawn + boot [SHIPPED · angle A]
+@beef: *"too many pipes. overengineered."* → chose *angle A* (of three explored):
+1 pipe total. =Process= is a pure executor; attached → stdio =inherit= (the terminal
+IS the live view), detached → =null=. Dropped per-process out/err =Pipe= + in =Queue=
++ =relay=/=feed= + the proposed =lifecycle= Pipe. Lifecycle is observed through the
+*span tree* (branch per process: subject=pid, timing, fault), which already drains
+through the one existing span pipe (mod.js → =spans.jsonl=).
+- impl: =Process.spawn= (=inherit= | =null=); =System.boot(specs)=.
+- test: =tests/workpackage/spawn.test.js= — boot returns a live handle per spec,
+  lock written on spawn, removed on exit (poll; the removal is fire-and-forget in
+  =status.then=). attached arms OS signals → sanitizers off for that test.
+- acceptance: spawn.test green, 3× stable.
+
+** M3 — init trajectory + sheets uniform resolve [SHIPPED · angle A]
+- sheets: every input honors =done= as the submit fallback (=(onSubmit ?? done)=)
+  so =ctx.view.form(MultiSelect)= et al resolve uniformly (Form already used =done=).
+- =init.js=: GATHER (=vip.list= log per D1 + admin =Form= [commit]/[skip] + config
+  =MultiSelect=) → ACT (=system.boot=, span branch per process, lighthouse-on-commit
+  stub, hold until =status=/teardown). The two JSDoc annotations ride on =init=.
+- =run.js= leaned to the same shape (boot + span trace; =inherit=, no out/err tap).
+- the old wafer-copy =init.test.js= (install semantics) → =tests/bak/= — superseded;
+  that behaviour is clone's, not init's.
+- test: =tests/init.gather.test.js= — faked =ctx.view= + stubbed =system.boot= →
+  GATHER yields ={admin, config}=, ACT boots the variant's specs + sets =effect=.
+- acceptance: gather green; live app =testament/temp.jsx=; =viva instance/init=
+  boots the variant (children inherit the terminal), Ctrl-C → =system.teardown=.
+
+* Contract (invariants)
+
+- *C1* (D6) — zero components defined in trajectories. Trajectory = compose
+  sheets layouts + name fields. A picker inside a trajectory is a bug.
+- *C2* (D2/D3) — a field result is ={kind:"value",value}= | ={kind:"nav",dir}=.
+  Actions are nav-only fields. Form returns ={values, action}=.
+- *C3* (D4) — =List= / =MultiSelect= are abstract: items in, selection out. No
+  domain knowledge; groups optional, never required.
+- *C4* (R2) — exactly one active input; all others =isDisabled=. No
+  =useFocusManager=.
+- *C5* (R3/R1) — inputs uncontrolled; logic in exported pure reducers (the test
+  surface). View is thin.
+- *C6* (D5) — subprocess lifecycle is a =Pipe= of phase events; ghost is a
+  consumer, not the owner. Spans branch =ctx.span=; root drains in =mod.js=.
+- *C7* (D1) — a handler loads its own primary subject top-level, logged; no
+  hidden loader for the headline data.
+
+* The two annotations (canonical text → JSDoc on init)
+
+** 1 — the =$shell= input format
+#+begin_example
+  $shell argv → ShellSignal  (systems/ghost/prototypes/shellsignal.js)
+    argv[0]    "instance/init"   head: "/"-split into nature segments → trie path
+    argv[1..]                    non-"--"   → params  (carried on root segment)
+                                 "--k=v"    → flags[k] = "v"
+                                 "--k"      → flags[k] = true
+
+    viva instance/init survival --seed=full --detached
+      nature = "instance/init"
+      params = ["survival"]
+      flags  = { seed: "full", detached: true }
+
+    in handler:  ctx.signal.params[0]   ctx.signal.flags.seed
+#+end_example
+
+** 2 — =ctx= high-level (the per-invocation envelope; never alias into locals)
+#+begin_example
+  ctx  (ShellContext)  — ambient; reference ctx.x inline (see `subjects` principle)
+    ctx.signal   ShellSignal — parsed command (nature/params/flags). INPUT.
+    ctx.view     sheets shard — { once, form, app }. Mounts ink, blocks,
+                 resolves on done(). The GATHER surface. (D7)
+    ctx.span     Span — trace trie root (→ paladin.system.pipe). branch() per
+                 subprocess; root drains in mod.js. The telemetry record.
+    ctx.effect   the handler RESULT (output). Set it; do not read it.
+    ctx.error    set by the catch middleware; the span faults off it.
+    ctx.call     re-entrant dispatch back into the trajectory.
+    ctx.variant  mounted variant cake when cwd is a variant (cwd-sense mw).
+#+end_example
+
+* Open
+
+- *lighthouse gate* — =hasLighthouse(variant)= vs runtime-features-lighthouse.
+  init creates the admin only if a lighthouse is present; which layer declares
+  it is unresolved (@beef: "only if variant features a lighthouse? or the
+  runtime features a lighthouse? hmm"). Security flag: closing the lighthouse +
+  a system-admin user / users-file is a soon-needed follow-on, not in scope.
+- *ink-testing-library* — render-level tests need it; M1 logic tests deliberately
+  avoid it (pure reducers). Confirm availability before any render test.
+- *config step source* — =scan(variant)= → ={ env, packages, daemons }=. M3
+  derives from the variant manifest; ties to the carried "variant-derived
+  catalog" open item (=CHILDREN= in =target.js= is the stopgap).
+- *tree-kill* (carried) — teardown still leaves =kajuit/watch= vite-helper
+  orphans; M2 =boot=/teardown should fold the recursive =pgrep -P= kill.
+- *back navigation* — =formMachine= supports =[back]= as a nav field, but the
+  trajectory pipeline (sequential awaits) cannot step backward across forms
+  without a wizard runner. v1: back within one Form only; cross-step back
+  deferred.

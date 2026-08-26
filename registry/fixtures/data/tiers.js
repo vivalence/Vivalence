@@ -1,5 +1,5 @@
 import { sets } from "@vivalence/runtime";
-import { entities as domain } from "../../education/domain/entities/index.js";
+import { entities as domain } from "../language-learning/entities/index.js";
 
 export const stack = [sets.daemon, sets.kernel, sets.userspace, domain];
 

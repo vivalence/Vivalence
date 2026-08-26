@@ -40,10 +40,13 @@ export {
 export * from "./components/TextInput.jsx";
 export * from "./components/PasswordInput.jsx";
 export * from "./components/Select.jsx";
+export * from "./components/Search.jsx";
+export * from "./components/Table.jsx";
 export * from "./components/MultiSelect.jsx";
 export * from "./components/Confirm.jsx";
 export * from "./components/TextArea.jsx";
 export * from "./components/List.jsx";
+export * from "./components/Effect.jsx";
 export * from "./components/Field.jsx";
 export * from "./components/Actions.jsx";
 export * from "./components/Form.jsx";
@@ -53,6 +56,7 @@ export * from "./components/Logo.jsx";
 export * from "./components/Background.jsx";
 export * from "./components/Chrome.jsx";
 export * from "./components/JsonTree.jsx";
+export * as search from "./state/search.js";
 export * as cliffy from "./cliffy.js";
 export { theme } from "./theme.js";
 

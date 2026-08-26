@@ -1,0 +1,125 @@
+#+title: the retry was a state nobody wrote, the signin page becomes the one door, and signup learns it means ensure
+#+filetags: :kajuit:ghost:paladin:registry:documentation:env:cli:auth:lighthouse:landing:
+
+* what happened, in one breath
+
+Background session, beef live-testing the whole way. Opened on a screenshot of kajuit's
+error gate (=error / unauthorized / retry=) + /"the retry button in kajuit doesnt work.
+rework this into just one signin page propper state display."/ — the retry was dead
+because a logged-out lighthouse writes NO status on the next =verify()=, and the gate
+ranked =ERROR= above =!authorized=, so the form was unreachable forever. Gate collapsed
+to ready | boot | signin. Mid-rework beef hit the very wedge live (/"i wrote in the
+wrong password." "fix it" "fast"/). Then a pasted =viva instance/doctor= full of
+UNDOCUMENTED verdicts → the =environment= export landed in the live instance
+declaration (doctor: 0 failures) and the registry docs hole was measured: NO registry
+page exists, live or scaffold. Then the init wizard's =auth/signup 400= → two-layer
+root cause (USERNAME_EXISTS + transport eating the nested error message), wizard
+signup now falls through to login — verified live twice, same identity id, no
+duplicate. Ends: both fixes in the working tree, compact written, VCS untouched.
+
+* the dead retry was a state machine hole (turns 1-5)
+
+/"the retry button in kajuit doesnt work. rework this into just one signin page propper
+state display."/ (with =pasted-24.png=: error / unauthorized / retry)
+
+Trace, not click handler: =refresh()= failure runs =logout()= (authority → null) then
+sets =SESSION_EXPIRED=/=ERROR=; the gate computed in
+=systems/kajuit/src/app/+layout.svelte= ranked those codes ABOVE =!authorized=; retry →
+=boot()= → =verify()= → no token → returns =NO_TOKEN= **with no =$status= write** —
+nothing observable changes, ever, and the signin form is unreachable. Wrong password
+hits the same trap: =login()= sets =ERROR= → error page eats the form.
+
+Category kill, not hotfix: =!authorized → "signin"= checked FIRST; authorized +
+=OFFLINE=/=ERROR= also → signin. Gate values now ready | verifying/populating/boot
+(→ Boot.svelte, untouched) | signin. The old auth/error/offline branches, =onReconnect=,
+and their styles deleted.
+
+=app/widgets/Login.svelte= = the one signin page, rendering =lighthouse.$status=
+DIRECTLY — its private status/error state machine deleted (one writer, one display).
+Standing line = code lowercased + server message; =retry= only when
+=$authorized && failed=; busy disables the button only (inputs never =disabled= — iOS
+keyboard law). Nanostore idiom = the =d.svelte:15= pluck-then-=$= precedent; lighthouse
+prop is boot-stable so the plucked-store freeze trap does not apply.
+
+** the help footer (turn 2, mid-turn)
+
+/"the login screen should also contain instructions how to signup, and where to find
+docs, and what to tell the llm in case of issues."/
+
+All three grounded, none invented: signup is CLI-only per README canon (/"there is no
+signup UI"/) → =viva instance/auth signup <username> <password>=; docs →
+docs.vivalence.org; and a =user-select:all= copy-pasteable LLM prompt that embeds the
+LIVE gate state + =lighthouse.connection.url.href= (Url has =.href=; bare =${url}= is
+the =[object Object]= STORAGE_KEY bug) + =viva instance/doctor= +
+=PUBLIC_VIVA_LIGHTHOUSE_REMOTE=.
+
+Validation stopped at compile (vite transform 200 on both files) — Chrome extension
+disconnected, no DOM pass. Beef's own =instance/run= later took port 1794 and killed my
+dev vite mid-session; correct outcome, his rig.
+
+* the doctor's table and the docs hole (turn 6)
+
+Beef pasted =viva registry/list= + =viva instance/doctor= (every env key
+UNDOCUMENTED): /"there are whole sections of the docs missing about the registry. not
+good. i need teh content information. in detail."/ + /"write a environment export to
+/Users/finn/.viva/instances/language-learning/test.viva.js"/
+
+- =test.viva.js= IS the live instance declaration; it gained =export const environment=
+  mirroring the one exemplar =registry/viva/instances/hello-world/hello-world.viva.js=
+  — =={describe, default?, group}== per key, groups addresses/services/keys, secrets
+  no default. Doctor after: 15 =ok=, 3 =documented=, **0 UNDOCUMENTED/REQUIRED**.
+- Verdict algebra pinned (=subsystems/paladin/belt/check.js=): read+no-schema =
+  UNDOCUMENTED · read+set = ok · read+unset+usable = optional · read+unset = REQUIRED ·
+  schema-only = documented. =${VAR}= in a =default= is doc-text only — check reads
+  =describe=/=group=, nothing interpolates.
+- Beef then re-authored the file himself: ORIGIN derivation restored
+  (=VIVA_RUNTIME_ORIGIN= / =VIVA_CLIENT_KAJUIT_ORIGIN=), NLP remote default = the real
+  syzygy URL. His edit is canonical; it also created the owed() interaction below.
+- Docs hole MEASURED: live =documentation/content/40-49_repository/= = only =41_tour=;
+  =bak/content-scaffold/40-49_repository/= = typology/kajuit/integration — **no
+  registry page exists anywhere**. Content brief delivered in chat (package ontology ·
+  owner law · supply→pensieve→accio · tap/untap/bootstrap · instance environment +
+  doctor). Beef closed it turn 7: /"go on any closure on The content information — what
+  the registry sections must carry, in detail:. i consider done unless told i am
+  wrong."/ — not wrong; authoring the .mdx pages stays his.
+
+* signup no worky (turns 7-9)
+
+Focus-TUI paste: =✕ auth/signup Client error: 400 @
+/attached/process/lighthouse/multiplayer/auth/signup= + /"signup no worky"/
+
+Two layers:
+1. The 400 is =USERNAME_EXISTS= working as designed — the multiplayer identity table
+   already held =beef= (plus beefd, beefdd, lre, lorem, testuser, readmedemo,
+   beefreseed). The wizard (=Init.jsx= → =init.js=) ran SIGNUP as its auth step on
+   every init, so re-initing an enrolled instance could never pass.
+2. The reason was invisible — =ConnectionError.fromStatus= read =body.message= but the
+   lighthouse speaks =={status:"ERROR", error:{code, message}}== — nested. A PARALLEL
+   session landed that fix (=held = body?.error ?? body=) while this one was
+   root-causing; found on disk, built upon, not duplicated.
+
+/"fix. go"/ → =systems/ghost/trajectories/instance/init.js=: module-level =signup()=
+tries =/auth/signup=, on =error.context.response.body.error.code === "USERNAME_EXISTS"=
+calls =/auth/login= with the same creds, anything else rethrows; =poll= and the wizard
+closure both ride it; poll's retry loop deliberately untouched (a transient 404 while
+the lighthouse attaches must stay retryable). The comment-litter hook rejected the
+first draft's authored comment — the kernel law enforcing itself; stripped, landed.
+
+Verified live, both directions: fresh user =clauderepro= → SUCCESS + new identity;
+same creds again → SUCCESS + **the same identity id** (no duplicate, login path).
+Beef interrupted the first verification run (/"sorry"/) — the aborted run itself
+surfaced the owed() finding below.
+
+* loose ends that survive settlement (all genuinely underdetermined or beef's)
+
+- kajuit signin page: compile-verified only — browser DOM pass owed (extension was
+  disconnected); beef sees it on next boot.
+- =owed()= in =init.js= counts ANY unset schema key, read-by-thunk or not — beef's
+  ORIGIN keys now gate headless =instance/init= (=env incomplete=) until they're in the
+  instance =.env=. Either intended (fill them) or =owed()= should skip unread
+  =documented= rows — beef's design call.
+- 8 junk identities in the multiplayer db (clauderepro added by this session's
+  verification) — beef prunes when he cares.
+- Registry docs .mdx authoring — closed as beef's, brief delivered.
+- The Init.jsx step label still says =auth/signup= when the fallthrough logged in —
+  cosmetic, untouched on purpose.

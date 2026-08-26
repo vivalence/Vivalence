@@ -1,0 +1,160 @@
+#+TITLE: C Panel Rebuild — D/E/F panels, the /metadata self-description surface, and the masked·aimed·queueing trait controls
+#+AUTHOR: Vivalence
+#+DATE: 2026-06-21
+#+STATUS: IMPLEMENTING — pass-1 (D/E/F) + pass-2 (masked/aimed/queueing) shipped & verified live; producer /metadata (Approach B, 3 scopes) shipped; consumer cutover partial; lighthouse-service /metadata + old-route removal pending
+
+* Intent
+
+The C panel is the host (=app/panels/c/c.svelte=) that splits into D · E · F.
+Rebuild all three as the terminal control surface, driven by the active
+=terminal= (=$thread= · =$buffer=) and the daemon/mode metadata.
+
+- *D* — daemon→mode tree (§1) + threads-per-daemon (§2) + intents-per-daemon (§3).
+- *E* — active info (§1: reactive mode label + the *mode's* traits) + trait bar (§2: the controllable *thread* traits, each with its widget) + intent management (§3, dummy).
+- *F* — factory (§1: create/emit/start) + active buffer (§2: =terminal.$buffer=) + buffer list (§3: =thread.$buffers=).
+- *A* — renders =terminal.$buffer= via drapes =Frame= (=import(buffer.mode.view.url)=).
+
+Underneath: a unified *=/metadata/<topic>=* self-description surface replaces the
+scattered =/manifest= =/cargo= =/datamap= =/buffered= routes, and the
+masked·aimed·queueing traits consume the schema topics (=view=, =emitter=) it serves.
+
+* Terminology
+
+| term | definition |
+|------+------------|
+| terminal | client workspace; owns =$thread= + =$buffer= (active buffer) + =stall=. Active buffer is *terminal-owned*, not thread-owned. |
+| thread | live session on a mode. Atoms: =$mode= =$traits= =$trait= =$label= =$buffers=. Mode is *replaceable* on a live thread. |
+| thread traits | LABELED · MASKED · AIMED · QUEUEING — the *controllable* set (the E trait bar). LABELED+MASKED always-on; AIMED+QUEUEING opt-in toggles. |
+| mode traits | VIEWABLE · EMITTER · FRAUGHT · HARNESSED · … — the mode's *capability* set (shown in E §1 "traits"). |
+| Mask (capital) | the *schema* a form renders from. =thread.trait.MASKED= = the *data* the form produces. |
+| factory | F §1 — create (direct buffer from MASKED) / create·emit (aimed pull) / start·stop (queueing Stall). |
+| /metadata | the aggregated self-description surface. =/metadata/<topic>=, topics trait-contributed, no index/sitemap route (system-level wiring knows the topics). |
+
+* The /metadata surface — producer (Approach B: one central module per scope)
+
+Decision (@beef): *centralized* over distributed. One module owns the whole
+surface per scope, reading artifacts the traits already built. Routes are lazy
+thunks (run at request time → full strip incl. routes added later by =expose=).
+
+Naming: =view= replaces =buffered=. =view= + =emitter= carry schema. Daemon
+=/metadata/manifest= does *not* embed the modes list (separate =modes= topic).
+
+** runtime — =systems/runtime/lifecycle/resolve.js= =metadata(runtimeDie)= (after =expose=)
+| topic | content | reads |
+|-------+---------+-------|
+| manifest | runtime identity | =runtimeDie.manifest= |
+| circuitry | composed variant (daemon+service masks) | =paladin.variant= |
+| daemons | booted daemon instances + metadata refs | =runtimeDie.good.daemons= (slug = =daemonDie.slug=, NOT a path-string hack) |
+| services | attached service instances + refs | =runtimeDie.good.processes= |
+| aperture | =shape.strip= of full runtime aperture | =runtimeDie.good.aperture= |
+
+** daemon — =systems/runtime/daemon/aperture/metadata.js= =metadata(die)= (last in =daemon/die.js resolve()=)
+| topic | content |
+|-------+---------|
+| manifest | =die.manifest= |
+| cargo | =die.good.cargo= |
+| datamap | =shard.datamap.strip(die.datamap.introspect())= |
+| aperture | =shape.strip(die.good.aperture)= |
+| modes | enumerate =die.good.flatmodes()= → {type,slug,name,traits, metadata-ref} |
+
+Per-mode (loop, mounts on =die.good.aperture.branch(mode.mount.nature).branch("/metadata")=; =Vector.branch= is get-or-create):
+| topic | content | gate |
+|-------+---------+------|
+| manifest | =mode.manifest= | always |
+| aperture | =shape.strip(mode.aperture)= | always |
+| view | ={url, schema: mode.cake.view.mask}= | VIEWABLE |
+| emitter | =shape.strip(mode.cake.emitter)= | EMITTER |
+| freight | =mode.cake.freight.catalog= | FRAUGHT |
+| capabilities | cortex faculty list | HARNESSED |
+
+⚠ =shape.strip= drops the leading slash → emitter leaf nature is ="feed"= not ="/feed"=.
+Client resolver matches =AIMED.mount= ="/emit/feed"= by stripping ="/emit/"= → ="feed"=.
+
+** Old routes — kept ADDITIVE (not removed). =freight.js= =/cargo=, =datamap.js= =/datamap=, =modes.js=, daemon/mode/runtime =/manifest=, viewable =/buffered=, FRAUGHT =/freight=, HARNESSED =/capabilities= all still serve. Clean removal is the deferred cutover.
+
+* The /metadata surface — consumer
+
+Migrated to =/metadata/*= (daemon/mode scope, which the new surface covers):
+| file | route |
+|------+-------|
+| =entities/daemon/dossier.js= | =/metadata/manifest= + =/metadata/cargo= |
+| =entities/mode/traits/viewable.js= | =/metadata/view= → =mode.view= (renamed from =mode.buffered=) |
+| =entities/mode/traits/emitter.js= (NEW) | =/metadata/emitter= → =mode.emitter= |
+
+*Stayed on old routes* (hit the lighthouse *service* =/attached/process/lighthouse/multiplayer=, which is NOT a daemon/runtime → has no =/metadata=):
+| file | route | why |
+|------+-------+-----|
+| =stores/lighthouse.js= | =/manifest= | lighthouse service manifest |
+| =prototypes/dataspace.js= | =/datamap= | shared by lighthouse-dataspace + daemon-dataspace |
+
+→ migrating those = a separate pass that puts the lighthouse SERVICE on =/metadata=.
+
+* Trait model & the E trait bar
+
+LABELED+MASKED auto-added in =thread/dossier.js= when mode is VIEWABLE.
+AIMED available iff =Object.keys(mode.emitter.branches).length > 0=; QUEUEING available iff AIMED active.
+Toggle via =TraitTagIcon= (=+= / =×=) → =thread.updateOne({traits})=. Deactivating AIMED also strips QUEUEING.
+
+Each tag's *body* toggles its widget open (a *Set* — multiple widgets stack, not either/or).
+Every widget carries a *head* (trait name + hint) so it self-identifies.
+
+| trait | widget | writes |
+|-------+--------+--------|
+| LABELED | label input (debounced 5s) | =trait.LABELED.name= + =$label= |
+| MASKED | =FormFromSchema= (schema-driven) | =trait.MASKED= |
+| AIMED | emitter-mount picker (from =mode.emitter.branches=) | =trait.AIMED.mount= |
+| QUEUEING | depth slider | =trait.QUEUEING.depth= |
+
+** Masked — the two complexities (both solved & verified)
+1. *reactive schema switch* — =maskSchema(mode, traits, trait)= in =app/panels/e/widgets/form/schema.js=: aimed → emitter leaf =input= at =AIMED.mount=; else → view mask's =data=. Picking the aimed mount live-switches the form (view =recall= → emitter =limit/recall/where=).
+2. *reactive form from schema* — =FormFromSchema.svelte= + =fields()= (handles intersect/allOf, =anyOf=→enum, integer/number/boolean/string; digs =properties.data= for the view mask).
+
+* Factory matrix — F §1
+
+| config | button | action |
+|--------+--------+--------|
+| !aimed !queueing | create buffer | =buffer.create({mode, thread, data: trait.MASKED})= |
+| aimed !queueing | create · emit | =thread.pull()= (emitter at =mount= w/ MASKED) → merge → set active |
+| queueing (⇒aimed) | start / stop | =terminal.stall = Stall(thread.$buffers, terminal.$buffer)=; onPull=thread.pull; activate / close |
+
+=thread.pull= set by the AIMED client trait. Stall is *terminal-owned* (created on start), NOT thread-trait-owned (old thread-Stall kept as commented backup in =queueing.js=).
+
+* Reactivity backbone
+
+Svelte 5 =$state= does not deep-track class instances → all reactive thread/terminal
+fields are *atom-backed* with vanilla get/set; consumers subscribe via
+=chain(terminals, "$active", "$thread", "$<field>")= or per-row component subscriptions.
+
+- =thread.$mode= (NEW this session) — made =mode= atom-backed so *replacing a mode on a
+  live thread* propagates: E §1 mode/traits, trait availability, masked schema, threads
+  list — all update reactively, same thread (no new thread spawned).
+- =thread.$buffers= — computed over =daemon.entities.buffer.$entities= filtered by thread
+  (was referenced everywhere, defined nowhere). =buffer.mode= resolved to the rich Mode
+  entity; A-panel Frame reads =buffer.mode.view= (NO =buffer.view=).
+- D-panel threads list — subscribes the thread repo =$entities= (new threads appear) and
+  each row's =$label= via =ThreadLabel.svelte= (renames appear live).
+
+* State — done & verified live (Chrome)
+
+- D/E/F + A panels rebuilt; skins under =kajuit/src/typology/skins/{trait,form}=; root types from drapes.
+- Mode-replace-on-active-thread: reactive, verified.
+- masked/aimed/queueing: verified end-to-end — aim at =/emit/feed= switches the form to the emitter schema (=limit*/recall/where=); multiple widgets stack; queueing enables with aimed.
+- flashcard emitter leaves now declare =input:= schemas (=flashcard.viva.js=) → aimed form has real fields. flashcard is the dummy plaything.
+- Producer /metadata verified in isolation (fake die) + live (flashcard view+emitter served & consumed).
+
+* Open / next
+
+1. *Lighthouse-service /metadata* — put the multiplayer lighthouse service on =/metadata= so =lighthouse.js= manifest + the shared =Dataspace= datamap can migrate off old routes.
+2. *Old-route removal* — the additive producer still serves =/manifest= =/cargo= =/datamap= =/buffered= =/freight= =/capabilities=. Remove once consumers fully cut over (clean Approach-B end state).
+3. *Buffer-from-mask cast* — non-aimed create persists raw =trait.MASKED= as =buffer.data=; no view-mask cast/validation. Decide client-cast vs server route.
+4. *Buffer delete* — F uses optimistic local =repo.drop= + server =removeOne= (server delete under the nested =\{thread:\{user\}\}= scope was suspect; confirm it actually deletes server-side, else reappears on reload).
+5. *Intent §3* — dummy only (save-from-thread via global intent repo). "intent per user" is a later change.
+6. *D quickstart / middle-click* — load+create-buffer wired; revisit once aimed/queueing flows settle.
+7. *runtime /metadata/circuitry* — currently dumps variant masks; enrich with kernel/modes/consume once the mask shape is pinned.
+
+* Gotchas logged (don't repeat)
+
+- Use the *canonical property* (=daemonDie.slug=), never reverse-engineer it from a formatted path string.
+- *Comment out* superseded code (backup-during-migration), never delete (queueing Stall).
+- Migrate the *full* consumer side of a route family at once, not the slice you need.
+- The client "lighthouse" talks to a *service process*, not the runtime — service routes ≠ daemon/runtime routes.

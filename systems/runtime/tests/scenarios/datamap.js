@@ -1,5 +1,5 @@
 import { MikroORM, EntitySchema, RequestContext } from "@mikro-orm/core"
-import { config } from "../../../../registry/viva/datamap/libsql/libsql.viva.js"
+import { config } from "../../../../registry/viva/datamaps/libsql/libsql.viva.js"
 import {
   LiteralEntity, LiteralSchema,
   SymbolEntity, SymbolSchema,

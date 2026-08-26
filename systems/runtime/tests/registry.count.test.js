@@ -55,11 +55,11 @@ describe("registry ingest", () => {
   // lock-demo fixture assertion POSTPONED with the fixture itself — fork 4.
   // the LOCK mechanism is still covered, in vip.test.js, via an in-memory fixture.
 
-  it("fork 2: multiplayer + localhost wafers resolve under @viva", async () => {
+  it("fork 2: multiplayer + hello-world wafers resolve under @viva", async () => {
     await registry();
     const multiplayer = await paladin.vip.pensieve.revelio({ owner: "@viva", type: "instance", slug: "multiplayer" });
-    const localhost = await paladin.vip.pensieve.revelio({ owner: "@viva", type: "instance", slug: "localhost" });
+    const hello = await paladin.vip.pensieve.revelio({ owner: "@viva", type: "instance", slug: "hello-world" });
     expect(multiplayer).toBeTruthy();
-    expect(localhost).toBeTruthy();
+    expect(hello).toBeTruthy();
   });
 });

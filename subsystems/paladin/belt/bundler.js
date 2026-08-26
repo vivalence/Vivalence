@@ -16,9 +16,11 @@ export default function bundler(paladin) {
     svelte: {
       ext: "svelte",
       compile: async (entry) =>
-        (await compiler.svelte(entry, { prod: paladin.is.prod, imports: imports() })).find(
-          (output) => output.path === entry,
-        ).text,
+        (await compiler.svelte(entry, {
+          prod: paladin.is.prod,
+          imports: imports(),
+          nodePaths: [paladin.scope.repository.branch("node_modules").absolute],
+        })).find((output) => output.path === entry).text,
     },
     html: {
       ext: "html",
