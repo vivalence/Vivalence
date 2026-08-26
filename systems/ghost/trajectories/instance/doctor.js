@@ -1,15 +1,11 @@
 import paladin from "@vivalence/paladin";
-import { basename, resolve } from "@std/path";
-import { Path } from "@vivalence/typology";
+import { basename } from "@std/path";
+import { path } from "../../belt/index.js";
 
 export async function doctor(ctx) {
   const target = ctx.signal.params?.[0];
   if (target) {
-    const cwd = Deno.env.get("INIT_CWD") ?? Deno.env.get("PWD") ?? Deno.cwd();
-    const home = target.includes("/") || target.startsWith(".")
-      ? new Path(resolve(cwd, target))
-      : paladin.scope.ledger.branch(`instances/${target}`);
-    paladin.scopes([["instance", () => true, () => home]]);
+    paladin.env.set("VIVA_INSTANCE_MOUNT", path.pin(target), "flag");
   }
 
   if (!paladin.scope.instance) {
@@ -23,9 +19,13 @@ export async function doctor(ctx) {
   ctx.effect = {
     mount,
     manifest: paladin.instance.manifest,
-    daemons: paladin.instance.daemons?.length ?? 0,
-    services: paladin.instance.services?.length ?? 0,
+    daemons: (paladin.instance.daemons ?? []).map((daemon) => daemon.slug ?? daemon.manifest?.slug),
+    services: (paladin.instance.services ?? []).map((service) => service.slug ?? service.manifest?.slug),
     clients: Object.keys(paladin.instance.clients ?? {}),
+    runtime: Object.keys(paladin.instance.runtime ?? {}),
+    environment: paladin.scope.environment?.absolute ?? null,
+    mountpoint: paladin.scope.mountpoint?.absolute ?? null,
+    vars: paladin.env.strata.get("instance") ?? {},
     locks: await paladin.ledger.locks(instance),
   };
 }

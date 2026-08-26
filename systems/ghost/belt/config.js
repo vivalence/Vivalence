@@ -1,5 +1,7 @@
 import { join } from "@std/path";
 
+export const MOUNTS = ["ledger", "repository", "registry", "instance", "environment", "mountpoint"];
+
 export async function writeShellConfig(key, value) {
   const dir = join(
     Deno.env.get("XDG_CONFIG_HOME") ?? join(Deno.env.get("HOME"), ".config"),

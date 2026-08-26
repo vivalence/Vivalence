@@ -6,6 +6,10 @@ export class Instances {
   async read(slug) {
     return (await this.paladin.read.json(this.path, {}))[slug] ?? null;
   }
+  async list() {
+    const all = await this.paladin.read.json(this.path, {});
+    return Object.entries(all).map(([slug, held]) => ({ slug, ...held }));
+  }
   async write(slug, partial) {
     const all = await this.paladin.read.json(this.path, {});
     const now = new Date().toISOString();

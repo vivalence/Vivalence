@@ -116,7 +116,7 @@ async function wireMode(viva, daemon) {
 // ── public API ─────────────────────────────────────────────────────
 
 export async function mountMode(viva, options = {}) {
-  const { orm, em, datamap, fixtures } = await seed();
+  const { orm, em, datamap, fixtures } = await seed(options.entities);
   const daemon = buildDaemon(datamap, fixtures);
   if (options.cortex) daemon.cortex = options.cortex;
   const mode = await wireMode(viva, daemon);

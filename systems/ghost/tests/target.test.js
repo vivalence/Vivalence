@@ -1,5 +1,6 @@
 import { assertEquals, assertThrows } from "@std/assert";
-import { specs } from "../trajectories/instance/target.js";
+import paladin from "@vivalence/paladin";
+import { register, specs } from "../trajectories/instance/target.js";
 
 Deno.test("specs: no target → all children", () => {
   const result = specs(undefined);
@@ -27,4 +28,17 @@ Deno.test("specs: every spec carries the instance mount", () => {
     assertEquals(spec.env.VIVA_INSTANCE_MOUNT, spec.mount);
     assertEquals(spec.cmd.slice(0, 2), ["deno", "task"]);
   }
+});
+
+Deno.test("register writes a slug-keyed record", async () => {
+  const root = await Deno.makeTempDir({ prefix: "register-test-" });
+  const mount = await Deno.makeTempDir({ suffix: "-italian" });
+  paladin.env.set("VIVA_LEDGER_MOUNT", root);
+  paladin.env.set("VIVA_INSTANCE_MOUNT", mount);
+  await register();
+  const slug = mount.split("/").filter(Boolean).pop();
+  const record = JSON.parse(await Deno.readTextFile(`${root}/instances.json`));
+  assertEquals(record[slug].mount, mount);
+  paladin.env.delete("VIVA_LEDGER_MOUNT");
+  paladin.env.delete("VIVA_INSTANCE_MOUNT");
 });

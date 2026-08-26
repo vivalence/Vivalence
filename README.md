@@ -184,6 +184,8 @@ The runtime comes up on `:2501`, the kajuit web client on `:1794`. Once step 7 c
 
 Every path argument above is optional — without them the ledger lives at `~/.viva`, instances land in `~/.viva/instances/<slug>`, and `VIVA_INSTANCE_MOUNT` accepts the bare slug.
 
+Instance targeting is stratified — strongest voice wins: `--instance=<slug|path>` per invocation › standing in an instance directory › the mounted instance's own environment › `.env` files (`./`, `VIVA_ENV_FILE`, `--env=<file>`) › exported shell variables › `viva instance/use <slug>` (per shell — two terminals, two instances) › `viva instance/use <slug> --ledger` (machine default). `viva ledger/doctor` names the winning voice per variable.
+
 # Pricing (B2B)
 
 Vivalence is free for private use. Institutional use requires a license — a flat fee of ~€12/$13/£10/¥2,000/90元 per person per month, with a 10/12 discount on yearly. SaaS, PaaS, and consulting services will follow in time.

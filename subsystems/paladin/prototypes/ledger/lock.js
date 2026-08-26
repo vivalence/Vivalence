@@ -16,7 +16,7 @@ export class Lock {
     const lock = await this.read();
     if (!lock) return false;
     try {
-      Deno.kill(lock.pid, "SIGCONT");
+      Deno.kill(lock.pid, "SIGURG");
       return true;
     } catch {
       return false;

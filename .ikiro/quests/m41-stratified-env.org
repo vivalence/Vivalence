@@ -1,6 +1,16 @@
 #+title: m41 stratified env — who gets to say VIVA_*: one fold, seven voices
 #+filetags: :typology:paladin:ghost:env:ledger:instance:cli:
-#+status: *DESIGN LOCKED + PATCH AUTHORED, nothing applied* — full patch below, gated per-milestone.
+#+status: *LANDED GREEN — M1–M7 ALL APPLIED* on beef's blanket /"go *"/ + /"tested thoroughly"/.
+Blast close: typology 120/1 (was 118/1; red = pre-existing hallucination snapshot) · paladin 21+1
+(red = instance.snapshot needs testament/.env — rename residue, env-dependent, pre-exists) ·
+ghost 38/0 (27 + use 5 + register 1 + wet 5, wet needs no shell env — clearEnv subprocesses) ·
+runtime 52/0 · kajuit 35/0 · docs 10 pages. Ladder peel proved live: 6 rungs, doctor named each
+winner first try. Deviations from the authored patch, all recorded in the patch annotations:
+ghost =tests/ledger.test.js= beforeAll gained XDG_CONFIG_HOME temp redirect (init writes the
+shell line — tests must not touch the real =~/.config/viva/env=) + scaffold/shell-line assertion
+update; ghost's OWN =tests/ledger.test.js:44= mount-priming line found by grep and killed with
+the M7 sweep; wet suite invokes =mod.js= directly (ghost.sh sources user config — not hermetic)
+and parses the --json report from the stdout tail (ink Doctor renders first).
 Strata order RULED by beef: flag > cwd > instance > .env > os > session > ledger. M1 = HOLY (typology Env).
 
 * intent
@@ -28,7 +38,7 @@ cwd       ghost middleware    shell cwd holds an instance module (depth-0)
 instance  instance.mount()    the mounted instance's environment/*.jsonc
 .env      populate + --env    ./ scan < VIVA_ENV_FILE < --env=<path>         (in-stratum: later wins)
 os        populate.env        Deno.env VIVA_*/PUBLIC_VIVA_*/SECRET_VIVA_*
-session   <ledger>/sessions/<VIVA_SHELL>.json   per-shell selection (viva instance use)
+session   <ledger>/sessions/<VIVA_PROCESS_ID>.json   per-shell selection (viva instance use)
 ledger    <ledger>/environment.json             machine default (use --ledger)     weakest
 
 get = first stratum holding the key · provenance = its name · vars = bottom-up fold
@@ -46,7 +56,7 @@ Resolution of =viva instance run= with nothing explicit, top-down:
 =viva instance use x= (session, this shell) → =use x --ledger= (ledger, machine) → LOUD throw.
 
 The OS law that forces the session file: env copies parent→child at spawn only — a =viva=
-process cannot export into its parent shell. =VIVA_SHELL="$$"= (one shell-config line, written
+process cannot export into its parent shell. =VIVA_PROCESS_ID="$$"= (one shell-config line, written
 by ledger init) gives every shell a stable inherited id; =sessions/<id>.json= is the per-shell
 selection the next sibling =viva= reads.
 
@@ -91,7 +101,7 @@ stratum column with dim shadowed sub-rows. Gate: ghost 27 green.
 ** M4 — use verb + session persistence + chaining
 =trajectories/instance/use.js= NEW + nature + export (in-CLI chaining ruled (b): trailing params
 re-dispatch under =/instance= via =ctx.call=) · ledger init scaffold ="sessions"= +
-=VIVA_SHELL="$$"= shell line · =target.js= register slug fix · =lock.js= SIGURG · NEW
+=VIVA_PROCESS_ID="$$"= shell line · =target.js= register slug fix · =lock.js= SIGURG · NEW
 =tests/use.test.js= + =target.test.js= slug regression (schema C). Gate: ghost green + wet two-shell run.
 
 ** M5 — verify (blast close)
@@ -154,7 +164,7 @@ stratum; assert via =provenance=:
 - ./ scan — temp-cwd =.env= → @".env" · absent file → silent no-op.
 - =VIVA_ENV_FILE= — filtered+split @".env" · knowledge-free file THROWS naming the path ·
   secrets-only file PASSES (=held || secrets=).
-- session/ledger tails — =sessions/<pid>.json= → @"session" only when =VIVA_SHELL= set ·
+- session/ledger tails — =sessions/<pid>.json= → @"session" only when =VIVA_PROCESS_ID= set ·
   =environment.json= → @"ledger".
 - divergence regression — =VIVA_ENVIRONMENT_MOUNT= present ONLY in paladin.env (not
   Deno.env) → environment scope resolves to it. Pins the Deno.env→paladin.env fix.
@@ -164,7 +174,7 @@ stratum; assert via =provenance=:
 ** C — grammar (=systems/ghost/tests/=, M4)
 
 - =use.test.js= NEW (=target.test.js= style: import =use=, fake ctx recording =call=):
-  bare → ={instance, stratum, mount}= · ref + =VIVA_SHELL= → session file written +
+  bare → ={instance, stratum, mount}= · ref + =VIVA_PROCESS_ID= → session file written +
   @"session" + register fires · bare =--ledger= → =environment.json= + @"ledger" ·
   neither → throw · trailing params → recorded =ctx.call(["instance", ...rest])=,
   effect = the chained return.
@@ -180,7 +190,7 @@ temp ledger. ~2s per spawn, zero live services — doctor's stratum column IS th
   stratum can never voice =VIVA_INSTANCE_MOUNT= (circular — that stratum is fed BY the
   instance the key selects). Every voicing channel speaks → doctor says "flag"; strip the
   winner top-down → flag→cwd→.env→os→session→ledger. One walk; the composition seal.
-- two-shell — =VIVA_SHELL=A/B= subprocesses, two =use= selections → per-shell doctor
+- two-shell — =VIVA_PROCESS_ID=A/B= subprocesses, two =use= selections → per-shell doctor
   disagrees correctly.
 - chain landmine — standing in instance-A's dir, =use b run= → cwd wins (pins the fork-3
   ruling; mirrors the 33.01 note).
@@ -392,7 +402,7 @@ order) · dotenv parsing (=@std=) · deployment facts (fixtures own liveness —
      ],
    ]);
 +
-+  const shell = Deno.env.get("VIVA_SHELL");
++  const shell = Deno.env.get("VIVA_PROCESS_ID");
 +  if (shell) {
 +    const session = await paladin.read.json(paladin.scope.ledger.branch(`sessions/${shell}.json`), null);
 +    if (session) paladin.env.assign(session, "session");
@@ -485,10 +495,10 @@ order) · dotenv parsing (=@std=) · deployment facts (fixtures own liveness —
 +    });
 +  }
 +
-+  const shell = Deno.env.get("VIVA_SHELL");
++  const shell = Deno.env.get("VIVA_PROCESS_ID");
 +  const ledger = ctx.signal.flags?.ledger === true;
 +  if (!ledger && !shell)
-+    throw new Error("session selection needs VIVA_SHELL — run viva ledger init (writes the shell line) or pass --ledger");
++    throw new Error("session selection needs VIVA_PROCESS_ID — run viva ledger init (writes the shell line) or pass --ledger");
 +
 +  const record = ledger
 +    ? paladin.scope.ledger.branch("environment.json")
@@ -527,7 +537,7 @@ order) · dotenv parsing (=@std=) · deployment facts (fixtures own liveness —
 +  trajectory.open(
 +    {
 +      nature: "/instance/use",
-+      valence: "select this shell's instance (VIVA_SHELL session) — --ledger writes the machine default; bare use prints current + provenance; trailing segments chain under /instance (use italian run)",
++      valence: "select this shell's instance (VIVA_PROCESS_ID session) — --ledger writes the machine default; bare use prints current + provenance; trailing segments chain under /instance (use italian run)",
 +      schema: v.object({ reference: v.string().desc("slug | /abs | source path").optional() }),
 +    },
 +    instance.use,
@@ -551,7 +561,7 @@ order) · dotenv parsing (=@std=) · deployment facts (fixtures own liveness —
      const instances = paladin.scope.ledger.branch("instances.json");
      if (!(await paladin.read.json(instances, null))) await paladin.state.json(instances, {});
 
-+    config.writeShellConfig("VIVA_SHELL", "$$");
++    config.writeShellConfig("VIVA_PROCESS_ID", "$$");
 +
      ctx.effect = { ...choice, ledger: paladin.scope.ledger.absolute, scaffolded: SCAFFOLD };
 @@ /doctor report — strati: winner + shadowed voices; strata: the declared ladder itself
@@ -856,19 +866,19 @@ order) · dotenv parsing (=@std=) · deployment facts (fixtures own liveness —
 +    });
 +  });
 +
-+  it("tails: sessions/<VIVA_SHELL>.json → @session · environment.json → @ledger · no shell → no session", async () => {
++  it("tails: sessions/<VIVA_PROCESS_ID>.json → @session · environment.json → @ledger · no shell → no session", async () => {
 +    const home = await Deno.makeTempDir();
 +    await Deno.mkdir(`${home}/sessions`, { recursive: true });
 +    await Deno.writeTextFile(`${home}/sessions/424242.json`, JSON.stringify({ VIVA_PROBE_SESSION: "shell" }));
 +    await Deno.writeTextFile(`${home}/environment.json`, JSON.stringify({ VIVA_PROBE_LEDGER: "machine" }));
-+    await scrubbed({ VIVA_SHELL: "424242" }, async () => {
++    await scrubbed({ VIVA_PROCESS_ID: "424242" }, async () => {
 +      const paladin = mkScoped(home);
 +      await populate.scopes(paladin);
 +      expect(paladin.env.get("VIVA_PROBE_SESSION")).toBe("shell");
 +      expect(paladin.env.provenance("VIVA_PROBE_SESSION")).toBe("session");
 +      expect(paladin.env.provenance("VIVA_PROBE_LEDGER")).toBe("ledger");
 +    });
-+    await scrubbed({ VIVA_SHELL: null }, async () => {
++    await scrubbed({ VIVA_PROCESS_ID: null }, async () => {
 +      const paladin = mkScoped(home);
 +      await populate.scopes(paladin);
 +      expect(paladin.env.has("VIVA_PROBE_SESSION")).toBe(false);
@@ -916,7 +926,7 @@ order) · dotenv parsing (=@std=) · deployment facts (fixtures own liveness —
 +function scrub() {
 +  paladin.env.delete("VIVA_LEDGER_MOUNT");
 +  paladin.env.delete("VIVA_INSTANCE_MOUNT");
-+  Deno.env.delete("VIVA_SHELL");
++  Deno.env.delete("VIVA_PROCESS_ID");
 +}
 +
 +Deno.test("use: bare prints the current selection with provenance", async () => {
@@ -930,10 +940,10 @@ order) · dotenv parsing (=@std=) · deployment facts (fixtures own liveness —
 +  scrub();
 +});
 +
-+Deno.test("use: ref with VIVA_SHELL writes the session record and registers", async () => {
++Deno.test("use: ref with VIVA_PROCESS_ID writes the session record and registers", async () => {
 +  const root = await home();
 +  const mount = await Deno.makeTempDir({ suffix: "-italian" });
-+  Deno.env.set("VIVA_SHELL", "777");
++  Deno.env.set("VIVA_PROCESS_ID", "777");
 +  const { ctx } = fake([mount]);
 +  await use(ctx);
 +  const session = JSON.parse(await Deno.readTextFile(`${root}/sessions/777.json`));
@@ -956,7 +966,7 @@ order) · dotenv parsing (=@std=) · deployment facts (fixtures own liveness —
 +  scrub();
 +});
 +
-+Deno.test("use: no VIVA_SHELL and no --ledger throws", async () => {
++Deno.test("use: no VIVA_PROCESS_ID and no --ledger throws", async () => {
 +  await home();
 +  const { ctx } = fake(["/anywhere"]);
 +  let thrown = null;
@@ -965,14 +975,14 @@ order) · dotenv parsing (=@std=) · deployment facts (fixtures own liveness —
 +  } catch (error) {
 +    thrown = error;
 +  }
-+  assertEquals(String(thrown).includes("VIVA_SHELL"), true);
++  assertEquals(String(thrown).includes("VIVA_PROCESS_ID"), true);
 +  scrub();
 +});
 +
 +Deno.test("use: trailing params chain under /instance, effect is the chained return", async () => {
 +  await home();
 +  const mount = await Deno.makeTempDir({ suffix: "-french" });
-+  Deno.env.set("VIVA_SHELL", "778");
++  Deno.env.set("VIVA_PROCESS_ID", "778");
 +  const { ctx, calls } = fake([mount, "run", "runtime"]);
 +  await use(ctx);
 +  assertEquals(calls, [["instance", "run", "runtime"]]);
@@ -1050,7 +1060,7 @@ order) · dotenv parsing (=@std=) · deployment facts (fixtures own liveness —
 +  await Deno.writeTextFile(`${home}/sessions/${shell}.json`, JSON.stringify({ VIVA_INSTANCE_MOUNT: "/by/session" }));
 +  await Deno.writeTextFile(`${home}/environment.json`, JSON.stringify({ VIVA_INSTANCE_MOUNT: "/by/ledger" }));
 +
-+  const base = { VIVA_LEDGER_MOUNT: home, VIVA_SHELL: shell };
++  const base = { VIVA_LEDGER_MOUNT: home, VIVA_PROCESS_ID: shell };
 +  const rungs = [
 +    ["flag", () => doctor(["--instance=/by/flag"], { ...base, INIT_CWD: cwdInstance, VIVA_INSTANCE_MOUNT: "/by/os" }, cwdInstance)],
 +    ["cwd", () => doctor([], { ...base, INIT_CWD: cwdInstance, VIVA_INSTANCE_MOUNT: "/by/os" }, cwdInstance)],
@@ -1070,11 +1080,11 @@ order) · dotenv parsing (=@std=) · deployment facts (fixtures own liveness —
 +  const italian = await seedInstance("italian");
 +  const spanish = await seedInstance("spanish");
 +  const neutral = await Deno.makeTempDir();
-+  await viva(["instance", "use", italian], { VIVA_LEDGER_MOUNT: home, VIVA_SHELL: "61001", INIT_CWD: neutral }, neutral);
-+  await viva(["instance", "use", spanish], { VIVA_LEDGER_MOUNT: home, VIVA_SHELL: "61002", INIT_CWD: neutral }, neutral);
++  await viva(["instance", "use", italian], { VIVA_LEDGER_MOUNT: home, VIVA_PROCESS_ID: "61001", INIT_CWD: neutral }, neutral);
++  await viva(["instance", "use", spanish], { VIVA_LEDGER_MOUNT: home, VIVA_PROCESS_ID: "61002", INIT_CWD: neutral }, neutral);
 +  const [one, two] = await Promise.all([
-+    doctor([], { VIVA_LEDGER_MOUNT: home, VIVA_SHELL: "61001", INIT_CWD: neutral }, neutral),
-+    doctor([], { VIVA_LEDGER_MOUNT: home, VIVA_SHELL: "61002", INIT_CWD: neutral }, neutral),
++    doctor([], { VIVA_LEDGER_MOUNT: home, VIVA_PROCESS_ID: "61001", INIT_CWD: neutral }, neutral),
++    doctor([], { VIVA_LEDGER_MOUNT: home, VIVA_PROCESS_ID: "61002", INIT_CWD: neutral }, neutral),
 +  ]);
 +  assertEquals(one.environment.find((variable) => variable.key === "VIVA_INSTANCE_MOUNT").value, italian);
 +  assertEquals(two.environment.find((variable) => variable.key === "VIVA_INSTANCE_MOUNT").value, spanish);
@@ -1085,8 +1095,8 @@ order) · dotenv parsing (=@std=) · deployment facts (fixtures own liveness —
 +  const home = await mkHome();
 +  const standing = await seedInstance("standing");
 +  const selected = await seedInstance("selected");
-+  await viva(["instance", "use", selected], { VIVA_LEDGER_MOUNT: home, VIVA_SHELL: "61003", INIT_CWD: standing }, standing);
-+  const report = await doctor([], { VIVA_LEDGER_MOUNT: home, VIVA_SHELL: "61003", INIT_CWD: standing }, standing);
++  await viva(["instance", "use", selected], { VIVA_LEDGER_MOUNT: home, VIVA_PROCESS_ID: "61003", INIT_CWD: standing }, standing);
++  const report = await doctor([], { VIVA_LEDGER_MOUNT: home, VIVA_PROCESS_ID: "61003", INIT_CWD: standing }, standing);
 +  assertEquals(stratumOf(report, "VIVA_INSTANCE_MOUNT"), "cwd");
 +});
 +
@@ -1175,8 +1185,8 @@ order) · dotenv parsing (=@std=) · deployment facts (fixtures own liveness —
 - ShellSignal flag grammar is ==-form only — =--instance italian= puts italian in params.
 - BEHAVIOR CHANGE (wanted, veto-able): =VIVA_ENV_FILE= was an unfiltered dump into =paladin.env=
   (secrets included, no split); now VIVA-filtered + secret-split + loud when it yields nothing.
-- =writeShellConfig("VIVA_SHELL", "$$")= — SETTLED (verified against =systems/ghost/belt/config.js:3=):
-  writes =export VIVA_SHELL="$$"= literally into =~/.config/viva/env= and findIndex-replaces the
+- =writeShellConfig("VIVA_PROCESS_ID", "$$")= — SETTLED (verified against =systems/ghost/belt/config.js:3=):
+  writes =export VIVA_PROCESS_ID="$$"= literally into =~/.config/viva/env= and findIndex-replaces the
   existing line on re-init — idempotent. Shell expands =$$= at source time.
 - SIGURG, not SIGCONT, for the liveness probe — SIGCONT is DELIVERED and resumes a ctrl-Z'd
   (stopped) shell; SIGURG's default disposition is ignore, same ESRCH throw on a dead pid,
@@ -1256,3 +1266,71 @@ order) · dotenv parsing (=@std=) · deployment facts (fixtures own liveness —
    the ladder itself a =strata= report row + environment section hint. In-stratum source
    paths (WHICH .env file fed ".env") deliberately skipped — the structure doesn't hold it,
    revisit when it hurts.
+7. RESOLVED — post-landing rename, beef: /"rename $VIVA_SHELL to VIVA_PROCESS_ID"/
+   (the variable was born =VIVA_SHELL= — compacts 66-67 keep the original spelling as
+   history). Flag-day sed across 8 code/test files + 33.01 + world shards + memory;
+   populate binding 5 steps + ghost 38/0 re-proven green. Stratum name "session" and the
+   =sessions/<pid>.json= record path unchanged — only the env var renamed.
+8. RESOLVED — the ghost path law (born from beef's live walk; two wrong frames on one slot
+   earned the codeword — zettel 08-26). Rulings verbatim: /"i DO want relatives to be
+   resolved to absolute"/ · /"just both with heading . and w/o"/ · /"both cwd rooted
+   OBVIOUSLY!"/ · /"repo relative makes sense only in cases where shits actually a
+   propoerty of repo. testament isnt. those are testing/dev setups"/ · /"think through
+   this coherently! WHOLE ghost level"/ — LAW: an operator-typed path lives in the
+   operator's frame, pinned ABSOLUTE against shell cwd AT INGRESS, before persist or
+   strata-write; repo-relative only for repo property (declarations, =@ids= —
+   =paladin.source= unchanged); symbolic tokens pass through. Slug vs dotless relative
+   splits on SYNTAX, never disk (npm convention): bare single word = symbolic, any =/=
+   or leading =.= = path, =./x= = collision escape hatch; slugs are flat by construction.
+   NEW =systems/ghost/belt/path.js= — =cwd()= (dedupes 5 hand-rolled INIT_CWD chains) +
+   =pin(token)= (passes bare words, =@…=, =://=). Applied: MOUNTS flag bridge · =use= ·
+   tap source (the silent store-relative =dir/sub= branch DIES) · create non-@ source
+   (repo-rooted bare segment DIES) · =instance/doctor= target (its inline slug/path split
+   + scope re-register DIE into =env.set(…, pin(target), "flag")= — another overwrite
+   epicycle gone). Two wet path-law tests pin =./dotted= + =apps/nested= + slug
+   passthrough + =--instance=./x=; ghost 40/0. Landed same session, blanket go ("kk go").
+9. RESOLVED — the live-walk punch-list (beef driving the real machine, rapid-fire):
+   - CHAINING WAS DEAD live: =ctx.call(["instance", ...rest])= — ShellSignal's argv
+     contract is =args[0]= IS the whole path (split on "/"), rest = params; the chained
+     signal became nature =/instance= + param "doctor" → NOT_FOUND. The unit test FAKED
+     =ctx.call= and hid the contract; no wet test chained. Fix:
+     =ctx.call([`instance/${rest[0]}`, ...rest.slice(1)])= + a real-CLI wet chain test.
+   - /"shouldnt it read 'test'?"/ — register slug now reads =manifest.slug= via
+     =find.type= (basename fallback); beef's testament registered as "test"; the stale
+     "instance" row lingers — NO deregister verb exists yet.
+   - /"id like path info too"/ — instances doctor rows carry =mount=.
+   - /"registry (46 modes 17 types) split this out by package!"/ — =collectRegistry=
+     grew =byOwner= (owner → type counts); Doctor.jsx renders per-package rows.
+   - /"identivy, scopes, environment, registry, processes, instances, instance, locks,
+     logs"/ — Doctor.jsx reordered exactly so; identity renders "—" when role/mode
+     undeclared. =sessions= stays --json-only (beef's list didn't include it).
+   - ledger/doctor now MOUNTS the instance when the scope resolves (the report showed
+     daemons:0 for a mounted scope, and the instance stratum never folded) — via
+     =Promise.resolve(mount()).catch(() => null)= because =fn.once= returns UNDEFINED
+     on every call after the first (=belt/fn.js:1= — =.catch= on a second bare call is
+     a TypeError) and a broken instance must not kill the report.
+   - THE MACHINE LEAKED INTO THE SUITES: the ledger stratum reads the REAL
+     =~/.viva/environment.json= in every process — ghost singleton tests inherited
+     beef's machine selection (ledger.test beforeAll now scrubs
+     =env.delete("VIVA_INSTANCE_MOUNT")=). Flip side: paladin
+     =instance.snapshot.test.js= (the standing env-red) HEALS ITSELF — the machine
+     default now supplies what =testament/.env= used to. paladin 22/0.
+   - silence RULED DEAD (beef: /"ahem. no?"/ + /"# where content???"/), then the JSON
+     dump RULED WRONG too (/"getting json without --json"/) — the view middleware
+     default-RENDERS any unrendered non-null effect through NEW
+     =subsystems/sheets/components/Effect.jsx= (generic non-interactive ink tree:
+     cyan keys, leaf-arrays joined inline, sections at depth 0); =--json= stays the
+     dump; =ctx.view= wraps =scroll.emit/render= to mark =ctx.rendered=, --buffer
+     marks, =ctx.call='s inner contexts pre-marked (chains print once), guard
+     =ctx.effect != null && !ctx.error= (ShellContext effects can be null). m40's
+     "silent by design" is OVERTURNED.
+   - /"also data is thin as fuc"/ — instance/doctor effect fattened: daemon/service
+     SLUGS (not counts), runtime keys, environment/mountpoint paths, =vars= = the
+     instance stratum's own voices, locks. Renders as the Effect tree.
+   - /"i dont like the mismatch between env display"/ — instance/doctor =vars= became
+     the instance stratum's actual BAG (key+value rows, same column shape as ledger
+     doctor's environment section); Effect.jsx key column widened to 30 to match.
+   - /"add deeper view into registry. type+slug"/ — =collectRegistry.byOwner= values
+     are now SLUG ARRAYS per type; Doctor.jsx renders owner → indented =type  slug
+     slug slug= lines.
+   Gates after: ghost 42/0 (9 wet) · paladin 22/0.

@@ -36,7 +36,6 @@ export class Vip {
   }
 
   async supply() {
-    await this.paladin.ledger.mount(); // fn.once — self-priming, no boot-order landmine
     const locations = await this.paladin.ledger.registry.read()
       ?? await this.paladin.ledger.registry.seed(this.paladin.scope.repository.branch("registry"));
     for (const location of locations) await this.mount(this.paladin.ledger.registry.resolve(location));
@@ -45,9 +44,8 @@ export class Vip {
 
   // tap = materialize + record. Mount is runtime's job — supply() folds the record at boot.
   async tap(source, target) {
-    await this.paladin.ledger.mount();
     let reference = source;
-    if (/^(https?:|git@|ssh:)/.test(source)) {
+    if (this.paladin.clone.remote(source)) {
       if (!target && !this.paladin.scope.registry)
         throw new Error(`[VIP] tap ${source}: no package store — a remote tap clones into scope.registry (set VIVA_REGISTRY_MOUNT)`);
       const slug = source.split("/").at(-1).replace(/\.git$/, "");
@@ -58,6 +56,8 @@ export class Vip {
       throw new Error(`[VIP] tap ${source}: target only applies to a remote source — a local tap records the reference in place`);
     }
     const root = this.paladin.ledger.registry.resolve(reference);
+    if (!(await Deno.stat(root.absolute).catch(() => null)))
+      throw new Error(`[VIP] tap ${source}: nothing at ${root.absolute} — pass a path, a remote, or a reference already in the store`);
     const declarations = await this.paladin.find.type(root, "package");
     if (!declarations.length)
       throw new Error(`[VIP] tap ${source}: no package declaration (manifest.type "package") under ${root.absolute}`);
@@ -67,7 +67,6 @@ export class Vip {
 
   // untap = record removal ONLY — the store keeps the working copy; next supply() simply omits it.
   async untap(reference) {
-    await this.paladin.ledger.mount();
     return await this.paladin.ledger.registry.remove(reference);
   }
 

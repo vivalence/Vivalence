@@ -20,8 +20,10 @@ minimum vocabulary required:
   registry.json          the record: package locations (absolute = pinned checkouts,
                          relative = store children)
   instances.json         known instances on this machine
+  environment.json       the machine default environment (viva instance use x --ledger)
   locks/                 <instance>_<process>.lock — what is running
   logs/                  <instance>/ span + stdout/err streams
+  sessions/              <shell-pid>.json — per-shell selections (viva instance use)
   registry/              the store — remote taps clone here; each child its own git clone
   instances/              the shelf — each child an instance home: the declaration,
                          environment/, .env, and (at runtime) mountpoint/
@@ -34,6 +36,37 @@ always wins: `VIVA_LEDGER_MOUNT` moves the whole home (default `~/.viva`),
 `VIVA_REGISTRY_MOUNT` moves the store (default `<ledger>/registry`),
 `VIVA_INSTANCE_MOUNT` names the one instance a runtime renders — an absolute path
 verbatim, or a bare slug resolved against the shelf.
+
+## seven strata
+
+"The environment" is not one bag — it is seven voices in fixed precedence, and the
+strongest voice holding a key wins:
+
+```
+flag      --instance=x / --ledger=/x / --env=file.env    this invocation only
+cwd       standing in an instance directory
+instance  the mounted instance's environment/*.jsonc
+.env      ./ .env scan, then VIVA_ENV_FILE, then --env    (within: later wins)
+os        exported shell variables (VIVA_* / PUBLIC_VIVA_* / SECRET_VIVA_*)
+session   <ledger>/sessions/<shell>.json                  viva instance use x
+ledger    <ledger>/environment.json                       viva instance use x --ledger
+```
+
+`viva ledger doctor` prints every variable with the stratum that won it, and dims the
+shadowed voices under each — "why is my `.env` not applying" is answered by reading the
+column. File sources fold through the VIVA filter: only `VIVA_*`/`PUBLIC_VIVA_*` enter
+the environment, `SECRET_VIVA_*` splits into the secret bag, and an explicit source
+(`--env`, `VIVA_ENV_FILE`) that yields no VIVA knowledge throws instead of silently
+doing nothing.
+
+`viva instance use italian` selects an instance for the current shell — `viva ledger
+init` writes a `VIVA_PROCESS_ID` line into the shell config so every shell carries a stable
+id, and each shell's selection lives in its own session file, so two terminals work two
+instances in parallel. Add `--ledger` to set the machine default instead. Trailing
+segments chain: `viva instance use italian run` selects and runs in one invocation.
+One deliberate edge: chaining re-enters the full resolution, so standing *inside*
+another instance's directory outranks the selection you just made — the directory you
+are in is the stronger voice, by design.
 
 The ledger itself is machine state and never git-managed — the record pins absolute
 paths, the locks hold pids. Its children are the git units: every tapped package in

@@ -1,11 +1,13 @@
 import { specimen } from "@vivalence/typology";
 import { seed } from "./scenarios/fixtures.js";
+import { accio } from "./scenarios/registry.js";
 
 let scenario;
 let fetched;
 
 specimen.beforeAll(async () => {
-  scenario = await seed();
+  const domain = await accio("@education/domain/language-learning");
+  scenario = await seed(domain.entities);
   const connection = scenario.orm.em.getConnection();
   const execute = connection.execute.bind(connection);
   fetched = [];

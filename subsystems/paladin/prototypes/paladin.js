@@ -4,10 +4,12 @@ import { Ledger } from "./ledger/index.js";
 import { Instance } from "./instance.js";
 import { Vip } from "./vip.js";
 
+const STRATA = ["flag", "cwd", "instance", ".env", "os", "session", "ledger"];
+
 export class Paladin {
   traits = [];
-  env = new Env();
-  secret = new Env();
+  env = new Env(STRATA);
+  secret = new Env(STRATA);
 
   constructor() {
     // deprecated

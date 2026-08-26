@@ -9,7 +9,6 @@ async function mkPaladin() {
   paladin.env.set("VIVA_LEDGER_MOUNT", root);
   paladin.env.set("VIVA_REPOSITORY_MOUNT", root);
   await populate.scopes(paladin);
-  await paladin.ledger.mount();
   return paladin;
 }
 

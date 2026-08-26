@@ -1,18 +1,19 @@
 import { specimen } from "@vivalence/typology";
+import { accio } from "../scenarios/registry.js";
 import { bench } from "../scenarios/bench.js";
 
 // ── raw import smoke test ──────────────────────────────────────────
-import * as domain from "../../../../registry/education/domain/domain.viva.js";
-import * as dojo from "../../../../registry/education/modes/games/dojo/dojo.viva.js";
-import * as judge from "../../../../registry/education/modes/games/judge/judge.viva.js";
 
 specimen.describe("bench (raw imports)", { sanitizeOps: false, sanitizeResources: false }, () => {
   let scenario;
 
   specimen.beforeAll(async () => {
-    scenario = await bench({
-      kernel: [domain, dojo, judge],
-    });
+    const kernel = await Promise.all([
+      accio("@education/domain/language-learning"),
+      accio("@education/game/dojo"),
+      accio("@education/game/judge"),
+    ]);
+    scenario = await bench({ kernel });
   });
 
   specimen.afterAll(async () => {

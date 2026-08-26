@@ -6,9 +6,10 @@ const CHILDREN = {
 };
 
 export async function register() {
-  await paladin.ledger.mount();
   const mount = paladin.scope.instance.absolute;
-  await paladin.ledger.instances.write(mount, { mount });
+  const [module] = await paladin.find.type(paladin.scope.instance, "instance", 0);
+  const slug = module?.manifest?.slug ?? mount.split("/").filter(Boolean).pop();
+  await paladin.ledger.instances.write(slug, { mount });
 }
 
 export function specs(param, { attachment = "inherit" } = {}) {

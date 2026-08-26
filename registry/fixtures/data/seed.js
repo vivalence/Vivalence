@@ -2,8 +2,11 @@ import { provider } from "@vivalence/runtime/scenarios";
 import { assemble } from "./assemble.js";
 import { stack, tiers } from "./tiers.js";
 
-export async function seed() {
-  const { entities, subscribers } = assemble(stack);
+// `extra` = a domain module's entity descriptors. a mode that calls domain repository methods
+// (literal.feed, literal.novel) must mount its domain — @fixtures carries only the thin
+// retention/trace pair its own corpus needs, and never smuggles another package's entities in.
+export async function seed(extra = {}) {
+  const { entities, subscribers } = assemble([...stack, extra]);
   const datamap = await provider(entities, subscribers);
   const { orm } = datamap;
   const em = datamap.entities.em;

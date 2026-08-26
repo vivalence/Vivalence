@@ -1,5 +1,5 @@
 import { MikroORM } from "@mikro-orm/core";
-import { config } from "../../viva/datamap/libsql/libsql.viva.js";
+import { config } from "../../viva/datamaps/libsql/libsql.viva.js";
 import {
   IdentitySchema, IdentityEntity,
   DaemonSchema, DaemonEntity,

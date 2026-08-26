@@ -1,0 +1,139 @@
+#+title: the strata go live on one word, the shell learns its process id, and the path frame belongs to the operator
+#+filetags: :paladin:ghost:ledger:typology:env:cli:m41:paths:landing:callout:
+
+* what happened, in one breath
+
+Post-compact resume found m41 patch-final across two prior sessions (compacts 66–67);
+beef asked for a coherent testing schema (/"thsi new strata stuff is pretty high
+dimensional and cross relational. uiuiui."/), then doctor visibility, then /"is the
+entire quest worked out in full detail as one coherent patch?"/ → gaps closed (test
+code authored, Doctor.jsx hunks, strati) → /"go."/ + /"go *"/ + /"tested thoroughly"/
+— M1–M7 ALL LANDED in one pass, every gate green, wet ladder-peel green FIRST RUN.
+Then three live-walk aftershocks: =VIVA_SHELL= → =VIVA_PROCESS_ID= rename (flag-day),
+beef's real install surfacing grammar + stale-config findings, and a two-strike path
+fumble that earned the codeword and produced the WHOLE-GHOST path law + =belt/path.js=.
+Ghost ends 40/0.
+
+* the schema that killed the product space
+
+Beef: /"work out a coherent testing schema"/. Answer in the quest (=* testing schema=):
+binding (channel → declared stratum, proven via =provenance=) ∘ algebra (Env laws:
+views-agree coherence · cross-strata write commutation · in-stratum last-write-wins),
+sealed by ONE wet ladder-peel — 2^7 presence matrix collapses to 7 binding assertions +
+algebra + one walk. Peel is SIX rungs by construction: channels bind different key sets;
+the "instance" stratum cannot voice =VIVA_INSTANCE_MOUNT= (circular — it is fed BY the
+instance that key selects).
+
+* visibility rulings (fork 6)
+
+/"voices(key) bad name. strati?"/ → =Env.strati(key)= — provenance's plural, every
+voice strongest-first. /"secrets not show."/ — no secrets section, count only, values
+never. /"both."/ — shadowed voices render as dim sub-rows in Doctor.jsx AND ride
+--json; =strata= ladder row + section hint.
+
+* the landing
+
+- M1 typology: Env recast + strati + =object.filter= + 15 specimens → 120/1 (red =
+  pre-existing hallucination snapshot; counter flaps 1↔2 across runs).
+- M2 paladin: populate filter-then-tagged-assign (=keys.public=/=keys.secret=), ./ scan,
+  VIVA_ENV_FILE loud-when-hollow, divergence fix, session/ledger tails, instance tag,
+  SIGURG in =lock.js= + NEW =populate.test.js= (5 binding specimens) → 21+1
+  (=instance.snapshot= wants =testament/.env= — rename residue; proved env-dependent:
+  no shell export, no root .env, old code throws identically).
+- M3 ghost: MOUNTS flag bridge · =--env= · cwd stratum (scope-overwrite epicycle in the
+  cwd middleware DEAD) · doctor strati rows + Doctor.jsx.
+- M4 use verb: session/ledger records, chaining via =ctx.call=, register slug fix,
+  =use.test.js= + target regression; ghost tests that drive =/ledger/init= now redirect
+  =XDG_CONFIG_HOME= to temp (init writes the shell line — tests must not touch the real
+  config).
+- M5 wet seal =strata.wet.test.js=: hermetic clearEnv subprocesses invoking mod.js
+  directly (ghost.sh sources user config), report parsed from stdout TAIL (ink renders
+  first), =VIVA_PROCESS_ID= pinned to =Deno.pid= (prune eats dead-pid fixtures on the
+  FIRST probe) — ladder peel · two-shell parallel · chain-cwd landmine · prune+secrets-
+  dark · --env loud.
+- M6 docs: 33.01 strata section · 51.01 use-first · README ladder paragraph ·
+  .env.example. 10 pages.
+- M7: =Ledger.mount= GONE — =instances=/=registry= per-access getters, =publish()= at
+  spawn head; grep found an 11th call site the patch list missed (ghost's own
+  =tests/ledger.test.js:44=) — all dead.
+- runtime 52/0 · kajuit 35/0.
+
+* aftershocks from beef's live walk
+
+- /"rename $VIVA_SHELL to VIVA_PROCESS_ID"/ — flag-day sed, 8 code/test files + 33.01 +
+  shards + memory; compacts keep the old spelling as history; stratum "session" +
+  =sessions/<pid>.json= unchanged.
+- =viva ledger init= → /"ghost: no handler"/ — grammar is =ledger/init= (ShellSignal
+  splits args[0] on "/", rest = params; space form would collide with chaining params).
+- stale config lines (=VIVA_SYSTEM_MOUNT=, =VIVA_SHELL=) — writeShellConfig replaces by
+  key, never prunes. Beef: /"ignore stale lines."/ Prune proposal open (not built).
+- init ALSO still prints =paladin.scope overwrite= — DIFFERENT site (init re-registers
+  the ledger scope, =ledger/index.js:45=); same medicine proposed
+  (=env.set("VIVA_LEDGER_MOUNT", choice.mount, "flag")=), NOT yet ruled/built.
+- /"where y instance at?"/ — nowhere; all seven voices silent on a fresh machine.
+  =instance/doctor= silent without --json is ghost design.
+
+* the path law (fork 8, the codeword walk)
+
+Beef: /"does viva use work with paths?"/ → I hand-rolled =startsWith(".")= + resolve →
+/"nononnoooo thats really not how i do paths"/ → I swapped to =paladin.source= (bare
+segment repo-rooted) → /"bare x/y repo-rooted, ?????????????????????????? STUPID!!!
+think. bro...... both cwd rooted OBVIOUSLY!"/ + /"retard"/ (zettel 08-26 logged: name
+the FRAME OWNER before picking the primitive; a correction to a path semantic triggers
+a whole-surface survey, not a one-verb patch). Then /"ok. think through this
+coherently! WHOLE ghost level"/ + /"where do we work with paths?"/ + /"how do we split
+slugs from relative paths w/o heading .?"/ + /"repo relative makes sense only in cases
+where shits actually a propoerty of repo. testament isnt. those are testing/dev
+setups"/ → survey table (9 ingresses, 4 hand-rolled INIT_CWD chains, tap's silent
+store-relative branch, create's repo-rooted bare segment, verbatim flag bridge) → LAW:
+operator-typed paths pin absolute against shell cwd AT INGRESS; slug-vs-path splits on
+SYNTAX never disk (npm convention — bare word symbolic, any / or leading . = path,
+./x = collision hatch); repo-relative only for repo property. /"kk go"/ → NEW
+=systems/ghost/belt/path.js= (=cwd()= + =pin()=), applied at flag bridge · use · tap ·
+create · instance/doctor (whose inline split + scope re-register died — another
+overwrite epicycle). Two path-law wet tests. Ghost 40/0.
+
+* the live walk punch-list (quest fork 9 has the full record)
+
+Beef drove the real machine and the session ended in rapid-fire fixes: CHAINING WAS
+DEAD live (=ctx.call= array vs ShellSignal's args[0]-is-the-path contract — the unit
+test faked =ctx.call= and hid it; fixed + real-CLI wet chain test) · register slug now
+reads =manifest.slug= ("test", not basename "instance"; stale row lingers, NO
+deregister verb) · instances rows carry =mount= · registry split =byOwner=
+(/"split this out by package!"/) · Doctor.jsx reordered to beef's exact section list,
+identity "—" fallbacks · ledger/doctor now mounts the instance (=fn.once= returns
+UNDEFINED after call #1 — =belt/fn.js= — so =Promise.resolve(...).catch()= wraps it) ·
+THE MACHINE LEAKED INTO THE SUITES: the ledger stratum reads the real
+=~/.viva/environment.json= in every process — ghost ledger.test scrubs it in
+beforeAll; flip side, the standing paladin =instance.snapshot= env-red HEALS (machine
+default supplies what =testament/.env= used to). Bare =use=/=instance doctor= printed
+NOTHING without --json (m40 design) — beef: /"ahem. no?"/ /"# where content???"/ —
+silence RULED DEAD; then the JSON dump ruled wrong too (/"getting json without
+--json"/) → NEW =subsystems/sheets/components/Effect.jsx=, a generic non-interactive
+ink tree the view middleware renders for ANY unrendered non-null effect (--json stays
+the dump; ink views suppress; chains print once). /"also data is thin as fuc"/ →
+instance/doctor fattened: daemon/service SLUGS, runtime keys, environment/mountpoint
+paths, =vars= = the instance stratum's own bag (key+value, matching the ledger
+doctor's env columns — /"i dont like the mismatch between env display"/). /"add
+deeper view into registry. type+slug"/ → doctor registry renders owner → type → slug
+lists. Ghost ends 42/0 with 9 wet.
+
+* state
+
+m41 LANDED GREEN M1–M7 + rename + path law + punch-list, ALL UNCOMMITTED (rides with
+m39 + m40 + variant→instance rename — beef owes ONE commit). Suites: typology 120/1 ·
+paladin 22/0 (snapshot healed by the ledger stratum) · ghost 41/0 · runtime 52/0 ·
+kajuit 35/0 · docs 10 pages. Beef's machine: strata proven live — provenance column,
+per-shell sessions, ledger default, doctor byOwner, "test" registered.
+
+* resumption
+
+1. beef: commit the tree · hand-delete stale config lines (=VIVA_SHELL=,
+   =VIVA_SYSTEM_MOUNT=) + stale ="instance"= row in =~/.viva/instances.json= · new
+   shell for =VIVA_PROCESS_ID=.
+2. OPEN rulings: deregister verb · config prune of dead keys · init's ledger scope
+   re-register → flag-stratum write (the LAST scope-overwrite print) · space grammar
+   (=viva ledger init=) stays slash-form. Silence UX RESOLVED — default-print landed.
+3. Suite hermeticity note: ghost target tests now pass off the MACHINE ledger stratum —
+   green depends on =~/.viva/environment.json= holding an instance; the wet suite is
+   the hermetic one.

@@ -457,24 +457,19 @@ written — the capture runner exits regardless of example leaks.
 service provider contract to hand the datamap (or a terminator) back to the
 die instead of swallowing it in the server closure.
 
-* paladin-scope-overwrite-warning
+* paladin-scope-overwrite-warning — RESOLVED (m41)
 
 ** Symptom
 
-Every =viva= invocation prints =paladin.scope overwrite= to stderr.
+Every =viva= invocation printed =paladin.scope overwrite= to stderr.
 
-** Cause
+** Resolution
 
-Ghost mw re-registers the =instance= scope on every invocation via
-=paladin.scopes([["instance", () => true, () => new Path(cwd)]])=. Paladin's
-scope ledger warns when a scope is re-registered.
-
-** Why not fixed
-
-Cosmetic. The override is intentional (ghost wants its cwd-derived instance
-scope to win over the env-derived one) but the warning fires every time. Either
-make paladin silent on re-register, or detect "same value" overwrites and
-suppress.
+The epicycle was a missing stratum: ghost's cwd middleware no longer
+re-registers the =instance= scope — it writes
+=paladin.env.set("VIVA_INSTANCE_MOUNT", cwd, "cwd")= into the cwd stratum and
+the ONE scope resolver reads through the stratified env. The warning's trigger
+is gone structurally (m41 stratified-env).
 
 * registry-count-test-pins-a-number — RESOLVED
 
@@ -848,3 +843,6 @@ Client side: an =AbortController= per debounce ticket on =/symbols=, =/resolve=,
 - cloze unmountable on italian: sentences un-ANNOTATED (0/1015)
 - **proof owed on the next pipeline: kajuit digest must MOVE** (`VIVA_STAMP` build-arg + `:$CI_COMMIT_SHORT_SHA` receipt tag wired both sides; mechanism + history) → [[the-kajuit-image-never-moved-because-its-build-stage-read-nothing-from-the-context-and-the-stamp-arg-was-never-passed]]
 - `translate.snapshot.test.js` RED in BOTH hallucinator packages (anthropic + openrouter), pre-existing: frozen `buildParams` snapshots lack the appraise-era `tool_choice: {type:"any"}` + `respond` tool. Unrelated to the tune/config work (tests never import `provider()`). Refreeze vs investigate — beef's call.
+
+* paladin instance.snapshot red on empty machine environment.json
+frontier claims paladin 22/0; measured 21/1 — instance.snapshot.test.js "resolved deployment" throws `instance.mount: no scope.instance`. ~/.viva/environment.json is `{}` on this machine (the owed variant→instance env swap). Fails identically on HEAD content — pre-existing, env-shaped, not code. Heals when beef repopulates environment.json.

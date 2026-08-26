@@ -92,6 +92,7 @@ async function environment(instance) {
         .then((json) =>
           (file.absolute.includes("secret") ? instance.paladin.secret : instance.paladin.env).assign(
             json,
+            "instance",
           ),
         ),
     ),

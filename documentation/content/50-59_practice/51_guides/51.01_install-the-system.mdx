@@ -32,19 +32,36 @@ tap a package — a local path is recorded as-is, a git URL is cloned into the s
 (or into the target, if given). `doctor` shows the record, the store census, and the homes.
 
 ```sh
-viva ledger/tap <path | git url> [target]
+viva registry/tap <path | git url> [target]
 viva ledger/doctor
+```
+
+To start a package rather than adopt one, bootstrap it. With no source you get a bare
+manifest; with one, that package's tree is cloned and its declaration rewritten to the
+destination — the directory name becomes the slug, and the slug at-signed becomes the
+owner. Either way the result is tapped. An ambiguous source opens the picker.
+
+```sh
+viva registry/bootstrap ~/code/mine
+viva registry/bootstrap ~/code/mine viva
 ```
 
 ## Set up an instance
 
 create an instance out of the registry — without a target it lands on the shelf,
-and `VIVA_INSTANCE_MOUNT` accepts its bare slug
+then select it for this shell with `use`
 
 ```sh
 viva instance/create @viva/instance/localhost
-export VIVA_INSTANCE_MOUNT=localhost
+viva instance/use localhost
 ```
+
+`use` remembers the selection per shell — two terminals can work two instances in
+parallel. Other voices when you need them: `--instance=<slug|path>` targets one
+invocation, standing inside an instance directory targets it implicitly, a `./ .env`
+file or an exported `VIVA_INSTANCE_MOUNT` still works, and `use localhost --ledger`
+sets the machine default. Bare `viva instance/use` prints the current selection and
+which voice won it; `viva ledger/doctor` shows the same for every variable.
 
 `instance/init` runs first-boot: the first call seeds `.env` from `.env.example` — fill it,
 then run it again and the wizard boots the instance, creates your account against its

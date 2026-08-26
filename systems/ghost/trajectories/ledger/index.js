@@ -1,13 +1,11 @@
 import paladin from "@vivalence/paladin";
 import { resolve } from "@std/path";
 import { Path, v, Vector } from "@vivalence/typology";
-import { config } from "../../belt/index.js";
+import { config, path } from "../../belt/index.js";
 import { Init } from "./Init.jsx";
 import { Doctor } from "./Doctor.jsx";
 
-const cwd = () => Deno.env.get("INIT_CWD") ?? Deno.env.get("PWD") ?? Deno.cwd();
-
-const SCAFFOLD = ["locks", "logs", "registry", "instances"];
+const SCAFFOLD = ["locks", "logs", "registry", "instances", "sessions"];
 
 const SCOPES = [
   ["ledger", 0],
@@ -32,7 +30,7 @@ ledger.open(
     const target = ctx.signal.params?.[0];
     let choice;
     if (target) {
-      choice = { mount: resolve(cwd(), target), persisted: false };
+      choice = { mount: resolve(path.cwd(), target), persisted: false };
     } else {
       const home = paladin.scope.ledger.absolute;
       const exportLineFor = (mount) => `export VIVA_LEDGER_MOUNT="${mount}"`;
@@ -43,10 +41,6 @@ ledger.open(
 
     const root = new Path(choice.mount);
     paladin.scopes([["ledger", () => true, () => root]]);
-    await paladin.ledger.mount();
-    paladin.ledger.registry.path = paladin.scope.ledger.branch("registry.json");
-    paladin.ledger.instances.path = paladin.scope.ledger.branch("instances.json");
-
     for (const sub of SCAFFOLD) {
       await Deno.mkdir(paladin.scope.ledger.branch(sub).absolute, { recursive: true });
     }
@@ -54,43 +48,9 @@ ledger.open(
     const instances = paladin.scope.ledger.branch("instances.json");
     if (!(await paladin.read.json(instances, null))) await paladin.state.json(instances, {});
 
+    await config.writeShellConfig("VIVA_PROCESS_ID", "$$");
+
     ctx.effect = { ...choice, ledger: paladin.scope.ledger.absolute, scaffolded: SCAFFOLD };
-  },
-);
-
-ledger.open(
-  {
-    nature: "/tap",
-    valence: "tap a package — record a reference; a remote source clones into the store (or target)",
-    schema: v.object({
-      source: v.string().desc("path or git url").optional(),
-      target: v.string().desc("clone destination for a remote source").optional(),
-    }),
-  },
-  async (ctx) => {
-    let [source, target] = ctx.signal.params ?? [];
-    if (!source) throw new Error("usage: viva ledger tap <path | git url> [target]");
-    if (source.startsWith("./") || source.startsWith("../")) source = resolve(cwd(), source);
-    if (target) target = resolve(cwd(), target);
-    const reference = await paladin.vip.tap(source, target);
-    ctx.effect = {
-      reference,
-      root: paladin.ledger.registry.resolve(reference).absolute,
-      record: await paladin.ledger.registry.list(),
-    };
-  },
-);
-
-ledger.open(
-  {
-    nature: "/untap",
-    valence: "untap a package — record removal only, the store keeps the working copy",
-    schema: v.object({ reference: v.string().desc("recorded reference").optional() }),
-  },
-  async (ctx) => {
-    const reference = ctx.signal.params?.[0];
-    if (!reference) throw new Error("usage: viva ledger untap <reference>");
-    ctx.effect = { record: await paladin.vip.untap(reference) };
   },
 );
 
@@ -101,8 +61,7 @@ ledger.open(
     schema: v.object({}),
   },
   async (ctx) => {
-    await paladin.ledger.mount();
-
+    if (paladin.scope.instance) await Promise.resolve(paladin.instance.mount()).catch(() => null);
     const references = await paladin.ledger.registry.list();
     const record = await Promise.all(
       references.map(async (reference) => {
@@ -134,7 +93,11 @@ ledger.open(
         present: name in paladin.scope,
         path: paladin.scope[name]?.absolute ?? null,
       })),
-      environment: Object.entries(paladin.env.vars).map(([key, value]) => ({ key, value })),
+      environment: Object.keys(paladin.env.vars).map((key) => {
+        const [{ stratum, value }, ...shadowed] = paladin.env.strati(key);
+        return { key, value, stratum, ...(shadowed.length ? { shadowed } : {}) };
+      }),
+      strata: paladin.env.order,
       secrets: Object.keys(paladin.secret?.vars ?? {}).length,
       processes: {
         armed: paladin.ledger.armed,
@@ -147,6 +110,7 @@ ledger.open(
       record,
       registry: await collectRegistry(paladin),
       locks: await collectLocks(paladin.scope.ledger),
+      sessions: await collectSessions(paladin.scope.ledger),
       instances: await collectInstances(paladin.ledger.instances),
       logs: await collectLogs(paladin.scope.ledger),
       instance: {
@@ -162,6 +126,34 @@ ledger.open(
     await ctx.view?.scroll.emit({ report }, null, Doctor);
   },
 );
+
+async function collectSessions(ledgerScope) {
+  if (!ledgerScope) return [];
+  try {
+    const dir = ledgerScope.branch("sessions").absolute;
+    const out = [];
+    for await (const entry of Deno.readDir(dir)) {
+      if (!entry.name.endsWith(".json")) continue;
+      const shell = Number(entry.name.slice(0, -".json".length));
+      let payload = null;
+      try {
+        payload = JSON.parse(await Deno.readTextFile(`${dir}/${entry.name}`));
+      } catch {
+        payload = null;
+      }
+      try {
+        Deno.kill(shell, "SIGURG");
+      } catch {
+        await Deno.remove(`${dir}/${entry.name}`).catch(() => {});
+        continue;
+      }
+      out.push({ shell, ...payload });
+    }
+    return out;
+  } catch {
+    return [];
+  }
+}
 
 async function collectLocks(ledgerScope) {
   if (!ledgerScope) return [];
@@ -195,6 +187,7 @@ async function collectInstances(instances) {
     const all = JSON.parse(await Deno.readTextFile(instances.path.absolute));
     return Object.entries(all).map(([slug, info]) => ({
       slug,
+      mount: info?.mount ?? null,
       createdAt: info?.createdAt ?? null,
       updatedAt: info?.updatedAt ?? null,
     }));
@@ -248,8 +241,14 @@ async function collectRegistry(paladin) {
         }
       }
     }
+    const byOwner = {};
+    for (const [type, list] of Object.entries(byType)) {
+      for (const { owner, slug } of list) {
+        ((byOwner[owner] ??= {})[type] ??= []).push(slug);
+      }
+    }
     const total = Object.values(byType).reduce((sum, list) => sum + list.length, 0);
-    return { total, byType };
+    return { total, byType, byOwner };
   } catch (error) {
     return { error: error.message };
   }

@@ -26,9 +26,10 @@ function mapimports(imports = {}, baseUrl) {
 }
 
 export async function svelte(entry, opts = {}) {
-  const { prod = false, imports = {}, baseUrl = new URL(import.meta.url) } = opts;
+  const { prod = false, imports = {}, baseUrl = new URL(import.meta.url), nodePaths = [] } = opts;
 
   const config = {
+    nodePaths,
     mainFields: ["svelte", "browser", "module", "main"],
     conditions: ["svelte", "browser"],
     minify: prod,

@@ -3,7 +3,7 @@
 // aggregated from the seeded retention/trace fixtures.
 import { specimen } from "@vivalence/typology";
 import { mountMode } from "../scenarios/mode.js";
-import * as aprende from "../../../../registry/education/modes/home/aprende/aprende.viva.js";
+import { accio } from "../scenarios/registry.js";
 
 const ROUTE = "/mode/homepage/aprende/assistant/wakeup/statistics";
 
@@ -11,7 +11,7 @@ specimen.describe("aprende: /assistant/wakeup/statistics", () => {
   let scenario;
 
   specimen.beforeAll(async () => {
-    scenario = await mountMode(aprende);
+    scenario = await mountMode(await accio("@education/homepage/aprende"));
   });
 
   specimen.afterAll(async () => {

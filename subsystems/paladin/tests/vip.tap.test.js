@@ -101,4 +101,22 @@ describe("Vip.tap — materialize + record, never mount", () => {
     await expect(next.vip.accio("@external/game/write")).rejects.toThrow("not supplied");
     expect((await next.vip.accio("@pack/game/judge")).manifest.slug).toBe("judge");
   });
+
+  it("clone.remote classifies every remote spelling, so a caller can skip path resolution", async () => {
+    const { boot } = await scaffold();
+    const paladin = boot();
+    for (const remote of ["https://host/r.git", "http://host/r", "git@github.com:vivalence/registry-standalone.git", "ssh://host/r.git"]) {
+      expect(paladin.clone.remote(remote)).toBe(true);
+    }
+    for (const local of ["/abs/path", "./rel", "pack", "", null, undefined]) {
+      expect(paladin.clone.remote(local)).toBe(false);
+    }
+  });
+
+  it("tap of a reference with nothing behind it names what it looked for", async () => {
+    const { boot, store } = await scaffold();
+    const paladin = boot();
+    const thrown = await paladin.vip.tap("absent").then(() => null, (error) => error);
+    expect(String(thrown)).toContain(`nothing at ${store}/absent`);
+  });
 });

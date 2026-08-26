@@ -1,56 +1,64 @@
 export class Env {
-  constructor(vars = {}) {
-    this.vars = vars;
+  constructor(order = ["process"]) {
+    this.order = order;
+    this.strata = new Map(order.map((tag) => [tag, {}]));
 
     return new Proxy(this, {
       get(target, prop) {
         if (prop in target) {
           return target[prop];
         }
-        return target.vars[prop];
+        return target.get(prop, undefined);
       },
     });
   }
 
-  assign(obj) {
-    Object.assign(this.vars, obj.vars || obj);
+  stratum(tag) {
+    const vars = this.strata.get(tag);
+    if (!vars) {
+      throw new Error(`[Env] unknown stratum '${tag}' — declared: ${this.order.join(" ")}`);
+    }
+    return vars;
+  }
+
+  get vars() {
+    return [...this.strata.values()].reduceRight((folded, vars) => Object.assign(folded, vars), {});
+  }
+
+  assign(obj, tag = this.order[0]) {
+    Object.assign(this.stratum(tag), obj.vars || obj);
     return this;
   }
 
-  get(key, fallback = null, persist = false) {
-    const value = this.vars[key];
-    if (value !== undefined) return value;
-
-    if (typeof fallback === "string" && persist) {
-      return this.set(key, fallback);
+  get(key, fallback = null) {
+    for (const vars of this.strata.values()) {
+      if (vars[key] !== undefined) return vars[key];
     }
-
     return fallback;
   }
 
-  set(key, value) {
-    this.vars[key] = value;
+  set(key, value, tag = this.order[0]) {
+    this.stratum(tag)[key] = value;
     return this;
   }
 
   has(key) {
-    return key in this.vars;
+    for (const vars of this.strata.values()) if (key in vars) return true;
+    return false;
+  }
+
+  provenance(key) {
+    for (const [tag, vars] of this.strata) if (key in vars) return tag;
+    return null;
+  }
+
+  strati(key) {
+    return [...this.strata]
+      .filter(([, vars]) => key in vars)
+      .map(([stratum, vars]) => ({ stratum, value: vars[key] }));
   }
 
   delete(key) {
-    delete this.vars[key];
-    // Deno.env.delete(key);
-  }
-
-  // with(env) {this.vars = { ...env, ...this.vars };}
-
-  _coerce(value) {
-    if (typeof value === "string") {
-      if (value === "true") return true;
-      else if (value === "false") return false;
-      else if (!isNaN(value) && value !== "") return Number(value);
-      // if (value.startsWith("http")) env[key] = new URL(value);
-      // if (value.startsWith("file:")) env[key] = new URL(value);
-    }
+    for (const vars of this.strata.values()) delete vars[key];
   }
 }

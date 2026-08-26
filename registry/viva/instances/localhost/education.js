@@ -29,7 +29,6 @@ export const education = {
     "@education/tactic/clinic",
     "@education/tactic/five-fold-session",
     "@education/teacher/francesca",
-    "@education/teacher/dewey",
     "@education/dashboard/dataspace",
   ],
   lighthouse: {

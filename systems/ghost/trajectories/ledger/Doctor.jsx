@@ -1,7 +1,7 @@
 import { Box, React, Text } from "@vivalence/sheets";
 
 export function Doctor({ report }) {
-  const { identity, scopes, environment, secrets, processes, locks, instances, logs, instance, registry, vip } = report;
+  const { identity, scopes, environment, strata, secrets, processes, locks, instances, logs, instance, registry, vip } = report;
 
   return (
     <Box flexDirection="column">
@@ -9,8 +9,8 @@ export function Doctor({ report }) {
 
       <Section title="identity">
         <Text>
-          role: <Text color="cyan">{identity.role}</Text>  mode:{" "}
-          <Text color="cyan">{identity.mode}</Text>
+          role: <Text color="cyan">{identity.role ?? "—"}</Text>  mode:{" "}
+          <Text color="cyan">{identity.mode ?? "—"}</Text>
         </Text>
         <Text color="gray">flags: {identity.flags.join(" ") || "—"}</Text>
       </Section>
@@ -24,6 +24,49 @@ export function Doctor({ report }) {
         ))}
       </Section>
 
+      <Section title="environment" hint={`${environment.length} vars · ${(strata ?? []).join(" › ")}`}>
+        {environment.map((variable) => (
+          <Box key={variable.key} flexDirection="column">
+            <Text>
+              <Text color="cyan">{variable.key.padEnd(30)}</Text>{" "}
+              <Text color="magenta">{(variable.stratum ?? "").padEnd(9)}</Text>{" "}
+              <Text color="gray">{variable.value}</Text>
+            </Text>
+            {(variable.shadowed ?? []).map((voice) => (
+              <Text key={voice.stratum} color="gray" dimColor>
+                {"".padEnd(30)} ⋯ {voice.stratum.padEnd(9)} {voice.value}
+              </Text>
+            ))}
+          </Box>
+        ))}
+      </Section>
+
+      <Section
+        title="registry"
+        hint={
+          registry === null
+            ? "no scope"
+            : registry.error
+              ? `error: ${registry.error}`
+              : `${registry.total} modes  ${Object.keys(registry.byOwner ?? {}).length} packages`
+        }
+      >
+        {registry === null && <Text color="gray">—</Text>}
+        {registry?.error && <Text color="red">{registry.error}</Text>}
+        {registry?.byOwner &&
+          Object.entries(registry.byOwner).map(([owner, types]) => (
+            <Box key={owner} flexDirection="column">
+              <Text color="cyan">{owner}</Text>
+              {Object.entries(types).map(([type, slugs]) => (
+                <Text key={type}>
+                  {"  "}
+                  {type.padEnd(14)} <Text color="gray">{slugs.join("  ")}</Text>
+                </Text>
+              ))}
+            </Box>
+          ))}
+      </Section>
+
       <Section title="processes" hint={`armed:${processes.armed}  attached:${processes.attached.length}`}>
         {processes.attached.length === 0 && <Text color="gray">—</Text>}
         {processes.attached.map((process) => (
@@ -34,29 +77,12 @@ export function Doctor({ report }) {
         ))}
       </Section>
 
-      <Section title="locks" hint={`${locks.length}`}>
-        {locks.length === 0 && <Text color="gray">—</Text>}
-        {locks.map((lock) => (
-          <Text key={`${lock.type}_${lock.slug}`}>
-            {lock.type}/{lock.slug.padEnd(20)} pid {lock.pid ?? "?"}
-          </Text>
-        ))}
-      </Section>
-
       <Section title="instances" hint={`${instances.length}`}>
         {instances.length === 0 && <Text color="gray">—</Text>}
-        {instances.map((instance) => (
-          <Text key={instance.slug}>
-            {instance.slug.padEnd(24)} updated {instance.updatedAt ?? "—"}
-          </Text>
-        ))}
-      </Section>
-
-      <Section title="logs" hint={`${logs.length} files`}>
-        {logs.length === 0 && <Text color="gray">—</Text>}
-        {logs.map((log) => (
-          <Text key={log.name}>
-            {log.name.padEnd(40)} {String(log.size).padStart(8)} B
+        {instances.map((entry) => (
+          <Text key={entry.slug}>
+            {entry.slug.padEnd(24)} {(entry.mount ?? "—").padEnd(48)}{" "}
+            <Text color="gray">updated {entry.updatedAt ?? "—"}</Text>
           </Text>
         ))}
       </Section>
@@ -68,32 +94,20 @@ export function Doctor({ report }) {
         <Text color="gray">clients: {instance.clients.join(" ") || "—"}</Text>
       </Section>
 
-      <Section
-        title="registry"
-        hint={
-          registry === null
-            ? "no scope"
-            : registry.error
-              ? `error: ${registry.error}`
-              : `${registry.total} modes  ${Object.keys(registry.byType).length} types`
-        }
-      >
-        {registry === null && <Text color="gray">—</Text>}
-        {registry?.error && <Text color="red">{registry.error}</Text>}
-        {registry?.byType && (
-          <Text color="gray">
-            {Object.entries(registry.byType)
-              .map(([type, entries]) => `${type}:${entries.length}`)
-              .join("  ")}
+      <Section title="locks" hint={`${locks.length}`}>
+        {locks.length === 0 && <Text color="gray">—</Text>}
+        {locks.map((lock) => (
+          <Text key={`${lock.type}_${lock.slug}`}>
+            {lock.type}/{lock.slug.padEnd(20)} pid {lock.pid ?? "?"}
           </Text>
-        )}
+        ))}
       </Section>
 
-      <Section title="environment" hint={`${environment.length} vars`}>
-        {environment.map((variable) => (
-          <Text key={variable.key}>
-            <Text color="cyan">{variable.key.padEnd(30)}</Text>{" "}
-            <Text color="gray">{variable.value}</Text>
+      <Section title="logs" hint={`${logs.length} files`}>
+        {logs.length === 0 && <Text color="gray">—</Text>}
+        {logs.map((log) => (
+          <Text key={log.name}>
+            {log.name.padEnd(40)} {String(log.size).padStart(8)} B
           </Text>
         ))}
       </Section>

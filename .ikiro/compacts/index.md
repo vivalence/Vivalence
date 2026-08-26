@@ -4,12 +4,12 @@
 
 - **kajuit** — 7, 9, 13, 17, 18, 22, 24, 25, 28, 37, 40, 43, 44, 46, 49, 55, 64
 - **dojo** — 6, 11, 14, 24, 28, 43, 44, 45, 46, 49, 53, 58
-- **typology** — 12, 14, 17, 18, 25, 26, 30, 45, 48, 49, 63, 64, 65, 66, 67
+- **typology** — 12, 14, 17, 18, 25, 26, 30, 45, 48, 49, 63, 64, 65, 66, 67, 68
 - **compact** — 2, 3, 22, 35, 36, 40, 42, 55
 - **francesca** — 5, 7, 9, 11, 15, 26, 31, 58
 - **m24** — 8, 15, 24, 28, 30, 41, 43, 49
 - **svelte** — 8, 15, 24, 28, 41, 43, 49, 55
-- **callout** — 11, 13, 14, 17, 33, 35, 36, 60, 63, 65
+- **callout** — 11, 13, 14, 17, 33, 35, 36, 60, 63, 65, 68
 - **vector** — 8, 17, 19, 20, 42, 48, 57
 - **dock** — 7, 9, 11, 25, 26, 37
 - **drapes** — 18, 30, 41, 49, 55, 56
@@ -45,7 +45,7 @@
 - **drawer** — 11, 24, 44
 - **emitter** — 1, 8, 28
 - **frame** — 1, 18, 55
-- **ghost** — 2, 27, 42, 63, 66, 67
+- **ghost** — 2, 27, 42, 63, 66, 67, 68
 - **harness** — 50, 54, 58
 - **intelligent** — 7, 11, 37
 - **italian** — 38, 39, 47, 61, 64
@@ -55,10 +55,11 @@
 - **memory** — 6, 24, 53
 - **mikro-orm** — 24, 28, 53
 - **packages** — 2, 42, 59
-- **paladin** — 2, 29, 42, 62, 63, 64, 66, 67
-- **ledger** — 27, 63, 66, 67
-- **env** — 66, 67
-- **m41** — 66, 67
+- **paladin** — 2, 29, 42, 62, 63, 64, 66, 67, 68
+- **ledger** — 27, 63, 66, 67, 68
+- **env** — 66, 67, 68
+- **paths** — 68
+- **m41** — 66, 67, 68
 - **performance** — 17, 32, 44
 - **presets** — 6, 43, 49
 - **rep-o-gram** — 15, 41, 49
@@ -190,6 +191,7 @@
 54. `the-skills-and-then-the-entities-emigrate-to-the-daemon-the-barrel-doctrine-survives-its-own-crash-and-a-thread-learns-to-steer-its-own-intelligence`
 55. `the-stage-went-deaf-because-frame-plucked-the-store-off-its-prop-and-the-delete-terminal-cure-was-the-null-gap-remounting-it`
 56. `the-start-chatting-button-flipped-a-flag-the-dock-pane-ignored-the-button-gated-on-harnessed-the-pane-on-conversational-and-the-cure-is-one-authority-plus-a-per-terminal-dock`
+68. `the-strata-go-live-on-one-word-the-shell-learns-its-process-id-and-the-path-frame-belongs-to-the-operator`
 57. `the-telemetry-family-moves-in-behind-two-doors-and-the-vector-becomes-the-trie-beef-had-already-written-in-a-comment`
 58. `the-transcript-teaches-the-ladder-the-domain-keeps-its-slug-and-the-reviewer-is-told-what-it-already-reviewed`
 59. `two-staged-artifacts-get-a-critical-pass-the-sandbox-verifies-what-the-worktree-cannot-touch-and-green-suites-hide-the-defects-at-the-seams`

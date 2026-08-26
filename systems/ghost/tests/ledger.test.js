@@ -29,57 +29,60 @@ async function author(root, slug, owner) {
   );
 }
 
-describe("viva ledger/{init,tap,untap,doctor} + instance/create", () => {
+describe("viva ledger/{init,doctor} + registry/{tap,untap} + instance/create", () => {
   let ledger;
   let store;
 
   beforeAll(async () => {
     ledger = await Deno.makeTempDir({ prefix: "ghost-ledger-" });
     store = await Deno.makeTempDir({ prefix: "ghost-store-" });
+    Deno.env.set("XDG_CONFIG_HOME", await Deno.makeTempDir({ prefix: "ghost-config-" }));
+    paladin.env.delete("VIVA_INSTANCE_MOUNT");
     paladin.scopes([
       ["ledger", () => true, () => new Path(ledger)],
       ["registry", () => true, () => new Path(store)],
     ]);
-    await paladin.ledger.mount();
     await author(store, "pack", "@pack");
   });
 
-  it("init scaffolds locks/logs/registry/instances + instances.json", async () => {
+  it("init scaffolds locks/logs/registry/instances/sessions + instances.json + the shell line", async () => {
     const effect = await drive(["ledger/init", ledger]);
-    expect(effect.scaffolded).toEqual(["locks", "logs", "registry", "instances"]);
+    expect(effect.scaffolded).toEqual(["locks", "logs", "registry", "instances", "sessions"]);
     for (const sub of effect.scaffolded) {
       expect((await Deno.stat(`${ledger}/${sub}`)).isDirectory).toBe(true);
     }
     expect(await paladin.read.json(new Path(`${ledger}/instances.json`))).toEqual({});
+    const config = await Deno.readTextFile(`${Deno.env.get("XDG_CONFIG_HOME")}/viva/env`);
+    expect(config).toContain('export VIVA_PROCESS_ID="$$"');
   });
 
   it("tap records a store-relative reference", async () => {
-    const effect = await drive(["ledger/tap", "pack"]);
+    const effect = await drive(["registry/tap", "pack"]);
     expect(effect.reference).toBe("pack");
     expect(effect.record).toEqual(["pack"]);
     expect(effect.root).toBe(`${store}/pack`);
   });
 
   it("re-tap is idempotent", async () => {
-    const effect = await drive(["ledger/tap", "pack"]);
+    const effect = await drive(["registry/tap", "pack"]);
     expect(effect.record).toEqual(["pack"]);
   });
 
   it("tap of a local source with a target throws", async () => {
-    const error = await drive(["ledger/tap", "pack", `${store}/elsewhere`])
+    const error = await drive(["registry/tap", "pack", `${store}/elsewhere`])
       .then(() => null, (thrown) => thrown);
     expect(String(error).includes("target only applies to a remote source")).toBe(true);
   });
 
   it("tap throws on a dir with no package declaration", async () => {
     await Deno.mkdir(`${store}/hollow`);
-    const error = await drive(["ledger/tap", "hollow"]).then(() => null, (thrown) => thrown);
+    const error = await drive(["registry/tap", "hollow"]).then(() => null, (thrown) => thrown);
     expect(String(error).includes("no package declaration")).toBe(true);
     expect(await paladin.ledger.registry.list()).toEqual(["pack"]);
   });
 
   it("tap throws on a missing absolute path, record untouched", async () => {
-    const error = await drive(["ledger/tap", `${store}/vanished/nowhere`])
+    const error = await drive(["registry/tap", `${store}/vanished/nowhere`])
       .then(() => null, (thrown) => thrown);
     expect(error).not.toBe(null);
     expect(await paladin.ledger.registry.list()).toEqual(["pack"]);
@@ -98,12 +101,12 @@ describe("viva ledger/{init,tap,untap,doctor} + instance/create", () => {
 
   it("doctor tolerates a rotten record entry — declared goes empty", async () => {
     await author(store, "rot", "@rot");
-    await drive(["ledger/tap", "rot"]);
+    await drive(["registry/tap", "rot"]);
     await Deno.remove(`${store}/rot`, { recursive: true });
     const effect = await drive(["ledger/doctor"]);
     const rotten = effect.record.find((held) => held.reference === "rot");
     expect(rotten.declared).toEqual([]);
-    await drive(["ledger/untap", "rot"]);
+    await drive(["registry/untap", "rot"]);
   });
 
   it("instance create without a target shelves under <ledger>/instances/<slug>", async () => {
@@ -128,12 +131,12 @@ describe("viva ledger/{init,tap,untap,doctor} + instance/create", () => {
   });
 
   it("untap of an unrecorded reference is a no-op", async () => {
-    const effect = await drive(["ledger/untap", "never-tapped"]);
+    const effect = await drive(["registry/untap", "never-tapped"]);
     expect(effect.record).toEqual(["pack"]);
   });
 
   it("untap removes the record, store keeps the working copy", async () => {
-    const effect = await drive(["ledger/untap", "pack"]);
+    const effect = await drive(["registry/untap", "pack"]);
     expect(effect.record).toEqual([]);
     expect((await Deno.stat(`${store}/pack`)).isDirectory).toBe(true);
   });
