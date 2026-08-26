@@ -163,12 +163,12 @@ deno task dependencies
 # 3 — scaffold this machine's run surface (the ledger); the standard packages register at first boot
 deno task ghost/run /ledger/init ./testament/ledger
 
-# 4 — create the localhost variant into place
-#     (or @viva/variant/standalone for the one-file demo above)
-deno task ghost/run /variant/create @viva/variant/localhost ./testament/variant
+# 4 — create the localhost instance into place
+#     (or @viva/instance/standalone for the one-file demo above)
+deno task ghost/run /instance/create @viva/instance/localhost ./testament/instance
 
 # 5 — fill in your env
-cd testament/variant && cp .env.example .env
+cd testament/instance && cp .env.example .env
 $EDITOR .env            # set VIVA_*_MOUNT to your repo path + the five SECRET_* keys
 cd ../..
 
@@ -177,12 +177,12 @@ deno task runtime/run
 deno task kajuit/run
 
 # 7 — create the first user (lighthouse gates login; no signup UI yet)
-deno task ghost/run /variant/auth signup you changeme
+deno task ghost/run /instance/auth signup you changeme
 ```
 
 The runtime comes up on `:2501`, the kajuit web client on `:1794`. Once step 7 creates a user, open http://localhost:1794 and log in with those credentials.
 
-Every path argument above is optional — without them the ledger lives at `~/.viva`, variants land in `~/.viva/variants/<slug>`, and `VIVA_VARIANT_MOUNT` accepts the bare slug.
+Every path argument above is optional — without them the ledger lives at `~/.viva`, instances land in `~/.viva/instances/<slug>`, and `VIVA_INSTANCE_MOUNT` accepts the bare slug.
 
 # Pricing (B2B)
 

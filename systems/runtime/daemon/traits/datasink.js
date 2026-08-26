@@ -88,11 +88,6 @@ export const DATASINK = (mode, daemon) => {
   return {
     finalize: async () => {
       armed = true;
-      const held = mode.entity.installed;
-      if (typeof held === "string" && held && held !== (await stamp(mode)))
-        console.warn(
-          `[DATASINK] ${mode.type}/${mode.slug} dataset files differ from the installed stamp — same-sink drains may revert them; reseed when convenient`,
-        );
     },
     terminate: () => {
       armed = false;

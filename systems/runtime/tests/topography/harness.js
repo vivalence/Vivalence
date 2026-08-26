@@ -2,13 +2,13 @@ import { MikroORM } from "@mikro-orm/core";
 import { config } from "../../../../registry/viva/datamap/libsql/libsql.viva.js";
 import { Url, Connection, shard, shape, Aperture, Vector, specimen, RemoteRepository, RemoteEntityManager } from "@vivalence/typology";
 import * as routes from "@vivalence/runtime/daemon/aperture";
-import { variant } from "../scenarios/fixtures.js";
+import { instance } from "../scenarios/fixtures.js";
 
 class LiteralKind {}
 class SymbolKind {}
 
 export const DB = new URL(
-  "../../../../testament/variant/mountpoint/daemon_brazilian/test-language.viva.db",
+  "../../../../testament/instance/mountpoint/daemon_brazilian/test-language.viva.db",
   import.meta.url,
 ).pathname;
 
@@ -50,7 +50,7 @@ export const SYMBOL_SLUGS = [
 ];
 
 export async function topography() {
-  const descriptors = variant();
+  const descriptors = instance();
   const orm = await MikroORM.init({
     ...config({
       dbName: DB,

@@ -1,0 +1,79 @@
+#+title: the connoisseur judges the strata, fold dies into assign, the mount dissolves into getters, and use learns to chain
+#+filetags: :paladin:ghost:ledger:typology:env:cli:m41:connoisseur:critical-pass:
+
+* what happened, in one breath
+
+Wake as connoisseur (/"ikiro wake. coneusseur"/), beef pointed at m41 (/"do a critical
+pass agaisnt this. is this a good solution? will this scale? is there precedent? is this
+elegant?"/ · /"judge this"/) — verdict GOOD: the design is Python ChainMap verbatim
+(first-hit over ordered maps, untagged write → =maps[0]=) meets git config
+=--show-origin= (provenance) meets pyenv shell>local>global (session/cwd/ledger); the one
+novel bit is the pid-keyed session file. Elegant by triggers 2/10/11/15/16 — the cwd
+scope-overwrite epicycle dies as a SIDE EFFECT, the strongest sign the frame is right.
+Four blemishes found, all sanded through rulings; two forks reopened and closed (lazy
+mount → Tier B → M7; chaining → same-noun (b)); patch now FINAL M1–M7, sole owed word =
+=go M1=.
+
+* the rulings, verbatim, in walk order
+
+- fold: flagged as a register violation (in-repo =fold= = catamorphism; =Env.fold= was
+  =Object.assign= + boolean) → /"rename it to env write."/ → /"no. env.assign. not
+  env.write. my bubu"/ — fold DIED into tagged =assign(bag, tag)=; yield answered at the
+  FILTER (=Object.keys(bag).length=, =held || secrets= across both Envs) before the write.
+- persist branch: /"what? no understando. that there are no callers is because this be
+  new."/ — explained: the branch pre-exists (=env.js:24-25=), zero callers TODAY; under
+  strata its untagged inner =set= lands a mere default in "flag" with false provenance →
+  /"#2 ok."/ — DELETED, signature shrinks to =get(key, fallback)=.
+- SIGCONT: /"what?"/ — explained: kill DELIVERS; SIGCONT resumes a ctrl-Z'd shell; SIGURG
+  is default-ignored, same ESRCH throw → /"amen #3"/ — swapped in =collectSessions= AND
+  =ledger/lock.js= =alive()= (same pre-existing disease, both hunks in patch).
+- =_coerce=: /"_looks ugly."/ — dies with the commented =with()= in the recast.
+- lazy mount: /"can we even ALLOW for lazy mounting??? assess this. and asess how big a
+  change this would be"/ — sweep: =mount= already =fn.once= + self-primed at all 7
+  consumer sites, =mod.js:112= the ONE eager call; =Instances=/=Registry= STATELESS file
+  handles (every op re-reads disk); =Process= children inherit via =clearEnv:false= so
+  =publish()= at spawn head preserves PUBLIC_*; ZERO =paladin.ledger= touches in
+  runtime/kajuit/typology/registry → /"tier b sounds great. any catch? show me the diff"/
+  → /"amen #3 #lazy mount tier b."/ — M7 IN-PATCH: =instances=/=registry= per-access
+  getters (the scope-Proxy zero-memo law), =mount= deleted, 7 call sites + 2 test priming
+  lines die, and the =ledger/index.js:47-48= hand-repoint (would TypeError against a
+  getter) dies — the epicycle that PROVED eager pinning wrong. Flag-bridge-placement
+  landmine dissolves with it.
+- predicates: /"env keys public/env keys secret."/ — =keys.public=/=keys.secret= (bare
+  =public= is a strict-mode reserved word — the namespaced pair is also the only legal
+  spelling; dot-notation provenance for free).
+- chaining (fork 3): /"why deferred? i liked that. what. whats deferred. explain."/ —
+  explained: deferred = prior scoping call, shell =&&= composes the same effect; the
+  strata make it ~3 lines because =use= sets the session stratum IN-PROCESS and
+  =ctx.call= (mod.js middleware, already live) re-dispatches through the same trajectory
+  Vector. Grammar fork a/b/c → /"coool. ok. apply that to the quest."/ on (b) — trailing
+  params chain under the SAME noun (=use italian run= → =/instance/run=); the flags
+  sub-question DISSOLVED structurally: presentation is OUTER-owned, the original
+  invocation's view middleware prints =ctx.effect= = the chained return.
+
+* found en route (all verified against disk)
+
+- populate timing proven by construction: =subsystems/paladin/mod.js:8= top-level
+  =await populate.env= at import → ghost's =--env= folds after, same-stratum later-wins →
+  in-stratum order (./ scan < VIVA_ENV_FILE < =--env=) correct with zero care.
+- =writeShellConfig= landmine SETTLED: =systems/ghost/belt/config.js= writes
+  =export VIVA_SHELL="$$"= literally, findIndex-replace idempotent.
+- only two =new Env()= call sites repo-wide (=paladin.js:9-10=, both no-arg) — the
+  constructor recast (vars → order) is safe.
+- new landmine named: chained dispatch re-enters the FULL middleware chain — standing in
+  another instance's dir, cwd outranks the fresh session selection (ruled precedence, not
+  a bug; document in 33.01).
+
+* state
+
+Quest =quests/m41-stratified-env.org=: patch FINAL — M1 Env (HOLY) · M2 paladin · M3
+ghost bridges · M4 use+session+chaining+SIGURG · M5 blast close · M6 docs · M7
+ledger.mount dissolves. ALL forks resolved. NOTHING APPLIED — every code file untouched.
+Frontier + memory (=project_m41_stratified_env=) synced.
+
+* resumption
+
+1. =go M1= → holy Env edit, blast-bracketed vs baseline (typology 118/1 · paladin 21 ·
+   ghost 27 · runtime 52 · kajuit 35).
+2. M7 gates separately after M1–M6 (independent of the strata — beef may reorder).
+3. No callouts this session; no zettel debt.

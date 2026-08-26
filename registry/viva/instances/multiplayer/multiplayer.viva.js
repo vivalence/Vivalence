@@ -2,7 +2,7 @@ import paladin from "@vivalence/paladin";
 import { Env, Url } from "@vivalence/typology";
 
 export const manifest = {
-  type: "variant",
+  type: "instance",
   slug: "multiplayer",
 };
 

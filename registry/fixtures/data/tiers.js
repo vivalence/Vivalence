@@ -10,4 +10,4 @@ export const tiers = {
   ...domain,
 };
 
-export const variant = (extra = {}) => Object.values({ ...tiers, ...extra });
+export const instance = (extra = {}) => Object.values({ ...tiers, ...extra });

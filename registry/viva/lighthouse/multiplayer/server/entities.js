@@ -15,13 +15,13 @@ import {
 export async function systemmap(servicemask) {
   const datamap = await paladin.vip.accio(servicemask.datamap.module);
 
-  // const variant = [IdentitySchema, DaemonSchema, AuthenticatorEmbedSchema]
+  // const instance = [IdentitySchema, DaemonSchema, AuthenticatorEmbedSchema]
   //   .map((schema) => ({ schema }));
-  const variant = [sets.network.identity, sets.network.daemon, { schema: AuthenticatorEmbedSchema }];
+  const instance = [sets.network.identity, sets.network.daemon, { schema: AuthenticatorEmbedSchema }];
 
-  // const { orm, entities } = await datamap.provider(servicemask.datamap, variant);
+  // const { orm, entities } = await datamap.provider(servicemask.datamap, instance);
   // return { orm, entities };
-  return await datamap.provider(servicemask.datamap, variant);
+  return await datamap.provider(servicemask.datamap, instance);
 }
 
 // export function inject(orm) {

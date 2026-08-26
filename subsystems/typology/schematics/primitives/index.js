@@ -3,7 +3,7 @@ export * as connection from "./connection.js";
 export * as hallucination from "./hallucination.js";
 export * from "./manifest.js";
 export * as kernel from "./kernel.js";
-export * as variant from "./variant.js";
+export * as instance from "./instance.js";
 
 // import { Type } from "@sinclair/typebox";
 

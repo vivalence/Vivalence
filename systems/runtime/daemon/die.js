@@ -16,7 +16,7 @@ export class Die extends Wafer {
     services: [],
   };
 
-  variant = {
+  instance = {
     kinds: {},
     traits: {},
     entities: [],

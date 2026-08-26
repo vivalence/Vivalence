@@ -251,7 +251,7 @@ CMD ["bash"]
 # # RUN deno cache --import-map=import_map.json deps.js
 # # RUN deno task install
 
-# # RUN mkdir /viva/variant
+# # RUN mkdir /viva/instance
 # # RUN mkdir /viva/mountpoint
 # # RUN mkdir /viva/registry
 

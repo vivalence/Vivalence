@@ -1,7 +1,7 @@
 import { Box, React, Text } from "@vivalence/sheets";
 
 export function Doctor({ report }) {
-  const { identity, scopes, environment, secrets, processes, locks, instances, logs, variant, registry, vip } = report;
+  const { identity, scopes, environment, secrets, processes, locks, instances, logs, instance, registry, vip } = report;
 
   return (
     <Box flexDirection="column">
@@ -62,10 +62,10 @@ export function Doctor({ report }) {
       </Section>
 
       <Section
-        title="variant"
-        hint={`daemons:${variant.daemons}  services:${variant.services}  runtime:${variant.runtime ? "yes" : "no"}`}
+        title="instance"
+        hint={`daemons:${instance.daemons}  services:${instance.services}  runtime:${instance.runtime ? "yes" : "no"}`}
       >
-        <Text color="gray">clients: {variant.clients.join(" ") || "—"}</Text>
+        <Text color="gray">clients: {instance.clients.join(" ") || "—"}</Text>
       </Section>
 
       <Section

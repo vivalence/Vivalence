@@ -12,11 +12,11 @@
     "./scenarios": "./tests/scenarios/index.js",
   },
   "tasks": {
-    "run": "deno run -A --env-file=../../testament/variant/.env run.js",
-    "watch": "deno run -A --watch --watch-exclude=../../registry/ --env-file=../../testament/variant/.env run.js",
-    "test": "deno test -A --no-check --watch --env-file=../../testament/variant/.env tests/**/*.test.js",
+    "run": "deno run -A --env-file=../../testament/instance/.env run.js",
+    "watch": "deno run -A --watch --watch-exclude=../../registry/ --env-file=../../testament/instance/.env run.js",
+    "test": "deno test -A --no-check --watch --env-file=../../testament/instance/.env tests/**/*.test.js",
     "playground/drain": "deno run -A --no-check tests/drain.playground.js",
-    "test/snapshots": "SNAPSHOT_HOT=1 deno test -A --no-check --env-file=../../testament/variant/.env tests/**/*.snapshot.test.js",
+    "test/snapshots": "SNAPSHOT_HOT=1 deno test -A --no-check --env-file=../../testament/instance/.env tests/**/*.snapshot.test.js",
 
     "test/daemon": "deno test -A --no-check --watch tests/daemon/*.test.js",
     "test/mode": "deno test -A --no-check --watch tests/mode/*.test.js",

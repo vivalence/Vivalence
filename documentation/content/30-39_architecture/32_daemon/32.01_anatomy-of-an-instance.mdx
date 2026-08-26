@@ -1,5 +1,5 @@
 ---
-title: Anatomy of a variant
+title: Anatomy of an instance
 summary: The standalone declaration, followed through every stage of boot.
 author: claude (agent)
 ---
@@ -9,9 +9,9 @@ import Example from "../../../src/components/Example.astro"
 import Trace from "../../../src/components/Trace.astro"
 import Tabs from "../../../src/components/Tabs.astro"
 
-A variant is one file that declares a whole system — entities, modes, daemons, services, clients, the machine itself. This page follows that file through the machine: from inert declaration to a running system, stage by stage. The specimen is `@viva/variant/standalone`, the one-file flashcard system — [[51.02_run-a-variant]] builds it section by section; this page is what the machine does with it. Build there, understand here.
+An instance is one file that declares a whole system — entities, modes, daemons, services, clients, the machine itself. This page follows that file through the machine: from inert declaration to a running system, stage by stage. The specimen is `@viva/instance/standalone`, the one-file flashcard system — [[51.02_run-an-instance]] builds it section by section; this page is what the machine does with it. Build there, understand here.
 
-Everything below actually ran. At every build of these docs, the example at the bottom of this page boots the standalone variant headless — real paladin, real runtime, real database — and the captured output is embedded in the page. Nothing here is hypothetical.
+Everything below actually ran. At every build of these docs, the example at the bottom of this page boots the standalone instance headless — real paladin, real runtime, real database — and the captured output is embedded in the page. Nothing here is hypothetical.
 
 Three bodies of code carry the whole trip:
 
@@ -23,12 +23,12 @@ That is the whole core — about 26,000 lines. The content in the registry is al
 
 minimum vocabulary required:
 
-- `variant` — the whole recipe: runtime, daemons, services, clients. One module with `manifest.type: "variant"` per variant directory.
+- `instance` — the whole recipe: runtime, daemons, services, clients. One module with `manifest.type: "instance"` per instance directory.
 - `mask` — a compiled declaration: config plus module references plus a mountpoint. Paladin mints masks; the runtime wears them.
 - `die` — the processor of one declaration through the lifecycle `populate → resolve → integrate`. One die for the runtime, one per daemon, one per attached service.
 - `mode` — a daemon citizen, built from one kernel entry. Traits on its manifest decide which machinery wakes for it.
 - `aperture` — a Vector (the system's one shape for anything callable) wearing HTTP methods; every callable face in the system is one.
-- `mountpoint` — the variant's writable home: databases, migrations, view bundles.
+- `mountpoint` — the instance's writable home: databases, migrations, view bundles.
 
 ## the declaration is data
 
@@ -38,22 +38,22 @@ minimum vocabulary required:
 statics: { serve: () => new Url(paladin.env.get("VIVA_RUNTIME_SERVE")) }
 ```
 
-At paladin's own import time, the singleton splits the process environment three ways — `VIVA_*` configuration and `PUBLIC_*` published values into `paladin.env`, `SECRET_VIVA_*` into a separate secret store — and installs *scopes*: conditional resolvers for the variant directory, its environment, its mountpoint, the ledger, the repository, the registry.
+At paladin's own import time, the singleton splits the process environment three ways — `VIVA_*` configuration and `PUBLIC_*` published values into `paladin.env`, `SECRET_VIVA_*` into a separate secret store — and installs *scopes*: conditional resolvers for the instance directory, its environment, its mountpoint, the ledger, the repository, the registry.
 
-`paladin.variant.mount()` then makes the declaration real, in five moves:
+`paladin.instance.mount()` then makes the declaration real, in five moves:
 
-1. **environment** — every json file in the variant's `environment/` folds into `paladin.env`; files with `secret` in the name fold into the secret store. This is where the standalone's `variant.jsonc` contributes the runtime, lighthouse and kajuit addresses.
-2. **resolve** — find the one module under the variant mount whose manifest says `variant`, then *hydrate* it: every deferred `() =>` fires now. The thunk above becomes a `Url`. Until this moment the declaration was data; after it, values.
-3. **kernel references** — a daemon's `kernel` entries stay unhydrated and get resolved as references instead: a bare specifier points into the registry, `./` is relative to the variant file, and an inline object — the standalone's case — mounts as-is, with the variant file as its home.
+1. **environment** — every json file in the instance's `environment/` folds into `paladin.env`; files with `secret` in the name fold into the secret store. This is where the standalone's `instance.jsonc` contributes the runtime, lighthouse and kajuit addresses.
+2. **resolve** — find the one module under the instance mount whose manifest says `instance`, then *hydrate* it: every deferred `() =>` fires now. The thunk above becomes a `Url`. Until this moment the declaration was data; after it, values.
+3. **kernel references** — a daemon's `kernel` entries stay unhydrated and get resolved as references instead: a bare specifier points into the registry, `./` is relative to the instance file, and an inline object — the standalone's case — mounts as-is, with the instance file as its home.
 4. **masks** — each daemon and service declaration becomes a `Mask` with a mountpoint carved out for it: `mountpoint/daemon_standalone/` is where its database and migrations will live.
-5. **validate & publish** — `v.primitives.variant` casts runtime, clients, daemons, services and reports *all* errors at once; then every `PUBLIC_*` var is published to the process environment, where clients can reach it.
+5. **validate & publish** — `v.primitives.instance` casts runtime, clients, daemons, services and reports *all* errors at once; then every `PUBLIC_*` var is published to the process environment, where clients can reach it.
 
 ## a die per declaration
 
 The runtime's whole entrypoint:
 
 ```js title="systems/runtime/run.js — condensed"
-await paladin.variant.mount()
+await paladin.instance.mount()
 const die = new Die({ good: new Runtime() })
 await die.populate()
 // then: await die.resolve() · await die.integrate() · await die.perpetuate()
@@ -101,7 +101,7 @@ That compiled callable is the daemon-side twin of what the view reaches: `buffer
 
 `die.resolve()` at the runtime level first cascades every child die through its own lifecycle — the stages above, which the example below staged by hand — then assembles everything into a single tree: processes attach under `/attached/process/lighthouse/multiplayer`, mode bundles under `/attached/bundle/…`, and each daemon's whole aperture is slurped under its mount. Look back at the declaration's own environment:
 
-```jsonc title="environment/variant.jsonc"
+```jsonc title="environment/instance.jsonc"
 "PUBLIC_VIVA_LIGHTHOUSE_REMOTE": "http://localhost:2601/attached/process/lighthouse/multiplayer"
 ```
 
@@ -133,4 +133,4 @@ The boot above, executed:
 </Fragment>
 </Tabs>
 
-Read next: [[51.02_run-a-variant]] — the same file, section by section, with the flashcard actually played.
+Read next: [[51.02_run-an-instance]] — the same file, section by section, with the flashcard actually played.

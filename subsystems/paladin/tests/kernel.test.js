@@ -1,7 +1,7 @@
 import { describe, it } from "@std/testing/bdd";
 import { expect } from "@std/expect";
 import { App, Path, svelte, v } from "@vivalence/typology";
-import { Variant } from "../prototypes/variant.js";
+import { Instance } from "../prototypes/instance.js";
 import { Vip } from "../prototypes/vip.js";
 
 const HOME = new Path("/fixtures/probe/test.viva.js");
@@ -15,7 +15,7 @@ const inline = {
 const pinned = { ...inline, manifest: { ...inline.manifest, slug: "pinned" }, mount: new Path("/pinned/pinned.viva.js") };
 
 const module = {
-  manifest: { type: "variant", slug: "probe", version: "0.0.1" },
+  manifest: { type: "instance", slug: "probe", version: "0.0.1" },
   source: HOME,
   daemons: [
     {
@@ -37,16 +37,16 @@ const module = {
 };
 
 const fakePaladin = (mod) => ({
-  scope: { variant: mod.source, mountpoint: new Path("/mountpoint") },
+  scope: { instance: mod.source, mountpoint: new Path("/mountpoint") },
   state: { dir: async () => {} },
   find: { type: async () => [mod] },
   publish: () => {},
 });
 
-describe("variant kernel references", () => {
-  it("the four kernel forms resolve: bare kept, absolute kept, relative vs the variant file, inline stamped with the variant mount", async () => {
-    const variant = await new Variant(fakePaladin(module)).mount();
-    const [daemon] = variant.daemons;
+describe("instance kernel references", () => {
+  it("the four kernel forms resolve: bare kept, absolute kept, relative vs the instance file, inline stamped with the instance mount", async () => {
+    const instance = await new Instance(fakePaladin(module)).mount();
+    const [daemon] = instance.daemons;
     expect(daemon.kernel[0]).toBe("@playground/playground/spawner");
     expect(daemon.kernel[1]).toBe("/elsewhere/greeter.viva.js");
     expect(daemon.kernel[2]).toBe("/fixtures/probe/greeter/greeter.viva.js");
@@ -55,14 +55,14 @@ describe("variant kernel references", () => {
   });
 
   it("an inline entry carrying its own mount keeps it", async () => {
-    const variant = await new Variant(fakePaladin(module)).mount();
-    const [daemon] = variant.daemons;
+    const instance = await new Instance(fakePaladin(module)).mount();
+    const [daemon] = instance.daemons;
     expect(String(daemon.kernel[4].mount)).toBe(String(pinned.mount));
   });
 
   it("an inline module is module-shaped: hydrate never fires inside it — thunks and App survive resolve", async () => {
-    const variant = await new Variant(fakePaladin(module)).mount();
-    const [daemon] = variant.daemons;
+    const instance = await new Instance(fakePaladin(module)).mount();
+    const [daemon] = instance.daemons;
     expect(typeof daemon.kernel[3].statics.probe).toBe("function");
     expect(daemon.kernel[3].app.source).toContain("hello");
   });

@@ -8,9 +8,10 @@ const manifest = {
   name: "libsql",
 };
 
-const config = ({ dbName, entities, subscribers = [], migrations }) =>
+const config = ({ dbName, contextName, entities, subscribers = [], migrations }) =>
   defineConfig({
     dbName,
+    ...(contextName && { contextName }),
     loadStrategy: "balanced",
     entities: entities.filter(Boolean),
     subscribers: subscribers.filter(Boolean).map((Subscriber) => new Subscriber()),
@@ -20,12 +21,13 @@ const config = ({ dbName, entities, subscribers = [], migrations }) =>
     }),
   });
 
-async function provider(datamap, variant, subscribers) {
+async function provider(datamap, instance, subscribers) {
   const orm = await MikroORM.init(
     config({
       dbName: datamap.mount.branch(datamap.statics.db.file).absolute,
-      entities: variant.map((v) => v.schema),
-      subscribers: subscribers ?? variant.map((v) => v.subscriber),
+      contextName: datamap.statics.db.file,
+      entities: instance.map((v) => v.schema),
+      subscribers: subscribers ?? instance.map((v) => v.subscriber),
       migrations: datamap.mount.branch("migrations").absolute,
     }),
   );
@@ -36,14 +38,14 @@ async function provider(datamap, variant, subscribers) {
   if (pending.length > 0) await migrator.up();
 
   // const repositories = {};
-  // for (const { type, schema, entity } of variant) {
+  // for (const { type, schema, entity } of instance) {
   //   if (!entity || !type) continue;
   //   repositories[type] = orm.em.getRepository(entity);
   // }
   // return { orm, repositories, entities: repositories };
 
   const entities = { em: orm.em };
-  for (const { type, schema, entity } of variant) {
+  for (const { type, schema, entity } of instance) {
     if (!entity || !type) continue;
     entities[type] = orm.em.getRepository(entity);
   }
@@ -54,7 +56,7 @@ async function provider(datamap, variant, subscribers) {
       context: (fn) => RequestContext.create(orm.em, fn), // to be depracated
       scope: (fn) => RequestContext.create(orm.em, fn),
       bind: (name, resolve) => async (ctx, next) => {
-        RequestContext.getEntityManager()?.setFilterParams(name, resolve(ctx));
+        RequestContext.getEntityManager(orm.em.name)?.setFilterParams(name, resolve(ctx));
         await next();
       },
       // @beef hacky deep wire — carry the LIVE request context into a lazy streaming body

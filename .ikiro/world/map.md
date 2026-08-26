@@ -10,7 +10,7 @@ Derived file: a POINTER map, not a copy. The map defers to the territory — if 
 | container | role | path |
 |-----------|------|------|
 | typology | library — primitives, gestalten, entities, schematics | `subsystems/typology/` |
-| paladin | composition — env/scopes/variant/vip→pensieve | `subsystems/paladin/` |
+| paladin | composition — env/scopes/instance/vip→pensieve | `subsystems/paladin/` |
 | runtime | process — daemons, traits, HTTP | `systems/runtime/` |
 | registry | marketplace — kernels/modes/services/wafers (M11: → package) | `registry/` |
 | kajuit | surface — SvelteKit SPA, decks, pincer | `systems/kajuit/` |
@@ -23,7 +23,7 @@ Lifecycle everywhere: `construct → populate → resolve → integrate → disi
 
 - **docs/** — the human-facing documentation, johnny-decimal (`40-49_repository/{42_typology…47_integration}`, `50-59_practice/52_tutorials`). NASCENT: 8 files exist (kajuit tree/lifecycle/contexts/typology, buffer-flow, getting-started, docker-walkthrough); dirs 42–45 empty. **I read docs first, contain them never.** Docs are beef's #1 simmering item — every landing should ask "does a docs file want this?" (`quests/` (cut — see frontier "design held only here")).
 - **subsystem code** — the ultimate truth; pre-flight grep before asserting any surface.
-- **testament/** — the machine run surface: `variant/{.env, test.viva.js, education.js, playground.js, environment/*.jsonc, mountpoint/daemon_*}`, `ledger/{locks/, logs/, instances.json, registry.json}`, `_bruno/` (API testbench).
+- **testament/** — the machine run surface: `instance/{.env, test.viva.js, education.js, playground.js, environment/*.jsonc, mountpoint/daemon_*}`, `ledger/{locks/, logs/, instances.json, registry.json}`, `_bruno/` (API testbench).
 - **private logs** — `/Users/finn/vivalence/private/logs/<date>.org`; beef's journal + session orbs. Read-only territory.
 - **memory** — `~/.claude/projects/-Users-finn-vivalence-code-vivalence/memory/`.
 - **jj** — history via `jj log/show/diff/op log/st` ONLY (read-only, always).

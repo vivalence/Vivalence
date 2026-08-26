@@ -22,7 +22,7 @@ export async function core(die) {
     die.register.kernel.find((module) => module.manifest?.type === "domain") ?? {},
   );
 
-  die.variant.traits = {
+  die.instance.traits = {
     ...traits,
     ...die.good.domain.traits,
   };
@@ -54,11 +54,11 @@ export async function core(die) {
       }),
     };
 
-  const variant = collate([sets.daemon, sets.kernel, sets.userspace, die.good.domain.entities]) //
+  const instance = collate([sets.daemon, sets.kernel, sets.userspace, die.good.domain.entities]) //
     .map(seal);
 
-  die.variant.subscribers = [...new Set(variant.flatMap((slot) => [...slot.subscribers]))];
-  die.variant.entities = variant.map(({ subscribers, ...entity }) => entity);
+  die.instance.subscribers = [...new Set(instance.flatMap((slot) => [...slot.subscribers]))];
+  die.instance.entities = instance.map(({ subscribers, ...entity }) => entity);
 }
 
 export function wiring(daemonDie) {
@@ -70,8 +70,8 @@ export function wiring(daemonDie) {
 export async function datamap(daemonDie) {
   daemonDie.datamap = await daemonDie.register.datamap.provider(
     daemonDie.mask.datamap,
-    daemonDie.variant.entities,
-    daemonDie.variant.subscribers,
+    daemonDie.instance.entities,
+    daemonDie.instance.subscribers,
   );
 
   daemonDie.good.entities = daemonDie.datamap.entities;

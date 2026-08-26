@@ -8,7 +8,7 @@ when_to_use: "pull prod state" · "snapshot the prod daemon" · "run prod data l
 
 ## Intent
 
-The vivalence runtime stores all stateful data (daemon SQLite, service state) in a docker named volume `mountpoint`, mounted at `/viva/mountpoint` inside the container. To debug prod issues against local code, that volume needs to be snapshotted, transferred, and swapped into `testament/variant/mountpoint/` — without trampling the existing local snapshots.
+The vivalence runtime stores all stateful data (daemon SQLite, service state) in a docker named volume `mountpoint`, mounted at `/viva/mountpoint` inside the container. To debug prod issues against local code, that volume needs to be snapshotted, transferred, and swapped into `testament/instance/mountpoint/` — without trampling the existing local snapshots.
 
 This skill captures a workflow that is otherwise ~24 manual shell ops with at least three foot-guns the user has already hit:
 
@@ -24,7 +24,7 @@ Before touching anything, confirm with the user:
 
 - **Server hostname** (default: `root@com-vivalence-runtime-R000`)
 - **Direction**: pulling prod → local (this skill) vs. pushing local → prod (out of scope)
-- **Local target**: `testament/variant/mountpoint/` (default; assumed)
+- **Local target**: `testament/instance/mountpoint/` (default; assumed)
 - **Whether to keep existing local mountpoint as backup** (default: yes, move to `bak/`)
 
 ## Procedure
@@ -61,7 +61,7 @@ exit
 ### Phase 2 — Local side (pull + swap)
 
 ```bash
-cd testament/variant/mountpoint
+cd testament/instance/mountpoint
 
 # 6. Pull tarball into a scratch dir
 mkdir -p tmp
@@ -85,8 +85,8 @@ rm -rf tmp/
 ### Phase 3 — Verify
 
 ```bash
-ls testament/variant/mountpoint/   # daemon_brazilian/ service_multiplayer/ bak/ should be present
-sqlite3 testament/variant/mountpoint/daemon_brazilian/<dbname>.sqlite ".tables"   # sanity-check the schema loaded
+ls testament/instance/mountpoint/   # daemon_brazilian/ service_multiplayer/ bak/ should be present
+sqlite3 testament/instance/mountpoint/daemon_brazilian/<dbname>.sqlite ".tables"   # sanity-check the schema loaded
 ```
 
 Then run the local testament and report any boot/migration errors back to the user.
@@ -105,7 +105,7 @@ Out of scope. Do not attempt without explicit user instruction — overwriting p
 
 ## Compose context
 
-The volume is declared in `registry/viva/variant/multiplayer/docker-compose.yml`:
+The volume is declared in `registry/viva/instance/multiplayer/docker-compose.yml`:
 
 ```yaml
 volumes:

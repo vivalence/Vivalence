@@ -1,0 +1,112 @@
+#+title: the flat env becomes seven strata, the use verb learns the shell pid, and claims die at the filter
+#+filetags: :paladin:ghost:ledger:typology:env:cli:m41:connoisseur:
+
+* what happened, in one breath
+
+Beef opened with a tour ask ("look at paladin, ghost and the ledger. + our recent work
+on that system"), three probe questions exposed that instance storage was half-broken
+(record empty everywhere, =register()= path-keyed against a slug-keyed contract, no
+deregister verb, env var the only targeting channel), and "lets REMEDY this" walked
+through three CLI approaches into a "think more. conceptualize a more long term
+scalable approach. or one core mechanic where many other ways fall out. whats the
+conoisseur way?" — answer: =paladin.env= is ALREADY a fold over ordered sources,
+executed imperatively with provenance destroyed; NAME the fold. Stratified Env: seven
+voices in fixed precedence, every targeting channel a stratum, provenance = the
+structure. Five naming/design rounds later the quest landed as
+=quests/m41-stratified-env.org= with the complete patch embedded — DESIGN LOCKED,
+nothing applied, =go M1= (holy Env edit) the next word.
+
+* the law (beef authored the spelling)
+
+#+BEGIN_EXAMPLE
+const STRATA = ["flag", "cwd", "instance", ".env", "os", "session", "ledger"];
+
+flag      ghost argv        --instance=x / --ledger=/x (= form only)       strongest
+cwd       ghost middleware  shell cwd holds instance module (depth-0)
+instance  instance.mount()  the mounted instance's environment/*.jsonc
+.env      populate + --env  ./ scan < VIVA_ENV_FILE < --env  (in-stratum later wins)
+os        populate.env      Deno.env VIVA_*/PUBLIC_VIVA_*/SECRET_VIVA_*
+session   <ledger>/sessions/<VIVA_SHELL>.json   per-shell (viva instance use)
+ledger    <ledger>/environment.json             machine default (use --ledger)  weakest
+
+get = first-hit · provenance = winning stratum's name · vars = bottom-up fold
+untagged set/assign → order[0] (an untagged write IS an override)
+ingress = filter-then-fold: object.filter(vars, known|secret) → env.fold(bag, tag)
+#+END_EXAMPLE
+
+Order preserves today's effective values exactly (mount-fold > env-file > process-env,
+cwd-overwrite over all); flag/session/ledger are new at the ends.
+
+* beef's rulings, verbatim, in walk order
+
+- the remedy framing: /"No --instance param — lets REMEDY this. what could we do? 3
+  approaches besides the env variable fallback and the ./ default path!"/ — then
+  rejected incrementalism: /"think more… one core mechanic where many other ways fall
+  out. whats the conoisseur way?"/
+- /"add a ./ scan to the diff. and a --env flag. dont just check its presence but if
+  it yields the required knowledge."/ — presence ≠ knowledge; yield-counting fold,
+  explicit source with zero yield THROWS.
+- /"rename machine to ledger."/ then /"--machine ought be ledger."/ — both the stratum
+  and the flag.
+- per-shell selection: /"but the use stratum can only be used in one process at a
+  time… could we set use up to be per process? feels more natural?! either by
+  exporting to environment OR some lock or something per pid?!"/ — OS law explained
+  (child cannot export into parent; env copies at spawn), settled on
+  =VIVA_SHELL="$$"= shell-config line + =sessions/<pid>.json= as the session stratum.
+- strata names: beef proposed =[parms, cwd, instance, env, os, session, ledger]= —
+  =parms= rejected (abbreviation + names the wrong argv half; the stratum reads
+  =signal.flags=), counter =flags=, beef finalized =["flag", "cwd", "instance",
+  ".env", "os", "session", "ledger"]= — /"ok. this feels good."/
+- quest: /"work out the whole quest. numbered. stratifying instances mxxx"/ then
+  /"work out the whole diff/patch. write it into the next milestone number quest."/ —
+  m41 filed with the patch embedded. Mid-write: /"2. session prune: doctor-only
+  (sketched) - for now."/
+- fold home (the fork that resolved twice): my A′ was a belt module mirroring
+  =publish=; beef: /"prototypes are things that hold state and do things. i dont see
+  an issue with mutating Env."/ → fold became an Env method with claims-as-
+  construction-data; beef killed that too: /"i dont like the claims thing. .fold on
+  Env is clearly correct. but claims??? why. must? must not?? iffy as fuck."/ +
+  /"just filter before write. cleaner. we have plenty filter functions in belt"/ —
+  final: =Env.fold(vars, tag)= = plain tagged ingest + yield count; NEW
+  =object.filter(obj, predicate)= joins pick/omit/pluck (verified: the family is
+  keys-based, no predicate variant existed); =known=/=secret= predicates at the four
+  ingresses (first spelling =viva=/=secreted= got /"bad name"/; =known=/=secret=
+  provisional, veto open).
+
+* terrain findings (all verified against disk)
+
+- =testament/ledger/instances.json= = ={}=, =~/.viva= has neither =instances.json=
+  nor an =instances/= shelf — instance registration NEVER exercised live.
+- keying bug: =trajectories/instance/target.js:11= =instances.write(mount, {mount})=
+  — path-keyed against the slug-keyed contract (=paladin/tests/ledger.test.js:90=),
+  doctor, and locks. Fix in patch (slug derived, =write(slug, {mount})=).
+- no deregister verb exists anywhere; =Instances= has read/write only.
+- =shellsignal.js:18-24= parses =--k=v= into =signal.flags= TODAY — consumed only by
+  =--json=/=--buffer=. The flag channel sat finished and unused.
+- =belt/scope.js:17-19= — scope Proxy resolves per-access, ZERO memoization → an
+  env-upstream override ripples to instance/environment/mountpoint with no scope-layer
+  change. The whole feature lands upstream of everything.
+- =mod.js:112= eager fn.once =ledger.mount()= pins registry paths → flag bridge must
+  precede it. =mod.js:67-76= cwd middleware scope-overwrite (the known-issues
+  cosmetic warning) DISSOLVES into the cwd stratum — the epicycle was a missing stratum.
+- pre-existing divergence: environment/mountpoint resolvers read =Deno.env= while
+  their conditions read =paladin.env= (=populate.js:51,65=) — fixed in patch.
+- =--ledger= reads two ways by argv idiom: ==<path>= = relocate home (bridge, strings
+  only) · bare = boolean for the nature (=use= → ledger stratum). Bridge bare-throw dropped.
+
+* state
+
+Quest =quests/m41-stratified-env.org=: intent verbatim · law · terrain · M1-M6
+(M1 Env HOLY · M2 paladin · M3 ghost bridges · M4 use+session · M5 blast close vs
+baseline typology 118/1 · paladin 21 · ghost 27 · runtime 52 · kajuit 35 · M6 docs) ·
+full patch (12 files + env.test.js) · landmines · forks all RESOLVED. Frontier carries
+the m41 line. NOTHING APPLIED — every code file untouched.
+
+* resumption
+
+1. =go M1= → holy Env edit, blast-bracketed.
+2. =known=/=secret= predicate names: provisional, beef vetoes on sight.
+3. Before M4: verify =ghost/belt/config.js= =writeShellConfig= writes ="$$"= literally
+   (expand at shell startup) and re-init idempotency.
+4. Deferred by ruling: in-CLI chaining after =use= (shell =&&= composes today);
+   session prune stays doctor-only.

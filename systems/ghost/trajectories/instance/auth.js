@@ -4,10 +4,10 @@ import { Connection } from "@vivalence/typology";
 export async function auth(ctx) {
   const [action, username, password] = ctx.signal.params ?? [];
   if (!["signup", "login"].includes(action) || !username || !password) {
-    return (ctx.effect = { error: "usage: /variant/auth <signup|login> <username> <password>" });
+    return (ctx.effect = { error: "usage: /instance/auth <signup|login> <username> <password>" });
   }
-  await paladin.variant.mount();
-  ctx.effect = await new Connection(paladin.variant.lighthouse.statics.remote).call(
+  await paladin.instance.mount();
+  ctx.effect = await new Connection(paladin.instance.lighthouse.statics.remote).call(
     `/auth/${action}`,
     { username, password },
   );

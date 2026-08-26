@@ -7,13 +7,13 @@ import { Doctor } from "./Doctor.jsx";
 
 const cwd = () => Deno.env.get("INIT_CWD") ?? Deno.env.get("PWD") ?? Deno.cwd();
 
-const SCAFFOLD = ["locks", "logs", "registry", "variants"];
+const SCAFFOLD = ["locks", "logs", "registry", "instances"];
 
 const SCOPES = [
   ["ledger", 0],
   ["repository", 0],
   ["registry", 0],
-  ["variant", 0],
+  ["instance", 0],
   ["mountpoint", 1],
   ["environment", 1],
 ];
@@ -25,7 +25,7 @@ export const ledger = new Vector();
 ledger.open(
   {
     nature: "/init",
-    valence: "machine first-run — pick + persist the ledger home, scaffold locks/logs/registry/variants",
+    valence: "machine first-run — pick + persist the ledger home, scaffold locks/logs/registry/instances",
     schema: v.object({ path: v.string().desc("ledger home (skips the wizard)").optional() }),
   },
   async (ctx) => {
@@ -125,7 +125,7 @@ ledger.open(
       homes: {
         ledger: paladin.scope.ledger.absolute,
         store: paladin.scope.registry?.absolute ?? null,
-        variants: paladin.scope.ledger.branch("variants").absolute,
+        instances: paladin.scope.ledger.branch("instances").absolute,
         record: paladin.ledger.registry.path.absolute,
       },
       scopes: SCOPES.map(([name, depth]) => ({
@@ -149,11 +149,11 @@ ledger.open(
       locks: await collectLocks(paladin.scope.ledger),
       instances: await collectInstances(paladin.ledger.instances),
       logs: await collectLogs(paladin.scope.ledger),
-      variant: {
-        daemons: paladin.variant?.daemons?.length ?? 0,
-        services: paladin.variant?.services?.length ?? 0,
-        clients: Object.keys(paladin.variant?.clients ?? {}),
-        runtime: !!paladin.variant?.runtime && Object.keys(paladin.variant.runtime).length > 0,
+      instance: {
+        daemons: paladin.instance?.daemons?.length ?? 0,
+        services: paladin.instance?.services?.length ?? 0,
+        clients: Object.keys(paladin.instance?.clients ?? {}),
+        runtime: !!paladin.instance?.runtime && Object.keys(paladin.instance.runtime).length > 0,
       },
       vip: paladin.vip?.pensieve?.size ?? 0,
     };

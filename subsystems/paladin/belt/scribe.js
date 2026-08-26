@@ -5,7 +5,7 @@ import { snapshot } from "@vivalence/typology/specimen";
 
 export default function (paladin) {
   const SNAP = new URL("./.snapshots/", import.meta.url).pathname;
-  // scribe serves some clever abstraction over our variants daemons(.modes) services and both the runtime and the clients. i want scribe architecture to respond or rather be computed as a functino of environemnt ad hoc. i want to use scribe as a function of traces and spans, architected for usage inside aperture ctxs, runtime lifecycling, client side dom, terminal, and mode logging, with different backends and protocols for writing to ledger, writing to mountpoint, writing to stdout, writing to console, or to g and h panels, or some inline provided arbitrary function F. also used in testing!
+  // scribe serves some clever abstraction over our instances daemons(.modes) services and both the runtime and the clients. i want scribe architecture to respond or rather be computed as a functino of environemnt ad hoc. i want to use scribe as a function of traces and spans, architected for usage inside aperture ctxs, runtime lifecycling, client side dom, terminal, and mode logging, with different backends and protocols for writing to ledger, writing to mountpoint, writing to stdout, writing to console, or to g and h panels, or some inline provided arbitrary function F. also used in testing!
 
   (input) =>
     snapshot(input, {

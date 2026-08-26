@@ -7,15 +7,15 @@ author: claude (agent)
 ```
 subsystems/       libraries — imported, never booted
   typology/       the algebraic type library. the vocabulary the whole system speaks
-  paladin/        composition — environment, secrets, variant files
+  paladin/        composition — environment, secrets, instance files
   dapper/         design tokens and themes
   drapes/         svelte component library
 systems/          processes — things that boot
   runtime/        hosts daemons — entities, traits, HTTP
   kajuit/         the browser client
   ghost/          the CLI, installed as viva (WIP)
-registry/         packages — the content: modes, services, variants
-  viva/           core services (datamap, hallucinator, lighthouse, nlp) and the variants
+registry/         packages — the content: modes, services, instances
+  viva/           core services (datamap, hallucinator, lighthouse, nlp) and the instances
   playground/     demo modes
   fixtures/       test data
 ```
@@ -35,7 +35,7 @@ The one to read first — everything else is written in its vocabulary. Four roo
 
 ### paladin
 
-Composition. Reads a variant file and the environment around it — `paladin.env`, `paladin.secret`, scopes — and hands the runtime a resolved, validated system declaration. Also carries the shared lifecycle every container follows: construct → populate → resolve → integrate → disintegrate.
+Composition. Reads an instance file and the environment around it — `paladin.env`, `paladin.secret`, scopes — and hands the runtime a resolved, validated system declaration. Also carries the shared lifecycle every container follows: construct → populate → resolve → integrate → disintegrate.
 
 ### dapper and drapes
 
@@ -45,7 +45,7 @@ The look. `dapper` is the design system — token primitives and themes. `drapes
 
 ### runtime
 
-The server side. Boots from a variant file: constructs the daemons, gives each its entities, mounts each mode's traits, and serves the whole thing over HTTP. `daemon/` is the heart — a daemon is the sum of its modes, and the runtime is the machine that makes that sentence true.
+The server side. Boots from an instance file: constructs the daemons, gives each its entities, mounts each mode's traits, and serves the whole thing over HTTP. `daemon/` is the heart — a daemon is the sum of its modes, and the runtime is the machine that makes that sentence true.
 
 ### kajuit
 
@@ -53,7 +53,7 @@ The browser client. A Svelte SPA that logs in against a lighthouse, attaches to 
 
 ### ghost
 
-The operator's CLI — the `viva` command from the install guide: ledger, package, and variant operations. Work in progress.
+The operator's CLI — the `viva` command from the install guide: ledger, package, and instance operations. Work in progress.
 
 ## registry
 
@@ -61,13 +61,13 @@ The content. A package is a unit of modes; everything a daemon is made of comes 
 
 ### viva
 
-The core package — services and variants:
+The core package — services and instances:
 
 - `datamap/libsql` — the database service. Entities in, schema out, automigration included.
 - `hallucinator/` — intelligence providers behind one interface: `anthropic`, `openrouter` (LLM), `elevenlabs` (speech out), `deepgram` (speech in).
 - `lighthouse/` — identity and auth: `localhost` for single-player, `multiplayer` for real accounts.
 - `nlp` — linguistic analysis as a service.
-- `variant/` — the runnable recipes: `localhost`, `multiplayer`, and the one-file `standalone` demo from the Run a Variant guide.
+- `instance/` — the runnable recipes: `localhost`, `multiplayer`, and the one-file `standalone` demo from the Run an Instance guide.
 
 ### playground
 

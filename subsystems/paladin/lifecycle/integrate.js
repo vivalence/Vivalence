@@ -8,11 +8,11 @@ export async function statements(paladin) {
       paladin.scope.mountpoint,
       paladin.scope.repository,
       paladin.scope.registry,
-      paladin.scope.variant,
+      paladin.scope.instance,
       paladin.scope.environment,
-      ...paladin.variant.services.map((s) => s.mount),
-      ...paladin.variant.daemons.map((d) => d.mount),
-      ...paladin.variant.daemons
+      ...paladin.instance.services.map((s) => s.mount),
+      ...paladin.instance.daemons.map((d) => d.mount),
+      ...paladin.instance.daemons
         .filter((d) => is.object(d.consume))
         .map((d) => fromm.slugmap(d.consume).array)
         .flat()
@@ -40,13 +40,13 @@ export async function secure(paladin) {
 //   //   paladin.check
 //   //     .path([
 //   //       paladin.env.get("VIVA_REPOSITORY_MOUNT"),
-//   //       paladin.env.get("VIVA_VARIANT_MOUNT"),
+//   //       paladin.env.get("VIVA_INSTANCE_MOUNT"),
 //   //       paladin.env.get("VIVA_REGISTRY_MOUNT"),
 //   //     ])
 //   //     .throw();
 // }
 
-// validate migrated to prototypes/variant.js (part of variant.mount).
+// validate migrated to prototypes/instance.js (part of instance.mount).
 
 // export async function mount(paladin) {
 // return await paladin.vip.mount(new Path(paladin.env.get("VIVA_VIP_MOUNT")));

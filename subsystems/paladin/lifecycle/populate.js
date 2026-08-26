@@ -14,7 +14,7 @@ export async function env(paladin) {
   }
 
   // fallback to repo .env
-  // if (paladin.check.env(["VIVA_REPOSITORY_MOUNT", "VIVA_VARIANT_MOUNT"]).fails && (paladin.is.citizen || paladin.is.dev)) {const ROOT_OFFSET = "../../../.env"; const envPath = new URL(ROOT_OFFSET, import.meta.url).pathname; const env = await dotenv.load({ envPath }); paladin.env.assign(env);}
+  // if (paladin.check.env(["VIVA_REPOSITORY_MOUNT", "VIVA_INSTANCE_MOUNT"]).fails && (paladin.is.citizen || paladin.is.dev)) {const ROOT_OFFSET = "../../../.env"; const envPath = new URL(ROOT_OFFSET, import.meta.url).pathname; const env = await dotenv.load({ envPath }); paladin.env.assign(env);}
   // fallback removed for configurable paladin.
 }
 
@@ -31,12 +31,12 @@ export async function scopes(paladin) {
   ]);
   paladin.scopes([
     [
-      "variant",
-      () => paladin.env.has("VIVA_VARIANT_MOUNT"),
+      "instance",
+      () => paladin.env.has("VIVA_INSTANCE_MOUNT"),
       () => {
-        const reference = paladin.env.get("VIVA_VARIANT_MOUNT");
+        const reference = paladin.env.get("VIVA_INSTANCE_MOUNT");
         if (!reference.includes("/") && !reference.startsWith("."))
-          return paladin.scope.ledger.branch(`variants/${reference}`);
+          return paladin.scope.ledger.branch(`instances/${reference}`);
         if (isAbsolute(reference)) return new Path(reference);
         return paladin.source(reference);
       },
@@ -45,13 +45,13 @@ export async function scopes(paladin) {
     [
       "environment",
       () =>
-        paladin.env.has("VIVA_ENVIRONMENT_MOUNT") || (paladin.scope.variant && paladin.is.citizen),
+        paladin.env.has("VIVA_ENVIRONMENT_MOUNT") || (paladin.scope.instance && paladin.is.citizen),
       () => {
         let envpath;
         if (Deno.env.has("VIVA_ENVIRONMENT_MOUNT")) {
           envpath = Deno.env.get("VIVA_ENVIRONMENT_MOUNT");
         } else {
-          envpath = paladin.scope.variant.branch("environment").absolute;
+          envpath = paladin.scope.instance.branch("environment").absolute;
         }
         return envpath ? new Path(envpath) : undefined;
       },
@@ -59,13 +59,13 @@ export async function scopes(paladin) {
     [
       "mountpoint",
       () =>
-        paladin.env.has("VIVA_MOUNTPOINT_MOUNT") || (paladin.scope.variant && paladin.is.citizen),
+        paladin.env.has("VIVA_MOUNTPOINT_MOUNT") || (paladin.scope.instance && paladin.is.citizen),
       () => {
         let envpath;
         if (Deno.env.has("VIVA_MOUNTPOINT_MOUNT")) {
           envpath = Deno.env.get("VIVA_MOUNTPOINT_MOUNT");
         } else {
-          envpath = paladin.scope.variant.branch("mountpoint").absolute;
+          envpath = paladin.scope.instance.branch("mountpoint").absolute;
         }
         return envpath ? new Path(envpath) : undefined;
       },
@@ -99,7 +99,7 @@ export async function scopes(paladin) {
 //       // "VIVA_SYSTEM_MODE",
 //       // "VIVA_SYSTEM_ROLE",
 //       // "VIVA_REPOSITORY_MOUNT", // conditional
-//       // "VIVA_VARIANT_MOUNT", // conditional
+//       // "VIVA_INSTANCE_MOUNT", // conditional
 //       // "VIVA_REGISTRY_MOUNT", // conditional
 //       // "VIVA_RUNTIME_SERVE", // conditional
 //       // "VIVA_LIGHTHOUSE_SERVE", // conditional

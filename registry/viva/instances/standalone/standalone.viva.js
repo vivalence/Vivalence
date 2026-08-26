@@ -3,7 +3,7 @@ import { App, Url, Vector, svelte, v } from "@vivalence/typology";
 import { EntitySchema, types } from "@mikro-orm/core";
 import { DataEntity, DataRepository, DataSchema, LiteralEntity } from "@vivalence/runtime";
 
-export const manifest = { type: "variant", slug: "standalone", version: "0.0.1" };
+export const manifest = { type: "instance", slug: "standalone", version: "0.0.1" };
 
 // ── retention · the review-memory entity, whole declaration in one place ─────
 
@@ -117,7 +117,7 @@ const flashcard = {
     slug: "flashcard",
     name: "Flashcard",
     description:
-      "m39 demo — a whole flashcard app declared in the variant file: dataset-seeded literals and symbols, review memory in a dedicated Retention entity, a coach that loads the deck and records reviews.",
+      "m39 demo — a whole flashcard app declared in the instance file: dataset-seeded literals and symbols, review memory in a dedicated Retention entity, a coach that loads the deck and records reviews.",
     version: "0.0.1",
     traits: ["APPLICATION", "STANDALONE", "DATASET", "TOOLED", "HARNESSED", "EXPOSED"],
   },

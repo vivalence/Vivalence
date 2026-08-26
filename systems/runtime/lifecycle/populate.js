@@ -18,7 +18,7 @@ export async function aperture(runtimeDie) {
 }
 
 export async function daemons(runtimeDie) {
-  for (const mask of paladin.variant.daemons) {
+  for (const mask of paladin.instance.daemons) {
     // console.log({ mask });
     const daemonDie = new DaemonDie({
       mask,
@@ -35,7 +35,7 @@ export async function daemons(runtimeDie) {
 }
 
 export async function processes(runtimeDie) {
-  for (const mask of paladin.variant.services) {
+  for (const mask of paladin.instance.services) {
     const module = await paladin.vip.accio(mask.module);
     // if module.implements(trait) TODO
     if (module.manifest?.traits?.includes("ATTACHED") && module.aperture) {
@@ -48,12 +48,12 @@ export async function processes(runtimeDie) {
 }
 
 // export async function terrans(runtime) {
-//   for (const mask of paladin.variant.daemons) {
+//   for (const mask of paladin.instance.daemons) {
 //     const die = new DaemonDie({ mask, good: new Daemon(mask) });
 //     runtime.terra.daemons.push(die);
 //   }
 
-//   for (const mask of paladin.variant.services) {
+//   for (const mask of paladin.instance.services) {
 //     const register = await paladin.vip.accio(mask.module);
 //     if (register.manifest?.traits?.includes("ATTACHED") && register.aperture) {
 //       const aperture = new Aperture();

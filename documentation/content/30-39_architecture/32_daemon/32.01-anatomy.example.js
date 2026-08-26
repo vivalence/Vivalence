@@ -2,13 +2,13 @@ import { Span, shape } from "@vivalence/typology"
 
 export const name = "32.01-anatomy"
 
-// The standalone variant's .env, minus a machine: the repo is the registry,
-// a scratch home under gitignored testament/ stands in for the usual variant
+// The standalone instance's .env, minus a machine: the repo is the registry,
+// a scratch home under gitignored testament/ stands in for the usual instance
 // mounts, secrets are placeholders. Everything below is the real boot,
 // staged by hand so each stage can be inspected — run.js drives the same
 // lifecycle, with die.resolve() cascading the daemon stages itself.
 function environment() {
-  if (Deno.env.get("VIVA_VARIANT_MOUNT")) return
+  if (Deno.env.get("VIVA_INSTANCE_MOUNT")) return
   const repo = new URL("../../../../", import.meta.url).pathname
   const scratch = `${repo}testament/docs-anatomy`
   try { Deno.removeSync(scratch, { recursive: true }) } catch { /* first run */ } // fresh boot every capture
@@ -16,7 +16,7 @@ function environment() {
   Deno.env.set("VIVA_SYSTEM_MODE", "DEVELOPMENT")
   Deno.env.set("VIVA_SYSTEM_ROLE", "SUDO")
   Deno.env.set("VIVA_REPOSITORY_MOUNT", repo)
-  Deno.env.set("VIVA_VARIANT_MOUNT", `${repo}registry/viva/variant/standalone`)
+  Deno.env.set("VIVA_INSTANCE_MOUNT", `${repo}registry/viva/instance/standalone`)
   Deno.env.set("VIVA_LEDGER_MOUNT", `${scratch}/ledger`)
   Deno.env.set("VIVA_MOUNTPOINT_MOUNT", `${scratch}/mountpoint`)
   Deno.env.set("SECRET_VIVA_JWT", "docs-placeholder")
@@ -40,23 +40,23 @@ export async function run() {
   console.log("── 1 · paladin — import time")
   const held = Object.keys(paladin.env.vars)
   console.log(`env       ${held.filter((key) => key.startsWith("VIVA_")).length} VIVA_ · ${held.filter((key) => key.startsWith("PUBLIC_")).length} PUBLIC_ · secrets held apart`)
-  console.log(`scope     variant → ${tame(paladin.scope.variant.absolute)}`)
+  console.log(`scope     instance → ${tame(paladin.scope.instance.absolute)}`)
   stage1.note({ env: held.length })
   stage1.close()
 
-  // ── 2 · variant.mount() ────────────────────────────────────────────────────
+  // ── 2 · instance.mount() ────────────────────────────────────────────────────
   const stage2 = span.branch("mount")
   stage2.open()
-  console.log("── 2 · paladin — variant.mount()")
-  const module = await import(`${repo}registry/viva/variant/standalone/standalone.viva.js`)
+  console.log("── 2 · paladin — instance.mount()")
+  const module = await import(`${repo}registry/viva/instance/standalone/standalone.viva.js`)
   console.log(`pre       module.runtime.statics.serve = ${typeof module.runtime.statics.serve} — a thunk; the declaration is data`)
-  await paladin.variant.mount()
-  console.log(`post      variant.runtime.statics.serve = ${paladin.variant.runtime.statics.serve.absolute}`)
-  const [mask] = paladin.variant.daemons
+  await paladin.instance.mount()
+  console.log(`post      instance.runtime.statics.serve = ${paladin.instance.runtime.statics.serve.absolute}`)
+  const [mask] = paladin.instance.daemons
   console.log(`mask      daemon ${mask.slug} → ${tame(mask.mount.absolute)}`)
   console.log(`kernel    ${mask.kernel.length} inline modules — validated`)
-  console.log(`publish   ${Object.keys(paladin.env.vars).filter((key) => key.startsWith("PUBLIC_")).length} PUBLIC_ vars folded from environment/variant.jsonc → process env`)
-  stage2.note({ daemons: paladin.variant.daemons.length, services: paladin.variant.services.length })
+  console.log(`publish   ${Object.keys(paladin.env.vars).filter((key) => key.startsWith("PUBLIC_")).length} PUBLIC_ vars folded from environment/instance.jsonc → process env`)
+  stage2.note({ daemons: paladin.instance.daemons.length, services: paladin.instance.services.length })
   stage2.close()
 
   // ── 3 · runtime — Die.populate() ───────────────────────────────────────────

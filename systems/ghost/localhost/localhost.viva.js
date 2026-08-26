@@ -3,7 +3,7 @@ import { Url } from "@vivalence/typology";
 
 export const manifest = {
   owner: "@vivalence",
-  type: "variant",
+  type: "instance",
   slug: "localhost",
   version: "0.0.1",
 };

@@ -55,7 +55,7 @@ export const Client = v.object(
   { additionalProperties: true },
 );
 
-export const Variant = v.object(
+export const Instance = v.object(
   {
     manifest: Manifest,
     path: v.string().optional(),

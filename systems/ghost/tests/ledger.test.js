@@ -29,7 +29,7 @@ async function author(root, slug, owner) {
   );
 }
 
-describe("viva ledger/{init,tap,untap,doctor} + variant/create", () => {
+describe("viva ledger/{init,tap,untap,doctor} + instance/create", () => {
   let ledger;
   let store;
 
@@ -44,9 +44,9 @@ describe("viva ledger/{init,tap,untap,doctor} + variant/create", () => {
     await author(store, "pack", "@pack");
   });
 
-  it("init scaffolds locks/logs/registry/variants + instances.json", async () => {
+  it("init scaffolds locks/logs/registry/instances + instances.json", async () => {
     const effect = await drive(["ledger/init", ledger]);
-    expect(effect.scaffolded).toEqual(["locks", "logs", "registry", "variants"]);
+    expect(effect.scaffolded).toEqual(["locks", "logs", "registry", "instances"]);
     for (const sub of effect.scaffolded) {
       expect((await Deno.stat(`${ledger}/${sub}`)).isDirectory).toBe(true);
     }
@@ -89,7 +89,7 @@ describe("viva ledger/{init,tap,untap,doctor} + variant/create", () => {
     const effect = await drive(["ledger/doctor"]);
     expect(effect.homes.ledger).toBe(paladin.scope.ledger.absolute);
     expect(effect.homes.store).toBe(new Path(store).absolute);
-    expect(effect.homes.variants).toBe(`${ledger}/variants`);
+    expect(effect.homes.instances).toBe(`${ledger}/instances`);
     expect(effect.homes.record.endsWith("registry.json")).toBe(true);
     const entry = effect.record.find((held) => held.reference === "pack");
     expect(entry.root).toBe(`${store}/pack`);
@@ -106,22 +106,22 @@ describe("viva ledger/{init,tap,untap,doctor} + variant/create", () => {
     await drive(["ledger/untap", "rot"]);
   });
 
-  it("variant create without a target shelves under <ledger>/variants/<slug>", async () => {
+  it("instance create without a target shelves under <ledger>/instances/<slug>", async () => {
     await Deno.writeTextFile(
       `${store}/pack/probe.viva.js`,
-      `export const manifest = { type: "variant", slug: "probe", version: "0.0.1" };`,
+      `export const manifest = { type: "instance", slug: "probe", version: "0.0.1" };`,
     );
-    const effect = await drive(["variant/create", "@pack/variant/probe"]);
-    expect(effect.target).toBe(`${ledger}/variants/probe`);
-    expect(effect.env).toBe("VIVA_VARIANT_MOUNT=probe");
-    expect((await Deno.stat(`${ledger}/variants/probe/probe.viva.js`)).isFile).toBe(true);
+    const effect = await drive(["instance/create", "@pack/instance/probe"]);
+    expect(effect.target).toBe(`${ledger}/instances/probe`);
+    expect(effect.env).toBe("VIVA_INSTANCE_MOUNT=probe");
+    expect((await Deno.stat(`${ledger}/instances/probe/probe.viva.js`)).isFile).toBe(true);
   });
 
-  it("variant init seeds .env from .env.example, idempotent, names the fill", async () => {
-    const home = `${ledger}/variants/probe`;
+  it("instance init seeds .env from .env.example, idempotent, names the fill", async () => {
+    const home = `${ledger}/instances/probe`;
     await Deno.writeTextFile(`${home}/.env.example`, "VIVA_SYSTEM_MODE=\nSECRET_VIVA_JWT=\n");
-    paladin.scopes([["variant", () => true, () => new Path(home)]]);
-    const first = await drive(["variant/init"]);
+    paladin.scopes([["instance", () => true, () => new Path(home)]]);
+    const first = await drive(["instance/init"]);
     expect(first.env).toBe("created");
     expect(first.fill).toEqual(["VIVA_SYSTEM_MODE", "SECRET_VIVA_JWT"]);
     expect(first.next.includes("fill .env")).toBe(true);

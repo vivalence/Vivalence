@@ -29,9 +29,9 @@ const seal = (slot) =>
       };
 
 export function assemble(tiers) {
-  const variant = collate(tiers).map(seal);
+  const instance = collate(tiers).map(seal);
   return {
-    entities: variant.map(({ subscribers, ...entity }) => entity),
-    subscribers: [...new Set(variant.flatMap((slot) => [...slot.subscribers]))],
+    entities: instance.map(({ subscribers, ...entity }) => entity),
+    subscribers: [...new Set(instance.flatMap((slot) => [...slot.subscribers]))],
   };
 }

@@ -250,7 +250,7 @@ None needed — it is weight, not breakage. The drapes half of the same
 problem IS fixed (=components= aggregate deleted, 1.33 MB → 0.54 MB), so
 buffer views are already 2.5× lighter; this issue is the remaining 292 KB.
 
-* aperture-snapshot-pins-a-daemon-the-variant-no-longer-mounts — RESOLVED
+* aperture-snapshot-pins-a-daemon-the-instance-no-longer-mounts — RESOLVED
 
 ** Symptom
 
@@ -271,7 +271,7 @@ identical from the outside:
 | up      | yes               | runs → green     |
 | up      | no                | 404 → RED        |
 
-The live variant mounts =italian= + =playground=:
+The live instance mounts =italian= + =playground=:
 
 #+begin_src text
   curl -s localhost:2501/metadata/daemons
@@ -364,7 +364,7 @@ Lock files contain the dead pids:
 #+end_src
 
 =/instance/init= (=piped= attachment) and =/instance/run= (=inherit= attachment)
-both work end-to-end — confirms the env / variant resolution chain is fine, the
+both work end-to-end — confirms the env / instance resolution chain is fine, the
 problem is specifically the =detached= attachment lifecycle.
 
 ** Attempts (none kept)
@@ -393,7 +393,7 @@ would actually work (in rough order of effort):
   for our scale
 
 None of these are 30-minute jobs. Currently we are using =/instance/init= and
-=/instance/run= for everything that needs a live variant, which both work.
+=/instance/run= for everything that needs a live instance, which both work.
 
 ** Fallback workaround
 
@@ -409,7 +409,7 @@ what every demo this week has used.
 =Deno.cwd()= inside a handler reflects the directory of the resolved
 =deno.jsonc= (repo root) — NOT the shell directory the user typed =deno task=
 from. Without correction, =viva /instance/clone localhost ./here= materializes
-the variant at =<repo-root>/here= instead of =<shell-cwd>/here=.
+the instance at =<repo-root>/here= instead of =<shell-cwd>/here=.
 
 ** Cause
 
@@ -465,13 +465,13 @@ Every =viva= invocation prints =paladin.scope overwrite= to stderr.
 
 ** Cause
 
-Ghost mw re-registers the =variant= scope on every invocation via
-=paladin.scopes([["variant", () => true, () => new Path(cwd)]])=. Paladin's
+Ghost mw re-registers the =instance= scope on every invocation via
+=paladin.scopes([["instance", () => true, () => new Path(cwd)]])=. Paladin's
 scope ledger warns when a scope is re-registered.
 
 ** Why not fixed
 
-Cosmetic. The override is intentional (ghost wants its cwd-derived variant
+Cosmetic. The override is intentional (ghost wants its cwd-derived instance
 scope to win over the env-derived one) but the warning fires every time. Either
 make paladin silent on re-register, or detect "same value" overwrites and
 suppress.
@@ -572,7 +572,7 @@ works; only =depparse= needs the missing dep.
 =registry/viva/nlp/server/Dockerfile= pip line installed stanza + Flask only; stanza's
 es/it/pt depparse wants the =transformers= package (charlm/transformer-backed parser).
 Both the provider default AND every =consume.nlp.statics.processors= in
-=testament/variant/education.js= pin =tokenize,mwt,pos,lemma,depparse= — so every
+=testament/instance/education.js= pin =tokenize,mwt,pos,lemma,depparse= — so every
 provider call, and now every =service_nlp_classify= tool call, hits the broken path.
 
 ** State
@@ -840,7 +840,7 @@ Client side: an =AbortController= per debounce ticket on =/symbols=, =/resolve=,
 - **SUNSET** — **m23 → done/** (beef: "sunset. move everything tangling from m23 to m29") — III/II.1 landed · II.2 → m27 · I beef-side; tangles settled or moved to m29's inherited section (lookup conjugation blindness · types.js/gather twins · progress-as-only-board · valence language law · instrument/mind tail lists) → [[project_m23_domain_root_tutor]]
 - **LANDED+LIVE, unnumbered** — **contractions** HYBRID (I'm ≡ I am: topography `statics.language[slug]` · runtime blind `/metadata/statics` · domain flat `/language` · `string.matches({contractions, elision})` — english = 7 suffix RULES + 3 irregulars, italian = `elision:true` + `po'`, brazilian = 16 colloquial list; bruno `language.bru` green; device rep owed) → [[contractions]] (`quests/contractions.quest.org`)
 - **DESIGN, nothing go'd** — **progress-feedback** (the learner never sees their retention: `/review/literal` returns the evolved retention + writes a Trace, all five games discard it; board's three lies — UNTOUCHED structurally 0, strength collapses to 0.0 for everything overdue, due is a bare int; designer brief + real italian-testament rows in the quest; 5 forks for beef) → [[progress-feedback]]
-- **IMPLEMENTING** — longdistance (audio: enum ✓, variant wire + live boot next) · english-to-spanish (M1 A1+survival) · c-panel-rebuild (metadata cutover tail)
+- **IMPLEMENTING** — longdistance (audio: enum ✓, instance wire + live boot next) · english-to-spanish (M1 A1+survival) · c-panel-rebuild (metadata cutover tail)
 
 - m30 warts, un-go'd: probe swallows close-code 1001 at F5 teardown · per-MODE metadata boot volley ~35 calls (aggregate `/metadata/modes`) · `store()` coalescing riding epoch close
 - beef's skill roadmap: daemon skills LANDED · paladin skills LANDED (fs_tree/find/read/write + shell_run, root-bound, no trait) · ghost skills next — then standard-skill overrides via keyed layers

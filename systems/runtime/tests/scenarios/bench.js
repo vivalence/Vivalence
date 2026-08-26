@@ -90,20 +90,20 @@ export async function bench(spec = {}) {
 
   const domain = kernel.find((module) => module.manifest?.type === "domain");
 
-  const variantTraits = {
+  const instanceTraits = {
     ...traits,
     ...(domain?.traits || {}),
     APPLICATION: BENCH_APPLICATION,
   };
 
-  const { entities: variantEntities, subscribers: variantSubscribers } = assemble([
+  const { entities: instanceEntities, subscribers: instanceSubscribers } = assemble([
     sets.daemon,
     sets.kernel,
     sets.userspace,
     domain?.entities || {},
   ]);
 
-  const datamapInstance = await memoryDatamap(variantEntities, variantSubscribers);
+  const datamapInstance = await memoryDatamap(instanceEntities, instanceSubscribers);
 
   // ── assemble daemon ──────────────────────────────────────────────
   const daemon = new Daemon({
@@ -129,10 +129,10 @@ export async function bench(spec = {}) {
     mask: { manifest: daemon.manifest },
     datamap: datamapInstance,
     domain,
-    variant: {
-      traits: variantTraits,
-      entities: variantEntities,
-      subscribers: variantSubscribers,
+    instance: {
+      traits: instanceTraits,
+      entities: instanceEntities,
+      subscribers: instanceSubscribers,
       services: {},
     },
     register: {

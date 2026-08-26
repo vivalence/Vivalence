@@ -20,10 +20,10 @@ Same mechanic as typology Vector, applied to operator commands.
 
 ** Signal
 
-Parsed argv. A command invocation ~viva instance init ./my-variant --force~ becomes:
+Parsed argv. A command invocation ~viva instance init ./my-instance --force~ becomes:
 
 #+begin_src
-{ path: "/instance/init", positional: ["./my-variant"], flags: { force: true } }
+{ path: "/instance/init", positional: ["./my-instance"], flags: { force: true } }
 #+end_src
 
 ** Handler
@@ -34,7 +34,7 @@ Parsed argv. A command invocation ~viva instance init ./my-variant --force~ beco
 
 Each signal execution carries:
 - argv + parsed flags
-- paladin scope (variant, environment, mountpoint)
+- paladin scope (instance, environment, mountpoint)
 - per-command extras (e.g. ~ctx.source~, ~ctx.destination~ set by middleware)
 
 * Project Structure
@@ -43,7 +43,7 @@ Each signal execution carries:
 - ~mod.js~ — barrel
 - ~typology.js~ — re-exports trajectory + Signal + cast
 - ~trajectories/~ — one file per command. ~instance/~ subdir groups instance management (init, start, stop, status, uninstall); top-level: list, show, auth, daemon, services, web
-- ~lib/~ — variant resolution, env passthrough, output printers, process state, session, connection
+- ~lib/~ — instance resolution, env passthrough, output printers, process state, session, connection
 - ~lifecycle/~ — parse / resolve / run
 - ~tests/~ — init, parse, processes, resolve, start, wafer
 
@@ -61,13 +61,13 @@ Interactive mode (no args) presents available commands.
 
 ** instance init
 
-Copy a variant manifest + its tree to a mountpoint:
+Copy an instance manifest + its tree to a mountpoint:
 
 #+begin_src sh
 deno task viva instance init <slug-or-path> [destination]
 #+end_src
 
-Defaults to ~VIVA_VARIANT_MOUNT~ if destination not given. Refuses if an existing variant marker is present unless ~--force~ is passed (which wipes the destination first).
+Defaults to ~VIVA_INSTANCE_MOUNT~ if destination not given. Refuses if an existing instance marker is present unless ~--force~ is passed (which wipes the destination first).
 
 ** instance start / stop / status / remove
 
@@ -78,7 +78,7 @@ deno task viva instance status
 deno task viva instance remove <name>
 #+end_src
 
-Start boots a runtime + client processes. Stop terminates. Status lists running processes. Remove deletes a ~.viva.js~ marker from the variant mount.
+Start boots a runtime + client processes. Stop terminates. Status lists running processes. Remove deletes a ~.viva.js~ marker from the instance mount.
 
 ** auth
 

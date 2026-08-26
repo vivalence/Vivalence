@@ -2,11 +2,11 @@ import { Span } from "@vivalence/typology"
 
 export const name = "51.02-flashcard"
 
-// The standalone variant's .env, minus a machine — a scratch home under
+// The standalone instance's .env, minus a machine — a scratch home under
 // gitignored testament/, placeholder secrets. The scratch is wiped by
 // whichever example claims it first in a capture; boots after that reuse it.
 function environment() {
-  if (Deno.env.get("VIVA_VARIANT_MOUNT")) return
+  if (Deno.env.get("VIVA_INSTANCE_MOUNT")) return
   const repo = new URL("../../../../", import.meta.url).pathname
   const scratch = `${repo}testament/docs-anatomy`
   try { Deno.removeSync(scratch, { recursive: true }) } catch { /* first run */ }
@@ -14,7 +14,7 @@ function environment() {
   Deno.env.set("VIVA_SYSTEM_MODE", "DEVELOPMENT")
   Deno.env.set("VIVA_SYSTEM_ROLE", "SUDO")
   Deno.env.set("VIVA_REPOSITORY_MOUNT", repo)
-  Deno.env.set("VIVA_VARIANT_MOUNT", `${repo}registry/viva/variant/standalone`)
+  Deno.env.set("VIVA_INSTANCE_MOUNT", `${repo}registry/viva/instance/standalone`)
   Deno.env.set("VIVA_LEDGER_MOUNT", `${scratch}/ledger`)
   Deno.env.set("VIVA_MOUNTPOINT_MOUNT", `${scratch}/mountpoint`)
   Deno.env.set("SECRET_VIVA_JWT", "docs-placeholder")
@@ -32,11 +32,11 @@ export async function run() {
   // ── boot — the whole machine, headless ─────────────────────────────────────
   const boot = span.branch("boot")
   boot.open()
-  console.log("── boot — mount the variant, raise the daemon")
+  console.log("── boot — mount the instance, raise the daemon")
   console.log("          (fresh boot: daemon + lighthouse databases automigrate, the dataset seeds)")
   const { default: paladin } = await import("@vivalence/paladin")
   const { Die, Runtime } = await import("@vivalence/runtime")
-  await paladin.variant.mount()
+  await paladin.instance.mount()
   const die = new Die({ good: new Runtime() })
   await die.populate()
   const [daemonDie] = die.good.daemons

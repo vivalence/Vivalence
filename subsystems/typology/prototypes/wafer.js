@@ -52,7 +52,7 @@ export class Wafer {
 //     modes: [],
 //     services: [],
 //   };
-//   variant = {
+//   instance = {
 //     kernel: {},
 //     modes: [],
 //     traits: {},
@@ -79,7 +79,7 @@ export class Wafer {
 //     services: [],
 //   };
 
-//   variant = {
+//   instance = {
 //     kernel: {},
 //     modes: [],
 //     traits: {},

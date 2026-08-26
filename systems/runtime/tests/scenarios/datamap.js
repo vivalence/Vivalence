@@ -33,7 +33,7 @@ export { SymbolConcrete, BufferConcrete }
 
 // ── in-memory datamap provider ─────────────────────────────────────
 // Same contract as @vivalence/datamap/libsql provider() but sqlite :memory:.
-// Takes the variant array ({ type, schema, entity, repository, subscriber }[])
+// Takes the instance array ({ type, schema, entity, repository, subscriber }[])
 // and returns the provider interface the runtime expects.
 export const shard = (orm) => ({
   context: (fn) => RequestContext.create(orm.em, fn),
@@ -47,16 +47,16 @@ export const shard = (orm) => ({
   },
 })
 
-export async function provider(variant, subscribers = variant.map((v) => v.subscriber)) {
+export async function provider(instance, subscribers = instance.map((v) => v.subscriber)) {
   const orm = await MikroORM.init({
-    ...config({ dbName: ":memory:", entities: variant.map((v) => v.schema), subscribers }),
+    ...config({ dbName: ":memory:", entities: instance.map((v) => v.schema), subscribers }),
     allowGlobalContext: true,
   })
 
   await orm.schema.refreshDatabase()
 
   const entities = { em: orm.em }
-  for (const { type, entity } of variant) {
+  for (const { type, entity } of instance) {
     if (!entity || !type) continue
     entities[type] = orm.em.getRepository(entity)
   }

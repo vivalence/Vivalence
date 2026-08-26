@@ -4,11 +4,11 @@ import { register, specs } from "./target.js";
 import { Init } from "./Init.jsx";
 
 const seed = async () => {
-  const env = paladin.scope.variant.branch(".env");
+  const env = paladin.scope.instance.branch(".env");
   const held = await paladin.read.text(env).catch(() => null);
   if (held) return { env: "present" };
 
-  const example = await paladin.read.text(paladin.scope.variant.branch(".env.example")).catch(() => null);
+  const example = await paladin.read.text(paladin.scope.instance.branch(".env.example")).catch(() => null);
   if (!example) return { env: "missing", error: "no .env.example to seed from" };
 
   await paladin.state.scribe(env, example);
@@ -21,7 +21,7 @@ const seed = async () => {
   };
 };
 
-const remote = () => new Connection(paladin.variant.lighthouse.statics.remote);
+const remote = () => new Connection(paladin.instance.lighthouse.statics.remote);
 
 const poll = async (username, password) => {
   let refusal;
@@ -37,17 +37,17 @@ const poll = async (username, password) => {
 };
 
 export async function init(ctx) {
-  if (!paladin.scope.variant) {
-    return (ctx.effect = { error: "no variant mounted — set VIVA_VARIANT_MOUNT" });
+  if (!paladin.scope.instance) {
+    return (ctx.effect = { error: "no instance mounted — set VIVA_INSTANCE_MOUNT" });
   }
 
-  const mount = paladin.scope.variant.absolute;
+  const mount = paladin.scope.instance.absolute;
   const seeded = await seed();
   if (seeded.env !== "present") {
-    return (ctx.effect = { mount, ...seeded, next: "fill .env, then: viva variant/init" });
+    return (ctx.effect = { mount, ...seeded, next: "fill .env, then: viva instance/init" });
   }
 
-  await paladin.variant.mount();
+  await paladin.instance.mount();
 
   const [username, password] = ctx.signal.params ?? [];
   if (username && password) {
@@ -62,7 +62,7 @@ export async function init(ctx) {
   }
 
   if (!ctx.view) {
-    return (ctx.effect = { mount, ...seeded, next: "viva variant/init <username> <password>" });
+    return (ctx.effect = { mount, ...seeded, next: "viva instance/init <username> <password>" });
   }
 
   let held = [];

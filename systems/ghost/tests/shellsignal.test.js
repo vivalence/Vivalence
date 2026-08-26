@@ -70,11 +70,11 @@ Deno.test("ShellSignal: idempotent across two rebuild cycles", () => {
 
 // Realistic shell argv shapes a ghost client might see.
 
-Deno.test("ShellSignal: install variant localhost ~/test", () => {
-  const signal = new ShellSignal(["install", "variant", "localhost", "~/test"]);
+Deno.test("ShellSignal: install instance localhost ~/test", () => {
+  const signal = new ShellSignal(["install", "instance", "localhost", "~/test"]);
   assertEquals(signal.nature, "install");
   assertEquals(signal.fin, null);
-  assertEquals(signal.params, ["variant", "localhost", "~/test"]);
+  assertEquals(signal.params, ["instance", "localhost", "~/test"]);
   assertEquals(signal.flags, {});
 });
 
@@ -100,11 +100,11 @@ Deno.test("ShellSignal: bare command, no args", () => {
 });
 
 Deno.test("ShellSignal: deep path /paladin/scope/registry/mount", () => {
-  const signal = new ShellSignal(["paladin/scope/registry/mount", "/path/to/variant"]);
+  const signal = new ShellSignal(["paladin/scope/registry/mount", "/path/to/instance"]);
   assertEquals(signal.nature, "paladin");
-  assertEquals(signal.absolute, ["paladin/scope/registry/mount", "/path/to/variant"]);
+  assertEquals(signal.absolute, ["paladin/scope/registry/mount", "/path/to/instance"]);
   assertEquals(signal.array.length, 4);
-  assertEquals(signal.params, ["/path/to/variant"]);
+  assertEquals(signal.params, ["/path/to/instance"]);
 });
 
 Deno.test("ShellSignal: registry-prefixed positional @vivalence/foo", () => {
@@ -128,7 +128,7 @@ Deno.test("ShellSignal: leading slash command path", () => {
 });
 
 Deno.test("ShellSignal: tilde-expanded path positional", () => {
-  const signal = new ShellSignal(["install", "variant", "localhost", "~/test"]);
+  const signal = new ShellSignal(["install", "instance", "localhost", "~/test"]);
   assertEquals(signal.params[2], "~/test");
 });
 

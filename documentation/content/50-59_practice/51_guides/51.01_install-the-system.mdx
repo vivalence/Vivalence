@@ -8,9 +8,9 @@ Deno ^2.7 must be installed. Currently only installation from repo at this point
 minimum vocabulary required:
 
 - `viva` — the CLI. Installed to the OS, or `deno task ghost/run` if so inclined.
-- `ledger` — the `~/.viva` directory for system-level stuff: the package store, the variant shelf, the record of tapped packages, logs, locks.
-- `package` — a unit of modes living in the registry, likely git-managed. Services, applications, datasets, harnesses, and variants are grouped into a package.
-- `variant` — an executable system unit made up of runtime and clients, and the daemons running on top of them. The ledger shelves many; a runtime renders exactly one.
+- `ledger` — the `~/.viva` directory for system-level stuff: the package store, the instance shelf, the record of tapped packages, logs, locks.
+- `package` — a unit of modes living in the registry, likely git-managed. Services, applications, datasets, harnesses, and instances are grouped into a package.
+- `instance` — an executable system unit made up of runtime and clients, and the daemons running on top of them. The ledger shelves many; a runtime renders exactly one.
 
 ## Install the Vivalence CLI
 
@@ -24,7 +24,7 @@ viva ledger/init
 `deno task install` fetches dependencies and links `viva` into `~/.deno/bin` — the CLI
 remembers the repo via `~/.config/viva/env`. `ledger/init` is a wizard: it picks the
 ledger home (default `~/.viva`), persists `VIVA_LEDGER_MOUNT`, and scaffolds
-`locks/ logs/ registry/ variants/`. The in-repo packages register at first boot.
+`locks/ logs/ registry/ instances/`. The in-repo packages register at first boot.
 
 ## Add a package
 
@@ -36,34 +36,34 @@ viva ledger/tap <path | git url> [target]
 viva ledger/doctor
 ```
 
-## Set up a variant
+## Set up an instance
 
-create a variant out of the registry — without a target it lands on the shelf,
-and `VIVA_VARIANT_MOUNT` accepts its bare slug
+create an instance out of the registry — without a target it lands on the shelf,
+and `VIVA_INSTANCE_MOUNT` accepts its bare slug
 
 ```sh
-viva variant/create @viva/variant/localhost
-export VIVA_VARIANT_MOUNT=localhost
+viva instance/create @viva/instance/localhost
+export VIVA_INSTANCE_MOUNT=localhost
 ```
 
-`variant/init` runs first-boot: the first call seeds `.env` from `.env.example` — fill it,
-then run it again and the wizard boots the variant, creates your account against its
+`instance/init` runs first-boot: the first call seeds `.env` from `.env.example` — fill it,
+then run it again and the wizard boots the instance, creates your account against its
 lighthouse, and stops.
 
 ```sh
-viva variant/init
-$EDITOR ~/.viva/variants/localhost/.env
-viva variant/init
+viva instance/init
+$EDITOR ~/.viva/instances/localhost/.env
+viva instance/init
 ```
 
 ## Boot runtime and client
 
 ```sh
-viva variant/run
+viva instance/run
 ```
 
-more users later, against the running variant:
+more users later, against the running instance:
 
 ```sh
-viva variant/auth signup <username> <password>
+viva instance/auth signup <username> <password>
 ```

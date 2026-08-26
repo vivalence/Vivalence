@@ -48,7 +48,16 @@ export async function modes(daemonDie) {
 
       if (mode.module.aperture) mode.aperture.slurp(mode.module.aperture);
 
-      finalizers.push(...(await stagger(mode, daemonDie.good, daemonDie.variant.traits)));
+      const held = mode.entity.installed;
+      const fresh = await stamp(mode);
+      if (typeof held === "string" && held && held !== fresh) {
+        console.log(
+          `[DATASET] ${mode.type}/${mode.slug} dataset files differ from the installed stamp — reinstalling`,
+        );
+        mode.entity.installed = "";
+      }
+
+      finalizers.push(...(await stagger(mode, daemonDie.good, daemonDie.instance.traits)));
 
       if (mode.module.aperture && !mode.implements("EXPOSED")) {
         console.warn(`[trait] ${mode.type}/${mode.slug} exports aperture without EXPOSED`);
@@ -57,10 +66,8 @@ export async function modes(daemonDie) {
         console.warn(`[trait] ${mode.type}/${mode.slug} exports datasink without DATASINK`);
       }
 
-      const held = mode.entity.installed;
-      const stamped = typeof held === "string" && held ? held : await stamp(mode);
-      mode.entity.installed = stamped;
-      await daemonDie.good.entities.mode.nativeUpdate({ id: mode.entity.id }, { installed: stamped });
+      mode.entity.installed = fresh;
+      await daemonDie.good.entities.mode.nativeUpdate({ id: mode.entity.id }, { installed: fresh });
     }
 
     await Promise.all(finalizers.map((finalize) => finalize()));

@@ -1,14 +1,14 @@
 import { specimen } from "@vivalence/typology";
-import { Paladin, Ledger, Variant, Vip } from "@vivalence/paladin/typology";
+import { Paladin, Ledger, Instance, Vip } from "@vivalence/paladin/typology";
 import paladin from "@vivalence/paladin";
 
 const { describe, it, expect } = specimen;
 
 describe("paladin boot: constructed mountables, no ikiro", () => {
-  it("constructor wires ledger/variant/vip as siblings", () => {
+  it("constructor wires ledger/instance/vip as siblings", () => {
     const fresh = new Paladin();
     expect(fresh.ledger).toBeInstanceOf(Ledger);
-    expect(fresh.variant).toBeInstanceOf(Variant);
+    expect(fresh.instance).toBeInstanceOf(Instance);
     expect(fresh.vip).toBeInstanceOf(Vip);
   });
 
@@ -24,7 +24,7 @@ describe("paladin boot: constructed mountables, no ikiro", () => {
     expect(paladin.vip).toBeInstanceOf(Vip);
   });
 
-  it("variant.mount is the once-wrapped lazy mount", () => {
-    expect(typeof new Paladin().variant.mount).toBe("function");
+  it("instance.mount is the once-wrapped lazy mount", () => {
+    expect(typeof new Paladin().instance.mount).toBe("function");
   });
 });

@@ -55,11 +55,11 @@ specimen.describe("Path", () => {
 
 specimen.describe("Path.absolute is heritage-only — a filesystem path is root→self", () => {
   specimen.it("branching a child never grows the parent (the daemon-mount crash)", () => {
-    const mount = new Path("/testament/variant/mountpoint").branch("/daemon_spanish");
+    const mount = new Path("/testament/instance/mountpoint").branch("/daemon_spanish");
     const db = mount.branch("/test-language-spanish.viva.db");
 
-    specimen.expect(db.absolute).toBe("/testament/variant/mountpoint/daemon_spanish/test-language-spanish.viva.db");
-    specimen.expect(mount.absolute).toBe("/testament/variant/mountpoint/daemon_spanish");
+    specimen.expect(db.absolute).toBe("/testament/instance/mountpoint/daemon_spanish/test-language-spanish.viva.db");
+    specimen.expect(mount.absolute).toBe("/testament/instance/mountpoint/daemon_spanish");
 
     const store = `${mount.absolute}/homepage/aprende/bundle`;
     specimen.expect(store.includes(".viva.db")).toBe(false);

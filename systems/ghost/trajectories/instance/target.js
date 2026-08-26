@@ -7,7 +7,7 @@ const CHILDREN = {
 
 export async function register() {
   await paladin.ledger.mount();
-  const mount = paladin.scope.variant.absolute;
+  const mount = paladin.scope.instance.absolute;
   await paladin.ledger.instances.write(mount, { mount });
 }
 
@@ -18,10 +18,9 @@ export function specs(param, { attachment = "inherit" } = {}) {
     throw new Error(`instance: unknown target '${target}' — expected ${known.join(" | ")}`);
   }
 
-  const variant = paladin.scope.variant;
-  if (!variant) throw new Error("instance: no variant mounted — set VIVA_VARIANT_MOUNT");
+  if (!paladin.scope.instance) throw new Error("instance: no instance mounted — set VIVA_INSTANCE_MOUNT");
 
-  const mount = variant.absolute;
+  const mount = paladin.scope.instance.absolute;
   const instance = mount.split("/").filter(Boolean).pop(); // @beef ugly and stupid
   const config = `${paladin.scope.repository.absolute}/deno.jsonc`;
 
@@ -32,6 +31,6 @@ export function specs(param, { attachment = "inherit" } = {}) {
     mount,
     attachment,
     cmd: ["deno", "task", "--config", config, "-q", CHILDREN[process].task],
-    env: { VIVA_VARIANT_MOUNT: mount },
+    env: { VIVA_INSTANCE_MOUNT: mount },
   }));
 }

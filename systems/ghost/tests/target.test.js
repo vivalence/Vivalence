@@ -1,5 +1,5 @@
 import { assertEquals, assertThrows } from "@std/assert";
-import { specs } from "../trajectories/variant/target.js";
+import { specs } from "../trajectories/instance/target.js";
 
 Deno.test("specs: no target → all children", () => {
   const result = specs(undefined);
@@ -22,9 +22,9 @@ Deno.test("specs: unknown target throws", () => {
   assertThrows(() => specs("nonsense"), Error, "unknown target");
 });
 
-Deno.test("specs: every spec carries the variant mount", () => {
+Deno.test("specs: every spec carries the instance mount", () => {
   for (const spec of specs("all")) {
-    assertEquals(spec.env.VIVA_VARIANT_MOUNT, spec.mount);
+    assertEquals(spec.env.VIVA_INSTANCE_MOUNT, spec.mount);
     assertEquals(spec.cmd.slice(0, 2), ["deno", "task"]);
   }
 });

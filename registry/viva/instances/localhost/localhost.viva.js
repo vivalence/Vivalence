@@ -6,7 +6,7 @@ import { playground } from "./playground.js";
 export const daemons = [education, playground];
 
 export const manifest = {
-  type: "variant",
+  type: "instance",
   slug: "localhost",
   version: "0.0.1",
 };

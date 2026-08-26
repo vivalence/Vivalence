@@ -4,7 +4,7 @@ export default [
     traits: ["ONTOLOGICAL", "LABELED", "TOPOGRAPHICAL"],
     trait: {
       ONTOLOGICAL: {},
-      LABELED: { name: "Word", description: "A word" },
+      LABELED: { name: "Word", description: "A word. Core ontological dimension." },
       TOPOGRAPHICAL: {},
     },
   },
@@ -669,7 +669,10 @@ export default [
   {
     slug: "word.numeral-form.word",
     traits: ["ONTOLOGICAL", "LABELED"],
-    trait: { ONTOLOGICAL: {}, LABELED: { name: "Word", description: "Number expressed in words." } },
+    trait: {
+      ONTOLOGICAL: {},
+      LABELED: { name: "Word", description: "Number expressed in words." },
+    },
   },
   {
     slug: "word.adverb-type.locative",

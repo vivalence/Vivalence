@@ -5,7 +5,7 @@ import { cast } from "@vivalence/typology";
 export async function create(ctx) {
   const [source, target] = ctx.signal.params ?? [];
   if (!source) {
-    return (ctx.effect = { error: "usage: /variant/create <@owner/variant/slug | ../path> [target]" });
+    return (ctx.effect = { error: "usage: /instance/create <@owner/instance/slug | ../path> [target]" });
   }
 
   let mount;
@@ -24,7 +24,7 @@ export async function create(ctx) {
   const cwd = Deno.env.get("INIT_CWD") ?? Deno.env.get("PWD") ?? Deno.cwd();
   const destination = target
     ? resolve(cwd, target)
-    : paladin.scope.ledger.branch(`variants/${slug}`).absolute;
+    : paladin.scope.ledger.branch(`instances/${slug}`).absolute;
 
   await cloneDir(mount, destination);
 
@@ -32,7 +32,7 @@ export async function create(ctx) {
     source,
     from: mount,
     target: destination,
-    env: `VIVA_VARIANT_MOUNT=${target ? destination : slug}`,
+    env: `VIVA_INSTANCE_MOUNT=${target ? destination : slug}`,
   };
 }
 

@@ -146,19 +146,19 @@ describe("scope conventions — the ledger is the home", () => {
     expect(paladin.scope.registry.absolute).toBe(explicit);
   });
 
-  it("VIVA_VARIANT_MOUNT bare slug shelves under <ledger>/variants/", async () => {
+  it("VIVA_INSTANCE_MOUNT bare slug shelves under <ledger>/instances/", async () => {
     const paladin = await mkPaladin();
-    paladin.env.set("VIVA_VARIANT_MOUNT", "localhost");
-    expect(paladin.scope.variant.absolute).toBe(
-      paladin.scope.ledger.branch("variants/localhost").absolute,
+    paladin.env.set("VIVA_INSTANCE_MOUNT", "localhost");
+    expect(paladin.scope.instance.absolute).toBe(
+      paladin.scope.ledger.branch("instances/localhost").absolute,
     );
   });
 
-  it("VIVA_VARIANT_MOUNT absolute path stays verbatim", async () => {
+  it("VIVA_INSTANCE_MOUNT absolute path stays verbatim", async () => {
     const paladin = await mkPaladin();
-    const home = await Deno.makeTempDir({ prefix: "paladin-variant-" });
-    paladin.env.set("VIVA_VARIANT_MOUNT", home);
-    expect(paladin.scope.variant.absolute).toBe(home);
+    const home = await Deno.makeTempDir({ prefix: "paladin-instance-" });
+    paladin.env.set("VIVA_INSTANCE_MOUNT", home);
+    expect(paladin.scope.instance.absolute).toBe(home);
   });
 });
 

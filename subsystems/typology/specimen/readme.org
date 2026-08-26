@@ -36,7 +36,7 @@ instructions, patterns and tools for testing the gestalten and valences of types
 
     describe("gestalt", () => {
       it("[has properties of propper shape, form, type, xxx]", () => {
-        // expect(is.string(paladin.variant));
+        // expect(is.string(paladin.instance));
       });
     });
 

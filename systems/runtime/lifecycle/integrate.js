@@ -19,13 +19,13 @@ export async function wake(die) {
           console.warn(`child unhealthy`, child.slug);
         }
       }
-      console.log(`$[runtime:${paladin.variant.runtime?.slug}]`, die.status);
+      console.log(`$[runtime:${paladin.instance.runtime?.slug}]`, die.status);
     },
   };
 }
 
 export async function launch(runtimeDie) {
-  const url = paladin.variant.runtime?.statics?.serve;
+  const url = paladin.instance.runtime?.statics?.serve;
   if (!url) {
     console.warn("No runtime serve URL configured");
     return;
@@ -54,11 +54,11 @@ export async function launch(runtimeDie) {
 }
 
 export async function announce(die) {
-  const remote = paladin.variant.lighthouse?.statics?.remote;
+  const remote = paladin.instance.lighthouse?.statics?.remote;
   if (!remote) return;
 
   const connection = new Connection(remote);
-  const origin = paladin.variant.runtime?.statics?.serve?.origin;
+  const origin = paladin.instance.runtime?.statics?.serve?.origin;
   const slugs = die.good.daemons.map((daemonDie) => daemonDie.slug);
 
   for (const daemonDie of die.good.daemons) {
@@ -92,14 +92,14 @@ export async function announce(die) {
 //         if (terran.status.is("ERROR"))
 //           console.warn(`Terran  unhealthy`, terran);
 //       }
-//       console.log(`$[runtime:${paladin.variant.runtime.slug}]`, runtime.status);
+//       console.log(`$[runtime:${paladin.instance.runtime.slug}]`, runtime.status);
 //     },
 //   };
 // }
 
 // export async function launch(runtime) {
 //   await paladin.ikiro;
-//   const url = paladin.variant.runtime.statics.serve;
+//   const url = paladin.instance.runtime.statics.serve;
 
 //   runtime.server.addEventListener(
 //     "listen",

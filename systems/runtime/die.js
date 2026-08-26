@@ -4,7 +4,7 @@ import * as lifecycle from "./lifecycle/index.js";
 
 export class Die extends Wafer {
   get manifest() {
-    const runtime = paladin.variant.runtime ?? {};
+    const runtime = paladin.instance.runtime ?? {};
     return {
       type: "runtime",
       slug: runtime.slug ?? "runtime",

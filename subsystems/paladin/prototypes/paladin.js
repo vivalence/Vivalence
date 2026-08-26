@@ -1,7 +1,7 @@
 import { Env } from "@vivalence/typology";
 import belt from "../belt/index.js";
 import { Ledger } from "./ledger/index.js";
-import { Variant } from "./variant.js";
+import { Instance } from "./instance.js";
 import { Vip } from "./vip.js";
 
 export class Paladin {
@@ -26,7 +26,7 @@ export class Paladin {
     belt.bundler(this);
     // mountables — siblings of vip, own their state, fn.once mount()
     this.ledger = new Ledger(this);
-    this.variant = new Variant(this);
+    this.instance = new Instance(this);
     this.vip = new Vip(this);
   }
 

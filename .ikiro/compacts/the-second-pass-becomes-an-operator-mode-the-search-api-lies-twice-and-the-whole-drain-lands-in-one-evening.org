@@ -1,0 +1,121 @@
+#+title: the second pass becomes an operator mode, the search api lies twice, and the whole drain lands in one evening
+#+filetags: :italian:datasink:harvest:curriculum:tatoeba:freight:cargo:paladin:typology:runtime:kajuit:tts:elevenlabs:mode:rename:
+
+* what happened, in one breath
+
+The session opened as a second design pass on the italian datasink quest and closed with
+the ENTIRE quest landed. Pass 2 recast the harvest from a chat capability into an
+operator MODE, split system from sources, legitimized TTS, and settled the stale-DB
+doozy as stamp-WARN. Then beef said "ok. i wnat to get the corpus out the way" and the
+landing run began: curriculum patch applied via =patch -p1=, the phrasebook harvest run
+— which exposed the tatoeba search api lying twice (its =query==text= "exact" match
+STEMS, and it reports =license: null= for recordings whose CSV export says CC BY 4.0) —
+rewritten index-first, and the truth extracted: *5 audio rows exist on all of tatoeba
+for the 143 targets, under ANY license*. Then M1 through M6 of the datasink landed in
+sequence on stacked gos, with three design amendments made at land (store rename,
+per-sink dirty semantics, the Cargo prototype), one boot crash fixed live
+(=ModeTraitsEnum= never carried DATASINK), and the harvest operator mode built whole at
+=registry/education/modes/tactics/harvest/= with green tests whose wet path runs real
+ffmpeg. Owed at close: beef mounts =@education/tactic/harvest= in the testament italian
+kernel, M7 live sweep, voice ear-pick, reseed.
+
+* pass 2 — the rulings that reshaped the quest (verbatim)
+
+- "NOT only via chat. give me an actual MODE to do this. the mode is harnessed itself.
+  there is a tool francesca might use. but shes really more teacher." — harvest =
+  =CONVERSATIONAL+HARNESSED+TOOLED= operator mode, own terminal, own doctrine.
+- "we have to split the capability to harvest store write and updte frieght and
+  literals and shit (system) from the sources we pull this shit from (tts, wiki,
+  tatobea, xxx)." — tools are source-blind; sources are one pluggable contract
+  =({agent, daemon}) => ({slug, resolve, fetch})=; language is a tool INPUT, never
+  config. The topography-declared speaker list died as "an unscalable one-off hack".
+- "ignore todays state. its a dev setup. fuck it. stamp warn." — no reseed ceremony;
+  the stamp is a tripwire, not a gate.
+- "ok. no per entity sink. fine." — per-SINK precision is the floor and the ceiling.
+- "i dont care about registry, especially hallucinators. you own that." then "i care
+  for every chagne to system and subsystem. registry & modes are yours" — the
+  ownership ledger the whole landing ran on.
+
+* the corpus goes out the way, and the api lies
+
+"ok. i wnat to get the corpus out the way. any choices left? can you apply? what would
+change?" → dry-run clean → "you run it. go". The patch survived the m38 symbol edits.
+First harvest run: 143 targets, 0 hits — and the autopsy found BOTH assumptions false:
+
+1. =query==text= is not exact — 'Non capisco.' returned 'Non capirete.' (Manticore
+   stemming). Real syntax ==="text"=, and it stopped mattering.
+2. The api reports =license: null= for NM1's recordings — the very rows
+   =sentences_with_audio.csv= licenses CC BY 4.0. The original ='!a.license ||'=
+   acceptance the critical pass had condemned as the license bug was HALF-DELIBERATE
+   compensation for an api that cannot carry the license.
+
+Fix = the italian-build doctrine again, index-first: intersect the cached CSV exports
+(=/tmp/tatoeba/=), gate on CSV licenses, download by audio_id. Result: 5 hits, all NM1,
+all CC BY 4.0, ledgered; VOCALIZED 506 → 511. Beef pushed — "5 audios is not enough!!
+if no licence, assume one." — gate relaxed (null → "Tatoeba terms"), rerun: STILL 5.
+Proven by counting every audio row in the full export for our sids: 5 rows exist,
+period. Availability is the wall, not licensing; the 138 are the TTS queue, and the
+deferred-section prophecy ("reopens when a recording pipeline exists") resolved to:
+the datasink mode IS the recording pipeline.
+
+* the drain lands — six milestones, three amendments, one crash
+
+- *M1* on "go on m1." with the rename ruling "paladin.state.lade i dont like this
+  function name. change it to store." — =paladin.state.store= (byte-compare,
+  tmp+rename) · =Freight.entry=+=admit= · =FRAUGHT= =mode.freight.receive= ·
+  italian.viva.js DATASINK declaration. Rename swept quest+memory, zero =lade= left.
+- *the crash*: beef's boot threw =Invalid enum array items … [ 'DATASINK' ]= —
+  =ModeTraitsEnum= in =systems/runtime/daemon/entities/daemon/Mode.ts= never carried
+  DATASINK because no mode had ever declared one. One enum member.
+- *M2* (+M4) on a quoted-table "go". Amendments made AT LAND, all recorded in-quest:
+  (1) per-sink dirty — the sketch's =match !== false= form is UNSAFE: =match= runs
+  against a RAW mikro entity (Collections, not projected rows) and can false-negative
+  → silently missed drain. Landed: dirty the sinks whose match is TRUE, else ALL the
+  type's sinks. The existing twitch-gate test pinned it unchanged. (2) the stamp is a
+  STRING on =Mode.installed= (automigration; five =installed: true= fixtures became
+  strings), boot PRESERVES a held stamp, =finalize= arms FIRST then warns, and a
+  written drain REFRESHES the stamp — the drain's own output must not read as
+  divergence. (3) =--watch-exclude=../../registry/=.
+- *the cargo detour*: my =defineProperty= fold got "noooooooooooooooooo ugly" and then
+  the design: "wait. we had a cargo prototype, no? why not that and put a getter on
+  that??!!" → typology =prototypes/cargo.js= — =Cargo(freightsThunk)= with a
+  =catalog= getter and =toJSON=, so the aperture thunks serve the instance untouched.
+  Client side, the same evening: "time to build a dedicated cargo consumer on kajuit.
+  what to call it?" → "just calling it cargo should be fine" — kajuit
+  =prototypes/cargo.js=, =daemon.cargo= instance, refetch-on-miss (=sought= +
+  debounce; =fn.inflight= DROPPED from the approved sketch and flagged — it memoizes
+  success forever, so only the first miss would ever refetch). Same noun both sides =
+  the Cortex duality precedent. And "m6 includes updating all references and uses of
+  cargo on the client. obviously, i hope." — swept unrestricted: two readers only,
+  =getAsset= surface unchanged for every buffer view.
+- *M5* on "elevenlabs via.render go" + the mid-turn ruling "minor changes to the hal
+  prototype are fine" — pass-2's "zero typology changes" claim was WRONG (=/speech=
+  opened only stream); landed =shard.hallucinate.vocalize= + the =/speech= render
+  leaf, contract =(source, config) → Uint8Array=, elevenlabs REST =mp3_44100_128=.
+- *M4* — the mode whole: tools (bagged returns, conjugations excluded from the
+  queue), sources (tatoeba corrected-exact + assume-license · commons index-first
+  cached in the mode's =.cache/=, gate executes fork 1's REC — BY-SA lives for words
+  · tts → =speech.render=), =belt/audio.js= loudnorm, =hal/archivist.md= doctrine
+  (survey → pick → dry → wet → drain; auto never synthesizes; honest misses).
+  =tests/tools.test.js= 4 steps — the wet case pushes a real ffmpeg sine tone through
+  normalize into a freight spy and asserts the nested attribution.
+
+* settlement
+
+- Suites at close: runtime 52/325 · harvest 4 · paladin 1/1+prior · typology
+  freight/datasink 6/26 · kajuit 35/126. ONE standing red: =hallucination.snapshot=,
+  PRE-EXISTING at HEAD — the m38-wake armory-naming error message vs a stale
+  snapshot; regen offered, no word yet.
+- The curriculum quest never got a full critical pass; its known defect (the twin
+  license gate) died with the index-first rewrite, and its patch is now LANDED with
+  the harvest run behind it. Residual risk rides the live rep, not the paper.
+- "returned 'Non capirete.' … i hope you updated the text content for all those cases
+  adequately." — nothing to update: the index intersection is exact-text; no stemmed
+  audio was ever downloaded. The stemming find explains the zero-hit run only.
+- Fork ledger: fork 1 (commons license) EXECUTED as the recommendation — per-source
+  policy, BY-SA for words, tatoeba strict+assume · fork 2 (italian voice) OPEN,
+  beef's ear · M7 network allowlist moot (harvest ran local).
+- Beef's queue: mount =@education/tactic/harvest= in =testament/instance/education.js=
+  italian kernel (one line) → reseed the italian DB (ONE re-populate carries rerank +
+  45 adds + m38 symbols + 5 mp3s + the stamp's first honest write) → M7 live sweep →
+  voice pick.

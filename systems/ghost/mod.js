@@ -21,7 +21,7 @@ trajectory
     // pipe.tap(span=> paladin.ledger.pipe[...probably paladin.ledger.log()])
 
     ctx.span = new Span("ghost");
-    // ctx.span.to(paladin.variant.logs);
+    // ctx.span.to(paladin.instance.logs);
 
     ctx.span.open();
     ctx.span.mark("subject", { schema: "signal", id: ctx.signal.absolute.join(" ") });
@@ -67,10 +67,10 @@ trajectory
   .use(async (ctx, next) => {
     // shell cwd — deno task rewrites Deno.cwd() to repo root; INIT_CWD preserves user shell cwd
     const cwd = Deno.env.get("INIT_CWD") ?? Deno.env.get("PWD") ?? Deno.cwd();
-    const modules = await paladin.find.type(new Path(cwd), "variant", 0);
+    const modules = await paladin.find.type(new Path(cwd), "instance", 0);
     if (modules.length) {
-      paladin.scopes([["variant", () => true, () => new Path(cwd)]]);
-      ctx.variant = await paladin.variant.mount();
+      paladin.scopes([["instance", () => true, () => new Path(cwd)]]);
+      ctx.instance = await paladin.instance.mount();
     }
     await next();
   })

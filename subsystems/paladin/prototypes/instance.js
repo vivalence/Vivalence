@@ -20,18 +20,18 @@ const hydrate = (node) =>
         : node;
 
 // move to lifecycle / dossier / die
-async function resolve(variant) {
-  if (!variant.paladin.scope.variant) throw new Error("variant.mount: no scope.variant");
-  await variant.paladin.state.dir(variant.paladin.scope.variant.absolute);
+async function resolve(instance) {
+  if (!instance.paladin.scope.instance) throw new Error("instance.mount: no scope.instance");
+  await instance.paladin.state.dir(instance.paladin.scope.instance.absolute);
 
-  const modules = await variant.paladin.find.type(variant.paladin.scope.variant, "variant");
+  const modules = await instance.paladin.find.type(instance.paladin.scope.instance, "instance");
   if (modules.length !== 1)
-    throw new Error(`variant.mount: expected 1 variant module, found ${modules.length}`);
+    throw new Error(`instance.mount: expected 1 instance module, found ${modules.length}`);
 
   const mask = (kind) => (declaration) =>
     new Mask({
       ...declaration,
-      mount: variant.paladin.scope.mountpoint.branch(
+      mount: instance.paladin.scope.mountpoint.branch(
         `/${kind}_${declaration.slug ?? declaration.manifest?.slug}`,
       ),
     });
@@ -43,54 +43,54 @@ async function resolve(variant) {
     return { ...hydrate(rest), kernel: kernel.map(reference(module.source)) };
   };
 
-  variant.manifest = module.manifest;
-  variant.runtime = hydrate(module.runtime ?? {});
-  variant.clients = hydrate(module.clients ?? {});
-  variant.lighthouse = hydrate(module.lighthouse ?? {});
-  variant.daemons = (module.daemons ?? []).map((declaration) => mask("daemon")(materialize(declaration)));
-  variant.services = (module.services ?? []).map((declaration) => mask("service")(hydrate(declaration)));
+  instance.manifest = module.manifest;
+  instance.runtime = hydrate(module.runtime ?? {});
+  instance.clients = hydrate(module.clients ?? {});
+  instance.lighthouse = hydrate(module.lighthouse ?? {});
+  instance.daemons = (module.daemons ?? []).map((declaration) => mask("daemon")(materialize(declaration)));
+  instance.services = (module.services ?? []).map((declaration) => mask("service")(hydrate(declaration)));
 
-  // variant.runtime.logs = new Pipe()
-  // variant.clients.kajuit.logs = new Pipe()
+  // instance.runtime.logs = new Pipe()
+  // instance.clients.kajuit.logs = new Pipe()
 }
 
 // move to lifecycle / dossier / die
-function validate(variant) {
+function validate(instance) {
   const errors = [];
   const collect = (label, value, schema) => {
     for (const error of schema.errors(value))
       errors.push(`${label}${error.instancePath || ""}: ${error.message}`);
   };
-  if (Object.keys(variant.runtime).length) {
-    v.primitives.variant.Runtime.cast(variant.runtime);
-    collect("runtime", variant.runtime, v.primitives.variant.Runtime);
+  if (Object.keys(instance.runtime).length) {
+    v.primitives.instance.Runtime.cast(instance.runtime);
+    collect("runtime", instance.runtime, v.primitives.instance.Runtime);
   }
-  for (const [slug, client] of Object.entries(variant.clients)) {
-    v.primitives.variant.Client.cast(client);
-    collect(`client[${slug}]`, client, v.primitives.variant.Client);
+  for (const [slug, client] of Object.entries(instance.clients)) {
+    v.primitives.instance.Client.cast(client);
+    collect(`client[${slug}]`, client, v.primitives.instance.Client);
   }
-  for (const daemon of variant.daemons) {
-    v.primitives.variant.Daemon.cast(daemon);
-    collect(`daemon[${daemon.slug}]`, daemon, v.primitives.variant.Daemon);
+  for (const daemon of instance.daemons) {
+    v.primitives.instance.Daemon.cast(daemon);
+    collect(`daemon[${daemon.slug}]`, daemon, v.primitives.instance.Daemon);
   }
-  for (const service of variant.services) {
-    v.primitives.variant.Service.cast(service);
-    collect(`service[${service.slug}]`, service, v.primitives.variant.Service);
+  for (const service of instance.services) {
+    v.primitives.instance.Service.cast(service);
+    collect(`service[${service.slug}]`, service, v.primitives.instance.Service);
   }
-  if (errors.length) throw new Error(`[variant.mount validate]\n  ${errors.join("\n  ")}`);
+  if (errors.length) throw new Error(`[instance.mount validate]\n  ${errors.join("\n  ")}`);
 }
 
 // move to lifecycle / dossier / die
-async function environment(variant) {
-  if (!variant.paladin.scope.environment) return;
-  await variant.paladin.state.dir(variant.paladin.scope.environment);
-  const files = await variant.paladin.find.json(variant.paladin.scope.environment);
+async function environment(instance) {
+  if (!instance.paladin.scope.environment) return;
+  await instance.paladin.state.dir(instance.paladin.scope.environment);
+  const files = await instance.paladin.find.json(instance.paladin.scope.environment);
   await Promise.all(
     files.map((file) =>
-      variant.paladin.read
+      instance.paladin.read
         .json(file)
         .then((json) =>
-          (file.absolute.includes("secret") ? variant.paladin.secret : variant.paladin.env).assign(
+          (file.absolute.includes("secret") ? instance.paladin.secret : instance.paladin.env).assign(
             json,
           ),
         ),
@@ -98,7 +98,7 @@ async function environment(variant) {
   );
 }
 
-export class Variant {
+export class Instance {
   manifest = {};
   runtime = {};
   clients = {};

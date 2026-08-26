@@ -12,7 +12,7 @@ export default [
         "learning": "Devo andare a dormire."
       },
       "RANKED": {
-        "rank": 598
+        "rank": 596
       },
       "VOCALIZED": {
         "asset": {
@@ -39,7 +39,7 @@ export default [
         "learning": "Sei sicuro?"
       },
       "RANKED": {
-        "rank": 364
+        "rank": 362
       },
       "VOCALIZED": {
         "asset": {
@@ -66,7 +66,7 @@ export default [
         "learning": "Perché lo chiedi?"
       },
       "RANKED": {
-        "rank": 798
+        "rank": 796
       },
       "VOCALIZED": {
         "asset": {
@@ -93,7 +93,7 @@ export default [
         "learning": "Non è importante."
       },
       "RANKED": {
-        "rank": 271
+        "rank": 269
       },
       "VOCALIZED": {
         "asset": {
@@ -120,7 +120,7 @@ export default [
         "learning": "Mi fa male la testa."
       },
       "RANKED": {
-        "rank": 305
+        "rank": 303
       },
       "VOCALIZED": {
         "asset": {
@@ -147,7 +147,7 @@ export default [
         "learning": "Ti do la mia parola."
       },
       "RANKED": {
-        "rank": 544
+        "rank": 542
       },
       "VOCALIZED": {
         "asset": {
@@ -174,7 +174,7 @@ export default [
         "learning": "Ecco il resto."
       },
       "RANKED": {
-        "rank": 362
+        "rank": 360
       },
       "VOCALIZED": {
         "asset": {
@@ -201,7 +201,7 @@ export default [
         "learning": "A chi lo dici!"
       },
       "RANKED": {
-        "rank": 479
+        "rank": 477
       },
       "VOCALIZED": {
         "asset": {
@@ -228,7 +228,7 @@ export default [
         "learning": "Pulisci la camera."
       },
       "RANKED": {
-        "rank": 1103
+        "rank": 1100
       },
       "VOCALIZED": {
         "asset": {
@@ -255,7 +255,7 @@ export default [
         "learning": "Vuoi andare?"
       },
       "RANKED": {
-        "rank": 260
+        "rank": 258
       },
       "VOCALIZED": {
         "asset": {
@@ -282,7 +282,7 @@ export default [
         "learning": "Tom è a letto malato."
       },
       "RANKED": {
-        "rank": 861
+        "rank": 859
       },
       "VOCALIZED": {
         "asset": {
@@ -309,7 +309,7 @@ export default [
         "learning": "È la tua bicicletta questa?"
       },
       "RANKED": {
-        "rank": 930
+        "rank": 927
       },
       "VOCALIZED": {
         "asset": {
@@ -336,7 +336,7 @@ export default [
         "learning": "È un gatto quello?"
       },
       "RANKED": {
-        "rank": 736
+        "rank": 734
       },
       "VOCALIZED": {
         "asset": {
@@ -363,7 +363,7 @@ export default [
         "learning": "Domani è festa."
       },
       "RANKED": {
-        "rank": 427
+        "rank": 425
       },
       "VOCALIZED": {
         "asset": {
@@ -390,7 +390,7 @@ export default [
         "learning": "Quella macchina è sua."
       },
       "RANKED": {
-        "rank": 405
+        "rank": 403
       },
       "VOCALIZED": {
         "asset": {
@@ -416,7 +416,7 @@ export default [
         "learning": "Lavoro in banca."
       },
       "RANKED": {
-        "rank": 543
+        "rank": 541
       }
     },
     "symbols": [
@@ -437,7 +437,7 @@ export default [
         "learning": "Tom mi ha dato una penna."
       },
       "RANKED": {
-        "rank": 904
+        "rank": 902
       }
     },
     "symbols": [
@@ -458,7 +458,7 @@ export default [
         "learning": "Che stai facendo?"
       },
       "RANKED": {
-        "rank": 330
+        "rank": 328
       }
     },
     "symbols": [
@@ -479,7 +479,7 @@ export default [
         "learning": "Li conosci?"
       },
       "RANKED": {
-        "rank": 748
+        "rank": 746
       }
     },
     "symbols": [
@@ -501,7 +501,7 @@ export default [
         "learning": "Sei stato occupato."
       },
       "RANKED": {
-        "rank": 802
+        "rank": 800
       },
       "VOCALIZED": {
         "asset": {
@@ -528,7 +528,7 @@ export default [
         "learning": "Quanto è profondo questo lago?"
       },
       "RANKED": {
-        "rank": 713
+        "rank": 711
       },
       "VOCALIZED": {
         "asset": {
@@ -555,7 +555,7 @@ export default [
         "learning": "Non sono ancora pronto."
       },
       "RANKED": {
-        "rank": 534
+        "rank": 532
       },
       "VOCALIZED": {
         "asset": {
@@ -582,7 +582,7 @@ export default [
         "learning": "Dove stavi?"
       },
       "RANKED": {
-        "rank": 1038
+        "rank": 1035
       },
       "VOCALIZED": {
         "asset": {
@@ -609,7 +609,7 @@ export default [
         "learning": "Vai troppo lontano."
       },
       "RANKED": {
-        "rank": 516
+        "rank": 514
       },
       "VOCALIZED": {
         "asset": {
@@ -636,7 +636,7 @@ export default [
         "learning": "Mia madre cucina bene."
       },
       "RANKED": {
-        "rank": 536
+        "rank": 534
       },
       "VOCALIZED": {
         "asset": {
@@ -663,7 +663,7 @@ export default [
         "learning": "Ho un cane."
       },
       "RANKED": {
-        "rank": 505
+        "rank": 503
       },
       "VOCALIZED": {
         "asset": {
@@ -690,7 +690,7 @@ export default [
         "learning": "Ho visto un cane."
       },
       "RANKED": {
-        "rank": 507
+        "rank": 505
       },
       "VOCALIZED": {
         "asset": {
@@ -717,7 +717,7 @@ export default [
         "learning": "Non ho un gatto."
       },
       "RANKED": {
-        "rank": 737
+        "rank": 735
       },
       "VOCALIZED": {
         "asset": {
@@ -744,7 +744,7 @@ export default [
         "learning": "Tom è uno studente."
       },
       "RANKED": {
-        "rank": 732
+        "rank": 730
       },
       "VOCALIZED": {
         "asset": {
@@ -771,7 +771,7 @@ export default [
         "learning": "Sei uno studente?"
       },
       "RANKED": {
-        "rank": 730
+        "rank": 728
       },
       "VOCALIZED": {
         "asset": {
@@ -798,7 +798,7 @@ export default [
         "learning": "Sono uno studente."
       },
       "RANKED": {
-        "rank": 731
+        "rank": 729
       },
       "VOCALIZED": {
         "asset": {
@@ -825,7 +825,7 @@ export default [
         "learning": "Come sta tua madre?"
       },
       "RANKED": {
-        "rank": 309
+        "rank": 307
       },
       "VOCALIZED": {
         "asset": {
@@ -852,7 +852,7 @@ export default [
         "learning": "Vivo in città."
       },
       "RANKED": {
-        "rank": 450
+        "rank": 448
       },
       "VOCALIZED": {
         "asset": {
@@ -879,7 +879,7 @@ export default [
         "learning": "Vado in città."
       },
       "RANKED": {
-        "rank": 388
+        "rank": 386
       },
       "VOCALIZED": {
         "asset": {
@@ -906,7 +906,7 @@ export default [
         "learning": "Vorrei una mappa della città."
       },
       "RANKED": {
-        "rank": 140
+        "rank": 138
       },
       "VOCALIZED": {
         "asset": {
@@ -936,7 +936,7 @@ export default [
         "learning": "Questa è la mia scuola."
       },
       "RANKED": {
-        "rank": 258
+        "rank": 256
       },
       "VOCALIZED": {
         "asset": {
@@ -963,7 +963,7 @@ export default [
         "learning": "Dov'è la tua scuola?"
       },
       "RANKED": {
-        "rank": 259
+        "rank": 257
       },
       "VOCALIZED": {
         "asset": {
@@ -990,7 +990,7 @@ export default [
         "learning": "Lei va a scuola."
       },
       "RANKED": {
-        "rank": 257
+        "rank": 255
       },
       "VOCALIZED": {
         "asset": {
@@ -1017,7 +1017,7 @@ export default [
         "learning": "Ho un sogno."
       },
       "RANKED": {
-        "rank": 552
+        "rank": 550
       },
       "VOCALIZED": {
         "asset": {
@@ -1044,7 +1044,7 @@ export default [
         "learning": "Stai qui con noi."
       },
       "RANKED": {
-        "rank": 333
+        "rank": 331
       },
       "VOCALIZED": {
         "asset": {
@@ -1071,7 +1071,7 @@ export default [
         "learning": "Ecco il mio portafoglio."
       },
       "RANKED": {
-        "rank": 949
+        "rank": 946
       },
       "VOCALIZED": {
         "asset": {
@@ -1098,7 +1098,7 @@ export default [
         "learning": "Vieni qui."
       },
       "RANKED": {
-        "rank": 680
+        "rank": 678
       },
       "VOCALIZED": {
         "asset": {
@@ -1125,7 +1125,7 @@ export default [
         "learning": "Dov'è il problema?"
       },
       "RANKED": {
-        "rank": 235
+        "rank": 233
       },
       "VOCALIZED": {
         "asset": {
@@ -1152,7 +1152,7 @@ export default [
         "learning": "Suono il piano."
       },
       "RANKED": {
-        "rank": 717
+        "rank": 715
       },
       "VOCALIZED": {
         "asset": {
@@ -1179,7 +1179,7 @@ export default [
         "learning": "Vogliamo qualcosa di nuovo."
       },
       "RANKED": {
-        "rank": 451
+        "rank": 449
       },
       "VOCALIZED": {
         "asset": {
@@ -1206,7 +1206,7 @@ export default [
         "learning": "Non è nuovo."
       },
       "RANKED": {
-        "rank": 193
+        "rank": 191
       },
       "VOCALIZED": {
         "asset": {
@@ -1233,7 +1233,7 @@ export default [
         "learning": "Vuoi dello zucchero?"
       },
       "RANKED": {
-        "rank": 786
+        "rank": 784
       },
       "VOCALIZED": {
         "asset": {
@@ -1260,7 +1260,7 @@ export default [
         "learning": "Non abbiamo zucchero."
       },
       "RANKED": {
-        "rank": 787
+        "rank": 785
       },
       "VOCALIZED": {
         "asset": {
@@ -1287,7 +1287,7 @@ export default [
         "learning": "Veramente?"
       },
       "RANKED": {
-        "rank": 347
+        "rank": 345
       },
       "VOCALIZED": {
         "asset": {
@@ -1314,7 +1314,7 @@ export default [
         "learning": "Davvero?"
       },
       "RANKED": {
-        "rank": 213
+        "rank": 211
       },
       "VOCALIZED": {
         "asset": {
@@ -1341,7 +1341,7 @@ export default [
         "learning": "È vero?"
       },
       "RANKED": {
-        "rank": 206
+        "rank": 204
       },
       "VOCALIZED": {
         "asset": {
@@ -1368,7 +1368,7 @@ export default [
         "learning": "Ho fatto un errore."
       },
       "RANKED": {
-        "rank": 523
+        "rank": 521
       },
       "VOCALIZED": {
         "asset": {
@@ -1395,7 +1395,7 @@ export default [
         "learning": "È un errore comune."
       },
       "RANKED": {
-        "rank": 524
+        "rank": 522
       },
       "VOCALIZED": {
         "asset": {
@@ -1422,7 +1422,7 @@ export default [
         "learning": "Dov'è il libro?"
       },
       "RANKED": {
-        "rank": 295
+        "rank": 293
       },
       "VOCALIZED": {
         "asset": {
@@ -1449,7 +1449,7 @@ export default [
         "learning": "Questo libro è nuovo."
       },
       "RANKED": {
-        "rank": 296
+        "rank": 294
       },
       "VOCALIZED": {
         "asset": {
@@ -1476,7 +1476,7 @@ export default [
         "learning": "Questo libro è piccolo."
       },
       "RANKED": {
-        "rank": 346
+        "rank": 344
       },
       "VOCALIZED": {
         "asset": {
@@ -1503,7 +1503,7 @@ export default [
         "learning": "Questo libro è pesante."
       },
       "RANKED": {
-        "rank": 746
+        "rank": 744
       },
       "VOCALIZED": {
         "asset": {
@@ -1530,7 +1530,7 @@ export default [
         "learning": "Questo libro è mio."
       },
       "RANKED": {
-        "rank": 297
+        "rank": 295
       },
       "VOCALIZED": {
         "asset": {
@@ -1557,7 +1557,7 @@ export default [
         "learning": "Questo libro è vecchio."
       },
       "RANKED": {
-        "rank": 441
+        "rank": 439
       },
       "VOCALIZED": {
         "asset": {
@@ -1584,7 +1584,7 @@ export default [
         "learning": "Ho venduto un libro."
       },
       "RANKED": {
-        "rank": 792
+        "rank": 790
       },
       "VOCALIZED": {
         "asset": {
@@ -1611,7 +1611,7 @@ export default [
         "learning": "Il libro è facile."
       },
       "RANKED": {
-        "rank": 378
+        "rank": 376
       },
       "VOCALIZED": {
         "asset": {
@@ -1638,7 +1638,7 @@ export default [
         "learning": "Sono libero."
       },
       "RANKED": {
-        "rank": 432
+        "rank": 430
       },
       "VOCALIZED": {
         "asset": {
@@ -1665,7 +1665,7 @@ export default [
         "learning": "Sei libero domani?"
       },
       "RANKED": {
-        "rank": 433
+        "rank": 431
       },
       "VOCALIZED": {
         "asset": {
@@ -1692,7 +1692,7 @@ export default [
         "learning": "Sono libero ora."
       },
       "RANKED": {
-        "rank": 434
+        "rank": 432
       },
       "VOCALIZED": {
         "asset": {
@@ -1719,7 +1719,7 @@ export default [
         "learning": "Sono libero oggi."
       },
       "RANKED": {
-        "rank": 435
+        "rank": 433
       },
       "VOCALIZED": {
         "asset": {
@@ -1746,7 +1746,7 @@ export default [
         "learning": "Possiamo avere un cucchiaio?"
       },
       "RANKED": {
-        "rank": 1066
+        "rank": 1063
       },
       "VOCALIZED": {
         "asset": {
@@ -1773,7 +1773,7 @@ export default [
         "learning": "Mio padre è alto."
       },
       "RANKED": {
-        "rank": 354
+        "rank": 352
       },
       "VOCALIZED": {
         "asset": {
@@ -1800,7 +1800,7 @@ export default [
         "learning": "Come sei alto!"
       },
       "RANKED": {
-        "rank": 351
+        "rank": 349
       },
       "VOCALIZED": {
         "asset": {
@@ -1827,7 +1827,7 @@ export default [
         "learning": "Sono molto alto."
       },
       "RANKED": {
-        "rank": 352
+        "rank": 350
       },
       "VOCALIZED": {
         "asset": {
@@ -1854,7 +1854,7 @@ export default [
         "learning": "Sono alto."
       },
       "RANKED": {
-        "rank": 350
+        "rank": 348
       },
       "VOCALIZED": {
         "asset": {
@@ -1881,7 +1881,7 @@ export default [
         "learning": "Com'è alto!"
       },
       "RANKED": {
-        "rank": 353
+        "rank": 351
       },
       "VOCALIZED": {
         "asset": {
@@ -1908,7 +1908,7 @@ export default [
         "learning": "Sono sceso dal treno."
       },
       "RANKED": {
-        "rank": 986
+        "rank": 983
       },
       "VOCALIZED": {
         "asset": {
@@ -1935,7 +1935,7 @@ export default [
         "learning": "C'è un gatto."
       },
       "RANKED": {
-        "rank": 738
+        "rank": 736
       },
       "VOCALIZED": {
         "asset": {
@@ -1962,7 +1962,7 @@ export default [
         "learning": "Cade di domenica."
       },
       "RANKED": {
-        "rank": 834
+        "rank": 832
       },
       "VOCALIZED": {
         "asset": {
@@ -1989,7 +1989,7 @@ export default [
         "learning": "Ieri era domenica."
       },
       "RANKED": {
-        "rank": 496
+        "rank": 494
       },
       "VOCALIZED": {
         "asset": {
@@ -2016,7 +2016,7 @@ export default [
         "learning": "Lavoro anche di domenica."
       },
       "RANKED": {
-        "rank": 498
+        "rank": 496
       },
       "VOCALIZED": {
         "asset": {
@@ -2043,7 +2043,7 @@ export default [
         "learning": "Sono libero la domenica."
       },
       "RANKED": {
-        "rank": 499
+        "rank": 497
       },
       "VOCALIZED": {
         "asset": {
@@ -2070,7 +2070,7 @@ export default [
         "learning": "È aperto di domenica?"
       },
       "RANKED": {
-        "rank": 116
+        "rank": 114
       },
       "VOCALIZED": {
         "asset": {
@@ -2096,11 +2096,11 @@ export default [
     ],
     "trait": {
       "TRANSLATED": {
-        "known": "After you. (informal)",
+        "known": "After you.",
         "learning": "Dopo di te."
       },
       "RANKED": {
-        "rank": 186
+        "rank": 184
       },
       "VOCALIZED": {
         "asset": {
@@ -2127,7 +2127,7 @@ export default [
         "learning": "Dopo di voi."
       },
       "RANKED": {
-        "rank": 212
+        "rank": 210
       },
       "VOCALIZED": {
         "asset": {
@@ -2154,7 +2154,7 @@ export default [
         "learning": "Oggi è nuvoloso."
       },
       "RANKED": {
-        "rank": 1097
+        "rank": 1094
       },
       "VOCALIZED": {
         "asset": {
@@ -2181,7 +2181,7 @@ export default [
         "learning": "Oggi è piovoso."
       },
       "RANKED": {
-        "rank": 1105
+        "rank": 1102
       },
       "VOCALIZED": {
         "asset": {
@@ -2208,7 +2208,7 @@ export default [
         "learning": "Oggi sono occupato."
       },
       "RANKED": {
-        "rank": 803
+        "rank": 801
       },
       "VOCALIZED": {
         "asset": {
@@ -2235,7 +2235,7 @@ export default [
         "learning": "Ho lezione domani."
       },
       "RANKED": {
-        "rank": 631
+        "rank": 629
       },
       "VOCALIZED": {
         "asset": {
@@ -2262,7 +2262,7 @@ export default [
         "learning": "È un libro."
       },
       "RANKED": {
-        "rank": 293
+        "rank": 291
       },
       "VOCALIZED": {
         "asset": {
@@ -2289,7 +2289,7 @@ export default [
         "learning": "Parlate francese?"
       },
       "RANKED": {
-        "rank": 948
+        "rank": 945
       },
       "VOCALIZED": {
         "asset": {
@@ -2316,7 +2316,7 @@ export default [
         "learning": "Lei sa parlare francese."
       },
       "RANKED": {
-        "rank": 431
+        "rank": 429
       },
       "VOCALIZED": {
         "asset": {
@@ -2343,7 +2343,7 @@ export default [
         "learning": "Parla anche francese."
       },
       "RANKED": {
-        "rank": 430
+        "rank": 428
       },
       "VOCALIZED": {
         "asset": {
@@ -2370,7 +2370,7 @@ export default [
         "learning": "Perfetto!"
       },
       "RANKED": {
-        "rank": 494
+        "rank": 492
       },
       "VOCALIZED": {
         "asset": {
@@ -2397,7 +2397,7 @@ export default [
         "learning": "Questo è il Giappone."
       },
       "RANKED": {
-        "rank": 1127
+        "rank": 1124
       },
       "VOCALIZED": {
         "asset": {
@@ -2424,7 +2424,7 @@ export default [
         "learning": "Vivo in Giappone."
       },
       "RANKED": {
-        "rank": 1126
+        "rank": 1123
       },
       "VOCALIZED": {
         "asset": {
@@ -2451,7 +2451,7 @@ export default [
         "learning": "Ho una famiglia."
       },
       "RANKED": {
-        "rank": 227
+        "rank": 225
       },
       "VOCALIZED": {
         "asset": {
@@ -2478,7 +2478,7 @@ export default [
         "learning": "Conosco la sua famiglia."
       },
       "RANKED": {
-        "rank": 531
+        "rank": 529
       },
       "VOCALIZED": {
         "asset": {
@@ -2505,7 +2505,7 @@ export default [
         "learning": "È per la mia famiglia."
       },
       "RANKED": {
-        "rank": 228
+        "rank": 226
       },
       "VOCALIZED": {
         "asset": {
@@ -2532,7 +2532,7 @@ export default [
         "learning": "Scegli fra i due."
       },
       "RANKED": {
-        "rank": 856
+        "rank": 854
       },
       "VOCALIZED": {
         "asset": {
@@ -2559,7 +2559,7 @@ export default [
         "learning": "Il ghiaccio è molto spesso."
       },
       "RANKED": {
-        "rank": 821
+        "rank": 819
       },
       "VOCALIZED": {
         "asset": {
@@ -2586,7 +2586,7 @@ export default [
         "learning": "Roma è in Italia."
       },
       "RANKED": {
-        "rank": 160
+        "rank": 158
       },
       "VOCALIZED": {
         "asset": {
@@ -2613,7 +2613,7 @@ export default [
         "learning": "Non è venuto nessuno."
       },
       "RANKED": {
-        "rank": 640
+        "rank": 638
       },
       "VOCALIZED": {
         "asset": {
@@ -2640,7 +2640,7 @@ export default [
         "learning": "Nessuno era presente."
       },
       "RANKED": {
-        "rank": 322
+        "rank": 320
       },
       "VOCALIZED": {
         "asset": {
@@ -2667,7 +2667,7 @@ export default [
         "learning": "La scatola era troppo pesante."
       },
       "RANKED": {
-        "rank": 850
+        "rank": 848
       },
       "VOCALIZED": {
         "asset": {
@@ -2694,7 +2694,7 @@ export default [
         "learning": "Puoi venire con me."
       },
       "RANKED": {
-        "rank": 459
+        "rank": 457
       },
       "VOCALIZED": {
         "asset": {
@@ -2721,7 +2721,7 @@ export default [
         "learning": "Andrai con Tom?"
       },
       "RANKED": {
-        "rank": 1045
+        "rank": 1042
       },
       "VOCALIZED": {
         "asset": {
@@ -2748,7 +2748,7 @@ export default [
         "learning": "Parla bene."
       },
       "RANKED": {
-        "rank": 312
+        "rank": 310
       },
       "VOCALIZED": {
         "asset": {
@@ -2775,7 +2775,7 @@ export default [
         "learning": "Lei parla molto."
       },
       "RANKED": {
-        "rank": 313
+        "rank": 311
       },
       "VOCALIZED": {
         "asset": {
@@ -2802,7 +2802,7 @@ export default [
         "learning": "Ho una bicicletta nuova."
       },
       "RANKED": {
-        "rank": 928
+        "rank": 925
       },
       "VOCALIZED": {
         "asset": {
@@ -2829,7 +2829,7 @@ export default [
         "learning": "Vado a letto!"
       },
       "RANKED": {
-        "rank": 389
+        "rank": 387
       },
       "VOCALIZED": {
         "asset": {
@@ -2856,7 +2856,7 @@ export default [
         "learning": "Conta da uno a dieci."
       },
       "RANKED": {
-        "rank": 596
+        "rank": 594
       },
       "VOCALIZED": {
         "asset": {
@@ -2883,7 +2883,7 @@ export default [
         "learning": "Devo andare adesso."
       },
       "RANKED": {
-        "rank": 285
+        "rank": 283
       },
       "VOCALIZED": {
         "asset": {
@@ -2910,7 +2910,7 @@ export default [
         "learning": "Ho un computer."
       },
       "RANKED": {
-        "rank": 548
+        "rank": 546
       },
       "VOCALIZED": {
         "asset": {
@@ -2937,7 +2937,7 @@ export default [
         "learning": "È una sorpresa."
       },
       "RANKED": {
-        "rank": 679
+        "rank": 677
       },
       "VOCALIZED": {
         "asset": {
@@ -2964,7 +2964,7 @@ export default [
         "learning": "Posso avere questo libro?"
       },
       "RANKED": {
-        "rank": 298
+        "rank": 296
       },
       "VOCALIZED": {
         "asset": {
@@ -2991,7 +2991,7 @@ export default [
         "learning": "Posso avere questa arancia?"
       },
       "RANKED": {
-        "rank": 1077
+        "rank": 1074
       },
       "VOCALIZED": {
         "asset": {
@@ -3018,7 +3018,7 @@ export default [
         "learning": "Posso avere un cuscino?"
       },
       "RANKED": {
-        "rank": 146
+        "rank": 144
       },
       "VOCALIZED": {
         "asset": {
@@ -3048,7 +3048,7 @@ export default [
         "learning": "Come sta vostra madre?"
       },
       "RANKED": {
-        "rank": 474
+        "rank": 472
       },
       "VOCALIZED": {
         "asset": {
@@ -3075,7 +3075,7 @@ export default [
         "learning": "Mia madre non può venire."
       },
       "RANKED": {
-        "rank": 465
+        "rank": 463
       },
       "VOCALIZED": {
         "asset": {
@@ -3102,7 +3102,7 @@ export default [
         "learning": "Ha un cane."
       },
       "RANKED": {
-        "rank": 506
+        "rank": 504
       },
       "VOCALIZED": {
         "asset": {
@@ -3129,7 +3129,7 @@ export default [
         "learning": "È molto onesto."
       },
       "RANKED": {
-        "rank": 942
+        "rank": 939
       },
       "VOCALIZED": {
         "asset": {
@@ -3156,7 +3156,7 @@ export default [
         "learning": "È molto bella."
       },
       "RANKED": {
-        "rank": 290
+        "rank": 288
       },
       "VOCALIZED": {
         "asset": {
@@ -3183,7 +3183,7 @@ export default [
         "learning": "Sono stanco ora."
       },
       "RANKED": {
-        "rank": 863
+        "rank": 861
       },
       "VOCALIZED": {
         "asset": {
@@ -3210,7 +3210,7 @@ export default [
         "learning": "Chi ha rotto la finestra?"
       },
       "RANKED": {
-        "rank": 714
+        "rank": 712
       },
       "VOCALIZED": {
         "asset": {
@@ -3237,7 +3237,7 @@ export default [
         "learning": "Voglio la tua opinione."
       },
       "RANKED": {
-        "rank": 518
+        "rank": 516
       },
       "VOCALIZED": {
         "asset": {
@@ -3264,7 +3264,7 @@ export default [
         "learning": "Ho un'idea."
       },
       "RANKED": {
-        "rank": 267
+        "rank": 265
       },
       "VOCALIZED": {
         "asset": {
@@ -3291,7 +3291,7 @@ export default [
         "learning": "Non ne ho idea."
       },
       "RANKED": {
-        "rank": 268
+        "rank": 266
       },
       "VOCALIZED": {
         "asset": {
@@ -3318,7 +3318,7 @@ export default [
         "learning": "È una buona idea!"
       },
       "RANKED": {
-        "rank": 265
+        "rank": 263
       },
       "VOCALIZED": {
         "asset": {
@@ -3345,7 +3345,7 @@ export default [
         "learning": "L'oceano era calmo."
       },
       "RANKED": {
-        "rank": 1021
+        "rank": 1018
       },
       "VOCALIZED": {
         "asset": {
@@ -3372,7 +3372,7 @@ export default [
         "learning": "Dov'è il presidente?"
       },
       "RANKED": {
-        "rank": 274
+        "rank": 272
       },
       "VOCALIZED": {
         "asset": {
@@ -3399,7 +3399,7 @@ export default [
         "learning": "Sono a casa."
       },
       "RANKED": {
-        "rank": 179
+        "rank": 177
       },
       "VOCALIZED": {
         "asset": {
@@ -3426,7 +3426,7 @@ export default [
         "learning": "L'orologio è sbagliato."
       },
       "RANKED": {
-        "rank": 910
+        "rank": 907
       },
       "VOCALIZED": {
         "asset": {
@@ -3453,7 +3453,7 @@ export default [
         "learning": "Eri occupato."
       },
       "RANKED": {
-        "rank": 800
+        "rank": 798
       },
       "VOCALIZED": {
         "asset": {
@@ -3480,7 +3480,7 @@ export default [
         "learning": "Sei occupato?"
       },
       "RANKED": {
-        "rank": 801
+        "rank": 799
       },
       "VOCALIZED": {
         "asset": {
@@ -3507,7 +3507,7 @@ export default [
         "learning": "Sono occupato ora."
       },
       "RANKED": {
-        "rank": 804
+        "rank": 802
       },
       "VOCALIZED": {
         "asset": {
@@ -3534,7 +3534,7 @@ export default [
         "learning": "Sono molto occupato."
       },
       "RANKED": {
-        "rank": 805
+        "rank": 803
       },
       "VOCALIZED": {
         "asset": {
@@ -3561,7 +3561,7 @@ export default [
         "learning": "Ero un po' sorpreso."
       },
       "RANKED": {
-        "rank": 907
+        "rank": 905
       },
       "VOCALIZED": {
         "asset": {
@@ -3588,7 +3588,7 @@ export default [
         "learning": "Sono un po' stanco."
       },
       "RANKED": {
-        "rank": 867
+        "rank": 865
       },
       "VOCALIZED": {
         "asset": {
@@ -3615,7 +3615,7 @@ export default [
         "learning": "Ha dormito un'ora."
       },
       "RANKED": {
-        "rank": 966
+        "rank": 963
       },
       "VOCALIZED": {
         "asset": {
@@ -3642,7 +3642,7 @@ export default [
         "learning": "Dovresti dormire."
       },
       "RANKED": {
-        "rank": 651
+        "rank": 649
       },
       "VOCALIZED": {
         "asset": {
@@ -3669,7 +3669,7 @@ export default [
         "learning": "Questa è la mia macchina."
       },
       "RANKED": {
-        "rank": 408
+        "rank": 406
       },
       "VOCALIZED": {
         "asset": {
@@ -3696,7 +3696,7 @@ export default [
         "learning": "La mia macchina è tedesca."
       },
       "RANKED": {
-        "rank": 814
+        "rank": 812
       },
       "VOCALIZED": {
         "asset": {
@@ -3723,7 +3723,7 @@ export default [
         "learning": "Ho una macchina."
       },
       "RANKED": {
-        "rank": 402
+        "rank": 400
       },
       "VOCALIZED": {
         "asset": {
@@ -3750,7 +3750,7 @@ export default [
         "learning": "Ha una macchina."
       },
       "RANKED": {
-        "rank": 403
+        "rank": 401
       },
       "VOCALIZED": {
         "asset": {
@@ -3777,7 +3777,7 @@ export default [
         "learning": "Mary suona il piano."
       },
       "RANKED": {
-        "rank": 1128
+        "rank": 1125
       },
       "VOCALIZED": {
         "asset": {
@@ -3804,7 +3804,7 @@ export default [
         "learning": "Rispondi alla domanda."
       },
       "RANKED": {
-        "rank": 915
+        "rank": 912
       },
       "VOCALIZED": {
         "asset": {
@@ -3831,7 +3831,7 @@ export default [
         "learning": "Devi andare."
       },
       "RANKED": {
-        "rank": 324
+        "rank": 322
       },
       "VOCALIZED": {
         "asset": {
@@ -3854,11 +3854,11 @@ export default [
     ],
     "trait": {
       "TRANSLATED": {
-        "known": "Do you speak English? (informal)",
+        "known": "Do you speak English?",
         "learning": "Parli inglese?"
       },
       "RANKED": {
-        "rank": 42
+        "rank": 40
       },
       "VOCALIZED": {
         "asset": {
@@ -3888,7 +3888,7 @@ export default [
         "learning": "Sono cinese."
       },
       "RANKED": {
-        "rank": 591
+        "rank": 589
       },
       "VOCALIZED": {
         "asset": {
@@ -3915,7 +3915,7 @@ export default [
         "learning": "Fa molto freddo ora."
       },
       "RANKED": {
-        "rank": 609
+        "rank": 607
       },
       "VOCALIZED": {
         "asset": {
@@ -3942,7 +3942,7 @@ export default [
         "learning": "Ero molto occupato oggi."
       },
       "RANKED": {
-        "rank": 806
+        "rank": 804
       },
       "VOCALIZED": {
         "asset": {
@@ -3969,7 +3969,7 @@ export default [
         "learning": "Sei felice?"
       },
       "RANKED": {
-        "rank": 392
+        "rank": 390
       },
       "VOCALIZED": {
         "asset": {
@@ -3996,7 +3996,7 @@ export default [
         "learning": "È sempre felice."
       },
       "RANKED": {
-        "rank": 393
+        "rank": 391
       },
       "VOCALIZED": {
         "asset": {
@@ -4023,7 +4023,7 @@ export default [
         "learning": "Sono triste."
       },
       "RANKED": {
-        "rank": 612
+        "rank": 610
       },
       "VOCALIZED": {
         "asset": {
@@ -4050,7 +4050,7 @@ export default [
         "learning": "Non essere triste."
       },
       "RANKED": {
-        "rank": 613
+        "rank": 611
       },
       "VOCALIZED": {
         "asset": {
@@ -4077,7 +4077,7 @@ export default [
         "learning": "Tutto era calmo."
       },
       "RANKED": {
-        "rank": 1017
+        "rank": 1014
       },
       "VOCALIZED": {
         "asset": {
@@ -4104,7 +4104,7 @@ export default [
         "learning": "Voglio dell'acqua."
       },
       "RANKED": {
-        "rank": 1122
+        "rank": 1119
       },
       "VOCALIZED": {
         "asset": {
@@ -4131,7 +4131,7 @@ export default [
         "learning": "Tutto lo zucchero è dolce."
       },
       "RANKED": {
-        "rank": 789
+        "rank": 787
       },
       "VOCALIZED": {
         "asset": {
@@ -4158,7 +4158,7 @@ export default [
         "learning": "Vuoi del ghiaccio?"
       },
       "RANKED": {
-        "rank": 820
+        "rank": 818
       },
       "VOCALIZED": {
         "asset": {
@@ -4185,7 +4185,7 @@ export default [
         "learning": "Ieri faceva freddo."
       },
       "RANKED": {
-        "rank": 605
+        "rank": 603
       },
       "VOCALIZED": {
         "asset": {
@@ -4212,7 +4212,7 @@ export default [
         "learning": "Ho freddo."
       },
       "RANKED": {
-        "rank": 604
+        "rank": 602
       },
       "VOCALIZED": {
         "asset": {
@@ -4239,7 +4239,7 @@ export default [
         "learning": "La cena è pronta."
       },
       "RANKED": {
-        "rank": 665
+        "rank": 663
       },
       "VOCALIZED": {
         "asset": {
@@ -4266,7 +4266,7 @@ export default [
         "learning": "Che lavoro fai?"
       },
       "RANKED": {
-        "rank": 275
+        "rank": 273
       },
       "VOCALIZED": {
         "asset": {
@@ -4293,7 +4293,7 @@ export default [
         "learning": "Che vuoi?"
       },
       "RANKED": {
-        "rank": 261
+        "rank": 259
       },
       "VOCALIZED": {
         "asset": {
@@ -4320,7 +4320,7 @@ export default [
         "learning": "Vado a casa ora."
       },
       "RANKED": {
-        "rank": 390
+        "rank": 388
       },
       "VOCALIZED": {
         "asset": {
@@ -4347,7 +4347,7 @@ export default [
         "learning": "Non sono un insegnante."
       },
       "RANKED": {
-        "rank": 750
+        "rank": 748
       },
       "VOCALIZED": {
         "asset": {
@@ -4374,7 +4374,7 @@ export default [
         "learning": "Sono un insegnante."
       },
       "RANKED": {
-        "rank": 749
+        "rank": 747
       },
       "VOCALIZED": {
         "asset": {
@@ -4401,7 +4401,7 @@ export default [
         "learning": "Credo in te."
       },
       "RANKED": {
-        "rank": 239
+        "rank": 237
       },
       "VOCALIZED": {
         "asset": {
@@ -4428,7 +4428,7 @@ export default [
         "learning": "Credo che sia felice."
       },
       "RANKED": {
-        "rank": 398
+        "rank": 396
       },
       "VOCALIZED": {
         "asset": {
@@ -4455,7 +4455,7 @@ export default [
         "learning": "Credo in lui."
       },
       "RANKED": {
-        "rank": 240
+        "rank": 238
       },
       "VOCALIZED": {
         "asset": {
@@ -4482,7 +4482,7 @@ export default [
         "learning": "Ti credo."
       },
       "RANKED": {
-        "rank": 238
+        "rank": 236
       },
       "VOCALIZED": {
         "asset": {
@@ -4509,7 +4509,7 @@ export default [
         "learning": "Credo che sia malata."
       },
       "RANKED": {
-        "rank": 982
+        "rank": 979
       },
       "VOCALIZED": {
         "asset": {
@@ -4536,7 +4536,7 @@ export default [
         "learning": "Sono in vacanza."
       },
       "RANKED": {
-        "rank": 672
+        "rank": 670
       },
       "VOCALIZED": {
         "asset": {
@@ -4593,7 +4593,7 @@ export default [
         "learning": "Nessuno lo saprà."
       },
       "RANKED": {
-        "rank": 1011
+        "rank": 1008
       },
       "VOCALIZED": {
         "asset": {
@@ -4620,7 +4620,7 @@ export default [
         "learning": "È di mio fratello."
       },
       "RANKED": {
-        "rank": 420
+        "rank": 418
       },
       "VOCALIZED": {
         "asset": {
@@ -4647,7 +4647,7 @@ export default [
         "learning": "Guadagno 100€ al giorno."
       },
       "RANKED": {
-        "rank": 941
+        "rank": 938
       },
       "VOCALIZED": {
         "asset": {
@@ -4674,7 +4674,7 @@ export default [
         "learning": "Aggiungi un po' di latte."
       },
       "RANKED": {
-        "rank": 964
+        "rank": 961
       },
       "VOCALIZED": {
         "asset": {
@@ -4701,7 +4701,7 @@ export default [
         "learning": "Tom è un mio amico."
       },
       "RANKED": {
-        "rank": 358
+        "rank": 356
       },
       "VOCALIZED": {
         "asset": {
@@ -4728,7 +4728,7 @@ export default [
         "learning": "È lunedì."
       },
       "RANKED": {
-        "rank": 656
+        "rank": 654
       },
       "VOCALIZED": {
         "asset": {
@@ -4755,7 +4755,7 @@ export default [
         "learning": "Ha un piano?"
       },
       "RANKED": {
-        "rank": 287
+        "rank": 285
       },
       "VOCALIZED": {
         "asset": {
@@ -4782,7 +4782,7 @@ export default [
         "learning": "È arrabbiata con me."
       },
       "RANKED": {
-        "rank": 1070
+        "rank": 1067
       },
       "VOCALIZED": {
         "asset": {
@@ -4809,7 +4809,7 @@ export default [
         "learning": "So tutto."
       },
       "RANKED": {
-        "rank": 202
+        "rank": 200
       },
       "VOCALIZED": {
         "asset": {
@@ -4836,7 +4836,7 @@ export default [
         "learning": "E ora cosa facciamo?"
       },
       "RANKED": {
-        "rank": 437
+        "rank": 435
       },
       "VOCALIZED": {
         "asset": {
@@ -4863,7 +4863,7 @@ export default [
         "learning": "Le conosco."
       },
       "RANKED": {
-        "rank": 528
+        "rank": 526
       },
       "VOCALIZED": {
         "asset": {
@@ -4890,7 +4890,7 @@ export default [
         "learning": "Li conosco."
       },
       "RANKED": {
-        "rank": 529
+        "rank": 527
       },
       "VOCALIZED": {
         "asset": {
@@ -4917,7 +4917,7 @@ export default [
         "learning": "Chi sono io?"
       },
       "RANKED": {
-        "rank": 166
+        "rank": 164
       },
       "VOCALIZED": {
         "asset": {
@@ -4944,7 +4944,7 @@ export default [
         "learning": "Sono sicuro."
       },
       "RANKED": {
-        "rank": 365
+        "rank": 363
       },
       "VOCALIZED": {
         "asset": {
@@ -4971,7 +4971,7 @@ export default [
         "learning": "Lo so."
       },
       "RANKED": {
-        "rank": 203
+        "rank": 201
       },
       "VOCALIZED": {
         "asset": {
@@ -4998,7 +4998,7 @@ export default [
         "learning": "La stazione è qui vicino."
       },
       "RANKED": {
-        "rank": 126
+        "rank": 124
       },
       "VOCALIZED": {
         "asset": {
@@ -5028,7 +5028,7 @@ export default [
         "learning": "Domani è domenica."
       },
       "RANKED": {
-        "rank": 497
+        "rank": 495
       },
       "VOCALIZED": {
         "asset": {
@@ -5055,7 +5055,7 @@ export default [
         "learning": "Quella casa è la mia."
       },
       "RANKED": {
-        "rank": 180
+        "rank": 178
       },
       "VOCALIZED": {
         "asset": {
@@ -5082,7 +5082,7 @@ export default [
         "learning": "Oggi fa molto caldo."
       },
       "RANKED": {
-        "rank": 578
+        "rank": 576
       },
       "VOCALIZED": {
         "asset": {
@@ -5109,7 +5109,7 @@ export default [
         "learning": "Io mi sveglio alle 6."
       },
       "RANKED": {
-        "rank": 886
+        "rank": 884
       },
       "VOCALIZED": {
         "asset": {
@@ -5136,7 +5136,7 @@ export default [
         "learning": "Questa è la fine."
       },
       "RANKED": {
-        "rank": 196
+        "rank": 194
       },
       "VOCALIZED": {
         "asset": {
@@ -5163,7 +5163,7 @@ export default [
         "learning": "Oggi è un giorno di festa."
       },
       "RANKED": {
-        "rank": 428
+        "rank": 426
       },
       "VOCALIZED": {
         "asset": {
@@ -5190,7 +5190,7 @@ export default [
         "learning": "Mio padre era occupato."
       },
       "RANKED": {
-        "rank": 807
+        "rank": 805
       },
       "VOCALIZED": {
         "asset": {
@@ -5217,7 +5217,7 @@ export default [
         "learning": "La mia macchina è in negozio."
       },
       "RANKED": {
-        "rank": 627
+        "rank": 625
       },
       "VOCALIZED": {
         "asset": {
@@ -5244,7 +5244,7 @@ export default [
         "learning": "Devo andare ora."
       },
       "RANKED": {
-        "rank": 286
+        "rank": 284
       },
       "VOCALIZED": {
         "asset": {
@@ -5271,7 +5271,7 @@ export default [
         "learning": "Posso fare una domanda?"
       },
       "RANKED": {
-        "rank": 321
+        "rank": 319
       },
       "VOCALIZED": {
         "asset": {
@@ -5298,7 +5298,7 @@ export default [
         "learning": "È ora di cena."
       },
       "RANKED": {
-        "rank": 102
+        "rank": 100
       },
       "VOCALIZED": {
         "asset": {
@@ -5328,7 +5328,7 @@ export default [
         "learning": "Mio padre è un dottore."
       },
       "RANKED": {
-        "rank": 793
+        "rank": 791
       },
       "VOCALIZED": {
         "asset": {
@@ -5355,7 +5355,7 @@ export default [
         "learning": "Ho la febbre."
       },
       "RANKED": {
-        "rank": 876
+        "rank": 874
       },
       "VOCALIZED": {
         "asset": {
@@ -5382,7 +5382,7 @@ export default [
         "learning": "Sei molto coraggioso."
       },
       "RANKED": {
-        "rank": 1014
+        "rank": 1011
       },
       "VOCALIZED": {
         "asset": {
@@ -5409,7 +5409,7 @@ export default [
         "learning": "Sono troppo occupato per andare."
       },
       "RANKED": {
-        "rank": 810
+        "rank": 808
       },
       "VOCALIZED": {
         "asset": {
@@ -5436,7 +5436,7 @@ export default [
         "learning": "Dov'eri?"
       },
       "RANKED": {
-        "rank": 794
+        "rank": 792
       },
       "VOCALIZED": {
         "asset": {
@@ -5463,7 +5463,7 @@ export default [
         "learning": "Dove eravate?"
       },
       "RANKED": {
-        "rank": 1052
+        "rank": 1049
       },
       "VOCALIZED": {
         "asset": {
@@ -5490,7 +5490,7 @@ export default [
         "learning": "Io spesso viaggio."
       },
       "RANKED": {
-        "rank": 387
+        "rank": 385
       },
       "VOCALIZED": {
         "asset": {
@@ -5517,7 +5517,7 @@ export default [
         "learning": "È libero qui?"
       },
       "RANKED": {
-        "rank": 436
+        "rank": 434
       },
       "VOCALIZED": {
         "asset": {
@@ -5544,7 +5544,7 @@ export default [
         "learning": "Sono la vostra insegnante."
       },
       "RANKED": {
-        "rank": 751
+        "rank": 749
       },
       "VOCALIZED": {
         "asset": {
@@ -5571,7 +5571,7 @@ export default [
         "learning": "Tutto bene."
       },
       "RANKED": {
-        "rank": 175
+        "rank": 173
       },
       "VOCALIZED": {
         "asset": {
@@ -5598,7 +5598,7 @@ export default [
         "learning": "Che lavoro fa?"
       },
       "RANKED": {
-        "rank": 177
+        "rank": 175
       },
       "VOCALIZED": {
         "asset": {
@@ -5625,7 +5625,7 @@ export default [
         "learning": "Oggi offro io."
       },
       "RANKED": {
-        "rank": 1030
+        "rank": 1027
       },
       "VOCALIZED": {
         "asset": {
@@ -5652,7 +5652,7 @@ export default [
         "learning": "Come va il lavoro?"
       },
       "RANKED": {
-        "rank": 201
+        "rank": 199
       },
       "VOCALIZED": {
         "asset": {
@@ -5679,7 +5679,7 @@ export default [
         "learning": "È il tuo libro."
       },
       "RANKED": {
-        "rank": 299
+        "rank": 297
       },
       "VOCALIZED": {
         "asset": {
@@ -5706,7 +5706,7 @@ export default [
         "learning": "C'è dello zucchero?"
       },
       "RANKED": {
-        "rank": 788
+        "rank": 786
       },
       "VOCALIZED": {
         "asset": {
@@ -5733,7 +5733,7 @@ export default [
         "learning": "Ho un libro."
       },
       "RANKED": {
-        "rank": 294
+        "rank": 292
       },
       "VOCALIZED": {
         "asset": {
@@ -5760,7 +5760,7 @@ export default [
         "learning": "Sono pieno."
       },
       "RANKED": {
-        "rank": 458
+        "rank": 456
       },
       "VOCALIZED": {
         "asset": {
@@ -5787,7 +5787,7 @@ export default [
         "learning": "Sono piena."
       },
       "RANKED": {
-        "rank": 526
+        "rank": 524
       },
       "VOCALIZED": {
         "asset": {
@@ -5814,7 +5814,7 @@ export default [
         "learning": "Sono un professore."
       },
       "RANKED": {
-        "rank": 621
+        "rank": 619
       },
       "VOCALIZED": {
         "asset": {
@@ -5841,7 +5841,7 @@ export default [
         "learning": "Sei dalla mia parte."
       },
       "RANKED": {
-        "rank": 171
+        "rank": 169
       },
       "VOCALIZED": {
         "asset": {
@@ -5868,7 +5868,7 @@ export default [
         "learning": "Stai andando anche tu?"
       },
       "RANKED": {
-        "rank": 635
+        "rank": 633
       },
       "VOCALIZED": {
         "asset": {
@@ -5895,7 +5895,7 @@ export default [
         "learning": "Vuoi andare anche tu?"
       },
       "RANKED": {
-        "rank": 264
+        "rank": 262
       },
       "VOCALIZED": {
         "asset": {
@@ -5922,7 +5922,7 @@ export default [
         "learning": "Lavare è il mio lavoro."
       },
       "RANKED": {
-        "rank": 995
+        "rank": 992
       },
       "VOCALIZED": {
         "asset": {
@@ -5949,7 +5949,7 @@ export default [
         "learning": "Hai una domanda?"
       },
       "RANKED": {
-        "rank": 320
+        "rank": 318
       },
       "VOCALIZED": {
         "asset": {
@@ -5976,7 +5976,7 @@ export default [
         "learning": "Che cosa significa?"
       },
       "RANKED": {
-        "rank": 48
+        "rank": 46
       },
       "VOCALIZED": {
         "asset": {
@@ -6006,7 +6006,7 @@ export default [
         "learning": "Avete un calendario?"
       },
       "RANKED": {
-        "rank": 843
+        "rank": 841
       },
       "VOCALIZED": {
         "asset": {
@@ -6033,7 +6033,7 @@ export default [
         "learning": "Il braccio mi fa ancora male."
       },
       "RANKED": {
-        "rank": 677
+        "rank": 675
       },
       "VOCALIZED": {
         "asset": {
@@ -6060,7 +6060,7 @@ export default [
         "learning": "Eravamo uno di troppo."
       },
       "RANKED": {
-        "rank": 694
+        "rank": 692
       },
       "VOCALIZED": {
         "asset": {
@@ -6087,7 +6087,7 @@ export default [
         "learning": "Sono stato occupato ieri."
       },
       "RANKED": {
-        "rank": 808
+        "rank": 806
       },
       "VOCALIZED": {
         "asset": {
@@ -6114,7 +6114,7 @@ export default [
         "learning": "Non mi toccare!"
       },
       "RANKED": {
-        "rank": 881
+        "rank": 879
       },
       "VOCALIZED": {
         "asset": {
@@ -6141,7 +6141,7 @@ export default [
         "learning": "Ti darò un libro."
       },
       "RANKED": {
-        "rank": 1016
+        "rank": 1013
       },
       "VOCALIZED": {
         "asset": {
@@ -6168,7 +6168,7 @@ export default [
         "learning": "Che cosa fa?"
       },
       "RANKED": {
-        "rank": 165
+        "rank": 163
       },
       "VOCALIZED": {
         "asset": {
@@ -6195,7 +6195,7 @@ export default [
         "learning": "Vuoi questa maglietta?"
       },
       "RANKED": {
-        "rank": 935
+        "rank": 932
       },
       "VOCALIZED": {
         "asset": {
@@ -6222,7 +6222,7 @@ export default [
         "learning": "Ho la pelle secca."
       },
       "RANKED": {
-        "rank": 967
+        "rank": 964
       },
       "VOCALIZED": {
         "asset": {
@@ -6249,7 +6249,7 @@ export default [
         "learning": "Chi sono loro?"
       },
       "RANKED": {
-        "rank": 167
+        "rank": 165
       },
       "VOCALIZED": {
         "asset": {
@@ -6276,7 +6276,7 @@ export default [
         "learning": "Chi viene?"
       },
       "RANKED": {
-        "rank": 197
+        "rank": 195
       },
       "VOCALIZED": {
         "asset": {
@@ -6303,7 +6303,7 @@ export default [
         "learning": "Questa è mia sorella."
       },
       "RANKED": {
-        "rank": 555
+        "rank": 553
       },
       "VOCALIZED": {
         "asset": {
@@ -6330,7 +6330,7 @@ export default [
         "learning": "Chi verrà con noi?"
       },
       "RANKED": {
-        "rank": 519
+        "rank": 517
       },
       "VOCALIZED": {
         "asset": {
@@ -6357,7 +6357,7 @@ export default [
         "learning": "Non la conosco."
       },
       "RANKED": {
-        "rank": 530
+        "rank": 528
       },
       "VOCALIZED": {
         "asset": {
@@ -6384,7 +6384,7 @@ export default [
         "learning": "Andiamo a casa!"
       },
       "RANKED": {
-        "rank": 617
+        "rank": 615
       },
       "VOCALIZED": {
         "asset": {
@@ -6411,7 +6411,7 @@ export default [
         "learning": "Chi ti ha parlato di me?"
       },
       "RANKED": {
-        "rank": 483
+        "rank": 481
       },
       "VOCALIZED": {
         "asset": {
@@ -6438,7 +6438,7 @@ export default [
         "learning": "Oggi è sabato."
       },
       "RANKED": {
-        "rank": 550
+        "rank": 548
       },
       "VOCALIZED": {
         "asset": {
@@ -6465,7 +6465,7 @@ export default [
         "learning": "Perché la neve è bianca?"
       },
       "RANKED": {
-        "rank": 780
+        "rank": 778
       },
       "VOCALIZED": {
         "asset": {
@@ -6492,7 +6492,7 @@ export default [
         "learning": "È pronta la cena?"
       },
       "RANKED": {
-        "rank": 666
+        "rank": 664
       },
       "VOCALIZED": {
         "asset": {
@@ -6519,7 +6519,7 @@ export default [
         "learning": "È pronta la colazione?"
       },
       "RANKED": {
-        "rank": 707
+        "rank": 705
       },
       "VOCALIZED": {
         "asset": {
@@ -6546,7 +6546,7 @@ export default [
         "learning": "Ho visto il cane."
       },
       "RANKED": {
-        "rank": 508
+        "rank": 506
       },
       "VOCALIZED": {
         "asset": {
@@ -6573,7 +6573,7 @@ export default [
         "learning": "Ci ha fatto da guida."
       },
       "RANKED": {
-        "rank": 444
+        "rank": 442
       },
       "VOCALIZED": {
         "asset": {
@@ -6600,7 +6600,7 @@ export default [
         "learning": "Vorrei essere più alto."
       },
       "RANKED": {
-        "rank": 355
+        "rank": 353
       },
       "VOCALIZED": {
         "asset": {
@@ -6627,7 +6627,7 @@ export default [
         "learning": "Vorrei essere più giovane."
       },
       "RANKED": {
-        "rank": 375
+        "rank": 373
       },
       "VOCALIZED": {
         "asset": {
@@ -6654,7 +6654,7 @@ export default [
         "learning": "Vorrei essere giovane."
       },
       "RANKED": {
-        "rank": 373
+        "rank": 371
       },
       "VOCALIZED": {
         "asset": {
@@ -6681,7 +6681,7 @@ export default [
         "learning": "Voglio molto di più."
       },
       "RANKED": {
-        "rank": 222
+        "rank": 220
       },
       "VOCALIZED": {
         "asset": {
@@ -6708,7 +6708,7 @@ export default [
         "learning": "Voglio quella borsa."
       },
       "RANKED": {
-        "rank": 699
+        "rank": 697
       },
       "VOCALIZED": {
         "asset": {
@@ -6735,7 +6735,7 @@ export default [
         "learning": "Lo vuoi veramente?"
       },
       "RANKED": {
-        "rank": 348
+        "rank": 346
       },
       "VOCALIZED": {
         "asset": {
@@ -6762,7 +6762,7 @@ export default [
         "learning": "Sai chi è lei?"
       },
       "RANKED": {
-        "rank": 363
+        "rank": 361
       },
       "VOCALIZED": {
         "asset": {
@@ -6789,7 +6789,7 @@ export default [
         "learning": "Dove è tuo fratello?"
       },
       "RANKED": {
-        "rank": 421
+        "rank": 419
       },
       "VOCALIZED": {
         "asset": {
@@ -6816,7 +6816,7 @@ export default [
         "learning": "Mio padre è in casa."
       },
       "RANKED": {
-        "rank": 283
+        "rank": 281
       },
       "VOCALIZED": {
         "asset": {
@@ -6843,7 +6843,7 @@ export default [
         "learning": "Hai visto mio padre?"
       },
       "RANKED": {
-        "rank": 279
+        "rank": 277
       },
       "VOCALIZED": {
         "asset": {
@@ -6870,7 +6870,7 @@ export default [
         "learning": "Sono contro la guerra."
       },
       "RANKED": {
-        "rank": 1119
+        "rank": 1116
       },
       "VOCALIZED": {
         "asset": {
@@ -6897,7 +6897,7 @@ export default [
         "learning": "Che cosa hai fatto oggi?"
       },
       "RANKED": {
-        "rank": 192
+        "rank": 190
       },
       "VOCALIZED": {
         "asset": {
@@ -6924,7 +6924,7 @@ export default [
         "learning": "Mi sono chiuso fuori."
       },
       "RANKED": {
-        "rank": 150
+        "rank": 148
       },
       "VOCALIZED": {
         "asset": {
@@ -6954,7 +6954,7 @@ export default [
         "learning": "Dove sei ora?"
       },
       "RANKED": {
-        "rank": 173
+        "rank": 171
       },
       "VOCALIZED": {
         "asset": {
@@ -6981,7 +6981,7 @@ export default [
         "learning": "Non ho paura."
       },
       "RANKED": {
-        "rank": 336
+        "rank": 334
       },
       "VOCALIZED": {
         "asset": {
@@ -7008,7 +7008,7 @@ export default [
         "learning": "Che coincidenza!"
       },
       "RANKED": {
-        "rank": 962
+        "rank": 959
       },
       "VOCALIZED": {
         "asset": {
@@ -7035,7 +7035,7 @@ export default [
         "learning": "Sei molto bella."
       },
       "RANKED": {
-        "rank": 291
+        "rank": 289
       },
       "VOCALIZED": {
         "asset": {
@@ -7062,7 +7062,7 @@ export default [
         "learning": "Ho parlato di musica."
       },
       "RANKED": {
-        "rank": 481
+        "rank": 479
       },
       "VOCALIZED": {
         "asset": {
@@ -7089,7 +7089,7 @@ export default [
         "learning": "Il tavolo è verde."
       },
       "RANKED": {
-        "rank": 675
+        "rank": 673
       },
       "VOCALIZED": {
         "asset": {
@@ -7116,7 +7116,7 @@ export default [
         "learning": "Sto male."
       },
       "RANKED": {
-        "rank": 151
+        "rank": 149
       },
       "VOCALIZED": {
         "asset": {
@@ -7146,7 +7146,7 @@ export default [
         "learning": "Grande, vero?"
       },
       "RANKED": {
-        "rank": 207
+        "rank": 205
       },
       "VOCALIZED": {
         "asset": {
@@ -7173,7 +7173,7 @@ export default [
         "learning": "Lui è il mio capo."
       },
       "RANKED": {
-        "rank": 306
+        "rank": 304
       },
       "VOCALIZED": {
         "asset": {
@@ -7200,7 +7200,7 @@ export default [
         "learning": "Mi ha fatto un vestito."
       },
       "RANKED": {
-        "rank": 739
+        "rank": 737
       },
       "VOCALIZED": {
         "asset": {
@@ -7227,7 +7227,7 @@ export default [
         "learning": "Ho visto tuo padre."
       },
       "RANKED": {
-        "rank": 280
+        "rank": 278
       },
       "VOCALIZED": {
         "asset": {
@@ -7254,7 +7254,7 @@ export default [
         "learning": "Hai finito il lavoro?"
       },
       "RANKED": {
-        "rank": 472
+        "rank": 470
       },
       "VOCALIZED": {
         "asset": {
@@ -7281,7 +7281,7 @@ export default [
         "learning": "La mia penna è nuova."
       },
       "RANKED": {
-        "rank": 903
+        "rank": 901
       },
       "VOCALIZED": {
         "asset": {
@@ -7308,7 +7308,7 @@ export default [
         "learning": "Dove sono?"
       },
       "RANKED": {
-        "rank": 172
+        "rank": 170
       },
       "VOCALIZED": {
         "asset": {
@@ -7335,7 +7335,7 @@ export default [
         "learning": "Chiedo scusa per questo."
       },
       "RANKED": {
-        "rank": 488
+        "rank": 486
       },
       "VOCALIZED": {
         "asset": {
@@ -7362,7 +7362,7 @@ export default [
         "learning": "È un regalo per te."
       },
       "RANKED": {
-        "rank": 697
+        "rank": 695
       },
       "VOCALIZED": {
         "asset": {
@@ -7389,7 +7389,7 @@ export default [
         "learning": "Mi fa male la spalla."
       },
       "RANKED": {
-        "rank": 880
+        "rank": 878
       },
       "VOCALIZED": {
         "asset": {
@@ -7416,7 +7416,7 @@ export default [
         "learning": "Come stai?"
       },
       "RANKED": {
-        "rank": 329
+        "rank": 327
       },
       "VOCALIZED": {
         "asset": {
@@ -7443,7 +7443,7 @@ export default [
         "learning": "Questa è la tua chiave."
       },
       "RANKED": {
-        "rank": 568
+        "rank": 566
       },
       "VOCALIZED": {
         "asset": {
@@ -7470,7 +7470,7 @@ export default [
         "learning": "Questa è una matita."
       },
       "RANKED": {
-        "rank": 1036
+        "rank": 1033
       },
       "VOCALIZED": {
         "asset": {
@@ -7497,7 +7497,7 @@ export default [
         "learning": "Mi sono appena alzato."
       },
       "RANKED": {
-        "rank": 970
+        "rank": 967
       },
       "VOCALIZED": {
         "asset": {
@@ -7524,7 +7524,7 @@ export default [
         "learning": "Non l'ho incontrato."
       },
       "RANKED": {
-        "rank": 734
+        "rank": 732
       },
       "VOCALIZED": {
         "asset": {
@@ -7551,7 +7551,7 @@ export default [
         "learning": "Dov'è casa tua?"
       },
       "RANKED": {
-        "rank": 216
+        "rank": 214
       },
       "VOCALIZED": {
         "asset": {
@@ -7578,7 +7578,7 @@ export default [
         "learning": "Ho quasi finito."
       },
       "RANKED": {
-        "rank": 471
+        "rank": 469
       },
       "VOCALIZED": {
         "asset": {
@@ -7605,7 +7605,7 @@ export default [
         "learning": "Sono in ritardo, vero?"
       },
       "RANKED": {
-        "rank": 668
+        "rank": 666
       },
       "VOCALIZED": {
         "asset": {
@@ -7632,7 +7632,7 @@ export default [
         "learning": "Ieri ero malato."
       },
       "RANKED": {
-        "rank": 858
+        "rank": 856
       },
       "VOCALIZED": {
         "asset": {
@@ -7659,7 +7659,7 @@ export default [
         "learning": "Mi sveglio presto."
       },
       "RANKED": {
-        "rank": 885
+        "rank": 883
       },
       "VOCALIZED": {
         "asset": {
@@ -7686,7 +7686,7 @@ export default [
         "learning": "Io non lo voglio."
       },
       "RANKED": {
-        "rank": 223
+        "rank": 221
       },
       "VOCALIZED": {
         "asset": {
@@ -7713,7 +7713,7 @@ export default [
         "learning": "Dov'è tuo fratello?"
       },
       "RANKED": {
-        "rank": 422
+        "rank": 420
       },
       "VOCALIZED": {
         "asset": {
@@ -7740,7 +7740,7 @@ export default [
         "learning": "Non fare tardi."
       },
       "RANKED": {
-        "rank": 485
+        "rank": 483
       },
       "VOCALIZED": {
         "asset": {
@@ -7767,7 +7767,7 @@ export default [
         "learning": "Questa è una scrivania."
       },
       "RANKED": {
-        "rank": 974
+        "rank": 971
       },
       "VOCALIZED": {
         "asset": {
@@ -7794,7 +7794,7 @@ export default [
         "learning": "Mia madre è arrabbiata."
       },
       "RANKED": {
-        "rank": 1071
+        "rank": 1068
       },
       "VOCALIZED": {
         "asset": {
@@ -7821,7 +7821,7 @@ export default [
         "learning": "Alla vostra!"
       },
       "RANKED": {
-        "rank": 473
+        "rank": 471
       },
       "VOCALIZED": {
         "asset": {
@@ -7848,7 +7848,7 @@ export default [
         "learning": "Salute!"
       },
       "RANKED": {
-        "rank": 453
+        "rank": 451
       },
       "VOCALIZED": {
         "asset": {
@@ -7875,7 +7875,7 @@ export default [
         "learning": "È francese."
       },
       "RANKED": {
-        "rank": 429
+        "rank": 427
       },
       "VOCALIZED": {
         "asset": {
@@ -7902,7 +7902,7 @@ export default [
         "learning": "Questo è il mio libro."
       },
       "RANKED": {
-        "rank": 301
+        "rank": 299
       },
       "VOCALIZED": {
         "asset": {
@@ -7929,7 +7929,7 @@ export default [
         "learning": "Come sta il cane?"
       },
       "RANKED": {
-        "rank": 509
+        "rank": 507
       },
       "VOCALIZED": {
         "asset": {
@@ -7956,7 +7956,7 @@ export default [
         "learning": "Ho letto il libro."
       },
       "RANKED": {
-        "rank": 300
+        "rank": 298
       },
       "VOCALIZED": {
         "asset": {
@@ -7983,7 +7983,7 @@ export default [
         "learning": "Non posso parlare."
       },
       "RANKED": {
-        "rank": 254
+        "rank": 252
       },
       "VOCALIZED": {
         "asset": {
@@ -8010,7 +8010,7 @@ export default [
         "learning": "Che cosa dovrei fare?"
       },
       "RANKED": {
-        "rank": 592
+        "rank": 590
       },
       "VOCALIZED": {
         "asset": {
@@ -8037,7 +8037,7 @@ export default [
         "learning": "Che cosa fai ora?"
       },
       "RANKED": {
-        "rank": 277
+        "rank": 275
       },
       "VOCALIZED": {
         "asset": {
@@ -8064,7 +8064,7 @@ export default [
         "learning": "Questo è un cane."
       },
       "RANKED": {
-        "rank": 510
+        "rank": 508
       },
       "VOCALIZED": {
         "asset": {
@@ -8091,7 +8091,7 @@ export default [
         "learning": "Grazie per la Sua risposta."
       },
       "RANKED": {
-        "rank": 372
+        "rank": 370
       },
       "VOCALIZED": {
         "asset": {
@@ -8118,7 +8118,7 @@ export default [
         "learning": "È sabato."
       },
       "RANKED": {
-        "rank": 549
+        "rank": 547
       },
       "VOCALIZED": {
         "asset": {
@@ -8145,7 +8145,7 @@ export default [
         "learning": "Lo voglio veramente."
       },
       "RANKED": {
-        "rank": 349
+        "rank": 347
       },
       "VOCALIZED": {
         "asset": {
@@ -8172,7 +8172,7 @@ export default [
         "learning": "Eri con qualcuno?"
       },
       "RANKED": {
-        "rank": 795
+        "rank": 793
       },
       "VOCALIZED": {
         "asset": {
@@ -8199,7 +8199,7 @@ export default [
         "learning": "Ora o mai più."
       },
       "RANKED": {
-        "rank": 170
+        "rank": 168
       },
       "VOCALIZED": {
         "asset": {
@@ -8226,7 +8226,7 @@ export default [
         "learning": "Deve avere nostalgia di casa."
       },
       "RANKED": {
-        "rank": 972
+        "rank": 969
       },
       "VOCALIZED": {
         "asset": {
@@ -8253,7 +8253,7 @@ export default [
         "learning": "Ho chiesto dove andare."
       },
       "RANKED": {
-        "rank": 419
+        "rank": 417
       },
       "VOCALIZED": {
         "asset": {
@@ -8280,7 +8280,7 @@ export default [
         "learning": "Chi lo ha fatto?"
       },
       "RANKED": {
-        "rank": 169
+        "rank": 167
       },
       "VOCALIZED": {
         "asset": {
@@ -8307,7 +8307,7 @@ export default [
         "learning": "È chiaro?"
       },
       "RANKED": {
-        "rank": 418
+        "rank": 416
       },
       "VOCALIZED": {
         "asset": {
@@ -8334,7 +8334,7 @@ export default [
         "learning": "Mio padre è medico."
       },
       "RANKED": {
-        "rank": 476
+        "rank": 474
       },
       "VOCALIZED": {
         "asset": {
@@ -8361,7 +8361,7 @@ export default [
         "learning": "Conto su Tom."
       },
       "RANKED": {
-        "rank": 307
+        "rank": 305
       },
       "VOCALIZED": {
         "asset": {
@@ -8388,7 +8388,7 @@ export default [
         "learning": "Tom è molto gentile."
       },
       "RANKED": {
-        "rank": 695
+        "rank": 693
       },
       "VOCALIZED": {
         "asset": {
@@ -8415,7 +8415,7 @@ export default [
         "learning": "Tom ha rotto la finestra."
       },
       "RANKED": {
-        "rank": 715
+        "rank": 713
       },
       "VOCALIZED": {
         "asset": {
@@ -8442,7 +8442,7 @@ export default [
         "learning": "Tom non sa guidare."
       },
       "RANKED": {
-        "rank": 777
+        "rank": 775
       },
       "VOCALIZED": {
         "asset": {
@@ -8469,7 +8469,7 @@ export default [
         "learning": "Tom è più alto di me."
       },
       "RANKED": {
-        "rank": 357
+        "rank": 355
       },
       "VOCALIZED": {
         "asset": {
@@ -8496,7 +8496,7 @@ export default [
         "learning": "È solo un sogno."
       },
       "RANKED": {
-        "rank": 554
+        "rank": 552
       },
       "VOCALIZED": {
         "asset": {
@@ -8523,7 +8523,7 @@ export default [
         "learning": "Era un topo."
       },
       "RANKED": {
-        "rank": 1037
+        "rank": 1034
       },
       "VOCALIZED": {
         "asset": {
@@ -8550,7 +8550,7 @@ export default [
         "learning": "Tom conosce bene Boston."
       },
       "RANKED": {
-        "rank": 1116
+        "rank": 1113
       },
       "VOCALIZED": {
         "asset": {
@@ -8577,7 +8577,7 @@ export default [
         "learning": "Tom è di Boston."
       },
       "RANKED": {
-        "rank": 1117
+        "rank": 1114
       },
       "VOCALIZED": {
         "asset": {
@@ -8604,7 +8604,7 @@ export default [
         "learning": "Tom è andato a Boston."
       },
       "RANKED": {
-        "rank": 1118
+        "rank": 1115
       },
       "VOCALIZED": {
         "asset": {
@@ -8631,7 +8631,7 @@ export default [
         "learning": "So andare a cavallo."
       },
       "RANKED": {
-        "rank": 649
+        "rank": 647
       },
       "VOCALIZED": {
         "asset": {
@@ -8658,7 +8658,7 @@ export default [
         "learning": "Questa è carne buona."
       },
       "RANKED": {
-        "rank": 561
+        "rank": 559
       },
       "VOCALIZED": {
         "asset": {
@@ -8685,7 +8685,7 @@ export default [
         "learning": "Sì che lo voglio."
       },
       "RANKED": {
-        "rank": 224
+        "rank": 222
       },
       "VOCALIZED": {
         "asset": {
@@ -8712,7 +8712,7 @@ export default [
         "learning": "Qualcuno lo conosce?"
       },
       "RANKED": {
-        "rank": 622
+        "rank": 620
       },
       "VOCALIZED": {
         "asset": {
@@ -8739,7 +8739,7 @@ export default [
         "learning": "Perché sei solo?"
       },
       "RANKED": {
-        "rank": 163
+        "rank": 161
       },
       "VOCALIZED": {
         "asset": {
@@ -8766,7 +8766,7 @@ export default [
         "learning": "Di chi è questa bicicletta?"
       },
       "RANKED": {
-        "rank": 931
+        "rank": 928
       },
       "VOCALIZED": {
         "asset": {
@@ -8793,7 +8793,7 @@ export default [
         "learning": "È carne di scimmia."
       },
       "RANKED": {
-        "rank": 1003
+        "rank": 1000
       },
       "VOCALIZED": {
         "asset": {
@@ -8820,7 +8820,7 @@ export default [
         "learning": "È andato al negozio."
       },
       "RANKED": {
-        "rank": 625
+        "rank": 623
       },
       "VOCALIZED": {
         "asset": {
@@ -8847,7 +8847,7 @@ export default [
         "learning": "C'era molto vento."
       },
       "RANKED": {
-        "rank": 637
+        "rank": 635
       },
       "VOCALIZED": {
         "asset": {
@@ -8874,7 +8874,7 @@ export default [
         "learning": "Vieni presto."
       },
       "RANKED": {
-        "rank": 681
+        "rank": 679
       },
       "VOCALIZED": {
         "asset": {
@@ -8901,7 +8901,7 @@ export default [
         "learning": "Il caso è chiuso."
       },
       "RANKED": {
-        "rank": 584
+        "rank": 582
       },
       "VOCALIZED": {
         "asset": {
@@ -8928,7 +8928,7 @@ export default [
         "learning": "Non ho la macchina."
       },
       "RANKED": {
-        "rank": 406
+        "rank": 404
       },
       "VOCALIZED": {
         "asset": {
@@ -8955,7 +8955,7 @@ export default [
         "learning": "Sono nella macchina."
       },
       "RANKED": {
-        "rank": 404
+        "rank": 402
       },
       "VOCALIZED": {
         "asset": {
@@ -8982,7 +8982,7 @@ export default [
         "learning": "Quella casa è grande."
       },
       "RANKED": {
-        "rank": 189
+        "rank": 187
       },
       "VOCALIZED": {
         "asset": {
@@ -9009,7 +9009,7 @@ export default [
         "learning": "È tutto."
       },
       "RANKED": {
-        "rank": 164
+        "rank": 162
       },
       "VOCALIZED": {
         "asset": {
@@ -9036,7 +9036,7 @@ export default [
         "learning": "Posso andare a casa?"
       },
       "RANKED": {
-        "rank": 246
+        "rank": 244
       },
       "VOCALIZED": {
         "asset": {
@@ -9063,7 +9063,7 @@ export default [
         "learning": "Lo puoi fare."
       },
       "RANKED": {
-        "rank": 232
+        "rank": 230
       },
       "VOCALIZED": {
         "asset": {
@@ -9090,7 +9090,7 @@ export default [
         "learning": "Tom non è in casa."
       },
       "RANKED": {
-        "rank": 181
+        "rank": 179
       },
       "VOCALIZED": {
         "asset": {
@@ -9117,7 +9117,7 @@ export default [
         "learning": "Tom non è a casa."
       },
       "RANKED": {
-        "rank": 182
+        "rank": 180
       },
       "VOCALIZED": {
         "asset": {
@@ -9144,7 +9144,7 @@ export default [
         "learning": "Lui è giapponese?"
       },
       "RANKED": {
-        "rank": 630
+        "rank": 628
       },
       "VOCALIZED": {
         "asset": {
@@ -9171,7 +9171,7 @@ export default [
         "learning": "Non ho visto nessuno."
       },
       "RANKED": {
-        "rank": 214
+        "rank": 212
       },
       "VOCALIZED": {
         "asset": {
@@ -9198,7 +9198,7 @@ export default [
         "learning": "È una dottoressa?"
       },
       "RANKED": {
-        "rank": 1007
+        "rank": 1004
       },
       "VOCALIZED": {
         "asset": {
@@ -9225,7 +9225,7 @@ export default [
         "learning": "Io lavoro."
       },
       "RANKED": {
-        "rank": 176
+        "rank": 174
       },
       "VOCALIZED": {
         "asset": {
@@ -9252,7 +9252,7 @@ export default [
         "learning": "È di mio padre."
       },
       "RANKED": {
-        "rank": 281
+        "rank": 279
       },
       "VOCALIZED": {
         "asset": {
@@ -9279,7 +9279,7 @@ export default [
         "learning": "Questo non è vero."
       },
       "RANKED": {
-        "rank": 208
+        "rank": 206
       },
       "VOCALIZED": {
         "asset": {
@@ -9306,7 +9306,7 @@ export default [
         "learning": "Il cuore è un muscolo."
       },
       "RANKED": {
-        "rank": 1026
+        "rank": 1023
       },
       "VOCALIZED": {
         "asset": {
@@ -9333,7 +9333,7 @@ export default [
         "learning": "Non toccare il vetro."
       },
       "RANKED": {
-        "rank": 882
+        "rank": 880
       },
       "VOCALIZED": {
         "asset": {
@@ -9360,7 +9360,7 @@ export default [
         "learning": "Fai come ti ho detto."
       },
       "RANKED": {
-        "rank": 278
+        "rank": 276
       },
       "VOCALIZED": {
         "asset": {
@@ -9387,7 +9387,7 @@ export default [
         "learning": "Tuo padre ti vuole."
       },
       "RANKED": {
-        "rank": 282
+        "rank": 280
       },
       "VOCALIZED": {
         "asset": {
@@ -9414,7 +9414,7 @@ export default [
         "learning": "Sveglia!"
       },
       "RANKED": {
-        "rank": 831
+        "rank": 829
       },
       "VOCALIZED": {
         "asset": {
@@ -9441,7 +9441,7 @@ export default [
         "learning": "Lui è il figlio più grande."
       },
       "RANKED": {
-        "rank": 303
+        "rank": 301
       },
       "VOCALIZED": {
         "asset": {
@@ -9468,7 +9468,7 @@ export default [
         "learning": "Quale cane è il tuo?"
       },
       "RANKED": {
-        "rank": 513
+        "rank": 511
       },
       "VOCALIZED": {
         "asset": {
@@ -9495,7 +9495,7 @@ export default [
         "learning": "Questo è un leone."
       },
       "RANKED": {
-        "rank": 745
+        "rank": 743
       },
       "VOCALIZED": {
         "asset": {
@@ -9522,7 +9522,7 @@ export default [
         "learning": "Dov'è la porta di imbarco?"
       },
       "RANKED": {
-        "rank": 133
+        "rank": 131
       },
       "VOCALIZED": {
         "asset": {
@@ -9552,7 +9552,7 @@ export default [
         "learning": "Sii paziente."
       },
       "RANKED": {
-        "rank": 932
+        "rank": 929
       },
       "VOCALIZED": {
         "asset": {
@@ -9579,7 +9579,7 @@ export default [
         "learning": "Posso contare su di te?"
       },
       "RANKED": {
-        "rank": 773
+        "rank": 771
       },
       "VOCALIZED": {
         "asset": {
@@ -9606,7 +9606,7 @@ export default [
         "learning": "So la verità."
       },
       "RANKED": {
-        "rank": 384
+        "rank": 382
       },
       "VOCALIZED": {
         "asset": {
@@ -9633,7 +9633,7 @@ export default [
         "learning": "Ne faccio anche a meno."
       },
       "RANKED": {
-        "rank": 292
+        "rank": 290
       },
       "VOCALIZED": {
         "asset": {
@@ -9660,7 +9660,7 @@ export default [
         "learning": "La rete è enorme."
       },
       "RANKED": {
-        "rank": 603
+        "rank": 601
       },
       "VOCALIZED": {
         "asset": {
@@ -9687,7 +9687,7 @@ export default [
         "learning": "Dove sono adesso?"
       },
       "RANKED": {
-        "rank": 249
+        "rank": 247
       },
       "VOCALIZED": {
         "asset": {
@@ -9714,7 +9714,7 @@ export default [
         "learning": "Chi c'è lì?"
       },
       "RANKED": {
-        "rank": 326
+        "rank": 324
       },
       "VOCALIZED": {
         "asset": {
@@ -9741,7 +9741,7 @@ export default [
         "learning": "Mi sono rotto il braccio."
       },
       "RANKED": {
-        "rank": 711
+        "rank": 709
       },
       "VOCALIZED": {
         "asset": {
@@ -9768,7 +9768,7 @@ export default [
         "learning": "C'è qualcuno lì dentro?"
       },
       "RANKED": {
-        "rank": 361
+        "rank": 359
       },
       "VOCALIZED": {
         "asset": {
@@ -9795,7 +9795,7 @@ export default [
         "learning": "Tom dirà di sì."
       },
       "RANKED": {
-        "rank": 921
+        "rank": 918
       },
       "VOCALIZED": {
         "asset": {
@@ -9822,7 +9822,7 @@ export default [
         "learning": "Mio marito è un essere inutile."
       },
       "RANKED": {
-        "rank": 590
+        "rank": 588
       },
       "VOCALIZED": {
         "asset": {
@@ -9849,7 +9849,7 @@ export default [
         "learning": "Com'è possibile questo?"
       },
       "RANKED": {
-        "rank": 248
+        "rank": 246
       },
       "VOCALIZED": {
         "asset": {
@@ -9876,7 +9876,7 @@ export default [
         "learning": "Ho una ricevuta."
       },
       "RANKED": {
-        "rank": 945
+        "rank": 942
       },
       "VOCALIZED": {
         "asset": {
@@ -9903,7 +9903,7 @@ export default [
         "learning": "Perché non rispondi?"
       },
       "RANKED": {
-        "rank": 916
+        "rank": 913
       },
       "VOCALIZED": {
         "asset": {
@@ -9930,7 +9930,7 @@ export default [
         "learning": "Sei ancora lì?"
       },
       "RANKED": {
-        "rank": 325
+        "rank": 323
       },
       "VOCALIZED": {
         "asset": {
@@ -9957,7 +9957,7 @@ export default [
         "learning": "Non lo posso dire a nessuno."
       },
       "RANKED": {
-        "rank": 247
+        "rank": 245
       },
       "VOCALIZED": {
         "asset": {
@@ -9984,7 +9984,7 @@ export default [
         "learning": "Ero a casa."
       },
       "RANKED": {
-        "rank": 344
+        "rank": 342
       },
       "VOCALIZED": {
         "asset": {
@@ -10011,7 +10011,7 @@ export default [
         "learning": "Ero in casa."
       },
       "RANKED": {
-        "rank": 345
+        "rank": 343
       },
       "VOCALIZED": {
         "asset": {
@@ -10038,7 +10038,7 @@ export default [
         "learning": "Non andare troppo lontano."
       },
       "RANKED": {
-        "rank": 517
+        "rank": 515
       },
       "VOCALIZED": {
         "asset": {
@@ -10065,7 +10065,7 @@ export default [
         "learning": "Non essere deluso."
       },
       "RANKED": {
-        "rank": 939
+        "rank": 936
       },
       "VOCALIZED": {
         "asset": {
@@ -10092,7 +10092,7 @@ export default [
         "learning": "Tu sei medico?"
       },
       "RANKED": {
-        "rank": 475
+        "rank": 473
       },
       "VOCALIZED": {
         "asset": {
@@ -10119,7 +10119,7 @@ export default [
         "learning": "Va tutto bene."
       },
       "RANKED": {
-        "rank": 199
+        "rank": 197
       },
       "VOCALIZED": {
         "asset": {
@@ -10146,7 +10146,7 @@ export default [
         "learning": "Casa tua è grande."
       },
       "RANKED": {
-        "rank": 217
+        "rank": 215
       },
       "VOCALIZED": {
         "asset": {
@@ -10173,7 +10173,7 @@ export default [
         "learning": "La tua casa è grande."
       },
       "RANKED": {
-        "rank": 218
+        "rank": 216
       },
       "VOCALIZED": {
         "asset": {
@@ -10200,7 +10200,7 @@ export default [
         "learning": "Chi lo ha disegnato?"
       },
       "RANKED": {
-        "rank": 1006
+        "rank": 1003
       },
       "VOCALIZED": {
         "asset": {
@@ -10227,7 +10227,7 @@ export default [
         "learning": "Sono al piano di sopra."
       },
       "RANKED": {
-        "rank": 341
+        "rank": 339
       },
       "VOCALIZED": {
         "asset": {
@@ -10254,7 +10254,7 @@ export default [
         "learning": "Sicuramente mi ha spaventato."
       },
       "RANKED": {
-        "rank": 1075
+        "rank": 1072
       },
       "VOCALIZED": {
         "asset": {
@@ -10281,7 +10281,7 @@ export default [
         "learning": "Niente panico!"
       },
       "RANKED": {
-        "rank": 836
+        "rank": 834
       },
       "VOCALIZED": {
         "asset": {
@@ -10308,7 +10308,7 @@ export default [
         "learning": "Mi sta venendo nostalgia di casa."
       },
       "RANKED": {
-        "rank": 973
+        "rank": 970
       },
       "VOCALIZED": {
         "asset": {
@@ -10335,7 +10335,7 @@ export default [
         "learning": "Hai dormito bene?"
       },
       "RANKED": {
-        "rank": 965
+        "rank": 962
       },
       "VOCALIZED": {
         "asset": {
@@ -10362,7 +10362,7 @@ export default [
         "learning": "È una storia molto triste."
       },
       "RANKED": {
-        "rank": 616
+        "rank": 614
       },
       "VOCALIZED": {
         "asset": {
@@ -10389,7 +10389,7 @@ export default [
         "learning": "Dov'è la mia pizza?"
       },
       "RANKED": {
-        "rank": 703
+        "rank": 701
       },
       "VOCALIZED": {
         "asset": {
@@ -10416,7 +10416,7 @@ export default [
         "learning": "Non è bello?"
       },
       "RANKED": {
-        "rank": 323
+        "rank": 321
       },
       "VOCALIZED": {
         "asset": {
@@ -10443,7 +10443,7 @@ export default [
         "learning": "Sono stanco di quello."
       },
       "RANKED": {
-        "rank": 868
+        "rank": 866
       },
       "VOCALIZED": {
         "asset": {
@@ -10470,7 +10470,7 @@ export default [
         "learning": "C'è qualcosa che non va?"
       },
       "RANKED": {
-        "rank": 205
+        "rank": 203
       },
       "VOCALIZED": {
         "asset": {
@@ -10497,7 +10497,7 @@ export default [
         "learning": "Io credo che Tom sappia."
       },
       "RANKED": {
-        "rank": 791
+        "rank": 789
       },
       "VOCALIZED": {
         "asset": {
@@ -10524,7 +10524,7 @@ export default [
         "learning": "Sono troppo basso."
       },
       "RANKED": {
-        "rank": 443
+        "rank": 441
       },
       "VOCALIZED": {
         "asset": {
@@ -10551,7 +10551,7 @@ export default [
         "learning": "Sono il fratello di Tom."
       },
       "RANKED": {
-        "rank": 424
+        "rank": 422
       },
       "VOCALIZED": {
         "asset": {
@@ -10578,7 +10578,7 @@ export default [
         "learning": "L'hai fatto ancora."
       },
       "RANKED": {
-        "rank": 174
+        "rank": 172
       },
       "VOCALIZED": {
         "asset": {
@@ -10605,7 +10605,7 @@ export default [
         "learning": "L'errore è mio."
       },
       "RANKED": {
-        "rank": 525
+        "rank": 523
       },
       "VOCALIZED": {
         "asset": {
@@ -10632,7 +10632,7 @@ export default [
         "learning": "Che dobbiamo fare?"
       },
       "RANKED": {
-        "rank": 380
+        "rank": 378
       },
       "VOCALIZED": {
         "asset": {
@@ -10659,7 +10659,7 @@ export default [
         "learning": "Non fare ritardo."
       },
       "RANKED": {
-        "rank": 667
+        "rank": 665
       },
       "VOCALIZED": {
         "asset": {
@@ -10686,7 +10686,7 @@ export default [
         "learning": "Il mio bicchiere è sporco."
       },
       "RANKED": {
-        "rank": 961
+        "rank": 958
       },
       "VOCALIZED": {
         "asset": {
@@ -10713,7 +10713,7 @@ export default [
         "learning": "Anch'io sono stato lì."
       },
       "RANKED": {
-        "rank": 1115
+        "rank": 1112
       },
       "VOCALIZED": {
         "asset": {
@@ -10740,7 +10740,7 @@ export default [
         "learning": "Loro sono qui."
       },
       "RANKED": {
-        "rank": 183
+        "rank": 181
       },
       "VOCALIZED": {
         "asset": {
@@ -10767,7 +10767,7 @@ export default [
         "learning": "La mia porta è sempre aperta."
       },
       "RANKED": {
-        "rank": 566
+        "rank": 564
       },
       "VOCALIZED": {
         "asset": {
@@ -10794,7 +10794,7 @@ export default [
         "learning": "Fai esattamente come ti dico."
       },
       "RANKED": {
-        "rank": 467
+        "rank": 465
       },
       "VOCALIZED": {
         "asset": {
@@ -10821,7 +10821,7 @@ export default [
         "learning": "Fai esattamente come ti ho detto."
       },
       "RANKED": {
-        "rank": 468
+        "rank": 466
       },
       "VOCALIZED": {
         "asset": {
@@ -10848,7 +10848,7 @@ export default [
         "learning": "Ordini del direttore."
       },
       "RANKED": {
-        "rank": 660
+        "rank": 658
       },
       "VOCALIZED": {
         "asset": {
@@ -10875,7 +10875,7 @@ export default [
         "learning": "Lo hai fatto di nuovo."
       },
       "RANKED": {
-        "rank": 194
+        "rank": 192
       },
       "VOCALIZED": {
         "asset": {
@@ -10902,7 +10902,7 @@ export default [
         "learning": "Ti sei rotto il braccio."
       },
       "RANKED": {
-        "rank": 712
+        "rank": 710
       },
       "VOCALIZED": {
         "asset": {
@@ -10929,7 +10929,7 @@ export default [
         "learning": "Dovresti andare."
       },
       "RANKED": {
-        "rank": 652
+        "rank": 650
       },
       "VOCALIZED": {
         "asset": {
@@ -10956,7 +10956,7 @@ export default [
         "learning": "Dovresti andare a casa."
       },
       "RANKED": {
-        "rank": 653
+        "rank": 651
       },
       "VOCALIZED": {
         "asset": {
@@ -10983,7 +10983,7 @@ export default [
         "learning": "Hai il lavoro."
       },
       "RANKED": {
-        "rank": 178
+        "rank": 176
       },
       "VOCALIZED": {
         "asset": {
@@ -11010,7 +11010,7 @@ export default [
         "learning": "Sei solo un bambino."
       },
       "RANKED": {
-        "rank": 417
+        "rank": 415
       },
       "VOCALIZED": {
         "asset": {
@@ -11037,7 +11037,7 @@ export default [
         "learning": "Mi hai fatto fare tardi."
       },
       "RANKED": {
-        "rank": 487
+        "rank": 485
       },
       "VOCALIZED": {
         "asset": {
@@ -11064,7 +11064,7 @@ export default [
         "learning": "Non puoi dire di no."
       },
       "RANKED": {
-        "rank": 233
+        "rank": 231
       },
       "VOCALIZED": {
         "asset": {
@@ -11091,7 +11091,7 @@ export default [
         "learning": "Adesso non puoi andare."
       },
       "RANKED": {
-        "rank": 251
+        "rank": 249
       },
       "VOCALIZED": {
         "asset": {
@@ -11118,7 +11118,7 @@ export default [
         "learning": "Hai fatto la tua parte."
       },
       "RANKED": {
-        "rank": 219
+        "rank": 217
       },
       "VOCALIZED": {
         "asset": {
@@ -11145,7 +11145,7 @@ export default [
         "learning": "Hai fatto una promessa."
       },
       "RANKED": {
-        "rank": 812
+        "rank": 810
       },
       "VOCALIZED": {
         "asset": {
@@ -11172,7 +11172,7 @@ export default [
         "learning": "Non puoi ancora andare a casa."
       },
       "RANKED": {
-        "rank": 234
+        "rank": 232
       },
       "VOCALIZED": {
         "asset": {
@@ -11199,7 +11199,7 @@ export default [
         "learning": "Non sono coraggioso."
       },
       "RANKED": {
-        "rank": 1015
+        "rank": 1012
       },
       "VOCALIZED": {
         "asset": {
@@ -11226,7 +11226,7 @@ export default [
         "learning": "Non ero felice."
       },
       "RANKED": {
-        "rank": 394
+        "rank": 392
       },
       "VOCALIZED": {
         "asset": {
@@ -11253,7 +11253,7 @@ export default [
         "learning": "Non sono in buona salute."
       },
       "RANKED": {
-        "rank": 455
+        "rank": 453
       },
       "VOCALIZED": {
         "asset": {
@@ -11280,7 +11280,7 @@ export default [
         "learning": "Non sono stato onesto."
       },
       "RANKED": {
-        "rank": 943
+        "rank": 940
       },
       "VOCALIZED": {
         "asset": {
@@ -11307,7 +11307,7 @@ export default [
         "learning": "Sono felice che Tom sia a casa."
       },
       "RANKED": {
-        "rank": 399
+        "rank": 397
       },
       "VOCALIZED": {
         "asset": {
@@ -11334,7 +11334,7 @@ export default [
         "learning": "Sto solo facendo il mio lavoro."
       },
       "RANKED": {
-        "rank": 311
+        "rank": 309
       },
       "VOCALIZED": {
         "asset": {
@@ -11361,7 +11361,7 @@ export default [
         "learning": "So che Tom sa."
       },
       "RANKED": {
-        "rank": 253
+        "rank": 251
       },
       "VOCALIZED": {
         "asset": {
@@ -11388,7 +11388,7 @@ export default [
         "learning": "Non sono paziente."
       },
       "RANKED": {
-        "rank": 719
+        "rank": 717
       },
       "VOCALIZED": {
         "asset": {
@@ -11415,7 +11415,7 @@ export default [
         "learning": "Non sono molto paziente."
       },
       "RANKED": {
-        "rank": 720
+        "rank": 718
       },
       "VOCALIZED": {
         "asset": {
@@ -11442,7 +11442,7 @@ export default [
         "learning": "Non ero preparato."
       },
       "RANKED": {
-        "rank": 827
+        "rank": 825
       },
       "VOCALIZED": {
         "asset": {
@@ -11469,7 +11469,7 @@ export default [
         "learning": "Sto venendo per Tom."
       },
       "RANKED": {
-        "rank": 845
+        "rank": 843
       },
       "VOCALIZED": {
         "asset": {
@@ -11496,7 +11496,7 @@ export default [
         "learning": "Verrò con Tom."
       },
       "RANKED": {
-        "rank": 1084
+        "rank": 1081
       },
       "VOCALIZED": {
         "asset": {
@@ -11523,7 +11523,7 @@ export default [
         "learning": "Non sono brutto."
       },
       "RANKED": {
-        "rank": 639
+        "rank": 637
       },
       "VOCALIZED": {
         "asset": {
@@ -11550,7 +11550,7 @@ export default [
         "learning": "Non sono giovane."
       },
       "RANKED": {
-        "rank": 374
+        "rank": 372
       },
       "VOCALIZED": {
         "asset": {
@@ -11577,7 +11577,7 @@ export default [
         "learning": "Ho 300$."
       },
       "RANKED": {
-        "rank": 162
+        "rank": 160
       },
       "VOCALIZED": {
         "asset": {
@@ -11604,7 +11604,7 @@ export default [
         "learning": "Posso venire con te?"
       },
       "RANKED": {
-        "rank": 460
+        "rank": 458
       },
       "VOCALIZED": {
         "asset": {
@@ -11631,7 +11631,7 @@ export default [
         "learning": "Posso avere dell'acqua?"
       },
       "RANKED": {
-        "rank": 73
+        "rank": 71
       },
       "VOCALIZED": {
         "asset": {
@@ -11661,7 +11661,7 @@ export default [
         "learning": "Posso avere un caffè?"
       },
       "RANKED": {
-        "rank": 72
+        "rank": 70
       },
       "VOCALIZED": {
         "asset": {
@@ -11691,7 +11691,7 @@ export default [
         "learning": "Posso avere un abbraccio?"
       },
       "RANKED": {
-        "rank": 946
+        "rank": 943
       },
       "VOCALIZED": {
         "asset": {
@@ -11718,7 +11718,7 @@ export default [
         "learning": "Posso avere un bacio?"
       },
       "RANKED": {
-        "rank": 817
+        "rank": 815
       },
       "VOCALIZED": {
         "asset": {
@@ -11745,7 +11745,7 @@ export default [
         "learning": "Mi puoi rispondere?"
       },
       "RANKED": {
-        "rank": 538
+        "rank": 536
       },
       "VOCALIZED": {
         "asset": {
@@ -11772,7 +11772,7 @@ export default [
         "learning": "Posso venire con Tom?"
       },
       "RANKED": {
-        "rank": 461
+        "rank": 459
       },
       "VOCALIZED": {
         "asset": {
@@ -11799,7 +11799,7 @@ export default [
         "learning": "Possiamo contare su di te?"
       },
       "RANKED": {
-        "rank": 774
+        "rank": 772
       },
       "VOCALIZED": {
         "asset": {
@@ -11826,7 +11826,7 @@ export default [
         "learning": "La tua borsa è aperta."
       },
       "RANKED": {
-        "rank": 700
+        "rank": 698
       },
       "VOCALIZED": {
         "asset": {
@@ -11853,7 +11853,7 @@ export default [
         "learning": "Il mio cavallo è bianco."
       },
       "RANKED": {
-        "rank": 650
+        "rank": 648
       },
       "VOCALIZED": {
         "asset": {
@@ -11880,7 +11880,7 @@ export default [
         "learning": "Questa scatola è leggera."
       },
       "RANKED": {
-        "rank": 849
+        "rank": 847
       },
       "VOCALIZED": {
         "asset": {
@@ -11907,7 +11907,7 @@ export default [
         "learning": "Dovremmo essere con Tom."
       },
       "RANKED": {
-        "rank": 648
+        "rank": 646
       },
       "VOCALIZED": {
         "asset": {
@@ -11934,7 +11934,7 @@ export default [
         "learning": "Ricordo bene Tom."
       },
       "RANKED": {
-        "rank": 383
+        "rank": 381
       },
       "VOCALIZED": {
         "asset": {
@@ -11961,7 +11961,7 @@ export default [
         "learning": "È finito?"
       },
       "RANKED": {
-        "rank": 469
+        "rank": 467
       },
       "VOCALIZED": {
         "asset": {
@@ -11988,7 +11988,7 @@ export default [
         "learning": "Tom non lo saprà."
       },
       "RANKED": {
-        "rank": 1012
+        "rank": 1009
       },
       "VOCALIZED": {
         "asset": {
@@ -12015,7 +12015,7 @@ export default [
         "learning": "Sei grasso?"
       },
       "RANKED": {
-        "rank": 844
+        "rank": 842
       },
       "VOCALIZED": {
         "asset": {
@@ -12042,7 +12042,7 @@ export default [
         "learning": "Sei grassa?"
       },
       "RANKED": {
-        "rank": 1022
+        "rank": 1019
       },
       "VOCALIZED": {
         "asset": {
@@ -12069,7 +12069,7 @@ export default [
         "learning": "Tom è arrabbiato, vero?"
       },
       "RANKED": {
-        "rank": 1054
+        "rank": 1051
       },
       "VOCALIZED": {
         "asset": {
@@ -12096,7 +12096,7 @@ export default [
         "learning": "La risposta è no."
       },
       "RANKED": {
-        "rank": 371
+        "rank": 369
       },
       "VOCALIZED": {
         "asset": {
@@ -12123,7 +12123,7 @@ export default [
         "learning": "Sono sicuro di questo."
       },
       "RANKED": {
-        "rank": 366
+        "rank": 364
       },
       "VOCALIZED": {
         "asset": {
@@ -12150,7 +12150,7 @@ export default [
         "learning": "Dov'è la mia giacca?"
       },
       "RANKED": {
-        "rank": 923
+        "rank": 920
       },
       "VOCALIZED": {
         "asset": {
@@ -12177,7 +12177,7 @@ export default [
         "learning": "Chi ti ha invitato qui?"
       },
       "RANKED": {
-        "rank": 847
+        "rank": 845
       },
       "VOCALIZED": {
         "asset": {
@@ -12204,7 +12204,7 @@ export default [
         "learning": "L'ho già detto a Tom."
       },
       "RANKED": {
-        "rank": 195
+        "rank": 193
       },
       "VOCALIZED": {
         "asset": {
@@ -12231,7 +12231,7 @@ export default [
         "learning": "Sei molto intelligente."
       },
       "RANKED": {
-        "rank": 740
+        "rank": 738
       },
       "VOCALIZED": {
         "asset": {
@@ -12258,7 +12258,7 @@ export default [
         "learning": "Non vieni dentro?"
       },
       "RANKED": {
-        "rank": 682
+        "rank": 680
       },
       "VOCALIZED": {
         "asset": {
@@ -12285,7 +12285,7 @@ export default [
         "learning": "Non ho più paura."
       },
       "RANKED": {
-        "rank": 338
+        "rank": 336
       },
       "VOCALIZED": {
         "asset": {
@@ -12312,7 +12312,7 @@ export default [
         "learning": "Questo non porta a niente."
       },
       "RANKED": {
-        "rank": 288
+        "rank": 286
       },
       "VOCALIZED": {
         "asset": {
@@ -12339,7 +12339,7 @@ export default [
         "learning": "È un fiume?"
       },
       "RANKED": {
-        "rank": 581
+        "rank": 579
       },
       "VOCALIZED": {
         "asset": {
@@ -12366,7 +12366,7 @@ export default [
         "learning": "Abbiamo finito?"
       },
       "RANKED": {
-        "rank": 470
+        "rank": 468
       },
       "VOCALIZED": {
         "asset": {
@@ -12393,7 +12393,7 @@ export default [
         "learning": "Sono preoccupato."
       },
       "RANKED": {
-        "rank": 936
+        "rank": 933
       },
       "VOCALIZED": {
         "asset": {
@@ -12420,7 +12420,7 @@ export default [
         "learning": "Sono preoccupata."
       },
       "RANKED": {
-        "rank": 1009
+        "rank": 1006
       },
       "VOCALIZED": {
         "asset": {
@@ -12447,7 +12447,7 @@ export default [
         "learning": "Sei coraggioso."
       },
       "RANKED": {
-        "rank": 1013
+        "rank": 1010
       },
       "VOCALIZED": {
         "asset": {
@@ -12474,7 +12474,7 @@ export default [
         "learning": "Voglio parlare con lui."
       },
       "RANKED": {
-        "rank": 256
+        "rank": 254
       },
       "VOCALIZED": {
         "asset": {
@@ -12501,7 +12501,7 @@ export default [
         "learning": "Non abbiamo più riso."
       },
       "RANKED": {
-        "rank": 726
+        "rank": 724
       },
       "VOCALIZED": {
         "asset": {
@@ -12528,7 +12528,7 @@ export default [
         "learning": "Ordiniamo?"
       },
       "RANKED": {
-        "rank": 68
+        "rank": 66
       },
       "VOCALIZED": {
         "asset": {
@@ -12558,7 +12558,7 @@ export default [
         "learning": "Fino a qui tutto bene."
       },
       "RANKED": {
-        "rank": 1124
+        "rank": 1121
       },
       "VOCALIZED": {
         "asset": {
@@ -12585,7 +12585,7 @@ export default [
         "learning": "Abbiamo parlato per un po'."
       },
       "RANKED": {
-        "rank": 482
+        "rank": 480
       },
       "VOCALIZED": {
         "asset": {
@@ -12612,7 +12612,7 @@ export default [
         "learning": "Era nero."
       },
       "RANKED": {
-        "rank": 446
+        "rank": 444
       },
       "VOCALIZED": {
         "asset": {
@@ -12639,7 +12639,7 @@ export default [
         "learning": "Non sei in ritardo?"
       },
       "RANKED": {
-        "rank": 669
+        "rank": 667
       },
       "VOCALIZED": {
         "asset": {
@@ -12666,7 +12666,7 @@ export default [
         "learning": "Non siete in ritardo?"
       },
       "RANKED": {
-        "rank": 670
+        "rank": 668
       },
       "VOCALIZED": {
         "asset": {
@@ -12693,7 +12693,7 @@ export default [
         "learning": "Sogno in francese."
       },
       "RANKED": {
-        "rank": 553
+        "rank": 551
       },
       "VOCALIZED": {
         "asset": {
@@ -12720,7 +12720,7 @@ export default [
         "learning": "Io dove dormo?"
       },
       "RANKED": {
-        "rank": 1039
+        "rank": 1036
       },
       "VOCALIZED": {
         "asset": {
@@ -12747,7 +12747,7 @@ export default [
         "learning": "Dov'è il cane?"
       },
       "RANKED": {
-        "rank": 511
+        "rank": 509
       },
       "VOCALIZED": {
         "asset": {
@@ -12774,7 +12774,7 @@ export default [
         "learning": "Dov'è la chiave?"
       },
       "RANKED": {
-        "rank": 148
+        "rank": 146
       },
       "VOCALIZED": {
         "asset": {
@@ -12804,7 +12804,7 @@ export default [
         "learning": "Lui ha un cane."
       },
       "RANKED": {
-        "rank": 512
+        "rank": 510
       },
       "VOCALIZED": {
         "asset": {
@@ -12831,7 +12831,7 @@ export default [
         "learning": "Potete venire con noi."
       },
       "RANKED": {
-        "rank": 503
+        "rank": 501
       },
       "VOCALIZED": {
         "asset": {
@@ -12858,7 +12858,7 @@ export default [
         "learning": "Puoi venire con noi."
       },
       "RANKED": {
-        "rank": 462
+        "rank": 460
       },
       "VOCALIZED": {
         "asset": {
@@ -12885,7 +12885,7 @@ export default [
         "learning": "Lavoro tutto il giorno."
       },
       "RANKED": {
-        "rank": 188
+        "rank": 186
       },
       "VOCALIZED": {
         "asset": {
@@ -12912,7 +12912,7 @@ export default [
         "learning": "Dite a Tom che sono qui."
       },
       "RANKED": {
-        "rank": 775
+        "rank": 773
       },
       "VOCALIZED": {
         "asset": {
@@ -12939,7 +12939,7 @@ export default [
         "learning": "Certo che Tom andrà."
       },
       "RANKED": {
-        "rank": 690
+        "rank": 688
       },
       "VOCALIZED": {
         "asset": {
@@ -12966,7 +12966,7 @@ export default [
         "learning": "Cosa abbiamo qui?"
       },
       "RANKED": {
-        "rank": 190
+        "rank": 188
       },
       "VOCALIZED": {
         "asset": {
@@ -12993,7 +12993,7 @@ export default [
         "learning": "Voglio che Tom vada a casa."
       },
       "RANKED": {
-        "rank": 645
+        "rank": 643
       },
       "VOCALIZED": {
         "asset": {
@@ -13020,7 +13020,7 @@ export default [
         "learning": "Tom voleva il divorzio."
       },
       "RANKED": {
-        "rank": 909
+        "rank": 906
       },
       "VOCALIZED": {
         "asset": {
@@ -13047,7 +13047,7 @@ export default [
         "learning": "Mi sposo."
       },
       "RANKED": {
-        "rank": 990
+        "rank": 987
       },
       "VOCALIZED": {
         "asset": {
@@ -13074,7 +13074,7 @@ export default [
         "learning": "Quanto pesate?"
       },
       "RANKED": {
-        "rank": 1112
+        "rank": 1109
       },
       "VOCALIZED": {
         "asset": {
@@ -13101,7 +13101,7 @@ export default [
         "learning": "Ero in ospedale."
       },
       "RANKED": {
-        "rank": 600
+        "rank": 598
       },
       "VOCALIZED": {
         "asset": {
@@ -13128,7 +13128,7 @@ export default [
         "learning": "L'avete letto?"
       },
       "RANKED": {
-        "rank": 316
+        "rank": 314
       },
       "VOCALIZED": {
         "asset": {
@@ -13155,7 +13155,7 @@ export default [
         "learning": "Dov'è il bancomat?"
       },
       "RANKED": {
-        "rank": 92
+        "rank": 90
       },
       "VOCALIZED": {
         "asset": {
@@ -13185,7 +13185,7 @@ export default [
         "learning": "Non ballo più."
       },
       "RANKED": {
-        "rank": 819
+        "rank": 817
       },
       "VOCALIZED": {
         "asset": {
@@ -13212,7 +13212,7 @@ export default [
         "learning": "Parlo molto."
       },
       "RANKED": {
-        "rank": 661
+        "rank": 659
       },
       "VOCALIZED": {
         "asset": {
@@ -13239,7 +13239,7 @@ export default [
         "learning": "Io parlo molto."
       },
       "RANKED": {
-        "rank": 662
+        "rank": 660
       },
       "VOCALIZED": {
         "asset": {
@@ -13266,7 +13266,7 @@ export default [
         "learning": "Ne abbiamo abbastanza."
       },
       "RANKED": {
-        "rank": 342
+        "rank": 340
       },
       "VOCALIZED": {
         "asset": {
@@ -13293,7 +13293,7 @@ export default [
         "learning": "Mia moglie è preoccupata."
       },
       "RANKED": {
-        "rank": 1010
+        "rank": 1007
       },
       "VOCALIZED": {
         "asset": {
@@ -13320,7 +13320,7 @@ export default [
         "learning": "Posso suonare il piano?"
       },
       "RANKED": {
-        "rank": 840
+        "rank": 838
       },
       "VOCALIZED": {
         "asset": {
@@ -13347,7 +13347,7 @@ export default [
         "learning": "Quella bicicletta è mia."
       },
       "RANKED": {
-        "rank": 929
+        "rank": 926
       },
       "VOCALIZED": {
         "asset": {
@@ -13374,7 +13374,7 @@ export default [
         "learning": "Non sono qui."
       },
       "RANKED": {
-        "rank": 184
+        "rank": 182
       },
       "VOCALIZED": {
         "asset": {
@@ -13400,7 +13400,7 @@ export default [
         "learning": "La mattina faccio colazione con caffè e pane."
       },
       "RANKED": {
-        "rank": 710
+        "rank": 708
       }
     },
     "symbols": [
@@ -13421,7 +13421,7 @@ export default [
         "learning": "Dopo colazione vado a scuola."
       },
       "RANKED": {
-        "rank": 708
+        "rank": 706
       }
     },
     "symbols": [
@@ -13442,7 +13442,7 @@ export default [
         "learning": "Il pomeriggio vado al lavoro."
       },
       "RANKED": {
-        "rank": 593
+        "rank": 591
       }
     },
     "symbols": [
@@ -13463,7 +13463,7 @@ export default [
         "learning": "La sera preparo la cena."
       },
       "RANKED": {
-        "rank": 1048
+        "rank": 1045
       }
     },
     "symbols": [
@@ -13484,7 +13484,7 @@ export default [
         "learning": "Dopo cena pulisco la cucina."
       },
       "RANKED": {
-        "rank": 1101
+        "rank": 1098
       }
     },
     "symbols": [
@@ -13505,7 +13505,7 @@ export default [
         "learning": "Faccio la doccia prima di dormire."
       },
       "RANKED": {
-        "rank": 779
+        "rank": 777
       }
     },
     "symbols": [
@@ -13526,7 +13526,7 @@ export default [
         "learning": "Dormo molto la notte."
       },
       "RANKED": {
-        "rank": 1040
+        "rank": 1037
       }
     },
     "symbols": [
@@ -13547,7 +13547,7 @@ export default [
         "learning": "Il lunedì vado a scuola."
       },
       "RANKED": {
-        "rank": 658
+        "rank": 656
       }
     },
     "symbols": [
@@ -13568,7 +13568,7 @@ export default [
         "learning": "Il sabato riposo."
       },
       "RANKED": {
-        "rank": 822
+        "rank": 820
       }
     },
     "symbols": [
@@ -13589,7 +13589,7 @@ export default [
         "learning": "La domenica sto a casa."
       },
       "RANKED": {
-        "rank": 500
+        "rank": 498
       }
     },
     "symbols": [
@@ -13610,7 +13610,7 @@ export default [
         "learning": "La sera telefono a mia madre."
       },
       "RANKED": {
-        "rank": 448
+        "rank": 446
       }
     },
     "symbols": [
@@ -13631,7 +13631,7 @@ export default [
         "learning": "Mio padre guida la macchina la mattina."
       },
       "RANKED": {
-        "rank": 452
+        "rank": 450
       }
     },
     "symbols": [
@@ -13652,7 +13652,7 @@ export default [
         "learning": "Puliamo la casa insieme."
       },
       "RANKED": {
-        "rank": 1111
+        "rank": 1108
       }
     },
     "symbols": [
@@ -13673,7 +13673,7 @@ export default [
         "learning": "Preparo il caffè alle sette."
       },
       "RANKED": {
-        "rank": 1049
+        "rank": 1046
       }
     },
     "symbols": [
@@ -13694,7 +13694,7 @@ export default [
         "learning": "Accendo il computer."
       },
       "RANKED": {
-        "rank": 1096
+        "rank": 1093
       }
     },
     "symbols": [
@@ -13715,7 +13715,7 @@ export default [
         "learning": "Spengo il computer prima di dormire."
       },
       "RANKED": {
-        "rank": 1100
+        "rank": 1097
       }
     },
     "symbols": [
@@ -13736,7 +13736,7 @@ export default [
         "learning": "Rispondo al telefono."
       },
       "RANKED": {
-        "rank": 924
+        "rank": 921
       }
     },
     "symbols": [
@@ -13757,7 +13757,7 @@ export default [
         "learning": "Il telefono suona alle otto."
       },
       "RANKED": {
-        "rank": 813
+        "rank": 811
       }
     },
     "symbols": [
@@ -13778,7 +13778,7 @@ export default [
         "learning": "Mando un messaggio a mio fratello."
       },
       "RANKED": {
-        "rank": 952
+        "rank": 949
       }
     },
     "symbols": [
@@ -13799,7 +13799,7 @@ export default [
         "learning": "Ricevo un messaggio da mia sorella."
       },
       "RANKED": {
-        "rank": 1057
+        "rank": 1054
       }
     },
     "symbols": [
@@ -13820,7 +13820,7 @@ export default [
         "learning": "Finisco il lavoro alle cinque."
       },
       "RANKED": {
-        "rank": 1033
+        "rank": 1030
       }
     },
     "symbols": [
@@ -13841,7 +13841,7 @@ export default [
         "learning": "Inizio il lavoro alle nove."
       },
       "RANKED": {
-        "rank": 414
+        "rank": 412
       }
     },
     "symbols": [
@@ -13862,7 +13862,7 @@ export default [
         "learning": "Decido cosa cucinare per cena."
       },
       "RANKED": {
-        "rank": 1064
+        "rank": 1061
       }
     },
     "symbols": [
@@ -13883,7 +13883,7 @@ export default [
         "learning": "Scelgo una camicia pulita."
       },
       "RANKED": {
-        "rank": 1062
+        "rank": 1059
       }
     },
     "symbols": [
@@ -13904,7 +13904,7 @@ export default [
         "learning": "Indosso una giacca quando fa freddo."
       },
       "RANKED": {
-        "rank": 1074
+        "rank": 1071
       }
     },
     "symbols": [
@@ -13925,7 +13925,7 @@ export default [
         "learning": "Alzo il volume della musica."
       },
       "RANKED": {
-        "rank": 1069
+        "rank": 1066
       }
     },
     "symbols": [
@@ -13946,7 +13946,7 @@ export default [
         "learning": "Aggiungo zucchero al caffè."
       },
       "RANKED": {
-        "rank": 846
+        "rank": 844
       }
     },
     "symbols": [
@@ -13967,7 +13967,7 @@ export default [
         "learning": "Taglio il pane per colazione."
       },
       "RANKED": {
-        "rank": 709
+        "rank": 707
       }
     },
     "symbols": [
@@ -13988,7 +13988,7 @@ export default [
         "learning": "Lavo la macchina il sabato."
       },
       "RANKED": {
-        "rank": 1095
+        "rank": 1092
       }
     },
     "symbols": [
@@ -14009,7 +14009,7 @@ export default [
         "learning": "Riposo dopo il lavoro."
       },
       "RANKED": {
-        "rank": 823
+        "rank": 821
       }
     },
     "symbols": [
@@ -14030,7 +14030,7 @@ export default [
         "learning": "Conto il denaro."
       },
       "RANKED": {
-        "rank": 570
+        "rank": 568
       }
     },
     "symbols": [
@@ -14051,7 +14051,7 @@ export default [
         "learning": "Peso la valigia prima del viaggio."
       },
       "RANKED": {
-        "rank": 980
+        "rank": 977
       }
     },
     "symbols": [
@@ -14072,7 +14072,7 @@ export default [
         "learning": "Misuro il tavolo."
       },
       "RANKED": {
-        "rank": 1131
+        "rank": 1128
       }
     },
     "symbols": [
@@ -14093,7 +14093,7 @@ export default [
         "learning": "Firmo il documento."
       },
       "RANKED": {
-        "rank": 1102
+        "rank": 1099
       }
     },
     "symbols": [
@@ -14114,7 +14114,7 @@ export default [
         "learning": "Preferisco il caffè la mattina."
       },
       "RANKED": {
-        "rank": 766
+        "rank": 764
       }
     },
     "symbols": [
@@ -14135,7 +14135,7 @@ export default [
         "learning": "Conosco bene il mio vicino."
       },
       "RANKED": {
-        "rank": 532
+        "rank": 530
       }
     },
     "symbols": [
@@ -14156,7 +14156,7 @@ export default [
         "learning": "La mattina saluto il vicino."
       },
       "RANKED": {
-        "rank": 905
+        "rank": 903
       }
     },
     "symbols": [
@@ -14177,7 +14177,7 @@ export default [
         "learning": "Ringrazio mia madre per la cena."
       },
       "RANKED": {
-        "rank": 757
+        "rank": 755
       }
     },
     "symbols": [
@@ -14198,7 +14198,7 @@ export default [
         "learning": "Invito il mio amico a cena."
       },
       "RANKED": {
-        "rank": 728
+        "rank": 726
       }
     },
     "symbols": [
@@ -14219,7 +14219,7 @@ export default [
         "learning": "Incontro il mio amico dopo il lavoro."
       },
       "RANKED": {
-        "rank": 445
+        "rank": 443
       }
     },
     "symbols": [
@@ -14240,7 +14240,7 @@ export default [
         "learning": "Racconto una storia prima di dormire."
       },
       "RANKED": {
-        "rank": 678
+        "rank": 676
       }
     },
     "symbols": [
@@ -14261,7 +14261,7 @@ export default [
         "learning": "Spiego la lezione a mio fratello."
       },
       "RANKED": {
-        "rank": 955
+        "rank": 952
       }
     },
     "symbols": [
@@ -14282,7 +14282,7 @@ export default [
         "learning": "Mostro la mappa al mio amico."
       },
       "RANKED": {
-        "rank": 862
+        "rank": 860
       }
     },
     "symbols": [
@@ -14303,7 +14303,7 @@ export default [
         "learning": "Offro il caffè al mio collega."
       },
       "RANKED": {
-        "rank": 1031
+        "rank": 1028
       }
     },
     "symbols": [
@@ -14324,7 +14324,7 @@ export default [
         "learning": "Regalo un libro a mio figlio."
       },
       "RANKED": {
-        "rank": 698
+        "rank": 696
       }
     },
     "symbols": [
@@ -14345,7 +14345,7 @@ export default [
         "learning": "Dobbiamo andare al lavoro presto."
       },
       "RANKED": {
-        "rank": 381
+        "rank": 379
       }
     },
     "symbols": [
@@ -14366,7 +14366,7 @@ export default [
         "learning": "Voglio dormire di più."
       },
       "RANKED": {
-        "rank": 599
+        "rank": 597
       }
     },
     "symbols": [
@@ -14387,7 +14387,7 @@ export default [
         "learning": "Posso riposare oggi."
       },
       "RANKED": {
-        "rank": 999
+        "rank": 996
       }
     },
     "symbols": [
@@ -14408,7 +14408,7 @@ export default [
         "learning": "Finirò il lavoro domani."
       },
       "RANKED": {
-        "rank": 1098
+        "rank": 1095
       }
     },
     "symbols": [
@@ -14429,7 +14429,7 @@ export default [
         "learning": "Dormirei di più ma devo andare al lavoro."
       },
       "RANKED": {
-        "rank": 1130
+        "rank": 1127
       }
     },
     "symbols": [
@@ -14450,7 +14450,7 @@ export default [
         "learning": "Vorrei un caffè caldo."
       },
       "RANKED": {
-        "rank": 74
+        "rank": 72
       }
     },
     "symbols": [
@@ -14474,7 +14474,7 @@ export default [
         "learning": "Vorrei questa camicia blu."
       },
       "RANKED": {
-        "rank": 919
+        "rank": 916
       }
     },
     "symbols": [
@@ -14498,7 +14498,7 @@ export default [
         "learning": "Quanto costa la camicia?"
       },
       "RANKED": {
-        "rank": 109
+        "rank": 107
       }
     },
     "symbols": [
@@ -14522,7 +14522,7 @@ export default [
         "learning": "Il prezzo è dieci euro."
       },
       "RANKED": {
-        "rank": 416
+        "rank": 414
       }
     },
     "symbols": [
@@ -14543,7 +14543,7 @@ export default [
         "learning": "C'è uno sconto oggi?"
       },
       "RANKED": {
-        "rank": 112
+        "rank": 110
       }
     },
     "symbols": [
@@ -14567,7 +14567,7 @@ export default [
         "learning": "Preferisco la scarpa rossa."
       },
       "RANKED": {
-        "rank": 984
+        "rank": 981
       }
     },
     "symbols": [
@@ -14588,7 +14588,7 @@ export default [
         "learning": "Questa borsa è molto cara."
       },
       "RANKED": {
-        "rank": 701
+        "rank": 699
       }
     },
     "symbols": [
@@ -14609,7 +14609,7 @@ export default [
         "learning": "Questo negozio è caro."
       },
       "RANKED": {
-        "rank": 626
+        "rank": 624
       }
     },
     "symbols": [
@@ -14630,7 +14630,7 @@ export default [
         "learning": "Il mercato è vicino alla stazione."
       },
       "RANKED": {
-        "rank": 545
+        "rank": 543
       }
     },
     "symbols": [
@@ -14651,7 +14651,7 @@ export default [
         "learning": "Vendo la mia bicicletta."
       },
       "RANKED": {
-        "rank": 1044
+        "rank": 1041
       }
     },
     "symbols": [
@@ -14672,7 +14672,7 @@ export default [
         "learning": "Il commesso è molto gentile."
       },
       "RANKED": {
-        "rank": 790
+        "rank": 788
       }
     },
     "symbols": [
@@ -14693,7 +14693,7 @@ export default [
         "learning": "Vorrei un panino con formaggio."
       },
       "RANKED": {
-        "rank": 76
+        "rank": 74
       }
     },
     "symbols": [
@@ -14717,7 +14717,7 @@ export default [
         "learning": "Chiedo il conto al cameriere."
       },
       "RANKED": {
-        "rank": 993
+        "rank": 990
       }
     },
     "symbols": [
@@ -14738,7 +14738,7 @@ export default [
         "learning": "Ordino la pizza con formaggio."
       },
       "RANKED": {
-        "rank": 96
+        "rank": 94
       }
     },
     "symbols": [
@@ -14762,7 +14762,7 @@ export default [
         "learning": "Ordiniamo un'insalata e del pane."
       },
       "RANKED": {
-        "rank": 98
+        "rank": 96
       }
     },
     "symbols": [
@@ -14786,7 +14786,7 @@ export default [
         "learning": "Il ristorante è pieno stasera."
       },
       "RANKED": {
-        "rank": 674
+        "rank": 672
       }
     },
     "symbols": [
@@ -14807,7 +14807,7 @@ export default [
         "learning": "Preferisci il vino o la birra?"
       },
       "RANKED": {
-        "rank": 959
+        "rank": 956
       }
     },
     "symbols": [
@@ -14828,7 +14828,7 @@ export default [
         "learning": "Preferisco il vino rosso."
       },
       "RANKED": {
-        "rank": 764
+        "rank": 762
       }
     },
     "symbols": [
@@ -14849,7 +14849,7 @@ export default [
         "learning": "Il conto è troppo alto."
       },
       "RANKED": {
-        "rank": 356
+        "rank": 354
       }
     },
     "symbols": [
@@ -14870,7 +14870,7 @@ export default [
         "learning": "Do una mancia al cameriere."
       },
       "RANKED": {
-        "rank": 1088
+        "rank": 1085
       }
     },
     "symbols": [
@@ -14891,7 +14891,7 @@ export default [
         "learning": "Il negozio vende un vestito elegante."
       },
       "RANKED": {
-        "rank": 925
+        "rank": 922
       }
     },
     "symbols": [
@@ -14912,7 +14912,7 @@ export default [
         "learning": "Questa gonna è troppo lunga."
       },
       "RANKED": {
-        "rank": 1008
+        "rank": 1005
       }
     },
     "symbols": [
@@ -14933,7 +14933,7 @@ export default [
         "learning": "Questa scarpa è piccola."
       },
       "RANKED": {
-        "rank": 985
+        "rank": 982
       }
     },
     "symbols": [
@@ -14954,7 +14954,7 @@ export default [
         "learning": "Prenoto un tavolo per stasera."
       },
       "RANKED": {
-        "rank": 94
+        "rank": 92
       }
     },
     "symbols": [
@@ -14978,7 +14978,7 @@ export default [
         "learning": "Prenotiamo un tavolo al ristorante per stasera."
       },
       "RANKED": {
-        "rank": 95
+        "rank": 93
       }
     },
     "symbols": [
@@ -15002,7 +15002,7 @@ export default [
         "learning": "Il pane è fresco oggi."
       },
       "RANKED": {
-        "rank": 878
+        "rank": 876
       }
     },
     "symbols": [
@@ -15023,7 +15023,7 @@ export default [
         "learning": "La pasta è calda."
       },
       "RANKED": {
-        "rank": 833
+        "rank": 831
       }
     },
     "symbols": [
@@ -15044,7 +15044,7 @@ export default [
         "learning": "L'acqua è fredda."
       },
       "RANKED": {
-        "rank": 848
+        "rank": 846
       }
     },
     "symbols": [
@@ -15065,7 +15065,7 @@ export default [
         "learning": "Il caffè è troppo dolce."
       },
       "RANKED": {
-        "rank": 560
+        "rank": 558
       }
     },
     "symbols": [
@@ -15086,7 +15086,7 @@ export default [
         "learning": "Questo piatto è molto buono."
       },
       "RANKED": {
-        "rank": 729
+        "rank": 727
       }
     },
     "symbols": [
@@ -15107,7 +15107,7 @@ export default [
         "learning": "Il cameriere è molto simpatico."
       },
       "RANKED": {
-        "rank": 994
+        "rank": 991
       }
     },
     "symbols": [
@@ -15128,7 +15128,7 @@ export default [
         "learning": "Ordiniamo due caffè."
       },
       "RANKED": {
-        "rank": 97
+        "rank": 95
       }
     },
     "symbols": [
@@ -15152,7 +15152,7 @@ export default [
         "learning": "Vorrei un biglietto per Roma."
       },
       "RANKED": {
-        "rank": 120
+        "rank": 118
       }
     },
     "symbols": [
@@ -15176,7 +15176,7 @@ export default [
         "learning": "Il conto è di venti euro."
       },
       "RANKED": {
-        "rank": 86
+        "rank": 84
       }
     },
     "symbols": [
@@ -15200,7 +15200,7 @@ export default [
         "learning": "Vorrei prenotare un tavolo per due."
       },
       "RANKED": {
-        "rank": 93
+        "rank": 91
       }
     },
     "symbols": [
@@ -15224,7 +15224,7 @@ export default [
         "learning": "Il negozio è aperto la domenica."
       },
       "RANKED": {
-        "rank": 628
+        "rank": 626
       }
     },
     "symbols": [
@@ -15248,7 +15248,7 @@ export default [
         "learning": "Il negozio è chiuso il lunedì."
       },
       "RANKED": {
-        "rank": 659
+        "rank": 657
       }
     },
     "symbols": [
@@ -15272,7 +15272,7 @@ export default [
         "learning": "Offriamo un caffè all'ospite."
       },
       "RANKED": {
-        "rank": 1113
+        "rank": 1110
       }
     },
     "symbols": [
@@ -15293,7 +15293,7 @@ export default [
         "learning": "Ricevo il resto dal cameriere."
       },
       "RANKED": {
-        "rank": 1056
+        "rank": 1053
       }
     },
     "symbols": [
@@ -15314,7 +15314,7 @@ export default [
         "learning": "Ho la carta di credito nel portafoglio."
       },
       "RANKED": {
-        "rank": 1120
+        "rank": 1117
       }
     },
     "symbols": [
@@ -15335,7 +15335,7 @@ export default [
         "learning": "Il portafoglio è nella borsa."
       },
       "RANKED": {
-        "rank": 950
+        "rank": 947
       }
     },
     "symbols": [
@@ -15356,7 +15356,7 @@ export default [
         "learning": "Scegliamo una camicia insieme."
       },
       "RANKED": {
-        "rank": 1090
+        "rank": 1087
       }
     },
     "symbols": [
@@ -15377,7 +15377,7 @@ export default [
         "learning": "Il commesso mostra la camicia al cliente."
       },
       "RANKED": {
-        "rank": 920
+        "rank": 917
       }
     },
     "symbols": [
@@ -15398,7 +15398,7 @@ export default [
         "learning": "Il cliente chiede lo sconto."
       },
       "RANKED": {
-        "rank": 838
+        "rank": 836
       }
     },
     "symbols": [
@@ -15419,7 +15419,7 @@ export default [
         "learning": "Il negozio offre uno sconto oggi."
       },
       "RANKED": {
-        "rank": 839
+        "rank": 837
       }
     },
     "symbols": [
@@ -15440,7 +15440,7 @@ export default [
         "learning": "Noleggiamo una macchina per il viaggio."
       },
       "RANKED": {
-        "rank": 1133
+        "rank": 1130
       }
     },
     "symbols": [
@@ -15461,7 +15461,7 @@ export default [
         "learning": "Noleggio una bicicletta in città."
       },
       "RANKED": {
-        "rank": 1042
+        "rank": 1039
       }
     },
     "symbols": [
@@ -15482,7 +15482,7 @@ export default [
         "learning": "Il ristorante offre pesce fresco."
       },
       "RANKED": {
-        "rank": 879
+        "rank": 877
       }
     },
     "symbols": [
@@ -15503,7 +15503,7 @@ export default [
         "learning": "Vorrei del vino rosso."
       },
       "RANKED": {
-        "rank": 77
+        "rank": 75
       }
     },
     "symbols": [
@@ -15527,7 +15527,7 @@ export default [
         "learning": "Il conto è pronto."
       },
       "RANKED": {
-        "rank": 535
+        "rank": 533
       }
     },
     "symbols": [
@@ -15548,7 +15548,7 @@ export default [
         "learning": "Dov'è la stazione?"
       },
       "RANKED": {
-        "rank": 118
+        "rank": 116
       }
     },
     "symbols": [
@@ -15572,7 +15572,7 @@ export default [
         "learning": "La stazione è vicino al museo."
       },
       "RANKED": {
-        "rank": 574
+        "rank": 572
       }
     },
     "symbols": [
@@ -15593,7 +15593,7 @@ export default [
         "learning": "L'aeroporto è lontano dal centro."
       },
       "RANKED": {
-        "rank": 853
+        "rank": 851
       }
     },
     "symbols": [
@@ -15614,7 +15614,7 @@ export default [
         "learning": "Il treno è in ritardo."
       },
       "RANKED": {
-        "rank": 125
+        "rank": 123
       }
     },
     "symbols": [
@@ -15638,7 +15638,7 @@ export default [
         "learning": "L'autobus è in ritardo."
       },
       "RANKED": {
-        "rank": 778
+        "rank": 776
       }
     },
     "symbols": [
@@ -15659,7 +15659,7 @@ export default [
         "learning": "Il volo per Roma è pieno."
       },
       "RANKED": {
-        "rank": 564
+        "rank": 562
       }
     },
     "symbols": [
@@ -15680,7 +15680,7 @@ export default [
         "learning": "Il mio volo è alle otto."
       },
       "RANKED": {
-        "rank": 565
+        "rank": 563
       }
     },
     "symbols": [
@@ -15701,7 +15701,7 @@ export default [
         "learning": "Devo salire sul treno."
       },
       "RANKED": {
-        "rank": 727
+        "rank": 725
       }
     },
     "symbols": [
@@ -15725,7 +15725,7 @@ export default [
         "learning": "Dobbiamo scendere qui."
       },
       "RANKED": {
-        "rank": 747
+        "rank": 745
       }
     },
     "symbols": [
@@ -15746,7 +15746,7 @@ export default [
         "learning": "Il passaporto è nella valigia."
       },
       "RANKED": {
-        "rank": 978
+        "rank": 975
       }
     },
     "symbols": [
@@ -15767,7 +15767,7 @@ export default [
         "learning": "Ho il biglietto per il treno."
       },
       "RANKED": {
-        "rank": 693
+        "rank": 691
       }
     },
     "symbols": [
@@ -15791,7 +15791,7 @@ export default [
         "learning": "Il biglietto è caro."
       },
       "RANKED": {
-        "rank": 691
+        "rank": 689
       }
     },
     "symbols": [
@@ -15812,7 +15812,7 @@ export default [
         "learning": "La mappa mostra la strada giusta."
       },
       "RANKED": {
-        "rank": 760
+        "rank": 758
       }
     },
     "symbols": [
@@ -15833,7 +15833,7 @@ export default [
         "learning": "Attraversiamo il ponte."
       },
       "RANKED": {
-        "rank": 1110
+        "rank": 1107
       }
     },
     "symbols": [
@@ -15854,7 +15854,7 @@ export default [
         "learning": "Attraverso la strada lentamente."
       },
       "RANKED": {
-        "rank": 835
+        "rank": 833
       }
     },
     "symbols": [
@@ -15875,7 +15875,7 @@ export default [
         "learning": "Il fiume attraversa la città."
       },
       "RANKED": {
-        "rank": 998
+        "rank": 995
       }
     },
     "symbols": [
@@ -15896,7 +15896,7 @@ export default [
         "learning": "Andiamo in treno fino a Roma."
       },
       "RANKED": {
-        "rank": 1125
+        "rank": 1122
       }
     },
     "symbols": [
@@ -15917,7 +15917,7 @@ export default [
         "learning": "Veniamo in macchina."
       },
       "RANKED": {
-        "rank": 1004
+        "rank": 1001
       }
     },
     "symbols": [
@@ -15938,7 +15938,7 @@ export default [
         "learning": "Vieni con me in vacanza?"
       },
       "RANKED": {
-        "rank": 689
+        "rank": 687
       }
     },
     "symbols": [
@@ -15959,7 +15959,7 @@ export default [
         "learning": "Verrò in Italia con la mia famiglia."
       },
       "RANKED": {
-        "rank": 1085
+        "rank": 1082
       }
     },
     "symbols": [
@@ -15980,7 +15980,7 @@ export default [
         "learning": "Andrò a Roma domani."
       },
       "RANKED": {
-        "rank": 927
+        "rank": 924
       }
     },
     "symbols": [
@@ -16001,7 +16001,7 @@ export default [
         "learning": "Andrei in Italia domani."
       },
       "RANKED": {
-        "rank": 997
+        "rank": 994
       }
     },
     "symbols": [
@@ -16022,7 +16022,7 @@ export default [
         "learning": "Il museo è dietro la chiesa."
       },
       "RANKED": {
-        "rank": 575
+        "rank": 573
       }
     },
     "symbols": [
@@ -16043,7 +16043,7 @@ export default [
         "learning": "Il parco è davanti alla stazione."
       },
       "RANKED": {
-        "rank": 546
+        "rank": 544
       }
     },
     "symbols": [
@@ -16064,7 +16064,7 @@ export default [
         "learning": "La farmacia è vicino al mercato."
       },
       "RANKED": {
-        "rank": 992
+        "rank": 989
       }
     },
     "symbols": [
@@ -16085,7 +16085,7 @@ export default [
         "learning": "C'è una farmacia qui vicino?"
       },
       "RANKED": {
-        "rank": 153
+        "rank": 151
       }
     },
     "symbols": [
@@ -16109,7 +16109,7 @@ export default [
         "learning": "Il museo è aperto oggi."
       },
       "RANKED": {
-        "rank": 573
+        "rank": 571
       }
     },
     "symbols": [
@@ -16130,7 +16130,7 @@ export default [
         "learning": "La chiesa è chiusa la domenica."
       },
       "RANKED": {
-        "rank": 723
+        "rank": 721
       }
     },
     "symbols": [
@@ -16151,7 +16151,7 @@ export default [
         "learning": "Guidiamo verso la montagna."
       },
       "RANKED": {
-        "rank": 1129
+        "rank": 1126
       }
     },
     "symbols": [
@@ -16172,7 +16172,7 @@ export default [
         "learning": "Il taxi è vicino all'albergo."
       },
       "RANKED": {
-        "rank": 1114
+        "rank": 1111
       }
     },
     "symbols": [
@@ -16193,7 +16193,7 @@ export default [
         "learning": "L'albergo è in centro."
       },
       "RANKED": {
-        "rank": 144
+        "rank": 142
       }
     },
     "symbols": [
@@ -16217,7 +16217,7 @@ export default [
         "learning": "La camera è al terzo piano."
       },
       "RANKED": {
-        "rank": 143
+        "rank": 141
       }
     },
     "symbols": [
@@ -16241,7 +16241,7 @@ export default [
         "learning": "La chiave è nella borsa."
       },
       "RANKED": {
-        "rank": 702
+        "rank": 700
       }
     },
     "symbols": [
@@ -16262,7 +16262,7 @@ export default [
         "learning": "Il traghetto attraversa il mare."
       },
       "RANKED": {
-        "rank": 1072
+        "rank": 1069
       }
     },
     "symbols": [
@@ -16283,7 +16283,7 @@ export default [
         "learning": "La nave è al porto."
       },
       "RANKED": {
-        "rank": 611
+        "rank": 609
       }
     },
     "symbols": [
@@ -16304,7 +16304,7 @@ export default [
         "learning": "Il volo è lungo."
       },
       "RANKED": {
-        "rank": 563
+        "rank": 561
       }
     },
     "symbols": [
@@ -16325,7 +16325,7 @@ export default [
         "learning": "La valigia è troppo pesante."
       },
       "RANKED": {
-        "rank": 979
+        "rank": 976
       }
     },
     "symbols": [
@@ -16346,7 +16346,7 @@ export default [
         "learning": "Il quartiere è tranquillo."
       },
       "RANKED": {
-        "rank": 704
+        "rank": 702
       }
     },
     "symbols": [
@@ -16367,7 +16367,7 @@ export default [
         "learning": "La strada è stretta."
       },
       "RANKED": {
-        "rank": 851
+        "rank": 849
       }
     },
     "symbols": [
@@ -16388,7 +16388,7 @@ export default [
         "learning": "Il ponte è grande."
       },
       "RANKED": {
-        "rank": 594
+        "rank": 592
       }
     },
     "symbols": [
@@ -16409,7 +16409,7 @@ export default [
         "learning": "Come stai oggi?"
       },
       "RANKED": {
-        "rank": 331
+        "rank": 329
       }
     },
     "symbols": [
@@ -16454,7 +16454,7 @@ export default [
         "learning": "Sto male oggi."
       },
       "RANKED": {
-        "rank": 226
+        "rank": 224
       }
     },
     "symbols": [
@@ -16475,7 +16475,7 @@ export default [
         "learning": "Sei molto simpatico."
       },
       "RANKED": {
-        "rank": 893
+        "rank": 891
       }
     },
     "symbols": [
@@ -16496,7 +16496,7 @@ export default [
         "learning": "Sei molto simpatica."
       },
       "RANKED": {
-        "rank": 987
+        "rank": 984
       }
     },
     "symbols": [
@@ -16517,7 +16517,7 @@ export default [
         "learning": "Credo che tu sia simpatico."
       },
       "RANKED": {
-        "rank": 896
+        "rank": 894
       }
     },
     "symbols": [
@@ -16538,7 +16538,7 @@ export default [
         "learning": "Non credo che sia vero."
       },
       "RANKED": {
-        "rank": 245
+        "rank": 243
       }
     },
     "symbols": [
@@ -16559,7 +16559,7 @@ export default [
         "learning": "Sono felice oggi."
       },
       "RANKED": {
-        "rank": 395
+        "rank": 393
       }
     },
     "symbols": [
@@ -16580,7 +16580,7 @@ export default [
         "learning": "Sei molto stanco?"
       },
       "RANKED": {
-        "rank": 864
+        "rank": 862
       }
     },
     "symbols": [
@@ -16601,7 +16601,7 @@ export default [
         "learning": "Sono un po' stanco oggi."
       },
       "RANKED": {
-        "rank": 871
+        "rank": 869
       }
     },
     "symbols": [
@@ -16622,7 +16622,7 @@ export default [
         "learning": "Il clima qui è mite."
       },
       "RANKED": {
-        "rank": 1083
+        "rank": 1080
       }
     },
     "symbols": [
@@ -16643,7 +16643,7 @@ export default [
         "learning": "Fa caldo oggi."
       },
       "RANKED": {
-        "rank": 576
+        "rank": 574
       }
     },
     "symbols": [
@@ -16664,7 +16664,7 @@ export default [
         "learning": "Fa freddo stasera."
       },
       "RANKED": {
-        "rank": 606
+        "rank": 604
       }
     },
     "symbols": [
@@ -16685,7 +16685,7 @@ export default [
         "learning": "C'è pioggia oggi."
       },
       "RANKED": {
-        "rank": 724
+        "rank": 722
       }
     },
     "symbols": [
@@ -16706,7 +16706,7 @@ export default [
         "learning": "Il cielo è grigio."
       },
       "RANKED": {
-        "rank": 887
+        "rank": 885
       }
     },
     "symbols": [
@@ -16727,7 +16727,7 @@ export default [
         "learning": "Preferisco il vino bianco."
       },
       "RANKED": {
-        "rank": 765
+        "rank": 763
       }
     },
     "symbols": [
@@ -16748,7 +16748,7 @@ export default [
         "learning": "Credo che il film sia interessante."
       },
       "RANKED": {
-        "rank": 492
+        "rank": 490
       }
     },
     "symbols": [
@@ -16769,7 +16769,7 @@ export default [
         "learning": "Non credo proprio."
       },
       "RANKED": {
-        "rank": 241
+        "rank": 239
       }
     },
     "symbols": [
@@ -16790,7 +16790,7 @@ export default [
         "learning": "Hai una buona idea?"
       },
       "RANKED": {
-        "rank": 266
+        "rank": 264
       }
     },
     "symbols": [
@@ -16811,7 +16811,7 @@ export default [
         "learning": "Questo film è più interessante."
       },
       "RANKED": {
-        "rank": 490
+        "rank": 488
       }
     },
     "symbols": [
@@ -16832,7 +16832,7 @@ export default [
         "learning": "Mio fratello è molto intelligente."
       },
       "RANKED": {
-        "rank": 742
+        "rank": 740
       }
     },
     "symbols": [
@@ -16853,7 +16853,7 @@ export default [
         "learning": "Mia sorella è gentile e simpatica."
       },
       "RANKED": {
-        "rank": 989
+        "rank": 986
       }
     },
     "symbols": [
@@ -16874,7 +16874,7 @@ export default [
         "learning": "Il mio amico è divertente."
       },
       "RANKED": {
-        "rank": 646
+        "rank": 644
       }
     },
     "symbols": [
@@ -16895,7 +16895,7 @@ export default [
         "learning": "La mia amica è timida."
       },
       "RANKED": {
-        "rank": 1086
+        "rank": 1083
       }
     },
     "symbols": [
@@ -16916,7 +16916,7 @@ export default [
         "learning": "Sono molto occupato oggi."
       },
       "RANKED": {
-        "rank": 809
+        "rank": 807
       }
     },
     "symbols": [
@@ -16937,7 +16937,7 @@ export default [
         "learning": "Il mio capo è molto serio."
       },
       "RANKED": {
-        "rank": 542
+        "rank": 540
       }
     },
     "symbols": [
@@ -16958,7 +16958,7 @@ export default [
         "learning": "La riunione è importante."
       },
       "RANKED": {
-        "rank": 781
+        "rank": 779
       }
     },
     "symbols": [
@@ -16979,7 +16979,7 @@ export default [
         "learning": "Il progetto è difficile."
       },
       "RANKED": {
-        "rank": 317
+        "rank": 315
       }
     },
     "symbols": [
@@ -17000,7 +17000,7 @@ export default [
         "learning": "Questo problema è grande."
       },
       "RANKED": {
-        "rank": 236
+        "rank": 234
       }
     },
     "symbols": [
@@ -17021,7 +17021,7 @@ export default [
         "learning": "La situazione è strana."
       },
       "RANKED": {
-        "rank": 816
+        "rank": 814
       }
     },
     "symbols": [
@@ -17042,7 +17042,7 @@ export default [
         "learning": "Sono molto sicuro di questo."
       },
       "RANKED": {
-        "rank": 369
+        "rank": 367
       }
     },
     "symbols": [
@@ -17063,7 +17063,7 @@ export default [
         "learning": "Non sono per niente sicuro."
       },
       "RANKED": {
-        "rank": 370
+        "rank": 368
       }
     },
     "symbols": [
@@ -17084,7 +17084,7 @@ export default [
         "learning": "Credo di sì."
       },
       "RANKED": {
-        "rank": 242
+        "rank": 240
       }
     },
     "symbols": [
@@ -17105,7 +17105,7 @@ export default [
         "learning": "Credo di no."
       },
       "RANKED": {
-        "rank": 243
+        "rank": 241
       }
     },
     "symbols": [
@@ -17126,7 +17126,7 @@ export default [
         "learning": "Il tuo amico è molto simpatico."
       },
       "RANKED": {
-        "rank": 898
+        "rank": 896
       }
     },
     "symbols": [
@@ -17147,7 +17147,7 @@ export default [
         "learning": "La tua idea è interessante."
       },
       "RANKED": {
-        "rank": 491
+        "rank": 489
       }
     },
     "symbols": [
@@ -17168,7 +17168,7 @@ export default [
         "learning": "Questo quartiere è bello."
       },
       "RANKED": {
-        "rank": 623
+        "rank": 621
       }
     },
     "symbols": [
@@ -17189,7 +17189,7 @@ export default [
         "learning": "La musica è bella."
       },
       "RANKED": {
-        "rank": 334
+        "rank": 332
       }
     },
     "symbols": [
@@ -17210,7 +17210,7 @@ export default [
         "learning": "Parlo spesso con il mio amico."
       },
       "RANKED": {
-        "rank": 664
+        "rank": 662
       }
     },
     "symbols": [
@@ -17231,7 +17231,7 @@ export default [
         "learning": "Non parlo mai di politica."
       },
       "RANKED": {
-        "rank": 663
+        "rank": 661
       }
     },
     "symbols": [
@@ -17252,7 +17252,7 @@ export default [
         "learning": "Chi sei tu?"
       },
       "RANKED": {
-        "rank": 187
+        "rank": 185
       }
     },
     "symbols": [
@@ -17273,7 +17273,7 @@ export default [
         "learning": "Chi è questo?"
       },
       "RANKED": {
-        "rank": 168
+        "rank": 166
       }
     },
     "symbols": [
@@ -17294,7 +17294,7 @@ export default [
         "learning": "Cosa fai oggi?"
       },
       "RANKED": {
-        "rank": 276
+        "rank": 274
       }
     },
     "symbols": [
@@ -17315,7 +17315,7 @@ export default [
         "learning": "Cosa vuoi adesso?"
       },
       "RANKED": {
-        "rank": 262
+        "rank": 260
       }
     },
     "symbols": [
@@ -17336,7 +17336,7 @@ export default [
         "learning": "Dove vai adesso?"
       },
       "RANKED": {
-        "rank": 409
+        "rank": 407
       }
     },
     "symbols": [
@@ -17357,7 +17357,7 @@ export default [
         "learning": "Dove andiamo stasera?"
       },
       "RANKED": {
-        "rank": 618
+        "rank": 616
       }
     },
     "symbols": [
@@ -17378,7 +17378,7 @@ export default [
         "learning": "Quando vieni qui?"
       },
       "RANKED": {
-        "rank": 683
+        "rank": 681
       }
     },
     "symbols": [
@@ -17399,7 +17399,7 @@ export default [
         "learning": "Quando inizia il lavoro?"
       },
       "RANKED": {
-        "rank": 484
+        "rank": 482
       }
     },
     "symbols": [
@@ -17420,7 +17420,7 @@ export default [
         "learning": "Com'è la cena?"
       },
       "RANKED": {
-        "rank": 580
+        "rank": 578
       }
     },
     "symbols": [
@@ -17441,7 +17441,7 @@ export default [
         "learning": "Come si dice questo?"
       },
       "RANKED": {
-        "rank": 47
+        "rank": 45
       }
     },
     "symbols": [
@@ -17465,7 +17465,7 @@ export default [
         "learning": "Perché sei triste?"
       },
       "RANKED": {
-        "rank": 614
+        "rank": 612
       }
     },
     "symbols": [
@@ -17486,7 +17486,7 @@ export default [
         "learning": "Perché non mi rispondi?"
       },
       "RANKED": {
-        "rank": 917
+        "rank": 914
       }
     },
     "symbols": [
@@ -17507,7 +17507,7 @@ export default [
         "learning": "Quanto pesa la valigia?"
       },
       "RANKED": {
-        "rank": 983
+        "rank": 980
       }
     },
     "symbols": [
@@ -17528,7 +17528,7 @@ export default [
         "learning": "Quale scegli tu?"
       },
       "RANKED": {
-        "rank": 855
+        "rank": 853
       }
     },
     "symbols": [
@@ -17549,7 +17549,7 @@ export default [
         "learning": "Quale preferisci tu?"
       },
       "RANKED": {
-        "rank": 957
+        "rank": 954
       }
     },
     "symbols": [
@@ -17570,7 +17570,7 @@ export default [
         "learning": "Chi viene con noi?"
       },
       "RANKED": {
-        "rank": 198
+        "rank": 196
       }
     },
     "symbols": [
@@ -17591,7 +17591,7 @@ export default [
         "learning": "Chi ha il biglietto?"
       },
       "RANKED": {
-        "rank": 692
+        "rank": 690
       }
     },
     "symbols": [
@@ -17612,7 +17612,7 @@ export default [
         "learning": "Cosa dici adesso?"
       },
       "RANKED": {
-        "rank": 478
+        "rank": 476
       }
     },
     "symbols": [
@@ -17633,7 +17633,7 @@ export default [
         "learning": "Cosa vuoi dire?"
       },
       "RANKED": {
-        "rank": 263
+        "rank": 261
       }
     },
     "symbols": [
@@ -17654,7 +17654,7 @@ export default [
         "learning": "Dove sali adesso?"
       },
       "RANKED": {
-        "rank": 960
+        "rank": 957
       }
     },
     "symbols": [
@@ -17675,7 +17675,7 @@ export default [
         "learning": "Dove scendi tu?"
       },
       "RANKED": {
-        "rank": 1081
+        "rank": 1078
       }
     },
     "symbols": [
@@ -17696,7 +17696,7 @@ export default [
         "learning": "Quando vieni a Roma?"
       },
       "RANKED": {
-        "rank": 688
+        "rank": 686
       }
     },
     "symbols": [
@@ -17717,7 +17717,7 @@ export default [
         "learning": "Come va oggi?"
       },
       "RANKED": {
-        "rank": 200
+        "rank": 198
       }
     },
     "symbols": [
@@ -17738,7 +17738,7 @@ export default [
         "learning": "Sei pronto adesso?"
       },
       "RANKED": {
-        "rank": 533
+        "rank": 531
       }
     },
     "symbols": [
@@ -17759,7 +17759,7 @@ export default [
         "learning": "Sei sicuro di questo?"
       },
       "RANKED": {
-        "rank": 367
+        "rank": 365
       }
     },
     "symbols": [
@@ -17780,7 +17780,7 @@ export default [
         "learning": "Hai la chiave?"
       },
       "RANKED": {
-        "rank": 567
+        "rank": 565
       }
     },
     "symbols": [
@@ -17801,7 +17801,7 @@ export default [
         "learning": "Hai un momento?"
       },
       "RANKED": {
-        "rank": 204
+        "rank": 202
       }
     },
     "symbols": [
@@ -17822,7 +17822,7 @@ export default [
         "learning": "Posso venire con voi?"
       },
       "RANKED": {
-        "rank": 463
+        "rank": 461
       }
     },
     "symbols": [
@@ -17843,7 +17843,7 @@ export default [
         "learning": "Puoi rispondere adesso?"
       },
       "RANKED": {
-        "rank": 539
+        "rank": 537
       }
     },
     "symbols": [
@@ -17864,7 +17864,7 @@ export default [
         "learning": "Potresti telefonare a mia madre?"
       },
       "RANKED": {
-        "rank": 1080
+        "rank": 1077
       }
     },
     "symbols": [
@@ -17885,7 +17885,7 @@ export default [
         "learning": "Dovremmo andare ora?"
       },
       "RANKED": {
-        "rank": 647
+        "rank": 645
       }
     },
     "symbols": [
@@ -17906,7 +17906,7 @@ export default [
         "learning": "Vuoi venire con me?"
       },
       "RANKED": {
-        "rank": 464
+        "rank": 462
       }
     },
     "symbols": [
@@ -17927,7 +17927,7 @@ export default [
         "learning": "Vuoi un caffè?"
       },
       "RANKED": {
-        "rank": 558
+        "rank": 556
       }
     },
     "symbols": [
@@ -17948,7 +17948,7 @@ export default [
         "learning": "Sai dov'è la farmacia?"
       },
       "RANKED": {
-        "rank": 991
+        "rank": 988
       }
     },
     "symbols": [
@@ -17972,7 +17972,7 @@ export default [
         "learning": "Sai guidare bene?"
       },
       "RANKED": {
-        "rank": 776
+        "rank": 774
       }
     },
     "symbols": [
@@ -17993,7 +17993,7 @@ export default [
         "learning": "Chi è il tuo amico?"
       },
       "RANKED": {
-        "rank": 359
+        "rank": 357
       }
     },
     "symbols": [
@@ -18014,7 +18014,7 @@ export default [
         "learning": "Quanto pesa il bagaglio?"
       },
       "RANKED": {
-        "rank": 1023
+        "rank": 1020
       }
     },
     "symbols": [
@@ -18035,7 +18035,7 @@ export default [
         "learning": "Chi ti manda il messaggio?"
       },
       "RANKED": {
-        "rank": 815
+        "rank": 813
       }
     },
     "symbols": [
@@ -18056,7 +18056,7 @@ export default [
         "learning": "Perché mi chiedi questo?"
       },
       "RANKED": {
-        "rank": 799
+        "rank": 797
       }
     },
     "symbols": [
@@ -18077,7 +18077,7 @@ export default [
         "learning": "Come mai sei qui?"
       },
       "RANKED": {
-        "rank": 185
+        "rank": 183
       }
     },
     "symbols": [
@@ -18098,7 +18098,7 @@ export default [
         "learning": "Vai a scuola!"
       },
       "RANKED": {
-        "rank": 410
+        "rank": 408
       }
     },
     "symbols": [
@@ -18119,7 +18119,7 @@ export default [
         "learning": "Vai al lavoro!"
       },
       "RANKED": {
-        "rank": 411
+        "rank": 409
       }
     },
     "symbols": [
@@ -18140,7 +18140,7 @@ export default [
         "learning": "Vieni qui subito!"
       },
       "RANKED": {
-        "rank": 684
+        "rank": 682
       }
     },
     "symbols": [
@@ -18161,7 +18161,7 @@ export default [
         "learning": "Vieni con me!"
       },
       "RANKED": {
-        "rank": 685
+        "rank": 683
       }
     },
     "symbols": [
@@ -18182,7 +18182,7 @@ export default [
         "learning": "Fai colazione adesso!"
       },
       "RANKED": {
-        "rank": 706
+        "rank": 704
       }
     },
     "symbols": [
@@ -18203,7 +18203,7 @@ export default [
         "learning": "Fai proprio presto!"
       },
       "RANKED": {
-        "rank": 382
+        "rank": 380
       }
     },
     "symbols": [
@@ -18224,7 +18224,7 @@ export default [
         "learning": "Stai calmo adesso!"
       },
       "RANKED": {
-        "rank": 1018
+        "rank": 1015
       }
     },
     "symbols": [
@@ -18245,7 +18245,7 @@ export default [
         "learning": "Stai a casa!"
       },
       "RANKED": {
-        "rank": 332
+        "rank": 330
       }
     },
     "symbols": [
@@ -18266,7 +18266,7 @@ export default [
         "learning": "Dai un bacio a tua madre!"
       },
       "RANKED": {
-        "rank": 818
+        "rank": 816
       }
     },
     "symbols": [
@@ -18287,7 +18287,7 @@ export default [
         "learning": "Dai il libro a tuo fratello!"
       },
       "RANKED": {
-        "rank": 425
+        "rank": 423
       }
     },
     "symbols": [
@@ -18308,7 +18308,7 @@ export default [
         "learning": "Dormi bene stasera!"
       },
       "RANKED": {
-        "rank": 1024
+        "rank": 1021
       }
     },
     "symbols": [
@@ -18329,7 +18329,7 @@ export default [
         "learning": "Dormi presto stasera!"
       },
       "RANKED": {
-        "rank": 1025
+        "rank": 1022
       }
     },
     "symbols": [
@@ -18350,7 +18350,7 @@ export default [
         "learning": "Finisci il lavoro!"
       },
       "RANKED": {
-        "rank": 1046
+        "rank": 1043
       }
     },
     "symbols": [
@@ -18371,7 +18371,7 @@ export default [
         "learning": "Finisci la cena adesso!"
       },
       "RANKED": {
-        "rank": 1047
+        "rank": 1044
       }
     },
     "symbols": [
@@ -18392,7 +18392,7 @@ export default [
         "learning": "Parla piano con me!"
       },
       "RANKED": {
-        "rank": 314
+        "rank": 312
       }
     },
     "symbols": [
@@ -18413,7 +18413,7 @@ export default [
         "learning": "Parla con il tuo amico!"
       },
       "RANKED": {
-        "rank": 360
+        "rank": 358
       }
     },
     "symbols": [
@@ -18434,7 +18434,7 @@ export default [
         "learning": "Credi a me!"
       },
       "RANKED": {
-        "rank": 758
+        "rank": 756
       }
     },
     "symbols": [
@@ -18455,7 +18455,7 @@ export default [
         "learning": "Sii sempre gentile!"
       },
       "RANKED": {
-        "rank": 933
+        "rank": 930
       }
     },
     "symbols": [
@@ -18476,7 +18476,7 @@ export default [
         "learning": "Sii sempre sincero!"
       },
       "RANKED": {
-        "rank": 934
+        "rank": 931
       }
     },
     "symbols": [
@@ -18497,7 +18497,7 @@ export default [
         "learning": "Abbi sempre coraggio!"
       },
       "RANKED": {
-        "rank": 1050
+        "rank": 1047
       }
     },
     "symbols": [
@@ -18518,7 +18518,7 @@ export default [
         "learning": "Abbi cura di te!"
       },
       "RANKED": {
-        "rank": 1051
+        "rank": 1048
       }
     },
     "symbols": [
@@ -18539,7 +18539,7 @@ export default [
         "learning": "Sappi che ti ringrazio!"
       },
       "RANKED": {
-        "rank": 996
+        "rank": 993
       }
     },
     "symbols": [
@@ -18560,7 +18560,7 @@ export default [
         "learning": "Di' sempre la verità!"
       },
       "RANKED": {
-        "rank": 385
+        "rank": 383
       }
     },
     "symbols": [
@@ -18581,7 +18581,7 @@ export default [
         "learning": "Di' qualcosa adesso!"
       },
       "RANKED": {
-        "rank": 250
+        "rank": 248
       }
     },
     "symbols": [
@@ -18602,7 +18602,7 @@ export default [
         "learning": "Vai a casa!"
       },
       "RANKED": {
-        "rank": 412
+        "rank": 410
       }
     },
     "symbols": [
@@ -18623,7 +18623,7 @@ export default [
         "learning": "Vai in Italia!"
       },
       "RANKED": {
-        "rank": 413
+        "rank": 411
       }
     },
     "symbols": [
@@ -18644,7 +18644,7 @@ export default [
         "learning": "Vieni a cena!"
       },
       "RANKED": {
-        "rank": 686
+        "rank": 684
       }
     },
     "symbols": [
@@ -18665,7 +18665,7 @@ export default [
         "learning": "Vieni qui domani!"
       },
       "RANKED": {
-        "rank": 687
+        "rank": 685
       }
     },
     "symbols": [
@@ -18686,7 +18686,7 @@ export default [
         "learning": "Potresti telefonare a Marco?"
       },
       "RANKED": {
-        "rank": 1078
+        "rank": 1075
       }
     },
     "symbols": [
@@ -18707,7 +18707,7 @@ export default [
         "learning": "Potresti venire qui?"
       },
       "RANKED": {
-        "rank": 602
+        "rank": 600
       }
     },
     "symbols": [
@@ -18728,7 +18728,7 @@ export default [
         "learning": "Dovresti riposare di più."
       },
       "RANKED": {
-        "rank": 1002
+        "rank": 999
       }
     },
     "symbols": [
@@ -18749,7 +18749,7 @@ export default [
         "learning": "Dovresti dormire di più."
       },
       "RANKED": {
-        "rank": 654
+        "rank": 652
       }
     },
     "symbols": [
@@ -18770,7 +18770,7 @@ export default [
         "learning": "Vorresti venire con noi?"
       },
       "RANKED": {
-        "rank": 825
+        "rank": 823
       }
     },
     "symbols": [
@@ -18791,7 +18791,7 @@ export default [
         "learning": "Mi dai una mano?"
       },
       "RANKED": {
-        "rank": 270
+        "rank": 268
       }
     },
     "symbols": [
@@ -18812,7 +18812,7 @@ export default [
         "learning": "Mi dici la verità?"
       },
       "RANKED": {
-        "rank": 480
+        "rank": 478
       }
     },
     "symbols": [
@@ -18833,7 +18833,7 @@ export default [
         "learning": "Mio fratello è alto."
       },
       "RANKED": {
-        "rank": 423
+        "rank": 421
       }
     },
     "symbols": [
@@ -18854,7 +18854,7 @@ export default [
         "learning": "Mia sorella è intelligente."
       },
       "RANKED": {
-        "rank": 741
+        "rank": 739
       }
     },
     "symbols": [
@@ -18875,7 +18875,7 @@ export default [
         "learning": "Mio nonno è anziano."
       },
       "RANKED": {
-        "rank": 947
+        "rank": 944
       }
     },
     "symbols": [
@@ -18896,7 +18896,7 @@ export default [
         "learning": "Mia nonna è gentile."
       },
       "RANKED": {
-        "rank": 696
+        "rank": 694
       }
     },
     "symbols": [
@@ -18917,7 +18917,7 @@ export default [
         "learning": "Mio zio è simpatico."
       },
       "RANKED": {
-        "rank": 894
+        "rank": 892
       }
     },
     "symbols": [
@@ -18938,7 +18938,7 @@ export default [
         "learning": "Mia zia è affettuosa."
       },
       "RANKED": {
-        "rank": 1099
+        "rank": 1096
       }
     },
     "symbols": [
@@ -18959,7 +18959,7 @@ export default [
         "learning": "Mio cugino è timido."
       },
       "RANKED": {
-        "rank": 1058
+        "rank": 1055
       }
     },
     "symbols": [
@@ -18980,7 +18980,7 @@ export default [
         "learning": "Mia cugina è coraggiosa."
       },
       "RANKED": {
-        "rank": 1027
+        "rank": 1024
       }
     },
     "symbols": [
@@ -19001,7 +19001,7 @@ export default [
         "learning": "Mio padre è avvocato."
       },
       "RANKED": {
-        "rank": 629
+        "rank": 627
       }
     },
     "symbols": [
@@ -19022,7 +19022,7 @@ export default [
         "learning": "Mia madre è insegnante."
       },
       "RANKED": {
-        "rank": 752
+        "rank": 750
       }
     },
     "symbols": [
@@ -19043,7 +19043,7 @@ export default [
         "learning": "Mio marito è paziente."
       },
       "RANKED": {
-        "rank": 721
+        "rank": 719
       }
     },
     "symbols": [
@@ -19064,7 +19064,7 @@ export default [
         "learning": "Mia moglie è elegante."
       },
       "RANKED": {
-        "rank": 901
+        "rank": 899
       }
     },
     "symbols": [
@@ -19085,7 +19085,7 @@ export default [
         "learning": "Mio figlio è giovane."
       },
       "RANKED": {
-        "rank": 376
+        "rank": 374
       }
     },
     "symbols": [
@@ -19106,7 +19106,7 @@ export default [
         "learning": "Mia figlia è felice."
       },
       "RANKED": {
-        "rank": 438
+        "rank": 436
       }
     },
     "symbols": [
@@ -19127,7 +19127,7 @@ export default [
         "learning": "Il mio amico è onesto."
       },
       "RANKED": {
-        "rank": 944
+        "rank": 941
       }
     },
     "symbols": [
@@ -19148,7 +19148,7 @@ export default [
         "learning": "La mia amica è sincera."
       },
       "RANKED": {
-        "rank": 975
+        "rank": 972
       }
     },
     "symbols": [
@@ -19169,7 +19169,7 @@ export default [
         "learning": "Il mio fidanzato è geloso."
       },
       "RANKED": {
-        "rank": 1035
+        "rank": 1032
       }
     },
     "symbols": [
@@ -19190,7 +19190,7 @@ export default [
         "learning": "La mia fidanzata è dolce."
       },
       "RANKED": {
-        "rank": 826
+        "rank": 824
       }
     },
     "symbols": [
@@ -19211,7 +19211,7 @@ export default [
         "learning": "Il mio vicino è educato."
       },
       "RANKED": {
-        "rank": 1032
+        "rank": 1029
       }
     },
     "symbols": [
@@ -19232,7 +19232,7 @@ export default [
         "learning": "La mia famiglia è grande."
       },
       "RANKED": {
-        "rank": 229
+        "rank": 227
       }
     },
     "symbols": [
@@ -19253,7 +19253,7 @@ export default [
         "learning": "Mio cognato è avvocato."
       },
       "RANKED": {
-        "rank": 1073
+        "rank": 1070
       }
     },
     "symbols": [
@@ -19274,7 +19274,7 @@ export default [
         "learning": "Mia cognata è ingegnere."
       },
       "RANKED": {
-        "rank": 1087
+        "rank": 1084
       }
     },
     "symbols": [
@@ -19295,7 +19295,7 @@ export default [
         "learning": "Che lavoro fa tuo padre?"
       },
       "RANKED": {
-        "rank": 284
+        "rank": 282
       }
     },
     "symbols": [
@@ -19316,7 +19316,7 @@ export default [
         "learning": "Mio padre fa il cuoco."
       },
       "RANKED": {
-        "rank": 1005
+        "rank": 1002
       }
     },
     "symbols": [
@@ -19337,7 +19337,7 @@ export default [
         "learning": "Mia madre è infermiera."
       },
       "RANKED": {
-        "rank": 1059
+        "rank": 1056
       }
     },
     "symbols": [
@@ -19358,7 +19358,7 @@ export default [
         "learning": "Mio nonno è ancora forte."
       },
       "RANKED": {
-        "rank": 753
+        "rank": 751
       }
     },
     "symbols": [
@@ -19379,7 +19379,7 @@ export default [
         "learning": "Mia nonna non è mai stanca."
       },
       "RANKED": {
-        "rank": 926
+        "rank": 923
       }
     },
     "symbols": [
@@ -19400,7 +19400,7 @@ export default [
         "learning": "Mio cugino è studente."
       },
       "RANKED": {
-        "rank": 872
+        "rank": 870
       }
     },
     "symbols": [
@@ -19421,7 +19421,7 @@ export default [
         "learning": "Mio nipote è piccolo."
       },
       "RANKED": {
-        "rank": 797
+        "rank": 795
       }
     },
     "symbols": [
@@ -19442,7 +19442,7 @@ export default [
         "learning": "Mio figlio vuole essere medico."
       },
       "RANKED": {
-        "rank": 477
+        "rank": 475
       }
     },
     "symbols": [
@@ -19463,7 +19463,7 @@ export default [
         "learning": "Mia figlia vuole essere ingegnere."
       },
       "RANKED": {
-        "rank": 889
+        "rank": 887
       }
     },
     "symbols": [
@@ -19484,7 +19484,7 @@ export default [
         "learning": "La mia famiglia è importante per me."
       },
       "RANKED": {
-        "rank": 273
+        "rank": 271
       }
     },
     "symbols": [
@@ -19505,7 +19505,7 @@ export default [
         "learning": "Mio zio è un po' pigro."
       },
       "RANKED": {
-        "rank": 1082
+        "rank": 1079
       }
     },
     "symbols": [
@@ -19526,7 +19526,7 @@ export default [
         "learning": "Mia zia è molto curiosa."
       },
       "RANKED": {
-        "rank": 981
+        "rank": 978
       }
     },
     "symbols": [
@@ -19547,7 +19547,7 @@ export default [
         "learning": "Mio nonno ha un amico."
       },
       "RANKED": {
-        "rank": 754
+        "rank": 752
       }
     },
     "symbols": [
@@ -19568,7 +19568,7 @@ export default [
         "learning": "Mio cugino ha un cane."
       },
       "RANKED": {
-        "rank": 873
+        "rank": 871
       }
     },
     "symbols": [
@@ -19589,7 +19589,7 @@ export default [
         "learning": "Mio fratello mi crede."
       },
       "RANKED": {
-        "rank": 569
+        "rank": 567
       }
     },
     "symbols": [
@@ -19610,7 +19610,7 @@ export default [
         "learning": "Mia sorella risponde sempre."
       },
       "RANKED": {
-        "rank": 643
+        "rank": 641
       }
     },
     "symbols": [
@@ -19631,7 +19631,7 @@ export default [
         "learning": "Mio padre dice sempre la verità."
       },
       "RANKED": {
-        "rank": 386
+        "rank": 384
       }
     },
     "symbols": [
@@ -19652,7 +19652,7 @@ export default [
         "learning": "Mio padre è molto occupato oggi."
       },
       "RANKED": {
-        "rank": 811
+        "rank": 809
       }
     },
     "symbols": [
@@ -19673,7 +19673,7 @@ export default [
         "learning": "Mio cugino racconta una storia."
       },
       "RANKED": {
-        "rank": 874
+        "rank": 872
       }
     },
     "symbols": [
@@ -19694,7 +19694,7 @@ export default [
         "learning": "Mia nonna è calma."
       },
       "RANKED": {
-        "rank": 771
+        "rank": 769
       }
     },
     "symbols": [
@@ -19715,7 +19715,7 @@ export default [
         "learning": "Mio zio è orgoglioso."
       },
       "RANKED": {
-        "rank": 954
+        "rank": 951
       }
     },
     "symbols": [
@@ -19736,7 +19736,7 @@ export default [
         "learning": "Mio figlio sa parlare italiano."
       },
       "RANKED": {
-        "rank": 302
+        "rank": 300
       }
     },
     "symbols": [
@@ -19757,7 +19757,7 @@ export default [
         "learning": "La mia famiglia è qui."
       },
       "RANKED": {
-        "rank": 230
+        "rank": 228
       }
     },
     "symbols": [
@@ -19778,7 +19778,7 @@ export default [
         "learning": "Oggi è umido."
       },
       "RANKED": {
-        "rank": 1043
+        "rank": 1040
       }
     },
     "symbols": [
@@ -19799,7 +19799,7 @@ export default [
         "learning": "Domani sarà soleggiato."
       },
       "RANKED": {
-        "rank": 1109
+        "rank": 1106
       }
     },
     "symbols": [
@@ -19820,7 +19820,7 @@ export default [
         "learning": "Ieri era ventoso."
       },
       "RANKED": {
-        "rank": 1107
+        "rank": 1104
       }
     },
     "symbols": [
@@ -19841,7 +19841,7 @@ export default [
         "learning": "Fa molto caldo oggi."
       },
       "RANKED": {
-        "rank": 579
+        "rank": 577
       }
     },
     "symbols": [
@@ -19862,7 +19862,7 @@ export default [
         "learning": "Oggi fa freddo."
       },
       "RANKED": {
-        "rank": 607
+        "rank": 605
       }
     },
     "symbols": [
@@ -19883,7 +19883,7 @@ export default [
         "learning": "C'è nebbia stamattina."
       },
       "RANKED": {
-        "rank": 956
+        "rank": 953
       }
     },
     "symbols": [
@@ -19904,7 +19904,7 @@ export default [
         "learning": "C'è il sole oggi."
       },
       "RANKED": {
-        "rank": 401
+        "rank": 399
       }
     },
     "symbols": [
@@ -19925,7 +19925,7 @@ export default [
         "learning": "C'è una tempesta stanotte."
       },
       "RANKED": {
-        "rank": 883
+        "rank": 881
       }
     },
     "symbols": [
@@ -19946,7 +19946,7 @@ export default [
         "learning": "Il cielo è blu oggi."
       },
       "RANKED": {
-        "rank": 582
+        "rank": 580
       }
     },
     "symbols": [
@@ -19967,7 +19967,7 @@ export default [
         "learning": "Ho molto freddo."
       },
       "RANKED": {
-        "rank": 608
+        "rank": 606
       }
     },
     "symbols": [
@@ -19988,7 +19988,7 @@ export default [
         "learning": "Oggi ho caldo."
       },
       "RANKED": {
-        "rank": 577
+        "rank": 575
       }
     },
     "symbols": [
@@ -20009,7 +20009,7 @@ export default [
         "learning": "La pioggia è forte."
       },
       "RANKED": {
-        "rank": 725
+        "rank": 723
       }
     },
     "symbols": [
@@ -20030,7 +20030,7 @@ export default [
         "learning": "Il vento è forte."
       },
       "RANKED": {
-        "rank": 638
+        "rank": 636
       }
     },
     "symbols": [
@@ -20051,7 +20051,7 @@ export default [
         "learning": "Oggi è lunedì."
       },
       "RANKED": {
-        "rank": 657
+        "rank": 655
       }
     },
     "symbols": [
@@ -20072,7 +20072,7 @@ export default [
         "learning": "Domani è martedì."
       },
       "RANKED": {
-        "rank": 796
+        "rank": 794
       }
     },
     "symbols": [
@@ -20093,7 +20093,7 @@ export default [
         "learning": "Ieri era sabato."
       },
       "RANKED": {
-        "rank": 551
+        "rank": 549
       }
     },
     "symbols": [
@@ -20114,7 +20114,7 @@ export default [
         "learning": "Che giorno è oggi?"
       },
       "RANKED": {
-        "rank": 191
+        "rank": 189
       }
     },
     "symbols": [
@@ -20135,7 +20135,7 @@ export default [
         "learning": "Adesso è mezzogiorno."
       },
       "RANKED": {
-        "rank": 891
+        "rank": 889
       }
     },
     "symbols": [
@@ -20156,7 +20156,7 @@ export default [
         "learning": "Adesso è mezzanotte."
       },
       "RANKED": {
-        "rank": 890
+        "rank": 888
       }
     },
     "symbols": [
@@ -20177,7 +20177,7 @@ export default [
         "learning": "Adesso è l'una."
       },
       "RANKED": {
-        "rank": 252
+        "rank": 250
       }
     },
     "symbols": [
@@ -20198,7 +20198,7 @@ export default [
         "learning": "Sono le due."
       },
       "RANKED": {
-        "rank": 161
+        "rank": 159
       }
     },
     "symbols": [
@@ -20219,7 +20219,7 @@ export default [
         "learning": "Sono le sei di sera."
       },
       "RANKED": {
-        "rank": 328
+        "rank": 326
       }
     },
     "symbols": [
@@ -20240,7 +20240,7 @@ export default [
         "learning": "La mattina è calma."
       },
       "RANKED": {
-        "rank": 772
+        "rank": 770
       }
     },
     "symbols": [
@@ -20261,7 +20261,7 @@ export default [
         "learning": "La sera è tranquilla."
       },
       "RANKED": {
-        "rank": 785
+        "rank": 783
       }
     },
     "symbols": [
@@ -20282,7 +20282,7 @@ export default [
         "learning": "Questa settimana è lunga."
       },
       "RANKED": {
-        "rank": 439
+        "rank": 437
       }
     },
     "symbols": [
@@ -20303,7 +20303,7 @@ export default [
         "learning": "Questo giorno è importante."
       },
       "RANKED": {
-        "rank": 272
+        "rank": 270
       }
     },
     "symbols": [
@@ -20324,7 +20324,7 @@ export default [
         "learning": "La riunione è venerdì."
       },
       "RANKED": {
-        "rank": 782
+        "rank": 780
       }
     },
     "symbols": [
@@ -20345,7 +20345,7 @@ export default [
         "learning": "Mi alzo sempre presto."
       },
       "RANKED": {
-        "rank": 1067
+        "rank": 1064
       }
     },
     "symbols": [
@@ -20366,7 +20366,7 @@ export default [
         "learning": "Mi alzo alle sette."
       },
       "RANKED": {
-        "rank": 1068
+        "rank": 1065
       }
     },
     "symbols": [
@@ -20387,7 +20387,7 @@ export default [
         "learning": "Adesso è già tardi."
       },
       "RANKED": {
-        "rank": 486
+        "rank": 484
       }
     },
     "symbols": [
@@ -20408,7 +20408,7 @@ export default [
         "learning": "Ti telefono domani."
       },
       "RANKED": {
-        "rank": 447
+        "rank": 445
       }
     },
     "symbols": [
@@ -20429,7 +20429,7 @@ export default [
         "learning": "Noi parliamo stasera."
       },
       "RANKED": {
-        "rank": 636
+        "rank": 634
       }
     },
     "symbols": [
@@ -20450,7 +20450,7 @@ export default [
         "learning": "L'esame è questa settimana."
       },
       "RANKED": {
-        "rank": 587
+        "rank": 585
       }
     },
     "symbols": [
@@ -20471,7 +20471,7 @@ export default [
         "learning": "La stagione è variabile."
       },
       "RANKED": {
-        "rank": 938
+        "rank": 935
       }
     },
     "symbols": [
@@ -20492,7 +20492,7 @@ export default [
         "learning": "L'umidità è forte oggi."
       },
       "RANKED": {
-        "rank": 963
+        "rank": 960
       }
     },
     "symbols": [
@@ -20513,7 +20513,7 @@ export default [
         "learning": "C'è un arcobaleno."
       },
       "RANKED": {
-        "rank": 1061
+        "rank": 1058
       }
     },
     "symbols": [
@@ -20534,7 +20534,7 @@ export default [
         "learning": "La data è importante."
       },
       "RANKED": {
-        "rank": 343
+        "rank": 341
       }
     },
     "symbols": [
@@ -20555,7 +20555,7 @@ export default [
         "learning": "Il mio orologio è nuovo."
       },
       "RANKED": {
-        "rank": 912
+        "rank": 909
       }
     },
     "symbols": [
@@ -20576,7 +20576,7 @@ export default [
         "learning": "La sveglia suona presto."
       },
       "RANKED": {
-        "rank": 832
+        "rank": 830
       }
     },
     "symbols": [
@@ -20597,7 +20597,7 @@ export default [
         "learning": "Il giorno è lungo."
       },
       "RANKED": {
-        "rank": 289
+        "rank": 287
       }
     },
     "symbols": [
@@ -20618,7 +20618,7 @@ export default [
         "learning": "Ho dolore alla testa."
       },
       "RANKED": {
-        "rank": 521
+        "rank": 519
       }
     },
     "symbols": [
@@ -20639,7 +20639,7 @@ export default [
         "learning": "Ho dolore alla schiena."
       },
       "RANKED": {
-        "rank": 828
+        "rank": 826
       }
     },
     "symbols": [
@@ -20660,7 +20660,7 @@ export default [
         "learning": "Ho ancora la febbre."
       },
       "RANKED": {
-        "rank": 877
+        "rank": 875
       }
     },
     "symbols": [
@@ -20681,7 +20681,7 @@ export default [
         "learning": "Ho la tosse."
       },
       "RANKED": {
-        "rank": 1053
+        "rank": 1050
       }
     },
     "symbols": [
@@ -20702,7 +20702,7 @@ export default [
         "learning": "Ho un raffreddore."
       },
       "RANKED": {
-        "rank": 1076
+        "rank": 1073
       }
     },
     "symbols": [
@@ -20723,7 +20723,7 @@ export default [
         "learning": "Ho ancora l'influenza."
       },
       "RANKED": {
-        "rank": 673
+        "rank": 671
       }
     },
     "symbols": [
@@ -20744,7 +20744,7 @@ export default [
         "learning": "La mia mano è piccola."
       },
       "RANKED": {
-        "rank": 400
+        "rank": 398
       }
     },
     "symbols": [
@@ -20765,7 +20765,7 @@ export default [
         "learning": "Il mio braccio è forte."
       },
       "RANKED": {
-        "rank": 676
+        "rank": 674
       }
     },
     "symbols": [
@@ -20786,7 +20786,7 @@ export default [
         "learning": "Ho dolore alla gamba."
       },
       "RANKED": {
-        "rank": 841
+        "rank": 839
       }
     },
     "symbols": [
@@ -20807,7 +20807,7 @@ export default [
         "learning": "Il mio occhio è verde."
       },
       "RANKED": {
-        "rank": 556
+        "rank": 554
       }
     },
     "symbols": [
@@ -20828,7 +20828,7 @@ export default [
         "learning": "Il mio cuore è sano."
       },
       "RANKED": {
-        "rank": 854
+        "rank": 852
       }
     },
     "symbols": [
@@ -20849,7 +20849,7 @@ export default [
         "learning": "Oggi sono malato."
       },
       "RANKED": {
-        "rank": 859
+        "rank": 857
       }
     },
     "symbols": [
@@ -20870,7 +20870,7 @@ export default [
         "learning": "Sono molto stanco."
       },
       "RANKED": {
-        "rank": 865
+        "rank": 863
       }
     },
     "symbols": [
@@ -20891,7 +20891,7 @@ export default [
         "learning": "Sono molto debole."
       },
       "RANKED": {
-        "rank": 759
+        "rank": 757
       }
     },
     "symbols": [
@@ -20912,7 +20912,7 @@ export default [
         "learning": "Sto molto bene."
       },
       "RANKED": {
-        "rank": 210
+        "rank": 208
       }
     },
     "symbols": [
@@ -20933,7 +20933,7 @@ export default [
         "learning": "Non sto bene."
       },
       "RANKED": {
-        "rank": 211
+        "rank": 209
       }
     },
     "symbols": [
@@ -20954,7 +20954,7 @@ export default [
         "learning": "Il medico è simpatico."
       },
       "RANKED": {
-        "rank": 895
+        "rank": 893
       }
     },
     "symbols": [
@@ -20975,7 +20975,7 @@ export default [
         "learning": "L'infermiera è paziente."
       },
       "RANKED": {
-        "rank": 1060
+        "rank": 1057
       }
     },
     "symbols": [
@@ -20996,7 +20996,7 @@ export default [
         "learning": "Devo andare in ospedale."
       },
       "RANKED": {
-        "rank": 601
+        "rank": 599
       }
     },
     "symbols": [
@@ -21017,7 +21017,7 @@ export default [
         "learning": "Devo andare in farmacia."
       },
       "RANKED": {
-        "rank": 154
+        "rank": 152
       }
     },
     "symbols": [
@@ -21041,7 +21041,7 @@ export default [
         "learning": "Oggi devo riposare."
       },
       "RANKED": {
-        "rank": 1000
+        "rank": 997
       }
     },
     "symbols": [
@@ -21062,7 +21062,7 @@ export default [
         "learning": "Puoi telefonare al medico?"
       },
       "RANKED": {
-        "rank": 1079
+        "rank": 1076
       }
     },
     "symbols": [
@@ -21086,7 +21086,7 @@ export default [
         "learning": "Il medico dà la medicina."
       },
       "RANKED": {
-        "rank": 633
+        "rank": 631
       }
     },
     "symbols": [
@@ -21107,7 +21107,7 @@ export default [
         "learning": "Il dolore è forte."
       },
       "RANKED": {
-        "rank": 522
+        "rank": 520
       }
     },
     "symbols": [
@@ -21128,7 +21128,7 @@ export default [
         "learning": "La mia pelle è secca."
       },
       "RANKED": {
-        "rank": 968
+        "rank": 965
       }
     },
     "symbols": [
@@ -21149,7 +21149,7 @@ export default [
         "learning": "Ho un'allergia oggi."
       },
       "RANKED": {
-        "rank": 1089
+        "rank": 1086
       }
     },
     "symbols": [
@@ -21170,7 +21170,7 @@ export default [
         "learning": "Ho una visita oggi."
       },
       "RANKED": {
-        "rank": 502
+        "rank": 500
       }
     },
     "symbols": [
@@ -21191,7 +21191,7 @@ export default [
         "learning": "La salute è importante."
       },
       "RANKED": {
-        "rank": 454
+        "rank": 452
       }
     },
     "symbols": [
@@ -21212,7 +21212,7 @@ export default [
         "learning": "Non sono più malato."
       },
       "RANKED": {
-        "rank": 860
+        "rank": 858
       }
     },
     "symbols": [
@@ -21233,7 +21233,7 @@ export default [
         "learning": "Ho dolore al dente."
       },
       "RANKED": {
-        "rank": 977
+        "rank": 974
       }
     },
     "symbols": [
@@ -21254,7 +21254,7 @@ export default [
         "learning": "Ho dolore allo stomaco."
       },
       "RANKED": {
-        "rank": 830
+        "rank": 828
       }
     },
     "symbols": [
@@ -21275,7 +21275,7 @@ export default [
         "learning": "Riposo sempre la sera."
       },
       "RANKED": {
-        "rank": 824
+        "rank": 822
       }
     },
     "symbols": [
@@ -21296,7 +21296,7 @@ export default [
         "learning": "Riposiamo la domenica."
       },
       "RANKED": {
-        "rank": 1132
+        "rank": 1129
       }
     },
     "symbols": [
@@ -21317,7 +21317,7 @@ export default [
         "learning": "La ferita non è profonda."
       },
       "RANKED": {
-        "rank": 902
+        "rank": 900
       }
     },
     "symbols": [
@@ -21338,7 +21338,7 @@ export default [
         "learning": "Mi lavo sempre bene."
       },
       "RANKED": {
-        "rank": 1094
+        "rank": 1091
       }
     },
     "symbols": [
@@ -21359,7 +21359,7 @@ export default [
         "learning": "Lavoro in un ufficio."
       },
       "RANKED": {
-        "rank": 456
+        "rank": 454
       }
     },
     "symbols": [
@@ -21380,7 +21380,7 @@ export default [
         "learning": "Il mio capo è serio."
       },
       "RANKED": {
-        "rank": 541
+        "rank": 539
       }
     },
     "symbols": [
@@ -21401,7 +21401,7 @@ export default [
         "learning": "Il mio collega è simpatico."
       },
       "RANKED": {
-        "rank": 897
+        "rank": 895
       }
     },
     "symbols": [
@@ -21422,7 +21422,7 @@ export default [
         "learning": "Questa riunione è importante."
       },
       "RANKED": {
-        "rank": 783
+        "rank": 781
       }
     },
     "symbols": [
@@ -21443,7 +21443,7 @@ export default [
         "learning": "Ho un nuovo progetto."
       },
       "RANKED": {
-        "rank": 304
+        "rank": 302
       }
     },
     "symbols": [
@@ -21464,7 +21464,7 @@ export default [
         "learning": "La scadenza è domani."
       },
       "RANKED": {
-        "rank": 842
+        "rank": 840
       }
     },
     "symbols": [
@@ -21485,7 +21485,7 @@ export default [
         "learning": "Devo firmare il documento."
       },
       "RANKED": {
-        "rank": 922
+        "rank": 919
       }
     },
     "symbols": [
@@ -21506,7 +21506,7 @@ export default [
         "learning": "Mando un'email oggi."
       },
       "RANKED": {
-        "rank": 951
+        "rank": 948
       }
     },
     "symbols": [
@@ -21527,7 +21527,7 @@ export default [
         "learning": "Ricevo un messaggio."
       },
       "RANKED": {
-        "rank": 1055
+        "rank": 1052
       }
     },
     "symbols": [
@@ -21548,7 +21548,7 @@ export default [
         "learning": "Puoi mandare il documento?"
       },
       "RANKED": {
-        "rank": 716
+        "rank": 714
       }
     },
     "symbols": [
@@ -21569,7 +21569,7 @@ export default [
         "learning": "Devo finire il progetto."
       },
       "RANKED": {
-        "rank": 537
+        "rank": 535
       }
     },
     "symbols": [
@@ -21590,7 +21590,7 @@ export default [
         "learning": "Domani inizio il nuovo lavoro."
       },
       "RANKED": {
-        "rank": 415
+        "rank": 413
       }
     },
     "symbols": [
@@ -21611,7 +21611,7 @@ export default [
         "learning": "L'azienda è grande."
       },
       "RANKED": {
-        "rank": 466
+        "rank": 464
       }
     },
     "symbols": [
@@ -21632,7 +21632,7 @@ export default [
         "learning": "Il mio stipendio non è alto."
       },
       "RANKED": {
-        "rank": 829
+        "rank": 827
       }
     },
     "symbols": [
@@ -21653,7 +21653,7 @@ export default [
         "learning": "Ho un colloquio oggi."
       },
       "RANKED": {
-        "rank": 918
+        "rank": 915
       }
     },
     "symbols": [
@@ -21674,7 +21674,7 @@ export default [
         "learning": "Il problema è difficile."
       },
       "RANKED": {
-        "rank": 318
+        "rank": 316
       }
     },
     "symbols": [
@@ -21695,7 +21695,7 @@ export default [
         "learning": "Posso spiegare il problema."
       },
       "RANKED": {
-        "rank": 634
+        "rank": 632
       }
     },
     "symbols": [
@@ -21716,7 +21716,7 @@ export default [
         "learning": "Il professore spiega la lezione."
       },
       "RANKED": {
-        "rank": 632
+        "rank": 630
       }
     },
     "symbols": [
@@ -21737,7 +21737,7 @@ export default [
         "learning": "Vado sempre a scuola."
       },
       "RANKED": {
-        "rank": 391
+        "rank": 389
       }
     },
     "symbols": [
@@ -21758,7 +21758,7 @@ export default [
         "learning": "Lo studente fa una domanda."
       },
       "RANKED": {
-        "rank": 733
+        "rank": 731
       }
     },
     "symbols": [
@@ -21779,7 +21779,7 @@ export default [
         "learning": "Il professore risponde alla domanda."
       },
       "RANKED": {
-        "rank": 644
+        "rank": 642
       }
     },
     "symbols": [
@@ -21800,7 +21800,7 @@ export default [
         "learning": "L'esame è difficile."
       },
       "RANKED": {
-        "rank": 585
+        "rank": 583
       }
     },
     "symbols": [
@@ -21821,7 +21821,7 @@ export default [
         "learning": "Il mio voto è buono."
       },
       "RANKED": {
-        "rank": 504
+        "rank": 502
       }
     },
     "symbols": [
@@ -21842,7 +21842,7 @@ export default [
         "learning": "Devo fare il compito."
       },
       "RANKED": {
-        "rank": 619
+        "rank": 617
       }
     },
     "symbols": [
@@ -21863,7 +21863,7 @@ export default [
         "learning": "L'aula è piena."
       },
       "RANKED": {
-        "rank": 884
+        "rank": 882
       }
     },
     "symbols": [
@@ -21884,7 +21884,7 @@ export default [
         "learning": "Il mio zaino è pesante."
       },
       "RANKED": {
-        "rank": 976
+        "rank": 973
       }
     },
     "symbols": [
@@ -21905,7 +21905,7 @@ export default [
         "learning": "Porto sempre il libro."
       },
       "RANKED": {
-        "rank": 449
+        "rank": 447
       }
     },
     "symbols": [
@@ -21926,7 +21926,7 @@ export default [
         "learning": "La grammatica è difficile per me."
       },
       "RANKED": {
-        "rank": 971
+        "rank": 968
       }
     },
     "symbols": [
@@ -21947,7 +21947,7 @@ export default [
         "learning": "La storia è interessante."
       },
       "RANKED": {
-        "rank": 489
+        "rank": 487
       }
     },
     "symbols": [
@@ -21968,7 +21968,7 @@ export default [
         "learning": "Preferisco questa materia."
       },
       "RANKED": {
-        "rank": 762
+        "rank": 760
       }
     },
     "symbols": [
@@ -21989,7 +21989,7 @@ export default [
         "learning": "Il compito è chiaro."
       },
       "RANKED": {
-        "rank": 620
+        "rank": 618
       }
     },
     "symbols": [
@@ -22010,7 +22010,7 @@ export default [
         "learning": "Questa parola è nuova."
       },
       "RANKED": {
-        "rank": 327
+        "rank": 325
       }
     },
     "symbols": [
@@ -22031,7 +22031,7 @@ export default [
         "learning": "Questa frase è facile."
       },
       "RANKED": {
-        "rank": 624
+        "rank": 622
       }
     },
     "symbols": [
@@ -22052,7 +22052,7 @@ export default [
         "learning": "Il mio compagno è intelligente."
       },
       "RANKED": {
-        "rank": 743
+        "rank": 741
       }
     },
     "symbols": [
@@ -22073,7 +22073,7 @@ export default [
         "learning": "Voglio una nuova carriera."
       },
       "RANKED": {
-        "rank": 583
+        "rank": 581
       }
     },
     "symbols": [
@@ -22094,7 +22094,7 @@ export default [
         "learning": "Devo decidere oggi."
       },
       "RANKED": {
-        "rank": 641
+        "rank": 639
       }
     },
     "symbols": [
@@ -22115,7 +22115,7 @@ export default [
         "learning": "Il direttore firma il documento."
       },
       "RANKED": {
-        "rank": 705
+        "rank": 703
       }
     },
     "symbols": [
@@ -22136,7 +22136,7 @@ export default [
         "learning": "Prenoto un appuntamento."
       },
       "RANKED": {
-        "rank": 1106
+        "rank": 1103
       }
     },
     "symbols": [
@@ -22157,7 +22157,7 @@ export default [
         "learning": "Cosa significa questa parola?"
       },
       "RANKED": {
-        "rank": 49
+        "rank": 47
       }
     },
     "symbols": [
@@ -22181,7 +22181,7 @@ export default [
         "learning": "Faccio sempre una pausa a mezzogiorno."
       },
       "RANKED": {
-        "rank": 892
+        "rank": 890
       }
     },
     "symbols": [
@@ -22202,7 +22202,7 @@ export default [
         "learning": "Posso rispondere a questa domanda."
       },
       "RANKED": {
-        "rank": 540
+        "rank": 538
       }
     },
     "symbols": [
@@ -22223,7 +22223,7 @@ export default [
         "learning": "Il professore è molto paziente."
       },
       "RANKED": {
-        "rank": 722
+        "rank": 720
       }
     },
     "symbols": [
@@ -22244,7 +22244,7 @@ export default [
         "learning": "Il mio ufficio è piccolo."
       },
       "RANKED": {
-        "rank": 457
+        "rank": 455
       }
     },
     "symbols": [
@@ -22265,7 +22265,7 @@ export default [
         "learning": "Domani ho un esame."
       },
       "RANKED": {
-        "rank": 586
+        "rank": 584
       }
     },
     "symbols": [
@@ -22286,7 +22286,7 @@ export default [
         "learning": "Finisco sempre il lavoro alle sei."
       },
       "RANKED": {
-        "rank": 1034
+        "rank": 1031
       }
     },
     "symbols": [
@@ -22307,7 +22307,7 @@ export default [
         "learning": "Oggi sono felice."
       },
       "RANKED": {
-        "rank": 396
+        "rank": 394
       }
     },
     "symbols": [
@@ -22328,7 +22328,7 @@ export default [
         "learning": "Sono un po' triste."
       },
       "RANKED": {
-        "rank": 615
+        "rank": 613
       }
     },
     "symbols": [
@@ -22349,7 +22349,7 @@ export default [
         "learning": "Sono molto nervoso."
       },
       "RANKED": {
-        "rank": 914
+        "rank": 911
       }
     },
     "symbols": [
@@ -22370,7 +22370,7 @@ export default [
         "learning": "Sono sempre calmo."
       },
       "RANKED": {
-        "rank": 1019
+        "rank": 1016
       }
     },
     "symbols": [
@@ -22391,7 +22391,7 @@ export default [
         "learning": "Sono molto sorpreso."
       },
       "RANKED": {
-        "rank": 906
+        "rank": 904
       }
     },
     "symbols": [
@@ -22412,7 +22412,7 @@ export default [
         "learning": "Sono molto preoccupato."
       },
       "RANKED": {
-        "rank": 937
+        "rank": 934
       }
     },
     "symbols": [
@@ -22433,7 +22433,7 @@ export default [
         "learning": "Sono molto annoiato."
       },
       "RANKED": {
-        "rank": 1092
+        "rank": 1089
       }
     },
     "symbols": [
@@ -22454,7 +22454,7 @@ export default [
         "learning": "Sono molto soddisfatto."
       },
       "RANKED": {
-        "rank": 899
+        "rank": 897
       }
     },
     "symbols": [
@@ -22475,7 +22475,7 @@ export default [
         "learning": "Sono molto deluso."
       },
       "RANKED": {
-        "rank": 940
+        "rank": 937
       }
     },
     "symbols": [
@@ -22496,7 +22496,7 @@ export default [
         "learning": "Sono molto rilassato."
       },
       "RANKED": {
-        "rank": 1091
+        "rank": 1088
       }
     },
     "symbols": [
@@ -22517,7 +22517,7 @@ export default [
         "learning": "Ho ancora paura."
       },
       "RANKED": {
-        "rank": 337
+        "rank": 335
       }
     },
     "symbols": [
@@ -22538,7 +22538,7 @@ export default [
         "learning": "Non ho paura oggi."
       },
       "RANKED": {
-        "rank": 339
+        "rank": 337
       }
     },
     "symbols": [
@@ -22559,7 +22559,7 @@ export default [
         "learning": "Preferisco il caffè."
       },
       "RANKED": {
-        "rank": 99
+        "rank": 97
       }
     },
     "symbols": [
@@ -22583,7 +22583,7 @@ export default [
         "learning": "Preferisco il vino."
       },
       "RANKED": {
-        "rank": 100
+        "rank": 98
       }
     },
     "symbols": [
@@ -22607,7 +22607,7 @@ export default [
         "learning": "Preferisco la pizza alla pasta."
       },
       "RANKED": {
-        "rank": 767
+        "rank": 765
       }
     },
     "symbols": [
@@ -22628,7 +22628,7 @@ export default [
         "learning": "Vorrei un caffè adesso."
       },
       "RANKED": {
-        "rank": 559
+        "rank": 557
       }
     },
     "symbols": [
@@ -22649,7 +22649,7 @@ export default [
         "learning": "Vorrei solo riposare."
       },
       "RANKED": {
-        "rank": 1001
+        "rank": 998
       }
     },
     "symbols": [
@@ -22670,7 +22670,7 @@ export default [
         "learning": "Voglio parlare italiano."
       },
       "RANKED": {
-        "rank": 255
+        "rank": 253
       }
     },
     "symbols": [
@@ -22691,7 +22691,7 @@ export default [
         "learning": "Non voglio decidere oggi."
       },
       "RANKED": {
-        "rank": 642
+        "rank": 640
       }
     },
     "symbols": [
@@ -22712,7 +22712,7 @@ export default [
         "learning": "Cosa preferisci oggi?"
       },
       "RANKED": {
-        "rank": 958
+        "rank": 955
       }
     },
     "symbols": [
@@ -22733,7 +22733,7 @@ export default [
         "learning": "Preferisci il caffè o il vino?"
       },
       "RANKED": {
-        "rank": 101
+        "rank": 99
       }
     },
     "symbols": [
@@ -22757,7 +22757,7 @@ export default [
         "learning": "Mio fratello è entusiasta."
       },
       "RANKED": {
-        "rank": 1029
+        "rank": 1026
       }
     },
     "symbols": [
@@ -22778,7 +22778,7 @@ export default [
         "learning": "Mia sorella è invidiosa."
       },
       "RANKED": {
-        "rank": 1104
+        "rank": 1101
       }
     },
     "symbols": [
@@ -22799,7 +22799,7 @@ export default [
         "learning": "Sei molto felice?"
       },
       "RANKED": {
-        "rank": 397
+        "rank": 395
       }
     },
     "symbols": [
@@ -22820,7 +22820,7 @@ export default [
         "learning": "Sei molto stanco oggi?"
       },
       "RANKED": {
-        "rank": 869
+        "rank": 867
       }
     },
     "symbols": [
@@ -22841,7 +22841,7 @@ export default [
         "learning": "Lui è orgoglioso."
       },
       "RANKED": {
-        "rank": 953
+        "rank": 950
       }
     },
     "symbols": [
@@ -22862,7 +22862,7 @@ export default [
         "learning": "Lei è gelosa."
       },
       "RANKED": {
-        "rank": 1065
+        "rank": 1062
       }
     },
     "symbols": [
@@ -22883,7 +22883,7 @@ export default [
         "learning": "Mio padre è soddisfatto."
       },
       "RANKED": {
-        "rank": 900
+        "rank": 898
       }
     },
     "symbols": [
@@ -22904,7 +22904,7 @@ export default [
         "learning": "Voglio bene alla mia famiglia."
       },
       "RANKED": {
-        "rank": 231
+        "rank": 229
       }
     },
     "symbols": [
@@ -22925,7 +22925,7 @@ export default [
         "learning": "La mia speranza è importante."
       },
       "RANKED": {
-        "rank": 514
+        "rank": 512
       }
     },
     "symbols": [
@@ -22946,7 +22946,7 @@ export default [
         "learning": "La mia paura non è importante."
       },
       "RANKED": {
-        "rank": 340
+        "rank": 338
       }
     },
     "symbols": [
@@ -22967,7 +22967,7 @@ export default [
         "learning": "Questa decisione è giusta."
       },
       "RANKED": {
-        "rank": 520
+        "rank": 518
       }
     },
     "symbols": [
@@ -22988,7 +22988,7 @@ export default [
         "learning": "Oggi sono un po' strano."
       },
       "RANKED": {
-        "rank": 562
+        "rank": 560
       }
     },
     "symbols": [
@@ -23009,7 +23009,7 @@ export default [
         "learning": "Credo in questa idea."
       },
       "RANKED": {
-        "rank": 269
+        "rank": 267
       }
     },
     "symbols": [
@@ -23030,7 +23030,7 @@ export default [
         "learning": "Non ci credo."
       },
       "RANKED": {
-        "rank": 244
+        "rank": 242
       }
     },
     "symbols": [
@@ -23051,7 +23051,7 @@ export default [
         "learning": "La mia gioia è grande."
       },
       "RANKED": {
-        "rank": 655
+        "rank": 653
       }
     },
     "symbols": [
@@ -23072,7 +23072,7 @@ export default [
         "learning": "La mia tristezza è normale."
       },
       "RANKED": {
-        "rank": 857
+        "rank": 855
       }
     },
     "symbols": [
@@ -23093,7 +23093,7 @@ export default [
         "learning": "Sono molto innamorato."
       },
       "RANKED": {
-        "rank": 888
+        "rank": 886
       }
     },
     "symbols": [
@@ -23114,7 +23114,7 @@ export default [
         "learning": "Questa sorpresa è simpatica."
       },
       "RANKED": {
-        "rank": 988
+        "rank": 985
       }
     },
     "symbols": [
@@ -23135,7 +23135,7 @@ export default [
         "learning": "Preferisco la pace."
       },
       "RANKED": {
-        "rank": 763
+        "rank": 761
       }
     },
     "symbols": [
@@ -23156,7 +23156,7 @@ export default [
         "learning": "Preferisco la domenica al lunedì."
       },
       "RANKED": {
-        "rank": 768
+        "rank": 766
       }
     },
     "symbols": [
@@ -23177,7 +23177,7 @@ export default [
         "learning": "La mia curiosità è forte."
       },
       "RANKED": {
-        "rank": 735
+        "rank": 733
       }
     },
     "symbols": [
@@ -23198,7 +23198,7 @@ export default [
         "learning": "Adesso sono calmo."
       },
       "RANKED": {
-        "rank": 1020
+        "rank": 1017
       }
     },
     "symbols": [
@@ -23219,7 +23219,7 @@ export default [
         "learning": "Sono sempre entusiasta."
       },
       "RANKED": {
-        "rank": 1028
+        "rank": 1025
       }
     },
     "symbols": [
@@ -23240,7 +23240,7 @@ export default [
         "learning": "Preferisco la mattina alla sera."
       },
       "RANKED": {
-        "rank": 769
+        "rank": 767
       }
     },
     "symbols": [
@@ -23261,7 +23261,7 @@ export default [
         "learning": "Non sono stanco."
       },
       "RANKED": {
-        "rank": 866
+        "rank": 864
       }
     },
     "symbols": [
@@ -23282,7 +23282,7 @@ export default [
         "learning": "Non dormo mai tardi."
       },
       "RANKED": {
-        "rank": 1041
+        "rank": 1038
       }
     },
     "symbols": [
@@ -23303,7 +23303,7 @@ export default [
         "learning": "Non ho denaro."
       },
       "RANKED": {
-        "rank": 571
+        "rank": 569
       }
     },
     "symbols": [
@@ -23324,7 +23324,7 @@ export default [
         "learning": "Non c'è nessuno qui."
       },
       "RANKED": {
-        "rank": 215
+        "rank": 213
       }
     },
     "symbols": [
@@ -23345,7 +23345,7 @@ export default [
         "learning": "Non so niente."
       },
       "RANKED": {
-        "rank": 209
+        "rank": 207
       }
     },
     "symbols": [
@@ -23366,7 +23366,7 @@ export default [
         "learning": "Oggi non voglio niente."
       },
       "RANKED": {
-        "rank": 225
+        "rank": 223
       }
     },
     "symbols": [
@@ -23387,7 +23387,7 @@ export default [
         "learning": "Non ho una macchina."
       },
       "RANKED": {
-        "rank": 407
+        "rank": 405
       }
     },
     "symbols": [
@@ -23408,7 +23408,7 @@ export default [
         "learning": "Lei non è qui."
       },
       "RANKED": {
-        "rank": 221
+        "rank": 219
       }
     },
     "symbols": [
@@ -23429,7 +23429,7 @@ export default [
         "learning": "Lui non parla italiano."
       },
       "RANKED": {
-        "rank": 315
+        "rank": 313
       }
     },
     "symbols": [
@@ -23450,7 +23450,7 @@ export default [
         "learning": "Oggi non abbiamo una riunione."
       },
       "RANKED": {
-        "rank": 784
+        "rank": 782
       }
     },
     "symbols": [
@@ -23471,7 +23471,7 @@ export default [
         "learning": "Oggi non sono sicuro."
       },
       "RANKED": {
-        "rank": 368
+        "rank": 366
       }
     },
     "symbols": [
@@ -23492,7 +23492,7 @@ export default [
         "learning": "Questo non è giusto."
       },
       "RANKED": {
-        "rank": 308
+        "rank": 306
       }
     },
     "symbols": [
@@ -23513,7 +23513,7 @@ export default [
         "learning": "Questo non è corretto."
       },
       "RANKED": {
-        "rank": 761
+        "rank": 759
       }
     },
     "symbols": [
@@ -23534,7 +23534,7 @@ export default [
         "learning": "Questo non è facile."
       },
       "RANKED": {
-        "rank": 379
+        "rank": 377
       }
     },
     "symbols": [
@@ -23555,7 +23555,7 @@ export default [
         "learning": "Non sono neanche stanco."
       },
       "RANKED": {
-        "rank": 870
+        "rank": 868
       }
     },
     "symbols": [
@@ -23576,7 +23576,7 @@ export default [
         "learning": "Mio fratello è più alto di me."
       },
       "RANKED": {
-        "rank": 426
+        "rank": 424
       }
     },
     "symbols": [
@@ -23597,7 +23597,7 @@ export default [
         "learning": "Mia sorella è più intelligente di mio fratello."
       },
       "RANKED": {
-        "rank": 744
+        "rank": 742
       }
     },
     "symbols": [
@@ -23618,7 +23618,7 @@ export default [
         "learning": "Questo libro è più interessante di quello."
       },
       "RANKED": {
-        "rank": 493
+        "rank": 491
       }
     },
     "symbols": [
@@ -23639,7 +23639,7 @@ export default [
         "learning": "Questo esame è meno difficile di quello."
       },
       "RANKED": {
-        "rank": 589
+        "rank": 587
       }
     },
     "symbols": [
@@ -23660,7 +23660,7 @@ export default [
         "learning": "Mio padre è più vecchio di mia madre."
       },
       "RANKED": {
-        "rank": 442
+        "rank": 440
       }
     },
     "symbols": [
@@ -23681,7 +23681,7 @@ export default [
         "learning": "Questa macchina è più veloce di quella."
       },
       "RANKED": {
-        "rank": 595
+        "rank": 593
       }
     },
     "symbols": [
@@ -23702,7 +23702,7 @@ export default [
         "learning": "La mia casa è più grande della tua."
       },
       "RANKED": {
-        "rank": 220
+        "rank": 218
       }
     },
     "symbols": [
@@ -23723,7 +23723,7 @@ export default [
         "learning": "Il caffè è più forte dell'acqua."
       },
       "RANKED": {
-        "rank": 1123
+        "rank": 1120
       }
     },
     "symbols": [
@@ -23744,7 +23744,7 @@ export default [
         "learning": "Questa strada è più stretta di quella."
       },
       "RANKED": {
-        "rank": 852
+        "rank": 850
       }
     },
     "symbols": [
@@ -23765,7 +23765,7 @@ export default [
         "learning": "Oggi è più freddo di ieri."
       },
       "RANKED": {
-        "rank": 610
+        "rank": 608
       }
     },
     "symbols": [
@@ -23786,7 +23786,7 @@ export default [
         "learning": "Domani sarà meno ventoso di oggi."
       },
       "RANKED": {
-        "rank": 1108
+        "rank": 1105
       }
     },
     "symbols": [
@@ -23807,7 +23807,7 @@ export default [
         "learning": "Mio zio è tanto alto quanto mio padre."
       },
       "RANKED": {
-        "rank": 718
+        "rank": 716
       }
     },
     "symbols": [
@@ -23828,7 +23828,7 @@ export default [
         "learning": "Questo lavoro è tanto difficile quanto quello."
       },
       "RANKED": {
-        "rank": 319
+        "rank": 317
       }
     },
     "symbols": [
@@ -23849,7 +23849,7 @@ export default [
         "learning": "Mio cugino è meno paziente di mia sorella."
       },
       "RANKED": {
-        "rank": 875
+        "rank": 873
       }
     },
     "symbols": [
@@ -23870,7 +23870,7 @@ export default [
         "learning": "Questo problema è più grande di quello."
       },
       "RANKED": {
-        "rank": 237
+        "rank": 235
       }
     },
     "symbols": [
@@ -23891,7 +23891,7 @@ export default [
         "learning": "Ho meno denaro di te."
       },
       "RANKED": {
-        "rank": 572
+        "rank": 570
       }
     },
     "symbols": [
@@ -23912,7 +23912,7 @@ export default [
         "learning": "Preferisco questo più di quello."
       },
       "RANKED": {
-        "rank": 770
+        "rank": 768
       }
     },
     "symbols": [
@@ -23933,7 +23933,7 @@ export default [
         "learning": "Mio nonno è il più vecchio della famiglia."
       },
       "RANKED": {
-        "rank": 755
+        "rank": 753
       }
     },
     "symbols": [
@@ -23954,7 +23954,7 @@ export default [
         "learning": "Questo esame è il più difficile."
       },
       "RANKED": {
-        "rank": 588
+        "rank": 586
       }
     },
     "symbols": [
@@ -23975,7 +23975,7 @@ export default [
         "learning": "Questa non è la scelta giusta."
       },
       "RANKED": {
-        "rank": 501
+        "rank": 499
       }
     },
     "symbols": [
@@ -23996,7 +23996,7 @@ export default [
         "learning": "Non sono mai in ritardo."
       },
       "RANKED": {
-        "rank": 671
+        "rank": 669
       }
     },
     "symbols": [
@@ -24017,7 +24017,7 @@ export default [
         "learning": "Niente è impossibile."
       },
       "RANKED": {
-        "rank": 515
+        "rank": 513
       }
     },
     "symbols": [
@@ -24038,7 +24038,7 @@ export default [
         "learning": "Nessuno è perfetto."
       },
       "RANKED": {
-        "rank": 495
+        "rank": 493
       }
     },
     "symbols": [
@@ -24059,7 +24059,7 @@ export default [
         "learning": "Non sono affamato."
       },
       "RANKED": {
-        "rank": 1093
+        "rank": 1090
       }
     },
     "symbols": [
@@ -24080,7 +24080,7 @@ export default [
         "learning": "Questa strada è più lunga di quella."
       },
       "RANKED": {
-        "rank": 440
+        "rank": 438
       }
     },
     "symbols": [
@@ -24102,7 +24102,7 @@ export default [
         "learning": "Mi manchi."
       },
       "RANKED": {
-        "rank": 969
+        "rank": 966
       },
       "VOCALIZED": {
         "asset": {
@@ -24129,7 +24129,7 @@ export default [
         "learning": "Ti amo."
       },
       "RANKED": {
-        "rank": 527
+        "rank": 525
       },
       "VOCALIZED": {
         "asset": {
@@ -24156,7 +24156,7 @@ export default [
         "learning": "Ti prego, non piangere."
       },
       "RANKED": {
-        "rank": 756
+        "rank": 754
       },
       "VOCALIZED": {
         "asset": {
@@ -24183,7 +24183,7 @@ export default [
         "learning": "Come ti chiami?"
       },
       "RANKED": {
-        "rank": 908
+        "rank": 7
       },
       "VOCALIZED": {
         "asset": {
@@ -24210,7 +24210,7 @@ export default [
         "learning": "Lo vedo raramente."
       },
       "RANKED": {
-        "rank": 837
+        "rank": 835
       },
       "VOCALIZED": {
         "asset": {
@@ -24237,7 +24237,7 @@ export default [
         "learning": "Sei cambiato molto."
       },
       "RANKED": {
-        "rank": 547
+        "rank": 545
       },
       "VOCALIZED": {
         "asset": {
@@ -24264,7 +24264,7 @@ export default [
         "learning": "Ti ricordi?"
       },
       "RANKED": {
-        "rank": 557
+        "rank": 555
       },
       "VOCALIZED": {
         "asset": {
@@ -24291,7 +24291,7 @@ export default [
         "learning": "Siamo tutti d'accordo con te."
       },
       "RANKED": {
-        "rank": 1121
+        "rank": 1118
       },
       "VOCALIZED": {
         "asset": {
@@ -24318,7 +24318,7 @@ export default [
         "learning": "Ho bisogno del tuo aiuto."
       },
       "RANKED": {
-        "rank": 377
+        "rank": 375
       },
       "VOCALIZED": {
         "asset": {
@@ -24348,7 +24348,7 @@ export default [
         "learning": "Sembri occupato."
       },
       "RANKED": {
-        "rank": 913
+        "rank": 910
       },
       "VOCALIZED": {
         "asset": {
@@ -24375,7 +24375,7 @@ export default [
         "learning": "Ho viaggiato da solo."
       },
       "RANKED": {
-        "rank": 1063
+        "rank": 1060
       },
       "VOCALIZED": {
         "asset": {
@@ -24402,7 +24402,7 @@ export default [
         "learning": "Ho perso l'orologio."
       },
       "RANKED": {
-        "rank": 911
+        "rank": 908
       },
       "VOCALIZED": {
         "asset": {
@@ -24429,7 +24429,7 @@ export default [
         "learning": "Mi piace dormire."
       },
       "RANKED": {
-        "rank": 597
+        "rank": 595
       },
       "VOCALIZED": {
         "asset": {
@@ -24456,7 +24456,7 @@ export default [
         "learning": "A mia madre piace la musica."
       },
       "RANKED": {
-        "rank": 335
+        "rank": 333
       },
       "VOCALIZED": {
         "asset": {
@@ -24483,7 +24483,7 @@ export default [
         "learning": "Studio a scuola."
       },
       "RANKED": {
-        "rank": 310
+        "rank": 308
       },
       "VOCALIZED": {
         "asset": {
@@ -24509,7 +24509,7 @@ export default [
         "learning": "Per favore."
       },
       "RANKED": {
-        "rank": 18
+        "rank": 17
       }
     },
     "symbols": [
@@ -24534,7 +24534,7 @@ export default [
         "learning": "Grazie mille."
       },
       "RANKED": {
-        "rank": 19
+        "rank": 18
       },
       "VOCALIZED": {
         "asset": {
@@ -24563,7 +24563,7 @@ export default [
         "learning": "Va bene."
       },
       "RANKED": {
-        "rank": 27
+        "rank": 26
       }
     },
     "symbols": [
@@ -24587,7 +24587,7 @@ export default [
         "learning": "Mi dispiace."
       },
       "RANKED": {
-        "rank": 26
+        "rank": 25
       }
     },
     "symbols": [
@@ -24611,7 +24611,7 @@ export default [
         "learning": "Non lo so."
       },
       "RANKED": {
-        "rank": 34
+        "rank": 33
       }
     },
     "symbols": [
@@ -24635,7 +24635,7 @@ export default [
         "learning": "Non capisco."
       },
       "RANKED": {
-        "rank": 35
+        "rank": 34
       }
     },
     "symbols": [
@@ -24659,7 +24659,7 @@ export default [
         "learning": "Non parlo italiano."
       },
       "RANKED": {
-        "rank": 38
+        "rank": 37
       }
     },
     "symbols": [
@@ -24683,7 +24683,7 @@ export default [
         "learning": "Parla inglese?"
       },
       "RANKED": {
-        "rank": 41
+        "rank": 1136
       }
     },
     "symbols": [
@@ -24707,7 +24707,7 @@ export default [
         "learning": "Può ripetere, per favore?"
       },
       "RANKED": {
-        "rank": 43
+        "rank": 41
       }
     },
     "symbols": [
@@ -24731,7 +24731,7 @@ export default [
         "learning": "Può parlare più lentamente?"
       },
       "RANKED": {
-        "rank": 44
+        "rank": 42
       }
     },
     "symbols": [
@@ -24755,7 +24755,7 @@ export default [
         "learning": "Può aiutarmi?"
       },
       "RANKED": {
-        "rank": 50
+        "rank": 48
       }
     },
     "symbols": [
@@ -24803,7 +24803,7 @@ export default [
         "learning": "Come si chiama?"
       },
       "RANKED": {
-        "rank": 7
+        "rank": 1133
       }
     },
     "symbols": [
@@ -24827,7 +24827,7 @@ export default [
         "learning": "Quanto costa?"
       },
       "RANKED": {
-        "rank": 87
+        "rank": 85
       }
     },
     "symbols": [
@@ -24851,7 +24851,7 @@ export default [
         "learning": "Posso pagare con la carta?"
       },
       "RANKED": {
-        "rank": 89
+        "rank": 87
       }
     },
     "symbols": [
@@ -24875,7 +24875,7 @@ export default [
         "learning": "Un tavolo per due, per favore."
       },
       "RANKED": {
-        "rank": 58
+        "rank": 56
       }
     },
     "symbols": [
@@ -24899,7 +24899,7 @@ export default [
         "learning": "Vorrei ordinare."
       },
       "RANKED": {
-        "rank": 67
+        "rank": 65
       }
     },
     "symbols": [
@@ -24924,7 +24924,7 @@ export default [
         "learning": "Il conto, per favore."
       },
       "RANKED": {
-        "rank": 85
+        "rank": 83
       },
       "VOCALIZED": {
         "asset": {
@@ -24953,7 +24953,7 @@ export default [
         "learning": "Dove posso comprare i biglietti?"
       },
       "RANKED": {
-        "rank": 122
+        "rank": 120
       }
     },
     "symbols": [
@@ -24977,7 +24977,7 @@ export default [
         "learning": "A che ora parte il treno?"
       },
       "RANKED": {
-        "rank": 123
+        "rank": 121
       }
     },
     "symbols": [
@@ -25001,7 +25001,7 @@ export default [
         "learning": "Da quale binario parte?"
       },
       "RANKED": {
-        "rank": 124
+        "rank": 122
       }
     },
     "symbols": [
@@ -25025,7 +25025,7 @@ export default [
         "learning": "Quanto tempo ci vuole?"
       },
       "RANKED": {
-        "rank": 131
+        "rank": 129
       }
     },
     "symbols": [
@@ -25049,7 +25049,7 @@ export default [
         "learning": "Ho una prenotazione."
       },
       "RANKED": {
-        "rank": 61
+        "rank": 59
       }
     },
     "symbols": [
@@ -25073,7 +25073,7 @@ export default [
         "learning": "Una camera per due notti."
       },
       "RANKED": {
-        "rank": 142
+        "rank": 140
       }
     },
     "symbols": [
@@ -25097,7 +25097,7 @@ export default [
         "learning": "Dov'è il bagno?"
       },
       "RANKED": {
-        "rank": 141
+        "rank": 139
       }
     },
     "symbols": [
@@ -25121,7 +25121,7 @@ export default [
         "learning": "Mi serve un medico."
       },
       "RANKED": {
-        "rank": 152
+        "rank": 150
       }
     },
     "symbols": [
@@ -25145,7 +25145,7 @@ export default [
         "learning": "Chiami la polizia!"
       },
       "RANKED": {
-        "rank": 157
+        "rank": 155
       }
     },
     "symbols": [
@@ -25169,7 +25169,7 @@ export default [
         "learning": "Chiami un'ambulanza!"
       },
       "RANKED": {
-        "rank": 158
+        "rank": 156
       }
     },
     "symbols": [
@@ -25193,7 +25193,7 @@ export default [
         "learning": "Mi sono perso."
       },
       "RANKED": {
-        "rank": 155
+        "rank": 153
       }
     },
     "symbols": [
@@ -25217,7 +25217,7 @@ export default [
         "learning": "Ho perso il passaporto."
       },
       "RANKED": {
-        "rank": 156
+        "rank": 154
       }
     },
     "symbols": [
@@ -25242,7 +25242,7 @@ export default [
         "learning": "Che ore sono?"
       },
       "RANKED": {
-        "rank": 117
+        "rank": 115
       },
       "VOCALIZED": {
         "asset": {
@@ -25271,7 +25271,7 @@ export default [
         "learning": "Buongiorno, come sta?"
       },
       "RANKED": {
-        "rank": 1
+        "rank": 1131
       }
     },
     "symbols": [
@@ -25295,7 +25295,7 @@ export default [
         "learning": "Piacere di conoscerla."
       },
       "RANKED": {
-        "rank": 5
+        "rank": 1132
       }
     },
     "symbols": [
@@ -25319,7 +25319,7 @@ export default [
         "learning": "Di dov'è?"
       },
       "RANKED": {
-        "rank": 8
+        "rank": 1134
       }
     },
     "symbols": [
@@ -25367,7 +25367,7 @@ export default [
         "learning": "Arrivederci, a presto!"
       },
       "RANKED": {
-        "rank": 52
+        "rank": 50
       }
     },
     "symbols": [
@@ -25391,7 +25391,7 @@ export default [
         "learning": "No, grazie."
       },
       "RANKED": {
-        "rank": 21
+        "rank": 20
       }
     },
     "symbols": [
@@ -25415,7 +25415,7 @@ export default [
         "learning": "Sì, per favore."
       },
       "RANKED": {
-        "rank": 22
+        "rank": 21
       }
     },
     "symbols": [
@@ -25439,7 +25439,7 @@ export default [
         "learning": "Lo prendo."
       },
       "RANKED": {
-        "rank": 107
+        "rank": 105
       }
     },
     "symbols": [
@@ -25463,7 +25463,7 @@ export default [
         "learning": "Sto solo guardando, grazie."
       },
       "RANKED": {
-        "rank": 108
+        "rank": 106
       }
     },
     "symbols": [
@@ -25487,7 +25487,7 @@ export default [
         "learning": "Avete questo in un'altra taglia?"
       },
       "RANKED": {
-        "rank": 110
+        "rank": 108
       }
     },
     "symbols": [
@@ -25511,7 +25511,7 @@ export default [
         "learning": "Nient'altro, grazie."
       },
       "RANKED": {
-        "rank": 111
+        "rank": 109
       }
     },
     "symbols": [
@@ -25535,7 +25535,7 @@ export default [
         "learning": "Posso pagare in contanti?"
       },
       "RANKED": {
-        "rank": 90
+        "rank": 88
       }
     },
     "symbols": [
@@ -25559,7 +25559,7 @@ export default [
         "learning": "A che ora apre?"
       },
       "RANKED": {
-        "rank": 113
+        "rank": 111
       }
     },
     "symbols": [
@@ -25583,7 +25583,7 @@ export default [
         "learning": "A che ora chiude?"
       },
       "RANKED": {
-        "rank": 114
+        "rank": 112
       }
     },
     "symbols": [
@@ -25607,7 +25607,7 @@ export default [
         "learning": "Avete un tavolo libero?"
       },
       "RANKED": {
-        "rank": 57
+        "rank": 55
       }
     },
     "symbols": [
@@ -25631,7 +25631,7 @@ export default [
         "learning": "Il menu, per favore."
       },
       "RANKED": {
-        "rank": 63
+        "rank": 61
       }
     },
     "symbols": [
@@ -25655,7 +25655,7 @@ export default [
         "learning": "Cosa consiglia?"
       },
       "RANKED": {
-        "rank": 65
+        "rank": 63
       }
     },
     "symbols": [
@@ -25679,7 +25679,7 @@ export default [
         "learning": "Acqua naturale o frizzante?"
       },
       "RANKED": {
-        "rank": 66
+        "rank": 64
       }
     },
     "symbols": [
@@ -25703,7 +25703,7 @@ export default [
         "learning": "Un altro caffè, per favore."
       },
       "RANKED": {
-        "rank": 75
+        "rank": 73
       }
     },
     "symbols": [
@@ -25727,7 +25727,7 @@ export default [
         "learning": "Sono allergico al latte."
       },
       "RANKED": {
-        "rank": 82
+        "rank": 80
       }
     },
     "symbols": [
@@ -25752,7 +25752,7 @@ export default [
         "learning": "Ho fame."
       },
       "RANKED": {
-        "rank": 80
+        "rank": 78
       },
       "VOCALIZED": {
         "asset": {
@@ -25781,7 +25781,7 @@ export default [
         "learning": "Ho sete."
       },
       "RANKED": {
-        "rank": 81
+        "rank": 79
       }
     },
     "symbols": [
@@ -25805,7 +25805,7 @@ export default [
         "learning": "Da portare via, per favore."
       },
       "RANKED": {
-        "rank": 83
+        "rank": 81
       }
     },
     "symbols": [
@@ -25829,7 +25829,7 @@ export default [
         "learning": "Basta così, grazie."
       },
       "RANKED": {
-        "rank": 84
+        "rank": 82
       }
     },
     "symbols": [
@@ -25853,7 +25853,7 @@ export default [
         "learning": "Dov'è la biglietteria?"
       },
       "RANKED": {
-        "rank": 119
+        "rank": 117
       }
     },
     "symbols": [
@@ -25877,7 +25877,7 @@ export default [
         "learning": "Un biglietto di andata e ritorno."
       },
       "RANKED": {
-        "rank": 121
+        "rank": 119
       }
     },
     "symbols": [
@@ -25901,7 +25901,7 @@ export default [
         "learning": "Dove va questo autobus?"
       },
       "RANKED": {
-        "rank": 127
+        "rank": 125
       }
     },
     "symbols": [
@@ -25925,7 +25925,7 @@ export default [
         "learning": "La prossima fermata, per favore."
       },
       "RANKED": {
-        "rank": 129
+        "rank": 127
       }
     },
     "symbols": [
@@ -25949,7 +25949,7 @@ export default [
         "learning": "Può chiamarmi un taxi?"
       },
       "RANKED": {
-        "rank": 130
+        "rank": 128
       }
     },
     "symbols": [
@@ -25974,7 +25974,7 @@ export default [
         "learning": "Dov'è l'uscita?"
       },
       "RANKED": {
-        "rank": 138
+        "rank": 136
       },
       "VOCALIZED": {
         "asset": {
@@ -26003,7 +26003,7 @@ export default [
         "learning": "È lontano?"
       },
       "RANKED": {
-        "rank": 132
+        "rank": 130
       }
     },
     "symbols": [
@@ -26027,7 +26027,7 @@ export default [
         "learning": "A destra."
       },
       "RANKED": {
-        "rank": 134
+        "rank": 132
       }
     },
     "symbols": [
@@ -26051,7 +26051,7 @@ export default [
         "learning": "A sinistra."
       },
       "RANKED": {
-        "rank": 135
+        "rank": 133
       }
     },
     "symbols": [
@@ -26075,7 +26075,7 @@ export default [
         "learning": "Sempre dritto."
       },
       "RANKED": {
-        "rank": 136
+        "rank": 134
       }
     },
     "symbols": [
@@ -26099,7 +26099,7 @@ export default [
         "learning": "Giri a destra al semaforo."
       },
       "RANKED": {
-        "rank": 137
+        "rank": 135
       }
     },
     "symbols": [
@@ -26123,7 +26123,7 @@ export default [
         "learning": "Dov'è il supermercato più vicino?"
       },
       "RANKED": {
-        "rank": 139
+        "rank": 137
       }
     },
     "symbols": [
@@ -26147,7 +26147,7 @@ export default [
         "learning": "A che ora è la colazione?"
       },
       "RANKED": {
-        "rank": 103
+        "rank": 101
       }
     },
     "symbols": [
@@ -26171,7 +26171,7 @@ export default [
         "learning": "La colazione è inclusa?"
       },
       "RANKED": {
-        "rank": 104
+        "rank": 102
       }
     },
     "symbols": [
@@ -26195,7 +26195,7 @@ export default [
         "learning": "C'è il wifi?"
       },
       "RANKED": {
-        "rank": 145
+        "rank": 143
       }
     },
     "symbols": [
@@ -26219,7 +26219,7 @@ export default [
         "learning": "Posso lasciare qui il bagaglio?"
       },
       "RANKED": {
-        "rank": 147
+        "rank": 145
       }
     },
     "symbols": [
@@ -26243,7 +26243,7 @@ export default [
         "learning": "Non funziona."
       },
       "RANKED": {
-        "rank": 149
+        "rank": 147
       }
     },
     "symbols": [
@@ -26267,7 +26267,7 @@ export default [
         "learning": "Può farci una foto?"
       },
       "RANKED": {
-        "rank": 159
+        "rank": 157
       }
     },
     "symbols": [
@@ -26455,7 +26455,7 @@ export default [
     ],
     "trait": {
       "TRANSLATED": {
-        "known": "And you? (informal)",
+        "known": "And you?",
         "learning": "E tu?"
       },
       "RANKED": {
@@ -26483,7 +26483,7 @@ export default [
         "learning": "E Lei?"
       },
       "RANKED": {
-        "rank": 17
+        "rank": 1135
       }
     },
     "symbols": [
@@ -26507,7 +26507,7 @@ export default [
         "learning": "Di niente."
       },
       "RANKED": {
-        "rank": 20
+        "rank": 19
       }
     },
     "symbols": [
@@ -26531,7 +26531,7 @@ export default [
         "learning": "Mi scusi."
       },
       "RANKED": {
-        "rank": 23
+        "rank": 22
       }
     },
     "symbols": [
@@ -26555,7 +26555,7 @@ export default [
         "learning": "Scusa il ritardo."
       },
       "RANKED": {
-        "rank": 24
+        "rank": 23
       }
     },
     "symbols": [
@@ -26579,7 +26579,7 @@ export default [
         "learning": "Posso passare?"
       },
       "RANKED": {
-        "rank": 25
+        "rank": 24
       }
     },
     "symbols": [
@@ -26603,7 +26603,7 @@ export default [
         "learning": "Sono d'accordo."
       },
       "RANKED": {
-        "rank": 28
+        "rank": 27
       }
     },
     "symbols": [
@@ -26627,7 +26627,7 @@ export default [
         "learning": "Certo che sì."
       },
       "RANKED": {
-        "rank": 29
+        "rank": 28
       }
     },
     "symbols": [
@@ -26651,7 +26651,7 @@ export default [
         "learning": "Sì, volentieri."
       },
       "RANKED": {
-        "rank": 30
+        "rank": 29
       }
     },
     "symbols": [
@@ -26675,7 +26675,7 @@ export default [
         "learning": "Può darsi."
       },
       "RANKED": {
-        "rank": 31
+        "rank": 30
       }
     },
     "symbols": [
@@ -26699,7 +26699,7 @@ export default [
         "learning": "Purtroppo no."
       },
       "RANKED": {
-        "rank": 32
+        "rank": 31
       }
     },
     "symbols": [
@@ -26723,7 +26723,7 @@ export default [
         "learning": "Un attimo, per favore."
       },
       "RANKED": {
-        "rank": 33
+        "rank": 32
       }
     },
     "symbols": [
@@ -26747,7 +26747,7 @@ export default [
         "learning": "Ho capito."
       },
       "RANKED": {
-        "rank": 36
+        "rank": 35
       }
     },
     "symbols": [
@@ -26771,7 +26771,7 @@ export default [
         "learning": "Non ho capito."
       },
       "RANKED": {
-        "rank": 37
+        "rank": 36
       }
     },
     "symbols": [
@@ -26795,7 +26795,7 @@ export default [
         "learning": "Parlo solo un po' di italiano."
       },
       "RANKED": {
-        "rank": 39
+        "rank": 38
       }
     },
     "symbols": [
@@ -26819,7 +26819,7 @@ export default [
         "learning": "Sto imparando l'italiano."
       },
       "RANKED": {
-        "rank": 40
+        "rank": 39
       }
     },
     "symbols": [
@@ -26843,7 +26843,7 @@ export default [
         "learning": "Più lentamente, per favore."
       },
       "RANKED": {
-        "rank": 45
+        "rank": 43
       }
     },
     "symbols": [
@@ -26867,7 +26867,7 @@ export default [
         "learning": "Può scriverlo?"
       },
       "RANKED": {
-        "rank": 46
+        "rank": 44
       }
     },
     "symbols": [
@@ -26891,7 +26891,7 @@ export default [
         "learning": "Può aiutarmi, per favore?"
       },
       "RANKED": {
-        "rank": 51
+        "rank": 49
       }
     },
     "symbols": [
@@ -26915,7 +26915,7 @@ export default [
         "learning": "Ci vediamo!"
       },
       "RANKED": {
-        "rank": 53
+        "rank": 51
       }
     },
     "symbols": [
@@ -26939,7 +26939,7 @@ export default [
         "learning": "A domani!"
       },
       "RANKED": {
-        "rank": 54
+        "rank": 52
       }
     },
     "symbols": [
@@ -26963,7 +26963,7 @@ export default [
         "learning": "A dopo!"
       },
       "RANKED": {
-        "rank": 55
+        "rank": 53
       }
     },
     "symbols": [
@@ -26987,7 +26987,7 @@ export default [
         "learning": "Buona giornata!"
       },
       "RANKED": {
-        "rank": 56
+        "rank": 54
       }
     },
     "symbols": [
@@ -27011,7 +27011,7 @@ export default [
         "learning": "Un tavolo per uno."
       },
       "RANKED": {
-        "rank": 59
+        "rank": 57
       }
     },
     "symbols": [
@@ -27035,7 +27035,7 @@ export default [
         "learning": "È libero questo posto?"
       },
       "RANKED": {
-        "rank": 60
+        "rank": 58
       }
     },
     "symbols": [
@@ -27059,7 +27059,7 @@ export default [
         "learning": "Senta, scusi!"
       },
       "RANKED": {
-        "rank": 62
+        "rank": 60
       }
     },
     "symbols": [
@@ -27083,7 +27083,7 @@ export default [
         "learning": "Posso avere il menu?"
       },
       "RANKED": {
-        "rank": 64
+        "rank": 62
       }
     },
     "symbols": [
@@ -27107,7 +27107,7 @@ export default [
         "learning": "Per me, un caffè."
       },
       "RANKED": {
-        "rank": 69
+        "rank": 67
       }
     },
     "symbols": [
@@ -27131,7 +27131,7 @@ export default [
         "learning": "Per me, la pasta."
       },
       "RANKED": {
-        "rank": 70
+        "rank": 68
       }
     },
     "symbols": [
@@ -27155,7 +27155,7 @@ export default [
         "learning": "Anche per me."
       },
       "RANKED": {
-        "rank": 71
+        "rank": 69
       }
     },
     "symbols": [
@@ -27179,7 +27179,7 @@ export default [
         "learning": "Buon appetito!"
       },
       "RANKED": {
-        "rank": 78
+        "rank": 76
       }
     },
     "symbols": [
@@ -27203,7 +27203,7 @@ export default [
         "learning": "Grazie, altrettanto."
       },
       "RANKED": {
-        "rank": 79
+        "rank": 77
       }
     },
     "symbols": [
@@ -27227,7 +27227,7 @@ export default [
         "learning": "Quanto viene?"
       },
       "RANKED": {
-        "rank": 88
+        "rank": 86
       }
     },
     "symbols": [
@@ -27251,7 +27251,7 @@ export default [
         "learning": "Va bene così."
       },
       "RANKED": {
-        "rank": 91
+        "rank": 89
       }
     },
     "symbols": [
@@ -27275,7 +27275,7 @@ export default [
         "learning": "Vorrei questo."
       },
       "RANKED": {
-        "rank": 105
+        "rank": 103
       }
     },
     "symbols": [
@@ -27299,7 +27299,7 @@ export default [
         "learning": "Prendo questo."
       },
       "RANKED": {
-        "rank": 106
+        "rank": 104
       }
     },
     "symbols": [
@@ -27323,7 +27323,7 @@ export default [
         "learning": "A che ora?"
       },
       "RANKED": {
-        "rank": 115
+        "rank": 113
       }
     },
     "symbols": [
@@ -27347,7 +27347,79 @@ export default [
         "learning": "Dove devo scendere?"
       },
       "RANKED": {
-        "rank": 128
+        "rank": 126
+      }
+    },
+    "symbols": [
+      {
+        "slug": "sentence"
+      },
+      {
+        "slug": "proficiency.survival"
+      }
+    ]
+  },
+  {
+    "slug": "buongiorno-come-stai",
+    "traits": [
+      "TRANSLATED",
+      "RANKED"
+    ],
+    "trait": {
+      "TRANSLATED": {
+        "known": "Good morning, how are you?",
+        "learning": "Buongiorno, come stai?"
+      },
+      "RANKED": {
+        "rank": 1
+      }
+    },
+    "symbols": [
+      {
+        "slug": "sentence"
+      },
+      {
+        "slug": "proficiency.survival"
+      }
+    ]
+  },
+  {
+    "slug": "piacere-di-conoscerti",
+    "traits": [
+      "TRANSLATED",
+      "RANKED"
+    ],
+    "trait": {
+      "TRANSLATED": {
+        "known": "Nice to meet you.",
+        "learning": "Piacere di conoscerti."
+      },
+      "RANKED": {
+        "rank": 5
+      }
+    },
+    "symbols": [
+      {
+        "slug": "sentence"
+      },
+      {
+        "slug": "proficiency.survival"
+      }
+    ]
+  },
+  {
+    "slug": "di-dove-sei",
+    "traits": [
+      "TRANSLATED",
+      "RANKED"
+    ],
+    "trait": {
+      "TRANSLATED": {
+        "known": "Where are you from?",
+        "learning": "Di dove sei?"
+      },
+      "RANKED": {
+        "rank": 8
       }
     },
     "symbols": [

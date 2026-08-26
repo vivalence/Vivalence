@@ -32,7 +32,7 @@ describe("registry ingest", () => {
   });
 
   // Deliberately NOT a list of expected owners: `@young-ladys-primer` is a real package on
-  // disk that this variant does not mount, so naming the mounted set would pin the same kind
+  // disk that this instance does not mount, so naming the mounted set would pin the same kind
   // of literal the count did. The invariant is per-owner and survives mounting it later.
   it("gives every ingested owner a package-typed self-manifest — a mount without one cannot register", async () => {
     await registry();
@@ -57,8 +57,8 @@ describe("registry ingest", () => {
 
   it("fork 2: multiplayer + localhost wafers resolve under @viva", async () => {
     await registry();
-    const multiplayer = await paladin.vip.pensieve.revelio({ owner: "@viva", type: "variant", slug: "multiplayer" });
-    const localhost = await paladin.vip.pensieve.revelio({ owner: "@viva", type: "variant", slug: "localhost" });
+    const multiplayer = await paladin.vip.pensieve.revelio({ owner: "@viva", type: "instance", slug: "multiplayer" });
+    const localhost = await paladin.vip.pensieve.revelio({ owner: "@viva", type: "instance", slug: "localhost" });
     expect(multiplayer).toBeTruthy();
     expect(localhost).toBeTruthy();
   });

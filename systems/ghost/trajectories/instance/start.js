@@ -20,7 +20,7 @@ export async function start(ctx) {
       .map((process) => `${process.spec.type}=${process.pid}`)
       .join(", ")})`,
   );
-  console.log(`ghost: stop with: viva /variant/stop`);
+  console.log(`ghost: stop with: viva /instance/stop`);
 
   ctx.effect = {
     status: "started",

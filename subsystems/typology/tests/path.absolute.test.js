@@ -24,14 +24,14 @@ specimen.describe("Path.absolute — system-wide agreement set (every live LEAF 
   });
 
   specimen.it("datamap.mount.branch(db) + .branch(migrations) — libsql.viva.js", () => {
-    const mount = new Path("/testament/variant/mountpoint").branch("/daemon_spanish");
+    const mount = new Path("/testament/instance/mountpoint").branch("/daemon_spanish");
     const db = mount.branch("test-language-spanish.viva.db");
     const migrations = mount.branch("migrations");
 
     specimen.expect(db.absolute).toBe(chain(db));
-    specimen.expect(db.absolute).toBe("/testament/variant/mountpoint/daemon_spanish/test-language-spanish.viva.db");
+    specimen.expect(db.absolute).toBe("/testament/instance/mountpoint/daemon_spanish/test-language-spanish.viva.db");
     specimen.expect(migrations.absolute).toBe(chain(migrations));
-    specimen.expect(migrations.absolute).toBe("/testament/variant/mountpoint/daemon_spanish/migrations");
+    specimen.expect(migrations.absolute).toBe("/testament/instance/mountpoint/daemon_spanish/migrations");
   });
 
   specimen.it("freight.path.branch(entry) per request — resolve.js cargo, repeat serves", () => {
@@ -62,12 +62,12 @@ specimen.describe("Path.absolute — system-wide agreement set (every live LEAF 
 
 specimen.describe("Path.absolute — divergence set (branched PARENTS: heritage wins)", () => {
   specimen.it("the daemon-mount crash: heir-walk poisons the parent, heritage does not", () => {
-    const mount = new Path("/testament/variant/mountpoint").branch("/daemon_spanish");
+    const mount = new Path("/testament/instance/mountpoint").branch("/daemon_spanish");
     mount.branch("test-language-spanish.viva.db");
     mount.branch("migrations");
 
-    specimen.expect(chain(mount)).toBe("/testament/variant/mountpoint/daemon_spanish/test-language-spanish.viva.db");
-    specimen.expect(heritage(mount)).toBe("/testament/variant/mountpoint/daemon_spanish");
+    specimen.expect(chain(mount)).toBe("/testament/instance/mountpoint/daemon_spanish/test-language-spanish.viva.db");
+    specimen.expect(heritage(mount)).toBe("/testament/instance/mountpoint/daemon_spanish");
     specimen.expect(mount.absolute).toBe(heritage(mount));
 
     const store = `${mount.absolute}/homepage/aprende/bundle`;

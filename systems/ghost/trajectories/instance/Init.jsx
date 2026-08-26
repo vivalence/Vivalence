@@ -101,7 +101,7 @@ export function Init({ boot, signup, teardown, buffer }) {
         paddingY={1}
       >
         <Box justifyContent="space-between">
-          <Logo variant="banner" />
+          <Logo instance="banner" />
           {title ? <Text color={theme.dim}>{title}</Text> : null}
         </Box>
         <Box flexDirection="column" marginY={1}>
@@ -140,8 +140,8 @@ export function Init({ boot, signup, teardown, buffer }) {
         {phase === "ready" && (
           <Box flexDirection="column" gap={1}>
             <Banner
-              variant="success"
-              headline="variant up"
+              instance="success"
+              headline="instance up"
               body={`admin ${admin?.username ?? "(skipped)"}${admin ? `  ·  ${"•".repeat(admin.password?.length ?? 0)}` : ""}`}
               nextSteps={["enter to stop + exit"]}
             />

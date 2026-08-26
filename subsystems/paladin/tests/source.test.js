@@ -19,7 +19,7 @@ describe("paladin.source", () => {
   });
 
   it("{file, source} — relative to the declaring file", () => {
-    const resolved = paladin.source({ file: "file:///repo/registry/simulation/variant/test.viva.js", source: "../fixtures" });
+    const resolved = paladin.source({ file: "file:///repo/registry/simulation/instance/test.viva.js", source: "../fixtures" });
     expect(resolved.absolute).toBe("/repo/registry/simulation/fixtures");
   });
 

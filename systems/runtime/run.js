@@ -3,9 +3,9 @@ import { Die, Runtime } from "@vivalence/runtime";
 
 const run = await (async function () {
   // console.log("paladin.env", paladin.env);
-  await paladin.variant.mount();
-  // console.log("paladin.variant", paladin.variant);
-  // console.log("paladin.variant", JSON.stringify(paladin.variant, null, 2));
+  await paladin.instance.mount();
+  // console.log("paladin.instance", paladin.instance);
+  // console.log("paladin.instance", JSON.stringify(paladin.instance, null, 2));
   const die = new Die({ good: new Runtime() });
   await die.populate();
   return die;

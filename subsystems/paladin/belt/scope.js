@@ -40,7 +40,7 @@ export default async function (paladin) {
   );
 }
 
-// variant: new Path(paladin.env.get("VIVA_VARIANT_MOUNT")).branch("variant"),
+// instance: new Path(paladin.env.get("VIVA_INSTANCE_MOUNT")).branch("instance"),
 // const [control,proxy] = new Scope();
 // importmap: await paladin.read.json(paladin.join.system("import_map.json")),
 
@@ -50,14 +50,14 @@ export default async function (paladin) {
 //   get circuits() {
 //   },
 //   get tilde() {
-//     return paladin.scope.variant;
+//     return paladin.scope.instance;
 //   },
 //   //
 //   get system() {
 //     return new Path(paladin.env.get("VIVA_REPOSITORY_MOUNT"));
 //   },
-//   get variant() {
-//     const env = paladin.env.get("VIVA_VARIANT_MOUNT");
+//   get instance() {
+//     const env = paladin.env.get("VIVA_INSTANCE_MOUNT");
 //     const path = new Path(env);
 //     return path;
 //   },
@@ -78,14 +78,14 @@ export default async function (paladin) {
 //     let envpath;
 //     if (Deno.env.has("VIVA_MOUNTPOINT_MOUNT")) {
 //       envpath = Deno.env.get("VIVA_MOUNTPOINT_MOUNT");
-//     } else envpath = paladin.scope.variant.branch("mountpoint").absolute;
+//     } else envpath = paladin.scope.instance.branch("mountpoint").absolute;
 //     return new Path(envpath);
 //   },
 //   get environment() {
 //     let envpath;
 //     if (Deno.env.has("VIVA_ENVIRONMENT_MOUNT")) {
 //       envpath = Deno.env.get("VIVA_ENVIRONMENT_MOUNT");
-//     } else envpath = paladin.scope.variant.branch("environment").absolute;
+//     } else envpath = paladin.scope.instance.branch("environment").absolute;
 //     return new Path(envpath);
 //   },
 // };
