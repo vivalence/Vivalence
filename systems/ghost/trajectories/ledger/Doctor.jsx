@@ -1,30 +1,110 @@
-import { Box, React, Text } from "@vivalence/sheets";
+import { Box, React, Table, Text } from "@vivalence/sheets";
+
+const columns = () => {
+  try {
+    return Deno.consoleSize().columns - 6;
+  } catch {
+    return 76;
+  }
+};
 
 export function Doctor({ report }) {
-  const { identity, scopes, environment, env, strata, secrets, processes, locks, instances, logs, instance, registry, vip } = report;
+  const { homes, scopes, env, record, store, instances, locks, sessions, logs, environment, strata } = report;
+  const width = columns();
+
+  const stale = record.entries.filter((entry) => !entry.present);
+  const pinned = record.entries.filter((entry) => entry.pinned).length;
+  const flagged = (flag) => instances.filter((row) => (row.flags ?? []).some((held) => held.startsWith(flag))).length;
+  const shelved = instances.filter(
+    (row) => row.mount?.startsWith(`${homes.instances}/`) && !(row.flags ?? []).includes("dangling"),
+  ).length;
+  const running = locks.filter((lock) => lock.alive).length;
+  const moved = store.path && store.path !== `${homes.ledger}/registry`;
+  const scope = (name) => scopes.find((held) => held.name === name);
 
   return (
     <Box flexDirection="column">
-      <Text bold>viva doctor</Text>
+      <Text bold>viva ledger/doctor</Text>
 
-      <Section title="identity">
-        <Text>
-          role: <Text color="cyan">{identity.role ?? "—"}</Text>  mode:{" "}
-          <Text color="cyan">{identity.mode ?? "—"}</Text>
-        </Text>
-        <Text color="gray">flags: {identity.flags.join(" ") || "—"}</Text>
-      </Section>
+      <Box flexDirection="column" marginTop={1}>
+        <Home name="ledger" scope={scope("ledger")} />
 
-      <Section title="scopes">
-        {scopes.map((scope) => (
-          <Text key={scope.name} color={scope.present ? "green" : "red"}>
-            {"  ".repeat(scope.depth)}
-            {scope.present ? "✓" : "✗"} {scope.name.padEnd(14)} {scope.path ?? "—"}
+        <Organ
+          name=".env"
+          count={env.present ? "present" : "absent"}
+          note={`${env.vars.length} vars · ${env.secrets.length} secrets${env.blank.length ? ` · ${env.blank.length} blank` : ""}`}
+          warn={env.blank.length > 0}
+        />
+
+        <Organ
+          name="registry.json"
+          count={`${record.entries.length} tapped`}
+          note={`${pinned} pinned · ${record.entries.length - pinned} store · ${stale.length} stale`}
+          warn={stale.length > 0}
+          tail="registry/doctor"
+        />
+        {stale.map((entry) => (
+          <Text key={entry.reference} color="red">
+            {"    ✗ "}
+            {entry.reference}
+            <Text color="gray">  gone — viva registry/untap</Text>
           </Text>
         ))}
-      </Section>
 
-      <Section title="environment" hint={`${environment.length} vars · ${(strata ?? []).join(" › ")}`}>
+        <Organ
+          name="registry/"
+          count={`${store.resident.length} resident`}
+          note={`${store.untapped.length} untapped${moved ? ` · moved → ${store.path}` : ""}`}
+          warn={store.untapped.length > 0}
+        />
+        {store.untapped.map((root) => (
+          <Text key={root} color="yellow">
+            {"    ○ "}
+            {root.split("/").at(-1)}
+            <Text color="gray">  untapped — viva registry/tap</Text>
+          </Text>
+        ))}
+
+        <Organ name="instances.json" count={`${instances.length} recorded`} note="" />
+        <Rows
+          rows={instances.map((row) => ({
+            slug: row.slug,
+            valence: row.valence ?? null,
+            mount: row.mount === `${homes.instances}/${row.slug}` ? null : row.mount,
+            updated: row.updatedAt?.slice(0, 10) ?? null,
+            flags: row.flags?.join(" ") ?? null,
+          }))}
+          width={width}
+        />
+
+        <Organ
+          name="instances/"
+          count={`${shelved} shelved`}
+          note={`${flagged("orphan")} orphan · ${flagged("dangling")} dangling · ${flagged("shadowed")} shadowed`}
+          warn={flagged("orphan") + flagged("dangling") + flagged("shadowed") > 0}
+        />
+
+        <Organ name="locks/" count={`${running} running`} note={locks.length > running ? `${locks.length - running} dead` : ""} warn={locks.length > running} />
+        <Rows rows={locks} width={width} />
+
+        <Organ name="sessions/" count={`${sessions.length} shells`} note="" />
+        <Rows rows={sessions} width={width} />
+
+        <Organ name="logs/" count={`${logs.length} files`} note="" />
+        <Rows rows={logs} width={width} />
+      </Box>
+
+      <Box flexDirection="column" marginTop={1}>
+        <Home name="repository" scope={scope("repository")} />
+        <Home name="instance" scope={scope("instance")} />
+        <Home name="mountpoint" scope={scope("mountpoint")} />
+      </Box>
+
+      <Box flexDirection="column" marginTop={1}>
+        <Text bold>
+          environment
+          <Text color="gray"> ({environment.length} vars · {(strata ?? []).join(" › ")})</Text>
+        </Text>
         {environment.map((variable) => (
           <Box key={variable.key} flexDirection="column">
             <Text>
@@ -39,111 +119,37 @@ export function Doctor({ report }) {
             ))}
           </Box>
         ))}
-      </Section>
-
-      {(env ?? []).length ? (
-        <Section
-          title="env"
-          hint={`${env.filter((row) => ["UNDOCUMENTED", "REQUIRED"].includes(row.verdict)).length} to answer`}
-        >
-          {env.map((row, index) => (
-            <Text key={`${row.key}-${index}`}>
-              <Text color="cyan">{row.key.padEnd(32)}</Text>{" "}
-              <Text color="gray">{(row.at ?? "—").slice(0, 34).padEnd(35)}</Text>{" "}
-              <Text color={row.value ? "gray" : "red"}>{row.value ?? "—"}</Text>
-            </Text>
-          ))}
-        </Section>
-      ) : null}
-
-      <Section
-        title="registry"
-        hint={
-          registry === null
-            ? "no scope"
-            : registry.error
-              ? `error: ${registry.error}`
-              : `${registry.total} modes  ${Object.keys(registry.byOwner ?? {}).length} packages`
-        }
-      >
-        {registry === null && <Text color="gray">—</Text>}
-        {registry?.error && <Text color="red">{registry.error}</Text>}
-        {registry?.byOwner &&
-          Object.entries(registry.byOwner).map(([owner, types]) => (
-            <Box key={owner} flexDirection="column">
-              <Text color="cyan">{owner}</Text>
-              {Object.entries(types).map(([type, slugs]) => (
-                <Text key={type}>
-                  {"  "}
-                  {type.padEnd(14)} <Text color="gray">{slugs.join("  ")}</Text>
-                </Text>
-              ))}
-            </Box>
-          ))}
-      </Section>
-
-      <Section title="processes" hint={`armed:${processes.armed}  attached:${processes.attached.length}`}>
-        {processes.attached.length === 0 && <Text color="gray">—</Text>}
-        {processes.attached.map((process) => (
-          <Text key={process.pid}>
-            pid {String(process.pid).padEnd(8)} {process.type ?? "?"}
-            {process.slug ? ` · ${process.slug}` : ""}
-          </Text>
-        ))}
-      </Section>
-
-      <Section title="instances" hint={`${instances.length}`}>
-        {instances.length === 0 && <Text color="gray">—</Text>}
-        {instances.map((entry) => (
-          <Text key={entry.slug}>
-            {entry.slug.padEnd(24)} {(entry.mount ?? "—").padEnd(48)}{" "}
-            <Text color="gray">updated {entry.updatedAt ?? "—"}</Text>
-          </Text>
-        ))}
-      </Section>
-
-      <Section
-        title="instance"
-        hint={`daemons:${instance.daemons}  services:${instance.services}  runtime:${instance.runtime ? "yes" : "no"}`}
-      >
-        <Text color="gray">clients: {instance.clients.join(" ") || "—"}</Text>
-      </Section>
-
-      <Section title="locks" hint={`${locks.length}`}>
-        {locks.length === 0 && <Text color="gray">—</Text>}
-        {locks.map((lock) => (
-          <Text key={`${lock.type}_${lock.slug}`}>
-            {lock.type}/{lock.slug.padEnd(20)} pid {lock.pid ?? "?"}
-          </Text>
-        ))}
-      </Section>
-
-      <Section title="logs" hint={`${logs.length} files`}>
-        {logs.length === 0 && <Text color="gray">—</Text>}
-        {logs.map((log) => (
-          <Text key={log.name}>
-            {log.name.padEnd(40)} {String(log.size).padStart(8)} B
-          </Text>
-        ))}
-      </Section>
-
-      <Box marginTop={1}>
-        <Text color="gray">
-          vip cache: {vip}  ·  secrets: {secrets}
-        </Text>
       </Box>
     </Box>
   );
 }
 
-function Section({ title, hint, children }) {
+function Home({ name, scope }) {
   return (
-    <Box flexDirection="column" marginTop={1}>
-      <Text bold>
-        {title}
-        {hint ? <Text color="gray"> ({hint})</Text> : null}
-      </Text>
-      {children}
+    <Text color={scope.present ? "green" : "red"}>
+      {"  ".repeat(scope.depth)}
+      {scope.present ? "✓" : "✗"} <Text bold>{name.padEnd(12)}</Text> <Text color="gray">{scope.path ?? "—"}</Text>
+    </Text>
+  );
+}
+
+function Organ({ name, count, note, warn, tail }) {
+  return (
+    <Text>
+      {"  "}
+      <Text color="cyan">{name.padEnd(16)}</Text>
+      {String(count).padEnd(14)}
+      <Text color={warn ? "yellow" : "gray"}>{note}</Text>
+      {tail ? <Text color="gray" dimColor>{"  → "}{tail}</Text> : null}
+    </Text>
+  );
+}
+
+function Rows({ rows, width }) {
+  if (!rows.length) return null;
+  return (
+    <Box marginLeft={4} marginBottom={0}>
+      <Table rows={rows} width={width} />
     </Box>
   );
 }

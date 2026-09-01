@@ -1,0 +1,61 @@
+#+title: the docs watch goes blind when a sibling session wipes .astro, astro keeps two content stores, and the recipe that wiped it was in my own memory
+#+filetags: :documentation:docs:astro:memory:known-issue:report:probe:compact:
+
+* what happened, in one breath
+
+beef pasted the docs dev server's log and nothing else: a page served 200 at 16:34:32, then =Configuration file removed. Restarting...= at 16:34:36, a failed import of =.astro/content-assets.mjs=, =The collection "docs" does not exist or is empty=, and twenty-seven minutes later the home page still dying on =RenderUndefinedEntryError=. The log named a configuration file; no configuration file had moved. The trace went to the astro source under =node_modules= and to the sibling transcripts on disk, and both agreed: the "docs survey" session had run =rm -rf .astro && astro build= inside =documentation/= while beef's =deno task documentation/watch= was live. Astro keeps its content store in two places — the dev server's under =.astro/=, a build's under =node_modules/.astro/= — and the dev runtime reads its store from disk on every invalidation, so a deleted file is an empty site. Nothing regenerates it: the restart path never re-syncs content, and the in-memory store still holds every entry with its dirty flag down, so even a manual sync declines to write. The =rm= was not the sibling's invention — it was the stale-cache recipe in my own =project_documentation_site= memory, unqualified. The memory now carries the two-stores law and =--force= as the sanctioned clear; the =public/= junk found beside the bug went to =known-issues.org=; the dev server is still dead until beef restarts it, because his foreground process is his. Then =ikiro compact=, with =/clear= queued behind it.
+
+* spine (N=4)
+
+| n | beef (verbatim where it is a decision, a gate, or a correction) | what landed / decided |
+|---+-----------------------------------------------------------------+-----------------------|
+| 1 | the pasted log, no prose (trimmed — beef quoting a log): /"16:34:32 [200] /50.01_slowstart 202ms · 16:34:36 Configuration file removed. Restarting... · [ERROR] Failed to load url /.astro/content-assets.mjs … Does the file exist? · The collection "docs" does not exist or is empty. Please check your content config file for errors. · 17:01:23 [404] /50.01_slowstart · 17:01:26 [ERROR] RenderUndefinedEntryError at eval (documentation/src/pages/index.astro, <anonymous>:14:60)"/ | Root cause traced, no fix applied (beef described a problem; the deliverable was the assessment). Culprit = sibling session "docs survey" (transcript =23dd3ad1=) at 16:34:34: =cd documentation && rm -rf .astro && time deno run -A npm:astro build=. Mechanism from astro 7.0.9 source: dev store =documentation/.astro/data-store.json= vs build store =documentation/node_modules/.astro/data-store.json= (=content/content-layer.js:371=); the =rm= unlinked =.astro/settings.json= → =core/dev/restart.js:169= restart; runtime reads the store from disk, missing ⇒ =export default new Map()= (=content/vite-plugin-content-virtual-mod.js:171=); =restartContainerInPlace= never calls =contentLayer.sync()=; the =s= shortcut's sync cannot write an unchanged store (=mutable-data-store.js:352= dirty guard, =loaders/glob.js:90= digest skip). Measured control: session =8d4bdf08='s plain =astro build= at 16:34:01 left the watch serving 200 at 16:34:32 — a concurrent build is safe, only the =rm= kills. Live probe at fold: =/= → 500, =/50.01_slowstart= → 404, pid 69191 still on =127.0.0.1:4321=. Memory =project_documentation_site= gained the two-stores law and had its =rm -rf .astro= gotcha rewritten to =astro dev --force= / =astro build --force=; MEMORY.md hook updated. Side finding: =documentation/public/{.astro,dist,node_modules}= (1.2M, 31 files) copied into =dist/= every build. Recovery named, not run: Ctrl-C + =deno task documentation/watch=. |
+| 2 | (not beef — the =superpowers:systematic-debugging= skill body landed as a user turn) | NOTHING. |
+| 3 | /"ikiro compact"/ | This fold. Known-issue =documentation-public-ships-astro-dist-node_modules-junk= inserted (beef's tree, one =rm=, his). Budgets: =self/rituals.md= 16359 > 16000 — a sibling's fresh **quest report** bullet (366 chars) duplicating =self/totems.md ## quest report= and =methods/compact.md= step 8 verbatim; evicted whole, 15734 after. Index regenerated, quest report stamped. |
+| 4 | MID-TURN /"/clear"/ | NOTHING durable — queued behind the compact; the fold is the only carrier into the next context. |
+
+* arc
+
+** the log named a configuration file; the source named an unlink (row 1)
+
+=Configuration file removed= is what astro prints for ANY unlink that =shouldRestartContainer= accepts, and the only candidate under =.astro/= is =settings.json=, the preferences file the update-check writes at boot. So the message meant "something deleted =.astro/= wholesale", and the failed =content-assets.mjs= import was a request caught mid-deletion. What made the site stay dead was the part no log line says: the dev runtime does not serve from the content layer's memory, it serves from the =astro:data-layer-content= virtual module, which re-reads =.astro/data-store.json= from disk each time it is invalidated. Delete that one file and every =getCollection= sees an empty map while the process still holds all nine entries. The restart does not help — =restartContainerInPlace= rebuilds vite and nothing else — and the =s= shortcut cannot help either, because the glob loader skips entries whose digest matches and the store only writes when something called =set=. The =.astro/= directory looked regenerated at 16:34:37 (=content-modules.mjs=, =content.d.ts=, schemas), which is the trap: those were the sibling BUILD's sync writing what it writes when files are missing; a build's store lives elsewhere, so =data-store.json= alone never came back.
+
+** the weapon was a recipe in my own memory (rows 1, 3)
+
+The sibling did not improvise =rm -rf .astro=. My =project_documentation_site= memory carried, since the home-rework era, /"Gotcha: stale =.astro/= content-layer cache after moving collection files → UnknownContentCollectionError; =rm -rf .astro=."/ — a correct remedy for a dead dev server, stated without the condition that makes it safe. A memory recipe reads as canon to every session that loads it, and this one loaded into a session that had no way to know a watch was up in another terminal. Same family as a codemap claim that rots unread: derived canon asserting an action without its precondition. The line now says =--force= (which clears only the store of the command that runs it, =clearContentLayerCache= keyed on =isDev=) and names the two-stores law at the end of the body; MEMORY.md's hook says the same in one clause, because the hook is what a sibling skims. No callout: beef did not name it, and the recipe was mine, not a beef correction.
+
+** the control that made the claim measurable (row 1)
+
+Two builds ran that minute. The first, from session =8d4bdf08= at 16:34:01, had no =rm=; it wrote the build store at 16:34:03 and the watch served =/50.01_slowstart= 200 at 16:34:32. The second had the =rm=. One variable between them. That is why the memory now says a concurrent plain =astro build= is SAFE — the sanctioned "MDX check without capture" stays as written — and why the ban is on the =rm= alone, not on building beside a watch.
+
+** the tree beside the bug (rows 1, 3)
+
+=dist/= carried =.astro/=, an empty =dist/=, and =node_modules/.vite/deps/= — not build output but =public/= copied verbatim, and =public/= has held those three since the day the site was born (an astro run rooted one directory too deep). They ship into the nginx image. Beef's tree, one =rm=, so a known-issue, not a deletion.
+
+* state at fold
+
+- =documentation/= dev server (pid 69191, =deno task documentation/watch=, beef's foreground tty): STILL DEAD at fold — =/= 500, pages 404. Recovery is his Ctrl-C + rerun; boot loads the missing file as an empty store, the full load dirties it, the write returns.
+- code: nothing under =systems/= · =subsystems/= · =commons/= · =documentation/= touched. No VCS.
+- memory: =project_documentation_site.md= — gotcha line rewritten + a **Two content stores** paragraph with the source-line trace; MEMORY.md hook extended.
+- =.ikiro/known-issues.org=: =documentation-public-ships-astro-dist-node_modules-junk= — OPEN, beef's one-liner inside.
+- =.ikiro/self/rituals.md=: over budget at fold (16359/16000) from a sibling's addition at 16:53; the duplicated **quest report** bullet evicted whole → 15734. Its content survives verbatim in =self/totems.md ## quest report= and =methods/compact.md= step 8. Transparent, git-reversible; the sibling that added it will find this row.
+- balance: rows 1 and 3 carry every citation; rows 2 and 4 are NOTHING by construction (a skill body and a queued =/clear=). N=4, nothing unaccounted.
+- sibling sensor at fold: m42 · m44 · m46 · =standalone.quest= all have live writers (see the report below); the "docs survey" session that ran the =rm= is one of m46's.
+
+* resumption
+
+- beef: Ctrl-C, =deno task documentation/watch=. Then, if he wants the junk gone: =rm -rf documentation/public/.astro documentation/public/dist documentation/public/node_modules=.
+- any session needing a clean docs cache while a watch may be up: =deno run -A npm:astro build --force= for the build store, never =rm -rf .astro=; the dev store is the watch's to clear (=astro dev --force= at its next start).
+- open from the frontier's docs strand, untouched here: 50.01 re-capture after the hello-world reshape · the =## Instance= stub.
+
+* quest report (derived at fold — `methods/quest-report.py`)
+
+| quest                        | progress  | status  | next    | sessions   |
+|------------------------------+-----------+---------+---------+------------|
+| m25-user-and-thread-handling | —         | open    | survey  | 0          |
+| m27-memory-and-notes         | —         | open    | survey  | 0          |
+| m42-history-purge            |   0% 0/4  | blocked | fork    | 2 (1 live) |
+| m44-authoritative-slugs      |  41% 7/17 | landed  | control | 7 (2 live) |
+| m46-linux-readmen            |  17% 3/18 | wip     | drain   | 3 (2 live) |
+| m50-the-three-way-weave      |  60% 3/5  | wip     | blast   | 0          |
+| standalone.quest             |   0% 0/18 | design  | go      | 1 (1 live) |

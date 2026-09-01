@@ -1,6 +1,6 @@
 import paladin from "@vivalence/paladin";
-import { lens, path, pick } from "../../belt/index.js";
-import { register } from "../instance/target.js";
+import { lens, pick } from "../../belt/index.js";
+import { locate, register } from "../instance/target.js";
 
 export async function use(ctx) {
   const input = ctx.signal.params?.[0];
@@ -12,24 +12,19 @@ export async function use(ctx) {
   });
 
   let reference = null;
-  const local = input && (input.includes("/") || input.startsWith("."));
-  if (local) reference = path.instance(input);
-  else {
+  if (input) {
+    const found = await locate(ctx, input);
+    if (!found.mount) return (ctx.effect = found);
+    reference = found.mount;
+  } else {
     const instances = await lens.instances();
     // bare `use` where no prompt can happen (a pipe, --json, an empty ledger) stays the report.
-    if (!input && (!ctx.interactive || !instances.rows.length)) return report();
-    if (input && !instances.rows.length) {
-      return (ctx.effect = { error: `no instance '${input}' — viva instances/tap <path> --slug=${input}` });
-    }
-    const chosen = await pick(ctx, instances, input);
+    if (!ctx.interactive || !instances.rows.length) return report();
+    const chosen = await pick(ctx, instances);
     if (chosen?.aborted) return (ctx.effect = { aborted: true });
-    if (chosen) reference = chosen.row.mount;
-    else if (input) {
-      return (ctx.effect = { error: `no instance '${input}' — viva instances/tap <path> --slug=${input}` });
-    }
+    if (!chosen) return report();
+    reference = chosen.row.mount;
   }
-
-  if (!reference) return report();
 
   const shell = Deno.env.get("VIVA_PROCESS_ID");
   const ledger = ctx.signal.flags?.ledger === true;

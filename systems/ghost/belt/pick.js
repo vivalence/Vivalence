@@ -6,7 +6,7 @@ import { search, Search } from "@vivalence/sheets";
 // so a bare slug never costs a repaint.
 export async function pick(ctx, lens, preset = "") {
   const { rows, keys, facets, columns, reference, label = "search", index = 0 } = lens;
-  // a reference IS a query — `@viva/instance/localhost` is the three terms the haystack holds,
+  // a reference IS a query — `@commons/instance/localhost` is the three terms the haystack holds,
   // so a full triple resolves headlessly and a filesystem path simply matches nothing.
   const query = (preset ?? "").replaceAll("/", " ").trim();
 

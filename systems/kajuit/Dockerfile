@@ -6,7 +6,7 @@ ENV VIVA_SYSTEM_MODE="BUILD"
 ENV VIVA_SYSTEM_ROLE="CLIENT"
 
 RUN rm -rf \
-    ./registry \
+    ./commons \
     ./systems/kajuit \
     ./subsystems/typology \
     ./subsystems/dapper \
@@ -26,7 +26,7 @@ COPY documentation/deno.jsonc ./documentation/deno.jsonc
 
 RUN deno install
 
-COPY registry/ ./registry/
+COPY commons/ ./commons/
 COPY subsystems/typology/ ./subsystems/typology/
 COPY subsystems/dapper/ ./subsystems/dapper/
 COPY subsystems/drapes/ ./subsystems/drapes/

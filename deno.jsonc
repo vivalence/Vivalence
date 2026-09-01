@@ -25,7 +25,7 @@
     "gource": "gource --output-custom-log /tmp/vivalence.gource.log . && awk -F'|' '$4 ~ /\\.(svelte|tsx|ts|jsx|js|cjs|mjs|sql|prisma|css|pcss|postcss)$/' /tmp/vivalence.gource.log > /tmp/vivalence.loadbearing.log && awk -F'|' 'BEGIN{OFS=\"|\"} {if ($2 ~ /^(crackedbeefcake|finn|Finn Luca Frotscher|LazerJesus)$/) $2=\"beef\"; print}' /tmp/vivalence.loadbearing.log > /tmp/vivalence.normalized.log && gource /tmp/vivalence.normalized.log -1920x1080 -s 0.0490 --auto-skip-seconds 0.1 --stop-at-end --key --title @vivalence --hide mouse,progress,filenames --file-idle-time 0 --max-files 0 --bloom-multiplier 0.5 --font-size 22 --dir-font-size 12 --dir-name-depth 4 --dir-name-position 1.0 --user-scale 2.5 --colour-images --disable-auto-rotate --elasticity 0.03 --user-friction 1.0 --padding 1.4 --user-filter '^Ivan Matcuka$' --font-file /System/Library/Fonts/SFNSMono.ttf --date-format '%Y.%m.%d [%a]' --output-ppm-stream - --output-framerate 60 | ffmpeg -y -r 60 -f image2pipe -vcodec ppm -i - -vcodec libx264 -preset medium -pix_fmt yuv420p -crf 23 -threads 0 -bf 0 gource.mp4",
 
     // "viva/install": "deno install --global --config ./deno.jsonc -f -A -n viva ./systems/shell/mod.js",
-    "dependencies": "deno install --allow-scripts=npm:sqlite3,npm:svelte-preprocess",
+    "dependencies": "deno install --allow-scripts=npm:sqlite3,npm:better-sqlite3,npm:argon2,npm:svelte-preprocess",
     "install": "deno task dependencies && deno task ghost/install",
 
     "paladin/test": "deno task --cwd ./subsystems/paladin test",

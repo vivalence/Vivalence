@@ -1,0 +1,969 @@
+#+title: m51 standalone — one instance, every system: the case study that is also the localhost default
+#+filetags: :commons:instance:standalone:documentation:slowstart:hallucinator:secrets:paladin:runtime:kajuit:voice:agentic:domain:dataset:ledger:
+#+status: AUTHORED — full patch, nothing blasted. Terrain measured (three poles read, four defects PROVEN by probe — one of them kills every LLM call at HEAD). Numbered m51 on beef's word; forks F1–F8 are beef's; M0 is the prerequisite for anything agentic to answer at all.
+#+phase: design
+#+progress: 0% 0/6
+#+next: go
+
+* intent
+
+beef, verbatim, in order:
+
+/"in the readme we treat hello world to a shallow dive. in 50.01 we treat hello world to a deep dive. i want you to recast 50.01 entirely from scratch. we deepdive the standalone instance. standalone serves two purposes. a: its the subject of the documentation deepdive and should thus incorporate a coherent set of functionality showcasing the architectures major systems. b: its the default localhost default distributed via @commons/inststance/standalone. standalone should be somewhere the current ~/.viva ledger and the standalone and localhost instances currently in the commons"/
+
+/"we can sunset two two old ones afterward. goal state: there is now a localhost standalone .viva, and a hello world instance in teh commons. used in readme and docs."/
+
+/"lets expand this by a large agentic part. maybe two voice agents, one english, one italian. or maybe an entirely new case? maybe. ok for now: add more agentic capabilities for demonstration. work out the full standalone instance. self contained. flat. simple. wide. useful. work localhost starter and local ledger in to the point where we can move localhost starter and multiplayer into a /commons/instances/bak dir."/
+
+On the key-gated =hallucinators= thunk: /"no. this is not DOCUMENTATION level code. rewrite the whole instance as a step by step case study of an instance. research all the bits and pieces that should be understood for the operation of daemons and modes, instances and ledgers, ontologies and literals, traits per entity as a appendix style tractus revue for drawing everything together. get it working, explain it, demonstrate it, integrate and revue it."/
+
+One sentence: *=@commons/instance/standalone= is a tiny language-learning system — twenty-four Italian words, a deck with memory, a coach that listens and speaks, and the development rigs beside it — declared plainly across six flat files, booting on deno alone, every key optional, every major system of the architecture visible in one of those files; =50.01= walks it step by step and closes on a tractus of the vocabulary; =hello-world= stays the README's five-minute thing; =localhost= and =starter= go to =bak/=.*
+
+* terrain — measured
+
+** the three poles
+
+| pole                                | daemons                                                    | services                | clients        | keys                                  | needs                    |
+|-------------------------------------+------------------------------------------------------------+-------------------------+----------------+---------------------------------------+--------------------------|
+| =~/.viva/instances/language-learning= | italian (education: domain·3 topologies·topography·dojo·francesca·harvest·dataspace) + development (8 rigs) | multiplayer · nlp-stanza | ghost · kajuit | JWT ANTHROPIC OPENROUTER ELEVENLABS DEEPGRAM NLP | education tap · docker  |
+| dead =localhost= (=04e46f79d=)        | brazilian (education) + playground (8 rigs)                | multiplayer · nlp-stanza | ghost · kajuit | same                                  | education tap · docker   |
+| dead =standalone= (=04e46f79d=)       | standalone: inline =recall= domain + inline =flashcard= mode | multiplayer             | kajuit         | JWT ANTHROPIC                         | nothing                  |
+| =starter/= (on disk, slug =multiplayer=) | italian (education), spanish+brazilian commented           | multiplayer             | kajuit         | JWT ANTHROPIC OPENROUTER              | education tap; carries the prod =docker-compose.yml= |
+
+The middle = everything =commons/= can carry, nothing that needs a tap or a container: the one-file flashcard grown into a domain + two modes, the eight rigs plus =reader=, the three voice-capable hallucinators declared plainly, ghost + kajuit, the compose file.
+
+** what commons can showcase (research sweeps, every claim cited in the tractus below)
+
+- mode traits with a runtime behind them: =DATASET DATASINK INTENTED EMITTER APPLICATION BOOTED GENERATIVE HARNESSED TOOLED AGENTIC EXPOSED FRAUGHT= (=systems/runtime/daemon/traits/=); markers only: =STANDALONE SELFEVIDENT=; client-only marker: =CONVERSATIONAL= (sidebar filter =panels/d/d.svelte:210=).
+- the armed tool stack: 10 tools for any HARNESSED mode with no domain (=entity_schema entity_find entity_count buffer_update thread_update fs_tree fs_find fs_read fs_write shell_run=), then =<domainslug>_*=, then the mode's own, then AGENTIC's =<peerslug>_*= (=harnessed.js:39-69=, =agentic.js:7=).
+- voice IN ships: HARNESSED mode + a deepgram hallucinator on the daemon → the dock grows a mic, nothing declared on the mode (=Dock.svelte:47-48=). Voice OUT to the dock is NOT built (=harnessed.js:96= tee commented, no =/harness/speech= leaf). Voice OUT to an ASSET is production: =ctx.daemon.cortex.hallucinate.speech.render({source})= → bytes → =mode.freight.receive(path, bytes)= → URL under =/attached/cargo/= (harvest is the reference; =traits/index.js:43-53=, =lifecycle/resolve.js:45-62=).
+- structured output: =ctx.mode.harness.object.render({turns, output: v.object(…)})= (oracle, dealer). Generative views: reader's =generator= + =mode.gen.bundle= (m19 LIVE).
+- entities: four collate tiers =[daemon, kernel, userspace, domain]= keyed by =type=, override field-by-field, subscribers accumulate (=population.js:30-43=); runtime =Literal= carries a placeholder trait enum ={_}= — the trait vocabulary is the DOMAIN's; =literal.ontology= derives from the one =TOPOGRAPHICAL= symbol (=kernel/Literal.ts:131-142=); DATASET seeds =symbol=/=literal= only, mints referenced symbols, =installed= is a content hash → reinstall on change (=traits/dataset.js=, =resolution.js:51-70=); over HTTP only =/entities/{literal,symbol,mode}= — everything else reaches the client through a mode aperture.
+- thread traits: =MASKED AIMED QUEUEING LABELED= persisted; =INTELLIGENT= + =VOCAL= validated ad hoc off =thread.trait= (=harnessed.js:34-36=) and NOT in =ThreadTraitsEnum= (=Thread.ts:22-29=) — see D3.
+- =daemon.docs= is assigned (=population.js:66=) and read by nothing — no =/docs= route, sidebar prints the slug (=d.svelte:214=). Declared grammar, dead surface.
+
+** defects found on the way — four, three proven by probe
+
+*** D1 — PROVEN: paladin hands every provider its secret as a THUNK; no consumer fires it; every LLM/voice call at HEAD fails before leaving the machine
+=hydrate= defers =secrets= (=subsystems/paladin/prototypes/instance.js:16,74=: =DEFERRED = new Set(["secrets"])=, =return deferred ? node : value=) — committed at =6ebb51e89 stratified paladin=. Probe on the hydrated hello-world instance from a clean cwd:
+#+begin_example
+secret.get → "sk-probe"
+hallucinators 1 | hal.secrets.key typeof function → sk-probe
+service.secrets.jwt typeof function
+#+end_example
+Consumers read the value, never call it: =anthropic/provider/index.js:33= =new Anthropic({ apiKey: service.secrets.key })= · =openrouter/provider/index.js:24= · =elevenlabs/provider/index.js:2= · =deepgram/provider/index.js:108= · =services/nlp/provider/index.js:5= · =lighthouses/multiplayer/server/lib/jwt.js:78= =new TextEncoder().encode(service.secrets.jwt)= (encodes the thunk's SOURCE TEXT as the signing secret — tokens verify, the secret is public). Isolated on the provider alone:
+#+begin_example
+THUNK  → Could not resolve authentication method. Expected either apiKey or authToken to be set…
+STRING → 401 {"type":"error","error":{"type":"authentication_error","message":"API key is invalid."}}
+#+end_example
+Every =provider.test.js= passes a literal string (=anthropic/tests/provider.test.js:247=), so the suites are blind. This is also WHY the recipe grew a ternary: the SDK boots on a null key and dies at call time. The structural home for "no key → no faculty" is the provider, which is exactly where the thunk arrives. → M0.
+
+*** D2 — PROVEN by read: four rigs call =mode.buffer()=, which does not exist
+=spawner.viva.js:25= =spawned.buffer(…)= · =dealer.viva.js:39,70= =card.buffer(…)= · =automaton.viva.js:22= · =switchboard.viva.js:21=. The only factories are =mode.app.buffer= (=traits/application.js:13=) and =mode.gen.buffer= (=generative.js:13=); =Mode= defines none (=typology/prototypes/mode.js=). Oracle uses the right form (=vision.app.buffer=, =oracle/emitter.js:21=). Every emit in the development daemon except oracle/reader throws =TypeError= today. → M1.
+
+*** D3 — UNVERIFIED: =INTELLIGENT= claim may be refused at flush
+=Intelligent.svelte:66-67= writes =traits: [...thread.traits, "INTELLIGENT"]= through =/entities/thread/updateOne=; the column is =enum: true, array: true, items: () => ThreadTraitsEnum= (=Thread.ts:110-116=) and the enum lacks =INTELLIGENT=/=VOCAL=. But =tests/thread.test.js:48= stores =["SELFEVIDENT"]= (also absent) and passes — the provider may not validate enum arrays. The m38 widget landed "undeployed". Probe P-intelligent before touching the enum. → M1 conditional.
+
+*** D4 — read: =daemon.docs= never renders; intent rows declare =phase= that =Intent= has no column for
+=dealer.viva.js:83=, =automaton.viva.js:36,44,48,50= — =phase= lives on =Thread= only. Harmless or a silent drop; P-intent-phase probes it. The recipe keeps =docs= (it is the declared grammar) and the page says what it is: declared, not yet rendered.
+
+* the design
+
+** after — the tree
+#+begin_example
+commons/instances/
+  hello-world/            README · five minutes · one mode, one greeting            unchanged (minus its ternary, M0)
+  standalone/             docs deep dive · localhost default · @commons/instance/standalone
+    instance.viva.js      the machine — manifest · environment · runtime · lighthouse · services · clients · daemons[italiano, development]
+    recall.viva.js        the domain — Literal OVERRIDE (traits TRANSLATED·RANKED, rank, retentions, feed/due/novel) + Retention entity   → @commons/domain/recall
+    flashcard.viva.js     the deck — APPLICATION STANDALONE EXPOSED TOOLED DATASET; ONE Vector = tools = aperture (/deck /review /progress)  → @commons/demo/flashcard
+    Flashcard.svelte      its face — mode.call.deck/review/progress
+    coach.viva.js         the agent — APPLICATION STANDALONE CONVERSATIONAL HARNESSED TOOLED AGENTIC FRAUGHT INTENTED; `speak` tool; two intents  → @commons/demo/coach
+    Coach.svelte          its face — the spoken line + <audio>
+    dataset/symbols.js    word (TOPOGRAPHICAL root) + word.part-of-speech.*
+    dataset/literals.js   24 Italian words — TRANSLATED · RANKED · pos symbols
+    cargo/.gitkeep        FRAUGHT root — rendered speech lands here
+    docker-compose.yml    runtime · kajuit · documentation images, this instance mounted, secrets from .env
+  fixture/                paladin snapshot fixture                                    stays
+  bak/                    localhost/ · starter/ · multiplayer.bak/                    M4 — skip-listed by belt/find.js
+#+end_example
+
+** what it showcases, where
+
+| system                                                                  | file                                   |
+|-------------------------------------------------------------------------+----------------------------------------|
+| instance grammar · =v.environment= · =${VAR}= derivation · =.optional()= | instance.viva.js                       |
+| runtime · two daemons · one path tree · hosted lighthouse · ghost + kajuit | instance.viva.js                     |
+| kernel reference forms: =./= (travels with the copy) and bare (the registry) | daemon italiano / daemon development |
+| entity OVERRIDE by type · new entity · subscriber accumulation · repository verbs · per-user filter | recall.viva.js         |
+| =APPLICATION EXPOSED TOOLED DATASET= · one Vector two mounts · yield =${condition, output}= | flashcard.viva.js            |
+| face → =mode.call= · =daemon.entities= over the wire                    | Flashcard.svelte                       |
+| =HARNESSED= system sections · =TOOLED= own tool · =AGENTIC= harvest of a peer's tools · =FRAUGHT= cargo · =INTENTED= templates → thread traits | coach.viva.js |
+| voice IN (deepgram → dock mic) · voice OUT (speech.render → cargo → =<audio>=) | coach.viva.js + Coach.svelte       |
+| =INTELLIGENT= dial (tune · effort · rounds) · the armed stack (10 + =flashcard_*= + =speak=) | E panel + dock, on any coach thread |
+| =EMITTER= · pool · phases (inert/manual/continuous/escort) · intents · object render · generative views | daemon development (9 rigs) |
+| cortex: three providers, faculties by tune, =object= derived            | daemon italiano's hallucinators        |
+| ontology derivation · slug convention · rank                            | dataset/ + recall subscriber           |
+| DATASET stamp → reinstall on edit                                       | edit a literal, reboot                 |
+| ledger · strata · doctor · locks · logs · delete                        | 50.01 §operate                         |
+| containers                                                              | docker-compose.yml                     |
+
+Out, by design: nlp-stanza (docker is a wall for a localhost default), the education tap, DATASINK. 50.01 names them as the divergence — /"the italian instance is this, plus a tap and a container"/.
+
+** the pages — three vantages, one specimen
+- =50.01_slowstart= → RECAST: *Standalone — the case study*. §0 what you get (tree, map) · §1 install→tap in one recap linking the README · §2 create · use · init · run — doctor CAPTURED on the bare recipe · §3 the machine (instance.viva.js, fence = byte paste) · §4 the domain · §5 the deck + face + dataset (ontology derivation CAPTURED) · §6 the coach — say hi, the mic, /"quiz me"/, INTELLIGENT dial, the armed catalog CAPTURED · §7 the development daemon — one paragraph per rig, what to click · §8 operate — kajuit tour, ghost verbs, logs, stop/delete, compose · §9 *tractus* — the appendix (below). Author byline stays =claude (agent)=.
+- =51.02_instance-from-scratch= → RE-POINTED: the six files section by section, fences regenerated from disk.
+- =32.01_anatomy-of-an-instance= → RE-POINTED: the boot, example revived from =04e46f79d= against =commons/instances/standalone=, counts fixed (~18k), =.env= fence :2501.
+- README: unchanged in substance; §6 gains one "continue" line to =/50.01_slowstart= (already there) and its =@viva= → =@commons=.
+
+* forks — beef calls
+
+- *F1 secrets contract* — (a) consumers FIRE the thunk at use and a provider with no key registers NO faculties, one log line (rec — the deferral is the design, m45: /"secrets deferred so plaintext never lands"/; presence is judged where the secret arrives) · (b) paladin resolves secrets at mask time (violates the design) · (c) recipes keep gating (beef: not documentation level). Rec (a). Also fixes the lighthouse signing secret and nlp.
+- *F2 domain override* — (a) =recall= overrides =literal= (trait enum, =rank=, =retentions=, =feed/due/novel=) + owns =Retention= (rec: the deck becomes a real rep machine — due first, then novel by rank — and the override IS the domain lesson) · (b) Retention only, rows =traits: []=, deck sorted client-side (the dead one; simpler, teaches less, "useful" lost).
+- *F3 the coach as its own mode* (rec) vs a harness on the flashcard. Separate = AGENTIC has something to harvest, INTENTED has a reason, the flashcard stays a pure app.
+- *F4 daemon slugs* — =italiano= + =development= (your ledger's). Alt: =tutor=/=playground=.
+- *F5 the corpus* — 24 words below, greetings→nouns→adjectives→numerals, pos symbols. Yours to replace; the page captures whatever is on disk.
+- *F6 compose travels* — =docker-compose.yml= inside the recipe, secrets via =env_file: .env= (rec) vs staying in =bak/starter=.
+- *F7 51.02 + 32.01* — re-point (rec) vs fold into 50.01 and sunset both pages.
+- *F8 =ThreadTraitsEnum= += INTELLIGENT, VOCAL* — only if P-intelligent shows a refused flush.
+
+* M0 — the secrets contract: a thunk is fired where it arrives; no key, no faculty
+
+Prerequisite. Without it the coach, the dealer, the oracle and the reader all die at first call (D1). Six consumers, one shape: =const key = service.secrets.key?.()=. Hallucinators return =[]= when the key is empty and say so once. The recipe declares plainly; =hello-world= drops its ternary.
+
+** anthropic — =commons/hallucinators/anthropic/provider/index.js=
+#+begin_src diff
+-export default async function provider(service) {
+-  const client = new Anthropic({ apiKey: service.secrets.key });
++export default async function provider(service) {
++  const key = service.secrets.key?.();
++  if (!key) {
++    console.log(`[hallucinator] anthropic: no key — no faculties registered`);
++    return [];
++  }
++  const client = new Anthropic({ apiKey: key });
+#+end_src
+
+** openrouter — =commons/hallucinators/openrouter/provider/index.js:24=
+#+begin_src diff
+-  const client = new OpenAI({ apiKey: service.secrets.key, baseURL: "https://openrouter.ai/api/v1" });
++  const key = service.secrets.key?.();
++  if (!key) {
++    console.log(`[hallucinator] openrouter: no key — no faculties registered`);
++    return [];
++  }
++  const client = new OpenAI({ apiKey: key, baseURL: "https://openrouter.ai/api/v1" });
+#+end_src
+
+** elevenlabs =provider/index.js:2= · deepgram =provider/index.js:108=
+#+begin_src diff
+-  const apiKey = service.secrets.key;
++  const apiKey = service.secrets.key?.();
++  if (!apiKey) {
++    console.log(`[hallucinator] <slug>: no key — no faculties registered`);
++    return [];
++  }
+#+end_src
+
+** lighthouse — =commons/lighthouses/multiplayer/server/lib/jwt.js:74-78=
+#+begin_src diff
+-  if (!service.secrets?.jwt) {
++  const jwt = service.secrets?.jwt?.();
++  if (!jwt) {
+     throw new Error("JWT secret not configured in service.secrets.jwt");
+   }
+-  secret = new TextEncoder().encode(service.secrets.jwt);
++  secret = new TextEncoder().encode(jwt);
+#+end_src
+Every token minted before M0 was signed with the thunk's source text — existing sessions log in again after the redeploy. One release line.
+
+** nlp — =commons/services/nlp/provider/index.js:5=
+#+begin_src diff
+-  const key = service.secrets.key;
++  const key = service.secrets.key?.();
+#+end_src
+
+** hello-world — =commons/instances/hello-world/instance.viva.js= (plain declaration; README paste regenerates)
+#+begin_src diff
+-    hallucinators: () =>
+-      paladin.secret.get("SECRET_VIVA_ANTHROPIC_API_KEY")
+-        ? [
+-            {
+-              module: "@commons/hallucinator/anthropic",
+-              statics: {},
+-              secrets: { key: () => paladin.secret.get("SECRET_VIVA_ANTHROPIC_API_KEY") },
+-            },
+-          ]
+-        : [],
++    hallucinators: [
++      {
++        module: "@commons/hallucinator/anthropic",
++        statics: {},
++        secrets: { key: () => paladin.secret.get("SECRET_VIVA_ANTHROPIC_API_KEY") },
++      },
++    ],
+#+end_src
+
+** tests
+- =commons/hallucinators/{anthropic,openrouter,elevenlabs,deepgram}/tests/provider.test.js= — every =provider({ secrets: { key: "…" } })= becomes =provider({ secrets: { key: () => "…" } })=; one new case per provider: =key: () => null= → =[]=.
+- =commons/lighthouses/multiplayer/tests/= — the jwt fixture passes a thunk.
+- =subsystems/paladin/tests/hydrate.test.js:117= already pins the thunk shape — the contract's other half.
+- runtime =tests/scenarios/= faculties fixtures pass thunks or bypass providers — check =commons/fixtures/data/faculties.js= at blast.
+
+* M1 — the rigs run: =mode.app.buffer= ×5; the two probes
+
+#+begin_src diff
+--- commons/playground/spawner/spawner.viva.js:25
+-      ctx.pool.add(spawned.buffer({ data: { label: `spawned ${index}`, index } }));
++      ctx.pool.add(await spawned.app.buffer({ data: { label: `spawned ${index}`, index } }));
+--- commons/playground/dealer/dealer.viva.js:39,70 · automaton.viva.js:22 · switchboard.viva.js:21
+-      card.buffer({ data: … })
++      await card.app.buffer({ data: … })
+#+end_src
+(=app.buffer= is async — =application.js:13=; the pool takes the entity.)
+
+Probes, before any enum edit:
+- P-intelligent: on a coach thread click a tune chip in E → daemon log clean and =thread.traits= carries =INTELLIGENT= → F8 closed as no-op; else =ThreadTraitsEnum += INTELLIGENT, VOCAL= (=Thread.ts:22-29=) — persistence side of the three-sided trait.
+- P-intent-phase: boot the development daemon, =entity_find intent= → does the =phase= key survive on dealer's intent row? If dropped silently, delete it from the five declarations (D4).
+
+* M2 — the recipe
+
+** =commons/instances/standalone/instance.viva.js= — the machine
+#+BEGIN_SRC js :tangle ../../commons/instances/standalone/instance.viva.js :mkdirp yes
+import paladin from "@vivalence/paladin";
+import { Url, v } from "@vivalence/typology";
+
+export const manifest = { type: "instance", slug: "standalone", version: "0.0.1" };
+
+export const environment = v.environment({
+  VIVA_RUNTIME_ORIGIN: v.url().desc("Scheme and authority the runtime is reachable at. Every address below derives from it.").default("http://localhost:2501").group("addresses"),
+  VIVA_CLIENT_KAJUIT_ORIGIN: v.url().desc("Scheme and authority the kajuit browser client is reachable at.").default("http://localhost:1794").group("addresses"),
+  VIVA_RUNTIME_SERVE: v.url().desc("Base URL the runtime serves on. Everything else hangs off this latch.").default("${VIVA_RUNTIME_ORIGIN}/").group("addresses"),
+  VIVA_LIGHTHOUSE_SERVE: v.url().desc("Where the hosted lighthouse attaches inside the runtime's own path tree.").default("${VIVA_RUNTIME_ORIGIN}/attached/process/lighthouse/multiplayer").group("addresses"),
+  VIVA_CLIENT_KAJUIT_SERVE: v.url().desc("Where the kajuit browser client serves.").default("${VIVA_CLIENT_KAJUIT_ORIGIN}/").group("addresses"),
+  PUBLIC_VIVA_RUNTIME_REMOTE: v.url().desc("Runtime address the browser bundle calls. Reaches it through publish(), not a thunk.").default("${VIVA_RUNTIME_SERVE}").group("addresses"),
+  PUBLIC_VIVA_LIGHTHOUSE_REMOTE: v.url().desc("Lighthouse address as CONSUMED — by the daemons, and by the browser after publish().").default("${VIVA_LIGHTHOUSE_SERVE}").group("addresses"),
+  SECRET_VIVA_JWT: v.string({ minLength: 24 }).desc("Lighthouse signing secret. Generate with: openssl rand -base64 24").group("keys"),
+  SECRET_VIVA_ANTHROPIC_API_KEY: v.string().desc("Anthropic key. The coach, the dealer, the oracle and the reader think through it; without one they say so and stop.").group("keys").optional(),
+  SECRET_VIVA_ELEVENLABS_API_KEY: v.string().desc("ElevenLabs key. The coach speaks through it; without one the coach writes.").group("keys").optional(),
+  SECRET_VIVA_DEEPGRAM_API_KEY: v.string().desc("Deepgram key. The dock's microphone; without one you type.").group("keys").optional(),
+});
+
+export const runtime = {
+  slug: "runtime",
+  statics: { serve: () => new Url(paladin.env.get("VIVA_RUNTIME_SERVE")) },
+  datamap: {
+    module: "@commons/datamap/libsql",
+    statics: { db: { file: `runtime.viva.db` } },
+  },
+};
+
+export const lighthouse = {
+  statics: { remote: () => new Url(paladin.env.get("PUBLIC_VIVA_LIGHTHOUSE_REMOTE")) },
+};
+
+export const services = [
+  {
+    slug: "multiplayer",
+    module: "@commons/lighthouse/multiplayer",
+    secrets: { jwt: () => paladin.secret.get("SECRET_VIVA_JWT") },
+    statics: { serve: () => new Url(paladin.env.get("VIVA_LIGHTHOUSE_SERVE")) },
+    datamap: {
+      module: "@commons/datamap/libsql",
+      statics: { db: { file: `lighthouse.viva.db` } },
+    },
+  },
+];
+
+export const clients = {
+  ghost: {
+    slug: "ghost",
+    statics: {
+      lighthouse: { remote: () => new Url(paladin.env.get("PUBLIC_VIVA_LIGHTHOUSE_REMOTE")) },
+    },
+  },
+  kajuit: {
+    slug: "kajuit",
+    traits: ["ATTACHED"],
+    statics: {
+      serve: () => new Url(paladin.env.get("VIVA_CLIENT_KAJUIT_SERVE")),
+      lighthouse: { remote: () => new Url(paladin.env.get("PUBLIC_VIVA_LIGHTHOUSE_REMOTE")) },
+    },
+  },
+};
+
+export const daemons = [
+  {
+    manifest: { type: "daemon", slug: "italiano", version: "0.0.1" },
+    docs: { name: "Italiano", valence: "twenty-four words, a deck with memory, a coach that listens and speaks", icon: { emoji: "🇮🇹" } },
+    statics: {
+      language: {
+        known: { slug: "english", name: "English" },
+        learning: { slug: "italian", name: "Italiano" },
+      },
+    },
+    kernel: ["./recall.viva.js", "./flashcard.viva.js", "./coach.viva.js"],
+    datamap: {
+      module: "@commons/datamap/libsql",
+      statics: { db: { file: `italiano.viva.db` } },
+    },
+    lighthouse: {
+      module: "@commons/lighthouse/multiplayer",
+      statics: { remote: () => new Url(paladin.env.get("PUBLIC_VIVA_LIGHTHOUSE_REMOTE")) },
+    },
+    hallucinators: [
+      {
+        module: "@commons/hallucinator/anthropic",
+        statics: {},
+        secrets: { key: () => paladin.secret.get("SECRET_VIVA_ANTHROPIC_API_KEY") },
+      },
+      {
+        module: "@commons/hallucinator/elevenlabs",
+        statics: {},
+        secrets: { key: () => paladin.secret.get("SECRET_VIVA_ELEVENLABS_API_KEY") },
+      },
+      {
+        module: "@commons/hallucinator/deepgram",
+        statics: {},
+        secrets: { key: () => paladin.secret.get("SECRET_VIVA_DEEPGRAM_API_KEY") },
+      },
+    ],
+    consume: {},
+  },
+  {
+    manifest: { type: "daemon", slug: "development", version: "0.0.1" },
+    docs: { name: "Development", valence: "the rigs — buffers dealt, spawned, phased, conjured", icon: { emoji: "🧪" } },
+    statics: {},
+    kernel: [
+      "@commons/playground/spawner",
+      "@commons/playground/spawned",
+      "@commons/playground/dealer",
+      "@commons/playground/card",
+      "@commons/playground/automaton",
+      "@commons/playground/switchboard",
+      "@commons/chaosmonkey/vision",
+      "@commons/chaosmonkey/oracle",
+      "@commons/chaosmonkey/reader",
+    ],
+    datamap: {
+      module: "@commons/datamap/libsql",
+      statics: { db: { file: `development.viva.db` } },
+    },
+    lighthouse: {
+      module: "@commons/lighthouse/multiplayer",
+      statics: { remote: () => new Url(paladin.env.get("PUBLIC_VIVA_LIGHTHOUSE_REMOTE")) },
+    },
+    hallucinators: [
+      {
+        module: "@commons/hallucinator/anthropic",
+        statics: {},
+        secrets: { key: () => paladin.secret.get("SECRET_VIVA_ANTHROPIC_API_KEY") },
+      },
+    ],
+    consume: {},
+  },
+];
+#+END_SRC
+
+** =commons/instances/standalone/recall.viva.js= — the domain
+Mirrors =~/.viva/registry/education/domain/entities/kernel/Literal.ts:184-300= and =userspace/Retention.ts:70-80= in plain JS. Two things to verify at blast, marked: the =extends: LiteralSchema= form (education extends the runtime descriptor's =schema=; confirm the runtime exports =LiteralSchema= as that object — =entities/index.ts:7= re-exports =kernel/Literal.ts= whole) and whether =subscriber= is passed as an instance (=index.ts:23-30= shows the runtime's own descriptor; copy its form).
+#+BEGIN_SRC js :tangle ../../commons/instances/standalone/recall.viva.js :mkdirp yes
+import { Collection, EntitySchema, types } from "@mikro-orm/core";
+import { DataEntity, DataRepository, DataSchema, LiteralEntity, LiteralRepository, LiteralSchema, UserEntity } from "@vivalence/runtime";
+
+export const manifest = { type: "domain", slug: "recall", version: "0.0.1", traits: [] };
+
+export const LiteralTraits = { TRANSLATED: "TRANSLATED", RANKED: "RANKED" };
+export const UNRANKED = 999999;
+export const INTERVALS = [1, 2, 4, 8, 16, 32];
+
+export const rankOf = (trait) => Number.isInteger(trait?.RANKED?.rank) && trait.RANKED.rank >= 1 ? trait.RANKED.rank : UNRANKED;
+
+export class RecallLiteralEntity extends LiteralEntity {
+  rank = UNRANKED;
+  retentions = new Collection(this);
+
+  get retention() {
+    return this.retentions.isInitialized() ? this.retentions.getItems()[0] : undefined;
+  }
+}
+
+export class RecallLiteralRepository extends LiteralRepository {
+  search(query) {
+    return {
+      $or: [
+        { slug: { $like: `%${query}%` } },
+        { "trait.TRANSLATED.known": { $like: `%${query}%` } },
+        { "trait.TRANSLATED.learning": { $like: `%${query}%` } },
+      ],
+    };
+  }
+
+  owner() {
+    return this.getEntityManager().getFilterParams("user")?.user;
+  }
+
+  novel(options = {}) {
+    return this.find({ retentions: { $none: { user: this.owner() } } }, { orderBy: { rank: "ASC" }, ...options });
+  }
+
+  due(options = {}) {
+    return this.find(
+      { retentions: { $some: { user: this.owner(), nextAt: { $lt: new Date() } } } },
+      { populate: ["retentions"], ...options },
+    );
+  }
+
+  async feed(limit = 10) {
+    const due = await this.due({ limit });
+    const novel = due.length < limit ? await this.novel({ limit: limit - due.length }) : [];
+    return [...due, ...novel];
+  }
+}
+
+export class RankSubscriber {
+  getSubscribedEntities() {
+    return [RecallLiteralEntity];
+  }
+  beforeCreate({ entity }) {
+    entity.rank = rankOf(entity.trait);
+  }
+  beforeUpdate({ entity }) {
+    entity.rank = rankOf(entity.trait);
+  }
+}
+
+export const RecallLiteralSchema = new EntitySchema({
+  class: RecallLiteralEntity,
+  extends: LiteralSchema,
+  name: "Literal",
+  tableName: "Literal",
+  repository: () => RecallLiteralRepository,
+  properties: {
+    traits: { type: types.json, enum: true, array: true, items: () => Object.values(LiteralTraits), defaultRaw: `'[]'` },
+    rank: { type: types.integer, default: UNRANKED },
+    retentions: { kind: "1:m", entity: () => RetentionEntity, mappedBy: (retention) => retention.literal, strategy: "select-in" },
+  },
+});
+
+export class RetentionEntity extends DataEntity {
+  user;
+  literal;
+  streak = 0;
+  seen = 0;
+  lastSignal = null;
+  nextAt = new Date();
+
+  review(remembered) {
+    this.seen += 1;
+    this.streak = remembered ? this.streak + 1 : 0;
+    this.lastSignal = remembered ? "SUCCESS" : "FAILURE";
+    const days = remembered ? INTERVALS[Math.min(this.streak, INTERVALS.length) - 1] : 0;
+    this.nextAt = new Date(Date.now() + days * 86400000);
+    return this;
+  }
+}
+
+export const RetentionSchema = new EntitySchema({
+  class: RetentionEntity,
+  extends: DataSchema,
+  name: "Retention",
+  tableName: "Retention",
+  uniques: [{ properties: ["user", "literal"] }],
+  filters: { user: { cond: (args) => ({ user: args.user }), default: true } },
+  properties: {
+    user: { kind: "m:1", entity: () => UserEntity, updateRule: "cascade", deleteRule: "cascade" },
+    literal: { kind: "m:1", entity: () => RecallLiteralEntity, updateRule: "cascade", deleteRule: "cascade" },
+    streak: { type: types.integer },
+    seen: { type: types.integer },
+    lastSignal: { type: types.string, nullable: true },
+    nextAt: { type: Date },
+  },
+});
+
+export const entities = {
+  literal: {
+    type: "literal",
+    entity: RecallLiteralEntity,
+    schema: RecallLiteralSchema,
+    repository: RecallLiteralRepository,
+    subscriber: new RankSubscriber(),
+  },
+  retention: {
+    type: "retention",
+    entity: RetentionEntity,
+    schema: RetentionSchema,
+    repository: DataRepository,
+  },
+};
+#+END_SRC
+
+** =commons/instances/standalone/flashcard.viva.js= — the deck
+#+BEGIN_SRC js :tangle ../../commons/instances/standalone/flashcard.viva.js :mkdirp yes
+import { App, Vector, v } from "@vivalence/typology";
+
+export const manifest = {
+  type: "demo",
+  slug: "flashcard",
+  name: "Flashcard",
+  description: "Twenty-four Italian words, a deck that remembers per user, and the three verbs a coach or a view needs to drive it.",
+  version: "0.0.1",
+  traits: ["APPLICATION", "STANDALONE", "EXPOSED", "TOOLED", "DATASET"],
+};
+
+export const app = new App("./Flashcard.svelte", v.buffer({ data: {} }));
+
+export const dataset = { symbol: "dataset/symbols.js", literal: "dataset/literals.js" };
+
+const card = (literal) => ({
+  slug: literal.slug,
+  known: literal.trait.TRANSLATED.known,
+  learning: literal.trait.TRANSLATED.learning,
+  ontology: literal.ontology,
+  rank: literal.rank,
+  symbols: literal.symbols.isInitialized() ? literal.symbols.getItems().map((symbol) => symbol.slug) : [],
+  retention: {
+    streak: literal.retention?.streak ?? 0,
+    seen: literal.retention?.seen ?? 0,
+    lastSignal: literal.retention?.lastSignal ?? null,
+    nextAt: literal.retention?.nextAt ?? null,
+  },
+});
+
+export const deck = new Vector()
+  .open(
+    {
+      nature: "/deck",
+      valence: "Draw the next cards — what is due first, then what was never seen, by frequency rank. Each card carries the learner's memory of it.",
+      input: v.object({ limit: v.integer({ minimum: 1, maximum: 50 }).default(10) }),
+    },
+    async (ctx) => {
+      const literals = await ctx.daemon.entities.literal.feed(ctx.input.limit);
+      await ctx.daemon.entities.em.populate(literals, ["symbols", "retentions"]);
+      return { condition: "NOMINAL", output: { literal: literals, object: literals.map(card) } };
+    },
+  )
+  .open(
+    {
+      nature: "/review",
+      valence: "Record one verdict for one word. Remembered climbs the streak and pushes the next review out; forgotten resets it to now.",
+      input: v.object({
+        literal: v.string().desc("The word's slug, e.g. ciao."),
+        remembered: v.boolean().desc("Did the learner produce it?"),
+      }),
+    },
+    async (ctx) => {
+      const literal = await ctx.daemon.entities.literal.findOne({ slug: ctx.input.literal });
+      if (!literal) return { condition: "ERROR", output: { message: `no word '${ctx.input.literal}' in this deck` } };
+      const retention =
+        (await ctx.daemon.entities.retention.findOne({ literal })) ??
+        ctx.daemon.entities.retention.create({ literal, user: ctx.user, streak: 0, seen: 0 });
+      retention.review(ctx.input.remembered);
+      await ctx.daemon.entities.em.flush();
+      return {
+        condition: "NOMINAL",
+        output: {
+          retention: [retention],
+          message: `${literal.slug} ${retention.lastSignal} → streak ${retention.streak} · seen ${retention.seen} · next ${retention.nextAt.toISOString().slice(0, 10)}`,
+        },
+      };
+    },
+  )
+  .open(
+    { nature: "/progress", valence: "How the learner stands: words total, touched, known (streak ≥ 3), due now." },
+    async (ctx) => {
+      const total = await ctx.daemon.entities.literal.count();
+      const touched = await ctx.daemon.entities.retention.count();
+      const known = await ctx.daemon.entities.retention.count({ streak: { $gte: 3 } });
+      const due = await ctx.daemon.entities.retention.count({ nextAt: { $lt: new Date() } });
+      const object = { total, touched, known, due };
+      return { condition: "NOMINAL", output: { object, message: `${total} words · ${touched} touched · ${known} known · ${due} due` } };
+    },
+  );
+
+export const tools = deck;
+export const aperture = deck;
+#+END_SRC
+
+** =commons/instances/standalone/Flashcard.svelte= — the face
+#+BEGIN_SRC svelte :tangle ../../commons/instances/standalone/Flashcard.svelte :mkdirp yes
+<script>
+  let { terminal, daemon, mode, thread, buffer } = $props();
+
+  let cards = $state([]);
+  let progress = $state(null);
+  let flipped = $state(false);
+
+  async function draw() {
+    cards = (await mode.call.deck({ limit: 10 })).output.object;
+    progress = (await mode.call.progress()).output.object;
+    flipped = false;
+  }
+  draw();
+
+  let card = $derived(cards[0]);
+
+  async function verdict(remembered) {
+    await mode.call.review({ literal: card.slug, remembered });
+    await draw();
+  }
+</script>
+
+<section>
+  {#if progress}
+    <p class="progress">{progress.total} words · {progress.touched} touched · {progress.known} known · {progress.due} due</p>
+  {/if}
+
+  {#if card}
+    <button class="card" onclick={() => (flipped = !flipped)}>
+      {#if flipped}
+        <strong>{card.learning}</strong>
+        <small>{card.symbols.filter((slug) => slug !== "word").join(" · ")}</small>
+      {:else}
+        <strong>{card.known}</strong>
+        <small>tap to flip · rank {card.rank}</small>
+      {/if}
+    </button>
+    {#if flipped}
+      <div class="verdict">
+        <button onclick={() => verdict(false)}>forgot</button>
+        <button onclick={() => verdict(true)}>knew it</button>
+      </div>
+    {/if}
+  {:else}
+    <p>Nothing due. Come back tomorrow, or ask the coach.</p>
+  {/if}
+
+  <ul>
+    {#each cards as row (row.slug)}
+      <li>{row.learning} → {row.known} · streak {row.retention.streak} · seen {row.retention.seen}</li>
+    {/each}
+  </ul>
+</section>
+
+<style>
+  section { height: 100%; display: grid; place-content: center; gap: 1rem; text-align: center; }
+  .card { display: grid; gap: 0.4rem; padding: 2rem 3rem; cursor: pointer; }
+  .card strong { font-size: 2.5rem; }
+  .card small, .progress, ul { opacity: 0.55; font-size: 0.9rem; }
+  .verdict { display: flex; gap: 0.6rem; justify-content: center; }
+  ul { list-style: none; padding: 0; display: grid; gap: 0.2rem; }
+</style>
+#+END_SRC
+
+** =commons/instances/standalone/coach.viva.js= — the agent
+Two intents → two agents: =immersione= speaks only Italian, =english= explains in English and quizzes in Italian. The intent's =MASKED.language= lands on the thread (=Thread.beforeCreate=, =Thread.ts:63-77=); the harness reads it off the row. AGENTIC harvests the deck as =flashcard_deck= · =flashcard_review= · =flashcard_progress=; =speak= is the coach's own. Voice in needs nothing here — the deepgram faculty on the daemon is enough for the dock's mic. Verify at blast: =ctx.user= shape in a tool (id vs row) and =ctx.thread= (id — =harnessed.js:66-69= binds =input.thread=).
+#+BEGIN_SRC js :tangle ../../commons/instances/standalone/coach.viva.js :mkdirp yes
+import { App, Freight, Vector, v } from "@vivalence/typology";
+
+export const manifest = {
+  type: "demo",
+  slug: "coach",
+  name: "Coach",
+  description: "A conversation partner over the flashcard deck — listens through the dock's mic, quizzes with the deck's own tools, and speaks its lines.",
+  version: "0.0.1",
+  traits: ["APPLICATION", "STANDALONE", "CONVERSATIONAL", "HARNESSED", "TOOLED", "AGENTIC", "FRAUGHT", "INTENTED"],
+};
+
+export const app = new App("./Coach.svelte", v.buffer({ data: { text: v.string(), audio: v.string().optional() } }));
+
+export const freight = new Freight("cargo");
+
+export const dataset = {
+  intent: [
+    {
+      slug: "immersione",
+      name: "Immersione",
+      traits: ["LABELED", "MASKED"],
+      trait: { LABELED: { name: "Immersione", description: "The coach speaks only Italian." }, MASKED: { language: "it" } },
+    },
+    {
+      slug: "english",
+      name: "English",
+      traits: ["LABELED", "MASKED"],
+      trait: { LABELED: { name: "English", description: "The coach explains in English and quizzes in Italian." }, MASKED: { language: "en" } },
+    },
+  ],
+};
+
+const PERSONA = {
+  it: [
+    "Sei un coach di italiano. Parli SOLO italiano, frasi brevi, una domanda alla volta.",
+    "Il mazzo del learner è nel tool flashcard_deck; ogni verdetto passa da flashcard_review; flashcard_progress dice come sta.",
+    "Quando dici una parola o una frase da ripetere, chiama speak con quella riga — il learner la ascolta.",
+  ],
+  en: [
+    "You are an Italian coach. Explain in English, quiz in Italian, one card at a time, short replies.",
+    "The learner's deck is behind flashcard_deck; record every verdict with flashcard_review; flashcard_progress says where they stand.",
+    "When you give a line to repeat, call speak with the Italian only — the learner hears it.",
+  ],
+};
+
+export const harness = new Vector().use(async (ctx, next) => {
+  const row = ctx.input.thread ? await ctx.daemon.entities.thread.findOne({ id: ctx.input.thread }) : null;
+  const language = row?.trait?.MASKED?.language ?? "en";
+  ctx.hallucination.system.coach = PERSONA[language].join("\n");
+  await next();
+});
+
+export const tools = new Vector().open(
+  {
+    nature: "/speak",
+    valence: "Voice one Italian line for the learner. Returns a playable buffer; without a speech faculty it says so.",
+    input: v.object({ text: v.string().desc("The Italian to say — one line, no translation.") }),
+  },
+  async (ctx) => {
+    if (!ctx.daemon.cortex.findOne({ type: "speech", via: "render" })) {
+      return { condition: "EXHAUSTED", output: { message: "No speech faculty attached — SECRET_VIVA_ELEVENLABS_API_KEY is unset. Write the line instead." } };
+    }
+    const bytes = await ctx.daemon.cortex.hallucinate.speech.render({ source: ctx.input.text });
+    const url = await ctx.mode.freight.receive(`${crypto.randomUUID()}.mp3`, bytes);
+    const buffer = await ctx.mode.app.buffer({ data: { text: ctx.input.text, audio: String(url) }, thread: ctx.thread });
+    await ctx.daemon.entities.em.flush();
+    return { condition: "NOMINAL", output: { buffer: [buffer], message: `spoken: ${ctx.input.text}` } };
+  },
+);
+#+END_SRC
+
+** =commons/instances/standalone/Coach.svelte=
+#+BEGIN_SRC svelte :tangle ../../commons/instances/standalone/Coach.svelte :mkdirp yes
+<script>
+  let { terminal, daemon, mode, thread, buffer } = $props();
+</script>
+
+<section>
+  <p class="line">{buffer.data.text}</p>
+  {#if buffer.data.audio}
+    <audio controls autoplay src={buffer.data.audio}></audio>
+  {:else}
+    <small>no voice attached — the coach wrote this one</small>
+  {/if}
+</section>
+
+<style>
+  section { height: 100%; display: grid; place-content: center; gap: 1rem; text-align: center; }
+  .line { font-size: 2rem; }
+  small { opacity: 0.55; }
+</style>
+#+END_SRC
+
+** =commons/instances/standalone/dataset/symbols.js=
+#+BEGIN_SRC js :tangle ../../commons/instances/standalone/dataset/symbols.js :mkdirp yes
+const pos = (slug, name, description) => ({
+  slug: `word.part-of-speech.${slug}`,
+  traits: ["ONTOLOGICAL", "LABELED"],
+  trait: { ONTOLOGICAL: {}, LABELED: { name, description } },
+});
+
+export default [
+  {
+    slug: "word",
+    traits: ["ONTOLOGICAL", "LABELED", "TOPOGRAPHICAL"],
+    trait: { ONTOLOGICAL: {}, LABELED: { name: "Word", description: "A word. The one ontological root this deck knows." }, TOPOGRAPHICAL: {} },
+  },
+  pos("interjection", "Interjection", "A word expressing spontaneous feeling — a greeting."),
+  pos("noun", "Noun", "A word naming a thing."),
+  pos("adjective", "Adjective", "A word describing a thing."),
+  pos("adverb", "Adverb", "A word describing how."),
+  pos("numeral", "Numeral", "A word counting."),
+];
+#+END_SRC
+
+** =commons/instances/standalone/dataset/literals.js=
+#+BEGIN_SRC js :tangle ../../commons/instances/standalone/dataset/literals.js :mkdirp yes
+const word = (rank, learning, known, pos) => ({
+  slug: learning.replaceAll(" ", "-"),
+  traits: ["TRANSLATED", "RANKED"],
+  trait: { TRANSLATED: { known, learning }, RANKED: { rank } },
+  symbols: [{ slug: "word" }, { slug: `word.part-of-speech.${pos}` }],
+});
+
+export default [
+  word(1, "ciao", "hello", "interjection"),
+  word(2, "buongiorno", "good morning", "interjection"),
+  word(3, "buonasera", "good evening", "interjection"),
+  word(4, "grazie", "thank you", "interjection"),
+  word(5, "prego", "you're welcome", "interjection"),
+  word(6, "per favore", "please", "interjection"),
+  word(7, "sì", "yes", "interjection"),
+  word(8, "no", "no", "interjection"),
+  word(9, "scusa", "sorry", "interjection"),
+  word(10, "arrivederci", "goodbye", "interjection"),
+  word(11, "acqua", "water", "noun"),
+  word(12, "caffè", "coffee", "noun"),
+  word(13, "pane", "bread", "noun"),
+  word(14, "vino", "wine", "noun"),
+  word(15, "casa", "house", "noun"),
+  word(16, "mondo", "world", "noun"),
+  word(17, "amore", "love", "noun"),
+  word(18, "amico", "friend", "noun"),
+  word(19, "bene", "well", "adverb"),
+  word(20, "male", "badly", "adverb"),
+  word(21, "grande", "big", "adjective"),
+  word(22, "piccolo", "small", "adjective"),
+  word(23, "uno", "one", "numeral"),
+  word(24, "due", "two", "numeral"),
+];
+#+END_SRC
+
+** =commons/instances/standalone/cargo/.gitkeep= — empty file; FRAUGHT walks the dir at boot.
+
+** =commons/instances/standalone/docker-compose.yml= — starter's, re-homed; secrets from the instance's own =.env=
+#+BEGIN_SRC yaml :tangle ../../commons/instances/standalone/docker-compose.yml :mkdirp yes
+volumes:
+  mountpoint:
+    driver: local
+
+services:
+  runtime:
+    image: vivalence/runtime:alpine
+    container_name: runtime
+    ports:
+      - "2501:2501"
+    env_file: .env
+    environment:
+      - VIVA_SYSTEM_MODE=PRODUCTION
+      - VIVA_SYSTEM_ROLE=RUNTIME
+      - VIVA_LEDGER_MOUNT=/viva/ledger
+      - VIVA_MOUNTPOINT_MOUNT=/viva/mountpoint
+      - VIVA_INSTANCE_MOUNT=/viva/repository/commons/instances/standalone/
+      - VIVA_RUNTIME_SERVE=http://0.0.0.0:2501
+      - VIVA_LIGHTHOUSE_SERVE=http://0.0.0.0:2501/attached/process/lighthouse/multiplayer
+    volumes:
+      - mountpoint:/viva/mountpoint
+
+  kajuit:
+    image: vivalence/kajuit:alpine
+    container_name: kajuit
+    restart: unless-stopped
+    ports:
+      - "1794:1794"
+    env_file: .env
+
+  documentation:
+    image: vivalence/documentation:alpine
+    container_name: documentation
+    restart: unless-stopped
+    ports:
+      - "2020:2020"
+#+END_SRC
+
+** landing gate for M2 (each pasted, not claimed)
+1. =deno check commons/instances/standalone/*.viva.js=
+2. =viva instance/doctor --instance=./commons/instances/standalone= — 10 keys, 3 optional, 0 UNDOCUMENTED.
+3. scratch ledger: =ledger/init= → =registry/list= (census =@commons 24=: +=domain/recall= +=demo/flashcard= +=demo/coach=) → =instance/create @commons/instance/standalone= → =instances/use standalone= → =instance/init you changeme= (JWT only owed) → =instance/run= → =/status= ALIVE · =/daemon/italiano/metadata/modes= 401 · kajuit 200.
+4. headless boot (the 32.01 example shape): =literal.count() === 24= · =symbol.count() === 7= · =literal.findOne({slug:"ciao"}).ontology === "word"= · =rank === 1= · =mode.call.deck()= 10 cards · =review ciao true= → streak 1 · =/progress= touched 1.
+5. armed catalog on a coach thread (captured for §6): the 10 + =flashcard_deck flashcard_review flashcard_progress speak=.
+6. with your keys in the shelf =.env=: say /"quiz me"/ → deck drawn, a card asked, =speak= called, =▶ coach= chip, audio plays; mic present in the dock.
+
+* M3 — the pages
+
+- =50.01_slowstart.mdx= RECAST per the design. Every fence = byte paste (the settle check from compact 31). Every command block RAN this session, output genericized. Captures: =50.01-standalone.example.js= beside it (boot headless from =commons/instances/standalone= into =testament/docs-anatomy=, the §5 derivation lines, the armed catalog, three curls) — =<Tabs stdout/span/source>= like 32.01.
+- =51.02_instance-from-scratch.mdx= re-pointed; =51.02-flashcard.example.js= revived from =04e46f79d= and re-keyed (=mode.call.deck/review=, counts 24/7).
+- =32.01_anatomy-of-an-instance.mdx= re-pointed; =32.01-anatomy.example.js= revived; three line counts → the README's measure (11,254 · 4,443 · 1,974 · ~18k); =.env= fence :2501; "the standalone's =recall= domain, carrying the Retention entity" stays true.
+- =41.01_guide-to-the-repo.mdx:69= — instance list = =hello-world= (README) · =standalone= (this page) · =fixture= (tests).
+- README §6 =@viva= → =@commons=; =## Hello, Instance!= paste regenerates after M0 (ternary gone).
+- =astro build= 10 pages · anchors grepped in =dist/=.
+
+** the tractus — §9 of 50.01, the appendix (research folded; each row cites)
+- *instance* — the six exports and their schematics (=primitives/instance.js=): manifest · environment (=v.environment=, verdicts UNDOCUMENTED · REQUIRED · INVALID · ok · optional · documented) · runtime · lighthouse · services (ATTACHED + aperture → a process) · clients · daemons (Daemon: manifest · statics · kernel · consume · lighthouse · datamap · hallucinators; =docs= declared, not yet rendered). Hydrate = the pinhole; =secrets= deferred — the consumer fires the thunk (M0).
+- *ledger* — organs · seven strata =flag > cwd > instance > .env > os > session > ledger= · =MOUNT MEANS PATH= · the verb table with what each writes (from =world/ledger.md=; =ledger/doctor= reaps, =instance/doctor= is the read-only probe) · locks are the die's claim · =delete= is the undo of create+use → links [[33.01_anatomy-of-the-ledger]].
+- *daemon* — the die: =populate= (core · entities collate · datamap automigrate · authority · acid=cortex · modes · handlers · services) → =resolve= (domain · stagger traits · finalizers · aperture mounts) → =integrate= (self-connection · prune) → =perpetuate= → links [[32.01_anatomy-of-an-instance]].
+- *mode* — what a module may export (=manifest app aperture emitter harness tools generator dataset datasink boot freight=) × what each trait wakes — the table from the sweep (reads · phase-one · finalizer) — and the four markers with no runtime (=STANDALONE SELFEVIDENT CONVERSATIONAL= client-side, =TOPOGRAPHICAL/TOPOLOGICAL= dormant).
+- *the armed stack* — layers ①→⑧ with gates; the 10 names; =<domain>_= · =<peer>_= · =service_<slug>_= prefixes; =INTELLIGENT= precedence =invocation > thread > mode=.
+- *entities per tier* — the inventory table (name · tier · fields · relations · repository verbs) and *traits per entity*: Literal (domain-defined: here TRANSLATED · RANKED; education adds EXEMPLIFIED ANNOTATED VOCALIZED CONJUGATED) · Symbol (ONTOLOGICAL STRUCTURAL LABELED TOPOGRAPHICAL) · Mode (the enum) · Intent (LABELED MASKED AIMED QUEUEING) · Thread (persisted four + INTELLIGENT/VOCAL read off =trait=) · Buffer (status PENDING ACTIVE DONE ERROR STALE, no traits) · User (roles USER ADMIN GUEST) · Turn (role · parts · history/chain/fold) · Retention (this domain's: streak seen lastSignal nextAt; education's: driver · status ladder · formulas).
+- *ontologies and literals* — =literal.ontology= ← the one TOPOGRAPHICAL symbol · slug convention =<topology>.<dimension>.<value>= · =rankOf= · the DATASET contract (rows =${slug, traits, trait, symbols:[{slug}]}=, upsert then link, minted symbols, the stamp) · over-the-wire only literal/symbol/mode — memory travels through the mode's aperture.
+- *cortex* — faculty =${type, via, tune[4], context, channels}= · the table by provider · =object= derived from =dialogue/render= · =nearest= by tune · no key → no faculty (M0).
+- *voice* — in: verbatim/stream (deepgram) → dock mic, VOCAL thread trait · out: speech/render → cargo → =<audio>= (the coach) · not yet: spoken replies in the dock, two-sided converse (=connection.converse= landed, leaf not).
+- *kajuit* — A stage+dock (dock gated on HARNESSED) · B instruments · C = D navigation (application|conversational modes) · E traits (mode read-only, thread interactive) · F buffers + phase · G telemetry · H inspector · the Phase face =⚏ ⚎ ⚌ ⚍= · =Frame= hands =${terminal, daemon, mode, thread, buffer}=.
+
+* M4 — sunset + world
+
+- =mkdir commons/instances/bak= · =mv commons/instances/{localhost,starter,multiplayer.bak} commons/instances/bak/= (beef's call on =multiplayer.bak=). =belt/find.js:11= skips =bak= — census unchanged by the move.
+- =subsystems/paladin/tests/pensieve.test.js:35= path string → =bak/starter/= (fixture text only).
+- =release.md= line for the compose mount path.
+- =.ikiro/world/codemap/commons.md= shard: =instances/{hello-world,standalone,fixture}=; =.ikiro/world/ledger.md= restamp (census 24); memory =project_documentation_site= + a new =project_standalone_instance=.
+- 50.01 §2 =registry/doctor= block recaptured (=demo flashcard coach hello-world= · =domain recall= · =instance fixture hello-world standalone=).
+
+* M5 — review
+
+Connoisseur pass over the six files against triggers 1–14; a cold-eyes read of 50.01 by a subagent comparing every fence to disk programmatically and every claim to a citation; beef's live walk = the testimony below.
+
+* testing assessment
+
+** in place
+=subsystems/paladin/tests/hydrate.test.js= (thunk shape) · =systems/runtime/tests/dataset.install.test.js= (seed + link + guard) · =tests/thread.test.js= (intent → thread traits) · =tests/repository.populate.test.js= · =commons/hallucinators/*/tests/provider.test.js= (string keys — THE GAP: a thunk never reaches a provider in any suite) · =systems/ghost/tests/= (verbs) · docs build. COVERAGE GAP: no suite boots a =commons/instances/*= recipe end to end; no suite exercises a =type: "domain"= kernel entry with an override (education's own domain suite lives in the tap).
+** changes
+Provider tests → thunk keys (M0). =pensieve.test.js:35= path string (M4). Frozen aperture snapshots that list the development daemon — none in repo (rigs are in no kernel today).
+** adds
+- =commons/instances/standalone/tests/standalone.test.js= — the headless boot from M2 gate 4 as a test (mount → daemon populate/resolve/integrate → counts · ontology · rank · deck · review · progress · armed names · disintegrate). Reuses the 32.01 example's scratch discipline.
+- per-provider =no key → []= case (M0).
+** ladder
+| milestone | gate                                                                                              |
+|-----------+---------------------------------------------------------------------------------------------------|
+| M0        | 4 provider suites + lighthouse suite green with thunks; hello-world headless boot: 3 faculties with key, 0 without, boot clean both |
+| M1        | development daemon headless: =spawner /playground/spawn= emits 2 buffers; P-intelligent + P-intent-phase verdicts pasted |
+| M2        | gates 1–6 above, outputs pasted                                                                   |
+| M3        | =astro build= 10 pages; fence==disk check 0 diffs; every capture file present                    |
+| M4        | =registry/list= census 24 after the move; ghost + paladin one-shot suites green                  |
+| M5        | testimony walked by beef; markers settled                                                         |
+
+* QA
+
+** ① testimony
+- I run =viva instance/create @commons/instance/standalone --use= then =viva instance/init me changeme=. It asks me for one thing — the JWT — and offers the three keys as optional, each saying what I lose without it. It boots once, signs me up, stops.
+- I run =viva instance/run= and open =localhost:1794=. The sidebar shows two daemons, =italiano= and =development=. Under italiano: =flashcard= and =coach=. I open flashcard: a card says /hello/; I flip, it says /ciao/ with /interjection/; I press /knew it/; the progress line reads /1 touched/.
+- I open the coach with the /Immersione/ intent. The dock has a mic. I say /"quiz me"/. It draws the deck, asks me one word in Italian, and a =▶ coach= chip appears; I press it and hear the word. I answer; it calls =flashcard_review=; the round shows in the dock as a tool row.
+- I open E on that thread and pick /frugal/ and /no thinking/. The next reply is visibly faster and the header chip shows the faculty it resolved.
+- I open =development / dealer=, press the phase face to /continuous/: cards deal themselves; /escort/: one at a time. =oracle=: I ask and get a one-line vision as a buffer.
+- I edit =dataset/literals.js= on the shelf (add a word), =instance/stop=, =instance/run=: the log says the dataset differs from its stamp and reinstalls; the flashcard shows 25 words.
+- Without any key: the coach answers /"no hallucinator attached"/, the dock has no mic, the flashcard works fully.
+** ② programmatic + markers
+#+marker_qa: m51/P-secrets-thunk · pending · anthropic provider with =key: () => null= returns =[]=; with a thunk returning a string the request leaves the machine (401 from the network, never "Could not resolve authentication method")
+#+marker_qa: m51/P-lighthouse-jwt · pending · a token minted after M0 verifies; the pre-M0 signing secret equals the thunk's source text (probe, then close)
+#+marker_qa: m51/P-rigs-emit · pending · =spawner.emit.playground.spawn({count:2})= yields 2 buffers; before M1 it throws TypeError
+#+marker_qa: m51/P-intelligent · pending · claiming INTELLIGENT from E persists =traits= without a flush error — decides F8
+#+marker_qa: m51/P-intent-phase · pending · dealer's intent row after INTENTED: does =phase= survive? decides D4's edit
+#+marker_qa: m51/P-ontology · pending · =ciao.ontology === "word"= derived, not authored; =rank === 1= from the subscriber
+#+marker_qa: m51/P-armed · pending · coach thread catalog = 10 + flashcard_deck flashcard_review flashcard_progress speak (grep the wire)
+#+marker_qa: m51/P-speak · pending · =speak= → mp3 under =cargo/= → =/attached/cargo/daemon/italiano/<uuid>.mp3= 200 → buffer.data.audio plays
+#+marker_qa: m51/P-stamp · pending · edit a literal → reboot → "[DATASET] … reinstalling" → count +1
+#+marker_qa: m51/P-fences · pending · every fenced file block in 50.01/51.02 == disk (the python loop from compact 31), 0 diffs
+#+marker_qa: m51/P-census · pending · =registry/list= → =@commons 24= after M2, unchanged after M4
+#+marker_qa: m51/T-nokey · pending · with no keys: doctor 3 optional rows, boot clean, coach says no hallucinator, flashcard fully usable
+
+* blast table
+
+| file                                                          | change                                  | M  | kind    |
+|---------------------------------------------------------------+-----------------------------------------+----+---------|
+| =commons/hallucinators/{anthropic,openrouter,elevenlabs,deepgram}/provider/index.js= | fire thunk · no key → =[]=  | M0 | S       |
+| =commons/lighthouses/multiplayer/server/lib/jwt.js=          | fire thunk                              | M0 | S       |
+| =commons/services/nlp/provider/index.js=                     | fire thunk                              | M0 | S       |
+| =commons/hallucinators/*/tests/provider.test.js= ×4          | thunk keys + no-key case                | M0 | S       |
+| =commons/instances/hello-world/instance.viva.js= + README paste | plain hallucinators                  | M0 | S       |
+| =commons/playground/{spawner,dealer,automaton,switchboard}/*.viva.js= | =.app.buffer= ×5               | M1 | S       |
+| =systems/runtime/daemon/entities/userspace/Thread.ts=        | enum += INTELLIGENT VOCAL (F8, conditional) | M1 | S   |
+| =commons/instances/standalone/= (10 files)                   | NEW                                     | M2 | L       |
+| =documentation/content/50-59_practice/50.01_slowstart.mdx= + example | RECAST                          | M3 | L       |
+| =documentation/content/50-59_practice/51_guides/51.02_*.mdx= + example | re-point                      | M3 | M       |
+| =documentation/content/30-39_architecture/32_daemon/32.01_*.mdx= + example | re-point                  | M3 | M       |
+| =documentation/content/40-49_repository/41_tour/41.01_*.mdx:69= · README §6 | one line each              | M3 | S       |
+| =commons/instances/{localhost,starter,multiplayer.bak}= → =bak/= | move                                | M4 | S       |
+| =subsystems/paladin/tests/pensieve.test.js:35= · =release.md= · codemap · ledger.md · memory | text          | M4 | S       |
+
+* deferred
+- spoken replies in the dock (=shard.hal.voice()= tee, =/harness/speech= leaf) — m37 stage II; reopens when the coach's =speak= feels like a workaround.
+- =daemon.docs= rendering (=/docs= route + sidebar name/icon) — reopens when a second instance carries two daemons the slug can't tell apart.
+- =object/stream= leaf raising at call time (=harnessed.js:161-168=) — reopens on the first streamed structured output.
+- nlp in standalone — reopens if a lemma tool is wanted for the coach.
+
+* changelog
+- authored: terrain (three poles, sweeps), D1–D4, the design, six files, pages plan, tractus outline, M0–M5, QA, blast.
+
+* release
+- fixed `commons/hallucinators/*` · `lighthouse/multiplayer` · `service/nlp` — a declared secret is a thunk and is now fired where it arrives; a hallucinator without a key registers no faculties and logs one line · migrate: sessions log in again after redeploy (signing secret changes) ⟨m51-standalone⟩
+- changed `@commons/instance/hello-world` — `hallucinators` is a plain list; no key = no faculty, same behaviour, no gating thunk · migrate: none ⟨m51-standalone⟩
+- added `@commons/instance/standalone` — the localhost default: `italiano` (recall domain · flashcard · coach) + `development` (nine rigs); `docker-compose.yml` inside · migrate: `VIVA_INSTANCE_MOUNT=…/commons/instances/standalone/` in compose ⟨m51-standalone⟩
+- added `@commons/domain/recall` · `@commons/demo/flashcard` · `@commons/demo/coach` — census 22 → 24 (+ the two demo modes replace nothing) ⟨m51-standalone⟩
+- fixed `@commons/playground/{spawner,dealer,automaton,switchboard}` — emit through `mode.app.buffer`; they threw since m19 · migrate: none ⟨m51-standalone⟩
+- removed `commons/instances/{localhost,starter}` → `commons/instances/bak/` — `@commons/instance/multiplayer` no longer resolves · migrate: use `@commons/instance/standalone` ⟨m51-standalone⟩

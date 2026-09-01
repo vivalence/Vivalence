@@ -24,6 +24,6 @@ describe("paladin.source", () => {
   });
 
   it("bare segment — repo-root-relative via scope.repository", () => {
-    expect(paladin.source("registry/viva")).toEqual({ repository: "registry/viva" });
+    expect(paladin.source("commons")).toEqual({ repository: "commons" });
   });
 });

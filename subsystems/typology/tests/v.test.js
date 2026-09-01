@@ -241,4 +241,76 @@ specimen.describe("v", () => {
     specimen.expect(v.thread({ trait: { progress: v.object({ level: v.integer() }) } })
       .check({ user: "u", mode: "m", trait: { progress: { level: 3 } } })).toBe(true);
   });
+  specimen.it("url is RFC 3986 with an authority — any scheme, localhost included, ${} defaults excluded", () => {
+    for (const held of [
+      "http://localhost:2501/",
+      "http://127.0.0.1:2501",
+      "ws://localhost:2501/ws",
+      "https://api.vivalence.org",
+      "libsql://x.turso.io",
+      "postgres://user:pw@db.internal:5432/app?sslmode=require",
+      "file:///tmp/x.db",
+      "http://[::1]:2501/",
+      "http://a.b/p%20q?x=1&y=%2F#frag",
+    ]) specimen.expect(v.url().check(held)).toBe(true);
+    for (const held of [
+      "localhost:2501",
+      "${VIVA_RUNTIME_ORIGIN}/",
+      "http://localhost:2501/${X}",
+      "NaN",
+      "",
+      "http://exa mple.com",
+      "mailto:x@y.z",
+      "http://host:port",
+    ]) specimen.expect(v.url().check(held)).toBe(false);
+    const templated = v.url().default("${VIVA_RUNTIME_ORIGIN}/");
+    specimen.expect(templated.default).toBe("${VIVA_RUNTIME_ORIGIN}/");
+    specimen.expect(JSON.parse(JSON.stringify(v.url())).pattern).toBe(v.scalars.PATTERN);
+  });
+
+  specimen.it("group rides the schema like desc and default — and like default, unset it is the setter", () => {
+    const keyed = v.string().desc("a key").group("keys");
+    specimen.expect(keyed.group).toBe("keys");
+    specimen.expect(keyed.description).toBe("a key");
+    specimen.expect(typeof v.string().group).toBe("function");
+    specimen.expect(typeof v.string().default).toBe("function");
+  });
+
+  specimen.it("isOptional reads what .optional() wrote", () => {
+    specimen.expect(v.isOptional(v.string().optional())).toBe(true);
+    specimen.expect(v.isOptional(v.string())).toBe(false);
+  });
+
+  specimen.it("environment refuses a key outside the VIVA law at construction", () => {
+    const legal = v.environment({
+      VIVA_A: v.url().group("addresses"),
+      PUBLIC_VIVA_B: v.string().optional(),
+      SECRET_VIVA_C: v.string({ minLength: 24 }),
+    });
+    specimen.expect(Object.keys(legal.properties)).toEqual(["VIVA_A", "PUBLIC_VIVA_B", "SECRET_VIVA_C"]);
+    specimen.expect(legal.additionalProperties).toBe(false);
+    specimen.expect(legal.required).toEqual(["VIVA_A", "SECRET_VIVA_C"]);
+    specimen.expect(() => v.environment({ ANTHROPIC_API_KEY: v.string() })).toThrow(/outside VIVA_/);
+    specimen.expect(() => v.environment({ viva_lower: v.string() })).toThrow(/outside VIVA_/);
+  });
+
+  specimen.it("environment hands back PLAIN properties — an unset default is undefined, never the setter", () => {
+    const held = v.environment({
+      VIVA_A: v.string().desc("a"),
+      SECRET_VIVA_B: v.string().default("x").group("keys").optional(),
+    }).properties;
+    specimen.expect(held.VIVA_A.default).toBe(undefined);
+    specimen.expect(held.VIVA_A.group).toBe(undefined);
+    specimen.expect(held.SECRET_VIVA_B.default).toBe("x");
+    specimen.expect(held.SECRET_VIVA_B.group).toBe("keys");
+    specimen.expect(v.isOptional(held.SECRET_VIVA_B)).toBe(true);
+    specimen.expect(v.isOptional(held.VIVA_A)).toBe(false);
+  });
+
+  specimen.it("convert turns the string a .env holds into the declared type", () => {
+    specimen.expect(v.convert(v.integer(), "8080")).toBe(8080);
+    specimen.expect(v.convert(v.boolean(), "true")).toBe(true);
+    specimen.expect(v.convert(v.string(), "8080")).toBe("8080");
+    specimen.expect(v.integer().check(v.convert(v.integer(), "8080"))).toBe(true);
+  });
 });

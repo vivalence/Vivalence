@@ -60,6 +60,46 @@ describe("viva registry/{tap,untap,bootstrap}", () => {
     expect(untapped.record).toEqual(["alpha", "beta"]);
   });
 
+  it("doctor reads the record against the store — tapped roots, an untapped resident, the census by owner", async () => {
+    await author(store, "gamma", "@gamma");
+    const effect = await drive(["registry/doctor"]);
+    expect(effect.record.tapped).toBe((await paladin.ledger.registry.list()).length);
+    expect(effect.record.stale).toEqual([]);
+    expect(effect.store.path).toBe(new Path(store).absolute);
+    expect(effect.store.untapped).toEqual([`${store}/gamma`]);
+    const alpha = effect.packages.find((held) => held.owner === "@alpha");
+    expect(alpha.reference).toBe("alpha");
+    expect(alpha.root).toBe(`${store}/alpha`);
+    expect(alpha.types.package).toEqual(["alpha"]);
+    expect(alpha.modes).toBe(1);
+    expect(effect.pensieve.owners >= 2).toBe(true);
+    expect(effect.pensieve.modes >= effect.pensieve.owners).toBe(true);
+    await Deno.remove(`${store}/gamma`, { recursive: true });
+  });
+
+  it("doctor: a declaration nested under a recorded root is covered, never untapped", async () => {
+    await Deno.mkdir(`${store}/wrap`, { recursive: true });
+    await author(`${store}/wrap`, "deep", "@deep");
+    await paladin.ledger.registry.add("wrap");
+    const effect = await drive(["registry/doctor"]);
+    expect(effect.store.resident.includes(`${store}/wrap/deep`)).toBe(true);
+    expect(effect.store.untapped).toEqual([]);
+    expect(effect.packages.find((held) => held.owner === "@deep").reference).toBe("wrap");
+    await drive(["registry/untap", "wrap"]);
+    await Deno.remove(`${store}/wrap`, { recursive: true });
+  });
+
+  it("doctor: a rotten entry outside the repository is stale and stays in the record", async () => {
+    await author(store, "rot", "@rot");
+    await drive(["registry/tap", "rot"]);
+    await Deno.remove(`${store}/rot`, { recursive: true });
+    const effect = await drive(["registry/doctor"]);
+    expect(effect.record.stale).toEqual(["rot"]);
+    expect((await paladin.ledger.registry.list()).includes("rot")).toBe(true);
+    expect(effect.packages.find((held) => held.owner === "@rot")).toBe(undefined);
+    await drive(["registry/untap", "rot"]);
+  });
+
   it("bootstrap with no source writes one package file, owner and slug from the destination", async () => {
     const target = `${made}/mine`;
     const effect = await drive(["registry/bootstrap", target]);

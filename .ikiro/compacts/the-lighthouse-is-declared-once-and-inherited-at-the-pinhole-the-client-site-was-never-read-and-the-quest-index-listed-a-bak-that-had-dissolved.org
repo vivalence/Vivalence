@@ -1,0 +1,94 @@
+#+title: the lighthouse is declared once and inherited at the pinhole, the client site was never read, and the quest index listed a bak that had dissolved
+#+filetags: :paladin:typology:instance:lighthouse:env:ghost:quest:release:readme:docs:blast:callout:
+
+* what happened, in one breath
+
+beef pasted the top-level =export const lighthouse= out of the docs and asked where it is actually read —
+/"smeels like duplication? is this treated as a default and properly propagated? or just old one-off shit??"/
+The grep answered three ways at once: the export IS read (runtime =announce=, ghost =instance/init= and
+=instance/lighthouse=), it was a deliberate HOIST (born as an empty slot in =variant/localhost= sixteen
+commits back, runtime switched to it at =a486a8389=, ghost at =04e46f79d= "sunset variant"), and the two
+older sites it replaced were never removed — the daemon mask still read, the client
+=statics.lighthouse= read by NOBODY (kajuit takes =PUBLIC_VIVA_LIGHTHOUSE_REMOTE= through =publish()= →
+=Deno.env= → =$env/dynamic/public=). The =Instance= typology schema had no =lighthouse= field at all and
+=validate()= never looked; ghost threw a bare TypeError on an instance without the export. The doctor
+was misread once — a =grep -i lighthouse= over a width-truncated table showed ONE row where the wide
+rerun showed THREE — and the raw-data rule earned its keep. /"work out the full diff. are those all
+changes?"/ — no: the sketch had missed six things (the schema field, =validate()=, the =announce= guard,
+TWO client sites per shelf file, the paladin snapshot json, the 51.02 prose saying "twice"). The full
+radius was seventeen files across three estates. One correction on the paper — /"obviously also optional
+stupid. go."/ — and the bracket ran: baseline 169 green with two pre-existing reds, seventeen files
+rewritten by one script that carried the =module= value from the removed daemon mask instead of typing
+it, the same two reds after, paladin 37/0 with a new five-case guardrail, an in-process proof that the
+daemon inherits the instance's mask and =accio= resolves it to the multiplayer provider, and =viva
+instance/doctor= down to ONE row. The fold order moved ghost's =localhost.viva.js= corpse to =bak/=, seeded
+three release lines, and found the quest index describing a =bak/ (7)= bucket that no longer exists on
+disk — its seven sit in =discarded/=, and the frontier still narrates two of them as live.
+
+* spine (N=8)
+
+| n | beef asked (verbatim)                                                                                                                                                                                                                                              | landed                                                                                                                                                                                                                                            | decided/killed                                                                                                                                              |
+| 1 | /"investigate this from docs: export const lighthouse = { statics: { remote: () => new Url(paladin.env.get("PUBLIC_VIVA_LIGHTHOUSE_REMOTE")), }, }; where is this actually read? smeels like duplication? is this treated as a default and properly propagated? or just old one-off shit??"/ | unrestricted grep of the key; consumer tree of =paladin.instance.lighthouse=; history by =git grep <rev>= over ten revs (=git log -S= is guard-denied); live doctor rows pasted wide                                                                | read, not one-off; three declaration sites, one dead; the schema/validate hole named; a dedupe SKETCHED, gated                                              |
+| 2 | /"work out the full diff. are those all changes?"/                                                                                                                                                                                                                 | pre-flight + blast-bracket loaded; beat 1 blast over repo · =~/.viva= shelf · =@education= repo · docs · tests · typology; the diff written on paper, hunk by hunk, with the six misses called out                                                | typology is holy → paper first; =Instance.lighthouse: Mask= (required) proposed                                                                             |
+| 3 | (pre-flight skill payload — not beef's voice)                                                                                                                                                                                                                      | —                                                                                                                                                                                                                                                 | —                                                                                                                                                           |
+| 4 | (blast-bracket skill payload — not beef's voice)                                                                                                                                                                                                                   | —                                                                                                                                                                                                                                                 | —                                                                                                                                                           |
+| 5 | /"@@ export const Instance = v.object( … + lighthouse: Mask, … obviously also optional stupid. go."/                                                                                                                                                              | =Mask.optional()= on both =Instance= and =Daemon=; baseline suites; =hoist.py= dry then wet over 17 files; exact-string edits typology · paladin · 51.02 prose; snapshot regenerated; proof script; guardrail test; ledger.md line; memory        | the =announce= guard KEPT (legit under optional) — that hunk of the paper diff dropped; a daemon inheriting ={}= fails validate by name, not at accio        |
+| 6 | /"ikiro compact. move localhost to bak. cleanup quests."/                                                                                                                                                                                                          | =systems/ghost/localhost/= → =systems/ghost/bak/localhost/= (plain =mv=, sweep clean); =release.md= +3 under cli · api · entity; quest index regenerated from disk; frontier restamped; this compact                                              | no quest sunsets — m46 is LIVE in two sibling sessions, m50 gated, m51 unstarted; the phantom =bak/= bucket follows disk into =discarded/=                 |
+| 7 | (quest-lifecycle skill payload — not beef's voice)                                                                                                                                                                                                                 | —                                                                                                                                                                                                                                                 | —                                                                                                                                                           |
+| 8 | (MID-TURN) /"once done give me a tasks/progress overview. suvey totem."/ | the fold's closing message carries the overview under the survey totem; frontier evicted m47 + m44 whole to known-issues (8272 → under 8000) | — |
+
+* the gate, as evidence
+
+#+begin_example
+history (git grep per rev)   HEAD~20  runtime announce read daemonDie.mask.lighthouse.statics.remote · ghost init read clients.ghost.statics.lighthouse.remote
+                             HEAD~16  export const lighthouse BORN in registry/viva/variant/localhost (paladin hydrates it; nobody reads it yet)
+                             a486a8389 announce → paladin.variant.lighthouse?.statics?.remote · 04e46f79d "sunset variant" → paladin.instance.lighthouse everywhere
+doctor BEFORE (wide)         PUBLIC_VIVA_LIGHTHOUSE_REMOTE × 3 rows — clients.kajuit.statics.lighthouse.remote · daemon[hello].lighthouse.statics.remote · lighthouse.statics.remote
+beat 2 (baseline)            169 passed · 2 failed — strata.wet.test.js:93 "two shells select two instances in parallel" · registry.count fork 2 (wants @commons/instance/multiplayer)
+hoist.py --dry               17 files · daemon-blocks 1/1/0+1/0+1/0+3+1/0+1/0+1/0+1/1/1 · client sites 1/1/2/2/2/2/2/2/1/1 · module carried from the removed mask
+beat 4                       169 passed · 2 failed — the same two        paladin alone: 37 passed (150 steps) · 0 failed
+beat 5                       declaration sites left: 0 · readers: integrate.js:57 · ghost init.js:57 · ghost lighthouse.js:10 · daemon population.js:12,87 · provider/index.js:6
+proof (repo hello-world)     {"inherited":true,"module":"@commons/lighthouse/multiplayer","rows":["lighthouse.statics.remote"]}  {"accio":"@commons/lighthouse/multiplayer","manifest":"multiplayer","provider":"function"}
+                             remote: "NaN" — the repo fixture has no .env; the m45 Url(unset) one-liner, beef's
+doctor AFTER (shelf)         !  PUBLIC_VIVA_LIGHTHOUSE_REMOTE  …hed/process/lighthouse/multiplayer  instan      problems —
+guardrail                    5 cases; one red on wording — typology says "must have required properties module", the assertion had quoted 'module'; test fixed to the system
+ports                        [::1]:2501 + 127.0.0.1:1794 held by deno 36718/36719 — booted on the OLD shape; not mine to restart
+quest report                 m46 17% wip drain — 4 sessions (2 LIVE) · m50 60% wip blast · m51 0% design go
+quest index vs disk          index: bak/ (7) · discarded/ (33)      disk: no bak/ · discarded/ 40 — the seven are there
+#+end_example
+
+* landed
+
+- =subsystems/typology/schematics/primitives/instance.js= — =Instance.lighthouse: Mask.optional()= (new field) · =Daemon.lighthouse: Mask.optional()= (was required).
+- =subsystems/paladin/prototypes/instance.js= — =materialize= returns =lighthouse: held.lighthouse ?? instance.lighthouse= (the already-hydrated object, so no second doctor row); =validate()= casts + collects the top-level =Mask= when present.
+- =subsystems/paladin/tests/lighthouse.test.js= — inherit · override · nothing-anywhere throws =daemon[probe]/lighthouse= · module-less top-level throws · no daemons mounts. =tests/snapshots/paladin-instance.snapshot.json= regenerated (client site gone, top-level carries =module=, one requirement row).
+- =commons/instances/hello-world/instance.viva.js= + the identical shelf copy · =README.md= (byte-verbatim paste) · =51.02= (+ two prose lines: identity comes from the instance's =lighthouse= unless the daemon binds its own; "consumed: a module and a remote URL, inherited by every daemon") · =~/.viva/instances/{italian,stucatch,language-learning}= with =daemon.js= · =stucatch.js= · =education.js= (3 masks) · =development.js= · =~/.viva/registry/education/instances/{italian,spanish,brazilian}= + =daemon.js= — the education checkout is its own repo, push beef's.
+- =systems/ghost/localhost/= → =systems/ghost/bak/localhost/= — unreferenced, pre-m47 module ids, no top-level export; the sweep found only =methods/critical-pass.md= already calling it nonexistent.
+- =release.md ## unreleased= — cli (doctor one row) · api (=instance.mount= inherit; both schema fields optional) · entity (the recipe shape; =migrate: REQUIRED= naming the three edits and the estates already done).
+- =.ikiro/quests/index.md= — regenerated from disk: live 3 · done 74 · benched 3 · discarded 40 (the former =bak/ (7)= folded in, marked); =.ikiro/world/frontier.md= — the hoist on a questless LANDED line, m28 + m37 links annotated =file in discarded/=; =.ikiro/world/ledger.md= — the inherit law under the pinhole bullet; memory =project_lighthouse_hoist= + index line.
+
+* callouts (self)
+
+- *a new schema field proposed against its siblings' optionality.* Every other =Instance= field is =.optional()=; the paper diff put =lighthouse: Mask= required and beef had to say it: /"obviously also optional stupid"/. Rule: a new field takes the optionality of its siblings unless the ask says otherwise — and =optional= changed two downstream hunks (the =announce= guard survives, =validate()= checks only when present), so the mistake would have cost code, not just a word.
+- *guardrail written AFTER the change.* blast-bracket names it: under-tested target → contract test FIRST, green on the old code, then change. The five cases went in last; they passed, but the order was the wrong one.
+- *two fabricated details in the verification itself.* =--config deno.json= (the file is =deno.jsonc=) and an error message quoted as ='module'= that typology spells =properties module=. Both caught by running, both the [[feedback_grep_before_propose]] family — read the thing before addressing it.
+- *a row count read off a truncated table.* =grep -i lighthouse= over the narrow doctor output returned ONE of three rows because two =at= cells were cut before the word. Paste wide, count from the paste ([[feedback_show_json_not_summaries]]).
+
+* settled / owed
+
+- *=announce= guard* — SETTLED: kept, because the lighthouse is optional and an instance without one legitimately announces nothing.
+- *the two reds* — pre-existing, named, not this change's: =strata.wet= "two shells" (dossier invariant 5) · =registry.count= fork 2 (expects an =@commons/instance/multiplayer= that lives only in =bak/=).
+- *=provider/index.js= moved under me* — a sibling session made =verify= a default parameter mid-bracket; still reads =lighthouse.statics.remote=; nothing to do.
+- *running deno pair on 2501/1794* — booted on the old declaration; restart is beef's.
+- *=.ikiro/quests/m51-standalone-slowstart.org:261-292=* — carries the old three-site shape; Finn's quest, not mine to author.
+- *commit · education push · M5 prod hunks* — beef's.
+- *quest cleanup* — nothing sunset: m46 live in two sibling sessions (untouchable), m50 gated, m51 unstarted. The index now matches disk; m28 + m37 sit in =discarded/= while the frontier narrates them under HOT/APPLIED — annotated, not reclassified; the bucket judgment is beef's.
+- *=check.environment.test.js= labels* — the synthetic requirement list still names =clients.kajuit.lighthouse.remote=; a label, not a deployment fact, and the claim it pins (one row per site) stays true. Left.
+
+* quest report (derived at fold — `methods/quest-report.py`)
+
+| quest                    | progress  | status | next  | sessions   |
+|--------------------------+-----------+--------+-------+------------|
+| m46-linux-readmen        |  17% 3/18 | wip    | drain | 4 (2 live) |
+| m50-the-three-way-weave  |  60% 3/5  | wip    | blast | 0          |
+| m51-standalone-slowstart |   0% 0/18 | design | go    | 0          |

@@ -57,7 +57,6 @@ describe("hydrate — the pinhole", () => {
     expect(by["runtime.serve"].read).toEqual(["VIVA_PROBE_SERVE"]);
     expect(by["runtime.both"].read).toEqual(["VIVA_PROBE_SERVE", "SECRET_VIVA_PROBE"]);
     // and the values still arrive — the view is read-through, not a stub
-    expect(by["runtime.serve"].usable).toBe(true);
   });
 
   it("names the UNSET keys separately from the read ones", () => {
@@ -80,7 +79,7 @@ describe("hydrate — the pinhole", () => {
     expect(by["runtime.three"].unset).toEqual(["VIVA_PROBE_HOLLOW"]);
   });
 
-  it("catches the silent failure: new Url(unset) is PRODUCED but not usable", () => {
+  it("does not throw on new Url(unset) — the value is PRODUCED, only the record says the key was unset", () => {
     const record = [];
     const paladin = mk({ VIVA_PROBE_SERVE: "http://localhost:2501/" });
     hydrate(
@@ -93,112 +92,68 @@ describe("hydrate — the pinhole", () => {
       "runtime",
     );
     const by = Object.fromEntries(record.map((row) => [row.at, row]));
-    expect(by["runtime.good"].usable).toBe(true);
     // this is the whole point: it did not throw. all three empty shapes produce a Url with no
     // origin — a blind pinhole hands that to the runtime as an address and the app serves nowhere.
     expect(new Url(undefined).href).toBe("NaN");
     expect(new Url(null).href).toBe("NaN");
     expect(new Url("").href).toBe("undefined/");
     expect([undefined, null, ""].every((held) => new Url(held).origin === undefined)).toBe(true);
-    expect(by["runtime.bad"].usable).toBe(false);
     expect(by["runtime.bad"].unset).toEqual(["VIVA_PROBE_MISSING"]);
   });
 
-  it("refuses to fire a deferred branch — secrets stay callable, never a string", () => {
+  it("secrets fire at the pinhole like every other branch — a provider receives a static map", () => {
     const record = [];
     const paladin = mk({}, { SECRET_VIVA_PROBE: "CANARY" });
     const held = hydrate(
       {
         statics: { serve: () => "fired" },
-        secrets: { jwt: () => paladin.secret.get("SECRET_VIVA_PROBE") },
-      },
-      record,
-      paladin,
-      "service[probe]",
-    );
-    expect(held.statics.serve).toBe("fired");
-    expect(typeof held.secrets.jwt).toBe("function");
-    expect(held.secrets.jwt()).toBe("CANARY");
-    // the plaintext never lands on the declaration, so no serializer has to lie about it
-    expect(JSON.stringify(held).includes("CANARY")).toBe(false);
-    // a deferred thunk still contributes a row — probed, not resolved (see the next test)
-    expect(record.map((row) => row.at).sort()).toEqual([
-      "service[probe].secrets.jwt",
-      "service[probe].statics.serve",
-    ]);
-    expect(record.find((row) => row.at.endsWith("secrets.jwt")).deferred).toBe(true);
-  });
-
-  it("fires a deferred thunk once and hands back the THUNK, not the value", () => {
-    const record = [];
-    const paladin = mk({}, { SECRET_VIVA_PROBE: "CANARY" });
-    const held = hydrate(
-      {
         secrets: {
           jwt: () => paladin.secret.get("SECRET_VIVA_PROBE"),
           gone: () => paladin.secret.get("SECRET_VIVA_ABSENT"),
+          nested: { deep: [() => paladin.secret.get("SECRET_VIVA_PROBE")] },
         },
       },
       record,
       paladin,
       "service[probe]",
     );
+    expect(held.statics.serve).toBe("fired");
+    expect(held.secrets.jwt).toBe("CANARY");
+    expect(held.secrets.nested.deep[0]).toBe("CANARY");
+    expect(typeof held.secrets.jwt).toBe("string");
     const by = Object.fromEntries(record.map((row) => [row.at, row]));
-    // fired once, so the keys are known — a deferred branch is enumerable, which is what lets the
-    // wizard ask for it and the doctor name who needs it.
+    expect(Object.keys(by).sort()).toEqual([
+      "service[probe].secrets.gone",
+      "service[probe].secrets.jwt",
+      "service[probe].secrets.nested.deep[0]",
+      "service[probe].statics.serve",
+    ]);
     expect(by["service[probe].secrets.jwt"].read).toEqual(["SECRET_VIVA_PROBE"]);
-    expect(by["service[probe].secrets.jwt"].deferred).toBe(true);
     expect(by["service[probe].secrets.jwt"].unset).toEqual([]);
     expect(by["service[probe].secrets.gone"].unset).toEqual(["SECRET_VIVA_ABSENT"]);
-    // a REAL verdict, because a real value was produced — an unset secret is not usable
-    expect(by["service[probe].secrets.jwt"].usable).toBe(true);
-    expect(by["service[probe].secrets.gone"].usable).toBe(false);
-    // …and the value went nowhere: the instance holds the thunk, so no plaintext to leak
-    expect(typeof held.secrets.jwt).toBe("function");
-    expect(held.secrets.jwt()).toBe("CANARY");
-    expect(JSON.stringify(held).includes("CANARY")).toBe(false);
+    expect(Object.keys(by["service[probe].secrets.jwt"]).sort()).toEqual(["at", "read", "unset"]);
   });
 
-  it("deferral is inherited by the whole branch, however deep", () => {
+  it("walks a fired thunk's value — a declaration thunk that yields more thunks resolves to the bottom", () => {
     const record = [];
     const paladin = mk({}, { SECRET_VIVA_PROBE: "CANARY" });
     const held = hydrate(
-      { secrets: { nested: { deep: [() => paladin.secret.get("SECRET_VIVA_PROBE")] } } },
-      record,
-      paladin,
-      "service[probe]",
-    );
-    // a secret three levels down a deferred branch is still a thunk
-    expect(typeof held.secrets.nested.deep[0]).toBe("function");
-    expect(record[0].at).toBe("service[probe].secrets.nested.deep[0]");
-    expect(record[0].deferred).toBe(true);
-    expect(JSON.stringify(held).includes("CANARY")).toBe(false);
-  });
-
-  it("usable is STRICT — null, undefined and empty string are all unusable", () => {
-    const record = [];
-    const paladin = mk({ VIVA_HOLLOW: "", VIVA_REAL: "x" });
-    hydrate(
       {
-        real: () => paladin.env.get("VIVA_REAL"),
-        hollow: () => paladin.env.get("VIVA_HOLLOW"),
-        missing: () => paladin.env.get("VIVA_ABSENT"),
-        undef: () => undefined,
-        zero: () => 0,
-        no: () => false,
+        hallucinators: () =>
+          paladin.secret.get("SECRET_VIVA_PROBE")
+            ? [{ module: "probe", secrets: { key: () => paladin.secret.get("SECRET_VIVA_PROBE") } }]
+            : [],
       },
       record,
       paladin,
-      "runtime",
+      "daemon[probe]",
     );
-    const by = Object.fromEntries(record.map((row) => [row.at, row.usable]));
-    expect(by["runtime.real"]).toBe(true);
-    expect(by["runtime.hollow"]).toBe(false);
-    expect(by["runtime.missing"]).toBe(false);
-    expect(by["runtime.undef"]).toBe(false);
-    // 0 and false are VALUES. only absence is unusable — a port of 0 is a bug, not an absence.
-    expect(by["runtime.zero"]).toBe(true);
-    expect(by["runtime.no"]).toBe(true);
+    expect(held.hallucinators[0].secrets.key).toBe("CANARY");
+    expect(record.map((row) => row.at).sort()).toEqual([
+      "daemon[probe].hallucinators",
+      "daemon[probe].hallucinators[0].secrets.key",
+    ]);
+    expect(hydrate({ nested: () => () => "twice" }).nested).toBe("twice");
   });
 
   it("restores the real bags after every thunk, including one that throws", () => {

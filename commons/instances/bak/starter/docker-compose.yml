@@ -1,0 +1,82 @@
+volumes:
+  mountpoint:
+    driver: local
+
+services:
+  runtime:
+    image: vivalence/runtime:alpine
+    container_name: runtime
+    # stdin_open: true
+    # tty: true
+    # command: tail -f /dev/null
+    ports:
+      - "2501:2501"
+    environment:
+      - VIVA_SYSTEM_MODE=PRODUCTION
+      - VIVA_SYSTEM_ROLE=RUNTIME
+      - VIVA_LEDGER_MOUNT=/viva/ledger
+      - VIVA_MOUNTPOINT_MOUNT=/viva/mountpoint
+      - VIVA_INSTANCE_MOUNT=/viva/repository/commons/instances/starter/
+      - VIVA_RUNTIME_SERVE=http://0.0.0.0:2501
+      - VIVA_LIGHTHOUSE_SERVE=http://0.0.0.0:2501/attached/process/lighthouse/multiplayer
+      # - PUBLIC_VIVA_RUNTIME_REMOTE=https://runtime.s4y.vivalence.com
+      # - PUBLIC_VIVA_LIGHTHOUSE_REMOTE=https://runtime.s4y.vivalence.com/attached/process/lighthouse/multiplayer
+      - PUBLIC_VIVA_RUNTIME_REMOTE=http://localhost:2501
+      - PUBLIC_VIVA_LIGHTHOUSE_REMOTE=http://localhost:2501/attached/process/lighthouse/multiplayer
+      - SECRET_VIVA_JWT=TOTALLYSECUREKEYnot
+      - SECRET_VIVA_ANTHROPIC_API_KEY=ANOTHERTOTALLYSECUREKEYnot
+      # - VIVA_SERVICE_NLP_KEY
+      # - VIVA_SERVICE_NLP_REMOTE
+    volumes:
+      - mountpoint:/viva/mountpoint
+      # - ~/vivalence/code/vivalence/registry:/viva/repository/registry
+      # - ~/vivalence/code/vivalence/systems:/viva/repository/systems
+  # services:
+  #   runtime:
+  #     image: 'registry.vivalence.org/beef/viva/vivalence/runtime:alpine'
+  #     container_name: runtime
+  #     ports:
+  #       - '2501:2501'
+  #     environment:
+  #       - VIVA_SYSTEM_MODE=PRODUCTION
+  #       - VIVA_SYSTEM_ROLE=RUNTIME
+  #       - VIVA_CIRCUITRY_MOUNT=/viva/repository/registry/wafers/@vivalence/instance/multiplayer/server
+  #       - VIVA_MOUNTPOINT_MOUNT=/viva/mountpoint
+  #       - 'VIVA_RUNTIME_SERVE=http://0.0.0.0:2501'
+  #       - 'VIVA_LIGHTHOUSE_SERVE=http://0.0.0.0:2501/attached/process/lighthouse/multiplayer'
+  #       - 'PUBLIC_VIVA_RUNTIME_REMOTE=https://runtime.s4y.vivalence.com'
+  #       - 'PUBLIC_VIVA_LIGHTHOUSE_REMOTE=http://localhost:2501/attached/process/lighthouse/multiplayer'
+  #       - SECRET_VIVA_JWT=TOTALLYSECUREKEYnot
+  #       - SECRET_VIVA_ANTHROPIC_API_KEY=KEY
+  #     volumes:
+  #       - 'mountpoint:/viva/mountpoint'
+
+  kajuit:
+    image: vivalence/kajuit:alpine
+    container_name: kajuit
+    restart: unless-stopped
+    ports:
+      - "1794:1794"
+    environment:
+      - PUBLIC_VIVA_LIGHTHOUSE_REMOTE=https://runtime.s4y.vivalence.com/attached/process/lighthouse/multiplayer
+      - PUBLIC_VIVA_CLIENT_KAJUIT_REMOTE=https://vivalence.com
+
+  documentation:
+    image: vivalence/documentation:alpine
+    container_name: documentation
+    restart: unless-stopped
+    ports:
+      - "2020:2020"
+# services:
+#   kajuit:
+#     image: 'registry.vivalence.org/beef/viva/vivalence/kajuit:alpine'
+#     container_name: kajuit
+#     ports:
+#       - '1794:1794'
+#     environment:
+#       - VIVA_SYSTEM_MODE=PRODUCTION
+#       - VIVA_SYSTEM_ROLE=CLIENT
+#       - VIVA_CIRCUITRY_MOUNT=/viva/repository/registry/wafers/@vivalence/instance/multiplayer/client
+#       - 'VIVA_CLIENT_KAJUIT_SERVE=http://0.0.0.0:1794'
+#       - 'PUBLIC_VIVA_LIGHTHOUSE_REMOTE=https://runtime.s4y.vivalence.com/attached/process/lighthouse/multiplayer'
+#       - 'PUBLIC_VIVA_CLIENT_KAJUIT_REMOTE=https://vivalence.com'

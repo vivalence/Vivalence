@@ -1,0 +1,52 @@
+# release
+
+## unreleased
+
+### cli
+
+- changed `viva instance/delete <target>` · `viva instance/doctor <target> <filter>` — a bare token resolves through the instances lens the way `instances/use` does: one match resolves headless (a slug prefix is enough), several open the picker (named in a pipe), none is an error; a path still resolves exactly · migrate: none ⟨the-create-verb-learns-init-at-the-flag-stratum-delete-hello-found-no-record-because-only-use-rode-the-picker-and-one-locate-takes-the-three-verbs⟩
+- added `viva instance/create --init` — runs `instance/init` on the new instance once created (the wizard in a terminal, the scaffold report under `--json`); independent of `--use`, chains after it when both are passed · migrate: none ⟨the-create-verb-learns-init-at-the-flag-stratum-delete-hello-found-no-record-because-only-use-rode-the-picker-and-one-locate-takes-the-three-verbs⟩
+- changed `viva instance/doctor` — one `PUBLIC_VIVA_LIGHTHOUSE_REMOTE` row per instance, at `lighthouse.statics.remote` (was three: instance · daemon · client) · migrate: none ⟨the-lighthouse-is-declared-once-and-inherited-at-the-pinhole-the-client-site-was-never-read-and-the-quest-index-listed-a-bak-that-had-dissolved⟩
+- changed `viva instance/init` — a set value that fails its type is owed like a blank one: the wizard re-asks it (current value prefilled, reason in the hint), headless answers `env: "incomplete"` with `fill` + `invalid: [{key, reason}]`; nothing boots onto it · migrate: none ⟨m48⟩
+- changed `viva instance/doctor` — new verdict `INVALID` with a `reason` column (a pattern failure names the scalar's `title`); a resolved value is converted then checked against its declared type · migrate: none ⟨m48⟩
+- changed `viva instance/run` — exit 1 iff a child exits non-zero (was 0); `--logged` sends child output to `<ledger>/logs/<slug>/<process>.out.log`; an instance another supervisor holds refuses with `already running (supervisor <pid>)` · migrate: none ⟨m49⟩
+- changed `viva instance/start` — spawns ONE detached supervisor ghost (`instance/run <target> --instance=<mount> --logged`, `Deno.Command detached: true`) and waits for the lock to say ALIVE or the supervisor to exit; the per-child detached spawn that died with the parent is gone · migrate: none ⟨m49⟩
+- changed `viva instance/stop` — takes no target; SIGTERMs the supervisor and waits ≤15 s for the lock to clear, exit 1 if it does not · migrate: `viva instance/stop runtime` → `viva instance/stop` ⟨m49⟩
+- changed `viva instance/init <user> <pass>` — one signup call after the runtime's ALIVE line; a child that exits or misses its 60 s deadline fails the init (exit 1) instead of a 30 × 1 s poll; the wizard shows a `boot failed` phase · migrate: none ⟨m49⟩
+- changed `viva instances/list` · `instance/doctor` · `instance/delete` · `instances/rename` — all read the ONE lock `<ledger>/locks/<slug>.lock` (`running:` = its processes; doctor's `locks` key → `lock`; a dead pid is pruned at read; delete/rename refuse while the supervisor holds it) · migrate: none ⟨m49⟩
+- fixed `viva instance/start` — children no longer die with the parent (`detached-process-die-on-parent-exit` RESOLVED) ⟨m49⟩
+- added `viva instances/tap <path> --slug=<slug>` — adopts a hand-placed instance dir into `<ledger>/instances.json`; a bare token is refused (`try ./name`), a held slug is a hard error · migrate: none ⟨m44⟩
+- added `viva instances/rename <old> <new>` — moves the record key and `logs/<old>` → `logs/<new>`; refuses while the supervisor lock is held · migrate: none ⟨m44⟩
+- changed `viva instance/create` — `--slug=<slug>` names the record row and the shelf dir (default: the recipe's slug); the record is written at birth; a held slug refuses before touching disk (`pass --slug=<other>`), never suffixes · migrate: none ⟨m44⟩
+- changed `viva instances/use <slug>` — a bare slug resolves through the record row's `mount`; an unrecorded slug errors with the tap line (was: a shelf guess at `<ledger>/instances/<slug>`) · migrate: `viva instances/tap <dir> --slug=<slug>` for any hand-placed dir you reached by name ⟨m44⟩
+- changed `viva instance/run` · `start` · `stop` · `init` — the process identity is the RECORD slug, never `manifest.slug` or the dir name; run/start/stop on an unrecorded mount throw `mount not registered — viva instances/tap …`; init still boots and carries the message as `note` · migrate: tap any instance dir that never went through `create` ⟨m44⟩
+- changed `viva ledger/doctor` — instance rows carry `flags`: `dangling` (record mount missing) · `orphan — tap it` (shelf dir without a record) · `shadowed` (record mount elsewhere while a same-named shelf dir exists) · migrate: none ⟨m44⟩
+
+### api
+
+- changed paladin `instance.mount` — a daemon without a `lighthouse` mask inherits the instance's (`held.lighthouse ?? instance.lighthouse`, the already-hydrated object); `v.primitives.instance.Instance.lighthouse` (new) and `Daemon.lighthouse` are `Mask.optional()`; a daemon left with `{}` fails validate as `daemon[<slug>]/lighthouse: must have required properties module` · migrate: none ⟨the-lighthouse-is-declared-once-and-inherited-at-the-pinhole-the-client-site-was-never-read-and-the-quest-index-listed-a-bak-that-had-dissolved⟩
+- changed `Vip.supply()` — a dead record location anywhere under the checkout is rediscovered from `<repository>/commons` and the record rewritten; a dead external one is kept, skipped, and reported (`vip.stale`, `viva ledger/doctor` `present:false`); discovery over a missing `commons/` yields nothing, so `accio` reports `not supplied` instead of a readdir trace · migrate: none ⟨m47-commons⟩
+- changed `Pensieve.register` — a second file claiming an already-registered owner/type/slug/version throws instead of silently winning; the package walker skips `*.bak` directories as well as `bak/` · migrate: rename any duplicate declaration dir to `*.bak` or remove it ⟨m47-commons⟩
+- added `v.environment(props)` · `v.url()` · `.group()` · `v.isOptional()` · `v.convert()` — an instance declares its environment as a v schema; keys outside the VIVA law throw at import; `v.url()` is an RFC 3986 URI with an authority (any scheme, localhost included; `v.scalars.PATTERN` is the grammar); `.properties` come back plain · migrate: rewrite `export const environment = { KEY: { describe, default, group } }` → `v.environment({ KEY: v.<type>().desc(…).default(…).group(…) })`; `required: false` → `.optional()` ⟨m48⟩
+- changed paladin `instance.mount` — refuses an `environment` export that is not a v schema · migrate: as line 1 ⟨m48⟩
+- changed `paladin.ledger.boot(specs, { instance, attachment })` — returns a populated + resolved `Die` (the caller integrates); specs are `{ identity: {process, mount}, command: {bin, args, cwd, env} }`; children get an EXPLICIT env (`clearEnv`, `VIVA_PROCESS_ID` never carried) and run with `cwd = mount` · migrate: `boot(...)` then `await die.integrate()` ⟨m49⟩
+- removed `paladin.ledger.spawn` · `ledger.kill` · `ledger.locks` · `ledger.arm` · `ledger.teardown` · `Lock.alive()` — the ledger holds no live state; `ledger.lock(instance)` takes ONE arg · migrate: `lock(i, p).alive()` → `(await lock(i).read()) !== null`; `spawn` → `boot` ⟨m49⟩
+- added `paladin.ledger.instances.lookup(mount)` · `.rename(prior, next)` · `.remove(slug)` — identity ops on the record; ghost `register()` returns the slug and throws on a miss · migrate: none ⟨m44⟩
+
+### entity
+
+- changed instance recipe `export const lighthouse` — carries `module` and is the ONE consumed-lighthouse declaration; a daemon's `lighthouse` mask is an override; `clients.<slug>.statics.lighthouse` is gone (never read — the browser takes `PUBLIC_VIVA_LIGHTHOUSE_REMOTE` through `publish()`) · migrate: REQUIRED — add `module:` to the top-level `lighthouse`, delete the `lighthouse` mask from every daemon that bound the same module, delete `clients.*.statics.lighthouse` (repo `hello-world` · README · 51.02 · `~/.viva/instances/*` · the `@education` recipes done; prod shelf at M5) ⟨the-lighthouse-is-declared-once-and-inherited-at-the-pinhole-the-client-site-was-never-read-and-the-quest-index-listed-a-bak-that-had-dissolved⟩
+- renamed module lookups `@viva/*` · `@development/*` · `@testing/*` → `@commons/*` — every `module:` string and kernel entry in instance recipes · migrate: REQUIRED — every pre-m47 recipe dies at its next `instance/up` with `package @viva not supplied` until the three prefixes are sed'd (`~/.viva/instances/*`, every tapped recipe, the prod shelf); `viva instance/doctor` names each unresolved module ⟨m47-commons⟩
+
+### env
+
+- removed `VIVA_REGISTRY_MOUNT` from the image (F2) — the store is the ledger volume's `registry/` · migrate: none ⟨m47-commons⟩
+- removed `required:` on environment entries (lived one session, never released) · migrate: `.optional()` for false, nothing for true ⟨m48⟩
+
+### other
+
+- renamed `registry/` → `commons/` — the checkout's package dir; ONE package `@commons/package/commons` replaces `@viva/package/commons` · `@testing/package/testing` · `@development/package/development`; `development/modes/*` → `commons/playground/*`, `testing/{data,language-learning}` → `commons/fixtures/`, `testing/instances/fixture` → `commons/instances/fixture` · migrate: none for the record (`supply()` heals a stale checkout location on first boot); images `COPY commons/`, compose `VIVA_INSTANCE_MOUNT=/viva/repository/commons/instances/starter/` ⟨m47-commons⟩
+- changed `.dockerignore` — every image drops `commons/playground`, `commons/fixtures`, `**/tmp`; the runtime suite's `corpus.snapshot.json` moved beside its test at `systems/runtime/tests/fixtures/`, so the suite no longer writes into the shipped package · migrate: none ⟨m47-commons⟩
+- changed `<ledger>/locks/<slug>.lock` — `{ pid: supervisor, token, instance, status: BOOTING|ALIVE, processes: [{process, pid}], started }` replaces `<slug>_<process>.lock` per child · migrate: stale `*_*.lock` files are ignored — delete by hand ⟨m49⟩
+- added `<ledger>/logs/<slug>/<process>.out.log` — written under `instance/run --logged` and by every `instance/start` · migrate: none ⟨m49⟩
+- changed `<ledger>/instances.json` — `{ <slug>: { mount, createdAt, updatedAt } }` is the ONE instance identity every reader resolves through; `manifest.slug` names the recipe only · migrate: none for shelved instances (`create` wrote them); `viva ledger/doctor` names the orphans to tap ⟨m44⟩

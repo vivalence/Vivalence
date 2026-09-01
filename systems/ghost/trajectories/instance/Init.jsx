@@ -23,39 +23,39 @@ export function Init({ pages, commit, boot, signup, teardown, buffer }) {
   const [steps, setSteps] = useState([]);
   const [filled, setFilled] = useState(null);
   const [exits, setExits] = useState({});
+  const [fault, setFault] = useState(null);
 
   useEffect(() => {
     if (phase !== "boot") return;
     let alive = true;
     (async () => {
-      const processes = await boot();
-      if (!alive) return;
-      setProcs(processes);
-      for (const process of processes) {
-        process.status.then((exit) => setExits((current) => ({ ...current, [process.pid]: exit })));
+      try {
+        const die = await boot();
+        if (!alive) return;
+        setProcs(die.good.processes);
+        for (const process of die.good.processes) {
+          process.out.tap((line) => setTail((current) => [...current.slice(-12), `${process.slug}  ${line}`]));
+          process.perpetuate().then((exit) => setExits((current) => ({ ...current, [process.slug]: exit })));
+        }
+        await die.integrate();
+        if (alive) setPhase("create");
+      } catch (error) {
+        if (!alive) return;
+        setFault(error);
+        setPhase("failed");
       }
-      const ready = processes.map(
-        (process) =>
-          new Promise((resolve) => {
-            process.out.tap((line) => {
-              setTail((current) => [...current.slice(-12), `${process.spec.type}  ${line}`]);
-              if (line.includes("Status:ALIVE")) resolve();
-            });
-          }),
-      );
-      await Promise.all(ready);
-      if (alive) setPhase("create");
     })();
     return () => (alive = false);
   }, [phase]);
 
   useInput((input, key) => {
-    if (phase === "ready" && (key.return || key.escape)) {
+    if (["ready", "failed"].includes(phase) && (key.return || key.escape)) {
       teardown().then(() =>
         buffer.release({
-          status: "init",
-          pids: procs.map((process) => process.pid),
-        }),
+          status: phase === "failed" ? "failed" : "init",
+          ...(fault ? { error: fault.message } : {}),
+          pids: procs.map((process) => process.child.pid),
+        })
       );
     }
   });
@@ -97,8 +97,19 @@ export function Init({ pages, commit, boot, signup, teardown, buffer }) {
     setPhase("ready");
   };
 
+  const processRows = () =>
+    procs.map((process) => {
+      const exit = exits[process.slug];
+      return {
+        label: process.slug,
+        status: !exit ? "done" : exit.success ? "done" : "failed",
+        detail: exit ? `exited (code ${exit.code})` : `pid ${process.child.pid} · alive`,
+      };
+    });
+
   const title = {
     boot: "booting",
+    failed: "boot failed",
     fill: "environment",
     create: "create admin",
     install: "installing",
@@ -106,6 +117,7 @@ export function Init({ pages, commit, boot, signup, teardown, buffer }) {
   }[phase];
   const hint = {
     boot: "starting processes…",
+    failed: "enter → exit 1",
     fill: "↑↓/tab move · type · enter next · ←→ action",
     create: "↑↓/tab move · type · enter next · ←→ action",
     install: "creating user…",
@@ -126,83 +138,85 @@ export function Init({ pages, commit, boot, signup, teardown, buffer }) {
           {title ? <Text color={theme.dim}>{title}</Text> : null}
         </Box>
         <Box flexDirection="column" marginY={1}>
-        {phase === "boot" && (
-          <Box flexDirection="column" gap={1}>
-            <Tasks
-              items={procs.map((process) => ({
-                label: process.spec.type,
-                status: "running",
-                detail: "spawning…",
-              }))}
-            />
-            <Box flexDirection="column">
-              {tail.map((line, index) => (
-                <Text key={index} color="gray">
-                  {line}
-                </Text>
-              ))}
+          {phase === "boot" && (
+            <Box flexDirection="column" gap={1}>
+              <Tasks
+                items={procs.map((process) => ({
+                  label: process.slug,
+                  status: "running",
+                  detail: "spawning…",
+                }))}
+              />
+              <Box flexDirection="column">
+                {tail.map((line, index) => (
+                  <Text key={index} color="gray">
+                    {line}
+                  </Text>
+                ))}
+              </Box>
             </Box>
-          </Box>
-        )}
+          )}
 
-        {phase === "fill" && (
-          <Form
-            pages={pages.map((group) => ({
-              title: group.title,
-              fields: group.fields.map((row) => ({
-                name: row.key,
-                label: row.key,
-                hint: row.describe,
-                input: row.key.startsWith("SECRET_") ? PasswordInput : TextInput,
-                props: { defaultValue: row.default ?? "" },
-              })),
-            }))}
-            actions={["commit", "skip"]}
-            done={onFill}
-          />
-        )}
+          {phase === "failed" && (
+            <Box flexDirection="column" gap={1}>
+              <Tasks items={processRows()} />
+              <Box flexDirection="column">
+                {tail.map((line, index) => (
+                  <Text key={index} color="gray">
+                    {line}
+                  </Text>
+                ))}
+              </Box>
+              <Text color={theme.bad}>{fault?.message}</Text>
+            </Box>
+          )}
 
-        {phase === "create" && (
-          <Form
-            pages={[
-              {
-                title: "admin",
-                fields: [
-                  { name: "username", label: "username", input: TextInput },
-                  { name: "password", label: "password", input: PasswordInput },
-                ],
-              },
-            ]}
-            actions={["commit", "skip"]}
-            done={onCreate}
-          />
-        )}
-
-        {phase === "install" && <Tasks items={steps} />}
-
-        {phase === "ready" && (
-          <Box flexDirection="column" gap={1}>
-            <Banner
-              instance="success"
-              headline="instance up"
-              body={`admin ${admin?.username ?? "(skipped)"}${admin ? `  ·  ${"•".repeat(admin.password?.length ?? 0)}` : ""}`}
-              nextSteps={["enter to stop + exit"]}
+          {phase === "fill" && (
+            <Form
+              pages={pages.map((group) => ({
+                title: group.title,
+                fields: group.fields.map((row) => ({
+                  name: row.key,
+                  label: row.key,
+                  hint: row.describe,
+                  input: row.key.startsWith("SECRET_") ? PasswordInput : TextInput,
+                  props: { defaultValue: row.default ?? "" },
+                })),
+              }))}
+              actions={["commit", "skip"]}
+              done={onFill}
             />
-            <Tasks
-              items={[
-                ...steps,
-                ...procs.map((process) => {
-                  const exit = exits[process.pid];
-                  return {
-                    label: process.spec.type,
-                    status: !exit ? "done" : exit.success ? "done" : "failed",
-                    detail: exit ? `exited (code ${exit.code})` : `pid ${process.pid} · alive`,
-                  };
-                }),
+          )}
+
+          {phase === "create" && (
+            <Form
+              pages={[
+                {
+                  title: "admin",
+                  fields: [
+                    { name: "username", label: "username", input: TextInput },
+                    { name: "password", label: "password", input: PasswordInput },
+                  ],
+                },
               ]}
+              actions={["commit", "skip"]}
+              done={onCreate}
             />
-          </Box>
-        )}
+          )}
+
+          {phase === "install" && <Tasks items={steps} />}
+
+          {phase === "ready" && (
+            <Box flexDirection="column" gap={1}>
+              <Banner
+                instance="success"
+                headline="instance up"
+                body={`admin ${admin?.username ?? "(skipped)"}${admin ? `  ·  ${"•".repeat(admin.password?.length ?? 0)}` : ""}`}
+                nextSteps={["enter to stop + exit"]}
+              />
+              <Tasks items={[...steps, ...processRows()]} />
+            </Box>
+          )}
         </Box>
         {hint ? <Text color={theme.dim}>{hint}</Text> : null}
       </Box>

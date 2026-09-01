@@ -12,6 +12,7 @@ import { rehypeArticle } from "./src/plugins/rehype-article.js"
 
 export default defineConfig({
   integrations: [mdx()],
+  vite: { build: { cssTarget: ["chrome107", "edge107", "firefox104", "safari16", "ios16"] } },
   markdown: {
     remarkPlugins: [
       remarkDirective,

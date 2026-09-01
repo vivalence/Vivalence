@@ -1,0 +1,255 @@
+#+title: the docs are read whole and standalone never existed — 13.01 is cut, not rewritten — hello-world goes registry-first behind a cortex gate — and required: Boolean lives one session before the env schema becomes a v schema
+#+filetags: :documentation:readme:economics:registry:hello-world:cortex:hallucinator:paladin:ghost:env:schematics:v:quest:m48:
+
+* what happened, in one breath
+
+The session that compact 79 (the trajectory compact) folded continued into four movements. beef had me read
+=documentation/content= whole — every file — and the read surfaced that two of the eight live
+pages are built on an instance that does not exist (=@viva/instance/standalone=: no file, empty
+captures, a "nothing here is hypothetical" claim over an empty tab). Then 13.01, the economics
+page: /"way to rambling. megalomanic while substandard"/ — analysed against 11.01 (written
+AFTER it, so 13.01 re-explains what 11.01 now owns), then cut under the no-loss principle with
+every removed paragraph given a destination, then written to =tmp.md= at the repo root,
+unapplied. Third: the README's =Hello, Mode!= / =Hello, Instance!= placeholders — beef's law
+mid-turn, /"registry first"/: the mode and the instance are one thing copy-pasted FROM the
+registry, so the recipe was designed on disk first (=hello.js= with a cortex gate, =App.svelte=,
+=hello-world.viva.js=, =multiplayer.js=) and the README became verbatim pastes of those files,
+byte-checked. The gate research found the real defect: the Anthropic SDK boots on a null key
+and explodes at call time, so a keyless hello-world today registers dead faculties. Fourth, the
+detour that became the meta: how does a recipe say a key is desired-not-required? Enum
+ideated, /"nah. just required: Boolean."/ landed with tests, and one question later — /"maybe
+it makes sense to set this up with v schematics already"/ — the whole marker collapsed into
+=.optional()= on a =v.environment= schema. /"perfect. brilliant! this is our new meta!"/ Quest
+m48 carries the full patch. Twenty beef turns, all accounted; the last two were still in flight
+when the extractor ran and are rowed from the window.
+
+* spine (N=20 — transcript turns 12–31; 1–11 are compact 79 (the trajectory compact)'s eight plus the harness fold)
+
+| n  | beef asked (verbatim where it decides)                                                                                                                                 | landed                                                                                                                                          | decided / killed                                                                                       |
+| 12 | /"read the documentation/content dir completely"/                                                                                                                       | 33 files read; drift list of nine points                                                                                                        | =standalone= does not exist; 32.01 counts stale; 41.01 tree wrong; autosave STAGED; 14.01 =.bak=       |
+| 13 | /"13.01 is a mess. not on point at all. way to rambling. megalomanic while substandard. … 13.01 came after 11.01! 1: what can be cut and where can the cuts be used? - no loss principle. 2: analyze the narrative of 13.01 and integrate narrative from 11.01 while toning it down a tit."/ | cut table (paragraph → destination) + narrative spine + tone-downs + three open questions                                          | 13.01 = proto-11.01 fused with economics; §System/§Implications/§Long-term/§Vision are the fat        |
+| 14 | /"consider that both are read in a single flow. narrative inside 1x overarches. ok. propose the full complete cut. no heavy rewriting yet. just cut. inline md"/        | the cut page inline, 75 → 47 lines, two glue words touched                                                                                       | single-flow: 13.01 opens on 11.01's last beat, re-explains nothing                                     |
+| 15 | /"write repo/tmp.md"/                                                                                                                                                   | =tmp.md= at repo root = the cut                                                                                                                  | not applied to 13.01                                                                                   |
+| 16 | /"re-read the readme"/                                                                                                                                                  | README re-read; API claims verified against disk (view props ✓, =Connection.call= ✓, =harness.object.render= ✓, =hallucination.context.system= ✗) |                                                                                                        |
+| 17 | MID-TURN (the =## Instance= / =## Hello, Instance!= stub pasted) /"do research, come up with a simple exmple of hello world, check a way for the mode to gate llm usage by service presence, and propose a change to the readme and registry entrant of hello-world."/ | gate research: SDK null-key, =cortex.findOne=, =hydrate= fires any thunk, =find.type= walks =*.viva.*= only | the mode gates on the cortex; the instance gates with a ternary thunk                                  |
+| 18 | MID-TURN /"hello world mode and instance from readme are one coherent thing thats copy pasted from the registry. registry first."/                                      | four files designed for the registry; README = pastes                                                                                            | registry first — the README never carries composed code again                                          |
+| 19 | MID-TURN /"another micro change. go. … remove the 404/ info. irrelevant. and instead show both /status and /manifest (if exists)"/                                       | README step 5: both captured off the live runtime on =:2501=                                                                                     | =/manifest= exists (=populate.js:17=)                                                                  |
+| 20 | (my gate-research list pasted back) /"what am i supposed to do with this? unclear. are those changes? to be fixed? what are those."/                                    | the same facts re-sorted: nothing-to-do · bug-fixed-by-proposal · defect-yours                                                                   | a fact list without verdicts is not a deliverable                                                      |
+| 21 | /"what is the correct way to handle this on the level of this hello world. its not requried but desired."/                                                              | answer: the recipe already says all it can (describe + tolerant thunk); =init.fill= is the wrong wire; 3-line diff                               | ask, never block                                                                                       |
+| 22 | /"demo me some example environment statements for context"/                                                                                                             | every =environment= on disk shown verbatim + the verdict table                                                                                   | three fields exist: =describe · default · group=                                                       |
+| 23 | /"can you ideate a ENUM marker for setting things like requirements on a var"/                                                                                          | =need: REQUIRED · DESIRED · OPTIONAL= ideated; max(declared, observed) law; four touch points                                                     |                                                                                                        |
+| 24 | /"what do we do with desired?"/                                                                                                                                         | DESIRED = ask · nag · never block; honest cost: ≡ unmarked                                                                                        |                                                                                                        |
+| 25 | MID-TURN /"vs optional"/                                                                                                                                                | side-by-side table                                                                                                                               |                                                                                                        |
+| 26 | /"nah. just required: Boolean."/                                                                                                                                        | collapsed semantics table                                                                                                                        | ENUM killed                                                                                            |
+| 27 | /"go on boolean. go on proposal but check changed path. adjust readme. no playground daemon in hello world!"/ (the four files pasted)                                   | registry files at =registry/commons/instances/hello-world/=; =development.js= deleted; check.js + init.js + 4 tests; paladin 26 · ghost 77 green; README pastes byte-equal; doctor probe on the bare recipe | owner flipped =@vivalence= → =@viva= under me; his module refs kept                                    |
+| 28 | /"another question on hte environemnt variable. maybe it makes sense to set this up with v schematics already. validation by paladin. custom v type. is environemnt the right format today under this perspective?"/ | the =v.environment= design: table today→v, INVALID verdict, key law at import, sketch                                                | the boolean collapses into =.optional()=                                                               |
+| 29 | /"perfect. brilliant! this is our new meta! compile a quest 48 for this change. work this out. full blast change. commit full patch to quest"/ (the sketch pasted)     | =m48-environment-schematics.org= — 842 lines, M1–M3, full patch, tangled test suite, 9 QA markers; indexed live (8) beside =m47-commons= | patch lives in the quest; blast on =go= per milestone                                                  |
+| 30 | /"what did we do before this detour? summary of this session for me"/                                                                                                   | nine-line session summary                                                                                                                        |                                                                                                        |
+| 31 | /"6. README /status + /manifest … did you fix this? did you write the hello world to registry and readme? if not do. check correct path first. required to be fixed in m48. the ikiro compact"/ | all three verified on disk (README:321, four files at =registry/commons/…= untracked, pastes byte-equal); this file | the boolean's fix = m48 M2                                                                             |
+
+* movement I — the docs read whole (12)
+
+33 files, ~1,770 lines. Eight pages build, thirteen =NN.00_*= stubs feed =jdex.js= names, five
+=bak/= guide stubs, one real capture (=home.example.js= + =home.snapshot.json=) behind a
+commented-out =LiveExample=. What disk contradicts:
+
+- =@viva/instance/standalone= does not exist anywhere. 51.02 and 32.01 are built on it entirely,
+  41.01 lists it; the shelf is =hello-world · localhost · starter=. Captures =51.02-flashcard= /
+  =32.01-anatomy= have no =.example.js= / =.snapshot.json= — the Example/Trace/Source tabs render
+  EMPTY under a line that says /"Everything below actually ran."/
+- 32.01 line counts (paladin 2,106 · runtime 7,202+1,256 · typology 15,314 · "~26,000") vs the
+  README's ~18k measured at compact 79 (the trajectory compact).
+- 41.01's registry tree is singular and stale (=datamap/ hallucinator/ lighthouse/{localhost,
+  multiplayer} instance/{localhost,multiplayer,standalone}=); disk is plural. "ghost (WIP)" and the
+  home pillar's "Shell client @ghost coming soon" contradict the slowstart.
+- 51.02's environment fence is titled =hello-world.viva.js= on the standalone page; port 2601 vs
+  hello-world's 2501.
+- =#50.01_slowstart.mdx#= — an emacs autosave, git-STAGED. Not built (name ends in =#=).
+- 14.01 license is =.bak=, untracked → the License area is an index stub only.
+- Notation split: 33.01 writes =viva instances use x= / =viva ledger doctor=; 50.01 + 51.02 the
+  slash form.
+- =.tangled/stripwire-echo.js= is an orphan; no live =tangle== fence.
+- 11.01:53 "your describe your intent"; 51.02's title carries a trailing period.
+
+None of it touched — beef's docs. Also found while re-reading later (16): the README's mode used
+=ctx.hallucination.context.system("…")=, which is not the API; the record is
+=ctx.hallucination.system.<key> = "…"= (hallucination.js:55, every registry harness). The view
+props =terminal, daemon, mode= ARE right — =Frame.svelte:62= passes five (=terminal · daemon · mode ·
+thread · buffer=), which retires the "mounts { buffer, terminal }" note from compact 79 (the trajectory compact).
+
+* movement II — 13.01 is cut, not rewritten (13–15)
+
+beef's diagnosis, verbatim: /"not on point at all. way to rambling. megalomanic while
+substandard. i like the honestly and the ambition. but since that day of writing we have written
+a lot more. for example 13.01 came after 11.01!"/ The analysis found three pages fused: a
+proto-11.01 (=§The System=, =§Implications='s language-daemon paragraph), the economics
+(=§Platform Strategy=, =§Revenue Streams=), and a vision coda that 11.01 =§Unit= now does better
+with the press/letter. Economics is ~40 % of the text and the only part without a home elsewhere.
+
+The no-loss map: =§System= P1/P3 → 11.01 already says it (the device list merges into good-to-know
+#3 if wanted) · P2 (kernel = ontology + domain · modes · topologies · services) → 21.01
+verbs-and-nouns, the stub's missing body · P5 (AI as a first-class primitive) → 11.01 §Paradigm
+shift, one sentence · P4 (open registry) stays, moves into §Strategy · §Strategy's "runs itself"
+and the slogan restatement → gone (the slogan PARKED as rewrite-phase closer) · §Implications P1
+→ 11.01 §Integration · §Long-term → the identity/payments/sync/discovery/marketplace list IS
+14.01's Competing-Use list, one clause under Licensing; social/cohorts/Upwork gone · §Vision P1
+("humanity standardizes on… passed down the generations") gone.
+
+Then the ruling that changed the frame: /"consider that both are read in a single flow. narrative
+inside 1x overarches."/ — the 10-19 area is one narrative; 13.01 continues 11.01, never restates
+it. /"propose the full complete cut. no heavy rewriting yet. just cut. inline md"/ — so the cut
+page keeps every surviving sentence verbatim; glue touched in two places ("Additionally, " and
+"But " dropped where the paragraph before them died); the =## The System= heading dies with its
+body and its one survivor (AI collapsing the cost of software) becomes the intro paragraph. 75 →
+47 lines, written to =tmp.md= at the repo root on /"write repo/tmp.md"/. Not applied.
+
+Three questions left to beef: Vivalence vs viva naming (13.01 says viva is the product, 11.01
+uses Vivalence throughout); stream sequencing (the page never says which channel is first);
+the ISP / government / AI-training clause is absent from 14.01 v2.1.
+
+* movement III — hello-world goes registry-first (16–20, 27)
+
+** the law, mid-turn
+/"hello world mode and instance from readme are one coherent thing thats copy pasted from the
+registry. registry first."/ So the deliverable inverted: design the recipe on disk, then the
+README pastes it. Verified after landing with a byte-equality check of each fenced block against
+its file — the check is one python loop and it stays in the settle scripts.
+
+** the gate, researched
+- The Anthropic SDK (0.71) with =apiKey: null= constructs fine and throws only at request time
+  (=Could not resolve authentication method=). So the OLD hello-world without a key booted,
+  registered dead faculties, and =/hello/agent= exploded at call. A real defect, fixed by the shape
+  below.
+- =daemon.cortex= always exists (=population.js:103=), empty when no hallucinators.
+  =cortex.findOne({ type: "object", via: "render" })= → =undefined= when nothing resolves — the
+  exact lookup the harness performs before rendering. The mode-side gate is one =if=.
+- =hydrate= fires ANY thunk in a declaration, arrays included (=instance.js:59=). So
+  =hallucinators: () => paladin.secret.get(KEY) ? [{…}] : []= declares the provider only when the
+  key exists — no new mechanism — and the doctor records the read with =usable([]) = true=.
+- =find.type= walks =*.viva.*= only, so =hello.js= and =multiplayer.js= are invisible to instance
+  discovery and to the =@viva= census (stays 11). =./hello.js= in the kernel resolves relative to
+  the instance file (=instance.js:5=) and TRAVELS with the shelf copy; =@viva/demo/hello= would
+  resolve the registry copy and make "yours to edit and version" a lie.
+- =clients.ghost= is read by nothing but the doctor's listing; dropped. =PUBLIC_VIVA_CLIENT_KAJUIT_REMOTE=
+  is read nowhere live; dropped.
+
+beef on the list of those facts: /"what am i supposed to do with this? unclear. are those changes?
+to be fixed? what are those."/ — the same facts had to be re-sorted into nothing-to-do (they
+justify the shape) · bug-fixed-by-the-proposal (SDK null key) · defect-yours (=init= prompts every
+blank key). A fact list without a verdict per line is not a deliverable.
+
+** what landed (27)
+=registry/commons/instances/hello-world/= — =hello.js= (type =demo=, slug =hello=, the cortex gate,
+=ctx.hallucination.system.hello=), =App.svelte= (=bot= / =agent= buttons, loop var renamed off the
+=mode= prop), =hello-world.viva.js= (daemon =hello=, =kernel: ["./hello.js"]=, sqlite, the ternary
+thunk, the env schema), =multiplayer.js= (lighthouse + kajuit + hosted lighthouse service, moved
+verbatim). =development.js= deleted — /"no playground daemon in hello world!"/ The package owner
+flipped =@vivalence= → =@viva= while I wrote (=owner: "@viva", // rename to vivalence=) and beef
+rewrote my two files' module refs himself; the README paste ran after, so it carries his version.
+The two =@vivalence/instance/hello-world= refs my script introduced were reverted to =@viva/=.
+=deno check= clean on all three modules.
+
+README: =## Hello, Mode!= and =## Hello, Instance!= are the pastes; closer rewritten (/"`/hello/agent`
+asks the daemon's cortex for a hallucinator first — none attached, it answers as the bot."/); "two
+endpoints". Step 5: the 404 sentence gone, =/status= and =/manifest= both captured live (19).
+
+* movement IV — required: Boolean lives one session (21–27)
+
+The wire that was wrong: =init.owed()= collected every blank key and =fill= blocked headless
+init on all of them, so a desired-not-required key refused =init user pass= with =env: incomplete=
+even when the doctor said =optional=. beef: /"what is the correct way to handle this on the level
+of this hello world. its not requried but desired."/ Answer: the recipe already says everything the
+system lets it say (prose in =describe= + a tolerant thunk → verdict =optional=); "desired" means
+ask, never block; the block is in ghost, not the recipe.
+
+The enum was ideated on request (/"can you ideate a ENUM marker"/): =need: REQUIRED · DESIRED ·
+OPTIONAL=, one law — verdict = max(declared, observed), a marker raises and never lowers — which
+also closes today's hole where keys consumed outside thunks (=publish()=, the NLP container port)
+are =documented= forever. /"what do we do with desired?"/ → ask · nag · never block, with the
+honest cost stated: DESIRED ≡ unmarked-with-tolerant-thunk; its only substance is the word.
+/"vs optional"/ → side-by-side. /"nah. just required: Boolean."/
+
+Landed on /"go on boolean"/: =check.js= (=required= on rows; declared true raises an unread key;
+declared false never lowers an unusable site), =init.js= (=owed()= keeps the strongest verdict per
+key; =fill= = =REQUIRED= + =UNDOCUMENTED= only), three new =check.environment= cases + the ghost
+probe fixture declaring =required: true=. The comment-litter hook refused my three authored =//=
+lines; redone bare. Counts, pasted: paladin =26 passed (133 steps) | 0 failed= · ghost =77 passed
+(23 steps) | 0 failed=. Both suite tasks are =--watch= and never exit — the first run sat 0 bytes
+behind =tail= for minutes; memory already said so (=project_test_suite_baseline=); killed and
+re-run one-shot. Live probe: =viva instance/doctor --instance=<registry path>= printed the
+anthropic row =required false= outside =problems=, JWT =REQUIRED=, and the doctor already rendered
+the new column.
+
+* movement V — the env schema becomes a v schema (28–29)
+
+/"maybe it makes sense to set this up with v schematics already. validation by paladin. custom v
+type. is environemnt the right format today under this perspective?"/ Today's format is a strict
+subset of what =v.object= already encodes — =describe= → =.desc()=, =default= → =.default()=,
+=group= → a keyword (TypeBox keeps unknown option keys), =required: false= → =.optional()= — plus
+the one thing it lacks, a value type. What the vehicle buys: values validated (a scheme-less
+origin becomes =INVALID= with a reason instead of =new Url(unset).href === "NaN"=), the key law
+enforced at import (=v.environment()= refuses a non-VIVA key), one grammar with aperture inputs
+and entities, =${VAR}= defaults untouched (raw on the schema, expanded on read, validated after).
+No =v.secret()= — secrecy stays keyed by name, m45's one ingress.
+
+/"perfect. brilliant! this is our new meta! compile a quest 48 for this change. work this out.
+full blast change. commit full patch to quest"/ — =m48-environment-schematics.org=: the law, ten
+closed decisions, terrain measured against the post-boolean tree, M1 typology (=.group()= in
+=enhance=, =v.url()=, =v.isOptional()=, =primitives/environment.js= tangled, four =v.test.js=
+cases), M2 paladin + ghost + recipe as ONE milestone by coupling (=usable= dies, =instance.mount=
+refuses a non-v schema, =check.environment= replaced whole with =INVALID= and a published
+=wrong= list, =envfile= / =init= / =doctor= / ledger schema read =properties=, the recipe's nine
+keys as beef's sketch extended, the check suite tangled whole at 15 cases, snapshot regen, ghost
+fixture), M3 docs + README paste regen + memory. Testing assessment, green ladder, six testimony
+items, nine =#+marker_qa=, blast table of 18, deferred, four closed forks, four release lines.
+TypeBox 1.3 facts read from =node_modules=, not remembered: =Format.Reset()= registers =url= at
+import, an unregistered format passes silently, =~optional= is the marker, =IsOptional= is on the
+main entry. Indexed live (8) — =m47-commons.org= appeared on disk while I wrote, and the index had
+already grown to seven under me; m48's terrain names the overlap (recipe path + =@viva/= refs move
+with m47 if it lands first). Supersedes the boolean: M2 removes it — /"required to be fixed in
+m48."/
+
+* lessons
+
+- *A fact list is not a deliverable.* Every line of research carries its verdict: nothing-to-do /
+  fixed-by-this / yours. beef had to ask /"are those changes? to be fixed? what are those."/
+- *Registry first.* Doc code is a capture of a file on disk, and the check is byte equality of the
+  fenced block against the file — not a claim.
+- *The right semantics in the wrong vehicle still ships wrong.* The boolean was correct for one
+  session; the schema was the answer to the same question asked one level up. Ask the level-up
+  question before landing a fourth field on a hand-rolled format.
+- *The SDK that boots on a null key is the defect nobody sees* — a faculty that registers but
+  cannot answer. Gate by presence at the declaration, not by trying the call.
+- *Suite tasks are =--watch=.* One-shot = =deno test= directly; a =tail= behind a watcher shows 0
+  bytes forever. Memory said so; the pattern still cost minutes.
+- *Concurrent edits are canonical.* Owner flipped, README changed three times, the quest index
+  grew — all under me, all kept, all built on. Verify disk before every paste.
+- *Compact numbers are positional and rot.* The trajectory compact was 77 at its fold, 79 at this one;
+  the ubuntu walk 78 → 79 → 81. Every numeric citation in frontier / known-issues / memory was wrong
+  again within a day. Cite `compact NN (\`slug-prefix…\`)` — the slug is the address, the number a hint.
+
+* state at fold
+
+Uncommitted, beef's: =README.md= (pastes, =/status= + =/manifest=, closer) · =tmp.md= (13.01 cut) ·
+=registry/commons/instances/hello-world/= (four files, untracked; =development.js= gone) ·
+=subsystems/paladin/belt/check.js= + =tests/check.environment.test.js= · =systems/ghost/
+trajectories/instance/init.js= + =tests/ledger.test.js= · =.ikiro/quests/m48-environment-schematics.org=
++ index. Suites: paladin 26/133/0 · ghost 77/23/0. The shelf =~/.viva/instances/hello-world/=
+still holds the OLD recipe (re-=create= clears). The scratchpad copies of the four files are stale
+(=@vivalence= refs) and irrelevant.
+
+* open — settled at the fold, carried, or beef's
+
+Settled this turn by a landed rule: the trajectory-compact note "Frame mounts { buffer, terminal }" is
+WRONG on disk (five props) — corrected in memory. The docs-site memory's "hello-world recipe =
+hello-world.viva.js + playground.js" — corrected to the four files.
+
+Carried, beef's:
+1. 13.01 — the cut sits in =tmp.md=; naming split, stream sequencing, the 14.01 clause gap.
+2. Docs drift from movement I — nine points, none touched; =standalone= is the load-bearing one
+   (two live pages, empty captures).
+3. README =## Instance= stub — two HTML-comment TODOs.
+4. Slowstart 50.01 — stale on =registry/viva/= (now =commons/=), the =ls= showing =playground.js=,
+   and the package tree; =@viva/instance/hello-world= is still right.
+5. m48 — blast on =go= per milestone; the boolean lives until M2.
+6. The staged emacs autosave =#50.01_slowstart.mdx#= — VCS, yours.

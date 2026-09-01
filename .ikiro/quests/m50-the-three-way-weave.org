@@ -1,0 +1,371 @@
+#+title: m50 the three-way weave — what a vector instantiates · the control vector · the process contract
+#+filetags: :typology:paladin:runtime:ghost:kajuit:process:entity:mask:dossier:die:control:vector:signal:schematics:v:
+#+status: DESIGNED this session on beef's order (/"maybe dedicated quest is warranted. go build that. take your time."/). Supersedes m49 M2/M3 (m49 sunset to done/ with M1 landed). Nothing applied: M1 (the wording + two schematics) is typology and waits on beef's word; M2–M5 follow it.
+#+status: Number m50 is mine by sequence — beef's ledger; rename on his word.
+#+phase: wip (derived)
+#+progress:  60% 3/5 (derived)
+#+next: blast (derived)
+
+* intent
+
+beef, verbatim: /"maybe we need to be careful with the overlapping here. there are two things a vector
+could instantiate. a process or an entity. we need do settle our wording here. modes get masks as
+config and they are entities. what does a process get? a wafer? a mask? does a process need something
+like that? it has the control vector. an enumerated schematiced interface of [up down start stop
+watch run doctor logs build ...] and an enumerated schematices process management with the
+signature, signals, and now the requirement of some SIGKILL control standard. this is a three way
+weave. maybe dedicated quest is warranted. go build that. take your time. then sunset the old quest."/
+
+And the verdict that opened it (=~/vivalence/private/logs/2026.05.25.org:137-150=): /"the wafer has to go.
+maybe in favor of dossier? maybe just flat inline. brutalism."/ · =systems/runtime/daemon/die.js:6-8=:
+/"TODO migrate to dossier pattern. TODO2 rename dossier pattern do die pattern. aka keep name, change
+pattern."/
+
+One sentence: *a vector is cast against a declaration and yields one of two products — an entity or a
+process; an entity gets a mask and lives in a datamap, a process gets a command and lives in the OS
+process table; neither needs a wafer. What a process needs are two enumerated, schematized contracts:
+the control vector (what may be asked of it) and the process contract (how it is born, watched,
+signalled and killed) — and the dossier is how both are attached to the live thing: a flat record, a
+middleware onion, no inheritance.*
+
+* the three strands
+
+| strand | question                                   | answer in one line                                                                                    | schematic                    |
+|--------+--------------------------------------------+-------------------------------------------------------------------------------------------------------+------------------------------|
+| 1      | what does a vector instantiate?            | an entity (mask → datamap row) or a process (command → OS process); the die is the record of ONE cast | =v.primitives.instance.Mask= (exists) · =v.prototypes.process.Command= (new) |
+| 2      | what may be asked of it?                   | the control vector — one enumerated interface every die answers a declared subset of                   | =v.prototypes.control= (new) |
+| 3      | how does it live and die at the OS border? | the process contract — states, signals with meanings, the SIGKILL standard, readiness, the claim       | =v.prototypes.process= (new) |
+
+They interlock, never overlap: =/down= (2) IS =disintegrate= (1) IS SIGTERM → grace → SIGKILL (3);
+=/status= (2) reads =State= (3) off the die (1); =/up= (2) casts the command (1) under the readiness
+rule (3). A verb never signals a pid; a signal never knows a nature; a die never knows a transport.
+
+* terrain — measured (carried from m46/m49, re-read)
+
+- =Wafer= (=typology/prototypes/wafer.js:3-27=): =mask · good · status · abort= + five verbs; subclassed by =systems/runtime/die.js= (runtime), =daemon/die.js= (daemon), =process/die.js= (SERVICE process), and — m49 M1 — paladin's =ledger/process.js= (OS child) and =ledger/die.js= (the set).
+- =Mask= (=schematics/primitives/instance.js:5-13=): ={ module, statics?, secrets? }= — /"declaration of 'turn this into an instance'"/; the instance's daemons/services are masks (=paladin/prototypes/instance.js:107-113=); =die.mask= feeds population (=daemon/lifecycle/population.js:12-16,65-66=).
+- the dossier as it lives: =kajuit/src/typology/entities/{thread,daemon}/dossier.js= — ={ name, kind: () => Class, repository, use: [...middleware] }=; =shape.selbstbestimmt(vector, strategy)= (=gestalten/shape/selbstbestimmt.js:3-17=) walks to the effect and composes the carried =use[]=.
+- the April design (=quests/done/wafer-lifecycle.quest.org:12-25,39,59=): Wafer = the vector, Die = the context in middleware, Process = the live wafer, Cast = the act; /"abort.abort() … middleware unwinds in reverse … one line to kill, deterministic teardown order for free"/.
+- prior control-vector art: =typology/schematics/readme.org:9-14= (=ProcessStateEnum= · =Command= · a =ControlVector= with =/start/:slug /stop/:slug /restart/:slug /status /health/:slug=) · =systems/kajuit/client.viva.js:14-34= (/"bad control vector, but broadly implements the spirit"/).
+- the OS facts: =Deno.Command detached: true= (own pgroup, outlives the parent) · =Deno.kill(-pgid, sig)= kills a group · =Deno.serve({ path })= + =Deno.createHttpClient({ proxy: { transport: "unix", path } })= round-trip on stable 2.9.6 · SIGURG is the liveness probe (SIGCONT would resume a stopped process) · =deno task= forwards SIGTERM to its leaf.
+- the m49 M1 landing is the live baseline: =ledger.boot → Die=; ONE token-claimed lock; =Lock.read()= prunes; children run with =cwd = mount= (a cwd =.env= outranks the =os= stratum); =start= = detached supervisor ghost; proof transcript in =done/m49-…org=.
+- =v= has =v.enum(vals)= · =v.union= · =v.const= · =v.object= · =v.array= · =v.record= · =v.boolean= · =.desc()= · =.optional()= (=schematics/v.js:94-104=).
+
+* the wording — settled here, one noun per concept, residence disambiguates (m15 principle 1)
+
+| noun            | today                                                                 | collision                                                            | settlement                                                                                                       |
+|-----------------+-----------------------------------------------------------------------+----------------------------------------------------------------------+------------------------------------------------------------------------------------------------------------------|
+| vector          | the routing trie of natures → effects                                 | —                                                                    | unchanged; it instantiates nothing by itself — a CAST of a vector against a declaration yields a product          |
+| cast            | =cast.*= (typology conversions) · April: /"the act"/                  | —                                                                    | the act: =cast(vector, declaration) → product=; the April word stands                                             |
+| entity          | a datamap row/class (Mode, Thread, …)                                 | —                                                                    | product #1; declared by a mask; hydrated by its dossier                                                          |
+| process         | (a) an OS process · (b) =@vivalence/runtime/process= = a SERVICE      | (a) vs (b)                                                           | product #2 = the OS process. The runtime's service keeps =Process= BY RESIDENCE (=runtime/process/=); paladin's OS child is =child= — Deno's own noun (=Deno.ChildProcess=) |
+| mask            | ={ module, statics?, secrets? }= — turn a MODULE into an instance    | —                                                                    | the entity's declaration ONLY. A process is not made from a module; it gets no mask                              |
+| command         | =Deno.Command=; the readme sketch =Command= typebox                   | —                                                                    | the process's declaration: ={ bin, args, cwd, env, deadline?, grace? }= — the mask's twin on the process side     |
+| signature       | =typology/prototypes/signature.js= — the linked path (canon #1)      | beef: /"process management with the signature"/                      | typology keeps =Signature=. beef's "signature" of a process = its =command= + =identity= (F1 — his word vs Deno's) |
+| signal          | =typology/prototypes/signal.js= — a request's signature with flags   | OS signals (SIGTERM …)                                               | typology keeps =Signal=. The OS enum lives at =v.prototypes.process.Signal= — residence disambiguates; prose says "OS signal" (F2) |
+| wafer           | the lifecycle base class                                              | beef: /"the wafer has to go"/                                        | GONE. Nothing inherits. =self/totems.md ## wafer= and =ontology law 4= keep the LIFECYCLE totem under the name =die= |
+| die             | =Wafer= subclass per host (runtime · daemon · service · OS child · set) | =Die= (runtime) vs paladin =Die=                                    | the ONE record of a cast: ={ declaration, good, status, abort, lock? }= + its dossier; same word everywhere per TODO2; residence tells them apart |
+| dossier         | kajuit: ={ name, kind, repository?, use[] }=                          | "dossier" = a document in beef's business drafts (not code)          | the PATTERN: a flat descriptor + =use[]= onion under =shape.selbstbestimmt=; in code =XDossier= (kajuit precedent) |
+| good            | =die.good= — the live product (=2025.12.20.org:24=: /"repo.good is the instantiated entities"/) | —                                          | unchanged: for an entity the row; for an OS child the =Deno.ChildProcess=; for the runtime the =Runtime=          |
+| status / state  | =Status= atom (=status.js=) · =ProcessStateEnum= sketch               | —                                                                    | =Status= stays the atom; =v.prototypes.process.State= is its enumerated schematic                                 |
+| control vector  | kajuit's =export const control= · the readme sketch                    | —                                                                    | =control(die)= — the Vector built FROM =v.prototypes.control= for the natures the die =implements=               |
+| supervisor      | (new, m49)                                                            | —                                                                    | the die that holds the lock: the ghost under =run=/=init=, a detached ghost under =start=, the runtime die for daemons |
+| attachment      | =inherit | piped | logged= (m49)                                        | —                                                                    | where stdio goes, never whether it is kept; part of the process contract, not of the command                     |
+
+** what a process gets — beef's question answered
+
+/"what does a process get? a wafer? a mask? does a process need something like that? it has the control vector."/
+
+A process gets a *command* (its declaration) and a *die* (the record of its cast). It does not get a
+mask — a mask turns a MODULE into an instance and a process is not made from a module; giving it one
+would be the overlap beef warns about. It does not get a wafer — the wafer was a class that fused the
+declaration carrier, the live product, the status and five verbs into one inheritable thing; the die
+carries the same four fields as DATA and the verbs are the dossier's =use[]=. What makes a process a
+process is not a carrier but the two contracts: it answers the control vector, and it obeys the process
+contract. An entity answers neither — it has a repository.
+
+* strand 1 — instantiation: two products, one die, the dossier
+
+** the die — one record, no class hierarchy
+
+#+BEGIN_SRC js
+die = {
+  declaration,     mask (entity) | command (process)
+  good,            the live product: entity row | Deno.ChildProcess | Runtime | Daemon
+  status,          Status atom — v.prototypes.process.State is its schematic
+  abort,           AbortController — abort() IS /down
+  lock,            paladin ledger claim { pid, token, status, processes } — supervising dies only
+  identity,        { instance, process, mount } — the lock's and log's key
+}
+#+END_SRC
+
+** the dossier — the pattern (kajuit precedent, =entities/thread/dossier.js=)
+
+=subsystems/paladin/prototypes/ledger/child.js= — the OS child. Stages are middleware; the effect
+holds; abort unwinds through =stop=.
+
+#+BEGIN_SRC js
+import { Pipe, Queue, Status, shape, Vector } from "@vivalence/typology";
+
+export const Child = (identity, command, attachment = "inherit") => ({
+  identity,
+  command,
+  attachment,
+  good: null,
+  status: new Status("<uninitialized>"),
+  abort: new AbortController(),
+  in: new Queue(),
+  out: new Pipe(),
+});
+
+export const ChildDossier = {
+  name: "child",
+  kind: () => Child,
+  use: [
+    async (die, next) => {
+      die.good = new Deno.Command(die.command.bin, { args: die.command.args, cwd: die.command.cwd, env: die.command.env, clearEnv: true, stdin: STDIO[die.attachment] === "piped" ? "piped" : "null", stdout: STDIO[die.attachment], stderr: STDIO[die.attachment] }).spawn();
+      die.status.set({ code: "SPAWNED", pid: die.good.pid });
+      try {
+        await next();
+      } finally {
+        await stop(die);
+      }
+    },
+    async (die, next) => {
+      await Promise.race([alive(die), exited(die), late(die)]);
+      die.status.set("alive");
+      await next();
+    },
+  ],
+  effect: (die) => Promise.race([die.good.status, aborted(die.abort.signal)]),
+};
+
+export const run = (die) => shape.selbstbestimmt(vector(ChildDossier))(die);
+#+END_SRC
+
+=stop(die)= = SIGTERM → grace → SIGKILL (strand 3); =alive= = the ALIVE line (=Status.parse=, F7);
+=exited= throws with the exit; =late= rejects at =command.deadline=. One call spawns, waits ready,
+holds; =die.abort.abort()= unwinds. The wizard and =start= SUBSCRIBE to =die.status= (a nanostores
+atom, self-priming) instead of awaiting =integrate()=.
+
+=subsystems/paladin/prototypes/ledger/die.js= — the set (the supervisor's die). =use[]= = refuse if a
+live lock exists → claim BOOTING → =Promise.all(children.map(run))= under one abort → claim ALIVE;
+unwind = release the claim (own token only). =Ledger= stays the record: =boot(specs, {instance,
+attachment}) → die= and nothing else live.
+
+The runtime's =Die= / =DaemonDie= / service =Die= become =RuntimeDossier= / =DaemonDossier= /
+=ProcessDossier= over the same shape in M5: =populate → resolve → integrate= stages, =perpetuate= the
+effect, =disintegrate= the unwind — the verbs the lifecycle modules already export as free functions
+(=systems/runtime/lifecycle/{populate,resolve,integrate}.js=) become the =use[]= entries verbatim.
+
+** what dissolves
+
+The m49 =Process extends Wafer= / =Die extends Wafer= classes (naming + inheritance, beef's verdict) ·
+the five hand-sequenced verbs (=boot · integrate · perpetuate · disintegrate= called by every verb) ·
+=Wafer= itself (M5, typology) · the =die.mask= field on process dies (=declaration=, typed by the
+product).
+
+* strand 2 — the control vector: one enumerated, schematized interface
+
+** the schematic — =subsystems/typology/schematics/prototypes/control.js= (typology, gated)
+
+#+BEGIN_SRC js
+import { v } from "../v.js";
+
+const Target = v.string().desc("slug of one process in the set — absent = the whole set").optional();
+
+export const Nature = v.enum(["status", "up", "down", "start", "stop", "restart", "run", "watch", "build", "logs", "doctor"]);
+
+export const Contract = {
+  status:  { input: v.object({}),                                                                  output: v.object({ state: v.string(), processes: v.array(v.object({ process: v.string(), pid: v.integer().optional(), state: v.string() })) }) },
+  up:      { input: v.object({ target: Target, detach: v.boolean().desc("a supervisor holds it; the caller returns").optional() }),  output: v.object({ state: v.string(), supervisor: v.integer().optional() }) },
+  down:    { input: v.object({ target: Target, grace: v.integer().desc("ms before SIGKILL").optional() }),               output: v.object({ state: v.string(), exits: v.array(v.object({ process: v.string(), code: v.integer() })) }) },
+  start:   { input: v.object({ target: v.string() }),                                              output: v.object({ state: v.string() }) },
+  stop:    { input: v.object({ target: v.string(), grace: v.integer().optional() }),               output: v.object({ state: v.string(), code: v.integer() }) },
+  restart: { input: v.object({ target: Target }),                                                  output: v.object({ state: v.string() }) },
+  run:     { input: v.object({ target: v.string() }),                                              output: v.object({ code: v.integer() }) },
+  watch:   { input: v.object({ target: Target }),                                                  output: v.object({ state: v.string() }) },
+  build:   { input: v.object({ target: Target }),                                                  output: v.object({ code: v.integer(), artifact: v.string().optional() }) },
+  logs:    { input: v.object({ target: Target, lines: v.integer().optional(), follow: v.boolean().optional() }), output: v.array(v.string()) },
+  doctor:  { input: v.object({ filter: v.string().optional() }),                                   output: v.object({}, { additionalProperties: true }) },
+};
+
+export const Implements = v.array(Nature);
+#+END_SRC
+
+One table. Help, valence, the compose-like UI, the ghost natures and the aperture routes all derive
+from it — never a second list (=trajectories/index.js FLAGS= was that twin).
+
+** semantics — compose-aligned, one meaning per nature
+
+| nature    | meaning                                                                                       | lifecycle                                   | compose       |
+|-----------+-----------------------------------------------------------------------------------------------+---------------------------------------------+---------------|
+| =/status= | the die's reflection: state, processes, pids, since; = =ps=                                    | read =status=                               | =ps=          |
+| =/up=     | cast the SET (or one target) and hold; =detach= → a supervisor holds it and the caller returns | populate → resolve → integrate (+ perpetuate attached) | =up [-d]= |
+| =/down=   | disintegrate the SET (or one target), release the claim                                       | disintegrate                                | =down=        |
+| =/start=  | cast ONE process into a set that is already up                                                | resolve + integrate one child               | =start <svc>= |
+| =/stop=   | disintegrate ONE process, the set stays claimed                                               | disintegrate one child                      | =stop <svc>=  |
+| =/restart=| down + up, same claim                                                                         | both                                        | =restart=     |
+| =/run=    | one-off attached cast; the exit code is the answer; no claim                                  | resolve → integrate → perpetuate            | =run <svc>=   |
+| =/watch=  | =/up= whose children restart on change (deno =--watch= for ours)                              | up + restart-on-change                      | =watch=       |
+| =/build=  | a one-shot child whose exit is the result (vite build, docs build)                            | run                                         | =build=       |
+| =/logs=   | tail the ledger's =logs/<slug>/<process>.out.log=                                             | read (attachment =logged=)                  | =logs=        |
+| =/doctor= | the report card (exists)                                                                      | read                                        | =config=      |
+
+The m49 ghost verbs map: =instance/run= = =/run= ∪ =/up= attached · =instance/start= = =/up --detach= ·
+=instance/stop= = =/down= · =instance/init= = =/up= (piped) + signup + =/down=. Whether =run/start/stop=
+stay as natures beside =up/down= or become aliases is F3.
+
+** mounting — one factory, many hosts
+
+#+BEGIN_SRC js
+export function control(die, implemented = die.implements) {
+  const vector = new Vector();
+  for (const nature of implemented) {
+    vector.open({ nature: `/${nature}`, schema: Contract[nature].input, valence: VALENCE[nature] }, (input) => HANDLERS[nature](die, input));
+  }
+  return vector;
+}
+#+END_SRC
+
+| host                          | mount                                            | transport                                                      |
+|-------------------------------+--------------------------------------------------+----------------------------------------------------------------|
+| ghost, attached (=run=/=init=) | =trajectory.branch("/instance").slurp(control(die))= | in-process =steer.dispatch=                                 |
+| ghost → a detached supervisor | =instance/<nature>= resolves the lock, reaches over it | unix socket =<ledger>/locks/<slug>.sock=, address in the lock (measured stable) |
+| runtime die                   | =aperture.branch("/control").slurp(control(runtimeDie))= | HTTP (the aperture)                                        |
+| daemon die                    | =/attached/…/control=                            | HTTP                                                           |
+| kajuit =client.viva.js=       | =control(die)= over a =vite dev= child           | replaces the "bad control vector"                              |
+
+* strand 3 — the process contract: states, OS signals, the SIGKILL standard
+
+** the schematic — =subsystems/typology/schematics/prototypes/process.js= (typology, gated)
+
+#+BEGIN_SRC js
+import { v } from "../v.js";
+
+export const Command = v.object({
+  bin: v.string(),
+  args: v.array(v.string()).default([]),
+  cwd: v.string().desc("the instance mount for instance children — a cwd .env outranks the os stratum").optional(),
+  env: v.record(v.string(), v.string()).desc("EXPLICIT — the child inherits nothing else").default({}),
+  deadline: v.integer().desc("ms to the readiness line before the cast fails").default(60_000),
+  grace: v.integer().desc("ms between SIGTERM and SIGKILL").default(5_000),
+});
+
+export const Identity = v.object({ instance: v.string().optional(), process: v.string(), mount: v.string().optional() });
+
+export const Attachment = v.enum(["inherit", "piped", "logged"]);
+
+export const State = v.enum(["<uninitialized>", "populated", "spawned", "alive", "stopping", "stopped", "exited"]);
+
+export const Signal = v.enum(["SIGTERM", "SIGINT", "SIGQUIT", "SIGHUP", "SIGKILL", "SIGURG"]);
+
+export const Claim = v.object({
+  pid: v.integer(),
+  token: v.string(),
+  instance: v.string(),
+  status: v.enum(["BOOTING", "ALIVE"]),
+  processes: v.array(v.object({ process: v.string(), pid: v.integer() })),
+  started: v.string(),
+  address: v.string().desc("the supervisor's control socket").optional(),
+});
+#+END_SRC
+
+** the OS signal table — one meaning each, total
+
+| OS signal | sender → recipient                          | meaning                                                                                  | recipient's duty                                                  |
+|-----------+---------------------------------------------+------------------------------------------------------------------------------------------+-------------------------------------------------------------------|
+| SIGTERM   | supervisor → child · =stop= → supervisor    | =/down=: go away gracefully                                                              | disintegrate, exit 0; never ignore                                |
+| SIGINT    | tty → foreground group                      | the operator's =/down=                                                                   | same as SIGTERM; exit 0 (was 130)                                 |
+| SIGQUIT   | operator → any                              | =/down= + dump =status.reflection= to stderr                                              | same, plus the dump                                               |
+| SIGHUP    | terminal close → session                    | never reaches a supervised child (own process group); to a supervisor = SIGTERM          | treat as SIGTERM (F4)                                             |
+| SIGKILL   | supervisor → child, ONLY after =grace=      | the escalation; the recipient cannot react                                               | —                                                                 |
+| SIGURG    | any reader → a claimed pid                  | the liveness probe (=Lock.read=); never a request                                        | ignore (default)                                                  |
+
+** the SIGKILL standard
+
+1. SIGKILL is never the first signal. The order is SIGTERM → wait =command.grace= → SIGKILL → await exit.
+2. Only the die that owns the claim (the token holder) may signal its children; =stop= signals the SUPERVISOR, never a child.
+3. Children are spawned in their own process group (=detached: true=) so the operator's SIGINT reaches only the supervisor and each child is signalled ONCE (m49 F4); group escalation = =Deno.kill(-pgid, "SIGKILL")=.
+4. A child that exits on its own is EXITED, not stopped; its exit folds into the supervisor's exit code (=run= exits 1 iff any child !success); a signalled set is STOPPED and exits 0.
+5. Readiness = the child's own =Status:ALIVE= line (=integrate.js:47=, =vite.config.mjs:100=), parsed by =Status.parse= (F7) within =command.deadline=; =inherit= children are alive at spawn.
+6. The claim is written BOOTING at spawn and ALIVE at readiness; =Lock.read()= prunes a dead pid; a die releases only its own token; a live claim refuses a second cast.
+
+* the weave — one table
+
+| nature    | lifecycle stage(s)                      | OS signal              | state transition                      | claim             |
+|-----------+-----------------------------------------+------------------------+---------------------------------------+-------------------|
+| =/up=     | populate · resolve · integrate          | —                      | <uninit> → spawned → alive            | BOOTING → ALIVE   |
+| =/down=   | disintegrate                            | SIGTERM → grace → SIGKILL | alive → stopping → stopped         | released          |
+| =/start=  | resolve · integrate (one)               | —                      | one child spawned → alive             | processes[] grows |
+| =/stop=   | disintegrate (one)                      | SIGTERM → grace → SIGKILL | one child → stopped                | processes[] shrinks |
+| =/restart=| down · up                               | as down                | … → alive                             | same token        |
+| =/run=    | up attached · perpetuate                | SIGINT → down          | … → exited | stopped                  | released at exit  |
+| =/watch=  | up · (change → stop one · start one)    | SIGTERM to the changed | alive ↔ stopping ↔ alive              | same token        |
+| =/build=  | run (one-shot)                          | —                      | spawned → exited                      | none              |
+| =/logs=   | read                                    | —                      | —                                     | —                 |
+| =/status= | read                                    | SIGURG (probe)         | —                                     | read              |
+| =/doctor= | read                                    | —                      | —                                     | read              |
+
+* milestones — each boots green at its boundary
+
+- M1 — the wording accepted (this table) + the two schematics authored (=v.prototypes.control=, =v.prototypes.process=) — typology, ADDITIVE, gated. Gate: =typology= suite green + a =schematics= test casting one Command, one Claim, one =Contract.up.input=.
+- M2 — the dossier recast of the paladin ledger: =child.js= + =die.js= as dossiers under =shape.selbstbestimmt=; =Wafer= no longer imported by paladin; =Status.parse= (F7). Gate: =spawn.test.js= (9) + =ledger.test.js= green unchanged in substance; the m49 live proof re-run verbatim.
+- M3 — the control vector: =control(die)= from the schematic; served by the supervisor over the unix socket, address in the claim; ghost natures derived (F3 decides names); help/valence from the table; =instance/status= + =instance/logs= appear. Gate: a wet test =control.wet.test.js= — start → =instance/status= over the socket → =instance/down= → lock gone.
+- M4 — the process contract in force: children in their own process group; the signal table; the SIGKILL standard as one =stop(die)=; SIGINT under =run= exits 0. Gate: =spawn.test.js= gains "SIGINT to the supervisor stops the set once, exit 0" + "grace elapses → SIGKILL".
+- M5 — migration: runtime =Die=/=DaemonDie=/service =Die= onto dossiers; =/control= mounted on the runtime aperture and per daemon; kajuit =client.viva.js= control = =control(die)=; shell subprocesses (=paladin/skills/shell.js= =shell_run=, =belt/clone.js=, =belt/bundler.js=) cast as children with a =deadline=; =Wafer= deleted from typology. Gate: runtime + kajuit + paladin suites green; =docs= 32.01 rewritten (/"A Die is a Wafer"/ → the die + dossier).
+
+* testing assessment
+
+- In place: =spawn.test.js= (9, m49) · =ledger.test.js= Lock (3) · ghost =target/delete/rename= · the m49 live proof. Coverage gap: no test drives a die over a transport; no test pins the signal table; the wizard (ink) is untested.
+- Changes: =spawn.test.js= reshapes from =die.integrate()= calls to =run(die)= + status subscription (M2); =target.test.js= gains =grace=/=deadline= defaults from the schematic (M1).
+- Adds: =schematics/tests/control.test.js= (M1) · =control.wet.test.js= (M3) · signal cases (M4) · runtime =control= route snapshot (M5).
+- Green ladder: M1 typology · M2 paladin + ghost + live proof · M3 ghost wet · M4 paladin · M5 all five suites.
+
+* QA
+
+#+marker_qa: P-wording pending — every noun in the settlement table has ONE meaning in code and prose; =grep -rn "Wafer"= → typology only until M5, zero after
+#+marker_qa: P-control-one-table pending — help, valence, ghost natures and aperture routes all derive from =v.prototypes.control=; no second list
+#+marker_qa: P-sigkill-standard pending — no code path sends SIGKILL first; grace measured; a signalled set exits 0, a died child exits 1
+#+marker_qa: P-dossier-recast pending — paladin imports no =Wafer=; =run(die)= + =abort()= replace the four hand-sequenced verbs; the m49 proof transcript reproduces
+#+marker_qa: T-remote-control pending — =instance/status= and =instance/down= reach a detached supervisor over its socket
+
+* blast table
+
+| symbol / surface                          | consumers                                                              | milestone | kind   |
+|-------------------------------------------+------------------------------------------------------------------------+-----------+--------|
+| =v.prototypes.{control,process}=          | NEW — paladin ledger, ghost trajectories, runtime aperture             | M1        | add    |
+| =paladin/ledger/{process,die}.js=         | ghost run/start/stop/init/Init.jsx/doctor/delete/rename/list; tests    | M2        | recast |
+| =Status.parse=                            | =child.js= alive stage                                                 | M2        | add    |
+| =ghost trajectories/index.js= natures     | help, README §0, docs 50.01/51.02                                      | M3        | change |
+| =Claim.address= + the socket              | start, stop, status, logs                                              | M3        | add    |
+| =detached: true= on children              | run (tty), init                                                        | M4        | change |
+| =runtime/{die,daemon/die,process/die}.js= | run.js, lifecycle modules, tests (53 runtime)                          | M5        | recast |
+| =kajuit/client.viva.js control=           | the manifest's consumers (none live)                                   | M5        | recast |
+| =typology/prototypes/wafer.js=            | index.client.js, index.ts, docs 32.01, totems, ontology law 4          | M5        | remove |
+
+* deferred
+
+- SIGUSR1/SIGUSR2 (log rotate, status dump) — reserved, not in the table until a consumer exists.
+- =/exec= (compose) — a shell into a running child; not ours until a daemon needs it.
+- health beyond liveness (the readme sketch's =/health/:slug=) — =/status= carries state; a probe of the runtime's =/status= route is the doctor's business.
+- the tty-keyed session (m46 cluster B, =tty.js= measurement owed).
+
+* forks — beef calls
+
+- F1 the process declaration's noun: =command= (Deno's; no collision) vs =signature= (beef's word; collides with =typology/prototypes/signature.js=). Recommend =command=.
+- F2 the OS-signal enum's residence: =v.prototypes.process.Signal= (residence disambiguates from =typology Signal=) vs a distinct noun. Recommend residence.
+- F3 nature names: =up/down= for the SET + =start/stop= for ONE process (compose-exact) with =run/start/stop= of m49 REMAPPED (=start= changes meaning!) — or keep m49's =start= = detached up and add =up/down= beside. Recommend compose-exact with a one-release alias.
+- F4 SIGHUP to a supervisor = SIGTERM (recommend) vs restart.
+- F5 the socket path: =<ledger>/locks/<slug>.sock= (recommend) vs loopback port in the claim.
+- F6 when =Wafer= leaves typology: M5 (recommend) vs M2 with the runtime dies on a shim.
+- F7 =Status.parse= — the inverse of the inspector, typology, additive.
+- F8 the number m50 — beef's ledger.
+
+* changelog
+
+- this session — DESIGNED on beef's order after the wafer verdict (found in =~/vivalence/private/logs/2026.05.25.org=): the three strands, the wording settlement (14 nouns, two collisions named — =Signature=, =Signal=), the two schematics sketched against the live =v= API (=enum/union/const/object/array/record/boolean=), the control vector's semantics + mounting + transport (measured), the process contract's signal table + SIGKILL standard, the weave table, five milestones with gates, eight forks. m49 M2/M3 lifted here; m49 sunset to done/. Nothing applied.
+
+* release
+
+none yet — every line lands with its milestone.

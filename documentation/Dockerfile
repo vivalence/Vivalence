@@ -35,6 +35,11 @@ server {
     location / {
         try_files $uri $uri/ =404;
     }
+    location ~ \.mdx$ {
+        types {}
+        default_type text/plain;
+        charset utf-8;
+    }
 }
 NGINX
 

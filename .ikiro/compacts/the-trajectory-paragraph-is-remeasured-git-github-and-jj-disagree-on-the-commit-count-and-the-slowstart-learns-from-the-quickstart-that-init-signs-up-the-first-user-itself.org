@@ -1,0 +1,191 @@
+#+title: the trajectory paragraph is remeasured — git, github and jj disagree on the commit count — and the slowstart learns from the quickstart that init signs up the first user itself
+#+filetags: :readme:documentation:slowstart:ghost:ledger:instance:git:jj:report:
+
+* what happened, in one breath
+
+beef opened with the README's =# Trajectory= paragraph — /"is this correct? check recent quests
+and compacts for approach."/ The approach the compacts hold is one law: MEASURE, never compose.
+Every number in the paragraph was wrong against disk: the repo is three years old not four,
+the core is 17,671 lines not 30k, the old 23k/8k/2k split matched no measure at all, and
+"commits" has three honest answers depending on who counts (git HEAD 429 · GitHub 408 · jj
+visible graph 837 · git =--all= 1141). beef settled each: GitHub's ++/-- totals, jj's "800+",
+"3 years", "~18k", tests "about 1:1". Then the second movement: beef had rewritten the README
+quickstart by hand and asked for the slowstart to learn from it — /"no meta. method
+effortless."/ Every verb in the slowstart was re-read at its trajectory before a line moved;
+the old page claimed =auth signup= boots the instance headless (it is network-only) and that
+=init= merely writes =.env= (it also boots once and signs up the first user). Two README
+paragraphs about the dummy mode were cut to the one point that matters — =/hello/agent= needs
+a hallucinator, =/hello/bot= does not. Docs build green. Eight beef turns, all accounted.
+
+* spine (N=8)
+
+| n | beef asked (verbatim where it decides)                                                                                             | landed                                                                                         | decided / killed                                                  |
+| 1 | /"is this correct? check recent quests and compacts for approach."/ (the Trajectory paragraph pasted)                              | git/cloc/wc census; README:240 first pass (GitHub stats, ~17k)                                  | approach = measure never compose; "4 years" flagged, not changed   |
+| 2 | MID-TURN /"crackedbeefcake's Commits 408 commits 13.188.937 ++ 12.956.589 -- update the numbers."/                                 | =~13.2mio= · =~13.0mio= · =408 commits=                                                         | GitHub's line totals are the source for ++/--                      |
+| 3 | /"3 years old. … +-. correct? 800 commits! git vs jj! 17,671 great. round this. add a subsentence on test relations."/            | =3 years= · =800+ commits= (jj =all()= 837) · =~18k= · "with tests matching it line for line"    | jj's visible graph is the honest commit count; beef later recast the tests clause himself to "Tests at about 1:1." and =@paladin= "configuration and composition" |
+| 4 | /"i updated the readme quickstart a bunch. draw lessons from my changes and itterate the slowstart. you dont need to explain the pattern. wasted space. no meta. method effortless."/ | =50.01_slowstart.mdx= rewritten; six verbs re-read at source; six =viva= probes run; =astro build= green; broken step-0→4 anchor fixed | the pattern legend dies; the labels stay, unexplained             |
+| 5 | MID-TURN (the =## Hello, Mode!= closer pasted) /"this sentence is wrong. rewrite this part. less is more. key point hallucinator service must be explained."/ | two-paragraph rewrite, every claim traced (=Frame.svelte:62=, =exposed.js:5=, =remote-repository.js=, =population.js:104=) | =/hello/world= was a stale route name; hallucinator = the daemon-declared provider |
+| 6 | MID-TURN (my rewrite pasted back) /"all this"/                                                                                    | cut to three sentences                                                                          | the quoted block is the address, the tail is the order: shorter    |
+| 7 | /"ikiro compact"/                                                                                                                  | this file · index regenerated · frontier strand restamped · one whole item evicted (budget)      |                                                                   |
+| 8 | MID-TURN =/compact=                                                                                                                | NOTHING (harness command)                                                                       |                                                                   |
+
+* movement I — the trajectory paragraph, remeasured
+
+The approach, lifted from compacts 59/61/62: /"docs written from other docs go stale; docs
+written from source and executed cannot."/ So every claim got a command.
+
+** age
+=git log --all --reverse= → the first commit, /"init. spaced repetition is working, data is
+seeded. ui is basic."/, lands two years and eleven months before this fold. beef, with a file
+listing of his own earliest note as the receipt: /"3 years old. … +-. correct?"/ Yes,
+plus-minus. Landed =3 years=.
+
+** commits — four counts, one word
+| who counts                          | commits |
+| =git rev-list --count HEAD=         |     429 |
+| GitHub contributor graph (beef)     |     408 |
+| =jj log -r 'all()'=                 |     837 |
+| =git rev-list --count --all=        |    1141 |
+| =git shortlog -sn --all= crackedbeefcake alone | 819 |
+
+I landed 408 from beef's GitHub paste; beef: /"800 commits! git vs jj!"/ — jj's visible graph
+is the number that counts the work (git =--all= adds jj-hidden refs; HEAD sees only trunk's
+first ancestry). Landed =800+=. Lesson: the README line is about the trajectory, so the count
+that sees rewritten/abandoned-and-redone work is the honest one.
+
+** lines added/removed
+Local =git log --numstat HEAD= = 5.16M / 4.93M with rename detection skipped and binaries
+excluded; GitHub says 13.19M / 12.96M. beef ruled GitHub: /"update the numbers."/ Landed
+=~13.2mio= / =~13.0mio=.
+
+** the core — what "core" means, measured three ways
+=wc -l= over js/ts/svelte, no =node_modules=, no =tests/=, no =bak.belt/=:
+
+| container              | core   | with tests | tests/ only |
+| =subsystems/typology=  | 11,254 |     20,129 |       8,875 |
+| =systems/runtime=      |  4,443 |     12,255 |       7,081 |
+| =subsystems/paladin=   |  1,974 |      3,704 |       1,730 |
+| sum                    | 17,671 |     36,088 |      17,686 |
+
+cloc code-only without tests is smaller still (8,431 / 3,583 / 1,482). The README's old
+=~30k · 23k/8k/2k= matched none of these; 23+8+2 didn't even sum to 30. beef: /"17,671 great.
+round this. add a subsentence on test relations."/ — tests and core sit fifteen lines apart,
+so "line for line" was true, and beef recast it to /"Tests at about 1:1."/ =systems/runtime/
+bak.belt/= holds 731 tracked lines — excluded as recovery surface, per the backup-during-
+migration rule.
+
+The README diff also carried beef's own uncommitted quickstart work; my change was line 240.
+
+* movement II — the slowstart learns from the quickstart
+
+beef: /"i updated the readme quickstart a bunch. draw lessons from my changes and itterate the
+slowstart. you dont need to explain the pattern. wasted space. no meta. method effortless."/
+
+** lessons read off the README diff (never stated in the page — that was the order)
+- the promise is time-boxed: /"A 'Hello World' in 5 minutes."/
+- =#= comments in the code block carry "what this does"; the paragraph under it shrinks
+- plain nouns over ledger jargon: /"some config, the registry of tapped packages, a home for
+  instances, plus locks, logs, and sessions"/ — shelf/store/record gone
+- every step closes on a verification verb: =ledger/doctor= · =registry/list= ·
+  =instances/list= · =instance/doctor=; the doctor's =✗ instance= gets a forward pointer
+- =--use= commented out of the create block — the default flow is create, then use
+- =init= is three beats: /"It populates .env, prompting for non-deductible env vars — mostly
+  service secrets. It runs the instance once. It asks you to create the first user."/ and
+  =auth signup= is for /"additional users"/
+- =instance/run [runtime|kajuit]= exists; "kajuit … as buffers" → /"the client attaches to the
+  daemons and renders their modes."/
+
+** what re-reading the verbs corrected
+- =trajectories/instance/init.js= — headless form =init <username> <password>= refuses with
+  =env: incomplete= until every owed key is filled, then boots ALL children piped, polls
+  =/auth/signup= 30×1s (falls through to =/auth/login= on =USERNAME_EXISTS=), kills them.
+  Interactive = the =Init.jsx= wizard with the same commit/boot/signup/teardown. The old
+  slowstart said init writes =.env= and =auth signup= /"boots the instance headless … and
+  shuts down again"/ — =auth.js= is =new Connection(remote).call(`/auth/${action}`)=, network
+  only; it needs a RUNNING instance. Fixed.
+- =target.js= =CHILDREN = {runtime, kajuit}=, =specs(param ?? "all")= → =run= and =stop= both
+  take =[runtime | kajuit]=.
+- =registry/viva/instances/hello-world/= is =hello-world.viva.js= + =playground.js= —
+  =education.js= is deleted at HEAD (git status =D=); the slowstart's =ls= still listed it.
+- root =deno.jsonc= =dependencies= now allows =better-sqlite3= + =argon2= — the readme-walk's
+  open item is closed; the slowstart's captured install line was two packages short.
+- the step-0 → step-4 link was =#4--instanceuse--init--auth=; the built id is
+  =#4--viva-instancesuse--init--auth=. Pre-existing, fixed, verified in =dist/=.
+
+** probes run (read-only, real ledger)
+=registry/list= · =ledger/doctor= (MUTATING — reaps dead-pid sessions; the dir was empty) ·
+=instances/list= · bare =instances/use= (piped → =instance/stratum/mount null=) ·
+=instance/doctor --instance=hello-world= (the SHELF copy: daemons =brazilian playground=, 8
+REQUIRED — the shelf still carries the education.js the recipe lost) · =instance/doctor
+--instance=./registry/viva/instances/hello-world= (the fresh recipe, no =.env=: =vars —=, nine
+REQUIRED incl. keys that have schema defaults — defaults are doc-text until =init= writes
+them) · =instance/init --instance=hello-world | cat= (report: =env incomplete · fill … · next
+fill <.env>, then: viva instance/init=). None of the doctor captures entered the page: the
+shelf one is drifted, the recipe one is pre-init; the page names =instance/doctor= in prose
+and the =# wizard:= comment form carries what cannot be captured headless.
+
+** the docs build as an MDX check
+=deno run -A npm:astro build= inside =documentation/= (skipping =capture=) builds ten pages
+in 1.5 s — the fast way to prove an =.mdx= edit parses, and the way the anchor bug surfaced
+(=grep -o 'id="[0-9]--' dist/50.01_slowstart/index.html=).
+
+* movement III — the dummy mode's closer
+
+beef, mid-turn, quoting the README paragraph under =App.svelte=: /"this sentence is wrong.
+rewrite this part. less is more. key point hallucinator service must be explained."/
+
+Traced before rewriting: =subsystems/drapes/panels/Frame.svelte:62= mounts the view with
+exactly ={ buffer, terminal }= · =systems/kajuit/src/typology/entities/mode/traits/exposed.js:5=
+=mode.call = shape.connection.wire(mode.connection, mode.metadata.aperture)= so =/hello/bot=
+is =call.hello.bot()= (the paragraph still said =/hello/world=, a route beef had renamed) ·
+=subsystems/typology/prototypes/remote-repository.js= carries find/findOne/count/create/
+upsert/update/remove/subscribe · =systems/runtime/daemon/lifecycle/population.js:104= walks
+=register.hallucinators= — the provider list a daemon declares (=playground.js= carries
+=@viva/hallucinator/anthropic= with =SECRET_VIVA_ANTHROPIC_API_KEY=).
+
+First rewrite: two paragraphs. beef pasted it back — /"all this"/ — the tail is the order.
+Landed, three sentences:
+
+#+begin_quote
+=/hello/bot= answers by itself. =/hello/agent= needs a hallucinator — the LLM provider a daemon
+declares next to its key: =hello-world='s playground daemon carries =@viva/hallucinator/anthropic=
+and reads =SECRET_VIVA_ANTHROPIC_API_KEY= from =.env=. The view reaches the aperture through
+=buffer.mode.call= and the daemon's entities through =buffer.mode.daemon.entities=.
+#+end_quote
+
+* lessons
+
+- *a README number is a measurement with a named instrument* — four commit counts were all
+  "true"; the doc has to pick the one that means what the sentence means (jj's graph for
+  "how much work", GitHub's ++/-- for "how much churn").
+- *a tutorial claim about a verb is a claim about its trajectory file* — the =auth= boots-
+  headless error survived two prior passes because nobody opened =auth.js=. Read the verb,
+  then write the step.
+- *beef's edits to a captured block are markers, not captures* — the README's =registry/list=
+  table (=mount owner modes reference=) is his intended shape; the lens prints =reference
+  owner modules root=. Neither copied into the slowstart; flagged instead.
+- *"all this" after a paste = cut it* — the second bias trap from the compact method, live.
+
+* state at fold
+
+| thing                                           | state                                                                                    |
+| =README.md:240= Trajectory                      | =3 years · ~13.2mio/~13.0mio · 800+ commits · ~18k core (11k/4k/2k) · Tests at about 1:1= — beef's final wording, uncommitted |
+| =README.md= =## Hello, Mode!= closer            | three sentences, hallucinator explained, uncommitted                                     |
+| =documentation/content/50-59_practice/50.01_slowstart.mdx= | rewritten against the quickstart; =astro build= green; anchor fixed; uncommitted |
+| =~/.viva/instances/hello-world/=                | SHELF copy still holds =education.js= + =daemon_brazilian/= mountpoint — drifted from the recipe; beef's ledger, untouched |
+| compacts index                                  | regenerated, 81 = 81                                                                     |
+
+* open — and what beef settled mid-compact
+
+Three flags from the fold turn came back as /"fix."/ ×3 (/"fix. docs is better."/ on the table)
+and were mostly already gone from disk by the time the fix ran: beef had merged the Noticeboard
+line onto =.ikiro/ikiro.md= himself, killed /"able to can"/, and changed =registry/list= to print
+=mount owner modes identifier= — so the README table stopped being composed and became a capture
+shape; only its =@viva 10= was stale against the 11 =*.viva.js= on disk. Landed by me: /"like
+out"/ → /"like our"/, =@viva 11=.
+
+Still open (beef's):
+1. The shelf =hello-world= drift — =~/.viva/instances/hello-world/= still holds =education.js=
+   + a =daemon_brazilian/= mountpoint; =instance/doctor= on it shows 8 REQUIRED where the
+   recipe shows two. A re-=create= clears it; the ledger is beef's, untouched.
+2. README:24 Slowstart link still root-links =docs.vivalence.org= (deep link is §6's).

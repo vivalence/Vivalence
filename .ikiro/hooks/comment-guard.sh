@@ -10,7 +10,7 @@ path=$(jq -r '.tool_input.file_path // empty' <<<"$input")
 
 case "$path" in
   *test*|*/bak/*|*.md|*.org|*.json|*.jsonc) exit 0 ;;
-  */registry/*|*/systems/*|*/subsystems/*) ;;
+  */commons/*|*/systems/*|*/subsystems/*) ;;
   *) exit 0 ;;
 esac
 

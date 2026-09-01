@@ -127,7 +127,8 @@ export async function render(faculty, request, policy) {
     folded = soma.transcript(folded, record);
   if (folded.meta.state !== "complete")
     throw new Error(
-      `[hallucinate] '${faculty.type}' response closed ${folded.meta.state} after ${folded.meta.rounds} rounds`,
+      `[hallucinate] '${faculty.type}' response closed ${folded.meta.state} after ${folded.meta.rounds} rounds` +
+        (folded.meta.fault?.message ? ` — ${folded.meta.fault.message}` : ""),
     );
   return folded;
 }

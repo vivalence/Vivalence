@@ -1,0 +1,145 @@
+#+title: the standard library becomes commons, the record learns to heal its own dead paths, and an owner rename is walked back line by line
+#+filetags: :registry:commons:paladin:vip:ledger:blast:docker:docs:quest:m47:revert:
+
+* what happened, in one breath
+
+beef: /"plan the blast change of renaming the standard library to: @viva/package/commons"/ — then,
+mid-blast, /"and fixtures to testing and playground to development incl all daemons, paths, docker,
+and in the local ledger."/ A full map first (identity is =${owner}/${type}/${slug}= from the manifest;
+dirs are cosmetic to paladin and load-bearing only for hardcoded paths), one fork asked and answered
+(/"go @development/playground/xyz"/ — the mode TYPE =playground= stays), then the bracket:
+=registry/{viva,fixtures,playground}= → =registry/{commons,testing,development}=, the =playground=
+daemon → =development= in the repo recipe and both shelf copies, =~/.viva/registry.json= rewritten in
+place, thirteen test files repointed, docs and six ikiro files restamped. Green on both sides;
+beat 4 caught the one thing the literal grep cannot see — a RELATIVE cross-package import. Next beef
+ordered two fixes: the prod ledger's dead-path boot failure, and the =@viva → @vivalence= owner. The
+first became =Registry.reconcile= (TDD, live-proven on a scratch ledger: a dead in-repo location is
+rediscovered and the record rewritten; a dead external one is kept, skipped, and reported). The
+second was applied across 37 files, then beef said /"skip the @viva vivalence change for now."/ — and
+it was reverted by exact-pristine comparison so the pre-existing =@vivalence/<workspace>= imports
+stayed untouched, with one same-line collision caught and hand-fixed. Then the real intent surfaced:
+/"i want to change the rest of the registry. profoundly. /repo/registry/** turns into /repo/commons
+imported as @commons/xyz/abc … this requires a quest. n47?"/ — =quests/m47-commons.org= drafted from
+the blast data, forks F1–F7 open, nothing moved.
+
+* spine (N=10)
+
+| n  | beef / event                                                                                           | landed                                                                                                     |
+|----+--------------------------------------------------------------------------------------------------------+------------------------------------------------------------------------------------------------------------|
+|  1 | /"plan the blast change of renaming the standard library to: @viva/package/commons"/                   | blast-bracket skill invoked; kernel read; the package found at =registry/viva/= with beef's own comments =// rename to vivalence= (owner) and =// rename to commons= (slug) |
+|  2 | skill body (blast-bracket) injected                                                                    | the five beats as todos; beat 1 = map before touching                                                       |
+|  3 | MID-TURN /"and fixtures to testing and playground to development incl all daemons, paths, docker, and in the local ledger."/ | scope ×3; radius mapped per layer (dir · slug · owner · lookups · daemon slug · docker · ~/.viva · docs · ikiro); the plan posted with forks F1 (mode type) F2 (orphan mountpoints) F3 (prod ledger) |
+|  4 | /"go"/                                                                                                 | beat 2 baseline: paladin 26 · runtime 53 · kajuit 35 · ghost 77 green; typology 122 + 1 pre-existing red pinned (=hallucination.snapshot.test.js=, "unknown tool: phantom" armed-list suffix) |
+|  5 | /"go @development/playground/xyz"/                                                                     | F1 settled: type =playground= stays. Beat 3 in one pass: 3 =mv=, 3 manifests, the =@testing= owner LOCK in =corpus.viva.js=, daemon rename in 3 instance files, compose mount (already stale =instance/multiplayer= → =instances/starter=), 13 test repoints, =~/.viva/registry.json=. Beat 4 RED on =registry/testing/data/lighthouse.js= (=../../viva/…= relative import) → fixed → all green at baseline. Beat 5 residue zero. Docs recaptured from live =viva registry/list=; 6 ikiro files restamped; memory written |
+|  6 | /"prod ledger … vip.mount() has no catch on a missing root → boot throws. … fix."/ · /"owner: "@viva" // rename to vivalence still pending … fix."/ | owner blast: 37 files, no regex or default on =@viva= anywhere, =@vivalence/<workspace>= is a different resolver. perl via xargs =@viva(?![A-Za-z])= → =@vivalence= applied repo + shelf + tapped education recipes; reconcile reads begun |
+|  7 | interrupted                                                                                            | —                                                                                                          |
+|  8 | /"skip the @viva vivalence change for now."/                                                           | revert by exact-pristine comparison (a line reverts only if its text is absent from HEAD's version of the file; moved files mapped to their old HEAD paths; the education clone checked against its own HEAD; shelf files have no pristine). One over-revert inside a line (=codemap/registry.md:7= PRE-M11 tail) caught by the diff check, hand-fixed. Beef's concurrent hello-world restructure (=hello.js= + =App.svelte= + =multiplayer.js=) crossed the revert — his =multiplayer.js= came out =@viva=, correct after the skip. Five suites green. Then =Registry.reconcile= landed TDD (RED reproduced the prod ENOENT) + =Vip.supply= over it + doctor =present= + live scratch-ledger proof + =ledger.md= restamp |
+|  9 | /"i want to change the rest of the registry. profoundly. … @commons/playground - used in development @commons/fixtures - used in testing. this requires a quest. n47?"/ | m47 free; blast data for the quest: 23-manifest census (owner+type+slug unique under one owner), literal =registry/= radius, relative-import radius, lookup radius per owner, codemap path gates, the image's =VIVA_REGISTRY_MOUNT= pin into the checkout, reconcile's =inside= rule naming the old dir. =quests/m47-commons.org= drafted; index + frontier + memory pointer |
+| 10 | /"ikiro compact"/                                                                                      | this fold                                                                                                  |
+
+* the bracket, as walked
+
+Beat 1 distinguished four "playground"s: the package (=registry/playground=, owner =@playground=,
+slug =playground=), the mode TYPE (=type: "playground"= on six rig modes — beef kept it), the DAEMON
+(=hello-world/playground.js=, slug =playground=, =daemon_playground/= mountpoints, =playground.viva.db=
+— renamed), and two same-name strangers left alone (=tests/drain.playground.js= is a topography slug;
+typology's =/daemon/playground= is an arbitrary Path literal). The owner of the standard library
+STAYED =@viva= because beef pinned =@viva/package/commons= explicitly; fixtures and playground had
+owner = slug = dir, so their rename was all three.
+
+Beat 4's red is the lesson worth keeping: =grep 'registry/viva'= finds every absolute reference and
+ZERO relative ones. =registry/testing/data/lighthouse.js= imported =../../viva/datamaps/libsql/…= —
+no literal =registry/= in it. A rename blast greps =\.\./(old)/= as well as =registry/old=.
+
+The ledger edit and the =mv= were one beat on purpose: =vip.mount()= has no catch on =find.viva=,
+so a =registry.json= naming a moved dir killed every =viva= boot — which is exactly what beef then
+ordered fixed for prod.
+
+* reconcile — the category kill
+
+Desired end state, plain language: a recorded package location that is gone is a stale record, not
+a boot failure. Inside the repository's own registry the record FOLLOWS the repository — rediscovered,
+rewritten, new repo packages recorded too. Elsewhere the reference is the operator's — kept, skipped
+this boot, surfaced as =vip.stale= and =viva ledger/doctor= =record[].present:false=.
+
+Tests first in =subsystems/paladin/tests/registry.test.js= (a =homed()= scaffold adds a =repository=
+scope): dead in-repo heals · dead external stale + kept · healthy record not rewritten (mtime) · no
+record → =null= (seed path) · =Vip.supply= over a mixed stale record mounts =@viva= and =@real=. RED
+reproduced the production shape verbatim (=ENOENT readdir …/registry/viva=). One consumer red after
+landing — =vip.tap.test.js='s scaffold has no =repository= scope — fixed in the SYSTEM (=scope.repository?=,
+=inside= false without a checkout), not by growing the test's scaffold.
+
+Live proof on a scratch =VIVA_LEDGER_MOUNT=: =[…/registry/viva, …/registry/testing, /nowhere/checkout]=
+→ owners =@testing @viva @development=, =stale: ["/nowhere/checkout"]=, record =[…/testing, /nowhere/checkout, …/commons, …/development]=.
+Note the healing discovery also RECORDED =development=, which the scratch record had never held —
+the repository half of the record is the repository's, that is the rule.
+
+* the owner pass and its exact undo
+
+=@viva= as a bare word turned out to be pure string: no regex, no default, typology's =cast.lookup=
+examples already used =@vivalence=. Forward: =perl -pi -e 's/\@viva(?![A-Za-z])/\@vivalence/g'= over 37
+files (the first attempt passed the newline-joined list as ONE filename — "File name too long", nothing
+edited; caught by the residue grep, redone via =xargs -0=).
+
+The revert could not be a blind reverse: =@vivalence/<workspace>= (=paladin=, =typology=, =runtime=…) was
+pristine everywhere, and 19 more pristine non-workspace =@vivalence= uses lived in files I never touched
+(=ghost/localhost/localhost.viva.js= is =@vivalence= at HEAD; typology's cortex tests; kajuit's manifest).
+So: a Deno script per candidate file — pristine text from =git show HEAD:<path>= (moved files mapped to
+their old paths, the education clone against its own HEAD, shelf instances with no pristine) — and a
+line reverts only when its text is not in the pristine set. 38 files touched, 0 kept-by-mistake, ONE
+over-revert where a pristine =@vivalence= shared a line with an edited one (=codemap/registry.md:7='s
+=…/wafers/@vivalence/<type>/<slug>/= tail) — the diff check named it, hand-fixed, and the same line's
+stale dir names restamped while there.
+
+Concurrency, recorded not hidden: beef rewrote =registry/commons/instances/hello-world/= during the
+revert (=development.js= gone; =hello.js= type =demo=, =App.svelte=, =multiplayer.js=). His new
+=multiplayer.js= carried =@vivalence/lighthouse/…= copied from the momentarily-renamed text; the
+revert script set it to =@viva=, which is the working owner after the skip. Zero rename residue in his
+files. =subsystems/paladin/prototypes/instance.js= shows modified and is his.
+
+* m47 — the quest, not the blast
+
+beef's number, my draft (the standing rule: mXX quests are his; he gave =n47?=). The one-package
+design: =/repo/commons/= with owner =@commons=, lookups =@commons/<type>/<slug>=, the type as the
+second segment so =@commons/playground/spawner= · =@commons/chaosmonkey/oracle= · =@commons/fixture/language-learning=
+fall out of the manifests as they stand. Census proved no owner+type+slug collision across the merge.
+"Registry" keeps meaning the marketplace (store · record · verbs · scope · env) — F1. Two things a
+plain rename would break, both in the quest: reconcile's =inside= names =<repository>/registry= and
+would heal nothing after the move (M2 generalises to the checkout); =Dockerfile:60= pins the STORE to
+=/viva/repository/registry= (F2, rec drop). Release organ carries four single-change lines.
+
+* state at fold
+
+- =registry/{commons,testing,development}= live; =~/.viva/registry.json= = three checkout paths +
+  =education= + =stucatch=; shelf instances renamed (daemon =development=, =@development/*= kernels);
+  the education clone's recipes back to =@viva/*= (pristine).
+- code touched this session, all uncommitted: =subsystems/paladin/prototypes/{vip.js,ledger/registry.js}=,
+  =subsystems/paladin/tests/{registry,kernel,instance.snapshot,source}.test.js=, 9 runtime/kajuit/ghost
+  test repoints, =systems/ghost/trajectories/ledger/index.js= (doctor =present=), =registry/commons/…=
+  (3 manifests, compose mount, =corpus.viva.js= owner), README · 50.01 · 41.01, 8 ikiro world/skill files.
+- suites at fold: paladin 28 (138) · runtime 53 (327) · kajuit 35 (126) · ghost 77 · sheets 37 ·
+  typology 122 + 1 pre-existing red (unchanged both sides).
+- =quests/m47-commons.org= DRAFTED; =quests/index.md= live (7); frontier line; memory
+  =project_package_rename_commons_testing_development= + m11 pointer.
+
+* corrections ledger (self-caught, no callouts)
+
+- literal grep blind to relative imports → beat 4 red → rule: rename blasts grep =\.\./(old)/= too.
+- BSD =sed= has no =\b= → =daemons = [playground]= untouched → verify grep caught it → explicit forms.
+- perl with a newline-joined =$FILES= = one filename → no-op → residue grep caught it → =xargs -0=.
+- exact-pristine revert is per LINE; a line holding a pristine and an edited occurrence over-reverts → the
+  =git diff= "-" check named it → hand-fix. A token-level revert would need the diff itself, not text sets.
+- vcs-guard fired on the PHRASE "git sees" inside a memory heredoc → wrote the file with the Write tool.
+- the world-shard census sentence ("only 2 of the 5 are literally named package.viva.js") was wrong on
+  disk (it is 3 of 5) — fixed while restamping.
+
+* loose ends
+
+- commit — beef's (plain =mv=: VCS shows old trees deleted, new dirs untracked).
+- images: all three Dockerfiles =COPY registry/=; rebuild owed. Prod's record heals itself now (reconcile).
+- README / 50.01 =ls ~/.viva/instances/hello-world= line names =development.js= — stale against beef's
+  in-flight hello-world restructure; recapture when it settles.
+- =~/.viva/instances/*/mountpoint/daemon_playground/= orphans (old db inside); next boot mints
+  =daemon_development=.
+- m47 forks F1–F7 await beef; M3 will touch the education clone's recipes (cross-repo push, his).
+- the runtime SKIP line "runtime up on playground" reads the still-running pre-rename live process.

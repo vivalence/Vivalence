@@ -17,7 +17,7 @@ import Example from "../../../src/components/Example.astro"
 import Trace from "../../../src/components/Trace.astro"
 import Tabs from "../../../src/components/Tabs.astro"
 
-A Mode is one citizen. An **Instance** is the whole recipe — runtime, daemons, services, client. `@viva/instance/standalone` is the shortest complete thing Vivalence can be: one file that declares a persisted entity, a domain, a mode with a face and an LLM coach, the machine that boots them, and some placeholder data.
+A Mode is one citizen. An **Instance** is the whole recipe — runtime, daemons, services, client. `@commons/instance/standalone` is the shortest complete thing Vivalence can be: one file that declares a persisted entity, a domain, a mode with a face and an LLM coach, the machine that boots them, and some placeholder data.
 
 This page walks the file section by section — what each part declares and why it is the way it is. Its sibling [[32.01_anatomy-of-an-instance]] follows the same file through the machine: what paladin, the runtime and the daemon do with each of these declarations at boot. Build here, understand there.
 
@@ -316,7 +316,7 @@ export const runtime = {
   slug: "standalone-runtime",
   statics: { serve: () => new Url(paladin.env.get("VIVA_RUNTIME_SERVE")) },
   datamap: {
-    module: "@viva/datamap/libsql",
+    module: "@commons/datamap/libsql",
     statics: { db: { file: `runtime.viva.db` } },
   },
 };
@@ -327,17 +327,13 @@ export const daemons = [
     docs: { name: "Standalone", valence: "the m39 one-file machine", icon: { emoji: "🃏" } },
     statics: {},
     kernel: [domain, flashcard],
-    lighthouse: {
-      module: "@viva/lighthouse/multiplayer",
-      statics: { remote: () => new Url(paladin.env.get("PUBLIC_VIVA_LIGHTHOUSE_REMOTE")) },
-    },
     datamap: {
-      module: "@viva/datamap/libsql",
+      module: "@commons/datamap/libsql",
       statics: { db: { file: `standalone.viva.db` } },
     },
     hallucinators: [
       {
-        module: "@viva/hallucinator/anthropic",
+        module: "@commons/hallucinator/anthropic",
         statics: {},
         secrets: { key: () => paladin.secret.get("SECRET_VIVA_ANTHROPIC_API_KEY") },
       },
@@ -347,7 +343,7 @@ export const daemons = [
 ];
 ```
 
-`kernel: [domain, flashcard]` is the whole daemon — the two objects declared above, inline. In a grown instance these are registry references (`"@education/domain/language-learning"`); the mechanism is the same, the daemon doesn't care where its kernel entries come from. Around the kernel, the daemon picks its services: a datamap for persistence, a lighthouse for identity, hallucinators for intelligence. Each is a `{module, statics, secrets}` reference — configuration for a module that lives in the registry, resolved at boot.
+`kernel: [domain, flashcard]` is the whole daemon — the two objects declared above, inline. In a grown instance these are registry references (`"@education/domain/language-learning"`); the mechanism is the same, the daemon doesn't care where its kernel entries come from. Around the kernel, the daemon picks its services: a datamap for persistence, hallucinators for intelligence — identity comes from the instance's `lighthouse` unless the daemon binds its own. Each is a `{module, statics, secrets}` reference — configuration for a module that lives in the registry, resolved at boot.
 
 Note what is *not* here: no ports hardcoded, no keys inline. Every environment read is a thunk into `paladin.env` or `paladin.secret`.
 
@@ -355,17 +351,18 @@ Note what is *not* here: no ports hardcoded, no keys inline. Every environment r
 export const services = [
   {
     slug: "multiplayer",
-    module: "@viva/lighthouse/multiplayer",
+    module: "@commons/lighthouse/multiplayer",
     secrets: { jwt: () => paladin.secret.get("SECRET_VIVA_JWT") },
     statics: { serve: () => new Url(paladin.env.get("VIVA_LIGHTHOUSE_SERVE")) },
     datamap: {
-      module: "@viva/datamap/libsql",
+      module: "@commons/datamap/libsql",
       statics: { db: { file: `lighthouse.viva.db` } },
     },
   },
 ];
 
 export const lighthouse = {
+  module: "@commons/lighthouse/multiplayer",
   statics: { remote: () => new Url(paladin.env.get("PUBLIC_VIVA_LIGHTHOUSE_REMOTE")) },
 };
 
@@ -375,50 +372,39 @@ export const clients = {
     traits: ["ATTACHED"],
     statics: {
       serve: () => new Url(paladin.env.get("VIVA_CLIENT_KAJUIT_SERVE")),
-      lighthouse: {
-        remote: () => new Url(paladin.env.get("PUBLIC_VIVA_LIGHTHOUSE_REMOTE")),
-      },
     },
   },
 };
 ```
 
-The lighthouse appears twice on purpose. Under `services` it is *hosted*: the instance runs its own identity service, attached inside the runtime's path tree. Under `lighthouse` (and in the daemon above) it is *consumed*: a remote URL. In this instance both point at the same instance — the standalone is self-sufficient — but the split is what lets a fleet of instances share one lighthouse later. The kajuit client is `ATTACHED` the same way: part of this recipe, served alongside.
+The lighthouse appears twice on purpose. Under `services` it is *hosted*: the instance runs its own identity service, attached inside the runtime's path tree. Under `lighthouse` it is *consumed*: a module and a remote URL, inherited by every daemon. In this instance both point at the same instance — the standalone is self-sufficient — but the split is what lets a fleet of instances share one lighthouse later. The kajuit client is `ATTACHED` the same way: part of this recipe, served alongside.
 
 ## environment
 
 The declaration reads its environment; two files supply it, side by side at the instance root.
 
-```js title="hello-world.viva.js — the environment schema, beside the manifest"
-export const environment = {
-  VIVA_RUNTIME_ORIGIN: {
-    describe: "Scheme and authority the runtime is reachable at. Everything below derives from it.",
-    default: "http://localhost:2601",
-    group: "addresses",
-  },
-  VIVA_RUNTIME_SERVE: {
-    describe: "Base URL the runtime serves on.",
-    default: "${VIVA_RUNTIME_ORIGIN}/",
-    group: "addresses",
-  },
-  PUBLIC_VIVA_LIGHTHOUSE_REMOTE: {
-    describe: "Lighthouse address as consumed — by the daemons, and by the browser after publish().",
-    default: "${VIVA_RUNTIME_ORIGIN}/attached/process/lighthouse/multiplayer",
-    group: "addresses",
-  },
-  SECRET_VIVA_JWT: {
-    describe: "Lighthouse signing secret. Generate with: openssl rand -base64 24",
-    group: "keys",
-  },
-};
+```js title="instance.viva.js — the environment schema, beside the manifest"
+export const environment = v.environment({
+  VIVA_RUNTIME_ORIGIN: v.url().desc("Scheme and authority the runtime is reachable at. Every address below derives from it.").default("http://localhost:2501").group("addresses"),
+  VIVA_CLIENT_KAJUIT_ORIGIN: v.url().desc("Scheme and authority the kajuit browser client is reachable at.").default("http://localhost:1794").group("addresses"),
+  VIVA_RUNTIME_SERVE: v.url().desc("Base URL the runtime serves on. Everything else hangs off this latch.").default("${VIVA_RUNTIME_ORIGIN}/").group("addresses"),
+  VIVA_LIGHTHOUSE_SERVE: v.url().desc("Where the hosted lighthouse attaches inside the runtime's own path tree.").default("${VIVA_RUNTIME_ORIGIN}/attached/process/lighthouse/multiplayer").group("addresses"),
+  VIVA_CLIENT_KAJUIT_SERVE: v.url().desc("Where the kajuit browser client serves.").default("${VIVA_CLIENT_KAJUIT_ORIGIN}/").group("addresses"),
+  PUBLIC_VIVA_RUNTIME_REMOTE: v.url().desc("Runtime address the browser bundle calls. Reaches it through publish(), not a thunk.").default("${VIVA_RUNTIME_SERVE}").group("addresses"),
+  PUBLIC_VIVA_LIGHTHOUSE_REMOTE: v.url().desc("Lighthouse address as CONSUMED — by the daemons, and by the browser after publish().").default("${VIVA_LIGHTHOUSE_SERVE}").group("addresses"),
+  SECRET_VIVA_JWT: v.string({ minLength: 24 }).desc("Lighthouse signing secret. Generate with: openssl rand -base64 24").group("keys"),
+  SECRET_VIVA_ANTHROPIC_API_KEY: v.string().desc("Anthropic key. Without one the daemon attaches no hallucinator and /hello/agent answers as the bot.").group("keys").optional(),
+});
 ```
 
 There is exactly one environment **file** — `.env`, at the instance root, never committed — and
 exactly one **schema**, the export above. The schema is authored, because a machine cannot write
-"the coach needs one"; it is not generated. What *is* derived is the other direction: `hydrate`
+"the coach needs one"; it is not generated. Each key carries a `v` type — that is what the doctor validates the resolved
+value against — and `.optional()` is the only way to say a key is not owed. What *is* derived is the
+other direction: `hydrate`
 fires every thunk in the declaration through one pinhole and records which variables each one
-read, so `viva instance/doctor` can name every key, the exact site that needs it, and whether what
-it produced is usable. A key read by a thunk but described nowhere is the one drift that is always
+read, so `viva instance/doctor` can name every key, the exact site that needs it, and whether the value it
+found is valid against the declared type — a scheme-less origin is `INVALID`, named with its reason. A key read by a thunk but described nowhere is the one drift that is always
 a bug, and it is reported.
 
 A default may reference another key with `${VAR}`. Expansion happens on read, so the written
@@ -431,7 +417,7 @@ schema carried survive in your `.env`.
 ## run it
 
 ```sh
-viva instance/create @viva/instance/standalone     # → <ledger>/instances/standalone
+viva instance/create @commons/instance/standalone     # → <ledger>/instances/standalone
 viva instances/use standalone                        # select it for this shell
 viva instance/init                                  # prompts for what the schema says is owed
 viva instance/run                                   # raises the runtime and the kajuit client
@@ -445,7 +431,7 @@ this shell's session file, or as one upserted line in `<ledger>/.env` with `--le
 the instance's own lighthouse:
 
 ```sh
-viva instance/auth signup <username> <password>
+viva instance/lighthouse signup <username> <password>
 ```
 
 The flashcard coach is `HARNESSED`, so it wants `SECRET_VIVA_ANTHROPIC_API_KEY`. The deck, the review

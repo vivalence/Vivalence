@@ -1,4 +1,7 @@
-// import { RequestContext } from "@mikro-orm/core";
+const refuse = (ctx, status, code, message) => {
+  ctx.response.status = status;
+  ctx.response.body = { status: "ERROR", error: { code, message } };
+};
 
 export function authority(provider) {
   return async (ctx, next) => {
@@ -7,64 +10,34 @@ export function authority(provider) {
   };
 }
 
-export function authorize(claims = []) {
+export function authenticate() {
   return async (ctx, next) => {
+    if (ctx.identity) return await next();
     const header = ctx.request.headers?.get("authorization");
     const param = ctx.request.url.searchParams?.get("token");
     const token = header?.startsWith("Bearer ") ? header.split(" ")[1] : param;
-
-    if (!token) {
-      ctx.response.status = 401;
-      ctx.response.body = {
-        status: "ERROR",
-        error: {
-          code: "MISSING_TOKEN",
-          message: "Authorization header or token param required",
-        },
-      };
-      return;
-    }
-
+    if (!token) return refuse(ctx, 401, "MISSING_TOKEN", "Authorization header or token param required");
     try {
       ctx.identity = await ctx.authority.authenticate(token);
     } catch (error) {
-      ctx.response.status = 401;
-      ctx.response.body = {
-        status: "ERROR",
-        error: { code: "INVALID_TOKEN", message: error.message },
-      };
-      return;
+      return refuse(ctx, 401, "INVALID_TOKEN", error.message);
     }
-
-    try {
-      ctx.user = await ctx.identity.getUser();
-    } catch (error) {
-      ctx.response.status = 500;
-      ctx.response.body = {
-        status: "ERROR",
-        error: {
-          code: "USER_LOOKUP_FAILED",
-          message: "Failed to retrieve user",
-        },
-      };
-      return;
-    }
-
-    if (!ctx.user) {
-      ctx.response.status = 401;
-      ctx.response.body = {
-        status: "ERROR",
-        error: { code: "USER_NOT_FOUND", message: "User does not exist" },
-      };
-      return;
-    }
-
-    // RequestContext.getEntityManager().setFilterParams("user", { id: ctx.user.id });
-
-    // if (claims.length > 0) {const userClaims = ctx.user.claims || []; const missing = claims.filter(c => !userClaims.includes(c)); if (missing.length > 0) {ctx.response.status = 403; ctx.response.body = {status: "ERROR", error: { code: "INSUFFICIENT_CLAIMS", message: `Missing claims: ${missing.join(", ")}` }}; return;}}
-
     await next();
   };
+}
+
+export function authorize() {
+  const identify = authenticate();
+  const admit = async (ctx, next) => {
+    try {
+      ctx.user = await ctx.identity.getUser();
+    } catch {
+      return refuse(ctx, 500, "USER_LOOKUP_FAILED", "Failed to retrieve user");
+    }
+    if (!ctx.user) return refuse(ctx, 401, "USER_NOT_FOUND", "no userspace in this daemon — /userspace/handshake first");
+    await next();
+  };
+  return (ctx, next) => identify(ctx, () => admit(ctx, next));
 }
 // export function authorize(claims = []) {
 //   return async (ctx, next) => {

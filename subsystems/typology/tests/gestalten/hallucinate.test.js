@@ -265,5 +265,33 @@ specimen.describe("shard.hallucinate", () => {
       }
       specimen.expect(thrown.message).toContain("closed error");
     });
+
+    specimen.it("the thrown message carries the provider fault — the reason a 500 was minted is never dropped", async () => {
+      const refused = {
+        type: "dialogue",
+        via: {
+          render: async () => {
+            throw { kind: "request", retryable: false, provider: { status: 401, message: "Could not resolve authentication method" } };
+          },
+        },
+      };
+      let thrown = null;
+      try {
+        await render(refused, { turns: [userTurn("hi")] }, { rounds: 2, backoff: [], tools: new Vector() });
+      } catch (error) {
+        thrown = error;
+      }
+      specimen.expect(thrown.message).toContain("closed error after 1 rounds");
+      specimen.expect(thrown.message).toContain("Could not resolve authentication method");
+
+      const plain = { type: "dialogue", via: { render: async () => { throw new Error("down"); } } };
+      thrown = null;
+      try {
+        await render(plain, { turns: [userTurn("hi")] }, { rounds: 2, backoff: [], tools: new Vector() });
+      } catch (error) {
+        thrown = error;
+      }
+      specimen.expect(thrown.message).toContain("down");
+    });
   });
 });

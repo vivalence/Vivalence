@@ -28,3 +28,7 @@ temp
 build
 **/build
 **/.svelte-kit
+
+commons/playground
+commons/fixtures
+**/tmp

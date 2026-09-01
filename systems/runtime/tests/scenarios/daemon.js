@@ -77,13 +77,21 @@ export async function create() {
 
   datamap.subscribe(shape.subscriber(daemon.twitch));
 
+  const TOKENS = { "test-token": "test-identity", "fresh-token": "fresh-identity" };
+  const enrolled = new Map([["test-identity", fixtures.user]]);
   daemon.aperture.use(async (ctx, next) => {
     ctx.authority = {
       authenticate: async (token) => {
-        if (token === "test-token") {
-          return { getUser: async () => fixtures.user };
-        }
-        throw new Error("invalid token");
+        const id = TOKENS[token];
+        if (!id) throw new Error("invalid token");
+        return {
+          identity: { id },
+          getUser: async () => enrolled.get(id) ?? null,
+          enroll: async () => {
+            if (!enrolled.has(id)) enrolled.set(id, { ...fixtures.user, id });
+            return enrolled.get(id);
+          },
+        };
       },
     };
     await next();
@@ -117,11 +125,17 @@ export async function create() {
     await next();
   });
 
+  const freshConn = new Connection(new Url("http://test"), shard.transmitter.inline(handler));
+  freshConn.use(async (ctx, next) => {
+    ctx.request.headers.set("authorization", "Bearer fresh-token");
+    await next();
+  });
+
   const scoped = (fn) => RequestContext.create(orm.em, async () => {
     const scopedEm = RequestContext.getEntityManager();
     scopedEm.setFilterParams("user", { user: fixtures.user.id });
     return fn(scopedEm);
   });
 
-  return { daemon, die, handler, conn, authedConn, orm, em, fixtures, mode, scoped };
+  return { daemon, die, handler, conn, authedConn, freshConn, orm, em, fixtures, mode, scoped };
 }

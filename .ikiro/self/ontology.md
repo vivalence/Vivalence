@@ -63,7 +63,7 @@ beef's verbatim words are the highest-fidelity signal in the system (→ [[lexic
 The agent-identity research verdict: ikiro is a near-complete instance of what the field independently converged on. The correspondences (know them; steal along them):
 
 ```
-kernel claude.md      = the constitution layer (CLAUDE.md/AGENTS.md/SOUL.md/CONVENTIONS.md) — stable cached prefix
+kernel ikiro.md       = the constitution layer (CLAUDE.md/AGENTS.md/SOUL.md/CONVENTIONS.md) — stable cached prefix
 self/ + world/        = CoALA semantic memory, factored along its own definition ("world and itself")
 compacts/             = episodic memory (Generative Agents reflection; OpenClaw daily-log distillation)
 zettelkasten Callouts = Reflexion, verbatim: act → feedback → verbalize → persist → condition

@@ -21,7 +21,7 @@ export class Vip {
     const declaration = modules.find((module) => module.manifest?.type === "package");
     const owner = declaration?.manifest?.owner;
     if (modules.length && !owner)
-      throw new Error(`[VIP] mount ${home}: package declares no owner — author manifest.owner (e.g. "@viva")`);
+      throw new Error(`[VIP] mount ${home}: package declares no owner — author manifest.owner (e.g. "@commons")`);
 
     for (const module of modules) {
       // stamp on a COPY — read.viva returns the live module namespace; don't mutate the import.
@@ -36,9 +36,13 @@ export class Vip {
   }
 
   async supply() {
-    const locations = await this.paladin.ledger.registry.read()
-      ?? await this.paladin.ledger.registry.seed(this.paladin.scope.repository.branch("registry"));
-    for (const location of locations) await this.mount(this.paladin.ledger.registry.resolve(location));
+    const registry = this.paladin.ledger.registry;
+    const checkout = this.paladin.scope.repository;
+    const commons = checkout?.branch("commons");
+    const reconciled = await registry.reconcile(checkout, commons);
+    const locations = reconciled?.locations ?? await registry.seed(commons);
+    this.stale = reconciled?.stale ?? [];
+    for (const location of locations) await this.mount(registry.resolve(location));
     return this;
   }
 

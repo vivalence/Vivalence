@@ -1,4 +1,4 @@
-import { Type } from "typebox";
+import { IsOptional, Type } from "typebox";
 import { Value } from "typebox/value";
 import { Compile } from "typebox/compile";
 
@@ -18,6 +18,10 @@ function enhance(schema) {
       if (prop === "default") {
         if ("default" in target) return target.default;
         return (val) => enhance(derive(target, { default: val }));
+      }
+      if (prop === "group") {
+        if ("group" in target) return target.group;
+        return (name) => enhance(derive(target, { group: name }));
       }
       if (prop === "check") return (value) => Value.Check(target, value);
       if (prop === "decode") return (value) => Value.Decode(target, value);
@@ -120,8 +124,10 @@ export const v = {
   encode: (schema, value) => Value.Encode(schema, value),
   fill: (schema, value) => (Value.Default(schema, value), value),
   cast: (schema, value) => (Value.Default(schema, value), Value.Convert(schema, value), value),
+  convert: (schema, value) => Value.Convert(schema, value),
   errors: (schema, value) => Value.Errors(schema, value),
   create: (schema) => Value.Create(schema),
   clean: (schema, value) => Value.Clean(schema, value),
+  isOptional: (schema) => IsOptional(schema),
   compile: (schema) => Compile(schema),
 };

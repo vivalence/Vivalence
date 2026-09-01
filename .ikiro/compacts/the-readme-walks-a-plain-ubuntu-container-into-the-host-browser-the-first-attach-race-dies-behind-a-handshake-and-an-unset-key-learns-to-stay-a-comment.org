@@ -1,0 +1,232 @@
+#+title: the README walks a plain ubuntu container into the host browser, the first-attach race dies behind a handshake, and an unset key learns to stay a comment
+#+filetags: :docker:readme:m46:walk:ghost:paladin:typology:runtime:kajuit:secure:userspace:handshake:env:instance:init:landing:commons:lighthouse:
+
+* what happened, in one breath
+
+Same session as compact 37 (the docs survey), continued past its fold. beef: /"read the local readme. setup a
+docker image plain ubuntu. go through the instructions step by step. end with a running setup inside thats
+live service hello world on ports xyz localhost. test it from the outside. tell me when youre done."/ The fourth
+README walk — the first with published ports and a browser: stock =ubuntu:24.04=, the LOCAL working tree
+(GitHub =b27e0e6= has no =commons/=), README 0–6 headless under =VIVA_PROCESS_ID=1=, a 4-line =.env= bind edit
+(SERVE origins on =0.0.0.0=, PUBLIC remotes on =localhost=), hello-world LIVE on host =127.0.0.1:2501/1794=,
+=bot= and =agent= clicked in Chrome. One code defect: the first browser sign-in of a fresh identity showed
+=DAEMONS 0 · hello status · error · Unauthorized — insert into `User`…= — kajuit's seven-call burst racing the
+=User= insert, the loser's =UNIQUE constraint failed= masked as =INVALID_TOKEN=. beef wanted it /"from the
+other side aswell … fire a status and userspace/status request … and then the propper handling of security"/
+→ =go= → =shard.secure= split into =authenticate()= (identity, daemon root) and =authorize()= (user, reads
+only), the multiplayer provider's =enroll()= became ONE upsert behind =/userspace/handshake=, and kajuit
+handshakes before its burst; 40 parallel handshakes land one row, =beta='s first visit is healthy. Then the
+containers died on /"KILL KILL KILLLLLLLLLLLLLLLLL"/. Then his own shelf: the ledger's Anthropic key vanished
+behind an instance =SECRET_VIVA_ANTHROPIC_API_KEY=""= — measured at =Env.get= (first stratum whose value is
+not =undefined=) — and his ruling /"commented always. no copy default from global .env"/ landed as
+=paladin.state.line=: ghost never writes =KEY=""=, an unset key is =# KEY=""=, the wizard fills that slot in
+place. Zero VCS; everything uncommitted.
+
+* spine (N=20 · rows 1–7 folded in compact 37 · 8–9 harness · 10–20 this window)
+
+| n  | beef asked                                                                                                                           | landed / decided |
+|----+--------------------------------------------------------------------------------------------------------------------------------------+------------------|
+| 1–7 | /"ikiro wake docs"/ … /"ikiro compact"/                                                                                              | FOLDED → compact 37 (the docs survey) |
+| 8  | =/compact= (local)                                                                                                                   | NOTHING — the harness fold |
+| 9  | the continuation summary (harness, not beef)                                                                                         | NOTHING |
+| 10 | /"read the local readme. setup a docker image plain ubuntu. go through the instructions step by step. end with a running setup inside thats live service hello world on ports xyz localhost. test it from the outside. tell me when youre done."/ | the docker-live walk: container =readmen-live=, README 0–6, live on the host, Chrome click-through; L30 found + pinned 1/40; L31–L35 ledgered; quest section, known-issue, memory |
+| 11 | quotes my L30 report, then: /"we want to approch this from the other side aswell. Maybe before anything we should fire a status and userspace/status request to get everything chico. and then the propper handling of security of course."/ | measured the attach burst, the gates, the provider, the per-request EM fork, =/userspace/handshake= (exists, tested, never called); proposed the two-gate + handshake-first design; waited |
+| 12 | /"go."/                                                                                                                              | LANDED secure split · provider verify-only + =enroll= upsert · handshake at identity level · kajuit handshakes first · =enroll.test.js= + 2 userspace tests; live-proven in the container; records |
+| 13 | /"stop the docker container"/                                                                                                        | =docker stop readmen-live= |
+| 14 | quotes my "Still up … Container kept, not removed", then: /"KILL KILL KILLLLLLLLLLLLLLLLL"/                                           | =docker rm -f= all four walk containers |
+| 15 | MID-TURN /"murder on my mind"/                                                                                                       | NOTHING (four bodies reported) |
+| 16 | /"No hallucinator attached. Bot says high. /Users/finn/.viva/.env secret anthropic key. /Users/finn/.viva/instances/hello-world/.env overwrites to \"\". which makes more sense, to use .env as default copied. or skip env var copy to instance/.env if not set. also strong! maybe if not set then still copy but commented. lets always on .env create write all keys, but ones not set as # comments."/ | measured: =Env.get= takes the first stratum whose value is not =undefined= → =""= at =instance= beats =ledger=; proposed =state.line= + in-place uncomment; waited |
+| 17 | /"commented always. no copy default from global .env"/                                                                               | the decision |
+| 18 | MID-TURN /"go"/                                                                                                                      | LANDED =paladin.state.line= + =state.env= in-place uncomment + =envfile.scaffold=; tests +4 / init test; live on a scratch instance: doctor reads the key from =ledger= |
+| 19 | /"ikiro compact"/                                                                                                                    | this fold |
+| 20 | MID-TURN =/compact=                                                                                                                  | NOTHING — the harness fold |
+
+Balance: of the eleven live rows, 10 carries the walk, 11–12 the race, 13–15 the kill, 16–18 the env law,
+19–20 the fold. The arc below cites each cluster once; nothing tilts to the tail.
+
+* the arc
+
+** the fourth walk — published ports, a browser, the LOCAL tree (row 10)
+
+The harness reused m46's shape (scripts by Write, =docker cp=, =docker exec=) with three changes: the container
+publishes =127.0.0.1:2501= and =:1794= (the moat), every script exports =VIVA_PROCESS_ID=1= (the container's
+=sleep= is pid 1 — alive forever, never doctor-reaped, so one "terminal" across every =docker exec=), and the
+walked tree is the local working tree tarred without VCS/node_modules/=.env=/db files (130 MB, 6387 entries).
+The README's own clone line was run verbatim as a probe: GitHub =b27e0e62e= "fix docs" has NO =commons/=, its
+README names =@viva/instance/hello-world=, sha =c9cb1424…= vs the local =dfd3b0f0…= — the local README cannot
+be walked from the published tree; that is a push, not a text edit.
+
+Steps, with walls: line 1 verbatim FAILS (=sudo: command not found=, exit 127; and no =apt-get update= precedes
+it anywhere), root+update 45 s · deno 5 s · clone 35 s · =deno task install= 20 s · =ledger/doctor= answers
+before =ledger/init= · =ledger/init= headless 0 s (one stray =paladin.scope overwrite= line, =persisted
+false=; the doctor block then matches the README byte-for-byte modulo path) · =registry/list= seeds =@commons
+22= (a keyed block for its single row — the README's table appears only at two rows), tap education 9 s ·
+=instance/create= matches beef's macOS output line for line, shelf byte-identical · bare =instance/init= without
+a tty prints =env present · next viva instance/init <username> <password>= (the headless form the README never
+names), JWT MINTED (function default, first time on linux), Anthropic blank+optional · =instance/init admin
+changeme= 8 s, teardown clean, =problems —=.
+
+The docker edit — the one thing the README does not know:
+
+#+BEGIN_SRC sh
+VIVA_RUNTIME_ORIGIN="http://0.0.0.0:2501"          # Deno on localhost binds [::1] only; docker-proxy is IPv4
+VIVA_CLIENT_KAJUIT_ORIGIN="http://0.0.0.0:1794"    # vite host follows it
+PUBLIC_VIVA_RUNTIME_REMOTE="http://localhost:2501/"
+PUBLIC_VIVA_LIGHTHOUSE_REMOTE="http://localhost:2501/attached/process/lighthouse/multiplayer"
+#+END_SRC
+
+The schema's SERVE ⟷ PUBLIC split is what makes it four lines. =instance/run= detached via =docker exec -d=:
+=:2501/status= 200 after 4 s, =:1794/= 200 after 5 s. From the host: =/status= ALIVE (label
+=http://0.0.0.0:2501/=), =/manifest= byte-identical to the README, =/= 404 =null=, kajuit HTML, =curl -4= 200
+/ =curl -6= 000, =lsof= owner =com.docker.backend=, =POST …/auth/login= SUCCESS and =INVALID_CREDENTIALS= on a
+wrong password. Inside: ONE lock =hello-world.lock= with a =processes= table (README §5 still says "writes only
+its own lock"), =instance/lighthouse signup reader secret= SUCCESS. Chrome: signin → =hello= → =hello-world= →
+OPEN → =bot= "Bot says high." · =agent= "No hallucinator attached. Bot says high." — the README's own sentence.
+
+Ledgered L31–L35: =sudo=/=apt-get update= (§0) · GitHub behind (push) · one lock per instance (§5) · the
+headless form (§4) · the port-publish paragraph (50.01). Whole walk ≈ 2 min of machine time.
+
+** the first-attach race, and the two gates (rows 11, 12)
+
+On the FIRST visit the daemons panel said =0= and the =hello= row read =status · error · Unauthorized — insert
+into `User` (`id`, `created_at`, `updated_at`, `r…=. A reload was healthy. Pinned from the host with a fresh
+identity and 40 parallel =POST /daemon/hello/status=:
+
+#+BEGIN_EXAMPLE
+ 1 {"status":"ERROR","error":{"code":"INVALID_TOKEN","message":"insert into `User` (`id`, `created_at`, `updated_at`, `roles`, `config`) values (…) - SQLITE_CONSTRAINT: UNIQUE constraint failed: User.id"}} [401]
+39 {"code":"ALIVE"} [200]
+#+END_EXAMPLE
+
+Mechanism: =commons/lighthouses/multiplayer/provider/index.js:28-32= did =findOne → create → flush= per request
+on a per-request EM fork (=datamap.inject= → =RequestContext.create=, so the race is DB-level, not an
+identity-map leak); kajuit's =dossier.js mount()= fired seven daemon calls within 2 ms of gate-open; the loser's
+INSERT died on the primary key; =secure.js= wrapped ANY throw out of =authenticate= as =401 INVALID_TOKEN=.
+Six parallel from the host: 0/6 — docker-proxy staggers past the window; the browser hit it every time.
+
+beef, verbatim: /"we want to approch this from the other side aswell. Maybe before anything we should fire a
+status and userspace/status request to get everything chico. and then the propper handling of security of
+course."/ — =/userspace/handshake= already existed (=userspace.js:41=, tested, returning ={success, user}=) and
+kajuit never called it. Design proposed, four forks named (keep =handshake= or rename to his word; =/status= +
+=/metadata/*= identity-level or open; the 8 lighthouse =/auth/verify= round-trips per attach; Vector =.use=
+ordering), then /"go."/ with the defaults.
+
+Landed:
+
+#+BEGIN_SRC js
+// subsystems/typology/gestalten/shard/secure.js — two gates, idempotent, layer freely
+authenticate()  token → ctx.identity        401 MISSING_TOKEN · 401 INVALID_TOKEN (only ever the token now)
+authorize()     identity → ctx.user (READ)  500 USER_LOOKUP_FAILED · 401 USER_NOT_FOUND "no userspace in this daemon — /userspace/handshake first"
+
+// commons/lighthouses/multiplayer/provider/index.js — verify only; enroll = ONE statement; verify injectable (3rd param)
+enroll: async () => {
+  await users.upsert({ id: identity.id, roles: ["USER"], config: {} }, { onConflictAction: "ignore" });
+  return users.findOne({ id: identity.id });
+},
+
+// systems/runtime/daemon/lifecycle/resolution.js:6-8   root = authenticate() · bind("user") reads ctx.user?.id
+// systems/runtime/daemon/aperture/userspace.js         /handshake → ctx.identity.enroll() (identity level) · /entities/* behind authorize()
+// systems/kajuit/src/typology/entities/daemon/dossier.js   await handshake, THEN the seven-call burst
+#+END_SRC
+
+Dispatch composes ancestor carries at traverse time (=shape/http.js:13=), so registration order never mattered;
+a bare =.use(authorize())= stays self-sufficient because =authorize= runs =authenticate= itself when no identity
+is on the context. Tests: =enroll.test.js= (reads-never-makes · 40 parallel enrolls → one row · roles survive
+re-enroll — the real provider with an injected verifier), =userspace.test.js= +2, the scenario's fake authority
+grew =identity/getUser/enroll= and a =freshConn=. Live in the container after a =docker cp= + restart: 40
+parallel status on a never-enrolled identity → 40 × 200; entities before handshake → =401 USER_NOT_FOUND=; 40
+parallel handshakes → rows 3→4; =beta='s first sign-in =hello status · healthy · modes 1=, the handshake closing
+before =/status= answers.
+
+** four bodies (rows 13–15)
+
+/"stop the docker container"/ → stopped, ports free. My reply advertised that =readmen-ubuntu= and
+=readmen-alpine= still ran and that =readmen-live= was kept, not removed. /"KILL KILL KILLLLLLLLLLLLLLLLL"/ →
+=docker rm -f readmen-live readmen-ubuntu readmen-alpine readmen=. None remain. /"murder on my mind"/.
+
+** an unset key learns to stay a comment (rows 16–18)
+
+His shelf: =~/.viva/.env= holds the Anthropic key; the instance scaffold had written
+=SECRET_VIVA_ANTHROPIC_API_KEY=""=; the daemon said "No hallucinator attached". The scratch instance from
+compact 37 was stale against the moving tree (=lighthouse: must have required properties module=), so the
+measurement dropped to the unit:
+
+#+BEGIN_EXAMPLE
+instance blank  → get: ""                · provenance: instance      Env.get returns the first stratum whose value !== undefined
+instance absent → get: "sk-ledger-probe" · provenance: ledger
+#+END_EXAMPLE
+
+beef weighed three shapes and chose — /"lets always on .env create write all keys, but ones not set as #
+comments"/, then /"commented always. no copy default from global .env"/, then /"go"/. Landed as one grammar:
+
+#+BEGIN_SRC js
+// subsystems/paladin/belt/state.js
+line: (key, value) => (value == null || value === "" ? `# ${key}=""` : `${key}="${value}"`),
+// env(): the upsert regex also matches a COMMENTED BLANK (`#\s*KEY=""`) and fills it in place; a parked
+//        `# KEY="disabled"` is left alone and the live line appends; writing "" comments a key you unset.
+// systems/ghost/belt/envfile.js scaffold() rides paladin.state.line — ledger/init and instance/init both.
+#+END_SRC
+
+Tests: =state.env.test.js= +4 (blank → commented · scaffolded blank uncommented in place, no twin · unsetting
+comments in place · the grammar), the ghost init test pins =# SECRET_VIVA_JWT=""= + =# …_OPTIONAL=""=, the
+instance stratum claiming neither, and the writer filling the slot under its description. Fresh scratch
+instance on the current tree: =SECRET_VIVA_JWT="9rk6…"= minted, =# SECRET_VIVA_ANTHROPIC_API_KEY=""=, doctor
+=SECRET_VIVA_ANTHROPIC_API_KEY *** ledger · problems —=. L24 (ledger =VIVA_REPOSITORY_MOUNT=""=) dissolves
+with it. Suites: paladin 37/37 · ghost 80/1 (=strata.wet= two-shells, pre-existing).
+
+* state at fold
+
+- LANDED, uncommitted: the secure split (=secure.js=, =provider/index.js=, =resolution.js=, =userspace.js=,
+  =dossier.js=, three test files) · the env grammar (=state.js=, =envfile.js=, two test files) · the m46 walk
+  section with scripts + logs, L30–L35, two changelog lines, two release lines · known-issues
+  =first-attach-user-insert-race= RESOLVED · frontier, =world/ledger.md=, ghost + runtime shards · memories
+  =project_readmen_live_container= (new), =project_environment_schematics= (appended).
+- Suites at fold: runtime 53/1 (=registry.count= fork 2 pins =@commons/instance/multiplayer= — beef's disk now
+  reads =commons/instances/{bak,hello-world,localhost}=, his rename in flight) · typology 122/1
+  (=hallucination.snapshot= pins the old =unknown tool: phantom= voice; live is =… — armed: …=, drift, untouched
+  by these diffs) · paladin 37/37 · ghost 80/1 (=strata.wet=, pre-existing).
+- Containers: none. Host ports free. Scratch: =<scratch>/live/= (scripts, logs, the 130 MB tar) and the scratch
+  ledger with a =live-probe= instance — session-local, disposable.
+- The canon path audit at this fold reports 95 leads: nearly all =registry/…= (now =commons/=, and the
+  audit's regex does not know =commons=) and =testament/variant= (now =instance=) inside memories that describe
+  the past, plus CLI verbs (=registry/list=, =registry/doctor=) read as paths. A lead generator, not a verdict;
+  left as measured.
+
+* corrections ledger (this window)
+
+- Tested =/userspace/handshake= at the runtime root and read 404 as a failure — daemon routes live under
+  =/daemon/<slug>/…=; the identity gate and the voices had already passed. Re-issued at the right path.
+- =for path in …= in zsh clobbered =PATH= (tied array) → "command not found: curl"; a =v()= helper collided with
+  a shell alias. Loop vars and helpers get names that are nobody's.
+- The Bash cwd drifted into =systems/runtime= and then =subsystems/paladin= between calls; one "ghost suite" run
+  was paladin's again, and three greps saw empty dirs. Absolute =cd= per command from then on.
+- Reported the first-attach error as "very likely UNIQUE" before pinning it; the 40-parallel probe pinned it
+  in the same turn. Measured, then said.
+- My container report told beef what was still running and what was kept; he wanted it dead. When he says
+  stop, the next line is what remains — and an offer to remove it, not a note that it is kept.
+
+* loose ends
+
+SETTLED this session: L30 (landed) · the ledger-key shadow (landed) · the walk containers (killed) · L24
+(dissolved by the unset law).
+
+CARRIED — beef's:
+- README text: §0 =sudo= / =apt-get update= · §4 the headless form · §5 one lock per instance · §2 first
+  =registry/list= shape · line 190: /"A key with no value is written commented out — it documents the key
+  without claiming it, so a value set machine-wide in ~/.viva/.env shows through."/ · 50.01 "behind a port
+  publish" paragraph + the same sentence. GitHub behind the local README — a push.
+- =registry.count= fork 2 → the slug follows his rename (=multiplayer= → =localhost=?). =hallucination.snapshot=
+  → regenerate or fix the voice. =strata.wet= two-shells (doctor reaper fork).
+- Design calls: rename =handshake= → =userspace/status= (his word) or keep; =/status= + =/metadata/*= are
+  identity-level by my default; 8 lighthouse =/auth/verify= round-trips per attach (the handshake could mint a
+  daemon grant); a doctor verdict for a hand-written =KEY=""= above a set lower stratum.
+- Commit — everything from compact 37 onward is uncommitted.
+
+Next: commit · the README line-190 sentence + §0/§4/§5 · the fork-2 slug.
+
+* quest report (derived at fold — `methods/quest-report.py`)
+
+| quest                    | progress  | status | next  | sessions   |
+|--------------------------+-----------+--------+-------+------------|
+| m46-linux-readmen        |  17% 3/18 | wip    | drain | 3 (1 live) |
+| m50-the-three-way-weave  |  60% 3/5  | wip    | blast | 0          |
+| m51-standalone-slowstart |   0% 0/18 | design | go    | 0          |

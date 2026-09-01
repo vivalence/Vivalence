@@ -35,9 +35,7 @@ export async function create(ctx) {
   if (await paladin.ledger.instances.read(slug)) {
     return (ctx.effect = { error: `instance '${slug}' exists — pass --slug=<other>` });
   }
-  const destination = target
-    ? resolve(path.cwd(), target)
-    : paladin.scope.ledger.branch(`instances/${slug}`).absolute;
+  const destination = target ? resolve(path.cwd(), target) : paladin.ledger.instances.shelf(slug).absolute;
 
   await clone.tree(mount, destination);
   await paladin.ledger.instances.write(slug, { mount: destination });
@@ -51,4 +49,8 @@ export async function create(ctx) {
   };
 
   if (ctx.signal.flags?.use) ctx.effect.selected = await ctx.call(["instances/use", destination]);
+  if (ctx.signal.flags?.init) {
+    paladin.env.set("VIVA_INSTANCE_MOUNT", destination, "flag");
+    ctx.effect.initialized = await ctx.call(["instance/init"]);
+  }
 }

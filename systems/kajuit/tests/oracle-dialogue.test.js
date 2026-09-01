@@ -1,6 +1,6 @@
 import { specimen, soma, Cortex } from "@vivalence/typology";
 import { mountMode } from "@vivalence/runtime/scenarios";
-import * as oracle from "../../../registry/playground/modes/chaosmonkey/oracle/oracle.viva.js";
+import * as oracle from "../../../commons/playground/chaosmonkey/oracle/oracle.viva.js";
 
 const lastUserText = (turns) => {
   for (let index = turns.length - 1; index >= 0; index--) {

@@ -13,7 +13,7 @@ export class App {
       mount = mount.mount;
     }
     this.schema = schema;
-    this.mount = mount ? new Path(mount) : null;
+    this.mount = mount ?? null;
     if (!this.mount && !this.source) throw new Error("App: mount or source required");
   }
 

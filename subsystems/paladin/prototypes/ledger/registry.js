@@ -57,10 +57,31 @@ export class Registry {
     return this.paladin.scope.registry.branch(reference);
   }
 
-  async seed(scope) {
+  async discover(scope) {
+    if (!scope || !(await Deno.stat(scope.absolute).catch(() => null))) return [];
     const declarations = await this.paladin.find.type(scope, "package");
-    const locations = [...new Set(declarations.map((module) => dirname(module.source.absolute)))];
+    return [...new Set(declarations.map((module) => dirname(module.source.absolute)))];
+  }
+
+  async seed(scope) {
+    const locations = await this.discover(scope);
     await this.write(locations);
     return locations;
+  }
+
+  async reconcile(checkout, commons) {
+    const held = await this.read();
+    if (!held) return null;
+    const present = async (reference) => Boolean(await Deno.stat(this.resolve(reference).absolute).catch(() => null));
+    const dead = [];
+    for (const reference of held) if (!(await present(reference))) dead.push(reference);
+    if (!dead.length) return { locations: held, stale: [] };
+    const inside = (reference) => Boolean(checkout) && this.resolve(reference).absolute.startsWith(`${checkout.absolute}/`);
+    const stale = dead.filter((reference) => !inside(reference));
+    const kept = held.filter((reference) => !dead.includes(reference) || stale.includes(reference));
+    const healed = dead.some(inside) ? (await this.discover(commons)).filter((location) => !kept.includes(location)) : [];
+    const record = [...kept, ...healed];
+    await this.write(record);
+    return { locations: record.filter((reference) => !stale.includes(reference)), stale };
   }
 }

@@ -21,7 +21,7 @@ function scrub() {
 Deno.test("rename: moves the record key, dead locks, and the log dir", async () => {
   const root = await home();
   await paladin.ledger.instances.write("old", { mount: "/anchor" });
-  await Deno.writeTextFile(`${root}/locks/old_runtime.lock`, JSON.stringify({ pid: 4999999 }));
+  await Deno.writeTextFile(`${root}/locks/old.lock`, JSON.stringify({ pid: 4999999, processes: [] }));
   await Deno.mkdir(`${root}/logs/old`, { recursive: true });
   await Deno.writeTextFile(`${root}/logs/old/spans.jsonl`, "held\n");
   const { ctx } = fake(["old", "new"]);
@@ -29,7 +29,7 @@ Deno.test("rename: moves the record key, dead locks, and the log dir", async () 
   assertEquals(ctx.effect.renamed, { old: "new" });
   assertEquals(await paladin.ledger.instances.read("old"), null);
   assertEquals((await paladin.ledger.instances.read("new")).mount, "/anchor");
-  assertEquals((await Deno.stat(`${root}/locks/new_runtime.lock`)).isFile, true);
+  assertEquals(await Deno.stat(`${root}/locks/old.lock`).catch(() => null), null);
   assertEquals(await Deno.readTextFile(`${root}/logs/new/spans.jsonl`), "held\n");
   scrub();
 });
@@ -37,7 +37,7 @@ Deno.test("rename: moves the record key, dead locks, and the log dir", async () 
 Deno.test("rename: refuses while a lock is alive — a running instance keeps its name", async () => {
   const root = await home();
   await paladin.ledger.instances.write("busy", { mount: "/anchor" });
-  await Deno.writeTextFile(`${root}/locks/busy_runtime.lock`, JSON.stringify({ pid: Deno.pid }));
+  await Deno.writeTextFile(`${root}/locks/busy.lock`, JSON.stringify({ pid: Deno.pid, processes: [] }));
   const { ctx } = fake(["busy", "idle"]);
   await rename(ctx);
   assertEquals(String(ctx.effect.error).includes("running"), true);

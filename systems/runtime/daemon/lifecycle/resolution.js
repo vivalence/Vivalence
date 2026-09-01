@@ -3,9 +3,7 @@ import { stagger } from "../traits/index.js";
 import { stamp } from "../traits/dataset.js";
 
 export async function domain(daemonDie) {
-  daemonDie.good.aperture
-    .use(shard.secure.authorize())
-    .use(daemonDie.datamap.shard.bind("user", (ctx) => ({ user: ctx.user.id })));
+  daemonDie.good.aperture.use(shard.secure.authenticate());
 
   if (daemonDie.good.domain.aperture) {
     daemonDie.good.domain.aperture.use(shard.context.bind("daemon", daemonDie.good));
@@ -76,6 +74,7 @@ export async function modes(daemonDie) {
       daemonDie.good.aperture
         .branch(mode.mount.nature)
         .use(shard.secure.authorize())
+        .use(daemonDie.datamap.shard.bind("user", (ctx) => ({ user: ctx.user.id })))
         .slurp(mode.aperture);
     }
   });

@@ -16,7 +16,7 @@ beef, verbatim: *"blast. test. change. test. blast."*
 
 1. **blast** — map every consumer. Output the list before touching anything.
    ```bash
-   grep -rn "<symbol>" systems/ subsystems/ registry/ --include='*.js' --include='*.svelte'
+   grep -rn "<symbol>" systems/ subsystems/ commons/ --include='*.js' --include='*.svelte'
    ```
    DISTINGUISH same-name-different-verb: `Queue.drain` ≠ `soma.drain`; `Broadcaster.subscribe` ≠ nanostores `.subscribe`.
 2. **test** — the consumers' suites GREEN *first*. Record env-only baseline reds so the end-diff stays honest.

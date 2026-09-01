@@ -22,14 +22,14 @@ const module = {
       manifest: { type: "daemon", slug: "probe", version: "0.0.1" },
       statics: {},
       kernel: [
-        "@playground/playground/spawner",
+        "@commons/playground/spawner",
         "/elsewhere/greeter.viva.js",
         "./greeter/greeter.viva.js",
         inline,
         pinned,
       ],
-      lighthouse: { module: "@viva/lighthouse/multiplayer", statics: {} },
-      datamap: { module: "@viva/datamap/libsql", statics: {} },
+      lighthouse: { module: "@commons/lighthouse/multiplayer", statics: {} },
+      datamap: { module: "@commons/datamap/libsql", statics: {} },
       hallucinators: [],
       consume: {},
     },
@@ -47,7 +47,7 @@ describe("instance kernel references", () => {
   it("the four kernel forms resolve: bare kept, absolute kept, relative vs the instance file, inline stamped with the instance mount", async () => {
     const instance = await new Instance(fakePaladin(module)).mount();
     const [daemon] = instance.daemons;
-    expect(daemon.kernel[0]).toBe("@playground/playground/spawner");
+    expect(daemon.kernel[0]).toBe("@commons/playground/spawner");
     expect(daemon.kernel[1]).toBe("/elsewhere/greeter.viva.js");
     expect(daemon.kernel[2]).toBe("/fixtures/probe/greeter/greeter.viva.js");
     expect(daemon.kernel[3].manifest.slug).toBe("hello");

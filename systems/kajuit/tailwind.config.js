@@ -10,7 +10,7 @@ const config = {
     "../../subsystems/dapper/**/*.{js,html,svelte,css}",
     "../../subsystems/drapes/**/*.{js,html,svelte,css}",
     "../../subsystems/typology/views/**/*.{html,svelte,css}", // aspirational
-    "../../registry/**/*.{html,svelte,css}",
+    "../../commons/**/*.{html,svelte,css}",
   ],
   // dapper's full skeleton class enumeration — components build class names
   // dynamically with template strings, so JIT can't see them statically.

@@ -1,0 +1,54 @@
+#+title: the purge quest is remeasured against three remotes and forty stale bookmarks, the kernel takes its own name, and a milestone label leaves its file bare
+#+filetags: :vcs:jj:git:quest:m42:history:kernel:ikiro:readme:memory:callout:compact:
+
+* what happened, in one breath
+
+beef woke me onto the history-purge quest and asked for a two-week trace of the head. The trace was read-only from end to end — the vcs-guard tripped three times on prose that merely contained a VCS verb, never on an op — and it found that the quest was written for one remote and a clean single line, while the checkout has three remotes, forty stale =push-*= bookmarks on both sides, a mainline renamed =trunk= → =main= → =master= inside the window, and a =github/master= that holds a working-copy snapshot =origin= never received. The mp3 mass is still all in history (269.8 MB across 8615 blobs) and none of it at HEAD, and the prerequisite the quest gated on — education emigration plus four quests committed and pushed — had already landed under =stratified paladin=. beef's first task was one line in the README: the kernel's path becomes =.ikiro/ikiro.md=. The file was renamed with it, every live pointer repointed, and the kernel's own claim of being auto-loaded was struck, because the lowercase =claude.md= had been matching Claude Code's nested-=CLAUDE.md= discovery on this case-insensitive disk and =ikiro.md= never will. Then beef pasted my gap list back with one question — what are M2 and M3 — and the answer was that I had used the quest's internal milestone ladder as if it were shared vocabulary, in a repo where quests are themselves numbered m1…m55. Callout logged, memory pinned, and the fold you are reading closes with the quest amended on beef's order.
+
+* spine (N=4)
+
+| n | beef (verbatim where it is a decision, a gate, or a correction) | what landed / decided |
+|---+-----------------------------------------------------------------+-----------------------|
+| 1 | /"ikiro wake. load the quest for jj git vcs history pruning. trace the current head over last 2 weeks to get a survey"/ | Quest = =quests/m42-history-purge.org= (status DESIGNED, all ops beef's). Read-only trace: 8 visible commits in the window on one line, 48 with the hidden snapshots; 410 =refs/jj/keep= pin 706 hidden commits (1136 =--all= vs 430 =master=); =.git= 798 MB, 5 packs; 91 jj ops since the window opened. Blob census over =--all=: 269.8 MB / 8615 =.mp3=, 104.2 MB =.js=, 61.8 MB =.json=; HEAD holds 0 files on all five purge paths. Three remotes found where the quest assumes one: =origin= (gitea, 840 commits over 56 branches incl. 40 =push-*=), =github= (439 commits, 7 =push-*=), =presentation= (no common ancestor). =github/master= is a sibling snapshot of =origin/master=. Mainline renamed =trunk= → =main= → =master= inside the window. Author census 417 beef · 10 Ivan Matcuka · 3 erectgecko — identity-collapse already applied. Prerequisite of the quest already on origin via =stratified paladin= (education gone: 5942+274 deletes). Five gaps reported against the quest's ladder. |
+| 2 | /"first task. ## Agent Directive Vivalence carries an ontological and methodological harness that agents are encouraged to explore first in `.ikiro/claude.md`. change this to `.ikiro/ikiro.md`."/ | README pointer changed AND the file renamed (=.ikiro/= is mine), because a pointer to a file that does not exist is a lie. Grep found only ONE kernel on disk — the subsystem =.ikiro/claude.md= copies are gone — and nothing in =.claude/settings.json= or the hooks injects it, so the old "auto-loaded" status came from Claude Code's nested-=CLAUDE.md= discovery matching the lowercase name. Struck from the kernel: "always-loaded", "1. this kernel (auto)", "Exactly two things reach context unread" → one thing (the codemap shard); README's directive is now the pointer. Repointed: frontier · map · manual · rituals · ontology · methods/overview (×9) · MEMORY.md · =project_ikiro_load_channels= (rewritten) · =feedback_ikiro_is_self_not_system= · =feedback_vcs_read_only= · six path-only memories. Sweep clean; compacts/quests/zettel left as record. jj shows =R .ikiro/{claude.md => ikiro.md}=. Not mine: =.#README.md= (emacs lock) and a sibling session's compact. |
+| 3 | pastes my five gaps back, then: /"what fucking m2 m3. youre not giving ANY context. there could be houndreds of mx?!"/ | The gaps had been keyed to M1/M2/M3 — m42's INTERNAL ops ladder — with no line saying what those are. Restated with the ladder spelled out first (M0 pre-flight · M1 scratch-clone filter-repo · M2 publish · M3 re-home) and every gap prefixed =m42 Mn (title)=. Callout logged in the zettelkasten under the container-rooted-paths family (label axis); memory =feedback_no_bare_labels= pinned and indexed: a document's label is named by document + title on first use, and a ladder is restated once when several appear. |
+| 4 | /"ikiro compact. update the quest"/ | This fold (WALKed: N=4 from the extractor, rows oldest-first). Quest amended on explicit order: status → "DESIGNED, prerequisite CLEARED"; a re-measured terrain block; decision-trail forks 6–9 (which remotes receive the rewrite · the 40 =push-*= on origin before M1 · which "fix docs" survives · the measured M3 carry-over list); M0 shows what is done and what is owed; M2 names both remotes; milestone gates widened to "each kept remote". Index regenerated, quest headers restamped, frontier line rewritten. |
+
+* arc
+
+** the quest assumed one line and one remote (rows 1, 4)
+
+The head over two weeks IS one line — nine visible commits from =snap= to the working copy, no merges, no branches. What the trace added is everything the line does not show. Below it, 410 =refs/jj/keep= pin 706 working-copy snapshots (twelve of =stratified paladin= alone), which is the quest's own decision 4 measured: the local repo cannot shrink in place, only by reclone, and a =--no-local= scratch clone never sees those refs so M1 inherits none of them. Beside it, three remotes: the gitea =origin= that holds 840 commits across 56 branches, a =github= that received =master= and a mid-edit snapshot =origin= never got, and a =presentation= remote whose graph shares no ancestor with =master= at all. The quest's publish step re-adds one remote and force-pushes once; that step now names both remotes and says the third must be ruled on, not forgotten. The prerequisite gate was already cleared — education, m39, m40, m41 and the variant→instance rename all sit under =stratified paladin= on =origin/master= — so M0 collapses to the sixteen dirty files, one push, one zip, one install, and three forks that are beef's.
+
+** a pointer to a file that does not exist is a lie (row 2)
+
+The ask was one README line. Doing only that line would have left the directive pointing at nothing, so the file moved with it — inside =.ikiro/=, which is mine. The rename then had a consequence nobody had written down: only one kernel exists on disk, no hook injects it, and the "auto-loaded" status the kernel and a memory both asserted came from the lowercase =claude.md= satisfying Claude Code's nested-=CLAUDE.md= discovery on a case-insensitive disk. =ikiro.md= never matches. So the kernel now says what is true — it loads when read, README's directive is the pointer, the codemap shard is the only thing that arrives unread — and the load-channels memory says the same, with the SessionStart-hook option named as beef's file to touch. Every live pointer was repointed and the sweep came back clean; compacts, quests and the zettelkasten keep the old name because they are records.
+
+** a label from a document carries no provenance (row 3)
+
+M1, M2, M3 read as shared names to me because I had the quest open. beef had not, and in a repo where the quests are m1…m55 the collision is total. The failure has the exact shape of the container-rooted-paths rule on a different axis: a name that only resolves inside the file I happened to be reading. The corrective is mechanical — document + title on first use, the ladder restated once when several appear — and it is now a memory as well as a callout, because the rule the kernel already carried ("every file reference is container-rooted") did not fire for a label.
+
+* state at fold
+
+- tree: 16 dirty paths at the survey — beef's docs/hello-world/kajuit set plus my =.ikiro/= edits (the rename, frontier, map, manual, rituals, ontology, overview, zettel, this compact, the quest). By the fold =jj st= showed sibling sessions' work on top — =registry/= → =commons/=, m45/m47/m48 sunset into =done/=, m46/m49 born, the quest index and eight codemap shards rewritten — and the kernel rename now reads =D claude.md= + =A ikiro.md= against a moved parent. The quest report's sessions column said so first: m44 two live, m46 three live. Nothing under =systems/= · =subsystems/= · =commons/= touched by me.
+- =.ikiro/quests/m42-history-purge.org=: amended as row 4 says; still root-live, phase derived by =quest-report.py=.
+- memory: =feedback_no_bare_labels= NEW · =project_ikiro_load_channels= rewritten · =feedback_ikiro_is_self_not_system= / =feedback_vcs_read_only= corrected · six path repoints · MEMORY.md index updated (load-channels hook + no-bare-labels line).
+- zettelkasten: one Callout (bare labels, container-rooted-paths family, label axis).
+- vcs-guard: tripped three times on PROSE (=jj bookmark= in an echo, "jj push config", `git remote add` inside a heredoc). Fails closed by design; the fix is the Write/Edit tools for canon that must contain those verbs. Not loosened.
+
+* resumption
+
+- beef rules forks 6–9 in the quest, then M0 steps 1–4 (and the optional step 0) via =!=; I run the read-only audits at each gate.
+- kernel injection: if beef wants the kernel back in context unread, a SessionStart hook in =.claude/settings.json= that cats =.ikiro/ikiro.md= — his file, propose on request.
+- unrelated, carried from the frontier: docs re-capture of 50.01 after the hello-world reshape; the =.#README.md= emacs lock is his editor's, not a file to clean.
+
+* quest report (derived at fold — `methods/quest-report.py`)
+
+| quest                                   | progress  | status  | next    | sessions   |
+|-----------------------------------------+-----------+---------+---------+------------|
+| m25-user-and-thread-handling            | —         | open    | survey  | 0          |
+| m27-memory-and-notes                    | —         | open    | survey  | 0          |
+| m42-history-purge                       |   0% 0/4  | blocked | fork    | 1          |
+| m44-authoritative-slugs                 |  41% 7/17 | landed  | control | 7 (2 live) |
+| m46-linux-readmen                       |  17% 3/18 | wip     | drain   | 3 (3 live) |
+| m49-process-ontology-and-control-vector |  33% 1/3  | wip     | blast   | 0          |

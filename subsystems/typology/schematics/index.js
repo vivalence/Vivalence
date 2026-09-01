@@ -6,7 +6,9 @@ import * as prototypes from "./prototypes/index.js";
 
 v.scalars = scalars;
 v.slug = scalars.slug;
+v.url = scalars.url;
 v.primitives = primitives;
+v.environment = primitives.environment;
 v.entities = entities;
 v.prototypes = prototypes;
 

@@ -4,7 +4,7 @@
 
 import { specimen } from "@vivalence/typology";
 import { MikroORM } from "@mikro-orm/core";
-import { config } from "../../../../registry/viva/datamaps/libsql/libsql.viva.js";
+import { config } from "../../../../commons/datamaps/libsql/libsql.viva.js";
 import {
   LiteralEntity,
   SymbolEntity,

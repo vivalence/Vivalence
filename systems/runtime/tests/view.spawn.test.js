@@ -3,7 +3,7 @@ import paladin from "@vivalence/paladin";
 import esbuild from "esbuild";
 import { mountMode } from "@vivalence/runtime/scenarios";
 import { tiers } from "./scenarios/fixtures.js";
-import * as reader from "../../../registry/playground/modes/chaosmonkey/reader/reader.viva.js";
+import * as reader from "../../../commons/playground/chaosmonkey/reader/reader.viva.js";
 
 const SOURCE = [
   "<script>",

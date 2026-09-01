@@ -1,0 +1,211 @@
+#+title: the pinhole hands thunks to every provider, the lighthouse was signing with source text, the user bind moves behind authorize, and hello-world reads the object off output
+#+filetags: :paladin:hydrate:secrets:thunk:lighthouse:jwt:security:runtime:userspace:authorize:datamap:reactive:typology:hallucinate:hello-world:readme:commons:dealer:blast:landing:instance:
+
+* what happened, in one breath
+
+beef pasted =viva instance/doctor= (healthy, key present from =ledger=), a =create admin= panel he ^C'd, and an
+=instance/run= log carrying two errors: =[twitch:detached] … buffer/create is user-scoped but the ORM context
+carries no owner= on socket open, and =/hello/agent= 500ing three times with =[hallucinate] 'dialogue' response
+closed error after 1 rounds=. Systematic-debugging walk, no fixes before root cause. Two roots, both measured.
+ONE: paladin's =hydrate= pinhole marked =secrets= DEFERRED and handed the THUNK back — every provider read
+=service.secrets.key= as a value, so the Anthropic SDK saw a function (/"Could not resolve authentication
+method"/) while the same key as a string answered /"Hi there friend."/; worse, the lighthouse had been signing
+every JWT with the thunk's SOURCE TEXT — a stored refresh token verified against the literal string
+=() => paladin.secret.get("SECRET_VIVA_JWT")= and rejected the minted secret. TWO: the L30 split had moved
+=authorize()= off the daemon root and left =bind("user", ctx.user?.id)= there, eager, so every owned write
+bound ={user: undefined}= and the reactive tripwire threw. beef ruled the pinhole: /"the service providers for
+sure get a static map. all thunks resolved by now. thunks pinholed. no reader trace. fine. go. go on authorize
+rebinding."/ Landed; a second cut when the live daemon still 500ed — =hallucinators= is itself a thunk whose
+array carries the =secrets.key= thunk, and a fired value was not walked. Then /"go hallucinate render"/: the
+shard's throw now carries the provider fault, blast-bracketed. Then beef's restart hit the NEXT wall —
+=Cannot read properties of undefined (reading 'greeting')= — hello-world and the dealer destructured
+={ object }= off a render whose object rides =output.object=; /"blast!"/ … /"still??!"/ … /"fix"/ /"blast"/
+/"go"/ → four sites landed (commons mode, its mounted copy, the README paste, the dealer). Zero VCS.
+
+* spine (N=15)
+
+| n  | beef asked                                                                                                                              | landed / decided |
+|----+-----------------------------------------------------------------------------------------------------------------------------------------+------------------|
+| 1  | the doctor + create-admin + =instance/run= paste: tripwire on socket open, =/hello/agent= 500 ×3                                         | root causes measured: DEFERRED thunk leak (SDK fault repro; JWT signed with thunk source text — token probe), root bind before =authorize()=, =render= dropping the fault; three proposals; held |
+| 2  | (harness — systematic-debugging skill body)                                                                                             | NOTHING |
+| 3  | /"the service providers for sure get a static map. all thunks resolved by now. thunks pinholed. no reader trace. fine. go. go on authorize rebinding."/ | LANDED: DEFERRED gone, 3 paladin pins rewritten, =bind("user")= behind =authorize()= on mode branch + =/userspace/entities=; paladin 37/0, runtime daemon 7/0; live proof on beef's daemon (subscribe stream carried the owner); second cut: =hydrate= walks a fired value; real-mount probe: key + jwt strings; 2 memories |
+| 4  | MID-TURN /"once done give me a tasks/progress overview. suvey totem."/                                                                   | five-column quest table + a session task table in the same shape |
+| 5  | (task notification — my background =instance/run= refused: /"already running (supervisor …)"/)                                          | NOTHING — beef's own =instance/init= was up; probed his daemon instead |
+| 6  | (task notification — the first subscribe listener closed 3 s before the buffer landed)                                                  | NOTHING — redone with the listener open |
+| 7  | /"go hallucinate render"/                                                                                                                | blast-bracketed: one consumer, zero pins; guardrail red on old code; =render= appends =folded.meta.fault.message=; typology 122/1 both sides (red = pre-existing =hallucination snapshot · tool loop=) |
+| 8  | (harness — blast-bracket skill body)                                                                                                    | NOTHING |
+| 9  | the kajuit console + =instance/init= panel + two =instance/run= logs: =TypeError: Cannot read properties of undefined (reading 'greeting')= at =mode.viva.js:23= | diagnosed: object rides =output.object= (=belt/soma.js:55=, pinned =hallucination.test.js:285=); hello-world + dealer + README read ={ object }=; proposal; held |
+| 10 | /"blast!"/ + the restart log + /"still??!"/                                                                                              | said plainly: NOT landed, held for go; beats 1–2 run (3 sites; =registry.count= red pre-existing) |
+| 11 | MID-TURN /"fix"/                                                                                                                         | — |
+| 12 | MID-TURN /"blast"/                                                                                                                       | — |
+| 13 | MID-TURN /"go"/                                                                                                                          | LANDED 4 sites; paladin 37/0; =registry.count= same red; radius 3 → 0; codemap =commons.md= drift line corrected |
+| 14 | /"good. ikiro compct"/                                                                                                                   | this fold |
+| 15 | MID-TURN =/comapct=                                                                                                                      | NOTHING |
+
+Balance: rows 1 and 3 carry the diagnosis and the landing (the first half); 7 the shard; 9–13 the object
+drift; 14–15 the fold. Citations below split 1·3·4 / 7 / 9–13 — the tail does not dominate.
+
+* the arc
+
+** the diagnosis — two roots under one log (row 1)
+
+The thrown message hid the cause: =shard.hallucinate.render= threw /"closed error after 1 rounds"/ and
+dropped =folded.meta.fault.message=. So the provider was reproduced directly, real key, haiku:
+
+#+BEGIN_EXAMPLE
+### thunk  (as instance.viva.js declares)
+FAULT {"kind":"request","retryable":false,"message":"Could not resolve authentication method. Expected either apiKey or authToken to be set. …"}
+### string (unwrapped)
+OK state= complete text= "Hi there friend."
+#+END_EXAMPLE
+
+The mechanism: =subsystems/paladin/prototypes/instance.js= =DEFERRED = new Set(["secrets"])= — /"branches
+handed back as thunks, so no value lands on the instance"/ — fired the thunk once for the requirements record
+and returned the thunk. Consumers, all five, read a value: the four =commons/hallucinators/*/provider/index.js=
+(=service.secrets.key=) and =commons/lighthouses/multiplayer/server/lib/jwt.js= (=service.secrets.jwt=).
+Thunk-form secrets entered at =stratified paladin=. Schema permits it (=secrets: v.record(v.string(),
+v.unknown())=). Doctor showed =problems —= because the record saw the key resolve.
+
+The lighthouse consequence was measured, not inferred — a refresh token from the mountpoint's =tokens.json=:
+
+#+BEGIN_EXAMPLE
+rejects   ← minted SECRET_VIVA_JWT (instance .env) | ERR_JWS_SIGNATURE_VERIFICATION_FAILED
+VERIFIES  ← thunk source text  String(fn)          | payload.type = refresh
+thunk text: "() => paladin.secret.get(\"SECRET_VIVA_JWT\")"
+#+END_EXAMPLE
+
+A public string was the signing key of every daemon booted from a thunk-form instance (=italian.viva.js=,
+=language-learning/test.viva.js= carry the same form). Flagged in clear prose as a security warning.
+
+The second root, read-traced: =resolution.js= root =.use(authenticate()).use(bind("user", ctx =>
+({user: ctx.user?.id})))= — =bind= resolves eagerly at its chain position; =authorize()= sits later, on the
+mode branch (=:78=) and on =/userspace/entities= (=userspace.js:9=). The =?.= was the smell. kajuit's
+=entities.buffer.create= (=d.svelte:135=, =f.svelte:15=) → =afterCreate= → =getFilterParams("user")?.user= →
+null → throw in the detached pump: write landed, broadcast dropped. The L30 landing regressed it.
+
+Three proposals with diffs, a frame per repo noun, an Assess of three sentences, a gate line. Held.
+
+** the ruling and the landing (rows 3–4)
+
+beef: /"the service providers for sure get a static map. all thunks resolved by now. thunks pinholed. no
+reader trace. fine. go. go on authorize rebinding."/ — consumer-fires (my recommendation) rejected in favour of
+the pinhole resolving everything. Landed by an assertion-checked replace script (every anchor exactly once):
+DEFERRED and the =deferred= record flag deleted; the three paladin tests pinning the old contract rewritten to
+the new one; =check.environment= fixture row loses =deferred: true=; =resolution.js= root keeps
+=authenticate()= only, the mode branch gains =.use(authorize()).use(bind("user", ctx.user.id))=; =userspace.js=
+=/entities= likewise. paladin 37/0 (153 steps), runtime daemon 7/0.
+
+Live proof for the rebind, on beef's own daemon (his =instance/init= booted 29 s after the edit landed, so it
+ran the new resolution): a probe identity signed up, handshook, opened a thread; an SSE listener on
+=/userspace/entities/buffer/subscribe=; a buffer created under it:
+
+#+BEGIN_EXAMPLE
+data: {"op":"create","entity":{"id":"01a06d64-…","thread":"01a06d62-87cd-…","user":"01a06d62-04a1-…"}}
+#+END_EXAMPLE
+
+Owner resolved, broadcast pushed — the first listener had closed 3 s before the buffer landed and proved
+nothing; redone with the listener open.
+
+=/hello/agent= still 500ed there. Measured, not assumed: =hallucinators: () => […{ secrets: { key: () => … } }]=
+— =hydrate= fired the outer thunk and returned its value UNWALKED (=typeof … = function=). Second cut: =return
+hydrate(value, record, paladin, at)= (and =hydrate(node())= on the bare path); a pin: /"walks a fired thunk's
+value — a declaration thunk that yields more thunks resolves to the bottom"/. Real-mount probe of
+=~/.viva/instances/hello-world=: =secrets.key= string (=sk-ant-api…=, 108), =secrets.jwt= string (32, ≠ thunk
+text); the requirements record now carries both the outer row and =hallucinators[0].secrets.key=. paladin 37/0
+(153 steps); snapshot unchanged.
+
+Then the survey: quest rows (m46 wip 17 % drain, 2 live siblings · m50 wip 60 % blast · m51 design go) plus a
+session task table in the same five columns.
+
+** the shard's throw learns the reason (row 7)
+
+/"go hallucinate render"/ — typology, holy, explicit go. Bracket: one consumer
+(=prototypes/hallucination.js:86=), zero message pins. Guardrail first in =tests/gestalten/hallucinate.test.js=
+— a faculty throwing ={kind, retryable:false, provider:{status:401, message}}= and a plain =Error("down")= —
+red on the old code (/"doesn't contain the expected item 'Could not resolve authentication method'"/), then:
+
+#+BEGIN_SRC diff
+-      `[hallucinate] '${faculty.type}' response closed ${folded.meta.state} after ${folded.meta.rounds} rounds`,
++      `[hallucinate] '${faculty.type}' response closed ${folded.meta.state} after ${folded.meta.rounds} rounds` +
++        (folded.meta.fault?.message ? ` — ${folded.meta.fault.message}` : ""),
+#+END_SRC
+
+typology 122/1 → 122/1 (+1 step); the red is =hallucination snapshot — … tool loop=, pre-existing both sides.
+Radius unchanged. The 500 of row 1 would now have read the SDK's own sentence.
+
+** the object off the top (rows 9–13)
+
+beef restarted (=instance/init= → =auth/signup SUCCESS=, runtime + kajuit exited 0 → =instance/run= twice) and
+the agent click threw =Cannot read properties of undefined (reading 'greeting')= at =mode.viva.js:23=. The
+render had returned — the pinhole fix confirmed live by the error moving past the provider. The contract:
+=belt/soma.js:55= =next.output.object = data=; pinned at =hallucination.test.js:285=
+=folded.output.object.verdict=. Riddler, oracle, aprende, francesca, dojo read =render.output…=; hello-world and
+the dealer read ={ object }= — the codemap already called the dealer's /"DRIFT"/. Proposal, held.
+
+/"blast!"/ with the restart log and /"still??!"/ — the restart had run the same bytes because nothing was
+landed. Said so first. Beats 1–2 under the bracket: exactly three top-level ={ object }= sites repo + store +
+README; =registry.count= RED before any edit (/"fork 2: multiplayer + hello-world wafers resolve under @commons
+— Expected null to be truthy"/). /"fix"/ · /"blast"/ · /"go"/ →
+
+#+BEGIN_SRC diff
+-    const { object } = await ctx.mode.harness.object.render({
++    const { output } = await ctx.mode.harness.object.render({
+ …
+-    return { greeting: object.greeting };
++    return { greeting: output.object.greeting };
+#+END_SRC
+
+at =commons/instances/hello-world/mode.viva.js=, its byte-identical mounted copy, =README.md:45,49=, and
+=commons/playground/dealer/dealer.viva.js= (=output.object?.faces= — it had been dealing an empty hand
+silently). paladin 37/0; =registry.count= same red; re-blast 0 sites; =world/codemap/commons.md= drift line
+corrected. The two docs pages naming the route hold prose only.
+
+* state at fold
+
+- LANDED, uncommitted, all suites held: =subsystems/paladin/prototypes/instance.js= (+2 tests, 1 fixture) ·
+  =systems/runtime/daemon/lifecycle/resolution.js= · =systems/runtime/daemon/aperture/userspace.js= ·
+  =subsystems/typology/gestalten/shard/hallucinate.js= (+1 pin) · =commons/instances/hello-world/mode.viva.js=
+  · =~/.viva/instances/hello-world/mode.viva.js= · =README.md= · =commons/playground/dealer/dealer.viva.js=.
+- OWED beef: restart =instance/run= (the daemon on =:2501= loaded the mounted copy before the object edit) →
+  =agent= → HAL. Every stored token was signed with the thunk text: one re-login per instance after restart.
+  If prod boots from a thunk-form instance, prod had a public signing key until it restarts on this paladin.
+- Probe residue in the hello-world dev dbs: identity =ikiro-probe=, one thread, three buffers. Dev data.
+- Pre-existing reds, untouched, identical both sides: =registry.count= (wafers under @commons) ·
+  =hallucination snapshot · tool loop= (typology) · =anthropic translate.snapshot=
+  (=explicitMaxTokensUnderThinking=, beef's canon) · =lighthouses/multiplayer/tests= (wants a lighthouse on
+  =:1729=, connection refused — a liveness pin).
+- memory: =project_hydrate_pinhole_secrets= · =project_user_bind_behind_authorize= (indexed); codemap
+  =commons.md= corrected; frontier line added; known-issues RESOLVED entry.
+
+* corrections ledger (this window)
+
+- **A proposal that ends on a gate line reads as landed.** Row 9's proposal closed with /"gate: … → restart →
+  agent click = HAL line"/; beef restarted and got /"still??!"/. The gate line must open on =go= when nothing
+  has landed, and the first sentence after a paste that shows the same error must be /"not landed — held for
+  go"/. Done on row 10; the rule is the fix.
+- **Measure the live artifact, not the edit.** The first cut of the pinhole was green in paladin and wrong in
+  the daemon — the nested thunk only showed on the running mount. The real-mount probe is now the last beat of
+  any paladin declaration change.
+- **A listener proves nothing unless it is open when the event lands.** 40 s =-m= vs a buffer at 43 s; the
+  second run opened the stream, waited 2 s, wrote, waited 4 s.
+- **Not started: a second =instance/run= on beef's shelf.** Ghost refused (/"already running"/); the right
+  move was to probe his daemon, and it was.
+
+* loose ends
+
+Settled by landed rules: the =deferred= record flag has zero readers (grep) → gone with the set. The
+=check.environment= fixture carried it → dropped. The dealer's ={ object }= was the same drift under the same
+rule → landed in the same bracket. The codemap line calling the dealer's destructure live DRIFT → corrected in
+the compact turn.
+
+Genuinely open, beef's: commit the eight files (VCS) · restart + re-login · prod M5 restart on this paladin ·
+the four pre-existing reds above (three are his uncommitted canon; the lighthouse suite pins a deployment fact
+and belongs to fixtures-own-liveness).
+
+* quest report (derived at fold — `methods/quest-report.py`)
+
+| quest                    | progress  | status | next  | sessions   |
+|--------------------------+-----------+--------+-------+------------|
+| m46-linux-readmen        |  17% 3/18 | wip    | drain | 4 (2 live) |
+| m50-the-three-way-weave  |  60% 3/5  | wip    | blast | 0          |
+| m51-standalone-slowstart |   0% 0/18 | design | go    | 0          |

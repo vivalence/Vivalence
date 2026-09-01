@@ -31,7 +31,7 @@ instances.open(
 instances.open(
   {
     nature: "/rename",
-    valence: "move an instance's record key — carries dead locks and the log dir; refuses while running",
+    valence: "move an instance's record key — carries the log dir; refuses while its supervisor holds the lock",
     schema: v.object({
       prior: v.string().desc("current slug"),
       next: v.string().desc("new slug"),
@@ -52,7 +52,7 @@ instances.open(
     const rows = await Promise.all(
       held.map(async (entry) => ({
         slug: `${entry.mount === selected ? "*" : " "} ${entry.slug}`,
-        running: (await paladin.ledger.locks(entry.slug)).map((lock) => lock.process).join(" ") || null,
+        running: (await paladin.ledger.lock(entry.slug).read())?.processes.map((held) => held.process).join(" ") ?? null,
         mount: entry.mount,
         valence: entry.valence ?? null,
       })),

@@ -1,42 +1,38 @@
 import { shard } from "@vivalence/typology";
 
 export async function userspace(daemonDie) {
-  const { entities } = daemonDie.good;
+  const { entities, twitch } = daemonDie.good;
   const branch = daemonDie.good.aperture.branch("/userspace");
-  branch.use(shard.secure.authorize());
+  branch.use(shard.secure.authenticate());
+  branch.open("/handshake", async (ctx) => ({ success: true, user: await ctx.identity.enroll() }));
 
-  branch
-    .branch("/entities/intent")
+  const owned = branch
+    .branch("/entities")
+    .use(shard.secure.authorize())
+    .use(daemonDie.datamap.shard.bind("user", (ctx) => ({ user: ctx.user.id })));
+
+  owned
+    .branch("/intent")
     .slurp(shard.datamap.repository(entities.intent))
-    .slurp(shard.datamap.reactive(entities.intent, daemonDie.good.twitch));
+    .slurp(shard.datamap.reactive(entities.intent, twitch));
 
-  branch
-    .branch("/entities/thread")
+  owned
+    .branch("/thread")
     .use(shard.datamap.scope((ctx) => ({ user: ctx.user.id })))
     .slurp(shard.datamap.repository(entities.thread))
-    .slurp(shard.datamap.reactive(entities.thread, daemonDie.good.twitch));
+    .slurp(shard.datamap.reactive(entities.thread, twitch));
 
-  branch
-    .branch("/entities/buffer")
+  owned
+    .branch("/buffer")
     .use(shard.datamap.scope((ctx) => ({ thread: { user: ctx.user.id } })))
     .slurp(shard.datamap.repository(entities.buffer))
-    .slurp(
-      shard.datamap.reactive(entities.buffer, daemonDie.good.twitch, {
-        scope: (ctx) => ({ user: ctx.user.id }),
-      }),
-    );
+    .slurp(shard.datamap.reactive(entities.buffer, twitch, { scope: (ctx) => ({ user: ctx.user.id }) }));
 
-  branch
-    .branch("/entities/turn")
+  owned
+    .branch("/turn")
     .use(shard.datamap.scope((ctx) => ({ thread: { user: ctx.user.id } })))
     .slurp(shard.datamap.repository(entities.turn))
-    .slurp(
-      shard.datamap.reactive(entities.turn, daemonDie.good.twitch, {
-        scope: (ctx) => ({ user: ctx.user.id }),
-      }),
-    );
-
-  branch.open("/handshake", async (ctx) => ({ success: true, user: ctx.user }));
+    .slurp(shard.datamap.reactive(entities.turn, twitch, { scope: (ctx) => ({ user: ctx.user.id }) }));
 }
 
 // import { shards } from "@vivalence/typology";

@@ -92,8 +92,15 @@ and the working copy survives both. Packages can live anywhere on disk: the stor
 only where they land when nothing else is said.
 
 At boot, `supply()` reads the record and mounts each entry. Only when the record is
-absent entirely does it seed one — by discovery over the repository's own `registry/`,
+absent entirely does it seed one — by discovery over the repository's own `commons/`,
 so a fresh clone boots the standard packages without ceremony.
+
+`viva registry/doctor` is the record read against the store: stale references (recorded,
+gone from disk), untapped residents (in the store, absent from the record — a declaration
+nested under a recorded root counts as tapped), and the census of what every tap supplies,
+by owner and type. `viva registry/list` runs the same `supply()` first, so on a fresh ledger
+the first list is what seeds the record. `viva ledger/doctor` stays on the ledger's side of
+the line: one row per organ of the home, with counts and anomalies, never the census.
 
 ## instance, singular
 

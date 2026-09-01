@@ -14,8 +14,9 @@ systems/          processes — things that boot
   runtime/        hosts daemons — entities, traits, HTTP
   kajuit/         the browser client
   ghost/          the CLI, installed as viva (WIP)
-registry/         packages — the content: modes, services, instances
-  viva/           core services (datamap, hallucinator, lighthouse, nlp) and the instances
+commons/          the ONE package the checkout ships — the content: services, instances, demo modes, test fixtures
+  datamaps/ hallucinators/ lighthouses/ services/   core services
+  instances/      runnable instance recipes
   playground/     demo modes
   fixtures/       test data
 ```
@@ -55,13 +56,11 @@ The browser client. A Svelte SPA that logs in against a lighthouse, attaches to 
 
 The operator's CLI — the `viva` command from the install guide: ledger, package, and instance operations. Work in progress.
 
-## registry
+## commons
 
-The content. A package is a unit of modes; everything a daemon is made of comes from here.
+The content. A package is a unit of modes; everything a daemon is made of comes from here. The checkout ships exactly one, `@commons/package/commons`; every module in it is addressed as `@commons/<type>/<slug>`. Other packages are tapped into the ledger's registry (`viva registry/tap`).
 
-### viva
-
-The core package — services and instances:
+### services and instances
 
 - `datamap/libsql` — the database service. Entities in, schema out, automigration included.
 - `hallucinator/` — intelligence providers behind one interface: `anthropic`, `openrouter` (LLM), `elevenlabs` (speech out), `deepgram` (speech in).
@@ -75,4 +74,4 @@ Demo modes — small rigs that each demonstrate one mechanic: `card` and `dealer
 
 ### fixtures
 
-Test data.
+Test data and the language-learning fixture corpus.

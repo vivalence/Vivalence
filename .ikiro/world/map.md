@@ -12,7 +12,7 @@ Derived file: a POINTER map, not a copy. The map defers to the territory — if 
 | typology | library — primitives, gestalten, entities, schematics | `subsystems/typology/` |
 | paladin | composition — env/scopes/instance/vip→pensieve | `subsystems/paladin/` |
 | runtime | process — daemons, traits, HTTP | `systems/runtime/` |
-| registry | marketplace — kernels/modes/services/wafers (M11: → package) | `registry/` |
+| commons | the checkout's ONE package (m47) — datamaps · hallucinators · lighthouses · services · instances · playground · fixtures; `registry` = the marketplace (`~/.viva/registry/`, `registry.json`, `viva registry/*`) | `commons/` |
 | kajuit | surface — SvelteKit SPA, decks, pincer | `systems/kajuit/` |
 | ghost | operator — `viva` CLI, trajectories | `systems/ghost/` |
 | dapper / drapes / sheets | theming / components / TUI | `subsystems/{dapper,drapes,sheets}/` |
@@ -21,9 +21,9 @@ Lifecycle everywhere: `construct → populate → resolve → integrate → disi
 
 ## where to READ (before containing anything here, check these)
 
-- **docs/** — the human-facing documentation, johnny-decimal (`40-49_repository/{42_typology…47_integration}`, `50-59_practice/52_tutorials`). NASCENT: 8 files exist (kajuit tree/lifecycle/contexts/typology, buffer-flow, getting-started, docker-walkthrough); dirs 42–45 empty. **I read docs first, contain them never.** Docs are beef's #1 simmering item — every landing should ask "does a docs file want this?" (`quests/` (cut — see frontier "design held only here")).
+- **documentation/** — the human-facing docs SITE (Astro 7 on Deno, `deno run -A npm:astro build` ≈ 2 s, 10 routes; serves docs.vivalence.org). `content/` = johnny-decimal tree, routes flat-by-basename; LIVE pages: 11.01 · 13.01 · 21.01 · 32.01 · 33.01 · 41.01 · 50.01 · 51.02 + `home.mdx` + `jdex.mdx`; `bak/content-scaffold/` = 33 planned pages; `content/**/*.mdx.bak` = hidden. The org-mode `docs/` dir is GONE. **I read docs first, contain them never.** Docs are beef's #1 simmering item — every landing should ask "does a docs file want this?" → [[project_documentation_site]].
 - **subsystem code** — the ultimate truth; pre-flight grep before asserting any surface.
-- **testament/** — the machine run surface: `instance/{.env, test.viva.js, education.js, playground.js, environment/*.jsonc, mountpoint/daemon_*}`, `ledger/{locks/, logs/, instances.json, registry.json}`, `_bruno/` (API testbench).
+- **testament/** — the machine run surface: `instance/{.env, test.viva.js, education.js, development.js, environment/*.jsonc, mountpoint/daemon_*}`, `ledger/{locks/, logs/, instances.json, registry.json}`, `_bruno/` (API testbench).
 - **private logs** — `/Users/finn/vivalence/private/logs/<date>.org`; beef's journal. Read-only territory.
 - **memory** — `~/.claude/projects/-Users-finn-vivalence-code-vivalence/memory/`.
 - **jj** — history via `jj log/show/diff/op log/st` ONLY (read-only, always).
@@ -47,4 +47,4 @@ Interaction modes, cheap→heavy: scenario (in-memory daemon) → aperture test 
 
 ## loading discipline
 
-Boot: root `claude.md` (auto) → `frontier.md` (what's live) → the container section in `codemap.org` for wherever the task lands → the relevant docs/ file if one exists → code. Self files load on demand by persona.
+Boot: root `ikiro.md` (read first) → `frontier.md` (what's live) → the container section in `codemap.org` for wherever the task lands → the relevant docs/ file if one exists → code. Self files load on demand by persona.

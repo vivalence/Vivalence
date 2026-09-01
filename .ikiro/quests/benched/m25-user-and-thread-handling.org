@@ -1,0 +1,531 @@
+#+TITLE: m25 — user and thread handling
+#+METHOD: ikiro/quest
+#+STATUS: PRELIMINARY — considerations dump, no decision. beef picks this up later.
+#+phase: open (derived)
+#+progress: — (derived)
+#+next: survey (derived)
+#+VERIFIED: full claim-by-claim sweep post-m26 — 125 claims: 94 confirmed · 28 drifted ·
+3 wrong; corrections folded in below. The tree was HOT during the sweep (=harnessed.js= +
+=domain/tools/*= edited uncommitted mid-audit) — line refs are working-tree-current, expect float.
+#+BREAKAGE: adversarial sweep (14 BREAKS / 6 root causes, 7 LATENT) in "where it breaks".
+CROWN = a live cross-user IDOR: Turn has no =user= filter, harness discards the thread
+null-check → any authed user reads+writes any thread via =input.thread=. The store debate
+was never the whole problem — there is NO ownership CHECK on the harness path.
+#+DATE: 2026-08-12
+
+* the question
+
+beef, verbatim:
+
+#+begin_quote
+we neeeed a solid solution here. we do have the filters on orm level. they are
+context specific. we might leave context on tool calls on long runing requests.
+what other options we have. ctx.user sure. what about ambient? might it make
+sense to write the user into ambient once the security/auth middlewares fired
+and then we read from there? would that survive responded resolved requests? or
+is it dilligence in ctx construction and force ctx.user?
+#+end_quote
+
+#+begin_quote
+same for thread. both user and thread are pretty much required always. not ctx
+without either. this is a long standing design challange. how do we transport
+both? to alwyas manually wire the thread into requests is iffy. maybe request
+head and then ambient? id like a solution where both user and thread live side
+by side, same solution for either. if its ambient, fine. if its dilligence,
+also fine.
+#+end_quote
+
+Trigger: m23 movement III — =domain/tools/{pull,review}= need =ctx.user.id=
+(=Literal.review= mints a Retention (ex-Memory) + Trace per user) and =ctx.thread= (buffer
+thread-binding, Trace provenance). Tools reached via the aperture inherit
+=ctx.user= from =authorize()=; tools reached via direct =mode.harness= calls
+bypass authorize. Thread is manually forwarded as =input.thread= everywhere.
+(m26 condemned the first cut of those tools; beef re-landed =domain/tools/{pull,review}.js=
+— untracked, mid-sweep — so the tool path is REACHABLE again.)
+
+* the drift since (verified sweep, post-m26)
+
+What changed the QUESTION while this quest sat:
+
+- m23 III.1's user-bind LANDED via m26 without this quest's ruling:
+  =traits/harnessed.js:52= binds =ctx.user= (the ENTITY) and =:53= binds =input.thread=
+  (the raw id STRING) onto the per-request =armed= tools Vector (→ =ctx.hallucination.tools=).
+  De facto store state: user = D (ORM param, =resolution.js:7=) AND A (ctx bind);
+  thread = A only, no thread ORM param anywhere. /"same solution for either"/ is
+  currently VIOLATED in the store layer — and in the OPPOSITE direction from the D-lean.
+- the tool stack is keyed layers, later wins: ① =daemon/skills/{entity,buffer,thread}=
+  → ② =paladin.skills.{fs,shell}= (root-bound) → ③ =daemon.domain.tools= → ④ =mode.tools=
+  → invocation tools. No skill effect reads =ctx.user=/=ctx.thread= — user scoping arrives
+  via the ORM default filters inside the request fork; thread scoping is delegated to the
+  MODEL via =where.thread= in the valence prose.
+- fork 3's hazard is LIVE, not latent: =review.js= (layer ③, re-landed) hands ctx to
+  =Literal.review=; =Literal.ts:197= reads =ctx.thread?.id= off the bound STRING →
+  Trace.thread null on a reachable path. And the harness ALREADY loads the thread ROW
+  (:27-29, for the INTELLIGENT claim) then discards it — the entity is in hand at bind time.
+- =review.js= opens with a SOFT diligence collar: =if (!ctx.user?.id) return {condition:
+  "ERROR", output: {message: "no user on this thread — reviews need an owner"}}= — the
+  lean's collar exists at ONE seam, as a yield-lexicon ERROR, not option A's throw-at-mint.
+  It passes on the aperture =/harness= path, fails soft on the 5 direct echo callers.
+- francesca stopped being the poster child: her live path is kajuit → aperture =/harness=
+  behind authorize (=conversation.js:39-40=) — a REQUEST ctx with =ctx.user=. The echo-seam
+  user-drop persists only for the 5 in-daemon direct callers.
+- Memory → Retention rename (=Retention.ts:76-81=, same filter block).
+- fork 4 SETTLED from installed mikro source — see open forks.
+
+* the ground truth
+
+** the seams that mint ctx
+| seam | mint site | user | thread |
+|------+-----------+------+--------|
+| HTTP aperture | =gestalten/shape/http.js:7= | authorize → =ctx.user= | body =input.thread= only |
+| multiplex frame | =prototypes/socket.js:158-165= | header rebuilt per frame from =packet.token ?? socket.bearer= (:157) → authorize re-fires PER FRAME | body only |
+| multiplex push | =prototypes/socket.js:131= | NONE — headerless ctx; authorize FIRES and denies (silent 401, effect never runs, response discarded) | body =input.thread= (same packet body as frames) |
+| =mode.harness= object | =steer/strategy.js:26-30= (echo — bare ={input,output,signal,steps,params,state}=) | DROPPED at seam | =input.thread= if caller forwards |
+| tool loop | =shard/hallucinate.js= dispatch() :31-57 in respond() :64-113 → =steer/strategy.js:43-64= (guarded — fresh =new Context= :52) | ENTITY bound at =harnessed.js:52= iff the aperture path supplied =ctx.user=; echo callers still drop it | bound iff =harnessed.js:53= fired (raw id STRING) |
+| twitch subscriber | =gestalten/shape/subscriber.js:4-21= — handlers get ORM =args=; shotgun's request strategy mints a bare Context (no user/thread/headers) | via ORM fork only | no |
+
+** the wiring that exists
+- =daemon/lifecycle/resolution.js:6-7= — =shard.secure.authorize()= then
+  =datamap.shard.bind("user", (ctx) => ({user: ctx.user.id}))= →
+  =em.setFilterParams("user", …)= (=registry/viva/datamap/libsql/libsql.viva.js:51-54=).
+  Mode branches re-authorize: =resolution.js= modes() =:57= (mis-filed as population.js
+  at write time). Userspace too: =daemon/aperture/userspace.js:6=.
+- =secure.authorize= (=gestalten/shard/secure.js:10-67=): token from header or
+  =?token= (:12-14), =ctx.identity= (:29), =ctx.user= (:40). A commented
+  =setFilterParams= at :62 shows the bind was once considered in-shard.
+- ORM filter =user= is declared =default:true= on Thread (=entities/userspace/Thread.ts:56-61=,
+  now under =systems/runtime/daemon/entities/=), Intent, Buffer (conds through the thread
+  relation), and domain Retention (ex-Memory, =Retention.ts:76-81= — same filter block) /
+  Trace (=Trace.ts:25=) —
+  a userspace query in a fork WITHOUT the param THROWS (MikroORM: no
+  arguments for filter). Diligence already exists at the ORM layer, for user.
+- =datamap.shard.context= = =RequestContext.create(orm.em, fn)= — MikroORM's own
+  AsyncLocalStorage (=libsql.viva.js:49=). =carry()= (:59-62) captures the LIVE
+  fork and re-enters it via =RequestContext.storage.run= — capture-and-reenter,
+  never a fresh fork.
+- =shard.datamap.inject= (=gestalten/shard/datamap.js:3-28=, wired
+  =population.js:83=) wraps every request in a fork AND re-wraps async-iterator
+  response bodies so each pull runs =within(carry)=.
+- =shard.datamap.detached= (=shard/datamap.js:246-269=, wired =population.js:81=)
+  queues =/after= twitch handlers with =within = carry()= captured AT DISPATCH
+  TIME (inside the flusher's fork), pumped via a shared microtask loop.
+- thread: =traits/emitter.js:28= =ctx.thread = await daemon.entities.thread.findOne(ctx.input.thread)= —
+  comment :26-27: thread is OPTIONAL, turn-free/standalone modes (riddler) emit
+  without one. Buffers bind at :57-62. =traits/harnessed.js:53= (ex :32) binds the RAW
+  wire value onto the per-request =armed= Vector: =shard.context.bind("thread", input.thread)= —
+  while :27-29 ALREADY loads the thread ROW (INTELLIGENT claim) and discards it.
+  Manual forwarding: 18 non-test =input.thread= sites repo-wide (was 20 pre-m26).
+- consumer: =registry/education/domain/entities/kernel/Literal.ts:168-210= (floated
+  from :154-191) — =review(signal, ctx)= reads =ctx.user.id= (:170), =ctx.mode?.id= (:196),
+  =ctx.thread?.id= (:197); mints Retention + Trace. NOTE: =harnessed.js:53= binds an id
+  STRING, so =ctx.thread?.id= is undefined even when bound — Trace provenance silently
+  null on the tool path, which is REACHABLE again (=domain/tools/review.js= re-landed).
+  Aperture path: =registry/education/domain/aperture/index.js:39-51=
+  (=/review/literal=) has =ctx.user= but no =ctx.thread= at all.
+- direct-harness callers (echo ctx, all inside an authorized OUTER ctx whose
+  user they drop): =aprende/aperture/message.js:21= · =oracle/aperture.js:9= ·
+  =oracle/emitter.js:10= · =dealer.viva.js:63= · =primer/aperture.js:51=.
+- m23 blast III.1 (quest :116-137, bind :126 — refs float, the m23 file carries 687
+  uncommitted lines) PLANNED =if (ctx.user) hallucination.tools.use(shard.context.bind("user", ctx.user))=.
+  m26 LANDED it adapted, WITHOUT this quest's ruling: =harnessed.js:52= binds the user
+  ENTITY onto the per-request =armed= Vector; the fluent =hallucination.tools.*= register
+  is dead. There is no plan left to intercept — only the asymmetry to rule on.
+- =shard/ambient.js= EXISTS: module-scoped ALS with =store/combine/assign/current=
+  (:1-23). Dormant — sole caller is =systems/runtime/tests/multiplex.filter.test.js:23=.
+- =traits/intented.js= — a no-request consumer (boot walk + =/after/user/create=):
+  =ensure()= sets =setFilterParams("user", …)= at :5; the twitch path forks at :16; the
+  boot walk (:24-28) sets params on the shared root em UNFORKED (wrinkle). Prior art:
+  when there is no request, you fork-and-set.
+
+* where it breaks (adversarial sweep)
+
+Red-team pass, 7 attack surfaces × find-then-refute-then-synthesize (15 agents, all
+findings re-verified against disk post-refutation). *14 BREAKS collapse to 6 root causes;
+7 LATENT wait on a named near-future thing.* The mission-level finding reframes the whole
+quest:
+
+#+begin_quote
+Isolation rests ENTIRELY on the MikroORM =user= filter (=default:true=). =authorize()=
+only sets =ctx.user= from the token — there is NO server-side thread-ownership check
+ANYWHERE. Ownership IS the ORM filter, and two entities that need it don't have it.
+#+end_quote
+
+So the diligence collar the lean called ergonomics is actually the SECURITY BOUNDARY,
+and it is currently absent on the harness path.
+
+** root cause 1 — Turn has NO =user= filter (and no user column) [CROWN, BREAKS]
+
+=Turn.ts:54-93= declares no =filters= block and no user FK — every sibling userspace
+entity (Thread/Buffer/Intent/Retention/Trace) has one, Turn is the hole. Two breaks
+ride it, and one fix (a =user= filter on Turn conditioned through the thread relation,
+=({thread:{user:args.user}})=, exactly like =Buffer.ts:36-41=) closes both:
+
+- *rank 1 — cross-user IDOR, read AND write.* Any authenticated user POSTs
+  ={thread: <VICTIM_ID>, parts}= to =/mode/*/harness/dialogue/stream= (the client already
+  puts the thread id in the body plain — =conversation.js:39=). =harnessed.js:27= loads
+  the thread row USER-SCOPED (foreign id → null) but NEVER gates on the null and discards
+  the row; :62 binds the raw id STRING; the =/dialogue= branch runs
+  =turn.history({thread: ctx.input.thread})= (:82) → victim's whole conversation loaded
+  into the ATTACKER's LLM prompt (extractable by "repeat everything above"), and
+  =turn.chain({thread: ctx.input.thread, role:"user", parts})= (:83) → create+flush BEFORE
+  any LLM round-trip, so attacker + assistant turns land in the victim's thread
+  UNCONDITIONALLY (Turn has no user column, the FK is satisfied). Both invariants die:
+  cross-user leak + wrong-user write.
+- *rank 5 — the =entity_find= skill reads unfiltered Turn/User.* =skills/entity.js= (armed
+  for EVERY harnessed mode, =harnessed.js:35=) enumerates every repo with =getEntityName=;
+  =entity_find({entity:"turn", where:{}, fields:"full"})= → =repository.find= with no scope
+  → every user's =Turn.parts= exfiltrated, paged past the 10kB budget trim;
+  =entity_find({entity:"user"})= enumerates all account ids. This is ALSO the harvester
+  that hands rank 1 its victim thread ids. Model-mediated (fires when the model emits the
+  call — incl. prompt-injection via corpus or a leaked turn).
+
+** root cause 2 — =reactive()= with no scope → =/subscribe= filter ={}= → match-all [BREAKS]
+
+A reactive mount with NEITHER a scope middleware NOR a scope option resolves its subscribe
+filter to ={}= → =broadcaster.js:58= match-all, and the push-side owner-stamp
+(=datamap.js:183=) is skipped. Two locations, two fixes, one pattern:
+
+- *rank 7 — intent, STOCK CLIENT.* =userspace.js:9-11= — intent is the only userspace
+  branch with neither mechanism (thread :15, buffer :21-27, turn :31-37 all have one). The
+  stock client auto-subscribes =intent where={}= (=dossier.js:96=); any new user's signup
+  seeds intents → afterCreate → every subscribed client gets every user's intent rows.
+  Automatic, zero crafting. DEFLATED: intent content is template-identical across users, so
+  the breach is user-existence disclosure + in-memory pollution, not persisted-data leak.
+- *rank 8 — domain trace/retention, EXPLOIT-ONLY but SENSITIVE.*
+  =education/domain/aperture/index.js:59-67= slurps =reactive(trace)=/=reactive(retention)=
+  with no scope → any authenticated user opening a crafted subscribe frame to
+  =/userspace/entities/{trace,retention}/subscribe= streams every user's spaced-repetition
+  state (=Retention.strength/status=) + review provenance. Higher content-sensitivity than
+  rank 7; no client repo wired so no stock-client path.
+
+** root cause 3 — the streamed turn-persistence generator is non-transactional + finally-less [BREAKS]
+
+=harnessed.js:103-126= is =try { for-await…; flush() } catch { remove; throw }= with NO
+=finally=.
+
+- *rank 2 — abort mid-stream bricks the thread.* A write-tool's mid-stream =em.flush=
+  (review/thread/buffer/provision) commits the assistant =tool_use= turn (half a pair)
+  before its =tool_result= exists; a client abort (live WS close → =socket= =return()= at the
+  yield) runs NEITHER the post-loop flush NOR the catch, so the dangling =tool_use=
+  persists. Every later =render()= includes it → Anthropic 400 (non-retryable) → thread
+  PERMANENTLY bricked until row surgery. "Model used a tool, user hit stop / sent a
+  follow-up" is a normal chat gesture — deterministic on the live WS path. Highest
+  severity×normal-use of the persistence family. (Sub-variants: plain abort loses the
+  assistant reply; provider-error rollback is a no-op because the rollback registers
+  =em.remove= but never flushes — but that path is near-unreachable, =respond()= swallows
+  provider faults into =/response/close=, =hallucinate.js:100-109=. The LIVE break is abort.)
+
+** root cause 4 — =Thread.counter= is a RMW with no version / atomic bump / unique [BREAKS]
+
+=Thread.counter= (=Thread.ts:43,120=) — no version column, no atomic increment, no
+=unique(thread,index)= on Buffer. One atomic-bump fix kills rank 11 + 12 and halves 17.
+
+- *rank 11 — concurrent =/emit= on one thread.* Two concurrent emits each fork their own
+  em, both read =counter=N=, both write =N+1= (one increment lost), both set
+  =buffer.index=N= (=emitter.js:57-64=) → duplicate index, "index orders the buffers"
+  invariant dies silently. Same-user (two tabs / tab+bruno).
+- *rank 12 — stale identity-map instance in a stream fork.* =harnessed.js:27= loads the
+  Thread into a fork that lives for MINUTES; a mid-stream provision tool emits in that
+  same fork and =findOne= returns the STALE instance (mikro never re-hydrates a PK hit
+  without refresh) while a concurrent =/emit= moved =N→N+k= → counter REGRESSION + reused
+  indexes.
+
+** root cause 5 — the thread ROW is loaded then discarded; the raw id STRING is bound [BREAKS]
+
+=harnessed.js:27= loads the thread entity (for the INTELLIGENT claim) and throws it away;
+:62 binds =ctx.thread= = the raw wire STRING. This is quest fork #3, and the fix is one
+assignment — the row is already in hand at :27.
+
+- *rank 9 — Trace.thread silently NULL on every harness-tool review.* The guarded tool ctx
+  carries the string; =Literal.review='s =thread: ctx.thread?.id ?? null= (=Literal.ts:197=)
+  → null; =Trace.thread= is nullable → persists silently. Fires on EVERY francesca review
+  that rides the tool loop. Pure attribution loss (user + Retention are correct — user is
+  bound as an ENTITY). Highest-frequency break, lowest impact.
+- *rank 21 [LATENT] — primer aperture, DISTINCT site.* =primer /assistant/turn= calls
+  =Literal.review= with a plain mode-aperture ctx where NOTHING binds =ctx.thread= → same
+  null. Fixing rank 9's string-bind does NOT fix this. Gated on a young-ladys-primer daemon
+  booting (mounted in no variant today).
+
+** root cause 6 — stale identity-map instance in the long-lived stream fork [BREAKS]
+
+Same mechanism as rank 12, second victim:
+
+- *rank 13 — mid-stream =thread/update= skill clobbers a concurrent client trait edit.*
+  =skills/thread.js:17-21= =findOneOrFail= → PK identity-map hit → stale instance holding
+  =trait=T0= from =harnessed.js:27=; it merges its patch over the stale JSON and flushes,
+  wholesale-overwriting a concurrent client E-panel trait edit (T1). The user's
+  INTELLIGENT/MASKED config edit is silently reverted (whole JSON column). Lost write,
+  broadcasts the clobber so the panel snaps back.
+
+** standalone breaks (not in a shared root)
+
+| rank | title | trigger gate | severity |
+|------+-------+--------------+----------|
+| 3 | INTENTED boot finalizers share ONE fork under =Promise.all= → filter-param cross-talk → dup insert → whole-process BOOT CRASH | ≥2 INTENTED modes (education: clinic 14 + rep-o-gram 8) AND ≥2 users; single-user dev DB safe | total outage, boot-loop |
+| 4 | same-tab logout→login: userB renders userA's REAL threads/intents over a never-torn-down subscription | account switch in one tab; =logout()= clears identity but never drops daemons/subs, =daemon.release= assigned but called NOWHERE | cross-user leak (real content, client-side) |
+| 6 | =input.tools= nature-collision overwrites SHARED module-scope skill leaf → persistent daemon-wide tool DoS | one crafted harness body: JSON =tools:{entity_find:{…}}= can't carry a function → =execute=undefined= → =armed.open= overwrites the shared leaf's effect (PROBE-PROVEN) | tool dead daemon-wide until restart |
+| 10 | concurrent dialogue on one thread → =createdAt=-braided history splits a =tool_use/tool_result= pair → provider 400 | two overlapping streams on one thread (2 tabs / kajuit+bruno; client aborts only its OWN prior); =history()= orders by createdAt, ignores parent linkage | persistent send failure, same-user |
+| 14 | echo harness caller (aprende render) drops =ctx.user= → review collar fires ERROR → lost Retention/Trace | aprende =/assistant/message= on brazilian/spanish; echo mints ctx w/o user, =:61= bind skipped | lost write (no wrong-user rows — ORM ambient still scopes) |
+
+** LATENT — waiting on a named thing
+
+| rank | title | the gate |
+|------+-------+----------|
+| 15 | per-request auth clone written onto the SHARED daemon singleton (=ctx.daemon.connection=, =population.js:92-97=) → cross-user token BLEED | zero server-side readers today; fires when a domain tool makes an authed cross-daemon call through =ctx.daemon.connection= |
+| 16 | TOOLED =/metadata/tools= remote invocation would dispatch =mode.tools= bypassing the harness assemble → userless/threadless ctx | =metadata.js:38= commented; AGENTIC harvest is NOT an escape (harvested tools ride the source mode's binds) |
+| 19 | headerless socket PUSH path silently 401-drops a userspace write | only push producer =shape.messenger= has zero live consumers; fires when any mode wires it for a fire-and-forget WRITE |
+| 20 | debounced datasink auto-settle overwritten by reactive on the same twitch path + timer resurrects a dead RequestContext fork | ZERO datasink declarers today; doubly-gated |
+
+** gaps — surfaces NOBODY probed (beef's next "and and and")
+
+1. *client-minted turn PK* — =harnessed.js:84= passes =id: ctx.input.id= from the dialogue
+   body straight into =turn.chain= → =em.create= with a CLIENT-controlled primary key.
+   Unexamined: supplying a victim's existing turn id → cross-fork PK collision → 500 as a
+   turn-existence ORACLE; or, combined with rank 1's foreign-thread write, pre-seeding a
+   chosen PK onto a victim thread.
+2. *turn/buffer reactive push-delivery with no =user= column* — =userspace.js:34-37= (turn)
+   and =:24-27= (buffer) set the reactive scope option to ={user: ctx.user.id}=, but neither
+   entity serializes a flat =user= field (Buffer scopes via ={thread:{user}}=). The
+   =datamap.js:183= owner-STAMP branch RUNS for them (they have a scope option, unlike
+   thread) — does it inject a =user= onto the userless serialized row so match succeeds, and
+   what happens when the writing fork lacks the param (the streaming generator's
+   assistant-turn creates, or a threadless emit)? HOLD-via-stamp or silent live-update
+   delivery failure — unresolved.
+3. *concurrent same-user first-request double-submit* racing the INTENTED =/after/user/create=
+   twitch (=intented.js:15-22=) → Intent =unique[user,slug,mode]= collision, swallowed in
+   the pump's per-item try/catch. Distinct from rank 3 (that's the BOOT walk).
+4. *UserEntity serialization surface* — =/userspace/handshake= (=userspace.js:39=) returns
+   the full =ctx.user= entity, and =ctx.user= is bound into every armed tool ctx. Which
+   fields serialize (auth material / tokens / email)? Self-scoped so not cross-user, but if
+   a provider secret rides =toJSON= it reaches the browser. Needs a User-schema read.
+
+** what the sweep settles for the design
+
+- the store question (A/B/C/D) was NEVER the whole problem — *there is no ownership CHECK
+  at all on the harness path.* Whatever store wins, the harness MUST gate on the thread row
+  it already loads (=harnessed.js:27=), and Turn MUST carry the =user= filter. These are the
+  actual m25 deliverables; the store is downstream.
+- fork #3 (entity-at-bind vs id-string) is no longer cosmetic: it is root cause 5, live,
+  one assignment from fixed.
+- the collar (fork #2 scope-of-law) has TEETH now: rank 1 proves the userspace-WRITE law is
+  a security boundary, not a nicety. =review.js='s soft ERROR collar is the right shape but
+  the wrong LAYER — it guards one tool, not the harness seam every write rides.
+- HOLDS worth keeping as LOAD-BEARING defenses (documented so nobody removes them):
+  per-frame RequestContext + =inject= per-pull carry re-entry (concurrency isolation) ·
+  Thread's own user filter + null-guard on the =/emit= path · batch re-auth on the daemon
+  aperture root · thread reactive's scope-middleware + serialized FK delivery · AGENTIC
+  harvest rebinding only daemon+mode (caller user/thread survive).
+
+* the four escape hatches
+
+The request-outliving consumers any solution must answer. ALS law first
+(Deno/V8): a store set by =run()= propagates through awaits, promise chains,
+and timers/microtasks SCHEDULED inside the scope (init-time capture). It does
+NOT follow (a) generator bodies pulled by a foreign frame, (b) callbacks run by
+a shared scheduler created elsewhere, (c) coalesced timers reset across
+requests (last-scheduler's context wins).
+
+1. *streaming persist* — =traits/harnessed.js:86-131= (ex :60-105; generator :95-118,
+   flush :113): the async generator keeps
+   creating+flushing turn entities while the client pulls, AFTER the handler
+   returned (=shape/http.js:47= publishes the iterator; Deno's writer pumps it).
+   ORM fork survives ONLY because inject re-wraps each pull with =carry()=.
+   Proven empirically: probe =inside=USER-123 · outside=null · carried=USER-123=
+   ([[project_reactive_owner_orm_context]]). Any SECOND ambient store needs its
+   own carry pass — or must BE the same store.
+2. *debounced datasink drain* — =traits/datasink.js:60-71=: =fn.debounce(…, 1500)=
+   (=belt/fn.js:13-21=, raw setTimeout, reset per write). Fires 1500ms after the
+   mutating request resolved; the timer's ALS context = whoever called =settle()=
+   last, which runs inside the shared detached pump — and N users' writes
+   coalesce into ONE timer. No per-request store can answer "whose drain" even
+   in principle. Defused today only because datasink REFUSES user-scoped types
+   (=datasink.js:12-15=, dataspace-only throw).
+3. *pool drain* — =traits/emitter.js:41-51=: delegate promises are created inside
+   the request frame (=ctx.pool.add= before flush, [[feedback_emitter_delegation_via_pool]])
+   and =drain()= is awaited in-middleware → ORM fork AND any ALS survive.
+   The weakest hatch — everything passes it.
+4. *reactive broadcast* — =shard/datamap.js:176-195=: =/after= handlers run in the
+   detached pump but inside =carry()= captured at flush time →
+   =getFilterParams("user")= resolves in EVERY write context, including lazy
+   streams; null throws loud (:185-189). The landed decision: owner rides
+   ORM-carried filter params, NOT ambient — =shard.ambient.store= was in
+   resolution.js and was REMOVED for exactly this hatch ([[project_reactive_owner_orm_context]]:
+   "Do NOT reintroduce ambient for owner routing").
+
+* options
+
+One mechanism for both user and thread, per beef.
+
+** A — DILIGENCE (forced ctx construction)
+#+begin_src javascript
+// gestalten/steer/strategy.js — NEW provenance-bearing strategy (sketch)
+export const sworn = (provenance) => (carry, effect, steps, signal) => async (input) => {
+  if (!provenance.user) throw new Unowned(signal);      // thread: law TBD (fork 2)
+  const ctx = { input, ...provenance, signal, steps, params: {}, state: {} };
+  await carry(ctx, resolve(effect));
+  return ctx.output;
+};
+// traits/harnessed.js — finalize with the caller's provenance instead of bare echo
+mode.harness = (provenance) => shape.object(harness, sworn(provenance));
+#+end_src
+- mint sites to force: =strategy.js= bare:20 / echo:26 / request:32 / guarded:43 ·
+  =shape/http.js:7= · =socket.js:131,158= · =shard/batch.js:25= — 7 seams, plus
+  5 direct-harness callers change signature. All in typology (HOLY — ask).
+- escape hatches: 2/4 survive by ctx-closure (streaming, pool). Hatch 2 only
+  vacuously — datasink refuses user-scoped types, and no ctx reaches the coalesced
+  timer either way. Hatch 4 only via the ORM-param bridge kept ALONGSIDE A — the
+  broadcast handler receives subscriber args, never ctx. ("4/4" was overstated.)
+- missing value: throws at mint — loud, earliest possible.
+- breaks: riddler/turn-free emits have no thread BY DESIGN (=emitter.js:26-27=);
+  boot housekeeping (=population.js:118= modes fork, INTENTED walk) has no user.
+  A hard "no ctx without both" bounces the daemon's own plumbing → the law must
+  be scoped to userspace-write seams, which is… what the ORM filter throw
+  already is.
+- francesca: served only if every caller forwards — diligence IS the forwarding.
+
+** B — AMBIENT (ALS after auth middleware)
+#+begin_src javascript
+// daemon/lifecycle/resolution.js — the write-once (shard exists, dormant)
+.use(shard.secure.authorize())
+.use(shard.ambient.store((ctx) => ({ user: ctx.user, thread: null })))
+// thread arrives LATER (input.thread at the harness/emitter leaf) → second nested
+// run() in the trait middleware; reads anywhere via shard.ambient.current()
+#+end_src
+- beef's question "would that survive responded resolved requests?" — yes ALONG
+  the request's own async chain (the store object outlives the response; pool
+  drain ✓), no ACROSS shared schedulers: streaming persist ✗ (pulled by the
+  server writer frame — needs its own carry in inject), debounced drain ✗
+  (coalesced timer, category-wrong), broadcast ✗ (detached pump re-enters only
+  the ORM store). 1/4 hatches survive unaided; fixing the other three means
+  reimplementing =carry()= for a second store — at which point B has collapsed
+  into D with extra state.
+- missing value: =getStore()= returns undefined — SILENT drop, the worst
+  failure mode. The loud tripwire in the broadcast exists because the ORM read
+  is explicit.
+- francesca: B's one genuine win — the direct-harness call sits inside the
+  authorized chain, so =current()= reads through the echo seam with zero
+  forwarding. The same no-forwarding property is the hazard everywhere else.
+- prior art says no: tried, removed ([[project_reactive_owner_orm_context]]).
+
+** C — REQUEST HEAD + hydrate at the boundary
+- wire today: auth = authorization header / =?token= (=secure.js:12-14=);
+  multiplex re-stamps per frame ={frame, signal, verb, query, token, input, stream}=
+  (=socket.js:156-165=) — thread is NOT head material anywhere, it rides the body.
+- mechanism (NEW): =x-viva-thread= header / =packet.thread= field; one boundary
+  middleware after authorize hydrates =ctx.thread= (findOne) + whatever store
+  A/B/D chose. Client caveat: kajuit stamps =thread.id= PER SEND (=conversation.js:39-40=,
+  =Dock.svelte:181=), and a Connection is per-MODE, thread-SHARED, with the active
+  thread switching under it (=conversation.js:76= aborts on switch) — "once per
+  Connection" is NEW client state plus a re-stamp protocol, not a relocation.
+  Kills the 18 manual =input.thread= sites.
+- honest scope: C solves TRANSPORT (client→daemon), not PROPAGATION (daemon
+  seam→escape hatch). It is an ergonomics layer over A or D, not a third store.
+  Push caveat (previously "auth-free … for free" — WRONG): the push path
+  (=socket.js:131=) mints headerless ctx and authorize DENIES it (silent 401, effect
+  never runs, response discarded). A head contract helps only if the :131 mint also
+  consults =packet.token= / =this.bearer= — a typology =socket.js= change; the thread
+  half is pure ergonomics riding that same mint change.
+
+** D — ORM-FILTER-CARRIED (extend getFilterParams, the landed pattern)
+#+begin_src javascript
+// daemon/lifecycle/resolution.js — user already rides here (:7)
+.use(daemonDie.datamap.shard.bind("user", (ctx) => ({ user: ctx.user.id })))
+// traits/harnessed.js:53 + traits/emitter.js:28 — bind thread the moment it is known
+// (same shard, second param) instead of / alongside the value-bind:
+.use(daemonDie.datamap.shard.bind("thread", (ctx) => ({ thread: ctx.input.thread })))
+// read anywhere the fork reaches — tool bodies, broadcast, carried streams:
+repo.getEntityManager().getFilterParams("thread")
+#+end_src
+- every piece exists: bind (=libsql.viva.js:51-54=), carry into streams
+  (=inject=, :59-62), carry into twitch (=detached=), explicit fork-and-set when
+  requestless (=intented.js:4-9=).
+- escape hatches: streaming ✓ (proven) · broadcast ✓ (landed, =datamap.js:184=) ·
+  pool ✓ · debounced drain ✗ like everyone (coalesced timer has no owner; the
+  INTENTED precedent — fork+set when you DO know — is the only honest answer,
+  and datasink's dataspace-only throw keeps the question moot there).
+- missing value: userspace query throws (filter =default:true=, no params);
+  broadcast throws loud. Failure mode already shipped and tested
+  (=datamap.scoped.test.js= — asserts the broadcast "carries no owner" throw; the mikro
+  missing-filter-arg throw is exercised only implicitly in its setup).
+- francesca: premise stale — francesca's live path is kajuit → aperture =/harness=
+  behind authorize (=conversation.js:39-40=), a REQUEST ctx with =ctx.user=; the
+  echo-seam drop persists only for the 5 in-daemon direct callers. User already
+  rides the fork's params there; thread joins the moment harnessed binds it as a param.
+- cost: D carries IDS, not entities — =Literal.review= wants =ctx.user.id= /
+  =ctx.thread?.id=, so consumers either read params or a thin ctx-hydrate
+  middleware materializes =ctx.user=/=ctx.thread= from the params at each
+  vector entry (one shard, NEW, ~10 lines). And the ORM becomes the official
+  ambient — a role it already plays de facto.
+
+** preliminary lean (assessment, not decision)
+
+REFRAMED by the breakage sweep: the store choice is DOWNSTREAM of two must-fixes the sweep
+made non-optional — (1) Turn gets the =user= filter (closes the crown IDOR + the skill
+leak), (2) the harness GATES on the thread row it already loads at =harnessed.js:27=
+(bounce foreign/deleted threads) and binds the ENTITY not the string. Those are the m25
+deliverables; A/B/C/D only decide how user/thread TRAVEL, which the ORM filter + a harness
+gate already largely settle. Original lean below stands for the travel question:
+
+D for the store + a diligence collar at the two seams that drop values (echo
+harness objects, guarded tool ctx): replace the ad-hoc value-binds with ONE
+provenance shard that hydrates =ctx.user=/=ctx.thread= from the fork's params
+and bounces userspace writes when either is missing-but-required. A and D are
+the same doctrine at different layers — "no userspace write without owner" —
+and D's layer already has the throw, the carry, and a green test. B is
+attractive exactly where it is dangerous; C is worth having regardless, as
+transport ergonomics, and can land later without prejudice.
+
+POSTSCRIPT (verified sweep): m26 landed A-STYLE value-binds for BOTH user and thread
+at the tool seam (=harnessed.js:52-53=) with no m25 ruling, and no thread ORM param
+exists anywhere — de facto: user rides D AND A, thread rides A only, the OPPOSITE
+direction from this lean. And =domain/tools/review.js= (re-landed) already opens with
+the collar, soft: =condition: "ERROR"= yield when =!ctx.user?.id= — one seam, a yield
+not a throw. The lean is now a MIGRATION question (consolidate the accidental A-state
+into D + collar, or bless the A-state) rather than a green-field pick.
+
+* prior art in-repo
+- =datamap.shard.context= / =carry= — MikroORM RequestContext IS an ALS; the
+  repo already runs one ambient, with capture-and-reenter at every hatch that
+  needs it (=libsql.viva.js:48-63=).
+- broadcast owner decision — carried filter params, not ambient; loud-throw
+  tripwire (=shard/datamap.js:180-189=, [[project_reactive_owner_orm_context]]).
+- =shard/ambient.js= — built, dormant, one test caller (=multiplex.filter.test.js:23=).
+- packet frame — ={frame, signal, verb, query, token, input, stream}=
+  (=socket.js:139-179=); per-frame re-auth already answers "stale context on
+  long-running requests" for the aperture path.
+- =intented.js= — requestless fork-and-set exemplar.
+- m23 III.1 planned harness bind (quest :104-118) — the line this quest
+  intercepts.
+
+* open forks
+1. is thread ORM-fork data (D) or ctx data (A)? user is already D — "same
+   solution for either" argues thread follows. PREMISE SHIFTED: m26 landed
+   A-style ctx binds for BOTH at the tool seam (=harnessed.js:52-53=); no thread
+   ORM param exists anywhere. The fork is now consolidate-into-D vs bless-the-A-state.
+2. scope of the law: =emitter.js:26-27= says thread OPTIONAL for turn-free
+   modes — is "not ctx without either" a userspace-WRITE law only?
+   (=review.js='s soft collar is a first data point: write-seam, yield not throw.)
+3. =harnessed.js:53= binds the raw wire id; =Literal.review= reads
+   =ctx.thread?.id= (=Literal.ts:197=) → Trace.thread silently null on the tool
+   path — REACHABLE again since =review.js= re-landed. Entity at bind, or ids
+   everywhere? Note: the harness already LOADS the row at :27-29 (INTELLIGENT)
+   and discards it — entity-at-bind is one assignment away.
+4. SETTLED (installed source, mikro 6.6.7 =EntityManager.js= — no probe needed):
+   =setFilterParams= (:211-213) is a bare write into =filterParams=, a plain
+   per-context object DISJOINT from the =filters= registry (:42-43);
+   =getFilterParams= (:217-219) returns undefined for an unset name, never
+   throws; the "No arguments provided for filter" throw (:391) fires only for a
+   REGISTERED active filter with parameterized cond; forks COPY params (:1445).
+   → D needs params alone; a =thread= filter declaration is needed only to ALSO
+   auto-scope queries by thread.
+5. do the 5 direct =mode.harness= callers change signature (pass provenance /
+   outer ctx), or does the fork-read make forwarding unnecessary? (m26 changed
+   the call shape to one Request record — forwarding is one =thread= key; the 5
+   stand: message.js:21 · oracle/aperture.js:9 · oracle/emitter.js:10 ·
+   dealer.viva.js:61 · primer/aperture.js:48. A 6th, client-side wire-backed:
+   =Oracle.svelte:70= — outside the echo class, rides the authorized aperture.)
+6. does C's head field land now (kills 18 =input.thread= sites; gives the
+   auth-DENIED push path at =socket.js:131= a contract — which also needs the
+   mint to consult =packet.token=) or wait for the store decision?
+7. the coalesced debounce class: accept "no owner" as a structural fact
+   (dataspace-only stays law) or require fork+set at every future twitch timer?

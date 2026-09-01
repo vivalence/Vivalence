@@ -1,6 +1,5 @@
 import deno from "@deno/vite-plugin";
 import { Url, Status } from "@vivalence/typology";
-import { defineConfig } from "vite";
 import { sveltekit } from "@sveltejs/kit/vite";
 import { dirname, join } from "@std/path";
 import { fileURLToPath } from "node:url";
@@ -35,7 +34,7 @@ async function serverConfig() {
       ignored: ["**/node_modules/**", "**/#*", "**/bak/**"],
       include: [
         "./src/**/*",
-        "../../registry/**/*.{html,svelte,js,css}",
+        "../../commons/**/*.{html,svelte,js,css}",
         "../../subsystems/typology/**/*",
         "../../subsystems/dapper/**/*",
         "../../subsystems/drapes/**/*",
@@ -103,7 +102,7 @@ function beacon() {
   };
 }
 
-export default defineConfig(async ({ command }) => ({
+export default async ({ command }) => ({
   plugins: [sveltekit(), deno(), beacon()],
   logLevel: "info",
   define: {
@@ -141,4 +140,4 @@ export default defineConfig(async ({ command }) => ({
     },
     extensions: [".ts", ".js", ".jsx", ".json", ".svelte", ".svg", ".mjs"],
   },
-}));
+});

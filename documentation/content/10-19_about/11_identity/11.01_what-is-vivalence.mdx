@@ -8,7 +8,7 @@ author: beef (human)
 
 The history of software systems up to this point has been one of differentiation; most software stands in isolation and tries to distinguish itself from other software. Vivalence changes the paradigm to integration by standardising on a common denominator.
 
-Today's applications share the wrong layer: they keep private what is actually common — the schemas, ontologies, logic, and services that every system solving for a problemspace reimplements — and they share what should be custom: the presentation, workflows, and surfaces. Vivalence inverts this with its common denominator — the mode. Modes carry domain and business logic, they implement services, they transport data, and they surface application interfaces. This allows the core parts of any stack to be standardized and shared, while higher-order features and surfaces can be individualized with little effort.
+Today's applications share the wrong layer: they keep private what is actually common for a problemspace — the schemas, ontologies, logic, and services — yet all users get the same surfaces, workflows, and presentation paradigms. Vivalence inverts this with its common denominator — the mode. Modes carry domain and business logic, they implement services, they transport data, and they surface application interfaces. This allows the core parts of any stack to be standardized and shared, while higher-order features and surfaces can be individualized with little effort.
 
 This moment in time offers a unique opportunity to redo our software stack — AI is giving everyone the capabilities to create, design, and populate their own applications. What's missing is the right substrate and tooling. Introducing: Vivalence.
 
@@ -50,7 +50,7 @@ As an example: an individual who has Vivalence installed wants to learn Spanish.
 
 The vocabulary-practice domain mode brings the anatomy — what a word or sentence looks like, the memory entities that store retention data, the routines for reviewing an item, a place to pull due or new ones. A corpus mode brings the data — Spanish words, sentences, conjugations, audio. Add in some standard service modes for LLM and datastorage — and you have a system to teach Spanish. 
 
-One person prefers flashcard drills. Another wants a conversational agent that practices with them in dialogue. Neither has to compromise: the surface is theirs to shape, and shaping it is as simple as a plain text command — they describe their intent to a coding agent, and the agent builds it as a custom mode. The corpus, the domain logic, the services underneath stay untouched and shared. And if they want to learn Latin with their shiny new custom setup, all they need to do is clone that daemon and exchange the mode carrying the dataset.
+One person prefers flashcard drills. Another wants a conversational agent that practices with them in dialogue. Nobody has to compromise: the surface is yours to shape, and shaping it is as simple as a prompt — your describe your intent to a coding agent, and the agent builds it as a custom mode. The corpus, the domain logic, the services underneath stay untouched and shared. And if you want to learn Latin with your new setup, all you need to do is clone that daemon and exchange the mode carrying the dataset.
 
 Same daemons, same domain, different 5%. This is the benefit of everything being a mode.
 
@@ -60,7 +60,7 @@ Three more good-to-knows:
 
 - A mode is just JavaScript, JSON, and Svelte — no magic.
 - Modes live in managed packages and can be shared via git servers, USB sticks, AirDrop, or Dropbox. The system is not opinionated about the sourcing of modes — as long as they arrive in the filesystem.
-- The whole system can be set up without any external dependency — a Viva instance can be air-gapped, if desired and properly resourced.
+- Architected for single- and multiplayer, localhost and server use, entirely cloudless air-gapped setups, and broadly distributed network topographies.
 
 ## Unit
 

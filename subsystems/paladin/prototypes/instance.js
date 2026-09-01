@@ -1,6 +1,7 @@
 import { isAbsolute, resolve as resolvePath } from "@std/path";
 import { load } from "@std/dotenv";
-import { Pipe, Mask, Url, v, fn } from "@vivalence/typology";
+import { Pipe, Mask, v, fn } from "@vivalence/typology";
+import { NOTHING } from "./ledger/instances.js";
 
 const reference = (home) => (entry) =>
   typeof entry !== "string"
@@ -10,9 +11,6 @@ const reference = (home) => (entry) =>
       : /^\.\.?\//.test(entry)
         ? resolvePath(home.dirname, entry)
         : entry;
-
-// branches handed back as thunks, so no value lands on the instance.
-const DEFERRED = new Set(["secrets"]);
 
 // records every key asked for; the thunk sees paladin unchanged.
 const watch = (bag, read) =>
@@ -26,12 +24,6 @@ const watch = (bag, read) =>
           }
         : Reflect.get(target, prop, receiver),
   });
-
-// produced but unusable: new Url(unset) does not throw, it yields href "NaN".
-const usable = (value) =>
-  value instanceof Url
-    ? value.origin !== undefined
-    : value !== undefined && value !== null && value !== "";
 
 // SUPERSEDED — a sentinel probe: a second walker fired deferred thunks against a fake bag to
 // learn their keys. bought nothing over firing once and discarding.
@@ -55,9 +47,9 @@ const usable = (value) =>
 // }
 
 // the pinhole: every thunk in a declaration fires here and nowhere else.
-export function hydrate(node, record = null, paladin = null, at = "", deferred = false) {
+export function hydrate(node, record = null, paladin = null, at = "") {
   if (typeof node === "function") {
-    if (!record || !paladin) return node();
+    if (!record || !paladin) return hydrate(node());
     const read = [];
     const { env, secret } = paladin;
     paladin.env = watch(env, read);
@@ -74,18 +66,16 @@ export function hydrate(node, record = null, paladin = null, at = "", deferred =
       at,
       read: read.map((held) => held.key),
       unset: read.filter((held) => held.unset).map((held) => held.key),
-      usable: usable(value),
-      deferred,
     });
-    return deferred ? node : value;
+    return hydrate(value, record, paladin, at);
   }
   if (Array.isArray(node))
-    return node.map((value, index) => hydrate(value, record, paladin, `${at}[${index}]`, deferred));
+    return node.map((value, index) => hydrate(value, record, paladin, `${at}[${index}]`));
   if (node?.constructor === Object)
     return Object.fromEntries(
       Object.entries(node).map(([key, value]) => [
         key,
-        hydrate(value, record, paladin, at ? `${at}.${key}` : key, deferred || DEFERRED.has(key)),
+        hydrate(value, record, paladin, at ? `${at}.${key}` : key),
       ]),
     );
   return node;
@@ -93,13 +83,10 @@ export function hydrate(node, record = null, paladin = null, at = "", deferred =
 
 // move to lifecycle / dossier / die
 async function resolve(instance) {
-  if (!instance.paladin.scope.instance) throw new Error("instance.mount: no scope.instance");
-
-
   // mounting must not SCAFFOLD, so an absent home reaches here as a readdir ENOENT — name it.
-  const home = instance.paladin.scope.instance.absolute;
+  const home = instance.home.absolute;
   const modules = await instance.paladin.find
-    .type(instance.paladin.scope.instance, "instance")
+    .type(instance.home, "instance")
     .catch((error) => {
       if (error?.code === "ENOENT") throw new Error(`instance.mount: no instance at ${home}`);
       throw error;
@@ -122,7 +109,12 @@ async function resolve(instance) {
 
   const materialize = (label) => (declaration) => {
     const { kernel = [], ...rest } = declaration;
-    return { ...at(label)(rest), kernel: kernel.map(reference(module.source)) };
+    const held = at(label)(rest);
+    return {
+      ...held,
+      kernel: kernel.map(reference(module.source)),
+      lighthouse: held.lighthouse ?? instance.lighthouse,
+    };
   };
 
   const slug = (declaration) => declaration.slug ?? declaration.manifest?.slug;
@@ -138,7 +130,9 @@ async function resolve(instance) {
     mask("service")(at(`service[${slug(declaration)}]`)(declaration)),
   );
   instance.requirements = record;
-  instance.environment = module.environment ?? {};
+  instance.environment = module.environment ?? v.environment({});
+  if (!instance.environment.properties)
+    throw new Error(`instance.mount: environment must be v.environment({…}) — ${module.source.absolute}`);
 
   // instance.runtime.logs = new Pipe()
   // instance.clients.kajuit.logs = new Pipe()
@@ -154,6 +148,10 @@ function validate(instance) {
   if (Object.keys(instance.runtime).length) {
     v.primitives.instance.Runtime.cast(instance.runtime);
     collect("runtime", instance.runtime, v.primitives.instance.Runtime);
+  }
+  if (Object.keys(instance.lighthouse).length) {
+    v.primitives.instance.Mask.cast(instance.lighthouse);
+    collect("lighthouse", instance.lighthouse, v.primitives.instance.Mask);
   }
   for (const [slug, client] of Object.entries(instance.clients)) {
     v.primitives.instance.Client.cast(client);
@@ -204,6 +202,13 @@ export class Instance {
     this.mount = fn.once(this.mount.bind(this));
     this.paladin = paladin;
     // this.logs = new Pipe();
+  }
+
+  get home() {
+    if (!("instance" in this.paladin.scope)) {
+      throw new Error(NOTHING);
+    }
+    return this.paladin.scope.instance;
   }
 
   async mount() {

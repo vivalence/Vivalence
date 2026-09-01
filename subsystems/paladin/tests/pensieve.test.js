@@ -30,6 +30,15 @@ describe("Pensieve", () => {
     expect(development.manifest.owner).toBe("@development");
   });
 
+  it("a second file claiming a held identity cannot register — the same file re-registers idempotently", () => {
+    const pensieve = new Pensieve();
+    const starter = { ...module("@commons", "instance", "multiplayer"), mount: { absolute: "/commons/instances/starter/multiplayer.viva.js" } };
+    const shadow = { ...module("@commons", "instance", "multiplayer"), mount: { absolute: "/commons/instances/copy/multiplayer.viva.js" } };
+    pensieve.register(starter);
+    pensieve.register({ ...starter, manifest: { ...starter.manifest } });
+    expect(() => pensieve.register(shadow)).toThrow(/already registered/);
+  });
+
   it("latest() resolves the highest semver within a slug", async () => {
     const pensieve = new Pensieve();
     pensieve.register(module("@education", "game", "write", "0.1.0"));

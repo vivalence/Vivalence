@@ -99,19 +99,26 @@ trajectory
       ctx.rendered = true;
     } else {
       const emit = flags.json ? async () => (ctx.rendered = true) : marking("emit");
-      ctx.view = { ...view, scroll: { ...view.scroll, emit, render: marking("render") } };
+      const nature = ctx.signal.array.map((segment) => segment.nature).join("/");
+      const render = ctx.interactive
+        ? marking("render")
+        : () => {
+          throw new Error(`${nature}: needs a terminal — run it in one, or pass its inputs as parameters (viva help ${nature})`);
+        };
+      ctx.view = { ...view, scroll: { ...view.scroll, emit, render } };
     }
 
+    // emission is the success path — a throw leaves through the exit site below, with nothing emitted here.
     try {
       await next();
       if (shell) await shell.untilExit(); // hold alt-screen until user presses esc/return
-    } finally {
-      if (shell) shell.release();
       if (flags.json) {
         console.log(JSON.stringify(ctx.effect, null, 2));
-      } else if (!ctx.rendered && ctx.effect != null && !ctx.error) {
+      } else if (!ctx.rendered && ctx.effect != null && !ctx.effect.error) {
         await view.scroll.emit({ data: ctx.effect }, null, Effect);
       }
+    } finally {
+      if (shell) shell.release();
     }
   });
 
@@ -133,8 +140,7 @@ const context = new ShellContext({ signal });
 for (const mount of config.MOUNTS) {
   const reference = signal.flags?.[mount];
   if (!is.string(reference)) continue;
-  // MOUNT MEANS PATH — --instance may name a slug on the shelf, the env var never holds one.
-  const pinned = mount === "instance" ? path.instance(reference) : path.pin(reference);
+  const pinned = mount === "instance" ? (await paladin.ledger.instances.resolve(reference)).mount : path.pin(reference);
   paladin.env.set(`VIVA_${mount.toUpperCase()}_MOUNT`, pinned, "flag");
 }
 
@@ -153,15 +159,25 @@ if (is.string(signal.flags?.env)) {
   paladin.secret.assign(secrets, ".env");
 }
 
-try {
-  await steer.dispatch.invoke(trajectory, signal, strategy)(context);
-  if (context.error) console.error(context.error);
-} catch (error) {
+// the one exit: every failure — thrown, caught into ctx.error, or returned as an { error } effect —
+// leaves through here with a status. one line for a human, the stack under --verbose, json under --json.
+const fail = (error, { printed = false } = {}) => {
   if (error.code === "NOT_FOUND") {
     console.error("ghost: no handler for", signal.absolute.join(" "));
     console.error("try: viva help");
     Deno.exit(127);
   }
-  console.error(error);
+  if (!printed) {
+    if (signal.flags?.json) console.log(JSON.stringify({ error: error.message }, null, 2));
+    else console.error(signal.flags?.verbose ? error : `ghost: ${error.message}`);
+  }
   Deno.exit(1);
+};
+
+try {
+  await steer.dispatch.invoke(trajectory, signal, strategy)(context);
+  if (context.error) fail(context.error);
+  if (context.effect?.error) fail(new Error(context.effect.error), { printed: signal.flags?.json === true });
+} catch (error) {
+  fail(error);
 }

@@ -20,6 +20,22 @@ specimen.describe("daemon userspace", () => {
     specimen.expect(entities.status).toBe(401);
   });
 
+  specimen.it("a fresh identity is refused the userspace until it handshakes", async () => {
+    const threads = await scenario.freshConn.fetch("/userspace/entities/thread/find", { where: {} });
+    specimen.expect(threads.status).toBe(401);
+    specimen.expect(threads.body.error.code).toBe("USER_NOT_FOUND");
+  });
+
+  specimen.it("handshake enrolls a fresh identity and opens its userspace", async () => {
+    const result = await scenario.freshConn.call("/userspace/handshake");
+    specimen.expect(result.success).toBe(true);
+    specimen.expect(result.user.id).toBe("fresh-identity");
+
+    const found = await scenario.freshConn.call("/userspace/entities/thread/find", { where: {} });
+    specimen.expect(Array.isArray(found)).toBe(true);
+    specimen.expect(found.length).toBe(0);
+  });
+
   specimen.it("handshake returns user when authed", async () => {
     const result = await scenario.authedConn.call("/userspace/handshake");
     specimen.expect(result.success).toBe(true);

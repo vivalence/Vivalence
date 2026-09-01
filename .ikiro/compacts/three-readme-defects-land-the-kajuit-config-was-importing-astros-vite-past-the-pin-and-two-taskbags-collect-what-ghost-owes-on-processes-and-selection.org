@@ -1,0 +1,190 @@
+#+title: three README defects land, the kajuit config was importing astro's vite past the pin, and two taskbags collect what ghost owes on processes and selection
+#+filetags: :readme:docs:ghost:paladin:kajuit:vite:rolldown:musl:alpine:ubuntu:install:instance:init:process:taskbag:quest:callout:
+
+* what happened, in one breath
+
+beef read the m46 quest through an eli5, then took its five blockers one by one. L1 (missing
+=curl=/=unzip=/=ca-certificates=) and L2 (PATH not persisted) landed in =README.md= §0 and
+=systems/ghost/install.sh=. L3 was answered: viva runs Deno 2.9 fine, Alpine cannot run Deno's
+gnu-only binary — and on beef's word that fact went to =known-issues.org=, not the README (fork F1
+closed as silence). L4 was chased past the walker's "upstream rolldown" to a repo cause: vite 6's
+config bundler resolves =import … from "vite"= with node rules, past the =import_map.json:55= pin,
+onto the flat =node_modules/vite= link that astro's vite 8 owns — so kajuit's config was loading
+vite 8 + rolldown inside a vite 6 process; the import was dropped on =go a= and Alpine now boots
+kajuit with no =NAPI_RS_NATIVE_LIBRARY_PATH=. L5 (=instance/init= hangs when a child dies) got five
+diffs, unapplied, filed under a new =* taskbag — ghost process management= (B1–B13); a second
+taskbag, =the use/--instance cluster= (C1–C12), was compiled on beef's order. Two corrections cost
+the session its tone: verdict sentences without source or diff (=retard=, callout ×4 on
+code-heavy-answers), then a blast-radius list where beef wanted an explanation in English.
+
+* spine (N=12 · this transcript · the walks and the first compact of this arc live in =two-walkers-reach-hello-world-on-ubuntu-and-alpine…= and =the-ubuntu-walk-lands-both-users-in-the-identity-table…=)
+
+| n  | beef asked                                                                                                                                                                           | landed                                                                                                                                                                                                                     | decided / killed                                                                                          |
+|----+--------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------+----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------+-----------------------------------------------------------------------------------------------------------|
+| 1  | (harness) continuation summary of the previous window                                                                                                                                | closing message for the previous compact delivered                                                                                                                                                                         | NOTHING of beef's                                                                                         |
+| 2  | =/i-have-adhd= skill loaded                                                                                                                                                          | answer shaping: next action first, lists ≤5, state every turn                                                                                                                                                              | later collides with code-heavy (rows 5, 10)                                                               |
+| 3  | /"read this. /eli5 overview. /adhd"/ (=m46-linux-readmen.org=)                                                                                                                       | quest read by headings + tail; eli5: five blockers L1–L5, four fixes already holding, 15 proposals, forks                                                                                                                  | —                                                                                                         |
+| 4  | five items: L1 /"fix."/ · L2 /"propose a fix."/ · L3 /"whats the problem here? cant viva run 2.9?"/ · L4 /"how to fix?"/ · L5 /"how to fix? whats the right approach? we want coherent process management. i feel like there are issues here all over. collect a taskbag here. taskbar ghost process management."/ + /"compile another taskbag for ghost cli incoherence for the whole use/--instance cluster. this isnt clean yet either."/ | README §0 prerequisites sentence + =sudo apt-get install -y curl ca-certificates unzip git=; L4 measured in the ubuntu container (=[probe] config sees vite 8.1.0 rolldown 1.1.5=); blast rows 16 + 17; taskbags B1–B13 and C1–C12 written into the quest; QA markers | L4 locus re-pinned from "upstream rolldown" to =systems/kajuit/vite.config.mjs:3=; 50.01:22 left alone (emacs autosave) |
+| 5  | /"l2 go."/ · /"reformulate this. my style. technical audience."/ · /"give me fucking context. i want to make decisions from in herer. i need to read code for that!"/ · /"WHAT?? code. fuck. and context! retard. tell you this all the time. where fucking context. crum of contrxt. code. my code. diffs."/ | README PATH comment rewritten; =install.sh= prints the export line when =~/.deno/env= is absent; L4 context: config lines, bundler snippet, =readlink=, lock lines, three options; L5: five diffs in chat; callout code-heavy-answers ×4 | option (b) =npm:vite@6= judged non-viable (bundler throws on a failed node-resolve)                        |
+| 6  | /"l4 why not pin the right version in the docs?? add l5 to the taskbag."/                                                                                                            | measured: the pin EXISTS (=import_map.json:55=); =--configLoader native= dies on =@sveltejs/kit/vite= without map entries; diffs 1–5 filed under the taskbag                                                                 | (c) steer-the-hoist DEAD; (d) native loader = two files                                                   |
+| 7  | /"l4 show me diff"/                                                                                                                                                                  | diff (a) three hunks + diff (d) shown                                                                                                                                                                                      | —                                                                                                         |
+| 8  | /"go a"/                                                                                                                                                                             | =vite.config.mjs= import dropped; alpine boots kajuit with NAPI unset (=VITE v6.3.3=); local =:1795= boots; kajuit 35/0; containers restored =f5dca23a=                                                                    | =deno check= red is pre-existing (TS2307 =@sveltejs/kit/vite=); the =import("vite")= probe is void for the after-state |
+| 9  | /"update me again on these two: Next: F1 a (README musl sentence) or L5 go."/                                                                                                        | F1 options with the transplant script; L5 as blast radius + numbered sequence                                                                                                                                              | rejected next row                                                                                         |
+| 10 | /"fuck. this is niehter readable nor an explanaition. this is just a fucking list. … high level. what are we doing? speak english to me"/ · /"f1 - this belongs into ikiro not readme."/ | F1 CLOSED (c): =known-issues.org= =deno-has-no-musl-build= with the transplant; marker =T-musl-sentence= dropped; L5 explained in prose                                                                                    | README stays silent on musl                                                                               |
+| 11 | /"ikiro compact"/                                                                                                                                                                    | this file                                                                                                                                                                                                                  | —                                                                                                         |
+| 12 | (MID-TURN) =/compact=                                                                                                                                                                | harness gate                                                                                                                                                                                                               | NOTHING                                                                                                   |
+
+Balance: rows 4–8 carry the work (three sections each), rows 9–10 the corrections; the last third
+(9–12) holds under a third of the citations.
+
+* the arc
+
+** eli5, then five items (rows 3, 4)
+
+The quest is 14,871 lines; the eli5 read its head and tail and gave beef the five blockers in plain
+words. beef answered each with a different verb — /fix/, /propose/, /explain/, /how/, /approach +
+taskbag/ — and that verb set is the shape of the window: one doc edit, one proposal, one answer, one
+measurement chain, one design with a bag. The bag order carried its own diagnosis: /"i feel like
+there are issues here all over"/ — the process surface was never one thing, and the selection
+surface (=use= / =--instance=) /"isnt clean yet either"/. Both bags live in the quest as tables with
+locus · defect · shape of fix, and the process bag ends with the stance in one paragraph: a Process
+is a state machine the ledger owns, readiness and exit are two settlements of one promise,
+attachment decides where output goes never whether it is kept, locks carry liveness at read, ghost's
+exit folds the children's.
+
+** L4, chased to the ground (rows 4, 6, 7, 8)
+
+The walker's L4 locus was "upstream rolldown". The chase:
+
+- =deno.lock=: ="npm:vite@*": 8.1.0= (astro@7.0.9, =documentation= workspace) and ="npm:vite@6": 6.3.3=
+  (kajuit's task). =readlink node_modules/vite= → =.deno/vite@8.1.0= on local, ubuntu, alpine.
+- =deno info systems/kajuit/vite.config.mjs= → =npm:/vite@6.3.3=, and an in-workspace probe file → 6.3.3.
+  Deno's resolver is not the culprit.
+- vite 6's =loadConfigFromFile= bundles the config with esbuild; its =externalize-deps= plugin
+  node-resolves every bare import from the config's dir and bakes the absolute path in:
+  #+BEGIN_EXAMPLE
+  idFsPath = resolveByViteResolver(id, importer, !isImport);   // tryNodeResolve — node rules
+  if (idFsPath && isImport) idFsPath = pathToFileURL$1(idFsPath).href;
+  return { path: idFsPath, external: true };
+  #+END_EXAMPLE
+  Node rules from =systems/kajuit/= = =<repo>/node_modules/vite= = 8.1.0.
+- Measured in =readmen-ubuntu= with one =console.error= prefixed to the config:
+  =[probe] config sees vite 8.1.0 rolldown 1.1.5= under a =VITE v6.3.3= CLI.
+
+beef: /"why not pin the right version in the docs??"/ — the pin exists, =import_map.json:55=
+="vite": "npm:vite@6.3.3"=; vite's bundler never consults it, and a fresh install with the pin present
+still linked =node_modules/vite= to 8. Neither side can move: astro wants =^8.0.13=, kit accepts
+=^5 || ^6 || ^7=, vite-plugin-svelte@5.1 =^6=, @deno/vite-plugin =5|6|7=. =--configLoader native=
+respects the map but dies: =Import "@sveltejs/kit/vite" not a dependency and not in import map=.
+So option (a): delete the import; =defineConfig= is =function defineConfig(config) { return config; }=
+(=dep-BMIURPaQ.js:48363=). On =go a=, three hunks:
+#+BEGIN_EXAMPLE
+-import { defineConfig } from "vite";
+-export default defineConfig(async ({ command }) => ({
++export default async ({ command }) => ({
+-}));
++});
+#+END_EXAMPLE
+Proof: =readmen-alpine=, patched config, =env -u NAPI_RS_NATIVE_LIBRARY_PATH … vite@6 dev --port 1795=
+→ =Status:ALIVE= · =VITE v6.3.3 ready in 1689 ms= — the line that used to read =Cannot find native
+binding=. Local =:1795= same banner; =deno test systems/kajuit/tests/= 35 passed / 0 failed; both
+container configs restored byte-identical.
+
+** L2 in beef's voice (row 5)
+
+Deno's =install.sh:95-107= runs shell setup only when =[ -z "$CI" ] && [ -t 1 ]=; it writes
+=~/.deno/env= and sources it from rc files. Under =docker exec= (no tty) it writes nothing — both
+walkers saw =~/.deno/env (absent)=. Landed:
+#+BEGIN_EXAMPLE
+export PATH="$HOME/.deno/bin:$PATH"   # tty install: already in your rc via `~/.deno/env`. headless: it isn't — persist it yourself.
+#+END_EXAMPLE
+and in =systems/ghost/install.sh= after the =ln -sf=:
+#+BEGIN_EXAMPLE
+[ -f "$HOME/.deno/env" ] || echo "viva: ~/.deno/bin is not persisted on PATH (no ~/.deno/env) — add to your rc: export PATH=\"\$HOME/.deno/bin:\$PATH\""
+#+END_EXAMPLE
+=sh -n= green; not live-run (needs a box without =~/.deno/env=).
+
+** L5, and the two ways I failed to say it (rows 4, 5, 9, 10)
+
+The hang: =Init.jsx:37-46= builds one promise per child that resolves on =Status:ALIVE= and never
+rejects; =process.status= is tapped into display state and not awaited. Five diffs were written —
+=process.js= gains =ready= (resolve on the alive line or at spawn for non-piped, reject on exit or a
+60 s deadline) and a =kill()= with a 5 s grace before SIGKILL; =Init.jsx= awaits =ready= and gets a
+=failed= phase that releases =error= (exit 1 through the existing =effect.error= path); the headless
+=init= awaits =ready= before its 30-second signup poll; =run.js= throws when any child exited
+non-zero. All five sit in the quest under =** L5 — the diffs, unapplied=, with the test shape
+(=init.test.js=: a fake process whose =status= resolves =code 1= must push the wizard to =failed=).
+
+First failure: the initial L4/L5 answer was two verdict sentences — /"Fix = row 16 … XS"/ and a
+design stance in prose — with the source lines in my context and none in the message. beef:
+/"i need to read code for that!"/, then the codeword. Second failure, after the diffs had been shown
+twice: /"update me again"/ got a blast-radius grep and a seven-step numbered sequence; beef:
+/"this is just a fucking list … speak english to me"/. The answer that held was four paragraphs:
+what =instance/init= does, why it waits forever, that the same blindness sits in headless init and
+=instance/run=, and that the fix is one promise on the thing that owns the child.
+
+** F1 goes home (rows 9, 10)
+
+Three options were laid out with the Alpine facts (=scanelf= showing the gnu interpreter, no
+=/lib/ld-linux-aarch64.so.1=, apk's 1.43.5 / dependency-blocked 2.7.4, the =step0j.sh= transplant of
+denoland's private glibc). beef: /"this belongs into ikiro not readme."/ → =known-issues.org=
+=* OPEN — deno-has-no-musl-build= carries symptom, evidence, the four transplant lines, and the
+reopen trigger; README says nothing; the quest's F1 is closed and =T-musl-sentence= dropped.
+
+* the callout (row 5)
+
+=zettelkasten.md= — RULE FAILURE, code-heavy-answers ×4, skill-conflict axis: the ADHD skill's
+"fewest characters" resolved against the code-heavy floor, and I shipped the NAME of a diff instead
+of the diff. Corrective rule: a proposal or mechanism claim in chat carries the current lines it
+targets (path:line), the diff, one line of why; brevity shortens prose around code, never the code.
+Row 10 is the same family's next face — a list is not an explanation either; the rule now reads
+both ways: code for decisions, English for "what are we doing".
+
+* state at fold
+
+- =README.md= §0: prerequisites sentence + apt line (L1) · PATH comment (L2). Uncommitted.
+- =systems/ghost/install.sh=: =~/.deno/env= check line. Uncommitted, not live-run.
+- =systems/kajuit/vite.config.mjs=: no =vite= import, plain function export. Verified on alpine, local, suite 35/0. Uncommitted.
+- =.ikiro/quests/m46-linux-readmen.org=: header status; L4 row re-pinned; rows 16 (APPLIED) + 17; two
+  taskbags; L5 diffs; F1 closed; markers =P-prereqs-readme= DONE · =P-kajuit-one-vite= DONE (alpine leg)
+  · =T-musl-sentence= DROPPED; changelog four passes.
+- =.ikiro/known-issues.org=: =deno-has-no-musl-build= added.
+- Containers =readmen= · =readmen-ubuntu= · =readmen-alpine= still up; every config touched inside
+  them restored to =f5dca23a=.
+- Parallel session live in the same tree: m47 commons + m48 environment-schematics lines appeared
+  in =frontier.md= and =MEMORY.md= mid-window; the docs/README strand of =frontier.md= is evicted
+  whole to =known-issues.org= this turn to bring the file under its 8000-char limit.
+
+* corrections ledger (this window)
+
+- "upstream rolldown" (walker, carried into the quest) → repo-side: the config's bare =vite= import.
+- =console.error(import("vite"))= probe → void for the after-state: the probe is itself a bare =vite=
+  import the bundler node-resolves to 8. The alpine boot without the NAPI var is the proof.
+- Option (b) =from "npm:vite@6"= → not offered as viable: the bundler =throw e= on a failed node-resolve.
+- =theme.danger= in diff 3 → =theme.bad= (=subsystems/sheets/theme.js:7=; no =danger= key).
+- F1 recommendation (a) README sentence → beef: ikiro, not README.
+- Two answer-shape corrections (rows 5, 10), ledgered in the callout.
+
+* loose ends
+
+SETTLED this window:
+- README Hello Mode's raw =mode.connection.call(…)= — GONE; beef's rewrite on disk reads
+  =mode.call.hello.bot()= / =mode.call.hello.agent(…)=.
+- F1 musl stance — closed (c) + known-issues.
+- =/status= "timestamp frozen" (L11) — the alive print is =systems/runtime/lifecycle/integrate.js:47=
+  =console.log(new Status("alive"))= on =onListen=, and =die.status.set({ code: "RUNNING", … })= right
+  after; the =/status= ROUTE producer is still unpinned — half.
+
+CARRIED (no clear-cut rule resolves them):
+- Signin gate /"session expired"/ on a virgin browser.
+- =paladin.scope overwrite= still printed by =ledger/init= (known-issues says RESOLVED m41).
+- Doctor dump /"all over the place"/ — L17 one face; own quest.
+- =[probe …]= warn from =transmitter.js:300= — typology's diagnostic; silence-at-ghost is a separate question.
+- =better-sqlite3= runs without a built binary — mechanism owed.
+- =50.01_slowstart.mdx:22= still says "Deno 2.7+ is the only prerequisite" — emacs autosave present, beef's.
+- =deno check systems/kajuit/vite.config.mjs= red before and after: TS2307 =@sveltejs/kit/vite= not in
+  the import map — lead: one =import_map.json= entry, gated.
+- Forks F3 sessions · F4 =/status= · F5 supervisor noise; blast rows 3–15 unapplied; L5 diffs 1–5 unapplied.
+
+Next: =L5 go= — test first, paladin + ghost suites, apply the five diffs, then =instance/init= on
+=readmen-ubuntu= with =:1794= busy must exit 1 instead of parking.

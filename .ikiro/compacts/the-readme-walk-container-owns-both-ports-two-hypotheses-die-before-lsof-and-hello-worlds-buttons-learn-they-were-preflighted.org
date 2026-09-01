@@ -1,0 +1,89 @@
+#+title: the readme-walk container owns both ports, two hypotheses die before lsof, and hello-world's buttons learn they were preflighted
+#+filetags: :kajuit:ghost:docker:instance:lighthouse:readme:drapes:commons:known-issue:debugging:systematic-debugging:paladin:hello-world:callout:
+
+* what happened, in one breath
+
+beef opened with two asks off a fresh =viva instances/use hello= → =instance/doctor= → =instance/run=
+walk: the client listed =playground 8= for an instance whose only daemon is =hello=, and the
+=hello-world= mode never appeared. Every server-side fact said the runtime was right — lighthouse
+=Daemon= table = =[hello]=, =hello.viva.db= =Mode= = =hello-world= with =APPLICATION=, the
+=/daemon/hello/mode/demo/hello-world/*= route tree answering =MISSING_TOKEN= — and two hypotheses
+were still offered before the environment was pinned: a stale tab (dead on /"cleared all site data,
+new tab, same result"/) and a trait rename (dead on the sidebar filter reading =APPLICATION=).
+The pin: the README-walk container =readmen= (the =the-ubuntu-walk…= session's =ubuntu:24.04=,
+=sleep infinity=) still ran ITS OWN =viva instance/run= and published =0.0.0.0:1794= +
+=0.0.0.0:2501=; Deno binds =localhost= as =[::1]= only, vite as =127.0.0.1=, so Firefox's IPv4
+resolution of =localhost= reached docker for BOTH ports while curl and Bruno went =::1= to the
+local runtime. Shell and browser were both telling the truth about two servers. =docker stop
+readmen= → /"oh my god yessss"/. The trap is marked in three ikiro organs. Along the way: =^C='s
+=kajuit false 130= was explained (SIGINT reaching vite, laundered through =deno task= into
+=128+n=, measured) and =run.js= grew a decoded =signal= column; hello-world's =App.svelte= moved
+onto light drapes (=Card · Header · Button · Paragraph · Tag=) in =@commons= and the README
+fence, after the reset was named — Tailwind Preflight at =systems/kajuit/src/client.css:1=.
+
+* spine (N=15)
+
+| n | beef asked (verbatim)                                                                                                                                                  | landed                                                                                     | decided/killed                                                                 |
+| 1 | /"for some reason the playground is mounted. i dont want that by default. only if setup is dev. i think thats some wiring and reading the env flag. two: … find why i am not seing the hello world mode in my client. user is signed up. are the modes and daemon created?"/ (with =instances/use= · =instance/doctor= · =instance/run= output and =instance.viva.js= pasted) | daemon + mode rows PROVEN in sqlite; lighthouse =/entities/daemon/find= → =[hello]=; fresh :1794 tab points at =localhost:2501= | =playground= is NOT hello-world's — it is language-learning's =development.js= daemon (dir =daemon_playground=, 8 modes); dev gate sketched (=paladin.is.dev=, =.env= folds BEFORE the recipe import, =daemons= must stay an array) — NO go, his file |
+| 2 | /"what. so much fucking yap. focus. one thing. why isnt my mode rendering?"/                                                                                              | one-thing answer: stale tab, reload + sign in                                              | WRONG — the first dead hypothesis                                              |
+| 3 | /"cleared all site data, new tab, same result."/ (+ screenshot: =playground 8= again)                                                                                    | all listeners swept — =com.docker *:1794 *:2501=; =docker ps= → =readmen=                  | stale-tab theory dead; the second server found                                 |
+| 4 | /"hmm interesting."/ + the vite a11y log + /"this happened twice now: children process success code / runtime true 0 / kajuit false 130 / might be just timeout awaiting?!"/ | =130 = 128 + SIGINT=; grace timeout would print =137=; =run.js:23= already ignores non-success under a signal | not a timeout — vite dies by the terminal's own SIGINT; a =signal= column offered |
+| 5 | /"go. and then reason why my mode isnt mounted."/                                                                                                                        | measured: direct child =→ {code:130, signal:"SIGINT"}=, through =deno task= =→ {code:130, signal:null}=; =SIGNALS= decode landed in =run.js=, =deno check= clean | Deno's own =signal= is useless one wrapper down — decode the code            |
+| 6 | (mid-turn) a curl to =/daemon/hello/entities/mode/find= with a bearer, the =hello-world= row back                                                                        | route tree probed over =[::1]=: mounted                                                    | bearer NOT used by me                                                          |
+| 7 | /"is it maybe a display trait thats out of date?"/ · /"aka standalone? might have changed names?!"/                                                                      | =d.svelte:215= filter = =application ∨ conversational=; row has =APPLICATION=              | trait theory dead; live sockets pasted: firefox → docker on BOTH ports         |
+| 8 | /"but that doesnt explain why the daemon isnt showing at all"/                                                                                                           | daemon list = the lighthouse =Daemon= table, nothing else; docker's = =[playground]=, his = =[hello]= | it does explain it — the browser had never touched his runtime this session |
+| 9 | =docker stop readmen=                                                                                                                                                    | ports free; local =instance/run= was gone too → re-run                                     | —                                                                              |
+| 10 | /"oh my god yessss"/                                                                                                                                                    | memory =project_readmen_container_port_shadow= written                                     | —                                                                              |
+| 11 | /"mark this trap in ikiro"/                                                                                                                                             | =known-issues.org= =readmen-container-shadows-the-local-instance — OPEN TRAP=; kajuit shard *TRAP — foreign daemon list*; ghost shard known-issues bullet (+ the 130/137 reading) | —                                                          |
+| 12 | /"the buttons dont look like buttons at all. use some liiiight drapes for structure. also show me where the defualt html elements are being overwritten."/ (+ screenshot of the bare mode) | reset named: Tailwind Preflight (=client.css:1 @tailwind base=, no =corePlugins.preflight:false=); drapes bundle-safe (=bundler.js:12= alias, Oracle imports it; =useSkeleton= falls back to 1); diff shown, not written | =Chip= rejected (a =label=-prop button); =Tag= takes children |
+| 13 | /"amen. go. readme and @commons."/                                                                                                                                      | =commons/instances/hello-world/App.svelte= + README §0 fence, byte-identical (verified by diff) | shelf copy NOT touched — he named two targets                              |
+| 14 | =cp commons/instances/hello-world/App.svelte ~/.viva/instances/hello-world/App.svelte=                                                                                   | —                                                                                          | bundle rebuilds at daemon boot → re-run                                        |
+| 15 | /"ikiro compact"/                                                                                                                                                       | this                                                                                       | —                                                                              |
+
+* the trap, as evidence
+
+#+begin_example
+docker ps                       readmen  0.0.0.0:1794->1794, 0.0.0.0:2501->2501   (sleep infinity; its own instance/run alive)
+lsof -nP -iTCP:2501 -iTCP:1794  com.docke *:2501 (LISTEN)   deno [::1]:2501 (LISTEN)   deno 127.0.0.1:1794 (LISTEN)
+firefox 127.0.0.1 → :1794  com.docker        firefox 127.0.0.1 → :2501  com.docker  ×2
+Bruno   [::1]     → :2501  deno              Google  [::1]     → :2501  com.docker (established while local was dead)
+curl -4 …/entities/daemon/find → [playground]        curl -6 → [hello]
+docker's /status timestamp = the walk session     local /status timestamp = this boot
+#+end_example
+
+Deno's =serve({hostname:"localhost"})= binds =[::1]= ONLY; docker's wildcard takes IPv4; Firefox
+prefers IPv4 for =localhost=. A =grep deno= over =lsof= hides the container — the first sweep did
+exactly that and saw only the local pair.
+
+* callouts (self)
+
+- *mechanism before environment, twice.* /"so much fucking yap. focus. one thing."/ was answered with
+  a hypothesis (stale tab) that a =docker ps= would have killed in one line; the second (trait
+  rename) came from beef and was killed by code, but the environment was still unpinned. The
+  standing law ([[feedback_pin_environment_before_mechanism]]) already said this. Recurrence logged.
+- *the first answer ran long.* Two questions, a dev-gate sketch, an unasked JWT aside and a
+  directory-name aside in one message → /"what. so much fucking yap."/ Recurrence logged under
+  [[feedback_concise_responses]].
+- *a page load has side effects.* Opening =localhost:1794= in my own tab tripped =SESSION_EXPIRED=
+  → =logout()= wiped that origin's cached authority. Moot after the container stop; named anyway.
+
+* landed (all uncommitted — beef commits)
+
+- =systems/ghost/trajectories/instance/run.js= — =SIGNALS = {129:SIGHUP,130:SIGINT,131:SIGQUIT,137:SIGKILL,143:SIGTERM}=,
+  children rows =signal: exit.signal ?? SIGNALS[exit.code] ?? null=. Table drops an all-null column, so a clean run prints as before.
+- =commons/instances/hello-world/App.svelte= — drapes: =Card padding=md= · =Header as=h1 size=xl= · =Button size=sm= ×2
+  (second =variant=secondary=) · =Paragraph= · =Tag size=sm= per mode. README §0 fence replaced, byte-identical.
+- =.ikiro/known-issues.org= · =world/codemap/kajuit.md= · =world/codemap/ghost.md= — the trap, three doors.
+- memory: =project_readmen_container_port_shadow= (+ index line under Project State).
+
+* settled / owed
+
+- *language-learning dev gate* — =export const daemons = [italian, ...(paladin.is.dev ? [development] : [])]= in
+  =~/.viva/instances/language-learning/test.viva.js=; =.env:1= already sets =VIVA_SYSTEM_MODE="DEVELOPMENT"=.
+  Sketched, no go. beef's file, beef's call.
+- *=SECRET_VIVA_JWT="defualt"=* — doctor says =INVALID= (<24 chars); =instance/run= boots anyway. m48 made =init= refuse
+  it; =run= does not. Noted, unfiled.
+- *=daemon_playground/= vs slug =development=* — the mountpoint dir outlived the recipe's rename. Cosmetic, unfiled.
+- *=readmen-alpine= · =readmen-ubuntu=* — still exist, publish nothing. Harmless.
+- *docs-site captures of =App.svelte=* — not recaptured; only README + commons were named.
+- *shelf =App.svelte=* — beef copied it himself (n14); the bundle rebuilds at daemon boot.

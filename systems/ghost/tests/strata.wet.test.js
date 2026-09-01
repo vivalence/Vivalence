@@ -223,6 +223,22 @@ Deno.test("chaining through the real CLI — use <path> doctor --json returns th
   assertEquals(held.mount, `${stand}/chained`);
 });
 
+Deno.test("doctor <target> <filter> — the target rides the instances lens, a slug prefix resolves", async () => {
+  const home = await mkHome();
+  const stand = await Deno.makeTempDir();
+  await Deno.mkdir(`${stand}/chained/environment`, { recursive: true });
+  await Deno.writeTextFile(
+    `${stand}/chained/chained.viva.js`,
+    `export const manifest = { type: "instance", slug: "chained" };\n`,
+  );
+  await Deno.writeTextFile(`${home}/instances.json`, JSON.stringify({ chained: { mount: `${stand}/chained` } }));
+  const env = { VIVA_LEDGER_MOUNT: home, INIT_CWD: await Deno.makeTempDir() };
+  const { out, err } = await viva(["instance/doctor", "chai", "VIVA_INSTANCE", "--json"], env);
+  assertEquals(err.includes("no record"), false, err);
+  const held = report(out);
+  assertEquals(held.mount, `${stand}/chained`);
+});
+
 Deno.test("bare effects print — use without --json renders human, an ink view suppresses the default", async () => {
   const home = await mkHome();
   const stand = await Deno.makeTempDir();
@@ -231,6 +247,6 @@ Deno.test("bare effects print — use without --json renders human, an ink view 
   assertEquals(bare.out.includes("stratum"), true);
   assertEquals(bare.out.trimStart().startsWith("{"), false);
   const doctorRun = await viva(["ledger/doctor"], env);
-  assertEquals(doctorRun.out.includes("viva doctor"), true);
+  assertEquals(doctorRun.out.includes("viva ledger/doctor"), true);
   assertEquals(doctorRun.out.trimEnd().endsWith("}"), false);
 });

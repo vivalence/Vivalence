@@ -18,7 +18,8 @@
     `kajuit signin at ${remote} shows "${standing ?? "idle"}` +
       `${$status.message ? `: ${$status.message}` : ""}". ` +
       "diagnose it: run `viva instance/doctor`, check PUBLIC_VIVA_LIGHTHOUSE_REMOTE " +
-      "in the instance .env, docs at https://docs.vivalence.org",
+      "in the instance .env, docs at https://docs.vivalence.org. " +
+      "look in the repository in .ikiro for orientation and solutions.",
   );
 
   async function submit(event) {
@@ -59,7 +60,7 @@
 
   <div class="help">
     <p>there is no signup ui — accounts are created from the shell:</p>
-    <code>viva instance/auth signup &lt;username&gt; &lt;password&gt;</code>
+    <code>viva instance/lighthouse signup &lt;username&gt; &lt;password&gt;</code>
     <p>docs: <a href="https://docs.vivalence.org" target="_blank">docs.vivalence.org</a></p>
     <p>stuck? paste this to your llm:</p>
     <code class="prompt">{prompt}</code>

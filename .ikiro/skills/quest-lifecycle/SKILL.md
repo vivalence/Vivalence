@@ -21,6 +21,8 @@ beef: *"quests get sunset, rarely deleted."* A quest is a decision-trail; deleti
 
 ## Sunset (closing a quest)
 
+Run `python3 .ikiro/methods/quest-report.py` first: rows with `next: sunset` are the candidates; `control` means QA markers are still pending, `lift` means release lines are unlifted, `commit` is beef's. A quest whose `sessions` column shows a live sibling is being worked — do not move it. Header keys `#+phase` · `#+progress` · `#+next` are stamped `(derived)` by the report; beef's own value without the suffix wins (totem: `.ikiro/self/totems.md ## quest report`).
+
 0. **Organ gate before any `mv` into `done/`**: (a) every `#+marker_qa` carries a settled verdict — a `pending` on a quest headed to done/ is drift, a `broken` is a Callouts entry (methods/quest.md ## QA); (b) the `* release` organ's entries are LIFTED verbatim into `release.md ## unreleased` under their surface sections — format, file and cut live in the `release` skill (`skills/release/SKILL.md`; release ≠ quest — beef) — a quest with unlifted release lines is not done. `discarded/` needs neither.
 1. Landed + verified → `mv` into `done/`. Abandoned/superseded → `mv` into `discarded/`. **Plain `mv` ONLY — never `git mv`** (ledger 06-28; VCS is write-protected).
 2. Never edit the quest's content at sunset — where it ends is where it ends; the epitaph (one line: what it was, why it left the root) goes in `index.md`, not the file.

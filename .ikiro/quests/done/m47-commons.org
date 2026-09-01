@@ -1,0 +1,488 @@
+#+title: m47 commons — the checkout ships ONE package: registry/** → commons/, every lookup @commons/<type>/<slug>
+#+filetags: :registry:commons:paladin:vip:ledger:docker:docs:packages:
+#+status: LANDED on beef's "go" — M0–M4 done, GREEN both sides (paladin 28/142 · runtime 53/327 · ghost 81/1 pre-existing · kajuit 35/126 · sheets 37), live registry/list = ONE @commons row (22), instance/doctor × 4 mount clean, ~/.viva record self-healed, shelf 56 + education 31 lookups sed'd, docs recaptured, ikiro restamped. F8 ADJUSTED (see changelog). UNCOMMITTED — beef: commit (229 deletes + commons/ untracked), push the education clone, M5 prod.
+
+* intent
+
+beef, verbatim: /"i want to change the rest of the registry. profoundly. /repo/registry/** turns into
+/repo/commons imported as @commons/xyz/abc · @commons/instance/hello-world ·
+@commons/hallucinator/anthropic · @commons/datamap/libsql · @commons/playground - used in development ·
+@commons/fixtures - used in testing. this requires a quest. n47?"/
+
+One sentence: *the checkout ships one package, and it is called what it is.* Three in-repo packages
+(=@viva/package/commons= · =@testing/package/testing= · =@development/package/development=, the
+post-rename shape of viva/fixtures/playground) collapse into ONE mount at =/repo/commons/= with owner
+=@commons=. The word *registry* stops meaning "the repo's content dir" and keeps meaning the
+marketplace — the store (=~/.viva/registry/=), the record (=registry.json=), the verbs
+(=viva registry/*=), the scope (=scope.registry=, =VIVA_REGISTRY_MOUNT=). Two words, two things.
+
+* terrain — measured (this session)
+
+- identity is =${owner}/${type}/${slug}= from the manifest (=subsystems/paladin/prototypes/manifest.js:7=);
+  a dir name is cosmetic to paladin (=find.type= walks by =manifest.type=) and load-bearing ONLY for
+  hardcoded paths. So the move is a path blast + an owner blast, never a resolver change.
+- the mount stamps every module with the package's owner; a module's own =manifest.owner= LOCKS
+  (=vip.js:28=). One lock exists on disk: =registry/testing/language-learning/corpus.viva.js= (=@testing=).
+- census of every =*.viva.js= under =registry/= (bak/ excluded) — owner+type+slug UNIQUE across the
+  merged set, so one owner cannot collide:
+  | type         | slugs                                                   | today's home                     |
+  |--------------+---------------------------------------------------------+----------------------------------|
+  | package      | commons · testing · development  → ONE: commons          | 3 × package.viva.js              |
+  | datamap      | libsql                                                  | commons/datamaps/                |
+  | hallucinator | anthropic · deepgram · elevenlabs · openrouter          | commons/hallucinators/           |
+  | lighthouse   | multiplayer                                             | commons/lighthouses/             |
+  | service      | nlp-stanza                                              | commons/services/nlp             |
+  | instance     | hello-world · multiplayer (dir starter) · fixture       | commons/instances/ · testing/instances/ |
+  | playground   | automaton · card · dealer · spawned · spawner · switchboard | development/modes/            |
+  | chaosmonkey  | oracle · reader · vision                                | development/modes/chaosmonkey/   |
+  | fixture      | language-learning                                       | testing/language-learning/       |
+- =Registry.reconcile= landed this session (=ledger/registry.js=): a dead record location INSIDE
+  =<repository>/registry= is healed by rediscovery. Its =inside= test names the OLD dir — after the
+  move it would classify =/repo/registry/*= as external-stale and heal nothing → =@commons= never
+  mounts → every boot dies with =not supplied=. M2 generalises =inside= to the CHECKOUT.
+- the image pins the STORE into the checkout: =Dockerfile:60 ENV VIVA_REGISTRY_MOUNT=/viva/repository/registry=.
+  After the move that dir does not exist. Fork F2.
+- beef's hello-world restructure is in flight (=hello.js= + =App.svelte= + =multiplayer.js=, README
+  §0 already names =registry/commons/instances/hello-world/…=). It rides along untouched; only the
+  =registry/= prefix drops.
+
+* the decision trail
+
+- *one package, one owner* — =@commons=. The =@viva= vs =@vivalence= owner question dissolves
+  (=// rename to vivalence= in =package.viva.js= dies with the file's rewrite). =@vivalence/*= stays the
+  JS workspace namespace (=@vivalence/paladin=, =@vivalence/typology=…); =@commons/*= is the module
+  lookup grammar. Two resolvers, two prefixes, no overlap.
+- *type names stay* — =playground= (beef: "@development/playground/xyz", this session) and
+  =chaosmonkey= and =fixture= are the module TYPES; they become the second segment of the lookup, which
+  is exactly beef's =@commons/playground= · =@commons/fixtures= reading. Dirs mirror the type:
+  =commons/playground/<slug>/=, =commons/playground/chaosmonkey/<slug>/=, =commons/fixtures/=.
+- *registry keeps its word* — store, record, verbs, scope, env: untouched (F1 to confirm). The
+  README sentence becomes "the first =viva= you ran seeded the record from the checkout's =commons/=".
+- *no lock on disk* — derive-by-default (methods/quest.md): =corpus.viva.js= drops =owner: "@testing"=;
+  the override path stays exercised by the in-memory fixture in =tests/vip.test.js=.
+- *the record heals itself* — M2: =reconcile(checkout, seedRoot)=: dead location under the checkout
+  → rediscover =<repository>/commons=; dead elsewhere → keep + skip + report. Prod, every dev box, and
+  the README walker all carry =/…/registry/{commons,testing,development}= absolute — none need a hand.
+- *ONE blast, not rungs* (m11 lesson, beef: "not as atomic step by step microprocess, but as a blast
+  change"). M1 is the whole move in one pass between two green suites; M2–M4 are the organs around it.
+
+* target tree
+
+#+BEGIN_SRC text
+commons/
+  package.viva.js                     { owner: "@commons", type: "package", slug: "commons" }
+  datamaps/libsql/                    @commons/datamap/libsql
+  hallucinators/{anthropic,deepgram,elevenlabs,openrouter}/
+  lighthouses/multiplayer/            @commons/lighthouse/multiplayer
+  services/nlp/                       @commons/service/nlp-stanza
+  instances/{hello-world,starter,fixture}/   @commons/instance/{hello-world,multiplayer,fixture}
+  playground/{spawner,spawned,card,dealer,automaton,switchboard}/   @commons/playground/<slug>
+  playground/chaosmonkey/{oracle,reader,vision}/                    @commons/chaosmonkey/<slug>
+  fixtures/{data,language-learning,snapshots}/                      @commons/fixture/language-learning
+#+END_SRC
+
+* plan — the landing (beef: "very good. commit this to the quest.")
+
+One landing, gated on =go=. Frame per block: *what · today → after · why*.
+
+** the tree · today → after
+
+#+BEGIN_SRC text
+registry/                                   commons/
+  commons/package.viva.js  @viva      →       package.viva.js         @commons
+  commons/datamaps/                   →       datamaps/
+  commons/hallucinators/              →       hallucinators/
+  commons/lighthouses/                →       lighthouses/
+  commons/services/                   →       services/
+  commons/instances/{hello-world,starter}     instances/{hello-world,starter,fixture}
+  testing/instances/fixture           →         ^ fixture joins here
+  testing/{data,language-learning,snapshots}  fixtures/{data,language-learning,snapshots}
+  testing/package.viva.js  @testing   →       (deleted)
+  development/modes/*                 →       playground/*   (chaosmonkey/ stays nested)
+  development/package.viva.js @development    (deleted)
+#+END_SRC
+
+Why: three packages become one, dir named what it is. =registry= keeps meaning the marketplace:
+=~/.viva/registry/=, =registry.json=, =viva registry/*=.
+
+** the identifiers · every module string, everywhere
+
+| today                                                                                   | after                       |
+|-----------------------------------------------------------------------------------------+-----------------------------|
+| =@viva/<type>/<slug>=                                                                   | =@commons/<type>/<slug>=    |
+| =@development/<type>/<slug>=                                                            | =@commons/<type>/<slug>=    |
+| =@testing/<type>/<slug>=                                                                | =@commons/<type>/<slug>=    |
+| =@viva/package/commons= · =@testing/package/testing= · =@development/package/development= | =@commons/package/commons= |
+
+Why: owner is the first key of the module index (=subsystems/paladin/prototypes/pensieve.js=). An old
+string throws =package @viva not supplied= (=vip.js:86=). No fallback — beef's law.
+
+** where those strings live · all rewritten in this landing except prod
+
+| place                                                                  | files          | editor         |
+|------------------------------------------------------------------------+----------------+----------------|
+| repo: instances + tests                                                | 18             | ikiro          |
+| =~/.viva/instances/{hello-world,italian,language-learning,stucatch}=   | 56 + 16 lines  | ikiro          |
+| =~/.viva/registry/education= (beef's dirty clone, separate repo)       | 31 lines       | ikiro; beef commits |
+| prod shelf · ubuntu/alpine boxes                                       | ?              | beef           |
+
+** the code · the record heals itself after the move
+
+#+BEGIN_SRC diff
+--- subsystems/paladin/prototypes/vip.js
+-    const repository = this.paladin.scope.repository?.branch("registry");
+-    const reconciled = await registry.reconcile(repository);
+-    const locations = reconciled?.locations ?? await registry.seed(repository);
++    const checkout = this.paladin.scope.repository;
++    const commons = checkout?.branch("commons");
++    const reconciled = await registry.reconcile(checkout, commons);
++    const locations = reconciled?.locations ?? await registry.seed(commons);
+--- subsystems/paladin/prototypes/ledger/registry.js
+-  async reconcile(repository) {
++  async reconcile(checkout, commons) {
+-    const inside = (reference) => Boolean(repository) && this.resolve(reference).absolute.startsWith(`${repository.absolute}/`);
++    const inside = (reference) => Boolean(checkout) && this.resolve(reference).absolute.startsWith(`${checkout.absolute}/`);
+-    const healed = dead.some(inside) ? (await this.discover(repository)).filter(...)
++    const healed = dead.some(inside) ? (await this.discover(commons)).filter(...)
+#+END_SRC
+
+Why: a record still saying =…/registry/commons= is dead after the move. Widened, it heals to
+=…/commons= on first boot. Prod and every dev box need no hand.
+
+** paths that follow the move
+
+=Dockerfile= · =systems/runtime/Dockerfile= · =systems/kajuit/Dockerfile=
+=commons/instances/starter/docker-compose.yml=
+=systems/kajuit/vite.config.mjs= · =systems/kajuit/tailwind.config.js= · =systems/runtime/deno.jsonc=
+
+=COPY registry/= → =COPY commons/=, watch globs, the compose instance mount.
+=ENV VIVA_REGISTRY_MOUNT=/viva/repository/registry= dropped: the store falls back to the ledger's =registry/=.
+
+=subsystems/paladin/tests/{instance.snapshot,source,kernel,registry}.test.js=
+=systems/runtime/tests/{view.spawn,registry.count}.test.js= · =tests/daemon/symbols-query.test.js= ·
+=tests/fixtures/corpus.snapshot.test.js= · =tests/scenarios/{datamap,fixtures}.js= · =tests/topography/harness.js=
+=systems/kajuit/tests/{oracle.snapshot,harness-wire,oracle-dialogue}.test.js=
+=systems/ghost/tests/{create,pick}.test.js=
+
+Relative imports and owner literals repointed. Two paladin snapshot JSONs recapture on run.
+
+** gate · blast · test · change · test · blast
+
+#+BEGIN_SRC text
+baseline    paladin 28 · runtime 53 · ghost 77 · kajuit 35 · sheets 37   (re-run on the day; hello-world moved since)
+landing     mv + sed + diff + ~/.viva rewrite + registry.json           ONE beat
+suites      same five green; grep "registry/(commons|testing|development)|@viva/|@testing/|@development/" empty
+live        viva registry/list → one checkout row @commons/package/commons
+            viva instance/doctor × 4 shelf instances → no unresolved module
+docs        README · 50.01 · 51.02 · 41.01 · 33.01 · 32.01 recaptured from those runs
+ikiro       codemap registry.md → commons.md · invariants paths · ledger · frontier · memory
+#+END_SRC
+
+** assess
+
+- beef's hello-world edit is in flight (=instance.viva.js= appeared during the pass). Only its =@viva/= strings are touched.
+- one owner means a future duplicate slug overwrites silently; census today is unique. A throw in =Pensieve.register= closes it — NOT in this landing unless beef says (F9).
+- prod: image rebuild, compose path, prod shelf strings. beef's, after.
+
+* milestones — the detail ladder behind the plan (blast · test · change · test · blast)
+
+** M0 — baseline
+Suites green on the current tree: paladin 28 (138) · runtime 53 (327) · kajuit 35 (126) · ghost 77 ·
+sheets 37 · typology 122 + 1 pre-existing red (=hallucination.snapshot.test.js=, unrelated).
+
+** M1 — the move (ONE pass)
+1. =mv registry/commons commons= · =mv registry/development/modes commons/playground= ·
+   =mv registry/testing/{data,language-learning,snapshots} commons/fixtures/= ·
+   =mv registry/testing/instances/fixture commons/instances/fixture= · =rm= the two spare
+   =package.viva.js= (testing, development) · =rmdir registry=.
+2. =commons/package.viva.js= rewritten (tangle below). =corpus.viva.js= drops its owner line.
+3. lookups: =@viva/= · =@development/= · =@testing/= → =@commons/= — radius in the blast table.
+4. paths: 3 Dockerfiles + kajuit =rm -rf ./registry= · tailwind glob · runtime watch-exclude ·
+   9 test imports · 2 paladin test literals.
+5. store env: F2.
+Gate: every suite of M0 green again; re-blast grep (old dir + old owners) empty modulo the
+same-name exclusions (=drain.playground.js=, typology =/repo/registry= Path literal).
+
+** M2 — the record follows the checkout (SAME LANDING as M1 — see critical pass §1)
+=Vip.supply()= seeds/heals from =<repository>/commons=; =Registry.reconcile(checkout, seedRoot)=
+treats any dead location under the checkout as the repo's own. Tests first (RED): a record holding
+=<repo>/registry/viva= + =<repo>/registry/testing= heals to =[<repo>/commons]=; an external dead ref
+stays stale. Gate: =tests/registry.test.js= green + the live scratch-ledger proof below.
+
+** M3 — ledger + shelf + tapped recipes (ikiro-owned ~/.viva)
+=~/.viva/registry.json= (heals on first boot, or edited) · 4 shelf instances · the education clone's
+3 instance recipes (cross-repo — beef pushes =registry-education=). Gate: =viva registry/list= shows
+ONE checkout row; =viva instance/doctor= on hello-world resolves every =@commons/*= module.
+
+** M4 — docs + ikiro
+README · 50.01 · 41.01 · 33.01 · 51.02 · 32.01 recaptured from live runs (LAW: captured, never
+composed) · codemap =registry.md= → =commons.md= (=paths: ["commons/**"]=) · =invariants.md= paths ·
+=paladin.md:13= package census · =map.md= · =ledger.md= · =frontier.md= · 2 skills · memory.
+
+** M5 — prod (beef's ops)
+image rebuild (=COPY commons/=) · compose =VIVA_INSTANCE_MOUNT=/viva/repository/commons/instances/starter/= ·
+prod shelf instances' lookups (=@viva/*= → =@commons/*=) · prod record heals itself (M2).
+
+* tangle
+
+#+BEGIN_SRC js :tangle ../../commons/package.viva.js :mkdirp yes
+export const manifest = {
+  owner: "@commons",
+  type: "package",
+  slug: "commons",
+  version: "0.0.1",
+};
+#+END_SRC
+
+Surgical hunks (large files, applied by hand):
+
+#+BEGIN_SRC diff
+--- subsystems/paladin/prototypes/vip.js  (supply)
+-    const repository = this.paladin.scope.repository?.branch("registry");
+-    const reconciled = await registry.reconcile(repository);
+-    const locations = reconciled?.locations ?? await registry.seed(repository);
++    const checkout = this.paladin.scope.repository;
++    const commons = checkout?.branch("commons");
++    const reconciled = await registry.reconcile(checkout, commons);
++    const locations = reconciled?.locations ?? await registry.seed(commons);
+#+END_SRC
+
+#+BEGIN_SRC diff
+--- subsystems/paladin/prototypes/ledger/registry.js  (reconcile)
+-  async reconcile(repository) {
++  async reconcile(checkout, commons) {
+ ...
+-    const inside = (reference) => Boolean(repository) && this.resolve(reference).absolute.startsWith(`${repository.absolute}/`);
++    const inside = (reference) => Boolean(checkout) && this.resolve(reference).absolute.startsWith(`${checkout.absolute}/`);
+ ...
+-    const healed = dead.some(inside) ? (await this.discover(repository)).filter((location) => !kept.includes(location)) : [];
++    const healed = dead.some(inside) ? (await this.discover(commons)).filter((location) => !kept.includes(location)) : [];
+#+END_SRC
+
+#+BEGIN_SRC diff
+--- Dockerfile · systems/runtime/Dockerfile · systems/kajuit/Dockerfile
+-COPY registry/ ./registry/
++COPY commons/ ./commons/
+--- systems/kajuit/Dockerfile (build-stage rm)
+-    ./registry \
++    ./commons \
+--- Dockerfile:60  (F2, recommended)
+-ENV VIVA_REGISTRY_MOUNT=/viva/repository/registry
+#+END_SRC
+
+* blast table
+
+| touchpoint                                                                 | change                                   | M  | kind    |
+|----------------------------------------------------------------------------+------------------------------------------+----+---------|
+| =registry/{commons,development,testing}/= (23 =*.viva.js=, 3 package files)  | mv into =commons/=, 2 package files rm    | M1 | move    |
+| =registry/testing/language-learning/corpus.viva.js:2=                       | drop =owner: "@testing"=                  | M1 | manifest|
+| =registry/commons/instances/{hello-world/*.js,starter/multiplayer.viva.js}= | =@viva/= → =@commons/= (4+2+19)            | M1 | lookup  |
+| =subsystems/paladin/tests/kernel.test.js:25,50=                             | =@development/playground/spawner= → =@commons/…= | M1 | test |
+| =systems/ghost/tests/create.test.js:41=                                     | =@testing/instance/fixture= → =@commons/…= | M1 | test    |
+| =systems/runtime/tests/registry.count.test.js:58-61=                        | fork-2 owners =@viva= → =@commons=         | M1 | test    |
+| =systems/runtime/tests/topography/harness.js:57=                            | =@viva/datamap/libsql= → =@commons/…=      | M1 | lookup  |
+| =systems/ghost/tests/pick.test.js= · =subsystems/paladin/tests/vip.test.js= · =sheets/tests/search.state.test.js= | synthetic =@viva= rows — cosmetic, may stay | M1 | test |
+| 9 relative imports: runtime =view.spawn= · =corpus.snapshot= · =daemon/symbols-query= · =scenarios/{datamap,fixtures}= · kajuit =oracle.snapshot= · =harness-wire= · =oracle-dialogue= | =../registry/<pkg>/…= → =../commons/…= | M1 | path |
+| =subsystems/paladin/tests/instance.snapshot.test.js:13= · =source.test.js:27= | =registry/commons/…= → =commons/…=       | M1 | path    |
+| =subsystems/paladin/tests/snapshots/paladin-{instance,scope}.snapshot.json=  | recapture (suite writes)                 | M1 | snapshot|
+| =systems/kajuit/tailwind.config.js:13= · =systems/runtime/deno.jsonc:16=     | glob / watch-exclude → =commons/=         | M1 | config  |
+| =systems/kajuit/vite.config.mjs:38= (watch.include =../../registry/**=)                    | → =../../commons/**= — else mode svelte HMR dies   | M1 | config  |
+| =.dockerignore=                                                             | + =commons/playground= · =commons/fixtures= · =**/tmp= (rec, F11) | M1 | docker |
+| =subsystems/paladin/prototypes/pensieve.js:register=                        | throw on a duplicate owner/type/slug/version (F9) | M1 | code    |
+| =.ikiro/hooks/comment-guard.sh:13= (=*/registry/*= case arm)                 | → =*/commons/*=                                   | M4 | ikiro   |
+| =Dockerfile:48= · =systems/runtime/Dockerfile:4= · =systems/kajuit/Dockerfile:9,29= | COPY / rm → =commons/=            | M1 | docker  |
+| =Dockerfile:60 VIVA_REGISTRY_MOUNT=                                          | F2                                        | M1 | docker  |
+| =commons/instances/starter/docker-compose.yml:19=                            | mount → =/viva/repository/commons/instances/starter/= | M1 | docker |
+| =subsystems/paladin/prototypes/vip.js:38-46= · =ledger/registry.js:71-84=    | seed root + checkout-inside heal           | M2 | code    |
+| =subsystems/paladin/tests/registry.test.js= (reconcile block, 5 steps)      | param rename + 1 new step (old dir heals) | M2 | test    |
+| =~/.viva/registry.json=                                                     | heals on boot (M2) — or 3 refs → 1        | M3 | ledger  |
+| =~/.viva/instances/{hello-world,italian,language-learning,stucatch}/*.js=    | =@viva/= (49) · =@development/= (16) → =@commons/= | M3 | shelf |
+| =~/.viva/registry/education/instances/{italian,spanish,brazilian}/*.js=      | =@viva/= (31) → =@commons/=  CROSS-REPO     | M3 | tapped  |
+| =README.md= (25,59,101,152-160,171-179) · =50.01= (79?,116-149,203) · =41.01= (17-20,62-80) · =33.01:95= · =51.02= (6) · =32.01= (2) | recapture | M4 | docs |
+| =.ikiro/world/codemap/registry.md= → =commons.md= · =invariants.md:2= · =paladin.md:13= · =map.md= · =ledger.md:29,57= · =frontier.md= · =skills/{pull-prod-mountpoint,blast-bracket}= | restamp | M4 | ikiro |
+| memory =project_package_rename_commons_testing_development= · =project_m11_package_ontology= | superseded note                  | M4 | memory  |
+| image rebuild · prod compose · prod shelf lookups                            | beef's ops                                 | M5 | prod    |
+
+Same-name, NOT in radius: =systems/runtime/tests/drain.playground.js= (+ task =playground/drain=) ·
+=subsystems/typology/tests/path.absolute.test.js= (=/repo/registry= Path literal) ·
+=systems/runtime/tests/scenarios/variant.bak.js= (bak) · =viva registry/*= verbs · =registry.json= ·
+=~/.viva/registry/= · =scope.registry= · =VIVA_REGISTRY_MOUNT= (F1).
+
+* testing assessment
+
+- *in place*: paladin =registry.test.js= (reference algebra, seed, reconcile ×5) · =vip.test.js= (owner
+  stamp/lock, in-memory) · =vip.tap.test.js= · =kernel.test.js= · =instance.snapshot.test.js= (mounts the
+  in-repo hello-world) · runtime =registry.count.test.js= (a CENSUS — owner-agnostic by design, needs only
+  its fork-2 literals moved) · =corpus.snapshot= · =view.spawn= · =daemon/symbols-query= · kajuit oracle ×3 ·
+  ghost =create.test= / =pick.test= / =ledger.test=. COVERAGE GAP: nothing asserts the SEED ROOT — a
+  paladin with no record must seed from =<repository>/commons=; and nothing asserts that a dead
+  =<repo>/registry/*= location heals to =<repo>/commons= (the exact prod shape).
+- *changes*: 9 path repoints · 5 lookup-literal repoints · 2 paladin literals · 2 snapshot recaptures.
+- *adds* (RED first): =registry.test.js= — "a dead location anywhere under the checkout heals to
+  =<checkout>/commons=" (record =[<repo>/registry/viva, <repo>/registry/testing]= → =[<repo>/commons]=);
+  "no record seeds from =<checkout>/commons=" (supply-level, asserts =pensieve.has("@commons")=).
+- *green ladder*: M1 → all M0 suites · M2 → =registry.test.js= + scratch-ledger live proof ·
+  M3 → =viva registry/list= + =instance/doctor= pasted · M4 → docs build (=deno task documentation/bundle=) ·
+  M5 → prod =viva registry/list= pasted by beef.
+- *pre-DONE gate*: named test file + pasted suite output per milestone; coverage delta in the changelog.
+
+* QA
+
+** ① testimony
+I clone the repo and run =viva registry/list=. I see ONE checkout row: =~/vivalence/commons  @commons  N  @commons/package/commons=,
+plus whatever I tapped. I run =viva instance/create @commons/instance/hello-world= and it lands on the shelf.
+=viva instance/doctor= names =@commons/datamap/libsql= and =@commons/lighthouse/multiplayer= as resolved.
+An old box whose =registry.json= still says =…/registry/viva= boots anyway; =viva ledger/doctor= shows the
+healed record and no =present: false= row for the checkout.
+
+** ② programmatic
+#+marker_qa: m47/P-registry-list · held · `viva registry/list` → one checkout row `…/vivalence/commons  @commons  22  @commons/package/commons` (+ the two taps); scratch ledger → exactly one row
+#+marker_qa: m47/P-old-dir-empty · held · residue grep over systems subsystems commons ~/.viva/instances ~/.viva/registry/education empty modulo `registry.test.js:112` (the dead shape that must heal) + synthetic in-memory rows (pick/search.state/vip/pensieve tests) + `multiplayer.bak/` (untracked, walker-skipped)
+#+marker_qa: m47/P-heal · held · `registry.test.js` "Vip.supply — mounts the healed checkout package and skips the dead external one": record `[<repo>/registry/viva, /nowhere/checkout, real]` → `[/nowhere/checkout, real, <repo>/commons]`, `vip.stale == ["/nowhere/checkout"]`; the REAL `~/.viva/registry.json` healed the same way during the runtime suite run
+#+marker_qa: m47/P-doctor · held · `viva instance/doctor --instance=<slug>` × hello-world · italian · language-learning · stucatch — every recipe mounts; no `not supplied` / `Module 404`
+#+marker_qa: m47/T-readme · held (normalised) · README §2 row + 50.01 doctor/record/tree/`ls` captured on a scratch ledger; home paths normalised to `~/vivalence` / `/home/you` as the docs already were; §3 create line is a command, renamed
+
+* forks — call before blasting
+
+- *F1 registry keeps its word*: =viva registry/{list,tap,untap,bootstrap}= · =registry.json= · =~/.viva/registry/= ·
+  =scope.registry= · =VIVA_REGISTRY_MOUNT= UNCHANGED. rec: keep — marketplace ≠ the repo's package.
+- *F2 image store*: =Dockerfile:60 ENV VIVA_REGISTRY_MOUNT=/viva/repository/registry= — DROP (store falls back to
+  =<ledger>/registry=, the volume) vs repoint to =/viva/repository/commons= (wrong: commons is a package, not a
+  store). rec: drop.
+- *F3 dir shape*: =commons/playground/<slug>/= + =commons/playground/chaosmonkey/<slug>/= + =commons/fixtures/= as
+  beef wrote (no =modes/= level); plural convention for the platform dirs stays. rec: as written.
+- *F4 fixture instance*: =testing/instances/fixture= → =commons/instances/fixture= (=@commons/instance/fixture=,
+  the ghost create-test lens). rec: yes.
+- *F5 owner*: =@commons= for everything in the checkout; =@viva= and the =vivalence= comment die. confirm.
+- *F6 same-name literals* untouched (=drain.playground.js=, typology =/repo/registry= Path test). confirm.
+- *F7 hello-world in flight*: beef's restructure rides along; only the =registry/= prefix drops from README §0. confirm.
+
+* deferred
+
+- =@education= / =@stucatch= tapped packages keep their own owners — nothing here touches remote packages
+  beyond their instance recipes' =@viva/*= lookups (M3, cross-repo).
+- the =VIVA_REGISTRY_MOUNT= store concept itself (F1) — a later quest if "registry" is ever to fall.
+
+* release
+
+- renamed module lookups `@viva/*` · `@development/*` · `@testing/*` → `@commons/*` — every `module:` string and kernel entry in instance recipes · migrate: REQUIRED — every pre-m47 recipe dies at its next `instance/up` with `package @viva not supplied` until the three prefixes are sed'd (`~/.viva/instances/*`, every tapped recipe, the prod shelf); `viva instance/doctor` names each unresolved module ⟨m47-commons⟩
+- renamed `registry/` → `commons/` — the checkout's package dir; ONE package `@commons/package/commons` replaces `@viva/package/commons` · `@testing/package/testing` · `@development/package/development`; `development/modes/*` → `commons/playground/*`, `testing/{data,language-learning}` → `commons/fixtures/`, `testing/instances/fixture` → `commons/instances/fixture` · migrate: none for the record (`supply()` heals a stale checkout location on first boot); images `COPY commons/`, compose `VIVA_INSTANCE_MOUNT=/viva/repository/commons/instances/starter/` ⟨m47-commons⟩
+- changed `Vip.supply()` — a dead record location anywhere under the checkout is rediscovered from `<repository>/commons` and the record rewritten; a dead external one is kept, skipped, and reported (`vip.stale`, `viva ledger/doctor` `present:false`); discovery over a missing `commons/` yields nothing, so `accio` reports `not supplied` instead of a readdir trace · migrate: none ⟨m47-commons⟩
+- changed `Pensieve.register` — a second file claiming an already-registered owner/type/slug/version throws instead of silently winning; the package walker skips `*.bak` directories as well as `bak/` · migrate: rename any duplicate declaration dir to `*.bak` or remove it ⟨m47-commons⟩
+- removed `VIVA_REGISTRY_MOUNT` from the image (F2) — the store is the ledger volume's `registry/` · migrate: none ⟨m47-commons⟩
+- changed `.dockerignore` — every image drops `commons/playground`, `commons/fixtures`, `**/tmp`; the runtime suite's `corpus.snapshot.json` moved beside its test at `systems/runtime/tests/fixtures/`, so the suite no longer writes into the shipped package · migrate: none ⟨m47-commons⟩
+
+* changelog
+
+- drafted from a live blast map; forks open; M0 suites recorded; no code moved.
+- critical pass walked against disk (beef: "analyze the commons rewrite" · "critical pass"): M2 folded into M1, 4 blast rows added, F8–F11 opened. Plan re-cut as tree · identifiers · where-strings-live · diff · paths · gate · assess → beef: "very good. commit this to the quest." → =* plan — the landing= is canonical. Nothing in code moved; awaiting go.
+- wake (beef: "ikiro wake. m47-commons."): terrain RE-MEASURED, nothing moved (=registry/{commons,development,testing}= on disk, no =commons/=). Deltas vs the draft:
+  | claim in draft                                  | on disk at wake                                                                                       |
+  |-------------------------------------------------+-------------------------------------------------------------------------------------------------------|
+  | census 23 manifests                             | 24 — =demo/hello-world= (=hello-world/mode.viva.js=) appeared; owner+type+slug still UNIQUE            |
+  | hello-world = =hello.js= + =App.svelte= + =multiplayer.js= | =App.svelte= · =instance.viva.js= (6 × =@viva/=) · =mode.viva.js=; README §0 :25/:101 name =hello.js= / =hello-world.viva.js= — STALE vs disk, beef's in-flight, recapture at M4 |
+  | shelf =@viva/= 56 · =@development/= 16            | 48 · 8 — language-learning/{development 11, test.viva 4, education 19} · hello-world/instance.viva 6 · italian/{italian.viva 4, daemon 7} · stucatch/{stucatch.viva 3, stucatch 2} |
+  | doctor × 4 shelf instances (M3 gate)            | =instances.json= holds 3 (language-learning · italian · hello-world); =stucatch/= is on the shelf UNRECORDED → M3 = doctor × 3 recorded + stucatch by path |
+  | education clone 31                              | 31 — unchanged; clone is DIRTY (20+ files, beef's WIP)                                                 |
+  | =vite.config.mjs:38=                            | =:37=                                                                                                 |
+  | — (not in table)                                | =registry/commons/instances/localhost/= is an EMPTY dir (untracked) — rides along or dies with =rmdir= |
+  | — (not in table)                                | bare-owner literals (no slash): =registry.count.test.js:60-61= (=revelio({owner:"@viva"…})=, M1 test) · =pensieve.test.js:26-30= =@development= synthetic · =vip.test.js= in-memory =@viva= (cosmetic, may stay) |
+  | vip.js :38-46 · registry.js :71-85 diff          | matches disk line-for-line; =pensieve.js:22= last-wins + =find.js:11= =bak|archive|slp= (not =*.bak=) confirmed — =multiplayer.bak/multiplayer.viva.js= declares =instance/multiplayer= beside =starter/=: F9 hazard is LIVE today |
+  | docs 41.01 (17-20, 62-80) · 33.01:95             | prose mentions of the DIR only (=registry/= tree line, "the repository's own registry/") — no identifier strings; still M4 recapture |
+  Still AWAITING go.
+- beef: /"go"/ → blast-bracket walked. *beat 2* baseline (one-shot, sequential — ghost and runtime both write =~/.viva/registry.json= through =supply()=): paladin 28 (138) · runtime 53 (327) · ghost 81/1 (=strata.wet.test.js:93= "two shells select two instances in parallel", the reap race, ledger invariant 5 — pre-existing, deterministic) · kajuit 35 (126) · sheets 37. *beat 3* in two passes: (a) RED first — =registry.test.js= reconcile block rewritten onto =reconcile(checkout, commons)= (+ "discovery over a missing root yields nothing" · "no record seeds from <checkout>/commons" · "a checkout without commons/ supplies nothing and names the absence at accio") and =pensieve.test.js= "a second file claiming a held identity cannot register — the same file re-registers idempotently"; 5 red steps → =vip.js= supply · =ledger/registry.js= reconcile + =discover= stat-guard · =pensieve.js= throw on a DIFFERENT mount claiming a held identity (ghost =lens.js= / =registry/index.js= / =instance/create.js= and runtime =populate.js= all re-supply the singleton, so same-file re-registration must stay idempotent) · =find.js= skips =*.bak= → paladin 28 (142). (b) the move — =mv= ×5, two package files =rm=, =rmdir registry=, =package.viva.js= tangled =@commons=, =corpus.viva.js= owner line dropped, =lighthouse.js= relative import shortened, 6 files × =@(viva|development|testing)/= → =@commons/= (hello-world 6 · starter 20 · kernel.test 4 · instance.snapshot 1 · topography/harness 1 · ghost create.test 1), =registry.count.test.js= bare owner ×2 + title, 9 path repoints, 3 Dockerfiles, compose, vite :37, tailwind :13, runtime watch-exclude, =.dockerignore= + 3 lines, =Dockerfile:60= env pin dropped. *beat 4*: same five, same numbers, same single red; =~/.viva/registry.json= healed itself during the runtime run → =[education, stucatch, <repo>/commons]=. *beat 5*: residue grep empty modulo =registry.test.js:112= (the dead shape that must heal), synthetic =@viva= rows in =pick.test= / =search.state.test= / =vip.test= / =pensieve.test= (in-memory), and =multiplayer.bak/= (beef's untracked recovery copy, now skipped by =find=). Two live-code cosmetics after the run: =vip.js:24= error example → =@commons=, =ghost/belt/pick.js:9= comment. Live: =viva registry/list= ONE checkout row =@commons 22=; =registry/doctor= 0 stale · 50 modes · 18 types · 3 owners; =instance/doctor --instance=<slug>= × hello-world · italian · language-learning · stucatch mount clean (=!= rows are pre-existing env facts). F9 pre-check: zero duplicate type/slug across education · stucatch · commons once =*.bak= is skipped; education's old =tmp/= shadow tree is gone.
+- *F8 ADJUSTED* (rec was data/ + snapshots/ → =systems/runtime/tests/=): =commons/fixtures/data= STAYS — =data/tiers.js= imports the fixture module's entities SYNCHRONOUSLY (=../language-learning/entities/index.js=); a runtime-side copy would need either a cross-container relative import (the thing the rec set out to kill) or an import-time =supply()= in every fixture importer (a liveness dependency the fixtures-own-liveness law forbids). Only the test OUTPUT moved, and NOT to =tests/snapshots/= — root =.gitignore= carries =**/tests/snapshots/=, which would have swallowed the tracked =corpus.snapshot.json=; it sits beside its test at =systems/runtime/tests/fixtures/corpus.snapshot.json= with the =!corpus.snapshot.json= negation moved along. beef's tree line =fixtures/{data,language-learning,snapshots}= is now =fixtures/{data,language-learning}=.
+- M3: shelf 56 lines (8 files) + education clone 31 lines (6 files) → =@commons/=; no =registry/= literal in any =.env= / session file. M4: README §2 table + 50.01 doctor · tap record · =registry.json= · package tree · =ls= recaptured on a SCRATCH ledger (=VIVA_LEDGER_MOUNT= + =VIVA_REGISTRY_MOUNT= exported and =deno run … systems/ghost/mod.js= from the scratch dir — through =ghost.sh= the export is OUTRANKED by the repo-root =.env= and the sourced config, and the first attempt ran =registry/doctor= against the REAL record with a scratch store; the record was verified unchanged) — home normalised to =~/vivalence= / =/home/you= as the docs already do; 51.02 · 32.01 · 33.01 · 41.01 lookups/prose/tree; =astro build= 10 pages green. README §0 hello-world fences LAG disk (=hello.js= + =multiplayer.js= vs =mode.viva.js= + =instance.viva.js=) — beef's in-flight restructure; only the m47 strings were touched there. ikiro: codemap =registry.md= → =commons.md= (=paths: ["commons/**"]=, shape bullet rewritten, stamp names the checks) · =invariants.md= paths · =paladin.md= package bullet · =map.md= · kernel + rituals container roots · 2 skills · =comment-guard.sh= · =ledger.md= vip/pensieve + live snapshot · =frontier.md= · memory =project_m47_commons= (supersedes the 3-package rename note).
+- OWED (beef): commit (plain =mv= — VCS shows 229 deletes under =registry/= + =commons/= untracked + =systems/runtime/tests/fixtures/{.gitignore,corpus.snapshot.json}= untracked) · push the education clone · M5 prod: image rebuild, compose mount, prod shelf lookups.
+
+
+* critical pass — walked against disk after the draft
+
+beef: /"analyze the commons rewrite"/ · /"critical pass"/ → lexicon: adversarial review WANTED. Every
+claim below re-measured this session, not recalled.
+
+** 1. the ladder is inverted — M1 cannot reach its own gate without M2
+=systems/runtime/lifecycle/populate.js:6= =registry() = vip.supply()=; today's =reconcile(<repo>/registry)=
+classifies the moved dirs as inside → heals via =discover(<repo>/registry)= → =fs.readdir= ENOENT →
+throws. Every runtime/ghost/kajuit suite AND every =viva= boot dies between M1 and M2. M2-first is no
+better: a fresh box (null record) seeds from =<repo>/commons=, which does not exist yet → ENOENT.
+Ruling: M1 and M2 are ONE landing. Add to M2's RED tests: /"discover over a missing root yields [] —
+supply reports =@commons= not supplied, never a stack trace"/ (=find.js:7= readdir is the throw site).
+
+** 2. blast-table misses (added above)
+=systems/kajuit/vite.config.mjs:38= =watch.include "../../registry/**/*.{html,svelte,js,css}"= — playground
+buffers lose HMR after the move; the table carried only =tailwind.config.js:13=. =.ikiro/hooks/comment-guard.sh:13=
+=*/registry/*= — commons would silently drop out of the comment guard.
+
+** 3. the owner segment is the pensieve's TOP KEY — this is a wire break, not a rename
+=subsystems/paladin/prototypes/vip.js:86= throws =package @viva not supplied= BEFORE =revelio=;
+=pensieve.js= is =Map owner → type → slug → version=. So every recipe authored before m47, on every box,
+in every tapped repo, dies at its next =instance/up= until sed. Measured today, OUTSIDE the checkout:
+| where                                             | =@viva/= | =@development/= |
+|---------------------------------------------------+---------+----------------|
+| =~/.viva/instances/{hello-world,italian,language-learning,stucatch}= | 56 | 16 |
+| =~/.viva/registry/education= (5 files dirty, beef's WIP, separate repo) | 31 | 0 |
+| prod: in-image =commons/instances/starter= (M1 rewrites it) · prod shelf: unmeasured | ? | ? |
+| m46 walker boxes (ubuntu/alpine shelf instances)                       | ? | ? |
+The release line "migrate: none for the record" is true and misleading — the record heals, the RECIPES
+do not. No shim (law). Honest release line leads with: /every pre-m47 recipe needs the three-prefix sed
+before its next up; =viva instance/doctor= names each unresolved module/. M3 gate → doctor on ALL FOUR
+shelf instances, pasted. The cheap variant exists and is NOT recommended (beef wrote =@commons/…= five
+times): keep owner =@viva=, move dir + merge packages only → zero recipe blast, wrong name.
+
+** 4. one owner deletes the collision partition; the only guard left is silent last-wins
+m11 keystone: /"owner = package identity … no collision"/ — three owners made a cross-package slug clash
+structurally impossible. After the merge =pensieve.register= → =slugMap.set(version, module)= OVERWRITES;
+=registry.count.test.js= "keys a slug once" inspects the pensieve AFTER the overwrite and can never fire.
+Census today: 23 manifests, type/slug unique → safe at landing. Live demo of the hazard on disk:
+=registry/commons/instances/multiplayer.bak/multiplayer.viva.js= (ignored, dev-only) declares
+=instance/multiplayer= like =starter/= — =find.js:11= skips dirs named exactly =bak=, not =*.bak=; both
+register, readdir order decides. F9: =Pensieve.register= throws on an existing owner/type/slug/version
+(category kill, RED test "a second module with the same identity cannot register"); =find.js:11= also
+skips =*.bak=.
+
+** 5. =@commons/fixtures= is a DIR, never a lookup — F8
+beef wrote =@commons/fixtures= (plural) / =@commons/playground= (singular). =playground= is already the
+mode TYPE → =@commons/playground/spawner= is real. =fixtures/= would hold ONE module
+(=fixture/language-learning=) plus two non-module trees: =data/= (8 plain files, imported RELATIVELY by
+runtime tests) and =snapshots/= (written BY tests, carries its own =.gitignore=). Rituals pre-flight 8:
+the artifact's OWNER decides placement — those trees are runtime's. F8 rec: =data/= + =snapshots/= →
+=systems/runtime/tests/{data,snapshots}=; =data/lighthouse.js='s relative =../../commons/datamaps/libsql/…=
+becomes =accio("@commons/datamap/libsql")= (the test-baseline law); =commons/fixtures/language-learning/=
+stays as the one fixture module. Kills 5 cross-container relative imports and a test-output dir inside the
+shipped package.
+
+** 6. shipping surface — inherited, made permanent by the merge
+=Dockerfile:48 COPY registry/= already ships playground + fixtures + =services/nlp/server/tmp= (649M, 12
+files; =.dockerignore= excludes =temp=, not =tmp=). Not a regression; but one package means "ship the
+platform half only" needs a =.dockerignore= line forever. F11 rec: =commons/playground= · =commons/fixtures=
+· =**/tmp=. Safe: =starter/multiplayer.viva.js= references no =@development/*=; kajuit's build stage
+=rm -rf ./registry= already excludes it.
+
+** 7. F2 verified, one new fact
+=subsystems/paladin/lifecycle/populate.js:73-78=: store = =VIVA_REGISTRY_MOUNT= else =<ledger>/registry=.
+Prod compose sets =VIVA_LEDGER_MOUNT=/viva/ledger= and mounts NO ledger volume (only =mountpoint=). So the
+prod record is container-ephemeral: every start re-seeds → M5's "prod record heals" is moot unless the
+box differs from the compose file. Verify on the box before trusting F3/M5 wording.
+
+** 8. widened =inside= — F10
+=reconcile(checkout, commons)=: a tapped package cloned INSIDE the checkout that goes missing is evicted
+silently (today: reported stale). rec: accept — taps belong in the store; note in =ledger.md=.
+
+** 9. points FOR, measured
+=@commons/package/commons= is house style, not a tautology: =~/.viva/registry/education/package.viva.js=
+is =@education/package/education=, and =systems/ghost/trajectories/registry/bootstrap.js:26= mints
+=owner = "@" + basename= — =commons/= is exactly what =viva registry/bootstrap commons= would produce.
+Census holds (23, unique). No import map exists (=deno.jsonc= has no =@= entries), so "imported as" can
+only mean the lookup grammar — no F for that reading.
+
+** 10. side effect to expect
+runtime's suites call the REAL =vip.supply()= → the M1 gate run itself rewrites =~/.viva/registry.json=
+(M3's "heals on first boot" fires during the test run, not after). Fixtures-own-liveness debt,
+pre-existing; noted so the M3 paste is not mistaken for a hand edit.
+
+** forks added
+- *F8 fixtures placement*: =data/= + =snapshots/= to =systems/runtime/tests/=; =fixtures/= keeps the one module. rec: yes.
+- *F9 duplicate identity is loud*: =Pensieve.register= throws; =find.js= skips =*.bak=. rec: yes, in M1.
+- *F10 widened inside*: in-checkout taps evict silently. rec: accept.
+- *F11 dockerignore*: =commons/playground= · =commons/fixtures= · =**/tmp=. rec: yes.

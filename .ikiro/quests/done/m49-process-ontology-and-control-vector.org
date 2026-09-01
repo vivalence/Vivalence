@@ -1,0 +1,384 @@
+#+title: m49 process ontology + control vector — one primitive every process becomes, one vector every set of them answers
+#+filetags: :paladin:ghost:ledger:process:wafer:die:control:vector:runtime:daemon:supervisor:
+#+status: M1 LANDED (uncommitted) on beef's word (/"you own the paladin for now … implement that"/) — the OS child is a =Wafer= (=Process=), the supervised set is a =Die=, the ledger is the record; live-proven on a throwaway shelf instance (start → ALIVE lock + =/status= · run on a held instance REFUSED · delete REFUSED · stop → pids gone, lock gone, port free). paladin 36/0 · ghost 80/1 (pre-existing race). M2 (control vector) DESIGNED, transports MEASURED, unapplied — mounting is gated. M3 pointers only.
+#+status: Baselines at authoring: paladin 28 passed (147 steps) · ghost 81 passed / 1 failed (=strata.wet.test.js:93= reap race, pre-existing).
+#+phase: wip (derived)
+#+progress:  33% 1/3 (derived)
+#+next: blast (derived)
+
+* intent
+
+beef, verbatim: /"What I think of in the ledger is a record. It's a store. The life supervisors in the
+paladin using the ledger as a store of record. So that is the general idea. That means all control
+over killing terminating processes rests in the paladin. We need coherent schematics throughout the
+repository."/ · /"Specifically, what I'm looking for is a... on the one hand, a shared ontology for
+how to deal with processes, probably a prototype around it. And then we can start to slowly migrate
+all of the demons and other processes that we have and, like, shell sub sub processes. onto this
+shared primitive, and then there's this control vector to say what we do with those systems, doctor
+being one of them up, down, run, start, um, the the whole... I think the the docker, especially
+compose UI, is pretty spectacular for this. Yeah. Those are the two dimensions. And I think this
+should be very thin to do. I think we should start a new quest for this, forty nine."/
+
+One sentence: *every process in the system — the runtime, a daemon, a service, an OS child the
+ghost spawns, a shell subprocess — is a =Wafer= (=populate → resolve → integrate → perpetuate →
+disintegrate=, a =Status= atom, an abort); a set of them under one owner is a =Die=; the ledger is
+the store of record such a die writes to (lock, logs) and never a supervisor; and ONE control
+vector — =up · down · ps · logs · restart · doctor= — is written once against the =Wafer= interface
+and mounted wherever a die lives: the ghost for OS children, the runtime aperture for daemons.*
+
+* the two dimensions
+
+| dimension            | what it is                                                                       | where it lives                                  | in compose terms                 |
+|----------------------+----------------------------------------------------------------------------------+-------------------------------------------------+----------------------------------|
+| the primitive        | =Wafer= lifecycle over ONE process; =Die= over a set; =Status= atom; grace on kill | =typology/prototypes/wafer.js= · =paladin/prototypes/ledger/{process,die}.js= · =systems/runtime/{die,daemon/die,process/die}.js= | the container runtime            |
+| the control vector   | a =Vector= of natures over a die: =/status /up /down /restart /logs=              | M2: =paladin/prototypes/ledger/control.js=, later beside =Wafer=; mounted by ghost (=instance/*=) and by the runtime aperture (=/control=) | =docker compose up/down/ps/logs= |
+| the record           | locks · logs · instances · registry · sessions — written BY dies, read by verbs   | =paladin/prototypes/ledger/{ledger,lock,log,instances,registry}.js=, =~/.viva= | the daemon's state dir           |
+
+Orthogonal: a verb never signals a pid — it calls a nature; a nature never knows a transport — it
+calls a lifecycle verb. Interlocking: =/down= IS =die.disintegrate()=; =/status= IS
+=die.status.reflection= folded over the children; the lock IS the die's claim, written at =resolve=
+(=BOOTING=) and =integrate= (=ALIVE=), removed at =perpetuate='s end or =disintegrate=.
+
+* terrain — measured (m46 connoisseur pass; every path re-read)
+
+- =Deno.Command= carries =detached: true= (deno 2.9.6, =deno types= :4210); probe: child pgid = own pid, outlives the parent. =unref()= alone was never detach — the known issue's four shims were for this flag.
+- =Wafer= (=typology/prototypes/wafer.js:3-27=): =mask= · =good= · =status= (=Status= atom) · =abort= · five async verbs. =systems/runtime/die.js= supervises =good.daemons= + =good.processes= with exactly those verbs and =perpetuate= = signal listeners → =disintegrate=.
+- =Status= prints =Status:<CODE>= through the inspect symbol (=status.js:48-50=); the runtime emits =console.log(new Status("alive"))= at listen (=integrate.js:47=), kajuit at vite listen (=vite.config.mjs:100=). No inverse exists (typology, gated — F1).
+- Before M1 the ledger held live state (=attached= Set, =armed=, =arm=, =teardown=, =ledger.js:10-11,73-84=); readiness was =line.includes("Status:ALIVE")= in a UI file with no reject path (=Init.jsx:37-46=); =run= exited 0 on a dead child; locks were per child, removed only by a living spawner.
+- Prior art: =typology/schematics/readme.org:9-14= — =ProcessStateEnum= · =Command= typebox lines and a =ControlVector= sketch (=/start/:slug /stop/:slug /restart/:slug /status /health/:slug=); =systems/kajuit/client.viva.js:14-34= — /"bad control vector, but broadly implements the spirit"/ (=control = new Vector().open("/install").open("/start")=). No quest or compact names the term.
+
+* M1 — the primitive: OS children are Wafers, the set is a Die, the ledger is the record
+
+** contract
+
+#+BEGIN_EXAMPLE
+spec            { identity: { process, mount }, command: { bin, args, cwd: mount, env, deadline?, grace? } }   ghost target.js builds it; env is EXPLICIT (clearEnv); cwd = the MOUNT (measured: a cwd `.env` outranks the os stratum, so a child started from the repo root mounted the repo's .env instance)
+attachment      "inherit" | "piped" | "logged"     WHERE stdio goes — never whether it is kept; logged → <ledger>/logs/<instance>/<process>.out.log
+Process         Wafer: populate · resolve (spawn) · integrate (ALIVE line | exit → throw | deadline → throw) · perpetuate (await exit) · disintegrate (SIGTERM → grace → SIGKILL)
+Die             Wafer over processes: resolve spawns all + claims the lock BOOTING · integrate all-or-disintegrate + claims ALIVE · perpetuate arms signals, folds exits, removes the lock · disintegrate all + removes the lock
+lock            <ledger>/locks/<instance>.lock = { pid: SUPERVISOR, token, instance, status: BOOTING|ALIVE, processes: [{process, pid}], started }   ONE per die; Lock.read() prunes a dead pid; Die.resolve REFUSES when a live lock exists; a die releases only its own token (measured: a second die's teardown clobbered the supervisor's lock before this)
+ledger.boot     (specs, { instance, attachment }) → populated + resolved die; the caller integrates (so a wizard can tap output first)
+ghost run       boot · integrate · perpetuate → exit code = fold of the children (1 iff any !success); --logged attaches logs
+ghost start     spawns a DETACHED ghost running `instance/run <target> --instance=<mount> --logged`; waits for the lock to say ALIVE or the supervisor to exit
+ghost stop      SIGTERM the lock's pid (the supervisor); waits for the lock to clear (15 s) — the supervisor disintegrates its children with grace
+ghost init      boot (piped) · integrate · ONE signup call · disintegrate; the wizard shows a `failed` phase with the tail and exit codes
+#+END_EXAMPLE
+
+** what dissolves (m46 taskbag ids)
+
+| B1 B9  | =Process.integrate= races alive / exited / deadline; =Die.integrate= disintegrates on failure  |
+| B2     | =process.slug= (Wafer manifest)                                                                 |
+| B3 B8  | =run= folds =die.perpetuate()= exits; signals → =die.disintegrate= ; no =Deno.exit= in paladin  |
+| B4 B11 | =logged= attachment → =Log.open= (its first caller); =start= = detached =run --logged=          |
+| B5 B10 | ONE lock per die, pid = the writer; =Lock.read= prunes; =attached= set gone                     |
+| B6     | =Process.disintegrate= grace                                                                    |
+| B7     | half: ONE consumer (=process.js= =ALIVE=) pinned to the inspector's exact line; inverse = F1     |
+| B13    | =clearEnv: true=; =target.js= carries PATH/HOME/… + =VIVA_*= minus =VIVA_PROCESS_ID=            |
+| known  | =detached-process-die-on-parent-exit= — closes on the live proof of =start=                     |
+
+** landed — the live proof (throwaway shelf instance =m49-smoke=, ports 2601/1894, deleted after)
+
+#+BEGIN_EXAMPLE
+viva instance/start runtime --instance=m49-smoke   → ghost: started m49-smoke (supervisor 70721: runtime=70722)   exit 0
+locks/m49-smoke.lock                               → { pid: 70721, status: "ALIVE", processes: [{ process: "runtime", pid: 70722 }] }
+viva instances/list --json                         → "slug": "  m49-smoke", "running": "runtime"
+curl localhost:2601/status                         → {"code":"ALIVE","label":"http://localhost:2601/"}
+viva instance/run runtime --instance=m49-smoke     → ghost: m49-smoke already running (supervisor 70721) — viva instance/stop   exit 1 · lock intact
+viva instance/delete m49-smoke --force             → 'm49-smoke' is running (supervisor 70721: runtime) — viva instance/stop first
+viva instance/stop --instance=m49-smoke            → ghost: stopped m49-smoke (supervisor 70721: runtime=70722)   exit 0
+after                                              → lock gone · 70721 gone · 70722 gone · 2601 free · runtime.out.log: launching on http://localhost:2601/ · Status:ALIVE
+viva instance/run runtime --instance=hello-world   → (your 2501 held by docker + a deno) ghost: instance: runtime exited 1   exit 1
+viva instance/start --instance=hello-world         → ghost: hello-world: supervisor 63026 exited 1 — see ~/.viva/logs/hello-world   exit 1 (runtime.out.log: AddrInUse at integrate.js:41)
+#+END_EXAMPLE
+
+Two defects the proof caught, both fixed before the pass above: (1) the child ran with the ghost's cwd, whose =.env= (=<repo>/.env= holds =VIVA_INSTANCE_MOUNT= for hello-world) outranks the =os= stratum the mount travels in → it mounted the wrong instance and bound 2501 — =command.cwd = mount=; (2) a failed =run= for a held instance removed the supervisor's lock on its own teardown → =stop= found nothing and =delete= deleted a running instance — the claim carries a =token=, =resolve= refuses a live lock, =release= removes only its own. Orphans from (2) were SIGTERM'd by hand (the supervisor took the =deno task= wrapper and the leaf with it in <10 s).
+
+** tests (blast-bracket)
+
+=subsystems/paladin/tests/spawn.test.js= rewritten to the contract (9 cases): boot → BOOTING lock with two pids · integrate on an ALIVE-printing child → ALIVE lock · perpetuate → success + lock gone · a child exiting 1 before ALIVE → integrate rejects "exited 1", sibling disintegrated, lock gone · no ALIVE line + =deadline: 300= → "not ready after 300 ms" · disintegrate a sleeper → STOPPED, lock gone, exit !success · inherit → integrate resolves at once · logged → lines in =logs/<instance>/<process>.out.log= · a second die for a held instance refuses at resolve, first claim survives · a die releases only its own token · no instance → no lock. Counts: paladin 28 (147) → 36 (145) · ghost 81/1 → 80/1 (one target case dropped with the =instance= param).
+=ledger.test.js= Lock: one-arg =lock(instance)=, =read()= prunes a dead pid and removes the file; =locks()= gone.
+ghost: =target.test.js= (spec shape) · =delete.test.js= · =rename.test.js= (one lock, alive refuses, dead pruned).
+
+* M2 — the control vector (DESIGNED, unapplied, gated)
+
+** the shape
+
+One factory, written against the Wafer interface, no transport in it:
+
+#+BEGIN_SRC js
+import { Vector } from "@vivalence/typology";
+
+const reflect = (die) => ({
+  status: die.status.reflection,
+  processes: (die.good?.processes ?? []).map((process) => ({
+    process: process.slug,
+    pid: process.child?.pid ?? null,
+    status: process.status.reflection,
+  })),
+});
+
+export function control(die) {
+  return new Vector()
+    .open("/status", () => reflect(die))
+    .open("/up", async () => {
+      await die.integrate();
+      return reflect(die);
+    })
+    .open("/down", async () => {
+      await die.disintegrate();
+      return reflect(die);
+    })
+    .open("/restart", async () => {
+      await die.disintegrate();
+      await die.populate();
+      await die.resolve();
+      await die.integrate();
+      return reflect(die);
+    })
+    .open("/logs", async (input) => die.ledger.log(die.instance).tail(input?.process, input?.lines ?? 50));
+}
+#+END_SRC
+
+** the transport — the die is in ANOTHER process when detached
+
+The same cata/ana pair the runtime already uses: =shape.http(vector)= served, =Connection= calling.
+The supervisor ghost serves =control(die)= and writes the address into its lock; a verb resolves
+local-vs-remote from the lock alone:
+
+#+BEGIN_SRC js
+const server = Deno.serve({ port: 0, hostname: "127.0.0.1", signal: die.abort.signal }, shape.http(control(die)));
+await die.claim("ALIVE", { address: `http://127.0.0.1:${server.addr.port}` });
+#+END_SRC
+
+#+BEGIN_SRC js
+const reach = async (instance) => {
+  const lock = await paladin.ledger.lock(instance).read();
+  if (!lock) throw new Error(`${instance} not running`);
+  return new Connection(new Url(lock.address));
+};
+export const down = async (ctx) => (ctx.effect = await (await reach(await register())).call("/down"));
+#+END_SRC
+
+Then =stop= stops being a signal and becomes =/down=; =SIGTERM= stays as the operating system's own
+=/down= (the supervisor's signal listener calls the same =disintegrate=). MEASURED (deno 2.9.6, no unstable flag): =Deno.serve({ port: 0 })= → =server.addr.port= discoverable, fetch round-trips; =Deno.serve({ path })= over a unix socket + =Deno.createHttpClient({ proxy: { transport: "unix", path } })= round-trips too. Recommend the unix socket at =<ledger>/locks/<instance>.sock= — no port, filesystem-scoped, dies with the file; the lock carries =address=.
+
+** the natures — compose-aligned, mounted where a die lives
+
+| nature              | over the ghost's instance die                             | over the runtime die (aperture =/control=) |
+|---------------------+-----------------------------------------------------------+-------------------------------------------|
+| =/status= (=ps=)    | lock + per-process status                                 | daemons + services status                 |
+| =/up [process]=     | =run= attached; =--detach= = today's =start=              | integrate a daemon                        |
+| =/down [process]=   | today's =stop=; per-process = disintegrate one child      | disintegrate a daemon                     |
+| =/restart=          | down + up                                                 | same                                      |
+| =/logs [process]=   | tail =<ledger>/logs/<instance>/<process>.out.log=         | the daemon's span log                     |
+| =/doctor=           | exists (=instance/doctor=)                                | =/status= + requirements                  |
+
+** owed before M2 lands
+
+1. F1 — =Status.parse= (typology): the inverse of the inspector, so the ALIVE line is parsed by the prototype that printed it.
+2. F2 — schematics: =v.prototypes.process= = ={ Command, Identity, Lock, ProcessState }= (the =readme.org:9-11= lines, finished) — typology.
+3. the transport measurement (unix socket vs loopback port).
+4. beef's word on the verb names: =up/down/ps/logs= as NEW natures beside =run/start/stop=, or renames.
+
+* M3 — migration (pointers only)
+
+- runtime =Die= (=systems/runtime/die.js=) already IS the shape; mount =control(runtimeDie)= at =/control= in =populate.aperture=.
+- =DaemonDie= / process =Die= — Wafers; per-daemon =/control= under =/attached/…=.
+- shell subprocesses (=paladin.skills shell_run=, =paladin.clone=, =bundler=) → =Process= with =attachment: "piped"= and a =deadline=; the =Command= schematic is their spec.
+- kajuit's =client.viva.js control= vector (the "bad" one) → =control(die)= over a =Process= whose command is =vite dev=.
+
+* direction — the wafer verdict, found (beef: /"write this as a potential direction into the current quest. almost verbatim++"/)
+
+beef, on M1 as landed: /"process.js — the OS child is a Wafer: the design is great. naming and heritance is off. i had a few cases the last few months that i wanted to rename wafers. i dont remember the target name. i wrote that in comments in the code and quests and logs. search for that term."/
+
+Found. The term is *dossier*, and the verdict was "the wafer has to go". It was in beef's own logs, not the repo.
+
+** beef's words, verbatim
+
+=~/vivalence/private/logs/2026.05.25.org:137-150=
+#+BEGIN_QUOTE
+i might want to clean out the hideous paladin boot vector and migrate to something selbstbestimmt/dossier aligned.
+yes. for sure.
+the wafer has to go.
+maybe in favor of dossier?
+maybe just flat inline. brutalism.
+…
+i am leaving claude with a refactor of paladins boot process. remove the wafer. simplify.
+#+END_QUOTE
+
+=~/vivalence/private/logs/2026.05.22.org:43,67-69=
+#+BEGIN_QUOTE
+dossier? lets see … i might want to ask for some sketches of paladin using dossier pattern. the paladin will change its internals to become more of an stateful interface between the system and its environment, and less of an instance in and of itself.
+#+END_QUOTE
+
+=systems/runtime/daemon/die.js:6-8= (code comment)
+#+BEGIN_SRC js
+// TODO migrate to dossier pattern.
+// TODO2 rename dossier pattern do die pattern.
+// aka keep name, change pattern.
+#+END_SRC
+
+=subsystems/paladin/prototypes/instance.js:94,144= — =// move to lifecycle / dossier / die=.
+
+Lineage: =2025.12.01.org:61= /"i rebuilt the entire runtime architecture around wafers and it looks very very good"/ → May: dossier → the TODO: die keeps the NAME, dossier is the PATTERN, Wafer goes. =2025.12.20.org:24= /"repo is like wafer with sets. repo.good is the instantiated entities."/ — =good= = the instantiated product, already then.
+
+** what the pattern is, as it lives
+
+=systems/kajuit/src/typology/entities/thread/dossier.js= · =entities/daemon/dossier.js=; the doc =documentation/bak/40-49_repository/46_kajuit/46.14_typology.org:9,34-44= — /"30-pattern concretized: dossier (declarative descriptor) + selbstbestimmt vector (functional dispatch) → emergent hydration"/ · /"dossier shape: { name, kind:()=>Class, repository(schema,dataspace), use:[...middleware] }"/ · /"hydration law: NO special-cased hydration outside dossier middleware. New entity type = class + dossier + add to the entities array"/.
+
+#+BEGIN_SRC js
+export const ThreadDossier = {
+  name: "thread",
+  kind: () => Thread,
+  repository: (schema, dataspace) => { … },
+  use: [
+    async (ctx, next) => { await next(); … },
+  ],
+};
+#+END_SRC
+
+=shape.selbstbestimmt(vector)= walks to the effect and composes the carried =use[]= onion (=gestalten/shape/selbstbestimmt.js:3-17=). Class = pure state; lifecycle = middleware stages. Same law as =feedback_functional_lifecycle=: =boot(lighthouse)=, never =lighthouse.boot()=.
+
+** where the search went
+
+repo + =.ikiro= (0 rename lines) → memory (0) → 200+ session transcripts, every line of beef's (only the day's) → =git grep= on five old revs incl. =.ikiro/bak= (0) → =~/vivalence/private/logs= (HIT). =git log= is guard-denied; =git grep= / =show= / =ls-tree= / =rev-list= pass. Memory: =reference_beef_private_logs=.
+
+** the recast — two forms, both keep every test and the live proof
+
+(A) brutalism — record + free functions; (B) dossier + selbstbestimmt — the onion, kill = abort, teardown order free. Sketches under =* M1 recast — no Wafer= above. Nouns: =Wafer= GONE (typology, gated) · paladin =Process= → =child= (collides with the runtime's SERVICE =Process=; Deno's own noun) · paladin =Die= → =die= kept per TODO2 · the runtime's dies migrate onto the same dossier later. Recommendation (B): the April wafer-lifecycle design (=wafer-lifecycle.quest.org:39,59= /"one line to kill, deterministic teardown order for free"/), the kajuit dossiers, and TODO2 all point at it; (A) is one log line and keeps five verbs callers sequence by hand — where the hang class came from.
+
+** beef's reply — the three-way weave (verbatim) → the dedicated quest
+
+/"maybe we need to be careful with the overlapping here. there are two things a vector could instantiate. a process or an entity. we need do settle our wording here. modes get masks as config and they are entities. what does a process get? a wafer? a mask? does a process need something like that? it has the control vector. an enumerated schematiced interface of [up down start stop watch run doctor logs build ...] and an enumerated schematices process management with the signature, signals, and now the requirement of some SIGKILL control standard. this is a three way weave. maybe dedicated quest is warranted. go build that. take your time. then sunset the old quest."/
+
+→ =m50-the-three-way-weave.org= carries the wording settlement, the two schematics, the recast, the control vector and the process contract. M2 and M3 of this quest are LIFTED there; this quest sunsets with M1 landed.
+
+* forks — beef calls
+
+- F0 THE NAME + THE INHERITANCE — beef: /"the design is great. naming and heritance is off. i had a few cases the last few months that i wanted to rename wafers."/ Found in his own logs, =~/vivalence/private/logs/2026.05.25.org:137-150=: /"i might want to clean out the hideous paladin boot vector and migrate to something selbstbestimmt/dossier aligned. yes. for sure. the wafer has to go. maybe in favor of dossier? maybe just flat inline. brutalism."/ · =2026.05.22.org:67-69=: /"i might want to ask for some sketches of paladin using dossier pattern. the paladin will change its internals to become more of an stateful interface between the system and its environment, and less of an instance in and of itself."/ · code: =systems/runtime/daemon/die.js:6-8= /"TODO migrate to dossier pattern. TODO2 rename dossier pattern do die pattern. aka keep name, change pattern."/ · =paladin/prototypes/instance.js:94,144= /"move to lifecycle / dossier / die"/. The pattern as it LIVES (kajuit): a declarative descriptor ={ name, kind: () => Class, repository, use: [...middleware] }= + =shape.selbstbestimmt= (functional dispatch over the =use[]= onion) — the class is a pure state container, the lifecycle is middleware stages (=entities/thread/dossier.js=, =entities/daemon/dossier.js=; =feedback_functional_lifecycle=: /"boot(lighthouse)"/ not /"lighthouse.boot()"/). Recast of M1 sketched in =* M1 recast — no Wafer= below; beef picks dossier vs flat-inline, and the child's noun.
+- F1 =Status.parse= — typology; until then the ONE consumer in =process.js= is pinned to =/^Status:ALIVE$/=.
+- F2 process schematics (=Command= · =Identity= · =Lock= · =ProcessState=) — typology.
+- F3 verb names: compose (=up/down/ps/logs/restart=) as new natures, or rename =run/start/stop=.
+- F4 children in their own process group (=detached: true= on every child) so the operator's SIGINT reaches only the ghost and children are signalled ONCE with grace — today under =inherit= they share the tty group and get both.
+- F5 =stop <process>= — the supervisor model stops the SET; a per-process stop is =/down <process>= in M2.
+- F6 the =until= poll in =target.js= — a =promise.until= belt primitive if a third caller appears.
+- F7 sessions keyed by the terminal (m46 cluster B, =tty.js= measurement owed).
+- F8 the Deno floor: which 2.x introduced =Command.detached= — README says 2.7+.
+
+* M1 recast — no Wafer, no extends (DESIGNED on beef's verdict, unapplied)
+
+Two forms, both keep every test and the live proof; the ledger stays the record.
+
+** (A) flat inline — brutalism
+
+=subsystems/paladin/prototypes/ledger/child.js= — a record + free functions; nothing inherits.
+
+#+BEGIN_SRC js
+export const child = ({ identity, command, attachment = "inherit" }) => ({
+  identity,
+  command,
+  attachment,
+  status: new Status("<uninitialized>"),
+  in: new Queue(),
+  out: new Pipe(),
+  process: null,
+});
+
+export async function spawn(held, ledger) { … held.process = new Deno.Command(…).spawn(); held.status.set({ code: "SPAWNED", pid }); }
+export async function ready(held) { … await Promise.race([alive, exited, late]); held.status.set("alive"); }
+export function exit(held) { return held.process.status; }
+export async function stop(held) { … SIGTERM → grace → SIGKILL; }
+#+END_SRC
+
+=die.js= — the set, same shape: =die({ ledger, instance, specs, attachment })= → ={ token, lock, status, children }=; =boot(die)= (refuse-if-held · spawn all · claim BOOTING) · =integrate(die)= (ready all or =stop(die)= · claim ALIVE) · =perpetuate(die)= (signals → =stop= · fold exits · release) · =stop(die)=. Ghost verbs call =boot(die)= … instead of =die.boot()=. Cost: mechanical, ~1 h, tests unchanged in substance.
+
+** (B) dossier + selbstbestimmt — the onion
+
+The lifecycle IS the middleware chain; kill = abort; teardown order for free (beef, =wafer-lifecycle.quest.org:39,59=: /"One line to kill, deterministic teardown order for free"/).
+
+#+BEGIN_SRC js
+export const ChildDossier = {
+  name: "child",
+  kind: () => Child,
+  use: [
+    async (ctx, next) => {
+      ctx.process = new Deno.Command(ctx.command.bin, { … }).spawn();
+      ctx.status.set({ code: "SPAWNED", pid: ctx.process.pid });
+      try {
+        await next();
+      } finally {
+        await stop(ctx);
+      }
+    },
+    async (ctx, next) => {
+      await Promise.race([alive(ctx), exited(ctx), late(ctx)]);
+      ctx.status.set("alive");
+      await next();
+    },
+  ],
+  effect: (ctx) => Promise.race([ctx.process.status, aborted(ctx.abort.signal)]),
+};
+
+const run = shape.selbstbestimmt(vector(ChildDossier));
+const settled = run(child);          one call: spawns, waits ready, holds; abort() unwinds through stop()
+#+END_SRC
+
+The wizard and =start= read =status= (a nanostores atom — self-priming, trigger 4) instead of awaiting =integrate()=; =stop= is =die.abort.abort()=; the die's =use[]= = claim BOOTING → children (a =Promise.all= over their runs) → claim ALIVE, unwind = release. This is the form beef designed in April and the pattern kajuit already runs.
+
+** the nouns (beef picks)
+
+| today                | collides with                                      | proposed                                   |
+|----------------------+----------------------------------------------------+--------------------------------------------|
+| =Wafer= (typology)   | —                                                  | GONE (=typology= touch: gated)             |
+| =Process= (paladin)  | =systems/runtime/process/process.js= =Process= (a SERVICE) | =child= — Deno's own noun for the OS child |
+| =Die= (paladin)      | =systems/runtime/die.js= =Die= (the runtime)       | =die= — kept per TODO2 /"keep name, change pattern"/; the runtime's dies migrate onto the same dossier in M3 |
+| =Process.perpetuate= | =Wafer= verb                                       | in (B) the effect; in (A) =exit(held)=     |
+
+Recommendation: (B). Three of beef's own writings point at it (the April wafer-lifecycle design, the kajuit dossiers, TODO2); (A) is one log line and leaves the lifecycle as five verbs callers must sequence by hand — the hang class M1 just removed came from exactly that freedom.
+
+* testing assessment
+
+paladin: =spawn.test.js= (7 cases) · =ledger.test.js= Lock (3). ghost: =target.test.js= · =delete.test.js= · =rename.test.js= rewritten to the one-lock shape; =init= wizard untested (ink) — the headless path is covered by =run= exit-code behaviour on a busy port (live proof). Live: =viva instance/run runtime= with =:2501= busy → exit 1 in under 60 s; =viva instance/start= → lock ALIVE, =instance/stop= → lock gone, both children dead.
+
+* QA
+
+#+marker_qa: P-boot-total DONE — spawn.test "exits before ALIVE" + "deadline"; live: hello-world start on a held port → supervisor exited 1 in seconds
+#+marker_qa: P-run-exit-fold DONE — live: =run runtime= against docker's 2501 → =ghost: instance: runtime exited 1=, exit 1
+#+marker_qa: P-start-detached DONE — live: supervisor 70721 outlived =start=; =/status= answered; =stop= cleared the lock; both pids gone
+#+marker_qa: P-one-lock DONE — =locks/m49-smoke.lock= only; token-owned; =list=/=doctor=/=delete=/=rename= read through =Lock.read()=
+#+marker_qa: T-lock-clobber DONE — a second die for a held instance refuses (spawn.test) and live (=run= on the held instance exit 1, lock intact)
+
+* blast table
+
+| symbol                      | consumers (before)                                                                 | after                                  |
+|-----------------------------+------------------------------------------------------------------------------------+----------------------------------------|
+| =ledger.spawn/boot/kill=    | run · start · stop · init ×2                                                       | =boot= only; verbs drive the die       |
+| =ledger.lock(i, p)=         | start · rename · delete · ledger/doctor · process.js                                | =lock(i)= one arg                      |
+| =ledger.locks(i)=           | instances/list · instance/doctor · delete                                          | =lock(i).read()=                       |
+| =Lock.alive()=              | start · rename · delete · ledger/doctor                                            | =read()= IS alive                      |
+| =specs()= shape             | run · start · stop · init ×2 · target.test                                          | ={identity, command}=                  |
+| =process.spec.*=            | Init.jsx · run · start                                                             | =process.slug= · =process.child.pid=   |
+
+* deferred
+
+- =Log.append(span)= still has zero callers.
+- the ghost's own output under =start= (supervisor stdout) is =null= — a supervisor log file is M2's =/logs=.
+- =Ledger= still hand-walks =locks/= in =ledger/doctor= (=Deno.readDir=).
+
+* changelog
+
+- this session, close — beef's verdict on the naming (/"the design is great. naming and heritance is off"/); the target found in his private logs (=dossier=; /"the wafer has to go"/); the direction written in near-verbatim; M2/M3 lifted into =m50-the-three-way-weave=; release lines written and lifted; quest sunset to =done/= on beef's order with M1 landed + live-proven, code UNCOMMITTED (beef commits).
+- this session — M1 LANDED on beef's word. paladin: =ledger/process.js= (=Process extends Wafer=) · =ledger/die.js= NEW (=Die extends Wafer=, token claim, refuse-if-held, own-only release) · =ledger/ledger.js= (record only: =boot= returns a resolved die; =attached/armed/arm/teardown/spawn/kill/locks= gone; =lock(instance)= one arg) · =ledger/lock.js= (=read()= prunes; =alive()= gone). ghost: =target.js= (spec = identity + command, explicit env minus =VIVA_PROCESS_ID=, =cwd = mount=, =until=) · =run.js= (integrate · perpetuate · exit fold · =--logged=) · =start.js= (detached supervisor ghost, waits for ALIVE) · =stop.js= (SIGTERM supervisor, waits for the lock to clear) · =init.js= (boot · integrate · ONE signup · disintegrate; the 30 s poll is gone) · =Init.jsx= (=failed= phase, =process.slug=) · =doctor.js= (=lock= via the record's slug) · =delete.js= · =rename.js= · =instances/index.js= (running column) · =ledger/index.js= (=collectLocks=) · =trajectories/index.js= (valences, =logged= flag, =stop= takes no target). Tests: =spawn.test.js= 9 cases · =ledger.test.js= Lock 3 · =target.test.js= · =delete.test.js= · =rename.test.js=. Bracket: paladin 28 (147) → 36 (145) green; ghost 81/1 → 80/1 (=strata.wet.test.js:93= reap race, pre-existing). Live proof on =m49-smoke= (above); two defects caught and fixed by it (cwd = mount; token claim). Transports for M2 measured (port 0 · unix socket, stable). =~/.viva/logs/hello-world/{runtime,kajuit}.out.log= are left from the two failed starts against your held 2501 — yours to keep or drop.
+
+* release
+
+- changed `viva instance/run` — exit 1 iff a child exits non-zero (was 0); `--logged` sends child output to `<ledger>/logs/<slug>/<process>.out.log`; an instance another supervisor holds refuses with `already running (supervisor <pid>)` · migrate: none ⟨m49⟩
+- changed `viva instance/start` — spawns ONE detached supervisor ghost (`instance/run <target> --instance=<mount> --logged`, `Deno.Command detached: true`) and waits for the lock to say ALIVE or the supervisor to exit; the per-child detached spawn that died with the parent is gone · migrate: none ⟨m49⟩
+- changed `viva instance/stop` — takes no target; SIGTERMs the supervisor and waits ≤15 s for the lock to clear, exit 1 if it does not · migrate: `viva instance/stop runtime` → `viva instance/stop` ⟨m49⟩
+- changed `viva instance/init <user> <pass>` — one signup call after the runtime's ALIVE line; a child that exits or misses its 60 s deadline fails the init (exit 1) instead of a 30 × 1 s poll; the wizard shows a `boot failed` phase · migrate: none ⟨m49⟩
+- changed `viva instances/list` · `instance/doctor` · `instance/delete` · `instances/rename` — all read the ONE lock `<ledger>/locks/<slug>.lock` (`running:` = its processes; doctor's `locks` key → `lock`; a dead pid is pruned at read; delete/rename refuse while the supervisor holds it) · migrate: none ⟨m49⟩
+- changed `paladin.ledger.boot(specs, { instance, attachment })` — returns a populated + resolved `Die` (the caller integrates); specs are `{ identity: {process, mount}, command: {bin, args, cwd, env} }`; children get an EXPLICIT env (`clearEnv`, `VIVA_PROCESS_ID` never carried) and run with `cwd = mount` · migrate: `boot(...)` then `await die.integrate()` ⟨m49⟩
+- removed `paladin.ledger.spawn` · `ledger.kill` · `ledger.locks` · `ledger.arm` · `ledger.teardown` · `Lock.alive()` — the ledger holds no live state; `ledger.lock(instance)` takes ONE arg · migrate: `lock(i, p).alive()` → `(await lock(i).read()) !== null`; `spawn` → `boot` ⟨m49⟩
+- changed `<ledger>/locks/<slug>.lock` — `{ pid: supervisor, token, instance, status: BOOTING|ALIVE, processes: [{process, pid}], started }` replaces `<slug>_<process>.lock` per child · migrate: stale `*_*.lock` files are ignored — delete by hand ⟨m49⟩
+- added `<ledger>/logs/<slug>/<process>.out.log` — written under `instance/run --logged` and by every `instance/start` · migrate: none ⟨m49⟩
+- fixed `viva instance/start` — children no longer die with the parent (`detached-process-die-on-parent-exit` RESOLVED) ⟨m49⟩

@@ -45,37 +45,27 @@ describe("belt: read/state json + jsonl", () => {
   });
 });
 
-describe("Ledger.lock", () => {
+describe("Ledger.lock — one per instance, read prunes the dead", () => {
   let paladin;
   beforeAll(async () => {
     paladin = await mkPaladin();
   });
 
-  it("write then read roundtrips the record", async () => {
-    await paladin.ledger.lock("inst", "runtime").write({ pid: Deno.pid, process: "runtime" });
-    expect(await paladin.ledger.lock("inst", "runtime").read()).toEqual({ pid: Deno.pid, process: "runtime" });
+  it("write then read roundtrips a live claim", async () => {
+    const claim = { pid: Deno.pid, instance: "inst", status: "ALIVE", processes: [{ process: "runtime", pid: Deno.pid }] };
+    await paladin.ledger.lock("inst").write(claim);
+    expect(await paladin.ledger.lock("inst").read()).toEqual(claim);
   });
 
-  it("alive is true for a live pid, false after remove", async () => {
-    expect(await paladin.ledger.lock("inst", "runtime").alive()).toBe(true);
-    await paladin.ledger.lock("inst", "runtime").remove();
-    expect(await paladin.ledger.lock("inst", "runtime").alive()).toBe(false);
+  it("read is null after remove", async () => {
+    await paladin.ledger.lock("inst").remove();
+    expect(await paladin.ledger.lock("inst").read()).toBe(null);
   });
 
-  it("alive is false for a dead pid", async () => {
-    await paladin.ledger.lock("inst", "ghost").write({ pid: 2147483647, process: "ghost" });
-    expect(await paladin.ledger.lock("inst", "ghost").alive()).toBe(false);
-  });
-
-  it("locks(slug) lists every lock in the slug with its process", async () => {
-    await paladin.ledger.lock("multi", "runtime").write({ pid: Deno.pid });
-    await paladin.ledger.lock("multi", "kajuit").write({ pid: Deno.pid });
-    const listed = await paladin.ledger.locks("multi");
-    expect(listed.map((entry) => entry.process).sort()).toEqual(["kajuit", "runtime"]);
-  });
-
-  it("locks(slug) returns [] for an unknown slug", async () => {
-    expect(await paladin.ledger.locks("nobody")).toEqual([]);
+  it("a dead pid is not a lock — read returns null and removes the file", async () => {
+    await paladin.ledger.lock("ghost").write({ pid: 2147483647, instance: "ghost", processes: [] });
+    expect(await paladin.ledger.lock("ghost").read()).toBe(null);
+    expect(await paladin.read.json(paladin.scope.ledger.branch("/locks/ghost.lock"), null)).toBe(null);
   });
 });
 
@@ -131,6 +121,28 @@ describe("Ledger.instances", () => {
     await paladin.ledger.instances.remove("zeta");
     expect(await paladin.ledger.instances.read("zeta")).toBe(null);
     expect(await paladin.ledger.instances.read("delta")).not.toBe(null);
+  });
+
+  it("resolve: a recorded slug is its record; an unrecorded slug throws, never a shelf guess", async () => {
+    await paladin.ledger.instances.write("eta", { mount: "/eta-mount" });
+    const held = await paladin.ledger.instances.resolve("eta");
+    expect([held.slug, held.mount]).toEqual(["eta", "/eta-mount"]);
+    await expect(paladin.ledger.instances.resolve("theta")).rejects.toThrow("no record 'theta'");
+  });
+
+  it("resolve: an absolute path finds the record holding it, or slug null when untapped", async () => {
+    const held = await paladin.ledger.instances.resolve("/eta-mount");
+    expect([held.slug, held.mount]).toEqual(["eta", "/eta-mount"]);
+    expect(await paladin.ledger.instances.resolve("/nowhere")).toEqual({ slug: null, mount: "/nowhere" });
+  });
+
+  it("resolve: a ./relative path lands in the operator's cwd frame", async () => {
+    const cwd = Deno.env.get("INIT_CWD") ?? Deno.env.get("PWD") ?? Deno.cwd();
+    expect((await paladin.ledger.instances.resolve("./here")).mount).toBe(`${cwd}/here`);
+  });
+
+  it("resolve: nothing selected is the one voice", async () => {
+    await expect(paladin.ledger.instances.resolve(undefined)).rejects.toThrow("nothing selected");
   });
 });
 

@@ -1,0 +1,102 @@
+#+title: the slug quest is sunset on one word, ten markers are probed on a scratch ledger, and ghost.sh overrides the ledger mount you hand it
+#+filetags: :ghost:paladin:ledger:instance:quest:sunset:qa:cli:release:callout:
+
+* what happened, in one breath
+
+beef asked one question — /"can this be sunset?"/ — with the path of =m44-authoritative-slugs.org= in
+front of it, and answered it himself two seconds later, mid-turn: /"done"/. The quest-lifecycle skill
+loaded and the organ gate RAN instead of being recalled: quest-report said =landed · next: control=
+(ten =#+marker_qa= all =pending=); the second "live" session on the file was the m48 session, last
+words "Done. Nothing running."; paladin 36/145/0; ghost 80 + ONE red = =strata.wet.test.js:93= "two
+shells select two instances in parallel" — the pre-existing reap race, dossier invariant 5, not m44's.
+Both grep gates 0. The seven testimony markers were then walked LIVE through the real =viva= against a
+scratch ledger — create ×3, use, tap ×2, rename ×2, =ledger/doctor= — and seven held verbatim while
+three came back =revised= by m49's one-lock shape (rename names the SUPERVISOR pid, there is no
+per-process lock to carry, a null instance gets no lock at all; init not booted — 2501/1794 are docker
+=readmen-live='s). The quest moved to =done/= by plain =mv= with only its markers touched; eight
+release lines lifted into root =release.md=; the quest index regenerated (it had been listing three
+benched quests as live); frontier + the ledger dossier restamped (invariant 4 PENDING → ENFORCED);
+memory folded. Two probe stumbles worth keeping: =ghost.sh= sources =~/.config/viva/env= AFTER the
+caller's environment, so =VIVA_LEDGER_MOUNT=… viva= is silently overridden — a scratch ledger needs
+=XDG_CONFIG_HOME= pointed at an empty dir; and the reference triple is SINGULAR
+(=@commons/instance/hello-world=) — the plural guess errored honestly. The compact walk itself caught
+a miscount ("8 held · 2 revised") that had already reached four canon files; fixed to 7 · 3.
+
+* spine (N=4)
+
+| n | beef asked (verbatim)                                                                                  | landed                                                                                                                                                              | decided/killed                                                                         |
+| 1 | /"/Users/finn/vivalence/code/vivalence/.ikiro/quests/m44-authoritative-slugs.org can this be sunset?"/ | kernel · quest · memory bodies read; quest-lifecycle skill invoked before any answer                                                                                | the question was overtaken by n2 before an answer existed                              |
+| 2 | (MID-TURN, two seconds later) /"done"/                                                                 | read as the ruling: sunset it — the gate still runs, verdicts are earned, not declared                                                                             | "done" = beef's lifecycle call; the commit stays his                                   |
+| 3 | (the quest-lifecycle skill payload, injected by the Skill tool — not beef's voice)                     | gate run: report · suites · grep gates · docs M7 · ten markers probed on a scratch ledger; =mv= to =done/=; release lines lifted; index · frontier · ledger.md · memory restamped | markers 7 held · 3 revised (m49); sibling session judged NOT working m44 → move allowed |
+| 4 | /"ikiro compact"/                                                                                      | this; frontier over budget (8306/8000 chars) → m48 DONE item evicted whole to known-issues; the 8/2 miscount found by the walk and fixed in four files              | —                                                                                      |
+
+* the gate, as evidence
+
+#+begin_example
+quest-report          m44 41% 7/17 · landed · next: control · sessions 8 (2 live: this one + 65fe7c52 = the m48 session, "Done. Nothing running.")
+paladin               ok | 36 passed (145 steps) | 0 failed
+ghost                 FAILED | 80 passed (26 steps) | 1 failed — strata.wet.test.js:93 "two shells select two instances in parallel" (reap race, invariant 5)
+grep gates            manifest?.slug ??  → 0        split("/").filter(Boolean).pop() → 0        (systems/ghost/trajectories)
+docs M7               --slug in documentation/content/50-59_practice/50.01_slowstart.mdx + 30-39_architecture/33_ledger/33.01_anatomy-of-the-ledger.mdx
+scratch ledger        XDG_CONFIG_HOME=<empty> VIVA_LEDGER_MOUNT=<scratch> VIVA_REPOSITORY_MOUNT=<repo> viva …   (cwd without a .env)
+create ×2             #2 → {"error":"instance 'hello-world' exists — pass --slug=<other>"}  exit 1
+create --slug=trial   shelf instances/trial · record key trial · the shelf's manifest still reads slug: "hello-world"
+instances/use nope    {"error":"no instance 'nope' — viva instances/tap <path> --slug=nope"}  exit 1
+instances/tap moved   {"error":"'moved' is a slug-shaped token — a tap takes a PATH; try ./moved"};  ./moved --slug=old → tapped
+rename under a lock   {"error":"'old' is running (supervisor 27244) — stop it first"}        ← m49: the supervisor pid, no process to name
+rename stopped        {"renamed":{"old":"older"},"logs":true}; logs/old → logs/older; no lock to carry (m49 releases it at exit)
+ledger/doctor         trial → ["dangling"] · older → ["shadowed"] · instances/orphan → ["orphan — tap it"]  (+ the shadowing dir as its own orphan row)
+init unrecorded       NOT booted — 2501/1794 held by docker readmen-live; traced: init.js:49 enroll() → note; die.js:10 null instance → NO lock
+#+end_example
+
+* landed (all under .ikiro/ + release.md + memory — no code touched; commit beef's)
+
+- =.ikiro/quests/m44-authoritative-slugs.org= → =quests/done/= (plain =mv=); the ten =#+marker_qa= lines
+  settled in place — =held | revised= with the voice seen — nothing else in the file edited.
+- =release.md ## unreleased= — 8 lines ⟨m44⟩: cli ×6 (=instances/tap= · =instances/rename= added;
+  =instance/create= · =instances/use= · =run/start/stop/init= · =ledger/doctor= changed) · api ×1
+  (=paladin.ledger.instances.lookup/rename/remove=) · other ×1 (=<ledger>/instances.json= = the ONE identity).
+- =.ikiro/quests/index.md= — live 7 → 3 (m25 · m27 · m42 were listed live while sitting in =benched/=; a
+  =## benched/ (3)= bucket added — beef's, outside the skill's structure; =m51= under its new =-slowstart=
+  name), done 74 with the m44 epitaph.
+- =.ikiro/world/frontier.md= — m44 on the LANDED + SUNSET line; the m48 DONE item EVICTED whole to
+  =known-issues.org= "frontier evictions" (pointer line left), 8306 → under 8000 chars.
+- =.ikiro/world/ledger.md= — invariant 4 PENDING → ENFORCED · =locks/= anatomy → m49 =<slug>.lock= ·
+  standing-watch entry dropped · the stamp carries the =ghost.sh= override note.
+- memory =project_m44_record_authoritative_slug= body + =MEMORY.md= line → SUNSET.
+
+* callouts (self)
+
+- *a count restated before it was counted.* "8 held · 2 revised" went into the index epitaph, frontier,
+  =ledger.md= ("all held") and memory; the table in the same message showed THREE =revised= rows. Found
+  only by the compact walk (row n3), fixed in all four. Rule that applies: derive the number from the
+  pasted table, never restate one from memory ([[feedback_show_json_not_summaries]]).
+- *two paths guessed, both wrong.* =@commons/instances/hello-world= (plural — the type is singular;
+  create's own usage line says =<@owner/instance/slug>=) and =docs/= (the dir is =documentation/=). Each
+  cost one probe round. Family: [[feedback_grep_before_propose]] — =ls= the path before addressing it.
+- *the sourced config outranks the caller.* =ghost.sh= =. "$ENV"= runs AFTER the caller exported
+  =VIVA_LEDGER_MOUNT=, so a scratch-ledger probe without =XDG_CONFIG_HOME= redirected would have
+  written into =~/.viva=. Nowhere written until now; the dossier stamp carries it.
+
+* settled / owed
+
+- *=strata.wet.test.js:93= "two shells"* — RED, pre-existing, the reap race (dossier invariant 5, fork a
+  GATED on beef). Not m44's; not settled here.
+- *shadowed + orphan on one dir* — =ledger/doctor= lists a shelf dir that shadows a record twice: once as
+  the record's =shadowed= flag, once as its own =orphan — tap it= row. Two views, both true; the marker
+  note carries it. No change proposed.
+- *T-init-unrecorded not booted* — ports held by the =readmen-live= walk container (frontier: "walk
+  containers are a TRAP"). Verdict =revised= on code trace; a boot with the container stopped would show
+  =note= in the effect and no lock file at all.
+- *=instance/untap= · slug charset · immutable record id* — the quest's deferred list, triggers unchanged.
+- *commit* — the whole m44 body (paladin + ghost + fixture + docs) is still uncommitted; beef's.
+- *m42 · m25 · m27* — frontier still narrates m42 as DESIGNED under "live quests" while the file sits in
+  =benched/=; the quest index now says benched. The bench is beef's bucket; left as narrated.
+
+* quest report (derived at fold — `methods/quest-report.py`)
+
+| quest                    | progress  | status | next  | sessions   |
+|--------------------------+-----------+--------+-------+------------|
+| m46-linux-readmen        |  17% 3/18 | wip    | drain | 3 (1 live) |
+| m50-the-three-way-weave  |  60% 3/5  | wip    | blast | 0          |
+| m51-standalone-slowstart |   0% 0/18 | design | go    | 0          |

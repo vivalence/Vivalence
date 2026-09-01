@@ -1,0 +1,1197 @@
+#+title: m48 environment schematics — the env schema is a v schema: typed values, optionality by the grammar, one law for keys
+#+filetags: :typology:paladin:ghost:env:instance:ledger:doctor:wizard:schematics:v:
+#+status: LANDED — M1 · M2 · M3 blasted under the blast-bracket (beef: /"run thorough testing before … scope out the radius of all of the consumers … then run the change and do another round of testing"/). Counts in the changelog. F5 LANDED on beef's order (/"fix the invalid values in f five"/) — an INVALID value is OWED, not refused. The three tapped =@education= recipes migrated too (beef: /"all of that are in scope for this process"/ · /"apply the change to the education instances"/), with OPENROUTER + ELEVENLABS =.optional()= (/"we just need one hallucinator service … default to anthropic for now"/).
+#+status: (was) AUTHORED, not blasted. Full patch below — M1 typology (additive) · M2 paladin+ghost+recipe (flag-day, one milestone by coupling) · M3 docs+README. Supersedes the `required: Boolean` marker landed earlier this session (check.js / init.js / two tests) — M2 removes it.
+#+status: Baselines at authoring: paladin 26 passed (133 steps) · ghost 77 passed (23 steps) · typology 122/480/1 (pre-existing red, m45 record).
+#+status: VALIDATED — pass 2 (design + scope), every claim re-measured against the live tree and TypeBox 1.3 by script. Two build-breakers caught before a line was blasted: (a) TypeBox's registered =url= format REJECTS =http://localhost:2501/= and =http://127.0.0.1:2501= (TLD required) — =v.url()= is now a PATTERN (decision 11); (b) =enhance= hands back the SETTER FUNCTION for an unset =.default= / =.$id= / =.group= — =v.environment()= now UNWRAPS every property to a plain schema (decision 12), or the scaffold would print a function into =.env=. Paths re-measured after beef's rename (=instance.viva.js= · =mode.viva.js=; =multiplayer.js= gone). =hydrate.test.js= pins =usable= in four cases — added to the blast. One fork re-opened: F5, =init= refuses an =INVALID= value (recommended, diff ready).
+
+* intent
+
+beef, verbatim: /"maybe it makes sense to set this up with v schematics already. validation by paladin.
+custom v type. is environemnt the right format today under this perspective?"/ · /"perfect.
+brilliant! this is our new meta!"/ · /"compile a quest 48 for this change. work this out. full blast
+change. commit full patch to quest"/
+
+The sketch that IS the target (beef's paste, verbatim):
+
+#+BEGIN_SRC js
+import { v } from "@vivalence/typology";
+
+export const environment = v.environment({
+  VIVA_RUNTIME_ORIGIN: v.url().desc("Scheme and authority the runtime is reachable at. Every address below derives from it.").default("http://localhost:2501").group("addresses"),
+  VIVA_RUNTIME_SERVE: v.url().desc("Base URL the runtime serves on. Everything else hangs off this latch.").default("${VIVA_RUNTIME_ORIGIN}/").group("addresses"),
+  PUBLIC_VIVA_LIGHTHOUSE_REMOTE: v.url().desc("Lighthouse address as CONSUMED — by the daemons, and by the browser after publish().").default("${VIVA_LIGHTHOUSE_SERVE}").group("addresses"),
+  SECRET_VIVA_JWT: v.string({ minLength: 24 }).desc("Lighthouse signing secret. Generate with: openssl rand -base64 24").group("keys"),
+  SECRET_VIVA_ANTHROPIC_API_KEY: v.string().desc("Anthropic key. Without one the daemon attaches no hallucinator and /hello/agent answers as the bot.").group("keys").optional(),
+});
+#+END_SRC
+
+One sentence: *the environment schema stops being a hand-rolled map of prose and becomes a =v=
+schema — the same grammar aperture inputs and entities speak — so the doctor validates VALUES, the
+wizard and the scaffold read one object, optionality is =.optional()= and nothing else, and a key
+outside the VIVA law is refused the moment the file is imported.*
+
+* the law
+
+#+BEGIN_EXAMPLE
+schema         export const environment = v.environment({ KEY: v.<type>()… })   beside `manifest`, or the ledger const
+key law        ^(VIVA|PUBLIC_VIVA|SECRET_VIVA)_[A-Z0-9_]+$                       refused at v.environment() — import time
+secrecy        the KEY decides (SECRET_* → secret store)                           unchanged, m45 · no v.secret() type
+optional       .optional()                                                         the ONLY way to say "not owed"
+default        .default("…") — raw, may ${REF}                                     written by scaffold; NEVER validated
+value          validated RESOLVED, after Env.expand, at the doctor                 new verdict INVALID (uppercase = fails)
+               CONVERTED to the declared type first (a .env holds strings)         never DEFAULTED — defaults are the scaffold's
+url            v.url() = RFC 3986 URI with an authority — the grammar, any scheme  NOT TypeBox's `url` format (rejects localhost)
+reason         a pattern failure names the scalar's `title`, never the regex        `must be RFC 3986 URI with an authority (scheme://…)`
+properties     schema.properties[KEY] is a PLAIN schema, unwrapped at v.environment()   held.default / held.group read safely
+verdicts       UNDOCUMENTED · REQUIRED · INVALID  fail   ·   ok · optional · documented  pass
+one wrong-list paladin.check.wrong                                                 doctor + init read it, never restate it
+#+END_EXAMPLE
+
+verdict, blank value:
+
+| declared     | read by a thunk | verdict      | wizard      | headless init |
+|--------------+-----------------+--------------+-------------+---------------|
+| required     | yes             | =REQUIRED=   | ask         | refuse        |
+| required     | no              | =REQUIRED=   | ask         | refuse        |
+| =.optional()= | yes            | =optional=   | ask · skip  | pass          |
+| =.optional()= | no             | =documented= | silent      | pass          |
+
+value present, any declaration: cast against the type → =ok= or =INVALID= (fails, names the reason).
+=default= satisfies any level once scaffolded.
+
+* the decision trail
+
+1. *Why a schema and not a fourth field.* The =required: Boolean= marker (landed earlier this session)
+   was the right semantics in the wrong vehicle — beef: /"nah. just required: Boolean."/ then, on the
+   =v= proposal, /"perfect. brilliant! this is our new meta!"/. Today's format is a strict subset of
+   what =v.object= already encodes: =describe= → =.desc()=, =default= → =.default()=, =group= → a
+   keyword, =required: false= → =.optional()=. The marker collapses into the grammar.
+2. *Values, not just presence.* =hydrate='s =usable()= (instance.js:30) is a heuristic on the PRODUCT
+   (=new Url(unset).href === "NaN"=). A declared type lets the doctor cast the RESOLVED value and say
+   =INVALID: expected string to match format url= — the third thing that can be wrong, named. m45's
+   "only two things are ever wrong" becomes three, honestly.
+3. *Observation stops deciding optionality.* m45 II.1 ("required-ness is derived") was a bet that
+   the thunk's tolerance is the truth. It was: the ternary =hallucinators= thunk still exists and still
+   matters AT RUNTIME (no dead faculty registered). But "is this key owed" is now DECLARED, and
+   declared wins outright — =usable= retires from the record. The one thing lost is the drift check
+   (declared optional, site dies without it) — the site that lies will fail at boot, loudly, and the
+   ternary idiom is the documented way to cope. Accepted.
+4. *Key law at import time.* =v.environment()= refuses keys outside the VIVA prefixes. Today a stray
+   key is =UNDOCUMENTED= at the doctor, at best. Now the file does not import.
+5. *No =v.secret()=.* Secrecy is decided by the KEY (m45's one ingress). A type that duplicated that
+   law would be the second reader.
+6. *=${VAR}= defaults are never validated.* The default is a raw string on the schema; =Env.get=
+   expands on read; the doctor validates the expanded value. Scaffold writes the raw form. Same
+   as today, and it is why =v.url().default("${VIVA_RUNTIME_ORIGIN}/")= is legal.
+7. *Rows keep their field names.* =describe · group · default · verdict · value · stratum · at= —
+   ghost's =Init.jsx= and =Doctor= render rows, not schemas. The schema's =description= is mapped to
+   =describe= inside =check=. One consumer-facing surface moves (the declaration); the CLI surfaces
+   don't.
+8. *One wrong-list.* Three places restate =["UNDOCUMENTED", "REQUIRED"]= today (check.js:96,
+   init.js fill, doctor.js WRONG). It becomes =paladin.check.wrong=, read by all three — the =INVALID=
+   addition lands once.
+9. *Flag-day, no dual read.* beef's standing law (release skill: /"entirely. no dual read."/).
+   paladin throws at =mount= if =module.environment= is not a =v= object schema. One recipe on disk,
+   one ledger const, two test fixtures — the whole migration.
+10. *TypeBox 1.3 facts, measured* (=node_modules/.deno/typebox@1.3.0=): =Format.Reset()= runs at
+    import and registers =url= (=IsUrl=); an UNREGISTERED format passes silently (=Format.Test= →
+    =true=). =Type.Optional= marks a =~optional= key — a NON-ENUMERABLE string key beside =~kind=
+    (=Reflect.ownKeys= sees them, =Object.keys= and =JSON.stringify= do not); =IsOptional= is exported
+    from the =typebox= main entry. =Type.String(options)= spreads options onto the schema, so =group=
+    rides as a keyword. =Type.Object= computes the object-level =required= array from the
+    non-optional properties. CORRECTED at pass 2: the sentence "so =v.url= must use the registered
+    name =url=" was wrong — see 11.
+11. *=v.url()= is the RFC 3986 grammar, not TypeBox's =url= format and not our schemes.* Measured at
+    pass 2: =IsUrl("http://localhost:2501/")= → =false=, =127.0.0.1= → =false=, =ws://= → =false=; the
+    registered format wants a TLD. The first replacement, =^(https?|wss?)://\S+$=, was parochial —
+    beef: /"rethink the address pattern, build something that is not for our case, but coherently
+    universally true."/ What is universally true is RFC 3986 Appendix A; the trap we hit
+    (=localhost:2501= parses as scheme =localhost=) is not a defect of the grammar, it IS the
+    grammar. So the scalar is one production narrower: *a URI whose hier-part is a network path*
+    — =scheme "://" authority path-abempty [query] [fragment]=, every character class from the
+    RFC (=unreserved · sub-delims · pct-encoded · pchar=), IPv6 literal collapsed to hex/colon/dot,
+    IPvFuture kept, =reg-name= may be empty (§3.2.2, so =file:///x= passes). Scheme-agnostic:
+    =libsql:// postgres:// redis:// ws://= pass; =localhost:2501= (no =//=), =${VIVA_RUNTIME_ORIGIN}/=
+    and =http://host/${X}= (braces are outside the URI character set), =NaN=, ="", IRIs
+    (=münchen=), a second =#= all fail. 35-item corpus, 0 mismatches. Lives in
+    =schematics/scalars/url.js= beside =slug= — the scalars family is where pattern-constrained
+    strings live — and =v.url = scalars.url=. Considered and dropped: registering the house =Url=
+    predicate under TypeBox's =Format.Set("url")= — a global override of a library's meaning,
+    hidden from every reader of =format: "url"=.
+12. *=v.environment()= unwraps every property to a plain schema.* =enhance= (=v.js:15-23=) gives
+    =.default= / =.$id= two roles: getter when the keyword is set, SETTER otherwise — so
+    =v.string().default= is a =function=, and so is =v.object({ B: v.string() }).properties.B.default=
+    (measured). Every reader in this quest does =held.default ?? ""= (=envfile.scaffold=,
+    =init.owed=) or =held.group ?? "other"= — each would have received the setter and printed
+    =(val) => enhance(...)= into =.env=. The Proxy is the chain's vehicle and a property inside a
+    finished =v.environment= is never chained again, so =environment()= strips it:
+    =Object.defineProperties({}, Object.getOwnPropertyDescriptors(held))= — descriptors carry the
+    non-enumerable =~optional= / =~kind= across (measured: =IsOptional(plain)= holds, =Type.Object=
+    of plain properties still computes =required=). =.group()= joins =enhance= with the same dual
+    role, on purpose — symmetry with =.default=, safe because nothing reads a proxied property after
+    construction.
+13. *Convert before Check; never Default.* A =.env= holds strings. =Value.Check(Type.Integer(),
+    "8080")= is =false=; =Value.Convert= makes it =8080= (measured). Without the conversion every
+    =v.integer()= / =v.boolean()= key would be =INVALID= forever, and the deferred =v.port()= would be
+    born dead. =v.cast= as it stands discards a scalar's converted value (it returns the original
+    =value=), so the surface gains =v.convert(schema, value)= and the doctor casts per key with it.
+    =Value.Default= is NOT applied at the doctor: it would fill a blank key with its raw
+    =${...}= default, turning the bare-recipe picture from =REQUIRED= into =INVALID= — the
+    default belongs to the scaffold, which writes it into =.env= where it is a value like any other.
+14. *Per-key validation, not one whole-object cast.* The tempting form — build the resolved map,
+    =environment.errors(map)= once, let =required= / =additionalProperties= / the type errors fall
+    out of the grammar — was measured: TypeBox reports =required= and =additionalProperties= at
+    =instancePath ""= with the key only inside the message text. Rows need the key. So =REQUIRED=
+    and =UNDOCUMENTED= stay computed from =isOptional= and schema membership, and only the type
+    check is TypeBox's, per property. =additionalProperties: false= stays on the object as the
+    schema's own statement that it is closed — nothing at the doctor reads it.
+15. *No brand on the environment schema.* A =$id= / kind marker was considered so paladin could
+    tell "an environment" from "some =v.object=". The flag-day guard needs only =properties= to
+    refuse the old map, and the key law already ran at construction; a brand would be a second
+    reader of a fact the shape carries.
+16. *A pattern failure names the scalar, not the regex.* Found at the live walk: the doctor's
+    =reason= column read =must match pattern "^[A-Za-z][A-Za-z0-9+.\-]*://(?:…"= — 400 characters.
+    JSON Schema has the keyword for a short human name: =title=. =v.url()= carries
+    =title: "RFC 3986 URI with an authority (scheme://…)"= (=description= stays the recipe's prose,
+    =.desc()= never touches =title=), and =check.environment= says =must be <title>= when the
+    failing keyword is =pattern= and the schema has one. Every other keyword keeps TypeBox's
+    message (=must not have fewer than 24 characters=).
+
+* terrain — measured
+
+- =subsystems/typology/schematics/v.js= — =enhance= proxies =desc · $id · optional · default · check
+  · decode · encode · create · clean · errors · compile · fill · cast=. =v= carries =string number
+  boolean integer object array union intersect const enum record any unknown null $ref …=. No =url=,
+  no =group=, no =environment=, no =convert= (=cast= runs =Value.Convert= but returns the ORIGINAL
+  value — right for objects, mutated in place; lossy for scalars). HAZARD (decision 12): =.default=
+  / =.$id= on the Proxy return a setter function when the keyword is unset.
+- =subsystems/typology/prototypes/env.js= — =Env.get= expands =${VAR}= lazily on read; an
+  unresolvable reference stays LITERAL in the returned string. That literal is what the doctor
+  casts: =v.url()= refuses it, which is the honest verdict (see QA testimony, the cascade line).
+- =subsystems/typology/schematics/index.js= — attaches =v.scalars= / =v.slug= / =v.primitives= /
+  =v.entities= / =v.prototypes= and the entity factories. =v.environment= attaches here.
+- =subsystems/typology/schematics/primitives/index.js= — =export * from "./manifest.js"= is the
+  precedent for a flat re-export; =export * as instance= for a namespace.
+- =subsystems/paladin/prototypes/instance.js= — =hydrate= records =at · read · unset · usable ·
+  deferred= per thunk; =instance.environment = module.environment ?? {}= at :138. =validate()= casts
+  runtime/clients/daemons/services through =v.primitives.instance=; the environment is not cast.
+- =subsystems/paladin/belt/check.js= — =environment(instance)= walks =instance.requirements= then the
+  unread schema keys; verdicts as in the law table above minus =INVALID=; =required= marker present
+  (this session). =rows.fails= literal list.
+- =systems/ghost/belt/envfile.js= — =scaffold(schema)= groups by =held.group=, prints =held.describe=
+  and =held.default=.
+- =systems/ghost/trajectories/instance/init.js= — =owed()= keeps the strongest verdict per key (this
+  session), reads =schema[row.key]?.default=; =fill= filters on a literal wrong-list (this session).
+- =systems/ghost/trajectories/instance/doctor.js= — =WRONG= literal list; rows rendered with a =!=
+  marker column; =problems= = wrong rows.
+- =systems/ghost/trajectories/ledger/index.js:20= — the ledger's own =environment= const (5 keys),
+  scaffolded by the same =envfile.scaffold=, seeded by =Object.entries(environment)=.
+- =commons/instances/hello-world/instance.viva.js= (m47 landed mid-blast: =registry/= is gone) — the ONE recipe with an =environment=
+  export on disk (9 keys after this session's trim; =required: true/false= on the two secrets).
+  RE-MEASURED at pass 2: beef renamed =hello-world.viva.js= → =instance.viva.js=, folded
+  =multiplayer.js= INTO it (=runtime · daemons · clients · services · lighthouse · environment= are
+  now one file; the =environment= block sits last), and renamed =hello.js= → =mode.viva.js=. Its
+  =kernel: ["./hello.js"]= named a file that no longer existed — beef fixed it to =./mode.viva.js=
+  before M3 ran. =mode.viva.js= is =manifest.type: "demo"=, so =find.type(home,
+  "instance")= still yields exactly one module.
+- =subsystems/paladin/tests/hydrate.test.js= — pins =usable= in FOUR cases (:60 · :96/:103 ·
+  :154/:155 · :178-201, the last one whole). Missed at authoring; it dies with the function (M2).
+- key-law census: every =env.get= / =secret.get= in product code (systems · subsystems · registry,
+  minus =tests/= and =bak/=) reads a =VIVA_= / =PUBLIC_VIVA_= / =SECRET_VIVA_= key — the law refuses
+  nothing that exists. The non-law keys (=ANTHROPIC_API_KEY=, =JWT_SECRET=, =A/B/C=, =HOME= …) all
+  live in tests or =bak/=. No =format: "url"= anywhere in the repo — the pattern collides with nothing.
+- =systems/ghost/trajectories/instance/Init.jsx:150= — fields from rows: =row.key · row.describe ·
+  row.default=; =SECRET_*= → =PasswordInput=. Untouched by this quest.
+- tests that pin the shape: =paladin/tests/check.environment.test.js= (14 cases incl. this
+  session's 3), =paladin/tests/snapshots/paladin-instance.snapshot.json= (=usable= in records,
+  =environment= as the old map), =ghost/tests/ledger.test.js= (probe fixture with =required: true=),
+  =typology/tests/v.test.js= (style anchor for the new cases).
+- =m47-commons.org= (DRAFTED, forks open) moves =registry/**= → =commons/= and lookups to
+  =@commons/<type>/<slug>=. If it lands first, this quest's recipe path and the =@viva/= module
+  references in the untouched half of =hello-world.viva.js= shift with it — the =environment= block
+  and every other row here do not. Blast whichever lands second against the live tree.
+- docs that show the shape: =51.02_instance-from-scratch.mdx:392= (the old block, titled
+  =hello-world.viva.js=, port 2601 — already drifted twice), README =## Hello, Instance!= (verbatim
+  paste of the recipe — regenerates from disk). README DRIFT after beef's rename, measured: line
+  101 names =hello-world.viva.js=, 106 pastes =export … from "./multiplayer.js"=, 196 says
+  "=multiplayer.js= beside it", line 25 names =hello.js= — all four dead on disk. The M3 regen
+  re-pastes ALL THREE files under their current names; that is beef's drift riding the same move.
+
+* milestones — each boots green before the next
+
+** M1 — typology: =.group()=, =v.url()=, =v.isOptional()=, =v.environment()=
+
+Additive. Nothing on disk reads them yet; the typology suite is the gate.
+
+=subsystems/typology/schematics/v.js= — surgical:
+
+#+BEGIN_SRC diff
+ import { Type } from "typebox";
++import { IsOptional } from "typebox";
+ import { Value } from "typebox/value";
+ import { Compile } from "typebox/compile";
+@@ function enhance(schema) {
+       if (prop === "default") {
+         if ("default" in target) return target.default;
+         return (val) => enhance(derive(target, { default: val }));
+       }
++      if (prop === "group") {
++        if ("group" in target) return target.group;
++        return (name) => enhance(derive(target, { group: name }));
++      }
+       if (prop === "check") return (value) => Value.Check(target, value);
+@@ export const v = {
+@@
+   cast: (schema, value) => (Value.Default(schema, value), Value.Convert(schema, value), value),
++  convert: (schema, value) => Value.Convert(schema, value),
+   errors: (schema, value) => Value.Errors(schema, value),
+   create: (schema) => Value.Create(schema),
+   clean: (schema, value) => Value.Clean(schema, value),
++  isOptional: (schema) => IsOptional(schema),
+   compile: (schema) => Compile(schema),
+#+END_SRC
+
+=convert= returns TypeBox's converted value — the thing =cast= throws away for scalars (decision 13).
+=url= is NOT here: it is a scalar (decision 11).
+
+=subsystems/typology/schematics/scalars/url.js= — NEW (LANDED as written):
+
+#+BEGIN_SRC js :tangle ../../subsystems/typology/schematics/scalars/url.js :mkdirp yes
+import { v } from "../v.js";
+
+const PERCENT = "%[0-9A-Fa-f]{2}";
+const UNRESERVED = "A-Za-z0-9\\-._~";
+const SUBDELIMS = "!$&'()*+,;=";
+const PCHAR = `(?:[${UNRESERVED}${SUBDELIMS}:@]|${PERCENT})`;
+const SCHEME = "[A-Za-z][A-Za-z0-9+.\\-]*";
+const USERINFO = `(?:(?:[${UNRESERVED}${SUBDELIMS}:]|${PERCENT})*@)?`;
+const IPLITERAL = `\\[(?:[0-9A-Fa-f:.]+|v[0-9A-Fa-f]+\\.[${UNRESERVED}${SUBDELIMS}:]+)\\]`;
+const REGNAME = `(?:[${UNRESERVED}${SUBDELIMS}]|${PERCENT})*`;
+const HOST = `(?:${IPLITERAL}|${REGNAME})`;
+const PORT = "(?::[0-9]*)?";
+const PATH = `(?:/${PCHAR}*)*`;
+const QUERY = `(?:\\?(?:${PCHAR}|[/?])*)?`;
+const FRAGMENT = `(?:#(?:${PCHAR}|[/?])*)?`;
+
+export const PATTERN = `^${SCHEME}://${USERINFO}${HOST}${PORT}${PATH}${QUERY}${FRAGMENT}$`;
+
+export const url = (opts) =>
+  v.string({ pattern: PATTERN, title: "RFC 3986 URI with an authority (scheme://…)", ...opts });
+#+END_SRC
+
+Each constant is the RFC 3986 Appendix A production of the same name, so a reader checks the
+grammar line by line against the RFC. =scalars/index.js= gains =export * from "./url.js";= and
+=schematics/index.js= gains =v.url = scalars.url;= beside =v.slug=.
+
+=subsystems/typology/schematics/primitives/environment.js= — NEW:
+
+#+BEGIN_SRC js :tangle ../../subsystems/typology/schematics/primitives/environment.js :mkdirp yes
+import { v } from "../v.js";
+
+export const KEY = /^(VIVA|PUBLIC_VIVA|SECRET_VIVA)_[A-Z0-9_]+$/;
+
+const plain = (schema) => Object.defineProperties({}, Object.getOwnPropertyDescriptors(schema));
+
+export const environment = (properties = {}) => {
+  const stray = Object.keys(properties).filter((key) => !KEY.test(key));
+  if (stray.length)
+    throw new Error(
+      `[environment] keys outside VIVA_ / PUBLIC_VIVA_ / SECRET_VIVA_: ${stray.join(" ")}`,
+    );
+  return v.object(
+    Object.fromEntries(Object.entries(properties).map(([key, held]) => [key, plain(held)])),
+    { additionalProperties: false },
+  );
+};
+#+END_SRC
+
+=plain= is decision 12 — the one line that keeps a setter out of =.env=. No comment in the file
+(kernel no-comments law); the reason lives here.
+
+=subsystems/typology/schematics/primitives/index.js= — surgical:
+
+#+BEGIN_SRC diff
+ export * from "./manifest.js";
++export { environment, KEY as ENVIRONMENT_KEY } from "./environment.js";
+ export * as kernel from "./kernel.js";
+#+END_SRC
+
+=subsystems/typology/schematics/index.js= — surgical:
+
+#+BEGIN_SRC diff
+ v.scalars = scalars;
+ v.slug = scalars.slug;
+ v.primitives = primitives;
++v.environment = primitives.environment;
+ v.entities = entities;
+#+END_SRC
+
+Tests — =subsystems/typology/tests/v.test.js=, appended inside =describe("v")=:
+
+#+BEGIN_SRC js
+  specimen.it("url is RFC 3986 with an authority — any scheme, localhost included, ${} defaults excluded", () => {
+    for (const held of [
+      "http://localhost:2501/",
+      "http://127.0.0.1:2501",
+      "ws://localhost:2501/ws",
+      "https://api.vivalence.org",
+      "libsql://x.turso.io",
+      "postgres://user:pw@db.internal:5432/app?sslmode=require",
+      "file:///tmp/x.db",
+      "http://[::1]:2501/",
+      "http://a.b/p%20q?x=1&y=%2F#frag",
+    ]) specimen.expect(v.url().check(held)).toBe(true);
+    for (const held of [
+      "localhost:2501",
+      "${VIVA_RUNTIME_ORIGIN}/",
+      "http://localhost:2501/${X}",
+      "NaN",
+      "",
+      "http://exa mple.com",
+      "mailto:x@y.z",
+      "http://host:port",
+    ]) specimen.expect(v.url().check(held)).toBe(false);
+    const templated = v.url().default("${VIVA_RUNTIME_ORIGIN}/");
+    specimen.expect(templated.default).toBe("${VIVA_RUNTIME_ORIGIN}/");
+    specimen.expect(JSON.parse(JSON.stringify(v.url())).pattern).toBe(v.scalars.PATTERN);
+  });
+
+  specimen.it("group rides the schema like desc and default — and like default, unset it is the setter", () => {
+    const keyed = v.string().desc("a key").group("keys");
+    specimen.expect(keyed.group).toBe("keys");
+    specimen.expect(keyed.description).toBe("a key");
+    specimen.expect(typeof v.string().group).toBe("function");
+    specimen.expect(typeof v.string().default).toBe("function");
+  });
+
+  specimen.it("environment hands back PLAIN properties — an unset default is undefined, never the setter", () => {
+    const held = v.environment({
+      VIVA_A: v.string().desc("a"),
+      SECRET_VIVA_B: v.string().default("x").group("keys").optional(),
+    }).properties;
+    specimen.expect(held.VIVA_A.default).toBe(undefined);
+    specimen.expect(held.VIVA_A.group).toBe(undefined);
+    specimen.expect(held.SECRET_VIVA_B.default).toBe("x");
+    specimen.expect(held.SECRET_VIVA_B.group).toBe("keys");
+    specimen.expect(v.isOptional(held.SECRET_VIVA_B)).toBe(true);
+    specimen.expect(v.isOptional(held.VIVA_A)).toBe(false);
+  });
+
+  specimen.it("convert turns the string a .env holds into the declared type", () => {
+    specimen.expect(v.convert(v.integer(), "8080")).toBe(8080);
+    specimen.expect(v.convert(v.boolean(), "true")).toBe(true);
+    specimen.expect(v.convert(v.string(), "8080")).toBe("8080");
+    specimen.expect(v.integer().check(v.convert(v.integer(), "8080"))).toBe(true);
+  });
+
+  specimen.it("isOptional reads what .optional() wrote", () => {
+    specimen.expect(v.isOptional(v.string().optional())).toBe(true);
+    specimen.expect(v.isOptional(v.string())).toBe(false);
+  });
+
+  specimen.it("environment refuses a key outside the VIVA law at construction", () => {
+    const legal = v.environment({
+      VIVA_A: v.url().group("addresses"),
+      PUBLIC_VIVA_B: v.string().optional(),
+      SECRET_VIVA_C: v.string({ minLength: 24 }),
+    });
+    specimen.expect(Object.keys(legal.properties)).toEqual(["VIVA_A", "PUBLIC_VIVA_B", "SECRET_VIVA_C"]);
+    specimen.expect(legal.additionalProperties).toBe(false);
+    specimen.expect(() => v.environment({ ANTHROPIC_API_KEY: v.string() })).toThrow(/outside VIVA_/);
+    specimen.expect(() => v.environment({ viva_lower: v.string() })).toThrow(/outside VIVA_/);
+  });
+#+END_SRC
+
+Gate: =(cd subsystems/typology && deno test -A --no-check tests/v.test.js)= green, then the full
+typology suite at its m45 baseline (122/480/1 — the one red is pre-existing and named there).
+
+** M2 — paladin + ghost + recipe: the schema is read, the values are cast, the marker dies
+
+One milestone by coupling: the moment =instance.environment= is a =v= object, every reader of
+=schema[key]= (=envfile.scaffold=, =init.owed=, the ledger seed loop, =check.environment=) reads
+garbage — and the flag-day guard in =instance.js= refuses the old recipe shape. Paladin, ghost, the
+ledger const and =hello-world.viva.js= move together. Gate: paladin + ghost suites.
+
+*** paladin — =subsystems/paladin/prototypes/instance.js=
+
+#+BEGIN_SRC diff
+-// produced but unusable: new Url(unset) does not throw, it yields href "NaN".
+-const usable = (value) =>
+-  value instanceof Url
+-    ? value.origin !== undefined
+-    : value !== undefined && value !== null && value !== "";
+-
+@@ export function hydrate(node, record = null, paladin = null, at = "", deferred = false) {
+     record.push({
+       at,
+       read: read.map((held) => held.key),
+       unset: read.filter((held) => held.unset).map((held) => held.key),
+-      usable: usable(value),
+       deferred,
+     });
+@@ async function resolve(instance) {
+   instance.requirements = record;
+-  instance.environment = module.environment ?? {};
++  instance.environment = module.environment ?? v.environment({});
++  if (!instance.environment.properties)
++    throw new Error(`instance.mount: environment must be v.environment({…}) — ${module.source.absolute}`);
+#+END_SRC
+
+=Url= stays imported (used by =mask=/scopes elsewhere in the file — verify at blast; drop the import
+only if the grep says it is now unused).
+
+*** paladin — =subsystems/paladin/belt/check.js=, the =environment= function replaced whole
+
+#+BEGIN_SRC js
+  // the authored schema against what the thunks were observed to read, and what the values are.
+  const environment = (instance) => {
+    const schema = instance.environment?.properties ?? {};
+    const rows = [];
+    const seen = new Set();
+
+    // a secret is reported as PRESENT or absent, never as itself. everything else shows the
+    // RESOLVED value — the raw ${...} source text is already in the scope's own vars.
+    const raw = (key) => (key.startsWith("SECRET_") ? config.secret.get(key) : config.env.get(key));
+    const reading = (key) =>
+      key.startsWith("SECRET_")
+        ? { value: config.secret.get(key) ? "***" : null, stratum: config.secret.provenance(key) }
+        : { value: config.env.get(key), stratum: config.env.provenance(key) };
+    const blank = (value) => value === null || value === undefined || value === "";
+    const invalid = (key) => {
+      const held = schema[key];
+      const value = raw(key);
+      if (!held || blank(value)) return null;
+      const failure = [...v.errors(held, v.convert(held, value))][0];
+      if (!failure) return null;
+      return failure.keyword === "pattern" && held.title ? `must be ${held.title}` : failure.message;
+    };
+    const row = (key, at, held) => ({
+      key,
+      at,
+      ...reading(key),
+      describe: held?.description ?? null,
+      group: held?.group ?? null,
+      required: held ? !v.isOptional(held) : null,
+      reason: invalid(key),
+    });
+    const verdict = (held, unset, reason) =>
+      !held
+        ? "UNDOCUMENTED"
+        : !unset
+          ? reason
+            ? "INVALID"
+            : "ok"
+          : v.isOptional(held)
+            ? "optional"
+            : "REQUIRED";
+
+    for (const entry of instance.requirements ?? []) {
+      for (const key of entry.read) {
+        seen.add(key);
+        const held = schema[key];
+        const shaped = row(key, entry.at, held);
+        rows.push({ ...shaped, verdict: verdict(held, entry.unset.includes(key), shaped.reason) });
+      }
+    }
+
+    for (const [key, held] of Object.entries(schema)) {
+      if (seen.has(key)) continue;
+      const shaped = row(key, null, held);
+      const unset = blank(raw(key));
+      rows.push({
+        ...shaped,
+        verdict: shaped.reason
+          ? "INVALID"
+          : unset && !v.isOptional(held)
+            ? "REQUIRED"
+            : "documented",
+      });
+    }
+
+    rows.sort((a, b) => a.key.localeCompare(b.key) || (a.at ?? "").localeCompare(b.at ?? ""));
+    rows.fails = rows.some((held) => WRONG.includes(held.verdict));
+    return rows;
+  };
+#+END_SRC
+
+plus, at module top and on the surface (landed WITHOUT the comment — kernel no-comments law):
+
+#+BEGIN_SRC diff
++import { v } from "@vivalence/typology";
++
++const WRONG = ["UNDOCUMENTED", "REQUIRED", "INVALID"];
++
+ export default function check(config) {
+@@
+   config.check = {
+     environment,
++    wrong: WRONG,
+     env: (input) => {
+#+END_SRC
+
+The two comments inside the replaced function are m45's, kept; the =WRONG= comment is the one new
+authored line — beef's call at blast whether it stays (kernel no-comments law; the hook will say).
+
+*** ghost — =systems/ghost/belt/envfile.js=
+
+#+BEGIN_SRC diff
+ export function scaffold(schema) {
+   const groups = new Map();
+-  for (const [key, held] of Object.entries(schema)) {
++  for (const [key, held] of Object.entries(schema.properties ?? {})) {
+     const title = held.group ?? "other";
+@@
+     for (const [key, held] of entries) {
+-      if (held.describe) lines.push(`# ${held.describe}`);
++      if (held.description) lines.push(`# ${held.description}`);
+       lines.push(`${key}="${held.default ?? ""}"`);
+#+END_SRC
+
+*** ghost — =systems/ghost/trajectories/instance/init.js=
+
+#+BEGIN_SRC diff
+   // check reports verdicts, not values — the default lives in the schema the declaration exported.
+-  const schema = paladin.instance.environment ?? {};
+-  return GROUPS([...held.values()].map((row) => ({ ...row, default: schema[row.key]?.default ?? "" })));
++  const schema = paladin.instance.environment?.properties ?? {};
++  return GROUPS([...held.values()].map((row) => ({ ...row, default: schema[row.key]?.default ?? "" })));
+@@
+-  if (scaffolded && Object.keys(paladin.instance.environment ?? {}).length) {
++  if (scaffolded && Object.keys(paladin.instance.environment?.properties ?? {}).length) {
+@@
+   const fill = pages.flatMap((group) =>
+-    group.fields.filter((row) => ["UNDOCUMENTED", "REQUIRED"].includes(row.verdict)).map((row) => row.key),
++    group.fields.filter((row) => paladin.check.wrong.includes(row.verdict)).map((row) => row.key),
+   );
+#+END_SRC
+
+=owed()='s strongest-verdict-per-key loop (this session) stays; an =INVALID= row has a value, so
+=if (row.value) continue= already keeps it out of the wizard — it is the doctor's to show.
+
+*** ghost — =systems/ghost/trajectories/instance/doctor.js=
+
+#+BEGIN_SRC diff
+-const WRONG = ["UNDOCUMENTED", "REQUIRED"];
++const WRONG = paladin.check.wrong;
+@@
+     problems: rows
+       .filter((row) => WRONG.includes(row.verdict))
+-      .map((row) => ({ "!": "!", key: row.key, at: row.at, verdict: row.verdict })),
++      .map((row) => ({ "!": "!", key: row.key, at: row.at, verdict: row.verdict, reason: row.reason })),
+#+END_SRC
+
+=paladin= is the default import at the top of doctor.js already; =check= is wired on it at
+=belt/index.js:15= (m45), so =paladin.check.wrong= resolves at module load. Table drops the =reason=
+column when null in every row — it appears only when an =INVALID= exists.
+
+*** ghost — =systems/ghost/trajectories/ledger/index.js=
+
+#+BEGIN_SRC diff
+-// the ledger owns a .env but has no declaration to hang a sibling export on, so its schema is here.
+-// same shape as an instance's `environment`, same writer, same doctor rendering.
+-const environment = {
+-  VIVA_REPOSITORY_MOUNT: {
+-    describe: "Absolute path to the vivalence checkout. Repo-relative resolution needs it.",
+-    group: "homes",
+-  },
+-  SECRET_VIVA_ANTHROPIC_API_KEY: { describe: "Machine-wide Anthropic key.", group: "keys" },
+-  SECRET_VIVA_OPENROUTER_API_KEY: { describe: "Machine-wide OpenRouter key.", group: "keys" },
+-  SECRET_VIVA_ELEVENLABS_API_KEY: { describe: "Machine-wide ElevenLabs key.", group: "keys" },
+-  SECRET_VIVA_DEEPGRAM_API_KEY: { describe: "Machine-wide Deepgram key.", group: "keys" },
+-};
++// the ledger owns a .env but has no declaration to hang a sibling export on, so its schema is here.
++// same shape as an instance's `environment`, same writer, same doctor rendering.
++const environment = v.environment({
++  VIVA_REPOSITORY_MOUNT: v.string().desc("Absolute path to the vivalence checkout. Repo-relative resolution needs it.").group("homes"),
++  SECRET_VIVA_ANTHROPIC_API_KEY: v.string().desc("Machine-wide Anthropic key.").group("keys").optional(),
++  SECRET_VIVA_OPENROUTER_API_KEY: v.string().desc("Machine-wide OpenRouter key.").group("keys").optional(),
++  SECRET_VIVA_ELEVENLABS_API_KEY: v.string().desc("Machine-wide ElevenLabs key.").group("keys").optional(),
++  SECRET_VIVA_DEEPGRAM_API_KEY: v.string().desc("Machine-wide Deepgram key.").group("keys").optional(),
++});
+@@
+-    const seed = Object.entries(environment).filter(
++    const seed = Object.entries(environment.properties).filter(
+       ([key]) => paladin.env.get(key) === null && paladin.secret.get(key) === null,
+     );
+#+END_SRC
+
+=v= is already imported in that file (=import { Path, v, Vector } from "@vivalence/typology"=).
+The four machine-wide keys are =.optional()= — the ledger has never blocked on them and must not
+start to; =VIVA_REPOSITORY_MOUNT= stays owed (the installer writes it).
+
+*** recipe — =commons/instances/hello-world/instance.viva.js=, the =environment= export replaced whole — and the three shelf recipes with it
+
+Live BEFORE is this session's 9-key map with =required: true= / =required: false= on the two secrets
+— now the LAST export of =instance.viva.js= (beef's fold + rename since authoring; the README paste
+still shows the old two-file shape). The file's import line today is =import { Url } from
+"@vivalence/typology";= — it gains =v=. AFTER:
+
+#+BEGIN_SRC js
+import paladin from "@vivalence/paladin";
+import { Url, v } from "@vivalence/typology";
+
+export const environment = v.environment({
+  VIVA_RUNTIME_ORIGIN: v.url().desc("Scheme and authority the runtime is reachable at. Every address below derives from it.").default("http://localhost:2501").group("addresses"),
+  VIVA_CLIENT_KAJUIT_ORIGIN: v.url().desc("Scheme and authority the kajuit browser client is reachable at.").default("http://localhost:1794").group("addresses"),
+  VIVA_RUNTIME_SERVE: v.url().desc("Base URL the runtime serves on. Everything else hangs off this latch.").default("${VIVA_RUNTIME_ORIGIN}/").group("addresses"),
+  VIVA_LIGHTHOUSE_SERVE: v.url().desc("Where the hosted lighthouse attaches inside the runtime's own path tree.").default("${VIVA_RUNTIME_ORIGIN}/attached/process/lighthouse/multiplayer").group("addresses"),
+  VIVA_CLIENT_KAJUIT_SERVE: v.url().desc("Where the kajuit browser client serves.").default("${VIVA_CLIENT_KAJUIT_ORIGIN}/").group("addresses"),
+  PUBLIC_VIVA_RUNTIME_REMOTE: v.url().desc("Runtime address the browser bundle calls. Reaches it through publish(), not a thunk.").default("${VIVA_RUNTIME_SERVE}").group("addresses"),
+  PUBLIC_VIVA_LIGHTHOUSE_REMOTE: v.url().desc("Lighthouse address as CONSUMED — by the daemons, and by the browser after publish().").default("${VIVA_LIGHTHOUSE_SERVE}").group("addresses"),
+  SECRET_VIVA_JWT: v.string({ minLength: 24 }).desc("Lighthouse signing secret. Generate with: openssl rand -base64 24").group("keys"),
+  SECRET_VIVA_ANTHROPIC_API_KEY: v.string().desc("Anthropic key. Without one the daemon attaches no hallucinator and /hello/agent answers as the bot.").group("keys").optional(),
+});
+#+END_SRC
+
+The rest of the file (=manifest · runtime · daemons · clients · services · lighthouse=) is
+untouched; the =hallucinators= ternary thunk STAYS (decision 3).
+
+*Flag-day radius outside the repo* (beat 1 of the blast): six recipes under =~/.viva= exported the
+old map. The three that MOUNT — =~/.viva/instances/{hello-world/instance.viva.js,
+italian/italian.viva.js, language-learning/test.viva.js}= — were migrated by the same generator
+(=gen-env.js=: imports the module, emits one =v= line per key; =_(ORIGIN|SERVE|REMOTE)$= → =v.url()=,
+=_PORT$= → =v.integer()=, else =v.string()=; =required: false= → =.optional()=; nothing else marked
+optional — declared wins, beef tunes). Originals kept at =$CLAUDE_JOB_DIR/tmp/shelf-before/=. The
+three TAPPED =@education= templates (=~/.viva/registry/education/instances/{italian,spanish,
+brazilian}=) are a different repository — untouched, they only IMPORT (the throw is at mount) and
+break on their first =instance/create=. Beef's.
+
+*** tests — M2
+
+=subsystems/paladin/tests/check.environment.test.js= — every fixture's =environment:= becomes a
+=v.environment({…})=; =SECRET_K= → =SECRET_VIVA_K= (the key law now bites in fixtures); =usable=
+leaves every =requirements= row; the three =required:= cases from this session are REWRITTEN onto
+=.optional()= and one new =INVALID= case lands. The full file:
+
+#+BEGIN_SRC js :tangle ../../subsystems/paladin/tests/check.environment.test.js :mkdirp yes
+// authored schema against observed record. three things are ever wrong: undocumented, required, invalid.
+import { specimen, v } from "@vivalence/typology";
+import { Paladin } from "@vivalence/paladin/typology";
+
+const { describe, it, expect } = specimen;
+
+const mk = (pairs = {}, secrets = {}) => {
+  const paladin = new Paladin();
+  paladin.env.assign(pairs, "flag");
+  paladin.secret.assign(secrets, "flag");
+  return paladin;
+};
+const rowsOf = (paladin, requirements, environment) =>
+  Object.fromEntries(
+    paladin.check.environment({ requirements, environment }).map((row) => [row.key, row]),
+  );
+const read = (at, key, extra = {}) => ({ at, read: [key], unset: [], ...extra });
+const unread = (at, key) => ({ at, read: [key], unset: [key] });
+
+describe("check.environment", () => {
+  it("described and set → ok", () => {
+    const rows = rowsOf(mk({ VIVA_A: "1" }), [read("runtime.serve", "VIVA_A")], v.environment({
+      VIVA_A: v.string().desc("a").group("addresses"),
+    }));
+    expect(rows.VIVA_A.verdict).toBe("ok");
+    expect(rows.VIVA_A.at).toBe("runtime.serve");
+    expect(rows.VIVA_A.describe).toBe("a");
+    expect(rows.VIVA_A.group).toBe("addresses");
+    expect(rows.VIVA_A.required).toBe(true);
+  });
+
+  it("read by a thunk but described nowhere → UNDOCUMENTED, and it FAILS", () => {
+    const list = mk({ VIVA_A: "1" }).check.environment({
+      requirements: [read("runtime.serve", "VIVA_A")],
+      environment: v.environment({}),
+    });
+    expect(list[0].verdict).toBe("UNDOCUMENTED");
+    expect(list.fails).toBe(true);
+  });
+
+  it("unset and not optional → REQUIRED, and it FAILS — however well the thunk coped", () => {
+    const list = mk().check.environment({
+      requirements: [unread("runtime.serve", "VIVA_A")],
+      environment: v.environment({ VIVA_A: v.string().desc("a") }),
+    });
+    expect(list[0].verdict).toBe("REQUIRED");
+    expect(list.fails).toBe(true);
+  });
+
+  it("unset and .optional() → optional, and it does not fail", () => {
+    const list = mk().check.environment({
+      requirements: [unread("daemon[hello].hallucinators", "SECRET_VIVA_K")],
+      environment: v.environment({ SECRET_VIVA_K: v.string().desc("k").optional() }),
+    });
+    expect(list[0].verdict).toBe("optional");
+    expect(list[0].required).toBe(false);
+    expect(list.fails).toBe(false);
+  });
+
+  it("set but failing its type → INVALID with the reason, and it FAILS", () => {
+    const list = mk({ VIVA_A: "localhost:2501" }).check.environment({
+      requirements: [read("runtime.serve", "VIVA_A")],
+      environment: v.environment({ VIVA_A: v.url().desc("a") }),
+    });
+    expect(list[0].verdict).toBe("INVALID");
+    expect(typeof list[0].reason).toBe("string");
+    expect(list.fails).toBe(true);
+    expect(list[0].value).toBe("localhost:2501");
+  });
+
+  it("a secret is validated against its real value and still reported as ***", () => {
+    const short = rowsOf(mk({}, { SECRET_VIVA_JWT: "tooshort" }), [], v.environment({
+      SECRET_VIVA_JWT: v.string({ minLength: 24 }).desc("jwt"),
+    }));
+    expect(short.SECRET_VIVA_JWT.verdict).toBe("INVALID");
+    expect(short.SECRET_VIVA_JWT.value).toBe("***");
+    expect(JSON.stringify(short).includes("tooshort")).toBe(false);
+    const long = rowsOf(mk({}, { SECRET_VIVA_JWT: "x".repeat(32) }), [], v.environment({
+      SECRET_VIVA_JWT: v.string({ minLength: 24 }).desc("jwt"),
+    }));
+    expect(long.SECRET_VIVA_JWT.verdict).toBe("documented");
+  });
+
+  it("described, unread, blank, not optional → REQUIRED — the publish() and container consumers", () => {
+    const blank = mk().check.environment({
+      requirements: [],
+      environment: v.environment({ VIVA_SERVICE_NLP_PORT: v.string().desc("port") }),
+    });
+    expect(blank[0].verdict).toBe("REQUIRED");
+    expect(blank.fails).toBe(true);
+
+    const set = mk({ VIVA_SERVICE_NLP_PORT: "8080" }).check.environment({
+      requirements: [],
+      environment: v.environment({ VIVA_SERVICE_NLP_PORT: v.string().desc("port") }),
+    });
+    expect(set[0].verdict).toBe("documented");
+    expect(set[0].at).toBe(null);
+    expect(set.fails).toBe(false);
+  });
+
+  it("described, unread, blank, .optional() → documented, NOT an error", () => {
+    const list = mk().check.environment({
+      requirements: [],
+      environment: v.environment({ SECRET_VIVA_DEEPGRAM_API_KEY: v.string().desc("d").optional() }),
+    });
+    expect(list[0].verdict).toBe("documented");
+    expect(list.fails).toBe(false);
+  });
+
+  it("a documented row carries its VALUE — which is how the wizard knows what is still owed", () => {
+    const paladin = mk({ VIVA_SET: "yes" });
+    const rows = rowsOf(paladin, [], v.environment({
+      VIVA_SET: v.string().desc("s"),
+      VIVA_MISSING: v.string().desc("m").optional(),
+    }));
+    expect(rows.VIVA_SET.value).toBe("yes");
+    expect(rows.VIVA_SET.stratum).toBe("flag");
+    expect(rows.VIVA_MISSING.value).toBe(null);
+  });
+
+  it("a secret is reported as PRESENT, never as itself", () => {
+    const set = rowsOf(mk({}, { SECRET_VIVA_JWT: "sk-live-do-not-print-but-long-enough" }), [], v.environment({
+      SECRET_VIVA_JWT: v.string().desc("jwt"),
+    }));
+    expect(set.SECRET_VIVA_JWT.value).toBe("***");
+    expect(JSON.stringify(set).includes("sk-live")).toBe(false);
+    const absent = rowsOf(mk(), [], v.environment({ SECRET_VIVA_JWT: v.string().desc("jwt") }));
+    expect(absent.SECRET_VIVA_JWT.value).toBe(null);
+  });
+
+  it("a secret read by a thunk carries its at, and being unset makes it REQUIRED", () => {
+    const rows = rowsOf(
+      mk(),
+      [{ at: "service[lh].secrets.jwt", read: ["SECRET_VIVA_JWT"], unset: ["SECRET_VIVA_JWT"], deferred: true }],
+      v.environment({ SECRET_VIVA_JWT: v.string().desc("jwt") }),
+    );
+    expect(rows.SECRET_VIVA_JWT.at).toBe("service[lh].secrets.jwt");
+    expect(rows.SECRET_VIVA_JWT.value).toBe(null);
+    expect(rows.SECRET_VIVA_JWT.verdict).toBe("REQUIRED");
+  });
+
+  it("one key read from several places yields one row per site — that IS the per-consumer set", () => {
+    const list = mk({ PUBLIC_VIVA_LH: "http://x" }).check.environment({
+      requirements: [
+        read("clients.kajuit.lighthouse.remote", "PUBLIC_VIVA_LH"),
+        read("daemon[education].lighthouse.remote", "PUBLIC_VIVA_LH"),
+      ],
+      environment: v.environment({ PUBLIC_VIVA_LH: v.url().desc("lh") }),
+    });
+    expect(list.length).toBe(2);
+    expect(list.map((row) => row.at)).toEqual([
+      "clients.kajuit.lighthouse.remote",
+      "daemon[education].lighthouse.remote",
+    ]);
+    expect(list.every((row) => row.verdict === "ok")).toBe(true);
+  });
+
+  it("a thunk reading several keys yields a row for each", () => {
+    const list = mk({ VIVA_A: "1", VIVA_B: "2" }).check.environment({
+      requirements: [{ at: "runtime.serve", read: ["VIVA_A", "VIVA_B"], unset: [] }],
+      environment: v.environment({ VIVA_A: v.string().desc("a"), VIVA_B: v.string().desc("b") }),
+    });
+    expect(list.map((row) => row.key)).toEqual(["VIVA_A", "VIVA_B"]);
+  });
+
+  it("no schema and no requirements is empty and clean, not a failure", () => {
+    const list = mk().check.environment({ requirements: [], environment: v.environment({}) });
+    expect(list.length).toBe(0);
+    expect(list.fails).toBe(false);
+  });
+
+  it("tolerates an instance with neither field — a declaration may carry no environment at all", () => {
+    const list = mk().check.environment({});
+    expect(list.length).toBe(0);
+    expect(list.fails).toBe(false);
+  });
+
+  it("a string that converts to the declared type is ok — a .env holds strings, the schema holds types", () => {
+    const rows = rowsOf(mk({ VIVA_PORT: "8080" }), [read("service.port", "VIVA_PORT")], v.environment({
+      VIVA_PORT: v.integer().desc("port"),
+    }));
+    expect(rows.VIVA_PORT.verdict).toBe("ok");
+    expect(rows.VIVA_PORT.value).toBe("8080");
+    const bad = rowsOf(mk({ VIVA_PORT: "eighty" }), [read("service.port", "VIVA_PORT")], v.environment({
+      VIVA_PORT: v.integer().desc("port"),
+    }));
+    expect(bad.VIVA_PORT.verdict).toBe("INVALID");
+  });
+
+  it("the wrong-list is published once, for doctor and init to read", () => {
+    expect(mk().check.wrong).toEqual(["UNDOCUMENTED", "REQUIRED", "INVALID"]);
+  });
+});
+#+END_SRC
+
+=subsystems/paladin/tests/hydrate.test.js= — =usable= leaves the record, so its assertions leave
+the suite. Surgical, four cases:
+
+#+BEGIN_SRC diff
+@@ it("learns which keys a thunk read, from both bags, without the thunk knowing")
+-    expect(by["runtime.serve"].usable).toBe(true);
+@@
+-  it("catches the silent failure: new Url(unset) is PRODUCED but not usable", () => {
++  it("does not throw on new Url(unset) — the value is PRODUCED, only the record says the key was unset", () => {
+@@
+-    expect(by["runtime.good"].usable).toBe(true);
+@@
+-    expect(by["runtime.bad"].usable).toBe(false);
+     expect(by["runtime.bad"].unset).toEqual(["VIVA_PROBE_MISSING"]);
+@@ it("fires a deferred thunk once and hands back the THUNK, not the value")
+-    // a REAL verdict, because a real value was produced — an unset secret is not usable
+-    expect(by["service[probe].secrets.jwt"].usable).toBe(true);
+-    expect(by["service[probe].secrets.gone"].usable).toBe(false);
+@@
+-  it("usable is STRICT — null, undefined and empty string are all unusable", () => { … });   whole case, :178-:201
+#+END_SRC
+
+The =new Url(undefined).href === "NaN"= facts in the renamed case STAY — they are the reason
+=v.url()= refuses =NaN=, and hydrate's =unset= list is what the doctor reads now.
+
+=subsystems/paladin/tests/snapshots/paladin-instance.snapshot.json= — REGENERATES (=usable= leaves
+every requirements record; =environment= becomes the JSON schema with =type: "object"=,
+=additionalProperties: false=, the object-level =required= array, and per-key
+=type/pattern/description/default/group=. =~optional= and =~kind= are non-enumerable and never
+serialize — optionality shows ONLY as absence from =required=). Regenerate through the snapshot
+test's own instrument (the =DRY= switch in =instance.snapshot.test.js=), never by hand; then read
+the diff — the only deltas must be those two.
+
+=systems/ghost/tests/ledger.test.js= — the probe fixture written by "instance init authors .env
+from the schema, then asks only for the blanks":
+
+#+BEGIN_SRC diff
+-      `export const manifest = { type: "instance", slug: "probe" };
+-export const environment = {
+-  VIVA_SYSTEM_MODE: { describe: "mode", group: "identity", default: "DEVELOPMENT" },
+-  SECRET_VIVA_JWT: { describe: "signing secret", group: "keys", required: true },
+-};
++      `import { v } from "@vivalence/typology";
++export const manifest = { type: "instance", slug: "probe" };
++export const environment = v.environment({
++  VIVA_SYSTEM_MODE: v.string().desc("mode").group("identity").default("DEVELOPMENT"),
++  SECRET_VIVA_JWT: v.string().desc("signing secret").group("keys"),
++});
+#+END_SRC
+
+The assertions after it hold unchanged: =fill= is =["SECRET_VIVA_JWT"]= (blank, not optional →
+REQUIRED), the written =.env= carries =VIVA_SYSTEM_MODE="DEVELOPMENT"= and =# signing secret=.
+Blast-time verify: this is the first probe fixture with an =import= — =drive= is in-process
+(=ledger.test.js:19=), so the bare =@vivalence/typology= resolves through the repo import map the
+way every shelf recipe's =@vivalence/paladin= already does.
+
+Gate: =(cd subsystems/paladin && deno test -A --no-check tests/*.test.js)= and
+=(cd systems/ghost && deno test -A --no-check tests/*.test.js)= — LANDED: paladin =28 passed (143 steps)=
+(baseline 142: +2 check cases, −1 hydrate case), ghost =81 passed (26 steps) | 1 failed= with the
+SAME single red as the baseline (=strata.wet.test.js:93= "two shells select two instances in
+parallel", a shell-spawning wet test outside this radius). Then the live probe: =viva instance/doctor --instance=$PWD/registry/commons/instances/hello-world=
+must print the anthropic row without =!=, JWT =REQUIRED=, and no =INVALID= (no =.env= there — every
+address blank, every address =REQUIRED=, as today).
+
+** M3 — docs + README + memory
+
+- =documentation/content/50-59_practice/51_guides/51.02_instance-from-scratch.mdx:392= — the
+  =environment= fence becomes the new export (the hello-world block above); the fence title
+  =hello-world.viva.js= → =instance.viva.js=, port 2601 → whatever the recipe says (captured, never
+  composed). Prose after it: /"The schema is authored"/ paragraph stays; add one
+  sentence: the type on each key is what the doctor validates the resolved value against, and
+  =.optional()= is the only way to say a key is not owed. =astro build= green (10 pages).
+- =README.md= — LANDED: all three pastes regenerated byte-equal (=mode.viva.js= · =App.svelte= ·
+  =instance.viva.js=), the marker lines renamed, the =multiplayer.js= closer replaced by one
+  sentence on =environment= / =.optional()= / =INVALID=. =astro build=: 10 pages.
+- =documentation/content/50-59_practice/50.01_slowstart.mdx:273= — /"one schema, the declaration's
+  own =environment= export"/ still true; no change.
+- memory: =project_documentation_site.md= gains nothing; a NEW =project_environment_schematics.md=
+  (type project) records the law table + the two decisions that are not derivable from code (no
+  =v.secret()=; optionality declared, observation retired) — at land, not before.
+
+* testing assessment
+
+- *In place*: =paladin/tests/check.environment.test.js= (15 cases, every verdict path) ·
+  =paladin/tests/hydrate.test.js= (the pinhole record — =usable= in four cases) ·
+  =paladin/tests/instance.snapshot.test.js= (the whole hydrated instance incl. =requirements= and
+  =environment=) · =ghost/tests/ledger.test.js= (the init scaffold/owed case; ledger/doctor) ·
+  =typology/tests/v.test.js= (the =v= surface). COVERAGE GAP: nothing exercises =envfile.scaffold=
+  against a real schema except the ghost init case (indirect); nothing exercises =doctor.js='s
+  =problems= column set; =Init.jsx= is untested (Ink).
+- *Changes*: check.environment.test.js — REWRITTEN (tangled above; fixtures to =v.environment=, =usable=
+  gone, key law in fixture names, 3 boolean cases → 2 optional cases + 1 INVALID + 1 convert + 1
+  wrong-list; 15 → 17 cases). hydrate.test.js — four cases lose their =usable= lines, one dies
+  whole (diff above). paladin-instance.snapshot.json — REGEN. ghost ledger.test.js — one fixture
+  string. typology v.test.js — 6 cases APPENDED.
+- *Adds*: the INVALID cases (url pattern · secret minLength, value masked · integer that does not
+  convert) · the key-law throw · =isOptional= · =group= keyword · plain properties (the setter never
+  leaks) · =convert= · =wrong= published once. Not added: an =envfile.scaffold= unit
+  test — the ghost init case asserts the scaffolded text (=# signing secret=,
+  =VIVA_SYSTEM_MODE="DEVELOPMENT"=), which is the same proof one level up.
+- *Green ladder*:
+
+| milestone | gate                                                                                      |
+|-----------+-------------------------------------------------------------------------------------------|
+| M1        | =v.test.js= =1 passed (16 steps)=; full typology =122 passed (486 steps) / 1 failed= — the same m45 red, +6 steps |
+| M2        | paladin =28 passed (143 steps)= · ghost =81 passed (26 steps) / 1 baseline red= · snapshot: =usable= gone, =environment= = JSON schema with =required[8]= · live doctor on the bare recipe: 10 =REQUIRED=, 0 =INVALID=, anthropic unmarked |
+| M3        | =astro build= 10 pages ✓ · three README pastes byte-equal ✓ · 51.02 fence byte-equal ✓ · =grep 'required: \(true\|false\)' commons subsystems/paladin/belt systems/ghost/trajectories= → 0 ✓ |
+
+- *Pre-DONE gate*: pasted counts per milestone, in the changelog. A claim without counts is not a
+  landing.
+
+* QA
+
+** testimony — the expected experience
+
+- I write =ANTHROPIC_API_KEY: v.string()= in a recipe. The file does not even import: =[environment]
+  keys outside VIVA_ / PUBLIC_VIVA_ / SECRET_VIVA_: ANTHROPIC_API_KEY=. The law is taught at the
+  door, not at the doctor.
+- I set =VIVA_RUNTIME_ORIGIN="localhost:2501"= in =.env= (no scheme). =viva instance/doctor= shows
+  the row marked =!=, verdict =INVALID=, and a =reason= column appears: =must match pattern
+  "^(https?|wss?)://[^\\s]+$"=. Before this quest the runtime would have booted onto =NaN=; with F5
+  =viva instance/init you changeme= refuses too, naming the row.
+- I write =VIVA_RUNTIME_ORIGIN="http://localhost:2501"=. The doctor says =ok= — a localhost
+  address IS an address. (TypeBox's own =url= format would have called it =INVALID=; measured,
+  decision 11.)
+- I blank =VIVA_RUNTIME_ORIGIN= by hand while =VIVA_RUNTIME_SERVE= keeps its
+  =${VIVA_RUNTIME_ORIGIN}/= default. Doctor: =ORIGIN= is =REQUIRED= and =SERVE= is =INVALID= — its
+  expanded value is the literal =${VIVA_RUNTIME_ORIGIN}/=, not an address. Two rows, one cause; the
+  =REQUIRED= row is the one to fix, and the =INVALID= one heals with it. The doctor does not
+  collapse them: each row tells the truth about its own value.
+- I leave the anthropic key blank and run =viva instance/init you changeme=. It boots and signs me
+  up. The doctor row for that key reads =optional=, no =!=. The wizard, when I run it, still asks —
+  with =skip=.
+- I run the doctor on a recipe straight from the registry (no =.env=): every address is =REQUIRED=,
+  the secrets are =REQUIRED= / =optional=, nothing is =INVALID=. Same picture as today.
+- I paste a JWT of 12 characters. Doctor: =INVALID= — =minLength 24= — value still =***=.
+- I open the README's =Hello, Instance!= and see the same nine lines I would write myself: type,
+  prose, default, group — one line per key, readable without the doctor.
+
+** programmatic + ikiro markers
+
+- e2e: =deno eval 'import { v } from "@vivalence/typology"; v.environment({ NOPE: v.string() })'= →
+  non-zero, stderr contains =outside VIVA_=.
+- e2e: bare-recipe doctor (M2 gate) → no =INVALID=, anthropic without =!=.
+- grep gate (the marker is dead): =grep -rn "required:" registry/ subsystems/paladin/belt
+  systems/ghost/trajectories= → 0.
+- grep gate (usable is dead): =grep -rn "usable" subsystems/paladin/prototypes/instance.js
+  subsystems/paladin/belt/check.js= → 0.
+- grep gate (one wrong-list): =grep -rn '"UNDOCUMENTED", "REQUIRED"' systems/ghost
+  subsystems/paladin= → exactly 1 hit, =belt/check.js=.
+- grep gate (no old-shape schema anywhere): =grep -rn "describe: \"" registry/ systems/ghost/trajectories= → 0.
+- e2e (F5): =.env= with =VIVA_RUNTIME_ORIGIN="localhost:2501"=, then =viva instance/init you
+  changeme= → effect =env: "invalid"=, =invalid: [{ key, at, reason }]=, no process spawned.
+- e2e (setter leak): =deno eval 'import { v } from "@vivalence/typology"; console.log(typeof
+  v.environment({ VIVA_A: v.string() }).properties.VIVA_A.default)'= → =undefined=.
+- suites: the green ladder above is the authority.
+
+#+marker_qa: m48/T-key-law-at-import · held · `deno eval` → `[environment] keys outside VIVA_ / PUBLIC_VIVA_ / SECRET_VIVA_: NOPE`, non-zero exit
+#+marker_qa: m48/T-invalid-url · held · probe instance with `VIVA_RUNTIME_ORIGIN="localhost:2501"`: 8 INVALID rows, reason `must be RFC 3986 URI with an authority (scheme://…)` — first walk showed the 400-char regex, fixed by decision 16
+#+marker_qa: m48/T-optional-key-headless-init · held · probe with a valid `.env` and `SECRET_VIVA_ANTHROPIC_API_KEY=""`: headless `instance/init` → `env: present`, `fill` empty, doctor 0 problems, anthropic `required=false` unmarked — the optional key gates nothing
+#+marker_qa: m48/T-bare-recipe-doctor · held · `viva instance/doctor --instance=commons/instances/hello-world`: 10 REQUIRED, 0 INVALID, anthropic `required=false` unmarked
+#+marker_qa: m48/T-secret-minlength · held · probe `SECRET_VIVA_JWT="short"` → INVALID `must not have fewer than 24 characters`, value column `***`
+#+marker_qa: m48/T-readme-paste · held · all three pastes byte-equal to disk after regen (script asserts)
+#+marker_qa: m48/T-localhost-is-an-address · held · shelf hello-world (`.env` on localhost:2501/1794) → 0 problems; italian + language-learning mount with REQUIRED rows only, 0 INVALID
+#+marker_qa: m48/T-reference-cascade · held · `VIVA_RUNTIME_ORIGIN=""` with every default kept: ORIGIN `REQUIRED`, SERVE + LIGHTHOUSE_SERVE + both PUBLIC remotes `INVALID` (SERVE's value column reads `/`) — FIVE rows, one cause, the one `REQUIRED` row is the fix; the doctor does not collapse them
+#+marker_qa: m48/T-init-refuses-invalid · held (revised: OWED, not refused) · headless `viva instance/init --instance=<probe>` on a scheme-less origin → `env: incomplete`, the key in `fill`, `invalid: [{key, reason}]`, no boot; wizard re-asks with the value prefilled and the reason in the hint
+#+marker_qa: m48/P-required-marker-dead · held · `grep 'required: \(true\|false\)'` = 0 (the bare `required:` grep hits check.js's ROW field — gate refined)
+#+marker_qa: m48/P-usable-dead · held · 0 code lines; 1 hit is m45's SUPERSEDED comment block in instance.js
+#+marker_qa: m48/P-one-wrong-list · held · exactly `subsystems/paladin/belt/check.js:3`
+#+marker_qa: m48/P-plain-properties · held · `deno eval` printed `undefined`
+#+marker_qa: m48/P-no-format-url · held · 0 hits across subsystems systems commons
+
+* blast table
+
+| file                                                              | change                                              | M  | kind     |
+|-------------------------------------------------------------------+-----------------------------------------------------+----+----------|
+| subsystems/typology/schematics/v.js                               | =.group()= in enhance · =v.isOptional= · =v.convert= | M1 | surgical |
+| subsystems/typology/schematics/scalars/url.js                     | NEW — RFC 3986 grammar + =url= builder (title)      | M1 | tangle   |
+| subsystems/typology/schematics/scalars/index.js                   | re-export                                           | M1 | surgical |
+| subsystems/typology/schematics/primitives/environment.js          | NEW — =environment(props)= + =KEY= · unwraps properties | M1 | tangle   |
+| subsystems/typology/schematics/primitives/index.js                | re-export                                           | M1 | surgical |
+| subsystems/typology/schematics/index.js                           | =v.environment=                                     | M1 | surgical |
+| subsystems/typology/tests/v.test.js                               | +6 cases                                            | M1 | surgical |
+| subsystems/paladin/prototypes/instance.js                         | =usable= dies · flag-day guard · default schema     | M2 | surgical |
+| subsystems/paladin/belt/check.js                                  | =environment()= replaced · =WRONG= published        | M2 | surgical |
+| subsystems/paladin/tests/check.environment.test.js                | REWRITTEN (17 cases)                                | M2 | tangle   |
+| subsystems/paladin/tests/hydrate.test.js                          | =usable= lines go (4 cases · 1 whole)               | M2 | surgical |
+| subsystems/paladin/tests/snapshots/paladin-instance.snapshot.json | REGEN                                               | M2 | regen    |
+| systems/ghost/belt/envfile.js                                     | reads =properties= · =description=                  | M2 | surgical |
+| systems/ghost/trajectories/instance/init.js                       | =properties= · =paladin.check.wrong= · F5 refuses INVALID | M2 | surgical |
+| systems/ghost/trajectories/instance/doctor.js                     | =WRONG= from paladin · =reason= in problems         | M2 | surgical |
+| systems/ghost/trajectories/ledger/index.js                        | ledger schema → =v.environment=                     | M2 | surgical |
+| systems/ghost/tests/ledger.test.js                                | probe fixture                                       | M2 | surgical |
+| commons/instances/hello-world/instance.viva.js                    | =environment= → =v.environment= (+ JWT minLength 24) | M2 | surgical |
+| ~/.viva/instances/{hello-world,italian,language-learning}/*.viva.js | =environment= → =v.environment= (shelf, generator)  | M2 | shelf    |
+| ~/.viva/registry/education/instances/{italian,spanish,brazilian}/*.viva.js | =environment= → =v.environment= (generator; OPENROUTER + ELEVENLABS =.optional()=; originals in the job tmp) | M2 | tapped   |
+| systems/ghost/trajectories/instance/init.js · Init.jsx           | F5 — INVALID rows owed, =invalid= in the effect, reason in the hint | M2 | surgical |
+| documentation/…/51.02_instance-from-scratch.mdx                   | env fence + one sentence                            | M3 | prose    |
+| README.md                                                         | =Hello, Instance!= + =Hello, Mode!= paste regen · 4 filename mentions | M3 | regen    |
+| memory: project_environment_schematics.md                         | NEW at land                                         | M3 | memory   |
+
+Sized: ~45 lines typology · ~90 lines paladin · ~35 lines ghost (F5 +10) · 11 lines recipe · tests
+~230 (the tangled rewrite, +6 typology cases, −12 hydrate lines). No file in =systems/runtime= or =systems/kajuit= moves — =publish()= and
+the browser's =PUBLIC_*= reads are untouched.
+
+* deferred
+
+- Typed wizard widgets — =v.enum= → picker, =v.integer= → number input in =Init.jsx=. Trigger: the
+  first recipe that declares an enum key.
+- =v.port()= / =v.path()= scalars. Trigger: a second recipe that needs them (hello-world has none;
+  the NLP =VIVA_SERVICE_NLP_PORT= lives in a bak'd education recipe).
+- Ledger =.env= validation — =ledger/doctor= renders =paladin.env.strati= rows, not =check.environment=
+  rows, for the machine file. Trigger: a machine-wide key that has a type worth checking.
+- Kajuit-side validation of published =PUBLIC_*= values. Trigger: a browser bug traced to a bad
+  published value (m45 ⑥ was the raw =${VAR}= one — fixed at publish, not at read).
+
+* forks — closed at authoring, re-walked at pass 2 (F1 REVISED · F5 OPEN · F6/F7 closed)
+
+1. ~=v.url()= vs =v.string({ format: "url" })=~ → =v.url()= — REVISED at pass 2 (TypeBox's =IsUrl=
+   wants a TLD), REVISED AGAIN at the blast on beef's order ("coherently universally true"): the
+   RFC 3986 grammar for a URI with an authority, any scheme, in =scalars/url.js= (decision 11).
+   Same name, same call shape as the sketch.
+2. ~drift check when declared optional but a site dies~ → dropped with =usable= (decision 3).
+3. ~rename row field =describe= → =description=~ → NO; rows are the CLI's surface, mapped in =check=.
+4. ~ledger keys optional or owed~ → the four machine-wide keys =.optional()=, the repo mount owed.
+5. *LANDED — an =INVALID= value is OWED, the same as a blank one.* beef: /"And what value is invalid
+   in f five?"/ → a key SET in =.env= that fails its declared type after convert
+   (=VIVA_RUNTIME_ORIGIN="localhost:2501"=, =SECRET_VIVA_JWT="short"=, =VIVA_SERVICE_NLP_PORT="eighty"=);
+   then /"fix the invalid values in f five"/. The recommendation below (refuse) was the weaker
+   design: =owed()= already asks for what is missing, and a wrong value is missing a right one. So
+   =owed()= keeps rows that are blank OR =INVALID= (=if (row.value && row.verdict !== "INVALID")
+   continue=), any wrong verdict is "strong" for the one-row-per-key fold, an =INVALID= non-secret
+   is PREFILLED with its current value (a secret's =***= is not — the =PasswordInput= starts
+   empty), the wizard's hint reads =<describe> — <reason>=, and the headless effect gains
+   =invalid: [{ key, reason }]= beside =fill=. Both headless paths (=init= and =init user pass=)
+   answer =env: "incomplete"= — nothing boots. Pinned: ghost =ledger.test.js= init case, third
+   step (=VIVA_PROBE_SERVE="localhost:1"= → =fill= =["VIVA_PROBE_SERVE"]=, =invalid[0].reason= =
+   =must be RFC 3986 URI with an authority (scheme://…)=). Live: the probe instance with the bad
+   =.env= → =env: incomplete=, six =invalid= rows. The refusal diff as originally proposed:
+
+   #+BEGIN_SRC diff
+   -const owed = () => {
+   +const owed = (rows) => {
+      const held = new Map();
+   -  for (const row of paladin.check.environment(paladin.instance)) {
+   +  for (const row of rows) {
+   @@ export async function init(ctx) {
+   -  const pages = owed();
+   +  const rows = paladin.check.environment(paladin.instance);
+   +  const pages = owed(rows);
+   +  const invalid = rows
+   +    .filter((row) => row.verdict === "INVALID")
+   +    .map((row) => ({ key: row.key, at: row.at, reason: row.reason }));
+   +  const refusal = { mount, env: "invalid", invalid, next: `fix ${file.absolute}, then: viva instance/init` };
+      const fill = pages.flatMap((group) =>
+   @@
+      if (username && password) {
+        if (fill.length) return (ctx.effect = { mount, env: "incomplete", fill });
+   +    if (invalid.length) return (ctx.effect = refusal);
+   @@
+      if (!ctx.interactive || !ctx.view) {
+        return (ctx.effect = fill.length
+          ? { mount, env: scaffolded ? "scaffolded" : "incomplete", fill, next: `fill ${file.absolute}, then: viva instance/init` }
+   -      : { mount, env: "present", next: "viva instance/init <username> <password>" });
+   +      : invalid.length
+   +        ? refusal
+   +        : { mount, env: "present", next: "viva instance/init <username> <password>" });
+      }
+   +  if (invalid.length) return (ctx.effect = refusal);
+   #+END_SRC
+
+   The ghost =ledger.test.js= init case is unaffected (its values convert). One new case belongs
+   beside it: a probe =.env= with =VIVA_PROBE_SERVE="localhost:1"= against =v.url()= → =second.env=
+   is ="invalid"=, =second.invalid[0].key= is =VIVA_PROBE_SERVE=. Marker =T-init-refuses-invalid=
+   is =pending= until beef calls this; =revised= if he says no.
+6. ~one whole-object cast (=environment.errors(map)=) vs per-key~ → per-key. Measured: TypeBox
+   puts =required= and =additionalProperties= failures at =instancePath ""= with the key only in the
+   message. Rows need keys (decision 14).
+7. ~brand the schema (=$id= / kind) so paladin can recognise "an environment"~ → no; =properties= is
+   the guard and the key law already ran (decision 15).
+
+* changelog
+
+- AUTHORED (session "environment schematics"): from beef's =v.environment= sketch. Terrain measured
+  against the live tree post this session's =required: Boolean= landing (which this quest supersedes)
+  and post the =registry/commons= rename (=@viva= owner, beef's 14:30 flip). TypeBox 1.3 facts read from
+  =node_modules/.deno=, not remembered. Full patch: every touchpoint is a diff or a tangle; the
+  check.environment suite is tangled whole. Not blasted — awaits =go= per milestone.
+- VALIDATED (pass 2 — beef: /"do antoher pass … design and scope validation"/): every terrain
+  claim re-read from disk, every TypeBox claim re-run by script (=deno run --config deno.jsonc=).
+  Caught: TypeBox =url= format rejects localhost (=v.url= → pattern, decision 11 · F1 revised);
+  =enhance= setter leak through =.default= / =.group= (=environment()= unwraps, decision 12);
+  strings need =Value.Convert= before =Check= (=v.convert=, decision 13); whole-object cast loses
+  the key (decision 14, F6); no brand (decision 15, F7); recipe renamed =instance.viva.js= +
+  =multiplayer.js= folded + =hello.js= → =mode.viva.js= with a dangling =kernel= ref (beef's, terrain);
+  =hydrate.test.js= pins =usable= in four cases (blast row added); the tangled check suite had
+  dropped the "neither field" case (restored) and gains a convert case; README/51.02 filename
+  drift named. Re-opened F5 (init refuses INVALID) with the diff and a marker. Counts: typology +6
+  cases, check.environment 17, paladin steps expected 134. Still not blasted.
+- LANDED (blast-bracket, beef: /"run thorough testing before … scope out the radius of all of the
+  consumers of this and test them too, then run the change and do another round of testing"/).
+  Beat 1 radius: repo readers as mapped + SIX =~/.viva= recipes with the old map (3 mount, 3 tapped).
+  Beat 2 baselines: typology =122 passed (480 steps) / 1 failed= (m45 red) · paladin =28 passed (142
+  steps)= · ghost =81 passed (26 steps) / 1 failed= (=strata.wet.test.js:93=, wet) · runtime =53
+  passed (327 steps)=. Beat 3: M1 → M2 → M3 as written, plus beef's mid-blast order on the address
+  pattern (decision 11: RFC 3986 grammar in =scalars/url.js=), plus decision 16 (pattern reason =
+  =title=), plus the three shelf recipes. Beat 4: typology =122 passed (486 steps) / 1 failed= (same
+  red, +6) · =v.test.js 1 passed (16 steps)= · paladin =28 passed (143 steps)= · ghost =81 passed (26
+  steps) / 1 failed= (same red) · =astro build= 10 pages · live doctor ×5 (bare recipe, probe with a
+  bad =.env=, three shelf instances) · e2e key-law + setter probes. Beat 5: grep gates held (two
+  refined), radius re-grep = beat 1, nothing new wired. Coverage delta: check.environment 15 → 17
+  cases (INVALID ×3 paths, convert, wrong-list); hydrate −1 case (=usable=); typology +6 (url
+  corpus, group, isOptional, key law, plain properties, convert). NOT applied: F5. NOT touched: the
+  three tapped =@education= recipes (cross-repo) — SUPERSEDED the same session, see the next entry. Runtime after the change: =53 passed (327 steps) | 0 failed= (baseline
+  53 passed / 327 steps). Paladin's last run read =28 passed (147 steps)= — four steps above this
+  quest's 143: beef's concurrent ledger =resolve(reference)= work, not m48's.
+
+- F5 + education (same session, beef: /"Work out the diff in the education instances and show me one
+  complete … the entire local ledger … the repository and the various registry packages … all of that
+  are in scope"/ · /"fix the invalid values in f five"/ · /"Open router eleven. We just need one … hallucinator
+  service … default to anthropic for now. then apply the change to the education instances"/): the three
+  tapped =@education= recipes migrated by the generator with =SECRET_VIVA_OPENROUTER_API_KEY= and
+  =SECRET_VIVA_ELEVENLABS_API_KEY= =.optional()= (spanish/brazilian have no OPENROUTER key); the same two
+  lines on the shelf italian + language-learning copies; DEEPGRAM untouched (not named). All three
+  templates mount under the doctor (19 REQUIRED each — no =.env=, expected); shelf italian 6 → 4 unique
+  REQUIRED keys (JWT · ANTHROPIC · DEEPGRAM · SERVICE_NLP_KEY). F5 landed as "owed" (fork 5 rewritten).
+  Ghost after F5: =81 passed (26 steps) | 1 failed= (the same single wet red as every run today, =strata.wet.test.js:93=). Nothing old-shape remains anywhere under =~/.viva= or the repo.
+
+* release
+
+- added `v.environment(props)` · `v.url()` · `.group()` · `v.isOptional()` · `v.convert()` — an instance declares its environment as a v schema; keys outside the VIVA law throw at import; `v.url()` is an RFC 3986 URI with an authority (any scheme, localhost included; `v.scalars.PATTERN` is the grammar); `.properties` come back plain · migrate: rewrite `export const environment = { KEY: { describe, default, group } }` → `v.environment({ KEY: v.<type>().desc(…).default(…).group(…) })`; `required: false` → `.optional()` ⟨m48⟩
+- changed `viva instance/init` — a set value that fails its type is owed like a blank one: the wizard re-asks it (current value prefilled, reason in the hint), headless answers `env: "incomplete"` with `fill` + `invalid: [{key, reason}]`; nothing boots onto it · migrate: none ⟨m48⟩
+- changed `viva instance/doctor` — new verdict `INVALID` with a `reason` column (a pattern failure names the scalar's `title`); a resolved value is converted then checked against its declared type · migrate: none ⟨m48⟩
+- removed `required:` on environment entries (lived one session, never released) · migrate: `.optional()` for false, nothing for true ⟨m48⟩
+- changed paladin `instance.mount` — refuses an `environment` export that is not a v schema · migrate: as line 1 ⟨m48⟩

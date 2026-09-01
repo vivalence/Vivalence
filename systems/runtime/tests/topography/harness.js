@@ -54,7 +54,7 @@ export const SYMBOL_SLUGS = [
 ];
 
 export async function topography() {
-  const { config } = await accio("@viva/datamap/libsql");
+  const { config } = await accio("@commons/datamap/libsql");
   const domain = await accio("@education/domain/language-learning");
   const descriptors = instance(domain.entities);
   const orm = await MikroORM.init({

@@ -1,0 +1,132 @@
+#+title: m42 history purge — filter-repo the dead registry mass out of git history
+#+filetags: :vcs:git:filter-repo:history:registry:education:audio:jj:ledger:
+#+status: *DESIGNED, prerequisite CLEARED* — every op is a VCS mutation → beef runs ALL of them via `!`, per-command `go`, I propose exact commands + run the read-only audits. The prerequisite (education emigration + m39 · m40 · m41 · variant→instance committed and pushed) is on =origin/master= via =stratified paladin= (6ebb51e8) and =sunset variant= (04e46f79). Still owed before the scratch clone: M0 steps 1–4 below. Four forks surfaced by the survey (decision trail 6–9) are beef's to rule before M1.
+#+phase: blocked (derived)
+#+progress:   0% 0/4 (derived)
+#+next: fork (derived)
+
+* intent
+
+beef, verbatim: /"ok. i remove the education package from registry. how do i purge the history?"/ → /"compile a numbered quest for this. next index"/
+
+One sentence: *the repo clones at 294 MB because 257 MB of corpus mp3 (plus dead seed JSONs and a committed postgres data dir) live only in history* — education has emigrated (m40 M2's seed), so =git filter-repo= strips the dead paths from every commit, the remote is force-pushed, and the local jj-colocated checkout is re-homed on a fresh clone.
+
+* terrain (measured this session)
+
+- clone transfer: *294.57 MiB*. Local =.git=: *797 MB*, =size-pack= 786.40 MiB across 5 packs — jj colocated keeps unreferenced snapshot commits; the op log pins them, so the LOCAL repo only shrinks via fresh clone + fresh =jj git init --colocate=, never in place.
+- blob mass across all history, by extension:
+
+  #+BEGIN_EXAMPLE
+  257.3 MB   8616   .mp3      registry/kernels/@vivalence (182+) + registry/education (155+) — NOTHING else
+   98.9 MB   9919   .js       source + dataset literals (italian verb.js 17.7 MB over 6 revs)
+   58.9 MB    345   .json     dead seeds: packages/database + modules/databases duplicates
+   69.1 MB    143   .otf/.ttf systems/kajuit/static/fonts — LIVE path, not purged
+   30.1 MB     25   .db       testament sqlite (live) + viva.db/ postgres data dir (dead)
+   28.4 MB    121   .lock*    deno.lock / bun.lockb revisions — live path churn, stays
+  #+END_EXAMPLE
+
+- purge-path blob mass: =registry/kernels= 160.5 + =registry/education= 160.5 + =modules/databases= 36.6 + =packages/database= 22.7 + =viva.db= ~12 ≈ *393 MB uncompressed*, and it holds ALL the incompressible mp3 → fresh clone lands ≲ 100 MB (js/json/md left over compress well).
+- HEAD is already clean: =registry/= = =fixtures/playground/viva=; =git ls-files 'registry/kernels/*'= = 0; education removed by beef (m40 M2 F1 — sibling repo, plain move + fresh init, NO history graft). So the purge orphans the audio's historical revisions permanently — the sibling repo holds only the final files. Accepted.
+- =git filter-repo= refuses a dirty/used clone by design → the rewrite happens in a =--no-local= scratch clone, never in this working copy.
+
+** re-measured at the survey (read-only, this checkout)
+
+  #+BEGIN_EXAMPLE
+  269.8 MB   8615   .mp3      unchanged in kind — all under the purge paths
+  104.2 MB  10058   .js
+   61.8 MB    347   .json
+   55.5 MB     30   .otf      + 7.6 MB / 42 .ttf — live fonts, stay
+   31.6 MB     25   .db
+  #+END_EXAMPLE
+
+- HEAD purge-path gate: =git ls-files= on all five paths = 0 · 0 · 0 · 0 · 0.
+- visible =master= = 430 commits; =--all= = 1136 — the 706 extra are working-copy snapshots pinned by 410 =refs/jj/keep=. Last two weeks: 8 visible, 48 with the hidden ones. A =--no-local= clone never sees =refs/jj/keep=, so M1 inherits none of them.
+- =.git= 798 MB, =size-pack= 786.40 MiB, 5 packs (499 + 239 + 83 MB + two small) · =.jj= 17 MB.
+- THREE remotes, not one:
+  - =origin= = ssh://git.vivalence.org:2222/beef/viva.git — 840 commits reachable across 56 branches: 40 stale =push-*= (jj =--change= residue; =git.auto-local-bookmark=false=) + =feature/*= · =coherent*= · =refactor/typescript= · =gamification= · =architecture/*= · =main= · =trunk= · =master=.
+  - =github= = git@github.com:vivalence/Vivalence.git — 439 commits; =master= · =main= · =trunk= + 7 =push-*=.
+  - =presentation= = ssh://git.vivalence.org:2222/vivalence/vivalence.git — NO common ancestor with =master= (the pre-identity-collapse graph, 396 commits).
+- =github/master= (4b183b72e) ≠ =origin/master= (2111b81a): github holds a mid-edit snapshot of the working copy, origin holds its parent — siblings, same "fix docs" description.
+- mainline bookmark renamed twice in the window: =trunk= → =main= → =master=; =main= and =trunk= linger 7 behind on both remotes.
+- author census on =master=: 417 beef · 10 Ivan Matcuka · 3 erectgecko — identity-collapse already applied, so a whole-hash rewrite has a precedent here.
+
+* decision trail
+
+1. *Purge list = dead paths only*: =registry/kernels= · =registry/education= · =packages/database= · =modules/databases= · =viva.db=. Fonts (69 MB) and testament sqlite are live-path history — untouched unless beef widens scope.
+2. *Both audio homes go* — education alone leaves 182 MB of mp3 under the pre-rename =registry/kernels/@vivalence= path.
+3. *Rewrite is permanent + total*: every hash changes. Known casualties: =VIVA_BASE= per-commit image ARGs ([[project_kajuit_image_identity]]) point at dead hashes; any pinned commit ref anywhere goes stale; every existing clone is incompatible → reclone, never pull.
+4. *jj re-home, not graft*: the old op log pins the pre-rewrite graph — grafting keeps the 797 MB and risks re-import weirdness. Old checkout dir survives renamed as the backup (the backup zip precedent is law).
+5. *Commit-first gate*: frontier carries four LANDED-uncommitted quests + the education removal. All of it lands on the remote BEFORE the scratch clone — the rewrite preserves only what the pushed graph holds. CLEARED — see status.
+6. *FORK (beef): which remotes receive the rewrite.* =origin= and =github= both carry =master=; M2 as first written re-added one remote. Two adds + two force-pushes, or =github= is abandoned and re-pushed later — either way the choice is explicit, because after M1 the two graphs share no hashes. =presentation= is a disjoint old graph: keep as archive, or delete the remote — decide, do not leave it implicit.
+7. *FORK (beef): the 40 =push-*= refs on =origin=.* =--all= force-pushes every branch; filter-repo rewrites every ref it finds in the scratch clone; a fresh clone downloads their objects. Deleting them on =origin= BEFORE M1 shrinks the rewrite and the ≲100 MB gate. Alternative: carry them through and prune after. The local 40 die at M3 regardless (a fresh clone has none).
+8. *FORK (beef): which "fix docs" survives.* =github/master= and =origin/master= hold sibling snapshots. Whichever the scratch clone is taken from becomes canonical; the other remote gets force-updated at M2. Taking the clone from the working copy after a final commit (M0 step 1) resolves it — both remotes then receive the same rewritten tip.
+9. *M3 carry-over list is now measured, not "anything git status ignored"*: =.env*= at the root · =registry/viva/services/nlp/server/.env= · =testament/_bruno/instances/= · every =*/tests/snapshots/= · =documentation/content/.tangled/= · =.claude/settings.local.json=. Ignored-but-disposable: =node_modules= · =.svelte-kit= · =dist= · =.astro= · =documentation/public/pagefind= · =documentation/bak= · =__pycache__=.
+
+* ops — ALL beef-run via `!`, one `go` per command
+
+** M0 — pre-flight (beef)
+
+#+BEGIN_EXAMPLE
+1. commit the working tree — DONE for m39 · m40 · m41 · variant→instance · education removal (on origin/master). At the survey 16 paths were dirty (docs 50.01 · Layout.astro · hello-world.viva.js · kajuit +layout.js · deno.jsonc · .ikiro/*); by the fold sibling sessions had added registry/ → commons/ and quests m45–m49 on top — this step commits whatever the tree holds when beef runs it
+2. git push origin --all --tags        # origin/master is 1 behind the working copy
+   git push github --all --tags        # if fork 6 says github stays
+3. zip -r ~/vivalence-pre-m42.zip ~/vivalence/code/vivalence   # the incident-proven backup
+4. brew install git-filter-repo
+0. (fork 7, optional, before M1) delete the 40 push-* refs on origin
+#+END_EXAMPLE
+
+Gate: =git status= clean · every remote that stays holds every branch/tag · zip exists · forks 6–8 ruled.
+
+** M1 — rewrite in a scratch clone (beef)
+
+#+BEGIN_EXAMPLE
+git clone --no-local ~/vivalence/code/vivalence /tmp/viva-rewrite
+cd /tmp/viva-rewrite
+git filter-repo \
+  --path registry/kernels \
+  --path registry/education \
+  --path packages/database \
+  --path modules/databases \
+  --path viva.db \
+  --invert-paths
+#+END_EXAMPLE
+
+Gate (my audits, read-only, in =/tmp/viva-rewrite=):
+- =git count-objects -vH= — size-pack ≲ 100 MB
+- mp3 blob census over =--all= = *zero*
+- =git ls-files= diff vs pre-rewrite HEAD = exactly the purge paths (already absent at HEAD → expect EMPTY)
+- purge-path blob census over =--all= = zero
+
+** M2 — publish (beef)
+
+#+BEGIN_EXAMPLE
+git remote add origin ssh://git@git.vivalence.org:2222/beef/viva.git     # filter-repo strips remotes on purpose
+git remote add github git@github.com:vivalence/Vivalence.git              # fork 6: only if github stays
+git push --force --all origin
+git push --force --tags origin
+git push --force --all github
+git push --force --tags github
+# presentation: fork 6 — archive untouched, or remove the remote in the re-homed checkout
+#+END_EXAMPLE
+
+Gate: fresh =git clone <remote-url>= from a clean dir transfers ≲ 100 MB, for EACH remote that received the push.
+
+** M3 — re-home the working copy (beef)
+
+#+BEGIN_EXAMPLE
+mv ~/vivalence/code/vivalence ~/vivalence/code/vivalence.pre-m42   # backup, keep until M3 gate green
+git clone <remote-url> ~/vivalence/code/vivalence
+cd ~/vivalence/code/vivalence && jj git init --colocate
+# carry over from the backup dir (decision 9): .env* · registry/viva/services/nlp/server/.env · testament/_bruno/instances/ · */tests/snapshots/ · documentation/content/.tangled/ · .claude/settings.local.json
+#+END_EXAMPLE
+
+Gate: 8-suite baseline green ([[project_test_suite_baseline]]) · =viva instance doctor= renders · docs build 10 pages · then and only then the =.pre-m42= dir + zip may retire (beef's call).
+
+* milestones
+
+| #  | lands                                    | gate                                                              |
+|----+------------------------------------------+-------------------------------------------------------------------|
+| M0 | worktree committed · pushed · zipped     | status clean · every kept remote complete · backup · forks 6–8 ruled |
+| M1 | scratch-clone filter-repo, 5 dead paths  | size-pack ≲100 MB · zero mp3 · ls-files identical                 |
+| M2 | force-push all branches + tags, per remote | fresh clone ≲100 MB from each kept remote                        |
+| M3 | reclone + fresh jj colocate + state copy | 8 suites green · doctor renders · docs build · backups retireable |

@@ -10,16 +10,21 @@ instance/create --help= printed =[source] [target] [use]=, because the help cens
 the schema's =type= and rendered every param with the same brackets. A boolean read as a
 third positional. Neither the README nor the slowstart mentioned it at all. Fixed in three
 files: the census now carries =type=, help renders a boolean as =--name=, and both doc
-pages state the flag. Ghost =77 passed (23 steps) / 0 failed=.
+pages state the flag. Ghost =77 passed (23 steps) / 0 failed=. Then a coda I owe honesty on:
+I announced a test-task defect from a watcher's restart tail, beef ordered it marked, and
+the reproduction showed no defect — the mark that landed is the trap, and the callout is on
+me.
 
 * the walk
 
-Session spine =N = 81=. Turns 1–74 are already folded — they are the environment collapse,
+Session spine =N = 82=. Turns 1–74 are already folded — they are the environment collapse,
 and they are [[file:the-environment-collapses-to-one-file-a-blind-pinhole-is-asked-what-it-saw-and-two-lessons-only-fire-once-they-are-named.org][entry 38]].
-This fold covers 75–81: one =/compact=, one substantive turn, one =go=, one =then compact=,
-one interrupt, one /"sorry continue"/. **One substantive turn.** The denominator is written
-down so the thinness is visible rather than inferred — a short walk that says it is short
-is the method working, not the method failing.
+This fold covers 75–82: one =/compact=, the =--use= turn, one =go=, one =then compact=,
+one interrupt, one /"sorry continue"/, and /"ikiro mark this. then compact."/ — which
+arrived after the first version of this file was written and made it amend itself.
+**Two substantive turns.** The denominator is written down so the thinness is visible
+rather than inferred — a short walk that says it is short is the method working, not the
+method failing.
 
 * the beat — a flag its own commissioner could not see
 
@@ -81,6 +86,29 @@ schema, so it is invisible to help (it lives only in the valence prose) — and 
 spelling with the global mount flag =--ledger=<path>=. They are disambiguated only by
 ==== true= versus a string. Recorded, not touched.
 
+* a defect I announced, and then could not reproduce
+
+After the report, a stale background =deno task ghost/test= finished on =ok | 0 passed | 0
+failed= and =Restarting on file change=. I read =systems/ghost/deno.jsonc:14= — =--watch= plus
+an unquoted =tests/**/*.test.js= — and told beef the task was broken: glob expanded in the
+wrong cwd, zero files matched, /"reports green on nothing"/, one-line fix offered.
+
+/"ikiro mark this. then compact."/
+
+Marking it meant reproducing it, and it did not reproduce. =deno task test= inside
+=systems/ghost= and =deno task ghost/test= from the root both ran =create.test.js=,
+=help.wet.test.js=, =ledger.test.js=, the lot. The =0 passed= line was the watcher
+restarting because my own =Help.jsx= edits landed while it ran. The memory file
+=project_test_suite_baseline= had already said every =deno task test= is a watcher and a
+one-shot verdict is =deno test= called directly.
+
+So the mark that landed is not the one I announced. =codemap/invariants.md= now carries the
+true trap — every suite's task is a watcher, its tail is not a verdict, never background it —
+and =zettelkasten.md ## Callouts= carries the failure: the kernel's "no completion claims
+without fresh verification" is written for DONE and did not fire for BROKEN. A defect claim
+that beef orders into canon is a completion claim about a fact. Same rule, direction-blind.
+The =deno.jsonc= line is untouched: there was nothing to fix.
+
 * not mine — the parallel fold
 
 A sibling session landed the registry emigration (=ledger/tap= → =registry/tap=,
@@ -90,7 +118,7 @@ carries it. Noted here only so a future walk does not re-attribute it to this th
 
 * state at fold
 
-- =systems/ghost= — =77 passed (23 steps) / 0 failed=. =help.wet.test.js= 6/6.
+- =systems/ghost= — =77 passed (23 steps) / 0 failed= (one-shot =deno test -A= in the container dir; the task is a watcher). =help.wet.test.js= 6/6.
 - =viva instance/create --help= → =[source] [target] [--use]=.
 - README §3 and =50.01_slowstart= §3 both state the flag; everything uncommitted.
 

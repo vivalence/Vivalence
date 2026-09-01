@@ -17,14 +17,33 @@ const GROUPS = (rows) => {
 
 // what the instance still owes. the record holds one row per consumer SITE — right for the
 // doctor, wrong for a prompt — so one row per key here.
-const owed = () => {
+const owed = (rows) => {
   const held = new Map();
-  for (const row of paladin.check.environment(paladin.instance)) {
-    if (!row.value && !held.has(row.key)) held.set(row.key, row);
+  const wrong = (row) => paladin.check.wrong.includes(row.verdict);
+  for (const row of rows) {
+    if (row.value && row.verdict !== "INVALID") continue;
+    const prior = held.get(row.key);
+    if (!prior || (wrong(row) && !wrong(prior))) held.set(row.key, row);
   }
   // check reports verdicts, not values — the default lives in the schema the declaration exported.
-  const schema = paladin.instance.environment ?? {};
-  return GROUPS([...held.values()].map((row) => ({ ...row, default: schema[row.key]?.default ?? "" })));
+  const schema = paladin.instance.environment?.properties ?? {};
+  return GROUPS(
+    [...held.values()].map((row) => ({
+      ...row,
+      default:
+        row.verdict === "INVALID" && !row.key.startsWith("SECRET_")
+          ? row.value
+          : envfile.fallback(schema[row.key]),
+    })),
+  );
+};
+
+const invalidated = (rows) => {
+  const held = new Map();
+  for (const row of rows) {
+    if (row.verdict === "INVALID" && !held.has(row.key)) held.set(row.key, { key: row.key, reason: row.reason });
+  }
+  return [...held.values()];
 };
 
 const enroll = async () => {
@@ -46,39 +65,33 @@ const signup = async (values) => {
   }
 };
 
-const poll = async (username, password) => {
-  let refusal;
-  for (let attempt = 0; attempt < 30; attempt++) {
-    try {
-      return await signup({ username, password });
-    } catch (error) {
-      refusal = error;
-      await new Promise((resolve) => setTimeout(resolve, 1000));
-    }
-  }
-  throw refusal;
-};
-
 export async function init(ctx) {
-  if (!paladin.scope.instance) {
-    return (ctx.effect = { error: "no instance mounted — set VIVA_INSTANCE_MOUNT" });
-  }
-
-  const mount = paladin.scope.instance.absolute;
-  const file = paladin.scope.instance.branch(".env");
+  const mount = paladin.instance.home.absolute;
+  const file = paladin.instance.home.branch(".env");
   // remount, not mount: mount is fn.once, and init is the verb that must see current truth.
   await paladin.remount();
 
   // first run: author the .env from the schema — prose, groups and defaults — then only what is
   // still blank is worth asking a human. same move as ledger/init.
   const scaffolded = !(await paladin.read.text(file).catch(() => null));
-  if (scaffolded && Object.keys(paladin.instance.environment ?? {}).length) {
+  if (scaffolded && Object.keys(paladin.instance.environment?.properties ?? {}).length) {
     await paladin.state.text(file, envfile.scaffold(paladin.instance.environment));
     await paladin.remount();
   }
 
-  const pages = owed();
-  const fill = pages.flatMap((group) => group.fields.map((row) => row.key));
+  const rows = paladin.check.environment(paladin.instance);
+  const pages = owed(rows);
+  const fill = pages.flatMap((group) =>
+    group.fields.filter((row) => paladin.check.wrong.includes(row.verdict)).map((row) => row.key),
+  );
+  const invalid = invalidated(rows);
+  const incomplete = (env) => ({
+    mount,
+    env,
+    fill,
+    ...(invalid.length ? { invalid } : {}),
+    next: `fill ${file.absolute}, then: viva instance/init`,
+  });
 
   // written .env → fresh hydration, so the boot below sees the addresses just answered.
   const commit = async (values) => {
@@ -89,34 +102,35 @@ export async function init(ctx) {
 
   const [username, password] = ctx.signal.params ?? [];
   if (username && password) {
-    if (fill.length) return (ctx.effect = { mount, env: "incomplete", fill });
+    if (fill.length) return (ctx.effect = incomplete("incomplete"));
     const enrolled = await enroll();
-    const held = await paladin.ledger.boot(specs("all", { attachment: "piped", instance: enrolled.instance }));
+    const die = await paladin.ledger.boot(specs("all"), { instance: enrolled.instance, attachment: "piped" });
     try {
+      await die.integrate();
       ctx.effect = {
         mount,
         ...(enrolled.note ? { note: enrolled.note } : {}),
-        signup: await poll(username, password),
+        signup: await signup({ username, password }),
       };
     } finally {
-      await Promise.all(held.map((process) => process.kill()));
+      await die.disintegrate();
     }
     return;
   }
 
   if (!ctx.interactive || !ctx.view) {
     return (ctx.effect = fill.length
-      ? { mount, env: scaffolded ? "scaffolded" : "incomplete", fill, next: `fill ${file.absolute}, then: viva instance/init` }
+      ? incomplete(scaffolded ? "scaffolded" : "incomplete")
       : { mount, env: "present", next: "viva instance/init <username> <password>" });
   }
 
-  let held = [];
+  let die = null;
   const boot = async () => {
     const enrolled = await enroll();
-    held = await paladin.ledger.boot(specs("all", { attachment: "piped", instance: enrolled.instance }));
-    return held;
+    die = await paladin.ledger.boot(specs("all"), { instance: enrolled.instance, attachment: "piped" });
+    return die;
   };
-  const teardown = () => Promise.all(held.map((process) => process.kill()));
+  const teardown = () => die?.disintegrate() ?? Promise.resolve();
 
   ctx.effect = {
     mount,

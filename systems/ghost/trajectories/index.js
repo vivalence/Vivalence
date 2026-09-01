@@ -29,6 +29,7 @@ export default function (trajectory) {
         source: v.string().desc("slug | @owner/instance/slug | ../path — preset for the picker").optional(),
         target: v.string().desc("destination dir (defaults to <ledger>/instances/<slug>)").optional(),
         use: v.boolean().desc("select it for this shell once created, and record it on the shelf").optional(),
+        init: v.boolean().desc("run instance/init on it once created — seed .env, then the wizard (or headless report)").optional(),
       }),
     },
     instance.create,
@@ -49,9 +50,10 @@ export default function (trajectory) {
   trajectory.open(
     {
       nature: "/instance/run",
-      valence: "run the mounted instance attached (foreground)",
+      valence: "run the mounted instance attached (foreground) — exit 1 iff a child exits non-zero; --logged sends their output to <ledger>/logs/<slug>/",
       schema: v.object({
         process: v.string().desc("runtime | kajuit | all").optional(),
+        logged: v.boolean().desc("write child output to the ledger's logs instead of the terminal").optional(),
       }),
     },
     instance.run,
@@ -60,7 +62,7 @@ export default function (trajectory) {
   trajectory.open(
     {
       nature: "/instance/start",
-      valence: "start the mounted instance detached (background)",
+      valence: "start the mounted instance detached — a supervisor ghost runs it logged (instance/run --logged) and holds the lock",
       schema: v.object({
         process: v.string().desc("runtime | kajuit | all").optional(),
       }),
@@ -71,17 +73,28 @@ export default function (trajectory) {
   trajectory.open(
     {
       nature: "/instance/stop",
-      valence: "stop the mounted instance",
-      schema: v.object({
-        process: v.string().desc("runtime | kajuit | all").optional(),
-      }),
+      valence: "stop the mounted instance — SIGTERM its supervisor, wait for the lock to clear",
+      schema: v.object({}),
     },
     instance.stop,
   );
 
   trajectory.open(
     {
-      nature: "/instance/auth",
+      nature: "/instance/delete",
+      valence:
+        "remove an instance from this machine — record, dead locks, logs, the sessions that selected it, and the dir when it lives on the shelf (a tapped dir stays); refuses while running; asks unless --force",
+      schema: v.object({
+        target: v.string().desc("slug or path (defaults to the mounted instance)").optional(),
+        force: v.boolean().desc("skip the confirmation").optional(),
+      }),
+    },
+    instance.delete,
+  );
+
+  trajectory.open(
+    {
+      nature: "/instance/lighthouse",
       valence: "signup or login against the mounted instance's lighthouse",
       schema: v.object({
         action: v.string().desc("signup | login").optional(),
@@ -89,7 +102,7 @@ export default function (trajectory) {
         password: v.string().optional(),
       }),
     },
-    instance.auth,
+    instance.lighthouse,
   );
 
   trajectory.open(

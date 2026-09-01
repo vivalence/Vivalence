@@ -4,7 +4,7 @@ import { seed } from "../scenarios/fixtures.js";
 
 const { describe, it, expect } = specimen;
 
-const SNAPSHOTS = new URL("../../../../registry/fixtures/snapshots", import.meta.url).pathname;
+const SNAPSHOTS = new URL(".", import.meta.url).pathname;
 const FILE = "corpus.snapshot.json";
 const HOT = Deno.env.get("SNAPSHOT_HOT") === "1";
 
@@ -45,7 +45,7 @@ async function project(entities) {
   };
 }
 
-describe("@fixtures corpus is deterministic", () => {
+describe("@testing corpus is deterministic", () => {
   it("re-seed matches the frozen snapshot", async () => {
     const { entities, orm } = await seed();
     const pojo = await project(entities);

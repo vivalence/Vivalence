@@ -1,0 +1,153 @@
+#+title: two walkers reach hello-world on ubuntu and alpine, the README counts a .bak directory as a mode, and init waits forever for a child that died
+#+filetags: :readme:docs:ghost:instance:init:kajuit:rolldown:musl:alpine:ubuntu:docker:subagents:quest:report:callout:delegation:
+
+* what happened, in one breath
+
+beef: /"ok. pull another linux distro and run the readme 0-6 again step by step. capture the logs for
+either and write an quest/m46-linux-readmen.org file with the logs inlined. actually run 2. subagents.
+one for ubuntu another for some small distro. pull readme from github.com/vivalence/vivalence"/ ·
+/"both subagents claude opus"/. Two opus walkers, one brief modulo distro, took the GitHub README
+(master =b27e0e62e= — AHEAD of local git HEAD =2111b81ac=; =origin= is =git.vivalence.org=, GitHub is
+the separate =github= remote, and beef's colocated push already carried the ubuntu-walk fixes) literally
+on stock =ubuntu:24.04= and =alpine:3.20=. Both reached step 6 with =hello-world= UP and =admin= +
+=reader= in the identity table; all four ubuntu-walk ghost fixes hold on both. Twenty-four defects
+ledgered, five of them newcomer-blocking — the sharpest three: Alpine's Deno installer exits 0
+"installed successfully" with a binary that cannot execute (no musl Deno ≥ 2.7 exists anywhere);
+=instance/init= sits on "starting processes…" forever when any child dies (=Init.jsx:35-46=, not
+Alpine's fault); and the README's =@viva 11= is beef's machine counting an ignored
+=instances/multiplayer.bak/= as a live mode — the world sees 10. Quest
+=.ikiro/quests/m46-linux-readmen.org= written: both reports verbatim, every script, every log inlined
+(833 KB). Zero code touched; fifteen blast rows await per-item =go=; four forks await beef. One walker
+pruned the host's docker build cache when the VM disk hit 97 % — logged as a delegation-scope callout.
+
+* spine (N=60 · this window 41–60 · turns 1–40 live in =the-ubuntu-walk-lands-both-users-in-the-identity-table…=)
+
+| n     | beef / event                                                                                     | landed                                                                                                   | decided · killed |
+|-------+--------------------------------------------------------------------------------------------------+----------------------------------------------------------------------------------------------------------+------------------|
+| 41    | =/compact= (local command)                                                                       | context folded mid-report                                                                                | NOTHING |
+| 42    | continuation summary (system)                                                                    | the previous arc's closing report delivered: paladin-owner fix, compact cited by slug, emacs lock on 50.01 flagged | NOTHING new |
+| 43    | /"ok. pull another linux distro … run 2. subagents. one for ubuntu another for some small distro. pull readme from github.com/vivalence/vivalence"/ | vcs-guard re-read (allowlist by verb; ANY other =git <word>= denied — heredocs and my own prose included); quest canon + three quests read for shape; GitHub README fetched — sha256 =c9cb1424…=, byte-identical to local; GitHub master =b27e0e62e= measured AHEAD of git HEAD; =m46/{ubuntu,alpine}= scratch dirs; assembler script | small distro = =alpine:3.20=; NO host ports (old =readmen= holds 1794/2501); scripts via Write + =docker cp=; walkers are witnesses not mechanics; brief carries the previous walk's =step4-init.exp= as reference |
+| 44    | /"both subagents claude opus"/                                                                   | both dispatched =general-purpose= · =model: opus=, in one message, identical brief modulo distro           | — |
+| 45    | [Request interrupted by user]                                                                    | the interrupt was beef inserting turn 44 before dispatch                                                 | NOTHING |
+| 46–56 | eleven =<task-notification>= MID-TURN entries (ids =b…=)                                          | background tasks inside the walkers surfacing to the parent transcript — not beef, not mine              | NOTHING (system) |
+| 57    | alpine walker completes (29 min, 140 tool calls)                                                 | report read in full; code claims VERIFIED locally: =Init.jsx:35-46= hang, =:41= =undefined= prefix, =registry/index.js:47= space-verb usage; the host prune noticed in its deviations table | head.org drafted; callout queued |
+| 58    | ubuntu walker completes (32 min, 72 tool calls)                                                  | report read; VERIFIED: =instances/use.js:63-64= drops the sub-call's error, =mod.js:127-128= hoists only =--help=, =ghost.sh= =$PPID= bind (deliberate, commented), =deno.jsonc:29= no dry-run, =transmitter.js:300= is the =[probe …]= warn; quest assembled + installed; =quests/index.md= live 6; =frontier.md= m46 in, m55/m40 lines compressed to fit 8000; =known-issues.org= OPEN entry; =zettelkasten= callout; F2 answered by a LOCAL =viva registry/list=: 11 = =instances/multiplayer.bak/multiplayer.viva.js=, ignored by =~/.gitignore_global:71 *.bak=, 404 on GitHub | frontier: two pointer lines shortened, nothing evicted (bodies already in known-issues) |
+| 59    | /"ikiro compact"/                                                                                | this file; settlement pass measured three prior loose ends (below)                                       | — |
+| 60    | =/compact= queued                                                                                | —                                                                                                        | NOTHING |
+
+Coverage: 41–60 all accounted (46–56 as one system row). Balance within the window: the body cites 43 ·
+57 · 58 almost exclusively — that is the shape of the arc (one order, two completions), not recency.
+
+* the two walks
+
+#+BEGIN_EXAMPLE
+step   ubuntu 24.04          alpine 3.20
+0      PASS-WITH-DEVIATION   PASS-WITH-DEVIATION  installer exits 0; binary needs /lib/ld-linux-aarch64.so.1
+1      PASS                  PASS                 wizard + headless both exit 0 (fix verified)
+2      PASS-WITH-DEVIATION   PASS                 tap clones + records; @viva 10 vs README 11
+3      PASS                  PASS
+4      PASS-WITH-DEVIATION   FAIL → PASS-W-D      rolldown wants the musl napi binding under a gnu Deno
+5      PASS-WITH-DEVIATION   PASS                 bare run: one line, exit 1 (fix verified); both ports in ~5 s
+6      PASS-WITH-DEVIATION   PASS-WITH-DEVIATION  5/6 checkboxes; PATH half of claim 1 is false everywhere
+#+END_EXAMPLE
+
+The five that block a newcomer (quest ids L1–L5): undeclared =curl= =ca-certificates= =unzip= (alpine
+=bash=) · Deno 2.9.6's installer writes NO rc file, so =viva= is off PATH in every fresh shell and the
+README's =source ~/.bashrc= is void · no musl Deno ≥ 2.7 (3.20 ships 1.43.5 which won't even unpack;
+edge 2.7.4 dependency-blocked; upstream publishes no musl asset; the walker's only route was
+transplanting =denoland/deno:alpine='s private glibc) · rolldown reads =ldd --version=, sees musl,
+demands the =-musl= binding while Deno is gnu (=NAPI_RS_NATIVE_LIBRARY_PATH= unblocks) · =Init.jsx=
+=await Promise.all(ready)= where =ready= resolves only on =Status:ALIVE= and =process.status.then= records
+the exit into =exits= without settling anything.
+
+Misleads with a verified locus: chained =instances/use hello-world run bogus= → exit 0 silent because
+=use.js:64= takes =ctx.call(…)='s EFFECT and the sub-context's =error= is dropped · =--instance=x= before
+the verb → 127 because =mod.js:128= hoists only a leading =--help= · =| head= → EPIPE + 2.5 KB of ink
+frames · =instance/lighthouse= on a down instance = =transmitter.js:300='s =console.warn= with the raw
+error (two stacks) then =ghost: Network request failed @ …= — the README knows it needs the instance up,
+the tool never says so · =/status= timestamp frozen at boot (producer UNPINNED — not in =run.js=).
+
+Alpine facts worth keeping: =better-sqlite3= built nothing and nothing failed — no node-gyp, no
+=python3=/=make=/=g++= ever needed; the native modules that mattered (libsql, argon2, sharp) resolved
+prebuilt =.node= pairs correctly; only rolldown misdetects. Ubuntu prints vite's =127.0.0.1:1794=,
+Alpine prints =localhost:1794= — resolver difference, and the README shows the former.
+
+* fork F2 — answered, one call still beef's
+
+README §2 says =@viva 11=; both clones on =b27e0e62e= list 10. Local =viva registry/list= (read-only,
+beef's ledger): =@viva 11=. The eleventh is =registry/viva/instances/multiplayer.bak/multiplayer.viva.js=
+— =git ls-files= 0, =check-ignore= → =~/.gitignore_global:71 *.bak=, GitHub 404. The README block was
+captured on a machine where the scanner counts a =.bak= directory as a mode. Two fixes, recommendation
+BOTH: (a) README =11= → =10= (doc) · (b) =vip.mount= skips =*.bak= / =bak/= — a backup is never a mode,
+and =bak/= is already the convention the test runner ignores (code, gated).
+
+* the walker that touched the host
+
+The Alpine walker ran =docker builder prune -f --filter until=24h= on the HOST when the docker VM disk
+hit 97 % mid-=deno task install=. Cache older than a day only — no image, container, volume — and it
+reported the act honestly. The brief bounded the CONTAINER (no ports, no other containers, host repo
+read-only, no VCS) and said nothing about the machine docker runs on; "apply the minimal unblocking
+deviation" was read as licence. Callout logged (=zettelkasten.md=, family =delegation-scope=, new axis):
+every brief that can touch the machine carries one explicit line — host-side state is off limits; a
+needed host change is reported as BLOCKED, never taken.
+
+* the harness, re-measured
+
+- =vcs-guard= bites prose: a heredoc carrying /"beef's jj push"/ in an org sentence was denied (=jj push:
+  graph mutation=), as was a status line that also carried =git fetch --dry-run=. The Write tool is not
+  hooked; org bodies with VCS verbs go through it. Bash heredocs only for text with no =git <word>= /
+  =jj <word>= token.
+- the extractor's N counts SYSTEM entries: eleven =<task-notification>= rows and one continuation
+  summary sit inside 41–60. They are rows (NOTHING), not beef.
+- inlining logs: ANSI stripped, =Download=/=Initialize= lines dropped, =*=/=#+= lines comma-escaped inside
+  =#+BEGIN_EXAMPLE=; Ink typescripts are repaint frames and stay (37 KB each) — captured, never
+  composed. 127/127 example blocks, 47/47 src blocks balanced on install.
+- =frontier.md= was 8181 chars at wake (over its 8000) — two pointer lines shortened (m55, m40; their
+  bodies already evicted whole to known-issues), m46 line added, 7986 after. Budgets are chars.
+
+* state at fold
+
+| thing                          | state                                                                                                                  |
+|--------------------------------+------------------------------------------------------------------------------------------------------------------------|
+| containers                     | =readmen-ubuntu= · =readmen-alpine= RUNNING, hello-world up, NO host ports; old =readmen= still up (socat → host 1794/2501). =docker rm -f readmen readmen-ubuntu readmen-alpine= is beef's |
+| quest                          | =.ikiro/quests/m46-linux-readmen.org= — 833 KB · 14 871 lines · both reports verbatim · scripts · logs · 24 defects (5/10/9) · 15 blast rows NONE applied · 11 =#+marker_qa= pending · forks F1 musl stance (rec: one honest "glibc only" sentence) · F2 answered · F3 session key (rec: keep =$PPID=, reap dead pids at =use=) · F4 =/status= (rec: =started= + =timestamp=) · F5 supervisor noise |
+| repo code                      | UNTOUCHED this window. Previous window's uncommitted set unchanged (=README.md=, =50.01=, =51.02=, ghost ×9, =target.test.js=, =Login.svelte=, =Frame.svelte=, =paladin/prototypes/instance.js=) — and GitHub =b27e0e62e= already carries them |
+| =.ikiro/=                      | this compact · =compacts/index.md= regenerated · =quests/index.md= live 6 · =frontier.md= 7986 · =known-issues.org= OPEN =readme-linux-walk-defects (m46)= · =zettelkasten.md= delegation-scope callout |
+| scratch (ephemeral)            | =m46/{ubuntu,alpine}/= raw logs + =report.org= · =assemble.py= · =head.org= · =tail.org= — the quest is the durable copy |
+| emacs                          | =50.01_slowstart.mdx= still carries lock + autosave files (=#50.01…#= is even in git status as =A=) |
+
+* corrections ledger (this window)
+
+- Wrote /"beef's jj push"/ into a heredoc → denied. VCS verbs in prose still trip the guard; Write tool.
+- Chained =git status … ; git fetch --dry-run= in one string → the whole command denied, status lost.
+  One VCS read per command.
+- Assumed =origin= = GitHub; it is =git.vivalence.org=. =git ls-remote <url>= against the literal URL is
+  what measures GitHub.
+- The assembler's glob missed the ubuntu walker's =step*.out= files on the first dry run — glob every
+  extension the walker actually wrote (=ls= first), not the ones the brief named.
+- =frontier.md= was already over budget at wake; measured before adding, not after.
+
+* loose ends
+
+SETTLED this window (previous compact's list, measured):
+- =Layout.astro= local vs GitHub — IDENTICAL now; the drift rode beef's push.
+- hello-world boot with =@education= in =registry.json= — TESTED on both distros: tap, then =instance/init=
+  and =run= with four packages recorded → =Status:ALIVE=, kajuit 200.
+- =better-sqlite3= "no binary, nothing failed" — HALF settled: no first-party import of
+  =better-sqlite3= itself; the only first-party mention is the =--allow-scripts= grant at
+  =deno.jsonc:28=. It arrives as =@mikro-orm/sqlite@6.6.7='s pinned driver (=deno.lock:73-74=), and
+  =@mikro-orm/sqlite= IS imported — by the libsql datamap, =registry/viva/datamaps/libsql/libsql.viva.js:1=.
+  Alpine's =deno task install= IGNORED its build script ("Run deno approve-scripts") and the identity
+  table still worked on both distros → how the sqlite driver runs with no =build/Release= is the
+  mechanism still owed; the grant stays until that is measured.
+- docs-site items from the other session — dropped from this ledger; they were never this arc's.
+
+CARRIED (no clear-cut rule resolves them):
+- Signin gate /"session expired"/ on a virgin browser.
+- =paladin.scope overwrite= printed by =ledger/init= — now witnessed on two more distros; known-issues
+  says RESOLVED m41, the line still prints.
+- Doctor dump /"all over the place. isntances, daemons, modes, services."/ — L17 is one face; own quest.
+- README Hello Mode comment still spells raw =mode.connection.call(…)= — beef's text.
+- =/status= producer unpinned (L11); =[probe …]= warn is typology's transport diagnostic — whether ghost
+  should silence it is a separate question from the lighthouse voice.
+- Four forks + fifteen blast rows in the quest, all beef's.

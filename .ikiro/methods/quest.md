@@ -4,6 +4,8 @@ The persistent design surface maintained alongside beef (`**.ikiro/<name>.quest.
 
 ## Structure (an implementation quest carries)
 
+Header keys the report totem reads (`self/totems.md ## quest report`): `#+status:` prose (beef's voice, never edited by me; its keywords drive the phase) · `#+marker_qa:` verdicts (`pending → held | broken | revised`, plus DONE/DROPPED/PASSED as seen in practice) · optional authored overrides `#+phase:` `#+progress:` `#+next:` — the report stamps these three with a `(derived)` suffix; a value without the suffix is authored and wins.
+
 - **Intent** — what + why, the unifying idea in a few lines.
 - **The decision trail** — the locked design, each fork resolved with the reasoning that settled it (so it is not re-litigated next session). Quote beef verbatim at the load-bearing turns (`feedback_compact_verbatim_user_voice`).
 - **Milestones** — each `blast → test → land → test → blast`. A milestone must **boot green at its boundary** (see coupling rule below).

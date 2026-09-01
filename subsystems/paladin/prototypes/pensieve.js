@@ -19,6 +19,11 @@ export class Pensieve extends Map {
     if (!typeMap.has(slug)) typeMap.set(slug, new Map());
     const slugMap = typeMap.get(slug);
 
+    const held = slugMap.get(version);
+    if (held && held.mount?.absolute !== module.mount?.absolute)
+      throw new Error(
+        `[Pensieve] register: ${owner}/${type}/${slug}@${version} already registered from ${held.mount?.absolute} — a second declaration at ${module.mount?.absolute} would shadow it`,
+      );
     slugMap.set(version, module);
     return this;
   }

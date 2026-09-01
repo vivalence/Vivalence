@@ -1,0 +1,120 @@
+#+title: the quest is re-measured and two build-breakers die on paper — the url becomes RFC 3986, not our schemes — m48 lands under the blast-bracket across repo, shelf and tapped packages — and an invalid value is owed, not refused
+#+filetags: :m48:env:schematics:v:url:rfc3986:paladin:ghost:typology:blast-bracket:ledger:education:doctor:init:quest:sunset:report:
+
+* what happened, in one breath
+
+The session that compact 31 (=the-docs-are-read-whole…=) folded continued. beef ordered a second pass over the m48 quest — /"design and scope validation"/ — and the pass was done by script, not by reading: TypeBox's registered =url= format refuses =http://localhost:2501/= (a TLD is required), and =enhance= hands back the SETTER FUNCTION for an unset =.default=, so the scaffold as designed would have printed =(val) => enhance(…)= into a =.env=. Both died on paper. beef called the report /"horrible"/; the retry led with a verdict and three buckets, and the shape held for the rest of the session. He then ruled the address pattern: /"not for our case, but coherently universally true"/ — the http/ws pattern became the RFC 3986 grammar for a URI with an authority, any scheme, 0 mismatches on a 35-item corpus. The landing ran as a blast-bracket on his order: baselines on four suites, M1 → M2 → M3, the same suites after, live doctor on five instances, grep gates, re-blast. m47 landed under me between beats (=registry/= became =commons/=), the recipe was renamed twice, and the radius turned out to include six recipes under =~/.viva=. beef ruled those in scope — /"the entire local ledger … the repository and the various registry packages … all of that"/ — asked what an invalid value IS, then /"fix the invalid values in f five"/: an =INVALID= value is now OWED by =init= like a blank, the wizard re-asks it, headless names the reason. OpenRouter, ElevenLabs and Deepgram went =.optional()= (/"one hallucinator service … default to anthropic"/). The quest passed its sunset gate — 14 markers held, five release lines lifted — and moved to =done/=. m44 was checked against the same gate and failed it (10 pending, no release organ); it stays live.
+
+* the spine — every beef turn, oldest first
+
+| n | beef asked | what landed | decided / killed |
+|---+------------+-------------+------------------|
+| 1–18 | (the docs read, 13.01 cut, hello-world registry-first, =required: Boolean=, the m48 quest authored, the first compact) | covered whole by compact 31 (=the-docs-are-read-whole…=) | — |
+| 19 | =/compact= | NOTHING (fold) | — |
+| 20 | MID-TURN: /"do antoher pass at teh … m48-environment-schematics.org design and scope validation."/ | every terrain claim re-read from disk; every TypeBox claim re-run by =deno run --config deno.jsonc= scripts; quest rewritten in place (846 → 1097 lines): decisions 11–15, hydrate.test.js blast row, tangled suite's dropped case restored, paths after beef's =instance.viva.js= rename | CAUGHT: =IsUrl("http://localhost:2501/")= → false (TLD wanted); =typeof v.string().default= → "function" (setter leak) → =v.environment()= unwraps properties; Convert before Check (=v.convert=); per-key not whole-object (TypeBox puts =required= at path ""); no brand. F5 opened (init boots onto INVALID) |
+| 21 | continuation summary | NOTHING (context fold) | — |
+| 22 | /"horrible report. try again."/ | report re-cut: one-line verdict · FIXED IN QUEST / YOURS / NOTHING TO DO · raw stdout in code blocks · diffs as the body | KILLED: prose tables, narration between findings. Memory: contrastive append to =feedback_code_heavy_answers= |
+| 23 | MID-TURN: /"Okay. I like this change overall, but I want you to rethink the address pattern, build something that is not for our case, but coherencely universally true."/ | =^(https?|wss?)://\S+$= killed; RFC 3986 Appendix A, one production narrower (URI with an authority), constants named after the productions, in =schematics/scalars/url.js=; 35-item corpus incl. =libsql:// postgres:// file:/// [::1]= (pass) and =localhost:2501= =${…}= =http://h/${X}= =münchen= =#a#b= (fail): 0 mismatches | DECIDED: the trap (=localhost:2501= IS a URI, scheme =localhost=) is the grammar, so the universal statement is "has an authority", not "is http". =reg-name= may be empty → =file:///x= passes. New memory =feedback_universal_over_parochial= |
+| 24 | MID-TURN: /"Now I want you to run thorough testing before, uh, scope out the radius of all of the consumers of this and test them too, then run the change and do another round of testing."/ | =blast-bracket= skill invoked; five beats as tasks; beat 1 radius: repo readers + =.group=/=.default= readers + six =~/.viva= recipes exporting the old map (3 mount, 3 tapped) + a key-law census (every product env read is VIVA-prefixed) | DECIDED: this is the =go= for m48 |
+| 25 | the skill text (blast-bracket loaded) | beat 2 baselines: typology 122/480/1 (m45 red) · paladin 28/142 · ghost 81/26/1 (=strata.wet.test.js:93=, wet) · runtime 53/327/0 | recorded, not blamed |
+| 26 | notification: paladin baseline exit 0 | =28 passed (142 steps)= | NOTHING durable beyond the count |
+| 27 | notification: typology baseline exit 0 | =122 passed (480 steps) | 1 failed= | NOTHING |
+| 28 | notification: ghost baseline exit 0 | =81 passed (26 steps) | 1 failed= | NOTHING |
+| 29 | notification: runtime baseline exit 0 | =53 passed (327 steps)= | NOTHING |
+| 30 | notification: M1 typology gate | =122 passed (486 steps) | 1 failed= — same red, +6 | M1 held; M2 ran: instance.js (=usable= dead, flag-day guard), check.js (=invalid()= converts, =WRONG= published), envfile/init/doctor/ledger readers, tangled check suite (17), hydrate.test.js −1 case, ledger.test fixture, four recipes migrated by a generator (repo + 3 shelf, originals in the job tmp) |
+| 31 | notification: M2 ghost gate | =81 passed (26 steps) | 1 failed= — same red | paladin =28 passed (143 steps)=; snapshot: =usable= gone, =environment= = JSON schema with =required[8]=; bare-recipe doctor 10 REQUIRED / 0 INVALID; shelf hello-world 0 problems; italian + language-learning mount |
+| 32 | notification: docs build | =10 page(s) built= | M3: three README pastes byte-equal, four dead filenames gone, 51.02 fence + prose; recipe JWT =minLength: 24= restored (generator had dropped it) |
+| 33 | notification: runtime after | =53 passed (327 steps)= | live bad-=.env= probe: 8 INVALID — the reason was the 400-char regex → =v.url()= carries =title=, doctor says =must be <title>= on a =pattern= failure (decision 16). Grep gates held (two refined). Quest/memory/4 shards stamped |
+| 34 | MID-TURN: /"Work out the diff in the education instances and show me one complete. You have to consider the entire local ledger from... that's a development ledger and the repository and the the various registry packages and stuff. All of that are in scope for this process."/ | three dry diffs in the job tmp; italian shown complete (83 −/21 +); nothing else old-shape under =~/.viva= | DECIDED: flag-day radius = repo + ~/.viva shelf + tapped packages. New memory =feedback_flag_day_radius=. Flagged: =_PORT$= → =v.integer()=; no =.optional()= anywhere yet |
+| 35 | MID-TURN: /"And what value is invalid in f five?"/ | answered: a key SET in =.env= that fails its type after convert (=localhost:2501=, a 5-char JWT, ="eighty"= for a port); init today skips any row with a value and boots onto it | — |
+| 36 | MID-TURN: /"then fix the invalid values in f five."/ | F5 LANDED as OWED not refused: =owed()= keeps blank-or-INVALID rows, prefills the bad value (secrets excepted), hint = =describe — reason=, headless =env: incomplete= + =fill= + =invalid: [{key, reason}]=; ghost =ledger.test.js= third step; live probe six =invalid= rows | KILLED: the refusal diff from pass 2 |
+| 37 | MID-TURN: /"Open router eleven. We just need one service of type, um, one hallucinator service, I think. We can default to anthropic for now. then apply the change to the education instances."/ | three tapped =@education= recipes migrated (generator + =.optional()= on OPENROUTER + ELEVENLABS); same two lines on shelf italian + language-learning; all three templates mount under the doctor; italian shelf 6 → 4 required keys | DECIDED: anthropic = the one required hallucinator |
+| 38 | notification: ghost after F5 | =81 passed (26 steps) | 1 failed= — same red | quest fork 5 rewritten, ghost shard + frontier + memory stamped |
+| 39 | /"deepgram optional. ikiro compact. mark done as done."/ | DEEPGRAM =.optional()= in the five recipes (italian shelf now owes JWT · ANTHROPIC · SERVICE_NLP_KEY); compact ritual begun — =ls .ikiro/methods/= failed because the Bash cwd had drifted to =systems/ghost= | LESSON 7 |
+| 40 | =[Request interrupted by user]= (session renamed) | NOTHING | — |
+| 41 | /"deepgram optional. ikiro compact. mark done as done."/ (repeat) | this compact. Sunset gate walked: the two =pending= markers (=T-reference-cascade=, =T-optional-key-headless-init=) probed live → held; five release lines lifted verbatim into =release.md ## unreleased= (=### cli= section born); =mv= to =done/=; index 6 live / 72 done; frontier, ledger.md, memory restamped. m44 checked: 10 =pending=, no release organ → stays live | DECIDED: "done" = the gate, not the status line |
+
+Coverage: 41 of 41. Balance: of the ten beef turns that carry an order (20 · 22 · 23 · 24 · 34 · 35 · 36 · 37 · 39 · 41), six fall after row 34 — not recency: rows 26–33 are eight background pings, and the orders after 34 are where the session's second half was decided.
+
+* movements
+
+** I — the pass that measured instead of read (rows 20, 22)
+
+The quest as authored said TypeBox's =url= format was "registered by default so it is honest validation". Run, not read:
+
+#+BEGIN_EXAMPLE
+"http://localhost:2501/"     false
+"http://127.0.0.1:2501"      false
+"https://api.vivalence.org"  true
+unset .default typeof: function
+properties.B.default typeof: function
+#+END_EXAMPLE
+
+Two claims a blast would have discovered as red suites became decisions 11 and 12 on paper. The report of that pass was /"horrible"/ — a prose table, findings mixed with narration; the retry was a verdict line, three buckets, raw stdout, diffs, and beef moved on without a word. That silence is the acceptance.
+
+** II — universally true (row 23)
+
+beef: /"build something that is not for our case, but coherencely universally true."/ The http/ws pattern was OUR schemes. RFC 3986 Appendix A is everyone's. One production narrower than "URI" — the hier-part must be a network path — and =localhost:2501= fails for the right reason (no =//=), =${VIVA_RUNTIME_ORIGIN}/= fails because braces are outside the URI character set, =file:///x= passes because an empty =reg-name= is legal.
+
+#+BEGIN_SRC js
+export const PATTERN = `^${SCHEME}://${USERINFO}${HOST}${PORT}${PATH}${QUERY}${FRAGMENT}$`;
+export const url = (opts) =>
+  v.string({ pattern: PATTERN, title: "RFC 3986 URI with an authority (scheme://…)", ...opts });
+#+END_SRC
+
+=title= arrived at row 33: the doctor's reason column had printed the 400-character regex. JSON Schema already has the keyword for a short human name.
+
+** III — the bracket (rows 24–33)
+
+blast · test · change · test · blast, each beat a task. Beat 1 found what a repo grep never would: six recipes under =~/.viva= exporting the old map. Beat 2 recorded two reds that were not mine (the m45 hallucination snapshot, the =strata.wet= reap race) so beat 4 could say "same red" with a straight face. m47 landed under me between beats — =registry/= gone, =commons/= there, the snapshot test already pointing at it — and the quest's paths shifted for the second time in one session. Beat 4's live walk found the one defect the suites could not (the regex-as-reason), and beat 5's gates held with two refinements (a bare =required:= grep hits the doctor's ROW field; =usable= survives in one SUPERSEDED comment).
+
+| suite | before | after |
+|-------+--------+-------|
+| typology | 122 passed (480) / 1 failed | 122 passed (486) / 1 failed — same red |
+| paladin | 28 passed (142) | 28 passed (143) |
+| ghost | 81 passed (26) / 1 failed | 81 passed (26) / 1 failed — same red |
+| runtime | 53 passed (327) | 53 passed (327) |
+
+** IV — the whole machine, and an owed value (rows 34–38)
+
+/"All of that are in scope for this process."/ The tapped =@education= templates I had filed as "another repository, beef's" are the same system as the checkout; a flag-day that stops at the repo boundary leaves them throwing on their first =instance/create=. Diffs dry, one shown complete, then /"apply"/ with the optionality ruled: one hallucinator secret required (anthropic), OpenRouter and ElevenLabs optional, Deepgram optional a turn later.
+
+F5 had been designed as a refusal. /"fix the invalid values"/ turned it into the better design: =owed()= already asks for what is missing, and a wrong value is missing a right one.
+
+#+BEGIN_SRC diff
+-    if (row.value) continue;
++    if (row.value && row.verdict !== "INVALID") continue;
+#+END_SRC
+
+** V — done as done (rows 39–41)
+
+The sunset gate is not the status line. Two markers still read =pending=; both were walked live before the =mv= — the reference cascade turned out to be FIVE rows for one cause (every derived address goes =INVALID= when =ORIGIN= is blank), and the optional key gates nothing (=env: present=). m44 asked the same question and answered no: ten =pending= markers, no =* release= organ. It stays live.
+
+* lessons
+
+1. *A library claim is measured by script, never read.* =IsUrl= wants a TLD; the quest had "registered by default, honest validation" in its decision trail. Two build-breakers found by =deno run= before a line was blasted.
+2. *=enhance= is dual-role.* =.default= / =.$id= / =.group= return the keyword when set and the SETTER when unset. Any reader of a proxied schema's keywords unwraps first (=v.environment= does) or tests with ="default" in held=. Stamped in the typology and schematics shards.
+3. *Universal over parochial.* A validator encodes the standard, narrowed to the production wanted, with constants named after the standard's productions; the "trap" is usually the standard being right.
+4. *Every beat re-measures.* m47 landed mid-blast; the recipe was renamed twice; the quest's paths rotted between authoring and landing. The bracket's beat 5 exists for this.
+5. *The report form that survived "horrible":* a verdict line, FIXED / YOURS / NOTHING buckets, raw stdout blocks, diffs as the body. Prose tables are dead.
+6. *A fork answered with "fix" is a design instruction.* Refusing was the weaker design; owing was already the wizard's grammar.
+7. *Bash cwd persists across calls.* A =cd container && deno test= leaves the next call in the container; =ls .ikiro/methods/= said "No such file or directory". Subshells or absolute paths. Logged in loop-backlog.
+8. *Done is the gate.* Markers settled, release lines lifted, then =mv=. A quest whose status line says LANDED but whose markers say =pending= is not done; m44 is the standing example.
+
+* state at fold
+
+- *repo, uncommitted (beef's):* typology 6 files (=v.js= · =scalars/url.js= · =scalars/index.js= · =primitives/environment.js= · =primitives/index.js= · =schematics/index.js= · =tests/v.test.js=) · paladin 4 (=instance.js= · =check.js= · =tests/check.environment.test.js= · =tests/hydrate.test.js= · snapshot json) · ghost 6 (=envfile.js= · =init.js= · =Init.jsx= · =doctor.js= · =ledger/index.js= · =tests/ledger.test.js=) · =commons/instances/hello-world/instance.viva.js= · =README.md= · =51.02= · =release.md= (+5 lines, =### cli= born) · =.ikiro/*=.
+- *~/.viva, written (no VCS):* shelf =hello-world= · =italian= · =language-learning/test.viva.js= and the tapped =registry/education/instances/{italian,spanish,brazilian}= — all on =v.environment=, OPENROUTER/ELEVENLABS/DEEPGRAM optional. Originals: =$CLAUDE_JOB_DIR/tmp/{shelf-before,education-before}/=. The education checkout is a second repository beef commits separately.
+- *quest:* =quests/done/m48-environment-schematics.org= — 14 markers held, fork 5 rewritten, changelog carries every count.
+- *suites:* typology 122/486/1 (m45 red) · paladin 28/147 (beef's concurrent =resolve(reference)= tests, 143 were m48's) · ghost 81/26/1 (wet reap race) · runtime 53/327/0 · docs 10 pages.
+- *memory:* =project_environment_schematics= (DONE) · NEW =feedback_universal_over_parochial= · NEW =feedback_flag_day_radius= · =feedback_code_heavy_answers= (contrastive append) · index lines. Shards: typology · typology/schematics · paladin · ghost · ledger.md · frontier (6,229 → under budget).
+
+* open
+
+Settled this compact (a landed rule resolved them): F5 (landed as owed) · the tapped education recipes (migrated on beef's scope ruling) · DEEPGRAM (optional) · the two =pending= markers (walked live) · the release lift (=### cli= section created).
+
+Carried, beef's:
+- commit ×2 — the repo and the =~/.viva/registry/education= checkout.
+- =m44-authoritative-slugs= — landed and green by its status line, but 10 =pending= markers and no =* release= organ: a marker walk + release lines before it can move to =done/=.
+- from compact 31, still open: the 13.01 cut in =tmp.md= (unapplied), the README =## Instance= stub, 50.01 slowstart staleness, the docs drift list.
+- =strata.wet.test.js:93= "two shells select two instances in parallel" — red on every run today, a wet reap race, pre-existing (m49's baseline names it).

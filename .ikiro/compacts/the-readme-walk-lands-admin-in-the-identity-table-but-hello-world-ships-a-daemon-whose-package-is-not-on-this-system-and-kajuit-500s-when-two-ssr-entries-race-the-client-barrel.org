@@ -1,0 +1,159 @@
+#+title: the readme walk lands admin in the identity table, but hello-world ships a daemon whose package is not on this system, and kajuit 500s when two ssr entries race the client barrel
+#+filetags: :readme:ghost:instance:registry:kajuit:telemetry:typology:vite:ssr:known-issue:report:
+
+* what happened, in one breath
+
+beef: /"pull github.com/vivalence/vivalence and run through the readme until you have a
+running instance with user signed up (sql direct lookup)"/. A clean Linux box, deno 2.9.6,
+the README's five steps walked verbatim. Steps 0–2 land. Step 3's =hello-world= recipe does
+not boot as shipped — its =education= daemon names =@education/*=, a package that is on
+neither this system, the repo, nor any public vivalence remote. With =education= dropped
+from =daemons=, =instance/init admin …= signs the admin up (=status SUCCESS=), the row is in
+=lighthouse.viva.db → Identity= (argon2id), and =/auth/login= answers with tokens. Then the
+second defect: the kajuit dev server 500s every route with =Cannot read properties of
+undefined (reading 'chronicle')= at =src/telemetry/logger.js:6= — reproduced deterministically
+as an SSR module-runner race between =+page.svelte= and =+layout.svelte= over the typology
+client barrel. This is a REPORT, not a fix: no ruling was given, nothing was patched beyond
+the one recipe edit needed to keep walking. Two beef turns, both accounted.
+
+* spine (N=2)
+
+| n | beef asked (verbatim)                                                                                                | landed                                                        | decided/killed                     |
+| 1 | /"pull github.com/vivalence/vivalence and run through the readme until you have a running instance with user signed up (sql direct lookup)"/ | runtime ALIVE · admin in =Identity= · login green · kajuit 500 | =education= dropped from hello-world (working edit, mine, uncommitted) |
+| 2 | /"write me a ikiro compact that reports the issue. questy compact. report"/                                          | this file · index regenerated                                | no fix landed — proposals only     |
+
+* the walk — README quickstart, step by step
+
+| step                         | verdict | note                                                                                          |
+| 0 =curl deno.land/install.sh= | DEVIATED | installer fails behind an egress proxy (=URL rejected: Malformed input=); fetched the GitHub release zip by hand — not a repo bug |
+| 0 =deno task install=        | HALF     | =better-sqlite3= + =argon2= build scripts IGNORED (only =sqlite3,svelte-preprocess= are allowed); re-ran with =--allow-scripts=npm:better-sqlite3,npm:argon2=. argon2 prebuild landed — signup hashing depends on it |
+| 1 =ledger/init=              | GREEN    | =~/.viva= scaffolded; doctor as documented (=✗ instance —=)                                    |
+| 2 =registry/tap registry/viva= | GREEN  | already auto-tapped: =@viva= 10 · =@fixtures= 3 · =@playground= 10 — tap is idempotent          |
+| 3 =instance/create … --use=  | GREEN    | shelf + session bind fine. =--use= binds by =$PPID=; every non-interactive shell is a fresh pid, so =VIVA_INSTANCE_MOUNT= had to be exported explicitly — expected, not a bug |
+| 4 =instance/init <u> <p>=    | RED→GREEN | (a) refuses with =env incomplete= until ALL six secrets are non-empty — filled JWT + NLP key with random bytes, four API keys with placeholders. (b) runtime dies: =[VIP] package @education not supplied on this system= → ISSUE 1. (c) after the recipe edit: SUCCESS. The 30×1s poll barely covers a cold compile; the stack traces it prints before success are connection-refused retries, not failures |
+| 5 =instance/run=             | HALF     | =runtime=8924 kajuit=8925= shape reproduced; runtime =Status:ALIVE=; vite ready; =GET /= → 500 → ISSUE 2 |
+
+* the proof beef asked for — sql direct lookup
+
+=~/.viva/instances/hello-world/mountpoint/service_multiplayer/lighthouse.viva.db=
+
+#+begin_example
+tables: _mikro_migrations · sqlite_sequence · Daemon · Identity
+Identity  id=01a05dbd-2062-70d2-9124-4cde1e07d5df  slug=admin
+          authentication={"provider":"password",
+            "credentials":{"username":"admin","password":"$argon2id$v=19$m=65536,t=3,p=4$…"},
+            "tokens":{"access":"eyJ…","refresh":"eyJ…"}}
+Daemon    slug=playground  url=http://localhost:2501/daemon/playground
+POST …/attached/process/lighthouse/multiplayer/auth/login {admin,…} → {"status":"SUCCESS","authority":{…}}
+#+end_example
+
+Tokens are persisted in the row alongside the hash. Noted, not judged.
+
+* issue 1 — hello-world names a package the system cannot supply
+
+=registry/viva/instances/hello-world/education.js= kernel: =@education/domain/language-learning=,
+=@education/topology/{word,sentence,conjugation}=, =@education/topography/english-to-brazilian=,
+=@education/game/{riddler,dojo,judge,match,cloze,exhibit,nyan}=, =@education/tactic/{clinic,
+five-fold-session}=, =@education/teacher/francesca=, =@education/dashboard/dataspace=. Plus a
+hard dependency on the stanza NLP service (=VIVA_SERVICE_NLP_REMOTE=, docker).
+
+Supply check: repo registry holds =viva · fixtures · playground= only. =github.com/vivalence/
+education= → 404. =awesome-vivalence= → 200 but empty (no README). =starter/multiplayer.viva.js=
+has the same =@education= list. So the README's step-3 promise — /"Open http://localhost:1794,
+log in … and you're inside"/ — cannot be kept by a reader with only the public repo.
+
+Working edit (mine, on the SHELF copy, not the registry): =daemons = [playground]=, the
+=education= import removed. =playground= carries all its modes and boots clean.
+
+Shapes the fix could take (beef's call, none ruled): (a) publish =@education= and let the
+README's =registry/tap= step tap it; (b) ship hello-world with =playground= only and move the
+education instance to a second recipe the README calls by name; (c) a =hello-world= that is
+literally the README's =registry/dummy= mode. Doctor could also say it earlier:
+=instance/doctor= at step 3 would surface the unsupplied owner before the first boot dies.
+
+* issue 2 — kajuit 500: =trace= is undefined when two SSR entries race the barrel
+
+Symptom, every route:
+#+begin_example
+[500] GET /
+TypeError: Cannot read properties of undefined (reading 'chronicle')
+    at eval (src/telemetry/logger.js, <anonymous>:13:75)      ← $story = atom(trace.chronicle.seed())
+    … module-runner.js … at async eval (src/telemetry/index.js, <anonymous>:5:31)
+#+end_example
+
+Facts established with =createServer().ssrLoadModule= against the real =vite.config.mjs=:
+
+- =@vivalence/typology= (alias → =subsystems/typology/mod.client.js=) loaded FIRST: =trace= is an
+  object, 84 keys; =logger.js=, =index.js=, =+page.svelte= then all load OK.
+- Each of =+page.svelte= · =+layout.svelte= · =telemetry/index.js= · =logger.js= · =mod.client.js=
+  loaded ALONE, cold: OK.
+- =Promise.allSettled([+layout, +page])=: OK OK.
+- =Promise.allSettled([+page, +layout])=: ERR ERR, both =reading 'chronicle'=. Deterministic.
+
+Mechanism: the module runner is mid-evaluation of the client barrel chain (=mod.client.js →
+gestalten/index.client.js → belt/index.js → export * as trace=) on one entry's path when the
+other entry reaches =logger.js=; =export *= re-export namespaces are populated as the
+re-exporting module finishes, so =logger.js= reads =trace= from a barrel that is not done
+and does WORK at module scope (=atom(trace.chronicle.seed())=). SvelteKit dev loads layout
+and page in parallel, which is exactly the losing order. Deno runs the same graph green — the
+same "module runner's choice" law =known-issues.org= already records under
+=typology-internals-import-their-own-barrel= and =typology-client-barrel-tdz= (the client chain
+has a known TDZ cycle; this is that cycle biting a DOWNSTREAM consumer through timing rather
+than through a typology-internal read).
+
+Provenance: the six-line =logger.js= landed in the previous compact (/"the telemetry family
+moves in behind two doors"/), whose own fold notes /"LIVE-UNVERIFIED in a real browser"/. This
+is the live verification.
+
+Fix candidates — proposals, none applied, none ruled:
+- =src/app/+layout.js= with =export const ssr = false=. kajuit is =adapter-static= with a
+  =200.html= fallback — an SPA. Dev SSR of an app whose modules assume a browser buys nothing
+  and is the only place this race exists. Smallest change, closes the surface, not the class.
+- The repo's memoized-thunk idiom (=schematics/prototypes/yield.js=; standing valid per the
+  ruling): =$story= seeded lazily on first use rather than at module scope. Closes the class
+  for this file; cuts against the "settled six lines".
+- Import =trace= from =gestalten/belt/trace.js= directly in =logger.js=. Cuts against
+  =feedback_import_through_barrel= — beef's to waive, not mine.
+
+* smaller findings, filed
+
+- =deno task dependencies= allow-list is short by two: =better-sqlite3=, =argon2=. Without argon2's
+  prebuild the lighthouse cannot hash a password; the README does not mention =approve-scripts=.
+- =instance/init <user> <pass>= has no non-interactive path past blank secrets — it prints
+  =fill …= and exits. A headless reader must edit =.env= by hand; the wizard-only branch knows how.
+- =PPID= session binding is correct and documented, but every =viva= invoked from a one-shot
+  shell (CI, agents, =nohup=) is a fresh session; =VIVA_INSTANCE_MOUNT= export is the
+  workaround and works.
+- Background children did not survive the invoking shell here; =setsid nohup viva instance/run=
+  did. =instance/start= (detached) untested.
+- =env scaffold= writes =SECRET_*=""= — six blanks the wizard then asks for. Fine interactively.
+
+* state at fold
+
+| thing                         | state                                                                  |
+| ledger                        | =~/.viva= · doctor green except instance-level warnings                 |
+| instance hello-world          | SHELF copy edited: =daemons=[playground]= · uncommitted, local only      |
+| runtime :2501                 | ALIVE · lighthouse multiplayer · playground daemon registered           |
+| identity admin                | IN THE TABLE · login green · tokens issued                             |
+| kajuit :1794                  | vite up · every route 500 · issue 2                                    |
+| =@education=                  | NOT SUPPLIED anywhere reachable · issue 1                              |
+| =.ikiro/compacts/index.md=    | regenerated by the method's generator, count checked                   |
+| box                           | Linux sandbox; ports not reachable from outside; browser step skipped   |
+
+* corrections ledger (this session)
+
+- Read the error before blaming the poll: the first =init= "failure" was 30 connection-refused
+  retries printed above a SUCCESS. The output shape invites misreading; I misread it once.
+- =viva instance/init= with no =VIVA_INSTANCE_MOUNT= says =no instance mounted= even one
+  command after =--use= — my shell, not the tool. Corrected by exporting the mount.
+- I first suspected the =export *= chain itself dropped =trace=; cold single-entry loads proved
+  the chain sound. The defect is ORDER under concurrency, and only the two-entry probe showed it.
+
+* loose ends, open
+
+- Whether =mod.client.js= is aliased-and-load-bearing or dead (=typology-client-barrel-tdz= asked
+  this; still unanswered). It is load-bearing: the vite alias points at it, and this bug rides it.
+- =instance/start= detached path unexercised.
+- No browser reached kajuit; the boot screen after a green =/= is unverified here.
+- The shelf edit is not a patch to =registry/viva/instances/hello-world/=; the registry recipe is
+  untouched and still does not boot on a public-only system.

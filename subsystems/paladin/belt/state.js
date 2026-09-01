@@ -17,14 +17,18 @@ export default function state(paladin) {
       await parent(file);
       await Deno.writeTextFile(file, JSON.stringify(data, null, 2));
     },
+    line: (key, value) => (value == null || value === "" ? `# ${key}=""` : `${key}="${value}"`),
     // upsert by LINE: a .env is authored, so its comments and ordering are content.
     env: async (path, bag) => {
       const file = resolve(path);
       await parent(file);
       let text = (await Deno.readTextFile(file).catch(() => null)) ?? "";
       for (const [key, value] of Object.entries(bag)) {
-        const line = `${key}="${value}"`;
-        const held = new RegExp(`^[ \\t]*(?:export[ \\t]+)?${key}[ \\t]*=.*$`, "m");
+        const line = paladin.state.line(key, value);
+        const held = new RegExp(
+          `^[ \\t]*(?:(?:export[ \\t]+)?${key}[ \\t]*=.*|#[ \\t]*${key}[ \\t]*=[ \\t]*(?:""|'')?[ \\t]*)$`,
+          "m",
+        );
         const tail = text ? text.replace(/\n*$/, "\n") : "";
         text = held.test(text) ? text.replace(held, () => line) : `${tail}${line}\n`;
       }

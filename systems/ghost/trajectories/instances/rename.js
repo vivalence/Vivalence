@@ -12,29 +12,17 @@ export async function rename(ctx) {
     return (ctx.effect = { error: `instances: '${next}' already held` });
   }
 
-  const locks = paladin.scope.ledger.branch("locks").absolute;
-  const prefix = `${prior}_`;
-  const carried = [];
-  for await (const entry of Deno.readDir(locks)) {
-    if (!entry.name.startsWith(prefix) || !entry.name.endsWith(".lock")) continue;
-    const process = entry.name.slice(prefix.length, -".lock".length);
-    if (await paladin.ledger.lock(prior, process).alive()) {
-      return (ctx.effect = { error: `'${prior}' is running (${process}) — stop it first` });
-    }
-    carried.push(entry.name);
+  const lock = await paladin.ledger.lock(prior).read();
+  if (lock) {
+    return (ctx.effect = { error: `'${prior}' is running (supervisor ${lock.pid}) — stop it first` });
   }
 
   await paladin.ledger.instances.rename(prior, next);
-
-  for (const name of carried) {
-    await Deno.rename(`${locks}/${name}`, `${locks}/${next}_${name.slice(prefix.length)}`);
-  }
   const logs = paladin.scope.ledger.branch("logs").absolute;
   const history = await Deno.rename(`${logs}/${prior}`, `${logs}/${next}`).then(() => true, () => false);
 
   ctx.effect = {
     renamed: { [prior]: next },
-    locks: carried.length,
     logs: history,
     record: await paladin.ledger.instances.list(),
   };

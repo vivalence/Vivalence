@@ -10,17 +10,17 @@ Sessions resume cold. Without a snapshot, every resumption costs a re-walk of `.
 
 ### 1. Methodology surface
 
-**Identity** — `.ikiro/claude.md` line count + subsystem claude.md presence per container (typology, paladin, runtime, registry, kajuit, ghost, dapper; flag missing).
+**Identity** — `.ikiro/ikiro.md` line count + subsystem ikiro.md presence per container (typology, paladin, runtime, registry, kajuit, ghost, dapper; flag missing).
 
-**Methods** — bullet list from root `.ikiro/claude.md ## methods` plus any inline-defined method recipes.
+**Methods** — bullet list from root `.ikiro/ikiro.md ## methods` plus any inline-defined method recipes.
 
-**Traits + ledger profiles** — registry from root claude.md `## traits`. Note any new entries since last overview.
+**Traits + ledger profiles** — registry from root ikiro.md `## traits`. Note any new entries since last overview.
 
 **Totems** — [[totems]] in `self/`; the `totems/` directory was cut (its one 4-quadrant file folded away).
 
 **Skills** — files / dirs under `.ikiro/skills/`. Flag any that aren't wired (symlink missing in `.claude/skills/`).
 
-**Anti-rationalization patterns** — count of items in root claude.md `### anti-rationalization`.
+**Anti-rationalization patterns** — count of items in root ikiro.md `### anti-rationalization`.
 
 ### 2. State numbers
 
@@ -59,7 +59,7 @@ Sessions resume cold. Without a snapshot, every resumption costs a re-walk of `.
 - callout count (zettelkasten `### YYYY-MM-DD` retard entries, total + last 7d)
 - DESIGN quests untouched >30d (candidates for archive or revive)
 - DONE quests not yet migrated to bak/
-- subsystem `.ikiro/CLAUDE.md` presence (missing = gap)
+- subsystem `.ikiro/ikiro.md` presence (missing = gap)
 - tests in `tests/quest/` staging dir (candidates for flat promotion)
 
 ### 3. Forward look (optional, short)
@@ -79,7 +79,7 @@ Sessions resume cold. Without a snapshot, every resumption costs a re-walk of `.
 | Rate of change | `jj log -r 'trunk()..@ | @..trunk() | trunk()' --no-graph --limit 50` (read-only) |
 | Memory files | `ls ~/.claude/projects/-Users-finn-vivalence-code-vivalence/memory/*.md \| wc -l` |
 | Zettelkasten | `wc -l .ikiro/zettelkasten.md` + `grep -c "^### 20" .ikiro/zettelkasten.md` |
-| Subsystem claude.md presence | `find subsystems systems registry -name CLAUDE.md -o -name claude.md` |
+| Subsystem ikiro.md presence | `find subsystems systems registry -name ikiro.md -o -name ikiro.md` |
 
 Every data source above is read-only. **No mutations.** No jj graph ops.
 

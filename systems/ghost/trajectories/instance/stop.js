@@ -1,22 +1,26 @@
 import paladin from "@vivalence/paladin";
-import { specs } from "./target.js";
+import { until } from "./target.js";
 
 export async function stop(ctx) {
-  const held = await paladin.ledger.instances.lookup(paladin.scope.instance.absolute);
-  const chosen = specs(ctx.signal.params[0], { instance: held?.slug ?? null });
-  const instance = chosen[0]?.instance;
+  const mount = paladin.instance.home.absolute;
+  const held = await paladin.ledger.instances.lookup(mount);
+  if (!held) throw new Error(`instance: mount not registered — viva instances/tap ${mount} --slug=<slug>`);
 
-  const killed = [];
-  for (const spec of chosen) {
-    const pid = await paladin.ledger.kill(spec.instance, spec.process);
-    if (pid !== null) killed.push({ process: spec.process, pid });
+  const lock = await paladin.ledger.lock(held.slug).read();
+  if (!lock) {
+    console.log(`ghost: ${held.slug} not running`);
+    return (ctx.effect = { status: "nothing-to-stop", instance: held.slug });
   }
 
-  console.log(
-    killed.length
-      ? `ghost: stopped ${instance} (${killed.map((entry) => `${entry.process}=${entry.pid}`).join(", ")})`
-      : `ghost: ${instance} not running`,
-  );
-
-  ctx.effect = { status: killed.length ? "stopped" : "nothing-to-stop", instance, killed: killed.length };
+  Deno.kill(lock.pid, "SIGTERM");
+  const gone = await until(async () => ((await paladin.ledger.lock(held.slug).read()) === null ? true : null), 15_000);
+  const processes = lock.processes.map((entry) => `${entry.process}=${entry.pid}`).join(", ");
+  ctx.effect = {
+    status: gone ? "stopped" : "still-running",
+    instance: held.slug,
+    supervisor: lock.pid,
+    processes: lock.processes,
+  };
+  if (!gone) throw new Error(`${held.slug}: supervisor ${lock.pid} still holds the lock after 15 s (${processes})`);
+  console.log(`ghost: stopped ${held.slug} (supervisor ${lock.pid}: ${processes})`);
 }

@@ -1,3 +1,7 @@
+import { v } from "@vivalence/typology";
+
+const WRONG = ["UNDOCUMENTED", "REQUIRED", "INVALID"];
+
 export default function check(config) {
   const createResult = (issues, input) => {
     const result = Array.isArray(issues) ? issues : [issues];
@@ -45,30 +49,52 @@ export default function check(config) {
 
   // the authored schema against what the thunks were observed to read.
   const environment = (instance) => {
-    const schema = instance.environment ?? {};
+    const schema = instance.environment?.properties ?? {};
     const rows = [];
     const seen = new Set();
 
     // a secret is reported as PRESENT or absent, never as itself. everything else shows the
     // RESOLVED value — the raw ${...} source text is already in the scope's own vars.
+    const raw = (key) => (key.startsWith("SECRET_") ? config.secret.get(key) : config.env.get(key));
     const reading = (key) =>
       key.startsWith("SECRET_")
         ? { value: config.secret.get(key) ? "***" : null, stratum: config.secret.provenance(key) }
         : { value: config.env.get(key), stratum: config.env.provenance(key) };
+    const blank = (value) => value === null || value === undefined || value === "";
+    const invalid = (key) => {
+      const held = schema[key];
+      const value = raw(key);
+      if (!held || blank(value)) return null;
+      const failure = [...v.errors(held, v.convert(held, value))][0];
+      if (!failure) return null;
+      return failure.keyword === "pattern" && held.title ? `must be ${held.title}` : failure.message;
+    };
+    const row = (key, at, held) => ({
+      key,
+      at,
+      ...reading(key),
+      describe: held?.description ?? null,
+      group: held?.group ?? null,
+      required: held ? !v.isOptional(held) : null,
+      reason: invalid(key),
+    });
+    const verdict = (held, unset, reason) =>
+      !held
+        ? "UNDOCUMENTED"
+        : !unset
+          ? reason
+            ? "INVALID"
+            : "ok"
+          : v.isOptional(held)
+            ? "optional"
+            : "REQUIRED";
 
     for (const entry of instance.requirements ?? []) {
       for (const key of entry.read) {
         seen.add(key);
         const held = schema[key];
-        const unset = entry.unset.includes(key);
-        rows.push({
-          key,
-          at: entry.at,
-          ...reading(key),
-          describe: schema[key]?.describe ?? null,
-          group: schema[key]?.group ?? null,
-          verdict: !held ? "UNDOCUMENTED" : !unset ? "ok" : entry.usable ? "optional" : "REQUIRED",
-        });
+        const shaped = row(key, entry.at, held);
+        rows.push({ ...shaped, verdict: verdict(held, entry.unset.includes(key), shaped.reason) });
       }
     }
 
@@ -80,25 +106,28 @@ export default function check(config) {
     // }
     // rows.fails = rows.some((row) => ["UNDOCUMENTED", "UNREAD", "REQUIRED"].includes(row.verdict));
 
-    for (const [key, entry] of Object.entries(schema)) {
+    for (const [key, held] of Object.entries(schema)) {
       if (seen.has(key)) continue;
+      const shaped = row(key, null, held);
+      const unset = blank(raw(key));
       rows.push({
-        key,
-        at: null,
-        ...reading(key),
-        describe: entry.describe ?? null,
-        group: entry.group ?? null,
-        verdict: "documented",
+        ...shaped,
+        verdict: shaped.reason
+          ? "INVALID"
+          : unset && !v.isOptional(held)
+            ? "REQUIRED"
+            : "documented",
       });
     }
 
     rows.sort((a, b) => a.key.localeCompare(b.key) || (a.at ?? "").localeCompare(b.at ?? ""));
-    rows.fails = rows.some((row) => ["UNDOCUMENTED", "REQUIRED"].includes(row.verdict));
+    rows.fails = rows.some((held) => WRONG.includes(held.verdict));
     return rows;
   };
 
   config.check = {
     environment,
+    wrong: WRONG,
     env: (input) => {
       const keys = Array.isArray(input) ? input : [input];
       const issues = keys.map(envValidator).filter(Boolean);

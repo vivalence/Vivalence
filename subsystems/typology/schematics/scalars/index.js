@@ -1,5 +1,7 @@
 import { v } from "../v.js";
 
+export * from "./url.js";
+
 export const ID = v.string({ minLength: 1 }).desc("Unique identifier (UUID)");
 
 export const slug = (opts) => v.string({ pattern: "^[a-z0-9]+(?:-[a-z0-9]+)*$", ...opts }).desc("URL-compliant identifier");

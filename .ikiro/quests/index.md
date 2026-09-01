@@ -1,16 +1,14 @@
 # Quest Index
 
-> Derived — regenerate at every sunset/revival (`skills/quest-lifecycle/`). Root = live only; `done/` = landed + verified; `discarded/` = sunset without landing; `bak/` = beef's recovery surface, untouched. ⚑ = classification is the 09-01 revival's judgment call (header status and landed reality disagreed, or the lean was mine) — beef curates. 89 quests revived from VCS this pass (last-alive revs b8e1f85e1 · b660921a3 · b6eed2f52 · 41480bd1c · 3247a84f9), all via read-only `git show`.
+> Derived — regenerate at every sunset/revival (`skills/quest-lifecycle/`). Root = live only; `done/` = landed + verified; `discarded/` = sunset without landing; `bak/` = beef's recovery surface, untouched — NOT on disk at this regeneration: the seven it listed sit in `discarded/` (marked ⌂), bucket judgment beef's. ⚑ = classification is the 09-01 revival's judgment call (header status and landed reality disagreed, or the lean was mine) — beef curates. 89 quests revived from VCS this pass (last-alive revs b8e1f85e1 · b660921a3 · b6eed2f52 · 41480bd1c · 3247a84f9), all via read-only `git show`.
 
-## live (5)
+## live (3)
 
-- `m55-abandoned-coherence.org` — m55 abandoned coherence — one file, one pinhole, one authored schema
-- `m25-user-and-thread-handling.org` — m25 — user and thread handling
-- `m27-memory-and-notes.org` — m27 — mind: memory + note
-- `m42-history-purge.org` — m42 history purge — filter-repo the dead registry mass out of git history
-- `m44-authoritative-slugs.org` — m44 authoritative slugs — instances.json names the instance, the manifest names the recipe
+- `m51-standalone-slowstart.org` — m51 standalone — one instance, every system: the case study that is also the localhost default
+- `m50-the-three-way-weave.org` — m50 the three-way weave — what a vector instantiates · the control vector · the process contract (DESIGNED; wording settlement + two schematics + dossier recast + signal table; M1 typology gated; absorbs m49 M2/M3)
+- `m46-linux-readmen.org` — m46 linux readmen — two distros walk the README 0–6 under witness, logs inlined (WALKED; L1 L2 L4 APPLIED — README §0 + install.sh voice + kajuit one-vite; 17 proposals; taskbags: ghost process management B1–B13 · use/--instance cluster C1–C12; connoisseur pass over both — sketches + drain; `instances.resolve` LANDED; cluster A landed as m49 M1)
 
-## done/ (69)
+## done/ (74)
 
 - `activation-loop.quest.org` — Intent
 - `aperture-calling.quest.org` — aperture calling — evict the .call squatter, compile the aperture stripwire
@@ -60,6 +58,11 @@
 - `m40-ledger-convention.org` — m40 ledger convention — one home: registry + variants live in the ledger
 - `m41-stratified-env.org` — m41 stratified env — who gets to say VIVA_*: one fold, seven voices
 - `m43-stucatch.org` — m43 stucatch — the daemon grows ears: mesh lines become literals become a view
+- `m44-authoritative-slugs.org` — m44 authoritative slugs — instances.json names the instance, the manifest names the recipe (LANDED green: paladin 36/145 · ghost 80 + the pre-existing `strata.wet` two-shells red; 10 markers settled on a scratch ledger at sunset — 7 held · 3 revised by m49's one-lock shape; release lines lifted into root `release.md`; commit beef's)
+- `m45-abandoned-coherence.org` — m55 abandoned coherence (file is m45 on disk) — one file, one pinhole, one authored schema (ALL EIGHT STEPS APPLIED, suites pasted; open + beef's: `Url.absolute` NaN one-liner, deploy migration)
+- `m47-commons.org` — m47 commons — the checkout ships ONE package: registry/** → commons/, every lookup @commons/<type>/<slug> (LANDED on go, green both sides, live-verified; release lines lifted into root `release.md`; beef owes commit · education push · M5 prod)
+- `m48-environment-schematics.org` — m48 environment schematics — the env schema is a v schema: typed values, optionality by the grammar, one law for keys (LANDED under the blast-bracket, M1·M2·M3 + F5 = INVALID values OWED by init; `v.url()` = RFC 3986 URI-with-authority grammar; repo + shelf + tapped `@education` recipes migrated, OPENROUTER/ELEVENLABS/DEEPGRAM optional; 14 markers held; release lines lifted into root `release.md`; beef owes commit ×2 — repo + education checkout)
+- `m49-process-ontology-and-control-vector.org` — m49 process ontology + control vector — M1 LANDED + live-proven (Process/Die on Wafer, one token lock, detached supervisor), code UNCOMMITTED (beef commits); sunset on beef's order after the wafer verdict — M2/M3 + the recast live in m50; release lines lifted
 - `m4_phase-playground.quest.org` — Intent
 - `m7-snapshot-testing.quest.org` — M7 — Snapshot Testing
 - `multiplex.quest.org` — multiplex — the daemon session: Socket exchanges frames
@@ -82,7 +85,13 @@
 - `voice.quest.org` — Voice — single-tier shuo-style implementation
 - `wafer-lifecycle.quest.org` — Wafer Lifecycle — Vector-based Process Composition
 
-## discarded/ (33)
+## benched/ (3) — beef's bench: parked live quests (bucket outside the lifecycle skill's structure; indexed as found)
+
+- `m25-user-and-thread-handling.org` — m25 — user and thread handling
+- `m27-memory-and-notes.org` — m27 — mind: memory + note
+- `m42-history-purge.org` — m42 history purge — filter-repo the dead registry mass out of git history
+
+## discarded/ (40) — ⌂ = listed under `bak/` at the revival, folded here by disk
 
 - `2026.07.02.org` — (no title)
 - `closed-class-completion.quest.org` — ikiro/closed-class-completion — finish structural inventory: contractions, demonstratives, possessives, conjunctions, particles, intensifiers, fillers, shapes, superlatives
@@ -101,12 +110,19 @@
 - `m10_hallucinating_monkey_playground.quest.org` — M10 — Hallucinating Monkey (playground harness testbed)
 - `m13_semantic_alignment.quest.org` — M13 — module · mode · kernel semantic alignment
 - `m14_testing_fixtures.quest.org` — M14 — testing fixtures (the @fixtures package + lock-demo residence) ⚑
+- `m28-primed.org` — m28 — primed: the procedural trait ⌂
+- `m32-memoriter/` — dir, 2 files ⌂
+- `m32-memoriter-anki-clone-demo.org` — m32 — memoriter: Anki as one out-of-tree vivalence package ⌂
+- `m36-supabase.org` — m36 — supabase per die: one cluster, schema-per-die datamap, lighthouse as GoTrue facade, and schema evolution with nowhere to put migration files ⌂
+- `m37-converse/` — dir, 1 files ⌂
+- `m37-converse.org` — m37 — converse: voice in · voice out · two-sided ⌂
 - `m44-record-authoritative-slug.org` — m44 record-authoritative slug — instances.json names the instance, the manifest names the recipe ⚑
 - `m5_widget-glyphs.quest.org` — M5 · widget glyphs — a control lever + status reporters in vinca (the glyph UX language)
 - `m9-playground-layout.quest.org` — M9 · Playground Layout — design possibilities + the data-UI primitive system
 - `modes_tactic-analysis-routine.quest.org` — Tactic emitters — analysis / routine middlewares
 - `paladin-isolation.quest.org` — Paladin Isolation — Process Boundary Defense and Client-Side Modes
 - `playground-reactivity.quest.org` — Intent ⚑
+- `progress.org` — progress feedback — the learner sees their own retention ⌂
 - `react-bundler.quest.org` — React-in-Svelte Micro-Frontend Integration
 - `siphon-downloader.quest.org` — Siphon — yt-dlp Downloader Daemon
 - `survival-into-a1.quest.org` — ikiro/survival-into-a1 — SUPERSEDED by flatten-corpora
@@ -117,13 +133,3 @@
 - `viva-init-install.quest.org` — viva-init-install — turnkey dev-boot from a fresh clone ⚑
 - `viva-init.quest.org` — Viva Init — sheets wizard library + process telemetry + init trajectory
 - `viva-install.quest.org` — Viva Install — product distribution channels
-
-## bak/ (7) — beef's, not indexed further
-
-- `m28-primed.org` — m28 — primed: the procedural trait
-- `m32-memoriter/` — dir, 2 files
-- `m32-memoriter-anki-clone-demo.org` — m32 — memoriter: Anki as one out-of-tree vivalence package
-- `m36-supabase.org` — m36 — supabase per die: one cluster, schema-per-die datamap, lighthouse as GoTrue facade, and schema evolution with nowhere to put migration files
-- `m37-converse/` — dir, 1 files
-- `m37-converse.org` — m37 — converse: voice in · voice out · two-sided
-- `progress.org` — progress feedback — the learner sees their own retention

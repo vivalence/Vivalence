@@ -1,7 +1,7 @@
 FROM vivalence/viva:alpine
 
 WORKDIR /viva/repository
-COPY registry/ ./registry/
+COPY commons/ ./commons/
 
 RUN deno cache systems/runtime/run.js
 

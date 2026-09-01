@@ -90,6 +90,7 @@ async function mount(daemon, { multiplex, url, attempt }) {
     .listen((state) => mounting.note({ message: `multiplex → ${state}` }));
 
   try {
+    await daemon.connection.call("/userspace/handshake");
     const [status, manifest, cortex, aperture, statics] = await Promise.all([
       daemon.connection.call("/status"),
       daemon.connection.call("/metadata/manifest"),

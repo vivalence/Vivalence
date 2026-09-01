@@ -1,0 +1,147 @@
+#+title: the checkout ships one package, the record heals itself on the first boot, and a landed quest is sunset in the same session
+#+filetags: :registry:commons:paladin:vip:pensieve:ledger:docker:docs:m47:blast:release:quest:sunset:
+
+* what happened, in one breath
+
+beef: /"ikiro wake. m47-commons."/ — the quest was PLAN APPROVED, awaiting go; the wake re-measured
+the terrain against disk (24 manifests not 23, the shelf 48+8 not 56+16, =stucatch= on the shelf but
+not in =instances.json=, an empty =instances/localhost/=) and wrote the deltas into the quest. beef:
+/"go"/ — the blast-bracket walked: five suites baselined one-shot and sequential, RED tests first for
+the record-heal and the pensieve shadow, four code files, then the whole tree move in one pass —
+=registry/{commons,testing,development}= → =commons/=, three owners → =@commons=, nine path repoints,
+three Dockerfiles, compose, vite, tailwind, the watch-exclude, =.dockerignore=. Same five suites, same
+numbers, same single pre-existing red. =~/.viva/registry.json= healed itself during the runtime run.
+Live: one =@commons= row, four shelf instances mount. Shelf and education-clone recipes sed'd, docs
+recaptured on a scratch ledger, ikiro restamped. beef: /"ikiro compact. note to mark quests as done."/
+— the organ gate ran on every live quest: m47 and m45 sunset to =done/=, root =release.md= seeded with
+m47's six lines, m48 and m44 held back by their own =pending= markers, and the rule went into the
+kernel's disintegrate line.
+
+* spine (N=8)
+
+| n | beef / event | landed |
+|---+--------------+--------|
+| 1 | /"ikiro wake. m47-commons."/ | kernel · frontier · quest · compact 76 · ledger dossier · memory bodies read; terrain RE-MEASURED (census 24 with =demo/hello-world=; hello-world = =App.svelte= + =instance.viva.js= + =mode.viva.js=; shelf 48 + 8; =instances.json= 3 rows, =stucatch= unrecorded; education clone 31, dirty; =vite.config.mjs:37=; empty =localhost/=; bare-owner literals in =registry.count.test.js:60-61=; vip/registry diff matches disk); deltas table written into the quest changelog; wake report ended on the bracket plan |
+| 2 | /"go"/ | blast-bracket skill invoked; four tasks; baseline script (first run died on =set -o globstar= under zsh — removed) |
+| 3 | skill body (blast-bracket) injected | beat 1 = the wake's map; beat 2 = baseline |
+| 4 | background: first baseline run failed (exit 1, no logs) | =zsh -x= showed the globstar abort; script fixed, paladin smoke 28 (138) |
+| 5 | background: baseline complete | paladin 28 (138) · runtime 53 (327) · ghost 81/1 (=strata.wet.test.js:93=, the reap race) · kajuit 35 (126) · sheets 37. Pre-checks: F9 duplicate census clean across education · stucatch · commons; =supply()= re-entered by ghost ×3 + runtime → F9 throws only on a DIFFERENT file; =paladin.source= bare segment = repo-root branch; no hidden files under =registry/= beyond nlp's =.env=. RED tests written (5 red steps) → =vip.js= · =ledger/registry.js= (+ =discover= stat-guard) · =pensieve.js= · =find.js= → paladin 28 (142). The move: =mv= ×5, two package files =rm=, =rmdir registry=, manifests, 6-file lookup sweep, =registry.count= bare owners, 9 path repoints, 3 Dockerfiles, compose, vite, tailwind, watch-exclude, =.dockerignore=, =Dockerfile:60= pin dropped |
+| 6 | background: after-run complete | same five, same numbers, same red; =~/.viva/registry.json= = =[education, stucatch, <repo>/commons]=; M3 shelf 56 + education 31 sed'd; ikiro restamp (codemap =registry.md= → =commons.md=, invariants, paladin, map, kernel, rituals, 2 skills, comment-guard, ledger, frontier); live =registry/list= ONE row =@commons 22=, =registry/doctor= 0 stale 50 · 18 · 3, =instance/doctor --instance= × 4 clean; two live-code cosmetics; docs pass (three attempts — anchors already applied aborted the script twice) + =astro build= 10 pages; scratch-ledger captures (first attempt through =viva= ran =registry/doctor= against the REAL record — exported env outranked; record verified unchanged; redone via =mod.js= from the scratch dir); memory =project_m47_commons=; quest LANDED + changelog + release lines + markers; report |
+| 7 | /"ikiro compact. note to mark quests as done."/ | quest-lifecycle skill; organ gate on every live quest; m47 markers =PASSED= → =held= (the vocabulary is =held|broken|revised=), release verb =moved= → =changed=; root =release.md= SEEDED with the six lines lifted verbatim; m47 + m45 =mv= → =done/=; index live 7 · done 71 (m49 line added — a sibling session's new quest); frontier restamped; kernel disintegrate line + =feedback_sunset_landed_quests= memory; this fold |
+| 8 | skill body (quest-lifecycle) injected | the organ gate: settled markers + lifted release lines; plain =mv=; epitaph in the index |
+
+* the bracket, as walked
+
+Beat 1 was the wake itself — the quest's blast table re-measured line by line, every delta written down
+before =go=. Beat 2 ran the five suites ONE-SHOT and SEQUENTIAL on purpose: ghost and runtime both write
+=~/.viva/registry.json= through =supply()=, and the ledger dossier already recorded five phantom reds
+from two concurrent supplies. The one red is the reap race, deterministic, pre-existing, and it stayed
+exactly one on both sides.
+
+Beat 3 split in two by design. First the code, TDD: the reconcile block rewritten onto
+=reconcile(checkout, commons)= with three new steps (discovery over a missing root yields nothing · no
+record seeds from =<checkout>/commons= · a checkout without =commons/= supplies nothing and =accio=
+names the absence), plus the pensieve shadow test — five red steps watched, then four files, then
+paladin green at 142. Only then the move, and the move was ONE pass: the critical pass had ruled that
+M1 without M2 kills every boot (=reconcile= naming the old dir → =readdir= ENOENT), so the tree, the
+manifests, the lookups, the paths and the config landed between the same two suite runs.
+
+Beat 4: same numbers. Beat 5: the residue grep came back with exactly what the plan predicted —
+=registry.test.js:112= holding the dead =<repo>/registry/viva= shape that MUST heal, synthetic =@viva=
+rows in four in-memory test fixtures, and =multiplayer.bak/= (beef's untracked recovery copy, now
+walker-skipped). Two strings in live code were cosmetic and went after the run: the =vip.js:24= error
+example and a =pick.js= comment.
+
+* the two code laws that landed
+
+=Vip.supply()= = =registry.reconcile(checkout, <checkout>/commons)= ?? =seed(<checkout>/commons)=. A dead
+record location ANYWHERE under the checkout heals by rediscovering =commons/=; a dead external one is
+kept, skipped, =vip.stale=. =Registry.discover= over a missing root returns =[]= so =accio= says
+=not supplied= instead of a stack trace. The real ledger proved it unasked: the runtime suite's first
+=supply()= after the move rewrote =~/.viva/registry.json= from three dead =registry/*= rows to
+=[education, stucatch, <repo>/commons]= — critical pass §10 said this would happen during the test
+run, and it did.
+
+=Pensieve.register= throws when a second FILE claims a held owner/type/slug/version — and ONLY a
+different file. The pre-check that shaped it: ghost's =lens.js=, =registry/index.js= and
+=instance/create.js= and runtime's =populate.js registry()= all call =supply()= on the same paladin
+singleton, so a =use italian run= chain re-registers every module from the same path. Identity ↔ one
+source file; the same file twice is idempotent, a second path is a shadow. =find.js= skips =*.bak=
+beside =bak|archive|slp=; the F9 census found zero duplicate identities across education · stucatch ·
+commons once =*.bak= was out, and education's old =tmp/= shadow tree is gone.
+
+* F8, adjusted on the ground
+
+The rec was data/ + snapshots/ → =systems/runtime/tests/=. Two facts on disk turned it: =data/tiers.js=
+imports the fixture module's entities SYNCHRONOUSLY at module top (=../language-learning/entities/index.js=),
+so a runtime-side copy needs either a cross-container relative import — the thing the rec set out to
+kill — or an import-time =supply()= in every fixture importer, a liveness dependency the
+fixtures-own-liveness law forbids. And root =.gitignore= carries =**/tests/snapshots/=, which would have
+swallowed the tracked =corpus.snapshot.json= silently (a =.gitignore= inside an ignored dir cannot
+un-ignore). So =commons/fixtures/data= STAYS (=lighthouse.js='s import shortened to
+=../../datamaps/…=), and only the test OUTPUT moved — beside its test at
+=systems/runtime/tests/fixtures/corpus.snapshot.json=, negation carried along. Reported to beef as an
+adjustment, his to veto.
+
+* the scratch-ledger lesson
+
+=export VIVA_LEDGER_MOUNT=<scratch> VIVA_REGISTRY_MOUNT=<scratch>/registry; viva registry/doctor= did
+NOT run on a scratch ledger. The strata are =flag > cwd > instance > .env > os > session > ledger=:
+the repo-root =.env= (cwd stratum) outranks the exported var, and =ghost.sh= re-sources
+=~/.config/viva/env= on top. The doctor ran against the REAL record with a scratch STORE and printed
+two taps as =gone= — =reconcile= kept them (dead-external = kept + reported), and =cat
+~/.viva/registry.json= afterwards showed the three rows intact. The working shape: =cd <scratch>= (no
+=.env= in cwd) and =deno run --config <repo>/deno.jsonc -A <repo>/systems/ghost/mod.js …= with the
+vars exported — no =ghost.sh=, no cwd stratum, no session file in a ledger that has none. Non-TTY
+render of =registry/list= is the key/value list, not the table; the docs keep the table with the
+captured row data, home-normalised as they already were.
+
+* docs
+
+README §2 table (one =@commons= row), 50.01's doctor · tap record · =registry.json= · package tree ·
+=ls= blocks, 51.02 · 32.01 · 33.01 · 41.01 lookups/prose/tree — recaptured or renamed; =astro build= 10
+pages. README §0's hello-world fences LAG disk: they show beef's earlier =hello.js= + =multiplayer.js=
+re-export shape, disk is =mode.viva.js= (slug =hello-world=) + a self-contained =instance.viva.js=.
+His restructure was in flight through the whole session (files stamped 15:11–15:32); only the m47
+strings were touched there and the lag was reported, not repaired.
+
+* sunset, and the rule
+
+beef: /"note to mark quests as done."/ — m47 had landed, been verified live, carried its changelog and
+release lines, and was still sitting at the quest root with "sunset once committed". The commit is his
+VCS act; the quest lifecycle has one condition, the organ gate. Run on every live quest: m47 passed
+after two fixes to its own organs (=PASSED= is not a verdict — =held|broken|revised= is; =moved= is not
+a release verb — =added|changed|renamed|removed|fixed= is) and its six release lines were lifted
+verbatim into root =release.md ## unreleased= under =api · entity · env · other= — the file's first
+seed. m45 passed vacuously (no markers, no release organ, status ALL EIGHT STEPS APPLIED with suite
+counts) and went with it. m48 (two =pending=) and m44 (ten =pending=, no release organ) FAIL the gate
+and stayed live, named. m49 is mid-flight. The kernel's disintegrate line now reads
+=compact · memory · zettel · frontier · quest sunset=; memory =feedback_sunset_landed_quests=.
+
+Two sibling sessions were alive on this repo throughout (m46 · m48 · m49 quests stamped minutes before
+the sunset; =MEMORY.md= gained an m49 line under me). Every shared-file edit was exact-anchor; the index
+regen picked up m49 from disk.
+
+* state at fold
+
+- disk: =commons/= (22 modules, =@commons=); =registry/= gone; =systems/runtime/tests/fixtures/{corpus.snapshot.json,.gitignore}= new; root =release.md= new.
+- suites: paladin 28 (142) · runtime 53 (327) · ghost 81/1 pre-existing · kajuit 35 (126) · sheets 37 — identical both sides but for paladin's +4.
+- ledger: =~/.viva/registry.json= = =[education, stucatch, <repo>/commons]=; shelf 8 files + education clone 6 files on =@commons/=; =instances.json= still 3 rows (=stucatch= unrecorded, pre-existing).
+- VCS (read-only view): 229 deletes under =registry/=, untracked =commons/= + the two fixture files + =release.md= + =codemap/commons.md=; beef commits.
+- quests: m47 + m45 in =done/=; index live 7 · done 71; frontier restamped; codemap shard =commons.md= (=paths: ["commons/**"]=) live through =.claude/rules=.
+- memory: =project_m47_commons= (supersedes the 3-package rename note) · =feedback_sunset_landed_quests= · =project_documentation_site= hello-world line restamped.
+
+* corrections ledger (self-caught, no callouts)
+
+- =set -o globstar= aborts a zsh script silently past the line → deno expands the quoted glob itself; dropped.
+- a python edit pass with =must=True= anchors aborted TWICE on anchors the previous (partial) run had already applied → second-run anchors are =must=False= or the pass is idempotent by construction.
+- exporting =VIVA_*_MOUNT= and calling =viva= is not a scratch ledger (cwd =.env= + sourced config outrank os) → the record was checked BEFORE trusting the run; =mod.js= from the scratch dir.
+- QA markers written as =PASSED= — a coined verdict; the enum is =held|broken|revised=. Release verb =moved= — off-grammar. Both caught at the organ gate, both fixed in the quest before the =mv=.
+- the wake report and the landing report both ended on substance; no trailing questions.
+
+* loose ends
+
+- SETTLED by rule: m47 sunset (organ gate) · release.md seeded (release skill) · =registry.md= shard renamed and re-pathed (world-sync) · memory superseded not duplicated.
+- OPEN, beef's: commit the move (plain =mv=; VCS shows deletes + untracked) · push =~/.viva/registry/education= (6 recipe files) · M5 prod — image rebuild with =COPY commons/=, compose mount, prod shelf =@viva/*= → =@commons/*= · README §0 fences vs his in-flight hello-world · F8 adjustment (veto-able).
+- OPEN, gate-blocked: m48 =T-optional-key-headless-init= + =T-reference-cascade= =pending= · m44 ten =pending= markers + no release organ — both stay live until settled by their owners.
+- OPEN, pre-existing: ghost reap race (=strata.wet.test.js:93=, ledger invariant 5) · =stucatch= on the shelf without an =instances.json= row.

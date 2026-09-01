@@ -13,7 +13,7 @@
   },
   "tasks": {
     "run": "deno run -A run.js",
-    "watch": "deno run -A --watch --watch-exclude=../../registry/ run.js",
+    "watch": "deno run -A --watch --watch-exclude=../../commons/ run.js",
     "test": "deno test -A --no-check --watch tests/**/*.test.js",
     "playground/drain": "deno run -A --no-check tests/drain.playground.js",
     "test/snapshots": "SNAPSHOT_HOT=1 deno test -A --no-check tests/**/*.snapshot.test.js",

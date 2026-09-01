@@ -9,7 +9,7 @@ import Example from "../../../src/components/Example.astro"
 import Trace from "../../../src/components/Trace.astro"
 import Tabs from "../../../src/components/Tabs.astro"
 
-An instance is one file that declares a whole system — entities, modes, daemons, services, clients, the machine itself. This page follows that file through the machine: from inert declaration to a running system, stage by stage. The specimen is `@viva/instance/standalone`, the one-file flashcard system — [[51.02_instance-from-scratch]] builds it section by section; this page is what the machine does with it. Build there, understand here.
+An instance is one file that declares a whole system — entities, modes, daemons, services, clients, the machine itself. This page follows that file through the machine: from inert declaration to a running system, stage by stage. The specimen is `@commons/instance/standalone`, the one-file flashcard system — [[51.02_instance-from-scratch]] builds it section by section; this page is what the machine does with it. Build there, understand here.
 
 Everything below actually ran. At every build of these docs, the example at the bottom of this page boots the standalone instance headless — real paladin, real runtime, real database — and the captured output is embedded in the page. Nothing here is hypothetical.
 
@@ -62,7 +62,7 @@ await die.populate()
 A `Die` is a `Wafer` — the empty lifecycle shape from typology — and `populate` fills the runtime's body:
 
 - the *latch* — its public base URL; every mount below hangs off it.
-- the registry supply — `vip.supply()` walks the package store into the *pensieve*, a nested map `owner → type → slug → version`. This is how the string `"@viva/datamap/libsql"` later becomes a module.
+- the registry supply — `vip.supply()` walks the package store into the *pensieve*, a nested map `owner → type → slug → version`. This is how the string `"@commons/datamap/libsql"` later becomes a module.
 - one `DaemonDie` per daemon mask — mounted at `/daemon/standalone`, its URL literally `latch + mount`.
 - one process per `ATTACHED` service that exports an aperture — the multiplayer lighthouse becomes one.
 

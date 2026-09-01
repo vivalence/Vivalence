@@ -52,6 +52,30 @@ describe("state.env", () => {
     expect(await Deno.readTextFile(file)).toBe('# VIVA_A="disabled"\nVIVA_B="1"\nVIVA_A="on"\n');
   });
 
+  it("writes an unset value as a commented line — unset documents, never claims", async () => {
+    const file = await tmp();
+    await paladin.state.env(file, { VIVA_A: "", VIVA_B: null });
+    expect(await Deno.readTextFile(file)).toBe('# VIVA_A=""\n# VIVA_B=""\n');
+  });
+
+  it("uncomments a scaffolded blank IN PLACE — same slot, same group, no twin", async () => {
+    const file = await tmp('# keys\n# a secret\n# SECRET_VIVA_A=""\nVIVA_B="1"\n');
+    await paladin.state.env(file, { SECRET_VIVA_A: "on" });
+    expect(await Deno.readTextFile(file)).toBe('# keys\n# a secret\nSECRET_VIVA_A="on"\nVIVA_B="1"\n');
+  });
+
+  it("unsetting a live key comments it in place", async () => {
+    const file = await tmp('VIVA_A="x"\nVIVA_B="1"\n');
+    await paladin.state.env(file, { VIVA_A: "" });
+    expect(await Deno.readTextFile(file)).toBe('# VIVA_A=""\nVIVA_B="1"\n');
+  });
+
+  it("line is the one grammar: a value is claimed, a blank is commented", () => {
+    expect(paladin.state.line("VIVA_A", "v")).toBe('VIVA_A="v"');
+    expect(paladin.state.line("VIVA_A", "")).toBe('# VIVA_A=""');
+    expect(paladin.state.line("VIVA_A", null)).toBe('# VIVA_A=""');
+  });
+
   it("keeps a ${VAR} reference verbatim — expansion is Env.get's job, not the writer's", async () => {
     const file = await tmp();
     await paladin.state.env(file, { VIVA_SERVE: "${VIVA_ORIGIN}/" });

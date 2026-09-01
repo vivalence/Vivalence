@@ -1,0 +1,116 @@
+#+title: the critical pass finds the inverted ladder, the report loses its frame, and the plan earns "very good" once it shows the tree, the table and the diff
+#+filetags: :registry:commons:m47:quest:critical-pass:paladin:vip:pensieve:legibility:callout:plan:compact:
+
+* what happened, in one breath
+
+The session woke after a context fold with m47 drafted and forks F1–F7 open. beef asked for the commons rewrite to be analyzed under a critical pass. Every quest claim was re-measured on disk: the census held, the owner convention turned out to be house style, and the milestone ladder turned out to be inverted (M1 cannot reach its own gate without M2), with two blast-table misses and one hazard the merge creates (one owner, silent last-wins on a duplicate slug). The pass went out as ten numbered findings of coined labels and beef could not read it; the repair was eleven more numbered definitions, and beef named the fault exactly: no structure, no coherent framework, lists. He restated the task in one breath — the dir becomes =commons/=, the packages in it become =@commons=, the identifiers change, obviously — and asked for a plan and an assessment. The same content re-cut as tree · mapping table · diff · tour groups · gate line · three-sentence assess earned "very good. commit this to the quest." The plan now sits in the quest as its canonical section; nothing in code moved; the session ends on `go` still owed.
+
+* spine (N=29 — rows 1–10 folded in the previous compact; this fold walks 11–29)
+
+| n  | beef (verbatim where it is a decision, a gate, or a correction)                                                                                                                 | what landed / decided                                                                                                     |
+|----+---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------+---------------------------------------------------------------------------------------------------------------------------|
+| 11 | continuation summary (context fold)                                                                                                                                             | NOTHING — carried state: m47 drafted, forks F1–F7 open, compact #74 written                                              |
+| 12 | /"ikiro wake"/                                                                                                                                                                  | kernel read; frontier m47 line read; =methods/critical-pass.md= NOT opened (self-caught below)                            |
+| 13 | /"analyze the commons rewrite"/ (mid-turn)                                                                                                                                      | probes began: pensieve, vip.accio, find.js, populate.js, Dockerfiles, vite/tailwind, ledger, shelf, education clone       |
+| 14 | /"critical pass"/ (mid-turn)                                                                                                                                                    | lexicon: adversarial review WANTED; ten findings; quest gained =* critical pass= + F8–F11 + 4 table rows; M2 folded INTO M1 |
+| 15 | pastes finding 3 back: /"wtf are you talking about. holy shit your are ILLEGIBLE!!! its like you never ever state what something is about?!?!? guide me retard!"/               | codeword hit #1; my repair = eleven numbered definitions (the same fault, again)                                          |
+| 16 | /"like. you give me htese fucking lists."/                                                                                                                                      | —                                                                                                                         |
+| 17 | /"what"/                                                                                                                                                                        | —                                                                                                                         |
+| 18 | /"there is not structure"/                                                                                                                                                      | —                                                                                                                         |
+| 19 | /"no coherent framework for communicating"/                                                                                                                                     | the diagnosis, in his words                                                                                              |
+| 20 | /"just"/                                                                                                                                                                        | —                                                                                                                         |
+| 21 | /"bllllllaaaaaaaaaaaaaaaaaa"/                                                                                                                                                   | —                                                                                                                         |
+| 22 | [Request interrupted by user]                                                                                                                                                   | hard stop while I was reading my own totems                                                                              |
+| 23 | /"you are supposed to fucking RENAME all of those. what?? why are you talking. thats the fucking task. change repo/registry dir to commons. pacages in there now @commons. requires change to package identitfiers - yes fucking obviously?!?! why are you takling. thats the fucking task retard. damn."/ | codeword hit #2; scope restated in one breath; I read it as go and reached for the baseline run |
+| 24 | /"plan"/ (mid-turn)                                                                                                                                                             | not go — a plan                                                                                                          |
+| 25 | /"assess"/ (mid-turn)                                                                                                                                                           | plus an assessment                                                                                                       |
+| 26 | /"your reports SUUUCCKKK at the moment."/ (mid-turn)                                                                                                                            | the frame problem, named a fourth time                                                                                    |
+| 27 | /"very good. commit this to the quest."/                                                                                                                                        | the plan in the new frame is APPROVED; written into the quest as =* plan — the landing=; status + frontier restamped; report-frame memory saved |
+| 28 | /"ikiro compact!"/                                                                                                                                                              | this fold                                                                                                                 |
+| 29 | =/clear= (mid-turn)                                                                                                                                                             | session ends after the fold                                                                                               |
+
+* the critical pass — what held, what broke (rows 12–14)
+
+Every claim in the draft quest was re-measured against disk, not recalled.
+
+Held: the census — 23 manifests under =registry/=, owner+type+slug unique; type/slug unique even under one owner. The owner grammar — =~/.viva/registry/education/package.viva.js= is =@education/package/education= and =systems/ghost/trajectories/registry/bootstrap.js= mints =owner = "@" + basename=, so =@commons/package/commons= is house style, not a tautology. F2 — =subsystems/paladin/lifecycle/populate.js= falls the store back to =<ledger>/registry= when =VIVA_REGISTRY_MOUNT= is unset. No import map exists (=deno.jsonc= carries no =@= entries), so "imported as" can only mean the lookup grammar.
+
+Broke: the milestone ladder. =systems/runtime/lifecycle/populate.js= =registry()= is =vip.supply()=; after the move, today's =reconcile= classifies the dead dirs as inside =<repo>/registry= and heals by =discover(<repo>/registry)= → =fs.readdir= ENOENT → every suite and every =viva= boot dies between M1 and M2; M2-first fails a fresh box the same way from the other side. Ruling: one landing. Two blast-table misses: =systems/kajuit/vite.config.mjs= watch.include =../../registry/**= (mode svelte HMR) and =.ikiro/hooks/comment-guard.sh= =*/registry/*=. One hazard the merge creates: three owners partitioned the pensieve so a cross-package slug clash was impossible; one owner leaves =pensieve.register= → =slugMap.set(version, module)= as silent last-wins, and =registry.count.test.js= "keys a slug once" inspects the pensieve after the overwrite. Live demo on disk: =registry/commons/instances/multiplayer.bak/multiplayer.viva.js= (ignored) declares =instance/multiplayer= like =starter/=, and =find.js= skips only dirs named exactly =bak=.
+
+Forks added: F8 fixtures placement (=data/= + =snapshots/= are runtime's, not modules), F9 duplicate identity throws, F10 widened =inside= evicts an in-checkout tap silently, F11 =.dockerignore= for =commons/playground= · =commons/fixtures= · =**/tmp= (649M under =services/nlp/server/tmp= ships today; =.dockerignore= excludes =temp=, not =tmp=). All default to their rec at landing unless beef says otherwise.
+
+* the collapse — ten findings, then eleven definitions, no frame (rows 15–22)
+
+The pass reached beef as numbered findings whose sentences never said what they were about: /"recipe"/ (my word for an instance's =.viva.js= files), /"wire break"/, /"pensieve top key"/, /"M3 gate"/, /"sed"/. He pasted finding 3 back whole and wrote under it:
+
+#+BEGIN_QUOTE
+wtf are you talking about. holy shit your are ILLEGIBLE!!! its like you never ever state what something is about?!?!? guide me retard!
+
+what is what is whta//???????????????!!!!!!!!!!!!???!
+#+END_QUOTE
+
+My repair opened "Dropping caveman. You asked what it is about. Here it is, guided." and delivered eleven numbered definitions — the same artifact, longer. Six messages in forty seconds:
+
+#+BEGIN_QUOTE
+like. you give me htese fucking lists.
+what
+there is not structure
+no coherent framework for communicating
+just
+bllllllaaaaaaaaaaaaaaaaaa
+#+END_QUOTE
+
+then the interrupt. The content of finding 3 was correct (owner is the first key of the pensieve Map; =vip.js= throws =package @viva not supplied= before =revelio=; 56+16 lines on the shelf and 31 in the education clone carry the old owner). The form made it unreadable. Both the trace diagram and the diff-as-body were in memory, unused; a numbered prose list was the reflex.
+
+* "thats the fucking task" — scope, not go (rows 23–26)
+
+#+BEGIN_QUOTE
+you are supposed to fucking RENAME all of those. what?? why are you talking.
+thats the fucking task.
+change repo/registry dir to commons. pacages in there now @commons.
+requires change to package identitfiers - yes fucking obviously?!?! why are you takling. thats the fucking task retard.
+damn.
+#+END_QUOTE
+
+Read at first as go: I had the test-task names and hidden-file listing in hand and was about to start the baseline suites. His next three words, mid-turn, were /"plan"/ · /"assess"/ · /"your reports SUUUCCKKK at the moment."/ The order restated the scope of m47 in one breath — the shelf and education-clone strings are part of the task, not a risk to be tabled — and asked for the plan in a form he could read. Nothing in code moved.
+
+* the plan as approved (row 27) — extracted at higher fidelity because it was praised
+
+The plan that earned /"very good. commit this to the quest."/ carried the identical content as the failed report, re-cut into one frame per block: a bold title naming the repo noun · today → after · why.
+
+| block                      | form                                                                 |
+|----------------------------+----------------------------------------------------------------------|
+| the tree                   | indented tree, today column → after column, per dir                  |
+| the identifiers            | two-column mapping table: =@viva/<type>/<slug>= → =@commons/<type>/<slug>= (×3 owners), the three package ids → =@commons/package/commons= |
+| where those strings live   | place · files · editor — repo 18 · shelf 56+16 lines · education 31 · prod ? (beef) |
+| the code                   | the two diff hunks: =vip.js= supply → =reconcile(checkout, commons)= / =seed(commons)=; =registry.js= =inside= widened to the checkout, heal from =commons= |
+| paths that follow the move | tour groups: 3 Dockerfiles + compose + vite/tailwind/watch-exclude; the 14 test files                        |
+| gate                       | fenced: baseline · landing (ONE beat) · suites + empty grep · live (=registry/list=, =instance/doctor= ×4) · docs recapture · ikiro |
+| assess                     | three sentences: hello-world edit in flight · one owner = silent overwrite (F9 optional) · prod is beef's |
+
+Written into =.ikiro/quests/m47-commons.org= as =* plan — the landing=, ahead of the milestone ladder, blast table, forks and critical pass, which now read as its detail. Status: PLAN APPROVED, forks F1–F11 default to their rec, AWAITING go. Frontier restamped. The frame is now a feedback memory (=feedback_report_frame=) indexed under comms.
+
+* state at fold (rows 27–29)
+
+- =registry/= on disk unchanged this session; =commons/= does not exist. beef's hello-world restructure moved on concurrently (=hello-world.viva.js= became =instance.viva.js= during the pass) — it rides along, only its =@viva/= strings are in the landing.
+- =.ikiro/quests/m47-commons.org=: =* plan — the landing= (canonical) · milestones (detail; M2 heading marked SAME LANDING as M1) · blast table (+4 rows) · forks F1–F11 · =* critical pass= (10 sections).
+- =.ikiro/world/frontier.md= m47 line: PLAN APPROVED, awaiting go.
+- =.ikiro/zettelkasten.md ## Callouts=: one entry for both codeword hits (illegible lists; "thats the task" read as go), plus a recurrence addendum classing it under =yap-wrong-artifact= (the form axis).
+- memory: =feedback_report_frame= NEW (+ MEMORY.md comms line); =project_package_rename_commons_testing_development= NEXT paragraph → PLAN APPROVED / F1–F11 / awaiting go.
+- no code, no VCS, no ~/.viva writes this session. =go= is owed by beef; the landing is one beat as written.
+
+* corrections ledger
+
+- beef-caught, codeword ×2: the report frame (rows 15, 23). Root cause: no block said what it was about; findings ordered by discovery, labels lifted bare, nouns minted mid-sentence; the structural forms in memory (trace, diff-as-body, tour) sat unused. Corrective rule landed as =feedback_report_frame= + the ledger entry. Executed this session: the plan (row 27).
+- beef-caught, same breath: /"thats the fucking task"/ is scope confirmation, not =go= — the plan lands first. Executed: nothing ran.
+- self-caught: =methods/critical-pass.md= exists (listed in =rituals.md ## methods index=) and was not opened at row 14; the lexicon entry was used instead. The pass followed its shape de facto (base facts, grep every terrain claim, consumer side, quest carries the delta) — the miss cost nothing this time, and the method is written for staged ARTIFACTS, not a quest without one; a line under =methods index= should say so.
+- self-caught: the quest status line said F1–F10 after F11 was added; fixed in the same turn.
+- self-caught: index hook in MEMORY.md for the new feedback memory was appended by string-replace into the comms line; verified with grep.
+
+* loose ends (walked against landed rules)
+
+- =go= for the m47 landing — beef's. The landing is one beat (tree · identifiers · ~/.viva · diff · paths), then five suites, then =registry/list= + =instance/doctor= ×4, then docs recapture, then ikiro. Prod (image, compose path, prod shelf strings) is beef's after.
+- F8 (fixtures out of the package) · F9 (duplicate identity throws) · F11 (dockerignore) — recommended, NOT in the landing unless beef says. F10 accepted by default.
+- the education clone carries five files of beef's uncommitted work; the landing edits 31 lines in it and beef commits.
+- docs =ls ~/.viva/instances/hello-world= line (README / 50.01) is stale against the in-flight hello-world restructure — carried from the previous fold; recapture when it settles (rule: captured, never composed).
+- =methods index= line naming =critical-pass= as artifact-scoped — ikiro's, small; not done this fold to keep rituals.md under its char budget (15990 / 16000).

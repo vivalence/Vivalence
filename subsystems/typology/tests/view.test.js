@@ -30,10 +30,10 @@ specimen.describe("View prototype", () => {
 });
 
 specimen.describe("App prototype", () => {
-  specimen.it("string|{mount,schema}|App ctor; mount to Path; fill delegates Default-only", () => {
+  specimen.it("string|{mount,schema}|App ctor; mount kept as declared; fill delegates Default-only", () => {
     const schema = v.buffer({ data: { recall: v.string({ default: "LEARNING" }) } });
     const a = new App("buffer/Reader.svelte", schema);
-    specimen.expect(a.mount).toBeInstanceOf(Path);
+    specimen.expect(a.mount).toBe("buffer/Reader.svelte");
     specimen.expect(a.schema).toBe(schema);
     specimen.expect(a.fill({ data: {} }).recall).toBe("LEARNING");
     specimen.expect(new App({ mount: "x", schema }).schema).toBe(schema);

@@ -59,7 +59,13 @@
       try {
         const module = await view.load();
         if (live !== next || shown !== key) return;
-        component = module.default(target, { buffer: next, terminal });
+        component = module.default(target, {
+          terminal,
+          daemon: next.mode.daemon,
+          mode: next.mode,
+          thread: next.thread,
+          buffer: next,
+        });
         next.mount();
         standing = "ready";
       } catch (error) {

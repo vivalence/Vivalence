@@ -37,7 +37,7 @@ Deno.test("help --json lists every nature with edge metadata", async () => {
   assert(natures.includes("registry/bootstrap"));
   assert(natures.includes("help"));
   const create = held.commands.find((command) => command.nature === "instance/create");
-  assertEquals(create.params.map((param) => param.name), ["source", "target", "use"]);
+  assertEquals(create.params.map((param) => param.name), ["source", "target", "use", "init"]);
   assert(create.valence.startsWith("create an instance"));
   assert(held.flags.includes("--json"));
 });

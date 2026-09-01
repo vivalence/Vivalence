@@ -1,10 +1,11 @@
 import paladin from "@vivalence/paladin";
+import { resolve } from "@std/path";
 import { App, Path } from "@vivalence/typology";
 import { BufferEntity } from "@vivalence/runtime";
 
 export const APPLICATION = async (mode, daemon) => {
   const declared = mode.module.app;
-  const entry = declared.source ? null : new Path(mode.module.mount.dirname + declared.mount.nature);
+  const entry = declared.source ? null : new Path(resolve(mode.module.mount.dirname, String(declared.mount)));
   mode.app = declared.source
     ? new App({ source: declared.source, schema: declared.schema })
     : new App(entry, declared.schema);
