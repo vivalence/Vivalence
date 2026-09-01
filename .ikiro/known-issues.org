@@ -881,3 +881,11 @@ Worked around in stucatch: the placement/adjust aperture verbs own their refold
 directly (refoldAll after flush); the update-twitch registration stays in place and
 is idempotent if the lane ever comes alive. Diagnose before any other domain leans
 on entity-update reactivity.
+
+* OPEN — `instances/use --ledger` is undeclared and collides with the global mount flag
+`trajectories/instances/use.js:35` reads `ctx.signal.flags?.ledger === true` to pick the
+machine default over the session record, but `ledger` is not in the nature's schema — so it
+never reaches help's param list and survives only inside the valence prose. It also shares
+its spelling with the global mount flag `--ledger=<path>`, and the two are told apart only
+by `=== true` versus a string. Declare it as `v.boolean()` (help now renders booleans as
+`--name`) or rename it; either way the collision is real and currently invisible.

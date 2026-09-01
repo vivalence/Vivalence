@@ -1,0 +1,103 @@
+#+title: the flag was there all along, help could not tell a boolean from a position, and the docs never said so
+#+filetags: :ghost:cli:help:documentation:instance:callout:
+
+* what happened, in one breath
+
+One beat, and the whole beat is a lesson about surfaces. beef pasted the README's
+=instance/create= section and asked for a =--use= flag. The flag already existed — he had
+commissioned it himself one session earlier, and it worked. He could not see it: =viva
+instance/create --help= printed =[source] [target] [use]=, because the help census dropped
+the schema's =type= and rendered every param with the same brackets. A boolean read as a
+third positional. Neither the README nor the slowstart mentioned it at all. Fixed in three
+files: the census now carries =type=, help renders a boolean as =--name=, and both doc
+pages state the flag. Ghost =77 passed (23 steps) / 0 failed=.
+
+* the walk
+
+Session spine =N = 81=. Turns 1–74 are already folded — they are the environment collapse,
+and they are [[file:the-environment-collapses-to-one-file-a-blind-pinhole-is-asked-what-it-saw-and-two-lessons-only-fire-once-they-are-named.org][entry 38]].
+This fold covers 75–81: one =/compact=, one substantive turn, one =go=, one =then compact=,
+one interrupt, one /"sorry continue"/. **One substantive turn.** The denominator is written
+down so the thinness is visible rather than inferred — a short walk that says it is short
+is the method working, not the method failing.
+
+* the beat — a flag its own commissioner could not see
+
+/"this should absolutely have a --use option too. there is another one like this already"/
+
+It was there. =trajectories/instance/create.js= ends on it:
+
+#+begin_src js
+if (ctx.signal.flags?.use) ctx.effect.selected = await ctx.call(["instances/use", destination]);
+#+end_src
+
+and =trajectories/index.js= declares it: =use: v.boolean().desc("select it for this shell
+once created, and record it on the shelf").optional()=. It landed the session before, it is
+covered by =help.wet.test.js:40=, and it runs.
+
+What it did not do is *look like a flag*. =census()= built each param as
+={ name, description }= and dropped =property.type=, so =Help.jsx= bracketed all three the
+same way:
+
+#+begin_example
+viva instance/create [source] [target] [use]
+                                       ^^^^^ reads as a third positional
+#+end_example
+
+That is the finding, and it is worth more than the patch: **a landed capability whose
+surface does not distinguish it from its neighbours is not landed.** The person who ordered
+the flag, one session later, read his own CLI and concluded it was missing. No test could
+have caught this — the tests pin =.name=, and the name was right. Only the rendering lied.
+
+The docs did not help either. =README.md= §3 stopped at the bare command; =50.01_slowstart=
+§3's control line stopped at =[target]=, with =--slug= surviving only in prose and =--use=
+nowhere in either file.
+
+* the fix — three files, one rule
+
+#+begin_src js
+// trajectories/help.js — the census had the type and threw it away
+([name, property]) => ({ name, type: property.type ?? "string", description: property.description ?? "" }),
+
+// trajectories/Help.jsx — a boolean is a flag, not a third positional.
+const label = (param) => (param.type === "boolean" ? `--${param.name}` : param.name);
+const usage = (param) => `[${label(param)}]`;
+#+end_src
+
+Both call sites (the grouped listing and the =Detail= view) now go through =usage=, and the
+detail column's left-hand label goes through =label=, so the flag reads =--use= in every
+place help prints it. The change is general, not a patch to one command — but honesty about
+its reach: =v.boolean()= appears exactly ONCE in all of =trajectories/=, so today it moves
+one param. That is the point. There was one boolean in the whole CLI and it was invisible.
+
+Docs: README §3 gained the =--use= form with a note that it does §4's =instances/use= in the
+same call; slowstart §3's control line gained =[--slug=<name>] [--use]= and a =*bind*= clause
+in the file's own labelled-clause grammar.
+
+* a lead, not chased — =--ledger= is two flags
+
+=instances/use= reads =ctx.signal.flags?.ledger === true= but never declares =ledger= in its
+schema, so it is invisible to help (it lives only in the valence prose) — and it shares its
+spelling with the global mount flag =--ledger=<path>=. They are disambiguated only by
+==== true= versus a string. Recorded, not touched.
+
+* not mine — the parallel fold
+
+A sibling session landed the registry emigration (=ledger/tap= → =registry/tap=,
+=registry/bootstrap=, =instances/tap=, =instances/rename=) and rewrote README 0–6 plus the
+slowstart. That work is theirs and is folded in their own compact; the codemap already
+carries it. Noted here only so a future walk does not re-attribute it to this thread.
+
+* state at fold
+
+- =systems/ghost= — =77 passed (23 steps) / 0 failed=. =help.wet.test.js= 6/6.
+- =viva instance/create --help= → =[source] [target] [--use]=.
+- README §3 and =50.01_slowstart= §3 both state the flag; everything uncommitted.
+
+* resumption
+
+Unchanged from the last fold, and still the honest next thread: **the registry has no
+documentation at all** — 32 is daemon, 33 is ledger, there is no 34, and everything written
+about instances assumes a registry the docs never introduce. Behind it, still open:
+=url.js:111= returns the string ="NaN"= for an absent Url, =systems/ghost/localhost/= is an
+orphan, and the stucatch directory and record survive an abandoned instance.

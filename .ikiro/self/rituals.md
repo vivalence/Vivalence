@@ -85,4 +85,4 @@ A dedicated pass, never inline in task work. Trigger: **≥5 unprocessed callout
 
 ## methods index
 
-Specs live in `methods/`, one file per method — [[quest]] · [[overview]] · [[compact]] · [[totems]] · [[critical-pass]]; the release-changelog format rides `skills/quest-lifecycle`. The compact WALK stays law: derive the fold from the transcript on disk; never recall it.
+Specs live in `methods/`, one file per method — [[quest]] · [[overview]] · [[compact]] · [[totems]] · [[critical-pass]]; the release-changelog format rides `skills/release` (release ≠ quest — quests feed it, never own it). The compact WALK stays law: derive the fold from the transcript on disk; never recall it.

@@ -26,7 +26,7 @@ registry/           the package STORE (tapped clones; untap keeps the working co
 - **scope proxy** (`belt/scope.js`) — ledger (`VIVA_LEDGER_MOUNT` ?? `~/.viva`) · instance (**THROWS on slug-shaped mount**, populate.js:45-49) · mountpoint · repository · registry (?? `<ledger>/registry`).
 - **hydrate = THE PINHOLE** (`prototypes/instance.js:43-67`): every declaration thunk fires exactly ONCE through a recording Proxy; DEFERRED (secrets) records the read but returns the thunk — a secret never materializes on the instance. `mount = fn.once` → environment → resolve → validate → `publish()` (only `PUBLIC_*` reach Deno.env).
 - **paladin.ledger.*** (`prototypes/ledger/`) — `instances.shelf(slug)` = **the ONE slug→path mapping** (`instances.js:11-13`) · `instances` \& `registry` are per-access getters (no Ledger.mount) · `lock/locks/spawn/kill` · `Lock.alive()` probes **SIGURG** · `Process` detached → unref.
-- **vip/pensieve** — `supply()` = registry.json ?? seed; `mount()` registers every `*.viva.js` under a tapped root, owner-stamped. **`Pensieve.register` last-wins SILENTLY on identical owner/type/slug/version (pensieve.js:22) — no shadow detection**; only the walker skip-list `bak|archive|slp` (`belt/find.js:11`) hides today's ~10 shadow copies under `registry/education/bak/`.
+- **vip/pensieve** — `supply()` = registry.json ?? seed; `mount()` registers every `*.viva.js` under a tapped root, owner-stamped. **`Pensieve.register` last-wins SILENTLY on identical owner/type/slug/version (pensieve.js:22) — no shadow detection**; only the walker skip-list `bak|archive|slp` (`belt/find.js:11`) hides today's ~10 shadow copies under `~/.viva/registry/education/bak/` (the LEDGER's registry, not the repo's).
 - **ghost** — `ghost.sh` sources config env, `VIVA_PROCESS_ID=${VIVA_PROCESS_ID:-$PPID}` (invoker owns the session). `mod.js`: `ctx.call` chaining (`use italian run`) · cwd stratum when shell cwd holds an instance marker · `ctx.interactive` ruled once · `--instance` flag slug→path via `belt/path.js instance()`. **Frame law**: operator tokens with a separator resolve in shell cwd; bare slug → shelf. MOUNT ALWAYS MEANS PATH.
 
 ## verbs (wired: trajectories/{ledger,registry,instance}; sheets/ is DEAD to the CLI — not in trajectories/index.js)
@@ -37,8 +37,9 @@ registry/           the package STORE (tapped clones; untap keeps the working co
 | ledger/doctor | **REAPS dead-pid sessions** (collectSessions → Deno.remove) | a MUTATING read — never "safe probe" |
 | registry/tap · untap | registry.json (+clone if remote) · record removal only | store keeps untapped copies |
 | registry/bootstrap | new package.viva.js named by DESTINATION | clone never shadows source |
-| instance/create | clone.tree only — **does NOT write instances.json** (m44 gap) | |
-| instance/use | session file; `--ledger` → environment.json (**unread post-blast**) | bare use in a pipe = report only |
+| instance/create | clone.tree **+ instances.json record** (m44 landed); `--use` chains into instances/use | `--slug=<name>`; a held slug is a hard error |
+| instances/use | session file; `--ledger` → **ledger `.env` line upsert** (`state.env`) | bare use in a pipe = report only; `--ledger` is undeclared in the schema ([[known-issues]]) |
+| instances/tap · rename | record write · record key move (+ locks, log dir) | tap needs `--slug`; rename refuses while running |
 | instance/init · run · start · stop | .env seed/locks/register · locks · locks · SIGTERM+lock rm | |
 | instance/auth | network only | |
 | instance/doctor | none (ensureDir no-ops; publish = process-local) | **the ONE read-only probe — my control surface** |

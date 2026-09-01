@@ -14,7 +14,7 @@ The persistent design surface maintained alongside beef (`**.ikiro/<name>.quest.
 - **Deferred** — what's out of scope now + the trigger that reopens it.
 - **Forks** — decisions to call before blasting.
 - **Changelog** — session-relative, no dates in compacts; quests may date the changelog.
-- **Release** — MANDATORY (may read `none: no interface moved`): every interface delta as ONE line in the single-change format of `skills/quest-lifecycle/SKILL.md ## release` — `- <verb> \`<surface>\` — <what a consumer notices> · migrate: <action | none> ⟨<quest>⟩`, verb ∈ added·changed·renamed·removed·fixed. Accrues during landing; at sunset the lines LIFT verbatim into `release.md ## unreleased` (quest-lifecycle organ gate). The Changelog above records what HAPPENED; Release records what a CONSUMER now types differently — never merge the two.
+- **Release** — MANDATORY (may read `none: no interface moved`): every interface delta as ONE line in the single-change format of the `release` skill (`skills/release/SKILL.md`) — `- <verb> \`<surface>\` — <what a consumer notices> · migrate: <action | none> ⟨<quest>⟩`, verb ∈ added·changed·renamed·removed·fixed. Accrues during landing; at sunset the lines LIFT verbatim into `release.md ## unreleased` (quest-lifecycle organ gate). Release ≠ quest (beef, emphatic): the quest records what HAPPENED and merely FEEDS the release ledger; Release records what a CONSUMER now types differently — never merge the two.
 
 ## Testing assessment — mandatory
 

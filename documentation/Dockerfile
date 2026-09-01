@@ -29,6 +29,7 @@ COPY --from=build /docs/dist /usr/share/nginx/html
 COPY <<'NGINX' /etc/nginx/conf.d/default.conf
 server {
     listen 2020;
+    absolute_redirect off;
     root /usr/share/nginx/html;
     index index.html;
     location / {
