@@ -1,11 +1,11 @@
-import { join } from "@std/path";
+import { extname, join } from "@std/path";
 import { v, Vector } from "@vivalence/typology";
+import { skip } from "../belt/ignore.js";
 
-const SKIP = new Set(["bak", "archive", "slp", "node_modules", ".git"]);
 const READ_CAP = 16_000;
 const LIST_CAP = 200;
 
-const resolve = (root, path = ".") => {
+export const resolve = (root, path = ".") => {
   const base = root.endsWith("/") ? root : `${root}/`;
   const full = new URL(path.replace(/^\/+/, ""), `file://${base}`).pathname;
   if (full !== root && `${full}/` !== base && !full.startsWith(base)) {
@@ -36,11 +36,12 @@ export const fs = new Vector()
     },
     async (ctx) => {
       const lines = [];
+      const skipped = skip(ctx.ignore);
       const recurse = async (dir, prefix, remaining) => {
         for (const entry of await entries(dir)) {
           if (lines.length >= LIST_CAP) return;
+          if (skipped(entry.name)) continue;
           if (entry.isDirectory) {
-            if (SKIP.has(entry.name)) continue;
             lines.push(`${prefix}${entry.name}/`);
             if (remaining > 1) await recurse(join(dir, entry.name), `${prefix}  `, remaining - 1);
           } else {
@@ -70,12 +71,14 @@ export const fs = new Vector()
       const expression = new RegExp(ctx.input.pattern);
       const start = resolve(ctx.root, ctx.input.path);
       const files = [];
+      const skipped = skip(ctx.ignore);
       const recurse = async (dir) => {
         for (const entry of await entries(dir)) {
           if (files.length >= ctx.input.limit) return;
+          if (skipped(entry.name)) continue;
           const path = join(dir, entry.name);
           if (entry.isDirectory) {
-            if (!SKIP.has(entry.name)) await recurse(path);
+            await recurse(path);
           } else if (expression.test(entry.name)) {
             files.push(path.slice(ctx.root.length + 1));
           }
@@ -135,5 +138,51 @@ export const fs = new Vector()
           } ${ctx.input.content.length} bytes to ${ctx.input.path}`,
         },
       };
+    },
+  )
+  .open(
+    {
+      nature: "/fs/stat",
+      valence: "Size, modification time and format of one file under the root.",
+      input: v.object({ path: v.string() }),
+    },
+    async (ctx) => {
+      const stat = await Deno.stat(resolve(ctx.root, ctx.input.path));
+      return {
+        output: {
+          bytes: stat.size,
+          mtime: stat.mtime?.toISOString() ?? null,
+          format: extname(ctx.input.path).slice(1).toLowerCase(),
+          directory: stat.isDirectory,
+        },
+      };
+    },
+  )
+  .open(
+    {
+      nature: "/fs/move",
+      valence: "Move or rename a file under the root. Both ends stay under the root; parent directories are created.",
+      input: v.object({ from: v.string(), to: v.string() }),
+    },
+    async (ctx) => {
+      const from = resolve(ctx.root, ctx.input.from);
+      const to = resolve(ctx.root, ctx.input.to);
+      await Deno.mkdir(to.split("/").slice(0, -1).join("/"), { recursive: true });
+      await Deno.rename(from, to);
+      return { output: { message: `moved ${ctx.input.from} → ${ctx.input.to}` } };
+    },
+  )
+  .open(
+    {
+      nature: "/fs/delete",
+      valence: "Delete one file under the root. Directories are refused.",
+      input: v.object({ path: v.string() }),
+    },
+    async (ctx) => {
+      const full = resolve(ctx.root, ctx.input.path);
+      const stat = await Deno.stat(full);
+      if (stat.isDirectory) return { condition: "ERROR", output: { message: `${ctx.input.path} is a directory` } };
+      await Deno.remove(full);
+      return { output: { message: `deleted ${ctx.input.path}` } };
     },
   );

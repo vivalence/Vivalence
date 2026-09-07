@@ -1,0 +1,84 @@
+#+title: the crash was the key, not the url; the go lands materialize under the bracket; and the waterfall carries every piece with its call in place
+#+filetags: :m53:vcompany:paladin:instance:doctor:env:landing:blast:waterfall:sibling:known-issue:quest:
+
+* what happened, in one breath
+
+The first fold (compact 103) had just closed when a live crash arrived mid-turn: the italian
+watcher restarted on a recipe edit, applied =Migration20260906141648=, and died in
+=Die.populate → services()= with =SERVICE NLP URL not found in service definition=. Measured
+before speaking: the URL was set, the NLP KEY was blank and =.optional()=, the doctor said
+=faults [] · problems []=, and =settle()= made only hallucinators dormant — a consume mask with a
+blank secret walked past the m52 gate into its provider, whose message named the wrong thing.
+Filed; beef: /"ignore this … no topic here."/ — and the sibling session landed the fix within
+the hour (=daemon.consume= filtered by =alive=, dormant slot =daemon[italian].consume.nlp=), so
+the entry closed with its resolution. He asked to see one paragraph of the plan — the place a
+kernel thunk would never fire — and got the source lines, the hunk, and the record → verdict →
+sentence path. Then /"go materialize."/: the paladin =materialize()= hunk landed under the
+blast-bracket, and the bracket earned its name — 39/164 green before, 39/163 + 1 red after,
+because =tests/kernel.test.js= already carries the law "an inline module is module-shaped:
+hydrate never fires inside it" and the first map hydrated inline modules too; narrowed to
+=is.object(entry) && is.string(entry.module)= — =accioOne='s own discrimination — 40/166, the two
+new =settle.test.js= cases in. The runtime =outfit()= hunk, metadata, the repo and the ledger
+commands stayed gated: a go never reaches a sibling action. Last, /"add another WATERFALL header
+of all the pieces needing fall into place plus subrequirements plus status. progress live etc"/
+and /"calls/forks in the waterfall in place"/ — five tables, 47 rows, every call and fork on the
+row it blocks, =#+progress= live. Budgets held by eviction and trimming: frontier 7930/8000
+after a sibling re-stamp, the memory index 17033 after the hook asked for under 17100.
+
+* spine (N=19; rows 1–14 are compact 103's — one row here)
+
+| n    | beef asked                                                                                                                                              | landed                                                                                                                                                                                                                     | decided / killed |
+|------+---------------------------------------------------------------------------------------------------------------------------------------------------------+----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------+------------------|
+| 1–14 | (compact 103: context by the kilotoken · the brief · the work package · the quest in his shape · slug with filetype · c·o = chief officer, company operator · T0 patch-ready · compact) | —                                                                                                                                                                                                         | — |
+| 15   | [paste] /"Watcher Restarting! … error: Uncaught (in promise) Error: SERVICE NLP URL not found in service definition"/                                     | measured: =VIVA_SERVICE_NLP_REMOTE= set, =SECRET_VIVA_SERVICE_NLP_KEY= blank + =.optional()= in recipe and tapped source alike, doctor =problems []=, =settle()= dormancy = hallucinators only → known-issue =consumed-service-with-a-blank-optional-secret-crashes-after-the-gate=; the migration = the sibling's =ModeTraitsEnum= reorder, harmless | beef: /"ignore this … no topic here."/ · the sibling landed fix (a) — entry closed with =** Resolution= |
+| 16   | /"show me this part: - The one place a kernel thunk would NOT fire: materialize() maps kernel through reference() and skips at() …"/                     | =instance.js:88-91= verbatim · the hunk · =watch= → record ={key, unset, at}= → =check.js= verdict → ="<KEY> REQUIRED at <label>"= (the shape =settle.test.js= already asserts) → =run.js:7= throws before =populate=    | — |
+| 17   | /"go materialize. and add another WATERFALL header of all the pieces needing fall into place plus subrequirements plus status. progress live etc"/       | bracket: baseline 39/164 · hunk · 39/163 + 1 red (=kernel.test.js= inline-module law) · narrowed · 40/166 · italian + hello-world doctors unchanged · =* waterfall= in the quest · =#+progress= live                       | =outfit()= · metadata · repo · ledger commands stay gated — go never reaches a sibling action |
+| 18   | /"calls/forks in the waterfall in place"/                                                                                                               | five tables (T0 · T1 · T2 · T3 · officer stage), 47 rows: piece · needs · status · call/fork on the row it blocks                                                                                                         | — |
+| 19   | /"ikiro compact."/                                                                                                                                      | this fold · index · zettel · budgets                                                                                                                                                                                       | — |
+
+* the bracket catch
+
+The hunk as first written hydrated EVERY object kernel entry. =tests/kernel.test.js= pins four
+kernel forms — bare · absolute · relative · inline — and the law that an inline module
+(=manifest=, no =module= key) is module-shaped: =hydrate= must never fire inside it, because its
+exports are functions the pinhole would call. Three steps went red with =Cannot create proxy
+with a non-object as target= (the fake paladin has no bags; the real one would have executed
+=boot=, =provider=, arrow functions). The narrowing mirrors =vip.accioOne=: an object with a
+string =module= is a MASK and hydrates; an object with a =manifest= is a MODULE and passes
+through. The landed lines:
+
+#+begin_src javascript
+      kernel: kernel
+        .map(reference(module.source))
+        .map((entry, index) =>
+          is.object(entry) && is.string(entry.module) ? at(`${label}.kernel[${index}]`)(entry) : entry
+        ),
+#+end_src
+
+Lesson, logged in the zettel: before a hunk in a resolver, read the tests that pin that
+resolver's laws — the bracket is the net, not the plan.
+
+* the sibling in the same file
+
+=subsystems/paladin/prototypes/instance.js= carries two sessions' work in one uncommitted diff:
+the sibling's =settle()= (consume dormancy, =is.empty= in =watch=, the =label()= pointer grammar)
+and this session's =materialize()=. They coexist; the suite is green with both; the commit is
+beef's. Two empty VCS diffs mid-check were a cwd artifact — the shell had stayed in
+=subsystems/paladin= after a =cd &&=, so a repo-relative pathspec pointed at a directory that
+does not exist and printed nothing. Read as "nothing changed" it would have been a false
+claim; the grep of the landed line settled it. Absolute pathspecs from now on.
+
+* settlement
+
+- the NLP provider still names the URL when the key is what is missing (=commons/services/nlp/provider/index.js:8=) — one-line commons hunk, gated; carried in the closed known-issue's Resolution as owed.
+- the frontier's m53 line held the ontology resolution twice (mine, then the sibling's stamp) — the older clause dropped, the sibling's kept; 7930/8000.
+- the memory index: hooks shortened, their text folded into the topic bodies verbatim, superseded entries dropped from the index (files stay) — 17033 bytes.
+- nothing sunset: T0 is IN FLIGHT, not landed; the quest stays live.
+
+* resumption (owed beef)
+
+- **go** for the runtime =outfit()= hunk + =core()=/=modes()= + metadata =/mountpoint= + =outfit.test.js= — the T0 patch's second third.
+- **go** for the repo (19 files verbatim in the quest) and the 8 ledger commands.
+- CALL: repo location + remote · CALL: which directory =VIVA_VDEX_MOUNT= points at · FORK: type name =office=.
+- T1.a typology go — the one holy touch of the plan.
+- commit of the shared =instance.js= diff (sibling's settle + this session's materialize) — yours.

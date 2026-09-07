@@ -1,0 +1,95 @@
+#+title: the T1 patch is worked out twice, the mode stops leaving its directory, the ignore list becomes one declaration, and the tables lose their prose
+#+filetags: :m53:vcompany:vdex:jdex:openexecutive:paladin:runtime:typology:drapes:dataset:datasink:snapshot:callout:quest:research:
+
+* what happened, in one breath
+
+Beef woke me with an order — /"ikiro wake. do resaerch into openexecutive and jdex. tell me when
+youre up."/ — and, before the research was reported, /"work out t1 patch."/ The research went into
+the quest: the OpenExecutive checkout sits two upstream commits behind and nothing that moved
+touches the port; the officer sources are named per role (cfo has one, ceo has the persona,
+cto has none); the JDex doctrine came from Johnny.Decimal's own pages (/"An index is not an
+inventory"/, /"Creating the note is creating the new ID"/, /"Your filesystem is not your index"/,
+the standard zeros of the €350 Small Business System); the three JDexes on disk were measured
+one by one. T1 was then worked out as a full patch — fifty-three file headings, every repo hunk
+against the tree as read, every package file verbatim, three tests, package fixtures — and two of
+his comments already sitting in the file landed with it: the vdex tools had imported the domain's
+=types.js= by relative path (/"NO. no leaving the mode! stupid. bad. bad claude. retard retard
+retard"/ — the callout; the mode now owns =types.js= and its formatter) and the walker's skip
+list (/"not sure hardcoding this is smart. think holistically. what do we want?"/ — one
+declaration, =belt/ignore.js=, every walker reads it, every caller extends it). Measurement
+corrected the sketch on four points: the runtime's symbol fold keeps a leaf as a STRING, a
+middleware short-circuits only by setting =ctx.output=, the cargo is served from
+=mode.freight.path= so one FRAUGHT line moves both walk and serve, and the typology MIME table has
+no =pdf=. Then three asks in one message: could =boot()= be just DATASET + DATASINK (/"arbitrary
+loader … patch mode onto dataset literals by default … we'd still need to prune on boot"/) —
+answered possible with three holy touches, lean BOOTED first; /"snapshots up the wazoo"/ — a
+snapshot test capturing the index, the assembled hallucination record through a mock faculty,
+the rows, every tool, every aperture route; and the rollout — nine substeps each with its run
+and its visible gate. /"ok. add a T1.#2 section at the bottom with the dataset/sink."/ — done,
+patch-ready: =reader.load= · =writer.each= · owner rows · a co-owner-safe generic =prune= ·
+=DOCUMENT.body= on text rows · BOOTED as the watcher. /"then ikiro compact"/. Then the second
+callout: the waterfall tables had sentences in their cells — /"no tables with fucking text
+retard. gimme table high level serialized enums numbers. then in depth sections!"/ · /"fix"/ —
+rewritten symbolic, depth under headings.
+
+* spine (N=40; rows 1–30 are compacts 103 · 104 · the-comments-move-the-mask's)
+
+| n     | beef asked                                                                                                                                               | landed                                                                                                                                                                                                                                                                                                                                                                                                                         | decided / killed |
+|-------+----------------------------------------------------------------------------------------------------------------------------------------------------------+--------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------+------------------|
+| 1–30  | (the brief · the work package · the quest · c·o · T0 · the crash · materialize · the comments · the store · the shelf · the 404 · /"next stop: vcompany"/) | —                                                                                                                                                                                                                                                                                                                                                                                                                              | — |
+| 31–32 | =/compact= · the two quest paths + /"ikiro wake. do resaerch into openexecutive and jdex. tell me when youre up."/                                       | kernel · frontier · last compact read; research: OpenExecutive local =6e15d65= vs upstream =ba30769= (+2, an OpenRouter dropdown), the role-prompt lines, the builtin finance knowledge, no cto source; JDex doctrine from the source (index ≠ inventory · entry = id + title + location(s) + keywords · standard zeros · partially nested); the three JDexes measured; =** research= in the quest                                | cto is authored new; JDHQ's CLI/API/MCP is later interop |
+| 33–35 | /"work out the full patch for * T1 — vdex"/ · the continuation · /"### task work out t1 patch."/                                                        | =* T1 — vdex= rewritten as a patch: 53 file headings, 39 blocks — package files verbatim, repo hunks (paladin =ignore.js= new · =find.js= · =fs.js= · 2 tests; runtime =install()= · FRAUGHT root · =mod.js= · 1 test; drapes lift · =org.js= · =Org= · =Pdf= · barrel; kajuit Dock import + 2 deletions; typology =freight.js= MIME gated); his two T1 comments landed; T0 files touched (=types.js= trimmed · =lookup.js= re-enveloped) | the mode owns =TEXT= and its line; the ignore doctrine; fold shape · =ctx.output= short-circuit · m26 envelope · =attachCargo= reads =mode.freight.path= · MIME lacks pdf — all MEASURED; NN.00 labels its coordinate |
+| 36    | the design question (/"just dataset and datasink? … arbitrary loader … prune on boot … a filesystem watcher"/) · /"snapshots up the wazoo"/ · /"plan rollout of t1"/ | =*** boot as a dataset= (possible, three holy touches, lean BOOTED first); =vdex.snapshot.test.js= verbatim (index · hallucination record via a capturing mock faculty · rows · every tool · every aperture route + contract); the rollout, 9 steps                                                                                                                                                             | sinks already select by =where=, nothing to remove; the watcher is T1.d in either design |
+| 37–38 | /"ok. add a T1.#2 section at the bottom with the dataset/sink."/ · /"then ikiro compact"/                                                               | =* T1.#2= appended: =reader.load= · =writer.each= · schematics rel fields · =Mode.ts= owner m:n · =Literal/Symbol.ts= inverse + co-owner-safe =prune= · =dataset.js= loader pull, stamp fold, owner in the upsert, prune after install · =datasink.js= each sinks with a per-row dirty drain · =find.js= =hash:false= · vdex =load.js= · =boot.js= = the watcher · =/write= edits the entity · voffice prunes dropped · tests · commands · costs and buys | his call which lands; rollout step 8 |
+| 39–40 | /"again. … no tables with fucking text retard. gimme table high level serialized enums numbers. then in depth sections!"/ · /"fix"/                     | the waterfall's T1 block + rollout rewritten: symbolic tables (id · layer · files · deps · status · go · tests; step · ids · run · gate), depth under =***= per id and per gate; callout logged; this fold                                                                                                                                                                                                                       | T0 · T2 · T3 waterfall tables share the old shape — flagged, not touched |
+
+* the research, in the quest
+
+- OpenExecutive: 27 package dirs, =orchestrator/executive.py= 1559 lines beside 11k of tool modules, eight 16-line agent files, nine role prompts in =prompts/domain_prompts.py= (CFO :29 · CSO :1 · CHRO :57 · GC :86 · COO :113 · CMO :141 · CPO :169 · BOARD_COMMS :197 · TALENT :225 skip), =executive_persona.py= = the ceo voice, =knowledge/builtin/finance/= 9 files; upstream two commits past the checkout, none port-relevant.
+- JDex: johnnydecimal.com 11.05 + blog 0182 — one entry per ID, metadata above the line, partially nested; the SBS standard zeros =.00 .01 .02 .03 .04 .08 .09= (beef cut ours to =.00=); the three JDexes: =coorporation= (20-29 + 30-39 real, no 00.00, the template inside), =organization= (a five-line stale index, jj), =documentation/content= (=jdex.js= derives areas from disk; a =NN.00= stub's title names its area — the rule the vdex boot adopted).
+
+* the two callouts
+
+- /"NO. no leaving the mode! stupid. bad. bad claude. retard retard retard"/ — a relative import from a mode into the domain for one constant. The stored rule (aprende, /"thats not how a registry works"/) existed; convenience outran it. Zettel Callouts; the memory index line now carries the trigger words.
+- /"no tables with fucking text retard. gimme table high level serialized enums numbers. then in depth sections!"/ — prose in table cells, twice, with the T0 waterfall's unremarked shape read as licence. Zettel Callouts; rule: a cell holds an id, an enum, a number, a path — never a clause.
+
+* measured, not assumed
+
+- =gestalten/belt/object.js place()=: the last segment becomes a string value; =vdex= alone → =true=. The T1 sketch had shown nested empty objects — wrong, corrected before any code.
+- =belt/middleware.js compose= + =steer/strategy.js resolve()=: a middleware's return is dropped; only =ctx.output= short-circuits.
+- =gestalten/shard/hallucinate.js dispatch()= → =fromm.yield=: the envelope is ={condition, output}=; legacy bags are lifted, canonical is written.
+- =lifecycle/resolve.js attachCargo=: serves from =mode.freight.path= — the FRAUGHT root line moves walk and serve together.
+- =prototypes/freight.js= MIME: no =pdf=; =hash= belt: string · object · array only.
+- =prototypes/dataset.js=: three readers, no loader; =resolution.js:49-56=: the stamp compare blanks =installed= before stagger; =traits/datasink.js=: twitch-driven canonical files in the module dir, =scribe= compares before writing.
+- =tests/scenarios/mode.js mountMode(viva, { entities })=: precedent =mode/emitters.test.js:44=; HARNESSED joins only with =options.cortex=; =seed(extra)= creates fixture rows with the language-learning Literal class — the one gate item on the vdex tests.
+- =Dock.svelte= is kajuit's only Markdown consumer; kajuit already imports drapes by the barrel.
+
+* process notes (self-caught, no codeword)
+
+- the =re.sub= replacement string ate a =\u= escape — replaced with a lambda; the combining-range regex in =jd.js= is spelled as escapes so no editor can eat it.
+- the frontier anchor I assumed for the m53 line had already been trimmed by the previous fold — read the line, then replace; the second script did.
+- beef renamed my =** T1 rollout= to =*** rollout= in the file between two of my edits; the replacement anchored on the block, not the heading, and carried his level.
+
+* settlement
+
+- both callouts logged in =zettelkasten.md ## Callouts=; the two memory index lines carry their trigger phrases; =feedback_no_cross_module_relative_imports= body carries the recurrence.
+- the T0 · T2 · T3 waterfall tables keep the prose-in-cells shape — flagged in the quest log, not rewritten (his file, his /"fix"/ named the T1 block).
+- the compact index is regenerated by the generator, never hand-patched; the quest report stamped.
+- nothing sunset: T0 in flight, T1 patch-ready twice.
+
+* resumption (owed beef)
+
+- **next stop: vcompany** — the T0 modules on go (rollout step 0), then steps 1–7 in order, step 8 his call.
+- CALL: =* T1= (BOOTED, no holy touch on the path) vs =* T1.#2= (dataset + sink, five typology files) — which lands.
+- typology gos: =freight.js= MIME (+pdf) · the T1.a rel fields · the "one noun" Mask lines · (=#2=) =reader.load= + =writer.each=.
+- CALL: the JDex target on the shelf · the remote · type name =office= · the sibling waterfall tables' shape.
+
+* quest report (derived at fold — `methods/quest-report.py`)
+
+| quest                    | progress  | status | next                                                                                                                                                                                                                                                                                                                                                                                                                            | sessions   |
+|--------------------------+-----------+--------+---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------+------------|
+| m46-linux-readmen        |  17% 3/18 | wip    | drain                                                                                                                                                                                                                                                                                                                                                                                                                           | 6 (1 live) |
+| m50-the-three-way-weave  |  60% 3/5  | wip    | blast                                                                                                                                                                                                                                                                                                                                                                                                                           | 1 (1 live) |
+| m51-standalone-slowstart |   0% 0/18 | design | go                                                                                                                                                                                                                                                                                                                                                                                                                              | 1          |
+| m53-vcompany             | —         | open   | **next stop: vcompany** (beef) — the t0 modules on go (domain voffice · office/{vdex,email,chat} · officer/{ceo,cfo,cto} · readme · ignore file), then t1 on go: t1.b paladin (find/fs/ignore) + drapes (markdown lift · org · pdf) → t1.c vdex; typology gates: `freight.js` mime (+pdf) · the t1.a rel fields; call: the jdex target on the shelf · call: boot as a dataset (=* t1.#2=, patch-ready) vs booted first (=* t1=) | 1          |
+| m53-vcompany.pre         | —         | open   | t1 package setup — the m27 gate moves to the executive stage; t1–t3 do not wait on it                                                                                                                                                                                                                                                                                                                                           | 0          |

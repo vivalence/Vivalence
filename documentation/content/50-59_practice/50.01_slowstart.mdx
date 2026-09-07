@@ -314,7 +314,7 @@ VIVA_RUNTIME_ORIGIN="http://localhost:2501"
 # Lighthouse signing secret. Minted at first init; rotate with: openssl rand -base64 24
 SECRET_VIVA_JWT="P5BP…"
 # Anthropic key. Without one the daemon attaches no hallucinator and /hello/agent answers as the bot.
-SECRET_VIVA_ANTHROPIC_API_KEY=""
+# SECRET_VIVA_ANTHROPIC_API_KEY=""
 
 $ viva instance/init you changeme
 # the same, headless — refuses until .env is complete
@@ -322,6 +322,8 @@ $ viva instance/init you changeme
 $ viva instance/doctor
 …
 problems                       —
+faults                         —
+dormant                        daemon[hello].hallucinators[0]
 lock                           null
 ```
 
@@ -334,7 +336,10 @@ expanded on read, so nine addresses derive from one origin and moving to a real 
 single edit. A `SECRET_*` key is a secret wherever it is written. Then `init` boots the
 instance piped, signs the first user up against the lighthouse — the identity service; there
 is no signup UI — and shuts down again. `instance/doctor` afterwards: every key with its
-verdict, plus daemons, services, clients, runtime.
+verdict, plus daemons, services, clients, runtime — and two lines the instance schematic adds:
+`faults`, what it refused (an address that is not a URL), and `dormant`, hallucinators dropped
+because their key is blank (the Anthropic one above). `instance/run` refuses while a verdict or a
+fault stands, and points back here.
 
 ## 5 — `viva instance/run`
 

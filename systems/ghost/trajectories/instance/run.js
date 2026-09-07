@@ -5,6 +5,7 @@ const SIGNALS = { 129: "SIGHUP", 130: "SIGINT", 131: "SIGQUIT", 137: "SIGKILL", 
 
 export async function run(ctx) {
   const instance = await register();
+  await paladin.instance.mount();
   const attachment = ctx.signal.flags?.logged === true ? "logged" : "inherit";
   const die = await paladin.ledger.boot(specs(ctx.signal.params[0]), { instance, attachment });
 

@@ -3,8 +3,7 @@
   import { chain, stores, dictation } from "@vivalence/kajuit";
   import { soma } from "@vivalence/typology";
   import { TERMINALS, BRIDGE, BOX } from "$client";
-  import { Json } from "@vivalence/drapes";
-  import Markdown from "./Markdown.svelte";
+  import { Json, Markdown } from "@vivalence/drapes";
   import Dictaphone from "./Dictaphone.svelte";
   import { spliceAt } from "./dictate.js";
   import {

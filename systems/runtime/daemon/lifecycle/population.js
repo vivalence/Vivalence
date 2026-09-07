@@ -7,6 +7,8 @@ import { DataRepository, sets } from "@vivalence/runtime";
 
 import * as traits from "../traits/index.js";
 
+const unmask = (register) => register.service ?? register;
+
 export async function core(die) {
   const registry = {
     lighthouse: die.mask.lighthouse,
@@ -19,7 +21,7 @@ export async function core(die) {
   die.register = await paladin.vip.accioMap(registry);
 
   die.good.domain = v.primitives.kernel.Domain.cast(
-    die.register.kernel.find((module) => module.manifest?.type === "domain") ?? {},
+    die.register.kernel.map(unmask).find((module) => module.manifest?.type === "domain") ?? {},
   );
 
   die.instance.traits = {
@@ -121,7 +123,11 @@ export async function services(daemonDie) {
 export async function modes(daemonDie) {
   await daemonDie.datamap.shard.context(async () => {
     for (const register of daemonDie.register.kernel) {
-      const mode = new Mode(register);
+      const mask = register.mask ?? {};
+      const mode = new Mode(unmask(register));
+      mode.statics = mask.statics ?? mode.statics;
+      mode.secrets = mask.secrets ?? {};
+      mode.mountpoint = mask.mountpoint ?? null;
       mode.mount = daemonDie.good.mount.clone().branch(`/mode/${mode.type}/${mode.slug}`);
       mode.url = daemonDie.good.url.branch(mode.mount.nature);
 

@@ -1,0 +1,177 @@
+#+title: the wake finds a sibling in the quest, the V3 design is read whole, and the vdex pass lands compile-green in scratch, waiting on go
+#+filetags: :m53:vcompany:vdex:screens:design:v3:drapes:kajuit:svelte:quest:sibling:compact:
+
+* what happened, in one breath
+
+/"ikiro wake m53, kajuit, drapes."/ — kernel, frontier, the m53 quest's head and log, the T1.1 section,
+the live =Vdex.svelte=, the drapes tree, the kajuit shard, the m53 memory. Mid-wake beef sent the second
+design handoff: two DesignSync imports (=V3 System.dc.html= · =V3 office-vdex.dc.html=, =support.js= as the
+runtime) and the order — /"i watn you to do a pass on the vdex modes application. surface pass.
+functionality pass. there will be some rough edges where the design wants features we dont have yet. like
+drag and drop for file upload and download. mark those. topic later."/ Both design files were read whole
+(53 kB · 85 kB · the =v3-data.js= fixture · =github.md=); the tree the pass touches was measured before a
+line was written (the client subscribe contract, the radius tokens, the real JDex's reference habits, five
+svelte a11y probes). Meanwhile the m53 quest changed under me twice — another session was landing T1.1's
+second cut (e1 · p1 · k1, ~540 lines) and then reshaped the file to 7616 lines with T1.B collapsed onto one
+line — so the pass went into a sibling quest file. Eleven package files: the App split into a shell, seven
+parts and one pure module of the client's JD grammar with its own suite over the rows snapshot; 20 steps
+green in scratch; nothing landed; the LATER list marked; one delta owed to T1.1's =placement= (rename in
+place) and one drapes line (=Pip= tone =success=). /"ikiro compact."/
+
+* spine (N=3 this session · the seventh m53 compact; the six before carry the quest's rows 1–77)
+
+| n | beef asked | landed / decided |
+|---+------------+------------------|
+| 1 | /"ikiro wake m53, kajuit, drapes."/ | the kernel · frontier · quest head + log + T1.1 (first cut, then the second cut arriving) · live App · drapes barrels · kajuit shard · m53 memory read; no code |
+| 2 | MID-TURN: the two DesignSync imports + /"i watn you to do a pass on the vdex modes application. surface pass. functionality pass. there will be some rough edges … like drag and drop for file upload and download. mark those. topic later."/ | design read whole · tree measured · 11 files written to scratch · 20 steps green · sibling quest file + pointer + index line + memory · report with the LATER list; waiting on go |
+| 3 | /"ikiro compact."/ | this fold |
+
+Balance: N=3, the session IS row 2; the test is moot at this length.
+
+* the wake (row 1)
+
+The kernel says the codemap shard is the one thing that auto-loads and that a shard claim is a lead, never
+a fact — so the wake read the kajuit shard as leads and the code as the territory: the live App still the
+s2 file (a tree sidebar, a reader with read/edit, a bottom sheet under 820), the drapes barrels carrying
+the office parts (=Key= · =Tile= · =Plate= · =Entry= · =Empty= · =Pip glow=), the T1.1 section in its
+first cut with =h1 t1 b1 a1= and, minutes later, in its second cut with =e1 p1 k1= beside them. The quest
+file grew by ~540 lines between two greps: the first read was of a moving target. The frontier and the
+quest index changed on disk during the session too — the other session's disintegrate.
+
+* the handoff, and the pass (row 2)
+
+** the design, read whole
+
+=V3 System.dc.html=: zones =s0–s5= (page · card · recess · raised · selection at 45–55 % · overlay with
+shadow-soft), four faces (K2D mark · Poppins heading · Inter text · Victor Mono code), radii 2 px mark ·
+.125 tag · .425 block · .75 pill, spacing 4 · 8 · 12 · 16 · 24, 44 px touch, ONE breakpoint at 820, the
+drapes chrome as landed (s1), the vocabulary (three ontologies, the symbols, the slug grammar, the kernel,
+the tools' one envelope), the office parts, seven rules. =V3 office-vdex.dc.html=: a 44 px Frame header
+(▥ · crumbs · slug · find with a dropdown · read/edit/raw · ☰ · save chip), a browser with four views
+(tree · columns · list · grid), a ⋯ menu (new · rename · sort · move to · duplicate · export · import ·
+reindex · delete with y/n), drag docs onto categories, drop files, a resize handle, inline rename; the
+document as h1 + sections that fold, → references as jumps, a block editor with a floating toolbar, a raw
+view with line numbers and frontmatter, a pdf viewer with chips; an outline with sections (drag reorder,
+▲▼, fold/expand all, blocks) · links (uses → · ← in · a link input) · info; a status bar with the boot
+tail and the last three calls; the keys =j k h l ↵ n r m d ⌫ E s I e g v w / ⌥1 ⌥3 ⌘S ⌘D=. =v3-data.js=
+is the fixture (18 documents, three areas) — the design's =uses= and =→ NN.NN= links live there, not on
+disk.
+
+** measured before writing
+
+- =RemoteRepository.subscribe(where, callback)= → =callback(merged | null, event)=, =event.op= ∈ create
+  · update · delete, =event.entity= the wire row; the teardown is the return.
+- =Frame= hands five props; =daemon.entities.<type>= is measured reach (hello-world's App); the dojo reads
+  =terminal.daemon=.
+- dapper emits =--border-radius-{sm,default,lg,full}= as CSS vars (the design's four radii, one to one);
+  =--colors-skeleton-4/5-*= exist (nordic zones 4 accent · 5 overlay).
+- the real JDex (=/Users/finn/vivalence/coorporation=) carries bare =NN.NN= numbers and no arrows; its md
+  uses =##= sections with =###= inside.
+- svelte 5.39.6 a11y (probed, not recalled): a root div takes keys only as =role="presentation"= with
+  =tabindex="-1"= (=application= and =region= both warn); =autofocus= warns — an action focuses; a click on a
+  prose wrapper needs =role="presentation"=; a class that drapes =drag.js= adds at runtime (=lifted=) must
+  be =:global= or the selector is "unused"; =<input>= inside =<button>= is invalid — a renaming row is a div.
+- =jd.js= grammar: id =NN.NN=, category =NN=, area =NN-NN=; slug = prefix · folded stem · extension.
+- the mac's ⌥1 arrives as =¡= — shortcuts read =event.code=.
+
+** the pass — what lands, what is later
+
+Surface: the Frame header, the browser (head · four views · ⋯ menu with move-to and the y/n delete · a
+160–560 px drag handle · an inline new-title row · inline rename), the document (h1 · sections cut at the
+shallowest heading below the title · fold heads with block counts · prose through =Markdown= · =Org= ·
+=Json= · footer with → references · the edit textarea and its tray · the pdf viewer with chips), the
+outline (sections with ▲▼ and drag reorder · links · info; an overlay when crowded; a pill when hidden),
+the 28 px status bar (counts · the last three calls · the last refusal in danger ink); zones 0/2/3/4/5,
+radius tokens, the faces and sizes per the token map, 820 as the drill, 44 px under coarse pointers.
+
+Functionality, over T1.1's aperture: read · edit · save (⌘S; drafts kept per slug across switches) ·
+discard · new (=/file= at the next free id, md) · rename (=/move= same id) · move (=/move= next id under the
+target; the menu or a drag onto a category) · delete (=/delete=, y/n) · duplicate (=/file= with the text) ·
+find =id: · format: · text= · sort · four views · the keys · fold · reorder (the text rearranged, one
+=/write=) · =→ NN.NN= and =[[NN.NN …]]= as jumps · the twitch as two precise subscriptions (T1.1's a1
+folded in; the file supersedes its hunks) · =buffer.data.open= and =.id=.
+
+Later, MARKED, his order: upload/import + drop files · download/export · OS drag-out · backlinks ← in (the
+sync fills =uses=) · link editing · the block editor · the raw view (edit IS the source; a third segment
+would lie) · ocr · ↗ ask · reindex (T1.1's watcher moots it) · rename/duplicate of a loose id-less document
+· a binary duplicate · the mount path in the status bar (=mode.statics= unmeasured on the client) · the
+find note names the client fold, not =voffice_lookup=.
+
+** decisions (all overturnable; the quest file carries them)
+
+- shell + parts under =buffer/parts/= (the dojo precedent); the client's JD grammar in =buffer/jdex.js= as
+  pure functions with a suite over the rows snapshot; the App imports nothing from the server side of
+  the mode and nothing outside it.
+- sections are LINE RANGES cut from the text, not the renderer's AST — fold · reorder · outline need no
+  serializer, and the drapes parsers stay internal. Reorder = =rearranged(text)= → one =/write=.
+- a reference is rewritten into the format's own link grammar (=[→ 22.04](#vdex:22.04)= ·
+  =[[#vdex:22.04][→ 22.04]]=) and ONE delegated click on the prose jumps; the file keeps =→ 22.04=.
+- read · edit only. No raw segment until a block editor exists.
+- keys on the App's root, never on the window — a buffer App is one of several panels; focus inside is
+  the gate. Inputs and textareas swallow keys.
+- every wire call lands in the status bar; a refusal is shown there — the aperture's messages name the
+  next move and are meant to be read.
+- rows are =$state.raw= (2000 pojos from the wire); cursor and chrome are =$state=.
+- the design's LATER verbs stay visible as disabled menu entries and chips labeled =later= — the intent
+  shows, nothing pretends to work.
+- ONE drapes line (=Pip= tone =success=) — the design system's Pip row names =done= as success; without it
+  the chip falls back to muted.
+- T1.1's =placement= must let a document keep its own id — a rename in place is refused today as /"one
+  document already"/; the hunk is in the quest file, on the sibling's landing.
+
+** the sibling
+
+The m53 quest was under another session's pen the whole window: T1.1 grew from its first cut to its
+second between two reads; then the file went from 8214 to 7616 lines with T1.B (=* T1.B — the vdex as a
+dataset and a sink=) collapsed onto ONE line at 4802 — theirs, flagged, not touched. The frontier and the
+quest index were rewritten on disk mid-session (m55 M1 LANDED, m54 TIED UP). So the pass lives in
+=quests/m53-vcompany.v3-vdex.org= (2817 lines: intent · the map table · decisions · rules kept · gates ·
+land · log · the 11 files whole · two hunks), a pointer heading was appended at the main quest's tail (a
+=>>=, the one write that survives a wholesale rewrite worst), and the quest index got the sibling file's
+line. The compact's quest report runs WITHOUT =--stamp= for the same reason.
+
+** the tests, and two wrong expectations of mine
+
+=tests/app.test.js= compiles the 8 svelte files with =svelte/compiler= (=runes: true=) and asserts zero
+warnings — the only red on the first run was the runtime =lifted= class (fixed =:global=).
+=tests/jdex.test.js= — 12 cases over =vdex-rows.snapshot.json=: node order, area ranges, coordinates and
+the unfiled, =nextId=, =find=, the id sort, sections for md · org · headingless · json, =rearranged=,
+=references= · =linked=, =size= · =age=. Two reds were my expectations: =age= of 37 days is =1mo= (the
+function was right); =localeCompare= sorts =~= BEFORE digits, so the unfiled-last rule became an explicit
+comparator instead of a sentinel string. 20 steps green.
+
+* settlement
+
+- =quests/m53-vcompany.v3-vdex.org= NEW (the pass, whole); =quests/m53-vcompany.org= +one pointer heading
+  at EOF; =quests/index.md= +the sibling file's line (live 8).
+- =project_m53_vcompany.md=: description + State (V3 pass DESIGNED, the file list, the LATER list, the
+  laws learned) · =MEMORY.md= line.
+- frontier m53 line: +/"V3 vdex pass DESIGNED (sibling file), waiting on go"/.
+- scratch: =vdex-v3/= (the 11 files, the two probes, the rows snapshot copy) — the go copies from the quest
+  blocks or from here.
+- callouts: none (no codeword). dates: none in this file.
+- loose ends walked: the collapsed T1.B line is the sibling's mid-edit, not a rule case — carried, not
+  fixed; the underscore in =own_path= is the sibling's name to choose — noted in the hunk.
+
+* resumption (owed beef)
+
+- the go on the V3 pass → copy the 11 files onto the shelf, run the vdex suites, restart the runtime (the
+  App bundles at boot), the 12-gate click-through.
+- the T1.1 second cut's go (the sibling's) — the pass rides =/file /move /delete=; the =placement= delta
+  rides with it.
+- the LATER list's order — his.
+- still open from the folds before: the slow first attach (boot race under =instance/run=); =* T1.#2= his
+  call; T2 re-cut; the =probe= identity on his lighthouse; commits (everything uncommitted).
+
+* quest report (derived at fold — `methods/quest-report.py`)
+
+| quest                    | progress  | status   | next                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                | sessions   |
+|--------------------------+-----------+----------+---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------+------------|
+| m46-linux-readmen        |  17% 3/18 | wip      | drain                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                               | 6          |
+| m50-the-three-way-weave  |  60% 3/5  | wip      | blast                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                               | 1          |
+| m51-standalone-slowstart |   0% 0/18 | design   | go                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                  | 1          |
+| m53-vcompany             |   0% 0/5  | open     | **t1.1** (his heading, lifted to =*= at the t1/t2 seam) — the second cut answers his seven comments: slug verbs implemented once in the aperture (=/file= =/move= =/delete=), tools as their application, =open= an emitter, per-path =sync= (no stamp, no full pass after boot), prune inline through the em (the domain's =nativedelete= methods deleted), the app on two precise subscriptions; 12 rows, waiting on go; officers out for now; then **the slow first attach** (his paste, /"again. very slow."/): the boot race under `instance/run` — gate kajuit's first attach on the runtime or lengthen the 8 s budget, and time the boot phases (dataset install · app bundle · cargo walk); runtime restarted (measured at wake: the screens app bundled `ad34d4c8…`, 2.73 mb, beside the stub's `86e158e2…`) → gs1/gs2 click-through — his; the bundle weight is ledgered (`known-issues` `buffer-app-bundles-carry-2.6-mb-of-dead-weight`) and its direction is his; then s3 voffice → s4 desk on go; call nothing — calendar ruled a mode; `* t1.#2` his call; t2 re-cut (vendor services + shared imap/smtp belt); g4/g7 ride the screens app; the `probe` identity on his lighthouse is his to delete | 3 (2 live) |
+| m53-vcompany.pre         | —         | open     | t1 package setup — the m27 gate moves to the executive stage; t1–t3 do not wait on it                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                               | 2 (2 live) |
+| m53-vcompany.v3-vdex     | —         | designed | his go → copy the 11 files onto the shelf (=land= below), run both suites, restart the runtime (the app bundles at boot), click through the gates; the t1.1 =placement= delta rides the sibling's landing; the later list is his to reorder                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                         | 0          |
+| m54-buffer-file          |   0% 0/4  | open     | reconcile with m53 =* t1.1= first (a sibling session, beef's rulings there: the vdex speaks slugs — =/document /write /file /move /delete= implemented once in the aperture, tools wrap =mode.call.<verb>=, =fs_*= slurp gone on vdex; =open= is an emitter; the boot watches files and syncs per path — /"shouldnt this watch files??!!!"/; /"wtf is daemon traits stamp????"/ → gone) — three seams now name the verbs' home (t1.1 aperture · m54 sketch · mikro-first repository), beef arbitrates; then beef reopens the questioned block when ready — order of design there is mikro entity + bufferrepository verbs → typology verb contract → shard mounts → remoterepository mirrors → kajuit. until then m1 = everything but the verbs. "go m1" → full hunks against the tree as read.                                                                                                                                                                                                                                                                                                                                                                                                                     | 1          |
+| m55-recursive-terminals  |  20% 3/15 | wip      | go m2 — the kajuit terminal: up · down · status · stop · run · watch, the tree, the schematic, panel f                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                              | 1 (1 live) |

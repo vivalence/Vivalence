@@ -16937,11 +16937,15 @@ Steps 1–2 are S and independent of 3–6. Steps 3–4 are one M. Steps 5–6 a
   no code moved. Containers =readmen-ubuntu= · =readmen-alpine= left running; scratch copies of the
   raw logs under the session scratchpad =m46/= (ephemeral — this file is the durable copy).
 
+- the tty-walk pass (step 0 only): container =readmen-tty= with a shared pty on alt host ports; README §0 fixed on beef's order (=sudo apt-get update && …=, =sh -s -- -y=, live =export PATH=) · =install.sh:9= fresh-shell check · paladin boot no longer scaffolds an absent ledger home, doctor =present= = on disk, =✗ ledger … → viva ledger/init= · =node-gyp= declaration TESTED and rejected (lock re-resolve → vite 8 peer conflict) · GitHub =d9c2cd8= carries =commons/= but its README lags
 * release
 
 - changed: ghost never authors `KEY=""`. An unset key is written `# KEY=""` by `ledger/init` and `instance/init` — it documents the key without claiming it, so a value set lower (machine-wide `~/.viva/.env`, the OS) shows through; the wizard fills the commented slot in place (`paladin.state.line` / `state.env`, `systems/ghost/belt/envfile.js`).
 - added: a daemon enrolls an identity ONLY at `/userspace/handshake` (one upsert; `identity.enroll()`); every other route reads the user or answers `401 USER_NOT_FOUND — /userspace/handshake first`. kajuit handshakes before it attaches. (`subsystems/typology/gestalten/shard/secure.js authenticate/authorize`, `commons/lighthouses/multiplayer/provider/index.js`, `systems/runtime/daemon/aperture/userspace.js`)
 - changed: `shard.secure.authorize()` no longer verifies+provisions in one breath — `authenticate()` (identity) sits at the daemon root; `INVALID_TOKEN` now only ever means the token.
+- changed: README §0 pipes the deno installer with `sh -s -- -y` — PATH persists headless (docker, CI, piped); the `export PATH` line is live for the current shell; the apt line carries `apt-get update` and says "drop sudo as root".
+- changed: `deno task install` warns about PATH only when a fresh `$SHELL -lic` shell cannot find `viva` (was: when `~/.deno/env` is absent).
+- changed: `viva ledger/doctor` before `viva ledger/init` creates nothing and answers `✗ ledger <home>  → viva ledger/init` (was: created `<home>/registry` on boot and printed `✓`). A doctor scope row's ✓ now means the path exists on disk.
 - added: an environment key's `.default(fn)` mints its value once, at first `instance/init` — hello-world's `SECRET_VIVA_JWT` no longer prompts (`systems/ghost/belt/envfile.js fallback`)
 
 earlier: no interface moved. (Rows 5, 6, 9, 10, 11 of the blast table will each produce one line here
@@ -16962,10 +16966,101 @@ beef: /"run the local readme.md installation steps step by step through docker c
 |---+------+----------+---------|
 | 1 | =sudo apt-get install …= | =sudo: command not found= (root, stock image); =apt-get update= needed first (81 s) | FIXED this walk — beef: /"fix both"/ → README line 1 is now =sudo apt-get update && sudo apt-get install …   # debian/ubuntu — drop sudo as root= |
 | 2 | =curl … install.sh \| sh= | headless: deno 2.9.6 in 6 s, no rc edit, no =~/.deno/env= | FIXED this walk — installer runs its shell setup only when stdout is a tty (=[ -t 1 ]=) or =-y=; README line 2 is now =sh -s -- -y= (writes =~/.deno/env= + sources it from =.profile=, proven in a fresh =$HOME=), line 3 =export PATH= is LIVE (this shell only; it was commented, so a same-shell reader hit =deno: command not found= at =deno task install=) — and =-y= satisfies =systems/ghost/install.sh:9=, so the false warning leaves the README path |
-| 3 | =deno task install= | 22 s, =viva → /root/vivalence=, config written; warns =~/.deno/bin is not persisted on PATH (no ~/.deno/env)= although =.bashrc= already carries it | =systems/ghost/install.sh:9= tests =~/.deno/env=, not PATH persistence — false warning for a reader who did line 3 by hand |
-| 4 | =viva ledger/doctor= (before =ledger/init=) | prints =✓ ledger /root/.viva= with =.env absent · registry.json 0 tapped= — and =~/.viva/registry/= now EXISTS | =subsystems/paladin/lifecycle/integrate.js:30= =state.dir(paladin.scope.registry)= scaffolds on every paladin boot; a read verb creates the ledger dir and then vouches for it. Doctor should say "no ledger — =viva ledger/init=", not ✓ |
+| 3 | =deno task install= | 22 s, =viva → /root/vivalence=, config written; warns =~/.deno/bin is not persisted on PATH (no ~/.deno/env)= although =.bashrc= already carries it | LANDED (beef: /"go"/) — =install.sh:9= now asks a fresh shell: ='${SHELL:-sh}' -lic 'command -v viva'=; container (bash, =.bashrc=-only PATH) and beef's mac (zsh) both pass silent |
+| 4 | =viva ledger/doctor= (before =ledger/init=) | prints =✓ ledger /root/.viva= with =.env absent · registry.json 0 tapped= — and =~/.viva/registry/= now EXISTS | LANDED (beef: /"go"/) — =integrate.js= returns before scaffolding when the ledger home is absent (=ledger/init= is its one creator, mirroring the instance-home rule); doctor's =present= is now on-disk (=Deno.stat=) for every scope, =Home= takes a =tail= and the ledger row reads =✗ ledger /root/.viva  → viva ledger/init=. Proven on the walk path: container =~/.viva= wiped, doctor creates nothing, =ledger/init= still scaffolds =locks logs registry instances sessions=. Suites: paladin 37/153 green; ghost 87 + the pre-existing =strata.wet= two-shells red (same red with the gate reverted) |
 | 5 | the clone line | GitHub is =d9c2cd8 fix docs= (pushed today) and CARRIES =commons/= now; its README (392 lines) differs from local (389): local drops the per-daemon =lighthouse= block from the =instance.viva.js= snippet (the hoist) and adds =# viva instance/create @commons/instance/hello-world --use --init= | GitHub README lags the hoist; =--init= exists in =systems/ghost/trajectories/instance/create.js:52= — verify at step 3 |
-| 6 | =deno task install= | =Warning node-gyp was used in a script, but was not listed as a dependency= | pre-existing, cosmetic |
+| 6 | =deno task install= | =Warning node-gyp was used in a script, but was not listed as a dependency= | no diff — declaring =node-gyp= in =import_map.json= re-resolves the lock: vite 8.1.0 vs =@deno/vite-plugin= / =@sveltejs/kit= peer 5–7, task exits 1; baseline exits 0 |
 
 ** scripts + logs
 scratchpad =tty/step0{a,b,c}.sh= mirrored at =/walk/= in the container with their =.log= twins. Steps 1–6 wait on beef's =go=.
+
+* walk — docker ubuntu, m52 tree — README 0–6 + every ghost verb + the runtime API from the host (the go-52 session)
+
+beef: /"all docs and readme up to date? once them, run a fresh ubuntu docker image and step through the
+readme. scout past compacts for method"/ · mid-walk: /"run the various ghost trajectories and test api"/
+
+The fifth walk. Stock =ubuntu:24.04= (=readmen-m52=, host =127.0.0.1:2501/1794=), the LOCAL tree with m52
+landed (tar 125 MB / 6249 entries, =COPYFILE_DISABLE=1=, nlp =tmp= + docs =dist/.astro= excluded), the
+docker-live recipe verbatim (=VIVA_PROCESS_ID=1=, headless inits, the 4-line bind edit, =docker exec -d=).
+GitHub probe: HEAD =b0fc2f75= = local HEAD, its README 389 lines with 4 =new Url= — the lag is the
+uncommitted tree only. Docs first: 51.02 (composed standalone fences: 4 =new Url=, =statics: {}= ×2,
+=consume: {}=, JWT default), 32.01 (thunk line; move 2 "becomes a Url" → "becomes the string it read";
+move 5 "validate & publish" → "settle & publish" with dormant/faults/decode; =run.js= gate line), 50.01
+(=.env= sample: anthropic line COMMENTED; doctor fence + =faults=/=dormant= lines + a paragraph), README
+(§4 doctor sentence, §5 lock sentences, §6 =@viva= → =@commons=/=@education=); the tracked emacs autosave
+=#50.01_slowstart.mdx#= removed on order; =deno task --cwd documentation build= 10 pages green.
+
+** steps — command · wall · verdict · README delta
+
+| step | command                                                  | wall   | verdict | what printed vs the README |
+|------+----------------------------------------------------------+--------+---------+----------------------------|
+| 0.1  | =apt-get update && apt-get install -y curl ca-certificates unzip git= (root) | 13 s | PASS | as the README's comment says |
+| 0.2  | =curl … install.sh \vert sh -s -- -y=                    | 5 s    | PASS    | deno 2.9.6; =.bashrc= + =.profile= carry =~/.deno/env= |
+| 0.4  | =git clone= (probe)                                      | 32 s   | PASS    | =b0fc2f75= — no =commons/= gap any more, only m52 missing |
+| 0.6  | =deno task install= (local tar as =~/vivalence=)         | 19 s   | PASS    | =viva → /root/vivalence · config: /root/.config/viva/env= |
+| 0.s  | =viva ledger/doctor= before init                         | 3 s    | PASS    | =✗ ledger /root/.viva → viva ledger/init= (tty-walk landing holds) |
+| 1    | =viva ledger/init= headless                              | 0.4 s  | PASS-WITH-DEVIATION | =paladin.scope overwrite= stray line (still); doctor =.env present 0 vars · 0 secrets= — README said =1 vars · 4 secrets · 5 blank= → CAPTURED into the README |
+| 2    | =registry/list= · =registry/tap …/registry-education=    | 1 s · 9 s | PASS | first-run list = keyed block, 21 modes — README had a one-row table with 22 → CAPTURED; tap 21 modes =@education=; doctor =2 tapped · 1 resident= |
+| 3    | =instance/create @commons/instance/hello-world=          | 1.4 s  | PASS    | shelf =diff -r= IDENTICAL to commons, 0 =new Url= |
+| 4    | =instances/use= · =instance/init= headless               | 0.3 s  | PASS    | =env present · next viva instance/init <username> <password>=; =.env= JWT minted, anthropic COMMENTED |
+| 4.d  | =instance/doctor= before the wizard                      | —      | PASS (m52) | =problems —= · =faults —= · =dormant daemon[hello].hallucinators[0]= |
+| 4h   | =instance/init admin changeme=                           | 7.9 s  | PASS    | =signup SUCCESS=, no listeners after, =locks/= empty |
+| 4b   | bind edit (docker only)                                  | —      | —       | doctor still =faults —= (=http://0.0.0.0:2501= is a URI with an authority) |
+| 5    | =instance/run= (=docker exec -d=)                        | 17 s to 200 | PASS | =launching on http://0.0.0.0:2501/=, =Status:ALIVE= ×2, one lock, =processes= table |
+| 5.o  | host: =/status= · =/manifest= · =:1794/= · =-4/-6=       | —      | PASS    | =ALIVE= · manifest byte-identical to the README · 200 html · v4 200 / v6 000 |
+| 5.l  | host: =auth/login= admin/changeme · wrong                | —      | PASS    | =SUCCESS= · =INVALID_CREDENTIALS= |
+| 5.b  | Chrome                                                   | —      | NOT WALKED | the Chrome extension is not connected in this session — container left UP for beef |
+
+** every ghost verb, instance UP (step7/8/9 scripts)
+
+| verb | verdict | printed |
+|------+---------+---------|
+| =help= | PASS | 17 natures with params + valence, flags line |
+| =ledger/doctor= | DEFECT → FIXED (go) | was =locks/ 0 running 1 dead= + =processes [object Object= (=Doctor.jsx:21= filtered on =lock.alive=, never set); now =1 running= + =runtime=5898 kajuit=5899= — a lock =read()= returns IS alive · known-issues RESOLVED |
+| =registry/doctor= | PASS | =42 modes · 18 types · 2 owners=, census per owner |
+| =registry/list= · =instances/list= · =instance/doctor= | PASS | lock block with the =processes= table; =dormant daemon[hello].hallucinators[0]= |
+| =instance/lighthouse signup reader secret= ×2 | PASS | =SUCCESS= then =400 — Username already taken= exit 1 |
+| =instance/start= · =instance/run runtime= · =instance/delete --force= · =instances/rename= (while running) | PASS | all four refuse with =already running (supervisor 4080) — viva instance/stop= |
+| =registry/untap @education/package/education= | DEFECT → FIXED (go) | was exit 0, record unchanged (identifier + garbage both silent no-ops); now =tapped()= resolves key · =./key= · mount · identifier, garbage refuses =no tapped package … — viva registry/list= exit 1 · known-issues RESOLVED |
+| =registry/untap registry-education= · =registry/tap <store path>= | PASS | record → =@commons= only → both again |
+| =instances/tap <commons hello-world> --slug=tapped= · =instance/delete tapped --force= | PASS | tapped row; delete = =files kept — off-shelf (tapped)= |
+| =instances/untap= | — | no such verb (=instance/delete= is the untap) |
+| =instance/doctor tapped= (after its delete) | DEFECT-ish | answers for the SESSION instance (hello-world) instead of "no instance 'tapped'" |
+| =registry/bootstrap= (no args) | PASS | usage line, exit 1 |
+| =instance/stop= | PASS | =stopped hello-world (supervisor 4080: runtime=4120, kajuit=4121)=, children exit 0, no listeners, =locks/= empty; second =stop= → =not running · nothing-to-stop= exit 0 |
+| =instance/start= | PASS | =started hello-world (supervisor 5865)=, logged to =logs/hello-world/{runtime,kajuit}.out.log=, lock ALIVE, host =/status= 200 — LEFT RUNNING |
+
+** the runtime API from the host (bearer = admin's access token)
+
+| route | verdict |
+|-------+---------|
+| =/status= · =/manifest= · =/metadata/{manifest,daemons,services,instance,aperture}= (160 routes) | 200 |
+| =/daemon/hello/status= no token | 401 =MISSING_TOKEN= |
+| =/daemon/hello/userspace/handshake= GET+POST | 200 =user 01a07260…= (enrol; L30 law holds) |
+| =/daemon/hello/metadata/{manifest,cortex,modes,statics,cargo,datamap,aperture}= | 200 — **=cortex []=** (dormant hallucinator, m52) |
+| =/daemon/hello/mode/demo/hello-world/hello/bot= · =/hello/agent= (GET+POST) | 200 ="Bot says high."= · ="No hallucinator attached. Bot says high."= — README's own sentence, CLOSES m52 T3 on linux |
+| =…/hello-world/{status,manifest,metadata/app,metadata/harness}= | 200 (=status code <UNINITIALIZED>=) |
+| =/daemon/hello/entities/{literal,mode}/find= · =/userspace/entities/thread/find= · =/batch= | 200 (batch: 200 · 200 · 404 per entry) |
+| =/daemon/hello/status/subscribe= (SSE, 3 s) | =data: {… ALIVE}= |
+| =/attached/bundle/daemon/hello/mode/demo/hello-world/<view.mount>= | 200 =application/javascript= 1.5 MB (the =(.*)= route serves the hash-named bundle; the bare mount dir is 404 — by design) |
+| lighthouse =/status= · =/manifest= · =entities/daemon/find= (=hello=) · =auth/verify {access}= · =auth/refresh= · =auth/signup= · =auth/logout= | 200 all; =verify {token}= → 400 =MISSING_TOKEN= (field is =access=) |
+| lighthouse =entities/identity/find= | 200 — returns the argon2 password hash of every identity to ANY authenticated user — SECURITY (moat, pre-existing) |
+| =/multiplex= plain GET | 500 (the WS gate without an upgrade) |
+
+** method notes
+
+- =curl --retry --retry-connrefused= does NOT wait for a published container port: docker-proxy ACCEPTS
+  the TCP connection before anything listens inside and resets it — curl sees an empty reply (not
+  retried) and reports 000 at once. Use =until curl -sf …; do sleep 2; done=.
+- =grep -c= at a script's end makes the step exit 1 on zero matches — read the log, not the exit.
+- The Chrome extension was not connected (=tabs_context_mcp= refused twice) — the browser leg is the
+  one step this walk did not reach.
+
+** leave-behind state
+
+#+BEGIN_EXAMPLE
+container   readmen-m52 (ubuntu:24.04, sleep infinity)   RUNNING, hello-world UP via instance/start (supervisor 5865, logged)
+host ports  127.0.0.1:2501 → runtime   127.0.0.1:1794 → kajuit      users admin/changeme · reader/secret · apiuser/secret1
+also        readmen-tty (Up 23 h, 12501/11794) — untouched
+stop        docker stop readmen-m52   (before running the local hello-world — port-shadow trap)
+#+END_EXAMPLE

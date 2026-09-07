@@ -1,0 +1,182 @@
+#+title: the README walk opens a shared tty, step 0 lands the installer's -y flag, and a read verb stops creating the ledger it vouches for
+#+filetags: :docker:readme:m46:walk:ghost:paladin:doctor:ledger:install:tty:landing:deno:tar:
+
+* what happened, in one breath
+
+Same session as compacts 37 and =the-readme-walks-a-plain-ubuntu-container…=, continued past a second fold.
+beef: /"run the local readme.md installation steps step by step through docker container. tty open so i can
+attach besides you and you slop up the docs for both of us. run just step 0, notify me of issues, and tell me
+how to attach from my cli"/ — the fifth README walk, the first built for two people: a stock =ubuntu:24.04=
+container whose pid 1 is an interactive bash on a pty, my step scripts streaming into that pty so
+=docker attach= / =docker logs -f= show them, beef's own shell one =docker exec -it= away, both shells one
+terminal under =VIVA_PROCESS_ID=1=. Step 0 ran and stopped on order. Six findings, two of them README
+lines beef ordered fixed on the spot (/"fix both. second one with right pointer"/) — the =sudo=/=apt-get update=
+line, and the deno installer's PATH hint, which was pointing the wrong way: the installer persists PATH only
+when stdout is a tty or it is given =-y=, so the README now pipes =sh -s -- -y= and its =export PATH= line is
+live. The remaining four were re-listed with a diff each (/"strong headers"/); /"go"/ landed two: ghost's
+=install.sh= now asks a fresh shell whether it finds =viva= instead of testing for a file, and paladin's boot
+no longer scaffolds =~/.viva/registry= before =ledger/init= has run — a read verb had been creating the ledger
+home and then printing =✓ ledger= for it. The doctor now says =✗ ledger … → viva ledger/init= and creates
+nothing. One "obvious" fix was tested and rejected on measurement (declaring =node-gyp= re-resolves the lock
+into a vite-8 peer conflict). The container stands ready for step 1.
+
+* spine (N=28 · rows 1–7 folded in compact 37 · 8–20 folded in the readme-walks compact · 21–22 harness · 23–28 this window)
+
+| n  | beef asked | landed / decided |
+|----+------------+------------------|
+| 1–7 | /"ikiro wake docs"/ … /"ikiro compact"/ | FOLDED → compact 37 (the docs survey) |
+| 8–20 | /"read the local readme. setup a docker image plain ubuntu…"/ … /"ikiro compact"/ | FOLDED → =the-readme-walks-a-plain-ubuntu-container-into-the-host-browser…= (docker-live walk · L30 gates · kill · unset-is-commented) |
+| 21 | =/compact= (local) | NOTHING — the harness fold |
+| 22 | the continuation summary (harness, not beef) | NOTHING |
+| 23 | /"run the local readme.md installation steps step by step through docker container. tty open so i can attach besides you and you slop up the docs for both of us. run just step 0, notify me of issues, and tell me how to attach from my cli"/ | container =readmen-tty= (pid 1 = bash on =/dev/pts/0=, host ports =12501/11794= because the local instance held =1794=), LOCAL tree tarred (811 MB → 125 MB once the stanza mount was excluded), README §0 lines 1–6 run as three scripts streaming to the pty; six findings tabled; attach recipe given; quest section written |
+| 24 | quotes two rows of my table, then: /"fix both. second one with right pointer. then give me the remaining issues again"/ | README §0 EDITED: =sudo apt-get update && … — drop sudo as root= · =sh -s -- -y= · live =export PATH=; the pointer measured against the installer script (=[ -t 1 ]= or =-y=) and proven in a fresh =$HOME=; four remaining issues re-listed |
+| 25 | /"turn them into a list and add a solution diff. strong headers"/ | four items with diffs: =install.sh= fresh-shell check · the integrate gate + doctor on-disk =present= + =Home tail= (verified on a throwaway copy: creates nothing, init still scaffolds) · the GitHub README delta + =jj git push= (beef's) · =node-gyp= declared → TESTED, exit 1, REJECTED |
+| 26 | /"go"/ | LANDED items 1 + 2 on the host tree; container synced; paladin 37/153 green; ghost 87 + the pre-existing =strata.wet= red (same red with the gate reverted, measured); host =install.sh= silent under zsh; quest rows + memory |
+| 27 | /"ikiro copact"/ | this compact |
+| 28 | MID-TURN =/compact= | NOTHING — the harness fold follows |
+
+Balance: every citation below sits in rows 23–26, the last third of N — by construction, since rows 1–20 are
+two earlier compacts. The denominator is honest; the bias test is moot for a window that IS the tail.
+
+* the arc
+
+** a walk built for two (row 23)
+
+Harness decisions, each measured before it was made:
+
+- =docker run -dit --name readmen-tty --hostname readmen -w /root -p 127.0.0.1:12501:2501 -p 127.0.0.1:11794:1794 ubuntu:24.04 bash=.
+  pid 1 is bash on =/dev/pts/0=; =docker exec … bash /walk/stepN.sh 2>&1 | tee /walk/stepN.log > /proc/1/fd/1=
+  streams every step into that pty, so =docker attach= and =docker logs -f= replay my walk. Probe first:
+  =tty-probe= written to =/proc/1/fd/1= surfaced in =docker logs=.
+- the attach recipe: =docker exec -it readmen-tty bash= (own shell, =exit= harmless) · =docker logs -f= (watch)
+  · =docker attach= (shared tty, detach =ctrl-p ctrl-q=, =exit= there KILLS pid 1). =~/.bashrc= carries the deno
+  PATH and =export VIVA_PROCESS_ID=1= — both shells one terminal, one session.
+- ports: at creation =lsof= showed =deno= on =[::1]:2501= and =127.0.0.1:1794= — beef's local instance. Publishing
+  the README ports would have failed on 1794 and shadowed 2501 (known-issues =readmen-container-shadows-the-local-instance=).
+  Container keeps 2501/1794; the host gets 12501/11794; step 4's =.env= edit carries them. The local instance
+  was gone by the next probe — the decision stands on the trap, not on the moment.
+- the LOCAL tree again: GitHub had moved (=d9c2cd8 fix docs=, pushed today, CARRIES =commons/= now) but its
+  README still lags the lighthouse hoist and the =--use --init= line. First tar 811 MB: =commons/services/nlp/server/tmp/mnt/stanza_resources=
+  = 649 MB of gitignored model files. Excluded → 125 MB. Then 59 =._*= AppleDouble twins (macOS =tar= writes
+  them for xattrs; none exist on disk) — purged in the container, =COPYFILE_DISABLE=1= next time.
+
+Step 0, three scripts (=step0a= apt · =step0b= installer + clone probe + tree swap · =step0c= =deno task install=
++ doctor), all green at the end: =viva → /root/vivalence=, doctor answered. Six findings tabled — the two README
+rows, ghost's =install.sh:9= false warning, doctor-before-init creating =~/.viva/registry= and printing =✓=, the
+GitHub lag, deno's =node-gyp= line.
+
+** fix both, with the right pointer (row 24)
+
+beef quoted the =sudo= row and the =curl … | sh= row: /"fix both. second one with right pointer. then give me the
+remaining issues again"/. The pointer was measured, not guessed — deno's =install.sh= runs its shell setup
+only when =[ -z "$CI" ] && [ -t 1 ]= or =should_run_shell_setup= (=-y=); headless it writes nothing. Proven in a
+fresh =$HOME= inside the container: =sh -s -- -y= → =Deno was added to the PATH=, =~/.deno/env= written and
+sourced from =.profile=, a new login shell finds deno. So:
+
+#+begin_src sh
+# README.md §0 — after
+# sudo apt-get update && sudo apt-get install -y curl ca-certificates unzip git   # debian/ubuntu — drop sudo as root
+
+curl -fsSL https://deno.land/install.sh | sh -s -- -y     # -y persists PATH in your rc even headless (docker, CI, piped)
+
+export PATH="$HOME/.deno/bin:$PATH"                       # this shell only — new terminals read the rc
+#+end_src
+
+The third line had been COMMENTED (=# tty install=) — a same-shell reader hit =deno: command not found= at
+=deno task install=. Live now. Side effect: =-y= writes the very file ghost's =install.sh:9= tests, so the
+false warning left the README path before its own fix landed.
+
+** the list with diffs (row 25)
+
+/"turn them into a list and add a solution diff. strong headers"/. Four items, each with a diff, two of them
+verified on a throwaway copy of the tree before being proposed:
+
+1. =systems/ghost/install.sh:9= — =[ -f "$HOME/.deno/env" ]= → ="${SHELL:-sh}" -lic 'command -v viva'=. In the
+   container (bash, =.bashrc=-only PATH) =-lic= finds it and =sh -lc= does not — the file test was asking the
+   wrong question.
+2. doctor-before-init — =subsystems/paladin/lifecycle/integrate.js statements()= mkdirs =paladin.scope.registry=
+   on every citizen boot; doctor's =present= was =name in paladin.scope= ("resolvable"), not "on disk". Three hunks:
+   the gate =if (ledger && !(await Deno.stat(ledger.absolute).catch(() => null))) return;= before the instance-home
+   gate (same law: =ledger/init= is the one creator); =scopes= mapped through =Deno.stat=; =Home= takes a =tail=
+   and the ledger row reads =✗ ledger /root/.viva  → viva ledger/init=. Throwaway copy, fresh =$HOME=: doctor
+   creates nothing, =ledger/init < /dev/null= still scaffolds =locks logs registry instances sessions=, doctor
+   then =✓=.
+3. GitHub =d9c2cd8= README lag — the measured delta (two per-daemon =lighthouse= blocks gone, top-level
+   =module: "@commons/lighthouse/multiplayer"=, the =--use --init= comment) plus today's §0. Solution =jj git push=,
+   beef's to run.
+4. =node-gyp was used in a script, but was not listed as a dependency= — =better-sqlite3='s install is
+   =prebuild-install || node-gyp rebuild=; deno scans the text, the prebuilt binary lands. Declaring
+   ="node-gyp": "npm:node-gyp@11.3.0"= in =import_map.json= silenced it AND re-resolved the lock:
+   =@deno/vite-plugin@1.0.6= / =@sveltejs/kit@2.43.8= peer =vite 5–7= resolved to =8.1.0=, task exit 1. Baseline
+   exit 0. REJECTED — no diff.
+
+** go — the landing (row 26)
+
+Items 1 + 2 applied to the host tree (python exact-replace, assert count 1), the four files =docker cp='d into
+the container tree, the defect-made =~/.viva= (an empty =registry/=) removed, README synced (sha =b71665dd…=
+both sides).
+
+#+begin_example
+ subsystems/paladin/lifecycle/integrate.js    |  3 +++
+ systems/ghost/install.sh                     |  2 +-
+ systems/ghost/trajectories/ledger/Doctor.jsx |  5 +++--
+ systems/ghost/trajectories/ledger/index.js   | 14 ++++++++------
+
+container  deno task install          → no PATH warning
+container  viva ledger/doctor          → ✗ ledger /root/.viva  → viva ledger/init · ls ~/.viva: No such file
+host       sh systems/ghost/install.sh → silent under zsh, exit 0
+paladin    ok | 37 passed (153 steps) | 0 failed
+ghost      87 passed | 1 failed — strata.wet.test.js:93 "two shells select two instances in parallel"
+           (gate temporarily reverted → SAME red; restored, byte-equal to the landed copy)
+#+end_example
+
+* state at fold
+
+- container =readmen-tty= RUNNING · =127.0.0.1:12501→2501= · =127.0.0.1:11794→1794= · pid 1 bash on =pts/0= ·
+  =/walk/{vivalence.tar,step0a,step0b,step0c}.{sh,log}= · =~/vivalence= = local tree + the 4 landed files + the
+  fixed README · =~/vivalence-github= = GitHub =d9c2cd8= parked · =~/.viva= ABSENT (pristine for step 1) ·
+  =~/.bashrc= = deno PATH + =VIVA_PROCESS_ID=1= · =~/.config/viva/env= points at =/root/vivalence=.
+- host tree, uncommitted since compact 37 and now also: =README.md= §0 · =systems/ghost/install.sh= ·
+  =subsystems/paladin/lifecycle/integrate.js= · =systems/ghost/trajectories/ledger/{index.js,Doctor.jsx}=.
+- the local instance that held 2501/1794 at container creation was gone minutes later (7 =deno= processes
+  remained); owner unknown — not touched.
+- scratchpad =tty/= holds the scripts, logs, =patch/= (the three verified copies), =integrate.landed.js=.
+
+* corrections ledger (this window)
+
+- **cwd drift, REPEAT** — the readme-walks compact already recorded "absolute =cd= per command". This window
+  the third parallel Bash inherited =subsystems/paladin= from the suite run: four =docker cp= failed (=lstat …
+  /subsystems/paladin/systems: no such file=) and =sh systems/ghost/install.sh= said =No such file=; the
+  container verification that followed was therefore a verification of NOTHING and read as the old behaviour.
+  Caught because the doctor output contradicted the throwaway proof. Rule failure; the mechanical form is
+  =cd /Users/finn/vivalence/code/vivalence && …= at the head of EVERY Bash string, not "when it matters".
+- **tar hygiene** — 811 MB shipped before anyone looked; a =tar -tvf | sort= found the mount. Measure the
+  archive before =docker cp=. =COPYFILE_DISABLE=1= is now in memory.
+- **a fact that moved** — "beef's local instance is UP" was true at =lsof= time and false one call later. The
+  alt-port decision was re-justified on the standing trap, and the report said so.
+- **test the obvious fix before listing it** — =node-gyp= would have read as a clean one-liner; the fresh
+  install said exit 1. Kept: every proposed diff in row 25 carried its own measurement.
+
+* loose ends
+
+SETTLED this window: README §0 (three lines) · =install.sh= false warning · doctor-before-init scaffold ·
+=node-gyp= (closed: no diff, measured) · the "second one with right pointer" — measured against the installer
+source, not remembered.
+
+CARRIED, beef's: =jj git push= (GitHub README lags by the hoist, the =--use --init= line and today's §0) · the
+commit of everything since compact 37 · README §4 headless form, §5 one lock, line 190 sentence (readme-walks
+compact) · =strata.wet= two-shells red (known-issues) · the fork-2 slug · a design call surfaced by item 2:
+doctor's =present= now means ON DISK for =repository= / =instance= / =mountpoint= too — own it or narrow it to the ledger.
+
+CARRIED, the walk: steps 1–6 on =go= · =--init= at step 3 (=instance/create.js:52=) · the 4-line =.env= edit
+at step 4 with =localhost:12501= / =localhost:11794= as the PUBLIC remotes · =readmen-tty= is a walk container
+on alt ports, so it does NOT shadow a local instance — but it is still a body to kill at the end.
+
+* quest report (derived at fold — `methods/quest-report.py`)
+
+| quest                    | progress  | status | next  | sessions   |
+|--------------------------+-----------+--------+-------+------------|
+| m46-linux-readmen        |  17% 3/18 | wip    | drain | 3          |
+| m50-the-three-way-weave  |  60% 3/5  | wip    | blast | 0          |
+| m51-standalone-slowstart |   0% 0/18 | design | go    | 0          |
+| m52-schematic-pinhole    |   0% 0/13 | design | go    | 1 (1 live) |

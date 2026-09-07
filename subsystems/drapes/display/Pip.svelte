@@ -1,5 +1,5 @@
 <script>
-  let { size = 6, tone = "muted", pulse = false } = $props();
+  let { size = 6, tone = "muted", pulse = false, glow = false } = $props();
 
   const tones = {
     primary: "var(--colors-skeleton-0-primary-base)",
@@ -13,6 +13,7 @@
 <span
   class="pip"
   class:pulse
+  class:glow
   style:--pip-size="{size}px"
   style:--pip-color={tones[tone] ?? tones.muted}
 ></span>
@@ -28,6 +29,9 @@
   }
   .pulse {
     animation: pip-pulse 1.8s ease-in-out infinite;
+  }
+  .glow {
+    box-shadow: 0 0 4px var(--pip-color);
   }
   @keyframes pip-pulse {
     0%,

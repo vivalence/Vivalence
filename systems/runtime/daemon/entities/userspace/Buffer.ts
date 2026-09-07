@@ -62,6 +62,8 @@ export const BufferSchema = new EntitySchema<BufferEntity, DataEntity>({
       entity: () => ThreadEntity,
       fieldName: "thread",
       nullable: true,
+      updateRule: "cascade",
+      deleteRule: "cascade",
     },
 
     literals: {

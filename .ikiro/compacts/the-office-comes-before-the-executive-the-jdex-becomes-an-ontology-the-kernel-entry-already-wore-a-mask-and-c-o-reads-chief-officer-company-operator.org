@@ -1,0 +1,107 @@
+#+title: the office comes before the executive, the jdex becomes an ontology, the kernel entry already wore a mask, and c·o reads chief officer, company operator
+#+filetags: :m53:vcompany:voffice:vdex:jdex:officer:openexecutive:education:paladin:runtime:typology:instance:registry:commons:quest:design:naming:sibling:
+
+* what happened, in one breath
+
+beef renamed the session =m53 vcompany= and ordered context by the kilotoken: the education
+domain with its agentic modes and literal/symbol samples, entity snapshots straight from the
+italian sqlite, thirty-five thousand tokens of OpenExecutive, the pre-quest, the benched m27,
+and the three JDexes he is /"maintaining badly rn"/ plus every jdex doc he ever wrote (the
+=files/context/{jdex,c4,divio,pacelayers}.txt= bundle from an old log tree is gone from disk).
+Then the brief: /"start thinking basically from scratch"/ — ontologies for documents, messages
+and (later) transactions; the JDex as the document repository's structure; a vdex mode that
+indexes its mount on boot, prunes the dead, and carries tools + a harness section + an app; email
+and chat over one message ontology; the CEO/CFO stack copied from OpenExecutive on top; four
+tasks, bookkeeping empty. I grounded every claim against the tree (education's subscriber law,
+=traits/dataset.js=, =harnessed.js='s six tool layers, =agentic.js=, =booted.js=, paladin's fs
+skill, the instance primitive's kernel union) and answered with a structured work package;
+he said /"Overall very good"/ and ruled seven adjustments (slug lean, topologies ride the modes,
+services to commons, ONE mount, config on the mode, index everything with =readable=,
+textarea). The quest got populated, then rewritten to his shape (/"four * T0123, each two **
+and n *** sub"/, an =* ikiro= section /"where you keep all your shit"/), then the slug gained
+its filetype mid-write, then the c·o riff settled the family name — /"chief officer. company
+operator. first as name, second as description."/ — and T0 was worked out patch-ready. Measured
+on the way: the object kernel entry is ALREADY a =v.union= in the instance schema and
+=vip.accioOne= ALREADY pairs it as ={service, mask}=; only paladin's =materialize()= (which
+skips =at()= for =kernel=) and a runtime =outfit()= are missing, so T0 has no typology touch. A
+sibling session resolved the =Literal.ontology= defect I had filed (link phase back through the
+ORM, stamp folds the installer source) and re-stamped the frontier twice under me; the quest
+file write raced once and landed on the second pass.
+
+* spine (N=14)
+
+| n  | beef asked                                                                                                                                                                                       | landed                                                                                                                                                                                                                                     | decided / killed |
+|----+--------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------+--------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------+------------------|
+| 1  | =/rename m53 vcompany= · /"load the eduction domain, its agentic modes, some sample of symbols an dliterals into context. ~40000 tokens worth."/                                                | =@education= at =~/.viva/registry/education=: domain (entities · retention drivers · tools · aperture), francesca · aprende · riddler · dojo · harvest, topologies, italian topography + instance, symbol/literal samples, runtime kernel Literal/Symbol | =@education= is a TAPPED package, not in =commons/= — the memory's "education push" lines were the clue |
+| 2  | /"another 10k tokens for snapshots of the relevant entities"/                                                                                                                                    | schemas + rows from =italian.viva.db= (Literal · Symbol · Mode · User · Thread · Buffer · Turn) and Retention/Trace rows from the test-language db; symbol census 2593 = word 2496 (lemma 2381) · sentence 44 · domain 29 · functional 15 | FOUND: =ontology= blank on all 6583 italian rows; live italian has 0 Retention / 0 Trace |
+| 3  | /"and load 35k tokens worth of /Users/finn/code/OpenExecutive"/                                                                                                                                  | CLAUDE.md · README · architecture.md + facts.yaml · orchestrator/executive.py · router.py · agents/base.py · persona + domain prompts · cache_manager · departments · workflows · people · personas · fixtures · full py/ui tree      | checkout 6 commits past the pin; =evals/scenarios/= does not exist (they ship at =evals/_scenarios/= + per-fixture) |
+| 4  | =m53-vcompany.pre.org= /"this too."/                                                                                                                                                             | the pre-quest + benched m27 + hello-world (fork source) + decision_ledger.py + outbound_guard.py + builtin knowledge tree + morning_brief.py                                                                                                | noticed: OpenExecutive has TWO decision tables (episodic vs =decision_instances=); =outbound_guard.py= is anti-spam, not the gate; =francesca/state.md= gone (traps now inside =francesca.md=) |
+| 5  | /"those are three jdexes i am maintaining badly rn. get into JDEXes. grep ~** for jdex docs i might have written too."/                                                                          | coorporation (legal body, SBS template inside, no 00.00) · organization (stale 00.00 Index, 3 empty files, =20-29= empty) · documentation (=jdex.js= derives AREAS/CATEGORIES from disk, 00-09 absent) · the JD doctrine from the logs (c4 · jdex · divio · pacelayers) · old =documentation.org= master plan | three naming conventions, three index mechanisms; the =jdex.txt= bundle is gone |
+| 6  | /"Now for the major task. why i asked you to load all this context."/                                                                                                                            | my read: JDex is to the company what Universal Dependencies is to =word= — held for the brief                                                                                                                                              | — |
+| 7  | the brief — ontologies (/"is email a type of message?"/), VDEX /"populates and prunes"/ on boot, /"New relationship between mode and literals, mode and symbols … on typology level"/, /"the v office domain. One word, v office."/, four tasks, /"Bookkeeping comes later … empty for now."/ | the work package: ontology law (one literal, three TOPOGRAPHICAL ontologies), DOCUMENT ≡ VOCALIZED over a text mount, ONE message ontology with MAILED/CHATTED traits, package layout, blast table, T1–T4 with deps/enables/done, forks | grounded first: =Literal.ts= subscriber, =dataset.js=, =harnessed.js= layers, =agentic.js=, =booted.js=, =skills/fs.js=, instance primitive |
+| 8  | /"Overall very good. small adjustmens"/ — /"jdex is smarter."/ · /"transport the topologies direclty with the modes."/ · /"mail, telegram, slack, and OCR etc go to commons."/ · /"vdex mounts just ONE path! single mount."/ · /"mail adresses etc straight on the mode config too."/ · /"index everything but mark some things as readable/unreadable."/ · /"textarea."/ · /"populate the m53 quest. t1-4 … example office mode. example executive mode."/ | =m53-vcompany.pre.org= populated: rulings verbatim · ontologies with example rows · package layout · object kernel entry as the per-mode config · example vdex module · example executive + specialist · T1–T4 · blast · forks | slug = coordinate + stem; =mountpoint= as the noun; m27 gate moved to the executive stage |
+| 9  | /"write the plan to … m53-vcompany.org. i want some ikiro section at the top where you keep all your shit. a section per t with examples of all the entities … and every file will edit … four * T0123, each two ** and n *** sub. all the changes, outcomes, intent, decisions etc in your * ikiro"/ | =m53-vcompany.org= written in that shape; =.pre.org= kept as history; index + frontier lines                                                                                                                              | T renumbered 0–3 |
+| 10 | [interrupt] /"vdex slug should contain filetype!"/                                                                                                                                                | =22.04.re24-05277.pdf= · =12.04.ubiquity-and-a-thin-slice.md= · =readme.org=; collision =-2= before the extension                                                                                                                           | — |
+| 11 | /"chief officer? c o ??? propose 10"/                                                                                                                                                             | ten c?o roles tuned to vivalence (CFO · CLO · CSO · CAO · CGO · CPO · CTO · CMO · CIO · CDO) + type =officer=                                                                                                                              | misread: he wanted the letters C and O, not the middle |
+| 12 | /"no. what do C and O stand for. the middle is obvious. whats c o short for?"/                                                                                                                    | ten expansions with their house family: Chief Officer (nautical rank) · Care Of (postal c/o) · Corporate Officer · Company Organ · Cabinet Office · Charter Officer · Custodian Of · Circuit Operator · Counsel Of · Crew Officer            | lean stated: Chief Officer, maritime |
+| 13 | /"chief officer. company operator. first as name, second as description."/ · /"integrate this into the narrative. work out t0 in full. patch ready"/                                            | type =officer=, =officer/chief= the letterless one; quest rewritten (executive/specialist gone everywhere); T0 patch-ready: 3 hunks (paladin =materialize()= · runtime =outfit()= + =core()= + =modes()= · metadata =/mountpoint=), 2 tests, 19 new-repo files verbatim, 8 ledger commands | MEASURED: =accioOne= already pairs object entries → no vip touch; no typology touch in T0 |
+| 14 | /"ikiro compact."/                                                                                                                                                                                | this fold · memory =project_m53_vcompany= · frontier over budget (9417/8000) → m46 body evicted whole · zettel                                                                                                                              | — |
+
+* the design as it stands (the quest is canonical; this is the fold)
+
+- one literal, three ontologies: =vdex= (DOCUMENT, body served by freight) · =message= (MESSAGE + MAILED | CHATTED, body in row) · =transaction= (POSTED, Σ = 0, empty slot). An ontology IS the one TOPOGRAPHICAL symbol — education's law, unchanged.
+- the JD id is a symbol (=vdex.id.22.04=), a file is a literal, the slug is coordinate · stem · extension. Directories never enter the slug; =asset.path= is the truth.
+- the per-mode config is the object kernel entry ={module, mountpoint, statics, secrets}=; instance statics OVERRIDE module statics key by key; an unset mountpoint is a doctor =REQUIRED= at its slot, never a silent default.
+- office modes OWN their rows (T1.a, the one typology touch: mode↔literal/symbol schematics + =Mode.ts= m:n) and sync them on boot through the factored =install()=, then prune by set difference; scheme symbols ride the modes and are never pruned.
+- the c·o family: type =officer=, name "Chief <Domain> Officer", description "company operator — <what it operates>"; =officer/chief= is name "Chief Officer", description "company operator". AGENTIC arms every TOOLED mode under =/<slug>=, so the chief reaches =finance_consult= · =vdex_find= · =email_send= with zero dispatch code.
+- services (mail · telegram · slack · ocr) are =@commons/service/*=; the vcompany is its own package, tapped.
+
+* what was measured, not assumed
+
+- =subsystems/typology/schematics/primitives/instance.js:31= — kernel entries are already =v.union([v.string(), v.object({}, {additionalProperties: true})])=.
+- =subsystems/paladin/prototypes/vip.js:112-114= — =accioOne= turns ={module: "…", …}= into ={service, mask}=; =accioMap= reaches it through =accioMany= for arrays. Kernel object entries resolve TODAY.
+- =subsystems/paladin/prototypes/instance.js:89-90= — =materialize()= maps =kernel= through =reference()= and never through =at()=: a thunk inside a kernel entry is the ONE place the pinhole does not reach. That is the T0 paladin hunk.
+- =systems/runtime/daemon/lifecycle/population.js:123= — =new Mode(register)= assigns the module wholesale; =mode.statics= is the module's; =mode.mount= is the ROUTING path, not a directory; =daemonDie.good.mountpoint= (=wiring()= line 67) is a =Path= (=application.js:34= reads =.absolute=). The T0 runtime hunk outfits the citizen after construction, beside =mount= · =url= · =tools= · =entity=.
+- =systems/runtime/daemon/traits/agentic.js= — arms every other TOOLED, non-domain mode's tools under =/<slug>=; =booted.js= — =boot(daemon, mode)= after the traits, returns the teardown; =harnessed.js:38-46= — six layers, paladin fs armed for any mode with a module dir, =ctx.root= bound there.
+- =registry/education/domain/entities/kernel/Literal.ts= subscriber — =ontology= derives from the ONE TOPOGRAPHICAL symbol, throws on two; =symbol= folds slugs on dots via =object.set=.
+- OpenExecutive: =memory/decision_ledger.py= holds the state machine on =decision_instances= with compare-and-set; =memory/episodic.py= extraction writes a different table; =outbound_guard.py= is dedup · rate · quiet hours, fail-open; scenarios live in =evals/_scenarios/= + fixtures, README and CLAUDE.md say =evals/scenarios/=.
+
+* the sibling in the same tree
+
+Another session worked the italian daemon while this one designed. It took my
+=literal-ontology-blank-after-dataset-install= known-issue to RESOLVED on beef's go (link
+phase back through the ORM; =stamp()= folds the installer's own source so the next boot
+heals), found and resolved the blank-secrets shadow that a live boot then exposed (paladin
+=split=: a blank never claims), and re-stamped the frontier's m53 line twice with those
+outcomes. My quest text had described the raw-pivot link phase; the rewrite carries the ORM
+one, and the T1.a owner link now rides that same pass (=from.modes.add(owner)= beside
+=from[prop].add(to)=). The quest file itself was touched between my read and my write once —
+the harness refused the overwrite, a re-read showed my own content, the second write landed.
+
+* process notes (self-caught, no codeword)
+
+- the vcs-guard eats compound read commands: =git log --oneline -3; git merge-base …= and =git log --all -- <paths>= both refused as "graph/worktree mutation", and the refusal swallowed the non-git output chained beside them. One git read per Bash call, nothing else in the same command.
+- a persisted tool result (>2 kB) re-persists when =cat='d — three round trips lost before switching to the =Read= tool on the persisted path. Read persisted outputs, never cat them.
+- the =Write= tool wants a =Read= of the target in the same session even for a file I authored, and refuses when the mtime moved under it; the cure is a small =Read= immediately before the =Write= in one batch.
+- one misread on row 11: "c o ???" was about the two letters, not the middle; the answer went to the roster first. Row 12 fixed it in one turn.
+
+* settlement
+
+Walked the loose ends against landed rules: the =.pre.org= stays (beef's draft, history — his
+file); the stale =evals/scenarios/= path is OpenExecutive's README, not ours — recorded, not
+fixed; the =jdex.txt= bundle is gone from every home directory searched — recorded as gone.
+Nothing here resolves by a clear-cut rule that was left uncorrected. The frontier was over its
+char budget (9417 / 8000) before this fold added a line: the m46 walk body — the largest item,
+fully carried by its quest and compacts 98 · 102 — is evicted WHOLE to =known-issues.org=
+"frontier evictions", a one-line head with the pointer stays.
+
+* resumption (owed beef)
+
+- **go** for T0 — the patch is in the quest under =* T0 — package setup / ** files=: 3 repo hunks, 2 tests, 19 new-repo files, 8 ledger commands; suites paladin +2 · runtime +5; italian boot byte-identical.
+- the vcompany repo's remote (the tap line assumes =~/vivalence/code/vcompany=).
+- which directory =VIVA_VDEX_MOUNT= points at (one mount; the three JDexes are three candidates).
+- the T1.a typology go (mode↔literal/symbol schematics) — the ONE holy touch in the whole plan.
+- the roster's ten: drop =data= or =technology=.
+- mail/telegram deps under Deno (=imapflow= · =nodemailer= · =grammy= in the root import map) — T2's fork.
+- the italian crash that arrived mid-fold (watcher restart → =SERVICE NLP URL not found=): the NLP KEY is blank and =.optional()=, the doctor passes, =settle()= makes only hallucinators dormant, the consume mask reaches the provider — known-issue =consumed-service-with-a-blank-optional-secret-crashes-after-the-gate=, fix (a) = the m52 dormancy law generalized to =consume= — LANDED by the sibling within the hour (=settle()= filters =daemon.consume= by =alive=); the same trap would take an office mode whose mountpoint someone marks optional.
+- after this fold, on /"go materialize."/: the paladin =materialize()= hunk LANDED under the bracket (39/164 → red on =kernel.test.js='s inline-module law → narrowed to =is.string(entry.module)= → 40/166); the runtime =outfit()= hunk, metadata, the repo and the ledger commands still wait on their own go. =* waterfall= added to the quest on /"add another WATERFALL header … calls/forks in the waterfall in place"/.

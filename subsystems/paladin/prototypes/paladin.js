@@ -32,12 +32,14 @@ export class Paladin {
     const held = {};
     const secrets = {};
     const ignored = [];
+    const blank = [];
     for (const [key, value] of Object.entries(bag ?? {})) {
-      if (SECRET(key)) secrets[key] = value;
+      if (value === "") blank.push(key);
+      else if (SECRET(key)) secrets[key] = value;
       else if (PUBLIC(key)) held[key] = value;
       else ignored.push(key);
     }
-    return { held, secrets, ignored };
+    return { held, secrets, ignored, blank };
   }
 
   // mount is fn.once, so a changed .env needs a fresh instance. the wizard is why.
@@ -48,24 +50,24 @@ export class Paladin {
 
   // assign: no source · observe: ambient · claim: role. all three split by key.
   assign(bag, stratum) {
-    const { held, secrets, ignored } = this.split(bag);
+    const { held, secrets, ignored, blank } = this.split(bag);
     this.env.assign(held, stratum);
     this.secret.assign(secrets, stratum);
-    return { held, secrets, ignored };
+    return { held, secrets, ignored, blank };
   }
 
   observe(bag, stratum, source) {
-    const { held, secrets, ignored } = this.split(bag);
+    const { held, secrets, ignored, blank } = this.split(bag);
     this.env.observe(held, stratum, source);
     this.secret.observe(secrets, stratum, source);
-    return { held, secrets, ignored };
+    return { held, secrets, ignored, blank };
   }
 
   claim(bag, stratum, source) {
-    const { held, secrets, ignored } = this.split(bag);
+    const { held, secrets, ignored, blank } = this.split(bag);
     this.env.claim(held, stratum, source);
     this.secret.claim(secrets, stratum, source);
-    return { held, secrets, ignored };
+    return { held, secrets, ignored, blank };
   }
 
   constructor() {

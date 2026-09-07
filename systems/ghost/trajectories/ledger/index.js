@@ -95,12 +95,14 @@ ledger.open(
         instances: home.branch("instances").absolute,
         record: paladin.ledger.registry.path.absolute,
       },
-      scopes: SCOPES.map(([name, depth]) => ({
-        name,
-        depth,
-        present: name in paladin.scope,
-        path: paladin.scope[name]?.absolute ?? null,
-      })),
+      scopes: await Promise.all(
+        SCOPES.map(async ([name, depth]) => ({
+          name,
+          depth,
+          present: Boolean(paladin.scope[name] && (await Deno.stat(paladin.scope[name].absolute).catch(() => null))),
+          path: paladin.scope[name]?.absolute ?? null,
+        })),
+      ),
       env: {
         path: env.absolute,
         present: Boolean(await paladin.read.text(env).catch(() => null)),
@@ -175,7 +177,7 @@ async function collectLocks(ledger) {
     for await (const entry of Deno.readDir(dir)) {
       if (!entry.name.endsWith(".lock")) continue;
       const held = await ledger.lock(entry.name.slice(0, -".lock".length)).read();
-      if (held) out.push(held);
+      if (held) out.push({ ...held, processes: held.processes.map((entry) => `${entry.process}=${entry.pid}`).join(" ") });
     }
   } catch {
     return out;

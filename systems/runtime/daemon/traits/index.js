@@ -41,8 +41,8 @@ export const EXPOSED = (mode) => {
 };
 
 export const FRAUGHT = async (mode, daemon) => {
-  const root = mode.module.mount.dirname + mode.module.freight.path.nature;
-  const files = await paladin.find.walk(/./)(root);
+  const root = mode.mountpoint?.absolute ?? mode.module.mount.dirname + mode.module.freight.path.nature;
+  const files = await paladin.find.walk(/./, mode.statics?.ignore)(root);
   mode.freight = new Freight(root).stow(files.map((file) => file.absolute.slice(root.length + 1)));
   mode.freight.withUrl(daemon.attach.branch("/cargo").branch(daemon.mount.nature));
   mode.freight.receive = async (path, bytes) => {

@@ -4,6 +4,7 @@ import { Die, Runtime } from "@vivalence/runtime";
 const run = await (async function () {
   // console.log("paladin.env", paladin.env);
   await paladin.instance.mount();
+  paladin.check.instance(paladin.instance).throw();
   // console.log("paladin.instance", paladin.instance);
   // console.log("paladin.instance", JSON.stringify(paladin.instance, null, 2));
   const die = new Die({ good: new Runtime() });

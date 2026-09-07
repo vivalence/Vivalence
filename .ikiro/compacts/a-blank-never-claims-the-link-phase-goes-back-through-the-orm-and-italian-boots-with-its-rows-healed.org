@@ -1,0 +1,127 @@
+#+title: a blank never claims, the link phase goes back through the orm, and italian boots with its rows healed
+#+filetags: :dataset:literal:ontology:subscriber:mikro:paladin:env:strata:dormant:consume:nlp:italian:doctor:group:release:
+
+* what happened, in one breath
+
+A sibling session pasted a defect through beef — =Literal.ontology= blank on all 6583 italian rows — and asked
+/"how to fix? going back? not manual."/ The cause was the corpus rework: the dataset link phase wrote pivots
+and =updated_at= as raw SQL, so =LiteralSubscriber= never saw an initialized =symbols= collection and both
+derived columns (=ontology= AND =symbol=) stayed at their defaults. Half of the rework went back — the link
+phase through the ORM again, fork-and-clear kept — and the install stamp now folds the installer's own
+source, so the change reinstalls every dataset mode at the next boot: not manual. Proven over a db COPY through
+the datamap scenario (2.0s, 6583/6583 derived) because the boot route hit beef's environment: the italian
+instance =.env= shipped six =SECRET_*=""= lines and a blank at the instance stratum shadowed every real voice
+below it. beef ruled /"Fix, one law: a blank never claims."/ and asked for a route outside typology; it landed
+at paladin's ONE ingress funnel, =split(bag)=. Then the NLP key went =.optional()= on his /"mark these as not
+required!"/, the nlp provider died at boot blaming the URL for a null key, and =consume= joined m52 dormancy on
+his /"go"/. His watcher rebooted italian on the edit: ALIVE, =6583 · ontology '' 0 · symbol '{}' 0=, stamps
+refreshed. Side rulings: =.group= stays explicit; the wizard's ungrouped section is titled =unset=.
+
+* spine (N=56; rows 1–39 are the three previous folds' — one row here)
+
+| n | beef | landed | decided / killed |
+|---+------+--------+------------------|
+| 1–39 | the m52 go · docs · fresh-ubuntu walk · verbs + API · five defects · DBeaver skill · sunset · compact | see the previous compact | — |
+| 40 | =/compact= (harness) | NOTHING | — |
+| 41 | MID-TURN, a sibling session's line pasted through: /"One defect surfaced on the way: Literal.ontology is "" on all 6583 italian rows — the subscriber derives it from symbols, which the dataset link phase writes as raw pivot INSERTs after create. vdex sets ontology explicitly in the row; the dataset defect goes to known-issues.org."/, the owed DBeaver prune loop pasted back, then /"we cahanged the runtime/daemon/traits/dataset linking recently and now this issue surfaced. how to fix? going back? not manual."/ | survey: =a486a8389= turned =linkPhase= into raw =INSERT OR IGNORE= + raw =updated_at=; =LiteralSubscriber= derives only when =symbols.isInitialized()=; the live db read =6583|6583|6583= (rows · blank ontology · blank symbol), pivot 50511 present, exactly ONE topographical symbol per literal; the language-learning twin db read clean only because its rows predate the rework | design first: go back on the raw-SQL half only (ORM link per chunk, =assign({updatedAt})= load-bearing), keep fork-and-clear; =stamp()= seeds with the installer source so the fix reinstalls on boot — not manual; wait |
+| 42 | harness continuation summary | NOTHING | — |
+| 43 | /"contiue"/ | the survey's last facts (the =word= topology declares symbols only; the topography declares both) → the proposal with both hunks | — |
+| 44 | /"go."/ | =dataset.js= both hunks; runtime 53/331 (the one red = pre-existing registry ingest); THREE italian boots refused at the m52 gate — =.env=-less cwd, exported secrets, =VIVA_ENV_FILE= — before =awk length= showed the instance =.env= carries blank secrets that outrank everything; pivot: the datamap scenario over a COPY of the italian db from INSIDE =systems/runtime/tests/= (workspace exports resolve only there): total 2.0s · link 1.4s · 6583/6583 derived · pivot 50511 unchanged · stamp =d5e6f45e= stable; fresh install 1.9s (its blank ontology = harness artefact, the topology modes were not installed); =dataset.install.test.js= gains "derives the symbol tree" (registers =LiteralSubscriber= on the scenario em — =seed()= registers none); known-issue RESOLVED, new OPEN for the blank-shadow, memory =project_dataset_link_through_orm=, zettel callout, frontier m53 line marked | the boot route is beef's environment; measure through the harness on a copy |
+| 45 | terminal paste, =instances/use ital= then =instance/doctor= on hello-world: /"why is mountpoint shit?"/ (re-pasted with =use italian= · =instances/list=) | mount, not mountpoint: repo-root =.env:1= pins hello-world and =STRATA = flag cwd instance .env os session ledger= puts =.env= above =session=; proof: same session id from =/tmp= → =* italian=; the wrap under the label = ink column overflow | three options offered — delete the pin · =use= refuses when shadowed (rec) · reorder the ladder; beef changed the pin himself (row 46 mounts italian) |
+| 46 | terminal paste, =CONFIG.CHECK ERROR= ×2 on italian's four blank secrets + the doctor: /"hmmm. issue."/ | the inconsistency named: =Env.get= takes the first stratum whose value =!== undefined= (a blank claims), =check.js:109= calls the same blank unset (REQUIRED), =state.js:20= writes unset as =# KEY=""= ("unset documents, never claims"); third face: the container walk's COMMENTED key was dormant and green, a BLANK one REQUIRED and red | sketch in typology =Env= (=voiced=), wait |
+| 47 | /"is there another solution but in prototype.env?"/ | yes: =paladin.split(bag)= is the one funnel for =assign= · =observe= · =claim= (the instance =.env= included) — a fourth bucket =blank= | wait |
+| 48 | /"Fix, one law: a blank never claims."/ | =split= drops =""= into =blank=, the three verbs return ={held, secrets, ignored, blank}=; =tests/paladin.split.test.js= 3 steps; paladin 39/164 · ghost 87/88 (=two shells= pre-existing); live doctor: anthropic =*** ledger= (=~/.viva/.env=), =hallucinators[0]= awake, problems = JWT + NLP key ×2; known-issue RESOLVED, m41 memory section, two =release.md= lines ⟨a-blank-never-claims⟩ | typology untouched by beef's ask; doctor trade accepted: a blank line shows no stratum instead of a dim shadowed voice |
+| 49 | doctor paste, JWT now =*** ledger=, NLP key REQUIRED at =consume.nlp= + =service[nlp-stanza]=: /"mark these as not required!"/ | =.optional()= on =SECRET_VIVA_SERVICE_NLP_KEY= in the four recipes that declare it (mounted italian + =@education= italian · spanish · brazilian); doctor =problems —= | — |
+| 50 | MID-TURN /".group("services") whats this group property? is that v.schematics level? why? is this used elsewhere?"/ | =subsystems/typology/schematics/v.js:30-31= (=enhance= proxy, beside =.desc=); consumers =belt/check.js:74= (doctor column) + ghost =init.js GROUPS= (wizard sections); three names: addresses 54 · keys 32 · services 15; a key-prefix derivation offered, not pushed | — |
+| 51 | /"will we use .group elsewhere in our schematics?"/ + =SERVICE NLP URL not found in service definition= at boot | keep =.group= explicit — it generalizes to any wizard-walked schematic; the provider guard =!url || !key= blamed the URL for the null key; m52 dormancy covered hallucinators only, so =population.services= handed a keyless mask to the provider; zero readers of =services.nlp= anywhere | sketch: =consume= joins dormancy in =settle=, guard split; wait |
+| 52 | MID-TURN /"row.group ?? "other". not other but unset"/ | =init.js:11= → ="unset"= | — |
+| 53 | /"go"/ | =settle= filters =daemon.consume= by the same =alive(mask)=, names =daemon[<slug>].consume.<name>= in =dormant=; provider guard =nlp: statics.remote missing= / =nlp: secrets.key missing=; =settle.test.js= "a consumed service whose secret is blank is dormant" (paladin 40/167); beef's =runtime/watch= rebooted on the edit: =[::1]:2501= ALIVE, italian db =6583 · 0 · 0=, stamps refreshed (=english-to-italian d5e6f45e=); doctor =dormant … consume.nlp=; known-issue RESOLVED + the sibling m53 session's duplicate =consumed-service-with-a-blank-optional-secret…= RESOLVED against it; frontier m53 line re-marked after the sibling rewrote it; release line; m52 + m48 memory sections | — |
+| 54 | MID-TURN /"and give me a small summary + instructions + pointers on runtime launch."/ + the ALIVE paste | summary · launch (pick instance → doctor → watch → secrets) · traps (=readmen-m52= on =127.0.0.1:2501/1794=, =readmen-tty= on =12501/11794=; runtime binds =[::1]=) · pointers | — |
+| 55 | /"ikiro comapct"/ | this fold | — |
+| 56 | MID-TURN, the ALIVE watch pasted again: /"and add the stuff"/ | the runtime-launch instructions of row 54 written down twice — =* runtime launch= below, and =world/ledger.md ## launching the runtime= as the durable copy | — |
+
+* arc
+
+1. *the defect and its half-revert* (rows 41–44). The subscriber is the ONE deriver of =ontology= and =symbol=,
+   and it fires only on an ORM changeset with the collection loaded. The corpus rework had bought its speed
+   twice — fork-and-clear per chunk (the real 132s→20s fix) AND raw pivot SQL (the regression). Only the second
+   went back. =from.assign({ updatedAt: new Date() })= stays load-bearing: a collection-only change gives the
+   literal no changeset. Measured: 2.0s over the live-shaped copy, 1.9s fresh. "Not manual" became a stamp
+   rule: the installer's own source is an input to the install stamp, so an installer change is a reinstall.
+2. *the environment fights back* (rows 44–46). Three boots refused before one =awk length($2)= showed six blank
+   secrets in the instance =.env=. The ladder read a blank as a voice; the verdict read it as unset; the writer
+   never wrote one. Then beef's own =instances/use ital= sat under a repo-root =.env= pin — the fold was right,
+   the cwd overrode it, and =instances/list='s =*= marks the EFFECTIVE mount, not the selection.
+3. *one law, at the funnel* (rows 47–48). beef wanted the fix outside typology. =split(bag)= is where every
+   bag enters paladin, so the blank bucket lives there, beside the writer's law in the same subsystem. The
+   typology =Env= stays a pure fold. Cost: the doctor no longer dims a blank line as a shadowed voice.
+4. *the next gate down* (rows 49–53). Optional key → open gate → provider crash at =population.services= with
+   the wrong words. m52's dormancy generalized by one slot: a consumed service with a blank secret is dropped
+   at mount and named, exactly like a hallucinator. The proof came from beef's own watcher, which rebooted on
+   the edit and healed the 6583 rows in the same breath.
+5. *two small rulings* (rows 50–52). =.group= is metadata on the =enhance= proxy with two consumers; it stays,
+   explicit over a prefix rule, ready for the next wizard. The ungrouped wizard section is =unset=, not =other=.
+
+* failures, mine
+
+- *three boots into beef's environment before one awk* (row 44) — the gate NAMED the key; the value's length was one
+  command away. Pinned the environment after trying the mechanism three times. Logged to the zettelkasten.
+- *scratch scripts outside the workspace* (row 44) — =@vivalence/*= imports fail with "not a dependency" from the
+  scratchpad; the measure ran only from inside =systems/runtime/tests/=. Two dead runs before the move.
+- *grouped a JSON column* (row 41) — =group by trait= on the symbol table read the blob, not the traits array;
+  =traits like '%TOPOGRAPHICAL%'= gave the real coverage (exactly one per literal).
+- *frontier over budget, then rewritten under me* (rows 44, 53) — my first mark overshot 8000 chars and was
+  trimmed; the live m53 session then rewrote the whole line and dropped both marks; re-marked twice, minimal.
+  A shared line with a live sibling gets the shortest possible clause.
+- *release tag as prose* (row 48) — wrote =⟨the-go-lands-m52…⟩ follow-up:= where the tag is one slug; normalized
+  to =⟨a-blank-never-claims⟩=.
+
+* runtime launch (row 54, kept)
+
+1. *pick the instance.* From the repo root, =.env:1= (=VIVA_INSTANCE_MOUNT=) outranks =viva instances/use= —
+   =STRATA = flag > cwd > instance > .env > os > session > ledger=. Edit that line, or delete it and =use= per
+   shell. =viva instances/list= marks the EFFECTIVE mount with =*=, not the selection.
+2. *doctor first.* =viva instance/doctor= must read =problems —= and =faults —=. =dormant= lists what will be
+   absent at boot: hallucinators without keys, consumed services without keys (=consume.nlp=).
+3. *boot.* =deno task runtime/watch= → =launching on http://localhost:2501/= → =Status:ALIVE=. On a stamp
+   change every dataset mode logs =[DATASET:install] … total …s=; on an unchanged stamp, nothing. The watcher
+   restarts on any edit in the module graph (=commons/= excluded).
+4. *secrets.* =~/.viva/.env= is the machine-wide ledger stratum; the instance =.env= wins per key; a blank line
+   claims nothing. To wake a dormant slot, put the real key where the doctor can see it and boot again.
+5. *traps.* Walk containers publish =127.0.0.1:2501/1794= (=readmen-m52=) and =12501/11794= (=readmen-tty=)
+   while the runtime binds =[::1]= — a browser on =localhost= can land in the container. =docker stop= them
+   before kajuit. =curl http://[::1]:2501/status= reaches the local one.
+
+* state at fold
+
+- *uncommitted, beef's commit*: =systems/runtime/daemon/traits/dataset.js= · =tests/dataset.install.test.js= ·
+  =subsystems/paladin/prototypes/paladin.js= · =prototypes/instance.js= · =tests/paladin.split.test.js= (new) ·
+  =tests/settle.test.js= · =commons/services/nlp/provider/index.js= · =systems/ghost/trajectories/instance/init.js=
+  · =release.md= (four lines) — plus the shelf: =~/.viva/instances/italian/italian.viva.js= and the three
+  =@education= recipes (=.optional()= on the NLP key; =instances/= untracked in that checkout → education push).
+- *live*: italian on beef's =runtime/watch= at =[::1]:2501=, repo-root =.env:1= now pins italian; rows healed;
+  dormant = openrouter · elevenlabs · deepgram · =consume.nlp=. =readmen-m52= (=127.0.0.1:2501/1794=) and
+  =readmen-tty= still publish — a browser on =localhost= can land in the container; stop them before kajuit.
+- *suites*: runtime 53/331 (1 pre-existing) · paladin 40/167 · ghost 87/88 (pre-existing) · typology untouched.
+- *known-issues*: =literal-ontology-blank-after-dataset-install= · =italian-instance-env-blank-secrets-shadow-every-lower-stratum=
+  · =nlp-provider-blames-the-url-for-a-missing-key= · the sibling's =consumed-service-with-a-blank-optional-secret-crashes-after-the-gate=
+  — all RESOLVED.
+- *latent, noted, unfixed*: a literal derives at ITS link time; a topographical symbol upserted later by another
+  mode's dataset does not re-derive literals already linked. The live db is right because =daemon.js= mounts
+  the topologies before the topography. Genuinely underdetermined — a later-symbol re-derive is a design call.
+- *owed beef*: commit · education push · DBeaver prune (the loop was pasted back in row 41, DBeaver must be quit,
+  not run by me) · optional =create-instance italian= · Chrome walk of =readmen-m52= or stop it.
+- *sibling sessions*: m53 vcompany LIVE (rewrote frontier line 19 mid-fold; its =known-issues= duplicate resolved
+  here), m46 + m50 live at the previous report. Frontier 7930/8000 chars.
+- *memory*: =project_dataset_link_through_orm= (new) · =project_m41_stratified_env= (+blank law) ·
+  =project_m52_schematic_pinhole= (+consume dormancy) · =project_environment_schematics= (+=.group= ruling).
+
+* quest report (derived at fold — `methods/quest-report.py`)
+
+| quest                    | progress  | status | next                                                                                                                           | sessions   |
+|--------------------------+-----------+--------+--------------------------------------------------------------------------------------------------------------------------------+------------|
+| m46-linux-readmen        |  17% 3/18 | wip    | drain                                                                                                                          | 4          |
+| m50-the-three-way-weave  |  60% 3/5  | wip    | blast                                                                                                                          | 1          |
+| m51-standalone-slowstart |   0% 0/18 | design | go                                                                                                                             | 0          |
+| m53-vcompany             | —         | open   | t0 — go for the runtime `outfit()` hunk, the repo, the ledger commands (no typology touch in t0; t1.a's schematics stay gated) | 1 (1 live) |
+| m53-vcompany.pre         | —         | open   | t1 package setup — the m27 gate moves to the executive stage; t1–t3 do not wait on it                                          | 1 (1 live) |

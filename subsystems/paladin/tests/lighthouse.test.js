@@ -9,11 +9,8 @@ const OWN = { module: "@elsewhere/lighthouse/own", statics: { remote: "http://ow
 
 const daemon = (extra = {}) => ({
   manifest: { type: "daemon", slug: "probe", version: "0.0.1" },
-  statics: {},
   kernel: [],
-  datamap: { module: "@commons/datamap/libsql", statics: {} },
-  hallucinators: [],
-  consume: {},
+  datamap: { module: "@commons/datamap/libsql" },
   ...extra,
 });
 
@@ -38,7 +35,8 @@ describe("instance lighthouse — declared once, inherited by every daemon", () 
     const [held] = instance.daemons;
     expect(held.lighthouse).toBe(instance.lighthouse);
     expect(held.lighthouse.module).toBe("@commons/lighthouse/multiplayer");
-    expect(held.lighthouse.statics.remote).toBe("http://lighthouse/multiplayer");
+    expect(held.lighthouse.statics.remote.absolute).toBe("http://lighthouse/multiplayer");
+    expect(instance.faults).toEqual([]);
   });
 
   it("a daemon binding its own lighthouse keeps it", async () => {
@@ -48,18 +46,18 @@ describe("instance lighthouse — declared once, inherited by every daemon", () 
     expect(held.lighthouse.module).toBe("@elsewhere/lighthouse/own");
   });
 
-  it("no lighthouse anywhere: the daemon's inherited {} fails by name at mount", async () => {
-    await expect(mount({ daemons: [daemon()] })).rejects.toThrow("daemon[probe]/lighthouse");
+  it("no lighthouse anywhere: a fault by name, the mount still resolves", async () => {
+    const instance = await mount({ daemons: [daemon()] });
+    expect(instance.faults).toEqual(["daemon[probe].lighthouse none declared, none to inherit"]);
   });
 
-  it("an instance lighthouse without a module fails by name at mount", async () => {
-    await expect(mount({ lighthouse: { statics: { remote: "http://lighthouse" } }, daemons: [] })).rejects.toThrow(
-      "lighthouse: must have required properties module",
-    );
+  it("an instance lighthouse without a module is a fault by name", async () => {
+    const instance = await mount({ lighthouse: { statics: { remote: "http://lighthouse" } }, daemons: [] });
+    expect(instance.faults).toEqual(["lighthouse must have required properties module"]);
   });
 
   it("no daemons, no lighthouse: mounts", async () => {
     const instance = await mount({ daemons: [] });
-    expect(instance.lighthouse).toEqual({});
+    expect(instance.lighthouse).toBeUndefined();
   });
 });

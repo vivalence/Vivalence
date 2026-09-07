@@ -26,6 +26,7 @@ export class Ledger {
   }
 
   async boot(specs, { instance = null, attachment = "inherit" } = {}) {
+    this.paladin.check.instance(this.paladin.instance).throw();
     this.paladin.publish();
     const die = new Die({ ledger: this, specs, instance, attachment });
     await die.populate();

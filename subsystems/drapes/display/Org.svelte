@@ -1,5 +1,5 @@
 <script>
-  import { parseBlocks } from "../markdown.js";
+  import { parseBlocks } from "./org.js";
 
   let { text = "" } = $props();
   const blocks = $derived(parseBlocks(text ?? ""));

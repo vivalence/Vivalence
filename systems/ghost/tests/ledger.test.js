@@ -210,9 +210,8 @@ export const environment = v.environment({
     expect(third.invalid).toEqual([{ key: "VIVA_PROBE_SERVE", reason: "must be RFC 3986 URI with an authority (scheme://…)" }]);
   });
 
-  it("untap of an unrecorded reference is a no-op", async () => {
-    const effect = await drive(["registry/untap", "never-tapped"]);
-    expect(effect.record).toEqual(["pack"]);
+  it("untap of an unrecorded reference refuses and names the list", async () => {
+    await expect(drive(["registry/untap", "never-tapped"])).rejects.toThrow("no tapped package 'never-tapped' — viva registry/list");
   });
 
   it("untap removes the record, store keeps the working copy", async () => {

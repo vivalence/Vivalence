@@ -8,7 +8,7 @@ const GROUPS = (rows) => {
   const order = [];
   const held = new Map();
   for (const row of rows) {
-    const title = row.group ?? "other";
+    const title = row.group ?? "unset";
     if (!held.has(title)) (held.set(title, []), order.push(title));
     held.get(title).push(row);
   }

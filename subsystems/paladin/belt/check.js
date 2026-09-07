@@ -1,4 +1,4 @@
-import { v } from "@vivalence/typology";
+import { is, v } from "@vivalence/typology";
 
 const WRONG = ["UNDOCUMENTED", "REQUIRED", "INVALID"];
 
@@ -60,14 +60,11 @@ export default function check(config) {
       key.startsWith("SECRET_")
         ? { value: config.secret.get(key) ? "***" : null, stratum: config.secret.provenance(key) }
         : { value: config.env.get(key), stratum: config.env.provenance(key) };
-    const blank = (value) => value === null || value === undefined || value === "";
     const invalid = (key) => {
       const held = schema[key];
       const value = raw(key);
-      if (!held || blank(value)) return null;
-      const failure = [...v.errors(held, v.convert(held, value))][0];
-      if (!failure) return null;
-      return failure.keyword === "pattern" && held.title ? `must be ${held.title}` : failure.message;
+      if (!held || is.empty(value)) return null;
+      return v.faults(held, v.convert(held, value))[0]?.reason ?? null;
     };
     const row = (key, at, held) => ({
       key,
@@ -109,7 +106,7 @@ export default function check(config) {
     for (const [key, held] of Object.entries(schema)) {
       if (seen.has(key)) continue;
       const shaped = row(key, null, held);
-      const unset = blank(raw(key));
+      const unset = is.empty(raw(key));
       rows.push({
         ...shaped,
         verdict: shaped.reason
@@ -125,8 +122,25 @@ export default function check(config) {
     return rows;
   };
 
+  // the mounted instance's whole verdict: schematic faults + wrong env rows. fails → not bootable.
+  const instance = (held) => {
+    const wrong = environment(held)
+      .filter((row) => WRONG.includes(row.verdict))
+      .map((row) => ({
+        type: "env",
+        key: row.key,
+        message: `${row.key} ${row.verdict}${row.at ? ` at ${row.at}` : ""}${row.reason ? ` — ${row.reason}` : ""}`,
+      }));
+    const named = new Set(environment(held).filter((row) => WRONG.includes(row.verdict)).map((row) => row.at));
+    const faults = (held.faults ?? [])
+      .filter((fault) => ![...named].some((at) => at && fault.startsWith(`${at} `)))
+      .map((message) => ({ type: "instance", message }));
+    return createResult([...faults, ...wrong], "viva instance/doctor");
+  };
+
   config.check = {
     environment,
+    instance,
     wrong: WRONG,
     env: (input) => {
       const keys = Array.isArray(input) ? input : [input];

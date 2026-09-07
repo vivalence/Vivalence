@@ -1,12 +1,14 @@
 import { specimen, Vector, Dataset } from "@vivalence/typology";
 import { datamap } from "@vivalence/runtime/scenarios";
 import { topography } from "@vivalence/typology/scenarios";
+import { LiteralSubscriber } from "@vivalence/runtime";
 import { DATASET } from "../daemon/traits/index.js";
 
 let scenario, daemon, mode;
 
 specimen.beforeAll(async () => {
   scenario = await datamap.seed();
+  scenario.orm.em.getEventManager().registerSubscriber(new LiteralSubscriber());
   daemon = {
     entities: scenario.repos,
     datamap: { introspect: () => scenario.orm.getMetadata() },
@@ -53,6 +55,14 @@ specimen.describe("what install put in the database", () => {
       .toEqual(["casa.noun", "la-casa-e-grande"]);
   });
 
+  specimen.it("derives the symbol tree on the literal from the symbols it got linked to", async () => {
+    const casa = await scenario.repos.literal.findOne({ slug: "casa.noun" });
+    specimen.expect(casa.symbol).toEqual({
+      word: { "part-of-speech": "noun", lemma: "casa" },
+      proficiency: { cefr: "a1" },
+    });
+  });
+
   specimen.it("does not persist relation props as scalar columns", async () => {
     const casa = await scenario.repos.literal.findOne({ slug: "casa.noun" });
     specimen.expect(casa.toJSON().symbols).not.toEqual([{ slug: "word" }]);
@@ -82,5 +92,31 @@ specimen.describe("what install refuses", () => {
     };
     await specimen.expect(DATASET(userspace, daemon)).rejects.toThrow(/non-dataspace/);
     specimen.expect(await scenario.repos.thread.count({})).toBe(0);
+  });
+});
+
+specimen.describe("what install does with a loader", () => {
+  specimen.it("pulls rows from load(mode), links them, and stamp() folds the loader's stamp", async () => {
+    const { DATASET, stamp } = await import("../daemon/traits/index.js");
+    let mark = "one";
+    const loaded = {
+      ...mode,
+      slug: "loaded",
+      entity: { installed: "" },
+      module: {
+        mount: mode.module.mount,
+        dataset: new Dataset({
+          symbol: { load: async () => [{ slug: "jd.id.22.04", traits: ["STRUCTURAL"], trait: {} }], stamp: async () => mark },
+          literal: { load: async () => [{ slug: "22.04.re.pdf", ontology: "jd", traits: [], trait: {}, symbols: [{ slug: "jd.id.22.04" }] }] },
+        }),
+      },
+    };
+    await DATASET(loaded, daemon);
+    const row = await scenario.repos.literal.findOne({ slug: "22.04.re.pdf" }, { populate: ["symbols"] });
+    specimen.expect(row.symbols.getItems().map((ref) => ref.slug)).toEqual(["jd.id.22.04"]);
+    specimen.expect(row.symbol).toEqual({ jd: { id: { "22": "04" } } });
+    const before = await stamp(loaded);
+    mark = "two";
+    specimen.expect(await stamp(loaded)).not.toBe(before);
   });
 });

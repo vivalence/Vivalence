@@ -1,0 +1,138 @@
+#+title: the handoff lands the screens, the rows correct the draft, and the bundle question ends as a ledger, not a patch
+#+filetags: :m53:vcompany:vdex:drapes:kajuit:screens:design:bundle:esbuild:svelte:typology:paladin:snapshot:known-issues:correction:quest:
+
+* what happened, in one breath
+
+Beef re-sent the Claude Design handoff (/"Use the claude_design MCP … Implement: `vcompany
+Screens.dc.html`"/) with a screenshot of the T1 stub in kajuit — three bare columns, /"lol."/. The
+design was re-read whole through =DesignSync= and was the quest's =* screens=, already worked out
+file by file; nothing landed until the hunks were shown, because reading the READY App against the
+rows snapshot found it wrong twice (=symbol.vdex.id= is an object keyed by category, and a category
+keyed its own visibility instead of its area's). /"go"/ landed s1 — five drapes parts and the =Pip=
+glow — and s2 — the vdex App replacing the stub, =/open= on the aperture, =id= on the buffer — with
+compile gates on both and =open= in the aperture snapshot; the real bundler proved the App through
+the barrel. Then /"why bundle so large??"/: measured, not guessed — an inline sourcemap is 65 % of
+every dev artifact, the drapes barrel is retained whole because compiled components are impure to
+esbuild, and two svelte runtimes ride in one file because deno hoists a second copy for the
+plugin. /"propose diff"/ got a scratch-measured patch that cut the App from 2.73 MB to 391 kB — and
+one line of it, a bundler rule keyed on the string =/subsystems/drapes/=, got /"no. omg. horrible!
+completely wrong direction. ok. mark the issue itself without your approach as an issue in ikiro"/.
+The issue is in =known-issues.org= with its three causes and no approach; the two canon lines that
+had blamed typology's weight are corrected; the correction is logged under the parochial law.
+/"ikiro compact"/.
+
+* spine (N=77; rows 1–68 are the five m53 compacts before this one)
+
+| n     | beef asked                                                                                                                                                       | landed / decided                                                                                                                                                                                                                                                                                                                                                                                                  |
+|-------+------------------------------------------------------------------------------------------------------------------------------------------------------------------+-------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|
+| 1–68  | (the brief · c·o · T0 · materialize · the comments · the shelf · the 404 · research · T1 ×2 · the callouts · the connoisseur · WEIRD · the screens · the rulings · the snapshots · the slow attach) | —                                                                                                                                                                                                                                                                                                                                                                                                                 |
+| 69    | =/compact=                                                                                                                                                       | NOTHING (the harness fold; the ikiro fold had closed at row 68)                                                                                                                                                                                                                                                                                                                                                   |
+| 70    | the Claude Design handoff, re-sent: /"Use the claude_design MCP … Implement: `vcompany Screens.dc.html` … Also read … `support.js` … `pic-vinca-viket_white.svg`"/ | the project read whole again (=list_files= · =Screens= 170 kB · =System= · =support.js= · =github.md=): it IS =* screens=, s1/s2 READY there; the handoff's /"Implement"/ read as before — the patch lands per item on go                                                                                                                                                                                             |
+| 71    | (the continuation summary after =/compact=)                                                                                                                      | NOTHING                                                                                                                                                                                                                                                                                                                                                                                                           |
+| 72    | a screenshot of the T1 stub in kajuit (JDex · documents · an empty third column) — /"lol."/                                                                      | the s1/s2 hunks shown as the go. Reading the READY App against =vdex-rows.snapshot.json= found two defects: =symbol.vdex.id= = ={ "22": "04" }= (an object keyed by category — the draft's =under= never matched an id node), and category visibility keyed on =expanded[category]= not its area (no category ever showed); the head chip read =slug.split(".").slice(0, 2)= → =12.notes= for a loose file           |
+| 73    | /"go"/                                                                                                                                                           | s1 + s2 LANDED by =land_s1_s2.py= (blocks extracted from the quest, corrections by exact replace): drapes =controls/Key= · =display/{Tile,Plate,Entry,Empty}= · =Pip= =glow= · both barrels (the quest's barrel diffs were stale against the tree) · =tests/parts.test.js=; vdex =vdex.viva.js= =id= · =aperture /open= · =buffer/Vdex.svelte= · =tests/app.test.js= · =open= in the snapshot test. A third defect met landing: a string sort put category =20= before area =20-29= → =rank=/=before=. Suites drapes 2/18 · vdex 6/23 green (=--no-check=; runtime =Turn.ts= type errors pre-existing). Bundle proof through =paladin.bundler= 2 732 443 B / 626 ms (the stub 2 593 686). Stamping: the quest block replace hit the T1 stub's heading first (same heading twice) → stub restored with a REPLACED note, the landed file under =* screens=; frontier 7954 · MEMORY.md 17098 |
+| 74    | /"why bundle so large??"/                                                                                                                                        | measured on a Pip-only ladder (bare 556 030 · direct =Pip.svelte= 636 779 · =Pip= through the barrel 2 615 013 B) and on the App's module marks (246 modules: drapes 369 122 · svelte@5.39.6 194 545 · svelte@5.57.0 180 586 · carbon 94 375 · the App 77 218): (1) =sourcemap: "inline"= in dev = 1 775 202 of 2 732 443 B; (2) =treeShaking: true= but compiled =.svelte= modules are impure to esbuild → every module reachable from =drapes/mod.js= retained (58 files + =panels/icon= → carbon); (3) deno hoists =svelte@5.57.0= (dep of =esbuild-svelte= · =svelte-preprocess=) to =.deno/node_modules/svelte= beside the locked root =5.39.6= — carbon's =.svelte= sources resolve the hoisted one; every component compiled BY 5.57, run on 5.39 |
+| 75    | /"propose diff"/                                                                                                                                                 | a scratch copy of =gestalten/bundle/svelte.js= measured before proposing: =sourcemap: false= + an =onResolve= marking =.svelte= modules =sideEffects: false= → App 462 023 B, drapes 58 → 21, second runtime gone; the skins still pinned through =export * as skins= → the barrel itself marked pure in the =repoloader= resolve → App 390 653 B, Pip-only = the direct floor (137 482); a =/.*/= filter variant measured 5 s, dropped. Shown as three hunks + a bundler invariant step + an optional svelte pin                                                                                                          |
+| 76    | quoting =sideEffects: mod.includes("/subsystems/drapes/") ? false : undefined= — /"no. omg. horrible! completely wrong direction. ok. mark the issue itself without your approach as an issue in ikiro"/ | REJECTED, not landed. =known-issues.org= =buffer-app-bundles-carry-2.6-mb-of-dead-weight= — symptom · three causes · evidence · attempts = one, rejected, unrecorded · why not · workaround (compare artifacts by delta). The kajuit codemap line and the project memory line that had called the 2.6 MB /"typology's weight"/ corrected to the three causes. The correction appended to [[feedback_universal_over_parochial]] (a bundler that knows one subsystem's directory name is parochial twice: a hidden rule, in the wrong layer). Quest log stamped |
+| 77    | /"ikiro compact"/                                                                                                                                                | this fold                                                                                                                                                                                                                                                                                                                                                                                                         |
+
+* the handoff, and why nothing landed on it
+
+The handoff's imperative is the design tool's, not beef's; the house law is the patch per item on
+go, and the same handoff had already been read that way in the fold before (row 70 → the quest's
+own sentence: /"The handoff says Implement; the house law says the patch lands per item on go"/).
+His own word was /"lol."/ at the stub. So the design was re-read whole — =DesignSync=
+=list_files= · =get_file= ×4 — and compared to =* screens=: the M2 sheet, the find box, /"jdex 31"/,
+the coordinate chip, the read/edit segment, all there, READY verbatim. The go was shown as the
+diff, not as an id (row 51's lesson, /"whats the go??? no clue"/, held).
+
+What made the showing worth it: the READY App was written in a fold before the rows snapshot
+existed. Read against =vdex-rows.snapshot.json= — the real shape a row carries over the wire — it
+was wrong in the two places that decide whether the tree renders at all (rows 72–73). A third
+defect (the string sort) only surfaced while landing. Law, stamped in the project memory: a
+design-phase App is READ AGAINST A ROWS SNAPSHOT before it lands.
+
+* what landed on the go (rows 73)
+
+drapes (=subsystems/drapes=): =controls/Key.svelte= (the outline action, three tones, 44 px coarse)
+· =display/Tile.svelte= (count tile) · =display/Plate.svelte= (officer plate, =Pip= state) ·
+=display/Entry.svelte= (in/out entry, dashed draft) · =display/Empty.svelte= (verb + trace) ·
+=display/Pip.svelte= =glow= prop · =controls/index.js= + =display/index.js= barrels written against
+the tree as read (the quest's diffs predated =Markdown= · =Org= · =Pdf= · =Link= · =Keyboard= ·
+=ViewportLock= · =persist= · =visible= · =drag=) · =tests/parts.test.js= — six parts compiled as
+runes components with zero warnings, barrels asserted.
+
+package (=~/.viva/registry/vcompany/modes/office/vdex=): =vdex.viva.js= buffer schema =+id= (open
+on a coordinate) · =aperture/index.js= =/open= (mints the buffer with =input.thread=, the tool's
+body as a route) · =buffer/Vdex.svelte= (tree · find · reader · edit · sheet under 820 px; =place=
+· =under(literal, node)= · =leaves= · =coordinateOf= · =areaOf= · =rank=/=before= · =shown=) ·
+=tests/app.test.js= (compile gate) · =tests/vdex.snapshot.test.js= =open= captured, =/open= in the
+contract.
+
+Gates Gs1/Gs2: the compile halves LANDED; the render halves are his click-through after a
+restart — =APPLICATION= bundles the App at boot only, artifacts are content-addressed, the next
+boot writes the new hash.
+
+* the bundle, measured (rows 74–75)
+
+| variant                    | total     | code    | modules | drapes | svelte 5.39 | svelte 5.57 |
+|----------------------------+-----------+---------+---------+--------+-------------+-------------|
+| bare =<span>hi</span>=     | 556 030   | 115 939 | 47      | 0      | 39          | 0           |
+| =Pip.svelte= by path       | 636 779   | 137 592 | 58      | 1      | 46          | 0           |
+| ={ Pip }= through the barrel | 2 615 013 | 878 207 | 245     | 58     | 72          | 54          |
+| the vdex App               | 2 732 443 | 957 240 | 246     | 58     | 73          | 54          |
+
+Three causes, each with its evidence in the ledger entry: the inline sourcemap
+(=bundle/svelte.js:37=, dev only), barrel reachability through an impure compiled graph (not the
+old spread-map pin of =codemap/invariants.md= — that map is gone), and the hoisted second svelte
+(=readlink node_modules/svelte= → 5.39.6; =readlink node_modules/.deno/node_modules/svelte= →
+5.57.0; the 5.57 run in the artifact begins right after =panels/Card.svelte= and ends at
+=carbon-icons-svelte/lib/Add.svelte=).
+
+* the correction (row 76)
+
+The measurement was right; the direction was not mine. The rejected line put the name of one
+subsystem's directory into the bundler that serves every subsystem — a hidden rule, in the wrong
+layer. His instruction was exact: /"mark the issue itself without your approach as an issue in
+ikiro"/ — so the ledger entry carries symptom, causes, evidence and the fact of one rejected
+attempt, and no approach. The zettel's callout ledger is codeword-only and did not fire; the
+correction lives under [[feedback_universal_over_parochial]] as a recurrence.
+
+* settlement
+
+- =known-issues.org= +=buffer-app-bundles-carry-2.6-mb-of-dead-weight= (OPEN).
+- =world/codemap/kajuit.md= dapper/drapes bullet: office parts + the corrected bundle line (was
+  /"typology's weight"/).
+- =project_m53_vcompany.md=: State (s1/s2 LANDED, the rows-snapshot law, the bundle causes, the
+  rejection verbatim) · Owed · How-to-apply (=--no-check= on both suites); =MEMORY.md= line
+  =T0+T1+s1/s2 LANDED; vdex App on restart= (17098/17100).
+- =feedback_universal_over_parochial.md= +Recurred (m53, the bundle weight).
+- quest =m53-vcompany.org=: =#+progress= (s1/s2), =#+next= (restart + click-through his, then
+  s3 → s4), the screens map rows LANDED, =** files — drapes= LANDED, the vdex deltas LANDED, the
+  =Vdex.svelte= block = the landed file with the defects note (the T1 stub block restored with a
+  REPLACED note), Gs1/Gs2 halves, two log entries (the go · the bundle).
+- frontier m53 line: =T0 + T1 + s1/s2 LANDED= (7954/8000 before this fold's slug).
+- scratch: =land_s1_s2.py= · =stamp_s1_s2.py= (+=_tail=) · =fix_quest_blocks.py= ·
+  =ledger_bundle_issue.py= · =bundle-proof/= · =bundle-pip/= · =svelte_patched{,2,3}.js= (the
+  rejected approach — scratch only, not canon).
+- dates: none in this file. Callouts: none (no codeword).
+
+* resumption (owed beef)
+
+- restart the runtime → the vdex App replaces the stub in kajuit; Gs1 (parts under nordic/paper)
+  + Gs2 (tree counts · md read/edit/save · pdf + the binary line · find · the sheet) click-through.
+- the bundle direction — his; the ledger entry is the brief.
+- =go s3= (Voffice, the domain's App) → s4 (Desk) → s5 (mail/chat with T2); calendar RULED a mode.
+- still open from the fold before: the slow first attach (boot race under =instance/run=); =* T1.#2=
+  his call; T2 re-cut (vendor services + shared IMAP/SMTP belt); the =probe= identity on his
+  lighthouse is his to delete; commits (everything uncommitted).
+
+* quest report (derived at fold — `methods/quest-report.py`)
+
+| quest                    | progress  | status | next                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                  | sessions   |
+|--------------------------+-----------+--------+-------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------+------------|
+| m46-linux-readmen        |  17% 3/18 | wip    | drain                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                 | 6          |
+| m50-the-three-way-weave  |  60% 3/5  | wip    | blast                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                 | 1 (1 live) |
+| m51-standalone-slowstart |   0% 0/18 | design | go                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                    | 1          |
+| m53-vcompany             |   0% 0/5  | open   | **the slow first attach** (his paste, /"again. very slow."/): the boot race under `instance/run` — gate kajuit's first attach on the runtime or lengthen the 8 s budget, and time the boot phases (dataset install · app bundle · cargo walk); **restart the runtime** (the app bundle rebuilds at boot) + gs1/gs2 click-through — his; the bundle weight is ledgered (`known-issues` `buffer-app-bundles-carry-2.6-mb-of-dead-weight`) and its direction is his; then s3 voffice → s4 desk on go; call nothing — calendar ruled a mode; `* t1.#2` his call; t2 re-cut (vendor services + shared imap/smtp belt); g4/g7 ride the screens app; the `probe` identity on his lighthouse is his to delete | 1          |
+| m53-vcompany.pre         | —         | open   | t1 package setup — the m27 gate moves to the executive stage; t1–t3 do not wait on it                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                 | 0          |

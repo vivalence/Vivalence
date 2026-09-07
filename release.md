@@ -4,6 +4,7 @@
 
 ### cli
 
+- changed `viva instances/rename <old> <new>` → `viva instance/rename [target] <next>` — SINGULAR: acts on one instance (the mounted one, or `target` through the instances lens like delete/doctor); a shelf dir (`<ledger>/instances/<old>`) is moved to `<ledger>/instances/<next>` and the record `mount` + the sessions that selected it follow; a tapped dir stays put (`dir: kept — off-shelf (tapped)`); logs + lock rules unchanged · migrate: `viva instances/rename a b` → `viva instance/rename a b` ⟨instance-rename-singular⟩
 - changed `viva instance/delete <target>` · `viva instance/doctor <target> <filter>` — a bare token resolves through the instances lens the way `instances/use` does: one match resolves headless (a slug prefix is enough), several open the picker (named in a pipe), none is an error; a path still resolves exactly · migrate: none ⟨the-create-verb-learns-init-at-the-flag-stratum-delete-hello-found-no-record-because-only-use-rode-the-picker-and-one-locate-takes-the-three-verbs⟩
 - added `viva instance/create --init` — runs `instance/init` on the new instance once created (the wizard in a terminal, the scaffold report under `--json`); independent of `--use`, chains after it when both are passed · migrate: none ⟨the-create-verb-learns-init-at-the-flag-stratum-delete-hello-found-no-record-because-only-use-rode-the-picker-and-one-locate-takes-the-three-verbs⟩
 - changed `viva instance/doctor` — one `PUBLIC_VIVA_LIGHTHOUSE_REMOTE` row per instance, at `lighthouse.statics.remote` (was three: instance · daemon · client) · migrate: none ⟨the-lighthouse-is-declared-once-and-inherited-at-the-pinhole-the-client-site-was-never-read-and-the-quest-index-listed-a-bak-that-had-dissolved⟩
@@ -35,11 +36,14 @@
 
 ### entity
 
+- fixed dataset install — `Literal.ontology` and `Literal.symbol` derive again on install: the link phase writes pivots through the ORM (per-chunk populate · add · `updatedAt`), so `LiteralSubscriber` fires; the install stamp folds the installer's own source, so this change reinstalls every DATASET mode at next boot and backfills the rows · migrate: none, boot once ⟨a-blank-never-claims⟩
 - changed instance recipe `export const lighthouse` — carries `module` and is the ONE consumed-lighthouse declaration; a daemon's `lighthouse` mask is an override; `clients.<slug>.statics.lighthouse` is gone (never read — the browser takes `PUBLIC_VIVA_LIGHTHOUSE_REMOTE` through `publish()`) · migrate: REQUIRED — add `module:` to the top-level `lighthouse`, delete the `lighthouse` mask from every daemon that bound the same module, delete `clients.*.statics.lighthouse` (repo `hello-world` · README · 51.02 · `~/.viva/instances/*` · the `@education` recipes done; prod shelf at M5) ⟨the-lighthouse-is-declared-once-and-inherited-at-the-pinhole-the-client-site-was-never-read-and-the-quest-index-listed-a-bak-that-had-dissolved⟩
 - renamed module lookups `@viva/*` · `@development/*` · `@testing/*` → `@commons/*` — every `module:` string and kernel entry in instance recipes · migrate: REQUIRED — every pre-m47 recipe dies at its next `instance/up` with `package @viva not supplied` until the three prefixes are sed'd (`~/.viva/instances/*`, every tapped recipe, the prod shelf); `viva instance/doctor` names each unresolved module ⟨m47-commons⟩
 
 ### env
 
+- changed instance settle — a consumed service (`daemon.consume.<slug>`) whose secret is blank is dormant like a hallucinator: dropped at mount, named `daemon[<slug>].consume.<name>` by the doctor, `daemon.services.<slug>` absent; the nlp provider names what it misses (`statics.remote` / `secrets.key`) · migrate: none ⟨a-blank-never-claims⟩
+- changed env fold — a blank value (`KEY=""`) never claims: paladin's ingress drops it, so a lower stratum voices the key and a blank REQUIRED secret reads as absent (dormant hallucinator, not a gate failure); the writer already wrote unset as `# KEY=""` · migrate: none ⟨a-blank-never-claims⟩
 - removed `VIVA_REGISTRY_MOUNT` from the image (F2) — the store is the ledger volume's `registry/` · migrate: none ⟨m47-commons⟩
 - removed `required:` on environment entries (lived one session, never released) · migrate: `.optional()` for false, nothing for true ⟨m48⟩
 
@@ -50,3 +54,10 @@
 - changed `<ledger>/locks/<slug>.lock` — `{ pid: supervisor, token, instance, status: BOOTING|ALIVE, processes: [{process, pid}], started }` replaces `<slug>_<process>.lock` per child · migrate: stale `*_*.lock` files are ignored — delete by hand ⟨m49⟩
 - added `<ledger>/logs/<slug>/<process>.out.log` — written under `instance/run --logged` and by every `instance/start` · migrate: none ⟨m49⟩
 - changed `<ledger>/instances.json` — `{ <slug>: { mount, createdAt, updatedAt } }` is the ONE instance identity every reader resolves through; `manifest.slug` names the recipe only · migrate: none for shelved instances (`create` wrote them); `viva ledger/doctor` names the orphans to tap ⟨m44⟩
+- changed `viva instance/run` — refuses before spawning when the instance is not bootable (a schematic fault or a wrong env row), prints the list, points at the doctor; exit 1 · migrate: none ⟨m52⟩
+- changed `viva instance/doctor` — `--json` gains `faults` (schematic misses per slot) and `dormant` (hallucinators dropped for a blank secret); a fresh instance mounts and reports instead of throwing on an unset address · migrate: none ⟨m52⟩
+- changed `v.prototypes.Url()` — wire grammar is `v.url()` (RFC 3986 with an authority); `"NaN"` / `""` no longer decode · migrate: none ⟨m52⟩
+- added `v.primitives.instance.Lighthouse` — `{module, statics.remote: Url}`; `Daemon.lighthouse` and `Instance.lighthouse` use it · migrate: none ⟨m52⟩
+- changed `v.primitives.instance.{Runtime,Service}.statics.serve` · `Client.statics.serve` · `Lighthouse.statics.remote` — typed `Url` codecs (Runtime/Service required); `Daemon.hallucinators` defaults to `[]` · migrate: a recipe hands the pinhole a STRING — `serve: () => paladin.env.get(KEY)` — never `new Url(…)` ⟨m52⟩
+- added `paladin.instance.faults` · `.dormant` · `paladin.check.instance(instance)` (faults ∪ wrong env rows; `.fails` / `.throw()`) — `mount()` never throws on a value; the gate is ONE line at `Ledger.boot`, runtime `run.js`, kajuit `vite.config.mjs`; ghost `instance/run` mounts before `boot` · migrate: a caller that awaited a `mount()` rejection on a schema miss now reads `faults` ⟨m52⟩
+- changed instance recipe `hallucinators` — a plain array; an entry whose secret is blank is dormant (dropped at mount, named by the doctor); `statics: {}` / `consume: {}` / `hallucinators: []` need not be authored · migrate: replace `hallucinators: () => key ? [...] : []` with the array; drop `new Url(…)` around `serve` / `remote` ⟨m52⟩

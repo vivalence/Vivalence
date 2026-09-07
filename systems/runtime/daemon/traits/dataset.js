@@ -13,11 +13,14 @@ const unique = (rows) => {
   return [...bySlug.values()];
 };
 
-const pull = (source, mount) => {
+const pull = (source, mode) => {
+  if (source.load) return source.load(mode);
   if (source.rows) return source.rows;
-  const at = `${mount.dirname}/${source.walk ?? source.read}`;
+  const at = `${mode.module.mount.dirname}/${source.walk ?? source.read}`;
   return source.walk ? paladin.find.data(at) : paladin.read[source.codec](at);
 };
+
+const installer = Deno.readTextFile(new URL(import.meta.url));
 
 export const stamp = async (mode) => {
   const dataset = new Dataset(mode.module.dataset ?? {});
@@ -25,6 +28,10 @@ export const stamp = async (mode) => {
   const files = [];
   for (const sources of Object.values(dataset.sources)) {
     for (const source of sources) {
+      if (source.load) {
+        files.push(["load", source.stamp ? String(await source.stamp(mode)) : ""]);
+        continue;
+      }
       if (source.rows) {
         files.push(["rows", JSON.stringify(source.rows)]);
         continue;
@@ -40,7 +47,7 @@ export const stamp = async (mode) => {
   }
   return files
     .sort(([a], [b]) => (a < b ? -1 : 1))
-    .reduce((folded, [path, text]) => hash.string(folded + path + text), "dataset");
+    .reduce((folded, [path, text]) => hash.string(folded + path + text), hash.string(await installer));
 };
 
 export const DATASET = async (mode, daemon) => {
@@ -49,7 +56,6 @@ export const DATASET = async (mode, daemon) => {
   const began = Date.now();
   const dataset = new Dataset(mode.module.dataset ?? {});
   const meta = shard.datamap.strip(daemon.datamap.introspect());
-  const mount = mode.module.mount;
   const em = daemon.entities.em.fork();
   const repo = (type) => em.getRepository(daemon.entities[type].getEntityName());
   const flush = async () => {
@@ -66,7 +72,7 @@ export const DATASET = async (mode, daemon) => {
     }
     const relations = Object.keys(meta[type]?.properties ?? {});
     const loaded = [];
-    for (const source of dataset.sources[type]) loaded.push(await pull(source, mount));
+    for (const source of dataset.sources[type]) loaded.push(await pull(source, mode));
     const read = loaded.flat();
     staged[type] = unique(read);
     if (staged[type].length !== read.length)
@@ -94,7 +100,7 @@ export const DATASET = async (mode, daemon) => {
 
   for (const type of dataset.types)
     for (const [prop, relation] of Object.entries(meta[type]?.properties ?? {}))
-      await linkPhase({ em, repo, daemon }, meta, type, prop, relation, staged[type] ?? []);
+      await linkPhase({ repo, daemon, flush }, meta, type, prop, relation, staged[type] ?? []);
 
   console.log(`[DATASET:install] ${mode.type}/${mode.slug} total ${seconds(began)}`);
 };
@@ -105,7 +111,7 @@ function guard(mode, meta, type) {
     throw new Error(`[DATASET] ${mode.type}/${mode.slug} declares non-dataspace entity "${type}"`);
 }
 
-async function linkPhase({ em, repo, daemon }, meta, fromType, prop, relation, rows) {
+async function linkPhase({ repo, daemon, flush }, meta, fromType, prop, relation, rows) {
   const started = Date.now();
   const toType = relation.target;
   if (!toType || !daemon.entities[toType]) return;
@@ -113,54 +119,36 @@ async function linkPhase({ em, repo, daemon }, meta, fromType, prop, relation, r
   const refs = rows.filter((row) => row[prop]?.length);
   if (!refs.length) return;
 
-  const fromMeta = daemon.datamap.introspect().get(repo(fromType).getEntityName());
-  const pmeta = fromMeta.properties[prop];
+  const pmeta = daemon.datamap.introspect().get(repo(fromType).getEntityName()).properties[prop];
   if (pmeta?.kind !== "m:n") {
     console.warn(`[DATASET] link:${fromType}.${prop} is not m:n — skipped`);
     return;
   }
 
-  const fromSlugs = refs.map((row) => row.slug);
-  const toSlugs = [...new Set(refs.flatMap((row) => row[prop].map((ref) => ref.slug)))];
-
-  const froms = await repo(fromType).find({ slug: { $in: fromSlugs } }, { fields: ["id", "slug"] });
-  const tos = await repo(toType).find({ slug: { $in: toSlugs } });
-
-  const fromMap = new Map(froms.map((entity) => [entity.slug, entity]));
-  const toMap = new Map(tos.map((entity) => [entity.slug, entity]));
-
-  for (const ref of refs.flatMap((row) => row[prop])) {
-    const to = toMap.get(ref.slug);
-    if (to) to.assign(object.patch(to, ref));
-    else toMap.set(ref.slug, repo(toType).create(ref));
+  const emit = fn.every(5, log(`link:${fromType}.${prop}`, started));
+  let done = 0;
+  for (const chunk of array.chunk(refs, CHUNK)) {
+    await promise.retry(async () => {
+      const toSlugs = [...new Set(chunk.flatMap((row) => row[prop].map((ref) => ref.slug)))];
+      const froms = await repo(fromType).find({ slug: { $in: chunk.map((row) => row.slug) } }, { populate: [prop] });
+      const tos = await repo(toType).find({ slug: { $in: toSlugs } });
+      const fromMap = new Map(froms.map((entity) => [entity.slug, entity]));
+      const toMap = new Map(tos.map((entity) => [entity.slug, entity]));
+      for (const row of chunk) {
+        const from = fromMap.get(row.slug);
+        if (!from) continue;
+        for (const ref of row[prop]) {
+          let to = toMap.get(ref.slug);
+          if (to) to.assign(object.patch(to, ref));
+          else toMap.set(ref.slug, (to = repo(toType).create(ref)));
+          from[prop].add(to);
+        }
+        from.assign({ updatedAt: new Date() });
+      }
+      await flush();
+    })();
+    emit((done += chunk.length), refs.length);
   }
-  await em.flush();
-
-  const owning = pmeta.owner ? pmeta : pmeta.targetMeta.properties[pmeta.mappedBy];
-  const fromCol = pmeta.owner ? owning.joinColumns[0] : owning.inverseJoinColumns[0];
-  const toCol = pmeta.owner ? owning.inverseJoinColumns[0] : owning.joinColumns[0];
-
-  const pairs = [];
-  const touched = [];
-  for (const row of refs) {
-    const from = fromMap.get(row.slug);
-    if (!from) continue;
-    touched.push(`'${from.id}'`);
-    for (const ref of row[prop]) pairs.push(`('${from.id}', '${toMap.get(ref.slug).id}')`);
-  }
-
-  for (const chunk of array.chunk(pairs, 500))
-    await em.getConnection().execute(
-      `INSERT OR IGNORE INTO ${owning.pivotTable} (${fromCol}, ${toCol}) VALUES ${chunk.join(", ")}`,
-    );
-
-  const updatedAt = fromMeta.properties.updatedAt.fieldNames[0];
-  for (const chunk of array.chunk(touched, 500))
-    await em.getConnection().execute(
-      `UPDATE ${fromMeta.tableName} SET ${updatedAt} = CURRENT_TIMESTAMP WHERE id IN (${chunk.join(", ")})`,
-    );
-
-  em.clear();
   console.log(`[DATASET:install] link:${fromType}.${prop} ${refs.length} entities linked in ${seconds(started)}`);
 }
 

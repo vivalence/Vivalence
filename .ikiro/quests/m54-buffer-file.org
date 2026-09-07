@@ -1,0 +1,311 @@
+#+title: m54 — the desk: a system FILE trait on buffer and literal
+#+filetags: :m54:buffer:file:document:trait:asset:freight:harness:skills:kajuit:drapes:vdex:typology:runtime:
+#+phase: open
+#+progress: **DESIGNED, TIED UP, nothing landed.** Five-agent research sweep folded into `** research`; beef RULED: FILE (system, literal AND buffer) · LABELED in M1 · the skills/tools/repository integration QUESTIONED — the FILE verbs are sketched as an aperture branch + `daemon.call`, which is the inside-out shape the mikro-first law forbids ([[feedback_mikro_first_repository_verbs]]); the ontology, the entities, the schematics, the section, the screen and the vdex flag day stand. `v.asset` pinned; plurals = relations + existing layers; `mode.reinstall` RETRACTED.
+#+next: RECONCILE with m53 =* T1.1= AND =m53-vcompany.v3-vdex= first (three quests, one seam, all waiting on go; V3 splits the App into a shell + 7 parts + =buffer/jdex.js= and already points here for file upload — m54's App hunk names the single =Vdex.svelte= and must be re-cut onto whichever lands first) (a sibling session, beef's rulings there: the vdex speaks SLUGS — =/document /write /file /move /delete= implemented ONCE in the aperture, tools wrap =mode.call.<verb>=, =fs_*= slurp GONE on vdex; =open= is an EMITTER; the boot WATCHES files and syncs PER PATH — /"shouldnt this watch files??!!!"/; /"wtf is daemon traits stamp????"/ → gone) — three seams now name the verbs' home (T1.1 aperture · m54 sketch · mikro-first repository), beef arbitrates; then beef reopens the QUESTIONED block when ready — order of design there is mikro entity + BufferRepository verbs → typology verb contract → shard mounts → RemoteRepository mirrors → kajuit. Until then M1 = everything but the verbs. "go M1" → full hunks against the tree as read.
+
+* ikiro
+
+** intent
+
+today: the vdex App keeps the document body in a local `$state`; `buffer.data` holds a
+sticky note (`{open: slug}`); the agent's only view of a document is `fs_read`, its only
+write is `fs_write` straight to disk; the user's `save()` and the agent's write blind-
+overwrite each other; nothing on the buffer names what is on the desk; kajuit cannot
+render a document without knowing vdex.
+
+after: the buffer carries a system trait FILE — the working copy of one asset — that both
+the harness (a `system.file` section + `buffer_file_*` tools) and the App (a deepMap key
+path) read and write; save goes through the literal's FILE face to the freight and heals
+the row; `v.asset` is ONE primitive shared by freight entries, VOCALIZED, DOCUMENT and
+FILE; kajuit/drapes render a FILE buffer by MIME with zero domain knowledge; the vdex is
+the first consumer and the flag day.
+
+** rulings (beef, verbatim)
+
+- /"i think the document makes sense on the buffer. inside an reactive envelop on data."/
+- /"i want the same structure on buffer to serve two roals. buffer.data buffer.literals etc a: its loaded into context with the agents and they can read write it. b: its a reactive display on the frontend app where we also edit."/
+- /"i assume we want edits on buffer level, ie context thats editable finds a representation in buffer.data. and on save we write that to the literal, which writes to disk."/
+- /"makes sense that if literals are documents, they are our interface for serving content and saving it too."/
+- /"there are issues here in that kajuit cant implement domain specific traits yet. for now we gotta keep them on system level."/
+- /"adding traits to buffers is kinda big. i think it makes sense tho."/
+- /"document. singular and plural? separate? i thiink so. probably something for email too."/
+- /"client can only have system level functions. daemon is domain level. making document a system level trait."/
+- /"we want the asset type integrated across freight, vocalized, document, etc etc. kk."/
+- /"v.asset pin"/
+- /"skills is missing all the plurals! list, summary, search, filter, xyz."/
+- /"what is mode.reinstall? makes no sense. you miss all context."/
+- /"are skills here paladin or daemon or vdex?? or from the literal trait??!?!?!!? weird."/
+- /"maybe on the buffer it should be called FILE trait? maybe thats another type tho. hmmm."/
+- /"this must be scoped. literal/daemon/mode/xyz?! important!"/
+- /"FILE."/ · /"labeled in m1."/ · /"mark the skills/tools tooling/repository integration as questioned for now."/ · /"tie the quest up."/
+
+** decisions (mine — every one overturnable)
+
+- *FILE, not DOCUMENT, is the system noun* — RULED by beef (/"FILE."/). The kernel already carries the seed: `// @beef: FILE trait on literal` above the empty `LiteralTraitsEnum { _ }` (`systems/runtime/daemon/entities/kernel/Literal.ts:9-14`). FILE = "this row is backed by an asset" — `{asset, type, bytes, mtime, hash}`; it says nothing about readability, title or JD coordinate. DOCUMENT (voffice), VOCALIZED (education) stay DOMAIN decorations on top: DOCUMENT adds `title · format · readable`, VOCALIZED adds `attribution`. Both today carry `asset: {path}` in their own payload; with FILE they carry it ONCE, on FILE, and the domain payload drops the duplicate. The buffer's trait is the same noun with one more key: `text` = the working copy. Same schema, `text` optional; on the literal it is never set (body NOT in row — the m53 rule holds).
+- *The plural is the relation.* `buffer.literals` and `buffer.symbols` ARE the plural surface; a `FILES` trait would restate a relation the row already has. A listing buffer = N literals, no FILE claim. Singular FILE names WHICH literal is on the desk (`literal` in the payload) because a FILE buffer may also carry reference literals.
+- *Buffer trait roster:* FILE (M1) · LABELED (M1 — RULED, /"labeled in m1."/; cheap — the dock chip stops reading "vdex"; the noun already exists on symbol/thread/intent) · MAIL (m53 T2 — RFC 5322 headers are universal, so system). Not traits: chat (the thread's turns), dojo session / riddler history (App `data`, domain).
+- *QUESTIONED — the skills/tools/repository integration.* Beef: /"mark the skills/tools tooling/repository integration as questioned for now."/ What stands below is the sketch as argued this session; it puts the FILE verbs on an aperture branch (`/buffer/file/*`) reached from the client as `daemon.call.buffer.file.*` — exactly the inside-out shape the mikro-first law forbids ([[feedback_mikro_first_repository_verbs]]: /"architect this on mikro repo/entity and typology tooling such that the runtime just implements in the most obvious way"/; a capability declared as an aperture branch on the entity is a second seam). The right order when reopened: ① `BufferRepository` verbs (`open · edit · save`, the Turn.ts `history/chain/fold` precedent — Buffer has NO repository of its own today, it ships `DataRepository`) → ② typology: the descriptor + ONE verb contract → ③ `shard.datamap.repository(repo)` mounts them → ④ `RemoteRepository` mirrors the same verbs → ⑤ kajuit sprouts from ④; the agent tools then wrap the SAME repository verbs (as `entity_find` wraps `find`). Held as written: ① daemon skills = entity verbs (`daemon/skills/*.js`) · ② paladin = disk verbs under `ctx.root` · ③ domain tools · ④ mode tools. FILE verbs on the desk mutate the BUFFER entity and read the buffer's mode's freight → layer ①, `daemon/skills/buffer.js`, natures `/buffer/file/{open,edit,save}` → tool names `buffer_file_open · buffer_file_edit · buffer_file_save`. Plurals over the disk → ② `fs_tree · fs_find · fs_read · fs_stat` exist, `fs_grep` is the one missing verb. Plurals over rows → ① `entity_find {entity:"literal", traits:"FILE"}` (system, `resolveTraits` inherited) and the domain repository's `search` (voffice: title/subject/body). Summary → the harness `system.file` section (the desk) and, domain, the vdex `index()` (the cabinet). Nothing is minted on the literal trait itself: entity traits have no behavior side today (the three sides are claim · payload · schema; client capabilities exist only for thread traits) — see `** ontologies`.
+  (end of the QUESTIONED block — from "Held as written" to here is the sketch, not a ruling)
+- *`mode.reinstall` RETRACTED.* DATASET is boot-gated by `mode.entity.installed` + a stat fingerprint (`traits/dataset.js:25-51`); the vdex `reindex` (`boot.js:23-31`) blanks the stamp and reruns the trait, then admits + prunes. That is a DOMAIN reaction to "my tree changed", not a mode method. In v1 the vdex keeps it and gets ONE new trigger: a `buffer_file_save` on its freight. Mechanism: FRAUGHT's `receive` marks the daemon twitch `/after/freight/receive {mode, path}`; the vdex boot opens that signal and runs `reindex`. Generalizing (DATASET's finalizer reacting for every `reader.load` mode) is a fork, not M1.
+- *`v.asset` is a primitive*, `schematics/primitives/asset.js`: `Asset = v.object({ path })` — `path` relative to a FREIGHT root, resolved by cargo (`daemon.getAsset({path})` on the client, `mode.freight.catalog[path]` on the daemon, both exist). FILE's schema sits beside it in the same file and is re-exported from `entities/literal.js` and `entities/buffer.js` — the placement law says trait schemas live ON the entity schematic; here the schema is shared by two entities, so it lives with its primitive and both schematics import it.
+- *Kernel enum ∪ domain enum.* Domain concretes REPLACE the kernel `traits` enum by re-declaring the property (`voffice/entities/kernel/Literal.ts`, `collate` in `population.js:32-43`). FILE must survive: the domain hunk spreads the kernel members (`items: () => [...Object.values(base.traits), ...Object.values(LiteralTraitsEnum)]`). Mikro validates enum arrays at flush (`Invalid enum array items` — the m23 lesson), so this is not decorative.
+- *Caret policy v1 = loud writes, App owns the caret.* Agent edits `em.flush` → SSE → deepMap key → App re-renders. User keystrokes debounce (1.5 s, dojo's constant) into `buffer_file_edit` over `daemon.call`; while `editing`, the App keeps its textarea state and shows "changed by agent" when an incoming `text` differs from its own. Dojo's `keepQuietly` (raw SQL, no broadcast) is NOT promoted in M1 — only if the echo bites.
+- *Concurrency = the hash.* FILE.hash is the disk hash at open. `buffer_file_save` refuses when `buffer.trait.FILE.hash ≠ literal.trait.FILE.hash` → "stale — reopen". Last write wins on the working copy; nothing wins silently on disk.
+
+** ontologies — the two-column idiom and where FILE sits
+
+#+begin_example
+literal.trait.FILE        {asset:{path}, type, bytes, mtime, hash}           row face    system   (kernel enum, fills the @beef TODO)
+literal.trait.DOCUMENT    {title, format, readable}                          domain      voffice  (asset moves to FILE)
+literal.trait.VOCALIZED   {attribution}                                      domain      education (asset moves to FILE — LATER, own pass)
+freight.lading[]          {slug, path, type} → catalog {path, type, url}     disk face   system   (FRAUGHT)
+buffer.trait.FILE         {literal, asset:{path}, type, hash, text?}         work face   system   NEW
+buffer.trait.LABELED      {name, description?}                               system      NEW on buffer
+buffer.data               the App mask — vdex keeps {id}                     domain
+#+end_example
+
+Trait grammar (`invariants.md:10-11`): claim = `traits[]`, payload = `trait.NOUN`, check `traits.includes`, never `trait?.NOUN`. Buffer joins literal · symbol · thread · intent in carrying both columns; Mode keeps `traits` only; Turn/User stay trait-less.
+
+Client mirror: `Buffer.$traits = atom([])`, `Buffer.$trait = deepMap({})` — the Thread shape verbatim (`entities/thread/thread.js:27-28`), key-path reactivity so a body edit does not re-fire the meta. `Literal` stays `class Literal extends Entity {}`.
+
+** research (five opus sweeps, this session — the load-bearing facts)
+
+- Buffer has NO `traits`/`trait` on ORM (`userspace/Buffer.ts:17-28`), schematic (`schematics/entities/buffer.js`), or table; `BufferDossier.use = []`; only `data` + `view` are atom-backed. `BufferDescriptor` also omits `status` and `view` that the ORM carries.
+- Agent → screen is WIRED: `buffer_update` (`daemon/skills/buffer.js`, shallow one-level merge, no schema, no scope) → `em.flush` → twitch → `shard.datamap.reactive` → SSE → `RemoteRepository.subscribe` → `em.merge` → `Buffer.set data` → `$data.set`. Consumers: Card/Spawned via `atom.chain(buffer, "$data")`, the F panel. Vdex/Dojo/Riddler snapshot `buffer.data` at script init.
+- Screen → agent is NOT: no section renderer puts any buffer into the record (grepped every `harness.js`; `harnessed.js` arms the tool only). `request.system` values are `JSON.stringify`'d by both providers (`anthropic/translate.js:86-105`), so an object section works today. Cache mark pins `system.at(-1)` → the volatile section must be LAST.
+- No `ctx.buffer` in tools; `ctx.thread` is a string id (`harnessed.js:69`). The model learns buffer ids only from tool results.
+- vdex tools' root middleware rebinds `ctx.root = mountpoint` for EVERY armed tool (slurp merges `carry`; `traverse` folds root carry) — `shell_run` cwd = the JDex. Ledgered m53:375, unfixed.
+- Client `RemoteEntityManager.flush()` is DEAD: reads `repository.link.url.pathname`, `RemoteRepository` never sets `.link`; zero callers. Every client write is an explicit `updateOne` or `connection.call`.
+- Two-way precedents: Queueing/Intelligent widgets (`updateOne({trait})` + local write) · Dojo (`buffer.data` optimistic + debounced `/session`, `keepQuietly` raw SQL) · Vdex (`/write` to disk, local `$state`).
+- `asset: {path}` is already the join in VOCALIZED and DOCUMENT; `daemon.getAsset(asset)` → `cargo.resolve`; drapes `Asset` dispatches audio/image/video by MIME; no `v.asset` schematic exists.
+- Trait schemas exist for exactly two nouns (`INTELLIGENT`, `VOCAL`, on `schematics/entities/thread.js`); `shard.trait.claimed` is the one read-side validator, two call sites; nothing validates on write; `traits[]` is authored by hand beside `trait{}` everywhere.
+- Datasink: `writer.text` / `project.body` do NOT exist; `writer.each` is the ratified spelling (m53 `* T1.#2`, READY, gated, zero declarers on disk).
+- Codemap drift found: `kajuit.md:12` states the emission contract as `entities:{buffer}`; live is `output:{buffer}` (`pool.js:11`, `aimed.js:13`). Fixed in this pass (`** log`).
+
+** the mechanisms
+
+*** open — put a file on the desk   (QUESTIONED — the verb's HOME; the data flow stands)
+#+begin_example
+vdex App read(slug)  ──mode.call.open({buffer, slug})──► vdex aperture: literal ← findOne({ontology, slug})
+                                                          path ← literal.trait.FILE.asset.path
+                                                          ──► daemon.call.buffer.file.open({buffer, literal, path})   (①, same Vector as the tool)
+agent                ──buffer_file_open {buffer, literal, path}──► same leaf
+leaf:  row ← buffer.findOneOrFail(populate literals) · freight ← modes[row.mode].freight
+       text ← TEXT(type) ? freight.fetch(path) : null · row.literals.add(literal)
+       claim(row, FILE, {literal, asset:{path}, type, hash: hash(text ?? stat), text}) · em.flush
+       ──► SSE ──► Buffer.set trait ──► $trait.setKey("FILE", …) ──► App's chain(buffer, "$trait", "FILE") fires
+#+end_example
+The vdex App is ONE buffer; open SWAPS the desk's FILE — never mints a buffer (a new buffer remounts the Frame). `data.open` dies.
+
+*** edit — the working copy   (QUESTIONED — home)
+`buffer_file_edit {buffer, text}` → `trait.FILE.text = text`, flush (loud). Client `BufferTraits.file.edit(buffer, text)` = the same leaf over `daemon.call`, debounced 1.5 s. `dirty(buffer) = hash(text) ≠ hash`.
+
+*** save — through the literal to the drawer   (QUESTIONED — home; the hash law and the heal stand)
+#+begin_example
+buffer_file_save {buffer}:  stale?  buffer.FILE.hash ≠ literal.FILE.hash  → ERROR "stale — reopen"
+                            freight.receive(path, text)                    (FRAUGHT, exists)
+                            literal.trait.FILE ← {bytes, mtime, hash}      (system heals the row face)
+                            buffer.trait.FILE.hash ← hash(text) · flush
+                            twitch.mark("/after/freight/receive", {mode, path})
+vdex boot.js:  twitch.open("/after/freight/receive") → if mode is mine → reindex   (title may derive from text; DOCUMENT heals)
+#+end_example
+When m53 T1.#2 lands (body on the row, `writer.each` sink), `freight.receive` in this leaf becomes `literal.trait.FILE.body = text` and the sink writes the disk. Nothing else moves.
+
+*** the record — what the model sees
+`harnessed.js` assemble, AFTER every other section:
+#+begin_src js
+const desk = await daemon.entities.buffer.find({ thread: input.thread, traits: "FILE" }, { orderBy: { updatedAt: "DESC" } });
+if (desk.length) ctx.hallucination.system.file = desk.map((row) => ({ buffer: row.id, ...row.trait.FILE }));   // text budgeted, LAST key
+#+end_src
+Budget: the newest buffer's text whole up to N kB, older ones meta only. `cache.marks` already pins the last section.
+
+*** the screen — domain-blind rendering
+drapes `display/File.svelte {file, editable, oninput}` dispatches on `file.type`: `text/*` → Markdown · Org · Json · textarea by subtype/extension · `application/pdf` → `Pdf` · `audio|image|video/*` → `Asset` (exists). Any App, and the F panel, render a FILE buffer without knowing vdex.
+
+** ordering · dependencies · outcomes
+
+| M1 | typology + runtime + kajuit + drapes + vdex | the desk | one flag day, vdex is the only consumer |
+| M2 | plurals | `fs_grep` · `entity_find` FILE card · harness budget | after M1 is measured live |
+| M3 | the verbs' home | QUESTIONED — mikro-first redesign of open · edit · save | reopened by beef |
+| M4 | VOCALIZED → FILE (education) · MAIL on buffer (m53 T2) | separate passes | not this quest's flag day |
+
+Gates: M1 lands without the verbs' final home — the section, the screen, the schematics, the columns and LABELED do not depend on it; the vdex App keeps `mode.call.open` (domain, today's shape) until M3 settles. Typology hunks are HOLY (`feedback_typology_holy`) — asked, not assumed.
+
+** blast radius
+
+#+begin_example
+subsystems/typology/
+  schematics/primitives/asset.js        NEW   Asset · FILE                                              holy
+  schematics/primitives/index.js        + asset                                                         holy
+  schematics/index.js                   v.asset · v.entities.FILE                                       holy
+  schematics/entities/literal.js        re-export FILE                                                  holy
+  schematics/entities/buffer.js         own +traits +trait +status +view · FILE · narrowable +trait      holy
+  tests/schematics/asset.test.js        NEW
+systems/runtime/daemon/
+  entities/kernel/Literal.ts            LiteralTraitsEnum { FILE }
+  entities/userspace/Buffer.ts          BufferTraitsEnum { FILE, LABELED } · traits/trait columns (mikro generates)
+  traits/index.js  FRAUGHT              + freight.fetch(path) · receive marks twitch /after/freight/receive
+  skills/buffer.js                      + /buffer/file/{open,edit,save}                    ?  QUESTIONED — home
+  traits/harnessed.js                   system.file section
+  aperture/userspace.js                 .branch("/buffer/file").slurp(skills.buffer.file)   ?  QUESTIONED — inside out
+  entities/userspace/Buffer.ts          BufferRepository (first one) with the verbs         ?  QUESTIONED — the mikro-first candidate
+  tests/skills/buffer.file.test.js      NEW · datamap.scoped +1 (trait broadcast)
+systems/kajuit/src/typology/entities/
+  buffer.js                             $traits · $trait deepMap · accessors · toJSON
+  buffer/traits/file.js                 NEW   edit · save · dirty                              ?  QUESTIONED — mirrors ④, shape follows M3
+  buffer/traits/index.js                NEW   BufferTraits barrel → entities/index.js → mod.js
+subsystems/drapes/display/
+  File.svelte                           NEW · barrel
+subsystems/paladin/skills/fs.js         + /fs/grep                                                    (M2)
+~/.viva/registry/vcompany/
+  domain/voffice/entities/kernel/Literal.ts   enum ∪ kernel
+  modes/office/vdex/load.js                   FILE beside DOCUMENT; asset moves to FILE
+  modes/office/vdex/aperture/index.js         /open → buffer.file.open on the caller's buffer · /write + /document STAY (T1.1 owns them)
+  modes/office/vdex/tools/index.js            open → same · line() reads FILE.type
+  modes/office/vdex/boot.js                   twitch /after/freight/receive → reindex
+  modes/office/vdex/vdex.viva.js              data: {id} only
+  modes/office/vdex/buffer/Vdex.svelte        text ← chain(buffer,"$trait","FILE") · edit/save via BufferTraits.file · <File>   ?  STALE if =m53-vcompany.v3-vdex= lands first (shell + 7 parts + jdex.js)
+  modes/office/vdex/tests/snapshots/*         hallucination +section +3 tools · tools open → trait · aperture contract
+  modes/office/vdex/tests/*.test.js           follow
+.ikiro/world/codemap/{kajuit,runtime,typology}.md   FILE · buffer traits · emission contract corrected
+#+end_example
+Sizing: typology 5 holy files + 1 test · runtime 6 + 2 tests · kajuit 3 · drapes 1 · vdex 7 + snapshots. No consumer outside vdex reads a buffer trait yet, so the flag day is the vdex.
+
+** forks
+
+- *FILE vs DOCUMENT* — RULED FILE. *LABELED in M1* — RULED yes. Both closed.
+- *the verbs' home* — QUESTIONED (beef). Aperture branch + `daemon.call` (sketched) vs `BufferRepository` verbs mirrored by `RemoteRepository` (the mikro-first law). Reopened by beef; M3.
+- *the heal* — SUPERSEDED IN PART by m53 =* T1.1= (sibling session): beef ruled the boot WATCHES files and syncs PER PATH (/"this should watch files and twitch changes to files onto literals"/), the stamp comparison is gone (/"wtf is daemon traits stamp????"/), prune is inline through the em. So a `buffer_file_save` that writes the disk is healed by the WATCHER, not by a FRAUGHT twitch the vdex must subscribe to. m54's `/after/freight/receive` twitch stays only as the generic hook for modes without a watcher; on vdex the watcher is the heal. Reconcile before M1.
+- *m53 T1.1 vs m54 — the verbs and `open`* — T1.1 keeps `/document` + `/write` as the ONE implementation (tools wrap `mode.call`), so m54's "`/write` + `/document` DELETED" is WITHDRAWN; T1.1's `open` EMITS a new App buffer (aprende `drill` shape), m54's `open` SWAPS the FILE on the existing buffer — one of these is wrong for the vdex reader, beef's call. T1.1's ruling /"vdex should provide the functionality that fs tools provide. wrap for context and utility"/ also narrows m54's plurals answer: `fs_*` stay system-level for modes with a module root, but on the vdex they are wrapped, never slurped bare.
+- *`v.asset` shape* — `{path}` only, or `{path, type?}`. Lean `{path}`: type is the catalog's, derived from the extension (`freight.js MIME`), never authored twice.
+- *quiet writes* — dojo's `keepQuietly` promoted to `shard.datamap.quiet` if the SSE echo moves the caret. Not M1.
+- *`ctx.root` leak* (m53:375) — vdex's root middleware rebinds `shell_run`'s cwd to the JDex. Orthogonal; the FILE verbs never read `ctx.root` (they resolve through `buffer.mode`'s freight), so this quest does not widen it.
+- *VOCALIZED asset → FILE* — education pass, own quest line; until then two spellings of `asset` coexist and `v.asset` describes both.
+
+** skip list
+
+- no `FILES`/`DOCUMENTS` plural trait (the relation is the plural) · no `mode.reinstall` · no fifth skill layer · no client `em.flush` revival · no CRDT/OT (hash + reopen) · no editor library (textarea, FOCUS LAW `kajuit.md:22`) · no body on the literal row (T1.#2's call).
+
+** log
+
+- beef's console paste (=TypeError … get(...).literal is undefined= at =Vdex.svelte:94=) → root cause in m53 (=/write= shape); fixed there. Then: /"does the buffer have any trait for document? … deep research. opus research agent! … full sweep. thick on context."/ → five Explore agents (opus): buffer entity · reactive spine · apps/modes · harness/tools · trait system/literal. Facts folded into `** research`.
+- first design (trait on buffer, payload = working copy, `data` stays the App mask, save via freight + "reinstall", `document_*` skills unscoped) → beef: /"adding traits to buffers is kinda big. i think it makes sense tho."/ + the six corrections in `** rulings`. → `v.asset` pinned as a primitive; plurals mapped onto the existing layers (② `fs_*` + `fs_grep`, ① `entity_find` traits:"FILE", section = summary); `mode.reinstall` retracted for the twitch reaction; skills scoped to ① `/buffer/file/*`; FILE proposed over DOCUMENT with the kernel TODO as the seed. /"### write the quest."/ → this file.
+- /"FILE. labeled in m1. mark the skills/tools tooling/repository integration as questioned for now. tie the quest up."/ → FILE and LABELED RULED (decisions + forks closed); the skills/aperture/`daemon.call`/RemoteRepository block marked QUESTIONED throughout (decisions · mechanisms · blast · waterfall M3) with the mikro-first order as the reopen path — the m55 ruling /"we design mikro-orm first!"/ landed as a memory while this quest was being written and names the exact defect; M1 re-cut to stand without the verbs' home.
+- at the fold, the quest report showed m53 with 3 live sibling sessions and a rewritten `#+next`: `* T1.1 - VDEX harnessed and tooling` exists in m53 (his seven comments answered there — slugs not paths, `open` an emitter, file watch + per-path sync, stamp gone, prune inline). Intersections recorded in `** forks` (the heal SUPERSEDED in part; `/write`+`/document` DELETED withdrawn; two `open` shapes); `#+next` = RECONCILE first.
+- the second /"ikiro compact"/ (nothing new of his; the fold re-walked to N=17) found a THIRD vdex quest on disk: =m53-vcompany.v3-vdex.org= (DESIGNED, compile-green, waiting on go) — the V3 App as a shell + 7 parts + =buffer/jdex.js=, riding T1.1's aperture, already naming m54 for the file-upload entry. m54's App hunk is STALE against it; the aperture and schematic hunks are not. =#+next= widened to reconcile all three.
+- /"ikiro compact."/ → compact `the-save-answers-the-wrong-shape-five-sweeps-map-the-desk-and-the-verbs-home-is-questioned-before-it-lands` (spine N=15); frontier m54 line; memory settled.
+- codemap `kajuit.md:12` emission-contract line corrected (`entities:{buffer}` → `output:{buffer}`; `aimed.js:13` reads `output.buffer`) — two sweeps flagged it independently.
+
+* waterfall — every piece, what it needs, where it stands
+
+** M1 — the desk (FILE + LABELED on the buffer, FILE on the literal, the section, the screen; the verbs' HOME is M3/QUESTIONED — their data flow lands, their mount follows the ruling)
+
+*** entities
+#+begin_example
+Asset   = v.object({ path: v.string() })                                              primitives/asset.js
+FILE    = v.object({
+            literal: v.string().optional(),      // slug or id — the row on the desk (buffer only)
+            asset:   Asset,
+            type:    v.string(),                 // MIME, from the catalog
+            bytes:   v.integer().optional(),
+            mtime:   v.string().optional(),
+            hash:    v.string(),
+            text:    v.string().optional(),      // the working copy — buffer only, TEXT types only
+          })
+#+end_example
+
+*** files — sketches (hunks on "go", against the tree as read)
+
+**** typology · schematics/primitives/asset.js
+#+begin_src js
+import { v } from "../v.js";
+// an asset is a path under a FREIGHT root; type · url are the catalog's, never authored twice
+export const Asset = v.object({ path: v.string() });
+export const FILE = v.object({ … as above … });
+#+end_src
+`entities/buffer.js`: `own: { index, data, status: v.enum([...]).optional(), view: v.unknown().optional(), traits: v.array(v.string()).optional(), trait: v.record(v.string(), v.unknown()).optional() }` · `export { FILE }` · `narrowable: ["data", "trait"]`. `entities/literal.js`: `export { FILE }`.
+
+**** runtime · entities/userspace/Buffer.ts
+`BufferTraitsEnum { FILE, LABELED }` · `traits: BufferTraitsEnum[] & Opt = []` · `trait: any & Opt = {}` · properties mirror `Literal.ts:87-94`. Kernel `Literal.ts`: `LiteralTraitsEnum { FILE = "FILE" }` — the TODO closes.
+
+**** runtime · skills/buffer.js   (QUESTIONED — the home; the leaf bodies stand as the data flow)
+#+begin_src js
+const TEXT = (type) => type.startsWith("text/") || ["application/json", "application/x-org"].includes(type);
+const claim = (row, patch) => {
+  row.traits = [...new Set([...(row.traits ?? []), "FILE"])];
+  row.trait = { ...row.trait, FILE: { ...row.trait?.FILE, ...patch } };
+};
+const desk = (ctx) => ctx.daemon.entities.buffer.findOneOrFail({ id: ctx.input.buffer }, { populate: ["literals"] });
+const freightOf = (ctx, row) => ctx.daemon.modes.byId(row.mode.id).freight;    // resolve — the buffer's mode, not the harness mode
+
+export const buffer = new Vector()
+  .open({ nature: "/buffer/update", … })                                          // unchanged
+  .branch("/buffer/file")
+    .open({ nature: "/open", valence: "Put a file on the desk …", input: v.object({ buffer, literal, path }) }, async (ctx) => {
+      const row = await desk(ctx); const freight = freightOf(ctx, row);
+      const entry = freight.catalog[ctx.input.path]; if (!entry) return ERROR(`${path} not in the cargo`);
+      const text = TEXT(entry.type) ? await freight.fetch(ctx.input.path) : null;
+      row.literals.add(await ctx.daemon.entities.literal.findByIdentifiers([ctx.input.literal]));
+      claim(row, { literal: ctx.input.literal, asset: { path: ctx.input.path }, type: entry.type, hash: hash.string(text ?? `${entry.bytes}:${entry.mtime}`), ...(text !== null && { text }) });
+      await ctx.daemon.entities.em.flush();
+      return { message: `${ctx.input.path} on the desk`, buffer: [row] };
+    })
+    .open({ nature: "/edit", input: v.object({ buffer, text }) }, async (ctx) => { … claim(row, { text }) … })
+    .open({ nature: "/save", input: v.object({ buffer }) }, async (ctx) => {
+      const row = await desk(ctx); const { literal, asset, text, hash: held } = row.trait.FILE;
+      const target = await ctx.daemon.entities.literal.findOne(reference(literal));
+      if (target.trait.FILE.hash !== held) return { condition: "ERROR", output: { message: "stale — the file changed under you; reopen" } };
+      await freightOf(ctx, row).receive(asset.path, text);                          // marks /after/freight/receive
+      const fresh = hash.string(text);
+      target.trait = { ...target.trait, FILE: { ...target.trait.FILE, bytes: byteLength(text), mtime: now(), hash: fresh } };
+      claim(row, { hash: fresh });
+      await ctx.daemon.entities.em.flush();
+      return { message: `${asset.path} saved`, buffer: [row], literal: [target] };
+    });
+#+end_src
+Armed by `harnessed.js:41` as today (the Vector grew); mounted once more at `userspace.js` under `/buffer/file` → `daemon.call.buffer.file.{open,edit,save}`.
+
+**** runtime · traits/harnessed.js (assemble, last)
+See `*** the record`. Budget constant beside `BUDGET` in `skills/entity.js`.
+
+**** runtime · traits/index.js FRAUGHT
+`mode.freight.fetch = (path) => paladin.read.text(\`${root}/${path}\`)` · `receive` gains `daemon.twitch.mark("/after/freight/receive", { mode: mode.slug, path })` after `paladin.state.store`.
+
+**** runtime · LABELED at open
+`claim(row, "LABELED", { name: title ?? asset.path.split("/").pop() })` inside `open`; `panels/a/widgets/Dock.svelte` chip reads `buffer.trait.LABELED?.name ?? mode.slug`. `BufferTraitsEnum { FILE, LABELED }` already in the columns hunk.
+
+**** kajuit · entities/buffer.js
+#+begin_src js
+$traits = atom([]);  get traits() { return this.$traits.get(); }  set traits(v) { this.$traits.set(v ?? []); }
+$trait  = deepMap({}); get trait() { return this.$trait.get(); } set trait(v) { this.$trait.set(v ?? {}); }
+toJSON() { const { $data, $view, $traits, $trait, ...base } = super.toJSON(); return { ...base, data: this.data, view: this.view, traits: this.traits, trait: this.trait }; }
+#+end_src
+`buffer/traits/file.js` (QUESTIONED — mirrors whatever ④ becomes):
+#+begin_src js
+export const edit  = fn.debounce((buffer, text) => buffer.mode.daemon.call.buffer.file.edit({ buffer: buffer.id, text }), 1500);
+export const save  = (buffer) => buffer.mode.daemon.call.buffer.file.save({ buffer: buffer.id });
+export const dirty = (buffer) => { const file = buffer.trait?.FILE; return !!file && hash.string(file.text ?? "") !== file.hash; };
+#+end_src
+
+**** drapes · display/File.svelte
+`{ file, editable = false, oninput = null }` · `kind = file.type.split("/")[0]` · text → by extension of `file.asset.path`: md/mdx → Markdown · org → Org · json → Json · else Paragraph; `editable` → the vdex's `<textarea class="editor">` moves here · pdf → Pdf · media → Asset.
+
+**** vdex
+`load.js`: `traits: ["FILE", "DOCUMENT"]`, `trait.FILE = { asset, type: MIME, bytes, mtime, hash }`, `trait.DOCUMENT = { title, format, readable }`. `aperture/index.js`: `/open {buffer, slug}` → literal → `ctx.daemon.call.buffer.file.open({ buffer, literal: literal.id, path: literal.trait.FILE.asset.path })`; `/write` and `/document` STAY (m53 T1.1 makes them the one implementation the tools wrap) — reconcile which of them the FILE working copy replaces. `tools/index.js open`: same leaf; `line()` reads `FILE.type`. `boot.js`: `daemon.twitch.open("/after/freight/receive", (ctx) => ctx.input.mode === mode.slug && reindex(daemon, mode))`. `Vdex.svelte`: `const file = chain(buffer, "$trait", "FILE")` · `read(slug) → mode.call.open({ buffer: buffer.id, slug })` · `<File file={$file} editable={editing} oninput={(text) => BufferTraits.file.edit(buffer, text)} />` · save → `BufferTraits.file.save(buffer)` · the local `text`/`open` state dies.
+
+*** gates
+- G1 `open` over the wire lands `trait.FILE.text` on the client buffer with no refetch (F panel shows the claim; the App re-renders from the deepMap).
+- G2 the model's record carries `system.file` for the open buffer; `buffer_file_edit` from the model re-renders the reader mid-turn.
+- G3 `buffer_file_save` writes the disk, heals `literal.trait.FILE.hash`, the vdex reindex fires once; a second save with a stale hash is refused.
+- G4 typology 123/1 · runtime 53/1 (pre-existing reds hold) · kajuit · drapes · vdex suites green; five vdex snapshots recaptured and READ.
+- G5 the italian shelf (education) boots unchanged — no `Buffer` override there, the new columns default.
+
+** M2 — plurals
+`fs_grep {pattern, glob?, limit}` under `ctx.root` (②) · `entity_find` FILE card projection (`type · bytes · hash`) · harness budget measured on a 24-pdf JDex.
+
+** M3 — the verbs' home (QUESTIONED)
+Mikro-first: `BufferRepository { open(row, literal, path) · edit(row, text) · save(row) }` beside `DataRepository`'s `card`/`extensions` → the typology verb contract on `BufferDescriptor` → `shard.datamap.repository` mounts → `RemoteRepository` mirrors → `BufferTraits.file.*` becomes a thin call onto `daemon.entities.buffer.open(...)` → the agent tools `buffer_file_*` wrap the same verbs. Reopened by beef.
+
+** M4 — the neighbours
+VOCALIZED asset → FILE (education harvest writes both, dojo/cloze read `FILE.asset`) · MAIL buffer trait for m53 T2 compose.

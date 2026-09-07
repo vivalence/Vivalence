@@ -6,23 +6,29 @@ import { BufferEntity } from "../index.ts";
 import { TurnEntity } from "../index.ts";
 
 export enum ModeTraitsEnum {
+  BOOTED = "BOOTED",
+
+  APPLICATION = "APPLICATION",
+  STANDALONE = "STANDALONE", // ? Rename ENTRYPOINT // ? Invert: BACKGROUND
+
   TOPOGRAPHICAL = "TOPOGRAPHICAL", // use to target read data from storage in mode
   TOPOLOGICAL = "TOPOLOGICAL", // use to target read data from storage in mode
-  DATASET = "DATASET", // use to control data storage in mode
 
+  DATASET = "DATASET", // use to control data storage in mode
   DATASINK = "DATASINK",
-  FRAUGHT = "FRAUGHT",
-  APPLICATION = "APPLICATION",
-  BOOTED = "BOOTED",
-  EXPOSED = "EXPOSED",
+
   HARNESSED = "HARNESSED",
-  INTENTED = "INTENTED",
-  EMITTER = "EMITTER",
   CONVERSATIONAL = "CONVERSATIONAL",
-  TOOLED = "TOOLED",
   AGENTIC = "AGENTIC",
-  STANDALONE = "STANDALONE",
+  TOOLED = "TOOLED", // re: TOOLING
+
+  EMITTER = "EMITTER",
   GENERATIVE = "GENERATIVE",
+
+  EXPOSED = "EXPOSED",
+
+  INTENTED = "INTENTED",
+  FRAUGHT = "FRAUGHT",
 
   // ENTRYPOINT REFERENCABLE
 

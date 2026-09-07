@@ -62,6 +62,8 @@ export async function doctor(ctx) {
     problems: rows
       .filter((row) => WRONG.includes(row.verdict))
       .map((row) => ({ "!": "!", key: row.key, at: row.at, verdict: row.verdict, reason: row.reason })),
+    faults: paladin.instance.faults,
+    dormant: paladin.instance.dormant,
     lock: await paladin.ledger.lock(instance).read(),
   };
 }

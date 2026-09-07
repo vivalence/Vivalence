@@ -75,6 +75,41 @@ Deno.test("paladin skills — fs + shell", async (t) => {
     assertEquals(await Deno.readTextFile(`${root}/deep/nested/note.txt`), "hello");
   });
 
+  await t.step("fs_stat describes a file", async () => {
+    const spoken = await invoke(armed, "fs_stat", { path: "readme.md" });
+    assertEquals(spoken.output.format, "md");
+    assertEquals(spoken.output.directory, false);
+    assert(spoken.output.bytes > 0);
+  });
+
+  await t.step("fs_move renames under the root and creates the parent", async () => {
+    await invoke(armed, "fs_move", { from: "deep/nested/note.txt", to: "moved/note.txt" });
+    assertEquals(await Deno.readTextFile(`${root}/moved/note.txt`), "hello");
+  });
+
+  await t.step("fs_move refuses to leave the root", async () => {
+    let thrown = null;
+    try {
+      await invoke(armed, "fs_move", { from: "moved/note.txt", to: "../escaped.txt" });
+    } catch (fault) {
+      thrown = fault;
+    }
+    assert(thrown?.message.includes(root));
+  });
+
+  await t.step("fs_delete removes a file and refuses a directory", async () => {
+    await invoke(armed, "fs_delete", { path: "moved/note.txt" });
+    assertEquals(await Deno.stat(`${root}/moved/note.txt`).catch(() => null), null);
+    const refused = await invoke(armed, "fs_delete", { path: "dataset" });
+    assertEquals(refused.condition, "ERROR");
+  });
+
+  await t.step("fs_tree skips the house list when nothing is bound, files included", async () => {
+    await Deno.writeTextFile(`${root}/.DS_Store`, "");
+    const spoken = await invoke(armed, "fs_tree", {});
+    assert(!spoken.output.message.includes(".DS_Store"));
+  });
+
   await t.step("shell_run returns the tail and exit code, nonzero stays NOMINAL", async () => {
     const ok = await invoke(armed, "shell_run", { command: "echo hi" });
     assertEquals(ok.output.message, "hi");

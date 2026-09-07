@@ -894,6 +894,21 @@ Client side: an =AbortController= per debounce ticket on =/symbols=, =/resolve=,
 
 * frontier evictions (budget) — still open, moved here whole
 
+** m53 line + lighthouse hoist (evicted whole at compact `the-save-answers-the-wrong-shape…`, frontier 8482/8000 BYTES before the m54 line)
+**T0 + T1 + s1/s2 LANDED** — **m53 vcompany** (rulings: keep two mount · `office` · JDex = an absolute path, no automatic scopes · git later · mime amen · `go t1` · `go.` on `reader.load` after the diff was shown; LIVE on the shelf: `[VDEX] /Users/finn/vivalence/coorporation 33 documents · 17 coordinates`, routes + cargo LIVE; suites vdex 22 steps + 5 snapshots · typology 122/1 · runtime 53/1 (pre-existing) · paladin 41/0; LAW: the installer's source seeds every dataset stamp; → readmen STOPPED; s1/s2 LANDED on `go` (read Apps against the rows snapshot first); bundle weight LEDGERED, direction his; restarted (screens App live); click-through owed; `* T1.#2` his call; RULED: calendar = a mode, email PER PROVIDER + shared IMAP/SMTP belt; 5 snapshots read, `stable()` id over-drop fixed; **next**: the boot race behind his "again. very slow.") → [[m53-vcompany]] · compacts `the-office-comes-before-the-executive…` · `the-crash-was-the-key…` · `the-comments-move-the-mask…` · `the-t1-patch-is-worked-out-twice…` · `the-connoisseur-finds-the-bag…` · `the-rulings-land-t0…` · `the-handoff-lands-the-screens…`
+**LANDED, questless** — **lighthouse hoist** (ONE `export const lighthouse {module, statics.remote}`, daemon inherits at the pinhole, `clients.*.statics.lighthouse` DELETED — never read; repo · shelf · `@education` recipes; paladin 37/150; ghost `localhost.viva.js` → `systems/ghost/bak/`; release lines seeded; OWED beef: commit · education push · M5 prod · m51:261-292 old shape) → [[project_lighthouse_hoist]] · **pinhole secrets · user rebind · render fault · `output.object`** (`hydrate` walks fired values, DEFERRED gone; `bind("user")` behind `authorize()`; OWED beef: restart, commit 8) → [[project_hydrate_pinhole_secrets]] · [[project_user_bind_behind_authorize]] · **create --init + locate** (`instance/create --init` pins the new mount at `flag` and chains init, independent of `--use`; `instance/target.js locate()` = ONE lens fold for `use · delete · doctor <t> <f>` — `delete hello` resolves; `doctor <one>` stays exact-or-filter, lens keys match mounts) → compact `the-create-verb-learns-init…` · **rename SINGULAR** (`instance/rename [target] <next>` — shelf dir follows the slug, record `mount` + selecting sessions rewritten, tapped dir stays; `instances/rename` GONE; ghost 87/89, both reds pre-existing — `ledger.test.js` init step ledgered) → compact `rename-goes-singular…`
+
+** m46 line — three LANDED items (evicted whole at compact `the-readme-walk-opens-a-shared-tty…`, frontier 8549/8000 BYTES — the earlier char count hid the multibyte arrows; landed = recorded in release lines / `world/ledger.md` / runtime shard)
+**unset-is-commented LANDED** (`paladin.state.line`, scaffold writes `# KEY=""`, wizard fills in place — the ledger's Anthropic key no longer shadowed by an instance blank; beef: "commented always. no copy default from global .env").
+the docker recipe = 4 `.env` lines (SERVE origins on `0.0.0.0`, PUBLIC remotes on localhost);
+**L30 first-attach race LANDED** (go): `secure.authenticate` (identity, root) / `authorize` (user) split, `/userspace/handshake` = the ONE enrolling upsert, kajuit handshakes before its burst; `enroll.test.js` 40 parallel → 1 row, `beta`'s first visit healthy;
+
+** m46 line — four items (evicted whole at compact `the-readme-walk-opens-a-shared-tty-step-0-lands-the-installers-y-flag…`, frontier 8306/8000 chars after a sibling session's growth; the walk itself stays on the line)
+**beef's macOS walk**: singular `instance/use`/`remove` reach, wizard asks optional first (`check.js:123`, gated), F5 live.
+**LANDED: function defaults** (`envfile.fallback`; JWT mints itself; `strata.wet` "two shells" RED pre-existing).
+· earlier: `instance/delete` LANDED (B-bag), `Instances.resolve` (C1/C2); beef's `~/.zshrc` exports `VIVA_PROCESS_ID=$$` + repo-root `.env`; C6 open
+`run.js` decodes `128+n` into `signal`; hello-world `App.svelte` light drapes; language-learning dev gate SKETCHED, no go
+
 ** m49 sunset pointer (evicted whole at compact `the-create-verb-learns-init-at-the-flag-stratum-delete-hello…`, frontier 8076/8000 chars after a sibling session's growth)
 m49 SUNSET to done/ with M1 LANDED uncommitted (Process/Die Wafers, one token lock, detached supervisor, live-proven) → [[m49-process-ontology-and-control-vector]]
 
@@ -977,6 +992,14 @@ frontier pointer line, evicted whole at compact 31 (`the-docs-are-read-whole-and
 
 ** m44 authoritative-slugs (evicted whole at compact `the-lighthouse-is-declared-once-and-inherited-at-the-pinhole…`, frontier 8272/8000 chars)
 **LANDED + SUNSET (done/)** — **m44 authoritative-slugs** (SUNSET to done/: `instances.json` = the ONE instance identity, `register()` reads it or throws; `--slug` · `instances/tap` · `instances/rename` · doctor `dangling|orphan|shadowed`; 10 markers probed on a scratch ledger — 7 held, 3 revised by m49's one lock; release lines lifted; commit beef's) → [[m44-authoritative-slugs]]
+
+
+** evicted at the m53 design compact (frontier 9417/8000 chars)
+**WALKED ×5, proposals gated** — **m46 linux-readmen** (ubuntu + alpine walked README 0–6 on `b27e0e62e`, both reach hello-world UP; 24 defects · 17 proposals, L1 L2 L4 APPLIED; TASKBAGS B1–B13 · C1–C12; CONNOISSEUR PASS six-step drain, gated; `instances.resolve` LANDED uncommitted. **docker-live walk**: stock ubuntu:24.04 + the LOCAL tree → hello-world LIVE on host `127.0.0.1:2501/1794`, `bot`/`agent` clicked in Chrome; L30 first-attach race + unset-is-commented LANDED (→ release lines, `world/ledger.md`, runtime shard); containers all KILLED on beef's order; **tty walk, step 0 only** (beef: "tty open so i can attach besides you and you slop up the docs for both of us"): container `readmen-tty` RUNNING — pid 1 bash on a pty, my steps stream into it, host ports `12501/11794` because **walk containers are a TRAP** — a `readmen*` on `0.0.0.0` shadows the local instance for Firefox (`[::1]` vs v4) → known-issues `readmen-container-shadows-the-local-instance`; README §0 FIXED on order (`apt-get update`, installer `sh -s -- -y` — it persists PATH only with a tty on stdout or `-y`, live `export PATH`); LANDED (go): `install.sh:9` asks a fresh `$SHELL -lic` · paladin boot never scaffolds an absent LEDGER home, `ledger/doctor` before init creates nothing and says `✗ ledger → viva ledger/init`; GitHub `d9c2cd8` carries `commons/` but its README lags the hoist + `--use --init` → push beef's; steps 1–6 on `go`; **m52 walk**: 0–6 PASS, `readmen-m52` (RUNNING :2501/:1794, Chrome = beef's), every verb + the API from the host, 5 known-issues, 2 FIXED (lock-dead doctor · untap refuses), §1/§2 CAPTURED) → [[m46-linux-readmen]] · compacts: the readme-walks + the shared-tty
+
+
+** evicted at the m53 design compact, second pass (frontier 8290/8000 chars after a sibling re-stamp)
+**DESIGNED, prerequisite CLEARED, every op beef's** — **m42 history-purge** (filter-repo 5 dead paths; re-measured: 269.8 MB / 8615 mp3 still in history, HEAD purge-paths 0, 410 `refs/jj/keep` pin 706 hidden snapshots; education + m39/m40/m41 + variant→instance already on `origin/master`; owed before the scratch clone: commit the dirty tree (16 paths at survey, sibling-widened by commons + m45–m49 since) · push · zip · filter-repo install; FORKS 6–9 beef's: THREE remotes (origin gitea · github · presentation disjoint) → publish per remote · 40 stale `push-*` on origin, prune before or carry · `github/master` = sibling working-copy snapshot origin never got · M3 carry-over list measured) → [[m42-history-purge]] · compact 62
 
 * RESOLVED — paladin instance.snapshot red on empty machine environment.json
 Was: instance.snapshot.test.js threw `instance.mount: no scope.instance` whenever the machine's
@@ -1401,3 +1424,281 @@ the =deferred= record flag deleted; providers and the lighthouse receive a stati
 restart — one re-login per instance; any deployment that booted from a thunk-form instance had a PUBLIC
 signing key until it restarts on this paladin. Sibling landed in the same session: =render= now appends the
 provider fault to its throw (=gestalten/shard/hallucinate.js=), so this symptom would have named itself.
+
+* ledger-doctor-counts-every-lock-dead — RESOLVED (go-52 session, beef: /"1 go."/): =collectLocks= flattens =processes= to =runtime=5898 kajuit=5899=, =Doctor.jsx= counts =locks.length= as running, the invented =alive= field and the "dead" note are gone — a lock =Lock.read()= returns IS alive (it prunes). Live in =readmen-m52=: =locks/ 1 running=, row =runtime=5898 k…=. ghost 87/88 (same red).
+
+** Symptom
+=viva ledger/doctor= on a RUNNING instance prints =locks/ 0 running 1 dead= and the lock row renders
+=processes [object Object= (m52-tree docker walk, =readmen-m52=, instance ALIVE per =instance/doctor= and
+=instances/list=).
+
+** Root cause
+=systems/ghost/trajectories/ledger/index.js collectLocks()= pushes raw =Lock.read()= objects;
+=Doctor.jsx:21= =locks.filter((lock) => lock.alive)= — nothing sets =alive=, so =running= is always 0 and
+every lock is "dead". The =processes= column stringifies the m49 =[{process, pid}]= table.
+
+** Resolution
+Proposal in the go-52 session's reply (=alive= is redundant: =Lock.read()= prunes a dead pid, so a returned lock IS alive; count =processes.length=, render the table). =alive= = =Lock.read()= survived its prune (a returned lock IS
+alive by construction — read() prunes dead pids), or count =processes.length=; render the table.
+
+* registry-untap-silently-ignores-an-unknown-reference — RESOLVED (go-52 session, beef: /"2 go"/): =registry/index.js= gains =packages()= (the list fold, now shared) + =tapped(reference)= = record key · =./=-prefixed key · absolute mount · =@owner/package/slug= identifier; =untap= refuses =no tapped package '<x>' — viva registry/list= (exit 1) and answers ={untapped, record}=. Live: identifier, mount, =./= forms all untap; garbage refuses. Tests =registry.test.js= + =ledger.test.js= moved from "no-op" to "refuses".
+
+** Symptom
+=viva registry/untap @education/package/education= (the identifier form) and =viva registry/untap
+nonsense-reference= both exit 0 and leave the record unchanged; only =registry/untap registry-education=
+(the reference key) untaps.
+
+** Resolution
+Refuse with =no such reference '<x>' — viva registry/list= (exit 1), and accept the identifier as an
+alias if the record can resolve it. Same family as =instances/tap='s "record is the identity authority".
+
+* instance-doctor-answers-for-the-session-instance-on-an-unknown-target — OPEN (design call)
+
+** Symptom
+=viva instance/doctor tapped= after =instance/delete tapped= prints the SESSION instance's report
+(hello-world) instead of "no instance 'tapped'". =locate()= = exact-or-filter (m44 create/locate landing);
+an unmatched filter falls through to the mounted instance.
+
+** Resolution
+beef's call: keep filter semantics, or refuse an unmatched exact-looking token.
+
+* multiplex-plain-get-answers-500 — OPEN (minor)
+
+** Symptom
+=GET /multiplex= without a WebSocket upgrade → 500. Expected 426 / 400 with a sentence.
+
+* lighthouse-identity-find-returns-password-hashes — OPEN (security, inside the moat)
+
+** Symptom
+=POST /attached/process/lighthouse/multiplayer/entities/identity/find {}= with ANY authenticated bearer
+returns every identity including =authentication.credentials.password= (argon2id hash). Pre-existing;
+the README's security notice covers it today. Belongs on the lighthouse-security strand (frontier #6).
+
+* literal-ontology-blank-after-dataset-install — RESOLVED (beef: /"go."/ on the reasoning-first proposal; found at the vcompany design pass)
+
+** Symptom
+=Literal.ontology= is =""= and =Literal.symbol= is ={}= on all 6583 rows of the live italian
+daemon db (=~/.viva/instances/italian/mountpoint/daemon_italian/italian.viva.db=, =select ontology,
+count(*) from Literal group by ontology= → one row, blank). Every query that filters on
+=ontology= — education =harvest= =unvocalized= (=ontology: {$in: ["word","sentence"]}=), aprende
+=query= (=ontology=), =LiteralRepository.family= (=ontology === "word"=) — returns nothing on this db.
+
+** Root cause
+=systems/runtime/daemon/entities/kernel/Literal.ts= =LiteralSubscriber= derives =ontology= (the one
+TOPOGRAPHICAL symbol) and =symbol= (the dotted fold) from =entity.symbols= on beforeCreate/beforeUpdate —
+but only when the collection =isInitialized()=. =systems/runtime/daemon/traits/dataset.js= creates the
+rows first (=store.create(data)= with relations omitted) and links symbols afterwards by raw
+=INSERT OR IGNORE= into the pivot, touching only =updated_at= by SQL. The subscriber never sees a
+populated collection, so both derived columns stay at their defaults.
+
+** Why not fixed now
+Dataset install is under the m47/m52 baseline; the fix is a design call: (a) the link phase sets
+=ontology=/=symbol= itself from the staged row's =symbols= (cheap, mirrors what the subscriber would
+do), or (b) rows declare =ontology= explicitly (the vdex boot does — quest m53). Either way the
+italian db needs a re-install (=installed: ""= stamp clear) to backfill.
+
+** Workaround
+Filter by symbol instead of ontology: ={symbols: ["word"]}= (the pivot IS populated).
+
+** Resolution
+Neither (a) nor (b). The link phase goes back through the ORM, fork-and-clear kept: per chunk of 100,
+=find({slug: {$in}}, {populate: [prop]})= → =from[prop].add(to)= → =from.assign({updatedAt})= →
+=flush()= (forked em, then =clear()=). =LiteralSubscriber= stays the ONE deriver and fires
+=beforeUpdate= with =symbols= initialized. The raw pivot =INSERT OR IGNORE= and the raw =updated_at=
+UPDATE are gone (=systems/runtime/daemon/traits/dataset.js=). Backfill is not a manual stamp clear:
+=stamp()= seeds its fold with the installer's own source
+(=Deno.readTextFile(new URL(import.meta.url))=), so a =dataset.js= change IS a stamp change — next
+boot reinstalls every DATASET mode and the subscriber heals the rows. Measured through the datamap
+scenario over a COPY of the italian db: total 2.0s (link 1.4s), 6583/6583 =ontology= + =symbol=
+derived, pivot 50511 unchanged; fresh install into an empty db 1.9s. Invariant step added to
+=systems/runtime/tests/dataset.install.test.js= (registers =LiteralSubscriber= on the scenario em,
+asserts the =casa.noun= symbol tree). Runtime 53/331, the one red = pre-existing registry ingest.
+
+NOT proven by a live boot — see [[italian-instance-env-blank-secrets-shadow-every-lower-stratum]].
+
+Latent, unfixed, noted: a literal derives at ITS link time; a TOPOGRAPHICAL symbol upserted LATER by
+another mode's dataset does not re-derive the literals already linked to it. The live db is right
+because =daemon.js= mounts the topologies before the topography.
+
+* italian-instance-env-blank-secrets-shadow-every-lower-stratum — RESOLVED (beef: /"Fix, one law: a blank never claims."/ — not in typology, at paladin's ingress)
+
+** Symptom
+=~/.viva/instances/italian/.env= carries every =SECRET_*= as =""= (six keys, value length 0).
+=viva instance/run runtime --instance=/Users/finn/.viva/instances/italian= refuses at the m52 gate
+(=SECRET_VIVA_JWT REQUIRED at service[multiplayer].secrets.jwt= + three more) from a =.env=-less cwd,
+from the repo root with the secrets exported in the process env, from the language-learning cwd
+(its =.env= voices them), and with =VIVA_ENV_FILE= pointing at that file. The blank instance-stratum
+voice outranks cwd, .env and os every time.
+
+** Root cause
+m41 ladder: flag > cwd > instance > .env > os. =dotenv(instance)= folds =<instance>/.env= at the
+instance stratum with ="" = as a voiced value. A blank is a voice.
+
+** Why not fixed now
+Design call: is ="" = a voice or an absence? m48 ruled =.optional()= only and INVALID verdicts; a blank
+REQUIRED secret at the instance stratum currently shadows a real one below it. Either the instance
+=.env= template should not ship blank secret lines, or =assign= should skip blanks. Beef's.
+
+** Workaround
+Fill the six values in the instance =.env=, or delete the blank lines so a lower stratum voices them.
+
+** Resolution
+One law, one funnel: =subsystems/paladin/prototypes/paladin.js= =split(bag)= — every =assign= ·
+=observe= · =claim= (and the instance =.env= via =instance.js:145=) passes through it — now drops a
+="" = value into a fourth bucket =blank= before the SECRET/PUBLIC split; the three ingress verbs
+return ={held, secrets, ignored, blank}=. Read side now mirrors the write side (=belt/state.js:20=
+writes unset as =# KEY=""=, "unset documents, never claims"). Typology =Env= untouched (beef asked
+for a route outside =prototypes/env.js=). Trade: the doctor no longer lists the blank line as a dim
+shadowed voice — the key simply has no stratum. Law test =tests/paladin.split.test.js= (3 steps:
+blank over real → real, provenance below; blank alone → absent; =blank= reported). Paladin 39/164 ·
+ghost 87/88 (=two shells= pre-existing). Live: =instance/doctor= on italian from a =.env=-less cwd →
+=SECRET_VIVA_ANTHROPIC_API_KEY *** ledger=, =hallucinators[0]= awake, dormant = [1][2][3], problems =
+=SECRET_VIVA_JWT= + =SECRET_VIVA_SERVICE_NLP_KEY= ×2 — the two values italian voices nowhere; beef fills
+them in the instance =.env= or =~/.viva/.env=. Third face closed with it: a blank hallucinator key and an
+absent one are now the same case (dormant, gate green), as the container walk had it.
+
+* consumed-service-with-a-blank-optional-secret-crashes-after-the-gate — RESOLVED (same session, sibling filing; fix + proof under [[nlp-provider-blames-the-url-for-a-missing-key]]: `consume` joins m52 dormancy in `settle`)
+
+** Symptom
+Runtime watcher restart on the italian instance: doctor =faults []= · =problems []=, boot passes
+=paladin.check.instance().throw()= (=systems/runtime/run.js:7=), then =Die.populate → services()=
+(=lifecycle/population.js:114=) throws =SERVICE NLP URL not found in service definition= from
+=commons/services/nlp/provider/index.js:8=.
+
+** Root cause
+=SECRET_VIVA_SERVICE_NLP_KEY= is declared =.optional()= (tapped source AND mounted recipe, since m48) and
+sits blank (=""=) in the instance =.env=; no other stratum carries it (=~/.viva/.env= has JWT + Anthropic only).
+Since paladin =split= stopped blanks from claiming, the doctor reads the key as unset → verdict =optional= →
+not WRONG → boot proceeds. =settle()= (=subsystems/paladin/prototypes/instance.js:126-129=) applies the
+m52 dormancy law ("null or blank secret = dormant") to =hallucinators= ONLY; =consume= masks are handed to
+the provider regardless, and the provider's guard =if (!url || !key)= throws — with a message that names
+the URL while the KEY is what is missing (=VIVA_SERVICE_NLP_REMOTE= is set: =http://localhost:5555=).
+
+** Fix candidates
+(a) generalize dormancy to =consume=: =settle()= moves a consume mask with a blank secret into
+=instance.dormant= (=daemon[italian].consume.nlp=), =services()= skips it, consumers already guard
+(=ctx.daemon.services?.nlp= in the education lookup tool). Lean — the m52 law, one more site.
+(b) the doctor treats a key READ by a consume mask as REQUIRED regardless of =.optional()= — refuse boot.
+Either way: the provider message must name the missing thing.
+
+** Unblock (beef runs)
+put the stanza shared secret into =~/.viva/instances/italian/.env= =SECRET_VIVA_SERVICE_NLP_KEY=, or drop
+=consume.nlp= from =~/.viva/instances/italian/daemon.js= until (a) lands. The watcher restarts on the edit.
+
+** Aside
+=Migration20260906141648= (Mode table rebuild with identical columns) is mikro reacting to the sibling's
+=ModeTraitsEnum= member REORDER in =systems/runtime/daemon/entities/daemon/Mode.ts=; harmless.
+
+* nlp-provider-blames-the-url-for-a-missing-key — RESOLVED (beef: /"mark these as not required!"/ then /"go"/)
+
+** Symptom
+With =SECRET_VIVA_SERVICE_NLP_KEY= marked =.optional()= (four recipes: mounted italian + @education
+italian · spanish · brazilian) the m52 gate opened and the boot died one step later:
+=SERVICE NLP URL not found in service definition= at =commons/services/nlp/provider/index.js:8= from
+=population.services=. The guard was =!url || !key= with one message; the key was the null one.
+
+** Root cause
+m52 dormancy covered =hallucinators= only. A consumed service (=daemon.consume.<slug>=) with a blank
+secret had no dormant state, so =population.services= handed the mask to the provider at boot.
+
+** Resolution
+=subsystems/paladin/prototypes/instance.js= =settle=: =daemon.consume= is filtered by the same
+=alive(mask)= as the hallucinators; a blank-secret consume is dropped and named
+=daemon[<slug>].consume.<name>= in =instance.dormant= (doctor prints it). =daemon.services.<slug>= is
+then absent, the way =cortex []= is — zero readers of =services.nlp= in runtime, commons or the
+education modes. Provider guard split: =nlp: statics.remote missing= / =nlp: secrets.key missing=.
+Test =settle.test.js= "a consumed service whose secret is blank is dormant" (paladin 40/167). Live:
+beef's =runtime/watch= rebooted on the edit — gate open, stamp mismatch, reinstall, italian db
+=6583 · ontology '' 0 · symbol '{}' 0=, mode stamps refreshed (=english-to-italian d5e6f45e=).
+Ruling on the way: =.group= stays (explicit label, generalizes to any wizard-walked schematic; the
+wizard's ungrouped section is titled =unset=, was =other=).
+
+** Resolution (sibling session, same hour)
+Fix (a) landed: =settle()= now filters =daemon.consume= by =alive= exactly as it filters =hallucinators=
+(=subsystems/paladin/prototypes/instance.js=, =object.filter(daemon.consume, (slug) => alive(…) || !dormant.push(`daemon[…].consume.${slug}`))=).
+A consume mask with a blank secret is dormant, the doctor lists it, =services()= never sees it. The frontier
+stamp reads "NLP key =.optional()= + =consume= joins m52 dormancy, italian LIVE with 6583 rows healed".
+Still owed: the provider's message names the URL when the key is what is missing (=commons/services/nlp/provider/index.js:8=).
+
+* ghost-ledger-test-init-step-red-pre-existing — OPEN
+=systems/ghost/tests/ledger.test.js= step /"instance init authors .env from the schema, then asks only for the blanks"/ is RED: =first.env= answers ="present"= where ="scaffolded"= is expected. Not environmental (=env -u VIVA_PROCESS_ID= same), not the rename move (HEAD copy with the rename change reverted → same red). Surfaced while landing =instance/rename= singular; ghost suite 87/89 with this + the known =strata.wet= "two shells" red.
+
+* runtime-registry-count-fork-2-multiplayer-stale — PRE-EXISTING RED (ledgered at the m53 T1 landing)
+
+** Symptom
+
+=systems/runtime/tests/registry.count.test.js= step /"fork 2: multiplayer + hello-world wafers resolve under @commons"/
+fails: =Expected null to be truthy= at line 62 (=revelio({ owner: "@commons", type: "instance", slug: "multiplayer" })=).
+Runtime one-shot: 53 passed / 1 failed (332 steps).
+
+** Root cause
+
+There is no =@commons/instance/multiplayer=: =commons/instances/= holds =hello-world= · =localhost= · =bak/=
+(=bak/starter/multiplayer.viva.js= · =bak/multiplayer.bak/multiplayer.viva.js= — both under the walker's
+ignore, as they should be). The step names a wafer that moved to the graveyard; the other three steps
+(the census) are green and are the ones beef wanted (/"this is a dumb test"/ verdict on the literal count).
+
+** Evidence
+
+Fails identically before and after the m53 T1 paladin/runtime hunks (the walker still skips =bak= and
+=*.bak=; the =multiplayer= module was never in the pensieve). =find commons -name multiplayer.viva.js=
+→ the lighthouse + the two bak copies only.
+
+** Why not fixed now
+
+Runtime tests are beef's call (the step asserts a fixture he retired). Fix = drop the =multiplayer=
+line or point it at =@commons/lighthouse/multiplayer=.
+
+** Workaround
+
+Read the runtime verdict as 53/1 with this step as the one red; verify it is STILL the only red
+before blaming a patch (the typology red is the hallucination snapshot tool-loop, also ledgered).
+
+* buffer-app-bundles-carry-2.6-mb-of-dead-weight — OPEN (measured at the m53 s2 landing; beef: /"why bundle so large??"/)
+
+** Symptom
+
+Every buffer App artifact on a DEVELOPMENT shelf is ~2.6 MB whatever the App is. A =<span>hi</span>=
+App bundles to 556 030 B; an App importing ={ Pip }= through =@vivalence/drapes= to 2 615 013 B; the
+same App importing =display/Pip.svelte= by path to 636 779 B. The vdex App (s2): 2 732 443 B, the T1
+stub before it 2 593 686 B — the App's own text is 77 kB of that.
+
+** Root cause (three, each measured)
+
+1. Inline sourcemap. =subsystems/typology/gestalten/bundle/svelte.js:37= =sourcemap: prod ? false : "inline"=
+   — =paladin.is.prod= is false on the shelf, so the base64 map rides inside the served =.mjs=:
+   1 775 202 of the vdex App's 2 732 443 B (65 %). Code is 957 240 B.
+2. Barrel reachability. =treeShaking: true=, but every compiled =.svelte= module carries top-level
+   statements and nothing declares it side-effect free, so esbuild retains every module reachable
+   from =drapes/mod.js= whether imported or not: 58 drapes files (Markdown 37 kB · Org 37 · Json 30 ·
+   Breadcrumb 24 · Audio 21 · Tree 20 · Frame 20 · Helpdesk 9 · List 8 …) plus =panels/icon= →
+   =carbon-icons-svelte= 94 kB. This is NOT the spread-map pin in =codemap/invariants.md= (that map is
+   gone) — plain import reachability through an impure graph.
+3. Two svelte runtimes, 375 kB. deno hoists =svelte@5.57.0= (a dep of =esbuild-svelte@0.9.5= and
+   =svelte-preprocess@6.0.5=) to =node_modules/.deno/node_modules/svelte=; the root =node_modules/svelte=
+   stays the locked =5.39.6=. Repo files resolve the root (5.39), carbon's =.svelte= sources resolve the
+   hoisted copy (5.57) — both runtimes land in one artifact. Every component is also COMPILED by
+   5.57's compiler (the plugin's own link) and RUN on 5.39.
+
+** Evidence
+
+Module marks in the dev artifact (=// path= per module): 246 modules; by group drapes 369 122 ·
+=svelte@5.39.6= 194 545 · =svelte@5.57.0= 180 586 · carbon 94 375 · the App 77 218 B. The first 5.57
+module (=version.js=) follows =panels/Card.svelte= and the run ends at =carbon-icons-svelte/lib/Add.svelte=.
+=readlink node_modules/svelte= → =5.39.6=; =readlink node_modules/.deno/node_modules/svelte= → =5.57.0=;
+=deno.lock= pins =npm:svelte@5= to =5.39.6=. Scratch: =bundle-proof/= (the vdex App) · =bundle-pip/=
+(the three-rung ladder).
+
+** Attempts
+
+One, a scratch-measured patch to the bundler — REJECTED by beef (/"no. omg. horrible! completely wrong
+direction."/) and not recorded here by his instruction (/"mark the issue itself without your approach"/).
+
+** Why not fixed now
+
+Typology is holy and the direction is his.
+
+** Workaround
+
+None for size; first open of a buffer is slow on a dev shelf. Compare artifacts by DELTA (the vdex App
+vs the stub: +139 kB), never by total, until this is fixed.

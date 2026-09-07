@@ -1,6 +1,6 @@
 import { isAbsolute, resolve as resolvePath } from "@std/path";
 import { load } from "@std/dotenv";
-import { Pipe, Mask, v, fn } from "@vivalence/typology";
+import { Mask, Path, fn, is, object, v } from "@vivalence/typology";
 import { NOTHING } from "./ledger/instances.js";
 
 const reference = (home) => (entry) =>
@@ -19,32 +19,11 @@ const watch = (bag, read) =>
       prop === "get"
         ? (key, ...rest) => {
             const value = target.get(key, ...rest);
-            read.push({ key, unset: value === null || value === undefined || value === "" });
+            read.push({ key, unset: is.empty(value) });
             return value;
           }
         : Reflect.get(target, prop, receiver),
   });
-
-// SUPERSEDED — a sentinel probe: a second walker fired deferred thunks against a fake bag to
-// learn their keys. bought nothing over firing once and discarding.
-// const DRY = "«deferred»";
-// const watch = (bag, read, dry = false) => ... return dry ? DRY : value ...
-//
-// function probe(node, record, paladin, at) {
-//   if (typeof node === "function") {
-//     const read = [];
-//     const { env, secret } = paladin;
-//     paladin.env = watch(env, read, true);
-//     paladin.secret = watch(secret, read, true);
-//     try { node(); } catch { /* a thunk that cannot survive a sentinel still counted its keys */ }
-//     finally { paladin.env = env; paladin.secret = secret; }
-//     record.push({ at, read: ..., unset: ..., usable: null, deferred: true });
-//     return;
-//   }
-//   if (Array.isArray(node)) return node.forEach((v, i) => probe(v, record, paladin, `${at}[${i}]`));
-//   if (node?.constructor === Object)
-//     for (const [key, value] of Object.entries(node)) probe(value, record, paladin, `${at}.${key}`);
-// }
 
 // the pinhole: every thunk in a declaration fires here and nowhere else.
 export function hydrate(node, record = null, paladin = null, at = "") {
@@ -81,7 +60,6 @@ export function hydrate(node, record = null, paladin = null, at = "") {
   return node;
 }
 
-// move to lifecycle / dossier / die
 async function resolve(instance) {
   // mounting must not SCAFFOLD, so an absent home reaches here as a readdir ENOENT — name it.
   const home = instance.home.absolute;
@@ -94,13 +72,17 @@ async function resolve(instance) {
   if (modules.length !== 1)
     throw new Error(`instance.mount: expected 1 instance module in ${home}, found ${modules.length}`);
 
-  const mask = (kind) => (declaration) =>
-    new Mask({
-      ...declaration,
-      mount: instance.paladin.scope.mountpoint.branch(
-        `/${kind}_${declaration.slug ?? declaration.manifest?.slug}`,
-      ),
-    });
+  const slug = (declaration) => declaration.slug ?? declaration.manifest?.slug;
+  const point = (kind, declaration) => instance.paladin.scope.mountpoint.branch(`/${kind}_${slug(declaration)}`);
+  const mask = (mountpoint) => (declaration) => new Mask({ ...declaration, mount: mountpoint });
+
+  // a mask-shaped kernel entry's data dir is declared, absolute — nothing is resolved, nothing is minted.
+  const dress = (label) => (entry) => {
+    const declared = entry.mountpoint;
+    if (declared instanceof Path || !is.string(declared) || !declared) return entry;
+    if (!isAbsolute(declared)) throw new Error(`instance.mount: ${label}.mountpoint must be absolute — ${declared}`);
+    return { ...entry, mountpoint: new Path(declared) };
+  };
 
   const [module] = modules;
 
@@ -109,79 +91,67 @@ async function resolve(instance) {
 
   const materialize = (label) => (declaration) => {
     const { kernel = [], ...rest } = declaration;
-    const held = at(label)(rest);
     return {
-      ...held,
-      kernel: kernel.map(reference(module.source)),
-      lighthouse: held.lighthouse ?? instance.lighthouse,
+      ...at(label)(rest),
+      kernel: kernel
+        .map(reference(module.source))
+        .map((entry, index) =>
+          is.object(entry) && is.string(entry.module)
+            ? dress(`${label}.kernel[${index}]`)(at(`${label}.kernel[${index}]`)(entry))
+            : entry,
+        ),
     };
   };
 
-  const slug = (declaration) => declaration.slug ?? declaration.manifest?.slug;
-
   instance.manifest = module.manifest;
-  instance.runtime = at("runtime")(module.runtime ?? {});
+  instance.runtime = at("runtime")(module.runtime);
   instance.clients = at("clients")(module.clients ?? {});
-  instance.lighthouse = at("lighthouse")(module.lighthouse ?? {});
+  instance.lighthouse = at("lighthouse")(module.lighthouse);
   instance.daemons = (module.daemons ?? []).map((declaration) =>
-    mask("daemon")(materialize(`daemon[${slug(declaration)}]`)(declaration)),
+    mask(point("daemon", declaration))(materialize(`daemon[${slug(declaration)}]`)(declaration)),
   );
   instance.services = (module.services ?? []).map((declaration) =>
-    mask("service")(at(`service[${slug(declaration)}]`)(declaration)),
+    mask(point("service", declaration))(at(`service[${slug(declaration)}]`)(declaration)),
   );
   instance.requirements = record;
   instance.environment = module.environment ?? v.environment({});
   if (!instance.environment.properties)
     throw new Error(`instance.mount: environment must be v.environment({…}) — ${module.source.absolute}`);
-
-  // instance.runtime.logs = new Pipe()
-  // instance.clients.kajuit.logs = new Pipe()
 }
 
-// move to lifecycle / dossier / die
-function validate(instance) {
-  const errors = [];
-  const collect = (label, value, schema) => {
-    for (const error of schema.errors(value))
-      errors.push(`${label}${error.instancePath || ""}: ${error.message}`);
-  };
-  if (Object.keys(instance.runtime).length) {
-    v.primitives.instance.Runtime.cast(instance.runtime);
-    collect("runtime", instance.runtime, v.primitives.instance.Runtime);
-  }
-  if (Object.keys(instance.lighthouse).length) {
-    v.primitives.instance.Mask.cast(instance.lighthouse);
-    collect("lighthouse", instance.lighthouse, v.primitives.instance.Mask);
-  }
-  for (const [slug, client] of Object.entries(instance.clients)) {
-    v.primitives.instance.Client.cast(client);
-    collect(`client[${slug}]`, client, v.primitives.instance.Client);
-  }
+// a schematic fault arrives as a JSON pointer; the record speaks in slots — one grammar on the instance.
+const label = (instance, pointer) =>
+  pointer
+    .split("/")
+    .slice(1)
+    .reduce((at, part) => {
+      const slot = { daemons: "daemon", services: "service" }[at];
+      if (slot) return `${slot}[${instance[at][part].slug}]`;
+      return /^\d+$/.test(part) ? `${at}[${part}]` : at ? `${at}.${part}` : part;
+    }, "") || "instance";
+
+const alive = (mask) => Boolean(mask) && !Object.values(mask.secrets ?? {}).some(is.empty);
+
+function settle(instance) {
+  const { Instance } = v.primitives.instance;
+  instance.dormant = [];
   for (const daemon of instance.daemons) {
-    v.primitives.instance.Daemon.cast(daemon);
-    collect(`daemon[${daemon.slug}]`, daemon, v.primitives.instance.Daemon);
+    daemon.hallucinators = (daemon.hallucinators ?? []).filter(
+      (mask, index) => alive(mask) || !instance.dormant.push(`daemon[${daemon.slug}].hallucinators[${index}]`),
+    );
+    daemon.consume = object.filter(
+      daemon.consume ?? {},
+      (slug) => alive(daemon.consume[slug]) || !instance.dormant.push(`daemon[${daemon.slug}].consume.${slug}`),
+    );
   }
-  for (const service of instance.services) {
-    v.primitives.instance.Service.cast(service);
-    collect(`service[${service.slug}]`, service, v.primitives.instance.Service);
+  Instance.cast(instance);
+  instance.faults = Instance.faults(instance).map(({ at, reason }) => `${label(instance, at)} ${reason}`);
+  if (!instance.faults.length) Instance.decode(instance);
+  for (const daemon of instance.daemons) {
+    daemon.lighthouse ??= instance.lighthouse;
+    if (!daemon.lighthouse) instance.faults.push(`daemon[${daemon.slug}].lighthouse none declared, none to inherit`);
   }
-  if (errors.length) throw new Error(`[instance.mount validate]\n  ${errors.join("\n  ")}`);
 }
-
-// SUPERSEDED — .env / environment.json / .jsonc at one stratum, so the last file read won:
-// a committed placeholder overwrote a real secret beside it.
-// const FILES = [".env", "environment.json", "environment.jsonc"];
-// async function environment(instance) {
-//   if (!instance.paladin.scope.instance) return;
-//   for (const name of FILES) {
-//     // scope.instance mints a fresh Path per access — branch() MUTATES, so never reuse one
-//     const file = instance.paladin.scope.instance.branch(name);
-//     if (!(await Deno.stat(file.absolute).catch(() => null))) continue;
-//     const bag = name === ".env" ? await load({ envPath: file.absolute })
-//                                 : await instance.paladin.read.json(file);
-//     instance.paladin.assign(bag, "instance");
-//   }
-// }
 
 async function environment(instance) {
   if (!instance.paladin.scope.instance) return;
@@ -192,16 +162,18 @@ async function environment(instance) {
 
 export class Instance {
   manifest = {};
-  runtime = {};
+  runtime;
   clients = {};
-  lighthouse = {};
+  lighthouse;
   daemons = [];
   services = [];
+  requirements = [];
+  faults = [];
+  dormant = [];
 
   constructor(paladin) {
     this.mount = fn.once(this.mount.bind(this));
     this.paladin = paladin;
-    // this.logs = new Pipe();
   }
 
   get home() {
@@ -214,14 +186,8 @@ export class Instance {
   async mount() {
     await environment(this); // env/secret first — marker modules read them at import time
     await resolve(this);
-    validate(this);
+    settle(this);
     this.paladin.publish();
-
-    // await log(this);
-    // return this.paladin.state.jsonl(this.path.branch("spans.jsonl"), span.json);
-    // return this.paladin.state.file(this.path.branch(`${stream}.log`));
-    // this.logs.tap((span) => Deno.writeTextFileSync(FILE, render(span) + "\n\n", { append: true })); // B
-
     return this;
   }
 }

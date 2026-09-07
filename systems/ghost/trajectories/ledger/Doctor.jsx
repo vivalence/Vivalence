@@ -18,7 +18,7 @@ export function Doctor({ report }) {
   const shelved = instances.filter(
     (row) => row.mount?.startsWith(`${homes.instances}/`) && !(row.flags ?? []).includes("dangling"),
   ).length;
-  const running = locks.filter((lock) => lock.alive).length;
+  const running = locks.length;
   const moved = store.path && store.path !== `${homes.ledger}/registry`;
   const scope = (name) => scopes.find((held) => held.name === name);
 
@@ -27,7 +27,7 @@ export function Doctor({ report }) {
       <Text bold>viva ledger/doctor</Text>
 
       <Box flexDirection="column" marginTop={1}>
-        <Home name="ledger" scope={scope("ledger")} />
+        <Home name="ledger" scope={scope("ledger")} tail="viva ledger/init" />
 
         <Organ
           name=".env"
@@ -84,7 +84,7 @@ export function Doctor({ report }) {
           warn={flagged("orphan") + flagged("dangling") + flagged("shadowed") > 0}
         />
 
-        <Organ name="locks/" count={`${running} running`} note={locks.length > running ? `${locks.length - running} dead` : ""} warn={locks.length > running} />
+        <Organ name="locks/" count={`${running} running`} />
         <Rows rows={locks} width={width} />
 
         <Organ name="sessions/" count={`${sessions.length} shells`} note="" />
@@ -124,11 +124,12 @@ export function Doctor({ report }) {
   );
 }
 
-function Home({ name, scope }) {
+function Home({ name, scope, tail }) {
   return (
     <Text color={scope.present ? "green" : "red"}>
       {"  ".repeat(scope.depth)}
       {scope.present ? "✓" : "✗"} <Text bold>{name.padEnd(12)}</Text> <Text color="gray">{scope.path ?? "—"}</Text>
+      {!scope.present && tail ? <Text color="gray">  → {tail}</Text> : null}
     </Text>
   );
 }

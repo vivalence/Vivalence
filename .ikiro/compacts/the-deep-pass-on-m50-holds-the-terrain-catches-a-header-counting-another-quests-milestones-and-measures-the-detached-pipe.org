@@ -1,0 +1,99 @@
+#+title: the deep pass on m50 holds the terrain, catches a header counting another quest's milestones, and measures the detached pipe
+#+filetags: :paladin:typology:ghost:runtime:kajuit:process:quest:m50:wafer:dossier:control:signal:measurement:compact:
+
+* what happened, in one breath
+
+Woke cold on one order — /"investigate
+/Users/finn/vivalence/code/vivalence/.ikiro/quests/m50-the-three-way-weave.org"/ — then, mid-read,
+/"thorough deep pass"/. m50 is the three-way weave (what a vector instantiates · the control vector ·
+the process contract), DESIGNED at an earlier fold on beef's order, nothing applied; beef had touched only
+its title in the worktree (/"wafer, dossiers, masks, and processes"/ added). The pass walked every
+"today" claim against disk and every sketch line against the live =v= API, ran the paladin spawn + ledger
+suites (15 passed / 26 steps, the M2 gate's baseline), read the report deriver, and probed the one
+mechanism M4 rests on. Everything the quest says about the terrain held. Three things it could not have
+known: the header =wip · 60% 3/5 · next: blast= is =methods/quest-report.py= counting =M1= =M2/M3= out
+of the status clause /"Supersedes m49 M2/M3 (m49 sunset to done/ with M1 landed)"/ — another quest's
+milestones marked done on this one; =Deno.Command detached: true= with =stdout: "piped"= gives the child
+its own process group AND still delivers the =Status:ALIVE= line (measured, 2.9.6); and four defects in
+the sketch itself — the =State= enum in lowercase where =Status.set= uppercases, a =vector(ChildDossier)=
+builder named nowhere, an =effect:= dossier key with no precedent, and a =Contract= without valence while
+the QA marker demands help and valence derive from it. Report delivered in the report frame; then
+/"ikiro compact"/.
+
+* spine (N=4)
+
+| n | beef (verbatim)                                                                                          | what landed / decided                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                        |
+|---+----------------------------------------------------------------------------------------------------------+----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|
+| 1 | /"investigate /Users/finn/vivalence/code/vivalence/.ikiro/quests/m50-the-three-way-weave.org"/           | Quest read whole (34 KB); =git diff= = beef's title edit only; kernel + =project_process_ontology= + =project_m52_schematic_pinhole= bodies read.                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                               |
+| 2 | /"thorough deep pass"/ (mid-turn)                                                                        | TERRAIN (all held): =Wafer= live =typology/prototypes/wafer.js:3=, exported =prototypes/index.ts:39= + =index.client.js:38=, five subclasses (=runtime/die.js:5= · =runtime/daemon/die.js:10= with the TODO at :6-8 · =runtime/process/die.js:3= · paladin =ledger/process.js:9= · =ledger/die.js:4=); =schematics/prototypes/{control,process}.js= ABSENT; =Status.parse= ABSENT, producers =runtime/lifecycle/integrate.js:47= + =kajuit/vite.config.mjs:101=; ghost =instance/= has no =status= or =logs=; children NOT detached (=process.js:29-37=); kajuit =client.viva.js:15-34= references =Process=/=cast=/=bake= it never imports (dead); =v.integer()= =.default()= =enum/union/const/record/boolean= =.desc()= =.optional()= =object(…,{additionalProperties})= all live in =schematics/v.js=. SUITES: spawn 9 + ledger 6 → 15 passed / 26 steps. MEASURED: =detached: true= + piped stdout → child pgid ≠ parent, first line =Status:ALIVE= (scratchpad probe, deno 2.9.6). HEADER: the report's =milestones()= marks every =M<n>= in a clause holding =landed|applied|done|green= — the m49 clause + /"Nothing applied: M1"/ → 3/5; true state 0/5 design. SKETCH DEFECTS: =State= case · =vector(dossier)= builder (precedent inline at =kajuit/src/typology/prototypes/dataspace.js:22-33= and =tests/lifecycle-vector.test.js:9-19=) · =effect:= key · =HANDLERS=/=VALENCE= undefined, valence not on =Contract=. CROSS-READ: m46 B6/B7/B8/B11 route to M4/M2/M4/M3; beef's logs after the wafer verdict carry nothing new; m52's gate line at =ledger.js:29= sits inside M2's radius. Stale refs: =vite.config.mjs:100=→:101, Mask =instance.js:5-13=→:9-16. |
+| 3 | /"ikiro compact"/                                                                                        | This fold. At fold time m52 is LANDED + SUNSET to =done/= by the sibling session (the memory index says /"LANDED on go 52"/, =done/m52-schematic-pinhole.org= on disk) — the coupling note becomes canon: =Ledger.boot= carries =check.instance(…).throw()= before the Die and M2's dossier keeps it as stage one.                                                                                                                                                                                                                                                                                                                                                                                                              |
+| 4 | =/compact= (mid-turn)                                                                                    | Harness compaction; this fold precedes it.                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                   |
+
+* arc
+
+** the terrain held because it was measured when written (row 2)
+
+Every "today" line in m50 named a file and a line, and every one of them still pointed at the thing it
+described — the five =Wafer= subclasses, the two ALIVE producers, the kajuit dossier shape, the =v=
+surface. The pass added nothing to the terrain except one line-number drift from m52's rewrite of
+=primitives/instance.js= and =vite.config.mjs=. What the pass DID add is the one measurement the design
+had reasoned from a README claim: M4's rule 3 (children in their own process group) and rule 5 (readiness
+= the child's own =Status:ALIVE= line over a pipe) need =detached: true= and =stdout: "piped"= in the
+same =Deno.Command= — the probe spawned exactly that, read =Status:ALIVE= off the pipe, and =ps -o pgid=
+showed 1761 against the parent's 1756.
+
+** a header that lies by arithmetic (row 2)
+
+=quest-report.py= derives =#+progress= by splitting the status line on =.;·|= and marking done every
+=M<n>= inside a clause that contains a done-word. m50's status says /"Supersedes m49 M2/M3 (m49 sunset
+to done/ with M1 landed)"/ and /"Nothing applied: M1 (…)"/ — =done=, =landed=, =applied= each fire, and
+M1 M2 M3 of ANOTHER quest are booked as this quest's. Three of five done, phase wip, next blast — for a
+quest with zero milestones landed. The instrument is right about its own rule; the sentence poisoned it.
+The fix is a reword (proposed below, beef's header), not a smarter regex: a status line names only its
+own milestones inside done-worded clauses.
+
+** the sketch encodes a Status it has not read (row 2)
+
+=v.prototypes.process.State= lists =populated · spawned · alive …= in lowercase; =Status.set=
+(=status.js:15,26=) uppercases every code, so a live =die.status.reflection.code= is =ALIVE= and the enum
+would refuse it — and F7's =Status.parse= would parse =Status:ALIVE= straight into the same refusal. The
+dossier sketch calls =vector(ChildDossier)=; the only precedent for turning a dossier into a vector is the
+inline loop in kajuit's =Dataspace= (=new Vector().use(attach…)=, the =use[]= loop, =affect(noop)=) and
+the test's =compileSchema=. Neither has an =effect:= key on the dossier — kajuit carries =boot= (a vector
+to slurp) and affects a noop. And =control()= reaches for =HANDLERS[nature]= and =VALENCE[nature]= that
+exist nowhere, while =P-control-one-table= says help and valence derive from =Contract= — which carries
+=input=/=output= only; the meanings live in a prose table. Four hunks for M1, gated with it.
+
+* failures, mine
+
+- The first barrel grep asked for =typology/index.js= and =index.ts= at the subsystem root and got "no
+  such file" — the barrels are =prototypes/index.ts= and =prototypes/index.client.js=. A false ABSENT
+  from a wrong path is the shape the kernel warns about; re-measured before it reached the report.
+- The report said m52's own header "still says Nothing blasted" while its hunks sat in the worktree; true
+  at the minute of reading, superseded within the hour by the sibling's landing + sunset. A live sibling's
+  quest is a moving target — the report's `sessions` column already said so, and I read the header instead.
+
+* state at fold
+
+- code: NOTHING applied. m50 stays DESIGNED; M1 (typology, holy) waits on beef's per-file =go=.
+- gated on beef: F1–F8 · the four M1 sketch hunks (State uppercase · one dossier→vector builder, typology
+  =shape= vs paladin-local = fork F9 · drop =effect:= for =boot=/=affect= per kajuit · =Contract[n].valence=) ·
+  the status reword:
+
+#+BEGIN_SRC diff
+.ikiro/quests/m50-the-three-way-weave.org
+-#+status: DESIGNED … Supersedes m49 M2/M3 (m49 sunset to done/ with M1 landed). Nothing applied: M1 (the wording + two schematics) is typology and waits on beef's word; M2–M5 follow it.
++#+status: DESIGNED … Absorbs m49's control-vector + migration milestones (m49 sunset to done/, its first milestone in the tree). Nothing applied. M1 (the wording + two schematics) is typology and waits on beef's word; M2–M5 follow it.
+#+END_SRC
+
+- ikiro (this turn): this compact · =compacts/index.md= regenerated · =quests/index.md= m50 title follows
+  beef's rename · frontier m50 line restamped under budget · memory =project_process_ontology= carries
+  the measurement, the defects and the header cause · m50 changelog line + the three stale refs corrected.
+- baseline for M2's gate: =subsystems/paladin/tests/spawn.test.js= 9 + =ledger.test.js= 6 = 15 passed / 26 steps.
+- m52 LANDED + SUNSET by the sibling (=done/=): =Ledger.boot:29= gate is canon; M2 keeps it as the die's first stage.
+
+* quest report (derived at fold — `methods/quest-report.py`)
+
+| quest                    | progress  | status | next  | note                                                            |
+|--------------------------+-----------+--------+-------+-----------------------------------------------------------------|
+| m50-the-three-way-weave  |  60% 3/5  | wip    | blast | FALSE by parse — 0/5 design · go until the status line is reworded |

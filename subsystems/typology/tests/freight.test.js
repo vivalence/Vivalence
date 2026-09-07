@@ -24,13 +24,15 @@ specimen.describe("Freight", () => {
     await Deno.writeFile(`${directory}/icon.png`, new Uint8Array([0x89, 0x50]));
     await Deno.writeFile(`${directory}/data.json`, new TextEncoder().encode("{}"));
     await Deno.writeFile(`${directory}/mystery.xyz`, new Uint8Array([0x00]));
+    await Deno.writeFile(`${directory}/paper.pdf`, new Uint8Array([0x25, 0x50]));
+    await Deno.writeTextFile(`${directory}/note.md`, "# note");
     await Deno.mkdir(`${directory}/nested/deeper`, { recursive: true });
     await Deno.writeFile(`${directory}/nested/deep.wav`, new Uint8Array([0x52, 0x49]));
     await Deno.writeFile(`${directory}/nested/deeper/buried.ogg`, new Uint8Array([0x4f, 0x67]));
 
     const freight = new Freight(directory);
     specimen.expect(await stow(freight, directory)).toBe(freight);
-    specimen.expect(freight.lading.length).toBe(6);
+    specimen.expect(freight.lading.length).toBe(8);
     specimen.expect(freight.lading.find((entry) => entry.path === "beep.mp3").slug).toBe("beep");
     specimen.expect(freight.lading.find((entry) => entry.slug === "deep").path).toBe("nested/deep.wav");
 
@@ -42,6 +44,8 @@ specimen.describe("Freight", () => {
     specimen.expect(freight.lading.find((entry) => entry.slug === "icon").type).toBe("image/png");
     specimen.expect(freight.lading.find((entry) => entry.slug === "data").type).toBe("application/json");
     specimen.expect(freight.lading.find((entry) => entry.slug === "mystery").type).toBe("application/octet-stream");
+    specimen.expect(freight.lading.find((entry) => entry.slug === "paper").type).toBe("application/pdf");
+    specimen.expect(freight.lading.find((entry) => entry.slug === "note").type).toBe("text/markdown");
 
     specimen.expect(freight.lading.map((entry) => entry.path))
       .toEqual([...freight.lading.map((entry) => entry.path)].sort());

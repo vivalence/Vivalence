@@ -1,5 +1,6 @@
 import { Type } from "typebox";
 import { enhance } from "../v.js";
+import { url } from "../scalars/url.js";
 import { Signature as SignatureProto } from "../../prototypes/signature.js";
 import { Signal as SignalProto } from "../../prototypes/signal.js";
 import { Path as PathProto } from "../../prototypes/path.js";
@@ -13,22 +14,18 @@ import { Pattern as PatternProto } from "../../prototypes/pattern.js";
 // The wire is always a string; the runtime value is the prototype, with the tree
 // algebra (branch/heritage/array) riding along.
 
-const PATH = "^\\S+$";
+const token = (options) => Type.String({ pattern: "^\\S+$", ...options });
+const text = (options) => Type.String({ pattern: "^.+$", ...options });
 const path = (signature) => signature.pathname ?? "/" + signature.absolute.join("/");
+const rooted = (signature) => "/" + signature.absolute.join("/");
 
-const codec =
-  (Prototype, { pattern = PATH, encode = path } = {}) =>
-  (options) =>
-    enhance(
-      Type.Codec(Type.String({ pattern, ...options }))
-        .Decode((wire) => new Prototype(wire))
-        .Encode(encode),
-    );
+const codec = (Prototype, wire, encode) => (options) =>
+  enhance(Type.Codec(wire(options)).Decode((held) => new Prototype(held)).Encode(encode));
 
-export const Signature = codec(SignatureProto, { encode: (s) => "/" + s.absolute.join("/") });
-export const Signal = codec(SignalProto);
-export const Path = codec(PathProto);
-export const FilePath = codec(FilePathProto, { pattern: "^.+$", encode: (s) => s.absolute });
-export const Url = codec(UrlProto, { pattern: "^.+$", encode: (s) => s.absolute });
-export const Action = codec(ActionProto, { encode: (s) => "/" + s.absolute.join("/") });
-export const Pattern = codec(PatternProto, { pattern: "^.+$", encode: (s) => "/" + s.absolute.join("/") });
+export const Signature = codec(SignatureProto, token, rooted);
+export const Signal = codec(SignalProto, token, path);
+export const Path = codec(PathProto, token, path);
+export const FilePath = codec(FilePathProto, text, (s) => s.absolute);
+export const Url = codec(UrlProto, url, (s) => s.absolute);
+export const Action = codec(ActionProto, token, rooted);
+export const Pattern = codec(PatternProto, text, rooted);

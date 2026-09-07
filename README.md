@@ -107,13 +107,13 @@ loading the mini mode we created above, adding a LLM service, setting up local s
 `commons/instances/hello-world/instance.viva.js` — what it is:
 ```js
 import paladin from "@vivalence/paladin";
-import { Url, v } from "@vivalence/typology";
+import { v } from "@vivalence/typology";
 
 export const manifest = { type: "instance", slug: "hello-world", version: "0.0.1" };
 
 export const runtime = {
   slug: "runtime",
-  statics: { serve: () => new Url(paladin.env.get("VIVA_RUNTIME_SERVE")) },
+  statics: { serve: () => paladin.env.get("VIVA_RUNTIME_SERVE") },
   datamap: {
     module: "@commons/datamap/libsql",
     statics: { db: { file: `runtime.viva.db` } },
@@ -124,23 +124,17 @@ export const daemons = [
   {
     manifest: { type: "daemon", slug: "hello", version: "0.0.1" },
     docs: { name: "Hello", valence: "one mode, one greeting", icon: { emoji: "👋" } },
-    statics: {},
     kernel: ["./mode.viva.js"],
     datamap: {
       module: "@commons/datamap/libsql",
       statics: { db: { file: `hello.viva.db` } },
     },
-    hallucinators: () =>
-      paladin.secret.get("SECRET_VIVA_ANTHROPIC_API_KEY")
-        ? [
-            {
-              module: "@commons/hallucinator/anthropic",
-              statics: {},
-              secrets: { key: () => paladin.secret.get("SECRET_VIVA_ANTHROPIC_API_KEY") },
-            },
-          ]
-        : [],
-    consume: {},
+    hallucinators: [
+      {
+        module: "@commons/hallucinator/anthropic",
+        secrets: { key: () => paladin.secret.get("SECRET_VIVA_ANTHROPIC_API_KEY") },
+      },
+    ],
   },
 ];
 
@@ -148,9 +142,7 @@ export const clients = {
   kajuit: {
     slug: "kajuit",
     traits: ["ATTACHED"],
-    statics: {
-      serve: () => new Url(paladin.env.get("VIVA_CLIENT_KAJUIT_SERVE")),
-    },
+    statics: { serve: () => paladin.env.get("VIVA_CLIENT_KAJUIT_SERVE") },
   },
 };
 
@@ -159,7 +151,7 @@ export const services = [
     slug: "multiplayer",
     module: "@commons/lighthouse/multiplayer",
     secrets: { jwt: () => paladin.secret.get("SECRET_VIVA_JWT") },
-    statics: { serve: () => new Url(paladin.env.get("VIVA_LIGHTHOUSE_SERVE")) },
+    statics: { serve: () => paladin.env.get("VIVA_LIGHTHOUSE_SERVE") },
     datamap: {
       module: "@commons/datamap/libsql",
       statics: { db: { file: `lighthouse.viva.db` } },
@@ -169,9 +161,7 @@ export const services = [
 
 export const lighthouse = {
   module: "@commons/lighthouse/multiplayer",
-  statics: {
-    remote: () => new Url(paladin.env.get("PUBLIC_VIVA_LIGHTHOUSE_REMOTE")),
-  },
+  statics: { remote: () => paladin.env.get("PUBLIC_VIVA_LIGHTHOUSE_REMOTE") },
 };
 
 export const environment = v.environment({
@@ -226,7 +216,7 @@ The doctor should tell you that:
 viva ledger/doctor
 
 ✓ ledger       ~/.viva
-  .env            present       1 vars · 4 secrets · 5 blank
+  .env            present       0 vars · 0 secrets
   registry.json   0 tapped      0 pinned · 0 store · 0 stale  → registry/doctor
   registry/       0 resident    0 untapped
   instances.json  0 recorded
@@ -254,8 +244,11 @@ Adds a `package` to the registry. Packages are modes whose job is to carry other
 viva registry/list
 
 packages
-mount                owner     modes  identifier
-~/vivalence/commons  @commons  22     @commons/package/commons
+  0
+    mount                      ~/vivalence/commons
+    owner                      @commons
+    modes                      21
+    identifier                 @commons/package/commons
 ```
 
 Load packages from vcs or path with `registry/tap`:
@@ -296,7 +289,7 @@ viva instance/init                 # populates instance .env
 
 To sign up additional users, use `viva instance/lighthouse signup <username> <password>` — it talks to the running lighthouse, so the instance has to be up (step 5).
 
-Running `viva instance/doctor` should provide you with an overview of the environment, runtime, clients, daemons, and services.
+Running `viva instance/doctor` should provide you with an overview of the environment, runtime, clients, daemons, and services — plus `faults` (what the schematic refused) and `dormant` (hallucinators whose key is blank).
 
 ### 5 — `viva instance/run`
 
@@ -312,7 +305,7 @@ launching on http://localhost:2501/
 Status:ALIVE
 ```
 
-Boots the instance's children as supervised processes and registers them in the ledger's locks. For `hello-world` that's two:
+Boots the instance's children as supervised processes and records them in the instance's lock. For `hello-world` that's two:
 
 | process   | what                    | where                   |
 | --------- | ----------------------- | ----------------------- |
@@ -321,7 +314,7 @@ Boots the instance's children as supervised processes and registers them in the 
 
 Open **http://localhost:1794**, log in with the account from step 4, and you're inside: the client attaches to the daemons and renders their modes. 
 
-Run one child on its own with `viva instance/run runtime` or `viva instance/run kajuit` — each boots only that process and writes only its own lock; `all` is the default. `viva instance/stop` tears down whatever is running and clears the locks. `viva instance/delete` removes the instance from the machine — its record, dead locks, logs, the shell sessions that had selected it, and the directory when it lives on the shelf under `~/.viva/instances/`; a directory you tapped from elsewhere stays. It refuses while a child is running, and asks first unless you pass `--force`.
+Run one child on its own with `viva instance/run runtime` or `viva instance/run kajuit` — each boots only that process, and the instance's one lock lists whichever are up; `all` is the default. `viva instance/stop` tears down whatever is running and clears the locks. `viva instance/delete` removes the instance from the machine — its record, dead locks, logs, the shell sessions that had selected it, and the directory when it lives on the shelf under `~/.viva/instances/`; a directory you tapped from elsewhere stays. It refuses while a child is running, and asks first unless you pass `--force`.
 
 The runtime's pulse is `/status`, its identity `/manifest`:
 
@@ -339,7 +332,7 @@ curl http://localhost:2501/manifest
 
 - [x] `deno task install` — `viva` linked into `~/.deno/bin`, this checkout pinned in `~/.config/viva/env`
 - [x] `ledger/init` — `~/.viva` exists: the one directory Vivalence owns on your machine
-- [x] `registry/tap` — the `@viva` package recorded; its modes resolve by reference from any shell
+- [x] `registry/tap` — `@commons` recorded from the checkout, `@education` tapped; their modes resolve by reference from any shell
 - [x] `instance/create` — `hello-world` copied onto the shelf, yours to edit and version
 - [x] `instance/init` — the instance's `.env` populated, your account registered against its lighthouse
 - [x] `instance/run` — runtime serving on `:2501`, kajuit on `:1794`, and you're ready to log-in and explore.

@@ -1,15 +1,16 @@
 import fs from "@std/fs";
-import { join } from "@std/path";
+import { extname, join, relative } from "@std/path";
 import { Path } from "@vivalence/typology";
+import { skip } from "./ignore.js";
 
 export default function find(config) {
-  const search = async function* (pattern, dir, depth) {
+  const search = async function* (pattern, skipped, dir, depth) {
     const entries = await fs.readdir(dir, { withFileTypes: true });
     for (const entry of entries) {
+      if (skipped(entry.name)) continue;
       const path = join(dir, entry.name);
       if (entry.isDirectory()) {
-        if (entry.name === "bak" || entry.name === "archive" || entry.name === "slp" || entry.name.endsWith(".bak")) continue;
-        if (depth > 0) yield* search(pattern, path, depth - 1);
+        if (depth > 0) yield* search(pattern, skipped, path, depth - 1);
       } else if (entry.name.match(pattern)) {
         yield path;
       }
@@ -24,10 +25,22 @@ export default function find(config) {
     return files.map((f) => new Path(f));
   };
 
-  const walk = (pattern) => async (path, depth = Infinity) => {
+  const walk = (pattern, ignore) => async (path, depth = Infinity) => {
     const dir = path.absolute || path;
     const exp = pattern instanceof RegExp ? pattern : new RegExp(pattern);
-    return await collect(search(exp, dir, depth));
+    return await collect(search(exp, skip(ignore), dir, depth));
+  };
+
+  const describe = async (root, path) => {
+    const stat = await Deno.stat(join(root, path)).catch(() => null);
+    if (!stat?.isFile) return null;
+    return { path, format: extname(path).slice(1).toLowerCase(), bytes: stat.size, mtime: stat.mtime?.toISOString() ?? null };
+  };
+
+  const index = async (root, ignore) => {
+    const files = await walk(/./, ignore)(root);
+    const described = await Promise.all(files.map((file) => describe(root, relative(root, file.absolute))));
+    return described.filter(Boolean).sort((a, b) => (a.path < b.path ? -1 : 1));
   };
 
   const readMany = (reader) => (paths) => Promise.all(paths.map(reader)); //map cast path
@@ -65,6 +78,9 @@ export default function find(config) {
     viva,
     walk,
     data,
+    describe,
+    index,
+    skip,
     json: walk(/\.(jsonc?|json)$/),
     read: readMany(config.read.file),
     type,

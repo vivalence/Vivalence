@@ -1,6 +1,13 @@
 import { IsOptional, Type } from "typebox";
-import { Value } from "typebox/value";
+import { Pointer, Value } from "typebox/value";
 import { Compile } from "typebox/compile";
+
+const faults = (schema, value) =>
+  [...Value.Errors(schema, value)].map((error) => {
+    const held = Pointer.Get(schema, error.schemaPath.slice(1));
+    const reason = error.keyword === "pattern" && held?.title ? `must be ${held.title}` : error.message;
+    return { at: error.instancePath || "/", reason };
+  });
 
 const derive = (target, patch) =>
   Object.assign(Object.defineProperties({}, Object.getOwnPropertyDescriptors(target)), patch);
@@ -29,6 +36,7 @@ function enhance(schema) {
       if (prop === "create") return () => Value.Create(target);
       if (prop === "clean") return (value) => Value.Clean(target, value);
       if (prop === "errors") return (value) => Value.Errors(target, value);
+      if (prop === "faults") return (value) => faults(target, value);
       if (prop === "compile") return () => Compile(target);
       if (prop === "fill") return (value) => (Value.Default(target, value), value);
       if (prop === "cast")
@@ -126,6 +134,7 @@ export const v = {
   cast: (schema, value) => (Value.Default(schema, value), Value.Convert(schema, value), value),
   convert: (schema, value) => Value.Convert(schema, value),
   errors: (schema, value) => Value.Errors(schema, value),
+  faults,
   create: (schema) => Value.Create(schema),
   clean: (schema, value) => Value.Clean(schema, value),
   isOptional: (schema) => IsOptional(schema),

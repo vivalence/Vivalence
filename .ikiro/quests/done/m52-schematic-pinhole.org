@@ -1,0 +1,1527 @@
+#+title: m52 schematic pinhole — the recipe declares, the schematic settles: typed statics, faults as data, one hallucinator law
+#+filetags: :typology:paladin:ghost:runtime:instance:schematics:pinhole:doctor:v:
+#+status: LANDED — go 52 (beef: /"go 52. heavy step by step testing."/). M1 · M2 · M3 blasted from =scratchpad/m52.patch= (10 files) + the =settle.test.js= tangle + 7 shelf/education recipes + 3 one-line edges + README re-paste + ledger dossier; suites and the T1–T5 walk in the changelog. ONE amendment found by the walk (T2): ghost =run.js= never MOUNTED the instance, so the =Ledger.boot= gate saw no faults and both children refused at their own gates — =run.js= now mounts before =boot= (one line, back in the blast table). Sunset to =done/= same session. beef owes: commit · education push (=instances/= is untracked in that checkout) · restart the live hello-world.
+#+status: (was) AUTHORED + CRITICAL PASS + SANDBOX GREEN — M1/M2 hunks REGENERATED from the sandbox diff (=scratchpad/m52.patch=, 634 lines, 10 files + =settle.test.js=); F1′ called (labels), F5/F6 as leaned. Nothing blasted in the worktree. M1 (typology, additive) gated per-file on beef (holy layer); M2 (paladin + runtime + ghost + recipes, ONE flag-day by coupling); M3 (README paste). Every mechanism claim below was MEASURED this session by script against typebox 1.3 and the live tree — the numbers are in ~terrain~.
+#+phase: landed (derived)
+#+progress: 100% 13/13 (derived)
+#+next: beef — commit · education push · live restart (derived)
+
+* intent
+
+beef, verbatim: /"i don't want the entire hallucinators key to be a thunk. unless we define every key to be
+a possible thunk. then we'd have the paladin resolve this all at once recursively i assume."/ ·
+/"new url everywhere. we have our schematics. those should be able to cast prototypes no? we dont need
+url prototypes and type casting generally if we have v.schematics for this properly setup."/ ·
+/"we ought not need to have empty keys like statics, consume, etc. schematics should guarantee them."/ ·
+/"sounds like all we need is solid schematics for what the config is expected to be. we pinhole in
+paladin on in. and somewhere in the paladin where we know what each bit of config should look like we
+validate/fill."/ · /"should instance/doctor actually do the processing? maybe"/
+
+Measured first: the pinhole is ALREADY the recursive any-key thunk resolver
+(=subsystems/paladin/prototypes/instance.js hydrate= fires every thunk at any depth, walks fired values,
+pinned in =tests/hydrate.test.js= "walks a fired thunk's value"). Nothing is added there. What the recipe
+hand-encodes today are three things the SCHEMATIC should own — and cannot, because
+=v.primitives.instance= says =statics: v.record(v.string(), v.unknown())= everywhere:
+
+| symptom in the recipe                              | hand-encoded    | owner that already exists                                                                  |
+|----------------------------------------------------+-----------------+--------------------------------------------------------------------------------------------|
+| =hallucinators: () => key ? [...] : []=            | optionality     | =environment= schema: =SECRET_VIVA_ANTHROPIC_API_KEY … .optional()=, desc says "no hallucinator" |
+| =serve: () => new Url(paladin.env.get(…))= ×5      | the type        | =schematics/prototypes/signatures.js Url= codec (string ⇄ =Url=), zero product consumers      |
+| =statics: {}= · =consume: {}= · =hallucinators: []= | the defaults    | =Daemon= schema =.default({})= — measured: =Daemon.cast(new Mask({…}))= fills them             |
+
+One sentence: *the recipe declares data plus suspended reads; the pinhole fires them; the schematic
+settles the result — defaults filled, prototypes minted, a mask without its secret dormant — and every
+miss is a FAULT on the instance, never a throw, so the doctor runs the same pipeline a boot runs and the
+throw lives only at the boot edge.*
+
+* the law
+
+#+BEGIN_EXAMPLE
+declaration   data + suspended reads (any key may be a thunk)                              unchanged — hydrate.test.js
+mount()       environment · resolve (pinhole + record) · settle · publish                  NEVER throws on a value
+settle        dormant → cast (fill) → faults → decode (only when clean) → inherit                  a faulted instance stays as hydrated
+              daemon.lighthouse ??= instance.lighthouse  (after decode — identity kept)
+              hallucinators: an entry that is null or whose secrets hold a blank is DORMANT → instance.dormant, off the roster — BEFORE the schematic looks
+schematic     Runtime/Service.statics.serve · Client.statics.serve? · Lighthouse.statics.remote = Url codec (RFC 3986 scalar inside)
+              Daemon.statics/consume/kernel .default({}) · hallucinators .default([]) · Mask (datamap · hallucinator · consume) untyped
+doctor        rows (env) + faults + dormant — the whole picture, bare recipe included
+problems      instance.faults ∪ wrong env rows (UNDOCUMENTED · REQUIRED · INVALID)   ·   bootable = !problems.length
+boot edge     ghost instance/run (before spawning) · runtime run.js (the child that mounts itself): !bootable → throw, pointing at the doctor
+#+END_EXAMPLE
+
+beef's syntax probe, answered and pinned (=settle.test.js= case 8):
+
+#+BEGIN_EXAMPLE
+hallucinators: () => []                          YES
+hallucinators: [() => ({ module, secrets })]     YES  — fired per element
+hallucinators: [() => null]                      YES  — dormant ["daemon[hello].hallucinators[0]"], not a fault
+hallucinators: () => null                        YES  — empty roster
+#+END_EXAMPLE
+
+* the decision trail
+
+1. *Nothing new at the pinhole.* beef's "unless we define every key to be a possible thunk" — that is the
+   standing law: =hydrate= walks functions, arrays, plain objects; a fired value is walked again. The
+   ternary was never about thunks; it was optionality with nowhere else to live.
+2. *The gap is the schematic.* =statics: v.record(v.string(), v.unknown())= makes the pinhole schema-blind:
+   it cannot fill, cannot mint, cannot judge. beef: /"solid schematics for what the config is expected to
+   be."/ Type what typology KNOWS — =serve= on runtime/client/service, =remote= on the lighthouse.
+   Module-specific statics (nlp =remote·language·processors=, openrouter =models=, datamap =db.file=) stay
+   =unknown= in =Mask=: that contract belongs to the MODULE, not to typology (deferred, trigger named).
+3. *The Url codec wraps the scalar.* =v.prototypes.Url()= exists as =Type.Codec(Type.String({pattern:
+   "^.+$"})).Decode(wire => new Url(wire))= — measured: it decodes ="NaN"= to a Url. =v.url()= is the RFC
+   3986 grammar (m48). The codec becomes =Type.Codec(url(options))=: the wire side IS the scalar, decode
+   mints the prototype, encode folds it back. One grammar, two faces — the pair =signatures.js= already
+   names (ana/cata).
+4. *Faults are data. The doctor runs the pipeline.* beef: /"should instance/doctor actually do the
+   processing? maybe"/. Yes — it collapses the fork this quest first carried (a lenient =mount= for the
+   doctor, a strict =settle= for boot). One pipeline; =instance.faults= is a list; =check.environment=
+   already works this way for env rows (doctor reads rows, =run=/=init= read =check.wrong=). The throw
+   moves to the two boot edges and points at the doctor.
+5. *Decode once; a faulted slot stays as hydrated.* Measured: =Value.Decode= is Check-then-transform;
+   =Check= on an already-decoded value is =false=; decode twice throws. So =held()= decodes only when
+   =errors()= is empty. A faulted slot keeps the hydrated value (a string, or =null=) — the runtime never
+   sees it because =bootable= is false.
+6. *Lighthouse inheritance moves AFTER settle.* Today =materialize= assigns =held.lighthouse ??
+   instance.lighthouse= by reference before validation. Under decode the shared object would be visited
+   twice (measured: the second visit survives — =Url= coerces a =Url= — but plain objects are
+   shallow-cloned, so identity breaks and =lighthouse.test.js= "inherits, module and all" =toBe= would
+   fail). Settle each daemon with its OWN lighthouse (=Lighthouse.optional()= passes when absent), then
+   =daemon.lighthouse ??= instance.lighthouse= — the instance's already-decoded object, identity kept.
+   "No lighthouse anywhere" becomes a fault line, no longer a schema accident on an inherited ={}=.
+7. *Dormancy = hallucinators only, and why.* Measured: =new OpenAI({apiKey: null})= and =new
+   Anthropic({apiKey: null})= both CONSTRUCT. The education recipes
+   (=~/.viva/registry/education/instances/*/daemon.js=) already declare the flat array with three
+   =.optional()= keys — and boot DEAD openrouter/elevenlabs/deepgram faculties into the cortex, which then
+   advertises =has("speech")= and dies at first request. m48 decision 3 kept the ternary precisely to dodge
+   this; two recipes, two idioms, one missing law. The law lands where a ROSTER mechanism consumes it: the
+   cortex. =consume= is a fixed contract (=daemon.services.nlp= is called by name; a dropped entry is a
+   worse failure than a rejected key) and no recipe declares an optional consume key — trigger 10, default
+   only what a producer emits. =services= are processes, not masks. Hallucinators only.
+8. *=hallucinators= defaults to =[]=.* So =daemon.hallucinators.filter(alive)= is total and the recipe
+   may omit the key entirely.
+9. *=Client.statics.serve= is optional.* Six recipes declare a =ghost= client with empty statics
+   (measured: every shelf + education recipe). =Runtime= and =Service= =serve= are required — a runtime or
+   service without an address is a fault, not a warning.
+10. *=launch= untouched.* Its =if (!url) warn-and-return= now covers only "no runtime declared at all"
+    (still legal: =Instance.runtime= is optional). A declared runtime without =serve= is a fault and never
+    reaches it. Minimal delta.
+11. *Doctor keeps row-shaped =problems=; =faults= and =dormant= land beside it.* Init.jsx and the ghost
+    Effect renderer read rows; a fault is a sentence. Two keys, no reshaping of the env table.
+12. *A blank address shows twice at the doctor* — key row =REQUIRED= (env schema) and fault
+    =runtime/statics/serve: must match pattern …= (instance schematic). Two schemas, two true sentences.
+    Dedupe by matching the fault path to a recorded =at= is a 3-line join (array index formats differ:
+    =/hallucinators/0/= vs =[0]=) — fork F1, not now.
+13. *No =${KEY}= references in recipes.* The thunk =() => paladin.env.get("X")= only names a key once the
+    schematic types the leaf; the env schema already names keys as ="${VIVA_RUNTIME_ORIGIN}/"=. Unifying
+    the two registers would turn a recipe into pure data (recording proxy → regex). beef did not ask;
+    flag-day over every recipe + hydrate; deferred with its trigger.
+
+* terrain — measured
+
+- =subsystems/paladin/prototypes/instance.js= — =hydrate= (:44) records ={at, read, unset}= per fired thunk,
+  walks the fired value; =resolve= (:75) hydrates per slot, =materialize= (:100) inherits the lighthouse by
+  ref; =validate= (:143) casts + collects =errors()= per slot and THROWS; =mount= (:203) = environment ·
+  resolve · validate · publish. =Instance= fields: =manifest runtime clients lighthouse daemons services=.
+- =subsystems/typology/schematics/primitives/instance.js= — =Mask= (statics/secrets optional) · =Daemon=
+  (statics/kernel/consume =.default=, =lighthouse: Mask.optional()=, =hallucinators: v.array(Mask).optional()=)
+  · =Service= · =Runtime= · =Client= (statics =record unknown=, optional) · =Instance=.
+- =subsystems/typology/schematics/prototypes/signatures.js= — =codec(Prototype, {pattern, encode})=;
+  =Url = codec(UrlProto, { pattern: "^.+$", encode: s => s.absolute })=; =enhance= exposes =.decode= /
+  =.encode= (=v.js= :30-31). No product consumer of =v.prototypes.Url= (grep: tests only use =View=).
+- typebox 1.3, by script (=scratchpad/probe{,2,4}.js=): =Value.Decode(object-with-codec)= → =Url= instance
+  ✓, arrays ✓; a =Mask= class instance survives decode BY REFERENCE, a plain object comes back CLONED;
+  =Check= on a decoded value = =false=; decode twice THROWS (=DecodeError=, =.errors= not enumerable —
+  use =errors()= before decode for messages); =Value.Default= fills =undefined= not =null=, descends
+  ARRAY items but NOT =v.record= values (so =Mask.statics= must stay =.optional()=); =Daemon.cast(new
+  Mask({…}))= fills =statics={}= =consume={}= on the class instance; a codec over =v.url()= refuses ="NaN"=
+  and =""= at Check.
+- SDKs, by script: =new OpenAI({apiKey: null, baseURL})= and =new Anthropic({apiKey: null})= construct
+  without throwing — a blank key becomes a dead faculty, not a boot failure.
+- consumers of the typed slots: =systems/runtime/lifecycle/integrate.js= :28 =runtime.statics.serve=
+  (=.absolute .port .hostname=), :57 =lighthouse.statics.remote= (→ =Connection=), :61 =serve.origin=;
+  =commons/lighthouses/multiplayer/provider/index.js= :6 =lighthouse.statics.remote=; ghost =init.js= :55
+  and =lighthouse.js= :10 =lighthouse.statics.remote= → =new Connection(…)= — =Connection= wraps a string
+  or a =Url= (=prototypes/connection.js= :19), so those two work on a faulted (string) instance too.
+- boot edges: =systems/ghost/trajectories/instance/run.js= =run()= — =register()= then =ledger.boot=, NO
+  env gate today; =systems/runtime/run.js= :6 =await paladin.instance.mount()= then the die; kajuit's
+  =client.viva.js= reads =paladin.env.vars= and never mounts the instance.
+- doctor: =systems/ghost/trajectories/instance/doctor.js= builds =ctx.effect= (=env= rows, =problems= =
+  wrong rows, =lock=); the ghost view middleware renders any effect (Effect.jsx / =--json=) — new keys need
+  no view work. =init.js= boots through =ledger.boot= only when =fill= is empty; the child's own gate
+  catches a fault there (the wizard shows =boot failed=).
+- recipes carrying the shape (=new Url(paladin.env.get= · the ternary · =statics: {}= · =consume: {}=):
+  =commons/instances/hello-world/instance.viva.js= (:8 :19 :25-34 :35 :44 :54 :65) · =README.md= :116-173
+  (byte-verbatim paste) · shelf =~/.viva/instances/{hello-world/instance.viva.js, italian/italian.viva.js
+  (:36 :47 :61 :71 :82), language-learning/test.viva.js (:39 :52 :66 :76 :87), stucatch/stucatch.viva.js
+  (:16 :29 :43 :53)}= · tapped =~/.viva/registry/education/instances/{italian,spanish,brazilian}/*.viva.js=
+  + =daemon.js= (flat =hallucinators= already; =consume.nlp.statics.remote: () => new Url(…)= STAYS — Mask is
+  untyped, decision 2). =documentation/= holds no capture of the recipe (grep: none).
+- tests pinning the shape: =paladin/tests/lighthouse.test.js= (remote string equality, =toBe= identity,
+  two "throws at mount"), =kernel.test.js= (fixture lighthouse =statics: {}= — becomes one unread fault),
+  =instance.snapshot.test.js= (rewrites on run; the record row =daemon[hello].hallucinators= →
+  =…hallucinators[0].secrets.key=; =faults=/=dormant= keys appear; =dormant= depends on the ambient
+  anthropic key exactly as the ternary's =[]=/=[1]= did), =hydrate.test.js= (unchanged — hydrate is
+  untouched; its ternary probe still proves recursion), =check.environment.test.js= (synthetic rows,
+  untouched).
+
+* milestones — each boots green before the next
+
+** M1 — typology: the codec over the scalar · typed instance statics · =Lighthouse= · =faults= · REGENERATED
+
+Regenerated from the sandbox diff (critical pass; =scratchpad/m52.patch=). Additive at the surface;
+=Runtime.statics.serve= turns REQUIRED-and-typed, =Service.statics.serve= typed OPTIONAL (no reader —
+F6), =Client.statics.serve= typed optional (vite reads it — F4 stands), =Instance.path= cut, =Instance=
+gains =.default= on its three collections so one =cast= fills the root. Gate: typology suite — sandbox:
+=122 passed (490 steps) | 1 failed= — the one red is =hallucination snapshot … tool loop=, the same
+pre-existing red as the baseline (122/480/1), untouched here.
+
+=subsystems/typology/schematics/prototypes/signatures.js= — =codec(Prototype, wire, encode)=, seven
+uniform lines; =Url= rides the RFC 3986 scalar:
+
+#+BEGIN_SRC diff
+--- a/subsystems/typology/schematics/prototypes/signatures.js
++++ b/subsystems/typology/schematics/prototypes/signatures.js
+@@ -1,5 +1,6 @@
+ import { Type } from "typebox";
+ import { enhance } from "../v.js";
++import { url } from "../scalars/url.js";
+ import { Signature as SignatureProto } from "../../prototypes/signature.js";
+ import { Signal as SignalProto } from "../../prototypes/signal.js";
+ import { Path as PathProto } from "../../prototypes/path.js";
+@@ -13,22 +14,18 @@ import { Pattern as PatternProto } from "../../prototypes/pattern.js";
+ // The wire is always a string; the runtime value is the prototype, with the tree
+ // algebra (branch/heritage/array) riding along.
+ 
+-const PATH = "^\\S+$";
++const token = (options) => Type.String({ pattern: "^\\S+$", ...options });
++const text = (options) => Type.String({ pattern: "^.+$", ...options });
+ const path = (signature) => signature.pathname ?? "/" + signature.absolute.join("/");
++const rooted = (signature) => "/" + signature.absolute.join("/");
+ 
+-const codec =
+-  (Prototype, { pattern = PATH, encode = path } = {}) =>
+-  (options) =>
+-    enhance(
+-      Type.Codec(Type.String({ pattern, ...options }))
+-        .Decode((wire) => new Prototype(wire))
+-        .Encode(encode),
+-    );
++const codec = (Prototype, wire, encode) => (options) =>
++  enhance(Type.Codec(wire(options)).Decode((held) => new Prototype(held)).Encode(encode));
+ 
+-export const Signature = codec(SignatureProto, { encode: (s) => "/" + s.absolute.join("/") });
+-export const Signal = codec(SignalProto);
+-export const Path = codec(PathProto);
+-export const FilePath = codec(FilePathProto, { pattern: "^.+$", encode: (s) => s.absolute });
+-export const Url = codec(UrlProto, { pattern: "^.+$", encode: (s) => s.absolute });
+-export const Action = codec(ActionProto, { encode: (s) => "/" + s.absolute.join("/") });
+-export const Pattern = codec(PatternProto, { pattern: "^.+$", encode: (s) => "/" + s.absolute.join("/") });
++export const Signature = codec(SignatureProto, token, rooted);
++export const Signal = codec(SignalProto, token, path);
++export const Path = codec(PathProto, token, path);
++export const FilePath = codec(FilePathProto, text, (s) => s.absolute);
++export const Url = codec(UrlProto, url, (s) => s.absolute);
++export const Action = codec(ActionProto, token, rooted);
++export const Pattern = codec(PatternProto, text, rooted);
+#+END_SRC
+
+=subsystems/typology/schematics/primitives/instance.js=:
+
+#+BEGIN_SRC diff
+--- a/subsystems/typology/schematics/primitives/instance.js
++++ b/subsystems/typology/schematics/primitives/instance.js
+@@ -1,6 +1,9 @@
+ import { v } from "../v.js";
+ import { Slug } from "../scalars/index.js";
+ import { Manifest } from "./manifest.js";
++import { Url } from "../prototypes/signatures.js";
++
++const statics = (known) => v.object(known, { additionalProperties: true });
+ 
+ // mask — declaration of "turn this into an instance": module ref + config.
+ export const Mask = v.object(
+@@ -12,15 +15,24 @@ export const Mask = v.object(
+   { additionalProperties: true },
+ );
+ 
++export const Lighthouse = v.object(
++  {
++    module: v.string(),
++    statics: statics({ remote: Url() }),
++    secrets: v.record(v.string(), v.unknown()).optional(),
++  },
++  { additionalProperties: true },
++);
++
+ export const Daemon = v.object(
+   {
+     manifest: Manifest,
+     statics: v.record(v.string(), v.unknown()).default({}),
+     kernel: v.array(v.union([v.string(), v.object({}, { additionalProperties: true })])).default([]),
+     consume: v.record(v.string(), Mask).default({}),
+-    lighthouse: Mask.optional(),
++    lighthouse: Lighthouse.optional(),
+     datamap: Mask,
+-    hallucinators: v.array(Mask).optional(),
++    hallucinators: v.array(Mask).default([]),
+   },
+   { additionalProperties: true },
+ );
+@@ -29,7 +41,7 @@ export const Service = v.object(
+   {
+     slug: Slug,
+     module: v.string(),
+-    statics: v.record(v.string(), v.unknown()).optional(),
++    statics: statics({ serve: Url().optional() }).optional(),
+     secrets: v.record(v.string(), v.unknown()).optional(),
+     datamap: Mask.optional(),
+   },
+@@ -40,7 +52,7 @@ export const Runtime = v.object(
+   {
+     slug: Slug,
+     traits: v.array(v.string()).optional(),
+-    statics: v.record(v.string(), v.unknown()).optional(),
++    statics: statics({ serve: Url() }),
+     datamap: Mask.optional(),
+   },
+   { additionalProperties: true },
+@@ -50,7 +62,7 @@ export const Client = v.object(
+   {
+     slug: Slug.optional(),
+     module: v.string().optional(),
+-    statics: v.record(v.string(), v.unknown()).optional(),
++    statics: statics({ serve: Url().optional() }).optional(),
+   },
+   { additionalProperties: true },
+ );
+@@ -58,12 +70,11 @@ export const Client = v.object(
+ export const Instance = v.object(
+   {
+     manifest: Manifest,
+-    path: v.string().optional(),
+     runtime: Runtime.optional(),
+-    lighthouse: Mask.optional(),
+-    clients: v.record(v.string(), Client).optional(),
+-    services: v.array(Service).optional(),
+-    daemons: v.array(Daemon).optional(),
++    lighthouse: Lighthouse.optional(),
++    clients: v.record(v.string(), Client).default({}),
++    services: v.array(Service).default([]),
++    daemons: v.array(Daemon).default([]),
+   },
+   { additionalProperties: true },
+ );
+#+END_SRC
+
+=subsystems/typology/schematics/v.js= — =schema.faults(value)= / =v.faults(schema, value)= →
+=[{at, reason}]=; a pattern miss names the scalar's =title= (=Pointer.Get= resolves =schemaPath= through
+the codec — measured), everything else keeps typebox's message. =check.js invalid()= is its second consumer:
+
+#+BEGIN_SRC diff
+--- a/subsystems/typology/schematics/v.js
++++ b/subsystems/typology/schematics/v.js
+@@ -1,7 +1,14 @@
+ import { IsOptional, Type } from "typebox";
+-import { Value } from "typebox/value";
++import { Pointer, Value } from "typebox/value";
+ import { Compile } from "typebox/compile";
+ 
++const faults = (schema, value) =>
++  [...Value.Errors(schema, value)].map((error) => {
++    const held = Pointer.Get(schema, error.schemaPath.slice(1));
++    const reason = error.keyword === "pattern" && held?.title ? `must be ${held.title}` : error.message;
++    return { at: error.instancePath || "/", reason };
++  });
++
+ const derive = (target, patch) =>
+   Object.assign(Object.defineProperties({}, Object.getOwnPropertyDescriptors(target)), patch);
+ 
+@@ -29,6 +36,7 @@ function enhance(schema) {
+       if (prop === "create") return () => Value.Create(target);
+       if (prop === "clean") return (value) => Value.Clean(target, value);
+       if (prop === "errors") return (value) => Value.Errors(target, value);
++      if (prop === "faults") return (value) => faults(target, value);
+       if (prop === "compile") return () => Compile(target);
+       if (prop === "fill") return (value) => (Value.Default(target, value), value);
+       if (prop === "cast")
+@@ -126,6 +134,7 @@ export const v = {
+   cast: (schema, value) => (Value.Default(schema, value), Value.Convert(schema, value), value),
+   convert: (schema, value) => Value.Convert(schema, value),
+   errors: (schema, value) => Value.Errors(schema, value),
++  faults,
+   create: (schema) => Value.Create(schema),
+   clean: (schema, value) => Value.Clean(schema, value),
+   isOptional: (schema) => IsOptional(schema),
+#+END_SRC
+
+=subsystems/typology/tests/v.test.js= — +3 cases (codec · typed statics · faults):
+
+#+BEGIN_SRC diff
+--- a/subsystems/typology/tests/v.test.js
++++ b/subsystems/typology/tests/v.test.js
+@@ -1,4 +1,4 @@
+-import { specimen, v } from "@vivalence/typology";
++import { specimen, v, Url } from "@vivalence/typology";
+ 
+ specimen.describe("v", () => {
+   specimen.it("a schema judges every shape", () => {
+@@ -313,4 +313,38 @@ specimen.describe("v", () => {
+     specimen.expect(v.convert(v.string(), "8080")).toBe("8080");
+     specimen.expect(v.integer().check(v.convert(v.integer(), "8080"))).toBe(true);
+   });
++
++  specimen.it("prototypes.Url is the url scalar as a codec — decode mints the prototype, encode folds it back, the grammar is the scalar's", () => {
++    const schema = v.prototypes.Url();
++    const held = schema.decode("http://localhost:2501/");
++    specimen.expect(held).toBeInstanceOf(Url);
++    specimen.expect(held.port).toBe("2501");
++    specimen.expect(schema.encode(held)).toBe("http://localhost:2501/");
++    specimen.expect(schema.check("NaN")).toBe(false);
++    specimen.expect(schema.check("")).toBe(false);
++    specimen.expect(() => schema.decode("NaN")).toThrow();
++    const nested = v.object({ list: v.array(v.object({ serve: v.prototypes.Url() })) });
++    specimen.expect(nested.decode({ list: [{ serve: "http://x/" }] }).list[0].serve).toBeInstanceOf(Url);
++  });
++
++  specimen.it("instance statics are typed where typology knows the key — serve and remote, everything else rides along", () => {
++    const { Runtime, Lighthouse, Client, Service, Daemon } = v.primitives.instance;
++    specimen.expect([...Runtime.errors({ slug: "runtime", statics: { serve: "NaN" } })][0].instancePath).toBe("/statics/serve");
++    specimen.expect([...Runtime.errors({ slug: "runtime", statics: { serve: "http://localhost:2501/", extra: 1 } })].length).toBe(0);
++    specimen.expect([...Lighthouse.errors({ module: "m", statics: {} })][0].message).toContain("remote");
++    specimen.expect([...Client.errors({ slug: "ghost", statics: {} })].length).toBe(0);
++    specimen.expect([...Service.errors({ slug: "svc", module: "m" })].length).toBe(0);
++    const daemon = { manifest: { type: "daemon", slug: "d", version: "0.0.1" }, datamap: { module: "m" } };
++    Daemon.cast(daemon);
++    specimen.expect(daemon.hallucinators).toEqual([]);
++    specimen.expect(daemon.statics).toEqual({});
++    specimen.expect(daemon.consume).toEqual({});
++  });
++
++  specimen.it("faults — errors with the scalar's title in place of its regex, addressed by pointer", () => {
++    const { Instance } = v.primitives.instance;
++    const faults = Instance.faults({ manifest: { type: "instance", slug: "i" }, runtime: { slug: "runtime", statics: { serve: "nope" } }, daemons: [], services: [], clients: {} });
++    specimen.expect(faults).toEqual([{ at: "/runtime/statics/serve", reason: "must be RFC 3986 URI with an authority (scheme://…)" }]);
++    specimen.expect(v.faults(v.object({ a: v.string() }), {})).toEqual([{ at: "/", reason: "must have required properties a" }]);
++  });
+ });
+#+END_SRC
+
+Import order: verified in the sandbox — the typology suite boots with =primitives/instance.js= importing
+=prototypes/signatures.js=.
+
+** M2 — paladin + runtime + kajuit + recipes: settle, faults, dormant, the gate, the flag-day · REGENERATED
+
+One milestone by coupling: the moment =Runtime.statics.serve= is a codec, a recipe handing the pinhole
+=new Url(…)= is a FAULT and every instance refuses to boot. Paladin, the three boot edges, the doctor keys
+and every recipe on this machine move together. Gate: paladin + ghost + runtime suites, then the live
+walk (QA ①). Sandbox: paladin =38 passed (161 steps) | 0 failed= (37 + =settle.test.js=); demo
+=scratchpad/sandbox/demo.js= — three mounts (full env · key blank · bare) pasted in the changelog.
+
+*** paladin — =subsystems/paladin/prototypes/instance.js=
+
+Whole-instance settle, in order: dormant (a hallucinator element that is =null= or holds a blank secret leaves
+the roster, named) → =Instance.cast= → =Instance.faults= → =Instance.decode= (only when clean — decode is
+Check-then-transform and refuses a second pass) → inherit. beef: /"first we pinhole. then we validate."/ —
+the pinhole sees thunks, settle sees values, dormancy runs before the schematic looks so =[() => null]= is
+dormant, not a fault. Faults arrive as JSON pointers and are translated into
+the record's grammar (=label=): =daemon[hello].statics.serve= — beef: /"daemon[hello].statics.serve ok."/
+The class loses its ={}= defaults for =runtime= / =lighthouse= (=hydrate(undefined)= → =undefined=,
+measured; every consumer already reads =?.= / =?? {}=). =watch= and =alive= use =is.empty=. My two
+SUPERSEDED comment corpses go.
+
+#+BEGIN_SRC diff
+--- a/subsystems/paladin/prototypes/instance.js
++++ b/subsystems/paladin/prototypes/instance.js
+@@ -1,6 +1,6 @@
+ import { isAbsolute, resolve as resolvePath } from "@std/path";
+ import { load } from "@std/dotenv";
+-import { Pipe, Mask, v, fn } from "@vivalence/typology";
++import { Mask, fn, is, v } from "@vivalence/typology";
+ import { NOTHING } from "./ledger/instances.js";
+ 
+ const reference = (home) => (entry) =>
+@@ -19,33 +19,12 @@ const watch = (bag, read) =>
+       prop === "get"
+         ? (key, ...rest) => {
+             const value = target.get(key, ...rest);
+-            read.push({ key, unset: value === null || value === undefined || value === "" });
++            read.push({ key, unset: is.empty(value) });
+             return value;
+           }
+         : Reflect.get(target, prop, receiver),
+   });
+ 
+-// SUPERSEDED — a sentinel probe: a second walker fired deferred thunks against a fake bag to
+-// learn their keys. bought nothing over firing once and discarding.
+-// const DRY = "«deferred»";
+-// const watch = (bag, read, dry = false) => ... return dry ? DRY : value ...
+-//
+-// function probe(node, record, paladin, at) {
+-//   if (typeof node === "function") {
+-//     const read = [];
+-//     const { env, secret } = paladin;
+-//     paladin.env = watch(env, read, true);
+-//     paladin.secret = watch(secret, read, true);
+-//     try { node(); } catch { /* a thunk that cannot survive a sentinel still counted its keys */ }
+-//     finally { paladin.env = env; paladin.secret = secret; }
+-//     record.push({ at, read: ..., unset: ..., usable: null, deferred: true });
+-//     return;
+-//   }
+-//   if (Array.isArray(node)) return node.forEach((v, i) => probe(v, record, paladin, `${at}[${i}]`));
+-//   if (node?.constructor === Object)
+-//     for (const [key, value] of Object.entries(node)) probe(value, record, paladin, `${at}.${key}`);
+-// }
+-
+ // the pinhole: every thunk in a declaration fires here and nowhere else.
+ export function hydrate(node, record = null, paladin = null, at = "") {
+   if (typeof node === "function") {
+@@ -81,7 +60,6 @@ export function hydrate(node, record = null, paladin = null, at = "") {
+   return node;
+ }
+ 
+-// move to lifecycle / dossier / die
+ async function resolve(instance) {
+   // mounting must not SCAFFOLD, so an absent home reaches here as a readdir ENOENT — name it.
+   const home = instance.home.absolute;
+@@ -109,20 +87,15 @@ async function resolve(instance) {
+ 
+   const materialize = (label) => (declaration) => {
+     const { kernel = [], ...rest } = declaration;
+-    const held = at(label)(rest);
+-    return {
+-      ...held,
+-      kernel: kernel.map(reference(module.source)),
+-      lighthouse: held.lighthouse ?? instance.lighthouse,
+-    };
++    return { ...at(label)(rest), kernel: kernel.map(reference(module.source)) };
+   };
+ 
+   const slug = (declaration) => declaration.slug ?? declaration.manifest?.slug;
+ 
+   instance.manifest = module.manifest;
+-  instance.runtime = at("runtime")(module.runtime ?? {});
++  instance.runtime = at("runtime")(module.runtime);
+   instance.clients = at("clients")(module.clients ?? {});
+-  instance.lighthouse = at("lighthouse")(module.lighthouse ?? {});
++  instance.lighthouse = at("lighthouse")(module.lighthouse);
+   instance.daemons = (module.daemons ?? []).map((declaration) =>
+     mask("daemon")(materialize(`daemon[${slug(declaration)}]`)(declaration)),
+   );
+@@ -133,56 +106,38 @@ async function resolve(instance) {
+   instance.environment = module.environment ?? v.environment({});
+   if (!instance.environment.properties)
+     throw new Error(`instance.mount: environment must be v.environment({…}) — ${module.source.absolute}`);
+-
+-  // instance.runtime.logs = new Pipe()
+-  // instance.clients.kajuit.logs = new Pipe()
+ }
+ 
+-// move to lifecycle / dossier / die
+-function validate(instance) {
+-  const errors = [];
+-  const collect = (label, value, schema) => {
+-    for (const error of schema.errors(value))
+-      errors.push(`${label}${error.instancePath || ""}: ${error.message}`);
+-  };
+-  if (Object.keys(instance.runtime).length) {
+-    v.primitives.instance.Runtime.cast(instance.runtime);
+-    collect("runtime", instance.runtime, v.primitives.instance.Runtime);
+-  }
+-  if (Object.keys(instance.lighthouse).length) {
+-    v.primitives.instance.Mask.cast(instance.lighthouse);
+-    collect("lighthouse", instance.lighthouse, v.primitives.instance.Mask);
+-  }
+-  for (const [slug, client] of Object.entries(instance.clients)) {
+-    v.primitives.instance.Client.cast(client);
+-    collect(`client[${slug}]`, client, v.primitives.instance.Client);
+-  }
++// a schematic fault arrives as a JSON pointer; the record speaks in slots — one grammar on the instance.
++const label = (instance, pointer) =>
++  pointer
++    .split("/")
++    .slice(1)
++    .reduce((at, part) => {
++      const slot = { daemons: "daemon", services: "service" }[at];
++      if (slot) return `${slot}[${instance[at][part].slug}]`;
++      return /^\d+$/.test(part) ? `${at}[${part}]` : at ? `${at}.${part}` : part;
++    }, "") || "instance";
++
++const alive = (mask) => Boolean(mask) && !Object.values(mask.secrets ?? {}).some(is.empty);
++
++function settle(instance) {
++  const { Instance } = v.primitives.instance;
++  instance.dormant = [];
+   for (const daemon of instance.daemons) {
+-    v.primitives.instance.Daemon.cast(daemon);
+-    collect(`daemon[${daemon.slug}]`, daemon, v.primitives.instance.Daemon);
++    daemon.hallucinators = (daemon.hallucinators ?? []).filter(
++      (mask, index) => alive(mask) || !instance.dormant.push(`daemon[${daemon.slug}].hallucinators[${index}]`),
++    );
+   }
+-  for (const service of instance.services) {
+-    v.primitives.instance.Service.cast(service);
+-    collect(`service[${service.slug}]`, service, v.primitives.instance.Service);
++  Instance.cast(instance);
++  instance.faults = Instance.faults(instance).map(({ at, reason }) => `${label(instance, at)} ${reason}`);
++  if (!instance.faults.length) Instance.decode(instance);
++  for (const daemon of instance.daemons) {
++    daemon.lighthouse ??= instance.lighthouse;
++    if (!daemon.lighthouse) instance.faults.push(`daemon[${daemon.slug}].lighthouse none declared, none to inherit`);
+   }
+-  if (errors.length) throw new Error(`[instance.mount validate]\n  ${errors.join("\n  ")}`);
+ }
+ 
+-// SUPERSEDED — .env / environment.json / .jsonc at one stratum, so the last file read won:
+-// a committed placeholder overwrote a real secret beside it.
+-// const FILES = [".env", "environment.json", "environment.jsonc"];
+-// async function environment(instance) {
+-//   if (!instance.paladin.scope.instance) return;
+-//   for (const name of FILES) {
+-//     // scope.instance mints a fresh Path per access — branch() MUTATES, so never reuse one
+-//     const file = instance.paladin.scope.instance.branch(name);
+-//     if (!(await Deno.stat(file.absolute).catch(() => null))) continue;
+-//     const bag = name === ".env" ? await load({ envPath: file.absolute })
+-//                                 : await instance.paladin.read.json(file);
+-//     instance.paladin.assign(bag, "instance");
+-//   }
+-// }
+-
+ async function environment(instance) {
+   if (!instance.paladin.scope.instance) return;
+   const file = instance.paladin.scope.instance.branch(".env").absolute;
+@@ -192,16 +147,18 @@ async function environment(instance) {
+ 
+ export class Instance {
+   manifest = {};
+-  runtime = {};
++  runtime;
+   clients = {};
+-  lighthouse = {};
++  lighthouse;
+   daemons = [];
+   services = [];
++  requirements = [];
++  faults = [];
++  dormant = [];
+ 
+   constructor(paladin) {
+     this.mount = fn.once(this.mount.bind(this));
+     this.paladin = paladin;
+-    // this.logs = new Pipe();
+   }
+ 
+   get home() {
+@@ -214,14 +171,8 @@ export class Instance {
+   async mount() {
+     await environment(this); // env/secret first — marker modules read them at import time
+     await resolve(this);
+-    validate(this);
++    settle(this);
+     this.paladin.publish();
+-
+-    // await log(this);
+-    // return this.paladin.state.jsonl(this.path.branch("spans.jsonl"), span.json);
+-    // return this.paladin.state.file(this.path.branch(`${stream}.log`));
+-    // this.logs.tap((span) => Deno.writeTextFileSync(FILE, render(span) + "\n\n", { append: true })); // B
+-
+     return this;
+   }
+ }
+#+END_SRC
+
+*** the verdict — =subsystems/paladin/belt/check.js=
+
+=check.instance(instance)= = schematic faults ∪ wrong env rows, in the belt's own =createResult= shape
+(=.fails= / =.throw()=). A fault whose location already carries a wrong env row is subsumed — the row names
+the KEY to fix (F1 resolved by the grammar choice). =invalid()= reads =v.faults=.
+
+#+BEGIN_SRC diff
+--- a/subsystems/paladin/belt/check.js
++++ b/subsystems/paladin/belt/check.js
+@@ -1,4 +1,4 @@
+-import { v } from "@vivalence/typology";
++import { is, v } from "@vivalence/typology";
+ 
+ const WRONG = ["UNDOCUMENTED", "REQUIRED", "INVALID"];
+ 
+@@ -60,14 +60,11 @@ export default function check(config) {
+       key.startsWith("SECRET_")
+         ? { value: config.secret.get(key) ? "***" : null, stratum: config.secret.provenance(key) }
+         : { value: config.env.get(key), stratum: config.env.provenance(key) };
+-    const blank = (value) => value === null || value === undefined || value === "";
+     const invalid = (key) => {
+       const held = schema[key];
+       const value = raw(key);
+-      if (!held || blank(value)) return null;
+-      const failure = [...v.errors(held, v.convert(held, value))][0];
+-      if (!failure) return null;
+-      return failure.keyword === "pattern" && held.title ? `must be ${held.title}` : failure.message;
++      if (!held || is.empty(value)) return null;
++      return v.faults(held, v.convert(held, value))[0]?.reason ?? null;
+     };
+     const row = (key, at, held) => ({
+       key,
+@@ -109,7 +106,7 @@ export default function check(config) {
+     for (const [key, held] of Object.entries(schema)) {
+       if (seen.has(key)) continue;
+       const shaped = row(key, null, held);
+-      const unset = blank(raw(key));
++      const unset = is.empty(raw(key));
+       rows.push({
+         ...shaped,
+         verdict: shaped.reason
+@@ -125,8 +122,25 @@ export default function check(config) {
+     return rows;
+   };
+ 
++  // the mounted instance's whole verdict: schematic faults + wrong env rows. fails → not bootable.
++  const instance = (held) => {
++    const wrong = environment(held)
++      .filter((row) => WRONG.includes(row.verdict))
++      .map((row) => ({
++        type: "env",
++        key: row.key,
++        message: `${row.key} ${row.verdict}${row.at ? ` at ${row.at}` : ""}${row.reason ? ` — ${row.reason}` : ""}`,
++      }));
++    const named = new Set(environment(held).filter((row) => WRONG.includes(row.verdict)).map((row) => row.at));
++    const faults = (held.faults ?? [])
++      .filter((fault) => ![...named].some((at) => at && fault.startsWith(`${at} `)))
++      .map((message) => ({ type: "instance", message }));
++    return createResult([...faults, ...wrong], "viva instance/doctor");
++  };
++
+   config.check = {
+     environment,
++    instance,
+     wrong: WRONG,
+     env: (input) => {
+       const keys = Array.isArray(input) ? input : [input];
+#+END_SRC
+
+*** the boot edges — one line each
+
+=subsystems/paladin/prototypes/ledger/ledger.js= — covers ghost =run= · =init= ×2 · =start= (which spawns
+=instance/run=); an unmounted instance has no requirements and no faults, so =spawn.test.js= is untouched:
+
+#+BEGIN_SRC diff
+--- a/subsystems/paladin/prototypes/ledger/ledger.js
++++ b/subsystems/paladin/prototypes/ledger/ledger.js
+@@ -26,6 +26,7 @@ export class Ledger {
+   }
+ 
+   async boot(specs, { instance = null, attachment = "inherit" } = {}) {
++    this.paladin.check.instance(this.paladin.instance).throw();
+     this.paladin.publish();
+     const die = new Die({ ledger: this, specs, instance, attachment });
+     await die.populate();
+#+END_SRC
+
+=systems/runtime/run.js= — the child that mounts itself (=Dockerfile= :10 runs it bare):
+
+#+BEGIN_SRC diff
+   await paladin.instance.mount();
++  paladin.check.instance(paladin.instance).throw();
+#+END_SRC
+
+=systems/kajuit/vite.config.mjs= — =serverConfig()= mounts and reads =clients.kajuit.statics.serve= (=deno
+task kajuit/watch= runs it bare):
+
+#+BEGIN_SRC diff
+   await paladin.instance.mount();
++  paladin.check.instance(paladin.instance).throw();
+   const client = paladin.instance.clients.kajuit;
+#+END_SRC
+
+Ghost =run.js= — WALKED (T2, first attempt): =register()= reads =paladin.instance.home= without mounting, so the
+=Ledger.boot= gate saw an UNMOUNTED instance (no requirements, no faults → =fails= false) and BOTH children were
+spawned and refused at their own gates (=ghost: instance: runtime exited 1, kajuit exited 1=). Demo C had mounted by
+hand — a demo that mounts by hand proves nothing about the caller. The ghost mounts like the runtime child does,
+one line before =boot= (=init= ×2 already =remount()= before theirs; =start= spawns =instance/run=):
+
+#+BEGIN_SRC diff
+--- a/systems/ghost/trajectories/instance/run.js
++++ b/systems/ghost/trajectories/instance/run.js
+@@ -6,6 +6,7 @@ export async function run(ctx) {
+   const instance = await register();
++  await paladin.instance.mount();
+   const attachment = ctx.signal.flags?.logged === true ? "logged" : "inherit";
+   const die = await paladin.ledger.boot(specs(ctx.signal.params[0]), { instance, attachment });
+#+END_SRC
+
+Second attempt: =ghost: <8 env sentences>=, no child, no lock, exit 1.
+
+*** the doctor — =systems/ghost/trajectories/instance/doctor.js=
+
+#+BEGIN_SRC diff
+     problems: rows
+       .filter((row) => WRONG.includes(row.verdict))
+       .map((row) => ({ "!": "!", key: row.key, at: row.at, verdict: row.verdict, reason: row.reason })),
++    faults: paladin.instance.faults,
++    dormant: paladin.instance.dormant,
+     lock: await paladin.ledger.lock(instance).read(),
+#+END_SRC
+
+*** the recipe — =commons/instances/hello-world/instance.viva.js=
+
+#+BEGIN_SRC diff
+--- a/commons/instances/hello-world/instance.viva.js
++++ b/commons/instances/hello-world/instance.viva.js
+@@ -1,11 +1,11 @@
+ import paladin from "@vivalence/paladin";
+-import { Url, v } from "@vivalence/typology";
++import { v } from "@vivalence/typology";
+ 
+ export const manifest = { type: "instance", slug: "hello-world", version: "0.0.1" };
+ 
+ export const runtime = {
+   slug: "runtime",
+-  statics: { serve: () => new Url(paladin.env.get("VIVA_RUNTIME_SERVE")) },
++  statics: { serve: () => paladin.env.get("VIVA_RUNTIME_SERVE") },
+   datamap: {
+     module: "@commons/datamap/libsql",
+     statics: { db: { file: `runtime.viva.db` } },
+@@ -16,23 +16,17 @@ export const daemons = [
+   {
+     manifest: { type: "daemon", slug: "hello", version: "0.0.1" },
+     docs: { name: "Hello", valence: "one mode, one greeting", icon: { emoji: "👋" } },
+-    statics: {},
+     kernel: ["./mode.viva.js"],
+     datamap: {
+       module: "@commons/datamap/libsql",
+       statics: { db: { file: `hello.viva.db` } },
+     },
+-    hallucinators: () =>
+-      paladin.secret.get("SECRET_VIVA_ANTHROPIC_API_KEY")
+-        ? [
+-            {
+-              module: "@commons/hallucinator/anthropic",
+-              statics: {},
+-              secrets: { key: () => paladin.secret.get("SECRET_VIVA_ANTHROPIC_API_KEY") },
+-            },
+-          ]
+-        : [],
+-    consume: {},
++    hallucinators: [
++      {
++        module: "@commons/hallucinator/anthropic",
++        secrets: { key: () => paladin.secret.get("SECRET_VIVA_ANTHROPIC_API_KEY") },
++      },
++    ],
+   },
+ ];
+ 
+@@ -40,9 +34,7 @@ export const clients = {
+   kajuit: {
+     slug: "kajuit",
+     traits: ["ATTACHED"],
+-    statics: {
+-      serve: () => new Url(paladin.env.get("VIVA_CLIENT_KAJUIT_SERVE")),
+-    },
++    statics: { serve: () => paladin.env.get("VIVA_CLIENT_KAJUIT_SERVE") },
+   },
+ };
+ 
+@@ -51,7 +43,7 @@ export const services = [
+     slug: "multiplayer",
+     module: "@commons/lighthouse/multiplayer",
+     secrets: { jwt: () => paladin.secret.get("SECRET_VIVA_JWT") },
+-    statics: { serve: () => new Url(paladin.env.get("VIVA_LIGHTHOUSE_SERVE")) },
++    statics: { serve: () => paladin.env.get("VIVA_LIGHTHOUSE_SERVE") },
+     datamap: {
+       module: "@commons/datamap/libsql",
+       statics: { db: { file: `lighthouse.viva.db` } },
+@@ -61,9 +53,7 @@ export const services = [
+ 
+ export const lighthouse = {
+   module: "@commons/lighthouse/multiplayer",
+-  statics: {
+-    remote: () => new Url(paladin.env.get("PUBLIC_VIVA_LIGHTHOUSE_REMOTE")),
+-  },
++  statics: { remote: () => paladin.env.get("PUBLIC_VIVA_LIGHTHOUSE_REMOTE") },
+ };
+ 
+ export const environment = v.environment({
+#+END_SRC
+
+The =environment= export is untouched — =SECRET_VIVA_ANTHROPIC_API_KEY … .optional()= already says what
+the ternary said, once.
+
+*** every other recipe on this machine ([[feedback_flag_day_radius]])
+
+=~/.viva/instances/hello-world/instance.viva.js= — the shelf copy; the commons diff above applies verbatim.
+
+The six other =*.viva.js= recipes share ONE shape (re-read this session, line-cited below): the same five
+=new Url= sites, one per slot. One hunk set, six files:
+
+#+BEGIN_SRC diff
+-import { Url, v } from "@vivalence/typology";
++import { v } from "@vivalence/typology";
+@@ export const runtime = {
+-    serve: () => new Url(paladin.env.get("VIVA_RUNTIME_SERVE")),
++    serve: () => paladin.env.get("VIVA_RUNTIME_SERVE"),
+@@ export const lighthouse = {
+-    remote: () => new Url(paladin.env.get("PUBLIC_VIVA_LIGHTHOUSE_REMOTE")),
++    remote: () => paladin.env.get("PUBLIC_VIVA_LIGHTHOUSE_REMOTE"),
+@@ export const clients = { … kajuit: {
+-      serve: () => new Url(paladin.env.get("VIVA_CLIENT_KAJUIT_SERVE")),
++      serve: () => paladin.env.get("VIVA_CLIENT_KAJUIT_SERVE"),
+@@ export const services = [ … multiplayer
+-    statics: { serve: () => new Url(paladin.env.get("VIVA_LIGHTHOUSE_SERVE")) },
++    statics: { serve: () => paladin.env.get("VIVA_LIGHTHOUSE_SERVE") },
+@@ … nlp-stanza
+-      serve: () => new Url(paladin.env.get("VIVA_SERVICE_NLP_SERVE")),
++      serve: () => paladin.env.get("VIVA_SERVICE_NLP_SERVE"),
+#+END_SRC
+
+| file                                                              | import | runtime | lighthouse | kajuit | multiplayer | nlp  |
+|-------------------------------------------------------------------+--------+---------+------------+--------+-------------+------|
+| =~/.viva/instances/italian/italian.viva.js=                       | :2     | :36     | :47        | :61    | :71         | :82  |
+| =~/.viva/instances/language-learning/test.viva.js=                | :2     | :39     | :52        | :66    | :76         | :87  |
+| =~/.viva/instances/stucatch/stucatch.viva.js=                     | :2 ⚠   | :16     | :29        | :43    | :53         | —    |
+| =~/.viva/registry/education/instances/italian/italian.viva.js=    | :2     | :36     | :47        | :61    | :71         | :82  |
+| =~/.viva/registry/education/instances/spanish/spanish.viva.js=    | :2     | :35     | :46        | :60    | :70         | :81  |
+| =~/.viva/registry/education/instances/brazilian/brazilian.viva.js= | :2    | :35     | :46        | :60    | :70         | :81  |
+
+⚠ stucatch imports =Url= alone (=import { Url } from "@vivalence/typology";=) — the whole line goes. The
+=ghost= client in all six carries empty =statics= and is untouched (decision 9). The three education
+files are another repo's checkout — beef's education push ([[project_m47_commons]]).
+
+The daemon files — =~/.viva/instances/italian/daemon.js= · =~/.viva/instances/language-learning/{development,education}.js=
+· =~/.viva/registry/education/instances/{italian,spanish,brazilian}/daemon.js= — are already flat. Their
+=consume.nlp.statics.remote: () => new Url(paladin.env.get("VIVA_SERVICE_NLP_REMOTE"))= STAYS with its
+=Url= import (=Mask= untyped — decision 2; the deferred trigger). Cosmetic, optional, not a gate: the
+=statics: {},= lines on hallucinator masks (three per file) and =development.js= :7 =statics: {},= · :35
+=consume: {},= may go — the schematic fills them either way.
+
+Not in scope, verified: =commons/instances/bak/**= (walker skips =bak=), =testament/= (no recipe), typology
+tests (none reference =v.primitives.instance=), runtime/kajuit tests (none mount an instance).
+
+*** tests — paladin
+
+=subsystems/paladin/tests/settle.test.js= — NEW, 8 cases, green in the sandbox. The helper is a plain
+paladin — two =Env= bags + the =check= belt — so the thunks close over the bags they read:
+
+#+BEGIN_SRC js :tangle ../../subsystems/paladin/tests/settle.test.js :mkdirp yes
+import { describe, it } from "@std/testing/bdd";
+import { expect } from "@std/expect";
+import { Env, Path, Url, v } from "@vivalence/typology";
+import { Instance } from "../prototypes/instance.js";
+import check from "../belt/check.js";
+
+const HOME = new Path("/fixtures/probe/test.viva.js");
+const STRATA = ["flag", "cwd", "instance", ".env", "os", "session", "ledger"];
+
+// declare(paladin) → the recipe's exports; the thunks inside close over THIS paladin's bags.
+const mount = (declare, pairs = {}, secrets = {}) => {
+  const paladin = {
+    env: new Env(STRATA),
+    secret: new Env(STRATA),
+    scope: { instance: HOME, mountpoint: new Path("/mountpoint") },
+    state: { dir: async () => {} },
+    publish: () => {},
+  };
+  check(paladin);
+  for (const [key, value] of Object.entries(pairs)) paladin.env.set(key, value, "flag");
+  for (const [key, value] of Object.entries(secrets)) paladin.secret.set(key, value, "flag");
+  const module = { manifest: { type: "instance", slug: "probe", version: "0.0.1" }, source: HOME, ...declare(paladin) };
+  paladin.find = { type: async () => [module] };
+  return new Instance(paladin).mount();
+};
+
+const runtime = (paladin) => ({ slug: "runtime", statics: { serve: () => paladin.env.get("VIVA_PROBE_SERVE") } });
+const lighthouse = (paladin) => ({
+  module: "@commons/lighthouse/multiplayer",
+  statics: { remote: () => paladin.env.get("VIVA_PROBE_REMOTE") },
+});
+const daemon = (extra = {}) => ({
+  manifest: { type: "daemon", slug: "probe", version: "0.0.1" },
+  datamap: { module: "@commons/datamap/libsql" },
+  ...extra,
+});
+const anthropic = (paladin) => ({
+  module: "@commons/hallucinator/anthropic",
+  secrets: { key: () => paladin.secret.get("SECRET_VIVA_PROBE_A") },
+});
+const deepgram = (paladin) => ({
+  module: "@commons/hallucinator/deepgram",
+  secrets: { key: () => paladin.secret.get("SECRET_VIVA_PROBE_D") },
+});
+
+const environment = v.environment({
+  VIVA_PROBE_SERVE: v.url().desc("serve"),
+  VIVA_PROBE_REMOTE: v.url().desc("remote"),
+  SECRET_VIVA_PROBE_A: v.string().desc("a"),
+  SECRET_VIVA_PROBE_D: v.string().desc("d").optional(),
+});
+
+const SET = { VIVA_PROBE_SERVE: "http://localhost:2501/", VIVA_PROBE_REMOTE: "http://localhost:2501/lighthouse" };
+const verdict = (instance) => instance.paladin.check.instance(instance);
+const sentences = (instance) => verdict(instance).map((issue) => issue.message);
+
+describe("settle — the schematic fills, mints and judges what the pinhole fired", () => {
+  it("a typed static decodes to its prototype: serve arrives as a Url, the recipe handed a string", async () => {
+    const instance = await mount((paladin) => ({ runtime: runtime(paladin), environment }), SET);
+    expect(instance.runtime.statics.serve).toBeInstanceOf(Url);
+    expect(instance.runtime.statics.serve.port).toBe("2501");
+    expect(instance.faults).toEqual([]);
+  });
+
+  it("a blank address is a fault, never a throw — the doctor mounts a bare recipe", async () => {
+    const instance = await mount((paladin) => ({ runtime: runtime(paladin), environment }));
+    expect(instance.faults).toEqual(["runtime.statics.serve must be RFC 3986 URI with an authority (scheme://…)"]);
+    expect(instance.runtime.statics.serve).not.toBeInstanceOf(Url);
+    expect(verdict(instance).fails).toBe(true);
+    expect(sentences(instance)).toEqual(["SECRET_VIVA_PROBE_A REQUIRED", "VIVA_PROBE_REMOTE REQUIRED", "VIVA_PROBE_SERVE REQUIRED at runtime.statics.serve"]);
+  });
+
+  it("statics, consume and hallucinators need not be authored — the schematic fills them", async () => {
+    const instance = await mount((paladin) => ({ lighthouse: lighthouse(paladin), daemons: [daemon()], environment }), SET);
+    const [held] = instance.daemons;
+    expect(held.statics).toEqual({});
+    expect(held.consume).toEqual({});
+    expect(held.hallucinators).toEqual([]);
+    expect(held.kernel).toEqual([]);
+    expect(instance.faults).toEqual([]);
+  });
+
+  it("a hallucinator whose secret is blank is dormant: off the roster, named on the instance, still in the record", async () => {
+    const instance = await mount(
+      (paladin) => ({
+        lighthouse: lighthouse(paladin),
+        daemons: [daemon({ hallucinators: [anthropic(paladin), deepgram(paladin)] })],
+        environment,
+      }),
+      SET,
+      { SECRET_VIVA_PROBE_A: "canary" },
+    );
+    const [held] = instance.daemons;
+    expect(held.hallucinators.map((mask) => mask.module)).toEqual(["@commons/hallucinator/anthropic"]);
+    expect(held.hallucinators[0].secrets.key).toBe("canary");
+    expect(instance.dormant).toEqual(["daemon[probe].hallucinators[1]"]);
+    expect(instance.requirements.map((row) => row.at)).toContain("daemon[probe].hallucinators[1].secrets.key");
+    expect(instance.faults).toEqual([]);
+  });
+
+  it("bootable = no fault and no wrong env row; a required blank refuses, an optional blank does not", async () => {
+    const declare = (paladin) => ({
+      runtime: runtime(paladin),
+      lighthouse: lighthouse(paladin),
+      daemons: [daemon({ hallucinators: [anthropic(paladin), deepgram(paladin)] })],
+      environment,
+    });
+    const full = await mount(declare, SET, { SECRET_VIVA_PROBE_A: "a", SECRET_VIVA_PROBE_D: "d" });
+    expect(verdict(full).fails).toBe(false);
+    expect(full.dormant).toEqual([]);
+
+    const optional = await mount(declare, SET, { SECRET_VIVA_PROBE_A: "a" });
+    expect(verdict(optional).fails).toBe(false);
+    expect(optional.dormant).toEqual(["daemon[probe].hallucinators[1]"]);
+
+    const refused = await mount(declare, SET, { SECRET_VIVA_PROBE_D: "d" });
+    expect(verdict(refused).fails).toBe(true);
+    expect(refused.dormant).toEqual(["daemon[probe].hallucinators[0]"]);
+    expect(sentences(refused)).toEqual(["SECRET_VIVA_PROBE_A REQUIRED at daemon[probe].hallucinators[0].secrets.key"]);
+  });
+
+  it("inheritance happens after settle: a daemon's inherited lighthouse IS the instance's decoded object", async () => {
+    const instance = await mount((paladin) => ({ lighthouse: lighthouse(paladin), daemons: [daemon()], environment }), SET);
+    const [held] = instance.daemons;
+    expect(held.lighthouse).toBe(instance.lighthouse);
+    expect(held.lighthouse.statics.remote).toBeInstanceOf(Url);
+    expect(held.lighthouse.statics.remote.absolute).toBe("http://localhost:2501/lighthouse");
+  });
+
+  it("a faulted slot stays as hydrated — decode never runs on a value the schematic refused; one sentence per location", async () => {
+    const instance = await mount((paladin) => ({ runtime: runtime(paladin), environment }), { ...SET, VIVA_PROBE_SERVE: "not a url" });
+    expect(instance.runtime.statics.serve).toBe("not a url");
+    expect(instance.faults).toEqual(["runtime.statics.serve must be RFC 3986 URI with an authority (scheme://…)"]);
+    expect(sentences(instance)).toEqual([
+      "SECRET_VIVA_PROBE_A REQUIRED",
+      "VIVA_PROBE_SERVE INVALID at runtime.statics.serve — must be RFC 3986 URI with an authority (scheme://…)",
+    ]);
+  });
+  it("a thunk element that yields null is dormant, not a fault; a thunk on the key that yields null is an empty roster", async () => {
+    const element = await mount((paladin) => ({ lighthouse: lighthouse(paladin), daemons: [daemon({ hallucinators: [() => null, anthropic(paladin)] })], environment }), SET, { SECRET_VIVA_PROBE_A: "a" });
+    expect(element.daemons[0].hallucinators.map((mask) => mask.module)).toEqual(["@commons/hallucinator/anthropic"]);
+    expect(element.dormant).toEqual(["daemon[probe].hallucinators[0]"]);
+    expect(element.faults).toEqual([]);
+    const key = await mount((paladin) => ({ lighthouse: lighthouse(paladin), daemons: [daemon({ hallucinators: () => null })], environment }), SET);
+    expect(key.daemons[0].hallucinators).toEqual([]);
+    expect(key.dormant).toEqual([]);
+    expect(key.faults).toEqual([]);
+  });
+});
+#+END_SRC
+
+=subsystems/paladin/tests/lighthouse.test.js=:
+
+#+BEGIN_SRC diff
+--- a/subsystems/paladin/tests/lighthouse.test.js
++++ b/subsystems/paladin/tests/lighthouse.test.js
+@@ -9,11 +9,8 @@ const OWN = { module: "@elsewhere/lighthouse/own", statics: { remote: "http://ow
+ 
+ const daemon = (extra = {}) => ({
+   manifest: { type: "daemon", slug: "probe", version: "0.0.1" },
+-  statics: {},
+   kernel: [],
+-  datamap: { module: "@commons/datamap/libsql", statics: {} },
+-  hallucinators: [],
+-  consume: {},
++  datamap: { module: "@commons/datamap/libsql" },
+   ...extra,
+ });
+ 
+@@ -38,7 +35,8 @@ describe("instance lighthouse — declared once, inherited by every daemon", ()
+     const [held] = instance.daemons;
+     expect(held.lighthouse).toBe(instance.lighthouse);
+     expect(held.lighthouse.module).toBe("@commons/lighthouse/multiplayer");
+-    expect(held.lighthouse.statics.remote).toBe("http://lighthouse/multiplayer");
++    expect(held.lighthouse.statics.remote.absolute).toBe("http://lighthouse/multiplayer");
++    expect(instance.faults).toEqual([]);
+   });
+ 
+   it("a daemon binding its own lighthouse keeps it", async () => {
+@@ -48,18 +46,18 @@ describe("instance lighthouse — declared once, inherited by every daemon", ()
+     expect(held.lighthouse.module).toBe("@elsewhere/lighthouse/own");
+   });
+ 
+-  it("no lighthouse anywhere: the daemon's inherited {} fails by name at mount", async () => {
+-    await expect(mount({ daemons: [daemon()] })).rejects.toThrow("daemon[probe]/lighthouse");
++  it("no lighthouse anywhere: a fault by name, the mount still resolves", async () => {
++    const instance = await mount({ daemons: [daemon()] });
++    expect(instance.faults).toEqual(["daemon[probe].lighthouse none declared, none to inherit"]);
+   });
+ 
+-  it("an instance lighthouse without a module fails by name at mount", async () => {
+-    await expect(mount({ lighthouse: { statics: { remote: "http://lighthouse" } }, daemons: [] })).rejects.toThrow(
+-      "lighthouse: must have required properties module",
+-    );
++  it("an instance lighthouse without a module is a fault by name", async () => {
++    const instance = await mount({ lighthouse: { statics: { remote: "http://lighthouse" } }, daemons: [] });
++    expect(instance.faults).toEqual(["lighthouse must have required properties module"]);
+   });
+ 
+   it("no daemons, no lighthouse: mounts", async () => {
+     const instance = await mount({ daemons: [] });
+-    expect(instance.lighthouse).toEqual({});
++    expect(instance.lighthouse).toBeUndefined();
+   });
+ });
+#+END_SRC
+
+=subsystems/paladin/tests/kernel.test.js= — the fixture's lighthouse gains its address (else one fault
+row rides every mount):
+
+#+BEGIN_SRC diff
+--- a/subsystems/paladin/tests/kernel.test.js
++++ b/subsystems/paladin/tests/kernel.test.js
+@@ -28,7 +28,7 @@ const module = {
+         inline,
+         pinned,
+       ],
+-      lighthouse: { module: "@commons/lighthouse/multiplayer", statics: {} },
++      lighthouse: { module: "@commons/lighthouse/multiplayer", statics: { remote: "http://lighthouse/" } },
+       datamap: { module: "@commons/datamap/libsql", statics: {} },
+       hallucinators: [],
+       consume: {},
+#+END_SRC
+
+=subsystems/paladin/tests/instance.snapshot.test.js= — no edit; the run rewrites
+=snapshots/paladin-instance.snapshot.json= (record row =daemon[hello].hallucinators= →
+=…hallucinators[0].secrets.key=, =faults= + =dormant= keys). NOTE the snapshot's Url shows as
+={"gauges":[],"query":{}}= today and after — specimen's =fold= walks own enumerable keys and never
+calls =toJSON= (=Url.toJSON= itself carries =url/origin/scheme/path/query/parts=, measured in the demo);
+a =fold= that honours =toJSON= is a specimen fix, not m52. =hydrate.test.js= untouched.
+
+Gate: =(cd subsystems/paladin && deno test -A --no-check tests/*.test.js)= · =(cd systems/ghost && deno test -A
+--no-check tests/*.test.js)= (one-shot; the =strata.wet= two-shells red is pre-existing) · =(cd
+systems/runtime && deno test -A --no-check tests/)= — all at their baselines, counts pasted into the changelog.
+Both formerly UNMEASURED decode paths are measured (critical pass): inline kernel through =Decode= keeps its
+function and =App=; =Convert= on a =null= leaf keeps =null=.
+
+** M3 — README: the paste regenerates
+
+=README.md= :109-186 is a byte-verbatim paste of =commons/instances/hello-world/instance.viva.js=
+(recipe line N = README line N+108; :116 = recipe :8, measured). The commons recipe diff above applies
+to README at that offset, hunk for hunk — or re-paste the file whole. The prose paragraph under it (the
+=environment= sentence) stays true. =documentation/= holds no capture of the recipe (grep, this session).
+
+* testing assessment
+
+** in place
+
+- =paladin/tests/hydrate.test.js= (8 cases) guards the pinhole — untouched by design; it proves the
+  recursion the ternary probe relies on.
+- =paladin/tests/lighthouse.test.js= (5) guards inheritance + two mount throws.
+- =paladin/tests/kernel.test.js= (3+2) guards kernel reference forms through a full mount.
+- =paladin/tests/check.environment.test.js= (14) guards verdicts over synthetic rows.
+- =paladin/tests/instance.snapshot.test.js= freezes the resolved hello-world.
+- =typology/tests/v.test.js= (m48 cases: =url= grammar, =environment=, =convert=).
+- COVERAGE GAP: no test anywhere asserts what =validate= PRODUCES (a Url? a string?) — the pinhole test
+  explicitly says "the value is PRODUCED, only the record says the key was unset" and stops there. No
+  test drives =instance/run= against an unbootable instance. No test decodes =v.prototypes.Url=.
+
+** changes
+
+| test                               | why                                                                                          |
+|------------------------------------+----------------------------------------------------------------------------------------------|
+| =lighthouse.test.js=               | =remote= is a =Url= (=.absolute=); two "rejects" become =faults= equality; fixture trims      |
+| =kernel.test.js=                   | fixture lighthouse gains =remote= (else a fault row nobody reads); trims                       |
+| =instance.snapshot.test.js=        | rewrites on run — record labels + =faults=/=dormant=; =dormant= ambient-dependent like today's =[]= |
+| =typology/tests/v.test.js=         | +2 cases (codec, typed statics); =Url= import                                                 |
+
+** adds
+
+- =paladin/tests/settle.test.js= — 7 cases, tangled above: decode · fault-not-throw · fill · dormant ·
+  bootable ladder · post-settle inheritance identity · faulted slot stays raw.
+- (ghost) the =run= refusal is exercised by QA ② P-run-refuses on a scratch instance, not a unit test —
+  =run= spawns processes; the wet suite already pays that cost once.
+
+** per-milestone green ladder
+
+| milestone | gate                                                                                                   |
+|-----------+--------------------------------------------------------------------------------------------------------|
+| M1        | =typology/tests/v.test.js= + =url.test.js= green; full typology suite at baseline (122/480/1)          |
+| M2        | paladin suite (26 files incl. =settle.test.js=) · ghost one-shot (87/88, the two-shells red named) · runtime suite; then QA ① T1–T4 walked |
+| M3        | =diff <(sed -n '116,173p' README.md) commons/instances/hello-world/instance.viva.js= empty (modulo the fence) |
+
+Pre-DONE gate: each milestone flips with its named test file AND pasted counts. Coverage delta goes in
+the changelog per milestone.
+
+* QA
+
+** ① testimony — the experience contract
+
+- T1 *bare recipe, doctor talks.* I =viva instance/create hello-world --slug=bare= and, before any init,
+  =viva instance/doctor bare=. It mounts. The env table shows =REQUIRED= rows as before; a new =faults=
+  block lists =runtime/statics/serve: must match pattern …= and its siblings; =dormant= lists
+  =daemon[hello].hallucinators[0]=. No stack trace. The confusion "why does the doctor crash on a fresh
+  instance" cannot arise — it never crashes on a value.
+- T2 *run refuses before spawning.* I =viva instance/run= on that bare instance. It prints =instance: not
+  bootable — viva instance/doctor= and the same lines the doctor showed, exit 1. No child process
+  appeared (=ps= is clean, no lock written).
+- T3 *no key, no hallucinator, still boots.* I =viva instance/init bare=, leave
+  =SECRET_VIVA_ANTHROPIC_API_KEY= commented, run. The doctor says =SECRET_VIVA_ANTHROPIC_API_KEY optional
+  at daemon[hello].hallucinators[0].secrets.key= and =dormant: [daemon[hello].hallucinators[0]]=. The
+  runtime boots; =/hello/agent= answers as the bot, exactly as the recipe's desc promised. Nothing in the
+  recipe says =?:=.
+- T4 *key set, faculty live.* I uncomment the key, run again. =dormant= is empty; =/hello/agent= answers
+  through anthropic.
+- T5 *a garbage address reads twice, both true.* I set =VIVA_RUNTIME_SERVE="nope"=. The doctor shows the
+  key row =INVALID — must be RFC 3986 URI with an authority= AND a fault =runtime/statics/serve: must
+  match pattern …=. =run= refuses. (F1 decides whether the second sentence stays.)
+- T6 *the education recipe stops booting dead faculties.* On =italian= (education tap) with only the
+  anthropic key set, the doctor lists three dormant hallucinators; the daemon boots; =cortex.has("speech")=
+  is false and dictation/speech surfaces stay off instead of dying mid-request.
+
+** ② programmatic + ikiro markers
+
+#+marker_qa: m52/T-bare-doctor · held · `viva instance/create @commons/instance/hello-world --slug=bare` + `viva instance/doctor bare` before init: mounts, exit 0, 8 REQUIRED rows, 4 faults in the record grammar (`runtime.statics.serve must be RFC 3986 URI with an authority (scheme://…)` + lighthouse.statics.remote + clients.kajuit.statics.serve + service[multiplayer].statics.serve), `dormant —` (the LEDGER holds the anthropic key)
+#+marker_qa: m52/T-run-refuses · revised · first walk: the ghost SPAWNED both children and they refused at their own gates (`Ledger.boot` gate saw an unmounted instance) → `run.js` mounts before `boot`; second walk from a `.env`-less cwd with `VIVA_INSTANCE_MOUNT=…/bare`: `ghost: <8 env sentences>`, faults subsumed, no child, no lock, exit 1
+#+marker_qa: m52/T-dormant-boots · held (partial) · `SECRET_VIVA_ANTHROPIC_API_KEY=""` at the os stratum shadows the ledger: doctor `problems —` `faults —` `dormant daemon[hello].hallucinators[0]`; run BOOTS (runtime 2643 + kajuit 2644 `Status:ALIVE`, `launching on http://localhost:2501/`, lock written, SIGTERM → both exit 0, lock gone); settled roster 0. `/hello/agent = bot` NOT walked — needs an enrolled user
+#+marker_qa: m52/T-live-faculty · held (partial) · ledger key live: settled roster 1, `dormant []`, `faults []`, boots ALIVE, clean teardown. The anthropic answer NOT walked — same reason
+#+marker_qa: m52/T-education-roster · revised · the tapped `@education` instances are not ledger instances (doctor takes a ledger reference); the shelf `italian` (same recipe shape) mounts: 4 dormant, `faults —`, 4 REQUIRED rows (its `.env` holds a blank anthropic line that shadows the ledger — pre-existing footgun, ledger dossier). `has("speech")` NOT walked
+#+marker_qa: m52/P-no-ternary · held · 0
+#+marker_qa: m52/P-no-url-mint · held · 7 sites, every one `consume.nlp.statics.remote` (daemon files; deferred — Mask untyped)
+#+marker_qa: m52/P-schema-not-recipe · held · 0
+#+marker_qa: m52/P-suites · held · typology `122 passed (490 steps) | 1 failed` (`hallucination snapshot`, pre-existing; baseline before M1 = 487 steps) · paladin `38 passed (161 steps) | 0 failed` · ghost `87 passed (26 steps) | 1 failed` (`two shells`, pre-existing), same after the run.js line · runtime `53 passed (331 steps) | 1 failed` (`registry ingest fork 2` expects `@commons/instance/multiplayer` — never existed under commons; pre-existing)
+#+marker_qa: m52/P-readme-paste · held · README 109-177 byte-equal to the 69-line recipe, fence closes at 178
+
+* blast table
+
+| file                                                          | change                                                          | milestone | kind     |
+|---------------------------------------------------------------+-----------------------------------------------------------------+-----------+----------|
+| =subsystems/typology/schematics/prototypes/signatures.js=     | =codec(Prototype, wire, encode)=; =Url= over =url()=            | M1        | surgical |
+| =subsystems/typology/schematics/primitives/instance.js=       | =Lighthouse=; typed =statics= ×4 (Service optional); =hallucinators.default([])=; =Instance= defaults; =path= cut | M1 | surgical |
+| =subsystems/typology/schematics/v.js=                         | =faults= (enhance + =v=)                                        | M1        | surgical |
+| =subsystems/typology/tests/v.test.js=                         | +3 cases; =Url= import                                          | M1        | append   |
+| =subsystems/paladin/prototypes/instance.js=                   | whole-instance =settle=; =label=; class defaults; =is.empty=; corpses out | M2 | surgical |
+| =subsystems/paladin/belt/check.js=                            | =check.instance=; =invalid= via =v.faults=; =is.empty=          | M2        | surgical |
+| =subsystems/paladin/prototypes/ledger/ledger.js=              | gate before the Die                                             | M2        | surgical |
+| =subsystems/paladin/tests/settle.test.js=                     | NEW, 7 cases                                                    | M2        | tangle   |
+| =subsystems/paladin/tests/lighthouse.test.js=                 | =.absolute=; rejects → faults; ={}= → undefined; fixture trims  | M2        | surgical |
+| =subsystems/paladin/tests/kernel.test.js=                     | fixture =remote=                                                | M2        | surgical |
+| =subsystems/paladin/tests/snapshots/paladin-instance.snapshot.json= | rewritten by the run                                      | M2        | regen    |
+| =systems/runtime/run.js=                                      | gate after =mount()=                                            | M2        | surgical |
+| =systems/kajuit/vite.config.mjs=                              | gate after =mount()=                                            | M2        | surgical |
+| =systems/ghost/trajectories/instance/doctor.js=               | =faults= · =dormant= keys                                       | M2        | surgical |
+| =systems/ghost/trajectories/instance/run.js=                  | =await paladin.instance.mount()= before =boot= (walk T2)        | M2        | surgical |
+| =commons/instances/hello-world/instance.viva.js=              | recipe diff                                                     | M2        | surgical |
+| =~/.viva/instances/{hello-world,italian,language-learning,stucatch}/*= | recipe moves (shared hunk + line table)                 | M2        | by hand  |
+| =~/.viva/registry/education/instances/{italian,spanish,brazilian}/*= | recipe moves; beef's checkout, beef's push               | M2        | by hand  |
+| =README.md= :109-186                                          | the commons hunks at +108, or re-paste                          | M3        | regen    |
+| =.ikiro/world/ledger.md= :27-28                               | =validate= → =settle=; the ={}= throw → a fault                 | M2        | dossier  |
+
+* deferred
+
+- *Module-declared mask contracts.* A =Mask= (datamap · hallucinator · consume) stays =unknown= until the
+  MODULE exports its =statics=/=secrets= schema and the runtime settles the mask at handoff
+  (=vip.accioOne= returns ={service, mask}= — the seam). Trigger: the second =new Url= in a =consume=
+  block, or a provider reading =statics?.x= with a =?.=. Then =consume.nlp.statics.remote= loses its
+  =new Url= too.
+- *=${KEY}= references replacing thunks* (decision 13). Trigger: beef says the thunk is ceremony.
+- *=launch='s warn path* for "no runtime declared" — a schematic could make =Instance.runtime= required
+  for the runtime process. Trigger: a recipe without =runtime= reaching =runtime/run=.
+
+- *The record's =at= — remembering WHERE a value was read — is OPTIONAL capability.* beef, on the
+  =requirements= table in the demo: /"mark this capability to remember where a value was read as optional.
+  really not needed. ikiro mark. out of scope."/ Out of m52's scope; noted, not acted on. What it would mean:
+  =hydrate= keeps =read=/=unset= (the verdict needs "was it read"), drops the =at= label; the doctor's =at=
+  column and the fault =label()= translation go with it; faults would then speak typebox's pointer. Trigger:
+  beef's word.
+
+* forks — call before blasting
+
+- F1 *the second sentence.* A blank/garbage address reads twice at the doctor (decision 12). Leave both
+  (recommended — two schemas, two true sentences, zero join code) · or dedupe faults whose normalized path
+  equals a recorded =at=.
+- F2 *dormancy radius.* Hallucinators only (recommended, decision 7) · or every many-valued Mask slot
+  (=consume= too).
+- F3 *names.* =settle= (register: hydrate · materialize · resolve · settle) · =faults= · =dormant= ·
+  =problems= · =bootable=. The doctor's effect already has =problems= as env ROWS; the instance's
+  =problems= is the sentence list — same word, two shapes. Rename one if that itches.
+- F4 *=Client.statics.serve= optional* (decision 9) · or every client carries an address and the
+  =ghost= client rows gain one.
+
+* critical pass
+
+beef: /"critical pass. is there anything thats not in line with the way vivalence works? high level? any fat
+to be cut inside this patch or in the repository? is the approach optimal? gigabrain"/ — per
+=methods/critical-pass.md=: base facts, grep every absence claim, read the consumer side of every seam,
+measure, then the quest carries the delta. Probes =scratchpad/probe5.js= =probe6.js= =probe7.js=.
+
+** verdict
+
+Approach right — schematic settles, faults are data, the codec is a LIVE register (=prototypes/socket.js=
+:120 :148 decodes =Signal= on the wire; decode is not new here). Three things off-line with how vivalence
+works, one of them a missing boot edge; six cuts inside the patch; three repository defects seen in
+passing. The strings-only alternative (validate with =v.url()=, let consumers mint) is rejected: it moves
+=new Url= from eight recipes into =vite.config.mjs= and =integrate.js= — the same hand-minting, relocated.
+
+** measured this pass
+
+| claim in the quest                                                       | measured                                                                                                                                        | consequence                                                            |
+|--------------------------------------------------------------------------+-------------------------------------------------------------------------------------------------------------------------------------------------+------------------------------------------------------------------------|
+| decode shallow-clones plain objects → inherit AFTER settle for identity | =Decode= MUTATES IN PLACE: =Mask= daemon =sameRef=, =Url= minted inside the input; a whole =Instance= class object: =sameRef=, class kept, nested =lighthouse= identity kept; only the =v.union= kernel branch clones its wrapper (function + =App= kept) | decision 6 stays for single-visit, not identity; whole-instance settle is safe |
+| UNMEASURED (a) inline kernel through Decode                              | =aperture= function kept, =App= kept by reference, wrapper cloned (union)                                                                     | closed                                                                 |
+| UNMEASURED (b) =Convert= on =null=                                       | =null= stays =null= (fault "must match pattern"); =undefined= → =""=                                                                            | closed — =settle.test= may assert =toBe(null)=                        |
+| kajuit never mounts the instance                                         | FALSE — =systems/kajuit/vite.config.mjs= :12-27 =serverConfig()= mounts and reads =clients.kajuit.statics.serve.hostname= / =.port= / =statics.remote?.absolute= | a THIRD boot edge; under the patch a faulted string → =host undefined=, =port NaN=, silently |
+| =Service.statics.serve= required                                         | ZERO readers: runtime attaches at =/attached/process/${type}/${slug}= (=systems/runtime/lifecycle/resolve.js= :14 :126); multiplayer provider reads =lighthouse.statics.remote= only; nlp reads the consume-side =remote= | required = fabricated policy → optional; the dead declaration named as repository fat |
+| =ledger.boot= is one spawn path                                          | callers: ghost =run.js= :9, =init.js= :107 :130 (=start.js= spawns =instance/run=); runtime =run.js= runs bare via =Dockerfile= :10; kajuit via =vite.config.mjs= | gate ONCE in =Ledger.boot= + the two self-mounting children            |
+| typebox =ValueError= shape                                               | ={keyword schemaPath instancePath params message}= — no =schema=; =Pointer.Get(schema, schemaPath.slice(1))= resolves THROUGH the codec to the scalar and its =title= | a pattern fault can say =must be RFC 3986 URI…= instead of the 500-char regex, same rule =check.js invalid()= already applies to env rows |
+| =v.primitives.instance.Instance= consumers                               | none (grep) — the root schema is unused; =path= field has no writer/reader                                                                      | whole-instance settle gives it its first consumer; =path= cut          |
+| =blank= predicate                                                        | three copies already: =belt/check.js= :63, =prototypes/instance.js= :22 (=watch=), =belt/state.js= :20; =is.nill= exists (=gestalten/is/scalars.js= :40) | one =is.blank=, four sites collapse                                    |
+| =Url= JSON                                                               | CORRECTED by the demo: =Url.toJSON= carries =url/origin/scheme/path/query/parts=; the hollow ={"gauges":[],"query":{}}= in the snapshot is specimen =fold= walking own enumerable keys and never calling =toJSON= | specimen defect, not m52                                              |
+
+** off-line with vivalence
+
+*** one schema, not five slots
+
+=held()= re-encodes by hand what =v.primitives.instance.Instance= already says: which slot carries which
+schema. The schematic IS the tree. Whole-instance settle — three calls, one schema, =declared= / =held= /
+the ={}= class defaults / =problems= / =bootable= all die; fault paths arrive in the standard grammar
+(RFC 6901, typebox's =instancePath=):
+
+#+BEGIN_SRC js
+// subsystems/paladin/prototypes/instance.js
+const alive = (mask) => !Object.values(mask.secrets ?? {}).some(is.blank);
+
+function settle(instance) {
+  const { Instance } = v.primitives.instance;
+  Instance.cast(instance);
+  instance.faults = Instance.faults(instance).map(({ at, reason }) => `${at} ${reason}`);
+  instance.dormant = [];
+  if (!instance.faults.length) Instance.decode(instance);
+  instance.daemons.forEach((daemon, index) => {
+    daemon.lighthouse ??= instance.lighthouse;
+    if (!daemon.lighthouse) instance.faults.push(`/daemons/${index}/lighthouse none declared, none to inherit`);
+    daemon.hallucinators = daemon.hallucinators.filter(
+      (mask, at) => alive(mask) || !instance.dormant.push(`/daemons/${index}/hallucinators/${at}`),
+    );
+  });
+}
+#+END_SRC
+
+with, in =resolve=, =instance.runtime = at("runtime")(module.runtime)= and the same for =lighthouse=
+(=hydrate(undefined)= → =undefined=, measured) and the class losing its two ={}= defaults (=runtime;
+lighthouse;=). Consumers already tolerate absence: =systems/runtime/die.js= :7 =?? {}=, =integrate.js=
+:22 :28 :57 :61 =?.=, =doctor.js= :53 =?? {}=. =lighthouse.test.js= :63 =toEqual({})= → =toBeUndefined()=.
+Any fault → no decode at all; nobody consumes a half-decoded instance (=Connection= takes a string, the
+runtime never launches).
+
+=schema.faults(value)= is ONE explainer in typology, consumed twice — =check.js invalid()= already does
+this mapping for env rows with its own hands:
+
+#+BEGIN_SRC js
+// subsystems/typology/schematics/v.js — enhance(), beside errors
+if (prop === "faults")
+  return (value) =>
+    [...Value.Errors(target, value)].map((error) => {
+      const held = Pointer.Get(target, error.schemaPath.slice(1));
+      const reason = error.keyword === "pattern" && held?.title ? `must be ${held.title}` : error.message;
+      return { at: error.instancePath || "/", reason };
+    });
+#+END_SRC
+
+(=import { Pointer } from "typebox/value"= — measured: resolves through the codec node to the scalar's
+=title=.) Then =check.js invalid()= = =held.faults(v.convert(held, value))[0]?.reason ?? null= and its
+=title= branch goes.
+
+*** the gate: three edges, one idiom
+
+The quest put the throw in two product files with a copied message and missed the third edge (kajuit).
+The belt already owns the idiom — =check.env(keys).throw()= / =rows.fails= (=belt/check.js= :5-16). One
+more check, three one-liners:
+
+#+BEGIN_SRC js
+// subsystems/paladin/belt/check.js
+const instance = (held) => {
+  const wrong = environment(held)
+    .filter((row) => WRONG.includes(row.verdict))
+    .map((row) => ({ type: "env", key: row.key, message: `${row.key} ${row.verdict}${row.at ? ` at ${row.at}` : ""}${row.reason ? ` — ${row.reason}` : ""}` }));
+  const faults = (held.faults ?? []).map((message) => ({ type: "instance", message }));
+  return createResult([...faults, ...wrong], "viva instance/doctor");
+};
+config.check = { environment, instance, wrong: WRONG, env, path };
+#+END_SRC
+
+#+BEGIN_SRC js
+// subsystems/paladin/prototypes/ledger/ledger.js — boot(), before the Die  (covers run · init ×2 · start)
+this.paladin.check.instance(this.paladin.instance).throw();
+// systems/runtime/run.js — after mount()                                    (Dockerfile CMD runs it bare)
+paladin.check.instance(paladin.instance).throw();
+// systems/kajuit/vite.config.mjs — serverConfig(), after mount()            (deno task kajuit/watch runs it bare)
+paladin.check.instance(paladin.instance).throw();
+#+END_SRC
+
+Measured safe for =spawn.test.js=: an unmounted instance has no =requirements= and no =faults= →
+=fails= false. The deferred item "init refusing on faults" dies — =init= boots through =ledger.boot=.
+=Instance= keeps =faults= + =dormant= as fields; no =problems= / =bootable= getters (=check.instance(…).fails=
+is the one truth; F3 shrinks to =settle= =faults= =dormant=). Wrinkle: =createResult.throw()= joins with
+="; "= and logs =[CONFIG.CHECK ERROR]= — the belt's format, beef's; the doctor pointer rides as =input=.
+
+*** =Service.statics.serve= required = a policy nothing enforces
+
+Type it, optionally — a garbage value should still fault. Required only where a consumer needs it:
+=Runtime= (=launch= / =announce=), =Client.kajuit= (vite). Decision 9 amended. The recipe hunks are
+unchanged (the thunk stays: it keeps =VIVA_LIGHTHOUSE_SERVE= a READ row at the doctor).
+
+** fat inside the patch
+
+- =signatures.js=: the one-off =Url= line → generalize =codec= to take the wire schema; seven lines
+  uniform, =FilePath= / =Pattern= keep =^.+$= through =text=:
+  #+BEGIN_SRC js
+  const text = (options) => Type.String({ pattern: "^.+$", ...options });
+  const token = (options) => Type.String({ pattern: PATH, ...options });
+  const codec = (Prototype, wire, encode) => (options) =>
+    enhance(Type.Codec(wire(options)).Decode((held) => new Prototype(held)).Encode(encode));
+  export const Signature = codec(SignatureProto, token, (s) => "/" + s.absolute.join("/"));
+  export const Signal = codec(SignalProto, token, path);
+  export const Path = codec(PathProto, token, path);
+  export const FilePath = codec(FilePathProto, text, (s) => s.absolute);
+  export const Url = codec(UrlProto, url, (s) => s.absolute);
+  export const Action = codec(ActionProto, token, (s) => "/" + s.absolute.join("/"));
+  export const Pattern = codec(PatternProto, text, (s) => "/" + s.absolute.join("/"));
+  #+END_SRC
+- =is.blank= in =gestalten/is/scalars.js= beside =nill= (one line, holy); =check.js= :63, =instance.js= :22
+  =watch=, =state.js= :20 and =alive= use it.
+- =Instance.path= (schema) — no writer, no reader → cut.
+- decision 6's reasoning corrected above; the move stays.
+- =settle.test.js= "a blank address": =toBe(null)= now measured; the helper's =declared= dance is gone.
+- =prototypes/instance.js= SUPERSEDED corpses (=probe= / =DRY= ~25 lines, =FILES= ~12) + =paladin.js=
+  =assign= corpse — mine, kernel law says none; go with M2.
+- the two "UNMEASURED" gate items → measured, struck.
+
+** repository, not m52 (seen in passing — flagged, untouched)
+
+- specimen =fold= (=specimen/snapshot.js=) walks own enumerable keys and never calls =toJSON= → every
+  =Url= / =Path= in a snapshot is hollow (=paladin-instance.snapshot.json= :10-13). =Url.toJSON= is fine.
+- =vite.config.mjs= :22-23 reads =client.statics.remote?.absolute= — no recipe declares it, never did →
+  =cors.origin: undefined=.
+- =services[].statics.serve= + =VIVA_LIGHTHOUSE_SERVE= have no binder: the runtime attaches at a
+  slug-derived path (=resolve.js= :126) and the env default restates it by hand — two truths. Either the
+  runtime reads =serve= for the attach path (config → binder) or key + thunk go. beef's env schema (m48),
+  beef's call; trigger = the first instance whose lighthouse attaches somewhere else.
+
+** forks amended
+
+- F1′ *label grammar* — CALLED: beef /"daemon[hello].statics.serve ok."/ → the record's grammar is the one
+  grammar; faults translate (=label=); a fault at a location with a wrong env row is subsumed by the row.
+  (was: Faults now arrive as =/daemons/0/statics/serve= (typebox, RFC 6901); the record
+  says =daemon[hello].statics.serve= (=hydrate= composes =.= / =[i]=; 7 test assertions pin it: =hydrate= 3
+  · =check.environment= 3 · =lighthouse= 1). (a) two grammars, no dedupe — F1 as before; (b) pointers
+  everywhere — =hydrate= joins with =/=, =resolve= labels =/daemons/${index}=, the doctor's =at= column loses
+  the slug, and the blank-address double sentence dedupes by exact =at= match. Lean (b): the standard
+  grammar, a slug is one lookup away for a renderer.)
+- F3 shrinks: =settle= · =faults= · =dormant= (=problems= / =bootable= gone).
+- F4 stands.
+- F5 *gate site.* IN THE PATCH as leaned (=Ledger.boot= + the two bare children) — beef's /"ok."/ on the
+  pass; revert on word.
+- F6 *=Service.statics.serve=.* IN THE PATCH as leaned (optional); revert on word.
+
+** what regenerates once F1′ F5 F6 are called
+
+M1: =signatures.js= (generalized codec) · =primitives/instance.js= (Service serve optional, =path= cut) ·
+=v.js= (+=faults=) · =is/scalars.js= (+=blank=) · =v.test.js= (+1 case for =faults=). M2: =prototypes/instance.js=
+(whole-instance =settle=, class defaults, corpses) · =belt/check.js= (+=instance=, =invalid= via =faults=) ·
+=ledger/ledger.js= (gate) · =systems/runtime/run.js= · =systems/kajuit/vite.config.mjs= · =doctor.js=
+(unchanged keys) · =settle.test.js= (grammar, =toBe(null)=) · =lighthouse.test.js= :63 · recipes unchanged.
+Ghost =run.js= drops out of the blast table. The ledger dossier =.ikiro/world/ledger.md= :27-28
+(=validate= → =settle=, the ={}= throw → a fault) updates at landing.
+
+* changelog
+
+- (LANDED — beef: /"go 52. heavy step by step testing."/) M1: =patch -p1= of the typology hunks → =v.test.js= +
+  =url.test.js= =2 passed (21 steps)=, full typology =122 passed (490 steps) | 1 failed= (baseline before: 487
+  steps, same red). M2: paladin hunks + =settle.test.js= =1 passed (8 steps)= → paladin =38 passed (161 steps)
+  | 0 failed= (snapshots are gitignored, regenerated by the run: =faults= 4 lines in the fixture's empty env,
+  =serve: "null"= where the fixture leaves a key unset); the three one-line edges by =sed=; the 7 shelf/education
+  recipes by =sed -E= (BSD sed has no =\|= — first pass replaced the imports only; caught by the residue grep);
+  ghost =87 passed (26 steps) | 1 failed= (=two shells=, pre-existing); runtime =53 passed (331 steps) | 1
+  failed= (=registry ingest fork 2=, pre-existing). M3: README 109-177 re-pasted, byte-equal. Doctor on every
+  shelf instance mounts (hello-world clean · italian 4 dormant · language-learning 2 REQUIRED · stucatch clean).
+  WALK T1–T5 on a scratch =bare= instance (created, walked, deleted): T2 found the ONE amendment — ghost
+  =run.js= mounts before =boot= (hunk above, blast table). Walk incidents, none m52's: the repo-root =.env=
+  (cwd stratum) outranks an os-level =VIVA_INSTANCE_MOUNT=, so the first T2 booted the LIVE hello-world for 60 s
+  (SIGTERM, clean; walk from a =.env=-less cwd); =/metadata/instance= prints =services: [{}]= because the =Mask=
+  class defaults =manifest = {}= and =mask.manifest ?? {module}= never falls through (pre-existing);
+  =deno fmt --check= fails on untouched siblings too — not a repo gate. Ledger dossier lines 27-28 rewritten.
+- (authored) full patch written from measured mechanism: 4 probe scripts against typebox 1.3 + the SDKs,
+  every consumer of =statics.serve= / =statics.remote= / =v.primitives.instance= grepped, every recipe on
+  the machine located by line. Nothing blasted. Coverage delta on landing: pinhole PRODUCT (Url vs string),
+  fault-not-throw, dormancy, bootable — all from zero.
+- (fix — beef: /"hallucinators () => []; hallucinators: [()=>{}] YES NO??"/ · /"fixable?"/ · /"first we pinhole.
+  then we validate. correct?"/ · /"good. fix. compact"/) =[() => null]= was a fault (=must be object=) — dormancy
+  now runs BEFORE cast/faults, =alive= guards null; sandbox: =settle.test.js= 8/8, paladin =38 passed (161
+  steps)=; paladin hunk + tangle regenerated; law block + forms table updated. Worktree untouched.
+- (sandbox + demo — beef: /"show me instance config at disk after the patch and how it looks after all
+  processing has happend. demo the snapshot"/) the amended patch applied in =scratchpad/sandbox= (typology +
+  paladin + the hello-world recipe, config stubs, =node_modules= symlinked; =import.meta.resolve= proved the
+  copies ran). =demo.js=, three mounts of the patched recipe: A full env → every =serve=/=remote= a =Url=,
+  =daemon.lighthouse === instance.lighthouse=, =faults []= =dormant []= =check.instance().fails false=; B key
+  blank → roster 0, =dormant ["daemon[hello].hallucinators[0]"]=, still bootable; C addresses blank + serve
+  ="nope"= → =runtime.statics.serve= stays ="nope"=, 4 faults in the record grammar, =check.instance= = 4
+  sentences (faults subsumed by their env rows), =ledger.boot= threw before the Die, no lock written. Suites in
+  the sandbox: =settle.test.js= 7/7 · paladin =38 passed (159 steps) | 0 failed= · typology =122 passed (490
+  steps) | 1 failed= (the pre-existing =hallucination snapshot= red). One claim of the pass refuted by the
+  demo: =Url.toJSON= is whole; specimen =fold= is what hollows it. Hunks regenerated from =git diff --no-index=
+  real → sandbox; the ghost =run.js= hunk dropped; =init= deferred item dropped (covered by the gate).
+- (critical pass — beef: /"critical pass … gigabrain"/) three probes; whole-instance settle, gate at =Ledger.boot= + two bare children (kajuit edge was MISSING), =Service.serve= optional, six cuts, three repository defects flagged; section =* critical pass=; hunks regenerate on F1′ F5 F6.
+- (audit, same session — beef: /"is the quest really complete? full patch?"/) it was not: the six
+  non-commons recipes had a table + a regex, not hunks; =v.test.js= lacked its import line; README had
+  "re-paste" without the offset; two decode paths were unmeasured and unnamed. All four closed above.
+  Verified clean while closing: typology tests never reference =v.primitives.instance=; no runtime/kajuit
+  test mounts an instance; =testament/= holds no recipe. The =settle.test.js= helper was also reshaped
+  (=mount(declare, pairs, secrets)= — thunks close over the paladin they read) and one assertion softened
+  to what was measured.
+
+* release
+
+- changed `viva instance/run` — refuses before spawning when the instance is not bootable (a schematic fault or a wrong env row), prints the list, points at the doctor; exit 1 · migrate: none ⟨m52⟩
+- changed `viva instance/doctor` — `--json` gains `faults` (schematic misses per slot) and `dormant` (hallucinators dropped for a blank secret); a fresh instance mounts and reports instead of throwing on an unset address · migrate: none ⟨m52⟩
+- changed `v.prototypes.Url()` — wire grammar is `v.url()` (RFC 3986 with an authority); `"NaN"` / `""` no longer decode · migrate: none ⟨m52⟩
+- added `v.primitives.instance.Lighthouse` — `{module, statics.remote: Url}`; `Daemon.lighthouse` and `Instance.lighthouse` use it · migrate: none ⟨m52⟩
+- changed `v.primitives.instance.{Runtime,Service}.statics.serve` · `Client.statics.serve` · `Lighthouse.statics.remote` — typed `Url` codecs (Runtime/Service required); `Daemon.hallucinators` defaults to `[]` · migrate: a recipe hands the pinhole a STRING — `serve: () => paladin.env.get(KEY)` — never `new Url(…)` ⟨m52⟩
+- added `paladin.instance.faults` · `.dormant` · `paladin.check.instance(instance)` (faults ∪ wrong env rows; `.fails` / `.throw()`) — `mount()` never throws on a value; the gate is ONE line at `Ledger.boot`, runtime `run.js`, kajuit `vite.config.mjs`; ghost `instance/run` mounts before `boot` · migrate: a caller that awaited a `mount()` rejection on a schema miss now reads `faults` ⟨m52⟩
+- changed instance recipe `hallucinators` — a plain array; an entry whose secret is blank is dormant (dropped at mount, named by the doctor); `statics: {}` / `consume: {}` / `hallucinators: []` need not be authored · migrate: replace `hallucinators: () => key ? [...] : []` with the array; drop `new Url(…)` around `serve` / `remote` ⟨m52⟩

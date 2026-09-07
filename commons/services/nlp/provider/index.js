@@ -4,9 +4,8 @@ export default function provider(service) {
   const url = service.statics.remote;
   const key = service.secrets.key;
 
-  if (!url || !key) {
-    throw new Error("SERVICE NLP URL not found in service definition");
-  }
+  if (!url) throw new Error("nlp: statics.remote missing");
+  if (!key) throw new Error("nlp: secrets.key missing");
 
   const headers = {
     "Content-Type": "application/json",

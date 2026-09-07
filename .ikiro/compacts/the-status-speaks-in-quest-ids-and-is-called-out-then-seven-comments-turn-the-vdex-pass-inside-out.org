@@ -1,0 +1,189 @@
+#+title: the status speaks in quest ids and is called out, then seven comments turn the vdex pass inside out
+#+filetags: :m53:vcompany:vdex:office:harness:tools:emitter:aperture:twitch:watcher:orm:subscription:callout:correction:quest:
+
+* what happened, in one breath
+
+Beef woke the session with /"ikiro load m53. status update. 5%"/ and got the quest's own shorthand
+back — tier ids, gate ids, a bundle hash, a byte budget — which is my bookkeeping, not his world:
+/"you come up with all these retarded abbreviatinos. i havent read the quest. quests aare YOURS! wtf
+are these numbers. what do i need to not think about anymore???"/. The rule that came out of it —
+a status names THINGS and sorts them done / yours — was executed in the same breath, and the runtime
+restart he had owed turned out to have happened already (the screens App bundled beside the stub).
+Then the work: his console paste showed a save propagating (/"good."/) and he asked three things —
+a boot file-watcher feeding an update twitch, whether his officers can reach the vdex tooling, and
+the vdex's own harness. Officers were measured (they cannot — no AGENTIC, no graft) and then cut
+from the cut on his order: /"ignore the officers for now. we do the office vdex now. not agentic."/
+The first pass was written under his own heading; he read it line by line and answered with seven
+=@beef= comments, every one of them a redirection: plain paladin verbs are not the vdex's tooling,
+=open= is an emitter not a tool, a repository =prune= is out of style, a stamp comparison is
+gibberish, and the boot twitch should watch FILES and be PRECISE about what the client subscribes
+to. The second cut answered all seven — one implementation per verb in the aperture, tools as their
+application, =open= through =EMITTER=, per-path =sync= with no fingerprint anywhere, prune inline
+through the em (which uncovered that the domain's =nativeDelete= prune was silent to the twitch),
+and the App on two row-precise subscriptions. Nothing landed; every row waits on his go.
+
+* spine (N=86; rows 1–78 are the six m53 compacts before this one)
+
+|  n | beef                                                                 | what came of it                                                        |
+|----+----------------------------------------------------------------------+------------------------------------------------------------------------|
+| 79 | the continuation summary (context restored after =/compact=)         | NOTHING — the window opens                                             |
+| 80 | /"ikiro load m53. status update. 5%"/                                | m53 read; the restart MEASURED as already done; quest + frontier stamped |
+| 81 | /"you come up with all these retarded abbreviatinos … quests aare YOURS! wtf are these numbers. what do i need to not think about anymore???"/ | callout logged; [[feedback_survey_totem]] rewritten; status re-answered in nouns |
+| 82 | the =/write= → =/documents= console pair, /"good."/ + the file-watcher ask + /"do my officers have access to vdex tooling yet?"/ + /"what?"/ on the drapes parts + /"1: jdex boot twitch 2: jdex tooling provided to others 3: jdex its own harness."/ | the three measured and answered; officers = no vdex tools (no AGENTIC); drapes parts explained in plain words |
+| 83 | /"ignore the officers for now. we do the office vdex now. not agentic. work out the harness and tooling of vdex. as well as the boot twitch. propose a full update to vdex here: ** T2.1 - VDEX harnessed and tooling"/ | the first cut written under HIS heading, in the waterfall's shape       |
+| 84 | the section pasted back with seven =@beef= comments + /"work through my comments."/ | the second cut: every comment answered at the top, then the files       |
+| 85 | /"ikiro compact"/                                                    | this fold                                                              |
+| 86 | =/compact=                                                           | NOTHING — the harness command                                          |
+
+Coverage: 79–86, eight rows, none skipped. Rows 1–78 belong to the six earlier m53 compacts; this
+window is the seventh and touches nothing before 79.
+
+* the callout: a status in quest shorthand (rows 80–81)
+
+The answer he got was: /"T0 + T1 + screens s1/s2 LANDED"/ · /"Gs1/Gs2 click-through"/ · /"T1.#2 your
+call"/ · a bundle hash =ad34d4c8…= · /"7969/8000"/. Every one of those is a label from the quest
+file — a file he does not read, because the quest is MY ledger. The question he actually asked was
+/"what do i need to not think about anymore???"/, and the shape of that answer is a done list in
+plain nouns followed by a short yours list.
+
+Corrective rule, executed the same turn: a status names things — the vdex screen in kajuit, the five
+office parts, the runtime — and sorts them done / yours. Tier ids, gate ids, hashes and byte budgets
+never leave the quest. Logged in the zettel under =## Callouts= and folded into
+[[feedback_survey_totem]] (whose description now carries "plain NOUNS, no quest ids/hashes").
+
+Measured in the same turn, and the reason the status was worth asking for: the runtime had already
+been restarted at 13:06 — =bundles/office/vdex/bundle/ad34d4c8….svelte.mjs= (2.73 MB, the screens
+App: =coordinateOf= present) sits beside the stub's =86e158e2…= (2.59 MB, absent). So the screens App
+has been live since then; the click-through is the only thing still owed on s1/s2.
+
+* the screen answers, and the three asks (row 82)
+
+His console pair — =/write= 200 then =/documents= 200 — is the =/write= shape fix from the previous
+window working: saves propagate. /"good."/
+
+The three, measured before answering:
+
+1. **jdex boot twitch** — the twitch already exists as =daemon.twitch=: the ORM subscriber fires
+   =/after/<entity>/<op>= on every flush, =shard.datamap.reactive= turns that into
+   =/entities/<type>/subscribe= for the client, and kajuit already streams it for =buffer= and =turn=
+   (=focus.js:16=). Two gaps: nothing watches the disk, and the App never subscribes.
+2. **jdex tooling for others** — officers are =HARNESSED + EXPOSED= only. Their armed stack is the
+   entity trio, buffer/thread skills, bare =fs_*= rooted at the OFFICER's own package dir, and domain
+   tools. No vdex verbs. The graft is =AGENTIC= (francesca's precedent: it mounts every TOOLED peer
+   under its slug) — one manifest word each.
+3. **jdex its own harness** — it already is one: =HARNESSED= gives =/harness/dialogue= +
+   =/harness/object=, the index rides =system.vdex=, the tools are armed. What is missing is a role.
+
+And /"what?"/ on my own line about the five drapes parts — answered in plain words: they are the
+small UI pieces the vdex screen is built from (the row button in the tree, a tile, a plate, a list
+entry, an empty placeholder), his design's §06 office layer, nothing he uses directly. Same failure
+family as row 81: a name from my ledger used as if it were his.
+
+* the first cut (row 83)
+
+/"ignore the officers for now"/ cut ask 2 out entirely; /"not agentic"/ killed the graft. The heading
+he named — =** T2.1 - VDEX harnessed and tooling= — he had already placed HIMSELF, inside the
+waterfall between T2 and T3, so the block was written under it in the waterfall's shape (symbolic
+table, then depth per row) rather than as a free-standing section.
+
+The cut: harness = role · doctrine · tree · screen; tools = +=index= +=file=; boot = watcher +
+restamp; App = subscribe + reload; three test files; the scenario's company statics; one README line.
+He read it and answered in the file.
+
+* his seven comments, and the second cut (row 84)
+
+Verbatim, each with what it changed:
+
+- /"do we want the plain tools on vdex or an application of these tools? i think the latter. vdex
+  should provide the functionality that fs tools provide. wrap for context and utility."/ → the
+  =paladin.skills.fs= slurp is GONE. The vdex speaks in SLUGS, never paths: =index= · =find= ·
+  =read= · =write= · =file= · =move= · =delete= · =open=. Each verb implemented ONCE in the aperture
+  (where the App already calls it); the tools wrap =ctx.mode.call.<verb>= with the model-facing
+  valence, the receipt and the refusal. Three faces, one body.
+- /"not really a tool. more of an emitter."/ → =emitter/index.js= is new, the manifest gains
+  =EMITTER=, the aperture's =/open= route goes and =/emit/open= replaces it; the tool =open= is a
+  receipt over =ctx.mode.emit.open(...)=, the aprende =drill= shape. The trait binds the thread and
+  flushes — none of that is written in the package any more.
+- /"i think this is entirely garbage?. idea of boot is to update the literal. but does the literal
+  need update? and can he process it? ie are literals subscribed to on the client? if so, we want to
+  be precise with our subscription! not just load * when *."/ → they are, and the matcher speaks
+  =$like=, so symbols are too. Precision on BOTH sides: the server syncs per PATH (a disk event
+  names the file, only its row is written), the client applies each event to the row it names (swap ·
+  add · drop by id) and refetches nothing. The only full pass left is the dataset install at boot.
+- /"do we want prune on repository level???!?!?! not sure. and for sure not like this. way tooo
+  narrow. one ontology key - static?!?! makes no sense and is very out of style. just implement
+  inline for now."/ → inline in =boot.js=, through the em — and the reason it MUST be through the em
+  came out while doing it: the domain's =prune()= methods were =nativeDelete=, which bypasses the ORM
+  subscriber, so every removal was invisible to the twitch. The two methods (vdex was their only
+  consumer) are deleted from the domain's =Literal.ts= / =Symbol.ts=.
+- /"weird line. very unclear."/ (on =await line(daemon, mode, fresh ? await prune(…) : {literal: 0,
+  symbol: 0})=) → three lines with the case named: =drain()= is null when the loader's stamp matched
+  and nothing was scanned — the rows already ARE the tree, so there is nothing to prune against.
+- /"wtf is daemon traits stamp???? what!"/ (twice) → gone, with the entire stamp comparison. Per-path
+  sync needs no fingerprint: an unchanged file is an =assign= with no diff — no UPDATE, no event. Our
+  own write's disk echo costs one stat and one read and emits nothing. The package never touches the
+  loader's =installed=.
+- /"shouldnt this watch files??!!! this should watch files and twitch changes to files onto
+  literals... or is this not needed at all? this code is gibberish!"/ → it watches files now:
+  =Deno.watchFs= on the real root (FSEvents reports =/private/…=, so the root is resolved once),
+  events → the paths they name → =sync(paths)= → those rows → the twitch. A gone path takes every row
+  under it; a folder is walked and reconciled; a file is upserted. Needed: without it an editor,
+  Finder or git changes the JDex and the screen lies until the next boot.
+
+The second cut is 12 rows — =harness.js= (role · doctrine · tree · screen) · =emitter/index.js= NEW +
+manifest · =aperture/index.js= (=/file= =/move= =/delete= by the JD law in one =placement()=;
+=/open= → =/emit/open=) · =tools/index.js= (the eight slug verbs over =mode.call= / =mode.emit=,
+an aperture refusal coming back as =condition: "ERROR"=) · =boot.js= (=boot= · prune inline ·
+=sync(paths)= · =watch=) · =load.js= (=label= exported) · the domain's two =prune= methods deleted ·
+=Vdex.svelte= (two subscriptions, per row, leaves sorted by slug) · the scenario's company · three
+test files · README. Gates G1–G3, tangles at the end (Freight has no =evict=, so a deleted
+document's cargo entry lingers to the next boot; a renamed FILE is remove + create because the slug
+IS the coordinate).
+
+Two things flagged as beyond the ask, since he did not name them: the domain's prune methods deleted,
+and the aperture's =/open= route replaced (the App never called it).
+
+* settlement
+
+- =quests/m53-vcompany.org= — his heading =* T1.1 - VDEX harnessed and tooling= at the T1/T2 seam
+  carries the whole second cut: =** his comments — answered= (all seven verbatim), =** what is —
+  measured=, the 12-row table, depth per row with every file whole or as hunks, gates, tangles. The
+  first cut's text is replaced, not appended — his comments are preserved at the top instead.
+- =#+next= rewritten to name T1.1 and what it answers; two =** log= entries (the status callout, the
+  seven comments and the second cut).
+- =zettelkasten.md ## Callouts= — "a status update in quest shorthand"; family: the same as the
+  drapes-parts /"what?"/ — my ledger's names used as his.
+- [[feedback_survey_totem]] — description and body carry the noun rule and the verbatim.
+- =MEMORY.md= — the m53 hook reads "vdex screen LIVE" instead of tier ids.
+- =frontier.md= — the restart recorded as done; the click-through is what remains.
+- Dates scanned: none written.
+- A live SIBLING session has been at m53 in parallel (its own V3 vdex pass in
+  =quests/m53-vcompany.v3-vdex.org=, plus m54 and m55, and it rewrote the frontier's m53 line to name
+  =T1.1 p1= as a dependency). Nothing of mine was overwritten and nothing of theirs touched; the
+  quest report's =sessions= column is the check before anything is claimed about that tree.
+
+* resumption (owed beef)
+
+- =go t1.1= (all twelve rows) or per row: =h1= harness · =e1= emitter · =p1= aperture · =t1= tools ·
+  =b1= boot/sync/watch · =k1= the domain's prune methods · =a1= the App · =s1 x1 x2 x3= tests · =d1=
+  README.
+- The two flagged deletions are his to confirm inside that go: the domain's =prune()= methods, and
+  the aperture's =/open= route.
+- Still open from before: the Gs1/Gs2 click-through on the live screens App; the slow first attach
+  (the boot race under =instance/run=); the bundle weight (measured and ledgered, direction his);
+  screens s3 Voffice → s4 Desk → s5 mail/chat; =* T1.#2=; the sibling's V3 vdex pass; the officers'
+  vdex access (=AGENTIC= + a role line), deferred by his own /"ignore the officers for now"/.
+- Everything in the tree is uncommitted.
+
+* quest report (derived at fold — `methods/quest-report.py`)
+
+| quest                    | progress  | status   | next                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                | sessions   |
+|--------------------------+-----------+----------+---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------+------------|
+| m46-linux-readmen        |  17% 3/18 | wip      | drain                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                               | 6          |
+| m50-the-three-way-weave  |  60% 3/5  | wip      | blast                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                               | 1          |
+| m51-standalone-slowstart |   0% 0/18 | design   | go                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                  | 1          |
+| m53-vcompany             |   0% 0/5  | open     | **t1.1** (his heading, lifted to =*= at the t1/t2 seam) — the second cut answers his seven comments: slug verbs implemented once in the aperture (=/file= =/move= =/delete=), tools as their application, =open= an emitter, per-path =sync= (no stamp, no full pass after boot), prune inline through the em (the domain's =nativedelete= methods deleted), the app on two precise subscriptions; 12 rows, waiting on go; officers out for now; then **the slow first attach** (his paste, /"again. very slow."/): the boot race under `instance/run` — gate kajuit's first attach on the runtime or lengthen the 8 s budget, and time the boot phases (dataset install · app bundle · cargo walk); runtime restarted (measured at wake: the screens app bundled `ad34d4c8…`, 2.73 mb, beside the stub's `86e158e2…`) → gs1/gs2 click-through — his; the bundle weight is ledgered (`known-issues` `buffer-app-bundles-carry-2.6-mb-of-dead-weight`) and its direction is his; then s3 voffice → s4 desk on go; call nothing — calendar ruled a mode; `* t1.#2` his call; t2 re-cut (vendor services + shared imap/smtp belt); g4/g7 ride the screens app; the `probe` identity on his lighthouse is his to delete | 3 (2 live) |
+| m53-vcompany.pre         | —         | open     | t1 package setup — the m27 gate moves to the executive stage; t1–t3 do not wait on it                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                               | 1 (1 live) |
+| m53-vcompany.v3-vdex     | —         | designed | his go → copy the 11 files onto the shelf (=land= below), run both suites, restart the runtime (the app bundles at boot), click through the gates; the t1.1 =placement= delta rides the sibling's landing; the later list is his to reorder                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                         | 1 (1 live) |
+| m54-buffer-file          |   0% 0/4  | open     | reconcile with m53 =* t1.1= and =m53-vcompany.v3-vdex= first (three quests, one seam, all waiting on go; v3 splits the app into a shell + 7 parts + =buffer/jdex.js= and already points here for file upload — m54's app hunk names the single =vdex.svelte= and must be re-cut onto whichever lands first) (a sibling session, beef's rulings there: the vdex speaks slugs — =/document /write /file /move /delete= implemented once in the aperture, tools wrap =mode.call.<verb>=, =fs_*= slurp gone on vdex; =open= is an emitter; the boot watches files and syncs per path — /"shouldnt this watch files??!!!"/; /"wtf is daemon traits stamp????"/ → gone) — three seams now name the verbs' home (t1.1 aperture · m54 sketch · mikro-first repository), beef arbitrates; then beef reopens the questioned block when ready — order of design there is mikro entity + bufferrepository verbs → typology verb contract → shard mounts → remoterepository mirrors → kajuit. until then m1 = everything but the verbs. "go m1" → full hunks against the tree as read.                                                                                                                                           | 1 (1 live) |
+| m55-recursive-terminals  |  20% 3/15 | wip      | go m2 — the kajuit terminal: up · down · status · stop · run · watch, the tree, the schematic, panel f                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                              | 1 (1 live) |

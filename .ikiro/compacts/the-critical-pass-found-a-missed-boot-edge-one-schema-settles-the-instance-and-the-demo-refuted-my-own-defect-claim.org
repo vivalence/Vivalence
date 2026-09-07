@@ -1,0 +1,124 @@
+#+title: the critical pass found a missed boot edge, one schema settles the instance, and the demo refuted my own defect claim
+#+filetags: :paladin:typology:kajuit:instance:schematics:quest:doctor:critical-pass:sandbox:demo:callout:
+
+* what happened, in one breath
+
+Woke on beef's order into m52 (AUTHORED at the last fold, nothing blasted). He asked for a critical pass —
+/"is there anything thats not in line with the way vivalence works? high level? any fat to be cut inside
+this patch or in the repository? is the approach optimal? gigabrain"/ — and the pass, run by measurement
+(three probes) and by reading the consumer side of every seam, found three things off-line: the paladin
+=settle= re-encoded by hand the tree =v.primitives.instance.Instance= already knows (whole-instance
+cast·faults·decode works, and =Decode= mutates in place — my "clone" claim was wrong); the boot gate lived
+in two product files and MISSED a third edge (kajuit's =vite.config.mjs= mounts the instance and reads
+=serve.hostname/.port= — the summary I inherited said kajuit never mounts); and =Service.statics.serve=
+REQUIRED was a policy nothing enforces (zero readers; the runtime attaches at a slug-derived path). beef
+called the label grammar — /"daemon[hello].statics.serve ok."/ — and asked to SEE the recipe after the
+patch and the instance after processing. I built a sandbox in the scratchpad (typology + paladin + the
+recipe, config stubs, =node_modules= symlinked), applied the amended patch there, ran three mounts, the
+paladin suite (38/159 green) and the typology suite (122/490, the one pre-existing red), and regenerated
+the quest's M1/M2 hunks from the real→sandbox diff. The demo refuted one claim of my own pass: =Url.toJSON=
+is whole; specimen's =fold= is what hollows a snapshot. beef marked the record's =at= as optional capability,
+out of scope, then /"ikiro compact"/.
+
+* spine (N=23; rows 1–9 are the previous fold's, one row here; rows 17–23 are the coda, same session)
+
+| n     | beef (verbatim where it is a decision, a gate, or a correction)                                                                                                                                                                                                                                                                              | what landed / decided                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                              |
+|-------+----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------+------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|
+| 1–9   | the ternary complaint → quest → "full patch?" → /"ikiro compact"/ · =/compact= (twice; the second fired)                                                                                                                                                                                                                                       | folded in =the-pinhole-was-already-recursive-the-schematic-was-hollow-…= (compact 99). Row 9 is the =/compact= that ran.                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                       |
+| 10    | the continuation summary (system)                                                                                                                                                                                                                                                                                                              | carried one FALSE fact forward: "kajuit never mounts the instance". Caught at row 12 by grep.                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                       |
+| 11    | /"ikiro wake."/ + the quest and compact names + paladin · hello-world · schematics pasted as context                                                                                                                                                                                                                                             | kernel · frontier · compact · quest read; disk verified against the fold (=signatures.js= :32 still =^.+$=, ternary at recipe :25 / README :133, seven =record unknown=, no =settle.test.js=, probes intact); two sibling-session paths in =git status=. Gate ladder restated, waiting on go.                                                                                                                                                                                                                                                                                                                                                                              |
+| 12    | /"critical pass. is there anything thats not in line with the way vivalence works? hgih level? any fat to be cut inside this patch or in the repository? is the approach optimal? gigabrain"/                                                                                                                                                  | =methods/critical-pass.md= followed. Measured: =Decode= mutates IN PLACE (Mask =sameRef=, whole =Instance= class kept, nested identity kept; only a =v.union= branch clones); both "unmeasured" gate items closed; =ValueError= has no =schema= but =Pointer.Get(schema, schemaPath)= reaches the scalar's =title= through the codec; codec/decode IS a live register (=socket.js= :120 decodes =Signal=). Grepped: =Service.statics.serve= has ZERO readers (=resolve.js= :14 :126 slug path); =Client.statics.serve= IS read — by =vite.config.mjs= :12-27, which MOUNTS (third boot edge, missed); =ledger.boot= callers = run · init ×2 (start spawns run); runtime =run.js= bare via Dockerfile; =is.empty= already covers blank; =blank= ×3 copies; =Instance= schema unused, =path= dead. Verdict: approach right; three off-line (one schema not five slots · gate ONCE in =Ledger.boot= + two bare children via the belt's =.throw()= idiom · Service serve optional); six cuts (generalized =codec= · =is.empty= · =path= · decision-6 reasoning · corpses · struck gates); three repo flags (one later refuted). Forks F1′ F5 F6. Section =* critical pass= stamped; frontier + memory updated. |
+| 13    | /"daemon[hello].statics.serve ok. show me instance config at disk after the patch and how it looks after all processing has happend. demo the snapshot"/                                                                                                                                                                                       | F1′ CALLED: the record's grammar everywhere; faults translated by =label()=; a fault at a wrong-row location subsumed by the row. Sandbox built (1.8 MB; =import.meta.resolve= proved the copies ran; =VIVA_REPOSITORY_MOUNT= from an ambient stratum had pointed the baseline at the real repo). Patch applied there: generalized =codec=, typed primitives, =v.faults=, whole-instance =settle=, =check.instance=, =Ledger.boot= gate, recipe. Three mounts: A full env → Urls minted, inheritance identity, bootable; B key blank → roster 0, =dormant ["daemon[hello].hallucinators[0]"]=, bootable; C bare → serve stays ="nope"=, 4 faults, 4 verdict sentences, =ledger.boot= threw before the Die, no lock. Tests patched in the sandbox + =settle.test.js= (7): paladin =38 passed (159 steps)=, typology =122 passed (490 steps) | 1 failed= (pre-existing). Quest M1/M2 REGENERATED from =git diff --no-index= (634 lines, 10 files); ghost =run.js= hunk dropped; blast table rewritten. =Url.toJSON= claim REFUTED by the demo → corrected in quest + memory. |
+| 14    | the hallucinators block + the requirements table pasted back: /"what does this look like when the hallucinator service is only loaded conditionally."/ · /"mark this capability to remember where a value was read as optional. really not needed. ikiro mark. out of scope."/                                                                     | Printed the dormant case: =daemons[0].hallucinators []= · =dormant ["daemon[hello].hallucinators[0]"]= · record row =unset ["SECRET_VIVA_ANTHROPIC_API_KEY"]= · doctor row =optional at daemon[hello].hallucinators[0].secrets.key= · bootable. The recipe never conditions; the env schema's =.optional()= is the condition, settle applies it. MARK written (quest =* deferred=, ledger dossier, memory): the record's =at= is optional capability, out of scope, not acted on.                                                                                                                                                                                              |
+| 15–16 | /"ikiro compac"/ + /"t"/ (mid-turn)                                                                                                                                                                                                                                                                                                            | this fold                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                          |
+| 17    | the hallucinators block pasted: /"fuck you. shit answers. … if SECRET then module. HOW?"/                                                                                                                                                                                                                                                      | I answered with a mechanism trace (hydrate → =alive= → roster → cortex → doctor). Wrong artifact — the question was about the recipe's FORM.                                                                                                                                                                                                                                                                                                                                                                                                                                                           |
+| 18    | /"shiiiiiiiiiiiiiiiiiit"/                                                                                                                                                                                                                                                                                                                      | NOTHING durable (the next row carries it).                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                             |
+| 19    | /"stfu. stop fucking yapping. hallucinators () => []; hallucinators: [()=>{}] YES NO??"/                                                                                                                                                                                                                                                       | Forms table, three rows: =() => []= YES · =[() => ({…})]= YES, fired per element · =[() => null]= NO — a null element hit =Instance.faults= ("must be object"), not dormancy.                                                                                                                                                                                                                                                                                                                                                                                                                       |
+| 20    | /"hallucinators: [() => null] NO … fixable?"/                                                                                                                                                                                                                                                                                                 | Yes: dormancy moves BEFORE =cast=/=faults=; =alive= guards null. Diff shown; "say go".                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                 |
+| 21    | /"first we pinhole. then we validate. correct?"/                                                                                                                                                                                                                                                                                              | Yes — =mount= = environment → resolve (pinhole) → settle (dormant → cast → faults → decode → inherit) → publish. The pinhole sees thunks, validate sees values.                                                                                                                                                                                                                                                                                                                                                                                                                                         |
+| 22    | /"good. fix. compact"/                                                                                                                                                                                                                                                                                                                         | Fixed in the SANDBOX + the quest (code is gated on M1 per-file go; "fix" is not "go"): =settle= reordered, =settle.test.js= case 8 (=[() => null]= dormant · =() => null= empty roster) — 8/8; paladin =38 passed (161 steps)=; paladin hunk + tangle regenerated into M2; law block + forms table added under =* the law=. This coda.                                                                                                                                                                                                                                                                  |
+| 23    | =/compact= (mid-turn)                                                                                                                                                                                                                                                                                                                          | this coda precedes it                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                  |
+
+* arc
+
+** the pass measured what the quest had reasoned (row 12)
+
+The quest's terrain was built on four probes; the pass added three and read the consumer side of every
+seam the patch opened. Two of the quest's load-bearing claims were reasoning, not measurement, and both
+were wrong in a way that mattered: "decode clones plain objects" (it mutates in place — a whole =Instance=
+class object settles as itself), and "kajuit never mounts the instance" (it mounts in =serverConfig()= and
+would have read =host undefined / port NaN= from a faulted string under the patch — a silent third edge).
+The rest of the verdict fell out of grep: a REQUIRED =Service.statics.serve= that nothing reads; a gate
+copied into two files when the belt already owns =.fails/.throw()= and =ledger.boot= is the one spawn
+path; five hand-picked slots where one schema exists. The shape of every fix was the same — stop
+re-encoding what the system already knows.
+
+** the sandbox is where a patch becomes true (row 13)
+
+beef wanted to see, not read. A 1.8 MB copy of typology + paladin + the recipe under the scratchpad, with
+the workspace stubs and =node_modules= linked, ran the amended patch end to end without touching the
+worktree or any VCS: three envs, three verdicts, two suites, and the diff back out became the quest's
+hunks — no hand-written patch left in the milestones. The sandbox also caught what reading had not: the
+ambient =VIVA_REPOSITORY_MOUNT= stratum pointed the first baseline at the REAL repo (the resolve line is
+now the proof of provenance), and =Url.toJSON= — flagged as a repository defect in the pass from
+=return this.json= plus a hollow snapshot — is whole; the hollowing is specimen's =fold= walking own
+enumerable keys. The demo's own replacer never saw the Url because =toJSON= runs first: the tool
+disagreed with the claim, and the tool was right.
+
+** the mark (row 14)
+
+The =requirements= table shows WHERE each key was read. beef: /"really not needed"/. Recorded as a mark
+in three organs and left alone — the verdict needs =read=/=unset=, the =at= is a doctor nicety, and the
+fault =label()= translation exists only to match it. If the mark ever becomes an order, faults speak
+typebox's pointer and =label()= goes.
+
+* arc, coda
+
+** the forms probe (rows 17–21)
+
+beef asked about the recipe's SHAPE — /"if SECRET then module. HOW?"/ — and got the mechanism. Two turns of
+/"stfu"/ later the answer was a three-row table, and the third row exposed a real hole: =[() => null]= — a
+thunk element yielding nothing — was a schematic fault, because dormancy ran AFTER =cast=/=faults= and the
+schematic saw a =null= where a mask belonged. His law fixed the order in one sentence: /"first we pinhole.
+then we validate."/ Dormancy is a pinhole-side judgement (a value came back blank), so it runs before the
+schematic looks. Four forms now hold: =() => []= · =[() => ({…})]= · =[() => null]= (dormant, named) ·
+=() => null= (empty roster).
+
+* failures, mine
+- A recipe-form question answered with a mechanism trace, twice in a row (rows 14 and 17), until
+  /"YES NO??"/. Callout logged; [[feedback_concise_responses]] gained the forms-table rule.
+
+- A defect flagged from READING (=Signature.toJSON= → =this.json=, plus a hollow snapshot) without running
+  it. The demo refuted it in the same session. Rule already in the kernel — no completion claims without
+  fresh verification — and the pass method's own step 4 says absence claims are the cheapest to check.
+  Callout logged.
+- Carried "kajuit never mounts the instance" from the continuation summary into the pass as a fact until a
+  grep for =statics.serve= consumers landed on =vite.config.mjs=. A summary is a shard: a lead, not a fact.
+- A =grep= filter meant to trim suite noise ate the failure body; rerun to a file. An f-string over org text
+  with ={}= verbatim markers; plain-string substitution. An expectation written in my order, not
+  =check.environment='s key sort. Small, all caught by the run.
+
+* state at fold
+
+- m52: AUTHORED + CRITICAL PASS + SANDBOX GREEN. Coda: =settle= order = dormant → cast → faults → decode → inherit; =[() => null]= dormant; =settle.test.js= 8/8; paladin 38 passed (161 steps). M1/M2 hunks regenerated from =scratchpad/m52.patch= (634
+  lines, 10 files) + =settle.test.js= tangle; F1′ CALLED (labels); F5 (=Ledger.boot= + runtime =run.js= +
+  kajuit =vite.config.mjs=) and F6 (Service serve optional) IN THE PATCH as leaned, revert on word; F3 =settle=
+  =faults= =dormant=; F4 stands. Blast table: 19 rows incl. the ledger dossier. Nothing blasted in the
+  worktree; typology per-file go still the gate.
+- Sandbox (session-only, =scratchpad/sandbox=): =demo.js= · =demo-b.js= · =paladin.out= · =typology.out= ·
+  =m52.patch=; probes =probe5–7.js=. Counts: settle 7/7 · paladin 38/159 · typology 122/490/1 (same red).
+- Repository flags for beef (untouched): =services[].statics.serve= + =VIVA_LIGHTHOUSE_SERVE= have no binder
+  (two truths with =resolve.js= :126); =vite.config.mjs= reads a =client.statics.remote= no recipe declares;
+  specimen =fold= hollows every Url/Path in a snapshot.
+- beef's MARK: the record's =at= = optional capability, out of scope (quest deferred · ledger dossier ·
+  memory).
+- Two sibling-session paths in =git status= (=Mode.ts=, =Literal.ts=) — not m52.
+
+* quest report (derived at fold — `methods/quest-report.py`)
+
+| quest                    | progress  | status | next  | sessions   |
+|--------------------------+-----------+--------+-------+------------|
+| m46-linux-readmen        |  17% 3/18 | wip    | drain | 4 (1 live) |
+| m50-the-three-way-weave  |  60% 3/5  | wip    | blast | 0          |
+| m51-standalone-slowstart |   0% 0/18 | design | go    | 0          |
+| m52-schematic-pinhole    |  15% 2/13 | design | go    | 0          |

@@ -28,7 +28,7 @@ const module = {
         inline,
         pinned,
       ],
-      lighthouse: { module: "@commons/lighthouse/multiplayer", statics: {} },
+      lighthouse: { module: "@commons/lighthouse/multiplayer", statics: { remote: "http://lighthouse/" } },
       datamap: { module: "@commons/datamap/libsql", statics: {} },
       hallucinators: [],
       consume: {},
@@ -83,5 +83,14 @@ describe("Vip.accioOne", () => {
     const vip = new Vip(fake({}));
     const entry = { manifest: { type: "game", slug: "hello", version: "0.0.1" }, mount: HOME };
     expect(await vip.accioOne(entry)).toBe(entry);
+  });
+
+  it("a mask-shaped query pairs module and mask; the module's statics sit under the mask's, key by key", async () => {
+    const vip = new Vip(fake({}));
+    vip.accio = async () => ({ manifest: { type: "office", slug: "vdex" }, statics: { formats: ["md"], ignore: ["bak"] } });
+    const { service, mask } = await vip.accioOne({ module: "@vcompany/office/vdex", statics: { formats: ["md", "org"] } });
+    expect(service.manifest.slug).toBe("vdex");
+    expect(mask.statics).toEqual({ formats: ["md", "org"], ignore: ["bak"] });
+    expect(mask.module).toBe("@vcompany/office/vdex");
   });
 });

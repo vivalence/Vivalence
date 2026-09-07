@@ -94,6 +94,19 @@ export default function (trajectory) {
 
   trajectory.open(
     {
+      nature: "/instance/rename",
+      valence:
+        "rename an instance — record key, logs, the sessions that selected it, and the dir when it lives on the shelf (a tapped dir stays); refuses while running",
+      schema: v.object({
+        target: v.string().desc("slug or path (defaults to the mounted instance)").optional(),
+        next: v.string().desc("new slug"),
+      }),
+    },
+    instance.rename,
+  );
+
+  trajectory.open(
+    {
       nature: "/instance/lighthouse",
       valence: "signup or login against the mounted instance's lighthouse",
       schema: v.object({

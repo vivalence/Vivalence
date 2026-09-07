@@ -1,0 +1,828 @@
+#+title: m53 — vcompany: the office stack, then the executive
+#+filetags: :m53:vcompany:voffice:vdex:message:office:executive:commons:instance:typology:runtime:paladin:drapes:
+#+phase: open
+#+progress: —
+#+next: T1 package setup — the m27 gate moves to the executive stage; T1–T3 do not wait on it
+
+* provenance
+
+HN 49458418: a dev team, fired to make room for AI, open-sourced an AI CEO instead —
+SenteLabsAI/OpenExecutive, Apache-2.0, pinned here @ =36ca0e1= (local checkout 6 commits
+ahead at =6e15d65=, provider/auth docs only). Prompts and builtin knowledge are portable
+with attribution; compatible with Fair Source inclusion.
+
+Plan session (executive-first). Sequencing ruling from beef: *the benched m27 (mind: memory +
+note) lands first* — its entities, write path and index projection are the substrate this
+quest would otherwise reinvent ad hoc. m27 revives as its own quest; the executive stage
+GATES on M27.1 + M27.2, not an absorption. Recall/elevation/distillation stay LATER.
+
+vcompany session (office-first, this rewrite). beef: /"All of this is reference material. I
+want you to now start thinking basically from scratch."/ The company runs on its own
+documents and messages before it runs on an executive: three literal ontologies (=vdex= ·
+=message= · =transaction=), one domain (=voffice=), office modes that own their literals and
+sync them from the world, and the executive + specialists as CONSUMERS of those tools. Four
+tasks: /"package setup … the VDEX, specifically with the paladin tooling … messages and chat
+and email … Bookkeeping comes later. we keep that as a fourth task, but empty for now."/
+
+* the rulings (beef, verbatim)
+
+- naming: /"so we have v company, v decks, v office"/ · /"Let's call it the v office domain. One word, v office."/
+- ontology: /"the ontology for the literal here is a VDEX, kinda like the Jadex, but adapted to the way that Viva lens works"/ · /"we have a trade on the VDEX literal where we have something like documented or document or file"/
+- formats: /"we're just gonna limit ourselves to markdown and JSON … and org org files … maybe TXT"/ · /"PDF would also be really helpful, but … might require a dedicated mode later on, not for v one."/ · /"index everything but mark some things as readable/unreadable."/
+- slug: /"the literal slug should be shorter. not whole filepath in slug. jdex is smarter."/ · /"literal slug lean."/
+- boot: /"On boot, it populates and prunes literals of the VDex ontology from its mount point."/ · /"we kick everything out that is old, and we load all of the documents that are actually on disc."/
+- relationship: /"New relationship between mode and literals, mode and symbols. I think I want that on typology level."/
+- mount: /"vdex mounts just ONE path! single mount."/ · /"the vdex mount path can be given directly to the vdex modes instance config as its mountpath. paladin usually auto creates that. in this case the vdex gets it set in settings."/ · /"mail adresses etc straight on the mode config too."/
+- topologies: /"transport the topologies direclty with the modes."/
+- services: /"mail, telegram, slack, and OCR etc go to commons."/
+- mode shape: /"We don't need an emitter on this. It's a entry point to stand alone mode."/ · /"the VDEX is harnessed, of course. And in the harness, we always load the current VDEX in some structured organized form."/
+- app: /"drapes … export some display and editing tools for the files"/ · /"textarea."/
+- messages: /"is email a type of message? … Or do we want … an ontology type email and an ontology type message? Not sure yet."/ → settled below: ONE ontology
+- consumers: /"the modes with which we interact. Those are agentic, agentic thread pulls in the tools from the others. And then we have the CEO, CFO, stuff like that that we can basically copy from what the open executive has and expand it."/
+
+* the mapping
+
+| openexecutive                          | vivalence                                                        |
+|----------------------------------------+------------------------------------------------------------------|
+| Executive Orchestrator                 | =executive= mode — HARNESSED · TOOLED · AGENTIC · APPLICATION    |
+| 8 specialists (=agents/*.py=)          | =specialist= modes, HARNESSED · TOOLED, one =/consult= tool each |
+| specialist dispatch via tool_use       | AGENTIC arms every TOOLED mode under =/<slug>= — nothing hardcoded |
+| ChromaDB RAG (builtin + company_docs)  | =vdex= literals + the =vdex= harness index; no cards, no embeddings |
+| episodic memory + decision ledger      | m27 Memory/Note rows + a =decision= ontology (state machine verbatim) |
+| post-response haiku extraction         | harness post-pass, cheap faculty, =queueMicrotask=               |
+| scheduler (=UPDATE…RETURNING= claim)   | scheduler service, libsql claim, owning daemon = single          |
+| 40+ py workflows                       | Vector pipelines, one mode file each — port 4 first              |
+| integrations (Slack/Telegram/Email…)   | =@commons/service/{mail,telegram,slack}= + office modes =email= · =chat= |
+| prompt cache layers                    | =ctx.hallucination.system.*= keyed sections, stable keys first   |
+| Next.js UI                             | =App.svelte= + drapes                                            |
+| evals + fixtures                       | fixture package + judge harness                                  |
+
+What the port ADDS: finance becomes real, not advisory — a double-entry ledger (=transaction=
+ontology, entries sum to zero per transaction, enforced in domain logic); CFO gets read tools,
+writes go through the decision gate. Air-gap parity: hallucinators optional, every mode
+degrades to bot-answers. Their decision status machine (=proposed → approved_unchanged |
+approved_with_edit | rejected | auto_no_response | failed=, =executed → reversed=) is the best
+part of their design — port it VERBATIM. Source fact: OpenExecutive keeps TWO decision
+tables — episodic =decisions= (haiku extraction: summary/rationale/outcome) and
+=decision_instances= (the gated state machine, compare-and-set =WHERE id=? AND status=?=);
+extraction never touches the state machine. =outbound_guard.py= is anti-spam (dedup · rate ·
+quiet hours, FAIL-OPEN), not the gate — the gate is =departments/authority.py= + the ledger's
+=gate_mode=.
+
+* ontologies
+
+** the law — one entity, three ontologies
+
+House mechanism, unchanged (education): an ontology IS the one TOPOGRAPHICAL symbol on a
+literal (=Literal.ontology=, subscriber throws on two); traits carry payload shape
+(=traits[]= + =trait{}=); symbols classify (ONTOLOGICAL = subject matter, STRUCTURAL =
+sets). A domain extends the runtime literal with its trait enum and repository verbs.
+
+#+begin_example
+literal
+├── vdex         a file on the mount        DOCUMENT  {asset:{path}, title, format, readable, bytes, mtime, hash}   body NOT in row
+├── message      a message on a channel     MESSAGE   {channel, direction, from, to[], at, body, external:{id}}     body IN row
+│                                           MAILED    {subject, cc[], messageId, inReplyTo, references[], attachments[]}
+│                                           CHATTED   {platform, chat, sender:{id,name}, replyTo}
+└── transaction  (T4, empty)                POSTED    {at, memo, entries:[{account, amount, currency}]}  Σ amount = 0
+#+end_example
+
+** vdex — a document
+
+*** slug — lean, JD-smart
+
+The JD id already encodes area (=22= ⇒ =20-29=) and category (=22=). The slug is the deepest
+coordinate present + the ASCII-folded file stem, dotted:
+
+#+begin_example
+20-29_koerperschaft/22_finance/22.04_accounting/Rechnungen/Notariat/RE24-05277.pdf   →  22.04.re24-05277
+10-19_viva/12_goals/12.04 Ubiquity and a Thin Slice.md                                →  12.04.ubiquity-and-a-thin-slice
+30-39_architecture/30.00_architecture.mdx                                             →  30.00.architecture
+10-19_viva/12_goals/notes.md            (category-level file)                          →  12.notes
+00.00 Index.org                          (root, id in the name)                        →  00.00.index
+readme.org                               (root, no coordinate)                         →  readme
+#+end_example
+
+- directories never enter the slug; =DOCUMENT.asset.path= (mount-relative) is the truth on disk
+- collision inside one coordinate (=a/x.md= · =b/x.md=) → sorted by path, second gets =-2=
+- the JD id itself is a SYMBOL (=vdex.id.22.04=), never a literal; a file is the literal
+- the parser tolerates both grammars on disk: =NN-NN[_ ]area= · =NN[_ ]category= · =NN.NN[_ ]id= (=jd.js= below)
+
+*** symbols — scheme from the mode's dataset, coordinates minted at boot
+
+#+begin_example
+vdex                                  TOPOGRAPHICAL LABELED        dataset   the ontology root
+vdex.slot.{index,inbox,tasks,templates,links,someday,archive}
+                                      ONTOLOGICAL LABELED          dataset   JD standard .00–.09 (=00.00 index= · =NN.01 inbox= …)
+vdex.format.{md,org,json,txt,pdf,…}   ONTOLOGICAL LABELED          dataset   readable ⇔ format ∈ statics.formats
+vdex.area.20-29                       STRUCTURAL LABELED           boot      name from the dir: "koerperschaft"
+vdex.category.22                      STRUCTURAL LABELED           boot      "finance"
+vdex.id.22.04                         STRUCTURAL LABELED           boot      "accounting" — files under the id dir inherit it
+#+end_example
+
+The runtime's symbol fold (=object.set= on dots, =kernel/Literal.ts= subscriber) yields
+=symbol: {vdex: {area: {"20-29": {}}, category: {"22": {}}, id: {"22": {"04": {}}}, format: {pdf: {}}}}=
+for free — the tree the App and the harness index walk. Boot sets =ontology: "vdex"=
+explicitly in the row (the subscriber derives it from linked symbols, and the dataset link
+phase writes pivots by raw INSERT after create — the italian db has =ontology = ""= on all
+6583 rows; filed in =known-issues.org=).
+
+*** example rows
+
+#+begin_src javascript
+// a filed PDF — indexed, not readable
+{
+  slug: "22.04.re24-05277",
+  ontology: "vdex",
+  traits: ["DOCUMENT"],
+  trait: {
+    DOCUMENT: {
+      asset: { path: "20-29_koerperschaft/22_finance/22.04_accounting/Rechnungen/Notariat/RE24-05277.pdf" },
+      title: "RE24-05277",
+      format: "pdf",
+      readable: false,
+      bytes: 48211,
+      mtime: "2026-08-12T00:29:00.000Z",
+      hash: "b7e1…",
+    },
+  },
+  symbols: [
+    { slug: "vdex" }, { slug: "vdex.area.20-29" }, { slug: "vdex.category.22" }, { slug: "vdex.id.22.04" },
+    { slug: "vdex.format.pdf" },
+  ],
+}
+
+// a readable org file whose id is the file
+{
+  slug: "12.04.ubiquity-and-a-thin-slice",
+  ontology: "vdex",
+  traits: ["DOCUMENT"],
+  trait: {
+    DOCUMENT: {
+      asset: { path: "10-19_viva/12_goals/12.04 Ubiquity and a Thin Slice.md" },
+      title: "Ubiquity and a Thin Slice",          // first heading › frontmatter title › stem
+      format: "md",
+      readable: true,
+      bytes: 11310,
+      mtime: "2026-07-03T09:12:41.000Z",
+      hash: "0c4f…",
+    },
+  },
+  symbols: [
+    { slug: "vdex" }, { slug: "vdex.area.10-19" }, { slug: "vdex.category.12" }, { slug: "vdex.id.12.04" },
+    { slug: "vdex.format.md" },
+  ],
+}
+
+// a coordinate symbol minted at boot (STRUCTURAL: it is a set, not subject matter)
+{
+  slug: "vdex.id.22.04",
+  traits: ["STRUCTURAL", "LABELED"],
+  trait: { STRUCTURAL: {}, LABELED: { name: "accounting", description: "22.04 — 20-29_koerperschaft/22_finance/22.04_accounting" } },
+}
+#+end_src
+
+Documents are VOCALIZED's shape over a text mount: =VOCALIZED {asset:{path}}= is served by the
+FRAUGHT machinery (=systems/runtime/daemon/traits/index.js:43= — a =Freight= over a root, url
+=/cargo/…=); =DOCUMENT {asset:{path}}= rides the same, root = the mode's mountpoint, MIME table
++ =md org txt=. Bodies are fetched by path (freight url or =/read=), never carried in the row.
+
+** message — email and chat, one ontology
+
+/"is email a type of message?"/ — yes. =message= is the TOPOGRAPHICAL symbol; the channel is
+a symbol dimension; the channel-shaped fields ride a trait. Same shape as =word= +
+TRANSLATED/VOCALIZED/CONJUGATED. Two ontologies would fork every read tool ("what did X say"
+must cross channels), and the subscriber allows exactly one TOPOGRAPHICAL symbol anyway.
+={symbols: ["message.channel.email"]}= = all mail; =implements("MAILED")= = has headers.
+
+#+begin_example
+message                                   TOPOGRAPHICAL LABELED     email + chat modes both declare it (dataset upsert is idempotent by slug)
+message.channel.{email,telegram,slack}    ONTOLOGICAL LABELED       each office mode declares its own channel(s)
+message.direction.{in,out}                ONTOLOGICAL
+message.status.{unread,read,answered}     STRUCTURAL                sync + tools move it
+#+end_example
+
+Slug = =<channel>.<external id, hashed short>=: =email.5f3a9c1e= (Message-ID) ·
+=telegram.4521.918= (chat.message). Threading rides the literal's EXISTING self m:n
+(=uses= / =in=, =kernel/Literal.ts=): a reply =uses= its parent — no thread entity, no new
+relation. Attachments go to the mode's freight (=attachments/<slug>/<name>=) and are DOCUMENT
+literals? No — v1 they are freight entries referenced from =MAILED.attachments[]=; promoting
+one into the vdex is a tool call (=vdex_fs_write=), i.e. filing.
+
+#+begin_src javascript
+// inbound mail
+{
+  slug: "email.5f3a9c1e",
+  ontology: "message",
+  traits: ["MESSAGE", "MAILED"],
+  trait: {
+    MESSAGE: {
+      channel: "email", direction: "in",
+      from: "notariat@example.de", to: ["office@vivalence.org"],
+      at: "2026-09-02T08:14:03.000Z",
+      body: "Sehr geehrte Damen und Herren, anbei die Rechnung …",
+      external: { id: "<20260902081403.1a2b@example.de>" },
+    },
+    MAILED: {
+      subject: "Rechnung RE24-05277",
+      cc: [], messageId: "<20260902081403.1a2b@example.de>", inReplyTo: null, references: [],
+      attachments: [{ path: "attachments/email.5f3a9c1e/RE24-05277.pdf", type: "application/pdf", bytes: 48211 }],
+    },
+  },
+  symbols: [{ slug: "message" }, { slug: "message.channel.email" }, { slug: "message.direction.in" }, { slug: "message.status.unread" }],
+}
+
+// a telegram DM, replying to the mail above is impossible — replies stay in-channel; `uses` links the chat parent
+{
+  slug: "telegram.4521.918",
+  ontology: "message",
+  traits: ["MESSAGE", "CHATTED"],
+  trait: {
+    MESSAGE: { channel: "telegram", direction: "in", from: "4521", to: ["vivalence_office_bot"], at: "…", body: "did the notary invoice arrive?", external: { id: "918" } },
+    CHATTED: { platform: "telegram", chat: "4521", sender: { id: "4521", name: "beef" }, replyTo: null },
+  },
+  symbols: [{ slug: "message" }, { slug: "message.channel.telegram" }, { slug: "message.direction.in" }, { slug: "message.status.unread" }],
+}
+#+end_src
+
+** transaction — T4, empty
+
+Ontology =transaction=, trait =POSTED= (entries sum to zero, enforced in the =voffice=
+repository, never in a prompt), own daemon with its own db (isolation by construction;
+the executive daemon consumes it). Nothing more is designed here.
+
+** ownership — mode ↔ literal · symbol (typology + runtime, GATED)
+
+Today a dataset row has no owner: =Mode.installed= is a content hash, =Literal= knows its
+symbols and its =uses=, nothing knows which mode put it there. Prune is therefore impossible
+everywhere. The relationship:
+
+#+begin_src javascript
+// subsystems/typology/schematics/entities/mode.js  (mirror of buffer.js:12-13)
+literals: () => v.array(v.literal()).optional(),
+symbols:  () => v.array(v.symbol()).optional(),
+// literal.js / symbol.js — the inverse
+modes: () => v.array(v.mode()).optional(),
+#+end_src
+
+#+begin_src typescript
+// systems/runtime/daemon/entities/daemon/Mode.ts — owner side, pivots mode_literals · mode_symbols
+literals = new Collection<LiteralEntity>(this);
+symbols  = new Collection<SymbolEntity>(this);
+// properties: { literals: { kind: "m:n", entity: () => LiteralEntity, owner: true }, symbols: { … } }
+#+end_src
+
+- =systems/runtime/daemon/traits/dataset.js= — the install links every upserted row to
+  =mode.entity= in the link phase (same =INSERT OR IGNORE= pivot mechanism it already uses
+  for =symbol_literals=). Education's rows gain owners; its boot is otherwise byte-identical.
+- =install(mode, daemon, dataset)= is FACTORED OUT of the =DATASET= trait so a BOOTED mode can
+  install a dataset it computed from the world (=reader.rows= already exists in
+  =subsystems/typology/prototypes/dataset.js=). No =installed= stamp for boot installs.
+- =prune(mode, keep)= on the domain repository: =delete literal where modes ∋ mode and slug ∉ keep=;
+  same for minted symbols. Scheme symbols (dataset-declared) are never pruned — they re-install
+  on stamp change. A symbol declared by two modes (=message=) is multi-owned; m:n carries it.
+- typology is HOLY: the =mode.js/literal.js/symbol.js= touch lands only on an explicit go, under
+  the blast-bracket (education boot + runtime suites before/after).
+
+** the per-mode config — kernel entries in object form
+
+/"the vdex mount path can be given directly to the vdex modes instance config … mail
+adresses etc straight on the mode config too."/ The schema already admits it —
+=subsystems/typology/schematics/primitives/instance.js:31= =kernel: v.array(v.union([v.string(), v.object({}, {additionalProperties: true})]))= —
+and paladin's =reference()= passes objects through (=prototypes/instance.js:6-13=). What is
+missing is the runtime reading it:
+
+#+begin_src javascript
+// instances/vivalence/daemon.js — the office daemon
+kernel: [
+  "@vcompany/domain/voffice",
+  {
+    module: "@vcompany/office/vdex",
+    mountpoint: () => paladin.env.get("VIVA_VDEX_MOUNT"),          // ONE path; paladin would otherwise mint <daemon mountpoint>/mode_office_vdex
+    statics: { formats: ["md", "org", "json", "txt"], ignore: ["bak", "archive", "node_modules", ".git"] },
+  },
+  {
+    module: "@vcompany/office/email",
+    statics: { address: "office@vivalence.org", poll: 60 },
+    secrets: {},                                                      // creds live on the consumed service, not here
+  },
+  { module: "@vcompany/office/chat", statics: { platforms: ["telegram"] } },
+],
+consume: {
+  mail:     { module: "@commons/service/mail",     statics: { imap: () => paladin.env.get("VIVA_MAIL_IMAP"), smtp: () => paladin.env.get("VIVA_MAIL_SMTP") },
+              secrets: { user: () => paladin.secret.get("SECRET_VIVA_MAIL_USER"), password: () => paladin.secret.get("SECRET_VIVA_MAIL_PASSWORD") } },
+  telegram: { module: "@commons/service/telegram", secrets: { token: () => paladin.secret.get("SECRET_VIVA_TELEGRAM_TOKEN") } },
+},
+#+end_src
+
+Runtime side (=systems/runtime/daemon/lifecycle/population.js:123-127= =modes()=): an object
+entry accio's =entry.module= the way =hallucinators= masks do; =mode.statics = {...module.statics,
+...entry.statics}= (instance OVERRIDES module — the variant-assembly law); =mode.secrets =
+entry.secrets= (thunks fire at the pinhole: =hydrate= already walks arrays and objects);
+=mode.mountpoint = entry.mountpoint ?? daemon.mountpoint.branch("/mode_<type>_<slug>")=.
+FRAUGHT's root becomes =mode.mountpoint ?? module dir + freight path=. Paladin's populate
+resolves the =module= key of an object entry like it resolves a hallucinator mask. String
+entries keep working unchanged.
+
+* package layout (mirrors =@education=; topologies ride the modes)
+
+#+begin_example
+~/.viva/registry/vcompany/                     own repo → registry/tap → ~/.viva/registry/vcompany → @vcompany
+├── vcompany.viva.js                           {type:"package", slug:"vcompany", owner:"@vcompany"}
+├── domain/voffice/                            domain.viva.js · entities/{index.js, kernel/Literal.ts} · tools/ · aperture/ · types.js
+├── modes/office/vdex/                         vdex.viva.js · jd.js · boot.js · dataset/symbols.js · aperture/ · tools/ · harness.js · buffer/Vdex.svelte
+├── modes/office/email/                        email.viva.js · boot.js (sync) · dataset/symbols.js · tools/ · harness.js · buffer/Inbox.svelte
+├── modes/office/chat/                         chat.viva.js  · boot.js (sync) · dataset/symbols.js · tools/ · harness.js
+├── modes/executive/executive/                 executive.viva.js · hal/persona.md · harness.js · tools/ · buffer/Executive.svelte
+├── modes/executive/specialists/{strategy,finance,people,legal,operations,marketing,product,board}/
+│                                              <slug>.viva.js · hal/persona.md · tools/consult.js
+├── modes/executive/workflows/                 morning-brief · eod-digest · investor-update · board-prep  (after)
+└── instances/vcompany/                        instance.viva.js · daemon.js   →  viva instances/tap … → ~/.viva/instances/vivalence
+
+commons/services/{mail,telegram,slack,ocr}/    domain-blind gateways — @commons/service/<slug>; ocr = the PDF mode's substrate, later
+#+end_example
+
+One daemon (=vcompany=) carries voffice + the three office modes + the executive stack. The
+ledger (T4) is its own daemon. Services are consumed, never owned.
+
+* example office mode — =@vcompany/office/vdex=
+
+#+begin_src javascript
+// modes/office/vdex/vdex.viva.js
+import { App, Dataset, Freight, v } from "@vivalence/typology";
+
+export { boot } from "./boot.js";
+export { aperture } from "./aperture/index.js";
+export { tools } from "./tools/index.js";
+export { harness } from "./harness.js";
+
+export const manifest = {
+  type: "office",
+  slug: "vdex",
+  name: "VDex",
+  description:
+    "The JDex on disk as literals. Boot indexes the mountpoint, prunes what is gone, mints the coordinates; " +
+    "tools and the app read and write through the same paladin verbs.",
+  version: "0.1.0",
+  traits: ["DATASET", "BOOTED", "FRAUGHT", "APPLICATION", "STANDALONE", "EXPOSED", "HARNESSED", "TOOLED"],
+};
+
+export const dataset = new Dataset({ symbol: "dataset/symbols.js" });   // the scheme rides the mode
+export const freight = new Freight("/");                                 // root = mode.mountpoint — bodies served at /cargo/…
+export const statics = { formats: ["md", "org", "json", "txt"], ignore: ["bak", "archive", "node_modules", ".git"] };
+
+export const app = new App(
+  "buffer/Vdex.svelte",
+  v.buffer({
+    data: { open: v.string().optional().desc("slug of the document in the reader") },
+    literals: v.array(v.rel(v.literal())).desc("documents the buffer holds open"),
+    symbols: v.array(v.rel(v.symbol())).desc("the coordinate the tree is folded to"),
+  }),
+);
+#+end_src
+
+#+begin_src javascript
+// modes/office/vdex/dataset/symbols.js — the scheme (transported with the mode)
+const labeled = (slug, name, description) => ({
+  slug, traits: ["ONTOLOGICAL", "LABELED"], trait: { ONTOLOGICAL: {}, LABELED: { name, description } },
+});
+export default [
+  { slug: "vdex", traits: ["ONTOLOGICAL", "LABELED", "TOPOGRAPHICAL"],
+    trait: { ONTOLOGICAL: {}, LABELED: { name: "VDex", description: "A document on the JDex mount." }, TOPOGRAPHICAL: {} } },
+  labeled("vdex.slot.index",     "Index",     "NN.00 — the category's index"),
+  labeled("vdex.slot.inbox",     "Inbox",     "NN.01 — untriaged"),
+  labeled("vdex.slot.tasks",     "Tasks",     "NN.02 — task & project management"),
+  labeled("vdex.slot.templates", "Templates", "NN.03"),
+  labeled("vdex.slot.links",     "Links",     "NN.04"),
+  labeled("vdex.slot.someday",   "Someday",   "NN.08"),
+  labeled("vdex.slot.archive",   "Archive",   "NN.09"),
+  ...["md", "org", "json", "txt", "pdf", "docx", "xlsx", "png", "jpg", "svg", "tex", "html"].map((format) =>
+    labeled(`vdex.format.${format}`, format, `.${format}`)),
+];
+#+end_src
+
+#+begin_src javascript
+// modes/office/vdex/jd.js — both grammars on disk; coordinates → symbols, deepest coordinate → slug prefix
+const AREA = /^(\d\d)-(\d\d)[ _](.+)$/;       // 20-29_koerperschaft · 10-19 Business administration
+const CATEGORY = /^(\d\d)[ _](.+)$/;          // 22_finance · 11 The business & its people
+const ID = /^(\d\d)\.(\d\d)[ _](.+?)(\.[^.]+)?$/;   // 22.04_accounting · 12.04 Ubiquity and a Thin Slice.md
+const SLOT = { "00": "index", "01": "inbox", "02": "tasks", "03": "templates", "04": "links", "08": "someday", "09": "archive" };
+
+const fold = (text) =>
+  text.normalize("NFKD").replace(/[̀-ͯ]/g, "").toLowerCase().replace(/[^a-z0-9]+/g, "-").replace(/^-|-$/g, "");
+
+export function coordinates(path) {
+  const symbols = [];
+  let prefix = "";
+  for (const segment of path.split("/")) {
+    let match;
+    if ((match = segment.match(ID))) {
+      symbols.push(structural(`vdex.id.${match[1]}.${match[2]}`, match[3], path));
+      if (SLOT[match[2]]) symbols.push({ slug: `vdex.slot.${SLOT[match[2]]}` });
+      prefix = `${match[1]}.${match[2]}`;
+    } else if ((match = segment.match(AREA))) {
+      symbols.push(structural(`vdex.area.${match[1]}-${match[2]}`, match[3], path));
+      prefix = `${match[1]}-${match[2]}`;
+    } else if ((match = segment.match(CATEGORY))) {
+      symbols.push(structural(`vdex.category.${match[1]}`, match[2], path));
+      prefix = match[1];
+    }
+  }
+  return { symbols, prefix };
+}
+
+const structural = (slug, name, path) => ({
+  slug, traits: ["STRUCTURAL", "LABELED"],
+  trait: { STRUCTURAL: {}, LABELED: { name: fold(name).replaceAll("-", " "), description: path.split("/").slice(0, -1).join("/") } },
+});
+
+export const slugOf = ({ prefix }, file, seen) => {
+  const stem = fold(file.path.split("/").pop().replace(/\.[^.]+$/, ""));
+  const base = prefix ? `${prefix}.${stem}` : stem;
+  let slug = base;
+  for (let n = 2; seen.has(slug); n++) slug = `${base}-${n}`;
+  seen.add(slug);
+  return slug;
+};
+#+end_src
+
+#+begin_src javascript
+// modes/office/vdex/boot.js — BOOTED: boot(daemon, mode) after every trait is wired; returns the teardown
+import paladin from "@vivalence/paladin";
+import { install } from "@vivalence/runtime";          // T2.a: the dataset install, factored out of the DATASET trait
+import { coordinates, slugOf } from "./jd.js";
+import { title } from "./title.js";                    // first heading › frontmatter title › stem, readable formats only
+
+export async function boot(daemon, mode) {
+  const root = mode.mountpoint.absolute;
+  const files = await paladin.find.index(root, { ignore: mode.statics.ignore });   // T2.b: [{path, format, bytes, mtime, hash}], sorted
+  const seen = new Set();
+  const minted = new Map();
+  const literal = [];
+
+  for (const file of files) {
+    const jd = coordinates(file.path);
+    for (const symbol of jd.symbols) minted.set(symbol.slug, symbol);
+    const readable = mode.statics.formats.includes(file.format);
+    literal.push({
+      slug: slugOf(jd, file, seen),
+      ontology: "vdex",
+      traits: ["DOCUMENT"],
+      trait: {
+        DOCUMENT: {
+          asset: { path: file.path },
+          title: readable ? await title(root, file) : file.path.split("/").pop().replace(/\.[^.]+$/, ""),
+          format: file.format, readable, bytes: file.bytes, mtime: file.mtime, hash: file.hash,
+        },
+      },
+      symbols: [{ slug: "vdex" }, ...jd.symbols.map(({ slug }) => ({ slug })), { slug: `vdex.format.${file.format}` }],
+    });
+  }
+
+  await install(mode, daemon, { symbol: [...minted.values()], literal });          // owner-stamped upsert + link
+  const pruned = {
+    literal: await daemon.entities.literal.prune(mode, literal.map((row) => row.slug)),
+    symbol: await daemon.entities.symbol.prune(mode, [...minted.keys()]),
+  };
+  console.log(`[VDEX] ${root} ${literal.length} documents · ${minted.size} coordinates · pruned ${pruned.literal}/${pruned.symbol}`);
+}
+#+end_src
+
+#+begin_src javascript
+// modes/office/vdex/tools/index.js — paladin's fs verbs, root REBOUND to the mountpoint; two vdex verbs on top
+import { shard, v, Vector } from "@vivalence/typology";
+import paladin from "@vivalence/paladin";
+import { line } from "../../../../domain/voffice/tools/line.js";
+
+export const tools = new Vector()
+  .use(async (ctx, next) => { ctx.root = ctx.mode.mountpoint.absolute; await next(); })
+  .slurp(paladin.skills.fs)                                                        // fs_tree · fs_find · fs_read · fs_write · fs_stat · fs_move · fs_delete (T2.b)
+  .open(
+    {
+      nature: "/find",
+      valence:
+        "Find documents by JD coordinate, title or slug. The harness already shows the index — use this to resolve a " +
+        "coordinate to its documents before reading. Unreadable formats (pdf, images) are listed, never read.",
+      input: v.object({
+        id: v.string().optional().desc("A JD coordinate: 22, 22.04, 20-29."),
+        text: v.string().optional().desc("Matches slug and title."),
+        limit: v.integer({ minimum: 1, maximum: 50 }).default(20),
+      }),
+    },
+    async (ctx) => {
+      const where = { ontology: "vdex" };
+      if (ctx.input.id) where.symbols = [coordinateSymbol(ctx.input.id)];
+      if (ctx.input.text) where.search = ctx.input.text;
+      const literals = await ctx.daemon.entities.literal.find(where, { limit: ctx.input.limit });
+      return { message: literals.map(line).join("\n") || "nothing filed there.", entities: { literal: literals } };
+    },
+  )
+  .open(
+    {
+      nature: "/open",
+      valence: "Put a document on the learner's… the operator's screen — the reader opens it in the VDex app.",
+      input: v.object({ slug: v.string() }),
+    },
+    async (ctx) => {
+      const literal = await ctx.daemon.entities.literal.findOne({ slug: ctx.input.slug });
+      if (!literal) return { condition: "ERROR", message: `${ctx.input.slug} is not in the vdex` };
+      const buffer = await ctx.mode.app.buffer({ thread: ctx.thread, literals: [literal.id], data: { open: literal.slug } });
+      await ctx.daemon.entities.em.flush();
+      return { message: `${literal.slug} on screen.`, entities: { buffer: [buffer] } };
+    },
+  );
+#+end_src
+
+Writes are file-first: =fs_write= lands on disk, then the boot's single-file variant
+(=reindex(path)=) refreshes the literal (hash · mtime · title) — the literal never leads the
+file. =fs_move= re-slugs (a move across coordinates is a re-file).
+
+#+begin_src javascript
+// modes/office/vdex/harness.js — "in the harness, we always load the current VDEX in some structured organized form"
+import { Vector } from "@vivalence/typology";
+import { index } from "./index.js";
+
+export const harness = new Vector().use(async (ctx, next) => {
+  ctx.hallucination.system.vdex = await index(ctx.daemon, ctx.mode);
+  await next();
+});
+
+// index.js — level-1 lines only (m27 gist law): deterministic order, byte-stable unless rows changed, budgeted
+//   [VDex — /Users/finn/vivalence/coorporation]
+//   20-29 koerperschaft
+//     22 finance
+//       22.04 accounting · 3 · pdf ×2, md
+//       22.01 banking · 4 · pdf
+//     23 agreements
+//       23.05 nda · 5 · pdf ×3, org, tex
+//   30-39 funding
+//     30 applications
+//       30.01 content · 4 · md          ← `22.04 accounting · 3 · pdf ×2, md` = coordinate · count · formats
+//   unfiled · 1 · org
+#+end_src
+
+#+begin_src svelte
+<!-- modes/office/vdex/buffer/Vdex.svelte — tree › list › reader › textarea; kajuit view props are the five -->
+<script>
+  import { Card, Header, Paragraph, Textarea, Button, Markdown, Org, Json } from "@vivalence/drapes";
+  let { terminal, daemon, mode, thread, buffer } = $props();
+  let open = $state(buffer?.data?.open ?? null);
+  let text = $state("");
+  const tree = $derived(daemon.entities.symbol.find({ slug: { $like: "vdex.%" } }));                 // fold client-side by slug
+  const documents = (id) => daemon.entities.literal.find({ symbols: [`vdex.id.${id}`] });
+  async function read(literal) { open = literal; text = await (await fetch(mode.freight.catalog[literal.trait.DOCUMENT.asset.path].url)).text(); }
+  async function save() { await mode.call.fs.write({ path: open.trait.DOCUMENT.asset.path, content: text }); }
+</script>
+{#if open?.trait.DOCUMENT.readable}
+  {#if open.trait.DOCUMENT.format === "md"}<Markdown {text} />{:else if open.trait.DOCUMENT.format === "org"}<Org {text} />{:else if open.trait.DOCUMENT.format === "json"}<Json value={JSON.parse(text)} />{:else}<Paragraph>{text}</Paragraph>{/if}
+  <Textarea bind:value={text} /><Button onclick={save}>save</Button>
+{:else if open}
+  <Paragraph>{open.trait.DOCUMENT.title} — {open.trait.DOCUMENT.format}, not readable here.</Paragraph>
+{/if}
+#+end_src
+
+=email= is the same mode shape with =boot= = an incremental sync (IMAP poll through
+=daemon.services.mail=, append-only, no prune, teardown stops the poll), tools =/inbox
+/read /send /search /file= (=file= = write an attachment into the vdex), harness section
+=system.inbox= = the last N unread gists, App =Inbox.svelte=. =chat= = the same over
+=daemon.services.telegram= (webhook or long-poll owned by the service; the mode consumes
+events). Both declare =message= + their channel symbols in =dataset/symbols.js=.
+
+* example executive mode — =@vcompany/executive/executive= + one specialist
+
+#+begin_src javascript
+// modes/executive/executive/executive.viva.js
+import { App, v } from "@vivalence/typology";
+export { harness } from "./harness.js";
+export { tools } from "./tools/index.js";
+
+export const manifest = {
+  type: "executive",
+  slug: "executive",
+  name: "The Executive",
+  description: "One voice. Consults the specialists, reads the vdex and the inbox, acts within authority, proposes the rest.",
+  version: "0.1.0",
+  traits: ["CONVERSATIONAL", "HARNESSED", "TOOLED", "AGENTIC", "APPLICATION", "STANDALONE", "EXPOSED"],
+};
+
+export const app = new App("buffer/Executive.svelte", v.buffer({ data: {} }));   // the chat + the consult trace
+#+end_src
+
+#+begin_src javascript
+// modes/executive/executive/harness.js — keyed sections, stable first (the cache mark is key order)
+import { Vector } from "@vivalence/typology";
+import persona from "./hal/persona.md" with { type: "text" };   // executive_persona.py near-verbatim, Apache-2.0 attribution in the file
+
+export const harness = new Vector().use(async (ctx, next) => {
+  ctx.hallucination.policy.tune ??= "capable";
+  ctx.hallucination.system.persona = persona;                                              // constant
+  ctx.hallucination.system.company = profile(ctx.mode.statics.company);                    // from the kernel entry statics — the instance IS the company profile
+  ctx.hallucination.system.vdex = await ctx.daemon.modes.office.vdex.call.index();          // the same index the vdex harness shows itself
+  ctx.hallucination.system.inbox = await ctx.daemon.modes.office.email.call.inbox({ limit: 12 });
+  // system.decisions · system.memory · system.notes join here when the decision ontology and m27 land
+  await next();
+});
+
+// AGENTIC (systems/runtime/daemon/traits/agentic.js) arms every other TOOLED mode under /<slug>:
+//   vdex_find · vdex_open · vdex_fs_read · vdex_fs_write · email_inbox · email_send · chat_send
+//   strategy_consult · finance_consult · people_consult · legal_consult · operations_consult · marketing_consult · product_consult · board_consult
+// plus the domain's own tools at /voffice (harnessed.js layer ③). Eight specialists, zero dispatch code; a ninth is a kernel line.
+#+end_src
+
+#+begin_src javascript
+// modes/executive/specialists/finance/finance.viva.js
+export { tools } from "./tools/index.js";
+export { harness } from "./harness.js";
+export const manifest = {
+  type: "specialist",
+  slug: "finance",
+  name: "Chief Financial Officer",
+  description: "Financial modeling, unit economics, fundraising, cash flow, board finance.",   // = the consult tool's valence tail
+  traits: ["HARNESSED", "TOOLED"],                                                             // not AGENTIC: a specialist never consults
+};
+
+// harness.js — the CFO_PROMPT from prompts/domain_prompts.py, verbatim, attributed
+export const harness = new Vector().use(async (ctx, next) => {
+  ctx.hallucination.policy.tune ??= "capable";
+  ctx.hallucination.system.specialist = cfo;
+  ctx.hallucination.system.company = profile(ctx.daemon.modes.executive.executive.statics.company);
+  ctx.hallucination.system.vdex = await ctx.daemon.modes.office.vdex.call.index({ under: "22" });   // finance reads 22_finance
+  await next();
+});
+
+// tools/consult.js — the one tool; the executive sees it as finance_consult
+export const consult = new Vector().open(
+  {
+    nature: "/consult",
+    valence:
+      "Consult the Chief Financial Officer — financial modeling, unit economics, fundraising, cash flow, board finance. " +
+      "They see only the query and the context you pass; be precise. Their answer is analysis for you to synthesize, " +
+      "never to relay raw.",
+    input: v.object({
+      query: v.string().desc("The specific question or task."),
+      context: v.string().optional().desc("What the specialist needs from the conversation."),
+    }),
+  },
+  async (ctx) => {
+    const { output } = await ctx.mode.harness.object.render({
+      turns: [{ role: "user", parts: [{ type: "text", text: [ctx.input.context && `<context>\n${ctx.input.context}\n</context>`, ctx.input.query].filter(Boolean).join("\n\n") }] }],
+      output: v.object({ analysis: v.string().desc("The CFO's analysis: numbers first, the constraint or lever, scenarios, the decision.") }),
+    });
+    return { message: output.object.analysis };
+  },
+);
+#+end_src
+
+Single voice is law: specialist output never surfaces raw — the executive synthesizes.
+Parallel consults = however many =consult= tool calls the round machinery runs from one
+assistant turn (measure at the executive stage; a fan-out cap is a policy knob, not code).
+The m27 upgrade: an ADVERTISED =about= note per specialist replaces =manifest.description=
+as the valence tail and lets a specialist announce what it wants to be consulted on.
+
+* tasks
+
+#+begin_example
+T1 package setup ───────────► T2 vdex ──────────────────► T3 messaging ─────► T4 bookkeeping (empty)
+   registry · instance · ledger   T2.a ownership (typology + runtime)   reuses T2.a + the T2.c sync shape
+   kernel entry object form       T2.b paladin fs
+                                  T2.c the mode: boot · tools · harness · app
+                                                             └──────────────► executive stage (after; m27 gate lives HERE)
+#+end_example
+
+** T1 — package setup (registry · instance · ledger)
+
+deps: none.
+- new repo =vcompany= (layout above) · =vcompany.viva.js= package manifest
+- =domain/voffice=: =entities/kernel/Literal.ts= extends the runtime literal with
+  =LiteralTraitsEnum {DOCUMENT, MESSAGE, MAILED, CHATTED, POSTED}= + repository verbs =search=
+  (slug + =DOCUMENT.title= + =MAILED.subject= + =MESSAGE.body=), =prune= (needs T2.a — lands
+  empty-bodied here), =line= for tool output; =tools/= =/lookup= over both ontologies; =types.js=
+- =modes/office/vdex= skeleton: manifest + =dataset/symbols.js= (scheme) + empty =boot=
+- =modes/office/{email,chat}= skeletons: manifest + channel symbols
+- =instances/vivalence=: =instance.viva.js= (=environment= schema: =VIVA_VDEX_MOUNT= required ·
+  =VIVA_MAIL_{IMAP,SMTP}= + =SECRET_VIVA_MAIL_*= + =SECRET_VIVA_TELEGRAM_TOKEN= optional) ·
+  =daemon.js= with the object-form kernel above
+- runtime + paladin: the object-form kernel entry reaches =Mode= (=statics= merge · =secrets= ·
+  =mountpoint=); FRAUGHT root honours =mode.mountpoint=
+- ledger: =registry/tap ~/vivalence/code/vcompany= · =instances/tap …/instances/vivalence= · =init=
+enables: a live daemon with the domain and every scheme symbol installed; harness answers as bot;
+T2/T3 land into a running instance.
+done: =viva instance/doctor vivalence --json= ok · =registry/list= shows =@vcompany= · kajuit lists the
+daemon with =office/{vdex,email,chat}= · =entities/symbol/find {slug:{$like:"vdex.%"}}= returns the
+scheme · =mode.statics.address= on =email= reads back from =/statics=.
+
+** T2 — vdex
+
+*** T2.a ownership — typology + runtime, GATED (typology is holy; ask, then blast-bracket)
+deps: T1 (a daemon to measure on).
+- typology =schematics/entities/{mode,literal,symbol}.js= rel fields · runtime =Mode.ts= m:n owner ·
+  =traits/dataset.js= owner link + =install()= factored out · =prune= verbs on the voffice repos
+  (generic enough to live on the runtime =LiteralRepository= — fork below)
+enables: prune by set-difference for every dataset mode; boot-installed datasets.
+done: italian boot byte-identical in rows and log lines + =mode_literals= populated · typology · runtime
+suites at baseline · =prune(mode, [])= on a scratch mode deletes exactly its rows.
+
+*** T2.b paladin fs
+deps: none (parallel to T2.a).
+- =belt/find.js=: =find.index(root, {ignore})= → sorted =[{path, format, bytes, mtime, hash}]= (the walker
+  already skips =bak|archive|slp|*.bak=; =ignore= extends it)
+- =skills/fs.js=: =/fs/stat= · =/fs/move= · =/fs/delete= beside tree/find/read/write; =ctx.root= stays the contract
+- =prototypes/freight.js= MIME + =md org txt tex html=
+enables: the vdex boot and its tools have every verb they need; every harnessed mode inherits stat/move/delete.
+done: =subsystems/paladin/tests/skills.test.js= extended · =find.index= hashes stable across two runs ·
+=fs_move= refuses to escape the root.
+
+*** T2.c the vdex mode — boot · tools · harness · app
+deps: T1 · T2.a · T2.b · drapes =Markdown= (lifted from =systems/kajuit/src/app/panels/a/{markdown.js,Markdown.svelte}=) + =Org= (new, headings · lists · src blocks · links).
+- =boot.js= (above) · =reindex(path)= after every write/move · teardown = nothing (no watcher v1;
+  a chokidar-style watcher is a fork)
+- =tools/= (above) · =aperture/= exposes =/index= (the harness section, for other modes) + =/tree=
+- =harness.js= (above); the section is budgeted (cap on lines, deepest coordinates folded to counts)
+- =buffer/Vdex.svelte= (above); =Textarea= is the editor
+enables: every agentic mode reads and writes the company's documents through tools; the executive's
+"knowledge" IS the JDex; the operator edits in kajuit.
+done: boot logs =[VDEX] <mount> N documents · M coordinates · pruned x/y= · edit a file in kajuit →
+disk changes → reboot keeps it · delete a file on disk → reboot prunes its row and any orphaned
+coordinate · chat "what is filed under 22" answers from the harness section without a tool call ·
+"read the DKB Antrag" → =vdex_find= → =fs_read= → text · a pdf answers "22.01 · pdf · not readable here".
+
+** T3 — messaging (email · chat)
+
+deps: T2.a (ownership) · T2.c (the boot/sync shape) · a Deno mail dep (fork).
+- =@commons/service/mail=: IMAP poll → events, SMTP send; =@commons/service/telegram=: long-poll or
+  webhook → events, send; both TOOLED? no — tools live on the office modes, services expose a
+  provider =(mask) => ({ pull, send, watch })=
+- =modes/office/email=: =boot= = sync (append-only, =external.id= idempotent, attachments → freight),
+  tools =/inbox /read /send /search /file=, harness =system.inbox=, App =Inbox.svelte=
+- =modes/office/chat=: same over telegram (slack = a second platform symbol + service, no mode change)
+- outbound = decision-gated? NOT in T3 — every send is a tool call the operator sees; the gate is the
+  executive stage's (decision ontology). T3 ports the anti-spam guard's dedup only.
+enables: the company's conversations are literals; the executive reads and replies through the same
+tools the operator has.
+done: a mail arrives → literal with MAILED, attachment in freight · =email_send= lands in the real
+mailbox and appears as =message.direction.out= · telegram DM round-trips · =voffice_lookup {text}= finds
+across both channels · =uses= links a reply to its parent.
+
+** T4 — bookkeeping (empty)
+
+Ontology =transaction=, trait =POSTED=, own daemon + db, Σ entries = 0 in the repository. CFO read
+tools; writes through the decision gate. Nothing designed; a milestone slot.
+
+** after — the executive stage (his M53.2–M53.9, folded)
+
+deps: T1–T3 · m27 M27.1 + M27.2 (memory/notes projections; ADVERTISED upgrade) · a decision ontology.
+- scaffold: =executive= mode + persona (port =executive_persona.py= near-verbatim — the "holding the
+  line" + autonomy-tiers prose is strong), air-gap fallback answers as bot
+- specialists: 8 =specialist= modes from =prompts/domain_prompts.py= + =agents/*.py=, one =/consult= each
+- knowledge: DONE by T2 (vdex index in the harness, tools for depth) — no cards, no chunker
+- decisions: =decision= ontology (fourth literal ontology, or a userspace entity — fork), their state
+  machine verbatim with compare-and-set transitions, post-turn extraction (cheap faculty),
+  =system.decisions= projection
+- scheduler + workflows: claim-based runner over libsql; morning-brief · eod-digest · investor-update ·
+  board-prep as Vector pipelines
+- channels: DONE by T3
+- ledger: T4
+- evals: =evals/_scenarios/*.yaml= + =fixtures/companies/*/scenarios/= (NOT =evals/scenarios/= — README
+  is stale) → fixture package; judge via harness
+
+* blast radius
+
+| container | touch | why |
+|---|---|---|
+| =subsystems/typology= HOLY — ask first | =schematics/entities/{mode,literal,symbol}.js= rel fields; =prototypes/freight.js= MIME | the mode↔literal relationship; text cargo |
+| =systems/runtime= | =entities/daemon/Mode.ts= m:n owner · =traits/dataset.js= owner link + =install()= · =lifecycle/population.js:123= object kernel entries → =mode.{statics,secrets,mountpoint}= · =traits/index.js= FRAUGHT root | ownership · per-mode config · cargo over the mount |
+| =subsystems/paladin= | =belt/find.js= =find.index= · =skills/fs.js= stat/move/delete · populate resolves =entry.module= | the fs verbs; the config reaches the mode |
+| =subsystems/drapes= | =display/Markdown.svelte= (lift from kajuit) · =display/Org.svelte= new · =controls/Textarea.svelte= as-is | render documents in any App |
+| =systems/kajuit= | =panels/a/widgets/Markdown.svelte= imports from drapes after the lift | one renderer |
+| =commons/services= | =mail= · =telegram= (=slack= · =ocr= later) | domain-blind gateways, beef's ruling |
+| new repo =vcompany= | everything in the layout | the package |
+| =~/.viva= | tap package · tap instance · =.env= | ledger |
+| =systems/ghost= | nothing | verbs exist |
+| =import_map.json= | mail + telegram deps (fork) | Deno-native law |
+
+* forks
+
+** ruled (beef)
+- three JDexes → ONE mount per vdex mode (/"vdex mounts just ONE path! single mount."/); which directory the =vivalence= instance mounts is the instance's =.env=
+- topologies ride the modes, no =topologies/= dir (/"transport the topologies direclty with the modes."/)
+- services → commons (/"mail, telegram, slack, and OCR etc go to commons."/)
+- index everything, =readable= marks the formats (/"index everything but mark some things as readable/unreadable."/)
+- slug lean: coordinate + stem (/"jdex is smarter."/)
+- editor = Textarea (/"textarea."/)
+- own package, not commons (/"the whole thing started as its own package in the registry"/)
+
+** open
+- mode =type= names: =office= (vdex · email · chat) · =executive= · =specialist= — proposed here, not yet ruled
+- =prune= home: voffice repository vs the runtime =LiteralRepository= (generic: every dataset mode could use it)
+- Deno mail/telegram deps: =npm:imapflow= + =npm:nodemailer= · =npm:grammy= in root =import_map.json= — nothing mail-shaped exists in the repo today
+- vdex watcher (live reindex on disk change) vs boot-only + reindex-after-own-write — lean boot-only v1
+- =title= extraction for org (=#+TITLE:= › first =*= heading) and md (frontmatter =title= › first =#=) — one =title.js=, cheap
+- decision: fourth literal ontology (=decision=, kernel, daemon-holistic) vs userspace entity with =user= — the state machine is the same either way
+- attribution placement for ported Apache-2.0 prose (per-file header vs NOTICE)
+- extraction faculty on air-gapped installs — skip the pass or queue it?
+- workflow ↔ scheduler contract: does a pipeline own its cadence or does the scheduler?
+
+* skip list
+
+=talent_tools.py= · =research_council.py= · =mcp_gateway.py= · Honcho · Fly configs · ChromaDB and every
+embedding path (the vdex index + tools replace retrieval) · =outbound_guard.py= beyond its dedup.

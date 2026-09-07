@@ -1,0 +1,350 @@
+#+title: m55 recursive terminals — a buffer renders a buffer: the thread is the daemon's, the terminal is the client's function of it
+#+filetags: :m55:kajuit:drapes:typology:runtime:terminal:thread:frame:buffer:view:sub-thread:control:vcompany:
+#+status: M1 thread lineage LANDED on /"go."/ under the blast bracket — =Thread.parent= m:1 cascade + =Thread.children= 1:m (the Turn shape) · =Buffer.thread= FK gains update/delete cascade · typology =thread.js= =parent=/=children=. Suites identical before/after (typology 123/1 · runtime 53/1, both reds pre-existing). The =parent= column reaches every live db at its next boot (the libsql datamap mints the migration). M2 (the kajuit terminal) and M3 (the nested App) DESIGNED, gated on go.
+#+status: The rulings, in order: the child is a THREAD (a sub-thread) · mikro first · NO terminal entity on the daemon — /"thread is daemon. terminal is client!! thats the surface. no overlap."/ · control-vector verbiage on the terminal · =down= never deletes the thread · =up= takes an existing thread. Struck along the way: =buffer.parent=, the shard =verbs= contract, a runtime =TerminalEntity=, m50's =control(die)= as the mechanism (names kept).
+#+status: Number m55 is beef's. =done/m45-abandoned-coherence.org= carries a stray "m55" in its title — file is m45, unrelated.
+#+phase: wip
+#+progress: 1/3
+#+next: go m2 — the kajuit terminal: up · down · status · stop · run · watch, the tree, the schematic, panel F
+
+* intent
+
+beef, verbatim: /"there is an open question posed by this. namely sub modal applicaitn rendering. can a
+buffer render another buffer? f.e. some vcompany app writing emails, documents, notes, chats, calendar
+all interchangebly in some coherent framework. the buffer would need to render a frame and provide it
+with all a fame needs to render. its a terminal. a terminal carries buffer, mode, daemon, literals,
+symbols etc. so we are now talking about recursive terminals. i think thats not an issue. the terminal
+entity is independent of the context servicing it."/
+
+One sentence: *a nested App holds a child terminal; the child terminal points at a sub-thread of the
+App's own thread (=Thread.parent=, the daemon's), carries its own buffer and dock, and a =Frame= renders
+it exactly as the crown renders the root — the daemon knows threads and their lineage, the client
+knows terminals as the function that mirrors and controls a thread, and nothing overlaps.*
+
+* terrain — measured this session
+
+** the terminal is thinner than stated
+=systems/kajuit/src/typology/entities/terminal.js=: three atoms =$thread= · =$buffer= · =$dock=, =daemon=
+derived from the thread, a stall rebuilt per thread. No mode, no literals, no symbols on it — those
+ride the buffer (=subsystems/typology/schematics/entities/buffer.js=). The stall + vigils hang off
+=$thread=. =terminal.js:11= carries beef's own trace: =// const $view = atom(null;) //@beef!=.
+
+** the Frame reads ONE thing from the terminal
+#+begin_src svelte
+// subsystems/drapes/panels/Frame.svelte:6 · :60-66 — the App props come off the BUFFER
+const buffer = $derived(terminal.$buffer);
+component = module.default(target, { terminal, daemon: next.mode.daemon, mode: next.mode, thread: next.thread, buffer: next });
+#+end_src
+Frame has exactly ONE consumer, =systems/kajuit/src/app/panels/a/a.svelte=, which computes the view law
+(=buffer.view.withUrl(mode.app.url) ?? mode.app.view=, =:22-28=) and hands Frame a =view= prop.
+
+** recursion already compiles
+Bundler import map = typology + drapes (=subsystems/paladin/belt/bundler.js:11-14=); the drapes barrel
+exports =Frame=; nanostores resolves in bundles (=drapes/context/decorum.js=). A bundle's default export is
+=(target, props) => mount(Component, …)= (=typology/gestalten/bundle/svelte.js:63-67=); =Bundle.load=
+memoizes by integrity. A Frame inside a Frame-mounted component is the same call.
+
+** the seam is the repository verb set
+=shard.datamap.repository(repo)= mounts a fixed crud list (=typology/gestalten/shard/datamap.js=) and
+=RemoteRepository= mirrors it (=typology/prototypes/remote-repository.js=); =userspace.js= slurps four
+branches identically. =create({ parent, … })= under =scoped("data")= stamps the user — a sub-thread needs
+no new verb. =Thread.ts= ran on bare =DataRepository=; =Turn.ts:45-46= carried the house self-relation.
+
+** the thread is already process-shaped on the client
+Phase machine =inert · manual · continuous · escort= (=Thread.ts:13-20=), =thread.engage(phase)= the gate,
+the stall pulling to =depth()=, turns the log. The pull is CLIENT-driven (=ThreadTraits.aimed.pull → mode.connection.call=).
+
+** the names on record (read-only: quests · beef's logs · =git grep <rev>=)
+- =Thread.parent= — =done/longdistance.quest.org:128= /"Thread.parent for mentored branching — entity m:1 optional; deferred milestone."/ · log =2026.04.16.org:415=
+- *sub-thread* — beef's word for the child: log =2026.04.04.org:38-40= /"populate creates a sub-thread per emitter … rendering buffers into specific sub-threads. with the user ui showing the state to the client."/ · =2026.04.16.org:373= /"mentor's tool_use opens a sub-thread (parent = mentorThread.id)"/
+- *child thread* — =done/m26-hallucinate-contract.org:793=; *children* — never written for threads, it is Turn's code shape; *spawn* — =done/terminal-first-client.quest.org:137= /"create thread, spawn terminal"/.
+
+* the decision trail (beef verbatim at every turn)
+
+- *the child is a THREAD.* /"maybe the answer is to force thread creation? spawn of a child of the current
+  thread. and place that on a terminal. and write that into a frame."/ → =Thread.parent= + =children=; the
+  thread-axis question (children as siblings in =thread.buffers=) DISSOLVES — Phase · Dock · stall stay
+  per-thread. =buffer.parent= STRUCK before landing.
+- *mikro first.* /"we design mikro-orm first! mark that."/ · /"child too?! we ahve that already on the
+  entities afaik."/ → the Turn shape verbatim (=parent= m:1 · =children= 1:m =mappedBy=). Memory
+  [[feedback_mikro_first_repository_verbs]].
+- *no terminal on the daemon.* /"the daemon knows nothing about terminals! no entity terminal on runtime!
+  thread is daemon. terminal is client!! thats the surface. no overlap. terminal is a function of thread.
+  terminal mirrors and controls thread."/ → the runtime =TerminalEntity=, =ThreadRepository.spawn/status=
+  and the shard =verbs= contract (/"intricrazy thats not warrented. aim instead for coherence and
+  integration at the cost of effort"/) STRUCK. Zero new verbs: =create({parent})= IS spawn, =removeOne= +
+  cascade IS thread deletion, =find({parent})= IS children, =subscribe= IS watch.
+- *control-vector verbiage on the terminal.* /"lets go with control vector verbiage here."/ → m50's
+  =Nature= names (=up down status stop run watch=) as the terminal's methods; m50's =control(die)= is
+  NOT the mechanism (a plain client function), the vocabulary is shared.
+- *=down= is the terminal's, not the thread's.* /"i dont think we want to delete the thread when we wind
+  down the terminal. thats separate. we do want to be able to pass an existing thread to a new terminal
+  tho. just as we'd want to configure mode, maybe buffers, etc."/ → =down= unmounts + drops the terminal
+  and its descendants; =up({ thread })= adopts, =up({ mode, traits, trait })= mints.
+- *the view law is the terminal's.* /"whats the holistically best approach? maybe re-think if the panel
+  should have it in the first place?!"/ → =terminal.$view= (his =//@beef!= trace); Frame reads it; =a.svelte=
+  stops computing; the Frame-law variant drafted earlier is superseded.
+- *known issue, on his order.* /"mark as known issue in the quest: child terminal dock/conversational
+  handling."/ → =* known issues= below.
+- *proposed, NOT ruled* (his /"point or flat?"/ · /"standardize the schematics of terminal … time now
+  maybe?!"/): point props ={ terminal, buffer }= — the GENERATIVE valence already promises exactly that
+  pair (=runtime/daemon/traits/generative.js:41=) while Frame hands five; the terminal schematic
+  kajuit-local. Both in =* forks=.
+
+* milestones
+
+** M1 — thread lineage (runtime + typology) — LANDED
+
+#+begin_src diff
+--- systems/runtime/daemon/entities/userspace/Thread.ts
++  parent?: Rel<ThreadEntity>;
++  children = new Collection<ThreadEntity>(this);
+@@ properties
++    parent:   { kind: "m:1", entity: () => ThreadEntity, fieldName: "parent", nullable: true, deleteRule: "cascade" },
++    children: { kind: "1:m", entity: () => ThreadEntity, mappedBy: (thread) => thread.parent },
+--- systems/runtime/daemon/entities/userspace/Buffer.ts   (thread FK; Turn.thread already cascaded, Turn.ts:81-83)
++      updateRule: "cascade",
++      deleteRule: "cascade",
+--- subsystems/typology/schematics/entities/thread.js
++    parent: () => v.rel(v.thread()).optional(),
++    children: () => v.array(v.thread()).optional(),
+#+end_src
+
+Proof: blast set = typology =v.test.js:174,239-240= · =turn.js= · =user.js= · =buffer.js= · runtime
+=thread.test.js= · =datamap.scoped.test.js= · =mode/traits.test.js= · =scenarios/datamap.js= · fixtures
+=Trace.ts= — none reference the new fields, no snapshot pins the schema. Suites before = after:
+=typology 123 passed (493 steps) | 1 failed (2 steps)= (hallucination snapshot) · =runtime 53 passed (334 steps) | 1 failed (1 step)= (registry ingest). Probe: =parent= as id or ={id}= true, =parent: 42= false, =children= rows true / ids false (=buffers='s convention). The self-reference is safe: =entityFactory='s =resolving= guard (=schematics/v.js:52-58=). Migration: =commons/datamaps/libsql/libsql.viva.js:34-37= mints + applies it at boot.
+
+** M2 — the terminal is a function of the thread (kajuit only) — DESIGNED, gated on go
+
+*** systems/kajuit/src/typology/entities/terminal.js — mirror + control
+
+#+begin_src javascript
+import { atom } from "nanostores";
+import { Stall, Blacklist } from "@vivalence/typology";
+import { chain } from "../gestalten/belt/chain.js";
+import { logger } from "$telemetry";
+import { pull } from "./thread/traits/aimed.js";
+import { depth } from "./thread/traits/queueing.js";
+import { defaultDock } from "../stores/bridge/dock.js";
+
+export function Terminal({ id = null, parent = null, dock, terminals } = {}) {
+  const $thread = atom(null);
+  const $buffer = atom(null);
+  const $dock = atom(dock ?? defaultDock());
+  const $view = chain({ $buffer }, "$buffer", (buffer) => buffer && { buffer, $app: buffer.mode?.$app }, "$app", …);   // row wins, else the app's, based at app.url — the fold a.svelte carries today, moved
+  let stall = null;
+  …threadVigil · bufferVigil · vigil() as today…
+
+  const engage = (phase) => {
+    const thread = $thread.get();
+    if (!thread?.engage(phase)) return false;
+    thread.daemon.entities.thread.updateOne({ id: thread.id }, { phase });
+    return true;
+  };
+
+  const terminal = {
+    id, parent, $thread, $buffer, $dock, $view,
+    get thread() { … }, set thread(value) { …as today… },
+    get buffer() { … }, set buffer(value) { … },
+    get dock() { … }, get daemon() { … }, get stall() { … },
+    get children() { return terminals.entities.filter((held) => held.parent?.id === id); },
+
+    async up({ thread = null, mode = null, traits = [], trait = {}, buffer = null, dock = null } = {}) {
+      const origin = $thread.get();
+      const child = terminals.create({ parent: terminal, dock: dock ?? $dock.get() });
+      child.thread = thread ?? await origin.daemon.entities.thread.create({ parent: origin.id, mode, traits, trait, intent: origin.intent?.id ?? null });
+      if (buffer) child.buffer = buffer;
+      return child;
+    },
+    down() { for (const child of terminal.children) child.down(); terminals.remove(id); },
+    get status() {
+      const thread = $thread.get();
+      return { phase: thread?.phase ?? null, integrity: thread?.$integrity?.get?.() ?? null, errors: thread?.$errors?.get?.() ?? [], buffers: thread?.$buffers?.get?.().length ?? 0, children: terminal.children.length };
+    },
+    stop: () => engage("manual"),
+    run: ({ escort = false } = {}) => engage(escort ? "escort" : "continuous"),
+    watch() {
+      const thread = $thread.get();
+      return thread?.daemon.entities.thread.subscribe({ parent: thread.id }, (row) => {
+        if (row && !terminal.children.some((held) => held.thread?.id === row.id)) terminal.up({ thread: row });
+      });
+    },
+
+    toJSON: () => ({ id, parent: parent?.id ?? null, thread: $thread.get()?.id ?? null, buffer: $buffer.get()?.id ?? null, dock: $dock.get() }),
+  };
+  …the $buffer / $thread subscriptions (vigils · stall) as today…
+  return terminal;
+}
+#+end_src
+
+The verbs, one meaning each:
+| verb     | terminal meaning                                                                                   | daemon touch                          |
+|----------+----------------------------------------------------------------------------------------------------+---------------------------------------|
+| =up=     | a child terminal under this one; adopts ={ thread }= or mints a sub-thread from ={ mode, traits, trait }=; optional ={ buffer, dock }= | =thread.create({ parent })= when minting |
+| =down=   | unmount + drop this terminal and its descendants; the thread LIVES                                 | none                                  |
+| =status= | the mirror: phase · integrity · errors · buffers · children                                        | none                                  |
+| =stop=   | engage =manual=                                                                                    | =updateOne {phase}=                   |
+| =run=    | engage =continuous= (=escort= by option)                                                           | =updateOne {phase}=                   |
+| =watch=  | sub-threads minted elsewhere (a tool's child thread, m26) surface as child terminals              | =subscribe({ parent })=               |
+Thread deletion stays =daemon.entities.thread.removeOne({ id })= — the daemon cascades sub-threads · buffers · turns; the thread vigil then clears every terminal that pointed at them.
+
+*** systems/kajuit/src/typology/stores/terminals.js — the set is a tree
+#+begin_src diff
+-  create() {
+-    const terminal = Terminal({ id: random.id() });
++  create({ parent = null, dock } = {}) {
++    const terminal = Terminal({ id: random.id(), parent, dock, terminals: this });
+     this.$entities.set([terminal, ...this.$entities.get()]);
+-    this.$active.set(terminal);
++    if (!parent) this.$active.set(terminal);
+     return terminal;
+   }
++  get roots() { return this.entities.filter((terminal) => !terminal.parent); }
+   remove(id) {
+-    this.$entities.set(this.entities.filter((terminal) => terminal.id !== id));
++    const doomed = new Set([id]);
++    for (const terminal of this.entities) if (terminal.parent && doomed.has(terminal.parent.id)) doomed.add(terminal.id);
++    this.$entities.set(this.entities.filter((terminal) => !doomed.has(terminal.id)));
+     if (this.active?.id === id) this.$active.set(this.$entities.get().at(-1) ?? null);
+   }
+#+end_src
+Crown tabs = =roots=; =$active= stays bridge-local; the order of =$entities= is parents-first at hydrate
+(=app/terminals.js= resolves =parent= by id in a first pass, threads/buffers in the settle pass as today).
+
+*** systems/kajuit/src/typology/schematics/terminal.js — new (kajuit's first schematic; home is fork F2)
+#+begin_src javascript
+import { v } from "@vivalence/typology";
+export const Dock = v.object({ side: v.enum(["left", "right", "top", "bottom"]), share: v.number({ minimum: 0, maximum: 1 }), collapsed: v.boolean(), full: v.boolean().optional() });
+export const TerminalRecord = v.object({
+  id: v.string(),
+  parent: v.string().optional(),
+  thread: v.string().optional(),
+  buffer: v.string().optional(),
+  dock: Dock.optional(),
+});
+#+end_src
+=toJSON= writes it, =app/terminals.js= hydrate =check()=s it before minting a terminal from storage.
+
+*** the rest of M2
+- =subsystems/drapes/panels/Frame.svelte= reads =terminal.$view=; the =view= prop is REMOVED; the "buffer has no view" standing moves in from =a.svelte= (verb + trace, Frame's own chrome).
+- =systems/kajuit/src/app/panels/a/a.svelte= drops =app= · =modeStatus= · =view= + the =.await= block.
+- =systems/kajuit/src/typology/entities/thread/thread.js= gains =parent = null= (the Turn class precedent, =entities/turn.js:10=).
+- panel F (=panels/f/f.svelte=): the tree from =terminals.$entities= by =parent=; per row =up= · =down= · =stop= · =run=; =status= inline.
+- tests: =systems/kajuit/tests/terminal.stall.test.js= gains =up=/=down=/=children=/=status= over thread doubles (a =terminals= double with =create/remove=); =tests/terminal.record.test.js= new: =TerminalRecord.check= on =toJSON= output + a bad record refused; =subsystems/typology/tests/v.test.js:239= neighbourhood: =v.thread().check({ …, parent: "p" })= true, =parent: 42= false.
+
+** M3 — the nested App (the host is m53's Desk) — DESIGNED, after M2
+
+#+begin_src svelte
+<script>
+  import { Frame, Key } from "@vivalence/drapes";
+  let { terminal, daemon, mode, thread, buffer } = $props();          // five today; two if F1 rules "point"
+  let reader = $state(null);
+  async function read(slug) {
+    const vdex = await daemon.entities.mode.findOne({ type: "office", slug: "vdex" });
+    reader ??= await terminal.up({ mode: vdex.id });
+    reader.buffer = await daemon.entities.buffer.merge(await vdex.call.open({ slug, thread: reader.thread.id }));
+  }
+</script>
+<aside><Key label="open 12.04" onclick={() => read("12.04.ubiquity-and-a-thin-slice")} /></aside>
+<section>{#if reader}<Frame terminal={reader} />{/if}</section>
+#+end_src
+The child App receives =reader= as its =terminal=: its own jumps land in the reader, never in the crown.
+=merge= before pointing (=RemoteRepository.merge=, idempotent against the =buffer.subscribe()= stream).
+Frame is unchanged by M3.
+
+* testing assessment
+
+** in place
+- =systems/kajuit/tests/terminal.stall.test.js= — =Terminal()= + stall over thread doubles. *GAP: no test on the set (=Terminals=), none on =toJSON=/hydrate.*
+- =subsystems/drapes/tests/parts.test.js= — compile gates. *GAP: =Frame.svelte= is compiled by no suite; the view law has no test.*
+- =subsystems/typology/tests/v.test.js:239-240= — =v.thread()= check. *GAP (M1): =parent= unpinned; the probe stands in.*
+- =systems/runtime/tests/thread.test.js= · =datamap.scoped.test.js= · =view.spawn.test.js= — thread rows through the ORM. *GAP: no cascade test (delete a parent → sub-threads · buffers gone).*
+
+** changes
+- M2: =terminal.stall.test.js= thread double gains =daemon.entities.thread.create/updateOne/subscribe= stubs.
+
+** adds
+- M1 (owed): =v.test.js= one-liner; runtime =thread.test.js= "removing a thread cascades to its sub-threads and buffers".
+- M2: =terminal.record.test.js= · =frame.test.js= (compile + "takes =terminal= only") · the =Terminals= tree cases.
+
+** green ladder
+| milestone | gate                                                                                                  |
+|-----------+-------------------------------------------------------------------------------------------------------|
+| M1        | typology + runtime suites at baseline — PASTED above · probe PASTED · (owed) the two pinned tests      |
+| M2        | kajuit suite at baseline (34/115 last measured) + the three adds · drapes suite + =frame.test.js= · 2 grep gates · live: vdex tab unchanged, viewless chrome, panel F tree |
+| M3        | live nested open in the Desk; crown tab unchanged; =find({ parent })= = 1                             |
+
+* QA
+
+** ① testimony
+- I open the =vdex= tab. It renders exactly as before. (The law moved onto the terminal; nothing changed for me.)
+- I select a buffer whose mode has no app. Panel A prints =BUFFER HAS NO VIEW= with =mode <slug> · app pending= in Frame's own standing voice.
+- Panel F shows my terminals as a tree. Under the desk terminal I see =reader= with its phase chip. I press =down= on the reader: its pane closes, the desk stays, the sub-thread is still in the thread list.
+- I open the desk and tap =open 12.04=. The document renders INSIDE the desk's reader column; the crown still says =desk=; the shoulder's =next= does NOT cycle onto the document (it is another thread's buffer).
+- I delete the desk's thread from panel F. The desk, its reader, the sub-thread and its buffers are gone together — one cascade.
+- I pass an existing thread to a new terminal (=up({ thread })=). It appears under its parent pointing at that thread, no new thread minted.
+
+** ② programmatic + markers
+#+marker_qa: m55/P-parent-optional · held · `v.thread().check({user,mode,trait:{}})` true with no parent; `parent:"p"` and `parent:{id}` true; `parent:42` false; `children` rows true / ids false — probed at M1
+#+marker_qa: m55/P-suites-baseline · held · M1: typology 123/1 · runtime 53/1 before AND after, same reds
+#+marker_qa: m55/P-cascade · pending · runtime test: remove a parent thread → `find({parent})` 0, its buffers 0 (Buffer.thread cascade), turns 0
+#+marker_qa: m55/P-migration-at-boot · pending · restart hello-world: `migrations/` gains one file adding `Thread.parent`; boot green; `entities/thread/find` rows carry `parent: null`
+#+marker_qa: m55/T-vdex-unchanged · pending · live: the vdex tab renders through Frame with no =view= prop; one bundle fetch
+#+marker_qa: m55/T-viewless-chrome · pending · live: a buffer on an app-less mode shows Frame's =buffer has no view= standing
+#+marker_qa: m55/T-tree-panel-f · pending · live: panel F lists roots as tabs and children indented under their parent; `down` on a child removes it and its descendants only
+#+marker_qa: m55/T-down-keeps-thread · pending · live: `down` on a child terminal leaves `entities/thread/find {id}` intact
+#+marker_qa: m55/T-up-adopts · pending · live: `up({thread})` points a new child at an existing thread; `entities/thread/count` unchanged
+#+marker_qa: m55/T-nested-open · pending · live (M3): the Desk's reader mounts the document; crown tab unchanged; `find({parent: desk.thread})` = 1
+#+marker_qa: m55/P-one-view-law · pending · `grep -rn "withUrl(" systems/kajuit/src/app/` → 0; the fold lives in `entities/terminal.js` only
+#+marker_qa: m55/P-frame-consumers · pending · `grep -rln "<Frame" systems/ subsystems/ commons/ ~/.viva/registry/` → `a.svelte` + nesting Apps, each passing `terminal` only
+
+* blast radius
+
+| file                                                          | change                                                   | milestone | kind         |
+|---------------------------------------------------------------+----------------------------------------------------------+-----------+--------------|
+| =systems/runtime/daemon/entities/userspace/Thread.ts=         | =parent= m:1 cascade · =children= 1:m                    | M1 LANDED | edit         |
+| =systems/runtime/daemon/entities/userspace/Buffer.ts=         | =thread= FK update/delete cascade                        | M1 LANDED | edit         |
+| =subsystems/typology/schematics/entities/thread.js=           | =parent= · =children= relations                          | M1 LANDED | HOLY, go'd   |
+| =systems/kajuit/src/typology/entities/terminal.js=            | =parent= · =children= · =$view= · up down status stop run watch | M2   | edit         |
+| =systems/kajuit/src/typology/stores/terminals.js=             | =create({parent, dock})= · =roots= · =remove= descendants | M2       | edit         |
+| =systems/kajuit/src/typology/schematics/terminal.js=          | =TerminalRecord=                                         | M2        | new          |
+| =systems/kajuit/src/app/terminals.js=                         | persist =parent= · parents-first hydrate · =check()=     | M2        | edit         |
+| =systems/kajuit/src/typology/entities/thread/thread.js=       | =parent = null=                                          | M2        | edit         |
+| =subsystems/drapes/panels/Frame.svelte=                       | reads =terminal.$view= · =view= prop gone · viewless standing | M2   | edit, 1 consumer |
+| =systems/kajuit/src/app/panels/a/a.svelte=                    | drop the view derivation + =.await= block                | M2        | edit         |
+| =systems/kajuit/src/app/panels/f/f.svelte=                    | the tree + the verbs                                     | M2        | edit         |
+| tests: =terminal.stall= · =terminal.record= (new) · =frame= (new) · =v.test= · =thread.test= | gates                       | M1 owed · M2 | new/edit  |
+| m53 =* screens= Desk.svelte                                   | =terminal.up= + =<Frame terminal={reader}>=              | M3        | m53's hunk   |
+
+* known issues
+
+- *child terminal dock / conversational handling* (beef's order). A child terminal copies the parent's
+  =$dock= geometry at =up=; whether a nested Frame gets its OWN Dock pane (chat with the sub-thread's
+  mode, HARNESSED-gated per [[project_dock_per_terminal]]) or shares the crown's, and how the shoulder's
+  Phase widget addresses a child's phase, is UNDESIGNED. Panel A hosts exactly one Dock (=a.svelte=).
+  Lands in =known-issues.org= with M2.
+
+* deferred
+
+- D1 =withUrl= mutates the View's Bundle inside a derived (inherited from =a.svelte=). A =Bundle.load(mount, url)= taking the base at load kills the mutation. Trigger: a second reader of =buffer.view= needing a different base.
+- D2 gen-only modes have no =mode.app= → no url base (open since m19). Trigger: the reader mode enters a daemon kernel.
+- D3 background =watch= on the daemon: the stall's pull is client-driven; a daemon-side pull loop is a NEW capability, its own quest. Trigger: the first App that needs a sub-thread to work with no Frame mounted.
+
+* forks (beef's)
+
+- F1 *point or flat* — App props ={ terminal, buffer }= (the GENERATIVE valence's pair; =daemon= · =mode= · =thread= one dot off the buffer) vs the five Frame hands today. Radius: 10 App files on repo + shelf + vcompany, Frame, the valence.
+- F2 *schematic home* — =systems/kajuit/src/typology/schematics/terminal.js= (client-only, his /"thread is daemon. terminal is client"/) vs =subsystems/typology/schematics/= (the vocabulary, reachable by bundles through =mod.client.js=).
+- F3 *auto-merge on =.call=* — =entities/mode/mode.js:55= (=// @beef: choice pending=) would delete the explicit =merge= from every nesting App.
+- F4 *=run= ↔ =escort=* — =run({ escort })= as sketched, or =escort= its own verb.
+
+* release
+
+- added `Thread.parent` · `Thread.children` — a thread may be a sub-thread of another; deleting a thread now cascades to its sub-threads, buffers and turns (`Buffer.thread` gained the cascade; `Turn.thread` already had it) · migrate: none — the libsql datamap mints the migration at boot ⟨m55⟩
+- (M2, when landed) changed `drapes Frame` — reads the terminal's `$view`; the `view` prop is gone · migrate: pass `terminal` only ⟨m55⟩
+- (M2, when landed) added kajuit `terminal.up · down · status · stop · run · watch` + `terminal.parent` / `children` — terminals form a tree mirroring thread lineage · migrate: none ⟨m55⟩
+
+* changelog
+
+- session 1 — investigation on beef's ask: terminal · Frame · bundler · View · Stall · thread dossier · vcompany =/open= read; verdict "terminal axis free, thread axis the question". Quest authored with a Frame-law M1 and a =buffer.parent= M2 — BOTH superseded the same session by his rulings (trail above). His turns: the terminal as a citizen (view law → the terminal; point props; schematic; terminal→terminals) · the child is a THREAD, control-vector framing · mikro first, verbs both sides (=feedback_mikro_first_repository_verbs=) · no terminal on the daemon, terminal = f(thread) — the shard generalization and the runtime terminal entity struck. Name search on record: =Thread.parent= (longdistance OQ5) · *sub-thread* (his logs) · =spawn= (terminal-first-client).
+- session 1 (later) — /"go."/ on the thread lineage: =Thread.ts= +17 · =Buffer.ts= +2 · =thread.js= +2, blast-bracketed; suites before = after (typology 123/1 · runtime 53/1, reds pre-existing); probe pasted; migration mechanism located. Coverage: relation unpinned by a test (owed one-liner + cascade test). Then his fifth turn: control-vector verbiage on the terminal · =down= never deletes the thread · =up= adopts an existing thread · child-terminal dock as a known issue. Quest tied up on /"update teh quest. tie it up."/: one coherent spec, superseded hunks folded into the trail.

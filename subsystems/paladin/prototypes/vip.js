@@ -98,7 +98,8 @@ export class Vip {
     }
     if (is.object(query) && query.manifest && !query.module) return query;
     if (is.object(query) && is.string(query.module)) {
-      return { service: await this.accio(query.module), mask: query };
+      const service = await this.accio(query.module);
+      return { service, mask: { ...query, statics: { ...(service.statics ?? {}), ...(query.statics ?? {}) } } };
     }
     return await this.accio(query);
   }

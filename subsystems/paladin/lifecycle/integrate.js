@@ -11,6 +11,12 @@ export async function statements(paladin) {
       paladin.scope.instance,
       ...paladin.instance.services.map((s) => s.mount),
       ...paladin.instance.daemons.map((d) => d.mount),
+      ...paladin.instance.daemons.flatMap((d) =>
+        (d.kernel ?? [])
+          .filter((entry) => is.object(entry) && is.string(entry.module))
+          .map((entry) => entry.mountpoint)
+          .filter(Boolean),
+      ),
       ...paladin.instance.daemons
         .filter((d) => is.object(d.consume))
         .map((d) => fromm.slugmap(d.consume).array)
@@ -23,6 +29,9 @@ export async function statements(paladin) {
   // an instance HOME is never created here. everything below lives INSIDE one, so if the home is
   // absent the reference is wrong and scaffolding it turns a typo into a shelf entry — which is
   // exactly what `instance/doctor <typo>` used to do, silently, before any verb ran.
+  const ledger = paladin.scope.ledger;
+  if (ledger && !(await Deno.stat(ledger.absolute).catch(() => null))) return;
+
   const home = paladin.scope.instance;
   if (home && !(await Deno.stat(home.absolute).catch(() => null))) return;
 

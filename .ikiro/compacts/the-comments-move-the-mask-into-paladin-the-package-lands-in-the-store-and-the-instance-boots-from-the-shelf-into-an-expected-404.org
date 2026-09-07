@@ -1,0 +1,102 @@
+#+title: the comments move the mask into paladin, the package lands in the store, and the instance boots from the shelf into an expected 404
+#+filetags: :m53:vcompany:paladin:instance:quest:ledger:registry:doctor:landing:env:callout:mask:shelf:
+
+* what happened, in one breath
+
+Beef read T0 in the quest and left seven comments in the file; the order was /"i did comments
+on t0. fix them. and then work through gaps in modes/office/vdex, paladin/daemon. updating the
+quest live"/. The comments renamed the traits to nouns (=MAIL= · =CHAT= · /"@BeEF! trait
+TRANSACTION"/), put the officers in as acronym rows (=ceo= · =cfo= · =cto=), cut the slot
+symbols to the index (/"SKIP FOR NOW"/), asked for =pdf= from day one (/"requires propper
+drapes"/), moved the JDex into the registry (/"move whole into .viva/registry"/), questioned
+the =mode.mount= noun (/"other name?? or move mountpoint ??"/), renamed the instance
+(/"vcompany in registry and vivalence in .viva/instance"/), and threw the runtime =outfit()=
+out — /"mountpoint is property and masking and all that shit is subject of paladin. thats what
+he is fucking for. omg. stupid. fix silently."/ Fixed silently: masking moved into paladin
+(=dress= mints or resolves the mode mountpoint at the pinhole, =accioOne= lays instance statics
+over the module's, =integrate= creates the dirs); the runtime reads three fields. The noun
+question got an answer instead of a rename: =mount= is where a thing is attached, =mountpoint=
+is a data dir, both already on the daemon, the mode mirrors it — the one wobble is paladin's
+own =mask.mount=, a two-line typology touch gated on his go. The gaps pass decoupled vdex from
+the holy T1.a (prune by ontology + prefix on the voffice repositories), factored =install()=,
+gave the App an aperture. Then /"ok. materialize the the registry vcompany .viva.js and the
+instance. add them ot the ledger."/ — the package manifest and the instance recipe landed at
+=~/.viva/registry/vcompany=, tapped into the registry as =vcompany= and the instance in place as
+=vivalence=; the doctor mounted it, 7 addresses REQUIRED, nothing else. Beef then re-shaped the
+ledger his way — deleted the in-place record, =instance/create= onto the shelf
+=~/.viva/instances/vivalence=, init there, =problems —= — and booted into
+=[VIP] Module 404: @vcompany/domain/voffice=: the expected state, no module beyond the package
+and the instance exists yet. /"next stop: vcompany"/.
+
+* spine (N=22; rows 1–19 are compacts 103–104's — one row here)
+
+| n    | beef asked                                                                                                                                                       | landed                                                                                                                                                                                                                                                                                                                                                                                                                                  | decided / killed |
+|------+------------------------------------------------------------------------------------------------------------------------------------------------------------------+-----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------+------------------|
+| 1–19 | (compacts 103 · 104: the brief · the work package · the quest in his shape · c·o = chief officer, company operator · T0 patch-ready · the NLP crash · "go materialize" under the bracket · the waterfall) | —                                                                                                                                                                                                                                                                                                                                                                                                                              | — |
+| 20   | /"i did comments on t0. fix them. and then work through gaps in modes/office/vdex, paladin/daemon. updating the quest live"/ · /"read both?"/                     | T0 rewritten: trait nouns through every section · officers =ceo/cfo/cto= as T0 skeletons · slots cut to =index= · =pdf= in formats + drapes =Pdf= (T1.b) · JDex =./jdex= in the package, =VIVA_VDEX_MOUNT= gone · =outfit()= deleted, masking into paladin (=dress= · =accioOne= · =integrate=), runtime reads · instance =vcompany= / ledger =vivalence= · gaps: prune by ontology + prefix, =install()= factored, =reindex= one file + =freight.admit=, aperture =/document /write=, =fs_read= TEXT guard, =find.index/describe=, FRAUGHT root · waterfall re-stamped · memory + frontier | =mount= = route/location, =mountpoint= = data dir — no rename; the "one noun" set (typology =Mask= 2 lines) is his go · string entries get NO mountpoint · T1.a stays gated, no longer blocks vdex |
+| 21   | /"ok. materialize the the registry vcompany .viva.js and the instance. add them ot the ledger. i now read vdex office."/                                        | =~/.viva/registry/vcompany/vcompany.viva.js= · =instances/vcompany/{instance.viva.js, daemon.js}= verbatim from T0 · =registry/tap= → reference =vcompany= (4 taps) · =instances/tap … --slug=vivalence= in place · =registry/list= @vcompany 2 · =instance/doctor vivalence= mounts, object kernel entries pass settle, 7 addresses REQUIRED, =dormant []=                                                                          | README · the package's own ignore file · the modules · the git init · the mv: sibling actions, not written |
+| 22   | /"ikiro compact."/ + the paste: =boot failed= · =[VIP] Module 404: {"lookup":{"owner":"@vcompany","type":"domain","slug":"voffice"}}= · =instance/doctor= on =mount /Users/finn/.viva/instances/vivalence=, =problems —= · /"ikiro compact"/ · /"next stop: vcompany"/ | measured: the =vivalence= record now points at the SHELF (his =create= + =init= after the in-place tap), =.env= present, =mountpoint/service_multiplayer= only; the 404 is the plan — nothing of =@vcompany= beyond package + instance exists · this fold · the index regenerated by the method's generator (a sibling ran it mid-fold; entries are alphabetical positions, this one is 24) · zettel ×3 · budgets | the instance lives on the shelf; =./jdex= → =~/.viva/instances/vivalence/jdex= (CALL) · next stop = the modules, patch-ready in T0, go owed |
+
+* the seven comments and where they landed
+
+| comment (verbatim)                                                                  | landing |
+|-------------------------------------------------------------------------------------+---------|
+| =MAIL= · =CHAT= in the enum · /"@BeEF! trait TRANSACTION"/                          | nouns everywhere: Literal.ts enum · README · T2 rows · =line.js= · T3 |
+| /"officer ceo Chief Executive O"/ · /"cfo Chief Finance Off"/ · /"cto Chief Technology"/ | slugs = acronyms; =officer/chief= gone, =ceo= is the letterless chief; three T0 skeletons (manifest + one harness line via =modes/officer/harness.js=) |
+| /"SKIP FOR NOW: vdex.slot.inbox … archive"/                                          | scheme keeps =vdex= · =vdex.slot.index= · =vdex.format.*=; =jd.js= SLOT = ={"00": "index"}= |
+| /"add pdf already. requires propper drapes."/                                       | =formats: [md, org, json, txt, pdf]=; =readable= = the App renders it; drapes =Pdf.svelte= (=<object>= over the cargo url) in T1.b; tools read TEXT only, =fs_read= on a pdf answers binary + url |
+| /"move whole into .viva/registry"/                                                  | the package IS the store entry; JDex declared =mountpoint: "./jdex"= (instance-relative, paladin resolves), no env var — then his shelf =create= moved the resolution point (below) |
+| /"other name?? or move mountpoint ??"/                                              | neither: the noun law; paladin's own =mask.mount= wobble → the "one noun" set, gated |
+| /"omg retard … masking … is subject of paladin … fix silently."/                    | =outfit()= deleted; =dress= + =accioOne= + =integrate= in paladin; runtime =modes()= reads =statics · secrets · mountpoint= |
+| /"rename instance to vcompany in registry and vivalence in .viva/instance."/         | =instances/vcompany/instance.viva.js= slug =vcompany=; ledger slug =vivalence= |
+
+* masking is paladin's
+
+#+begin_example
+declaration   daemon.js   { module: "@vcompany/office/vdex", mountpoint: "./jdex", statics }
+pinhole       paladin     materialize() → hydrate(entry, record, "daemon[vcompany].kernel[1]")            LANDED
+dress         paladin     mountpoint: absolute · relative to the instance file · minted <daemon mountpoint>/mode_<type>_<slug>   READY
+integrate     paladin     statements() creates it at init, like daemon and service dirs                     READY
+accio         paladin     accioOne → { service, mask: { …entry, statics: {…module.statics, …entry.statics} } }   READY
+read          runtime     modes(): new Mode(unmask(register)); statics · secrets · mountpoint from the mask   READY
+#+end_example
+
+A string entry has no mask and no mountpoint; a mode that needs a data dir is declared in
+object form. The daemon's mountpoint is computed BEFORE materialize so entries hang under it;
+a blank thunk is left alone — the record names it REQUIRED and the gate refuses boot.
+
+* the shelf, not the store
+
+The ruling /"vivalence in .viva/instance"/ read two ways. I read it with /"move whole into
+.viva/registry"/ and tapped the instance IN PLACE — no copy, the JDex inside the package,
+=.env= and =mountpoint/= inside the store. Beef read it with his own pre-quest — /"gets cloned
+into, well, ledger instances"/ — deleted the record, ran =instance/create= onto the shelf and
+init'd there. Measured after the paste: =instances.json= =vivalence= → =/Users/finn/.viva/instances/vivalence=,
+=.env= present, =mountpoint/service_multiplayer=; the registry keeps =instances/vcompany= as
+the template. Consequence: =./jdex= now resolves against the shelf — =~/.viva/instances/vivalence/jdex=
+— and "move whole into .viva/registry" becomes a CALL: follow the instance (lean), or declare
+an absolute path into the store. One in-place tap wasted, one undo for him; the zettel carries
+the rule.
+
+* the 404 is the plan
+
+=[VIP] Module 404 {owner "@vcompany", type "domain", slug "voffice"}= at =population.js core()=
+→ =accioMap= → =accioMany= → =accioOne=: the kernel's first entry is a lookup the pensieve
+cannot answer because =@vcompany= holds two modules (package + instance). The doctor is clean
+(=problems —=, =faults —=) because settle never accios. The remaining T0 files — domain
+=voffice=, =office/{vdex,email,chat}=, =officer/{ceo,cfo,cto}=, README, the package's own ignore
+file — are verbatim in the quest; /"next stop: vcompany"/ names them.
+
+* settlement
+
+- the compact index is regenerated, never hand-patched (=methods/compact.md= §6, the generator): a sibling ran it mid-fold, so this compact was already entry 24 with its filetags when the hand-patch was about to run — the hand-patch was dropped. Entries are alphabetical positions; the =vcompany= tag line reads 24 · 28 · 67.
+- a T0 decision had claimed the vivalence root's ignore file covers the store package — wrong scope; corrected: the package owes its own ignore file (=**/.env= · =**/mountpoint=).
+- the vcs-guard refused a heredoc carrying quest prose (=git init=, an ignore-file name) — the rule from compact 104 existed; the recurrence is logged as a stronger one: every ikiro edit script goes through Write, then =python3 <file>=.
+- nothing sunset: T0 is IN FLIGHT.
+
+* resumption (owed beef)
+
+- **next stop: vcompany** — the modules on go: =domain/voffice= (Literal.ts · Symbol.ts · types · tools · aperture) · =office/{vdex,email,chat}= skeletons + scheme symbols · =office/message.js= · =officer/{ceo,cfo,cto}= + =officer/harness.js= · README · the package's own ignore file. All verbatim in T0 files. Then =instance/run= passes the 404 and lands =[DATASET:install]= for the three office schemes.
+- CALL: the JDex target — =~/.viva/instances/vivalence/jdex= (what =./jdex= resolves to on the shelf) vs an absolute path into the store.
+- go for paladin (b) =dress= + =accioOne= merge + =integrate= + the tests; go for the runtime reads + metadata — without them a mode declared in object form boots with the module's statics and no mountpoint (the runtime ignores the mask today).
+- the "one noun" typology go (2 lines) · the remote + git init · type name =office=.

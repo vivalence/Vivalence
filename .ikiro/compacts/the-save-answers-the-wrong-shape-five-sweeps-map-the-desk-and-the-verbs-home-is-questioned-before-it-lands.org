@@ -1,0 +1,183 @@
+#+title: the save answers the wrong shape, five sweeps map the desk, and the verbs' home is questioned before it lands
+#+filetags: :m53:m54:vcompany:vdex:buffer:trait:file:document:asset:freight:harness:skills:kajuit:drapes:typology:runtime:research:quest:correction:mikro:
+
+* what happened, in one breath
+
+Beef pasted a console error from the vdex App — =TypeError: can't access property "slug",
+get(...).literal is undefined= at =Vdex.svelte:94= — /"i am in the vdex mode and my saves dont
+propagate."/ Root cause was a shape, not a write: =/write= answered the bare literal while
+=/document= answered ={literal, url, text}=; the App assigned the bare row to =open=, lost
+=open.literal=, and the second save threw. Disk writes had never been broken. /"fix"/ → ONE
+=serve()= envelope for both routes, the snapshot test pins =write.text=, 6/23 green. Then the
+real topic: /"does the buffer have any trait for document?"/ — /"deep research. opus research
+agent! … full sweep. thick on context."/ Five Explore agents (all opus — /"are the agents all
+opus??"/ yes) came back with ~200 kB each: Buffer has NO trait columns anywhere; agent→screen for
+=buffer.data= is fully wired and nothing subscribes; screen→agent does not exist (no section
+renderer puts a buffer in the record); =DOCUMENT= is voffice-domain and a domain enum REPLACES the
+kernel enum; the kernel carries =// @beef: FILE trait on literal= above an empty enum. The first
+design (trait on buffer, payload = working copy, save via freight + "reinstall", =document_*=
+skills) drew /"adding traits to buffers is kinda big. i think it makes sense tho."/ and six
+corrections — /"v.asset pin"/, /"skills is missing all the plurals!"/, /"what is mode.reinstall?
+makes no sense. you miss all context."/, /"are skills here paladin or daemon or vdex?? or from the
+literal trait??"/, /"maybe on the buffer it should be called FILE trait?"/, /"this must be scoped …
+important!"/. The quest =m54-buffer-file.org= was written on those; beef ruled /"FILE. labeled in
+m1. mark the skills/tools tooling/repository integration as questioned for now. tie the quest
+up."/ — and the m55 ruling /"we design mikro-orm first!"/ had landed as a memory in the meantime,
+naming the exact defect in the sketched verbs (an aperture branch on the entity is inside out).
+Tied up; nothing landed but the m53 fix. /"ikiro compact."/
+
+* spine (N=17)
+
+| n  | beef asked                                                                                                                   | landed / decided                                                                                                                                                                                    |
+|----+------------------------------------------------------------------------------------------------------------------------------+-----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|
+| 1  | the console paste (=Uncaught (in promise) TypeError: can't access property "slug", get(...).literal is undefined= · =save3 Vdex.svelte:94=) + the m53 quest path — /"i am in the vdex mode and my saves dont propagate."/ | systematic-debugging: =/write= returned the BARE literal, =/document= the ={literal, url, text}= envelope; the aperture snapshot had captured both shapes side by side and compared neither. Diagnosis + hunk shown, gated |
+| 2  | (the skill text, harness-injected)                                                                                           | NOTHING                                                                                                                                                                                             |
+| 3  | /"fix"/                                                                                                                      | LANDED in =~/.viva/registry/vcompany/modes/office/vdex/aperture/index.js=: one =serve(ctx, literal)=, both routes return it; =vdex.snapshot.test.js= asserts =pojo.write.text=; =vdex-aperture.snapshot.json= recaptured (=write= keys =[literal, text]=); 6/23 green; m53 log entry; restart owed |
+| 4  | /"### task design … does the buffer have any trait for document? i think the document makes sense on the buffer. inside an reactive envelop on data. … deep research. opus research agent! reactives, buffers, and apps and agentic tools / harnesses. full sweep. thick on context. … a: its loaded into context with the agents … b: its a reactive display on the frontend app where we also edit. … on save we write that to the literal, which writes to disk. … kajuit cant implement domain specific traits yet. for now we gotta keep them on system level."/ | brainstorming → ARCHITECTURAL; five Explore agents dispatched in parallel, =model: "opus"= each: buffer entity · reactive spine · apps/modes · harness/tools · trait system/literal; memory bodies read meanwhile |
+| 5  | (the skill text)                                                                                                             | NOTHING                                                                                                                                                                                             |
+| 6  | MID-TURN /"are the agents all opus??"/                                                                                       | /"Yes. All five launched with model: "opus", Explore type. None fable."/                                                                                                                             |
+| 7  | (report: reactive spine)                                                                                                     | facts folded into m54 =** research= — entities are atom-backed classes, not =$state=; =em.merge= assigns in place → accessors fire; client =RemoteEntityManager.flush()= DEAD (reads =repository.link=, never set); codemap =kajuit.md:12= stale on the emission contract |
+| 8  | (report: harness + tools)                                                                                                    | no section renderer puts any buffer in the record; =request.system= values are =JSON.stringify='d by both providers; cache mark pins =system.at(-1)=; =buffer_update= = shallow one-level merge, no schema, no scope; no =ctx.buffer=; vdex tools' root middleware rebinds =ctx.root= for EVERY armed tool |
+| 9  | (report: apps + modes)                                                                                                       | 24 Apps inventoried, two edit (vdex → disk, dojo → =buffer.data= optimistic + debounced =/session= + =keepQuietly= raw SQL); Frame mounts imperatively, props once; only =Buffer.data=/=view= atom-backed; =buffer.release()= deletes rows under managed phases; kajuit reads ZERO literal traits |
+| 10 | (report: trait system + literal)                                                                                             | trait = claim =traits[]= + payload =trait{}= + optional schema; enums decorative (no CHECK) but mikro validates at flush; =DOCUMENT= is voffice-domain, domain enum REPLACES kernel; =INTELLIGENT=/=VOCAL= schemas outside their own enum; =writer.text=/=project.body= do not exist, =writer.each= is the ratified sketch (READY, gated) |
+| 11 | (report: buffer entity)                                                                                                      | =BufferEntity= = status · data · view · index + mode/thread rels + literals/symbols m:n; =abstract: true=; the =user= filter traverses =thread.user= (thread-less buffers invisible); education's override adds nothing; =BufferDossier.use = []= |
+| 12 | /"ok. adding traits to buffers is kinda big. i think it makes sense tho. what other traits on buffer do we need? document. singular and plural? separate? i thiink so. probably something for email too. b: what do we need in terms of capabilities and methods on the literal and repo? what client, what on daemon? client can only have system level functions. daemon is domain level. making document a system level trait. hmmm. or maybe its domain level and just the modes are responsible for everything. hmmm. not sure. no actually makes no sense. we want the asset type integrated across freight, vocalized, document, etc etc. kk. ### task work out these two points. then give me a feeling for the bast radius. eli15 whats in scope, what change we want, what that looks like in pseudocode."/ | grounded =asset: {path}= as the de-facto join (VOCALIZED · DOCUMENT · =daemon.getAsset= · drapes =Asset=); roster DOCUMENT · LABELED · MAIL(T2), plural = the relation; client vs daemon capability split; blast tree + pseudocode; "mode.reinstall" and =skills/document.js= proposed — both wrong, see 13 |
+| 13 | /"v.asset pin · skills is missing all the plurals! list, summary, search, filter, xyz. · what is mode.reinstall? makes no sense. you miss all context. · are skills here paladin or daemon or vdex?? or from the literal trait??!?!?!!? weird. · maybe on the buffer it should be called FILE trait? maybe thats another type tho. hmmm. · skills/document.js NEW open · edit · save — this must be scoped. literal/daemon/mode/xyz?! important! ### write the quest."/ | DATASET/collate/fs/entity_find/vdex tools READ before answering; =v.asset= pinned as a primitive; plurals mapped onto the four existing layers (② =fs_*= + missing =fs_grep=, ① =entity_find traits:"FILE"=, section = summary, vdex =index= = domain); =mode.reinstall= RETRACTED → FRAUGHT twitch =/after/freight/receive=, vdex reacts; skills scoped ① =/buffer/file/{open,edit,save}=; FILE proposed over DOCUMENT with the kernel TODO as the seed; =m54-buffer-file.org= WRITTEN (ikiro · waterfall M1–M4 · sketches); index live 6; m53 log fork line; codemap =kajuit.md:12= emission contract CORRECTED; memory =project_m54_buffer_file= |
+| 14 | /"FILE. labeled in m1. mark the skills/tools tooling/repository integration as questioned for now. tie the quest up."/        | RULED FILE + LABELED in M1 (decisions + forks closed); the verbs block marked QUESTIONED across decisions · mechanisms · blast · waterfall (M3) with the mikro-first order as the reopen path — [[feedback_mikro_first_repository_verbs]] had landed from the m55 session while the quest was being written and names the defect; M1 re-cut to stand without the verbs' home; index + memory updated |
+| 15 | /"ikiro compact."/                                                                                                            | this fold — spine walked from the transcript, compact written, index regenerated (113, 0 untagged), frontier evicted to budget, quest report stamped; the m53 =* T1.1= sibling found in the sessions column and reconciled into m54 |
+| 16 | =/model opus= then /"ikiro compact"/ again                                                                                    | NOTHING NEW OF HIS — the fold at 15 stands; re-walked (N=17, coverage held), rows 16–17 added, and the disk re-checked: a THIRD vdex artifact had appeared since the fold (=m53-vcompany.v3-vdex.org=, a sibling's V3 App pass), recorded below and in m54 |
+| 17 | (the harness =/compact=)                                                                                                      | NOTHING                                                                                                                                                                                             |
+
+* the bug (rows 1, 3)
+
+The contract test had captured =document= and =write= side by side and asserted only
+=document_after.text=. Both shapes sat in the same json, one line apart, and nothing compared them.
+Now ONE =serve()= builds the envelope for =/document= and =/write=, and the snapshot test asserts
+the SHARED field (=pojo.write.text=). Lesson kept in the m53 log: a contract test asserts the field
+two routes share, not two captures.
+
+* the sweep (rows 4, 6–11) — what the five reports agree on
+
+- *Buffer carries no trait.* ORM, schematic, table — none. Only =data= and =view= are atom-backed
+  on the client. Every other row entity (literal · symbol · thread · intent) has the two-column
+  idiom. Kernel =LiteralTraitsEnum { _ }= sits under =// @beef: FILE trait on literal=.
+- *Agent → screen works today; screen → agent does not.* =buffer_update= → =em.flush= → twitch →
+  SSE → =em.merge= → =Buffer.set data= → =$data.set=. Zero Apps read =buffer.$data= except
+  Card/Spawned. No harness section carries any buffer; the model's whole view of a document is
+  =fs_read=; no =ctx.buffer= in tools.
+- *Two writers never meet in the vdex.* Agent =fs_write= → disk; user =save()= → =/write= →
+  disk; the App's text is local =$state=. =DOCUMENT.hash= exists on the row; nothing reads it.
+- *Domain traits replace, not extend.* voffice re-declares the =traits= property with its own enum
+  (=collate= takes the last tier); a system noun on the literal needs the domain enum to spread the
+  kernel's. Mikro validates enum arrays at flush — the m23 boot crash — so this is not decorative.
+- *Drift found twice.* =kajuit.md:12= said the emission contract is =entities:{buffer}=; live is
+  =output:{buffer}= (=pool.js:11=, =aimed.js:13=). Two sweeps flagged it independently → corrected.
+- *Dead:* client =RemoteEntityManager.flush()= (reads =repository.link=, never set, zero
+  callers). *Sharp:* vdex tools' root middleware rebinds =ctx.root= for every armed tool —
+  =shell_run= cwd = the JDex (m53:375, still open).
+
+* the design and its corrections (rows 12–13)
+
+Row 12's first cut put the working copy on a buffer trait (over =data.document=, which would need
+a reserved key kajuit cannot know), kept =data= as the App mask, saved via
+=mode.freight.receive= + a =mode.reinstall()=, and named =skills/document.js= with three verbs.
+Row 13 struck four things, each answered by READING before re-proposing:
+
+- =v.asset= → =schematics/primitives/asset.js=, =Asset = v.object({ path })=; type/url are the
+  catalog's. FILE's schema beside it, re-exported from both entity schematics.
+- the plurals → not a new family: ② =fs_tree · fs_find · fs_read · fs_stat= exist, =fs_grep= is
+  the one missing verb; ① =entity_find {entity:"literal", traits:"FILE"}= + the domain repository's
+  =search=; the harness =system.file= section is the summary; =buffer.literals= is the plural on
+  the buffer — no =FILES= trait.
+- =mode.reinstall= → RETRACTED. DATASET is boot-gated by =mode.entity.installed= + a stat
+  fingerprint (=traits/dataset.js:25-51=); vdex =reindex= blanks the stamp and reruns the trait —
+  a DOMAIN reaction. The system side marks a twitch =/after/freight/receive= from FRAUGHT's
+  =receive=; vdex reacts. Generalizing onto DATASET is a fork.
+- the scope → layer ① daemon skills, =daemon/skills/buffer.js=, =/buffer/file/{open,edit,save}=;
+  not paladin (not disk-rooted), not vdex (system), not the literal trait (entity traits have no
+  behavior side). Row 14 then QUESTIONED this whole block — see next.
+- FILE over DOCUMENT proposed: FILE = "backed by an asset" ={asset, type, bytes, mtime, hash,
+  text?}= on literal AND buffer; DOCUMENT/VOCALIZED stay domain decorations whose =asset= moves
+  onto FILE — the /"asset type integrated across freight, vocalized, document"/.
+
+* the tie-up (row 14)
+
+FILE and LABELED-in-M1 RULED. The verbs' home QUESTIONED: the sketch mounts =open · edit · save=
+as an aperture branch reached from the client as =daemon.call.buffer.file.*= — the m55 ruling
+that landed as a memory mid-quest (/"we design mikro-orm first! … you have it inside out.
+architect this on mikro repo/entity and typology tooling such that the runtime just implements in
+the most obvious way"/) names that shape as the second seam. Reopen order recorded in the quest:
+=BufferRepository= verbs (Buffer ships bare =DataRepository= today) → typology verb contract →
+=shard.datamap.repository= mounts → =RemoteRepository= mirrors → kajuit; the agent tools wrap the
+same verbs. M1 stands without it: =v.asset= + FILE schematics · Buffer =traits=/=trait= columns +
+=BufferTraitsEnum {FILE, LABELED}= · kernel =LiteralTraitsEnum {FILE}= + voffice enum ∪ kernel ·
+=system.file= section · client =$traits=/=$trait= deepMap · drapes =File.svelte= · LABELED claim
+at open + dock chip · vdex =load.js= writes FILE beside DOCUMENT; the vdex App keeps
+=mode.call.open= until M3 settles.
+
+* settlement
+
+- shelf: =vdex/aperture/index.js= =serve()= · =tests/vdex.snapshot.test.js= +1 assertion ·
+  =tests/snapshots/vdex-aperture.snapshot.json= recaptured. Nothing else in code.
+- quest =m54-buffer-file.org= NEW (live): ikiro (intent · 16 rulings verbatim · decisions with the
+  QUESTIONED block bracketed · ontologies · research · mechanisms · ordering · blast · forks ·
+  skip · log) · waterfall M1 (entities · sketches · gates G1–G5) · M2 plurals · M3 the verbs'
+  home · M4 neighbours. =quests/index.md= live 6. =m53-vcompany.org= log: the fix + the fork.
+- =world/codemap/kajuit.md:12=: emission contract =output:{buffer}=, the =entities= misstatement
+  named as its own drift.
+- frontier: m54 line added; over budget before it (8482/8000 bytes) → the m53 body and the
+  lighthouse-hoist item EVICTED whole to =known-issues.org= "frontier evictions", head lines kept.
+- memory: =project_m54_buffer_file.md= (RULED · QUESTIONED · settled · measured facts) +
+  =MEMORY.md= line; =feedback_grep_before_propose.md= +Recurred (=mode.reinstall= proposed before
+  =traits/dataset.js= was read — /"you miss all context"/).
+- dates: none in this file. Callouts: none (no codeword this session).
+
+* the sibling (found at the fold)
+
+The quest report's sessions column showed m53 with three LIVE sibling sessions and a rewritten
+=#+next=. A sibling had written =* T1.1 - VDEX harnessed and tooling= into m53 on beef's order
+(/"ignore the officers for now. we do the office vdex now. not agentic. work out the harness and
+tooling of vdex. as well as the boot twitch."/) and answered his seven comments there: the vdex
+speaks SLUGS, =fs_*= slurp gone (/"vdex should provide the functionality that fs tools provide. wrap
+for context and utility."/); =open= is an emitter (/"not really a tool. more of an emitter."/); the
+boot watches files and syncs PER PATH (/"shouldnt this watch files??!!!"/, /"wtf is daemon traits
+stamp???? what!"/); prune inline through the em. Three of m54's claims collide and were amended in
+the same turn: the heal (SUPERSEDED in part — the watcher heals), "=/write= + =/document= DELETED"
+(WITHDRAWN — T1.1 makes them the one body the tools wrap), and two =open= shapes (emit a new buffer
+vs swap the FILE on the desk — beef's call). m54 =#+next= now reads RECONCILE first. Three seams
+name the verbs' home tonight — T1.1's aperture, m54's sketch, the mikro-first repository — which is
+what /"mark the skills/tools tooling/repository integration as questioned for now"/ was about.
+
+At the SECOND /"ikiro compact"/ (row 16) the disk had moved again: =m53-vcompany.v3-vdex.org=,
+DESIGNED · compile-green · waiting on go — a sibling's V3 pass that SPLITS the App into a shell +
+seven parts + a pure =buffer/jdex.js=, rides T1.1's aperture, and already points at m54 for the
+file-upload entry (/"the ↑ import entry · drop files onto the browser → the freight / m54 FILE"/).
+That stales one m54 blast line: m54's App hunk names the single =buffer/Vdex.svelte= it read this
+session, and V3 replaces that file with eleven. Whichever lands first re-cuts the other's App hunk;
+the aperture and schematic hunks are untouched by it. Three vdex quests now live on one seam
+(m53 =* T1.1= · =m53-vcompany.v3-vdex= · m54) and every one of them is /"waiting on go"/.
+
+* resumption (owed beef)
+- RECONCILE the three vdex quests (m53 =* T1.1= · =m53-vcompany.v3-vdex= · m54): the heal ·
+  =/write=/=/document= · =open= emit vs swap · the verbs' home · whose App hunk wins (V3's eleven
+  files vs m54's single =Vdex.svelte=). Four sessions touched this seam in one window; one ruling.
+
+- reopen the QUESTIONED block of m54 (the verbs' home, mikro-first) · the heal fork (vdex-local
+  v1 vs DATASET-generalized) · then /"go M1"/ → full hunks, typology touches asked first.
+- restart the runtime (the m53 =serve()= fix rebundles the vdex App at boot).
+- still open from the folds before: the slow first attach (boot race under =instance/run=) ·
+  m53 =* T1.#2= his call · T2 re-cut · Gs1/Gs2 click-through · commits (everything uncommitted) ·
+  the =ctx.root= leak on vdex tools (m53:375).
+
+* quest report (derived at fold — `methods/quest-report.py`)
+
+| quest                    | progress  | status   | next                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                | sessions   |
+|--------------------------+-----------+----------+---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------+------------|
+| m46-linux-readmen        |  17% 3/18 | wip      | drain                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                               | 6          |
+| m50-the-three-way-weave  |  60% 3/5  | wip      | blast                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                               | 1          |
+| m51-standalone-slowstart |   0% 0/18 | design   | go                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                  | 1          |
+| m53-vcompany             |   0% 0/5  | open     | **t1.1** (his heading, lifted to =*= at the t1/t2 seam) — the second cut answers his seven comments: slug verbs implemented once in the aperture (=/file= =/move= =/delete=), tools as their application, =open= an emitter, per-path =sync= (no stamp, no full pass after boot), prune inline through the em (the domain's =nativedelete= methods deleted), the app on two precise subscriptions; 12 rows, waiting on go; officers out for now; then **the slow first attach** (his paste, /"again. very slow."/): the boot race under `instance/run` — gate kajuit's first attach on the runtime or lengthen the 8 s budget, and time the boot phases (dataset install · app bundle · cargo walk); runtime restarted (measured at wake: the screens app bundled `ad34d4c8…`, 2.73 mb, beside the stub's `86e158e2…`) → gs1/gs2 click-through — his; the bundle weight is ledgered (`known-issues` `buffer-app-bundles-carry-2.6-mb-of-dead-weight`) and its direction is his; then s3 voffice → s4 desk on go; call nothing — calendar ruled a mode; `* t1.#2` his call; t2 re-cut (vendor services + shared imap/smtp belt); g4/g7 ride the screens app; the `probe` identity on his lighthouse is his to delete | 4 (3 live) |
+| m53-vcompany.pre         | —         | open     | t1 package setup — the m27 gate moves to the executive stage; t1–t3 do not wait on it                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                               | 2 (2 live) |
+| m53-vcompany.v3-vdex     | —         | designed | his go → copy the 11 files onto the shelf (=land= below), run both suites, restart the runtime (the app bundles at boot), click through the gates; the t1.1 =placement= delta rides the sibling's landing; the later list is his to reorder                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                         | 1 (1 live) |
+| m54-buffer-file          |   0% 0/4  | open     | reconcile with m53 =* t1.1= and =m53-vcompany.v3-vdex= first (three quests, one seam, all waiting on go; v3 splits the app into a shell + 7 parts + =buffer/jdex.js= and already points here for file upload — m54's app hunk names the single =vdex.svelte= and must be re-cut onto whichever lands first) (a sibling session, beef's rulings there: the vdex speaks slugs — =/document /write /file /move /delete= implemented once in the aperture, tools wrap =mode.call.<verb>=, =fs_*= slurp gone on vdex; =open= is an emitter; the boot watches files and syncs per path — /"shouldnt this watch files??!!!"/; /"wtf is daemon traits stamp????"/ → gone) — three seams now name the verbs' home (t1.1 aperture · m54 sketch · mikro-first repository), beef arbitrates; then beef reopens the questioned block when ready — order of design there is mikro entity + bufferrepository verbs → typology verb contract → shard mounts → remoterepository mirrors → kajuit. until then m1 = everything but the verbs. "go m1" → full hunks against the tree as read.                                                                                                                                           | 0          |
+| m55-recursive-terminals  |  20% 3/15 | wip      | go m2 — the kajuit terminal: up · down · status · stop · run · watch, the tree, the schematic, panel f                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                              | 1 (1 live) |

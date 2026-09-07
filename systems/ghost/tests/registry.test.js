@@ -53,11 +53,14 @@ describe("viva registry/{tap,untap,bootstrap}", () => {
     await drive(["registry/tap", "beta"]);
   });
 
-  it("tap and untap answer under /registry", async () => {
+  it("tap and untap answer under /registry — an unknown reference refuses and leaves the record", async () => {
     const tapped = await drive(["registry/tap", "alpha"]);
     expect(tapped.record).toEqual(["alpha", "beta"]);
-    const untapped = await drive(["registry/untap", "never-tapped"]);
-    expect(untapped.record).toEqual(["alpha", "beta"]);
+    await expect(drive(["registry/untap", "never-tapped"])).rejects.toThrow("no tapped package 'never-tapped'");
+    expect(await drive(["registry/list"]).then((effect) => effect.packages.map((row) => row.mount))).toEqual([
+      `${store}/alpha`,
+      `${store}/beta`,
+    ]);
   });
 
   it("doctor reads the record against the store — tapped roots, an untapped resident, the census by owner", async () => {

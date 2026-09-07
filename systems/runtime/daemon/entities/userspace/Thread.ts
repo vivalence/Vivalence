@@ -37,6 +37,9 @@ export class ThreadEntity extends DataEntity {
   traits: ThreadTraitsEnum[] & Opt = [];
   trait: any & Opt = {};
 
+  parent?: Rel<ThreadEntity>;
+  children = new Collection<ThreadEntity>(this);
+
   buffers = new Collection<BufferEntity>(this);
   turns = new Collection<TurnEntity>(this);
 
@@ -130,6 +133,20 @@ export const ThreadSchema = new EntitySchema<ThreadEntity, DataEntity>({
       kind: "1:m",
       entity: () => TurnEntity,
       mappedBy: (turn) => turn.thread,
+    },
+
+    parent: {
+      kind: "m:1",
+      entity: () => ThreadEntity,
+      fieldName: "parent",
+      nullable: true,
+      deleteRule: "cascade",
+    },
+
+    children: {
+      kind: "1:m",
+      entity: () => ThreadEntity,
+      mappedBy: (thread) => thread.parent,
     },
   },
 });

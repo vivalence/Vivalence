@@ -1,11 +1,11 @@
 import paladin from "@vivalence/paladin";
-import { Url, v } from "@vivalence/typology";
+import { v } from "@vivalence/typology";
 
 export const manifest = { type: "instance", slug: "hello-world", version: "0.0.1" };
 
 export const runtime = {
   slug: "runtime",
-  statics: { serve: () => new Url(paladin.env.get("VIVA_RUNTIME_SERVE")) },
+  statics: { serve: () => paladin.env.get("VIVA_RUNTIME_SERVE") },
   datamap: {
     module: "@commons/datamap/libsql",
     statics: { db: { file: `runtime.viva.db` } },
@@ -16,23 +16,17 @@ export const daemons = [
   {
     manifest: { type: "daemon", slug: "hello", version: "0.0.1" },
     docs: { name: "Hello", valence: "one mode, one greeting", icon: { emoji: "👋" } },
-    statics: {},
     kernel: ["./mode.viva.js"],
     datamap: {
       module: "@commons/datamap/libsql",
       statics: { db: { file: `hello.viva.db` } },
     },
-    hallucinators: () =>
-      paladin.secret.get("SECRET_VIVA_ANTHROPIC_API_KEY")
-        ? [
-            {
-              module: "@commons/hallucinator/anthropic",
-              statics: {},
-              secrets: { key: () => paladin.secret.get("SECRET_VIVA_ANTHROPIC_API_KEY") },
-            },
-          ]
-        : [],
-    consume: {},
+    hallucinators: [
+      {
+        module: "@commons/hallucinator/anthropic",
+        secrets: { key: () => paladin.secret.get("SECRET_VIVA_ANTHROPIC_API_KEY") },
+      },
+    ],
   },
 ];
 
@@ -40,9 +34,7 @@ export const clients = {
   kajuit: {
     slug: "kajuit",
     traits: ["ATTACHED"],
-    statics: {
-      serve: () => new Url(paladin.env.get("VIVA_CLIENT_KAJUIT_SERVE")),
-    },
+    statics: { serve: () => paladin.env.get("VIVA_CLIENT_KAJUIT_SERVE") },
   },
 };
 
@@ -51,7 +43,7 @@ export const services = [
     slug: "multiplayer",
     module: "@commons/lighthouse/multiplayer",
     secrets: { jwt: () => paladin.secret.get("SECRET_VIVA_JWT") },
-    statics: { serve: () => new Url(paladin.env.get("VIVA_LIGHTHOUSE_SERVE")) },
+    statics: { serve: () => paladin.env.get("VIVA_LIGHTHOUSE_SERVE") },
     datamap: {
       module: "@commons/datamap/libsql",
       statics: { db: { file: `lighthouse.viva.db` } },
@@ -61,9 +53,7 @@ export const services = [
 
 export const lighthouse = {
   module: "@commons/lighthouse/multiplayer",
-  statics: {
-    remote: () => new Url(paladin.env.get("PUBLIC_VIVA_LIGHTHOUSE_REMOTE")),
-  },
+  statics: { remote: () => paladin.env.get("PUBLIC_VIVA_LIGHTHOUSE_REMOTE") },
 };
 
 export const environment = v.environment({

@@ -314,7 +314,7 @@ The dataset is the mode's starter content: two symbols, two literals, the links 
 ```js title="standalone.viva.js — runtime + daemon"
 export const runtime = {
   slug: "standalone-runtime",
-  statics: { serve: () => new Url(paladin.env.get("VIVA_RUNTIME_SERVE")) },
+  statics: { serve: () => paladin.env.get("VIVA_RUNTIME_SERVE") },
   datamap: {
     module: "@commons/datamap/libsql",
     statics: { db: { file: `runtime.viva.db` } },
@@ -325,7 +325,6 @@ export const daemons = [
   {
     manifest: { type: "daemon", slug: "standalone", version: "0.0.1" },
     docs: { name: "Standalone", valence: "the m39 one-file machine", icon: { emoji: "🃏" } },
-    statics: {},
     kernel: [domain, flashcard],
     datamap: {
       module: "@commons/datamap/libsql",
@@ -334,18 +333,16 @@ export const daemons = [
     hallucinators: [
       {
         module: "@commons/hallucinator/anthropic",
-        statics: {},
         secrets: { key: () => paladin.secret.get("SECRET_VIVA_ANTHROPIC_API_KEY") },
       },
     ],
-    consume: {},
   },
 ];
 ```
 
-`kernel: [domain, flashcard]` is the whole daemon — the two objects declared above, inline. In a grown instance these are registry references (`"@education/domain/language-learning"`); the mechanism is the same, the daemon doesn't care where its kernel entries come from. Around the kernel, the daemon picks its services: a datamap for persistence, hallucinators for intelligence — identity comes from the instance's `lighthouse` unless the daemon binds its own. Each is a `{module, statics, secrets}` reference — configuration for a module that lives in the registry, resolved at boot.
+`kernel: [domain, flashcard]` is the whole daemon — the two objects declared above, inline. In a grown instance these are registry references (`"@education/domain/language-learning"`); the mechanism is the same, the daemon doesn't care where its kernel entries come from. Around the kernel, the daemon picks its services: a datamap for persistence, hallucinators for intelligence — identity comes from the instance's `lighthouse` unless the daemon binds its own. Each is a `{module, statics, secrets}` reference — configuration for a module that lives in the registry, resolved at boot. A hallucinator whose secret is blank is *dormant*: dropped from the roster at mount and named by the doctor, so a missing key means a bot answer, never a dead faculty.
 
-Note what is *not* here: no ports hardcoded, no keys inline. Every environment read is a thunk into `paladin.env` or `paladin.secret`.
+Note what is *not* here: no ports hardcoded, no keys inline. Every environment read is a thunk into `paladin.env` or `paladin.secret`, and every one hands back a string — the instance schematic mints the `Url`s and fills the `statics` / `consume` slots a recipe leaves out, so the declaration never types or pads anything.
 
 ```js title="standalone.viva.js — services + clients"
 export const services = [
@@ -353,7 +350,7 @@ export const services = [
     slug: "multiplayer",
     module: "@commons/lighthouse/multiplayer",
     secrets: { jwt: () => paladin.secret.get("SECRET_VIVA_JWT") },
-    statics: { serve: () => new Url(paladin.env.get("VIVA_LIGHTHOUSE_SERVE")) },
+    statics: { serve: () => paladin.env.get("VIVA_LIGHTHOUSE_SERVE") },
     datamap: {
       module: "@commons/datamap/libsql",
       statics: { db: { file: `lighthouse.viva.db` } },
@@ -363,7 +360,7 @@ export const services = [
 
 export const lighthouse = {
   module: "@commons/lighthouse/multiplayer",
-  statics: { remote: () => new Url(paladin.env.get("PUBLIC_VIVA_LIGHTHOUSE_REMOTE")) },
+  statics: { remote: () => paladin.env.get("PUBLIC_VIVA_LIGHTHOUSE_REMOTE") },
 };
 
 export const clients = {
@@ -371,7 +368,7 @@ export const clients = {
     slug: "kajuit",
     traits: ["ATTACHED"],
     statics: {
-      serve: () => new Url(paladin.env.get("VIVA_CLIENT_KAJUIT_SERVE")),
+      serve: () => paladin.env.get("VIVA_CLIENT_KAJUIT_SERVE"),
     },
   },
 };
@@ -392,7 +389,7 @@ export const environment = v.environment({
   VIVA_CLIENT_KAJUIT_SERVE: v.url().desc("Where the kajuit browser client serves.").default("${VIVA_CLIENT_KAJUIT_ORIGIN}/").group("addresses"),
   PUBLIC_VIVA_RUNTIME_REMOTE: v.url().desc("Runtime address the browser bundle calls. Reaches it through publish(), not a thunk.").default("${VIVA_RUNTIME_SERVE}").group("addresses"),
   PUBLIC_VIVA_LIGHTHOUSE_REMOTE: v.url().desc("Lighthouse address as CONSUMED — by the daemons, and by the browser after publish().").default("${VIVA_LIGHTHOUSE_SERVE}").group("addresses"),
-  SECRET_VIVA_JWT: v.string({ minLength: 24 }).desc("Lighthouse signing secret. Generate with: openssl rand -base64 24").group("keys"),
+  SECRET_VIVA_JWT: v.string({ minLength: 24 }).desc("Lighthouse signing secret. Minted at first init; rotate with: openssl rand -base64 24").default(() => btoa(String.fromCharCode(...crypto.getRandomValues(new Uint8Array(24))))).group("keys"),
   SECRET_VIVA_ANTHROPIC_API_KEY: v.string().desc("Anthropic key. Without one the daemon attaches no hallucinator and /hello/agent answers as the bot.").group("keys").optional(),
 });
 ```

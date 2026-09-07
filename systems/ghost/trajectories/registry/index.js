@@ -1,11 +1,42 @@
 import paladin from "@vivalence/paladin";
 import { resolve } from "@std/path";
-import { v, Vector } from "@vivalence/typology";
+import { object, v, Vector } from "@vivalence/typology";
 import { path } from "../../belt/index.js";
 import { bootstrap } from "./bootstrap.js";
 import { Doctor } from "./Doctor.jsx";
 
 export const registry = new Vector();
+
+async function packages() {
+  await paladin.vip.supply();
+  const references = await paladin.ledger.registry.list();
+  return Promise.all(
+    references.map(async (reference) => {
+      const root = paladin.ledger.registry.resolve(reference);
+      const declarations = await paladin.find.type(root, "package").catch(() => []);
+      const modules = await paladin.find.viva(root).catch(() => []);
+      return {
+        reference,
+        mount: root.absolute,
+        owner: declarations.map((module) => module.manifest.owner).join(" ") || null,
+        modes: modules.length || null,
+        identifier: declarations
+          .map((module) => `${module.manifest.owner}/${module.manifest.type}/${module.manifest.slug}`)
+          .join(" ") || null,
+      };
+    }),
+  );
+}
+
+async function tapped(reference) {
+  const rows = await packages();
+  return (
+    rows.find((row) => row.reference === reference || row.reference === reference.replace(/^\.\//, "")) ??
+      rows.find((row) => row.mount === resolve(reference)) ??
+      rows.find((row) => (row.identifier ?? "").split(" ").includes(reference)) ??
+      null
+  );
+}
 
 export async function store(paladin, tapped) {
   const scope = paladin.scope.registry;
@@ -72,24 +103,7 @@ registry.open(
     schema: v.object({}),
   },
   async (ctx) => {
-    await paladin.vip.supply();
-    const references = await paladin.ledger.registry.list();
-    const rows = await Promise.all(
-      references.map(async (reference) => {
-        const root = paladin.ledger.registry.resolve(reference);
-        const declarations = await paladin.find.type(root, "package").catch(() => []);
-        const modules = await paladin.find.viva(root).catch(() => []);
-        return {
-          mount: root.absolute,
-          owner: declarations.map((module) => module.manifest.owner).join(" ") || null,
-          modes: modules.length || null,
-          identifier: declarations
-            .map((module) => `${module.manifest.owner}/${module.manifest.type}/${module.manifest.slug}`)
-            .join(" ") || null,
-        };
-      }),
-    );
-    ctx.effect = { packages: rows };
+    ctx.effect = { packages: (await packages()).map((row) => object.filter(row, (key) => key !== "reference")) };
   },
 );
 
@@ -125,7 +139,9 @@ registry.open(
   async (ctx) => {
     const reference = ctx.signal.params?.[0];
     if (!reference) throw new Error("usage: viva registry untap <reference>");
-    ctx.effect = { record: await paladin.vip.untap(reference) };
+    const held = await tapped(reference);
+    if (!held) throw new Error(`registry/untap: no tapped package '${reference}' — viva registry/list`);
+    ctx.effect = { untapped: held.reference, record: await paladin.vip.untap(held.reference) };
   },
 );
 

@@ -1,4 +1,4 @@
-#+title: m50 the three-way weave — what a vector instantiates · the control vector · the process contract
+#+title: m50 the three-way weave — wafer, dossiers, masks, and processes. what a vector instantiates · the control vector · the process contract
 #+filetags: :typology:paladin:runtime:ghost:kajuit:process:entity:mask:dossier:die:control:vector:signal:schematics:v:
 #+status: DESIGNED this session on beef's order (/"maybe dedicated quest is warranted. go build that. take your time."/). Supersedes m49 M2/M3 (m49 sunset to done/ with M1 landed). Nothing applied: M1 (the wording + two schematics) is typology and waits on beef's word; M2–M5 follow it.
 #+status: Number m50 is mine by sequence — beef's ledger; rename on his word.
@@ -43,7 +43,7 @@ rule (3). A verb never signals a pid; a signal never knows a nature; a die never
 * terrain — measured (carried from m46/m49, re-read)
 
 - =Wafer= (=typology/prototypes/wafer.js:3-27=): =mask · good · status · abort= + five verbs; subclassed by =systems/runtime/die.js= (runtime), =daemon/die.js= (daemon), =process/die.js= (SERVICE process), and — m49 M1 — paladin's =ledger/process.js= (OS child) and =ledger/die.js= (the set).
-- =Mask= (=schematics/primitives/instance.js:5-13=): ={ module, statics?, secrets? }= — /"declaration of 'turn this into an instance'"/; the instance's daemons/services are masks (=paladin/prototypes/instance.js:107-113=); =die.mask= feeds population (=daemon/lifecycle/population.js:12-16,65-66=).
+- =Mask= (=schematics/primitives/instance.js:9-16=): ={ module, statics?, secrets? }= — /"declaration of 'turn this into an instance'"/; the instance's daemons/services are masks (=paladin/prototypes/instance.js:110-113=); =die.mask= feeds population (=daemon/lifecycle/population.js:12-16,65-66=).
 - the dossier as it lives: =kajuit/src/typology/entities/{thread,daemon}/dossier.js= — ={ name, kind: () => Class, repository, use: [...middleware] }=; =shape.selbstbestimmt(vector, strategy)= (=gestalten/shape/selbstbestimmt.js:3-17=) walks to the effect and composes the carried =use[]=.
 - the April design (=quests/done/wafer-lifecycle.quest.org:12-25,39,59=): Wafer = the vector, Die = the context in middleware, Process = the live wafer, Cast = the act; /"abort.abort() … middleware unwinds in reverse … one line to kill, deterministic teardown order for free"/.
 - prior control-vector art: =typology/schematics/readme.org:9-14= (=ProcessStateEnum= · =Command= · a =ControlVector= with =/start/:slug /stop/:slug /restart/:slug /status /health/:slug=) · =systems/kajuit/client.viva.js:14-34= (/"bad control vector, but broadly implements the spirit"/).
@@ -288,7 +288,7 @@ export const Claim = v.object({
 2. Only the die that owns the claim (the token holder) may signal its children; =stop= signals the SUPERVISOR, never a child.
 3. Children are spawned in their own process group (=detached: true=) so the operator's SIGINT reaches only the supervisor and each child is signalled ONCE (m49 F4); group escalation = =Deno.kill(-pgid, "SIGKILL")=.
 4. A child that exits on its own is EXITED, not stopped; its exit folds into the supervisor's exit code (=run= exits 1 iff any child !success); a signalled set is STOPPED and exits 0.
-5. Readiness = the child's own =Status:ALIVE= line (=integrate.js:47=, =vite.config.mjs:100=), parsed by =Status.parse= (F7) within =command.deadline=; =inherit= children are alive at spawn.
+5. Readiness = the child's own =Status:ALIVE= line (=integrate.js:47=, =vite.config.mjs:101=), parsed by =Status.parse= (F7) within =command.deadline=; =inherit= children are alive at spawn.
 6. The claim is written BOOTING at spawn and ALIVE at readiness; =Lock.read()= prunes a dead pid; a die releases only its own token; a live claim refuses a second cast.
 
 * the weave — one table
@@ -364,6 +364,7 @@ export const Claim = v.object({
 
 * changelog
 
+- deep pass (beef: /"investigate … m50-the-three-way-weave.org"/ · /"thorough deep pass"/) — every terrain claim held on disk; =spawn.test.js= 9 + =ledger.test.js= 6 = 15 passed / 26 steps (M2 baseline); MEASURED =detached: true= + =stdout: "piped"= → own pgid AND the =Status:ALIVE= line (deno 2.9.6) — M4 rules 3 + 5 coexist; the header =60% 3/5 wip blast= is =quest-report.py= booking m49's =M1/M2/M3= from the status clause — reword gated (compact carries the diff); four sketch defects gated with M1: =State= must be UPPERCASE (=Status.set= uppercases) · =vector(ChildDossier)= has no builder (precedent inline =kajuit …/dataspace.js:22-33=; fork F9 typology =shape= vs paladin-local) · dossiers carry =boot=+=affect=, no =effect:= key · =Contract[n]= needs =valence= or P-control-one-table fails in the sketch; m52 LANDED + sunset — =Ledger.boot:29= =check.instance(…).throw()= is canon, M2 keeps it as stage one; stale refs corrected (Mask :9-16 · paladin instance :110-113 · vite :101). Compact =the-deep-pass-on-m50-…=.
 - this session — DESIGNED on beef's order after the wafer verdict (found in =~/vivalence/private/logs/2026.05.25.org=): the three strands, the wording settlement (14 nouns, two collisions named — =Signature=, =Signal=), the two schematics sketched against the live =v= API (=enum/union/const/object/array/record/boolean=), the control vector's semantics + mounting + transport (measured), the process contract's signal table + SIGKILL standard, the weave table, five milestones with gates, eight forks. m49 M2/M3 lifted here; m49 sunset to done/. Nothing applied.
 
 * release

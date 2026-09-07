@@ -1,4 +1,4 @@
-import { specimen, v } from "@vivalence/typology";
+import { specimen, v, Url } from "@vivalence/typology";
 
 specimen.describe("v", () => {
   specimen.it("a schema judges every shape", () => {
@@ -312,5 +312,39 @@ specimen.describe("v", () => {
     specimen.expect(v.convert(v.boolean(), "true")).toBe(true);
     specimen.expect(v.convert(v.string(), "8080")).toBe("8080");
     specimen.expect(v.integer().check(v.convert(v.integer(), "8080"))).toBe(true);
+  });
+
+  specimen.it("prototypes.Url is the url scalar as a codec — decode mints the prototype, encode folds it back, the grammar is the scalar's", () => {
+    const schema = v.prototypes.Url();
+    const held = schema.decode("http://localhost:2501/");
+    specimen.expect(held).toBeInstanceOf(Url);
+    specimen.expect(held.port).toBe("2501");
+    specimen.expect(schema.encode(held)).toBe("http://localhost:2501/");
+    specimen.expect(schema.check("NaN")).toBe(false);
+    specimen.expect(schema.check("")).toBe(false);
+    specimen.expect(() => schema.decode("NaN")).toThrow();
+    const nested = v.object({ list: v.array(v.object({ serve: v.prototypes.Url() })) });
+    specimen.expect(nested.decode({ list: [{ serve: "http://x/" }] }).list[0].serve).toBeInstanceOf(Url);
+  });
+
+  specimen.it("instance statics are typed where typology knows the key — serve and remote, everything else rides along", () => {
+    const { Runtime, Lighthouse, Client, Service, Daemon } = v.primitives.instance;
+    specimen.expect([...Runtime.errors({ slug: "runtime", statics: { serve: "NaN" } })][0].instancePath).toBe("/statics/serve");
+    specimen.expect([...Runtime.errors({ slug: "runtime", statics: { serve: "http://localhost:2501/", extra: 1 } })].length).toBe(0);
+    specimen.expect([...Lighthouse.errors({ module: "m", statics: {} })][0].message).toContain("remote");
+    specimen.expect([...Client.errors({ slug: "ghost", statics: {} })].length).toBe(0);
+    specimen.expect([...Service.errors({ slug: "svc", module: "m" })].length).toBe(0);
+    const daemon = { manifest: { type: "daemon", slug: "d", version: "0.0.1" }, datamap: { module: "m" } };
+    Daemon.cast(daemon);
+    specimen.expect(daemon.hallucinators).toEqual([]);
+    specimen.expect(daemon.statics).toEqual({});
+    specimen.expect(daemon.consume).toEqual({});
+  });
+
+  specimen.it("faults — errors with the scalar's title in place of its regex, addressed by pointer", () => {
+    const { Instance } = v.primitives.instance;
+    const faults = Instance.faults({ manifest: { type: "instance", slug: "i" }, runtime: { slug: "runtime", statics: { serve: "nope" } }, daemons: [], services: [], clients: {} });
+    specimen.expect(faults).toEqual([{ at: "/runtime/statics/serve", reason: "must be RFC 3986 URI with an authority (scheme://…)" }]);
+    specimen.expect(v.faults(v.object({ a: v.string() }), {})).toEqual([{ at: "/", reason: "must have required properties a" }]);
   });
 });

@@ -9,5 +9,12 @@ import Chip from "./Chip.svelte";
 import Section from "./Section.svelte";
 import Helpdesk from "./Helpdesk.svelte";
 import Json from "./Json.svelte";
+import Markdown from "./Markdown.svelte";
+import Org from "./Org.svelte";
+import Pdf from "./Pdf.svelte";
+import Tile from "./Tile.svelte";
+import Plate from "./Plate.svelte";
+import Entry from "./Entry.svelte";
+import Empty from "./Empty.svelte";
 
-export { Tag, Label, Header, Paragraph, Asset, ErrorBox, Pip, Chip, Section, Helpdesk, Json };
+export { Tag, Label, Header, Paragraph, Asset, ErrorBox, Pip, Chip, Section, Helpdesk, Json, Markdown, Org, Pdf, Tile, Plate, Entry, Empty };

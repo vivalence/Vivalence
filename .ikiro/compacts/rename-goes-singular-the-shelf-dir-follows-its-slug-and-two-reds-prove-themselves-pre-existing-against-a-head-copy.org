@@ -1,0 +1,72 @@
+#+title: rename goes singular, the shelf dir follows its slug, and two reds prove themselves pre-existing against a HEAD copy
+#+filetags: :ghost:instance:rename:cli:ledger:sessions:release:known-issue:landing:tests:pick:
+
+* what happened, in one breath
+
+A short session, one verb. beef pasted a terminal transcript: =viva instance/create vcompany=,
+then =viva instance/rename vcompany vivalence= → /"ghost: no handler"/, then =viva help=, then
+=viva instances/rename vcompany vivalence= which answered =renamed vcompany → vivalence= while
+the =ls= underneath still showed =instances/vcompany=. His line: /"rename should also rename the
+folder to slug!"/. Measured first: the plural verb moved the record key and =logs/= only, leaving
+=mount= pointing at the old dir. =instance/delete= already knows shelf from tapped by path
+equality (=mount === shelf(slug)=), so the proposal mirrored it — a shelf dir follows its slug,
+the record =mount= and the sessions that selected the old mount are rewritten, a tapped dir is
+the operator's and stays. Mid-turn: /"and move the command rename to instance/ singular"/ — the
+doctrine was already written in =instances/index.js= ("=instance/*= acts on the one you selected;
+=instances/*= answers about all of them"), and rename acts on one. Shape: =instance/rename
+[target] <next>=, optional target first like delete/doctor, one param = the mounted instance.
+Full patch shown, /"go."/, landed: file moved to =trajectories/instance/rename.js=, rewritten
+over =locate()=, the plural block removed, the singular opened after =/instance/delete=, four
+tests. The first run went red on a test artefact — =pick= fuzzes across mount PATHS, so slugs
+=a=/=b= both matched =/instances/a=; renamed =left=/=right=. Ghost suite 87/89: the =strata.wet=
+"two shells" red is ledgered, the =ledger.test.js= init step (=env: "present"= where
+="scaffolded"= is owed) was NOT — proven pre-existing by copying =systems/ghost= to the
+scratchpad with the five touched files reverted to HEAD and running there: same red. Ledgered
+as =ghost-ledger-test-init-step-red-pre-existing=. Release line, ledger dossier line 57, help
+probe live. beef's own =vivalence= record was already healed by hand before the land (dir +
+mount both =instances/vivalence=), so nothing ran against ~/.viva. Then /"ikiro compact"/ and a
+queued =/clear=.
+
+* spine (N=5)
+
+| n | beef asked | landed | decided / killed |
+|---+------------+--------+------------------|
+| 1 | [paste: create · =instance/rename= no handler · help · =instances/rename= · =ls= still =vcompany=] /"rename should also rename the folder to slug!"/ | measured: plural rename moved key + logs, =mount= stale; diff proposed mirroring delete's shelf test + sessions rewrite; open: ledger =.env= default, =instance/rename= alias | waited for go |
+| 2 | MID-TURN /"and move the command rename to instance/ singular"/ | full patch: =instance/rename [target] <next>= over =locate()=, plural block dropped, tests, blast list (=ledger.md:57=, docs grep) | shape = delete/doctor's optional-target-first |
+| 3 | /"go."/ | moved + rewrote =instance/rename.js= · =instance/index.js= export · =trajectories/index.js= open · =instances/index.js= block removed · =tests/rename.test.js= 4/4 · ghost 87/89 · HEAD-copy bracket proves the init red pre-existing · =release.md= cli line · =ledger.md:57= · =known-issues.org= entry · =viva help instance/rename= live | docs: zero =instances/rename= consumers under =documentation/= — nothing to touch; live record already healed by beef |
+| 4 | /"ikiro compact"/ | this fold · index · quest report · frontier · zettel · memory | — |
+| 5 | MID-TURN =/clear= | — | session ends after the fold |
+
+* the verb as landed
+
+#+begin_src
+viva instance/rename vivalence            # mounted → vivalence
+viva instance/rename vcompany vivalence   # target  → vivalence
+#+end_src
+
+- =target= resolves through =locate()= — the instances lens, one match headless, many = picker (named in a pipe), a path exact
+- shelf test: =mount === ledger.instances.shelf(prior)= → =Deno.rename(mount, shelf(next))=, =instances.write(next, {mount})=, every =sessions/<pid>.json= whose =VIVA_INSTANCE_MOUNT= was the old mount rewritten
+- tapped: =dir: "kept — off-shelf (tapped)"=, files untouched
+- logs move + lock refusal unchanged from m44; =instances/rename= GONE, =migrate: viva instances/rename a b → viva instance/rename a b=
+
+* two lessons, self-caught
+
+- **the lens fuzzes across mount paths.** A test slug =a= matches =/instances/a= AND =/instances/b= through =pick= — one-letter slugs in a lens test are a collision, not a fixture. Use words.
+- **a bracket without stash.** VCS is read-only, so "does HEAD fail too?" was answered by =cp -r systems/ghost <scratch>= + =git show HEAD:<file> ><scratch>/<file>= for each touched file + =deno test --config systems/ghost/deno.jsonc <scratch>/tests/…=. Relative imports stay inside the copy, package imports ride the config. Cheap, decisive, no VCS mutation.
+
+* state at fold
+
+- LANDED, uncommitted: =instance/rename= singular (5 ghost files + test) · =release.md= · =.ikiro/world/ledger.md:57= · =known-issues.org= new OPEN entry
+- OPEN (not mine): =ledger.test.js= init step red — =first.env= ="present"= vs ="scaffolded"=; same on HEAD copy, same with =VIVA_PROCESS_ID= unset; init.js and the test are both dirty in beef's tree
+- OPEN, unasked: the ledger-level =.env= default (=instances/use --ledger=) also stores a mount PATH — rename does not rewrite it; =instance/rename= with =target= through the picker in a tty untested live
+- commit beef's
+
+* quest report (derived at fold — `methods/quest-report.py`)
+
+| quest                    | progress  | status | next                                                                                                                                                                                                                                                                                            | sessions   |
+|--------------------------+-----------+--------+-------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------+------------|
+| m46-linux-readmen        |  17% 3/18 | wip    | drain                                                                                                                                                                                                                                                                                           | 5 (1 live) |
+| m50-the-three-way-weave  |  60% 3/5  | wip    | blast                                                                                                                                                                                                                                                                                           | 1 (1 live) |
+| m51-standalone-slowstart |   0% 0/18 | design | go                                                                                                                                                                                                                                                                                              | 1          |
+| m53-vcompany             | —         | open   | t0 — beef: `instances/use vivalence init` + the jdex mv; go for paladin (b) `dress` + `accioone` + `integrate` + tests, the runtime reads, the domain + office + officer modules (+ readme + the package's own ignore file); call: the "one noun" typology go · the remote · type name `office` | 1 (1 live) |
+| m53-vcompany.pre         | —         | open   | t1 package setup — the m27 gate moves to the executive stage; t1–t3 do not wait on it                                                                                                                                                                                                           | 1 (1 live) |

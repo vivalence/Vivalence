@@ -2,7 +2,6 @@ import paladin from "@vivalence/paladin";
 import { v, Vector } from "@vivalence/typology";
 import { use } from "./use.js";
 import { tap } from "./tap.js";
-import { rename } from "./rename.js";
 
 // PLURAL — verbs here work on the SET. `instance/*` acts on the one you selected;
 // `instances/*` answers about all of them.
@@ -26,18 +25,6 @@ instances.open(
     schema: v.object({ path: v.string().desc("dir holding the instance") }),
   },
   tap,
-);
-
-instances.open(
-  {
-    nature: "/rename",
-    valence: "move an instance's record key — carries the log dir; refuses while its supervisor holds the lock",
-    schema: v.object({
-      prior: v.string().desc("current slug"),
-      next: v.string().desc("new slug"),
-    }),
-  },
-  rename,
 );
 
 instances.open(

@@ -1,0 +1,123 @@
+#+title: the go lands m52, the walk catches the unmounted gate, the readme holds on a fresh ubuntu, and dbeaver gets a file-edit skill
+#+filetags: :m52:paladin:typology:ghost:readmen:docker:api:doctor:registry:dbeaver:skill:quest:sunset:walk:
+
+* what happened, in one breath
+
+beef gave the word — /"go 52. heavy step by step testing."/ — and m52 landed from the sandbox patch in three
+milestones with a suite run after each: typology 122/490 (the one pre-existing red), paladin 38/161, ghost
+87/88 (=two shells=, pre-existing), runtime 53/331 (=registry ingest fork 2= wants an instance that never
+existed). Then the walk on a scratch instance did what the demo could not: ghost =instance/run= never MOUNTS
+the instance, so the ONE gate in =Ledger.boot= saw no faults and both children were spawned to refuse at their
+own gates. One line — =await paladin.instance.mount()= before =boot= — and the ghost refuses before a spawn.
+The quest went to =done/= the same session (8 markers held, 2 revised). He asked whether the docs were
+current (they were not: four pages carried =new Url=, padded slots, a stale doctor fence, an =@viva= owner),
+then ordered a fresh ubuntu walk of the README by the docker-live recipe; 0–6 held, every ghost verb ran
+against the live container, the runtime API answered from the host with a real bearer, and =cortex []= +
+="No hallucinator attached. Bot says high."= closed m52's dormant story on linux. Two of the five defects the
+walk filed got a proposal and a go — the ledger doctor's invented =lock.alive= and =registry/untap='s silent
+no-op — and landed with their tests turned from "no-op" to "refuses". An aside spawned a dedicated agent:
+a =dbeaver= skill that CRUDs =data-sources.json= directly, because desktop DBeaver has no API; its first
+real job, pruning seven dead connections, waits on beef quitting DBeaver.
+
+* spine (N=39; rows 1–23 are the two previous folds' — one row here)
+
+| n     | beef asked                                                                                        | landed                                                                                                                      | decided / killed |
+|-------+---------------------------------------------------------------------------------------------------+-----------------------------------------------------------------------------------------------------------------------------+------------------|
+| 1–23  | (previous folds: authoring, critical pass, sandbox, forms probe, the null-element fix)             | —                                                                                                                           | — |
+| 24    | /"go 52. heavy step by step testing."/                                                            | M1 =patch -p1= → typology 122/490/1 · M2 hunks + =settle.test.js= 8/8 → paladin 38/161, 3 one-line edges, 7 shelf/education recipes (=sed -E=; BSD sed has no =\|=), README 109-177 byte-equal · ledger dossier · release lines lifted · quest → =done/= | walk T2: ghost =run.js= mounts before =boot= (hunk + blast row); first T2 booted the LIVE hello-world 60 s (repo-root =.env= outranks os =VIVA_INSTANCE_MOUNT=) — walk from a =.env=-less cwd |
+| 25    | (continuation summary)                                                                            | NOTHING                                                                                                                     | — |
+| 26    | /"all docs and readme up to date? once them, run a fresh ubuntu docker image and step through the readme. scout past compacts for method"/ | 51.02 · 32.01 · 50.01 · README edited; docs build 10 pages green; =readmen-m52= (ubuntu:24.04, host 127.0.0.1:2501/1794, local tar 125 MB): README 0–6 PASS, §1/§2 fences CAPTURED (=.env present 0 vars · 0 secrets=; keyed block, 21 modes) | GitHub =b0fc2f75= = local HEAD — lag is the uncommitted tree only; Chrome extension not connected → browser leg beef's |
+| 27    | /"remove the emacs autosave"/                                                                     | =#50.01_slowstart.mdx#= (tracked!) deleted                                                                                  | — |
+| 28    | /"run the various ghost trajectories and test api"/                                               | 17 verbs run against the live container (guards hold: start/run/delete/rename refuse while running; stop → start detached, logged, left UP); 160 routes, real bearer: handshake · metadata · mode bot/agent · entities · batch · SSE · bundle · lighthouse auth | 5 defects → known-issues: lock-dead doctor · untap no-op · doctor-unknown-target · =GET /multiplex= 500 · =identity/find= leaks argon2 hashes |
+| 29    | /"propose fix."/ ×2 · /"why?"/ · /"mark these in ikiro"/                                          | proposals (reasoning + hunks); doctor-unknown-target = DESIGNED (=split()=: one param is a filter unless the record resolves it); frontier strand 6 marked | attribution CORRECTED: =lock.alive= is at HEAD, the uncommitted diff there is the tty-walk landing |
+| 30–31 | /"1 go."/ · /"1 go. 2 go"/                                                                        | =collectLocks= flattens =processes=, =Doctor.jsx= counts =locks.length=, =alive= gone; =registry/index.js= =packages()= + =tapped()= (key · =./key= · mount · identifier), untap refuses exit 1; =registry.test.js= + =ledger.test.js= pin the refusal; ghost 87/88 | first test edit untapped =alpha= and reddened two sibling steps (shared fixture) — fixed by asserting on =list= instead |
+| 32    | /"write a skill for yourself on how to CRUD with DBEAVER. … dedicated agent. research … simple tool. just build directly. go"/ | agent (opus) spawned                                                                                        | — |
+| 33    | (agent report)                                                                                    | =.claude/skills/dbeaver/{SKILL.md,dbeaver.js}= — list · read · create · update · delete · =create-instance <slug> --dry= · =--file=; copy-tested; real file untouched (DBeaver running) | =configuration.database= is load-bearing (MANUAL mode regenerates the url from =jdbc:sqlite:{file}=); no REST/GraphQL on desktop, CLI =-con= launches the GUI; live pickup = F5 on the project node; description trimmed for the listing budget |
+| 34–35 | (beef ran =list= himself)                                                                         | NOTHING                                                                                                                     | — |
+| 36    | /"find outdated conections and prune them."/                                                      | 7 of 8 sqlite entries point at deleted files (6 × =testament/variant=, 1 × =registry-standalone=); rehearsed on a copy: 7 deleted, other sections identical | real write blocked: DBeaver open (pid 33443) — the loop is in the reply |
+| 37    | (skill load)                                                                                      | NOTHING                                                                                                                     | — |
+| 38    | /"can we sunset this quest m52?"/                                                                 | already sunset at row 24                                                                                                    | owed beef: commit · education push · live restart |
+| 39    | /"ikiro compact"/                                                                                 | this fold                                                                                                                   | — |
+
+* arc
+
+** the go, and the gate the demo could not see (row 24)
+
+Three milestones, each green before the next, exactly as the quest's ladder said. The thing the ladder did
+not know: the =Ledger.boot= gate proven in demo C had been proven on an instance the demo script mounted by
+hand. On the real path =register()= reads =paladin.instance.home= without mounting; an unmounted instance has
+no requirements and no faults; =fails= is false; the children spawn and each refuses at its own edge. The
+fix is the runtime child's own move, one line up in the ghost. The callout is in the zettelkasten: a demo
+that sets up the precondition proves the mechanism, not the caller.
+
+** the docs were behind by exactly the patch (rows 26–27)
+
+Four pages still taught =new Url=, =statics: {}= / =consume: {}=, "validate & publish", a doctor without
+=faults=/=dormant=, an =.env= sample with the anthropic line uncommented, and a §6 that recorded =@viva=. Every
+edit was forward (his prose kept, one sentence added where the schematic now does the work). The walk then
+CAPTURED two README fences that were composed rather than captured — the ledger doctor's =.env= line and the
+first =registry/list= — into what the tree actually prints.
+
+** the walk is the organ gate (rows 26, 28)
+
+Fresh ubuntu, the docker-live recipe verbatim, the local tree. What the walk added over the suites: the
+strata footgun (repo-root =.env= beats an os =VIVA_INSTANCE_MOUNT=), =curl --retry-connrefused= lying on a
+published port (docker-proxy accepts, then resets), and five defects none of the 200-odd tests knew about,
+because they live between verbs — a doctor that counts a live lock dead, an untap that says nothing.
+
+** proposals, then go (rows 29–31)
+
+Reasoning and a hunk each, then wait — and the two goes landed in the shape proposed: no invented field
+(=Lock.read()= prunes, so what it returns is alive), no new paladin surface (the record API stays dumb; the
+ghost verb resolves the four spellings). The tests that pinned the old no-op moved to pinning the refusal
+without touching the fixture.
+
+** an aside with a dedicated agent (rows 32–36)
+
+/"simple tool. just build directly."/ — the agent researched (no API on desktop DBeaver, a GUI-launching
+=-con= flag, the JSON file is the documented surface), read his real registry, found from bytecode that
+=configuration.database= is what MANUAL mode connects with, and shipped a skill plus a 181-line deno script
+tested against a copy. The first real use — prune seven dead connections — is rehearsed and waits on the
+one rule the skill opens with: DBeaver must be closed.
+
+* failures, mine
+
+- *T2 booted the live hello-world.* An os-level =VIVA_INSTANCE_MOUNT= lost to the repo-root =.env=; the
+  walk ran from the repo. 60 s of his instance up, SIGTERM clean, =updatedAt= bumped. Law: walk from a
+  =.env=-less cwd.
+- *BSD sed.* The shared recipe hunk went through =sed= with =\|= — the imports were replaced, the =new Url=
+  sites were not; the residue grep caught it. =sed -E=.
+- *"your WIP".* I attributed =lock.alive= to beef's uncommitted =Doctor.jsx= diff without =git show HEAD=; the
+  diff there was my own tty-walk landing and the defect is at HEAD. Corrected in the same reply chain;
+  callout appended.
+- *=_reference=.* The first untap edit destructured with an underscore name — his no-abbreviations rule —
+  replaced with =object.filter=.
+- *Two sibling steps reddened.* My untap test untapped =alpha= in a shared fixture; the fix asserts on =list=
+  instead of mutating.
+- *Frontier over budget four times* while marking; trimmed to 8000 exactly.
+
+* state at fold
+
+- tree DIRTY, uncommitted (beef's): m52 (typology 4 · paladin 6 + =settle.test.js= · runtime =run.js= · kajuit
+  =vite.config.mjs= · ghost =doctor.js= =run.js= · commons recipe · README · =release.md= +7) · docs (51.02 ·
+  32.01 · 50.01 · autosave deleted) · the two goes (ghost =ledger/index.js= =Doctor.jsx= =registry/index.js= +
+  two tests) · =.claude/skills/dbeaver/= · his own pre-session M (=integrate.js= =install.sh= =Mode.ts=
+  =Literal.ts=).
+- shelf + education recipes migrated (education =instances/= is untracked in that checkout — his push).
+- container =readmen-m52= RUNNING, hello-world UP via =instance/start= (supervisor 5865, logged), host
+  127.0.0.1:2501/1794, users admin/changeme · reader/secret · apiuser/secret1; =readmen-tty= untouched. Stop
+  before a local hello-world (port-shadow trap).
+- DBeaver open (pid 33443): the 7-entry prune and =create-instance italian= wait on his quit.
+- known-issues: 2 RESOLVED (lock-dead doctor · untap), 3 OPEN (doctor filter = design call · multiplex 500 ·
+  identity hash leak — frontier strand 6).
+- m52 in =done/=; owed beef: commit · education push · restart the live hello-world.
+
+* quest report (derived at fold — `methods/quest-report.py`)
+
+| quest                    | progress  | status | next                                             | sessions   |
+|--------------------------+-----------+--------+--------------------------------------------------+------------|
+| m46-linux-readmen        |  17% 3/18 | wip    | drain                                            | 4 (1 live) |
+| m50-the-three-way-weave  |  60% 3/5  | wip    | blast                                            | 1 (1 live) |
+| m51-standalone-slowstart |   0% 0/18 | design | go                                               | 0          |
+| m53-vcompany             | —         | open   | survey                                           | 0          |
+| m53-vcompany.pre         |   0% 0/1  | open   | gate on m27 (m27.1 + m27.2), then m53.2 scaffold | 1 (1 live) |

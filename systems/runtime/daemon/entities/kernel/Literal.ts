@@ -6,6 +6,9 @@ import { object } from "@vivalence/typology";
 import { DataEntity, DataSchema, DataRepository } from "../index.ts";
 import { SymbolEntity } from "../index.ts";
 
+// @beef: FILE trait on literal
+// @beef: owner relation to mode
+
 export enum LiteralTraitsEnum {
   _ = "_",
 }
@@ -13,14 +16,6 @@ export enum LiteralTraitsEnum {
 export class LiteralRepository extends DataRepository {
   unique(opt) {
     return { slug: opt.slug };
-  }
-
-  get extensions() {
-    return {
-      ...super.extensions,
-      search: "text over slug + translations",
-      symbols: "symbol slug array (AND per symbol) or { $all, $in, $none }",
-    };
   }
 
   find(where, opts?) {
@@ -55,6 +50,14 @@ export class LiteralRepository extends DataRepository {
       where.symbols = { ...(where.symbols || {}), $none: { slug: { $in: $none } } };
 
     return where;
+  }
+
+  get extensions() {
+    return {
+      ...super.extensions,
+      search: "text over slug + translations",
+      symbols: "symbol slug array (AND per symbol) or { $all, $in, $none }",
+    };
   }
 }
 

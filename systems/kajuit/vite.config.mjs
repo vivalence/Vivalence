@@ -10,6 +10,7 @@ const __ss = join(__repo, "./subsystems");
 async function serverConfig() {
   const paladin = (await import("@vivalence/paladin")).default;
   await paladin.instance.mount();
+  paladin.check.instance(paladin.instance).throw();
   const client = paladin.instance.clients.kajuit;
   // console.log("paladin.env", paladin.env);
   // const client = {slug: "kajuit", module: "@vivalence/kajuit", statics: {serve: new Url("http://0.0.0.0:1794"), lighthouse: {remote: new Url("http://100.71.241.160:2501/attached/process/lighthouse/multiplayer"),},},};

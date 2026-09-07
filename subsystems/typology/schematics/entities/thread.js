@@ -36,6 +36,8 @@ export const ThreadDescriptor = {
     user: () => v.rel(v.user()).optional(),
     mode: () => v.rel(v.mode()).optional(),
     intent: () => v.rel(v.intent()).optional(),
+    parent: () => v.rel(v.thread()).optional(),
+    children: () => v.array(v.thread()).optional(),
     buffers: () => v.array(v.buffer()).optional(),
   },
   narrowable: ["trait"],

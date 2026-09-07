@@ -12,6 +12,15 @@ const MIME = {
   mp4: "video/mp4",
   webm: "video/webm",
   json: "application/json",
+  jsonc: "application/json",
+  pdf: "application/pdf",
+  md: "text/markdown",
+  mdx: "text/markdown",
+  org: "text/plain",
+  txt: "text/plain",
+  tex: "application/x-tex",
+  html: "text/html",
+  csv: "text/csv",
 };
 
 const entry = (path) => {

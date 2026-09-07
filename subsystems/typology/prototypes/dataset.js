@@ -7,7 +7,9 @@ export const reader = {
   json: (target) => ({ read: target, codec: "json" }),
   js: (target) => ({ read: target, codec: "data" }),
   rows: (rows) => ({ rows }),
+  load: (load, stamp = null) => ({ load, ...(stamp && { stamp }) }),
   lift: (declared) => {
+    if (is.fn(declared)) return { load: declared };
     if (is.array(declared)) return { rows: declared };
     if (is.object(declared)) return declared;
     if (!is.string(declared)) throw new Error(`[reader] cannot lift ${JSON.stringify(declared)}`);
@@ -19,7 +21,8 @@ export const reader = {
 const descriptor = (item) =>
   is.string(item) ||
   is.array(item) ||
-  (is.object(item) && ("rows" in item || "read" in item || "walk" in item));
+  is.fn(item) ||
+  (is.object(item) && ("rows" in item || "read" in item || "walk" in item || "load" in item));
 
 export class Dataset {
   intent = [];

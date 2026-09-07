@@ -1,0 +1,113 @@
+#+title: the connoisseur finds the bag in the walker, WEIRD dissolves into a loader, and the office gets its screens
+#+filetags: :m53:vcompany:vdex:paladin:runtime:typology:drapes:kajuit:design:screens:dataset:connoisseur:quest:
+
+* what happened, in one breath
+
+Beef handed over a Claude Design project — /"Use the claude_design MCP … to import this project …
+Implement: `vcompany Screens.dc.html`"/ — and while both design files were being read whole he
+pasted my own =belt/ignore.js= and =belt/find.js= hunks back with the order that mattered:
+/"i dont like this yet. something is off. let coneusseur have a pass."/, then /"and fix my other
+@beef comment"/. The connoisseur's pass found five things off in the first cut: the walker had
+grown a bag (=ignore= threaded as a fourth positional and an options object on the call), the
+=extra= list was an epicycle (two lists unioned plus a suffix rule outside both), =describe=
+complected a stat with a content read (every file, pdfs too, decoded to fnv1a it — and T1.#2 had
+already needed ={hash: false}= to escape it), string surgery where =@std/path= has the verb, and
+=skills/fs.js= reading the house list only so an officer's =vdex_fs_tree= and the index disagreed
+about =jdex-sbs=. All five landed: ONE glob list with =*.bak= in it as data, =skip(globs =
+IGNORE)= compiled once, the list riding the walker's curried head beside the pattern with the call
+unchanged, a caller's list the WHOLE list, =describe= a stat, the hash at the loader that holds the
+text, =ctx.ignore= bound beside =ctx.root=. The other comment was =# @beef WEIRD!= on the
+=traits/dataset.js= hunk that had split the trait's body into an exported =install(mode, daemon,
+declared)= for the vdex boot to call — and it was right: the mechanism already computes it. The
+tree is a dataset SOURCE: typology =reader.load= moved up from =* T1.#2= into T1 as the second holy
+line beside the MIME table, =load.js= carries two loaders over one scan and a stat-only
+fingerprint, DATASET installs, BOOTED drains the scan and prunes, =reindex= blanks the stamp and
+runs the trait. Nothing exported, nothing split; T1.#2 shrank to owner rows, the sink and the
+watcher. Then the design: 00 shell and the mobile rules measured as EXISTING in the tree, five
+office parts to drapes as scoped-var drapes, six Apps verbatim against what an App can reach, the
+aperture contracts each App fixes, the calendar as a CALL, the Dock header as prose until its line
+is read. /"ikiro compact"/ — twice.
+
+* spine (N=47; rows 1–40 are compacts 103 · 104 · the-comments-move-the-mask's · the-t1-patch-is-worked-out-twice's)
+
+| n     | beef asked                                                                                                                                                                                                       | landed                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                       | decided / killed |
+|-------+------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------+------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------+------------------|
+| 1–40  | (the brief · the quest · c·o · T0 · materialize · the comments · the shelf · the 404 · research · the T1 patch · T1.#2 · the two callouts)                                                                        | —                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                            | — |
+| 41–42 | =/compact= · the continuation                                                                                                                                                                                    | the closing report for the previous fold (the fix · T1.#2 · the compact)                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                     | — |
+| 43    | the design handoff — /"Use the claude_design MCP … import this project … Focus on … `vcompany Screens.dc.html` … Also read … `support.js` … `pic-vinca-viket_white.svg` … Implement: `vcompany Screens.dc.html`"/ | =DesignSync=: project =VDex design system= read whole — =Screens.dc.html= (00 shell · M1–M5 · 01–11 · the data model) and =System.dc.html= (§01–§07; §06 the office layer, 14 parts) · =github.md= (00 → the existing shell; 01–11 new) · =support.js= (the dc runtime)                                                                                                                                                                                                                                                                                                       | /"Implement"/ meets the house law: worked out as the patch, lands per item on go |
+| 44    | the =ignore.js= + =find.js= hunks pasted back · /"i dont like this yet. something is off. let coneusseur have a pass."/                                                                                          | the pass (five findings, above the =ignore.js= block in =* T1=): =IGNORE= a glob list with =*.bak= · =skip(globs = IGNORE)= · =walk(pattern, ignore)= with the call unchanged · the whole list, no union · =describe= a stat · =extname= · =relative= · =parse= · =fs.js= compiles =ctx.ignore= per call; =find.test.js= rewritten (whole-list semantics pinned); his =daemon.js= entry gains =*.bak=; the T1.#2 =find.js= delta deleted; FRAUGHT's line = =walk(/./, mode.statics?.ignore)(root)=; doctrine in =** decisions=, =*** the ignore doctrine=, the waterfall b1 | =extra= is dead; a caller's list is the WHOLE list; =describe= never reads |
+| 45    | /"and fix my other @beef comment"/ — =# @beef WEIRD!= on =traits/dataset.js=                                                                                                                                     | =install()= gone: typology =reader.load= lifted into T1 (c1, GATED — the second holy line) + =dataset.test.js= new; runtime =pull(source, mode)= + the stamp fold; =load.js= (two loaders, ONE scan, =drain=, stat-only =fingerprint=, the hash at the reader, =title= pure over the text in hand); =boot.js= = drain → prune by ontology → the =[VDEX]= line from the database, =reindex= = blank the stamp + =runtime.daemon.traits.DATASET= + admit + prune; tools bind =ctx.ignore=, whole-tree reindex after own writes; =boot.test.js= rewritten (+ a file that appears on disk); =mod.js= hunk deleted; =dataset.install.test.js= = a loader case; T1.#2 rewritten as deltas (owner + generic prune · body · the watcher with ONE settle per root); the mechanisms, waterfall c1/c3/#2, rollout G2, blast row, forks | no trait body is exported or split; the mode never reaches into the runtime; T1 vs T1.#2 = loader + local prune vs owner + sink |
+| 43→   | (the design, worked out after 44–45)                                                                                                                                                                             | =* screens= at the bottom: the map (00 + M EXIST — pincer home =bridge.js:68=, Dock 820 =:102=, coarse =:152=, safe areas =client.html:23-36=), the parts (five to drapes: =Key= · =Tile= · =Plate= · =Entry= · =Empty= + =Pip glow=; the rest mode-local), the token map, what an App can reach, six Apps verbatim (=Vdex= replacing c5's stub · =Inbox= · =Chat= · =Desk= · =Voffice= for 09/10 · the calendar sketched), the aperture contracts (vdex =/open= · email =/inbox /message /read /send= · chat =/messages /send=), the Dock header as prose, the rules, blast, gates Gs1–Gs6; =** screens= in the waterfall                        | the domain IS the office (09/10 = =domain/voffice='s App); =office/calendar= is a CALL; the Dock hunk waits on =:787= |
+| 46–47 | /"ikiro compact"/ · /"ikiro compact"/                                                                                                                                                                            | this fold                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                    | no callout this window (codeword absent, scanned) |
+
+* the connoisseur's pass, as it was found
+
+His /"something is off"/ named no trigger; the rubric did. Against =self/connoisseur.md=:
+
+- trigger 18, the bag: =search(pattern, dir, depth, ignore = [])= and =walk(pattern)(path, depth, { ignore })= — the shape of a walk (what to keep, what to prune) had split across a positional and an options object. The shape belongs in the curried head: =walk(pattern, ignore)=; every consumer — FRAUGHT, =stamp()=, the ghost, the vip — keeps =(path, depth)= and the house default.
+- trigger 16, the second epicycle: =ignored(name, extra)= = =IGNORE ∪ extra ∪ endsWith(".bak")= — two lists and a rule outside both, invented so the instance could add =jdex-sbs=. ONE list, the whole list, defaulted to the declaration; the suffix rule joins it as data (=*.bak=, =globToRegExp=); his =daemon.js= entry already was the whole list.
+- trigger 10/16, complecting: =describe= read and UTF-8-decoded every file (pdfs included) to fnv1a it, and =* T1.#2= had already grown ={hash: false}= to skip the read on the fingerprint walk — the tell. A description is a stat; the content hash belongs to the reader that already holds the text.
+- trigger 9, string surgery: =path.split(".").pop()=, =path.includes(".")=, =absolute.slice(root.length + 1)= where =@std/path= has =extname= · =relative= · =parse=.
+- coverage: =skills/fs.js= called =ignored(entry.name)= with the house list only — an officer's =vdex_fs_tree= showed the template the index hid. The bind that sets =ctx.root= sets =ctx.ignore=; the skill compiles it per call.
+
+Measured for it: =globToRegExp("*.bak")= → =^[^/]*\.bak\/*$= (anchored, one segment); =.git= does not match =.gitignore=; =extname(".DS_Store")= → =""=; =relative("/r", "/r/a/b.md")= → =a/b.md=; =is.fn= exists in =gestalten/is/scalars.js:16=.
+
+* WEIRD, dissolved
+
+The first cut had =DATASET= become a two-line wrapper around an exported =install(mode, daemon,
+declared)= so the vdex boot could push its own rows through the trait's chunked upsert and link
+phase. beef, in the file: =# @beef WEIRD!=. Three triggers at once — 15 (write at the owner), 17
+(the mechanism already computes it), 18 (=declared= is the bag). The answer was already in his
+own alternative: the tree is a dataset SOURCE. =reader.load= (one holy line) lets the vdex declare
+={load: documents, stamp: fingerprint}=; DATASET pulls it like =rows= · =read= · =walk=; =stamp()=
+folds the loader's stamp so =resolution.js:49-56= reruns the install only when the tree moved;
+BOOTED drains the shared scan and prunes by ontology; =reindex= after an own write = blank
+=mode.entity.installed= + =runtime.daemon.traits.DATASET(mode, daemon)= — one way, the whole tree.
+T1 and T1.#2 now differ only where they should: local prune vs owner rows + generic prune; no
+sink vs sink + body; no watcher vs the watcher with ONE settle for the root (per-path timers were
+another epicycle).
+
+* the screens
+
+- 00 and M are the tree: the design re-draws the shell; pincer home ={x: 0, y: 1}= makes panel a the whole phone above a 45 px crown; the Dock's 820 px flip, coarse-pointer keys and safe areas exist. Apps inherit the Dock's own measure (=bind:clientWidth=), never a container query.
+- the office parts: five general → drapes as scoped-var drapes (the =Section= · =Pip= · =Chip= family, not the Tailwind kit that is dead-in-live); the rest ontology-shaped → mode-local (commons has zero cross-module Svelte imports — measured).
+- the Apps: =Vdex= (tree › reader › textarea, pdf through =Pdf= with the binary line, a sheet under 820), =Inbox= (list › preview › thread folded from =uses= and =inReplyTo= client-side, the composer → =/send=), =Chat= (chats › conversation › composer), =Desk= (plate · brief when =/brief= exists · tiles · inbox top · recent documents · on duty · boot lines; every "open" a jump through the owning mode's =/open=), =Voffice= (09/10 as one App with two views — the domain IS the office), the calendar sketched for his call.
+- the Dock header (08): a =Plate= for an officer mode + the keyed state — prose until =Dock.svelte:787= is read (1 700 lines, 140 read).
+
+* measured, not assumed
+
+- =bridge.js:68= =home: { x: 0, y: 1 }=; =geometry.js= bones at home: shoulder 0 wide, spine 0 tall · =Dock.svelte:102= =narrow < 820=, =:152= =coarsePointer=, =:98= consoles =context · meter · activity=, =:787= renders =context= (not read) · =client.html:23-36= safe areas.
+- =Frame.svelte:60-66=: an App receives =terminal · daemon · mode · thread · buffer= · hello-world's App reads =daemon.entities.mode.find()= and =mode.call.<route>= · the client =Mode= carries =traits= · =implements()= · =metadata= · =status=; =statics= on it UNMEASURED.
+- dapper tokens live: =--colors-skeleton-N-{surface,contrast,boundary}=, =--colors-skeleton-0-{primary,warning,danger,success,info,accent}-base=, =--text-support= · =--text-body= · =--shadow-soft= · =--font-family-{code,sans-text,sans-heading,brand}= · =--font-size-{2xs…3xl}=.
+- =dataset.install.test.js= builds its mode by hand (=entity: { installed: "" }= · =module.dataset=) and calls =DATASET(mode, daemon)= directly — the pattern the loader case follows.
+- the runtime barrel: =export * as daemon= → =runtime.daemon.traits.DATASET= · =.stamp= · =.DATASINK= reachable; the T1.#2 =@vivalence/runtime/daemon/traits= import went.
+
+* process notes (self-caught, no codeword)
+
+- the first surgery script asserted uniqueness on the aperture's =/write= reindex line and found two (T1 and T1.#2 both carry it) — the script writes last, so the file was untouched; the assert became a counted replace.
+- the frontier line grew past 8 000 on the first stamp draft; trimmed the T0 clause (=dress · accioOne · integrate= → =masking is PALADIN's=) to land at 7 949.
+- the loader read the text for its hash while =title()= opened the same file for 4 kB — caught before writing; =title= is pure over the text now.
+
+* settlement
+
+- no callout this window: the transcript rows 41–47 carry no codeword (scanned at fold).
+- his two comments are landed rules, not loose ends: =*** the ignore doctrine= and =** decisions= in the quest carry both; =feedback_no_prose_tables= and =feedback_no_cross_module_relative_imports= untouched; a new feedback memory: run the connoisseur's triggers over a hunk before it reaches the quest — he caught five in one read.
+- the compact index regenerated by the generator; the quest report stamped.
+- nothing sunset: T0 in flight; T1 patch-ready with one loader; the screens patch-ready per tier.
+
+* resumption (owed beef)
+
+- **next stop: vcompany** — the T0 modules on go (rollout step 0), then 1–7; step 8 his call.
+- typology gos: =freight.js= MIME (+pdf) · =prototypes/dataset.js= =reader.load= (c1, the second holy line) · the T1.a rel fields · the "one noun" Mask lines · (=#2=) =writer.each=.
+- screens gos: the five drapes parts (s1) · then each App with its tier; CALL =office/calendar= (s6); the Dock header after =:787= is read (s7).
+- CALL: =* T1= (loaders + local prune) vs =* T1.#2= (owner + sink + watcher) · the JDex target on the shelf · the remote · type name =office= · the sibling waterfall tables' shape.
+
+* quest report (derived at fold — `methods/quest-report.py`)
+
+| quest                    | progress  | status | next                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                               | sessions |
+|--------------------------+-----------+--------+--------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------+----------|
+| m46-linux-readmen        |  17% 3/18 | wip    | drain                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                              | 6        |
+| m50-the-three-way-weave  |  60% 3/5  | wip    | blast                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                              | 1        |
+| m51-standalone-slowstart |   0% 0/18 | design | go                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                 | 1        |
+| m53-vcompany             |   0% 0/5  | open   | **next stop: vcompany** (beef) — the t0 modules on go (domain voffice · office/{vdex,email,chat} · officer/{ceo,cfo,cto} · readme · ignore file), then t1 on go: t1.b paladin (find/fs/ignore) + drapes (markdown lift · org · pdf) → t1.c vdex; typology gates: `freight.js` mime (+pdf) · the t1.a rel fields; call: the jdex target on the shelf · call: boot as a dataset (=* t1.#2=, patch-ready) vs booted first (=* t1=) · **screens**: his design import worked out (=* screens=: five drapes parts gated, six apps verbatim, aperture contracts; call =office/calendar=; the dock header after measuring) | 1        |
+| m53-vcompany.pre         | —         | open   | t1 package setup — the m27 gate moves to the executive stage; t1–t3 do not wait on it                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                              | 0        |

@@ -35,7 +35,7 @@ minimum vocabulary required:
 `standalone.viva.js` imports paladin and typology, but importing *it* costs nothing: every environment read in the file is wrapped in a thunk.
 
 ```js
-statics: { serve: () => new Url(paladin.env.get("VIVA_RUNTIME_SERVE")) }
+statics: { serve: () => paladin.env.get("VIVA_RUNTIME_SERVE") }
 ```
 
 At paladin's own import time, the singleton hands the process environment to `paladin.assign` — the one ingress every environment source goes through — which splits the bag by **key**: `VIVA_*` configuration and `PUBLIC_VIVA_*` published values into `paladin.env`, `SECRET_*` into a separate secret store, everything else ignored. Then it installs *scopes*: conditional resolvers for the instance directory, its mountpoint, the ledger, the repository, the registry.
@@ -43,10 +43,10 @@ At paladin's own import time, the singleton hands the process environment to `pa
 `paladin.instance.mount()` then makes the declaration real, in five moves:
 
 1. **environment** — the instance's own `.env`, at its root and nothing else, folds in through `paladin.claim` at the `instance` stratum. One file at one stratum, so nothing can silently overwrite anything. The key decides secrecy, so a `SECRET_*` reaches the secret store wherever it is written. This is where the runtime, lighthouse and kajuit addresses arrive.
-2. **resolve** — find the one module under the instance mount whose manifest says `instance`, then *hydrate* it: every deferred `() =>` fires now. The thunk above becomes a `Url`. Until this moment the declaration was data; after it, values.
+2. **resolve** — find the one module under the instance mount whose manifest says `instance`, then *hydrate* it: every deferred `() =>` fires now, at any depth. The thunk above becomes the string it read. Until this moment the declaration was data; after it, values — still untyped.
 3. **kernel references** — a daemon's `kernel` entries stay unhydrated and get resolved as references instead: a bare specifier points into the registry, `./` is relative to the instance file, and an inline object — the standalone's case — mounts as-is, with the instance file as its home.
 4. **masks** — each daemon and service declaration becomes a `Mask` with a mountpoint carved out for it: `mountpoint/daemon_standalone/` is where its database and migrations will live.
-5. **validate & publish** — `v.primitives.instance` casts runtime, clients, daemons, services and reports *all* errors at once; then every `PUBLIC_*` var is published to the process environment, where clients can reach it.
+5. **settle & publish** — the whole `v.primitives.instance.Instance` schematic settles what the pinhole fired: a hallucinator with a blank secret goes *dormant* (off the roster, named on the instance), defaults fill the slots the recipe left out, every miss becomes a sentence in `instance.faults` — never a throw, so the doctor can mount a bare recipe — and a clean slot decodes to its prototype: the string above becomes a `Url`. Then every `PUBLIC_*` var is published to the process environment, where clients can reach it. The boot edge refuses on faults (`instance/run`, and the runtime's own `run.js` below); `mount()` itself never does.
 
 ## a die per declaration
 
@@ -54,6 +54,7 @@ The runtime's whole entrypoint:
 
 ```js title="systems/runtime/run.js — condensed"
 await paladin.instance.mount()
+paladin.check.instance(paladin.instance).throw()
 const die = new Die({ good: new Runtime() })
 await die.populate()
 // then: await die.resolve() · await die.integrate() · await die.perpetuate()
