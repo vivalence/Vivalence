@@ -469,7 +469,7 @@ PASS — the recipe lands at =~/.viva/instances/hello-world/= and is recorded in
 
 *** readme delta
 
-none. (The README shows no expected output for this step. Cosmetic only: =instances/list= renders a numbered indented block, not the =mount/owner/…= style table =registry/list= uses; and with two instances on the shelf it switches to a table instead — see defect 16.)
+none. (The README shows no expected output for this step. Cosmetic only: =instances/list= renders a numbered indented block, not the =mount/owner/…= style table =registry/list= uses; and with two instances in `~/.viva/instances` it switches to a table instead — see defect 16.)
 
 ** step 4 — =viva instance/init=
 
@@ -796,7 +796,7 @@ curl -s http://localhost:2501/status ; curl -s http://localhost:1794/ | head -3
       target  /tmp/resolve-probe
       exit=0
 
-[x] 4  instance/create — hello-world on the shelf
+[x] 4  instance/create — hello-world in `~/.viva/instances`
     "hello-world"
     hello-world.viva.js  mountpoint  playground.js
 
@@ -978,7 +978,7 @@ Every command I ran that the README does not show, and why.
 
 6. =viva instance/stop=, =viva instances/list=, =viva instance/doctor=, =viva help …=, and =ls= / =cat= / =find= / =ps= / =curl= / =sqlite3= probes throughout — inspection only, no state change except the stops.
 7. *Second pass of step 4.* My first =instance/init= run completed (=.env= written, =admin= created, =auth/signup SUCCESS=) but my expect matcher missed the "enter → stop + exit" park screen, so I had to kill the exec without an exit code. I then removed =~/.viva/instances/hello-world/.env=, its =mountpoint/=, and the stale locks and logs, and re-ran =viva instance/init= from scratch to capture a clean exit code (=RC:0=, 20 s). Both transcripts are kept (=step4.log= / =step4.typescript= = first pass, =step4b.log= / =step4b.typescript= = second).
-8. =viva instance/create @viva/instance/multiplayer /tmp/resolve-probe= (from a shell with =cwd=/=) — to test README §6 claim 3's "resolve by reference from any shell" with a reference other than the one already on the shelf. I then =rm -rf /tmp/resolve-probe= and, because no verb removes an instance record, hand-edited =~/.viva/instances.json= to drop the leftover =multiplayer= key. See defect 16.
+8. =viva instance/create @viva/instance/multiplayer /tmp/resolve-probe= (from a shell with =cwd=/=) — to test README §6 claim 3's "resolve by reference from any shell" with a reference other than the one already in `~/.viva/instances`. I then =rm -rf /tmp/resolve-probe= and, because no verb removes an instance record, hand-edited =~/.viva/instances.json= to drop the leftover =multiplayer= key. See defect 16.
 9. Isolation probes added after anomalies surfaced: =viva instance/lighthouse login reader secret=; a duplicate =signup= (→ ="ghost: Client error: 400 — Username already taken"=, exit 1); =--instance== before vs after the verb; =viva instance/doctor | head -2= vs redirected; =timeout= / =env= / =nohup= wrappers around a bound =viva=; =viva instance/run bogus= direct vs chained; two =/status= calls 4 s apart. These produced defects 6–11.
 10. =git log -1 --format='%H %ci %an %s'= and =sha256sum README.md= inside the clone — read-only, to pin the HEAD and prove the README under test is the ground-truth text.
 11. =viva registry/list= / =ledger/doctor= run twice (before and after a step) where the README shows them once — to establish before/after deltas.
@@ -1613,7 +1613,7 @@ echo "  probe: does a reference resolve from a shell that never touched the repo
 bash -c 'cd /; export PATH=$HOME/.deno/bin:$PATH; viva instance/create @viva/instance/multiplayer /tmp/resolve-probe 2>&1 | head -4; echo "    exit=$?"'
 rm -rf /tmp/resolve-probe
 echo
-echo "===== [x] 4. \`instance/create\` — \`hello-world\` copied onto the shelf ====="
+echo "===== [x] 4. \`instance/create\` — \`hello-world\` copied into `~/.viva/instances` ====="
 echo "  probe: grep hello-world ~/.viva/instances.json ; ls ~/.viva/instances/hello-world"
 grep -o '"hello-world"' ~/.viva/instances.json
 ls ~/.viva/instances/hello-world
@@ -3149,7 +3149,7 @@ segments chain under /instance (instances/use italian run)
  the path is a PATH (./name, never a bare slug)
   instances/rename         [prior] [next]       move an instance's record key —
 carries dead locks and the log dir; refuses while running
-  instances/list                                every instance on the shelf —
+  instances/list                                every instance in `~/.viva/instances` —
 slug, mount, valence, and which are running
 
 instance
@@ -7001,7 +7001,7 @@ from                           /root/vivalence/registry/viva/instances/starter
 target                         /tmp/resolve-probe
     exit=0
 
-===== [x] 4. `instance/create` — `hello-world` copied onto the shelf =====
+===== [x] 4. `instance/create` — `hello-world` copied into `~/.viva/instances` =====
   probe: grep hello-world ~/.viva/instances.json ; ls ~/.viva/instances/hello-world
 "hello-world"
 hello-world.viva.js
@@ -7072,7 +7072,7 @@ segments chain under /instance (instances/use italian run)
  the path is a PATH (./name, never a bare slug)
   instances/rename         [prior] [next]       move an instance's record key —
 carries dead locks and the log dir; refuses while running
-  instances/list                                every instance on the shelf —
+  instances/list                                every instance in `~/.viva/instances` —
 slug, mount, valence, and which are running
 
 flags  --json  --buffer  --help  --env=<path>  --ledger=<path>
@@ -7945,7 +7945,7 @@ One probe per checkbox — see =step6.sh= / =step6.log=.
      …oot/vivalence/registry/viva  @viva  10  @viva/package/viva
      (from /tmp, via a fresh login shell: 1 match)
 
-[x] 4  instance/create — hello-world on the shelf
+[x] 4  instance/create — hello-world in `~/.viva/instances`
      {"hello-world":{"createdAt":"2026-09-04T10:22:38.551Z","mount":"/root/.viva/instances/hello-world",…}}
 
 [x] 5  instance/init — .env populated, account registered
@@ -8858,7 +8858,7 @@ cd /tmp && bash -lc 'viva registry/list' 2>&1 | grep -c "@viva"
 cd /root
 echo
 echo "=================================================================="
-echo "[x] 4  instance/create — hello-world copied onto the shelf"
+echo "[x] 4  instance/create — hello-world copied into `~/.viva/instances`"
 cat /root/.viva/instances.json
 echo
 echo "=================================================================="
@@ -14652,7 +14652,7 @@ mount                         owner        modes  identifier
 1
 
 ==================================================================
-[x] 4  instance/create — hello-world copied onto the shelf
+[x] 4  instance/create — hello-world copied into `~/.viva/instances`
 {
   "hello-world": {
     "createdAt": "2026-09-04T10:22:38.551Z",
@@ -14717,7 +14717,7 @@ slug)
 record key — carries the log dir; refuses while its supervisor holds
  the lock
   instances/list                                every instance on
-the shelf — slug, mount, valence, and which are running
+the instance — slug, mount, valence, and which are running
 
 instance
   instance/create          [source] [target] [--use] create an
@@ -14737,7 +14737,7 @@ instance detached — a supervisor ghost runs it logged (instance/run
 instance — SIGTERM its supervisor, wait for the lock to clear
   instance/delete          [target] [--force]   remove an instance
 from this machine — record, dead locks, logs, the sessions that
-selected it, and the dir when it lives on the shelf (a tapped dir
+selected it, and the dir when it lives in `~/.viva/instances` (a tapped dir
 stays); refuses while running; asks unless --force
   instance/lighthouse      [action] [username] [password] signup or
 login against the mounted instance's lighthouse
@@ -14968,7 +14968,7 @@ docker exec -d readmen-live bash -c '… exec viva instance/run > /walk/step5-ru
 | 0.s  | =viva ledger/doctor=                                  | 3 s      | PASS                   | answers BEFORE =ledger/init=: =✓ ledger /root/.viva · .env absent · 0 vars= (L20 again) |
 | 1    | =viva ledger/init=                                    | 0 s      | PASS-WITH-DEVIATION    | headless: one stray =paladin.scope overwrite= line, =persisted false=, =fill= lists the four machine keys; the doctor block then matches the README's BYTE-FOR-BYTE modulo =~= → =/root= |
 | 2    | =viva registry/list= · =registry/tap …/registry-education= | 1 s · 9 s | PASS               | first-run =list= renders a keyed block for its single row; the README's table appears only once education makes it two rows (L22's shape). Tap: 21 modes, =@education/package/education=; doctor =2 tapped · 1 resident= |
-| 3    | =viva instance/create @commons/instance/hello-world=  | 2 s      | PASS                   | matches beef's macOS output line for line; shelf =diff -r= IDENTICAL to =commons/instances/hello-world= |
+| 3    | =viva instance/create @commons/instance/hello-world=  | 2 s      | PASS                   | matches beef's macOS output line for line; instance =diff -r= IDENTICAL to =commons/instances/hello-world= |
 | 4    | =viva instances/use hello-world= · =viva instance/init= | 0 s · 1 s | PASS-WITH-DEVIATION  | bare =init= without a tty: =env present · next viva instance/init <username> <password>= — the headless form the README never names. =.env= scaffolded with =SECRET_VIVA_JWT="wdWr…"= MINTED (function default, first time on linux) and the Anthropic key blank+optional |
 | 4h   | =viva instance/init admin changeme=                   | 8 s      | PASS                   | boots both children, =signup SUCCESS= admin =01a06d2e-3efc-…=, tears down: no listeners, =locks/= empty, =doctor= =problems —= |
 | 4b   | DEVIATION — 4-line =.env= edit (below)                | —        | —                      | docker only |
@@ -15220,7 +15220,7 @@ echo
 echo "== viva instances/list"
 viva instances/list; echo "exit=$?"
 echo
-echo "== on the shelf"; ls -la ~/.viva/instances/hello-world
+echo "== in `~/.viva/instances`"; ls -la ~/.viva/instances/hello-world
 echo "-- ~/.viva/instances.json:"; cat ~/.viva/instances.json
 echo "-- byte-identical to the registry copy?"
 diff -r ~/vivalence/commons/instances/hello-world ~/.viva/instances/hello-world && echo IDENTICAL
@@ -15540,7 +15540,7 @@ instances
     mount                      /root/.viva/instances/hello-world
     valence                    null
 exit=0
-== on the shelf
+== in `~/.viva/instances`
 total 20
 drwxr-xr-x 2 root root 4096 Sep  4 16:08 .
 drwxr-xr-x 3 root root 4096 Sep  4 16:08 ..
@@ -16275,7 +16275,7 @@ cluster. this isnt clean yet either."/
 (only =--help= hoisted) · =:140-146= (=--<mount>== flags → "flag" stratum, AFTER the verb only) ·
 =populate.js:33-49= (instance scope, slug-throw) · =:83-92= (session + ledger strata) ·
 =instances/use.js= · =instance/target.js register()= · =instance/doctor.js split()= ·
-=instance/create.js --use= · =belt/path.js instance()= (shelf guess) · =belt/lens.js instances()= ·
+=instance/create.js --use= · =belt/path.js instance()= (instance guess) · =belt/lens.js instances()= ·
 =prototypes/instance.js:206-210= (the "nothing selected" voice).
 
 ** the bag
@@ -16283,7 +16283,7 @@ cluster. this isnt clean yet either."/
 | id  | locus                                                    | incoherence                                                                                                                                                                                                                                                                        | shape of fix                                                                                   |
 |-----+----------------------------------------------------------+------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------+------------------------------------------------------------------------------------------------|
 | C1  | (cluster)                                                | SEVEN ways to select, three named in the refusal: =--instance== (after the verb) · cwd auto-detect · =instances/use <slug\|path>= (session) · =instances/use --ledger= (machine) · =VIVA_INSTANCE_MOUNT= (os) · =instance/doctor <target>= (sets the "flag" stratum itself, =doctor.js:34=) · =instance/create --use=; =instance.js:208= names three, =doctor.js:37= names one other, =create='s effect advertises the env route | ONE resolver every entry calls; ONE voice that lists the ways                                  |
-| C2  | =mod.js:144= · =doctor.js:28,:34= · =belt/path.js:18-21=  | two slug→mount readers survive m44: the record (=ledger.instances.read/lookup=, canonical) and the shelf guess =path.instance()= → =~/.viva/instances/<slug>=, still behind =--instance=<slug>= and =doctor <slug>=; an instance created with a target dir is unreachable by =--instance=<slug>= (doctor flags it =shadowed= — and then guesses anyway) | slug → record ONLY; =path.instance()= keeps the path leg, loses the slug leg                    |
+| C2  | =mod.js:144= · =doctor.js:28,:34= · =belt/path.js:18-21=  | two slug→mount readers survive m44: the record (=ledger.instances.read/lookup=, canonical) and the instance guess =path.instance()= → =~/.viva/instances/<slug>=, still behind =--instance=<slug>= and =doctor <slug>=; an instance created with a target dir is unreachable by =--instance=<slug>= (doctor flags it =shadowed= — and then guesses anyway) | slug → record ONLY; =path.instance()= keeps the path leg, loses the slug leg                    |
 | C3  | =mod.js:127-128= + =shellsignal.js:8-12=                  | argv[0] IS the nature; only =--help= is hoisted → =viva --instance=x instance/doctor= = nature =--instance=x= → 127 (L8) while bare =viva='s footer advertises the flag                                                                                                            | hoist every leading =--= token before the nature; flags are parsed once, at the door           |
 | C4  | =use.js:63-64=                                            | chaining: the sub-context's =error= is dropped → =instances/use x run bogus= exits 0 silent (L9); chaining exists only under =instance/= and only as a valence sentence, not a grammar rule                                                                                       | =ctx.call= result carries =error=; chaining = one rule in the dispatcher                       |
 | C5  | =ghost.sh:8= · =populate.js:83-87= · =ledger/index.js:157-181= | session = =sessions/<$PPID>.json=: lost under =timeout=, =sudo=, =env=, =$(…)= (subshell pid); reaped ONLY by =ledger/doctor= (=SIGURG= prune) → 5 stale files per walk; no owner for the lifetime (F3)                                                                          | reap at every =use= write (F3 rec) or key by tty                                               |
@@ -16348,13 +16348,13 @@ output logged — the ghost is the supervisor in every verb, and the one lock is
 pid, so a lock is alive exactly when its writer is.
 
 *Selection.* One pair is unnamed: /reference ⟷ mount/. The cata exists —
-=instances.lookup(mount) → slug= (=instances.js:25-29=). The ana is written six times: the shelf
+=instances.lookup(mount) → slug= (=instances.js:25-29=). The ana is written six times: the instance
 guess (=path.js:18-21=), the record-or-stat guess (=doctor.js:22-29=), =use='s local branch
 (=use.js:15-16=), =create='s pin-or-accio (=create.js:23-31=), the slug throw in the scope resolver
 (=populate.js:41-45=), and the mounts loop at the door (=mod.js:140-146=). And =populate.js:40=
 says so in its own voice: /"the CLI resolves a slug via ledger.instances.resolve() before writing"/.
 Measured: no =resolve= exists anywhere. The code knew the method it needed; every site wrote a
-private one instead. Write it once, delete five; =shelf= survives only as =create='s default
+private one instead. Write it once, delete five; =instance= survives only as =create='s default
 destination, where =create.js:40= currently rebuilds it by hand.
 
 *The session.* Your paste is the proof. =~/.viva/.env= holds no =VIVA_INSTANCE_MOUNT=;
@@ -16694,7 +16694,7 @@ The tail before =alive= is lost in that form — if the boot lines matter on scr
 - #7 cata/ana — =lookup= (=instances.js:25-29=) has no inverse; six ana sites.
 - #19 grepped, never remembered — =populate.js:40= cites =ledger.instances.resolve()=; it does not exist.
 - #3 one core — =path.instance= / =doctor.split= / =use= local / =create= / =populate= slug-throw / =mod.js= mounts loop.
-- #14 minimal delta — =create.js:40= rebuilds =shelf= by hand beside =instances.shelf= (=instances.js:11-13=).
+- #14 minimal delta — =create.js:40= rebuilds =instance= by hand beside =instances.instance= (=instances.js:11-13=).
 - #15 write at the owner — the session's key is minted by a wrapper script (=ghost.sh:8=) and reaped by a doctor (=ledger/index.js:157-163=).
 - #10 LOUD — =use.js:63-64= chains through =ctx.call= which returns =context.effect= only (=mod.js:11-17,63-68=).
 - #11 discriminator-as-data — global flags: parsed at =shellsignal.js:17-28= + =mod.js:127-128= + =:140-161=, described at =trajectories/index.js:10-16=.
@@ -16751,7 +16751,7 @@ const split = async (params = []) => {
 =register()='s). =use.test.js:56-67= pins the old "still selects" policy — that test flips; your call.
 
 #+BEGIN_SRC js
-  const destination = target ? resolve(path.cwd(), target) : paladin.ledger.instances.shelf(slug).absolute;
+  const destination = target ? resolve(path.cwd(), target) : paladin.ledger.instances.instance(slug).absolute;
 #+END_SRC
 
 *** the session — keyed by the terminal
@@ -16864,7 +16864,7 @@ for (const [flag, , apply] of GLOBAL) {
 | bag  | dissolved by                                                                              |
 |------+-------------------------------------------------------------------------------------------|
 | C1   | =instances.resolve= + =NOTHING= — one resolver, one voice — LANDED                         |
-| C2   | =path.instance= deleted; =shelf= = create's default only — LANDED (=delete.js= joined the callers) |
+| C2   | =path.instance= deleted; =instance= = create's default only — LANDED (=delete.js= joined the callers) |
 | C3   | the coercion partitions flags first                                                        |
 | C4   | =ctx.call= throws =inner.error=                                                            |
 | C5   | =Sessions= keyed by tty, pruned by =opened=; =ghost.sh:6-9= gone                           |
@@ -16879,7 +16879,7 @@ for (const [flag, , apply] of GLOBAL) {
 ** order — the drain, gated per item
 
 1. the door — coercion hoist · =GLOBAL= · =ctx.call= throws · eager mount gone (C3 C4 C10 C12; C6 C7 ride along). Ghost only. =shellsignal.test.js= grows two cases; =use.test.js= "chain" case gains a failing-chain twin.
-2. LANDED — =Instances.resolve= + consumers (mod door, use, doctor, delete, create's shelf) + =path.instance= deleted (C1 C2; C8 policy unchanged; C11 untouched). paladin 28/147 green (+4 resolve cases), ghost 81/1 (the pre-existing reap race). Owed from the smoke: an unrecorded slug at =--instance== throws UNCAUGHT (stack) because =fail()= is defined below the mounts loop — step 1.
+2. LANDED — =Instances.resolve= + consumers (mod door, use, doctor, delete, create's instance) + =path.instance= deleted (C1 C2; C8 policy unchanged; C11 untouched). paladin 28/147 green (+4 resolve cases), ghost 81/1 (the pre-existing reap race). Owed from the smoke: an unrecorded slug at =--instance== throws UNCAUGHT (stack) because =fail()= is defined below the mounts loop — step 1.
 3. =Lock.read= prunes; one lock per die (B5 B10) — lands WITH 4, the lock shape changes.
 4. =Process= + =Die= as Wafers · =ledger.boot= total · =Status.parse= (TYPOLOGY — ask) · verbs · =Init.jsx= (B1 B2 B3 B6 B7 B8 B9 B13). Test first: =spawn.test.js= gains "child exits 1 → boot rejects, lock gone" and "no alive line → deadline"; =systems/ghost/tests/init.test.js= as filed under L5. L5's diffs are superseded, not applied.
 5. =start= = detached =run --logged= · =stop= = SIGTERM the supervisor · =instance/status= · =instance/logs= (B4 B11, known issue closes). Needs the Deno floor checked: which 2.x added =detached= — README says 2.7+.
@@ -16901,7 +16901,7 @@ Steps 1–2 are S and independent of 3–6. Steps 3–4 are one M. Steps 5–6 a
 - this session, tenth pass (docker-live) — fourth walk: stock =ubuntu:24.04=, LOCAL tree (GitHub =b27e0e6= lacks =commons/=), host-published =127.0.0.1:2501/1794=, README 0–6 headless, hello-world LIVE and clicked (=bot= · =agent=) in Chrome from the host. L30–L35 ledgered: the first-attach =User= insert race (pinned 1/40, =INVALID_TOKEN= mask) is the one code defect; the rest are §0/§4/§5 doc deltas + the 4-line docker bind recipe. Container =readmen-live= left RUNNING.
 - this session, ninth pass (docs-survey) — beef walked the README on macOS himself; transcript inlined as the third walk, L25–L29 ledgered. His "function default" ask LANDED (=envfile.fallback=, =init.js:36=, hello-world JWT mints itself; =ledger.test.js= pins it; README fences regenerated; 50.01 §3/§4 walkthroughs recaptured from his run + a scratch-ledger run; =home.mdx= totems rewritten on his order — six, core measured ~15k = typology 10,640 · paladin 2,109 · runtime 2,451 (beef: ghost is NOT core), wc no tests/bak). Wizard-order fix (=check.js:123=) proposed, gated.
 - this session, eighth pass — cluster A of the connoisseur's pass LANDED as m49 M1 (=.ikiro/quests/done/m49-process-ontology-and-control-vector.org=, sunset; the recast lives in =m50-the-three-way-weave.org=): the process-management taskbag (B1–B13 minus B12) and the L5 diffs are superseded by =Process=/=Die= Wafers, one token-claimed lock per instance, a detached supervisor for =start=; the =detached-process-die-on-parent-exit= known issue is RESOLVED by live proof. Cluster B: step 2 (=instances.resolve=) LANDED (seventh pass); steps 1 (door), 5 (start/stop as control natures), 6 (tty sessions) carried into m49 M2 / forks.
-- this session, seventh pass — beef: /"For the selection, you can rewrite them into one shared method."/ LANDED: =ledger.instances.resolve(reference)= (+ =NOTHING=, the one voice; =Instance.home= throws it) in paladin; callers = =mod.js= mounts loop · =instances/use= · =instance/doctor= =split()= · =instance/delete= (new consumer, arrived mid-edit) · =instance/create= default destination via =instances.shelf=; =belt/path.js instance()= deleted. Bracket: paladin 28 (143→147 steps) green both sides; ghost 81/1 both sides (=strata.wet.test.js:93= reap race, pre-existing). One red of mine mid-bracket — =paladin.source= sent bare =dir/sub= repo-relative against the path law (=strata.wet.test.js:155=); fixed by treating an undotted path token as =./dir/sub= before =source=. Smoke on the real ledger: =doctor hello-world= · =--instance=hello-world= · =doctor zzz= (filter) · =--instance=zzz= (refused, uncaught at the door) · =--instance=./nope= (pinned, then no instance). Control-vector design paused at beef's interrupt; found so far: =typology/schematics/readme.org:14= ControlVector sketch, =kajuit/client.viva.js:14-34=.
+- this session, seventh pass — beef: /"For the selection, you can rewrite them into one shared method."/ LANDED: =ledger.instances.resolve(reference)= (+ =NOTHING=, the one voice; =Instance.home= throws it) in paladin; callers = =mod.js= mounts loop · =instances/use= · =instance/doctor= =split()= · =instance/delete= (new consumer, arrived mid-edit) · =instance/create= default destination via =instances.instance=; =belt/path.js instance()= deleted. Bracket: paladin 28 (143→147 steps) green both sides; ghost 81/1 both sides (=strata.wet.test.js:93= reap race, pre-existing). One red of mine mid-bracket — =paladin.source= sent bare =dir/sub= repo-relative against the path law (=strata.wet.test.js:155=); fixed by treating an undotted path token as =./dir/sub= before =source=. Smoke on the real ledger: =doctor hello-world= · =--instance=hello-world= · =doctor zzz= (filter) · =--instance=zzz= (refused, uncaught at the door) · =--instance=./nope= (pinned, then no instance). Control-vector design paused at beef's interrupt; found so far: =typology/schematics/readme.org:14= ControlVector sketch, =kajuit/client.viva.js:14-34=.
 - this session, sixth pass — the connoisseur's pass written over both taskbags: two absences named (the child process is a =Wafer=; the =reference ⟷ mount= pair has no ana), three facts measured (=Deno.Command detached: true= exists in 2.9.6 and gives the child its own process group — the known issue's shim fork is dead; beef's =deno task runtime/watch= refusal is the session stratum, pinned against =~/.viva=; =ledger.instances.resolve()= is cited at =populate.js:40= and defined nowhere). Sketches for every move, a six-step drain, five items owed. No code touched.
 
 - this session, second pass — L1 APPLIED in =README.md= §0 (prerequisites sentence + =sudo apt-get
@@ -17001,7 +17001,7 @@ move 5 "validate & publish" → "settle & publish" with dormant/faults/decode; =
 | 0.s  | =viva ledger/doctor= before init                         | 3 s    | PASS    | =✗ ledger /root/.viva → viva ledger/init= (tty-walk landing holds) |
 | 1    | =viva ledger/init= headless                              | 0.4 s  | PASS-WITH-DEVIATION | =paladin.scope overwrite= stray line (still); doctor =.env present 0 vars · 0 secrets= — README said =1 vars · 4 secrets · 5 blank= → CAPTURED into the README |
 | 2    | =registry/list= · =registry/tap …/registry-education=    | 1 s · 9 s | PASS | first-run list = keyed block, 21 modes — README had a one-row table with 22 → CAPTURED; tap 21 modes =@education=; doctor =2 tapped · 1 resident= |
-| 3    | =instance/create @commons/instance/hello-world=          | 1.4 s  | PASS    | shelf =diff -r= IDENTICAL to commons, 0 =new Url= |
+| 3    | =instance/create @commons/instance/hello-world=          | 1.4 s  | PASS    | instance =diff -r= IDENTICAL to commons, 0 =new Url= |
 | 4    | =instances/use= · =instance/init= headless               | 0.3 s  | PASS    | =env present · next viva instance/init <username> <password>=; =.env= JWT minted, anthropic COMMENTED |
 | 4.d  | =instance/doctor= before the wizard                      | —      | PASS (m52) | =problems —= · =faults —= · =dormant daemon[hello].hallucinators[0]= |
 | 4h   | =instance/init admin changeme=                           | 7.9 s  | PASS    | =signup SUCCESS=, no listeners after, =locks/= empty |
@@ -17023,7 +17023,7 @@ move 5 "validate & publish" → "settle & publish" with dormant/faults/decode; =
 | =instance/start= · =instance/run runtime= · =instance/delete --force= · =instances/rename= (while running) | PASS | all four refuse with =already running (supervisor 4080) — viva instance/stop= |
 | =registry/untap @education/package/education= | DEFECT → FIXED (go) | was exit 0, record unchanged (identifier + garbage both silent no-ops); now =tapped()= resolves key · =./key= · mount · identifier, garbage refuses =no tapped package … — viva registry/list= exit 1 · known-issues RESOLVED |
 | =registry/untap registry-education= · =registry/tap <store path>= | PASS | record → =@commons= only → both again |
-| =instances/tap <commons hello-world> --slug=tapped= · =instance/delete tapped --force= | PASS | tapped row; delete = =files kept — off-shelf (tapped)= |
+| =instances/tap <commons hello-world> --slug=tapped= · =instance/delete tapped --force= | PASS | tapped row; delete = =files kept — off-instance (tapped)= |
 | =instances/untap= | — | no such verb (=instance/delete= is the untap) |
 | =instance/doctor tapped= (after its delete) | DEFECT-ish | answers for the SESSION instance (hello-world) instead of "no instance 'tapped'" |
 | =registry/bootstrap= (no args) | PASS | usage line, exit 1 |

@@ -1,5 +1,6 @@
 #+title: two staged artifacts get a critical pass, the sandbox verifies what the worktree cannot touch, and green suites hide the defects at the seams
 #+filetags: :m32:m33:critical-pass:sandbox:memoriter:dictation:packages:retention:verbatim:absence-claims:method:
+#+index: 140
 
 * arc
 

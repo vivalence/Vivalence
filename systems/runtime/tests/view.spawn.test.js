@@ -35,7 +35,7 @@ specimen.describe("generative views", { sanitizeResources: false, sanitizeOps: f
       prefix: "spawned-",
     });
     bundler = paladin.bundler(directory);
-    mode.gen = {
+    mode.generator = {
       bundle: bundler.bundle,
       inspect: bundler.inspect,
       serve: bundler.serve,
@@ -62,7 +62,7 @@ specimen.describe("generative views", { sanitizeResources: false, sanitizeOps: f
   });
 
   specimen.it("a source bundles to a content-addressed view on the row schematic", async () => {
-    const view = await mode.gen.bundle({ kind: "svelte", source: SOURCE });
+    const view = await mode.generator.bundle({ kind: "svelte", source: SOURCE });
     const hash = await crypto.digest(SOURCE);
     const stem = hash.slice(0, 16);
 
@@ -79,17 +79,18 @@ specimen.describe("generative views", { sanitizeResources: false, sanitizeOps: f
     });
     specimen.expect(v.prototypes.View().check(view.json)).toBe(true);
 
-    const served = await mode.gen.serve(view.mount.nature);
+    const served = await mode.generator.serve(view.mount.nature);
     specimen.expect(served.text).toBe(artifact);
     specimen.expect(served.integrity).toBe(view.bundle.entries[0].integrity);
-    specimen.expect(await mode.gen.inspect(hash)).toEqual({ hash, source: SOURCE });
+    specimen.expect(await mode.generator.inspect(hash)).toEqual({ hash, source: SOURCE });
   });
 
   specimen.it("a buffer carries its view pointer through the ORM round-trip", async () => {
     await scenario.scoped(async (em) => {
-      const view = await mode.gen.bundle({ kind: "svelte", source: SOURCE });
-      const buffer = await mode.gen.buffer({
-        view,
+      const view = await mode.generator.bundle({ kind: "svelte", source: SOURCE });
+      const buffer = await scenario.daemon.entities.buffer.create({
+        mode: mode.entity.id,
+        view: view.json,
         data: { title: "Spawned" },
         thread: scenario.fixtures.thread.id,
       });

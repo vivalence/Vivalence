@@ -1,0 +1,232 @@
+#+title: a bone reads its own rect, the comp is a fan not a file, and the anchor was an accident read as intent
+#+filetags: :m56:kajuit:pincer:bones:panel-c:layout:responsive:dapper:design-import:designsync:quest:
+#+index: 2
+
+* what happened, in one breath
+
+A wake that became a design import, a quest, a live walk, a quality pass and one hard ruling. He pointed
+the =DesignSync= MCP at his own Claude Design project and named one file to implement, then framed the
+work himself in two lines — /"changes to the pincer direction layout top level tbone structure"/ and
+/"changes to the cpanel"/ — and those two lines are M1 and M2 to this day. The first read said the comp
+was a single design; the measured answer is that *=geometry.js= and =gesture.js= already ARE the comp* —
+the axis flips at 90 and 270 in code that shipped months ago, and every one of the three bone components
+hardcodes one axis anyway, so at those orientations the crown, shoulder and spine all render across their
+45 px thickness. Seen, not inferred: the export served on localhost and driven at o=90. Then /"do another
+pass. improve quality"/, and the pass found four things reading one file could not. The project is a
+**fan** — three different panel-C designs and two different pincer interactions, generated from this repo
+by a sync ledger that names the source files. The palette is not a palette question at all: 21 of 21 hexes
+resolve into =dapper/lib/colors.js=, so the port is a token substitution. v3's own =norm=, lifted into node
+and swept over 1 960 cases, holds seven invariants and **fails one** — every-pane-folded leaves bare
+background, and =openPane= can reach it. And the wireframes carry a rule v3 drops, that terminal is an
+anchor which never folds, docks or closes. I recommended keeping it. He killed it in one line:
+/"this is horrible. terminal should absolutely dock adn close. bullshit"/ — and the interesting part is
+*why* I recommended it, which is that I counted the live code's silence as a vote.
+
+* spine (N=14)
+
+|  n | beef                                                                          | what came of it                                                                 |
+|----+-------------------------------------------------------------------------------+---------------------------------------------------------------------------------|
+|  1 | /"ikiro load pincer kajuit"/                                                  | kernel · frontier · pincer memory · load-channel law re-read                     |
+|  2 | the =DesignSync= import order (mid-turn), naming v3 + =support.js= + the viket | project =Pincer responsive redesign directions= opened, 30 paths, v3 read whole  |
+|  3 | /"two parts here. changes to the pincer direction layout top level tbone structure. changes to the cpanel."/ | THE FRAME — M1 and M2, unchanged since                     |
+|  4 | /"setup a quest containing these two tasks"/                                   | quest ordered; the mXX-are-beef's rule yields to an explicit order               |
+|  5 | /"numbered"/                                                                  | mXX, not a topic slug                                                            |
+|  6 | /"next index"/                                                                | m56 — highest live was m55                                                       |
+|  7 | =/Users/finn/Downloads/Pincer Panel C v3.html= (mid-turn)                      | the runnable export, 573 kB, all inlined                                         |
+|  8 | the same path again, as a prompt                                              | served on localhost, driven in Chrome, o=90 forced through the comp's own key    |
+|  9 | /"do another pass. improve quality"/                                          | the fan · the anchor conflict · the palette · the =norm= defect · two dead CSS blocks |
+| 10 | the =FL= / =ANCHOR= snippet + /"this is horrible. terminal should absolutely dock adn close. bullshit"/ | THE RULING — anchor struck, v3's symmetry is law |
+| 11 | the same message re-sent after the interrupt                                   | same ruling; re-sends fell outside the 180 s dedupe window                       |
+| 12 | =[Request interrupted by user]=                                               | NOTHING                                                                          |
+| 13 | /"ikrio compact"/                                                             | this fold                                                                        |
+| 14 | =/compact= (mid-turn)                                                         | same order                                                                       |
+
+Rows 7 and 8 are one message sent twice, four minutes apart — the extractor's 180 s window is time-based
+by design and correctly refused to collapse them. Rows 10 and 11 are the same for the same reason. Both
+pairs are the trap the method already documents, working as intended: over-counting is recoverable,
+silently dropping an instruction is not.
+
+* the frame he gave, and what it turned out to mean (rows 2–3)
+
+He named one file and said /"Implement"/, then split it himself. The split survived every later finding,
+which is the tell that it was the right cut: M1 is the top-level t-bone, M2 is panel C, and nothing that
+came after moved the boundary.
+
+What M1 turned out to be is smaller and stranger than a redesign. =stores/bridge/geometry.js:122-217=
+=bonesForOrientation= *already* flips each bone's axis:
+
+| orientation | shoulder   | crown      | spine      |
+|-------------+------------+------------+------------|
+|      0 · 180 | horizontal | horizontal | vertical   |
+|     90 · 270 | vertical   | vertical   | horizontal |
+
+and each component hardcodes exactly one of those — =shoulder.svelte:39-55= a default-row flex,
+=crown.svelte:61-73= =flex-direction: row= with =overflow-x=, =spine.svelte:119-140= =column= with
+=padding: 56px 0 14px= and two column-only ornaments. =gesture.js= is the comp constant for constant
+(the sync ledger says so outright: the comp ported it verbatim). So M1 changes no store logic at all. It
+is one derived rule —
+
+#+begin_src js
+const vert = (r) => r.height > r.width;   // the comp, twice, in two files independently
+#+end_src
+
+— three components, a drag HUD kajuit never had, and two pieces of dead CSS.
+
+* the walk, at ninety degrees (rows 7–8)
+
+He sent the path bare, twice. Served from =~/Downloads= on localhost and driven in Chrome; orientation
+forced to 90 through the comp's own =localStorage= key, since a long-press is not a thing =left_click_drag=
+can do. Confirmed by eye rather than by reading:
+
+- shoulder = a 45 px-wide *column*, =⊘ ‹ ›= stacked. kajuit's row clips two of three.
+- crown = a 45 px-wide *column*: =+=, then =Francesca= and =empty= with labels in =writing-mode: vertical-rl=.
+  kajuit's horizontal tab would show about three characters of a terminal name.
+- spine = a 45 px-tall *row*: =●L ●B ●S ●I=, each pip beside its glyph. kajuit's column plus its 56 px top
+  padding puts every dot outside a 45 px bar.
+- panel A reads =PANEL A · LEFT=.
+
+Then the C gestures in the same wide C: tapping =INSTANCE='s header folded it to a 44 px *strip* —
+vertical label, its own grip and ✕ — and dragging =BUFFER='s grip up 46 px docked it, the bar appearing
+across C's **full width at C's top edge**. That last detail is the one the walk gave that reading did not:
+the bar sits at C's leading cross-axis edge in both layouts, so it is not a rail along the run axis.
+
+The prior pass on this surface ([[project_pincer_comp_redesign]]) was blocked twice — no daemon backend,
+and the kajuit SPA never reaching =document_idle= so screenshots error. Neither blocked this: the static
+export screenshots fine, which is what made the walk possible at all.
+
+* the quality pass, and the four things one file could not say (row 9)
+
+** the project is a fan, not a file
+
+=github.md= in the project is a sync ledger — /"repo: vivalence/Vivalence · path: systems/kajuit"/ — with a
+screen map naming the repo files each comp was generated from. The comps are derivations of this tree, and
+they disagree on purpose.
+
+| file                                  | its question                     | its answer                                                        |
+|---------------------------------------+----------------------------------+-------------------------------------------------------------------|
+| =Pincer Panel C - Final v3=           | how do panes resize and leave?   | fold · strip · push-through · dock to a bar · tab back             |
+| =Pincer C - Drag Handling Wireframes= | which drag model?                | FIVE side by side: seam grips · detents · shelf docking · flick · push-through |
+| =Pincer C-Nav Variants=               | what when C is too NARROW for 3? | FIVE nav models: tabs · accordion · drawers · drill · bone          |
+
+and two pincer interactions: v3's long-press radial (=gesture.js= verbatim) versus c-nav's tap-fan of four
+side-chips plus a 3 px tick on the viket edge showing which side A is on. Both are in front of him; one
+can ship. Nine siblings remain unread, and the three read this pass each moved a ruling.
+
+** the palette is dapper's =paper=, measured 21/21
+
+The ledger says the comp was recoloured to the dapper paper ladder, and it checks: =paper= 50→800,
+=ink= 900/950, =aqua= 500/600, and v3's =ROLE= map is dapper's role ramps at their anchors. So M1 and M2 are
+a **token substitution**, not a colour judgment, and every value must be written =var(--colors-…)= so
+=nordic= — still the default — holds too. Five hexes in the c-nav sketch are NOT in dapper; that file is
+off-token. This *corrects* the standing note on this surface, which said to keep iron-gray and not adopt
+the comp's palette. That was true of the earlier navy comps. It is not true of these.
+
+** the engine's invariants, run rather than asserted
+
+v3's =norm= / =fitRun= / =push= lifted verbatim into node: =oi= over all 7 non-empty subsets × 8 fold masks
+× 5 weight vectors × 7 areas = 1 960 =norm= cases, plus 260 =push= cases. Seven invariants hold — sums to
+area, folded = exactly =BAR=, floors respected, closed = 0, =push= sums, never under =BAR=, monotone in the
+delta. One fails, 470 cases:
+
+#+begin_example
+I1b ALL FOLDED leaves dead space  {"oi":[0],"area":100,"total":44,"dead":56}
+#+end_example
+
+=norm= returns early once nothing is unfolded, so the run measures =oi.length × BAR= and the rest of C
+paints as bare background. =gripUp= and =toggleFold= guard it; =openPane= does not — dock all three, pull
+one tab down under 84 px, and you are there. Writing the invariants as a list would have shipped a false
+one; running them found a true defect instead.
+
+** two dead CSS blocks in the bones
+
+=shoulder.svelte:56-67= styles =.sep= AND guards it with =@container shoulder (max-width: 190px)=, but no
+element carries the class — the container query guards nothing. =Tab.svelte:59-73= styles =.tab-pip= and
+its keyframes; the markup renders only =.tab=, =.tab-title=, =.tab-close=. Both get deleted, not ported.
+(=Tab.svelte:9-11= also carries three of his own TODO comments — noted in the quest so M1 cannot bury them.)
+
+* the ruling, and the mistake under it (rows 10–11)
+
+He quoted the wireframes' anchor back at me and killed it:
+
+#+begin_quote
+this is horrible. terminal should absolutely dock adn close. bullshit
+#+end_quote
+
+*Ruled: no anchor.* No privileged pane, no per-pane floor exception; every pane folds, docks and closes.
+Carried through the quest in the same turn: the engine takes no anchor parameter, every header renders its
+=✕=, and the all-docked empty state is REACHABLE and must be built. It also *promotes* the =norm= defect
+from a curiosity to a requirement — with no anchor left to guarantee an unfolded pane, the guard has to
+live inside =normalise= rather than at its three call sites.
+
+The wireframes' =settle= graft survives it: the bump-to-=MIN= pass is anchor-free, and only its
+=i !== ANCHOR= fold guard drops out, which restores exactly v3's behaviour.
+
+*Why I recommended the anchor.* Two sources appeared to agree — the wireframes' prose, and =c.svelte=,
+where E has no twig toggle and therefore cannot be closed. The second is not evidence. E has no toggle
+because the twig design only ever hung toggles on the wings; there is no rail outside F to hang one on. I
+read a **limitation of the old implementation as a decision**, and then cited it as corroboration for a
+rule I had no independent reason to want. The rule that follows: before treating what the old code does as
+intent, ask what the old code could have expressed. Silence from a design that had no way to speak is not
+agreement. That is written into the quest's decision trail so it is not re-argued from the same evidence.
+
+* what landed
+
+- =.ikiro/quests/m56-the-pincer-turns.org= — 396 lines. Intent · terrain measured · six rulings (1 SETTLED)
+  · M1 six steps · M2 six steps · blast table · testing assessment with the measured invariant table · 16
+  QA markers · five held forks. Nothing in code; nothing landed outside =.ikiro/=.
+- =.ikiro/quests/index.md= — live count 9 → 10, m56 row.
+- =.ikiro/world/frontier.md= — m56 row; and four whole bodies EVICTED to =known-issues.org=
+  "frontier evictions" to bring the file back under budget (below).
+
+* settlement
+
+- **frontier budget failed loudly and was fixed, not shrunk.** 9 024 chars against an 8 000 limit. FIVE
+  bodies moved WHOLE, quotes intact — m56, m53 v4, m55, m43, m42 — each leaving a pointer line. No
+  paraphrase-shrink of any item. It took five because a **live sibling session rewrote the m53 vcompany
+  row mid-fold** (349 → 826 chars, /"T0 + T1 + s1/s2 + V3 + two-mounts LANDED · T1.1 sibling"/); that edit
+  is theirs and was left alone, and the fifth eviction paid for it. Final 7 981 / 8 000 — green, but
+  **contended**: two sessions writing one budgeted file will breach it again, and whoever folds next pays.
+  The quest report's =sessions= column is the instrument that made this visible.
+- **a stale frontier verdict corrected.** The frontier still called m53 v4 mail+calendar /"DESIGNED,
+  nothing landed"/; a sibling session landed it whole and green this session and said so in memory. The row
+  now reads LANDED, with its design body evicted rather than deleted. A derived file disagreeing with a
+  recorded landing is a bug in the derived file.
+- **=shelf= collision found and ruled on.** =paladin/prototypes/ledger/instances.js:18= =shelf(slug)= is the
+  one slug→instance-dir mapping. The comp's word for panel C's docked-tab bar cannot be =shelf=; the quest
+  recommends the bar IS the =twig=, which stops being a rail between panes and becomes the bar panes fold
+  out to. One noun, already in the bones family.
+- **=dock= now names two things** — panel C's fold-out and =stores/bridge/dock.js= (the A-panel Dock).
+  Held in the quest's forks rather than resolved; it resolves for free if the twig ruling lands.
+- **no =retard= in the session**, so no Callouts entry. The anchor mistake is a reasoning failure but the
+  ledger is codeword-gated and append-only; the lesson is written where it will actually be read, in the
+  quest's decision trail beside the evidence that produced it.
+- **browser and server cleaned up** — tab closed, the localhost server killed and verified down.
+
+* resumption (owed beef)
+
+1. **five rulings still owed** — which C design ships (v3's model, with the wireframes' =settle= grafted
+   on, is the recommendation) · the =shelf= noun · the =fits= rule for a too-narrow C · where the engine
+   lives and how big =MIN= is · whether =paneSize= migrates or resets.
+2. **go m1** — three components, one =axisFor(rect)= export, the HUD, two deletions. No store logic.
+3. **the radial vs the fan** — c-nav proposes replacing the long-press radial entirely. The 3 px edge tick
+   is separable and cheap; the fan is not.
+4. **nine unread siblings** in the design project, including =Pincer Mobile - As Built= and
+   =Pincer Tab-Accordion Hybrids=. Three files read this pass each moved a ruling; assume these can too.
+5. **the m53 v4 landing is a sibling's** — 4 bugs found in it and 6 office test files owed, per its own
+   record. Not this session's to close.
+
+* quest report (derived at fold — `methods/quest-report.py`)
+
+| quest                    | progress  | status                                | next                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                      | sessions   |
+|--------------------------+-----------+---------------------------------------+---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------+------------|
+| drapes-editor            | —         | landed — his click-through gates owed | his restart, then the eight click-through gates below. later, both his call: the language on `#+begin_src js` does not highlight its body; the markdown fence is the same trade.                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                          | 1 (1 live) |
+| m46-linux-readmen        |  17% 3/18 | wip                                   | drain                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                     | 6          |
+| m50-the-three-way-weave  |  60% 3/5  | wip                                   | blast                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                     | 1          |
+| m51-standalone-slowstart |   0% 0/18 | design                                | go                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                        | 1          |
+| m53-vcompany             |   0% 0/5  | open                                  | **t1.1** h1 · e1 · p1 · t1 · b1 · k1 + s1 · x1 · x2 · x3 + i1 (the index as rows) landed on the shelf; blocked on **r1** (paladin =resolve= percent-encodes — one-line diff + one test in the quest, his go, repo): the four reds (tools file · move; snapshots tools · aperture) are r1 and nothing else; a1 struck (the app is the sibling's v3); d1 (readme) on go; the =open= schematic on buffer-data level — sketch in "landed", his word; officers out by his order; then **the slow first attach** (the boot race under `instance/run`) → gs1/gs2 click-through after restart; the bundle weight ledgered, direction his; s3 voffice → s4 desk on go; `* t1.#2` his call; the runtime's m:n =cascade.remove= both ways ledgered as a landmine (his)                                                                                                                                                                                                                                                                                                               | 5 (2 live) |
+| m53-vcompany.pre         | —         | open                                  | t1 package setup — the m27 gate moves to the executive stage; t1–t3 do not wait on it                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                     | 3 (1 live) |
+| m53-vcompany.v3-vdex     | —         | landed                                | one restart carries both — the new pdf viewer (=paper.svelte=) and the cargo fix (=freight.js=, uncommitted); then open a spaced-name pdf: it should render, page nav and zoom live, the rail on ▤. the six later items stay marked in the root quest.                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                    | 3 (3 live) |
+| m53.v4-mail+calendar     | —         | designed                              | his go, per mode. =dummy/mail= + =dummy/calendar= first (they are the source both apps read), then =office/email=, then =office/calendar=. nothing under =systems/= or =subsystems/= but one drapes line (=pip= tone =success=, already owed by v3).                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                      | 1 (1 live) |
+| m54-buffer-file          |   0% 0/4  | open                                  | reconcile with m53 =* t1.1= and =m53-vcompany.v3-vdex= first (three quests, one seam, all waiting on go; v3 splits the app into a shell + 7 parts + =buffer/jdex.js= and already points here for file upload — m54's app hunk names the single =vdex.svelte= and must be re-cut onto whichever lands first) (a sibling session, beef's rulings there: the vdex speaks slugs — =/document /write /file /move /delete= implemented once in the aperture, tools wrap =mode.call.<verb>=, =fs_*= slurp gone on vdex; =open= is an emitter; the boot watches files and syncs per path — /"shouldnt this watch files??!!!"/; /"wtf is daemon traits stamp????"/ → gone) — three seams now name the verbs' home (t1.1 aperture · m54 sketch · mikro-first repository), beef arbitrates; then beef reopens the questioned block when ready — order of design there is mikro entity + bufferrepository verbs → typology verb contract → shard mounts → remoterepository mirrors → kajuit. until then m1 = everything but the verbs. "go m1" → full hunks against the tree as read. | 1          |
+| m55-recursive-terminals  |  20% 3/15 | wip                                   | go m2 — the kajuit terminal: up · down · status · stop · run · watch, the tree, the schematic, panel f                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                    | 1          |
+| m56-the-pincer-turns     |   0% 0/2  | design                                | go m1                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                     | 0          |

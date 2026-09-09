@@ -1,5 +1,6 @@
 #+title: the crash was the key, not the url; the go lands materialize under the bracket; and the waterfall carries every piece with its call in place
 #+filetags: :m53:vcompany:paladin:instance:doctor:env:landing:blast:waterfall:sibling:known-issue:quest:
+#+index: 44
 
 * what happened, in one breath
 

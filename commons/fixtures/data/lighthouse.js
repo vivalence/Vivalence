@@ -1,9 +1,11 @@
 import { MikroORM } from "@mikro-orm/core";
 import { config } from "../../datamaps/libsql/libsql.viva.js";
 import {
-  IdentitySchema, IdentityEntity,
-  DaemonSchema, DaemonEntity,
   AuthenticatorEmbedSchema,
+  DaemonEntity,
+  DaemonSchema,
+  IdentityEntity,
+  IdentitySchema,
 } from "@vivalence/runtime";
 
 const schemas = [IdentitySchema, DaemonSchema, AuthenticatorEmbedSchema];

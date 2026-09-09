@@ -1,5 +1,6 @@
 #+title: rename goes singular, the shelf dir follows its slug, and two reds prove themselves pre-existing against a HEAD copy
 #+filetags: :ghost:instance:rename:cli:ledger:sessions:release:known-issue:landing:tests:pick:
+#+index: 24
 
 * what happened, in one breath
 

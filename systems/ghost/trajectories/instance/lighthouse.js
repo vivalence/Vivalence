@@ -1,4 +1,4 @@
-import paladin from "@vivalence/paladin";
+import paladin, { lifecycle } from "@vivalence/paladin";
 import { Connection } from "@vivalence/typology";
 
 export async function lighthouse(ctx) {
@@ -6,7 +6,7 @@ export async function lighthouse(ctx) {
   if (!["signup", "login"].includes(action) || !username || !password) {
     return (ctx.effect = { error: "usage: /instance/lighthouse <signup|login> <username> <password>" });
   }
-  await paladin.instance.mount();
+  await lifecycle.mount(paladin.instance);
   ctx.effect = await new Connection(paladin.instance.lighthouse.statics.remote).call(
     `/auth/${action}`,
     { username, password },

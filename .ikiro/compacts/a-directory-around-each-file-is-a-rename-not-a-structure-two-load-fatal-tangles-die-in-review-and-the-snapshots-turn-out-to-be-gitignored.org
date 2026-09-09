@@ -1,0 +1,295 @@
+#+title: a directory around each file is a rename not a structure, two load-fatal tangles die in review, and the snapshots turn out to be gitignored
+#+filetags: :m57:hello-world:commons:reader:service:structure:factor-analysis:testing:snapshots:callout:quest:review:svelte:security:
+#+index: 4
+#+session: 40 beef turns; 1-25 folded in `progressive-rendering-was-the-wrong-thread-…`, this walk covers 26-40
+
+* one breath
+
+He asked for a critical pass over m57 and the pass earned itself: two tangles in it would have
+crashed on =go= — a =provider= as default export, which =cast/primitives.js:6= CALLS with no
+arguments at load, and an =object.render= whose schema both providers read at
+=request.output.schema= and would never have found. Then he handed me the rulings —
+/"you are smarter than the previous model. what do you say goes?"/ — and the quest went
+1141 → 874 lines. Then he asked for structure, and I proposed a directory per export surface,
+which he struck in nine words: /"thats just a directory around each file. worse."/ He was
+right, and the tell was visible in my own diagram: every directory had exactly one child. What
+replaced it was a factor analysis — effect, audience, subject — that gives every subject the
+same three parts and puts a directory only where two or more real members live. His five
+inline =@beef= annotations then took the model OUT of the reader service, and his three steps
+recut the milestones around things you can ASK the harness for. The last question was the
+best: snapshots, per stage. There were none. There are four now, and the regime turns out to
+be gitignored, which changes what one is worth.
+
+* the review, and the two tangles that would have crashed
+
+/"do a critical, fable level, pass over ... all gucci? well done? effective, simple, direct?
+all complete?"/ — and mid-turn, /"check design decicions too."/ Twelve reads into the tree
+rather than into my own memory of what I had written. Two of the findings were load-fatal:
+
+#+begin_example
+cast/primitives.js:6    if (is.fn(thing.default)) thing = thing.default()
+                        → `export default function provider(service)` is CALLED at load,
+                          with no arguments. service.statics → TypeError. Even guarded, the
+                          result carries no `manifest` and falls to not.viva.
+                        → population.js:127 reads servicecake.provider(mask) NAMED anyway.
+                          nlp precedent: export { manifest, control, provider, tools }
+
+anthropic/provider/index.js:39   request.output?.schema ? extractObject(...) : turn
+openrouter/provider/index.js:46  same
+harnessed.js:83                  ...(output && { output: { schema: output } })
+                        → the HARNESS wraps; cortex-direct does not. `output: Pick` gives a
+                          plain text turn, output.object is undefined, and
+                          output.object.selector throws on EVERY read.
+#+end_example
+
+A third was a security ordering defect of my own making: =redirect: "follow"= followed by
+=guard(response.url)= refuses to READ a private response whose request has already left. The
+fix is =redirect: "manual"= with a guard on every hop, and the regex I had written missed
+=0.0.0.0=, =fc00::/7=, =fe80::=, =100.64/10= and any public name resolving inward. I had
+written in the quest that the guard /"closes a hole"/. It narrowed one. That sentence is
+now corrected, and the close is named: resolve and range-check per hop.
+
+Seven stale lines still asserted things three rulings had already killed — =import_map= rows,
+a paladin belt file, a 16 kB cap. Line 5 and line 6 of the header contradicted each other,
+which is the first thing a cold reader sees.
+
+* he handed me the rulings
+
+/"you are smarter than the previous model. what do you say goes? update the quest and cut the
+yap from the previous one leaving primarily the code and references but none of the yap yap
+yap yap"/
+
+Eight, taken and applied: the house style into the mode harness (his own earlier ruling —
+/"instructions into the harness"/ — which my F1 had quietly deviated from, and
+=hallucination.js:52-55= marks =system= cacheable so the token argument against it was wrong);
+the reader provider-only so the outer agent does not see =service_reader_read= beside
+=search_read=; =research= PROJECTS its yield rather than passing the fixpoint, because
+=belt/soma.js:61-70= concats every non-message key and the whole =markdown[]= of every page
+opened would otherwise ride the wire into the turn row; caps at 15s / 2 MB / 24k chars, since
+=READ_CAP= died with the strip and nothing replaced it; guard before the hop; links resolved
+against the base, which on Wikipedia and every docs site is the difference between a link list
+and an empty array; the test moved somewhere a task actually runs.
+
+1141 → 874 lines. The mode.viva.js BEFORE-dump, four forks and the changelog prose went.
+
+* what is crib
+
+One question, four words, and a word died. /"what is Crib?"/ It was mine — coined mid-session
+for the house-style instructions, naming nothing in his vocabulary
+([[feedback_no_coined_registers]]). It is =page/style.js= now, named for the section it fills.
+The lesson is not about the word. It is that I had used it forty times across two sessions
+without once noticing I had invented it, because it read as though it had always been there.
+
+* the callout — a directory with one file is a rename, not a structure
+
+He asked for structure: /"impose propper file directory structure ... break hello world up
+into nested /harness /tools or whatever makes most sense. clean. bottom sup. check how
+typology and runtime do it."/
+
+I checked, and I read the tree honestly: =nlp/tools/index.js= is ONE file in a directory,
+=nlp/provider/index.js= is ONE file, =dealer/buffer/Dealer.svelte= is ONE file. From that I
+derived a law — /"a role directory with an index.js, single member or not"/ — and applied it
+uniformly, producing =emitter/index.js=, =generator/index.js=, =doctor/index.js=,
+=aperture/index.js=. Nine words came back:
+
+: 2 bad. thats just a directory around each file. worse.
+: i want you to do a factor analysis and cluster the mode cleanely
+
+**The evidence against it was in my own diagram and I did not read it.** Every directory had
+exactly one child. A tree whose every node has one child is not a tree; it is a rename with
+extra typing. And the tree held a counter-example I had already listed and not weighed:
+=chaosmonkey/oracle= keeps =aperture.js=, =emitter.js= and =harness.js= FLAT.
+
+The deeper failure is the order of operations. I asked /"what does the tree do?"/ and answered
+it, when the question was /"what does this content need?"/. Convention is evidence about
+content, never a substitute for looking at it. Taking a real observation from three samples
+and generalising it into a uniform rule felt like rigour — it cited files, it had a law, it
+matched precedent — which is exactly why it was not caught by the checks I usually run.
+
+*The diagnostic, cheap enough to always apply:* after proposing a structure, count children
+per node. Any node with exactly one is a rename. If most nodes have one, the structure is
+ceremony and the analysis has not been done.
+
+Family: =taxonomy-before-content=, adjacent to [[feedback_no_fabricated_conventions]] but
+distinct — nothing here was fabricated. Every citation was true. The error was applying true
+citations uniformly instead of deriving the cut from what actually co-varies.
+
+* the factor analysis
+
+Three factors separate this mode's contents, and they do different jobs:
+
+| factor | poles | what it decides |
+|--------+-------+-----------------|
+| effect | pure ↔ effectful ↔ agentic | what a test needs: nothing, a stub, a key |
+| audience | machine ↔ model | prose a model reads is not code and reviews differently |
+| subject | this machine ↔ the web ↔ a drawn page ↔ the nested agent | what changes together |
+
+Effect and audience make a unit standalone-testable; subject makes a directory earn itself.
+Crossed, every subject takes the same three parts — *capability* (no Vector, no ctx, effects
+injected), *language* (prose a model reads, one export, no logic), *doors* (thin Vector nodes).
+
+#+begin_example
+hello-world/  aperture.js · harness.js · doctor.js      flat: 15 · 15 · 46 lines
+              web/    marginalia.js · choose.js · index.js
+              page/   style.js · draw.js · index.js
+              research/ brief.js · index.js
+reader/       guard.js · hop.js · skeleton.js · extract.js · service.viva.js
+#+end_example
+
+Nothing under 40 lines gets a directory. The house style and the tool that consumes it are
+one concern and now sit in one directory — under the surface-clustering they were in different
+files, and that is the concrete thing the subject cut buys.
+
+* his annotations on the tangle
+
+He pasted the whole tangle back with five inline =@beef= comments. The tail is the order; the
+paste is the address.
+
+- /"move the agentic part of reader.read out of the service and into the mode - this closure.
+  no passing of cortex."/ — the largest. The reader now exposes =open(url)= returning
+  ={skeleton, extract(selector)}=, and the mode does the =object.render= between them. The
+  service became wholly mechanical: four files, none needing a key, all testable alone. It is
+  also a better service — a reader that demands a cortex is not reusable.
+- /"wtf is this??? why is there a generator vector when we alreday have an emitter??"/ — a fair
+  question with a real answer, now its own section. =emitter.js:72-73= mounts on =/emit= +
+  =mode.emit=; =generative.js:31= slurps the generator into =mode.tools=; =harnessed.js:57=
+  arms =mode.tools= ONLY. So a model can never reach the emitter and code never needs a
+  catalog. The emitter is the mint that owns bind, index, flush and envelope — the ceremony he
+  ruled must not be hand-rolled. The generator exists so =generative.js:32= does not install
+  its guardless fallback instead.
+- /"EXAMPLES!!"/ on the selector desc · /"missing propper examples and description!"/ ×3 on the
+  emitter inputs · /"SPECIFICS! examples. not yap! concrete. butter bei die fische!!!"/ on the
+  component source. All four now carry literal examples — =main#content=, =article.post-body=,
+  =div#mw-content-text= — instead of describing what a good answer would be like.
+- His own edit to =search_web= (count max 100, default 8) carried through verbatim
+  ([[feedback_user_edits_are_canonical]]).
+
+* three steps
+
+/"i watn to be able to ask the hello world harness to search for a term adn it respnods with
+results. then it responds with conetnt parsed from whereever. then with a rendered buffer.
+three steps."/
+
+The milestones were mine and abstract — M0 a service, M1 an emission, M2 a researcher. His are
+things you ask for and watch answer. M0 dissolved into the step that needs it:
+
+| M1 search | /"search for deno permission flags"/ → real titles and URLs |
+| M2 read | /"read the first one"/ → prose from the page, not the snippet |
+| M3 draw | /"draw me a page about it"/ → a =▶=, and the page belongs to the app |
+| M4 research | one call that does all three, blind to the conversation |
+
+The nested agent went last on purpose: every failure inside it is one of the three.
+
+* snapshots, and the thing about them that changes their worth
+
+/"Does our testing include snapshots at each stage? And which of the tests needs to fire at
+what milestone and what snapshots do you expect together?"/
+
+They did not. Eleven assertion tests, zero snapshots. Reading the regime first turned up the
+fact that decides everything else:
+
+: .gitignore:29-30   *.snapshot.json
+:                    **/tests/snapshots/
+
+Both the files and the directory. A fresh clone has none, and a default run is DRY — asserts
+and logs, never writes. **A snapshot in this repo is a working-session drift detector, not a
+committed golden.** Nothing load-bearing may live only in one. That is not a defect to fix
+here; it is a constraint that decides what belongs in which instrument.
+
+Four files, one per step: S1 the catalog =declarations(mode.tools)= sends · S2 one committed
+fixture page through =skeleton= and =extract= · S3 the assembled system sections and the buffer
+row a draw mints · S4 the inner request and the outer projected yield.
+
+Three expectations in the firing matrix are the actual value, and none of them is "it matches":
+
+- *S1 must NOT move across M2.* Reading changes what comes back, never what the model can ask
+  for. A diff there means the contract moved when only behaviour should have.
+- *S1 grows by EXACTLY two across M3.* Three means the generator leaked a branch; one means
+  =generative.js:32= installed its fallback instead of ours.
+- *S4's catalog is a strict SUBSET of S1.* The researcher arms web + generator and must never
+  see =research= itself or =viva_doctor=. That is the recursion guard, and comparing two
+  snapshots is the only place it becomes visible — an assertion would hard-code the list and
+  rot. New marker =P-subset=.
+
+* the last two orders, taken at the fold
+
+Both arrived mid-turn while this compact was being drafted: /"sort the quest by milestone
+before you go"/ and /"fold the testin gin"/. The quest had grown a shape that made sense while
+writing it and none at all for reading it — one =* tangle= section, one =* testing= section,
+and a reader wanting to know what M2 needs had to visit three places and filter each by a
+milestone tag in a heading. Now M1-M4 each carry their own tangle, tests, snapshot and gate,
+and =* testing — the regime= keeps only what is true across all four: the gitignore fact, the
+two tasks, the always-neutral list, the ladder.
+
+The same pass found a corruption of my own making. An earlier =s.index("** structure")=
+matched the FIRST occurrence in the file, which was inside a decisions bullet reading
+=See =** structure=.=, and spliced sixty lines into the middle of it. It had been sitting there
+through two subsequent edits and every verification grep I ran, because I grep for the things I
+expect to be wrong. The heading map is what exposed it — asking the file to list its own
+structure, rather than asking it whether a string was present.
+
+* state at fold
+
+Nothing landed in code. m57 is 1345 lines, 13 markers, =0/4=, waiting on =go M1=.
+
+#+begin_example
+quest     m57-hello-world-researches.org   1345 lines · 13 markers · 0/4 · SORTED BY MILESTONE
+tangle    14 tangle targets, every one under commons/ · zero subsystem code
+tests     11 assertion + 4 snapshot files + 1 committed fixture; 7 need NOTHING at all
+runner    2 root tasks, SCOPED — a blanket commons/** was MEASURED red, 8 passed / 6 failed
+verified  application.js:8 resolves the app mount against the module dirname
+          soma/yield/emitter/generative paths all re-read this session, not recalled
+#+end_example
+
+Owed to beef, none of it touched this session:
+
+- *rotate the Anthropic key.* Two cleartext copies in the working tree, both untracked.
+  Rotation without scrubbing them is theatre.
+- =README.md:32= lists a stale trait set, and this quest adds two more.
+- The unverified claim in the design is deliberately M2's first green gate: whether a frugal
+  model returns =main#content= from a ~190-token skeleton. One =object.render= on his key.
+
+* markers
+
+=MARKERS.md= carries one OPEN entry — cortex snapshot coverage versus the live strip, holes on
+=provider= and =config=. This session designed snapshots for hello-world's catalog, page, draw
+and nested yield, and touched no cortex snapshot. It STAYS OPEN, unsettled, and the adjacency
+is worth one line: hello-world's =App.svelte= renders =faculty.provider= and
+=faculty.config?.model=, which are exactly the two keys that marker says no fixture exercises.
+S1 does not cover them either — it pins the tool catalog, not the cortex strip.
+
+* live siblings at fold
+
+The report's =sessions= column: =drapes-editor= and =m53-vcompany.v3-vdex= are BOTH live, both
+last touched by =4f3bb179= two minutes before this fold. Nothing in m57 overlaps either — this
+quest touches only =commons/instances/hello-world/=, =commons/services/reader/= and two
+=deno.jsonc= task lines — but the tree is moving under this session, and any grep in this
+compact older than that stamp is a claim about a tree that has since changed.
+
+* rulings carried forward
+
+- A directory with one file is a rename. Count children before proposing a structure.
+- Convention is evidence about content, never a substitute for reading it.
+- =provider= is a NAMED export in a =.viva.js=. A default export is called at load.
+- =cortex.hallucinate.object.render= needs =output: { schema }=; only the harness wraps it.
+- A service that demands a cortex is not a service. The model belongs to the caller.
+- Snapshots here are session-local. Anything that must hold is an assertion.
+- A document is sorted for the reader who arrives at one milestone, not for the writer.
+- =str.index()= on a heading matches its first MENTION. Ask a file for its heading map.
+
+* quest report (derived at fold — `methods/quest-report.py`)
+
+| quest                      | progress  | status                                                                | next                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                      | sessions   |
+|----------------------------+-----------+-----------------------------------------------------------------------+---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------+------------|
+| drapes-editor              | —         | landed · the caret bug found and fixed — his click-through gates owed | rebundle + reload, then confirm the caret advances while typing (the one thing the fix is not yet proven against live). then the eight click-through gates below. later, both his call: the language on `#+begin_src js` does not highlight its body; the markdown fence is the same trade.                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                               | 1 (1 live) |
+| m46-linux-readmen          |  17% 3/18 | wip                                                                   | drain                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                     | 6          |
+| m50-the-three-way-weave    |  60% 3/5  | wip                                                                   | blast                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                     | 1          |
+| m51-standalone-slowstart   |   0% 0/18 | design                                                                | go                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                        | 2          |
+| m53-vcompany               |   0% 0/5  | open                                                                  | **t1.1** h1 · e1 · p1 · t1 · b1 · k1 + s1 · x1 · x2 · x3 + i1 (the index as rows) landed on the shelf; blocked on **r1** (paladin =resolve= percent-encodes — one-line diff + one test in the quest, his go, repo): the four reds (tools file · move; snapshots tools · aperture) are r1 and nothing else; a1 struck (the app is the sibling's v3); d1 (readme) on go; the =open= schematic on buffer-data level — sketch in "landed", his word; officers out by his order; then **the slow first attach** (the boot race under `instance/run`) → gs1/gs2 click-through after restart; the bundle weight ledgered, direction his; s3 voffice → s4 desk on go; `* t1.#2` his call; the runtime's m:n =cascade.remove= both ways ledgered as a landmine (his)                                                                                                                                                                                                                                                                                                               | 5          |
+| m53-vcompany.pre           | —         | open                                                                  | t1 package setup — the m27 gate moves to the executive stage; t1–t3 do not wait on it                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                     | 3          |
+| m53-vcompany.v3-vdex       | —         | landed                                                                | one restart carries both — the new pdf viewer (=paper.svelte=) and the cargo fix (=freight.js=, uncommitted); then open a spaced-name pdf: it should render, page nav and zoom live, the rail on ▤. the six later items stay marked in the root quest.                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                    | 3 (1 live) |
+| m53.v4-mail+calendar       | —         | landed                                                                | the six office test files — =office/email/tests/{aperture,tools,email.snapshot}.test.js= and =office/calendar/tests/{aperture,tools,calendar.snapshot}.test.js=; =/key=, the held send and the thread walk are landed and untested. then his restart + the click-through gates. open, not mine: the sibling's mode-ownership landing duplicates every symbol (16 rows, 8 distinct, the dummy's copies bare), which contradicts this quest's law that the office declares the scheme and the provider carries the rows.                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                    | 1          |
+| m54-buffer-file            |   0% 0/4  | open                                                                  | reconcile with m53 =* t1.1= and =m53-vcompany.v3-vdex= first (three quests, one seam, all waiting on go; v3 splits the app into a shell + 7 parts + =buffer/jdex.js= and already points here for file upload — m54's app hunk names the single =vdex.svelte= and must be re-cut onto whichever lands first) (a sibling session, beef's rulings there: the vdex speaks slugs — =/document /write /file /move /delete= implemented once in the aperture, tools wrap =mode.call.<verb>=, =fs_*= slurp gone on vdex; =open= is an emitter; the boot watches files and syncs per path — /"shouldnt this watch files??!!!"/; /"wtf is daemon traits stamp????"/ → gone) — three seams now name the verbs' home (t1.1 aperture · m54 sketch · mikro-first repository), beef arbitrates; then beef reopens the questioned block when ready — order of design there is mikro entity + bufferrepository verbs → typology verb contract → shard mounts → remoterepository mirrors → kajuit. until then m1 = everything but the verbs. "go m1" → full hunks against the tree as read. | 1          |
+| m55-recursive-terminals    |  20% 3/15 | wip                                                                   | go m2 — the kajuit terminal: up · down · status · stop · run · watch, the tree, the schematic, panel f                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                    | 3          |
+| m56-the-pincer-turns       | 100% 2/2  | verify                                                                | live-walk c at both aspects · markers 2·3·4·10·13·14 need a dom                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                           | 2          |
+| m57-hello-world-researches |   0% 0/17 | open                                                                  | =go m1= → the restructure + =web/= (search: ask for a term, get results). then m2 read, m3 draw, m4 the nested agent. three steps you can ask for from the dock, then the composition.                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                    | 0          |

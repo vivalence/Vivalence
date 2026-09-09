@@ -1,5 +1,6 @@
 #+title: the board reconciles itself, reflection gets a name, eighty-nine quests come home, and the orb dies
 #+filetags: :flywheel:reflection:quests:revival:ledger:paladin:ghost:release:changelog:orb:skills:
+#+index: 30
 
 * what happened, in one breath
 

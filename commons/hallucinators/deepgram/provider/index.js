@@ -1,4 +1,4 @@
-import { Queue, pcm } from "@vivalence/typology";
+import { pcm, Queue } from "@vivalence/typology";
 
 function line(url, protocols) {
   const ws = new WebSocket(url, protocols);
@@ -10,8 +10,13 @@ function line(url, protocols) {
     } catch {}
   });
   ws.addEventListener("close", (event) => {
-    if (event.code !== 1000 && event.code !== 1005)
-      fault ??= new Error(`[deepgram] socket closed ${event.code}${event.reason ? ` ${event.reason}` : ""}`);
+    if (event.code !== 1000 && event.code !== 1005) {
+      fault ??= new Error(
+        `[deepgram] socket closed ${event.code}${
+          event.reason ? ` ${event.reason}` : ""
+        }`,
+      );
+    }
     inbox.close();
   });
   ws.addEventListener("error", () => {
@@ -38,7 +43,13 @@ async function pump(ws, audioSource, close) {
   }
 }
 
-export async function* transcribe(url, protocols, audioSource, translate, close) {
+export async function* transcribe(
+  url,
+  protocols,
+  audioSource,
+  translate,
+  close,
+) {
   const { ws, inbox, failed } = line(url, protocols);
   await opened(ws);
   let broken = null;
@@ -65,14 +76,17 @@ const word = (entry) => ({
 });
 
 export function* nova(data) {
-  if (data.type === "SpeechStarted") yield { event: "/turn/open", turn: { role: "user" } };
+  if (data.type === "SpeechStarted") {
+    yield { event: "/turn/open", turn: { role: "user" } };
+  }
   if (data.type === "UtteranceEnd") yield { event: "/turn/close" };
   const alternative = data.channel?.alternatives?.[0];
   if (!alternative?.transcript) return;
   yield {
     event: data.is_final ? "/verbatim/final" : "/verbatim/partial",
     transcript: alternative.transcript,
-    ...(data.is_final && alternative.words?.length && { words: alternative.words.map(word) }),
+    ...(data.is_final && alternative.words?.length &&
+      { words: alternative.words.map(word) }),
   };
 }
 
@@ -112,7 +126,10 @@ export default async function provider(service) {
     type: "verbatim",
     tune: [0.5, 0.1, 0.9, 0.6],
     context: 0,
-    channels: { in: [{ type: "audio", codec: "pcm_16000" }], out: [{ type: "event" }] },
+    channels: {
+      in: [{ type: "audio", codec: "pcm_16000" }],
+      out: [{ type: "event" }],
+    },
     config: { model: "nova-3", language: "multi" },
     via: {
       stream: (audioSource, config = {}) =>
@@ -121,7 +138,9 @@ export default async function provider(service) {
             `model=nova-3&encoding=linear16&sample_rate=16000&` +
             `language=${config.language ?? "multi"}&` +
             `interim_results=true&punctuate=true&vad_events=true&` +
-            `utterance_end_ms=${config.utteranceEnd ?? 1000}&endpointing=${config.endpointing ?? 100}`,
+            `utterance_end_ms=${config.utteranceEnd ?? 1000}&endpointing=${
+              config.endpointing ?? 100
+            }`,
           protocols,
           audioSource,
           nova,
@@ -134,7 +153,10 @@ export default async function provider(service) {
     type: "verbatim",
     tune: [0.6, 0.2, 0.8, 0.4],
     context: 0,
-    channels: { in: [{ type: "audio", codec: "pcm_16000" }], out: [{ type: "event" }] },
+    channels: {
+      in: [{ type: "audio", codec: "pcm_16000" }],
+      out: [{ type: "event" }],
+    },
     config: { model: "flux-general-multi", turns: true },
     via: {
       stream: (audioSource, config = {}) =>
@@ -142,9 +164,13 @@ export default async function provider(service) {
           `wss://api.deepgram.com/v2/listen?` +
             `model=flux-general-multi&encoding=linear16&sample_rate=16000&` +
             `eot_threshold=${config.eotThreshold ?? 0.7}` +
-            (config.eagerThreshold ? `&eager_eot_threshold=${config.eagerThreshold}` : "") +
+            (config.eagerThreshold
+              ? `&eager_eot_threshold=${config.eagerThreshold}`
+              : "") +
             (config.eotTimeout ? `&eot_timeout_ms=${config.eotTimeout}` : "") +
-            (config.hints ?? []).map((hint) => `&language_hint=${hint}`).join(""),
+            (config.hints ?? []).map((hint) => `&language_hint=${hint}`).join(
+              "",
+            ),
           protocols,
           audioSource,
           flux,

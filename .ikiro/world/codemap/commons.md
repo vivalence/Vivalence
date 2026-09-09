@@ -1,20 +1,218 @@
 ---
 paths: ["commons/**"]
 ---
-<!-- writer: agent · derived-from: registry tree + corpus read, re-verified against disk · verified: domain suite 15/112 + runtime 51/322 + dojo 9/45 re-run after the Literal.ts owner/rank change; rep-o-gram kill list swept with grep (zero live `game.{write,shadow,listen,flashcard,pick,conjugation}.emit` calls outside bak/), mode tests run green in `modes/games/dojo/tests/`, all five suites green after the fixture upgrade; dojo 8/37 + runtime 51/322 re-run after the datamap went balanced · limit: 40 lines · re-verified after the registry/{viva,fixtures,playground} → {commons,testing,development} rename: 23-manifest census on disk, `grep -rn "registry/(viva|fixtures|playground)\b|@(fixtures|playground)\b"` over systems/ subsystems/ registry/ ~/.viva empty, paladin 28 · runtime 53 · ghost 77 · kajuit 35 green · re-verified after m47 registry/** → commons/: 24-manifest census on disk (owner+type+slug unique under ONE owner), residue grep "registry/(commons|testing|development)|@(viva|testing|development)/" over systems/ subsystems/ commons/ ~/.viva empty modulo synthetic test rows, paladin 28 (142) · runtime 53 (327) · ghost 81/1 pre-existing reap race · kajuit 35 (126) · sheets 37 green both sides, live registry/list = ONE checkout row @commons 22 modes, instance/doctor × 4 shelf instances mount clean -->
-# codemap: commons — the checkout's ONE package (m47 LANDED); "registry" now means the marketplace only
+<!-- writer: agent · derived-from: every `commons/**/*.viva.js`; hello-world `tools/ page/ tests/`; `services/{reader,nlp}`; `datamaps/libsql`; `hallucinators/*/provider`; `lighthouses/multiplayer`; 3 READMEs · verified: files 141 · `*.viva.js` 22 · README instance block `diff` IDENTICAL, mode block order-only · tests 30 files / 60 describe / 252 it / 15 snapshot fixtures, all gitignored · `console.*` 36 · probe: openrouter `provider()` → 3 faculties · limit: 19800 chars -->
+# codemap: commons — the checkout's ONE package; "registry" means the marketplace only
 
-- **shape (m47)** — the checkout ships ONE package: `commons/` (owner `@commons`, identifier `@commons/package/commons`, 22 modules): `datamaps/libsql` · `hallucinators/{anthropic,deepgram,elevenlabs,openrouter}` · `lighthouses/multiplayer` · `services/nlp` (`service/nlp-stanza`) · `instances/{hello-world,starter,fixture}` (`instance/{hello-world,multiplayer,fixture}` + `demo/hello-world`) · `playground/{spawner,spawned,card,dealer,automaton,switchboard}` (type `playground`) · `playground/chaosmonkey/{oracle,reader,vision}` (type `chaosmonkey`) · `fixtures/{data,language-learning}` (`fixture/language-learning`; `data/` is the runtime suite's seed material, imported through `systems/runtime/tests/scenarios/fixtures.js`; `corpus.snapshot.json` lives beside its test in `systems/runtime/tests/fixtures/`). Every lookup is `@commons/<type>/<slug>` — the type is the MANIFEST's, never the dir. **`registry` now names ONLY the marketplace**: `~/.viva/registry/` (store), `registry.json` (record), `viva registry/*` (verbs), `scope.registry` / `VIVA_REGISTRY_MOUNT`; tapped packages (`education` @education · `stucatch` @stucatch · `young-ladys-primer` untapped) live in the STORE, not the repo. A package root is any root `*.viva.js` whose `manifest.type === "package"` — NOT the filename. `Vip.supply()` = `registry.reconcile(checkout, <checkout>/commons)` ?? `seed(<checkout>/commons)`: a dead record location ANYWHERE under the checkout heals by rediscovering `commons/`; `discover` over a missing root yields `[]`. `Pensieve.register` THROWS when a second FILE claims a held identity (same file re-registers idempotently); `belt/find.js` skips `bak|archive|slp` and `*.bak` (`commons/instances/multiplayer.bak/` is beef's untracked recovery copy and is NOT ingested). **This shard used to describe `registry/{commons,testing,development}` as three packages under `@viva`/`@testing`/`@development` — m47 merged them into one.**
-- **manifest**: `{owner?, type, slug, version, traits[]}`. **Manifest is METADATA** — new behavior = sibling export, never a manifest field. HARD STOP.
-- **mode anatomy**: `manifest` + `app` (App descriptor + `v.buffer` schema; export name = module key) + `emitter` (Vector of `{nature,input,valence}` descriptors) + `dataset` (intent[]) + optional `tools`/`aperture`.
-- **kernels**: `domain/` = `education/domain/` (Literal/Symbol/Retention/Trace/Buffer — Memory is DEAD, renamed Engram→Retention by generated migrations; drivers BAYESIAN ebisu / BOOLEAN / COUNTER; status UNTOUCHED→…→GRADUATED; aperture `/pick/literal/*` + `/review/literal`; **tests `domain/tests/` 15 suites / 112 steps** (scenario `tests/scenarios/domain.js` = runtime `daemon.create()` + domain aperture slurped); **`rank` column = `rankOf(trait)`** (RANKED.rank ≥ 1, else 10^(9−zipf), else 999999 — a stale rank 0 can't sort first); **every retention sub-condition carries the OWNER** (`LiteralRepository.owner()` from the em context's `user` filter params) because mikro does NOT apply entity filters inside `$none`/`$some` subqueries — measured SQL, `scoping.test.js` pins alice↔bob; `byStrength`/`sample` use `$some` (an empty `{retentions: {}}` constrains nothing); `LiteralRepository.constrain` folds `where.symbols` slug-array → `$and` junction filter, AND-per-symbol; **the ontology COLUMN IS POPULATED** — `word`/`sentence`/`conjugation`, derived by `LiteralSubscriber.ontology()` from the literal's one TOPOGRAPHICAL symbol, and those root symbols live in the **topology** packages (`topologies/word/dataset/symbols/ontological.js`), NOT in the topography dataset. Filter on the plain indexed column (`{ ontology: { $in: [...] } }`), never a junction join. *This bullet previously read "the ontology COLUMN is empty → ontology IS a symbol" — false, and it was auto-loaded into context and believed, producing a workaround for a bug that did not exist.*) · `topologies/{word,sentence,conjugation}`.
-- **topographies (4)**: `english-to-brazilian` (2086 literals, 1160 mp3) · `english-to-brazilian-vocalized` (FRAUGHT, gitignored — `rg` respects .gitignore, so sweep with `rg -uu` or a pensieve dump) · `english-to-italian` (SEALED, 6386 entities) · `english-to-spanish` (BOOTED; aprende hub = Deck/Nyan/Riddle symbol-steered launchers → [[project_aprende_launcher_symbol_steering]]). Audit spec → [[corpus-quality-criteria]].
-- **literal traits**: TRANSLATED EXEMPLIFIED RANKED ANNOTATED VOCALIZED CONJUGATED — each a `literal.data.{TRAIT}` contract; LiteralSubscriber (afterFlush) resolves slugs → `uses` junctions via raw SQL (hooks cannot `em.flush`).
-- **ONTOLOGY GUARD — a game must declare what it can play.** `LiteralRepository.feed` = `due` then `novel`, and `novel` orders by `rank ASC`; **ranks are per-ontology sequences**, so rank 1 is simultaneously a word, a sentence, AND a conjugation. An unconstrained `feed` therefore interleaves all three, and the 710 CONJUGATED literals carry **no TRANSLATED** — every translate-game rendered them blank and looked "stuck". dojo's `/feed` merges the FULL ontology `["word","sentence","conjugation"]` and resolves the rows; the surviving standalone games keep their own merges — `["word","sentence"]` for match·exhibit·judge, `["sentence"]` for cloze; paradigm is DEAD (m35 — its table lives in dojo). **Two levels, neither subsumes the other**: the emitter guard is the QUERY contract (repairs existing threads — it lives in the mode, not a seeded intent row); the buffer view guard is the RENDER contract (`trait.TRANSLATED` present + `playable`, plus a resolving audio asset under an AUDIO prompt) and catches hand-emitted buffers + the view's own `/draw` self-feed.
-- **dojo (M24 → M34 — RENAMED from rep-o-gram; earlier rep-o-mat; RECAST to declared sets; DRAWER landed)** — `modes/games/dojo/` (`dojo.viva.js`, view `buffer/Dojo.svelte`, slug `dojo`, tools harvested as `dojo_*`) is the ONE rep machine; write · shadow · listen · pick · flashcard · conjugation are DEAD, dirs in `games/bak/`. **THE BUFFER IS THE DOJO, and the set is DECLARED then MATERIALIZED**: `data.set` = clauses `{pick, where?, limit?, signals?, status?, literals?, knowables?}`; `types.PICKS` = the repositories' OWN names — `all · feed · due · novel · byStrength · byLastSignal(signals, default MISTAKE+FAILURE) · sample({status}) · literals · authored`; `where` = the literal repository's grammar VERBATIM — `symbols: [..]` AND · `{$all,$in,$none}` · `traits: [..]` | `{$contains,$overlap,$none}` · `search` · `ontology` · `rank` — **nothing implicit** (the "same facet = OR" law died twice); axes FLAT on `data`, `prompt` is a POOL like `gameplay`/`recall` (`types.listening()`, `knowables.promptFor()` draws per knowable among what resolves); `data.omit` is GONE; cap per clause = `limit`, `types.CAP` 200 the ceiling/emitter default, the drawer writes 10. **ONE resolver `set/resolve.js`** (fold over clauses, each blacklisting played + earlier draws; `all` = `find` under the ontology guard + SQL count; streams = domain repo methods with retentions populated so rows carry `status`; **a conjugation ROW materializes as ONE TABLE knowable via `emitter/paradigms.js` (m35 — tokens = the forms in slot order with LABELED person/number, context tense/mood/suffix/regularity; the form explosion `conjugate.js` is GONE; grain is BY LITERAL, no knob: draw form words and they play one by one carrying facets as `context` — `fold.context()`); ONE cap across tables + spoken rows; AUDIO overfetch ×3) — emitters, `/resolve`, `/commission`, continuous refill ALL ride it. **`set/where.js compile()` puts every symbol condition in its OWN `$and` branch, never a top-level `symbols` key** (MikroORM join collapse; `.ikiro/known-issues.org`). Apertures: `/resolve {set, prompt?, blacklist?}` → `{clauses:[{count, literals(+slug rank status), knowables}], total}` · `/count {wheres}` → `{counts}` · `/setup {buffer, set?, ...AXES}` · `/commission {buffer}` · `/symbols {search?, traits?, limit?}` (the SYMBOL repository's find: slug LIKE + `trait.LABELED.name` LIKE + `traits.$overlap`, literal counts, sorted by count — fold extracted as `aperture/index.js catalog(daemon, input)` at m38-wake, shared with the armed `dojo_symbols` tool) · `/traits` (literal trait counts) · `/judge` · `/provision` LIVE again as the LLM clause-builder (`hal/provision`, `{text, state?: {set?, axes?}}` — re-measured at aperture `:175` this stamp; the BENCHED claim this bullet carried was stale). **Client = the designer's DRAWER over the player** (`Dojo.dc.html`, m34): `parts/{Handle,Drawer,Library,Builder,Clauses,Gameplay,Segment,Stepper}.svelte` + the player (`Rep` and its parts, `Standby` + secondary action; **m35: `parts/Table.svelte` renders a conjugation table, `Rep` owns the CELL machine reusing `TypeInput` as the one `[data-rep-input]` — streak PER CELL (`streak.begin` over tokens, `defer` on Tab), each commit reviews the form literal, completion reviews the row as a BINOMIAL `{enum: label, ratio: {success, total}}` — drivers prefer ratio, the enum is the trace label; `Dojo.advance()` `streak.settle`s a table; **`CONJUGATE` is a GAMEPLAY** (`types.GAMEPLAYS` = TYPE PICK FLIP CONJUGATE): a row drawn CONJUGATE plays as the table, a row drawn TYPE/PICK/FLIP is EXPANDED client-side at queue build into its forms as word knowables (`knowables.forms/surface`, `Dojo.prepare`; live `redraw` pins aboard tables); words never draw CONJUGATE (`gameplayFor(pool, knowable)`); preset `conjugate` = CONJUGATE + LEARNING + `where` (presets may carry one) — `games/paradigm/` is DEAD in `games/bak/`, its 4 emit consumers rewired to `dojo.emit.literals({literals:[row], gameplay: "CONJUGATE"})` (table) / `gameplay: "TYPE"` (forms)**); tiers by the SHELL's width (narrow < 700 one space + stubs · medium < 1040 build + side tabs · wide all four) and height (< 520 → drawer 100 %); the builder = 01 find (symbol repo typeahead + kind filter, trait chips) · 02 three bins taking symbol AND trait chips (click-to-aimed, drag; each shows "with of without" via `/count`) · 03 take (streams; byLastSignal/sample open toggles) + cap · 04 filter (rank window, text contains) · resolves list · add/update clause | by literal (search, pin); THE SET = clause cards (count, 5 previews, ✎ ×, save-as, clear); gameplay = start (+ "end" while playing) · 9 presets (STAMPS: the most-specific satisfied one lights; a `where` preset is scoped by the MATERIAL's ontologies — what the set resolves to, never clause syntax) · axes rows (streak/limit typeable steppers, gameplay/prompt/recall multi-select pools, preview, forgiving, continuous); walls (columns, drawer height, form/results split) drag and persist with recents + saved sets under `viva.mode.dojo`. Phases `idle → playing → drawing → done`; Start = commission (if dirty) + play + drawer closes; Esc / `\` toggles the drawer. DEAD: Console · Set · Header · Inspector · Keymap · shell.svelte.js. Tests: `tests/{machine,emitter,aperture,tools}.test.js` — 12 suites / 64 steps (m38: binomial table review pinned in domain drivers, tool buffers pinned runnable through the client's own fold, `/set` emitter route + full-axes `dojo_provision`; m38-wake: `dojo_generate` pool = TOUCHED vocabulary — byStrength half + sample fill + feed fallback — with `anchors` forced into every sentence via a MUST-contain system section, `dojo_symbols` catalog search, both stub/scenario-pinned); runtime 52 / 325. RESOLVED: the 16 GB memory run was JOINED to-many populate × unconstrained where-joins — datamap `loadStrategy: "balanced"` (`known-issues.org`). → [[project_dojo_mode]] · quests `m34 quest file (DELETED)` · `m35 quest file (DELETED)`
-- **tactics** (`~/.viva/registry/education/modes/tactics/`, the tapped package) — planners with NO `app`: **`clinic` · `impara` · `survival`**. (`five-fold-session` is GONE; this shard listed it as live.) A tactic route reads memory state and `ctx.pool.add(game.X.emit.Y(…))`; the outer EMITTER binds pooled buffers to `ctx.thread` — no manual `thread` forwarding.
-  - **clinic + survival are PORTUGUESE-SHAPED**: `survival/emitter/buildup.js` hardcodes a 21-entry `themes` symbol array (only 6/20 exist in italian; clinic 5/10), which is why the spanish kernel has every tactic commented out. Derive themes from `symbol.find()` to fix every corpus at once — NOT built. `impara` sidesteps it by taking `where` from its `MASKED` trait instead. [[project_impara_italian_course]]
-- **LAW: the Intent is a TEMPLATE, not a requirement** — `Thread.beforeCreate` returns early when `thread.intent` is null, so a thread created with `traits`/`trait`/`phase` inline is fully driveable. `daemon/traits/intented.js` never sets a user (its own TODO) while `IntentRepository.unique()` keys on `{slug,mode,user}` → **0 intent rows on every daemon**. `impara/course.js` + `/course/open` mint the three configured threads directly.
-- **services** (`commons/`): datamap/libsql (provider → {orm, entities}, automigration) · hallucinator/{anthropic,elevenlabs,deepgram} (Faculty[]: type/accepts/produces/delivery/tune/context/`hallucinate(turns,config)`; `object` is a DERIVED cortex faculty) · lighthouse/multiplayer (ATTACHED) · nlp (stanza docker). Hallucinator tests hit live APIs. **A TOOLED service transports tools**: nlp manifest `traits: [..., "TOOLED"]` + `export { tools }` → armed as `service_nlp_classify` (`/classify` = the recovered classifier fold: lemma/pos lowercased, feats flattened, verb/aux suffix; deprel/head/offsets dropped; >1000 chars bounces; fold pinned by `viva/nlp/tests/classify.test.js` stub — the specimen tests are LIVE ones). Consume masks carry per-daemon `language` (brazilian was "es" — WRONG, fixed "pt"). **Prod nlp image lacks `transformers`** → every depparse call 500s until the Dockerfile fix (`+ transformers peft`) deploys — beef runs that.
-- **domain tools LIVE** (`education/domain/tools/{progress,lookup,queue,review}.js` + shared `line.js`, exported on `domain.viva.js` — the export line whose absence kept harness layer ④ dead since birth while `francesca.md` named the tools; rebuilt to m23-original fidelity after the "did we fuck up today?" audit — the condemned originals live at `git show 23cf35095:…/domain/tools/`): `progress` = the gather-parity learner report · `lookup` = text→items (minLength 1, "never invent a slug"; conjugation blindness CLOSED at m38-wake: `LiteralRepository.family(rows)` walks matched word forms → paradigms via `uses` → `trait.CONJUGATED.infinitive`, receipt `↳ form in <paradigm> · infinitive: <line>`; plus a SILENT lemma leg — `ctx.daemon.services?.nlp` classify → re-search each lemma, try/catch to [], no service or a throwing one = plain miss line; domain 15/119 pins both) · `queue{pick: due|feed|novel|weakest|status}` (facets self-populate retentions; novel legitimately has none = honest UNTOUCHED) · `review` = batched 1–10, FIVE-signal `SIGNAL` from `domain/types.js` (judge.js emits MISTAKE — a 2-signal enum amputates the driver), validates slug then invokes **`ctx.daemon.call["/review/literal"]`** (the compiled domain aperture = the Trace-minting path) with `thread: {id: ctx.thread}` so Trace.thread is real, receipt `slug SIGNAL → status, next date`. `daemon.call` compiled in `resolution.domain`: bind daemon on domain aperture → slurp → `shape.proxy(domain.aperture, steer.strategy.direct)` — EXPOSED's `mode.call` twin, pre-slurp so `authorize()` never 401s internal calls, `direct` threads the caller's user/mode/thread. **francesca's detached `appraise`** (`modes/teacher/francesca/harness.js`, m29 gate-2 close): the `/dialogue` mode-harness mw wraps `ctx.output`, `finally` fires `within(() => appraise(ctx))` UN-AWAITED — `datamap.shard.carry()` re-enters the ORM request context so user-scoped broadcasts keep their owner. appraise = 1s settle → last-10 turns at query level (`find` DESC+limit+reverse; `history()` pins ASC) → `mode.harness.object.render` over history + prompt (SIGNAL from `ctx.daemon.domain.SIGNAL` — `Domain.cast` has `additionalProperties: true`) → per-review `daemon.call["/review/literal"]`. Object contract = **`render.output.object`** (the dealer's and hello-world's top-level `{ object }` destructures were DRIFT — both read `output.object` now; README paste follows). Live-proven: 5 essere reviews, correct signals, Trace 201→206. The result wires INTO the sealed assistant turn as a retro-fitted SYNC-SHAPED tool round — `sealed.parts += [{tool_use "language-learning_review", input:{reviews}}, {tool_result {message: receipt lines, entities:{retention}}}]` + flush — EXECUTE-then-wire: the reviews run through `daemon.call["/review/literal"]` FIRST and the forged result is the real receipt, byte-shaped like `domain/tools/review.js`'s own output (round renamed at m38-wake — catalog-valid, imitation lands on a real tool); guard = parts scan for review/language-learning_review/appraise tool_use (meta check kept for transition rows only); **4-turn dedupe (m38-wake, beef: "MUST be prohibited" then "bumb that to last 4 turns. but make sure the model knows what was already reviewed")**: prior = review-round literals of the last 4 assistant turns, INJECTED into the reviewer prompt ("Already reviewed … dropped if repeated") AND filtered mechanically, in-batch doubles collapse; the mw guards `Symbol.asyncIterator` so `/dialogue/render` passes through unwrapped. BOTH provider translates split a same-turn tool_result out of an assistant turn into the grammar's carrier (anthropic: synthesized user message of tool_result blocks; openrouter: role:"tool" after the assistant message; +1 invariant step each) — the wire is byte-identical to a real sync round, so francesca AND the next appraise see prior appraisals natively, and the dock renders the round through stock turnTools with zero client code. `francesca.md` REWRITTEN at m38-wake (17 KB): the decomposition ladder (split→ground→contrast→extend gated on two clean spaced hits both directions→integrate→vary) DEMONSTRATED via two many-turn example dialogues (dalla; leggere infinitive→paradigm→sentences), prompt-disambiguator law (names the USE, never contains an answer), tool-error rule (re-ask, never print the pending answer), pin-over-author, user-independent (interference/level read from record, not assumption); never-call-review hardened ("unless the learner explicitly instructs") and the review tool valence gained the rider exception — its "an exchange you do not review never happened" line steered AGAINST the hook. Single writer stays the hook. The imitation risk is now soft-landed twice: the wired round is a catalogued tool, and unknown-tool errors name the armory (typology `shard/hallucinate.js`). **The judgment rules live in the OUTPUT SCHEMA, not the prompt** — every field carries `.desc()` (review.js's wording family; descriptions serialize into the wire JSON schema, probe-proven): a `thinking` field AHEAD of `reviews` forces think-then-commit on the fast faculty, `reviews` carries withhold semantics (mid-arc items wait for a later exchange) + the COMPOSITE fault-attribution heuristic (score PER ITEM by where the fault lies — 'un studente' is an article-slot error but studente.noun takes the MISTAKE) + negative honesty (a MISTAKE/FAILURE reschedules sooner = the system working; milder-when-torn covers factual uncertainty, not kindness); prompt = role brief only. Window = full last-10 (beef killed a tool-parts-only strip: "the tool needs context of previous turns… i dont see that overengineering does us any good"); the fast model's re-review-the-window duplication is steered by the visible prior appraise rounds + descriptions, LIVE-UNVERIFIED post-change. Structural answer to "an exchange you do not review never happened" — model discipline out, harness in. **openrouter provider**: system sections are PARTS ARRAYS (`content: [{type:"text",text}]`) — string content + `context` cache mark crashed on `content.at(-1)` = last char; the fast-tune harness path was the first record-shaped `request.system` it ever met.
-- blind spot: pick/review endpoints + BOOLEAN/COUNTER drivers untested.
+- **shape** — `commons/` is ONE package; `commons/package.viva.js` is the whole declaration. Under it 22 `*.viva.js` (the package root included) = 21 modules. A package root is a root `*.viva.js` whose `manifest.type === "package"`.
+
+```json
+// commons/package.viva.js
+{ "owner": "@commons", "type": "package", "slug": "commons", "version": "0.0.1" }
+```
+
+- **census — the lookup is `@commons/<manifest.type>/<manifest.slug>`, and the type is the MANIFEST's, never the directory.** `commons/services/nlp/` is `@commons/service/nlp-stanza`; `.../hello-world/mode.viva.js` is `@commons/demo/hello-world`. Grep a slug, not a path.
+  - `@commons/package/commons` · `@commons/datamap/libsql` · `@commons/lighthouse/multiplayer` · `@commons/service/{reader,nlp-stanza}` · `@commons/hallucinator/{anthropic,deepgram,elevenlabs,openrouter}`
+  - `@commons/instance/{hello-world,fixture}` · `@commons/demo/hello-world` · `@commons/fixture/language-learning` · `@commons/playground/{spawner,spawned,dealer,card,automaton,switchboard}` · `@commons/chaosmonkey/{oracle,reader,vision}`
+
+```json
+// one manifest per type family, read off disk
+{ "type": "hallucinator","slug": "deepgram",    "traits": ["MONK"] }
+{ "type": "service",     "slug": "nlp-stanza",  "traits": ["SERVER","DOCKER","COMPOSE","TOOLED"] }
+{ "type": "playground",  "slug": "card",        "version": "0.1.0", "traits": ["APPLICATION"] }
+```
+
+- **`manifest` is METADATA and nothing else** — `{owner?, type, slug, version?, name?, description?, traits[]}`. New behavior = a sibling export, never a manifest field. HARD STOP. `CONVERSATIONAL` · `STANDALONE` · `SELFEVIDENT` are markers with empty bodies. Stamping, dedup, version resolution → `world/codemap/paladin.md`.
+- **`registry` names ONLY the marketplace**: `~/.viva/registry/` (the store) · `viva registry/*` · `scope.registry` / `VIVA_REGISTRY_MOUNT`. Tapped packages live in the STORE, never the checkout — `education` · `stucatch` · `vcompany` · `young-ladys-primer` → [[project_dojo_mode]] · [[project_impara_italian_course]]. Legacy `@viva/*` survives only as synthetic test strings.
+- **invisible territory** — discovery skips `bak archive slp node_modules .git .DS_Store *.bak`, so `commons/instances/bak/` and `commons/hallucinators/bak/` are on disk but unreachable. `commons/instances/localhost/` is an EMPTY dir.
+
+## hello-world — the assembly
+
+- **`mode.viva.js` is ASSEMBLY only**: manifest + `tools` + `app` + three re-exports. Every behaviour is a sibling file.
+
+```js
+// commons/instances/hello-world/mode.viva.js
+export const manifest = {
+  type: "demo", slug: "hello-world",
+  traits: ["HARNESSED","CONVERSATIONAL","TOOLED","EMITTER","APPLICATION","GENERATIVE","EXPOSED","STANDALONE"],
+};
+export const tools = new Vector().slurp(doctor).slurp(web).slurp(research);
+export const app = new App("./app/App.svelte");
+export { aperture } from "./aperture.js";
+export { harness } from "./harness.js";
+export { emitter, generator } from "./page/index.js";
+```
+
+- **`aperture.js` opens FIVE doors** `/hello/{doctor,search,research,bot,agent}`. `/hello/research` declares `yields: v.primitives.hallucination.Packet.Response` — that declaration frames it as SSE and exempts the call from the transport timeout. `/hello/search` duplicates no fetch: it calls the same `query()` the armed `web_search` does, because the app cannot reach the `tools` Vector (TOOLED is in-process only).
+- **`harness.js` sets prose at two altitudes** — `system.{hello,machine,render}` at the ROOT `use`, `system.format` on `/dialogue` only: the draw tool is reachable from every harness path, and the dock is the only reader of prose.
+- **`tools/` is FLAT, 7 files** — `index.js` (barrel) · `doctor.js` (192 lines) · `web.js` (two doors; `web_read` returns an ERROR naming the fix when no reader is consumed, never a silent failure) · `wikipedia.js` (keyless client; `TIMEOUT = 6000` must stay UNDER the multiplex's ~8s or the caller gets an empty envelope with no status) · `choose.js` · `research.js` · `brief.js`.
+
+## hello-world — the instance
+
+- **`instance.viva.js`** declares one daemon `hello` (`kernel: ["./mode.viva.js"]`, `consume.reader`, two hallucinators keyed off `paladin.secret.get`), a libsql datamap per process (`hello` · `runtime` · `lighthouse` `.viva.db`), `runtime` + `clients.kajuit` + `services.multiplayer`, ONE top-level `lighthouse`, an env schema. **The root `README.md` "Hello, Instance!" block is BYTE-IDENTICAL to this file** (its "Hello, Mode!" block differs from `mode.viva.js` in export ORDER only) — edit both together.
+- **every address derives from `${VIVA_RUNTIME_ORIGIN}`; both API keys are `.optional()`.** Values are THUNKS, resolved at hydrate, never at import.
+
+```js
+// commons/instances/hello-world/instance.viva.js — the env block, as written
+export const environment = v.environment({
+  VIVA_RUNTIME_ORIGIN: v.url().desc("Scheme and authority the runtime is reachable at. Every address below derives from it.").default("http://localhost:2501").group("addresses"),
+  SECRET_VIVA_ANTHROPIC_API_KEY: v.string().desc("Anthropic key. Declare either provider, both, or neither — a key left blank leaves its hallucinator dormant.").group("keys").optional(),
+  …
+});
+```
+
+- **the instance copy is what the runtime bundles** — `~/.viva/instances/hello-world/` mirrors the checkout (only `.env`, `hello.viva.db`, `mountpoint` local); a MOVE deletes the old path there too → [[feedback_flag_day_radius]].
+
+## hello-world — research rides the harness
+
+- **`investigate` is four lines and no adapter.** The harness IS the researcher — turns, the em fork, the armed catalog, persistence and the stream are its job. `ROUNDS = 30` is the researcher's own budget, NOT the thread's `INTELLIGENT.rounds`. ONE handler serves both doors: the aperture yields the records, the armed tool folds them by hand, because a tool result cannot stream and `render()` throws on any close but `complete` — taking the fold, and a page already on screen, with it.
+
+```js
+// commons/instances/hello-world/tools/research.js:12-18,45-53
+export const investigate = async (ctx) =>
+  ctx.mode.harness.dialogue.stream({
+    thread: ctx.thread ?? ctx.input?.thread,
+    parts: [{ type: "text", text: ctx.input.brief }],
+    system: { brief: BRIEF }, config: { rounds: ROUNDS },
+  });
+  async (ctx) => {
+    let folded = null;
+    for await (const record of await investigate(ctx)) folded = soma.transcript(folded, record);
+    const { message, buffer = [] } = folded.output;   // PROJECT: only these two leave
+```
+
+## hello-world — the mint vs the steering
+
+- **`page/index.js` exports two Vectors that are not the same thing.** `emitter` is THE MINT (`/article`) — not in `tools`, so no model reaches it; EMITTER mounts it at `mode.aperture.branch("/emit")` and `mode.emit`. It passes NO thread to `buffer.create`: the EMITTER drain binds, and the repository binds when handed one, so doing both double-advances `thread.counter`.
+
+```js
+// commons/instances/hello-world/page/index.js:33-64
+export const emitter = new Vector().open(
+  { nature: "/article", input: v.object({ source: SOURCE, label: LABEL, data: DATA, thread: …optional() }) },
+  async (ctx) => {
+    const view = await ctx.mode.generator.bundle({ kind: "svelte", source: refuse(ctx.input.source) });
+    const buffer = await ctx.daemon.entities.buffer.create({
+      mode: ctx.mode.entity.id, view: view.json, data: ctx.input.data ?? {},
+      traits: ["LABELED"], trait: { LABELED: ctx.input.label },
+    });
+    return Yield.NOMINAL([buffer]);
+  },
+);
+```
+
+- **`generator` arms NOTHING.** GENERATIVE owns `generator_view_{render,revise,inspect,list}` and slurps this vector onto them AFTER — a node opened here WITHOUT an effect rewords the trait's valence while the trait's effect stays, and its `branch("/view").use` runs on every draw and revise: it calls `refuse(ctx.input.source)`, and on a throw sets `ctx.output = {condition:"ERROR", …}` and returns WITHOUT `next()`. `page/draw.js` `refuse()` rejects any `from`/`import(` of an `https?:` specifier — esbuild leaves it EXTERNAL, past the integrity hash.
+- **the armed catalog is exactly EIGHT names** — four from the assembly, four from GENERATIVE, none from `generator`. An armed name is the aperture path joined with `_`; a consumed TOOLED service mounts under its CONSUME KEY, not `manifest.slug`. On a live daemon `fs_*` + `shell_run` sit on top → `world/codemap/runtime.md`.
+
+```json
+// commons/instances/hello-world/tests/snapshots/hello-world-catalog.snapshot.json — the names
+["viva_doctor","web_search","web_read","research",
+ "generator_view_render","generator_view_revise","generator_view_inspect","generator_view_list"]
+```
+
+```json
+// commons/instances/hello-world/tests/snapshots/hello-world-mint.snapshot.json — one page at rest
+{ "condition": "NOMINAL", "counter": 1,
+  "buffer": [ { "data": { "title": "Flamingo", "sources": [ { "title": "Flamingo — Wikipedia", "url": "…" } ] },
+                "view": { "entries": ["index.js"], "type": "svelte" }, "index": 0 } ] }
+```
+
+## datamap — `commons/datamaps/libsql`
+
+- **ONE file, the daemon's only ORM door.** `config()` pins `loadStrategy: "balanced"` (never `joined`), filters falsy entities/subscribers, mounts the Migrator only when `migrations` is passed. `provider()` runs pending migrations at boot, then returns `{entities:{em, …repositories by type}, shard:{context,scope,bind,carry}, subscribe, introspect, disintegrate}`.
+- **`shard.carry` re-ENTERS the live `RequestContext`** for a lazy streaming body; `RequestContext.create` there forks a fresh identity map and strands the parent turn.
+
+```js
+// commons/datamaps/libsql/libsql.viva.js:19-35,48-51,82-87
+  defineConfig({ dbName, ...(contextName && { contextName }), loadStrategy: "balanced",
+    entities: entities.filter(Boolean),
+    subscribers: subscribers.filter(Boolean).map((Subscriber) => new Subscriber()),
+    ...(migrations && { extensions: [Migrator], migrations: { tableName: "_mikro_migrations", path: migrations, transactional: false } }) });
+  if (await migrator.checkMigrationNeeded()) await migrator.createMigration();
+  if ((await migrator.getPendingMigrations()).length > 0) await migrator.up();
+      carry: () => {
+        const context = RequestContext.currentRequestContext();
+        return (fn) => (context ? RequestContext.storage.run(context, fn) : fn());
+      },
+```
+
+## hallucinators — `provider(service) → Faculty[]`
+
+- **a provider returns an ARRAY of faculties**, each `{type, tune, context, channels:{in,out}, config, via:{render,stream}}`. On disk: `dialogue` (anthropic ×3, openrouter ×3), `verbatim` (deepgram ×2), `speech` (elevenlabs ×2). **`object` is DERIVED — no provider declares it** → `world/codemap/runtime.md`.
+
+```js
+// commons/hallucinators/openrouter/provider/index.js:92-108
+    faculties.push({
+      type: "dialogue", tune: model.tune, context: model.context,
+      channels: {
+        in: ["text","image","document","tool_result", ...(model.thinking ? ["thinking"] : [])],
+        out: ["text","tool_use", ...(model.thinking ? ["thinking"] : [])],
+      },
+      config: { model: model.id }, via: { render, stream },
+    });
+```
+
+```json
+// probe: openrouter provider({secrets:{key}}) → 3 faculties, models
+//   ["openai/gpt-5.1","google/gemini-2.5-flash","google/gemini-2.5-flash-lite"]
+// faculties[0], `via` reduced to its keys:
+{ "type": "dialogue", "tune": [0.8, 0.85, 0.35, 0.3], "context": 400000,
+  "channels": { "in": ["text","image","document","tool_result","thinking"],
+                "out": ["text","tool_use","thinking"] },
+  "config": { "model": "openai/gpt-5.1" }, "via": ["render","stream"] }
+```
+
+- **the model table is overridable (`service.statics?.models ?? models`); the reasoning switch is not.** `buildParams` writes `params.reasoning = {enabled:false}` EXPLICITLY whenever the model is not a thinker or `effort === "none"`. System sections are content ARRAYS; `cache.marks` holding `context` stamps `cache_control` on the LAST one. `provider/translate.js` is the pure half, snapshot-pinned offline; `tests/provider.test.js` runs offline.
+
+## services
+
+- **`commons/services/reader`** — `type: "service"`, NO cortex and NO model: the caller decides which node is the article. `limits.js` holds every bound (`hops:5 timeout:15_000 bytes:2_000_000 chars:24_000 images:12`) so the pure halves never import the network half. Reached as `ctx.daemon.services.reader`, never kernelled; tests inject `fetch` and `resolve`.
+- **`guard` refuses before the request leaves; `hop` re-guards EVERY redirect hop** — a guard that runs on `response.url` has already let the request out.
+
+```js
+// commons/services/reader/{guard.js:23-35, hop.js:8-23}
+export const guard = async (url, resolve = Deno.resolveDns) => {
+  if (!/^https?:$/.test(target.protocol)) refuse(`${target.protocol} is not http(s)`);
+  if (host === "localhost" || host.endsWith(".local") || isPrivate(host)) refuse(`${host} is not a public address`);
+  … if (addresses.some(isPrivate)) refuse(`${host} resolves to a private address`);
+export const hop = async (url, { fetch: get = fetch, resolve } = {}) => {
+  let target = await guard(url, resolve);
+  for (let step = 0; step <= LIMITS.hops; step++) {
+    const response = await get(target, { redirect: "manual", signal: AbortSignal.timeout(LIMITS.timeout), … });
+    if (response.status >= 300 && response.status < 400 && location) {
+      target = await guard(new URL(location, target), resolve); continue;
+```
+
+- **`drink()` consumes the stream, so `open()`'s return is the ONLY copy of that page there will ever be** — `{url, status, headers, title, body, bytes, capped, document, skeleton, extract(selector)}`.
+- **`commons/services/nlp`** — slug `nlp-stanza`, traits `SERVER DOCKER COMPOSE TOOLED`. Exports `control` alongside `provider` + `tools`: a Vector of `/status /build /start /up /down` driving docker compose against `server/docker-compose.yml`, its root `use` casting `server/.env.source` → `server/.env` first. TOOLED transports `/classify` into an armed name.
+
+## lighthouse, playground, fixtures
+
+- **`commons/lighthouses/multiplayer`** — the identity service (`ATTACHED SERVICE DATAMAP SYSTEMMAP`); its kernel file is three lines of re-export over `server/index.js` (the aperture) + `provider/index.js`. `server()` layers `shard.datamap.inject` → `authority.inject` → `identity.inject` under an error `use` that turns `ERR_JWT_EXPIRED` into a 401.
+- **`commons/playground/*` + `.../chaosmonkey/*`** — the trait testbed, consumed by kernel lists and 7 suites across runtime/kajuit/typology. Pairs, not singletons: `spawner`→`spawned` (render-phase rig), `dealer`→`card` (driver hub + render target, `buffer.release()`), `automaton` (self-configuring thread), `switchboard` (hot-swap stall phase + render cursor), `oracle`→`vision` (aperture calling `harness.object.render`), chaosmonkey `reader` (its own `generator`).
+- **`commons/fixtures/*`** — `fixtures/data/` is NOT a module (no `*.viva.js`): a plain barrel (`seed · assemble · tiers · concretes.ts · faculties · lighthouse · live`) with exactly ONE consumer, `systems/runtime/tests/scenarios/fixtures.js`, by relative path across containers. `@commons/fixture/language-learning` is the deterministic corpus.
+
+## how it is tested — 30 files · 60 `describe` · 252 `it` · 1 `Deno.test` · 7 snapshot tests · 15 fixtures
+
+- **there is no commons test task.** `commons/` holds NO `deno.json*` and is no workspace member (the root `deno.jsonc` names it only in `runtime/watch`). Each file runs BY NAME: `deno test -A --no-check --config <repo>/deno.jsonc <file>` — green: catalog `6 passed (17 steps)`, guard `1 passed (7)`.
+- **every snapshot fixture is git-IGNORED** (`.gitignore:30` `**/tests/snapshots/`): a fresh checkout has none, so all 7 throw at `readTextFileSync` until `SNAPSHOT_HOT=1` writes them. The same `pin()` in all 7:
+
+```js
+// test: commons/instances/hello-world/tests/catalog.snapshot.test.js:12-20
+  if (HOT) {
+    specimen.snapshot(pojo, { base: SNAPSHOTS, locate: file, … });
+  }
+  const frozen = JSON.parse(Deno.readTextFileSync(join(SNAPSHOTS, file)));
+  specimen.expect(pojo).toEqual(frozen);
+```
+
+- **the assembly and the mint, offline, no daemon** — `catalog.test.js` builds a literal daemon + `GENERATIVE(…)`: `"P-catalog: the armed catalog is exactly eight names"`, `P-provenance`; `doctor.test.js` `P-noknobs` + `P-novalues`. In `emitter.test.js` the DESCRIBE title IS the law: `"P-nodoublebind: one drawn page advances thread.counter by exactly one"` (`:86` `expect(rigged.row.counter).toBe(1)`); `draw.test.js` `P-noexternal`; `style.tokens.test.js` `P-tokens`.
+- **research** rides `tests/rig.js` — the real `respond()` loop, scripted faculty: `"P-yield: a buffer minted inside the inner agent surfaces in the OUTER yield, and NOTHING else does"`. **All four hallucinator `provider.test.js` run OFFLINE** on `provider({secrets:{key:"fake-key"}})`. **The reader injects its network** — the resolver in `guard.test.js`, `fetch` in `hop.test.js`: `P-scheme` · `P-hop` · `S2` off `tests/fixtures/`.
+- **three files need a LIVE process and carry no skip** — `nlp/tests/service.test.js` (`:5555`), `multiplayer/tests/{auth,lighthouse}.test.js` (`:1729`); `tokenize.test.js` self-skips unless `import stanza` succeeds.
+- **gaps**, grep `commons systems subsystems ~/.viva/registry --include=*.test.*`: `hello-world/instance.viva` → 0 · `fixtures/data` → 0 · `nlp/service.viva` → 0 · `package.viva.js` → 0 (4 synthetic hits) · `datamaps/libsql` → 1, in `systems/runtime/`.
+
+## where to read the live system
+
+- **the doctor fold is this container's real tap.** `report()` (`commons/instances/hello-world/tools/doctor.js:63-165`) returns `daemon` (mountpoint, statics, datamap + entities, resolved kernel with traits and routes, hallucinators + their secret SLOT NAMES, `cortex`, `dormant`, `faults`) · `ledger` (instances, services, clients, `requirements` with `unset`, `environment` by NAME) · `registry` (locations, `stale`, every pensieve module). Names, never values. READ IT: `/hello/doctor`, or armed `viva_doctor`.
+- **spans** — the only span writer in `commons/` is `commons/playground/chaosmonkey/oracle/aperture.js`: notes `input`, `render`, `turn/user`, `turn/assistant`, closes, returns `trace: span.records` IN THE RESPONSE BODY. READ IT: call `/oracle/…` and read `trace` off the reply.
+- **drains** — two: `commons/hallucinators/deepgram/provider/index.js:61` `inbox.drain()`, `commons/instances/hello-world/tests/rig.js:47` `soma.drain(turn)`. **No datasink in `commons/`.**
+- **`console.*` = 36 lines in 10 files**, a third commented: `commons/services/nlp/service.viva.js:35-81` (14 — the compose control narrates every verb) · `commons/lighthouses/multiplayer/server/index.js:17,26` (`error.name` + `error.code` for every throw in the lighthouse) · `commons/playground/chaosmonkey/oracle/emitter.js:37` (`{render, span.records, buffer}`) · `.../oracle/buffer/Oracle.svelte:18` (`client.pipe.tap` — every wire record, in the browser).

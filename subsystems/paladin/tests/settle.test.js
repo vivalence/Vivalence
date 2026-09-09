@@ -1,39 +1,34 @@
 import { describe, it } from "@std/testing/bdd";
 import { expect } from "@std/expect";
-import { Env, Path, Url, v } from "@vivalence/typology";
-import { Instance } from "../prototypes/instance.js";
-import check from "../belt/check.js";
+import { Path, Url, v } from "@vivalence/typology";
+import { Paladin } from "../prototypes/paladin.js";
+import * as lifecycle from "../lifecycle/index.js";
 
 const HOME = new Path("/fixtures/probe/test.viva.js");
-const STRATA = ["flag", "cwd", "instance", ".env", "os", "session", "ledger"];
 
-// declare(paladin) → the recipe's exports; the thunks inside close over THIS paladin's bags.
 const mount = (declare, pairs = {}, secrets = {}) => {
-  const paladin = {
-    env: new Env(STRATA),
-    secret: new Env(STRATA),
-    scope: { instance: HOME, mountpoint: new Path("/mountpoint") },
-    state: { dir: async () => {} },
-    publish: () => {},
-  };
-  check(paladin);
+  const paladin = new Paladin();
+  paladin.scopes([
+    ["instance", () => true, () => new Path("/fixtures/probe/test.viva.js")],
+    ["mountpoint", () => true, () => new Path("/mountpoint")],
+  ]);
   for (const [key, value] of Object.entries(pairs)) paladin.env.set(key, value, "flag");
   for (const [key, value] of Object.entries(secrets)) paladin.secret.set(key, value, "flag");
   const module = { manifest: { type: "instance", slug: "probe", version: "0.0.1" }, source: HOME, ...declare(paladin) };
-  paladin.find = { type: async () => [module] };
-  return new Instance(paladin).mount();
+  paladin.find.type = async () => [module];
+  return lifecycle.mount(lifecycle.populate.instance(paladin));
 };
 
-const runtime = (paladin) => ({ slug: "runtime", statics: { serve: () => paladin.env.get("VIVA_PROBE_SERVE") } });
+const runtime = (paladin) => ({
+  manifest: { slug: "runtime" },
+  statics: { serve: () => paladin.env.get("VIVA_PROBE_SERVE") },
+});
 const lighthouse = (paladin) => ({
   module: "@commons/lighthouse/multiplayer",
   statics: { remote: () => paladin.env.get("VIVA_PROBE_REMOTE") },
 });
-const daemon = (extra = {}) => ({
-  manifest: { type: "daemon", slug: "probe", version: "0.0.1" },
-  datamap: { module: "@commons/datamap/libsql" },
-  ...extra,
-});
+const libsql = { module: "@commons/datamap/libsql" };
+const daemon = (extra = {}) => ({ manifest: { type: "daemon", slug: "probe", version: "0.0.1" }, ...extra });
 const anthropic = (paladin) => ({
   module: "@commons/hallucinator/anthropic",
   secrets: { key: () => paladin.secret.get("SECRET_VIVA_PROBE_A") },
@@ -46,6 +41,11 @@ const stanza = (paladin) => ({
   module: "@commons/service/nlp-stanza",
   secrets: { key: () => paladin.secret.get("SECRET_VIVA_PROBE_D") },
   statics: { remote: () => paladin.env.get("VIVA_PROBE_REMOTE") },
+});
+const multiplayer = (paladin) => ({
+  manifest: { type: "service", slug: "multiplayer" },
+  module: "@commons/lighthouse/multiplayer",
+  secrets: { jwt: () => paladin.secret.get("SECRET_VIVA_PROBE_A") },
 });
 
 const environment = v.environment({
@@ -75,8 +75,8 @@ describe("settle — the schematic fills, mints and judges what the pinhole fire
     expect(sentences(instance)).toEqual(["SECRET_VIVA_PROBE_A REQUIRED", "VIVA_PROBE_REMOTE REQUIRED", "VIVA_PROBE_SERVE REQUIRED at runtime.statics.serve"]);
   });
 
-  it("statics, consume and hallucinators need not be authored — the schematic fills them", async () => {
-    const instance = await mount((paladin) => ({ lighthouse: lighthouse(paladin), daemons: [daemon()], environment }), SET);
+  it("statics, consume, hallucinators and kernel need not be authored — the schematic fills them", async () => {
+    const instance = await mount((paladin) => ({ lighthouse: lighthouse(paladin), datamap: libsql, daemons: [daemon()], environment }), SET);
     const [held] = instance.daemons;
     expect(held.statics).toEqual({});
     expect(held.consume).toEqual({});
@@ -85,10 +85,72 @@ describe("settle — the schematic fills, mints and judges what the pinhole fire
     expect(instance.faults).toEqual([]);
   });
 
+  it("the root datamap is every mounting's default: a COPY, seated in the mounting's directory, its file named for the mounting", async () => {
+    const instance = await mount(
+      (paladin) => ({ lighthouse: lighthouse(paladin), datamap: libsql, daemons: [daemon()], services: [multiplayer(paladin)], environment }),
+      SET,
+      { SECRET_VIVA_PROBE_A: "a" },
+    );
+    const [held] = instance.daemons;
+    const [service] = instance.services;
+    expect(held.datamap).not.toBe(instance.datamap);
+    expect(held.datamap.module).toBe("@commons/datamap/libsql");
+    expect(held.datamap.mountpoint).toBeInstanceOf(Path);
+    expect(held.datamap.mountpoint.absolute).toBe("/mountpoint/daemon_probe");
+    expect(held.datamap.statics.db.file).toBe("probe.viva.db");
+    expect(service.mountpoint.absolute).toBe("/mountpoint/service_multiplayer");
+    expect(service.datamap.mountpoint.absolute).toBe("/mountpoint/service_multiplayer");
+    expect(service.datamap.statics.db.file).toBe("multiplayer.viva.db");
+    expect(instance.datamap.mountpoint).toBeUndefined();
+    expect(instance.faults).toEqual([]);
+  });
+
+  it("a mounting's own datamap keeps its file; the seat is still stamped", async () => {
+    const instance = await mount(
+      (paladin) => ({
+        lighthouse: lighthouse(paladin),
+        datamap: libsql,
+        daemons: [daemon({ datamap: { module: "@elsewhere/datamap/pg", statics: { db: { file: "legacy.viva.db" } } } })],
+        environment,
+      }),
+      SET,
+    );
+    const [held] = instance.daemons;
+    expect(held.datamap.module).toBe("@elsewhere/datamap/pg");
+    expect(held.datamap.statics.db.file).toBe("legacy.viva.db");
+    expect(held.datamap.mountpoint.absolute).toBe("/mountpoint/daemon_probe");
+  });
+
+  it("root hallucinators are every daemon's default, whole-slot: a daemon declaring its own replaces the list", async () => {
+    const instance = await mount(
+      (paladin) => ({
+        lighthouse: lighthouse(paladin),
+        datamap: libsql,
+        hallucinators: [anthropic(paladin), deepgram(paladin)],
+        daemons: [daemon(), daemon({ manifest: { type: "daemon", slug: "other" }, hallucinators: [deepgram(paladin)] })],
+        environment,
+      }),
+      SET,
+      { SECRET_VIVA_PROBE_A: "a", SECRET_VIVA_PROBE_D: "d" },
+    );
+    const [probe, other] = instance.daemons;
+    expect(probe.hallucinators.map((mask) => mask.module)).toEqual(["@commons/hallucinator/anthropic", "@commons/hallucinator/deepgram"]);
+    expect(probe.hallucinators).not.toBe(instance.hallucinators);
+    expect(other.hallucinators.map((mask) => mask.module)).toEqual(["@commons/hallucinator/deepgram"]);
+    expect(instance.requirements.map((row) => row.at)).toEqual([
+      "lighthouse.statics.remote",
+      "hallucinators[0].secrets.key",
+      "hallucinators[1].secrets.key",
+      "daemon[other].hallucinators[0].secrets.key",
+    ]);
+    expect(instance.faults).toEqual([]);
+  });
+
   it("a hallucinator whose secret is blank is dormant: off the roster, named on the instance, still in the record", async () => {
     const instance = await mount(
       (paladin) => ({
         lighthouse: lighthouse(paladin),
+        datamap: libsql,
         daemons: [daemon({ hallucinators: [anthropic(paladin), deepgram(paladin)] })],
         environment,
       }),
@@ -103,10 +165,32 @@ describe("settle — the schematic fills, mints and judges what the pinhole fire
     expect(instance.faults).toEqual([]);
   });
 
+  it("a root hallucinator whose secret is blank is dormant in every daemon that inherited it — the record row is the root's", async () => {
+    const instance = await mount(
+      (paladin) => ({
+        lighthouse: lighthouse(paladin),
+        datamap: libsql,
+        hallucinators: [anthropic(paladin), deepgram(paladin)],
+        daemons: [daemon(), daemon({ manifest: { type: "daemon", slug: "other" } })],
+        environment,
+      }),
+      SET,
+      { SECRET_VIVA_PROBE_A: "canary" },
+    );
+    expect(instance.daemons.map((held) => held.hallucinators.map((mask) => mask.module))).toEqual([
+      ["@commons/hallucinator/anthropic"],
+      ["@commons/hallucinator/anthropic"],
+    ]);
+    expect(instance.dormant).toEqual(["daemon[probe].hallucinators[1]", "daemon[other].hallucinators[1]"]);
+    expect(instance.requirements.map((row) => row.at)).toContain("hallucinators[1].secrets.key");
+    expect(instance.faults).toEqual([]);
+  });
+
   it("a consumed service whose secret is blank is dormant: off the daemon, named on the instance", async () => {
     const instance = await mount(
       (paladin) => ({
         lighthouse: lighthouse(paladin),
+        datamap: libsql,
         daemons: [daemon({ hallucinators: [anthropic(paladin)], consume: { nlp: stanza(paladin) } })],
         environment,
       }),
@@ -123,6 +207,7 @@ describe("settle — the schematic fills, mints and judges what the pinhole fire
     const declare = (paladin) => ({
       runtime: runtime(paladin),
       lighthouse: lighthouse(paladin),
+      datamap: libsql,
       daemons: [daemon({ hallucinators: [anthropic(paladin), deepgram(paladin)] })],
       environment,
     });
@@ -140,12 +225,13 @@ describe("settle — the schematic fills, mints and judges what the pinhole fire
     expect(sentences(refused)).toEqual(["SECRET_VIVA_PROBE_A REQUIRED at daemon[probe].hallucinators[0].secrets.key"]);
   });
 
-  it("inheritance happens after settle: a daemon's inherited lighthouse IS the instance's decoded object", async () => {
-    const instance = await mount((paladin) => ({ lighthouse: lighthouse(paladin), daemons: [daemon()], environment }), SET);
+  it("inheritance happens before settle: a daemon's inherited lighthouse is its OWN decoded copy", async () => {
+    const instance = await mount((paladin) => ({ lighthouse: lighthouse(paladin), datamap: libsql, daemons: [daemon()], environment }), SET);
     const [held] = instance.daemons;
-    expect(held.lighthouse).toBe(instance.lighthouse);
+    expect(held.lighthouse).not.toBe(instance.lighthouse);
     expect(held.lighthouse.statics.remote).toBeInstanceOf(Url);
     expect(held.lighthouse.statics.remote.absolute).toBe("http://localhost:2501/lighthouse");
+    expect(instance.lighthouse.statics.remote).toBeInstanceOf(Url);
   });
 
   it("a faulted slot stays as hydrated — decode never runs on a value the schematic refused; one sentence per location", async () => {
@@ -157,15 +243,36 @@ describe("settle — the schematic fills, mints and judges what the pinhole fire
       "VIVA_PROBE_SERVE INVALID at runtime.statics.serve — must be RFC 3986 URI with an authority (scheme://…)",
     ]);
   });
+
   it("a thunk element that yields null is dormant, not a fault; a thunk on the key that yields null is an empty roster", async () => {
-    const element = await mount((paladin) => ({ lighthouse: lighthouse(paladin), daemons: [daemon({ hallucinators: [() => null, anthropic(paladin)] })], environment }), SET, { SECRET_VIVA_PROBE_A: "a" });
+    const element = await mount((paladin) => ({ lighthouse: lighthouse(paladin), datamap: libsql, daemons: [daemon({ hallucinators: [() => null, anthropic(paladin)] })], environment }), SET, { SECRET_VIVA_PROBE_A: "a" });
     expect(element.daemons[0].hallucinators.map((mask) => mask.module)).toEqual(["@commons/hallucinator/anthropic"]);
     expect(element.dormant).toEqual(["daemon[probe].hallucinators[0]"]);
     expect(element.faults).toEqual([]);
-    const key = await mount((paladin) => ({ lighthouse: lighthouse(paladin), daemons: [daemon({ hallucinators: () => null })], environment }), SET);
+    const key = await mount((paladin) => ({ lighthouse: lighthouse(paladin), datamap: libsql, daemons: [daemon({ hallucinators: () => null })], environment }), SET);
     expect(key.daemons[0].hallucinators).toEqual([]);
     expect(key.dormant).toEqual([]);
     expect(key.faults).toEqual([]);
+  });
+
+  it("identity is a manifest everywhere — runtime, client and service rows are labeled by it", async () => {
+    const instance = await mount(
+      (paladin) => ({
+        runtime: runtime(paladin),
+        lighthouse: lighthouse(paladin),
+        datamap: libsql,
+        clients: [{ manifest: { type: "client", slug: "kajuit", traits: ["ATTACHED"] }, statics: { serve: () => paladin.env.get("VIVA_PROBE_SERVE") } }],
+        services: [multiplayer(paladin)],
+        environment,
+      }),
+      SET,
+      { SECRET_VIVA_PROBE_A: "a" },
+    );
+    expect(instance.clients[0].manifest.traits).toEqual(["ATTACHED"]);
+    expect(instance.clients[0].statics.serve).toBeInstanceOf(Url);
+    expect(instance.requirements.map((row) => row.at)).toContain("client[kajuit].statics.serve");
+    expect(instance.requirements.map((row) => row.at)).toContain("service[multiplayer].secrets.jwt");
+    expect(instance.faults).toEqual([]);
   });
 });
 
@@ -187,6 +294,7 @@ const officeEnvironment = v.environment({
 const officeInstance = (paladin) => ({
   runtime: runtime(paladin),
   lighthouse: lighthouse(paladin),
+  datamap: libsql,
   daemons: [office(paladin)],
   environment: officeEnvironment,
 });
@@ -226,8 +334,8 @@ describe("settle — a kernel entry in object form fires at the pinhole like any
     );
   });
 
-  it("the daemon's own mount is unchanged by the entries under it", async () => {
+  it("the daemon's own seat is unchanged by the entries under it", async () => {
     const instance = await mount(officeInstance, { ...SET, VIVA_PROBE_VDEX: "/jdex" });
-    expect(instance.daemons[0].mount.absolute).toBe("/mountpoint/daemon_probe");
+    expect(instance.daemons[0].mountpoint.absolute).toBe("/mountpoint/daemon_probe");
   });
 });

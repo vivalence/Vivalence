@@ -1,4 +1,4 @@
-import { Status, shard } from "@vivalence/typology";
+import { shard, Status } from "@vivalence/typology";
 
 import * as entity from "./entities.js";
 import * as authority from "./auth.js";
@@ -14,7 +14,11 @@ export default async function server(aperture, service) {
       try {
         await next();
       } catch (error) {
-        console.log("[@lighthouse/multiplayer] service error", error.name, error.code);
+        console.log(
+          "[@lighthouse/multiplayer] service error",
+          error.name,
+          error.code,
+        );
         if (error.code === "ERR_JWT_EXPIRED") {
           ctx.response.status = 401;
           ctx.response.body = { error };

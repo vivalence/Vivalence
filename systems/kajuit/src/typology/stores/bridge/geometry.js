@@ -38,6 +38,12 @@ export function snapLabel(angle) {
   return { 0: "→", 90: "↓", 180: "←", 270: "↑" }[angle] ?? "";
 }
 
+export const A_SIDE = { 0: "top", 90: "left", 180: "bottom", 270: "right" };
+
+export function axisFor(rect) {
+  return rect.height > rect.width ? "column" : "row";
+}
+
 export function rectsForOrientation(orientation, pincer, viewportWidth, viewportHeight) {
   if (orientation === 0) {
     return {

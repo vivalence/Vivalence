@@ -4,7 +4,7 @@ import { create } from "../scenarios/daemon.js";
 
 const EXPOSED = (mode) => {
   if (!mode.aperture) {
-    console.warn(`[EXPOSED] ${mode.type}/${mode.slug} has no aperture`);
+    console.warn(`[EXPOSED] ${mode.manifest.type}/${mode.manifest.slug} has no aperture`);
     return;
   }
   return () => {
@@ -49,8 +49,8 @@ specimen.describe("mode traits", () => {
   });
 
   specimen.describe("APPLICATION", () => {
-    specimen.it("mode.app.buffer() returns entity with data and literals", () => {
-      const result = scenario.mode.app.buffer({
+    specimen.it("mode.app.buffer() returns entity with data and literals", async () => {
+      const result = await scenario.mode.app.buffer({
         data: { recall: "KNOWN" },
         literals: [scenario.fixtures.hello.id],
       });
@@ -59,8 +59,8 @@ specimen.describe("mode traits", () => {
       specimen.expect(result.literals.getItems()).toHaveLength(1);
     });
 
-    specimen.it("mode.app.buffer() fills defaults from schema", () => {
-      const result = scenario.mode.app.buffer({
+    specimen.it("mode.app.buffer() fills defaults from schema", async () => {
+      const result = await scenario.mode.app.buffer({
         literals: [scenario.fixtures.hello.id],
       });
       specimen.expect(result.data.recall).toBe("LEARNING");
@@ -221,8 +221,7 @@ specimen.describe("BOOTED", () => {
     const { BOOTED } = await import("@vivalence/runtime/daemon/traits");
     const calls = [];
     const mode = {
-      type: "probe",
-      slug: "booted",
+      manifest: { type: "probe", slug: "booted", traits: [] },
       module: {
         boot: async (daemon, self) => {
           calls.push(["boot", daemon, self]);
@@ -241,6 +240,6 @@ specimen.describe("BOOTED", () => {
 
   specimen.it("a BOOTED declaration without a boot export wires nothing", async () => {
     const { BOOTED } = await import("@vivalence/runtime/daemon/traits");
-    specimen.expect(BOOTED({ type: "probe", slug: "hollow", module: {} }, {})).toBe(undefined);
+    specimen.expect(BOOTED({ manifest: { type: "probe", slug: "hollow", traits: [] }, module: {} }, {})).toBe(undefined);
   });
 });

@@ -1,5 +1,6 @@
 #+title: a buffer that looked stuck was a conjugation with no translation — and the symbol fold had been eating every root ontology slug
 #+filetags: :stall:buffer:frame:emitter:ontology:literal:belt:guard:probe:systematic-debugging:
+#+index: 3
 
 * the report
 

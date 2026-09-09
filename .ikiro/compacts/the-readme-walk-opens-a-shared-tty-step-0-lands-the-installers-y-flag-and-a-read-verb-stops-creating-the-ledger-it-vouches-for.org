@@ -1,5 +1,6 @@
 #+title: the README walk opens a shared tty, step 0 lands the installer's -y flag, and a read verb stops creating the ledger it vouches for
 #+filetags: :docker:readme:m46:walk:ghost:paladin:doctor:ledger:install:tty:landing:deno:tar:
+#+index: 108
 
 * what happened, in one breath
 

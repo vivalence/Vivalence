@@ -1,7 +1,8 @@
 import { describe, it } from "@std/testing/bdd";
 import { expect } from "@std/expect";
 import { App, Path, svelte, v } from "@vivalence/typology";
-import { Instance } from "../prototypes/instance.js";
+import { Paladin } from "../prototypes/paladin.js";
+import * as lifecycle from "../lifecycle/index.js";
 import { Vip } from "../prototypes/vip.js";
 
 const HOME = new Path("/fixtures/probe/test.viva.js");
@@ -36,32 +37,36 @@ const module = {
   ],
 };
 
-const fakePaladin = (mod) => ({
-  scope: { instance: mod.source, mountpoint: new Path("/mountpoint") },
-  state: { dir: async () => {} },
-  find: { type: async () => [mod] },
-  publish: () => {},
-});
+const mount = (mod) => {
+  const paladin = new Paladin();
+  paladin.scopes([
+    ["instance", () => true, () => new Path(mod.source.absolute)],
+    ["mountpoint", () => true, () => new Path("/mountpoint")],
+  ]);
+  paladin.find.type = async () => [mod];
+  return lifecycle.mount(lifecycle.populate.instance(paladin));
+};
 
 describe("instance kernel references", () => {
   it("the four kernel forms resolve: bare kept, absolute kept, relative vs the instance file, inline stamped with the instance mount", async () => {
-    const instance = await new Instance(fakePaladin(module)).mount();
+    const instance = await mount(module);
     const [daemon] = instance.daemons;
     expect(daemon.kernel[0]).toBe("@commons/playground/spawner");
     expect(daemon.kernel[1]).toBe("/elsewhere/greeter.viva.js");
     expect(daemon.kernel[2]).toBe("/fixtures/probe/greeter/greeter.viva.js");
     expect(daemon.kernel[3].manifest.slug).toBe("hello");
     expect(daemon.kernel[3].mount).toBe(HOME);
+    expect(instance.faults).toEqual([]);
   });
 
   it("an inline entry carrying its own mount keeps it", async () => {
-    const instance = await new Instance(fakePaladin(module)).mount();
+    const instance = await mount(module);
     const [daemon] = instance.daemons;
     expect(String(daemon.kernel[4].mount)).toBe(String(pinned.mount));
   });
 
-  it("an inline module is module-shaped: hydrate never fires inside it — thunks and App survive resolve", async () => {
-    const instance = await new Instance(fakePaladin(module)).mount();
+  it("an inline module is module-shaped: hydrate never fires inside it — thunks and App survive settle", async () => {
+    const instance = await mount(module);
     const [daemon] = instance.daemons;
     expect(typeof daemon.kernel[3].statics.probe).toBe("function");
     expect(daemon.kernel[3].app.source).toContain("hello");

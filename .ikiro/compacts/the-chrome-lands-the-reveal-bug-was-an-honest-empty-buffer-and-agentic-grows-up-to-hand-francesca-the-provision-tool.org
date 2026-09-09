@@ -1,5 +1,6 @@
 #+title: the chrome lands, the reveal bug was an honest empty buffer, and AGENTIC grows up to hand francesca the provision tool
 #+filetags: :rep-o-gram:m24:shell:console:inspector:tooled:agentic:francesca:provision:svelte:
+#+index: 35
 
 * the commission
 

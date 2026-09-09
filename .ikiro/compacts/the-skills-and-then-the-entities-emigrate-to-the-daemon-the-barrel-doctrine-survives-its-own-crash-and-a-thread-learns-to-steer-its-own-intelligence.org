@@ -1,5 +1,6 @@
 #+title: the skills and then the entities emigrate to the daemon, the barrel doctrine survives its own crash, and a thread learns to steer its own intelligence
 #+filetags: :skills:entities:emigration:barrel:daemon:runtime:INTELLIGENT:thread-trait:e-panel:harness:
+#+index: 122
 
 * the arc
 

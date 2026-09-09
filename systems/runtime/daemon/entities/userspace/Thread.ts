@@ -49,6 +49,12 @@ export class ThreadEntity extends DataEntity {
   // mount?: string & Opt = ""; // also trait MOUNTED
 
   intent?: Rel<IntentEntity>;
+
+  bindBuffer(buffer: BufferEntity) {
+    buffer.thread = this;
+    buffer.index = this.counter++;
+    return buffer;
+  }
 }
 
 export const ThreadSchema = new EntitySchema<ThreadEntity, DataEntity>({

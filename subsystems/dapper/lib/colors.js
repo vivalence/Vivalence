@@ -223,7 +223,7 @@ const tint = {
 };
 
 // ============================================================================
-// roots — 12 named color spaces, 12 stops each.
+// roots — 14 named color spaces, 12 stops each.
 // stops: 50, 100, 200, 300, 400, 500, 600, 700, 800, 850, 900, 950
 //
 // Source for the flat scoped skeletons. Skeletons pull anchors from these
@@ -233,7 +233,7 @@ const tint = {
 const roots = {
   // backbone — cool blue-gray, nordsee concrete
   iron: {
-    50:  "#F4F6F9",
+    50: "#F4F6F9",
     100: "#E6EAEF",
     200: "#CFD6DE",
     300: "#B4BFCB",
@@ -248,7 +248,7 @@ const roots = {
   },
   // skeleton 0 surface — warm dark blue, nordic winter sky
   deep: {
-    50:  "#EAECF5",
+    50: "#EAECF5",
     100: "#D1D5E6",
     200: "#A9AFCD",
     300: "#7882AD",
@@ -263,7 +263,7 @@ const roots = {
   },
   // skeleton 0 contrast — pale iron gold, antique brass patina
   gold: {
-    50:  "#F7F5EC",
+    50: "#F7F5EC",
     100: "#EBE6D2",
     200: "#D7CFAE",
     300: "#BCB086",
@@ -278,7 +278,7 @@ const roots = {
   },
   // brand — extended from existing palette.aqua, 300 anchor preserved
   aqua: {
-    50:  "#C7FFFB",
+    50: "#C7FFFB",
     100: "#8EF0EA",
     200: "#51D8D0",
     300: "#1EBCB5",
@@ -293,7 +293,7 @@ const roots = {
   },
   // secondary + info — quiet nordic blue (retuned, not the bright old indigo)
   indigo: {
-    50:  "#EAEDF8",
+    50: "#EAEDF8",
     100: "#C9D0EC",
     200: "#A5B0DC",
     300: "#7E8DC8",
@@ -308,7 +308,7 @@ const roots = {
   },
   // success — forest lichen, organic green (not neon lime)
   moss: {
-    50:  "#EEF5EA",
+    50: "#EEF5EA",
     100: "#D4E6C9",
     200: "#B0D19A",
     300: "#87B56A",
@@ -323,7 +323,7 @@ const roots = {
   },
   // warning — warm honey
   amber: {
-    50:  "#FBF1DB",
+    50: "#FBF1DB",
     100: "#F3DFA9",
     200: "#E7C271",
     300: "#D4A054",
@@ -338,7 +338,7 @@ const roots = {
   },
   // danger + error — iron oxide, earthy red
   rust: {
-    50:  "#F8EEEA",
+    50: "#F8EEEA",
     100: "#EBCDC0",
     200: "#D9A18D",
     300: "#BE7055",
@@ -353,7 +353,7 @@ const roots = {
   },
   // reserved — cold dead iron
   slate: {
-    50:  "#EEF0F2",
+    50: "#EEF0F2",
     100: "#D7DBE0",
     200: "#B7BDC5",
     300: "#8E95A0",
@@ -368,7 +368,7 @@ const roots = {
   },
   // paper theme surfaces — leuchtturm ivory
   paper: {
-    50:  "#FBFAF2",
+    50: "#FBFAF2",
     100: "#F5F3E8",
     150: "#F0EDDE",
     200: "#E9E5D3",
@@ -384,7 +384,7 @@ const roots = {
   },
   // paper theme contrast — kaweco royal blue
   ink: {
-    50:  "#EDEFFB",
+    50: "#EDEFFB",
     100: "#D9DEF6",
     200: "#B4BCEC",
     300: "#8B97DE",
@@ -397,9 +397,39 @@ const roots = {
     900: "#0B0F2D",
     950: "#06081E",
   },
+  // paper warning — soft rose, a caution that stays in the red family without shouting
+  rose: {
+    50: "#FBEEEE",
+    100: "#F3D2D2",
+    200: "#E3A9A9",
+    300: "#CC7E80",
+    400: "#AC575C",
+    500: "#8A3D44",
+    600: "#682C34",
+    700: "#4C1F26",
+    800: "#33151A",
+    850: "#240E12",
+    900: "#16080A",
+    950: "#0A0405",
+  },
+  // paper danger — tomato, the hot end of the same family
+  tomato: {
+    50: "#FDEEEA",
+    100: "#F9CFC4",
+    200: "#F0A18B",
+    300: "#E1735A",
+    400: "#C74E31",
+    500: "#A23920",
+    600: "#7C2A16",
+    700: "#5B1E0F",
+    800: "#3E140A",
+    850: "#2C0E06",
+    900: "#1A0703",
+    950: "#0C0301",
+  },
   // accent — softened pop
   pink: {
-    50:  "#FBECF6",
+    50: "#FBECF6",
     100: "#F0C8E3",
     200: "#DA97C3",
     300: "#BE639C",

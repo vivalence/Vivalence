@@ -1,5 +1,6 @@
 #+title: the phone goes slow, the session heartbeat was echoing the whole buffer, and a throwaway probe proves the cut in one deploy
 #+filetags: :dojo:mobile:performance:session:datamap:broadcast:bridge:viewport:pincer:focus:persist:drawer:builder:probe:kajuit:panel-b:panel-f:mikro:nativeupdate:libsql:
+#+index: 93
 #+spine: 294 beef turns in the session (442 raw, 148 queue duplicates collapsed) — this fold walks rows 276–294; rows 1–275 live in compacts 45–47.
 
 * the walk (rows — every section below cites these)

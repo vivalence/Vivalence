@@ -1,5 +1,6 @@
 #+title: notes are trait-keyed not typed, the author is one mode and the readership is a query, and primed shrinks to a seeder because the loader was already the dataset
 #+filetags: :m27:m28:note:memory:primed:dataset:traits:precedent:dojo:presets:design:reader:
+#+index: 19
 
 * arc
 

@@ -1,5 +1,6 @@
 #+title: the keyboard stops flapping, the panes become tabs, and the trigger moves into the rep row
 #+filetags: :rep-o-gram:m24:design-sync:mobile:focus:keyboard:svelte:drapes:bak:
+#+index: 83
 
 * the commission
 

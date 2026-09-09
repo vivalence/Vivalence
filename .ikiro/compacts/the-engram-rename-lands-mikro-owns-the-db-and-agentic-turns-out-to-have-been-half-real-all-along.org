@@ -1,5 +1,6 @@
 #+title: the engram rename lands, mikro owns the db — and AGENTIC turns out to have been half-real all along
 #+filetags: :m23:engram:rename:mikro:migrations:agentic:traits:francesca:retard:
+#+index: 66
 
 * the ask
 

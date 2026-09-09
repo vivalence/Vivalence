@@ -1,26 +1,194 @@
 ---
 paths: ["systems/kajuit/**", "subsystems/dapper/**", "subsystems/drapes/**"]
 ---
-<!-- writer: agent · derived-from: systems/kajuit + subsystems/{dapper,drapes} + corpus read · verified: session testing-purge · limit: 35 lines -->
-# codemap: kajuit — surface (SvelteKit SPA, thin client) + dapper/drapes
+<!-- writer: agent · derived-from: kajuit/src (112 js+svelte) + tests/ (17 suites) · dapper + drapes whole · verified: probe design() → 2 themes, 1382 vars, skeleton 0..4 vs zone 0..5 · probe Buffer/Terminal toJSON · console.* = 5 · logger.entry( = 19 · selfevident = 1 consumer · tests 26 files/241 leaves/1 fixture, 2 run green · limit: 17600 chars -->
+# codemap: kajuit — the surface (SvelteKit SPA) over dapper (tokens) and drapes (components)
 
-⚠ beef-observed weak flank: *"claude codes like SHIIITTT on the client"* — slow down here, read tokens, no one-off hacks. See [[identity]].
+⚠ beef-observed weak flank: *"claude codes like SHIIITTT on the client"* — slow down here, read tokens, no one-off hacks. A hex literal in a view is a defect; the dapper token is the answer. See [[identity]].
 
-- **decks** (ship metaphor, set once at `+layout.svelte`): LIGHTHOUSE (auth/daemons) · QUARTERS (terminals LocalRepository + `$active`) · BRIDGE (layout stores, localStorage) · BOX (audio hardware singletons — never construct in a panel). THREAD = navigational pivot.
-- **launch gate = ready | verifying/populating/boot (Boot.svelte) | signin (Login.svelte)** — `!authorized → "signin"` ranks FIRST, then authorized+`OFFLINE`/`ERROR` also → signin; the old auth/error/offline pages are DEAD. Why first: a failed `refresh()` runs `logout()` and a tokenless `verify()` returns `NO_TOKEN` writing NO status, so any code ranked above `!authorized` wedges the gate with a retry that can never move (the dead-retry bug). `app/widgets/Login.svelte` renders `lighthouse.$status` directly (no local status machine); retry button only when `$authorized && failed`; help footer = CLI-signup line + docs.vivalence.org + a `user-select:all` LLM prompt embedding live state + `connection.url.href` (never `${url}` — `[object Object]`). Stamped: gate computed re-read + both files vite-transformed 200 at landing; DOM pass not run (extension down).
-- **font-size knob (LIVE-VERIFIED)**: whole UI rem-tokenized + dapper sets no root size ⇒ `bridge.view.fontSize` (persisted, default `base`) → `+page.svelte` subscribe writes `document.documentElement.style.fontSize` from `FONT_SIZES` (stores/bridge, 7 stops 2xs 11px…2xl 22.5px, dapper spelling) · slider row in `panels/b/widgets/BridgeSection.svelte`. Client zoom lever — viewport meta is `user-scalable=no`.
-- **EMISSION CONTRACT** (bit twice): an emitter returns `{kind:"emission", condition, output:{buffer:[…]}}` (`typology/prototypes/pool.js:11`, `schematics/prototypes/yield.js`) — **there is NO top-level `buffers`, and NO `entities` key** (`entities:{…}` survives only as the client-side projection in `panels/a/widgets/turns.js:44-48` and in commented-out dead code). `ThreadTraits.aimed.pull` destructured `.buffers` and so pulled NOTHING on every AIMED thread, every daemon (measured: `.buffers`→0 vs `.output.buffer`→14); reads `emission?.output?.buffer ?? []` (`aimed.js:13`). This line itself said `entities:{buffer}` until m54 — two research sweeps flagged it independently. `tests/terminal.stall.test.js`'s mock had encoded the drift and was corrected to the server shape. `documentation/…/47.01_buffer-flow.mdx` still documents `result.buffers` — the drift's origin, UNFIXED. [[project_thread_emission_contract]]
-- **buffer-view mount race**: calling `buffer.mode.connection.call(...)` at Svelte *script top level* can resolve to the PREVIOUSLY-ACTIVE mode's connection branch (observed: impara's view 404'ing to `/mode/game/paradigm/…`). Resolve the mode from `daemon.entities.mode.$entities` by id and call in `onMount` (+retry). **`Aprende.svelte` has the identical un-hardened shape** (`/assistant/wakeup/board`).
-- **TRAP — foreign daemon list**: kajuit shows daemons/modes the runtime denies (hello-world tab lists `playground 8`; site-data clear changes nothing) ⇒ the browser is on ANOTHER server. Deno binds `localhost` → `[::1]` only, vite `127.0.0.1`; a leftover README-walk container `readmen` publishes `0.0.0.0:1794/2501` and Firefox's IPv4 wins. `lsof -nP -iTCP:2501 -iTCP:1794` (ALL commands) + `docker ps` + `curl -4` vs `curl -6` BEFORE any trait/filter/cache theory. [[known-issues]] `readmen-container-shadows-the-local-instance`.
-- **mode visibility is APPLICATION-gated, twice**: `panels/d/d.svelte:169` lists `implements("application") || implements("conversational")`; `panels/d/navigation.js:45` (command palette) gates on `implements("selfevident")` — a no-op marker whose ONLY live consumer is that line. A mode with no `app` (tactics) is invisible by design; and `selectMode` mints a BARE traitless thread, so the mode row is the wrong door for anything intent/trait-configured — the THREAD row is.
-- **dock turn flow**: `daemon/dossier.js` subscribes intent + thread + **turn** — the turn line landed with the m29 dock fix; without it completed turns reached the dock only on refetch while `Dock.svelte`'s echo/live view-state wiped at stream end ("message flashes then disappears"). `conversation.js drain()` still swallows `/response/close {state:"error"}` — `$error` never set on provider faults (open). Dock chrome: the busy sweep animation is DEAD (static 1px strip; header state chip carries busy), and waiting/streaming/final share ONE entry skeleton — dots inline in the meta `.time` slot, text only ever grows below (the thinking-entry's own dots ROW caused a row-gain/loss jump every phase change). Post-appraise polish: entry activity folds CLOSED by default; the `entities ×N` census chips are GONE from both the entry head and the callRow head (`turnDigest` deleted with its test block — counts live in the console rail's harvest via `turnCensus`); `settled()` maps a lexicon bag's `message` to `output` ONLY (a message-less `{object}` bag used to render twice — raw body + object channel); empty `input {}` channels are hidden. The dock has ZERO appraise knowledge — francesca's retro-fitted tool round renders through stock `turnTools` ([[feedback_client_domain_blind]]). Prod-drive fold: `enrichedTurns` MERGES consecutive assistant turns into ONE bracket per exchange (the tool loop persists each model round as its own turn — tools concat, text/think joined, failures summed); buffer chips label via `launchLabel` (managed row → `data.label/title` → mode-id resolved to SLUG against `daemon.entities.mode.$entities` — the wire pojo's `mode` is the FK id and `bufferLabel`'s string branch trusted it as a slug); `launch()` sets `terminal.buffer` UNCONDITIONALLY (toggle-off died — "ensure buffer in terminal") + `setDockFull($dock,false)` when full. Client harvest now DUAL: `daemon/dossier.js` subscribes buffer (was intent/thread/turn only — the F5-to-see-a-buffer bug) AND `mode/traits/harnessed.js` taps the dialogue stream — body-swap generator merges `/tool/yield` `result.output.<entity>` arrays into repos before yielding (kills the chip-renders-before-SSE race on the Run button); unary lane unchanged, `Array.isArray` guard lets paging keys pass.
-- **terminal**: functional (no class boot); `get buffer()` transparent accessor; owns **`$dock`** = per-terminal chat geometry `{side,share,collapsed}` (PLAIN data beside `$buffer`, persists via `toJSON.dock`/settle-exempt, gates on HARNESSED — NOT the old singleton `bridge.$dock`; see [[project_dock_per_terminal]]); **stall** = reactive fn over `(thread.$buffers, terminal.$buffer, thread.$phase)` + injected `pull`(AIMED)/`depth`(QUEUEING); **`thread.engage(name)` = THE phase gate** (live `$integrity` fold → `$errors` → `$phase`). ThreadTraits = free-fn capabilities `{aimed,queueing,conversational}`.
-- **E panel = the traits surface, split mode/thread**: read-only *mode traits* chip section (the mode's declarations, ex active-card caps line) above interactive *thread traits* (LABELED · MASKED · AIMED · QUEUEING · INTELLIGENT, chip +/× claims via generic `toggleTrait`, per-trait widgets). `widgets/Intelligent.svelte` = the Queueing idiom verbatim: `$trait.subscribe` in, `updateOne({trait})` + local write out; tune row from typology's `tiers` export (never a hand list), effort row low·medium·high, click-again clears (= "mode decides"). Dock stays geometry-only — traits config never lives there. `Thread.$trait` is a nanostores deepMap → reactivity exists at BOTH record and key-path level (`listenKeys`/`setKey`).
-- **pincer** (T-bone): viket grip `{x,y}`+orientation → panel rects + bones; panels A(buffer+dock) B C(D|E|F) D(nav) E(traits) F(factory) G(telemetry) H(inspector); shoulder widgets (`bones/shoulder/widgets/Phase.svelte` — status·label·controls·queue, vinca digrams, drives engage).
-- **barrel rule**: consumers import `@vivalence/kajuit` only; entity files must NOT import the barrel (TDZ cycles).
-- **style gotchas**: scoped `> *` doesn't cross child component roots (the pointer-events trap) · Svelte 5 `$state` doesn't deep-track class instances → atom-backed `$field` + chain-subscribe · never name props state/derived/effect · **a store PLUCKED OFF a prop into a plain `let` freezes at first render** — drapes `Frame.svelte` did `let buffer = terminal.$buffer` and stayed pinned to the boot terminal's store forever (buffer selects on any OTHER terminal never mounted; only killing the active terminal remounted Frame through the `{#if $terminal}` null gap). Fix: `const buffer = $derived(terminal.$buffer)` + `$buffer`, mount identity = (buffer, view-key, terminal) via `seated`. Same-buffer re-set stays a no-remount noop (the stall's toggle-off→settle snap-back relies on it).
-- **FOCUS LAW (any typed drill surface)**: the field is ONE element for the whole session — `{#key}` around a component holding the `<input>` destroys it per iteration, and iOS will not reopen the soft keyboard from a non-gesture `.focus()`. Reset per-iteration state explicitly (`$effect.pre` on a token) instead of remounting. **Never `disabled`, never `readonly`** on a focused field (both dismiss the iOS keyboard) — express "locked" by reverting `oninput`. Buttons beside it use `onpointerdown={e => e.preventDefault()}`; `onmousedown` is desktop-only. Refocus only behind `document.activeElement !== field`. A `svelte:window` keydown must guard OUTWARD ("is this someone else's input?" — any INPUT/TEXTAREA/contenteditable that is not the marked field), not inward. `subsystems/drapes/controls/Keyboard.svelte` (offscreen input at `left:-9999px`, takes rest props) is the HOLDER, not a fossil: within a session the one persistent field needs no holder, but ACROSS the gap where that field unmounts (`done` → Standby → "run it again") iOS will not reopen the keyboard from an async `begin()` — so the holder takes focus while the field is gone and `begin()` focuses it SYNCHRONOUSLY inside the tap before the field remounts; `persist` then focus-transfers (keyboard already up → stays). Cloze, and now the dojo (`Dojo.svelte` `<Keyboard data-rep-input data-holder>`), both do this. **ONE focus owner per field**: `persist` (blur-refocus + `update()` on `active`) — the dojo's extra settlers (TypeInput `$effect`, Dojo `holding` effect) were deleted during the mobile-regression cut; four async authorities = blur/focus ping-pong = iOS drops the keyboard. Drapes actions that grew out of this: `persist` (blur-refocus + capture pointerdown guard), `visible` (scroll into view after the keyboard settles), `drag` (pointer DnD with touch long-press — HTML5 DnD is dead on iOS). Landed in `registry/education/modes/games/dojo/buffer/parts/{Rep,TypeInput}.svelte` → [[project_rep_o_mat]].
-- **viewport owner = bridge** (`stores/bridge/bridge.js attachViewport`): `visualViewport` scroll/resize + window resize/focusout → rAF-coalesced `sync` → `anchor()` (`scrollTo(0,0)`) + `resize()` which DIFF-GUARDS before writing `layout.viewport`/`layout.pincer`/`$viewportOffsetTop` (nanostores notify on every `set`, even equal objects → every pincer panel re-laid out per iOS pan; the iPhone probe showed 349 `store.pincer` writes in 20 s of viket drag, runs of 8 identical — the gesture path still writes equal values). A throwaway probe (panel B start/stop/copy → paste) diagnosed the mobile regression in one deploy and was removed; the recipe: listen vv/window scroll, focusin/out with target marks, `input`→rAF latency, rAF gaps > 50 ms, store `listen`s, 240-event ring, `navigator.clipboard.writeText` in the click.
-- **viewport measurement**: a buffer view lives in a pincer panel, so `window.innerWidth`/`100vh` lie. Measure the component (`bind:clientWidth`) for responsive branches, and take `ViewportLock`'s `--viva-h` as `max-height`, never `height`.
-- **dapper/drapes**: dapper = build-time tokens/themes/zones (skeleton/theme/system triples; `data-zone`); drapes = components consuming CSS vars only (never dapper JS); font scale 2xs..8xl = single typography source; drapes `<Icon carbon=…>` app-layer ONLY (crashes in buffer bundles — inline SVG there). **Office parts (m53)**: `controls/Key` · `display/{Tile,Plate,Entry,Empty}` · `Pip glow` — the scoped-var family (Section · Pip · Chip aesthetic), NOT the Tailwind kit; `tests/parts.test.js` compiles them via `svelte/compiler` (resolves through the root config). A buffer App bundles ~2.6 MB on a dev shelf regardless of its own size — NOT typology's weight: inline sourcemap 65 % · barrel reachability (58 drapes modules + carbon) · two svelte runtimes (hoisted 5.57 beside the locked 5.39); [[known-issues]] `buffer-app-bundles-carry-2.6-mb-of-dead-weight`. Measure deltas, not totals.
-- **tests/**: `oracle.snapshot.test.js` = wire-trace snapshot exemplar (scenario `mountMode({cortex})` → `/mode/…/ask` over inline transmitter → `trace.chronicle` → `specimen.snapshot` into `tests/snapshots/`; see `docs/…/47.04`). `/ask` requires `thread` (turn-scribe persists). Suite green post deep-clean: scenario/daemon tests migrated to `src/typology/entities/*` paths; old-contract Dataspace/daemon.wafer/oracle-conversation tests purged (superseded by `lifecycle-vector` + dead CONVERSATIONAL trait).
+## decks, gate, page
+
+- **decks** (symbols in `src/client.js`, set ONCE in `src/app/+layout.svelte`): `LIGHTHOUSE` · `TERMINALS` · `BRIDGE` · `BOX` (audio singletons — never construct one in a panel). Context is the source, props the fallback ([[project_context_architecture]]).
+- **the launch gate** ranks `!authorized` FIRST: a failed `refresh()` runs `logout()` and a tokenless `verify()` writes NO status, so anything above it wedges ([[project_gate_after_daemon_list]]).
+
+```js
+// systems/kajuit/src/app/+layout.svelte:62-71
+computed([lighthouse.$isAuthorized, lighthouse.$status], (authorized, status) => {
+    if (!authorized) return "signin";
+    if (status.code === "OFFLINE" || status.code === "ERROR") return "signin";
+    if (status.code === "POPULATING") return "populating";
+    if (status.code !== "VERIFIED") return "verifying";
+    return "ready"; }).subscribe((value) => { gate = value; … });
+```
+
+- **`+page.svelte` owns the frame**: it mounts panels A·B·C·G·H and bones shoulder·crown·pincer·spine, driving `dataset.theme` + `style.fontSize` (`FONT_SIZES`, 7 stops, NO `md`).
+- **D·E·F live INSIDE C** as a stacked pane run, not a tab switch: `PANE_NAMES = ["instance","terminal","buffer"]`; a closed pane docks to a twig bar `PANE_BAR = 44` and `normalisePanes` still fills it.
+
+## terminal = f(thread)
+
+- **`terminal.js` is a factory, not a class** — three atoms `$thread · $buffer · $dock`, transparent accessors, a `vigil` clearing a pointer when its entity leaves the repo. **Setting `thread` clears `$buffer`.** The stall re-builds per thread switch, reading `pull`/`depth` LIVE so nothing goes stale (`Stall` → `world/codemap/typology.md`).
+- **`$dock`** = per-terminal chat geometry `{side, share, collapsed, full}` — `full` is the fourth field. Verbs are free functions in `stores/bridge/dock.js` ([[project_dock_per_terminal]]); panel A gates the dock on `implements("HARNESSED")`.
+
+```js
+// systems/kajuit/src/typology/entities/terminal.js:85-105 (elided)
+$thread.subscribe((thread) => {
+    threadVigil?.(); threadVigil = thread ? vigil(thread, thread.daemon?.entities?.thread, …) : null;
+    stall?.deactivate();
+    stall = thread && Stall({ source: thread.$buffers, active: $buffer, phase: thread.$phase,
+        pull: () => pull(thread, { blacklist: new Blacklist().absorb(thread.$buffers.get()) }),
+        depth: () => depth(thread) });
+    stall?.on.release((buffer) => { thread.daemon.entities.buffer.drop(buffer.id);   // optimistic
+      thread.daemon.entities.buffer.removeOne({ id: buffer.id }) … }); });
+```
+
+```json
+// probe: Terminal({id:"term-1"}).toJSON() → setDockSide("bottom")+setDockShare(.42) → resolve(dock, 1200×800)
+{ "id": "term-1", "thread": null, "buffer": null,
+  "dock": { "side": "right", "share": 0.32, "collapsed": true, "full": false } }
+{ "side": "bottom", "vertical": false, "share": 0.42, "direction": "column", "dimension": 800, "size": 336 }
+```
+
+- **terminals persist as SHELLS, then settle**: `app/terminals.js` writes `viva.terminals` (+ `.active`; `BRIDGE` writes `vivalence:bridge`) on every atom tick, and re-resolves each held id against every healthy daemon on a status tick.
+
+## thread — the phase gate
+
+- **`thread.engage(name)` is THE gate every driver flows through.** A phase names a SET of rules; the phase owns the set, each trait owns its rule. `$integrity` re-folds the table on any composition change; `engage` refuses rather than half-engage.
+
+```js
+// systems/kajuit/src/typology/entities/thread/thread.js:9-18, 58-64
+const PHASES = { inert: [], manual: [], continuous: [aimed.valid, queueing.valid], escort: [] };
+const violations = (name, thread) => (PHASES[name] ?? []).map((rule) => rule(thread)).filter(Boolean);
+  engage(name) { const problems = violations(name, this);
+    this.$errors.set(problems);
+    if (problems.length) return false;
+    this.$phase.set(name); return true; }
+```
+
+- **panel E is the traits surface** — read-only mode traits over thread traits (`LABELED · MASKED · AIMED · QUEUEING · INTELLIGENT`; only the last three toggle, `QUEUEING` needs `AIMED`). `thread/traits/index.js` exports `aimed` + `queueing` ONLY; mode traits run through `belt/runner.js` `applyTraits(ns)`, after `next()`.
+
+## daemons, the dataspace, emission
+
+- **`daemon/dossier.js` makes a daemon usable**: a multiplexed authed `Connection` (span/request/fault, 8000 ms timeout), a `Dataspace` over 7 dossiers, a `Cargo`, then a retrying `mount()` opening FOUR subscriptions — each an F5 bug.
+
+```js
+// systems/kajuit/src/typology/entities/daemon/dossier.js:93-136 (elided)
+await daemon.connection.call("/userspace/handshake");
+const [status, manifest, cortex, aperture, statics] = await Promise.all([ … daemon.entities.init() ]);
+daemon.call = shape.connection.wire(daemon.connection, aperture);
+daemon.entities.intent.subscribe(); daemon.entities.thread.subscribe();
+daemon.entities.buffer.subscribe(); daemon.entities.turn.subscribe();
+daemon.cortex = new Cortex().register(shape.cortex.wire(daemon.connection.branch("/cortex"), cortex));
+```
+
+- **EMISSION CONTRACT**: an emitter returns `{kind:"emission", condition, output:{buffer:[…]}}` — no top-level `buffers`, no `entities` ([[project_thread_emission_contract]]).
+- **`HARNESSED` folds wire pojos into managed entities at the transport seam**, for a plain body AND a `/tool/yield` inside a stream — the dock keeps ZERO domain knowledge ([[feedback_client_domain_blind]]).
+
+```js
+// systems/kajuit/src/typology/entities/mode/traits/harnessed.js:6-35 (elided)
+const merge = async (yielded) => { for (const [name, pojos] of Object.entries(yielded.output)) {
+    if (name === "message" || name === "object") continue;
+    const repository = ctx.daemon.entities[name]; if (!repository || !Array.isArray(pojos)) continue;
+    yielded.output[name] = await Promise.all(pojos.map((pojo) => repository.merge(pojo))); } };
+mode.connection.branch("/harness").use(async (rqx, next) => { await next();
+    const body = rqx.response?.body;
+    if (body?.[Symbol.asyncIterator] && !body.getReader) { rqx.response.body = (async function* () {
+        for await (const packet of body) {
+          if (packet?.event === "/tool/yield" && is.yieldish(packet.result)) await merge(packet.result);
+          yield packet; } })(); return; }
+    if (is.yieldish(body)) await merge(body); });
+```
+
+```json
+// probe: Object.assign(new Buffer(), pojo) → JSON.stringify — note what LEAKS past toJSON
+{ "$label": { "lc": 0, "events": { "5": [null], "6": [] } },
+  "context": null, "hooks": { "mount": [], "unmount": [], "release": [] }, "on": {},
+  "id": "buf-1", "mode": "mode-1", "literals": [{ "id": "lit-1" }], "data": { "recall": "LEARNING" },
+  "view": { "kind": "svelte", "hash": "deadbeef", "mount": "/deadbeef.svelte.mjs",
+            "bundle": { "entries": [{ "type": "js", "mount": "/deadbeef.svelte.mjs", "bytes": 9 }] } },
+  "traits": ["LABELED"], "trait": { "LABELED": { "name": "ciao" } } }
+```
+
+- **TRAP — `Buffer.toJSON` strips only four backing fields** (`$data $view $traits $trait`), so `$label`, `hooks` and `on` ride out into the JSON above. `mode` on a wire pojo is the FK id; a cast `View` loses its `bundle.url`.
+- **mode visibility is MANIFEST-gated, twice**: `panels/d/d.svelte` lists `implements("application") || implements("conversational")`; `navigation.js` (palette) gates on `implements("selfevident")` — the runtime declares that marker a no-op and this is its ONLY consumer.
+- **`conversation.js` `drain()` sets `$error` only from a THROW** — a `/response/close {state:"error"}` packet pours into `soma` and the UI never faults. Open defect.
+- **`chain(root, ...path)`** subscribes across store→entity→store without plucking: each hop re-binds on its own value, so `$`-auto-subscription survives any swap.
+
+## pincer geometry
+
+- **`stores/bridge/geometry.js` is the ONE table**: grip `{x,y}` + orientation in `{0,90,180,270}` → three panel rects (a·b·c) and four bone rects (shoulder·crown·pincer·spine), `BONE_THICKNESS = 45`, snap grid `[0,13,21,34,50,66,79,87,100]%` within 28px. `bones.axis.test.js` sweeps 4 × 16 placements: the arms share an axis, the spine crosses them. The bones still hardcode one axis while the table already flips ([[project_m56_pincer_turns]]).
+- **viewport owner = bridge** (`bridge.js attachViewport`): `visualViewport` + `resize`/`scroll`/`focusout` → rAF-coalesced `sync` → `anchor()` then `resize()`, which DIFF-GUARDS before writing `layout.*` (nanostores notify on every `set`, even an equal object). A buffer view lives in a panel rect, so `window.innerWidth`/`100vh` LIE: measure the component, and take `ViewportLock`'s `--viva-h` as `max-height`, never `height`.
+
+## dapper — the token pipeline
+
+- **dapper is build time only.** `lib/system.js design()` folds `colors → tokens → themes`; `generateCSS` flattens every category to `--<category>-<path>` and appends the zone sheet; `lifecycle/index.js` prepends it through postcss. Themes `nordic`, `paper`.
+
+```css
+/* probe: design() → output.css, the paper block (52548 chars, 1382 declarations, 2 themes) */
+--colors-skeleton-0-surface: #F5F3E8;  --colors-skeleton-0-contrast: #0B0F2D;  --colors-skeleton-0-boundary: #A0967C;
+--colors-theme-primary-surface: #80ede6; --colors-theme-primary-contrast: #004244; --colors-theme-primary-boundary: #1ebcb5;
+--colors-system-danger-surface: #ed8090; --colors-system-danger-contrast: #440004; --colors-system-danger-boundary: #bc1e33;
+```
+
+- **TWO ladders that do not line up**: `--colors-skeleton-N-*` runs 0–4 (`theme.colors.skeleton`), `.zone-N` runs 0–5 (`theme.zones`, `ZONE_COUNT = 6`). `Zone.svelte` and `Decorum.use()` spell `--colors-skeleton-{level}-…`, so `skeleton={5}` resolves to nothing 
+
+## drapes — components that only ever read CSS vars
+
+- **eight families**, 50 `.svelte`: `context` (`Decorum Zone`) · `controls` (`Field Key Keyboard ViewportLock` + actions `persist visible drag`) · `display` (18) · `decor` · `panels` (`Card Desk Frame Icon`) · `skins` · `stage` · `triage`. `mod.js` re-exports all but `editor`; `<Icon carbon=…>` is app-layer ONLY — inline the SVG in a buffer bundle.
+- **`Frame.svelte` owns mount identity.** A store PLUCKED off a prop into a plain `let` freezes at first render — use `$derived`; the remount test is the TRIPLE `(buffer, key, terminal)`.
+
+```svelte
+<!-- subsystems/drapes/panels/Frame.svelte:6, 15-18, 33-67 (elided) -->
+const buffer = $derived(terminal.$buffer);
+function identity(record) { if (!record) return null; return record.hash ?? record.bundle.url + record.mount.nature; }
+$effect(() => { const next = $buffer; const key = identity(view); const target = dom;
+    if (next === live && key === shown && terminal === seated) return;
+    teardown(); if (!next) return;
+    if (typeof next.mount !== "function") { standing = "resolving"; return; }
+    … const module = await view.load(); if (live !== next || shown !== key) return;
+    component = module.default(target, { terminal, daemon: next.mode.daemon, mode: next.mode, thread: next.thread, buffer: next }); });
+```
+
+- **`drapes/editor/` (CodeMirror 6) has ONE consumer, outside the repo**: `~/.viva/registry/vcompany/modes/office/vdex/buffer/parts/Reader.svelte` (the vdex `raw` view); not in `mod.js`, not in `deno.jsonc` `exports` (`"."` only) ([[project_drapes_editor]]).
+- **style gotchas**: scoped `> *` does not cross a child's root · an unscoped `section .x` claims every property a scoped rule leaves undeclared · `$state` does not deep-track class instances · an interpolated class name masks the CSS pruner · delete CSS by SELECTOR LIST, never by selector.
+- **FOCUS LAW**: the field is ONE element for the whole session — `{#key}` destroys it per iteration and iOS will not reopen the keyboard from a non-gesture `.focus()`; reset with `$effect.pre` on a token. **Never `disabled`, never `readonly`** — revert `oninput`. ONE focus owner per field; across a gap where it unmounts, `controls/Keyboard.svelte` is the offscreen HOLDER (`focus` · `blur` · `guard`).
+
+## barrel + build
+
+- **TRAP — a daemon list the runtime denies means the browser is on ANOTHER server**: Deno binds `[::1]`, vite `127.0.0.1`, a stray `readmen*` container publishes `0.0.0.0`; check `lsof` + `docker ps` before any trait/cache theory ([[known-issues]]).
+- **`@vivalence/kajuit` is a VITE ALIAS, not a deno export**: `kajuit/deno.jsonc` has an EMPTY `exports` block; `vite.config.mjs` maps it to `src/typology/mod.js` and boots paladin at `serve` for host/port ([[project_vite_config_bundler_bypasses_import_map]]). Consumers import the barrel only; entity files must NOT (TDZ cycles). A buffer App bundles ~2.6 MB whatever its own size ([[known-issues]]).
+
+## how it is tested
+
+- **the harness**: `26` files (kajuit 17 · dapper 5 · drapes 4), `241` leaves, `1` snapshot fixture. `specimen` (`@vivalence/typology` over `@std/testing/bdd`) everywhere but `terminal.stall.test.js` (raw `Deno.test`) and `trait-runner.test.js`. **A `.svelte` is tested by COMPILING it** — `compile(src,{runes:true})`, `warnings` must equal `[]`; no DOM, no vitest. `deno test -A --config deno.jsonc <file>` → `ok | 2 passed | 0 failed`.
+- **pincer**, swept — `pincer/panes.test.js` *"the all-folded state still fills the run — the v3 dead-space defect"* · `pincer/bones.axis.test.js` *"the two arms always share an axis, and the spine always crosses them"* over 4×16 placements · `pincer/dock.geometry.test.js` (14) pins `clampShare`/`resolve`.
+- **terminal** `tests/terminal.stall.test.js` — *"terminal builds a stall from the thread; phase drives terminal.$buffer"* · *"continuous: the stall pulls via AIMED to keep depth filled"*.
+
+```js
+// test: systems/kajuit/tests/terminal.stall.test.js:47-52
+assertEquals(terminal.buffer.id, "a");
+a.done();  assertEquals(terminal.buffer.id, "b");  assertEquals(t.dropped, ["a"]);
+```
+
+- **traits** `typology/trait-runner.test.js` — *"calls next() before invoking traits"*; finalizers run after ALL traits. `thread.engage`/`PHASES` untested.
+- **the wire** `harness-wire` *"the stream leaf carries yields in the harness strip"* · `scenario/buffer` *"toJSON carries data + view past the accessor skip"* · `lifecycle-vector` · `scenario/daemon` · `cargo` · `dock-turns`.
+- **the two ladders are pinned APART**: `css-emit` *"emits all 5 skeletons"* loops `[0,1,2,3,4]`; `zone-emit` *"has 6 zones (0–5)"* asserts `ZONE_COUNT === 6`.
+- **drapes** `parts.test.js` compiles 6 parts + checks the barrels; `editor.test.js` *"theme and highlight name no literal colours"*; `editor.org` (20) · `markdown` (11).
+- **the snapshot REWRITES itself**: `const DRY = false` + `write` defaults true, so a green `oracle.snapshot.test.js` overwrites `tests/snapshots/oracle-ask.snapshot.json`. No `UPDATE_SNAPSHOTS` env — flip `DRY` to preview.
+- **gaps**, grep over all repo `tests/` + `~/.viva/registry` → `0`: the `+layout.svelte` gate · `client.js` decks · `dossier.js` · `harnessed.js` · `thread.js` · `chain.js` · `conversation.js` · `terminals.js` · `navigation.js` · `Frame.svelte` · `dapper/lifecycle/`.
+
+## where to read the live system
+
+- **`logger.channel`** (`src/telemetry/logger.js`) — a typology `Pipe`; `logbook = new Span("client").to(channel)`, `entry(nature) = logbook.branch(nature)`, **19** uses; DEV taps it into `console.debug` (`+layout.svelte:49`). THE client-side tap.
+- **`logger.$story`** is the live chronicle (`trace.chronicle.step`), 200 roots. **Panel G** splits it faulted / slow (>500 ms) / recent with each node's response body; **Panel H** (`telemetry/inspector.js`) projects lighthouse + terminals + bridge as a table with invokable rows.
+- **`shard.track.span/request/fault`** — 6 sites: the lighthouse connection (`+layout.svelte:30`) and every daemon one (`dossier.js:56-58`), keyed on `url.pathname`.
+- **live `console.*` = 5** of 22: `+layout.svelte:50` (DEV tap) · `Frame.svelte:72` (`view refused for buffer <id>`) · `dapper/lib/flatten.js:99,110` + its stale twin `dapper/belt/lib.js:32,43`.
+- **no telemetry drains here** — `drain(` in territory is `conversation.js` (stream) and `box/device/speaker` (PCM queue).
+- **`tests/oracle.snapshot.test.js`** folds a real wire trace into `trace.chronicle` — daemon spans as they reach the client (`/ask` requires `thread`). Live validation = a JS DOM assertion via `javascript_tool`, never clicks ([[rituals]]).
+
+```json
+// systems/kajuit/tests/snapshots/oracle-ask.snapshot.json (672 bytes, elided)
+[ { "path": "/aperture/ask", "nature": "ask", "timing": { "measured": true },
+    "children": [ { "path": "/aperture/ask/input", "nature": "input", "entries": ["note"] },
+                  { "path": "/aperture/ask/turn/assistant", "nature": "assistant", "entries": ["note"] } ] } ]
+```
+

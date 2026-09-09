@@ -1,5 +1,6 @@
 #+title: a picker learns to name its lens, the mount becomes a path for good, and secrecy stops riding a filename
 #+filetags: :ghost:paladin:sheets:fixtures:registry:env:cli:lens:picker:paths:testing:callout:landing:
+#+index: 6
 
 * what happened, in one breath
 

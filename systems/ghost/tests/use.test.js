@@ -1,6 +1,6 @@
 import { assertEquals } from "@std/assert";
 import paladin from "@vivalence/paladin";
-import { use } from "../trajectories/instances/use.js";
+import { use } from "../trajectories/instance/use.js";
 
 function fake(params, flags = {}) {
   const calls = [];

@@ -1,0 +1,243 @@
+#+title: m1 lands whole, and every defect it surfaced was a property nobody declared — a guard that was the crash, a fetch with no bound, and a scope that only added specificity
+#+filetags: :m57:hello-world:commons:marginalia:search:svelte:css:scoping:timeout:transport:aperture:landing:quest-prune:
+#+index: 15
+#+kind: quest-prune — the narrative half of =m57-hello-world-researches.org=, cut so the quest holds code · tests · snapshots · schematics and nothing else
+
+* TOPIC
+
+beef: /"you do a quest cleanup. clear out all teh yap that has accumultated. prune the shit out
+the quest. if code. tests. snapshots. schematics. pretty much all teh rest can go. dump it into a
+compact."/
+
+This is that dump. M0 and M1 are LANDED — their tangle blocks describe code that is now on disk
+and under test, so the quest describing how to write them is dead weight. Everything here was
+removed from the quest; nothing here is still owed.
+
+* the design preamble that no longer earns its lines
+
+** why hello-world clusters by FACTOR
+
+The tree was five flat files. A directory-per-export-surface was drafted and STRUCK by beef as
+/"a directory around each file"/ — a dir holding one file is a rename, not a structure
+([[feedback_cluster_by_factor_not_taxonomy]]). What survived is clustering by **effect × audience
+× subject**: =capability= (what it can do) · =language= (what it says to a model) · =doors= (how
+it is reached), grouped per subject rather than per export kind. =web/= earns its directory
+because it holds three factors of one subject; =doctor.js= does NOT, because one fold with two
+doors on it is one small thing.
+
+** the mechanism M3 still depends on
+
+A buffer arrives at the TOP of a drawn view, not through a prop drill, because the runtime mounts
+the app with the buffer already bound. A drawn component may import only from the mode's own tree
+and =@vivalence/typology= — the resolution law. Both are kept in the quest as constraints; the
+paragraphs arguing for them are here.
+
+** why an emitter AND a generator
+
+An emitter mints a buffer from a known shape; a generator writes the shape itself. M3 needs the
+first, M4 the second, and collapsing them would make the nested researcher unable to return
+anything the outer mode had not already declared. The distinction is load-bearing at M4 and
+invisible before it.
+
+* M0 — the doctor, landed
+
+=doctor.js= gained =standing= · =machine= · =variables=; the fold DROPPED every environment
+VALUE, so =ledger.environment= is =[{key, set}]= and one projection serves both doors. The harness
+carries =system.machine= at the root and =system.format= — drapes' actual markdown vocabulary,
+read off =display/markdown.js:6-12= — on =branch("/dialogue")=. =viva_doctor= takes no input: a
+=section= enum was designed and struck, beef: /"remove the section logic entirely. hello world. no
+logic."/
+
+Three things a console.log turned from guess into measurement, all kept in
+[[project_harness_assembly_laws]]: root =use= runs BEFORE branch =use= regardless of registration
+order (so a gate reading =ctx.hallucination.turns= at the root reads =[]= forever — it was struck
+for being ugly and was also dead); the fold is 11216 bytes and becomes 6073 uncached input tokens
+re-billed on every later turn; nothing in =messages= is ever cached, because both breakpoints sit
+in =system= and =tools=.
+
+* M1 — the restructure, landed and walked
+
+** what landed
+
+=mode.viva.js= became the assembly ONLY — manifest · tools · app · re-exports. Beside it:
+=aperture.js= · =harness.js= · =doctor.js= (fold + its own =tools= export) · =web/= (=marginalia.js=
+the injectable-fetch client · =choose.js= dark until M2 · =index.js= the doors) · =app/App.svelte=.
+=tools.js= is GONE and **nothing in it was rewritten** — its three nodes were redistributed.
+=search_web= → =web_search=, =search_read= → =web_read=.
+
+Two landing surprises. The planned =VCS rm= of =tools.js= was unnecessary — it and its test were
+UNTRACKED, born in M0 and uncommitted, so a plain =rm= was the whole of it; and the =App.svelte=
+move beef ruled a plain =mv= (/"you can just move the file..... no need for VCS"/), so the
+milestone landed with no VCS line at all. The M4-complete =mode.viva.js= in the tangle CANNOT land
+at M1 — importing =research/= and =page/= before they exist is a load-fatal boot, and
+=EMITTER=/=GENERATIVE= would claim faculties the mode does not have. **A milestone's tangle block
+is the END state, not the step.**
+
+** the walk held four claims
+
+| claim | verdict |
+|-------+---------|
+| titles and URLs the model did not invent | HELD — all 8 URLs byte-identical to the tool output |
+| =FORMAT= reaches a dialogue and gets USED | HELD — pipe table, =\vert---\vert= row, =[text](url)=, nothing outside drapes' vocabulary |
+| the valence steers with no prompt help | HELD, unprompted: /"this index leans toward hand-written/documentation pages, not commercial pet listings"/ |
+| root before branch, root blind to turns | HELD a THIRD time — =turns 0= at root, =turns 9= on =/dialogue=, restarted daemon |
+
+=.optional()= was NOT exercised: the model passed =count: 8= anyway, copying the schema default.
+
+** the defects, and what they had in common
+
+Every one was **a property nobody declared**.
+
+*** =count= was in =required= because a default is not a demand
+
+=v.integer(...).default(8)= alone puts the field in the wire schema's =required=, so the model is
+told it MUST supply a number it has no opinion about. Beef caught it in the report and rejected
+the hedge: /"how to fix?? we not just mark the count as optional??apply optional. fixed?!?!"/ He
+was right twice — the lever is at the MODE's call site, not inside typology, and a flag without
+the one-word patch beside it is worth nothing. Measured all four spellings: =.optional()= removes
+the field from =required= and the default STILL fills, because =steer/strategy.js guarded= calls
+=step.input.cast(input)= — mutating, Default+Convert — BEFORE it validates. Ordering is
+irrelevant.
+
+*** the guard WAS the crash
+
+=doctor.js= read =shape.cortex.strip(ctx.daemon.cortex ?? [])=. =strip()= reads
+=cortex.faculties= (=gestalten/shape/cortex.js:2=), so the =?? []= fallback hands it an array with
+no =.faculties= and throws — **the fallback fired only in the exact case it was written to protect
+and died there.** M0's test had carried a comment explaining a cortexless daemon "cannot be
+doctored today" plus a stub to route around it: a workaround documented in a test is a defect with
+a bookmark in it. =P-nocortex= now asserts the fold returns =cortex: []=.
+
+*** an unbounded fetch outlives its own transport
+
+beef: /"Request aborted @ …/hello/search … something is wrong."/ His client log: request at
+19.283, =response Object { }= at 27.290 — **8 seconds, and an envelope with no =status=** where
+healthy calls log ={ status: 200 }=. Reproduced with curl OUTSIDE the app, which is what turned it
+into a fact: ="dog puppies"= answers in 0.39s, ="deno permission flags"= **never answers at all**,
+30s and counting. Marginalia hangs on some queries. =query()= had a bare =fetch=, so the handler
+waited forever and the multiplex gave up first.
+
+Bounded with =AbortSignal.timeout(6000)= — deliberately INSIDE the transport's ~8s window, because
+a longer timeout buys nothing: the client still sees an aborted request rather than a fault it can
+render. After: the hanging query faults at 6003ms legibly, the working one returns in 239ms.
+**Note the shape — nothing in the code path that ran was broken. The defect was the absence of a
+bound.** Client half of the same bug: rendering =hits.length === 0= as /"Nothing came back —
+Marginalia is thin on… commercial"/ blames coverage for a failure to ANSWER. An empty result and a
+failed request are different facts and must not share a branch.
+
+*** svelte scoping only adds specificity
+
+The rebuilt interaction band rendered broken — beef: /"how did you fuck up the render this bad??
+ugly as fuck."/ Measured in the live DOM: the control computed to **22px tall around a 36px
+child**, overflowing by 14px with the reply box drawn across it, child 22px narrower and inset
+11px a side. Source:
+
+: section .act { height: 22px; padding: 0 10px }
+
+an UNSCOPED descendant rule from elsewhere in the app. Mine compiled to =.act.svelte-1lf50yc= —
+(0,2,0) against its (0,1,1) — so mine won =display= and **nothing else, because =display= was the
+only property I declared.** Scoping is a specificity boost, not a namespace. Fixed by prefixing
+the whole family (=.avenue-*=, =.result-*=) and declaring every box property on the structural
+rule. → [[project_svelte_scoping_is_not_isolation]]
+
+The methodology mattered more than the diagnosis. The FIRST collision probe appended a test div to
+=document.body=, reported zero collisions, and was worthless — =section .act= needs a =<section>=
+ancestor. Re-probed inside the real parent, =.act= lit up alone and all eleven replacement names
+came back clean before use. Then verified by rebuilding the page STANDALONE (component compiled
+=css: "external"=, rendered server-side, the suspect globals pasted in by hand, served over
+=127.0.0.1= because Chrome refuses =file://=) and measuring rects under the exact trap.
+
+* the view, in beef's four passes
+
+1. /"order them horizontal. top down -> chat, hallucinate, bot, doctor. rename Bot to search. make
+   serarch a input. let it directly call the search tool. render a list of blue links like google
+   that open in new tabs."/ — /"directly call the search tool"/ could not be taken literally: **the
+   app cannot reach =mode.tools= at all**, TOOLED's stripwire is in-process only. What it can reach
+   is the aperture, so =/hello/search= joined it, calling the SAME =query()= client =web_search=
+   arms. One client, two doors — the pattern =doctor.js= already set. The blue was a token bug, not
+   a colour choice: =--indigo= was declared with zero consumers pointing at
+   =--colors-skeleton-0-info-base=, and =paper.js:40= ramps =standardRoles.info= to **ink**. The
+   real blue is =system.info= = =compat(palette.indigo)=, contrast =indigo[600]=. Repointed, no hex.
+2. /"doctor and chat are both buttons."/ — stacked, chat carried a pip and a wash fill while doctor
+   was bare, so two things of the same kind read as different ones. Given one pip rail.
+3. /"rework this section entirely. 4 sub-sections. each selfcontained. all harnessed stuff locked
+   if no faculty for it. each area has gets its own response area"/ — the layout complaint was
+   hiding a STATE bug: one =.slate= and behind it one =fault=, one =via=, one =greeting=. A search
+   wrote into the box a hallucination had written into; a doctor failure and an agent failure were
+   the same variable. Four controls, one mouth. State split per cell so **no cell can report
+   another's outcome**.
+4. /"simplify. no state needed. 'Start Chat' button."/ and /"not possible yet so hide it."/ — chat
+   had a response area for a control that produces no response; the dock IS the outcome. And
+   =/hello/agent= returns a GREETING, not a view, so a header reading /"Hallucinate a new View"/ was
+   the view lying about the system. Hidden means GONE from the tree, not =display: none=. Headers
+   became beef's own: /"Chat with the harness."/ · /"Search the open web."/ · /"Deterministic
+   Doctor"/.
+
+Twenty-odd dead CSS rules fell out across the passes, each cut by an exact-selector regex that
+refuses to fire on a comma group and prints SKIP instead ([[feedback_delete_css_by_selector_list]]).
+=nudge()= and =flash= were unreachable — every locked control is =disabled= now and a disabled
+button fires no =onclick= — and the compiler could NOT see it, because =class:flash= is a directive
+that reads as used right up until the state behind it is provably dead.
+
+* M2 — the connoisseur pass, narrative half
+
+Three claims checked before a line was written. Two are now one-liners in the quest; the reasoning
+is here.
+
+**=daemon.services.reader= IS the provider's return value.** =lifecycle/population.js:127= is
+=daemonDie.good.services[slug] = await servicecake.provider(servicemask)=, with =:129= bolting
+=.tools= on afterwards. So =reader.open(url)= in =web/index.js= is correct AS ALREADY WRITTEN —
+**M1's dark node lights with no change to the mode**, and the instance's =consume= block is the
+entire switch. =provider= must stay a NAMED export: =cast/primitives.js:6= calls a function
+DEFAULT export with no args at load, which would run the provider during ingest.
+
+**Both =npm:= specifiers resolve from inside =commons/=.** Probed on a throwaway module loaded the
+way =belt/read.js= loads one: =linkedom@0.18.5= and =turndown@7.2.0= both resolve, and
+=document.title=, =querySelectorAll=, =getAttribute=, =textContent=, =innerHTML=, =a[href]= and
+=TurndownService.remove= all behave. Cold cache means a real DOWNLOAD on first boot. The probe
+wrote 4 entries into the tracked =deno.lock= — M2 needs them, but they landed before M2 did.
+
+**Two defects found in M2's own tangle and repaired there.** =extract= absolutised the =links=
+array but not the markdown body, so turndown emits =[x](/x)= beside an absolute array with nothing
+saying they are the same links. And beef, reading the provider: /"why are we dropping the plain
+response??!! might want that."/ Worse than an omission — =drink(response)= READS THE STREAM, so the
+string it returns is the only copy of that page that will ever exist in the process, and the tangle
+passed it into =parseHTML= as an argument and let it fall out of scope. =status= and headers went
+with it. **A function that consumes a stream owns the only copy of what it consumed and must hand
+it back. Parsing is a projection, not a replacement.**
+
+* what M2 buys, and what it does not
+
+Today the model finds a page and reads a ~200-character snippet — a FRAGMENT chosen by the index
+for keyword proximity, not sense. M1's honest ceiling is /"here are eight things that exist"/: it
+cannot quote, compare two sources, or answer a question whose answer is in the third paragraph.
+M2 makes the second hop possible, and returns the links found INSIDE the article, which makes a
+third hop possible without going back to the index.
+
+It does NOT buy cheap hops — every one is still the outer model in its own context, so a five-page
+read costs five pages FOREVER, which is what M4's nested researcher exists to fix. And the reader
+has no judgement: it fetches, describes and cuts. =P-selector= — a frugal model picking the article
+node out of a ~190-token skeleton — remains the one claim in the whole design that no assertion can
+settle.
+
+* State at fold
+
+- **M0 + M1 LANDED**, uncommitted. hello-world suite **10 suites / 26 steps green**; runtime 53/334
+  with the ONE pre-existing red (=registry.count.test.js:62=, =multiplayer=, wafers under
+  =commons/instances/bak/= which =belt/find.js= skips — hello-world's own resolution proven by
+  direct probe). Checkout and shelf byte-identical across all mode files and tests.
+- **Armed catalog**: =viva_doctor= · =web_search= · =web_read= (DARK), atop the free =fs_*= seven
+  and =shell_run= that every HARNESSED mode with a module mount already gets — root-confined by
+  =skills/fs.js:8-13=, =shell_run= with =cwd: ctx.root= but an unconfined command.
+- **Aperture is FOUR routes** — =/hello/{doctor,search,bot,agent}=. =/hello/bot= is no longer
+  surfaced by the view; left in deliberately, since removing it is a decision rather than an
+  obvious fix.
+- **M2 PREPARED, nothing built.** No =commons/services/reader/= on disk. The quest keeps its
+  tangle, landing order (six additive steps then ONE switch), test campaign, and the ten-site flow
+  log beef asked for — whose site 10, the tool_result SIZE, is the number that decides whether
+  =web_read= at =LIMITS.chars= 24 000 is affordable at all.
+- **Owed, unchanged by this fold**: rotate the live =sk-ant-api03= key and scrub both cleartext
+  copies in the working tree; the =MARKERS.md= cortex-snapshot marker stays OPEN.
+- The M1 gate's own live query is /"search for deno permission flags"/ — the exact query measured
+  hanging forever. It now faults legibly at 6s, but as a gate it is a bad choice; beef's
+  ="dog puppies"= run is the real evidence.

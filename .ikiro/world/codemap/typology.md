@@ -1,27 +1,229 @@
 ---
-paths: ["subsystems/typology/**"]
+paths: ["subsystems/typology/**", "systems/runtime/**", "systems/kajuit/**", "systems/ghost/**"]
 ---
-<!-- writer: agent · derived-from: subsystems/typology, shape/steer surface + call-site counts re-measured against disk · verified: 20%-cut loop, re-stamp pass; `belt/object.place` fold re-read + invariant-tested after it was found dropping single-segment slugs; Signature/Span identity+journal laws added from a Firefox profile of the deployed client (27.0s CPU / 13.3s worst block) with `.nature`-mutation sites re-grepped to prove the memo safe; m48 validation pass: `enhance` getter/setter duality + `cast` scalar loss + TypeBox `url`-format-rejects-localhost all MEASURED by `deno run --config deno.jsonc` scripts, not read · limit: 40 lines -->
+<!-- writer: agent · derived-from: 274 files; prototypes; gestalten; schematics; 91 tests; snapshots · verified: 8 probes (arity·use-order·segment-order·cast·enhance·is.vector·strip·span); greps: mikro·Deno.·barrel; tests: 91 files/467 it/16 fixtures, 2 run green · limit: 22000 chars -->
 # codemap: typology — the library (HOLY — ask before touching core types)
 
-Composable building blocks; power emergent from composition. Read greedily first — typology IS the vocabulary. See [[connoisseur]] for the exemplar canon living here.
+`readme.org`: *"Less is More, Code is Data, Schema is God."* Canon → [[connoisseur]]. Tree: `prototypes/` 44 files, 57 nouns · `gestalten/` 9 namespaces (`is cast not fromm belt shard steer shape bundle`) · `schematics/` · `specimen/`.
 
-- **IDENTITY IS COMPUTED ONCE — the drag-lag law.** `Signature.get hash` memoizes into a `#hash` private field, invalidated in `from()` (the only seam that changes identity; `.nature` is written solely inside constructors/coercions, so nothing else can stale it). Before the memo, `Pattern.hasher` recursed the whole trace chain and each link ran `hash.array` = `deep()` sort + `JSON.stringify` + fnv1a, while `Vector.branch` did `Array.from(this.trajectories.entries()).find(([i]) => i.nature === … || i.hash === …)` — recomputing `pattern.hash` per scanned entry. Measured in a Firefox profile of the deployed client: `get hash`+`hasher` 7.3s, `coerce` 12.8s, all under a pincer `pointermove`. **Second law, same family**: `Signature.from(trace, anon)` appends to `trace.gauges` — unbounded for any span held as a long-lived field, so `Span.from` now overrides to `super.from(trace, true)` (spans walk `heritage()` UP and rebuild downward from records; their `gauges` were vestigial). **Third**: the root `journal[]` is capped (`span.js` `CONFIG.journal = 1000`, `splice`-trimmed) — `Socket.span` is a session-long root branched per WS frame, and nothing ever read its journal.
-- **prototypes** (~40): Signature (root; coerce: Pattern splits `/`, Path normalizes FS, Url origin; **Signal ALSO tokenizes CLI flags** `--k v`/`-abc`/`--` terminator — ghost dispatches argv as one Signal; **ADOPTION IS EXCLUSIVE** — the constructor's donor branches are an `else`-chain: a foreign Signature instance gives IDENTITY (`nature`) only, NEVER linkage; before the chain, a live Pattern also passed the `is.signature` duck test and `Object.assign` shared its `gauges` array + `trace` by reference, so `new ToolCall(steps)` from trie patterns named every sibling after the first child AND pushed into the live trie's gauges per call — the armory's duplicate-tool-name 400. Array args are read, not `shift()`-consumed. Pinned by `tests/toolcall.test.js`) · **Vector = the DECLARATIVELY DISPATCHED MONADIC COMPOSER** (a free monad in effect; "composer" is the canon noun per README — *constructor* is retired): `.open(sig,fn)`/`.use(mw)`/`.branch`/`.slurp` are its monadic COMBINATORS — each `Vector→Vector`, DECLARING effects + middleware against Signature paths (dispatch = match a Signal path through the trie, never imperative routing). The Vector they build is inert: a composable context-threading description (koa `use` chains middleware around the terminal effect; `next()` threads one `ctx`) that does nothing until an INTERPRETER folds it — `shape.*` (object/strip/wire/http) or a `steer` strategy. One structure, many interpreters = the free-monad shape. **ROTATED to ONE `effect` per node** (`effects:Map` dead): a leaf IS a trajectory node with `.effect` set (a node may be BOTH leaf+branch); `open(sig,fn)`=`branch(sig).effect=fn` (direct overwrite); the effects/trajectories duality + `feed` heir-pick + `object` reunification all dissolved. LAW: leaf metadata (input/valence/keyed/schema) rides the **EDGE** — the pattern — NEVER the vector (a vector can be arrived at via many patterns). **The trie is REALIZED (m30)**: `trajectories: Map<Pattern,Vector>` became `trie: Map<nature, {pattern, trajectory}>` — branch/slurp/swallow key by nature O(1), the O(K²) sibling scan AND the `|| i.hash === pattern.hash` fallback are GONE (fallback proved unreachable — all 4 suites green without it); slurp collision HOLDS ITS SLOT (beef ruled keep-position — declaration order immovable; the old delete+set tail-move silently changed dispatch precedence and is gone, pinned by invariant test); the `{pattern, trajectory}` wrapper is minted per parent and never mutated in place, so slurp edge-sharing stays safe; fold/survey OUTPUT keeps the `trajectories` key (fold vocabulary ≠ field name). `slurp` share / `swallow` own · Aperture (Vector + method-keyed leaf fold = the HTTP server) · Connection (transport dual; `branch/aim/stream`) · Wafer (empty lifecycle verbs) · **Stall REBUILT** (thread-owned `$phase` inert/manual/continuous/escort; `engage` gate; `settle` cursor authority; targets call `buffer.release()`) · Pipe/Queue/Broadcaster/Pool (channel family, shared `waiter` atom) · **Span REBUILT** (trace cursor: root holds `journal[]`+`channel` Pipe, branches delegate via `root`; `mark(verb,data)` = the one emitter → flat `record {span,trace,path,verb,at,data?}`; verbs open/close/note/fault; `tracks.js` DEAD) · Env (transparent Proxy) · **Cortex** (faculty Map repository; `register/find/findOne` share cast+checked `where()`; findOne owns derive via `dressAsObject`; `tiers` + `nearest`; `hallucination(config)` = the spawn seam → `Hallucination(this, config)`) · **Hallucination(cortex, configuration)** (closure factory → `shape.object(vector,steer.echo)` over `/type/verb`; `configuration` applied as an eager `configure()`, one validated path; tool loop at leaves; render/stream/execute file-level belt candidates; entity-owned compiles; **compile emits a `Request = {turns, tools?, settings?, output?:{object}}`** — the named provider contract `via.render(request)`/`stream(request)` both sides speak, config IS that shape (no re-wrap), `rounds`/`tune` stay internal, system-role turns hoist into one leading system turn; `.output.object(schema)` facade is the one bare→`{object}` setter; tune axes = intelligence·reasoning·speed·thrift).
-- **gestalten**: `is · cast · not · fromm · belt · shard · steer · shape`. **`belt.query`** (m22) is the ONE MikroORM-query compiler: `query.lift(selector)` normalizes string/array/null/true/object into a real query object, `query.where(q)` compiles that to a row predicate (`null` on an operator it cannot compile → caller stays conservative). `object.match` is now a one-liner over it, so its five consumers (Local/RemoteRepository find+findOne, Broadcaster) gained the operator set. LAW: a selector goes to the DB *and* to memory — store the LIFT, never the sugar, or `repo.find("word")` is read as a primary key and silently matches nothing. steer = 4 namespaces `steer.{match,trie,dispatch,strategy}` = 4 files (match=segment-matchers scope/greedy/feed · trie=trie.js catamorphisms fold/survey/rollup/descend · dispatch=dispatch.js routers invoke/shotgun/traverse/walk · strategy=executors fire/resolve/direct/bare/echo/request/guarded; `fire`=the arity-dispatch atom, was `dispatch`); shape = Vector compilers, `shape/index.js`: **namespaced** `connection` · `cortex`; **flat** from `object.js` (which also defines **`proxy`** — there is no `proxy.js`), `tree.js`, `flat.js`, `strip.js`, `http.js`, `mcp.js`, `messenger.js`, `subscriber.js`, `selbstbestimmt.js` (a Vector→`[effect, carry]` walker). **`shape.agentic` DOES NOT EXIST** — no definition anywhere in `shape/`; the only two mentions repo-wide are commented-out lines (`aprende/harness.js:33`, `daemon/die.js:54`). Any memory or doc still describing `shape.agentic` compiling `/`→`_` tool names is describing something that isn't there; the runtime's `AGENTIC` trait is unrelated (it slurps peer TOOLED modes' tools).
-  - **NO SEGMENT-TYPE PRECEDENCE — declaration order decides.** `scope` collects in trajectory-insertion order, `feed` takes the first WITH an effect; a `:param` opened before a literal shadows it permanently. Declare literals first. (Any claim of "literal→parameter→wildcard→remainder" precedence is FALSE; it was doc drift.)
-  - **`fire` dispatches on DECLARED ARITY**: 0→`effect()`, 1→`effect(ctx)`, 2→`effect(input,ctx)`. A handler spelled `(input)=>…` is arity 1 and receives the CONTEXT. Only `guarded` validates edge `input` schemas — declaring one does NOT enforce it.
-  - **`yields` on an edge = the streaming contract**: declared in-trait (`harnessed.js` `{nature:"stream", yields:Packet.Session}`) → plucked by `strip` → `wire` returns a `connection.stream()` caller. `wire` also proxies `:param` branches, DROPS `*`/`(.*)` with a warning, and throws on method-ambiguous leaves.
-  - steer is **largely typology-internal** — nearly every `trie.*`/`match.*` consumer is a `shape` compiler. App-level exceptions: ghost (`dispatch.invoke` on argv), kajuit (`strategy.direct` for nav menus + inspector).
-  - **call-site counts, re-measured (the old "ZERO call sites" list was wrong for 4 of 5 — a claim that invites deleting live code):** `shape.mcp` **11** · `dispatch.walk` **3** · `shard.ambient` **1** (`store/combine/assign/current` ALL live at `gestalten/shard/ambient.js:6-22` — only the `resolution.js` CALL SITE was removed; sole caller `systems/runtime/tests/multiplex.filter.test.js:23` uses `.store`) · `shape.messenger` **1** · `shard.receiver` **0** — only the last is genuinely unused. Re-measure before repeating any "unused" claim; excludes `bak/` and `export` lines.
-  - **Connection is a memoized TREE**: `child()` caches in `children` Map and its transport is `(ctx)=>parent.dispatch(ctx)` — a root shard applies to every descendant call. `resolve()` walks only EXISTING children. Never raw-fetch; `retry` wraps the transport (not a `.use()`) because compose forbids double-`next()`.
-  - docs: `documentation/content/40-49_repository/42_typology/42.01–42.07` — 7 pages, each with a runnable `*.example.js` captured by `deno task capture` (green build = passing assertions). belt/trace = the record algebra (`chronicle` fold + `dictate` mirror, `live`, `hold`/`decant` drain policies, `timing` server-timing). **STRIPWIRE dual**: `object`(vector) = local callable ⟷ `connection.wire`(conn, `strip`(vector)) = remote callable — same trait Vector, two backings across the daemon↔client wire; `strip`→`{effect?,branches}` JSON (node-centric, the cata of the Vector's own `{effect, trajectories}`; `leaves` dissolved, root effect strips + wires) is the `/metadata/*` contract. See `documentation/content/40-49_repository/47_integration/47.03_stripwire.mdx` (the docs live under `documentation/content/`, and they are `.mdx` — the old `docs/…/*.org` spelling in this shard resolved to nothing).
-- **belt `object.place`** (the fold behind `object.set`, and behind `LiteralSubscriber.symbol()`): a dotted slug pops its LAST segment as the VALUE — `word.tense.present` → `{word:{tense:"present"}}`. A **single-segment** slug used to fall through and be written NOWHERE, so every root ontology symbol (`word`/`sentence`/`conjugation`) silently vanished from every literal's symbol JSON — which is why `literal.symbol.word` was truthy for conjugations (the `word.*` facets survive, the root never did) and why 6 game views mis-read `isWord`. Fixed: single-segment writes a root flag (`{conjugation: true}`); invariant test `tests/gestalten/belt/object.test.js`. **Ontology reads go through `literal.ontology`, never `literal.symbol.<x>`.**
-- **Dataset / Datasink** (m22 carriers, PURE — no `Deno.*`, no paladin): `Dataset` = `{intent, ...sources}` where a source lifts to `{rows}` / `{read,codec}` / `{walk}`; legacy `{schema, entities}` lifts free. **`schema` is GONE from the carrier** — it had zero readers repo-wide (only `.intent` is consumed off a module's dataset, by `traits/intented.js` + `lifecycle/integration.js`), every registry declaration dropped it, and the four `dataset/schema.json` files are deleted. It stays in the constructor's destructure as a RESERVED key so a legacy `{schema, entities}` module never turns it into a source type. LAW: a declared value is a source-LIST only when every element is a string, an array, or a `{rows|read|walk}` descriptor — otherwise the whole value is ONE source. `[sources].flat()` used to blind-flatten, so a bare inline row array had each ROW lifted as its own descriptor (`is.object` branch → the row returned as a source) and detonated at read time. Gate: `tests/datasink.test.js` covers bare-inline AND the mixed `["dir", [rows]]` form. `Datasink` = per-type `(selector, projection?, target)` tuples normalized to `{type, where, match, shape, target}`, plus `project.*` (the row algebra) and `writer.*`. `writer.codec = {json, js, jsonl}` is an OPEN table — `Datasink.canonical(rows, named)` dispatches through it, extension-inferred, explicit name wins, throws on an unclaimed extension. **A write codec without a matching `paladin.find.data` read path is a one-way door.** Default keep-list is `writer.authored = ["slug","traits","trait"]`; any target overrides via `writer.json(target, keep)`.
-- **DAEMON-DEPENDENT EFFECTS DO NOT LIVE IN TYPOLOGY** (the ruled successor of m26's module-scope law). The vite SSR crash (`is` undefined inside `Signature`) came from `belt/skill/*` constructing Vectors at module scope INSIDE the barrel's own cycle — typology's internals import their own barrel, 62 files, and a module evaluated before the barrel finishes sees `undefined` for every named import; WHICH modules those are is the module runner's choice (deno green for a session, vite 500). Beef REJECTED the memoized-thunk fix ("categoric no") and any relative-import sweep, then RULED the self-barrel imports STAY ("i might actually like teh internal barrel imports again"). The fix was ownership: skills → `systems/runtime/daemon/skills/`, entities → `daemon/entities/` — downstream of the barrel, module-scope construction safe (like the 28 registry modules that always did it). The cycle is LATENT, NO TRIGGER: zero eval-time construction remains inside the barrel. Thunk idiom (`schematics/prototypes/yield.js`) stays valid if something ever must construct inside it. Typology's mikro footprint after the emigration: ONE file, `gestalten/shard/secure.js`.
-- `is.vector` (needs a signature) ≠ `is.Vector` (instanceof) — **a root Vector fails the lowercase sniff**; lowering a tools Vector uses `is.Vector`.
-- **the prototypes/ seam**: nothing under `prototypes/` touches `Deno.*` — provable, `grep -n "Deno\." prototypes/*.js` returns nothing. `Freight.index()` (the last violator) became `stow(paths)`; `FRAUGHT` does the walk via `paladin.find.walk`. Carrier holds DECLARATIONS, paladin does the OS, the trait wires — the `Bundle`←`paladin.bundler`←`APPLICATION` shape.
-- **schematics**: `v` = typebox@1.3 wrapper. `cast` = Default+Convert (request INPUT only) · `fill` = Default-only (entities/buffers/output — Convert mauls MikroORM Collections). enhance derives, never spreads. NO passthrough/strict/transform/refine/partial/nullable. **`enhance` GETTER/SETTER DUALITY (v.js:15-23, measured by script at the m48 validation pass)**: `.default` / `.$id` (m48 adds `.group`) return the KEYWORD when set and the SETTER FUNCTION when unset — `v.string().default` is a function, and so is `v.object({B: v.string()}).properties.B.default`; any reader doing `held.default ?? ""` on a proxied schema gets the setter. Unwrap first (`Object.defineProperties({}, Object.getOwnPropertyDescriptors(held))` — carries the NON-ENUMERABLE `~optional`/`~kind` keys; `Object.keys`/JSON never show them, optionality serializes only as absence from the object's `required` array) or test with `"default" in held`. `cast` returns the ORIGINAL value — for a scalar the converted value is discarded (`Value.Convert(Integer, "8080")` → 8080 is lost); m48 adds `v.convert`. TypeBox's registered `url` format (`IsUrl`) wants a TLD: `http://localhost:2501/` and `http://127.0.0.1:2501` FAIL it — m48's `v.url()` (LANDED, `schematics/scalars/url.js`) is the RFC 3986 grammar for a URI WITH AN AUTHORITY — any scheme, `reg-name` may be empty so `file:///x` passes, `localhost:2501` fails (no `//`), `${X}` fails (braces are outside the URI character set) — carried as `pattern` + `title: "RFC 3986 URI with an authority (scheme://…)"`, never `format: "url"`; `v.scalars.PATTERN` is the string; unregistered formats pass silently. No `format:` key is used anywhere in the repo (grep, m48 blast). `v.convert` + `v.isOptional` + `.group()` LANDED with it.
-- entities flow: Mode → Intent → Thread → Buffer → Turn; `Thread` and `Turn` are also SELF-referential (`parent` rel + `children` array on the descriptor — a relation thunk re-entering its own `$id` is safe, `entityFactory`'s `resolving` guard returns the own-only shape, `schematics/v.js:52-58`). Channel grammar: `/{handshake|dialogue|speech|verbatim}/{open|packet|close|abort|error}`.
-- buffer-view bundles import ONLY `@vivalence/typology` (kajuit barrel drags vite aliases + worklets). `atom.chain` lives here.
-- tests flat under `tests/` (bak graveyards purged in the testing deep-clean; dead task targets pruned from deno.jsonc). Belt majority untested (known gap).
+## Signature — the identity spine
+
+- **`subsystems/typology/prototypes/signature.js`** roots Pattern · Path · Url · FilePath · Signal · ToolCall · Span. A subclass declares `static coercions` (`[test, transform]`) and inherits the tree algebra: `heritage()` up, `gauges`/`descendants()` down, `absolute`, `branch`, `pop`.
+- **IDENTITY IS COMPUTED ONCE.** `get hash` memoizes into `#hash`; only `from()` clears it. [[project_signature_identity_memo]]
+- **`branch()` MUTATES the parent** — it pushes the child into `gauges`. Never reuse a Path you branched: probe printed `new Path("/a")` after `.branch("b").branch("c")` carrying `gauges: ["/b","/c"]`.
+- **ADOPTION IS EXCLUSIVE.** Coercing a foreign Signature copies `nature` only — probe: `new Path(new Signature("x"))` → `nature "x"`, the foreign node's `gauges` stayed `0`. Identity, never linkage.
+- `Signal` ALSO tokenizes CLI flags (`--k=v`, `-abc`, `--`) onto the LAST segment — ghost dispatches argv as one Signal. `ToolCall` is the same spine joined by `_`: the agentic tool-name grammar.
+
+```js
+// subsystems/typology/prototypes/signature.js:38-44,72-74
+from(trace, anon = false) {
+  this.#hash = null;
+  this.trace = trace;
+  if (!anon) this.trace?.gauges.push(this);
+  return this; }
+get hash() { return (this.#hash ??= this.hasher()); }
+```
+
+```json
+// probe: Signal("mode/install hello --force --at 3").json · Pattern("/mode/:slug/(.*)").json →
+{"signal":"/mode/install/hello","parts":["mode","install","hello"],"flags":{"force":true,"at":"3"}}
+{"pattern":"/mode/:slug/(.*)","parts":["mode",":slug","(.*)"],"types":["literal","parameter","remainder"]}
+```
+
+## Vector — the declaratively dispatched monadic composer
+
+- **`prototypes/vector.js`** — `.open(sig,fn)`/`.use(mw)`/`.branch`/`.slurp` declare effects + middleware against Signature paths. The Vector is INERT until an interpreter folds it (`shape.*` or a `steer` strategy): one structure, many interpreters. ONE `effect` per node; a node may be both leaf and branch. `affect` is `open`'s guarded twin — it refuses a second write.
+- The trie is REALIZED: `trie: Map<nature, {pattern, trajectory}>`, O(1) by nature, **declaration order immovable — a collision holds its slot** (`tests/vector.test.js`). LAW: leaf metadata (`input`/`output`/`valence`/`yields`/`feeds`) rides the EDGE — the Pattern — never the Vector node.
+- `slurp` SHARES (a collision mints a fresh node merging both sides, keyed by the LATER pattern; neither source mutated) · `swallow` OWNS (recurses into the existing branch). `set()` is deprecated and logs.
+- **`is.vector` is dead**: `is/prototypes.js:14` demands `thing.nature`, which no Vector has — probe returned `false` for a root AND a branched Vector; zero consumers. Use `is.Vector`.
+- **Aperture** = Vector + a method-keyed leaf fold: `get/post/…` wrap the tip's effect in a `methods()` dispatcher (`fn.methods = map`), 405 on a miss, throw on an ambiguous `"*"`.
+
+```js
+// subsystems/typology/prototypes/vector.js:22-42,59-71
+branch(signature) {
+  const pattern = new this.signature(signature);
+  if (pattern.nature == null && !pattern.heir) return this;
+  let edge = this.trie.get(pattern.nature);
+  if (!edge) this.trie.set(pattern.nature, edge =
+    { pattern, trajectory: new this.constructor(this, this.signature) });
+  return pattern.heir ? edge.trajectory.branch(pattern.heir) : edge.trajectory; }
+open(signature, effect) { this.branch(signature).effect = effect; return this; }
+```
+
+## steer — the four interpreters (`match · trie · dispatch · strategy`)
+
+- `match` = `scope/greedy/feed` · `trie` = `fold/survey/rollup/descend` · `dispatch` = `invoke/shotgun/traverse/walk` · `strategy` = `fire/resolve/direct/bare/echo/request/guarded`. TWO geometries: `dispatch` consumes a Signal and MATCHES (early-terminate); `trie` ENUMERATES the whole vector. Never cross-compare their forms.
+- **NO SEGMENT-TYPE PRECEDENCE — declaration order decides.** `scope` collects in insertion order, `feed` takes the first WITH an effect. Probe: `/:id` opened before `/fixed`, asking `/fixed` → `PARAM`; `/fixed` first → `LITERAL`, `/other` still falls to `PARAM`. **Declare literals first.**
+- **A node's `use` wraps its DESCENDANTS, not its own effect — in the dispatch family.** Probe with `use` at root, `/x`, `/x/y`: `invoke("/x")` → `root > EFFECT@x` (the `/x` middleware never ran); `invoke("/x/y")` → `root > x > EFFECT@y`. The tree family differs — `shape.object(v).x()` → `root > x > EFFECT@x`. A root `use` DOES wrap a root effect. Measure it.
+- **`fire` dispatches on DECLARED ARITY** — probe: `0 → effect()`, `1 → effect(ctx)`, `2 → effect(input, ctx)`. So `(input) => …` is arity 1 and receives the CONTEXT, not the input.
+- Only `guarded` validates edge `input` schemas. `request` builds a real `Context`; `echo`/`bare` a POJO; `direct` opts out. `walk` throws `Long` past 20 steps, `Short` when the asker yields no nature.
+
+```js
+// subsystems/typology/gestalten/steer/strategy.js:3-7 · trie.js:5-24 (fold trimmed)
+export function fire(effect, context) {
+  if (effect.length === 0) return effect();
+  if (effect.length === 1) return effect(context);
+  return effect(context.input, context); }
+export const descend = (carry, vector) => middleware.chain(carry, middleware.compose(vector.carry));
+export function fold(vector, step, frame = { carry: middleware.forward, steps: [], … }) {
+  const here = { ...frame, carry: descend(frame.carry, vector) };          // ← middleware descends here
+  const trajectories = [...vector.trie.values()].map(({ pattern, trajectory }) => fold(trajectory, step,
+    { ...here, signature: pattern, steps: [...here.steps, pattern] … }));
+  return step.node({ ...here, effect: vector.effect ?? undefined, trajectories }); }
+```
+
+## shape — the Vector compilers, and the STRIPWIRE dual
+
+- `gestalten/shape/` = 11 exported compilers: namespaced `connection` · `cortex`; flat `object` (which also defines `proxy` — there is no `proxy.js`), `tree flat strip http mcp messenger subscriber selbstbestimmt`. **`shape.agentic` DOES NOT EXIST** (grep → nothing).
+- **STRIPWIRE**: `shape.object(vector)` = a local callable/namespace ⟷ `shape.connection.wire(conn, shape.strip(vector))` = the same surface over HTTP. One trait Vector, two backings across the daemon↔client wire; `strip` → `{effect?, branches}` JSON is the `/metadata/*` contract.
+- **`yields` on an edge = the streaming contract**: declared in-trait → plucked by `strip` → `wire` returns a `connection.stream()` caller. An async generator handler IS SSE. `wire` proxies `:param` branches, DROPS `*`/`(.*)` with a warn, THROWS on a method-ambiguous leaf.
+
+```js
+// subsystems/typology/gestalten/shape/object.js:5-14 · strip.js:13-21
+export const object = (vector, execute = steer.strategy.request) => steer.trie.fold(vector, { node: (f) => {
+  const namespace = {}; for (const child of f.trajectories) namespace[child.key] = child.namespace;
+  const compiled = f.effect !== undefined ? execute(f.carry, f.effect, f.steps, route(f.steps)) : undefined;
+  return { key: f.signature?.nature, namespace: compiled ? Object.assign(compiled, namespace) : namespace }; } });
+export const strip = (vector, pluck = edgeMeta) => steer.trie.fold(vector, { node: (f) => {  // strip.js
+  const node = { branches: Object.fromEntries(f.trajectories.map((c) => [c.key, c.node])) };
+  if (f.effect !== undefined) node.effect = pluck(f.signature, f.effect); … } });
+api[segment] = wire(connection.branch(`/${segment}`), child);                // connection.js:11
+```
+
+```json
+// probe: strip(aperture: GET /mode/:slug · yields /mode/watch · input /install) →
+{"branches":{"mode":{"branches":{
+  ":slug":{"branches":{},"effect":{"methods":["GET"]}},
+  "watch":{"branches":{},"effect":{"yields":{"type":"object","required":["tick"],"properties":{"tick":{"type":"integer"}}}}}}},
+  "install":{"branches":{},"effect":{"input":{"type":"object","required":["slug"],"properties":{"slug":{"type":"string"}}}}}}}
+```
+
+## Connection — the transport dual
+
+- **`prototypes/connection.js`** is a MEMOIZED TREE: `child()` caches per segment and hands the child a transport of `(ctx) => parent.dispatch(ctx)`, so a shard at a root applies to every descendant. `branch` walks/creates; `resolve` walks only what exists. NEVER raw-fetch.
+- Verbs `aim · call/fetch · stream · observe · nanoatom · publish · socket`, plus the two that carry weight: `converse` (POST an SSE body up while streaming down — the duplex frame) and `subscribe` (reconnecting, backoff 1000 → 30000 ms). `retry` rides the transport, not a `.use()`.
+
+```js
+// subsystems/typology/prototypes/connection.js:28-38
+dispatch(ctx) { return middleware.compose(this.carry)(ctx, this.transport); }
+child(segment) { … this.children.set(segment,
+  new this.constructor(this.url.branch(`/${segment}`), (ctx) => this.dispatch(ctx))); … }
+```
+
+## Span — the trace cursor
+
+- **`prototypes/span.js`** — a Signature whose `hasher()` is a monotonic `id`. Only the ROOT holds `journal[]` (capped at `CONFIG.journal = 1000`) and a `channel` Pipe; children reach them via `records`/`pipe`. `Span.from` calls `super.from(trace, true)` — ANON, so a span held as a long-lived field never appends to `trace.gauges`.
+
+```js
+// subsystems/typology/prototypes/span.js:47-61
+mark(verb, data) {
+  const record = { span: this.id, trace: this.trace?.id ?? null, path: this.absolute, verb, at: performance.now() };
+  if (data !== undefined) record.data = data;
+  const journal = this.records;                        // === this.root.journal
+  journal.push(record);
+  if (journal.length > CONFIG.journal) journal.splice(0, journal.length - CONFIG.journal);
+  this.pipe.send(record); … }
+```
+
+```json
+// probe: new Span("/boot").branch("mode").branch("install") → open/note/fault (`at` elided)
+{"span":2,"trace":1,"path":"/boot/mode/install","verb":"open"}
+{"span":2,"trace":1,"path":"/boot/mode/install","verb":"note","data":{"slug":"hello-world"}}
+{"span":2,"trace":1,"path":"/boot/mode/install","verb":"fault","data":{"message":"nope","code":null}}
+```
+
+## Cortex + Hallucination — the provider seam
+
+- **Cortex** (`prototypes/cortex.js`) is a faculty REGISTRY, `Map<type, Faculty[]>`. `register/find/findOne` share one validated `where()` (`{type?, via?, tune}`); a 3-long `tune` pads to 4. `findOne` picks by `recipe.nearest`, else `DERIVATIONS` — whose only entry is `object → dialogue/render`. A tune is `[intelligence, reasoning, speed, thrift]`.
+- **`Hallucination(cortex)`** — a closure factory, ONE argument. It builds an internal Vector `/{dialogue,object}/{stream,render}` + `/verbatim/stream` + `/speech/{stream,render}` and returns `shape.object(…, steer.strategy.echo)`; `cortex.hallucinate` memoizes it.
+- **`policy` is the app-side half, STRIPPED by the lowering** (`rounds` = the per-turn tool limit, default 10; `backoff` `[1000,4000]`; `tune`). A `tools` VECTOR is cut to a wire catalog by `trie.rollup` + `ToolCall` naming and never crosses. What crosses is the Request.
+
+```js
+// subsystems/typology/prototypes/hallucination.js:48-69,126-134 (trimmed)
+const lowering = async (ctx, next) => {          // request = ctx.input ?? {}
+  const catalog = is.Vector(request.tools) ? declarations(request.tools) : (request.tools ?? []);
+  ctx.policy = policing(request); ctx.span = new Span("/hallucination");
+  ctx.input = { ...(request.system && { system: request.system }), turns: request.turns ?? [],
+                ...(catalog.length && { tools: catalog }), … };  // policy never reaches the wire
+  await next(); };
+for (const avenue of ["dialogue", "object"])
+  hallucinator.branch(`/${avenue}`).use(lowering)
+    .open({ nature: "stream", yields: Packet.Response }, streaming(avenue))
+    .open("render", rendering(avenue));
+```
+
+```json
+// subsystems/typology/tests/snapshots/hallucination-request.snapshot.json (trimmed) — the wire Request
+{"turns":[{"role":"user","parts":[{"type":"text","text":"primeira"}]}],
+ "tools":[{"name":"bare"},{"name":"dressed","valence":"looks up a word",
+   "input":{"type":"object","required":["query"],"properties":{"query":{"type":"string"}}}}],
+ "cache":{"marks":["context","tools"]},"settings":{"temperature":0},"output":{"schema":{"type":"object","required":["verdict"],"properties":{"verdict":{"type":"string"}}}}}
+// tests/snapshots/cortex.snapshot.json — a faculty AT REST
+{"type":"dialogue","tune":[0.9,1,0.3,0.5],"channels":{"in":["text","tool_result"],"out":["text","tool_use"]},"via":["render","stream"]}
+```
+
+## schematics — `v`, the typebox wrapper
+
+- `schematics/v.js` wraps typebox@1.3; `index.js` hangs `scalars`, `primitives` (10), `entities` (10), `prototypes` and the entity factories off one `v`. NO passthrough/strict/transform/refine/partial/nullable.
+- **`cast` = Default + Convert** (request INPUT only) · **`fill` = Default only** (entities/buffers/output — Convert mauls MikroORM Collections) · **`v.convert` for a bare scalar**: probe printed `v.cast(v.integer(), "8080") → "8080"` — on a scalar Convert's result is DISCARDED and the original returned, while `v.convert(…) → 8080`. On an OBJECT `cast` mutates in place (`{port:"8080"} → {port:8080}`, same ref).
+- **`enhance` GETTER/SETTER DUALITY**: `.default` / `.$id` / `.group` / `.examples` return the KEYWORD when set and the SETTER FUNCTION when unset — probe: `typeof v.string().default === "function"`, `"default" in held === false`, so `held.default ?? ""` hands a reader the setter. `v.environment(…).properties` is the exception: PLAIN properties, unset `default` is `undefined`. Read optionality with **`v.isOptional`**.
+- **`v.url()`** (`schematics/scalars/url.js`) = RFC 3986 URI WITH AN AUTHORITY as `pattern` + `title`: `file:///x` passes, `localhost:2501` and `${X}` fail. TypeBox's registered `url` format wants a TLD and rejects `http://localhost:2501/`, so **no `format:` key is used anywhere**. `v.environment(props)` throws at import on any key outside the VIVA law. [[project_typology_v_api]]
+- `entityFactory` intersects `DataEntitySchema` + a descriptor's `own` + its resolved `relations`, every level `additionalProperties: true`; a relation thunk re-entering its own `$id` is safe — the `resolving` guard returns the own-only shape. **`v.rel(schema)` = `union([ID, object({}, {additionalProperties:true})])`**: identity plus an opaque arm Convert cannot descend.
+- Descriptors: Buffer · Literal · Symbol · Mode · Intent · Thread · User (+ `INTELLIGENT`/`VOCAL` on Thread, SELF-referential via `parent` + `children`). **`TurnDescriptor` (`entities/turn.js`) is exported from NO index and has no `v.turn` factory** — the folder's orphan. Only `BufferDescriptor` carries `spoken`.
+
+```js
+// subsystems/typology/schematics/v.js:26-28,45-47 (enhance, trimmed)
+if (prop === "default") {
+  if ("default" in target) return target.default;                       // set → the KEYWORD
+  return (val) => enhance(derive(target, { default: val })); }          // unset → the SETTER
+if (prop === "fill") return (value) => (Value.Default(target, value), value);
+if (prop === "cast") return (value) => (Value.Default(target, value), Value.Convert(target, value), value);
+```
+
+## gestalten belt & the carriers
+
+- **`belt.query`** is the ONE MikroORM-query compiler (`lift` normalizes a selector, `where` compiles it to a row predicate). STORE THE LIFT, never the sugar — `repo.find("word")` as a primary key matches nothing.
+- **`belt.object.place`** (behind `object.set` and `LiteralSubscriber.symbol()`): a dotted slug pops its LAST segment as the VALUE — `word.tense.present` → `{word:{tense:"present"}}`; a single-segment slug writes a root flag (`{conjugation:true}`). Invariant test `tests/gestalten/belt/object.test.js`.
+- **Dataset / Datasink** (`prototypes/`, PURE — no `Deno.*`): `Dataset` = `{intent, ...sources}` lifted by `reader.lift` — a value is a source-LIST only when EVERY element is a descriptor, else ONE source. `Datasink` = per-type `(selector, projection?, target)`; **a `writer.codec` with no matching `paladin.find.data` read path is a one-way door**.
+
+## how it is tested
+
+91 `*.test.*` · 467 `it(` · 12 snapshot tests · 16 fixtures. Harness = `specimen/` (`@std/testing` + `matches(schema)` + `snapshot`, `locate` REQUIRED); per-concept `--watch` tasks: `subsystems/typology/deno.jsonc`. One file: `deno test -A --config deno.jsonc <path>`.
+
+- **Signature** `tests/toolcall.test.js` *"construction from a foreign Signature adopts identity, never linkage"* · `tests/path.test.js` *"branching a child never grows the parent (the daemon-mount crash)"*. `#hash`'s memo is UNPINNED — `grep -rn hash tests` → `is.string(route.hash)`.
+- **Vector · steer** `tests/vector.test.js` *"the trie keys by nature: one edge per sibling nature, declaration order immovable — a collision holds its slot"* · 21 `it` in `tests/gestalten/steer/`. GAP: the dispatch-vs-tree `use` asymmetry this shard probes is pinned NOWHERE — `invoke.test.js` covers a ROOT `use` only.
+
+```js
+// test: tests/vector.test.js:158-160
+specimen.expect([...new Vector().slurp(base).slurp(override).trie.keys()]).toEqual(["a", "b"]);
+```
+
+```js
+// test: tests/gestalten/steer/fire.test.js:6 — "an effect fires by its arity"
+specimen.expect(steer.strategy.fire((ctx) => ctx.input, { input: "one" })).toBe("one");
+```
+
+- **shape · Connection · Span** STRIPWIRE proved BY CONSTRUCTION: one assertion set replayed over both backings · `connection.test.js` *"a connection assembles and branches its tree"* pins the child memo · `span.test.js` *"a record is a self-describing fact: identity, lineage, path, clock"*.
+
+```js
+// test: tests/gestalten/shape/stripwire.test.js:24-31 → ok | 3 passed (14 steps)
+local: shape.proxy(vector), remote: shape.connection.wire(connection, shape.strip(vector)),
+for (const [name, side] of Object.entries(sides())) specimen.describe(`stripwire symmetry: ${name}`, …
+```
+
+- **Hallucination · `v`** `hallucination.test.js` 17 `it` — *"a tools Vector on the request is LOWERED to the wire catalog and dispatched"* · `v.test.js` 19 `it` — *"environment hands back PLAIN properties — an unset default is undefined, never the setter"*.
+- **A fixture is a WITNESS, not a golden.** 11 of the 12 `*.snapshot.test.js` hold `const DRY = false` and REWRITE `tests/snapshots/*.json` every run; drift lands silently. Only `hallucination.snapshot.test.js` freezes (`expect(pojo).toEqual(frozen)`, rewritten only under `SNAPSHOT_HOT=1`), so its 5 fixtures are the only diffable ones. Regenerate: `deno task typology/test/snapshots`.
+- **gaps**, each grep → 0 in `tests/`, repo-wide, and in `~/.viva/registry`: `Blacklist` `Scope` `Seek` `Wafer` `TurnDescriptor`. `Action` `Cargo` `Status` live only downstream (kajuit · paladin · multiplayer). `shape.messenger`, `shard.receiver` → 0 everywhere; `shard.caching` → 0 repo-wide, **2 in `~/.viva/registry`**.
+
+## the barrel law, the client half
+
+- **DAEMON-DEPENDENT EFFECTS DO NOT LIVE IN TYPOLOGY.** 59 non-test source files import their OWN barrel `@vivalence/typology`, so a module evaluated before the barrel finishes sees `undefined` — which ones is the runner's choice (deno green, vite 500). No eval-time Vector/`v` construction inside it; skills and entities live downstream in `systems/runtime/daemon/`. Thunk idiom: `schematics/prototypes/yield.js`. [[project_bundle_tree_shaking]]
+- **The prototypes/ seam holds**: `grep -n "Deno\." prototypes/*.js` finds one commented line (`url.js:233`), nothing live. **Zero MikroORM imports anywhere in typology** — only comments, tests, and `specimen/snapshot.js` duck-typing a Collection via `getItems`.
+- `mod.client.js` = the browser half: no `mode`/`dataset`/`datasink`/`freight`, and 10 of 16 shard namespaces (no `datamap ambient receiver hal trait hallucinate`). Buffer-views import ONLY it.
+
+## where to read the live system
+
+- **Spans are the ONE runtime tap typology owns.** `gestalten/shard/track.js` is the whole emitter surface: `track.span(name, pipe)` opens/closes a `Span` per request and re-parents `ctx.span`; `track.request()` marks `{method, path, status}`; `track.subject` marks the row touched. `shard/hallucinate.js:82` marks `open {input}` per tool call; `socket.js:152,189` mark `error {status}` per frame.
+- To SEE them: `span.to(sink)` (or `belt.trace.hold(sink)` / `decant`), then fold with `belt.trace`: `chronicle` → a story, `dictate` → records again, `live(span)` → a reactive story, `timing`/`faulty`/`slower(ms)` → verdicts. Anything named `drain(` is the CHANNEL family, not telemetry: `Queue`, `Pool`, `soma`.
+- **No log files, `/status` or doctor verb here** — those taps are runtime's and paladin's; the one exposed surface is `shape.strip` behind `/metadata/*`.
+- **31 live `console.*` in source** (grep `prototypes gestalten schematics specimen`, comments excluded). Worth knowing: `prototypes/vector.js:45,51` — "vector already affected" / "vector.set() is depracated", the two silent-misuse warnings; `socket.js:87,122,127,151,216` — every rejected or unroutable multiplex packet; `shape/connection.js:8` — the `*`/`(.*)` drop; `stall.js:14,63` — every release, every swallowed pull error.

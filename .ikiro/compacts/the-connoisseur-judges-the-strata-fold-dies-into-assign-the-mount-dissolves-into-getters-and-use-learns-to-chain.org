@@ -1,5 +1,6 @@
 #+title: the connoisseur judges the strata, fold dies into assign, the mount dissolves into getters, and use learns to chain
 #+filetags: :paladin:ghost:ledger:typology:env:cli:m41:connoisseur:critical-pass:
+#+index: 41
 
 * what happened, in one breath
 

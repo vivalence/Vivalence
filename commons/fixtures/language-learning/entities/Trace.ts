@@ -1,4 +1,4 @@
-import { types, EntitySchema, type Opt, type Rel } from "@mikro-orm/core";
+import { EntitySchema, type Opt, type Rel, types } from "@mikro-orm/core";
 import {
   DataEntity,
   DataSchema,
@@ -53,8 +53,18 @@ export const TraceSchema = new EntitySchema<TraceEntity, DataEntity>({
       updateRule: "cascade",
       deleteRule: "cascade",
     },
-    mode: { kind: "m:1", entity: () => ModeEntity, fieldName: "mode", nullable: true },
-    thread: { kind: "m:1", entity: () => ThreadEntity, fieldName: "thread", nullable: true },
+    mode: {
+      kind: "m:1",
+      entity: () => ModeEntity,
+      fieldName: "mode",
+      nullable: true,
+    },
+    thread: {
+      kind: "m:1",
+      entity: () => ThreadEntity,
+      fieldName: "thread",
+      nullable: true,
+    },
 
     signal: { type: types.json },
     status: { type: types.string },

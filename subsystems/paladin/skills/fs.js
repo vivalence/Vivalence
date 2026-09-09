@@ -7,7 +7,8 @@ const LIST_CAP = 200;
 
 export const resolve = (root, path = ".") => {
   const base = root.endsWith("/") ? root : `${root}/`;
-  const full = new URL(path.replace(/^\/+/, ""), `file://${base}`).pathname;
+  // a URL is only the normaliser here; the answer is a filesystem path, so the escapes it adds come back off
+  const full = decodeURIComponent(new URL(encodeURI(path.replace(/^\/+/, "")), `file://${base}`).pathname);
   if (full !== root && `${full}/` !== base && !full.startsWith(base)) {
     throw new Error(`path '${path}' escapes the root — paths are relative to ${root}`);
   }

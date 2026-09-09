@@ -80,12 +80,12 @@ Deno.test("create: --init pins the new mount at the flag stratum, then chains in
   scrub();
 });
 
-Deno.test("create: --use alone chains instances/use and pins nothing itself", async () => {
+Deno.test("create: --use alone chains instance/use and pins nothing itself", async () => {
   const root = await home();
   const { ctx, calls } = fake(["fixture"], { use: true });
   await create(ctx);
-  assertEquals(calls, [["instances/use", `${root}/instances/fixture`]]);
-  assertEquals(ctx.effect.selected, { chained: "instances/use" });
+  assertEquals(calls, [["instance/use", `${root}/instances/fixture`]]);
+  assertEquals(ctx.effect.selected, { chained: "instance/use" });
   assertEquals(ctx.effect.initialized, undefined);
   assertEquals(paladin.env.provenance("VIVA_INSTANCE_MOUNT"), null);
   scrub();
@@ -95,8 +95,8 @@ Deno.test("create: --use --init chain use first, then init", async () => {
   const root = await home();
   const { ctx, calls } = fake(["fixture"], { use: true, init: true });
   await create(ctx);
-  assertEquals(calls, [["instances/use", `${root}/instances/fixture`], ["instance/init"]]);
-  assertEquals(ctx.effect.selected, { chained: "instances/use" });
+  assertEquals(calls, [["instance/use", `${root}/instances/fixture`], ["instance/init"]]);
+  assertEquals(ctx.effect.selected, { chained: "instance/use" });
   assertEquals(ctx.effect.initialized, { chained: "instance/init" });
   scrub();
 });

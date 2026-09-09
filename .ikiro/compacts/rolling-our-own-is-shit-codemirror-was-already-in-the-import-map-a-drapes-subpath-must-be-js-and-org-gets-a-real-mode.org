@@ -1,0 +1,201 @@
+#+title: rolling our own is shit, codemirror was already in the import map, a drapes subpath must be js, and org gets a real mode
+#+filetags: :drapes:editor:codemirror:org:vdex:m53:bundle:paladin:typology:blast-bracket:quest:
+#+index: 25
+
+* what happened, in one breath
+
+A wake on /"vdex drapes"/ turned up one gated line — drapes =Pip= has no =success= tone, so the V3 App's
+save chip falls back to muted — and then beef opened the real seam mid-turn: /"should we maybe provide a
+propper markdown / code editor in vdex raw? rolling our own is shit."/ The research found the answer
+already sitting in the tree: =import_map.json= declares CodeMirror 6 and =@replit/codemirror-vim=, all
+installed, with **zero consumers anywhere**. The choice had been made once and never wired. He took it
+(/"ok codemirror."/) along with the one line that keeps the editor out of every other buffer App — a
+=@vivalence/drapes/= prefix in the bundler's import map, so the editor is a SUBPATH and not a barrel
+export. Landing that line under the blast-bracket produced the session's best find, and it came from
+proving the change rather than reasoning about it: =mapimports= loads everything in its own namespace as
+=loader: "js"=, so a subpath resolving to a =.svelte= file dies as JSX. A drapes subpath entry is
+therefore always a =.js= file. Then he read the sentence saying org has no CodeMirror grammar and
+answered it with four words — /"build an .org mode."/ — which turned a sketch of eight regexes into a
+real stateful tokenizer with folding, landed with nineteen test steps. He closed by asking whether it was
+live yet. It is not, and the answer was the disk: one file in =editor/=, the App's painted textarea
+untouched, nothing importing the editor at all.
+
+* spine (N=8)
+
+|  n | beef                                                                     | what came of it                                                              |
+|----+--------------------------------------------------------------------------+------------------------------------------------------------------------------|
+|  1 | /"ikiro wake. vdex drapes"/                                              | the wake; the vdex↔drapes surface mapped, ONE gap found: =Pip= has no =success= |
+|  2 | MID-TURN — /"rolling our own is shit … research our perfect editor"/     | the research pass: CM6 taken, the ladder measured, the barrel hazard named    |
+|  3 | the bundler diff pasted back + /"ok."/ /"ok codemirror."/                | the line LANDED under the bracket; the pick settled                          |
+|  4 | the =blast-bracket= skill text                                           | NOTHING — my own skill invocation echoing back, not an instruction            |
+|  5 | my org sentence quoted back + /"build an .org mode."/                    | =editor/org.js= + its suite LANDED; the =simple-mode= sketch superseded       |
+|  6 | /"switched over yet? vdex raw edit should now run?"/                     | NO — answered from disk, not from memory                                     |
+|  7 | /"ikiro compact"/                                                        | this fold                                                                    |
+|  8 | =/compact=                                                               | same as 7                                                                    |
+
+Coverage: 1–8, eight of eight, none skipped. Row 4 is the skill payload arriving as a user turn; row 8 is
+row 7's slash form.
+
+* the wake, and what drapes owed the vdex (row 1)
+
+Two words. The kernel, the frontier, the m53 memory, the V3 quest and the drapes tree answered them: the
+V3 App reaches into drapes at eight points — =Pip= =Empty= =Key= =Markdown= =Org= =Json= =Paragraph= =drag=,
+with =Pdf= dropped from the App after it drew a blank =<object>= and =Paper.svelte= replaced it. Every
+one resolves through the barrel except a tone: =Pip='s table has =primary= =warning= =danger= =contrast=
+=muted= and no =success=, so both live call sites — the save chip's "synced" and the status bar's call log
+— fall back to muted. The token is real (=dapper/themes/{nordic,paper}.js= carry =success: {ramp: moss}=
+in =standardRoles=, skeleton 0–4), so the hunk is one line, and it stays gated with the rest.
+
+* the ask, and the field (row 2)
+
+Verbatim, arriving mid-turn:
+
+/"should we maybe provide a propper markdown / code editor in vdex raw? rolling our own is shit. we'd take
+something propper and export it from drapes with our own wrapper. like we do with drapes and typology
+generally. research our perfect editor. vim keybindings in the future. shit like that. svelte, react,
+solid, raw html...?? anything we can make work reliably"/
+
+The framework question answers itself — CodeMirror 6 mounts into a =<div>= through a Svelte action, so the
+wrapper is ours and the library never sees Svelte, which is the same move drapes already makes for carbon
+icons. Monaco needs workers and AMD shims at ~5 MB with no touch; Ace is CM5-era and not ESM-first;
+ProseMirror, TipTap, Milkdown and Lexical are WYSIWYG and belong to the =edit= block surface, not =raw=.
+
+The find that settled it was not an argument: =import_map.json= already declares =codemirror@6=,
+=@codemirror/state=, =@codemirror/view=, =@codemirror/lang-javascript= and =@replit/codemirror-vim=, all
+present in =node_modules=, and a grep over =systems/= =subsystems/= =commons/= and the registry returns
+**nothing**. Somebody picked it once and never wired it.
+
+Measured, not recalled — the same compiler the shelf uses, bytes of the emitted artifact:
+
+| build                                | dev     | prod   |
+|--------------------------------------+---------+--------|
+| bare svelte floor                    |  611100 |  40506 |
+| vdex App today                       | 3268707 | 277039 |
+| CM core                              | 3072891 | 323428 |
+| + =@lezer/markdown=                  | 3343172 | 361018 |
+| + =@codemirror/lang-markdown=        | 4318725 | 555616 |
+| md · json · org · search · history   | 3794370 | 430160 |
+| ⤷ + vim                              | 4779636 | 557756 |
+| the REAL App, patched, + this editor | 6547072 | 679502 |
+
+Three readings out of that table. =lang-markdown= costs 195 kB more than the bare lezer parser and the
+extra is =lang-html= → =lang-css= + =lang-javascript=, dragged in only to colour code *inside* fences — a
+JD tree is prose, so the lezer parser wins. Vim is +128 kB and gets its own entry. And the shelf runs
+=DEVELOPMENT= (=subsystems/paladin/belt/is.js:11=), so the **dev** column is what kajuit actually
+downloads: 3.27 MB → 6.55 MB, 65 % of it the inline sourcemap that typology owns.
+
+* the two oks, and the defect the proof found (rows 3, 4)
+
+He pasted the line back and wrote /"ok."/ then /"ok codemirror."/ — the diff is the go, as always. The
+line matters because =subsystems/drapes/mod.js= re-exports every barrel and the standing issue
+=buffer-app-bundles-carry-2.6-mb-of-dead-weight= is exactly that reachability: an =Editor= in
+=display/index.js= would put ~400 kB prod / 3.3 MB dev into **every** buffer App — dojo, nyan, aprende,
+the lot. So the editor is a subpath, and the bundler learns the prefix:
+
+#+begin_src diff
+ subsystems/paladin/belt/bundler.js
+     "@vivalence/drapes": paladin.scope.repository.branch("subsystems/drapes/mod.js").absolute,
++    "@vivalence/drapes/": `${paladin.scope.repository.branch("subsystems/drapes").absolute}/`,
+#+end_src
+
+The bracket ran five beats. Consumers: =systems/runtime/lifecycle/resolve.js:24= ·
+=daemon/traits/generative.js:7= · =daemon/traits/application.js:32= plus three test files. Paladin 41
+passed (180 steps) before and after; =view.spawn= + =path.absolute= 4/14; and the closing re-grep found no
+=@vivalence/drapes/…= importer anywhere, so the new key matches nothing that exists — zero behaviour
+change, stated as a measurement rather than a hope.
+
+**The find.** Proving the subpath actually resolves, instead of trusting the import-map spec, failed:
+
+: ERROR: The JSX syntax extension is not currently enabled
+:   repoloader:…/subsystems/drapes/display/Pip.svelte:1:0
+
+=mapimports= in =subsystems/typology/gestalten/bundle/svelte.js= loads everything it resolves with
+=loader: "js"= inside its own =repoloader= namespace. That was invisible while only =mod.js= and
+=mod.client.js= came through it — both JS. A =.svelte= subpath is parsed as JavaScript and dies. So **a
+drapes subpath entry is always a =.js= file** that imports its =.svelte= siblings relatively, which is how
+=mod.js= already works; measured the other way, =@vivalence/drapes/display/index.js= bundles clean at
+51 013 B prod, Pip only, no carbon. Fixing the loader instead would be a typology change and was not
+taken.
+
+* the org mode (row 5)
+
+He quoted my own sentence back — the one saying CodeMirror 6 has no org grammar, its 99 legacy modes have
+none either, and =simple-mode= would let us write eight regexes — and appended the order:
+
+/"build an .org mode."/
+
+The quoted block is the address; the last clause is the order. =subsystems/drapes/editor/org.js= is a
+=StreamLanguage= with real state (=block= · =drawer= · =headline= carried across lines), 14 own
+=Tag.define()= marks, and a =foldService=. State is what a regex list cannot have: a =* headline= inside
+=#+begin_src= is body text, a =:PROPERTIES:= drawer swallows its lines until =:END:=, and only its own
+=#+end_= closes a block.
+
+Covered: headlines 1–6 with the level colouring the whole line, TODO · NEXT · STARTED · WAITING · HOLD
+and DONE · CANCELLED, =[#A]=, trailing =:tag:tag:=, DEADLINE · SCHEDULED · CLOSED, both timestamp faces
+and ranges, drawers and properties, blocks, =#+= directives against =#= comments, bullets, =[ ]= / =[X]=,
+tables and separator rows, =-----=, all six emphasis markers, =[[t][d]]=, =[fn:1]=, =<<target>>=,
+={{{macro}}}=, LaTeX and entities. Folding rides as a =foldService= so it needs no parse tree: a headline
+folds to the next headline of its level or shallower, a block to its own end, a drawer to =:END:=.
+
+Three rules that are org's and not markdown's, each with its own test — the keyword only counts in the
+first slot (=* file the TODO later= marks nothing, and the sets are the caller's via
+=org({todo, done})=); emphasis has an open rule and a close rule, so =a * bold * b= and =2*3*4= are not
+bold; and the block rule above. Nineteen steps; drapes 6 passed / 38 steps; paladin unchanged at 41/180;
+typology 123 passed with the pre-existing hallucination snapshot red, which touches no part of this.
+
+Two smaller things fell out. The comment gate refused the first write of =org.js= — authored =//= lines
+are not allowed in product source — so the quest's remaining code blocks carry a note to strip as they
+land. And the theme now reads =var(--zone-x, var(--colors-skeleton-0-x))=: zone vars exist only under a
+=.zone-N= ancestor and a buffer App is not guaranteed one, since the vdex App reads the flat tokens
+directly. A drapes component that can be dropped anywhere cannot assume the zone.
+
+The =legacy-modes= specifier went back out of the import map in the same pass — the real mode made it
+redundant, and an unused specifier is a lie about what the tree needs.
+
+* what did not switch over (row 6)
+
+/"switched over yet? vdex raw edit should now run?"/ — no, and the answer came off the disk rather than
+out of the session's own optimism: =subsystems/drapes/editor/= holds =org.js= and nothing else; the
+shelf's =raw= branch is still the painted =<pre>= under a transparent =<textarea>=; and a grep for
+=drapes/editor= outside its own test returns empty. The grammar exists, nothing consumes it. What he
+approved was the bundler line and the pick; /"build an .org mode."/ I read as the grammar and built that.
+The wrapper is five files and the vdex swap is two hunks, all whole in the quest, and after they land the
+App only changes on a restart because it bundles at boot.
+
+* settlement
+
+- =.ikiro/quests/drapes-editor.org= NEW — the whole patch: the import-map hunk, =editor/{index.js,
+  Editor.svelte, languages.js, theme.js, vim.js}=, =tests/editor.test.js=, the two vdex hunks, the org
+  mode's coverage table, eight click-through gates, the measured ladder.
+- LANDED: =subsystems/paladin/belt/bundler.js= (the prefix line) · =import_map.json= (the CodeMirror
+  specifiers, minus =legacy-modes=) · =subsystems/drapes/editor/org.js= ·
+  =subsystems/drapes/tests/editor.org.test.js=.
+- GATED: the five wrapper files, =tests/editor.test.js=, the =Pip= =success= tone, and the vdex hunks
+  (=parts/Reader.svelte= raw branch, =jdex.js raw()=, the =jdex.test.js= raw case).
+- memory: =project_drapes_editor= NEW, indexed; frontier and =quests/index.md= carry the strand.
+- the frontier stands at ~9 kB against its 8 kB limit — it was already over before this session's line
+  and a sibling is writing the same file, so the eviction is left to a fold that owns the file alone.
+
+* resumption (owed beef)
+
+1. =go= on the wrapper — five files + =tests/editor.test.js= + the =Pip= =success= line; then the vdex
+   hunks, then a restart, because the App bundles at boot.
+2. the two calls I made and he has not ruled on: markdown through the bare lezer parser rather than
+   =lang-markdown= (195 kB for fence-code colour), and =raw= only with =edit= left as his block surface.
+3. everything m53 already owed and this session did not touch: =r1= (paladin =resolve= percent-encodes
+   spaced paths), the restart, the G-gates.
+
+* quest report (derived at fold — `methods/quest-report.py`)
+
+| quest                    | progress  | status                     | next                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                      | sessions   |
+|--------------------------+-----------+----------------------------+---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------+------------|
+| drapes-editor            | —         | designed · org mode landed | `go` lands the import-map hunk, `subsystems/drapes/editor/` (5 files), the compile gate, and the vdex `raw` swap; then a restart and the g-gates.                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                         | 0          |
+| m46-linux-readmen        |  17% 3/18 | wip                        | drain                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                     | 6          |
+| m50-the-three-way-weave  |  60% 3/5  | wip                        | blast                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                     | 1          |
+| m51-standalone-slowstart |   0% 0/18 | design                     | go                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                        | 1          |
+| m53-vcompany             |   0% 0/5  | open                       | **t1.1** h1 · e1 · p1 · t1 · b1 · k1 + s1 · x1 · x2 · x3 + i1 (the index as rows) landed on the shelf; blocked on **r1** (paladin =resolve= percent-encodes — one-line diff + one test in the quest, his go, repo): the four reds (tools file · move; snapshots tools · aperture) are r1 and nothing else; a1 struck (the app is the sibling's v3); d1 (readme) on go; the =open= schematic on buffer-data level — sketch in "landed", his word; officers out by his order; then **the slow first attach** (the boot race under `instance/run`) → gs1/gs2 click-through after restart; the bundle weight ledgered, direction his; s3 voffice → s4 desk on go; `* t1.#2` his call; the runtime's m:n =cascade.remove= both ways ledgered as a landmine (his)                                                                                                                                                                                                                                                                                                               | 5 (3 live) |
+| m53-vcompany.pre         | —         | open                       | t1 package setup — the m27 gate moves to the executive stage; t1–t3 do not wait on it                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                     | 2 (1 live) |
+| m53-vcompany.v3-vdex     | —         | landed                     | one restart carries both — the new pdf viewer (=paper.svelte=) and the cargo fix (=freight.js=, uncommitted); then open a spaced-name pdf: it should render, page nav and zoom live, the rail on ▤. the six later items stay marked in the root quest.                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                    | 2 (2 live) |
+| m53.v4-mail+calendar     | —         | designed                   | his go, per mode. =dummy/mail= + =dummy/calendar= first (they are the source both apps read), then =office/email=, then =office/calendar=. nothing under =systems/= or =subsystems/= but one drapes line (=pip= tone =success=, already owed by v3).                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                      | 1 (1 live) |
+| m54-buffer-file          |   0% 0/4  | open                       | reconcile with m53 =* t1.1= and =m53-vcompany.v3-vdex= first (three quests, one seam, all waiting on go; v3 splits the app into a shell + 7 parts + =buffer/jdex.js= and already points here for file upload — m54's app hunk names the single =vdex.svelte= and must be re-cut onto whichever lands first) (a sibling session, beef's rulings there: the vdex speaks slugs — =/document /write /file /move /delete= implemented once in the aperture, tools wrap =mode.call.<verb>=, =fs_*= slurp gone on vdex; =open= is an emitter; the boot watches files and syncs per path — /"shouldnt this watch files??!!!"/; /"wtf is daemon traits stamp????"/ → gone) — three seams now name the verbs' home (t1.1 aperture · m54 sketch · mikro-first repository), beef arbitrates; then beef reopens the questioned block when ready — order of design there is mikro entity + bufferrepository verbs → typology verb contract → shard mounts → remoterepository mirrors → kajuit. until then m1 = everything but the verbs. "go m1" → full hunks against the tree as read. | 1          |
+| m55-recursive-terminals  |  20% 3/15 | wip                        | go m2 — the kajuit terminal: up · down · status · stop · run · watch, the tree, the schematic, panel f                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                    | 1          |

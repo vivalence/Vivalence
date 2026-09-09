@@ -1,15 +1,190 @@
 ---
-paths: ["subsystems/paladin/**"]
+paths: ["subsystems/paladin/**", "systems/runtime/**", "systems/kajuit/**", "systems/ghost/**"]
 ---
-<!-- writer: agent · derived-from: subsystems/paladin + registry read, claims re-verified against disk · verified: 20%-cut loop, re-stamp pass; integrate gate re-read + `ledger/doctor` run on a fresh $HOME (creates nothing) · limit: 30 lines · re-verified after the registry/{viva,fixtures,playground} → {commons,testing,development} rename: 23-manifest census on disk, `grep -rn "registry/(viva|fixtures|playground)\b|@(fixtures|playground)\b"` over systems/ subsystems/ registry/ ~/.viva empty, paladin 28 · runtime 53 · ghost 77 · kajuit 35 green· belt/check.js `environment()` re-measured after the `required: Boolean` landing (verdict = max(declared, observed); rows carry `required`; init.fill blocks on REQUIRED+UNDOCUMENTED only) — paladin 26 passed/133 steps, ghost 77 passed; m48 AUTHORED replaces the boolean with `v.environment` + `.optional()` + INVALID, not blasted · re-verified after m47 registry/** → commons/: 24-manifest census on disk (owner+type+slug unique under ONE owner), residue grep "registry/(commons|testing|development)|@(viva|testing|development)/" over systems/ subsystems/ commons/ ~/.viva empty modulo synthetic test rows, paladin 28 (142) · runtime 53 (327) · ghost 81/1 pre-existing reap race · kajuit 35 (126) · sheets 37 green both sides, live registry/list = ONE checkout row @commons 22 modes, instance/doctor × 4 shelf instances mount clean -->
-# codemap: paladin — composition compiler (singleton, never runs anything)
+<!-- writer: agent · derived-from: 61 files; 22 tests · verified: heads 177 · fixtures 2 · console.* 10 · throw() sites 3 · limit: 17600 chars -->
+# codemap: paladin — the composition compiler: one singleton that resolves environment, packages and an instance declaration into masks; it runs nothing
 
-**Ledger spine (strata · assign · hydrate pinhole · ledger.* · ~/.viva) is OWNED at `world/ledger.md`** — read it before touching env/instance/ledger surfaces; restamp it on any landing here.
+**The ledger spine (verbs, `~/.viva` anatomy, locks, dies) is OWNED at `world/ledger.md`** — `prototypes/ledger/**` is its territory.
 
-- **boot** (`mod.js`, grounded 13 lines): `new Paladin()` → `populate.env` (m41 STRATIFIED — `Env(STRATA)` 7 voices `flag>cwd>instance>.env>os>session>ledger`, first-hit `get`, `provenance`/`strati(key)`; ingress = **`paladin.assign` / `observe` / `claim`, the THREE named ingresses over one `split()`** (observe = ambient cwd scan, provisional; claim = the file's role owner, evicts the ambient reading) — a KEY decides secrecy (`SECRET_*` → secret bag, `VIVA_*`/`PUBLIC_VIVA_*` → env bag, rest ignored), returns `{held,secrets,ignored}`; NO file and no caller may decide it; os vars + ./ `.env` scan + `VIVA_ENV_FILE` (loud when hollow); `populate.scopes` tail loads session (`VIVA_PROCESS_ID`) + ledger `.env` strata; `${VAR}` expands lazily at `get`, so `vars` stays raw and `publish` must read through `get`) → `populate.scopes` (conditional-Proxy resolvers: ledger/repository/registry/instance/mountpoint — **`environment` is NOT a scope** (`VIVA_ENVIRONMENT_MOUNT` dead); tail reads `sessions/<pid>.json` @session then `<ledger>/.env` @ledger) → citizen: `integrate.statements`. `instance.mount()` is LAZY (`fn.once` — so `paladin.remount()` mints a fresh Instance when a verb changes the `.env` under it): `environment()` reads ONE file, `<instance>/.env`, through `paladin.claim(…, 'instance')` — `environment.json` is DEAD everywhere, repo and disk → resolve (find.type; kernel entries in OBJECT form are `materialize`d at the pinhole and `dress`ed: `mountpoint` DECLARED ABSOLUTE → `Path`, a blank stays REQUIRED (the gate refuses boot), none stays none, a relative string THROWS at mount — beef: "no automatic scopes", nothing resolved or minted (m53); `vip.accioOne` forms the `{service, mask}` pair with `mask.statics = {…module.statics, …entry.statics}`; `integrate.statements` mkdirs the declared ones; **mounting must NOT scaffold** — `integrate.js` no longer mkdirs an absent instance home, which used to turn a typo into a shelf entry, NOR an absent LEDGER home (tty-walk landing: `ledger/doctor` used to create `~/.viva/registry` on boot and vouch for it; `ledger/init` is the one creator); `hydrate` is THE PINHOLE, recording `{at, read, unset, deferred}` per thunk into `instance.requirements` (`usable` DIED in m48 — optionality is DECLARED by `.optional()` on the `v.environment` schema, and `resolve` THROWS at mount when `module.environment` is not a `v` object schema: flag-day, no dual read), deferring `secrets` so plaintext never lands) → validate → `publish()` (PUBLIC_* → Deno.env, **through `get()` so `${VAR}` is expanded** — `vars` is raw for doctor only).
-- **prototypes/** (`paladin.js` · `vip.js` · `pensieve.js` · `instance.js` · `manifest.js` · `ledger/`): Paladin (env/secret/instance/system) · Vip (`supply` = ledger registry.json ?? seed-by-discovery → `mount` per location; `mount` walk→stamp-owner→register; NO dirname derivation — a mount with modules but no package-owner THROWS `declares no owner`, same class as a missing slug; a module's own `manifest.owner` overrides; `accio` two-throw: "not supplied" ≠ "Module 404") · Pensieve (nested Map owner→type→slug→version; `revelio → own(module)` per-daemon MINT — clones mutable descriptors, SHARES immutable leaves, `WeakMap` cycle-guard relinks `Vector.ancestor`; `latest` semver fold; register THROWS on missing owner) · ledger/ = the System surface (`instances.js` (`resolve(reference)` → `{slug, mount}` — the ONE reference reader: slug via the record or throw, path in the shell-cwd frame with `slug: null` when untapped, empty → `NOTHING`, also `Instance.home`'s voice; `shelf(slug)` → `<ledger>/instances/<slug>` for NEW dirs only; `list()`) `lock.js` `log.js` `process.js` `die.js` `registry.js` — m49 M1: `Process`/`Die` are Wafers, `boot()` returns a resolved die, ONE token-claimed lock per instance, the ledger holds no live state (spine at `world/ledger.md`); ledger at `<VIVA_LEDGER_MOUNT>/{locks/,logs/,sessions/,instances.json,registry.json,.env}` — **authored env is a `.env` (comments are content, `state.env` upserts by LINE); machine-written state stays JSON (annotation is a FIELD, e.g. `valence`)**; `Ledger.mount` is GONE (m41) — `instances`/`registry` are per-access getters, `publish()` fires at `spawn` head, `lock(instance)` → `<instance>.lock`, `read()` prunes a dead pid via SIGURG (SIGCONT would resume a stopped process), `Log.append(span)` → `logs/<instance>/spans.jsonl`, Registry self-reseeds when deleted).
-- **skills/** (m29 armory, attached `paladin.skills = skills` in `mod.js`): `fs.js` — `fs_tree` (depth≤5, 200-entry cap, skips `skip(ctx.ignore)` — the house `IGNORE` when nothing is bound) · `fs_find` (name regex) · `fs_read` (16 kB cap + range steering) · `fs_write` · `fs_stat` · `fs_move` · `fs_delete` (files only; m53) · `resolve` EXPORTED · `shell.js` — `shell_run` (zsh -c, timeout≤120 s, 8 kB tail, exit code = information not failure). Every path resolves under `ctx.root` (bound by harnessed to `mode.module.mount.dirname`); escapes throw naming the root; absolute inputs fold under it. Armed for ANY harnessed mode with a module mount — beef: "no new trait". `process_*` deliberately not built. Escape guard + behaviors pinned by `tests/skills.test.js` (8 steps: `../` + absolute-path folding, bak skip, range slice, "(empty)", nonzero-stays-NOMINAL).
-- **PRIMITIVES — never hand-roll**: `paladin.find.viva(dir)` · `paladin.find.walk(pattern, ignore?)(dir)` · `paladin.find.index(root, ignore?)` · `paladin.find.describe(root, path)` · `paladin.find.skip(globs)` · `paladin.find.data(dir)` (m22: the corpus walk — `index.js` SKIPPED so aggregators never double-count, codec dispatched per extension because Deno refuses a `.json` specifier without `with {type:"json"}`) · `paladin.read.data(path)` (`.default ?? module`) · `paladin.state.scribe(path, text)` (m22: atomic tmp+rename, write-if-changed, returns whether it wrote — the fixpoint primitive) · `paladin.read.viva(path)` · `paladin.source(location)` (4 styles: absolute / ./cwd / {file,source} / bare-repo-segment) · `paladin.vip.accio(query)` · `paladin.vip.accioMap(obj)` · `cast.lookup("@owner/type/slug@ver")`.
-- **m47 packages — the checkout ships ONE**: `commons/` (`@commons`, identifier `@commons/package/commons`, 22 modules); everything else is TAPPED into the store (`~/.viva/registry/{education,stucatch}`; `young-ladys-primer` resident, untapped — deliberate, [[project_young_ladys_primer]]). A package root is any root `*.viva.js` with `manifest.type === "package"`, never the filename (`commons/package.viva.js` vs `education.viva.js`). Live pensieve after m47: `@commons @education @stucatch` — 50 modes · 18 types · 3 owners (`registry/doctor` RUN). `Vip.supply()` = `registry.reconcile(checkout, <checkout>/commons)` ?? `seed(<checkout>/commons)` (`vip.js:38-46`): a dead record location ANYWHERE under the checkout heals by rediscovering `commons/` and the record is rewritten; a dead external one is kept + skipped + `vip.stale`; `Registry.discover` over a missing root yields `[]` so `accio` says `not supplied`, never a readdir trace (`ledger/registry.js`, tests `registry.test.js` reconcile ×5 + supply ×3). `Pensieve.register` THROWS when a second FILE claims a held owner/type/slug/version — the same file re-registers idempotently because ghost (`lens.js`, `registry/index.js`, `instance/create.js`) and runtime (`populate.js registry()`) all re-`supply()` the singleton (`pensieve.test.js`). **THE IGNORE DOCTRINE (m53)**: ONE declaration `belt/ignore.js` — `IGNORE = ["bak","archive","slp","node_modules",".git",".DS_Store","*.bak"]` (globs, the suffix rule as data) + `skip(globs = IGNORE)` compiled once via `globToRegExp` to a NAME predicate (files AND dirs); the walker's head takes the list beside the pattern — `find.walk(pattern, ignore)(path, depth)`, the call unchanged; a caller's list is the WHOLE list (no union). Beside it: `find.describe(root, path)` = a stat `{path, format (extname), bytes, mtime}` or null · `find.index(root, ignore)` = every file described, sorted · `find.skip`. FRAUGHT passes `mode.statics?.ignore`; the fs skill compiles `ctx.ignore` per call. Never a gitignore-style file in the tree (index-ignore ≠ vcs-ignore).
-- supply is SYSTEM-level (`vip.supply()`); instance declares NOTHING about packages; never `.branch()` a reused Path — [[project_signature_branch_mutates]].
-- deploy: local = the dev instance on the ledger shelf (`~/.viva/instances/<slug>/.env`; `testament/instance/` is GONE — the 12 `--env-file=$HOME/.viva/dev.env` flags are GONE from every deno task — paladin reads `<ledger>/.env` natively; that file was a PLAIN file, never a symlink, and this shard's earlier "symlink beef repoints" claim was fabricated) · docker = `VIVA_*_MOUNT` envs. The old `registry/simulation/instance` bake is GONE from every Dockerfile (grep: zero hits across `Dockerfile` + `documentation/Dockerfile`) — that "fresh decision owed" note is retired.
+## boot — `mod.js` is fifteen lines, and they are the order
+
+- **`mod.js`**: `new Paladin()` (belt bound, `ledger`/`instance`/`vip` minted as siblings) → attach `skills` → `populate.env` → `populate.scopes` → `integrate.statements` **only if `is.citizen`** (`belt/is.js` holds the whole role algebra). `instance.mount()` is NOT called at boot: it is `fn.once`-wrapped and each consumer awaits it (`systems/runtime/run.js:6`). `paladin.remount()` mints a fresh `Instance` after a verb rewrites the `.env` under it.
+
+## the strata — seven voices, and a KEY decides secrecy
+
+- **`STRATA`** is declared at `prototypes/paladin.js:7` and nowhere else; two `Env` bags share it, `paladin.env` and `paladin.secret`. `Env` itself — first-hit `get`, lazy `${VAR}` expansion, `provenance`, `strati` — is typology's → `world/codemap/typology.md`.
+- **`split()` is the law**: `SECRET_*` → secrets, `VIVA_*`/`PUBLIC_VIVA_*` → held, `""` → **blank**, voiced by nobody so it never shadows a real value below; everything else ignored. No file and no caller may override a key's verdict.
+
+```js
+// subsystems/paladin/prototypes/paladin.js:7,31-43,52-71
+const STRATA = ["flag", "cwd", "instance", ".env", "os", "session", "ledger"];
+  split(bag) {
+    const held = {}; const secrets = {}; const ignored = []; const blank = [];
+    for (const [key, value] of Object.entries(bag ?? {})) {
+      if (value === "") blank.push(key);
+      else if (SECRET(key)) secrets[key] = value;
+      else if (PUBLIC(key)) held[key] = value;
+      else ignored.push(key);
+    }
+    return { held, secrets, ignored, blank };
+  }
+  // assign: no source · observe: ambient · claim: role. all three split by key.
+  claim(bag, stratum, source) { … this.env.claim(held, stratum, source); … }
+```
+
+- **Three ingresses over one `split`**: `assign` has no source · `observe` is ambient and provisional, recorded against the file path · `claim` owns that path and **evicts every ambient claim on it**. `populate.env` uses all three: `Deno.env` → `assign@os` · a cwd `.env` → `observe@.env` · `VIVA_ENV_FILE` → `claim@.env`.
+- **`populate.scopes`** registers exactly FIVE scopes — `ledger` `instance` `mountpoint` `repository` `registry`, no `environment` — into `belt/scope.js`'s conditional `Proxy`, so a resolver runs only behind its condition. `VIVA_INSTANCE_MOUNT` holding a bare slug **throws**: a `*_MOUNT` is always a path. Its tail reads `sessions/<VIVA_PROCESS_ID>.json` → `assign@session`, then `<ledger>/.env` → `claim@ledger`.
+- **`integrate.statements`** mkdirs the DECLARED mountpoints only and **returns early** when the ledger or instance home is absent: **mounting must never scaffold**, or a typo becomes a shelf entry. `ledger/init` is the one creator.
+
+## the pinhole — `hydrate` fires every thunk once, recording what it read
+
+- **`hydrate(node, record, paladin, at)`** (`prototypes/instance.js:29-61`) is the ONE place a declaration's thunks fire. It walks arrays by index and objects by key, labelling each slot, and re-walks a fired thunk's value, so thunks yielding thunks resolve to the bottom. While a thunk runs, `paladin.env`/`paladin.secret` are swapped for a recording `Proxy` and restored in a `finally`, and a thrower restores too. **Secrets fire like everything else**, so every mask downstream holds its keys in CLEAR: never log a mask, log the slot label.
+
+```js
+// subsystems/paladin/prototypes/instance.js:16-26,29-49
+const watch = (bag, read) => new Proxy(bag, {
+  get: (target, prop, receiver) => prop === "get"
+    ? (key, ...rest) => { const value = target.get(key, ...rest); read.push({ key, unset: is.empty(value) }); return value; }
+    : Reflect.get(target, prop, receiver),
+});
+export function hydrate(node, record = null, paladin = null, at = "") {
+  if (typeof node === "function") {
+    if (!record || !paladin) return hydrate(node());
+    const read = []; const { env, secret } = paladin;
+    paladin.env = watch(env, read); paladin.secret = watch(secret, read);
+    let value;
+    try { value = node(); } finally { paladin.env = env; paladin.secret = secret; }
+    record.push({ at, read: read.map((h) => h.key), unset: read.filter((h) => h.unset).map((h) => h.key) });
+    return hydrate(value, record, paladin, at);
+  }
+```
+
+```json
+// probe: paladin.instance.requirements after mounting commons/instances/hello-world — 7 rows, 3 shown
+[ { "at": "runtime.statics.serve", "read": ["VIVA_RUNTIME_SERVE"], "unset": ["VIVA_RUNTIME_SERVE"] },
+  { "at": "lighthouse.statics.remote", "read": ["PUBLIC_VIVA_LIGHTHOUSE_REMOTE"], "unset": ["PUBLIC_VIVA_LIGHTHOUSE_REMOTE"] },
+  { "at": "daemon[hello].hallucinators[0].secrets.key", "read": ["SECRET_VIVA_ANTHROPIC_API_KEY"], "unset": [] } ]
+```
+
+- **`resolve(instance)`** finds exactly ONE `manifest.type === "instance"` module under the home via `find.type` — 0 or 2 throws, an absent home reads as `instance.mount: no instance at <path>`, `instance.environment` must be `v.environment({…})`. Afterwards **`publish()`** copies every `PUBLIC_*` key into `Deno.env` **through `get()`**, never from raw `vars` — a receiving process cannot expand `${…}`.
+- **Kernel entries** pass `reference(module.source)`: absolute kept, `./`/`../` resolved against the declaring file's dirname, a bare string kept as a registry identifier, an object stamped with `mount`. An object-form entry hydrates then `dress`es — a declared `mountpoint` must be **absolute**, blank stays REQUIRED, **nothing is minted over it**. [[project_m52_schematic_pinhole]]
+
+## `settle` — dormant → cast → faults → decode → inherit
+
+- Faults are **sentences on `instance.faults`**, never throws — `instance/doctor` must mount a bare recipe. A JSON-pointer fault is relabelled into the slot grammar the requirements record speaks (`daemon[hello].statics.serve`). **A blank secret makes a mask dormant, not faulty**: off the daemon's roster, named on `instance.dormant`, still in the record so the doctor can ask for the key.
+- **`decode` runs only when there are no faults**; a refused value stays as the pinhole left it. **Inheritance is after decode**, so a daemon inherits the *decoded* lighthouse; none anywhere is a fault by name. **`Mask`** is typology's (→ `world/codemap/typology.md`); paladin MINTS one — `new Mask({ ...declaration, mount: scope.mountpoint.branch("/<kind>_<slug>") })` — and a `datamap` without a mount inherits the mask's.
+
+```js
+// subsystems/paladin/prototypes/instance.js:145-167
+function settle(instance) {
+  const { Instance } = v.primitives.instance;
+  for (const daemon of instance.daemons) {
+    daemon.hallucinators = (daemon.hallucinators ?? []).filter((mask, index) =>
+      alive(mask) || dormant(instance, `daemon[${daemon.slug}].hallucinators[${index}]`, mask));
+    daemon.consume = object.filter(daemon.consume ?? {}, (slug) => alive(daemon.consume[slug]) || dormant(…));
+  }
+  Instance.cast(instance);
+  instance.faults = Instance.faults(instance).map(({ at, reason }) => `${label(instance, at)} ${reason}`);
+  if (!instance.faults.length) Instance.decode(instance);
+  for (const daemon of instance.daemons) { daemon.lighthouse ??= instance.lighthouse; … }
+}
+```
+
+```json
+// probe: paladin.instance.daemons[0] — a daemon Mask at rest (secret elided)
+{ "manifest": { "type": "daemon", "slug": "hello", "version": "0.0.1", "traits": [] },
+  "mount": "…/hello-world/mountpoint/daemon_hello", "source": null, "slug": "hello", "statics": {},
+  "hallucinators": [ { "module": "@commons/hallucinator/anthropic", "secrets": { "key": "…" } } ],
+  "kernel": [ "…/hello-world/mode.viva.js" ],
+  "datamap": { "module": "@commons/datamap/libsql", "statics": { "db": { "file": "hello.viva.db" } }, "mount": "…/daemon_hello" },
+  "lighthouse": { "module": "@commons/lighthouse/multiplayer", "statics": { "remote": "null" } } }
+```
+
+## `check` — the authored schema against what the thunks read
+
+- **`check.environment(instance)`** joins `instance.environment.properties` with `instance.requirements`, one row PER SITE; a key described but never read gets `at: null`. A `SECRET_*` row reports `"***"` or `null`, **never itself**, but is validated against its real value. `UNDOCUMENTED · REQUIRED · INVALID` fail; `ok · optional · documented` pass.
+- **`check.instance(held)`** is the whole verdict — schematic faults plus wrong env rows, faults suppressed at any slot an env row names. `.throw()` is called at exactly THREE edges: `Ledger.boot` (`prototypes/ledger/ledger.js:29`), `systems/runtime/run.js:7` and `systems/kajuit/vite.config.mjs:13` (a `.js`-only grep misses the third). `check.wrong` is the ONE list `instance/doctor` and `instance/init` read.
+
+## Vip + Pensieve
+
+- **`Vip.supply()`** reconciles `registry.json` — a dead location inside the checkout heals by rediscovering `<checkout>/commons`, a dead one outside is kept and flagged on `vip.stale`, no record seeds from `commons` — then `mount`s each. **`tap` = materialize + record only**; `untap` drops the record, not the working copy.
+- **`Vip.mount(root)`** walks `find.viva` and requires the mount's `"package"` declaration to carry an **`owner`**, else `package declares no owner`. It stamps that owner on a COPY of each module (`read.viva` returns the live namespace), and a module's own `manifest.owner` LOCKS it.
+- **`accio`** throws twice, distinguishably: `package <owner> not supplied on this system` ≠ `Module 404`. **`accioOne`** is the kernel-entry pinhole — an absolute path is read and mount-stamped, an inline `{manifest}` passes verbatim, and a `{module,…}` mask folds identity: `statics: {...service.statics, ...query.statics}` and `manifest: Manifest.cast({...service.manifest, ...query.manifest})` gated by `.faults()`, so a bad slug throws AT the pinhole. `service.manifest` is untouched — `mode.module.manifest` is REGISTRY identity, `mode.manifest` the mounting's. [[project_manifest_is_identity]]
+- **`Pensieve extends Map`** — the nested Map IS the index, `owner → type → slug → version → module`. `register` throws on a missing owner (mount must stamp) and on a **second file** claiming a held identity; the same file re-registers idempotently. `revelio` returns `own(module)`, a per-daemon MINT that clones mutable descriptors, SHARES anything carrying `~kind`, and cycle-guards with a `WeakMap` so `Vector.ancestor` relinks into the copy.
+
+```js
+// subsystems/paladin/prototypes/pensieve.js:12-28
+    const { owner, type, slug, version } = module.manifest;
+    if (!this.has(owner)) this.set(owner, new Map());
+    const ownerMap = this.get(owner);
+    …
+    const slugMap = typeMap.get(slug);
+    const held = slugMap.get(version);
+    if (held && held.mount?.absolute !== module.mount?.absolute)
+      throw new Error(`[Pensieve] register: ${owner}/${type}/${slug}@${version} already registered from …`);
+    slugMap.set(version, module);
+```
+
+```json
+// probe: pensieve key paths (owner→type→slug→version) after vip.mount(<repo>/commons) — 22 keys, 4 shown
+[ "@commons/package/commons@0.0.1", "@commons/instance/hello-world@0.0.1",
+  "@commons/playground/automaton@0.1.0", "@commons/hallucinator/anthropic@undefined" ]
+```
+
+## skills
+
+- **`paladin.skills`** is `{ fs, shell }`, two `Vector`s slurped by `systems/runtime/daemon/traits/harnessed.js:56-60` behind `mode.module?.mount?.dirname`, binding `ctx.root` there. `fs_tree` · `fs_find` · `fs_read` · `fs_write` · `fs_stat` · `fs_move` · `fs_delete` · `shell_run` (8 kB tail — **a nonzero exit code is information, not failure**).
+- **`resolve(root, path)` is EXPORTED — the root guard.** A URL is only the normaliser — `encodeURI` in, `decodeURIComponent` out, so a `%20` in a real filename survives: a path is not a URL. Escapes throw naming the root.
+
+```js
+// subsystems/paladin/skills/fs.js:8-16
+export const resolve = (root, path = ".") => {
+  const base = root.endsWith("/") ? root : `${root}/`;
+  const full = decodeURIComponent(new URL(encodeURI(path.replace(/^\/+/, "")), `file://${base}`).pathname);
+  if (full !== root && `${full}/` !== base && !full.startsWith(base))
+    throw new Error(`path '${path}' escapes the root — paths are relative to ${root}`);
+  return full;
+};
+```
+
+## the ignore doctrine
+
+```js
+// subsystems/paladin/belt/ignore.js:3-8
+export const IGNORE = ["bak", "archive", "slp", "node_modules", ".git", ".DS_Store", "*.bak"];
+export const skip = (globs = IGNORE) => {
+  const rules = globs.map((glob) => globToRegExp(glob));
+  return (name) => rules.some((rule) => rule.test(name));
+};
+```
+
+- `skip` compiles once into a **NAME** predicate answering for files AND directories; nothing is unioned into a caller's list. `belt/find.js` threads it through every walk, the fs skill compiles `ctx.ignore` per call. Never a gitignore-style file: index-ignore ≠ vcs-ignore.
+
+## the belt
+
+- **`find`**: `viva(dir)` · `walk(pattern, ignore?)(path, depth)` · `type(path, type)` (read + filter by `manifest.type`, stamping `source`) · `data(dir)`, the corpus walk: `index.js` skipped, a codec per extension. **`read`**: `file` dispatches by extension, `viva` is `import` + `cast.viva`, `json` is **jsonc**, a fallback makes a missing ledger file `null` not a throw.
+- **`state`**: `scribe` is the fixpoint primitive (write-if-changed, tmp+rename). `env` upserts **by LINE** — an authored `.env`'s comments and order are content — `line(key, value)` is the one grammar: a value is claimed, a blank written `# KEY=""`, a `${VAR}` kept verbatim.
+- **`source(reference)`** answers four styles: absolute as-is · `./`/`../` against `INIT_CWD` · `{file, source}` against the declaring file · a bare segment repo-root-relative. **`clone.remote(source)`** is the ONE remote-spec test, asked BEFORE path resolution or `git@host:path` becomes a cwd path. **`bundler(directory)`** → `{bundle, serve, inspect}`, svelte or html to a content-addressed `View` at `<directory>/bundle/<hash16>.<kind>.mjs`. Never `.branch()` a reused `Path` — [[project_signature_branch_mutates]].
+- The checkout ships ONE package (`commons/`, `@commons`); all else is TAPPED into the store, and supply is SYSTEM-level — an instance declares nothing about them (→ `world/codemap/commons.md`). Dev env = the instance's `.env` at `claim@instance` plus `<ledger>/.env` at `claim@ledger`; docker = `VIVA_*_MOUNT`.
+
+## how it is tested
+
+22 test files · 177 `Deno.test(`/`it(` heads. Run one: `deno test -A --config deno.jsonc subsystems/paladin/tests/<f>` — `settle` `ok | 2 passed (19 steps)`, `check.environment` `ok | 1 passed (17 steps)`.
+
+- **boot · split · scopes** — `tests/boot.test.js` *"lifecycle.mount is memoized per instance …"* · `tests/paladin.split.test.js` *"a blank at a higher stratum does not shadow a real value below it"* · `tests/ledger.test.js` *"VIVA_INSTANCE_MOUNT bare slug THROWS …"*.
+- **pinhole · settle** — `tests/hydrate.test.js` *"restores the real bags after every thunk, including one that throws"* · `tests/settle.test.js` *"inheritance happens before settle: … its OWN decoded copy"* · `tests/kernel.test.js` *"… nothing is minted over it"*.
+
+```js
+// test: subsystems/paladin/tests/settle.test.js:163-164
+expect(instance.dormant).toEqual(["daemon[probe].hallucinators[1]"]);
+expect(instance.requirements.map((row) => row.at)).toContain("daemon[probe].hallucinators[1].secrets.key");
+```
+
+- **check · Vip · skills** — `tests/check.environment.test.js` *"the wrong-list is published once, for doctor and init to read"* · `tests/pensieve.test.js` *"a second file claiming a held identity cannot register …"* · `tests/vip.test.js` *"a package declaration WITHOUT owner throws …"* · `tests/skills.test.js` *"escapes throw naming the root"*.
+- **fixtures · gaps** — `tests/snapshots/` is GITIGNORED, rewritten every run, no `UPDATE_SNAPSHOTS` knob; the instance fixture redacts each `secrets` bag to `"***"`, asserted `not.toContain("sk-ant")`. Untested, each grep `→ 0` repo-wide AND in `~/.viva/registry`: `integrate.statements` · `remount` · `scribe` · `check.path` · `state.dir` · `is.citizen`.
+
+## where to read the live system
+
+- **spans / drains**: paladin emits no span and `grep -rn "drain(" subsystems/paladin` → **0** — no drain, no soma here. `Ledger.log(slug).append(span)` (`prototypes/ledger/log.js:8`) writes `~/.viva/logs/<slug>/spans.jsonl` and `.open(process, stream)` opens `<process>.<stream>.log` beside it. Tap: `tail -f` those.
+- **`console.*`**: 10 in the territory, 3 live outside tests — `prototypes/instance.js:140` warns `[instance] <slot> filtered, <module> — empty <keys>` per dormant mask (read stderr: the dormancy report) · `belt/check.js:12` dumps `[CONFIG.CHECK ERROR]` · `belt/scope.js:9` warns `paladin.scope overwrite`.
+- **verbs**: `viva instance/doctor --json` prints `check.environment` rows verbatim, secrets `***` → `world/codemap/ghost.md`. `deno test subsystems/paladin/tests/instance.snapshot.test.js` re-derives `tests/snapshots/paladin-{instance,scope}.snapshot.json`.

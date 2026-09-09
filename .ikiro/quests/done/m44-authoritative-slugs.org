@@ -57,7 +57,7 @@ locks/record layer, not just on disk.
   as a list of objects instead iwht slug inlined}"/), then ruled /"keep."/ the map: rows are a
   projection every reader folds in one line; the authority file's job is uniqueness, and a map
   makes slug collision impossible BY CONSTRUCTION.
-- *Bare slug in VIVA_INSTANCE_MOUNT* (the old M4: record lookup + shelf fallback in populate)
+- *Bare slug in VIVA_INSTANCE_MOUNT* (the old M4: record lookup + instance fallback in populate)
   — KILLED: /"can only every be a path. mount is a path type. non negotiatable. always."/
   populate's m41 throw is permanent; slugs enter ONLY through =instance/use=, which resolves
   them via the record and stores the path. M4 recast accordingly.
@@ -100,16 +100,16 @@ locks/record layer, not just on disk.
 - =register()= has THREE callers: =use.js:47=, =init.js:75=, =init.js:93= (=boot()= helper) —
   all three gain the catch. (Verified post-④: the init rewrite kept both sites.)
 - =systems/ghost/trajectories/instance/create.js= — post lens-fix arbitration (syntax splits
-  slug/path, pick errors honestly); slug from recipe or basename names the shelf; never writes
+  slug/path, pick errors honestly); slug from recipe or basename names the instance; never writes
   the record. Gains =--slug= + record write + collision. =create.test.js= EXISTS (3 cases).
 - =systems/ghost/trajectories/instance/use.js= — picked slug resolves through
-  =path.instance()= = SHELF GUESS, and a no-match bare slug falls back to the same guess
+  =path.instance()= = INSTANCE GUESS, and a no-match bare slug falls back to the same guess
   (the pre-resolve at line 14). Both DIE into record mount (M4 diff).
 - =subsystems/paladin/lifecycle/populate.js= — bare =VIVA_INSTANCE_MOUNT= THROWS (m41).
   UNTOUCHED by this quest. Forever.
 - Verbs open in =systems/ghost/trajectories/index.js= (=trajectory.open= blocks) and export
   from =instance/index.js= — tap/rename need both (M5 diffs).
-- =subsystems/paladin/prototypes/ledger/instances.js= — record proto (read/shelf/list/write);
+- =subsystems/paladin/prototypes/ledger/instances.js= — record proto (read/instance/list/write);
   gains =lookup(mount)=, =rename(prior,next)=, =remove(slug)=.
 - =systems/ghost/trajectories/ledger/index.js:181= — doctor =collectInstances=; gains
   dangling/orphan/shadowed checks.
@@ -270,15 +270,15 @@ An unrecorded init boots with =instance: null= in its specs — lock files land 
      env: `VIVA_INSTANCE_MOUNT=${destination}`,
    };
 #+END_SRC
-The env hint stays a PATH — mount is a path type, non negotiable. Shelf dir named by slug
+The env hint stays a PATH — mount is a path type, non negotiable. Instance dir named by slug
 remains a *convenience*, never an authority.
 
-** M4 — use resolves a slug through the record, never the shelf
+** M4 — use resolves a slug through the record, never the instance
 (Replaces the dead populate milestone — populate's throw is law, untouched.)
 A picked row carries its mount — take it. A bare slug matching NO record row is an honest
-error, never a shelf guess; the pre-resolve at the old line 14 WAS the guess. Typed paths
-(=local=) keep riding =path.instance()=; its slug→shelf branch loses its last =use= caller
-(=shelf()= itself survives — create names shelves with it).
+error, never an instance guess; the pre-resolve at the old line 14 WAS the guess. Typed paths
+(=local=) keep riding =path.instance()=; its slug→instance branch loses its last =use= caller
+(=instance()= itself survives — create names shelves with it).
 
 Both quests reshape this function — m55-abandoned-coherence I.3 owns the =--ledger= write (one-line
 =.env= upsert via =paladin.state.env=, no more =environment.json=), m44 owns resolution and
@@ -492,8 +492,8 @@ async function collectInstances(instances) {
       if (!mount || !(await Deno.stat(mount).catch(() => null))) {
         flags.push("dangling");
       } else {
-        const shelf = instances.shelf(slug).absolute;
-        if (mount !== shelf && (await Deno.stat(shelf).catch(() => null))) flags.push("shadowed");
+        const instance = instances.instance(slug).absolute;
+        if (mount !== instance && (await Deno.stat(instance).catch(() => null))) flags.push("shadowed");
       }
       rows.push({
         slug,
@@ -517,8 +517,8 @@ async function collectInstances(instances) {
   }
 }
 #+END_SRC
-=shadowed= means: the record's mount lives elsewhere while a same-named shelf dir exists —
-a reader guessing by shelf name would land on the wrong tree.
+=shadowed= means: the record's mount lives elsewhere while a same-named instance directory exists —
+a reader guessing by instance name would land on the wrong tree.
 
 ** M7 — docs + README
 Getting-started step 3 gains =--slug= sentence; =33.01_anatomy-of-the-ledger.mdx= identity
@@ -556,10 +556,10 @@ paragraph: "the record names instances; manifests name recipes."
 - I run =viva instance/create @viva/instance/hello-world= twice. The second run refuses
   before touching disk and hands me the exact way out: ='hello-world' exists — pass
   --slug=<other>=. Nothing half-created, nothing suffixed for me.
-- I pass =--slug=trial= instead: shelf dir named =trial=, record row =trial=, and the
+- I pass =--slug=trial= instead: instance directory named =trial=, record row =trial=, and the
   recipe's own manifest still says =hello-world= — and I can feel that nothing cares.
 - I type =viva instance/use nope=. Honest miss: =no instance 'nope'= plus the literal tap
-  line to fix it. Never a silent shelf guess that lands me in the wrong tree.
+  line to fix it. Never a silent instance guess that lands me in the wrong tree.
 - I move an instance dir by hand, then =viva instance/tap ./moved --slug=old= adopts it.
   A bare token (=tap moved=) is refused with the =./moved= hint — the door teaches the
   path law instead of stat-ing my cwd.
@@ -581,7 +581,7 @@ paragraph: "the record names instances; manifests name recipes."
   section never restates it.
 
 #+marker_qa: m44/T-create-collision · held · scratch ledger: second `instance/create @commons/instance/hello-world` → `instance 'hello-world' exists — pass --slug=<other>`, exit 1, `instances/` untouched
-#+marker_qa: m44/T-slug-override · held · `--slug=trial` → shelf `instances/trial`, record key `trial`, the shelf's own manifest still reads `slug: "hello-world"`
+#+marker_qa: m44/T-slug-override · held · `--slug=trial` → instance `instances/trial`, record key `trial`, the instance's own manifest still reads `slug: "hello-world"`
 #+marker_qa: m44/T-use-miss · held · `instances/use nope` → `no instance 'nope' — viva instances/tap <path> --slug=nope`, exit 1; `instances/` gained nothing
 #+marker_qa: m44/T-tap-bare-token · held · `instances/tap moved --slug=old` → `'moved' is a slug-shaped token — a tap takes a PATH; try ./moved`; `./moved` then adopted under `old`
 #+marker_qa: m44/T-rename-live-refusal · revised · refuses, but names the SUPERVISOR: `'old' is running (supervisor 27244) — stop it first` — m49's ONE lock `<slug>.lock` replaced the per-process file, so there is no process to name
@@ -643,7 +643,7 @@ paragraph: "the record names instances; manifests name recipes."
   live tree (post-m41, post lens-fix, create.test.js/use.test.js current). Ready to blast.
 - BLASTED, beef's "go" — M1–M7 TDD up the ladder, RED watched per milestone. Counts:
   M1 paladin ledger 26/130/0 (+lookup/rename/remove steps) · M2+M4 ghost target+use 19/0
-  (register contract ×2, specs threads {instance}, untapped-path note, no-shelf-guess error)
+  (register contract ×2, specs threads {instance}, untapped-path note, no-instance-guess error)
   · M3 create 5/0 (--slug, collision, record-at-birth) · M5 tap 5 + rename 3 = 8/0 ·
   M6 ledger 15 steps (dangling/orphan/shadowed) · FULL: paladin 26/130/0 · ghost 77/23/0 ·
   sheets 37/0 · docs build Complete. DEVIATIONS, all from terrain that moved mid-blast:
@@ -651,7 +651,7 @@ paragraph: "the record names instances; manifests name recipes."
   acts on the one you selected; instances/* answers about all of them") — =use.js= MOVED
   there while this blast ran; tap + rename therefore live at =instances/tap= +
   =instances/rename= (set operations), NOT =instance/*= as authored — every error string
-  says =viva instances/tap=. (2) =strata.wet= path-law's bareword leg pinned the shelf
+  says =viva instances/tap=. (2) =strata.wet= path-law's bareword leg pinned the instance
   guess — updated to the m44 law (no-record bareword = honest error, nothing stored;
   recorded bareword = record mount). (3) =use.js= gained an empty-record guard so a bare
   slug against an empty ledger errors honestly instead of hitting pick's rows-empty throw.

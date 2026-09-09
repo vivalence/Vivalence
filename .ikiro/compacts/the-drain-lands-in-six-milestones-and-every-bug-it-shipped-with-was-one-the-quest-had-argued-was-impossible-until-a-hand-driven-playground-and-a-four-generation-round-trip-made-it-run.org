@@ -1,5 +1,6 @@
 #+title: the drain lands in six milestones — and every bug it shipped with was one the quest had argued was impossible, until a hand-driven playground and a four-generation round trip made it run
 #+filetags: :m22:datasink:dataset:katabolic:belt-query:codec:paladin:twitch:terminators:round-trip:fixpoint:
+#+index: 64
 
 * the commission
 

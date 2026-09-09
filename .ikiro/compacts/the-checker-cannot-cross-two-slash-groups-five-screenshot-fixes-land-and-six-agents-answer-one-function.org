@@ -1,5 +1,6 @@
 #+title: the checker cannot cross two slash groups, five screenshot fixes land, and six agents answer one function
 #+filetags: :dojo:italian-corpus:typology:string-matches:separate:callout:scope-inflation:fleet:
+#+index: 33
 
 * spine (21-turn session; extractor run, 13 queue duplicates collapsed)
 

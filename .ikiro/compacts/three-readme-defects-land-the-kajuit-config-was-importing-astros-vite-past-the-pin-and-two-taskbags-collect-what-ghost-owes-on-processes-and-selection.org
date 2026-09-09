@@ -1,5 +1,6 @@
 #+title: three README defects land, the kajuit config was importing astro's vite past the pin, and two taskbags collect what ghost owes on processes and selection
 #+filetags: :readme:docs:ghost:paladin:kajuit:vite:rolldown:musl:alpine:ubuntu:install:instance:init:process:taskbag:quest:callout:
+#+index: 138
 
 * what happened, in one breath
 

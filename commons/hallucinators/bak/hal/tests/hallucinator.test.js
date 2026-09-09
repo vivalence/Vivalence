@@ -1,7 +1,7 @@
 import { v } from "@vivalence/typology";
 import paladin from "@vivalence/paladin";
 import { Vector } from "@vivalence/typology";
-import { Agent, specimen, Action } from "@vivalence/typology";
+import { Action, Agent, specimen } from "@vivalence/typology";
 
 await paladin.ikiro;
 await paladin.vip.mount(paladin.scope.registry.branch("services"));

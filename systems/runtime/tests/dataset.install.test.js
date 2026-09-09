@@ -18,8 +18,7 @@ specimen.beforeAll(async () => {
 
   const corpus = await topography.corpus();
   mode = {
-    type: "topography",
-    slug: "fixture",
+    manifest: { type: "topography", slug: "fixture", traits: [] },
     entity: { installed: "" },
     module: { mount: corpus, dataset: topography.dataset() },
   };

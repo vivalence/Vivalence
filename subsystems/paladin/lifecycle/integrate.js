@@ -1,6 +1,7 @@
-import { is, fromm } from "@vivalence/typology";
+import { is, object, v } from "@vivalence/typology";
 
 export async function statements(paladin) {
+  const { Instance, Mountpoint } = v.primitives.instance;
   const mounts = [];
 
   if (paladin.is.citizen) {
@@ -9,20 +10,7 @@ export async function statements(paladin) {
       paladin.scope.repository,
       paladin.scope.registry,
       paladin.scope.instance,
-      ...paladin.instance.services.map((s) => s.mount),
-      ...paladin.instance.daemons.map((d) => d.mount),
-      ...paladin.instance.daemons.flatMap((d) =>
-        (d.kernel ?? [])
-          .filter((entry) => is.object(entry) && is.string(entry.module))
-          .map((entry) => entry.mountpoint)
-          .filter(Boolean),
-      ),
-      ...paladin.instance.daemons
-        .filter((d) => is.object(d.consume))
-        .map((d) => fromm.slugmap(d.consume).array)
-        .flat()
-        .filter(Boolean)
-        .map((c) => c.mount),
+      ...v.collect(Instance, paladin.instance, Mountpoint).map(({ value }) => value),
     ]);
   }
 
@@ -40,6 +28,7 @@ export async function statements(paladin) {
   }
 }
 
+// lie.
 export async function secure(paladin) {
   delete paladin.secret;
   delete paladin.tilde; // depracated.
@@ -72,3 +61,48 @@ export async function secure(paladin) {
 //     await paladin.state.dir(dir);
 //   }
 // }
+
+const label = (instance, pointer) =>
+  pointer
+    .split("/")
+    .slice(1)
+    .reduce((at, part) => {
+      const slot = { daemons: "daemon", services: "service", clients: "client" }[at];
+      if (slot) return `${slot}[${instance[at][part]?.manifest?.slug}]`;
+      return /^\d+$/.test(part) ? `${at}[${part}]` : at ? `${at}.${part}` : part;
+    }, "") || "instance";
+
+const alive = (mask) => Boolean(mask) && !Object.values(mask.secrets ?? {}).some(is.empty);
+
+const dormant = (instance, at, mask) => {
+  const blank = Object.entries(mask?.secrets ?? {})
+    .filter(([, value]) => is.empty(value))
+    .map(([name]) => name);
+  const why = mask ? `${mask.module} — empty ${blank.join(", ")}` : "nothing declared";
+  console.warn(`[instance] ${at} filtered, ${why}`);
+  instance.dormant.push(at);
+  return false;
+};
+
+export function settle(instance) {
+  const { Instance } = v.primitives.instance;
+  instance.dormant = [];
+  for (const daemon of instance.daemons) {
+    const at = `daemon[${daemon.manifest?.slug}]`;
+    daemon.hallucinators = (daemon.hallucinators ?? []).filter(
+      (mask, index) => alive(mask) || dormant(instance, `${at}.hallucinators[${index}]`, mask),
+    );
+    daemon.consume = object.filter(
+      daemon.consume ?? {},
+      (slug) => alive(daemon.consume[slug]) || dormant(instance, `${at}.consume.${slug}`, daemon.consume[slug]),
+    );
+  }
+  Instance.cast(instance);
+  const faults = Instance.faults(instance).map(({ at, reason }) => `${label(instance, at)} ${reason}`);
+  const echoed = (sentence) => {
+    const source = sentence.replace(/^(?:daemon|service)\[[^\]]*\]\./, "");
+    return source !== sentence && faults.includes(source);
+  };
+  instance.faults = faults.filter((sentence) => !echoed(sentence));
+  if (!instance.faults.length) Instance.decode(instance);
+}

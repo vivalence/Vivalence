@@ -1,5 +1,6 @@
 #+title: the designer returns a drawer, the query engine is widened to everything both repositories speak, the drawer lands in one evening, and beef drives it live until the runtime eats sixteen gigabytes
 #+filetags: :m34:m24:dojo:drawer:design-import:repository-grammar:symbols:traits:streams:kajuit:svelte:responsive:aperture:mikro-orm:memory:known-issue:
+#+index: 54
 
 * arc
 

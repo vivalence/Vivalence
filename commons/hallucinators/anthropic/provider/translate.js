@@ -1,4 +1,5 @@
 // Bidirectional translation: vivalence turns/parts ↔ Anthropic messages API
+import { shard } from "@vivalence/typology";
 
 // --- outbound: turns/parts → Anthropic format ---
 
@@ -63,14 +64,12 @@ function partToAnthropic(part) {
         name: part.name, //@beef move away from name on contract side. signature.
         input: part.input ?? {},
       };
-    case "tool_result": {
-      const spoken = part.output?.message ?? part.output?.object ?? part.output;
+    case "tool_result":
       return {
         type: "tool_result",
         tool_use_id: part.id,
-        content: typeof spoken === "string" ? spoken : JSON.stringify(spoken),
+        content: shard.hallucinate.speak(part.output),
       };
-    }
     default:
       return { type: "text", text: typeof part === "string" ? part : JSON.stringify(part) };
   }

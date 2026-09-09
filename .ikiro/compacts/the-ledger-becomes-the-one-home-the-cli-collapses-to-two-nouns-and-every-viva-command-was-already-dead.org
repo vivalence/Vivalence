@@ -1,5 +1,6 @@
 #+title: the ledger becomes the one home, the cli collapses to two nouns, and every viva command was already dead
 #+filetags: :ledger:paladin:ghost:typology:dispatch:cli:convention:m40:callout:
+#+index: 85
 
 * what happened, in one breath
 

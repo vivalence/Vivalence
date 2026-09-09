@@ -1,5 +1,6 @@
 #+title: the phone list lands twice, the keyboard learns to never leave, and contractions become language statics the topography provides and the domain serves
 #+filetags: :dojo:mobile:keyboard:focus-law:persist:holder:session:buffer-data:randomness:anhieb:preview:builder:pinning:drag:contractions:language-statics:topography:domain:typology:string-matches:elision:bruno:callouts:
+#+index: 94
 
 * arc
 

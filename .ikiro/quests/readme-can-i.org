@@ -1,0 +1,287 @@
+#+title: readme — the "Can I…" fan
+#+filetags: :readme:copy:positioning:mini:
+#+status: AUTHORED — beef handed the raw block, /"create a mini quest. …to formulate this and append it to the readme"/. Copy formulated + claim-checked against the tree; nothing on disk yet. Of 18 questions (9 shipped · 9 planned) FOUR claims failed the tree — 2 WRONG (providers, the positional readiness cross-reference), 2 THIN (the keyless daemon, the language package) — and four gained the command that proves them. My own first pass then failed the same way twice, corrected in the changelog. Two forks owed before the append.
+#+marker_qa: readme-can-i/T-scan · pending · a stranger reads the section cold and can name three things vivalence does TODAY
+#+marker_qa: readme-can-i/T-anchor · pending · the nav bar "Can I…" link jumps to the section on github.com, not to nothing
+#+marker_qa: readme-can-i/P-links · pending · every in-README anchor in the new section resolves to a real heading
+#+marker_qa: readme-can-i/P-no-yes · pending · zero "Yes." inside the planned block — you cannot answer yes to what does not exist
+
+* ikiro
+
+** intent
+
+A capability fan in the reader's own voice. The README today argues from the
+system down (modality → a mode → an instance → the climb); nothing argues from
+the reader's want up. "Can I…" is that inversion, and it is the only section a
+stranger can read without knowing a single vivalence noun.
+
+beef's raw block, verbatim, is the source. My job was formulation, not
+authorship: preserve his sentences, correct only what the tree contradicts,
+and give each surviving claim its proof.
+
+** the decision trail
+
+*** 1 — placement: after the climb, before the noticeboard · RULED
+
+The section goes between =### 6 — Summary and next steps= and =## Noticeboard=.
+
+Why not earlier (after =## Modality=, the other candidate): the README's
+strongest asset is the =mode.viva.js= block at line 22, and an 18-item fan
+above it pushes the code below the fold. Why here: every "yes" in the shipped
+half is something the reader can do with the instance they *just booted* two
+sections up, and the planned half lands three sections from =# Trajectory=,
+where roadmap belongs. The fan is the "next steps" list, expanded.
+
+Nav bar gains one anchor.
+
+*** 2 — the planned half stops saying "Yes." · RULED
+
+MEASURED off his raw block (18 questions · 9 shipped · 9 tagged
+=*(planned)*=): **9/9 shipped answers open with "Yes.", and 2/9 planned ones do**
+— the vault and the phone-links. **You cannot answer "Yes" to something that does
+not exist.** Next to a Development Notice that reads /"Don't expect things to be
+working"/, those two are the only sentences in the README that lie.
+
+Two is small, and that is exactly why the fix is structural rather than a
+two-word deletion: the =*(planned)*= tag is doing the disclaiming nine times
+over, inline, in italics, at the end of a bolded question — the weakest position
+on the line. Move it to a heading and it is said once, before the reader reaches
+a single answer, and the two "Yes."es have nowhere left to hide.
+
+So: one =### …eventually= sub-heading, the Q&A form kept (rhythm is the
+section's spine), the "Yes." and the repeated =*(planned)*= tag both dropped —
+the heading carries what the tag was carrying, once instead of ten times.
+
+*** 3 — every surviving claim carries its proof · RULED
+
+A capability claim with a command under it is a demo; without one it is
+marketing. Four items gained the command that already exists:
+
+| item | proof added |
+|------+-------------|
+| learn a language | =viva registry/tap https://github.com/vivalence/registry-education= |
+| AI without depending on it | =viva instance/doctor= lists a keyless faculty as =dormant= and boots |
+| switch providers | =commons/hallucinators/= — four on disk, named |
+| run offline | the lighthouse is =commons/lighthouses/multiplayer=, in the instance |
+
+*** 4 — "the item below" · RULED
+
+Two planned items cross-referenced each other positionally (/"the same
+readiness domain as the item below"/). A positional reference breaks the first
+time anyone reorders the list. Both items now name the domain instead.
+
+** the claims ledger (what verification changed)
+
+Checked against the working tree this session. WRONG = his sentence is not
+true of the code; THIN = true but unprovable to a stranger.
+
+| his claim | verdict | what the tree says |
+|-----------+---------+--------------------|
+| /"Anthropic today, OpenRouter tomorrow, local models next week"/ | WRONG | =commons/hallucinators/= holds =anthropic= · =openrouter= · =deepgram= · =elevenlabs= — openrouter shipped, and the sentence undersells by a full provider plus both voice adapters |
+| /"Without a key or a model, the daemon still runs"/ | THIN | TRUE and already instrumented — =instance/doctor= prints =dormant= for /"hallucinators whose key is blank"/ (README:252). The proof was one clause away |
+| /"Pull the language-learning daemon"/ | THIN | TRUE and pullable TODAY — =registry-education= is the tap example already in README:220. Say the command |
+| /"It's air-gapped by design"/ | HELD | stands, and reinforces rather than contradicts the Security Notice's moat — a system meant for a moat should say so |
+| /"the same readiness domain as the item below"/ | WRONG | positional, breaks on reorder |
+| /"Run as many as your hardware holds"/ | HELD | unchanged |
+| /"free for private use, with a flat license…"/ | HELD | duplicates the line at README:9 — kept anyway: last-question-is-the-money-question is the right FAQ shape, and it now links =#pricing-b2b= instead of restating it |
+
+** M1 — the append (the only milestone)
+
+*** the copy
+
+Appended after =### 6 — Summary and next steps=, before =## Noticeboard=.
+
+#+BEGIN_SRC markdown
+## Can I…
+
+**…run my own agent swarm in the cloud?**
+Yes. Daemons are persistent, harnessed and tooled. Run as many as your hardware holds, on your cloud or on none.
+
+**…learn a language on a system that's actually mine?**
+Yes. `viva registry/tap https://github.com/vivalence/registry-education` pulls the language-learning package — then shape the surface into drills or dialogue. Swap the corpus for Latin and keep everything else.
+
+**…use AI without depending on it?**
+Yes. Modes can call on AI faculties but never require them. Without a key or a model the daemon still runs — `viva instance/doctor` lists those faculties as `dormant` and boots anyway.
+
+**…switch AI providers tomorrow?**
+Yes. Hallucinators are adapters, and an adapter is just a mode. Anthropic and OpenRouter ship today, Deepgram and ElevenLabs cover voice, and a local model is the same shape.
+
+**…run fully offline?**
+Yes. It's air-gapped by design. The lighthouse you sign in against, the database and the services are all part of your instance.
+
+**…see exactly what runs, and what the agents do?**
+Yes. It's JavaScript and Svelte on your machine. Inspect it, audit it, fork it.
+
+**…build an app by describing it?**
+Yes. A surface costs a prompt: describe it to a coding agent and it builds you a mode.
+
+**…take my data with me?**
+Yes. Shared schemas and your own storage mean no silo and no lock-in.
+
+**…use it at work?**
+Yes. Free for private use, flat license for institutional and commercial use. Fair source — [pricing](#pricing-b2b).
+
+### …eventually
+
+Designed, not shipped. None of the below runs today.
+
+**…run my office on my own services?**
+Mail, calendar, documents and a double-entry ledger. Each problemspace gets one shared domain, and the workflows are shaped to your office.
+
+**…keep a password vault that never leaves my machine?**
+It ships when it's audited, not before.
+
+**…save links from my phone and read them later?**
+Share to link into your own instance. It's your reading list on your server.
+
+**…get told when a page changes, and why?**
+A watcher checks on a schedule and diffs the page, then an agent tells you what actually changed.
+
+**…turn voice memos into notes and action items?**
+Record, transcribe, extract. Transcription and voice are services, so you can swap providers or run them locally.
+
+**…track my training?**
+Workouts, goals and progress, on the readiness domain below.
+
+**…know whether my team is qualified and ready?**
+Certifications, expiry dates, training records and equipment. Readiness spans people and assets, so LMS, ERP and your own training share one domain.
+
+**…play chess against Claude, GPT or Stockfish?**
+Every seat is a slot, and any model or engine can fill it. Play them yourself or let them play each other.
+
+**…sync my apps across devices, or play with friends?**
+Multiplayer modes sync their buffers across runtimes. A buffer is a game state.
+#+END_SRC
+
+*** the nav line
+
+=README.md:1= — the centred nav paragraph. One anchor added between Quickstart
+and Notices:
+
+#+BEGIN_SRC diff
+-<a href="#hello-mode">Hello</a> · <a href="#quickstart">Quickstart</a> · <a href="#noticeboard">Notices</a>
++<a href="#hello-mode">Hello</a> · <a href="#quickstart">Quickstart</a> · <a href="#can-i">Can I…</a> · <a href="#noticeboard">Notices</a>
+#+END_SRC
+
+GitHub's slugifier drops =…= (U+2026), so =## Can I…= → =#can-i=. Asserted,
+not measured — =T-anchor= is exactly that measurement, and the fallback if it
+fails is an explicit =<a id="can-i"></a>= above the heading.
+
+** testing assessment
+
+*** in place
+
+Nothing. **COVERAGE GAP, and it is total** — no suite reads =README.md=.
+
+An unrestricted =grep -rl README= over the tree (the first pass was scoped by
+=--include= and missed =.mdx= — see the changelog) returns exactly two live
+non-=.ikiro/= references, and neither is an embed:
+
+| hit | what it is | survives the append? |
+|-----+------------+----------------------|
+| =subsystems/paladin/skills/fs.js:96= | a =.desc= example string — writes a README for a *new mode*, never reads this one | yes, untouched |
+| =documentation/content/…/12.01_slowstart.mdx:7= | prose coupling — /"The README quickstart is a 'Hello World' in five commands"/ | yes — it counts the quickstart's COMMANDS, and the append lands after §6 |
+
+=documentation/bak/…/52.01_getting-started.{md,org}= is a stale mirror under
+=bak/=. The docs site does not pull the README.
+
+So the blast radius is one file — but the slowstart page is a live prose
+dependent, and any future edit that changes the quickstart's SHAPE (not its
+tail) has to update =12.01_slowstart.mdx= in the same pass.
+
+*** changes · adds
+
+None, and none. A prose section earns no unit test; inventing one would be a
+test that tracks my own copy. The gate is human + grep, below.
+
+*** per-milestone green ladder
+
+| milestone | green gate |
+|-----------+------------|
+| M1 | =P-links= grep returns zero unresolved anchors · =P-no-yes= returns zero · beef's eye on the rendered section |
+
+** QA
+
+*** ① testimony
+
+- I open the README on github.com, click **Can I…** in the top nav, and land on
+  the section — not at the top of the page, not at the noticeboard.
+- I read the shipped half cold, knowing no vivalence nouns, and come away able
+  to name three things the system does today. If a line needs me to already
+  know what a "mode" or a "hallucinator" is, that line failed.
+- I read the planned half and never once think something ships that doesn't.
+  The heading told me, so no line has to.
+- I hit *"Without a key or a model the daemon still runs"* and immediately
+  wonder /how would I even see that?/ — the same sentence hands me
+  =instance/doctor= and the word =dormant=. The doubt and its answer arrive
+  together.
+- I hit *"switch AI providers tomorrow"* and the four names on disk are right
+  there, so the claim is checkable in one =ls=.
+
+*** ② programmatic
+
+References the ladder, does not duplicate it.
+
+#+BEGIN_SRC sh
+# P-links — every in-README anchor resolves to a heading
+grep -o '(#[a-z0-9-]*)' README.md | tr -d '(#)' | sort -u
+
+# P-no-yes — the planned block must never say Yes.
+sed -n '/^### …eventually/,/^## /p' README.md | grep -c '^Yes\.'   # expect 0
+#+END_SRC
+
+** blast table
+
+| file | change | milestone | kind |
+|------+--------+-----------+------|
+| =README.md= (nav, :1) | +1 anchor in the centred nav paragraph | M1 | surgical |
+| =README.md= (after §6, before =## Noticeboard=) | +1 section, ~60 lines | M1 | append |
+
+One file. Two hunks. No code, no tests, no instances, no packages.
+
+** deferred
+
+- **Trimming the fan.** Eighteen items is long for a README. Not cut — his
+  block, his call. Reopens if the rendered section reads as a wall.
+- **Mirroring onto docs.vivalence.org.** The site does not embed the README
+  today. Reopens when the getting-started page is un-=bak=-ed.
+- **A per-item link into the docs.** Every "yes" could point at its page. Blocked
+  on the docs actually having those pages.
+
+** forks
+
+1. **The planned half's form.** RULED above as Q&A-under-a-heading with the
+   "Yes." dropped. The live alternative is a bullet list, which compresses ten
+   items to ten lines and reads as roadmap rather than as promise — at the cost
+   of the section changing shape halfway down. Recommend as ruled; his call.
+2. **The "use it at work" item.** It restates README:9. Kept as the closing
+   question because that is where an FAQ's money question belongs, and it now
+   links rather than repeats. If he'd rather not say it twice on one page, it
+   is the one item that can be deleted with no loss.
+
+** changelog
+
+- session 1 — beef handed the raw 18-item block and ordered a mini quest.
+  Read the README's arc, the quest method, =commons/=. Claim-checked every
+  line against the tree: one WRONG on providers, one WRONG on the positional
+  cross-reference, two THIN that had their proof one clause away. Copy
+  formulated, placement ruled, two forks left open. Nothing written to
+  =README.md=.
+- session 1, after the claim-guard fired — TWO of my OWN claims were the
+  =assume-dont-verify= family, and both are corrected above:
+  1. /"seven of his ten planned items open with Yes."/ — invented on both
+     numbers. Measured: **9 planned, 2 opening "Yes."** The ruling survives; the
+     evidence for it did not exist until it was counted. Worse, my first count
+     ran against a transcription of his block that had silently dropped a
+     "Yes." — the measuring instrument was itself unverified, and only the
+     second pass caught it.
+  2. /"no consumer outside =.ikiro/="/ — a SELF-SCOPED grep: the =--include=
+     list carried =.md= but not =.mdx=, so it measured where I expected
+     consumers to be. Unrestricted, it found
+     =documentation/content/…/12.01_slowstart.mdx:7=, a live docs page that
+     describes the README quickstart in prose.
+
+** release
+
+=none: no interface moved= — README copy only; no surface a consumer types
+differently.

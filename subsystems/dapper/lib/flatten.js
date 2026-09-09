@@ -2,7 +2,15 @@ export const ZONE_COUNT = 6;
 
 export const ZONE = { Z0: 0, Z1: 1, Z2: 2, Z3: 3, Z4: 4, Z5: 5 };
 
-const INTERACTIVE_ROLES = ["primary", "secondary", "accent", "info", "success", "warning", "danger"];
+const INTERACTIVE_ROLES = [
+  "primary",
+  "secondary",
+  "accent",
+  "info",
+  "success",
+  "warning",
+  "danger",
+];
 
 const STATES = ["base", "hover", "active"];
 
@@ -34,7 +42,9 @@ export function generateZoneCSS({ themes }) {
 
     if (theme.fonts) {
       css += `:root[data-theme="${themeName}"] {\n`;
-      if (theme.fonts.heading) css += `  --zone-font-heading: ${theme.fonts.heading};\n`;
+      if (theme.fonts.heading) {
+        css += `  --zone-font-heading: ${theme.fonts.heading};\n`;
+      }
       if (theme.fonts.body) css += `  --zone-font-body: ${theme.fonts.body};\n`;
       if (theme.fonts.code) css += `  --zone-font-code: ${theme.fonts.code};\n`;
       css += "}\n\n";
@@ -63,7 +73,9 @@ export const generateCSS = (ds) => {
     Object.entries(theme).forEach(([category, tokens]) => {
       if (category === "zones" || category === "fonts") return;
       if (!tokens || typeof tokens !== "object") {
-        warnings.add(`Missing or invalid ${category} tokens in ${themeName} theme`);
+        warnings.add(
+          `Missing or invalid ${category} tokens in ${themeName} theme`,
+        );
         return;
       }
       const flatTokens = flattenObject(tokens, category, theme);

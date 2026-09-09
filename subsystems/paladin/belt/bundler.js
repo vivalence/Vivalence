@@ -10,6 +10,7 @@ export default function bundler(paladin) {
   const imports = () => ({
     "@vivalence/typology": paladin.scope.repository.branch("subsystems/typology/mod.client.js").absolute,
     "@vivalence/drapes": paladin.scope.repository.branch("subsystems/drapes/mod.js").absolute,
+    "@vivalence/drapes/": `${paladin.scope.repository.branch("subsystems/drapes").absolute}/`,
   });
 
   const kinds = {

@@ -1,5 +1,6 @@
 #+title: the retention rename lands clean, domain tools move into the harness, and the hallucinate output contract goes on the bench
 #+filetags: :m23:retention:rename:tooled:harnessed:domain-tools:hallucinate:output-contract:survey:
+#+index: 114
 
 * the ask
 

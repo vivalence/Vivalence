@@ -1,5 +1,6 @@
 #+title: the retry was a state nobody wrote, the signin page becomes the one door, and signup learns it means ensure
 #+filetags: :kajuit:ghost:paladin:registry:documentation:env:cli:auth:lighthouse:landing:
+#+index: 115
 
 * what happened, in one breath
 

@@ -1,15 +1,16 @@
 import { Paladin } from "./prototypes/paladin.js";
-import * as populate from "./lifecycle/populate.js";
-import * as integrate from "./lifecycle/integrate.js";
+import * as lifecycle from "./lifecycle/index.js";
 import * as skills from "./skills/index.js";
 
 const paladin = new Paladin();
 paladin.skills = skills;
-await populate.env(paladin);
-await populate.scopes(paladin);
+await lifecycle.populate.env(paladin);
+await lifecycle.populate.scopes(paladin);
+lifecycle.populate.instance(paladin);
 
 if (paladin.is.citizen) {
-  await integrate.statements(paladin);
+  await lifecycle.integrate.statements(paladin);
 }
 
 export default paladin;
+export { lifecycle };

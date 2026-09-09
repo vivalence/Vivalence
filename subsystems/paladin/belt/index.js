@@ -8,6 +8,7 @@ import publish from "./publish.js";
 import source from "./source.js";
 import clone from "./clone.js";
 import bundler from "./bundler.js";
+import hydrate from "./hydrate.js";
 
 export default {
   find,
@@ -20,4 +21,5 @@ export default {
   source,
   clone,
   bundler,
+  hydrate,
 };

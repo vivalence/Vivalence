@@ -1,4 +1,4 @@
-import paladin from "@vivalence/paladin";
+import paladin, { lifecycle } from "@vivalence/paladin";
 import { basename } from "@std/path";
 import { search } from "@vivalence/sheets";
 import { locate } from "./target.js";
@@ -38,7 +38,7 @@ export async function doctor(ctx) {
   const { target, filter } = found;
   if (target) paladin.env.set("VIVA_INSTANCE_MOUNT", target, "flag");
 
-  await paladin.instance.mount();
+  await lifecycle.mount(paladin.instance);
   const mount = paladin.scope.instance.absolute;
   const instance = (await paladin.ledger.instances.lookup(mount))?.slug ?? basename(mount);
 
@@ -47,10 +47,10 @@ export async function doctor(ctx) {
   ctx.effect = {
     mount,
     manifest: paladin.instance.manifest,
-    daemons: (paladin.instance.daemons ?? []).map((daemon) => daemon.slug ?? daemon.manifest?.slug),
-    services: (paladin.instance.services ?? []).map((service) => service.slug ?? service.manifest?.slug),
-    clients: Object.keys(paladin.instance.clients ?? {}),
-    runtime: Object.keys(paladin.instance.runtime ?? {}),
+    runtime: paladin.instance.runtime?.manifest?.slug ?? null,
+    daemons: paladin.instance.daemons.map((daemon) => daemon.manifest?.slug),
+    services: paladin.instance.services.map((service) => service.manifest?.slug),
+    clients: paladin.instance.clients.map((client) => client.manifest?.slug),
     mountpoint: paladin.scope.mountpoint?.absolute ?? null,
     vars: paladin.env.strata.get("instance") ?? {},
     env: rows.map(({ verdict, describe, group, required, at, ...row }) => ({

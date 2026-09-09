@@ -1,7 +1,6 @@
 import { Env } from "@vivalence/typology";
 import belt from "../belt/index.js";
 import { Ledger } from "./ledger/index.js";
-import { Instance } from "./instance.js";
 import { Vip } from "./vip.js";
 
 const STRATA = ["flag", "cwd", "instance", ".env", "os", "session", "ledger"];
@@ -42,12 +41,6 @@ export class Paladin {
     return { held, secrets, ignored, blank };
   }
 
-  // mount is fn.once, so a changed .env needs a fresh instance. the wizard is why.
-  remount() {
-    this.instance = new Instance(this);
-    return this.instance.mount();
-  }
-
   // assign: no source · observe: ambient · claim: role. all three split by key.
   assign(bag, stratum) {
     const { held, secrets, ignored, blank } = this.split(bag);
@@ -85,9 +78,9 @@ export class Paladin {
     belt.source(this);
     belt.clone(this);
     belt.bundler(this);
-    // mountables — siblings of vip, own their state, fn.once mount()
+    belt.hydrate(this);
+    // mountables — siblings of vip, own their state
     this.ledger = new Ledger(this);
-    this.instance = new Instance(this);
     this.vip = new Vip(this);
   }
 

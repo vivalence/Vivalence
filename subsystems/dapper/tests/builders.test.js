@@ -3,15 +3,10 @@
 // subsystems/dapper/tests/builders.test.js`.
 
 import { specimen } from "@vivalence/typology";
-import {
-  pick,
-  interactive,
-  box,
-  skeleton,
-} from "../lib/builders.js";
+import { box, interactive, pick, skeleton } from "../lib/builders.js";
 
 const sampleRamp = {
-  50:  "#fafafa",
+  50: "#fafafa",
   100: "#f0f0f0",
   200: "#e0e0e0",
   300: "#d0d0d0",
@@ -73,12 +68,15 @@ specimen.describe("interactive", () => {
 });
 
 specimen.describe("box", () => {
-  specimen.it("returns surface/contrast/boundary triplet with default anchors", () => {
-    const result = box(sampleRamp);
-    specimen.expect(result.surface).toBe("#505050");  // 800
-    specimen.expect(result.contrast).toBe("#f0f0f0"); // 100
-    specimen.expect(result.boundary).toBe("#d0d0d0"); // 300
-  });
+  specimen.it(
+    "returns surface/contrast/boundary triplet with default anchors",
+    () => {
+      const result = box(sampleRamp);
+      specimen.expect(result.surface).toBe("#505050"); // 800
+      specimen.expect(result.contrast).toBe("#f0f0f0"); // 100
+      specimen.expect(result.boundary).toBe("#d0d0d0"); // 300
+    },
+  );
 
   specimen.it("accepts custom anchors", () => {
     const result = box(sampleRamp, [950, 50, 500]);
@@ -90,15 +88,15 @@ specimen.describe("box", () => {
 
 specimen.describe("skeleton", () => {
   const config = {
-    surface:  "#000",
+    surface: "#000",
     contrast: "#fff",
     boundary: "#888",
     roles: {
       primary: { ramp: sampleRamp, anchor: 300 },
-      danger:  { ramp: sampleRamp, anchor: 500 },
+      danger: { ramp: sampleRamp, anchor: 500 },
     },
     error: { ramp: sampleRamp, anchors: [800, 100, 300] },
-    font:  { heading: "h", body: "b", code: "c" },
+    font: { heading: "h", body: "b", code: "c" },
   };
 
   specimen.it("preserves structural raw values", () => {
@@ -125,15 +123,19 @@ specimen.describe("skeleton", () => {
 
   specimen.it("passes font through unchanged", () => {
     const result = skeleton(config);
-    specimen.expect(result.font).toEqual({ heading: "h", body: "b", code: "c" });
+    specimen.expect(result.font).toEqual({
+      heading: "h",
+      body: "b",
+      code: "c",
+    });
   });
 
   specimen.it("omits error and font when not provided", () => {
     const result = skeleton({
-      surface:  "#000",
+      surface: "#000",
       contrast: "#fff",
       boundary: "#888",
-      roles:    { primary: { ramp: sampleRamp, anchor: 300 } },
+      roles: { primary: { ramp: sampleRamp, anchor: 300 } },
     });
     specimen.expect(result.error).toBeUndefined();
     specimen.expect(result.font).toBeUndefined();
