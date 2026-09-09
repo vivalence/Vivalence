@@ -1,5 +1,6 @@
 #+title: the readme walk lands admin in the identity table, but hello-world ships a daemon whose package is not on this system, and kajuit 500s when two ssr entries race the client barrel
 #+filetags: :readme:ghost:instance:registry:kajuit:telemetry:typology:vite:ssr:known-issue:report:
+#+index: 107
 
 * what happened, in one breath
 

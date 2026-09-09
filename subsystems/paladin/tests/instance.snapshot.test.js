@@ -1,10 +1,4 @@
-// snapshot demo · paladin — 2 subjects (the resolved deployment + the scope paths).
-// Step 1: DRY — console.log each pojo + resolved path. Step 2: write + read back.
-//
-// Mounts the IN-REPO @commons/instance/hello-world. It used to mount whatever the ambient
-// VIVA_INSTANCE_MOUNT happened to name — a deployment fact — so it broke every time the dev
-// instance moved, was renamed, or had its env line commented out. A test owns its fixture.
-import paladin from "@vivalence/paladin";
+import paladin, { lifecycle } from "@vivalence/paladin";
 import { specimen } from "@vivalence/typology";
 
 const { describe, it, expect, snapshot } = specimen;
@@ -12,13 +6,27 @@ const base = new URL("./snapshots", import.meta.url).pathname;
 const DRY = false;
 const FIXTURE = "commons/instances/hello-world";
 
+const redact = (node) =>
+  Array.isArray(node)
+    ? node.map(redact)
+    : node && typeof node === "object"
+      ? Object.fromEntries(
+          Object.entries(node).map(([key, value]) => [
+            key,
+            key === "secrets" ? Object.fromEntries(Object.keys(value ?? {}).map((slot) => [slot, "***"])) : redact(value),
+          ]),
+        )
+      : node;
+
 describe("snapshot demo: paladin", () => {
-  it("instance — the resolved deployment", async () => {
+  it("instance — the resolved deployment, secrets redacted, the paladin spine cut", async () => {
     paladin.env.set("VIVA_INSTANCE_MOUNT", paladin.scope.repository.branch(FIXTURE).absolute, "flag");
-    await paladin.instance.mount();
-    const { pojo, path } = snapshot(paladin.instance, { base, dry: DRY, depth: 6, locate: "paladin-instance.snapshot.json" });
+    await lifecycle.mount(paladin.instance);
+    const folded = snapshot(paladin.instance, { base, depth: 6, omit: ["paladin"], write: false }).pojo;
+    const { pojo, path } = snapshot(redact(folded), { base, dry: DRY, parse: (held) => held, locate: "paladin-instance.snapshot.json" });
     console.log(`\n===BEGIN paladin.instance → ${path}===\n${JSON.stringify(pojo, null, 2)}\n===END===\n`);
     expect(pojo).toBeTruthy();
+    expect(JSON.stringify(pojo)).not.toContain("sk-ant");
   });
 
   it("scope — the resolved directory paths", () => {

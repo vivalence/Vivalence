@@ -1,5 +1,6 @@
 #+title: the lighthouse is declared once and inherited at the pinhole, the client site was never read, and the quest index listed a bak that had dissolved
 #+filetags: :paladin:typology:instance:lighthouse:env:ghost:quest:release:readme:docs:blast:callout:
+#+index: 87
 
 * what happened, in one breath
 

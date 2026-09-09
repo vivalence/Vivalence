@@ -37,7 +37,7 @@ The middle = everything =commons/= can carry, nothing that needs a tap or a cont
 - mode traits with a runtime behind them: =DATASET DATASINK INTENTED EMITTER APPLICATION BOOTED GENERATIVE HARNESSED TOOLED AGENTIC EXPOSED FRAUGHT= (=systems/runtime/daemon/traits/=); markers only: =STANDALONE SELFEVIDENT=; client-only marker: =CONVERSATIONAL= (sidebar filter =panels/d/d.svelte:210=).
 - the armed tool stack: 10 tools for any HARNESSED mode with no domain (=entity_schema entity_find entity_count buffer_update thread_update fs_tree fs_find fs_read fs_write shell_run=), then =<domainslug>_*=, then the mode's own, then AGENTIC's =<peerslug>_*= (=harnessed.js:39-69=, =agentic.js:7=).
 - voice IN ships: HARNESSED mode + a deepgram hallucinator on the daemon → the dock grows a mic, nothing declared on the mode (=Dock.svelte:47-48=). Voice OUT to the dock is NOT built (=harnessed.js:96= tee commented, no =/harness/speech= leaf). Voice OUT to an ASSET is production: =ctx.daemon.cortex.hallucinate.speech.render({source})= → bytes → =mode.freight.receive(path, bytes)= → URL under =/attached/cargo/= (harvest is the reference; =traits/index.js:43-53=, =lifecycle/resolve.js:45-62=).
-- structured output: =ctx.mode.harness.object.render({turns, output: v.object(…)})= (oracle, dealer). Generative views: reader's =generator= + =mode.gen.bundle= (m19 LIVE).
+- structured output: =ctx.mode.harness.object.render({turns, output: v.object(…)})= (oracle, dealer). Generative views: reader's =generator= + =mode.generator.bundle= (m19 LIVE; renamed from =mode.gen= in m57).
 - entities: four collate tiers =[daemon, kernel, userspace, domain]= keyed by =type=, override field-by-field, subscribers accumulate (=population.js:30-43=); runtime =Literal= carries a placeholder trait enum ={_}= — the trait vocabulary is the DOMAIN's; =literal.ontology= derives from the one =TOPOGRAPHICAL= symbol (=kernel/Literal.ts:131-142=); DATASET seeds =symbol=/=literal= only, mints referenced symbols, =installed= is a content hash → reinstall on change (=traits/dataset.js=, =resolution.js:51-70=); over HTTP only =/entities/{literal,symbol,mode}= — everything else reaches the client through a mode aperture.
 - thread traits: =MASKED AIMED QUEUEING LABELED= persisted; =INTELLIGENT= + =VOCAL= validated ad hoc off =thread.trait= (=harnessed.js:34-36=) and NOT in =ThreadTraitsEnum= (=Thread.ts:22-29=) — see D3.
 - =daemon.docs= is assigned (=population.js:66=) and read by nothing — no =/docs= route, sidebar prints the slug (=d.svelte:214=). Declared grammar, dead surface.
@@ -59,7 +59,7 @@ STRING → 401 {"type":"error","error":{"type":"authentication_error","message":
 Every =provider.test.js= passes a literal string (=anthropic/tests/provider.test.js:247=), so the suites are blind. This is also WHY the recipe grew a ternary: the SDK boots on a null key and dies at call time. The structural home for "no key → no faculty" is the provider, which is exactly where the thunk arrives. → M0.
 
 *** D2 — PROVEN by read: four rigs call =mode.buffer()=, which does not exist
-=spawner.viva.js:25= =spawned.buffer(…)= · =dealer.viva.js:39,70= =card.buffer(…)= · =automaton.viva.js:22= · =switchboard.viva.js:21=. The only factories are =mode.app.buffer= (=traits/application.js:13=) and =mode.gen.buffer= (=generative.js:13=); =Mode= defines none (=typology/prototypes/mode.js=). Oracle uses the right form (=vision.app.buffer=, =oracle/emitter.js:21=). Every emit in the development daemon except oracle/reader throws =TypeError= today. → M1.
+=spawner.viva.js:25= =spawned.buffer(…)= · =dealer.viva.js:39,70= =card.buffer(…)= · =automaton.viva.js:22= · =switchboard.viva.js:21=. The only factories are =mode.app.buffer= (=traits/application.js:13=) and =mode.generator.buffer= (=generative.js:13=); =Mode= defines none (=typology/prototypes/mode.js=). Oracle uses the right form (=vision.app.buffer=, =oracle/emitter.js:21=). Every emit in the development daemon except oracle/reader throws =TypeError= today. → M1.
 
 *** D3 — UNVERIFIED: =INTELLIGENT= claim may be refused at flush
 =Intelligent.svelte:66-67= writes =traits: [...thread.traits, "INTELLIGENT"]= through =/entities/thread/updateOne=; the column is =enum: true, array: true, items: () => ThreadTraitsEnum= (=Thread.ts:110-116=) and the enum lacks =INTELLIGENT=/=VOCAL=. But =tests/thread.test.js:48= stores =["SELFEVIDENT"]= (also absent) and passes — the provider may not validate enum arrays. The m38 widget landed "undeployed". Probe P-intelligent before touching the enum. → M1 conditional.
@@ -854,7 +854,7 @@ services:
 3. scratch ledger: =ledger/init= → =registry/list= (census =@commons 24=: +=domain/recall= +=demo/flashcard= +=demo/coach=) → =instance/create @commons/instance/standalone= → =instances/use standalone= → =instance/init you changeme= (JWT only owed) → =instance/run= → =/status= ALIVE · =/daemon/italiano/metadata/modes= 401 · kajuit 200.
 4. headless boot (the 32.01 example shape): =literal.count() === 24= · =symbol.count() === 7= · =literal.findOne({slug:"ciao"}).ontology === "word"= · =rank === 1= · =mode.call.deck()= 10 cards · =review ciao true= → streak 1 · =/progress= touched 1.
 5. armed catalog on a coach thread (captured for §6): the 10 + =flashcard_deck flashcard_review flashcard_progress speak=.
-6. with your keys in the shelf =.env=: say /"quiz me"/ → deck drawn, a card asked, =speak= called, =▶ coach= chip, audio plays; mic present in the dock.
+6. with your keys in the instance =.env=: say /"quiz me"/ → deck drawn, a card asked, =speak= called, =▶ coach= chip, audio plays; mic present in the dock.
 
 * M3 — the pages
 
@@ -916,7 +916,7 @@ Provider tests → thunk keys (M0). =pensieve.test.js:35= path string (M4). Froz
 - I open the coach with the /Immersione/ intent. The dock has a mic. I say /"quiz me"/. It draws the deck, asks me one word in Italian, and a =▶ coach= chip appears; I press it and hear the word. I answer; it calls =flashcard_review=; the round shows in the dock as a tool row.
 - I open E on that thread and pick /frugal/ and /no thinking/. The next reply is visibly faster and the header chip shows the faculty it resolved.
 - I open =development / dealer=, press the phase face to /continuous/: cards deal themselves; /escort/: one at a time. =oracle=: I ask and get a one-line vision as a buffer.
-- I edit =dataset/literals.js= on the shelf (add a word), =instance/stop=, =instance/run=: the log says the dataset differs from its stamp and reinstalls; the flashcard shows 25 words.
+- I edit =dataset/literals.js= in `~/.viva/instances` (add a word), =instance/stop=, =instance/run=: the log says the dataset differs from its stamp and reinstalls; the flashcard shows 25 words.
 - Without any key: the coach answers /"no hallucinator attached"/, the dock has no mic, the flashcard works fully.
 ** ② programmatic + markers
 #+marker_qa: m51/P-secrets-thunk · pending · anthropic provider with =key: () => null= returns =[]=; with a thunk returning a string the request leaves the machine (401 from the network, never "Could not resolve authentication method")

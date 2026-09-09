@@ -46,8 +46,7 @@ const cycle = async ({ from, into, extension }) => {
 
   const shape = topography.generation(from, into, extension);
   const mode = {
-    type: "topography",
-    slug: `gen-${into}`,
+    manifest: { type: "topography", slug: `gen-${into}`, traits: [] },
     entity: { installed: false },
     module: { mount: { dirname: mount }, dataset: shape.dataset, datasink: shape.datasink },
   };
@@ -138,8 +137,7 @@ specimen.describe("the composite — cata ∘ ana is idempotent", () => {
 
     const shape = topography.generation("gen3", "gen4", "js");
     const mode = {
-      type: "topography",
-      slug: "gen-refix",
+      manifest: { type: "topography", slug: "gen-refix", traits: [] },
       entity: { installed: false },
       module: { mount: { dirname: mount }, dataset: shape.dataset, datasink: shape.datasink },
     };

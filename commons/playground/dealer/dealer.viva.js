@@ -1,12 +1,19 @@
-import { App, Vector, v } from "@vivalence/typology";
+import { App, v, Vector } from "@vivalence/typology";
 
 export const manifest = {
   type: "playground",
   slug: "dealer",
   name: "Dealer",
-  description: "Driver hub: deals card buffers, drives the thread phase, talks.",
+  description:
+    "Driver hub: deals card buffers, drives the thread phase, talks.",
   version: "0.1.0",
-  traits: ["APPLICATION", "STANDALONE", "EMITTER", "HARNESSED", "CONVERSATIONAL"],
+  traits: [
+    "APPLICATION",
+    "STANDALONE",
+    "EMITTER",
+    "HARNESSED",
+    "CONVERSATIONAL",
+  ],
 };
 
 // the hub is a control surface — its buffer carries nothing.
@@ -31,12 +38,16 @@ export const emitter = new Vector()
   // deterministic: deal the next N off the finite deck. thread.counter = how many already
   // dealt, so the deck empties → Pool drains EXHAUSTED → continuous stops cleanly.
   .open(
-    { nature: "/deal", input: v.object({ count: v.integer({ minimum: 1 }).default(2) }) },
+    {
+      nature: "/deal",
+      input: v.object({ count: v.integer({ minimum: 1 }).default(2) }),
+    },
     async (ctx) => {
       const card = ctx.daemon.modes.playground.card;
       const start = ctx.thread?.counter ?? 0;
-      for (const face of DECK.slice(start, start + ctx.input.count))
+      for (const face of DECK.slice(start, start + ctx.input.count)) {
         ctx.pool.add(card.buffer({ data: { face } }));
+      }
     },
   )
   // agentic: the dealer picks a themed hand via its harness (mirrors aprende /coach).
@@ -52,7 +63,9 @@ export const emitter = new Vector()
     async (ctx) => {
       const card = ctx.daemon.modes.playground.card;
       const context = [
-        `Pick ${ctx.input.count} cards for a themed hand from this deck: ${DECK.join(" ")}.`,
+        `Pick ${ctx.input.count} cards for a themed hand from this deck: ${
+          DECK.join(" ")
+        }.`,
         ctx.input.focus ? `Theme: ${ctx.input.focus}.` : null,
         "Return the faces only, exactly as written in the deck.",
       ]
@@ -66,8 +79,13 @@ export const emitter = new Vector()
         output: v.object({ faces: v.array(v.string()) }),
         tune: "frugal",
       });
-      for (const face of (output.object?.faces ?? []).filter((f) => DECK.includes(f)))
+      for (
+        const face of (output.object?.faces ?? []).filter((f) =>
+          DECK.includes(f)
+        )
+      ) {
         ctx.pool.add(card.buffer({ data: { face } }));
+      }
     },
   );
 
@@ -79,7 +97,11 @@ export const dataset = {
       slug: "table",
       name: "Open table",
       traits: ["MASKED", "AIMED", "QUEUEING"],
-      trait: { AIMED: { mount: "/emit/deal" }, MASKED: {}, QUEUEING: { depth: 3 } },
+      trait: {
+        AIMED: { mount: "/emit/deal" },
+        MASKED: {},
+        QUEUEING: { depth: 3 },
+      },
       phase: "continuous",
     },
   ],

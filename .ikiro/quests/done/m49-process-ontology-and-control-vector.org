@@ -1,6 +1,6 @@
 #+title: m49 process ontology + control vector — one primitive every process becomes, one vector every set of them answers
 #+filetags: :paladin:ghost:ledger:process:wafer:die:control:vector:runtime:daemon:supervisor:
-#+status: M1 LANDED (uncommitted) on beef's word (/"you own the paladin for now … implement that"/) — the OS child is a =Wafer= (=Process=), the supervised set is a =Die=, the ledger is the record; live-proven on a throwaway shelf instance (start → ALIVE lock + =/status= · run on a held instance REFUSED · delete REFUSED · stop → pids gone, lock gone, port free). paladin 36/0 · ghost 80/1 (pre-existing race). M2 (control vector) DESIGNED, transports MEASURED, unapplied — mounting is gated. M3 pointers only.
+#+status: M1 LANDED (uncommitted) on beef's word (/"you own the paladin for now … implement that"/) — the OS child is a =Wafer= (=Process=), the supervised set is a =Die=, the ledger is the record; live-proven on a throwaway instance (start → ALIVE lock + =/status= · run on a held instance REFUSED · delete REFUSED · stop → pids gone, lock gone, port free). paladin 36/0 · ghost 80/1 (pre-existing race). M2 (control vector) DESIGNED, transports MEASURED, unapplied — mounting is gated. M3 pointers only.
 #+status: Baselines at authoring: paladin 28 passed (147 steps) · ghost 81 passed / 1 failed (=strata.wet.test.js:93= reap race, pre-existing).
 #+phase: wip (derived)
 #+progress:  33% 1/3 (derived)
@@ -76,7 +76,7 @@ ghost init      boot (piped) · integrate · ONE signup call · disintegrate; th
 | B13    | =clearEnv: true=; =target.js= carries PATH/HOME/… + =VIVA_*= minus =VIVA_PROCESS_ID=            |
 | known  | =detached-process-die-on-parent-exit= — closes on the live proof of =start=                     |
 
-** landed — the live proof (throwaway shelf instance =m49-smoke=, ports 2601/1894, deleted after)
+** landed — the live proof (throwaway instance =m49-smoke=, ports 2601/1894, deleted after)
 
 #+BEGIN_EXAMPLE
 viva instance/start runtime --instance=m49-smoke   → ghost: started m49-smoke (supervisor 70721: runtime=70722)   exit 0

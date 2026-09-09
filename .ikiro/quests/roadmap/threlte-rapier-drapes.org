@@ -1,0 +1,109 @@
+#+title: threlte + rapier through drapes — the three.js phase of the stage, beef's 2024 force-graph prototype recovered, and what the droneaid demo already proved
+#+filetags: :roadmap:drapes:stage:three:threlte:rapier:droneaid:bundle:
+#+status: ROADMAP — prep only, nothing lands. Research pass over beef's past threlte/rapier work (one prototype, Oct 2024, alive on disk + in git history) plus the facts the @droneaid demo measured today (three compiles out-of-tree through the bundler; Deno cannot prefix-map npm:). The quest that grows from this gets beef's number.
+#+phase: roadmap
+#+progress: 0/0
+#+next: beef — read `* the fork`, number the quest, rule where three lives in drapes
+
+* intent
+
+beef, verbatim, the same session as @droneaid:
+
+/"we should have threejs/threlte available."/
+
+/"not yet sure about moving three and threlte to the import map. if we move it in there, we might as well work out the integration through drapes. hmmm. well later. for now importmap. later more."/
+
+/"regarding threlte. send out a research agent opus to find my past work on threlte and ...rapier/raptor the physics engine. tell him to find him and provide the code and how to find it. as prep for a quest in roadmap."/
+
+* what is on disk today
+
+- =import_map.json:147-151= — =three@0.186.0= · EXACT addon entries =three/addons/loaders/GLTFLoader.js= · =three/addons/controls/OrbitControls.js= · =@threlte/core@8.6.0= · =@threlte/extras@9.21.1=. No =@threlte/rapier=, no =@dimforge/*= (=deno.lock:721= carries =@dimforge/rapier3d-compat@0.12.0= only as an optional peer of extras).
+- =~/.viva/registry/droneaid/modes/assembly/pt10/buffer/{scene.js,Assembly.svelte}= — raw three, mode-local, imported straight from =node_modules=. Measured through =bundle.svelte=: prod 724 930 B / dev 6 617 995 B. GLTFLoader parses the GLB under Deno too (=tests/compose.test.js= 6/6).
+- =subsystems/drapes/stage/= — echarts only: =lib.js= namespace + =Canvas.svelte= (=init(container)= → =api.resize?.()= / =api.dispose?.()=). Zero =three= imports anywhere under =subsystems/= or =systems/= (grep for =WebGLRenderer|PerspectiveCamera|from "three"= outside node_modules → 0).
+- =.ikiro/quests/done/stage-canvas-devtools.quest.org:157= already specs the shape as phase 2, unbuilt: =stage.scene(container)= → ={ scene, camera, renderer, loop, dispose }= and =stage.THREE= the raw namespace.
+
+* laws measured today (droneaid)
+
+- Deno import maps CANNOT prefix-map into npm: — ="three/": "npm:three@x/"= fails with /"could not be URL-parsed relative to the URL prefix"/. Addons are exact entries or =npm:three@x/addons/...= inline.
+- =three/addons= (the =Addons.js= barrel) imports an =https:= module → Deno's ESM loader refuses (=ERR_UNSUPPORTED_ESM_URL_SCHEME=). Never import the barrel server-side.
+- The browser bundler never reads the import map for bare specifiers: =gestalten/bundle/svelte.js= resolves from =nodePaths=[<repo>/node_modules]= with =conditions: ["svelte","browser"]= and =mainFields: ["svelte",…]= — exactly what threlte's =.svelte= sources need. An out-of-tree package's buffer importing =three= or =@threlte/core= compiles without the package owning a node_modules.
+- The drapes law from the editor quest stands: a heavy engine is a SUBPATH (=@vivalence/drapes/<x>/index.js=, entry always =.js=), never re-exported from =mod.js=. =stage/= is in the barrel today, so echarts already rides every buffer; three (≈600 kB min) must not join it there.
+
+* beef's 2024 prototype — recovered
+
+One body of work. Oct 1–9 2024, a force-directed 3D ontology graph in the SvelteKit web client. Byte-identical across its three git generations (=174c2cce0= born 2024-10-09 → =268ed315d= moved 10-26 → =b04c42595= archived 11-20 → =73bec1201= DELETED 2025-03-27). Alive on disk, no VCS:
+
+#+begin_example
+/Users/finn/vivalence/code/vintagecollection/packages/clients/web/src/routes/archive/dev/
+  +page.svelte         <Canvas> + <World gravity={[0,0,0]}> host; {#if browser} guard (rapier is WASM, SSR must not touch it)
+  Demo.svelte          THE one: nested <Attractor> per node = force layout in pure physics; RigidBody + AutoColliders convexHull; useTask loop
+  Scene.svelte         no physics; links as oriented cylinders (this WORKED; <T.Line> in Demo never did)
+  force-graph.svelte.js  aborted d3-force-3d wrapper (JSX in .js, never ran)
+  fdg.js · dag.js      vendored 3d-force-graph, dead (imports ./kapsule-link.js which does not exist)
+  +page.server.js · data/tags.js   the tag dump feeding it
+#+end_example
+
+The force-layout trick, =Demo.svelte= verbatim:
+
+#+begin_src svelte
+<Attractor range={1000} strength={50} gravityType="static">
+  {#each nodes.values() as node (node.id)}
+    <T.Group position={[node.position.x, node.position.y, node.position.z]} bind:ref={node.ref}>
+      <RigidBody>
+        <Attractor range={500} strength={0.25} gravityType="linear">
+          <Attractor range={30} strength={-55} gravityType="linear">
+            <AutoColliders shape="convexHull">
+              <T.Mesh>
+                <T.SphereGeometry args={[3, 8, 8]} />
+                <T.MeshStandardMaterial color={getNodeColor(node)} />
+              </T.Mesh>
+            </AutoColliders>
+          </Attractor>
+        </Attractor>
+      </RigidBody>
+    </T.Group>
+  {/each}
+</Attractor>
+#+end_src
+
+Outer static well pulls everything to centre · per-node linear attractor = cohesion · short-range negative attractor = repulsion. =child.userData.rigidBody= reaches the Rapier body from the three object; =child.position.z = 0= in =useTask= pins the graph to a plane. =<Debug />= (commented) draws the collider wireframes.
+
+The link that worked, =Scene.svelte=:
+
+#+begin_src js
+const direction = new THREE.Vector3().subVectors(target, source);
+link.scale.set(LINK_RADIUS, direction.length(), LINK_RADIUS);
+link.quaternion.setFromUnitVectors(new THREE.Vector3(0, 1, 0), direction.normalize());
+#+end_src
+rendered as =<T.Mesh quaternion scale position><T.CylinderGeometry args={[1,1,1,8]} />=. =@threlte/extras= =MeshLineGeometry= was imported and never used — the other candidate.
+
+How it was wired then — the whole cost of the first attempt (logs =2024.10.01.org:74-97=: /"gigastuck on installing threlte … deno cant import .svelte files … setup a … vendor submodule … cost me most of the day"/): threlte as a git SUBMODULE pinned =d877608dc5abf612600d6d2a8c95a5a301a68475=, aliased to source in =vite.config.mjs= (=@threlte/core= → =../../vendor/threlte/packages/core/src/lib/index.ts=), rapier from =cdn.skypack.dev= unpinned, =three@0.169.0=, svelte 4.2.18 → 5.2.2. That whole hack is dead: the npm specifier in the import map + the bundler's =nodePaths= sidestep it, proven today.
+
+Never built, worth keeping (=2024.10.03.org:16=): /"divide the space into boxes and put attractors into the center of each … each node will monopolize an attractor … predictable by storing the locations."/
+
+Plain three reference: =~/Downloads/dewey-3d-engine.html= (2026-06-23) — GLTF character + AnimationMixer + morph targets + PMREM/RoomEnvironment, and a =<details>= sketch of the threlte port: =<T is={vrm.scene} />= adopts a raw three object graph into a threlte scene, =useTask((dt) => vrm.update(dt))=. That =<T is>= escape hatch is how the droneaid =compose()= output (plain =THREE.Group= parts) would enter a threlte scene without a rewrite.
+
+Nothing else anywhere: =~/.viva/registry/*= zero · "raptor" zero · no package.json on the machine names threlte/rapier · no surviving threlte source dir.
+
+* how to find it again
+
+#+begin_src sh
+grep -rl -i -E 'threlte|rapier|@dimforge' /Users/finn/vivalence | grep -v node_modules
+grep -n -i -B4 -A6 -E 'threlte|rapier' /Users/finn/vivalence/private/logs/2024.10.0{1,2,3}.org
+cd /Users/finn/vivalence/code/vivalence
+git show b04c42595:packages/clients/web/src/routes/archive/dev/Demo.svelte
+git show b04c42595:packages/clients/web/src/routes/archive/dev/Scene.svelte
+git show b04c42595:import_map.json | grep -n -i -E 'three|rapier|threlte'
+git ls-tree b04c42595 packages/vendor/
+cat /Users/finn/vivalence/code/vintagecollection/packages/clients/web/vite.config.mjs
+#+end_src
+
+* the fork
+
+Where three lives in drapes — beef rules, then the quest leaves roadmap/:
+
+1. =drapes/stage/= grows =scene.js= + =Scene.svelte= beside echarts, reached as =@vivalence/drapes/stage/scene.js= (subpath; =stage/index.js= never imports it). Matches the done quest's =stage.scene()= spec. Risk: "stage" reads as echarts today.
+2. A new family, e.g. =drapes/exhibit/= — own =index.js=, =Exhibit.svelte= (Canvas-shaped host), =lib.js= (THREE namespace + loaders). Clean split, one more coined register.
+3. Threlte-first: the drapes host IS threlte's =<Canvas>=; modes write =<T.*>= markup; raw three graphs enter through =<T is={obj} />=. Rapier via =@threlte/rapier= + =@dimforge/rapier3d-compat= (WASM — the bundler must pass it through; unmeasured).
+
+Owed before any of it: measure =@threlte/core= through =bundle.svelte= (does its =.svelte= source compile under esbuild-svelte with the repo's svelte 5.39.6?); measure rapier's WASM under the bundler; decide whether droneaid's =scene.js= is the first consumer to port or stays mode-local.

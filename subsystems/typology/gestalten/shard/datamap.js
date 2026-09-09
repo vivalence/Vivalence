@@ -120,7 +120,7 @@ export function repository(repo) {
   aperture.post(
     "/create",
     scoped("data", async (input) => {
-      const entity = repo.create(input.data || {});
+      const entity = await repo.create(input.data || {});
       await em().flush();
       return entity;
     }),
@@ -215,7 +215,7 @@ export function ingest(repo) {
     const results = [];
     for await (const event of ctx.request.subscribe()) {
       if (event.op === "create") {
-        const entity = repo.create(event.data || {});
+        const entity = await repo.create(event.data || {});
         await em().flush();
         results.push(entity);
       } else if (event.op === "update") {

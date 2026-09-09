@@ -1,0 +1,2795 @@
+#+title: m53 · v4 — mail + calendar, and the office that runs on nothing
+#+filetags: :m53:vcompany:voffice:email:calendar:message:event:dummy:provider:v4:drapes:
+#+phase: landed
+#+progress: **LANDED WHOLE, GREEN, uncommitted** — =n1 d1 d2 m1 m2 c1 c2 k1 p1= all applied on his /"fine. apply"/. 34 files, package-only bar one drapes line. HIS TWO NOTES LANDED WITH IT: each dummy took a =DATASINK= roundtripping the file its dataset reads, and statics moved to mask level (the dummies declare none and refuse by name; =office/email= dropped its duplicate =address= and asks =provider().account()=). Four bugs the landing found and fixed: =daemon.modes= is a nested map not an array · =ensure()= cascades an INSERT through relation refs (→ =modes/dummy/link.js= =mint()=) · =/flag= read an unpopulated Collection · =occurrences= dropped its own end day. Tests: dummies 13+17, calendar grammar 20, both App suites 13 — all green; six office test files still owed.
+#+next: the six office test files — =office/email/tests/{aperture,tools,email.snapshot}.test.js= and =office/calendar/tests/{aperture,tools,calendar.snapshot}.test.js=; =/key=, the held send and the thread walk are landed and untested. Then his restart + the click-through gates. Open, not mine: the sibling's mode-ownership landing duplicates every symbol (16 rows, 8 distinct, the dummy's copies BARE), which contradicts this quest's law that the office declares the scheme and the provider carries the rows.
+
+* ikiro
+
+** intent (his words, verbatim)
+
+- /"Use the claude_design MCP … Implement: `V3 office-email.dc.html`"/ · /"Implement: `V3 office-calendar.dc.html`"/
+- /"now i want you to write a m53.v4-mail+calendar.org"/
+- /"i want the application modes in detail."/
+- /"and a dummy-data mode - kinda like a fixture for the vcompany voffice package."/
+- /"vdex works on disk. source is mountpoint from mode config"/
+- /"mail and calendar load dummy data via mode."/
+- /"in the future we'll talk to the endpoints you scouted"/ · /"one per"/ · /"now just a demo dataset."/ ·
+  /"plus endpoints to record things like mails sent, event created/renamed etc."/ · /"so, dummy modes"/
+
+** what the pass does
+
+Four modes, one law between them: **a mode's rows come from a source, and the source is the mode's
+business.** The vdex's source is the mountpoint paladin dressed onto it — disk, watched. Mail's and
+the calendar's source is a PROVIDER MODE, and there is one per office mode: =dummy/mail= and
+=dummy/calendar=. Each is a demo dataset plus the endpoints that record what the office does — a
+mail sent, an event created, renamed, moved, dropped. Nothing leaves the machine.
+
+The dummy is not a fixture bolted on the side; it stands exactly where the real thing will stand.
+=office/email= names its provider in one static (=provider: "dummy/mail"=) and speaks to it through
+that mode's aperture. When the scouted endpoints land — Gmail =users.messages= · Graph =message= ·
+IMAP/SMTP · Google Calendar =Event= · Graph =event= · CalDAV =VEVENT= — the static becomes
+=gmail/mail= and NOTHING else moves: same routes, same rows, same aperture, same App.
+
+#+begin_example
+office/vdex       ← mode.mountpoint (disk)     DATASET reader.load + Deno.watchFs                LIVE
+office/email      ── provider ──▶ dummy/mail       reads rows · /send /flag  →  recorded          this pass
+office/calendar   ── provider ──▶ dummy/calendar   reads rows · /create /rename /move /delete     this pass
+dummy/mail        ← its own dataset files      DATASET literal · EXPOSED (the record endpoints)   this pass
+dummy/calendar    ← its own dataset files      DATASET literal · EXPOSED (the record endpoints)   this pass
+    ⋮ later, same seam
+gmail/mail · outlook/mail · proton/mail · gmail/calendar · outlook/calendar · caldav/calendar
+#+end_example
+
+Surface — both Apps are the V3 screens over dapper tokens (the token map in the main quest's
+=* screens=; the zone rule the V3 vdex pass learned holds: dapper stops at =skeleton-4=, every
+overlay takes zone 4, never 5).
+
+** dependencies
+
+- =dummy/mail= · =dummy/calendar= — none. Each installs rows and answers its endpoints; either can
+  land alone and the entity browser sees the rows the same minute.
+- =office/email= · =office/calendar= — a provider mode for rows and writes; drapes =Pip= tone
+  =success= (one line, owed since V3, falls back to muted until it lands).
+- the =event= ontology is NEW. The domain's =LiteralTraitsEnum= gains =EVENT=; =voffice/types.js=
+  gains =event= to its ONTOLOGY list. Two lines, both in the package.
+- NOT depended on: T1.1's =r1=. Neither mode writes a path.
+
+** decisions (mine — every one overturnable)
+
+- **=event= is a fourth literal ontology**, beside =vdex= · =message= · =transaction=. A calendar
+  entry is not a message: it has a span, a recurrence and a response state, and every read tool
+  would fork if it shared =message='s traits. The TOPOGRAPHICAL symbol is =event=; the trait is
+  =EVENT=; a deadline is the same row with no =end= and =allDay: true=.
+- **recurrence is stored as the master with its RFC 5545 =rrule= string, never as expanded rows.**
+  Google and CalDAV both hand RRULE text; Graph hands a structured =patternedRecurrence= its own
+  service translates. The mode expands a series for the range the App asked for, in memory, in
+  =occurrences()=. A 2026 week never touches a thousand rows.
+- **an event's provenance rides =EVENT.external=**, the same shape the message rows get:
+  ={account, id, thread, etag}=. The design's inspector footer reads it: an event whose
+  =external.account= is set is a VENDOR row (/"edits go back through gmail"/); one without is
+  MINTED (/"minted row · lives with its source"/) and its =uses= edge names what minted it.
+- **the held send is the design's, and it lands now.** The main quest said outbound was an ungated
+  tool call and the gate was the officer stage's; the V3 mail screen draws the gate in the mail App
+  — an =email_send= from an officer arrives as an OUT row with =MESSAGE.hold= set and the symbol
+  =message.status.held=, and the operator's =key= releases it. That is better than the earlier note
+  and supersedes it: the officer can compose, only the human can send. The tool =send= HOLDS; the
+  aperture's =/key= is the only route that clears the hold, and it is not armed as a tool.
+- **the calendar mints from what it can see.** A message whose row carries a date the office cares
+  about is not automatically an event; minting is a call (=mint=), and the minted row =uses= the
+  message literal. The inspector's =uses= list is that edge, read back.
+- **coordinates cross ontologies.** A message and an event both take =vdex.area.* · vdex.category.* ·
+  vdex.id.*= symbols when they belong to a coordinate — the main quest's open T2 fork, ruled in by
+  the two designs: the mail row shows =→ 22.04=, the agenda row shows its coord chip, and both jump
+  into the vdex. One coordinate groups documents, mail and the calendar.
+- **the Apps never fetch twice.** Both subscribe precisely (=ontology: "message"= · =ontology:
+  "event"=) and apply each event to the row it names — the V3 vdex twitch discipline, unchanged.
+- **rows are =$state.raw=**; cursor and chrome are =$state=. Keys live on the App root
+  (=role="presentation"= · =tabindex="-1"=), never on the window.
+- **one dummy per office mode** (his /"one per"/): type =dummy=, slugs =mail= and =calendar=; a
+  =dummy/chat= joins when chat lands. Type =dummy= is the register the vendor families will share
+  the shape of — =gmail/mail= · =outlook/calendar= · =caldav/calendar= — so the type names the
+  VENDOR and the slug names what it serves. The dummy is the vendor called "none".
+- **the dummy owns both directions.** In: a demo dataset of =message= / =event= literals, installed
+  by the ordinary DATASET pass. Out: an aperture that RECORDS — =/send= writes the OUT row, =/create=
+  =/rename= =/move= =/delete= write the event row and answer the way a vendor would (an id, an etag).
+  That is the whole provider seam, and it is the only place the office touches the outside world.
+- **the office mode names its provider in a static**, never by import: =statics.provider =
+  "dummy/mail"=, resolved at call time through =ctx.daemon.modes=. One line in =daemon.js= swaps the
+  dummy for =gmail/mail=. No trait, no flag, no branch — the office never asks who is behind it.
+- the dummy is **one kernel line**, never a trait, never a flag: it is in the instance =daemon.js= or it
+  is not. If it is not, the office mode's provider call refuses and the App shows the refusal in the
+  status bar — the same way every other refusal reaches the screen.
+
+** the map — design → file
+
+| design element                  | status | file                                   |
+|---------------------------------+--------+----------------------------------------|
+| mail · header · filters · state | LANDS  | Mail · Mail head                       |
+| mail · inbox list · pips        | LANDS  | parts/Inbox.svelte                     |
+| mail · footer =[MAIL]= line     | LANDS  | parts/Inbox.svelte                     |
+| mail · thread · in/out          | LANDS  | parts/Thread.svelte                    |
+| mail · pdf attachment card      | LANDS  | parts/Thread.svelte · jumps vdex       |
+| mail · held strip · key         | LANDS  | parts/Thread.svelte · =/key=           |
+| mail · composer · ◆ ceo · send  | LANDS  | Mail · =/send=                         |
+| mail · coord chip · + file      | LANDS  | Mail · jumps vdex                      |
+| mail · 820 drill                | LANDS  | Mail                                   |
+| cal · header · range · views    | LANDS  | Calendar                               |
+| cal · source bar · kinds        | LANDS  | Calendar                               |
+| cal · day · week grid · now     | LANDS  | parts/Grid.svelte                      |
+| cal · month                     | LANDS  | parts/Month.svelte                     |
+| cal · year heat                 | LANDS  | parts/Year.svelte                      |
+| cal · list · sticky days        | LANDS  | parts/Agenda.svelte                    |
+| cal · inspector · uses          | LANDS  | parts/Inspector.svelte                 |
+| cal · keys d w m y l j k t ↵    | LANDS  | Calendar                               |
+| both · twitch                   | LANDS  | Mail · Calendar                        |
+| mail · attachments in freight   | LANDS  | email =Freight("attachments")=         |
+| mail · demo rows · =/send=      | LANDS  | dummy/mail                             |
+| cal · demo rows · =/create= …   | LANDS  | dummy/calendar                         |
+| cal · create · rename on screen | LANDS  | Calendar · Inspector · =/create /rename= |
+| mail · real IMAP/vendor sync    | LATER  | =gmail/mail= · =outlook/mail= · =proton/mail= |
+| cal · real vendor sync          | LATER  | =gmail/calendar= · =outlook/calendar= · =caldav/calendar= |
+| cal · drag to move an event     | LATER  | — (=/move= exists; the grab does not)  |
+| mail · compose a NEW thread     | LATER  | — (reply only in v1)                   |
+
+** forks
+
+open, mine to lean on, his to overturn:
+- the sync cursor's home (=historyId= · =deltaLink= · =UIDVALIDITY+MODSEQ= · =update_id=) — per-account
+  state, not per-row. Lean: a =sync= trait on the MODE row, written by the sync, invisible to the App.
+  Nothing in this pass needs it; the dummy has no cursor.
+- attendees as prose (=who=) vs a modelled list. The design writes prose (/"cfo · you"/, /"cgo (not
+  landed) → ceo"/). Lean: prose in =EVENT.who= for v1; =EVENT.attendees[]= when a vendor sync lands
+  and RSVP has somewhere to go.
+- the calendar's own mountpoint: none. It has no disk.
+- whether a dummy also seeds =vdex= rows — no. The vdex has a real mount and his real JDex on it;
+  seeding it would fight the watcher.
+- whether the dummy's recorded writes SURVIVE a reboot. **DECIDED by his note** (=// @beef add a
+  datasink.=): the alternative won. Each dummy carries a =DATASINK= writing the whole set back into
+  the file its =Dataset= reads — education's roundtrip, one sink per dummy, =writer.js= keeping
+  =slug ontology traits trait= plus the relations. The disk file IS the mailbox; a reset is deleting it.
+- whether the office mode should reach the provider through =ctx.daemon.modes= directly or through a
+  thin =provider(ctx)= helper in the office mode. **DECIDED: the helper** — and it earned itself, since
+  =daemon.modes= turned out to be a nested map, so the direct form would have thrown at every call site
+  instead of one. The helper reads =daemon.flatmodes()= and names the refusal once.
+
+** gates (his click-through, after the go and a restart)
+
+1. =viva instances/use vivalence run= → =[DATASET:install] dummy/mail literal 5= · =dummy/calendar literal 16=, then the two office modes list
+2. mail opens → 5 rows, one unread pip, one warning pip on the notary row; =held 1= in the header
+3. the notary mail → the thread reads, the pdf card shows =filed → 22.04=, clicking it lands in the vdex
+4. the held strip → =key= → the strip becomes =sent · direction.out · uses → 5f3a9c1e=; the row's status flips to answered
+5. type a reply → send → it appears at the bottom, right-aligned, and the inbox row's pip turns green
+6. =◆ ceo= jumps to the officer with the subject as the arg (the officer answers as the bot until T5)
+7. calendar opens on the week of 7 Sep → mon 09:30 brief, tue 10:00 Notar, wed the InnoRampUp DUE row
+8. =m= → month · =y= → year (September carries a warning cell on the 9th) · =l= → list · =d= → day
+9. click the RE24 deadline → inspector: =when/who/source/filed=, =uses → email.5f3a9c1e=, clicking it lands in mail
+10. =j k= walk the events, =↵= opens the filed document in the vdex, =esc= closes
+11. source chips narrow to =gmail · vendor= vs =mail · minted= vs =officer/*=
+12. paper theme → every surface reads
+
+** land (on go)
+
+#+begin_src shell
+R=~/.viva/registry/vcompany
+mkdir -p $R/modes/dummy/{mail,calendar}/{aperture,dataset/literals,tests}
+mkdir -p $R/modes/office/email/{aperture,emitter,tools,buffer/parts,dataset,tests}
+mkdir -p $R/modes/office/calendar/{aperture,emitter,tools,buffer/parts,dataset,tests}
+# the files below → $R/<path>; then four kernel lines in the instance daemon.js
+viva instances/use vivalence run runtime      # the dummies install; both Apps bundle at boot
+deno test --config deno.jsonc -A --no-check $R/modes/dummy/ $R/modes/office/email/tests/ $R/modes/office/calendar/tests/
+#+end_src
+
+#+begin_src javascript
+// ~/.viva/instances/vivalence/daemon.js — the kernel, after
+kernel: [
+  "@vcompany/domain/voffice",
+  { module: "@vcompany/office/vdex", mountpoint: "/Users/finn/vivalence/coorporation", statics: { /* … */ } },
+  "@vcompany/dummy/mail",
+  "@vcompany/dummy/calendar",
+  { module: "@vcompany/office/email",    statics: { address: "office@vivalence.org", provider: "dummy/mail" } },
+  { module: "@vcompany/office/calendar", statics: { provider: "dummy/calendar" } },
+],
+#+end_src
+
+** log
+
+- his two design handoffs → both files read whole through =DesignSync= (project =f7686382=;
+  =V3 office-email.dc.html= · =V3 office-calendar.dc.html= · =v3-data.js= the fixture both read ·
+  =support.js= the dc-runtime, skimmed as runtime, not content). The fixture IS the dummy's source
+  material: =INBOX= 5 threads · =AGENDA= 16 rows · =DOCS= 18 · =CHATS= 2 · =ROSTER= 10 · =OFFICES= 5.
+- measured before writing: =office/email= in `~/.viva/instances` is a manifest + =dataset/symbols.js= and
+  nothing else; =office/calendar= does not exist; =modes/office/message.js= already declares the
+  =message= scheme (ontology · direction · status ×3) for email AND chat; the landed V3 vdex App
+  uses dapper tokens (=--colors-skeleton-N-{surface,contrast,boundary}= ·
+  =--colors-skeleton-0-{primary,warning,danger}-base= · =--text-support= · =--text-body= ·
+  =--font-size-{2xs,xs,sm,base,lg,2xl,3xl}= · =--font-family-{code,sans-text,sans-heading}= ·
+  =--border-radius-{sm,default,lg}= · =--shadow-soft=), splits into =buffer/parts/=, and speaks
+  =mode.call.<route>= through one =call()= that logs to the status bar and never throws at the screen.
+- the provider research (what Gmail · Graph · IMAP · Telegram · WhatsApp · Slack · Google Calendar ·
+  CalDAV actually return) is the report in the main quest's window: one RFC identity + N provider ids
+  + one provider cursor, per family. =MESSAGE.external= and =EVENT.external= below are that finding.
+- his five in one window (/"in the future we'll talk to the endpoints you scouted"/ · /"one per"/ ·
+  /"now just a demo dataset."/ · /"plus endpoints to record things like mails sent, event
+  created/renamed etc."/ · /"so, dummy modes"/) → the one =topography/dummy= of the first cut became
+  TWO provider modes, =dummy/mail= and =dummy/calendar=, each carrying both directions: the demo
+  dataset in, the recording endpoints out. The office modes stopped reading rows blind and now name
+  a provider in a static — which is what makes the scouted endpoints a swap and not a rewrite.
+- waiting on go.
+
+* entities
+
+** the law — a fourth ontology
+
+House mechanism, unchanged: the ontology IS the one TOPOGRAPHICAL symbol; traits carry payload shape;
+symbols classify. The office now holds four:
+
+#+begin_example
+literal
+├── vdex         a file on the mount        DOCUMENT     {asset:{path}, title, format, readable, bytes, mtime, hash}
+├── message      a message on a channel     MESSAGE      {channel, direction, from, to[], at, body, external, hold?}
+│                                           MAIL         {subject, cc[], messageId, inReplyTo, references[], attachments[]}
+│                                           CHAT         {platform, chat, sender:{id,name}, replyTo}
+├── event        a span on a calendar       EVENT        {kind, title, start, end, allDay, tz, rrule, who, where, external}
+└── transaction  (T3, empty)                TRANSACTION  {at, memo, entries:[{account, amount, currency}]}
+#+end_example
+
+** message — the delta T2 owes
+
+=external= grows from ={id}= to the four fields every provider forces, and =hold= appears on OUT rows:
+
+#+begin_src javascript
+MESSAGE: {
+  channel: "email",                          // the symbol dimension too: message.channel.email
+  direction: "in" | "out",
+  from: "notariat@example.de",
+  to: ["office@vivalence.org"],
+  at: "2026-09-08T08:14:03.000Z",
+  body: "Sehr geehrte Damen und Herren, …",
+  external: {
+    account: "office@vivalence.org",         // WHICH mailbox — a row is scoped to one
+    id: "<20260908081403.1a2b@example.de>",  // the RFC identity for mail; wamid / chat.msg for chat
+    thread: "1994f2c…",                      // the PROVIDER's thread id — never the RFC one
+    etag: "CJiA…",                           // changeKey · etag · MODSEQ — whatever says "still current"
+  },
+  hold: { by: "officer/ceo", at: "2026-09-08T07:43:00.000Z" },   // OUT only; absent = free to send
+}
+MAIL: { subject, cc: [], messageId, inReplyTo, references: [], attachments: [{ path, type, bytes, name }] }
+#+end_src
+
+- the RFC identity is the slug (=email.5f3a9c1e= = a short hash of =Message-ID=); =external.id= keeps
+  it whole; =external.thread= is the vendor's grouping and is NEVER the threading edge.
+- threading stays the literal's own m:n: a reply =uses= its parent, minted from =References[]=
+  (mail) or =context.id= / =reply_to_message= / =thread_ts= (chat).
+- attachments ride the mode's freight (=attachments/<slug>/<name>=) — every provider hands an id you
+  must exchange for an expiring URL, so the sync downloads at arrival, never lazily.
+
+New symbols beside the ones =modes/office/message.js= already declares:
+
+#+begin_example
+message.status.held        STRUCTURAL LABELED   "Held" — written by an officer, waiting for the operator's key
+message.channel.email      ONTOLOGICAL LABELED  (email's own dataset file, as today)
+#+end_example
+
+** event — the new ontology
+
+#+begin_src javascript
+EVENT: {
+  kind: "event" | "deadline",
+  title: "Notar · Beurkundung Nachtrag",
+  start: "2026-09-08T10:00:00.000Z",
+  end: "2026-09-08T11:30:00.000Z",           // null for a deadline
+  allDay: false,                              // true ⇒ a deadline / a due row; the App draws it in the DUE band
+  tz: "Europe/Berlin",
+  rrule: null,                                // "FREQ=MONTHLY;BYMONTHDAY=10" — the master carries it, occurrences are computed
+  who: "Notariat Berger",                     // prose in v1 (fork)
+  where: "Kurfürstendamm 12",
+  external: { account: "office@vivalence.org", id: "…", thread: null, etag: "…" },   // absent ⇒ MINTED
+}
+#+end_src
+
+Slug: =event.<short hash of iCalUID>= for a vendor row (=iCalUID= is the one identity Google, Graph
+and CalDAV all carry), =event.<source>.<n>= for a minted one (=event.email-5f3a9c1e.1=). An
+occurrence is not a row; it is =master.slug= + its start.
+
+#+begin_example
+event                                TOPOGRAPHICAL ONTOLOGICAL LABELED   the ontology root
+event.kind.{event,deadline}          ONTOLOGICAL LABELED                 what it is
+event.source.{vendor,mail,officer}   STRUCTURAL LABELED                  where it came from — the design's source bar
+event.calendar.<slug>                STRUCTURAL LABELED                  which vendor calendar, when there is one
+#+end_example
+
+An event that belongs to a coordinate also carries =vdex.area.* · vdex.category.* · vdex.id.*= —
+that is the chip the design draws and the =↵= jump it makes.
+
+** the domain's two lines
+
+#+begin_src diff
+// ~/.viva/registry/vcompany/domain/voffice/types.js
+-export const ONTOLOGY = ["vdex", "message", "transaction"];
++export const ONTOLOGY = ["vdex", "message", "event", "transaction"];
+ export const STATUS = ["unread", "read", "answered"];
+ export const DIRECTION = ["in", "out"];
++export const KIND = ["event", "deadline"];
++export const SOURCE = ["vendor", "mail", "officer"];
+#+end_src
+
+#+begin_src diff
+// ~/.viva/registry/vcompany/domain/voffice/entities/kernel/Literal.ts
+ export enum LiteralTraitsEnum {
+   DOCUMENT = "DOCUMENT",
+   MESSAGE = "MESSAGE",
+   MAIL = "MAIL",
+   CHAT = "CHAT",
++  EVENT = "EVENT",
+   TRANSACTION = "TRANSACTION",
+ }
+@@ card.project
+-        title: literal.trait?.DOCUMENT?.title ?? literal.trait?.MAIL?.subject ?? literal.trait?.MESSAGE?.body?.slice(0, 80) ?? "",
++        title: literal.trait?.DOCUMENT?.title ?? literal.trait?.EVENT?.title ?? literal.trait?.MAIL?.subject ?? literal.trait?.MESSAGE?.body?.slice(0, 80) ?? "",
+@@ search
+       { trait: { MESSAGE: { body: { $like: like } } } },
++      { trait: { EVENT: { title: { $like: like } } } },
+#+end_src
+
+* the provider contract — what a =dummy/*= mode promises, and what a vendor will keep
+
+One shape, four routes for mail, six for the calendar. The office mode knows the ROUTES; it never
+knows the vendor. Every route answers the office in the house envelope; a refusal names the next move.
+
+#+begin_example
+dummy/mail          /messages   {since?, limit}                  → literal[]        rows the provider holds
+                    /send       {to[], subject, body, inReplyTo?, attachments?}  → literal   the OUT row, recorded
+                    /flag       {slug, status}                   → literal         read · answered, pushed back
+                    /account    {}                               → {address, vendor, poll}   what the footer prints
+
+dummy/calendar      /events     {from, to}                       → literal[]       rows in a range, series expanded
+                    /create     {title, kind, start, end?, allDay?, who?, where?, coord?}  → literal
+                    /rename     {slug, title}                    → literal
+                    /move       {slug, start, end?}              → literal
+                    /delete     {slug}                           → {slug}
+                    /calendars  {}                               → [{slug, name, vendor}]
+#+end_example
+
+The vendor rows are the mapping the research pinned; a dummy keeps the same columns so the swap is
+a swap:
+
+| house                    | gmail                          | graph                       | imap · caldav                 |
+|--------------------------+--------------------------------+-----------------------------+-------------------------------|
+| =external.id=            | =Message-ID= header            | =internetMessageId=         | =Message-ID= · =UID=          |
+| =external.thread=        | =threadId=                     | =conversationId=            | — · —                         |
+| =external.etag=          | =historyId=                    | =changeKey=                 | =MODSEQ= · =ETag=             |
+| =external.account=       | the mailbox                    | the mailbox                 | the mailbox · the collection  |
+| =MESSAGE.body=           | =payload.parts[].body.data=    | =body.content=              | =BODYSTRUCTURE= walk          |
+| =MAIL.attachments[]=     | =attachmentId=                 | =attachments[]=             | part number                   |
+| =EVENT.external.id=      | =iCalUID=                      | =iCalUId=                   | =UID=                         |
+| =EVENT.rrule=            | =recurrence[]= (RRULE text)    | =patternedRecurrence= (map) | =RRULE=                       |
+| =EVENT.start/end=        | =start.dateTime= · =.date=     | =start.dateTime=+=timeZone= | =DTSTART= · =DTEND=           |
+| =EVENT.allDay=           | =start.date= present           | =isAllDay=                  | =VALUE=DATE=                  |
+| =EVENT.kind=             | =eventType=                    | —                           | =VEVENT= vs =VTODO/DUE=       |
+
+* dummy/mail — the mailbox that is not one
+
+** the mode
+
+#+begin_src javascript
+  // ~/.viva/registry/vcompany/modes/dummy/mail/mail.viva.js
+  import { Dataset, Datasink, writer } from "@vivalence/typology";
+  import { aperture } from "./aperture/index.js";
+
+  export { aperture };
+
+  export const manifest = {
+    type: "dummy",
+    slug: "mail",
+    name: "Dummy Mail",
+    version: "0.1.0",
+    description:
+      "A mailbox with no wire: it installs a demo inbox as message literals and records what the office sends. " +
+      "The office speaks to it the way it will speak to gmail, outlook or an imap host — same routes, same rows.",
+    traits: ["DATASET", "DATASINK", "EXPOSED"],
+  };
+
+  export const dataset = new Dataset({ literal: "dataset/literals/messages.js" });
+
+  // his note, LANDED: the dummy writes back the file it reads — education's roundtrip, so the
+  // recorded sends survive a restart and the disk file IS the mailbox.
+  export const datasink = new Datasink({
+    literal: [["message", writer.js("dataset/literals/messages.js", ["slug", "ontology", "traits", "trait"])]],
+  });
+
+  // his note, LANDED: statics are config/mask level. The mode declares NONE; the kernel entry carries
+  // { address, poll } and the aperture refuses by name without them.
+#+end_src
+
+No scheme file: =message= and its dimensions are declared by =office/email= (and =office/chat=) —
+the dataset upsert is idempotent by slug, so whoever boots first mints them. The dummy declares
+LITERALS only. That is the whole point: a provider carries rows, never an ontology.
+
+** the aperture — the four routes
+
+#+begin_src javascript
+// ~/.viva/registry/vcompany/modes/dummy/mail/aperture/index.js
+import { Aperture } from "@vivalence/typology";
+import { hash } from "@vivalence/typology";
+
+const message = (ctx, slug) => ctx.daemon.entities.literal.findOne({ ontology: "message", slug });
+const now = () => new Date().toISOString();
+
+// the office asked for rows; a vendor would page, we hand what we hold
+export const aperture = new Aperture()
+  .open("/account", (input, ctx) => ({
+    address: ctx.mode.statics.address,
+    vendor: ctx.mode.statics.vendor,
+    poll: ctx.mode.statics.poll,
+  }))
+  .open("/messages", (input, ctx) =>
+    ctx.daemon.entities.literal.find(
+      {
+        ontology: "message",
+        traits: "MAIL",
+        ...(input.since && { trait: { MESSAGE: { at: { $gt: input.since } } } }),
+      },
+      { limit: input.limit ?? 200 },
+    ),
+  )
+  // a send a vendor would accept: the row IS the receipt, and it carries the ids a vendor would mint
+  .open("/send", async (input, ctx) => {
+    const at = now();
+    const id = `<${hash.string(`${at}${input.subject}`)}@vivalence.org>`;
+    const slug = `email.${hash.string(id)}`;
+    const parent = input.inReplyTo ? await message(ctx, input.inReplyTo) : null;
+    const literal = await ctx.daemon.entities.literal.ensure({
+      slug,
+      ontology: "message",
+      traits: ["MESSAGE", "MAIL"],
+      trait: {
+        MESSAGE: {
+          channel: "email",
+          direction: "out",
+          from: ctx.mode.statics.address,
+          to: input.to,
+          at,
+          body: input.body,
+          external: { account: ctx.mode.statics.address, id, thread: parent?.trait?.MESSAGE?.external?.thread ?? id, etag: at },
+        },
+        MAIL: {
+          subject: input.subject,
+          cc: input.cc ?? [],
+          messageId: id,
+          inReplyTo: parent?.trait?.MAIL?.messageId ?? null,
+          references: parent ? [...(parent.trait.MAIL.references ?? []), parent.trait.MAIL.messageId] : [],
+          attachments: input.attachments ?? [],
+        },
+      },
+      symbols: [{ slug: "message" }, { slug: "message.channel.email" }, { slug: "message.direction.out" }, { slug: "message.status.read" }],
+      ...(parent && { uses: [{ slug: parent.slug }] }),
+    });
+    await ctx.daemon.entities.em.flush();
+    return literal;
+  })
+  // read · answered pushed back at the provider — a vendor would PATCH labels or set \Answered
+  .open("/flag", async (input, ctx) => {
+    const literal = await message(ctx, input.slug);
+    if (!literal) throw new Error(`${input.slug} is not in the mailbox`);
+    const keep = literal.symbols.getItems().filter((symbol) => !symbol.slug.startsWith("message.status."));
+    const status = await ctx.daemon.entities.symbol.findOne({ slug: `message.status.${input.status}` });
+    if (!status) throw new Error(`${input.status} is not a status — unread, read, answered or held`);
+    literal.symbols.set([...keep, status]);
+    await ctx.daemon.entities.em.flush();
+    return literal;
+  });
+#+end_src
+
+** the demo dataset — his fixture, as rows
+
+=v3-data.js= =INBOX= is the source of truth for the screen; here it is five threads as literals. A
+thread is a chain of =uses=: the reply =uses= its parent. The notary reply carries =MESSAGE.hold= so
+the mail screen has something to key on the first boot.
+
+#+begin_src javascript
+// ~/.viva/registry/vcompany/modes/dummy/mail/dataset/literals/messages.js
+const at = (day, time) => new Date(`2026-09-${day}T${time}:00.000Z`).toISOString();
+const ACCOUNT = "office@vivalence.org";
+
+const mail = (slug, { id, thread, dir, who, to, when, body, subject, status, coord, inReplyTo, references = [], attachments = [], hold, uses }) => ({
+  slug,
+  ontology: "message",
+  traits: ["MESSAGE", "MAIL"],
+  trait: {
+    MESSAGE: {
+      channel: "email",
+      direction: dir,
+      from: who,
+      to,
+      at: when,
+      body,
+      external: { account: ACCOUNT, id, thread, etag: when },
+      ...(hold && { hold }),
+    },
+    MAIL: { subject, cc: [], messageId: id, inReplyTo: inReplyTo ?? null, references, attachments },
+  },
+  symbols: [
+    { slug: "message" },
+    { slug: "message.channel.email" },
+    { slug: `message.direction.${dir}` },
+    { slug: `message.status.${status}` },
+    ...(coord ? [{ slug: `vdex.category.${coord.split(".")[0]}` }, ...(coord.includes(".") ? [{ slug: `vdex.id.${coord}` }] : [])] : []),
+  ],
+  ...(uses && { uses: uses.map((slug) => ({ slug })) }),
+});
+
+export default [
+  mail("email.5f3a9c1e", {
+    id: "<20260908081403.1a2b@example.de>", thread: "t.notariat", dir: "in", who: "notariat@example.de", to: [ACCOUNT],
+    when: at("08", "08:14"), subject: "Rechnung RE24-05277", status: "unread", coord: "22.04",
+    body: "Sehr geehrte Damen und Herren,\n\nanbei die Rechnung RE24-05277 für die Beurkundung des Nachtrags. Zahlbar innerhalb von 14 Tagen.\n\nMit freundlichen Grüßen\nNotariat Berger",
+    attachments: [{ path: "attachments/email.5f3a9c1e/RE24-05277.pdf", name: "RE24-05277.pdf", type: "application/pdf", bytes: 48128 }],
+  }),
+  mail("email.7c02ab55", {
+    id: "<20260908074300.9f01@vivalence.org>", thread: "t.notariat", dir: "out", who: ACCOUNT, to: ["notariat@example.de"],
+    when: at("08", "07:43"), subject: "Re: Rechnung RE24-05277", status: "held", coord: "22.04",
+    inReplyTo: "<20260908081403.1a2b@example.de>", references: ["<20260908081403.1a2b@example.de>"],
+    body: "Vielen Dank, die Rechnung ist eingegangen. Die Überweisung erfolgt bis Freitag, 12. September, vom DKB-Konto.",
+    hold: { by: "officer/ceo", at: at("08", "07:43") }, uses: ["email.5f3a9c1e"],
+  }),
+  mail("email.9a21c0d4", {
+    id: "<20260907160200.4c11@dkb.de>", thread: "t.dkb", dir: "in", who: "service@dkb.de", to: [ACCOUNT],
+    when: at("07", "16:02"), subject: "Kontoeröffnung bestätigt", status: "read", coord: "22.02",
+    body: "Ihr Geschäftskonto ist eröffnet. Die Zugangsdaten für das Online-Banking erhalten Sie separat per Post. Das bisherige Konto bleibt bis zum 30. September 2026 nutzbar.",
+  }),
+  mail("email.31bb7e02", {
+    id: "<20260906224000.7e21@vivalence.org>", thread: "t.beef", dir: "in", who: "beef@vivalence.org", to: [ACCOUNT],
+    when: at("06", "22:40"), subject: "fwd: domain renewal", status: "read",
+    body: "can the office handle this from now on?",
+  }),
+  mail("email.c77d10a9", {
+    id: "<20260904112000.3a90@innorampup.de>", thread: "t.inno", dir: "in", who: "foerderung@innorampup.de", to: [ACCOUNT],
+    when: at("04", "11:20"), subject: "Antrag eingegangen — Unterlagen fehlen", status: "answered", coord: "30.03",
+    body: "Bitte reichen Sie Handelsregisterauszug und Gesellschafterliste bis Mittwoch nach.",
+  }),
+  mail("email.b310ff47", {
+    id: "<20260904130500.5b02@vivalence.org>", thread: "t.inno", dir: "out", who: ACCOUNT, to: ["foerderung@innorampup.de"],
+    when: at("04", "13:05"), subject: "Re: Antrag eingegangen — Unterlagen fehlen", status: "read", coord: "30.03",
+    inReplyTo: "<20260904112000.3a90@innorampup.de>", references: ["<20260904112000.3a90@innorampup.de>"],
+    body: "Vielen Dank — beide Dokumente folgen bis Dienstag.", uses: ["email.c77d10a9"],
+  }),
+  mail("email.0e4f88b1", {
+    id: "<20260903093000.8d44@steuer.example>", thread: "t.steuer", dir: "in", who: "kanzlei@steuer.example", to: [ACCOUNT],
+    when: at("03", "09:30"), subject: "Umsatzsteuer-Voranmeldung August", status: "read", coord: "22.05",
+    body: "Anbei die Voranmeldung für August zur Freigabe.",
+    attachments: [{ path: "attachments/email.0e4f88b1/UStVA-08.pdf", name: "UStVA-08.pdf", type: "application/pdf", bytes: 21400 }],
+  }),
+];
+#+end_src
+
+The =vdex.*= symbols on a mail row are the coordinate chip the design draws. They are the SAME symbol
+rows the vdex mints from disk — a coordinate is one set, and a document, a mail and an event all join it.
+
+* dummy/calendar — the calendar that is not one
+
+** the mode
+
+#+begin_src javascript
+  // ~/.viva/registry/vcompany/modes/dummy/calendar/calendar.viva.js
+  import { Dataset, Datasink, writer } from "@vivalence/typology";
+  import { aperture } from "./aperture/index.js";
+
+  export { aperture };
+
+  export const manifest = {
+    type: "dummy",
+    slug: "calendar",
+    name: "Dummy Calendar",
+    version: "0.1.0",
+    description:
+      "A calendar with no vendor: it installs a demo agenda as event literals and records what the office creates, " +
+      "renames, moves and drops. The routes are the ones a gmail, graph or caldav service will answer.",
+    traits: ["DATASET", "DATASINK", "EXPOSED"],
+  };
+
+  export const dataset = new Dataset({ literal: "dataset/literals/events.js" });
+
+  // same two notes, both LANDED — the sink roundtrips the file the dataset reads, and { calendars }
+  // rides the kernel entry; the mode declares no statics and refuses by name without them.
+  export const datasink = new Datasink({
+    literal: [["event", writer.js("dataset/literals/events.js", ["slug", "ontology", "traits", "trait"])]],
+  });
+#+end_src
+
+** the aperture — six routes, and where a series is expanded
+
+=/events= is the only route with real work in it: the stored row is the MASTER, and a row carrying an
+=rrule= is expanded into the asked-for range in memory. Nothing is written; an occurrence is a
+=({...master, slug: "<slug>@2026-10-10", start, end})= projection the App draws and the inspector
+reads back to its master.
+
+#+begin_src javascript
+// ~/.viva/registry/vcompany/modes/dummy/calendar/aperture/index.js
+import { Aperture } from "@vivalence/typology";
+import { hash } from "@vivalence/typology";
+import { occurrences } from "../occurrences.js";
+
+const event = (ctx, slug) => ctx.daemon.entities.literal.findOne({ ontology: "event", slug: slug.split("@")[0] });
+const coordinates = (coord) =>
+  coord ? [{ slug: `vdex.category.${coord.split(".")[0]}` }, ...(coord.includes(".") ? [{ slug: `vdex.id.${coord}` }] : [])] : [];
+
+const row = (literal, { title, kind, start, end, allDay, who, where, coord, source = "mail" }) => ({
+  slug: literal,
+  ontology: "event",
+  traits: ["EVENT"],
+  trait: {
+    EVENT: {
+      kind, title, start, end: end ?? null, allDay: allDay ?? kind === "deadline",
+      tz: "Europe/Berlin", rrule: null, who: who ?? "", where: where ?? "",
+      external: null,
+    },
+  },
+  symbols: [{ slug: "event" }, { slug: `event.kind.${kind}` }, { slug: `event.source.${source}` }, ...coordinates(coord)],
+});
+
+export const aperture = new Aperture()
+  .open("/calendars", (input, ctx) => ctx.mode.statics.calendars)
+  .open("/events", async (input, ctx) => {
+    const held = await ctx.daemon.entities.literal.find({ ontology: "event" }, { limit: 2000 });
+    return occurrences(held, input.from, input.to);
+  })
+  .open("/create", async (input, ctx) => {
+    const slug = `event.${hash.string(`${input.title}${input.start}`)}`;
+    const literal = await ctx.daemon.entities.literal.ensure(row(slug, input));
+    await ctx.daemon.entities.em.flush();
+    return literal;
+  })
+  .open("/rename", async (input, ctx) => {
+    const literal = await event(ctx, input.slug);
+    if (!literal) throw new Error(`${input.slug} is not on the calendar`);
+    literal.assign({ trait: { ...literal.trait, EVENT: { ...literal.trait.EVENT, title: input.title } } });
+    await ctx.daemon.entities.em.flush();
+    return literal;
+  })
+  .open("/move", async (input, ctx) => {
+    const literal = await event(ctx, input.slug);
+    if (!literal) throw new Error(`${input.slug} is not on the calendar`);
+    if (literal.trait.EVENT.rrule) throw new Error(`${input.slug} is a series — move the series, or split the occurrence first`);
+    literal.assign({
+      trait: { ...literal.trait, EVENT: { ...literal.trait.EVENT, start: input.start, end: input.end ?? literal.trait.EVENT.end } },
+    });
+    await ctx.daemon.entities.em.flush();
+    return literal;
+  })
+  .open("/delete", async (input, ctx) => {
+    const literal = await event(ctx, input.slug);
+    if (!literal) throw new Error(`${input.slug} is not on the calendar`);
+    await ctx.daemon.entities.literal.removeOne({ id: literal.id });
+    return { slug: literal.slug };
+  });
+#+end_src
+
+** =occurrences.js= — the master, expanded, never written
+
+#+begin_src javascript
+// ~/.viva/registry/vcompany/modes/dummy/calendar/occurrences.js
+// RFC 5545 in the small: FREQ + INTERVAL + COUNT/UNTIL, the four frequencies the office uses.
+// A vendor service replaces this file's INPUT (its own rrule text) and keeps its OUTPUT.
+const STEP = {
+  DAILY: (date, n) => date.setDate(date.getDate() + n),
+  WEEKLY: (date, n) => date.setDate(date.getDate() + 7 * n),
+  MONTHLY: (date, n) => date.setMonth(date.getMonth() + n),
+  YEARLY: (date, n) => date.setFullYear(date.getFullYear() + n),
+};
+
+const parse = (rrule) =>
+  Object.fromEntries(rrule.replace(/^RRULE:/, "").split(";").map((pair) => pair.split("=")));
+
+const shift = (iso, from, to) => new Date(new Date(iso).getTime() + (to - from)).toISOString();
+
+export const occurrences = (held, from, to) => {
+  const start = new Date(from);
+  const end = new Date(to);
+  const out = [];
+  for (const literal of held) {
+    const { rrule, start: at, end: until } = literal.trait.EVENT;
+    if (!rrule) {
+      if (new Date(at) >= start && new Date(at) <= end) out.push(literal);
+      continue;
+    }
+    const { FREQ, INTERVAL = "1", COUNT, UNTIL } = parse(rrule);
+    const step = STEP[FREQ];
+    if (!step) continue;
+    const cap = COUNT ? Number(COUNT) : 500;
+    const last = UNTIL ? new Date(UNTIL) : end;
+    const cursor = new Date(at);
+    for (let n = 0; n < cap && cursor <= last && cursor <= end; n++) {
+      if (cursor >= start) {
+        const on = cursor.toISOString();
+        out.push({
+          ...literal,
+          slug: `${literal.slug}@${on.slice(0, 10)}`,
+          trait: { ...literal.trait, EVENT: { ...literal.trait.EVENT, start: on, end: until ? shift(until, new Date(at), cursor) : null } },
+        });
+      }
+      step(cursor, Number(INTERVAL));
+    }
+  }
+  return out.sort((a, b) => (a.trait.EVENT.start < b.trait.EVENT.start ? -1 : 1));
+};
+#+end_src
+
+** the demo dataset — his agenda, as rows
+
+=v3-data.js= =AGENDA= is sixteen rows across four months, three sources. Two carry an =rrule= so the
+month and year views have a series to prove the expansion on.
+
+#+begin_src javascript
+// ~/.viva/registry/vcompany/modes/dummy/calendar/dataset/literals/events.js
+const stamp = (date, time) => new Date(`${date}T${time}:00.000Z`).toISOString();
+const due = (date) => new Date(`${date}T00:00:00.000Z`).toISOString();
+
+const coordinates = (coord) =>
+  coord ? [{ slug: `vdex.category.${coord.split(".")[0]}` }, ...(coord.includes(".") ? [{ slug: `vdex.id.${coord}` }] : [])] : [];
+
+const event = (slug, { title, kind = "event", date, at, end, who, where, coord, source, uses, rrule = null, external = null }) => ({
+  slug,
+  ontology: "event",
+  traits: ["EVENT"],
+  trait: {
+    EVENT: {
+      kind, title,
+      start: at ? stamp(date, at) : due(date),
+      end: end ? stamp(date, end) : null,
+      allDay: !at,
+      tz: "Europe/Berlin",
+      rrule,
+      who: who ?? "",
+      where: where ?? "",
+      external,
+    },
+  },
+  symbols: [{ slug: "event" }, { slug: `event.kind.${kind}` }, { slug: `event.source.${source}` }, ...coordinates(coord)],
+  ...(uses && { uses: uses.map((slug) => ({ slug })) }),
+});
+
+const vendor = (id) => ({ account: "office@vivalence.org", id, thread: null, etag: id });
+
+export default [
+  event("event.ev01", { title: "Office · morning brief", date: "2026-09-07", at: "09:30", end: "09:45", who: "ceo", coord: "12", source: "officer", rrule: "FREQ=WEEKLY;INTERVAL=1;COUNT=12" }),
+  event("event.ev02", { title: "CFO · pay run review", date: "2026-09-07", at: "14:00", end: "15:00", who: "cfo · you", coord: "22", source: "officer" }),
+  event("event.ev03", { title: "Notar · Beurkundung Nachtrag", date: "2026-09-08", at: "10:00", end: "11:30", who: "Notariat Berger", where: "Kurfürstendamm 12", coord: "20", source: "vendor", external: vendor("3f1a0c9e-notar@google.com") }),
+  event("event.ev04", { title: "InnoRampUp · Unterlagen nachreichen", kind: "deadline", date: "2026-09-09", who: "cgo (not landed) → ceo", coord: "30.03", source: "mail", uses: ["email.c77d10a9"] }),
+  event("event.ev05", { title: "Steuerberatung · UStVA freigeben", date: "2026-09-09", at: "16:00", end: "16:30", who: "kanzlei · you", coord: "22.05", source: "mail", uses: ["email.0e4f88b1"] }),
+  event("event.ev06", { title: "CTO · repo review", date: "2026-09-10", at: "11:00", end: "12:00", who: "cto · beef", coord: "13", source: "officer" }),
+  event("event.ev07", { title: "RE24-05277 fällig · DKB", kind: "deadline", date: "2026-09-11", who: "cfo · email_send held", coord: "22.04", source: "mail", uses: ["email.5f3a9c1e"] }),
+  event("event.ev08", { title: "Week close · ledger", date: "2026-09-11", at: "15:00", end: "15:30", who: "cfo", coord: "22", source: "officer", rrule: "FREQ=WEEKLY;INTERVAL=1;COUNT=16" }),
+  event("event.ev09", { title: "Open Internet Stack · call", date: "2026-09-17", at: "10:00", end: "11:00", who: "cgo → ceo", coord: "30.02", source: "vendor", external: vendor("77c1b2ee-ois@google.com") }),
+  event("event.ev10", { title: "Old account closes", kind: "deadline", date: "2026-09-30", who: "cfo", coord: "22.02", source: "mail", uses: ["email.9a21c0d4"] }),
+  event("event.ev11", { title: "UStVA September", kind: "deadline", date: "2026-10-10", who: "kanzlei · cfo", coord: "22.05", source: "mail", uses: ["email.0e4f88b1"] }),
+  event("event.ev12", { title: "Board · Q3 review", date: "2026-10-21", at: "09:00", end: "12:00", who: "ceo · cfo · beef", coord: "13", source: "officer" }),
+  event("event.ev13", { title: "InnoRampUp · decision", kind: "deadline", date: "2026-11-02", who: "cgo (not landed) → ceo", coord: "30.03", source: "mail", uses: ["email.c77d10a9"] }),
+  event("event.ev14", { title: "Jahresabschluss · Buchhaltung", kind: "deadline", date: "2026-12-31", who: "cfo", coord: "22.05", source: "officer" }),
+  event("event.ev15", { title: "Domain renewal", kind: "deadline", date: "2026-08-27", who: "beef → office", coord: "21", source: "mail", uses: ["email.31bb7e02"] }),
+  event("event.ev16", { title: "Handelsregister · Eintragung", date: "2026-08-19", at: "14:00", end: "15:00", who: "Notariat", coord: "20.03", source: "vendor", external: vendor("11e0a4d2-hreg@google.com") }),
+];
+#+end_src
+
+The =uses= edges are what the inspector's =uses= list reads back: a minted deadline names the mail it
+came from, and clicking it lands in the mail App on that thread.
+
+* office/email — the APPLICATION mode
+
+Its job in one line: hold the office's mail as literals, put them on a screen a human works in, arm
+an officer with the same verbs, and never touch a wire — the provider does that.
+
+** the mode
+
+#+begin_src javascript
+// ~/.viva/registry/vcompany/modes/office/email/email.viva.js
+import { App, Dataset, Freight, v } from "@vivalence/typology";
+
+export { boot } from "./boot.js";
+export { aperture } from "./aperture/index.js";
+export { tools } from "./tools/index.js";
+export { emitter } from "./emitter/index.js";
+export { harness } from "./harness.js";
+
+export const manifest = {
+  type: "office",
+  slug: "email",
+  name: "Mail",
+  version: "0.2.0",
+  description:
+    "The office mailbox as literals: the provider hands the rows, replies link to their parent through uses, " +
+    "an officer's send is HELD until the operator keys it, and attachments ride the mode's freight.",
+  traits: ["DATASET", "BOOTED", "FRAUGHT", "APPLICATION", "EMITTER", "STANDALONE", "EXPOSED", "HARNESSED", "TOOLED"],
+};
+
+export const dataset = new Dataset({ symbol: "dataset/symbols.js" });
+export const freight = new Freight("attachments");
+export const statics = { address: "office@vivalence.org", provider: "dummy/mail", poll: 60 };
+
+export const app = new App(
+  "buffer/Mail.svelte",
+  v.buffer({
+    data: {
+      open: v.string().optional().desc("slug of the message thread on screen"),
+      filter: v.string().optional().desc("all · unread · held"),
+    },
+  }),
+);
+#+end_src
+
+=DATASET= carries the SCHEME only (the office's ontology is the office's; the provider carries rows).
+=FRAUGHT= over =attachments/= is what makes the pdf card clickable — a cargo url, the same machinery
+the vdex serves documents with. =EMITTER= is =/open=: a tool puts a thread on the operator's screen.
+
+** dataset/symbols.js — the scheme, with =held= added
+
+#+begin_src javascript
+// ~/.viva/registry/vcompany/modes/office/email/dataset/symbols.js
+import { message } from "../../message.js";
+
+const labeled = (slug, traits, name, description) => ({
+  slug,
+  traits: [...traits, "LABELED"],
+  trait: { ...Object.fromEntries(traits.map((trait) => [trait, {}])), LABELED: { name, description } },
+});
+
+export default [
+  ...message,
+  labeled("message.status.held", ["STRUCTURAL"], "Held", "Written by an officer, waiting for the operator's key."),
+  labeled("message.channel.email", ["ONTOLOGICAL"], "Email", "Arrived or left over SMTP."),
+];
+#+end_src
+
+** boot.js — pull once, keep the freight true
+
+No watcher: mail has no disk to watch. Boot asks the provider for what it holds, upserts through the
+ORM (on a fork, per the m53 landmine — the literal↔symbol m:n cascades REMOVE both ways), stows every
+attachment path in the freight, and prints one line.
+
+#+begin_src javascript
+// ~/.viva/registry/vcompany/modes/office/email/boot.js
+import { provider } from "./provider.js";
+
+const line = async (daemon, mode, tail) =>
+  console.log(
+    `[MAIL] ${mode.statics.address} ` +
+      `${await daemon.entities.literal.count({ ontology: "message", traits: "MAIL" })} messages · ` +
+      `${await daemon.entities.literal.count({ ontology: "message", traits: "MAIL", symbols: ["message.status.unread"] })} unread · ${tail}`,
+  );
+
+// every attachment the rows name is admitted to the cargo — the App's pdf card is a freight url
+export const stow = async (daemon, mode) => {
+  const held = await daemon.entities.literal.find({ ontology: "message", traits: "MAIL" }, { limit: 2000 });
+  for (const literal of held)
+    for (const attachment of literal.trait.MAIL.attachments ?? []) mode.freight.admit(attachment.path);
+  return held.length;
+};
+
+export const sync = async (daemon, mode) => {
+  const rows = await provider(daemon, mode).messages({ limit: 500 });
+  await stow(daemon, mode);
+  return rows;
+};
+
+export async function boot(daemon, mode) {
+  await stow(daemon, mode);
+  const held = await daemon.entities.literal.count({
+    ontology: "message",
+    traits: "MAIL",
+    symbols: ["message.status.held"],
+  });
+  await line(daemon, mode, held ? `${held} held` : `provider ${mode.statics.provider}`);
+  return () => {};
+}
+#+end_src
+
+** provider.js — the seam, one file, one refusal
+
+#+begin_src javascript
+// ~/.viva/registry/vcompany/modes/office/email/provider.js
+// The office never imports a provider; it names one in statics and reaches it at call time.
+// `dummy/mail` today, `gmail/mail` tomorrow — the routes are the contract, not the module.
+export const provider = (daemon, mode) => {
+  const [type, slug] = (mode.statics.provider ?? "").split("/");
+  const held = daemon.modes.find((known) => known.type === type && known.slug === slug);
+  if (!held)
+    throw new Error(
+      `no mail provider mounted — office/email wants '${mode.statics.provider}'; add it to the daemon kernel, or point statics.provider at one that is`,
+    );
+  return {
+    account: (input = {}) => held.call.account(input),
+    messages: (input = {}) => held.call.messages(input),
+    send: (input) => held.call.send(input),
+    flag: (input) => held.call.flag(input),
+  };
+};
+#+end_src
+
+** aperture/index.js — the verbs, implemented once
+
+The App and the tools speak the same routes; nothing is implemented twice. A thread is the literal's
+own =uses=/=in= chain walked to its root and back down.
+
+#+begin_src javascript
+// ~/.viva/registry/vcompany/modes/office/email/aperture/index.js
+import { Aperture } from "@vivalence/typology";
+import { provider } from "../provider.js";
+
+const one = (ctx, slug) =>
+  ctx.daemon.entities.literal.findOne({ ontology: "message", slug }, { populate: ["symbols", "uses", "in"] });
+
+const statusOf = (literal) =>
+  literal.symbols.getItems().find((symbol) => symbol.slug.startsWith("message.status."))?.slug.split(".").pop() ?? "read";
+
+const at = (literal) => literal.trait.MESSAGE.at;
+
+// the thread: walk to the root through `uses`, then collect everything that `in`s back down
+const thread = async (ctx, literal) => {
+  let root = literal;
+  for (let hop = 0; hop < 32; hop++) {
+    const parent = root.uses.getItems()[0];
+    if (!parent) break;
+    root = await one(ctx, parent.slug);
+  }
+  const seen = new Map([[root.slug, root]]);
+  const queue = [root];
+  while (queue.length) {
+    const held = queue.shift();
+    for (const child of held.in.getItems()) {
+      if (seen.has(child.slug)) continue;
+      const full = await one(ctx, child.slug);
+      seen.set(full.slug, full);
+      queue.push(full);
+    }
+  }
+  return [...seen.values()].sort((a, b) => (at(a) < at(b) ? -1 : 1));
+};
+
+const card = (ctx, literal) => ({
+  slug: literal.slug,
+  status: statusOf(literal),
+  direction: literal.trait.MESSAGE.direction,
+  from: literal.trait.MESSAGE.from,
+  to: literal.trait.MESSAGE.to,
+  at: at(literal),
+  subject: literal.trait.MAIL.subject,
+  body: literal.trait.MESSAGE.body,
+  hold: literal.trait.MESSAGE.hold ?? null,
+  coord: literal.symbol?.vdex ? [literal.symbol.vdex.category, Object.values(literal.symbol.vdex.id ?? {})[0]].filter(Boolean).join(".") : null,
+  attachments: (literal.trait.MAIL.attachments ?? []).map((attachment) => ({
+    ...attachment,
+    url: ctx.mode.freight.catalog[attachment.path]?.url ?? null,
+  })),
+});
+
+export const aperture = new Aperture()
+  .open("/account", (input, ctx) => provider(ctx.daemon, ctx.mode).account({}))
+  // the inbox: one card per THREAD, the newest message speaking for it
+  .open("/inbox", async (input, ctx) => {
+    const held = await ctx.daemon.entities.literal.find(
+      { ontology: "message", traits: "MAIL", ...(input.status && { symbols: [`message.status.${input.status}`] }) },
+      { populate: ["symbols", "uses", "in"], limit: input.limit ?? 200 },
+    );
+    const roots = held.filter((literal) => literal.uses.getItems().length === 0);
+    return roots
+      .map((literal) => {
+        const replies = held.filter((known) => known.uses.getItems().some((parent) => parent.id === literal.id));
+        const newest = [literal, ...replies].sort((a, b) => (at(a) < at(b) ? -1 : 1)).at(-1);
+        return { ...card(ctx, literal), count: replies.length + 1, last: at(newest), held: replies.some((known) => known.trait.MESSAGE.hold) };
+      })
+      .sort((a, b) => (a.last < b.last ? 1 : -1));
+  })
+  .open("/message", async (input, ctx) => {
+    const literal = await one(ctx, input.slug);
+    if (!literal) return null;
+    return { thread: (await thread(ctx, literal)).map((held) => card(ctx, held)), slug: literal.slug };
+  })
+  // read · answered — the office decides, the provider is told
+  .open("/read", async (input, ctx) => {
+    const literal = await one(ctx, input.slug);
+    if (!literal) throw new Error(`${input.slug} is not in the mailbox — inbox first`);
+    if (statusOf(literal) !== "unread") return card(ctx, literal);
+    await provider(ctx.daemon, ctx.mode).flag({ slug: literal.slug, status: "read" });
+    return card(ctx, await one(ctx, input.slug));
+  })
+  // a send from a TOOL is held; a send from the screen is not. `held` is the caller's word.
+  .open("/send", async (input, ctx) => {
+    const parent = input.inReplyTo ? await one(ctx, input.inReplyTo) : null;
+    if (input.inReplyTo && !parent) throw new Error(`${input.inReplyTo} is not in the mailbox — inbox first`);
+    const literal = await provider(ctx.daemon, ctx.mode).send({
+      to: input.to ?? [parent.trait.MESSAGE.from],
+      subject: input.subject ?? `Re: ${parent.trait.MAIL.subject}`,
+      body: input.body,
+      inReplyTo: parent?.slug ?? null,
+      attachments: input.attachments ?? [],
+    });
+    if (input.held) {
+      literal.assign({
+        trait: { ...literal.trait, MESSAGE: { ...literal.trait.MESSAGE, hold: { by: input.by ?? "officer", at: new Date().toISOString() } } },
+      });
+      await provider(ctx.daemon, ctx.mode).flag({ slug: literal.slug, status: "held" });
+    } else if (parent) {
+      await provider(ctx.daemon, ctx.mode).flag({ slug: parent.slug, status: "answered" });
+    }
+    await ctx.daemon.entities.em.flush();
+    return card(ctx, await one(ctx, literal.slug));
+  })
+  // the operator's key — the ONLY route that clears a hold, and it is not armed as a tool
+  .open("/key", async (input, ctx) => {
+    const literal = await one(ctx, input.slug);
+    if (!literal) throw new Error(`${input.slug} is not in the mailbox`);
+    if (!literal.trait.MESSAGE.hold) throw new Error(`${input.slug} is not held — nothing to key`);
+    const { hold, ...MESSAGE } = literal.trait.MESSAGE;
+    literal.assign({ trait: { ...literal.trait, MESSAGE } });
+    await provider(ctx.daemon, ctx.mode).flag({ slug: literal.slug, status: "read" });
+    const parent = literal.uses.getItems()[0];
+    if (parent) await provider(ctx.daemon, ctx.mode).flag({ slug: parent.slug, status: "answered" });
+    await ctx.daemon.entities.em.flush();
+    return card(ctx, await one(ctx, input.slug));
+  });
+#+end_src
+
+** emitter/index.js — a thread on screen
+
+#+begin_src javascript
+// ~/.viva/registry/vcompany/modes/office/email/emitter/index.js
+import { v, Vector } from "@vivalence/typology";
+
+const OPEN = v.object({
+  slug: v.string().desc("The message thread to put on screen."),
+  thread: v.string().optional().desc("Binds the emitted buffer to the caller's thread."),
+});
+
+export const emitter = new Vector().open({ nature: "/open", input: OPEN }, async (ctx) => {
+  const literal = await ctx.daemon.entities.literal.findOne({ ontology: "message", slug: ctx.input.slug });
+  if (!literal) throw new Error(`${ctx.input.slug} is not in the mailbox`);
+  return ctx.mode.app.buffer({ literals: [literal.id], data: { open: literal.slug } });
+});
+#+end_src
+
+** tools/index.js — the officer's five
+
+The tools are an APPLICATION of the aperture, never a second implementation — the vdex law. Every one
+speaks slugs; every refusal names the next move; the envelope is the m26 yield contract.
+
+#+begin_src javascript
+// ~/.viva/registry/vcompany/modes/office/email/tools/index.js
+import { v, Vector } from "@vivalence/typology";
+
+const line = (card) =>
+  `${card.slug} · ${card.direction === "in" ? "←" : "→"} ${card.direction === "in" ? card.from : card.to.join(", ")} · ` +
+  `${card.subject}${card.coord ? ` · ${card.coord}` : ""} · ${card.status}`;
+
+const body = (card) => `${line(card)}\n\n${card.body}`;
+
+export const tools = new Vector()
+  .open(
+    {
+      nature: "/inbox",
+      valence:
+        "The office mailbox, newest thread first — one row per thread: slug, direction, counterparty, subject, " +
+        "coordinate and status. Narrow with status (unread · held · answered). The slug is what every other verb takes.",
+      input: v.object({
+        status: v.string().optional().desc("unread · read · answered · held"),
+        limit: v.integer({ minimum: 1, maximum: 100 }).default(30),
+      }),
+    },
+    async (ctx) => {
+      const rows = await ctx.mode.call.inbox(ctx.input);
+      if (!rows.length) return { output: { message: "nothing in the mailbox." } };
+      return {
+        output: {
+          message: rows
+            .map((card) => `${line(card)}${card.count > 1 ? ` · ${card.count} messages` : ""}${card.held ? " · HELD" : ""}`)
+            .join("\n"),
+        },
+      };
+    },
+  )
+  .open(
+    {
+      nature: "/read",
+      valence: "Read a thread by slug — every message in order, oldest first. Reading marks it read.",
+      input: v.object({ slug: v.string().desc("Thread slug from inbox.") }),
+    },
+    async (ctx) => {
+      const served = await ctx.mode.call.message({ slug: ctx.input.slug });
+      if (!served) return { condition: "ERROR", output: { message: `${ctx.input.slug} is not in the mailbox — inbox first.` } };
+      await ctx.mode.call.read({ slug: ctx.input.slug });
+      return { output: { message: served.thread.map(body).join("\n\n---\n\n") } };
+    },
+  )
+  .open(
+    {
+      nature: "/reply",
+      valence:
+        "Write a reply to a thread. It is HELD: the row lands as direction.out with a hold, and the operator " +
+        "keys it on the mail screen before anything is sent. Say what you wrote; do not claim it went out.",
+      input: v.object({
+        slug: v.string().desc("Thread slug to reply to."),
+        body: v.string().desc("The reply, as the office writes: formal in German, plain in English."),
+        subject: v.string().optional().desc("Defaults to Re: the parent's subject."),
+      }),
+    },
+    async (ctx) => {
+      const card = await ctx.mode.call.send({ ...ctx.input, inReplyTo: ctx.input.slug, held: true, by: `${ctx.mode.type}/${ctx.mode.slug}` });
+      return { output: { message: `held for the operator's key: ${card.slug} · ${card.subject}`, literal: [card] } };
+    },
+  )
+  .open(
+    {
+      nature: "/find",
+      valence: "Find mail by text over subject and body, or by JD coordinate. Gives the slugs read takes.",
+      input: v.object({
+        text: v.string().optional(),
+        id: v.string().optional().desc("A JD coordinate: 22, 22.04."),
+        limit: v.integer({ minimum: 1, maximum: 50 }).default(12),
+      }),
+    },
+    async (ctx) => {
+      const rows = await ctx.daemon.entities.literal.find(
+        {
+          ontology: "message",
+          traits: "MAIL",
+          ...(ctx.input.text && { search: ctx.input.text }),
+          ...(ctx.input.id && { symbols: [ctx.input.id.includes(".") ? `vdex.id.${ctx.input.id}` : `vdex.category.${ctx.input.id}`] }),
+        },
+        { limit: ctx.input.limit },
+      );
+      if (!rows.length) return { output: { message: "nothing filed there.", literal: [] } };
+      return {
+        output: {
+          message: rows.map((literal) => `${literal.slug} · ${literal.trait.MAIL.subject}`).join("\n"),
+          literal: rows,
+        },
+      };
+    },
+  )
+  .open(
+    {
+      nature: "/open",
+      valence: "Put a thread on the operator's screen — the mail app opens it. Use it when you want them to look.",
+      input: v.object({ slug: v.string() }),
+    },
+    async (ctx) => {
+      const buffer = await ctx.mode.emit.open({ slug: ctx.input.slug, thread: ctx.input.thread });
+      return { output: { message: `${ctx.input.slug} on screen.`, buffer: [buffer] } };
+    },
+  );
+#+end_src
+
+Not armed: =key=. The officer can write and can ask, and cannot send. That is the whole gate, and it
+is one route's absence rather than a policy anywhere.
+
+** harness.js — what the correspondent knows
+
+#+begin_src javascript
+// ~/.viva/registry/vcompany/modes/office/email/harness.js
+import { Vector } from "@vivalence/typology";
+
+const ROLE = (company, address) =>
+  `You keep ${company.name}'s correspondence at ${address}. You read the office's mail, you say what has ` +
+  "arrived and what is owed, and you write replies for the operator to key — you never send.";
+
+const DOCTRINE = [
+  "A thread is addressed by slug — inbox gives slugs. read gives the whole thread, oldest first.",
+  "reply HOLDS: the row lands as direction.out and waits for the operator's key on the mail screen. Say it is held; never say it was sent.",
+  "A mail filed at a JD coordinate shows it — the document lives in the vdex, ask that mode for the file.",
+  "Attachments are already on disk in the cargo; name the file, do not promise to fetch it.",
+];
+
+// the newest mail buffer on this thread — what the operator is looking at
+const screen = async (ctx) => {
+  if (!ctx.input.thread) return null;
+  const [buffer] = await ctx.daemon.entities.buffer.find(
+    { thread: ctx.input.thread, mode: ctx.mode.entity.id },
+    { orderBy: { index: "desc" }, limit: 1 },
+  );
+  if (!buffer?.data?.open) return null;
+  const literal = await ctx.daemon.entities.literal.findOne({ ontology: "message", slug: buffer.data.open });
+  return literal ? `On the operator's screen: ${literal.slug} · ${literal.trait.MAIL.subject}.` : null;
+};
+
+const inbox = async (ctx) => {
+  const rows = await ctx.mode.call.inbox({ limit: 40 });
+  if (!rows.length) return "[MAIL] the mailbox is empty.";
+  const unread = rows.filter((card) => card.status === "unread").length;
+  const held = rows.filter((card) => card.held).length;
+  return [
+    `[MAIL ${ctx.mode.statics.address}] · ${rows.length} threads · ${unread} unread · ${held} held · rows: slug · direction · who · subject · coordinate · status`,
+    ...rows.map(
+      (card) =>
+        `${card.slug} · ${card.direction === "in" ? "←" : "→"} ${card.direction === "in" ? card.from : card.to.join(", ")} · ` +
+        `${card.subject}${card.coord ? ` · ${card.coord}` : ""} · ${card.status}${card.held ? " · HELD" : ""}`,
+    ),
+  ].join("\n");
+};
+
+export const harness = new Vector().use(async (ctx, next) => {
+  const sections = [ROLE(ctx.daemon.statics.company, ctx.mode.statics.address), DOCTRINE.join("\n"), await inbox(ctx), await screen(ctx)];
+  ctx.hallucination.system.inbox = sections.filter(Boolean).join("\n\n");
+  await next();
+});
+#+end_src
+
+Rows, not a tree — the i1 doctrine the vdex index earned: an agent greps the slug it will pass to
+=read=, a human reads a list.
+
+** buffer/Mail.svelte — the shell
+
+The V3 screen: a 52 px head (60 narrow) with the mark, the title, the filter segment and the state
+pip; a 340 px list beside a 760-max thread; under 820 the list and the thread take turns and =‹=
+comes back. Every wire call lands in the status line; a refusal is shown, never thrown.
+
+#+begin_src svelte
+<script>
+  import { Pip } from "@vivalence/drapes";
+  import Inbox from "./parts/Inbox.svelte";
+  import Thread from "./parts/Thread.svelte";
+
+  let { terminal, daemon, mode, thread: bound, buffer } = $props();
+
+  const FILTERS = ["all", "unread", "held"];
+
+  let root = $state(null);
+  let width = $state(0);
+  const narrow = $derived(width > 0 && width < 820);
+  const mid = $derived(width > 0 && width < 1000);
+
+  let rows = $state.raw([]);
+  let account = $state.raw({ address: "", vendor: "", poll: 0 });
+  let open = $state.raw(null);
+  let cursor = $state(null);
+  let filter = $state(buffer?.data?.filter ?? "all");
+  let detail = $state(false);
+  let draft = $state("");
+  let drafts = $state({});
+  let log = $state.raw([]);
+  let fault = $state(null);
+
+  const listed = $derived(
+    filter === "unread" ? rows.filter((card) => card.status === "unread")
+    : filter === "held" ? rows.filter((card) => card.held)
+    : rows,
+  );
+  const unread = $derived(rows.filter((card) => card.status === "unread").length);
+  const held = $derived(rows.filter((card) => card.held).length);
+  const current = $derived(rows.find((card) => card.slug === cursor) ?? null);
+  const showList = $derived(!narrow || !detail);
+  const showThread = $derived(!narrow || detail);
+  const columns = $derived(narrow ? "minmax(0, 1fr)" : mid ? "minmax(220px, .8fr) minmax(320px, 1.4fr)" : "340px minmax(0, 1fr)");
+  const dirty = $derived(!!draft.trim());
+
+  async function call(route, input, shown = JSON.stringify(input)) {
+    log = [{ route: `/${route}`, arg: shown }, ...log].slice(0, 3);
+    try {
+      fault = null;
+      return await mode.call[route](input);
+    } catch (error) {
+      fault = `/${route} · ${error.message}`;
+      return null;
+    }
+  }
+
+  async function load() {
+    account = (await call("account", {})) ?? account;
+    rows = (await call("inbox", { limit: 200 })) ?? [];
+    if (buffer?.data?.open) await read(buffer.data.open);
+    else if (rows.length) cursor = rows[0].slug;
+  }
+
+  async function read(slug) {
+    drafts = { ...drafts, ...(cursor ? { [cursor]: draft } : {}) };
+    cursor = slug;
+    draft = drafts[slug] ?? "";
+    if (narrow) detail = true;
+    open = await call("message", { slug });
+    const card = rows.find((known) => known.slug === slug);
+    if (card?.status === "unread") await call("read", { slug });
+  }
+
+  async function send() {
+    const text = draft.trim();
+    if (!text || !cursor) return;
+    const sent = await call("send", { inReplyTo: cursor, body: text });
+    if (!sent) return;
+    draft = "";
+    drafts = { ...drafts, [cursor]: "" };
+    open = await call("message", { slug: cursor });
+  }
+
+  async function key(slug) {
+    if (!(await call("key", { slug }))) return;
+    open = await call("message", { slug: cursor });
+  }
+
+  // the twitch, row by row — a message event names its row; the inbox is recomputed, never refetched
+  const swap = (held, event) => {
+    const id = event.entity?.id ?? event.entity;
+    const rest = held.filter((known) => known.id !== id);
+    return event.op === "delete" ? rest : [...rest, event.entity];
+  };
+
+  $effect(() => {
+    load();
+    const off = daemon?.entities?.literal?.subscribe?.({ ontology: "message" }, async (merged, event) => {
+      rows = (await call("inbox", { limit: 200 })) ?? rows;
+      if (cursor && (event.entity?.slug === cursor || swap([], event).length)) open = await call("message", { slug: cursor });
+    });
+    return () => off?.();
+  });
+
+  const jump = (slug, coord) => {
+    const vdex = terminal?.daemon?.modes?.find?.((known) => known.type === "office" && known.slug === "vdex");
+    if (!vdex) { fault = "the vdex is not mounted here"; return; }
+    vdex.emit.open({ slug, ...(bound && { thread: bound.id }) }).catch((error) => (fault = error.message));
+  };
+</script>
+
+<div
+  class="mail"
+  bind:this={root}
+  bind:clientWidth={width}
+  role="presentation"
+  tabindex="-1"
+  style="--head: {narrow ? 60 : 52}px; --columns: {columns}"
+>
+  <header>
+    {#if narrow && detail}
+      <button class="back" onclick={() => (detail = false)} aria-label="back">‹</button>
+    {/if}
+    <span class="mark">ML</span>
+    <span class="who">
+      <b>Mail</b>
+      <small>office/email · {account.vendor} · {unread} unread · {held} held</small>
+    </span>
+    <span class="segment">
+      {#each FILTERS as name}
+        <button class:on={filter === name} onclick={() => (filter = name)}>
+          {name}{name === "unread" && unread ? ` ${unread}` : name === "held" && held ? ` ${held}` : ""}
+        </button>
+      {/each}
+    </span>
+    <Pip tone={held ? "warning" : "success"} label={held ? `${held} held` : "synced"} />
+  </header>
+
+  <div class="body">
+    {#if showList}
+      <Inbox rows={listed} {cursor} {account} total={rows.length} on:pick={(event) => read(event.detail)} />
+    {/if}
+    {#if showThread}
+      <Thread
+        {open}
+        card={current}
+        bind:draft
+        {dirty}
+        on:send={send}
+        on:key={(event) => key(event.detail)}
+        on:jump={(event) => jump(event.detail.slug, event.detail.coord)}
+        on:ceo={() => terminal?.open?.("officer/ceo", `co-write the reply to ${current?.from} · ${current?.subject}`)}
+      />
+    {/if}
+  </div>
+
+  <footer>
+    <span class="calls">{#each log as entry}<code>{entry.route}</code>{/each}</span>
+    {#if fault}<span class="fault">{fault}</span>{/if}
+  </footer>
+</div>
+
+<style>
+  .mail { height: 100%; display: flex; flex-direction: column; overflow: hidden; box-sizing: border-box;
+    background: var(--colors-skeleton-0-surface); color: var(--colors-skeleton-0-contrast); font-family: var(--font-family-code); outline: none; }
+  header { display: flex; align-items: center; gap: 10px; height: var(--head); padding: 0 14px; flex: none;
+    border-bottom: 1px solid var(--colors-skeleton-1-boundary); font-size: var(--font-size-2xs); }
+  .back { min-width: 44px; height: 44px; border: 1px solid var(--colors-skeleton-3-boundary); border-radius: var(--border-radius-sm);
+    background: none; color: var(--text-support); font: inherit; font-size: var(--font-size-sm); cursor: pointer; }
+  .mark { width: 26px; height: 26px; flex: none; display: grid; place-items: center; border: 1px solid var(--colors-skeleton-0-primary-base);
+    border-radius: 2px; color: var(--colors-skeleton-0-primary-base); font-size: var(--font-size-2xs); letter-spacing: .08em; font-weight: 600; }
+  .who { display: flex; flex-direction: column; gap: 2px; min-width: 0; flex: 1; }
+  .who b { font-family: var(--font-family-sans-heading); font-weight: 600; font-size: var(--font-size-sm); }
+  .who small, .calls { color: var(--text-support); overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+  .segment { display: flex; flex: none; border: 1px solid var(--colors-skeleton-3-boundary); border-radius: var(--border-radius-sm); overflow: hidden; }
+  .segment button { padding: 8px 10px; border: 0; border-left: 1px solid var(--colors-skeleton-3-boundary); background: none;
+    color: color-mix(in srgb, var(--colors-skeleton-3-contrast) 55%, transparent); font: inherit; font-size: var(--font-size-2xs);
+    letter-spacing: .14em; text-transform: uppercase; cursor: pointer; white-space: nowrap; }
+  .segment button:first-child { border-left: 0; }
+  .segment button.on { color: var(--colors-skeleton-0-primary-base); background: color-mix(in srgb, var(--colors-skeleton-0-primary-base) 12%, transparent); }
+  .body { flex: 1; min-height: 0; display: grid; grid-template-columns: var(--columns); overflow: hidden; }
+  footer { display: flex; align-items: center; gap: 10px; height: 28px; padding: 0 14px; flex: none;
+    border-top: 1px solid var(--colors-skeleton-2-boundary); font-size: var(--font-size-2xs); }
+  .calls code { color: var(--colors-skeleton-0-primary-base); padding-right: 8px; }
+  .fault { color: var(--colors-skeleton-0-danger-base); overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+</style>
+#+end_src
+
+** buffer/parts/Inbox.svelte
+
+#+begin_src svelte
+<script>
+  import { createEventDispatcher } from "svelte";
+  import { Empty } from "@vivalence/drapes";
+
+  let { rows, cursor, account, total } = $props();
+  const fire = createEventDispatcher();
+
+  const day = (at) => new Date(at).toLocaleDateString("en", { weekday: "short" }).toLowerCase();
+  const pip = (card) => (card.status === "unread" ? "unread" : card.status === "answered" ? "answered" : "");
+</script>
+
+<div class="inbox">
+  {#each rows as card (card.slug)}
+    <button class="row" class:on={card.slug === cursor} onclick={() => fire("pick", card.slug)}>
+      <span class="dot {pip(card)}"></span>
+      <span class="who">
+        <span class="top">
+          <b class:unread={card.status === "unread"}>{card.direction === "in" ? card.from : card.to.join(", ")}</b>
+          {#if card.coord}<em>{card.coord}</em>{/if}
+        </span>
+        <span class="subject" class:muted={card.status !== "unread"}>{card.subject}</span>
+      </span>
+      <span class="right">
+        <small>{day(card.last)}</small>
+        {#if card.attachments.length}<span class="clip"></span>{/if}
+      </span>
+    </button>
+  {:else}
+    <Empty label="nothing here" />
+  {/each}
+  <p class="boot">
+    <code>[MAIL]</code> {account.address} · {account.vendor} · poll {account.poll} · {total} rows
+  </p>
+</div>
+
+<style>
+  .inbox { display: flex; flex-direction: column; overflow: auto; border-right: 1px solid var(--colors-skeleton-1-boundary); }
+  .row { display: grid; grid-template-columns: 10px minmax(0, 1fr) auto; gap: 10px; align-items: center; min-height: 56px;
+    padding: 8px 14px; border: 0; border-bottom: 1px solid var(--colors-skeleton-2-boundary); background: none; text-align: left;
+    color: inherit; font: inherit; cursor: pointer; }
+  .row:hover { background: var(--colors-skeleton-1-surface); }
+  .row.on { background: color-mix(in srgb, var(--colors-skeleton-4-surface) 45%, transparent); }
+  .dot { width: 6px; height: 6px; border-radius: 50%; background: transparent; }
+  .dot.unread { background: var(--colors-skeleton-0-primary-base); }
+  .dot.answered { background: var(--colors-skeleton-0-success-base, var(--colors-skeleton-0-primary-base)); }
+  .who { display: flex; flex-direction: column; gap: 3px; min-width: 0; }
+  .top { display: flex; align-items: baseline; gap: 8px; min-width: 0; }
+  .top b { font-family: var(--font-family-sans-text); font-size: var(--font-size-xs); font-weight: 400;
+    overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+  .top b.unread { font-weight: 600; }
+  .top em { font-style: normal; font-size: var(--font-size-2xs); color: var(--colors-skeleton-0-primary-base); letter-spacing: .08em; }
+  .subject { font-family: var(--font-family-sans-text); font-size: var(--font-size-xs); overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+  .subject.muted { color: var(--text-support); }
+  .right { display: flex; flex-direction: column; align-items: flex-end; gap: 4px; }
+  .right small { font-size: var(--font-size-2xs); color: var(--text-support); }
+  .clip { width: 4px; height: 4px; border-radius: 50%; background: var(--colors-skeleton-0-warning-base); }
+  .boot { margin: auto 0 0; padding: 10px 14px; font-size: var(--font-size-2xs); color: var(--text-support); line-height: 1.5; }
+  .boot code { color: var(--colors-skeleton-0-primary-base); }
+  @media (pointer: coarse) { .row { min-height: 64px; } }
+</style>
+#+end_src
+
+** buffer/parts/Thread.svelte
+
+The in/out asymmetry the design draws: an inbound message is prose under a =↓= line; an outbound one
+is a right-aligned bubble under =↑=. A held send wears the warning strip with the =key= the operator
+presses; once keyed it reads =sent · direction.out · uses → <parent>=.
+
+#+begin_src svelte
+<script>
+  import { createEventDispatcher } from "svelte";
+  import { Empty } from "@vivalence/drapes";
+
+  let { open, card, draft = $bindable(), dirty } = $props();
+  const fire = createEventDispatcher();
+
+  const clock = (at) => new Date(at).toLocaleTimeString("en", { hour: "2-digit", minute: "2-digit", hour12: false });
+  const short = (slug) => slug.replace("email.", "");
+</script>
+
+<div class="thread">
+  {#if !open || !card}
+    <Empty label="pick a thread" />
+  {:else}
+    <div class="scroll">
+      <div class="head">
+        <h2>{card.subject}</h2>
+        <div class="meta">
+          <span>{card.from} · {open.thread.length} message{open.thread.length === 1 ? "" : "s"} · {card.slug}</span>
+          {#if card.coord}
+            <button class="coord" onclick={() => fire("jump", { slug: null, coord: card.coord })}>→ {card.coord}</button>
+          {:else}
+            <button class="coord dashed" onclick={() => fire("jump", { slug: null, coord: null })}>+ file → vdex</button>
+          {/if}
+        </div>
+      </div>
+
+      {#each open.thread as message (message.slug)}
+        {#if message.direction === "in"}
+          <div class="turn in">
+            <div class="who"><span class="arrow">↓</span><span>{message.from}</span><span>{clock(message.at)}</span></div>
+            <p>{message.body}</p>
+            {#each message.attachments as attachment}
+              <button class="file" onclick={() => fire("jump", { slug: null, coord: card.coord })}>
+                <span class="clip"></span>
+                <span class="name">{attachment.name}</span>
+                <span class="grow"></span>
+                <span class="what">{card.coord ? `filed → ${card.coord}` : "file → vdex"}</span>
+              </button>
+            {/each}
+          </div>
+        {:else}
+          <div class="turn out">
+            <div class="who"><span>{clock(message.at)} · {message.from}</span><span class="arrow up">↑</span></div>
+            <p class="bubble">{message.body}</p>
+            {#if message.hold}
+              <div class="hold">
+                <span class="dot"></span>
+                <code>email_send</code>
+                <span>queued by {message.hold.by} · inReplyTo {short(card.slug)}</span>
+                <button onclick={() => fire("key", message.slug)}>key</button>
+              </div>
+            {:else}
+              <small class="sent">sent · direction.out · uses → {short(card.slug)}</small>
+            {/if}
+          </div>
+        {/if}
+      {/each}
+    </div>
+
+    <div class="composer">
+      <textarea bind:value={draft} rows="3" placeholder="reply as office…"></textarea>
+      <div class="actions">
+        <span class="hint">/send · inReplyTo {short(card.slug)} · from office</span>
+        <button class="ceo" onclick={() => fire("ceo")}>◆ ceo</button>
+        <button class="send" class:ready={dirty} onclick={() => fire("send")}>send</button>
+      </div>
+    </div>
+  {/if}
+</div>
+
+<style>
+  .thread { display: flex; flex-direction: column; min-width: 0; overflow: hidden; }
+  .scroll { flex: 1; overflow: auto; padding: 16px 16px 0; display: flex; flex-direction: column; gap: 14px;
+    max-width: 760px; width: 100%; box-sizing: border-box; margin: 0 auto; font-size: var(--font-size-xs); line-height: 1.55; }
+  .head { display: flex; flex-direction: column; gap: 6px; }
+  h2 { margin: 0; font-family: var(--font-family-sans-heading); font-weight: 600; font-size: var(--font-size-lg); }
+  .meta { display: flex; flex-wrap: wrap; gap: 8px; align-items: center; font-size: var(--font-size-2xs); color: var(--text-support); }
+  .coord { height: 18px; padding: 0 6px; border: 1px solid color-mix(in srgb, var(--colors-skeleton-0-primary-base) 45%, transparent);
+    border-radius: 2px; background: none; color: var(--colors-skeleton-0-primary-base); font: inherit; letter-spacing: .08em; cursor: pointer; }
+  .coord.dashed { border-style: dashed; border-color: var(--colors-skeleton-3-boundary); }
+  .turn { display: flex; flex-direction: column; gap: 6px; }
+  .turn.out { align-items: flex-end; }
+  .who { display: flex; gap: 6px; align-items: baseline; font-size: var(--font-size-2xs); color: var(--text-support); }
+  .arrow { color: var(--colors-skeleton-0-primary-base); opacity: .7; }
+  .arrow.up { color: var(--colors-skeleton-0-secondary-base, var(--colors-skeleton-0-primary-base)); }
+  p { margin: 0; font-family: var(--font-family-sans-text); text-wrap: pretty; white-space: pre-wrap; }
+  .bubble { max-width: 88%; padding: 10px 12px; border: 1px solid var(--colors-skeleton-3-boundary);
+    border-radius: 8px; background: var(--colors-skeleton-1-surface); }
+  .file { display: flex; align-items: center; gap: 8px; min-height: 40px; padding: 0 10px; max-width: 380px;
+    background: var(--colors-skeleton-2-surface); border: 1px solid var(--colors-skeleton-2-boundary);
+    border-radius: var(--border-radius-sm); color: inherit; font: inherit; cursor: pointer; }
+  .file:hover { border-color: var(--colors-skeleton-3-boundary); }
+  .clip, .hold .dot { width: 4px; height: 4px; border-radius: 50%; background: var(--colors-skeleton-0-warning-base); }
+  .hold .dot { width: 6px; height: 6px; }
+  .name { color: var(--colors-skeleton-2-contrast); font-size: var(--font-size-xs); overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+  .grow { flex: 1; }
+  .what { font-size: var(--font-size-2xs); letter-spacing: .12em; text-transform: uppercase; color: var(--colors-skeleton-0-primary-base); white-space: nowrap; }
+  .hold { display: flex; align-items: center; gap: 8px; padding: 6px 10px; font-size: var(--font-size-2xs); letter-spacing: .08em;
+    border: 1px solid var(--colors-skeleton-0-warning-base); border-radius: 2px; background: var(--colors-skeleton-2-surface); }
+  .hold code { color: var(--colors-skeleton-0-primary-base); }
+  .hold span { color: var(--text-support); }
+  .hold button { border: 0; background: none; color: var(--colors-skeleton-0-primary-base); font: inherit;
+    font-size: var(--font-size-2xs); text-transform: uppercase; letter-spacing: .14em; cursor: pointer; padding-left: 6px; }
+  .sent { font-size: var(--font-size-2xs); letter-spacing: .08em; color: var(--colors-skeleton-0-success-base, var(--colors-skeleton-0-primary-base)); }
+  .composer { display: flex; flex-direction: column; gap: 8px; padding: 10px 16px 12px; flex: none;
+    border-top: 1px solid var(--colors-skeleton-2-boundary); max-width: 760px; width: 100%; box-sizing: border-box; margin: 0 auto; }
+  textarea { width: 100%; box-sizing: border-box; resize: none; padding: 10px; background: transparent;
+    border: 1px solid var(--colors-skeleton-2-boundary); border-radius: var(--border-radius-sm);
+    color: var(--colors-skeleton-0-contrast); font-family: var(--font-family-sans-text); font-size: var(--font-size-xs); line-height: 1.5; outline: none; }
+  .actions { display: grid; grid-template-columns: minmax(0, 1fr) auto auto; gap: 8px; }
+  .hint { font-size: var(--font-size-2xs); color: var(--text-support); align-self: center; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+  .ceo, .send { height: 40px; padding: 0 14px; border-radius: var(--border-radius-sm); background: none; font: inherit;
+    font-size: var(--font-size-2xs); letter-spacing: .14em; text-transform: uppercase; cursor: pointer; white-space: nowrap; }
+  .ceo { border: 1px solid var(--colors-skeleton-3-boundary); color: var(--text-support); }
+  .ceo:hover { color: var(--colors-skeleton-0-primary-base); border-color: var(--colors-skeleton-0-primary-base); }
+  .send { border: 1px solid color-mix(in srgb, var(--colors-skeleton-0-primary-base) 45%, transparent);
+    color: var(--colors-skeleton-0-primary-base); opacity: .5; }
+  .send.ready { opacity: 1; }
+</style>
+#+end_src
+
+* office/calendar — the APPLICATION mode
+
+Its job in one line: hold the office's spans as literals, draw them five ways, mint them from mail and
+from officers, and let the operator create · rename · move · drop through the provider.
+
+** the mode
+
+#+begin_src javascript
+// ~/.viva/registry/vcompany/modes/office/calendar/calendar.viva.js
+import { App, Dataset, v } from "@vivalence/typology";
+
+export { boot } from "./boot.js";
+export { aperture } from "./aperture/index.js";
+export { tools } from "./tools/index.js";
+export { emitter } from "./emitter/index.js";
+export { harness } from "./harness.js";
+
+export const manifest = {
+  type: "office",
+  slug: "calendar",
+  name: "Calendar",
+  version: "0.1.0",
+  description:
+    "The office's spans as event literals: a provider hands the rows, a series is a master with an rrule expanded " +
+    "for the range on screen, a deadline is a span with no end, and a minted row names the mail or the officer it came from.",
+  traits: ["DATASET", "BOOTED", "APPLICATION", "EMITTER", "STANDALONE", "EXPOSED", "HARNESSED", "TOOLED"],
+};
+
+export const dataset = new Dataset({ symbol: "dataset/symbols.js" });
+export const statics = { provider: "dummy/calendar", horizon: 120 };
+
+export const app = new App(
+  "buffer/Calendar.svelte",
+  v.buffer({
+    data: {
+      open: v.string().optional().desc("slug of the event in the inspector"),
+      on: v.string().optional().desc("the day the calendar opens on: 2026-09-08"),
+      view: v.string().optional().desc("day · week · month · year · list"),
+    },
+  }),
+);
+#+end_src
+
+No freight, no mountpoint: the calendar owns no bytes. =horizon= is how many days the harness reports.
+
+** dataset/symbols.js — the scheme
+
+#+begin_src javascript
+// ~/.viva/registry/vcompany/modes/office/calendar/dataset/symbols.js
+const labeled = (slug, traits, name, description) => ({
+  slug,
+  traits: [...traits, "LABELED"],
+  trait: { ...Object.fromEntries(traits.map((trait) => [trait, {}])), LABELED: { name, description } },
+});
+
+export default [
+  labeled("event", ["ONTOLOGICAL", "TOPOGRAPHICAL"], "Event", "A span on the office's calendar."),
+  labeled("event.kind.event", ["ONTOLOGICAL"], "Event", "A span with a start and an end."),
+  labeled("event.kind.deadline", ["ONTOLOGICAL"], "Deadline", "A day something is owed; no end, drawn in the due band."),
+  labeled("event.source.vendor", ["STRUCTURAL"], "Vendor", "The provider's own row — edits go back through it."),
+  labeled("event.source.mail", ["STRUCTURAL"], "Minted from mail", "Minted from a message; it uses that literal."),
+  labeled("event.source.officer", ["STRUCTURAL"], "Minted by an officer", "Put there by an officer's thread."),
+];
+#+end_src
+
+** boot.js · provider.js
+
+#+begin_src javascript
+// ~/.viva/registry/vcompany/modes/office/calendar/boot.js
+export async function boot(daemon, mode) {
+  const total = await daemon.entities.literal.count({ ontology: "event" });
+  const due = await daemon.entities.literal.count({ ontology: "event", symbols: ["event.kind.deadline"] });
+  console.log(`[CAL] provider ${mode.statics.provider} · ${total} events · ${due} deadlines · horizon ${mode.statics.horizon}d`);
+  return () => {};
+}
+#+end_src
+
+#+begin_src javascript
+// ~/.viva/registry/vcompany/modes/office/calendar/provider.js
+export const provider = (daemon, mode) => {
+  const [type, slug] = (mode.statics.provider ?? "").split("/");
+  const held = daemon.modes.find((known) => known.type === type && known.slug === slug);
+  if (!held)
+    throw new Error(
+      `no calendar provider mounted — office/calendar wants '${mode.statics.provider}'; add it to the daemon kernel, or point statics.provider at one that is`,
+    );
+  return {
+    calendars: (input = {}) => held.call.calendars(input),
+    events: (input) => held.call.events(input),
+    create: (input) => held.call.create(input),
+    rename: (input) => held.call.rename(input),
+    move: (input) => held.call.move(input),
+    delete: (input) => held.call.delete(input),
+  };
+};
+#+end_src
+
+** aperture/index.js
+
+=/agenda= is the one the App lives on: a range in, cards out, series already expanded by the provider.
+=/mint= is the edge the design's =uses= list reads back — an event minted FROM something keeps the
+edge, and the inspector shows it.
+
+#+begin_src javascript
+// ~/.viva/registry/vcompany/modes/office/calendar/aperture/index.js
+import { Aperture } from "@vivalence/typology";
+import { provider } from "../provider.js";
+
+const master = (slug) => slug.split("@")[0];
+const one = (ctx, slug) =>
+  ctx.daemon.entities.literal.findOne({ ontology: "event", slug: master(slug) }, { populate: ["symbols", "uses"] });
+
+const sourceOf = (literal) =>
+  literal.symbols?.getItems?.().find((symbol) => symbol.slug.startsWith("event.source."))?.slug.split(".").pop() ??
+  (literal.trait.EVENT.external ? "vendor" : "mail");
+
+const card = (literal) => {
+  const { kind, title, start, end, allDay, who, where, external, rrule } = literal.trait.EVENT;
+  const vdex = literal.symbol?.vdex;
+  return {
+    slug: literal.slug,
+    master: master(literal.slug),
+    kind, title, start, end, allDay, who, where, rrule,
+    series: !!rrule,
+    source: sourceOf(literal),
+    vendor: !!external?.account,
+    coord: vdex ? [vdex.category, Object.values(vdex.id ?? {})[0]].filter(Boolean).join(".") : null,
+  };
+};
+
+const window = (input) => {
+  const from = input.from ?? new Date().toISOString().slice(0, 10);
+  const to = input.to ?? new Date(new Date(from).getTime() + 90 * 864e5).toISOString().slice(0, 10);
+  return { from: `${from}T00:00:00.000Z`, to: `${to}T23:59:59.999Z` };
+};
+
+export const aperture = new Aperture()
+  .open("/calendars", (input, ctx) => provider(ctx.daemon, ctx.mode).calendars({}))
+  .open("/agenda", async (input, ctx) => (await provider(ctx.daemon, ctx.mode).events(window(input))).map(card))
+  .open("/event", async (input, ctx) => {
+    const literal = await one(ctx, input.slug);
+    if (!literal) return null;
+    const uses = await Promise.all(
+      literal.uses.getItems().map(async (ref) => {
+        const held = await ctx.daemon.entities.literal.findOne({ id: ref.id });
+        return {
+          slug: held.slug,
+          ontology: held.ontology,
+          title: held.trait?.MAIL?.subject ?? held.trait?.DOCUMENT?.title ?? held.trait?.EVENT?.title ?? held.slug,
+        };
+      }),
+    );
+    return { ...card(literal), uses };
+  })
+  .open("/create", async (input, ctx) => card(await provider(ctx.daemon, ctx.mode).create({ ...input, source: input.source ?? "officer" })))
+  .open("/rename", async (input, ctx) => card(await provider(ctx.daemon, ctx.mode).rename({ slug: master(input.slug), title: input.title })))
+  .open("/move", async (input, ctx) => card(await provider(ctx.daemon, ctx.mode).move({ slug: master(input.slug), start: input.start, end: input.end })))
+  .open("/delete", (input, ctx) => provider(ctx.daemon, ctx.mode).delete({ slug: master(input.slug) }))
+  // mint FROM a literal — the uses edge the inspector reads back
+  .open("/mint", async (input, ctx) => {
+    const from = await ctx.daemon.entities.literal.findOne({ slug: input.from });
+    if (!from) throw new Error(`${input.from} is not a row here — nothing to mint from`);
+    const source = from.ontology === "message" ? "mail" : from.ontology === "vdex" ? "officer" : "officer";
+    const created = await provider(ctx.daemon, ctx.mode).create({ ...input, source });
+    const literal = await one(ctx, created.slug);
+    literal.uses.add(from);
+    await ctx.daemon.entities.em.flush();
+    return card(await one(ctx, created.slug));
+  });
+#+end_src
+
+** emitter/index.js
+
+#+begin_src javascript
+// ~/.viva/registry/vcompany/modes/office/calendar/emitter/index.js
+import { v, Vector } from "@vivalence/typology";
+
+const OPEN = v.object({
+  slug: v.string().optional().desc("The event to select in the inspector."),
+  on: v.string().optional().desc("A day to open on: 2026-09-08."),
+  view: v.string().optional().desc("day · week · month · year · list"),
+  thread: v.string().optional().desc("Binds the emitted buffer to the caller's thread."),
+});
+
+export const emitter = new Vector().open({ nature: "/open", input: OPEN }, async (ctx) => {
+  const { slug, on, view } = ctx.input;
+  if (!slug && !on) throw new Error("open needs a slug or a day");
+  const literal = slug ? await ctx.daemon.entities.literal.findOne({ ontology: "event", slug: slug.split("@")[0] }) : null;
+  if (slug && !literal) throw new Error(`${slug} is not on the calendar`);
+  return ctx.mode.app.buffer({
+    ...(literal && { literals: [literal.id] }),
+    data: { ...(slug && { open: slug }), ...(on && { on }), ...(view && { view }) },
+  });
+});
+#+end_src
+
+** tools/index.js — the officer's five
+
+#+begin_src javascript
+// ~/.viva/registry/vcompany/modes/office/calendar/tools/index.js
+import { v, Vector } from "@vivalence/typology";
+
+const when = (card) =>
+  card.allDay
+    ? `${card.start.slice(0, 10)} · due`
+    : `${card.start.slice(0, 10)} ${card.start.slice(11, 16)}${card.end ? `–${card.end.slice(11, 16)}` : ""}`;
+
+const line = (card) =>
+  `${card.slug} · ${when(card)} · ${card.title}${card.who ? ` · ${card.who}` : ""}${card.coord ? ` · ${card.coord}` : ""} · ${card.source}${card.series ? " · series" : ""}`;
+
+const DAY = /^\d{4}-\d\d-\d\d$/;
+const day = (value, what) => {
+  if (!DAY.test(value ?? "")) throw new Error(`${what} must be a day, YYYY-MM-DD — got ${value ?? "nothing"}`);
+  return value;
+};
+
+export const tools = new Vector()
+  .open(
+    {
+      nature: "/agenda",
+      valence:
+        "The office calendar as rows between two days — slug, when, title, who, coordinate and source. " +
+        "A row with 'due' is a deadline. The slug is what every other verb takes.",
+      input: v.object({
+        from: v.string().optional().desc("First day, YYYY-MM-DD. Defaults to today."),
+        to: v.string().optional().desc("Last day, YYYY-MM-DD. Defaults to 90 days out."),
+      }),
+    },
+    async (ctx) => {
+      const rows = await ctx.mode.call.agenda(ctx.input);
+      if (!rows.length) return { output: { message: "nothing on the calendar in that range." } };
+      return { output: { message: rows.map(line).join("\n") } };
+    },
+  )
+  .open(
+    {
+      nature: "/event",
+      valence: "One event by slug — when, who, where, source, coordinate, and what it was minted from.",
+      input: v.object({ slug: v.string() }),
+    },
+    async (ctx) => {
+      const card = await ctx.mode.call.event({ slug: ctx.input.slug });
+      if (!card) return { condition: "ERROR", output: { message: `${ctx.input.slug} is not on the calendar — agenda first.` } };
+      const uses = card.uses.length ? `\nfrom: ${card.uses.map((ref) => `${ref.slug} · ${ref.title}`).join(" · ")}` : "";
+      return { output: { message: `${line(card)}${card.where ? `\nwhere: ${card.where}` : ""}${uses}` } };
+    },
+  )
+  .open(
+    {
+      nature: "/create",
+      valence:
+        "Put something on the calendar. kind 'event' takes a start and an end; kind 'deadline' takes a day only. " +
+        "Give a JD coordinate when it belongs to one — the row then shows beside its documents.",
+      input: v.object({
+        title: v.string(),
+        kind: v.enum(["event", "deadline"], { default: "event" }),
+        start: v.string().desc("YYYY-MM-DD for a deadline; YYYY-MM-DDTHH:MM for an event."),
+        end: v.string().optional(),
+        who: v.string().optional(),
+        where: v.string().optional(),
+        coord: v.string().optional().desc("A JD coordinate: 22 or 22.04."),
+        from: v.string().optional().desc("A slug this is minted from — a mail, a document."),
+      }),
+    },
+    async (ctx) => {
+      const { from, ...rest } = ctx.input;
+      const card = from ? await ctx.mode.call.mint({ ...rest, from }) : await ctx.mode.call.create(rest);
+      return { output: { message: `on the calendar: ${line(card)}`, literal: [card] } };
+    },
+  )
+  .open(
+    {
+      nature: "/rename",
+      valence: "Retitle an event by slug. The slug does not change.",
+      input: v.object({ slug: v.string(), title: v.string() }),
+    },
+    async (ctx) => ({ output: { message: `renamed: ${line(await ctx.mode.call.rename(ctx.input))}` } }),
+  )
+  .open(
+    {
+      nature: "/move",
+      valence: "Move an event to another time. A series refuses — move the series or split the occurrence first.",
+      input: v.object({ slug: v.string(), start: v.string(), end: v.string().optional() }),
+    },
+    async (ctx) => ({ output: { message: `moved: ${line(await ctx.mode.call.move(ctx.input))}` } }),
+  )
+  .open(
+    {
+      nature: "/open",
+      valence: "Put the calendar on the operator's screen — at an event, or on a day.",
+      input: v.object({ slug: v.string().optional(), on: v.string().optional(), view: v.string().optional() }),
+    },
+    async (ctx) => {
+      const buffer = await ctx.mode.emit.open({ ...ctx.input, thread: ctx.input.thread });
+      return { output: { message: `calendar on screen${ctx.input.slug ? ` at ${ctx.input.slug}` : ` on ${day(ctx.input.on, "on")}`}.`, buffer: [buffer] } };
+    },
+  );
+#+end_src
+
+=delete= is not armed. An officer can put something on the calendar and can move it; taking it off is
+the operator's, on the screen — the same asymmetry the held send draws in mail.
+
+** harness.js
+
+#+begin_src javascript
+// ~/.viva/registry/vcompany/modes/office/calendar/harness.js
+import { Vector } from "@vivalence/typology";
+
+const ROLE = (company) =>
+  `You keep ${company.name}'s calendar. You say what is on it, what is due, and what a date means for the ` +
+  "company's paperwork; you put things on it when asked and you never take anything off.";
+
+const DOCTRINE = [
+  "Rows below are the horizon, oldest first: slug · when · title · who · coordinate · source. 'due' marks a deadline.",
+  "An event is addressed by slug. A slug with an @ is one occurrence of a series; the verbs take the master.",
+  "A row minted from mail names its message — say where a date came from before you act on it.",
+  "You create and move. You do not delete; that is the operator's, on the screen.",
+];
+
+const screen = async (ctx) => {
+  if (!ctx.input.thread) return null;
+  const [buffer] = await ctx.daemon.entities.buffer.find(
+    { thread: ctx.input.thread, mode: ctx.mode.entity.id },
+    { orderBy: { index: "desc" }, limit: 1 },
+  );
+  if (!buffer?.data?.open) return null;
+  const literal = await ctx.daemon.entities.literal.findOne({ ontology: "event", slug: buffer.data.open.split("@")[0] });
+  return literal ? `On the operator's screen: ${literal.slug} · ${literal.trait.EVENT.title}.` : null;
+};
+
+const agenda = async (ctx) => {
+  const from = new Date().toISOString().slice(0, 10);
+  const to = new Date(Date.now() + (ctx.mode.statics.horizon ?? 90) * 864e5).toISOString().slice(0, 10);
+  const rows = await ctx.mode.call.agenda({ from, to });
+  if (!rows.length) return `[CAL ${from} → ${to}] nothing on the calendar.`;
+  return [
+    `[CAL ${from} → ${to}] · ${rows.length} rows: slug · when · title · who · coordinate · source`,
+    ...rows.map(
+      (card) =>
+        `${card.slug} · ${card.allDay ? `${card.start.slice(0, 10)} due` : `${card.start.slice(0, 10)} ${card.start.slice(11, 16)}${card.end ? `–${card.end.slice(11, 16)}` : ""}`}` +
+        ` · ${card.title}${card.who ? ` · ${card.who}` : ""}${card.coord ? ` · ${card.coord}` : ""} · ${card.source}`,
+    ),
+  ].join("\n");
+};
+
+export const harness = new Vector().use(async (ctx, next) => {
+  const sections = [ROLE(ctx.daemon.statics.company), DOCTRINE.join("\n"), await agenda(ctx), await screen(ctx)];
+  ctx.hallucination.system.agenda = sections.filter(Boolean).join("\n\n");
+  await next();
+});
+#+end_src
+
+** buffer/calendar.js — the client's own grammar
+
+Dates are the App's business, not the server's. Pure functions with their own suite, the =jdex.js=
+precedent: the App never imports server code and nothing leaves the mode.
+
+#+begin_src javascript
+// ~/.viva/registry/vcompany/modes/office/calendar/buffer/calendar.js
+export const DOW = ["mon", "tue", "wed", "thu", "fri", "sat", "sun"];
+export const MONTHS = ["january", "february", "march", "april", "may", "june", "july", "august", "september", "october", "november", "december"];
+export const MON3 = MONTHS.map((name) => name.slice(0, 3));
+export const H0 = 8;
+export const H1 = 19;
+export const PX = 48;
+
+export const ymd = (date) =>
+  `${date.getFullYear()}-${String(date.getMonth() + 1).padStart(2, "0")}-${String(date.getDate()).padStart(2, "0")}`;
+
+export const add = (date, n, unit) => {
+  const held = new Date(date);
+  if (unit === "d") held.setDate(held.getDate() + n);
+  else if (unit === "w") held.setDate(held.getDate() + 7 * n);
+  else if (unit === "m") held.setMonth(held.getMonth() + n);
+  else held.setFullYear(held.getFullYear() + n);
+  return held;
+};
+
+export const monday = (date) => {
+  const held = new Date(date);
+  held.setDate(held.getDate() - ((held.getDay() + 6) % 7));
+  held.setHours(0, 0, 0, 0);
+  return held;
+};
+
+export const rangeOf = (view, anchor) => {
+  if (view === "day") return [anchor, anchor];
+  if (view === "week") return [monday(anchor), add(monday(anchor), 6, "d")];
+  if (view === "year") return [new Date(anchor.getFullYear(), 0, 1), new Date(anchor.getFullYear(), 11, 31)];
+  return [new Date(anchor.getFullYear(), anchor.getMonth(), 1), new Date(anchor.getFullYear(), anchor.getMonth() + 1, 0)];
+};
+
+export const labelOf = (view, anchor, [from, to]) =>
+  view === "day" ? `${DOW[(anchor.getDay() + 6) % 7]} ${anchor.getDate()} ${MON3[anchor.getMonth()]} ${anchor.getFullYear()}`
+  : view === "week" ? `${MON3[from.getMonth()]} ${from.getDate()} – ${from.getMonth() !== to.getMonth() ? `${MON3[to.getMonth()]} ` : ""}${to.getDate()}`
+  : view === "year" ? `${anchor.getFullYear()}`
+  : `${MONTHS[anchor.getMonth()]} ${anchor.getFullYear()}`;
+
+export const dayOf = (card) => card.start.slice(0, 10);
+export const minutesOf = (iso) => Number(iso.slice(11, 13)) * 60 + Number(iso.slice(14, 16));
+export const clock = (iso) => iso.slice(11, 16);
+
+export const on = (rows, key) => rows.filter((card) => dayOf(card) === key);
+export const within = (rows, [from, to]) => {
+  const a = ymd(from);
+  const b = ymd(to);
+  return rows.filter((card) => dayOf(card) >= a && dayOf(card) <= b);
+};
+
+export const sorted = (rows) =>
+  [...rows].sort((a, b) => (dayOf(a) === dayOf(b) ? (a.allDay ? -1 : b.allDay ? 1 : a.start < b.start ? -1 : 1) : dayOf(a) < dayOf(b) ? -1 : 1));
+
+export const grouped = (rows) => {
+  const bag = new Map();
+  for (const card of sorted(rows)) {
+    const key = dayOf(card);
+    if (!bag.has(key)) bag.set(key, []);
+    bag.get(key).push(card);
+  }
+  return [...bag.entries()].map(([key, items]) => ({ key, date: new Date(`${key}T00:00:00`), items }));
+};
+
+export const weeksOf = (anchor) => {
+  const first = new Date(anchor.getFullYear(), anchor.getMonth(), 1);
+  const days = new Date(anchor.getFullYear(), anchor.getMonth() + 1, 0).getDate();
+  return Math.ceil((((first.getDay() + 6) % 7) + days) / 7);
+};
+
+export const laid = (card) => {
+  const start = minutesOf(card.start);
+  const end = card.end ? minutesOf(card.end) : start + 30;
+  return {
+    top: ((start - H0 * 60) / 60) * PX + 1,
+    height: Math.max(20, ((end - start) / 60) * PX - 2),
+    meta: ((end - start) / 60) * PX >= 40,
+  };
+};
+
+export const accentOf = (card) => (card.kind === "deadline" ? "warning" : card.source === "officer" ? "secondary" : "primary");
+#+end_src
+
+** buffer/Calendar.svelte — the shell
+
+#+begin_src svelte
+<script>
+  import { Pip } from "@vivalence/drapes";
+  import Grid from "./parts/Grid.svelte";
+  import Month from "./parts/Month.svelte";
+  import Year from "./parts/Year.svelte";
+  import Agenda from "./parts/Agenda.svelte";
+  import Inspector from "./parts/Inspector.svelte";
+  import { DOW, ymd, add, rangeOf, labelOf, within, sorted } from "./calendar.js";
+
+  let { terminal, daemon, mode, thread: bound, buffer } = $props();
+
+  const VIEWS = [["day", "d"], ["week", "w"], ["month", "m"], ["year", "y"], ["list", "l"]];
+  const KINDS = ["all", "event", "deadline"];
+  const SOURCES = ["vendor", "mail", "officer"];
+  const UNIT = { day: "d", week: "w", month: "m", year: "y", list: "m" };
+
+  let root = $state(null);
+  let width = $state(0);
+  const narrow = $derived(width > 0 && width < 820);
+  const mid = $derived(width > 0 && width < 1000);
+
+  let rows = $state.raw([]);
+  let anchor = $state(buffer?.data?.on ? new Date(`${buffer.data.on}T00:00:00`) : new Date());
+  let view = $state(buffer?.data?.view ?? "week");
+  let kind = $state("all");
+  let source = $state(null);
+  let selected = $state(buffer?.data?.open ?? null);
+  let detail = $state.raw(null);
+  let now = $state(new Date());
+  let log = $state.raw([]);
+  let fault = $state(null);
+
+  const today = $derived(ymd(now));
+  const range = $derived(rangeOf(view, anchor));
+  const label = $derived(labelOf(view, anchor, range));
+  const filtered = $derived(
+    sorted(rows.filter((card) => (kind === "all" || card.kind === kind) && (!source || card.source === source))),
+  );
+  const visible = $derived(within(filtered, range));
+  const overlay = $derived(narrow || mid);
+  const columns = $derived(detail && !overlay ? "minmax(0, 1fr) 280px" : "minmax(0, 1fr)");
+  const counts = $derived({
+    all: rows.length,
+    event: rows.filter((card) => card.kind === "event").length,
+    deadline: rows.filter((card) => card.kind === "deadline").length,
+    vendor: rows.filter((card) => card.source === "vendor").length,
+    mail: rows.filter((card) => card.source === "mail").length,
+    officer: rows.filter((card) => card.source === "officer").length,
+  });
+
+  async function call(route, input, shown = JSON.stringify(input)) {
+    log = [{ route: `/${route}`, arg: shown }, ...log].slice(0, 3);
+    try {
+      fault = null;
+      return await mode.call[route](input);
+    } catch (error) {
+      fault = `/${route} · ${error.message}`;
+      return null;
+    }
+  }
+
+  async function load() {
+    const from = ymd(add(anchor, -400, "d"));
+    const to = ymd(add(anchor, 400, "d"));
+    rows = (await call("agenda", { from, to })) ?? [];
+    if (selected) await inspect(selected);
+  }
+
+  async function inspect(slug) {
+    selected = slug;
+    detail = slug ? await call("event", { slug }) : null;
+  }
+
+  const step = (n) => { anchor = add(anchor, n, UNIT[view]); selected = null; detail = null; };
+  const walk = (direction) => {
+    if (!visible.length) return;
+    const at = visible.findIndex((card) => card.slug === selected);
+    const next = at < 0 ? (direction > 0 ? 0 : visible.length - 1) : Math.min(visible.length - 1, Math.max(0, at + direction));
+    inspect(visible[next].slug);
+  };
+
+  function keys(event) {
+    if (["INPUT", "TEXTAREA"].includes(event.target.tagName)) return;
+    const picked = VIEWS.find(([, key]) => key === event.key);
+    if (picked) return (view = picked[0]);
+    if (event.key === "j" || event.key === "ArrowDown") { event.preventDefault(); walk(1); }
+    else if (event.key === "k" || event.key === "ArrowUp") { event.preventDefault(); walk(-1); }
+    else if (event.key === "t") anchor = new Date();
+    else if (event.key === "Escape") { selected = null; detail = null; }
+    else if (event.key === "ArrowLeft" || event.key === "h") step(-1);
+    else if (event.key === "ArrowRight") step(1);
+    else if (event.key === "Enter" && detail?.coord) jump(detail.coord);
+  }
+
+  const jump = (coord) => {
+    const vdex = terminal?.daemon?.modes?.find?.((known) => known.type === "office" && known.slug === "vdex");
+    if (!vdex) { fault = "the vdex is not mounted here"; return; }
+    vdex.emit.open({ slug: coord, ...(bound && { thread: bound.id }) }).catch((error) => (fault = error.message));
+  };
+
+  const reach = (ref) => {
+    const type = ref.ontology === "message" ? "email" : ref.ontology === "vdex" ? "vdex" : null;
+    const held = type && terminal?.daemon?.modes?.find?.((known) => known.type === "office" && known.slug === type);
+    if (!held) { fault = `${ref.ontology} has no mode mounted here`; return; }
+    held.emit.open({ slug: ref.slug, ...(bound && { thread: bound.id }) }).catch((error) => (fault = error.message));
+  };
+
+  $effect(() => {
+    load();
+    const tick = setInterval(() => (now = new Date()), 60_000);
+    const off = daemon?.entities?.literal?.subscribe?.({ ontology: "event" }, async () => {
+      rows = (await call("agenda", { from: ymd(add(anchor, -400, "d")), to: ymd(add(anchor, 400, "d")) })) ?? rows;
+      if (selected) detail = await call("event", { slug: selected });
+    });
+    return () => { clearInterval(tick); off?.(); };
+  });
+</script>
+
+<div class="cal" bind:this={root} bind:clientWidth={width} role="presentation" tabindex="-1" onkeydown={keys} style="--columns: {columns}">
+  <header>
+    <span class="mark">CAL</span>
+    <b class="range">{label}</b>
+    <span class="stepper">
+      <button onclick={() => step(-1)} aria-label="previous">‹</button>
+      <button class="today" class:on={ymd(anchor) === today} onclick={() => (anchor = new Date())}>today</button>
+      <button onclick={() => step(1)} aria-label="next">›</button>
+    </span>
+    <span class="grow"></span>
+    {#if !narrow}
+      <span class="kinds">
+        {#each KINDS as name}
+          <button class:on={kind === name} onclick={() => (kind = name)}>
+            <Pip tone={name === "deadline" ? "warning" : name === "event" ? "success" : "muted"} />
+            {name === "all" ? "all" : `${name}s`} <small>{counts[name]}</small>
+          </button>
+        {/each}
+      </span>
+      <span class="divider"></span>
+    {/if}
+    <span class="segment">
+      {#each VIEWS as [name, key]}
+        <button class:on={view === name} title="{name} · {key}" onclick={() => (view = name)}>{narrow ? key : name}</button>
+      {/each}
+    </span>
+  </header>
+
+  <div class="sources">
+    <small>sources</small>
+    {#each SOURCES as name}
+      <button class:on={source === name} onclick={() => (source = source === name ? null : name)}>
+        <span class="arrow">→</span>{name === "vendor" ? "vendor" : name === "mail" ? "mail · minted" : "officer/*"} <small>{counts[name]}</small>
+      </button>
+    {/each}
+    <span class="grow"></span>
+    {#if !narrow}
+      <span class="legend">
+        <kbd>d w m y l</kbd> views <kbd>← →</kbd> range <kbd>j k</kbd> events <kbd>↵</kbd> open
+      </span>
+    {/if}
+  </div>
+
+  <div class="body">
+    {#if view === "day" || view === "week"}
+      <Grid rows={filtered} {anchor} {view} {today} {now} {selected} on:pick={(event) => inspect(event.detail)}
+        on:day={(event) => { anchor = event.detail; view = "day"; }} />
+    {:else if view === "month"}
+      <Month rows={filtered} {anchor} {today} {narrow} {selected} on:pick={(event) => inspect(event.detail)}
+        on:day={(event) => { anchor = event.detail; view = "day"; }} />
+    {:else if view === "year"}
+      <Year rows={filtered} {anchor} {today} {mid} {narrow}
+        on:month={(event) => { anchor = event.detail; view = "month"; }}
+        on:day={(event) => { anchor = event.detail; view = "day"; }} />
+    {:else}
+      <Agenda rows={visible} {today} {selected} {label} on:pick={(event) => inspect(event.detail)} />
+    {/if}
+
+    {#if detail}
+      <Inspector card={detail} {overlay} {narrow}
+        on:close={() => { selected = null; detail = null; }}
+        on:coord={() => jump(detail.coord)}
+        on:ref={(event) => reach(event.detail)}
+        on:day={() => { anchor = new Date(`${detail.start.slice(0, 10)}T00:00:00`); view = "day"; }}
+        on:ceo={() => terminal?.open?.("officer/ceo", `what do we need for ${detail.title}?`)}
+        on:rename={(event) => call("rename", { slug: detail.slug, title: event.detail })}
+        on:delete={() => call("delete", { slug: detail.slug }).then(() => { selected = null; detail = null; })} />
+    {/if}
+  </div>
+
+  <footer>
+    <span class="calls">{#each log as entry}<code>{entry.route}</code>{/each}</span>
+    {#if fault}<span class="fault">{fault}</span>{/if}
+  </footer>
+</div>
+
+<style>
+  .cal { height: 100%; display: flex; flex-direction: column; overflow: hidden; box-sizing: border-box; outline: none;
+    background: var(--colors-skeleton-0-surface); color: var(--colors-skeleton-0-contrast); font-family: var(--font-family-code); }
+  header { display: flex; align-items: center; gap: 8px; height: 48px; padding: 0 12px; flex: none;
+    border-bottom: 1px solid var(--colors-skeleton-1-boundary); font-size: var(--font-size-2xs); }
+  .mark { width: 24px; height: 24px; flex: none; display: grid; place-items: center; border-radius: 2px;
+    border: 1px solid var(--colors-skeleton-0-primary-base); color: var(--colors-skeleton-0-primary-base);
+    font-size: var(--font-size-2xs); letter-spacing: .08em; font-weight: 600; }
+  .range { font-family: var(--font-family-sans-heading); font-weight: 600; font-size: var(--font-size-sm);
+    white-space: nowrap; min-width: 0; overflow: hidden; text-overflow: ellipsis; }
+  .grow { flex: 1; }
+  .stepper, .segment, .kinds { display: flex; flex: none; }
+  .stepper, .segment { border: 1px solid var(--colors-skeleton-3-boundary); border-radius: var(--border-radius-sm); overflow: hidden; }
+  .stepper button, .segment button { height: 28px; min-width: 28px; padding: 0 9px; border: 0; background: none; color: var(--text-support);
+    font: inherit; font-size: var(--font-size-2xs); letter-spacing: .14em; text-transform: uppercase; cursor: pointer; white-space: nowrap; }
+  .stepper button:hover, .segment button:hover { background: var(--colors-skeleton-3-surface); }
+  .stepper .today { border-left: 1px solid var(--colors-skeleton-3-boundary); border-right: 1px solid var(--colors-skeleton-3-boundary); }
+  .stepper .today.on, .segment button.on { color: var(--colors-skeleton-0-primary-base); }
+  .segment button.on { background: color-mix(in srgb, var(--colors-skeleton-0-primary-base) 12%, transparent); }
+  .segment button + button { border-left: 1px solid var(--colors-skeleton-3-boundary); }
+  .kinds { gap: 4px; }
+  .kinds button, .sources button { display: inline-flex; align-items: center; gap: 6px; height: 28px; padding: 0 10px;
+    border: 1px solid transparent; border-radius: var(--border-radius-sm); background: none; color: var(--text-support);
+    font: inherit; font-size: var(--font-size-2xs); letter-spacing: .08em; cursor: pointer; white-space: nowrap; }
+  .kinds button.on, .sources button.on { border-color: var(--colors-skeleton-3-boundary);
+    color: var(--colors-skeleton-3-contrast); background: var(--colors-skeleton-3-surface); }
+  .divider { width: 1px; height: 16px; background: var(--colors-skeleton-2-boundary); }
+  .sources { display: flex; align-items: center; gap: 6px; height: 34px; padding: 0 12px; flex: none; overflow-x: auto;
+    border-bottom: 1px solid var(--colors-skeleton-1-boundary); font-size: var(--font-size-2xs); }
+  .sources > small, .legend { color: var(--text-support); letter-spacing: .12em; text-transform: uppercase; white-space: nowrap; }
+  .sources button { height: 24px; border-radius: 2px; }
+  .arrow { color: var(--colors-skeleton-0-primary-base); opacity: .4; }
+  .sources button.on .arrow { opacity: 1; }
+  .legend { display: inline-flex; gap: 8px; text-transform: none; letter-spacing: normal; }
+  kbd { font: inherit; padding: 1px 5px; border: 1px solid var(--colors-skeleton-3-boundary);
+    border-radius: 2px; color: var(--colors-skeleton-3-contrast); }
+  .body { flex: 1; min-height: 0; display: grid; grid-template-columns: var(--columns); overflow: hidden; position: relative; }
+  footer { display: flex; align-items: center; gap: 10px; height: 28px; padding: 0 12px; flex: none;
+    border-top: 1px solid var(--colors-skeleton-2-boundary); font-size: var(--font-size-2xs); }
+  .calls { color: var(--text-support); }
+  .calls code { color: var(--colors-skeleton-0-primary-base); padding-right: 8px; }
+  .fault { color: var(--colors-skeleton-0-danger-base); overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+</style>
+#+end_src
+
+** buffer/parts/Grid.svelte — day · week
+
+44 px gutter, 08:00–19:00 at 48 px an hour, a DUE band above the grid for the all-day rows, and the
+now-line on today only.
+
+#+begin_src svelte
+<script>
+  import { createEventDispatcher } from "svelte";
+  import { DOW, H0, H1, PX, ymd, add, monday, on, laid, accentOf, clock } from "../calendar.js";
+
+  let { rows, anchor, view, today, now, selected } = $props();
+  const fire = createEventDispatcher();
+
+  const hours = Array.from({ length: H1 - H0 + 1 }, (_, i) => ({ label: `${String(H0 + i).padStart(2, "0")}:00`, top: i * PX, first: i === 0 }));
+  const days = $derived(view === "day" ? [anchor] : Array.from({ length: 7 }, (_, i) => add(monday(anchor), i, "d")));
+  const minutes = $derived(now.getHours() * 60 + now.getMinutes());
+  const nowVisible = $derived(minutes >= H0 * 60 && minutes <= H1 * 60);
+  const nowTop = $derived(((minutes - H0 * 60) / 60) * PX);
+</script>
+
+<div class="grid" style="--days: {view === 'day' ? 'minmax(0, 1fr)' : 'repeat(7, minmax(0, 1fr))'}; --height: {(H1 - H0) * PX}px">
+  <div class="head">
+    <span></span>
+    {#each days as date}
+      <button class="day" class:is-today={ymd(date) === today} onclick={() => fire("day", date)}>
+        <small>{DOW[(date.getDay() + 6) % 7]}</small>
+        <b>{date.getDate()}</b>
+      </button>
+    {/each}
+  </div>
+
+  <div class="due">
+    <small>due</small>
+    {#each days as date}
+      <div class="cell" class:is-today={ymd(date) === today}>
+        {#each on(rows, ymd(date)).filter((card) => card.allDay) as card (card.slug)}
+          <button class="band" class:on={card.slug === selected} onclick={() => fire("pick", card.slug)}>
+            <span class="dot warning"></span>
+            <span class="title">{card.title}</span>
+            <span class="grow"></span>
+            {#if card.coord}<em>{card.coord}</em>{/if}
+          </button>
+        {/each}
+      </div>
+    {/each}
+  </div>
+
+  <div class="scroll">
+    <div class="hours">
+      <div class="gutter">
+        {#each hours as hour}<span style="top: {hour.top}px">{hour.label}</span>{/each}
+      </div>
+      {#each days as date}
+        <div class="column" class:is-today={ymd(date) === today}>
+          {#each hours as hour}<span class="line" class:first={hour.first} style="top: {hour.top}px"></span>{/each}
+          {#each on(rows, ymd(date)).filter((card) => !card.allDay) as card (card.slug)}
+            {@const box = laid(card)}
+            <button class="event {accentOf(card)}" class:on={card.slug === selected}
+              style="top: {box.top}px; height: {box.height}px" onclick={() => fire("pick", card.slug)}>
+              <b>{card.title}</b>
+              {#if box.meta}<small>{clock(card.start)}{card.end ? `–${clock(card.end)}` : ""} · {card.source}</small>{/if}
+            </button>
+          {/each}
+          {#if ymd(date) === today && nowVisible}<span class="now" style="top: {nowTop}px"></span>{/if}
+        </div>
+      {/each}
+    </div>
+  </div>
+</div>
+
+<style>
+  .grid { display: flex; flex-direction: column; min-width: 0; overflow: hidden; }
+  .head, .due, .hours { display: grid; grid-template-columns: 44px var(--days); }
+  .head, .due { flex: none; border-bottom: 1px solid var(--colors-skeleton-1-boundary); }
+  .day { display: flex; align-items: baseline; gap: 6px; height: 36px; padding: 0 8px; min-width: 0;
+    border: 0; border-left: 1px solid var(--colors-skeleton-2-boundary); background: none; color: inherit; font: inherit; cursor: pointer; }
+  .day small { font-size: var(--font-size-2xs); letter-spacing: .12em; text-transform: uppercase; color: var(--text-support); }
+  .day b { font-family: var(--font-family-sans-heading); font-size: var(--font-size-sm); font-weight: 500; color: var(--text-body); }
+  .day.is-today small { color: var(--colors-skeleton-0-primary-base); }
+  .day.is-today b { color: var(--colors-skeleton-0-contrast); }
+  .due { min-height: 34px; }
+  .due > small { padding: 10px 6px 0; text-align: right; font-size: var(--font-size-2xs); letter-spacing: .12em;
+    text-transform: uppercase; color: var(--text-support); }
+  .cell { border-left: 1px solid var(--colors-skeleton-2-boundary); padding: 4px; display: flex; flex-direction: column; gap: 3px; min-width: 0; }
+  .cell.is-today, .column.is-today { background: color-mix(in srgb, var(--colors-skeleton-1-surface) 70%, transparent); }
+  .band { display: flex; align-items: center; gap: 5px; height: 24px; padding: 0 6px; min-width: 0; cursor: pointer;
+    border-radius: 2px; border: 1px solid color-mix(in srgb, var(--colors-skeleton-0-warning-base) 45%, transparent);
+    background: var(--colors-skeleton-1-surface); color: inherit; font: inherit; }
+  .band.on { border-color: var(--colors-skeleton-0-warning-base); background: color-mix(in srgb, var(--colors-skeleton-0-warning-base) 14%, transparent); }
+  .dot { width: 5px; height: 5px; border-radius: 50%; flex: none; }
+  .dot.warning { background: var(--colors-skeleton-0-warning-base); }
+  .title { font-family: var(--font-family-sans-text); font-size: var(--font-size-2xs); overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+  .grow { flex: 1; }
+  em { font-style: normal; font-size: var(--font-size-2xs); color: var(--colors-skeleton-0-primary-base); }
+  .scroll { flex: 1; min-height: 0; overflow: auto; }
+  .hours { position: relative; height: var(--height); margin-top: 10px; }
+  .gutter { position: relative; }
+  .gutter span { position: absolute; right: 6px; transform: translateY(-50%); font-size: var(--font-size-2xs); color: var(--text-support); }
+  .column { position: relative; border-left: 1px solid var(--colors-skeleton-2-boundary); min-width: 0; }
+  .line { position: absolute; left: 0; right: 0; height: 1px; background: var(--colors-skeleton-2-boundary); }
+  .line.first { background: transparent; }
+  .event { position: absolute; left: 3px; right: 3px; padding: 0 6px; box-sizing: border-box; overflow: hidden; cursor: pointer;
+    display: flex; flex-direction: column; justify-content: center; gap: 1px; text-align: left; font: inherit; color: inherit;
+    border-radius: 2px; border: 1px solid var(--colors-skeleton-2-boundary); border-left-width: 2px;
+    background: var(--colors-skeleton-1-surface); }
+  .event.primary { border-left-color: var(--colors-skeleton-0-primary-base); }
+  .event.secondary { border-left-color: var(--colors-skeleton-0-secondary-base, var(--colors-skeleton-0-primary-base)); }
+  .event.warning { border-left-color: var(--colors-skeleton-0-warning-base); }
+  .event.on { background: var(--colors-skeleton-3-surface); box-shadow: 0 6px 18px var(--shadow-soft); }
+  .event b { font-family: var(--font-family-sans-text); font-size: var(--font-size-2xs); font-weight: 500;
+    overflow: hidden; text-overflow: ellipsis; white-space: nowrap; line-height: 1.2; }
+  .event small { font-size: var(--font-size-2xs); color: var(--text-support); overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+  .now { position: absolute; left: 0; right: 0; height: 1px; z-index: 2;
+    background: var(--colors-skeleton-0-primary-base); box-shadow: 0 0 4px var(--colors-skeleton-0-primary-base); }
+</style>
+#+end_src
+
+** buffer/parts/Month.svelte
+
+#+begin_src svelte
+<script>
+  import { createEventDispatcher } from "svelte";
+  import { DOW, ymd, add, monday, on, weeksOf, accentOf, clock } from "../calendar.js";
+
+  let { rows, anchor, today, narrow, selected } = $props();
+  const fire = createEventDispatcher();
+
+  const cap = $derived(narrow ? 2 : 3);
+  const cells = $derived(
+    Array.from({ length: weeksOf(anchor) * 7 }, (_, i) => {
+      const date = add(monday(new Date(anchor.getFullYear(), anchor.getMonth(), 1)), i, "d");
+      const items = on(rows, ymd(date));
+      return { date, key: ymd(date), items, inMonth: date.getMonth() === anchor.getMonth() };
+    }),
+  );
+</script>
+
+<div class="month">
+  <div class="dow">{#each DOW as name}<span>{name}</span>{/each}</div>
+  <div class="cells">
+    {#each cells as cell (cell.key)}
+      <div class="cell" class:out={!cell.inMonth} class:is-today={cell.key === today}>
+        <div class="top">
+          <b>{cell.date.getDate()}</b>
+          <span class="grow"></span>
+          {#if cell.items.length > cap}<small>+{cell.items.length - cap}</small>{/if}
+          <button class="drill" onclick={() => fire("day", cell.date)} aria-label="open the day">›</button>
+        </div>
+        {#each cell.items.slice(0, cap) as card (card.slug)}
+          <button class="item {accentOf(card)}" class:on={card.slug === selected} onclick={() => fire("pick", card.slug)}>
+            {#if !narrow}<small>{card.allDay ? "due" : clock(card.start)}</small>{/if}
+            <span class="title">{card.title}</span>
+          </button>
+        {/each}
+      </div>
+    {/each}
+  </div>
+</div>
+
+<style>
+  .month { display: flex; flex-direction: column; min-width: 0; overflow: hidden; }
+  .dow { display: grid; grid-template-columns: repeat(7, minmax(0, 1fr)); flex: none;
+    border-bottom: 1px solid var(--colors-skeleton-1-boundary); }
+  .dow span { height: 28px; display: flex; align-items: center; padding: 0 8px; font-size: var(--font-size-2xs);
+    letter-spacing: .12em; text-transform: uppercase; color: var(--text-support); border-left: 1px solid var(--colors-skeleton-2-boundary); }
+  .cells { flex: 1; min-height: 0; display: grid; grid-template-columns: repeat(7, minmax(0, 1fr)); grid-auto-rows: minmax(0, 1fr); }
+  .cell { border-left: 1px solid var(--colors-skeleton-2-boundary); border-bottom: 1px solid var(--colors-skeleton-2-boundary);
+    padding: 4px; display: flex; flex-direction: column; gap: 2px; min-width: 0; min-height: 0; overflow: hidden; }
+  .cell.out { opacity: .35; }
+  .cell.is-today { background: color-mix(in srgb, var(--colors-skeleton-1-surface) 70%, transparent); }
+  .cell.is-today b { color: var(--colors-skeleton-0-primary-base); }
+  .top { display: flex; align-items: center; gap: 6px; height: 20px; padding: 0 2px; }
+  .top b { font-family: var(--font-family-sans-heading); font-size: var(--font-size-xs); font-weight: 500; }
+  .top small { font-size: var(--font-size-2xs); color: var(--text-support); }
+  .grow { flex: 1; }
+  .drill { border: 0; background: none; color: var(--text-support); font: inherit; cursor: pointer; padding: 0 2px; }
+  .item { display: flex; align-items: center; gap: 4px; height: 20px; padding: 0 5px; min-width: 0; cursor: pointer;
+    border: 0; border-left: 2px solid var(--colors-skeleton-2-boundary); border-radius: 2px;
+    background: var(--colors-skeleton-1-surface); color: inherit; font: inherit; text-align: left; }
+  .item.primary { border-left-color: var(--colors-skeleton-0-primary-base); }
+  .item.secondary { border-left-color: var(--colors-skeleton-0-secondary-base, var(--colors-skeleton-0-primary-base)); }
+  .item.warning { border-left-color: var(--colors-skeleton-0-warning-base); }
+  .item.on { background: var(--colors-skeleton-3-surface); }
+  .item small { font-size: var(--font-size-2xs); color: var(--text-support); flex: none; }
+  .title { font-family: var(--font-family-sans-text); font-size: var(--font-size-2xs); overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+</style>
+#+end_src
+
+** buffer/parts/Year.svelte — twelve heat grids
+
+#+begin_src svelte
+<script>
+  import { createEventDispatcher } from "svelte";
+  import { MONTHS, ymd, add, monday, on } from "../calendar.js";
+
+  let { rows, anchor, today, mid, narrow } = $props();
+  const fire = createEventDispatcher();
+
+  const year = $derived(anchor.getFullYear());
+  const months = $derived(
+    Array.from({ length: 12 }, (_, index) => {
+      const first = new Date(year, index, 1);
+      const days = new Date(year, index + 1, 0).getDate();
+      const weeks = Math.ceil((((first.getDay() + 6) % 7) + days) / 7);
+      const items = rows.filter((card) => card.start.slice(0, 7) === `${year}-${String(index + 1).padStart(2, "0")}`);
+      return {
+        index, first, name: MONTHS[index], items,
+        due: items.filter((card) => card.kind === "deadline").length,
+        cells: Array.from({ length: weeks * 7 }, (_, i) => {
+          const date = add(monday(first), i, "d");
+          const inMonth = date.getMonth() === index;
+          const held = inMonth ? on(rows, ymd(date)) : [];
+          return {
+            date, key: ymd(date), inMonth, held,
+            due: held.some((card) => card.kind === "deadline"),
+            title: held.map((card) => card.title).join(" · "),
+          };
+        }),
+      };
+    }),
+  );
+</script>
+
+<div class="year" style="--cols: repeat({narrow ? 2 : mid ? 3 : 4}, minmax(0, 1fr))">
+  {#each months as month (month.index)}
+    <div class="card" class:current={month.index === new Date(today).getMonth() && year === new Date(today).getFullYear()}>
+      <button class="head" onclick={() => fire("month", month.first)}>
+        <b>{month.name}</b>
+        <span class="grow"></span>
+        {#if month.items.length}<small>{month.items.length} · {month.due} due</small>{/if}
+      </button>
+      <div class="heat">
+        {#each month.cells as cell (cell.key)}
+          <button class="pip" class:filled={cell.held.length} class:due={cell.due} class:is-today={cell.key === today}
+            class:blank={!cell.inMonth} title={cell.title} onclick={() => fire("day", cell.date)}>
+            {cell.inMonth ? cell.date.getDate() : ""}
+          </button>
+        {/each}
+      </div>
+    </div>
+  {/each}
+</div>
+
+<style>
+  .year { overflow: auto; min-width: 0; padding: 14px; display: grid; grid-template-columns: var(--cols); gap: 14px; align-content: start; }
+  .card { display: flex; flex-direction: column; gap: 6px; padding: 10px; border-radius: var(--border-radius-sm);
+    border: 1px solid var(--colors-skeleton-2-boundary); }
+  .card.current { border-color: var(--colors-skeleton-3-boundary); }
+  .card.current .head b { color: var(--colors-skeleton-0-primary-base); }
+  .head { display: flex; align-items: baseline; gap: 8px; border: 0; background: none; color: inherit; font: inherit; cursor: pointer; padding: 0; }
+  .head b { font-family: var(--font-family-sans-heading); font-size: var(--font-size-xs); font-weight: 500; }
+  .head small, .grow { color: var(--text-support); font-size: var(--font-size-2xs); }
+  .grow { flex: 1; }
+  .heat { display: grid; grid-template-columns: repeat(7, 1fr); gap: 2px; }
+  .pip { aspect-ratio: 1; display: grid; place-items: center; border: 0; border-radius: 2px; background: transparent;
+    color: var(--text-support); font: inherit; font-size: var(--font-size-2xs); cursor: pointer; outline-offset: -1px; }
+  .pip.blank { color: transparent; cursor: default; }
+  .pip.filled { color: var(--colors-skeleton-0-contrast); background: color-mix(in srgb, var(--colors-skeleton-0-primary-base) 22%, transparent); }
+  .pip.due { background: color-mix(in srgb, var(--colors-skeleton-0-warning-base) 28%, transparent); }
+  .pip.is-today { outline: 1px solid var(--colors-skeleton-0-primary-base); }
+</style>
+#+end_src
+
+** buffer/parts/Agenda.svelte — the list
+
+#+begin_src svelte
+<script>
+  import { createEventDispatcher } from "svelte";
+  import { Empty } from "@vivalence/drapes";
+  import { DOW, MON3, grouped, accentOf, clock } from "../calendar.js";
+
+  let { rows, today, selected, label } = $props();
+  const fire = createEventDispatcher();
+  const groups = $derived(grouped(rows));
+</script>
+
+<div class="agenda">
+  {#each groups as group (group.key)}
+    <div class="day" class:is-today={group.key === today}>
+      <small>{DOW[(group.date.getDay() + 6) % 7]}</small>
+      <b>{group.date.getDate()}</b>
+      <small>{MON3[group.date.getMonth()]}</small>
+      <span class="grow"></span>
+      <small>{group.items.length}</small>
+    </div>
+    {#each group.items as card (card.slug)}
+      <button class="row" class:on={card.slug === selected} onclick={() => fire("pick", card.slug)}>
+        <small class="at">{card.allDay ? "due" : clock(card.start)}</small>
+        <span class="dot {accentOf(card)}"></span>
+        <span class="what">
+          <b>{card.title}</b>
+          <small>{card.who || "—"} · {card.source}</small>
+        </span>
+        {#if card.coord}<em>{card.coord}</em>{/if}
+      </button>
+    {/each}
+  {:else}
+    <Empty label="nothing in {label}" />
+  {/each}
+</div>
+
+<style>
+  .agenda { overflow: auto; min-width: 0; display: flex; flex-direction: column; }
+  .day { display: flex; align-items: center; gap: 8px; height: 32px; padding: 0 14px; position: sticky; top: 0; z-index: 1;
+    background: var(--colors-skeleton-1-surface); border-bottom: 1px solid var(--colors-skeleton-2-boundary); }
+  .day small { font-size: var(--font-size-2xs); color: var(--text-support); letter-spacing: .12em; text-transform: uppercase; }
+  .day.is-today small:first-child { color: var(--colors-skeleton-0-primary-base); }
+  .day b { font-family: var(--font-family-sans-heading); font-size: var(--font-size-xs); font-weight: 500; }
+  .grow { flex: 1; }
+  .row { display: grid; grid-template-columns: 56px 6px minmax(0, 1fr) auto; gap: 10px; align-items: center; min-height: 48px;
+    padding: 0 14px; border: 0; border-bottom: 1px solid var(--colors-skeleton-2-boundary); background: none;
+    color: inherit; font: inherit; text-align: left; cursor: pointer; }
+  .row:hover { background: var(--colors-skeleton-1-surface); }
+  .row.on { background: color-mix(in srgb, var(--colors-skeleton-4-surface) 45%, transparent); }
+  .at { font-size: var(--font-size-2xs); color: var(--text-support); }
+  .dot { width: 6px; height: 6px; border-radius: 50%; }
+  .dot.primary { background: var(--colors-skeleton-0-primary-base); }
+  .dot.secondary { background: var(--colors-skeleton-0-secondary-base, var(--colors-skeleton-0-primary-base)); }
+  .dot.warning { background: var(--colors-skeleton-0-warning-base); }
+  .what { display: flex; flex-direction: column; gap: 2px; min-width: 0; }
+  .what b { font-family: var(--font-family-sans-text); font-size: var(--font-size-xs); font-weight: 400;
+    overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+  .what small { font-size: var(--font-size-2xs); color: var(--text-support); overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+  em { font-style: normal; height: 20px; padding: 0 6px; display: inline-flex; align-items: center; border-radius: 2px;
+    border: 1px solid color-mix(in srgb, var(--colors-skeleton-0-primary-base) 45%, transparent);
+    color: var(--colors-skeleton-0-primary-base); font-size: var(--font-size-2xs); letter-spacing: .08em; }
+  @media (pointer: coarse) { .row { min-height: 56px; } }
+</style>
+#+end_src
+
+** buffer/parts/Inspector.svelte
+
+The design's right rail: what it is, when, who, where, where it came from, where it is filed, what it
+uses — and the two actions plus the footer that says whether edits go back to a vendor. Rename is
+inline (=/rename=); delete is here and nowhere else (=/delete=), because the officer cannot.
+
+#+begin_src svelte
+<script>
+  import { createEventDispatcher } from "svelte";
+  import { DOW, MON3, clock, accentOf } from "../calendar.js";
+
+  let { card, overlay, narrow } = $props();
+  const fire = createEventDispatcher();
+
+  let renaming = $state(false);
+  let title = $state("");
+
+  const date = $derived(new Date(`${card.start.slice(0, 10)}T00:00:00`));
+  const when = $derived(
+    `${DOW[(date.getDay() + 6) % 7]} ${date.getDate()} ${MON3[date.getMonth()]} ${date.getFullYear()} · ` +
+      (card.allDay ? "all day · deadline" : `${clock(card.start)}${card.end ? `–${clock(card.end)}` : ""}`),
+  );
+
+  const commit = () => {
+    const held = title.trim();
+    renaming = false;
+    if (held && held !== card.title) fire("rename", held);
+  };
+</script>
+
+<aside class="inspector {accentOf(card)}" class:overlay style="--left: {narrow ? '12%' : overlay ? 'calc(100% - 300px)' : 'auto'}">
+  <div class="top">
+    <span class="kind"><span class="dot"></span>{card.kind}</span>
+    <small>{card.slug}</small>
+    <span class="grow"></span>
+    <button class="close" onclick={() => fire("close")} aria-label="close">×</button>
+  </div>
+
+  {#if renaming}
+    <input bind:value={title} onblur={commit} onkeydown={(event) => event.key === "Enter" && commit()} />
+  {:else}
+    <h2 ondblclick={() => { title = card.title; renaming = true; }}>{card.title}</h2>
+  {/if}
+
+  <dl>
+    <dt>when</dt><dd>{when}</dd>
+    <dt>who</dt><dd>{card.who || "—"}</dd>
+    {#if card.where}<dt>where</dt><dd>{card.where}</dd>{/if}
+    <dt>source</dt><dd class="accent">{card.source}{card.series ? " · series" : ""}</dd>
+    {#if card.coord}
+      <dt>filed</dt><dd><button class="link" onclick={() => fire("coord")}>→ {card.coord}</button></dd>
+    {/if}
+  </dl>
+
+  {#if card.uses?.length}
+    <div class="uses">
+      <div class="rule"><span>uses</span><i></i></div>
+      {#each card.uses as ref (ref.slug)}
+        <button class="ref" onclick={() => fire("ref", ref)}>
+          <span class="arrow">→</span><b>{ref.slug}</b><small>{ref.title}</small>
+        </button>
+      {/each}
+    </div>
+  {/if}
+
+  <div class="actions">
+    <button class="quiet" onclick={() => fire("day")}>open the day</button>
+    <button class="loud" onclick={() => fire("ceo")}>◆ ask the ceo</button>
+    <button class="danger" onclick={() => fire("delete")}>take it off</button>
+    <small class="foot">{card.vendor ? "vendor row · edits go back through the provider" : "minted row · lives with its source"}</small>
+  </div>
+</aside>
+
+<style>
+  .inspector { display: flex; flex-direction: column; gap: 14px; padding: 16px; overflow: auto; font-size: var(--font-size-2xs);
+    background: var(--colors-skeleton-2-surface); color: var(--colors-skeleton-2-contrast);
+    border-left: 1px solid var(--colors-skeleton-2-boundary); }
+  .inspector.overlay { position: absolute; right: 0; top: 0; bottom: 0; left: var(--left); z-index: 4;
+    box-shadow: 0 6px 18px var(--shadow-soft); }
+  .top { display: flex; align-items: center; gap: 8px; }
+  .kind { display: inline-flex; align-items: center; gap: 6px; height: 22px; padding: 0 8px; white-space: nowrap;
+    border: 1px solid var(--colors-skeleton-3-boundary); border-radius: 2px;
+    font-size: var(--font-size-2xs); letter-spacing: .12em; text-transform: uppercase; }
+  .dot { width: 5px; height: 5px; border-radius: 50%; background: currentColor; }
+  .primary .kind, .primary .accent { color: var(--colors-skeleton-0-primary-base); }
+  .secondary .kind, .secondary .accent { color: var(--colors-skeleton-0-secondary-base, var(--colors-skeleton-0-primary-base)); }
+  .warning .kind, .warning .accent { color: var(--colors-skeleton-0-warning-base); }
+  .top small, .foot { color: var(--text-support); }
+  .grow { flex: 1; }
+  .close { width: 28px; height: 28px; border: 0; border-radius: 2px; background: none; color: var(--text-support); font: inherit; cursor: pointer; }
+  .close:hover { background: var(--colors-skeleton-3-surface); color: var(--colors-skeleton-3-contrast); }
+  h2 { margin: 0; font-family: var(--font-family-sans-heading); font-weight: 600; font-size: var(--font-size-base);
+    line-height: 1.25; color: var(--colors-skeleton-3-contrast); text-wrap: pretty; }
+  input { font: inherit; font-family: var(--font-family-sans-heading); font-size: var(--font-size-base); padding: 4px 6px;
+    background: transparent; color: var(--colors-skeleton-3-contrast);
+    border: 1px solid var(--colors-skeleton-0-primary-base); border-radius: 2px; outline: none; }
+  dl { display: grid; grid-template-columns: 56px minmax(0, 1fr); gap: 8px 10px; align-items: baseline; margin: 0; line-height: 1.5; }
+  dt { color: var(--text-support); font-size: var(--font-size-2xs); letter-spacing: .12em; text-transform: uppercase; }
+  dd { margin: 0; font-family: var(--font-family-sans-text); }
+  .link, .ref { border: 0; background: none; color: var(--colors-skeleton-0-primary-base); font: inherit; cursor: pointer; padding: 0; }
+  .uses { display: flex; flex-direction: column; gap: 6px; }
+  .rule { display: flex; align-items: center; gap: 9px; }
+  .rule span { font-size: var(--font-size-2xs); letter-spacing: .16em; text-transform: uppercase;
+    color: color-mix(in srgb, var(--colors-skeleton-3-contrast) 55%, transparent); }
+  .rule i { flex: 1; height: 1px; background: color-mix(in srgb, var(--colors-skeleton-3-boundary) 35%, transparent); }
+  .ref { display: flex; align-items: center; gap: 8px; min-height: 32px; padding: 0 8px; min-width: 0; text-align: left;
+    border: 1px solid var(--colors-skeleton-2-boundary); border-radius: 2px; }
+  .ref:hover { border-color: var(--colors-skeleton-0-primary-base); }
+  .ref b { font-weight: 400; white-space: nowrap; }
+  .ref small { color: var(--text-support); font-family: var(--font-family-sans-text);
+    overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+  .actions { margin-top: auto; display: flex; flex-direction: column; gap: 6px; }
+  .actions button { height: 32px; border-radius: var(--border-radius-sm); background: none; font: inherit;
+    font-size: var(--font-size-2xs); letter-spacing: .14em; text-transform: uppercase; cursor: pointer; }
+  .quiet { border: 1px solid var(--colors-skeleton-3-boundary); color: var(--colors-skeleton-2-contrast); }
+  .loud { height: 36px !important; border: 1px solid color-mix(in srgb, var(--colors-skeleton-0-primary-base) 45%, transparent);
+    color: var(--colors-skeleton-0-primary-base); }
+  .danger { border: 1px solid color-mix(in srgb, var(--colors-skeleton-0-danger-base) 45%, transparent);
+    color: var(--colors-skeleton-0-danger-base); }
+  .foot { text-align: center; }
+</style>
+#+end_src
+
+* tests
+
+The package doctrine: a mode ships its snapshots. =tests/scenarios.js= at the package root grows one
+fixture, =office(mode, {provider})=, which mounts a provider mode beside the office mode so
+=mode.call= and the provider's aperture are both live in one scope.
+
+| file                                            | cases                                                                       |
+|-------------------------------------------------+-----------------------------------------------------------------------------|
+| =dummy/mail/tests/mail.test.js=                 | the dataset installs 7 rows · =/messages= pages · =/send= mints a row whose =uses= is its parent and whose =references[]= grows · =/flag= swaps exactly one =message.status.*= symbol · an unknown status refuses |
+| =dummy/calendar/tests/calendar.test.js=         | 16 rows install · =/events= expands a WEEKLY series inside a range and not outside it · an occurrence's slug is =master@YYYY-MM-DD= · =/create= mints coordinates · =/rename= keeps the slug · =/move= refuses a series · =/delete= removes |
+| =office/email/tests/aperture.test.js=           | =/inbox= is one row per THREAD, newest first, =count= right, =held= true for the notary · =/message= walks the chain oldest-first through a two-deep reply · =/read= flips unread once and is idempotent · =/send {held}= holds and does NOT answer the parent · =/key= clears the hold AND answers the parent · =/key= on a free row refuses |
+| =office/email/tests/tools.test.js=              | the five names · =inbox= rows · =read= marks read · =reply= says HELD and never says sent · =find= by text and by coordinate · =open= yields a buffer whose =data.open= is the slug · =key= is NOT armed |
+| =office/email/tests/email.snapshot.test.js=     | =system.inbox= (role · doctrine · rows · screen line) · every tool's yield · every aperture route · the armed catalog |
+| =office/calendar/tests/aperture.test.js=        | =/agenda= inside a range · a series expanded · =/event= carries =uses= · =/mint= from a message adds the edge · =/create= without a provider refuses by name |
+| =office/calendar/tests/calendar.test.js=        | the client grammar: =rangeOf= × 5 views · =labelOf= across a month boundary · =laid= top/height/meta · =grouped= day buckets · =weeksOf= a 6-week month · an all-day row sorts before a timed one |
+| =office/calendar/tests/tools.test.js=           | the six names · =agenda= rows · =create= a deadline · =move= refuses a series with the reason · =delete= is NOT armed |
+| =office/calendar/tests/calendar.snapshot.test.js= | =system.agenda= · every tool's yield · every aperture route |
+| =office/email/tests/app.test.js= · =calendar/tests/app.test.js= | both Apps and every part compile through =svelte/compiler=; the barrels export |
+
+The one gate a fixture must keep: the provider mode is mounted with =EXPOSED= staggered before the
+office mode, so =provider()= resolves at call time the way it does in production
+(=resolution.js:39-43=).
+
+* waterfall
+
+Symbolic. =layer= ∈ dummy · package · domain · tests. =status= ∈ READY (file whole above). =go= = whose go is missing.
+
+| id | layer   | files                                                             | deps  | status | go   | tests |
+|----+---------+-------------------------------------------------------------------+-------+--------+------+-------|
+| n1 | domain  | voffice =types.js= · =entities/kernel/Literal.ts= (EVENT)          | —     | READY  | beef | 0     |
+| d1 | dummy   | =dummy/mail/{mail.viva.js,aperture,dataset}=                       | n1    | READY  | beef | 1     |
+| d2 | dummy   | =dummy/calendar/{calendar.viva.js,aperture,occurrences.js,dataset}= | n1    | READY  | beef | 1     |
+| m1 | package | =office/email/{email.viva.js,provider,boot,aperture,emitter,tools,harness,dataset}= | d1 | READY | beef | 3 |
+| m2 | package | =office/email/buffer/{Mail.svelte,parts/Inbox,parts/Thread}=       | m1    | READY  | beef | 1     |
+| c1 | package | =office/calendar/{calendar.viva.js,provider,boot,aperture,emitter,tools,harness,dataset}= | d2 | READY | beef | 3 |
+| c2 | package | =office/calendar/buffer/{calendar.js,Calendar.svelte,parts/×5}=    | c1    | READY  | beef | 2     |
+| k1 | package | instance =daemon.js= — four kernel lines                             | m1 c1 | READY  | beef | 0     |
+| p1 | drapes  | =display/Pip.svelte= tone =success= (owed since V3)                | —     | READY  | beef | 0     |
+
+Order: =n1 → d1 → m1 → m2= is mail end to end; =n1 → d2 → c1 → c2= is the calendar; =k1= last, then
+his restart. Either column can land alone.
+
+* blast radius
+
+| container                                        | touch                                                                | task |
+|--------------------------------------------------+----------------------------------------------------------------------+------|
+| =subsystems/typology=                            | none                                                                 | —    |
+| =systems/runtime=                                | none                                                                 | —    |
+| =subsystems/paladin=                             | none                                                                 | —    |
+| =subsystems/drapes=                              | =display/Pip.svelte= tone =success= — one line, already owed by V3    | p1   |
+| =systems/kajuit=                                 | none                                                                 | —    |
+| =~/.viva/registry/vcompany/domain/voffice=       | =types.js= 4 lines · =Literal.ts= trait enum + card + search, 3 lines | n1   |
+| =~/.viva/registry/vcompany/modes/dummy/=         | new: =mail/= · =calendar/=                                           | d1 d2 |
+| =~/.viva/registry/vcompany/modes/office/email/=  | replaces the T0 skeleton whole                                       | m1 m2 |
+| =~/.viva/registry/vcompany/modes/office/calendar/= | new                                                                | c1 c2 |
+| =~/.viva/registry/vcompany/tests/scenarios.js=   | =office(mode, {provider})= — mounts a provider beside the office mode | m1 c1 |
+| =~/.viva/instances/vivalence/daemon.js=          | four kernel lines                                                    | k1   |
+
+Nothing in the repo moves but one drapes line. Everything else is the package.

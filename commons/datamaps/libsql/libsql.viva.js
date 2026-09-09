@@ -1,4 +1,9 @@
-import { MikroORM, defineConfig, FlushMode, RequestContext } from "@mikro-orm/sqlite";
+import {
+  defineConfig,
+  FlushMode,
+  MikroORM,
+  RequestContext,
+} from "@mikro-orm/sqlite";
 import { Migrator } from "@mikro-orm/migrations";
 // import * as libsql from "@libsql/client/node";
 
@@ -8,27 +13,35 @@ const manifest = {
   name: "libsql",
 };
 
-const config = ({ dbName, contextName, entities, subscribers = [], migrations }) =>
+const config = (
+  { dbName, contextName, entities, subscribers = [], migrations },
+) =>
   defineConfig({
     dbName,
     ...(contextName && { contextName }),
     loadStrategy: "balanced",
     entities: entities.filter(Boolean),
-    subscribers: subscribers.filter(Boolean).map((Subscriber) => new Subscriber()),
+    subscribers: subscribers.filter(Boolean).map((Subscriber) =>
+      new Subscriber()
+    ),
     ...(migrations && {
       extensions: [Migrator],
-      migrations: { tableName: "_mikro_migrations", path: migrations, transactional: false },
+      migrations: {
+        tableName: "_mikro_migrations",
+        path: migrations,
+        transactional: false,
+      },
     }),
   });
 
 async function provider(datamap, instance, subscribers) {
   const orm = await MikroORM.init(
     config({
-      dbName: datamap.mount.branch(datamap.statics.db.file).absolute,
+      dbName: datamap.mountpoint.branch(datamap.statics.db.file).absolute,
       contextName: datamap.statics.db.file,
       entities: instance.map((v) => v.schema),
       subscribers: subscribers ?? instance.map((v) => v.subscriber),
-      migrations: datamap.mount.branch("migrations").absolute,
+      migrations: datamap.mountpoint.branch("migrations").absolute,
     }),
   );
 
@@ -56,7 +69,10 @@ async function provider(datamap, instance, subscribers) {
       context: (fn) => RequestContext.create(orm.em, fn), // to be depracated
       scope: (fn) => RequestContext.create(orm.em, fn),
       bind: (name, resolve) => async (ctx, next) => {
-        RequestContext.getEntityManager(orm.em.name)?.setFilterParams(name, resolve(ctx));
+        RequestContext.getEntityManager(orm.em.name)?.setFilterParams(
+          name,
+          resolve(ctx),
+        );
         await next();
       },
       // @beef hacky deep wire — carry the LIVE request context into a lazy streaming body
@@ -65,7 +81,9 @@ async function provider(datamap, instance, subscribers) {
       // strand the parent turn.
       carry: () => {
         const context = RequestContext.currentRequestContext();
-        return (fn) => (context ? RequestContext.storage.run(context, fn) : fn());
+        return (
+          fn,
+        ) => (context ? RequestContext.storage.run(context, fn) : fn());
       },
     },
     subscribe: (sub) => orm.em.getEventManager().registerSubscriber(sub),
@@ -74,4 +92,4 @@ async function provider(datamap, instance, subscribers) {
   };
 }
 
-export { manifest, provider, config };
+export { config, manifest, provider };

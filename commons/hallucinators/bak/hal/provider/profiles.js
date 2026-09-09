@@ -1,8 +1,8 @@
 import { createAnthropic } from "@ai/providers/anthropic";
 import {
   customProvider,
-  wrapLanguageModel,
   defaultSettingsMiddleware,
+  wrapLanguageModel,
 } from "@ai/sdk";
 import Providers from "./providers.js";
 

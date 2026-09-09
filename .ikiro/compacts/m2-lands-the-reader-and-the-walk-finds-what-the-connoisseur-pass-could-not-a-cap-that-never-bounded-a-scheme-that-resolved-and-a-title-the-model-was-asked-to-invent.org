@@ -1,0 +1,267 @@
+#+title: m2 lands the reader and the walk finds what the connoisseur pass could not — a cap that never bounded, a scheme that resolved, and a title the model was asked to invent
+#+filetags: :m57:hello-world:commons:reader:marginalia:search:service:consume:guard:ssrf:turndown:linkedom:snapshot:traits:generative:emitter:tooled:cost:walk:
+#+index: 16
+#+phase: closed
+
+* TOPIC
+
+M2 of m57: =@commons/service/reader=, six additive steps then one switch, walked live on beef's
+key. Then a trace of the GENERATIVE / EMITTER / TOOLED wiring he called "mildly off", and the
+logging that will make the next M3 run legible.
+
+The through-line is the same one M1 had, one layer up. M1's defects were *properties nobody
+declared*. M2's are *claims nobody measured* — a connoisseur pass that verified six things on
+paper, and a walk that found four more the paper could not have reached.
+
+* Spine
+
+N = 103. Turns 1-93 are folded into two earlier compacts. This one walks 94-103.
+
+| n | beef | landed |
+|---+------+--------|
+| 94 | =/compact= | — |
+| 95 | (summary) | context restored after the quest prune |
+| 96 | /"m57. scout. get ready for m2"/ | recon: 8 claims re-measured, 4 tangle defects found BEFORE a line was written, baseline red diagnosed |
+| 97 | /"go."/ | M2 landed whole: 7 suites / 41 steps, the switch on checkout + shelf, ten log sites |
+| 98 | /"contineu"/ | log sites flattened so =deno fmt= stops exploding them; shelf synced |
+| 99 | /"restarted teh runtime just now."/ | the walk could proceed — beef's runtime is HIS foreground process, never mine to kill |
+| 100 | (watcher log) | boot clean, no reader complaint — what an additive landing plus one switch should look like |
+| 101 | /"i suspect we will need to do a few itterations on m3 draw… the generator / emitter / tool wiring rn seems to be mildly off. prep this with solid thorough logging."/ + /"look at the sqlite hello world turns again."/ + the =[m2:*]= flow log + /"all as expected?"/ | the log answered, and carried two findings the UI could not show |
+| 102 | /"ok trace and log m3. no deploy yet"/ | 15 =[m3:*]= sites; five wiring findings, one of them structural |
+| 103 | /"finish and compact."/ | probes ripped, valences iterated on what the walk showed, S1 recaptured, this fold |
+
+* Arc
+
+** the scout found four defects before a line was written
+
+beef asked for recon, not code, and the recon paid. Eight claims from the connoisseur pass were
+re-measured live; all eight held, but two of the quest's own facts had drifted and four bugs sat
+in the tangle waiting to be typed in.
+
+The drift: =population.js:127= is at =systems/runtime/daemon/lifecycle/=, not
+=subsystems/paladin/lifecycle/=. Line number exact, subsystem wrong. And the "pre-existing red,
+multiplayer, unrelated" turned out to be diagnosable — the registry census prints no
+=@commons/instance/multiplayer= at all, because it lives under =commons/instances/bak/=. The test
+asserts a wafer that was moved. Stale assertion, not a registry fault.
+
+The four tangle defects:
+
+| defect | why it mattered |
+|--------+-----------------|
+| =drink()='s =while (size < LIMITS.bytes)= read a whole chunk THEN added | one oversized chunk blows the 2 MB cap; the bound was advice |
+| =response.body.getReader()= on a null body | =hop()= guarantees ok + a text content-type, never a body |
+| =extract.js= / =skeleton.js= labelled PURE while importing =LIMITS= from =hop.js= | the "pure" module dragged the network module into its graph |
+| =new Blob(chunks).text()= on a byte-truncated stream | a cut multi-byte character becomes U+FFFD at the tail of every capped page |
+
+All four were repaired in the landing rather than the tangle. =LIMITS= got its own module so the
+pure halves stay pure; =drink()= slices the overshoot and decodes with =TextDecoder({stream:true})=,
+which holds an incomplete sequence back across the boundary so a cut never lands mid-character
+and the trailing partial is dropped rather than mangled.
+
+** the landing: six additive steps, then one switch
+
+Every step before the switch leaves the daemon booting exactly as it did before. That is the
+whole point of the shape — the reader was fully tested before it was ever reachable.
+
+=limits.js= · =guard.js= · =hop.js= · =skeleton.js= · =extract.js= · =service.viva.js= ·
+=README.md=, with =guard.test.js= · =hop.test.js= · =skeleton.test.js= · =extract.test.js= ·
+=open.test.js= · =reader-page.snapshot.test.js= and one committed fixture. **7 suites / 41 steps,
+every one offline** — fetch and the DNS resolver injected, the HTML from =tests/fixtures/=.
+
+Then =consume: { reader: { module: "@commons/service/reader" } }=, by hand on the checkout AND
+the shelf, because the shelf's =instance.viva.js= is a different file carrying its own mount. The
+reader itself needs no shelf copy: =registry.json= mounts the checkout's =commons/= directly.
+
+The switch was proven offline before the walk, by running =population.js:126-127= verbatim against
+the real registry and the real mask: =SERVICES ["reader"]=, =READER ["open"]=, and a fixture page
+through =open()= end to end.
+
+** a test I wrote caught a bug my own fix had
+
+=extract= absolutises links so a relative href quoted back is not a dead reference. The obvious
+implementation resolves every href against the base — and =new URL("javascript:void(0)", base)=
+*succeeds*, because =javascript:= is a perfectly valid scheme. The array filter =/^https?:/= hid
+it: links came back clean while the markdown body kept the =javascript:= target.
+
+Resolving is not vetting. The scheme is now checked on the RESULT, and anything that is not
+http(s) loses its href entirely. The quest's own table had claimed this defect "repaired in the
+tangle" — the tangle repaired the array only.
+
+** the walk found what no assertion could
+
+Dock → /"search the small web for 'deno permissions', then read the first result and tell me what
+it actually says. quote a sentence that is in the page but not in the snippet."/ Five tool calls,
+four searches and one read, and the model came back with:
+
+#+begin_quote
+"Deno process is not actually sandboxed, it only pretends it is."
+#+end_quote
+
+Prose that is in the page and not in the snippet. =P-selector= live.
+
+Two things fell out of it that no test would have.
+
+*** the model recovered from a stall instead of hanging
+
+Marginalia stalled twice on "deno permissions". The 6s abort from M1 returned an error, the model
+broadened to "deno runtime permissions flags allow-net", then "deno security permissions model",
+and got its answer. M1's timeout fix earning its keep on a live query — and the reason the
+=web_search= valence now says REPHRASE rather than retry.
+
+*** the title was a question the model could not answer
+
+The first live tool_result carried =title: "<UNKNOWN>"=. =Pick.title= asked the model to name the
+page — and its only input is the SKELETON, which carries no text by design. It could not know, so
+it said so, which was the honest answer to a bad question. =document.title= was sitting in
+=open()= the whole time, deterministic and free.
+
+=title= is out of =Pick=; the tool returns =page.title=. Verified live on a page not already in
+context: =title: "Security and permissions | Deno Docs"=.
+
+That verification took two attempts, and the first was mine being sloppy — see the failures.
+
+** the flow log carried two findings the dock could not show
+
+beef pasted the =[m2:*]= trace and asked /"all as expected?"/. Yes, and:
+
+*** the tool_result is 19 756 chars, not the 15 338 the UI reported
+
+=chars= reports the MARKDOWN. The payload also carries the links array — **22% of what the model
+pays for on every later turn is 34 link objects at ~130 chars each**, on a request for prose.
+Invisible in the dock; only site 10 surfaced it.
+
+*** the view's own search box is invisible in the trace
+
+Five =[m2:search] query== lines, six =[m2:marginalia]= lines. The extra one is =aperture.js:13=,
+which calls =query()= directly — the same client, deliberately, so the two cannot drift — but with
+no log site. Site 1 covers the tool; nothing covered the door the app uses.
+
+The cost verdict: two real pages at 12 709 and 15 338 chars, neither near =LIMITS.chars= = 24 000.
+**The cap is not the cost lever.** A typical read is 3-4k tokens, re-billed every turn, forever.
+That is M4's nested context arriving sooner than planned, and M2 is what proved it is real rather
+than feared. =LIMITS.chars= stays 24 000: a ceiling against a pathological page, not a budget.
+
+** B — the sqlite turns are not duplicated, they are abandoned
+
+beef: /"look at the sqlite hello world turns again."/ 34 user rows against 28 assistant rows.
+
+Not a write-path duplication. **6 user turns have no assistant reply**, exactly the gap:
+
+| thread | text | sends | span | unanswered |
+|--------+------+-------+------+------------|
+| =01a080aa= | "where we at…" | 5 | 175s | 4 |
+| =01a081a2= | "search for dog…" | 3 | 232s | 2 |
+
+Chain integrity is intact — every turn properly parented, no orphans, no cycles. What happens is
+that **re-sending while a round is in flight persists a new user turn and abandons the previous
+one**. The row stays. Only the last send in each chain is answered.
+
+It matters past tidiness: those rows are still in the thread, so the model reads the same question
+five times in its own history. Same shape as the =Request aborted= from M1's walk — a re-send kills
+the in-flight round but not its row.
+
+** the m3 trace: five findings, one structural
+
+beef: /"the generator / emitter / tool wiring rn seems to be mildly off. prep this with solid
+thorough logging."/ then /"ok trace and log m3. no deploy yet"/.
+
+*** the double-bind is a real path, not a worry
+
+Two places bind a buffer to a thread and both advance the counter — =generative.js= =gen.buffer=
+(=buffer.index = found.counter++=) and the =emitter.js= drain loop (=buffer.index =
+ctx.thread.counter++=). =gen.buffer= binds whenever handed a thread; the emitter binds every buffer
+it drains. **M3 declares EMITTER + GENERATIVE together**, which is precisely the path where one
+drawn page advances the counter twice. Nothing in 334 steps exercises it, which is why it has
+stayed invisible. =P-nodoublebind= is not a hypothetical; it is two lines of live code. The fix
+when wanted: mint thread-free inside an emitter and let the emitter bind.
+
+*** the same capability arms under two names
+
+=generative.js:46= slurps a declared generator at the ROOT and mounts the fallback under =/view=.
+So =<mode>_render= if you declare one, =<mode>_view_render= if you do not. Nothing makes a declared
+generator branch itself under =/view= — convention held by hand. beef's own =@beef this is weirdly
+wired= comment sits on that line and is right.
+
+*** the emitter is never armed as a tool
+
+Confirmed on flashcard · judge · exhibit · dojo · aprende. M3's draw path needs a declared
+generator or a tool that delegates; an emitter node alone gives the model nothing to call.
+
+*** CONVERSATIONAL is implemented nowhere
+
+The production map holds 15 traits — AGENTIC APPLICATION BOOTED DATASET DATASINK EMITTER EXPOSED
+FRAUGHT GENERATIVE HARNESSED INTENTED MOUNTED SELFEVIDENT STANDALONE TOOLED. =CONVERSATIONAL= is
+not among them, and =stagger= calls =traits[trait]?.()=, so it fails silently. hello-world, dealer
+and oracle all declare it. The only definition in the tree is a local stub in
+=conversation.test.js:40=.
+
+*** two asymmetries to know before writing M3
+
+=ctx.thread= is a STRING id on the tool path (=harnessed.js:69= binds the id) and a loaded ENTITY
+on the emitter path (=emitter.js= =findOne=). =gen.buffer= absorbs it by calling =findOne= on
+either; a generator author reading =ctx.thread= does not. And =buffer.id= is =undefined= when the
+emitter binds, because the flush comes after — correct behaviour, and a trap for anything keyed on
+the id at that moment.
+
+* Failures
+
+**Claimed a defect that was not one.** Mid-trace I said the client reads an =entities.buffer= key
+no server path writes. Wrong: =settled()= at =turns.js:35= DERIVES =entities= from the m26 bag, so
+={message, buffer:[…]}= arrives as =entities.buffer= correctly. I had grepped for who WRITES the
+key and concluded from its absence, without reading the fold that builds it. Absence of a writer
+is not absence of a path when the path is derived.
+
+**Called the title fix verified when no tool had run.** The model answered with the right title —
+from the H1 of a tool_result already in the thread, on a turn showing "thought" and no tool count.
+Caught it, said so, and re-ran on a page not in context. The lesson is the one M1 already taught in
+another costume: a plausible output is not evidence about the mechanism that was supposed to
+produce it.
+
+**Three patch scripts failed on stale text.** =deno fmt= had rewrapped the exact lines the python
+was matching, twice on the same file, and once the assertion silently left an edit unapplied while
+its siblings landed — the test then failed on a change I believed I had made. Read the formatted
+text, patch against that, and never batch asserts that can partially apply.
+
+**Used beef's own browser tab instead of creating one.** No harm, and the task was walking his app,
+but the guidance says create your own.
+
+* State at fold
+
+| | |
+|---+---|
+| reader | 7 suites / 41 steps, offline |
+| hello-world | 11 suites / 29 steps |
+| together | *18 suites / 70 steps, 0 failed* |
+| runtime | 53 passed / 334 steps, 1 failed — pre-existing, and now diagnosed as a stale =multiplayer= assertion |
+| quest | 1009 → 669 lines, M2 cut to a stub |
+| markers | 34 total · 23 held · 11 pending; =P-selector= =P-hop= =P-cap= flipped, six born |
+| probes | =[m2:*]= RIPPED from commons and the shelf · =[m3:*]= 15 sites IN, for the M3 iterations |
+| S1 | moved ONCE, deliberately, when the valences were iterated |
+
+The valences were iterated on what the walk showed, not on taste: =web_search= now says a stall is
+a property of the phrase and to REPHRASE rather than repeat, and that zero results is an answer;
+=web_read= says the title is the document's own and that a read stays in the conversation for every
+later turn, so open a page you mean to use and never re-open one already in the thread.
+
+=LIMITS.chars= stays 24 000, on evidence. The link array is the open cost question: a third of every
+read's price, for something the model did not ask for. beef's call.
+
+MARKERS.md's cortex-snapshot entry stays OPEN — /"Still OPEN: the ruling only"/, which is beef's,
+not mine.
+
+* quest report (derived at fold — `methods/quest-report.py`)
+
+| quest                      | progress   | status                                                                | next                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                      | sessions   |
+|----------------------------+------------+-----------------------------------------------------------------------+---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------+------------|
+| drapes-editor              | —          | landed · the caret bug found and fixed — his click-through gates owed | rebundle + reload, then confirm the caret advances while typing (the one thing the fix is not yet proven against live). then the eight click-through gates below. later, both his call: the language on `#+begin_src js` does not highlight its body; the markdown fence is the same trade.                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                               | 1 (1 live) |
+| m46-linux-readmen          |  17% 3/18  | wip                                                                   | drain                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                     | 6          |
+| m50-the-three-way-weave    |  60% 3/5   | wip                                                                   | blast                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                     | 1          |
+| m51-standalone-slowstart   |   0% 0/18  | design                                                                | go                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                        | 2          |
+| m53-vcompany               |   0% 0/5   | open                                                                  | **t1.1** h1 · e1 · p1 · t1 · b1 · k1 + s1 · x1 · x2 · x3 + i1 (the index as rows) landed on the shelf; blocked on **r1** (paladin =resolve= percent-encodes — one-line diff + one test in the quest, his go, repo): the four reds (tools file · move; snapshots tools · aperture) are r1 and nothing else; a1 struck (the app is the sibling's v3); d1 (readme) on go; the =open= schematic on buffer-data level — sketch in "landed", his word; officers out by his order; then **the slow first attach** (the boot race under `instance/run`) → gs1/gs2 click-through after restart; the bundle weight ledgered, direction his; s3 voffice → s4 desk on go; `* t1.#2` his call; the runtime's m:n =cascade.remove= both ways ledgered as a landmine (his)                                                                                                                                                                                                                                                                                                               | 5          |
+| m53-vcompany.pre           | —          | open                                                                  | t1 package setup — the m27 gate moves to the executive stage; t1–t3 do not wait on it                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                     | 3          |
+| m53-vcompany.v3-vdex       | —          | landed                                                                | one restart carries both — the new pdf viewer (=paper.svelte=) and the cargo fix (=freight.js=, uncommitted); then open a spaced-name pdf: it should render, page nav and zoom live, the rail on ▤. the six later items stay marked in the root quest.                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                    | 3 (1 live) |
+| m53.v4-mail+calendar       | —          | landed                                                                | the six office test files — =office/email/tests/{aperture,tools,email.snapshot}.test.js= and =office/calendar/tests/{aperture,tools,calendar.snapshot}.test.js=; =/key=, the held send and the thread walk are landed and untested. then his restart + the click-through gates. open, not mine: the sibling's mode-ownership landing duplicates every symbol (16 rows, 8 distinct, the dummy's copies bare), which contradicts this quest's law that the office declares the scheme and the provider carries the rows.                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                    | 1          |
+| m54-buffer-file            |   0% 0/4   | open                                                                  | reconcile with m53 =* t1.1= and =m53-vcompany.v3-vdex= first (three quests, one seam, all waiting on go; v3 splits the app into a shell + 7 parts + =buffer/jdex.js= and already points here for file upload — m54's app hunk names the single =vdex.svelte= and must be re-cut onto whichever lands first) (a sibling session, beef's rulings there: the vdex speaks slugs — =/document /write /file /move /delete= implemented once in the aperture, tools wrap =mode.call.<verb>=, =fs_*= slurp gone on vdex; =open= is an emitter; the boot watches files and syncs per path — /"shouldnt this watch files??!!!"/; /"wtf is daemon traits stamp????"/ → gone) — three seams now name the verbs' home (t1.1 aperture · m54 sketch · mikro-first repository), beef arbitrates; then beef reopens the questioned block when ready — order of design there is mikro entity + bufferrepository verbs → typology verb contract → shard mounts → remoterepository mirrors → kajuit. until then m1 = everything but the verbs. "go m1" → full hunks against the tree as read. | 1          |
+| m55-recursive-terminals    |  20% 3/15  | wip                                                                   | go m2 — the kajuit terminal: up · down · status · stop · run · watch, the tree, the schematic, panel f                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                    | 3          |
+| m56-the-pincer-turns       | 100% 2/2   | verify                                                                | live-walk c at both aspects · markers 2·3·4·10·13·14 need a dom                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                           | 2          |
+| m57-hello-world-researches |  65% 26/40 | open                                                                  | beef reads the =[m2:*]= flow log in his own terminal — it is the one thing this session could not read for itself — then says rip, and the ten probes come out and the valences get iterated on what they showed. after that =go m3= → =page/= draws a buffer from a read. the cost question m2 answered stands open as a design question: 3-4k tokens per read, permanently in the thread, is m4's nested context arriving sooner than planned.                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                          | 1 (1 live) |

@@ -1,7 +1,7 @@
 ---
 name: release
 description: The release changelog — release.md format, the single-change line, cutting a tag-release on GitHub/GitLab over jj. Release is an INTERFACE ledger, not a quest organ — quests feed it, they don't own it.
-when_to_use: writing or lifting `* release` lines · seeding/editing root `release.md` · "cut a release" · tagging/prerelease questions · jj bookmark vs tag confusion.
+when_to_use: writing or lifting `* release` lines · editing `.ikiro/release.md` · "cut a release" · tagging/prerelease questions · jj bookmark vs tag confusion.
 ---
 
 # release — the interface ledger
@@ -16,7 +16,7 @@ beef, verbatim (09-01): *"its time that we start thinking in changelogs. how did
 
 ## The file
 
-Repo root `release.md`, reverse-chron; `## unreleased` accumulates, a release cut renames it to `## <version> — <date>` and opens a fresh one (versioning is beef's). Surface sections inside a release, present only when non-empty, fixed order:
+`.ikiro/release.md` — INSIDE ikiro, never at the repo root (beef 09-09: *"move it into ikiro"*; the 09-01 root seed was staged "awaits go — root file is outward" and executed without one — an outward materialization is beef's cut, never mine). Reverse-chron; `## unreleased` accumulates, a release cut renames it to `## <version> — <date>` and opens a fresh one (versioning is beef's). Surface sections inside a release, present only when non-empty, fixed order:
 
 ```markdown
 # release

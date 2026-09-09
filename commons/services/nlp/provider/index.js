@@ -13,7 +13,8 @@ export default function provider(service) {
   };
 
   // if (package) request.package = package; package,
-  const { language, processors = "tokenize,mwt,pos,lemma,depparse" } = service.statics;
+  const { language, processors = "tokenize,mwt,pos,lemma,depparse" } =
+    service.statics;
 
   if (!language) {
     throw new Error("Language must be defined in NLP service config");

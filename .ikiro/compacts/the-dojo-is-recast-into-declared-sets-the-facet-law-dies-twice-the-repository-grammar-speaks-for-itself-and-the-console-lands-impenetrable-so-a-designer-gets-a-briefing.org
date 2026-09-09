@@ -1,5 +1,6 @@
 #+title: the dojo is recast into declared sets, the facet law dies twice, the repository grammar speaks for itself, and the console lands impenetrable so a designer gets a briefing
 #+filetags: :m24:dojo:sets:clauses:repository-grammar:mikro-orm:kajuit:svelte:aperture:emitter:resolver:design-brief:ui-rejected:
+#+index: 63
 
 * arc
 

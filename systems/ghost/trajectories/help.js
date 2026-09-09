@@ -10,10 +10,21 @@ export function census(trajectory) {
         ([name, property]) => ({
           name,
           type: property.type ?? "string",
+          group: property.group ?? null,
+          examples: property.examples ?? [],
           description: property.description ?? "",
         }),
       );
       return [{ nature, valence: frame.signature?.valence ?? "", params }, ...rows];
     },
   });
+}
+
+export const accepts = (held, type) => held.type === type || (held.anyOf ?? []).some((one) => one.type === type);
+
+// a flag that carries nothing prints bare; one that carries a value prints its shape.
+export function flagged(schema) {
+  return Object.entries(schema.properties).map(([name, held]) =>
+    accepts(held, "boolean") && !accepts(held, "string") ? `--${name}` : `--${name}=${held.description}`
+  );
 }

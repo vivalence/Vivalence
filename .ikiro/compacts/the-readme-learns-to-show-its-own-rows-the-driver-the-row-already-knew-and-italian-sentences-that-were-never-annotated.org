@@ -1,0 +1,167 @@
+#+title: the readme learns to show its own rows, the driver the row already knew, and italian sentences that were never annotated
+#+filetags: :education:readme:documentation:domain:retention:buffer:mikro:corpus:registry:
+#+index: 145
+
+* spine (beef's turns, oldest first — 9 of 9 covered)
+
+| n | kind | beef, verbatim | what landed |
+|---|---|---|---|
+| 1 | prompt | the six-line getting-started checklist, then /"in the readme bring the - notes into column"/ | root =README.md:300= — the em-dashes padded into a column; told him in the same breath that markdown collapses the runs, so it reads only in source |
+| 2 | prompt | the whole education README pasted, then /"find examples for each and every: { snapshot } and { schematic }"/ | four examples pulled from live sqlite; the `italian` instance db turned out EMPTY and the rows found in `language-learning/daemon_italian`; Retention and Trace found to have no typology schematic at all |
+| 3 | prompt | /"for literal and symbol, pull in the f(runtime entiteis, domain entiteis). for buffer, replace schematic with entity. keep the export const app part. in fact, structure this. every entity *: snapshot, schematic or entity, optional code example. change the literal example for one without issues. for literals symbols and modes, highlight the domain specific traits and their functionality. each in place of their entity."/ | the uniform per-entity shape; `di.adposition` swapped for `è`; domain `Symbol.ts` found to add NOTHING |
+| 4 | prompt | /"very good. work this into the education/readme"/ | +737/−14 patched in by anchored python, JSON parsed, fences balanced |
+| 5 | prompt | /"take my notes @beef. understand them. group them. fix them. explain what you did."/ | 26 notes read off his edit, grouped seven ways; the research pass behind them — 299 buffers over 7 dbs, the `registry/list` crash, ANNOTATED absent from italian |
+| 6 | prompt | /"go"/ | the rewrite; the one code change — `evolve(signal, driver)` → `evolve(signal)`; retention tests 9/9 |
+| 7 | prompt | /"the word on thread."/ | the Thread block, =README.md:565=, entity · snapshot · code |
+| 8 | prompt | /"ikiro compact"/ | this file |
+| 9 | MID-TURN | /"/compact"/ | the harness fold beside it |
+
+* the ask, sharpened three times
+
+The placeholders were his: `{ snapshot } and { schematic }`, four of them, sitting where
+the prose stopped. Turn 2 asked only that they be filled. Turn 3 turned the filling into a
+FORM — /"in fact, structure this. every entity *"/ — and turn 5 handed the form back with
+26 notes written into it. The document did not grow by accretion; it was re-cut twice
+against rulings that arrived after the first draft was already good.
+
+** what "schematic" turned out to mean, and where it ran out
+
+Read as the typology descriptor — `subsystems/typology/schematics/` — which was right, and
+which is where it broke. Only **Buffer has one**: the generic `BufferDescriptor`, plus the
+per-mode narrowing every App declares as `v.buffer({ data: … })`. There is no
+`v.retention()` and no `v.trace()`; those two entities exist only as MikroORM
+`EntitySchema`. His turn-3 ruling settled the asymmetry without needing the finding
+explained: /"for buffer, replace schematic with entity."/ The entity is the surface that
+cannot lie; the descriptor is documentation checked by nothing outside `v.buffer()`.
+
+** the shape, once it stopped moving
+
+Six entities, then seven, each written *entity → (traits) → snapshot → code*. His note
+inside the draft — /"turn all these entity/code/snapshot markers into headers. not just
+here."/ — took the bolded markers to `######`, so the outline now carries the structure
+rather than the paragraphs doing it by convention. Userspace: Retention · Trace · Buffer ·
+Thread. Dataspace: Literal · Symbol · Mode. For the last three the entity slot is
+`f(runtime, domain)` — one table, two files, and the domain half named honestly, including
+where it is empty.
+
+* the literal that had to be replaced
+
+The first chain was built on `di.adposition`. Its symbol list, which had already been
+printed, carried both `word.part-of-speech.adposition` AND `word.part-of-speech.preposition`
+— and it was written up as an aside ("corpus defect, not schema") and then used anyway.
+beef: /"change the literal example for one without issues."/
+
+The replacement earns its place structurally: `essere.verb.indicative.present.third.singular`
+— `è` — holds the Retention, the Trace that produced it, sits inside a live dojo buffer's
+`knowables`, and answers `in: ["essere.present.indicative"]`, so the paradigm snapshot's
+`uses` list closes the loop back onto it. One row threads all seven blocks.
+
+* the driver the row already knew
+
+Written into the draft, verbatim: /"what entity is this?? whhyy is the driver in the
+signature??!!"/ — against `evolve(signal, driver)`.
+
+It is `RetentionEntity`, and the second half of the question was a defect report. The row
+carries `driver` as a column, and the file already imports the registry it would be looked
+up in. The argument was the caller doing work the entity was holding the key to.
+
+#+begin_src diff
+// registry/education/domain/entities/userspace/Retention.ts
+-  evolve(signal, driver) {
++  evolve(signal) {
+     if (typeof signal === "string") signal = { enum: signal };
++    const driver = drivers[this.driver];
+
+// registry/education/domain/entities/kernel/Literal.ts
+-    const driver = drivers[retention.driver];
+-    const result = retention.evolve(signal, driver);
++    const result = retention.evolve(signal);
+
+// registry/education/domain/tests/retention/drivers.test.js — 3 call sites
++      retention.driver = driver.type;
+-        retention.evolve(value, driver);
++        retention.evolve(value);
+#+end_src
+
+`retention/` suite 9 passed / 49 steps, before and after. The README could not have been
+written truthfully around the old signature — the documentation forced the fix, which is
+the only direction that ever works.
+
+* what the databases said
+
+Everything below is read off disk, not inferred:
+
+- **the `italian` instance db is empty** — 0 retentions, 0 traces. The rows live in
+  `~/.viva/instances/language-learning/mountpoint/daemon_italian` (74 · 426 · 2). Two
+  databases, one daemon slug; picking the wrong one yields a correct-looking, contentless
+  answer.
+- **299 buffers across 7 databases, 16 distinct mode shapes.** `brazilian` carries 273 of
+  them; the italian instances carry 3 between them. Five were proposed for the README —
+  dojo · riddler · nyan · judge · exhibit — and **beef still picks three.**
+- **italian sentences carry no `ANNOTATED`.** Zero in the topography dataset, zero in both
+  italian dbs; brazilian has 540, spanish 708. So `uses` is empty for every italian
+  sentence and the trait's whole mechanism — a sentence *uses* its words — never fires on
+  the flagship corpus. Written into the snapshot inline rather than papered over.
+- **domain `Symbol.ts` adds nothing.** Empty class body, `properties: {}`, every extension
+  commented out. The four symbol traits are the RUNTIME's; what education contributes is
+  the slug space, shipped as data.
+- **Mode gets no domain entity at all** — education mints TYPES (`domain · topology ·
+  topography · game · tactic · teacher · homepage · dashboard`), the runtime owns every
+  column and every trait.
+- two schema drifts, recorded and not chased: the `Symbol` table on that db has no `mode`
+  column and uniques on `slug` alone (pre *mode owns rows*), and `Thread.parent`/`children`
+  are in the schema but not in the table.
+
+* the CLI that could not be quoted
+
+`viva registry/list` **crashes in this checkout** — `paladin.mounts` undefined at
+=systems/ghost/belt/config.js:12=, the stratified-paladin wip. His note asked /"whats the
+appicative result here?"/, so the row the README now prints was composed from the handler's
+return shape in =systems/ghost/trajectories/registry/index.js= plus `~/.viva/registry.json`,
+and he was told exactly that rather than being handed a fabricated capture.
+
+* failures
+
+1. **The disqualifying fact was printed and then ignored.** `di.adposition`'s two
+   part-of-speech symbols were in the output, labelled as a defect, and used as the
+   flagship example regardless. A row cannot be both the exhibit and the counter-example.
+   Cost: one full round trip.
+2. **The caveat arrived after the edit.** The column alignment landed, and only then came
+   the fact that markdown collapses whitespace so it shows only in source. That belonged in
+   the same breath as the proposal, before the file was touched.
+3. **The first buffer section documented the table.** It carried `CREATE TABLE Buffer` and
+   the re-declaration; his note was one word — /"no"/ — because the question was never what
+   the column type is. `data` is the mode's, and only live rows show it.
+
+* state at fold
+
+- =~/.viva/registry/education/README.md= — 1073 lines, +1071/−2 uncommitted. Seven entity
+  blocks, zero placeholders, zero `@beef` notes, 94 fences balanced, every JSON block
+  parses. Its own repo, its own git+jj.
+- the `evolve` change and its three test call sites — same repo, uncommitted, green.
+- root =README.md:300= — the aligned checklist, and it survived his later pass over that
+  file.
+- **owed to beef**, already carried in `world/frontier.md ## owed` and not restated here:
+  the education push now carries this README and the `evolve` change; his pick of three
+  buffer snapshots from the five; the MARKERS cortex-snapshot ruling, untouched by this
+  session.
+- his heading reads *"Userspace: Retention, Trace, Buffer, and Thread"* — as of turn 7 it
+  is true.
+
+* quest report (derived at fold — `methods/quest-report.py`)
+
+| quest                      | progress   | status                                                                | next                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                | sessions |
+|----------------------------+------------+-----------------------------------------------------------------------+-------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------+----------|
+| drapes-editor              | —          | landed · the caret bug found and fixed — his click-through gates owed | rebundle + reload, then confirm the caret advances while typing (the one thing the fix is not yet proven against live). then the eight click-through gates below. later, both his call: the language on `#+begin_src js` does not highlight its body; the markdown fence is the same trade.                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                         | 2        |
+| m46-linux-readmen          |  17% 3/18  | wip                                                                   | drain                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                               | 6        |
+| m50-the-three-way-weave    |  60% 3/5   | wip                                                                   | blast                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                               | 1        |
+| m51-standalone-slowstart   |   0% 0/18  | design                                                                | go                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                  | 3        |
+| m53-vcompany               |   0% 0/1   | open                                                                  | his restart + the click-through gates (vdex 12 · mail/calendar 12 · gs1–gs6); the six office test files; the three stale vdex reds; then his call on the next stage — chat over telegram · vendor providers · the officer stage.                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                    | 5        |
+| m54-buffer-file            |   0% 0/4   | open                                                                  | reconcile with m53 =* t1.1= and the v3 vdex pass (both folded into =m53-vcompany.org=; originals =discarded/m53-vcompany.org= · =done/m53-vcompany.v3-vdex.org=) first (three quests, one seam, all waiting on go; v3 splits the app into a shell + 7 parts + =buffer/jdex.js= and already points here for file upload — m54's app hunk names the single =vdex.svelte= and must be re-cut onto whichever lands first) (a sibling session, beef's rulings there: the vdex speaks slugs — =/document /write /file /move /delete= implemented once in the aperture, tools wrap =mode.call.<verb>=, =fs_*= slurp gone on vdex; =open= is an emitter; the boot watches files and syncs per path — /"shouldnt this watch files??!!!"/; /"wtf is daemon traits stamp????"/ → gone) — three seams now name the verbs' home (t1.1 aperture · m54 sketch · mikro-first repository), beef arbitrates; then beef reopens the questioned block when ready — order of design there is mikro entity + bufferrepository verbs → typology verb contract → shard mounts → remoterepository mirrors → kajuit. until then m1 = everything but the verbs. "go m1" → full hunks against the tree as read. | 2        |
+| m55-recursive-terminals    |  20% 3/15  | wip                                                                   | go m2 — the kajuit terminal: up · down · status · stop · run · watch, the tree, the schematic, panel f                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                              | 4        |
+| m56-the-pincer-turns       | 100% 2/2   | verify                                                                | live-walk c at both aspects · markers 2·3·4·10·13·14 need a dom                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                     | 2        |
+| m57-hello-world-researches |  74% 20/27 | open                                                                  | restart (harnessed.js · generative.js · buffer.ts · thread.ts are repo files; buffer migrates). /"research flamingos, with a picture"/ → one <figure>, line reads the label. a follow-up change → `revised buffer <id> index 0 view <new>`, same line re-mounts, no cursor. /"call that page flamingos"/ → one buffer_label.                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                        | 3        |
+| m58-application-noun       | 100% 2/2   | designed                                                              | beef rules m1's three decisions and m2's one, then "go" per milestone — each under its own blast bracket, steps 1–6, one pass per step; the out-of-repo kernels overlap, so a same-day landing is one vcompany capture                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                              | 2        |
+| m60-lighthouse-security    |   0% 0/24  | designed                                                              | beef — rule f-name (`secure.claim`) and f-default (`invite`); then "go" per milestone                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                               | 1        |
+| m61-chess-domain           |   0% 0/20  | designed                                                              | beef — rule f1…f6; then "go" per milestone                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                          | 1        |
+| readme-can-i               |   0% 0/5   | design                                                                | go                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                  | 1        |

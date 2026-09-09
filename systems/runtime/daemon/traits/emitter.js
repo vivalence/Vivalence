@@ -1,4 +1,4 @@
-import { shape, Blacklist, is, Pool, Vector } from "@vivalence/typology";
+import { Blacklist, is, Pool, shape, Vector } from "@vivalence/typology";
 
 export const EMITTER = async (mode, daemon) => {
   if (!mode.module.emitter) return;
@@ -25,7 +25,9 @@ export const EMITTER = async (mode, daemon) => {
 
     // thread is OPTIONAL — turn-free / standalone modes (riddler) emit without one.
     // emitter requires thread.
-    if (ctx.input.thread) ctx.thread = await daemon.entities.thread.findOne(ctx.input.thread);
+    if (ctx.input.thread) {
+      ctx.thread = await daemon.entities.thread.findOne(ctx.input.thread);
+    }
 
     ctx.input.blacklist = new Blacklist(ctx.input.blacklist);
     // ctx.hallucination
@@ -45,20 +47,15 @@ export const EMITTER = async (mode, daemon) => {
     if (is.promise(ctx.output)) ctx.output = await ctx.output;
 
     let output;
-    if (is.yieldish(ctx.output) || is.buffers(ctx.output)) ctx.pool.add(ctx.output);
-    else if (!is.nill(ctx.output)) output = ctx.output;
+    if (is.yieldish(ctx.output) || is.buffers(ctx.output)) {
+      ctx.pool.add(ctx.output);
+    } else if (!is.nill(ctx.output)) output = ctx.output;
 
     const result = await ctx.pool.drain();
     if (output !== undefined) result.output.object = output;
 
-    // console.log("EMITTER {result}", { result });
-    // console.log(result.buffers.map((b) => console.log(b.literals.map((l) => [l.id, l.slug]))));
-
     if (ctx.thread && result.condition === "NOMINAL") {
-      for (const buffer of result.output.buffer) {
-        buffer.thread = ctx.thread;
-        buffer.index = ctx.thread.counter++;
-      }
+      for (const buffer of result.output.buffer) ctx.thread.bindBuffer(buffer);
     }
 
     await daemon.entities.em.flush();
@@ -70,6 +67,7 @@ export const EMITTER = async (mode, daemon) => {
 
   return () => {
     mode.aperture.branch("/emit").slurp(emitter);
+    // the emitter is NOT armed as a tool: a tool that draws has to exist separately and delegate.
     mode.emit = shape.object(emitter);
   };
 };

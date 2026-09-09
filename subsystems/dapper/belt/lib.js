@@ -76,8 +76,8 @@ export const formatCSSValue = (value, type) => {
     case "color":
       // Handle color values
       return value.startsWith("#") ||
-        value.startsWith("rgb") ||
-        value.startsWith("hsl")
+          value.startsWith("rgb") ||
+          value.startsWith("hsl")
         ? value
         : null;
     case "length":

@@ -35,7 +35,6 @@ export * from "./datasink.js";
 export * from "./action.js";
 // export * from "./agent.js";
 
-export * from "./mask.js";
 export * from "./wafer.js";
 
 export * from "./request.js";

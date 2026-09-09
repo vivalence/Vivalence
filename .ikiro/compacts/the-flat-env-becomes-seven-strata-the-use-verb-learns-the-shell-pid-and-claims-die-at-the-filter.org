@@ -1,5 +1,6 @@
 #+title: the flat env becomes seven strata, the use verb learns the shell pid, and claims die at the filter
 #+filetags: :paladin:ghost:ledger:typology:env:cli:m41:connoisseur:
+#+index: 70
 
 * what happened, in one breath
 

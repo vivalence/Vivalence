@@ -1,5 +1,16 @@
-import { types, Collection, EntitySchema, type Opt, type Rel } from "@mikro-orm/core";
-import { DataEntity, DataSchema, LiteralEntity, UserEntity } from "@vivalence/runtime";
+import {
+  Collection,
+  EntitySchema,
+  type Opt,
+  type Rel,
+  types,
+} from "@mikro-orm/core";
+import {
+  DataEntity,
+  DataSchema,
+  LiteralEntity,
+  UserEntity,
+} from "@vivalence/runtime";
 import { TraceEntity } from "./Trace.ts";
 
 // the fixture package's OWN review-memory entity. deliberately data-shaped: no drivers, no

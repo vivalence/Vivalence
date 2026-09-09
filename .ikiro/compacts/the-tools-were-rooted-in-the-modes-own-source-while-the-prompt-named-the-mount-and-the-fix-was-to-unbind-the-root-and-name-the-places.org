@@ -1,0 +1,199 @@
+#+title: the tools were rooted in the mode's own source while the prompt named the mount, and the fix was to unbind the root and name the places
+#+filetags: :vcompany:vdex:harnessed:skills:tools:paladin:runtime:mode:mountpoint:freight:harness:office:blast-bracket:systematic-debugging:
+#+index: 148
+
+* spine (beef's turns, oldest first — 4 of 4 covered, plus one hook)
+
+| n | kind | beef, verbatim | what landed |
+|---|---|---|---|
+| 1 | prompt | /"vdex mode. vcompany"/ + the whole office-agent transcript pasted (it listed its seven `fs_*` tools, named the JDex mount as its root, then failed three times on that exact path), + /"is there a way for you to read files from disk?"/ and /"fetch this tree here"/ inside it | the diagnosis: TWO roots. The prompt named the mountpoint, the tools were bound to the mode's SOURCE dir |
+| 2 | ruling | /"id rather use the fs skills without binding root and rather than that provide more information about the mode currently in context + ways to get that informatino on other mounts"/ | the sketch — no `ctx.root`, absolute paths, places on the standing line, `mode_find` for every other mount |
+| 3 | prompt | /"go"/ | the five hunks + two test files; paladin 41/0, runtime 57/1 (the known red), typology 3/0; live probe on the vivalence instance |
+| — | HOOK | `claim-guard.sh` fired on my summary: /"A ZERO IS A CLAIM. So is 'the only one', and so is 'verified'."/ | every count re-measured in the next turn, envelopes pasted |
+| 4 | prompt | /"ikiro compact"/ | this file |
+
+* the two roots
+
+His transcript is the whole bug report and he did not have to say a word about it. The
+agent wrote, unprompted:
+
+#+begin_quote
+The root is =/Users/finn/vivalence/coorporation= (where the JDex is mounted).
+#+end_quote
+
+Then it called `fs_tree {path: "."}` and got back `aperture/ buffer/ dataset/ emitter/
+tests/ tools/ boot.js harness.js jd.js load.js title.js types.js vdex.viva.js` — the vdex
+MODE's own directory. Then it passed the absolute mount path it had just printed and got,
+three times running:
+
+#+begin_example
+No such file or directory (os error 2): readdir
+'/Users/finn/.viva/registry/vcompany/modes/office/vdex/Users/finn/vivalence/coorporation'
+#+end_example
+
+Its own reading of that, in the transcript: /"the tool returned an object error"/ and
+/"The tool is returning an object representation rather than readable output"/ — it never
+suspected the root, because the root it had been told about was the right one.
+
+Read off the turn rows, not the screen: `sqlite3 vcompany.viva.db "select parts from Turn
+where parts like '%fs_%'"`. The tool_result rows are the evidence above verbatim.
+
+** where each half came from
+
+- `harnessed.js:84` bound `root` to =mode.module.mount.dirname= — the mode's `.viva.js`
+  directory. m29 wrote that (/"no trait"/, arming gated on the same expression), and m29
+  predates the m53 FRAUGHT/MOUNTED split.
+- `standing()` in the SAME file printed ` · mountpoint ${ctx.mode.mountpoint.absolute}`,
+  and the vdex harness index header printed the mountpoint a second time.
+- `paladin.skills.fs.resolve()` folds an absolute input under the root — a PINNED law
+  (`skills.test.js` step /"absolute input folds under the root"/, `/readme.md` → root).
+  So the mount path the model correctly read became a path SEGMENT. The escape guard never
+  fired, because nothing escaped; it descended.
+
+The three cargo sites learned the FRAUGHT/MOUNTED split at m53. Layer ② never did. That is
+the whole defect: a rule landed in the places that carry files and not in the place that
+arms tools over them.
+
+** the error was not drift
+
+`{message: {error: …}}` looked like a bug to the agent and was not: `fromm/yield.js:54`
+reads `output?.message?.error` to set `condition: "ERROR"`, kajuit's `turns.js:54` renders
+off the same key, three typology tests pin it. What was wrong was the CONTENT — a raw
+`os error 2` where the family's law is that a refusal names the next move.
+
+* his ruling, and why it is the better shape
+
+/"id rather use the fs skills without binding root and rather than that provide more
+information about the mode currently in context + ways to get that informatino on other
+mounts"/
+
+My sketch had proposed making the bind follow the trait — MOUNTED → mountpoint, else the
+source dir. That keeps two roots and picks between them. His version deletes the hidden
+root entirely: the only root left is the one the prompt prints, and a second mount is
+reachable by asking rather than by re-arming. The vdocs/corpo pair is the case that proves
+it — ONE module, kernelled twice, two mountpoints, and under a bound root the second one is
+unreachable by construction.
+
+* what landed
+
+#+begin_src diff
+// systems/runtime/daemon/traits/harnessed.js
+-    if (mode.module?.mount?.dirname) {
+-      armed.use(shard.context.bind("root", mode.module.mount.dirname));
+-      armed.slurp(paladin.skills.fs.fs).slurp(paladin.skills.shell.shell);
+-    }
++    armed.slurp(skills.mode.mode).slurp(paladin.skills.fs.fs).slurp(paladin.skills.shell.shell);
+
+// standing() — the [Mode …] line
+-    (ctx.mode.mountpoint ? ` · mountpoint ${ctx.mode.mountpoint.absolute}` : ""),
++    (placed ? ` · ${placed}` : ""),           //  const placed = skills.mode.places(ctx.mode)
+#+end_src
+
+- =subsystems/paladin/skills/fs.js= — `ctx.root` gone. `absolute(path)` exported and used
+  by all seven verbs; a relative path throws =path 'x' is not absolute — your mode's places
+  are in the mode section of your context; mode_find lists every mode's=. Every `path` is
+  required (no `"."` default), every desc carries an `Example:`, `fs_find` answers absolute
+  paths. `resolve()` stays exported — vdex's aperture `at()` is its only other consumer and
+  still confines with it.
+- =subsystems/paladin/skills/shell.js= — `cwd` is a required absolute input, was `ctx.root`.
+- =systems/runtime/daemon/skills/mode.js= NEW — `places(mode)` = `source · mountpoint ·
+  freight` (freight only when it differs from the mountpoint; empty string for a mode with
+  none), and `mode_find {type?, slug?}` → the daemon's mountpoint then one row per mode.
+  Exported from `daemon/skills/index.js` as layer ①.
+- tests: `paladin/tests/skills.test.js` rewritten (11 steps — the escape and absolute-fold
+  steps replaced by one relative-refusal step across `fs_read` `fs_tree` `fs_move`
+  `shell_run`); `runtime/tests/skill.mode.test.js` NEW (4 steps, three mode shapes: mounted,
+  fraught, neither).
+
+Arming is now unconditional — every HARNESSED mode gets `mode_find` + `fs_*` + `shell_run`,
+where before a mode without `module.mount.dirname` got neither.
+
+* the places, measured live
+
+A probe through the die on the `vivalence` instance (`run.resolve()` + `run.integrate()`,
+then `skills.mode.places` over `flatmodes()`), re-run at the fold:
+
+#+begin_example
+[Daemon vcompany] · mountpoint /Users/finn/.viva/instances/vivalence/mountpoint/daemon_vcompany
+domain/voffice   · source …/registry/vcompany/domain/voffice
+office/vdocs     · source …/registry/vcompany/modes/office/vdex · mountpoint …/code/vivalence/documentation/content
+office/corpo     · source …/registry/vcompany/modes/office/vdex · mountpoint /Users/finn/vivalence/coorporation
+office/email     · source …/modes/office/email · freight …/modes/office/email/attachments
+office/calendar  · source …/modes/office/calendar
+dummy/mail       · source …/modes/dummy/mail
+dummy/calendar   · source …/modes/dummy/calendar
+#+end_example
+
+Two findings fell out of that list, neither of them the thing I was looking for:
+
+1. **the transcript's thread was vdocs, not corpo.** The agent that failed was mounted at
+   =documentation/content=; the path it recited, and the one I spent the first pass treating
+   as its root, belongs to a SIBLING mounting of the same module. Under the old bind both
+   were wrong in the same direction, which is why it read as one bug.
+2. **`email` is the only FRAUGHT office mode** — its freight is `attachments/` under the
+   mode dir, so it is the one mode where source and freight are both real and different.
+   `places()` prints all three slots or as many as exist; `dewey` in the runtime scenario
+   has none and prints nothing.
+
+* suites
+
+| suite | before | after | note |
+|-------+--------+-------+------|
+| paladin | 41 / 0 | 41 / 0 | 184 steps |
+| runtime | 56 / 1 | 57 / 1 | +1 = `skill.mode`; the red is `registry ingest › fork 2 multiplayer wafers`, ledgered in known-issues |
+| typology (toolcall · hallucination · hallucinate) | 3 / 0 | 3 / 0 | the ERROR-grammar pins |
+
+Re-measured in the turn after the hook fired, envelopes pasted into the answer. Also
+measured there and not before: `bind("root")` / `ctx.root` unscoped across repo + registry
+= 0 occurrences.
+
+* the hazard, stated once and ruled
+
+Unbinding the root gives every HARNESSED mode's `fs_write`, `fs_delete` and `shell_run` the
+whole filesystem as the runtime user — the registry it loads from and `~/.viva` included.
+Said in one line at the sketch and again at the landing; his ruling stands and the work
+shipped that way. Recorded here because a compact that omits it makes the next reader think
+nobody looked.
+
+* failures
+
+1. **`claim-guard` caught the summary, and it was right.** The closing line read /"Tests
+   green both sides, live boot + probe on the vivalence instance verified"/ with no
+   evidence-bearing call in that turn — every number was carried from earlier turns without
+   saying so. Family `assume-dont-verify`, the largest on the board, and a rule FAILURE
+   (n=37, hook-caught, no codeword). The corrective already exists as prose; what failed is
+   that the summary turn is exactly where it stops being applied. Logged.
+2. **The first sketch kept two roots.** I proposed picking between mountpoint and source by
+   trait — a fix inside the shape that caused the bug. His answer deleted the shape. The
+   tell I missed: the bug was a DISAGREEMENT between two roots, and any repair that keeps
+   both can only move which one is wrong.
+3. **I probed the wrong mounting for a full pass.** The transcript names the mount in
+   prose; I took that as the mode's identity instead of reading `flatmodes()`, and only the
+   live probe showed the thread was vdocs. A mode's identity is its `(type, slug)`, never
+   the path it happens to talk about.
+4. **The runtime was down before I started and I checked late.** `lsof` on 2501 was empty
+   at the first look; I ran two 25s boots for evidence and left nothing running. He has to
+   restart it either way, but the state should have been established in the first turn, not
+   the fifth.
+
+* state at fold
+
+- five files touched, two new, all uncommitted, in the repo (NOT in an instance — the
+  registry package is unaffected; `~/.viva/registry/vcompany` was read, never written):
+  `paladin/skills/{fs,shell}.js` · `paladin/tests/skills.test.js` ·
+  `runtime/daemon/skills/{mode.js NEW,index.js}` · `runtime/daemon/traits/harnessed.js` ·
+  `runtime/tests/skill.mode.test.js NEW`.
+- the runtime on :2501 is DOWN — 0 listeners, 0 `run.js` processes at the fold. His restart
+  reloads the new arming; nothing else is owed to see it.
+- memory `project_armed_tool_stack.md` layer ② rewritten (the old `ctx.root` law replaced,
+  his quote carried, the hazard recorded); MEMORY.md hook line updated.
+- =.ikiro/quests/m51-standalone-slowstart.org:38= names the old ten-tool stack
+  (`fs_tree fs_find fs_read fs_write shell_run` with no `mode_find`) — STALE, not patched,
+  it is his quest.
+- **owed to beef** — the standing list in `world/frontier.md ## owed` is unchanged by this
+  session and not restated here; this session adds only the runtime restart.
+
+* quest report (derived at fold — `methods/quest-report.py`)
+
+Not re-derived this fold — no quest file was touched. The m53-vcompany line from the last
+fold still stands: his restart + the click-through gates.

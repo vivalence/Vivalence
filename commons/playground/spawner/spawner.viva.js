@@ -1,10 +1,11 @@
-import { App, Vector, v } from "@vivalence/typology";
+import { App, v, Vector } from "@vivalence/typology";
 
 export const manifest = {
   type: "playground",
   slug: "spawner",
   name: "Spawner",
-  description: "Render-phase rig — the persistent hub that spawns Spawned buffers.",
+  description:
+    "Render-phase rig — the persistent hub that spawns Spawned buffers.",
   version: "0.1.0",
   traits: ["APPLICATION", "STANDALONE", "EMITTER"],
 };
@@ -21,8 +22,11 @@ export const emitter = new Vector().open(
     // console.log("playground/spawn", ctx.input);
     const spawned = ctx.daemon.modes.playground.spawned;
     // emit `count` render targets; no self-sentinel — the single spawner buffer is the hub.
-    for (let index = 0; index < ctx.input.count; index++)
-      ctx.pool.add(spawned.buffer({ data: { label: `spawned ${index}`, index } }));
+    for (let index = 0; index < ctx.input.count; index++) {
+      ctx.pool.add(
+        spawned.buffer({ data: { label: `spawned ${index}`, index } }),
+      );
+    }
   },
 );
 

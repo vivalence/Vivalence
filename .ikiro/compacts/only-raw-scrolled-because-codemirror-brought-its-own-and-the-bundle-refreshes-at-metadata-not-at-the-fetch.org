@@ -1,0 +1,290 @@
+#+title: only raw scrolled because codemirror brought its own — and the bundle refreshes at metadata, not at the fetch
+#+filetags: :m53:vdex:runtime:bundler:esbuild:drapes:svelte:dev:content-addressing:known-issues:
+#+index: 21
+#+session: 6 beef turns, walked oldest first
+
+* one breath
+
+He opened with a scroll bug and it ended in the bundler. Only =raw= scrolled because CodeMirror ships its own
+=.cm-scroller=; =read= and =edit= were flex children of an =overflow: hidden= column carrying nothing but
+padding, so they shrank below their content and the parent clipped them. Three CSS lines. Then he asked whether
+dev still rebuilds on every hit — it never did, and tracing why exposed something better than the answer: the
+artifact route *cannot* be the refresh seam, because it is content-addressed on the OUTPUT digest. A hit names
+the hash that is already stale, the client memoizes by integrity, and =Frame.identity()= is =view.hash= — so the
+route is never even re-requested. The one live seam is =/metadata/app=, a lazy closure the client re-reads on
+every mode boot. That landed. And the store all of this writes into has never pruned once — 757 artifacts — so
+he reasoned out loud toward a reaper, killed his own design mid-sentence, and told me to file it.
+
+* the spine — 6 turns
+
+** 74 · /"in vdex, i cant scroll on read or edit. only raw scrolls"/
+
+Read =buffer/parts/Reader.svelte=. =.reader= is =display:flex; flex-direction:column; min-height:0;
+overflow:hidden=. =.raw= carries =flex:1; min-height:0= and CodeMirror owns a scroller inside it. =.read= and
+=.edit= carried =padding= and nothing else. Patched the shared rule; no other file touched.
+
+** 75 · /"check the bundler. is it still that we rebuild the bundles on every hit in dev?"/
+
+NOTHING landed — measurement only. Answer: no, and it never was per-hit. Walked =traits/application.js= →
+=belt/bundler.js= → =lifecycle/resolve.js= → =prototypes/bundle.js= → the kajuit client trait → =Frame.svelte=.
+
+** 76 · /"i'd want to bundle if dev on every hit. maybe runtime attachments is the place? not sure. look ta both and propose"/
+
+Looked at both seams as asked and ruled his guess out with the reason, not a preference. Proposed T1 (the
+metadata seam), T2 (an mtime gate needing an esbuild metafile — typology, so asked rather than proposed), T3
+(prune).
+
+** 77 · /"go on application.js and metadata.js"/ + the T3 think-aloud
+
+Landed T1 with an in-flight guard. Then the second half of the same turn, verbatim: /"and t3. lets think
+aaabout how to do this. we want a cleanup process in the runtime. runtime goes through the waste and cleans up
+anything older than xyz or something. no that would force the runtime to regularly re-compile. stupid. hmmm. no
+clue. mark this in ikiro for later"/ — filed, not built.
+
+** 78 · /"ikiro compact"/
+
+This fold.
+
+** 79 · =/compact=
+
+The slash echo of 78. NOTHING.
+
+* the arc
+
+** only raw scrolled (74)
+
+=~/.viva/registry/vcompany/modes/office/vdex/buffer/parts/Reader.svelte=:
+
+#+begin_src css
+  .read,
+  .edit {
++   flex: 1;
++   min-height: 0;
++   overflow: auto;
+    padding: 40px 24px 120px;
+  }
+#+end_src
+
+=min-height: 0= is the load-bearing half. A flex item defaults to =min-height: auto=, which refuses to shrink
+below its content, so =overflow: auto= never fires — the item pushes past the container instead of scrolling
+inside it. =.reader= already knew this and set it on itself; the children did not inherit the lesson. The later
+=.edit { padding: 24px }= rule still wins on padding — same specificity, later declaration, and it redeclares
+only =padding=.
+
+Shelf file, no VCS, inside his standing grant.
+
+** what the bundler actually does (75)
+
+The chain, measured rather than recalled:
+
+#+begin_example
+boot → stagger(APPLICATION) → deferred
+  └─ paladin.bundler(store).bundle({ kind:"svelte", entry })
+       source === null → SKIPS the disk probe → always compile
+       hash = digest(OUTPUT text) → write <store>/bundle/<hash16>.svelte.mjs
+
+per hit  /attached/bundle/<mode.mount>/<hash16>.svelte.mjs
+  └─ bundler.serve() → read.text(disk) + crypto.digest   ← disk read + sha256 EVERY request, no compile
+
+client   Bundle.load() → module-level `verified` Map keyed by integrity
+  └─ after the first import: no fetch either
+#+end_example
+
+=belt/bundler.js= probes the cache only on the =source= branch. It cannot probe on the =entry= branch: the hash
+is of the OUTPUT, so it has to compile to learn the key. Source-based views (GENERATIVE) hash the input and do
+hit the cache; every mode buffer is entry-based and recompiles each boot.
+
+Measured, so the proposal carried numbers rather than adjectives:
+
+#+begin_example
+Vdex.svelte  →  858ms cold · 426ms warm · 6385 kb out (inline sourcemap, dev)
+~/.viva      →  757 *.svelte.mjs, nothing ever unlinked
+                stucatch/dashboard/watch/bundle/ alone holds 15 generations
+                office/vdocs + office/corpo hold the SAME hash — one module, two mountings, two stores
+#+end_example
+
+=--watch= does not help either: it follows the module graph, and =.svelte= files never enter it — esbuild reads
+them off disk. Mode =.js= changes restart the watcher; buffer views do not.
+
+** the seam he guessed at, and why it cannot take it (76)
+
+He guessed runtime attachments. It is the intuitive place and it is the one place that cannot work, for three
+independent reasons that all reduce to content addressing:
+
+- =serve()= looks up by the requested stem. A fresh compile writes a DIFFERENT stem, so the request still reads
+  the stale file.
+- Serve the new bytes under the old path anyway and the client throws =integrity sha256 X is not Y= —
+  =entry.integrity= came from metadata.
+- Worst: *the route is never hit twice.* =Bundle.load()= memoizes in a module-level =verified= Map keyed by
+  integrity, and =Frame.identity()= is =record.hash=. Same hash → the =$effect= early-returns, no fetch at all.
+  Recompiling at a route nobody re-requests is a no-op.
+
+It *can* be made to work there — stable dev path, =integrity: null=, recompile in =serve()=; =load()= skips both
+memo branches when integrity is null. But it buys the refresh by turning content addressing off in dev, so dev
+and prod take different paths through =bundle()=, =View= and =Bundle.load()=. That is the class of bug you
+cannot reproduce, and it was worth saying out loud rather than just picking the other option.
+
+** the landing (77)
+
+=/metadata/app= is a *lazy closure evaluated per request*, and the only place the hash crosses to the client.
+Recompile there and the existing reactive chain does the rest untouched:
+
+#+begin_example
+GET /mode/office/vdex/metadata/app   (dev)
+  → recompile → new hash + integrity → mode.app.view replaced
+  → client APPLICATION sets mode.app store
+  → a.svelte `view` re-derives          ($app is a store, chain() is live)
+  → Frame identity(view) changed → teardown → load() → new path, verified MISS → fresh import
+#+end_example
+
+=systems/runtime/daemon/traits/application.js= — the compile lifted to a callable:
+
+#+begin_src js
+  let compiling = null;
+  mode.app.compile = () => {
+    compiling ??= (async () => {
+      const store = `${daemon.mountpoint.absolute}/bundles/${mode.manifest.type}/${mode.manifest.slug}`;
+      mode.app.view = await paladin.bundler(store).bundle(
+        mode.app.source
+          ? { kind: "svelte", source: mode.app.source }
+          : { kind: "svelte", entry: entry.absolute },
+      );
+      return mode.app.view;
+    })().finally(() => (compiling = null));
+    return compiling;
+  };
+
+  return () => mode.app.compile();
+#+end_src
+
+The guard is not decoration. =/metadata/app= is now hit by every client mode boot, so two terminals opening
+together would compile the same entry twice and race on =mode.app.view=. Promise memo, set synchronously before
+the first await, cleared in =finally= — the =lighthouse.populate= shape.
+
+=systems/runtime/daemon/aperture/metadata.js=:
+
+#+begin_src js
+     if (mode.implements("APPLICATION"))
+       meta.open("/app", async () => {
+         if (paladin.is.dev) await mode.app.compile();
+         return {
+           url: die.good.attach.branch("/bundle").branch(mode.mount.absolute).absolute,
+           view: mode.app.view.json,
+           schema: mode.app.schema ?? null,
+         };
+       });
+#+end_src
+
+=paladin.is.dev= is live and was verified rather than assumed: =paladin.mode= = =env.get("VIVA_SYSTEM_MODE")=,
+and =~/.viva/.env:1= claims =DEVELOPMENT= at the lowest (ledger) stratum, =populate.js:89=. Nothing else sets
+it, so it holds locally and is absent in a container.
+
+Cadence stated plainly rather than sold: the client calls =/metadata/app= once per mode boot, so /"every hit"/
+lands as *every page reload*, not every artifact fetch. The artifact fetch is by definition the thing that must
+not change.
+
+=deno check= clean on both files (its 92 errors are the pre-existing MikroORM =.ts= typings — why every test
+task carries =--no-check=). One-shot =deno test -A --no-check tests/mode/ tests/daemon/= → *17 passed (122
+steps) · 0 failed*. Comment gate run on my own diff: clean.
+
+** T3, marked not built (77)
+
+He talked himself out of his own design inside one turn, and the reason is the keeper. Filed whole at
+=known-issues.org= → =* bundle-store-never-prunes=, his words quoted:
+
+#+begin_quote
+we want a cleanup process in the runtime. runtime goes through the waste and cleans up anything older than xyz
+or something. no that would force the runtime to regularly re-compile. stupid. hmmm. no clue.
+#+end_quote
+
+He is right, and the entry says why in one line: *the only pointer to the live artifact is =mode.app.view.mount=,
+held in the runtime's memory* — not on disk, not in the ledger. Sweep by age and you either delete what a
+running daemon is still serving, or you have to ask the runtime what is live, at which point age was never the
+key.
+
+The key that IS available: *supersession, not age.* =compile()= holds both hashes, the one it replaces and the
+one it just minted; everything else under that mode's =bundle/= is dead the instant they differ. One
+=Deno.remove=, no inference, no reaper. It only prunes forward — the standing 757 need a one-shot, and that one
+CAN be age-keyed because nothing serves them.
+
+Four things a go would still have to decide, all in the entry: whose verb (=paladin.bundler= mints and serves
+but only the trait knows what is live; runtime lifecycle is his first instinct and a real third option); whether
+prod wants it at all (prod compiles once per deploy, and deleting costs the rollback); what happens to a store
+two daemons share; and whether the store should key on MODULE identity rather than mounting — which collapses
+=vdocs=/=corpo= from two byte-identical artifacts to one and shrinks the problem before anyone prunes it.
+
+* the failures worth keeping
+
+*I prescribed a verification step for a layer I had not traced.* At the end of 74 I told him to /"reload the
+buffer"/. A reload could not possibly have picked that fix up — the daemon still advertised the old
+=view.mount= hash and the client still held the old integrity in =verified=. My own answer at 75 is what proved
+my instruction at 74 wrong. The rule: a fix lands in a file; the file sits behind a build; do not name the
+verification step until the build is traced. /"Reload"/ and /"restart"/ are not interchangeable and the
+difference is exactly one unexamined layer.
+
+*A loose end I flagged twice instead of checking once.* The previous fold recorded
+=modes/office/email/attachments= as an empty directory I had created, /"left in place because deleting it risks
+the FRAUGHT walk"/ — carried forward as dangling. It is nothing of the kind: =email.viva.js:21= declares
+=export const freight = new Freight("attachments")=, it now holds =email.0e4f88b1/= and =email.5f3a9c1e/=, and
+=traits/index.js carry()= mints it with =paladin.state.dir(root)= before walking. It is the mode's declared
+freight root and always was. Two folds of "flagged for his call" that one =grep= dissolved. SETTLEMENT exists
+for exactly this shape, and it did not fire last time because I treated my own uncertainty as the finding.
+
+*A raw =--help= is not documentation.* =quest-report.py --help= has no help handler and simply ran the report.
+Harmless here, but the reflex to trust a flag I had not read is the same reflex as above.
+
+* state at fold
+
+*Landed, uncommitted.* 84 files dirty across this session and the several before it. Nothing in this window is
+committed, and nothing was proposed for commit.
+
+- =~/.viva/registry/vcompany/modes/office/vdex/buffer/parts/Reader.svelte= — three CSS lines. Shelf, no VCS.
+- =systems/runtime/daemon/traits/application.js= — =mode.app.compile()= + in-flight guard; finalizer reduced to
+  =() => mode.app.compile()=.
+- =systems/runtime/daemon/aperture/metadata.js= — =paladin= imported; =/app= async, recompiles when
+  =paladin.is.dev=.
+- =.ikiro/known-issues.org= — =* bundle-store-never-prunes= appended, his reasoning quoted.
+- =.ikiro/world/codemap/runtime.md= — the APPLICATION line claimed /"bundle CACHED — restart to re-bundle"/,
+  which this landing made false; restamped with the seam, the cadence, the numbers and the =is.dev= provenance.
+
+*Suites.* runtime =tests/mode/ tests/daemon/= one-shot: 17 passed · 122 steps · 0 failed. Nothing else run.
+
+*Not verified live.* Both landings want his restart. Neither has been seen in a browser.
+
+*No quest touched, deliberately.* The scroll fix is =m53-vcompany.v3-vdex= territory and the bundler seam has no
+quest; the report shows =m53-vcompany.v3-vdex= held by *three* live sessions and =m53-vcompany= by two, so
+writing into either this minute would stomp a sibling. The durable record is known-issues + the codemap + this
+fold.
+
+* resumption (owed beef)
+
+- *His restart, then the two click-throughs.* Open vdex, =read= and =edit= should scroll. Then edit a buffer
+  view's source, reload the page, and the change should be on screen without a runtime restart — that is the
+  whole point of the landing and it has never been seen working.
+- *Watch the reload cost.* Seven modes, and =vdocs=/=corpo= compile the same entry twice, so a reload now pays
+  roughly eight compiles. At 426ms warm that is ~3.4s and ~50 MB written per reload. If it drags, T2 is the
+  answer and it needs a typology yes: =gestalten/bundle/svelte.js= gains =metafile: true= and returns the input
+  list, so =compile()= can skip on an unchanged high-water mtime. The fallback that touches no typology is a
+  =paladin.find.walk= over the mode directory — cheap, and blind to drapes edits.
+- *=bundle-store-never-prunes=* — filed, unbuilt, his four decisions listed above.
+- Carried, unchanged, from the previous fold: a =name= in each kernel entry so the client stops printing =VDex=
+  twice; =office/calendar= =/mint= doing =findOne({slug: input.from})= with no ontology and no mode, a landmine
+  under two mounts; the third path-as-url site; the six LATER vdex items in the root quest.
+- =m53-vcompany.v3-vdex= stays live rather than sunsetting: it LANDED, but its gates are his click-throughs and
+  they have not run.
+
+* quest report (derived at fold — `methods/quest-report.py`)
+
+| quest                    | progress  | status                                | next                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                      | sessions   |
+|--------------------------+-----------+---------------------------------------+---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------+------------|
+| drapes-editor            | —         | landed — his click-through gates owed | his restart, then the eight click-through gates below. later, both his call: the language on `#+begin_src js` does not highlight its body; the markdown fence is the same trade.                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                          | 1 (1 live) |
+| m46-linux-readmen        |  17% 3/18 | wip                                   | drain                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                     | 6          |
+| m50-the-three-way-weave  |  60% 3/5  | wip                                   | blast                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                     | 1          |
+| m51-standalone-slowstart |   0% 0/18 | design                                | go                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                        | 1          |
+| m53-vcompany             |   0% 0/5  | open                                  | **t1.1** h1 · e1 · p1 · t1 · b1 · k1 + s1 · x1 · x2 · x3 + i1 (the index as rows) landed on the shelf; blocked on **r1** (paladin =resolve= percent-encodes — one-line diff + one test in the quest, his go, repo): the four reds (tools file · move; snapshots tools · aperture) are r1 and nothing else; a1 struck (the app is the sibling's v3); d1 (readme) on go; the =open= schematic on buffer-data level — sketch in "landed", his word; officers out by his order; then **the slow first attach** (the boot race under `instance/run`) → gs1/gs2 click-through after restart; the bundle weight ledgered, direction his; s3 voffice → s4 desk on go; `* t1.#2` his call; the runtime's m:n =cascade.remove= both ways ledgered as a landmine (his)                                                                                                                                                                                                                                                                                                               | 4 (1 live) |
+| m53-vcompany.pre         | —         | open                                  | t1 package setup — the m27 gate moves to the executive stage; t1–t3 do not wait on it                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                     | 2          |
+| m53-vcompany.v3-vdex     | —         | landed                                | one restart carries both — the new pdf viewer (=paper.svelte=) and the cargo fix (=freight.js=, uncommitted); then open a spaced-name pdf: it should render, page nav and zoom live, the rail on ▤. the six later items stay marked in the root quest.                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                    | 2 (2 live) |
+| m53.v4-mail+calendar     | —         | landed                                | the six office test files — =office/email/tests/{aperture,tools,email.snapshot}.test.js= and =office/calendar/tests/{aperture,tools,calendar.snapshot}.test.js=; =/key=, the held send and the thread walk are landed and untested. then his restart + the click-through gates. open, not mine: the sibling's mode-ownership landing duplicates every symbol (16 rows, 8 distinct, the dummy's copies bare), which contradicts this quest's law that the office declares the scheme and the provider carries the rows.                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                    | 1 (1 live) |
+| m54-buffer-file          |   0% 0/4  | open                                  | reconcile with m53 =* t1.1= and =m53-vcompany.v3-vdex= first (three quests, one seam, all waiting on go; v3 splits the app into a shell + 7 parts + =buffer/jdex.js= and already points here for file upload — m54's app hunk names the single =vdex.svelte= and must be re-cut onto whichever lands first) (a sibling session, beef's rulings there: the vdex speaks slugs — =/document /write /file /move /delete= implemented once in the aperture, tools wrap =mode.call.<verb>=, =fs_*= slurp gone on vdex; =open= is an emitter; the boot watches files and syncs per path — /"shouldnt this watch files??!!!"/; /"wtf is daemon traits stamp????"/ → gone) — three seams now name the verbs' home (t1.1 aperture · m54 sketch · mikro-first repository), beef arbitrates; then beef reopens the questioned block when ready — order of design there is mikro entity + bufferrepository verbs → typology verb contract → shard mounts → remoterepository mirrors → kajuit. until then m1 = everything but the verbs. "go m1" → full hunks against the tree as read. | 1          |
+| m55-recursive-terminals  |  20% 3/15 | wip                                   | go m2 — the kajuit terminal: up · down · status · stop · run · watch, the tree, the schematic, panel f                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                    | 3 (2 live) |
+| m56-the-pincer-turns     | 100% 2/2  | verify                                | live-walk c at both aspects · markers 2·3·4·10·13·14 need a dom                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                           | 1 (1 live) |

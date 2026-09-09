@@ -1,5 +1,6 @@
 #+title: the dictation patch fails its design pass, the quest reframes to capabilities, and the converse frame lands as a verified patch
 #+filetags: :m33:m37:dictation:converse:verbatim:vocal:deepgram:harnessed:kajuit:dock:typology:multiplex:connection:critical-pass:quest:
+#+index: 55
 #+spine: 11 beef turns (16 raw, 5 queue duplicates collapsed) — walked oldest first, every n accounted for.
 
 * the walk (rows — every section below cites these)

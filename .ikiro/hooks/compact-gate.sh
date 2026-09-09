@@ -20,8 +20,23 @@ fi
 
 : > "$stamp"
 
+# derived-canon-drift, mechanical: the three counts that rotted while every reminder was in force
+root="${CLAUDE_PROJECT_DIR:-.}/.ikiro"
+files=$(ls "$root"/compacts/*.org 2>/dev/null | wc -l | tr -d ' ')
+indexed=$(grep -cE '^ ?[0-9]+\. ' "$root/compacts/index.md" 2>/dev/null)
+stray=$(awk '/^## Callouts/{c=1} /^### /{if(!c) n++} END{print n+0}' "$root/zettelkasten.md")
+over=$(for f in "$root"/self/*.md "$root"/world/*.md "$root"/world/codemap/*.md; do
+  lim=$(grep -oE 'limit: [0-9]+ chars' "$f" | grep -oE '[0-9]+'); [ -n "$lim" ] || continue
+  n=$(wc -c < "$f"); [ "$n" -gt "$lim" ] && printf '%s %s/%s ' "$(basename "$f")" "$n" "$lim"; done)
+{
+  echo "ikiro compact ritual has not run this session."
+  echo
+  echo "drift (fix in the fold, do not carry):"
+  echo "  compacts on disk $files · indexed $indexed  → python3 .ikiro/methods/compact-index.py"
+  echo "  ### headings above ## Callouts: $stray  (must be 0)"
+  echo "  over char budget: ${over:-none}"
+} >&2
 cat >&2 <<'GATE'
-ikiro compact ritual has not run this session.
 
 Fold the session FIRST, then /compact again (the retry is never blocked).
 

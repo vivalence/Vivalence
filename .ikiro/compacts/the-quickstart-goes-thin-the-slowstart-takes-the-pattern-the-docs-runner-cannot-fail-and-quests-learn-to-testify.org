@@ -1,5 +1,6 @@
 #+title: the quickstart goes thin, the slowstart takes the pattern, the docs runner cannot fail, and quests learn to testify
 #+filetags: :docs:documentation:readme:ghost:ledger:registry:tangle:quest:qa:meta:m44:
+#+index: 102
 
 * what happened, in one breath
 

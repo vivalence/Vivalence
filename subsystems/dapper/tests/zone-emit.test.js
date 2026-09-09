@@ -2,7 +2,12 @@ import { specimen } from "@vivalence/typology";
 import colors from "../lib/colors.js";
 import tokens from "../lib/tokens.js";
 import nordic from "../themes/nordic.js";
-import { generateCSS, generateZoneCSS, ZONE, ZONE_COUNT } from "../lib/flatten.js";
+import {
+  generateCSS,
+  generateZoneCSS,
+  ZONE,
+  ZONE_COUNT,
+} from "../lib/flatten.js";
 
 async function build() {
   const ds = { colors: {}, tokens: {}, themes: {} };
@@ -42,18 +47,29 @@ specimen.describe("theme POJO — zones array", () => {
     }
   });
 
-  specimen.it("each zone has 7 interactive roles with base/hover/active", async () => {
-    const ds = await build();
-    const roles = ["primary", "secondary", "accent", "info", "success", "warning", "danger"];
-    for (let index = 0; index < 6; index++) {
-      const zone = ds.themes.nordic.zones[index];
-      for (const role of roles) {
-        specimen.expect(typeof zone[role].base).toBe("string");
-        specimen.expect(typeof zone[role].hover).toBe("string");
-        specimen.expect(typeof zone[role].active).toBe("string");
+  specimen.it(
+    "each zone has 7 interactive roles with base/hover/active",
+    async () => {
+      const ds = await build();
+      const roles = [
+        "primary",
+        "secondary",
+        "accent",
+        "info",
+        "success",
+        "warning",
+        "danger",
+      ];
+      for (let index = 0; index < 6; index++) {
+        const zone = ds.themes.nordic.zones[index];
+        for (const role of roles) {
+          specimen.expect(typeof zone[role].base).toBe("string");
+          specimen.expect(typeof zone[role].hover).toBe("string");
+          specimen.expect(typeof zone[role].active).toBe("string");
+        }
       }
-    }
-  });
+    },
+  );
 
   specimen.it("each zone has error box triplet", async () => {
     const ds = await build();
@@ -92,7 +108,8 @@ specimen.describe("zone CSS emission", () => {
   specimen.it("emits .zone-N scoped blocks for all 6 zones", async () => {
     const css = await emit();
     for (let index = 0; index < 6; index++) {
-      specimen.expect(css.includes(`:root[data-theme="nordic"] .zone-${index}`)).toBe(true);
+      specimen.expect(css.includes(`:root[data-theme="nordic"] .zone-${index}`))
+        .toBe(true);
     }
   });
 
@@ -114,12 +131,17 @@ specimen.describe("zone CSS emission", () => {
     specimen.expect(css.includes("--zone-error-boundary:")).toBe(true);
   });
 
-  specimen.it("emits font variables on :root[data-theme] (not per zone)", async () => {
-    const css = await emit();
-    specimen.expect(css.includes("--zone-font-heading: sans-heading;")).toBe(true);
-    specimen.expect(css.includes("--zone-font-body: sans-text;")).toBe(true);
-    specimen.expect(css.includes("--zone-font-code: code;")).toBe(true);
-  });
+  specimen.it(
+    "emits font variables on :root[data-theme] (not per zone)",
+    async () => {
+      const css = await emit();
+      specimen.expect(css.includes("--zone-font-heading: sans-heading;")).toBe(
+        true,
+      );
+      specimen.expect(css.includes("--zone-font-body: sans-text;")).toBe(true);
+      specimen.expect(css.includes("--zone-font-code: code;")).toBe(true);
+    },
+  );
 
   specimen.it("zone 0 block has correct surface hex", async () => {
     const css = await emit();
@@ -127,14 +149,22 @@ specimen.describe("zone CSS emission", () => {
     specimen.expect(zone0Block.includes("--zone-surface: #06101D;")).toBe(true);
   });
 
-  specimen.it("legacy --colors-skeleton-N-* variables still emitted", async () => {
-    const css = await emit();
-    specimen.expect(css.includes("--colors-skeleton-0-surface:")).toBe(true);
-    specimen.expect(css.includes("--colors-skeleton-1-primary-base:")).toBe(true);
-  });
+  specimen.it(
+    "legacy --colors-skeleton-N-* variables still emitted",
+    async () => {
+      const css = await emit();
+      specimen.expect(css.includes("--colors-skeleton-0-surface:")).toBe(true);
+      specimen.expect(css.includes("--colors-skeleton-1-primary-base:")).toBe(
+        true,
+      );
+    },
+  );
 
-  specimen.it("does not emit zone-N blocks without --colors- prefix", async () => {
-    const css = await emit();
-    specimen.expect(css.includes("--zone-skeleton-")).toBe(false);
-  });
+  specimen.it(
+    "does not emit zone-N blocks without --colors- prefix",
+    async () => {
+      const css = await emit();
+      specimen.expect(css.includes("--zone-skeleton-")).toBe(false);
+    },
+  );
 });

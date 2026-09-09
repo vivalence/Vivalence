@@ -1,5 +1,6 @@
 #+title: the audit proved the quest honest, then the red team proved the thread was never owned — only filtered
 #+filetags: :m25:security:thread:harnessed:mikro:idor:audit:breakage:
+#+index: 28
 
 * arc
 

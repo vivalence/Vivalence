@@ -175,7 +175,7 @@ blast-bracket with full-RUNTIME-suite bookends (runtime-wide, like strip) → me
 * Decisions locked
 - *Belt is the home* for the async-control atoms (already holds =retry/resilient/
   batched/linear= + =fn.once/debounce= + =sleep=). A =prototypes/waiter.js= would be
-  the wrong shelf.
+  the wrong instance.
 - *Extract atoms, not characters.* Role-fit families (Vector consumers, stream
   channels) stay distinct. This is the central lesson — see =## code= the
   Vector-consumer principle.

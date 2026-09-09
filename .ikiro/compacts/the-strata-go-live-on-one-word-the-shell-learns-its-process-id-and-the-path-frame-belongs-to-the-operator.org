@@ -1,5 +1,6 @@
 #+title: the strata go live on one word, the shell learns its process id, and the path frame belongs to the operator
 #+filetags: :paladin:ghost:ledger:typology:env:cli:m41:paths:landing:callout:
+#+index: 128
 
 * what happened, in one breath
 

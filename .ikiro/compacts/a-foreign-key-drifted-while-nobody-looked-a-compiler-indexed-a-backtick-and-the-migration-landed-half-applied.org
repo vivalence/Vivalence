@@ -1,0 +1,198 @@
+#+title: a foreign key drifted while nobody looked, a compiler indexed a backtick, and the migration landed half-applied
+#+filetags: :mikro:sqlite:migration:buffer:thread:datamap:italian:instance:debugging:claim-guard:
+#+index: 146
+
+* spine (3 turns extracted, 3 of 3 covered)
+
+| n | kind | beef, verbatim | what landed |
+|---|---|---|---|
+| 1 | prompt | a 36k-char terminal paste — two =jj git push=, =ledger/doctor=, =instance/doctor=, a hello-world run, then the italian boot dying on =MigrationError= — ending /"some migration rewrote traits rename or remove and now the migration detects old data. again. which is it? find a fix"/ | the root cause, which was neither; the repair, applied and booted |
+| 2 | harness | the =superpowers:systematic-debugging= skill body, injected by the Skill tool | NOTHING — not beef's words; the four-phase gate it imposes shaped the whole turn |
+| 3 | prompt | /"ikiro compact"/ | this file |
+
+Two harness interjections carried weight and belong in the record even though the
+extractor correctly drops them: the **claim-guard stop hook** fired on the word *verified*
+and forced a measured envelope (below), and =/effort low= landed with the compact order.
+
+* the question was a false dichotomy
+
+beef's read — *"rewrote traits rename or remove"* — assumed the defect was in the =traits=
+column, and the *"again"* pointed at a family of past renames. Neither half held. Nothing
+was renamed and nothing was removed. The migration failed on a line that mentions =traits=
+only because =traits= was the innocent bystander standing where the damage was written:
+
+#+begin_src sql
+alter table `Buffer` add column `traits` json not null default '[]'
+  constraint `Buffer_thread_foreign` references `Thread` (`id`) on update cascade on delete cascade;
+-- SQLITE_ERROR: Cannot add a REFERENCES column with non-NULL default value
+#+end_src
+
+A foreign key for =thread= welded onto the =traits= column. Two independent causes had to
+meet for that statement to exist.
+
+** cause one — a foreign key rule that drifted where no differ could see it
+
+=BufferEntity.thread= carries =deleteRule: "cascade"=, and has since ~09-07. The italian
+db was born 09-01 with =on delete set null=. Every db born after the entity change has the
+right rule; every db born before has the wrong one and has never been told.
+
+| db | Buffer.thread rule | born |
+|---|---|---|
+| =vcompany= · =hello= | =cascade= | after the entity change |
+| =italian= · all 5 =language-learning= | =set null= | before |
+
+The drift is invisible by construction: =checkMigrationNeeded()= and =createMigration()=
+diff against =.snapshot-*.json=, **never against the live database**. The snapshot said
+=set null= too, so for ten days there was nothing to report. The entity change alone was
+inert. It only became a diff when a second change to the same table arrived.
+
+** cause two — mikro's sqlite compiler indexes a string as if it were an array
+
+=@mikro-orm/knex/dialects/sqlite/SqliteTableCompiler.js:22=, verbatim:
+
+#+begin_src js
+const column = this.formatter.columnize(foreignInfo.column);
+const addColumnQuery = this.sequence.find((query) => query.sql.includes(`add column ${column[0]}`));
+// no need for temp tables if we just add a column
+if (addColumnQuery) {
+  addColumnQuery.sql += ` constraint ${keyName} references ${inTable} (${references})${onUpdate}${onDelete}`;
+  return;
+}
+#+end_src
+
+=columnize= returns a **string** — =`thread`= — so =column[0]= is a single backtick. The
+search for /"the add-column statement for this FK's own column"/ degrades into /"any
+statement containing =add column `="/, which is every added column on the table. The FK
+finds the first one and glues itself on. The optimisation's own comment states the
+precondition it then fails to check.
+
+Pinned upstream at =v6.6.16= — byte-identical logic, so this is not a stale pin. 7.x
+dropped knex entirely, which is a rewrite and not a fix to take.
+
+** the collision, stated once
+
+A sqlite table cannot receive **a changed FK rule and an added column in the same mikro
+diff**. Separately each is fine: the FK change alone routes through =getAlterTable= and its
+=__temp_alter= rebuild; the column alone is a clean =add column=. Together, the FK's
+temp-table path is skipped by an optimisation that then attaches the constraint to the
+wrong column. Every db still holding an old FK rule is armed, and fires on the next
+unrelated column added to that table.
+
+* the second wound — no transaction, so the failure is not atomic
+
+=commons/datamaps/libsql/libsql.viva.js= configures =migrations: { transactional: false }=.
+The migration that threw had already run every statement before the Buffer line. Measured
+on the live db before repair:
+
+| table | state after the "failed" migration |
+|---|---|
+| =Mode= | rebuilt via =__temp_alter=, done |
+| =Literal= · =Symbol= | =mode_id= column + index + unique index, done |
+| =Thread= | =parent= column + index, done |
+| =Buffer= | untouched — the crash |
+| =_mikro_migrations= | **two rows**, the 09-11 migration absent |
+
+So the db was in a state no migration describes: most of the work applied, nothing
+recorded, and the =.ts= file still on disk waiting to re-run from the top. A second boot
+would not have retried the Buffer line — it would have died earlier, on =drop index
+`Literal_slug_unique`=, an index the first pass had already dropped.
+
+** a third defect, found by reading the generated SQL rather than trusting it
+
+#+begin_src sql
+this.addSql(`pragma foreign_keys = on;drop index `Literal_slug_unique`;`);
+#+end_src
+
+Two statements in one =addSql=. The sqlite driver executes the first and discards the rest,
+so the pragma ran and the =drop index= silently did not. The index survived the migration
+that claims to remove it. This is why the repair script drops it by hand.
+
+* the repair, and why it was a table rebuild and not a migration
+
+The memory =feedback_mikro_owns_the_db= is unambiguous: never author a migration. It is equally
+unambiguous about the exception — a drifted dev db is repaired by **one table rebuild**,
+which is not a migration and does not compete with the differ. That is the path taken.
+
+Dry run first, on a copy, with the full entity assembly reproduced from
+=daemon/lifecycle/population.js= including the education domain tier:
+
+1. reproduce — the differ minted the corrupt =ALTER= byte-for-byte against the copy
+2. repair — rebuild =Buffer= to the entity's DDL using mikro's own =__temp_alter= recipe
+3. re-diff — =checkMigrationNeeded(): false=, nothing minted
+4. read back — the ORM returned the surviving buffer with =traits: []=, =trait: {}=, thread bound
+
+Then the same on the real db, after confirming zero holders on the file and free ports. The
+**snapshot was kept**, not reverted: it already describes the target state, so keeping it is
+what makes the differ go quiet. The failed =.ts= was deleted (captured to scratch first).
+
+** the envelope, measured after the boot
+
+#+begin_example
+Buffer columns      id,…,mode,thread,traits,trait
+Buffer FKs          thread→Thread CASCADE/CASCADE · mode→Mode CASCADE/CASCADE
+Literal_slug_unique 0 rows in sqlite_master
+_mikro_migrations   20260901142514 · 20260906141648   (files: same two + snapshot)
+integrity_check     ok · foreign_key_check empty
+boot.log            MigrationError|[migrator]|Uncaught → 0 hits · Status:ALIVE · launching on :2501
+ports 2501/1794     free
+#+end_example
+
+The boot ran the full dataset stamp reinstall — 6583 literals, 112+44+1+55 symbols, nine
+kernel modules — and reached =launching on http://localhost:2501/=.
+
+* the claim-guard caught the word "verified"
+
+The stop hook fired on *"Fix applied, verified"* — assume-dont-verify, family n=16, five
+failures, largest on the board. The complaint was exact: the turn asserted a completion and
+the measurement backing it lived in an **earlier** turn. The envelope above was then taken
+fresh, in the asserting turn, and pasted.
+
+Worth keeping, because the failure mode is subtle: the measurement had genuinely been made,
+and making it again changed nothing about the world. What it changed is whether the reader
+can tell a measured claim from a remembered one. The hook does not doubt the fact, it
+doubts the tense.
+
+* what is still armed
+
+The five =language-learning= dbs all carry =Buffer.thread on delete set null=, brazilian
+with 273 buffers. Their snapshots have **not** advanced, so they fire the same collision at
+their next boot. A FK-only repair script is written and NOT applied — it flips the rule and
+adds no columns, leaving mikro to mint =traits= / =trait= itself.
+
+Not applied because the instance may simply be dead. That is beef's call, not mine.
+
+* state at fold
+
+- =italian= instance — repaired, boots clean, 1 buffer / 6583 literals, integrity ok.
+- =language-learning= ×5 — armed, script ready, untouched.
+- =vcompany= · =hello= — unaffected, born after the entity change.
+- working copy — no repo edits this session. The =Buffer.ts= / =Thread.ts= changes that
+  triggered all this were already in the tree at session start (=BufferRepository=,
+  =BufferSubscriber=, =LABELED=, =Thread.bindBuffer=), uncommitted.
+- memory — =feedback_mikro_owns_the_db= gained mechanic (3): the sqlite FK+column
+  collision, the partial apply, the repair shape, and the glued-=addSql= trap. Index hook
+  updated.
+
+** markers
+
+=MARKERS.md= OPEN carries one entry, *cortex snapshot coverage vs the live strip*, from an
+earlier session. This session did no cortex work and did not settle it. It stays OPEN,
+untouched — recorded here so the next fold does not read its survival as an oversight.
+
+* quest report (derived at fold — `methods/quest-report.py`)
+
+| quest                      | progress   | status                                                                | next                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                | sessions |
+|----------------------------+------------+-----------------------------------------------------------------------+-------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------+----------|
+| drapes-editor              | —          | landed · the caret bug found and fixed — his click-through gates owed | rebundle + reload, then confirm the caret advances while typing (the one thing the fix is not yet proven against live). then the eight click-through gates below. later, both his call: the language on `#+begin_src js` does not highlight its body; the markdown fence is the same trade.                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                         | 2        |
+| m46-linux-readmen          |  17% 3/18  | wip                                                                   | drain                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                               | 3        |
+| m50-the-three-way-weave    |  60% 3/5   | wip                                                                   | blast                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                               | 1        |
+| m51-standalone-slowstart   |   0% 0/18  | design                                                                | go                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                  | 3        |
+| m53-vcompany               |   0% 0/1   | open                                                                  | his restart + the click-through gates (vdex 12 · mail/calendar 12 · gs1–gs6); the six office test files; the three stale vdex reds; then his call on the next stage — chat over telegram · vendor providers · the officer stage.                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                    | 5        |
+| m54-buffer-file            |   0% 0/4   | open                                                                  | reconcile with m53 =* t1.1= and the v3 vdex pass (both folded into =m53-vcompany.org=; originals =discarded/m53-vcompany.org= · =done/m53-vcompany.v3-vdex.org=) first (three quests, one seam, all waiting on go; v3 splits the app into a shell + 7 parts + =buffer/jdex.js= and already points here for file upload — m54's app hunk names the single =vdex.svelte= and must be re-cut onto whichever lands first) (a sibling session, beef's rulings there: the vdex speaks slugs — =/document /write /file /move /delete= implemented once in the aperture, tools wrap =mode.call.<verb>=, =fs_*= slurp gone on vdex; =open= is an emitter; the boot watches files and syncs per path — /"shouldnt this watch files??!!!"/; /"wtf is daemon traits stamp????"/ → gone) — three seams now name the verbs' home (t1.1 aperture · m54 sketch · mikro-first repository), beef arbitrates; then beef reopens the questioned block when ready — order of design there is mikro entity + bufferrepository verbs → typology verb contract → shard mounts → remoterepository mirrors → kajuit. until then m1 = everything but the verbs. "go m1" → full hunks against the tree as read. | 2        |
+| m55-recursive-terminals    |  20% 3/15  | wip                                                                   | go m2 — the kajuit terminal: up · down · status · stop · run · watch, the tree, the schematic, panel f                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                              | 4        |
+| m56-the-pincer-turns       | 100% 2/2   | verify                                                                | live-walk c at both aspects · markers 2·3·4·10·13·14 need a dom                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                     | 2        |
+| m57-hello-world-researches |  74% 20/27 | open                                                                  | restart (harnessed.js · generative.js · buffer.ts · thread.ts are repo files; buffer migrates). /"research flamingos, with a picture"/ → one <figure>, line reads the label. a follow-up change → `revised buffer <id> index 0 view <new>`, same line re-mounts, no cursor. /"call that page flamingos"/ → one buffer_label.                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                        | 3        |
+| m58-application-noun       | 100% 2/2   | designed                                                              | beef rules m1's three decisions and m2's one, then "go" per milestone — each under its own blast bracket, steps 1–6, one pass per step; the out-of-repo kernels overlap, so a same-day landing is one vcompany capture                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                              | 2        |
+| m60-lighthouse-security    |   0% 0/24  | designed                                                              | beef — rule f-name (`secure.claim`) and f-default (`invite`); then "go" per milestone                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                               | 1        |
+| m61-chess-domain           |   0% 0/20  | designed                                                              | beef — rule f1…f6; then "go" per milestone                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                          | 1        |
+| readme-can-i               |   0% 0/5   | design                                                                | go                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                  | 1        |

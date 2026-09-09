@@ -65,6 +65,12 @@
     "@codemirror/state": "npm:@codemirror/state@6",
     "@codemirror/view": "npm:@codemirror/view@6",
     "@codemirror/lang-javascript": "npm:@codemirror/lang-javascript@6",
+    "@codemirror/language": "npm:@codemirror/language@6",
+    "@codemirror/commands": "npm:@codemirror/commands@6",
+    "@codemirror/search": "npm:@codemirror/search@6",
+    "@codemirror/lang-json": "npm:@codemirror/lang-json@6",
+    "@lezer/markdown": "npm:@lezer/markdown@1",
+    "@lezer/highlight": "npm:@lezer/highlight@1",
     "@replit/codemirror-vim": "npm:@replit/codemirror-vim",
 
     "svelte": "npm:svelte@5.39.6",
@@ -136,6 +142,12 @@
     "echarts/core": "npm:echarts@6.0/core",
     "echarts/charts": "npm:echarts@6.0/charts",
     "echarts/components": "npm:echarts@6.0/components",
-    "echarts/renderers": "npm:echarts@6.0/renderers"
+    "echarts/renderers": "npm:echarts@6.0/renderers",
+
+    "three": "npm:three@0.186.0",
+    "three/addons/loaders/GLTFLoader.js": "npm:three@0.186.0/addons/loaders/GLTFLoader.js",
+    "three/addons/controls/OrbitControls.js": "npm:three@0.186.0/addons/controls/OrbitControls.js",
+    "@threlte/core": "npm:@threlte/core@8.6.0",
+    "@threlte/extras": "npm:@threlte/extras@9.21.1"
   }
 }

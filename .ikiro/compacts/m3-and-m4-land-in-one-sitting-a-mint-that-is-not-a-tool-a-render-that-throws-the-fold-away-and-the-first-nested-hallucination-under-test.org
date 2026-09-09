@@ -1,0 +1,201 @@
+#+title: m3 and m4 land in one sitting — a mint that is not a tool, a render that throws the fold away, and the first nested hallucination under test
+#+filetags: :m57:hello-world:commons:generative:emitter:tooled:harness:yield:nested:soma:stream:render:dapper:snapshot:rig:double-bind:rounds:walk:
+#+index: 17
+#+phase: closed
+
+* TOPIC
+
+M3 and M4 of m57, scouted and landed back to back. M3 is =page/=: the mint, the guard, the house
+style, and the first mode to declare EMITTER + GENERATIVE together — which is the path where the
+double-bind lives. M4 is =research/=: the nested agent, and the first offline test anywhere of a
+hallucination inside a tool call.
+
+The through-line, third time in a row: M1's defects were properties nobody declared, M2's were
+claims nobody measured, and M3/M4's were *plans that read the wrong file*. The tangle said
+=terminal.buffer.data=; the mount site says =buffer=. The tangle said =render()=; =render()= throws
+the fold away. Both found by reading where the code actually runs, before a line was typed.
+
+* Spine
+
+N = 116. Turns 1-103 are folded into three earlier compacts. This one walks 104-116.
+
+| n | beef | landed |
+|---+------+--------|
+| 104 | =/compact= | — |
+| 105 | =/compact= | — |
+| 106 | (summary) | context restored; M3 trace + 15 =[m3:*]= probes carried forward |
+| 107 | /"what deliverables are in m3?"/ | the M3 section read back: 3 files, 3 tests, S3, S1 +2 — no code |
+| 108 | /"go"/ | M3 landed whole: =page/{style,draw,index}.js=, 16 suites / 50 steps, dapper gained =design()=, shelf synced |
+| 109 | /"ok. are you ready for m4?"/ | terrain checked: =soma.transcript= is the mechanism, =render()= throws — the tangle's catch would lie |
+| 110 | /"there is some simplification due to optimizations from m3 no? and we want more than 12 rounds"/ | stream+fold instead of render; flat bag; split catch; =rounds= is free at the schema |
+| 111 | /"30. any changes to code outside the commons?"/ | NO, verified item by item — =use= never descends, so sharing =web='s nodes is safe |
+| 112 | /"do another pass. all gucci?"/ | second pass: the 8s timeout exempts streams by design; flat 30 not =iq.rounds=; =condition= must ride the flat bag |
+| 113 | /"go"/ | M4 landed: =research/{brief,index}.js=, =tests/rig.js=, 8 + 4 steps green first run |
+| 114 | /"ikiro comapct"/ | this fold, ordered mid-landing |
+| 115 | =/compact= | — |
+| 116 | /"where are we at? quick summary of progress"/ | a six-line status mid-turn; landing continued |
+
+* Arc
+
+** M3: two doors onto one mint, and the mint binds no thread
+
+The scout (107) read the section back and the landing (108) followed it — with two corrections
+the tangle could not have known, both from reading the mount site rather than the plan.
+=drapes/panels/Frame.svelte:59-67= mounts a view with ={terminal, daemon, mode, thread, buffer}=,
+so the shell destructures =buffer= and the payload is =buffer.data=, not =terminal.buffer.data=.
+And =/view/render= has to CATCH: nothing upstream does, so an unguarded =refuse()= throw would end
+the round instead of telling the model what to change.
+
+The shape is the point. =emitter= (nature =/article=) is the ONE place a buffer is born and is
+absent from =tools= on purpose — =harnessed.js:71= arms =mode.tools= only, and EMITTER mounts it
+at aperture =/emit= + =mode.emit=. =generator= is the model's door, slurped by =generative.js:62=,
+and its EXISTENCE is what suppresses the trait's own fallback mint at =:69= — the one with no URL
+guard and no house style. =generator= branches under =/view= BY HAND, because a declared generator
+mounts at the ROOT while the fallback mounts under =/view=: the same capability would otherwise
+arm under two different names.
+
+The double-bind is closed by omission. The mint passes NO thread to =gen.buffer=. Two live lines
+bind and both advance the counter — =generative.js:39-40= when handed a thread, =emitter.js:80-81=
+for every buffer drained — and this is the first mode to declare both. =emitter.test.js= runs the
+REAL EMITTER trait against a stub =gen= that reproduces =generative.js= faithfully *including the
+bind*, because a stub that ignored =thread= could not fail the marker. Proven able to fail:
+passing =thread= into the mint fires the live =[m3:emit] DOUBLE BIND= probe and reds 2 of 5.
+
+Traits go AFTER =TOOLED= in the manifest: =stagger= applies them in declared order and GENERATIVE
+slurps into the same =mode.tools=, so the armed order is the declared order and S1 pins it.
+
+** dapper had no door onto its own design system
+
+=P-tokens= needs the generated CSS. =generateCSS(ds)= takes a design system, and building one
+needed =colors= / =tokens= / =paper= — default-only exports that =export *= cannot re-export,
+which is why dapper's own tests reach around the barrel with relative imports. Not a door a
+consumer can use, and a cross-package relative import is forbidden. Added =lib/system.js=
+=design()=, exported it, collapsed =lifecycle/index.js= onto it so the pipeline has one source.
+Trap on the way: =generateCSS= returns ONLY ={output:{css}}= and drops the ds it was handed —
+=design()= merges. Postcss plugin re-proven: 52 570 bytes, both themes, host rules preserved. All
+26 taught tokens exist in BOTH themes — the test checks per theme, because a token only nordic
+defines would unstyle a drawn page the moment the operator switches.
+
+** M4: the scout found the load-bearing mechanism and a catch that would lie
+
+beef: /"ok. are you ready for m4?"/ — not a go. The terrain check (109) found what M4 rests on:
+=soma.transcript='s =/tool/yield= case accumulates every non-=message=/=object= key of every inner
+tool result as an array on the inner fold. So a nested =dialogue.render= that calls =view_render=
+genuinely surfaces =output.buffer=. The projection to ={message, buffer}= is what M4 needs — but it
+discards more than the quest said: =url[] title[] chars[] truncated[] selector[] matched[] count[]=
+too, since =web_read= returns eight keys and none are arrays.
+
+And the defect: =shard.hallucinate.render= THROWS on any close but =complete=. The tangle's catch
+would swallow every failure — rounds, =max_tokens=, a refusal, a provider fault — and report all of
+them as /"research needs a hallucinator… set SECRET_VIVA_ANTHROPIC_API_KEY"/. A researcher that
+worked for twelve rounds and got cut off would tell the operator to set a key they already have.
+
+** "there is some simplification… and we want more than 12 rounds"
+
+beef (110). The two questions had one answer. =render()= throws =folded= away — including a buffer
+already minted, thread-bound and FLUSHED at =emitter.js:88= inside the inner tool call. On
+exhaustion the page is on the operator's screen and the outer agent gets an exception. More rounds
+buys more of that outcome. =dialogue.stream= is the same =respond()= without the throw; fold it
+with =soma.transcript= and every close hands back what was drawn, with =condition= set from
+=meta.state= so the dead =folded.condition= line comes alive.
+
+Rounds: =POLICY.rounds= has no maximum, =INTELLIGENT.rounds= caps at 50. beef: /"30."/ — and then
+/"any changes to code outside the commons?"/ (111). No, verified item by item; the one that could
+have bitten is =Vector.use=, which only pushes to the root's =carry= and never descends, so sharing
+=web='s nodes with =mode.tools= by reference is safe as long as nothing calls =branch()=.
+
+** the second pass corrected the sketch twice
+
+beef: /"do another pass. all gucci?"/ (112). Went after what I had reasoned about but not read.
+The 8s the M1 walk hit is =dossier.js:59= =shard.connection.timeout(8000)= and it exempts streams
+by design — =shard/connection.js:14= /"a stream's lifetime is not a request timeout — SSE connects
+exempt"/ — and =Connection.stream()= sets that header. A minute of silence inside an outer round
+survives the client.
+
+Two corrections to my own sketch. Flat 30, NOT =iq.rounds= — the thread's =rounds= is the OUTER
+conversation's per-turn tool cap; a thread dialed to 3 would starve the researcher. And the flat
+bag has to carry =condition=: =fromm.wrap= reads =thing.condition ?? "NOMINAL"= and strips it out
+of =output=, so ={message, buffer}= alone reports a =length= close as success.
+
+And =P-yield= could be a real test: =Cortex.register= demands only ={type, tune, via}=;
+=respond()= reads =state(turn)= off the parts; =soma.drain(turn)= turns a whole turn into packets.
+A scripted faculty yielding =drain(turn)= per round lets the REAL loop dispatch the REAL
+=view_render= through the REAL EMITTER. The buffer surfacing in the outer yield is then produced
+by the machinery, not asserted into it.
+
+** M4 landed: 8 + 4 green on the first run
+
+=research/index.js= streams and folds, checks =cortex.findOne({type:"dialogue", via:"stream"})=
+BEFORE the call so that is the ONE path that says "set the key", projects to a flat bag with
+=condition=, and on an early close says what happened — state, rounds, the provider's fault
+message, whether a page was drawn first, and the model's last words. =tests/rig.js= is the rig:
+a real =Cortex=, a scripted faculty, the real EMITTER, a stub bundler. =deliver= retries only
+=fault.retryable=, so a fixture throwing a plain =Error= fails fast — the provider-fault path is
+testable without sleeping. 30 rounds run in 5 ms.
+
+=P-early= ×3 pin the reason for streaming: exhaustion after a draw, a fault after a draw, a fault
+before any. Mutating the door back to =render()= reds =P-yield= and all three. S4 pins the inner
+request as =lowering= built it — =brief= 1033 · =render= 5197 · four tools · =policy= stripped
+from the wire — and S4 ⊂ S1 is compared as two files, so the recursion guard is visible rather than
+hard-coded.
+
+* Failures
+
+**Formatted a directory I did not own.** =deno fmt subsystems/dapper/= rewrote =lib/colors.js= and
+=tests/nordic-theme.test.js= — two files carrying beef's uncommitted edits that M3 had no business
+touching. Content intact, churn whitespace-only, but it muddied his diff. Format the files you
+wrote, not the directory.
+
+**Two parallel tool calls raced on one file.** The full-suite run and the render-mutation proof
+went out in the same response; the suite caught the door mid-mutation and reported a red that
+was not one. Verified from the backup, reran. A mutate-and-restore is sequential by nature and
+must not share a response with anything that reads the file.
+
+**Patched against pre-fmt text, again.** The =stopped early= template had been rewrapped; the
+python assert failed and — because the file is written only at the end — left the sibling edit
+unapplied too. Read the formatted text first. Third session this has happened.
+
+**First sketch of the door used =render()=.** Caught on the M4 scout, not on the M3 one, even
+though the M3 trace had already named =render='s throw. The M4 tangle was in front of me and I
+reasoned from it instead of from =hallucinate.js=.
+
+**The =iq.rounds= inheritance was wrong for a turn.** Proposed it at 110, retracted at 112 once
+the trait's meaning was read: the thread's =rounds= caps the outer agent's tool loop, not a nested
+one's.
+
+* State at fold
+
+| | |
+|---+---|
+| hello-world | 19 suites / 62 steps |
+| reader | 7 suites / 41 steps |
+| dapper | 10 suites / 65 steps — =design()= added, postcss plugin re-proven |
+| runtime | 53 passed / 334 steps, 1 failed — the same pre-existing =registry ingest= red |
+| shelf | byte-identical to the checkout minus =.env= and =mountpoint/=; runs the same suite |
+| catalog | six armed names; S1 +2 at M3, +1 at M4; armory 11 → 13 → 14 |
+| snapshots | S3 + mint born at M3; S4 born at M4; S0 recaptured twice as HELLO grew |
+| markers | =P-noexternal= =P-nodoublebind= =P-tokens= =P-yield= =P-subset= flipped; =P-early= born |
+| probes | =[m3:*]= 15 sites STILL IN, unread — they narrate both owed walks |
+| owed | ONE runtime restart, then the M3 and M4 dock walks; M5 is a README move |
+
+Open, beef's call: =RENDER= is 5 197 chars on EVERY turn, drawing or not; the links array is 22%
+of every read; =CONVERSATIONAL= is declared on three modes and implemented nowhere.
+
+The MARKERS entry for cortex-snapshot coverage stays OPEN: /"the ruling only"/.
+
+* quest report (derived at fold — `methods/quest-report.py`)
+
+| quest                      | progress   | status                                                                | next                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                      | sessions   |
+|----------------------------+------------+-----------------------------------------------------------------------+---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------+------------|
+| drapes-editor              | —          | landed · the caret bug found and fixed — his click-through gates owed | rebundle + reload, then confirm the caret advances while typing (the one thing the fix is not yet proven against live). then the eight click-through gates below. later, both his call: the language on `#+begin_src js` does not highlight its body; the markdown fence is the same trade.                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                               | 1 (1 live) |
+| m46-linux-readmen          |  17% 3/18  | wip                                                                   | drain                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                     | 6          |
+| m50-the-three-way-weave    |  60% 3/5   | wip                                                                   | blast                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                     | 1          |
+| m51-standalone-slowstart   |   0% 0/18  | design                                                                | go                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                        | 2          |
+| m53-vcompany               |   0% 0/5   | open                                                                  | **t1.1** h1 · e1 · p1 · t1 · b1 · k1 + s1 · x1 · x2 · x3 + i1 (the index as rows) landed on the shelf; blocked on **r1** (paladin =resolve= percent-encodes — one-line diff + one test in the quest, his go, repo): the four reds (tools file · move; snapshots tools · aperture) are r1 and nothing else; a1 struck (the app is the sibling's v3); d1 (readme) on go; the =open= schematic on buffer-data level — sketch in "landed", his word; officers out by his order; then **the slow first attach** (the boot race under `instance/run`) → gs1/gs2 click-through after restart; the bundle weight ledgered, direction his; s3 voffice → s4 desk on go; `* t1.#2` his call; the runtime's m:n =cascade.remove= both ways ledgered as a landmine (his)                                                                                                                                                                                                                                                                                                               | 5          |
+| m53-vcompany.pre           | —          | open                                                                  | t1 package setup — the m27 gate moves to the executive stage; t1–t3 do not wait on it                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                     | 3          |
+| m53-vcompany.v3-vdex       | —          | landed                                                                | one restart carries both — the new pdf viewer (=paper.svelte=) and the cargo fix (=freight.js=, uncommitted); then open a spaced-name pdf: it should render, page nav and zoom live, the rail on ▤. the six later items stay marked in the root quest.                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                    | 3 (1 live) |
+| m53.v4-mail+calendar       | —          | landed                                                                | the six office test files — =office/email/tests/{aperture,tools,email.snapshot}.test.js= and =office/calendar/tests/{aperture,tools,calendar.snapshot}.test.js=; =/key=, the held send and the thread walk are landed and untested. then his restart + the click-through gates. open, not mine: the sibling's mode-ownership landing duplicates every symbol (16 rows, 8 distinct, the dummy's copies bare), which contradicts this quest's law that the office declares the scheme and the provider carries the rows.                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                    | 1          |
+| m54-buffer-file            |   0% 0/4   | open                                                                  | reconcile with m53 =* t1.1= and =m53-vcompany.v3-vdex= first (three quests, one seam, all waiting on go; v3 splits the app into a shell + 7 parts + =buffer/jdex.js= and already points here for file upload — m54's app hunk names the single =vdex.svelte= and must be re-cut onto whichever lands first) (a sibling session, beef's rulings there: the vdex speaks slugs — =/document /write /file /move /delete= implemented once in the aperture, tools wrap =mode.call.<verb>=, =fs_*= slurp gone on vdex; =open= is an emitter; the boot watches files and syncs per path — /"shouldnt this watch files??!!!"/; /"wtf is daemon traits stamp????"/ → gone) — three seams now name the verbs' home (t1.1 aperture · m54 sketch · mikro-first repository), beef arbitrates; then beef reopens the questioned block when ready — order of design there is mikro entity + bufferrepository verbs → typology verb contract → shard mounts → remoterepository mirrors → kajuit. until then m1 = everything but the verbs. "go m1" → full hunks against the tree as read. | 1          |
+| m55-recursive-terminals    |  20% 3/15  | wip                                                                   | go m2 — the kajuit terminal: up · down · status · stop · run · watch, the tree, the schematic, panel f                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                    | 3          |
+| m56-the-pincer-turns       | 100% 2/2   | verify                                                                | live-walk c at both aspects · markers 2·3·4·10·13·14 need a dom                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                           | 2          |
+| m57-hello-world-researches |  85% 34/40 | open                                                                  | restart the runtime (two trait declarations changed the mode bundle), then walk m3 — dock → /"draw me a page about what you just read"/ → =▶= — then walk m4 — /"read up on marginalia's ranking and keep it"/ → one tool call, a page, an answer from it. read the =[m3:*]= lines: expect =conversational declared but unimplemented=, =declared generator, slurped at root=, and zero =double bind=. then rip the probes and =t-draw= / =t-thin= flip. open, beef's call: =render= is 5 197 chars on every turn; the links array is 22% of every read.                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                  | 1 (1 live) |

@@ -9,6 +9,7 @@ export const SymbolDescriptor = {
   },
   relations: {
     literals: () => v.array(v.literal()).optional(),
+    mode: () => v.mode().optional(),
   },
   narrowable: ["trait"],
 };

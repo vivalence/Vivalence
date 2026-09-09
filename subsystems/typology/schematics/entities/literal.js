@@ -10,6 +10,7 @@ export const LiteralDescriptor = {
   },
   relations: {
     symbols: () => v.array(v.symbol()).optional(),
+    mode: () => v.mode().optional(),
   },
   narrowable: ["trait", "symbol"],
 };

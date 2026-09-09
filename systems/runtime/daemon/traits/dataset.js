@@ -1,4 +1,12 @@
-import { array, object, promise, fn, hash, shard, Dataset } from "@vivalence/typology";
+import {
+  array,
+  Dataset,
+  fn,
+  hash,
+  object,
+  promise,
+  shard,
+} from "@vivalence/typology";
 import paladin from "@vivalence/paladin";
 
 const CHUNK = 100;
@@ -29,7 +37,10 @@ export const stamp = async (mode) => {
   for (const sources of Object.values(dataset.sources)) {
     for (const source of sources) {
       if (source.load) {
-        files.push(["load", source.stamp ? String(await source.stamp(mode)) : ""]);
+        files.push([
+          "load",
+          source.stamp ? String(await source.stamp(mode)) : "",
+        ]);
         continue;
       }
       if (source.rows) {
@@ -38,8 +49,12 @@ export const stamp = async (mode) => {
       }
       const at = `${mount.dirname}/${source.walk ?? source.read}`;
       if (source.walk) {
-        for (const file of await paladin.find.walk(/./)(at))
-          files.push([file.absolute, await Deno.readTextFile(file.absolute).catch(() => "")]);
+        for (const file of await paladin.find.walk(/./)(at)) {
+          files.push([
+            file.absolute,
+            await Deno.readTextFile(file.absolute).catch(() => ""),
+          ]);
+        }
       } else {
         files.push([at, await Deno.readTextFile(at).catch(() => "")]);
       }
@@ -47,7 +62,10 @@ export const stamp = async (mode) => {
   }
   return files
     .sort(([a], [b]) => (a < b ? -1 : 1))
-    .reduce((folded, [path, text]) => hash.string(folded + path + text), hash.string(await installer));
+    .reduce(
+      (folded, [path, text]) => hash.string(folded + path + text),
+      hash.string(await installer),
+    );
 };
 
 export const DATASET = async (mode, daemon) => {
@@ -57,61 +75,123 @@ export const DATASET = async (mode, daemon) => {
   const dataset = new Dataset(mode.module.dataset ?? {});
   const meta = shard.datamap.strip(daemon.datamap.introspect());
   const em = daemon.entities.em.fork();
-  const repo = (type) => em.getRepository(daemon.entities[type].getEntityName());
+  const repo = (type) =>
+    em.getRepository(daemon.entities[type].getEntityName());
   const flush = async () => {
     await em.flush();
     em.clear();
   };
   const staged = {};
+  const owns = {};
 
   for (const type of dataset.types) {
     guard(mode, meta, type);
     if (!daemon.entities[type]) {
-      console.warn(`[DATASET] ${mode.type}/${mode.slug} declares unknown entity "${type}"`);
+      console.warn(
+        `[DATASET] ${mode.manifest.type}/${mode.manifest.slug} declares unknown entity "${type}"`,
+      );
       continue;
     }
     const relations = Object.keys(meta[type]?.properties ?? {});
+    // a declared source is SCHEME — it describes the module and is shared by every mounting of it.
+    // a computed source is the mounting's own reading of its world, and belongs to that mode alone.
     const loaded = [];
-    for (const source of dataset.sources[type]) loaded.push(await pull(source, mode));
+    const mine = new Set();
+    for (const source of dataset.sources[type]) {
+      const held = await pull(source, mode);
+      loaded.push(held);
+      if (source.load) { for (const row of held) mine.add(row.slug); }
+    }
     const read = loaded.flat();
     staged[type] = unique(read);
-    if (staged[type].length !== read.length)
-      console.log(`[DATASET:install] ${type} ${read.length - staged[type].length} duplicate slugs folded — a row split across facets is authored once per facet`);
+    owns[type] = mine;
+    if (staged[type].length !== read.length) {
+      console.log(
+        `[DATASET:install] ${type} ${
+          read.length - staged[type].length
+        } duplicate slugs folded — a row split across facets is authored once per facet`,
+      );
+    }
     const store = repo(type);
+    // the row's owner is the mode that installs it: two mountings of one module keep two sets of rows,
+    // and the (slug, mode) key lets them carry the same slugs
+    const ownable =
+      daemon.datamap.introspect().get(store.getEntityName()).properties.mode
+        ?.kind === "m:1";
     const started = Date.now();
     const emit = fn.every(5, log(`upsert:${type}`, started));
     let done = 0;
     for (const rows of array.chunk(staged[type], CHUNK)) {
       await promise.retry(async () => {
-        const existing = await store.find({ slug: { $in: rows.map((row) => row.slug) } });
-        const bySlug = new Map(existing.map((entity) => [entity.slug, entity]));
+        const owner = ownable && mode.id
+          ? await repo("mode").findOne({ id: mode.id })
+          : null;
+        const existing = await store.find({
+          slug: { $in: rows.map((row) => row.slug) },
+        });
+        const at = (slug, holder) => `${slug}:${holder?.id ?? ""}`;
+        const byKey = new Map(
+          existing.map((entity) => [at(entity.slug, entity.mode), entity]),
+        );
         for (const row of rows) {
+          const holder = owns[type]?.has(row.slug) ? owner : null;
           const data = object.omit(row, relations);
-          const found = bySlug.get(row.slug);
+          const found = byKey.get(at(row.slug, holder));
           if (found) found.assign(object.patch(found, data));
-          else store.create(data);
+          else store.create({ ...data, ...(holder ? { mode: holder } : {}) });
         }
         await flush();
       })();
-      emit((done += rows.length), staged[type].length);
+      emit(done += rows.length, staged[type].length);
     }
-    console.log(`[DATASET:install] upsert:${type} ${staged[type].length} rows in ${seconds(started)}`);
+    console.log(
+      `[DATASET:install] upsert:${type} ${staged[type].length} rows in ${
+        seconds(started)
+      }`,
+    );
   }
 
-  for (const type of dataset.types)
-    for (const [prop, relation] of Object.entries(meta[type]?.properties ?? {}))
-      await linkPhase({ repo, daemon, flush }, meta, type, prop, relation, staged[type] ?? []);
+  for (const type of dataset.types) {
+    for (
+      const [prop, relation] of Object.entries(meta[type]?.properties ?? {})
+    ) {
+      await linkPhase(
+        { repo, daemon, flush, mode, owns },
+        meta,
+        type,
+        prop,
+        relation,
+        staged[type] ?? [],
+      );
+    }
+  }
 
-  console.log(`[DATASET:install] ${mode.type}/${mode.slug} total ${seconds(began)}`);
+  console.log(
+    `[DATASET:install] ${mode.manifest.type}/${mode.manifest.slug} total ${
+      seconds(began)
+    }`,
+  );
 };
 
 function guard(mode, meta, type) {
-  const scoped = Object.values(meta[type]?.properties ?? {}).some((relation) => relation.target === "user");
-  if (!DATASPACE.has(type) || scoped)
-    throw new Error(`[DATASET] ${mode.type}/${mode.slug} declares non-dataspace entity "${type}"`);
+  const scoped = Object.values(meta[type]?.properties ?? {}).some((relation) =>
+    relation.target === "user"
+  );
+  if (!DATASPACE.has(type) || scoped) {
+    throw new Error(
+      `[DATASET] ${mode.manifest.type}/${mode.manifest.slug} declares non-dataspace entity "${type}"`,
+    );
+  }
 }
 
-async function linkPhase({ repo, daemon, flush }, meta, fromType, prop, relation, rows) {
+async function linkPhase(
+  { repo, daemon, flush, mode, owns },
+  meta,
+  fromType,
+  prop,
+  relation,
+  rows,
+) {
   const started = Date.now();
   const toType = relation.target;
   if (!toType || !daemon.entities[toType]) return;
@@ -119,7 +199,8 @@ async function linkPhase({ repo, daemon, flush }, meta, fromType, prop, relation
   const refs = rows.filter((row) => row[prop]?.length);
   if (!refs.length) return;
 
-  const pmeta = daemon.datamap.introspect().get(repo(fromType).getEntityName()).properties[prop];
+  const pmeta = daemon.datamap.introspect().get(repo(fromType).getEntityName())
+    .properties[prop];
   if (pmeta?.kind !== "m:n") {
     console.warn(`[DATASET] link:${fromType}.${prop} is not m:n — skipped`);
     return;
@@ -129,27 +210,62 @@ async function linkPhase({ repo, daemon, flush }, meta, fromType, prop, relation
   let done = 0;
   for (const chunk of array.chunk(refs, CHUNK)) {
     await promise.retry(async () => {
-      const toSlugs = [...new Set(chunk.flatMap((row) => row[prop].map((ref) => ref.slug)))];
-      const froms = await repo(fromType).find({ slug: { $in: chunk.map((row) => row.slug) } }, { populate: [prop] });
+      const toSlugs = [
+        ...new Set(chunk.flatMap((row) => row[prop].map((ref) => ref.slug))),
+      ];
+      // a row this mounting owns is matched to this mounting's copy; a scheme row is the one every mounting shares
+      const owner = mode?.id
+        ? await repo("mode").findOne({ id: mode.id })
+        : null;
+      const holder = (type, slug) => (owns?.[type]?.has(slug) ? owner : null);
+      const found = (held, type, slug) =>
+        held.find((entity) =>
+          entity.slug === slug &&
+          (entity.mode?.id ?? null) === (holder(type, slug)?.id ?? null)
+        ) ??
+          held.find((entity) => entity.slug === slug && !entity.mode);
+      const froms = await repo(fromType).find({
+        slug: { $in: chunk.map((row) => row.slug) },
+      }, { populate: [prop] });
       const tos = await repo(toType).find({ slug: { $in: toSlugs } });
-      const fromMap = new Map(froms.map((entity) => [entity.slug, entity]));
-      const toMap = new Map(tos.map((entity) => [entity.slug, entity]));
+      const fromMap = new Map(
+        chunk.map((row) => [row.slug, found(froms, fromType, row.slug)]).filter(
+          ([, entity]) => entity,
+        ),
+      );
+      const toMap = new Map(
+        toSlugs.map((slug) => [slug, found(tos, toType, slug)]).filter((
+          [, entity],
+        ) => entity),
+      );
       for (const row of chunk) {
         const from = fromMap.get(row.slug);
         if (!from) continue;
         for (const ref of row[prop]) {
           let to = toMap.get(ref.slug);
           if (to) to.assign(object.patch(to, ref));
-          else toMap.set(ref.slug, (to = repo(toType).create(ref)));
+          else {toMap.set(
+              ref.slug,
+              to = repo(toType).create({
+                ...ref,
+                ...(holder(toType, ref.slug)
+                  ? { mode: holder(toType, ref.slug) }
+                  : {}),
+              }),
+            );}
           from[prop].add(to);
         }
         from.assign({ updatedAt: new Date() });
       }
       await flush();
     })();
-    emit((done += chunk.length), refs.length);
+    emit(done += chunk.length, refs.length);
   }
-  console.log(`[DATASET:install] link:${fromType}.${prop} ${refs.length} entities linked in ${seconds(started)}`);
+  console.log(
+    `[DATASET:install] link:${fromType}.${prop} ${refs.length} entities linked in ${
+      seconds(started)
+    }`,
+  );
 }
 
 // import { is, object, promise, fn } from "@vivalence/typology";

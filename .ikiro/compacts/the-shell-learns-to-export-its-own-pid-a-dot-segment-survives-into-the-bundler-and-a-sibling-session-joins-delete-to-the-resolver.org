@@ -1,5 +1,6 @@
 #+title: the shell learns to export its own pid, a dot segment survives into the bundler, and a sibling session joins delete to the resolver
 #+filetags: :ghost:paladin:ledger:instance:runtime:typology:bundler:readme:docs:sheets:callout:quest:compact:
+#+index: 120
 
 * what happened, in one breath
 

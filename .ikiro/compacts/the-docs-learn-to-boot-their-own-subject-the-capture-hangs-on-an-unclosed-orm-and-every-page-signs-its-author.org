@@ -1,5 +1,6 @@
 #+title: the docs learn to boot their own subject, the capture hangs on an unclosed orm, and every page signs its author
 #+filetags: :documentation:tangle:paladin:runtime:boot:diataxis:critical-pass:astro:
+#+index: 60
 
 * what happened, in one breath
 

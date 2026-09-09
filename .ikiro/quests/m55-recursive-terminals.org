@@ -333,7 +333,7 @@ Frame is unchanged by M3.
 
 * forks (beef's)
 
-- F1 *point or flat* — App props ={ terminal, buffer }= (the GENERATIVE valence's pair; =daemon= · =mode= · =thread= one dot off the buffer) vs the five Frame hands today. Radius: 10 App files on repo + shelf + vcompany, Frame, the valence.
+- F1 *point or flat* — App props ={ terminal, buffer }= (the GENERATIVE valence's pair; =daemon= · =mode= · =thread= one dot off the buffer) vs the five Frame hands today. Radius: 10 App files on repo + instance + vcompany, Frame, the valence.
 - F2 *schematic home* — =systems/kajuit/src/typology/schematics/terminal.js= (client-only, his /"thread is daemon. terminal is client"/) vs =subsystems/typology/schematics/= (the vocabulary, reachable by bundles through =mod.client.js=).
 - F3 *auto-merge on =.call=* — =entities/mode/mode.js:55= (=// @beef: choice pending=) would delete the explicit =merge= from every nesting App.
 - F4 *=run= ↔ =escort=* — =run({ escort })= as sketched, or =escort= its own verb.

@@ -1,4 +1,4 @@
-import { specimen, shard, steer } from "@vivalence/typology";
+import { specimen, belt, shard, steer } from "@vivalence/typology";
 import { Vector, Mode, Aperture, Path, ToolCall } from "@vivalence/typology";
 import { AGENTIC } from "@vivalence/runtime/daemon/traits";
 
@@ -25,7 +25,7 @@ function toolVector(nature, effect) {
 
 function daemonOf(modes) {
   return {
-    modes: { teacher: Object.fromEntries(modes.map((mode) => [mode.slug, mode])) },
+    modes: { teacher: Object.fromEntries(modes.map((mode) => [mode.manifest.slug, mode])) },
     flatmodes() {
       return Object.values(this.modes).flatMap((type) => Object.values(type));
     },
@@ -35,7 +35,7 @@ function daemonOf(modes) {
 function names(tools) {
   return steer.trie
     .rollup(tools, () => null)
-    .map(({ steps }) => shard.hallucinate.nameOf(steps));
+    .map(({ steps }) => belt.hallucinate.nameOf(steps));
 }
 
 specimen.describe("AGENTIC trait", () => {

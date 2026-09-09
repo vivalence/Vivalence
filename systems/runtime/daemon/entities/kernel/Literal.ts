@@ -5,9 +5,9 @@ import { object } from "@vivalence/typology";
 
 import { DataEntity, DataSchema, DataRepository } from "../index.ts";
 import { SymbolEntity } from "../index.ts";
+import { ModeEntity } from "../index.ts";
 
 // @beef: FILE trait on literal
-// @beef: owner relation to mode
 
 export enum LiteralTraitsEnum {
   _ = "_",
@@ -70,6 +70,7 @@ export class LiteralEntity extends DataEntity {
   ontology: string & Opt = "";
 
   symbols = new Collection<SymbolEntity>(this);
+  mode?: Rel<ModeEntity>;
   uses = new Collection<LiteralEntity>(this);
   in = new Collection<LiteralEntity>(this);
   [EntityRepositoryType]?: LiteralRepository;
@@ -80,7 +81,7 @@ export const LiteralSchema = new EntitySchema({
   abstract: true,
   tableName: "Literal",
   name: "Literal",
-  uniques: [{ properties: ["slug"] }],
+  uniques: [{ properties: ["slug", "mode"] }],
   repository: () => LiteralRepository,
   properties: {
     slug: { type: types.string },
@@ -100,6 +101,12 @@ export const LiteralSchema = new EntitySchema({
       entity: () => SymbolEntity,
       mappedBy: (symbol) => symbol.literals,
       cascade: [Cascade.REMOVE],
+    },
+    mode: {
+      kind: "m:1",
+      entity: () => ModeEntity,
+      inversedBy: (mode) => mode.literals,
+      nullable: true,
     },
     uses: {
       kind: "m:n",

@@ -1,5 +1,6 @@
 #+title: the quest is re-measured and two build-breakers die on paper — the url becomes RFC 3986, not our schemes — m48 lands under the blast-bracket across repo, shelf and tapped packages — and an invalid value is owed, not refused
 #+filetags: :m48:env:schematics:v:url:rfc3986:paladin:ghost:typology:blast-bracket:ledger:education:doctor:init:quest:sunset:report:
+#+index: 101
 
 * what happened, in one breath
 

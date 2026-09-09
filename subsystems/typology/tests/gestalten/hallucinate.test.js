@@ -1,6 +1,6 @@
-import { specimen, Vector, Span, NotFound, shard, steer } from "@vivalence/typology";
+import { specimen, Vector, Span, NotFound, belt, steer } from "@vivalence/typology";
 
-const { state, deliver, dispatch, respond, render, signalOf, nameOf } = shard.hallucinate;
+const { state, deliver, dispatch, respond, render, signalOf, nameOf } = belt.hallucinate;
 
 function userTurn(text) {
   return { role: "user", parts: [{ type: "text", text }] };
@@ -39,7 +39,7 @@ function toolVector(name, effect, edge = {}) {
   return tools;
 }
 
-specimen.describe("shard.hallucinate", () => {
+specimen.describe("belt.hallucinate", () => {
   specimen.describe("the wire↔signal codec", () => {
     specimen.it("nameOf and signalOf are inverse across the underscore boundary", () => {
       const steps = [{ nature: "drill" }, { nature: "pick" }];

@@ -1,5 +1,6 @@
 #+title: the eleven-megabyte bundle was a dev build, the real leak was a barrel that builds an object, and i explained the mechanism wrong twice before a fixture settled it
 #+filetags: :bundling:treeshaking:drapes:typology:typebox:esbuild:rep-o-mat:m24:design-import:
+#+index: 65
 
 * the commission
 

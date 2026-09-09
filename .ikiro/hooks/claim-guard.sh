@@ -55,6 +55,7 @@ stamp="${TMPDIR:-/tmp}/ikiro-claim-guard/${prompt_id}"
 mkdir -p "$(dirname "$stamp")"
 [ -f "$stamp" ] && exit 0
 : > "$stamp"
+printf '%s claim-guard deny %s\n' "$(date +%s)" "$(jq -r '.session_id // "nosession"' <<<"$input")" >> "$HOME/.claude/projects/-Users-finn-vivalence-code-vivalence/hooks.log" 2>/dev/null
 
 cat >&2 <<GATE
 assume-dont-verify gate (family n=16, FAILED x5, largest on the board).

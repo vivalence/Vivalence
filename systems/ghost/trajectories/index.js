@@ -4,21 +4,34 @@ import { ledger } from "./ledger/index.js";
 import { registry } from "./registry/index.js";
 import * as instance from "./instance/index.js";
 import { instances } from "./instances/index.js";
-import { census } from "./help.js";
+import { census, flagged } from "./help.js";
 import { Help } from "./Help.jsx";
 
-const FLAGS = [
-  "--json",
-  "--buffer",
-  "--help",
-  "--env=<path>",
-  ...config.MOUNTS.map((mount) => `--${mount}=<path>`),
-];
+export const flags = v.object({
+  json: v.boolean().desc("the effect as json on stdout").optional(),
+  buffer: v.boolean().desc("render the effect through the buffer view").optional(),
+  help: v.boolean().desc("the nature's params and valence instead of running it").optional(),
+  verbose: v.boolean().desc("the stack behind a failure, not just its one line").optional(),
+  env: v.string().desc("<path>").examples("./environment/.env").optional(),
+});
 
 export default function (trajectory) {
   trajectory.branch("/ledger").slurp(ledger);
   trajectory.branch("/registry").slurp(registry);
   trajectory.branch("/instances").slurp(instances);
+
+  trajectory.open(
+    {
+      nature: "/instance/use",
+      valence:
+        "select this shell's instance (VIVA_PROCESS_ID session) — a bare slug resolves against the ledger, an ambiguous or missing one opens the picker; bare use in a pipe prints current + provenance; trailing segments chain under /instance (instance/use italian run)",
+      schema: v.object({
+        reference: v.string().desc("slug | /abs | source path — preset for the picker").optional(),
+        ledger: v.boolean().desc("write the machine default (<ledger>/.env) instead of this shell's session").group("flags").optional(),
+      }),
+    },
+    instance.use,
+  );
 
   trajectory.open(
     {
@@ -28,8 +41,9 @@ export default function (trajectory) {
       schema: v.object({
         source: v.string().desc("slug | @owner/instance/slug | ../path — preset for the picker").optional(),
         target: v.string().desc("destination dir (defaults to <ledger>/instances/<slug>)").optional(),
-        use: v.boolean().desc("select it for this shell once created, and record it on the shelf").optional(),
-        init: v.boolean().desc("run instance/init on it once created — seed .env, then the wizard (or headless report)").optional(),
+        use: v.boolean().desc("select it for this shell once created, and record it on the shelf").group("flags").optional(),
+        init: v.boolean().desc("run instance/init on it once created — seed .env, then the wizard (or headless report)").group("flags").optional(),
+        slug: v.string().desc("<slug>").examples("readmen").group("flags").optional(),
       }),
     },
     instance.create,
@@ -53,7 +67,7 @@ export default function (trajectory) {
       valence: "run the mounted instance attached (foreground) — exit 1 iff a child exits non-zero; --logged sends their output to <ledger>/logs/<slug>/",
       schema: v.object({
         process: v.string().desc("runtime | kajuit | all").optional(),
-        logged: v.boolean().desc("write child output to the ledger's logs instead of the terminal").optional(),
+        logged: v.boolean().desc("write child output to the ledger's logs instead of the terminal").group("flags").optional(),
       }),
     },
     instance.run,
@@ -86,7 +100,7 @@ export default function (trajectory) {
         "remove an instance from this machine — record, dead locks, logs, the sessions that selected it, and the dir when it lives on the shelf (a tapped dir stays); refuses while running; asks unless --force",
       schema: v.object({
         target: v.string().desc("slug or path (defaults to the mounted instance)").optional(),
-        force: v.boolean().desc("skip the confirmation").optional(),
+        force: v.boolean().desc("skip the confirmation").group("flags").optional(),
       }),
     },
     instance.delete,
@@ -144,8 +158,9 @@ export default function (trajectory) {
       const commands = census(trajectory).filter(
         (row) => !filter || row.nature.startsWith(filter),
       );
-      ctx.effect = { commands, flags: FLAGS };
-      await ctx.view?.scroll.emit({ commands, flags: FLAGS }, null, Help);
+      const shell = [...flagged(flags), ...Object.entries(config.mounts).map(([name, held]) => `--${name}=${held.shape}`)];
+      ctx.effect = { commands, flags: shell };
+      await ctx.view?.scroll.emit({ commands, flags: shell }, null, Help);
     },
   );
 }

@@ -1,16 +1,26 @@
-import { Env } from "@vivalence/typology";
+import { Env, v } from "@vivalence/typology";
 import belt from "../belt/index.js";
 import { Ledger } from "./ledger/index.js";
-import { Instance } from "./instance.js";
 import { Vip } from "./vip.js";
 
 const STRATA = ["flag", "cwd", "instance", ".env", "os", "session", "ledger"];
+
+// the five *_MOUNT keys the scopes resolve (lifecycle/populate.js) — a MOUNT is always a path.
+// examples are each resolver's own default; ghost derives --<name>=<path> from this, in this order.
+const MOUNTS = v.environment({
+  VIVA_LEDGER_MOUNT: v.string().desc("machine ledger home — locks, logs, registry, instances, sessions").examples("~/.viva").optional(),
+  VIVA_REPOSITORY_MOUNT: v.string().desc("the vivalence checkout — bare references resolve against it").examples("~/vivalence/code/vivalence").optional(),
+  VIVA_REGISTRY_MOUNT: v.string().desc("package store — remote taps clone here").examples("~/.viva/registry").optional(),
+  VIVA_INSTANCE_MOUNT: v.string().desc("instance home — the dir holding its recipe").examples("~/.viva/instances/hello-world").optional(),
+  VIVA_MOUNTPOINT_MOUNT: v.string().desc("the instance's served tree — dbs, bundles, tokens").examples("~/.viva/instances/hello-world/mountpoint").optional(),
+});
 
 const SECRET = (key) => key.startsWith("SECRET_");
 const PUBLIC = (key) => key.startsWith("VIVA_") || key.startsWith("PUBLIC_VIVA_");
 
 export class Paladin {
   traits = [];
+  mounts = MOUNTS;
   env = new Env(STRATA);
   secret = new Env(STRATA);
 
@@ -40,12 +50,6 @@ export class Paladin {
       else ignored.push(key);
     }
     return { held, secrets, ignored, blank };
-  }
-
-  // mount is fn.once, so a changed .env needs a fresh instance. the wizard is why.
-  remount() {
-    this.instance = new Instance(this);
-    return this.instance.mount();
   }
 
   // assign: no source · observe: ambient · claim: role. all three split by key.
@@ -85,9 +89,9 @@ export class Paladin {
     belt.source(this);
     belt.clone(this);
     belt.bundler(this);
-    // mountables — siblings of vip, own their state, fn.once mount()
+    belt.hydrate(this);
+    // mountables — siblings of vip, own their state
     this.ledger = new Ledger(this);
-    this.instance = new Instance(this);
     this.vip = new Vip(this);
   }
 

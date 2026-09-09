@@ -1,4 +1,4 @@
-import { specimen, Url, Connection, v } from "@vivalence/typology";
+import { Connection, specimen, Url, v } from "@vivalence/typology";
 import { shard } from "@vivalence/typology";
 
 const BASE = "http://localhost:1729/attached/process/lighthouse/multiplayer";

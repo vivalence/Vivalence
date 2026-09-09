@@ -9,7 +9,8 @@ export const Manifest = v.object(
     version: v.string().optional(),
     name: v.string().optional(),
     description: v.string().optional(),
-    traits: v.array(v.string()).optional(),
+    icon: v.object({ emoji: v.string().optional() }, { additionalProperties: true }).optional(),
+    traits: v.array(v.string()).optional().default([]),
   },
   { additionalProperties: true },
 );

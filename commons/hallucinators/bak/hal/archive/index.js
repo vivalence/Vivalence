@@ -39,8 +39,9 @@ export default (service, ctx) => {
 
   async function serve(inputs) {
     const provider = inputs.provider;
-    if (!llms[provider.api])
+    if (!llms[provider.api]) {
       throw new Error("Provider not found: " + provider.api);
+    }
 
     try {
       const result = await retry(() => llms[provider.api](inputs));

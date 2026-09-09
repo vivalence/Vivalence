@@ -27,12 +27,17 @@ specimen.describe("lighthouse datamap (scenario)", () => {
         where: { slug: "test-language" },
       });
       specimen.expect(result.slug).toBe("test-language");
-      specimen.expect(result.url).toBe("http://localhost:5173/daemon/test-language");
+      specimen.expect(result.url).toBe(
+        "http://localhost:5173/daemon/test-language",
+      );
     });
 
     specimen.it("create daemon", async () => {
       const result = await scenario.conn.call("/entities/daemon/create", {
-        data: { slug: "test-language-2", url: "http://localhost:5174/daemon/test-language-2" },
+        data: {
+          slug: "test-language-2",
+          url: "http://localhost:5174/daemon/test-language-2",
+        },
       });
       specimen.expect(result.slug).toBe("test-language-2");
       specimen.expect(result.id).toBeTruthy();
@@ -43,7 +48,9 @@ specimen.describe("lighthouse datamap (scenario)", () => {
         where: { slug: "test-language-2" },
         data: { url: "http://localhost:5175/daemon/test-language-2" },
       });
-      specimen.expect(result.url).toBe("http://localhost:5175/daemon/test-language-2");
+      specimen.expect(result.url).toBe(
+        "http://localhost:5175/daemon/test-language-2",
+      );
     });
 
     specimen.it("remove daemon", async () => {

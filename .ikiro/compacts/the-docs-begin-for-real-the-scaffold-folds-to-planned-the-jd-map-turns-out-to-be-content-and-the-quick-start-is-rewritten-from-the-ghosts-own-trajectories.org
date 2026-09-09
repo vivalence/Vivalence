@@ -1,5 +1,6 @@
 #+title: the docs begin for real, the scaffold folds to planned, the jd map turns out to be content, and the quick start is rewritten from the ghost's own trajectories
 #+filetags: :documentation:docs:astro:jdex:ghost:ledger:variant:quickstart:home:versions:principles:
+#+index: 58
 #+spine: 25 beef turns — the whole session is one docs-writing arc on documentation/, no code containers touched.
 
 * the walk (rows — every section cites these)

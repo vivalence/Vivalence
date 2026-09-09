@@ -1,0 +1,1688 @@
+#+title: m60 lighthouse security — two principals, one verify path: the system key is exchanged for a token, signup is invite by default, the entities sit behind the same gates the daemon runs, and the store holds hashes
+#+filetags: :m60:lighthouse:security:jwt:secure:typology:runtime:ghost:kajuit:commons:ledger:invite:signup:tangle:
+#+status: DESIGNED, nothing landed. Tangleable: every NEW file and every small replaced file is a `:tangle` block; the large files (`auth.js` · `init.js` · `Login.svelte` · the recipes) are `diff` hunks applied by hand. Sanity pass FOLDED (F12–F15): the scope wins in `scoped()` · `ctx.identities` · per-verb throttle · `jti` on every token · P-scope-wins on both suites. Two forks owed to beef before M1 (typology is holy): the name of the one new `secure` verb, and the default signup policy. Code on go.
+#+phase: designed
+#+progress: 0/5
+#+next: beef — rule F-name (`secure.claim`) and F-default (`invite`); then "go" per milestone
+
+* intent
+
+beef, verbatim, this session:
+
+/"we are going to narrow in on one specific problem, and that is the insecurity of tokens stored in the lighthouse. Right now, if a user is logged in, first off, every anyone can log in. That is also a problem. We might want to negotiate some sort of special token on system level, some shared JB key. … something that allows, for example, the CLI, or if we set it up and bundle it appropriately with a web client, so either Ghost or Kahoot, has some key in order to sign up new, new users. Sign up enabled, disabled, maybe also a setting on Lighthouse level."/
+
+/"We need to work on entity level. Where the lighthouse network entities of daemon and identity … have some different defaults in that they don't publish by default unless specifically asked for the security key."/
+
+/"I want to apply some of the daemon and runtime security scoping in the aperture. I want to apply that in the same way to Lighthouse and … we need to manage user scopes for this. Ambient is the shard and the data lab shard, of course. So we secure our data entities with some smarter defaults. We go through the Lighthouse vector that provides it and make sure that we … apply the same proper patterning that we have in the runtime and daemon and apply that to the lighthouse as well using shared tooling and common patterns."/
+
+/"Lighthouse might be a remote server like might live on the other side of the world, so this needs to be actually legitimately secure."/
+
+On the design: /"Wonderful, especially the part with the invite token. I am a big fan."/ · /"compile a quest for this with a fairly detailed patch, but not in the patch format that went sideways. … a tangleable quest."/
+
+The external frame: =VivalenceSecurity.pdf= (30 pp, "Vivalence — Static Security Review", 2 Sep). Its paths are pre-m47 (`registry/viva/lighthouses/…` → `commons/lighthouses/…`). This quest closes VIVA-25 · 03 · 06 · 17 · 18 and the throttle finding; VIVA-01's literal is in `bak/` (ignore territory) and is a delete, not a design.
+
+* the law
+
+#+BEGIN_EXAMPLE
+two principals, one verify path. a bearer on the lighthouse is a JWT of type "access" (an identity) or
+type "system" (a runtime, a ghost). a system token is EXCHANGED, never carried: the holder posts the
+shared key ONCE at /auth/system and rides the same Authorization: Bearer every other caller uses.
+
+the signing secret never leaves the lighthouse host. SECRET_VIVA_JWT signs; SECRET_VIVA_LIGHTHOUSE_KEY is
+exchanged. a consumer on the other side of the world carries only the key.
+
+the lighthouse runs the daemon's gates. shard.secure.authority(local) · authenticate() · authorize() —
+the same shard, a LOCAL provider that verifies in-process instead of over HTTP. /entities is authorized;
+a system principal is unscoped; an identity principal is scoped to its own row and may only READ.
+writes on daemon and identity are system-only. the one new word is a claim gate beside authorize().
+a scope WINS over the caller's where and data — on the daemon and the lighthouse alike.
+
+entity-level defaults publish nothing sensitive. Identity.authentication is `hidden` on the schema —
+MikroORM never serializes it, gated or not; it stays loadable for identify(). the row carries NO tokens.
+
+signup is a lighthouse static: open | invite | closed, default invite. a system principal may always
+sign up a user. an invite is a system-minted single-use JWT {type: "invite", jti}, burned on redemption.
+
+the store holds hashes. tokens.json keys refresh entries by sha256(token); a stolen file redeems
+nothing. sessions per identity are capped; the newest wins.
+
+verify pins the algorithm and the issuer. state is per service, never module-global.
+#+END_EXAMPLE
+
+* the decision trail
+
+| fork | ruling | by |
+|------+---------+----|
+| F1 | exchange the key for a system JWT rather than compare the key per request — one `jwt.verify` path, the key is not in per-request headers or logs, tokens expire, `shard.secure.*` works unchanged | mine, in the design; beef: "wonderful" |
+| F2 | a system principal is `{ id: sub, type: "system" }` — no Identity row; `getUser()` returns the principal itself so `authorize()` passes without an enrolment table | mine |
+| F3 | identity principals READ their own row only; there is no user-side write on `/entities/identity` — a password change is an `/auth` verb (deferred), never a repository `update` on `authentication` | mine (a scoped `updateOne` would let a user rewrite its own hash and slug) |
+| F4 | `daemon` reads are open to any principal (kajuit populates the daemon list after login); writes are system-only (the runtime's `announce`) | mine, measured: the only writers are `integrate.js:65,72` |
+| F5 | `Identity.authentication` is `hidden: true` on the schema — the wire cannot carry the hash even if a gate slips; the row stops holding tokens (`authentication.tokens` has ZERO readers, measured this session) | mine |
+| F6 | invite = a JWT with a `jti` recorded in the store and burned once; 7 days; minted only by a system principal; redeemed by `/auth/signup {username, password, invite}` | beef: "big fan" |
+| F7 | signup policy is a SERVICE static (`statics.signup`), read from `VIVA_LIGHTHOUSE_SIGNUP`; the env schema defaults it | mine — "maybe also a setting on Lighthouse level" |
+| F8 | refresh store keyed by `sha256(token)`; cap 8 sessions per identity, oldest evicted on mint; `cleanup` unchanged | mine (language-learning holds 470 entries today) |
+| F9 | `jwtVerify(token, secret, { algorithms: ["HS256"], issuer })`, issuer = the service's own `statics.serve` (falls back to `lighthouse/<slug>` when unset); `jwt.js` becomes a per-service closure | mine — VIVA-17/18 |
+| F10 | the throttle keys on the USERNAME attempted (10/min → 429), not the IP: `shape.http` does not surface the remote address today; IP keying is deferred behind that | mine — honest scope |
+| F11 | `server/index.js` splits into `compose(aperture, service, datamap)` (pure wiring) + the default export that accios the datamap — so the runtime scenario can host the REAL lighthouse in memory and the gates get a suite | mine — "shared tooling": the scenario already exists, it just fakes the wiring today |
+| F12 | `scoped()` merges caller-LAST (`datamap.js:53` `object.merge(ctx.scope, input.where)`; `object.merge` is source-wins — `deno eval` this session: `merge({id:"self"},{id:"other"})` → `{id:"other"}`), so a caller's `where.id` / `data.user` overrides the scope on the daemon today and would on the lighthouse — the scope now wins; one line in typology, M1 | mine — sanity pass |
+| F13 | `identity.inject()` sets `ctx.identity = { findOne, identify }` at root, and `secure.authenticate` reads a truthy `ctx.identity` as "already authenticated" (`secure.js:15`) — every `/entities` call would be `500 USER_LOOKUP_FAILED`; the helper becomes `ctx.identities` (identity.js + 4 live sites in auth.js) | mine — sanity pass |
+| F14 | the throttle is a per-verb HANDLER guard — login · signup keyed by username, system by holder; never on `/verify`, which the daemon's provider calls once per request (`provider/index.js:44`) and which carries no username (one `"*"` bucket would 429 the whole fleet after ten) | mine — sanity pass |
+| F15 | every token carries a `jti` — `setIssuedAt()` is epoch SECONDS (`jwt_claims_set.js:172`); two logins in one second minted byte-identical refresh tokens: one store key, one revoke for both, P-session-cap could not count | mine — sanity pass |
+| F-name | the claim gate's name in typology `secure.js` — lean `secure.claim(predicate, message)`: "claim" is already the trait vocabulary (`shard.trait.claimed`), no coined register | OWED |
+| F-default | `VIVA_LIGHTHOUSE_SIGNUP` default — lean `invite` | OWED |
+
+* terrain — measured this session
+
+** the chain, as it stands
+
+#+BEGIN_EXAMPLE
+grep "secure\." over every lighthouse source tree on this machine → exit=1, ZERO hits
+commons/lighthouses/multiplayer/server/index.js:13 error · :32 datamap.inject · :33 authority.inject · :34 identity.inject
+entities.js:48,53  branch /entities/{identity,daemon} + slurp shard.datamap.repository   — every verb, no gate
+grep -iE "rate|throttle|limiter|attempts|lockout|backoff" commons/lighthouses/ → ZERO
+jose sites, whole repo: jwt.js:10 SignJWT · jwt.js:18 jwtVerify(token, secret)         — no algorithms, no issuer
+jwt.js:4-5  let db; let secret;                                                          — module globals
+datamap.js:53 scoped(): object.merge(ctx.scope, input[target])                            — caller-last; merge is source-wins → the scope is overridable (daemon too)
+secure.js:15 if (ctx.identity) return next()  ·  identity.js:5 ctx.identity = { findOne, identify } at root — a collision
+provider/index.js:44 fetch /auth/verify per daemon request; getUser/enroll hit the daemon's OWN users repo — nothing on /entities
+#+END_EXAMPLE
+
+** the store, queried (not the writer)
+
+#+BEGIN_EXAMPLE
+~/.viva/instances/*/mountpoint/service_multiplayer/tokens.json — top-level {refresh}; every KEY is a 2-dot JWT
+  hello-world 6 · italian 2 · stucatch 3 · vivalence 13 · language-learning 470      value: {id, type, createdAt, expiresAt}
+multiplayer.viva.db → Daemon | Identity | _mikro_migrations
+  Identity rows: provider=password · password=$argon2id$v=19… · tokens.access len 192 · tokens.refresh len 193
+readers of authentication.tokens / .credentials outside the writer: identity.js:21,25 (credentials.password) — tokens: ZERO
+#+END_EXAMPLE
+
+** the consumers of `/entities/*` on the lighthouse
+
+| caller | verbs | principal after M2 |
+|--------+-------+--------------------|
+| `systems/runtime/lifecycle/integrate.js:65,72` announce | `daemon/ensure` · `daemon/remove` | system (exchanged at boot) |
+| `systems/kajuit/src/typology/entities/daemon/dossier.js:42` | `daemon/find` | identity (post-login bearer already set by `shard.connection.authorize`) |
+| `commons/lighthouses/multiplayer/tests/{datamap,lighthouse}.test.js` | both entities, every verb | system (the scenario mints one) |
+| `systems/ghost/bak/typology/connect.js:11` | `daemon/find` | bak — dead |
+
+** the radius (the flag-day rule: repo + instances + tapped packages)
+
+Recipes declaring `lighthouse/multiplayer` (13 files): checkout `commons/instances/hello-world/instance.viva.js` · ledger `~/.viva/instances/{hello-world,italian,stucatch,vivalence}/*.viva.js` + `language-learning/test.viva.js` · registry `education/instances/{italian,spanish,brazilian}/*.viva.js` (its own repo, beef pushes) · `vcompany/instances/vcompany/instance.viva.js`. Their `.env` files (5 on the shelf) gain a minted `SECRET_VIVA_LIGHTHOUSE_KEY` at the next `viva instance/init` — `envfile.fallback` runs a function default (m46's mint law).
+
+* the design
+
+** the principals and the gates
+
+#+BEGIN_EXAMPLE
+/auth/login · verify · refresh · logout        open (throttled)
+/auth/system   {key, holder}                   open → system JWT (1h)               timing-safe compare
+/auth/invite                                   system → invite JWT (7d, jti stored)
+/auth/signup   {username, password, invite?}   policy: system ∨ open ∨ (invite ∧ burn) ∨ 403
+/entities                                      .use(secure.authorize())
+  /identity                                    identity → scope {id: self}, READS only · system → all
+  /daemon                                      any principal READS · system → all
+/status · /manifest                            open (the process die opens them before compose)
+#+END_EXAMPLE
+
+** what a token says
+
+#+BEGIN_SRC json
+{ "id": "<identity uuid>", "type": "access",  "iss": "http://…/attached/process/lighthouse/multiplayer", "exp": "+1d" }
+{ "id": "<identity uuid>", "type": "refresh", "iss": "…", "exp": "+180d" }
+{ "sub": "runtime/hello-world", "type": "system", "iss": "…", "exp": "+1h" }
+{ "jti": "<uuid>", "type": "invite", "iss": "…", "exp": "+7d" }
+#+END_SRC
+
+** what the store holds
+
+#+BEGIN_SRC json
+{ "refresh": { "<sha256 hex of the refresh JWT>": { "id": "…", "type": "refresh", "createdAt": 0, "expiresAt": 0 } },
+  "invites": { "<jti>": { "by": "runtime/hello-world", "createdAt": 0, "expiresAt": 0 } } }
+#+END_SRC
+
+** what the wire shows for an identity
+
+#+BEGIN_SRC json
+{ "id": "…", "slug": "beef", "createdAt": "…", "updatedAt": "…" }
+#+END_SRC
+
+`authentication` never serializes (`hidden`). A system principal reading identities sees the same shape; the hash is a database fact, not a wire fact.
+
+* milestones
+
+** M1 — typology (HOLY, per-file go) — the one new word, and the scope that wins
+
+=subsystems/typology/gestalten/shard/secure.js= — surgical:
+
+#+BEGIN_SRC diff
+@@ -29,6 +29,14 @@ export function authorize() {
+   return (ctx, next) => identify(ctx, () => admit(ctx, next));
+ }
++
++// a claim gate — sits BEHIND authorize(); refuses 403 when the predicate over ctx is false.
++// the daemon has no role vocabulary yet; the lighthouse's system-vs-identity split is the first claim.
++export function claim(predicate, message = "this principal may not do that") {
++  return async (ctx, next) => {
++    if (!(await predicate(ctx))) return refuse(ctx, 403, "FORBIDDEN", message);
++    await next();
++  };
++}
+#+END_SRC
+
+=subsystems/typology/tests/gestalten/shard/secure.test.js= NEW:
+
+#+BEGIN_SRC js :tangle ../../subsystems/typology/tests/gestalten/shard/secure.test.js :mkdirp yes
+import { specimen, shard, Aperture, shape, Connection, Url } from "@vivalence/typology";
+
+const principal = (type) => ({
+  identity: { id: "p1", type },
+  getUser: async () => ({ id: "p1", type }),
+  enroll: async () => ({ id: "p1", type }),
+});
+
+const authority = (type) => ({ authenticate: async (token) => (token === "good" ? principal(type) : Promise.reject(new Error("bad"))) });
+
+const rig = (type) => {
+  const aperture = new Aperture();
+  aperture
+    .use(shard.secure.authority(authority(type)))
+    .branch("/gated")
+    .use(shard.secure.authorize())
+    .use(shard.secure.claim((ctx) => ctx.user.type === "system", "system only"))
+    .open("/ping", () => ({ ok: true }));
+  return new Connection(new Url("http://test"), shard.transmitter.inline(shape.http(aperture)));
+};
+
+specimen.describe("shard.secure.claim", () => {
+  specimen.it("P-claim-refuses: a false predicate is 403 FORBIDDEN with the message", async () => {
+    const response = await rig("identity").fetch("/gated/ping", {}, { headers: { authorization: "Bearer good" } });
+    specimen.expect(response.status).toBe(403);
+    specimen.expect(response.body.error.code).toBe("FORBIDDEN");
+    specimen.expect(response.body.error.message).toBe("system only");
+  });
+
+  specimen.it("P-claim-admits: a true predicate passes through", async () => {
+    const response = await rig("system").fetch("/gated/ping", {}, { headers: { authorization: "Bearer good" } });
+    specimen.expect(response.status).toBe(200);
+    specimen.expect(response.body.ok).toBe(true);
+  });
+
+  specimen.it("P-claim-after-authorize: no bearer is 401 before the claim ever runs", async () => {
+    const response = await rig("system").fetch("/gated/ping", {});
+    specimen.expect(response.status).toBe(401);
+    specimen.expect(response.body.error.code).toBe("MISSING_TOKEN");
+  });
+});
+#+END_SRC
+
+=subsystems/typology/gestalten/shard/datamap.js= — surgical (F12): the scope wins. Today `where: { id: <other> }` replaces the scope's `id`; after, the caller's keys are the base and the scope is laid over them.
+
+#+BEGIN_SRC diff
+@@ -50,7 +50,8 @@ function scoped(target, fn) {
+   return async (input, ctx) => {
+     if (ctx.scope) {
+-      input[target] = object.merge(ctx.scope, input[target] || {});
++      // the scope is laid OVER the caller's where/data — a caller may narrow, never escape
++      input[target] = object.merge(input[target] || {}, ctx.scope);
+     }
+     return fn(input, ctx);
+   };
+#+END_SRC
+
+=systems/runtime/tests/daemon/userspace.test.js= — surgical: the daemon gets the proof too (appended after `thread lifecycle scoped to user`, which leaves a thread owned by the authed user)
+
+#+BEGIN_SRC diff
+@@ -62,4 +62,12 @@
+     specimen.expect(one).toBeTruthy();
+     specimen.expect(one.id).toBe(found[0].id);
+   });
++
++  specimen.it("P-scope-wins: a where naming another user's id answers nothing", async () => {
++    const { user } = await scenario.authedConn.call("/userspace/handshake");
++    await scenario.freshConn.call("/userspace/handshake");
++    const found = await scenario.freshConn.call("/userspace/entities/thread/find", { where: { user: user.id } });
++    specimen.expect(found).toEqual([]);
++  });
+ });
+#+END_SRC
+
+Gate: `deno test -A --no-check --config deno.jsonc subsystems/typology/tests/gestalten/shard/secure.test.js` → 3 passed · `systems/runtime/tests/daemon/userspace.test.js` → 6 passed (was 5; P-scope-wins fails BEFORE the swap — run it red first) · the typology one-shot stays at its baseline (124 / 1 pre-existing `hallucination snapshot` red).
+
+** M2 — the lighthouse — jwt · authority · throttle · index · entities · auth
+
+*** =commons/lighthouses/multiplayer/server/lib/jwt.js= — full tangle of an existing file
+
+Live BEFORE (re-read this session; lines 95–152 are a commented-out duplicate of the same module and are dropped by the tangle):
+
+#+BEGIN_SRC js
+import * as jose from "jose";
+import { JSONFilePreset } from "lowdb/node";
+
+let db;
+let secret;
+const jwtExpiresIn = "1d";
+const refreshExpiresIn = "180d";
+
+async function createJWT(payload, expiration = jwtExpiresIn) {
+  return new jose.SignJWT(payload)
+    .setProtectedHeader({ alg: "HS256" })
+    .setIssuedAt()
+    .setExpirationTime(expiration)
+    .sign(secret);
+}
+
+async function verifyJWT(token) {
+  const { payload } = await jose.jwtVerify(token, secret);
+  return payload;
+}
+
+async function createRefreshToken(payload) {
+  const refreshToken = await createJWT(
+    { ...payload, type: "refresh" },
+    refreshExpiresIn,
+  );
+
+  db.data.refresh[refreshToken] = {
+    ...payload,
+    createdAt: Date.now(),
+    expiresAt: Date.now() + 180 * 24 * 60 * 60 * 1000,
+  };
+  await db.write();
+
+  return refreshToken;
+}
+
+async function revokeRefreshToken(refreshToken) {
+  delete db.data.refresh[refreshToken];
+  await db.write();
+}
+
+function isRefreshTokenValid(refreshToken) {
+  const entry = db.data.refresh[refreshToken];
+  if (!entry) return false;
+  if (entry.expiresAt && Date.now() > entry.expiresAt) {
+    delete db.data.refresh[refreshToken];
+    return false;
+  }
+  return true;
+}
+
+async function cleanupExpiredTokens() {
+  const now = Date.now();
+  let changed = false;
+
+  for (const [token, entry] of Object.entries(db.data.refresh)) {
+    if (entry.expiresAt && now > entry.expiresAt) {
+      delete db.data.refresh[token];
+      changed = true;
+    }
+  }
+
+  if (changed) await db.write();
+}
+
+const jwt = { create: createJWT, verify: verifyJWT };
+const rft = {
+  create: createRefreshToken,
+  verify: isRefreshTokenValid,
+  revoke: revokeRefreshToken,
+  cleanup: cleanupExpiredTokens,
+};
+
+export default async function (service) {
+  // console.log("lighthouse/multiplayer", { service });
+  if (!service.secrets?.jwt) {
+    throw new Error("JWT secret not configured in service.secrets.jwt");
+  }
+
+  secret = new TextEncoder().encode(service.secrets.jwt);
+
+  const tokenfile = service.mountpoint.branch("/tokens.json").absolute;
+  db = await JSONFilePreset(tokenfile, { refresh: {} });
+  await db.read();
+
+  // Cleanup on startup
+  await cleanupExpiredTokens();
+
+  // Periodic cleanup every hour
+  setInterval(cleanupExpiredTokens, 60 * 60 * 1000);
+
+  return { jwt, rft };
+}
+#+END_SRC
+
+The tangle. Everything moves inside the factory (was: module globals); verify pins algorithm + issuer (was: bare); the refresh store keys by hash and caps per identity (was: the token itself, unbounded); `invites` and `system` are new; the cleanup interval is returned so a scenario can clear it.
+
+#+BEGIN_SRC js :tangle ../../commons/lighthouses/multiplayer/server/lib/jwt.js :mkdirp yes
+import * as jose from "jose";
+import { JSONFilePreset } from "lowdb/node";
+import { timingSafeEqual } from "node:crypto"; // `@std/crypto` is mapped without its subpaths; node:crypto resolves under deno.jsonc (measured)
+
+const ACCESS = "1d";
+const REFRESH = "180d";
+const REFRESH_MS = 180 * 24 * 60 * 60 * 1000;
+const SYSTEM = "1h";
+const INVITE = "7d";
+const INVITE_MS = 7 * 24 * 60 * 60 * 1000;
+const SESSIONS = 8;
+const ALGORITHMS = ["HS256"];
+
+const encode = (text) => new TextEncoder().encode(text);
+
+const digest = async (text) => {
+  const bytes = new Uint8Array(await crypto.subtle.digest("SHA-256", encode(text)));
+  return Array.from(bytes, (byte) => byte.toString(16).padStart(2, "0")).join("");
+};
+
+// === CHANGE START — was: module-global `db`/`secret`, verify with no algorithm or issuer pin ===
+export default async function (service) {
+  if (!service.secrets?.jwt) throw new Error("JWT secret not configured in service.secrets.jwt");
+  if (service.secrets.jwt.length < 24) throw new Error("service.secrets.jwt must be at least 24 characters");
+
+  const secret = encode(service.secrets.jwt);
+  const issuer = service.statics?.serve?.absolute ?? `lighthouse/${service.manifest.slug}`;
+
+  const tokenfile = service.mountpoint.branch("/tokens.json").absolute;
+  const db = await JSONFilePreset(tokenfile, { refresh: {}, invites: {} });
+  await db.read();
+  db.data.refresh ??= {};
+  db.data.invites ??= {}; // a pre-m60 file has no invites bag; lowdb's default only seeds a missing file
+
+  const create = (payload, expiration = ACCESS) =>
+    new jose.SignJWT(payload)
+      .setProtectedHeader({ alg: "HS256" })
+      .setIssuedAt()
+      .setIssuer(issuer)
+      .setJti(payload.jti ?? crypto.randomUUID()) // iat is seconds: two mints in one second must still be two tokens
+      .setExpirationTime(expiration)
+      .sign(secret);
+
+  const verify = async (token) => {
+    const { payload } = await jose.jwtVerify(token, secret, { algorithms: ALGORITHMS, issuer });
+    return payload;
+  };
+
+  const jwt = { create, verify };
+
+  // === refresh — keyed by sha256(token); the file redeems nothing on its own ===
+  const rft = {
+    create: async (payload) => {
+      const token = await create({ ...payload, type: "refresh" }, REFRESH);
+      const now = Date.now();
+      db.data.refresh[await digest(token)] = { ...payload, createdAt: now, expiresAt: now + REFRESH_MS };
+      const owned = Object.entries(db.data.refresh)
+        .filter(([, entry]) => entry.id === payload.id)
+        .sort(([, a], [, b]) => a.createdAt - b.createdAt);
+      for (const [key] of owned.slice(0, Math.max(0, owned.length - SESSIONS))) delete db.data.refresh[key];
+      await db.write();
+      return token;
+    },
+    verify: async (token) => {
+      const key = await digest(token);
+      const entry = db.data.refresh[key];
+      if (!entry) return false;
+      if (entry.expiresAt && Date.now() > entry.expiresAt) {
+        delete db.data.refresh[key];
+        await db.write();
+        return false;
+      }
+      return true;
+    },
+    revoke: async (token) => {
+      delete db.data.refresh[await digest(token)];
+      await db.write();
+    },
+    cleanup: async () => {
+      const now = Date.now();
+      let changed = false;
+      for (const bag of [db.data.refresh, db.data.invites]) {
+        for (const [key, entry] of Object.entries(bag)) {
+          if (entry.expiresAt && now > entry.expiresAt) {
+            delete bag[key];
+            changed = true;
+          }
+        }
+      }
+      if (changed) await db.write();
+    },
+  };
+
+  // === invites — a system-minted, single-use door into signup ===
+  const invites = {
+    mint: async (by) => {
+      const jti = crypto.randomUUID();
+      const now = Date.now();
+      db.data.invites[jti] = { by, createdAt: now, expiresAt: now + INVITE_MS };
+      await db.write();
+      return create({ jti, type: "invite" }, INVITE);
+    },
+    // verifies, then burns — a second redemption is a miss
+    burn: async (token) => {
+      const payload = await verify(token).catch(() => null);
+      if (!payload || payload.type !== "invite" || !db.data.invites[payload.jti]) return null;
+      const entry = db.data.invites[payload.jti];
+      delete db.data.invites[payload.jti];
+      await db.write();
+      return entry;
+    },
+  };
+
+  // === system — the shared key, exchanged once for a bearer ===
+  const key = service.secrets.key ? encode(service.secrets.key) : null;
+  const system = {
+    enabled: !!key,
+    exchange: async (candidate, holder) => {
+      if (!key || typeof candidate !== "string") return null;
+      const offered = encode(candidate);
+      if (offered.length !== key.length || !timingSafeEqual(offered, key)) return null;
+      return create({ sub: holder, type: "system" }, SYSTEM);
+    },
+  };
+
+  await rft.cleanup();
+  const interval = setInterval(rft.cleanup, 60 * 60 * 1000);
+
+  return { jwt, rft, invites, system, close: () => clearInterval(interval) };
+}
+// === CHANGE END ===
+#+END_SRC
+
+*** =commons/lighthouses/multiplayer/server/lib/authority.js= NEW — the local provider
+
+The daemon side (`provider/index.js`) verifies over HTTP against `/auth/verify`; this is the same contract verified in-process. `shard.secure.authenticate()` calls `ctx.authority.authenticate(token)` and stores the result as `ctx.identity`; `authorize()` then calls `getUser()`.
+
+#+BEGIN_SRC js :tangle ../../commons/lighthouses/multiplayer/server/lib/authority.js :mkdirp yes
+// the lighthouse's OWN authority provider — same shape provider/index.js hands a daemon
+// ({ authenticate(token) → { identity, getUser, enroll } }), verified in-process.
+// a system principal has no Identity row: it IS its token's subject.
+export function local({ jwt, identities }) {
+  const principal = (fields) => ({
+    identity: fields,
+    getUser: async () => fields,
+    enroll: async () => fields,
+  });
+
+  return {
+    authenticate: async (token) => {
+      const payload = await jwt.verify(token); // throws → secure.authenticate answers 401 INVALID_TOKEN
+      if (payload.type === "system") return principal({ id: payload.sub, type: "system" });
+      if (payload.type !== "access") throw new Error(`a ${payload.type} token is not a bearer`);
+      const row = await identities.findOne({ id: payload.id });
+      if (!row) throw new Error("Identity not found");
+      return principal({ id: row.id, slug: row.slug, type: "identity" });
+    },
+  };
+}
+
+export const system = (ctx) => ctx.user?.type === "system";
+
+// a bearer read leniently — for the /auth branch, which is open but treats a system caller specially
+export async function bearer(ctx) {
+  const header = ctx.request.headers?.get("authorization");
+  const token = header?.startsWith("Bearer ") ? header.split(" ")[1] : null;
+  if (!token) return null;
+  return ctx.authority.authenticate(token).catch(() => null);
+}
+#+END_SRC
+
+*** =commons/lighthouses/multiplayer/server/lib/throttle.js= NEW — a per-verb handler guard (F14)
+
+An effect returns its body (`vector.js:39` `open` stores the effect; `respond.error` sets the status and returns the body), so the guard wraps the handler and answers in the same shape. It is NEVER put on the branch: `/verify` is called by every daemon on every request and carries no username.
+
+#+BEGIN_SRC js :tangle ../../commons/lighthouses/multiplayer/server/lib/throttle.js :mkdirp yes
+// a token bucket per KEY around ONE verb. login/signup key by the username attempted, system by the
+// holder (the address is not on ctx today — see the quest's deferred list). `limit` a minute, then 429.
+export function throttle(handler, { limit = 10, window = 60_000, key = (input) => input?.username } = {}) {
+  const buckets = new Map();
+  return async (input, ctx) => {
+    const now = Date.now();
+    const slot = key(input) ?? "*";
+    const bucket = buckets.get(slot) ?? { count: 0, reset: now + window };
+    if (now > bucket.reset) Object.assign(bucket, { count: 0, reset: now + window });
+    bucket.count += 1;
+    buckets.set(slot, bucket);
+    if (bucket.count > limit) {
+      ctx.response.status = 429;
+      ctx.response.headers.set("retry-after", String(Math.ceil((bucket.reset - now) / 1000)));
+      return { status: "ERROR", error: { code: "THROTTLED", message: "too many attempts — wait a minute" } };
+    }
+    return handler(input, ctx);
+  };
+}
+#+END_SRC
+
+*** =commons/lighthouses/multiplayer/server/index.js= — full tangle of an existing file
+
+Live BEFORE:
+
+#+BEGIN_SRC js
+import { shard, Status } from "@vivalence/typology";
+
+import * as entity from "./entities.js";
+import * as authority from "./auth.js";
+import * as identity from "./identity.js";
+
+// TODO: universal mask first.
+export default async function server(aperture, service) {
+  // const { orm, entities } = await entity.systemmap(service, aperture);
+  const datamap = await entity.systemmap(service, aperture);
+
+  aperture
+    .use(async (ctx, next) => {
+      try {
+        await next();
+      } catch (error) {
+        console.log(
+          "[@lighthouse/multiplayer] service error",
+          error.name,
+          error.code,
+        );
+        if (error.code === "ERR_JWT_EXPIRED") {
+          ctx.response.status = 401;
+          ctx.response.body = { error };
+        } else {
+          console.error(error);
+          throw error;
+        }
+      }
+    })
+    // .use(entity.inject(orm))
+    .use(shard.datamap.inject(datamap))
+    .use(await authority.inject(service))
+    .use(identity.inject());
+
+  authority.expose(service, aperture);
+  // entity.expose(service, aperture, orm);
+  entity.expose(service, aperture, datamap);
+}
+#+END_SRC
+
+#+BEGIN_SRC js :tangle ../../commons/lighthouses/multiplayer/server/index.js :mkdirp yes
+import { shard } from "@vivalence/typology";
+
+import * as entity from "./entities.js";
+import * as authority from "./auth.js";
+import * as identity from "./identity.js";
+import { local } from "./lib/authority.js";
+
+// === CHANGE START — was: one function that accio'd the datamap AND wired the aperture ===
+// the wiring, over any datamap — the runtime scenario hosts the real lighthouse in memory through this
+export async function compose(aperture, service, datamap) {
+  const tokens = await authority.inject(service);
+
+  aperture
+    .use(async (ctx, next) => {
+      try {
+        await next();
+      } catch (error) {
+        console.log("[@lighthouse/multiplayer] service error", error.name, error.code);
+        if (error.code === "ERR_JWT_EXPIRED") {
+          ctx.response.status = 401;
+          ctx.response.body = { status: "ERROR", error: { code: "TOKEN_EXPIRED", message: "token expired" } };
+        } else {
+          console.error(error);
+          throw error;
+        }
+      }
+    })
+    .use(shard.datamap.inject(datamap))
+    .use(tokens.middleware)
+    .use(identity.inject())
+    .use(shard.secure.authority(local({ jwt: tokens.jwt, identities: datamap.entities.identity })));
+
+  authority.expose(service, aperture);
+  entity.expose(service, aperture, datamap);
+
+  return { close: tokens.close };
+}
+
+export default async function server(aperture, service) {
+  const datamap = await entity.systemmap(service, aperture);
+  await compose(aperture, service, datamap);
+}
+// === CHANGE END ===
+#+END_SRC
+
+*** =commons/lighthouses/multiplayer/server/entities.js= — full tangle of an existing file
+
+Live BEFORE (lines 1–56; 57–125 are commented-out earlier drafts, dropped):
+
+#+BEGIN_SRC js
+import paladin from "@vivalence/paladin";
+// import { MikroORM, defineConfig, FlushMode } from "@mikro-orm/sqlite";
+// import { Migrator } from "@mikro-orm/migrations";
+// import { v7 } from "uuid";
+// import { join } from "@std/path";
+import { shard } from "@vivalence/typology";
+
+import {
+  // IdentitySchema,
+  // DaemonSchema,
+  AuthenticatorEmbedSchema,
+  sets,
+} from "@vivalence/runtime";
+
+export async function systemmap(servicemask) {
+  const datamap = await paladin.vip.accio(servicemask.datamap.module);
+
+  // const instance = [IdentitySchema, DaemonSchema, AuthenticatorEmbedSchema]
+  //   .map((schema) => ({ schema }));
+  const instance = [sets.network.identity, sets.network.daemon, {
+    schema: AuthenticatorEmbedSchema,
+  }];
+
+  // const { orm, entities } = await datamap.provider(servicemask.datamap, instance);
+  // return { orm, entities };
+  return await datamap.provider(servicemask.datamap, instance);
+}
+
+// export function inject(orm) { … }
+
+// export function expose(service, aperture, orm) {
+//   const em = orm.em.fork();
+//   const identityRepo = em.getRepository(IdentityEntity);
+//   const daemonRepo = em.getRepository(DaemonEntity);
+export function expose(service, aperture, datamap) {
+  aperture
+    .branch("/entities/identity")
+    // .slurp(shard.datamap.repository(identityRepo));
+    .slurp(shard.datamap.repository(datamap.entities.identity));
+
+  aperture
+    .branch("/entities/daemon")
+    // .slurp(shard.datamap.repository(daemonRepo));
+    .slurp(shard.datamap.repository(datamap.entities.daemon));
+}
+#+END_SRC
+
+#+BEGIN_SRC js :tangle ../../commons/lighthouses/multiplayer/server/entities.js :mkdirp yes
+import paladin from "@vivalence/paladin";
+import { shard } from "@vivalence/typology";
+import { AuthenticatorEmbedSchema, sets } from "@vivalence/runtime";
+import { system } from "./lib/authority.js";
+
+export async function systemmap(servicemask) {
+  const datamap = await paladin.vip.accio(servicemask.datamap.module);
+  const instance = [sets.network.identity, sets.network.daemon, { schema: AuthenticatorEmbedSchema }];
+  return await datamap.provider(servicemask.datamap, instance);
+}
+
+// === CHANGE START — was: two ungated branches, every repository verb open to the network ===
+const READS = new Set(["find", "findOne", "findOneOrFail", "findAndCount", "count"]);
+const verb = (ctx) => ctx.request.url.pathname.split("/").pop();
+const readOrSystem = shard.secure.claim(
+  (ctx) => system(ctx) || READS.has(verb(ctx)),
+  "writes on this entity are for a system principal",
+);
+
+// the daemon's own pattern (daemon/aperture/userspace.js): authorize → scope → repository.
+// system: unscoped. identity: its own row, reads only. daemon rows: any principal reads, system writes.
+export function expose(service, aperture, datamap) {
+  const owned = aperture.branch("/entities").use(shard.secure.authorize());
+
+  owned
+    .branch("/identity")
+    .use(readOrSystem)
+    .use(shard.datamap.scope((ctx) => (system(ctx) ? {} : { id: ctx.user.id })))
+    .slurp(shard.datamap.repository(datamap.entities.identity));
+
+  owned
+    .branch("/daemon")
+    .use(readOrSystem)
+    .slurp(shard.datamap.repository(datamap.entities.daemon));
+}
+// === CHANGE END ===
+#+END_SRC
+
+*** =commons/lighthouses/multiplayer/server/auth.js= — surgical (the live file's commented tail, lines 220–414, is dropped in the same edit)
+
+`inject` returns the whole token kit so `compose` can hand `jwt` to the local authority and `close` to a scenario; the middleware binds the four faces on ctx.
+
+#+BEGIN_SRC diff
+@@ -1,6 +1,8 @@
+ // import { wrap } from "@mikro-orm/core";
+ import { wrap } from "@vivalence/runtime";
+ import * as argon2 from "argon2";
+ import createJWT from "./lib/jwt.js";
++import { bearer, system } from "./lib/authority.js";
++import { throttle } from "./lib/throttle.js";
+
+@@ -14,20 +16,33 @@ const respond = {
+ export async function inject(service) {
+-  const { jwt, rft } = await createJWT(service);
+-  return async (ctx, next) => {
+-    ctx.jwt = jwt;
+-    ctx.rft = rft;
+-    await next();
+-  };
++  const tokens = await createJWT(service);
++  const middleware = async (ctx, next) => {
++    ctx.jwt = tokens.jwt;
++    ctx.rft = tokens.rft;
++    ctx.invites = tokens.invites;
++    ctx.system = tokens.system;
++    await next();
++  };
++  return { ...tokens, middleware };
+ }
+
++const POLICIES = new Set(["open", "invite", "closed"]);
++
+ export function expose(service, aperture) {
++  const policy = service.statics?.signup ?? "invite";
++  if (!POLICIES.has(policy)) throw new Error(`lighthouse signup policy must be open | invite | closed, got "${policy}"`);
++
+   aperture
+     .branch("/auth")
+-    .open("/signup", signup)
+-    .open("/login", login)
++    .open("/signup", throttle((input, ctx) => signup(input, ctx, policy), { key: (input) => input?.username }))
++    .open("/login", throttle(login, { key: (input) => input?.username }))
+     .open("/logout", logout)
+     .open("/verify", verify)
+-    .open("/refresh", refresh);
++    .open("/refresh", refresh)
++    .open("/system", throttle(exchange, { key: (input) => input?.holder }))
++    .open("/invite", invite);
+ }
+
+-async function signup(input, ctx) {
+-  const { username, password } = input;
++async function signup(input, ctx, policy) {
++  const { username, password, invite: offered } = input;
+
+   if (!username || !password) {
+@@ -42,6 +57,21 @@
+     );
+   }
+
++  // who may open the door: a system caller always; else the policy decides
++  const caller = await bearer(ctx);
++  const admitted = caller?.identity.type === "system" ? "system" : policy;
++  if (admitted === "closed") {
++    return respond.error(ctx, "SIGNUP_CLOSED", "signup is closed on this lighthouse — ask an operator for an account", 403);
++  }
++  if (admitted === "invite") {
++    if (!offered) return respond.error(ctx, "INVITE_REQUIRED", "signup needs an invite — viva instance/lighthouse invite", 403);
++    const burned = await ctx.invites.burn(offered);
++    if (!burned) return respond.error(ctx, "INVITE_INVALID", "that invite is spent, expired, or not ours", 403);
++  }
++
+@@ -63,23 +93,15 @@
+   await ctx.entities.em.flush();
+
+   const authority = {
+     access: await ctx.jwt.create({ id: identity.id, type: "access" }),
+     refresh: await ctx.rft.create({ id: identity.id, type: "refresh" }),
+   };
+
+   wrap(identity).assign({
+     authentication: {
+       provider: "password",
+       credentials: { username, password: passwordHash },
+-      tokens: authority,
+     },
+   });
+
+   await ctx.entities.em.flush();
+
+-  // console.log({ identity, authority });
+   return respond.success({
+     identity: { id: identity.id, slug: identity.slug },
+     authority,
+   });
+ }
+@@ -109,12 +131,6 @@ async function login(input, ctx) {
+   const authority = {
+     access: await ctx.jwt.create({ id: identity.id, type: "access" }),
+     refresh: await ctx.rft.create({ id: identity.id, type: "refresh" }),
+   };
+
+-  wrap(identity).assign(
+-    { authentication: { tokens: authority } },
+-    { merge: true, mergeObjectProperties: true },
+-  );
+-
+   return respond.success({
+@@ -132,7 +148,7 @@ async function logout(input, ctx) {
+-  if (!ctx.rft.verify(refresh)) {
++  if (!(await ctx.rft.verify(refresh))) {
+     return respond.error(ctx, "INVALID_TOKEN", "Invalid refresh token", 401);
+   }
+@@ -142,12 +158,7 @@
+-  const identity = await ctx.identity.findOne({ id: payload.id });
+-
+-  if (identity) {
++  const identity = await ctx.identities.findOne({ id: payload.id });
+-    wrap(identity).assign(
+-      { authentication: { tokens: { access: null, refresh: null } } },
+-      { mergeObjectProperties: true },
+-    );
+-    await ctx.rft.revoke(refresh);
+-  }
++  if (identity) await ctx.rft.revoke(refresh);
+
+   return respond.success({ message: "Logged out" });
+ }
+@@ -186,7 +197,7 @@ async function refresh(input, ctx) {
+-  if (!ctx.rft.verify(refresh)) {
++  if (!(await ctx.rft.verify(refresh))) {
+     return respond.error(
+@@ -208,13 +219,32 @@
+   const newAccessToken = await ctx.jwt.create({
+     id: identity.id,
+     type: "access",
+   });
+
+-  wrap(identity).assign(
+-    { authentication: { tokens: { access: newAccessToken } } },
+-    { merge: true, mergeObjectProperties: true },
+-  );
+-
+   return respond.success({ access: newAccessToken });
+ }
++
++// the shared key, exchanged once — a runtime at boot, a ghost per verb
++async function exchange(input, ctx) {
++  const { key, holder } = input;
++  if (!key || !holder) return respond.error(ctx, "INVALID_INPUT", "key and holder required");
++  if (!ctx.system.enabled) return respond.error(ctx, "SYSTEM_DISABLED", "this lighthouse declares no system key", 403);
++  const access = await ctx.system.exchange(key, String(holder));
++  if (!access) return respond.error(ctx, "INVALID_KEY", "that is not this lighthouse's key", 401);
++  return respond.success({ authority: { access }, principal: { id: String(holder), type: "system" } });
++}
++
++// system-only: mint a single-use door into signup
++async function invite(input, ctx) {
++  const caller = await bearer(ctx);
++  if (caller?.identity.type !== "system") {
++    return respond.error(ctx, "FORBIDDEN", "only a system principal mints invites", 403);
++  }
++  const token = await ctx.invites.mint(caller.identity.id);
++  return respond.success({ invite: token, expires: "7d" });
++}
+#+END_SRC
+
+The helper is renamed (F13) — `secure.authenticate` treats a truthy `ctx.identity` as an already-authenticated principal, and the root-level `identity.inject()` set exactly that on every request. Three more live sites in `auth.js` (98 identify · 168 verify · 201 refresh) take the same one-word change; logout's is in the hunk above:
+
+#+BEGIN_SRC diff
+@@ -95,3 +95,3 @@ async function login(input, ctx) {
+-  const identity = await ctx.identity.identify({ username, password });
++  const identity = await ctx.identities.identify({ username, password });
+@@ -165,3 +165,3 @@ async function verify(input, ctx) {
+-  const identity = await ctx.identity.findOne({ id: payload.id });
++  const identity = await ctx.identities.findOne({ id: payload.id });
+@@ -198,3 +198,3 @@ async function refresh(input, ctx) {
+-  const identity = await ctx.identity.findOne({ id: payload.id });
++  const identity = await ctx.identities.findOne({ id: payload.id });
+#+END_SRC
+
+=commons/lighthouses/multiplayer/server/identity.js= — surgical (the commented tail, lines 42–100, dropped in the same edit)
+
+#+BEGIN_SRC diff
+@@ -3,5 +3,6 @@ import * as argon2 from "argon2";
+ export function inject() {
+   return async (ctx, next) => {
+-    ctx.identity = {
++    // `identities`, not `identity` — secure.authenticate owns ctx.identity (the principal)
++    ctx.identities = {
+       findOne: async (where, options) => {
+#+END_SRC
+
+It still reads `credentials.password` only. The `wrap` import in `auth.js` stays for `signup`. `provider/index.js` is untouched on purpose: it calls `/auth/verify` (open) and the daemon's own `users` repository — nothing on `/entities`.
+
+*** =subsystems/typology/schematics/primitives/auth.js= — the two new request/response shapes (additive)
+
+#+BEGIN_SRC diff
+@@ -31,6 +31,7 @@ export const LoginRequest = v.object({
+ export const SignupRequest = v.object({
+   username: Username,
+   password: Password,
++  invite: JWTToken.optional(),
+ });
+
+@@ -47,6 +48,16 @@ export const LogoutRequest = v.object({
+   refresh: JWTToken,
+ });
++
++export const SystemRequest = v.object({
++  key: v.string({ minLength: 24 }).desc("the lighthouse's shared system key. Example: BmP4QlesfqlwdO9rQRtNw8yN6WLLQUNb"),
++  holder: v.string().desc("who is exchanging it. Example: runtime/hello-world"),
++});
++
++export const InviteResponse = v.object({
++  invite: JWTToken,
++  expires: v.string().desc("lifetime as declared. Example: 7d"),
++});
+#+END_SRC
+
+Gate: M3's scenario suite (the lighthouse has no in-memory suite of its own until M3 rebuilds the runtime scenario). Static: `grep -n "ctx\.identity\b" commons/lighthouses/multiplayer/server/*.js` → 0 live lines. M2 alone must still BOOT: `deno task runtime/run` on hello-world → `Status:ALIVE`, `/attached/process/lighthouse/multiplayer/auth/login` answers, `/entities/daemon/find` without a bearer answers `401 MISSING_TOKEN`.
+
+** M3 — runtime: the hidden embed · announce exchanges the key · the scenario hosts the real lighthouse
+
+*** =systems/runtime/daemon/entities/network/Identity.ts= — surgical
+
+#+BEGIN_SRC diff
+@@ -36,9 +36,10 @@ export const IdentitySchema = new EntitySchema({
+   properties: {
+     slug: { type: types.string, unique: true },
+     authentication: {
+       kind: "embedded",
+       entity: "AuthenticatorEmbedEntity",
+       object: true,
++      hidden: true, // never on the wire — the hash is a database fact; identify() still loads it
+       defaultRaw: `'{}'`,
+     },
+   },
+#+END_SRC
+
+`AuthenticatorEmbedEntity.tokens` stays declared (a column drop is a migration mikro mints at boot — leave the column; it simply stops being written). Deferred: drop it after one release.
+
+*** =systems/runtime/lifecycle/integrate.js= — surgical (`announce`)
+
+#+BEGIN_SRC diff
+@@ -57,13 +57,24 @@ export async function announce(die) {
+   const remote = paladin.instance.lighthouse?.statics?.remote;
+   if (!remote) return;
+
+-  const connection = new Connection(remote);
++  // the runtime is a system principal: exchange the shared key for a bearer, once per boot
++  const key = paladin.instance.lighthouse?.secrets?.key;
++  if (!key) {
++    console.warn("[announce] lighthouse.secrets.key unset — daemons not announced (set SECRET_VIVA_LIGHTHOUSE_KEY)");
++    return;
++  }
++  const holder = `runtime/${paladin.instance.manifest.slug}`;
++  const connection = new Connection(remote);
++  const { authority } = await connection.call("/auth/system", { key, holder });
++  connection.use(shard.connection.authorize({ get: () => authority }));
++
+   const origin = paladin.instance.runtime?.statics?.serve?.origin;
+   const slugs = die.good.daemons.map((daemonDie) => daemonDie.slug);
+#+END_SRC
+
+`shard.connection.authorize($authority)` reads `.get().access` — a `{ get }` literal is the whole contract; no nanostore needed on the daemon side.
+
+A WRONG key throws at `/auth/system` and the boot dies loud — `announce` is not try-wrapped (`die.js:34`), exactly as an unreachable lighthouse behaves today; a MISSING key warns and skips. Deliberate: a misconfigured system key is not a quiet degradation.
+
+*** =systems/runtime/tests/scenarios/lighthouse.js= — full tangle of an existing file (was: a fake of two ungated branches)
+
+Live BEFORE:
+
+#+BEGIN_SRC js
+import { Url, Connection, shard, shape, Aperture } from "@vivalence/typology";
+import { lighthouse } from "./fixtures.js";
+
+export async function create() {
+  const { orm, em, repos, fixtures } = await lighthouse.seed();
+
+  const aperture = new Aperture();
+
+  aperture
+    .branch("/entities/identity")
+    .slurp(shard.datamap.repository(repos.identity));
+
+  aperture
+    .branch("/entities/daemon")
+    .slurp(shard.datamap.repository(repos.daemon));
+
+  const handler = shape.http(aperture);
+  const conn = new Connection(new Url("http://test"), shard.transmitter.inline(handler));
+
+  return { conn, orm, em, repos, fixtures, aperture };
+}
+#+END_SRC
+
+#+BEGIN_SRC js :tangle ../../systems/runtime/tests/scenarios/lighthouse.js :mkdirp yes
+import { Url, Connection, shard, shape, Aperture, Path } from "@vivalence/typology";
+import { compose } from "../../../../commons/lighthouses/multiplayer/server/index.js"; // the cross-container form fixtures.js already uses
+import { lighthouse } from "./fixtures.js";
+
+// === CHANGE START — was: two ungated repository branches standing in for the lighthouse ===
+// the REAL lighthouse wiring over an in-memory datamap; the caller picks a principal.
+export async function create({ signup = "invite", key = "scenario-system-key-0123456789" } = {}) {
+  const { orm, em, repos, fixtures } = await lighthouse.seed();
+  const mountpoint = new Path(await Deno.makeTempDir({ prefix: "lighthouse-" }));
+
+  const service = {
+    manifest: { type: "service", slug: "multiplayer" },
+    mountpoint,
+    secrets: { jwt: "scenario-signing-secret-0123456789", key },
+    statics: { signup },
+  };
+
+  const datamap = {
+    entities: { em, identity: repos.identity, daemon: repos.daemon },
+    shard: { context: (fn) => fn() }, // seed() opens the orm with allowGlobalContext
+  };
+
+  const aperture = new Aperture();
+  const { close } = await compose(aperture, service, datamap);
+
+  const handler = shape.http(aperture);
+  const conn = new Connection(new Url("http://test"), shard.transmitter.inline(handler));
+
+  // a bearer-carrying connection for a principal: `as.system()` · `as.identity(access)`
+  const as = {
+    system: async (holder = "scenario/runtime") => {
+      const { authority } = await conn.call("/auth/system", { key, holder });
+      return conn.clone().use(shard.connection.authorize({ get: () => authority }));
+    },
+    identity: (access) => conn.clone().use(shard.connection.authorize({ get: () => ({ access }) })),
+  };
+
+  const dispose = async () => {
+    close();
+    await orm.close();
+    await Deno.remove(mountpoint.absolute, { recursive: true }).catch(() => {});
+  };
+
+  return { conn, as, orm, em, repos, fixtures, aperture, service, dispose };
+}
+// === CHANGE END ===
+#+END_SRC
+
+`@commons/…` resolves through paladin's pensieve, never `import_map.json`, so the scenario imports by the relative form (`fixtures.js:1` does the same). `Path` rides the typology barrel (`prototypes/index.ts:12`); `timingSafeEqual` comes from `node:crypto` — `@std/crypto` is mapped without its subpaths (both measured this session).
+
+*** the fixture — =commons/fixtures/data/lighthouse.js= surgical: seed a REAL argon2 hash so `login` works in the scenario
+
+#+BEGIN_SRC diff
+@@ -1,4 +1,5 @@
+ import { MikroORM } from "@mikro-orm/core";
++import * as argon2 from "argon2";
+ import { config } from "../../datamaps/libsql/libsql.viva.js";
+@@ -22,9 +23,8 @@ export async function seed() {
+   const identity = em.create(IdentityEntity, {
+     slug: "beef",
+     authentication: {
+       provider: "password",
+-      credentials: { username: "beef", password: "hashed" },
+-      tokens: {},
++      credentials: { username: "beef", password: await argon2.hash("biggusdickus") },
+     },
+   });
+#+END_SRC
+
+*** =commons/lighthouses/multiplayer/tests/gates.test.js= NEW — the suite that proves the law
+
+#+BEGIN_SRC js :tangle ../../commons/lighthouses/multiplayer/tests/gates.test.js :mkdirp yes
+import { specimen } from "@vivalence/typology";
+import { lighthouse } from "@vivalence/runtime/scenarios";
+
+specimen.describe("lighthouse gates (scenario, the real wiring in memory)", () => {
+  let s;
+  specimen.beforeAll(async () => {
+    s = await lighthouse.create({ signup: "invite" });
+  });
+  specimen.afterAll(() => s.dispose());
+
+  specimen.describe("principals", () => {
+    specimen.it("P-no-bearer: /entities without a token is 401 MISSING_TOKEN", async () => {
+      const r = await s.conn.fetch("/entities/daemon/find", { where: {} });
+      specimen.expect(r.status).toBe(401);
+      specimen.expect(r.body.error.code).toBe("MISSING_TOKEN");
+    });
+
+    specimen.it("P-exchange: the shared key becomes a system bearer; a wrong key is 401", async () => {
+      const ok = await s.conn.call("/auth/system", { key: s.service.secrets.key, holder: "t/runtime" });
+      specimen.expect(ok.principal).toEqual({ id: "t/runtime", type: "system" });
+      const bad = await s.conn.fetch("/auth/system", { key: "x".repeat(30), holder: "t/runtime" });
+      specimen.expect(bad.status).toBe(401);
+      specimen.expect(bad.body.error.code).toBe("INVALID_KEY");
+    });
+
+    specimen.it("P-refresh-is-not-a-bearer: a refresh token on /entities is 401", async () => {
+      const { authority } = await s.conn.call("/auth/login", { username: "beef", password: "biggusdickus" });
+      const r = await s.as.identity(authority.refresh).fetch("/entities/daemon/find", { where: {} });
+      specimen.expect(r.status).toBe(401);
+    });
+  });
+
+  specimen.describe("daemon", () => {
+    specimen.it("P-daemon-reads: an identity reads the daemon list", async () => {
+      const { authority } = await s.conn.call("/auth/login", { username: "beef", password: "biggusdickus" });
+      const rows = await s.as.identity(authority.access).call("/entities/daemon/find", { where: {} });
+      specimen.expect(rows.map((d) => d.slug)).toEqual(["test-language"]);
+    });
+
+    specimen.it("P-daemon-writes-system: an identity may not ensure; a system may", async () => {
+      const { authority } = await s.conn.call("/auth/login", { username: "beef", password: "biggusdickus" });
+      const denied = await s.as.identity(authority.access).fetch("/entities/daemon/ensure", { data: { slug: "x", url: "http://x" } });
+      specimen.expect(denied.status).toBe(403);
+      const system = await s.as.system();
+      const row = await system.call("/entities/daemon/ensure", { data: { slug: "x", url: "http://x" } });
+      specimen.expect(row.slug).toBe("x");
+      await system.call("/entities/daemon/removeOne", { where: { slug: "x" } });
+    });
+  });
+
+  specimen.describe("identity", () => {
+    specimen.it("P-hidden: no principal ever sees authentication on the wire", async () => {
+      const system = await s.as.system();
+      const rows = await system.call("/entities/identity/find", { where: {} });
+      specimen.expect(rows.length).toBe(1);
+      specimen.expect("authentication" in rows[0]).toBe(false);
+      specimen.expect(JSON.stringify(rows)).not.toContain("argon2");
+    });
+
+    specimen.it("P-self-scope: an identity finds only itself, even asking for everyone", async () => {
+      const second = await s.as.system();
+      await second.call("/auth/invite", {}).then(({ invite }) =>
+        s.conn.call("/auth/signup", { username: "other", password: "otherpass", invite }),
+      );
+      const { authority } = await s.conn.call("/auth/login", { username: "beef", password: "biggusdickus" });
+      const rows = await s.as.identity(authority.access).call("/entities/identity/find", { where: {} });
+      specimen.expect(rows.map((r) => r.slug)).toEqual(["beef"]);
+      const stranger = await s.as.identity(authority.access).call("/entities/identity/findOne", { where: { slug: "other" } });
+      specimen.expect(stranger).toBeNull();
+    });
+
+    specimen.it("P-identity-no-writes: an identity cannot update its own row through the repository", async () => {
+      const { authority } = await s.conn.call("/auth/login", { username: "beef", password: "biggusdickus" });
+      const r = await s.as.identity(authority.access).fetch("/entities/identity/updateOne", { where: {}, data: { slug: "root" } });
+      specimen.expect(r.status).toBe(403);
+    });
+
+    specimen.it("P-scope-wins: a where that names another identity's id still answers only self", async () => {
+      const system = await s.as.system();
+      const other = await system.call("/entities/identity/findOne", { where: { slug: "other" } });
+      const { authority } = await s.conn.call("/auth/login", { username: "beef", password: "biggusdickus" });
+      const rows = await s.as.identity(authority.access).call("/entities/identity/find", { where: { id: other.id } });
+      specimen.expect(rows).toEqual([]);
+    });
+  });
+
+  specimen.describe("signup policy", () => {
+    specimen.it("P-invite-required: with policy invite, a bare signup is 403 INVITE_REQUIRED", async () => {
+      const r = await s.conn.fetch("/auth/signup", { username: "nobody", password: "nobodypass" });
+      specimen.expect(r.status).toBe(403);
+      specimen.expect(r.body.error.code).toBe("INVITE_REQUIRED");
+    });
+
+    specimen.it("P-invite-once: an invite admits exactly one signup", async () => {
+      const system = await s.as.system();
+      const { invite } = await system.call("/auth/invite", {});
+      const first = await s.conn.call("/auth/signup", { username: "guest1", password: "guest1pass", invite });
+      specimen.expect(first.identity.slug).toBe("guest1");
+      const again = await s.conn.fetch("/auth/signup", { username: "guest2", password: "guest2pass", invite });
+      specimen.expect(again.status).toBe(403);
+      specimen.expect(again.body.error.code).toBe("INVITE_INVALID");
+    });
+
+    specimen.it("P-invite-system-only: an identity may not mint invites", async () => {
+      const { authority } = await s.conn.call("/auth/login", { username: "beef", password: "biggusdickus" });
+      const r = await s.as.identity(authority.access).fetch("/auth/invite", {});
+      specimen.expect(r.status).toBe(403);
+    });
+
+    specimen.it("P-system-signs-up: a system caller signs up without an invite", async () => {
+      const system = await s.as.system();
+      const made = await system.call("/auth/signup", { username: "ops", password: "opspass" });
+      specimen.expect(made.identity.slug).toBe("ops");
+    });
+
+    specimen.it("P-closed: policy closed refuses everyone but a system caller", async () => {
+      const closed = await lighthouse.create({ signup: "closed" });
+      try {
+        const r = await closed.conn.fetch("/auth/signup", { username: "a", password: "apass" });
+        specimen.expect(r.status).toBe(403);
+        specimen.expect(r.body.error.code).toBe("SIGNUP_CLOSED");
+        const system = await closed.as.system();
+        const made = await system.call("/auth/signup", { username: "a", password: "apass" });
+        specimen.expect(made.identity.slug).toBe("a");
+      } finally {
+        await closed.dispose();
+      }
+    });
+  });
+
+  specimen.describe("the store", () => {
+    specimen.it("P-hashed-store: tokens.json holds no JWT — keys are 64 hex chars", async () => {
+      await s.conn.call("/auth/login", { username: "beef", password: "biggusdickus" });
+      const held = JSON.parse(await Deno.readTextFile(s.service.mountpoint.branch("/tokens.json").absolute));
+      const keys = Object.keys(held.refresh);
+      specimen.expect(keys.length).toBeGreaterThan(0);
+      for (const key of keys) specimen.expect(/^[0-9a-f]{64}$/.test(key)).toBe(true);
+      specimen.expect(JSON.stringify(held)).not.toContain("eyJ");
+    });
+
+    specimen.it("P-session-cap: the ninth login evicts the oldest refresh entry", async () => {
+      const fresh = await lighthouse.create();
+      try {
+        const tokens = [];
+        for (let i = 0; i < 9; i++) {
+          const { authority } = await fresh.conn.call("/auth/login", { username: "beef", password: "biggusdickus" });
+          tokens.push(authority.refresh);
+        }
+        const oldest = await fresh.conn.fetch("/auth/refresh", { refresh: tokens[0] });
+        specimen.expect(oldest.status).toBe(401);
+        const newest = await fresh.conn.call("/auth/refresh", { refresh: tokens[8] });
+        specimen.expect(typeof newest.access).toBe("string");
+      } finally {
+        await fresh.dispose();
+      }
+    });
+
+    specimen.it("P-throttle: the eleventh login attempt on one username in a minute is 429", async () => {
+      const fresh = await lighthouse.create();
+      try {
+        let last;
+        for (let i = 0; i < 11; i++) last = await fresh.conn.fetch("/auth/login", { username: "beef", password: "wrong" });
+        specimen.expect(last.status).toBe(429);
+        specimen.expect(last.body.error.code).toBe("THROTTLED");
+      } finally {
+        await fresh.dispose();
+      }
+    });
+  });
+});
+#+END_SRC
+
+*** =commons/lighthouses/multiplayer/tests/datamap.test.js= — surgical: the scenario now gates; the suite speaks as a system principal, and `authentication` is no longer on the wire
+
+#+BEGIN_SRC diff
+@@ -4,10 +4,12 @@ import { lighthouse } from "@vivalence/runtime/scenarios";
+ specimen.describe("lighthouse datamap (scenario)", () => {
+   let scenario;
++  let conn;
+
+   specimen.beforeAll(async () => {
+     scenario = await lighthouse.create();
++    conn = await scenario.as.system();
+   });
+
+   specimen.afterAll(async () => {
+-    await scenario.orm.close();
++    await scenario.dispose();
+   });
+#+END_SRC
+
+then every `scenario.conn.call(` → `conn.call(` (16 sites), and:
+
+#+BEGIN_SRC diff
+@@ -108,7 +110,7 @@
+       specimen.expect(result.slug).toBe("beef");
+-      specimen.expect(result.authentication.provider).toBe("password");
++      specimen.expect("authentication" in result).toBe(false);
+#+END_SRC
+
+`tests/lighthouse.test.js` + `tests/auth.test.js` want a LIVE `:1729` and carry no skip (pre-existing); their `/entities/*/find` calls now need a bearer — add `const system = await lighthouse.call("/auth/system", { key: Deno.env.get("SECRET_VIVA_LIGHTHOUSE_KEY"), holder: "test" })` and ride `authority.access`; left as the walk T-live in QA.
+
+Gate: `deno test -A --no-check --config deno.jsonc commons/lighthouses/multiplayer/tests/gates.test.js` → 16 passed · `datamap.test.js` → 12 passed · runtime one-shot at baseline (55 / 1 pre-existing `registry ingest fork 2`).
+
+** M4 — the recipes, the CLI, the browser — the flag-day radius
+
+*** =commons/instances/hello-world/instance.viva.js= — surgical (the ledger and registry recipes take the SAME three hunks, path-substituted; the README `## Hello, Instance!` block is re-pasted byte for byte from the file)
+
+#+BEGIN_SRC diff
+@@ -8,6 +8,7 @@ export const datamap = { module: "@commons/datamap/libsql" };
+ export const lighthouse = {
+   module: "@commons/lighthouse/multiplayer",
+   statics: { remote: () => paladin.env.get("PUBLIC_VIVA_LIGHTHOUSE_REMOTE") },
++  secrets: { key: () => paladin.secret.get("SECRET_VIVA_LIGHTHOUSE_KEY") },
+ };
+@@ -50,8 +51,8 @@ export const services = [
+   {
+     manifest: { type: "service", slug: "multiplayer" },
+     module: "@commons/lighthouse/multiplayer",
+-    secrets: { jwt: () => paladin.secret.get("SECRET_VIVA_JWT") },
+-    statics: { serve: () => paladin.env.get("VIVA_LIGHTHOUSE_SERVE") },
++    secrets: { jwt: () => paladin.secret.get("SECRET_VIVA_JWT"), key: () => paladin.secret.get("SECRET_VIVA_LIGHTHOUSE_KEY") },
++    statics: { serve: () => paladin.env.get("VIVA_LIGHTHOUSE_SERVE"), signup: () => paladin.env.get("VIVA_LIGHTHOUSE_SIGNUP") },
+   },
+ ];
+@@ -63,7 +64,9 @@ export const environment = v.environment({
+   PUBLIC_VIVA_LIGHTHOUSE_REMOTE: v.url().desc("Lighthouse address as CONSUMED — by the daemons, and by the browser after publish().").default("${VIVA_LIGHTHOUSE_SERVE}").group("addresses"),
++  VIVA_LIGHTHOUSE_SIGNUP: v.string({ pattern: "^(open|invite|closed)$" }).desc("Who may sign up: open (anyone), invite (a system-minted invite token), closed (a system principal only). Example: invite").default("invite").group("policy"),
+   SECRET_VIVA_JWT: v.string({ minLength: 24 }).desc("Lighthouse signing secret. Minted at first init; rotate with: openssl rand -base64 24").default(() => btoa(String.fromCharCode(...crypto.getRandomValues(new Uint8Array(24))))).group("keys"),
++  SECRET_VIVA_LIGHTHOUSE_KEY: v.string({ minLength: 24 }).desc("Lighthouse system key — the runtime and the CLI exchange it for a system token to announce daemons, mint invites and create users. Never the signing secret. Minted at first init; rotate with: openssl rand -base64 24").default(() => btoa(String.fromCharCode(...crypto.getRandomValues(new Uint8Array(24))))).group("keys"),
+   SECRET_VIVA_ANTHROPIC_API_KEY: …
+#+END_SRC
+
+Two secrets, two slots, deliberately: a REMOTE lighthouse's consumer declares `lighthouse.secrets.key` and NO `services[multiplayer]` — the signing secret is not in its `.env` at all. The colocated hello-world declares both from one key; that is the same key on both sides of one process, not a leak.
+
+*** =systems/ghost/trajectories/instance/lighthouse.js= — full tangle of an existing file (14 lines; the diff IS the file)
+
+Live BEFORE:
+
+#+BEGIN_SRC js
+import paladin, { lifecycle } from "@vivalence/paladin";
+import { Connection } from "@vivalence/typology";
+
+export async function lighthouse(ctx) {
+  const [action, username, password] = ctx.signal.params ?? [];
+  if (!["signup", "login"].includes(action) || !username || !password) {
+    return (ctx.effect = { error: "usage: /instance/lighthouse <signup|login> <username> <password>" });
+  }
+  await lifecycle.mount(paladin.instance);
+  ctx.effect = await new Connection(paladin.instance.lighthouse.statics.remote).call(
+    `/auth/${action}`,
+    { username, password },
+  );
+}
+#+END_SRC
+
+#+BEGIN_SRC js :tangle ../../systems/ghost/trajectories/instance/lighthouse.js :mkdirp yes
+import paladin, { lifecycle } from "@vivalence/paladin";
+import { Connection, shard } from "@vivalence/typology";
+
+const USAGE = "usage: /instance/lighthouse <signup <username> <password> | login <username> <password> | invite>";
+
+// === CHANGE START — was: signup|login only, no bearer ===
+// the CLI is a system principal when the instance declares lighthouse.secrets.key: it exchanges the key
+// for a bearer, then signs up (any policy) or mints an invite. without a key it speaks as anyone.
+export async function lighthouse(ctx) {
+  const [action, username, password] = ctx.signal.params ?? [];
+  const wants = { signup: 2, login: 2, invite: 0 }[action];
+  if (wants === undefined || [username, password].filter(Boolean).length < wants) {
+    return (ctx.effect = { error: USAGE });
+  }
+  await lifecycle.mount(paladin.instance);
+
+  const remote = paladin.instance.lighthouse?.statics?.remote;
+  if (!remote) return (ctx.effect = { error: "this instance declares no lighthouse" });
+  const connection = new Connection(remote);
+
+  const key = paladin.instance.lighthouse?.secrets?.key;
+  if (key) {
+    const { authority } = await connection.call("/auth/system", { key, holder: `ghost/${paladin.instance.manifest.slug}` });
+    connection.use(shard.connection.authorize({ get: () => authority }));
+  } else if (action === "invite") {
+    return (ctx.effect = { error: "invite needs a system key — set SECRET_VIVA_LIGHTHOUSE_KEY in the instance .env" });
+  }
+
+  ctx.effect = action === "invite"
+    ? await connection.call("/auth/invite", {})
+    : await connection.call(`/auth/${action}`, { username, password });
+}
+// === CHANGE END ===
+#+END_SRC
+
+*** =systems/ghost/trajectories/index.js= — surgical
+
+#+BEGIN_SRC diff
+@@ -122,9 +122,9 @@
+     {
+       nature: "/instance/lighthouse",
+-      valence: "signup or login against the mounted instance's lighthouse",
++      valence: "signup, login, or mint an invite against the mounted instance's lighthouse — the CLI speaks as a system principal when the instance holds SECRET_VIVA_LIGHTHOUSE_KEY",
+       schema: v.object({
+-        action: v.string().desc("signup | login").optional(),
++        action: v.string().desc("signup | login | invite").optional(),
+         username: v.string().optional(),
+         password: v.string().optional(),
+       }),
+#+END_SRC
+
+*** =systems/ghost/trajectories/instance/init.js= — surgical: the admin signup rides the system token
+
+#+BEGIN_SRC diff
+@@ -1,5 +1,5 @@
+-import { Connection } from "@vivalence/typology";
++import { Connection, shard } from "@vivalence/typology";
+@@ -55,10 +55,18 @@
+-const remote = () => new Connection(paladin.instance.lighthouse.statics.remote);
++// init creates the FIRST user: it must pass any signup policy, so it speaks as a system principal
++const remote = async () => {
++  const connection = new Connection(paladin.instance.lighthouse.statics.remote);
++  const key = paladin.instance.lighthouse?.secrets?.key;
++  if (!key) return connection;
++  const { authority } = await connection.call("/auth/system", { key, holder: `ghost/${paladin.instance.manifest.slug}` });
++  return connection.use(shard.connection.authorize({ get: () => authority }));
++};
+
+ const signup = async (values) => {
++  const connection = await remote();
+   try {
+-    return await remote().call("/auth/signup", values);
++    return await connection.call("/auth/signup", values);
+   } catch (error) {
+     if (error.context?.response?.body?.error?.code !== "USERNAME_EXISTS") throw error;
+-    return await remote().call("/auth/login", values);
++    return await connection.call("/auth/login", values);
+   }
+ };
+#+END_SRC
+
+*** =systems/kajuit/src/typology/stores/lighthouse.js= — surgical: a `signup(username, password, invite)` beside `login`
+
+#+BEGIN_SRC diff
+@@ -74,6 +74,26 @@ export class Lighthouse {
+     return { status: "OK", identity };
+   }
+
++  async signup(username, password, invite) {
++    this.$status.set({ code: "AUTHENTICATING" });
++
++    const response = await this.connection.fetch("/auth/signup", { username, password, ...(invite && { invite }) });
++
++    if (response.error) {
++      this.$status.set({ code: "ERROR", message: response.error.message, type: response.error.type });
++      return { status: "ERROR", error: response.error };
++    }
++
++    const { authority, identity } = response.body;
++    if (authority) this.$authority.set(authority);
++    if (identity) this.$identity.set(identity);
++
++    this.$status.set({ code: "AUTHENTICATED" });
++    return { status: "OK", identity };
++  }
++
+   async verify() {
+#+END_SRC
+
+*** =systems/kajuit/src/app/widgets/Login.svelte= — surgical: an invite field, and the help copy tells the truth about signup
+
+#+BEGIN_SRC diff
+@@ -8,6 +8,8 @@
+   let username = $state("");
+   let password = $state("");
++  let invite = $state("");
++  let mode = $state("signin"); // signin | signup
+
+@@ -25,7 +27,10 @@
+   async function submit(event) {
+     event.preventDefault();
+-    const result = await lighthouse.login(username, password);
++    const result =
++      mode === "signup"
++        ? await lighthouse.signup(username, password, invite || undefined)
++        : await lighthouse.login(username, password);
+     if (result.status === "OK") onConnected(lighthouse);
+   }
+@@ -56,13 +61,27 @@
+       autocomplete="current-password"
+     />
+-    <button disabled={busy}>connect</button>
++    {#if mode === "signup"}
++      <input
++        bind:value={invite}
++        placeholder="invite (paste the token from viva instance/lighthouse invite)"
++        autocapitalize="off"
++        autocorrect="off"
++        autocomplete="off"
++      />
++    {/if}
++    <button disabled={busy}>{mode === "signup" ? "create account" : "connect"}</button>
++    <button type="button" class="swap" onclick={() => (mode = mode === "signup" ? "signin" : "signup")}>
++      {mode === "signup" ? "have an account? sign in" : "have an invite? sign up"}
++    </button>
+   </form>
+
+   <div class="help">
+-    <p>there is no signup ui — accounts are created from the shell:</p>
+-    <code>viva instance/lighthouse signup &lt;username&gt; &lt;password&gt;</code>
++    <p>accounts come from an operator — an invite token, or the shell:</p>
++    <code>viva instance/lighthouse invite</code>
++    <code>viva instance/lighthouse signup &lt;username&gt; &lt;password&gt;</code>
+#+END_SRC
+
+plus one style rule in the same file's `<style>`, beside `.credentials button`:
+
+#+BEGIN_SRC diff
+@@ -139,6 +158,12 @@
+   .credentials button:disabled {
+     opacity: 0.5;
+     cursor: default;
+   }
++  .credentials .swap {
++    border: none;
++    color: var(--colors-skeleton-2-contrast);
++    font-size: var(--font-size-xs);
++    padding: 0;
++  }
+#+END_SRC
+
+A signup form with `invite` blank under policy `invite` is answered by the lighthouse's own voice — `INVITE_REQUIRED — signup needs an invite — viva instance/lighthouse invite` — through the existing `standing`/`detail` rendering; no client-side policy knowledge, the client stays domain-blind.
+
+*** README + docs
+
+`README.md` — the `## Hello, Instance!` listing re-pasted from the file (byte-identical law); the signup paragraph after step 4 becomes: "To sign up additional users: `viva instance/lighthouse invite` prints a single-use token the person pastes into kajuit's sign-up form, or `viva instance/lighthouse signup <username> <password>` creates the account directly — both speak as a system principal through `SECRET_VIVA_LIGHTHOUSE_KEY`. Signup policy is `VIVA_LIGHTHOUSE_SIGNUP` (`invite` by default)." · `documentation/content/50-59_practice/51_guides/51.02_instance-from-scratch.mdx` — the two listings are captured from the repo (`capture` runs before the build); the prose gains the two-key sentence · `32.01_anatomy-of-an-instance.mdx` — the lighthouse move gains "a system principal announces the daemons".
+
+*** the ledger (NO VCS — capture before touching)
+
+`~/.viva/instances/{hello-world,italian,stucatch,vivalence}/*.viva.js` + `language-learning/test.viva.js` — the three recipe hunks · `~/.viva/registry/education/instances/{italian,spanish,brazilian}/*.viva.js` (education is its own repo — beef pushes) · `~/.viva/registry/vcompany/instances/vcompany/instance.viva.js`. The five shelf `.env` files: `viva instance/init` prefills the new REQUIRED key from its function default (m46's mint law, `envfile.fallback`); nothing is hand-edited. `tokens.json` on the five shelves: the first boot's `cleanup` leaves old JWT-keyed entries in place (they never match a hash, harmless dead weight) — delete the five files instead, every session re-logs once. Capture first: `cp ~/.viva/instances/*/mountpoint/service_multiplayer/tokens.json` → scratch.
+
+Gate: `viva instance/doctor` on each of the five shows `SECRET_VIVA_LIGHTHOUSE_KEY ***` and `VIVA_LIGHTHOUSE_SIGNUP invite` · `deno task runtime/run` → `Status:ALIVE`, no `[announce]` warning, `/entities/daemon/find` with the browser's bearer lists `hello` · ghost suite at baseline (`tests/ledger.test.js` gains one row expectation: the minted key).
+
+** M5 — world restamp + sunset (mine, same session as the landing)
+
+`world/codemap/commons.md` lighthouse line (gates · two principals · the store) · `world/codemap/runtime.md` "aperture — two gates" paragraph gains "the lighthouse runs the same pair" · `world/codemap/typology.md` `secure` line (+ `claim`) · `world/ledger.md` the key mint law · `known-issues.org` (VIVA-01 bak literal noted as a delete) · `release.md` lines lifted · quest → `done/`.
+
+* testing assessment
+
+** in place
+- `commons/lighthouses/multiplayer/tests/datamap.test.js` (12 cases) over the runtime scenario — repository verbs on both entities, UNGATED; `tests/{lighthouse,auth}.test.js` want a live `:1729` and carry no skip (pre-existing).
+- `systems/runtime/tests/daemon/userspace.test.js` — "a fresh identity is refused the userspace until it handshakes" — proves `authenticate`/`authorize` on the daemon; nothing proves them on the lighthouse. Nothing proves the SCOPE holds against a hostile `where` — and it does not (F12).
+- typology `tests/gestalten/shard/` has `cors · serve · datamap.inject · websocket` — NO `secure` suite.
+- COVERAGE GAP today: every `/auth/*` verb, the refresh store, `provider/index.js`, and the announce path run only against a live process.
+
+** changes
+- `userspace.test.js` — + P-scope-wins (red before the `scoped()` swap, green after).
+- `datamap.test.js` — the scenario gates; speak as a system principal; `authentication` no longer on the wire (hunks above).
+- `runtime/tests/scenarios/lighthouse.js` — rebuilt to host the real `compose()`; any suite that imported it gets the gated lighthouse (`grep -rn "scenarios.*lighthouse\|lighthouse.create" systems commons ~/.viva/registry --include=*.test.*` → `datamap.test.js` only, measured this session).
+- `commons/fixtures/data/lighthouse.js` — real argon2 hash, tokens gone from the seed.
+- paladin `tests/snapshots/paladin-instance.snapshot.json` — regenerates: `lighthouse.secrets.key ***` + `service[multiplayer].secrets.key ***` + `statics.signup` appear (`SNAPSHOT_HOT=1`); the redaction asserts no `sk-ant` and gains `not.toContain(<the key>)`.
+- ghost `tests/ledger.test.js` — the scaffold writes one more minted line.
+
+** adds
+- typology `tests/gestalten/shard/secure.test.js` (3) — tangled, M1.
+- lighthouse `tests/gates.test.js` (16) — tangled, M3: principals · daemon · identity (incl. P-scope-wins) · signup policy · the store. The shared scenario `s` logs `beef` in 8 times across the suite — under the 10/min username bucket; a ninth login case goes into its own `lighthouse.create()`.
+
+** per-milestone green ladder
+
+| milestone | gate |
+|-----------+------|
+| M1 | `secure.test.js` 3/3 · typology one-shot at baseline |
+| M2 | boots: `runtime/run` hello-world ALIVE · `/entities/daemon/find` no bearer → 401 (curl) |
+| M3 | `gates.test.js` 16/16 · `datamap.test.js` 12/12 · runtime one-shot at baseline · paladin snapshot regenerated, key absent |
+| M4 | doctor rows on 5 shelves · announce clean · kajuit sign-up walk (T2) · ghost suite at baseline |
+| M5 | `grep -rn "#+marker_qa" .ikiro/quests/m60-*` — no `pending` |
+
+A milestone flips DONE only with the named file and the PASTED counts.
+
+* QA
+
+** testimony — the walk, first person
+
+- I run `viva instance/init` on a shelf that predates m60: the wizard prefills `SECRET_VIVA_LIGHTHOUSE_KEY` with a minted value and `VIVA_LIGHTHOUSE_SIGNUP` with `invite`; I am asked for nothing new. The doctor shows the key as `***`.
+- I start the runtime. The log shows no `[announce]` warning; kajuit after login lists the `hello` daemon as before.
+- I `curl -X POST …/entities/identity/find -d '{"where":{}}'` with no header: `401 MISSING_TOKEN`. With my browser's access token: one row, mine, no `authentication`. With a system token: every row, still no `authentication`.
+- I open kajuit signed out, click "have an invite? sign up", type a name and password, leave invite blank: the standing reads `error: signup needs an invite — viva instance/lighthouse invite`. I run that in the shell, paste the token, submit: I am in. I paste the same token for a second account: `that invite is spent, expired, or not ours`.
+- I set `VIVA_LIGHTHOUSE_SIGNUP="closed"`, restart, try the form: `signup is closed on this lighthouse — ask an operator for an account`. `viva instance/lighthouse signup ops pass` still works.
+- I `cat tokens.json`: keys are hex, nothing starts with `eyJ`.
+- I type a wrong password eleven times: the eleventh says `too many attempts — wait a minute`.
+
+** programmatic + markers
+
+#+marker_qa: m60/P-claim · pending · typology `secure.test.js` 3/3 — 403 with the message, 401 before the claim
+#+marker_qa: m60/P-no-authorize-gap · pending · `grep -c "secure.authorize" commons/lighthouses/multiplayer/server/entities.js` = 1 and every `/entities` branch descends from it
+#+marker_qa: m60/P-hidden · pending · `gates.test.js` P-hidden — no `authentication` on the wire for any principal; `grep -rn "authentication.tokens" systems commons ~/.viva/registry --include=*.js --include=*.ts` = 0
+#+marker_qa: m60/P-self-scope · pending · `gates.test.js` P-self-scope + P-identity-no-writes
+#+marker_qa: m60/P-scope-wins · pending · `gates.test.js` P-scope-wins AND runtime `userspace.test.js` P-scope-wins — a `where` naming another principal's id answers `[]`; `grep -n "object.merge(input" subsystems/typology/gestalten/shard/datamap.js` = 1
+#+marker_qa: m60/P-identities · pending · `grep -c "ctx\.identity\b" commons/lighthouses/multiplayer/server/{auth,identity}.js` = 0 live; live: `/entities/daemon/find` with a bearer is 200, not 500
+#+marker_qa: m60/P-throttle-reach · pending · `grep -c "throttle(" commons/lighthouses/multiplayer/server/auth.js` = 3 (signup · login · system) and `/verify` bare; live: a daemon under load never sees 429 from verify
+#+marker_qa: m60/P-jti · pending · two logins inside one second yield two distinct refresh tokens and two store keys (P-session-cap counts nine)
+#+marker_qa: m60/P-system-writes · pending · `gates.test.js` P-daemon-writes-system; live: announce lands `hello` with no warning
+#+marker_qa: m60/P-invite-once · pending · `gates.test.js` P-invite-once + the kajuit walk (second paste refused)
+#+marker_qa: m60/P-policy · pending · `gates.test.js` P-invite-required · P-closed · P-system-signs-up; live: the three standings in the testimony
+#+marker_qa: m60/P-hashed-store · pending · `gates.test.js` P-hashed-store; live: `grep -c eyJ ~/.viva/instances/hello-world/mountpoint/service_multiplayer/tokens.json` = 0 after the reset
+#+marker_qa: m60/P-session-cap · pending · `gates.test.js` P-session-cap
+#+marker_qa: m60/P-throttle · pending · `gates.test.js` P-throttle
+#+marker_qa: m60/P-pinned-verify · pending · `grep -n "jwtVerify" commons/lighthouses/multiplayer/server/lib/jwt.js` shows `algorithms` and `issuer` on the one call; a token minted by a scenario with another issuer is refused (add to gates if cheap)
+#+marker_qa: m60/P-no-globals · pending · `grep -n "^let " commons/lighthouses/multiplayer/server/lib/jwt.js` = 0
+#+marker_qa: m60/P-key-not-signing · pending · a remote-shaped recipe (lighthouse.secrets.key, no services[multiplayer]) mounts through paladin with `SECRET_VIVA_JWT` absent from its schema — the doctor shows one key, not two
+#+marker_qa: m60/P-snapshot-redacted · pending · `grep -c "<minted key>" subsystems/paladin/tests/snapshots/paladin-instance.snapshot.json` = 0
+#+marker_qa: m60/T-live · pending · `tests/{lighthouse,auth}.test.js` against `:1729` with a system bearer — the pre-existing live suites still pass
+
+* blast table
+
+| file | change | M | kind |
+|------+--------+---+------|
+| `subsystems/typology/gestalten/shard/secure.js` | + `claim` | 1 | HOLY, diff |
+| `subsystems/typology/gestalten/shard/datamap.js` | `scoped()` — the scope wins | 1 | HOLY, diff |
+| `systems/runtime/tests/daemon/userspace.test.js` | + P-scope-wins | 1 | diff |
+| `subsystems/typology/tests/gestalten/shard/secure.test.js` | NEW | 1 | tangle |
+| `subsystems/typology/schematics/primitives/auth.js` | + `SignupRequest.invite` · `SystemRequest` · `InviteResponse` | 2 | diff |
+| `commons/lighthouses/multiplayer/server/lib/jwt.js` | closure · pinned verify · hashed store · cap · invites · system | 2 | tangle (before shown) |
+| `commons/lighthouses/multiplayer/server/lib/authority.js` | NEW — local provider · `system` · `bearer` | 2 | tangle |
+| `commons/lighthouses/multiplayer/server/lib/throttle.js` | NEW | 2 | tangle |
+| `commons/lighthouses/multiplayer/server/index.js` | `compose` + default | 2 | tangle (before shown) |
+| `commons/lighthouses/multiplayer/server/entities.js` | gates · scope · reads/system | 2 | tangle (before shown) |
+| `commons/lighthouses/multiplayer/server/auth.js` | policy · `/system` · `/invite` · no row tokens · per-verb throttle · `ctx.identities` | 2 | diff |
+| `commons/lighthouses/multiplayer/server/identity.js` | `ctx.identities` | 2 | diff |
+| `commons/lighthouses/multiplayer/provider/index.js` | untouched — `/auth/verify` is open, `users` is the daemon's | — | none |
+| `systems/runtime/daemon/entities/network/Identity.ts` | `hidden: true` | 3 | diff |
+| `systems/runtime/lifecycle/integrate.js` | announce exchanges the key | 3 | diff |
+| `systems/runtime/tests/scenarios/lighthouse.js` | the real lighthouse in memory | 3 | tangle (before shown) |
+| `commons/fixtures/data/lighthouse.js` | argon2 seed, no tokens | 3 | diff |
+| `commons/lighthouses/multiplayer/tests/gates.test.js` | NEW, 16 | 3 | tangle |
+| `commons/lighthouses/multiplayer/tests/datamap.test.js` | system principal · hidden | 3 | diff |
+| `subsystems/paladin/tests/snapshots/paladin-instance.snapshot.json` | regenerate | 3 | suite |
+| `commons/instances/hello-world/instance.viva.js` | two secrets · policy · env rows | 4 | diff |
+| `README.md` · `51.02` · `32.01` | listing re-paste · prose | 4 | prose |
+| `systems/ghost/trajectories/instance/lighthouse.js` | system bearer · `invite` | 4 | tangle (before shown) |
+| `systems/ghost/trajectories/index.js` | valence + schema | 4 | diff |
+| `systems/ghost/trajectories/instance/init.js` | admin signup as system | 4 | diff |
+| `systems/kajuit/src/typology/stores/lighthouse.js` | + `signup` | 4 | diff |
+| `systems/kajuit/src/app/widgets/Login.svelte` | invite field · copy | 4 | diff |
+| ledger 5 + registry 4 recipes · 5 `.env` (minted) · 5 `tokens.json` (reset) | the three hunks | 4 | capture then edit |
+| `world/codemap/{commons,runtime,typology}.md` · `world/ledger.md` · `known-issues.org` · `release.md` | restamp | 5 | ikiro |
+
+* deferred
+
+- **password change / reset** — an `/auth/password` verb for an identity principal; today there is no user-side write path at all (F3), which is the safe default. Reopens when kajuit grows a profile surface.
+- **roles beyond system | identity** — `secure.claim` takes any predicate; the vocabulary is one bit today. Reopens with the first mode that needs an operator/learner split.
+- **IP-keyed throttle** — `shape.http` does not put the remote address on `ctx.request`; when it does, `throttle({ key })` takes it.
+- **rotating `SECRET_VIVA_JWT`** — every token dies at once; a kid-versioned secret list is the fix. Reopens on the first rotation.
+- **dropping the `tokens` column** on `AuthenticatorEmbed` — one release after M3, mikro mints the migration.
+- **CORS** (`cors.js:1` `*.vivalence.com` + credentials) — its own quest; tokens ride the header, not cookies, so it is not this one's blocker.
+- **`commons/instances/bak/*/docker-compose.yml`** — `TOTALLYSECUREKEYnot` + `ANOTHERTOTALLYSECUREKEYnot` in ignore territory: delete the two dirs (VIVA-01's literal), beef's `rm`.
+
+* forks
+
+- **F-name** — `secure.claim` (lean) · `secure.require` · `secure.permit`. Typology is holy; nothing in M1 lands without the word.
+- **F-default** — `VIVA_LIGHTHOUSE_SIGNUP` default `invite` (lean) vs `closed`. `open` is never the default.
+- **F-live-suites** — `tests/{lighthouse,auth}.test.js` want `:1729`: add a `SECRET_VIVA_LIGHTHOUSE_KEY` env read + skip-when-down, or leave as the pre-existing red they are.
+
+* release
+
+- added `shard.secure.claim(predicate, message)` — a 403 claim gate behind `authorize()` · migrate: none ⟨m60⟩
+- changed `shard.datamap.scope` — the scope is laid over the caller's `where`/`data` (was: caller-last, overridable) · migrate: none; a caller that escaped its scope was the hole ⟨m60⟩
+- changed `lighthouse /entities/{identity,daemon}` — authorized; an identity reads its own row only, daemon writes are system-only · migrate: callers carry a bearer; a runtime sets `SECRET_VIVA_LIGHTHOUSE_KEY` ⟨m60⟩
+- added `lighthouse /auth/system {key, holder}` — exchanges the shared key for a 1h system bearer · migrate: none ⟨m60⟩
+- added `lighthouse /auth/invite` — a system principal mints a 7-day single-use invite · migrate: none ⟨m60⟩
+- changed `lighthouse /auth/signup` — policy `VIVA_LIGHTHOUSE_SIGNUP` open | invite | closed, default invite; `{invite}` redeems one · migrate: set `open` to keep the old behaviour ⟨m60⟩
+- changed `Identity.authentication` — hidden on the wire; the row no longer stores tokens · migrate: none (no reader) ⟨m60⟩
+- changed `lighthouse tokens.json` — refresh entries keyed by sha256(token), 8 sessions per identity · migrate: delete the old file once; every session re-logs ⟨m60⟩
+- added `SECRET_VIVA_LIGHTHOUSE_KEY` · `VIVA_LIGHTHOUSE_SIGNUP` to the hello-world schema — both minted/defaulted at init · migrate: `viva instance/init` on each shelf ⟨m60⟩
+- changed `viva instance/lighthouse` — `invite` verb; `signup` speaks as a system principal when the key is set · migrate: none ⟨m60⟩
+- added kajuit sign-up form — username · password · invite · migrate: none ⟨m60⟩
+- changed `lighthouse /auth/login|signup` — 10 attempts per username per minute, then 429 · migrate: none ⟨m60⟩
+
+* changelog
+
+- this session — beef narrowed the security review to the lighthouse's tokens and gates; the terrain measured against the tree AND the stores (`tokens.json` ×5, `multiplayer.viva.db` ×5, zero readers of `authentication.tokens`, zero `secure.*` in any lighthouse tree on the machine, zero throttle words). Design proposed (two principals · one verify path · invite signup · hidden embed · hashed store); beef: "wonderful, especially the part with the invite token". This quest compiled tangleable per `methods/quest.md`: NEW files and small replaced files as `:tangle` blocks with the live BEFORE shown, large files as `diff` hunks; the runtime scenario rebuilt to host the REAL `compose()` so the gates get a 15-case suite instead of a fake. Coverage: before — `/auth/*`, the store and the gates had no offline test; after — `gates.test.js` + `secure.test.js`. Nothing blasted. Two forks owed before M1.
+- sanity pass (beef: "is the above achieved?" → "m60 fold") — the design is in the quest; measured against the live tree: `secure.js:15` reads a truthy `ctx.identity` as authenticated while `identity.inject()` sets it at root (every `/entities` call 500) → `ctx.identities`; a branch-wide throttle with no username would bucket `/auth/verify` (the daemon's per-request call) under one `"*"` → per-verb handler guard; `setIssuedAt()` is seconds so same-second refresh tokens collided → `jti` on every token; `scoped()` merges caller-last and `object.merge` is source-wins (`deno eval`) so a `where.id` escaped the scope on the daemon today → the scope wins, one line in typology, P-scope-wins on both suites. `audience` was in the design and not the quest — noted, not added (one issuer, one audience today). Env group `policy`. `provider/index.js` untouched, said so.

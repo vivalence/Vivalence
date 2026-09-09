@@ -12,7 +12,7 @@ minimum vocabulary required:
 
 - `record` — `registry.json`, the list of package locations. Managed by `tap`/`untap`, read at boot. The only mount truth.
 - `store` — `registry/`, the default directory packages materialize into. A location heuristic, nothing more.
-- `shelf` — `instances/`, where created instances land when no target is given.
+- `instances/` — where created instances land when no target is given.
 - `instance` — one runnable system at its mount: `instances.json` records them, locks and logs key by them.
 
 ```
@@ -25,7 +25,7 @@ minimum vocabulary required:
   logs/                  <instance>/ span + stdout/err streams
   sessions/              <shell-pid>.json — per-shell selections (viva instances use)
   registry/              the store — remote taps clone here; each child its own git clone
-  instances/              the shelf — each child an instance home: the declaration,
+  instances/              each child an instance home: the declaration,
                          its .env, and (at runtime) mountpoint/
 ```
 
@@ -36,7 +36,7 @@ always wins: `VIVA_LEDGER_MOUNT` moves the whole home (default `~/.viva`),
 `VIVA_REGISTRY_MOUNT` moves the store (default `<ledger>/registry`),
 `VIVA_INSTANCE_MOUNT` names the one instance a runtime renders — and a `*_MOUNT` is
 always a path, never a slug. Paladin throws on a slug rather than resolving one. The
-shelf lookup belongs to the operator: `viva instances use <slug>` resolves the slug and
+instance lookup belongs to the operator: `viva instances use <slug>` resolves the slug and
 writes the resolved path.
 
 `instances.json` is the identity authority: **the record names instances; manifests name
@@ -104,7 +104,7 @@ the line: one row per organ of the home, with counts and anomalies, never the ce
 
 ## instance, singular
 
-The shelf holds many instances; a runtime ever renders one. `instance create` copies an
-instance wholesale — the declaration and its `environment` schema — to the shelf or to
+`instances/` holds many instances; a runtime ever renders one. `instance create` copies an
+instance wholesale — the declaration and its `environment` schema — to `instances/` or to
 an explicit target, and everything derived (`mountpoint/` databases) grows inside that
 home. Two runs of the same declaration are two shelved copies, not two moods of one.

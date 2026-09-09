@@ -1,12 +1,15 @@
-import { Connection, Url, shard } from "@vivalence/typology";
+import { Connection, shard, Url } from "@vivalence/typology";
 
 export const BASE = "http://localhost:2501";
 
 export const CREDENTIALS = { username: "beef", password: "biggusdickus" };
 
-const unreachable = (error) => error?.type === "NETWORK" || error?.type === "TIMEOUT";
+const unreachable = (error) =>
+  error?.type === "NETWORK" || error?.type === "TIMEOUT";
 
-export async function live({ base = BASE, daemon, credentials = CREDENTIALS } = {}) {
+export async function live(
+  { base = BASE, daemon, credentials = CREDENTIALS } = {},
+) {
   const connection = new Connection(new Url(base), shard.transmitter.fetcher);
 
   let daemons;
@@ -25,9 +28,13 @@ export async function live({ base = BASE, daemon, credentials = CREDENTIALS } = 
   }
 
   const mounted = daemons.filter((entry) => entry.modes > 0);
-  const chosen = daemon ? mounted.find((entry) => entry.slug === daemon) : mounted[0];
-  const census = daemons.map((entry) => `${entry.slug}(${entry.modes})`).join(", ") || "none";
-  if (!chosen)
+  const chosen = daemon
+    ? mounted.find((entry) => entry.slug === daemon)
+    : mounted[0];
+  const census =
+    daemons.map((entry) => `${entry.slug}(${entry.modes})`).join(", ") ||
+    "none";
+  if (!chosen) {
     return {
       base,
       connection,
@@ -37,6 +44,7 @@ export async function live({ base = BASE, daemon, credentials = CREDENTIALS } = 
         ? `runtime up, daemon "${daemon}" not mounted — mounts: ${census}`
         : `runtime up, no daemon mounts modes — mounts: ${census}`,
     };
+  }
 
   let session;
   try {
@@ -50,16 +58,23 @@ export async function live({ base = BASE, daemon, credentials = CREDENTIALS } = 
       connection,
       daemons,
       up: true,
-      reason: `runtime up on ${chosen.slug}, lighthouse login failed — ${error.message}`,
+      reason:
+        `runtime up on ${chosen.slug}, lighthouse login failed — ${error.message}`,
     };
   }
 
   connection.use(async (ctx, next) => {
-    ctx.request.headers.set("authorization", `Bearer ${session.authority.access}`);
+    ctx.request.headers.set(
+      "authorization",
+      `Bearer ${session.authority.access}`,
+    );
     await next();
   });
 
-  const modes = await connection.call(`/daemon/${chosen.slug}/metadata/modes`, {});
+  const modes = await connection.call(
+    `/daemon/${chosen.slug}/metadata/modes`,
+    {},
+  );
 
   return {
     base,
@@ -71,6 +86,7 @@ export async function live({ base = BASE, daemon, credentials = CREDENTIALS } = 
     identity: session.identity,
     authority: session.authority,
     modes,
-    mounts: (identifier) => modes.some((mode) => `${mode.type}/${mode.slug}` === identifier),
+    mounts: (identifier) =>
+      modes.some((mode) => `${mode.type}/${mode.slug}` === identifier),
   };
 }

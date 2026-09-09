@@ -1,5 +1,6 @@
 #+title: the deep pass on m50 holds the terrain, catches a header counting another quest's milestones, and measures the detached pipe
 #+filetags: :paladin:typology:ghost:runtime:kajuit:process:quest:m50:wafer:dossier:control:signal:measurement:compact:
+#+index: 51
 
 * what happened, in one breath
 

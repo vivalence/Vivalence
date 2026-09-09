@@ -1,4 +1,4 @@
-import paladin from "@vivalence/paladin";
+import paladin, { lifecycle } from "@vivalence/paladin";
 import { isAbsolute, resolve } from "@std/path";
 import { Path, v, Vector } from "@vivalence/typology";
 import { config, envfile, path } from "../../belt/index.js";
@@ -83,7 +83,7 @@ ledger.open(
     schema: v.object({}),
   },
   async (ctx) => {
-    if (paladin.scope.instance) await Promise.resolve(paladin.instance.mount()).catch(() => null);
+    if (paladin.scope.instance) await Promise.resolve(lifecycle.mount(paladin.instance)).catch(() => null);
     const home = paladin.scope.ledger;
     const env = home.branch(".env");
     const record = await collectRecord(paladin.ledger.registry);

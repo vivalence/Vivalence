@@ -1,0 +1,201 @@
+#+title: the model is deaf to what it draws, the trait takes the tools back from the mode, and a response becomes one unit of work
+#+filetags: :m57:hello-world:commons:generative:emitter:harness:turn:mikro:fork:unit-of-work:kajuit:reactivity:reader:images:walk:sqlite:naming:signatures:instance:
+#+index: 89
+#+phase: closed
+
+* TOPIC
+
+The first live walk of M4 (flamingos) and everything it surfaced. Three defects of one family —
+the model could not NAME a page it had drawn, could not ITERATE it, and the screen did not follow
+when it finally did — plus one the walk caused: my own restart killed a tool call mid-flight and
+left a thread the provider refused.
+
+The through-line: every fix that was proposed as a repair (a ledger line, a heal on boot, a
+repository verb) beef called clumsy or wrong, and every fix that landed removes the place where
+the bug could exist. The trait owns the tools; the mode steers them. The response is one unit of
+work; a tool's flush cannot carry half of it out.
+
+* Spine
+
+N = 154. Turns 1-116 are folded into four earlier compacts. This one walks 117-154.
+
+| n | beef | landed |
+|---+------+--------|
+| 117 | =/compact= | — |
+| 118 | (summary) | context restored |
+| 119 | /"search the sqlite for the turns on flamingos. 1: how can we fix… 2: lets try to integrate images"/ | sqlite read: the hash CROSSED the tool_result; both =translate.js= speak =message= only — the model is deaf to =buffer[]= |
+| 120 | (screenshot) | the flamingo page + "I don't have the hash" |
+| 121 | /"logging is thin on the harness. add"/ | four probes: =[m3:harness]= =[m3:turn]= =[m3:research]= =[m3:wire]=; =deno fmt= churned both =translate.js= → rebuilt HEAD + 6 lines |
+| 122 | /"we need the ability for agents to view/query/ and ITTERATE the views!"/ | design widened from "speak the hash" to the loop |
+| 123 | /"i dont just want to create a view once. i watn to itterate it."/ | same seat, new content — the ruling |
+| 124 | (quest path) | M6-M8 written into the quest — later SUPERSEDED |
+| 125 | /"i dont think this belongs on teh repo. investigate the generative trait in depth."/ | trait read whole: capability + tool supply conflated; 30 artifacts 42 MB, 1 source of 30; status never leaves PENDING; the client already re-mounts on =view.hash=; two modes copy the fallback verbatim |
+| 126 | /"find an elegant and holistic solution"/ | seat ≠ content · trait owns the tools, mode owns the words · the model hears the bag |
+| 127 | /"i dont really understand the role of the generative vector… what does the vector uniquely enable?"/ | ONE thing: being armed. =mode.gen= = capability, the Vector = the door |
+| 128 | /"if we have mode.gen.tools, whats inside… whats inside mode.module.generator?"/ | today two copied nodes; proposed: four stock tools + a config sibling |
+| 129 | /"rules and guard? wtf are those. smells. if, then we export a vector that gets slurped into gen.tools and steer the execution thusly."/ | config KILLED; =slurp= IS the steering — incoming pattern wins, effect stays (=vector.js:59-80=) |
+| 130 | /"do a compact on the quest. kill all the yap… one Meta header up top. rest code. then work the generator change… mode.gen → mode.generator"/ | GENERATIVE rewritten; rename everywhere; hello-world generator = middleware + two rewords; reader = one reword |
+| 131 | /"dont fucking call it fucking doors… and why export??!"/ | =doors= → local =tools()=, no export; rigs run the REAL trait with a stub bundler |
+| 132 | /"FUCKING BE SPECIFIC WITH EXAMPLES IN THE FUCKING SIGNATURES"/ | every =.desc= ends in =Example:= — a uuid, a hash16, a payload, a component; [[feedback_examples_in_signatures]] |
+| 133 | /"stop usign the fucking term shelf… ledger, registry, instances. no fucking shelf. prune!"/ | 304 occurrences, 57 files, ikiro + memory + README + release + two docs pages; =project_shelf_has_no_vcs= → =project_ledger_has_no_vcs= |
+| 134 | /"chagne the color here. why is this red… pull the thread again. check the turns."/ | Dock in-flight border =warning-base= → =primary-base=; turns: list ✓ inspect ✓ revise ×2 REFUSED =redraw is not a function= → render fallback, honest |
+| 135 | (screenshot) | the red call line |
+| 136 | /"i dont like the idea of redraw on repo. is it needed?"/ | NOT needed — =updateOne= exists, the buffer skill merges inline; a generator verb on a generic entity is the smell |
+| 137 | /"goood boy"/ | =Buffer.ts= byte-identical to HEAD; the door writes the row |
+| 138 | /"ok. where are we on images?"/ | designed, three cuts measured; CSP none declared |
+| 139 | (dock paste: revise WORKED; /"the buffer didnt update automatically… i needed to move the cursor"/) | client =Buffer.view= was a plain field beside an atom =data= → =$view = atom()=, =a.svelte= chains =$buffer→$view= |
+| 140 | (my images report echoed) | — |
+| 141 | /"GO on anything inside the mode."/ + /"go also on the service!"/ | =style.js= FIGURE + rule, =brief.js= lead figure, =web_read= names =images= |
+| 142 | /"fix"/ | reader: =img[src]= absolute https-only in body, =images:[{alt,src}]= cap 12, =srcset= gone, alt trimmed; reader 7 / 43 |
+| 143 | (log: three =close error rounds=1 usage=null=; /"find the turns again. why issue??"/) | turn =01a085af= called =view_revise=; MY =extract.js= write restarted the runtime mid-call; no =tool_result= row → provider 400 on every later request |
+| 144 | /"the problem is real but your solution is clumsy."/ | =heal()= on boot WITHDRAWN; mechanism found: =turn.create= is bare, the response flushes ONCE — the TOOL's =em.flush()= on the shared root em carried the half-response out |
+| 145 | (my repair SQL echoed) | — |
+| 146 | (my heal sketch echoed, /"clumsy"/) | — |
+| 147 | (=sqlite3 insert= run by beef) | the interrupted =tool_result= row landed; thread parses again |
+| 148 | (bash stdout) | — |
+| 149 | /"go on fork. fix the naming tho. unit - weird"/ | =const em = ctx.daemon.entities.em.fork()= — precedent =dataset.js:77=; one flush at close; catch = =em.clear()=; thread normalised to its id — a ROOT entity as =thread= leaks the row through the inverse collection (measured); =turn.unit-of-work.test.js= 3 / 3; runtime 54 / 342 |
+| 150 | /"ikiro compact."/ | this |
+| 151 | /"compress the quest"/ | quest → header + code, ~50% |
+| 152 | /"remove the yap"/ | same |
+| 153 | /"compress quest to 50%"/ | same |
+| 154 | /"code heavy"/ | same |
+
+* Arc
+
+** the model is deaf (119, 121, 126)
+
+#+begin_src js
+// both hallucinators' translate.js — what a tool_result sounds like
+const spoken = part.output?.message ?? part.output?.object ?? part.output;
+#+end_src
+
+=buffer[]= is the client's word and never reaches the model. The fallback render had always
+spoken =view <hash16> on screen=; hello-world's M3 door replaced it with =drew ${title}= — my
+regression, and =view_inspect= was unreachable from the day it landed. =[m3:wire] … spoke=message
+dropped=[buffer]= is the defect on one line. Landed answer: =render= speaks the SEAT in prose —
+=drew buffer <id> index <n> view <hash16> "<title>"=. The typology-level projection (=P-spoken=)
+stays beef's ruling.
+
+** the trait takes the tools back (125-131)
+
+Beef: /"what does the vector uniquely enable?"/ — being armed, nothing else. =mode.gen= was the
+capability; the Vector was the door; and GENERATIVE armed doors from a second place with its own
+override rule (declared at ROOT, fallback under =/view=). Two modes had copied the fallback body
+verbatim to change one string.
+
+#+begin_src js
+mode.generator = { bundle, inspect, serve, buffer, tools: tools() };        // tools(): /view/{render,revise,inspect,list}
+if (mode.module.generator) mode.generator.tools.slurp(mode.module.generator);
+// harnessed.js, after mode.tools:
+if (mode.generator?.tools) armed.slurp(mode.generator.tools);
+#+end_src
+
+The mode's =generator= arms NOTHING: =use= for guards (hello-world's =refuse= sets =ctx.output=
+ERROR and returns — a throw ends the round), =open= without an effect to reword (it MUST restate
+=input=; a collided pattern is taken whole), =open= with an effect to add. Beef killed the
+intermediate =generative = { rules, guard }= config on sight — /"wtf are those. smells."/ — and
+=doors= as a name and as an export in the same breath.
+
+** revise is not a verb (134-137)
+
+=BufferRepository.redraw(id, {view, data})= failed live: the descriptor never exported the
+repository, =collate= sealed Buffer with =DataRepository=. Fixing the export was the wrong move —
+beef: /"is it needed?"/ It was =findOneOrFail + assign + flush=, which is =updateOne=, plus a data
+merge that =skills/buffer.js= already does inline. The door writes the row; =Buffer.ts= is HEAD.
+
+** the screen did not follow (139)
+
+#+begin_src js
+// kajuit Buffer entity: data was an atom, view was not
+$view = atom(null);  get view() { return this.$view.get(); }  set view(r) { this.$view.set(!r || r instanceof View ? r : new View(r)); }
+const record = chain(terminals, "$active", "$buffer", "$view");             // a.svelte
+#+end_src
+
+The daemon side was already reactive end to end — =userspace.js:29= → twitch → =focus.js:16= →
+=remote-repository.js:164= merges by id — and =Frame.svelte:17= keys on =view.hash=. Only the
+client entity had a plain field where an atom belonged.
+
+** images (138, 141, 142)
+
+Turndown already emitted =![alt](src)=; Wikipedia's src is protocol-relative and =extract.js=
+absolutised anchors only. Now =img[src]= resolves, https ONLY (http/data/unresolvable REMOVED,
+=srcset= gone, alt trimmed so body and array agree), =images:[{alt,src}]= beside =links=, cap 12.
+The mode: a FIGURE pattern, one rule (src only from a page you opened), one brief line. RENDER
+5197 → 6198. No CSP is declared anywhere; the walk is the proof.
+
+** a response is one unit of work (143-149)
+
+My =extract.js= write restarted the runtime while =view_revise= was in flight. The =tool_use=
+turn was already in the db; its result never was; the provider rejected every later request.
+
+The first proposal — heal dangling calls on boot — beef called clumsy, and it was: it repairs
+data instead of not corrupting it. The mechanism, once read: =turn.create= is a bare =em.create=
+and the response flushes ONCE at close — but the tool's own =em.flush()= on the shared root em
+carried the sealed assistant turn out with it.
+
+#+begin_src js
+const em = ctx.daemon.entities.em.fork();                                   // precedent: dataset.js:77, intented.js:20
+const thread = ctx.input.thread?.id ?? ctx.input.thread;
+let parent = em.getReference(TurnEntity, ctx.turn.id);
+…  parent = em.create(TurnEntity, { role, parts, meta, parent, thread, mode: ctx.mode.id });
+await em.flush();                                                           // once, at close
+catch (error) { em.clear(); throw error; }                                  // an unflushed fork is dropped
+#+end_src
+
+Measured on the way: a fork stays isolated with id strings, but a ROOT-managed entity passed as
+=thread= leaks the new row through the inverse collection into the root's flush — the scenario
+passes the entity, production the id, hence the normalisation. =turn.unit-of-work.test.js=: a
+tool flushing the root em mid-response persists nothing early; a consumer that dies after the
+=tool_use= sealed leaves the thread at the user's message; a whole response lands chained.
+
+* Failures
+
+- **I broke beef's thread with my own write.** The watcher restarts on =commons/**=; an
+  =extract.js= edit during a live =view_revise= killed the call. The fix that followed is real,
+  but the cause was me editing a served file while he was mid-walk — [[feedback_flag_day_radius]]
+  again, from the other side.
+- **Three names beef had to kill**: =doors=, an exported builder, =rules/guard= config, =unit=,
+  =redraw= on the repository. Each was a coined register or a hidden rule where a precedent
+  existed (=tools=, =em=, =updateOne=, =slurp=).
+- **Signatures without examples, third time.** [[feedback_examples_in_signatures]] now exists so
+  the fourth does not.
+- **"shelf"** — 304 uses of a word the system does not have.
+- **=deno fmt= on files I did not write**, again: both =translate.js= (HEAD is 100-col) — rebuilt
+  as HEAD + hunk. Twenty-one hallucinator files still carry yesterday's 19:51 churn.
+- **A stale 453-line quest body sat above the compact** until the redraw pass noticed.
+- **The kajuit dock keeps a dangling call as =running= forever** — now impossible to create, not
+  fixed for the row beef inserted by hand.
+
+* State at fold
+
+#+begin_example
+hello-world   19 / 63          instance in sync (deno test needs --config <repo>/deno.jsonc there)
+reader         7 / 43
+runtime       54 / 342         generative 7 · unit-of-work 3 · registry-ingest red pre-existing
+kajuit        37 / 133
+quest         m57 — header + code, ~60 lines
+#+end_example
+
+OWED: runtime restart (harnessed.js, generative.js, extract.js are repo files; the watcher only
+sees the instance), then /"cut it in length by 50%"/ once — expect =revised buffer 01a0856f …=
+and the same line re-mounting without a cursor move; then /"research flamingos, with a picture"/
+→ one figure, =https://upload.wikimedia.org/…=. Rip every =[m3:*]= probe after. =P-spoken= (the
+wire projection speaks entity rows) and the MARKERS cortex-snapshot entry are beef's rulings,
+still open. Twenty-one hallucinator files: =git diff -w --stat commons/hallucinators/=.
+
+* quest report (derived at fold — `methods/quest-report.py`)
+
+| quest                      | progress   | status                                                                | next                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                      | sessions   |
+|----------------------------+------------+-----------------------------------------------------------------------+---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------+------------|
+| drapes-editor              | —          | landed · the caret bug found and fixed — his click-through gates owed | rebundle + reload, then confirm the caret advances while typing (the one thing the fix is not yet proven against live). then the eight click-through gates below. later, both his call: the language on `#+begin_src js` does not highlight its body; the markdown fence is the same trade.                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                               | 1          |
+| m46-linux-readmen          |  17% 3/18  | wip                                                                   | drain                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                     | 6          |
+| m50-the-three-way-weave    |  60% 3/5   | wip                                                                   | blast                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                     | 1          |
+| m51-standalone-slowstart   |   0% 0/18  | design                                                                | go                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                        | 2          |
+| m53-vcompany               |   0% 0/5   | open                                                                  | **t1.1** h1 · e1 · p1 · t1 · b1 · k1 + s1 · x1 · x2 · x3 + i1 (the index as rows) landed in `~/.viva/instances`; blocked on **r1** (paladin =resolve= percent-encodes — one-line diff + one test in the quest, his go, repo): the four reds (tools file · move; snapshots tools · aperture) are r1 and nothing else; a1 struck (the app is the sibling's v3); d1 (readme) on go; the =open= schematic on buffer-data level — sketch in "landed", his word; officers out by his order; then **the slow first attach** (the boot race under `instance/run`) → gs1/gs2 click-through after restart; the bundle weight ledgered, direction his; s3 voffice → s4 desk on go; `* t1.#2` his call; the runtime's m:n =cascade.remove= both ways ledgered as a landmine (his)                                                                                                                                                                                                                                                                                                     | 5          |
+| m53-vcompany.pre           | —          | open                                                                  | t1 package setup — the m27 gate moves to the executive stage; t1–t3 do not wait on it                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                     | 3          |
+| m53-vcompany.v3-vdex       | —          | landed                                                                | one restart carries both — the new pdf viewer (=paper.svelte=) and the cargo fix (=freight.js=, uncommitted); then open a spaced-name pdf: it should render, page nav and zoom live, the rail on ▤. the six later items stay marked in the root quest.                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                    | 3          |
+| m53.v4-mail+calendar       | —          | landed                                                                | the six office test files — =office/email/tests/{aperture,tools,email.snapshot}.test.js= and =office/calendar/tests/{aperture,tools,calendar.snapshot}.test.js=; =/key=, the held send and the thread walk are landed and untested. then his restart + the click-through gates. open, not mine: the sibling's mode-ownership landing duplicates every symbol (16 rows, 8 distinct, the dummy's copies bare), which contradicts this quest's law that the office declares the scheme and the provider carries the rows.                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                    | 1          |
+| m54-buffer-file            |   0% 0/4   | open                                                                  | reconcile with m53 =* t1.1= and =m53-vcompany.v3-vdex= first (three quests, one seam, all waiting on go; v3 splits the app into a shell + 7 parts + =buffer/jdex.js= and already points here for file upload — m54's app hunk names the single =vdex.svelte= and must be re-cut onto whichever lands first) (a sibling session, beef's rulings there: the vdex speaks slugs — =/document /write /file /move /delete= implemented once in the aperture, tools wrap =mode.call.<verb>=, =fs_*= slurp gone on vdex; =open= is an emitter; the boot watches files and syncs per path — /"shouldnt this watch files??!!!"/; /"wtf is daemon traits stamp????"/ → gone) — three seams now name the verbs' home (t1.1 aperture · m54 sketch · mikro-first repository), beef arbitrates; then beef reopens the questioned block when ready — order of design there is mikro entity + bufferrepository verbs → typology verb contract → shard mounts → remoterepository mirrors → kajuit. until then m1 = everything but the verbs. "go m1" → full hunks against the tree as read. | 1          |
+| m55-recursive-terminals    |  20% 3/15  | wip                                                                   | go m2 — the kajuit terminal: up · down · status · stop · run · watch, the tree, the schematic, panel f                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                    | 3          |
+| m56-the-pincer-turns       | 100% 2/2   | verify                                                                | live-walk c at both aspects · markers 2·3·4·10·13·14 need a dom                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                           | 2          |
+| m57-hello-world-researches |  67% 12/18 | open                                                                  | restart. walk: /"draw me a page on flamingos"/ → `drew buffer <id> index 0 view <hash16> "flamingo"` in the tool line → /"add a section on the six species"/ → one view_revise, same line, page re-mounts → /"read me its source"/ → view_inspect with the hash it was told. then rip every `[m3:*]` probe.                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                               | 1 (1 live) |

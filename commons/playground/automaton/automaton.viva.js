@@ -1,10 +1,11 @@
-import { App, Vector, v } from "@vivalence/typology";
+import { App, v, Vector } from "@vivalence/typology";
 
 export const manifest = {
   type: "playground",
   slug: "automaton",
   name: "Automaton",
-  description: "Intent-driven: open one of its intents and the thread self-configures + self-manages.",
+  description:
+    "Intent-driven: open one of its intents and the thread self-configures + self-manages.",
   version: "0.1.0",
   traits: ["APPLICATION", "STANDALONE", "EMITTER"],
 };
@@ -14,12 +15,16 @@ export const app = new App("buffer/Automaton.svelte", v.buffer({ data: {} }));
 
 // AIMED intents pull `card` buffers (reuse the Group-2 target) — cross-mode again.
 export const emitter = new Vector().open(
-  { nature: "/tick", input: v.object({ count: v.integer({ minimum: 1 }).default(1) }) },
+  {
+    nature: "/tick",
+    input: v.object({ count: v.integer({ minimum: 1 }).default(1) }),
+  },
   async (ctx) => {
     const card = ctx.daemon.modes.playground.card;
     const start = ctx.thread?.counter ?? 0;
-    for (let i = 0; i < ctx.input.count; i++)
+    for (let i = 0; i < ctx.input.count; i++) {
       ctx.pool.add(card.buffer({ data: { face: `#${start + i}` } }));
+    }
   },
 );
 
@@ -32,7 +37,11 @@ export const dataset = {
       slug: "auto",
       name: "Auto-feed",
       traits: ["MASKED", "AIMED", "QUEUEING"],
-      trait: { AIMED: { mount: "/emit/tick" }, MASKED: {}, QUEUEING: { depth: 3 } },
+      trait: {
+        AIMED: { mount: "/emit/tick" },
+        MASKED: {},
+        QUEUEING: { depth: 3 },
+      },
       phase: "continuous",
     },
     // round-trip: AIMED + escort → seize the moat, walk, return home on drain.
@@ -40,7 +49,11 @@ export const dataset = {
       slug: "round",
       name: "Round trip",
       traits: ["MASKED", "AIMED", "QUEUEING"],
-      trait: { AIMED: { mount: "/emit/tick" }, MASKED: {}, QUEUEING: { depth: 2 } },
+      trait: {
+        AIMED: { mount: "/emit/tick" },
+        MASKED: {},
+        QUEUEING: { depth: 2 },
+      },
       phase: "escort",
     },
     // single: no AIMED → manual cursor discipline; the app/user drives (f-panel Open

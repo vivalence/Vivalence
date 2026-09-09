@@ -1,11 +1,13 @@
 import { Box, React, Text } from "@vivalence/sheets";
 
-// a boolean is a flag, not a third positional.
-const label = (param) => (param.type === "boolean" ? `--${param.name}` : param.name);
+// a flag is declared (group "flags"), never inferred — a bare one carries nothing, the rest carry a value.
+const flagged = (param) => param.group === "flags";
+const label = (param) =>
+  !flagged(param) ? param.name : param.type === "boolean" ? `--${param.name}` : `--${param.name}=${param.description}`;
 const usage = (param) => `[${label(param)}]`;
 
 export function Help({ commands, flags }) {
-  if (commands.length === 1) return <Detail command={commands[0]} />;
+  if (commands.length === 1) return <Detail command={commands[0]} flags={flags} />;
 
   const groups = new Map();
   for (const command of commands) {
@@ -41,7 +43,7 @@ export function Help({ commands, flags }) {
   );
 }
 
-function Detail({ command }) {
+function Detail({ command, flags }) {
   return (
     <Box flexDirection="column">
       <Text>
@@ -55,11 +57,14 @@ function Detail({ command }) {
             <Text key={param.name}>
               {"  "}
               <Text color="magenta">{label(param).padEnd(12)}</Text>{" "}
-              <Text color="gray">{param.description || "—"}</Text>
+              <Text color="gray">{flagged(param) && param.type !== "boolean" ? "" : param.description || "—"}</Text>
             </Text>
           ))}
         </Box>
       ) : null}
+      <Box marginTop={1}>
+        <Text color="gray">also{"  "}{flags.join("  ")}</Text>
+      </Box>
     </Box>
   );
 }

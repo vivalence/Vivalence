@@ -284,10 +284,10 @@ specimen.describe("entityRows", () => {
     specimen.expect(rows[0].strength).toBe(null);
   });
 
-  specimen.it("labels a buffer by its data, then its mode, then its index", () => {
-    specimen.expect(bufferLabel({ data: { label: "cold ambush" }, mode: "impara" })).toBe("cold ambush");
-    specimen.expect(bufferLabel({ mode: { slug: "impara" }, index: 0 })).toBe("impara");
-    specimen.expect(bufferLabel({ mode: "vocabolario" })).toBe("vocabolario");
+  specimen.it("labels a buffer by its LABELED name, then its index — never its data or mode", () => {
+    specimen.expect(bufferLabel({ trait: { LABELED: { name: "cold ambush" } }, data: { title: "no" }, mode: "impara" })).toBe("cold ambush");
+    specimen.expect(bufferLabel({ data: { title: "no" }, mode: { slug: "impara" }, index: 0 })).toBe("buffer 0");
+    specimen.expect(bufferLabel({ mode: "vocabolario", index: 2 })).toBe("buffer 2");
     specimen.expect(bufferLabel({ id: "b1" })).toBe("buffer");
   });
 

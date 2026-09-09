@@ -1,5 +1,6 @@
 #+title: the readme reformulation cascades into a seven-page vector spine built literate-first — running the examples catches two doc bugs and one of mine — then the trait census folds eight natures into the entity rewrite
 #+filetags: :documentation:typology:vector:traits:entities:astro:literate:connoisseur:
+#+index: 105
 
 A documentation session in four movements: a README-driven register pass, a from-scratch =42_typology= spine built literate-first, a stale-claim purge in =47.03= + codemap, and a full trait/entity census folded into =35.01=. The through-line: **docs written from other docs go stale; docs written from source and executed cannot.** Nine runnable examples now fail the build if the system drifts.
 

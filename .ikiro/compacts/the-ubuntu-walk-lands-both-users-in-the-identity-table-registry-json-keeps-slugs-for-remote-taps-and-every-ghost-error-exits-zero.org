@@ -1,5 +1,6 @@
 #+title: the ubuntu walk lands both users in the identity table, registry.json keeps slugs for remote taps, and every ghost error exits zero
 #+filetags: :readme:ghost:instance:registry:ledger:kajuit:paladin:drapes:docker:ubuntu:report:critical-pass:documentation:callout:connoisseur:
+#+index: 134
 
 * what happened, in one breath
 

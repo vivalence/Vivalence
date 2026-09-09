@@ -1,0 +1,959 @@
+#+title: drapes — the file editor
+#+filetags: :drapes:editor:codemirror:vdex:m53:bundle:
+#+phase: LANDED · the caret bug FOUND and FIXED — his click-through gates owed
+#+progress: **LANDED WHOLE, GREEN** — on /"go. build"/ the five wrapper files, the compile gate and the vdex `raw` swap all went to disk. drapes **7 passed (45 steps) / 0 failed**, paladin **41 / 180 / 0**, vdex `app` + `jdex` green; the real App bundles with the editor at **635 784 B prod / 5 616 126 B dev**, org grammar in, vim out. Two reds remain in the vdex suite and neither is this quest's — `tools` and `vdex.snapshot` are the r1 spaced-path blocker (`12.05 Notes.md`), structurally isolated (neither suite imports `buffer/jdex.js`, `parts/Reader.svelte` or the editor subpath). Only his click-through is owed. The superseded first pass read: **DESIGNED, MEASURED · the bundler line and the ORG MODE LANDED** — the bundler subpath hunk is in (`ok.`), bracketed, paladin 41/180 green, zero consumers today so zero behaviour change. CodeMirror 6 picked (`ok codemirror.`) — it was already in `import_map.json` with nobody importing it. The wrapper is written and compiles clean; the org grammar's nine token classes are probed headless; the real vdex App was patched in scratch and bundled to get the true cost. The org mode is built and on disk — a stateful tokenizer with folding, 19 steps green, drapes 6/38. The rest waits on go.
+#+next: rebundle + reload, then confirm the caret advances while typing (the one thing the fix is not yet proven against live). Then the eight click-through gates below. LATER, both his call: the language on `#+begin_src js` does not highlight its body; the markdown fence is the same trade.
+
+* ikiro
+
+** intent (his words, verbatim)
+
+/"should we maybe provide a propper markdown / code editor in vdex raw? rolling our own is shit. we'd take
+something propper and export it from drapes with our own wrapper. like we do with drapes and typology
+generally. research our perfect editor. vim keybindings in the future. shit like that. svelte, react, solid,
+raw html...?? anything we can make work reliably"/
+
+Then, on the research: /"ok."/ (the bundler subpath line) · /"ok codemirror."/
+
+** what it replaces
+
+`buffer/parts/Reader.svelte`'s `raw` branch is a painted `<pre>` under a transparent `<textarea>` with a
+three-token regex highlighter in `buffer/jdex.js raw()`. Three flows kept in sync by hand — the 17/34 px
+desync bug earlier in this quest family was that design failing. It goes; ~110 lines with it.
+
+** the pick
+
+CodeMirror 6. Not a framework question: it mounts into a `<div>` through a Svelte action, so the wrapper is
+ours and the library never sees Svelte. The alternatives, and why not —
+
+| candidate    | verdict | why |
+|--------------+---------+-----|
+| CodeMirror 6 | TAKEN   | vanilla ESM · tree-shakes under esbuild · maintained vim · already in the tree |
+| Monaco       | no      | web workers + AMD shims · ~5 MB · no touch |
+| Ace          | no      | CM5-era API · not ESM-first · worse touch |
+| ProseMirror  | later   | WYSIWYG — the `edit` block surface, not `raw` |
+| TipTap · Milkdown · Lexical | later | same layer as ProseMirror |
+
+MEASURED, the find that settles it: `import_map.json:64-68` already declares `codemirror@6`,
+`@codemirror/state`, `@codemirror/view`, `@codemirror/lang-javascript` and `@replit/codemirror-vim`, all
+installed under `node_modules/`, with **zero consumers anywhere in the tree**. The choice was made once
+already and never wired.
+
+** measured (this session, in-tree, same compiler the instance uses)
+
+`subsystems/typology/gestalten/bundle/svelte.js`, esbuild, `treeShaking: true`. Bytes of the emitted artifact:
+
+| build                                   |     dev |    prod |
+|-----------------------------------------+---------+---------|
+| bare svelte floor                        |  611100 |   40506 |
+| vdex App today                           | 3268707 |  277039 |
+| CM core                                  | 3072891 |  323428 |
+| + `@lezer/markdown`                      | 3343172 |  361018 |
+| + `@codemirror/lang-markdown`            | 4318725 |  555616 |
+| md · json · org · search · history       | 3794370 |  430160 |
+| ⤷ + vim                                  | 4779636 |  557756 |
+| **vdex App + this editor**               | 6547072 |  679502 |
+
+Three readings decide the shape:
+
+- `@codemirror/lang-markdown` costs **195 kB prod more** than `@lezer/markdown` and the extra is `lang-html`
+  → `lang-css` + `lang-javascript`, pulled in only to highlight code *inside* fences. Same parser otherwise.
+  DECIDED: the lezer parser. A JD notes tree is prose, not a source file. Overturnable — it is one import.
+- vim is **+128 kB prod / ~1 MB dev**. It gets its own entry and is never in the base graph.
+- the instance runs `DEVELOPMENT` (`subsystems/paladin/belt/is.js:11`), so the **dev** column is what kajuit
+  actually downloads: the App goes 3.27 MB → 6.55 MB. 65 % of that is the inline sourcemap
+  (`svelte.js: sourcemap: prod ? false : "inline"`), which is typology's and not this quest's.
+
+** the barrel hazard, and the one line that answers it
+
+`subsystems/drapes/mod.js` re-exports every barrel, and the standing issue
+`buffer-app-bundles-carry-2.6-mb-of-dead-weight` is exactly that reachability. An `Editor` in
+`display/index.js` would put 400 kB prod / 3.3 MB dev into **every** buffer App — dojo, nyan, aprende, the
+lot. So the editor is a SUBPATH, never the barrel.
+
+LANDED on /"ok."/ — `subsystems/drapes/editor/` needs no `deno.jsonc` export line, because the bundler is
+what resolves App imports, and it now maps the prefix:
+
+#+begin_src diff
+ subsystems/paladin/belt/bundler.js
+   const imports = () => ({
+     "@vivalence/typology": paladin.scope.repository.branch("subsystems/typology/mod.client.js").absolute,
+     "@vivalence/drapes": paladin.scope.repository.branch("subsystems/drapes/mod.js").absolute,
++    "@vivalence/drapes/": `${paladin.scope.repository.branch("subsystems/drapes").absolute}/`,
+   });
+#+end_src
+
+Bracketed: consumers are `systems/runtime/lifecycle/resolve.js:24` · `daemon/traits/generative.js:7` ·
+`daemon/traits/application.js:32` + three test files; paladin 41 passed (180 steps) on both sides;
+`view.spawn` + `path.absolute` 4/14 green; re-grep found **no** `@vivalence/drapes/…` importer in
+`systems/` `subsystems/` `commons/` or the registry, so the new key matches nothing that exists = zero
+behaviour change.
+
+DEFECT FOUND BY THE PROOF, and the reason the entry is `.js`: `mapimports` in
+`subsystems/typology/gestalten/bundle/svelte.js` loads everything it resolves with `loader: "js"` in its own
+`repoloader` namespace. Today only `mod.js`/`mod.client.js` come through it, both JS. A subpath resolving
+to a `.svelte` file is therefore parsed as JavaScript —
+`@vivalence/drapes/display/Pip.svelte` fails with /"The JSX syntax extension is not currently enabled"/.
+Measured both ways: `@vivalence/drapes/display/index.js` bundles clean at 51 013 B prod, Pip-only.
+So **a drapes subpath entry is always a `.js` file** that imports its `.svelte` siblings relatively —
+which is how `mod.js` already works. Fixing the loader instead would be a typology change; not taken.
+
+** decisions (mine — every one overturnable)
+
+- `raw` first, `edit` untouched. `raw` is the surface he called shit; `edit` is his design's own block
+  surface and the block editor is a marked LATER in `m53-vcompany.org` (`** vdex — LATER`; the V3 pass itself sits in `done/m53-vcompany.v3-vdex.org`). One seam at a time.
+- the editor never owns the format list — `format` is the literal's, and an unknown format gets a plain
+  editor rather than a guess.
+- CodeMirror owns the document while the caret is in it. An outside `text` lands only when it truly differs
+  (the same law the `written` action encodes for the contentEditable blocks).
+- every colour is a dapper zone token, no literals — the editor inherits whatever surface it is dropped on,
+  so paper theme and the coarse-pointer rules come free.
+- `⌘S` is a CodeMirror keymap entry, not a window handler: CM swallows keys, and `Vdex.svelte`'s root
+  handler would otherwise lose the save while the caret is in the editor.
+- `keys` is an opaque extension the App hands in, not a string the wrapper looks up. A string would force
+  the wrapper to import vim to resolve it, and the whole point is that only an App that asks pays for it.
+- org has NO CodeMirror 6 grammar — checked npm, `codemirror-lang-org` · `@codemirror/lang-org` ·
+  `codemirror-org-mode` all 404, and `@codemirror/legacy-modes` (99 modes) has no org. The `simple-mode`
+  sketch that first stood here is SUPERSEDED by his /"build an .org mode."/ — `editor/org.js` is a real
+  stateful tokenizer, LANDED, and the `legacy-modes` specifier came back out of the import map with it.
+- the editor's colours reach for `--zone-*` FIRST and fall back to `--colors-skeleton-0-*`. Zone vars only
+  exist under a `.zone-N` ancestor and a buffer App is not guaranteed one — the vdex App reads the flat
+  tokens directly. A drapes component that can be dropped anywhere cannot assume the zone.
+
+** the org mode (LANDED — `subsystems/drapes/editor/org.js`)
+
+A `StreamLanguage` with real state, not a regex list: the tokenizer carries `block` · `drawer` · `headline`
+across lines, so a `* headline` inside `#+begin_src` is body text and a `:PROPERTIES:` drawer swallows its
+own lines until `:END:`. Nothing else in CodeMirror 6 knows org, so every mark below is ours.
+
+| covered                        | mark                          |
+|--------------------------------+-------------------------------|
+| headlines, levels 1–6          | `heading1`…`heading6`         |
+| the whole headline line        | its own level                 |
+| TODO · NEXT · STARTED · WAITING · HOLD | `marks.todo`          |
+| DONE · CANCELLED · CANCELED    | `marks.done`                  |
+| `[#A]` priority                | `marks.priority`              |
+| `:tag:tag:` at end of headline | `marks.tag`                   |
+| DEADLINE · SCHEDULED · CLOSED  | `annotation`                  |
+| `<…>` · `[…]` · ranges         | `marks.stamp`                 |
+| `:DRAWER:` … `:END:`           | `marks.drawer` · `marks.property` · `string` |
+| `#+begin_x` … `#+end_x`        | `keyword` · `content`         |
+| `#+KEYWORD:` directive         | `meta`                        |
+| `# ` comment                   | `lineComment`                 |
+| `-` `+` `1)` bullets           | `list`                        |
+| `[ ]` · `[X]`                  | `marks.checkbox` · `marks.checked` |
+| tables and separator rows      | `marks.table`                 |
+| `-----` rule                   | `contentSeparator`            |
+| `*b* /i/ _u_ +s+ =v= ~c~`      | `strong` · `emphasis` · `link` · `strikethrough` · `marks.verbatim` · `monospace` |
+| `[[t][d]]` · `[[t]]`           | `link`                        |
+| `[fn:1]` · `<<target>>` · `{{{macro}}}` | `marks.footnote` · `marks.target` · `macroName` |
+| `\(…\)` · `\[…\]` · `$…$` · `\alpha` | `special(content)` · `character` |
+
+Three rules that are org's and not markdown's, each with its own test —
+
+- **the keyword only counts in the first slot.** `* TODO file it` marks TODO; `* file the TODO later` does
+  not. The sets are the caller's: `org({ todo: ["OPEN"], done: ["SHIPPED"] })`.
+- **emphasis has an open and a close rule.** A marker opens only after whitespace or an opening bracket and
+  with a non-space after it; it closes only against a word and before whitespace or punctuation. So
+  `a * bold * b` is not bold, `2*3*4` is not bold, and `a *bold *` is not bold.
+- **only its own `#+end_` closes a block.** `#+end_quote` inside `#+begin_src` is body.
+
+FOLDING rides along as a `foldService`, so it needs no parse tree: a headline folds to the next headline of
+its level or shallower (the last one to the end of the document), a block to its own end, a drawer to
+`:END:`. This is what the App's outline already does to the text — now the editor does it to the source.
+
+LATER, marked: the language named on `#+begin_src js` does not highlight its body. That is the same call as
+the markdown fence — it would pull `lang-javascript` and its neighbours back into the graph.
+
+** dependencies
+
+- `subsystems/paladin/belt/bundler.js` — LANDED above.
+- `import_map.json` — six specifiers (hunk below). `@codemirror/state` · `@codemirror/view` ·
+  `@replit/codemirror-vim` are already there.
+- nothing in m53. The vdex swap is one line in `parts/Reader.svelte` and rides whenever.
+
+** gates (his click-through, after go + a restart)
+
+1. open a md → `raw` → line numbers, headings and `#+`/frontmatter marked apart, the active line lit
+2. type → the chip says unsaved → ⌘S from inside the editor → synced, the file on disk changed
+3. `⌘F` inside the editor → the search panel takes the zone tokens, matches lit in warning ink
+4. an org file → headings, `#+begin_src` blocks, `[[links]]` marked
+5. a json file → keys, numbers, `null` marked; a broken one still edits
+6. paper theme → the editor reads (every colour is a token)
+7. narrow under 820 → the editor scrolls in its own box, the page never scrolls sideways
+8. the bundle: `[VDEX]` still boots and the App still mounts at ~6.5 MB dev
+
+** land (on go)
+
+#+begin_src shell
+mkdir -p subsystems/drapes/editor
+# the five files below → subsystems/drapes/editor/<name>
+deno test --config deno.jsonc -A --no-check subsystems/drapes/tests/
+deno test --config deno.jsonc -A --no-check subsystems/paladin/tests/
+# then the vdex hunks, and his restart
+#+end_src
+
+** log
+
+- /"ok."/ on the bundler line + /"ok codemirror."/ → the line LANDED under the blast-bracket (five beats,
+  green both sides), the subpath `.js` law found by proving it, the wrapper written and compiled clean
+  (0 warnings, 7/7 gate green in scratch — in-repo it runs once the import-map hunk lands), org probed headless, the real App patched in scratch and bundled: **679 502 B prod /
+  6 547 072 B dev**, +402 kB / +3.28 MB over today. Waiting on go for the rest.
+- /"build an .org mode."/ → `subsystems/drapes/editor/org.js` LANDED (a stateful `StreamLanguage`, 14 own
+  tags, a `foldService`), `subsystems/drapes/tests/editor.org.test.js` LANDED (19 steps over headlines,
+  line grammars, inline and folding — drapes 6 passed / 38 steps, 0 failed). Landed with it: the
+  import-map hunk (needed to run any of it), minus the `legacy-modes` line the real mode made redundant.
+  ONE test expectation of mine was wrong, not the code — the last headline folds to the document end,
+  trailing blank line included. The comment gate refused the first write of `org.js`: authored `//` lines
+  are not allowed in product source, so the quest's blocks must be stripped as they land.
+- the research pass: CM6 found already declared in `import_map.json` with zero consumers; Monaco/Ace/
+  ProseMirror ruled out; the ladder measured; the barrel hazard named; org's absence from CM6 confirmed
+  against npm.
+- /"go. build"/ → everything landed. `editor/{index.js, Editor.svelte, languages.js, theme.js, vim.js}`,
+  `tests/editor.test.js`, and the three vdex hunks. `Reader.svelte` 698 → 616 lines. Suites and bundle
+  above.
+
+** the connoisseur pass (his /"do another pass over drapes editor. are we ready?"/ — verdict: NOT ready, two blockers)
+
+Every claim below was probed, not read. Four defects went into the landing:
+
+1. **the org case in `tests/editor.test.js` was broken twice over.** `language(format)` returns a
+   `LanguageSupport`; `.parser` lives on `.language`, so `language("org").parser.parse(...)` was a
+   `TypeError`. And once fixed, the assertion set was still stale from the dead simple-mode sketch — the
+   node names a `StreamLanguage` emits are its own `tokenTable` keys, so all seven of
+   `heading · meta · list · link · monospace · keyword · string` were `false`. Probed:
+   `NODE NAMES: Document · org-block · org-block-mark · org-bullet · org-directive · org-headline-1 ·
+   org-link · org-verbatim`. Both halves fixed; the test now asserts our own names.
+2. **`caret` became write-only.** Its single reader was the paint layer the swap deletes
+   (`Reader.svelte:108`) — the `.caret` at 188/281 is the ▸/▾ glyph, a different noun on the same name.
+   `caret`, `at()` and the `oncaret` wiring all went. `oncaret` stays on the drapes component: it is the
+   library's API, and the App simply does not ask for it yet.
+3. **the `jdex.js` diff dropped the function but not its comment** at :219, which would have orphaned a
+   line that had become false. Removed with it. `HEADING` survives at 107 and 140 — no dead const.
+4. **the test titled /"every format the vdex declares has a grammar"/ lied.** The vdex declares
+   `["md", "org", "json", "txt", "pdf"]` (`vdex.viva.js:26`) and `txt`/`pdf` correctly have none. Renamed
+   to what it tests: the grammar list is the editor's own.
+
+Two more went out on judgment, both reported before the go: `export const focus` was dead surface (nothing
+binds `this`) and was cut rather than wired; and the Editor is wrapped in `{#key open.literal.slug}`, so
+undo history and caret no longer carry across documents — ⌘Z after a switch used to undo into the previous
+file's text, a hole the old textarea had too.
+
+*** two adjustments made during the landing, beyond the reported diff
+
+- **`.pdf` was dead CSS all along, and the swap exposed it.** `Reader.svelte` compiled with zero warnings
+  before and `css_unused_selector: ".pdf"` after — measured both ways on the same compiler. The cause is
+  Svelte's pruner: the old `<span class="line {line.kind}">` carried an *interpolated* class, so every
+  remaining class selector counted as possibly-matching and nothing was ever reported unused. Removing that
+  span removed the mask. The rule was genuinely dead — `{:else if pdf}` renders `<Paper>` with no wrapper.
+  Deleted.
+- **`.reader` gained `flex: 1`.** It sits in `.stage` (`display: flex; flex-direction: column;
+  overflow: hidden`) and already carried `min-height: 0; overflow: hidden` — meaningless on a flex child
+  that never flexes. Without it the `.raw` box has no height to fill and CodeMirror would mount at zero.
+  This is pre-existing layout debt the editor exposed; the one line is the smallest honest fix and it
+  cannot shrink `read`/`edit`, which are content-sized inside a now-taller box.
+
+*** what the landing measured
+
+| claim                                    | measured |
+|------------------------------------------+----------|
+| drapes suite                             | 7 passed (45 steps), 0 failed |
+| paladin suite                            | 41 passed (180 steps), 0 failed |
+| vdex `app.test.js` · `jdex.test.js`      | 1 / 9 steps · 3 / 17 steps, 0 failed |
+| vdex `tools` · `vdex.snapshot`           | 2 failed — r1 spaced-path, NOT this quest |
+| typology                                 | 123 passed, 1 failed — the standing `hallucination snapshot … tool loop` red |
+| the real App, prod                       | 635 784 B |
+| the real App, dev (what kajuit downloads) | 5 616 126 B |
+| `cm-editor` in the artifact              | yes |
+| `org-headline-1` in the artifact         | yes |
+| `codemirror-vim` in the artifact         | **no** |
+| importers of `@vivalence/drapes/editor`  | exactly one — `parts/Reader.svelte:3` |
+
+Both App figures came in UNDER the design estimate (679 502 / 6 547 072): −43 718 B prod, −930 946 B dev.
+The subpath itself was proven end to end for the first time here — `@vivalence/drapes/editor/org.js`
+through the real compiler at 285 771 B prod with `org-headline-1` in the output, where the earlier proof
+had only been `display/index.js`.
+
+
+** the caret bug — /"when i write in the editor, the selector doesnt move."/
+
+*** what was proven, and what was not
+
+RUNNING CODEMIRROR: yes, from the served artifact, not from assumption —
+=bundles/office/vdocs/bundle/b5b4fa174fc598eb.svelte.mjs=, 6 540 947 B, built one minute before his
+screenshot, carrying =cm-editor= · =org-headline-1= · =drawSelection= · =cm-cursor= and NO
+=codemirror-vim=. The call site inside it is this quest's =Reader.svelte= — ={#key open.literal.slug}= with
+=bind:text={draft}=, dev build. (Observation, not chased: the daemon serves that mode under
+=bundles/office/vdocs= while the instance manifest still reads =slug: "vdex"=, and =office/corpo= carries the
+same bundle hash. A sibling's doing.)
+
+NOT the native caret: =drawSelection()= ships =hideNativeSelection= at =Prec.highest= with
+=caret-color: transparent !important=, which this quest's =theme.js= cannot override. The bar he sees is
+CodeMirror's own drawn =.cm-cursor=.
+
+NOT the extension list: bisected in a real browser, this quest's exact extensions against a bare
+=lineNumbers + drawSelection + history + defaultKeymap=. Both advance =selection.main.head= 36 → 41 with the
+text landing in order. The config does not break the selection.
+
+**THE DEFECT, proven on the real package**: the wrapper pushed an outside text by replacing the whole
+document, and a whole-document replace collapses the caret to **0 — even when the text is identical**:
+
+#+begin_src text
+after one keystroke                  "Hamburg, xwith a"  caret@ 10
+OLD full replace, identical text     "Hamburg, xwith a"  caret@ 0
+NEW push, identical text             "Hamburg, xwith a"  caret@ 10
+NEW push, stale text (the race)      "Hamburg, with a"   caret@ 10
+NEW push, external edit far away     "HAMBURG, xwith a"  caret@ 10
+#+end_src
+
+Every outside write went through it — =actions.write= · =section= · =rehead= · the twitch's =read()= — so
+each of those threw the caret to the top of the file.
+
+**HONEST LIMIT**: I could not prove this fires during plain typing. Svelte flushes effects on a microtask
+and keystrokes are separate tasks, so =text= should never be stale between two of them. The second
+suspect, fixed in the same pass, is compartment churn: =keys = []= minted a fresh array on every read and
+=language(format)= a fresh =LanguageSupport=, so both compartment effects could redispatch a reconfigure
+per keystroke — and a reconfigure rebuilds view plugins, =drawSelection='s cursor layer among them. A
+cursor layer rebuilt every keystroke never settles, which is a stale bar over a correct document. Which of
+the two was biting is UNSETTLED; the live check is one line with the editor focused:
+=document.querySelector('.cm-editor').cmView?.view.state.selection.main.head=.
+
+*** THE ACTUAL CAUSE — =markdown= was never a valid Language (found from his console)
+
+His console, as soon as he typed:
+
+#+begin_src text
+Uncaught TypeError: this.parser.hasWrappers is not a function
+    get allowsNesting · topNodeAt · languageDataAt · indentOnInput
+    filterTransaction · resolveTransaction · update · applyDefaultInsert · applyDOMChange
+#+end_src
+
+=languages.js= built markdown as =new LanguageSupport(LRLanguage.define({ parser }))= over
+=@lezer/markdown='s parser. That parser is a =MarkdownParser=, NOT an =LRParser=, and
+=LRLanguage.allowsNesting= is =return this.parser.hasWrappers()= — a method only an LR parser has. It
+throws inside =filterTransaction=, so **every input transaction was aborted**: the browser wrote the
+character into the contenteditable, CodeMirror's state never advanced, and the drawn cursor stayed frozen
+at the last state it knew. That is the whole symptom, and it had nothing to do with the two defects fixed
+in the pass before it.
+
+Only =LRLanguage= calls =hasWrappers=. Base =Language.allowsNesting= returns =true=; =StreamLanguage='s
+returns =false=. So **org was always fine and markdown was always broken** — and a JDex note is =.md=, so
+it broke on every keystroke he ever typed. Reproduced headless across the whole format list, before and
+after:
+
+#+begin_src text
+BEFORE                              AFTER
+md         THROWS: hasWrappers      md         ok
+mdx        THROWS: hasWrappers      mdx        ok
+markdown   THROWS: hasWrappers      markdown   ok
+org        ok                       org        ok
+json       ok                       json       ok
+jsonc      ok                       jsonc      ok
+#+end_src
+
+The fix keeps the bare lezer parser (no =@codemirror/lang-markdown=, no +195 kB) and builds the Language
+the way a non-LR parser must be built — base =Language= with its own facet, the top node carrying it:
+
+#+begin_src js
+const prose = defineLanguageFacet({ commentTokens: { block: { open: "<!--", close: "-->" } } });
+
+const markdownLanguage = new Language(
+  prose,
+  parser.configure({ props: [languageDataProp.add((type) => (type.isTop ? prose : undefined))] }),
+  [],
+  "markdown",
+);
+#+end_src
+
+WHY THE SUITE MISSED IT: the format test asserted =language(format).language.parser= was defined — a
+property read that never touches =allowsNesting=. It now runs a real transaction through =indentOnInput=
+for every format plus =txt=, which is exactly the path that threw, and pins
+=allowsNesting= true for markdown / false for org.
+
+*** the two defects fixed in the pass before (LANDED, real but not this symptom)
+
+A new =editor/sync.js= holds the law on its own so it can be tested: =External= (the annotation marking a
+wrapper-originated transaction), =NONE= (one identity for the empty keymap), =diff= (common prefix/suffix,
+so a keystroke race is a one-character change and never a document nuke) and =originated=.
+
+- the push now dispatches =diff(held, next)= with an explicit
+  =selection: EditorSelection.cursor(Math.min(head, next.length))= and =annotations: External.of(true)=.
+- =updateListener= ignores transactions the wrapper originated, so the value cannot echo back out.
+- =keys = NONE=, and =support= / =locked= are =$derived=, so a compartment reconfigures only when =format=
+  or =readonly= actually changes.
+
+Seven new steps in =tests/editor.test.js= pin all of it, including the old behaviour as the contrast case.
+drapes **8 passed (52 steps) / 0 failed**; paladin 41/180/0; vdex =app= 1/9/0 and =jdex= 3/17/0. The real
+App rebundles at 6 542 607 dev / 681 411 prod with the whole-document replace gone from the artifact.
+
+
+* files — LANDED (every one on disk; the `//` annotation in these blocks was stripped as it landed)
+
+Four edits were made between the design above and the landing, each found by proving rather than reading —
+see `** the connoisseur pass` under the log.
+
+*** import_map.json — the six specifiers (LANDED earlier, with the org mode)
+edit — beside the three that are already there (`@codemirror/state` · `@codemirror/view` ·
+`@replit/codemirror-vim`). `codemirror@6` and `@codemirror/lang-javascript` stay as they are; neither is
+imported by this patch.
+
+#+begin_src diff
+   "@codemirror/state": "npm:@codemirror/state@6",
+   "@codemirror/view": "npm:@codemirror/view@6",
++  "@codemirror/language": "npm:@codemirror/language@6",
++  "@codemirror/commands": "npm:@codemirror/commands@6",
++  "@codemirror/search": "npm:@codemirror/search@6",
++  "@codemirror/lang-json": "npm:@codemirror/lang-json@6",
++  "@lezer/markdown": "npm:@lezer/markdown@1",
++  "@lezer/highlight": "npm:@lezer/highlight@1",
+   "@codemirror/lang-javascript": "npm:@codemirror/lang-javascript@6",
+   "@replit/codemirror-vim": "npm:@replit/codemirror-vim",
+#+end_src
+
+*** subsystems/drapes/editor/index.js — the whole file
+LANDED — the subpath entry. A `.js` file on purpose (see the loader defect above); this is what an App imports as `@vivalence/drapes/editor/index.js`.
+
+#+begin_src js
+import Editor from "./Editor.svelte";
+import { formats } from "./languages.js";
+
+export { Editor, formats };
+#+end_src
+
+*** subsystems/drapes/editor/Editor.svelte — the whole file
+LANDED — the wrapper. Compartments so `format`, `readonly` and `keys` reconfigure a live view instead of rebuilding it. Compiles with zero warnings, verified on the landed file.
+
+#+begin_src svelte
+<script>
+  import { EditorState, Compartment } from "@codemirror/state";
+  import {
+    EditorView,
+    keymap,
+    lineNumbers,
+    highlightActiveLine,
+    highlightActiveLineGutter,
+    highlightSpecialChars,
+    drawSelection,
+    rectangularSelection,
+  } from "@codemirror/view";
+  import { history, defaultKeymap, historyKeymap, indentWithTab } from "@codemirror/commands";
+  import { search, searchKeymap, highlightSelectionMatches } from "@codemirror/search";
+  import { syntaxHighlighting, bracketMatching, indentOnInput, foldGutter, foldKeymap } from "@codemirror/language";
+  import { language } from "./languages.js";
+  import { theme, highlight } from "./theme.js";
+
+  let {
+    text = $bindable(""),
+    format = "txt",
+    readonly = false,
+    numbers = true,
+    folds = false,
+    keys = [],
+    onsave = null,
+    oncaret = null,
+  } = $props();
+
+  const grammar = new Compartment();
+  const editable = new Compartment();
+  const modal = new Compartment();
+
+  let view = null;
+
+  const save = {
+    key: "Mod-s",
+    preventDefault: true,
+    run: () => {
+      onsave?.();
+      return true;
+    },
+  };
+
+  const extensions = () => [
+    modal.of(keys),
+    numbers ? [lineNumbers(), highlightActiveLineGutter()] : [],
+    folds ? foldGutter() : [],
+    highlightSpecialChars(),
+    drawSelection(),
+    rectangularSelection(),
+    highlightActiveLine(),
+    highlightSelectionMatches(),
+    bracketMatching(),
+    indentOnInput(),
+    history(),
+    search({ top: true }),
+    syntaxHighlighting(highlight),
+    theme,
+    grammar.of(language(format)),
+    editable.of(EditorState.readOnly.of(readonly)),
+    keymap.of([save, ...defaultKeymap, ...historyKeymap, ...searchKeymap, ...foldKeymap, indentWithTab]),
+    EditorView.lineWrapping,
+    EditorView.updateListener.of((update) => {
+      if (update.docChanged) text = update.state.doc.toString();
+      if (update.selectionSet || update.docChanged)
+        oncaret?.(update.state.doc.lineAt(update.state.selection.main.head).number);
+    }),
+  ];
+
+  const mount = (node) => {
+    view = new EditorView({ parent: node, state: EditorState.create({ doc: text, extensions: extensions() }) });
+    return {
+      destroy: () => {
+        view.destroy();
+        view = null;
+      },
+    };
+  };
+
+  $effect(() => {
+    if (view && text !== view.state.doc.toString())
+      view.dispatch({ changes: { from: 0, to: view.state.doc.length, insert: text } });
+  });
+
+  $effect(() => {
+    view?.dispatch({ effects: grammar.reconfigure(language(format)) });
+  });
+
+  $effect(() => {
+    view?.dispatch({ effects: editable.reconfigure(EditorState.readOnly.of(readonly)) });
+  });
+
+  $effect(() => {
+    view?.dispatch({ effects: modal.reconfigure(keys) });
+  });
+</script>
+
+<div class="editor" use:mount></div>
+
+<style>
+  .editor {
+    height: 100%;
+    min-height: 0;
+    overflow: hidden;
+  }
+  .editor :global(.cm-editor) {
+    height: 100%;
+  }
+</style>
+#+end_src
+
+*** subsystems/drapes/editor/languages.js — the whole file
+LANDED — format → grammar. Markdown through the bare lezer parser (no `lang-html`), json through its own
+package, org through `./org.js` — the mode this quest builds, because CodeMirror 6 has none.
+
+#+begin_src js
+import { LRLanguage, LanguageSupport } from "@codemirror/language";
+import { parser } from "@lezer/markdown";
+import { json } from "@codemirror/lang-json";
+import { org } from "./org.js";
+
+const markdown = () => new LanguageSupport(LRLanguage.define({ parser }));
+
+const grammars = { md: markdown, mdx: markdown, markdown, org, json, jsonc: json };
+
+export const language = (format) => grammars[format]?.() ?? [];
+export const formats = Object.keys(grammars);
+#+end_src
+
+*** subsystems/drapes/editor/theme.js — the whole file
+LANDED — every colour a dapper zone token. Every name verified against `subsystems/dapper/lib/flatten.js:5` and the generated CSS: `accent · info · success · warning` never appear as literals in dapper source (they are interpolated as `--zone-${role}-${state}`) but all of them, and `--font-family-code`, are in the emitted stylesheet. Nothing here is a literal, so the editor reads on any surface and in any theme.
+
+#+begin_src js
+import { EditorView } from "@codemirror/view";
+import { HighlightStyle } from "@codemirror/language";
+import { tags } from "@lezer/highlight";
+import { marks } from "./org.js";
+
+const ink = "var(--zone-contrast, var(--colors-skeleton-0-contrast))";
+const dim = (percent) => `color-mix(in srgb, ${ink} ${percent}%, transparent)`;
+const accent = (role) => `var(--zone-${role}-base, var(--colors-skeleton-0-${role}-base))`;
+
+export const theme = EditorView.theme({
+  "&": { color: ink, backgroundColor: "transparent", height: "100%", fontSize: "inherit" },
+  "&.cm-focused": { outline: "none" },
+  ".cm-scroller": { fontFamily: "var(--font-family-code)", lineHeight: "1.7", overflow: "auto" },
+  ".cm-content": { padding: "12px 0", caretColor: accent("primary") },
+  ".cm-gutters": { backgroundColor: "transparent", color: dim(35), border: "none", paddingRight: "12px" },
+  ".cm-activeLine": { backgroundColor: dim(4) },
+  ".cm-activeLineGutter": { backgroundColor: "transparent", color: ink },
+  ".cm-selectionBackground, &.cm-focused .cm-selectionBackground, ::selection": { backgroundColor: `color-mix(in srgb, ${accent("primary")} 25%, transparent)` },
+  ".cm-cursor, .cm-dropCursor": { borderLeftColor: accent("primary") },
+  ".cm-matchingBracket, &.cm-focused .cm-matchingBracket": { backgroundColor: `color-mix(in srgb, ${accent("primary")} 18%, transparent)`, outline: "none" },
+  ".cm-foldPlaceholder": { backgroundColor: "transparent", border: "none", color: dim(50) },
+  ".cm-panels": { backgroundColor: "var(--zone-surface, var(--colors-skeleton-4-surface))", color: ink, border: "none" },
+  ".cm-searchMatch": { backgroundColor: `color-mix(in srgb, ${accent("warning")} 30%, transparent)` },
+  ".cm-searchMatch.cm-searchMatch-selected": { backgroundColor: `color-mix(in srgb, ${accent("primary")} 35%, transparent)` },
+});
+
+export const highlight = HighlightStyle.define([
+  { tag: tags.heading1, color: ink, fontWeight: "600", fontSize: "1.15em" },
+  { tag: tags.heading2, color: ink, fontWeight: "600" },
+  { tag: [tags.heading3, tags.heading4, tags.heading5, tags.heading6], color: ink, fontWeight: "600", opacity: 0.85 },
+  { tag: tags.meta, color: dim(50) },
+  { tag: tags.lineComment, color: dim(45), fontStyle: "italic" },
+  { tag: tags.keyword, color: accent("primary") },
+  { tag: tags.link, color: accent("primary"), textDecoration: "underline" },
+  { tag: tags.list, color: accent("primary") },
+  { tag: tags.annotation, color: accent("info") },
+  { tag: tags.contentSeparator, color: dim(35) },
+  { tag: [tags.monospace, tags.string], color: accent("info") },
+  { tag: tags.punctuation, color: dim(45) },
+  { tag: tags.strong, color: ink, fontWeight: "600" },
+  { tag: tags.emphasis, color: ink, fontStyle: "italic" },
+  { tag: tags.strikethrough, color: dim(60), textDecoration: "line-through" },
+  { tag: tags.macroName, color: accent("accent") },
+  { tag: tags.character, color: accent("accent") },
+  { tag: tags.propertyName, color: accent("primary") },
+  { tag: tags.number, color: accent("accent") },
+  { tag: [tags.bool, tags.null], color: accent("warning") },
+  { tag: marks.todo, color: accent("warning"), fontWeight: "600" },
+  { tag: marks.done, color: accent("success"), fontWeight: "600" },
+  { tag: marks.priority, color: accent("danger"), fontWeight: "600" },
+  { tag: marks.tag, color: accent("info") },
+  { tag: marks.stamp, color: accent("accent") },
+  { tag: marks.drawer, color: dim(45) },
+  { tag: marks.property, color: accent("primary"), opacity: 0.8 },
+  { tag: marks.checkbox, color: dim(55) },
+  { tag: marks.checked, color: accent("success") },
+  { tag: marks.table, color: dim(45) },
+  { tag: marks.verbatim, color: accent("info") },
+  { tag: marks.target, color: accent("accent") },
+  { tag: marks.footnote, color: accent("info") },
+]);
+#+end_src
+
+*** subsystems/drapes/editor/vim.js — the whole file
+LANDED — the second entry, 128 kB, imported only by an App that wants modal keys. Deliberately NOT re-exported from `index.js`.
+
+#+begin_src js
+import { vim as extension } from "@replit/codemirror-vim";
+
+export const vim = extension();
+#+end_src
+
+*** subsystems/drapes/tests/editor.test.js — the whole file
+LANDED — the same compile gate `tests/parts.test.js` uses, plus the claims that are easy to break: the
+subpath entry stays a `.js` file, vim stays out of the base graph, the org names are ours, and no colour is
+a literal.
+
+#+begin_src js
+import { specimen } from "@vivalence/typology";
+import { compile } from "svelte/compiler";
+import { language, formats } from "../editor/languages.js";
+
+const read = (name) => Deno.readTextFile(new URL(`../editor/${name}`, import.meta.url));
+
+specimen.describe("editor — the CodeMirror wrapper", () => {
+  specimen.it("Editor.svelte compiles without warnings", async () => {
+    const out = compile(await read("Editor.svelte"), { generate: "client", runes: true, filename: "Editor.svelte" });
+    specimen.expect(out.js.code.length > 0).toBe(true);
+    specimen.expect(out.warnings.map((warning) => `${warning.code}: ${warning.message}`)).toEqual([]);
+  });
+
+  specimen.it("the entry is a .js barrel — a .svelte subpath cannot be bundled", async () => {
+    specimen.expect((await read("index.js")).includes('from "./Editor.svelte"')).toBe(true);
+  });
+
+  specimen.it("vim is not in the base graph", async () => {
+    for (const name of ["index.js", "Editor.svelte", "languages.js", "theme.js"])
+      specimen.expect((await read(name)).includes("codemirror-vim")).toBe(false);
+  });
+
+  specimen.it("the grammar list is the editor's own, and every name in it resolves", () => {
+    specimen.expect(formats).toEqual(["md", "mdx", "markdown", "org", "json", "jsonc"]);
+    for (const format of formats) specimen.expect(language(format).language.parser).not.toBe(undefined);
+  });
+
+  specimen.it("an unknown format is a plain editor, never a guess", () => {
+    specimen.expect(language("txt")).toEqual([]);
+    specimen.expect(language("pdf")).toEqual([]);
+  });
+
+  specimen.it("org marks its own line grammars apart — the names are ours, not lezer's", () => {
+    const text = "#+title: a\n* head\n- item\n[[22.04][doc]]\nsee =verbatim=\n#+begin_src js\nx\n#+end_src\n";
+    const found = new Set();
+    language("org").language.parser.parse(text).iterate({ enter: (node) => found.add(node.name) });
+    for (const name of ["org-directive", "org-headline-1", "org-bullet", "org-link", "org-verbatim", "org-block-mark", "org-block"])
+      specimen.expect(found.has(name)).toBe(true);
+  });
+
+  specimen.it("theme and highlight name no literal colours", async () => {
+    const text = await read("theme.js");
+    specimen.expect(/#[0-9a-f]{3,8}\b/i.test(text)).toBe(false);
+    specimen.expect(/\brgba?\(/.test(text)).toBe(false);
+  });
+});
+#+end_src\n";
+    const marks = new Set();
+    language("org").parser.parse(text).iterate({ enter: (node) => marks.add(node.name) });
+    for (const mark of ["meta", "heading", "list", "link", "monospace", "keyword", "string"])
+      specimen.expect(marks.has(mark)).toBe(true);
+  });
+
+  specimen.it("theme and highlight name no literal colours", async () => {
+    const text = await read("theme.js");
+    specimen.expect(/#[0-9a-f]{3,8}\b/i.test(text)).toBe(false);
+    specimen.expect(/\brgba?\(/.test(text)).toBe(false);
+  });
+});
+#+end_src
+
+* hunks — the vdex swap, LANDED
+
+*** ~/.viva/registry/vcompany/modes/office/vdex/buffer/parts/Reader.svelte — `raw` becomes the editor
+LANDED — 698 → 616 lines. The painted layer, the transparent textarea, the caret probe and ~90 lines of CSS
+all went. `caret` went with them (write-only after the swap); the dead `.pdf` rule and the missing
+`.reader { flex: 1 }` are the two adjustments recorded in the connoisseur pass.
+
+#+begin_src diff
+   import { Key, Empty, Markdown, Org, Json, Paragraph, drag } from "@vivalence/drapes";
++  import { Editor } from "@vivalence/drapes/editor/index.js";
+   import Paper from "./Paper.svelte";
+-  import { document, coordinateOf, sections, blocks, parse, compose, raw, references, linked, size, age } from "../jdex.js";
++  import { document, coordinateOf, sections, blocks, parse, compose, references, linked, size, age } from "../jdex.js";
+@@
+-  const lines = $derived(raw(draft, held.format));
+-  let caret = $state(1);
+-  const at = (event) => (caret = draft.slice(0, event.target.selectionStart).split("\n").length);
+@@
+   {:else if reading === "raw"}
+     <div class="raw">
+-      <div class="code">
+-        <pre class="paint" aria-hidden="true">{#each lines as line (line.number)}<span class="line {line.kind}" ...>{line.text}</span>{/each}</pre>
+-        <textarea class="ink" bind:value={draft} spellcheck="false" onclick={at} onkeyup={at} oninput={at}></textarea>
+-      </div>
++      {#key open.literal.slug}
++        <Editor bind:text={draft} format={held.format} onsave={actions.save} />
++      {/key}
+     </div>
+@@
+   .reader {
++    flex: 1;
+     min-height: 0;
+     overflow: hidden;
+@@
+   .read,
+-  .edit,
+-  .raw,
+-  .read {
++  .edit {
+     padding: 40px 24px 120px;
+@@
+-  .pdf { … }                      /* dead all along; the interpolated class was masking it */
+-  /* raw — the file as it sits on disk. … */
+-  .raw { … } .code { … } .paint { … } .ink { … }   /* the whole block, ~90 lines */
++  .raw {
++    flex: 1;
++    min-height: 0;
++    padding: 16px 0;
++    font-size: var(--font-size-xs);
++  }
+#+end_src
+
+*** the removed raw view, verbatim — the instance is NOT version controlled
+
+`~/.viva/registry/vcompany` has no `.git` anywhere above it, so nothing but this block holds the old
+painted-`<pre>`-under-a-transparent-`<textarea>` surface. Kept whole, loss-free, against a failed gate.
+Reverse-apply this to get `Reader.svelte` back exactly as it stood.
+
+#+begin_src diff
+@@ -1,7 +1,8 @@
+ <script>
+   import { Key, Empty, Markdown, Org, Json, Paragraph, drag } from "@vivalence/drapes";
++  import { Editor } from "@vivalence/drapes/editor/index.js";
+   import Paper from "./Paper.svelte";
+-  import { document, coordinateOf, sections, blocks, parse, compose, raw, references, linked, size, age } from "../jdex.js";
++  import { document, coordinateOf, sections, blocks, parse, compose, references, linked, size, age } from "../jdex.js";
+ 
+   let { open, reading, draft = $bindable(""), folded, dirty, narrow, outline, documents = [], actions } = $props();
+ 
+@@ -9,12 +10,10 @@
+   const parts = $derived(sections(draft, held.format));
+   const refs = $derived(references(draft).map((coordinate) => ({ coordinate, title: document(documents.find((literal) => coordinateOf(literal) === coordinate) ?? { trait: { DOCUMENT: {} } }).title ?? "" })));
+   const pdf = $derived(held.format === "pdf");
+-  const lines = $derived(raw(draft, held.format));
+   const headed = $derived(parts.filter((section) => section.head !== null));
+ 
+   let selected = $state(null);
+   let over = $state(null);
+-  let caret = $state(1);
+ 
+   const parsed = (text) => {
+     try {
+@@ -93,8 +92,6 @@
+     event.preventDefault();
+     actions.jump(href.slice(6));
+   }
+-
+-  const at = (event) => (caret = draft.slice(0, event.target.selectionStart).split("\n").length);
+ </script>
+ 
+ <section class="reader" class:narrow>
+@@ -104,10 +101,9 @@
+     <Paper url={open.url} {held} slug={open.literal.slug} coordinate={coordinateOf(open.literal)} />
+   {:else if reading === "raw"}
+     <div class="raw">
+-      <div class="code">
+-        <pre class="paint" aria-hidden="true">{#each lines as line (line.number)}<span class="line {line.kind}" class:strong={line.strong} class:here={caret === line.number} data-number={line.number}>{line.text}</span>{/each}</pre>
+-        <textarea class="ink" bind:value={draft} spellcheck="false" onclick={at} onkeyup={at} oninput={at}></textarea>
+-      </div>
++      {#key open.literal.slug}
++        <Editor bind:text={draft} format={held.format} onsave={actions.save} />
++      {/key}
+     </div>
+   {:else if reading === "edit"}
+     <div class="edit">
+@@ -232,14 +228,13 @@
+     display: flex;
+     flex-direction: column;
+     min-width: 0;
++    flex: 1;
+     min-height: 0;
+     overflow: hidden;
+     font-family: var(--font-family-code);
+   }
+   .read,
+-  .edit,
+-  .raw,
+-  .read {
++  .edit {
+     padding: 40px 24px 120px;
+   }
+   .narrow .read {
+@@ -351,14 +346,6 @@
+     display: flex;
+     gap: 8px;
+   }
+-  .pdf {
+-    display: flex;
+-    flex-direction: column;
+-    align-items: center;
+-    gap: 14px;
+-    padding: 24px;
+-    background: var(--colors-skeleton-2-surface);
+-  }
+   .pill {
+     position: absolute;
+     right: 16px;
+@@ -614,86 +601,10 @@
+     color: var(--colors-skeleton-0-primary-base);
+   }
+ 
+-  /* raw — the file as it sits on disk. The number rides its own line, so wrapping can never desync them. */
+   .raw {
++    flex: 1;
++    min-height: 0;
+     padding: 16px 0;
+-    font-family: var(--font-family-code);
+     font-size: var(--font-size-xs);
+-    line-height: 1.75;
+-    letter-spacing: 0.01em;
+-  }
+-  .code {
+-    position: relative;
+-    min-width: 0;
+-  }
+-  .paint,
+-  .ink {
+-    margin: 0;
+-    padding: 0 20px 0 64px;
+-    font: inherit;
+-    line-height: inherit;
+-    letter-spacing: inherit;
+-    white-space: pre-wrap;
+-    overflow-wrap: anywhere;
+-    border: 0;
+-    tab-size: 2;
+-  }
+-  .paint {
+-    pointer-events: none;
+-  }
+-  .paint .line {
+-    display: block;
+-    position: relative;
+-    min-height: 1lh;
+-    color: var(--text-body);
+-  }
+-  .paint .line::before {
+-    content: attr(data-number);
+-    position: absolute;
+-    left: -56px;
+-    width: 40px;
+-    text-align: right;
+-    color: var(--text-support);
+-    opacity: 0.45;
+-  }
+-  .paint .line.here::before {
+-    color: var(--colors-skeleton-0-primary-base);
+-    opacity: 1;
+-  }
+-  .paint .line.meta {
+-    color: var(--text-support);
+-  }
+-  .paint .line.head {
+-    color: var(--colors-skeleton-0-contrast);
+-  }
+-  .paint .line.strong {
+-    font-weight: 600;
+-  }
+-  .paint .line.here {
+-    background: color-mix(in srgb, var(--colors-skeleton-4-surface) 45%, transparent);
+-  }
+-  .code::before {
+-    content: "";
+-    position: absolute;
+-    left: 52px;
+-    top: 0;
+-    bottom: 0;
+-    width: 1px;
+-    background: var(--colors-skeleton-1-boundary);
+-  }
+-  .ink {
+-    position: absolute;
+-    inset: 0;
+-    width: 100%;
+-    height: 100%;
+-    resize: none;
+-    background: transparent;
+-    color: transparent;
+-    caret-color: var(--colors-skeleton-0-primary-base);
+-    outline: none;
+-    overflow: hidden;
+-  }
+-  .ink::selection {
+-    background: color-mix(in srgb, var(--colors-skeleton-0-primary-base) 28%, transparent);
+   }
+ </style>
+\ No newline at end of file
+#+end_src
+
+*** ~/.viva/registry/vcompany/modes/office/vdex/buffer/jdex.js — `raw()` goes
+edit — its only consumer was the painted layer. The line-kind guess (`meta` · `head` · `body` by regex) is
+what CodeMirror replaces with a real parse.
+
+#+begin_src diff
+-// the raw view: every line with what it is, so the paint layer can mark heads, meta and body apart
+-export const raw = (text, format) => {
+-  const grammar = HEADING[format] ?? null;
+-  return (text ?? "").split("\n").map((line, index) => ({
+-    number: index + 1,
+-    text: line,
+-    kind: /^(?:---|\+\+\+)$|^(?:id|uses|title|#\+\w+):/i.test(line.trim()) ? "meta" : grammar && grammar.test(line) ? "head" : "body",
+-    strong: grammar ? (line.match(grammar)?.[1]?.length ?? 9) <= 2 : false,
+-  }));
+-};
+#+end_src
+
+*** ~/.viva/registry/vcompany/modes/office/vdex/tests/jdex.test.js — the `raw` case goes
+edit — it stood at :154. Its replacement is the org/format cases in `subsystems/drapes/tests/editor.test.js`.
+Kept whole here for the same reason as the view above: the instance is not version controlled.
+
+#+begin_src diff
+-  specimen.it("the raw view marks frontmatter, headings and body apart, line by line", () => {
+-    const held = jdex.raw(SHEET, "md");
+-    specimen.expect(held[0]).toEqual({ number: 1, text: "---", kind: "meta", strong: false });
+-    specimen.expect(held[1].kind).toBe("meta");
+-    specimen.expect(held.find((line) => line.text.startsWith("# ")).kind).toBe("head");
+-    specimen.expect(held.find((line) => line.text.startsWith("# ")).strong).toBe(true);
+-    specimen.expect(held.find((line) => line.text.startsWith("Vivalence")).kind).toBe("body");
+-  });
+#+end_src

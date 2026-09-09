@@ -1,0 +1,333 @@
+#+title: hello-world gains three tools and a keyless search, the canvas hexes were the dark theme's own tokens, and the shelf copy was the artifact all along
+#+filetags: :hello-world:commons:tools:marginalia:websearch:dapper:theme:tokens:paladin:hallucinator:dormant:shelf:design-canvas:svelte:callouts:
+#+index: 11
+#+session: 24 beef turns, walked oldest first
+
+* one breath
+
+The demo mode grew up. It gained =CONVERSATIONAL= and =TOOLED=, a =viva_doctor= tool that reads paladin's own
+record, and a web search that needs no key — Marginalia's public endpoint, the only one of six probed that
+answered. Then he handed me a design canvas and the session's real lesson arrived twice. First I transcribed the
+canvas's hex values instead of its token names, and every one of them turned out to be =nordic='s own tokens:
+the mock was drawn *in* the design system and I froze it to one theme, so the buffer painted a dark slab inside
+ivory chrome. I fixed that, verified it, reported it done — and he said /"still"/, because =instance/create= had
+copied the mode to the shelf and the runtime bundles the shelf, not the checkout. I had verified the wrong
+artifact. Three callouts came out of one session. What closed clean was the hallucinator question: he asked for
+conditional loading and the answer was that =settle()= already does it — declare both providers, the pinhole
+prunes whichever has no key. Then the failure mode past that one: a provider that *throws* has no noun at all.
+
+* the spine — 24 turns
+
+** 1 · /"ikiro wake. load everything about Hello World. then research all modes with Harness and or conversational traits."/
+
+Kernel → frontier → map. =commons/instances/hello-world/= read whole: three files, 130 lines. Census across
+repo + shelf + tapped registry: eleven live modes carry =HARNESSED=, six of them =CONVERSATIONAL=.
+
+MEASURED, against the memory that said otherwise: *=CONVERSATIONAL= buys nothing today.* The dock gates on
+=HARNESSED= (=systems/kajuit/src/app/panels/a/widgets/Dock.svelte:46=), the sidebar on
+=implements("application") || implements("conversational")= (=panels/d/d.svelte:215=) — hello-world already
+satisfied both. Declaring it states the contract and changes no behaviour. Also: the shelf hello-world was GONE
+at wake (=~/.viva/instances/= held italian · language-learning · stucatch · vivalence), which contradicted a
+memory saying it carried the OLD shape. That mattered later, and not the way I thought.
+
+** 2 · /"i want to maek the hello world mode in commons conversational. give it a few tools from paladin. in its harness… the current paladin ledger and instance. and registry. this, straight written into context… some nice json blob of the current setup. little code. direct. like ghost doctor but for a hello world agent. 2: how difficult are web-search tools?… 3: instructions of how to respond. keep that thin."/
+
+Design pass, gated. MEASURED and worth keeping: *=fs= and =shell= are already armed on every =HARNESSED= mode*
+with a module mount (=systems/runtime/daemon/traits/harnessed.js:43-47=), rooted at the mode's own directory —
+"a few tools from paladin" was eight tools he already had. Proposed =paladin.check.setup()= + a
+=paladin.skills.search= factory; both were wrong, and he said so next turn.
+
+** 3 · /"express this as a implementation by teh hello world mode. harnessed, converstaionnnal, tooled. this is a tool. the tools schematics must carry inline docs to serve the harness. is there no implementation of search that we can use without an api key??"/
+
+Three rulings in one turn: the tools live in the MODE, not in paladin; the setup blob is a TOOL, not a system
+section; and the schematics carry the documentation — =valence= plus =.desc()= per field, nothing in the prompt.
+
+The keyless question, PROBED rather than answered:
+
+| endpoint                                        | verdict                    |
+|-------------------------------------------------+----------------------------|
+| =html.duckduckgo.com/html/= · =lite.duckduckgo.com/lite/= | 403                        |
+| =api.duckduckgo.com/?format=json=               | 200, empty body            |
+| public SearXNG (searx.be · baresearch · priv.au · searxng.site) | anti-bot wall / 429 / 403  |
+| =api2.marginalia-search.com/search= + =API-Key: public= | 429 QPM                    |
+| *=api.marginalia.nu/public/search/{query}=*     | *200, real results, no key* |
+| =en.wikipedia.org/w/api.php=                    | 200, no key                |
+
+One survivor. Independent index of the small web, CC-BY-NC-SA, shared rate limit, 503 when hot.
+
+** 4 · /"implement just marginalia. thin. no abstractions. this is hello world level brute force."/
+
+Landed =commons/instances/hello-world/tools.js=, 113 lines, three nodes: =viva_doctor= (=v.object({})=, returns
+ledger · instance · registry · environment straight off paladin), =search_web=, =search_read= (tags stripped,
+entities decoded, 16 kB cap). Manifest gained =CONVERSATIONAL= + =TOOLED=; the harness brief became three lines
+naming the tools; HAL9000 left the harness and survives in =/hello/agent='s own output schema.
+
+*The secret law holds by construction*: =Paladin.split()= files every =SECRET_*= into =paladin.secret=, a
+different =Env=, so =environment: paladin.env.vars= cannot leak a key. Probed live — leak check =[]=.
+
+All three nodes exercised against the real machine. =search_web= 504'd once and the error branch answered
+legibly; a retry returned three indie blogs, which is what that index *is*.
+
+** 5 · design MCP import + /"implement the UI"/
+
+=DesignSync get_project= → "Dapper hello world UI"; read =Hello World Mode.dc.html= and =support.js=. Rewrote
+=App.svelte= to the canvas. Added =/hello/doctor= to the aperture and pulled the fold into =doctor.js= so the
+tool and the view share one source. The canvas mocked its data cards with hardcoded strings under a note
+reading /"apply your own — based on actual data snapshots and doctor!"/ — wired to the live record instead.
+
+** 6 · MID-TURN /"Marginalia's public API is CC-BY-NC-SA… mark this in the valence"/
+
+Landed in the tool the model reads, not in a comment: /"Results are licensed CC-BY-NC-SA 4.0 — free for private
+use, a commercial key is a purchase from contact@marginalia-search.com."/ The fair-source tier would need one.
+
+** 7 · task-notification (paladin suite, exit 0)
+
+NOTHING — system event, consistent with the 41/0 already run in the foreground.
+
+** 8 · MID-TURN /"adjust the data display like this. nothing by default, but this data is pulled on BOT click. we display teh inline doctor. no. make this its own button. doctor. bot. chat with harness. and Hallucinate."/
+
+Four verbs, ruled inside one turn — he proposed bot-click and struck it himself. The canvas's =deterministic=
+became =bot=.
+
+** 9 · MID-TURN /"and on doctor we load and display all the data. before that the whole section is not shown"/
+
+=({#if report})= over the entire instance section. Four cards, all four doctor sections: key/value = instance,
+tree = ledger, table = the 61 registry modules, raw = environment.
+
+** 10 · design MCP re-import + /"i did a small ui adjustment with the spacers and the hero and docs. merge that in"/
+
+Diffed the canvas against what shipped. His edits: the footer dissolved into the hero, the slowstart CTA moved
+up beside /"or try it right here ↓"/, a new =interaction= rule with a two-state explainer, and the hairline
+lifted to =rgba(45, 66, 85, 0.95)=. Merged. Three numbers departed from his canvas on purpose — three endpoints
+not two, 3 routes not 2, a 40-line mode not 30 — because the canvas mocks an older mode and captured docs beat
+composed ones.
+
+** 11 · /"you fucking joker implemented the whole thing without respecting the theme. idiot."/ + screenshot
+
+*The session's first real failure.* The view painted =#06101D= inside ivory chrome. Every hex I had copied out
+of the canvas was a =nordic= token value, one to one:
+
+| canvas literal | token                           | paper     |
+|----------------+---------------------------------+-----------|
+| =#06101D=      | =--colors-skeleton-0-surface=   | =#F5F3E8= |
+| =#060D14=      | =--colors-skeleton-2-surface=   | =#E9E5D3= |
+| =#243544=      | =--colors-skeleton-0-boundary=  | =#A0967C= |
+| =#1EBCB5=      | =--colors-skeleton-0-primary-base= | =#045554= |
+| =#E6EAEF=      | =--text-primary=                | =#0B0F2D= |
+| =#8FA0B1=      | =--text-support=                | =#5A5240= |
+| =#E7C271=      | =--colors-skeleton-0-warning-hover= | —     |
+
+A mock renders in ONE theme by necessity; its hexes are a sample of the system, never a spec. I had seen the
+mismatch coming and reasoned past it — /"the canvas has its own visual language, a later dapper mapping is a
+token swap"/ — without once checking whether the names existed. =--text-support= is used 29× in drapes;
+=--colors-skeleton-0-primary-base= 234×. Two of dapper's own rules were broken beyond the values: there is no
+tier fainter than =--text-support= ("paper 600 measures 3.8:1 on the recess surface, below the floor"), so my
+four-step grey ramp collapsed to three; and pips take =--signal-*= while text takes the =-base= roles, which the
+theme separates deliberately. Callout logged, =family: theme-literals=.
+
+** 12 · image source line
+
+NOTHING.
+
+** 13 · /"go"/
+
+Font sizes onto the dapper scale. Revised later at turn 20 into something coherent.
+
+** 14 · MID-TURN /"retard tell me whats done and whats reasoning and yap."/
+
+The codeword. I had answered the theme fix with a nine-row mapping table, two paragraphs of dapper rules I had
+broken, and a justification — the done-list was never a list. Root cause: I treat the explanation as the
+deliverable and the facts as its evidence. Inverted. Being wrong earlier in a session raises the bar for
+brevity; it does not license explanation. Callout logged, =family: report-frame=. Every report since opens with
+DONE.
+
+** 15 · /"still"/ + screenshot
+
+*The second failure, and the sharper one.* The fix was real and the page had not changed, because
+=viva instance/create= copied the mode onto =~/.viva/instances/hello-world/= mid-session and *the runtime bundles
+the shelf, not the checkout*. Every edit after that copy landed in =commons/= alone. Worse: I had "verified" by
+bundling the checkout file — I measured the wrong artifact, which is why a passing check sat next to an
+unchanged page.
+
+Synced all five files; re-verified by bundling the SHELF entry, the one the runtime compiles:
+=colors-skeleton-0-surface true · text-support true · font-size-2xs true · hardcoded #06101d false=.
+=~/.viva/.env= carries =VIVA_SYSTEM_MODE="DEVELOPMENT"= and
+=systems/runtime/daemon/aperture/metadata.js:34= recompiles on =/metadata/app= in dev, so a reload carries it —
+no restart. Callout logged, =family: shelf-drift=. LAW: once a shelf instance exists for a mode I am editing, an
+edit to the checkout is half a landing, and verification must bundle the shelf.
+
+** 16 · image source line
+
+NOTHING.
+
+** 17 · /"the instance should define openrouter or anthropic env vars optionally. and load either service on condition of its presence. check the environement and instance schematics for most elegant simplest declaration of hallucinator faculties in instance."/
+
+*The mechanism already existed.* =subsystems/paladin/prototypes/instance.js:135 settle()= filters
+=daemon.hallucinators= by =alive(mask)= = mask exists and no secret =is.empty=, pushing each casualty onto
+=instance.dormant=. So the elegant declaration is no declaration: list both providers with their own thunks and
+the pinhole prunes. No ternary, no conditional JS. Probed all four states against the shelf instance:
+
+| keys            | attached                    | dormant                          |
+|-----------------+-----------------------------+----------------------------------|
+| neither         | =[]=                        | =hallucinators[0]=, =[1]=        |
+| anthropic only  | =["anthropic"]=             | =hallucinators[1]=               |
+| openrouter only | =["openrouter"]=            | =hallucinators[0]=               |
+| both            | =["anthropic","openrouter"]= | =[]=                             |
+
+0 faults throughout. =SECRET_VIVA_OPENROUTER_API_KEY= added =.optional()= beside the anthropic one.
+
+** 18 · MID-TURN /"in this paper theme the signal warning color is not semantically accurate… its better in dark"/
+
+Measured the amber ramp on paper's canvas. =warning.base= was amber 700 =#4A330E=, lightness *17%* — dark brown
+at 10.65:1, maximally legible and semantically mute. Nordic uses amber 300 =#D4A054= at 58% for both warning and
+=signal.caution=, which is why dark read correctly. Proposed anchor 700→500 as the only stop keeping hue while
+clearing 4.5:1. He overruled the hue entirely at turn 21.
+
+** 19 · MID-TURN /"generally make this component more compact."/
+
+The notice: padding 18/20→12/14, inner gap 18→7, prose to =--font-size-sm=. Found the alignment bug while
+there — the command block used padded spaces inside a =div=, and *Svelte collapses whitespace outside a real
+=<pre>=*, so the comments jammed against the values. Replaced with a two-column grid, which is both correct and
+shorter.
+
+** 20 · MID-TURN /"and we have font handling all over the place. different sizes etc. weird. make coherent"/
+
+Five tiers → three, one per role: =2xs= tracked mono caps (labels, heads, pills, trace, links), =xs= mono data
+(header, values, tree, table, pre, inputs, buttons), =sm= sans prose (lede, explainer, turn bodies), plus the
+display clamp on =h1=. =--font-size-md= and =--font-size-base= gone. =.code= became =0.92em= — *relative*, so
+inline code tracks whatever prose hosts it instead of pinning a tier, which is the only genuinely coherent
+answer for a span that appears inside two different sizes.
+
+** 21 · /"### font adjustment go. paper warning also red. rose. soft rose. error is tomato red. ### service errors … the problem here is the service provder boot which throws on missing variable. i think thats the system ontology were going for tho. the boot process around the provider should catch, log, and discard the service, here hallucinator… show me. design this"/
+
+Two ramps added to =subsystems/dapper/lib/colors.js= — =rose= (soft, 355°) and =tomato= (hot, 12°) — because
+neither existed and =rust= at its light stops is terracotta, not tomato. Paper rewired: =warning= → rose 500,
+=danger= → tomato 500, the error box → tomato =[50,600,300]=, =signal.caution= → rose 400, =signal.negative= →
+tomato 400. Nordic untouched, on his /"its better in dark"/.
+
+| role                | hex       | h/s/l         | canvas | recess |
+|---------------------+-----------+---------------+--------+--------|
+| warning base        | =#8A3D44= | 355° 39% 39%  |   6.66 |   5.87 |
+| warning hover       | =#AC575C= | 356° 34% 51%  |   4.42 |   3.89 |
+| danger base         | =#A23920= | 12° 67% 38%   |   6.00 |   5.29 |
+| error text on blush | =#7C2A16= on =#FDEEEA= | — | 8.45 |    — |
+
+Same family, split by heat — 39% saturation against 67%. =tests/paper-theme.test.js= asserts the error box by
+value, so the assertion followed the theme; dapper 10/0.
+
+The design half is DESIGNED, not built → the section below.
+
+** 22 · MID-TURN /"and does this work: (paladin.secret.has("SECRET_VIVA_ANTHROPIC_API_KEY") && {…})?"/
+
+It works — =false= in the array makes =alive(false)= false, so it is pruned into =dormant= with no fault, and
+the eager read sees the instance =.env= because =instance.js:187= claims it *before* importing the recipe (the
+comment there says exactly why: /"env/secret first — marker modules read them at import time"/).
+
+Three reasons not to. *=has()= is presence, not aliveness* — measured: absent =false=, =""= → *=true=*, "live"
+=true=. So the guard passes a blank key through and =alive()= is still what stops it; the guard can never be the
+whole gate. *It evaluates once, at import*, and =remount()= exists because /"a changed .env needs a fresh
+instance. the wizard is why"/ — after =instance/init= writes the key the thunk re-fires and the =&&= does not,
+the ES module being cached. That second one is reasoned, not measured: this machine's =~/.viva/.env= supplies
+the anthropic key at the =ledger= stratum, so =has()= is always true here and the case could not be isolated.
+And *it costs the record* — a pruned mask leaves a =dormant= line for =instance/doctor=; a =false= leaves
+nothing.
+
+** 23 · /"ikiro compact"/ · 24 · =/compact=
+
+This fold.
+
+* the design owed — a provider that refuses
+
+The gap is a missing noun. Three verdicts on a declared provider, two of them named:
+
+| verdict     | meaning                                       | owner, phase       |
+|-------------+-----------------------------------------------+--------------------|
+| =faults=    | the schematic refused the declaration          | paladin, pre-boot  |
+| =dormant=   | declared, secret blank, pruned at the pinhole  | paladin, pre-boot  |
+| *(none)*    | declared, secret present, provider *threw*     | daemon, boot       |
+
+The third kills the daemon. =dormant= is sleeping but sound; a provider asked and saying no is *=refused=*.
+
+Where: =systems/runtime/daemon/lifecycle/population.js= — =acid()= :104 (hallucinators) and =services()= :112,
+both bare =await …provider(mask)=. One helper, both sites, pushing =({at, reason})= onto a =refused = []= field
+added to =systems/runtime/daemon/daemon.js= beside =services = {}=, and a =console.warn= naming the slot.
+
+*The line*: optional capability catches, structural dependency throws. =datamap= (:73) and =lighthouse= (:89)
+stay throwing — a daemon with no entities and no authority is not degraded, it is broken. Hallucinators and
+consumed services catch, because the system already models their absence: =/hello/agent= asks the cortex first
+and answers as the bot when it is empty, so a refused provider lands in the same state as a dormant one.
+
+Why it is not a hotfix: =settle()= already folds declarations into what stood up plus a ledger of what did not.
+This is the same fold one phase later, so boot has the shape at both phases instead of one.
+
+M1 = catch · log · record. M2 = expose =refused= on the daemon aperture so the view can say /"anthropic refused:
+401 invalid x-api-key"/ instead of the generic notice — its own go.
+
+* three callouts, one session
+
+All in =zettelkasten.md ## Callouts=, append-only:
+
+- *=theme-literals=* — a hex literal in a kajuit-rendered view is a defect. A mock's palette is the QUERY, the
+  token is the ANSWER; resolve every colour against the theme before writing it.
+- *=report-frame=* — every report opens with DONE, a bare list of files and their new state. Reasoning gets its
+  own heading, after, and only when it changes what beef does next.
+- *=shelf-drift=* — once a shelf instance exists, =diff -q= repo↔shelf for every touched file before any claim,
+  and verify by bundling the SHELF entry. When the served page contradicts a passing check, suspect the artifact
+  identity before the code.
+
+The three share one shape: I verified something adjacent to the thing being asked about, and the verification
+passed. That is worse than no verification, because it is reported as proof.
+
+* state at fold
+
+Uncommitted, all of it. =commons/instances/hello-world/= = five files: =doctor.js= (the paladin fold),
+=tools.js= (=viva_doctor= · =search_web= · =search_read=), =mode.viva.js= (+=CONVERSATIONAL= +=TOOLED=,
+=/hello/doctor=, both hallucinators), =App.svelte= (the canvas, on dapper tokens, three type tiers),
+=instance.viva.js= (+=SECRET_VIVA_OPENROUTER_API_KEY=). Repo↔shelf synced, verified by diff.
+=subsystems/dapper/= = rose + tomato roots, paper rewired, its test following.
+
+Suites: dapper 10/0 · paladin 41/0 · runtime 53/1, the red pre-existing and proven unrelated
+(=fork 2: multiplayer + hello-world wafers= fails because =commons/instances/bak/starter/= is skipped by
+=belt/find.js=, so =@commons/instance/multiplayer= resolves =false= while =hello-world= resolves =true=).
+=App.svelte= bundles clean at 514.9 kB prod through the runtime's own compiler.
+
+*Never seen rendered.* Kajuit answered =session expired= and I do not enter credentials. Everything visual in
+this fold is measured, not witnessed.
+
+* resumption (owed beef)
+
+- *A reload, then the click-through.* The runtime is up on =[::1]:2501=, kajuit on =127.0.0.1:1794=, and the
+  shelf now carries the fix. Reload — no restart — and the view should come up in =paper=: ivory ground, rose
+  notice, three type tiers. Then the four verbs: =doctor= should fill the instance section from the live record,
+  =bot= greet, =hallucinate= and =chat with harness= dim while the cortex is empty.
+- *The refused design* — M1 is four small hunks and waits on =go=.
+- *=README.md:25-56=* quotes =mode.viva.js= byte-verbatim and has been stale for the whole session — outward
+  surface, untouched by standing order. It now misses =CONVERSATIONAL=, =TOOLED=, the tools export and
+  =/hello/doctor=; =README.md:21= says "~50 lines".
+- *The docs captures* — a second optional secret means =instance/init= asks one more question than
+  =documentation/content/10-19_about/12_software/12.01_slowstart.mdx:308-330= captured, and the =dormant= line
+  there now has a sibling.
+- *=aperture · 3 routes=* in =App.svelte= is a literal — nothing client-side counts wired routes cheaply. It
+  rots on the fourth.
+- *Open, unexplained*: his screenshots showed "no hallucinator attached" while =~/.viva/.env= supplies an
+  anthropic key at the =ledger= stratum, which should attach. Either the runtime booted before the key landed,
+  or the =object= faculty — a DERIVED cortex faculty — is not being derived. Worth one probe before trusting
+  the notice.
+- *Marginalia is CC-BY-NC-SA* and rides in =commons/=. Fine for him and for private users; the commercial tier
+  needs a purchased key. Filed, not decided.
+
+* quest report (derived at fold — `methods/quest-report.py`)
+
+| quest                    | progress  | status                                                      | next                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                      | sessions   |
+|--------------------------+-----------+-------------------------------------------------------------+---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------+------------|
+| drapes-editor            | —         | landed · the caret bug fixed — his click-through gates owed | rebundle + reload, then confirm the caret advances while typing (the one thing the fix is not yet proven against live). then the eight click-through gates below. later, both his call: the language on `#+begin_src js` does not highlight its body; the markdown fence is the same trade.                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                               | 1 (1 live) |
+| m46-linux-readmen        |  17% 3/18 | wip                                                         | drain                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                     | 6          |
+| m50-the-three-way-weave  |  60% 3/5  | wip                                                         | blast                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                     | 1          |
+| m51-standalone-slowstart |   0% 0/18 | design                                                      | go                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                        | 2 (1 live) |
+| m53-vcompany             |   0% 0/5  | open                                                        | **t1.1** h1 · e1 · p1 · t1 · b1 · k1 + s1 · x1 · x2 · x3 + i1 (the index as rows) landed on the shelf; blocked on **r1** (paladin =resolve= percent-encodes — one-line diff + one test in the quest, his go, repo): the four reds (tools file · move; snapshots tools · aperture) are r1 and nothing else; a1 struck (the app is the sibling's v3); d1 (readme) on go; the =open= schematic on buffer-data level — sketch in "landed", his word; officers out by his order; then **the slow first attach** (the boot race under `instance/run`) → gs1/gs2 click-through after restart; the bundle weight ledgered, direction his; s3 voffice → s4 desk on go; `* t1.#2` his call; the runtime's m:n =cascade.remove= both ways ledgered as a landmine (his)                                                                                                                                                                                                                                                                                                               | 5 (1 live) |
+| m53-vcompany.pre         | —         | open                                                        | t1 package setup — the m27 gate moves to the executive stage; t1–t3 do not wait on it                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                     | 3 (1 live) |
+| m53-vcompany.v3-vdex     | —         | landed                                                      | one restart carries both — the new pdf viewer (=paper.svelte=) and the cargo fix (=freight.js=, uncommitted); then open a spaced-name pdf: it should render, page nav and zoom live, the rail on ▤. the six later items stay marked in the root quest.                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                    | 3 (2 live) |
+| m53.v4-mail+calendar     | —         | landed                                                      | the six office test files — =office/email/tests/{aperture,tools,email.snapshot}.test.js= and =office/calendar/tests/{aperture,tools,calendar.snapshot}.test.js=; =/key=, the held send and the thread walk are landed and untested. then his restart + the click-through gates. open, not mine: the sibling's mode-ownership landing duplicates every symbol (16 rows, 8 distinct, the dummy's copies bare), which contradicts this quest's law that the office declares the scheme and the provider carries the rows.                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                    | 1          |
+| m54-buffer-file          |   0% 0/4  | open                                                        | reconcile with m53 =* t1.1= and =m53-vcompany.v3-vdex= first (three quests, one seam, all waiting on go; v3 splits the app into a shell + 7 parts + =buffer/jdex.js= and already points here for file upload — m54's app hunk names the single =vdex.svelte= and must be re-cut onto whichever lands first) (a sibling session, beef's rulings there: the vdex speaks slugs — =/document /write /file /move /delete= implemented once in the aperture, tools wrap =mode.call.<verb>=, =fs_*= slurp gone on vdex; =open= is an emitter; the boot watches files and syncs per path — /"shouldnt this watch files??!!!"/; /"wtf is daemon traits stamp????"/ → gone) — three seams now name the verbs' home (t1.1 aperture · m54 sketch · mikro-first repository), beef arbitrates; then beef reopens the questioned block when ready — order of design there is mikro entity + bufferrepository verbs → typology verb contract → shard mounts → remoterepository mirrors → kajuit. until then m1 = everything but the verbs. "go m1" → full hunks against the tree as read. | 1          |
+| m55-recursive-terminals  |  20% 3/15 | wip                                                         | go m2 — the kajuit terminal: up · down · status · stop · run · watch, the tree, the schematic, panel f                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                    | 3 (1 live) |
+| m56-the-pincer-turns     | 100% 2/2  | verify                                                      | live-walk c at both aspects · markers 2·3·4·10·13·14 need a dom                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                           | 2 (2 live) |

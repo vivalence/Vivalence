@@ -2,7 +2,10 @@ import { OpenAI } from "openai";
 
 export default (KEY) => {
   if (!KEY) throw new Error("OpenAI API key is required");
-  const client = new OpenAI({ apiKey: KEY, baseURL: "https://api.openai.com/v1" });
+  const client = new OpenAI({
+    apiKey: KEY,
+    baseURL: "https://api.openai.com/v1",
+  });
 
   return async function openai({ prompt, schema, provider }) {
     const start = Date.now();

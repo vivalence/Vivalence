@@ -1,5 +1,6 @@
 #+title: the flag was there all along, help could not tell a boolean from a position, and the docs never said so
 #+filetags: :ghost:cli:help:documentation:instance:callout:
+#+index: 69
 
 * what happened, in one breath
 

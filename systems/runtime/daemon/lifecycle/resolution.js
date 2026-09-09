@@ -20,7 +20,7 @@ export async function freight(daemonDie) {
   const fraught = () =>
     good
       .flatmodes()
-      .filter((mode) => mode.implements("FRAUGHT"))
+      .filter((mode) => mode.implements("FRAUGHT") || mode.implements("MOUNTED"))
       .map((mode) => mode.freight);
 
   good.cargo = new Cargo(fraught);
@@ -50,7 +50,7 @@ export async function modes(daemonDie) {
       const fresh = await stamp(mode);
       if (typeof held === "string" && held && held !== fresh) {
         console.log(
-          `[DATASET] ${mode.type}/${mode.slug} dataset files differ from the installed stamp — reinstalling`,
+          `[DATASET] ${mode.manifest.type}/${mode.manifest.slug} dataset files differ from the installed stamp — reinstalling`,
         );
         mode.entity.installed = "";
       }
@@ -58,10 +58,10 @@ export async function modes(daemonDie) {
       finalizers.push(...(await stagger(mode, daemonDie.good, daemonDie.instance.traits)));
 
       if (mode.module.aperture && !mode.implements("EXPOSED")) {
-        console.warn(`[trait] ${mode.type}/${mode.slug} exports aperture without EXPOSED`);
+        console.warn(`[trait] ${mode.manifest.type}/${mode.manifest.slug} exports aperture without EXPOSED`);
       }
       if (mode.module.datasink && !mode.implements("DATASINK")) {
-        console.warn(`[trait] ${mode.type}/${mode.slug} exports datasink without DATASINK`);
+        console.warn(`[trait] ${mode.manifest.type}/${mode.manifest.slug} exports datasink without DATASINK`);
       }
 
       mode.entity.installed = fresh;

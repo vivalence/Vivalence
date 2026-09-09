@@ -1,5 +1,6 @@
 #+title: the rank-zero prune breaks the paradigms behind it, survival is recurated against spanish while brazilian turns out garbage, and sentence rank is declared didactic — until the last italian course closes at 113 phrases
 #+filetags: :italian:topography:ranked:survival:wordfreq:sentences:didactic-rank:curation:qa:
+#+index: 103
 
 * the commission
 

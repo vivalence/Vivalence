@@ -32,7 +32,8 @@ const annotate = (token) => {
 export const tools = new Vector().open(
   {
     nature: "/classify",
-    valence: "Classify text grammatically — per token: lemma, part of speech, and the " +
+    valence:
+      "Classify text grammatically — per token: lemma, part of speech, and the " +
       "morphological features (mood, tense, person, number, gender, case…). Multiword " +
       "tokens split (comprarlo → comprar + lo). The language is this daemon's own. " +
       'Example: { text: "María se mira" } → sentences: [[{ token: "María", pos: "propn" }, ' +
@@ -41,7 +42,9 @@ export const tools = new Vector().open(
       'suffix: "ar" }]]. Use it to diagnose which feature broke in a learner\'s answer, ' +
       "or to tag fresh material before authoring.",
     input: v.object({
-      text: v.string().desc("A word, phrase or a few sentences — 1000 chars max."),
+      text: v.string().desc(
+        "A word, phrase or a few sentences — 1000 chars max.",
+      ),
     }),
   },
   async (ctx) => {
@@ -49,11 +52,14 @@ export const tools = new Vector().open(
       return {
         condition: "ERROR",
         output: {
-          message: `text is ${ctx.input.text.length} chars — the service takes 1000 max, send less`,
+          message:
+            `text is ${ctx.input.text.length} chars — the service takes 1000 max, send less`,
         },
       };
     }
     const sentences = await ctx.service({ text: ctx.input.text });
-    return { output: { sentences: sentences.map((tokens) => tokens.map(annotate)) } };
+    return {
+      output: { sentences: sentences.map((tokens) => tokens.map(annotate)) },
+    };
   },
 );

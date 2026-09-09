@@ -1,0 +1,298 @@
+#+title: the client shows two because the prune uninstalls them — and then manifest becomes the one identity record
+#+filetags: :m53:vcompany:vdex:paladin:runtime:typology:kajuit:mode:manifest:identity:ownership:schematics:email:calendar:
+#+index: 38
+#+session: 19 beef turns, walked oldest first
+
+* one breath
+
+He wanted two mountings of one module to show up in his client. The daemon had been mounting both correctly the
+whole time; =integration.prune= built its uninstall keep-set from the MODULE's manifest slug and deleted both
+mode rows on every boot, and the FK nulled their literals so the next boot inserted a fresh copy — eleven copies
+of every document by the time it was measured. One line. Then he took the finding somewhere better than a fix:
+if the module's slug standing in for the mounting's had now caused two bugs in two sessions, the two should stop
+being spelled the same. So =manifest= became the one identity record — declared in the kernel entry the way a
+daemon declares itself, folded and VALIDATED in paladin, read as =mode.manifest.*= everywhere, with the db row
+the single deliberate exception. =mode.slug= no longer exists.
+
+* the spine — 19 turns
+
+** 1 · /"ok. load the past compact and current quest files."/
+
+Read the fold, the kernel, both m53 quest files, the frontier. The open item at the top of the previous
+resumption was his: the client lists 2 of 7.
+
+** 2 · the kernel, pasted whole · /"i want the two slugs to mount"/
+
+** 3 · /"resaerch all the slug wiring througout paladin, runtime, and client."/
+
+** 4 · his boot log · /"i do the whipe once youre done."/
+
+His paste carried =pruned mode: vdocs= / =pruned mode: corpo= — the same two lines my own boot had printed.
+
+** 5 · /"go"/ — the one-line fix
+
+** 6 · the browser console, whole
+
+7 modes mounted in the client, both new ones pulling =/metadata/app=. And underneath it, twenty
+=/mode/office/email/message= 500s.
+
+** 7 · /"WHAT FFFFFFFFFFFFFIIIIIIIIIIIIIIIIIIIIILLLLLLLLLLLLLLLLLLEEEEEEEEEEEEEEEE?????? context bro"/
+
+I had put a patch in a fenced block with the path only in the prose above it. Every snippet leads with its
+filepath. Kernel rule, and I broke it.
+
+** 8 · the screenshot · /"the client renders vdex where it should render the slug … i think we should write
+mode.manifest.slug from mask.slug. only mode.module.manifest.slug gives 'registry identity' while the
+mode.[data] is set from mask."/
+
+** 9 · /"and i assume mode.statics = mask.statics ?? mode.statics; both watn to be merged…"/
+
+** 10 · /"the ~/.viva/registry/vcompany/modes/**** is all yours. just fix"/
+
+** 11 · /"email and calendar!"/
+
+** 12 · /"mode.slug = mask.slug ?? mode.slug; + mode.manifest = { ...mode.module.manifest, slug: mode.slug };
+and this propose on paladin level"/
+
+** 13 · /"is that maybe something we should handle on paladin already?"/
+
+** 14 · /"ok. another thought. what if we standardize on manifest. no mode.slug at all. neither in the daemon.js
+instance config … mode.module.manifest from registry, mode.manifest patched by instance. no mode.slug mode.type
+etc outside manifest. yay? gib scope i assume. but coherent"/
+
+** 15 · /"go all"/
+
+** 16 · /"what would a full propagation look like? manifest also on mode prototye. no getters. on modeentity is
+the one exception that makes sense to me"/
+
+** 17 · /"go. and fix the type checker issue with v.schematics"/
+
+** 18 · /"ready for compact? anything dangling?"/
+
+** 19 · /"ikiro compact"/
+
+* the arc
+
+** the client was right to show two (1–5)
+
+The previous fold left this as the first resumption line, and the walk had stopped one step short. His daemon was
+down, so nothing could be probed; the answer came out of the db instead.
+
+Five mode rows where the kernel declares seven, and the two missing were exactly the two carrying a =slug=
+override. Every literal and symbol =mode_id= NULL, though the column existed. 623 literals for a tree of 60
+documents. Booting it printed the sentence the log had been printing all along:
+
+: [VDEX] office/vdocs …/documentation/content 27 documents · 34 coordinates · pruned 0/0
+: [VDEX] office/corpo /Users/finn/vivalence/coorporation 33 documents · 17 coordinates · pruned 0/0
+: pruned mode: vdocs
+: pruned mode: corpo
+
+=systems/runtime/daemon/lifecycle/integration.js=:
+
+: const typeSlug = (item) => `${item.type}:${item.slug}`;
+: const installed = new Set(modes.map((m) => typeSlug(m.manifest)));   // ← the MODULE
+: await removeOrphans(em, await mode.find(), installed, typeSlug, "mode");
+
+The keep-set said =office:vdex=; the rows were ensured on =office:vdocs= and =office:corpo=. Neither was in the
+set, so the uninstall sweep took both — after the dataset had already installed their documents. Same defect as
+=population.js= dropping =mask.slug= the session before: the module's slug used where the mounting's belongs.
+
+The chain to what he saw:
+
+: prune removes Mode(vdocs) Mode(corpo)
+:   ↓ Literal_mode_id_foreign … on delete SET NULL
+: their literals and symbols orphaned
+:   ↓ next boot upserts on (slug, mode) against a fresh mode id → no match → INSERT
+: 60 literals + 51 symbols leaked per boot — 11 copies deep when caught
+:   ↓ the client reads mode ROWS and filters application|conversational
+: vcompany · 2
+
+=UNIQUE (slug, mode_id)= never stopped the leak: SQLite treats NULLs as distinct, so an unowned row has no
+unique protection at all.
+
+He answered the proposal with his own boot log showing the same two lines and /"i do the whipe once youre
+done."/ One line landed, and after it: 7 mode rows, 31 routes each, 27 and 33 literals owned, four rows carrying
+APPLICATION — email, calendar, vdocs, corpo, which is the list he wanted.
+
+** the slug sweep he ordered (3)
+
+| container | site                                | reads                    |             |
+|-----------+-------------------------------------+--------------------------+-------------|
+| paladin   | =vip.accioOne=                      | =mask.slug= preserved    | correct     |
+| paladin   | =pensieve.register=                 | =manifest.slug= = module | correct     |
+| runtime   | =Mode= ctor                         | =manifest.slug=          | module      |
+| runtime   | =population.modes=                  | =mask.slug ?? mode.slug= | correct     |
+| runtime   | =integration.prune=                 | =m.manifest=             | THE BUG     |
+| runtime   | =metadata /modes=                   | =mode.type= · =mode.slug=| correct     |
+| runtime   | =aperture/modes findOne=            | =modes[where.slug]=      | correct     |
+| client    | =dossier.mount= · =ModeDossier=     | the ROW's slug           | correct     |
+| client    | =d.svelte:214=                      | trait filter, no slug    | correct     |
+
+The client was never wrong. It reads mode ROWS (=dossier.js= =entities.mode.find({})=) and filters on
+=implements("application") \|\| implements("conversational")=; five rows minus three traitless ones is exactly
+the two he saw.
+
+** email 500s on every thread (6, 10, 11)
+
+His console showed the client mounting 7 modes AND a retry storm. =office/email='s =thread()= walks =uses=/=in=
+and resolves each child with =findOne({ontology: "message", slug})=. But =uses= is ONE graph shared by every
+ontology, and dummy/calendar links its events to the mail they came from — the =link:literal.uses 7/7= in his
+own boot log. Measured:
+
+: email.7c02ab55 [message] uses email.5f3a9c1e [message]
+: event.ev04     [event]   uses email.c77d10a9 [message]
+: event.ev13     [event]   uses email.c77d10a9 [message]
+: event.ev05     [event]   uses email.0e4f88b1 [message]      (+4 more)
+
+So =c77d10a9.in= = ={b310ff47, ev04, ev13}=, =one(ctx,"ev04")= → null, =seen.set(full.slug, full)= threw. Five
+messages carry event children directly and the other two walk up into one that does, so ALL SEVEN threads 500'd.
+Both hops now filter =known.ontology === "message"=: a mail thread is messages, and the events referencing one
+are the calendar's view of it, not replies.
+
+/"email and calendar!"/ — checked, and =office/calendar= never had it: =/event= resolves each =uses= ref BY ID
+(=aperture/index.js:40=), which is the shape email should have had. One landmine left there and marked, not
+fixed: =/mint= does =findOne({slug: input.from})= with no ontology and no mode, and two mounts may now legally
+hold one slug (measured: 0 collisions today).
+
+** manifest becomes the identity (8, 12–17)
+
+His screenshot showed =vcompany / VDex= where he wanted the slug. It was =manifest.name=, not the slug, but the
+cause was the same and he went straight past the symptom to the rule.
+
+*** T1 — the fold, put where its sibling already lived (13)
+
+/"is that maybe something we should handle on paladin already?"/ — yes, and the argument was already in the
+file: =accioOne= folds =statics= (=mask.statics = {…module.statics, …entry.statics}=), so his
+/"mode.statics = mask.statics ?? mode.statics; both watn to be merged"/ needed only half an answer — statics was
+ALREADY merged, one layer up. The manifest was the one field that never got the same treatment. That is the
+whole case for paladin owning it.
+
+*** T2 — one owner, and the enumerability trap
+
+=Mode.slug/type/traits= became accessors onto the manifest. The first cut used CLASS getters, which sit on the
+prototype and are NOT enumerable, so =Object.keys=, spread and every pojo fold silently dropped identity —
+=mode-instance.snapshot= came back with =pojo.type === undefined=, and four test sites spread a live mode. Own
+enumerable accessors via =Object.defineProperties= fixed it: spread invokes the getter and copies the value.
+
+Worth keeping because it looked like a contradiction: that snapshot asserts =pojo.traits= is undefined even
+though =traits= is enumerable. Not a rule — =specimen='s =fold= carries a =WeakSet=, and =mode.traits= is the
+SAME array object as =manifest.traits=, so the second visit is a cycle leaf. One owner is what makes that hold.
+
+*** T3 — the full propagation (16, 17)
+
+/"manifest also on mode prototye. no getters."/ My earlier 75-site objection did not survive measurement: it was
+a raw grep over both containers including comments and exactly the row sites he was carving out. The real
+citizen surface was ~38 lines in 21 files. I said so plainly and revised.
+
+=Mode= is a plain data citizen again — =manifest= · =module= · =statics= · =secrets= · =mountpoint= · =mount= ·
+=url= · =aperture= · =tools= · =entity= · =id=, with =implements()= the only method.
+
+*** the type checker he asked for (17)
+
+/"fix the type checker issue with v.schematics"/ — JS gives none, so a missed site would be =undefined= rather
+than an error. =v.primitives.Manifest= already existed; the gate went at the pinhole where the mounting manifest
+is minted:
+
+: // subsystems/paladin/prototypes/vip.js — accioOne
+: const manifest = v.primitives.Manifest.cast({ ...service.manifest, ...(query.manifest ?? {}) });
+: const faults = v.primitives.Manifest.faults(manifest);
+: if (faults.length) throw new Error(`[VIP] ${query.module}: the kernel entry's manifest ${…}`);
+
+Probed live:
+
+| input                       | faults                                                               |
+|-----------------------------+----------------------------------------------------------------------|
+| module only, no declaration | none                                                                 |
+| declaration renames it      | none                                                                 |
+| slug dropped                | =/= must have required properties slug                               |
+| slug not a slug             | =/slug= must be lowercase alphanumeric words joined by single dashes  |
+
+Two deltas made it work. =traits= became =.optional().default([])= — the default is what makes ~50 direct
+=manifest.traits= reads safe, and =.optional()= must sit beside it because a typebox default does NOT imply
+optional (the first cut made it REQUIRED and broke =v.test.js=). And the =slug= scalar gained a =title=, because
+=v.js='s faults nicety prints =held.title= in place of a regex and slug had none — a bad kernel slug used to
+report =must match pattern "^[a-z0-9]+…"=.
+
+** the shape that fell out
+
+The best argument for the whole change was found while fixing it. =integration.prune='s keep-set is now
+=typeSlug(mode.manifest)= — character for character the expression that was THE BUG at the top of this session.
+It was wrong when =manifest= meant the module and it is right now that it means the mounting. Nothing about the
+line changed; the vocabulary underneath it did.
+
+* the failures worth keeping
+
+- **the patch with no filepath** — /"WHAT FFF…FILE?? context bro"/. The path was in the prose above the block,
+  not on it. The rule is that every snippet leads with its filepath, container-rooted, and prose above a fence
+  does not count as leading it.
+- **a grep is not a sweep when you delete an aliased property.** =grep "mode\.slug"= found 38 sites and missed
+  four, because the misses are ALIASES: =agentic.js= reads =source.slug=, both =office/*/provider.js= read
+  =known.type=/=known.slug=, and =integration.js= applied =typeSlug= to a citizen. Each cost a red round. The
+  sweep that finds them is over the CONSUMERS — =grep "flatmodes()\|\.modes\["= enumerates every place a live
+  mode is handed out — not over the spelling.
+- **classify before renaming.** I renamed two ROW sites by mistake and reverted both:
+  =aperture.snapshot.test.js= reads =/metadata/modes= (the wire), =corpus.snapshot.test.js= reads
+  =entities.mode.findAll()=. Both look identical to a citizen read.
+- **a class getter is not a property.** Prototype accessors are not enumerable; anything that serializes an
+  object loses them without an error. Measured, not reasoned — the snapshot caught it.
+- **an inflated count is an argument that does not hold.** I talked him out of T3 with 75 sites when the real
+  figure was half that and excluded the part he was already carving out. He asked again, the numbers were
+  measured properly, and the objection dissolved. State the count you measured, not the count you grepped.
+
+* state at fold
+
+**Landed, uncommitted, all of it. 70 files dirty.**
+
+- =systems/runtime/daemon/lifecycle/integration.js= — the prune keys the MOUNTING.
+- =subsystems/paladin/prototypes/vip.js= — =mask.manifest= folded + validated at the pinhole.
+- =subsystems/typology/prototypes/mode.js= — plain citizen, no identity properties, =implements()= over the
+  manifest.
+- =subsystems/typology/schematics/primitives/manifest.js= — =traits= =.optional().default([])=.
+- =subsystems/typology/schematics/scalars/index.js= — =slug= gained a =title= so faults read as English.
+- =systems/runtime/daemon/{traits/*,lifecycle/*,aperture/metadata.js}= + =systems/runtime/lifecycle/resolve.js=
+  — every citizen read is =mode.manifest.*=.
+- =~/.viva/instances/vivalence/daemon.js= — both entries declare =manifest: { slug }=.
+- =~/.viva/registry/vcompany/modes/office/email/{aperture,provider}.js= ·
+  =modes/office/calendar/provider.js= · =modes/dummy/mail/aperture/index.js= · =modes/office/vdex/boot.js= ·
+  =modes/office/email/tools/index.js=.
+- 7 test files gained manifests on their mode stubs; 2 were reverted to flat because they read rows.
+
+**Suites.** paladin 41 passed · 180 steps clean · kajuit 35 passed · 119 steps clean · typology 123 passed · 495
+steps at baseline (the red is =hallucination snapshot · tool loop=) · runtime 53 passed · 334 steps at baseline
+(the red is the =multiplayer= instance fixture).
+
+**Live.** ALIVE on 2501, 7 mode rows, =/mode/office/vdocs= and =/mode/office/corpo= 31 routes each,
+=office/vdocs= 27 literals and =office/corpo= 33 owned, 23 unowned = the 16 event + 7 message scheme rows. He
+ran the wipe himself; the 180 leaked vdex literals are gone.
+
+**Dangling, checked not assumed.** The empty =modes/office/email/attachments= directory I created in the session
+before is still there — his /"solved elsewhere"/ may supersede it, and deleting it risks the FRAUGHT walk that
+made me create it, so it stays flagged. =m53-vcompany.v3-vdex.org= stays live rather than sunsetting: it LANDED
+but its gates are his click-throughs and they are not run.
+
+* resumption (owed beef)
+
+- a =name= in each kernel entry if he wants the client to stop printing =VDex= twice —
+  =manifest: { slug: "vdocs", name: "…" }=, one word, now that it flows. Nothing else blocks it.
+- =office/calendar= =/mint= resolves =findOne({slug: input.from})= with no ontology and no mode. A landmine
+  under two mounts, 0 collisions today.
+- the third path-as-url site, still unswept.
+- the six LATER vdex items, still marked in the root quest.
+- the =attachments= directory, and whether his fix supersedes it.
+- commits. Nothing in this session or the two before it is committed.
+
+* quest report (derived at fold — `methods/quest-report.py`)
+
+| quest                    | progress  | status                                | next                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                      | sessions   |
+|--------------------------+-----------+---------------------------------------+---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------+------------|
+| drapes-editor            | —         | landed — his click-through gates owed | his restart, then the eight click-through gates below. later, both his call: the language on `#+begin_src js` does not highlight its body; the markdown fence is the same trade.                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                          | 1 (1 live) |
+| m46-linux-readmen        |  17% 3/18 | wip                                   | drain                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                     | 6          |
+| m50-the-three-way-weave  |  60% 3/5  | wip                                   | blast                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                     | 1          |
+| m51-standalone-slowstart |   0% 0/18 | design                                | go                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                        | 2 (1 live) |
+| m53-vcompany             |   0% 0/5  | open                                  | **t1.1** h1 · e1 · p1 · t1 · b1 · k1 + s1 · x1 · x2 · x3 + i1 (the index as rows) landed on the shelf; blocked on **r1** (paladin =resolve= percent-encodes — one-line diff + one test in the quest, his go, repo): the four reds (tools file · move; snapshots tools · aperture) are r1 and nothing else; a1 struck (the app is the sibling's v3); d1 (readme) on go; the =open= schematic on buffer-data level — sketch in "landed", his word; officers out by his order; then **the slow first attach** (the boot race under `instance/run`) → gs1/gs2 click-through after restart; the bundle weight ledgered, direction his; s3 voffice → s4 desk on go; `* t1.#2` his call; the runtime's m:n =cascade.remove= both ways ledgered as a landmine (his)                                                                                                                                                                                                                                                                                                               | 5 (2 live) |
+| m53-vcompany.pre         | —         | open                                  | t1 package setup — the m27 gate moves to the executive stage; t1–t3 do not wait on it                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                     | 3 (1 live) |
+| m53-vcompany.v3-vdex     | —         | landed                                | one restart carries both — the new pdf viewer (=paper.svelte=) and the cargo fix (=freight.js=, uncommitted); then open a spaced-name pdf: it should render, page nav and zoom live, the rail on ▤. the six later items stay marked in the root quest.                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                    | 3 (3 live) |
+| m53.v4-mail+calendar     | —         | designed                              | his go, per mode. =dummy/mail= + =dummy/calendar= first (they are the source both apps read), then =office/email=, then =office/calendar=. nothing under =systems/= or =subsystems/= but one drapes line (=pip= tone =success=, already owed by v3).                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                      | 1 (1 live) |
+| m54-buffer-file          |   0% 0/4  | open                                  | reconcile with m53 =* t1.1= and =m53-vcompany.v3-vdex= first (three quests, one seam, all waiting on go; v3 splits the app into a shell + 7 parts + =buffer/jdex.js= and already points here for file upload — m54's app hunk names the single =vdex.svelte= and must be re-cut onto whichever lands first) (a sibling session, beef's rulings there: the vdex speaks slugs — =/document /write /file /move /delete= implemented once in the aperture, tools wrap =mode.call.<verb>=, =fs_*= slurp gone on vdex; =open= is an emitter; the boot watches files and syncs per path — /"shouldnt this watch files??!!!"/; /"wtf is daemon traits stamp????"/ → gone) — three seams now name the verbs' home (t1.1 aperture · m54 sketch · mikro-first repository), beef arbitrates; then beef reopens the questioned block when ready — order of design there is mikro entity + bufferrepository verbs → typology verb contract → shard mounts → remoterepository mirrors → kajuit. until then m1 = everything but the verbs. "go m1" → full hunks against the tree as read. | 1          |
+| m55-recursive-terminals  |  20% 3/15 | wip                                   | go m2 — the kajuit terminal: up · down · status · stop · run · watch, the tree, the schematic, panel f                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                    | 2 (1 live) |
+| m56-the-pincer-turns     |  50% 1/2  | build                                 | m1 landed (green, uncommitted) — m2 waits on rulings 2 · 3 · 5 · 6                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                        | 1 (1 live) |

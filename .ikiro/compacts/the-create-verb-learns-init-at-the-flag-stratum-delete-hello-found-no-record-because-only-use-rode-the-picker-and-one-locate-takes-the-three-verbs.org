@@ -1,5 +1,6 @@
 #+title: the create verb learns --init at the flag stratum, delete hello found no record because only use rode the picker, and one locate takes the three verbs
 #+filetags: :ghost:paladin:ledger:instance:cli:env:readme:release:landing:compact:
+#+index: 45
 
 * what happened, in one breath
 

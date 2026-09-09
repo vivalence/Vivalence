@@ -15,13 +15,15 @@
   const mode = chain(terminals, "$active", "$thread", "$mode");
   const dock = chain(terminals, "$active", "$dock");
   const app = chain(terminals, "$active", "$buffer", "mode", "$app");
+  const record = chain(terminals, "$active", "$buffer", "$view");
   const modeStatus = chain(terminals, "$active", "$buffer", "mode", "status", "$transient");
 
   const view = $derived.by(() => {
     const active = $buffer;
     if (!active) return null;
     const base = $app?.url ?? null;
-    if (active.view) return base ? active.view.withUrl(base) : active.view;
+    const drawn = $record;
+    if (drawn) return base ? drawn.withUrl(base) : drawn;
     return $app?.view ?? null;
   });
 
@@ -30,6 +32,12 @@
   const geom = $derived(
     dockable && rect.width > 0 && rect.height > 0 ? stores.bridge.resolve($dock, rect) : null,
   );
+
+  const LABEL_MIN_PX = 96;
+  const stageHeight = $derived(
+    rect.height - (geom && !full && !geom.vertical ? geom.size : 0),
+  );
+  const labelVisible = $derived(stageHeight >= LABEL_MIN_PX);
 
   let last = null;
   function onSeamDown(event) {
@@ -71,11 +79,11 @@
                 <span class="await-line bad">mode {$modeStatus.code.toLowerCase()}{$modeStatus.error ? ` · ${$modeStatus.error.message ?? $modeStatus.error}` : ""}</span>
               {/if}
             </div>
-          {:else}
+          {:else if labelVisible}
             <span class="label">A</span>
           {/if}
         </Frame>
-      {:else}
+      {:else if labelVisible}
         <span class="label">A</span>
       {/if}
     </div>

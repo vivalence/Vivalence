@@ -20,7 +20,10 @@ async function verifyJWT(token) {
 }
 
 async function createRefreshToken(payload) {
-  const refreshToken = await createJWT({ ...payload, type: "refresh" }, refreshExpiresIn);
+  const refreshToken = await createJWT(
+    { ...payload, type: "refresh" },
+    refreshExpiresIn,
+  );
 
   db.data.refresh[refreshToken] = {
     ...payload,
@@ -77,7 +80,7 @@ export default async function (service) {
 
   secret = new TextEncoder().encode(service.secrets.jwt);
 
-  const tokenfile = service.mount.branch("/tokens.json").absolute;
+  const tokenfile = service.mountpoint.branch("/tokens.json").absolute;
   db = await JSONFilePreset(tokenfile, { refresh: {} });
   await db.read();
 
@@ -141,7 +144,7 @@ export default async function (service) {
 // export default async function (service) {
 //   secret = new TextEncoder().encode(service.secrets.jwt);
 
-//   const tokenfile = service.mount.branch("/tokens.json").absolute;
+//   const tokenfile = service.mountpoint.branch("/tokens.json").absolute;
 //   db = await JSONFilePreset(tokenfile, { refresh: {} });
 //   await db.read();
 

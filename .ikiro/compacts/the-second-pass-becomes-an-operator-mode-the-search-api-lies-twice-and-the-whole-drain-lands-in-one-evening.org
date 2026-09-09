@@ -1,5 +1,6 @@
 #+title: the second pass becomes an operator mode, the search api lies twice, and the whole drain lands in one evening
 #+filetags: :italian:datasink:harvest:curriculum:tatoeba:freight:cargo:paladin:typology:runtime:kajuit:tts:elevenlabs:mode:rename:
+#+index: 119
 
 * what happened, in one breath
 

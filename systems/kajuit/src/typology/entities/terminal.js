@@ -3,7 +3,13 @@ import { Stall, Blacklist } from "@vivalence/typology";
 import { logger } from "$telemetry";
 import { pull } from "./thread/traits/aimed.js";
 import { depth } from "./thread/traits/queueing.js";
-import { defaultDock } from "../stores/bridge/dock.js";
+import {
+  defaultDock,
+  setDockCollapsed,
+  setDockFull,
+  setDockShare,
+  setDockSide,
+} from "../stores/bridge/dock.js";
 
 export function Terminal({ id = null, dock } = {}) {
   const $thread = atom(null);
@@ -45,6 +51,11 @@ export function Terminal({ id = null, dock } = {}) {
     get dock() {
       return $dock.get();
     },
+
+    setDockCollapsed: (collapsed) => setDockCollapsed($dock, collapsed),
+    setDockFull: (full) => setDockFull($dock, full),
+    setDockSide: (side) => setDockSide($dock, side),
+    setDockShare: (share) => setDockShare($dock, share),
 
     get daemon() {
       return $thread.get()?.daemon;

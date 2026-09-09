@@ -23,6 +23,21 @@ const MIME = {
   csv: "text/csv",
 };
 
+// a path is not a url: every segment is escaped so a name with a space, a hash or a question mark
+// survives the wire and comes back the same on the other side
+const encoded = (path) => path.split("/").map(encodeURIComponent).join("/");
+
+const decoded = (query) => {
+  try {
+    return decodeURIComponent(query);
+  } catch {
+    return query;
+  }
+};
+
+const match = (lading, query) =>
+  lading.find((e) => e.path === query) || lading.find((e) => e.path.replace(/\.[^.]+$/, "") === query) || lading.find((e) => e.slug === query);
+
 const entry = (path) => {
   const name = path.split("/").pop();
   return {
@@ -56,12 +71,9 @@ export class Freight {
     return this;
   }
 
+  // a query arrives either as a stowed path or as the escaped one the catalog minted; both name the same file
   resolve(query) {
-    return (
-      this.lading.find((e) => e.path === query) ||
-      this.lading.find((e) => e.path.replace(/\.[^.]+$/, "") === query) ||
-      this.lading.find((e) => e.slug === query)
-    );
+    return match(this.lading, query) ?? match(this.lading, decoded(query));
   }
 
   get catalog() {
@@ -71,7 +83,7 @@ export class Freight {
         {
           path: e.path,
           type: e.type,
-          url: this.url ? this.url.branch("/" + e.path).absolute : null,
+          url: this.url ? this.url.branch("/" + encoded(e.path)).absolute : null,
         },
       ]),
     );

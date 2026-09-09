@@ -2,6 +2,7 @@
   import { ThreadTraits } from "@vivalence/kajuit";
 
   const modeLabel = (buffer) => buffer.mode?.slug ?? buffer.mode?.id ?? buffer.mode ?? "—";
+  const bufferName = (buffer) => buffer.label?.name ?? `buffer ${buffer.index ?? 0}`;
 
   async function createBuffer(terminal, thread) {
     if (thread.traits.includes("AIMED")) {
@@ -69,6 +70,7 @@
   const threadTraits = chain(terminals, "$active", "$thread", "$traits");
   const activeBuffer = chain(terminals, "$active", "$buffer");
   const activeData = chain(terminals, "$active", "$buffer", "$data");
+  const activeLabel = chain(terminals, "$active", "$buffer", "$label");
   const buffers = chain(terminals, "$active", "$thread", "$buffers");
   const phase = chain(terminals, "$active", "$thread", "$phase");
 
@@ -162,10 +164,12 @@
       <div class="blist" bind:this={listEl}>
         {#each ordered as buffer (buffer.id)}
           <div class="brow" class:on={$activeBuffer?.id === buffer.id} data-id={buffer.id}>
-            <button class="cell" onclick={() => activateBuffer($terminal, buffer)}>
+            <button
+              class="cell"
+              onclick={() => activateBuffer($terminal, buffer)}
+              title={buffer.label?.description ?? ""}>
               <span class="index">{buffer.index ?? 0}</span>
-              <!-- <span class="status">{buffer.status ?? "PENDING"}</span> -->
-              <span class="slug">{modeLabel(buffer)}</span>
+              <span class="slug">{bufferName(buffer)}</span>
             </button>
             <button class="x" onclick={() => deleteBuffer($terminal, $thread, buffer)} title="delete"
               >✕</button>
@@ -178,6 +182,12 @@
   {#if $activeBuffer}
     <section>
       <Section label="active buffer" />
+      <div class="kv">
+        <span class="k">name</span><span class="v">{$activeLabel?.name ?? `buffer ${$activeBuffer.index ?? 0}`}</span>
+      </div>
+      {#if $activeLabel?.description}
+        <div class="item">{$activeLabel.description}</div>
+      {/if}
       <div class="kv">
         <span class="k">mode</span><span class="v">{modeLabel($activeBuffer)}</span>
       </div>
@@ -379,16 +389,6 @@
     flex: none;
     font-size: var(--font-size-xs);
       margin-right: 6px;
-  }
-  .status {
-    padding: 1px 7px;
-    border: 1px solid color-mix(in srgb, var(--colors-skeleton-0-warning-base) 45%, transparent);
-    border-radius: 2px;
-    font-size: var(--font-size-xs);
-    letter-spacing: 0.1em;
-    text-transform: uppercase;
-    color: var(--colors-skeleton-0-warning-base);
-    flex: none;
   }
   .slug {
     flex: 1;

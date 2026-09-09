@@ -1,0 +1,225 @@
+#+title: the pass finds a test broken twice over, an interpolated class was hiding dead css, and the shelf has no git
+#+filetags: :drapes:editor:codemirror:org:vdex:m53:svelte:css:bundle:connoisseur:shelf:quest:
+#+index: 92
+
+* what happened, in one breath
+
+Four words reopened the quest — /"do another pass over drapes editor. are we ready?"/ — and the honest
+answer was no. The pass probed instead of reading, and the gated wrapper's own test turned out to be broken
+twice over: it reached for =.parser= on a =LanguageSupport=, which has =.language=, and then asserted seven
+generic lezer node names against a =StreamLanguage= whose node names are its own =tokenTable= keys. Both
+halves were stale from the =simple-mode= sketch the real org mode had replaced, and neither had been re-run
+since. A second blocker followed from the same discipline: the swap left =caret= write-only, because its
+one reader was the paint layer the swap deletes. Three smaller defects and two judgment calls went with
+them. He answered /"go. build"/ and everything landed — five wrapper files, the compile gate, the vdex
+=raw= swap — green, with the real App at 636 kB prod, under the design estimate. The landing then produced
+a find the pass had missed: =Reader.svelte= compiled clean before the edit and warned =css_unused_selector:
+".pdf"= after, and the cause was not a regression but Svelte's pruner — an interpolated class attribute
+makes every class selector possibly-matching, so =.pdf= had been dead the whole time and merely hidden.
+=cleanup= then turned up the sharpest fact of the session, and it was almost lost by being tidied away:
+=~/.viva/registry/vcompany= has no =.git= anywhere above it. The shelf is not version controlled, so a
+=.bak= in a scratch directory about to be wiped was the only copy of eighty-one deleted lines. Folded
+verbatim into the quest first, then wiped.
+
+* spine (N=13 for the session; rows 1–9 are already folded, so this compact's own denominator is 4)
+
+|  n | beef                                                        | what came of it                                                                 |
+|----+-------------------------------------------------------------+---------------------------------------------------------------------------------|
+|  1 | /"ikiro wake. vdex drapes"/                                 | FOLDED → =rolling-our-own-is-shit-…-org-gets-a-real-mode=                       |
+|  2 | MID-TURN — /"rolling our own is shit …"/                    | FOLDED → same                                                                   |
+|  3 | /"ok. ok codemirror."/                                      | FOLDED → same                                                                   |
+|  4 | the =blast-bracket= skill text                              | FOLDED → same (NOTHING there too)                                               |
+|  5 | /"build an .org mode."/                                     | FOLDED → same                                                                   |
+|  6 | /"switched over yet?"/                                      | FOLDED → same                                                                   |
+|  7 | /"ikiro compact"/                                           | FOLDED → same; that fold IS rows 1–8                                            |
+|  8 | =/compact=                                                  | FOLDED → same                                                                   |
+|  9 | the harness continuation payload                            | NOTHING — a summary handed back by the runtime, not an instruction              |
+| 10 | /"do another pass over drapes editor. are we ready?"/       | verdict NO; 2 blockers + 3 defects + 2 judgment calls, every one probed         |
+| 11 | /"go. build"/                                               | the whole patch LANDED green; 2 further adjustments found during the landing    |
+| 12 | /"cleanup"/                                                 | the shelf has no VCS → the deleted view folded verbatim, then 16 MB scratch wiped |
+| 13 | /"ikiro compact"/                                           | this fold                                                                       |
+
+Balance: four sections, one per row 10 · 11 · 12 · 13, no section drawing more than its own row plus the
+one before it — the recency test passes on this compact's own denominator of 4. It would fail on the
+session's 13, and that is the fold boundary showing, not the bias: rows 1–8 are a written compact, not a
+gap.
+
+Coverage: 1–13, thirteen of thirteen, none skipped. Rows 1–8 are not re-narrated here — they belong to the
+prior compact by name, and repeating them would double-count the arc rather than record it. Row 9 is the
+runtime's own continuation text arriving in the user channel. The four rows this compact is actually about
+are 10–13, and every section below cites at least one of them.
+
+* the pass: probe, do not read (row 10)
+
+The trigger was a question, not a go, so nothing was edited. What made the pass worth anything is that
+every claim went through a probe. Three of them overturned what reading alone would have concluded.
+
+** the gated test was broken twice over
+
+=languages.js= hands back whatever =grammars[format]()= returns, and for org that is =org()= — a
+=LanguageSupport=. The test called =language("org").parser.parse(text)=. Probed:
+
+#+begin_src text
+ctor: LanguageSupport
+has .parser?: undefined          ← TypeError on .parse()
+language.parser?: true
+NODE NAMES: Document · org-block · org-block-mark · org-bullet ·
+            org-directive · org-headline-1 · org-link · org-verbatim
+  expects meta/heading/list/link/monospace/keyword/string -> false ×7
+#+end_src
+
+So two defects in one =specimen.it=, not one. The reach is =language(format).language.parser=; and the
+names a =StreamLanguage= emits are the keys of its own =tokenTable=, never lezer's generic vocabulary.
+The assertion list was a fossil of the =simple-mode= sketch that =editor/org.js= had superseded, and it
+had never been re-run against the mode that replaced it. The quest had recorded this file as
+/"7/7 gate green in scratch"/ — true when written, false by the time the org mode landed. **A green
+recorded in a quest is a green at the moment of writing, not a standing property.**
+
+** =caret= became write-only
+
+Its single reader was the painted =<span>= at =Reader.svelte:108=, which the swap deletes. The =.caret=
+at 188 and 281 is the ▸/▾ disclosure glyph — a different noun wearing the same name, exactly the
+same-name-different-verb trap the blast-bracket names. Dropped =caret=, =at()= and the =oncaret= wiring;
+kept =oncaret= on the drapes component, because that is the library's API and the App simply does not ask
+for it yet.
+
+** three smaller ones, and two calls
+
+The =jdex.js= hunk dropped the function but not the comment above it, which would have orphaned a line
+that had become false. The test titled /"every format the vdex declares has a grammar"/ lied — the vdex
+declares =["md", "org", "json", "txt", "pdf"]= (=vdex.viva.js:26=) and =txt=/=pdf= correctly have none;
+it was asserting the drapes list. And =export const focus= was dead surface with nothing binding =this=,
+so it was cut rather than wired. On judgment: the Editor went into ={#key open.literal.slug}=, closing a
+hole where ⌘Z after switching documents undid into the previous file's text — a hole the old textarea had
+too, so not a regression, but one line to close.
+
+** what the pass got WRONG, and caught before writing code
+
+Grepping =subsystems/dapper/= for =--zone-accent-base= returns nothing, and the first reading of that was
+that four of the theme's colour roles did not exist and most of the syntax highlighting would be invisible.
+Wrong. =flatten.js:5= holds =INTERACTIVE_ROLES = ["primary","secondary","accent","info","success",
+"warning","danger"]= and emits them as =--zone-${role}-${state}=, so the names exist only as
+interpolations in source and in full in the generated stylesheet — where all of them are, along with every
+=--colors-skeleton-0-*-base= and =--font-family-code=. **Grepping source for a token name proves nothing
+when the emitter interpolates.** Checked the emitter, not the corpus, and =theme.js= landed unchanged.
+
+* the build (row 11)
+
+Five wrapper files, the compile gate, and the three vdex hunks. =Reader.svelte= 698 → 616. Both blockers
+fixed first. Two more findings came out of the landing itself, neither visible from reading:
+
+** =.pdf= was dead CSS all along, and the swap only exposed it
+
+The suite went red on =css_unused_selector: ".pdf"= immediately after the swap. Rather than assume a
+regression, both versions were compiled on the same compiler: BEFORE =[]=, AFTER one warning. The cause is
+Svelte's pruner. The old markup carried =<span class="line {line.kind}">= — an *interpolated* class — which
+makes every remaining class selector count as possibly-matching, so nothing in that stylesheet was ever
+reported unused. Delete the span and the mask goes with it. =.pdf= was genuinely dead: ={:else if pdf}=
+renders =<Paper>= with no wrapper element. **When a swap removes a dynamic class attribute, expect a burst
+of =css_unused_selector= and treat each as a real find, not as damage.**
+
+** =.reader= never flexed
+
+It sits in =.stage= (=display: flex; flex-direction: column; overflow: hidden=) already carrying
+=min-height: 0; overflow: hidden= — both meaningless on a flex child that never flexes. Without =flex: 1=
+the =.raw= box has no height and CodeMirror mounts at zero. Pre-existing layout debt the editor exposed;
+one line, and it cannot shrink =read=/=edit=, which are content-sized inside a now-taller box. Reported as
+an adjustment beyond the diff shown, per the standing rule.
+
+** measured, at the landing
+
+| what                                      |    value |
+|-------------------------------------------+----------|
+| real App, prod                            |   635784 |
+| real App, dev — what kajuit downloads     |  5616126 |
+| design estimate, prod / dev               | 679502 / 6547072 |
+| =cm-editor= · =org-headline-1= in artifact |      yes |
+| =codemirror-vim= in artifact               |       no |
+| importers of =@vivalence/drapes/editor=    |        1 |
+
+Both figures came in UNDER estimate. drapes 7 passed (45 steps) / 0, paladin 41 (180) / 0, vdex =app= 1 (9)
+/ 0 and =jdex= 3 (17) / 0. Typology 123 / 1 — the standing =hallucination snapshot … tool loop= red, named.
+The two vdex reds (=tools=, =vdex.snapshot=) are the r1 spaced-path blocker on =12.05 Notes.md=, and they
+were ruled out structurally rather than by assertion: neither suite imports =buffer/jdex.js=,
+=parts/Reader.svelte= or the editor subpath.
+
+* the cleanup, and the fact it nearly buried (row 12)
+
+=cleanup= reads as housekeeping and was one command away from being exactly that. The scratch directory held
+16 MB — a scratch =node_modules=, a 488 kB tarball from the npm 404 sweep, eight probe scripts — and a
+=Reader.svelte.bak=. Before deleting it, one check: is the shelf under version control?
+
+#+begin_src text
+no .git in the shelf package
+no .git above it either
+#+end_src
+
+**=~/.viva/registry/vcompany= is not version controlled.** So that =.bak= was the only complete copy of the
+eighty-one deleted lines of the painted =<pre>=-under-a-transparent-=<textarea>= surface, and the quest's
+own hunk had elided the CSS with =…=. The full reverse-appliable diff went into the quest first, together
+with the removed =raw()= (comment included) and the removed test body; then the scratch went to 0 B. The
+quest ran 640 → 847 lines and is now the sole record of what the swap removed.
+
+The sweep itself found nothing rotten — no dead imports left in =Reader.svelte=, no orphaned exports in
+=jdex.js=, =HEADING= still feeding two call sites. Two things were reported and deliberately not taken:
+=import_map.json= carries =codemirror= and =@codemirror/lang-javascript= with zero importers (pre-existing,
+and pruning repo config was outside the go), and =@replit/codemirror-vim= is the only unpinned specifier in
+that block now that =editor/vim.js= actually imports it.
+
+* the failures, kept
+
+- **a quest's recorded green is not a standing green.** =tests/editor.test.js= was written and passed in
+  scratch against the =simple-mode= sketch; the org mode replaced the sketch; the test was never re-run and
+  the quest still said 7/7. Two defects sat in it for the whole gap. A gated file that outlives the thing it
+  tests has to be re-probed before it is called ready, not re-read.
+- **grep-as-proof, twice nearly wrong.** =--zone-accent-base= is absent from dapper source because the
+  emitter interpolates it. Caught. The same habit is what made =.pdf= look like a regression rather than an
+  exposure — caught only by compiling both versions.
+- **the walk order was wrong in the build.** The blast-bracket wants the consumers' suites green BEFORE the
+  change; the vdex suite was first run after the edits, which turned a baseline question into forensics.
+  The answer came out clean, but it was recovered by structural argument, not by a recorded baseline.
+
+* state at fold
+
+**LANDED, green, uncommitted.** =subsystems/drapes/editor/{org,index,Editor,languages,theme,vim}= ·
+=subsystems/drapes/tests/{editor.org.test.js, editor.test.js}= · =subsystems/paladin/belt/bundler.js= ·
+=import_map.json= · and, on the unversioned shelf, =buffer/parts/Reader.svelte=, =buffer/jdex.js= and
+=tests/jdex.test.js=.
+
+**Owed beef:** the restart — the App bundles at boot, so nothing shows until then — and the eight
+click-through gates in the quest. Then the quest sunsets to =done/=. Two one-line proposals stand
+unactioned: prune the two dead import-map specifiers, pin =@replit/codemirror-vim=.
+
+**Not mine, dirty in the same tree:** siblings wrote =subsystems/drapes/display/Pip.svelte=,
+=systems/runtime/daemon/lifecycle/population.js=, the typology =schematics/entities/{literal,mode,symbol}.js=
+and their =daemon/entities/**/*.ts= counterparts while this session ran.
+
+**Standing, untouched here:** r1, the paladin =resolve= percent-encoding that blocks the vdex tool suites.
+
+**Settled in this fold, beyond the arc:** the canon path audit in =methods/compact.md= was returning 94
+leads against a measured baseline of 25, and **59 of them began =registry/=** — a directory that does not
+exist at the repo root at all. It became =commons/= at m47, and in live canon =registry/…= almost always
+names the SHELF. =docs/= was dead the same way against a tree that has =documentation/=. The regex now
+matches =commons= and drops both: 94 → 40. The residue is real and =testament/= owns 24 of it — a strand
+for its own pass, not for a fold. An audit at 88 % noise gets read as broken and then ignored, which is
+strictly worse than not running it.
+
+**Budget:** =world/frontier.md= is 8 557 chars against its 8 000 limit. My own line was trimmed 655 → 387
+in this fold; the remaining 557 predate it and sit on lines that six live sibling sessions are writing
+right now, so evicting them here would race a write rather than settle a budget.
+
+* quest report (derived at fold — `methods/quest-report.py`)
+
+| quest                    | progress  | status                                | next                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                      | sessions   |
+|--------------------------+-----------+---------------------------------------+---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------+------------|
+| drapes-editor            | —         | landed — his click-through gates owed | his restart, then the eight click-through gates below. later, both his call: the language on `#+begin_src js` does not highlight its body; the markdown fence is the same trade.                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                          | 0          |
+| m46-linux-readmen        |  17% 3/18 | wip                                   | drain                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                     | 6          |
+| m50-the-three-way-weave  |  60% 3/5  | wip                                   | blast                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                     | 1          |
+| m51-standalone-slowstart |   0% 0/18 | design                                | go                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                        | 1          |
+| m53-vcompany             |   0% 0/5  | open                                  | **t1.1** h1 · e1 · p1 · t1 · b1 · k1 + s1 · x1 · x2 · x3 + i1 (the index as rows) landed on the shelf; blocked on **r1** (paladin =resolve= percent-encodes — one-line diff + one test in the quest, his go, repo): the four reds (tools file · move; snapshots tools · aperture) are r1 and nothing else; a1 struck (the app is the sibling's v3); d1 (readme) on go; the =open= schematic on buffer-data level — sketch in "landed", his word; officers out by his order; then **the slow first attach** (the boot race under `instance/run`) → gs1/gs2 click-through after restart; the bundle weight ledgered, direction his; s3 voffice → s4 desk on go; `* t1.#2` his call; the runtime's m:n =cascade.remove= both ways ledgered as a landmine (his)                                                                                                                                                                                                                                                                                                               | 5 (3 live) |
+| m53-vcompany.pre         | —         | open                                  | t1 package setup — the m27 gate moves to the executive stage; t1–t3 do not wait on it                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                     | 3 (2 live) |
+| m53-vcompany.v3-vdex     | —         | landed                                | one restart carries both — the new pdf viewer (=paper.svelte=) and the cargo fix (=freight.js=, uncommitted); then open a spaced-name pdf: it should render, page nav and zoom live, the rail on ▤. the six later items stay marked in the root quest.                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                    | 2 (2 live) |
+| m53.v4-mail+calendar     | —         | designed                              | his go, per mode. =dummy/mail= + =dummy/calendar= first (they are the source both apps read), then =office/email=, then =office/calendar=. nothing under =systems/= or =subsystems/= but one drapes line (=pip= tone =success=, already owed by v3).                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                      | 1 (1 live) |
+| m54-buffer-file          |   0% 0/4  | open                                  | reconcile with m53 =* t1.1= and =m53-vcompany.v3-vdex= first (three quests, one seam, all waiting on go; v3 splits the app into a shell + 7 parts + =buffer/jdex.js= and already points here for file upload — m54's app hunk names the single =vdex.svelte= and must be re-cut onto whichever lands first) (a sibling session, beef's rulings there: the vdex speaks slugs — =/document /write /file /move /delete= implemented once in the aperture, tools wrap =mode.call.<verb>=, =fs_*= slurp gone on vdex; =open= is an emitter; the boot watches files and syncs per path — /"shouldnt this watch files??!!!"/; /"wtf is daemon traits stamp????"/ → gone) — three seams now name the verbs' home (t1.1 aperture · m54 sketch · mikro-first repository), beef arbitrates; then beef reopens the questioned block when ready — order of design there is mikro entity + bufferrepository verbs → typology verb contract → shard mounts → remoterepository mirrors → kajuit. until then m1 = everything but the verbs. "go m1" → full hunks against the tree as read. | 1          |
+| m55-recursive-terminals  |  20% 3/15 | wip                                   | go m2 — the kajuit terminal: up · down · status · stop · run · watch, the tree, the schematic, panel f                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                    | 2 (1 live) |
+| m56-the-pincer-turns     |   0% 0/2  | design                                | rulings, then go m1                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                       | 1 (1 live) |

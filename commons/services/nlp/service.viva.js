@@ -81,4 +81,4 @@ const control = new Vector()
     console.log("✓ Stanza NLP services stopped successfully");
   });
 
-export { manifest, control, provider, tools };
+export { control, manifest, provider, tools };

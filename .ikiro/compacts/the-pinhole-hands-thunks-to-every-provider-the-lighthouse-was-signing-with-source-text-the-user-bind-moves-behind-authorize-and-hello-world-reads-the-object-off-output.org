@@ -1,5 +1,6 @@
 #+title: the pinhole hands thunks to every provider, the lighthouse was signing with source text, the user bind moves behind authorize, and hello-world reads the object off output
 #+filetags: :paladin:hydrate:secrets:thunk:lighthouse:jwt:security:runtime:userspace:authorize:datamap:reactive:typology:hallucinate:hello-world:readme:commons:dealer:blast:landing:instance:
+#+index: 95
 
 * what happened, in one breath
 

@@ -1,5 +1,6 @@
 #+title: the critical pass finds ten frozen moves, the inspector stops cosplaying as a Vector, and telemetry becomes a family of two
 #+filetags: :inspector:vector:telemetry:ontology:
+#+index: 46
 
 * what happened, in one breath
 

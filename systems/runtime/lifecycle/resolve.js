@@ -22,7 +22,7 @@ export async function attach(runtimeDie) {
       for (const mode of daemonDie.good.flatmodes()) {
         if (!mode.implements("APPLICATION") && !mode.implements("GENERATIVE")) continue;
         const bundler = paladin.bundler(
-          `${daemonDie.good.mountpoint.absolute}/bundles/${mode.type}/${mode.slug}`,
+          `${daemonDie.good.mountpoint.absolute}/bundles/${mode.manifest.type}/${mode.manifest.slug}`,
         );
 
         runtimeDie.good.aperture
@@ -44,7 +44,7 @@ export async function attach(runtimeDie) {
 
   async function attachCargo(runtimeDie) {
     for (const daemonDie of runtimeDie.good.daemons) {
-      const modes = daemonDie.good.flatmodes().filter((mode) => mode.implements("FRAUGHT"));
+      const modes = daemonDie.good.flatmodes().filter((mode) => mode.implements("FRAUGHT") || mode.implements("MOUNTED"));
       if (!modes.length) continue;
 
       runtimeDie.good.aperture
@@ -106,8 +106,8 @@ export async function metadata(runtimeDie) {
   root.open("/aperture", () => shape.strip(runtimeDie.good.aperture));
 
   root.open("/instance", () => ({
-    daemons: paladin.instance.daemons.map((mask) => mask.manifest ?? mask),
-    services: paladin.instance.services.map((mask) => mask.manifest ?? { module: mask.module }),
+    daemons: paladin.instance.daemons.map((daemon) => daemon.manifest),
+    services: paladin.instance.services.map((service) => ({ ...service.manifest, module: service.module })),
   }));
 
   root.open("/daemons", () =>

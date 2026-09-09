@@ -1,5 +1,6 @@
 #+title: the critical pass finds the inverted ladder, the report loses its frame, and the plan earns "very good" once it shows the tree, the table and the diff
 #+filetags: :registry:commons:m47:quest:critical-pass:paladin:vip:pensieve:legibility:callout:plan:compact:
+#+index: 47
 
 * what happened, in one breath
 

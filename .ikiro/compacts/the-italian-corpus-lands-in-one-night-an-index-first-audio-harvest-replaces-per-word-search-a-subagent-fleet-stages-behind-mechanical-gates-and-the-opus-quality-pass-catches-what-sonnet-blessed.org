@@ -1,5 +1,6 @@
 #+title: the italian corpus lands in one night — an index-first audio harvest replaces per-word search, a subagent fleet stages behind mechanical gates, and the opus quality pass catches what sonnet blessed
 #+filetags: :italian:corpus:overnight-loop:sdd:tatoeba:lingua-libre:audio-harvest:qa-panel:spend-limit:topography:
+#+index: 80
 
 * the commission
 

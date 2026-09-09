@@ -97,8 +97,8 @@ Deno.test("two shells select two instances in parallel", async () => {
   const neutral = await Deno.makeTempDir();
   const one = { VIVA_LEDGER_MOUNT: home, VIVA_PROCESS_ID: "61001", INIT_CWD: neutral };
   const two = { VIVA_LEDGER_MOUNT: home, VIVA_PROCESS_ID: "61002", INIT_CWD: neutral };
-  await viva(["instances/use", italian], one);
-  await viva(["instances/use", spanish], two);
+  await viva(["instance/use", italian], one);
+  await viva(["instance/use", spanish], two);
   const [first, second] = await Promise.all([doctor([], one), doctor([], two)]);
   assertEquals(valueOf(first, "VIVA_INSTANCE_MOUNT"), italian);
   assertEquals(valueOf(second, "VIVA_INSTANCE_MOUNT"), spanish);
@@ -110,7 +110,7 @@ Deno.test("chain landmine — standing in an instance dir, cwd outranks the fres
   const standing = await seedInstance("standing");
   const selected = await seedInstance("selected");
   const env = { VIVA_LEDGER_MOUNT: home, VIVA_PROCESS_ID: "61003", INIT_CWD: standing };
-  await viva(["instances/use", selected], env);
+  await viva(["instance/use", selected], env);
   const held = await doctor([], env);
   assertEquals(stratumOf(held, "VIVA_INSTANCE_MOUNT"), "cwd");
   assertEquals(valueOf(held, "VIVA_INSTANCE_MOUNT"), standing);
@@ -147,9 +147,28 @@ Deno.test("--env: a knowledge-bearing file lands @.env; a hollow one exits loud"
   const env = { VIVA_LEDGER_MOUNT: home, INIT_CWD: neutral };
   const held = await doctor([`--env=${dir}/knowledge.env`], env);
   assertEquals(stratumOf(held, "VIVA_INSTANCE_MOUNT"), ".env");
-  const { code, err } = await viva(["ledger/doctor", "--json", `--env=${dir}/hollow.env`], env);
+  // the pre-flight leaves through the one exit, so --json makes the complaint json on stdout.
+  const { code, out } = await viva(["ledger/doctor", "--json", `--env=${dir}/hollow.env`], env);
   assertEquals(code === 0, false);
-  assertEquals(err.includes("no VIVA_* knowledge"), true);
+  assertEquals(JSON.parse(out).error.includes("no VIVA_* knowledge"), true);
+});
+
+Deno.test("a mount flag given no value is a loud miss, not a stray param", async () => {
+  const home = await mkHome();
+  const env = { VIVA_LEDGER_MOUNT: home, INIT_CWD: await Deno.makeTempDir() };
+  const { code, err } = await viva(["instance/run", "--instance"], env);
+  assertEquals(code === 0, false);
+  assertEquals(err.includes("--instance needs a value: --instance=<slug|path>"), true);
+  assertEquals(err.includes("try: viva instance/run --instance=vivalence"), true);
+});
+
+Deno.test("--ledger keeps its bare boolean — instance/use writes the machine default", async () => {
+  const home = await mkHome();
+  const chosen = await seedInstance("byledgerflag");
+  const env = { VIVA_LEDGER_MOUNT: home, INIT_CWD: await Deno.makeTempDir() };
+  const { code } = await viva(["instance/use", chosen, "--ledger"], env);
+  assertEquals(code, 0);
+  assertEquals((await Deno.readTextFile(`${home}/.env`)).includes(chosen), true);
 });
 
 Deno.test("path law — ./dotted and bare dir/sub both pin to the shell cwd, slugs stay symbolic", async () => {
@@ -165,11 +184,11 @@ Deno.test("path law — ./dotted and bare dir/sub both pin to the shell cwd, slu
   }
   const env = { VIVA_LEDGER_MOUNT: home, VIVA_PROCESS_ID: String(Deno.pid), INIT_CWD: stand };
 
-  await viva(["instances/use", "./dotted"], env);
+  await viva(["instance/use", "./dotted"], env);
   let session = JSON.parse(await Deno.readTextFile(`${home}/sessions/${Deno.pid}.json`));
   assertEquals(session.VIVA_INSTANCE_MOUNT, `${stand}/dotted`);
 
-  await viva(["instances/use", "apps/nested"], env);
+  await viva(["instance/use", "apps/nested"], env);
   session = JSON.parse(await Deno.readTextFile(`${home}/sessions/${Deno.pid}.json`));
   assertEquals(session.VIVA_INSTANCE_MOUNT, `${stand}/apps/nested`);
 
@@ -178,7 +197,7 @@ Deno.test("path law — ./dotted and bare dir/sub both pin to the shell cwd, slu
   assertEquals(held.environment.find((v) => v.key === "VIVA_INSTANCE_MOUNT").value, `${stand}/apps/nested`);
   assertEquals(held.environment.find((v) => v.key === "VIVA_INSTANCE_MOUNT").stratum, "session");
 
-  const refused = await viva(["instances/use", "bareword", "--json"], env);
+  const refused = await viva(["instance/use", "bareword", "--json"], env);
   assertEquals(refused.out.includes("bareword"), true);
   session = JSON.parse(await Deno.readTextFile(`${home}/sessions/${Deno.pid}.json`));
   // m44: a bareword with no record row is an honest error, never a shelf guess — nothing stored
@@ -188,7 +207,7 @@ Deno.test("path law — ./dotted and bare dir/sub both pin to the shell cwd, slu
     `${home}/instances.json`,
     JSON.stringify({ bareword: { mount: `${stand}/dotted` } }),
   );
-  await viva(["instances/use", "bareword"], env);
+  await viva(["instance/use", "bareword"], env);
   session = JSON.parse(await Deno.readTextFile(`${home}/sessions/${Deno.pid}.json`));
   // m44: a recorded slug resolves through the RECORD's mount, not the shelf name
   assertEquals(session.VIVA_INSTANCE_MOUNT, `${stand}/dotted`);
@@ -217,7 +236,7 @@ Deno.test("chaining through the real CLI — use <path> doctor --json returns th
     `export const manifest = { type: "instance", slug: "chained" };\n`,
   );
   const env = { VIVA_LEDGER_MOUNT: home, VIVA_PROCESS_ID: String(Deno.pid), INIT_CWD: stand };
-  const { out, err } = await viva(["instances/use", "./chained", "doctor", "--json"], env);
+  const { out, err } = await viva(["instance/use", "./chained", "doctor", "--json"], env);
   assertEquals(err.includes("NOT_FOUND"), false, err);
   const held = report(out);
   assertEquals(held.mount, `${stand}/chained`);
@@ -243,7 +262,7 @@ Deno.test("bare effects print — use without --json renders human, an ink view 
   const home = await mkHome();
   const stand = await Deno.makeTempDir();
   const env = { VIVA_LEDGER_MOUNT: home, VIVA_PROCESS_ID: String(Deno.pid), INIT_CWD: stand };
-  const bare = await viva(["instances/use"], env);
+  const bare = await viva(["instance/use"], env);
   assertEquals(bare.out.includes("stratum"), true);
   assertEquals(bare.out.trimStart().startsWith("{"), false);
   const doctorRun = await viva(["ledger/doctor"], env);

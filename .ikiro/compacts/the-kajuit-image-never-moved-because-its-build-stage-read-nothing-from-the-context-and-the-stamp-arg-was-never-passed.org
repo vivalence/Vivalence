@@ -1,5 +1,6 @@
 #+title: the kajuit image never moved because its build stage read nothing from the context — and the stamp arg was never passed
 #+filetags: :compact:kajuit:docker:ci:coolify:registry:deploy:
+#+index: 82
 
 * the arc
 

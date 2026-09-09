@@ -1,5 +1,6 @@
 #+title: the environment collapses to one file, a blind pinhole is asked what it saw, and two lessons only fire once they are named
 #+filetags: :paladin:typology:ghost:sheets:env:instance:registry:wizard:doctor:cli:docs:method:callout:landing:
+#+index: 67
 
 * what happened, in one breath
 

@@ -50,10 +50,15 @@ export const entity = new Vector()
       nature: "/entity/schema",
       valence:
         "Ground yourself before querying. No arguments: every entity on this daemon with row " +
-        "counts and card fields. With entity: its columns, relations, filter operators, " +
-        "repository extensions and the card projection.",
+        "counts and card fields — buffer, thread, turn, literal, symbol and whatever else it " +
+        "opened. With entity: its columns, relations, filter operators, repository extensions " +
+        "and the card projection. Returns { entities: [{ type, rows, card }] } without an " +
+        "argument, { schema: { entity, rows, columns, relations, operators, extensions, card } } " +
+        'with one. Example: { entity: "buffer" }',
       input: v.object({
-        entity: v.string().desc("Entity type from the no-argument listing.").optional(),
+        entity: v.string().desc(
+          'Entity type from the no-argument listing. Example: "buffer"',
+        ).optional(),
       }),
     },
     async (ctx) => {
@@ -96,16 +101,32 @@ export const entity = new Vector()
     {
       nature: "/entity/find",
       valence:
-        "Query any entity on this daemon. Rows come back as cards — the lean agent projection; " +
-        "fields full only when a card lacks something you need. Columns, operators and " +
-        "extensions via entity_schema. Page by passing next.offset back as offset.",
+        "Query any entity on this daemon — the buffers on a thread, a thread's turns, literals " +
+        "by slug. Rows come back as cards — the lean agent projection; fields full only when a " +
+        "card lacks something you need. Columns, operators and extensions via entity_schema. " +
+        "Page by passing next.offset back as offset. Returns { <entity>: [rows], total, " +
+        'next?: { offset } }. Example: { entity: "buffer", where: { thread: ' +
+        '"01a09010-13aa-778b-bce7-19c38f835337" }, fields: "full" }',
       input: v.object({
-        entity: v.string().desc("Entity type — list them via entity_schema."),
-        where: v.record(v.string(), v.unknown()).desc("MikroORM filter.").optional(),
-        fields: v.enum(["card", "full"], { default: "card" }),
-        order: v.record(v.string(), v.enum(["ASC", "DESC"])).optional(),
-        limit: v.integer({ minimum: 1, maximum: 50 }).default(12),
-        offset: v.integer({ minimum: 0 }).default(0),
+        entity: v.string().desc('Entity type — list them via entity_schema. Example: "buffer"'),
+        where: v.record(v.string(), v.unknown()).desc(
+          "MikroORM filter over the entity's columns and relations; operators $eq $ne $in $nin " +
+            "$like $gt $gte $lt $lte $and $or $not. " +
+            'Example: { thread: "01a09010-13aa-778b-bce7-19c38f835337", status: { $in: ["PENDING", "ACTIVE"] } }',
+        ).optional(),
+        fields: v.enum(["card", "full"], { default: "card" }).desc(
+          "card: the repository's lean projection (id, slug, traits unless it declares its own); " +
+            'full: every column. Example: "full"',
+        ),
+        order: v.record(v.string(), v.enum(["ASC", "DESC"])).desc(
+          'Sort by column. Example: { index: "ASC" }',
+        ).optional(),
+        limit: v.integer({ minimum: 1, maximum: 50 }).default(12).desc(
+          "Rows per page. Example: 20",
+        ),
+        offset: v.integer({ minimum: 0 }).default(0).desc(
+          "Rows to skip — pass next.offset back. Example: 12",
+        ),
       }),
     },
     async (ctx) => {
@@ -141,10 +162,13 @@ export const entity = new Vector()
   .open(
     {
       nature: "/entity/count",
-      valence: "Count matching rows without loading them — cheap grounding before a find.",
+      valence: "Count matching rows without loading them — cheap grounding before a find. " +
+        'Returns { count }. Example: { entity: "buffer", where: { thread: "01a09010-13aa-778b-bce7-19c38f835337" } }',
       input: v.object({
-        entity: v.string().desc("Entity type — list them via entity_schema."),
-        where: v.record(v.string(), v.unknown()).desc("MikroORM filter.").optional(),
+        entity: v.string().desc('Entity type — list them via entity_schema. Example: "buffer"'),
+        where: v.record(v.string(), v.unknown()).desc(
+          'MikroORM filter, the same shape entity_find takes. Example: { thread: "01a09010-13aa-778b-bce7-19c38f835337" }',
+        ).optional(),
       }),
     },
     async (ctx) => {

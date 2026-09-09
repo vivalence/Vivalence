@@ -1,10 +1,14 @@
 import { specimen } from "@vivalence/typology";
-import { resolve, dirname, fromFileUrl } from "@std/path";
+import { dirname, fromFileUrl, resolve } from "@std/path";
 
 const HERE = dirname(fromFileUrl(import.meta.url));
 const PIPE = resolve(HERE, "pipe.py");
 
-async function tokenize(text, language = "es", processors = "tokenize,mwt,pos,lemma,depparse") {
+async function tokenize(
+  text,
+  language = "es",
+  processors = "tokenize,mwt,pos,lemma,depparse",
+) {
   const cmd = new Deno.Command("python3", {
     args: [PIPE],
     stdin: "piped",
@@ -13,7 +17,9 @@ async function tokenize(text, language = "es", processors = "tokenize,mwt,pos,le
   });
   const proc = cmd.spawn();
   const writer = proc.stdin.getWriter();
-  await writer.write(new TextEncoder().encode(JSON.stringify({ language, text, processors })));
+  await writer.write(
+    new TextEncoder().encode(JSON.stringify({ language, text, processors })),
+  );
   await writer.close();
   const { stdout, stderr, success } = await proc.output();
   if (!success) throw new Error(new TextDecoder().decode(stderr));
@@ -111,43 +117,68 @@ specimen.describe("nlp/tokenize", () => {
 
     specimen.it("lemmatizes ser/estar/dizer/ir-as-aux", async () => {
       const r1 = await tokenize("Eles são muito inteligentes.", "pt");
-      specimen.expect(r1.sentences[0].tokens.find((t) => t.token === "são").lemma).toBe("ser");
+      specimen.expect(
+        r1.sentences[0].tokens.find((t) => t.token === "são").lemma,
+      ).toBe("ser");
 
-      const r2 = await tokenize("Eu estou aprendendo português porque é bonito.", "pt");
-      specimen.expect(r2.sentences[0].tokens.find((t) => t.token === "estou").lemma).toBe("estar");
-      specimen.expect(r2.sentences[0].tokens.find((t) => t.token === "é").lemma).toBe("ser");
+      const r2 = await tokenize(
+        "Eu estou aprendendo português porque é bonito.",
+        "pt",
+      );
+      specimen.expect(
+        r2.sentences[0].tokens.find((t) => t.token === "estou").lemma,
+      ).toBe("estar");
+      specimen.expect(r2.sentences[0].tokens.find((t) => t.token === "é").lemma)
+        .toBe("ser");
 
       const r3 = await tokenize("Ela disse que ia chover amanhã.", "pt");
-      specimen.expect(r3.sentences[0].tokens.find((t) => t.token === "disse").lemma).toBe("dizer");
-      specimen.expect(r3.sentences[0].tokens.find((t) => t.token === "ia").lemma).toBe("ir");
+      specimen.expect(
+        r3.sentences[0].tokens.find((t) => t.token === "disse").lemma,
+      ).toBe("dizer");
+      specimen.expect(
+        r3.sentences[0].tokens.find((t) => t.token === "ia").lemma,
+      ).toBe("ir");
     });
 
-    specimen.it("FAILS to lemmatize irregular past forms foram/fomos/vi", async () => {
-      const r1 = await tokenize("Os meninos foram ao parque.", "pt");
-      const foram = r1.sentences[0].tokens.find((t) => t.token === "foram");
-      specimen.expect(foram.lemma).toBe("foram");
+    specimen.it(
+      "FAILS to lemmatize irregular past forms foram/fomos/vi",
+      async () => {
+        const r1 = await tokenize("Os meninos foram ao parque.", "pt");
+        const foram = r1.sentences[0].tokens.find((t) => t.token === "foram");
+        specimen.expect(foram.lemma).toBe("foram");
 
-      const r2 = await tokenize("Nós fomos ao cinema ontem.", "pt");
-      const fomos = r2.sentences[0].tokens.find((t) => t.token === "fomos");
-      specimen.expect(fomos.lemma).toBe("fomos");
+        const r2 = await tokenize("Nós fomos ao cinema ontem.", "pt");
+        const fomos = r2.sentences[0].tokens.find((t) => t.token === "fomos");
+        specimen.expect(fomos.lemma).toBe("fomos");
 
-      const r3 = await tokenize("Eu vi as crianças no parque.", "pt");
-      const vi = r3.sentences[0].tokens.find((t) => t.token === "vi");
-      specimen.expect(vi.lemma).toBe("vi");
-    });
+        const r3 = await tokenize("Eu vi as crianças no parque.", "pt");
+        const vi = r3.sentences[0].tokens.find((t) => t.token === "vi");
+        specimen.expect(vi.lemma).toBe("vi");
+      },
+    );
 
-    specimen.it("pronoun lemmas echo surface form with original casing", async () => {
-      const result = await tokenize("Você tem que fazer imediatamente.", "pt");
-      const voce = result.sentences[0].tokens.find((t) => t.token === "Você");
-      specimen.expect(voce.upos).toBe("PRON");
-      specimen.expect(voce.lemma).toBe("Você");
+    specimen.it(
+      "pronoun lemmas echo surface form with original casing",
+      async () => {
+        const result = await tokenize(
+          "Você tem que fazer imediatamente.",
+          "pt",
+        );
+        const voce = result.sentences[0].tokens.find((t) => t.token === "Você");
+        specimen.expect(voce.upos).toBe("PRON");
+        specimen.expect(voce.lemma).toBe("Você");
 
-      const r2 = await tokenize("Eu gosto do café.", "pt");
-      specimen.expect(r2.sentences[0].tokens.find((t) => t.token === "Eu").lemma).toBe("Eu");
+        const r2 = await tokenize("Eu gosto do café.", "pt");
+        specimen.expect(
+          r2.sentences[0].tokens.find((t) => t.token === "Eu").lemma,
+        ).toBe("Eu");
 
-      const r3 = await tokenize("Ela não gosta de comer na rua.", "pt");
-      specimen.expect(r3.sentences[0].tokens.find((t) => t.token === "Ela").lemma).toBe("Ela");
-    });
+        const r3 = await tokenize("Ela não gosta de comer na rua.", "pt");
+        specimen.expect(
+          r3.sentences[0].tokens.find((t) => t.token === "Ela").lemma,
+        ).toBe("Ela");
+      },
+    );
 
     specimen.it("parses aux + verb periphrasis", async () => {
       const result = await tokenize("Você tem que fazer imediatamente.", "pt");
@@ -162,17 +193,22 @@ specimen.describe("nlp/tokenize", () => {
       specimen.expect(aux.head).toBe(root.index);
     });
 
-    specimen.it("character offsets slice back to token text on non-mwt tokens", async () => {
-      const text = "Quero água.";
-      const result = await tokenize(text, "pt");
-      const tokens = result.sentences[0].tokens;
+    specimen.it(
+      "character offsets slice back to token text on non-mwt tokens",
+      async () => {
+        const text = "Quero água.";
+        const result = await tokenize(text, "pt");
+        const tokens = result.sentences[0].tokens;
 
-      for (const token of tokens) {
-        if (token.start_char !== null) {
-          specimen.expect(text.slice(token.start_char, token.end_char)).toBe(token.token);
+        for (const token of tokens) {
+          if (token.start_char !== null) {
+            specimen.expect(text.slice(token.start_char, token.end_char)).toBe(
+              token.token,
+            );
+          }
         }
-      }
-    });
+      },
+    );
 
     specimen.it("mwt-expanded tokens have null char offsets", async () => {
       const result = await tokenize("Eu gosto do café.", "pt");
@@ -195,17 +231,22 @@ specimen.describe("nlp/tokenize", () => {
       const r2 = await tokenize("Ela não gosta de comer na rua.", "pt");
       const t2 = r2.sentences[0].tokens;
       specimen.expect(t2.find((t) => t.token === "em")).toBeDefined();
-      specimen.expect(t2.find((t) => t.token === "a" && t.upos === "DET")).toBeDefined();
+      specimen.expect(t2.find((t) => t.token === "a" && t.upos === "DET"))
+        .toBeDefined();
 
       const r3 = await tokenize("Os meninos foram ao parque.", "pt");
       const t3 = r3.sentences[0].tokens;
-      specimen.expect(t3.find((t) => t.token === "a" && t.upos === "ADP")).toBeDefined();
-      specimen.expect(t3.find((t) => t.token === "o" && t.upos === "DET")).toBeDefined();
+      specimen.expect(t3.find((t) => t.token === "a" && t.upos === "ADP"))
+        .toBeDefined();
+      specimen.expect(t3.find((t) => t.token === "o" && t.upos === "DET"))
+        .toBeDefined();
     });
 
     specimen.it("mwt-expanded DET tokens carry feats", async () => {
       const result = await tokenize("Eu gosto do café.", "pt");
-      const det = result.sentences[0].tokens.find((t) => t.token === "o" && t.upos === "DET");
+      const det = result.sentences[0].tokens.find((t) =>
+        t.token === "o" && t.upos === "DET"
+      );
 
       specimen.expect(typeof det.feats).toBe("string");
       specimen.expect(det.feats).toContain("Definite=Def");
@@ -235,7 +276,10 @@ specimen.describe("nlp/tokenize", () => {
     });
 
     specimen.it("handles multi-sentence input", async () => {
-      const result = await tokenize("Quero água. Tudo depende de dinheiro.", "pt");
+      const result = await tokenize(
+        "Quero água. Tudo depende de dinheiro.",
+        "pt",
+      );
 
       specimen.expect(result.sentences.length).toBe(2);
       specimen.expect(result.sentences[0].tokens.length).toBe(3);
@@ -243,7 +287,10 @@ specimen.describe("nlp/tokenize", () => {
     });
 
     specimen.it("covers broad upos tag range", async () => {
-      const result = await tokenize("Por favor, você poderia falar um pouco mais devagar?", "pt");
+      const result = await tokenize(
+        "Por favor, você poderia falar um pouco mais devagar?",
+        "pt",
+      );
       const tags = new Set(result.sentences[0].tokens.map((t) => t.upos));
 
       specimen.expect(tags.has("VERB")).toBe(true);
@@ -256,17 +303,21 @@ specimen.describe("nlp/tokenize", () => {
       specimen.expect(tags.has("DET")).toBe(true);
     });
 
-    specimen.it("dependency tree has exactly one root and valid head refs", async () => {
-      const result = await tokenize("Quero água.", "pt");
-      const tokens = result.sentences[0].tokens;
+    specimen.it(
+      "dependency tree has exactly one root and valid head refs",
+      async () => {
+        const result = await tokenize("Quero água.", "pt");
+        const tokens = result.sentences[0].tokens;
 
-      let rootCount = 0;
-      for (const token of tokens) {
-        if (token.head === 0) rootCount++;
-        else specimen.expect(tokens.find((t) => t.index === token.head)).toBeDefined();
-      }
-      specimen.expect(rootCount).toBe(1);
-    });
+        let rootCount = 0;
+        for (const token of tokens) {
+          if (token.head === 0) rootCount++;
+          else {specimen.expect(tokens.find((t) => t.index === token.head))
+              .toBeDefined();}
+        }
+        specimen.expect(rootCount).toBe(1);
+      },
+    );
 
     specimen.it("obj depends on root in simple transitive", async () => {
       const result = await tokenize("Quero água.", "pt");
@@ -278,7 +329,9 @@ specimen.describe("nlp/tokenize", () => {
 
     specimen.it("tokenizer can eat punctuation into token", async () => {
       const result = await tokenize("Ela disse que ia chover amanhã.", "pt");
-      const last_content = result.sentences[0].tokens.find((t) => t.token.includes("amanhã"));
+      const last_content = result.sentences[0].tokens.find((t) =>
+        t.token.includes("amanhã")
+      );
 
       specimen.expect(last_content.token).toBe("amanhã.");
       specimen.expect(last_content.lemma).toBe("amanhã.");

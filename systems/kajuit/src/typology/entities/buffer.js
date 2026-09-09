@@ -1,4 +1,4 @@
-import { atom } from "nanostores";
+import { atom, computed, deepMap } from "nanostores";
 import { fn, View, RemoteRepository } from "@vivalence/typology";
 import { Entity } from "../prototypes/entity.js";
 
@@ -13,22 +13,48 @@ export class Buffer extends Entity {
     this.$data.set(value ?? {});
   }
 
-  $view = null;
+  $view = atom(null);
 
   get view() {
-    return this.$view;
+    return this.$view.get();
   }
 
   set view(record) {
-    this.$view = !record || record instanceof View ? record : new View(record);
+    this.$view.set(!record || record instanceof View ? record : new View(record));
+  }
+
+  $traits = atom([]);
+
+  get traits() {
+    return this.$traits.get();
+  }
+
+  set traits(value) {
+    this.$traits.set(value ?? []);
+  }
+
+  $trait = deepMap({});
+
+  get trait() {
+    return this.$trait.get();
+  }
+
+  set trait(value) {
+    this.$trait.set(value ?? {});
+  }
+
+  $label = computed(this.$trait, (trait) => trait.LABELED ?? null);
+
+  get label() {
+    return this.$label.get();
   }
 
   // base toJSON walks own enumerable props — the $data atom (a plain object)
   // leaks through and the accessors don't appear at all; drop the backing
   // fields, re-add the plain values.
   toJSON() {
-    const { $data, $view, ...base } = super.toJSON();
-    return { ...base, data: this.data, view: this.view };
+    const { $data, $view, $traits, $trait, ...base } = super.toJSON();
+    return { ...base, data: this.data, view: this.view, traits: this.traits, trait: this.trait };
   }
 
   context = null;

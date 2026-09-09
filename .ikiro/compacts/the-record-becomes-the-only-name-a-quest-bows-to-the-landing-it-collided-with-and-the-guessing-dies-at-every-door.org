@@ -1,5 +1,6 @@
 #+title: the record becomes the only name, a quest bows to the landing it collided with, and the guessing dies at every door
 #+filetags: :ghost:paladin:ledger:instance:identity:cli:m44:registry:fixtures:quest:callout:landing:
+#+index: 111
 
 * what happened, in one breath
 

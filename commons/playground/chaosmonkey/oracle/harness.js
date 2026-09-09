@@ -1,4 +1,4 @@
-import { App, Vector, v } from "@vivalence/typology";
+import { App, v, Vector } from "@vivalence/typology";
 
 export const harness = new Vector();
 harness.use(async (ctx, next) => {

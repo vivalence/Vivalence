@@ -620,7 +620,7 @@ column when null in every row — it appears only when an =INVALID= exists.
 The four machine-wide keys are =.optional()= — the ledger has never blocked on them and must not
 start to; =VIVA_REPOSITORY_MOUNT= stays owed (the installer writes it).
 
-*** recipe — =commons/instances/hello-world/instance.viva.js=, the =environment= export replaced whole — and the three shelf recipes with it
+*** recipe — =commons/instances/hello-world/instance.viva.js=, the =environment= export replaced whole — and the three instance recipes with it
 
 Live BEFORE is this session's 9-key map with =required: true= / =required: false= on the two secrets
 — now the LAST export of =instance.viva.js= (beef's fold + rename since authoring; the README paste
@@ -652,7 +652,7 @@ old map. The three that MOUNT — =~/.viva/instances/{hello-world/instance.viva.
 italian/italian.viva.js, language-learning/test.viva.js}= — were migrated by the same generator
 (=gen-env.js=: imports the module, emits one =v= line per key; =_(ORIGIN|SERVE|REMOTE)$= → =v.url()=,
 =_PORT$= → =v.integer()=, else =v.string()=; =required: false= → =.optional()=; nothing else marked
-optional — declared wins, beef tunes). Originals kept at =$CLAUDE_JOB_DIR/tmp/shelf-before/=. The
+optional — declared wins, beef tunes). Originals kept at =$CLAUDE_JOB_DIR/tmp/instance-before/=. The
 three TAPPED =@education= templates (=~/.viva/registry/education/instances/{italian,spanish,
 brazilian}=) are a different repository — untouched, they only IMPORT (the throw is at mount) and
 break on their first =instance/create=. Beef's.
@@ -914,7 +914,7 @@ The assertions after it hold unchanged: =fill= is =["SECRET_VIVA_JWT"]= (blank, 
 REQUIRED), the written =.env= carries =VIVA_SYSTEM_MODE="DEVELOPMENT"= and =# signing secret=.
 Blast-time verify: this is the first probe fixture with an =import= — =drive= is in-process
 (=ledger.test.js:19=), so the bare =@vivalence/typology= resolves through the repo import map the
-way every shelf recipe's =@vivalence/paladin= already does.
+way every instance recipe's =@vivalence/paladin= already does.
 
 Gate: =(cd subsystems/paladin && deno test -A --no-check tests/*.test.js)= and
 =(cd systems/ghost && deno test -A --no-check tests/*.test.js)= — LANDED: paladin =28 passed (143 steps)=
@@ -1023,7 +1023,7 @@ address blank, every address =REQUIRED=, as today).
 #+marker_qa: m48/T-bare-recipe-doctor · held · `viva instance/doctor --instance=commons/instances/hello-world`: 10 REQUIRED, 0 INVALID, anthropic `required=false` unmarked
 #+marker_qa: m48/T-secret-minlength · held · probe `SECRET_VIVA_JWT="short"` → INVALID `must not have fewer than 24 characters`, value column `***`
 #+marker_qa: m48/T-readme-paste · held · all three pastes byte-equal to disk after regen (script asserts)
-#+marker_qa: m48/T-localhost-is-an-address · held · shelf hello-world (`.env` on localhost:2501/1794) → 0 problems; italian + language-learning mount with REQUIRED rows only, 0 INVALID
+#+marker_qa: m48/T-localhost-is-an-address · held · instance hello-world (`.env` on localhost:2501/1794) → 0 problems; italian + language-learning mount with REQUIRED rows only, 0 INVALID
 #+marker_qa: m48/T-reference-cascade · held · `VIVA_RUNTIME_ORIGIN=""` with every default kept: ORIGIN `REQUIRED`, SERVE + LIGHTHOUSE_SERVE + both PUBLIC remotes `INVALID` (SERVE's value column reads `/`) — FIVE rows, one cause, the one `REQUIRED` row is the fix; the doctor does not collapse them
 #+marker_qa: m48/T-init-refuses-invalid · held (revised: OWED, not refused) · headless `viva instance/init --instance=<probe>` on a scheme-less origin → `env: incomplete`, the key in `fill`, `invalid: [{key, reason}]`, no boot; wizard re-asks with the value prefilled and the reason in the hint
 #+marker_qa: m48/P-required-marker-dead · held · `grep 'required: \(true\|false\)'` = 0 (the bare `required:` grep hits check.js's ROW field — gate refined)
@@ -1054,7 +1054,7 @@ address blank, every address =REQUIRED=, as today).
 | systems/ghost/trajectories/ledger/index.js                        | ledger schema → =v.environment=                     | M2 | surgical |
 | systems/ghost/tests/ledger.test.js                                | probe fixture                                       | M2 | surgical |
 | commons/instances/hello-world/instance.viva.js                    | =environment= → =v.environment= (+ JWT minLength 24) | M2 | surgical |
-| ~/.viva/instances/{hello-world,italian,language-learning}/*.viva.js | =environment= → =v.environment= (shelf, generator)  | M2 | shelf    |
+| ~/.viva/instances/{hello-world,italian,language-learning}/*.viva.js | =environment= → =v.environment= (instance, generator)  | M2 | instance    |
 | ~/.viva/registry/education/instances/{italian,spanish,brazilian}/*.viva.js | =environment= → =v.environment= (generator; OPENROUTER + ELEVENLABS =.optional()=; originals in the job tmp) | M2 | tapped   |
 | systems/ghost/trajectories/instance/init.js · Init.jsx           | F5 — INVALID rows owed, =invalid= in the effect, reason in the hint | M2 | surgical |
 | documentation/…/51.02_instance-from-scratch.mdx                   | env fence + one sentence                            | M3 | prose    |
@@ -1166,10 +1166,10 @@ the browser's =PUBLIC_*= reads are untouched.
   steps)= · ghost =81 passed (26 steps) / 1 failed= (=strata.wet.test.js:93=, wet) · runtime =53
   passed (327 steps)=. Beat 3: M1 → M2 → M3 as written, plus beef's mid-blast order on the address
   pattern (decision 11: RFC 3986 grammar in =scalars/url.js=), plus decision 16 (pattern reason =
-  =title=), plus the three shelf recipes. Beat 4: typology =122 passed (486 steps) / 1 failed= (same
+  =title=), plus the three instance recipes. Beat 4: typology =122 passed (486 steps) / 1 failed= (same
   red, +6) · =v.test.js 1 passed (16 steps)= · paladin =28 passed (143 steps)= · ghost =81 passed (26
   steps) / 1 failed= (same red) · =astro build= 10 pages · live doctor ×5 (bare recipe, probe with a
-  bad =.env=, three shelf instances) · e2e key-law + setter probes. Beat 5: grep gates held (two
+  bad =.env=, three instances) · e2e key-law + setter probes. Beat 5: grep gates held (two
   refined), radius re-grep = beat 1, nothing new wired. Coverage delta: check.environment 15 → 17
   cases (INVALID ×3 paths, convert, wrong-list); hydrate −1 case (=usable=); typology +6 (url
   corpus, group, isOptional, key law, plain properties, convert). NOT applied: F5. NOT touched: the
@@ -1183,8 +1183,8 @@ the browser's =PUBLIC_*= reads are untouched.
   service … default to anthropic for now. then apply the change to the education instances"/): the three
   tapped =@education= recipes migrated by the generator with =SECRET_VIVA_OPENROUTER_API_KEY= and
   =SECRET_VIVA_ELEVENLABS_API_KEY= =.optional()= (spanish/brazilian have no OPENROUTER key); the same two
-  lines on the shelf italian + language-learning copies; DEEPGRAM untouched (not named). All three
-  templates mount under the doctor (19 REQUIRED each — no =.env=, expected); shelf italian 6 → 4 unique
+  lines in `~/.viva/instances` italian + language-learning copies; DEEPGRAM untouched (not named). All three
+  templates mount under the doctor (19 REQUIRED each — no =.env=, expected); instance italian 6 → 4 unique
   REQUIRED keys (JWT · ANTHROPIC · DEEPGRAM · SERVICE_NLP_KEY). F5 landed as "owed" (fork 5 rewritten).
   Ghost after F5: =81 passed (26 steps) | 1 failed= (the same single wet red as every run today, =strata.wet.test.js:93=). Nothing old-shape remains anywhere under =~/.viva= or the repo.
 

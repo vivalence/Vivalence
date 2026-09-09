@@ -31,14 +31,16 @@ export const interactive = (ramp, anchor) => {
   const index = stops.indexOf(anchor);
   if (index === -1) {
     throw new Error(
-      `interactive: anchor ${anchor} not found in ramp stops [${stops.join(", ")}]`,
+      `interactive: anchor ${anchor} not found in ramp stops [${
+        stops.join(", ")
+      }]`,
     );
   }
   const lighter = stops[Math.max(0, index - 1)];
   const darker = stops[Math.min(stops.length - 1, index + 1)];
   return {
-    base:   ramp[anchor],
-    hover:  ramp[lighter],
+    base: ramp[anchor],
+    hover: ramp[lighter],
     active: ramp[darker],
   };
 };
@@ -46,7 +48,7 @@ export const interactive = (ramp, anchor) => {
 // box — fan out a {surface, contrast, boundary} triplet from a single ramp.
 // Used by error roles. Default anchors are tuned for dark-mode error boxes.
 export const box = (ramp, anchors = [800, 100, 300]) => ({
-  surface:  ramp[anchors[0]],
+  surface: ramp[anchors[0]],
   contrast: ramp[anchors[1]],
   boundary: ramp[anchors[2]],
 });

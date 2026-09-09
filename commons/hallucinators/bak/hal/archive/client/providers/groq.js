@@ -22,7 +22,10 @@ export default (KEY) => {
       completion["response_format"] = { type: "json_object" };
       messages.unshift({
         role: "user",
-        content: `Return 1 (one) JSON object. return the applied properties:{} object from this schema: ${JSON.stringify(schema)}. apply the properties.`,
+        content:
+          `Return 1 (one) JSON object. return the applied properties:{} object from this schema: ${
+            JSON.stringify(schema)
+          }. apply the properties.`,
       });
     }
 

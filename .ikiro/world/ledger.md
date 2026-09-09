@@ -1,81 +1,224 @@
-<!-- writer: agent · MANDATE: beef 09-01 — "i want you to maintain some significant ownership over the way the ledger works and with a solid meta on the subcomponents of this system, reaching up all the way into paladin. you need to understand and be able to control/interpret the ledger and you can assume ~/.viva as default here. let have it teach you." · derived-from: read-only expedition over ~/.viva + subsystems/paladin + systems/ghost, every claim cited · verified: ~/.viva tree walked, verbs traced to source, instance/doctor RUN on both instances, populate strata read POST-m55-abandoned-coherence-blast · doctor-split: ledger/doctor + registry/doctor RUN on ~/.viva and on a scratch ledger (init → list → doctor), ghost suite one-shot 76/77, the one red re-run 3× and traced to the reap · limit: 110 lines · m47: registry/list + registry/doctor + instance/doctor × 4 RUN after registry/** → commons/, record self-healed · m48 restamp (env schema = `v.environment` schema, doctor `INVALID` + `reason`, init OWES invalid values, `usable` dead): `instance/doctor --json` RUN on the bare commons recipe, a bad-`.env` probe, and the three shelf instances; the three tapped `@education` recipes mounted under the doctor after migration · m44 sunset: `instance/create` ×3 · `instances/use` · `instances/tap` ×2 · `instances/rename` ×2 · `ledger/doctor` RUN on a scratch ledger — NOTE `ghost.sh` sources `~/.config/viva/env` AFTER the caller's environment, so a `VIVA_LEDGER_MOUNT=…` on the command line is OVERRIDDEN; a scratch ledger needs `XDG_CONFIG_HOME` pointed at an empty dir + `VIVA_REPOSITORY_MOUNT` passed by hand -->
-# ledger — the machine record at ~/.viva (paladin ⟶ ghost, whole spine)
+<!-- writer: agent · MANDATE: beef 09-01 — "i want you to maintain some significant ownership over the way the ledger works and with a solid meta on the subcomponents of this system, reaching up all the way into paladin. you need to understand and be able to control/interpret the ledger and you can assume ~/.viva as default here. let have it teach you." · derived-from: ~/.viva + `prototypes/ledger/*.js` + `trajectories/{ledger,instance,instances,registry}/**` + tests · verified: `instance/doctor --json` RUN · lock probe on a scratch ledger RUN · console.* in territory = 5 · limit: 18000 chars -->
+# ledger — the machine record at ~/.viva (paladin owns the prototypes, ghost owns the verbs)
 
-⚠️ **Code-state is THREE layers right now** (stamped at the 09-01 expedition): HEAD `04e46f79d` predates the strata entirely; the m40/m41/m44-era shape is UNCOMMITTED (+2109/−297 across paladin+ghost); m55-abandoned-coherence stages I–II landed in the working tree DURING the survey. Line numbers below are post-blast reads and drift within hours — re-read before citing.
+## anatomy — the ledger home
 
-## anatomy (~/.viva, the default ledger)
-
-```
-instances.json      identity record {slug: {mount, createdAt, updatedAt}} — THE sole identity (m44 LANDED + sunset: `create` writes the row at birth, `register()` reads it or throws)
-registry.json       tap record: refs, absolute or store-relative (resolve vs scope.registry, ledger/registry.js)
-environment.json    ⚠️ NO LONGER READ by populate post-blast; instance/use --ledger STILL WRITES it (use.js:36) — transitional
-.env                (does not exist yet) — the ledger stratum's new home, CLAIMED (populate.js:96-101)
-locks/              <slug>.lock {pid: supervisor, token, status, processes: [{process, pid}], started} — ONE per instance (m49), released by its own token at exit
-sessions/           <shell-pid>.json env bags (VIVA_INSTANCE_MOUNT) — pid-keyed via ghost.sh VIVA_PROCESS_ID=$PPID
-logs/               <instance>/spans.jsonl (ledger/log.js)
-instances/<slug>/   the shelf — instance marker *.viva.js · .env (authored) · mountpoint/{daemon,service}_<slug>
-registry/           the package STORE (tapped clones; untap keeps the working copy)
-~/.config/viva/env  sourced by ghost.sh — VIVA_REPOSITORY_MOUNT + VIVA_LEDGER_MOUNT exports
+```sh
+# ls -1 ~/.viva  ~/.viva/{instances,registry,sessions,locks,logs}
+instances.json   registry.json   .env
+instances/  hello-world italian language-learning stucatch vivalence
+registry/   education stucatch vcompany young-ladys-primer
+sessions/   49449.json
+locks/      (empty)
+logs/       (empty)
+# ls -1 ~/.viva/instances/hello-world/mountpoint/*/
+daemon_hello/       bundles  hello.viva.db  migrations
+service_multiplayer/ lighthouse.viva.db  migrations  tokens.json
 ```
 
-## the spine, bottom-up
+- **`instances.json`** — the sole identity: `{slug: {mount, createdAt, updatedAt, valence?}}`. A `*_MOUNT` is ALWAYS a path; the record is the only slug→path map.
+- **`registry.json`** — a flat array of package references, absolute or store-relative (resolved against `scope.registry`, default `<ledger>/registry`).
+- **`.env`** — the ledger stratum (machine-wide keys). Its schema is declared in `systems/ghost/trajectories/ledger/index.js`, not on a module, because the ledger has no declaration to hang a sibling export on.
+- **`locks/<slug>.lock`** — ONE per instance, written by the supervising `Die`. **`sessions/<shell-pid>.json`** — per-shell env bags, pid-keyed by `VIVA_PROCESS_ID`. **`logs/<slug>/`** — `<process>.out.log` (attachment `logged`) and `spans.jsonl`.
+- **`instances/<slug>/`** — the shelf. An instance dir off the shelf is *tapped*: the operator's ground, which `delete`/`rename` will not move.
+- **`~/.config/viva/env`** is sourced by `systems/ghost/ghost.sh` **before** the exec and its lines are unconditional `export`s — a caller-supplied `VIVA_LEDGER_MOUNT` is OVERRIDDEN. A scratch ledger needs `XDG_CONFIG_HOME` pointed at an empty dir.
+- Strata, secrecy split, `hydrate`, `settle`, `check.*` are **paladin's** — → `world/codemap/paladin.md`. Only three call sites throw on a bad instance: `prototypes/ledger/ledger.js:29` (`Ledger.boot`), `systems/runtime/run.js:7`, `systems/kajuit/vite.config.mjs:13`.
 
-- **strata** — `paladin.js:7` `STRATA = flag > cwd > instance > .env > os > session > ledger`; first-hit `Env.get` (typology `env.js:61-66`), `provenance`/`strati` beside it; `${VAR}` expansion lazy, within ONE bag — env never reaches into secret.
-- **the ONE secrecy split** — `paladin.js:11-12`: `SECRET_*` → secret bag; `VIVA_*`/`PUBLIC_VIVA_*` → env; KEY decides, never filename or caller. Three ingresses `assign`/`observe`/`claim` → `{held, secrets, ignored}`. (Wrinkle: ghost `--env` predicate is narrower `SECRET_VIVA_*`, mod.js:146.)
-- **stratum loads** (`lifecycle/populate.js`): os = Deno.env · cwd `.env` observed + `VIVA_ENV_FILE` claimed · instance = `Instance.mount()` → **`.env` at instance root and nothing else** (instance.js:162-167, environment.json branches DELETED) · session = `sessions/<pid>.json` through the split · ledger = `<ledger>/.env` claimed.
-- **scope proxy** (`belt/scope.js`) — ledger (`VIVA_LEDGER_MOUNT` ?? `~/.viva`) · instance (**THROWS on slug-shaped mount**, populate.js:45-49) · mountpoint · repository · registry (?? `<ledger>/registry`).
-- **hydrate = THE PINHOLE** (beef's mark, m52: the record's `at` — WHERE a value was read — is OPTIONAL capability, *"really not needed"*; `read`/`unset` feed the verdict, `at` is a doctor nicety) (`prototypes/instance.js:43-67`): every declaration thunk fires exactly ONCE through a recording Proxy; DEFERRED (secrets) records the read but returns the thunk — a secret never materializes on the instance. `mount = fn.once` → environment → resolve → **settle** → `publish()` (only `PUBLIC_*` reach Deno.env). **settle (m52)** = dormant → `Instance.cast` → `Instance.faults` → `Instance.decode` (only when clean) → inherit: the whole `v.primitives.instance.Instance` schematic fills defaults, judges, and mints prototypes (`Url` codec over `v.url()` at `runtime/service/client.statics.serve` + `lighthouse.statics.remote`); every miss is a SENTENCE in `instance.faults` (record grammar: `daemon[hello].statics.serve must be RFC 3986 URI…`), NEVER a throw — the doctor mounts a bare recipe. A hallucinator element that is null or holds a blank secret is DORMANT (`instance.dormant`, off the roster BEFORE the schematic looks). `paladin.check.instance(instance)` = faults ∪ wrong env rows; `.throw()` at the three boot edges only: `Ledger.boot` · runtime `run.js` · kajuit `vite.config.mjs`. Ghost `instance/run` MOUNTS before `boot` (`register()` reads `home` without mounting; an unmounted instance has no faults, so the gate would pass and the children would refuse at their own gates).
-- **lighthouse is declared ONCE, at the instance** (`prototypes/instance.js materialize`): `daemon.lighthouse ??= instance.lighthouse` in `settle`, AFTER decode — a daemon without its own mask inherits the instance's DECODED `{module, statics.remote: Url}` (same object, ONE doctor row `lighthouse.statics.remote`); a daemon mask is an OVERRIDE and records its own row. `clients.*.statics.lighthouse` is DEAD — the browser reads `PUBLIC_VIVA_LIGHTHOUSE_REMOTE` through `publish()`. `Instance.lighthouse` + `Daemon.lighthouse` are `Lighthouse.optional()` (`{module, statics.remote: Url}`); a daemon with no lighthouse of its own and none at the instance is a FAULT `daemon[x].lighthouse none declared, none to inherit` — never a throw at mount. Guardrail `tests/lighthouse.test.js`.
-- **environment = A `v` SCHEMA (m48)** — `export const environment = v.environment({ KEY: v.url().desc(…).default(…).group(…).optional() })`; **`.default(fn)` MINTS (docs-survey landing)** · **UNSET IS COMMENTED (docker-live landing)**: ghost never writes `KEY=""` — `paladin.state.line(key, value)` yields `# KEY=""` for a blank, `state.env` fills that slot in place and comments a key you unset; a blank at a higher stratum would otherwise SHADOW the ledger (`Env.get` takes the first stratum whose value is not `undefined`), which is exactly how a machine-wide Anthropic key vanished behind `SECRET_VIVA_ANTHROPIC_API_KEY=""`. Never copy a ledger value into an instance file: a function default is fired ONCE when `.env` is first scaffolded — `systems/ghost/belt/envfile.js fallback(held)` is the only resolver, read by `scaffold` and by `init.js owed()` for a still-blank key; the file holds the minted value, later reads never re-fire; hello-world `SECRET_VIVA_JWT` mints 32 base64 chars, so a fresh create owes NOTHING at headless `init` (`env: present`). Typology stores the thunk raw (`v.js:20`), `check.js` never Defaults; paladin `resolve` THROWS at mount on any other shape (flag-day, no dual read); the record row lost `usable` — optionality is DECLARED, `.optional()` the only "not owed"; `paladin.check.environment` casts the RESOLVED value per key (convert → check, never Default) → verdicts `UNDOCUMENTED · REQUIRED · INVALID` fail (`paladin.check.wrong`, the ONE list doctor + init read), `ok · optional · documented` pass; an `INVALID` row carries `reason` (a `v.url()` pattern failure names the scalar's `title`) and `instance/init` OWES it like a blank (wizard re-asks, headless `env: incomplete` + `invalid: [{key, reason}]`). Every recipe on this machine is on the new shape: `commons/instances/hello-world`, the three shelf instances, the three tapped `@education` templates. The ledger's own `<ledger>/.env` schema (ghost `ledger/index.js`) is a `v.environment` too.
-- **paladin.ledger.*** (`prototypes/ledger/`) — `instances.resolve(reference)` = **the ONE reference→{slug,mount} reader** (slug → RECORD or throw, never the shelf; path → shell-cwd frame, `slug: null` when untapped; empty → `NOTHING`, the voice `Instance.home` throws too) · `instances.shelf(slug)` = slug→path for NEW dirs only (create's default destination, delete's shelved test) · `instances` \& `registry` are per-access getters (no Ledger.mount) · **m49 M1**: `ledger.boot(specs, {instance, attachment}) → Die` (populated + resolved; the CALLER integrates so a wizard can tap output first) · `Process`/`Die` are `Wafer`s (`process.js` · `die.js`): resolve = spawn + claim `BOOTING`; integrate = `Status:ALIVE` line | exit → throw | deadline → throw, then claim `ALIVE`; perpetuate arms SIGINT/SIGTERM/SIGQUIT → `disintegrate` (SIGTERM → 5 s grace → SIGKILL); `Die.resolve` REFUSES when a live lock exists · ONE lock per instance `locks/<slug>.lock = {pid: supervisor, token, status, processes: [{process, pid}], started}`; `Lock.read()` prunes a dead pid (SIGURG — SIGCONT would resume a stopped process); a die releases only its own `token` · attachment `inherit | piped | logged` (logged → `logs/<slug>/<process>.out.log`, `Log.open`'s first caller) · the ledger holds NO live state (`attached`/`arm`/`teardown`/`spawn`/`kill`/`locks()`/`alive()` are GONE).
-- **vip/pensieve (m47)** — `supply()` = `registry.reconcile(checkout, <checkout>/commons)` ?? `seed(<checkout>/commons)` — a recorded location that is GONE never breaks boot: ANYWHERE under the checkout the record follows the checkout (rediscovered from `commons/`, rewritten — the pre-m47 `…/registry/{commons,testing,development}` rows healed to `<repo>/commons` on the first `supply()` after the move, no hand), elsewhere it is kept + skipped + surfaced as `vip.stale` and `ledger/doctor` `record[].present:false`; `discover` over a missing root yields `[]` (tests: `tests/registry.test.js` reconcile ×5 + supply ×3); `mount()` registers every `*.viva.js` under a tapped root, owner-stamped. **`Pensieve.register` THROWS when a second FILE claims a held owner/type/slug/version** (the same file re-registers idempotently — ghost and runtime re-`supply()` the singleton); the walker skip-list is `bak|archive|slp` + `*.bak` (`belt/find.js:11`). Census at landing: zero duplicate identities across `education`, `stucatch`, `commons`.
-- **ghost** — `ghost.sh` sources config env, `VIVA_PROCESS_ID=${VIVA_PROCESS_ID:-$PPID}` (invoker owns the session). `mod.js`: `ctx.call` chaining (`use italian run`) · cwd stratum when shell cwd holds an instance marker · `ctx.interactive` ruled once · `--instance` flag → `ledger.instances.resolve` at the door (an unrecorded slug throws UNCAUGHT there — stack, not `fail()`; the door's pre-existing shape). **Frame law**: operator tokens with a separator resolve in shell cwd (`dir/sub` ≡ `./dir/sub`); bare slug → RECORD, never the shelf (`belt/path.js instance()` is GONE). MOUNT ALWAYS MEANS PATH.
+## the record — `instances.resolve` is the ONE reference reader
 
-## verbs (wired: trajectories/{ledger,registry,instance}; sheets/ is DEAD to the CLI — not in trajectories/index.js)
+```js
+// subsystems/paladin/prototypes/ledger/instances.js:6,37-47
+const local = (reference) => reference.includes("/") || reference.startsWith(".");
+async resolve(reference) {
+  if (!reference) throw new Error(NOTHING);
+  if (local(reference)) {
+    const token = isAbsolute(reference) || reference.startsWith(".") ? reference : `./${reference}`;
+    const mount = this.paladin.source(token).absolute;
+    return (await this.lookup(mount)) ?? { slug: null, mount };
+  }
+  const held = await this.read(reference);
+  if (!held) throw new Error(`instance: no record '${reference}' — viva instances/list`);
+  return { slug: reference, ...held };
+}
+```
+
+- **Frame law** — a token with a separator (`dir/sub` ≡ `./dir/sub`) resolves in the shell cwd; a bare slug is a RECORD lookup, never a shelf guess. `tests/ledger.test.js:126-147` pins all four arms.
+- **`shelf(slug)`** (`instances.js:18`) is the ONLY place that maps a slug onto `<ledger>/instances/<slug>` — and only to name a NEW dir or to ask "is this mount shelved?" (`create`, `rename`, `delete`, the doctor's `shadowed` flag).
+- **`write` merges** — `{...(all[slug] ?? {createdAt: now}), ...partial, updatedAt: now}`; `register()` (`trajectories/instance/target.js:27`) is a lookup-by-mount that throws the tap line and touches only `updatedAt`.
+
+```json
+// ~/.viva/instances.json
+{
+  "language-learning": { "createdAt": "2026-08-26T20:51:37.224Z",
+    "mount": "/Users/finn/.viva/instances/language-learning",
+    "updatedAt": "2026-09-01T15:38:55.880Z", "valence": "the italian daemon lives here" },
+  "italian":     { "createdAt": "2026-09-01T14:15:05.583Z", "mount": "/Users/finn/.viva/instances/italian",     "updatedAt": "2026-09-06T13:27:55.357Z" },
+  "vivalence":   { "createdAt": "2026-09-06T15:42:08.112Z", "mount": "/Users/finn/.viva/instances/vivalence",   "updatedAt": "2026-09-08T11:09:15.378Z" },
+  "hello-world": { "createdAt": "2026-09-08T10:25:12.287Z", "mount": "/Users/finn/.viva/instances/hello-world", "updatedAt": "2026-09-08T16:32:10.201Z" }
+}
+```
+
+```json
+// ~/.viva/registry.json — `stucatch` is store-relative, the checkout entry is pinned absolute
+["education", "stucatch", "/Users/finn/vivalence/code/vivalence/commons", "vcompany"]
+```
+
+- `~/.viva/instances/stucatch` holds no record row → the doctor prints `orphan — tap it`. `~/.viva/registry/young-ladys-primer` holds no reference → `untapped resident`. Both are live on this machine right now.
+
+## sessions and the `.env` line upsert
+
+```json
+// ~/.viva/sessions/49449.json — one shell's selection, keyed by VIVA_PROCESS_ID
+{ "VIVA_INSTANCE_MOUNT": "/Users/finn/.viva/instances/vivalence" }
+```
+
+```js
+// subsystems/paladin/belt/state.js:20-37 — a .env is AUTHORED, so comments and ordering are content
+line: (key, value) => (value == null || value === "" ? `# ${key}=""` : `${key}="${value}"`),
+env: async (path, bag) => {
+  let text = (await Deno.readTextFile(file).catch(() => null)) ?? "";
+  for (const [key, value] of Object.entries(bag)) {
+    const line = paladin.state.line(key, value);
+    const held = new RegExp(`^[ \\t]*(?:(?:export[ \\t]+)?${key}[ \\t]*=.*|#[ \\t]*${key}[ \\t]*=[ \\t]*(?:""|'')?[ \\t]*)$`, "m");
+    const tail = text ? text.replace(/\n*$/, "\n") : "";
+    text = held.test(text) ? text.replace(held, () => line) : `${tail}${line}\n`;
+  }
+  await Deno.writeTextFile(file, text);
+}
+```
+
+- **UNSET IS COMMENTED** — the regex matches a live line OR its commented form, so the wizard fills in place and a blank never lands as `KEY=""`. A blank at a higher stratum SHADOWS the ledger; that is how a machine-wide key vanishes.
+- **A session is machine state → JSON; the ledger `.env` is authored → line upsert.** `instance/use` picks by `--ledger` (`trajectories/instance/use.js:37-45`).
+
+## the lock — one per instance, `read()` prunes the dead
+
+```js
+// subsystems/paladin/prototypes/ledger/lock.js:9-19
+async read() {
+  const lock = await this.paladin.read.json(this.path, null);
+  if (!lock) return null;
+  try { Deno.kill(lock.pid, "SIGURG"); return lock; }
+  catch { await this.remove(); return null; }
+}
+```
+
+```json
+// probe: Die.resolve() on a scratch ledger → <ledger>/locks/probe.lock (status BOOTING → ALIVE)
+{ "pid": 14293, "token": "3e769a0f-91f0-452c-b376-6f34d391387c", "instance": "probe",
+  "status": "ALIVE", "processes": [{ "process": "runtime", "pid": 14443 }],
+  "started": "2026-09-09T22:59:48.708Z" }
+```
+
+- **SIGURG is the liveness probe** — a dead pid is not a lock, and reading it DELETES the file. Every reader inherits that: `instances/list`, `instance/{doctor,start,stop,delete,rename}`, `ledger/doctor`. There is no read of a lock that cannot write.
+- **A die releases only its own `token`** (`die.js:37-41`) — a second supervisor never unlocks the first.
+
+## `ledger.boot(specs) → Die` — the ledger holds no live state
+
+```js
+// subsystems/paladin/prototypes/ledger/ledger.js:28-35 — the CALLER integrates
+async boot(specs, { instance = null, attachment = "inherit" } = {}) {
+  this.paladin.check.instance(this.paladin.instance).throw();
+  this.paladin.publish();
+  const die = new Die({ ledger: this, specs, instance, attachment });
+  await die.populate();
+  await die.resolve();
+  return die;
+}
+```
+
+```js
+// subsystems/paladin/prototypes/ledger/die.js:43-53,66-74 — resolve refuses on a live lock
+async resolve() {
+  const held = await this.lock?.read();
+  if (held) throw new Error(`${this.instance} already running (supervisor ${held.pid}) — viva instance/stop`);
+  this.token = crypto.randomUUID();
+  for (const process of this.good.processes) await process.resolve();
+  await this.claim("BOOTING");
+}
+async perpetuate() {
+  for (const signal of ["SIGINT", "SIGTERM", "SIGQUIT"]) Deno.addSignalListener(signal, () => this.disintegrate(signal));
+  const exits = await Promise.all(this.good.processes.map((process) => process.perpetuate()));
+  await this.release();
+}
+```
+
+```js
+// subsystems/paladin/prototypes/ledger/process.js:5-6,50-68 — readiness is a LINE, not a port
+const STDIO = { inherit: "inherit", piped: "piped", logged: "piped" };
+const ALIVE = /^Status:ALIVE$/;
+async integrate() {
+  const deadline = this.command.deadline ?? 60_000;
+  const alive = this.attachment === "inherit" ? Promise.resolve()
+    : new Promise((resolve) => this.out.tap((line) => ALIVE.test(line.trim()) && resolve()));
+  const exited = this.child.status.then((exit) => { throw Object.assign(new Error(`${this.slug} exited ${exit.code}`), { exit }); });
+  await Promise.race([alive, exited, late]);   // `late` rejects after `deadline`
+}
+```
+
+- **Four beats**: `populate` (spec → `Process`, attachment validated) · `resolve` (spawn + claim `BOOTING`) · `integrate` (every child ALIVE, else `disintegrate` and rethrow; then claim `ALIVE`) · `perpetuate` (arm signals, await exits, release). `disintegrate` = SIGTERM → `grace` 5 s → SIGKILL.
+- **`clearEnv: true`** (`process.js:33`) — a child sees only what `specs()` composed: `INHERITED` (PATH HOME TMPDIR XDG_CONFIG_HOME TERM LANG DENO_DIR NO_COLOR) plus `VIVA_*`/`PUBLIC_VIVA_*`/`SECRET_VIVA_*` minus `VIVA_PROCESS_ID`, plus the three mounts. `cwd = mount` — so a cwd `.env` outranks the `os` stratum for every child.
+- **`Status:ALIVE`** is the child's own `Status.toString()` on stdout (`subsystems/typology/prototypes/status.js:49`) — an `inherit` child is alive at spawn and is never waited for.
+
+## verbs — who writes what
 
 | verb | writes | note |
 |---|---|---|
-| ledger/init | mkdirs, seeds instances.json, optional config-env line | |
-| ledger/doctor | **REAPS dead-pid sessions** (collectSessions → Deno.remove) | a MUTATING read — never "safe probe". Reads like `tree ~/.viva`: one line per organ (`.env` · registry.json · registry/ · instances.json · instances/ · locks/ · sessions/ · logs/) with count + anomalies (stale · untapped · orphan/dangling/shadowed · dead locks · blank keys), then homes + strata. **No `supply()`** — the census left for registry/doctor |
-| registry/list | `supply()` FIRST → seeds an ABSENT record from `<repository>/registry`, heals repo-internal dead entries | the fresh-ledger SEEDER since the doctor split (README step 2 relies on it) |
-| registry/doctor | `supply()` (same writes as list) | record ⟷ store ⟷ pensieve: `vip.stale` · untapped residents (`registry/index.js store()`: resident = OUTERMOST declaration roots under the store; tapped = equals OR inside a record root — `~/.viva/registry/stucatch` records the clone dir, its declaration sits in `stucatch/vivaware/`) · census by owner, `package` type first |
-| registry/tap · untap | registry.json (+clone if remote) · record removal only | store keeps untapped copies |
-| registry/bootstrap | new package.viva.js named by DESTINATION | clone never shadows source |
-| instance/create | clone.tree **+ instances.json record** (m44 landed); `--use` chains into instances/use; `--init` pins the new mount at the `flag` stratum and chains into instance/init (use first when both) | `--slug=<name>`; a held slug is a hard error |
-| instances/use | session file; `--ledger` → **ledger `.env` line upsert** (`state.env`); a bare token rides `instance/target.js locate()` = the instances lens fold (prefix → one match headless · many → picker, named in a pipe · none → error; a path → exact `instances.resolve`) | bare use in a pipe = report only; `--ledger` is undeclared in the schema ([[known-issues]]) |
-| instances/tap · rename | record write · record key move (+ locks, log dir) | tap needs `--slug`; rename refuses while running |
-| instance/init · run · start · stop | .env seed · register · lock claim (by the die) · logs (`--logged`) | run: exit 1 iff a child exits !success, `stopped` on a signal; start = a DETACHED ghost running `instance/run <target> --instance=<mount> --logged` (`Deno.Command detached: true`), waits for the lock to say ALIVE or the supervisor to exit; stop = SIGTERM the lock's pid, waits ≤15 s for the lock to clear; init = boot · integrate · ONE signup · disintegrate. Children run with `cwd = mount` — a cwd `.env` outranks the `os` stratum the mount travels in (measured, m49) |
-| instance/delete | `<target>` rides `locate()` (same fold as use — `delete hel` → hello-world); record rm · dead locks rm · `logs/<slug>` rm · `sessions/*.json` whose VIVA_INSTANCE_MOUNT = mount rm · **the dir ONLY when mount = shelf** (`instances.shelf(slug)`); tapped dir stays | refuses while a lock is alive; terminal → sheets `Confirm` (default no), `--force` skips, pipe without `--force` throws. First live `Confirm` consumer — TTY render still owed |
-| instance/lighthouse | network only | |
-| instance/doctor | none (ensureDir no-ops; publish = process-local); `doctor <target> <filter>` rides `locate()`, `doctor <one>` stays exact-record-or-filter (the lens matches mount paths, so `doctor viva` must stay a filter) | **the ONE read-only probe — my control surface** |
+| ledger/init | mkdirs `SCAFFOLD`, `instances.json`, scaffolds `.env`, optional shell-config line | the ONE creator of the ledger home; a boot never creates it |
+| ledger/doctor | **reaps dead-pid `sessions/*.json`; prunes dead locks** | a MUTATING read — never a "safe probe". No `supply()`. Organs + `dangling · orphan · shadowed · blank` |
+| registry/list | `vip.supply()` FIRST — seeds an absent record, heals a checkout-internal dead entry | the fresh-ledger SEEDER |
+| registry/doctor | `vip.supply()` | record ⟷ store ⟷ pensieve: `vip.stale`, untapped residents (OUTERMOST declaration roots), census by owner |
+| registry/tap · untap | `registry.json` (+ clone if remote) · record removal only | the store keeps an untapped working copy |
+| registry/bootstrap | `package.viva.js` named by DESTINATION, then taps it | basename = slug, `@`+slug = owner; a clone never shadows its source in the pensieve |
+| instance/create | `clone.tree` + record row; `--use` · `--init` chain | `--slug=<name>`; a held slug is a hard error, no suffixing |
+| instance/use | `sessions/<pid>.json`, or `.env` line upsert under `--ledger` | trailing params chain under `/instance`; `--ledger` declared on the nature as a boolean flag (the mount `--ledger=<path>` is a separate flag sharing the spelling) |
+| instances/tap | record row only | `--slug` required; the path must be a PATH (`./name`), never a bare slug |
+| instance/rename | record key move (+ `logs/`, shelf dir, selecting sessions) | refuses while a lock is alive; an off-shelf dir stays put |
+| instance/init | `.env` scaffold + fills, then boot · integrate · ONE signup · disintegrate | `remount()` before and after every write — `mount` is `fn.once` |
+| instance/run · start · stop | lock + `logs/` | run = supervise in the foreground, throws naming the failed child; start = a DETACHED ghost `instance/run <target> --instance=<mount> --logged`, polls the lock for `ALIVE` ≤60 s; stop = SIGTERM the lock's pid, ≤15 s |
+| instance/delete | record rm · `logs/<slug>` · selecting sessions · the dir ONLY when shelved | refuses under a live lock; needs a terminal to confirm, or `--force` |
+| instance/doctor | **only what `lock.read()` prunes** | otherwise the read-only probe — my control surface; `doctor <target> <filter>` rides `locate()` |
 
-## invariants (each measured)
+## invariants
 
-1. **MOUNT MEANS PATH, never slug** — three enforcement points: populate throw, `belt/path.js instance()`, `--instance` flag resolve.
-2. Secrecy by KEY at one ingress; session+ledger loads route through the split since the blast (populate.js:87-101).
-3. `fn.once` second call = `undefined`, not the memo — hence doctor's `.catch(() => null)` wrap.
-4. **instances.json = the sole identity, ENFORCED (m44 sunset)**: `register()` = record lookup or throw (`instance/target.js:13`), `create` writes the row at birth (`--slug`, held slug = hard error), `instances/tap` adopts, `instance/rename [target] <next>` (SINGULAR since the vcompany rename) moves key + `logs/` + the shelf dir + record `mount` + selecting sessions (a tapped dir stays; refuses under a lock), doctor rows flag `dangling | orphan — tap it | shadowed`. Probed on a scratch ledger at the sunset — 7 held · 3 revised by m49's one lock; the one basename left is create's DEFAULT slug for a path recipe, written once, never derived by a reader.
-5. `ledger/doctor` mutates; `instance/doctor` doesn't. Interpret with instance/doctor + raw file reads; propose ledger/doctor when reaping is wanted. **MEASURED at the doctor split: the reap RACES a sibling shell's boot** — `supply()` used to pad ~500 ms before `collectSessions`; without it shell A reaps shell B's `sessions/<pid>.json` before B populates. `systems/ghost/tests/strata.wet.test.js` "two shells select two instances in parallel" is RED, deterministic 3/3 (fake pids 61001/61002 are dead for both). Structural fix = fork a (doctor reports `dead`, the sweep moves into `instances/use`), GATED on beef.
-6. `instances.json` rows may carry a hand-authored `valence` (beef wrote two) — the doctor renders it; the shelf `mount` is shown only when it deviates from `<ledger>/instances/<slug>`.
-7. **a boot never creates the ledger home** (tty-walk landing): `paladin/lifecycle/integrate.js statements()` returns before scaffolding when `scope.ledger` is absent on disk — same law as the instance home; `ledger/init` is the ONE creator (`SCAFFOLD = locks logs registry instances sessions`). Before it, `ledger/doctor` mkdir'd `~/.viva/registry` on boot and printed `✓ ledger` for a home nobody initialized. Doctor's `present` is now ON DISK (`Deno.stat`) for every scope; the ledger row reads `✗ ledger <home>  → viva ledger/init`.
+1. **MOUNT MEANS PATH, never slug** — populate throws on a slug-shaped `VIVA_INSTANCE_MOUNT` (`ledger.test.js:188`); the `--instance` flag and `resolve` obey the same law at the door.
+2. **`instances.json` is the sole identity** — `register()` is a record lookup or a throw; `create`/`tap` write the row at birth; the doctor flags `dangling | orphan — tap it | shadowed`.
+3. **A lock read is a lock write.** SIGURG prune is unconditional, so no verb that inspects a lock is side-effect free.
+4. **`ledger/doctor` mutates, `instance/doctor` (almost) doesn't.** The session reap RACES a sibling shell mid-boot — the structural fix (sweep moves into `instance/use`) is GATED on beef → [[known-issues]].
+5. **`fn.once` returns `undefined` on the second call**, not the memo — hence `paladin.instance.mount()` wrapped in `Promise.resolve(...).catch(() => null)` at `ledger/index.js:86`, and `remount()` in `instance/init`.
+6. **`mountpoint` is FS, `mount` is an internal reference** (beef: *"mountpoint fs. mount internal reference."*) — `Daemon.mount` a Path, `mode.mount` a ROUTE, `mode.mountpoint` the FS data dir under `<instance>/mountpoint/<type>_<slug>/`. The outlier is `module.mount` (the mode's own `.viva.js` FILE). `undefined` = no slot declared; `null` = declared, unfilled → REQUIRED. → [[project_freight_vs_mountpoint]]
+7. **A row may carry a hand-authored `valence`** — the doctor and `instances/list` render it; nothing else reads it.
+8. **The ledger holds no live state** — every runtime fact is either in a lock (pids) or in a child's stdout. Delete `~/.viva/locks` and the machine forgets what is running, not what exists.
 
-## launching the runtime from this checkout (beef: "give me a small summary + instructions + pointers on runtime launch" · "and add the stuff")
+## where to read the live system
 
-1. **pick the instance** — from the repo root `.env:1` (`VIVA_INSTANCE_MOUNT`) outranks `viva instances/use`: `STRATA = flag > cwd > instance > .env > os > session > ledger`. Edit that line, or delete it and `use` per shell (`VIVA_PROCESS_ID=$PPID` from `ghost.sh`). `viva instances/list` marks the EFFECTIVE mount with `*`, never the selection.
-2. **doctor first** — `viva instance/doctor` must read `problems —` and `faults —`. `dormant` names what boot will drop: hallucinators without keys, consumed services without keys (`daemon[<slug>].consume.<name>`). A blank `KEY=""` line claims nothing (paladin `split`).
-3. **boot** — `deno task runtime/watch` → `launching on http://localhost:2501/` → `Status:ALIVE`. A changed dataset stamp (sources OR the installer's own source) logs `[DATASET:install] … total …s` per mode; unchanged, silence. The watcher restarts on any edit in the module graph, `commons/` excluded.
-4. **secrets** — `~/.viva/.env` is the machine-wide `ledger` stratum; the instance `.env` wins per key. Wake a dormant slot by putting the real key where the doctor sees it, then boot.
-5. **traps** — walk containers publish `127.0.0.1:2501/1794` (`readmen-m52`) and `12501/11794` (`readmen-tty`) while the runtime binds `[::1]`; a browser on `localhost` can land in the container. `docker stop` them before kajuit. `curl http://[::1]:2501/status` reaches the local one.
+- `viva instance/doctor --json` — the probe I steer by:
 
-## live snapshot (rots — restamp on read)
+```json
+// viva instance/doctor --json (trimmed) — env rows carry the winning stratum, secrets already masked
+{ "mount": "/Users/finn/.viva/instances/hello-world",
+  "manifest": { "type": "instance", "slug": "hello-world", "version": "0.0.1", "traits": [] },
+  "daemons": ["hello"], "services": ["multiplayer"], "clients": ["kajuit"],
+  "env": [{ "!": null, "key": "SECRET_VIVA_ANTHROPIC_API_KEY", "value": "***", "stratum": "ledger", "reason": null }],
+  "problems": [], "faults": [], "dormant": ["daemon[hello].hallucinators[1]"], "lock": null }
+```
 
-doctor-split stamp (`ledger/doctor` + `registry/doctor` RUN on ~/.viva): instances = language-learning ("the italian daemon lives here") · stucatch ("mesh firmware rig — retired, processes stopped") · italian · hello-world — all 4 shelved, 0 orphan/dangling/shadowed. locks 0 · logs 0 · sessions: a sibling shell 28293 held hello-world mid-session (hello-world `updatedAt` moved to 09-04 under it). Registry (m47 stamp, `registry/doctor` RUN after the move): 3 taps (1 pinned checkout `<repo>/commons` · 2 store-relative), 0 stale; store 3 resident — education · stucatch (declaration at `stucatch/vivaware/`, covered) · young-ladys-primer UNTAPPED. Pensieve 50 modes · 18 types · 3 owners (`@education` 25 · `@commons` 22 · `@stucatch` 3). `~/.viva/.env` PRESENT (`ls` hides dotfiles — the earlier "absent" was an unlisted file, not a missing one): 1 var `VIVA_REPOSITORY_MOUNT` shadowed by os. A fresh scratch ledger after `ledger/init` reads `.env present · 1 vars · 4 secrets · 5 blank` and `registry.json 0 tapped` until the first `registry/list`. `@viva` commons (now `@commons`) grew 10→11→12 modules DURING that session (a `demo hello-world` mode appeared — sibling session). beef still owes quest step 6 (fold 3 environment.json files into .env).
+- `viva ledger/doctor` / `viva registry/doctor` — richer, but they REAP and `supply()`. Read their trajectory before running one.
+- `<ledger>/logs/<slug>/<process>.out.log` — only written under attachment `logged` (i.e. `instance/start`). `tail -f` it while a detached supervisor boots.
+- `<ledger>/logs/<slug>/spans.jsonl` — `Log.append` (`log.js:7`) has NO production caller; the wire is stubbed out at `systems/ghost/mod.js:25`. The file exists only in tests. **The tap is built and unplugged.**
+- `ctx.span.branch("run/<process>")` + `mark("subject", {schema:"process", id:<pid>})` — `trajectories/instance/run.js:13-18`; the only span emission in this territory, faulted on a non-zero exit.
+- `console.*` in territory: **5**, all in ghost, all operator-facing — `run.js:22` (child pids), `start.js:43,46` (supervisor pid + the stop hint), `stop.js:11,25` (not-running / stopped). Nothing in `prototypes/ledger/**` prints.
+- `Process.out` is a `Pipe`: `out.tap(...)` is the drain — one tap writes the log file, one watches for `Status:ALIVE` (`process.js:39,54`). `trajectories/instance/Init.jsx:37` taps the same pipe to render a live 12-line tail during the wizard.
 
-m53 stamp (vcompany taps RUN on ~/.viva): registry 4 taps — `vcompany` store-relative added; `@vcompany` 2 modules (package + instance — domain/office/officer modules not yet materialized). instances 5 — `vivalence` TAPPED IN PLACE at `~/.viva/registry/vcompany/instances/vcompany`: the first non-shelf instance on this machine (`instance/delete` keeps its dir; its `.env` + `mountpoint/` land INSIDE the package tree — the package needs its own ignore file, owed). `instance/doctor vivalence` mounts — object kernel entries (`{module, mountpoint: "./jdex", statics}`) pass `materialize` + settle — 7 addresses REQUIRED until beef's `instances/use vivalence init`; the JDex `mv` into `instances/vcompany/jdex` is beef's. `viva instances --json` has no handler (the index verb is not `instances` bare).
+## launching the runtime from this checkout
+
+1. **pick the instance** — repo-root `.env` (`VIVA_INSTANCE_MOUNT`) OUTRANKS `viva instance/use`; `viva instances/list` marks the effective mount with `*`. Today the session says `vivalence` and the doctor answers `hello-world`: that is the repo `.env` winning.
+2. **doctor first** — `problems —` and `faults —` must be empty; `dormant` names what boot will drop (right now `daemon[hello].hallucinators[1]`, an empty OpenRouter key).
+3. **boot** — `deno task runtime/watch` → `launching on http://localhost:2501/` → `Status:ALIVE`. The watcher is `--watch=../../commons,$HOME/.viva/registry` on top of the module graph, so a `commons/` or store edit DOES restart it — but the INSTANCE copy is what gets bundled, so an edit in the repo still needs the copy refreshed.
+4. **secrets** — `~/.viva/.env` is the machine-wide stratum; the instance `.env` wins per key. Never log a hydrated mask — it holds its key in clear ([[feedback_never_log_a_mask]]).
+5. **trap** — a `readmen*` container publishing `127.0.0.1:2501` shadows the local runtime bound on `[::1]`; `docker ps` + `lsof` before blaming the code ([[project_readmen_container_port_shadow]]).
 
 ## ownership protocol (mine)
 
-- Any landing in `subsystems/paladin/**` or `systems/ghost/trajectories/{ledger,instance,registry}/**` → restamp THIS file same turn (world-sync law; stamp names the CHECK).
-- The ledger teaches: verify by reading `~/.viva` directly + `instance/doctor --json`; never run a verb without reading its trajectory first; never write `~/.viva` by hand — the verbs are the write path (channel-fidelity).
-- Standing watch: the `use --ledger`→environment.json dead write · the pensieve shadow-overwrite gap (fork b: `Pensieve.register` records overwrites; `registry/doctor` would print them) · the reap race (invariant 5, fork a).
-- Never run a live `viva` while the ghost suite runs: two concurrent `supply()`s produced 5 phantom `create` reds (green alone, green again with nothing concurrent). Verdicts come from one-shot `deno test -A --no-check tests/*.test.js` in `systems/ghost` — `deno task test` is a `--watch`er and never exits.
+- Any landing in `subsystems/paladin/**` or `systems/ghost/trajectories/{ledger,instance,instances,registry}/**` → restamp THIS file the same turn; the stamp names the CHECK that was run.
+- Verify by reading `~/.viva` directly plus `instance/doctor --json`; never run a verb without reading its trajectory first; never write `~/.viva` by hand — the verbs are the write path. `~/.viva/registry` is NOT version controlled: capture before deleting.
+- Never run a live `viva` while the ghost suite runs (two concurrent `supply()`s = phantom reds); verdicts come from a one-shot `deno test -A --no-check tests/*.test.js` in `systems/ghost` — `deno task test` is a watcher and never exits.

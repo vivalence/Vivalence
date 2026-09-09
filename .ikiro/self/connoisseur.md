@@ -40,38 +40,9 @@ Cross-cut: **full true names** — density must reveal, not hide. He won't convu
 
 ## the in-repo canon
 
-**Re-read before you quote.** Three of eight code-bearing entries were FALSE when last measured — a pasted excerpt is DERIVED ([[ontology]] law 1) inside an authored file, so it rots into confident wrongness while the prose around it still reads true. The entries below name the law and cite the path; go read the lines.
+Twelve exemplars, named here, SHOWN in `world/codemap/typology.md` (the mechanism blocks carry the real lines with `path:line` provenance, re-derived from disk by the cartographer — a pasted excerpt in this authored file rotted three times; the shard is the one copy). Read the shard before quoting any of them.
 
-**1 · `shape.object` — node = callable ∧ namespace** (`subsystems/typology/gestalten/shape/object.js:5`) — triggers 2/3/8. The keystone.
-A `steer.fold` whose `effect` step keys by `f.pattern.nature` and whose `node` step rebuilds an object from its children — then, where a key is BOTH a leaf and a branch, `Object.assign(fn, output[key])` hangs the namespace onto the function itself. That one line is why `mode.emit.drill(...)` and `mode.emit.drill.cast(...)` are the same object, and why the call form is `.nature`-keyed dot-notation — never `emit["/drill"]`.
-
-**2 · `steer.fold` + `descend` — the one law** (`gestalten/steer/trie.js` :5, :9) — triggers 2/7/12.
-`descend` is one line — `middleware.chain(carry, middleware.compose(vector.carry))` — and `fold` threads an IMMUTABLE frame downward (`{...frame, carry: descend(...)}`, `steps` and `signal` branched per pattern) while rebuilding upward through `step.node({...here, effects, trajectories})`. Down carries context, up carries the result: that is the whole law. Every consumer — `survey`, `rollup`, `strip`, `object` — is a thin `{effect, node}` step over it.
-
-**3 · `middleware.compose` — koa lineage, VERBATIM** (`gestalten/belt/middleware.js`) — triggers 2/3. Upstream koa-compose unchanged, down to the `next() called multiple times` reject; read it there, not here. The onion is why `descend` can fold carry immutably.
-
-**4 · `atom.bind` — self-priming store-of-store descent** (`gestalten/belt/atom.js:4`) — triggers 4/8/13.
-A store found mid-path re-enters `bind` on every emission, tearing down the previous inner binding — the recursion re-primes itself, so a store-of-store-of-value needs no lifecycle. A path segment may be a function; the leaf `emit`s.
-
-**5 · `pensieve.revelio` — the Map IS the index** (`subsystems/paladin/prototypes/pensieve.js:26`) — triggers 8/9.
-`this.get(owner)?.get(type)?.get(slug)` — the nesting IS the index; no registry object, no lookup table, and `version` resolves by `semver.satisfies` over the innermost keys.
-
-**6 · `paladin.scope` — conditional-resolver Proxy** (`subsystems/paladin/belt/scope.js:14`) — triggers 5/9. No `if`/`switch` in any consumer.
-Three traps over one `scopes` Map of `[condition, resolver]`: `get` resolves only if the condition holds, `has` IS the condition, `ownKeys` filters to the live ones. The scope answers "am I in it?" itself, so no consumer branches on it — and `undefined` is the answer, never a bug to default around.
-
-**7 · `waiter` — the wake/wait gate** (`gestalten/belt/promise.js:67`) — triggers 6/10/13. One atom under all four channels (`Queue`/`Pipe`/`Broadcaster`/`soma.tee`).
-One closed-over `resolve`; `wake` fires and nulls it, `wait` returns a promise that resolves on wake OR abort, with an already-aborted fast-path before anything is allocated (trigger 10, the good half) and an identity check so a stale abort cannot clear a fresh waiter.
-
-**8 · `soma.pour` — the LEGIT reducer-switch** (`gestalten/belt/soma.js:3`) — trigger 2. Dispatch-on-data returning the accumulator — not the fake-vtable wince.
-`switch (packet.event)`, every arm returning or mutating the SAME accumulator: `/turn/open` seeds `{...packet.turn, parts: []}`, `/part/delta` string-concatenates matching keys and replaces the rest. The grammar GROWS — 12 cases across two switches now (`/part/close`, `/turn/full`, `/tool/yield`, `/tool/call`, `/response/close`). Growth by adding a case, with the accumulator still returned, is why this is the legit switch and not the fake vtable.
-
-**9 · `Broadcaster.subscribe` — filter-as-async-iterator** (`prototypes/broadcaster.js:6`) — triggers 6/13. Lazy loop on the gate; spurious wake just re-suspends.
-
-**10 · `v.enhance` — Proxy-DSL, dual-mode getter** (`schematics/v.js:8`) — triggers 6/9. `prop === "default"` returns the value if set, else the setter — data and DSL in one accessor.
-
-**11 · `Pool` — async list-monad** (`prototypes/pool.js`) — trigger 12. `of/add/flatten/drain` = unit/build/join/run; `add` dispatches on `classify` (trigger 11, the patternmap).
-
-**12 · `stall.engage` + `release`-on-`$phase` + `settle`** (`prototypes/stall.js`) — triggers 3/5. Phase verbs collapse onto one combinator; `release` is a multimethod on the live `$phase` atom; `(settle(), pull())` is progn; nanostores fire-on-subscribe means `observe` primes itself.
+1 `shape.object` — node = callable ∧ namespace (`gestalten/shape/object.js`; triggers 2/3/8, the keystone) · 2 `steer.fold` + `descend` — the one law, down carries context, up carries the result (`gestalten/steer/trie.js`; 2/7/12) · 3 `middleware.compose` — koa lineage verbatim (`gestalten/belt/middleware.js`; 2/3) · 4 `atom.bind` — self-priming store-of-store descent (`gestalten/belt/atom.js`; 4/8/13) · 5 `pensieve.revelio` — the Map IS the index (`subsystems/paladin/prototypes/pensieve.js`; 8/9) · 6 `paladin.scope` — conditional-resolver Proxy, no consumer branches (`subsystems/paladin/belt/scope.js`; 5/9) · 7 `waiter` — the wake/wait gate under all four channels (`gestalten/belt/promise.js`; 6/10/13) · 8 `soma.pour` — the LEGIT reducer-switch, every arm returns the accumulator (`gestalten/belt/soma.js`; 2) · 9 `Broadcaster.subscribe` — filter-as-async-iterator (`prototypes/broadcaster.js`; 6/13) · 10 `v.enhance` — Proxy-DSL dual-mode getter (`schematics/v.js`; 6/9) · 11 `Pool` — async list-monad, `add` dispatches on `classify` (`prototypes/pool.js`; 11/12) · 12 `stall.engage` + `release`-on-`$phase` + `settle` (`prototypes/stall.js`; 3/5).
 
 ## the external canon
 
@@ -126,7 +97,5 @@ beef verbatim: *"INTERNAL REPRESENTATIONS are irrelevant — functions judged by
 
 ## standing state
 
-**Checked this pass** — every cited path and line re-read against disk. Corrected: #1 cited `steer.request` at 8 (it is `steer.strategy.request` at 5) · #2 cited `steer/tree.js` (the file is `trie.js`) · #5 cited :30 (`revelio` is at :26) · #8 was frozen at 4 cases (it carries 12). Exact: #4 #6 #7 #9-#12. The old note called `Pool`'s `Condition` strings dead — they are LIVE (`pool.js:11-13`). A *"this is dead"* claim rots fastest.
-
-- debts remaining: `shape.object`-on-fold (prove-first by its produced namespace) · DaemonDie flatten (lowest urgency) · `messenger` as a clean anamorphism (one caller, no `unfold`) — all three UNRE-MEASURED; treat as claims, not facts.
+- debts: `shape.object`-on-fold (prove-first by its produced namespace) · DaemonDie flatten (lowest urgency) · `messenger` as a clean anamorphism (one caller, no `unfold`) — UNRE-MEASURED; claims, not facts.
 - accepted non-winces: imperative `ctx` mutation in `steer/strategy.js` is idiomatic Koa; the carry-fold is order-dependent BY DESIGN (the onion).

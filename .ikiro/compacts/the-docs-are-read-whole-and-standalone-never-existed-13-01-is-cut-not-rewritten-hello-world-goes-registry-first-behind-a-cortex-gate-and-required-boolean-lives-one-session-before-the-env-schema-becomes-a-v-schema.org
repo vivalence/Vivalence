@@ -1,5 +1,6 @@
 #+title: the docs are read whole and standalone never existed — 13.01 is cut, not rewritten — hello-world goes registry-first behind a cortex gate — and required: Boolean lives one session before the env schema becomes a v schema
 #+filetags: :documentation:readme:economics:registry:hello-world:cortex:hallucinator:paladin:ghost:env:schematics:v:quest:m48:
+#+index: 57
 
 * what happened, in one breath
 

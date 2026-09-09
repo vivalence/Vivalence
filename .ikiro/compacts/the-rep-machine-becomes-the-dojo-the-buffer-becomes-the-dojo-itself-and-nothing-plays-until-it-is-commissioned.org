@@ -1,5 +1,6 @@
 #+title: the rep machine becomes the dojo, the buffer becomes the dojo itself, and nothing plays until it is commissioned
 #+filetags: :m24:dojo:rep-o-gram:rename:kajuit:svelte:drapes:typology:aperture:presets:pools:commission:string-belt:
+#+index: 112
 
 * arc
 

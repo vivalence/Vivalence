@@ -1,5 +1,6 @@
 #+title: the readme-walk container owns both ports, two hypotheses die before lsof, and hello-world's buttons learn they were preflighted
 #+filetags: :kajuit:ghost:docker:instance:lighthouse:readme:drapes:commons:known-issue:debugging:systematic-debugging:paladin:hello-world:callout:
+#+index: 106
 
 * what happened, in one breath
 

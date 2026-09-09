@@ -1,13 +1,19 @@
-import { App, Vector, v, Span } from "@vivalence/typology";
+import { App, Span, v, Vector } from "@vivalence/typology";
 
 export const aperture = new Vector().open(
-  { nature: "/ask", input: v.object({ prompt: v.string(), thread: v.string() }) },
+  {
+    nature: "/ask",
+    input: v.object({ prompt: v.string(), thread: v.string() }),
+  },
   async (ctx) => {
     const span = new Span("aperture/ask").open();
     span.branch("input").note(ctx.input);
     try {
       const render = await ctx.mode.harness.object.render({
-        turns: [{ role: "user", parts: [{ type: "text", text: ctx.input.prompt }] }],
+        turns: [{
+          role: "user",
+          parts: [{ type: "text", text: ctx.input.prompt }],
+        }],
         output: v.object({ answer: v.string() }),
       });
       span.branch("render").note(render);
@@ -38,7 +44,10 @@ export const aperture = new Vector().open(
       return { answer: object.answer, trace: span.records };
     } catch (error) {
       span.close().branch("render").fault(error);
-      return { answer: `… the oracle falters: ${error.message}`, trace: span.records };
+      return {
+        answer: `… the oracle falters: ${error.message}`,
+        trace: span.records,
+      };
     }
   },
 );

@@ -8,9 +8,16 @@ A compact written **from context** cannot be even-handed. By fold time the early
 
 **Do not recall the session. Read it.** The transcript is on disk at `~/.claude/projects/-Users-finn-vivalence-code-vivalence/<session-id>.jsonl`, complete and unsummarized, and it is uniformly detailed at both ends.
 
+## markers first
+
+Before the extractor, read `.ikiro/compacts/MARKERS.md`. Each OPEN entry is an order beef
+gave mid-session and deferred to the fold — settle it in the compact body, then move it to
+SETTLED with a one-line verdict. An unsettled marker is a dropped instruction, not a
+backlog item.
+
 ## the walk
 
-1. **SPINE** — extract every beef turn in order, numbered `1..N`. Never from memory; run the extractor below. `N` is now a fact, and the walk has a denominator.
+1. **SPINE** — extract every beef turn in order, numbered `1..N`. Never from memory; run the extractor below. `N` is now a fact, and the walk has a denominator. The dedupe compares **full text**, never a prefix: two DesignSync handoffs sent 8s apart shared a 200-char prefix and one was silently eaten, while a queue echo is byte-identical and still collapses. Prefix matching cannot tell a duplicate from a sibling. A re-delivery outside the 180s window survives as its own turn on purpose — beef repeating himself is data.
 2. **WINDOWS** — walk **oldest first**, ~4 turns per window. Per turn write one row: `n · what beef asked (verbatim when it is a decision, a gate, or a correction) · what landed · what was decided or killed`.
 3. **COVERAGE** — every `n` in `1..N` appears in exactly one row. A turn with nothing durable is written `NOTHING`, never skipped in silence. Unaccounted turns > 0 means the walk is not finished. This is the forcing function: the count exists before the writing starts, so a short walk is visibly short rather than plausibly complete.
 4. **SECTIONS** — compose section by section (`#+TOPIC` · `* Arc` beats · failures · `* State at fold`), and fill **each section from the whole row table**. Never write the compact top-to-bottom in one pass: a single pass re-imposes narrative order, which is recency order wearing a different hat.
@@ -26,7 +33,7 @@ import json,os,sys,re,datetime
 D=os.path.expanduser('~/.claude/projects/-Users-finn-vivalence-code-vivalence')
 sid=sys.argv[1] if len(sys.argv)>1 else None
 fp=os.path.join(D,sid+'.jsonl') if sid else max((os.path.join(D,f) for f in os.listdir(D) if f.endswith('.jsonl')),key=os.path.getmtime)
-NOISE=re.compile(r'^<(local-command-caveat|command-name|command-message|command-args|system-reminder|local-command-stdout)|^# /\w+ —')
+NOISE=re.compile(r'^<(local-command-caveat|command-name|command-message|command-args|system-reminder|local-command-stdout|task-notification)|^\[SYSTEM NOTIFICATION|^Stop hook feedback|^# /\w+ —|^\[Request interrupted by user\]')   # task notifications and hook feedback are the harness talking, not beef
 def when(s):
     try: return datetime.datetime.fromisoformat(s.replace('Z','+00:00')).timestamp()
     except: return 0.0
@@ -47,7 +54,7 @@ for i,line in enumerate(open(fp,encoding='utf-8',errors='replace')):
     raw.append((i,ts,when(ts),t,txt))
 turns=[]
 for r in raw:
-    if any(r[4][:200]==k[4][:200] and abs(r[2]-k[2])<180 for k in turns): continue
+    if any(r[4]==k[4] and abs(r[2]-k[2])<180 for k in turns): continue   # FULL text: a queue echo is byte-identical
     turns.append(r)
 print(f"BEEF TURNS: {len(turns)}  (raw {len(raw)}, {len(raw)-len(turns)} queue duplicates collapsed)")
 for n,(i,ts,_,t,txt) in enumerate(turns,1):
@@ -56,29 +63,7 @@ for n,(i,ts,_,t,txt) in enumerate(turns,1):
 
 ## the index generator
 
-```python
-import os,re,collections
-D='.ikiro/compacts'
-files=sorted(f for f in os.listdir(D) if f.endswith('.org'))
-tags=collections.defaultdict(list); notag=[]; slugs=[]
-for i,f in enumerate(files,1):
-    t=open(os.path.join(D,f),encoding='utf-8',errors='replace').read()
-    slugs.append(os.path.splitext(f)[0])
-    m=re.search(r'^#\+filetags:\s*(.+)$',t,re.M|re.I)          # lowercase in practice — match both
-    if not m: notag.append(i); continue
-    for tag in [x for x in m.group(1).strip().strip(':').split(':') if x]: tags[tag].append(i)
-out=["# compacts — tag index","","## by tag",""]
-for tag in sorted(tags, key=lambda t:(-len(tags[t]),t)):
-    if len(tags[tag])>1: out.append(f"- **{tag}** — {', '.join(map(str,tags[tag]))}")
-singles=sorted(t for t in tags if len(tags[t])==1)
-out+=["", f"- *singletons* — {' · '.join(f'{t} {tags[t][0]}' for t in singles)}",""]
-if notag: out.append(f"> UNTAGGED (findable only by number): {', '.join(map(str,notag))}\n")
-out+=["## compacts",""] + [f"{i:2}. `{s}`" for i,s in enumerate(slugs,1)]
-open(os.path.join(D,'index.md'),'w',encoding='utf-8').write('\n'.join(out)+'\n')
-print(f"{len(files)} compacts · {len(tags)} tags · {len(notag)} untagged")
-```
-
-Keep the header prose of the existing `index.md` when regenerating — the script above emits the body. The check afterwards is one line: numbered entries must equal `.org` files.
+`python3 .ikiro/methods/compact-index.py` — regenerates `compacts/index.md`; the body of that script IS the spec (it used to live here as a pasted block, and a pasted block is DERIVED prose inside an authored file: the fold that lost nine entries had no runnable generator). Ids are each compact's `#+index:` property, stamped once and never moved, so a citation `#<id> <slug-prefix…>` survives inserts and renames. The check after regeneration is the script's own last line: compacts · tags · untagged · ids stamped.
 
 ## the canon path audit (world-sync step)
 
@@ -88,13 +73,21 @@ An earlier general path-existence checker was built, measured at 7 false positiv
 
 - **RECORDS assert the past, not the present.** `zettelkasten.md` (append-only Callouts), `loop-backlog.md`, `known-issues.org`, and everything under `compacts/` are out of scope by construction. A ledger entry describing a path that was wrong IS the record working.
 - **Context marks it gone.** `emigrated · deleted · renamed · no longer · dead · slop · moved · superseded · gone · left · old`. Missing `gone` alone produced a false positive on `world/codemap/paladin.md`, on a line reading *"is GONE from every Dockerfile"* — the checker flagged the sentence that had already done its job.
+- **A prefix that is not repo-rooted is not a lead at all.** Measured at one fold: 94 raw leads, of which
+  **59 began `registry/`** — a directory that does not exist at the repo root at all. It went to `commons/`
+  at m47, and in live canon `registry/...` overwhelmingly names the INSTANCE, `~/.viva/registry/`, which the
+  container-rooted-paths law writes exactly that way. Every one of the 59 was noise. `docs/` was dead the
+  same way — the tree has `documentation/`. The regex above now matches `commons` and drops both, taking the
+  sweep from 94 to 35 and back inside the survivable band. Adding a prefix to that alternation without first
+  checking it resolves from the repo root re-poisons the whole audit: a lead generator at 88% noise is read
+  as broken and then ignored, which is worse than not running it.
 - **Design that was never built.** `sketch · dormant · DESIGNED · planned · proposed · WITHDRAWN · deferred · parked`, plus a file-wide trip at 3+ such markers. `project_longdistance_audio_sketch` is seven paths of scaffolding that deliberately does not exist.
 
 Suggest a successor only at **suffix depth ≥3, unique at that depth**. A unique BASENAME match is not identity — it proposed `systems/runtime/daemon/entities.js` → `registry/viva/lighthouse/multiplayer/server/entities.js`, and `daemon/kernel.js` → `schematics/primitives/kernel.js`. A wrong repoint is worse than a stale path: it reads as freshly verified.
 
 ```python
 import os,re,collections
-PATH=re.compile(r'`((?:systems|subsystems|registry|testament|documentation|docs)/[A-Za-z0-9_@./-]+)`')
+PATH=re.compile(r'`((?:systems|subsystems|commons|testament|documentation)/[A-Za-z0-9_@./-]+)`')
 GONE=re.compile(r'\b(emigrat|deleted|removed|renamed|no longer|used to|dead|slop|moved|replaced|former|superseded|pre-M11|was at|killed|dissolv|gone|left|old)\w*',re.I)
 DESIGN=re.compile(r'\b(sketch|dormant|DESIGNED|not built|planned|proposed|WITHDRAWN|deferred|parked)\w*',re.I)
 RECORDS={'zettelkasten.md','loop-backlog.md','known-issues.org'}

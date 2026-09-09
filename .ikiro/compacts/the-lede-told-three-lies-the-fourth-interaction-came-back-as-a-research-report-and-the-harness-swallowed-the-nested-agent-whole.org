@@ -1,0 +1,299 @@
+#+title: the lede told three lies, the fourth interaction came back as a research report, and the harness swallowed the nested agent whole
+#+filetags: :hello-world:research:harness:stream:sse:timeout:aperture:buffer:thread:turns:snapshots:copy:docs:jdex:cortex:shelf:m57:collision:
+#+index: 84
+
+#+session: 38 beef turns (58-95 of 95; 1-25, 26-37, 38-46 and 47-57 folded in four earlier compacts)
+
+* one breath
+
+It opened with beef pasting the demo's own lede back at me — /"this part of hello world is a lie! fix
+it"/ — and it closed with a nested research agent dissolved into the harness it should always have
+been. Between those two the same lesson landed four separate times: the thing I was about to build
+already existed, or already could not work, and the evidence was on disk before I wrote a line.
+
+The lede carried three lies, not one. The fourth interaction beef remembered was not the profile
+picker I guessed but /"Hallucinate a new View"/, cut months earlier because =/hello/agent= returns a
+greeting and the title was the view lying about the system — and I found that not by reasoning but by
+grepping an old compact. The eight-second abort was not a bug to design around but one line,
+=shard.connection.timeout(8000)=. And the elaborate patch I worked out — a =catalog= field on the
+trait, guards in the mode harness, a child thread — got answered with /"just fucking use the
+harness. idiot."/ It collapsed to four lines and =research/index.js= went 168 -> 91.
+
+* the spine — 38 turns
+
+| n     | beef                                                                                  | landed                                                                                                   |
+|-------+---------------------------------------------------------------------------------------+----------------------------------------------------------------------------------------------------------|
+| 58-59 | =/compact= + the continuation summary                                                 | NOTHING (harness)                                                                                          |
+| 60    | /"this part of hello world is a lie! fix it. simple. call to action. ask the chat to tell you about the runtime tthyere in."/ | lede rewritten; THREE lies found; CTA became a chat button; discovered m57 M1 mid-move under me |
+| 61    | /"revert this to the previous docs message."/ (aside highlighted)                      | aside became the docs link                                                                                 |
+| 62    | image path echo                                                                       | NOTHING                                                                                                    |
+| 63    | /"the fucking slowstart will move with deploy. take the right slowstart. 12.xyz???!"/  | =50.01_slowstart= -> =12.01_slowstart=; my "gone entirely" was WRONG — I grepped contents, not filenames    |
+| 64    | /"change the fucking button back !!"/                                                  | lead block fully reverted; =.cta= CSS additions reverted; "three endpoints" -> four                        |
+| 65    | image path echo                                                                       | NOTHING                                                                                                    |
+| 66    | /"find this thread in the database. load the turns. can you trace all the toolcalls? how many where there?"/ | ONE persisted call; the inner ones exist only in stdout; turn 7 declined a request it could serve |
+| 67    | image path echo                                                                       | NOTHING                                                                                                    |
+| 68    | /"where are the buffer names coming from in the f panel?"/                             | =f.svelte:4 modeLabel= — the mode slug; Buffer has no name column at all                                   |
+| 69    | image path echo                                                                       | NOTHING                                                                                                    |
+| 70    | /"we had another section on the hello world app that got cut temporarily. which was that?"/ | I answered "the profile picker" — WRONG                                                               |
+| 71    | /"no it wanst profile. there was a fourth interaction!"/                                | the hallucinate form; 4 aperture routes behind 3 cards                                                     |
+| 72    | image path echo                                                                       | NOTHING                                                                                                    |
+| 73    | /"what was teh idea around ahallucinate? i had 4 titles defined. what were they?"/      | found verbatim in an old compact: the fourth was /"Hallucinate a new View"/                                |
+| 74    | /"Hallucinate a research report. lets tie this up with the research and buffer generation capabilities. search, read, write, render. all within this little component."/ | design pass |
+| 75    | /"it should be more like a briefing. not jsut one input field. actually a brief."/      | three-field sketch off the tool's own schema                                                               |
+| 76    | /"yeah but keep it one textarea. simplicity"/                                           | found subject/brief/angle exist ONLY to build one string                                                   |
+| 77    | /"one textarea!. ok go"/                                                                | schema collapsed to ={brief}=; =/hello/research=; fourth avenue card; snapshot regenerated                  |
+| 78    | MID-TURN, quoting my own plan back: /"weird and derived"/                               | =compose()= and the positional string deleted; ONE =investigate(ctx)=, both doors, no adapter               |
+| 79    | the runtime log + /"Request aborted @ /hello/research"/                                 | 8.004s = =dossier.js:59 timeout(8000)=; no retry storm; the server finished anyway                          |
+| 80    | image path echo                                                                       | NOTHING                                                                                                    |
+| 81    | /"stream."/                                                                            | go                                                                                                         |
+| 82-83 | MID-TURN /"this allows us also to itterate the ux."/ · /"more reactivity"/              | the stream reframed as UX substrate, not a timeout dodge                                                   |
+| 84    | MID-TURN /"i suspect we want the resaech agent to still use the harness spine of turns, etc."/ | the whole design moved onto =harnessed.js=                                                          |
+| 85    | MID-TURN /"look at snapshots too"/                                                      | armory 16 vs research.inner 6 — the boundary was already pinned on disk                                    |
+| 86    | MID-TURN /"and the data on disk"/                                                       | the card's thread: 2 buffers, ZERO turns; =parent= NULL everywhere                                         |
+| 87    | /"work out the patch"/                                                                  | a four-file patch with =input.catalog= and two guards — the wrong shape                                    |
+| 88    | MID-TURN /"what source swap??"/                                                         | no prune on Vector, so narrow at assembly; found =http.js:41= frames ANY async generator as SSE            |
+| 89    | /"nononono omg. no. we dont conditionally fucking write teh fucking harness are you retarded???? just fucking use the harness. idiot."/ | collapsed to =yield* mode.harness.dialogue.stream(...)=; no trait change at all |
+| 90    | /"wtf is fucking phase?????"/ and /"lets not split threads. just run on the current thread. its fine."/ | phase = the drive-mode enum; the child thread dropped              |
+| 91    | /"go"/                                                                                  | landed: 168 -> 91 lines, =yields= on the node, card folds the stream, two copy lies fixed, rig taught HARNESSED |
+| 92    | /"this should be done on app level. ie app dont find faculty, disable the section."/     | guard removed and PROVEN dead code; one test deleted                                                       |
+| 93    | /"works. but the display of the resulted buffer ... i watn a Open Buffer Button."/       | the button already existed in the repo — the shelf was seven minutes stale                                 |
+| 94    | image path echo                                                                       | NOTHING                                                                                                    |
+| 95    | /"ikiro comapct"/                                                                       | this fold                                                                                                  |
+
+* three lies in one paragraph
+
+Beef pasted the lede back with /"this part of hello world is a lie!"/. Counting them was the work:
+
+- /"App.svelte next to a 40-line mode"/ — the mode is 26 lines, but with =aperture.js= 24, =harness.js=
+  39, =doctor.js= 202 and =web/= it is nothing like 40, and =App.svelte= was 1060. The small half was
+  the wrong half.
+- /"the docs take it from here"/ — the primary CTA pointed at =50.01_slowstart=, and that page was gone.
+- and the omission: nothing in the paragraph mentioned the one thing this demo does that nothing else
+  does — the agent reads its own machine.
+
+*** The slowstart correction is the one worth keeping.*** I reported it /"gone entirely"/ on the strength
+of =grep -rl slowstart documentation/= returning nothing. It returned nothing because the word only ever
+appears in the FILENAME. The doc had moved to =10-19_about/12_software/12.01_slowstart.mdx=, and beef's
+own README already linked the right URL in two places. =content.config.ts:9= is
+=generateId: ({entry}) => entry.replace(/.*\//,"").replace(/\.mdx$/,"")= — the whole directory path is
+thrown away, so *the JD number IS the URL* and a doc can move anywhere in the tree without breaking a
+link. A content grep is not an existence check when the identity lives in the name.
+
+* the fourth interaction, recovered from a compact
+
+Beef: /"we had another section on the hello world app that got cut temporarily. which was that?"/ I
+answered "the profile picker" — the model-selector pills — and was wrong. /"no it wanst profile. there
+was a fourth interaction!"/
+
+The tell was in his screenshot all along: the rule read =aperture · 4 routes= while the explainer said
+"Three ways in". Four routes, three cards, and BOTH greeting routes (=/hello/bot=, =/hello/agent=)
+without a surface.
+
+Then /"i had 4 titles defined. what were they?"/ — and they were not in any transcript, because beef had
+given them in a session I could not see. They were in a COMPACT:
+
+#+begin_quote
+Chat with the harness. · Search the open web. · Deterministic Doctor · *Hallucinate a new View*
+#+end_quote
+
+with the reason for the cut written beside it: =/hello/agent= returns a GREETING, not a view, so a
+header reading /"Hallucinate a new View"/ was the view lying about the system. The same defect class
+beef had opened the session with, already diagnosed and already cured once.
+
+*** The compact was the only place that knew.*** Not the code, not the quest, not the transcript. This
+is the fold where the archive paid for itself — a question about intent, answered by grepping the
+record rather than reconstructing it.
+
+* one textarea, and the schema that was scaffolding
+
+/"Hallucinate a research report. lets tie this up with the research and buffer generation capabilities.
+search, read, write, render."/ Then the sharpening: /"actually a brief"/, then /"keep it one textarea.
+simplicity"/, then /"one textarea!. ok go"/.
+
+The reason one textarea was not a downgrade: =subject=, =brief= and =angle= exist ONLY to build one
+string. =ctx.input= appeared at exactly three lines in the whole file, all inside the same block. So
+the three-field schema was scaffolding for a MODEL, which fills forms better than it writes prose — and
+a human writing a brief does not need it.
+
+I then proposed an adapter — a =compose()= helper and a positional pre-formatted string — and beef
+quoted it back with /"weird and derived"/. He was right: the adapter existed only to bridge two shapes
+I had invented. One =investigate(ctx)=, handed to both doors unchanged, needs no bridge.
+
+* the eight-second ceiling
+
+The card worked and died at 8.004 seconds. Not a mystery to design around — one line:
+
+: systems/kajuit/src/typology/entities/daemon/dossier.js:59
+:   .use(shard.connection.timeout(8000));
+
+Every =mode.call.*= on a daemon rides that one connection. The tool door never hits it because that
+call is in-process. Two facts made the diagnosis cheap and both came off the artifacts rather than a
+hypothesis: =retry()= short-circuits on =ctx.request.aborted=, so one click was one research run and
+not three; and the buffer =0b7556c5087a= landed five minutes AFTER the client gave up, so the work
+completed and only the client forgot.
+
+The escape hatch was already written into the shard, with a comment saying why:
+
+: // a stream's lifetime is not a request timeout — SSE connects exempt
+: if (ctx.request.headers.get("accept") === "text/event-stream") return next();
+
+And the server side is generic, not harness-specific — =shape/http.js:41= auto-frames ANY async
+generator as SSE. So the aperture needed no change; the NODE needed =yields=, because
+=shape/connection.js:38= is what wires the client to =connection.stream()=.
+
+* just use the harness
+
+Beef, mid-turn: /"i suspect we want the resaech agent to still use the harness spine of turns, etc."/
+Then /"look at snapshots too"/ and /"and the data on disk"/ — two instructions that turned a design
+argument into a measurement.
+
+*** The data on disk made the case by itself.*** The thread the card had run on:
+
+| thread        | counter | turns | parent |
+|---------------+---------+-------+--------|
+| dock thread   |       2 |     9 | —      |
+| the card's    |       2 |     0 | —      |
+
+Two buffers, ZERO turns. Two searches, a read and a draw had run and left no conversational row. Same
+daemon, nine turns on the thread beside it. And =parent= was NULL on every thread — m55 landed
+=Thread.parent/children= with cascade and nothing had ever used it.
+
+*** Then I over-built it.*** /"work out the patch"/ got a four-file patch: an =input.catalog= field on
+=harnessed.js= to replace the armed set, guards in the mode's harness so the researcher would not
+inherit the demo's persona, and a child thread. Beef: /"nononono omg. no. we dont conditionally fucking
+write teh fucking harness are you retarded???? just fucking use the harness. idiot."/ Then /"lets not
+split threads. just run on the current thread. its fine."/
+
+What survived is four lines:
+
+#+begin_src js
+export const investigate = async (ctx) =>
+  ctx.mode.harness.dialogue.stream({
+    thread: ctx.thread ?? ctx.input?.thread,
+    parts: [{ type: "text", text: ctx.input.brief }],
+    system: { brief: BRIEF },
+    config: { rounds: ROUNDS },
+  });
+#+end_src
+
+Deleted with it: the hand-built =armed= Vector and its four binds, the =iq= claim, the =soma.transcript=
+fold, the projection block, the try/catch, the =probe=, and three imports. 168 lines -> 91. The harness
+already does turns, the em fork, the armed catalog, persistence and the stream.
+
+*** The trade beef accepted, stated plainly.*** The researcher now arms the mode's whole catalog —
+=research= included, bounded only by =ROUNDS = 30=. The old six-tool guard is gone. Two snapshots moved
+and the diff is the honest record:
+
+: -  system  [["brief",1655],["render",6368]]
+: +  system  [["brief",1614]]
+: +  tools   + entity_schema entity_find entity_count buffer_update buffer_label thread_update
+
+=render= disappeared from the researcher's own system because the mode already sets it at the root — it
+had been sent twice all along.
+
+* the guard that could never fire
+
+Beef quoted the faculty check: /"this should be done on app level. ie app dont find faculty, disable
+the section."/ The app already did — =attached = faculties.length > 0= locks the card and swaps the copy.
+
+But it was worse than redundant, it was unreachable. Every hallucinator declares ONE faculty,
+=type: "dialogue"= with =via: {render, stream}=, and =object= is not native at all:
+
+: // cortex.js:69
+: object: (cortex, query) => cortex.findOne({ type: "dialogue", tune: query.tune, via: "render" })
+
+So =dialogue/stream= exists whenever anything does. A model calling =research= is itself running on that
+faculty. The branch could only have fired in a world where nothing could call it. One test went with
+it — it cleared the cortex by hand to reach a state the runtime cannot produce.
+
+* the shelf was the bug, twice
+
+Beef's last request was an Open Buffer button. It already existed — the sibling had written it into the
+repo seven minutes earlier and never synced the shelf, and *the shelf is what the runtime bundles*.
+His screen showed my older line because his bundle was built from a stale file, not because the code
+was wrong.
+
+That is the second time this arc. At turn 60 the sibling's m57 M1 restructure landed under me mid-turn:
+=mode.viva.js= rewritten 45 seconds before I read it, =app/= created empty, =App.svelte= still at the
+root, and =mode.viva.js= pointing at a path that did not yet exist. Files moved twice inside one turn.
+
+*** The rule this earns.*** When the running app looks a version behind, diff repo against shelf BEFORE
+believing the code is wrong. =runtime/watch= excludes =commons/=, so nothing about a commons edit is
+automatic — and a sibling session that edits the repo does not necessarily sync the shelf.
+
+* three callouts
+
+*** A content grep is not an existence check when identity lives in the filename.
+=grep -rl slowstart documentation/= returned empty and I reported the doc /"gone entirely"/. The word
+appears only in the NAME. The file was alive, moved, and already correctly linked from beef's README.
+Search the namespace the identity lives in.
+
+*** The archive answers questions the code cannot.
+/"i had 4 titles defined. what were they?"/ — not in the code, not in the quest, not in the transcript,
+because they were said in a session I could not see. They were in a compact, with the reason for the cut
+beside them. Grep =.ikiro/compacts= before reconstructing intent from evidence.
+
+*** When the fix needs a conditional in a shared trait, the design is wrong.
+I proposed =input.catalog= plus two guards so the researcher could ride the harness without being the
+harness. Beef: /"we dont conditionally fucking write teh fucking harness."/ The correct move was to
+accept the harness whole and let the trade (a wider catalog) be explicit. Four lines instead of four
+files. A conditional in a shared seam is a design refusing to commit.
+
+* the marker — still unruled
+
+=MARKERS.md= carries the cortex-snapshot marker, measured live two folds ago: =provider= and =config= DO
+fire, the =tune= pad DOES fire, so HOLE 1 and HOLE 2 are confirmed TEST gaps and not code gaps. Nothing
+this fold touched it. It wants a verdict, not more evidence: is a second contract fixture owed —
+provider-stamped, config-bearing, both avenues — or does =cortex-contract= deliberately pin the MINIMUM
+with provenance coverage belonging to =cortex.stripwire.test.js=? *Beef rules. Still OPEN.*
+
+* state at fold
+
+| file                                  | state                                                                       |
+|---------------------------------------+-----------------------------------------------------------------------------|
+| =research/index.js=                   | 91 lines; =investigate= is four lines on the harness; tool door folds        |
+| =aperture.js=                         | =/hello/research= with =yields: Packet.Response= — the stream declaration    |
+| =research/brief.js=                   | no longer claims it cannot see the conversation; it can                     |
+| =app/App.svelte=                      | fourth avenue, one textarea, live verbs off the stream, Open Buffer button   |
+| =tests/rig.js=                        | turn stub + =em.fork= + =mode.tools= + HARNESSED applied                     |
+| =tests/=                              | 19 suites / 63 steps GREEN                                                   |
+| shelf                                 | all eleven files byte-identical to repo, verified                            |
+
+Landed and green. Three test assertions moved, each because the thing it pinned is gone: the
+"CANNOT see this conversation" valence claim, =P-subset= (now =P-catalog=), and =S4 ⊂ S1= (now =S4 ⊇ S1=).
+One step deleted outright.
+
+* resumption (owed beef)
+
+The runtime needs a RESTART for the aperture and mode changes — =runtime/watch= excludes =commons/=.
+App bundles recompile at =/metadata/app= in dev, so the card alone only needs a reload.
+
+Not done, and named so it is not lost:
+
+- =/hello/bot= and =/hello/agent= still have no surface. Five aperture routes behind four cards. Beef
+  deferred this once already — /"removing it is a decision rather than an obvious fix"/ — and it is
+  still that decision.
+- =Buffer= has no name column. =f.svelte:4= falls back to the mode slug, so every buffer of a mode
+  renders identically. Beef said /"fixed elsewhere"/; unverified here.
+- Buffers stay =PENDING= forever — nothing advances the status, and =f.svelte:167='s status span is
+  commented out because of it.
+- The =MARKERS.md= ruling.
+- Rotate the anthropic key. Owed since three folds back.
+
+* quest report (derived at fold — `methods/quest-report.py`)
+
+| quest                      | progress   | status                                                                | next                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                      | sessions   |
+|----------------------------+------------+-----------------------------------------------------------------------+---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------+------------|
+| drapes-editor              | —          | landed · the caret bug found and fixed — his click-through gates owed | rebundle + reload, then confirm the caret advances while typing (the one thing the fix is not yet proven against live). then the eight click-through gates below. later, both his call: the language on `#+begin_src js` does not highlight its body; the markdown fence is the same trade.                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                               | 1          |
+| m46-linux-readmen          |  17% 3/18  | wip                                                                   | drain                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                     | 6          |
+| m50-the-three-way-weave    |  60% 3/5   | wip                                                                   | blast                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                     | 1          |
+| m51-standalone-slowstart   |   0% 0/18  | design                                                                | go                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                        | 3 (1 live) |
+| m53-vcompany               |   0% 0/5   | open                                                                  | **t1.1** h1 · e1 · p1 · t1 · b1 · k1 + s1 · x1 · x2 · x3 + i1 (the index as rows) landed in `~/.viva/instances`; blocked on **r1** (paladin =resolve= percent-encodes — one-line diff + one test in the quest, his go, repo): the four reds (tools file · move; snapshots tools · aperture) are r1 and nothing else; a1 struck (the app is the sibling's v3); d1 (readme) on go; the =open= schematic on buffer-data level — sketch in "landed", his word; officers out by his order; then **the slow first attach** (the boot race under `instance/run`) → gs1/gs2 click-through after restart; the bundle weight ledgered, direction his; s3 voffice → s4 desk on go; `* t1.#2` his call; the runtime's m:n =cascade.remove= both ways ledgered as a landmine (his)                                                                                                                                                                                                                                                                                                     | 5          |
+| m53-vcompany.pre           | —          | open                                                                  | t1 package setup — the m27 gate moves to the executive stage; t1–t3 do not wait on it                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                     | 3          |
+| m53-vcompany.v3-vdex       | —          | landed                                                                | one restart carries both — the new pdf viewer (=paper.svelte=) and the cargo fix (=freight.js=, uncommitted); then open a spaced-name pdf: it should render, page nav and zoom live, the rail on ▤. the six later items stay marked in the root quest.                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                    | 3          |
+| m53.v4-mail+calendar       | —          | landed                                                                | the six office test files — =office/email/tests/{aperture,tools,email.snapshot}.test.js= and =office/calendar/tests/{aperture,tools,calendar.snapshot}.test.js=; =/key=, the held send and the thread walk are landed and untested. then his restart + the click-through gates. open, not mine: the sibling's mode-ownership landing duplicates every symbol (16 rows, 8 distinct, the dummy's copies bare), which contradicts this quest's law that the office declares the scheme and the provider carries the rows.                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                    | 1          |
+| m54-buffer-file            |   0% 0/4   | open                                                                  | reconcile with m53 =* t1.1= and =m53-vcompany.v3-vdex= first (three quests, one seam, all waiting on go; v3 splits the app into a shell + 7 parts + =buffer/jdex.js= and already points here for file upload — m54's app hunk names the single =vdex.svelte= and must be re-cut onto whichever lands first) (a sibling session, beef's rulings there: the vdex speaks slugs — =/document /write /file /move /delete= implemented once in the aperture, tools wrap =mode.call.<verb>=, =fs_*= slurp gone on vdex; =open= is an emitter; the boot watches files and syncs per path — /"shouldnt this watch files??!!!"/; /"wtf is daemon traits stamp????"/ → gone) — three seams now name the verbs' home (t1.1 aperture · m54 sketch · mikro-first repository), beef arbitrates; then beef reopens the questioned block when ready — order of design there is mikro entity + bufferrepository verbs → typology verb contract → shard mounts → remoterepository mirrors → kajuit. until then m1 = everything but the verbs. "go m1" → full hunks against the tree as read. | 2 (1 live) |
+| m55-recursive-terminals    |  20% 3/15  | wip                                                                   | go m2 — the kajuit terminal: up · down · status · stop · run · watch, the tree, the schematic, panel f                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                    | 4          |
+| m56-the-pincer-turns       | 100% 2/2   | verify                                                                | live-walk c at both aspects · markers 2·3·4·10·13·14 need a dom                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                           | 2          |
+| m57-hello-world-researches |  74% 20/27 | open                                                                  | restart (harnessed.js · generative.js · buffer.ts · thread.ts are repo files; buffer migrates). /"research flamingos, with a picture"/ → one <figure>, line reads the label. a follow-up change → `revised buffer <id> index 0 view <new>`, same line re-mounts, no cursor. /"call that page flamingos"/ → one buffer_label. then rip every [m3:*] probe.                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                 | 2 (1 live) |
+| m58-application-noun       | —          | designed                                                              | beef rules the three decisions, then "go" — steps 1–6 under the blast bracket, one pass per step                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                          | 1          |

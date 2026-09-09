@@ -1,5 +1,6 @@
 #+title: the docs get their first real pages, the dossier trades open source for fair source, and the variant page refuses to land until the code is actually read
 #+filetags: :docs:documentation:jdex:dossier:license:paladin:runtime:variant:
+#+index: 59
 
 * what happened, in one breath
 

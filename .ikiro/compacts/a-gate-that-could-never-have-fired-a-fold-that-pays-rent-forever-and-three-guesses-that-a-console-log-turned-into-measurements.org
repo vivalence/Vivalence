@@ -1,0 +1,228 @@
+#+title: a gate that could never have fired, a fold that pays rent forever, and three guesses that a console.log turned into measurements
+#+filetags: :m57:hello-world:doctor:harness:middleware:caching:probe:paladin:environment:snapshot:landing:
+#+index: 5
+#+session: e2a804e1 · turns 45-63 of 63 (1-25 and 26-44 folded earlier this session)
+
+* TOPIC
+
+m57 M0 — the machine record. Two halves: the standing facts go into the system prompt for
+free, and =viva_doctor= stays the one door to everything under them. Landed, walked green,
+probe in and back out. M1 prepared with an ordered landing manoeuvre.
+
+Everything in this fold is hello-world and its quest. No runtime, typology, paladin or kajuit
+code was touched.
+
+* the spine
+
+N = 63. This walk covers 45-63; the earlier two folds of this session took 1-25 and 26-44.
+Nineteen rows, nineteen turns, none skipped.
+
+| n | beef | landed |
+|---+------+--------|
+| 45 | /"go on m1"/ | read M1, found a LOAD-FATAL defect in its own tangle. No code. |
+| 46 | /"whats done so far?"/ | two reads, nothing written — reported as such, with the defect |
+| 47 | three orders: no root task · rename to =web/search= =web/read= · fix the defect | all three; plus a duplicated paragraph removed |
+| 48 | /"i expect for m0 that the current harness already receives all the information that doctor pulls"/ | answered NO, with the three-line harness. Projection proposed, not a paste |
+| 49 | /"lets add a tool that can load the COMPLETE diagnostics … yay?"/ | the lowering constraint; arming-by-history proposed; one question put back |
+| 50 | /"no. call it viva/doctor!. otherwise go. embedd into quest"/ | one door; the bang cannot ride a nature; M0 + T0 into the quest |
+| 51 | /"fist test, i run this in the agent and you add a console.log"/ | T0 probe, repo + shelf |
+| 52 | /"why only on turns we want doctor??! … this is a stupid gate"/ | GATE STRUCK. Two ungated halves |
+| 53 | /"not good. teh mode can read paladin … thats what he is for"/ | env values out of the tool |
+| 54 | /"we can standardize really. no need for two."/ | ONE projection; the FOLD drops values; App.svelte follows |
+| 55 | /"drown in logs. g m0. run tests."/ | M0 landed, 4 test files, S0 born, green |
+| 56 | /"tell me when done. i provide you with live logs"/ | NOTHING (a hold) |
+| 57 | runtime logs, first turn | =P-order= measured FALSE |
+| 58 | the dock's /"tools declared 0"/ | diagnosed: a roster of CALLED tools, plus the TOOLED stripwire gap |
+| 59 | /"pull again. i ran tools."/ | the six turns pulled in full; the tool round measured |
+| 60 | runtime log of the tool round | 11216 bytes, three section sizes |
+| 61 | /"remove the section logic entirely. hello world. no logic."/ + two questions | section ripped; =mode.aperture= kept; the caching answer corrected |
+| 62 | /"validate the snapshots. cleanup the logs. prepare … m1. ikiro compact."/ | this fold |
+| 63 | /"give the harness on conversation dialogue level some information about the markdown formatting"/ | =FORMAT= on the =/dialogue= branch — the struck gate's "correct harness path", used properly |
+
+* Arc
+
+** the harness had three lines, and one of them was a wish
+
+Beef asked whether the harness already receives what =doctor()= pulls. It did not. The whole
+of it was =system.hello=, three sentences, the third reading /"Anything about this machine
+comes from viva_doctor"/ — the mode asking the model, in prose, to spend a round on a fact it
+could have been handed. Prose is the weakest instrument available and this is the third time
+this quest has caught itself reaching for it.
+
+=doctor()= is not promptable as-is: it returns =ledger.environment= (every variable's VALUE),
+=registry.modules= and =ledger.instances=, and it =await=s two =paladin.ledger.*.list()=
+filesystem walks. Put that in the harness and every turn pays two walks.
+
+So M0 is a PROJECTION, not a paste. =standing(ctx)= reads state already in memory —
+synchronous, no walk — and =machine()= renders it as four kinds of line. 429 characters, inside
+the cache-marked prefix, free after the first write.
+
+** the gate beef struck was also a gate that could never have fired
+
+The first draft let =viva_doctor= ARM the full fold: the tool returns a receipt, the harness
+sees the call in the thread's history and installs =system.diagnostics= from the next turn on.
+Beef: /"why only on turns we want doctor??! either this belongs into the correct harness path
+or this is a stupid gate. i'd rather attach this as a tool called on demand."/
+
+He was right on the shape, and the reasons are worse than the one he gave. It pinned the
+harness to a tool NAME as a magic string; it inferred intent from transcript archaeology; it
+was sticky with no way off; and it was CIRCULAR — it read history to learn the model had
+asked, while that same history already held the answer the tool could have returned.
+
+**Then the probe showed it was broken too.** =armed(ctx.hallucination.turns)= reads a value
+the mode harness does not have: the probe printed =turns: []= on a request where four user
+turns already sat in the db on that thread, and again on a fresh thread, and again after a
+restart. Three measurements, one verdict — =P-order= is FALSE.
+
+The reasoning that produced it: =/dialogue= sets =ctx.hallucination.turns= at
+=harnessed.js:97-108=, =mode.module.harness= is slurped at =:157=, AFTER it, therefore the mode
+harness sees a populated =turns=. Registration order is real. It is not execution order. A
+root-level =use= runs before every branch-level =use= on the same path no matter when it was
+registered, because dispatch walks the trie root-first.
+
+So the feature would have compiled, type-checked, passed review and silently done nothing
+forever. Beef killed it for being ugly; it was also dead.
+
+** the environment: two audiences collapsed into one projection
+
+=ledger.environment= was =Object.fromEntries(keys.map((key) => [key, paladin.env.get(key)]))=.
+No secret is in there — =Paladin.split()= files every =SECRET_*= into a different =Env= — but
+it is the machine's whole environment written into a turn row for the life of a thread and
+shipped to a provider.
+
+Beef, twice. First: /"the mode can read paladin. why not just pull from there? thats what he
+is for."/ I answered with a two-audience split — the fold keeps values for =App.svelte=, the
+tool projects. Then: /"we can standardize really. no need for two."/
+
+One projection wins. =variables(env = paladin.env)= returns ={key, set}=, the FOLD itself takes
+it, and no consumer can leak a value because no consumer is handed one. The App's band loses
+nothing that mattered: it already prints /"N resolved, M unset"/ and the =requirements= list
+under it already names every unset slot.
+
+Walked, on the real wire: twelve entries, all ={key, set}=, no path and no URL anywhere.
+
+** the fold pays rent forever, and there is no lever
+
+The live round, both ends measured:
+
+: 06ad45ba  user       43       "pull viva doctor"
+: 01a0819a  assistant  1115     thinking | tool_use:viva_doctor   input {}
+: 01a0819a  user       11287    tool_result                       ← the fold, as a turn row
+: 01a0819a  assistant  809      input 6073 · cache_read 4227 · out 297
+:
+: fold  11216 bytes   daemon 2060 · ledger 2135 · registry 6988   (registry is 62%)
+
+I had written that the fold is /"re-sent uncached on every remaining turn"/ in a way that
+implied a plan to fix it. Beef: /"i dont understand how you want to accomplish caching ??"/
+
+There is no plan and there cannot be one. =translate.js:105,113= set =cache_control: {type:
+"ephemeral"}= on the LAST system block and the LAST tool, and NOWHERE in =messages=. Caching
+works on a prefix ending at a breakpoint; turns sit past every breakpoint by construction. The
+4227-token prefix (system + the 16-tool armory) is written once and read free — visible as
+=cache_read: 4227= on the next turn. The fold is fresh input for the rest of the thread.
+
+Sectioning the tool was the only lever, and beef removed it: /"remove the section logic
+entirely. hello world. no logic."/ Correct — a knob on a demo's one door is logic nobody asked
+for, and the cost is one call in a demo thread. What survives is the valence saying plainly
+that the record STAYS once pulled, so the model knows the price before it decides.
+
+** things I asserted without checking, corrected in the same session
+
+/"the model cannot call any of the seven"/ — about =/status=, =/manifest= and =/harness/*=
+appearing in =machine='s route list. Beef: /"we might want to read mode.aperture. thats what
+its for."/ EXPOSED mounts those as real routes and =shell_run= is armed; the model can reach
+them. =mode.aperture= is the resolved surface and that is the honest answer. No change.
+
+/"belongs to whoever owns =viva instance/doctor= too"/ — about changing the fold. Wrong: that
+is ghost's own trajectory (=ghost/trajectories/index.js:18=). Nothing outside hello-world reads
+=doctor()=.
+
+* failures and near-misses
+
+- **A load-fatal defect in my own tangle**, caught only because beef said /"go"/ and I read the
+  block before running it. =web/index.js= carried TWO handlers welded onto one =.open()= — the
+  stale inline-fetch version and the =query()=-calling one, with an orphan =)= between them.
+  It would not have parsed. It had survived a critical review, a rewrite and a milestone sort.
+- **A duplicated paragraph** in =** what exists= — /"hello-world has ZERO tests today"/ twice,
+  left by the previous fold's block-extraction script. Same family as the =** structure=
+  splice: a script that moves prose leaves damage no test can see.
+- **=doctor.js:84='s guard is decorative.** =shape.cortex.strip(ctx.daemon.cortex ?? [])= — an
+  =[]= has no =.faculties=, so the fallback throws. A daemon with no cortex cannot be doctored.
+  Found by a test needing a fake daemon; stubbed there, NOT widened into M0.
+- **=registry.count.test.js:62= is red and it is not ours** — it asserts on =multiplayer=,
+  whose only wafers live under =commons/instances/bak/=, which =belt/find.js= skips by design.
+  m51 moved them; the test still expects them.
+- The dock's /"tools declared 0"/ is honest and the LABEL is what lies: =Dock.svelte:427=
+  derives its roster from tool parts in the thread's turns — what was CALLED, not what is
+  armed. =grep -rn "metadata/tools"= across runtime and kajuit returns nothing, which is the
+  known TOOLED stripwire gap.
+
+* what M0 shipped
+
+: doctor.js      + variables(env) · standing(ctx) · machine(facts); the fold DROPS env values
+: mode.viva.js   + HELLO export; harness is three lines, no gate, no probe
+: tools.js       /viva/doctor — the valence rewritten, input v.object({}), shape unchanged
+: App.svelte     the environment band reads a list of {key, set}
+: README.md      NEW — the package's own test command. deno.jsonc UNTOUCHED
+: tests/         doctor · tools · harness.snapshot   5 passed (10 steps)
+: S0             hello-world-harness.snapshot.json — hello 413 chars, matches the live log
+
+Markers held: =P-machine= · =P-novalues= · =P-noknobs=. =P-order= struck with the design that
+needed it.
+
+** the branch beef asked for at the struck gate, finally used
+
+When beef killed the arming gate he offered the alternative in the same breath: /"either this
+belongs into the correct harness path or this is a stupid gate."/ The markdown brief is what
+that path is FOR. =harness.branch("/dialogue").use(…)= — francesca's spelling
+(=education/modes/teacher/francesca/harness.js:10=) and the runtime's own cortex scenario — so
+=system.format= reaches a dialogue and never an =object.render= or a =verbatim= stream, which
+have no prose and no dock.
+
+The two lines are the drapes parser's actual vocabulary, read off =display/markdown.js:6-12=,
+not markdown in general: headings, fenced code with a lang, three list markers, blockquote,
+hr, pipe tables, and inline =**bold**= =*italic*= =_italic_= =`code`= =[text](url)=. The second
+line names what does NOT render — images, HTML, strikethrough, footnotes, task boxes — because
+a model that emits =~~struck~~= puts tildes on the operator's screen. =Dock.svelte:649= renders
+assistant text through that component, which is what makes the brief true rather than
+plausible.
+
+=HELLO='s second line said /"No markdown, no lists, no headings"/ and had to go: it would have
+contradicted the brief one section later.
+
+* State at fold
+
+M0 LANDED + WALKED GREEN, uncommitted, in the checkout AND on the shelf. The probe is out and
+the suite is green without it. M1-M4 designed; the quest is 1719 lines and carries an ordered
+=** landing= manoeuvre whose first and seventh steps are beef's — two VCS lines I cannot run.
+
+The M1 campaign names the part a "just add tests" plan misses: two of M0's four test files
+CHANGE. =tools.test.js= imports a file M1 deletes, and =harness.snapshot.test.js= pins a =HELLO=
+whose text names the tool being renamed, so S0 must be rewritten hot.
+
+Standing and unpaid: **rotate the Anthropic key**, two cleartext copies in the working tree.
+
+* the last order, taken at the fold
+
+/"validate the snapshots. cleanup the logs. prepare the testing campaign and landing manouvre
+for m1. ikiro compact."/ — snapshots validated against the live log (=hello= 413 both sides,
+=machine= deliberately different because S0 uses a fixed standing literal); probes stripped
+from both files, suite re-run green, shelf re-synced; the M1 landing and campaign written into
+the quest; this fold.
+
+* quest report (derived at fold — `methods/quest-report.py`)
+
+| quest                      | progress  | status                                                                | next                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                      | sessions   |
+|----------------------------+-----------+-----------------------------------------------------------------------+---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------+------------|
+| drapes-editor              | —         | landed · the caret bug found and fixed — his click-through gates owed | rebundle + reload, then confirm the caret advances while typing (the one thing the fix is not yet proven against live). then the eight click-through gates below. later, both his call: the language on `#+begin_src js` does not highlight its body; the markdown fence is the same trade.                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                               | 1 (1 live) |
+| m46-linux-readmen          |  17% 3/18 | wip                                                                   | drain                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                     | 6          |
+| m50-the-three-way-weave    |  60% 3/5  | wip                                                                   | blast                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                     | 1          |
+| m51-standalone-slowstart   |   0% 0/18 | design                                                                | go                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                        | 2          |
+| m53-vcompany               |   0% 0/5  | open                                                                  | **t1.1** h1 · e1 · p1 · t1 · b1 · k1 + s1 · x1 · x2 · x3 + i1 (the index as rows) landed on the shelf; blocked on **r1** (paladin =resolve= percent-encodes — one-line diff + one test in the quest, his go, repo): the four reds (tools file · move; snapshots tools · aperture) are r1 and nothing else; a1 struck (the app is the sibling's v3); d1 (readme) on go; the =open= schematic on buffer-data level — sketch in "landed", his word; officers out by his order; then **the slow first attach** (the boot race under `instance/run`) → gs1/gs2 click-through after restart; the bundle weight ledgered, direction his; s3 voffice → s4 desk on go; `* t1.#2` his call; the runtime's m:n =cascade.remove= both ways ledgered as a landmine (his)                                                                                                                                                                                                                                                                                                               | 5          |
+| m53-vcompany.pre           | —         | open                                                                  | t1 package setup — the m27 gate moves to the executive stage; t1–t3 do not wait on it                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                     | 3          |
+| m53-vcompany.v3-vdex       | —         | landed                                                                | one restart carries both — the new pdf viewer (=paper.svelte=) and the cargo fix (=freight.js=, uncommitted); then open a spaced-name pdf: it should render, page nav and zoom live, the rail on ▤. the six later items stay marked in the root quest.                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                    | 3 (1 live) |
+| m53.v4-mail+calendar       | —         | landed                                                                | the six office test files — =office/email/tests/{aperture,tools,email.snapshot}.test.js= and =office/calendar/tests/{aperture,tools,calendar.snapshot}.test.js=; =/key=, the held send and the thread walk are landed and untested. then his restart + the click-through gates. open, not mine: the sibling's mode-ownership landing duplicates every symbol (16 rows, 8 distinct, the dummy's copies bare), which contradicts this quest's law that the office declares the scheme and the provider carries the rows.                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                    | 1          |
+| m54-buffer-file            |   0% 0/4  | open                                                                  | reconcile with m53 =* t1.1= and =m53-vcompany.v3-vdex= first (three quests, one seam, all waiting on go; v3 splits the app into a shell + 7 parts + =buffer/jdex.js= and already points here for file upload — m54's app hunk names the single =vdex.svelte= and must be re-cut onto whichever lands first) (a sibling session, beef's rulings there: the vdex speaks slugs — =/document /write /file /move /delete= implemented once in the aperture, tools wrap =mode.call.<verb>=, =fs_*= slurp gone on vdex; =open= is an emitter; the boot watches files and syncs per path — /"shouldnt this watch files??!!!"/; /"wtf is daemon traits stamp????"/ → gone) — three seams now name the verbs' home (t1.1 aperture · m54 sketch · mikro-first repository), beef arbitrates; then beef reopens the questioned block when ready — order of design there is mikro entity + bufferrepository verbs → typology verb contract → shard mounts → remoterepository mirrors → kajuit. until then m1 = everything but the verbs. "go m1" → full hunks against the tree as read. | 1          |
+| m55-recursive-terminals    |  20% 3/15 | wip                                                                   | go m2 — the kajuit terminal: up · down · status · stop · run · watch, the tree, the schematic, panel f                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                    | 3          |
+| m56-the-pincer-turns       | 100% 2/2  | verify                                                                | live-walk c at both aspects · markers 2·3·4·10·13·14 need a dom                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                           | 2          |
+| m57-hello-world-researches |  19% 4/21 | open                                                                  | =go m1= → the restructure + =web/= (search: ask for a term, get results), landing manoeuvre in =** landing=; the first step is beef's, four =git mv= lines. then m2 read, m3 draw, m4 the nested agent. three steps you can ask for from the dock, then the composition.                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                  | 1 (1 live) |

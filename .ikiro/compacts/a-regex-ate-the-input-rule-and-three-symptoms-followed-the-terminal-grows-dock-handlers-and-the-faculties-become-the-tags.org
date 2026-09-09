@@ -1,0 +1,142 @@
+#+title: a regex ate the input rule and three symptoms followed, the terminal grows dock handlers, and the faculties become the tags
+#+filetags: :hello-world:kajuit:terminal:dock:cortex:faculty:thread-trait:INTELLIGENT:svelte:css:dapper:theme:tokens:regex:verification:callouts:
+#+index: 7
+#+session: 9 beef turns (38-46 of 46; 1-25 and 26-37 folded in two earlier compacts)
+
+* one breath
+
+Three layout orders and one investigation, then the session's real lesson arrived from my own hand.
+Cleaning dead CSS after ripping out hello-world's inline dock, I cut rule blocks by regex — and one of
+them was a comma group. `.composer input` went, taking the shared declaration block with it and leaving
+`.agent input,` dangling, which merged into the next rule: `cursor: not-allowed`. The input lost its
+flex, its transparent background and its font size in one deletion, and beef came back with a screenshot
+naming all three symptoms as if they were three bugs. They were one. The compiler's unused-selector
+warnings — the only thing I had checked — cannot see a rule that is gone.
+
+What landed clean: the Terminal grew a set of dock handlers, so a mode can open the real chat instead of
+rolling its own, and hello-world's inline dock came out whole — 128 lines of toy copy replaced by one
+call. The faculties stopped being a green one-liner and became the three tags under the explainer, each
+one a profile that writes the thread's `INTELLIGENT.tune`.
+
+* the spine — 9 turns
+
+| n  | beef | landed | decided |
+|----+------+--------+---------|
+| 38 | /"change the layout. a: move the json data of cortex into the doctor section. b: the active state of the input doesnt look active at all. too dark. and hallucinate isnt ACTIVE CLICK ME"/ | cortex JSON → a doctor card; `--field` = `--colors-skeleton-3-surface` (zone 3 is the LIGHT panel in both themes); the submit went from a 40 %-alpha outline to the filled primary | the key/value row stopped saying =object/render= and started counting faculties |
+| 39 | /"add the selectable profiles by name into tags below. selectable - sets thread trait for harness transport."/ | profile pills writing `thread.trait.INTELLIGENT = { tune }` + claiming the trait — the same write kajuit's own `Intelligent.svelte:63-69` makes | the transport path was already there: `harnessed.js:35` reads the row, `:73` projects `iq.tune` into `policy.tune` |
+| 40 | /"investigate how the kajuit handles dock. is there a function the mode can call to start the dock?! to 'start chatting'??"/ | NO mode-facing function found: `$dock` is an atom on the Terminal, the four setters live in `stores/bridge/dock.js`, and panel f's button is literally labelled /"start chatting"/ | a mode CAN write `terminal.$dock.set(...)` — and would be encoding the client store's shape by hand |
+| 41 | /"good. run that. go"/ + /"maybe the terminal should have a set of doc handlers?"/ | `setDockCollapsed · setDockFull · setDockSide · setDockShare` on the Terminal entity, names taken VERBATIM from the store; hello-world's inline dock deleted whole (dockbar, turn list, composer, `send()`, 5 state vars, 11 CSS rules) | the mode drives the real dock; `get dock()` untouched so persistence still serializes plain state |
+| 42 | /"ok. does hello world use that now?"/ | three lines, repo and shelf byte-identical | — |
+| 43 | /"is it harnessed?"/ | proved live, not read off the file: `/metadata/modes` carries HARNESSED, and `/metadata/harness` answers 200 — a route `metadata.js:47` only mounts when the trait holds | the dock gates on the THREAD's mode, not the buffer's |
+| 44 | screenshot + /"the hallucinate button is all over the place. the bg color of input is weird. and its forcing a weird mouse pointer symbol."/ + /"the 3 faculties attached shoudl be switched to 3 tags below"/ | ONE cause found and fixed; faculties moved out of the doctor tag row to under the explainer | the model picker is reachable without pressing doctor — the open question from the turn before |
+| 45 | (the image's source line) | — | NOTHING |
+| 46 | /"ikiro compact. is the magnolia search stuff compacted yet?"/ | yes — compact 7, tagged `marginalia` + `websearch`, and `project_hello_world_mode` carries the six-endpoint probe and the CC-BY-NC-SA terms | this fold |
+
+* one deletion, three symptoms
+
+#+begin_example
+  .agent input,
+  .composer input {          ← the regex matched HERE and cut to the closing brace
+    flex: 1; background: transparent; border: none; outline: none;
+    color: var(--ink); font-size: var(--font-size-xs);
+  }
+  .agent.blocked input { cursor: not-allowed; }
+
+                              ↓ after the cut
+
+  .agent input,
+  .agent.blocked input {
+    cursor: not-allowed;     ← the input's ONLY remaining style
+  }
+#+end_example
+
+Lost `flex: 1` → the button had nothing pushing it, so it sat wherever the box collapsed to.
+Lost `background: transparent` → the browser's default white field inside a cream bar.
+Lost `font-size` → the default 16 px against a 12 px design.
+Gained `not-allowed` unconditionally → the cursor beef named.
+
+Four defects, one line of regex. The check I ran afterwards was the Svelte compiler's
+`css_unused_selector` list, which is exactly blind to this: a deleted rule raises no warning, and the
+orphaned selector went on matching. The audit that WOULD have caught it is one grep —
+`^\s*\.[a-z].*,$` for comma-grouped selectors, which found the orphan in one line once I went looking.
+
+* the terminal grows handlers
+
+#+begin_src js
+    get dock() {
+      return $dock.get();
+    },
+
+    setDockCollapsed: (collapsed) => setDockCollapsed($dock, collapsed),
+    setDockFull: (full) => setDockFull($dock, full),
+    setDockSide: (side) => setDockSide($dock, side),
+    setDockShare: (share) => setDockShare($dock, share),
+#+end_src
+
+No argument means toggle — the store's setters already do `?? !current`, which is what panel f's button
+has always relied on. `get dock()` is untouched, so `terminals.js:51`'s `dock: live.dock` still
+serializes a plain record rather than a bag of functions. hello-world's whole chat is now:
+
+#+begin_src js
+  function chat() {
+    if (!attached) return nudge();
+    terminal.setDockCollapsed(false);
+  }
+#+end_src
+
+`terminal` was always in `Frame.svelte:63`'s props; the mode simply never destructured it. The dock it
+opens brings dictation, tool census, thinking and full-screen — all of which the inline copy lacked.
+
+* three callouts
+
+- *a regex is not a parser, and a compiler warning is not an audit.* Cutting CSS rule blocks by
+  `\.selector \{[^}]*?\}` is correct only for rules that are not comma-grouped, and nothing in the sweep
+  tested that. Corrective rule: when deleting declarations, delete by SELECTOR LIST — check for a
+  trailing comma on the line above and the line below first — and verify with a grep for orphans
+  (`^\s*\.[a-z].*,$`), never with the compiler's unused-selector output, which cannot see an absence.
+  Same family as the codemap's `generated` invariant: parsing is not verification.
+- *a screenshot that names three things can be one thing.* beef reported the button position, the
+  background and the cursor as three complaints. Treating them as three would have produced three
+  patches over a corrupted rule. Corrective rule: before fixing any of them, read the rule that governs
+  all three — a cluster of symptoms in one component usually shares one declaration block.
+- *prove a trait from the route, not the manifest.* /"is it harnessed?"/ is answerable from
+  `mode.viva.js` in one grep, and that answer is a claim about a file. `/metadata/harness` returning 200
+  is the trait itself, because `metadata.js:47` only mounts that route when `implements("HARNESSED")`
+  holds on the live mode. Reach for the surface a trait CAUSES, not the declaration that requests it.
+
+* state at fold
+
+hello-world: 19870 B compiled, 2 warnings (the pre-existing a11y pair), zero unused selectors, repo and
+shelf identical across all five files. kajuit 37 passed / 133 steps / 0 failed. The view has NOT been
+witnessed since the fix — the last screenshot is the broken one, and every claim about the repair is a
+compile plus a grep.
+
+`MARKERS.md` still carries its one OPEN entry: the cortex snapshot pins `type · tune · context ·
+channels · via` and misses `provider` and `config` on every test path, which are exactly the two fields
+the new tags render. The ruling — second fixture, or minimum-by-design — is beef's and has not been
+given.
+
+* resumption (owed beef)
+
+Reload and look. The input should read as an open field, the tags should show three model names, and
+`chat with harness` should slide kajuit's real dock in from the right.
+
+Rotate the Anthropic key — still owed from the previous fold, still in the scrollback.
+
+`go` on `refused`, and the `MARKERS.md` ruling.
+
+* quest report (derived at fold — `methods/quest-report.py`)
+
+| quest                    | progress  | status                                                                | next                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                      | sessions   |
+|--------------------------+-----------+-----------------------------------------------------------------------+---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------+------------|
+| drapes-editor            | —         | landed · the caret bug found and fixed — his click-through gates owed | rebundle + reload, then confirm the caret advances while typing (the one thing the fix is not yet proven against live). then the eight click-through gates below. later, both his call: the language on `#+begin_src js` does not highlight its body; the markdown fence is the same trade.                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                               | 1 (1 live) |
+| m46-linux-readmen        |  17% 3/18 | wip                                                                   | drain                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                     | 6          |
+| m50-the-three-way-weave  |  60% 3/5  | wip                                                                   | blast                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                     | 1          |
+| m51-standalone-slowstart |   0% 0/18 | design                                                                | go                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                        | 2          |
+| m53-vcompany             |   0% 0/5  | open                                                                  | **t1.1** h1 · e1 · p1 · t1 · b1 · k1 + s1 · x1 · x2 · x3 + i1 (the index as rows) landed on the shelf; blocked on **r1** (paladin =resolve= percent-encodes — one-line diff + one test in the quest, his go, repo): the four reds (tools file · move; snapshots tools · aperture) are r1 and nothing else; a1 struck (the app is the sibling's v3); d1 (readme) on go; the =open= schematic on buffer-data level — sketch in "landed", his word; officers out by his order; then **the slow first attach** (the boot race under `instance/run`) → gs1/gs2 click-through after restart; the bundle weight ledgered, direction his; s3 voffice → s4 desk on go; `* t1.#2` his call; the runtime's m:n =cascade.remove= both ways ledgered as a landmine (his)                                                                                                                                                                                                                                                                                                               | 5          |
+| m53-vcompany.pre         | —         | open                                                                  | t1 package setup — the m27 gate moves to the executive stage; t1–t3 do not wait on it                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                     | 3          |
+| m53-vcompany.v3-vdex     | —         | landed                                                                | one restart carries both — the new pdf viewer (=paper.svelte=) and the cargo fix (=freight.js=, uncommitted); then open a spaced-name pdf: it should render, page nav and zoom live, the rail on ▤. the six later items stay marked in the root quest.                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                    | 3 (1 live) |
+| m53.v4-mail+calendar     | —         | landed                                                                | the six office test files — =office/email/tests/{aperture,tools,email.snapshot}.test.js= and =office/calendar/tests/{aperture,tools,calendar.snapshot}.test.js=; =/key=, the held send and the thread walk are landed and untested. then his restart + the click-through gates. open, not mine: the sibling's mode-ownership landing duplicates every symbol (16 rows, 8 distinct, the dummy's copies bare), which contradicts this quest's law that the office declares the scheme and the provider carries the rows.                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                    | 1          |
+| m54-buffer-file          |   0% 0/4  | open                                                                  | reconcile with m53 =* t1.1= and =m53-vcompany.v3-vdex= first (three quests, one seam, all waiting on go; v3 splits the app into a shell + 7 parts + =buffer/jdex.js= and already points here for file upload — m54's app hunk names the single =vdex.svelte= and must be re-cut onto whichever lands first) (a sibling session, beef's rulings there: the vdex speaks slugs — =/document /write /file /move /delete= implemented once in the aperture, tools wrap =mode.call.<verb>=, =fs_*= slurp gone on vdex; =open= is an emitter; the boot watches files and syncs per path — /"shouldnt this watch files??!!!"/; /"wtf is daemon traits stamp????"/ → gone) — three seams now name the verbs' home (t1.1 aperture · m54 sketch · mikro-first repository), beef arbitrates; then beef reopens the questioned block when ready — order of design there is mikro entity + bufferrepository verbs → typology verb contract → shard mounts → remoterepository mirrors → kajuit. until then m1 = everything but the verbs. "go m1" → full hunks against the tree as read. | 1          |
+| m55-recursive-terminals  |  20% 3/15 | wip                                                                   | go m2 — the kajuit terminal: up · down · status · stop · run · watch, the tree, the schematic, panel f                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                    | 3          |
+| m56-the-pincer-turns     | 100% 2/2  | verify                                                                | live-walk c at both aspects · markers 2·3·4·10·13·14 need a dom                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                           | 2          |

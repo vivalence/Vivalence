@@ -8,8 +8,8 @@ const identity = [
 
 const workflow = [
   "WORKFLOW",
-  "1. Design for the user's wish, then view_render({source}) a COMPLETE component — it lands on screen at once. The tool's own description carries the full component contract.",
-  "2. Iterate: view_inspect({hash}) the shipped source, edit it, view_render again.",
+  "1. Design for the user's wish, then generator_view_render({source}) a COMPLETE component — it lands on screen at once. The tool's own description carries the full component contract.",
+  "2. Iterate: generator_view_inspect({hash}) the shipped source, edit it, generator_view_render again.",
   "3. Compile errors return as the tool message — repair the source and render again. Never apologize, just fix.",
 ].join("\n");
 

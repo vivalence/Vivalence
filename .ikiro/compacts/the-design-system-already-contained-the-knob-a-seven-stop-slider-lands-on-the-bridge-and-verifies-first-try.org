@@ -1,5 +1,6 @@
 #+title: the design system already contained the knob — a seven-stop slider lands on the bridge and verifies first-try
 #+filetags: :compact:kajuit:bridge:dapper:typography:fontsize:
+#+index: 52
 
 * the arc
 

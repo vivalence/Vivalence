@@ -1,5 +1,6 @@
 #+title: two walkers reach hello-world on ubuntu and alpine, the README counts a .bak directory as a mode, and init waits forever for a child that died
 #+filetags: :readme:docs:ghost:instance:init:kajuit:rolldown:musl:alpine:ubuntu:docker:subagents:quest:report:callout:delegation:
+#+index: 141
 
 * what happened, in one breath
 

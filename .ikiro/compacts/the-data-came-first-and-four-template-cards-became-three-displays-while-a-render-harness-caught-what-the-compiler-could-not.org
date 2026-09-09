@@ -1,0 +1,247 @@
+#+title: the data came first and four template cards became three displays, while a render harness caught what the compiler could not
+#+filetags: :hello-world:doctor:paladin:instance:ledger:registry:cortex:dormant:pinhole:secrets:svelte:css:dapper:zoom:verification:ssr:render-harness:known-issues:callouts:m57:collision:
+#+index: 49
+
+#+session: 11 beef turns (47-57 of 57; 1-25, 26-37 and 38-46 folded in three earlier compacts)
+
+* one breath
+
+Two small orders, then the one that mattered: /"do anohter pass on the instance and render not every
+cmoponent, but what we want to see"/ — and, decisively, /"first get the data for each"/. So the data
+came first. Three live probes against paladin before a single line of view: the daemon's own
+declaration joined to its die, the ledger with its four instances, and the registry at 61 modules across
+four owners. Only then did the four generic drapes cards — KEY/VALUE, TREE, TABLE, CORTEX, which beef
+named mid-build as /"just teh tmeplates filled out"/ — come out for three purposeful displays.
+
+Two things the pull settled that guesswork would not have. `paladin.env.vars` holds RAW templates and
+`env.get()` resolves them, so the `${VIVA_RUNTIME_SERVE}` in his screenshot was the record working, not
+a render bug. And `shape.cortex.strip` returns `via` as an ARRAY while the live `cortex.find()` returns
+it as an OBJECT of functions — same field, two shapes, both read in one file. My `Object.keys(faculty.via)`
+printed `0 1`. The Svelte compiler had nothing to say about it. A server-render of the component against
+the real probed payload did.
+
+* the spine — 11 turns
+
+| n  | beef | landed | decided |
+|----+------+--------+---------|
+| 47 | =/compact= | — | NOTHING (harness) |
+| 48 | the continuation summary | — | NOTHING (harness) |
+| 49 | /"increase teh average font size on hello world by 35%"/ | ONE knob — `--zoom: 1.35` in `.page`'s existing local-alias block, 21 sites rewritten `calc(<token> * var(--zoom))`, the h1's clamp wrapped whole | token-STEPPING rejected: the dapper scale is not a fixed ratio, so stepping would have moved the lede ×1.49 and the h1 ×1.21. `.code`'s `0.92em` left alone — relative, rides the scaled parent |
+| 50 | /"give the hallucinator inline some signifier for 'work is happening' 'agent responding' xyz."/ | four coordinated tells from the file's OWN vocabulary: the pip pulses, the field takes its `:focus-within` ring, the submit swaps to `thinking…` and disables, and the slate — where the answer lands — shows three staggered `pip-pulse` dots plus an echo of what was sent | two real bugs found in there: `hallucinate` had NO try/catch (a throw left the greeting stale, and once an inflight flag existed would have hung the form forever), and Enter twice fired two requests. `bot()` left alone — he said hallucinator |
+| 51 | /"do anohter pass on the instance and render not every cmoponent, but what we want to see. full info about the active daemon with all the kernel, services, etc etc. and then the ledger with its instances. then the registry. each their own display. fist get the data for each."/ | the data, three live probes, THEN the view: `doctor.js` rewritten to three payloads, `ctx` threaded through the aperture and the tool, four cards → three displays, 94 lines of dead CSS cut | the sequencing directive was the point and was honoured — nothing in the view was invented |
+| 52 | screenshot + /"this is not meaningful. this is just teh tmeplates filled out."/ | confirmation mid-build; the four drapes template cards STRUCK | the registry's meaningful shape is owner → type → slugs-as-tags, never a flat 61-row table |
+| 53 | /"daemon[hello].hallucinators[1] can we get more info here?"/ | the slot, the env var and the unset verdict, joined doctor-side out of `instance.requirements` — no paladin change needed for any of it | the MODULE name is structurally unreachable downstream (`settle()` deletes the mask first). The one-line paladin fix PROPOSED with its blast table, gated |
+| 54 | /"one mode, one greeting change this to a user greeting."/ | `valence: "Welcome to vivalence — start here."` | found while proving it: `docs` now falls back to the declaration mask, so the valence lands whether the die carries it or not |
+| 55 | /"ikiro compact"/ | this fold | — |
+| 56 | =/comact= | — | NOTHING (typo) |
+| 57 | =/compact= | — | NOTHING (harness) |
+
+* the data came first
+
+The order was explicit about sequence, and the sequence changed the result. Three probes, run against the
+shelf instance through `deno eval` at the workspace root — the entry file must live inside the Deno
+workspace or `@vivalence/paladin` will not resolve, which cost two attempts from the scratchpad.
+
+| display | source | what came back |
+|---------+--------+----------------|
+| daemon | `paladin.instance.daemons` matched on MOUNTPOINT + `ctx.daemon` (the die) | 1 mode, 3 routes, 6 traits, 4 entities, 1 hallucinator attached + 1 dormant, 2 faculties |
+| ledger | `paladin.ledger.instances` + `scope` + `env.get` | 4 instances, 1 service, 1 client, 12 env vars, 1 unset slot |
+| registry | `paladin.vip.pensieve` after `supply()` | 61 modules · 4 owners · 21 types |
+
+The daemon is identified by matching `daemon.mount.absolute` against `ctx.daemon.mountpoint.absolute`,
+not by taking the only entry — hello-world has one daemon today and that is not a fact to encode.
+
+*** The secret discipline held by construction.*** A hydrated mask carries `secrets.key` in CLEAR, so the
+payload emits SLOT NAMES only — `secrets key`, `secrets jwt`. `paladin.env.vars` carries no `SECRET_`
+keys at all (env and secret are separate `Env`s), so resolving the whole environment is safe. Scanned the
+finished payload for `sk-` patterns and `SECRET_`-with-a-value: none.
+
+* two shapes, one field name
+
+#+begin_example
+  live    daemon.cortex.find({})        via: { render: fn, stream: fn }   → Object.keys() = ["render","stream"]
+  wire    shape.cortex.strip(cortex)    via: ["render", "stream"]         → Object.keys() = ["0","1"]
+#+end_example
+
+Both are read in `App.svelte`. The tags derive from the live cortex; the doctor display from the stripped
+payload. I carried `Object.keys(faculty.via)` from one to the other and it rendered `· 0 1`. Nothing
+type-checks a Svelte template and the compiler has no opinion, so the only thing that could catch it was
+looking at the output.
+
+* the render harness
+
+Compile the component for the server, seed its `$state` from a global on a SCRATCH copy, render it with
+the real probed payload, strip the tags and read it back as prose.
+
+#+begin_example
+  compile(src, { generate: "server" })                       # npm:svelte@5/compiler
+  src.replace("let report = $state(null);",                  # on a copy in scratchpad, never the real file
+              "let report = $state(globalThis.__REPORT__ ?? null);")
+  render(mod.default, { props })                             # npm:svelte@5/server
+#+end_example
+
+`report` is local `$state`, not a prop, so props alone render 2668 bytes of empty page — the seed is what
+makes the harness work. With it: 17996 bytes, and every one of the three displays legible as text. It
+caught the `via` bug, it caught that my ctx shim was masking the `docs` fallback, and it is the first
+verification in this whole hello-world arc that actually looks at the rendered result rather than at a
+compile plus a grep.
+
+* the dead CSS, cut by audit this time
+
+Last fold a regex cut a comma group and orphaned its sibling, and four defects followed. This fold had
+the same job — 14 rules left unused when the template cards went — and the lesson landed:
+
+#+begin_example
+  1011 single     survivors=-  .grid
+  1022 single     survivors=-  .panel
+  1034 COMMA-GROUP survivors=-  .panel.mono, pre.panel      ← both halves dead, safe
+  ...
+  1101 single     survivors=-  .right
+#+end_example
+
+Print every rule whose selector list touches a dead class, print whether it is a comma group and what
+would SURVIVE the cut, and only then delete — here by line number, `1011..1104` as one contiguous slab,
+with assertions on both boundaries and on the two neighbours that had to live (`.line` above,
+`.pills` below). Zero orphans afterwards; the `^\s*\.[a-z].*,$` grep comes back clean.
+
+* the marker — measured, still unruled
+
+The cortex-snapshot marker stays OPEN because the ruling is beef's, but this fold measured it live and it
+can be struck from guesswork:
+
+- `provider` and `config` DO survive `shape.cortex.strip` — the probe returned
+  `['type','tune','context','channels','provider','config','via']` with `provider: "anthropic"` and
+  `config: { model: "claude-opus-5" }`. The conditional spreads fire in reality; they fire in NO fixture.
+- the `tune` pad fires as recorded: a 3-length declaration came back 4-length with `0.5` appended.
+
+So both holes are TEST gaps, not code gaps, and they are exactly the two fields the new daemon display
+renders. The wire could stop emitting either and the suite stays green.
+
+* the dormant entry, and what is still out of reach
+
+`instance.requirements` already records every thunk the pinhole fired, keyed by the SAME slot grammar
+`settle()` uses — so `dormant` label + `requirements.at.startsWith(label + ".")` is a complete join, and
+it needed nothing outside hello-world:
+
+#+begin_example
+  ○ daemon[hello].hallucinators[1]     pruned at the pinhole, before the daemon read it
+      secrets.key   SECRET_VIVA_OPENROUTER_API_KEY   unset — nothing in any stratum
+#+end_example
+
+What it cannot reach is WHICH PROVIDER — `@commons/hallucinator/openrouter`. `settle()` deletes the mask,
+so the name exists only at the prune site, where the line above computes it and the line below throws it
+away:
+
+#+begin_example
+  const why = mask ? `${mask.module} — empty ${blank.join(", ")}` : "nothing declared";
+  console.warn(`[instance] ${at} filtered, ${why}`);
+  instance.dormant.push(at);          ← module and blank both discarded here
+#+end_example
+
+Proposed, gated: push `{ at, module, secrets, blank }` instead. `subsystems/paladin/prototypes/instance.js:141`,
+one line, and the rest is consumers — 7 assertions in `settle.test.js` (`:101 :118 :131 :135 :139 :163 :167`),
+`systems/ghost/trajectories/instance/doctor.js:66`, and hello-world's own two files. No schematic pins
+`dormant`; `subsystems/typology/schematics/` was grepped and has nothing. It also collides with the open
+known issue that wants `settle` moved into `paladin/lifecycle/` — the helper travels either way, so doing
+this first costs nothing.
+
+* three callouts
+
+*** A compiler warning is not an audit, and neither is a compile.
+
+Last fold the lesson was that `css_unused_selector` cannot see a rule that is gone. This fold it went a
+step further: a clean compile says nothing about what the template PRINTS. `Object.keys` on an array is
+valid JavaScript, valid Svelte, and wrong. The check that finds it is rendering the thing and reading it.
+
+*** A sequencing instruction is an instruction.
+
+/"fist get the data for each"/ was not scene-setting. Obeying it produced the resolved-vs-raw env finding,
+the `via` shape mismatch, and the registry's real cardinality — three things that would have been guessed
+wrong, and one of which (the env templates) beef had already photographed as a defect.
+
+*** Do not name a helper after a browser global.
+
+`const window = (context) => …` inside a Svelte component shadows `window` for the whole module. Caught
+before landing and renamed `contextWindow`. No abbreviation, no shadow — the rule is that a local name
+must not collide with an ambient one, and "it reads well" is not a defence.
+
+* the sibling already ruled on this — m57 collision
+
+The quest report shows =m57-hello-world-researches= LIVE in a sibling session, and reading it
+settles something uncomfortable: that quest was written AGAINST the code this fold landed. It cites
+=App.svelte:382-387= — the environment band written here — and quotes my own line back:
+
+#+begin_example
+  ledger.environment = Object.fromEntries(keys.map((key) => [key, paladin.env.get(key)]))
+#+end_example
+
+And beef has already RULED against it there, in two moves — /"the mode can read paladin. why not just
+pull from there? thats what he is for."/ then, on a draft giving the tool one projection and the view
+another, /"we can standardize really. no need for two."/ The verdict, =m57/P-novalues=, held:
+
+*** =ledger.environment= must be a LIST of ={key, set}=, carrying no values at all.***
+
+The reasoning is the one this repo keeps reaching for: no consumer can leak a value if no consumer is
+handed one — the category stops existing rather than getting a guard. The values were the redundant
+half anyway; the band already prints /"N resolved, M unset"/ and the =requirements= list beneath it
+already names every unset slot.
+
+*** NOT applied here, deliberately.*** m57 M1 carries the patch as designed hunks (`variables()`, the
+list shape, the band rewrite, a =doctor.test.js= asserting =P-novalues= and =P-noleak=), and M1 is
+gated on beef's =go=. Hand-rolling half of another quest's gated milestone would collide with its own
+hunks. The quest owns it; this compact only records that the thing shipped this fold is knowingly on
+the wrong side of a ruling already given.
+
+Wider: m57 M1 is a RESTRUCTURE of =commons/instances/hello-world/= — /"four =git mv= lines"/, beef's
+own first step. Every file this fold touched is a file that milestone moves. The reconcile is his.
+
+* state at fold
+
+`commons/instances/hello-world/` and `~/.viva/instances/hello-world/` — five files, byte-identical both ways:
+
+| file | state |
+|------+-------|
+| `App.svelte` | +35 % type on one knob; inflight signifier; three displays; 94 lines of dead CSS gone. 36367 B compiled, 0 CSS warnings, 2 a11y pre-existing |
+| `doctor.js` | rewritten — three payloads, `ctx`-taking, dormant×requirements join, docs mask fallback |
+| `mode.viva.js` | `.open("/hello/doctor", (ctx) => doctor(ctx))` |
+| `tools.js` | `viva_doctor` takes ctx; its valence rewritten — it still described the OLD four-part shape and would have lied to the model |
+| `instance.viva.js` | the user greeting |
+
+Suites: paladin 41 passed / 180 steps / 0 failed. ONE red, not mine and now written up —
+`systems/runtime/tests/registry.count.test.js:62` expects `@commons/instance/multiplayer`, which moved to
+`commons/instances/bak/starter/` and is absent from HEAD too. It asserts FIRST, so the `hello-world` half
+of the same test never runs; probed directly, hello-world resolves fine.
+
+The view has been RENDERED and read this fold — but server-side, from a probed payload. It has still
+never been witnessed in a browser.
+
+* resumption (owed beef)
+
+Reload `/hello` and press doctor. Three displays, a live greeting under `👋 Hello`, and the dormant
+entry naming its env var.
+
+FIRST, before anything else here: reconcile with =m57-hello-world-researches=. It is live in a
+sibling, its M1 moves every file this fold touched, and its =P-novalues= ruling already contradicts the
+environment band shipped here.
+
+`go` on the `dormant` record — one line in paladin, seven test assertions behind it.
+
+Still owed from two folds back: rotate the anthropic key, `go` on `refused`, and the `MARKERS.md`
+ruling — which now has live measurements under it and only wants the verdict.
+
+* quest report (derived at fold — `methods/quest-report.py`)
+
+| quest                      | progress  | status                                                                | next                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                      | sessions   |
+|----------------------------+-----------+-----------------------------------------------------------------------+---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------+------------|
+| drapes-editor              | —         | landed · the caret bug found and fixed — his click-through gates owed | rebundle + reload, then confirm the caret advances while typing (the one thing the fix is not yet proven against live). then the eight click-through gates below. later, both his call: the language on `#+begin_src js` does not highlight its body; the markdown fence is the same trade.                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                               | 1 (1 live) |
+| m46-linux-readmen          |  17% 3/18 | wip                                                                   | drain                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                     | 6          |
+| m50-the-three-way-weave    |  60% 3/5  | wip                                                                   | blast                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                     | 1          |
+| m51-standalone-slowstart   |   0% 0/18 | design                                                                | go                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                        | 3 (1 live) |
+| m53-vcompany               |   0% 0/5  | open                                                                  | **t1.1** h1 · e1 · p1 · t1 · b1 · k1 + s1 · x1 · x2 · x3 + i1 (the index as rows) landed on the shelf; blocked on **r1** (paladin =resolve= percent-encodes — one-line diff + one test in the quest, his go, repo): the four reds (tools file · move; snapshots tools · aperture) are r1 and nothing else; a1 struck (the app is the sibling's v3); d1 (readme) on go; the =open= schematic on buffer-data level — sketch in "landed", his word; officers out by his order; then **the slow first attach** (the boot race under `instance/run`) → gs1/gs2 click-through after restart; the bundle weight ledgered, direction his; s3 voffice → s4 desk on go; `* t1.#2` his call; the runtime's m:n =cascade.remove= both ways ledgered as a landmine (his)                                                                                                                                                                                                                                                                                                               | 5          |
+| m53-vcompany.pre           | —         | open                                                                  | t1 package setup — the m27 gate moves to the executive stage; t1–t3 do not wait on it                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                     | 3          |
+| m53-vcompany.v3-vdex       | —         | landed                                                                | one restart carries both — the new pdf viewer (=paper.svelte=) and the cargo fix (=freight.js=, uncommitted); then open a spaced-name pdf: it should render, page nav and zoom live, the rail on ▤. the six later items stay marked in the root quest.                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                    | 3 (1 live) |
+| m53.v4-mail+calendar       | —         | landed                                                                | the six office test files — =office/email/tests/{aperture,tools,email.snapshot}.test.js= and =office/calendar/tests/{aperture,tools,calendar.snapshot}.test.js=; =/key=, the held send and the thread walk are landed and untested. then his restart + the click-through gates. open, not mine: the sibling's mode-ownership landing duplicates every symbol (16 rows, 8 distinct, the dummy's copies bare), which contradicts this quest's law that the office declares the scheme and the provider carries the rows.                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                    | 1          |
+| m54-buffer-file            |   0% 0/4  | open                                                                  | reconcile with m53 =* t1.1= and =m53-vcompany.v3-vdex= first (three quests, one seam, all waiting on go; v3 splits the app into a shell + 7 parts + =buffer/jdex.js= and already points here for file upload — m54's app hunk names the single =vdex.svelte= and must be re-cut onto whichever lands first) (a sibling session, beef's rulings there: the vdex speaks slugs — =/document /write /file /move /delete= implemented once in the aperture, tools wrap =mode.call.<verb>=, =fs_*= slurp gone on vdex; =open= is an emitter; the boot watches files and syncs per path — /"shouldnt this watch files??!!!"/; /"wtf is daemon traits stamp????"/ → gone) — three seams now name the verbs' home (t1.1 aperture · m54 sketch · mikro-first repository), beef arbitrates; then beef reopens the questioned block when ready — order of design there is mikro entity + bufferrepository verbs → typology verb contract → shard mounts → remoterepository mirrors → kajuit. until then m1 = everything but the verbs. "go m1" → full hunks against the tree as read. | 2 (1 live) |
+| m55-recursive-terminals    |  20% 3/15 | wip                                                                   | go m2 — the kajuit terminal: up · down · status · stop · run · watch, the tree, the schematic, panel f                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                    | 3          |
+| m56-the-pincer-turns       | 100% 2/2  | verify                                                                | live-walk c at both aspects · markers 2·3·4·10·13·14 need a dom                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                           | 2          |
+| m57-hello-world-researches |  19% 4/21 | open                                                                  | =go m1= → the restructure + =web/= (search: ask for a term, get results), landing manoeuvre in =** landing=; the first step is beef's, four =git mv= lines. then m2 read, m3 draw, m4 the nested agent. three steps you can ask for from the dock, then the composition.                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                  | 1 (1 live) |

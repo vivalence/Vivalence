@@ -34,7 +34,11 @@ async function signup(input, ctx) {
   const { username, password } = input;
 
   if (!username || !password) {
-    return respond.error(ctx, "INVALID_INPUT", "Username and password required");
+    return respond.error(
+      ctx,
+      "INVALID_INPUT",
+      "Username and password required",
+    );
   }
 
   // if (password.length < 8) {return respond.error(ctx, "WEAK_PASSWORD", "Password must be at least 8 characters");}
@@ -42,7 +46,9 @@ async function signup(input, ctx) {
 
   const existing = await ctx.entities.identity
     .createQueryBuilder("i")
-    .where(`json_extract(i.authentication, '$.credentials.username') = ?`, [username])
+    .where(`json_extract(i.authentication, '$.credentials.username') = ?`, [
+      username,
+    ])
     .getSingleResult();
 
   if (existing) {
@@ -82,13 +88,22 @@ async function login(input, ctx) {
   const { username, password } = input;
 
   if (!username || !password) {
-    return respond.error(ctx, "INVALID_INPUT", "Username and password required");
+    return respond.error(
+      ctx,
+      "INVALID_INPUT",
+      "Username and password required",
+    );
   }
 
   const identity = await ctx.identity.identify({ username, password });
 
   if (!identity) {
-    return respond.error(ctx, "INVALID_CREDENTIALS", "Invalid username or password", 401);
+    return respond.error(
+      ctx,
+      "INVALID_CREDENTIALS",
+      "Invalid username or password",
+      401,
+    );
   }
 
   const authority = {
@@ -169,7 +184,12 @@ async function refresh(input, ctx) {
   }
 
   if (!ctx.rft.verify(refresh)) {
-    return respond.error(ctx, "INVALID_TOKEN", "Invalid or revoked refresh token", 401);
+    return respond.error(
+      ctx,
+      "INVALID_TOKEN",
+      "Invalid or revoked refresh token",
+      401,
+    );
   }
 
   const payload = await ctx.jwt.verify(refresh).catch(() => null);

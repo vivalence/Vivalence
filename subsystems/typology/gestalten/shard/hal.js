@@ -90,3 +90,12 @@ export const voice = () => async (ctx, next) => {
     soma.channel(speech.via.stream(soma.textFromPackets(forSpeech), {}), "speech"),
   );
 };
+
+const layers = ["policy", "settings", "system", "output"];
+
+export const defaults = (record) => async (ctx, next) => {
+  for (const layer of layers)
+    for (const [key, value] of Object.entries(record[layer] ?? {}))
+      (ctx.hallucination[layer] ??= {})[key] ??= value;
+  await next();
+};

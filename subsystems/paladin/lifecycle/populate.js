@@ -1,6 +1,7 @@
 import * as dotenv from "@std/dotenv";
-import { isAbsolute, join } from "@std/path";
-import { Path } from "@vivalence/typology";
+import { isAbsolute, join, resolve as resolvePath } from "@std/path";
+import { is, Path, v } from "@vivalence/typology";
+import { Instance } from "../prototypes/instance.js";
 
 export async function env(paladin) {
   paladin.assign(Deno.env.toObject(), "os");
@@ -109,3 +110,71 @@ export async function scopes(paladin) {
 //     ])
 //     .throw();
 // }
+
+export function instance(paladin) {
+  paladin.instance = new Instance(paladin);
+  return paladin.instance;
+}
+
+export async function environment(instance) {
+  const { paladin } = instance;
+  if (!paladin.scope.instance) return;
+  const file = paladin.scope.instance.branch(".env").absolute;
+  if (!(await Deno.stat(file).catch(() => null))) return;
+  paladin.claim(await dotenv.load({ envPath: file }), "instance", file);
+}
+
+const reference = (home) => (entry) =>
+  typeof entry !== "string"
+    ? { ...entry, mount: entry.mount ?? home }
+    : isAbsolute(entry)
+      ? entry
+      : /^\.\.?\//.test(entry)
+        ? resolvePath(home.dirname, entry)
+        : entry;
+
+export async function recipe(instance) {
+  const { paladin } = instance;
+  const home = instance.home.absolute;
+  const modules = await paladin.find.type(instance.home, "instance").catch((error) => {
+    if (error?.code === "ENOENT") throw new Error(`instance.mount: no instance at ${home}`);
+    throw error;
+  });
+  if (modules.length !== 1)
+    throw new Error(`instance.mount: expected 1 instance module in ${home}, found ${modules.length}`);
+  const [module] = modules;
+  const environment = module.environment ?? v.environment({});
+  if (!environment.properties)
+    throw new Error(`instance.mount: environment must be v.environment({…}) — ${module.source.absolute}`);
+
+  const record = [];
+  const at = (label) => (declaration) => paladin.hydrate(declaration, record, label);
+  const slug = (declaration) => declaration.manifest?.slug;
+  const dress = (label) => (entry) => {
+    const declared = entry.mountpoint;
+    if (is.string(declared) && declared && !isAbsolute(declared))
+      throw new Error(`instance.mount: ${label}.mountpoint must be absolute — ${declared}`);
+    return entry;
+  };
+  const daemon = (label) => ({ kernel = [], ...declaration }) => ({
+    ...at(label)(declaration),
+    kernel: kernel
+      .map(reference(module.source))
+      .map((entry, index) =>
+        is.object(entry) && is.string(entry.module)
+          ? dress(`${label}.kernel[${index}]`)(at(`${label}.kernel[${index}]`)(entry))
+          : entry
+      ),
+  });
+
+  instance.manifest = module.manifest;
+  instance.environment = environment;
+  instance.runtime = at("runtime")(module.runtime);
+  instance.lighthouse = at("lighthouse")(module.lighthouse);
+  instance.datamap = at("datamap")(module.datamap);
+  instance.hallucinators = at("hallucinators")(module.hallucinators);
+  instance.clients = (module.clients ?? []).map((declaration) => at(`client[${slug(declaration)}]`)(declaration));
+  instance.services = (module.services ?? []).map((declaration) => at(`service[${slug(declaration)}]`)(declaration));
+  instance.daemons = (module.daemons ?? []).map((declaration) => daemon(`daemon[${slug(declaration)}]`)(declaration));
+  instance.requirements = record;
+}

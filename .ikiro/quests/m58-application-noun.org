@@ -1,0 +1,347 @@
+#+title: m58 the application noun — `app` → `application` on the kernel export, the module, and the mode (M1) · `TOOLED` → `TOOLING` on the trait (M2)
+#+filetags: :m58:runtime:kajuit:typology:paladin:commons:registry:rename:application:tooling:trait:blast:
+#+status: M1 SCOPED, nothing landed. One rename with three faces — =export const application= in the kernel → =mode.module.application= → =mode.application= — because =subsystems/typology/prototypes/mode.js:12= =Object.assign(this, module)= makes the export name the mode property. The trait is already =APPLICATION=; only the noun lags. Blast measured: 6 seam files (runtime 2 · kajuit 4) · 10 kernels + 1 consumer in repo · 4 test scenarios + 1 paladin test · 3 out-of-repo packages (education 4 kernels + 14 consumer sites · vcompany 3 + 3 · young-ladys-primer 1) · the installed hello-world instance · README + codemap + known-issues.
+#+status: M1 — three decisions owed by beef before go — see =*** decisions=. Recommendation given for each.
+#+status: M2 SCOPED 09-09, nothing landed. =TOOLED= → =TOOLING= — the trait name is a STRING resolved twice: =stagger= indexes the traits map by the manifest string (=traits/index.js:8-16= — a kernel ahead of the export boots TOOLLESS, logged as DECLARED BUT UNIMPLEMENTED), and the row's =enumItems= carries it (=Mode.ts:25=, where beef's own =// re: TOOLING= already sits). Blast measured: 6 seam files (runtime only — kajuit 0 · paladin 0 · typology 0) · 3 repo kernels/consumers + 4 comment/prose sites · 3 test files + 8 gitignored snapshots · education 6 kernels + 1 test · vcompany 4 (no VCS) · primer 0 · the installed hello-world · codemap 4 + documentation 2. ONE decision owed — the persisted =Mode.traits= row ACCUMULATES (=population.js:157=): a ghost =TOOLED= survives the rename in every live db, and the client reads that row, unless the row mirrors the manifest.
+#+phase: designed
+#+progress: 0/2
+#+next: beef rules M1's three decisions and M2's one, then "go" per milestone — each under its own blast bracket, steps 1–6, one pass per step; the out-of-repo kernels overlap, so a same-day landing is ONE vcompany capture
+
+* intent
+
+beef, verbatim (M1): /"scope a name change. all mode.module.app to mode.module.application export and
+properties. and on base mode.app mode.application too."/
+
+One sentence (M1): *the APPLICATION trait's carrier is named =application= everywhere it is spoken —
+kernel export, module property, mode property, client atom — so the trait name and the noun agree and no
+reader has to know that =app= means =application=.*
+
+beef, verbatim (M2): /"we have a recent milestone on renaming app to application. add another
+milestone in that quest for renaming TOOLED trait to TOOLING trait."/ — pencilled earlier by his own
+hand in the enum: =Mode.ts:25= =TOOLED = "TOOLED", // re: TOOLING=.
+
+One sentence (M2): *the trait that arms a mode's tools is named =TOOLING= everywhere it is spoken —
+enum member, trait file and export, manifest string in every kernel, persisted row — so the trait
+names what the mode carries (beside =APPLICATION= · =EMITTER= · =DATASET=), not what was done to it.*
+
+* milestones
+
+** M1 — =app= → =application= (kernel export · module · mode)
+
+*** mechanism — why one rename is three
+
+#+begin_src js
+// subsystems/typology/prototypes/mode.js:12
+Object.assign(this, module);
+#+end_src
+
+The kernel's named exports ARE the mode's properties. =export const app = new App(…)= lands as
+=mode.module.app= (the module namespace) and, through the assign, as =mode.app= — the same object,
+=mode.app === mode.module.app= (pinned by =tests/scenarios/{daemon,mode}.js= comments). Rename the
+export and both properties follow, in every kernel. The runtime trait then decorates that object in
+place (=buffer= · =fill= · =compile= · =view= · =source=), and the client mints its own =mode.app= from
+=/metadata/app= — a DIFFERENT object with the same name, the wire seam.
+
+The class =App= stays. Not asked; the class is the descriptor's type, the property is the mode's slot.
+
+*** blast — measured 09-09
+
+**** the seam (repo)
+#+begin_example
+systems/runtime/daemon/traits/application.js        :6 module.app · :10-37 mode.app ×11 (buffer fill compile view source)
+systems/runtime/daemon/aperture/metadata.js          :33 route "/app" · :34,37,38 mode.app.{compile,view,schema}
+systems/kajuit/src/typology/entities/mode/mode.js    :11 $app atom · :13-19 get/set app · :27 toJSON key
+systems/kajuit/src/typology/entities/mode/traits/application.js :4 call "/metadata/app" · :5 mode.app = {url,schema,view}
+systems/kajuit/src/typology/entities/thread/dossier.js :38 thread.mode?.app?.schema
+systems/kajuit/src/app/panels/e/widgets/form/schema.js :86 mode?.app?.schema
+#+end_example
+
+**** kernels + consumers (repo)
+#+begin_example
+commons/playground/{spawned,card,dealer,spawner,automaton,switchboard}/*.viva.js   export const app  ×6
+commons/playground/chaosmonkey/{reader,oracle,vision}/*.viva.js                     export const app  ×3
+commons/playground/chaosmonkey/oracle/emitter.js:31                                 vision.app.buffer
+commons/instances/hello-world/mode.viva.js:36                                       export const app
+README.md:35                                                                        export const app
+#+end_example
+
+**** tests (repo)
+#+begin_example
+systems/runtime/tests/scenarios/daemon.js   :9,10,14,34,36,51
+systems/runtime/tests/scenarios/mode.js     :11,12,16,92,93   (viva.app = the namespace export)
+systems/runtime/tests/scenarios/bench.js    :42,45
+systems/runtime/tests/mode/traits.test.js   :52,53,62,63
+subsystems/paladin/tests/kernel.test.js     :12 app: new App · :67 kernel[3].app.source
+#+end_example
+
+**** outside the repo — the flag-day radius ([[feedback_flag_day_radius]])
+#+begin_example
+~/.viva/registry/education   (own git+jj)  kernels: dojo riddler impara aprende
+                                            consumers: riddler/emitter.js:81 · dojo/emitter/buffer.js:12 · dojo/tests/aperture.test.js:131,172
+                                                       cloze:38,60 · match:34,50 · exhibit:29,46 · nyan:80,106 · judge:57
+~/.viva/registry/vcompany    (NO vcs)      kernels: office/{calendar,email,vdex} · emitter/index.js ×3 (:15 :11 :11)
+~/.viva/registry/young-ladys-primer (git+jj) kernel: home/primer
+~/.viva/instances/hello-world/mode.viva.js  installed copy of commons/instances/hello-world
+#+end_example
+vcompany has no VCS — capture the three kernels + three emitters BEFORE editing ([[project_ledger_has_no_vcs]]).
+education + primer are their own repos: their hunks land in the same pass, their pushes are beef's.
+
+**** docs
+=.ikiro/world/codemap/runtime.md= (APPLICATION line, 2 mentions) · =.ikiro/known-issues.org:1860,1866=
+(=mode.app.view.mount=, =mode.app.compile()=). Quest prose in m51/m53/m55/m57 = history, left as written.
+
+**** same name, different thing — NOT this rename
+- =systems/kajuit/src/telemetry/inspector.js:98,114= — =entity.app= / =buffer.app=. No buffer carries
+  =app=; the mode's =app= is an object, not a name. Stale on both lines. Struck separately if at all.
+- =~/.viva/registry/education/modes/games/nyan/buffer/Nyan.svelte:256= — a CSS class =.app=.
+- =subsystems/paladin/tests/bundler.test.js:72= — prose "the app path".
+- =paladin/tests/hydrate.test.js:96= · =hello-world/aperture.js:7= — prose.
+- =subsystems/typology/prototypes/app.js= — the =App= class file. Stays.
+- =/metadata/app= the ROUTE — decision 1 below, not automatically part of the rename.
+
+*** decisions — beef's, before go
+
+1. *The wire route =/metadata/app=.* Server =metadata.js:33= and client =traits/application.js:4= are
+   both in-repo, so the flag day covers it. Recommend RENAME to =/metadata/application=: one noun
+   everywhere; a route spelling the property differently is a hidden rule ([[feedback_explicit_over_hidden_rules]]).
+   Cost: zero — no third consumer of the route exists (grep: 2 sites).
+2. *The kajuit atom =$app=.* Follows the property: =$application=, getter/setter =application=, toJSON
+   key =application=. Assumed yes.
+3. *The out-of-repo packages.* education + primer = separate repos, their hunks are part of the full
+   patch ([[feedback_full_patch_means_hunks]]) and their pushes are beef's. vcompany = no VCS, capture
+   first. Assumed: all three edited in the same pass — a kernel left on =app= boots with the trait
+   finding =mode.module.application === undefined= and throws at =traits/application.js:6=.
+
+*** steps — the blast bracket, numbered
+
+Discipline: =blast · test · change · test · blast= ([[.ikiro/self/rituals.md]]). Steps 1 and 6 are the
+brackets; 2 and 5 are the suites; 3–4 are the edit split by side so a red names its side.
+
+**** 1. blast — re-run the map, pin the baseline
+#+begin_src sh
+grep -rnE "mode\.module\.app\b|mode\.app\b|module\.app\b|export const app\b|viva\.app\b|vision\.app\b|metadata/app" \
+  --include='*.js' --include='*.svelte' --include='*.md' --exclude-dir=bak --exclude-dir=node_modules \
+  systems subsystems commons README.md ~/.viva/registry ~/.viva/instances/hello-world
+#+end_src
+Expect the site list above, nothing else. Capture vcompany's six files to the scratchpad.
+
+**** 2. test — GREEN first, reds recorded
+#+begin_src sh
+cd systems/runtime && deno test -A --no-check --ignore='**/bak/**' tests/mode tests/scenarios
+cd subsystems/paladin && deno test -A --no-check tests/kernel.test.js
+cd ~/.viva/registry/education/modes/games/dojo && deno test -A --no-check tests/
+#+end_src
+Baseline counts written here before step 3. Known pre-existing reds: runtime 1 ([[project_test_suite_baseline]]).
+
+**** 3. change — daemon side
+- =systems/runtime/daemon/traits/application.js= — =mode.module.application=, =mode.application= ×11.
+- =systems/runtime/daemon/aperture/metadata.js= — property ×3; route per decision 1.
+- 10 repo kernels — =export const application = new App(…)=.
+- =oracle/emitter.js:31= — =vision.application.buffer=.
+- 4 test scenarios + =traits.test.js= + =paladin/tests/kernel.test.js= (=application: new App=, =kernel[3].application.source=).
+- =README.md:35=.
+
+**** 4. change — client side + out-of-repo
+- =kajuit/.../mode/mode.js= — =$application= · =get/set application= · toJSON key.
+- =kajuit/.../mode/traits/application.js= — route per decision 1; =mode.application = {…}=.
+- =thread/dossier.js:38= · =form/schema.js:86= — =mode?.application?.schema=.
+- education 4 kernels + 14 consumer sites · vcompany 3 + 3 · primer 1 · =~/.viva/instances/hello-world/mode.viva.js=.
+- codemap =runtime.md= · =known-issues.org:1860,1866=.
+
+**** 5. test — GREEN again, same suites, same counts
+Same three commands. A red not in step 2 is this quest's. Then the served artifact, not the compile
+([[feedback_render_the_view_to_verify_it]]): reload kajuit against the dev daemon, open one APPLICATION
+mode (hello-world), confirm =/metadata/application= (or =/app=) answers and the Frame mounts the view;
+=[E]= form panel reads =mode.application.schema=.
+
+**** 6. blast — the radius closed
+Step 1's grep returns ZERO sites on the old noun outside =bak/= and quest history. The inspector's two
+=entity.app= / =buffer.app= lines are the only survivors, by name, as the struck-separately pair.
+
+** M2 — =TOOLED= → =TOOLING= (the trait)
+
+*** mechanism — one string, two lookups
+
+No assign trick this time; the trait name is a STRING and two places resolve it:
+
+#+begin_src js
+// systems/runtime/daemon/traits/index.js:8-16 — stagger
+for (const trait of mode.manifest.traits) {
+  if (!traits[trait]) console.log(`[m3:trait] ${at} ${trait} DECLARED BUT UNIMPLEMENTED — no-op`);
+  const result = await traits[trait]?.(mode, daemon);
+#+end_src
+
+The manifest string indexes the traits map, which is =export *= of =traits/*.js= — the export NAME is
+the trait name. A kernel saying ="TOOLING"= against an export still named =TOOLED= logs the no-op and
+boots the mode with EMPTY =mode.tools=; AGENTIC then harvests nothing from it (=agentic.js:6=
+=implements("TOOLED")=), and a TOOLED service stops transporting its tools (=population.js:128=). So the
+export, the three string checks, and every manifest flip in ONE pass — that is the flag day.
+
+The second lookup is the db: =ModeTraitsEnum= (=Mode.ts:25=) is the =traits= column's =enumItems= in
+every instance's schema snapshot (text column, =checks: []= — no CHECK constraint). Renaming the
+member diffs the column; the libsql datamap mints the migration at each instance's next boot
+([[feedback_mikro_owns_the_db]] — measured in step 5, never authored).
+
+Also renamed, because the name is the file: =traits/tooled.js= → =tooling.js= ·
+=tests/mode/tooled.test.js= → =tooling.test.js= · the log tag =[m3:tooled]= → =[m3:tooling]=.
+
+The family read: =TOOLED= is a participle (something tooled the mode); =TOOLING= is what the mode
+carries, beside =APPLICATION= · =EMITTER= · =DATASET=. beef's own pencil mark in the enum predates this
+quest — =Mode.ts:25= =// re: TOOLING=.
+
+*** blast — measured 09-09
+
+**** the seam (repo) — runtime only; kajuit 0 · paladin 0 · typology 0
+#+begin_example
+systems/runtime/daemon/entities/daemon/Mode.ts     :25 TOOLED = "TOOLED", // re: TOOLING   (the enum → the column's enumItems)
+systems/runtime/daemon/traits/tooled.js            → tooling.js · :8 export const TOOLED · :12 :17 [m3:tooled]
+systems/runtime/daemon/traits/index.js             :44 export * from "./tooled.js"
+systems/runtime/daemon/traits/agentic.js           :6  source.implements("TOOLED")
+systems/runtime/daemon/lifecycle/population.js     :128 manifest?.traits?.includes("TOOLED")   (TOOLED services transport tools)
+systems/runtime/daemon/aperture/metadata.js        :44 // if (mode.implements("TOOLED")) …   (commented, follows)
+#+end_example
+kajuit never spells the trait (grep: 0); panel E draws =$mode.traits= chips generically
+(=panels/e/e.svelte:113=) and the client's =mode.implements()= reads the ROW's traits
+(=entities/mode/mode.js:22=) — which is why the persisted row is decision 4. The Manifest validator is
+=v.array(v.string())= (=schematics/primitives/manifest.js:12=) — no enum on the wire, nothing to rename there.
+
+**** kernels + consumers (repo)
+#+begin_example
+commons/services/nlp/service.viva.js                         :11 traits: ["SERVER", "DOCKER", "COMPOSE", "TOOLED"]
+commons/instances/hello-world/mode.viva.js                   :20 "TOOLED", · :21 comment "after TOOLED, because GENERATIVE …"
+commons/instances/hello-world/aperture.js                    :9  comment "(TOOLED is in-process only)"
+commons/instances/hello-world/README.md                      :3  prose "Conversational, tooled, standalone"
+commons/instances/hello-world/tests/catalog.test.js          :25 comment "tooled.js:10 then harnessed.js"
+commons/instances/hello-world/tests/catalog.snapshot.test.js :33 same comment
+README.md                                                    :23 prose "tooled" · :39 "TOOLED", // mode provides agentic tools
+#+end_example
+
+**** tests (repo)
+#+begin_example
+systems/runtime/tests/mode/tooled.test.js   → tooling.test.js · :3 import · :22 :33 :35 :36 :77 :85 :91 :97 :103
+systems/runtime/tests/mode/agentic.test.js  :42 :45 :50 :64 :67 :89 :106
+systems/runtime/tests/scenarios/mode.js     :4 import · :108 stagger map
+systems/runtime/tests/snapshots/*-aperture.snapshot.json   8 files · 11 sites — GITIGNORED (.gitignore:30), rewritten by
+                                                           aperture.snapshot.test.js (DRY = false at :17); the flip is the proof
+#+end_example
+
+**** outside the repo — the flag-day radius ([[feedback_flag_day_radius]])
+#+begin_example
+~/.viva/registry/education (git+jj)    kernels ×6: home/aprende/aprende.viva.js:21 · tactics/harvest/harvest.viva.js:13
+                                                   games/dojo/dojo.viva.js:16 · games/nyan/nyan.viva.js:11
+                                                   teacher/francesca/francesca.viva.js:9 · domain/domain.viva.js:12
+                                       test: domain/tests/domain.test.js:9,12 (asserts ["EXPOSED","TOOLED"] sorted)
+                                       comment: home/aprende/tools/index.js:10
+~/.viva/registry/vcompany (NO vcs)     kernels ×4: modes/office/{calendar,email,vdex}/*.viva.js:17 · domain/voffice/domain.viva.js:12
+~/.viva/registry/young-ladys-primer    ZERO — the primer declares no TOOLED
+~/.viva/instances/hello-world/         installed copy: mode.viva.js:20-21 · aperture.js:9 · README.md:3 · tests/catalog{,.snapshot}.test.js
+~/.viva/instances/*/mountpoint/daemon_*/migrations/.snapshot-*.viva.db.json   11 files — mikro's; NOT edited, re-minted at boot
+#+end_example
+vcompany: capture the four kernels BEFORE editing ([[project_ledger_has_no_vcs]]). M1 touches three of
+the same files (the office kernels carry both =export const app= and ="TOOLED"=) — a same-day landing
+is ONE capture.
+
+**** docs
+#+begin_example
+.ikiro/world/codemap/runtime.md      :10 (TOOLED services) · :15 (tooled.js in the file list) · :16 (TOOLED bullet + AGENTIC's peers) · :17 (francesca's list)
+.ikiro/world/codemap/commons.md      :8 (hello-world manifest + stripwire note) · :19 (nlp: A TOOLED service transports tools)
+.ikiro/world/codemap/invariants.md   :17 (STRIPWIRE: still unwired — TOOLED)
+.ikiro/world/codemap/typology.md     :11 (AGENTIC slurps peer TOOLED modes)
+documentation/content/50-59_practice/51_guides/51.02_instance-from-scratch.mdx     :171 manifest · :247 the trait line
+documentation/content/30-39_architecture/32_daemon/32.01_anatomy-of-an-instance.mdx :87 the trait line
+#+end_example
+=.ikiro/known-issues.org:766-769= (the =language-learning_= prefix root cause) = history, left as written.
+Memory bodies (=project_m20_hallucination_session_recast= · =project_m23_domain_root_tutor= ·
+=project_hello_world_mode= · =project_entity_schema_surfaces= · =project_aprende_harness_tools=) = ikiro's,
+after landing. Quest prose in m51/m53/m57 = history.
+
+**** same name, different thing — NOT this rename
+- =systems/runtime/tests/hallucination-triad.doc.test.js:82= — "the tooling seam", prose already on the new word.
+- =systems/kajuit/tests/dock-turns.test.js:109= — =const tooling=, a turn fixture.
+- =README.md:327= — "tooling" prose.
+- =documentation/bak/= — two stale scaffolds, bak.
+- =Mode.traits= in every live db — decision 4, not a grep site.
+
+*** decision — beef's, before go
+
+4. *The persisted row.* =population.js:157= ACCUMULATES the manifest's traits onto the row's:
+   #+begin_src js
+   mode.entity.traits = array.unique([...mode.entity.traits, ...mode.manifest.traits]);
+   #+end_src
+   After the rename every Mode row that ever booted TOOLED reads =…,TOOLED,TOOLING= — on every live db,
+   prod included — and the CLIENT reads that row: panel E draws a ghost =TOOLED= chip (=e.svelte:113=),
+   =mode.implements("TOOLED")= stays true client-side (=mode/mode.js:22=). The daemon is unaffected
+   (its =implements= reads the MANIFEST, =typology/prototypes/mode.js:17=). No other writer of the row's
+   traits exists (grep: kajuit updates THREAD traits only, =e.svelte:58=).
+   Recommend OVERRIDE — the row mirrors the manifest, because the manifest IS the identity
+   ([[project_manifest_is_identity]]):
+   #+begin_src diff
+   -      mode.entity.traits = array //
+   -        .unique([...mode.entity.traits, ...mode.manifest.traits]);
+   +      mode.entity.traits = [...mode.manifest.traits];
+   #+end_src
+   One line, its own hunk; afterwards the category "a dead trait outlives its kernel" cannot exist
+   ([[feedback_no_hotfix_architecture]]) and no name-specific prune is ever written. The alternative —
+   leave it, re-init dev dbs ([[feedback_dev_data_is_cheap]]) — keeps the ghost on prod until an
+   override lands anyway, and step 6 cannot reach zero in a live db.
+
+*** steps — the blast bracket, numbered
+
+Same discipline as M1; steps 3–4 split the repo from out-of-repo + docs so a red names its side.
+
+**** 1. blast — re-run the map, pin the baseline
+#+begin_src sh
+grep -rnE "TOOLED|tooled" --include='*.js' --include='*.svelte' --include='*.ts' --include='*.md' --include='*.mdx' \
+  --exclude-dir=bak --exclude-dir=node_modules --exclude-dir=snapshots --exclude-dir=migrations \
+  systems subsystems commons README.md documentation/content .ikiro/world ~/.viva/registry ~/.viva/instances/hello-world
+#+end_src
+Expect the site list above, nothing else. Capture vcompany's four kernels to the scratchpad.
+
+**** 2. test — GREEN first, reds recorded
+#+begin_src sh
+cd systems/runtime && deno test -A --no-check --ignore='**/bak/**' tests/mode tests/scenarios tests/aperture.snapshot.test.js tests/stripwire.contract.test.js
+cd ~/.viva/registry/education/domain && deno test -A --no-check tests/
+cd commons/instances/hello-world && deno test -A --no-check tests/
+#+end_src
+Baseline counts written here before step 3. Known pre-existing reds: runtime 1 ([[project_test_suite_baseline]]).
+
+**** 3. change — the repo
+- =Mode.ts:25= — =TOOLING = "TOOLING",=; the =// re: TOOLING= note is spent, drop it.
+- =traits/tooled.js= → =traits/tooling.js= — =export const TOOLING=, tags =[m3:tooling]=; =index.js:44= follows.
+- =agentic.js:6= · =population.js:128= · =metadata.js:44= — the string.
+- =population.js:157= — per decision 4.
+- =tests/mode/tooled.test.js= → =tooling.test.js= (11) · =agentic.test.js= (7) · =scenarios/mode.js= (2).
+- =commons/services/nlp/service.viva.js:11= · hello-world ×5 (kernel, aperture comment, README, two test comments) · =README.md:23,39=.
+
+**** 4. change — out-of-repo + docs
+- education: 6 kernels · =domain/tests/domain.test.js:9,12= · =aprende/tools/index.js:10=.
+- vcompany: 4 kernels (captured in step 1).
+- =~/.viva/instances/hello-world/= — the five files, same hunks as the commons copy.
+- codemap =runtime.md:10,15,16,17= · =commons.md:8,19= · =invariants.md:17= · =typology.md:11=; documentation =51.02:171,247= · =32.01:87=.
+
+**** 5. test — GREEN again, same suites, same counts
+Same three commands. The 8 aperture snapshots rewrite themselves (DRY = false) — their diff is 11
+=TOOLED= → =TOOLING= and nothing else. A red not in step 2 is this milestone's. Then the served
+artifact ([[feedback_render_the_view_to_verify_it]]): RESTART the dev daemon (a trait name is a
+boot-time read); the boot log shows =[m3:trait] … TOOLING applied= for every tooled mode and ZERO
+=DECLARED BUT UNIMPLEMENTED=; =mountpoint/daemon_*/migrations/= holds the minted migration — read it,
+don't write it; kajuit panel E on hello-world shows =TOOLING= and, per decision 4, no =TOOLED= chip;
+one hello-world tool call round-trips (the =doctor=), proving =mode.tools= was slurped.
+
+**** 6. blast — the radius closed
+Step 1's grep returns ZERO sites on the old noun outside =bak/=, quest history, and
+=known-issues.org:766-769=. Every live db's Mode rows read =TOOLING= with no =TOOLED= beside it
+(decision 4 landed) — =select slug, traits from Mode= on the dev instance is the proof.
+
+
+* owed after landing
+** M1
+- beef: commit; education push; primer push; restart the dev daemon (a kernel rename is a boot-time read,
+  not a reload — [[feedback_pin_environment_before_mechanism]]).
+- ikiro: sunset to =done/= same session ([[feedback_sunset_landed_quests]]); codemap line rewritten;
+  memory =project_mode_app_export= renamed.
+** M2
+- beef: commit; education push; RESTART every live instance he wants on the new name — each mints its
+  own migration at boot; prod at its next deploy (M5 is already owed there).
+- ikiro: the four codemap lines + two documentation files land IN the pass (step 4); the five memory
+  bodies after; sunset with M1.

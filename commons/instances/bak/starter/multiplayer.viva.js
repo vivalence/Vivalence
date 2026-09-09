@@ -74,7 +74,6 @@ export const daemons = [
       "@education/teacher/francesca",
       "@education/dashboard/dataspace",
       "@education/game/dojo",
-
       // "@education/homepage/aprende",
       // "@education/tactic/impara",
 
@@ -113,12 +112,16 @@ export const daemons = [
             },
           },
         },
-        secrets: { key: () => paladin.secret.get("SECRET_VIVA_OPENROUTER_API_KEY") },
+        secrets: {
+          key: () => paladin.secret.get("SECRET_VIVA_OPENROUTER_API_KEY"),
+        },
       },
       {
         module: "@commons/hallucinator/anthropic",
         statics: {},
-        secrets: { key: () => paladin.secret.get("SECRET_VIVA_ANTHROPIC_API_KEY") },
+        secrets: {
+          key: () => paladin.secret.get("SECRET_VIVA_ANTHROPIC_API_KEY"),
+        },
       },
     ],
   },

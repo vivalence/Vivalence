@@ -1,0 +1,501 @@
+#+title: m56 the pincer turns — a bone reads its own rect, and panel C stops being a triptych
+#+filetags: :m56:kajuit:pincer:bones:panel-c:layout:responsive:design-import:dapper:
+#+status: *M1 + M2 LANDED* (green, uncommitted). Rulings 2·3·5·6 taken on the quest's own recommendations — strike any and the affected hunk is small. From beef's Claude Design project /Pincer responsive redesign directions/. Two parts, as beef framed them: *M1* the top-level t-bone, *M2* the C panel.
+#+status: Read this pass: =Pincer Panel C - Final v3.dc.html= (the named selection), =Pincer C - Drag Handling Wireframes.dc.html=, =Pincer C-Nav Variants.dc.html=, =github.md= (a sync ledger — the project is generated FROM this repo), =support.js= (the dc-runtime, generic). WALKED LIVE off =~/Downloads/Pincer Panel C v3.html= at o=90.
+#+status: The pass found FOUR things reading v3 alone could not. (1) *v3 is one leaf of a fan* — three different panel-C designs and two different pincer interactions live in that project. (2) the wireframes RULE terminal (E) an anchor that never folds, docks or closes — *beef STRUCK it: /"terminal should absolutely dock and close. bullshit"/*. v3's symmetry is the law; the wireframes' =ANCHOR= does not reach kajuit. (3) *the comp's palette IS dapper's =paper= theme* — 21 of 21 hexes measured back to =dapper/lib/colors.js=, so the port is a token substitution, not a colour judgment. (4) *v3's =norm= leaves dead space when every open pane is folded*, and =openPane= can reach that state.
+#+status: =geometry.js= and =gesture.js= need NO logic change. M1 is three components, one derived rule, and two pieces of dead CSS.
+#+phase: verify
+#+progress: 2/2
+#+next: live-walk C at both aspects · markers 2·3·4·10·13·14 need a DOM
+
+* intent
+
+beef, verbatim, two parts:
+
+#+begin_quote
+two parts here.
+changes to the pincer direction layout top level tbone structure.
+
+changes to the cpanel.
+#+end_quote
+
+Source: Claude Design project =Pincer responsive redesign directions=
+(=7b7781bf-b7e4-4aac-9b87-6b2451997445=), selection =Pincer Panel C - Final v3.dc.html=.
+
+One sentence: *a bone stops asking the orientation which way it runs and reads its own rect; and panel C
+stops being D│E│F and becomes a pane engine that lays out along whichever axis C is longer in.*
+
+* terrain — measured this session
+
+** the project is a fan, and v3 is one leaf
+
+=github.md= in the project is a sync ledger: /"repo: vivalence/Vivalence · path: systems/kajuit"/, with a
+screen map naming the repo files each comp was generated from. The comps are not external art — they are
+derivations of this tree, and they disagree with each other on purpose.
+
+*Three different panel C designs:*
+
+| file                                  | the question it answers          | its answer                                                          |
+|---------------------------------------+----------------------------------+---------------------------------------------------------------------|
+| =Pincer Panel C - Final v3=           | how do panes resize and leave?   | fold · strip · push-through · dock to a bar · tab back               |
+| =Pincer C - Drag Handling Wireframes= | which drag model?                | FIVE, side by side: seam grips · detents · instance docking · flick · push-through |
+| =Pincer C-Nav Variants=               | what when C is too NARROW for 3? | FIVE nav models: tabs · accordion · drawers · drill · bone           |
+
+*Two different pincer interactions:*
+
+| file      | move the viket                          | change orientation                                        |
+|-----------+-----------------------------------------+-----------------------------------------------------------|
+| v3        | drag, snap grid; 1/2/3-tap home/swap/set| long-press → radial ring, 4 spokes, release past 32px      |
+| c-nav     | drag, snap grid                          | TAP → a fan of four side-chips; plus a 3px tick on the viket edge showing A's side |
+
+v3's radial is =gesture.js= ported verbatim (github.md: /"Ported gesture.js verbatim into v3"/). c-nav's
+fan is a PROPOSAL to replace it. Both are in front of beef; only one can ship.
+
+** the anchor — proposed by the wireframes, STRUCK by beef
+
+beef, verbatim, on the wireframes' =ANCHOR=:
+
+#+begin_quote
+this is horrible. terminal should absolutely dock and close. bullshit
+#+end_quote
+
+*Ruled: no anchor.* Every pane folds, docks and closes alike — v3's symmetry, unchanged. The rest of this
+section is kept as the decision trail, not as a live proposal.
+
+The wireframes file says it in prose, above the wireframes:
+
+#+begin_quote
+As built, C is D | twig | E | twig | F: E (terminal) is always there, only D and F toggle from the twigs.
+Every wireframe now keeps that rule — Terminal is the anchor, it never folds, closes or drops under its
+minimum; Instance and Buffer are the wings that fold and dock.
+#+end_quote
+
+and in its code:
+
+#+begin_src js
+const ANCHOR = 1;
+const FL = (i, area, n) => i === ANCHOR ? Math.min(MIN, area - (n - 1) * HEAD) : HEAD;
+// hints: 'terminal is the anchor · it never docks' / '· it never folds' / '· it never closes'
+#+end_src
+
+*The as-built code agrees*: =panels/c/c.svelte:102-137= gives D and F a twig toggle and gives E none — E
+cannot be closed today.
+
+*v3 drops it.* There is no =ANCHOR= in v3; =NAMES= is a flat three, =closeTap= docks any pane, =toggleFold=
+folds any pane, and the only guard is "the last unfolded pane refuses to fold".
+
+*Where my first read went wrong:* I counted =c.svelte='s "E has no twig toggle" as a second vote for the
+anchor. It is not evidence of intent — it is a limitation of the twig design, which only ever hung toggles
+on the wings because there is no rail outside F. An accident of the old implementation got read as a rule.
+Ask what the old code COULD express before treating what it does as a decision.
+
+** the palette is dapper's =paper= theme — measured, 21/21
+
+github.md: /"Recolored Final v2 to the dapper paper zone ladder and its text ramp"/. Every hex in v3
+resolves in =subsystems/dapper/lib/colors.js=:
+
+| comp hex                                                      | dapper ramp     |
+|---------------------------------------------------------------+-----------------|
+| FBFAF2 F5F3E8 F0EDDE E9E5D3 DAD4C0 C1B9A0 A0967C 7C725B 5A5240 3D372A | =paper= 50→800  |
+| 0B0F2D 06081E                                                 | =ink= 900 · 950 |
+| 066F6D 045554                                                 | =aqua= 500 · 600|
+| 521F46 · 222C74 · 203F14 · 4A330E · 5E2A11 · 41732A · 896022   | =pink/ink/moss/amber/rust= at their role anchors |
+
+v3's =ROLE = { primary, accent, info, success, warning, danger }= is dapper's role map at its anchors.
+*So M1/M2 are a token substitution, not a palette decision* — and every value must be written as
+=var(--colors-…)= so =nordic= (the current default, =bridge.js:83=) holds too. Five hexes in the c-nav
+sketch (=D9D3BC E4DFC8 EDE8D6 7FD4C1 8B93B8=) are NOT in dapper — that file is an off-token sketch.
+
+** the geometry already turns; the bones do not
+
+=stores/bridge/geometry.js:122-217= =bonesForOrientation= flips each bone's axis:
+
+| orientation | shoulder   | crown      | spine      |
+|-------------+------------+------------+------------|
+|      0 · 180 | horizontal | horizontal | vertical   |
+|     90 · 270 | vertical   | vertical   | horizontal |
+
+Each component hardcodes exactly one of those:
+
+- =bones/shoulder/shoulder.svelte:39-55= — =.population= default-row, =padding: 0 16px=
+- =bones/crown/crown.svelte:61-73= — =.tabs { flex-direction: row; overflow-x: auto }=, =padding: 0 12px=
+- =bones/spine/spine.svelte:119-140= — =.population { flex-direction: column; padding: 56px 0 14px }=,
+  =.slot { flex-direction: column }=, =.scanline= (=top: 45px=, animates =translateY=), =.endcap= (=top: 47px=)
+
+*Seen at o=90, driven in Chrome off the export* (=BONE 45=, =FOLDZ 84=, =DOCK_PULL 34=, key
+=kajuit-pincer-panelc-v3= — same v3), pincer at (520, 300):
+
+- shoulder = a 45px-wide *column*, =⊘ ‹ ›= stacked. kajuit's row clips two of three.
+- crown = a 45px-wide *column*: =+=, then =Francesca= and =empty= with labels in =writing-mode: vertical-rl=.
+  kajuit's horizontal tab shows about three characters of a terminal name.
+- spine = a 45px-tall *row*: =●L ●B ●S ●I=, each pip beside its glyph. kajuit's column plus
+  =padding: 56px 0 14px= puts every dot outside a 45px bar.
+- panel A reads =PANEL A · LEFT= — =A_SIDE[90]=.
+
+Both v3 and c-nav derive the same rule, independently:
+
+#+begin_src js
+const vert = (r) => r.height > r.width;
+spineDir / crownDir / shoulderDir = vert(bone) ? 'column' : 'row'
+crownWrite = vert(bones.crown) ? 'vertical-rl' : 'horizontal-tb'
+#+end_src
+
+** two pieces of dead CSS in the bones
+
+- =shoulder.svelte:56-67= — =.sep= is styled AND guarded by =@container shoulder (max-width: 190px)=, but
+  no element carries =class="sep"=. The container query guards nothing. *Delete, don't port.*
+- =crown/widgets/Tab.svelte:59-73= — =.tab-pip= and its =@keyframes tab-pip-pulse= are styled; the markup
+  renders only =.tab=, =.tab-title=, =.tab-close=. Dead.
+
+(=Tab.svelte:9-11= also carries three of beef's own TODO comments — conversation/stall indicators and a
+buffer count. Not this quest's scope; noted so M1 does not silently bury them.)
+
+** the only container query in the bones is axis-blind — RULED: fix (beef: /"fix"/)
+
+=shoulder.svelte:53-54= is the ONE container context in every bone and panel (grepped: no other
+=container-type= anywhere in =app/=):
+
+#+begin_src css
+container-type: inline-size;
+container-name: shoulder;
+@container shoulder (max-width: 190px) { ... }
+#+end_src
+
+=inline-size= measures the WRITING axis. At o=90/270 the shoulder is a 45px-wide column, so
+=max-width: 190px= is permanently true — the query cannot express "this bone is short" once the bone turns.
+Its only two consumers are both dead: =.sep= (M1.2 deletes it) and =widgets/Activity.bak.svelte:126=,
+which is *never imported*. *So M1.2 deletes the container context too*, and the rule for M1 is: a bone that
+turns cannot use =inline-size= — =container-type: size=, or read =axisFor=.
+
+** six orphan =.bak.svelte= files, none imported — RULED: ignore (beef: /"ignore"/)
+
+#+begin_src
+bones/shoulder/widgets/Activity.bak.svelte · ConversationalWidget.bak.svelte
+panels/f/widgets/Buffer.bak.svelte
+panels/e/bak.widgets/Conversational.bak.svelte · QueueingRibbon.bak.svelte · QueueingConsole.bak.svelte
+#+end_src
+
+Not this quest's scope to delete. They matter to QA: =Activity.bak.svelte= carries the same
+=@container shoulder (max-width: 190px)= block, so a post-M1 grep for it still HITS and marker 5 reads as a
+false fail. *Markers scope to live files.*
+
+** C is a splitter; D · E · F are 1 293 lines in their own directories
+
+=panels/c/c.svelte= is 235 lines and imports =../d/d.svelte= (504) · =../e/e.svelte= (379) ·
+=../f/f.svelte= (410). *M2.3's =Pane.svelte= WRAPS them; it does not rewrite them* — which is why the blast
+table lists only =c.svelte=. Two consequences the first draft missed:
+
+- each of D/E/F must survive being rendered at 44px, and inside a =writing-mode: vertical-rl= strip.
+- all three already carry heading chrome: =<Section>= from =subsystems/drapes/display/Section.svelte=
+  (=.section-head=), D alone mounting three of them (daemons · threads · intents). The comp's 44px pane
+  header would sit ABOVE those, making three levels of heading in one pane. See ruling 7.
+
+=panels/g= and =panels/h= mount rectless in =+page.svelte:85,87= — overlays, outside the t-bone. No M1/M2
+interaction beyond z-order.
+
+** panel C is a fixed horizontal triptych
+
+=panels/c/c.svelte= (235 lines) — =D│twig│E│twig│F=. =PANE_MIN_PX = 0=; sizes are raw px in
+=bridge.paneSize { d, e, f, panes: { d, f } }= (=bridge.js:90-99=). A twig drag moves ONE boundary and pays
+for it out of E (=:50-63=). =ensurePixelSizes= reads sizes back out of the DOM with
+=document.querySelector= (=:22-32=). *Nothing reads C's aspect* — a tall C still lays three columns across it.
+
+** the v3 engine, measured
+
+Constants: =BAR 44= · =FOLDZ 84= · =DOCK_PULL 34= · =MIN= (prop =minPane=, default 180).
+=NAMES = ['instance','terminal','buffer']= maps onto =D · E · F= — pane 0's body is daemons/threads/intents,
+pane 1's is active/mode/thread + /save as intent/, pane 2's is the buffer list.
+
+- =tall = h >= w= picks stack vs row.
+- =norm(oi, fold, weight, area)= — folded panes are exactly =BAR=; the rest share by weight over a floor of
+  =min(MIN, avail / n)=, iterating until nothing is under-floor.
+- =push(size, oi, b, delta, area)= over =fitRun= — dragging a boundary collapses panes in the way to =BAR=
+  one after another; the next takes over. Every drag is a run, not a neighbour pair.
+- the 44px header replaces the twig: grip dots · tap zone (name + digest, digest hidden under 260px) ·
+  =⤢=/=⤡= · =✕=. Grip drags the boundary; tap zone folds.
+- fold = tap the header, or release under =FOLDZ=. Folded in a WIDE C = a *strip*: =writing-mode: vertical-rl=,
+  its own stacked grip / tap / close. Folded in a TALL C keeps the horizontal header.
+- dock = drag the header into the bar (in a stack, its leading edge reaches C's top; for the first pane, or
+  in a row, a pull of =DOCK_PULL= across the run axis). Dashed drop zone previews it.
+- tab = tap re-opens at the average unfolded size; pull down re-opens at the pulled size.
+- =⤢= folds every other open pane; =⤡= on the maxed pane equalises.
+- a hint line narrates every gesture, fading 1.6s after the pointer settles.
+- =recency= is written on every fold/open and *never read*.
+
+*Seen live, same session:* tapping =INSTANCE='s header folded it to a 44px strip and the other two absorbed
+the width; dragging =BUFFER='s grip up 46px docked it — the bar appeared across C's *full width at C's top
+edge*, carrying =BUFFER idle= as its only tab, and =TERMINAL= took the remainder. The bar sits at C's
+leading cross-axis edge in BOTH layouts; it is not a rail along the run axis.
+
+** the engine's invariants — run, not asserted
+
+v3's =norm= / =fitRun= / =push= lifted verbatim into node and swept
+(=oi= over all 7 non-empty subsets × 8 fold masks × 5 weight vectors × 7 areas = 1960 =norm= cases;
+4 runs × 4 areas × boundaries × 13 deltas = 260 =push= cases):
+
+| invariant                                                        | result             |
+|-------------------------------------------------------------------+--------------------|
+| =norm= sums to the area, whenever ANY open pane is unfolded       | holds, 1960/1960   |
+| a folded pane measures exactly =BAR=                              | holds              |
+| no unfolded pane sits below =min(MIN, avail/n)=                   | holds              |
+| a closed pane measures 0                                          | holds              |
+| =push= sums to the area                                           | holds, 260/260     |
+| =push= never drives a pane under =BAR=                            | holds              |
+| =push= is monotone in the drag delta                              | holds              |
+| =norm= sums to the area when EVERY open pane is folded            | *FAILS · 470 cases* |
+
+*Defect.* =norm= returns early once =un= (the unfolded set) is empty, so the run measures
+=oi.length × BAR= and the remainder of C paints as bare background — e.g. one open folded pane in a 100px
+C gives 44px of pane and 56px of dead space. The interactive paths mostly guard it (=gripUp= unfolds the
+biggest, =toggleFold= refuses the last), but *=openPane(i, px)= has no such guard*: dock all three panes,
+then pull one tab down under 84px, and every open pane is folded. M2 must either give =norm= a
+last-resort unfold or give =openPane= the guard the other two paths have.
+
+** blast radius — grepped unrestricted
+
+| symbol                        | consumers                                                    |
+|-------------------------------+---------------------------------------------------------------|
+| =bonesForOrientation=         | =+page.svelte:44= · =bridge/index.js:14=                      |
+| =rectsForOrientation=         | =+page.svelte:38= · =bridge/index.js:13=                      |
+| bone components (=rect= prop) | =+page.svelte:80-83=                                          |
+| =bridge.paneSize=             | =c.svelte= (18 sites) · =bridge.js:90-99,133=                 |
+| =panels/c/c.svelte=           | =+page.svelte:6=                                              |
+
+Nothing outside =systems/kajuit/src= reads any of it. =+page.svelte= is unchanged in both milestones — it
+already hands each bone its rect and C its rect, which is why M1 is cheap.
+
+* rulings owed — beef's
+
+1. ~is terminal the anchor?~ *SETTLED — NO.* beef: /"terminal should absolutely dock and close. bullshit"/.
+   No =ANCHOR= index, no privileged pane, no per-pane floor exception. Every pane folds, docks and closes.
+   Consequences carried below: the engine takes no anchor parameter · E renders its =✕= like the others ·
+   the all-docked empty state is REACHABLE and must be built · the all-folded dead-space defect must be
+   fixed in =norm=, since no anchor is left to guarantee an unfolded pane.
+2. *which C design ships?* v3 (fold/dock) is one of three. The wireframes' other four drag models
+   (seam grips · detents · flick) and c-nav's five nav models are alternatives, not decoration.
+   *Recommendation: v3's model, with the wireframes' =settle= grafted on* — a pane between =BAR= and =MIN=
+   is BUMPED up to =MIN= when neighbours can spare it, rather than left squeezed. That is the one thing the
+   wireframes have that v3 lost, and it is 12 lines. The graft survives ruling 1: =settle='s bump pass is
+   anchor-free; only its =i !== ANCHOR= fold guard drops out, which restores exactly v3's behaviour.
+3. *=instance= is TAKEN* — =paladin/prototypes/ledger/instances.js:18= =instance(slug)= is the one slug→instance-dir
+   mapping (=paladin/tests/ledger.test.js:194=, =ghost/tests/{delete,use}.test.js=). The docked-tab bar needs
+   another noun. *Recommendation: it IS the =twig=* — the twig stops being a rail between panes (the header
+   takes that job) and becomes the bar panes fold out to. One noun, already in the bones family, still
+   naming "the thin strip in panel C".
+4. *what does C do when it is too narrow for its panes?* c-nav's =fits = clamp(floor(w / minPane), 1, 3)= is
+   a real rule v3 has no answer for — v3 just squeezes to floors. *Recommendation: defer.* Fold + dock
+   already degrade; adopt =fits= only if the folded row still reads badly on a phone.
+5. *where does the engine live, and how big is =MIN=?* =norm= · =push= · =fitRun= · =layout= are pure.
+   *Recommendation:* =stores/bridge/panes.js=, beside geometry/gesture/dock, tested like
+   =tests/pincer/dock.geometry.test.js=; =MIN= a constant at 180, not a user setting. Chrome stays
+   kajuit-local under =panels/c/widgets/= until a second consumer asks.
+6. *does =paneSize= migrate?* The saved shape has no =fold= / =weight= / =open= / order.
+   *Recommendation: new key, old key ignored* — a stale layout is worth nothing and =bridge.js:57= already
+   tolerates a null read.
+7. ~does the pane header replace D/E/F's first =Section= head, or stack above it?~ *SETTLED — STACK.*
+   beef: /"do"/ on the recommendation. The pane header stacks ABOVE the =Section= heads and *the digest is
+   dropped*: =Section= heads name CONTENT (daemons · threads · intents), the pane header names the PANE and
+   owns the gestures (grip · fold · maximise · close). Different jobs, so both stay. The digest was the only
+   duplicated part, and v3 already hid it under 260px. Original question: D mounts three drapes
+   =<Section>= blocks; the comp adds a 44px header carrying the pane NAME + digest above them. Three
+   heading levels in one pane. *Recommendation: stack, and drop the digest* — the =Section= heads name
+   CONTENT (daemons/threads/intents), the pane header names the PANE and owns the gestures (grip · fold ·
+   maximise · close). They are different jobs. The digest is the part that duplicates, and it is the part
+   v3 already hides under 260px.
+
+* M1 — the bones follow their own rect · LANDED
+
+*Green:* =deno test systems/kajuit/tests/= 35 passed / 0 failed · =deno task bundle= built clean,
+no =css_unused_selector= on any new rule. Uncommitted.
+
+No store logic changes. Every colour written as a dapper token, never a comp hex.
+
+** M1.1 =geometry.js= gains the axis rule
+=export const axisFor = (rect) => (rect.height > rect.width ? "column" : "row")=, re-exported through
+=bridge/index.js=, so three bones and the HUD read ONE rule instead of three copies. =A_SIDE= joins it
+beside =snapLabel=.
+
+** M1.2 =shoulder.svelte= — =.population= direction from =axisFor(rect)=, padding =0 16px= ⇄ =16px 0=.
+*Delete* =.sep=, its =@container= block, AND =container-type= / =container-name= (:53-54) — the context has
+no live consumer left, and =inline-size= is the wrong axis the moment the bone turns.
+
+** M1.3 =crown.svelte= + =Tab.svelte= — =.tabs= direction and overflow from =axisFor(rect)=; BOTH paddings
+flip: =.population:53= =0 12px= ⇄ =12px 0= and =.tabs:72= =0 2px= ⇄ =2px 0=;
+=Tab.svelte='s label gets =writing-mode: vertical-rl= in the column case and its =max-width: 140px= a
+=max-height= twin. *Delete* =.tab-pip= and =@keyframes tab-pip-pulse= (dead).
+
+** M1.4 =spine.svelte= — =.population= and =.slot= directions from =axisFor(rect)=; padding
+=56px 0 14px= ⇄ =0 14px 0 56px=; =.rule= flips 16×1 ⇄ 1×16. =.scanline= and =.endcap= are decoration on a
+column: make them run-axis-relative or suppress them off-axis — beef's call at review.
+
+** M1.5 the drag HUD
+=bones/pincer/widgets/Hud.svelte=, rendered only while =gesture.$dragging=, =pointer-events: none=:
+=a · {side}= · =x% · y%= · =c W×H=. (c-nav's HUD also carries =· fits {n}=; add that only under ruling 4.)
+
+** M1.6 A's empty-state label
+=panels/a/a.svelte:75,79= renders a =7xl= =.label= "A" at 0.35 opacity when there is no thread or no view.
+The comp hides its centre label when the rect is too short; port that gate *to this label only*.
+=panels/b/b.svelte= has no such label — nothing to do there. (My first draft claimed both; wrong.)
+
+* M2 — panel C becomes the pane engine · LANDED
+
+*Green:* =deno test systems/kajuit/tests/= 37 passed / 0 failed (=panes.test.js= adds 14 steps) ·
+=deno task bundle= clean, no =css_unused_selector=. Uncommitted.
+
+*Rulings taken, not answered* — beef said /"build the cpanel"/ with 2·3·5·6 still open, so each went
+the way the quest recommended: v3's model + the wireframes' =settle= · the bar IS the =twig= ·
+=stores/bridge/panes.js= with =PANE_MIN= 180 · new =panes= key, old =paneSize= ignored.
+
+** M2.1 =stores/bridge/panes.js= — the pure engine
+=BAR= · =FOLDZ= · =DOCK_PULL= · =MIN=, then =normalise= · =fitRun= · =push= · =settle= · =layout=. N-ary, no
+DOM, no nanostores, *no anchor* (ruling 1). Fixes the all-folded dead-space defect — with no privileged
+pane there is nothing else guaranteeing an unfolded one, so the guard belongs in =normalise= itself, not in
+the three call sites. =settle= is the wireframes' bump-to-=MIN= pass (ruling 2).
+
+** M2.2 =bridge.js= — the persisted shape
+=paneSize= is replaced by a record per pane: =open= · =fold= · =weight=, plus the docked order. Old key
+ignored (ruling 6). =recency= is NOT persisted until something reads it.
+
+** M2.3 =panels/c/widgets/Pane.svelte= — the gripped header and the strip
+44px header: grip dots · tap zone (name + digest) · =⤢=/=⤡= · =✕=; the folded-in-a-row =strip= variant;
+*no digest* (ruling 7). Every pane gets the same header — no pane suppresses its =✕= (ruling 1). The header
+stacks above D/E/F's existing drapes =<Section>= heads; those are untouched.
+
+** M2.4 =panels/c/widgets/Twig.svelte= — the bar and its tabs (noun per ruling 3)
+Across C's leading cross-axis edge in both layouts. One tab per docked pane; tap opens, pull opens at
+size; the dashed drop zone during a dock drag; and the "all panes docked · tap a tab to open" empty state,
+which ruling 1 keeps REACHABLE — terminal leaves like anything else, so C with three tabs and no pane is a
+state that ships and must read well.
+
+** M2.5 =panels/c/c.svelte= — the rewrite
+=tall = rect.height >= rect.width= picks the axis; the engine places D/E/F; the twig bar takes the docked
+ones. The =twigDrag= boundary-pair code goes, and so does =ensurePixelSizes= — the engine is computed, not
+read back out of the DOM with =querySelector=.
+
+** M2.6 the hint line
+One =$state= string set by every gesture, cleared 1.6s after the pointer settles. The comp's sentences are
+worth keeping verbatim: they are the only documentation these gestures have.
+
+* blast table
+
+| file                                                    | M1 | M2 | why                                    |
+|----------------------------------------------------------+----+----+----------------------------------------|
+| =systems/kajuit/src/typology/stores/bridge/geometry.js=  | ✓  |    | =axisFor()= + =A_SIDE=                 |
+| =systems/kajuit/src/typology/stores/bridge/index.js=     | ✓  | ✓  | re-exports                             |
+| =systems/kajuit/src/typology/stores/bridge/bridge.js=    |    | ✓  | the pane record replaces =paneSize=    |
+| =systems/kajuit/src/typology/stores/bridge/panes.js=     |    | ✓  | NEW — the engine                       |
+| =systems/kajuit/src/app/bones/shoulder/shoulder.svelte=  | ✓  |    | axis + padding + delete =.sep=         |
+| =systems/kajuit/src/app/bones/crown/crown.svelte=        | ✓  |    | axis + padding + overflow              |
+| =systems/kajuit/src/app/bones/crown/widgets/Tab.svelte=  | ✓  |    | =writing-mode= + delete =.tab-pip=     |
+| =systems/kajuit/src/app/bones/spine/spine.svelte=        | ✓  |    | axis + padding + rule + ornaments      |
+| =systems/kajuit/src/app/bones/pincer/widgets/Hud.svelte= | ✓  |    | NEW — the drag HUD                     |
+| =systems/kajuit/src/app/bones/pincer/pincer.svelte=      | ✓  |    | mounts the HUD                         |
+| =systems/kajuit/src/app/panels/a/a.svelte=               | ✓  |    | the =.label= gate                      |
+| =systems/kajuit/src/app/panels/c/c.svelte=               |    | ✓  | the rewrite                            |
+| =systems/kajuit/src/app/panels/c/widgets/Pane.svelte=    |    | ✓  | NEW — header + strip                   |
+| =systems/kajuit/src/app/panels/c/widgets/Twig.svelte=    |    | ✓  | NEW — the bar + tabs                   |
+| =systems/kajuit/tests/pincer/bones.axis.test.js=         | ✓  |    | NEW                                    |
+| =systems/kajuit/tests/pincer/panes.test.js=              |    | ✓  | NEW                                    |
+
+=panels/b/b.svelte= was in the first draft's table and is *struck* — it has no centre label.
+
+* testing assessment
+
+*M1.* =axisFor= is pure. The test that earns its place is not "column at 90" but the t-bone's defining
+property, swept over all four orientations and a spread of pincer positions:
+
+#+begin_src js
+axisFor(bones.crown) === axisFor(bones.shoulder)   // the two arms always share an axis
+axisFor(bones.spine) !== axisFor(bones.crown)      // the spine always crosses them
+#+end_src
+
+That is exactly what the hardcoded CSS violates at 90 and 270. =tests/pincer/bones.axis.test.js=,
+=specimen=, no DOM.
+
+*M2.* The invariant list is not speculative — it was run against v3's own functions this session (table
+above). Port the seven that hold as the suite, and add the eighth as a regression test for the defect:
+after =openPane(i, 50)= with every other pane docked, the layout must still fill the area.
+
+*What no test reaches:* the pointer choreography — the dock pull, the strip's vertical hit targets, the
+fold-on-release feel, whether a vertical crown's labels are readable at a real DPI. Live-validation debt.
+Per [[project_pincer_comp_redesign]] the last pass here was blocked twice: no daemon backend (so D/E/F
+render chrome with no data) and the kajuit SPA never reaches =document_idle=, so =computer screenshot=
+errors on the live tab. *DOM probes via =javascript_tool= and =read_console_messages= work; screenshots of
+the live SPA do not.* The static comp screenshots fine — that is how this pass was walked.
+
+* QA — markers
+
+| # | marker                                                                        | verdict |
+|---+-------------------------------------------------------------------------------+---------|
+| 1 | =axisFor()= is ONE export read by all three bones — no per-bone copy           | *PASS*  |
+| 2 | crown tab labels readable at o=90 and o=270 (probe =writing-mode=)             | open    |
+| 3 | spine pips sit side-by-side in a horizontal spine, no clipping                 | open    |
+| 4 | the spine scanline/endcap follow the run axis or are suppressed off-axis       | open    |
+| 5 | =.sep=, =.tab-pip= and the shoulder container context GONE — grep LIVE files, =.bak= excluded | *PASS* |
+| 6 | HUD appears only while dragging and never intercepts a pointer                 | *PASS*  |
+| 7 | =panes.js= imports nothing from svelte, nanostores, or the DOM                 | *PASS*  |
+| 8 | no comp hex reaches kajuit — every colour is a =var(--colors-…)= token          | *PASS*  |
+| 9 | =nordic= still renders correctly (the comp is =paper=; both must hold)          | open    |
+|10 | a folded pane measures exactly 44px in both axes of C                          | open    |
+|11 | the all-folded dead-space state cannot paint bare background — guarded in =normalise= | *PASS* |
+|12 | terminal folds, docks and closes exactly like instance and buffer (ruling 1)   | *PASS*  |
+|12b| C with every pane docked renders the empty state, not a blank rect             | open    |
+|13 | a docked pane survives a reload (the new persisted shape round-trips)          | open    |
+|14 | C re-lays itself when the pincer turns — tall stacks, wide lays across         | open    |
+|15 | =instance= appears nowhere in the new C code (ruling 3)                           | *PASS*  |
+|16 | the old =paneSize= key is ignored, not crashed on                              | *PASS*  |
+|17 | D · E · F render legibly at 44px folded and inside a vertical-rl strip          | open    |
+
+* landed in M1 — beyond the listed hunks, flagged
+
+Two additions I made while writing, neither in the first draft's hunk list:
+
+1. *the bone borders flip with the axis.* =shoulder= and =crown= carried =border-top= + =border-bottom=;
+   at o=90/270 a vertical bone showed those as CAPS, not edges. =.bone.column= swaps them to
+   =border-left= / =border-right=. Without it M1 does not achieve its own goal — the bone still reads
+   wrong when turned. Strike it if you disagree; it is 6 lines per file.
+2. *the spine ornaments are run-axis-relative, not suppressed* (M1.4 left this "beef's call at review").
+   =.bone.row .scanline= runs left-to-right off =heartbeat-row=, =.bone.row .endcap= flips to 1×12 at
+   =left: 47px=. The alternative was two lines hiding them off-axis. Both keyframes still hardcode a
+   viewport-sized travel (=100vh= / =100vw=), which is the pre-existing sloppiness, not new.
+
+*One number is mine, not measured:* =panels/a/a.svelte= =LABEL_MIN_PX = 96=. The comp gates its own
+12px label on =rects.a.height - 45 - 64 >= 24=; kajuit's label is =font-size-7xl= = =4.3rem= × 1.3 ≈ 89px,
+so 96 is that box plus air at a 16px root. It does NOT track =FONT_SIZES= — at a large root setting the
+gate opens slightly early.
+
+* landed in M2 — deviations from the written plan
+
+1. *every engine export carries the =pane= register.* =index.js= re-exports =panes.js= with =export *=,
+   so bare =BAR= · =MIN= · =push= · =layout= would land flat in =stores.bridge= beside =bridge.layout=.
+   They are =PANE_BAR= · =PANE_MIN= · =pushPanes= · =layoutPanes= · =normalisePanes= · =settlePanes= ·
+   =fitPaneRun= · =openPanes= · =dockedPanes= · =paneBoundary= · =PANE_NAMES=.
+2. *no docked ORDER is persisted.* M2.2 asked for one; v3 derives the tab order from the index order and
+   nothing anywhere sets a different one. Storing an order no code writes is dead state. =panes= holds
+   =open= · =fold= · =weight= only.
+3. *=fitPaneRun= guards the empty run.* v3's =fitRun= writes =s[undefined]= when handed an empty order —
+   unreachable through =gripDown= (=b: k === 0 ? 1 : k=) but reachable by any other caller. Tested.
+4. *the all-folded guard unfolds the heaviest pane inside =normalisePanes=.* With no anchor left
+   (ruling 1) there is nothing else to guarantee an unfolded pane. Renderers read foldedness from the
+   SIZE (=size <= PANE_BAR + 0.5=), exactly as v3's own render does, so the guard needs no second
+   return value and no call-site cooperation.
+
+*Two bugs the build caught, both fixed:* =grab= was a plain =let= read by the template, so the grip
+highlight would never have updated mid-drag; and the pane digests read =bridge.view.d= / =.f= through
+getters inside a =$derived=, which tracks nothing — both now subscribed.
+
+* forks — held, not decided
+
+1. *the radial vs the fan.* c-nav replaces the long-press radial with a tap-fan of four side-chips plus a
+   3px tick on the viket edge showing which side A is on. The tick is cheap and additive; the fan replaces
+   =gesture.js='s whole long-press path. Separable — take the tick, hold the fan.
+2. *the spine as pane selector.* c-nav variant 5 puts D/E/F buttons IN the spine bone: /"No chrome in C.
+   The spine bone carries D / E / F — tap one, C shows it. Same in every orientation."/ That is a different
+   answer to ruling 4 and it lands in M1's file, not M2's.
+3. *=recency= is written and never read* in v3. The obvious consumer is "which pane does a fresh buffer
+   open into" — a question m55's terminal tree will ask. Held, and not persisted until then.
+4. *"dock" now names two things* — panel C's fold-out, and =stores/bridge/dock.js= (the A-panel Dock).
+   Under ruling 3 C's verbs become /fold out/ and /bring back/, and =dock.js= keeps the noun alone.
+5. *unread siblings*: =Panel C - Riffle Deck Flow=, =Pincer Mobile - As Built=, =Pincer Mobile - Ideation=,
+   =Pincer Tab-Accordion Hybrids=, =Pincer Riffle Demo=, =Pincer Squeeze Demo=, and nine =uploads/=
+   screenshots. The three read this pass each moved a ruling; assume these can too.

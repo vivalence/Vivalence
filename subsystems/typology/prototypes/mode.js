@@ -10,13 +10,10 @@ export class Mode {
 
   constructor(module) {
     Object.assign(this, module);
-    this.type = this.manifest.type;
-    this.slug = this.manifest.slug;
-    this.traits = this.manifest.traits || [];
     this.module = module;
   }
 
   implements(trait) {
-    return this.traits.includes(trait.toUpperCase());
+    return this.manifest.traits.includes(trait.toUpperCase());
   }
 }

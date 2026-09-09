@@ -1,5 +1,6 @@
 #+title: the client froze because identity was recomputed forever, a 483mb profile named the function, and a rename i called done was not
 #+filetags: :performance:profiling:typology:signature:span:vector:kajuit:firefox:callout:
+#+index: 37
 
 * the complaint
 

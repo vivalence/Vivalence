@@ -3,35 +3,39 @@ import { DataRepository } from "@vivalence/runtime";
 
 const collate = (tiers) => {
   const slots = {};
-  for (const tier of tiers)
+  for (const tier of tiers) {
     for (const descriptor of Object.values(tier)) {
-      const slot = (slots[descriptor.type] ??= { type: descriptor.type, subscribers: new Set() });
+      const slot = (slots[descriptor.type] ??= {
+        type: descriptor.type,
+        subscribers: new Set(),
+      });
       slot.entity = descriptor.entity ?? slot.entity;
       slot.schema = descriptor.schema ?? slot.schema;
       slot.repository = descriptor.repository ?? slot.repository;
       if (descriptor.subscriber) slot.subscribers.add(descriptor.subscriber);
     }
+  }
   return Object.values(slots);
 };
 
 const seal = (slot) =>
-  !slot.schema.meta.abstract
-    ? slot
-    : {
-        ...slot,
-        schema: new EntitySchema({
-          class: slot.entity,
-          extends: slot.schema,
-          name: slot.schema.meta.className,
-          tableName: slot.schema.meta.className,
-          repository: () => slot.repository ?? DataRepository,
-        }),
-      };
+  !slot.schema.meta.abstract ? slot : {
+    ...slot,
+    schema: new EntitySchema({
+      class: slot.entity,
+      extends: slot.schema,
+      name: slot.schema.meta.className,
+      tableName: slot.schema.meta.className,
+      repository: () => slot.repository ?? DataRepository,
+    }),
+  };
 
 export function assemble(tiers) {
   const instance = collate(tiers).map(seal);
   return {
     entities: instance.map(({ subscribers, ...entity }) => entity),
-    subscribers: [...new Set(instance.flatMap((slot) => [...slot.subscribers]))],
+    subscribers: [
+      ...new Set(instance.flatMap((slot) => [...slot.subscribers])),
+    ],
   };
 }

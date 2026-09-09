@@ -1,5 +1,6 @@
 #+title: the boot screen was the missing half of a span spine that already worked, and four turns of hunting a frozen gate ended at two different origins
 #+filetags: :kajuit:telemetry:span:trace:boot:client:debugging:callout:
+#+index: 32
 
 * the ask
 

@@ -13,8 +13,7 @@ export default () => {
     if (schema) {
       messages.unshift({
         role: "user",
-        content:
-          `The return JSON schema is: ${JSON.stringify(schema, null)}.` +
+        content: `The return JSON schema is: ${JSON.stringify(schema, null)}.` +
           `Respond in JSON. No comments, syntax, newline, escape, decoration, special character or any other text or symbol is allowed.`,
       });
     }

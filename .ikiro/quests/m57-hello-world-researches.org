@@ -1,0 +1,148 @@
+#+title: m57 — hello-world researches: a nested agent that searches the small web, then draws its own page
+#+filetags: :m57:hello-world:commons:generative:emitter:bundler:marginalia:search:svelte:dapper:drapes:harness:agentic:yield:
+#+phase: open
+#+status: WIKIPEDIA LANDED uncommitted (repo + instance synced, hello-world 19/65, snapshots re-cut hot): Marginalia → `web/wikipedia.js`, research brief follows article links to a shaped report, app card searches Wikipedia; APP CARD FOLDS (search · doctor hide/show) + one drawn-page BUTTON per research page → `terminal.buffer = page`, no inline mount (beef: /"no inline rendering of page"/), --zoom 1.15; M0-M4 · M6 ITERATE · M8 IMAGES · M9 LABELED LANDED uncommitted; response = ONE unit of work (harnessed fork). hello-world 19/63 · reader 7/43 · runtime 55/347 (registry-ingest red pre-existing) · kajuit 37/133 · buffer.labeled 5 · instance copy SYNCED. OWED: restart (MIGRATES: Buffer.traits/trait), revise walk, figure walk, label walk, [m3:*] probes RIPPED (harnessed · tooled · emitter · traits/index · hello harness; `CONVERSATIONAL` is a marker trait now, unknown traits `console.warn` once), M5 README LANDED + WALKED BY BEEF: Hello Mode = the REAL mode.viva.js (listing ≡ file), two screenshots in Hello Instance, nav anchors fixed; the walk reshaped the mode: `tools/` FLAT + `tools/index.js` barrel, fold renamed `report`, `App(mount)` only, traits commented, instance.viva.js = listing (no docs, no ATTACHED, kernel comment).
+#+progress: 9/9 + P-spoken
+#+next: RESTART (harnessed.js · generative.js · Buffer.ts · Thread.ts are repo files; Buffer MIGRATES). /"research flamingos, with a picture"/ → one <figure>, line reads the label. A follow-up change → `revised buffer <id> index 0 view <new>`, same line re-mounts, no cursor. /"call that page Flamingos"/ → one buffer_label.
+#+todo: —
+#+marker_qa: m57/T-draw · held · walked after the restart: research → generator_view_render → `drew "Flamingo — the word"`, buffer on the line, 4 rounds
+#+marker_qa: m57/P-await · held · `shard.datamap.repository` /create + /ingest AWAIT `repo.create` — an async repository create (BufferRepository) returned a Promise to the wire and flushed nothing; measured as 13 × 200 with no buffer from the F panel's Open
+#+marker_qa: m57/T-revise · pending · a follow-up changes the SAME page in place — one view_revise, no second line, no cursor move
+#+marker_qa: m57/T-heard · pending · /"read me its source"/ → ONE view_inspect with the hash render spoke
+#+marker_qa: m57/T-figure · pending · a research with a picture → one figure, https, caption names the source
+#+marker_qa: m57/P-src · held · an img src is copied BYTE FOR BYTE from web_read images — Wikimedia serves a thumb only at whitelisted widths (330/500/960 = 200, 220/640/700 = 400); the flamingo walk's 700px was the model's edit; three invitations struck (brief 'written out as https://', RENDER '// → https://', elided figure example); reader strips the ?utm query
+#+marker_qa: m57/T-thin · pending · a thin Wikipedia subject → a short honest report that names what it opened
+#+marker_qa: m57/P-wikipedia · held · web_search is Wikipedia's search API — keyless, 485ms live, empty on nonsense; Marginalia OUT (timed out on every probe 2026-09-09, the flamingo thread says so in the model's words)
+#+marker_qa: m57/P-seat · held · render speaks id · index · hash16 · LABELED name; revise keeps id AND index, counter unmoved, view swapped
+#+marker_qa: m57/P-label · held · every buffer LABELED at create — a claimed trait is left alone, else `<mode.slug> #<index>`, the subscriber never reads data; `buffer_label {id, label}` in the runtime's standard skills; render + emitter REQUIRE label, revise optional, always whole; kajuit reads buffer.label only — the data.title ladder is DEAD
+#+marker_qa: m57/P-mint · held · ONE mint `BufferRepository.create`, ONE seat-taker `ThreadEntity.bindBuffer`; mode.generator.buffer GONE; queries before the mint so an auto-flush cannot name a row for the wrong seat
+#+marker_qa: m57/T-label · pending · /"call that page Flamingos"/ → ONE buffer_label, the dock line and the F list rename without a cursor move
+#+marker_qa: m57/P-steer · held · mode middleware runs on the trait's tool, effect-less open wins the pattern, trait's effect stays; the generator arms nothing
+#+marker_qa: m57/P-unit · held · a tool flushing the root em mid-response persists NO turn early; a consumer dying after tool_use sealed leaves the thread at the user's message; a whole response lands chained
+#+marker_qa: m57/P-reactive · held · Buffer.view is an atom; a revise re-mounts by itself
+#+marker_qa: m57/P-images · held · img[src] absolute https ONLY in body + images:[{alt,src}] cap 12; FIGURE the only image form
+#+marker_qa: m57/P-noexternal · held · a URL import refused in middleware before the bundler
+#+marker_qa: m57/P-catalog · held · viva_doctor · web_search · web_read · research · view_render · view_revise · view_inspect · view_list; armory 16
+#+marker_qa: m57/P-subset · held · researcher arms web + mode.generator.tools, six names
+#+marker_qa: m57/P-yield · held · only {message, buffer} leave the nested fold
+#+marker_qa: m57/P-nodoublebind · held · the mint passes no thread; the EMITTER drain is the one binder
+#+marker_qa: m57/P-early · held · rounds or a fault after a draw → ERROR with the buffer attached
+#+marker_qa: m57/P-tokens · held · every house token exists in dapper's CSS, both themes; every pattern class defined
+#+marker_qa: m57/P-spoken · held · `shard.hallucinate.speak(output)` = message + every entity array as rows, each row cut to its descriptor's `spoken` paths (buffer: id · index · mode · thread · traits · trait · view.hash); both translate.js call it; the seat prose is GONE — render says `drew "Flamingo"`, the row speaks
+#+marker_qa: m57/P-namespace · held · the arming names the namespace: `armed.branch("/generator").slurp(mode.generator.tools)` → generator_view_render · _revise · _inspect · _list; the trait itself still speaks /view
+#+marker_qa: m57/P-check · struck · SSR text of a view — bundle/svelte.js compiles client only
+
+#+begin_src js
+// systems/runtime/daemon/traits/generative.js
+mode.generator = { bundle, inspect, serve, buffer, tools: tools() };
+if (mode.module.generator) mode.generator.tools.slurp(mode.module.generator);
+// tools(): root.branch("/view")
+render   { source, data? }           bundle → buffer({thread}) → em.flush → { message: `drew ${seat}`, buffer: [row] }
+revise   { buffer, source?, data? }  bundle? → findOneOrFail({id}) · row.view = view.json · row.data = {...row.data, ...data} · em.flush → { message: `revised ${seat}`, buffer: [row] }
+inspect  { hash }                    inspect(hash) | ERROR "compiled but its source was not kept" | ERROR "unknown view"
+list     { }                         buffer.find({thread} | {mode}, {orderBy:{index:"asc"}}) → one seat per line
+seat     `buffer ${id} index ${index} view ${hash16} "${data.title}"`
+refused  bundle threw → "<verb> refused: … The source is the problem — fix it and <verb> again"
+failed   row/flush threw → "<verb> failed: … Not the source — the runtime could not <verb> this buffer"
+// harnessed.js, after mode.tools
+if (mode.generator?.tools) armed.slurp(mode.generator.tools);
+#+end_src
+
+#+begin_src js
+// commons/instances/hello-world/page/index.js — steering only; the emitter stays the mint
+generator.branch("/view").use(async (ctx, next) => {
+  try { if (ctx.input?.source) refuse(ctx.input.source); }
+  catch (error) { ctx.output = { condition: "ERROR", message: `${error.message}. Fix the source and draw again — do not retry it unchanged.` }; return; }
+  await next();
+});
+generator.branch("/view").open({ nature: "/render", valence: HOUSE_RULES…, input: v.object({ source: SOURCE, data: DATA }) })
+                         .open({ nature: "/revise", valence: HOUSE_RULES…, input: v.object({ buffer, source: SOURCE.optional(), data }) });
+// a reword restates `input` — a collided pattern is taken whole (vector.js:59-80)
+// research/index.js:  armed.slurp(web); armed.slurp(ctx.mode.generator.tools);
+#+end_src
+
+#+begin_src js
+// M9 LABELED — the label is {name, description}; the interface speaks it, the row never reads data
+// subsystems/typology/schematics/primitives/label.js
+export const Label = v.object({ name: v.string().desc(…Example…), description: v.string().desc(…Example…).optional() }, { $id: "Label" });
+// entities/buffer.js own: traits, trait · narrowable: ["data", "trait"]
+
+// entities/userspace/Buffer.ts — ONE mint, on the repository (mikro-first)
+export enum BufferTraitsEnum { LABELED = "LABELED" }                      // FILE lands with m54
+traits: BufferTraitsEnum[] & Opt = [];  trait: any & Opt = {};            // columns mirror Literal.ts — mikro migrates at boot
+class BufferRepository extends DataRepository {
+  async create({ thread, literals, symbols, ...fields }) {                // every query FIRST — a query auto-flushes a pending row
+    const bound = thread ? await this.em.findOneOrFail(ThreadEntity, thread) : null;
+    const buffer = super.create({ ...fields, ...(literals && { literals: await …findByIdentifiers }), ...(symbols && …) });
+    bound?.bindBuffer(buffer);
+    return buffer; } }
+class BufferSubscriber { async beforeCreate({ entity, em }) {
+  if (entity.traits.includes("LABELED")) return;
+  const mode = await em.findOne(ModeEntity, entity.mode);
+  entity.traits = [...entity.traits, "LABELED"];
+  entity.trait = { ...entity.trait, LABELED: { name: `${mode?.slug} #${entity.index}` } }; } }
+// entities/userspace/Thread.ts — the seat is the thread's to give (beef: "a real utility")
+bindBuffer(buffer) { buffer.thread = this; buffer.index = this.counter++; return buffer; }
+// the ONLY counter++ in the tree; callers: BufferRepository.create · emitter.js drain
+
+// daemon/skills/buffer.js — the runtime's standard toolset, beside /buffer/update
+/buffer/label { id, label: Label }   → row.trait.LABELED = label · flush → { message: `labeled ${seat}`, buffer: [row] }
+
+// generative.js — mode.generator = { bundle, inspect, serve, tools }; mode.generator.buffer is GONE
+render  { source, label: Label, data? }  → ctx.daemon.entities.buffer.create({ mode, view: view.json, data, traits: ["LABELED"], trait: { LABELED: label }, thread })
+revise  { buffer, source?, label?: Label, data? }   label replaces WHOLE
+seat    `buffer ${id} index ${index} view ${hash16} "${row.trait.LABELED?.name}"`
+// application.js  mode.app.buffer = (desc) => daemon.entities.buffer.create({ mode, view: null, ...desc, data: mode.app.fill(desc) })
+// hello-world page/index.js: emitter { source, label: Label, data?, thread? } mints via buffer.create (no thread — the drain binds); rewords restate label
+// chaosmonkey reader/oracle emitters follow (oracle awaits app.buffer)
+// kajuit buffer.js: $traits atom · $trait deepMap · $label = computed($trait → LABELED) · get label()
+// turns.js bufferLabel = (b) => b?.label?.name ?? b?.trait?.LABELED?.name ?? `buffer ${b.index}` — data.title/mode.slug ladder DEAD, Dock launchLabel too
+// f.svelte: list row = buffer.label.name (title = description); active: $label chain name + description; dead .status css cut
+#+end_src
+
+#+begin_src js
+// systems/runtime/daemon/traits/harnessed.js — the response is ONE unit of work
+const em = ctx.daemon.entities.em.fork();
+const thread = ctx.input.thread?.id ?? ctx.input.thread;      // a ROOT entity as thread leaks the row into the root flush
+let parent = em.getReference(TurnEntity, ctx.turn.id);
+…  parent = em.create(TurnEntity, { role, parts, meta, parent, thread, mode: ctx.mode.id });
+await em.flush();                                              // once, at close
+catch (error) { em.clear(); throw error; }
+#+end_src
+
+#+begin_src js
+// systems/kajuit/src/typology/entities/buffer.js + panels/a/a.svelte
+$view = atom(null);  get view() { return this.$view.get(); }  set view(r) { this.$view.set(!r || r instanceof View ? r : new View(r)); }
+const record = chain(terminals, "$active", "$buffer", "$view");
+// Dock.svelte  .call.running .call-head { border-color: var(--colors-skeleton-0-primary-base); }
+#+end_src
+
+#+begin_src js
+// commons/services/reader/extract.js
+for (const image of node.querySelectorAll("img[src]")) {
+  resolved = new URL(image.getAttribute("src"), base).href     // try/catch → null
+  https only → src = resolved · alt trimmed · srcset removed ; else image.remove()
+}
+images = [...img[src]].slice(0, LIMITS.images = 12).map(({alt, src}))
+// page/style.js: <figure class="figure"><img src alt loading="lazy"/><figcaption class="caption"/></figure> — src ONLY from a page you opened
+#+end_src
+
+#+begin_src js
+// P-spoken — subsystems/typology/gestalten/shard/hallucinate.js
+export const speak = (output) => message + "\n" + JSON.stringify({ [key]: rows.map((row) => card(row, descriptor(key).spoken)) })
+// schematics/entities/buffer.js   spoken: ["id", "index", "mode", "thread", "traits", "trait", "view.hash"]   — a related row speaks as its id; data + bundle stay off the wire (tools fetch them)
+// commons/hallucinators/{anthropic,openrouter}/provider/translate.js   content: shard.hallucinate.speak(part.output)   — [m3:wire] probes gone
+// generative.js   render → { message: `drew "${name}"`, buffer: [row] } · revise `revised "…"` · list → { message: "N pages on this thread", buffer: rows }
+// harnessed.js:73 + research/index.js   armed.branch("/generator").slurp(mode.generator.tools)   → generator_view_*
+// subsystems/typology/gestalten/shard/datamap.js   /create + /ingest: `const entity = await repo.create(…)` — the generic path honours an async repository create
+#+end_src
+
+#+begin_src sh
+deno test -A --no-check systems/runtime/tests/mode/generative.test.js          # 7
+deno test -A --no-check systems/runtime/tests/turn.unit-of-work.test.js        # 3
+deno test -A --no-check systems/runtime/tests/buffer.labeled.test.js           # 5
+deno test -A --no-check commons/instances/hello-world/tests/*.test.js          # 19 / 63
+deno test -A --no-check commons/services/reader/tests/*.test.js                # 7 / 43
+cd ~/.viva/instances/hello-world && deno test -A --no-check --config <repo>/deno.jsonc tests/*.test.js
+# probes to rip: traits/{emitter,harnessed,tooled,index}.js [m3:*] · hello-world/{harness.js,research/index.js} · both translate.js (6 lines each)
+#+end_src

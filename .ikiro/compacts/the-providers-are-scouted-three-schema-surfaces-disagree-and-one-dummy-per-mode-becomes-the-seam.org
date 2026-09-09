@@ -1,0 +1,240 @@
+#+title: the providers are scouted, three schema surfaces disagree, and one dummy per mode becomes the seam
+#+filetags: :m53:vcompany:voffice:email:calendar:message:event:dummy:provider:typology:runtime:schema:mikro:design:drapes:quest:snapshot:
+#+index: 99
+
+* what happened, in one breath
+
+A context load that turned into three separate investigations and one quest. First the m53 tree read
+whole — the main quest, the pre-draft, the sibling V3 file, the five vdex snapshots — which confirmed
+that r1 is still unlanded and that the four red steps are that one cause. Then he sent me at the
+providers: /"find the actual data entities these providers return."/ Eight canonical docs later the
+law fell out on its own — **every family has one RFC identity, N provider identities, and one provider
+cursor** — and Proton turned out to have no API at all, only a Bridge speaking IMAP on localhost, so
+it earns a preset and not a faculty set. Then he sent me at our own schemas, and the answer was worse
+than drift: **there are three schema surfaces and they disagree** — typology's descriptors, MikroORM's
+EntitySchema, and the =/entity/schema= skill that derives from the metadata at request time. Five
+concrete divergences, and in the live italian database 2 381 of 2 593 symbols carry =traits: []= —
+nameless rows minted by literal refs that never declared themselves. That report never got delivered:
+two design handoffs arrived mid-turn and took the session. =V3 office-email= and =V3 office-calendar=,
+read whole, then /"i want the application modes in detail."/ The dummy-data mode he asked for was
+written once as a single =topography/dummy= and then killed by two words — /"one per"/ — and what
+replaced it is better than what he asked for and better than what I first built: **one dummy provider
+mode per office mode, owning both directions**, a demo dataset in and recording endpoints out, standing
+exactly where gmail will stand. That is the whole point of having scouted the endpoints: the swap is a
+static, not a rewrite.
+
+* spine (N=21; this session continues the m53 arc after row 96)
+
+|  n | beef                                                                                        | what came of it                                                                       |
+|----+---------------------------------------------------------------------------------------------+---------------------------------------------------------------------------------------|
+|  1 | the quest =ls=, then /"read them and the snapshots from anything in their sccope. load context."/ | m53 main (7 760 lines) · pre · V3 · 5 snapshots · kernel · frontier · memory · shards |
+|  2 | /"now i want you to investigate the entity schemas of our other literals … find the actual data entities these providers return."/ | 8 provider shapes from canonical docs; the one-identity-N-ids-one-cursor law          |
+|  3 | /"ok. now investigate the json schema of literals and symbols in viva … and from .viva in database state."/ | three surfaces measured; 5 divergences; 2 381 bare symbols live — REPORT NOT DELIVERED |
+|  4 | the two design handoffs, /"Implement: `V3 office-email.dc.html`"/ · /"…office-calendar…"/    | both designs + =support.js= + =v3-data.js= read whole through =DesignSync=             |
+|  5 | /"now i want you to write a m53.v4-mail+calendar.org"/                                      | the quest file, 2 784 lines                                                            |
+|  6 | /"i want the application modes in detail."/                                                  | both office modes entire: manifest · provider · boot · aperture · emitter · tools · harness · App |
+|  7 | /"and a dummy-data mode - kinda like a fixture for the vcompany voffice package."/           | first cut: ONE =topography/dummy= — killed at row 11                                   |
+|  8 | /"vdex works on disk. source is mountpoint from mode config"/                                | the law's first row, confirmed against the landed mode                                 |
+|  9 | /"mail and calendar load dummy data via mode."/                                              | the source table: a mode's rows come from a source, and the source is the mode's business |
+| 10 | /"in the future we'll talk to the endpoints you scouted"/                                    | the provider contract table — house → gmail → graph → imap/caldav, column by column    |
+| 11 | /"one per"/                                                                                  | =topography/dummy= KILLED → =dummy/mail= + =dummy/calendar=; type =dummy= is the vendor register |
+| 12 | /"now just a demo dataset."/                                                                 | 7 mail rows chained by =uses=, 16 events, two carrying an =rrule=                       |
+| 13 | /"plus endpoints to record things like mails sent, event created/renamed etc."/              | the dummy owns BOTH directions — =/send /flag= · =/create /rename /move /delete=        |
+| 14 | /"so, dummy modes"/                                                                          | plural confirmed; the seam named                                                       |
+| 15 | /"in the future we'll talk to the endpoints you scouted"/ (re-delivered)                     | same as 10 — executed once                                                             |
+| 16 | /"one per"/ (re-delivered)                                                                   | same as 11                                                                             |
+| 17 | /"now just a demo dataset."/ (re-delivered)                                                  | same as 12                                                                             |
+| 18 | /"plus endpoints to record things like mails sent…"/ (re-delivered)                          | same as 13                                                                             |
+| 19 | /"so, dummy modes"/ (re-delivered)                                                           | same as 14                                                                             |
+| 20 | /"ikiro compact"/                                                                            | this fold                                                                              |
+| 21 | =/compact=                                                                                   | NOTHING — the window's own boundary                                                    |
+
+Coverage: 21 of 21, none skipped. Rows 15–19 are 10–14 arriving a second time, eleven minutes later —
+**past the extractor's 180 s dedupe window**, so they entered the spine as distinct turns. The method
+says match content within 180 s; this session shows a case the window does not catch. Not a bug to
+fix by widening it (that is how five identical cron prompts collapsed into one, the trap the method
+already records) — a case to name: a MID-TURN batch re-delivered across a long tool call looks like new
+instructions and is not.
+
+* the providers, scouted (row 2)
+
+Eight canonical references, fetched not recalled. What came back, in the shape the office needs:
+
+| family   | the RFC identity   | provider ids                                   | the cursor                                          |
+|----------+--------------------+------------------------------------------------+-----------------------------------------------------|
+| email    | =Message-ID=       | IMAP =UID= · gmail =id= · graph =id=           | =UIDVALIDITY+MODSEQ= · =historyId= · =deltaLink=    |
+| chat     | — (none)           | =wamid= · =chat.id+message_id= · =channel+ts=  | offset · webhook · cursor                           |
+| calendar | =iCalUID= / =UID=  | gmail =id= · graph =id=                        | =syncToken= · =deltaLink= · CalDAV sync-token       |
+
+Chat is the odd one: **no RFC identity at all**, which is why the quest's provider-scoped chat slug
+(=telegram.4521.918=) was right and stays.
+
+Six findings that change the T2/T6 design, all now written into the v4 quest:
+
+- =MESSAGE.external:{id}= is too thin. Every provider forces four: ={account, id, thread, etag}= — and
+  =external.thread= is the VENDOR's grouping, never the threading edge. The edge stays the literal's own
+  =uses=, minted from =References[]= · =context.id= · =reply_to_message= · =thread_ts=.
+- **the sync cursor has no home.** It is per-account, not per-row: not a literal, not a static. Leaning a
+  =sync= trait on the Mode row; nothing in v4 needs it, so it stays a fork.
+- **flags are a set, not a field.** =labelIds[]= · IMAP keywords · =categories[]= all fan out;
+  =message.status.*= covers three of them and the rest want =message.label.<slug>= symbols.
+- **bodies differ at the wire.** Gmail hands base64url MIME parts, Graph hands rendered HTML plus a
+  preview, IMAP hands a BODYSTRUCTURE to walk. ={text, html}= is the normalizer's product, not a field.
+- **media is two-step everywhere** — WhatsApp, Telegram and Gmail all hand an id you exchange for an
+  expiring URL. So attachments download at arrival into the mode's freight; lazy fetch is not available.
+- **recurrence is the calendar's fault line.** Google and CalDAV both speak RFC 5545 RRULE text; Graph
+  speaks a structured =patternedRecurrence=. Store the RRULE, translate Graph in its own service.
+
+And the ruling-adjacent fact: **Proton has no public API.** The Bridge is a local proxy — IMAP
+=127.0.0.1:1143=, SMTP =:1025=, STARTTLS, bridge password — so =proton/mail= is legitimate as a record
+and carries ZERO vendor faculties. His /"email per provider"/ ruling stands for gmail and outlook,
+which have real APIs behind calendar, labels and push; proton is the shared IMAP belt with other creds.
+
+* three schema surfaces, and they disagree (row 3)
+
+Not one schema. Three, with three different jobs and no reconciliation between them:
+
+#+begin_example
+typology  schematics/entities/*.js   → typebox JSON Schema (v.literal() · v.buffer() …)   App buffer declarations, cast/fill
+runtime   EntitySchema (MikroORM)    → the actual tables; a domain EXTENDS them            the database
+skill     daemon/skills/entity.js    → derived from em.getMetadata() at request time       what an agent sees
+#+end_example
+
+Measured divergences, typology descriptor vs runtime entity:
+
+| entity   | the descriptor says                | the entity is                                       |
+|----------+------------------------------------+-----------------------------------------------------|
+| =Mode=   | =installed: v.boolean()=           | =installed: string= — the content hash               |
+| =Literal=| no =ontology=                      | =ontology: string=, and the subscriber derives it    |
+| =Buffer= | no =status=, no =view=             | both columns exist                                   |
+| =Thread= | no =phase=                         | =phase= enum, five values                            |
+| =Intent= | declares =type=, no =user=         | has =user=, and **the table has no =type= column**   |
+
+Why the drift is invisible: every relation in a descriptor goes through =v.rel=, which collapses to
+=union([ID, object({}, additionalProperties)])= and discards the body. So outside =v.buffer()= — which
+Apps really do declare — the descriptors are read as documentation and checked by nothing.
+
+Live database state, both instances:
+
+- vcompany: 33 literals (all =ontology: "vdex"=), 34 symbols, 162 pivots, 2 modes, 4 buffers all with
+  =data: {}= — which is exactly why the harness prints no screen line yet.
+- italian: 6 583 literals across =word= · =sentence= · =conjugation= (the =ontology= blank bug is HEALED,
+  measured), 2 593 symbols — and **2 381 of them carry =traits: []= and =trait: {}=**. They are the
+  =word.lemma.*= symbols, minted by literal refs that never declared themselves. 92 % of the symbol
+  table is nameless.
+- the same defect class in vcompany, one row: =vdex.format.md~=, bare, minted from a stray =README.md~=.
+  Two bugs in one — the ignore list covers =*.bak= and not =*~=, and an undeclared format mints a symbol
+  with no LABELED name. The T1.1 pass fixed this for COORDINATES and not for formats.
+- =Mode.traits= is a comma-joined TEXT column (=EXPOSED,TOOLED=) while =Literal.traits= and
+  =Symbol.traits= are json (=["DOCUMENT"]=). The =resolveTraits= raw =LIKE= works on both by accident.
+
+This report was never delivered — row 4 landed mid-turn and took the session. It is owed.
+
+* the designs, and the modes they became (rows 4–6)
+
+Both files read whole through =DesignSync= (project =f7686382=), with =v3-data.js= as the fixture both
+screens read and =support.js= skimmed as the dc-runtime. Measured before writing: =office/email= on the
+shelf is a manifest plus a scheme file and nothing else; =office/calendar= does not exist; the landed V3
+vdex App is the idiom to match — dapper tokens, =buffer/parts/=, one =call()= that logs every route to
+the status bar and shows a refusal rather than throwing it at the screen.
+
+Three rulings the designs forced, all taken as mine and overturnable:
+
+- **=event= is a fourth literal ontology**, beside =vdex= · =message= · =transaction=. A span with a
+  recurrence and a response state is not a message, and sharing =message='s traits would fork every read
+  tool. A deadline is the same row with no =end=.
+- **a series is a master with its RRULE, expanded in memory** for the range on screen. A 2026 week never
+  touches a thousand rows; =occurrences.js= is the whole mechanism and a vendor service replaces its
+  input, never its output.
+- **the held send lands now.** The main quest said outbound was ungated until the officer stage; the mail
+  screen draws the gate in the App, so it moves: the tool =reply= HOLDS (=MESSAGE.hold= +
+  =message.status.held=), and =/key= — the only route that clears it — **is not armed as a tool**. The
+  officer writes; only the human sends. Same asymmetry on the calendar: =create= and =move= armed,
+  =delete= not. The gate is one route's absence, not a policy anywhere.
+
+Plus one open fork of the main quest's, closed by both designs at once: **coordinates cross ontologies.**
+A mail and an event both take =vdex.category.*= / =vdex.id.*= symbols, so one coordinate groups
+documents, mail and the calendar, and every chip on both screens jumps into the vdex.
+
+* the dummy, killed and rebuilt (rows 7–14)
+
+He asked for /"a dummy-data mode - kinda like a fixture"/ and I wrote one: =topography/dummy=, a single
+DATASET mode installing message and event rows, justified by the education precedent (a topology carries
+a scheme, a topography carries the data over it). Two words killed it — /"one per"/ — and three more
+turns rebuilt it into something the first cut could not have become by patching:
+
+#+begin_example
+office/vdex       ← mode.mountpoint (disk)          watcher                                    LIVE
+office/email      ── provider ──▶ dummy/mail        /messages /send /flag
+office/calendar   ── provider ──▶ dummy/calendar    /events /create /rename /move /delete
+    ⋮ later, the same seam
+gmail/mail · outlook/mail · proton/mail · gmail/calendar · outlook/calendar · caldav/calendar
+#+end_example
+
+What the rebuild bought that the fixture could not: the dummy **owns both directions**. In, a demo
+dataset. Out, endpoints that RECORD — his /"mails sent, event created/renamed etc."/ — which is the
+provider seam and the only place the office touches the outside world. The office names its provider in
+a static (=provider: "dummy/mail"=) and reaches it at call time through =daemon.modes=; one line in
+=daemon.js= swaps it for =gmail/mail= and nothing else moves. Type =dummy= is the register the vendor
+families will share the shape of: **the dummy is the vendor called "none"**.
+
+Two nouns kept honest along the way: =topography= was a real register to extend, not a coined one, and
+dropping it cost nothing because the replacement is a better fit for the same family. And no trait, no
+flag, no branch anywhere asks whether the dummy is mounted — the provider helper refuses by name and the
+App shows the refusal, which is the same path every other refusal takes.
+
+* what landed
+
+- =.ikiro/quests/m53.v4-mail+calendar.org= — 2 784 lines. Entities (the =message= delta, the new =event=
+  ontology, the domain's two lines), the provider contract with the four-vendor mapping table, both dummy
+  modes whole (manifest · aperture · =occurrences.js= · demo datasets), both office modes whole (manifest ·
+  =provider.js= · boot · aperture · emitter · tools · harness), both Apps whole (=Mail.svelte= + Inbox +
+  Thread; =calendar.js= + =Calendar.svelte= + Grid · Month · Year · Agenda · Inspector), the test table,
+  the waterfall =n1 · d1 · d2 · m1 · m2 · c1 · c2 · k1 · p1= and the blast radius.
+- =quests/index.md= — the v4 line, above the V3 sibling.
+- =world/frontier.md= — the v4 line, above m54.
+- Nothing in code. Nothing in VCS.
+
+* settlement
+
+- **r1 is still unlanded** — verified this session at =subsystems/paladin/skills/fs.js:10=, still
+  =new URL(path).pathname=. The four red vdex steps remain that one cause and nothing else.
+- **the schema report is owed** (row 3). Five descriptor divergences, the bare-symbol count, the
+  =Mode.traits= column type, the =vdex.format.md~= double defect. Nothing was written into
+  =known-issues.org= for these yet — they are findings, not proposals, and the ontology-first rule says
+  the shapes get named before anything is patched.
+- **the main quest's outbound note is superseded** by the v4 decision (the held send). The v4 file says so
+  in its decisions; the main quest's =* T2= line still reads the old way and is corrected at its next edit.
+- the =*~= gap in the vdex ignore list is one glob and belongs to the vdex, not to this pass.
+- the compact method's dedupe window is documented above as a named case, not widened.
+- **two live siblings in this tree at fold** (the report's =sessions= column, read before claiming
+  anything): =m53-vcompany= and =m53-vcompany.v3-vdex= both carry a session 0 m old, and a NEW quest
+  =drapes-editor= appeared this window — CodeMirror 6 as a drapes SUBPATH, never the barrel, real org
+  mode landed. The V3 quest's =#+next= has moved under me since I read it: it now names a =Paper.svelte=
+  pdf viewer and a =freight.js= cargo fix, both uncommitted. My v4 file touches none of those paths, but
+  the vdex App idiom I matched is from the version I read at wake, not necessarily the one on the shelf
+  now — re-read =buffer/= before landing =m2= or =c2=.
+
+* resumption (owed beef)
+
+- **go, per column.** =n1 → d1 → m1 → m2= is mail end to end; =n1 → d2 → c1 → c2= is the calendar. Either
+  lands alone. =k1= (four kernel lines) last, then a restart — both Apps bundle at boot only.
+- **r1** — the one-line diff and its test sit in the main quest, still his go.
+- **p1** — drapes =Pip= tone =success=, one line, owed since V3.
+- the schema report, on his word.
+- unchanged from before: the commit, the education push, the live restart.
+
+* quest report (derived at fold — `methods/quest-report.py`)
+
+| quest                    | progress  | status                     | next                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                      | sessions   |
+|--------------------------+-----------+----------------------------+---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------+------------|
+| drapes-editor            | —         | designed · org mode landed | `go` lands the import-map hunk, `subsystems/drapes/editor/` (5 files), the compile gate, and the vdex `raw` swap; then a restart and the g-gates.                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                         | 1 (1 live) |
+| m46-linux-readmen        |  17% 3/18 | wip                        | drain                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                     | 6          |
+| m50-the-three-way-weave  |  60% 3/5  | wip                        | blast                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                     | 1          |
+| m51-standalone-slowstart |   0% 0/18 | design                     | go                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                        | 1          |
+| m53-vcompany             |   0% 0/5  | open                       | **t1.1** h1 · e1 · p1 · t1 · b1 · k1 + s1 · x1 · x2 · x3 + i1 (the index as rows) landed on the shelf; blocked on **r1** (paladin =resolve= percent-encodes — one-line diff + one test in the quest, his go, repo): the four reds (tools file · move; snapshots tools · aperture) are r1 and nothing else; a1 struck (the app is the sibling's v3); d1 (readme) on go; the =open= schematic on buffer-data level — sketch in "landed", his word; officers out by his order; then **the slow first attach** (the boot race under `instance/run`) → gs1/gs2 click-through after restart; the bundle weight ledgered, direction his; s3 voffice → s4 desk on go; `* t1.#2` his call; the runtime's m:n =cascade.remove= both ways ledgered as a landmine (his)                                                                                                                                                                                                                                                                                                               | 4 (2 live) |
+| m53-vcompany.pre         | —         | open                       | t1 package setup — the m27 gate moves to the executive stage; t1–t3 do not wait on it                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                     | 2 (1 live) |
+| m53-vcompany.v3-vdex     | —         | landed                     | one restart carries both — the new pdf viewer (=paper.svelte=) and the cargo fix (=freight.js=, uncommitted); then open a spaced-name pdf: it should render, page nav and zoom live, the rail on ▤. the six later items stay marked in the root quest.                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                    | 2 (2 live) |
+| m53.v4-mail+calendar     | —         | designed                   | his go, per mode. =dummy/mail= + =dummy/calendar= first (they are the source both apps read), then =office/email=, then =office/calendar=. nothing under =systems/= or =subsystems/= but one drapes line (=pip= tone =success=, already owed by v3).                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                      | 0          |
+| m54-buffer-file          |   0% 0/4  | open                       | reconcile with m53 =* t1.1= and =m53-vcompany.v3-vdex= first (three quests, one seam, all waiting on go; v3 splits the app into a shell + 7 parts + =buffer/jdex.js= and already points here for file upload — m54's app hunk names the single =vdex.svelte= and must be re-cut onto whichever lands first) (a sibling session, beef's rulings there: the vdex speaks slugs — =/document /write /file /move /delete= implemented once in the aperture, tools wrap =mode.call.<verb>=, =fs_*= slurp gone on vdex; =open= is an emitter; the boot watches files and syncs per path — /"shouldnt this watch files??!!!"/; /"wtf is daemon traits stamp????"/ → gone) — three seams now name the verbs' home (t1.1 aperture · m54 sketch · mikro-first repository), beef arbitrates; then beef reopens the questioned block when ready — order of design there is mikro entity + bufferrepository verbs → typology verb contract → shard mounts → remoterepository mirrors → kajuit. until then m1 = everything but the verbs. "go m1" → full hunks against the tree as read. | 1          |
+| m55-recursive-terminals  |  20% 3/15 | wip                        | go m2 — the kajuit terminal: up · down · status · stop · run · watch, the tree, the schematic, panel f                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                    | 1          |

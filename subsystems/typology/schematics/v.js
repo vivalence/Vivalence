@@ -9,6 +9,24 @@ const faults = (schema, value) =>
     return { at: error.instancePath || "/", reason };
   });
 
+const positions = (schema, value, target, at) => {
+  if (value === undefined || value === null || !schema) return [];
+  if (typeof schema.$id === "string" && schema.$id === target.$id) return [{ at: at || "/", value }];
+  const into = (held, part, item) => positions(held, item, target, `${at}/${part}`);
+  if (schema.anyOf) return schema.anyOf.flatMap((variant) => positions(variant, value, target, at));
+  if (schema.allOf) return schema.allOf.flatMap((part) => positions(part, value, target, at));
+  if (schema.items) return Array.isArray(value) ? value.flatMap((item, index) => into(schema.items, index, item)) : [];
+  if (typeof value !== "object") return [];
+  const declared = Object.entries(schema.properties ?? {}).flatMap(([key, property]) => into(property, key, value[key]));
+  const patterned = Object.values(schema.patternProperties ?? {}).flatMap((property) =>
+    Object.entries(value).flatMap(([key, held]) => into(property, key, held)),
+  );
+  return [...declared, ...patterned];
+};
+
+const collect = (schema, value, target) =>
+  [...new Map(positions(schema, value, target, "").map((hit) => [hit.at, hit])).values()];
+
 const derive = (target, patch) =>
   Object.assign(Object.defineProperties({}, Object.getOwnPropertyDescriptors(target)), patch);
 
@@ -30,6 +48,10 @@ function enhance(schema) {
         if ("group" in target) return target.group;
         return (name) => enhance(derive(target, { group: name }));
       }
+      if (prop === "examples") {
+        if ("examples" in target) return target.examples;
+        return (...held) => enhance(derive(target, { examples: held }));
+      }
       if (prop === "check") return (value) => Value.Check(target, value);
       if (prop === "decode") return (value) => Value.Decode(target, value);
       if (prop === "encode") return (value) => Value.Encode(target, value);
@@ -37,6 +59,7 @@ function enhance(schema) {
       if (prop === "clean") return (value) => Value.Clean(target, value);
       if (prop === "errors") return (value) => Value.Errors(target, value);
       if (prop === "faults") return (value) => faults(target, value);
+      if (prop === "collect") return (value, held) => collect(target, value, held);
       if (prop === "compile") return () => Compile(target);
       if (prop === "fill") return (value) => (Value.Default(target, value), value);
       if (prop === "cast")
@@ -135,6 +158,7 @@ export const v = {
   convert: (schema, value) => Value.Convert(schema, value),
   errors: (schema, value) => Value.Errors(schema, value),
   faults,
+  collect,
   create: (schema) => Value.Create(schema),
   clean: (schema, value) => Value.Clean(schema, value),
   isOptional: (schema) => IsOptional(schema),

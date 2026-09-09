@@ -4,11 +4,11 @@ description: Snapshot the prod runtime's mountpoint (daemon SQLite + service sta
 when_to_use: "pull prod state" · "snapshot the prod daemon" · "run prod data locally" · "grab the prod sqlite" · debugging a prod-only bug against local code.
 ---
 
-# pull-prod-mountpoint — "pull prod state" / "grab the prod sqlite": prod daemon → testament/
+# pull-prod-mountpoint — "pull prod state" / "grab the prod sqlite": prod daemon → the ledger instance (`~/.viva/instances/<slug>/`, never `testament/` — that tree is gone)
 
 ## Intent
 
-The vivalence runtime stores all stateful data (daemon SQLite, service state) in a docker named volume `mountpoint`, mounted at `/viva/mountpoint` inside the container. To debug prod issues against local code, that volume needs to be snapshotted, transferred, and swapped into `testament/instance/mountpoint/` — without trampling the existing local snapshots.
+The vivalence runtime stores all stateful data (daemon SQLite, service state) in a docker named volume `mountpoint`, mounted at `/viva/mountpoint` inside the container. To debug prod issues against local code, that volume needs to be snapshotted, transferred, and swapped into `~/.viva/instances/<slug>/mountpoint/` — without trampling the existing local snapshots.
 
 This skill captures a workflow that is otherwise ~24 manual shell ops with at least three foot-guns the user has already hit:
 
@@ -24,7 +24,7 @@ Before touching anything, confirm with the user:
 
 - **Server hostname** (default: `root@com-vivalence-runtime-R000`)
 - **Direction**: pulling prod → local (this skill) vs. pushing local → prod (out of scope)
-- **Local target**: `testament/instance/mountpoint/` (default; assumed)
+- **Local target**: `~/.viva/instances/<slug>/mountpoint/` (default; assumed)
 - **Whether to keep existing local mountpoint as backup** (default: yes, move to `bak/`)
 
 ## Procedure
@@ -61,7 +61,7 @@ exit
 ### Phase 2 — Local side (pull + swap)
 
 ```bash
-cd testament/instance/mountpoint
+cd ~/.viva/instances/<slug>/mountpoint
 
 # 6. Pull tarball into a scratch dir
 mkdir -p tmp
@@ -85,11 +85,11 @@ rm -rf tmp/
 ### Phase 3 — Verify
 
 ```bash
-ls testament/instance/mountpoint/   # daemon_brazilian/ service_multiplayer/ bak/ should be present
-sqlite3 testament/instance/mountpoint/daemon_brazilian/<dbname>.sqlite ".tables"   # sanity-check the schema loaded
+ls ~/.viva/instances/<slug>/mountpoint/   # daemon_brazilian/ service_multiplayer/ bak/ should be present
+sqlite3 ~/.viva/instances/<slug>/mountpoint/daemon_brazilian/<dbname>.sqlite ".tables"   # sanity-check the schema loaded
 ```
 
-Then run the local testament and report any boot/migration errors back to the user.
+Then boot the instance (`viva instance/use <slug> run`) and report any boot/migration errors back to the user.
 
 ## Foot-guns (from the live session this was built from)
 

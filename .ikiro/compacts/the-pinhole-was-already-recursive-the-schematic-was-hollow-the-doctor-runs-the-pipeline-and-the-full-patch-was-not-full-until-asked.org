@@ -1,5 +1,6 @@
 #+title: the pinhole was already recursive, the schematic was hollow, the doctor runs the pipeline, and the full patch was not full until asked
 #+filetags: :paladin:typology:ghost:runtime:instance:schematics:quest:doctor:env:callout:connoisseur:
+#+index: 96
 
 * what happened, in one breath
 

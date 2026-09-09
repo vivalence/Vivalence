@@ -17,4 +17,6 @@ export const attach = (key, value) => async (ctx, next) => {
   delete ctx[key];
 };
 
+// patch: nested object assign.
+
 // export const fold = (vector, apply) => {vector.use(async (ctx, next) => (apply(ctx), next())); return vector;};

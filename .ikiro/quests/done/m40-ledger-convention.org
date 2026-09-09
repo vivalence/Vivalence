@@ -19,7 +19,7 @@ viva variant doctor [slug|path]
 DEAD: system group · instance group · /ledger/{install,root,taps} · /variant/clone · lighthouse path segment
 #+END_EXAMPLE
 
-Files: =systems/ghost/trajectories/{index.js, ledger/index.js, variant/{create,auth,doctor,init,run,start,stop,target,index}.js}=; =ledger/{Init,Doctor}.jsx= moved from =system/=; =instance/= + =system/= + =variant/lighthouse/= + =variant/clone.js= deleted. =subsystems/paladin/lifecycle/populate.js= (store default = =<ledger>/registry= via =paladin.env=; variant bare-slug → =variants/<slug>=, absolute verbatim, else =paladin.source=). =subsystems/paladin/prototypes/vip.js= (=tap(source, target)=; supply's absent-record seed source → =scope.repository.branch("registry")= — flagged deviation, keeps fresh-clone boot alive while store-resident-unrecorded stays unmounted). Tests: =subsystems/paladin/tests/ledger.test.js= scope-convention describe · =systems/ghost/tests/ledger.test.js= rewritten (init scaffold · tap target error · doctor homes/record/rot · create shelf fallback) · =systems/ghost/tests/target.test.js= import retargeted.
+Files: =systems/ghost/trajectories/{index.js, ledger/index.js, variant/{create,auth,doctor,init,run,start,stop,target,index}.js}=; =ledger/{Init,Doctor}.jsx= moved from =system/=; =instance/= + =system/= + =variant/lighthouse/= + =variant/clone.js= deleted. =subsystems/paladin/lifecycle/populate.js= (store default = =<ledger>/registry= via =paladin.env=; variant bare-slug → =variants/<slug>=, absolute verbatim, else =paladin.source=). =subsystems/paladin/prototypes/vip.js= (=tap(source, target)=; supply's absent-record seed source → =scope.repository.branch("registry")= — flagged deviation, keeps fresh-clone boot alive while store-resident-unrecorded stays unmounted). Tests: =subsystems/paladin/tests/ledger.test.js= scope-convention describe · =systems/ghost/tests/ledger.test.js= rewritten (init scaffold · tap target error · doctor homes/record/rot · create instance fallback) · =systems/ghost/tests/target.test.js= import retargeted.
 
 *Root-cause bonus — the CLI was DEAD at HEAD*: =subsystems/typology/gestalten/steer/dispatch.js:60= =invoke= (and =shotgun=) rewrapped every signal as =new Signal(signal)=; Signature adoption is EXCLUSIVE (nature only), so a two-segment =ShellSignal= collapsed to one segment and EVERY multi-segment =viva= command threw NotFound (probed: 2 segments in, 1 out; all 9 ghost ledger steps red at baseline). Fix: skip the rewrap for real Signatures — =if (!(signal instanceof Signature)) signal = new Signal(signal)= — HOLY-GROUND EDIT, minimal, both call sites, restores documented behavior; typology suite green minus the one pre-existing red.
 
@@ -33,7 +33,7 @@ beef, verbatim: /"i'd like to think up a convention. maybe we place the registry
 
 /"i want to thin out the registry. specifically i want to move the education out. the fixtures, playground and viva make sense. they are testing, dev, and std respectively."/
 
-One sentence: *the ledger becomes THE machine home* — package store and variant shelf live under it by convention, every path stays env-overridable, the monorepo registry thins to =fixtures/playground/viva=, education emigrates as the first out-of-tree package.
+One sentence: *the ledger becomes THE machine home* — package store and variant instance live under it by convention, every path stays env-overridable, the monorepo registry thins to =fixtures/playground/viva=, education emigrates as the first out-of-tree package.
 
 * the convention
 
@@ -44,7 +44,7 @@ One sentence: *the ledger becomes THE machine home* — package store and varian
   instances.json  locks/  logs/
   registry/              package STORE — scope.registry, unconditional default;
     <slug>/              remote taps clone here; each child = its own git clone
-  variants/              variant shelf — NO scope, NO env var; pure convention;
+  variants/              variant instance — NO scope, NO env var; pure convention;
     <slug>/              each child git-manageable; holds variant + environment/ (+ mountpoint/ at runtime)
 #+END_EXAMPLE
 
@@ -74,7 +74,7 @@ Resolution law, everywhere: *explicit env mount > convention default*. Docker (=
 * decision trail (locked)
 
 1. *Convention = defaults only.* No new env var, no new scope for =variants/=. The ledger mount is the single knob that moves the whole home.
-2. *variant ≠ variants* (beef). Runtime renders ONE; =scope.variant= singular forever; the plural is a shelf.
+2. *variant ≠ variants* (beef). Runtime renders ONE; =scope.variant= singular forever; the plural is an instance.
 3. *Explicit location wins wholesale*: clone with target puts variant + =environment/= (+ runtime-derived =mountpoint/=) there — already structurally true (=scope.environment=/=mountpoint= branch off =scope.variant=). Only the no-target fallback changes.
 4. *=VIVA_VARIANT_MOUNT= learns slugs*: bare token (no =/=, no leading =.=) → =<ledger>/variants/<slug>=; everything else rides =paladin.source= (absolute / =./=cwd / bare-segment-repo-relative).
 5. *The store is the ledger's, UNCONDITIONALLY* — =scope.registry= = env ?? =<ledger>/registry=, no citizen branch (recon: citizen cannot discriminate repo-dev from installed). The repo's standard packages are NOT the store's business: they enter =registry.json= as ABSOLUTE refs via seed over =scope.repository.branch("registry")=. This completes the m11 sentence "monorepo registry/ demoted to tapped absolute refs" — and existing ledgers already hold exactly that shape, so nothing migrates.
@@ -117,7 +117,7 @@ Resolution law, everywhere: *explicit env mount > convention default*. Docker (=
      ],
 #+END_SRC
 
-*C2* same file — variant scope: bare slug → shelf; paths ride =paladin.source=:
+*C2* same file — variant scope: bare slug → instance; paths ride =paladin.source=:
 
 #+BEGIN_SRC diff
      [
@@ -190,7 +190,7 @@ Resolution law, everywhere: *explicit env mount > convention default*. Docker (=
      };
 #+END_SRC
 
-*C7* =systems/ghost/trajectories/variant/clone.js= — no-target fallback = shelf; effect names the =.env= line:
+*C7* =systems/ghost/trajectories/variant/clone.js= — no-target fallback = instance; effect names the =.env= line:
 
 #+BEGIN_SRC diff
 -import { dirname, resolve } from "@std/path";

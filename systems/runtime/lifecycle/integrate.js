@@ -19,7 +19,7 @@ export async function wake(die) {
           console.warn(`child unhealthy`, child.slug);
         }
       }
-      console.log(`$[runtime:${paladin.instance.runtime?.slug}]`, die.status);
+      console.log(`$[runtime:${paladin.instance.runtime?.manifest.slug}]`, die.status);
     },
   };
 }

@@ -4,7 +4,9 @@ import { is } from "@vivalence/typology";
 // returns is the teardown, owed back at daemon disintegrate.
 export const BOOTED = (mode, daemon) => {
   if (!is.fn(mode.module.boot)) {
-    console.warn(`[BOOTED] ${mode.type}/${mode.slug} declares BOOTED without a boot(daemon, mode) export`);
+    console.warn(
+      `[BOOTED] ${mode.manifest.type}/${mode.manifest.slug} declares BOOTED without a boot(daemon, mode) export`,
+    );
     return;
   }
   let teardown;

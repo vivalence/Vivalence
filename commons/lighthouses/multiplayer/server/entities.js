@@ -17,7 +17,9 @@ export async function systemmap(servicemask) {
 
   // const instance = [IdentitySchema, DaemonSchema, AuthenticatorEmbedSchema]
   //   .map((schema) => ({ schema }));
-  const instance = [sets.network.identity, sets.network.daemon, { schema: AuthenticatorEmbedSchema }];
+  const instance = [sets.network.identity, sets.network.daemon, {
+    schema: AuthenticatorEmbedSchema,
+  }];
 
   // const { orm, entities } = await datamap.provider(servicemask.datamap, instance);
   // return { orm, entities };

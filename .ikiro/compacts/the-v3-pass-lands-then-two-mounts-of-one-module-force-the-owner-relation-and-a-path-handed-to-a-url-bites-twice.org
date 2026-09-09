@@ -1,0 +1,205 @@
+#+title: the V3 pass lands, then two mounts of one module force the owner relation — and a path handed to a URL bites twice
+#+filetags: :m53:vcompany:vdex:v3:drapes:kajuit:typology:runtime:paladin:ownership:mode:freight:cargo:pdf:design:
+#+index: 135
+#+session: 49 beef turns, walked oldest first
+
+* one breath
+
+The V3 vdex pass went from scratch to the shelf on his go, then his own screenshots drove three rounds of
+repair: an invisible menu (a design zone this system does not define), a raw editor whose three layers each
+ran on a different rhythm, and a pdf that never drew because the cargo route dropped every path with a space.
+Then he asked whether the same module could be kernelled twice on two mountpoints — and the answer was four
+defects deep, ending in the mode↔literal owner relation he had designed months back and never landed. It
+landed. The session closed on a correction I earned: I called the =vdex= symbol a description of the MODULE.
+It is the ONTOLOGY marker. He had told me that three turns earlier and I wrote it wrong anyway.
+
+* the spine — 49 turns
+
+Turns 1–5 are the previous window and its fold (wake · the two DesignSync imports and /"do a pass on the vdex
+modes application. surface pass. functionality pass … mark those. topic later."/ · compact · the context roll).
+The work of THIS window starts at 6.
+
+* the arc
+
+** the land (6–7)
+
+/"load the previosu session. get read to apply vdex ui changes"/ → the scratch tree and the quest copies were
+diffed byte-for-byte (11 files, all SAME), the suites re-run against the current tree (20 steps), a =land.sh=
+written. /"go"/ → the eleven files onto the shelf, whole vdex suite 8 passed · 42 steps · 0 failed. Settled the
+sibling quest, the pointer in the root, the frontier line, the memory.
+
+Measured at that moment and worth keeping: a sibling session landed T1.1 at the same hour — =/file= =/move=
+=/delete= live in the aperture, =placement= already carrying =ownPath=. Three of THEIR suites went red against
+tests older than their own landing. Mine stayed green. The lesson is the one the fold before learned: read the sessions column, do
+not trust an hour-old grep.
+
+** the V3 second pass (8–19)
+
+Four expectation/reality shots and /"youre not there yet."/ The gaps, each closed:
+
+- **the ⋯ menu was invisible** (/"wtf ?!"/). The design paints its overlays on zone 5 — =--s5/--c5/--b5= — and
+  dapper defines =skeleton-0..4=. =--colors-skeleton-5-surface= resolved to nothing, so the menu had no
+  background and the rows showed through. Ten declarations moved to =skeleton-4=, dapper's own documented
+  overlay zone. NOTHING under =subsystems/=.
+- **raw** — the third segment, new. A painted layer that marks frontmatter, headings and body apart, under a
+  transparent textarea holding the caret.
+- **edit** — was a textarea, became the design's block surface: handles, contentEditable heading · paragraph ·
+  list · verbatim, the floating toolbar, ▲▼, drag reorder, the trailer. A contentEditable takes its text once
+  and again only while unfocused, so typing never jumps the caret.
+- **crumbs** — =Key= uppercases and pads 14 px; the design draws 24 px chips in their own case with a dim =/=.
+- **the status line** — boot's own report: the mount, then the counts.
+
+Two OLDER bugs surfaced under the pass and were fixed with it: =sections()= took a document's frontmatter for
+content and its =#= title for a section, so a document with frontmatter had NO sections; and a =#= inside a
+fence counted as a heading.
+
+His corrections in this stretch, both mine to own: /"daemon not down"/ — my =lsof= filter missed the IPv6
+listener and I announced a dead daemon that was alive. /"you have chrome"/ · /"loged in chrome"/ — I was
+reasoning about the live app from source when the app was one call away.
+
+Then /"where pdf display?"/ and /"bad markdown editor."/:
+- the raw editor was mine. A newline left INSIDE each line span made every non-empty painted line render an
+  extra line box, while the gutter was a separate uniform column and the textarea a third grid — three flows,
+  three rhythms, drifting further down the page. The number now rides inside its own painted line.
+- the pdf was NOT mine. Two fetches, same directory, same daemon, no auth on either:
+  =Gesellschafterliste.pdf= → 200 =application/pdf= 481 262 bytes; =Beherrschungs- und Gewinnabführungs….pdf=
+  → 404 =null=. The space. Ledgered whole.
+
+/"everything up to the upload, download etc"/, then /"mark this in hte quest root"/ · /"in detail"/ ·
+/"why where"/ → six items marked in the root with what was measured and where each lands: =← in= backlinks and
+=→ N= on rows (both want one =uses= field minted in =load.js=, the only place holding the bytes), link editing,
+ocr, ↗ ask, reindex (=boot.js= exports =boot · sync · watch=; the route is the only missing part).
+
+** the pdf editor, adjusted (20–24)
+
+He adjusted the design and re-sent the import order. Re-pulled and diffed: ONE section changed, the pdf viewer,
+21 lines → 91. =buffer/parts/Paper.svelte= — the bar (pages · =‹ N / M ›= · zoom · FIT · meta · ↓ · ↗), a
+thumbnail rail, a scroller of page sheets. Real pages with NO new dependency: nothing in the tree carries a pdf
+renderer, so each sheet hosts the browser's own engine pinned to its page, windowed to the current page ±1 so a
+forty-page document mounts three renderers. The count is read off the bytes.
+
+/"still"/ — a third shot at the same dead pdf — then /"go"/. The cargo fix landed, and both halves turned out
+to live in ONE file: the freight mints the url AND answers the query, so =resolve.js= needed no change. The
+catalog escapes each segment; =resolve()= tries the raw query first and the decoded one after. Raw first is the
+point — a file genuinely named =100% done.txt= still resolves as itself.
+
+** two mounts of one module (25–42)
+
+/"do you expect this to work?"/ — the same module kernelled twice, once under the manifest slug, once under a
+custom one. No, and it took three of his corrections to get the frame right:
+
+1. /"should, no?"/ · /"aka same mode, loaded twice."/
+2. /"actually, the vdex as ontology is CORRECT! ontology is the same. i just want a second mountpoint."/
+3. /"no. youre still considereing ontology level. this is purely mode slug."/
+
+He was right each time. The ontology is the KIND; a vdex document is a vdex document on any mount. What was
+missing is that **nothing on a row and nothing in a query named the mode**.
+
+Then /"literals should carry modes?! dont they?! i thought they did. i recently designed that … check quests."/
+— and he had: =m53-vcompany.pre.org:34=, /"New relationship between mode and literals, mode and symbols. I
+think I want that on typology level."/, with the sketch under a GATED heading and his own diagnosis in it:
+today a dataset row has no owner, so prune is impossible everywhere. Also =Literal.ts:10= carried his marker,
+=// @beef: owner relation to mode=. And /"wtf is home()?? runtime/typology level??"/ — no: six lines in his own
+package aperture, reading a coordinate symbol's path to place a document.
+
+The order he then gave, and what each part cost:
+
+- **=mask.slug=** — =Mode= takes =this.slug = this.manifest.slug=, and =population.js= read =mask.statics=,
+  =mask.secrets= and =mask.mountpoint= but never =mask.slug=. Both entries came up =vdex=, computed the same
+  mount branch, and one overwrote the other in =modes[type][slug]=. One mode, on whichever mountpoint loaded
+  last. Fixed, and the mode ROW is ensured on the effective slug.
+- **the owner relation** — his sketch was m:n both ways; his ruling at the landing was /"just one … one mode
+  per literal/symbol"/ · /"single owner"/. So =m:1= on literal and symbol, =1:m= on mode, schematics mirrored,
+  and the unique key on both moved from =slug= to =(slug, mode)= — without that the two mounts cannot both
+  hold =32.01=, because the slug is the identity every verb uses.
+- **the crash, and the rule it taught** — the first cut owned everything a mode installed and broke his
+  runtime: /"Literal "10.00.about.mdx" must have exactly one TOPOGRAPHICAL symbol, found 2"/. The =vdex= symbol
+  is the ONTOLOGY marker. One ontology, however many mounts carry it. Scoping it per mode minted a second copy
+  and a document ended up holding both. The rule: the declared scheme (the ontology marker, the formats, the
+  slots) is shared and unowned; what a mode COMPUTES is that mounting's own reading of its world and is owned.
+- **every read scoped** — boot (rows · coordinates · orphans · prune · report · upsert · reconcile), the index,
+  the aperture including =home()=, the tools, the harness, the emitter, and the App's two subscriptions. Prune
+  became the mounting's own.
+
+Measured on his daemon after the migration: =office/vdocs= 27 literals · 50 symbols · 27 linked;
+=office/corpo= 33 · 33 · 33. In the db: 27 owned by one, 33 by the other, 0 unowned; 26 scheme symbols shared,
+51 coordinates owned, 0 unowned.
+
+** a path is not a url — twice in one session
+
+=paladin.skills.resolve= built =new URL(path, "file://…").pathname= and returned it as a FILESYSTEM path.
+=URL.pathname= escapes, so =vdex_file= with a spaced title wrote =Notes%20on%20invoices.md= to disk and the
+next =Deno.stat= missed the directory it had just been handed. Same disease as the cargo route, second site.
+Fixed the same way; paladin 41 passed · 180 steps.
+
+TWO instances in one session is a pattern, not a coincidence. A third site is worth a sweep before it is found
+by a screenshot.
+
+* the failures worth keeping
+
+- **the invisible menu** — a design token that does not exist here fails SILENTLY. CSS has no undefined-variable
+  error; the rule simply does not apply. Every design zone must be mapped to a token this system defines before
+  the first paint, not after the screenshot.
+- **three layers, three rhythms** — the raw editor desynced because a gutter, a paint layer and a textarea were
+  three separate flows that only LOOKED aligned in the first few lines. Anything that must line up should share
+  one flow, not three that agree at the top.
+- **owning the vocabulary** — scoping by mode is right for what a mount reads and wrong for what the ontology
+  declares. I applied one rule to both and crashed his runtime. The distinction was already in his design
+  (/"a symbol declared by two modes is multi-owned"/) and I did not read it closely enough before writing.
+- **the wording that earned the shout** — after he corrected me twice that ontology ≠ mode, I wrote that the
+  =vdex= symbol "describes the MODULE". It marks the ontology. Getting a fix right and then describing it in
+  the vocabulary he had just rejected is its own failure, and the loudest one here.
+
+* state at fold
+
+**Landed, uncommitted, all of it.**
+
+- vdex package: the V3 App (shell + 8 parts + =jdex.js=), the block editor, raw, =Paper.svelte=, the crumbs,
+  the mount on the status line, and every read scoped by owner.
+- =subsystems/typology/prototypes/freight.js= — the cargo escape/decode seam, 2 cases.
+- =subsystems/paladin/skills/fs.js= — =resolve()= returns a path, not a url path.
+- =systems/runtime/daemon/lifecycle/population.js= — =mask.slug= honoured, mode row ensured on it.
+- =systems/runtime/daemon/entities/{daemon/Mode,kernel/Literal,kernel/Symbol}.ts= + the three schematics — the
+  single-owner relation, unique key =(slug, mode)=.
+- =systems/runtime/daemon/traits/dataset.js= — scheme shared, computed owned, both phases scoped.
+- =subsystems/drapes/display/Pip.svelte= — the =success= tone (one line, from the first pass).
+
+**Suites at fold.** paladin 41 passed · 180 steps clean · runtime 53 passed · 334 steps, one red (a
+=multiplayer= instance fixture no longer in =commons/instances/=) · typology 123 passed · 495 steps, one red
+(=hallucination snapshot · tool loop=, touches none of this) · vdex 7 passed · 50 steps, two reds that belong
+to the sibling's T1.1 (a test expecting "exists" against a message reworded to "one document already", and a
+snapshot older than that landing).
+
+**OPEN, and where it stopped.** /"i dont have the vdocs or corpo."/ — his client lists =vcompany= with two
+modes, =email= and =calendar=. The daemon DOES expose both new ones: =/mode/office/vdocs= and
+=/mode/office/corpo= are on the wire with 34 routes each. So the daemon is right and the CLIENT's mode list is
+the thing that is wrong — kajuit's own filter, not the mounting. That is where the walk stopped, one step
+short of the answer.
+
+Also his: the =multiplayer= fixture · =FRAUGHT= walking a freight directory without checking it exists (I made
+=modes/office/email/attachments= to get past it before he said /"solved elsewhere"/ — delete it if his fix
+supersedes) · the six LATER items · commits, everything.
+
+* resumption (owed beef)
+
+- the client's mode list — why kajuit shows 2 of 7. The daemon and the db are both correct; start there.
+- a sweep for a third place where a path is handed to a URL and taken back unchanged.
+- the two vdex reds are the sibling's T1.1 wording and its stale snapshot; they need that session, not this one.
+- the six LATER items stay marked in the root quest with why and where.
+- commits. Nothing in this session is committed.
+
+* quest report (derived at fold — `methods/quest-report.py`)
+
+| quest                    | progress  | status                                | next                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                      | sessions   |
+|--------------------------+-----------+---------------------------------------+---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------+------------|
+| drapes-editor            | —         | landed — his click-through gates owed | his restart, then the eight click-through gates below. later, both his call: the language on `#+begin_src js` does not highlight its body; the markdown fence is the same trade.                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                          | 1 (1 live) |
+| m46-linux-readmen        |  17% 3/18 | wip                                   | drain                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                     | 6          |
+| m50-the-three-way-weave  |  60% 3/5  | wip                                   | blast                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                     | 1          |
+| m51-standalone-slowstart |   0% 0/18 | design                                | go                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                        | 1          |
+| m53-vcompany             |   0% 0/5  | open                                  | **t1.1** h1 · e1 · p1 · t1 · b1 · k1 + s1 · x1 · x2 · x3 + i1 (the index as rows) landed on the shelf; blocked on **r1** (paladin =resolve= percent-encodes — one-line diff + one test in the quest, his go, repo): the four reds (tools file · move; snapshots tools · aperture) are r1 and nothing else; a1 struck (the app is the sibling's v3); d1 (readme) on go; the =open= schematic on buffer-data level — sketch in "landed", his word; officers out by his order; then **the slow first attach** (the boot race under `instance/run`) → gs1/gs2 click-through after restart; the bundle weight ledgered, direction his; s3 voffice → s4 desk on go; `* t1.#2` his call; the runtime's m:n =cascade.remove= both ways ledgered as a landmine (his)                                                                                                                                                                                                                                                                                                               | 4 (1 live) |
+| m53-vcompany.pre         | —         | open                                  | t1 package setup — the m27 gate moves to the executive stage; t1–t3 do not wait on it                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                     | 2          |
+| m53-vcompany.v3-vdex     | —         | landed                                | one restart carries both — the new pdf viewer (=paper.svelte=) and the cargo fix (=freight.js=, uncommitted); then open a spaced-name pdf: it should render, page nav and zoom live, the rail on ▤. the six later items stay marked in the root quest.                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                    | 2 (2 live) |
+| m53.v4-mail+calendar     | —         | designed                              | his go, per mode. =dummy/mail= + =dummy/calendar= first (they are the source both apps read), then =office/email=, then =office/calendar=. nothing under =systems/= or =subsystems/= but one drapes line (=pip= tone =success=, already owed by v3).                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                      | 1 (1 live) |
+| m54-buffer-file          |   0% 0/4  | open                                  | reconcile with m53 =* t1.1= and =m53-vcompany.v3-vdex= first (three quests, one seam, all waiting on go; v3 splits the app into a shell + 7 parts + =buffer/jdex.js= and already points here for file upload — m54's app hunk names the single =vdex.svelte= and must be re-cut onto whichever lands first) (a sibling session, beef's rulings there: the vdex speaks slugs — =/document /write /file /move /delete= implemented once in the aperture, tools wrap =mode.call.<verb>=, =fs_*= slurp gone on vdex; =open= is an emitter; the boot watches files and syncs per path — /"shouldnt this watch files??!!!"/; /"wtf is daemon traits stamp????"/ → gone) — three seams now name the verbs' home (t1.1 aperture · m54 sketch · mikro-first repository), beef arbitrates; then beef reopens the questioned block when ready — order of design there is mikro entity + bufferrepository verbs → typology verb contract → shard mounts → remoterepository mirrors → kajuit. until then m1 = everything but the verbs. "go m1" → full hunks against the tree as read. | 1          |
+| m55-recursive-terminals  |  20% 3/15 | wip                                   | go m2 — the kajuit terminal: up · down · status · stop · run · watch, the tree, the schematic, panel f                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                    | 2 (1 live) |
+| m56-the-pincer-turns     |   0% 0/2  | design                                | go m1                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                     | 1 (1 live) |

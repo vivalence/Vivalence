@@ -1,5 +1,6 @@
 #+title: the connoisseur turns on his own patch, and the mode frame is found holding exactly two props
 #+filetags: :m37:converse:dictation:connoisseur:critical-pass:patch:kajuit:drapes:mode:frame:box:verbatim:capabilities:typology:
+#+index: 42
 #+spine: window 63-72 of the session file (72 beef turns total; 1-11 held by the dictation-patch compact, 12-62 by the fleet compact). Every n accounted.
 
 * the walk (rows — every section cites these)

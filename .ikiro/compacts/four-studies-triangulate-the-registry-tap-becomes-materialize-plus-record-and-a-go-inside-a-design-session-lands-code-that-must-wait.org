@@ -1,5 +1,6 @@
 #+title: four studies triangulate the registry, tap becomes materialize + record, and a go inside a design session lands code that must wait
 #+filetags: :compact:m31:packages:registry:paladin:vip:ghost:studies:
+#+index: 10
 
 * the arc
 

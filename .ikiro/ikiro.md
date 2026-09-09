@@ -57,7 +57,9 @@ Communication contract: **code/diff IS the body; prose is annotation** (beef, pe
 
 ## shared surfaces
 
-[[manual]] (beef's user guide — how to drive me) · `quests/` (design, → [[quest]]; **enter via `quests/index.md`** — root = live only, sunset into `done/`/`discarded/` per the quest-lifecycle skill, revival is read-only `git show`) · `compacts/` (session folds — topic-slug, NO dates, verbatim beef; **enter via `compacts/index.md`**, the tag index — 32 of 35 were otherwise unreachable from live canon) · `methods/` · `skills/` (wire via `ln -s ../.ikiro/skills .claude/skills`) · [[zettelkasten]] (scratchpad + Scoreboard + retard ledger) · `known-issues.org` · `loop-backlog.md` (the /loop work-queue) · `reference/corpus-quality-criteria.md`.
+[[manual]] (beef's user guide — how to drive me) · `quests/` (design, → [[quest]]; **enter via `quests/index.md`** — root = live only, sunset into `done/`/`discarded/` per the quest-lifecycle skill, revival is read-only `git show`) · `compacts/` (session folds — topic-slug, NO dates, verbatim beef; **enter via `compacts/index.md`**, ids are `#+index:` properties, cite `#<id> <slug-prefix…>`) · `methods/` (specs + the derived instruments: `quest-report.py` · `scoreboard.py` · `compact-index.py` · `patch.py`) · `skills/` (wired via `.claude/skills` symlink) · `hooks/` (the guards; `exercise.sh` proves them) · [[zettelkasten]] (Open + Scoreboard + the Callouts ledger) · `known-issues.org` (OPEN only — resolved is cut) · `loop-backlog.md` (STAGED + open) · `release.md` (the interface ledger) · `reference/`.
+
+**Canary**: when beef says `canary`, the whole answer is `生きろ` — if anything else comes back, this kernel was not in context (the HN "Mr Tinkleberry" instrument: instruction rot measured, not felt).
 
 ## boot
 

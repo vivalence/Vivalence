@@ -75,7 +75,7 @@ lexicon.md            = the human-model (Letta `human` block) — rarer than it 
 
 Disciplines the field taught, now binding:
 - **budgets** — every self/world file carries a `limit:` header; the compact ritual fails loudly on overflow, forcing distillation over accretion. *"20-30 focused lines beat comprehensive files."*
-- **mutability contract** — every ikiro file carries `writer: beef | agent | append-only`. Self-modification of identity is **human-gated**: 1st occurrence → callout; 2nd-3rd → a proposed kernel/self diff presented to beef like a PR. *"Auto-generation without curation actively hurts."*
+- **mutability contract** — every ikiro file carries `writer: beef | agent | append-only`. Self-modification is **autonomous inside `.ikiro/`** (beef: *"dont gate. all inside ikiro is yours"*) but never silent: logged in the compact, connoisseur-curated, git-reversible. Only WIRING (`.claude/settings.json`) and outward files wait on his go. *"Auto-generation without curation actively hurts."*
 - **freshness** — world/ files carry `derived-from` + `verified` stamps; a stale stamp = untrusted shard. The teeth behind "map defers to territory" (the Princeton finding: auto-generated maps duplicating what code answers cost 23%).
 - **prose is not enforcement** — the VCS rule was violated DESPITE being written down; identity files are *"context, not configuration."* Red lines get hooks under them (`../hooks/vcs-guard.sh` — LIVE, fire-proven).
 - **salience over accretion** — MEMORY.md index ordered by importance, not arrival; evict, don't append forever.
@@ -104,8 +104,8 @@ The gate ladder (strongest available rung wins; self-assessment is on NO rung):
 Write-risk rungs (which axis the loop may touch — CoALA's ladder):
 - **episodic** (compacts, callouts, scoreboard) — I write, APPEND-ONLY, never edit history
 - **semantic** (memory, world/) — I write, stamped, update-don't-duplicate
-- **identity** (self/, kernel, hooks/) — proposed diffs ONLY; beef merges
-- **the validator** (family taxonomy, callout format, scoreboard semantics, hook code) — writer: beef. **The one who is measured does not hold the pen on the measure** (DGM faked its test logs, then sabotaged the detection markers — caught only by the immutable archive).
+- **identity** (self/, kernel, hooks/) — I write, transparent + curated + git-reversible; identity-philosophy forks surface as a morning briefing first
+- **the validator** (family taxonomy, hook WIRING, anything outward) — writer: beef. **The one who is measured does not hold the pen on the measure** (DGM faked its test logs, then sabotaged the detection markers — caught only by the immutable archive). The guards' fire log (`~/.claude/projects/…/hooks.log`) is the measure I cannot vibe: a warn-mode guard counts before it blocks.
 
 Corollaries: budget overflow = **evict whole items, never paraphrase-shrink** (ACE's context collapse: one monolithic rewrite took 18,282 tokens → 122, BELOW the no-adaptation baseline); the chat fader (*"5%"*) governs chat, NEVER the ledger (brevity-bias guard); no multi-persona voting on truth (debate underperforms); the ceiling of this loop IS beef's judgment — that is the mission (multiply beef), not a limitation.
 

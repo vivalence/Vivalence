@@ -123,4 +123,25 @@ specimen.describe("Freight", () => {
     specimen.expect(catalog["nested/deep.wav"].url).toBe("http://localhost:3000/freight/nested/deep.wav");
     specimen.expect(Object.keys(catalog).length).toBe(freight.lading.length);
   });
+  specimen.it("a name with a space is a url on the wire and the same file coming back", async () => {
+    const directory = await Deno.makeTempDir();
+    await Deno.mkdir(`${directory}/23 agreements`, { recursive: true });
+    await Deno.writeFile(`${directory}/23 agreements/NDA ivan matcuka .pdf`, new Uint8Array([0x25, 0x50]));
+    const freight = (await stow(new Freight(directory), directory)).withUrl(new Url("http://localhost:3000/freight"));
+    const path = "23 agreements/NDA ivan matcuka .pdf";
+
+    specimen.expect(freight.catalog[path].url).toBe("http://localhost:3000/freight/23%20agreements/NDA%20ivan%20matcuka%20.pdf");
+    specimen.expect(freight.catalog[path].type).toBe("application/pdf");
+
+    const wire = new URL(freight.catalog[path].url).pathname.replace("/freight/", "");
+    specimen.expect(freight.resolve(wire).path).toBe(path);
+    specimen.expect(freight.resolve(path).path).toBe(path);
+  });
+
+  specimen.it("a stowed name that carries a percent still resolves as itself", async () => {
+    const directory = await Deno.makeTempDir();
+    await Deno.writeFile(`${directory}/100% done.txt`, new Uint8Array([0x68]));
+    const freight = await stow(new Freight(directory), directory);
+    specimen.expect(freight.resolve("100% done.txt").path).toBe("100% done.txt");
+  });
 });

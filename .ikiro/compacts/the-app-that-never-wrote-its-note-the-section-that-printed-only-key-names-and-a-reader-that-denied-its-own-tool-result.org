@@ -1,0 +1,167 @@
+#+title: the app that never wrote its note, the section that printed only key names, and a reader that denied its own tool result
+#+filetags: :vdex:buffer:harness:vcompany:office:svelte:haiku:hallucination:screen:
+#+index: 147
+
+* spine (beef's turns, oldest first — 8 of 8 covered)
+
+| n | kind | beef, verbatim | what landed |
+|---|---|---|---|
+| 1 | prompt | the vdocs/corpo transcript pasted — his model saying /"Both buffers are currently empty with no data keys populated"/ four times over | the paste alone, no order yet; read as the address for the order that follows |
+| 2 | prompt | the same paste, one line appended: /"### task check the vdex mode and if its app writes its state to buffer or internal."/ | INTERNAL. `Vdex.svelte` holds `buffer` 3 times, all reads, 0 assignments; every served bundle `writes=0 reads=2`; every vdex row in the db `{}` |
+| 3 | prompt | /"go"/ | `retain()` — the app writes its sticky note; 8 call sites; `updateOne` the datamap verb |
+| 4 | MID-TURN | /"one should have data in it now"/ + /"now?"/ with his model's two denials pasted under them | the store answered `{"id":"11","open":"11.01.what-is-vivalence.mdx"}`; the model's OWN tool result carried it and its prose denied it |
+| 5 | prompt | /"propse a fix"/ | the thread section prints VALUES, not key names; the cross-mount widening argued against and NOT proposed |
+| 6 | prompt | /"go"/ | `shown()` in `standing()`, 320-char clip; `harness.thread.test.js` rows 3/4 re-cut; 1 passed |
+| 7 | prompt | the pulled buffer pasted — a JSON with no `data`, no `status`, `view: {hash: null}` — tail: /"after restart"/ | that JSON exists nowhere in the thread. Invented. Five tool results, all carrying `data`. The reader is Haiku |
+| 8 | prompt | /"ikiro compact"/ | this file |
+
+* the question was one word wide
+
+/"writes its state to buffer or internal"/ — and the answer was three lines of grep, not an
+investigation. `~/.viva/registry/vcompany/modes/office/vdex/buffer/Vdex.svelte` names
+`buffer` exactly three times: once destructuring the prop, twice reading `buffer.data` in
+`load()`. Every piece of what the operator is looking at — `open`, `cursor`, `draft`,
+`expanded` — lives in component `$state` and dies with the component.
+
+The consequence was already on his screen before he asked. `harness.js screen()` reads
+`buffer.data.open` and returns null without it, so the vdex archivist's context had no
+"On the operator's screen" line, so the model said "empty" — correctly, about a row that
+was genuinely `{}`.
+
+** the fix the app owed
+
+#+begin_src js
+// ~/.viva/registry/vcompany/modes/office/vdex/buffer/Vdex.svelte
+const noted = () => ({ open: open?.literal.slug ?? null, id: cursor.category ?? cursor.area ?? null });
+const same = (held, next) => Object.keys({ ...held, ...next }).every((key) => held[key] === next[key]);
+async function retain() {
+  if (!buffer?.id || !daemon.entities?.buffer) return;
+  const data = Object.fromEntries(Object.entries({ ...buffer.data, ...noted() }).filter(([, value]) => value != null));
+  if (same(buffer.data ?? {}, data)) return;
+  buffer.data = data;
+  await daemon.entities.buffer.updateOne({ id: buffer.id }, { data }).catch((error) => (fault = `buffer · ${error.message}`));
+}
+#+end_src
+
+Eight call sites: `list` · `locate` (which covers `read`/`file`/`move`/`duplicate`) ·
+`pickArea` · `pickCategory` at both exits · `rename` · `remove` · the literal twitch. The
+verb is the datamap's `updateOne` (`systems/runtime/daemon/aperture/userspace.js:28`), not
+a new aperture route — Dojo's `buffer.data` + `connection.call("/session")` is the house
+precedent, and the m54 ruling against a generic-entity verb (/"i dont like the idea of
+redraw on repo"/) says a findOneOrFail-assign-flush is not a capability. No `$effect`
+touches the wire: the untrack law holds.
+
+* the section that named its keys and hid their values
+
+His /"propse a fix"/ came after the store had been proved to hold the note and the model
+still said empty. The gap was one interpolation in beef's own uncommitted m57 WIP:
+
+#+begin_src diff
+-      `${Object.keys(buffer.data ?? {}).join(" ") || "empty"}` +
++      `${shown(buffer.data)}` +
+#+end_src
+
+`standing()` was already the screen→agent channel — volatile-last key, cache mark pinned on
+the key before it, every click rewriting it. It just projected key NAMES, so a model that
+wanted values had to spend a tool call, and the header said nothing about what the ids were
+NOT for. Both mended: `shown()` prints the JSON clipped at 320 chars with a `keys …` tail so
+a Dojo `session` cannot flood the record, and the header now reads /"never a document
+slug"/ — because the model had fed two buffer ids to the vdex `open` tool and got
+`"… is not in the vdex — find first."` twice.
+
+`systems/runtime/tests/harness.thread.test.js` rows 3 and 4 re-cut to `{}` and the JSON
+literal; 1 passed, 0 failed.
+
+** what was NOT proposed, and why
+
+The thread is `corpo`; the buffer with the note is `vdocs`. `screen()` scopes to
+`ctx.mode.entity.id`, so the corpo archivist cannot see it. Widening `screen()` across
+mountings was argued down rather than offered: a corpo turn arms corpo's tools and corpo's
+mountpoint, so naming a vdocs document in that prompt shows the model a desk it cannot
+touch. The standing line already carries the row under `office/vdocs`. Mode owns rows.
+
+* the reader was the defect
+
+Five `entity_find` calls on the thread, every one `fields: "full"`, every one carrying the
+key:
+
+| time | fields | result | bytes | buffers |
+|------|--------|--------|-------|---------|
+| 13:24:17 | full | data | 1528 | 2 |
+| 13:33:42 | full | data | 1577 | 2 |
+| 13:44:04 | full | data | 1577 | 2 |
+| 13:44:40 | full | data |  825 | 1 |
+| 13:45:07 | full | data |  825 | 1 |
+
+The 13:45:07 result, verbatim head:
+
+#+begin_src json
+{"buffer":[{"id":"01a09010-18e0-736f-ad3f-a65b44d3fa43","createdAt":"2026-09-11T10:42:49.184Z","updatedAt":"2026-09-11T11:33:23.602Z","status":"PENDING","data":{"id":"11","open":"11.01.what-is-vivalence.mdx"},"view":null,"index":0, …
+#+end_src
+
+The JSON he pasted back in turn 7 — no `data`, no `status`, `view: {hash: null}` — appears
+nowhere in the thread. It was invented, in the same reply that quoted the true values
+lifted from the standing line.
+
+Thread trait: `INTELLIGENT {rounds: 5, tune: "fast"}`. The anthropic provider's tune
+vectors (`commons/hallucinators/anthropic/provider/index.js`) put "fast" on axis 2, which
+is `claude-haiku-4-5`. Haiku, five rounds, 825 bytes of nested row, hallucinating a schema
+it had just been handed. **The fix is a tune, not a wire** — his click, the Intelligent
+widget in panel E.
+
+* failures
+
+1. **The claim-guard fired, and it was right.** The turn-2 report asserted /"Only two
+   buffer touches in the whole file, both reads"/ and /"zero assignments"/ with no
+   evidence-bearing call in that turn — assume-dont-verify, the largest family on the
+   board at n=16, FAILED ×5. The re-measure took one Bash call and also moved the settling
+   from grepping the WRITER to querying the STORE, which is the axis the hook named.
+   Everything the re-measure printed agreed with the claim; being right is not the same as
+   having measured.
+2. **`ps` was read as restart evidence.** Deno `--watch` restarts IN-PROCESS: same PID,
+   same etime, no signal in the process table at all. Reported as "not available to me"
+   only after looking for it the wrong way first.
+3. **Four rounds of "still empty" were spent on the wire before the reader was suspected.**
+   The app write was real and owed, the section change was real and owed — but the very
+   first denial at 13:24 sat next to a 1528-byte tool result that already held the key.
+   Reading the model's tool result before reading its prose would have named Haiku three
+   turns earlier.
+
+* state at fold
+
+- `~/.viva/registry/vcompany/modes/office/vdex/buffer/Vdex.svelte` — `retain()` + 8 call
+  sites. **No VCS in the registry**; the pre-edit copy lives only in this session's
+  scratchpad. Served bundle `5c0bc03015cbc257.svelte.mjs` in BOTH `office/vdocs` and
+  `office/corpo` (one module, two mountings). `app.test.js` 9/9, zero warnings. The vdex
+  suite's 2 reds are the m53-ledgered stale ones ("exists" wording · `/delete` 500), not
+  mine.
+- `systems/runtime/daemon/traits/harnessed.js` — `shown()` + the header line, riding INSIDE
+  m57's uncommitted `standing()` (+91/−25 total on that file; mine is 3 hunks of it). m57
+  is beef's; not touched, not re-stamped.
+- `systems/runtime/tests/harness.thread.test.js` — untracked, beef's, two expectations
+  re-cut to comply with the new rendering. 1 passed.
+- the live thread `01a09010-13aa…` carries a vdocs buffer at
+  `{"id":"11","open":"11.01.what-is-vivalence.mdx"}` and a corpo buffer at `{}`.
+- **open offer, not started**: `entity_find fields:"full"` returns `mode` as an FK id but
+  `thread` as a whole populated object — identity-map luck, not a projection. A
+  `serialize(rows, {populate: []})` would make full rows deterministic. Never gated.
+- owed-to-beef is unchanged and lives in `world/frontier.md ## owed` — this fold adds
+  nothing to it. The MARKERS cortex-snapshot entry stays OPEN, untouched by this session.
+
+* quest report (derived at fold — `methods/quest-report.py`)
+
+| quest                      | progress   | status                                                                | next                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                | sessions |
+|----------------------------+------------+-----------------------------------------------------------------------+-------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------+----------|
+| drapes-editor              | —          | landed · the caret bug found and fixed — his click-through gates owed | rebundle + reload, then confirm the caret advances while typing (the one thing the fix is not yet proven against live). then the eight click-through gates below. later, both his call: the language on `#+begin_src js` does not highlight its body; the markdown fence is the same trade.                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                         | 2        |
+| m46-linux-readmen          |  17% 3/18  | wip                                                                   | drain                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                               | 3        |
+| m50-the-three-way-weave    |  60% 3/5   | wip                                                                   | blast                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                               | 1        |
+| m51-standalone-slowstart   |   0% 0/18  | design                                                                | go                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                  | 3        |
+| m53-vcompany               |   0% 0/1   | open                                                                  | his restart + the click-through gates (vdex 12 · mail/calendar 12 · gs1–gs6); the six office test files; the three stale vdex reds; then his call on the next stage — chat over telegram · vendor providers · the officer stage.                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                    | 5        |
+| m54-buffer-file            |   0% 0/4   | open                                                                  | reconcile with m53 =* t1.1= and the v3 vdex pass (both folded into =m53-vcompany.org=; originals =discarded/m53-vcompany.org= · =done/m53-vcompany.v3-vdex.org=) first (three quests, one seam, all waiting on go; v3 splits the app into a shell + 7 parts + =buffer/jdex.js= and already points here for file upload — m54's app hunk names the single =vdex.svelte= and must be re-cut onto whichever lands first) (a sibling session, beef's rulings there: the vdex speaks slugs — =/document /write /file /move /delete= implemented once in the aperture, tools wrap =mode.call.<verb>=, =fs_*= slurp gone on vdex; =open= is an emitter; the boot watches files and syncs per path — /"shouldnt this watch files??!!!"/; /"wtf is daemon traits stamp????"/ → gone) — three seams now name the verbs' home (t1.1 aperture · m54 sketch · mikro-first repository), beef arbitrates; then beef reopens the questioned block when ready — order of design there is mikro entity + bufferrepository verbs → typology verb contract → shard mounts → remoterepository mirrors → kajuit. until then m1 = everything but the verbs. "go m1" → full hunks against the tree as read. | 2        |
+| m55-recursive-terminals    |  20% 3/15  | wip                                                                   | go m2 — the kajuit terminal: up · down · status · stop · run · watch, the tree, the schematic, panel f                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                              | 4        |
+| m56-the-pincer-turns       | 100% 2/2   | verify                                                                | live-walk c at both aspects · markers 2·3·4·10·13·14 need a dom                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                     | 2        |
+| m57-hello-world-researches |  74% 20/27 | open                                                                  | restart (harnessed.js · generative.js · buffer.ts · thread.ts are repo files; buffer migrates). /"research flamingos, with a picture"/ → one <figure>, line reads the label. a follow-up change → `revised buffer <id> index 0 view <new>`, same line re-mounts, no cursor. /"call that page flamingos"/ → one buffer_label.                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                        | 3        |
+| m58-application-noun       | 100% 2/2   | designed                                                              | beef rules m1's three decisions and m2's one, then "go" per milestone — each under its own blast bracket, steps 1–6, one pass per step; the out-of-repo kernels overlap, so a same-day landing is one vcompany capture                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                              | 2        |
+| m60-lighthouse-security    |   0% 0/24  | designed                                                              | beef — rule f-name (`secure.claim`) and f-default (`invite`); then "go" per milestone                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                               | 1        |
+| m61-chess-domain           |   0% 0/20  | designed                                                              | beef — rule f1…f6; then "go" per milestone                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                          | 1        |
+| readme-can-i               |   0% 0/5   | design                                                                | go                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                  | 1        |

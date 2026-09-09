@@ -1,7 +1,7 @@
 import { isAbsolute } from "@std/path";
 
 export const NOTHING =
-  "instance: nothing selected — viva instances/use <slug|path>, --instance=<slug|path>, or VIVA_INSTANCE_MOUNT=<path>";
+  "instance: nothing selected — viva instance/use <slug|path>, --instance=<slug|path>, or VIVA_INSTANCE_MOUNT=<path>";
 
 const local = (reference) => reference.includes("/") || reference.startsWith(".");
 

@@ -1,9 +1,13 @@
 <script>
   import { getContext } from "svelte";
+  import { stores } from "@vivalence/kajuit";
   import { TERMINALS } from "$client";
   import Tab from "./widgets/Tab.svelte";
 
   let { rect } = $props();
+
+  const axis = $derived(stores.bridge.axisFor(rect));
+
   const terminals = getContext(TERMINALS);
 
   let tabs = $state([...terminals.entities]);
@@ -17,16 +21,23 @@
 
 <div
   class="bone"
+  class:column={axis === "column"}
   style:left="{rect.left}px"
   style:top="{rect.top}px"
   style:width="{rect.width}px"
   style:height="{rect.height}px">
-  <div class="population">
-    <div class="tabs">
+  <div class="population" style:padding={axis === "column" ? "12px 0" : "0 12px"}>
+    <div
+      class="tabs"
+      style:flex-direction={axis}
+      style:padding={axis === "column" ? "2px 0" : "0 2px"}
+      style:overflow-x={axis === "column" ? "hidden" : "auto"}
+      style:overflow-y={axis === "column" ? "auto" : "hidden"}>
       <button class="tab add" onclick={() => terminals.create()} title="new terminal">+</button>
       {#each tabs as t (t.id)}
         <Tab
           terminal={t}
+          {axis}
           isActive={t.id === activeId}
           onactivate={() => terminals.activate(t.id)}
           onclose={() => terminals.remove(t.id)} />
@@ -45,12 +56,17 @@
     z-index: 50;
     overflow: hidden;
   }
+  .bone.column {
+    border-top: none;
+    border-bottom: none;
+    border-left: 1px solid var(--colors-skeleton-1-boundary);
+    border-right: 1px solid var(--colors-skeleton-1-boundary);
+  }
   .population {
     position: absolute;
     inset: 0;
     display: flex;
     align-items: center;
-    padding: 0 12px;
     justify-content: flex-end;
     pointer-events: none;
     overflow: hidden;
@@ -60,16 +76,12 @@
   }
   .tabs {
     display: flex;
-    flex-direction: row;
     align-items: center;
     gap: 10px;
     width: 100%;
     height: 100%;
-    overflow-x: auto;
-    overflow-y: hidden;
     scrollbar-width: none;
     -ms-overflow-style: none;
-    padding: 0 2px;
   }
   .tabs::-webkit-scrollbar {
     display: none;
@@ -77,6 +89,7 @@
   .tab.add {
     flex: 0 0 auto;
     height: 24px;
+    min-height: 24px;
     display: inline-flex;
     align-items: center;
     justify-content: center;

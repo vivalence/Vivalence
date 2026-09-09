@@ -1,5 +1,6 @@
 #+title: the handoff lands the screens, the rows correct the draft, and the bundle question ends as a ledger, not a patch
 #+filetags: :m53:vcompany:vdex:drapes:kajuit:screens:design:bundle:esbuild:svelte:typology:paladin:snapshot:known-issues:correction:quest:
+#+index: 75
 
 * what happened, in one breath
 

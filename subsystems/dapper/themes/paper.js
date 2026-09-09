@@ -23,88 +23,92 @@ import { skeleton } from "../lib/builders.js";
 //   5 overlay  — popovers, modals
 
 export default async function (ds) {
-  const { paper, ink, aqua, moss, amber, rust, pink } = ds.colors.roots;
+  const { paper, ink, aqua, moss, rose, tomato, pink } = ds.colors.roots;
 
   ds.themes.paper = { ...ds.tokens };
 
   const font = {
     heading: "sans-heading",
-    body:    "sans-text",
-    code:    "code",
+    body: "sans-text",
+    code: "code",
   };
 
   const standardRoles = {
-    primary:   { ramp: aqua,   anchor: 600 },
-    secondary: { ramp: ink,    anchor: 700 },
-    accent:    { ramp: pink,   anchor: 600 },
-    info:      { ramp: ink,    anchor: 700 },
-    success:   { ramp: moss,   anchor: 700 },
-    warning:   { ramp: amber,  anchor: 700 },
-    danger:    { ramp: rust,   anchor: 600 },
+    primary: { ramp: aqua, anchor: 600 },
+    secondary: { ramp: ink, anchor: 700 },
+    accent: { ramp: pink, anchor: 600 },
+    info: { ramp: ink, anchor: 700 },
+    success: { ramp: moss, anchor: 700 },
+    warning: { ramp: rose, anchor: 500 },
+    danger: { ramp: tomato, anchor: 500 },
   };
 
   // tinted box: pale surface, dark text, mid-value rule that is actually visible
-  const standardError = { ramp: rust, anchors: [50, 700, 300] };
+  const standardError = { ramp: tomato, anchors: [50, 600, 300] };
 
   const zone0 = skeleton({
-    surface:  paper[100],
+    surface: paper[100],
     contrast: ink[900],
     boundary: paper[500],
-    roles:    standardRoles,
-    error:    standardError,
+    roles: standardRoles,
+    error: standardError,
     font,
   });
 
   const zone1 = skeleton({
-    surface:  paper[150],
+    surface: paper[150],
     contrast: ink[900],
     boundary: paper[500],
-    roles:    standardRoles,
-    error:    standardError,
+    roles: standardRoles,
+    error: standardError,
     font,
   });
 
   const zone2 = skeleton({
-    surface:  paper[200],
+    surface: paper[200],
     contrast: ink[900],
     boundary: paper[400],
-    roles:    standardRoles,
-    error:    standardError,
+    roles: standardRoles,
+    error: standardError,
     font,
   });
 
   const zone3 = skeleton({
-    surface:  paper[50],
+    surface: paper[50],
     contrast: ink[900],
     boundary: paper[400],
-    roles:    standardRoles,
-    error:    standardError,
+    roles: standardRoles,
+    error: standardError,
     font,
   });
 
   const zone4 = skeleton({
-    surface:  paper[300],
+    surface: paper[300],
     contrast: ink[950],
     boundary: paper[600],
-    roles:    standardRoles,
-    error:    standardError,
+    roles: standardRoles,
+    error: standardError,
     font,
   });
 
   const zone5 = skeleton({
-    surface:  paper[50],
+    surface: paper[50],
     contrast: ink[900],
     boundary: paper[600],
-    roles:    standardRoles,
-    error:    standardError,
+    roles: standardRoles,
+    error: standardError,
     font,
   });
 
   ds.themes.paper.zones = [zone0, zone1, zone2, zone3, zone4, zone5];
-  ds.themes.paper.fonts = { heading: font.heading, body: font.body, code: font.code };
+  ds.themes.paper.fonts = {
+    heading: font.heading,
+    body: font.body,
+    code: font.code,
+  };
 
   ds.themes.paper.shadow = {
-    soft:   "rgba(61, 55, 42, 0.16)",
+    soft: "rgba(61, 55, 42, 0.16)",
     strong: "rgba(61, 55, 42, 0.28)",
   };
   ds.themes.paper.mix = {
@@ -115,26 +119,26 @@ export default async function (ds) {
   };
   ds.themes.paper.signal = {
     positive: moss[500],
-    caution:  amber[500],
-    negative: rust[500],
+    caution: rose[400],
+    negative: tomato[400],
   };
   ds.themes.paper.brand = {
     outline: paper[500],
   };
   ds.themes.paper["box-shadow"] = {
-    sm:      "0 1px 2px rgba(61, 55, 42, 0.10)",
+    sm: "0 1px 2px rgba(61, 55, 42, 0.10)",
     DEFAULT: "0 1px 3px rgba(61, 55, 42, 0.14)",
-    md:      "0 2px 6px rgba(61, 55, 42, 0.16)",
-    lg:      "0 4px 12px rgba(61, 55, 42, 0.20)",
-    xl:      "0 8px 24px rgba(61, 55, 42, 0.24)",
+    md: "0 2px 6px rgba(61, 55, 42, 0.16)",
+    lg: "0 4px 12px rgba(61, 55, 42, 0.20)",
+    xl: "0 8px 24px rgba(61, 55, 42, 0.24)",
   };
   ds.themes.paper["drop-shadow"] = {
-    sm:      "0 1px 2px rgba(61, 55, 42, 0.10)",
+    sm: "0 1px 2px rgba(61, 55, 42, 0.10)",
     DEFAULT: "0 1px 3px rgba(61, 55, 42, 0.14)",
-    md:      "0 2px 6px rgba(61, 55, 42, 0.16)",
-    lg:      "0 4px 12px rgba(61, 55, 42, 0.20)",
-    xl:      "0 8px 24px rgba(61, 55, 42, 0.24)",
-    none:    "0 0 #0000",
+    md: "0 2px 6px rgba(61, 55, 42, 0.16)",
+    lg: "0 4px 12px rgba(61, 55, 42, 0.20)",
+    xl: "0 8px 24px rgba(61, 55, 42, 0.24)",
+    none: "0 0 #0000",
   };
 
   // Text ramp — consumed by components that need sub-levels of emphasis inside
@@ -147,30 +151,34 @@ export default async function (ds) {
   // which is below the floor for normal text.
   ds.themes.paper.text = {
     primary: ink[900],
-    body:    paper[800],
+    body: paper[800],
     support: paper[700],
   };
 
   const palette = ds.colors.palette;
-  const compat = (ramp) => ({ surface: ramp[100], contrast: ramp[600], boundary: ramp[300] });
+  const compat = (ramp) => ({
+    surface: ramp[100],
+    contrast: ramp[600],
+    boundary: ramp[300],
+  });
 
   ds.themes.paper.colors = {
     palette,
-    roots:   ds.colors.roots,
+    roots: ds.colors.roots,
     skeleton: { 0: zone0, 1: zone1, 2: zone2, 3: zone3, 4: zone4 },
 
     theme: {
-      primary:   compat(palette.aqua),
+      primary: compat(palette.aqua),
       secondary: compat(palette.indigo),
-      accent:    compat(palette.pink),
+      accent: compat(palette.pink),
     },
 
     system: {
-      info:    compat(palette.indigo),
+      info: compat(palette.indigo),
       success: { surface: moss[100], contrast: moss[500], boundary: moss[300] },
       warning: compat(palette.amber),
-      danger:  compat(palette.red),
-      error:   compat(palette.red),
+      danger: compat(palette.red),
+      error: compat(palette.red),
     },
   };
 

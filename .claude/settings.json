@@ -9,6 +9,18 @@
             "command": "\"$CLAUDE_PROJECT_DIR/.ikiro/hooks/vcs-guard.sh\"",
             "timeout": 10,
             "statusMessage": "vcs-guard: VCS is read-only"
+          },
+          {
+            "type": "command",
+            "command": "IKIRO_GUARD_MODE=warn \"$CLAUDE_PROJECT_DIR/.ikiro/hooks/cwd-guard.sh\"",
+            "timeout": 10,
+            "statusMessage": "cwd-guard: bash cwd persists across calls"
+          },
+          {
+            "type": "command",
+            "command": "\"$CLAUDE_PROJECT_DIR/.ikiro/hooks/comment-guard.sh\"",
+            "timeout": 10,
+            "statusMessage": "comment-guard: the Bash route (warn)"
           }
         ]
       },
@@ -20,6 +32,47 @@
             "command": "\"$CLAUDE_PROJECT_DIR/.ikiro/hooks/comment-guard.sh\"",
             "timeout": 10,
             "statusMessage": "comment-guard: no authored comments in product source"
+          },
+          {
+            "type": "command",
+            "command": "IKIRO_GUARD_MODE=warn \"$CLAUDE_PROJECT_DIR/.ikiro/hooks/log-guard.sh\"",
+            "timeout": 10,
+            "statusMessage": "log-guard: never log a mask"
+          },
+          {
+            "type": "command",
+            "command": "IKIRO_GUARD_MODE=warn \"$CLAUDE_PROJECT_DIR/.ikiro/hooks/import-guard.sh\"",
+            "timeout": 10,
+            "statusMessage": "import-guard: no leaving the mode"
+          }
+        ]
+      },
+      {
+        "matcher": "Agent",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "IKIRO_GUARD_MODE=warn \"$CLAUDE_PROJECT_DIR/.ikiro/hooks/agent-guard.sh\"",
+            "timeout": 10,
+            "statusMessage": "agent-guard: a fan-out is a proposal"
+          }
+        ]
+      }
+    ],
+    "Stop": [
+      {
+        "hooks": [
+          {
+            "type": "command",
+            "command": "\"$CLAUDE_PROJECT_DIR/.ikiro/hooks/claim-guard.sh\"",
+            "timeout": 10,
+            "statusMessage": "claim-guard: a zero is a claim"
+          },
+          {
+            "type": "command",
+            "command": "\"$CLAUDE_PROJECT_DIR/.ikiro/hooks/yap-meter.sh\"",
+            "timeout": 10,
+            "statusMessage": "yap-meter: words outside fences"
           }
         ]
       }

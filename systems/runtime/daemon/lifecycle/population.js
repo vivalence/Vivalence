@@ -45,16 +45,18 @@ export async function core(die) {
   };
 
   const seal = (slot) =>
-    !slot.schema.meta.abstract ? slot : {
-      ...slot,
-      schema: new EntitySchema({
-        class: slot.entity,
-        extends: slot.schema,
-        name: slot.schema.meta.className,
-        tableName: slot.schema.meta.className,
-        repository: () => slot.repository ?? DataRepository,
-      }),
-    };
+    !slot.schema.meta.abstract
+      ? slot
+      : {
+          ...slot,
+          schema: new EntitySchema({
+            class: slot.entity,
+            extends: slot.schema,
+            name: slot.schema.meta.className,
+            tableName: slot.schema.meta.className,
+            repository: () => slot.repository ?? DataRepository,
+          }),
+        };
 
   const instance = collate([sets.daemon, sets.kernel, sets.userspace, die.good.domain.entities]) //
     .map(seal);
@@ -65,8 +67,7 @@ export async function core(die) {
 
 export function wiring(daemonDie) {
   daemonDie.good.statics = daemonDie.mask.statics;
-  daemonDie.good.docs = daemonDie.mask.docs;
-  daemonDie.good.mountpoint = daemonDie.mask.mount;
+  daemonDie.good.mountpoint = daemonDie.mask.mountpoint;
 }
 
 export async function datamap(daemonDie) {
@@ -103,17 +104,26 @@ export async function authority(daemonDie) {
 
 export async function acid(daemonDie) {
   daemonDie.good.cortex = new Cortex();
-  for (const { service, mask } of daemonDie.register.hallucinators ?? []) {
-    const provider = service.manifest?.slug;
-    const faculties = await service.provider(mask);
-    daemonDie.good.cortex.register(faculties.map((faculty) => ({ ...faculty, ...(provider && { provider }) })));
+
+  for (const [index, { service, mask }] of (daemonDie.register.hallucinators ?? []).entries()) {
+    const at = `daemon[${daemonDie.slug}].hallucinators[${index}]`;
+    try {
+      const faculties = await service.provider(mask);
+      daemonDie.good.cortex.register(
+        faculties.map((faculty) => ({ ...faculty, provider: service.manifest.slug })),
+      );
+      // console.log({ mask, service, faculties });
+    } catch (error) {
+      console.warn(`[provider] ${at} ${service.manifest.slug} refused — ${error.message}`);
+    }
   }
+  // console.log(daemonDie.good.cortex);
 }
 
 export async function services(daemonDie) {
   for (const [slug, servicemask] of Object.entries(daemonDie.mask.consume)) {
     const servicecake = daemonDie.register.consume[slug];
-    daemonDie.good.services[slug] = await servicecake.provider(servicemask);
+    daemonDie.good.services[slug] = await servicecake.provider(servicemask); //@beef pass cortex or something??? maybe service provider should be a vector?
     if (servicecake.manifest?.traits?.includes("TOOLED") && servicecake.tools) {
       daemonDie.good.services[slug].tools = servicecake.tools;
     }
@@ -125,10 +135,13 @@ export async function modes(daemonDie) {
     for (const register of daemonDie.register.kernel) {
       const mask = register.mask ?? {};
       const mode = new Mode(unmask(register));
+      mode.manifest = mask.manifest ?? mode.manifest;
       mode.statics = mask.statics ?? mode.statics;
       mode.secrets = mask.secrets ?? {};
       mode.mountpoint = mask.mountpoint ?? null;
-      mode.mount = daemonDie.good.mount.clone().branch(`/mode/${mode.type}/${mode.slug}`);
+      mode.mount = daemonDie.good.mount
+        .clone()
+        .branch(`/mode/${mode.manifest.type}/${mode.manifest.slug}`);
       mode.url = daemonDie.good.url.branch(mode.mount.nature);
 
       if (!mode.aperture) mode.aperture = new Aperture();
@@ -138,18 +151,18 @@ export async function modes(daemonDie) {
       mode.tools.use(shard.context.bind("mode", mode));
 
       mode.entity = await daemonDie.good.entities.mode //
-        .ensure(mode.manifest);
+        .ensure({ ...mode.manifest });
 
       mode.entity.traits = array //
-        .unique([...mode.entity.traits, ...mode.traits]);
+        .unique([...mode.entity.traits, ...mode.manifest.traits]);
 
       await daemonDie.good.entities.em.flush();
 
       mode.entity = wrap(mode.entity).toPOJO();
       mode.id = mode.entity.id;
 
-      if (!daemonDie.good.modes[mode.type]) daemonDie.good.modes[mode.type] = {};
-      daemonDie.good.modes[mode.type][mode.slug] = mode;
+      if (!daemonDie.good.modes[mode.manifest.type]) daemonDie.good.modes[mode.manifest.type] = {};
+      daemonDie.good.modes[mode.manifest.type][mode.manifest.slug] = mode;
     }
   });
 }

@@ -3,7 +3,8 @@ import { Manifest } from "./manifest.js";
 
 export class Pensieve extends Map {
   register(module) {
-    if (!module || !module.manifest) console.log("no manifest", module);
+    if (!module || !module.manifest)
+      throw new Error(`[Pensieve] register: no manifest — ${module?.source?.absolute ?? module}`);
     // owner is supplied by vip.mount (derived from scope, or locked) — never defaulted here.
     if (!module.manifest.owner)
       throw new Error(`[Pensieve] register: no owner (mount must stamp) — undefined/${module.manifest.type}/${module.manifest.slug}`);

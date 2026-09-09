@@ -1,4 +1,4 @@
-import paladin from "@vivalence/paladin";
+import paladin, { lifecycle } from "@vivalence/paladin";
 import { Connection } from "@vivalence/typology";
 import { envfile } from "../../belt/index.js";
 import { register, specs } from "./target.js";
@@ -68,15 +68,15 @@ const signup = async (values) => {
 export async function init(ctx) {
   const mount = paladin.instance.home.absolute;
   const file = paladin.instance.home.branch(".env");
-  // remount, not mount: mount is fn.once, and init is the verb that must see current truth.
-  await paladin.remount();
+  // a fresh instance, not the memoized mount: init is the verb that must see current truth.
+  await lifecycle.mount(lifecycle.populate.instance(paladin));
 
   // first run: author the .env from the schema — prose, groups and defaults — then only what is
   // still blank is worth asking a human. same move as ledger/init.
   const scaffolded = !(await paladin.read.text(file).catch(() => null));
   if (scaffolded && Object.keys(paladin.instance.environment?.properties ?? {}).length) {
     await paladin.state.text(file, envfile.scaffold(paladin.instance.environment));
-    await paladin.remount();
+    await lifecycle.mount(lifecycle.populate.instance(paladin));
   }
 
   const rows = paladin.check.environment(paladin.instance);
@@ -96,7 +96,7 @@ export async function init(ctx) {
   // written .env → fresh hydration, so the boot below sees the addresses just answered.
   const commit = async (values) => {
     await paladin.state.env(file, values);
-    await paladin.remount();
+    await lifecycle.mount(lifecycle.populate.instance(paladin));
     return { env: "written", filled: Object.keys(values) };
   };
 

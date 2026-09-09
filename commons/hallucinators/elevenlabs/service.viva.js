@@ -3,12 +3,13 @@ import provider from "./provider/index.js";
 export { provider };
 
 export const manifest = {
-  type:   "hallucinator",
-  slug:   "elevenlabs",
+  type: "hallucinator",
+  slug: "elevenlabs",
   traits: ["MONK"],
 };
 
 export const docs = {
-  name:        "ElevenLabs Speech",
-  description: "Streaming TTS via ElevenLabs Turbo v2.5. Two pt-BR voices at latency-first tune.",
+  name: "ElevenLabs Speech",
+  description:
+    "Streaming TTS via ElevenLabs Turbo v2.5. Two pt-BR voices at latency-first tune.",
 };
